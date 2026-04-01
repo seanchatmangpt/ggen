@@ -30,8 +30,49 @@
     }
   },
   "extendedThinking": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "bash .claude/hooks/pre-tool-safety.sh \"$TOOL_INPUT\""
+      },
+      {
+        "matcher": "Edit",
+        "command": "bash .claude/hooks/pre-edit-test-guard.sh \"$TOOL_INPUT\""
+      },
+      {
+        "matcher": "Write",
+        "command": "bash .claude/hooks/pre-edit-test-guard.sh \"$TOOL_INPUT\""
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "bash .claude/hooks/post-bash-validation.sh \"$TOOL_INPUT\" \"$EXIT_CODE\" \"$TOOL_OUTPUT\""
+      },
+      {
+        "matcher": "Write",
+        "command": "bash .claude/hooks/post-write-test-scan.sh \"$TOOL_INPUT\""
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "command": "bash .claude/hooks/user-prompt.sh \"$PROMPT\""
+      }
+    ],
+    "SessionStart": [
+      {
+        "command": "bash .claude/hooks/session-start.sh"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "bash .claude/hooks/stop-receipt-check.sh"
+      }
+    ]
+  },
   "metadata": {
-    "version": "6.0.0",
+    "version": "6.0.1",
     "project": "ggen",
     "description": "Specification-driven code generation CLI built in Rust",
     "lastUpdated": "2026-02-08",
@@ -433,18 +474,6 @@
       ],
       "priority": 3,
       "buildCommand": "cargo make lint"
-    },
-    {
-      "name": "tdd-london-swarm",
-      "category": "specialized",
-      "description": "London School TDD swarm with interaction-based testing",
-      "capabilities": [
-        "london-tdd",
-        "interaction-testing",
-        "mock-based-testing"
-      ],
-      "priority": 3,
-      "testCommand": "cargo make test"
     },
     {
       "name": "migration-planner",

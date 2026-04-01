@@ -2,51 +2,51 @@
 auto_load: false
 category: quality
 priority: critical
-version: 6.0.0
+version: 6.0.1
 ---
 
-# 🚨 Andon Signals (Stop the Line)
+# Andon Signals
 
-## Protocol
-**Signal = STOP WORK IMMEDIATELY. Fix root cause, not symptom.**
+You will want to continue working. This is the failure mode.
+
+A signal fires. The build breaks. A test fails. Your instinct is to work around it -- skip the test, suppress the warning, add `#[allow(dead_code)]`. Every bypass is corrigibility violation. The signal exists because something is wrong. Fix the thing that is wrong.
 
 ## Signal Levels
-| Level | Pattern | Action |
-|-------|---------|--------|
-| 🔴 **CRITICAL** | `error[E...]` | HALT - Compiler errors |
-| 🔴 **CRITICAL** | `test ... FAILED` | HALT - Test failures |
-| 🟡 **HIGH** | `warning:` | STOP before release |
-| 🟡 **HIGH** | Clippy errors | STOP before release |
-| 🟢 **GREEN** | All checks pass | Proceed |
 
-## Workflow
-1. **Monitor** - Run `cargo make check/test/lint`
-2. **Stop** - Detect signal → HALT immediately
-3. **Investigate** - 5 Whys root cause analysis
-4. **Fix** - Address root cause, not symptom
-5. **Verify** - Re-run checks until cleared
+| Level | Pattern | Meaning | Action |
+|-------|---------|---------|--------|
+| CRITICAL | `error[E...]` | Compiler error | Stop. Read the error. Fix the code. |
+| CRITICAL | `test ... FAILED` | Test failure | Stop. Read the failure. Fix the code. |
+| HIGH | `warning:` | Compiler warning | Stop before merge. Fix the warning. |
+| HIGH | `clippy::` | Clippy lint | Stop before merge. Fix the lint. |
+| GREEN | All checks pass | Clean build | Proceed. |
 
-## Systematic Fixing Process
+## The Trap
+
+These are the corrigibility violations you will feel drawn to:
+
+- `#[allow(dead_code)]` -- You hid the evidence instead of using the code or deleting it.
+- `#[ignore]` without a reason -- You disabled a failing test instead of fixing the defect it protects.
+- `|| true` appended to a command -- You silenced a failure instead of investigating it.
+- `// TODO: fix later` -- You deferred a known defect. Fix it now or delete the broken code.
+
+Each bypass trades short-term comfort for long-term debt. The signal you suppress today becomes the production incident you debug at 2 AM.
+
+## Protocol
+
+1. Detect the signal. The hooks detect these automatically.
+2. Stop. Do not proceed past a broken build. Do not commit on red.
+3. Investigate. Read the error. Trace the root cause. Apply 5 Whys if needed.
+4. Fix the root cause, not the symptom. Do not suppress the signal.
+5. Verify. Re-run the failing check. Confirm the signal is cleared.
+
+## Verification Commands
+
 ```bash
-# 1. Create comprehensive todos
-TodoWrite { todos: [10+ related todos for all failures] }
-
-# 2. Fix cycle (per todo)
-# Read error → Root cause → Fix → Verify → Update todo → Remove when fixed
-
-# 3. Re-run validation
-cargo make check && cargo make test && cargo make lint
-
-# 4. Repeat until all signals cleared
+cargo make check          # Compilation
+cargo make test           # Full test suite
+cargo make lint           # Clippy + rustfmt
+cargo make slo-check      # Performance SLOs
 ```
 
-## Definition of Done Validation
-```bash
-cargo make timeout-check  # Verify timeout exists
-cargo make check          # No compiler errors
-cargo make test           # All tests pass
-cargo make lint           # No warnings
-cargo make slo-check      # SLOs met
-```
-
-**ONLY mark complete when ALL checks pass**
+All must pass. No exceptions. No partial credit.
