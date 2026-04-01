@@ -605,6 +605,10 @@ ggen-a2a.workspace = true
 regex = "1.12"
 validator = "0.19"
 ed25519-dalek = "2.1"
+
+# Cryptographic deps used by workspace members
+[workspace.dependencies.ed25519-dalek]
+version = "2.1"
 [profile.dev]
 opt-level = 0
 debug = true
@@ -667,15 +671,17 @@ harness = false
 [[bench]]
 name = "yawl_generation_slo"
 harness = false
-[[bench]]
-name = "receipt_bench"
-harness = false
+# DISABLED: Missing crate ggen_receipt
+# [[bench]]
+# name = "receipt_bench"
+# harness = false
 [[bench]]
 name = "a2a_bench"
 harness = false
-[[bench]]
-name = "canonical_bench"
-harness = false
+# DISABLED: Missing crate ggen_canonical
+# [[bench]]
+# name = "canonical_bench"
+# harness = false
 [[test]]
 name = "full_cycle_container_validation"
 path = "tests/integration/full_cycle_container_validation.rs"

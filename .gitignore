@@ -994,3 +994,4 @@ test_error_migration
 *.rlib
 named_ttl
 relationships_turtle
+.env.claude

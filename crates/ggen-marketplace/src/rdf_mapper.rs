@@ -605,6 +605,7 @@ impl RdfMapper {
             download_url,
             dependencies,
             trust_tier,
+            registry_class: crate::models::default_registry_class(),
         })
     }
 

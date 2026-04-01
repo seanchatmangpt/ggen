@@ -30,6 +30,7 @@ thiserror = "2.0"
 log = "0.4.28"
 rand = "0.9"
 chrono = { workspace = true }
+ed25519-dalek = { workspace = true }
 tempfile = "3.14"
 gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"

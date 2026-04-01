@@ -21,7 +21,7 @@ use crate::models::{InstallationManifest, PackageId, PackageVersion};
 use crate::profile::Profile;
 use crate::security::ChecksumCalculator;
 use crate::traits::{AsyncRepository, Installable};
-use crate::trust::TrustTier;
+use crate::trust::{RegistryClass, TrustTier};
 
 /// Package installer with caching and signature verification
 pub struct Installer<R: AsyncRepository> {
@@ -379,7 +379,7 @@ impl<R: AsyncRepository> Installer<R> {
 
         // Verify trust tier (Fortune 5 CISO requirement)
         // Trust tier enforcement is mandatory for enterprise profiles
-        self.verify_trust_tier(package_id, version, &release.trust_tier)
+        self.verify_trust_tier(package_id, version, &release.trust_tier, &release.registry_class)
             .await?;
 
         // Verify SHA-256 digest
@@ -566,8 +566,9 @@ impl<R: AsyncRepository> Installer<R> {
             duration_ms
         )
     )]
-    async fn verify_trust_tier(
+    pub(crate) async fn verify_trust_tier(
         &self, package_id: &PackageId, version: &PackageVersion, pack_trust_tier: &TrustTier,
+        registry_class: &RegistryClass,
     ) -> Result<()> {
         let start = std::time::Instant::now();
         debug!(
@@ -584,6 +585,28 @@ impl<R: AsyncRepository> Installer<R> {
                 "Pack {}@{:?} is marked as Blocked and cannot be installed",
                 package_id, version
             )));
+        }
+
+        // Check registry class enforcement (Fortune 5 CISO requirement)
+        // Enterprise/regulated profiles may forbid public registry packs
+        if let Some(profile) = &self.profile {
+            if profile.forbid_public_registry()
+                && matches!(registry_class, RegistryClass::Public { .. })
+            {
+                let duration = start.elapsed();
+                span::Span::current().record("duration_ms", duration.as_millis());
+
+                return Err(Error::SecurityCheckFailed {
+                    reason: format!(
+                        "Pack {}@{:?} is from a public registry ({:?}), but security profile '{}' \\
+                         forbids public registry packs. Installation blocked by Fortune 5 CISO policy.",
+                        package_id,
+                        version,
+                        registry_class,
+                        profile.id.as_str()
+                    ),
+                });
+            }
         }
 
         // If no profile is set, use default trust requirements
@@ -1085,5 +1108,131 @@ mod tests {
 
         // Verify cache is accessible (no profile set by default)
         assert!(installer.cache().stats().total_packs == 0);
+    }
+
+    #[tokio::test]
+    async fn test_regulated_profile_rejects_public_registry_packs() {
+        use crate::profile::regulated_finance_profile;
+
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+
+        let profile = regulated_finance_profile();
+        assert!(
+            profile.forbid_public_registry(),
+            "regulated_finance_profile must forbid public registry"
+        );
+
+        let installer = Installer::with_profile(registry, cache, profile);
+
+        let package_id = PackageId::new("public-crate").unwrap();
+        let version = PackageVersion::new("1.0.0").unwrap();
+        let public_registry = RegistryClass::Public {
+            url: "https://crates.io".to_string(),
+        };
+
+        let result = installer
+            .verify_trust_tier(
+                &package_id,
+                &version,
+                &TrustTier::EnterpriseCertified,
+                &public_registry,
+            )
+            .await;
+
+        assert!(
+            result.is_err(),
+            "regulated finance profile should reject public registry packs"
+        );
+        let err = result.unwrap_err();
+        let err_msg = err.to_string();
+        assert!(
+            err_msg.contains("public registry"),
+            "error message should mention public registry, got: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains("regulated-finance"),
+            "error message should mention the profile id, got: {}",
+            err_msg
+        );
+    }
+
+    #[tokio::test]
+    async fn test_regulated_profile_allows_private_registry_packs() {
+        use crate::profile::regulated_finance_profile;
+
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+
+        let profile = regulated_finance_profile();
+        let installer = Installer::with_profile(registry, cache, profile);
+
+        let package_id = PackageId::new("private-crate").unwrap();
+        let version = PackageVersion::new("1.0.0").unwrap();
+        let private_registry = RegistryClass::PrivateEnterprise {
+            url: "https://registry.internal.corp".to_string(),
+            require_signature: true,
+            allow_unlisted: false,
+        };
+
+        let result = installer
+            .verify_trust_tier(
+                &package_id,
+                &version,
+                &TrustTier::EnterpriseCertified,
+                &private_registry,
+            )
+            .await;
+
+        assert!(
+            result.is_ok(),
+            "regulated finance profile should allow private registry packs, got error: {}",
+            result.unwrap_err()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_no_profile_allows_public_registry_packs() {
+        let registry = Registry::new(100);
+        let temp_dir = TempDir::new().unwrap();
+        let cache_config = CacheConfig {
+            cache_dir: temp_dir.path().join("cache"),
+            ..Default::default()
+        };
+        let cache = PackCache::new(cache_config).unwrap();
+
+        let installer = Installer::new(registry, cache);
+
+        let package_id = PackageId::new("any-crate").unwrap();
+        let version = PackageVersion::new("1.0.0").unwrap();
+        let public_registry = RegistryClass::Public {
+            url: "https://crates.io".to_string(),
+        };
+
+        let result = installer
+            .verify_trust_tier(
+                &package_id,
+                &version,
+                &TrustTier::Experimental,
+                &public_registry,
+            )
+            .await;
+
+        assert!(
+            result.is_ok(),
+            "default profile (no profile) should allow public registry packs, got error: {}",
+            result.unwrap_err()
+        );
     }
 }
