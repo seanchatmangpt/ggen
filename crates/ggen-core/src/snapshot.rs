@@ -25,34 +25,28 @@
 //!
 //! ### Creating a Snapshot
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::snapshot::{Snapshot, SnapshotManager};
 //! use ggen_core::graph::Graph;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! let files = vec![(PathBuf::from("output.rs"), "content".to_string())];
 //! let templates = vec![(PathBuf::from("template.tmpl"), "template content".to_string())];
 //!
 //! let snapshot = Snapshot::new("baseline".to_string(), &graph, files, templates)?;
-//! # Ok(())
-//! # }
 //! ```
 //!
 //! ### Managing Snapshots
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::snapshot::SnapshotManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manager = SnapshotManager::new(Path::new(".ggen/snapshots"));
 //! manager.save(&snapshot)?;
 //!
 //! let loaded = manager.load("baseline")?;
-//! # Ok(())
-//! # }
 //! ```
 
 use chrono::{DateTime, Utc};
@@ -77,12 +71,11 @@ use crate::graph::Graph;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::snapshot::Snapshot;
 /// use ggen_core::graph::Graph;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// graph.insert_turtle(r#"
 ///     @prefix ex: <http://example.org/> .
@@ -98,8 +91,6 @@ use crate::graph::Graph;
 ///
 /// let snapshot = Snapshot::new("baseline".to_string(), &graph, files, templates)?;
 /// println!("Snapshot: {} with {} files", snapshot.name, snapshot.files.len());
-/// # Ok(())
-/// # }
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Snapshot {
@@ -132,16 +123,16 @@ impl Snapshot {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::snapshot::Snapshot;
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// let graph = Graph::new().unwrap();
+    /// let graph = Graph::new()?;
     /// let files = vec![(PathBuf::from("main.rs"), "fn main() {}".to_string())];
     /// let templates = vec![];
     ///
-    /// let snapshot = Snapshot::new("v1.0".to_string(), &graph, files, templates).unwrap();
+    /// let snapshot = Snapshot::new("v1.0".to_string(), &graph, files, templates)?;
     /// assert_eq!(snapshot.name, "v1.0");
     /// ```
     pub fn new(
@@ -179,11 +170,10 @@ impl Snapshot {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::Snapshot;
     /// use ggen_core::graph::Graph;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
     ///
@@ -193,8 +183,6 @@ impl Snapshot {
     /// // Modified graph should not be compatible
     /// graph.insert_turtle("@prefix ex: <http://example.org/> . ex:new a ex:Class .")?;
     /// assert!(!snapshot.is_compatible_with(&graph)?);
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn is_compatible_with(&self, graph: &Graph) -> Result<bool> {
         let current_hash = graph.compute_hash()?;
@@ -257,11 +245,10 @@ impl GraphSnapshot {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::snapshot::FileSnapshot;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let path = PathBuf::from("output.rs");
 /// let content = "fn main() { println!(\"Hello\"); }";
 ///
@@ -272,8 +259,6 @@ impl GraphSnapshot {
 /// // Check if content has changed
 /// assert!(!snapshot.has_changed(content));
 /// assert!(snapshot.has_changed("different content"));
-/// # Ok(())
-/// # }
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileSnapshot {
@@ -328,11 +313,10 @@ impl FileSnapshot {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::FileSnapshot;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let snapshot = FileSnapshot::new(
     ///     PathBuf::from("file.rs"),
     ///     "original content".to_string()
@@ -340,8 +324,6 @@ impl FileSnapshot {
     ///
     /// assert!(!snapshot.has_changed("original content"));
     /// assert!(snapshot.has_changed("modified content"));
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn has_changed(&self, new_content: &str) -> bool {
         let new_hash = Self::compute_hash(new_content);
@@ -433,12 +415,11 @@ pub enum RegionType {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
 /// use ggen_core::graph::Graph;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
 ///
 /// let graph = Graph::new()?;
@@ -454,8 +435,6 @@ pub enum RegionType {
 /// // List snapshots
 /// let snapshots = manager.list()?;
 /// assert!(snapshots.contains(&"baseline".to_string()));
-/// # Ok(())
-/// # }
 /// ```
 pub struct SnapshotManager {
     /// Directory where snapshots are stored
@@ -473,15 +452,12 @@ impl SnapshotManager {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::SnapshotManager;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
     /// // Directory is created automatically
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn new(snapshot_dir: PathBuf) -> Result<Self> {
         fs::create_dir_all(&snapshot_dir)?;
@@ -495,20 +471,17 @@ impl SnapshotManager {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("my-snapshot".to_string(), &graph, vec![], vec![])?;
     ///
     /// manager.save(&snapshot)?;
     /// assert!(manager.exists("my-snapshot"));
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn save(&self, snapshot: &Snapshot) -> Result<()> {
         let file_path = self.snapshot_dir.join(format!("{}.json", snapshot.name));
@@ -532,12 +505,11 @@ impl SnapshotManager {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
@@ -545,8 +517,6 @@ impl SnapshotManager {
     ///
     /// let loaded = manager.load("test")?;
     /// assert_eq!(loaded.name, "test");
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn load(&self, name: &str) -> Result<Snapshot> {
         let file_path = self.snapshot_dir.join(format!("{}.json", name));

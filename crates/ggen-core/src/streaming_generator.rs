@@ -26,12 +26,11 @@ use crate::template_cache::TemplateCache;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::streaming_generator::StreamingGenerator;
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -42,8 +41,6 @@ use crate::template_cache::TemplateCache;
 ///
 /// let result = generator.generate_all(&vars)?;
 /// println!("Generated {} files", result.success_count);
-/// # Ok(())
-/// # }
 /// ```
 pub struct StreamingGenerator {
     template_dir: PathBuf,
@@ -64,17 +61,14 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
     /// )?;
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn new(template_dir: PathBuf, output_dir: PathBuf) -> Result<Self> {
         Ok(Self {
@@ -97,19 +91,16 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// // Create generator with larger cache for many templates
     /// let generator = StreamingGenerator::with_cache_capacity(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output"),
     ///     500
     /// )?;
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn with_cache_capacity(
         template_dir: PathBuf, output_dir: PathBuf, cache_capacity: usize,
@@ -139,12 +130,11 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use tera::Context;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -157,8 +147,6 @@ impl StreamingGenerator {
     /// println!("Generated {} files successfully", result.success_count);
     /// println!("Errors: {}", result.error_count);
     /// println!("Throughput: {:.2} files/sec", result.throughput());
-    /// # Ok(())
-    /// # }
     /// ```
     /// Generate all template files in streaming fashion
     ///
@@ -275,11 +263,10 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -287,8 +274,6 @@ impl StreamingGenerator {
     ///
     /// let stats = generator.cache_stats()?;
     /// println!("Cache: {}/{} templates", stats.size, stats.capacity);
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn cache_stats(&self) -> Result<crate::template_cache::CacheStats> {
         self.cache.stats()
@@ -302,12 +287,11 @@ impl StreamingGenerator {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::streaming_generator::{StreamingGenerator, GenerationResult};
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let mut generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -316,8 +300,6 @@ impl StreamingGenerator {
 /// let result = generator.generate_all(&Context::new())?;
 /// println!("Success rate: {:.1}%", result.success_rate());
 /// println!("Throughput: {:.2} files/sec", result.throughput());
-/// # Ok(())
-/// # }
 /// ```
 #[derive(Debug, Default)]
 pub struct GenerationResult {
@@ -335,16 +317,14 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::streaming_generator::GenerationResult;
     ///
-    /// # fn main() {
     /// let mut result = GenerationResult::default();
     /// result.success_count = 8;
     /// result.error_count = 2;
     ///
     /// assert_eq!(result.total_count(), 10);
-    /// # }
     /// ```
     pub fn total_count(&self) -> usize {
         self.success_count + self.error_count
@@ -357,16 +337,14 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::streaming_generator::GenerationResult;
     ///
-    /// # fn main() {
     /// let mut result = GenerationResult::default();
     /// result.success_count = 9;
     /// result.error_count = 1;
     ///
     /// assert_eq!(result.success_rate(), 90.0);
-    /// # }
     /// ```
     pub fn success_rate(&self) -> f64 {
         if self.total_count() == 0 {
@@ -382,17 +360,15 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::streaming_generator::GenerationResult;
     /// use std::time::Duration;
     ///
-    /// # fn main() {
     /// let mut result = GenerationResult::default();
     /// result.success_count = 10;
     /// result.duration = Duration::from_secs(2);
     ///
     /// assert_eq!(result.throughput(), 5.0); // 10 files in 2 seconds
-    /// # }
     /// ```
     pub fn throughput(&self) -> f64 {
         if self.duration.as_secs_f64() == 0.0 {

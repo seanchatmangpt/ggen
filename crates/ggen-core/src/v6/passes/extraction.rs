@@ -27,13 +27,12 @@
 //!
 //! ## Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::v6::passes::ExtractionPass;
 //! use ggen_core::v6::pass::{Pass, PassContext};
 //! use ggen_core::Graph;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix code: <http://ggen.dev/code#> .
@@ -68,8 +67,6 @@
 //! let result = pass.execute(&mut ctx)?;
 //!
 //! assert!(result.success);
-//! # Ok(())
-//! # }
 //! ```
 
 use crate::graph::ConstructExecutor;

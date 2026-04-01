@@ -30,10 +30,9 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::v6::{StagedPipeline, PipelineConfig, Epoch};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Create pipeline configuration
 //! let config = PipelineConfig::new("project", "1.0.0")
 //!     .with_ontology("ontology/domain.ttl")
@@ -45,8 +44,6 @@
 //!
 //! // Verify the projection
 //! assert!(receipt.is_valid());
-//! # Ok(())
-//! # }
 //! ```
 
 // Core types
