@@ -12,6 +12,7 @@
 use crate::resolver::TemplateResolver;
 use crate::v6::guard::{GuardAction, GuardSet, GuardViolation};
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
+use ggen_marketplace::ownership::{OwnershipMap, OwnershipTarget};
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -93,6 +94,9 @@ pub struct EmissionPass {
 
     /// Emission receipt for current execution
     receipt: Option<EmissionReceipt>,
+
+    /// Ownership map for conflict detection (from μ₀ pack resolution)
+    ownership_map: Option<OwnershipMap>,
 }
 
 impl EmissionPass {
@@ -103,6 +107,7 @@ impl EmissionPass {
             guards: GuardSet::default_v6(),
             enable_determinism_check: true,
             receipt: None,
+            ownership_map: None,
         }
     }
 
@@ -140,12 +145,23 @@ impl EmissionPass {
 
             // Expected format: <pack-id>/templates/<template-name>.tera
             let pack_id = parts.first().unwrap_or(&"unknown");
-            let template_name = parts.get(2).and_then(|s| s.strip_suffix(".tera")).unwrap_or("unknown");
+            let template_name = parts
+                .get(2)
+                .and_then(|s| s.strip_suffix(".tera"))
+                .unwrap_or("unknown");
 
             let rule_name = format!("pack:{}::{}", pack_id, template_name);
 
             // Create binding key from template name (e.g., "test_entity" -> "test_entities")
-            let binding_key = format!("{}{}", template_name, if template_name.ends_with('y') { "ies" } else { "s" });
+            let binding_key = format!(
+                "{}{}",
+                template_name,
+                if template_name.ends_with('y') {
+                    "ies"
+                } else {
+                    "s"
+                }
+            );
 
             // Create output pattern from template name (e.g., "test_entity.rs.tera" -> "{{ name | lower }}.rs")
             let output_pattern = if template_name.contains('.') {
@@ -180,6 +196,81 @@ impl EmissionPass {
     pub fn with_determinism_check(mut self, enabled: bool) -> Self {
         self.enable_determinism_check = enabled;
         self
+    }
+
+    /// Set the ownership map for conflict detection (from μ₀ pack resolution).
+    ///
+    /// When set, each file emission is checked against ownership declarations.
+    /// Packs claiming exclusive or forbidden-overlap ownership of a path will
+    /// cause emission from other packs to fail with a descriptive error.
+    pub fn with_ownership_map(mut self, map: OwnershipMap) -> Self {
+        self.ownership_map = Some(map);
+        self
+    }
+
+    /// Check if emitting to a path would violate ownership declarations.
+    ///
+    /// This gate runs before any file is written. If the `ownership_map` is set
+    /// and contains declarations for the target path, the emitting pack must be
+    /// the declared owner for exclusive/forbidden-overlap classes.
+    ///
+    /// For mergeable/overlay classes, overlap is allowed (merge strategy is
+    /// handled upstream by the three-way merger).
+    fn check_ownership_conflict(
+        &self, artifact_path: &std::path::Path, emitting_pack: &str,
+    ) -> Result<()> {
+        let ownership_map = match &self.ownership_map {
+            Some(map) => map,
+            None => return Ok(()), // No ownership map — skip check
+        };
+
+        let target = OwnershipTarget::FilePath(artifact_path.to_path_buf());
+        let declarations = match ownership_map.get_declarations(&target) {
+            Some(decls) => decls,
+            None => return Ok(()), // No declarations for this path
+        };
+
+        for declaration in declarations {
+            if declaration.owner_pack != emitting_pack {
+                match declaration.class {
+                    ggen_marketplace::ownership::OwnershipClass::Exclusive => {
+                        return Err(Error::new(&format!(
+                            "Ownership conflict: '{}' claims exclusive ownership of '{}', but '{}' is attempting to emit to it",
+                            declaration.owner_pack,
+                            artifact_path.display(),
+                            emitting_pack,
+                        )));
+                    }
+                    ggen_marketplace::ownership::OwnershipClass::ForbiddenOverlap => {
+                        return Err(Error::new(&format!(
+                            "Forbidden overlap: '{}' and '{}' both target '{}'",
+                            declaration.owner_pack,
+                            emitting_pack,
+                            artifact_path.display(),
+                        )));
+                    }
+                    ggen_marketplace::ownership::OwnershipClass::Mergeable
+                    | ggen_marketplace::ownership::OwnershipClass::Overlay => {
+                        // Allowed — merge strategy or overlay transfer handled upstream
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Extract the pack ID from an emission rule name.
+    ///
+    /// Pack-contributed rules use the format `"pack:<pack-id>::<template-name>"`.
+    /// Non-pack rules return `"core"`.
+    fn extract_pack_id(rule_name: &str) -> &str {
+        if let Some(rest) = rule_name.strip_prefix("pack:") {
+            // rest is "<pack-id>::<template-name>"
+            rest.split("::").next().unwrap_or("core")
+        } else {
+            "core"
+        }
     }
 
     /// Verify template rendering is deterministic
@@ -470,6 +561,10 @@ impl EmissionPass {
                     let violations = self.guards.check(&output_path, &content);
                     self.handle_violations(&violations)?;
 
+                    // GATE 3: Ownership conflict check
+                    let emitting_pack = Self::extract_pack_id(&rule.name);
+                    self.check_ownership_conflict(&output_path, emitting_pack)?;
+
                     // Record hash for receipt
                     let hash = self.record_file_hash(&output_path, &content);
                     emitted_files.push(EmittedFile {
@@ -506,6 +601,10 @@ impl EmissionPass {
             // GATE 2: Apply guards
             let violations = self.guards.check(&output_path, &content);
             self.handle_violations(&violations)?;
+
+            // GATE 3: Ownership conflict check
+            let emitting_pack = Self::extract_pack_id(&rule.name);
+            self.check_ownership_conflict(&output_path, emitting_pack)?;
 
             // Record hash for receipt
             let hash = self.record_file_hash(&output_path, &content);
@@ -621,6 +720,7 @@ impl Pass for EmissionPass {
 mod tests {
     use super::*;
     use crate::graph::Graph;
+    use ggen_marketplace::ownership::{OwnershipClass, OwnershipDeclaration};
     use tempfile::TempDir;
 
     #[test]
@@ -727,5 +827,109 @@ mod tests {
 
         assert!(result.success);
         assert_eq!(result.files_generated.len(), 2);
+    }
+
+    // --- Ownership conflict tests ---
+
+    #[test]
+    fn test_extract_pack_id_pack_rule() {
+        assert_eq!(
+            EmissionPass::extract_pack_id("pack:serde-utils::serialize"),
+            "serde-utils"
+        );
+    }
+
+    #[test]
+    fn test_extract_pack_id_non_pack_rule() {
+        assert_eq!(EmissionPass::extract_pack_id("generate-ontology"), "core");
+    }
+
+    #[test]
+    fn test_ownership_conflict_no_map() {
+        // No ownership map set — check should pass
+        let pass = EmissionPass::new();
+        let path = std::path::Path::new("src/main.rs");
+        assert!(pass.check_ownership_conflict(path, "pack-a").is_ok());
+    }
+
+    #[test]
+    fn test_ownership_conflict_exclusive_owner_allowed() {
+        // Exclusive owner emitting to its own path — should pass
+        let mut map = OwnershipMap::new();
+        map.add(OwnershipDeclaration::exclusive(
+            OwnershipTarget::FilePath(PathBuf::from("src/main.rs")),
+            "pack-a".to_string(),
+        ))
+        .unwrap();
+
+        let pass = EmissionPass::new().with_ownership_map(map);
+        assert!(pass
+            .check_ownership_conflict(std::path::Path::new("src/main.rs"), "pack-a")
+            .is_ok());
+    }
+
+    #[test]
+    fn test_ownership_conflict_exclusive_blocked() {
+        // Different pack emitting to exclusive path — should fail
+        let mut map = OwnershipMap::new();
+        map.add(OwnershipDeclaration::exclusive(
+            OwnershipTarget::FilePath(PathBuf::from("src/main.rs")),
+            "pack-a".to_string(),
+        ))
+        .unwrap();
+
+        let pass = EmissionPass::new().with_ownership_map(map);
+        let result = pass.check_ownership_conflict(std::path::Path::new("src/main.rs"), "pack-b");
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("exclusive ownership"));
+        assert!(err_msg.contains("pack-a"));
+        assert!(err_msg.contains("pack-b"));
+    }
+
+    #[test]
+    fn test_ownership_conflict_forbidden_overlap_blocked() {
+        let mut map = OwnershipMap::new();
+        map.add(OwnershipDeclaration::new(
+            OwnershipTarget::FilePath(PathBuf::from("src/config.rs")),
+            OwnershipClass::ForbiddenOverlap,
+            "pack-a".to_string(),
+        ))
+        .unwrap();
+
+        let pass = EmissionPass::new().with_ownership_map(map);
+        let result = pass.check_ownership_conflict(std::path::Path::new("src/config.rs"), "pack-b");
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("Forbidden overlap"));
+    }
+
+    #[test]
+    fn test_ownership_conflict_mergeable_allowed() {
+        // Mergeable allows overlap
+        use ggen_marketplace::ownership::MergeStrategy;
+
+        let mut map = OwnershipMap::new();
+        map.add(OwnershipDeclaration::mergeable(
+            OwnershipTarget::FilePath(PathBuf::from("src/config.rs")),
+            "pack-a".to_string(),
+            MergeStrategy::Concat,
+        ))
+        .unwrap();
+
+        let pass = EmissionPass::new().with_ownership_map(map);
+        assert!(pass
+            .check_ownership_conflict(std::path::Path::new("src/config.rs"), "pack-b")
+            .is_ok());
+    }
+
+    #[test]
+    fn test_ownership_conflict_undeclared_path() {
+        // Path with no declarations — should pass
+        let map = OwnershipMap::new();
+        let pass = EmissionPass::new().with_ownership_map(map);
+        assert!(pass
+            .check_ownership_conflict(std::path::Path::new("src/undeclared.rs"), "pack-a")
+            .is_ok());
     }
 }

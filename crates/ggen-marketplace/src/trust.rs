@@ -43,7 +43,10 @@ impl TrustTier {
     /// Check if this tier allows installation in production
     #[must_use]
     pub const fn is_production_ready(self) -> bool {
-        matches!(self, Self::EnterpriseCertified | Self::EnterpriseApproved | Self::ProductionReady)
+        matches!(
+            self,
+            Self::EnterpriseCertified | Self::EnterpriseApproved | Self::ProductionReady
+        )
     }
 
     /// Get the numeric priority for tier comparison (lower = more restrictive)

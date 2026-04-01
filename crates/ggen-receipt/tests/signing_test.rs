@@ -108,43 +108,27 @@ fn test_receipt_chain_verification_valid() {
     let (signing_key, verifying_key) = generate_keypair();
 
     // Create genesis receipt
-    let genesis = Receipt::new(
-        "genesis-operation".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Genesis signing failed");
+    let genesis = Receipt::new("genesis-operation".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Genesis signing failed");
 
-    let mut chain = ReceiptChain::from_genesis(genesis.clone())
-        .expect("Chain creation failed");
+    let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("Chain creation failed");
 
     // Add second receipt
-    let receipt2 = Receipt::new(
-        "second-operation".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .chain(&genesis)
-    .expect("Chaining failed")
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let receipt2 = Receipt::new("second-operation".to_string(), vec![], vec![], None)
+        .chain(&genesis)
+        .expect("Chaining failed")
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     chain.append(receipt2).expect("Append failed");
 
     // Add third receipt
-    let receipt3 = Receipt::new(
-        "third-operation".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .chain(chain.last().unwrap())
-    .expect("Chaining failed")
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let receipt3 = Receipt::new("third-operation".to_string(), vec![], vec![], None)
+        .chain(chain.last().unwrap())
+        .expect("Chaining failed")
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     chain.append(receipt3).expect("Append failed");
 
@@ -159,17 +143,11 @@ fn test_receipt_chain_verification_broken_link() {
     let (signing_key, verifying_key) = generate_keypair();
 
     // Create genesis receipt
-    let genesis = Receipt::new(
-        "genesis-operation".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Genesis signing failed");
+    let genesis = Receipt::new("genesis-operation".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Genesis signing failed");
 
-    let mut chain = ReceiptChain::from_genesis(genesis)
-        .expect("Chain creation failed");
+    let mut chain = ReceiptChain::from_genesis(genesis).expect("Chain creation failed");
 
     // Create receipt with wrong previous hash
     let bad_receipt = Receipt::new(
@@ -295,8 +273,7 @@ fn test_chain_verification_tampered_intermediate_receipt() {
         .sign(&signing_key)
         .expect("Signing failed");
 
-    let mut chain = ReceiptChain::from_genesis(genesis)
-        .expect("Chain creation failed");
+    let mut chain = ReceiptChain::from_genesis(genesis).expect("Chain creation failed");
 
     // This should fail because receipt2 signature is invalid
     assert!(chain.append(receipt2).is_err());
@@ -350,8 +327,7 @@ fn test_chain_serialization() {
         .sign(&signing_key)
         .expect("Signing failed");
 
-    let mut chain = ReceiptChain::from_genesis(genesis.clone())
-        .expect("Chain creation failed");
+    let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("Chain creation failed");
 
     let receipt2 = Receipt::new("op2".to_string(), vec![], vec![], None)
         .chain(&genesis)
@@ -433,7 +409,11 @@ fn test_receipt_multiple_hashes() {
 
     let receipt = Receipt::new(
         "complex-operation".to_string(),
-        vec!["input-1".to_string(), "input-2".to_string(), "input-3".to_string()],
+        vec![
+            "input-1".to_string(),
+            "input-2".to_string(),
+            "input-3".to_string(),
+        ],
         vec!["output-1".to_string(), "output-2".to_string()],
         None,
     )
@@ -454,8 +434,7 @@ fn test_chain_accessors() {
         .sign(&signing_key)
         .expect("Signing failed");
 
-    let chain = ReceiptChain::from_genesis(genesis.clone())
-        .expect("Chain creation failed");
+    let chain = ReceiptChain::from_genesis(genesis.clone()).expect("Chain creation failed");
 
     assert_eq!(chain.genesis().unwrap().operation_id, "op1");
     assert_eq!(chain.last().unwrap().operation_id, "op1");

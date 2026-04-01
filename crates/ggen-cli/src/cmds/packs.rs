@@ -114,8 +114,9 @@ struct CheckCompatibilityOutput {
 /// List all available packs
 #[verb]
 fn list(verbose: bool) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::marketplace::list_all()
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e)))?;
+    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
+    })?;
 
     let total = packages.len();
 
@@ -146,17 +147,18 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
         })
         .collect();
 
-    Ok(ListOutput {
-        packs,
-        total,
-    })
+    Ok(ListOutput { packs, total })
 }
 
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::marketplace::get_package(&pack_id)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Failed to get pack '{}': {}", pack_id, e)))?;
+    let detail = ggen_domain::marketplace::get_package(&pack_id).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to get pack '{}': {}",
+            pack_id, e
+        ))
+    })?;
 
     let dependencies: Vec<String> = detail
         .dependencies
@@ -176,17 +178,20 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
 }
 
 /// Install a pack
+///
+/// CISO fail-closed flags (set via environment variables):
+/// * `GGEN_LOCKED=true` — require pack exists in `.ggen/packs.lock`
+/// * `GGEN_OFFLINE=true` — require pack exists in local cache (no network fetch)
 #[verb]
 fn install(pack_id: String, force: bool) -> VerbResult<InstallOutput> {
-    // Validate args
     if pack_id.is_empty() {
-        return Err(clap_noun_verb::NounVerbError::argument_error("Pack ID cannot be empty"));
+        return Err(clap_noun_verb::NounVerbError::argument_error(
+            "Pack ID cannot be empty",
+        ));
     }
 
-    // Call domain logic
     let result = install_pack_impl(&pack_id, force)?;
 
-    // Format and return
     Ok(InstallOutput {
         pack_id,
         status: "installed".to_string(),
@@ -195,7 +200,7 @@ fn install(pack_id: String, force: bool) -> VerbResult<InstallOutput> {
 }
 
 // ============================================================================
-// Helper Functions for install (to reduce complexity)
+// Helper Functions for install
 // ============================================================================
 
 struct InstallResult {
@@ -203,15 +208,58 @@ struct InstallResult {
 }
 
 fn install_pack_impl(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
+    use ggen_core::packs::lockfile::PackLockfile;
+
+    // GGEN_LOCKED: verify pack exists in lockfile before proceeding
+    let locked = std::env::var_os("GGEN_LOCKED").map_or(false, |v| v == "true" || v == "1");
+    if locked {
+        let project_root = std::env::current_dir().map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Cannot resolve project directory: {}",
+                e
+            ))
+        })?;
+        let lock_path = project_root.join(".ggen").join("packs.lock");
+
+        if !lock_path.exists() {
+            return Err(clap_noun_verb::NounVerbError::execution_error(
+                "GGEN_LOCKED requires a .ggen/packs.lock file; none found",
+            ));
+        }
+
+        let lockfile = PackLockfile::from_file(&lock_path).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Invalid packs.lock: {}", e))
+        })?;
+
+        if lockfile.get_pack(pack_id).is_none() {
+            return Err(clap_noun_verb::NounVerbError::execution_error(&format!(
+                "GGEN_LOCKED: pack '{}' not found in lockfile",
+                pack_id
+            )));
+        }
+
+        tracing::info!("GGEN_LOCKED: pack '{}' verified in lockfile", pack_id);
+    }
 
     let cache_dir = resolve_cache_dir()?;
     let pack_dir = cache_dir.join(pack_id);
 
+    // GGEN_OFFLINE: verify pack exists in local cache
+    let offline = std::env::var_os("GGEN_OFFLINE").map_or(false, |v| v == "true" || v == "1");
+    if offline && !pack_dir.exists() {
+        return Err(clap_noun_verb::NounVerbError::execution_error(&format!(
+            "GGEN_OFFLINE: pack '{}' not found in local cache at {}",
+            pack_id,
+            pack_dir.display()
+        )));
+    }
+
     // Check if already installed
     if pack_dir.exists() && !force {
-        return Err(clap_noun_verb::NounVerbError::execution_error(
-            &format!("Pack '{}' is already installed. Use --force to reinstall.", pack_id),
-        ));
+        return Err(clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Pack '{}' is already installed. Use --force to reinstall.",
+            pack_id
+        )));
     }
 
     // Create pack structure
@@ -222,6 +270,15 @@ fn install_pack_impl(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
 
     // Calculate digest
     let (digest, size_bytes) = calculate_pack_digest(&pack_dir);
+
+    // Stage pack contributions for sync pipeline (non-fatal)
+    if let Err(e) = stage_pack_for_sync(&pack_dir, pack_id) {
+        tracing::warn!(
+            "Pack '{}' installed but staging for sync failed: {}",
+            pack_id,
+            e
+        );
+    }
 
     tracing::info!("Pack '{}' installed to {}", pack_id, pack_dir.display());
 
@@ -252,13 +309,22 @@ fn create_pack_structure(pack_dir: &std::path::Path, pack_id: &str) -> VerbResul
 
     // Create directories
     fs::create_dir_all(pack_dir.join("ontology")).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to create pack dirs: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to create pack dirs: {}",
+            e
+        ))
     })?;
     fs::create_dir_all(pack_dir.join("queries")).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to create pack dirs: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to create pack dirs: {}",
+            e
+        ))
     })?;
     fs::create_dir_all(pack_dir.join("templates")).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to create pack dirs: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to create pack dirs: {}",
+            e
+        ))
     })?;
 
     // Write ontology
@@ -268,7 +334,10 @@ ex:PackRoot a rdfs:Resource ;
     rdfs:label "ggen pack substrate" .
 "#;
     fs::write(pack_dir.join("ontology").join("pack.ttl"), ontology_ttl).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write pack ontology: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to write pack ontology: {}",
+            e
+        ))
     })?;
 
     // Write query
@@ -280,8 +349,15 @@ CONSTRUCT {
 WHERE {
   ex:PackRoot a ?t .
 }"#;
-    fs::write(pack_dir.join("queries").join("substrate.rq"), pack_construct).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write pack query: {}", e))
+    fs::write(
+        pack_dir.join("queries").join("substrate.rq"),
+        pack_construct,
+    )
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to write pack query: {}",
+            e
+        ))
     })?;
 
     // Write metadata
@@ -297,7 +373,10 @@ installed_at = "{}"
         chrono::Utc::now().to_rfc3339()
     );
     fs::write(pack_dir.join("pack.toml"), metadata_content).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write pack metadata: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to write pack metadata: {}",
+            e
+        ))
     })?;
 
     Ok(())
@@ -308,13 +387,21 @@ fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std
     use std::fs;
 
     let project_root = std::env::current_dir().map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Cannot resolve project directory: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Cannot resolve project directory: {}",
+            e
+        ))
     })?;
     let lock_path = project_root.join(".ggen").join("packs.lock");
 
-    fs::create_dir_all(lock_path.parent().unwrap_or_else(|| project_root.as_path())).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to create .ggen: {}", e))
-    })?;
+    fs::create_dir_all(lock_path.parent().unwrap_or_else(|| project_root.as_path())).map_err(
+        |e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to create .ggen: {}",
+                e
+            ))
+        },
+    )?;
 
     let mut lockfile = if lock_path.exists() {
         PackLockfile::from_file(&lock_path).map_err(|e| {
@@ -338,7 +425,10 @@ fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std
     );
 
     lockfile.save(&lock_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write packs.lock: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to write packs.lock: {}",
+            e
+        ))
     })?;
 
     Ok(lock_path)
@@ -373,7 +463,7 @@ fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput>
 }
 
 fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
-    use ggen_domain::packs::generator::{GenerateInput, generate_from_pack};
+    use ggen_domain::packs::generator::{generate_from_pack, GenerateInput};
     use std::collections::BTreeMap;
 
     let input = GenerateInput {
@@ -385,11 +475,15 @@ fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOut
     };
 
     let result = crate::runtime::block_on(generate_from_pack(&input))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e)))?
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!(
-            "Failed to generate from pack '{}': {}",
-            pack_id, e
-        )))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
+        })?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to generate from pack '{}': {}",
+                pack_id, e
+            ))
+        })?;
 
     println!(
         "Generated {} template(s) into {}",
@@ -471,10 +565,15 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
     };
 
     let result = crate::runtime::block_on(ggen_domain::packs::compose::compose_packs(&input))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e)))?
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!(
-            "Failed to compose packs: {}", e
-        )))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
+        })?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to compose packs: {}",
+                e
+            ))
+        })?;
 
     println!(
         "Composed {} packs: {} packages, {} templates, {} queries",
@@ -496,7 +595,12 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 #[verb]
 fn dependencies(pack_id: String, version: Option<String>) -> VerbResult<DependenciesOutput> {
     let graph = ggen_domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Failed to resolve dependencies: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to resolve dependencies: {}",
+                e
+            ))
+        })?;
 
     let dependencies: Vec<DependencyNode> = graph
         .dependencies
@@ -534,7 +638,15 @@ fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
             let name_match = p.name.to_lowercase().contains(&query_lower);
             let desc_match = p.description.to_lowercase().contains(&query_lower);
             let id_match = p.id.to_lowercase().contains(&query_lower);
-            let relevance = if name_match { 1.0 } else if id_match { 0.8 } else if desc_match { 0.5 } else { return None };
+            let relevance = if name_match {
+                1.0
+            } else if id_match {
+                0.8
+            } else if desc_match {
+                0.5
+            } else {
+                return None;
+            };
             Some(SearchResult {
                 pack_id: p.id,
                 name: p.name,
@@ -544,7 +656,11 @@ fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
         })
         .collect();
 
-    scored.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    scored.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     scored.truncate(max);
 
     let total = scored.len();
@@ -575,10 +691,15 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
 
     let result =
         crate::runtime::block_on(ggen_domain::packs::check_packs_compatibility(&pack_id_list))
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e)))?
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!(
-                "Compatibility check failed: {}", e
-            )))?;
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
+            })?
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(&format!(
+                    "Compatibility check failed: {}",
+                    e
+                ))
+            })?;
 
     if result.compatible {
         println!("{}", result.message);
@@ -599,4 +720,90 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
         warnings: result.warnings,
         message: result.message,
     })
+}
+
+// ============================================================================
+// Staging Helpers (Pack -> Sync Pipeline Bridge)
+// ============================================================================
+
+/// Stage pack queries, templates, and ontology for the sync pipeline.
+/// Non-fatal: failures are logged but do not block installation.
+fn stage_pack_for_sync(pack_dir: &std::path::Path, pack_id: &str) -> VerbResult<()> {
+    use std::fs;
+
+    let stage_base = std::env::current_dir()
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Cannot get cwd: {}", e))
+        })?
+        .join(".ggen")
+        .join("pack-stage");
+
+    // Stage queries
+    let queries_src = pack_dir.join("queries");
+    let queries_dest = stage_base.join("queries").join(pack_id);
+    if queries_src.exists() {
+        fs::create_dir_all(&queries_dest).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to create query stage: {}",
+                e
+            ))
+        })?;
+        copy_dir_contents(&queries_src, &queries_dest)?;
+    }
+
+    // Stage templates
+    let templates_src = pack_dir.join("templates");
+    let templates_dest = stage_base.join("templates").join(pack_id);
+    if templates_src.exists() {
+        fs::create_dir_all(&templates_dest).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to create template stage: {}",
+                e
+            ))
+        })?;
+        copy_dir_contents(&templates_src, &templates_dest)?;
+    }
+
+    // Stage ontology
+    let ontology_src = pack_dir.join("ontology");
+    let ontology_dest = stage_base.join("ontology").join(pack_id);
+    if ontology_src.exists() {
+        fs::create_dir_all(&ontology_dest).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!(
+                "Failed to create ontology stage: {}",
+                e
+            ))
+        })?;
+        copy_dir_contents(&ontology_src, &ontology_dest)?;
+    }
+
+    tracing::info!("Staged pack '{}' contributions for sync pipeline", pack_id);
+    Ok(())
+}
+
+/// Copy directory contents recursively
+fn copy_dir_contents(src: &std::path::Path, dest: &std::path::Path) -> VerbResult<()> {
+    use std::fs;
+
+    for entry in fs::read_dir(src).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!("Cannot read directory: {}", e))
+    })? {
+        let entry = entry.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Cannot read entry: {}", e))
+        })?;
+        let src_path = entry.path();
+        let dest_path = dest.join(entry.file_name());
+
+        if src_path.is_dir() {
+            fs::create_dir_all(&dest_path).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(&format!("Cannot create dir: {}", e))
+            })?;
+            copy_dir_contents(&src_path, &dest_path)?;
+        } else {
+            fs::copy(&src_path, &dest_path).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(&format!("Cannot copy file: {}", e))
+            })?;
+        }
+    }
+    Ok(())
 }

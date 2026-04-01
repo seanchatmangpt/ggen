@@ -107,7 +107,7 @@ use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-//// Governed marketplace lockfile.
+/// Governed marketplace lockfile.
 ///
 /// Tracks atomic packs, bundles, and profiles with cryptographic provenance.
 /// This is the real lockfile implementation for the marketplace.
@@ -343,13 +343,8 @@ impl Lockfile {
 impl LockfileEntry {
     /// Create a new lockfile entry.
     pub fn new(
-        pack_id: String,
-        version: String,
-        source: RegistrySource,
-        digest: String,
-        signature: String,
-        trust_tier: TrustTier,
-        dependencies: Vec<String>,
+        pack_id: String, version: String, source: RegistrySource, digest: String,
+        signature: String, trust_tier: TrustTier, dependencies: Vec<String>,
     ) -> Self {
         Self {
             pack_id,

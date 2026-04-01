@@ -3,11 +3,11 @@
 //! Tests the μ₃ emission pass with pack_id:template_path syntax.
 //! Templates are loaded from pack cache at ~/.cache/ggen/packs/<pack-id>/templates/
 
-use ggen_core::v6::passes::{EmissionPass, EmissionRule};
-use ggen_core::v6::pass::{Pass, PassContext};
 use ggen_core::graph::Graph;
-use tempfile::TempDir;
+use ggen_core::v6::pass::{Pass, PassContext};
+use ggen_core::v6::passes::{EmissionPass, EmissionRule};
 use std::path::PathBuf;
+use tempfile::TempDir;
 
 #[test]
 fn test_pack_template_resolution() {
@@ -73,7 +73,11 @@ fn test_pack_template_resolution() {
 
     // Verify output file was created
     let expected_file = output_dir.join("handlers/test_tool.rs");
-    assert!(expected_file.exists(), "Output file not created: {:?}", expected_file);
+    assert!(
+        expected_file.exists(),
+        "Output file not created: {:?}",
+        expected_file
+    );
 
     // Verify file content
     let content = std::fs::read_to_string(&expected_file).unwrap();
@@ -83,7 +87,10 @@ fn test_pack_template_resolution() {
     println!("✓ Pack template resolution test passed");
     println!("  Template loaded from: {}:handler.rs.tera", pack_id);
     println!("  Output file: {:?}", expected_file);
-    println!("  Content preview:\n{}", content.lines().take(5).collect::<Vec<_>>().join("\n"));
+    println!(
+        "  Content preview:\n{}",
+        content.lines().take(5).collect::<Vec<_>>().join("\n")
+    );
 }
 
 #[test]
@@ -150,7 +157,10 @@ pub fn {{ name | lower }}() -> &'static str {
     }
 
     println!("✓ Pack template iteration test passed");
-    println!("  Generated {} files from pack template", result.files_generated.len());
+    println!(
+        "  Generated {} files from pack template",
+        result.files_generated.len()
+    );
 }
 
 #[test]
@@ -221,7 +231,10 @@ fn test_template_resolver_search() {
     let handler_templates = resolver.search_templates(Some("handler")).unwrap();
     assert_eq!(handler_templates.len(), 1);
     assert_eq!(handler_templates[0].pack_id, "surface-mcp");
-    assert_eq!(handler_templates[0].template_path, PathBuf::from("handler.rs.tera"));
+    assert_eq!(
+        handler_templates[0].template_path,
+        PathBuf::from("handler.rs.tera")
+    );
 
     // Search with pack-specific query
     let rust_templates = resolver.search_templates(Some("rust")).unwrap();

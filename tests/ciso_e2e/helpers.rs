@@ -186,11 +186,7 @@ pub fn assert_nonempty_string(val: &Value, field: &str) {
 
 /// Assert that a JSON object has a numeric field greater than zero.
 pub fn assert_positive_number(val: &Value, field: &str) {
-    let n = val
-        .get(field)
-        .unwrap_or(&Value::Null)
-        .as_u64()
-        .unwrap_or(0);
+    let n = val.get(field).unwrap_or(&Value::Null).as_u64().unwrap_or(0);
     assert!(
         n > 0,
         "Expected positive number for field '{}', got: {}",

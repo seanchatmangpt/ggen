@@ -359,9 +359,16 @@ impl LlmClient for GenAiClient {
 
                             // Record token counts on span (matching complete() behavior)
                             if let Some(ref usage_stats) = usage {
-                                Span::current().record(otel_attrs::LLM_PROMPT_TOKENS, usage_stats.prompt_tokens);
-                                Span::current().record(otel_attrs::LLM_COMPLETION_TOKENS, usage_stats.completion_tokens);
-                                Span::current().record(otel_attrs::LLM_TOTAL_TOKENS, usage_stats.total_tokens);
+                                Span::current().record(
+                                    otel_attrs::LLM_PROMPT_TOKENS,
+                                    usage_stats.prompt_tokens,
+                                );
+                                Span::current().record(
+                                    otel_attrs::LLM_COMPLETION_TOKENS,
+                                    usage_stats.completion_tokens,
+                                );
+                                Span::current()
+                                    .record(otel_attrs::LLM_TOTAL_TOKENS, usage_stats.total_tokens);
                             }
 
                             LlmChunk {
@@ -371,7 +378,7 @@ impl LlmClient for GenAiClient {
                                 usage,
                                 extra: HashMap::new(),
                             }
-                        },
+                        }
                         genai::chat::ChatStreamEvent::Start => LlmChunk {
                             content: String::new(),
                             model: model.clone(),

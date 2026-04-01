@@ -110,10 +110,7 @@ struct ConflictInfo {
 // ============================================================================
 
 /// Update lockfile with resolved atomic packs
-fn update_lockfile(
-    lockfile_path: &PathBuf,
-    atomic_packs: &[String],
-) -> Result<(), String> {
+fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(), String> {
     let mut lockfile = if lockfile_path.exists() {
         PackLockfile::from_file(lockfile_path)
             .map_err(|e| format!("Failed to load lockfile: {}", e))?
@@ -135,7 +132,8 @@ fn update_lockfile(
         lockfile.add_pack(pack_id, locked_pack);
     }
 
-    lockfile.save(lockfile_path)
+    lockfile
+        .save(lockfile_path)
         .map_err(|e| format!("Failed to save lockfile: {}", e))?;
     Ok(())
 }
@@ -147,19 +145,13 @@ fn update_lockfile(
 /// Enable a capability with explicit parameters (canonical form)
 #[verb]
 fn enable(
-    surface: String,
-    projection: Option<String>,
-    runtime: Option<String>,
-    profile: Option<String>,
+    surface: String, projection: Option<String>, runtime: Option<String>, profile: Option<String>,
 ) -> VerbResult<CapabilityEnableOutput> {
     run_capability_enable(surface, projection, runtime, profile)
 }
 
 fn run_capability_enable(
-    surface: String,
-    projection: Option<String>,
-    runtime: Option<String>,
-    profile: Option<String>,
+    surface: String, projection: Option<String>, runtime: Option<String>, profile: Option<String>,
 ) -> VerbResult<CapabilityEnableOutput> {
     use crate::receipt_manager::ReceiptManager;
     use std::path::PathBuf;
@@ -167,11 +159,17 @@ fn run_capability_enable(
     // Resolve capability to atomic packs
     let atomic_packs_result = block_on(resolve_capability(&surface, &projection, &runtime))
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to resolve capability: {}",
+                e
+            ))
         })?;
 
     let atomic_packs = atomic_packs_result.map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to resolve capability: {}",
+            e
+        ))
     })?;
 
     let selected_profile = profile.unwrap_or_else(|| "default".to_string());
@@ -200,11 +198,17 @@ fn run_capability_enable(
 
     // Generate cryptographic receipt for composition
     let project_root = std::env::current_dir().map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Cannot resolve project directory: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Cannot resolve project directory: {}",
+            e
+        ))
     })?;
     let ggen_dir = project_root.join(".ggen");
     let mut receipt_manager = ReceiptManager::new(ggen_dir).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create receipt manager: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to create receipt manager: {}",
+            e
+        ))
     })?;
 
     let receipt_path = receipt_manager
@@ -215,7 +219,10 @@ fn run_capability_enable(
             &project_root,
         )
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate receipt: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to generate receipt: {}",
+                e
+            ))
         })?;
 
     tracing::info!("Receipt generated: {}", receipt_path.display());
@@ -257,13 +264,19 @@ fn disable(capability: String) -> VerbResult<serde_json::Value> {
     })?;
 
     // Resolve capability to atomic packs to know which to remove
-    let atomic_packs_result = block_on(resolve_capability(&capability, &None, &None))
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {}", e))
+    let atomic_packs_result =
+        block_on(resolve_capability(&capability, &None, &None)).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to resolve capability: {}",
+                e
+            ))
         })?;
 
     let atomic_packs = atomic_packs_result.map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to resolve capability: {}",
+            e
+        ))
     })?;
 
     let mut removed_count = 0;
@@ -299,10 +312,16 @@ fn inspect(capability: String) -> VerbResult<CapabilityInspectOutput> {
     // Resolve capability to atomic packs
     let atomic_packs = block_on(resolve_capability(&capability, &None, &None))
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to resolve capability: {}",
+                e
+            ))
         })?
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to resolve capability: {}",
+                e
+            ))
         })?;
 
     // Get pack details from lockfile and cache
@@ -467,10 +486,16 @@ fn graph(format: Option<String>) -> VerbResult<CapabilityGraphOutput> {
     if format.as_deref() == Some("dot") {
         println!("digraph capabilities {{");
         for node in &nodes {
-            println!("  \"{}\" [label=\"{}\", type=\"{}\"]", node.id, node.label, node.node_type);
+            println!(
+                "  \"{}\" [label=\"{}\", type=\"{}\"]",
+                node.id, node.label, node.node_type
+            );
         }
         for edge in &edges {
-            println!("  \"{}\" -> \"{}\" [label=\"{}\"]", edge.from, edge.to, edge.label);
+            println!(
+                "  \"{}\" -> \"{}\" [label=\"{}\"]",
+                edge.from, edge.to, edge.label
+            );
         }
         println!("}}");
     }
@@ -505,10 +530,7 @@ fn trust(verbose: bool) -> VerbResult<CapabilityTrustOutput> {
         }
     }
 
-    Ok(CapabilityTrustOutput {
-        packs,
-        total: 2,
-    })
+    Ok(CapabilityTrustOutput { packs, total: 2 })
 }
 
 /// Detect and report conflicts
@@ -565,7 +587,10 @@ fn print_conflicts(conflicts: &[ConflictInfo]) {
     } else {
         println!("\nConflicts detected: {}", conflicts.len());
         for conflict in conflicts {
-            println!("\n  [{}] {}: {} vs {}", conflict.severity, conflict.dimension, conflict.pack_a, conflict.pack_b);
+            println!(
+                "\n  [{}] {}: {} vs {}",
+                conflict.severity, conflict.dimension, conflict.pack_a, conflict.pack_b
+            );
             println!("    Description: {}", conflict.description);
             if let Some(ref resolution) = conflict.resolution {
                 println!("    Resolution: {}", resolution);
@@ -576,8 +601,7 @@ fn print_conflicts(conflicts: &[ConflictInfo]) {
 
 /// Helper: Detect all conflicts across multiple dimensions
 fn detect_all_conflicts(
-    pack_ids: &[String],
-    lockfile: &PackLockfile,
+    pack_ids: &[String], lockfile: &PackLockfile,
 ) -> VerbResult<Vec<ConflictInfo>> {
     let mut all_conflicts = vec![];
 
@@ -604,8 +628,7 @@ fn detect_all_conflicts(
 
 /// Helper: Detect file path conflicts
 fn detect_file_conflicts(
-    pack_ids: &[String],
-    cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &PathBuf,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -637,9 +660,15 @@ fn detect_file_conflicts(
                 dimension: "emitted_file_path".to_string(),
                 pack_a: owners[0].clone(),
                 pack_b: owners[1].clone(),
-                description: format!("Multiple packs would write to the same output file: {}", file),
+                description: format!(
+                    "Multiple packs would write to the same output file: {}",
+                    file
+                ),
                 severity: "error".to_string(),
-                resolution: Some("Remove one of the conflicting packs or specify different output paths".to_string()),
+                resolution: Some(
+                    "Remove one of the conflicting packs or specify different output paths"
+                        .to_string(),
+                ),
             });
         }
     }
@@ -649,8 +678,7 @@ fn detect_file_conflicts(
 
 /// Helper: Detect template name conflicts
 fn detect_template_conflicts(
-    pack_ids: &[String],
-    cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &PathBuf,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -680,7 +708,10 @@ fn detect_template_conflicts(
                 dimension: "template_name".to_string(),
                 pack_a: owners[0].clone(),
                 pack_b: owners[1].clone(),
-                description: format!("Multiple packs provide templates with the same name: {}", template_name),
+                description: format!(
+                    "Multiple packs provide templates with the same name: {}",
+                    template_name
+                ),
                 severity: "warning".to_string(),
                 resolution: Some("Templates will be namespaced by pack ID".to_string()),
             });
@@ -692,8 +723,7 @@ fn detect_template_conflicts(
 
 /// Helper: Detect query name conflicts
 fn detect_query_conflicts(
-    pack_ids: &[String],
-    cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &PathBuf,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -723,7 +753,10 @@ fn detect_query_conflicts(
                 dimension: "query_name".to_string(),
                 pack_a: owners[0].clone(),
                 pack_b: owners[1].clone(),
-                description: format!("Multiple packs provide queries with the same name: {}", query_name),
+                description: format!(
+                    "Multiple packs provide queries with the same name: {}",
+                    query_name
+                ),
                 severity: "error".to_string(),
                 resolution: Some("Queries must have unique names across all packs".to_string()),
             });
@@ -735,8 +768,7 @@ fn detect_query_conflicts(
 
 /// Helper: Detect dependency cycles
 fn detect_dependency_cycles(
-    pack_ids: &[String],
-    lockfile: &PackLockfile,
+    pack_ids: &[String], lockfile: &PackLockfile,
 ) -> VerbResult<Vec<ConflictInfo>> {
     let mut conflicts = vec![];
     let mut visited = HashSet::new();
@@ -744,14 +776,29 @@ fn detect_dependency_cycles(
 
     for pack_id in pack_ids {
         if let Some(locked_pack) = lockfile.get_pack(pack_id) {
-            if has_cycle(pack_id, &locked_pack.dependencies, lockfile, &mut visited, &mut recursion_stack) {
+            if has_cycle(
+                pack_id,
+                &locked_pack.dependencies,
+                lockfile,
+                &mut visited,
+                &mut recursion_stack,
+            ) {
                 conflicts.push(ConflictInfo {
                     dimension: "dependency_cycle".to_string(),
                     pack_a: pack_id.clone(),
-                    pack_b: locked_pack.dependencies.first().unwrap_or(&"unknown".to_string()).clone(),
-                    description: format!("Circular dependency detected involving pack: {}", pack_id),
+                    pack_b: locked_pack
+                        .dependencies
+                        .first()
+                        .unwrap_or(&"unknown".to_string())
+                        .clone(),
+                    description: format!(
+                        "Circular dependency detected involving pack: {}",
+                        pack_id
+                    ),
                     severity: "error".to_string(),
-                    resolution: Some("Remove circular dependency by refactoring pack structure".to_string()),
+                    resolution: Some(
+                        "Remove circular dependency by refactoring pack structure".to_string(),
+                    ),
                 });
             }
         }
@@ -762,10 +809,7 @@ fn detect_dependency_cycles(
 
 /// Helper function to detect dependency cycles
 fn has_cycle(
-    pack_id: &str,
-    dependencies: &[String],
-    lockfile: &PackLockfile,
-    visited: &mut HashSet<String>,
+    pack_id: &str, dependencies: &[String], lockfile: &PackLockfile, visited: &mut HashSet<String>,
     recursion_stack: &mut HashSet<String>,
 ) -> bool {
     if recursion_stack.contains(pack_id) {
@@ -781,7 +825,13 @@ fn has_cycle(
 
     for dep in dependencies {
         if let Some(locked_pack) = lockfile.get_pack(dep) {
-            if has_cycle(dep, &locked_pack.dependencies, lockfile, visited, recursion_stack) {
+            if has_cycle(
+                dep,
+                &locked_pack.dependencies,
+                lockfile,
+                visited,
+                recursion_stack,
+            ) {
                 return true;
             }
         }
@@ -797,9 +847,7 @@ fn has_cycle(
 
 /// Resolve capability to atomic packs
 async fn resolve_capability(
-    surface: &str,
-    projection: &Option<String>,
-    runtime: &Option<String>,
+    surface: &str, projection: &Option<String>, runtime: &Option<String>,
 ) -> Result<Vec<String>, String> {
     let mut atomic_packs = vec![format!("surface-{}", surface)];
 

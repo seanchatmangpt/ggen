@@ -64,6 +64,10 @@ impl Module for SequentialPipeline {
         // Step 2: Summarize (uses output from step 1)
         self.summarizer.forward(entities_result).await
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 /// Parallel Pipeline: Multiple perspectives analyzed in parallel
@@ -142,6 +146,10 @@ impl Module for ParallelPipeline {
 
         Ok(output)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 /// Conditional Pipeline: Route based on classification
@@ -210,6 +218,10 @@ impl Module for ConditionalPipeline {
             }
         }
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 /// Simplified Multi-Hop QA (without retrieval)
@@ -257,12 +269,19 @@ impl Module for MultiHopQA {
         let decomposition = self.decomposer.forward(inputs.clone()).await?;
 
         // Answer using decomposition
-        let mut answer_inputs = inputs;
+        let mut answer_inputs = HashMap::new();
+        for (key, value) in inputs {
+            answer_inputs.insert(key, value);
+        }
         if let Some(sub_q) = decomposition.get("sub_questions") {
             answer_inputs.insert("sub_questions".to_string(), sub_q.clone());
         }
 
         self.answerer.forward(answer_inputs).await
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 

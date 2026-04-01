@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::error::{Error, Result};
-use crate::policy::{Policy, PolicyEnforcer, PolicyReport, PackContext};
+use crate::policy::{PackContext, Policy, PolicyEnforcer, PolicyReport};
 use crate::trust::TrustTier;
 
 /// Unique identifier for a profile.
@@ -121,12 +121,8 @@ impl Profile {
     /// Create a new profile.
     #[must_use]
     pub fn new(
-        id: ProfileId,
-        name: String,
-        description: String,
-        policy_overlays: Vec<Policy>,
-        trust_requirements: TrustTier,
-        receipt_requirements: ReceiptSpec,
+        id: ProfileId, name: String, description: String, policy_overlays: Vec<Policy>,
+        trust_requirements: TrustTier, receipt_requirements: ReceiptSpec,
     ) -> Self {
         Self {
             id,
@@ -271,7 +267,7 @@ pub fn predefined_profiles() -> Vec<Profile> {
 /// Get profile by ID.
 ///
 /// # Errors
-    ///
+///
 /// Returns error if profile not found.
 pub fn get_profile(id: &str) -> Result<Profile> {
     predefined_profiles()

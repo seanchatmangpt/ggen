@@ -19,7 +19,10 @@ fn test_packs_list_returns_valid_json() -> Result<()> {
 
     // Step 2: Parse JSON output
     let json = extract_json_from_output(&stdout)?;
-    println!("[CISO] packs list JSON keys: {:?}", json.as_object().map(|o| o.keys().collect::<Vec<_>>()));
+    println!(
+        "[CISO] packs list JSON keys: {:?}",
+        json.as_object().map(|o| o.keys().collect::<Vec<_>>())
+    );
 
     // Step 3: Assert total > 0
     let total = json["total"].as_u64().expect("total should be a number");
@@ -27,13 +30,20 @@ fn test_packs_list_returns_valid_json() -> Result<()> {
 
     // Step 4: Assert packs array exists
     let packs = json["packs"].as_array().expect("packs should be an array");
-    assert_eq!(packs.len(), total as usize, "packs.len() should match total");
+    assert_eq!(
+        packs.len(),
+        total as usize,
+        "packs.len() should match total"
+    );
 
     // Step 5: Assert each pack has id, name, version
     for pack in packs {
         assert!(pack["id"].is_string(), "pack should have an id string");
         assert!(pack["name"].is_string(), "pack should have a name string");
-        assert!(pack["version"].is_string(), "pack should have a version string");
+        assert!(
+            pack["version"].is_string(),
+            "pack should have a version string"
+        );
     }
 
     println!("[CISO] PASS: packs list returned {} valid packs", total);
@@ -48,7 +58,9 @@ fn test_packs_list_then_show_workflow() -> Result<()> {
     println!("[CISO] Step 1: ggen packs list");
     let (list_output, _) = run_ggen(&["packs", "list"], workspace_path(&temp))?;
     let list_json = extract_json_from_output(&list_output)?;
-    let packs = list_json["packs"].as_array().expect("packs should be an array");
+    let packs = list_json["packs"]
+        .as_array()
+        .expect("packs should be an array");
     assert!(!packs.is_empty(), "Need at least one pack for show test");
 
     let first_pack_id = packs[0]["id"].as_str().expect("first pack should have id");
@@ -56,8 +68,10 @@ fn test_packs_list_then_show_workflow() -> Result<()> {
 
     // Step 2: Run `ggen packs show --pack_id <id>` to get pack details
     println!("[CISO] Step 2: ggen packs show --pack_id {}", first_pack_id);
-    let (show_output, _show_exit) =
-        run_ggen(&["packs", "show", "--pack_id", first_pack_id], workspace_path(&temp))?;
+    let (show_output, _show_exit) = run_ggen(
+        &["packs", "show", "--pack_id", first_pack_id],
+        workspace_path(&temp),
+    )?;
     let show_json = extract_json_from_output(&show_output)?;
 
     // Step 3: Assert show output has matching id
@@ -94,16 +108,25 @@ fn test_packs_search_returns_matching_results() -> Result<()> {
 
     // Step 1: Run `ggen packs search --query web`
     println!("[CISO] Step 1: ggen packs search --query web");
-    let (stdout, _exit_code) = run_ggen(&["packs", "search", "--query", "web"], workspace_path(&temp))?;
+    let (stdout, _exit_code) = run_ggen(
+        &["packs", "search", "--query", "web"],
+        workspace_path(&temp),
+    )?;
 
     // Step 2: Parse JSON output
     let json = extract_json_from_output(&stdout)?;
 
     // Step 3: Assert results exist
     let total = json["total"].as_u64().expect("total should be a number");
-    assert!(total > 0, "Search for 'web' should return at least 1 result, got {}", total);
+    assert!(
+        total > 0,
+        "Search for 'web' should return at least 1 result, got {}",
+        total
+    );
 
-    let results = json["results"].as_array().expect("results should be an array");
+    let results = json["results"]
+        .as_array()
+        .expect("results should be an array");
     assert_eq!(results.len(), total as usize);
 
     // Step 4: Assert query field is present
@@ -117,10 +140,7 @@ fn test_packs_search_returns_matching_results() -> Result<()> {
         assert!(result["score"].is_number(), "result should have score");
     }
 
-    println!(
-        "[CISO] PASS: packs search 'web' returned {} results",
-        total
-    );
+    println!("[CISO] PASS: packs search 'web' returned {} results", total);
     Ok(())
 }
 
@@ -132,10 +152,15 @@ fn test_packs_compatibility() -> Result<()> {
     println!("[CISO] Step 1: ggen packs list (to get pack ids)");
     let (list_output, _) = run_ggen(&["packs", "list"], workspace_path(&temp))?;
     let list_json = extract_json_from_output(&list_output)?;
-    let packs = list_json["packs"].as_array().expect("packs should be an array");
+    let packs = list_json["packs"]
+        .as_array()
+        .expect("packs should be an array");
 
     if packs.len() < 2 {
-        println!("[CISO] SKIP: need at least 2 packs for compatibility test, got {}", packs.len());
+        println!(
+            "[CISO] SKIP: need at least 2 packs for compatibility test, got {}",
+            packs.len()
+        );
         return Ok(());
     }
 

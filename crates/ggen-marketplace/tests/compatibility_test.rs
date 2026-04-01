@@ -17,7 +17,9 @@ fn semver_req_matches(req: &VersionReq, pv: &PackageVersion) -> bool {
     req.matches(&v)
 }
 
-fn resolve_highest_compatible(req: &VersionReq, available: &[PackageVersion]) -> Option<PackageVersion> {
+fn resolve_highest_compatible(
+    req: &VersionReq, available: &[PackageVersion],
+) -> Option<PackageVersion> {
     available
         .iter()
         .filter(|pv| semver_req_matches(req, pv))
@@ -213,16 +215,16 @@ async fn test_resolve_compatible_version() {
 #[tokio::test]
 async fn test_resolve_no_compatible_version() {
     // Available versions: 1.0.0, 1.1.0
-    let available: Vec<PackageVersion> = vec![
-        "1.0.0".parse().unwrap(),
-        "1.1.0".parse().unwrap(),
-    ];
+    let available: Vec<PackageVersion> = vec!["1.0.0".parse().unwrap(), "1.1.0".parse().unwrap()];
 
     // Requirement: ^2.0.0 (no compatible version)
     let req: VersionReq = "^2.0.0".parse().unwrap();
     let resolved = resolve_highest_compatible(&req, &available);
 
-    assert!(resolved.is_none(), "Should return None when no compatible version");
+    assert!(
+        resolved.is_none(),
+        "Should return None when no compatible version"
+    );
 }
 
 #[tokio::test]
@@ -230,7 +232,7 @@ async fn test_resolve_with_prerelease_versions() {
     // Available versions: 1.0.0, 1.1.0-beta, 1.1.0
     let available: Vec<PackageVersion> = vec![
         "1.0.0".parse().unwrap(),
-        "1.1.0".parse().unwrap(),  // Assuming pre-release not supported yet
+        "1.1.0".parse().unwrap(), // Assuming pre-release not supported yet
     ];
 
     // Requirement: ^1.0.0 (should prefer stable over pre-release)

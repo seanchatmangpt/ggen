@@ -114,10 +114,7 @@ pub fn load_pack_metadata(cache_dir: &Path) -> Result<PackMetadata> {
     }
 
     // No metadata file found - return defaults
-    warn!(
-        "No metadata file found in {:?}, using defaults",
-        cache_dir
-    );
+    warn!("No metadata file found in {:?}, using defaults", cache_dir);
     Ok(PackMetadata::default())
 }
 
@@ -125,8 +122,7 @@ pub fn load_pack_metadata(cache_dir: &Path) -> Result<PackMetadata> {
 fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
     let content = fs::read_to_string(toml_path).map_err(|e| Error::IoError(e))?;
 
-    let package_toml: PackageToml =
-        toml::from_str(&content).map_err(Error::TomlError)?;
+    let package_toml: PackageToml = toml::from_str(&content).map_err(Error::TomlError)?;
 
     let signature = package_toml
         .security
@@ -324,10 +320,7 @@ trust_tier = "EnterpriseCertified"
 
     #[test]
     fn test_parse_trust_tier() {
-        assert_eq!(
-            parse_trust_tier("Blocked"),
-            Some(TrustTier::Blocked)
-        );
+        assert_eq!(parse_trust_tier("Blocked"), Some(TrustTier::Blocked));
         assert_eq!(
             parse_trust_tier("Experimental"),
             Some(TrustTier::Experimental)

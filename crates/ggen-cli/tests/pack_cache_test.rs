@@ -19,8 +19,8 @@ fn test_pack_cache_integration() {
         max_packs: 50,
         persistent: false, // Don't persist metadata in tests
     };
-    let cache = ggen_marketplace::cache::PackCache::new(config)
-        .expect("Failed to initialize cache");
+    let cache =
+        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     // Test cache stats initially empty
     let stats = cache.stats();
@@ -42,8 +42,8 @@ fn test_pack_cache_lru_eviction() {
         max_packs: 10,
         persistent: false,
     };
-    let cache = ggen_marketplace::cache::PackCache::new(config)
-        .expect("Failed to initialize cache");
+    let cache =
+        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     // Create and insert 3 packs
     for i in 1..=3 {
@@ -54,8 +54,8 @@ fn test_pack_cache_lru_eviction() {
 
         let package_id = ggen_marketplace::models::PackageId::new(&format!("test-pkg-{}", i))
             .expect("Invalid package ID");
-        let version = ggen_marketplace::models::PackageVersion::new("1.0.0")
-            .expect("Invalid version");
+        let version =
+            ggen_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
 
         let cached_pack = ggen_marketplace::cache::CachedPack::new(
             package_id,
@@ -86,14 +86,13 @@ fn test_pack_cache_digest_verification() {
         max_packs: 100,
         persistent: false,
     };
-    let cache = ggen_marketplace::cache::PackCache::new(config)
-        .expect("Failed to initialize cache");
+    let cache =
+        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     // Create a pack with known content
     let pack_dir = temp_dir.path().join("test-pack");
     fs::create_dir_all(&pack_dir).expect("Failed to create pack dir");
-    fs::write(pack_dir.join("test.txt"), b"known content")
-        .expect("Failed to write pack file");
+    fs::write(pack_dir.join("test.txt"), b"known content").expect("Failed to write pack file");
 
     // Calculate expected digest
     use sha2::{Digest, Sha256};
@@ -101,10 +100,9 @@ fn test_pack_cache_digest_verification() {
     hasher.update(b"known content");
     let expected_digest = hex::encode(hasher.finalize());
 
-    let package_id = ggen_marketplace::models::PackageId::new("test-pkg")
-        .expect("Invalid package ID");
-    let version = ggen_marketplace::models::PackageVersion::new("1.0.0")
-        .expect("Invalid version");
+    let package_id =
+        ggen_marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
+    let version = ggen_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
 
     let cached_pack = ggen_marketplace::cache::CachedPack::new(
         package_id,
@@ -115,7 +113,8 @@ fn test_pack_cache_digest_verification() {
     );
 
     // Verify digest matches
-    let verified = cache.verify_digest(&cached_pack)
+    let verified = cache
+        .verify_digest(&cached_pack)
         .expect("Digest verification failed");
     assert!(verified, "Digest verification should succeed");
 
@@ -142,13 +141,12 @@ fn test_pack_cache_persistence() {
         // Create and insert a pack
         let pack_dir = temp_dir.path().join("test-pack");
         fs::create_dir_all(&pack_dir).expect("Failed to create pack dir");
-        fs::write(pack_dir.join("test.txt"), "content")
-            .expect("Failed to write pack file");
+        fs::write(pack_dir.join("test.txt"), "content").expect("Failed to write pack file");
 
-        let package_id = ggen_marketplace::models::PackageId::new("test-pkg")
-            .expect("Invalid package ID");
-        let version = ggen_marketplace::models::PackageVersion::new("1.0.0")
-            .expect("Invalid version");
+        let package_id =
+            ggen_marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
+        let version =
+            ggen_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
 
         let cached_pack = ggen_marketplace::cache::CachedPack::new(
             package_id,
@@ -162,8 +160,8 @@ fn test_pack_cache_persistence() {
     } // cache1 drops, saving metadata
 
     // Load cache again
-    let cache2 = ggen_marketplace::cache::PackCache::new(config)
-        .expect("Failed to initialize cache");
+    let cache2 =
+        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     let stats = cache2.stats();
     assert_eq!(stats.total_packs, 1);

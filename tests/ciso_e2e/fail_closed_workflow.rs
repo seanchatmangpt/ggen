@@ -15,12 +15,11 @@ use super::helpers::*;
 
 #[test]
 fn test_invalid_pack_id_returns_error() {
-    let (_json, output, success, _code) = run_ggen_raw(&[
-        "packs",
-        "show",
-        "--pack_id",
-        "nonexistent-pack-12345",
-    ], None).unwrap();
+    let (_json, output, success, _code) = run_ggen_raw(
+        &["packs", "show", "--pack_id", "nonexistent-pack-12345"],
+        None,
+    )
+    .unwrap();
 
     println!("Invalid pack ID output:\n{}", output);
 
@@ -40,7 +39,6 @@ fn test_invalid_pack_id_returns_error() {
         output.contains("nonexistent-pack-12345"),
         "Error message should reference the invalid pack ID"
     );
-
 }
 
 // ==============================================================================
@@ -58,13 +56,17 @@ fn test_invalid_capability_returns_error() {
         "enable",
         "--surface",
         "nonexistent-surface-xyz",
-    ]).unwrap();
+    ])
+    .unwrap();
 
     println!("Invalid capability output:\n{}", output);
 
     // Based on real behavior, capability enable succeeds (creates synthetic packs)
     // but we verify the response is structured
-    assert!(success, "capability enable completes (may create synthetic packs)");
+    assert!(
+        success,
+        "capability enable completes (may create synthetic packs)"
+    );
 
     // Response must be structured JSON
     assert_nonempty_string(&json, "capability");
@@ -92,7 +94,6 @@ fn test_invalid_capability_returns_error() {
         "Note: capability enable creates synthetic packs for unknown surfaces. {} packs resolved.",
         atomic_packs.len()
     );
-
 }
 
 // ==============================================================================
@@ -102,20 +103,13 @@ fn test_invalid_capability_returns_error() {
 #[test]
 fn test_packs_show_requires_valid_id() {
     // Test with empty-ish pack ID
-    let (_json, output, success, _code) = run_ggen_raw(&[
-        "packs",
-        "show",
-        "--pack_id",
-        "",
-    ], None).unwrap();
+    let (_json, output, success, _code) =
+        run_ggen_raw(&["packs", "show", "--pack_id", ""], None).unwrap();
 
     println!("Empty pack ID output:\n{}", output);
 
     // Should fail gracefully
-    assert!(
-        !success,
-        "packs show with empty ID should fail"
-    );
+    assert!(!success, "packs show with empty ID should fail");
 
     // Should produce an error message
     let combined = output.to_lowercase();
@@ -125,21 +119,13 @@ fn test_packs_show_requires_valid_id() {
     );
 
     // Test with pack ID that has special characters
-    let (_json, output2, success2, _code2) = run_ggen_raw(&[
-        "packs",
-        "show",
-        "--pack_id",
-        "../../etc/passwd",
-    ], None).unwrap();
+    let (_json, output2, success2, _code2) =
+        run_ggen_raw(&["packs", "show", "--pack_id", "../../etc/passwd"], None).unwrap();
 
     println!("Path traversal pack ID output:\n{}", output2);
 
     // Should fail (not succeed silently)
-    assert!(
-        !success2,
-        "packs show with path traversal ID should fail"
-    );
-
+    assert!(!success2, "packs show with path traversal ID should fail");
 }
 
 // ==============================================================================
@@ -151,10 +137,7 @@ fn test_sync_without_init_returns_error() {
     let temp_dir = TempDir::new().unwrap();
 
     // Empty temp directory has no ggen.toml
-    let (_stdout, stderr, success, code) = run_ggen_raw(
-        &["sync"],
-        Some(temp_dir.path()),
-    ).unwrap();
+    let (_stdout, stderr, success, code) = run_ggen_raw(&["sync"], Some(temp_dir.path())).unwrap();
 
     println!("Sync without init stderr:\n{}", stderr);
 
@@ -172,11 +155,12 @@ fn test_sync_without_init_returns_error() {
 
     // Error message should be helpful (suggest what to do)
     assert!(
-        combined.contains("create") || combined.contains("specify") || combined.contains("not found"),
+        combined.contains("create")
+            || combined.contains("specify")
+            || combined.contains("not found"),
         "Error message should be helpful, got: {}",
         combined
     );
-
 }
 
 // ==============================================================================
@@ -185,12 +169,16 @@ fn test_sync_without_init_returns_error() {
 
 #[test]
 fn test_packs_validate_invalid_pack_returns_error() {
-    let (_json, output, success, _code) = run_ggen_raw(&[
-        "packs",
-        "validate",
-        "--pack_id",
-        "nonexistent-validate-pack-99999",
-    ], None).unwrap();
+    let (_json, output, success, _code) = run_ggen_raw(
+        &[
+            "packs",
+            "validate",
+            "--pack_id",
+            "nonexistent-validate-pack-99999",
+        ],
+        None,
+    )
+    .unwrap();
 
     println!("Validate invalid pack output:\n{}", output);
 
@@ -202,7 +190,6 @@ fn test_packs_validate_invalid_pack_returns_error() {
         output.contains("nonexistent-validate-pack-99999"),
         "Error message should reference the invalid pack ID"
     );
-
 }
 
 // ==============================================================================
@@ -216,7 +203,8 @@ fn test_policy_validate_without_manifest_fails() {
     let (_stdout, stderr, success, _code) = run_ggen_raw(
         &["policy", "validate", "--profile_id", "enterprise-strict"],
         Some(temp_dir.path()),
-    ).unwrap();
+    )
+    .unwrap();
 
     println!("Policy validate without manifest:\n{}", stderr);
 

@@ -8,8 +8,8 @@
 
 use ggen_core::graph::Graph;
 use ggen_core::pack_resolver::{PackResolver, ResolvedPacks, SparqlQuery, TemplateDef};
-use ggen_core::v6::passes::{EmissionPass, EmissionRule, ExtractionPass, TensorQuery};
 use ggen_core::v6::pass::{Pass, PassContext};
+use ggen_core::v6::passes::{EmissionPass, EmissionRule, ExtractionPass, TensorQuery};
 use ggen_marketplace::atomic::AtomicPackId;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -109,7 +109,10 @@ fn test_extraction_pass_extends_with_pack_queries() {
 
     // Extend with pack queries
     let result = pass.extend_with_pack_construct_queries(&resolved_packs.queries);
-    assert!(result.is_ok(), "extend_with_pack_construct_queries should succeed");
+    assert!(
+        result.is_ok(),
+        "extend_with_pack_construct_queries should succeed"
+    );
 
     // Verify pack query was added
     assert_eq!(
@@ -163,11 +166,7 @@ fn test_emission_pass_extends_with_pack_templates() {
     assert!(result.is_ok(), "extend_with_pack_templates should succeed");
 
     // Verify pack template was added as a rule
-    assert_eq!(
-        pass.rules.len(),
-        1,
-        "Should have 1 rule from pack template"
-    );
+    assert_eq!(pass.rules.len(), 1, "Should have 1 rule from pack template");
 
     let rule = &pass.rules[0];
     assert!(
@@ -220,10 +219,7 @@ fn test_pack_query_and_template_end_to_end() {
 
     // Execute μ₂: Extraction
     let extract_result = extraction.execute(&mut ctx).unwrap();
-    assert!(
-        extract_result.success,
-        "Extraction should succeed"
-    );
+    assert!(extract_result.success, "Extraction should succeed");
 
     // Verify extraction produced bindings
     // Note: In actual execution, CONSTRUCT queries add triples to the graph,
@@ -256,10 +252,7 @@ fn test_pack_query_and_template_end_to_end() {
         .map(|row| {
             let mut obj = serde_json::Map::new();
             for (key, value) in row {
-                obj.insert(
-                    key.clone(),
-                    serde_json::Value::String(value.to_string()),
-                );
+                obj.insert(key.clone(), serde_json::Value::String(value.to_string()));
             }
             serde_json::Value::Object(obj)
         })

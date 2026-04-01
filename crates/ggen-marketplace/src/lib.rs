@@ -32,8 +32,8 @@
 //! - Version history as RDF facts
 
 pub mod atomic;
-pub mod bundle;
 pub mod builders;
+pub mod bundle;
 pub mod cache;
 pub mod compatibility;
 pub mod composition_receipt;
@@ -59,23 +59,27 @@ pub mod trust;
 pub mod v3;
 pub mod validation;
 
-pub use atomic::{AtomicPackClass, AtomicPackCategory, AtomicPackId, foundation_packs};
+pub use atomic::{foundation_packs, AtomicPackCategory, AtomicPackClass, AtomicPackId};
 pub use bundle::{Bundle, Bundles};
 pub use cache::{CacheConfig, CacheStats, CachedPack, PackCache};
 pub use compatibility::{
-    CompatibilityChecker, CompatibilityDimension, CompatibilityReport, Conflict, ConflictResolution, ConflictSeverity,
+    CompatibilityChecker, CompatibilityDimension, CompatibilityReport, Conflict,
+    ConflictResolution, ConflictSeverity,
 };
 pub use composition_receipt::{CompositionReceipt, SignatureRecord};
 pub use error::{Error, Result};
 pub use install::Installer;
 pub use metrics::MetricsCollector;
 pub use models::*;
-pub use ownership::{MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget};
+pub use ownership::{
+    MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
+};
 pub use policy::{
     PackContext, Policy, PolicyEnforcer, PolicyId, PolicyReport, PolicyRule, PolicyViolation,
 };
 pub use profile::{
-    development_profile, enterprise_strict_profile, get_profile, predefined_profiles, Profile, ProfileId, ReceiptSpec, RuntimeConstraint,
+    development_profile, enterprise_strict_profile, get_profile, predefined_profiles, Profile,
+    ProfileId, ReceiptSpec, RuntimeConstraint,
 };
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;

@@ -7,8 +7,8 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
 // Re-export marketplace types for policy enforcement
-pub use ggen_marketplace::profile::{predefined_profiles, Profile, ProfileId};
 pub use ggen_marketplace::policy::{PackContext, PolicyReport};
+pub use ggen_marketplace::profile::{predefined_profiles, Profile, ProfileId};
 
 // ============================================================================
 // Output Types
@@ -95,7 +95,8 @@ fn load_pack_contexts_from_project() -> Result<Vec<PackContext>, String> {
     let lockfile_path = Path::new(".ggen/packs.lock");
     if !lockfile_path.exists() {
         return Err(
-            "No project found. Please install packs first with 'ggen packs install <pack-id>'".to_string()
+            "No project found. Please install packs first with 'ggen packs install <pack-id>'"
+                .to_string(),
         );
     }
 
@@ -208,17 +209,18 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 #[verb]
 fn validate(profile: String) -> VerbResult<ValidateOutput> {
     // Get the profile
-    let profile_obj = ggen_marketplace::profile::get_profile(&profile)
-        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e)))?;
+    let profile_obj = ggen_marketplace::profile::get_profile(&profile).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e))
+    })?;
 
     // Load pack contexts from project
-    let pack_contexts = load_pack_contexts_from_project()
-        .map_err(clap_noun_verb::NounVerbError::argument_error)?;
+    let pack_contexts =
+        load_pack_contexts_from_project().map_err(clap_noun_verb::NounVerbError::argument_error)?;
 
     // Enforce policy
-    let report = profile_obj
-        .enforce(&pack_contexts)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Policy enforcement failed: {}", e)))?;
+    let report = profile_obj.enforce(&pack_contexts).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Policy enforcement failed: {}", e))
+    })?;
 
     // Format violations
     let violations: Vec<ViolationSummary> = report
@@ -253,8 +255,9 @@ fn validate(profile: String) -> VerbResult<ValidateOutput> {
 /// Show detailed profile information
 #[verb]
 fn show(profile_id: String) -> VerbResult<ShowOutput> {
-    let profile = ggen_marketplace::profile::get_profile(&profile_id)
-        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e)))?;
+    let profile = ggen_marketplace::profile::get_profile(&profile_id).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e))
+    })?;
 
     println!("Profile: {} ({})", profile.id.as_str(), profile.name);
     println!("Description: {}", profile.description);
@@ -269,7 +272,10 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
     println!("Trust Tier: {:?}", profile.trust_requirements);
     println!("Receipt Spec: {:?}", profile.receipt_requirements);
     println!();
-    println!("Runtime Constraints ({}):", profile.runtime_constraints.len());
+    println!(
+        "Runtime Constraints ({}):",
+        profile.runtime_constraints.len()
+    );
     for (idx, constraint) in profile.runtime_constraints.iter().enumerate() {
         println!("  Constraint {}:", idx + 1);
         println!("    Allowed Runtimes: {:?}", constraint.allowed_runtimes);

@@ -29,9 +29,7 @@ fn test_lockfile_save_and_load() {
     lockfile.add_pack("test-pack", pack);
 
     // Save the lockfile
-    lockfile
-        .save(&lock_path)
-        .expect("Failed to save lockfile");
+    lockfile.save(&lock_path).expect("Failed to save lockfile");
 
     // Verify the file exists
     assert!(lock_path.exists(), "Lockfile should exist after save");
@@ -101,14 +99,11 @@ fn test_lockfile_format_correctness() {
         },
     );
 
-    lockfile
-        .save(&lock_path)
-        .expect("Failed to save lockfile");
+    lockfile.save(&lock_path).expect("Failed to save lockfile");
 
     // Load and verify JSON structure
     let content = std::fs::read_to_string(&lock_path).expect("Failed to read lockfile");
-    let json: serde_json::Value =
-        serde_json::from_str(&content).expect("Failed to parse JSON");
+    let json: serde_json::Value = serde_json::from_str(&content).expect("Failed to parse JSON");
 
     // Verify top-level fields
     assert!(json.get("ggen_version").is_some());
@@ -151,13 +146,14 @@ fn test_lockfile_validation_detects_missing_dependencies() {
     lockfile.add_pack("test-pack", pack);
 
     // Save should succeed (validation happens on load)
-    lockfile
-        .save(&lock_path)
-        .expect("Failed to save lockfile");
+    lockfile.save(&lock_path).expect("Failed to save lockfile");
 
     // Loading should fail validation
     let result = PackLockfile::from_file(&lock_path);
-    assert!(result.is_err(), "Should fail validation for missing dependency");
+    assert!(
+        result.is_err(),
+        "Should fail validation for missing dependency"
+    );
 
     let err_msg = result.unwrap_err().to_string();
     assert!(
@@ -197,9 +193,7 @@ fn test_lockfile_updates_timestamp() {
     );
 
     // Save, load, and verify
-    lockfile
-        .save(&lock_path)
-        .expect("Failed to save lockfile");
+    lockfile.save(&lock_path).expect("Failed to save lockfile");
     let loaded = PackLockfile::from_file(&lock_path).expect("Failed to load lockfile");
 
     assert_eq!(loaded.updated_at, lockfile.updated_at);

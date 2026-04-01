@@ -146,9 +146,7 @@ impl OwnershipDeclaration {
     /// Create a mergeable ownership declaration.
     #[must_use]
     pub fn mergeable(
-        target: OwnershipTarget,
-        owner_pack: String,
-        merge_strategy: MergeStrategy,
+        target: OwnershipTarget, owner_pack: String, merge_strategy: MergeStrategy,
     ) -> Self {
         Self {
             target,
@@ -181,12 +179,10 @@ impl OwnershipDeclaration {
         }
 
         match (&self.class, &other.class) {
-            (OwnershipClass::Exclusive, OwnershipClass::Exclusive) => {
-                Some(format!(
-                    "Exclusive overlap: {:?} owned by both {} and {}",
-                    self.target, self.owner_pack, other.owner_pack
-                ))
-            }
+            (OwnershipClass::Exclusive, OwnershipClass::Exclusive) => Some(format!(
+                "Exclusive overlap: {:?} owned by both {} and {}",
+                self.target, self.owner_pack, other.owner_pack
+            )),
             (OwnershipClass::ForbiddenOverlap, _) | (_, OwnershipClass::ForbiddenOverlap) => {
                 Some(format!(
                     "Forbidden overlap: {:?} has forbidden overlap between {} and {}",
@@ -196,12 +192,10 @@ impl OwnershipDeclaration {
             (OwnershipClass::Mergeable, OwnershipClass::Mergeable) => {
                 // Check if merge strategies are compatible
                 match (&self.merge_strategy, &other.merge_strategy) {
-                    (Some(ms1), Some(ms2)) if ms1 != ms2 => {
-                        Some(format!(
-                            "Incompatible merge strategies for {:?}: {} wants {:?}, {} wants {:?}",
-                            self.target, self.owner_pack, ms1, other.owner_pack, ms2
-                        ))
-                    }
+                    (Some(ms1), Some(ms2)) if ms1 != ms2 => Some(format!(
+                        "Incompatible merge strategies for {:?}: {} wants {:?}, {} wants {:?}",
+                        self.target, self.owner_pack, ms1, other.owner_pack, ms2
+                    )),
                     _ => None, // Merge strategies are compatible
                 }
             }
@@ -212,22 +206,15 @@ impl OwnershipDeclaration {
                     self.target, self.owner_pack, other.owner_pack
                 ))
             }
-            (OwnershipClass::Overlay, OwnershipClass::Mergeable) | (OwnershipClass::Mergeable, OwnershipClass::Overlay) => {
-                Some(format!(
-                    "Incompatible ownership classes for {:?}: {} is {:?}, {} is {:?}",
-                    self.target,
-                    self.owner_pack,
-                    self.class,
-                    other.owner_pack,
-                    other.class
-                ))
-            }
-            (OwnershipClass::Exclusive, _) | (_, OwnershipClass::Exclusive) => {
-                Some(format!(
-                    "Exclusive violation: {:?} owned exclusively by {}, but {} also claims {:?}",
-                    self.target, self.owner_pack, other.owner_pack, other.class
-                ))
-            }
+            (OwnershipClass::Overlay, OwnershipClass::Mergeable)
+            | (OwnershipClass::Mergeable, OwnershipClass::Overlay) => Some(format!(
+                "Incompatible ownership classes for {:?}: {} is {:?}, {} is {:?}",
+                self.target, self.owner_pack, self.class, other.owner_pack, other.class
+            )),
+            (OwnershipClass::Exclusive, _) | (_, OwnershipClass::Exclusive) => Some(format!(
+                "Exclusive violation: {:?} owned exclusively by {}, but {} also claims {:?}",
+                self.target, self.owner_pack, other.owner_pack, other.class
+            )),
         }
     }
 }
@@ -334,11 +321,8 @@ mod tests {
             "pack-a".to_string(),
             MergeStrategy::Concat,
         );
-        let decl2 = OwnershipDeclaration::mergeable(
-            target,
-            "pack-b".to_string(),
-            MergeStrategy::Concat,
-        );
+        let decl2 =
+            OwnershipDeclaration::mergeable(target, "pack-b".to_string(), MergeStrategy::Concat);
 
         assert!(decl1.conflicts_with(&decl2).is_none());
     }
@@ -390,11 +374,8 @@ mod tests {
     fn test_forbidden_overlap() {
         let target = OwnershipTarget::ProtocolField("api_version".to_string());
         let decl1 = OwnershipDeclaration::forbidden(target.clone(), "pack-a".to_string());
-        let decl2 = OwnershipDeclaration::mergeable(
-            target,
-            "pack-b".to_string(),
-            MergeStrategy::Concat,
-        );
+        let decl2 =
+            OwnershipDeclaration::mergeable(target, "pack-b".to_string(), MergeStrategy::Concat);
 
         assert!(decl1.conflicts_with(&decl2).is_some());
     }

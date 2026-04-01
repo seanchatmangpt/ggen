@@ -2,10 +2,10 @@
 //!
 //! Chicago TDD: Tests verify actual receipt verification behavior
 
+use ggen_receipt::{generate_keypair, Receipt};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
-use ggen_receipt::{Receipt, generate_keypair};
 
 /// Test helper: Create a test receipt
 fn create_test_receipt(temp_dir: &PathBuf) -> (String, String) {
@@ -21,28 +21,27 @@ fn create_test_receipt(temp_dir: &PathBuf) -> (String, String) {
     .expect("Failed to sign receipt");
 
     let receipt_path = temp_dir.join("test-receipt.json");
-    let receipt_json = serde_json::to_string_pretty(&receipt)
-        .expect("Failed to serialize receipt");
+    let receipt_json = serde_json::to_string_pretty(&receipt).expect("Failed to serialize receipt");
 
-    fs::write(&receipt_path, receipt_json)
-        .expect("Failed to write receipt file");
+    fs::write(&receipt_path, receipt_json).expect("Failed to write receipt file");
 
-    (receipt_path.to_string_lossy().to_string(), hex::encode(_verifying_key.to_bytes()))
+    (
+        receipt_path.to_string_lossy().to_string(),
+        hex::encode(_verifying_key.to_bytes()),
+    )
 }
 
 /// Test helper: Create a public key file
 fn create_public_key_file(temp_dir: &PathBuf, key_hex: &str) -> String {
     let key_path = temp_dir.join("public-key.hex");
-    fs::write(&key_path, key_hex)
-        .expect("Failed to write public key file");
+    fs::write(&key_path, key_hex).expect("Failed to write public key file");
 
     key_path.to_string_lossy().to_string()
 }
 
 #[test]
 fn test_receipt_verify_with_valid_signature() {
-    let temp_dir = TempDir::new()
-        .expect("Failed to create temp dir");
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let (receipt_path, verifying_key_hex) = create_test_receipt(temp_dir.path());
     let key_path = create_public_key_file(temp_dir.path(), &verifying_key_hex);
@@ -50,7 +49,13 @@ fn test_receipt_verify_with_valid_signature() {
     // Run the receipt verify command via CLI
     let output = assert_cmd::Command::cargo_bin("ggen")
         .unwrap()
-        .args(["receipt", "verify", &receipt_path, "--public-key", &key_path])
+        .args([
+            "receipt",
+            "verify",
+            &receipt_path,
+            "--public-key",
+            &key_path,
+        ])
         .output()
         .expect("Failed to execute command");
 
@@ -64,8 +69,7 @@ fn test_receipt_verify_with_valid_signature() {
 
 #[test]
 fn test_receipt_verify_with_wrong_key() {
-    let temp_dir = TempDir::new()
-        .expect("Failed to create temp dir");
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
@@ -77,7 +81,13 @@ fn test_receipt_verify_with_wrong_key() {
     // Run the receipt verify command via CLI
     let output = assert_cmd::Command::cargo_bin("ggen")
         .unwrap()
-        .args(["receipt", "verify", &receipt_path, "--public-key", &key_path])
+        .args([
+            "receipt",
+            "verify",
+            &receipt_path,
+            "--public-key",
+            &key_path,
+        ])
         .output()
         .expect("Failed to execute command");
 
@@ -91,8 +101,7 @@ fn test_receipt_verify_with_wrong_key() {
 
 #[test]
 fn test_receipt_info_displays_receipt_details() {
-    let temp_dir = TempDir::new()
-        .expect("Failed to create temp dir");
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
@@ -113,8 +122,7 @@ fn test_receipt_info_displays_receipt_details() {
 
 #[test]
 fn test_receipt_verify_without_key_returns_error() {
-    let temp_dir = TempDir::new()
-        .expect("Failed to create temp dir");
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
@@ -134,8 +142,7 @@ fn test_receipt_verify_without_key_returns_error() {
 
 #[test]
 fn test_receipt_verify_nonexistent_file() {
-    let temp_dir = TempDir::new()
-        .expect("Failed to create temp dir");
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let fake_path = temp_dir.path().join("nonexistent-receipt.json");
     let fake_path_str = fake_path.to_string_lossy().to_string();

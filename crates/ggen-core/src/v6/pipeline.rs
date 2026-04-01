@@ -18,7 +18,9 @@ use crate::v6::pass::{Pass, PassContext, PassExecution, PassResult};
 use crate::v6::passes::{
     CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
 };
-use crate::v6::receipt::{BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies};
+use crate::v6::receipt::{
+    BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies,
+};
 use crate::v6::vocabulary::VocabularyRegistry;
 use ggen_marketplace::trust::TrustTier;
 use ggen_utils::error::{Error, Result};
@@ -38,13 +40,11 @@ fn stage_pack_templates(
     for t in templates {
         let dest = stage.join(&t.path);
         if let Some(p) = dest.parent() {
-            std::fs::create_dir_all(p).map_err(|e| {
-                Error::new(&format!("Failed to create pack-stage dir: {}", e))
-            })?;
+            std::fs::create_dir_all(p)
+                .map_err(|e| Error::new(&format!("Failed to create pack-stage dir: {}", e)))?;
         }
-        std::fs::write(&dest, &t.content).map_err(|e| {
-            Error::new(&format!("Failed to write staged template: {}", e))
-        })?;
+        std::fs::write(&dest, &t.content)
+            .map_err(|e| Error::new(&format!("Failed to write staged template: {}", e)))?;
         names.push(t.path.display().to_string());
     }
     Ok(names)
@@ -431,7 +431,11 @@ impl StagedPipeline {
         }
         let elapsed = start.elapsed();
         tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
-        tracing::info!(stage = "mu1", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        tracing::info!(
+            stage = "mu1",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
         drop(_guard);
 
         // μ₂: Extraction (pipeline.extract — extract skill definitions via SELECT)
@@ -455,7 +459,11 @@ impl StagedPipeline {
         }
         let elapsed = start.elapsed();
         tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
-        tracing::info!(stage = "mu2", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        tracing::info!(
+            stage = "mu2",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
         drop(_guard);
 
         // Stage pack templates under .ggen/pack-stage/ (μ₃ rules may reference these paths)
@@ -485,7 +493,11 @@ impl StagedPipeline {
         }
         let elapsed = start.elapsed();
         tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
-        tracing::info!(stage = "mu3", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        tracing::info!(
+            stage = "mu3",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
         drop(_guard);
 
         // μ₄: Canonicalization (pipeline.validate — quality gate validation)
@@ -509,7 +521,11 @@ impl StagedPipeline {
         }
         let elapsed = start.elapsed();
         tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
-        tracing::info!(stage = "mu4", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        tracing::info!(
+            stage = "mu4",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
         drop(_guard);
 
         // Collect generated files
@@ -554,7 +570,9 @@ impl StagedPipeline {
 
             // Add pack provenance
             for pack_id in &resolved.atomic_packs {
-                let version = resolved.pack_versions.get(&pack_id.to_string())
+                let version = resolved
+                    .pack_versions
+                    .get(&pack_id.to_string())
                     .cloned()
                     .unwrap_or_else(|| "unknown".to_string());
 
@@ -600,7 +618,11 @@ impl StagedPipeline {
 
         let elapsed = start.elapsed();
         tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
-        tracing::info!(stage = "mu5", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        tracing::info!(
+            stage = "mu5",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
         drop(_guard);
 
         Ok(receipt)

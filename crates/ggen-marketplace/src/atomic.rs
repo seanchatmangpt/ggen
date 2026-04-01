@@ -17,7 +17,6 @@ use std::str::FromStr;
 #[serde(rename_all = "kebab-case")]
 pub enum AtomicPackClass {
     // ===== SURFACES (enterprise-visible interfaces) =====
-
     /// MCP (Model Context Protocol) surface
     #[serde(rename = "surface-mcp")]
     SurfaceMcp,
@@ -27,7 +26,6 @@ pub enum AtomicPackClass {
     SurfaceA2a,
 
     // ===== CONTRACTS (external API contracts) =====
-
     /// OpenAPI contract surface
     #[serde(rename = "contract-openapi")]
     ContractOpenapi,
@@ -37,7 +35,6 @@ pub enum AtomicPackClass {
     ContractGraphql,
 
     // ===== PROJECTIONS (implementation languages) =====
-
     /// Rust projection
     #[serde(rename = "projection-rust")]
     ProjectionRust,
@@ -59,7 +56,6 @@ pub enum AtomicPackClass {
     ProjectionGo,
 
     // ===== RUNTIMES (deployment models) =====
-
     /// stdio runtime
     #[serde(rename = "runtime-stdio")]
     RuntimeStdio,
@@ -81,7 +77,6 @@ pub enum AtomicPackClass {
     RuntimeStandalone,
 
     // ===== POLICY (governance rules) =====
-
     /// No defaults policy (forbid all inferred capabilities)
     #[serde(rename = "policy-no-defaults")]
     PolicyNoDefaults,
@@ -91,7 +86,6 @@ pub enum AtomicPackClass {
     PolicyStrict,
 
     // ===== VALIDATORS (quality gates) =====
-
     /// Protocol-visible values validator
     #[serde(rename = "validator-protocol-visible-values")]
     ValidatorProtocolVisibleValues,
@@ -101,7 +95,6 @@ pub enum AtomicPackClass {
     ValidatorShacl,
 
     // ===== RECEIPTS (proof formats) =====
-
     /// Enterprise-signed receipts
     #[serde(rename = "receipt-enterprise-signed")]
     ReceiptEnterpriseSigned,
@@ -111,7 +104,6 @@ pub enum AtomicPackClass {
     ReceiptChained,
 
     // ===== CONSEQUENCES (migration/upgrade behavior) =====
-
     /// Semver migration consequence
     #[serde(rename = "consequence-semver-migration")]
     ConsequenceSemverMigration,
@@ -121,7 +113,6 @@ pub enum AtomicPackClass {
     ConsequenceBreakingChange,
 
     // ===== CORE (foundation infrastructure) =====
-
     /// Core ontology
     #[serde(rename = "core-ontology")]
     CoreOntology,

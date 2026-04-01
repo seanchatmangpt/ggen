@@ -5,6 +5,37 @@
 
 use super::helpers::*;
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/// Create a minimal `.ggen/packs.lock` in the given workspace directory.
+///
+/// The lockfile contains a single entry so that `ggen policy validate` can
+/// load pack contexts without immediately erroring with "No project found".
+/// The referenced pack does not need to exist in the cache -- `load_pack_metadata`
+/// returns defaults when no `package.toml` / `metadata.json` is found.
+fn setup_minimal_lockfile(workspace: &std::path::Path) {
+    let ggen_dir = workspace.join(".ggen");
+    std::fs::create_dir_all(&ggen_dir).expect("failed to create .ggen dir");
+
+    let lockfile_content = r#"
+updated_at = "2026-04-01T00:00:00Z"
+ggen_version = "6.0.1"
+
+[packs.e2e-test-pack]
+version = "1.0.0"
+installed_at = "2026-04-01T00:00:00Z"
+
+[packs.e2e-test-pack.source]
+type = "Local"
+path = "/tmp/nonexistent-pack"
+"#;
+
+    std::fs::write(ggen_dir.join("packs.lock"), lockfile_content.trim_start())
+        .expect("failed to write packs.lock");
+}
+
 #[test]
 fn test_policy_list_returns_all_profiles() {
     let temp = create_temp_workspace().unwrap();
@@ -21,15 +52,18 @@ fn test_policy_list_returns_all_profiles() {
     let profiles = json["profiles"]
         .as_array()
         .expect("policy list should have profiles array");
-    let total = json["total"].as_u64().expect("policy list should have total");
+    let total = json["total"]
+        .as_u64()
+        .expect("policy list should have total");
     assert_eq!(profiles.len(), total as usize);
-    assert!(total >= 3, "Expected at least 3 policy profiles, got {}", total);
+    assert!(
+        total >= 3,
+        "Expected at least 3 policy profiles, got {}",
+        total
+    );
 
     // Step 4: Collect profile IDs
-    let profile_ids: Vec<&str> = profiles
-        .iter()
-        .filter_map(|p| p["id"].as_str())
-        .collect();
+    let profile_ids: Vec<&str> = profiles.iter().filter_map(|p| p["id"].as_str()).collect();
     println!("[CISO] Available profiles: {:?}", profile_ids);
 
     // Step 5: Assert expected profiles exist
@@ -48,14 +82,8 @@ fn test_policy_list_returns_all_profiles() {
 
     // Step 6: Assert each profile has required fields
     for profile in profiles {
-        assert!(
-            profile["id"].is_string(),
-            "profile should have id"
-        );
-        assert!(
-            profile["name"].is_string(),
-            "profile should have name"
-        );
+        assert!(profile["id"].is_string(), "profile should have id");
+        assert!(profile["name"].is_string(), "profile should have name");
         assert!(
             profile["description"].is_string(),
             "profile should have description"
@@ -99,7 +127,8 @@ fn test_policy_show_enterprise_strict() {
     let (show_output, _) = run_ggen(
         &["policy", "show", "--profile_id", "enterprise-strict"],
         workspace_path(&temp),
-    ).unwrap();
+    )
+    .unwrap();
     let show_json = extract_json_from_output(&show_output).unwrap();
 
     // Step 3: Assert detailed profile structure
@@ -120,7 +149,9 @@ fn test_policy_show_enterprise_strict() {
     );
 
     // Step 4: Assert policies array exists with correct count
-    let policies = show_json["policies"].as_array().expect("show should have policies");
+    let policies = show_json["policies"]
+        .as_array()
+        .expect("show should have policies");
     let list_policy_count = enterprise.unwrap()["policy_count"].as_u64().unwrap();
     assert_eq!(
         policies.len(),
@@ -136,7 +167,10 @@ fn test_policy_show_enterprise_strict() {
     for policy in policies {
         assert!(policy["id"].is_string(), "policy should have id");
         assert!(policy["name"].is_string(), "policy should have name");
-        assert!(policy["description"].is_string(), "policy should have description");
+        assert!(
+            policy["description"].is_string(),
+            "policy should have description"
+        );
     }
 
     println!(
@@ -146,17 +180,23 @@ fn test_policy_show_enterprise_strict() {
 }
 
 #[test]
-#[ignore = "policy validate subcommand does not exist in CLI"]
 fn test_policy_validate_enterprise_strict() {
     let temp = create_temp_workspace().unwrap();
+
+    // Step 0: Create minimal .ggen/packs.lock so validate can load pack contexts
+    setup_minimal_lockfile(workspace_path(&temp));
 
     // Step 1: Run `ggen policy validate --profile enterprise-strict`
     println!("[CISO] Running: ggen policy validate --profile enterprise-strict");
     let (stdout, exit_code) = run_ggen(
         &["policy", "validate", "--profile", "enterprise-strict"],
         workspace_path(&temp),
-    ).unwrap();
-    println!("[CISO] policy validate enterprise-strict exit code: {}", exit_code);
+    )
+    .unwrap();
+    println!(
+        "[CISO] policy validate enterprise-strict exit code: {}",
+        exit_code
+    );
 
     // Step 2: Parse JSON output
     let json = extract_json_from_output(&stdout).unwrap();
@@ -207,17 +247,23 @@ fn test_policy_validate_enterprise_strict() {
 }
 
 #[test]
-#[ignore = "policy validate subcommand does not exist in CLI"]
 fn test_policy_validate_development_allows_experimental() {
     let temp = create_temp_workspace().unwrap();
+
+    // Step 0: Create minimal .ggen/packs.lock so validate can load pack contexts
+    setup_minimal_lockfile(workspace_path(&temp));
 
     // Step 1: Run `ggen policy validate --profile development`
     println!("[CISO] Running: ggen policy validate --profile development");
     let (stdout, exit_code) = run_ggen(
         &["policy", "validate", "--profile", "development"],
         workspace_path(&temp),
-    ).unwrap();
-    println!("[CISO] policy validate development exit code: {}", exit_code);
+    )
+    .unwrap();
+    println!(
+        "[CISO] policy validate development exit code: {}",
+        exit_code
+    );
 
     // Step 2: Parse JSON output
     let json = extract_json_from_output(&stdout).unwrap();
@@ -248,7 +294,10 @@ fn test_policy_validate_development_allows_experimental() {
     let passed = json["passed"].as_bool().unwrap();
     let violation_count = json["violation_count"].as_u64().unwrap();
     assert!(passed, "development profile validation should pass");
-    assert_eq!(violation_count, 0, "development profile should have 0 violations");
+    assert_eq!(
+        violation_count, 0,
+        "development profile should have 0 violations"
+    );
 
     println!(
         "[CISO] PASS: policy validate development: passed={}, policies_checked={} (permissive mode)",

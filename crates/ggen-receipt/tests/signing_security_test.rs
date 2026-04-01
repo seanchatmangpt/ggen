@@ -10,7 +10,7 @@
 //! - Tampered receipt detection
 //! - Edge cases and error paths
 
-use ggen_receipt::{Receipt, ReceiptChain, generate_keypair, hash_data};
+use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 use std::fs;
 use tempfile::TempDir;
 
@@ -59,7 +59,10 @@ fn test_ed25519_signing_produces_valid_signature() {
     assert_eq!(sig_bytes.len(), 64, "Ed25519 signature must be 64 bytes");
 
     // Verification should succeed
-    assert!(receipt.verify(&verifying_key).is_ok(), "Signature must verify");
+    assert!(
+        receipt.verify(&verifying_key).is_ok(),
+        "Signature must verify"
+    );
 }
 
 #[test]
@@ -134,7 +137,10 @@ fn test_sha256_hash_avalanche_effect() {
     }
 
     // At least 100 bits should differ (out of 256)
-    assert!(differing_bits >= 100, "SHA-256 must have good avalanche effect");
+    assert!(
+        differing_bits >= 100,
+        "SHA-256 must have good avalanche effect"
+    );
 }
 
 #[test]
@@ -184,7 +190,10 @@ fn test_receipt_hash_includes_all_fields() {
     let hash1 = receipt1.hash().expect("hashing failed");
     let hash2 = receipt2.hash().expect("hashing failed");
 
-    assert_ne!(hash1, hash2, "Different operation_id must produce different hash");
+    assert_ne!(
+        hash1, hash2,
+        "Different operation_id must produce different hash"
+    );
 }
 
 #[test]
@@ -192,45 +201,33 @@ fn test_receipt_chain_verification_valid_chain() {
     let (signing_key, verifying_key) = generate_keypair();
 
     // Create genesis receipt
-    let genesis = Receipt::new(
-        "genesis-op".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("signing failed");
+    let genesis = Receipt::new("genesis-op".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("genesis creation failed");
 
     // Add linked receipts
-    let receipt2 = Receipt::new(
-        "second-op".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .chain(&genesis)
-    .expect("chaining failed")
-    .sign(&signing_key)
-    .expect("signing failed");
+    let receipt2 = Receipt::new("second-op".to_string(), vec![], vec![], None)
+        .chain(&genesis)
+        .expect("chaining failed")
+        .sign(&signing_key)
+        .expect("signing failed");
 
-    let receipt3 = Receipt::new(
-        "third-op".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .chain(&receipt2)
-    .expect("chaining failed")
-    .sign(&signing_key)
-    .expect("signing failed");
+    let receipt3 = Receipt::new("third-op".to_string(), vec![], vec![], None)
+        .chain(&receipt2)
+        .expect("chaining failed")
+        .sign(&signing_key)
+        .expect("signing failed");
 
     chain.append(receipt2).expect("append failed");
     chain.append(receipt3).expect("append failed");
 
     // Verify entire chain
-    assert!(chain.verify(&verifying_key).is_ok(), "Valid chain must verify");
+    assert!(
+        chain.verify(&verifying_key).is_ok(),
+        "Valid chain must verify"
+    );
     assert_eq!(chain.len(), 3, "Chain must have 3 receipts");
 }
 
@@ -238,14 +235,9 @@ fn test_receipt_chain_verification_valid_chain() {
 fn test_receipt_chain_verification_fails_with_broken_link() {
     let (signing_key, verifying_key) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "genesis-op".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("signing failed");
+    let genesis = Receipt::new("genesis-op".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis).expect("genesis creation failed");
 
@@ -263,7 +255,10 @@ fn test_receipt_chain_verification_fails_with_broken_link() {
     assert!(result.is_err(), "Broken link should be rejected");
 
     let err = result.unwrap_err();
-    assert!(err.to_string().contains("Hash mismatch"), "Error must indicate hash mismatch");
+    assert!(
+        err.to_string().contains("Hash mismatch"),
+        "Error must indicate hash mismatch"
+    );
 }
 
 #[test]
@@ -271,14 +266,9 @@ fn test_receipt_chain_verification_fails_with_wrong_signature() {
     let (signing_key, _) = generate_keypair();
     let (_, wrong_verifying_key) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "genesis-op".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("signing failed");
+    let genesis = Receipt::new("genesis-op".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("signing failed");
 
     let chain = ReceiptChain::from_genesis(genesis).expect("genesis creation failed");
 
@@ -302,7 +292,10 @@ fn test_receipt_chain_rejects_genesis_with_previous_hash() {
     .expect("signing failed");
 
     let result = ReceiptChain::from_genesis(invalid_genesis);
-    assert!(result.is_err(), "Genesis with previous hash must be rejected");
+    assert!(
+        result.is_err(),
+        "Genesis with previous hash must be rejected"
+    );
 }
 
 #[test]
@@ -319,7 +312,10 @@ fn test_receipt_serialization_preserves_signature() {
     assert_eq!(receipt.signature, deserialized.signature);
 
     // Verification should still work
-    assert!(deserialized.verify(&verifying_key).is_ok(), "Deserialized receipt must verify");
+    assert!(
+        deserialized.verify(&verifying_key).is_ok(),
+        "Deserialized receipt must verify"
+    );
 }
 
 #[test]
@@ -341,8 +337,7 @@ fn test_receipt_serialization_preserves_chain_links() {
     let deserialized: Receipt = serde_json::from_str(&json).expect("deserialization failed");
 
     assert_eq!(
-        receipt2.previous_receipt_hash,
-        deserialized.previous_receipt_hash,
+        receipt2.previous_receipt_hash, deserialized.previous_receipt_hash,
         "Chain links must be preserved"
     );
 }
@@ -364,7 +359,10 @@ fn test_receipt_persistence_to_file() {
 
     // Verify loaded receipt
     assert_eq!(receipt.signature, loaded.signature);
-    assert!(loaded.verify(&verifying_key).is_ok(), "Loaded receipt must verify");
+    assert!(
+        loaded.verify(&verifying_key).is_ok(),
+        "Loaded receipt must verify"
+    );
 }
 
 #[test]
@@ -381,7 +379,10 @@ fn test_multiple_signatures_with_same_key() {
         .expect("signing failed");
 
     // Signatures should be different (different data)
-    assert_ne!(receipt1.signature, receipt2.signature, "Different data must produce different signatures");
+    assert_ne!(
+        receipt1.signature, receipt2.signature,
+        "Different data must produce different signatures"
+    );
 
     // Both should verify
     assert!(receipt1.verify(&verifying_key).is_ok());
@@ -411,23 +412,24 @@ fn test_signature_includes_all_fields() {
     .expect("signing failed");
 
     // Signatures must be different
-    assert_ne!(receipt1.signature, receipt2.signature, "Signature must depend on all fields");
+    assert_ne!(
+        receipt1.signature, receipt2.signature,
+        "Signature must depend on all fields"
+    );
 }
 
 #[test]
 fn test_empty_receipt_can_be_signed() {
     let (signing_key, verifying_key) = generate_keypair();
 
-    let receipt = Receipt::new(
-        "empty-op".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("signing failed");
+    let receipt = Receipt::new("empty-op".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("signing failed");
 
-    assert!(receipt.verify(&verifying_key).is_ok(), "Empty receipt must verify");
+    assert!(
+        receipt.verify(&verifying_key).is_ok(),
+        "Empty receipt must verify"
+    );
 }
 
 #[test]
@@ -447,7 +449,10 @@ fn test_large_input_output_hashes() {
     .sign(&signing_key)
     .expect("signing failed");
 
-    assert!(receipt.verify(&verifying_key).is_ok(), "Large receipt must verify");
+    assert!(
+        receipt.verify(&verifying_key).is_ok(),
+        "Large receipt must verify"
+    );
     assert_eq!(receipt.input_hashes.len(), 100);
     assert_eq!(receipt.output_hashes.len(), 100);
 }

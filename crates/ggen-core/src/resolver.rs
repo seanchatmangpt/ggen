@@ -44,14 +44,9 @@ impl TemplateResolver {
     pub fn new() -> Result<Self> {
         let cache_dir = std::env::var_os("GGEN_PACK_CACHE_DIR")
             .map(PathBuf::from)
-            .or_else(|| {
-                dirs::cache_dir()
-                    .map(|d| d.join("ggen").join("packs"))
-            })
+            .or_else(|| dirs::cache_dir().map(|d| d.join("ggen").join("packs")))
             .ok_or_else(|| {
-                Error::new(
-                    "Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR",
-                )
+                Error::new("Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR")
             })?;
 
         Ok(Self { cache_dir })
@@ -208,9 +203,8 @@ impl TemplateResolver {
             return Ok(results);
         }
 
-        let pack_entries = std::fs::read_dir(&self.cache_dir).map_err(|e| {
-            Error::new(&format!("Failed to read cache directory: {}", e))
-        })?;
+        let pack_entries = std::fs::read_dir(&self.cache_dir)
+            .map_err(|e| Error::new(&format!("Failed to read cache directory: {}", e)))?;
 
         for pack_entry in pack_entries.flatten() {
             let pack_dir = pack_entry.path();

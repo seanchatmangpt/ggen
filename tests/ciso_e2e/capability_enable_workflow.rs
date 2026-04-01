@@ -29,10 +29,7 @@ fn test_capability_list_returns_valid_json() {
 
     // Step 5: Assert each capability has id, name, category
     for cap in capabilities {
-        assert!(
-            cap["id"].is_string(),
-            "capability should have an id string"
-        );
+        assert!(cap["id"].is_string(), "capability should have an id string");
         assert!(
             cap["name"].is_string(),
             "capability should have a name string"
@@ -70,15 +67,24 @@ fn test_capability_list_then_inspect_workflow() {
         "Need at least one capability for inspect test"
     );
 
-    let first_cap_id = capabilities[0]["id"].as_str().expect("capability should have id");
-    println!("[CISO] Step 1 result: first capability id = '{}'", first_cap_id);
+    let first_cap_id = capabilities[0]["id"]
+        .as_str()
+        .expect("capability should have id");
+    println!(
+        "[CISO] Step 1 result: first capability id = '{}'",
+        first_cap_id
+    );
 
     // Step 2: Run `ggen capability inspect --capability <id>`
-    println!("[CISO] Step 2: ggen capability inspect --capability {}", first_cap_id);
+    println!(
+        "[CISO] Step 2: ggen capability inspect --capability {}",
+        first_cap_id
+    );
     let (inspect_output, _) = run_ggen(
         &["capability", "inspect", "--capability", first_cap_id],
         workspace_path(&temp),
-    ).unwrap();
+    )
+    .unwrap();
     let inspect_json = extract_json_from_output(&inspect_output).unwrap();
 
     // Step 3: Assert inspect output matches list output
@@ -106,10 +112,7 @@ fn test_capability_list_then_inspect_workflow() {
         .iter()
         .filter_map(|v| v.as_str())
         .collect();
-    let inspect_atomic_packs: Vec<&str> = atomic_packs
-        .iter()
-        .filter_map(|v| v.as_str())
-        .collect();
+    let inspect_atomic_packs: Vec<&str> = atomic_packs.iter().filter_map(|v| v.as_str()).collect();
 
     // The inspect output may include additional packs (e.g., core-ontology),
     // so we only verify that the original atomic_packs are a subset.
@@ -141,8 +144,12 @@ fn test_capability_graph_shows_pack_graph() {
     let json = extract_json_from_output(&stdout).unwrap();
 
     // Step 3: Assert graph structure: nodes and edges
-    let nodes = json["nodes"].as_array().expect("graph should have nodes array");
-    let edges = json["edges"].as_array().expect("graph should have edges array");
+    let nodes = json["nodes"]
+        .as_array()
+        .expect("graph should have nodes array");
+    let edges = json["edges"]
+        .as_array()
+        .expect("graph should have edges array");
 
     assert!(!nodes.is_empty(), "graph should have at least one node");
 
@@ -180,10 +187,14 @@ fn test_capability_trust_shows_trust_tiers() {
     let json = extract_json_from_output(&stdout).unwrap();
 
     // Step 3: Assert trust report structure
-    let total = json["total"].as_u64().expect("trust should have total count");
+    let total = json["total"]
+        .as_u64()
+        .expect("trust should have total count");
     assert!(total > 0, "trust report should list at least 1 pack");
 
-    let packs = json["packs"].as_array().expect("trust should have packs array");
+    let packs = json["packs"]
+        .as_array()
+        .expect("trust should have packs array");
     assert_eq!(packs.len(), total as usize);
 
     // Step 4: Assert each pack has trust tier info
@@ -196,10 +207,7 @@ fn test_capability_trust_shows_trust_tiers() {
             pack["trust_tier"].is_string(),
             "trust pack should have trust_tier"
         );
-        assert!(
-            pack["digest"].is_string(),
-            "trust pack should have digest"
-        );
+        assert!(pack["digest"].is_string(), "trust pack should have digest");
         assert!(
             pack["signature"].is_string(),
             "trust pack should have signature"
@@ -218,7 +226,8 @@ fn test_capability_conflicts_detection() {
 
     // Step 1: Run `ggen capability conflicts`
     println!("[CISO] Running: ggen capability conflicts");
-    let (stdout, exit_code) = run_ggen(&["capability", "conflicts"], workspace_path(&temp)).unwrap();
+    let (stdout, exit_code) =
+        run_ggen(&["capability", "conflicts"], workspace_path(&temp)).unwrap();
     println!("[CISO] capability conflicts exit code: {}", exit_code);
 
     // Step 2: Parse JSON output
