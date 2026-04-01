@@ -45,6 +45,7 @@ pub mod migration;
 pub mod models;
 pub mod ontology;
 pub mod ownership;
+pub mod pki;
 pub mod policy;
 pub mod profile;
 pub mod rdf;
@@ -72,14 +73,16 @@ pub use install::Installer;
 pub use metrics::MetricsCollector;
 pub use models::*;
 pub use ownership::{
-    MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
+    execute_merge_strategy, MergeError, MergeResult, MergeStrategy, OwnershipClass,
+    OwnershipDeclaration, OwnershipMap, OwnershipTarget,
 };
 pub use policy::{
     PackContext, Policy, PolicyEnforcer, PolicyId, PolicyReport, PolicyRule, PolicyViolation,
 };
 pub use profile::{
-    development_profile, enterprise_strict_profile, get_profile, predefined_profiles, Profile,
-    ProfileId, ReceiptSpec, RuntimeConstraint,
+    CustomPolicyRef, CustomProfileEntry, CustomRuntimeConstraint, Profile, ProfileConfig,
+    ProfileId, ProfileLoader, ReceiptSpec, RuntimeConstraint, development_profile,
+    enterprise_strict_profile, get_profile, predefined_profiles,
 };
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
