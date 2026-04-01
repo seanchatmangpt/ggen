@@ -71,7 +71,7 @@ fn test_complete_init_receipt_workflow() {
 
     println!("Step 1: Initializing project...");
     let init_output = run_ggen_success(
-        &["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks"],
+        &["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks", "true"],
         workspace.path(),
     ).unwrap();
     let init_json = parse_json_output(&init_output);

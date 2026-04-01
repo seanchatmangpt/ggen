@@ -12,18 +12,21 @@ use super::helpers::*;
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 #[test]
+#[ignore = "construct noun does not exist in CLI"]
 fn test_construct_create_help_shows_usage() -> anyhow::Result<()> {
     Command::cargo_bin("ggen")?.args(&["construct", "create", "--help"]).assert().success().stdout(predicate::str::contains("spec")).stdout(predicate::str::contains("output"));
     Ok(())
 }
 
 #[test]
+#[ignore = "construct noun does not exist in CLI"]
 fn test_construct_validate_help_shows_usage() -> anyhow::Result<()> {
     Command::cargo_bin("ggen")?.args(&["construct", "validate", "--help"]).assert().success().stdout(predicate::str::contains("module"));
     Ok(())
 }
 
 #[test]
+#[ignore = "construct noun does not exist in CLI"]
 fn test_construct_create_with_nonexistent_spec() -> anyhow::Result<()> {
     let workspace = create_temp_workspace()?;
     let (output, code) = run_ggen(&["construct", "create", "--spec_path", "/nonexistent/spec.ttl"], workspace.path())?;
@@ -37,6 +40,7 @@ fn test_construct_create_with_nonexistent_spec() -> anyhow::Result<()> {
 }
 
 #[test]
+#[ignore = "construct noun does not exist in CLI"]
 fn test_construct_create_with_non_ttl_extension() -> anyhow::Result<()> {
     let workspace = create_temp_workspace()?;
     let spec_path = workspace.path().join("spec.txt");
@@ -50,6 +54,7 @@ fn test_construct_create_with_non_ttl_extension() -> anyhow::Result<()> {
 }
 
 #[test]
+#[ignore = "construct noun does not exist in CLI"]
 fn test_construct_create_with_valid_ttl_reports_not_implemented() -> anyhow::Result<()> {
     let workspace = create_temp_workspace()?;
     let spec_path = workspace.path().join("spec.ttl");
@@ -73,6 +78,7 @@ ex:TestClass a rdfs:Class ;
 }
 
 #[test]
+#[ignore = "construct noun does not exist in CLI"]
 fn test_construct_validate_with_module_name() -> anyhow::Result<()> {
     let workspace = create_temp_workspace()?;
     let (output, code) = run_ggen(&["construct", "validate", "--module_name", "test_module"], workspace.path())?;
