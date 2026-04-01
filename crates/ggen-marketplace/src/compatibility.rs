@@ -626,12 +626,12 @@ impl CompatibilityChecker {
                 let (pack2_name, _) = &exclusive_claimants[1];
 
                 // Parse pack names back to AtomicPackId for conflict report
-                let pack1 = Self::parse_pack_id_or_fallback(pack1_name, AtomicPackClass::ValidatorProtocolVisibleValues);
-                let pack2 = Self::parse_pack_id_or_fallback(pack2_name, AtomicPackClass::ValidatorProtocolVisibleValues);
+                let first_pack = Self::parse_pack_id_or_fallback(pack1_name, AtomicPackClass::ValidatorProtocolVisibleValues);
+                let second_pack = Self::parse_pack_id_or_fallback(pack2_name, AtomicPackClass::ValidatorProtocolVisibleValues);
 
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::ValidatorContradiction,
-                    vec![pack1, pack2],
+                    vec![first_pack, second_pack],
                     format!(
                         "Validator contradiction: multiple validators claim exclusive ownership of protocol field '{}'",
                         field_name
@@ -643,28 +643,28 @@ impl CompatibilityChecker {
             // Check for incompatible ownership class combinations
             // (e.g., one says Exclusive, another says Mergeable on same field)
             if claimants.len() > 1 {
-                for (i, (pack1_name, class1)) in claimants.iter().enumerate() {
-                    for (pack2_name, class2) in claimants.iter().skip(i + 1) {
-                        if class1 != class2 {
+                for (i, (pack_a_name, class_a)) in claimants.iter().enumerate() {
+                    for (pack_b_name, class_b) in claimants.iter().skip(i + 1) {
+                        if class_a != class_b {
                             // Different ownership classes on same field = potential contradiction
                             let requires_exclusive = matches!(
-                                class1,
+                                class_a,
                                 OwnershipClass::Exclusive | OwnershipClass::ForbiddenOverlap
                             ) || matches!(
-                                class2,
+                                class_b,
                                 OwnershipClass::Exclusive | OwnershipClass::ForbiddenOverlap
                             );
 
                             if requires_exclusive {
-                                let pack1 = Self::parse_pack_id_or_fallback(pack1_name, AtomicPackClass::ValidatorProtocolVisibleValues);
-                                let pack2 = Self::parse_pack_id_or_fallback(pack2_name, AtomicPackClass::ValidatorProtocolVisibleValues);
+                                let pack_a = Self::parse_pack_id_or_fallback(pack_a_name, AtomicPackClass::ValidatorProtocolVisibleValues);
+                                let pack_b = Self::parse_pack_id_or_fallback(pack_b_name, AtomicPackClass::ValidatorProtocolVisibleValues);
 
                                 conflicts.push(Conflict::new(
                                     CompatibilityDimension::ValidatorContradiction,
-                                    vec![pack1, pack2],
+                                    vec![pack_a, pack_b],
                                     format!(
                                         "Validator contradiction: incompatible ownership classes for protocol field '{}' - {:?} vs {:?}",
-                                        field_name, class1, class2
+                                        field_name, class_a, class_b
                                     ),
                                     ConflictSeverity::Error,
                                 ).with_resolution(ConflictResolution::Fail));
