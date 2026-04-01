@@ -1,0 +1,439 @@
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix cli: <urn:cli:spec:> .
+@prefix ggen: <urn:ggen:example:> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# SHACL Shapes for cli-ggen.ttl
+#
+# Validates structural cardinality constraints on every class
+# in the neutral cli: vocabulary, plus business rules that
+# enforce CLI design conventions used by the ggen application.
+#################################################################
+
+# ------------------------------------------------------------------
+# cli:Interface
+# A top-level CLI surface (e.g. "ggen"). Must have exactly one
+# name and at least one top-level command.
+# ------------------------------------------------------------------
+cli:InterfaceShape a sh:NodeShape ;
+    sh:targetClass cli:Interface ;
+    sh:comment "An Interface must have exactly one name and at least one top-level command." ;
+
+    sh:property [
+        sh:path cli:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:Interface must have exactly one cli:name (xsd:string)." ;
+    ] ;
+    sh:property [
+        sh:path cli:hasCommand ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Every cli:Interface must have at least one cli:hasCommand." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:Command
+# A named command (leaf or group). Must have exactly one name and
+# exactly one summary. Additional business rules below enforce
+# that commands are never empty (they must have subcommands,
+# options, or positional arguments).
+# ------------------------------------------------------------------
+cli:CommandShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:comment "A Command must have exactly one name and exactly one summary." ;
+
+    sh:property [
+        sh:path cli:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:Command must have exactly one cli:name (xsd:string)." ;
+    ] ;
+    sh:property [
+        sh:path cli:summary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:Command must have exactly one cli:summary (xsd:string)." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:SpecialCommand
+# A leaf command that cannot have subcommands (e.g. "sync").
+# Inherits cli:Command constraints via sh:targetClass and adds
+# the prohibition on cli:hasSubcommand.
+# ------------------------------------------------------------------
+cli:SpecialCommandShape a sh:NodeShape ;
+    sh:targetClass cli:SpecialCommand ;
+    sh:comment "A SpecialCommand is a terminal command that must NOT have subcommands." ;
+
+    sh:property [
+        sh:path cli:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:SpecialCommand must have exactly one cli:name." ;
+    ] ;
+    sh:property [
+        sh:path cli:summary ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:SpecialCommand must have exactly one cli:summary." ;
+    ] ;
+    sh:property [
+        sh:path cli:hasSubcommand ;
+        sh:maxCount 0 ;
+        sh:message "A cli:SpecialCommand must NOT have any cli:hasSubcommand values." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:ValueOption
+# An option that takes a value (e.g. --surface <name>).
+# Must have exactly one longName and exactly one required flag.
+# ------------------------------------------------------------------
+cli:ValueOptionShape a sh:NodeShape ;
+    sh:targetClass cli:ValueOption ;
+    sh:comment "A ValueOption must have exactly one longName and exactly one required flag." ;
+
+    sh:property [
+        sh:path cli:longName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:ValueOption must have exactly one cli:longName (xsd:string)." ;
+    ] ;
+    sh:property [
+        sh:path cli:required ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Every cli:ValueOption must have exactly one cli:required (xsd:boolean)." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:Flag
+# A boolean option (no value, presence = true).
+# Must have exactly one longName.
+# ------------------------------------------------------------------
+cli:FlagShape a sh:NodeShape ;
+    sh:targetClass cli:Flag ;
+    sh:comment "A Flag must have exactly one longName." ;
+
+    sh:property [
+        sh:path cli:longName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:Flag must have exactly one cli:longName (xsd:string)." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:PositionalArgument
+# A positional (non-flag) argument identified by position, not
+# by a --long-name. Must NOT have longName; must have a name.
+# ------------------------------------------------------------------
+cli:PositionalArgumentShape a sh:NodeShape ;
+    sh:targetClass cli:PositionalArgument ;
+    sh:comment "A PositionalArgument must have exactly one name and must NOT have a longName." ;
+
+    sh:property [
+        sh:path cli:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:PositionalArgument must have exactly one cli:name (xsd:string)." ;
+    ] ;
+    sh:property [
+        sh:path cli:longName ;
+        sh:maxCount 0 ;
+        sh:message "A cli:PositionalArgument must NOT have cli:longName — positional arguments are identified by position, not by flag name." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:ExclusiveConstraint
+# Declares that two options cannot be used together.
+# Must have exactly one sourceArgument and exactly one targetArgument.
+# ------------------------------------------------------------------
+cli:ExclusiveConstraintShape a sh:NodeShape ;
+    sh:targetClass cli:ExclusiveConstraint ;
+    sh:comment "An ExclusiveConstraint must reference exactly one source and one target argument." ;
+
+    sh:property [
+        sh:path cli:sourceArgument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Every cli:ExclusiveConstraint must have exactly one cli:sourceArgument (IRI)." ;
+    ] ;
+    sh:property [
+        sh:path cli:targetArgument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Every cli:ExclusiveConstraint must have exactly one cli:targetArgument (IRI)." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:RequiresConstraint
+# Declares that using one option requires another to also be present.
+# Must have exactly one sourceArgument and exactly one targetArgument.
+# ------------------------------------------------------------------
+cli:RequiresConstraintShape a sh:NodeShape ;
+    sh:targetClass cli:RequiresConstraint ;
+    sh:comment "A RequiresConstraint must reference exactly one source and one target argument." ;
+
+    sh:property [
+        sh:path cli:sourceArgument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Every cli:RequiresConstraint must have exactly one cli:sourceArgument (IRI)." ;
+    ] ;
+    sh:property [
+        sh:path cli:targetArgument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Every cli:RequiresConstraint must have exactly one cli:targetArgument (IRI)." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:OutputSchema
+# Describes the output contract of a command.
+# Must have exactly one name.
+# ------------------------------------------------------------------
+cli:OutputSchemaShape a sh:NodeShape ;
+    sh:targetClass cli:OutputSchema ;
+    sh:comment "An OutputSchema must have exactly one name." ;
+
+    sh:property [
+        sh:path cli:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:OutputSchema must have exactly one cli:name (xsd:string)." ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:Example
+# A usage example attached to a command.
+# Must have exactly one exampleText.
+# ------------------------------------------------------------------
+cli:ExampleShape a sh:NodeShape ;
+    sh:targetClass cli:Example ;
+    sh:comment "An Example must have exactly one exampleText." ;
+
+    sh:property [
+        sh:path cli:exampleText ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Every cli:Example must have exactly one cli:exampleText (xsd:string)." ;
+    ] .
+
+#################################################################
+# Business Rule Shapes
+#################################################################
+
+# ------------------------------------------------------------------
+# Business Rule 1: No single-subcommand groups
+#
+# A command group that uses cli:hasSubcommand must define at
+# least two subcommands. A single subcommand adds unnecessary
+# nesting and should be flattened into a direct command.
+# ------------------------------------------------------------------
+cli:MinTwoSubcommandsShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:comment "If a Command has any subcommands, it must have at least two — single-subcommand groups are disallowed." ;
+
+    sh:property [
+        sh:path cli:hasSubcommand ;
+        sh:minCount 2 ;
+        sh:message "Business Rule 1: A cli:Command with cli:hasSubcommand must have at least 2 subcommands. Single-subcommand nesting is disallowed — flatten it into a direct command instead." ;
+    ] ;
+    # Only activate this shape when cli:hasSubcommand is present.
+    # sh:condition ensures the minCount 2 constraint is evaluated
+    # solely on nodes that actually have the predicate.
+    sh:condition [
+        a sh:PropertyShape ;
+        sh:path cli:hasSubcommand ;
+        sh:minCount 1 ;
+    ] .
+
+# ------------------------------------------------------------------
+# Business Rule 2: Required options must have descriptions
+#
+# A required option (cli:required true) without a description
+# is a usability problem — users need to know what is mandatory
+# and why.
+# ------------------------------------------------------------------
+cli:RequiredOptionNeedsDescriptionShape a sh:NodeShape ;
+    sh:targetSubjectsOf cli:required ;
+    sh:comment "Any option marked cli:required true must also have a cli:description." ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Business Rule 2: An option with cli:required true must have a cli:description." ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cli" ;
+                sh:namespace "urn:cli:spec:" ;
+            ] ;
+            sh:declare [
+                sh:prefix "xsd" ;
+                sh:namespace "http://www.w3.org/2001/XMLSchema#" ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this (?option AS ?value)
+            WHERE {
+                $this cli:hasOption ?option .
+                ?option cli:required true .
+                FILTER NOT EXISTS { ?option cli:description ?desc }
+            }
+        """ ;
+    ] .
+
+# ------------------------------------------------------------------
+# Business Rule 3: Commands with options must also declare output
+#
+# If a command takes options, it must declare what it outputs
+# (cli:hasOutput). Every command surface should communicate its
+# result contract.
+# ------------------------------------------------------------------
+cli:OptionsRequireOutputShape a sh:NodeShape ;
+    sh:targetSubjectsOf cli:hasOption ;
+    sh:comment "A Command that declares cli:hasOption must also declare cli:hasOutput." ;
+
+    sh:property [
+        sh:path cli:hasOutput ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Business Rule 3: A cli:Command with cli:hasOption must also have at least one cli:hasOutput." ;
+    ] .
+
+# ------------------------------------------------------------------
+# Business Rule 4: Sibling commands must not share names
+#
+# Two commands under the same parent Interface or parent Command
+# must not reuse the same cli:name. This prevents ambiguity in
+# the CLI routing table.
+# ------------------------------------------------------------------
+cli:UniqueSiblingCommandNamesShape a sh:NodeShape ;
+    sh:targetClass cli:Interface ;
+    sh:comment "No two sibling commands under the same Interface may share a cli:name." ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Business Rule 4: Sibling commands under the same parent must not share cli:name." ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cli" ;
+                sh:namespace "urn:cli:spec:" ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this ?commandName (GROUP_CONCAT(DISTINCT ?cmd; separator=", ") AS ?conflicting)
+            WHERE {
+                $this cli:hasCommand ?cmd .
+                ?cmd cli:name ?commandName .
+            }
+            GROUP BY $this ?commandName
+            HAVING (COUNT(DISTINCT ?cmd) > 1)
+        """ ;
+    ] .
+
+# Also check sibling subcommands under a parent Command.
+cli:UniqueSubcommandNamesShape a sh:NodeShape ;
+    sh:targetSubjectsOf cli:hasSubcommand ;
+    sh:comment "No two sibling subcommands under the same parent Command may share a cli:name." ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Business Rule 4: Sibling subcommands under the same parent Command must not share cli:name." ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cli" ;
+                sh:namespace "urn:cli:spec:" ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this ?commandName (GROUP_CONCAT(DISTINCT ?sub; separator=", ") AS ?conflicting)
+            WHERE {
+                $this cli:hasSubcommand ?sub .
+                ?sub cli:name ?commandName .
+            }
+            GROUP BY $this ?commandName
+            HAVING (COUNT(DISTINCT ?sub) > 1)
+        """ ;
+    ] .
+
+# ------------------------------------------------------------------
+# Business Rule 5: Commands must not be empty
+#
+# Every cli:Command must have at least one of:
+# cli:hasSubcommand, cli:hasOption, or cli:hasPositionalArgument.
+# An empty command has no surface and no behavior.
+# ------------------------------------------------------------------
+cli:CommandNotEmptyShape a sh:NodeShape ;
+    sh:targetClass cli:Command ;
+    sh:comment "Every Command must have subcommands, options, or positional arguments — it must not be empty." ;
+
+    sh:or (
+        [
+            sh:property [
+                sh:path cli:hasSubcommand ;
+                sh:minCount 1 ;
+            ] ;
+        ]
+        [
+            sh:property [
+                sh:path cli:hasOption ;
+                sh:minCount 1 ;
+            ] ;
+        ]
+        [
+            sh:property [
+                sh:path cli:hasPositionalArgument ;
+                sh:minCount 1 ;
+            ] ;
+        ]
+    ) ;
+    sh:message "Business Rule 5: Every cli:Command must have cli:hasSubcommand or cli:hasOption or cli:hasPositionalArgument. Empty commands are disallowed." .
+
+# ------------------------------------------------------------------
+# Business Rule 6: Global options must appear on multiple commands
+#
+# An option declared with cli:global true should be reused across
+# at least two commands. A "global" option used by only one command
+# is misleading and should be declared as a regular option instead.
+# ------------------------------------------------------------------
+cli:GlobalOptionOnMultipleCommandsShape a sh:NodeShape ;
+    sh:targetSubjectsOf cli:global ;
+    sh:comment "An option with cli:global true must be referenced by cli:hasOption on at least two distinct commands." ;
+
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Business Rule 6: A global option (cli:global true) must appear on more than one command. If only one command uses it, remove cli:global and treat it as a local option." ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "cli" ;
+                sh:namespace "urn:cli:spec:" ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this (COUNT(DISTINCT ?cmd) AS ?usageCount)
+            WHERE {
+                $this cli:global true .
+                ?cmd cli:hasOption $this .
+            }
+            GROUP BY $this
+            HAVING (COUNT(DISTINCT ?cmd) <= 1)
+        """ ;
+    ] .

@@ -1,0 +1,321 @@
+@prefix cli: <urn:cli:spec:> .
+@prefix ggen: <urn:ggen:example:> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+#################################################################
+# Ontology header
+#################################################################
+
+ggen:Ontology a owl:Ontology ;
+    dcterms:title "ggen CLI Example" ;
+    dcterms:description "An example application ontology using the neutral cli: ontology." ;
+    owl:imports cli:Ontology ;
+    owl:versionInfo "0.1.0" .
+
+#################################################################
+# Interface
+#################################################################
+
+ggen:GgenInterface a cli:Interface ;
+    cli:name "ggen" ;
+    cli:summary "Ontology-governed compiler interface" ;
+    cli:description """Example CLI surface for ggen built on the neutral cli: ontology.""" ;
+    cli:hasCommand ggen:CapabilityCommand,
+                   ggen:PackCommand,
+                   ggen:PolicyCommand,
+                   ggen:ReceiptCommand,
+                   ggen:SyncCommand .
+
+#################################################################
+# Command groups / top-level commands
+#################################################################
+
+ggen:CapabilityCommand a cli:Command ;
+    cli:name "capability" ;
+    cli:summary "Manage capability surfaces" ;
+    cli:description """Enable, disable, list, and inspect capability surfaces.""" ;
+    cli:hasSubcommand ggen:CapabilityEnableCommand,
+                      ggen:CapabilityListCommand .
+
+ggen:PackCommand a cli:Command ;
+    cli:name "pack" ;
+    cli:summary "Manage packs and bundles" ;
+    cli:description """Add, remove, list, and inspect packs or bundles.""" ;
+    cli:hasSubcommand ggen:PackAddCommand,
+                      ggen:PackListCommand .
+
+ggen:PolicyCommand a cli:Command ;
+    cli:name "policy" ;
+    cli:summary "Inspect and validate policies" ;
+    cli:description """List and validate policy profiles.""" ;
+    cli:hasSubcommand ggen:PolicyListCommand,
+                      ggen:PolicyValidateCommand .
+
+ggen:ReceiptCommand a cli:Command ;
+    cli:name "receipt" ;
+    cli:summary "Inspect and verify receipts" ;
+    cli:description """Verify receipts and inspect receipt metadata.""" ;
+    cli:hasSubcommand ggen:ReceiptVerifyCommand,
+                      ggen:ReceiptInfoCommand .
+
+ggen:SyncCommand a cli:SpecialCommand ;
+    cli:name "sync" ;
+    cli:summary "Compile ontology into artifacts" ;
+    cli:description """Run the authoritative generation pipeline.""" .
+
+#################################################################
+# capability enable
+#################################################################
+
+ggen:CapabilityEnableCommand a cli:Command ;
+    cli:name "enable" ;
+    cli:summary "Enable a capability surface" ;
+    cli:description """Enable a named capability surface with optional projection and runtime selection.""" ;
+    cli:hasOption ggen:SurfaceOption,
+                  ggen:ProjectionOption,
+                  ggen:RuntimeOption,
+                  ggen:ProfileOption,
+                  ggen:BundleOption,
+                  ggen:DryRunOption,
+                  ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput ;
+    cli:hasExample ggen:CapabilityEnableExample1,
+                   ggen:CapabilityEnableExample2 .
+
+ggen:CapabilityListCommand a cli:Command ;
+    cli:name "list" ;
+    cli:summary "List enabled capabilities" ;
+    cli:description """List capability surfaces currently enabled in the workspace.""" ;
+    cli:hasOption ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput .
+
+#################################################################
+# pack add
+#################################################################
+
+ggen:PackAddCommand a cli:Command ;
+    cli:name "add" ;
+    cli:summary "Add a pack or bundle" ;
+    cli:description """Add a named pack or bundle alias to the workspace.""" ;
+    cli:hasPositionalArgument ggen:PackNameArgument ;
+    cli:hasOption ggen:VersionOption,
+                  ggen:RegistryOption,
+                  ggen:ProfileOption,
+                  ggen:DryRunOption,
+                  ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput ;
+    cli:hasExample ggen:PackAddExample1 .
+
+ggen:PackListCommand a cli:Command ;
+    cli:name "list" ;
+    cli:summary "List installed packs" ;
+    cli:description """List packs and bundles currently installed or resolved.""" ;
+    cli:hasOption ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput .
+
+#################################################################
+# policy
+#################################################################
+
+ggen:PolicyListCommand a cli:Command ;
+    cli:name "list" ;
+    cli:summary "List policies" ;
+    cli:description """List available policy profiles.""" ;
+    cli:hasOption ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput .
+
+ggen:PolicyValidateCommand a cli:Command ;
+    cli:name "validate" ;
+    cli:summary "Validate against a policy" ;
+    cli:description """Validate the current workspace against a selected policy profile.""" ;
+    cli:hasOption ggen:ProfileOption,
+                  ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput .
+
+#################################################################
+# receipt
+#################################################################
+
+ggen:ReceiptVerifyCommand a cli:Command ;
+    cli:name "verify" ;
+    cli:summary "Verify a receipt" ;
+    cli:description """Verify a receipt file and report validation results.""" ;
+    cli:hasOption ggen:ReceiptFileOption,
+                  ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput .
+
+ggen:ReceiptInfoCommand a cli:Command ;
+    cli:name "info" ;
+    cli:summary "Show receipt metadata" ;
+    cli:description """Show metadata and details for a receipt file.""" ;
+    cli:hasOption ggen:ReceiptFileOption,
+                  ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput .
+
+#################################################################
+# sync
+#################################################################
+
+ggen:SyncCommand
+    cli:hasOption ggen:ProfileOption,
+                  ggen:LockedOption,
+                  ggen:DryRunOption,
+                  ggen:EmitReceiptsOption,
+                  ggen:JsonOption ;
+    cli:hasOutput ggen:JsonOutput ;
+    cli:hasExample ggen:SyncExample1,
+                   ggen:SyncExample2 .
+
+#################################################################
+# Options
+#################################################################
+
+ggen:SurfaceOption a cli:ValueOption ;
+    cli:name "surface" ;
+    cli:longName "--surface" ;
+    cli:summary "Capability surface" ;
+    cli:description """Name of the capability surface to enable.""" ;
+    cli:required true .
+
+ggen:ProjectionOption a cli:ValueOption ;
+    cli:name "projection" ;
+    cli:longName "--projection" ;
+    cli:summary "Projection target" ;
+    cli:description """Projection target such as rust, java, slidev, or xlsx.""" ;
+    cli:required false .
+
+ggen:RuntimeOption a cli:ValueOption ;
+    cli:name "runtime" ;
+    cli:longName "--runtime" ;
+    cli:summary "Runtime binding" ;
+    cli:description """Runtime binding for execution surfaces.""" ;
+    cli:required false .
+
+ggen:ProfileOption a cli:ValueOption ;
+    cli:name "profile" ;
+    cli:longName "--profile" ;
+    cli:summary "Execution profile" ;
+    cli:description """Named operating profile used during validation or compilation.""" ;
+    cli:required false ;
+    cli:global true .
+
+ggen:BundleOption a cli:ValueOption ;
+    cli:name "bundle" ;
+    cli:longName "--bundle" ;
+    cli:summary "Bundle alias" ;
+    cli:description """Named bundle alias that expands into one or more packs.""" ;
+    cli:required false .
+
+ggen:DryRunOption a cli:Flag ;
+    cli:name "dry-run" ;
+    cli:longName "--dry-run" ;
+    cli:summary "Dry run" ;
+    cli:description """Resolve and validate without applying changes.""" ;
+    cli:required false .
+
+ggen:JsonOption a cli:Flag ;
+    cli:name "json" ;
+    cli:longName "--json" ;
+    cli:summary "JSON output" ;
+    cli:description """Emit machine-readable JSON output.""" ;
+    cli:required false ;
+    cli:global true .
+
+ggen:VersionOption a cli:ValueOption ;
+    cli:name "version" ;
+    cli:longName "--version" ;
+    cli:summary "Version requirement" ;
+    cli:description """Version or version range for the requested pack.""" ;
+    cli:required false .
+
+ggen:RegistryOption a cli:ValueOption ;
+    cli:name "registry" ;
+    cli:longName "--registry" ;
+    cli:summary "Registry selector" ;
+    cli:description """Preferred registry for pack resolution.""" ;
+    cli:required false .
+
+ggen:ReceiptFileOption a cli:ValueOption ;
+    cli:name "receipt-file" ;
+    cli:longName "--receipt-file" ;
+    cli:summary "Receipt file" ;
+    cli:description """Path to a receipt file.""" ;
+    cli:required true .
+
+ggen:LockedOption a cli:Flag ;
+    cli:name "locked" ;
+    cli:longName "--locked" ;
+    cli:summary "Locked execution" ;
+    cli:description """Require lockfile-consistent execution.""" ;
+    cli:required false .
+
+ggen:EmitReceiptsOption a cli:Flag ;
+    cli:name "emit-receipts" ;
+    cli:longName "--emit-receipts" ;
+    cli:summary "Emit receipts" ;
+    cli:description """Force receipt emission during compilation.""" ;
+    cli:required false .
+
+#################################################################
+# Positional arguments
+#################################################################
+
+ggen:PackNameArgument a cli:PositionalArgument ;
+    cli:name "pack" ;
+    cli:summary "Pack or bundle name" ;
+    cli:description """Atomic pack identifier or bundle alias.""" ;
+    cli:required true .
+
+#################################################################
+# Constraints
+#################################################################
+
+ggen:SurfaceBundleExclusive a cli:ExclusiveConstraint ;
+    cli:sourceArgument ggen:SurfaceOption ;
+    cli:targetArgument ggen:BundleOption .
+
+ggen:ProjectionRequiresSurface a cli:RequiresConstraint ;
+    cli:sourceArgument ggen:ProjectionOption ;
+    cli:targetArgument ggen:SurfaceOption .
+
+ggen:RuntimeRequiresProjection a cli:RequiresConstraint ;
+    cli:sourceArgument ggen:RuntimeOption ;
+    cli:targetArgument ggen:ProjectionOption .
+
+ggen:CapabilityEnableCommand
+    cli:hasConstraint ggen:SurfaceBundleExclusive,
+                      ggen:ProjectionRequiresSurface,
+                      ggen:RuntimeRequiresProjection .
+
+#################################################################
+# Outputs
+#################################################################
+
+ggen:JsonOutput a cli:OutputSchema ;
+    cli:name "json" ;
+    cli:summary "JSON output" ;
+    cli:description """Structured machine-readable JSON output contract.""" ;
+    cli:machineReadable true .
+
+#################################################################
+# Examples
+#################################################################
+
+ggen:CapabilityEnableExample1 a cli:Example ;
+    cli:exampleText "ggen capability enable --surface mcp --projection rust" .
+
+ggen:CapabilityEnableExample2 a cli:Example ;
+    cli:exampleText "ggen capability enable --bundle mcp-rust --dry-run" .
+
+ggen:PackAddExample1 a cli:Example ;
+    cli:exampleText "ggen pack add mcp-rust" .
+
+ggen:SyncExample1 a cli:Example ;
+    cli:exampleText "ggen sync" .
+
+ggen:SyncExample2 a cli:Example ;
+    cli:exampleText "ggen sync --profile enterprise-strict --json" .

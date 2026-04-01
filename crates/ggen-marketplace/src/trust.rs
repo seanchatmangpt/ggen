@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 /// Trust tier classification for packs.
 ///
 /// Based on Fortune 5 CISO security requirements.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TrustTier {
     /// Full audit, signed, approved for enterprise production use
@@ -16,10 +16,17 @@ pub enum TrustTier {
     /// Reviewed and allowlisted for enterprise use
     EnterpriseApproved,
 
+    /// Community-reviewed, not yet enterprise-approved
+    CommunityReviewed,
+
+    /// Production-ready but not enterprise-certified
+    ProductionReady,
+
     /// Restricted use, under monitoring, not yet fully approved
     Quarantined,
 
     /// Development/testing only, not for production
+    #[default]
     Experimental,
 
     /// Forbidden by policy, blocked from installation
@@ -36,7 +43,7 @@ impl TrustTier {
     /// Check if this tier allows installation in production
     #[must_use]
     pub const fn is_production_ready(self) -> bool {
-        matches!(self, Self::EnterpriseCertified | Self::EnterpriseApproved)
+        matches!(self, Self::EnterpriseCertified | Self::EnterpriseApproved | Self::ProductionReady)
     }
 
     /// Get the numeric priority for tier comparison (lower = more restrictive)
@@ -45,9 +52,11 @@ impl TrustTier {
         match self {
             Self::EnterpriseCertified => 1,
             Self::EnterpriseApproved => 2,
-            Self::Quarantined => 3,
-            Self::Experimental => 4,
-            Self::Blocked => 5,
+            Self::CommunityReviewed => 3,
+            Self::ProductionReady => 4,
+            Self::Quarantined => 5,
+            Self::Experimental => 6,
+            Self::Blocked => 7,
         }
     }
 
@@ -137,7 +146,7 @@ mod tests {
     #[test]
     fn test_trust_tier_priority() {
         assert!(TrustTier::EnterpriseCertified.priority() < TrustTier::Experimental.priority());
-        assert!(TrustTier::Blocked.priority() == 5);
+        assert!(TrustTier::Experimental.priority() < TrustTier::Blocked.priority());
     }
 
     #[test]

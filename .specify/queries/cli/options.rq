@@ -1,0 +1,55 @@
+# =============================================================================
+# options.rq — Extract all options (ValueOption and Flag) for every command
+# =============================================================================
+#
+# Returns one row per (command, option) pair. Covers both top-level commands
+# and subcommands since both can declare cli:hasOption.
+# Variables:
+#   ?commandName    — cli:name of the command that owns this option
+#   ?optionName     — cli:name of the option (e.g. "dry-run")
+#   ?longName       — cli:longName of the option (e.g. "--dry-run")
+#   ?optionType     — "ValueOption" or "Flag"
+#   ?summary        — cli:summary of the option
+#   ?description    — cli:description of the option
+#   ?required       — cli:required value ("true"/"false", defaults to "false")
+#   ?global         — cli:global value ("true"/"false", defaults to "false")
+# =============================================================================
+
+PREFIX cli:  <urn:cli:spec:>
+PREFIX ggen: <urn:ggen:example:>
+
+SELECT ?commandName ?optionName ?longName ?optionType ?summary ?description ?required ?global
+WHERE {
+  # Match any command type that may carry options.
+  # This covers top-level commands, special commands, and subcommands.
+  ?command a ?commandType ;
+           cli:name ?commandName ;
+           cli:hasOption ?option .
+
+  FILTER(?commandType IN (cli:Command, cli:SpecialCommand))
+
+  # Determine option type
+  {
+    ?option a cli:ValueOption .
+    BIND("ValueOption" AS ?optionType)
+  } UNION {
+    ?option a cli:Flag .
+    BIND("Flag" AS ?optionType)
+  }
+
+  # Option core properties
+  ?option cli:name    ?optionName ;
+          cli:longName ?longName ;
+          cli:summary ?summary .
+
+  # Description is optional in some schema shapes — use OPTIONAL for safety
+  OPTIONAL { ?option cli:description ?description }
+
+  # required / global default to false when absent
+  OPTIONAL { ?option cli:required ?req }
+  BIND(COALESCE(?req, "false") AS ?required)
+
+  OPTIONAL { ?option cli:global ?glo }
+  BIND(COALESCE(?glo, "false") AS ?global)
+}
+ORDER BY ?commandName ?optionName

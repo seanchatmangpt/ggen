@@ -8,6 +8,9 @@
 //! - No mocks for critical paths
 
 use ggen_marketplace::prelude::*;
+use ggen_marketplace::{
+    MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
+};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;

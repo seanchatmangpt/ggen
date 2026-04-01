@@ -1,0 +1,72 @@
+# ggen CLI generation configuration
+#
+# Drives the five-stage pipeline (mu1-mu5) that generates the clap-noun-verb
+# CLI surface from the neutral cli: ontology at .specify/ontology/cli-ggen.ttl.
+#
+# Pipeline flow:
+#   cli-ggen.ttl -> SPARQL extract -> Tera render -> generated .rs files
+
+[project]
+name = "ggen"
+version = "6.0.1"
+
+[generation]
+ontology = ".specify/ontology/cli-ggen.ttl"
+output_dir = "crates/ggen-cli/src"
+
+# ---------------------------------------------------------------------------
+# Stage 1: Extract top-level commands (nouns) and their subcommands (verbs)
+# ---------------------------------------------------------------------------
+# Produces the commands[] variable used by main.rs.tera.
+# Each command has: name, summary, description, subcommands[]
+# Each subcommand has: name, summary, about, options[], positional_arguments[],
+#                       constraints[], examples[]
+# ---------------------------------------------------------------------------
+[[generation.stage]]
+name = "extract-commands"
+query = ".specify/queries/cli/commands.rq"
+template = ".specify/templates/cli/main.rs.tera"
+output = "generated/generated_commands.rs"
+
+# ---------------------------------------------------------------------------
+# Stage 2: Extract subcommand details (options, arguments, constraints)
+# ---------------------------------------------------------------------------
+# Enriches each subcommand with its full parameter surface.
+# Output is merged into the commands[] variable before template rendering.
+# ---------------------------------------------------------------------------
+[[generation.stage]]
+name = "extract-subcommands"
+query = ".specify/queries/cli/subcommands.rq"
+
+# ---------------------------------------------------------------------------
+# Stage 3: Extract option metadata (name, long_name, type, required, global)
+# ---------------------------------------------------------------------------
+# Produces the options[] and global_options[] arrays.
+# ---------------------------------------------------------------------------
+[[generation.stage]]
+name = "extract-options"
+query = ".specify/queries/cli/options.rq"
+
+# ---------------------------------------------------------------------------
+# Stage 4: Extract constraints (exclusive, requires)
+# ---------------------------------------------------------------------------
+# Produces the constraints[] array per subcommand.
+# Constraint types: exclusive, requires
+# ---------------------------------------------------------------------------
+[[generation.stage]]
+name = "extract-constraints"
+query = ".specify/queries/cli/constraints.rq"
+
+# ---------------------------------------------------------------------------
+# Stage 5: Extract help text and examples
+# ---------------------------------------------------------------------------
+# Produces help strings with per-command examples for the static help module.
+# ---------------------------------------------------------------------------
+[[generation.stage]]
+name = "extract-help"
+query = ".specify/queries/cli/help.rq"
+template = ".specify/templates/cli/help.rs.tera"
+output = "generated/generated_help.rs"
+
+[generation.validation]
+shacl = ".specify/ontology/cli-ggen-shacl.ttl"

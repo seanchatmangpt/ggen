@@ -3,6 +3,12 @@
 //! This module provides domain operations for working with packs,
 //! separating business logic from CLI concerns.
 
+pub mod compose;
+pub mod generator;
+pub mod metadata;
+pub mod types;
+pub mod validate;
+
 use ggen_utils::error::Error;
 use serde::Serialize;
 

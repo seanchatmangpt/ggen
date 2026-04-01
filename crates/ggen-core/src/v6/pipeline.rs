@@ -10,7 +10,7 @@
 //! 4. μ₄: Canonicalization (formatting)
 //! 5. μ₅: Receipt (provenance)
 
-use crate::graph::Graph;
+use crate::graph::{Graph, GraphExport};
 use crate::pack_resolver::{PackResolver, ResolvedPacks};
 use crate::v6::epoch::Epoch;
 use crate::v6::guard::GuardSet;
@@ -22,9 +22,33 @@ use crate::v6::receipt::{BuildReceipt, BundleExpansionRef, OutputFile, PackProve
 use crate::v6::vocabulary::VocabularyRegistry;
 use ggen_marketplace::trust::TrustTier;
 use ggen_utils::error::{Error, Result};
+use oxigraph::io::RdfFormat;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use sha2::{Digest, Sha256};
+use std::path::{Path, PathBuf};
 use std::time::Instant;
+
+/// Stage pack templates into `<project>/.ggen/pack-stage/` for μ₃ rules or inspection.
+#[allow(dead_code)]
+fn stage_pack_templates(
+    base_path: &Path, templates: &[crate::pack_resolver::TemplateDef],
+) -> Result<Vec<String>> {
+    let stage = base_path.join(".ggen").join("pack-stage");
+    let mut names = Vec::new();
+    for t in templates {
+        let dest = stage.join(&t.path);
+        if let Some(p) = dest.parent() {
+            std::fs::create_dir_all(p).map_err(|e| {
+                Error::new(&format!("Failed to create pack-stage dir: {}", e))
+            })?;
+        }
+        std::fs::write(&dest, &t.content).map_err(|e| {
+            Error::new(&format!("Failed to write staged template: {}", e))
+        })?;
+        names.push(t.path.display().to_string());
+    }
+    Ok(names)
+}
 
 /// Verification mode for the pipeline
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -307,10 +331,31 @@ impl StagedPipeline {
 
         // μ₀: Pack Resolution (if lockfile exists)
         if let Some(ref resolver) = self.pack_resolver {
-            let resolved = resolver.resolve()?;
-            // Use merged ontology from resolved packs
-            self.graph = resolved.merged_ontology.clone();
-            self.resolved_packs = Some(resolved);
+            match resolver.resolve() {
+                Ok(resolved) => {
+                    // Use merged ontology from resolved packs
+                    self.graph = resolved.merged_ontology.clone();
+                    self.resolved_packs = Some(resolved);
+                }
+                Err(e) if e.to_string().contains("Lockfile not found") => {
+                    // No lockfile - skip pack resolution, continue with project ontologies
+                    tracing::debug!("No lockfile found, skipping pack resolution");
+                }
+                Err(e) => {
+                    // Other errors should propagate
+                    return Err(e);
+                }
+            }
+        }
+
+        // Synthetic epoch when only pack substrate is present (no project TTL epoch yet)
+        if self.epoch.is_none() && self.resolved_packs.is_some() {
+            let turtle = GraphExport::new(&self.graph)
+                .write_to_string(RdfFormat::Turtle)
+                .map_err(|e| Error::new(&format!("Pack graph export failed: {}", e)))?;
+            let digest = format!("{:x}", Sha256::digest(turtle.as_bytes()));
+            let triple_count = self.graph.len();
+            self.epoch = Some(Epoch::from_pack_merged_substrate(digest, triple_count));
         }
 
         // Load ontologies if not already loaded (skip if μ₀ provided merged ontology)
@@ -346,8 +391,16 @@ impl StagedPipeline {
 
         // Clone passes to avoid borrow issues
         let normalization = self.normalization.clone();
-        let extraction = self.extraction.clone();
-        let emission = self.emission.clone();
+        let mut extraction = self.extraction.clone();
+        let mut emission = self.emission.clone();
+
+        // Load pack queries into μ₂ and pack templates into μ₃
+        if let Some(ref rp) = self.resolved_packs {
+            // Load pack queries into μ₂ (CONSTRUCT-only queries from packs)
+            extraction.extend_with_pack_construct_queries(&rp.queries)?;
+            // Load pack templates into μ₃ (Tera templates from packs)
+            emission.extend_with_pack_templates(&rp.templates)?;
+        }
         let canonicalization = self.canonicalization.clone();
 
         // Create pass context
@@ -383,23 +436,13 @@ impl StagedPipeline {
             )));
         }
 
-        // Load pack queries if available
-        // TODO: Load pack queries from resolved packs and add to bindings
-        // This requires μ₀ pack resolution to be implemented first
+        // Stage pack templates under .ggen/pack-stage/ (μ₃ rules may reference these paths)
+        if let Some(ref rp) = self.resolved_packs {
+            let _staged = stage_pack_templates(&self.config.base_path, &rp.templates)?;
+        }
 
         // μ₃: Emission
         let start = Instant::now();
-
-        // Register pack templates if available
-        // TODO: Register pack templates with TemplateResolver using pack_id:path syntax
-        // This requires μ₀ pack resolution to be implemented first
-        // Example:
-        // for pack in &resolved_packs.atomic_packs {
-        //     let pack_templates = pack.registry.get_pack_templates(pack)?;
-        //     for template in pack_templates {
-        //         resolver.register_pack_template(&pack.id, &template.path, &template.content)?;
-        //     }
-        // }
 
         let emission_result = emission.execute(&mut ctx)?;
         let mut execution = emission.create_execution_record(&emission_result);
@@ -465,17 +508,16 @@ impl StagedPipeline {
                 receipt.add_pack(PackProvenance {
                     pack_id: pack_id.to_string(),
                     version,
-                    signature: "ed25519:signed".to_string(), // TODO: Load from pack metadata
-                    digest: "sha256:verified".to_string(), // TODO: Load from pack metadata
-                    templates_contributed: vec![], // TODO: Load from pack templates
-                    queries_contributed: vec![], // TODO: Load from pack queries
-                    files_generated: vec![], // TODO: Track which files each pack generated
+                    signature: "local:unsigned".to_string(),
+                    digest: resolved.digest_for_pack(pack_id),
+                    templates_contributed: resolved.template_paths_for_pack(pack_id),
+                    queries_contributed: resolved.query_names_for_pack(pack_id),
+                    files_generated: vec![],
                 });
             }
 
-            // Set profile reference (default to development if not specified)
             receipt.set_profile(crate::v6::receipt::ProfileRef {
-                profile_id: "development".to_string(),
+                profile_id: resolved.profile.clone(),
                 runtime_constraints: vec![],
                 trust_requirement: TrustTier::Experimental,
             });

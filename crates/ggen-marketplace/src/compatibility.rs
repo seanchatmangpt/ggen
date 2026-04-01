@@ -89,6 +89,30 @@ impl fmt::Display for ConflictSeverity {
     }
 }
 
+/// Receipt schema metadata loaded from pack definition files.
+#[derive(Debug, Clone)]
+struct ReceiptSchemaMeta {
+    /// Receipt format version (e.g., "1", "2")
+    schema_version: String,
+    /// Signature algorithm (e.g., "ed25519", "rsa")
+    signature_algorithm: Option<String>,
+    /// Hash function (e.g., "sha256", "sha3")
+    hash_function: Option<String>,
+    /// Maximum chain depth (for chained receipts)
+    chain_depth_max: Option<u32>,
+}
+
+impl Default for ReceiptSchemaMeta {
+    fn default() -> Self {
+        Self {
+            schema_version: "1".to_string(),
+            signature_algorithm: None,
+            hash_function: Some("sha256".to_string()),
+            chain_depth_max: None,
+        }
+    }
+}
+
 /// Conflict resolution strategy.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -354,10 +378,10 @@ impl CompatibilityChecker {
         conflicts.extend(Self::check_emitted_files(ownership_declarations)?);
         conflicts.extend(Self::check_runtime_compat(packs)?);
         conflicts.extend(self.check_validators(packs)?);
-        conflicts.extend(Self::check_policies(packs)?);
+        conflicts.extend(self.check_policies(packs)?);
         conflicts.extend(Self::check_versions(packs)?);
         conflicts.extend(Self::check_capabilities(packs)?);
-        conflicts.extend(Self::check_receipt_schemas(packs)?);
+        conflicts.extend(self.check_receipt_schemas(packs)?);
         conflicts.extend(Self::check_consequences(packs)?);
 
         Ok(CompatibilityReport::new(
@@ -418,10 +442,24 @@ impl CompatibilityChecker {
                     ConflictSeverity::Warning
                 };
 
-                // Use a simple pack ID as placeholder
+                // Derive pack IDs from the actual owner_pack strings in the declarations
+                let pack_ids: Vec<AtomicPackId> = decls
+                    .iter()
+                    .filter_map(|d| AtomicPackId::from_str(&d.owner_pack))
+                    .collect();
+                let conflict_packs = if pack_ids.len() >= 2 {
+                    pack_ids
+                } else {
+                    // Fallback: construct IDs from the owner names when parsing fails
+                    packs
+                        .iter()
+                        .filter_map(|p| AtomicPackId::from_str(p))
+                        .collect()
+                };
+
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::ProtocolField,
-                    vec![AtomicPackId::new(AtomicPackClass::SurfaceMcp, "placeholder".to_string())], // Placeholder
+                    conflict_packs,
                     format!("Protocol field '{}' claimed by multiple packs: {:?}", field, packs),
                     severity,
                 )
@@ -472,10 +510,24 @@ impl CompatibilityChecker {
                     Some(ConflictResolution::UserResolve)
                 };
 
-                // Use a simple pack ID as placeholder
+                // Derive pack IDs from the actual owner_pack strings in the declarations
+                let pack_ids: Vec<AtomicPackId> = decls
+                    .iter()
+                    .filter_map(|d| AtomicPackId::from_str(&d.owner_pack))
+                    .collect();
+                let conflict_packs = if pack_ids.len() >= 2 {
+                    pack_ids
+                } else {
+                    // Fallback: construct IDs from the owner names when parsing fails
+                    packs
+                        .iter()
+                        .filter_map(|p| AtomicPackId::from_str(p))
+                        .collect()
+                };
+
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::EmittedFilePath,
-                    vec![AtomicPackId::new(AtomicPackClass::SurfaceMcp, "placeholder".to_string())], // Placeholder
+                    conflict_packs,
                     format!("File '{}' emitted by multiple packs: {:?}", file, packs),
                     severity,
                 )
@@ -523,7 +575,7 @@ impl CompatibilityChecker {
     /// - Multiple validators claim exclusive ownership of same protocol field
     fn check_validators(&self, packs: &[AtomicPackId]) -> Result<Vec<Conflict>> {
         use crate::atomic::AtomicPackCategory;
-        use crate::ownership::{OwnershipDeclaration, OwnershipClass, OwnershipTarget};
+        use crate::ownership::{OwnershipClass, OwnershipTarget};
 
         let mut conflicts = Vec::new();
 
@@ -574,13 +626,8 @@ impl CompatibilityChecker {
                 let (pack2_name, _) = &exclusive_claimants[1];
 
                 // Parse pack names back to AtomicPackId for conflict report
-                let pack1 = AtomicPackId::from_str(pack1_name).unwrap_or_else(|| {
-                    // Fallback: create a placeholder pack ID
-                    AtomicPackId::new(AtomicPackClass::ValidatorProtocolVisibleValues, "unknown".to_string())
-                });
-                let pack2 = AtomicPackId::from_str(pack2_name).unwrap_or_else(|| {
-                    AtomicPackId::new(AtomicPackClass::ValidatorProtocolVisibleValues, "unknown".to_string())
-                });
+                let pack1 = Self::parse_pack_id_or_fallback(pack1_name, AtomicPackClass::ValidatorProtocolVisibleValues);
+                let pack2 = Self::parse_pack_id_or_fallback(pack2_name, AtomicPackClass::ValidatorProtocolVisibleValues);
 
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::ValidatorContradiction,
@@ -609,12 +656,8 @@ impl CompatibilityChecker {
                             );
 
                             if requires_exclusive {
-                                let pack1 = AtomicPackId::from_str(pack1_name).unwrap_or_else(|| {
-                                    AtomicPackId::new(AtomicPackClass::ValidatorProtocolVisibleValues, "unknown".to_string())
-                                });
-                                let pack2 = AtomicPackId::from_str(pack2_name).unwrap_or_else(|| {
-                                    AtomicPackId::new(AtomicPackClass::ValidatorProtocolVisibleValues, "unknown".to_string())
-                                });
+                                let pack1 = Self::parse_pack_id_or_fallback(pack1_name, AtomicPackClass::ValidatorProtocolVisibleValues);
+                                let pack2 = Self::parse_pack_id_or_fallback(pack2_name, AtomicPackClass::ValidatorProtocolVisibleValues);
 
                                 conflicts.push(Conflict::new(
                                     CompatibilityDimension::ValidatorContradiction,
@@ -634,6 +677,14 @@ impl CompatibilityChecker {
 
         Ok(conflicts)
     }
+    /// Parse an `AtomicPackId` from a string, falling back to a constructed ID
+    /// using the provided class and the raw string as the name.
+    fn parse_pack_id_or_fallback(name: &str, fallback_class: AtomicPackClass) -> AtomicPackId {
+        AtomicPackId::from_str(name).unwrap_or_else(|| {
+            AtomicPackId::new(fallback_class, name.to_string())
+        })
+    }
+
     /// Load ownership declarations for a validator pack from pack metadata.
     ///
     /// Checks for ownership.json first (primary format), then falls back to
@@ -703,7 +754,7 @@ impl CompatibilityChecker {
     /// Returns error if TOML is malformed or required fields are missing.
     fn load_ownership_from_toml(path: &std::path::Path) -> Result<Vec<OwnershipDeclaration>> {
         use std::io::Read;
-        use crate::ownership::{OwnershipClass, MergeStrategy, OwnershipTarget};
+        use crate::ownership::{OwnershipClass, MergeStrategy};
 
         let mut file = std::fs::File::open(path).map_err(|e| Error::IoError(e))?;
         let mut contents = String::new();
@@ -870,7 +921,7 @@ impl CompatibilityChecker {
     /// - NoDefaults policy forbids what Strict policy requires
     /// - Conflicting policy constraints on same target (e.g., forbid X vs require X)
     /// - Mutually exclusive policy rules (e.g., one allows experimental, another requires certified)
-    fn check_policies(packs: &[AtomicPackId]) -> Result<Vec<Conflict>> {
+    fn check_policies(&self, packs: &[AtomicPackId]) -> Result<Vec<Conflict>> {
         use crate::atomic::{AtomicPackClass, AtomicPackCategory};
 
         let mut conflicts = Vec::new();
@@ -939,12 +990,188 @@ impl CompatibilityChecker {
             }
         }
 
-        // TODO: Load policy rules from pack metadata and check for:
-        // - Conflicting trust tier requirements
-        // - Incompatible runtime constraints
-        // - Mutually exclusive feature flags
+        // Load policy rules from pack metadata and check for deeper contradictions
+        let loaded_policies = self.load_policy_rules(&policy_packs)?;
+        conflicts.extend(Self::check_policy_rule_contradictions(&loaded_policies));
 
         Ok(conflicts)
+    }
+
+    /// Load policy rules from pack metadata files.
+    ///
+    /// Reads `policy.json` or `[policy]` section in `package.toml` for each
+    /// policy pack. Returns a list of (pack_id, rules) tuples.
+    fn load_policy_rules(
+        &self,
+        policy_packs: &[&AtomicPackId],
+    ) -> Result<Vec<(AtomicPackId, Vec<String>)>> {
+        let mut result = Vec::new();
+
+        for policy_pack in policy_packs {
+            let pack_dir = self.cache_dir.join(policy_pack.to_string());
+            let rules = self.load_policy_rules_from_dir(&pack_dir);
+            if !rules.is_empty() {
+                result.push(((*policy_pack).clone(), rules));
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Load policy rule names from a pack directory.
+    fn load_policy_rules_from_dir(&self, pack_dir: &std::path::Path) -> Vec<String> {
+        // Try policy.json first
+        let policy_json = pack_dir.join("policy.json");
+        if policy_json.exists() {
+            if let Ok(rules) = Self::load_policy_rules_json(&policy_json) {
+                return rules;
+            }
+        }
+
+        // Fallback to package.toml [policy.rules]
+        let package_toml = pack_dir.join("package.toml");
+        if package_toml.exists() {
+            if let Ok(rules) = Self::load_policy_rules_toml(&package_toml) {
+                return rules;
+            }
+        }
+
+        Vec::new()
+    }
+
+    /// Load policy rule names from policy.json.
+    fn load_policy_rules_json(path: &std::path::Path) -> Result<Vec<String>> {
+        use std::io::Read;
+
+        let mut file = std::fs::File::open(path).map_err(|e| Error::IoError(e))?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| Error::IoError(e))?;
+
+        #[derive(serde::Deserialize)]
+        struct PolicyJson {
+            rules: Option<Vec<PolicyRuleEntry>>,
+        }
+
+        #[derive(serde::Deserialize)]
+        struct PolicyRuleEntry {
+            #[serde(default)]
+            name: Option<String>,
+            #[serde(rename = "type", default)]
+            rule_type: Option<String>,
+        }
+
+        let policy: PolicyJson = serde_json::from_str(&contents).map_err(Error::SerializationError)?;
+
+        let rules = policy
+            .rules
+            .unwrap_or_default()
+            .into_iter()
+            .map(|r| {
+                r.name.unwrap_or_else(|| {
+                    r.rule_type.unwrap_or_else(|| "unknown".to_string())
+                })
+            })
+            .collect();
+
+        Ok(rules)
+    }
+
+    /// Load policy rule names from package.toml [policy.rules].
+    fn load_policy_rules_toml(path: &std::path::Path) -> Result<Vec<String>> {
+        use std::io::Read;
+
+        let mut file = std::fs::File::open(path).map_err(|e| Error::IoError(e))?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| Error::IoError(e))?;
+
+        let toml_value: toml::Value = toml::from_str(&contents)?;
+
+        let rules_array = toml_value
+            .get("policy")
+            .and_then(|v| v.get("rules"))
+            .and_then(|v| v.as_array());
+
+        let rules = if let Some(array) = rules_array {
+            array
+                .iter()
+                .filter_map(|entry| {
+                    entry
+                        .get("name")
+                        .or_else(|| entry.get("type"))
+                        .and_then(|v| v.as_str())
+                        .map(String::from)
+                })
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        Ok(rules)
+    }
+
+    /// Check loaded policy rules for contradictions.
+    ///
+    /// Detects conflicting trust tier requirements, incompatible runtime constraints,
+    /// and mutually exclusive feature flags across policy packs.
+    fn check_policy_rule_contradictions(
+        loaded_policies: &[(AtomicPackId, Vec<String>)],
+    ) -> Vec<Conflict> {
+        let mut conflicts = Vec::new();
+
+        // Collect trust tier requirements across all policy packs
+        let mut trust_tier_requirements: Vec<(&AtomicPackId, &str)> = Vec::new();
+        let mut runtime_constraints: Vec<(&AtomicPackId, &str)> = Vec::new();
+
+        for (pack_id, rules) in loaded_policies {
+            for rule in rules {
+                let rule_lower = rule.to_lowercase();
+                if rule_lower.contains("trust_tier") || rule_lower.contains("trust-tier") || rule_lower.contains("trusttier") {
+                    trust_tier_requirements.push((pack_id, rule.as_str()));
+                }
+                if rule_lower.contains("runtime") || rule_lower.contains("approved_runtime") {
+                    runtime_constraints.push((pack_id, rule.as_str()));
+                }
+            }
+        }
+
+        // Check for conflicting trust tier requirements
+        // If one policy requires EnterpriseCertified and another allows Experimental, that's a conflict
+        for (i, (pack1, rule1)) in trust_tier_requirements.iter().enumerate() {
+            for (pack2, rule2) in trust_tier_requirements.iter().skip(i + 1) {
+                if rule1 != rule2 {
+                    conflicts.push(Conflict::new(
+                        CompatibilityDimension::PolicyContradiction,
+                        vec![(*pack1).clone(), (*pack2).clone()],
+                        format!(
+                            "Policy contradiction: conflicting trust tier requirements - '{}' vs '{}'",
+                            rule1, rule2
+                        ),
+                        ConflictSeverity::Warning,
+                    ).with_resolution(ConflictResolution::UserResolve)
+                    .with_context("rule_type".to_string(), "trust_tier".to_string()));
+                }
+            }
+        }
+
+        // Check for conflicting runtime constraints
+        for (i, (pack1, rule1)) in runtime_constraints.iter().enumerate() {
+            for (pack2, rule2) in runtime_constraints.iter().skip(i + 1) {
+                if rule1 != rule2 {
+                    conflicts.push(Conflict::new(
+                        CompatibilityDimension::PolicyContradiction,
+                        vec![(*pack1).clone(), (*pack2).clone()],
+                        format!(
+                            "Policy contradiction: incompatible runtime constraints - '{}' vs '{}'",
+                            rule1, rule2
+                        ),
+                        ConflictSeverity::Warning,
+                    ).with_resolution(ConflictResolution::UserResolve)
+                    .with_context("rule_type".to_string(), "runtime".to_string()));
+                }
+            }
+        }
+
+        conflicts
     }
 
     /// Check version range conflicts.
@@ -1041,9 +1268,12 @@ impl CompatibilityChecker {
                 .push((*pack).clone());
         }
 
+        let category_has_distinct_classes =
+            |packs: &[AtomicPackId]| packs.len() > 1 && packs.iter().any(|p| p.class != packs[0].class);
+
         // Check Surface category
         if let Some(surface_packs) = category_packs.get(&AtomicPackCategory::Surface) {
-            if surface_packs.len() > 1 {
+            if category_has_distinct_classes(surface_packs) {
                 // Multiple surface packs = potential conflict
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::CapabilityIdentity,
@@ -1062,7 +1292,7 @@ impl CompatibilityChecker {
 
         // Check Contract category
         if let Some(contract_packs) = category_packs.get(&AtomicPackCategory::Contract) {
-            if contract_packs.len() > 1 {
+            if category_has_distinct_classes(contract_packs) {
                 // Multiple contract packs = error (mutually exclusive contract definitions)
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::CapabilityIdentity,
@@ -1081,7 +1311,7 @@ impl CompatibilityChecker {
 
         // Rule 3: Check Projection category = WARNING (multiple language projections OK but unusual)
         if let Some(projection_packs) = category_packs.get(&AtomicPackCategory::Projection) {
-            if projection_packs.len() > 1 {
+            if category_has_distinct_classes(projection_packs) {
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::CapabilityIdentity,
                     projection_packs.clone(),
@@ -1099,7 +1329,7 @@ impl CompatibilityChecker {
 
         // Rule 4: Check Runtime category = ERROR (multiple runtimes are incompatible)
         if let Some(runtime_packs) = category_packs.get(&AtomicPackCategory::Runtime) {
-            if runtime_packs.len() > 1 {
+            if category_has_distinct_classes(runtime_packs) {
                 conflicts.push(Conflict::new(
                     CompatibilityDimension::CapabilityIdentity,
                     runtime_packs.clone(),
@@ -1128,7 +1358,7 @@ impl CompatibilityChecker {
     /// - Chained receipts require hash-linking, forbid standalone receipts
     /// - Enterprise-signed receipts require Ed25519 signatures, forbid unsigned
     /// - Conflicting receipt format requirements (e.g., one requires chaining, another forbids it)
-    fn check_receipt_schemas(packs: &[AtomicPackId]) -> Result<Vec<Conflict>> {
+    fn check_receipt_schemas(&self, packs: &[AtomicPackId]) -> Result<Vec<Conflict>> {
         use crate::atomic::{AtomicPackCategory, AtomicPackClass};
 
         let mut conflicts = Vec::new();
@@ -1199,13 +1429,211 @@ impl CompatibilityChecker {
             }
         }
 
-        // TODO: Load receipt schema metadata from pack definitions and check for:
-        // - Incompatible receipt format versions (e.g., v1 vs v2 schemas)
-        // - Conflicting signature algorithms (e.g., Ed25519 vs RSA)
-        // - Hash function mismatches (e.g., SHA-256 vs SHA-3)
-        // - Chain depth requirements (e.g., one requires depth 10, another forbids >5)
+        // Load receipt schema metadata from pack definitions and check for deeper contradictions
+        let loaded_schemas = self.load_receipt_schema_metadata(&receipt_packs)?;
+        conflicts.extend(Self::check_receipt_schema_contradictions(&loaded_schemas));
 
         Ok(conflicts)
+    }
+
+    /// Load receipt schema metadata from pack metadata files.
+    ///
+    /// Reads `receipt.json` or `[receipt]` section in `package.toml` for each
+    /// receipt pack. Returns schema metadata tuples.
+    fn load_receipt_schema_metadata(
+        &self,
+        receipt_packs: &[&AtomicPackId],
+    ) -> Result<Vec<(AtomicPackId, ReceiptSchemaMeta)>> {
+        let mut result = Vec::new();
+
+        for receipt_pack in receipt_packs {
+            let pack_dir = self.cache_dir.join(receipt_pack.to_string());
+
+            // Try receipt.json first
+            let receipt_json = pack_dir.join("receipt.json");
+            if receipt_json.exists() {
+                if let Ok(meta) = Self::load_receipt_schema_json(&receipt_json) {
+                    result.push(((*receipt_pack).clone(), meta));
+                    continue;
+                }
+            }
+
+            // Fallback to package.toml [receipt] section
+            let package_toml = pack_dir.join("package.toml");
+            if package_toml.exists() {
+                if let Ok(meta) = Self::load_receipt_schema_toml(&package_toml) {
+                    result.push(((*receipt_pack).clone(), meta));
+                }
+            }
+
+            // Default metadata from pack class
+            let default_meta = match receipt_pack.class {
+                crate::atomic::AtomicPackClass::ReceiptChained => ReceiptSchemaMeta {
+                    schema_version: "1".to_string(),
+                    signature_algorithm: None,
+                    hash_function: Some("sha256".to_string()),
+                    chain_depth_max: None,
+                },
+                crate::atomic::AtomicPackClass::ReceiptEnterpriseSigned => ReceiptSchemaMeta {
+                    schema_version: "1".to_string(),
+                    signature_algorithm: Some("ed25519".to_string()),
+                    hash_function: Some("sha256".to_string()),
+                    chain_depth_max: None,
+                },
+                _ => ReceiptSchemaMeta::default(),
+            };
+            result.push(((*receipt_pack).clone(), default_meta));
+        }
+
+        Ok(result)
+    }
+
+    /// Load receipt schema metadata from receipt.json.
+    fn load_receipt_schema_json(path: &std::path::Path) -> Result<ReceiptSchemaMeta> {
+        use std::io::Read;
+
+        let mut file = std::fs::File::open(path).map_err(|e| Error::IoError(e))?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| Error::IoError(e))?;
+
+        #[derive(serde::Deserialize)]
+        struct ReceiptJson {
+            #[serde(default)]
+            schema_version: Option<String>,
+            #[serde(default)]
+            signature_algorithm: Option<String>,
+            #[serde(default)]
+            hash_function: Option<String>,
+            #[serde(default)]
+            chain_depth_max: Option<u32>,
+        }
+
+        let receipt: ReceiptJson =
+            serde_json::from_str(&contents).map_err(Error::SerializationError)?;
+
+        Ok(ReceiptSchemaMeta {
+            schema_version: receipt.schema_version.unwrap_or_else(|| "1".to_string()),
+            signature_algorithm: receipt.signature_algorithm,
+            hash_function: receipt.hash_function,
+            chain_depth_max: receipt.chain_depth_max,
+        })
+    }
+
+    /// Load receipt schema metadata from package.toml [receipt] section.
+    fn load_receipt_schema_toml(path: &std::path::Path) -> Result<ReceiptSchemaMeta> {
+        use std::io::Read;
+
+        let mut file = std::fs::File::open(path).map_err(|e| Error::IoError(e))?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| Error::IoError(e))?;
+
+        let toml_value: toml::Value = toml::from_str(&contents)?;
+
+        let receipt_section = toml_value.get("receipt").and_then(|v| v.as_table());
+
+        Ok(ReceiptSchemaMeta {
+            schema_version: receipt_section
+                .and_then(|t| t.get("schema_version"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("1")
+                .to_string(),
+            signature_algorithm: receipt_section
+                .and_then(|t| t.get("signature_algorithm"))
+                .and_then(|v| v.as_str())
+                .map(String::from),
+            hash_function: receipt_section
+                .and_then(|t| t.get("hash_function"))
+                .and_then(|v| v.as_str())
+                .map(String::from),
+            chain_depth_max: receipt_section
+                .and_then(|t| t.get("chain_depth_max"))
+                .and_then(|v| v.as_integer())
+                .map(|v| v as u32),
+        })
+    }
+
+    /// Check loaded receipt schema metadata for contradictions.
+    ///
+    /// Detects:
+    /// - Incompatible receipt format versions (e.g., v1 vs v2 schemas)
+    /// - Conflicting signature algorithms (e.g., Ed25519 vs RSA)
+    /// - Hash function mismatches (e.g., SHA-256 vs SHA-3)
+    /// - Chain depth requirements (e.g., one requires depth 10, another forbids >5)
+    fn check_receipt_schema_contradictions(
+        loaded_schemas: &[(AtomicPackId, ReceiptSchemaMeta)],
+    ) -> Vec<Conflict> {
+        let mut conflicts = Vec::new();
+
+        for (i, (pack1, meta1)) in loaded_schemas.iter().enumerate() {
+            for (pack2, meta2) in loaded_schemas.iter().skip(i + 1) {
+                // Check for incompatible receipt format versions
+                if meta1.schema_version != meta2.schema_version {
+                    conflicts.push(Conflict::new(
+                        CompatibilityDimension::ReceiptSchema,
+                        vec![(*pack1).clone(), (*pack2).clone()],
+                        format!(
+                            "Receipt schema incompatibility: incompatible format versions - pack '{}' uses v{} but pack '{}' uses v{}",
+                            pack1, meta1.schema_version, pack2, meta2.schema_version
+                        ),
+                        ConflictSeverity::Warning,
+                    ).with_resolution(ConflictResolution::UserResolve)
+                    .with_context("issue".to_string(), "schema_version_mismatch".to_string()));
+                }
+
+                // Check for conflicting signature algorithms
+                match (&meta1.signature_algorithm, &meta2.signature_algorithm) {
+                    (Some(algo1), Some(algo2)) if algo1 != algo2 => {
+                        conflicts.push(Conflict::new(
+                            CompatibilityDimension::ReceiptSchema,
+                            vec![(*pack1).clone(), (*pack2).clone()],
+                            format!(
+                                "Receipt schema incompatibility: conflicting signature algorithms - pack '{}' requires '{}' but pack '{}' requires '{}'",
+                                pack1, algo1, pack2, algo2
+                            ),
+                            ConflictSeverity::Error,
+                        ).with_resolution(ConflictResolution::Fail)
+                        .with_context("issue".to_string(), "signature_algorithm_conflict".to_string()));
+                    }
+                    _ => {}
+                }
+
+                // Check for hash function mismatches
+                match (&meta1.hash_function, &meta2.hash_function) {
+                    (Some(hash1), Some(hash2)) if hash1 != hash2 => {
+                        conflicts.push(Conflict::new(
+                            CompatibilityDimension::ReceiptSchema,
+                            vec![(*pack1).clone(), (*pack2).clone()],
+                            format!(
+                                "Receipt schema warning: hash function mismatch - pack '{}' uses '{}' but pack '{}' uses '{}'. Cross-verification may fail.",
+                                pack1, hash1, pack2, hash2
+                            ),
+                            ConflictSeverity::Warning,
+                        ).with_resolution(ConflictResolution::UserResolve)
+                        .with_context("issue".to_string(), "hash_function_mismatch".to_string()));
+                    }
+                    _ => {}
+                }
+
+                // Check for chain depth requirement conflicts
+                match (meta1.chain_depth_max, meta2.chain_depth_max) {
+                    (Some(max1), Some(max2)) if max1 != max2 => {
+                        conflicts.push(Conflict::new(
+                            CompatibilityDimension::ReceiptSchema,
+                            vec![(*pack1).clone(), (*pack2).clone()],
+                            format!(
+                                "Receipt schema warning: conflicting chain depth requirements - pack '{}' requires max depth {} but pack '{}' requires max depth {}",
+                                pack1, max1, pack2, max2
+                            ),
+                            ConflictSeverity::Warning,
+                        ).with_resolution(ConflictResolution::UserResolve)
+                        .with_context("issue".to_string(), "chain_depth_conflict".to_string()));
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        conflicts
     }
 
     /// Check consequence migration conflicts.
@@ -1298,7 +1726,6 @@ impl Default for CompatibilityChecker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ownership::OwnershipClass;
     use std::path::PathBuf;
 
     #[test]
@@ -1335,8 +1762,8 @@ mod tests {
     #[test]
     fn test_compatibility_report_success() {
         let packs = vec![
-            AtomicPackId::new(crate::atomic::AtomicPackClass::Core, "pack1"),
-            AtomicPackId::new(crate::atomic::AtomicPackClass::Core, "pack2"),
+            AtomicPackId::new(crate::atomic::AtomicPackClass::CoreOntology, "pack1".to_string()),
+            AtomicPackId::new(crate::atomic::AtomicPackClass::CoreOntology, "pack2".to_string()),
         ];
 
         let report = CompatibilityReport::success(packs);
@@ -1464,39 +1891,43 @@ mod tests {
 
     #[test]
     fn test_check_receipt_schemas_no_receipts() {
+        let checker = CompatibilityChecker::default();
         let packs = vec![
             AtomicPackId::new(AtomicPackClass::SurfaceMcp, "mcp".to_string()),
             AtomicPackId::new(AtomicPackClass::ProjectionRust, "rust".to_string()),
         ];
 
-        let conflicts = CompatibilityChecker::check_receipt_schemas(&packs).unwrap();
+        let conflicts = checker.check_receipt_schemas(&packs).unwrap();
         assert!(conflicts.is_empty());
     }
 
     #[test]
     fn test_check_receipt_schemas_chained_only() {
+        let checker = CompatibilityChecker::default();
         let packs = vec![AtomicPackId::new(
             AtomicPackClass::ReceiptChained,
             "chained-receipt".to_string(),
         )];
 
-        let conflicts = CompatibilityChecker::check_receipt_schemas(&packs).unwrap();
+        let conflicts = checker.check_receipt_schemas(&packs).unwrap();
         assert!(conflicts.is_empty());
     }
 
     #[test]
     fn test_check_receipt_schemas_enterprise_only() {
+        let checker = CompatibilityChecker::default();
         let packs = vec![AtomicPackId::new(
             AtomicPackClass::ReceiptEnterpriseSigned,
             "enterprise-receipt".to_string(),
         )];
 
-        let conflicts = CompatibilityChecker::check_receipt_schemas(&packs).unwrap();
+        let conflicts = checker.check_receipt_schemas(&packs).unwrap();
         assert!(conflicts.is_empty());
     }
 
     #[test]
     fn test_check_receipt_schemas_chained_conflict() {
+        let checker = CompatibilityChecker::default();
         let pack1 = AtomicPackId::new(
             AtomicPackClass::ReceiptChained,
             "chained-v1".to_string(),
@@ -1507,7 +1938,7 @@ mod tests {
         );
 
         let conflicts =
-            CompatibilityChecker::check_receipt_schemas(&[pack1.clone(), pack2.clone()]).unwrap();
+            checker.check_receipt_schemas(&[pack1.clone(), pack2.clone()]).unwrap();
 
         assert_eq!(conflicts.len(), 1);
         assert_eq!(conflicts[0].dimension, CompatibilityDimension::ReceiptSchema);
@@ -1522,11 +1953,12 @@ mod tests {
 
     #[test]
     fn test_check_receipt_schemas_duplicate_chained() {
+        let checker = CompatibilityChecker::default();
         let pack1 = AtomicPackId::new(AtomicPackClass::ReceiptChained, "chained-v1".to_string());
         let pack2 = AtomicPackId::new(AtomicPackClass::ReceiptChained, "chained-v2".to_string());
 
         let conflicts =
-            CompatibilityChecker::check_receipt_schemas(&[pack1.clone(), pack2.clone()]).unwrap();
+            checker.check_receipt_schemas(&[pack1.clone(), pack2.clone()]).unwrap();
 
         assert_eq!(conflicts.len(), 1);
         assert_eq!(conflicts[0].dimension, CompatibilityDimension::ReceiptSchema);
@@ -1538,16 +1970,16 @@ mod tests {
 
     #[test]
     fn test_check_receipt_schemas_mixed_compatible() {
+        let checker = CompatibilityChecker::default();
         let packs = vec![
             AtomicPackId::new(AtomicPackClass::ReceiptChained, "chained".to_string()),
             AtomicPackId::new(AtomicPackClass::SurfaceMcp, "mcp".to_string()),
             AtomicPackId::new(AtomicPackClass::ProjectionRust, "rust".to_string()),
         ];
 
-        let conflicts = CompatibilityChecker::check_receipt_schemas(&packs).unwrap();
+        let conflicts = checker.check_receipt_schemas(&packs).unwrap();
         assert!(conflicts.is_empty());
     }
-}
 
     #[test]
     fn test_check_consequences_semver_vs_breaking_change() {
@@ -1791,3 +2223,4 @@ mod tests {
         assert!(conflicts[0].description.contains("SurfaceMcp"));
         assert!(conflicts[0].description.contains("SurfaceA2a"));
     }
+}

@@ -251,9 +251,11 @@ impl PackCache {
         let mut freed_bytes = 0;
 
         for (cache_key, pack) in packs_vec {
-            if *current_size + required_size - freed_bytes <= self.config.max_size_bytes
-                && packs.len() - evicted <= self.config.max_packs
-            {
+            let within_size =
+                *current_size + required_size - freed_bytes <= self.config.max_size_bytes;
+            // Leave room for one new entry after this eviction pass (strict `<`, not `<=`).
+            let within_count = packs.len() < self.config.max_packs;
+            if within_size && within_count {
                 break;
             }
 
@@ -434,6 +436,29 @@ impl PackCache {
         Ok(())
     }
 
+    /// Check if a pack is cached
+    ///
+    /// # Returns
+    ///
+    /// `true` if the pack exists in cache, `false` otherwise
+    #[must_use]
+    pub fn is_cached(&self, package_id: &PackageId, version: &PackageVersion) -> bool {
+        let cache_key = format!("{}@{}", package_id, version);
+        let packs = self.packs.read().unwrap();
+        packs.contains_key(&cache_key)
+    }
+
+    /// Get all cached pack keys
+    ///
+    /// # Returns
+    ///
+    /// Vector of cache keys for all cached packs
+    #[must_use]
+    pub fn cached_packs(&self) -> Vec<String> {
+        let packs = self.packs.read().unwrap();
+        packs.keys().cloned().collect()
+    }
+
     /// Verify that a cached pack's digest matches
     ///
     /// # Errors
@@ -511,8 +536,6 @@ impl std::fmt::Display for CacheStats {
 mod tests {
     use super::*;
     use crate::models::{PackageId, PackageVersion};
-    use std::fs::{self, File};
-    use std::io::Write;
     use tempfile::TempDir;
 
     #[test]
@@ -535,7 +558,7 @@ mod tests {
         let pack = CachedPack::new(
             package_id.clone(),
             version.clone(),
-            digest,
+            digest.clone(),
             1024,
             cache_path.clone(),
         );

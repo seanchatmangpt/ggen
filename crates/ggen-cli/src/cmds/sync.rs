@@ -537,11 +537,10 @@ fn build_sync_options(
         };
     }
 
-    // Set timeout (TODO: Add timeout_ms field to SyncOptions if needed)
-    // if let Some(t) = timeout {
-    //     options.timeout_ms = t;
-    // }
-    let _ = timeout; // Suppress unused variable warning
+    // Set timeout
+    if let Some(t) = timeout {
+        options.timeout_ms = Some(t);
+    }
 
     // A2A-specific options
     if let Some(s) = stage {

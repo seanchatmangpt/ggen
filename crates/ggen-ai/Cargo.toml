@@ -170,6 +170,21 @@ path = "tests/dspy_property_tests.rs"
 required-features = ["integration"]
 
 [[test]]
+name = "swarm_sparql_validator_tests"
+path = "tests/swarm_sparql_validator_tests.rs"
+required-features = ["swarm"]
+
+[[test]]
+name = "template_validator_agent_test"
+path = "tests/template_validator_agent_test.rs"
+required-features = ["swarm"]
+
+[[test]]
+name = "template_validator_standalone"
+path = "tests/template_validator_standalone.rs"
+required-features = ["swarm", "integration"]
+
+[[test]]
 name = "dspy_testing_property_tests"
 path = "tests/dspy_testing_property_tests.rs"
 required-features = ["integration"]

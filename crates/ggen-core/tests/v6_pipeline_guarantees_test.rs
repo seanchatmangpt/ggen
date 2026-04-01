@@ -157,6 +157,7 @@ fn test_mu3_emission_detects_nondeterministic_patterns() {
     pass.add_rule(EmissionRule {
         name: "bad-template".to_string(),
         template_path: PathBuf::from("templates/bad.rs.tera"),
+        inline_template: None,
         output_pattern: "timestamp.rs".to_string(),
         binding_key: "data".to_string(),
         iterate: false,

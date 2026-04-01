@@ -78,6 +78,32 @@ impl Epoch {
         })
     }
 
+    /// Epoch when inputs come only from merged pack ontologies (no project TTL files).
+    ///
+    /// `content_digest` should be a deterministic hash of the merged graph serialization
+    /// (e.g. SHA-256 hex of canonical Turtle).
+    pub fn from_pack_merged_substrate(content_digest: String, triple_count: usize) -> Self {
+        let timestamp = chrono::Utc::now().to_rfc3339();
+        let mut inputs = BTreeMap::new();
+        let pseudo = PathBuf::from(".ggen/pack-merged-substrate.ttl");
+        inputs.insert(
+            pseudo.clone(),
+            OntologyInput {
+                path: pseudo,
+                hash: content_digest,
+                size_bytes: 0,
+                triple_count,
+            },
+        );
+        let id = Self::compute_epoch_id(&inputs);
+        Self {
+            id,
+            timestamp,
+            inputs,
+            total_triples: triple_count,
+        }
+    }
+
     /// Compute the epoch ID by hashing all input hashes
     fn compute_epoch_id(inputs: &BTreeMap<PathBuf, OntologyInput>) -> EpochId {
         let mut hasher = Sha256::new();

@@ -336,15 +336,87 @@ impl CompositionReceipt {
         !self.conflicts.is_empty()
     }
 
-    /// Verify the receipt chain.
+    /// Verify the receipt chain and validate composition integrity.
+    ///
+    /// Performs three levels of verification:
+    /// 1. Cryptographic chain verification using ggen-receipt's ReceiptChain
+    /// 2. Pack compatibility check (ensures all packs meet trust tier requirements)
+    /// 3. Signature presence check (enterprise profiles require signatures)
     ///
     /// # Errors
     ///
-    /// Returns error if chain verification fails.
-    pub fn verify_chain(&self, _public_key: &str) -> Result<()> {
-        // Use ggen-receipt's ReceiptChain verification
-        // The actual verification happens at the ggen-receipt level
-        // This is a placeholder for future verification logic
+    /// Returns error if:
+    /// - The public key hex is invalid
+    /// - Chain cryptographic verification fails
+    /// - Any pack's trust tier does not meet the profile requirement
+    /// - Required signatures are missing
+    pub fn verify_chain(&self, public_key: &str) -> Result<()> {
+        use crate::error::Error;
+        use crate::trust::TrustTier;
+
+        // 1. Cryptographic chain verification via ggen-receipt
+        let key_bytes = hex::decode(public_key).map_err(|e| {
+            Error::SignatureVerificationFailed {
+                reason: format!("Invalid public key hex: {}", e),
+            }
+        })?;
+
+        if key_bytes.len() != 32 {
+            return Err(Error::SignatureVerificationFailed {
+                reason: "Public key must be 32 bytes for Ed25519".to_string(),
+            });
+        }
+
+        let mut key_array = [0u8; 32];
+        key_array.copy_from_slice(&key_bytes);
+
+        let verifying_key = ed25519_dalek::VerifyingKey::from_bytes(&key_array).map_err(|e| {
+            Error::SignatureVerificationFailed {
+                reason: format!("Invalid Ed25519 verifying key: {}", e),
+            }
+        })?;
+
+        self.receipt_chain
+            .verify(&verifying_key)
+            .map_err(Error::from)?;
+
+        // 2. Trust tier validation: every atomic pack must meet the profile requirement
+        let required_tier = self.runtime_context.trust_requirement;
+        for pack in &self.atomic_packs {
+            if !pack.trust_tier.meets_requirement(required_tier) {
+                return Err(Error::TrustTierCheckFailed {
+                    reason: format!(
+                        "Pack '{}' has trust tier {:?} but profile '{}' requires {:?}",
+                        pack.pack_id, pack.trust_tier,
+                        self.runtime_context.profile_id, required_tier
+                    ),
+                });
+            }
+        }
+
+        // 3. Signature presence check for enterprise profiles
+        if required_tier == TrustTier::EnterpriseCertified
+            || required_tier == TrustTier::EnterpriseApproved
+        {
+            for pack in &self.atomic_packs {
+                if pack.signature.is_empty() {
+                    return Err(Error::SignatureVerificationFailed {
+                        reason: format!(
+                            "Enterprise profile '{}' requires signed packs, but '{}' has no signature",
+                            self.runtime_context.profile_id, pack.pack_id
+                        ),
+                    });
+                }
+            }
+        }
+
+        tracing::debug!(
+            "Composition receipt verified: {} packs, {} artifacts, profile '{}'",
+            self.pack_count(),
+            self.artifact_count(),
+            self.runtime_context.profile_id
+        );
+
         Ok(())
     }
 

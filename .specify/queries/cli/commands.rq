@@ -1,0 +1,48 @@
+# =============================================================================
+# commands.rq — Extract all top-level commands (and SpecialCommands)
+# =============================================================================
+#
+# Returns one row per top-level command attached to the ggen Interface.
+# Variables:
+#   ?command        — full URI of the command (e.g. ggen:SyncCommand)
+#   ?type           — rdf type label: "Command" or "SpecialCommand"
+#   ?name           — cli:name literal (e.g. "sync")
+#   ?summary        — cli:summary literal
+#   ?description    — cli:description literal
+#   ?subcommandCount — number of direct subcommands (0 for leaf commands)
+# =============================================================================
+
+PREFIX cli:  <urn:cli:spec:>
+PREFIX ggen: <urn:ggen:example:>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?command ?type ?name ?summary ?description ?subcommandCount
+WHERE {
+  # Start from the Interface and traverse to top-level commands
+  ggen:GgenInterface cli:hasCommand ?command .
+
+  # Determine whether this is a plain Command or a SpecialCommand
+  {
+    ?command a cli:Command .
+    BIND("Command" AS ?type)
+  } UNION {
+    ?command a cli:SpecialCommand .
+    BIND("SpecialCommand" AS ?type)
+  }
+
+  # Core properties — these are mandatory in the ontology
+  ?command cli:name        ?name ;
+           cli:summary     ?summary ;
+           cli:description ?description .
+
+  # Count direct subcommands via OPTIONAL so leaf commands get 0
+  {
+    SELECT ?command (COUNT(?sub) AS ?subcommandCount)
+    WHERE {
+      ?command cli:hasSubcommand ?sub .
+    }
+    GROUP BY ?command
+  }
+}
+ORDER BY ?name

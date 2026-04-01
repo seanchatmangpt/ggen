@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::fmt;
 
 use crate::error::{Error, Result};
-use crate::ownership::{OwnershipClass, OwnershipTarget};
+use crate::ownership::OwnershipClass;
 use crate::trust::TrustTier;
 
 /// Unique identifier for a policy.

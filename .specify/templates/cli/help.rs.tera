@@ -1,0 +1,156 @@
+{#- Static help text module -- generated from ontology
+    This produces a module with compile-time help strings derived from the
+    cli: ontology. Each command and subcommand gets a dedicated help constant
+    that includes its summary, description, options, and examples.
+
+    Expected variables:
+    - interface_name: string (e.g., "ggen")
+    - interface_summary: string (e.g., "Ontology-governed compiler interface")
+    - commands: array of { name, summary, description, subcommands[], special, options[], examples[] }
+      - subcommands[]: { name, summary, about, options[], positional_arguments[], examples[] }
+        - options[]: { name, long_name, type, summary, description, required }
+        - positional_arguments[]: { name, summary, required }
+        - examples[]: { text }
+      - options[]: { name, long_name, type, summary, description, required } (for special commands)
+      - examples[]: { text } (for special commands)
+    - global_options: array of { name, long_name, type, summary, description }
+-#}
+//! Auto-generated help text for {{ interface_name }}
+//!
+//! DO NOT EDIT -- this file is generated from .specify/ontology/cli-ggen.ttl.
+//! Run `ggen sync` to regenerate.
+
+// ============================================================================
+// Top-level help
+// ============================================================================
+
+/// Top-level help banner for the {{ interface_name }} binary.
+pub const TOP_LEVEL_HELP: &str = r#"{{ interface_name }} -- {{ interface_summary }}
+
+USAGE:
+    {{ interface_name }} <COMMAND> [OPTIONS]
+
+COMMANDS:
+{%- for command in commands %}
+    {{ "%-16s" | format(command.name) }} {{ command.summary }}
+{%- endfor %}
+
+GLOBAL OPTIONS:
+{%- for opt in global_options %}
+    {{ opt.long_name }}{% if opt.type == "value" %} <VALUE>{% endif %}
+        {{ opt.summary }}
+{%- endfor %}
+
+For more information about a specific command, run:
+    {{ interface_name }} <COMMAND> --help
+"#;
+
+// ============================================================================
+// Per-command help constants
+// ============================================================================
+
+{%- for command in commands %}
+{%- if command.subcommands and command.subcommands | length > 0 %}
+
+// ---------------------------------------------------------------------------
+// {{ command.name | upper }}
+// ---------------------------------------------------------------------------
+
+/// Help text for `{{ interface_name }} {{ command.name }}`.
+pub const {{ command.name | upper }}_HELP: &str = r#"{{ command.name }} -- {{ command.summary }}
+
+{% if command.description %}{{ command.description }}{% endif %}
+
+USAGE:
+    {{ interface_name }} {{ command.name }} <SUBCOMMAND> [OPTIONS]
+
+SUBCOMMANDS:
+{%- for subcmd in command.subcommands %}
+    {{ "%-16s" | format(subcmd.name) }} {{ subcmd.summary }}
+{%- endfor %}
+"#;
+
+{%- for subcmd in command.subcommands %}
+
+/// Help text for `{{ interface_name }} {{ command.name }} {{ subcmd.name }}`.
+pub const {{ command.name | upper }}_{{ subcmd.name | upper }}_HELP: &str = r#"{{ command.name }} {{ subcmd.name }} -- {{ subcmd.summary }}
+
+{% if subcmd.about %}{{ subcmd.about }}{% endif %}
+
+USAGE:
+    {{ interface_name }} {{ command.name }} {{ subcmd.name }}
+{%- for opt in subcmd.options %}
+{%- if opt.required and opt.type == "value" %}
+        {{ opt.long_name }} <VALUE>
+{%- endif %}
+{%- endfor %}
+{%- for arg in subcmd.positional_arguments %}
+{%- if arg.required %}
+        <{{ arg.name | upper }}>
+{%- endif %}
+{%- endfor %}
+        [OPTIONS]
+
+{%- if subcmd.positional_arguments | length > 0 %}
+
+ARGUMENTS:
+{%- for arg in subcmd.positional_arguments %}
+    {{ arg.name }}
+        {{ arg.summary }}
+{%- endfor %}
+{%- endif %}
+
+OPTIONS:
+{%- for opt in subcmd.options %}
+    {{ opt.long_name }}{% if opt.type == "value" %} <VALUE>{% endif %}{% if opt.required %} (required){% endif %}
+        {{ opt.summary }}
+{%- if opt.description %}
+        {{ opt.description }}
+{%- endif %}
+{%- endfor %}
+
+{%- if subcmd.examples %}
+
+EXAMPLES:
+{%- for example in subcmd.examples %}
+    {{ example.text }}
+{%- endfor %}
+{%- endif %}
+"#;
+
+{%- endfor %}
+
+{%- elif command.special %}
+
+// ---------------------------------------------------------------------------
+// {{ command.name | upper }} (root verb)
+// ---------------------------------------------------------------------------
+
+/// Help text for `{{ interface_name }} {{ command.name }}`.
+pub const {{ command.name | upper }}_HELP: &str = r#"{{ command.name }} -- {{ command.summary }}
+
+{% if command.description %}{{ command.description }}{% endif %}
+
+USAGE:
+    {{ interface_name }} {{ command.name }} [OPTIONS]
+
+OPTIONS:
+{%- for opt in command.options %}
+    {{ opt.long_name }}{% if opt.type == "value" %} <VALUE>{% endif %}{% if opt.required %} (required){% endif %}
+        {{ opt.summary }}
+{%- if opt.description %}
+        {{ opt.description }}
+{%- endif %}
+{%- endfor %}
+
+{%- if command.examples %}
+
+EXAMPLES:
+{%- for example in command.examples %}
+    {{ example.text }}
+{%- endfor %}
+{%- endif %}
+"#;
+
+{%- endif %}
+{%- endfor %}

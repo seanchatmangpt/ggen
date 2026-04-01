@@ -2,13 +2,15 @@
 
 *Generated: 2026-03-31*
 
+**Document status:** Strategic charter and WIP gates live in [FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md](FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md) and [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md). **v6.1.0 packs slice:** [V6_1_MARKETPLACE_SCOPE.md](V6_1_MARKETPLACE_SCOPE.md).
+
 ---
 
 ## 1. Executive Summary
 
-The marketplace has **rich infrastructure** (RDF-backed registry, SPARQL search, dependency resolution, Ed25519 signing, quality scoring) but is **not wired to the CLI or the sync pipeline**. The `ggen marketplace *` commands were removed in v5.0. The `ggen packs *` commands are stubs that return empty data. No pack can be installed, and no marketplace template is used by `ggen sync`.
+The marketplace crate still has **rich infrastructure** (RDF registry, signing, policy, bundles). **Partial wiring (2026-04):** `ggen packs install` for curated atomic IDs materializes `~/.ggen/packs/<pack>/` (or `GGEN_PACK_CACHE_DIR`), updates `.ggen/packs.lock`, and the v6 pipeline runs μ₀ → merged ontology, **μ₂ pack CONSTRUCT** queries (see [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md)), stages pack templates under `.ggen/pack-stage/`, and records **non-placeholder** `PackProvenance` digests in receipts. `ggen marketplace *` remains removed; broader search/list/compose CLI verbs are still thin.
 
-**Bottom line:** The engine is built. The transmission is not connected.
+**Bottom line:** Core “transmission” for governed packs + sync is **in progress**; see v6.1 scope doc for remaining gaps.
 
 ---
 

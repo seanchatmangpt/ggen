@@ -1,0 +1,515 @@
+@prefix ggen: <http://ggen.dev/cli/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cli: <http://ggen.dev/cli/schema/> .
+
+# ============================================================================
+# ggen CLI Noun-Verb Ontology
+# Enterprise Operating Language for Governed Text Compilation
+# ============================================================================
+
+# --- Noun Definitions ---
+
+ggen:capability a cli:Noun ;
+    rdfs:label "capability" ;
+    cli:about "Enable and inspect governed capability surfaces" ;
+    cli:modName "capability" ;
+    cli:hasVerb ggen:capability_enable ,
+               ggen:capability_disable ,
+               ggen:capability_list ,
+               ggen:capability_show ,
+               ggen:capability_graph ,
+               ggen:capability_validate .
+
+ggen:pack a cli:Noun ;
+    rdfs:label "pack" ;
+    cli:about "Install and manage atomic packs and bundle aliases" ;
+    cli:modName "pack" ;
+    cli:hasVerb ggen:pack_add ,
+               ggen:pack_remove ,
+               ggen:pack_list ,
+               ggen:pack_show ,
+               ggen:pack_inspect ,
+               ggen:pack_graph ,
+               ggen:pack_verify ,
+               ggen:pack_search ,
+               ggen:pack_lock .
+
+ggen:policy a cli:Noun ;
+    rdfs:label "policy" ;
+    cli:about "View and validate policy profiles" ;
+    cli:modName "policy" ;
+    cli:hasVerb ggen:policy_list ,
+               ggen:policy_show ,
+               ggen:policy_validate .
+
+ggen:receipt a cli:Noun ;
+    rdfs:label "receipt" ;
+    cli:about "Verify, inspect, and chain-check proof objects" ;
+    cli:modName "receipt" ;
+    cli:hasVerb ggen:receipt_verify ,
+               ggen:receipt_info ,
+               ggen:receipt_chain_verify ,
+               ggen:receipt_show .
+
+ggen:sync a cli:Noun ;
+    rdfs:label "sync" ;
+    cli:about "Compile ontology into governed artifacts" ;
+    cli:modName "sync_cmd" ;
+    cli:hasVerb ggen:sync_run .
+
+ggen:graph a cli:Noun ;
+    rdfs:label "graph" ;
+    cli:about "Inspect loaded ontology, dependencies, and composition" ;
+    cli:modName "graph" ;
+    cli:hasVerb ggen:graph_ontology ,
+               ggen:graph_pack ,
+               ggen:graph_capability ,
+               ggen:graph_ownership ,
+               ggen:graph_runtime .
+
+ggen:template a cli:Noun ;
+    rdfs:label "template" ;
+    cli:about "Inspect resolved templates and rendering sources" ;
+    cli:modName "template_cmd" ;
+    cli:hasVerb ggen:template_list ,
+               ggen:template_show ,
+               ggen:template_render .
+
+ggen:query a cli:Noun ;
+    rdfs:label "query" ;
+    cli:about "Inspect and run SPARQL extraction queries" ;
+    cli:modName "query_cmd" ;
+    cli:hasVerb ggen:query_list ,
+               ggen:query_run ,
+               ggen:query_explain .
+
+ggen:profile a cli:Noun ;
+    rdfs:label "profile" ;
+    cli:about "Apply enterprise operating profiles" ;
+    cli:modName "profile_cmd" ;
+    cli:hasVerb ggen:profile_list ,
+               ggen:profile_show ,
+               ggen:profile_apply ,
+               ggen:profile_validate .
+
+ggen:runtime a cli:Noun ;
+    rdfs:label "runtime" ;
+    cli:about "Select or inspect execution runtime bindings" ;
+    cli:modName "runtime_cmd" ;
+    cli:hasVerb ggen:runtime_list ,
+               ggen:runtime_show ,
+               ggen:runtime_select .
+
+ggen:registry a cli:Noun ;
+    rdfs:label "registry" ;
+    cli:about "Search and inspect available packs from configured registries" ;
+    cli:modName "registry_cmd" ;
+    cli:hasVerb ggen:registry_list ,
+               ggen:registry_search ,
+               ggen:registry_show ,
+               ggen:registry_sync ,
+               ggen:registry_trust .
+
+ggen:doctor a cli:Noun ;
+    rdfs:label "doctor" ;
+    cli:about "Diagnose configuration, composition, and trust issues" ;
+    cli:modName "doctor" ;
+    cli:hasVerb ggen:doctor_run .
+
+ggen:new a cli:Noun ;
+    rdfs:label "new" ;
+    cli:about "Create a new governed workspace or project" ;
+    cli:modName "new_cmd" ;
+    cli:hasVerb ggen:new_workspace ,
+               ggen:new_pack .
+
+ggen:init a cli:Noun ;
+    rdfs:label "init" ;
+    cli:about "Initialize ggen in an existing repository" ;
+    cli:modName "init_cmd" ;
+    cli:hasVerb ggen:init_run .
+
+# ============================================================================
+# Verb Definitions — capability
+# ============================================================================
+
+ggen:capability_enable a cli:Verb ;
+    rdfs:label "enable" ;
+    cli:about "Enable a capability surface in the workspace" ;
+    cli:fnName "enable_capability" ;
+    cli:returnType "CapabilityResult" ;
+    cli:hasArgument [
+        cli:name "surface" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Capability surface to enable (mcp, a2a, openapi)"
+    ] , [
+        cli:name "projection" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Projection target (rust, java, slidev, xlsx)"
+    ] , [
+        cli:name "runtime" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Runtime binding (axum, stdio, tonic)"
+    ] , [
+        cli:name "profile" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Operating profile"
+    ] , [
+        cli:name "bundle" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Expand from a named bundle alias"
+    ] , [
+        cli:name "dry_run" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Show resolved pack graph without applying"
+    ] , [
+        cli:name "locked" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Require lockfile-consistent resolution"
+    ] .
+
+ggen:capability_disable a cli:Verb ;
+    rdfs:label "disable" ;
+    cli:about "Disable a capability surface" ;
+    cli:fnName "disable_capability" ;
+    cli:returnType "CapabilityResult" ;
+    cli:hasArgument [
+        cli:name "surface" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Capability surface to disable"
+    ] .
+
+ggen:capability_list a cli:Verb ;
+    rdfs:label "list" ;
+    cli:about "List enabled capabilities" ;
+    cli:fnName "list_capabilities" ;
+    cli:returnType "CapabilityList" .
+
+ggen:capability_show a cli:Verb ;
+    rdfs:label "show" ;
+    cli:about "Show resolved capability details" ;
+    cli:fnName "show_capability" ;
+    cli:returnType "CapabilityDetail" ;
+    cli:hasArgument [
+        cli:name "surface" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Capability surface to inspect"
+    ] .
+
+ggen:capability_graph a cli:Verb ;
+    rdfs:label "graph" ;
+    cli:about "Show capability-to-pack composition graph" ;
+    cli:fnName "graph_capabilities" ;
+    cli:returnType "CompositionGraph" .
+
+ggen:capability_validate a cli:Verb ;
+    rdfs:label "validate" ;
+    cli:about "Validate capability composition before sync" ;
+    cli:fnName "validate_capability" ;
+    cli:returnType "ValidationResult" ;
+    cli:hasArgument [
+        cli:name "surface" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Specific surface to validate (all if omitted)"
+    ] .
+
+# ============================================================================
+# Verb Definitions — pack
+# ============================================================================
+
+ggen:pack_add a cli:Verb ;
+    rdfs:label "add" ;
+    cli:about "Add a pack or bundle alias to the workspace" ;
+    cli:fnName "add_pack" ;
+    cli:returnType "PackAddResult" ;
+    cli:hasArgument [
+        cli:name "pack" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Atomic pack ID or bundle alias"
+    ] , [
+        cli:name "version" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Version requirement"
+    ] , [
+        cli:name "registry" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Preferred registry"
+    ] , [
+        cli:name "profile" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Apply profile during resolution"
+    ] , [
+        cli:name "dry_run" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Show expansion without installing"
+    ] , [
+        cli:name "locked" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Require lockfile-consistent resolution"
+    ] , [
+        cli:name "offline" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Disable registry access"
+    ] .
+
+ggen:pack_remove a cli:Verb ;
+    rdfs:label "remove" ;
+    cli:about "Remove a pack or bundle alias" ;
+    cli:fnName "remove_pack" ;
+    cli:returnType "PackRemoveResult" ;
+    cli:hasArgument [
+        cli:name "pack" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Pack ID to remove"
+    ] .
+
+ggen:pack_list a cli:Verb ;
+    rdfs:label "list" ;
+    cli:about "List installed and enabled packs" ;
+    cli:fnName "list_packs" ;
+    cli:returnType "PackList" .
+
+ggen:pack_show a cli:Verb ;
+    rdfs:label "show" ;
+    cli:about "Show pack metadata and trust status" ;
+    cli:fnName "show_pack" ;
+    cli:returnType "PackDetail" ;
+    cli:hasArgument [
+        cli:name "pack" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Pack ID to inspect"
+    ] .
+
+ggen:pack_inspect a cli:Verb ;
+    rdfs:label "inspect" ;
+    cli:about "Show resolved ontology, queries, templates, validators" ;
+    cli:fnName "inspect_pack" ;
+    cli:returnType "PackInspection" ;
+    cli:hasArgument [
+        cli:name "pack" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Pack ID to inspect"
+    ] .
+
+ggen:pack_graph a cli:Verb ;
+    rdfs:label "graph" ;
+    cli:about "Show dependency and composition graph" ;
+    cli:fnName "graph_packs" ;
+    cli:returnType "CompositionGraph" .
+
+ggen:pack_verify a cli:Verb ;
+    rdfs:label "verify" ;
+    cli:about "Verify signatures, checksums, and trust policy" ;
+    cli:fnName "verify_packs" ;
+    cli:returnType "VerificationResult" .
+
+ggen:pack_search a cli:Verb ;
+    rdfs:label "search" ;
+    cli:about "Search configured registries" ;
+    cli:fnName "search_packs" ;
+    cli:returnType "SearchResults" ;
+    cli:hasArgument [
+        cli:name "query" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Search query"
+    ] .
+
+ggen:pack_lock a cli:Verb ;
+    rdfs:label "lock" ;
+    cli:about "Write or update pack lock state" ;
+    cli:fnName "lock_packs" ;
+    cli:returnType "LockResult" .
+
+# ============================================================================
+# Verb Definitions — policy
+# ============================================================================
+
+ggen:policy_list a cli:Verb ;
+    rdfs:label "list" ;
+    cli:about "List available policy profiles" ;
+    cli:fnName "list_policies" ;
+    cli:returnType "PolicyList" .
+
+ggen:policy_show a cli:Verb ;
+    rdfs:label "show" ;
+    cli:about "Show policy profile details" ;
+    cli:fnName "show_policy" ;
+    cli:returnType "PolicyDetail" ;
+    cli:hasArgument [
+        cli:name "profile" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Profile name to show"
+    ] .
+
+ggen:policy_validate a cli:Verb ;
+    rdfs:label "validate" ;
+    cli:about "Validate current workspace against a profile" ;
+    cli:fnName "validate_policy" ;
+    cli:returnType "ValidationResult" ;
+    cli:hasArgument [
+        cli:name "profile" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Profile to validate against"
+    ] .
+
+# ============================================================================
+# Verb Definitions — receipt
+# ============================================================================
+
+ggen:receipt_verify a cli:Verb ;
+    rdfs:label "verify" ;
+    cli:about "Verify a receipt signature and content hash" ;
+    cli:fnName "verify_receipt" ;
+    cli:returnType "ReceiptVerifyResult" ;
+    cli:hasArgument [
+        cli:name "receipt_file" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Path to receipt file"
+    ] .
+
+ggen:receipt_info a cli:Verb ;
+    rdfs:label "info" ;
+    cli:about "Show receipt metadata and composition details" ;
+    cli:fnName "info_receipt" ;
+    cli:returnType "ReceiptInfo" ;
+    cli:hasArgument [
+        cli:name "receipt_file" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Path to receipt file"
+    ] .
+
+ggen:receipt_chain_verify a cli:Verb ;
+    rdfs:label "chain-verify" ;
+    cli:about "Verify a chain of receipts across generations" ;
+    cli:fnName "chain_verify_receipt" ;
+    cli:returnType "ChainVerifyResult" ;
+    cli:hasArgument [
+        cli:name "receipt_file" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Path to receipt file"
+    ] .
+
+ggen:receipt_show a cli:Verb ;
+    rdfs:label "show" ;
+    cli:about "Render a receipt in human-readable form" ;
+    cli:fnName "show_receipt" ;
+    cli:returnType "ReceiptDisplay" ;
+    cli:hasArgument [
+        cli:name "receipt_file" ;
+        cli:type "String" ;
+        cli:required true ;
+        cli:comment "Path to receipt file"
+    ] .
+
+# ============================================================================
+# Verb Definitions — sync (sacred compiler action)
+# ============================================================================
+
+ggen:sync_run a cli:Verb ;
+    rdfs:label "run" ;
+    cli:about "Compile ontology into governed artifacts (authoritative pipeline)" ;
+    cli:fnName "run_sync" ;
+    cli:returnType "SyncResult" ;
+    cli:hasArgument [
+        cli:name "profile" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Apply profile during compilation"
+    ] , [
+        cli:name "locked" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Require lockfile-consistent execution"
+    ] , [
+        cli:name "emit_receipts" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Force receipt emission"
+    ] , [
+        cli:name "dry_run" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Evaluate without writing artifacts"
+    ] , [
+        cli:name "fail_on_warning" ;
+        cli:type "bool" ;
+        cli:required false ;
+        cli:comment "Treat warnings as errors"
+    ] .
+
+# ============================================================================
+# Verb Definitions — graph
+# ============================================================================
+
+ggen:graph_ontologies a cli:Verb ;
+    rdfs:label "ontology" ;
+    cli:about "Show loaded ontology graph" ;
+    cli:fnName "graph_ontologies" ;
+    cli:returnType "GraphData" .
+
+ggen:graph_pack a cli:Verb ;
+    rdfs:label "pack" ;
+    cli:about "Show pack dependency and expansion graph" ;
+    cli:fnName "graph_packs" ;
+    cli:returnType "GraphData" .
+
+ggen:graph_capability a cli:Verb ;
+    rdfs:label "capability" ;
+    cli:about "Show capability-to-pack graph" ;
+    cli:fnName "graph_capabilities" ;
+    cli:returnType "GraphData" .
+
+ggen:graph_ownership a cli:Verb ;
+    rdfs:label "ownership" ;
+    cli:about "Show artifact and field ownership graph" ;
+    cli:fnName "graph_ownership" ;
+    cli:returnType "GraphData" .
+
+ggen:graph_runtime a cli:Verb ;
+    rdfs:label "runtime" ;
+    cli:about "Show runtime binding graph" ;
+    cli:fnName "graph_runtime" ;
+    cli:returnType "GraphData" .
+
+# ============================================================================
+# Verb Definitions — doctor
+# ============================================================================
+
+ggen:doctor_run a cli:Verb ;
+    rdfs:label "run" ;
+    cli:about "Diagnose workspace and configuration issues" ;
+    cli:fnName "run_doctor" ;
+    cli:returnType "DoctorReport" ;
+    cli:hasArgument [
+        cli:name "profile" ;
+        cli:type "String" ;
+        cli:required false ;
+        cli:comment "Validate against specific profile"
+    ] .
