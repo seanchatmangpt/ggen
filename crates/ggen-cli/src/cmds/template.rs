@@ -287,10 +287,18 @@ fn generate_tree(
 #[verb]
 fn regenerate(template: Option<String>) -> NounVerbResult<GenerateTreeOutput> {
     let template_path = template.unwrap_or_else(|| "template.tmpl".to_string());
+    let template_pb = PathBuf::from(&template_path);
+    let output_pb = PathBuf::from("output");
 
-    // For now, return placeholder - merge strategies not yet fully implemented
+    generate_tree(Some(template_pb.to_string_lossy().to_string()), Some(output_pb.to_string_lossy().to_string())).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to regenerate from template: {}",
+            e
+        ))
+    })?;
+
     Ok(GenerateTreeOutput {
-        output_directory: template_path,
+        output_directory: output_pb.display().to_string(),
     })
 }
 // ============================================================================

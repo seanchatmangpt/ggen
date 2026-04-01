@@ -9,6 +9,7 @@
 //! - **Stop-the-line**: Any non-deterministic output halts the pipeline
 //! - **Receipt integration**: All generated files are hashed and recorded
 
+use crate::resolver::TemplateResolver;
 use crate::v6::guard::{GuardAction, GuardSet, GuardViolation};
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
 use ggen_utils::error::{Error, Result};
@@ -25,6 +26,10 @@ pub struct EmissionRule {
 
     /// Path to Tera template file (relative to base_path)
     pub template_path: PathBuf,
+
+    /// When set, use this content instead of reading `template_path` from disk.
+    #[serde(default)]
+    pub inline_template: Option<String>,
 
     /// Output file pattern (supports Tera syntax for dynamic paths)
     pub output_pattern: String,
@@ -115,6 +120,54 @@ impl EmissionPass {
     pub fn with_rules(mut self, rules: Vec<EmissionRule>) -> Self {
         self.rules = rules;
         self
+    }
+
+    /// Extend with pack-contributed templates.
+    ///
+    /// Creates emission rules from pack templates. Each template becomes a rule
+    /// with the template content as inline_template, ensuring pack templates are
+    /// included in the build output without requiring external files.
+    ///
+    /// See `docs/marketplace/PACK_QUERY_CONTRACT.md`.
+    pub fn extend_with_pack_templates(
+        &mut self, templates: &[crate::pack_resolver::TemplateDef],
+    ) -> Result<()> {
+        for template in templates {
+            // Extract rule name from template path (e.g., "test-pack-integration/templates/test_entity.rs.tera")
+            // -> "pack:test-pack-integration::test_entity"
+            let path_str = template.path.display().to_string();
+            let parts: Vec<&str> = path_str.split('/').collect();
+
+            // Expected format: <pack-id>/templates/<template-name>.tera
+            let pack_id = parts.first().unwrap_or(&"unknown");
+            let template_name = parts.get(2).and_then(|s| s.strip_suffix(".tera")).unwrap_or("unknown");
+
+            let rule_name = format!("pack:{}::{}", pack_id, template_name);
+
+            // Create binding key from template name (e.g., "test_entity" -> "test_entities")
+            let binding_key = format!("{}{}", template_name, if template_name.ends_with('y') { "ies" } else { "s" });
+
+            // Create output pattern from template name (e.g., "test_entity.rs.tera" -> "{{ name | lower }}.rs")
+            let output_pattern = if template_name.contains('.') {
+                // Already has extension in name
+                "{% if name %}{{ name | lower }}{% endif %}".to_string()
+            } else {
+                // Use template stem
+                "{% if name %}{{ name | lower }}{% endif %}".to_string()
+            };
+
+            self.rules.push(EmissionRule {
+                name: rule_name,
+                template_path: PathBuf::from(&template.path),
+                inline_template: Some(template.content.clone()),
+                output_pattern,
+                binding_key,
+                iterate: true,
+                skip_empty: true,
+                description: Some(format!("Pack-contributed template from {}", path_str)),
+            });
+        }
+        Ok(())
     }
 
     /// Set custom guards
@@ -363,15 +416,35 @@ impl EmissionPass {
     ) -> Result<Vec<PathBuf>> {
         let mut generated_files = Vec::new();
 
-        // Load template content
-        let template_path = ctx.base_path.join(&rule.template_path);
-        let template_content = std::fs::read_to_string(&template_path).map_err(|e| {
-            Error::new(&format!(
-                "Failed to read template '{}': {}",
-                template_path.display(),
-                e
-            ))
-        })?;
+        // Load template content (inline wins over filesystem, pack templates resolved from cache)
+        let template_content = if let Some(ref inline) = rule.inline_template {
+            inline.clone()
+        } else {
+            // Check if template_path uses pack_id:template_path syntax
+            let template_path_str = rule.template_path.to_string_lossy();
+            if TemplateResolver::is_pack_reference(&template_path_str) {
+                // Resolve from pack cache
+                tracing::info!("Loading template from pack cache: {}", template_path_str);
+                let resolver = TemplateResolver::new()?;
+                let template_source = resolver.resolve(&template_path_str)?;
+                tracing::info!(
+                    "Loaded template from pack cache: {} -> {}",
+                    template_path_str,
+                    template_source.full_path.display()
+                );
+                template_source.content
+            } else {
+                // Load from filesystem
+                let template_path = ctx.base_path.join(&rule.template_path);
+                std::fs::read_to_string(&template_path).map_err(|e| {
+                    Error::new(&format!(
+                        "Failed to read template '{}': {}",
+                        template_path.display(),
+                        e
+                    ))
+                })?
+            }
+        };
 
         // Get binding value
         let binding = ctx.bindings.get(&rule.binding_key).cloned();
@@ -589,6 +662,7 @@ mod tests {
         pass.guards = GuardSet::new();
 
         pass.add_rule(EmissionRule {
+            inline_template: None,
             name: "generate-ontology".to_string(),
             template_path: PathBuf::from("templates/domain.ttl.tera"),
             output_pattern: "domain.ttl".to_string(),
@@ -632,6 +706,7 @@ mod tests {
             template_path: PathBuf::from("templates/entity.rs.tera"),
             output_pattern: "{{ name | lower }}.rs".to_string(),
             binding_key: "entities".to_string(),
+            inline_template: None,
             iterate: true,
             skip_empty: true,
             description: None,

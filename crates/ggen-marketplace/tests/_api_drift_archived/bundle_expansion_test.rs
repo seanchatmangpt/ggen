@@ -8,6 +8,7 @@
 //! - No mocks for critical paths
 
 use ggen_marketplace::prelude::*;
+use ggen_marketplace::{AtomicPackCategory, AtomicPackClass, AtomicPackId, Bundle};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};

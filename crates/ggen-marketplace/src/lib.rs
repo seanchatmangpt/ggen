@@ -39,6 +39,7 @@ pub mod compatibility;
 pub mod composition_receipt;
 pub mod error;
 pub mod install;
+pub mod metadata;
 pub mod metrics;
 pub mod migration;
 pub mod models;

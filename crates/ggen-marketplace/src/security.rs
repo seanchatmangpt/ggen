@@ -16,7 +16,7 @@ pub use ggen_receipt::generate_keypair as generate_marketplace_keypair;
 /// Marketplace-specific signature wrapper.
 ///
 /// Wraps ggen-receipt's signing functionality for pack operations.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MarketplaceSignature {
     /// Ed25519 signature as hex string
     pub signature: String,
@@ -310,7 +310,7 @@ mod tests {
 
     #[test]
     fn test_marketplace_verifier_from_public_key_hex() {
-        let (signing_key, verifying_key) = generate_marketplace_keypair();
+        let (_signing_key, verifying_key) = generate_marketplace_keypair();
         let public_key_hex = hex::encode(verifying_key.to_bytes());
 
         let verifier = MarketplaceVerifier::from_public_key_hex(&public_key_hex);

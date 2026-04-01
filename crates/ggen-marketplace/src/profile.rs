@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::error::{Error, Result};
-use crate::policy::{Policy, PolicyEnforcer, PolicyId, PolicyReport, PolicyRule, PackContext};
+use crate::policy::{Policy, PolicyEnforcer, PolicyReport, PackContext};
 use crate::trust::TrustTier;
 
 /// Unique identifier for a profile.

@@ -1,0 +1,329 @@
+@prefix cli: <urn:cli:spec:> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+#################################################################
+# Ontology header
+#################################################################
+
+cli:Ontology a owl:Ontology ;
+    dcterms:title "Neutral CLI Ontology" ;
+    dcterms:description """A reusable OWL vocabulary for describing command-line interface surfaces. Defines classes and properties for commands, options, flags, positional arguments, constraints, output schemas, and help documentation. This ontology contains NO application-specific instances — it is a pure vocabulary imported by application ontologies such as cli-ggen.ttl.""" ;
+    owl:versionIRI cli:Ontology-0.1.0 ;
+    owl:versionInfo "0.1.0" .
+
+#################################################################
+# Classes
+#################################################################
+
+# ------------------------------------------------------------------
+# cli:Option — abstract superclass for all option types
+# (ValueOption and Flag are subclasses)
+# ------------------------------------------------------------------
+cli:Option a owl:Class ;
+    rdfs:label "Option" ;
+    rdfs:comment "Abstract superclass for all CLI options. Concrete subclasses are ValueOption (takes a value) and Flag (boolean presence)." .
+
+# ------------------------------------------------------------------
+# cli:Interface — top-level CLI application
+# ------------------------------------------------------------------
+cli:Interface a owl:Class ;
+    rdfs:label "Interface" ;
+    rdfs:comment "The top-level CLI application surface. An Interface aggregates one or more root-level Commands via cli:hasCommand." .
+
+# ------------------------------------------------------------------
+# cli:Command — a named command (noun, verb, or subcommand group)
+# ------------------------------------------------------------------
+cli:Command a owl:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A named CLI command. May be a leaf command with options and arguments, or a group that aggregates subcommands via cli:hasSubcommand." .
+
+# ------------------------------------------------------------------
+# cli:SpecialCommand — a root-level command without noun-verb
+# structure (e.g. a flat command like "sync")
+# ------------------------------------------------------------------
+cli:SpecialCommand a owl:Class ;
+    rdfs:subClassOf cli:Command ;
+    rdfs:label "Special Command" ;
+    rdfs:comment "A root-level command that does not follow the noun-verb pattern. SpecialCommands are terminal — they must not have subcommands." .
+
+# ------------------------------------------------------------------
+# cli:ValueOption — an option that takes a value (e.g. --surface <name>)
+# ------------------------------------------------------------------
+cli:ValueOption a owl:Class ;
+    rdfs:subClassOf cli:Option ;
+    rdfs:label "Value Option" ;
+    rdfs:comment "A CLI option that requires a value argument (e.g. --surface mcp). Identified by a longName such as --surface." .
+
+# ------------------------------------------------------------------
+# cli:Flag — a boolean option (presence = true, no value)
+# ------------------------------------------------------------------
+cli:Flag a owl:Class ;
+    rdfs:subClassOf cli:Option ;
+    rdfs:label "Flag" ;
+    rdfs:comment "A boolean CLI option that is either present (true) or absent (false). Identified by a longName such as --dry-run." .
+
+# ------------------------------------------------------------------
+# cli:PositionalArgument — a positional (non-flag) argument
+# ------------------------------------------------------------------
+cli:PositionalArgument a owl:Class ;
+    rdfs:label "Positional Argument" ;
+    rdfs:comment "A positional CLI argument identified by its position in the argument list rather than by a flag name. Must not have a longName." .
+
+# ------------------------------------------------------------------
+# cli:ExclusiveConstraint — two arguments that cannot coexist
+# ------------------------------------------------------------------
+cli:ExclusiveConstraint a owl:Class ;
+    rdfs:label "Exclusive Constraint" ;
+    rdfs:comment "Declares that the source argument and the target argument cannot both be present in the same invocation." .
+
+# ------------------------------------------------------------------
+# cli:RequiresConstraint — one argument requires another
+# ------------------------------------------------------------------
+cli:RequiresConstraint a owl:Class ;
+    rdfs:label "Requires Constraint" ;
+    rdfs:comment "Declares that the source argument requires the target argument to also be present when it is used." .
+
+# ------------------------------------------------------------------
+# cli:OutputSchema — an output contract for a command
+# ------------------------------------------------------------------
+cli:OutputSchema a owl:Class ;
+    rdfs:label "Output Schema" ;
+    rdfs:comment "Describes the output contract of a command, including format and machine-readability." .
+
+# ------------------------------------------------------------------
+# cli:Example — an example invocation of a command
+# ------------------------------------------------------------------
+cli:Example a owl:Class ;
+    rdfs:label "Example" ;
+    rdfs:comment "A usage example attached to a command, showing a representative invocation string." .
+
+# ------------------------------------------------------------------
+# cli:ArgumentGroup — a group of related arguments
+# ------------------------------------------------------------------
+cli:ArgumentGroup a owl:Class ;
+    rdfs:label "Argument Group" ;
+    rdfs:comment "A named group of related arguments, options, or flags for display or validation purposes." .
+
+# ------------------------------------------------------------------
+# cli:HelpSection — a documentation section
+# ------------------------------------------------------------------
+cli:HelpSection a owl:Class ;
+    rdfs:label "Help Section" ;
+    rdfs:comment "A documentation section within the CLI help output, used to organize help text into logical parts." .
+
+#################################################################
+# Object properties
+#################################################################
+
+# ------------------------------------------------------------------
+# cli:hasCommand — Interface → Command
+# ------------------------------------------------------------------
+cli:hasCommand a owl:ObjectProperty ;
+    rdfs:label "has command" ;
+    rdfs:comment "Links an Interface to its top-level Commands." ;
+    rdfs:domain cli:Interface ;
+    rdfs:range cli:Command .
+
+# ------------------------------------------------------------------
+# cli:hasSubcommand — Command → Command
+# ------------------------------------------------------------------
+cli:hasSubcommand a owl:ObjectProperty ;
+    rdfs:label "has subcommand" ;
+    rdfs:comment "Links a parent Command to its child subcommands." ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Command .
+
+# ------------------------------------------------------------------
+# cli:hasOption — Command → Option
+# ------------------------------------------------------------------
+cli:hasOption a owl:ObjectProperty ;
+    rdfs:label "has option" ;
+    rdfs:comment "Links a Command to an Option (ValueOption or Flag) it accepts." ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Option .
+
+# ------------------------------------------------------------------
+# cli:hasPositionalArgument — Command → PositionalArgument
+# ------------------------------------------------------------------
+cli:hasPositionalArgument a owl:ObjectProperty ;
+    rdfs:label "has positional argument" ;
+    rdfs:comment "Links a Command to a PositionalArgument it accepts." ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:PositionalArgument .
+
+# ------------------------------------------------------------------
+# cli:hasConstraint — Command → Constraint
+# ------------------------------------------------------------------
+cli:hasConstraint a owl:ObjectProperty ;
+    rdfs:label "has constraint" ;
+    rdfs:comment "Links a Command to an argument constraint (ExclusiveConstraint or RequiresConstraint)." ;
+    rdfs:domain cli:Command ;
+    rdfs:range [
+        a owl:Class ;
+        owl:unionOf (cli:ExclusiveConstraint cli:RequiresConstraint) ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:hasOutput — Command → OutputSchema
+# ------------------------------------------------------------------
+cli:hasOutput a owl:ObjectProperty ;
+    rdfs:label "has output" ;
+    rdfs:comment "Links a Command to its OutputSchema describing the result contract." ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:OutputSchema .
+
+# ------------------------------------------------------------------
+# cli:hasExample — Command → Example
+# ------------------------------------------------------------------
+cli:hasExample a owl:ObjectProperty ;
+    rdfs:label "has example" ;
+    rdfs:comment "Links a Command to an Example showing a representative invocation." ;
+    rdfs:domain cli:Command ;
+    rdfs:range cli:Example .
+
+# ------------------------------------------------------------------
+# cli:hasHelpSection — Command → HelpSection
+# ------------------------------------------------------------------
+cli:hasHelpSection a owl:ObjectProperty ;
+    rdfs:label "has help section" ;
+    rdfs:comment "Links a Command or Interface to a HelpSection for organized documentation." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:Command cli:Interface) ;
+    ] ;
+    rdfs:range cli:HelpSection .
+
+# ------------------------------------------------------------------
+# cli:sourceArgument — Constraint → Option or PositionalArgument
+# ------------------------------------------------------------------
+cli:sourceArgument a owl:ObjectProperty ;
+    rdfs:label "source argument" ;
+    rdfs:comment "In a constraint, the argument that triggers or originates the constraint." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:ExclusiveConstraint cli:RequiresConstraint) ;
+    ] ;
+    rdfs:range [
+        a owl:Class ;
+        owl:unionOf (cli:Option cli:PositionalArgument) ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:targetArgument — Constraint → Option or PositionalArgument
+# ------------------------------------------------------------------
+cli:targetArgument a owl:ObjectProperty ;
+    rdfs:label "target argument" ;
+    rdfs:comment "In a constraint, the argument that is affected or required." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:ExclusiveConstraint cli:RequiresConstraint) ;
+    ] ;
+    rdfs:range [
+        a owl:Class ;
+        owl:unionOf (cli:Option cli:PositionalArgument) ;
+    ] .
+
+# ------------------------------------------------------------------
+# cli:memberOfGroup — argument → ArgumentGroup
+# ------------------------------------------------------------------
+cli:memberOfGroup a owl:ObjectProperty ;
+    rdfs:label "member of group" ;
+    rdfs:comment "Links an Option, Flag, or PositionalArgument to the ArgumentGroup it belongs to." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:Option cli:PositionalArgument) ;
+    ] ;
+    rdfs:range cli:ArgumentGroup .
+
+#################################################################
+# Datatype properties
+#################################################################
+
+# ------------------------------------------------------------------
+# cli:name — xsd:string (broad domain: Interface, Command, Option,
+# PositionalArgument, OutputSchema, ArgumentGroup, HelpSection)
+# ------------------------------------------------------------------
+cli:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:comment "The primary identifier or short name of a CLI element." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:Interface cli:Command cli:Option cli:PositionalArgument cli:OutputSchema cli:ArgumentGroup cli:HelpSection) ;
+    ] ;
+    rdfs:range xsd:string .
+
+# ------------------------------------------------------------------
+# cli:summary — xsd:string (one-line description)
+# ------------------------------------------------------------------
+cli:summary a owl:DatatypeProperty ;
+    rdfs:label "summary" ;
+    rdfs:comment "A short one-line description suitable for help text or listings." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:Command cli:Option cli:PositionalArgument cli:OutputSchema cli:HelpSection) ;
+    ] ;
+    rdfs:range xsd:string .
+
+# ------------------------------------------------------------------
+# cli:description — xsd:string (detailed explanation)
+# ------------------------------------------------------------------
+cli:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "A detailed multi-line description of a CLI element." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:Interface cli:Command cli:Option cli:PositionalArgument cli:OutputSchema cli:HelpSection) ;
+    ] ;
+    rdfs:range xsd:string .
+
+# ------------------------------------------------------------------
+# cli:longName — xsd:string (the --flag-name string)
+# ------------------------------------------------------------------
+cli:longName a owl:DatatypeProperty ;
+    rdfs:label "long name" ;
+    rdfs:comment "The long-form flag name including dashes, e.g. --surface or --dry-run. Used by ValueOption and Flag; must not appear on PositionalArgument." ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:string .
+
+# ------------------------------------------------------------------
+# cli:required — xsd:boolean
+# ------------------------------------------------------------------
+cli:required a owl:DatatypeProperty ;
+    rdfs:label "required" ;
+    rdfs:comment "Whether this option or argument is mandatory (true) or optional (false)." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (cli:Option cli:PositionalArgument) ;
+    ] ;
+    rdfs:range xsd:boolean .
+
+# ------------------------------------------------------------------
+# cli:global — xsd:boolean
+# ------------------------------------------------------------------
+cli:global a owl:DatatypeProperty ;
+    rdfs:label "global" ;
+    rdfs:comment "Whether this option is global, meaning it is available across multiple commands rather than scoped to a single command." ;
+    rdfs:domain cli:Option ;
+    rdfs:range xsd:boolean .
+
+# ------------------------------------------------------------------
+# cli:machineReadable — xsd:boolean
+# ------------------------------------------------------------------
+cli:machineReadable a owl:DatatypeProperty ;
+    rdfs:label "machine readable" ;
+    rdfs:comment "Whether the output schema produces machine-parseable output (e.g. JSON, YAML) as opposed to human-oriented text." ;
+    rdfs:domain cli:OutputSchema ;
+    rdfs:range xsd:boolean .
+
+# ------------------------------------------------------------------
+# cli:exampleText — xsd:string (the example invocation string)
+# ------------------------------------------------------------------
+cli:exampleText a owl:DatatypeProperty ;
+    rdfs:label "example text" ;
+    rdfs:comment "The literal text of an example invocation, e.g. 'ggen capability enable --surface mcp --projection rust'." ;
+    rdfs:domain cli:Example ;
+    rdfs:range xsd:string .

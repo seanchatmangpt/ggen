@@ -19,6 +19,7 @@
 //! - `atomic_packs`: The complete set of atomic pack IDs
 //! - `merged_ontology`: Combined RDF graph from all packs
 //! - `ownership_map`: Ownership declarations for conflict detection
+//! - `queries` / `templates`: Contributed SPARQL (CONSTRUCT) and Tera sources for μ₂ / staging
 //!
 //! ## Integration
 //!
@@ -32,7 +33,10 @@ use crate::graph::Graph;
 use crate::packs::lockfile::PackLockfile;
 use ggen_marketplace::atomic::{foundation_packs, AtomicPackId};
 use ggen_marketplace::bundle::Bundle;
-use ggen_marketplace::ownership::{OwnershipDeclaration, OwnershipMap};
+use ggen_marketplace::metadata::load_pack_metadata;
+use ggen_marketplace::ownership::{
+    MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
+};
 use ggen_marketplace::policy::{PackContext, PolicyEnforcer};
 use ggen_marketplace::profile::get_profile;
 use ggen_utils::{bail, error::{Error, Result}};
@@ -40,6 +44,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use tracing;
 
 /// SPARQL query contributed by a pack.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,6 +87,12 @@ pub struct ResolvedPacks {
 
     /// Policy profile used for enforcement
     pub profile: String,
+
+    /// SPARQL queries loaded from packs (μ₂; CONSTRUCT-only — see `PACK_QUERY_CONTRACT.md`)
+    pub queries: Vec<SparqlQuery>,
+
+    /// Tera templates loaded from packs (staged under `.ggen/pack-stage/` during sync)
+    pub templates: Vec<TemplateDef>,
 }
 
 /// Record of a bundle expansion (for provenance in receipts).
@@ -92,6 +103,53 @@ pub struct BundleExpansion {
 
     /// Atomic packs it expanded to
     pub expanded_to: Vec<String>,
+}
+
+impl ResolvedPacks {
+    /// Deterministic digest of pack queries + templates for one atomic pack (receipt provenance).
+    pub fn digest_for_pack(&self, pack: &AtomicPackId) -> String {
+        use sha2::{Digest, Sha256};
+        let pid = pack.to_string();
+        let prefix_q = format!("{}::", pid);
+        let mut h = Sha256::new();
+        for q in &self.queries {
+            if q.name.starts_with(&prefix_q) {
+                h.update(q.name.as_bytes());
+                h.update([0_u8]);
+                h.update(q.sparql.as_bytes());
+            }
+        }
+        let path_prefix = format!("{}/", pid);
+        for t in &self.templates {
+            let ps = t.path.display().to_string();
+            if ps.starts_with(&path_prefix) {
+                h.update(ps.as_bytes());
+                h.update([0_u8]);
+                h.update(t.content.as_bytes());
+            }
+        }
+        format!("sha256:{:x}", h.finalize())
+    }
+
+    /// Query names contributed by `pack` (`<pack>::<stem>`).
+    pub fn query_names_for_pack(&self, pack: &AtomicPackId) -> Vec<String> {
+        let p = format!("{}::", pack);
+        self.queries
+            .iter()
+            .filter(|q| q.name.starts_with(&p))
+            .map(|q| q.name.clone())
+            .collect()
+    }
+
+    /// Template relative paths for `pack` under the pack cache layout.
+    pub fn template_paths_for_pack(&self, pack: &AtomicPackId) -> Vec<String> {
+        let prefix = format!("{}/", pack);
+        self.templates
+            .iter()
+            .filter(|t| t.path.display().to_string().starts_with(&prefix))
+            .map(|t| t.path.display().to_string())
+            .collect()
+    }
 }
 
 /// μ₀ Pack Resolver
@@ -123,11 +181,16 @@ impl PackResolver {
         })?;
 
         let lockfile_path = project_dir.join(".ggen").join("packs.lock");
-        let cache_dir = std::env::home_dir()
-            .unwrap_or_else(|| PathBuf::from("~"))
-            .join(".cache")
-            .join("ggen")
-            .join("packs");
+        let cache_dir = std::env::var_os("GGEN_PACK_CACHE_DIR")
+            .map(PathBuf::from)
+            .or_else(|| {
+                dirs::home_dir().map(|h| h.join(".ggen").join("packs"))
+            })
+            .ok_or_else(|| {
+                Error::new(
+                    "Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR",
+                )
+            })?;
 
         Ok(Self {
             lockfile_path,
@@ -180,6 +243,16 @@ impl PackResolver {
         // Step 7: Build ownership map
         let ownership_map = self.build_ownership_map(&resolved_packs)?;
 
+        // Step 8: Load pack queries (μ₂) and templates (μ₃ staging)
+        let mut all_queries = Vec::new();
+        let mut all_templates = Vec::new();
+        for pack in &resolved_packs {
+            let pack_queries = self.registry.get_pack_queries(pack)?;
+            all_queries.extend(pack_queries);
+            let pack_templates = self.registry.get_pack_templates(pack)?;
+            all_templates.extend(pack_templates);
+        }
+
         // Extract pack versions for lockfile updates
         let pack_versions = self.extract_pack_versions(&lockfile);
 
@@ -190,6 +263,8 @@ impl PackResolver {
             bundle_expansions,
             pack_versions,
             profile,
+            queries: all_queries,
+            templates: all_templates,
         })
     }
 
@@ -352,16 +427,20 @@ impl PackResolver {
             Error::new(&format!("Failed to load profile '{}': {}", profile_id, e))
         })?;
 
-        // Convert atomic packs to policy context
-        // For now, use minimal context with defaults
-        // TODO: Load actual pack metadata for proper policy checking
+        // Convert atomic packs to policy context, loading real metadata from cache
         let pack_contexts: Vec<PackContext> = packs
             .iter()
             .map(|pack_id| {
+                let pack_dir = self.registry.pack_dir(pack_id);
+                let metadata = load_pack_metadata(&pack_dir).unwrap_or_default();
+
+                let has_signature = metadata.signature.is_some();
                 PackContext::new(pack_id.to_string())
-                    // Default values for now - will be loaded from pack metadata later
-                    .with_signed_receipts(false)
-                    .with_trust_tier(ggen_marketplace::trust::TrustTier::Experimental)
+                    .with_trust_tier(metadata.trust_tier)
+                    .with_signed_receipts(has_signature)
+                    .with_signature_verification(has_signature)
+                    .with_allowlisted(has_signature)
+                    .with_semver(true) // installed packs use semver versions
             })
             .collect();
 
@@ -385,11 +464,19 @@ impl PackResolver {
             bail!("{}", error_msg);
         } else {
             // Policy passed - log success
-            // TODO: Integrate logging when available
             if report.violations.is_empty() {
-                // All policies passed with no violations
+                tracing::info!(
+                    profile = %profile_id,
+                    packs = packs.len(),
+                    "All policies passed for profile '{}'",
+                    profile_id
+                );
             } else {
-                // Had warnings but passed
+                tracing::debug!(
+                    profile = %profile_id,
+                    warnings = report.violations.len(),
+                    "Policy check passed with warnings"
+                );
             }
         }
 
@@ -523,6 +610,11 @@ impl PackRegistry {
         Ok(self.bundles.get(bundle_id))
     }
 
+    /// Get the cache directory for a specific pack.
+    fn pack_dir(&self, pack: &AtomicPackId) -> PathBuf {
+        self.cache_dir.join(pack.to_string())
+    }
+
     /// Get the path to a pack's ontology file.
     fn get_pack_ontology_path(&self, pack: &AtomicPackId) -> Result<PathBuf> {
         let pack_dir = self.cache_dir.join(pack.to_string());
@@ -531,27 +623,283 @@ impl PackRegistry {
 
     /// Get dependencies for a pack.
     ///
-    /// For now, returns empty vector. Will be implemented when pack metadata
-    /// includes dependency information.
-    fn get_pack_dependencies(&self, _pack: &AtomicPackId) -> Result<Vec<AtomicPackId>> {
-        // TODO: Load from pack metadata
+    /// Loads dependencies from the pack's `package.toml` file under a
+    /// `[dependencies]` section, or from a `dependencies.json` file.
+    /// Returns an empty vector if no dependency metadata exists.
+    fn get_pack_dependencies(&self, pack: &AtomicPackId) -> Result<Vec<AtomicPackId>> {
+        let pack_dir = self.pack_dir(pack);
+        let pack_id_str = pack.to_string();
+
+        // Try package.toml [dependencies] section first
+        let toml_path = pack_dir.join("package.toml");
+        if toml_path.exists() {
+            if let Ok(deps) = Self::load_deps_from_toml(&toml_path) {
+                if !deps.is_empty() {
+                    tracing::debug!(
+                        pack = %pack_id_str,
+                        deps = deps.len(),
+                        "Loaded {} dependencies from package.toml",
+                        deps.len()
+                    );
+                    return Ok(deps);
+                }
+            }
+        }
+
+        // Fallback to dependencies.json
+        let json_path = pack_dir.join("dependencies.json");
+        if json_path.exists() {
+            if let Ok(deps) = Self::load_deps_from_json(&json_path) {
+                if !deps.is_empty() {
+                    tracing::debug!(
+                        pack = %pack_id_str,
+                        deps = deps.len(),
+                        "Loaded {} dependencies from dependencies.json",
+                        deps.len()
+                    );
+                    return Ok(deps);
+                }
+            }
+        }
+
         Ok(Vec::new())
+    }
+
+    /// Load dependency pack IDs from package.toml [dependencies] section.
+    fn load_deps_from_toml(toml_path: &Path) -> Result<Vec<AtomicPackId>> {
+        let content = std::fs::read_to_string(toml_path).map_err(|e| {
+            Error::new(&format!("Failed to read {}: {}", toml_path.display(), e))
+        })?;
+        let value: toml::Value = toml::from_str(&content).map_err(|e| {
+            Error::new(&format!("Failed to parse {}: {}", toml_path.display(), e))
+        })?;
+
+        let deps_array = value
+            .get("dependencies")
+            .and_then(|v| v.as_array());
+
+        let mut result = Vec::new();
+        if let Some(array) = deps_array {
+            for item in array {
+                if let Some(dep_str) = item.as_str() {
+                    if let Some(pack_id) = AtomicPackId::from_str(dep_str) {
+                        result.push(pack_id);
+                    }
+                }
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Load dependency pack IDs from dependencies.json file.
+    fn load_deps_from_json(json_path: &Path) -> Result<Vec<AtomicPackId>> {
+        let content = std::fs::read_to_string(json_path).map_err(|e| {
+            Error::new(&format!("Failed to read {}: {}", json_path.display(), e))
+        })?;
+        let deps: Vec<String> = serde_json::from_str(&content).map_err(|e| {
+            Error::new(&format!(
+                "Failed to parse {}: {}",
+                json_path.display(),
+                e
+            ))
+        })?;
+
+        let mut result = Vec::new();
+        for dep_str in deps {
+            if let Some(pack_id) = AtomicPackId::from_str(&dep_str) {
+                result.push(pack_id);
+            }
+        }
+
+        Ok(result)
     }
 
     /// Get ownership declarations for a pack.
     ///
-    /// For now, returns empty vector. Will be implemented when pack metadata
-    /// includes ownership declarations.
-    fn get_ownership_declarations(&self, _pack: &AtomicPackId) -> Result<Vec<OwnershipDeclaration>> {
-        // TODO: Load from pack metadata
+    /// Loads ownership declarations from the pack's `ownership.json` file
+    /// or from the `[ownership.declarations]` section in `package.toml`.
+    /// Returns an empty vector if no ownership metadata exists.
+    fn get_ownership_declarations(&self, pack: &AtomicPackId) -> Result<Vec<OwnershipDeclaration>> {
+        let pack_dir = self.pack_dir(pack);
+        let pack_id_str = pack.to_string();
+
+        // Try ownership.json first (primary format)
+        let ownership_json_path = pack_dir.join("ownership.json");
+        if ownership_json_path.exists() {
+            let declarations = Self::load_ownership_json(&ownership_json_path)?;
+            if !declarations.is_empty() {
+                tracing::debug!(
+                    pack = %pack_id_str,
+                    declarations = declarations.len(),
+                    "Loaded {} ownership declarations from ownership.json",
+                    declarations.len()
+                );
+                return Ok(declarations);
+            }
+        }
+
+        // Fallback to package.toml [ownership.declarations] section
+        let package_toml_path = pack_dir.join("package.toml");
+        if package_toml_path.exists() {
+            let declarations = Self::load_ownership_from_toml(&package_toml_path, &pack_id_str)?;
+            if !declarations.is_empty() {
+                tracing::debug!(
+                    pack = %pack_id_str,
+                    declarations = declarations.len(),
+                    "Loaded {} ownership declarations from package.toml",
+                    declarations.len()
+                );
+                return Ok(declarations);
+            }
+        }
+
         Ok(Vec::new())
+    }
+
+    /// Load ownership declarations from ownership.json file.
+    fn load_ownership_json(path: &Path) -> Result<Vec<OwnershipDeclaration>> {
+        let content = std::fs::read_to_string(path).map_err(|e| {
+            Error::new(&format!("Failed to read {}: {}", path.display(), e))
+        })?;
+        let declarations: Vec<OwnershipDeclaration> = serde_json::from_str(&content)
+            .map_err(|e| {
+                Error::new(&format!("Failed to parse {}: {}", path.display(), e))
+            })?;
+        Ok(declarations)
+    }
+
+    /// Load ownership declarations from package.toml [ownership.declarations] section.
+    fn load_ownership_from_toml(
+        path: &Path,
+        pack_id_str: &str,
+    ) -> Result<Vec<OwnershipDeclaration>> {
+        let content = std::fs::read_to_string(path).map_err(|e| {
+            Error::new(&format!("Failed to read {}: {}", path.display(), e))
+        })?;
+        let value: toml::Value = toml::from_str(&content).map_err(|e| {
+            Error::new(&format!("Failed to parse {}: {}", path.display(), e))
+        })?;
+
+        let ownership_section = value.get("ownership").and_then(|v| v.as_table());
+        let declarations_array = ownership_section
+            .and_then(|t| t.get("declarations"))
+            .and_then(|v| v.as_array());
+
+        let mut result = Vec::new();
+        if let Some(array) = declarations_array {
+            for (idx, decl_value) in array.iter().enumerate() {
+                let table = decl_value.as_table().ok_or_else(|| {
+                    Error::new(&format!(
+                        "ownership.declarations[{}] is not a table in {:?}",
+                        idx,
+                        path
+                    ))
+                })?;
+
+                let target = Self::parse_ownership_target(table, path, idx)?;
+                let class = Self::parse_ownership_class(table, path, idx)?;
+                let merge_strategy = Self::parse_merge_strategy(table);
+
+                result.push(OwnershipDeclaration {
+                    target,
+                    class,
+                    owner_pack: pack_id_str.to_string(),
+                    merge_strategy,
+                    metadata: None,
+                });
+            }
+        }
+
+        Ok(result)
+    }
+
+    /// Parse an ownership target from a TOML table.
+    fn parse_ownership_target(
+        table: &toml::Table,
+        path: &Path,
+        idx: usize,
+    ) -> Result<OwnershipTarget> {
+        let kind = table.get("kind").and_then(|v| v.as_str()).ok_or_else(|| {
+            Error::new(&format!(
+                "ownership.declarations[{}].kind is missing in {:?}",
+                idx, path
+            ))
+        })?;
+
+        let value = table.get("value").and_then(|v| v.as_str()).ok_or_else(|| {
+            Error::new(&format!(
+                "ownership.declarations[{}].value is missing in {:?}",
+                idx, path
+            ))
+        })?;
+
+        let target = match kind {
+            "file_path" => OwnershipTarget::FilePath(PathBuf::from(value)),
+            "rdf_namespace" => OwnershipTarget::RdfNamespace(value.to_string()),
+            "protocol_field" => OwnershipTarget::ProtocolField(value.to_string()),
+            "template_variable" => OwnershipTarget::TemplateVariable(value.to_string()),
+            "dependency_package" => OwnershipTarget::DependencyPackage(value.to_string()),
+            "feature_flag" => OwnershipTarget::FeatureFlag(value.to_string()),
+            other => {
+                bail!(
+                    "Unknown ownership target kind '{}' at index {} in {:?}",
+                    other,
+                    idx,
+                    path
+                );
+            }
+        };
+
+        Ok(target)
+    }
+
+    /// Parse an ownership class from a TOML table.
+    fn parse_ownership_class(
+        table: &toml::Table,
+        path: &Path,
+        idx: usize,
+    ) -> Result<OwnershipClass> {
+        let class_str = table.get("class").and_then(|v| v.as_str()).ok_or_else(|| {
+            Error::new(&format!(
+                "ownership.declarations[{}].class is missing in {:?}",
+                idx, path
+            ))
+        })?;
+
+        match class_str {
+            "exclusive" => Ok(OwnershipClass::Exclusive),
+            "mergeable" => Ok(OwnershipClass::Mergeable),
+            "overlay" => Ok(OwnershipClass::Overlay),
+            "forbidden_overlap" => Ok(OwnershipClass::ForbiddenOverlap),
+            other => {
+                bail!(
+                    "Unknown ownership class '{}' at index {} in {:?}",
+                    other,
+                    idx,
+                    path
+                );
+            }
+        }
+    }
+
+    /// Parse an optional merge strategy from a TOML table.
+    fn parse_merge_strategy(table: &toml::Table) -> Option<MergeStrategy> {
+        let strategy_str = table.get("merge_strategy").and_then(|v| v.as_str())?;
+        match strategy_str {
+            "concat" => Some(MergeStrategy::Concat),
+            "last_writer_wins" => Some(MergeStrategy::LastWriterWins),
+            "first_writer_wins" => Some(MergeStrategy::FirstWriterWins),
+            "recursive" => Some(MergeStrategy::Recursive),
+            "fail_on_conflict" => Some(MergeStrategy::FailOnConflict),
+            _ => None,
+        }
     }
 
     /// Get SPARQL queries for a pack.
     ///
     /// Scans the pack's queries directory for .rq files and returns a list of SparqlQuery objects.
     /// This enables packs to contribute custom extraction logic to the μ₂ stage.
-    #[allow(dead_code)]
     fn get_pack_queries(&self, pack: &AtomicPackId) -> Result<Vec<SparqlQuery>> {
         let queries_dir = self.cache_dir.join(pack.to_string()).join("queries");
 
@@ -581,11 +929,12 @@ impl PackRegistry {
                 ggen_utils::error::Error::new(&format!("Failed to read query file {}: {}", path.display(), e))
             })?;
 
-            let name = path
+            let stem = path
                 .file_stem()
                 .and_then(|s| s.to_str())
                 .unwrap_or_else(|| "unknown")
                 .to_string();
+            let name = format!("{}::{}", pack, stem);
 
             queries.push(SparqlQuery { name, sparql: content });
         }
@@ -597,7 +946,6 @@ impl PackRegistry {
     ///
     /// Scans the pack's templates directory for .tera files and returns a list of TemplateDef objects.
     /// This enables packs to contribute code generation templates to the μ₃ stage.
-    #[allow(dead_code)]
     fn get_pack_templates(&self, pack: &AtomicPackId) -> Result<Vec<TemplateDef>> {
         let templates_dir = self.cache_dir.join(pack.to_string()).join("templates");
 
@@ -645,7 +993,6 @@ impl PackRegistry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_marketplace::atomic::AtomicPackClass;
     use tempfile::TempDir;
 
     #[test]
@@ -658,10 +1005,10 @@ mod tests {
     #[test]
     fn test_bundle_expansion() {
         let temp_dir = TempDir::new().unwrap();
-        let resolver = PackResolver::new(temp_dir.path()).unwrap();
+        let _resolver = PackResolver::new(temp_dir.path()).unwrap();
 
         // Create a mock lockfile with mcp-rust bundle
-        let lockfile = PackLockfile::new("6.0.0");
+        let _lockfile = PackLockfile::new("6.0.0");
         // TODO: Add test when lockfile structure is finalized
     }
 

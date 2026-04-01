@@ -1,0 +1,151 @@
+# =============================================================================
+# subcommands.rq — Extract full subcommand details with all parameters
+# =============================================================================
+#
+# Returns one row per subcommand with aggregated option metadata, positional
+# arguments, constraints, and examples. The query traverses the full path:
+#   Interface -> top-level command -> subcommand -> options/args/constraints/examples
+#
+# GROUP_CONCAT collapses multi-valued properties into pipe-delimited strings.
+# OPTIONAL sub-SELECTs ensure subcommands without a given property type still
+# appear in results (with unbound / empty aggregated values).
+#
+# Variables:
+#   ?parentName             — cli:name of the parent (top-level) command
+#   ?subcommandName         — cli:name of the subcommand
+#   ?summary                — cli:summary of the subcommand
+#   ?description            — cli:description of the subcommand (also used as "about")
+#   ?optionNames            — pipe-delimited cli:name of all options
+#   ?optionLongNames        — pipe-delimited cli:longName of all options
+#   ?optionTypes            — pipe-delimited type: "flag" or "value"
+#   ?optionSummaries        — pipe-delimited cli:summary of all options
+#   ?optionRequireds        — pipe-delimited cli:required ("true"/"false")
+#   ?optionGlobals          — pipe-delimited cli:global ("true"/"false")
+#   ?positionalNames        — pipe-delimited cli:name of all positional arguments
+#   ?positionalSummaries    — pipe-delimited cli:summary of all positional arguments
+#   ?positionalRequireds   — pipe-delimited cli:required of all positional arguments
+#   ?constraintTypes        — pipe-delimited constraint type: "Exclusive"/"Requires"
+#   ?constraintSourceNames  — pipe-delimited cli:name of source arguments
+#   ?constraintTargetNames  — pipe-delimited cli:name of target arguments
+#   ?exampleTexts           — pipe-delimited cli:exampleText of all examples
+# =============================================================================
+
+PREFIX cli:  <urn:cli:spec:>
+PREFIX ggen: <urn:ggen:example:>
+
+SELECT ?parentName ?subcommandName ?summary ?description
+       ?optionNames ?optionLongNames ?optionTypes ?optionSummaries
+       ?optionRequireds ?optionGlobals
+       ?positionalNames ?positionalSummaries ?positionalRequireds
+       ?constraintTypes ?constraintSourceNames ?constraintTargetNames
+       ?exampleTexts
+WHERE {
+  # Navigate Interface -> top-level command -> subcommand
+  ggen:GgenInterface cli:hasCommand ?parent .
+  ?parent cli:hasSubcommand ?sub .
+  ?parent cli:name ?parentName .
+
+  # Subcommand core properties
+  ?sub cli:name        ?subcommandName ;
+       cli:summary     ?summary ;
+       cli:description ?description .
+
+  # ── Options ──────────────────────────────────────────────────────────────
+  # Aggregate all options for this subcommand.
+  # Each option carries: name, longName, type (flag vs value), summary,
+  # required, global.  Position matters — we ORDER BY ?oname so pipe-delimited
+  # columns stay aligned.
+  OPTIONAL {
+    SELECT ?sub
+           (GROUP_CONCAT(?oname;  separator=" | ") AS ?optionNames)
+           (GROUP_CONCAT(?olname; separator=" | ") AS ?optionLongNames)
+           (GROUP_CONCAT(?otype;  separator=" | ") AS ?optionTypes)
+           (GROUP_CONCAT(?osumm;  separator=" | ") AS ?optionSummaries)
+           (GROUP_CONCAT(?oreq;   separator=" | ") AS ?optionRequireds)
+           (GROUP_CONCAT(?oglob;  separator=" | ") AS ?optionGlobals)
+    WHERE {
+      ?sub cli:hasOption ?opt .
+      ?opt cli:name    ?oname ;
+           cli:longName ?olname ;
+           cli:summary ?osumm .
+
+      # Determine option type: ValueOption -> "value", Flag -> "flag"
+      {
+        ?opt a cli:ValueOption .
+        BIND("value" AS ?otype)
+      } UNION {
+        ?opt a cli:Flag .
+        BIND("flag" AS ?otype)
+      }
+
+      # required defaults to "false" when absent
+      OPTIONAL { ?opt cli:required ?rq }
+      BIND(COALESCE(?rq, "false") AS ?oreq)
+
+      # global defaults to "false" when absent
+      OPTIONAL { ?opt cli:global ?gl }
+      BIND(COALESCE(?gl, "false") AS ?oglob)
+    }
+    GROUP BY ?sub
+    ORDER BY ?oname
+  }
+
+  # ── Positional arguments ────────────────────────────────────────────────
+  OPTIONAL {
+    SELECT ?sub
+           (GROUP_CONCAT(?pname;  separator=" | ") AS ?positionalNames)
+           (GROUP_CONCAT(?psumm;  separator=" | ") AS ?positionalSummaries)
+           (GROUP_CONCAT(?preq;   separator=" | ") AS ?positionalRequireds)
+    WHERE {
+      ?sub cli:hasPositionalArgument ?parg .
+      ?parg cli:name    ?pname ;
+            cli:summary ?psumm .
+
+      OPTIONAL { ?parg cli:required ?prq }
+      BIND(COALESCE(?prq, "false") AS ?preq)
+    }
+    GROUP BY ?sub
+  }
+
+  # ── Constraints ─────────────────────────────────────────────────────────
+  # Constraints are ExclusiveConstraint or RequiresConstraint linked via
+  # cli:hasConstraint -> cli:sourceArgument/cli:targetArgument.
+  OPTIONAL {
+    SELECT ?sub
+           (GROUP_CONCAT(?ctype;  separator=" | ") AS ?constraintTypes)
+           (GROUP_CONCAT(?csname; separator=" | ") AS ?constraintSourceNames)
+           (GROUP_CONCAT(?ctname; separator=" | ") AS ?constraintTargetNames)
+    WHERE {
+      ?sub cli:hasConstraint ?con .
+
+      # Determine constraint type
+      {
+        ?con a cli:ExclusiveConstraint .
+        BIND("Exclusive" AS ?ctype)
+      } UNION {
+        ?con a cli:RequiresConstraint .
+        BIND("Requires" AS ?ctype)
+      }
+
+      # Source and target argument names
+      ?con cli:sourceArgument ?src .
+      ?src  cli:name ?csname .
+
+      ?con cli:targetArgument ?tgt .
+      ?tgt  cli:name ?ctname .
+    }
+    GROUP BY ?sub
+  }
+
+  # ── Examples ────────────────────────────────────────────────────────────
+  OPTIONAL {
+    SELECT ?sub
+           (GROUP_CONCAT(?etxt; separator=" | ") AS ?exampleTexts)
+    WHERE {
+      ?sub cli:hasExample ?ex .
+      ?ex  cli:exampleText ?etxt .
+    }
+    GROUP BY ?sub
+  }
+}
+ORDER BY ?parentName ?subcommandName

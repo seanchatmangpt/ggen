@@ -1,0 +1,59 @@
+{#- Noun module template for clap-noun-verb framework
+    Generates a #[noun] mod block containing all verb functions.
+    Each verb delegates to crate::domain::<noun>::<verb>().
+    Domain logic is NEVER generated here — it lives in domain.rs.
+
+    Expected variables:
+    - nouns: array of { name, about, verbs[] }
+      - verbs[]: { name, about, params[], fn_name }
+        - params[]: { name, type, required, comment }
+
+    This template generates the MAIN.RS (CLI layer only).
+-#}
+//! Generated CLI — from RDF ontology
+//!
+//! Architecture:
+//! - CLI Layer (this file): Argument parsing, validation, error formatting
+//! - Domain Layer (domain.rs): Pure business logic — implement your logic there
+//! - Error Types (error.rs): Type-safe error handling
+
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::noun;
+use serde::Serialize;
+
+mod domain;
+mod error;
+
+use error::CliError;
+
+{%- for noun in nouns %}
+
+// ============================================================================
+// {{ noun.name | upper }} — {{ noun.about }}
+// ============================================================================
+
+#[noun("{{ noun.name }}", "{{ noun.about }}")]
+mod {{ noun.name | snake }} {
+    use super::*;
+    use clap_noun_verb_macros::verb;
+
+    {%- for verb in noun.verbs %}
+    /// {{ verb.about }}
+    #[verb("{{ verb.name }}")]
+    pub fn {{ verb.fn_name }}({% for p in verb.params %}{%- if p.type == "bool" %}{{ p.name }}: bool{% elif p.required %}{{ p.name }}: {{ p.type }}{% else %}{{ p.name }}: Option<{{ p.type }}>{% endif %}{%- if not loop.last %}, {% endif %}{% endfor %}) -> Result<serde_json::Value> {
+        let result = crate::domain::{{ noun.name | snake }}::{{ verb.fn_name }}(
+            {%- for p in verb.params %}
+            {{ p.name }},
+            {%- endfor %}
+        ).map_err(|e| CliError::from(e))?;
+        Ok(serde_json::to_value(&result).map_err(|e| CliError::Serialization(e.to_string()))?)
+    }
+
+    {%- endfor %}
+}
+
+{%- endfor %}
+
+fn main() -> Result<()> {
+    clap_noun_verb::run()
+}

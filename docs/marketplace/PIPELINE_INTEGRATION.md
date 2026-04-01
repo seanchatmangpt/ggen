@@ -1,12 +1,12 @@
 # Pipeline Integration
 
 **Version:** 6.0.1
-**Last Updated:** 2026-03-31
-**Status:** Production
+**Last Updated:** 2026-04-01
+**Status:** Production (pack μ₂ wiring landed in v6.1 track)
 
 ## Overview
 
-The marketplace integrates with the ggen pipeline through a **new μ₀ stage** that resolves packs before the existing μ₁-μ₅ stages.
+The marketplace integrates with the ggen pipeline through a **μ₀ stage** that resolves packs before μ₁–μ₅. **Implementation** (not the illustrative snippets below): [crates/ggen-core/src/pack_resolver.rs](../../crates/ggen-core/src/pack_resolver.rs), [crates/ggen-core/src/v6/pipeline.rs](../../crates/ggen-core/src/v6/pipeline.rs). Pack cache: `~/.ggen/packs` or `GGEN_PACK_CACHE_DIR`. **Pack SPARQL:** CONSTRUCT-only — [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md).
 
 ### Pipeline Stages
 

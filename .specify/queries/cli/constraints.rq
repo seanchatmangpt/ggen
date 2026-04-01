@@ -1,0 +1,40 @@
+# =============================================================================
+# constraints.rq — Extract all ExclusiveConstraint and RequiresConstraint
+# =============================================================================
+#
+# Returns one row per constraint declared on any command. Constraints encode
+# mutual-exclusion (--surface X --bundle is invalid) and requirement
+# (--projection requires --surface) rules.
+# Variables:
+#   ?commandName    — cli:name of the command that declares the constraint
+#   ?constraintType — "Exclusive" or "Requires"
+#   ?sourceName     — cli:name of the source argument
+#   ?targetName     — cli:name of the target argument
+# =============================================================================
+
+PREFIX cli:  <urn:cli:spec:>
+PREFIX ggen: <urn:ggen:example:>
+
+SELECT ?commandName ?constraintType ?sourceName ?targetName
+WHERE {
+  # Find commands that declare constraints
+  ?command cli:hasConstraint ?constraint ;
+           cli:name ?commandName .
+
+  # Determine constraint type
+  {
+    ?constraint a cli:ExclusiveConstraint .
+    BIND("Exclusive" AS ?constraintType)
+  } UNION {
+    ?constraint a cli:RequiresConstraint .
+    BIND("Requires" AS ?constraintType)
+  }
+
+  # Navigate to the source and target arguments and pull their names
+  ?constraint cli:sourceArgument ?source .
+  ?source     cli:name ?sourceName .
+
+  ?constraint cli:targetArgument ?target .
+  ?target     cli:name ?targetName .
+}
+ORDER BY ?commandName ?constraintType ?sourceName

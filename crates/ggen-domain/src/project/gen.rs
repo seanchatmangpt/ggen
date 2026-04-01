@@ -115,12 +115,12 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
 
     // Step 3: Resolve template using ggen-core
     // Create managers with defaults
-    let cache_manager = CacheManager::new().map_err(|e| {
+    let _cache_manager = CacheManager::new().map_err(|e| {
         ggen_utils::error::Error::new(&format!("Failed to create cache manager: {}", e))
     })?;
-    let lockfile_manager = LockfileManager::new(&input.output_dir);
+    let _lockfile_manager = LockfileManager::new(&input.output_dir);
 
-    let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+    let resolver = TemplateResolver::new()?;
     let template_source = resolver.resolve(&input.template_ref).map_err(|e| {
         ggen_utils::error::Error::new(&format!("Failed to resolve template: {}", e))
     })?;

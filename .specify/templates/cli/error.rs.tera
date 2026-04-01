@@ -1,0 +1,47 @@
+//! Error types for the generated CLI
+//!
+//! CliError bridges clap-noun-verb errors and domain errors.
+//! DomainError represents pure domain logic failures.
+
+use thiserror::Error;
+
+/// CLI-level error that wraps domain errors for the clap-noun-verb runtime
+#[derive(Debug, Error)]
+pub enum CliError {
+    #[error("{0}")]
+    Domain(#[from] DomainError),
+
+    #[error("Serialization error: {0}")]
+    Serialization(String),
+
+    #[error("{0}")]
+    Generic(String),
+}
+
+impl From<serde_json::Error> for CliError {
+    fn from(e: serde_json::Error) -> Self {
+        CliError::Serialization(e.to_string())
+    }
+}
+
+/// Domain-level error for pure business logic failures
+#[derive(Debug, Error)]
+pub enum DomainError {
+    #[error("{0}")]
+    NotFound(String),
+
+    #[error("{0}")]
+    Validation(String),
+
+    #[error("{0}")]
+    Conflict(String),
+
+    #[error("{0}")]
+    Unauthorized(String),
+
+    #[error("{0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("{0}")]
+    Generic(String),
+}

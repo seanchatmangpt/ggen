@@ -1,0 +1,19 @@
+[package]
+name = "{{ project_name }}"
+version = "{{ version }}"
+edition = "2021"
+{%- if description %}
+description = "{{ description }}"
+{%- endif %}
+
+[dependencies]
+clap-noun-verb = "5.3"
+clap-noun-verb-macros = "5.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+
+[[bin]]
+name = "{{ project_name }}"
+path = "src/main.rs"

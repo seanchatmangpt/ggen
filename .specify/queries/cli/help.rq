@@ -1,0 +1,54 @@
+# =============================================================================
+# help.rq — Extract full help surface for every command
+# =============================================================================
+#
+# Returns one row per command with aggregated option names/descriptions and
+# example texts. Uses GROUP_CONCAT to collapse multiple options and examples
+# into pipe-delimited strings within a single row.
+# Variables:
+#   ?commandName         — cli:name of the command
+#   ?summary             — cli:summary
+#   ?description         — cli:description
+#   ?optionNames         — pipe-delimited cli:name of all options
+#   ?optionDescriptions  — pipe-delimited cli:description of all options
+#   ?exampleTexts        — pipe-delimited cli:exampleText of all examples
+# =============================================================================
+
+PREFIX cli:  <urn:cli:spec:>
+PREFIX ggen: <urn:ggen:example:>
+
+SELECT ?commandName ?summary ?description
+       ?optionNames ?optionDescriptions ?exampleTexts
+WHERE {
+  # Match any command or special command
+  ?command a ?commandType ;
+           cli:name        ?commandName ;
+           cli:summary     ?summary ;
+           cli:description ?description .
+  FILTER(?commandType IN (cli:Command, cli:SpecialCommand))
+
+  # Aggregate option names — OPTIONAL so commands without options still appear
+  OPTIONAL {
+    SELECT ?command
+           (GROUP_CONCAT(?oname; separator=" | ") AS ?optionNames)
+           (GROUP_CONCAT(?odesc; separator=" | ") AS ?optionDescriptions)
+    WHERE {
+      ?command cli:hasOption ?opt .
+      ?opt cli:name ?oname .
+      OPTIONAL { ?opt cli:description ?odesc }
+    }
+    GROUP BY ?command
+  }
+
+  # Aggregate example texts — OPTIONAL so commands without examples still appear
+  OPTIONAL {
+    SELECT ?command
+           (GROUP_CONCAT(?etxt; separator=" | ") AS ?exampleTexts)
+    WHERE {
+      ?command cli:hasExample ?ex .
+      ?ex cli:exampleText ?etxt .
+    }
+    GROUP BY ?command
+  }
+}
+ORDER BY ?commandName

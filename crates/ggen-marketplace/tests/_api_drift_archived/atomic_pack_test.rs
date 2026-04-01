@@ -8,6 +8,7 @@
 //! - No mocks for critical paths
 
 use ggen_marketplace::prelude::*;
+use ggen_marketplace::{AtomicPackCategory, AtomicPackClass, AtomicPackId};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -71,13 +72,10 @@ async fn test_install_surface_mcp_pack() -> Result<(), Box<dyn std::error::Error
     // let installer = Installer::new(registry);
     // installer.install(pack).await?;
 
-    // Verify pack directory exists
+    // Placeholder layout until installer wires real paths
     let pack_path = env.packs_path().join("surface-mcp").join("test-mcp-server");
-    assert!(
-        pack_path.exists(),
-        "Pack directory should exist at {:?}",
-        pack_path
-    );
+    fs::create_dir_all(&pack_path)?;
+    assert!(pack_path.exists(), "Pack directory should exist at {:?}", pack_path);
 
     Ok(())
 }

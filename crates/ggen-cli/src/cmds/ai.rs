@@ -1,70 +1,209 @@
-//! AI commands - Thin CLI layer delegating to ggen-domain/src/ai
+//! AI commands - CLI layer delegating to ggen-ai LLM client
 //!
-//! NOTE: This module requires completion of the ai domain refactoring.
-//! The ai domain module structure needs to be finalized to provide the expected functions.
-//!
-//! This stub module allows the library to compile while the ai domain refactoring is completed.
+//! Uses ggen_ai::GenAiClient for real LLM calls with OTEL span verification.
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
 
-// Output types for JSON serialization
+use crate::runtime::block_on;
+
+// ============================================================================
+// Output Types
+// ============================================================================
+
 #[derive(Serialize)]
 struct GenerateOutput {
-    success: bool,
+    content: String,
+    model: String,
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
 }
 
 #[derive(Serialize)]
 struct ChatOutput {
-    success: bool,
+    content: String,
+    model: String,
+    prompt_tokens: u32,
+    completion_tokens: u32,
 }
 
 #[derive(Serialize)]
 struct AnalyzeOutput {
-    success: bool,
+    content: String,
+    model: String,
+    prompt_tokens: u32,
+    completion_tokens: u32,
 }
 
 // ============================================================================
-// Verb Functions (the actual CLI commands)
+// Verb Functions
 // ============================================================================
 
 /// Generate code with AI assistance
-///
-/// NOTE: This command is temporarily stubbed pending completion of the AI domain refactoring.
 #[allow(clippy::too_many_arguments)]
 #[verb]
 fn generate(
-    _prompt: String, _code: Option<String>, _model: Option<String>, _api_key: Option<String>,
-    _suggestions: bool, _language: Option<String>, _max_tokens: i64, _temperature: f64,
+    prompt: String, code: Option<String>, model: Option<String>,
+    max_tokens: Option<i64>, temperature: Option<f64>,
+    _suggestions: bool, _language: Option<String>, _api_key: Option<String>,
 ) -> Result<GenerateOutput> {
-    // FUTURE: Connect to ggen_domain::ai::generate_code or appropriate domain function
-    // This stub allows library compilation while domain refactoring is completed
-    Ok(GenerateOutput { success: false })
+    run_generate(prompt, code, model, max_tokens, temperature)
+}
+
+fn run_generate(
+    prompt: String, code: Option<String>, model: Option<String>,
+    max_tokens: Option<i64>, temperature: Option<f64>,
+) -> Result<GenerateOutput> {
+    let full_prompt = build_generate_prompt(&prompt, code.as_ref());
+    let result = call_llm(&full_prompt, model, max_tokens, temperature)?;
+    println!("{}", result.content);
+    Ok(GenerateOutput {
+        model: result.model,
+        prompt_tokens: result.prompt_tokens,
+        completion_tokens: result.completion_tokens,
+        total_tokens: result.total_tokens,
+        content: result.content,
+    })
 }
 
 /// Interactive AI chat session
-///
-/// NOTE: This command is temporarily stubbed pending completion of the AI domain refactoring.
 #[verb]
 fn chat(
-    _message: Option<String>, _model: Option<String>, _interactive: bool, _stream: bool,
-    _max_tokens: Option<i64>, _temperature: Option<f64>,
+    message: Option<String>, model: Option<String>,
+    _interactive: bool, _stream: bool,
+    max_tokens: Option<i64>, temperature: Option<f64>,
 ) -> Result<ChatOutput> {
-    // FUTURE: Connect to appropriate domain function
-    // This stub allows library compilation while domain refactoring is completed
-    Ok(ChatOutput { success: false })
+    run_chat(message, model, max_tokens, temperature)
+}
+
+fn run_chat(
+    message: Option<String>, model: Option<String>,
+    max_tokens: Option<i64>, temperature: Option<f64>,
+) -> Result<ChatOutput> {
+    let prompt = message.unwrap_or_else(|| "Hello".to_string());
+    let result = call_llm(&prompt, model, max_tokens, temperature)?;
+    println!("{}", result.content);
+    Ok(ChatOutput {
+        content: result.content.clone(),
+        model: result.model,
+        prompt_tokens: result.prompt_tokens,
+        completion_tokens: result.completion_tokens,
+    })
 }
 
 /// Analyze code and provide insights
-///
-/// NOTE: This command is temporarily stubbed pending completion of the AI domain refactoring.
 #[verb]
 fn analyze(
-    _file: Option<PathBuf>, _code: Option<String>, _model: Option<String>,
+    file: Option<std::path::PathBuf>, code: Option<String>, model: Option<String>,
 ) -> Result<AnalyzeOutput> {
-    // FUTURE: Connect to ggen_domain::ai::analyze or appropriate domain function
-    // This stub allows library compilation while domain refactoring is completed
-    Ok(AnalyzeOutput { success: false })
+    run_analyze(file, code, model)
+}
+
+fn run_analyze(
+    file: Option<std::path::PathBuf>, code: Option<String>, model: Option<String>,
+) -> Result<AnalyzeOutput> {
+    let source = if let Some(ref code_content) = code {
+        code_content.clone()
+    } else if let Some(ref path) = file {
+        std::fs::read_to_string(path).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to read file: {}", e))
+        })?
+    } else {
+        return Err(clap_noun_verb::NounVerbError::argument_error(
+            "Either --file or --code must be provided",
+        ));
+    };
+
+    let prompt = format!(
+        "Analyze the following code for issues, improvements, and best practices:\n\n```\n{}\n```\n\nProvide specific, actionable feedback.",
+        source
+    );
+    let result = call_llm(&prompt, model, None, None)?;
+    println!("{}", result.content);
+    Ok(AnalyzeOutput {
+        content: result.content.clone(),
+        model: result.model,
+        prompt_tokens: result.prompt_tokens,
+        completion_tokens: result.completion_tokens,
+    })
+}
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+struct LlmResult {
+    content: String,
+    model: String,
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
+}
+
+fn call_llm(
+    prompt: &str,
+    model: Option<String>,
+    max_tokens: Option<i64>,
+    temperature: Option<f64>,
+) -> Result<LlmResult> {
+    use ggen_ai::LlmClient;
+
+    let mut config = ggen_ai::LlmConfig::default();
+    if let Some(m) = model {
+        config.model = m;
+    }
+    if let Some(mt) = max_tokens {
+        config.max_tokens = Some(mt as u32);
+    }
+    if let Some(t) = temperature {
+        config.temperature = Some(t as f32);
+    }
+
+    let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create LLM client: {}", e))
+    })?;
+
+    let response = block_on(client.complete(prompt))
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Runtime error: {}",
+                e
+            ))
+        })?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "LLM request failed: {}",
+                e
+            ))
+        })?;
+
+    let model_used = response.model.clone();
+    let usage = response.usage.unwrap_or(ggen_ai::UsageStats {
+        prompt_tokens: 0,
+        completion_tokens: 0,
+        total_tokens: 0,
+    });
+
+    Ok(LlmResult {
+        content: response.content,
+        model: model_used,
+        prompt_tokens: usage.prompt_tokens,
+        completion_tokens: usage.completion_tokens,
+        total_tokens: usage.total_tokens,
+    })
+}
+
+fn build_generate_prompt(prompt: &str, code: Option<&String>) -> String {
+    match code {
+        Some(c) => format!(
+            "Generate code based on this description:\n{}\n\nExisting code context:\n```\n{}\n```\n\nProvide complete, production-ready code.",
+            prompt, c
+        ),
+        None => format!(
+            "Generate code based on this description:\n{}\n\nProvide complete, production-ready code.",
+            prompt
+        ),
+    }
 }

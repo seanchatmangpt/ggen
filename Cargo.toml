@@ -186,9 +186,6 @@ genai = "0.5"
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
 base64 = "0.22"
-
-# ===================================================================
-# DEPENDENCY DEDUPLICATION (Phase 1 - Critical)
 # Added 2026-01-24 to fix 160 duplicate versions
 # Target: Reduce build time from >600s to <400s (33% improvement)
 # Reference: examples/factory-paas/DEPENDENCY_DEDUPLICATION_PLAN.md

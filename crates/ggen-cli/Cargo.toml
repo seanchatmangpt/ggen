@@ -49,6 +49,7 @@ ggen-ai.workspace = true
 ggen-domain = { workspace = true }
 ggen-a2a-mcp.workspace = true
 ggen-ontology-core.workspace = true
+ggen-marketplace.workspace = true
 
 # Crate-specific dependencies
 clap_complete = "4.5.58"
@@ -72,6 +73,14 @@ notify-debouncer-full = "0.3"
 tar = "0.4"
 flate2 = "1.0"
 md5 = "0.8"
+
+# Receipt generation dependencies
+ggen-receipt.workspace = true
+ed25519-dalek = "2.1"
+base64 = "0.22"
+rand = "0.8"
+hex = "0.4"
+tempfile = "3.23"
 
 
 [features]
@@ -156,5 +165,10 @@ required-features = ["integration"]
 [[test]]
 name = "sync_tests"
 path = "tests/sync_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "e2e_pack_workflow_test"
+path = "tests/e2e_pack_workflow_test.rs"
 required-features = ["integration"]
 

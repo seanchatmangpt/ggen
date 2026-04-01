@@ -61,6 +61,7 @@ pub mod conventions; // File-based routing conventions
                      // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
 pub mod llm_bridge; // Groq LLM bridge (async GenAiClient → sync LlmService)
 pub mod prelude;
+pub mod receipt_manager; // Cryptographic receipt generation for operations
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
 

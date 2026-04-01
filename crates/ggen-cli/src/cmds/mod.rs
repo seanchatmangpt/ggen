@@ -31,6 +31,7 @@ pub mod helpers;
 pub mod capability;
 pub mod git_hooks;
 pub mod init;
+pub mod receipt;
 pub mod sync;
 pub mod wizard;
 
@@ -43,6 +44,7 @@ pub mod mcp;
 pub mod ontology;
 pub mod packs;
 pub mod paper;
+pub mod policy;
 pub mod project;
 pub mod self_play;
 pub mod template;

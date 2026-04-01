@@ -1,0 +1,29 @@
+{#- Single verb function template for clap-noun-verb framework
+    Generates ONE verb function inside a noun module.
+    Delegates to crate::domain::<noun>::<verb>().
+    Domain logic is NEVER generated.
+
+    Expected variables:
+    - verb_name: string
+    - noun_name: string
+    - about: string
+    - fn_name: string
+    - params: array of { name, type, required, comment, tags }
+-#}
+    /// {{ about }}
+    {%- if params | length > 0 %}
+    ///
+    /// # Arguments
+    {%- for p in params %}
+    /// * `{{ p.name }}` - {{ p.comment }}{{ p.tags | default(value="") }}
+    {%- endfor %}
+    {%- endif %}
+    #[verb("{{ verb_name }}")]
+    pub fn {{ fn_name }}({% for p in params %}{%- if p.type == "bool" %}{{ p.name }}: bool{% elif p.required %}{{ p.name }}: {{ p.type }}{% else %}{{ p.name }}: Option<{{ p.type }}>{% endif %}{%- if not loop.last %}, {% endif %}{% endfor %}) -> Result<serde_json::Value> {
+        let result = crate::domain::{{ noun_name | snake }}::{{ fn_name }}(
+            {%- for p in params %}
+            {{ p.name }},
+            {%- endfor %}
+        ).map_err(|e| CliError::from(e))?;
+        Ok(serde_json::to_value(&result).map_err(|e| CliError::Serialization(e.to_string()))?)
+    }

@@ -182,6 +182,11 @@ impl Properties {
     pub fn public_key() -> String {
         Self::uri("publicKey")
     }
+
+    /// Trust tier classification
+    pub fn trust_tier() -> String {
+        Self::uri("trustTier")
+    }
 }
 
 /// Named node URIs for common concepts

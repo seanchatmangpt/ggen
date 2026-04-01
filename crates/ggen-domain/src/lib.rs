@@ -33,6 +33,7 @@ pub mod environment;
 pub mod generation;
 pub mod graph;
 pub mod mape_k;
+pub mod marketplace;
 pub mod mcp_config;
 pub mod ontology;
 pub mod packs;
