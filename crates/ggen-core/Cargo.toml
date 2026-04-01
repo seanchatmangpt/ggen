@@ -113,74 +113,9 @@ chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcont
 anyhow = "1.0"
 mockito = "1.7"
 
-[[bench]]
-name = "lifecycle_benchmarks"
-harness = false
-
-[[bench]]
-name = "marketplace_benchmarks"
-harness = false
-
-[[bench]]
-name = "clnrm_benchmarks"
-harness = false
-
-[[bench]]
-name = "template_benchmarks"
-harness = false
-
-[[bench]]
-name = "template_generation"
-harness = false
-
-[[bench]]
-name = "performance_benchmark"
-harness = false
-
-[[bench]]
-name = "medium_optimizations_benchmark"
-harness = false
-
-[[bench]]
-name = "quick_wins_benchmark"
-harness = false
-
-[[bench]]
-name = "week4_optimization_benchmark"
-harness = false
-
-[[bench]]
-name = "hive_coordination"
-harness = false
-
-[[bench]]
-name = "pattern_performance"
-harness = false
-
-[[bench]]
-name = "memory_profiling"
-harness = false
-
-[[bench]]
-name = "regression_detection"
-harness = false
-
-[[bench]]
-name = "elixir_a2a_bench"
-harness = false
-
-[[bench]]
-name = "mcp_template_bench"
-harness = false
-
 [[test]]
 name = "ontology_validators_tests"
 path = "tests/ontology_validators_tests.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "swarm_failure_recovery_tests"
-path = "tests/swarm_failure_recovery_tests.rs"
 required-features = ["integration"]
 
 [[test]]
@@ -194,21 +129,6 @@ path = "tests/rdf_query_builder_tests.rs"
 required-features = ["integration"]
 
 [[test]]
-name = "swarm_e2e_tests"
-path = "tests/swarm_e2e_tests.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "swarm_integration_tests"
-path = "tests/swarm_integration_tests.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "swarm_security_tests"
-path = "tests/swarm_security_tests.rs"
-required-features = ["integration"]
-
-[[test]]
 name = "template_comprehensive_test"
 path = "tests/template_comprehensive_test.rs"
 required-features = ["integration"]
@@ -216,11 +136,6 @@ required-features = ["integration"]
 [[test]]
 name = "validation_input_tests"
 path = "tests/validation_input_tests.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "swarm_consensus_tests"
-path = "tests/swarm_consensus_tests.rs"
 required-features = ["integration"]
 
 [[test]]

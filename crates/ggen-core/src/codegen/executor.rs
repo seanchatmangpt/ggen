@@ -164,6 +164,7 @@ impl Clone for SyncOptions {
             audit: self.audit,
             a2a_stage: self.a2a_stage.clone(),
             ontology_path: self.ontology_path.clone(),
+            timeout_ms: self.timeout_ms,
             llm_service: None, // trait objects cannot be cloned
         }
     }

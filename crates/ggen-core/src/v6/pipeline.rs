@@ -410,8 +410,15 @@ impl StagedPipeline {
                 self.config.project_version.clone(),
             );
 
-        // μ₁: Normalization
+        // μ₁: Normalization (pipeline.load — load RDF ontology into normalized graph)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.load",
+            "operation.name" = "pipeline.load",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu1",
+        );
+        let _guard = span.enter();
         let norm_result = normalization.execute(&mut ctx)?;
         let mut execution = normalization.create_execution_record(&norm_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -422,9 +429,20 @@ impl StagedPipeline {
                 norm_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(stage = "mu1", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        drop(_guard);
 
-        // μ₂: Extraction
+        // μ₂: Extraction (pipeline.extract — extract skill definitions via SELECT)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.extract",
+            "operation.name" = "pipeline.extract",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu2",
+        );
+        let _guard = span.enter();
         let extract_result = extraction.execute(&mut ctx)?;
         let mut execution = extraction.create_execution_record(&extract_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -435,14 +453,25 @@ impl StagedPipeline {
                 extract_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(stage = "mu2", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        drop(_guard);
 
         // Stage pack templates under .ggen/pack-stage/ (μ₃ rules may reference these paths)
         if let Some(ref rp) = self.resolved_packs {
             let _staged = stage_pack_templates(&self.config.base_path, &rp.templates)?;
         }
 
-        // μ₃: Emission
+        // μ₃: Emission (pipeline.generate — generate code via Tera templates)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.generate",
+            "operation.name" = "pipeline.generate",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu3",
+        );
+        let _guard = span.enter();
 
         let emission_result = emission.execute(&mut ctx)?;
         let mut execution = emission.create_execution_record(&emission_result);
@@ -454,9 +483,20 @@ impl StagedPipeline {
                 emission_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(stage = "mu3", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        drop(_guard);
 
-        // μ₄: Canonicalization
+        // μ₄: Canonicalization (pipeline.validate — quality gate validation)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.validate",
+            "operation.name" = "pipeline.validate",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu4",
+        );
+        let _guard = span.enter();
         let canon_result = canonicalization.execute(&mut ctx)?;
         let mut execution = canonicalization.create_execution_record(&canon_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -467,6 +507,10 @@ impl StagedPipeline {
                 canon_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(stage = "mu4", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        drop(_guard);
 
         // Collect generated files
         self.generated_files = ctx.generated_files.clone();
@@ -474,7 +518,16 @@ impl StagedPipeline {
         // Create output file records
         let output_records = self.create_output_records(&ctx)?;
 
-        // μ₅: Receipt generation with pack provenance
+        // μ₅: Receipt generation (pipeline.emit — write generated files + provenance receipt)
+        let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.emit",
+            "operation.name" = "pipeline.emit",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu5",
+        );
+        let _guard = span.enter();
+
         let epoch = self.epoch.as_ref().unwrap();
         let mut receipt = BuildReceipt::new(
             epoch,
@@ -544,6 +597,11 @@ impl StagedPipeline {
                 ));
             }
         }
+
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(stage = "mu5", elapsed_ms = elapsed.as_millis() as u64, "Pipeline stage completed");
+        drop(_guard);
 
         Ok(receipt)
     }

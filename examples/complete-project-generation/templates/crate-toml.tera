@@ -1,7 +1,0 @@
-[package]
-name = "{{ crateName }}"
-version = "{{ version }}"
-edition = "2021"
-description = "{{ description }}"
-
-[dependencies]

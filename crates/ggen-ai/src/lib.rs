@@ -69,14 +69,6 @@ pub mod rdf;
 pub mod security;
 pub mod sparql_validator;
 pub mod streaming;
-#[cfg(feature = "swarm")]
-pub mod swarm;
-
-// Re-export quality autopilot agents when swarm feature is enabled
-#[cfg(feature = "swarm")]
-pub use swarm::agents::quality_autopilot::{
-    CodeCycle, CycleBreakerAgent, CycleFixReport, FixStrategy,
-};
 pub mod tool;
 pub mod tool_registry;
 pub mod types;

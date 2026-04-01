@@ -37,7 +37,7 @@ Three comprehensive examples demonstrating correct usage of rust-genai through g
 - OpenAI (openai/gpt-4o, openai/gpt-4o-mini)
 - Anthropic (anthropic/claude-3-5-sonnet-20241022)
 - Ollama (ollama/llama3.2, ollama/mistral, etc.)
-- Groq (groq/llama-3.3-70b-versatile)
+- Groq (groq::llama-3.3-70b-versatile)
 - DeepSeek, Cohere (documented)
 
 **Key Features**:
