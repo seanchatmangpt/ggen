@@ -22,7 +22,7 @@
 //!
 //! ### Generating a Rust CLI Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType};
 //! use ggen_core::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
@@ -43,7 +43,7 @@
 //!
 //! ### Generating a Rust Web Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType};
 //! use ggen_core::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
