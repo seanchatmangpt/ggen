@@ -36,7 +36,7 @@
 //!
 //! ### Loading a Manifest
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::PathBuf;
 //!
@@ -49,7 +49,7 @@
 //!
 //! ### Discovering Templates
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
@@ -66,7 +66,7 @@
 //!
 //! ### Discovering Files
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!

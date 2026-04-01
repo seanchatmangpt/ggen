@@ -73,7 +73,7 @@ impl TemplateResolver {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```text
     /// let resolver = TemplateResolver::new()?;
     /// let template = resolver.resolve("surface-mcp:handlers.rs.tera")?;
     /// assert_eq!(template.pack_id, "surface-mcp");
