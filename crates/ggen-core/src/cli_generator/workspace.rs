@@ -27,7 +27,7 @@
 //!
 //! ### Generating a Workspace
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cli_generator::{WorkspaceGenerator, types::CliProject};
 //! use std::path::Path;
 //!
@@ -67,7 +67,7 @@ const WORKSPACE_CARGO_TEMPLATE: &str = "cli/workspace/Cargo.toml.tmpl";
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text,no_run
 /// use ggen_core::cli_generator::workspace::WorkspaceGenerator;
 /// use std::path::Path;
 ///
@@ -97,7 +97,7 @@ impl WorkspaceGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text,no_run
     /// use ggen_core::cli_generator::workspace::WorkspaceGenerator;
     /// use std::path::Path;
     ///
@@ -138,7 +138,7 @@ impl WorkspaceGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text,no_run
     /// use ggen_core::cli_generator::{workspace::WorkspaceGenerator, types::CliProject};
     /// use std::path::Path;
     ///

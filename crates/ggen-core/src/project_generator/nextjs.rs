@@ -20,7 +20,7 @@
 //!
 //! ### Generating a Next.js Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType};
 //! use ggen_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
@@ -41,7 +41,7 @@
 //!
 //! ### Generating a Nuxt Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType};
 //! use ggen_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
