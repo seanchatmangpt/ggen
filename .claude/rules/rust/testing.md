@@ -2,104 +2,42 @@
 auto_load: false
 category: rust
 priority: critical
-version: 6.0.0
+version: 6.0.1
 ---
 
-# 🧪 Chicago TDD (MANDATORY)
+# Chicago TDD
 
-## Principles
-- State-based verification
-- Real collaborators (not mocks)
-- Real execution (not test doubles)
-- AAA pattern: Arrange/Act/Assert
+## What You Do
 
-## FORBIDDEN London TDD Patterns
+- Use real collaborators: actual databases, filesystems, HTTP clients, LLM APIs
+- Assert on observable state: return values, side effects, persisted data
+- Follow the AAA pattern: Arrange, Act, Assert
+- Prove your claims with evidence. Evidence hierarchy: PROVEN > OBSERVED > INFERRED > UNVERIFIED
+- Provide three-layer proof for every test: Execution (you ran it) + Semantics (assertions are meaningful) + Evaluation (you checked what you asserted)
 
-The following patterns are **NOT ALLOWED** in this project:
+## What You Do Not Do
 
-### ❌ Mocks and Test Doubles
-```rust
-// FORBIDDEN:
-use mockall::mock!;
+- You do not import mockall or automock
+- You do not create test doubles (InMemoryStorage, FakeDatabase, MockHttpClient)
+- You do not verify behavior (call counts, invocation order, argument matching)
+- You do not use dependency injection as a vehicle for mock substitution
+- You do not claim a test passes without running it
 
-mock! {
-    pub HttpClient {}
-    impl HttpClient for MockHttpClient {
-        fn get(&self, url: &str) -> Result<String>;
-    }
-}
+## Your Testing Failure Modes
 
-// FORBIDDEN:
-#[mockall::automock]
-trait HttpClient {
-    fn get(&self, url: &str) -> Result<String>;
-}
-```
-
-**Why:** Mocks test mock behavior, not real system behavior. Use real HTTP clients instead.
-
-### ❌ Behavior Verification
-```rust
-// FORBIDDEN:
-let mock_client = MockHttpClient::new();
-mock_client.expect_get()
-    .with(eq("https://example.com"))
-    .times(1)
-    .returning(Ok("response".to_string()));
-
-// FORBIDDEN:
-assert_eq!(mock_client.call_count("get"), 1);
-```
-
-**Why:** Tests verify mock interactions, not actual state. Use real HTTP calls and assert on response content.
-
-### ❌ Test Doubles for "Isolation"
-```rust
-// FORBIDDEN:
-struct InMemoryStorage { /* ... */ } // Fake that simulates real storage
-
-// FORBIDDEN:
-struct FakeDatabase { /* ... */ } // Test double that avoids real DB
-```
-
-**Why:** Test doubles hide integration bugs. Use real databases (SQLite, PostgreSQL via testcontainers).
-
-### ✅ ACCEPTABLE: Real Collaborators
-```rust
-// ACCEPTABLE: Real HTTP client
-let client = reqwest::Client::new();
-let response = client.get("https://example.com").await?;
-assert_eq!(response.status(), 200);
-
-// ACCEPTABLE: Real database
-let pool = SqlitePool::connect(":memory:").await?;
-sqlx::query("INSERT INTO users (name) VALUES (?)")
-    .bind("Alice")
-    .execute(&pool)
-    .await?;
-
-// ACCEPTABLE: Real filesystem
-let temp_dir = TempDir::new()?;
-std::fs::write(temp_dir.path().join("test.txt"), "content")?;
-assert!(temp_dir.path().join("test.txt").exists());
-```
-
-### ❌ `tempfile::TempDir` for Real File I/O (NOT London TDD)
-
-**Note:** `tempfile::TempDir` is ACCEPTABLE when used for real filesystem operations (real I/O, not isolation). This is Chicago TDD, not London TDD.
-
-```rust
-// ACCEPTABLE: Real file I/O in temp directory
-let temp_dir = TempDir::new()?;
-let file_path = temp_dir.path().join("test.json");
-std::fs::write(&file_path, r#"{"key": "value"}"#)?;
-let content = std::fs::read_to_string(&file_path)?;
-assert_eq!(content, r#"{"key": "value"}"#);
-```
+| Failure Mode | What It Looks Like | Why It Kills You |
+|---|---|---|
+| NARRATION | Test reads like documentation but asserts nothing of consequence | You feel confident. The code is untested. |
+| SELF-CERT | You write the test, run it, see green, and stop investigating | Green does not mean correct. It means you stopped looking. |
+| SHALLOW GREEN | `assert!(result.is_ok())` instead of checking the actual invariant | You proved success happened. You did not prove the right thing happened. |
+| MOCK COMFORT | You reach for mockall because the output is predictable | Predictable output means predictable bugs stay hidden. |
+| TEST MURDER | You soften a failing assertion so the test passes | You just deleted the only thing protecting that invariant. |
+| LAZY JUDGE | You assert on shape (keys exist, status is 200) but not on value | Structural correctness is not semantic correctness. |
 
 ## Test Types
+
 | Type | Timeout | Framework |
-|------|---------|-----------|
+|---|---|---|
 | Unit | <150s | Standard Rust |
 | Integration | <30s | Workspace tests |
 | BDD | - | Cucumber |
@@ -109,15 +47,17 @@ assert_eq!(content, r#"{"key": "value"}"#);
 | Determinism | - | RNG_SEED=42 |
 | Performance | - | Criterion |
 
-## Requirements (Definition of Done)
-- ✅ All public APIs tested
-- ✅ Error paths + edge cases (80%+ coverage)
-- ✅ Tests verify observable outputs/state changes
-- ✅ NEVER claim completion without running tests
-- ✅ AAA pattern enforced
-- ✅ No meaningless tests
+## Definition of Done
+
+1. All public APIs have tests that assert on actual values, not just absence of error
+2. Error paths and edge cases are covered. Target 80%+ coverage.
+3. Every test you write follows the AAA pattern with meaningful assertions
+4. You ran the tests. You saw the output. You confirmed the assertions prove something real.
+5. No meaningless tests: each test must have a reason to fail that corresponds to a real defect
+6. For LLM and external service features, OTEL spans exist and contain required attributes
 
 ## Commands
+
 ```bash
 cargo make test-unit     # Fast (<16s)
 cargo make test          # Full (<30s)
@@ -125,7 +65,8 @@ cargo make slo-check     # Performance validation
 ```
 
 ## 80/20 Focus Areas
+
 - Error paths and resource cleanup
 - Concurrency edge cases
-- Real dependencies integration
+- Real dependency integration
 - Deterministic behavior verification
