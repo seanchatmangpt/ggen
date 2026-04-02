@@ -244,24 +244,3 @@ fn init_otlp(endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Flush pending OTEL spans and shut down the tracer provider.
-///
-/// Call at the end of the last test in a process to ensure all spans are sent.
-/// After calling this, no more spans can be exported.
-#[allow(dead_code)]
-pub fn shutdown_tracing() {
-    #[cfg(feature = "otel")]
-    {
-        if let Some(provider) = TRACER_PROVIDER.get() {
-            eprintln!("[otel] Explicit flush requested...");
-            match provider.force_flush() {
-                Ok(_) => eprintln!("[otel] Flush complete"),
-                Err(e) => eprintln!("[otel] Flush failed: {}", e),
-            }
-        }
-    }
-    #[cfg(not(feature = "otel"))]
-    {
-        // no-op
-    }
-}

@@ -2,7 +2,6 @@
 //!
 //! Uses ggen_ai::GenAiClient for real LLM calls with OTEL span verification.
 
-use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
@@ -48,14 +47,14 @@ fn generate(
     prompt: String, code: Option<String>, model: Option<String>, max_tokens: Option<i64>,
     temperature: Option<f64>, _suggestions: bool, _language: Option<String>,
     _api_key: Option<String>,
-) -> Result<GenerateOutput> {
+) -> crate::Result<GenerateOutput> {
     run_generate(prompt, code, model, max_tokens, temperature)
 }
 
 fn run_generate(
     prompt: String, code: Option<String>, model: Option<String>, max_tokens: Option<i64>,
     temperature: Option<f64>,
-) -> Result<GenerateOutput> {
+) -> crate::Result<GenerateOutput> {
     let span = tracing::info_span!(
         "cli.ai.generate",
         "operation.name" = "cli.ai.generate",
@@ -82,14 +81,14 @@ fn run_generate(
 fn chat(
     message: Option<String>, model: Option<String>, _interactive: bool, _stream: bool,
     max_tokens: Option<i64>, temperature: Option<f64>,
-) -> Result<ChatOutput> {
+) -> crate::Result<ChatOutput> {
     run_chat(message, model, max_tokens, temperature)
 }
 
 fn run_chat(
     message: Option<String>, model: Option<String>, max_tokens: Option<i64>,
     temperature: Option<f64>,
-) -> Result<ChatOutput> {
+) -> crate::Result<ChatOutput> {
     let span = tracing::info_span!(
         "cli.ai.chat",
         "operation.name" = "cli.ai.chat",
@@ -113,13 +112,13 @@ fn run_chat(
 #[verb]
 fn analyze(
     file: Option<std::path::PathBuf>, code: Option<String>, model: Option<String>,
-) -> Result<AnalyzeOutput> {
+) -> crate::Result<AnalyzeOutput> {
     run_analyze(file, code, model)
 }
 
 fn run_analyze(
     file: Option<std::path::PathBuf>, code: Option<String>, model: Option<String>,
-) -> Result<AnalyzeOutput> {
+) -> crate::Result<AnalyzeOutput> {
     let span = tracing::info_span!(
         "cli.ai.analyze",
         "operation.name" = "cli.ai.analyze",
@@ -131,12 +130,11 @@ fn run_analyze(
     let source = if let Some(ref code_content) = code {
         code_content.clone()
     } else if let Some(ref path) = file {
-        std::fs::read_to_string(path).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to read file: {}", e))
-        })?
+        std::fs::read_to_string(path)
+            .map_err(|e| GgenError::file_error(path.to_string_lossy().as_ref(), &e.to_string()))?
     } else {
-        return Err(clap_noun_verb::NounVerbError::argument_error(
-            "Either --file or --code must be provided",
+        return Err(GgenError::InvalidInput(
+            "Either --file or --code must be provided".to_string(),
         ));
     };
 
@@ -168,7 +166,7 @@ struct LlmResult {
 
 fn call_llm(
     prompt: &str, model: Option<String>, max_tokens: Option<i64>, temperature: Option<f64>,
-) -> Result<LlmResult> {
+) -> crate::Result<LlmResult> {
     use ggen_ai::LlmClient;
 
     let mut config = ggen_ai::LlmConfig::default();
@@ -182,20 +180,12 @@ fn call_llm(
         config.temperature = Some(t as f32);
     }
 
-    let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to create LLM client: {}",
-            e
-        ))
-    })?;
+    let client = ggen_ai::GenAiClient::new(config)
+        .map_err(|e| GgenError::ExternalServiceError(format!("Failed to create LLM client: {}", e)))?;
 
     let response = block_on(client.complete(prompt))
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
-        })?
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("LLM request failed: {}", e))
-        })?;
+        .map_err(|e| GgenError::ExternalServiceError(format!("Runtime error: {}", e)))?
+        .map_err(|e| GgenError::ExternalServiceError(format!("LLM request failed: {}", e)))?;
 
     let model_used = response.model.clone();
     let usage = response.usage.unwrap_or(ggen_ai::UsageStats {

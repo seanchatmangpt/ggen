@@ -180,6 +180,39 @@ pub mod receipt_manager; // Cryptographic receipt generation for operations
 5. Sign with private key: `receipt.sign(&signing_key)`
 6. Serialize to JSON and write to `.ggen/receipts/{operation_id}.json`
 
+**Sequence Diagram:**
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant CLI as ggen packs install
+    participant Installer as PackInstaller
+    participant Manager as ReceiptManager
+    participant Crypto as ggen-receipt (Ed25519)
+
+    User->>CLI: ggen packs install --pack_id surface-mcp
+    CLI->>Installer: install(pack_id)
+    Installer->>Installer: Download & install pack
+    Installer-->>CLI: InstallReport(success=true)
+
+    CLI->>Manager: generate_pack_install_receipt(report)
+    Manager->>Manager: Create operation ID<br/>(pack-install-{id}-{timestamp})
+    Manager->>Manager: Hash input data (pack spec)
+    Manager->>Manager: Hash output data (installed files)
+    Manager->>Crypto: Receipt::new(hashes)
+    Crypto-->>Manager: Receipt object
+
+    Manager->>Manager: Load or generate keys
+    Manager->>Crypto: receipt.sign(&private_key)
+    Crypto->>Crypto: Ed25519.sign::<br/>SHA-256 hash
+    Crypto-->>Manager: signature
+
+    Manager->>Manager: Serialize to JSON
+    Manager->>Manager: Write to .ggen/receipts/{op_id}.json
+    Manager-->>CLI: Receipt(path)
+    CLI-->>User: ✓ Receipt generated
+```
+
 ---
 
 ## Verification Steps

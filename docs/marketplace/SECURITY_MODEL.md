@@ -20,7 +20,32 @@ The ggen marketplace implements a **cryptographically secure, governed trust mod
 
 ## Ed25519 Signing
 
-### Key Generation
+### Key Generation Flow
+
+```mermaid
+sequenceDiagram
+    participant User as Pack Author
+    participant GR as ggen-receipt
+    participant Store as Keystore
+
+    User->>GR: generate_keypair()
+    GR->>Store: Generate Ed25519 keypair
+    Store-->>GR: (public_key, secret_key)
+    GR-->>User: Keypair generated
+
+    User->>GR: hash_data(pack_contents)
+    GR-->>User: pack_hash (SHA-256)
+
+    User->>GR: sign(pack_hash, secret_key)
+    GR-->>User: signature (Ed25519)
+
+    User->>GR: verify(pack_hash, signature, public_key)
+    GR-->>User: verified (true/false)
+
+    style User fill:#e1f5ff
+    style GR fill:#fff4e6
+    style Store fill:#fce4ec
+```
 
 Packs are signed with Ed25519 keys via `ggen-receipt`:
 
@@ -122,6 +147,36 @@ Key expiry check:
 
 ### Five-Tier Model
 
+```mermaid
+flowchart TD
+    subgraph Tiers["Trust Tiers"]
+        EC["EnterpriseCertified<br/>✅ Production<br/>✅ Regulated<br/>Full audit, signed, approved"]
+        EA["EnterpriseApproved<br/>✅ Production<br/>❌ Regulated<br/>Reviewed, allowlisted"]
+        QU["Quarantined<br/>❌ Production<br/>❌ Regulated<br/>Restricted use, monitoring"]
+        EX["Experimental<br/>❌ Production<br/>❌ Regulated<br/>Dev/testing only"]
+        BL["Blocked<br/>❌ Production<br/>❌ Regulated<br/>Forbidden by policy"]
+    end
+
+    subgraph Enforcement["Profile Enforcement"]
+        P1["regulated-finance<br/>Requires: EnterpriseCertified"]
+        P2["enterprise-strict<br/>Requires: EnterpriseApproved+"]
+        P3["default<br/>Allows: Experimental+"]
+    end
+
+    EC -.->|enforces| P1
+    EA -.->|enforces| P2
+    EX -.->|allows| P3
+
+    style EC fill:#c8e6c9
+    style EA fill:#c8e6c9
+    style QU fill:#fff4e6
+    style EX fill:#fff4e6
+    style BL fill:#ffcdd2
+    style P1 fill:#e1f5ff
+    style P2 fill:#e1f5ff
+    style P3 fill:#e1f5ff
+```
+
 | Tier | Production | Regulated | Description |
 |------|------------|-----------|-------------|
 | **EnterpriseCertified** | ✅ | ✅ | Full audit, signed, approved for enterprise production |
@@ -188,6 +243,32 @@ Promotion request: surface-mcp
 ## Registry Classes
 
 ### Three Registry Types
+
+```mermaid
+flowchart TD
+    subgraph Registries["Registry Classes"]
+        PUB["Public Registry<br/>❌ Signature Required<br/>✅ Unlisted Allowed<br/>crates.io, npm, PyPI<br/><strong>TRANSPORT ONLY, NOT TRUSTED</strong>"]
+        PE["PrivateEnterprise<br/>Configurable Signature<br/>Configurable Unlisted<br/>Internal registry<br/>Enterprise trust policies"]
+        MA["MirroredAirGapped<br/>✅ Signature Required<br/>❌ Unlisted Allowed<br/>Air-gapped mirror<br/>Regulated environments"]
+    end
+
+    subgraph Trust["Trust Levels"]
+        T1["Experimental<br/>(default for Public)"]
+        T2["EnterpriseApproved<br/>(PrivateEnterprise)"]
+        T3["EnterpriseCertified<br/>(MirroredAirGapped)"]
+    end
+
+    PUB --> T1
+    PE --> T2
+    MA --> T3
+
+    style PUB fill:#fff4e6
+    style PE fill:#c8e6c9
+    style MA fill:#c8e6c9
+    style T1 fill:#fff4e6
+    style T2 fill:#c8e6c9
+    style T3 fill:#c8e6c9
+```
 
 | Class | Signature Required | Unlisted Allowed | Description |
 |-------|-------------------|------------------|-------------|

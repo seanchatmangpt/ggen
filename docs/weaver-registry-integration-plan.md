@@ -33,34 +33,39 @@ This plan describes how to integrate the weaver registry into ggen's OpenTelemet
 
 ### Current Architecture (ggen)
 
-```
-ggen services (Rust)
-       ↓
-OTEL Collector (4317/4318)
-       ↓
-    ┌───┴───┐
-    ↓       ↓
- Jaeger   Prometheus
- (16686)  (9090)
+```mermaid
+flowchart TD
+    GGEN["ggen services (Rust)"] --> COLLECTOR["OTEL Collector (4317/4318)"]
+    COLLECTOR --> FAN["fan-out"]
+    FAN --> JAEGER["Jaeger (16686)"]
+    FAN --> PROM["Prometheus (9090)"]
+
+    style GGEN fill:#e1f5ff
+    style COLLECTOR fill:#fff4e6
+    style JAEGER fill:#c8e6c9
+    style PROM fill:#fce4ec
 ```
 
 ### Target Architecture (with Weaver)
 
-```
-ggen services (Rust)
-       ↓
-OTEL Collector (4317/4318)
-       ↓
-    ┌───┴─────────────────────┐
-    ↓                         ↓
- Jaeger                   Weaver Live-Check
- (16686)                   (4316)
-                           ↓
-                     Real-time validation
-                     against semconv/model/
-                     ↓
-              Violations to stdout
-              Reports to /reports/
+```mermaid
+flowchart TD
+    GGEN["ggen services (Rust)"] --> COLLECTOR["OTEL Collector (4317/4318)"]
+    COLLECTOR --> FAN["fan-out"]
+    FAN --> JAEGER["Jaeger (16686)"]
+    FAN --> PROM["Prometheus (9090)"]
+    FAN --> WEAVER["Weaver Live-Check (4316)"]
+
+    WEAVER --> VALIDATION["Real-time validation<br/>against semconv/model/"]
+    VALIDATION --> OUTPUT["Violations to stdout<br/>Reports to /reports/"]
+
+    style GGEN fill:#e1f5ff
+    style COLLECTOR fill:#fff4e6
+    style JAEGER fill:#c8e6c9
+    style PROM fill:#fce4ec
+    style WEAVER fill:#ffcdd2
+    style VALIDATION fill:#e1f5ff
+    style OUTPUT fill:#fce4ec
 ```
 
 ### Integration Points
@@ -908,6 +913,99 @@ INFO ggen-weaver-live-check: Span validated successfully
     }
   ]
 }
+```
+
+---
+
+## Additional Architecture Diagrams
+
+### Span Validation Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant Service as ggen Service
+    participant Collector as OTEL Collector
+    participant Weaver as Weaver Live-Check
+    participant Semconv as Semconv Registry
+
+    Service->>Collector: Emit OTLP Span
+    Note over Service: ggen.llm.generation<br/>llm.model, llm.prompt_tokens, etc.
+
+    Collector->>Collector: Fan-out to Jaeger + Weaver
+    Collector->>Weaver: Forward OTLP Span
+
+    Weaver->>Semconv: Fetch span schema
+    Semconv-->>Weaver: Return schema definition
+
+    Weaver->>Weaver: Validate attributes
+    alt All attributes valid
+        Weaver-->>Collector: ACK (validated)
+        Collector-->>Service: Span accepted
+    else Validation failed
+        Weaver->>Weaver: Log violation
+        Weaver-->>Collector: NACK (violation details)
+        Collector-->>Service: Span rejected with error
+    end
+```
+
+### CI/CD Pipeline Integration
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant GH as GitHub
+    participant CI as GitHub Actions
+    participant Weaver as Weaver Container
+
+    Dev->>GH: Push to branch
+    GH->>CI: Trigger workflow
+
+    CI->>CI: Checkout code
+    CI->>CI: Install weaver CLI
+
+    CI->>Weaver: weaver registry check
+    Note over CI,Weaver: -r ./semconv/model<br/>-p ./semconv/policies/
+
+    alt Registry valid
+        Weaver-->>CI: Exit 0 (PASS)
+        CI->>CI: Upload artifact (resolved.yaml)
+        CI-->>Dev: Build passed
+    else Registry invalid
+        Weaver-->>CI: Exit 1 (FAIL)
+        CI->>CI: Report violations
+        CI-->>Dev: Build failed with errors
+    end
+```
+
+### Drift Detection Process
+
+```mermaid
+flowchart TD
+    START["Start Drift Detection"] --> CAPTURE["Capture Live Telemetry<br/>curl localhost:4318/v1/traces"]
+    CAPTURE --> INFER["Infer Schema from Live Data<br/>weaver registry infer<br/>--input-source otlp<br/>--input-file /tmp/live.json"]
+    INFER --> COMPARE["Compare with semconv/model/<br/>diff -u<br/>&lt;weaver resolve -r ./semconv/model&gt;<br/>&lt;weaver resolve -r /tmp/inferred.yaml&gt;"]
+
+    COMPARE --> DECISION{"Drift Detected?"}
+
+    DECISION -->|No drift| END["No action needed"]
+    DECISION -->|Drift found| ANALYZE["Analyze Drift"]
+
+    ANALYZE --> CAUSE{"What Changed?"}
+
+    CAUSE -->|Code changed| UPDATE_SEMCONV["Update semconv/model/<br/>Add new attributes/spans"]
+    CAUSE -->|Schema changed| FIX_CODE["Fix instrumentation<br/>Update code to match schema"]
+
+    UPDATE_SEMCONV --> VERIFY["Verify Fix<br/>Re-run drift detection"]
+    FIX_CODE --> VERIFY
+
+    VERIFY --> END
+
+    style START fill:#e1f5ff
+    style CAPTURE fill:#fff4e6
+    style INFER fill:#e1f5ff
+    style COMPARE fill:#ffcdd2
+    style UPDATE_SEMCONV fill:#c8e6c9
+    style FIX_CODE fill:#c8e6c9
 ```
 
 ---
