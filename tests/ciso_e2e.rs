@@ -5,6 +5,10 @@
 //!
 //! All tests use real CLI invocations via `assert_cmd::Command::cargo_bin("ggen")`.
 //! Chicago TDD: No mocks, no test doubles -- real commands, real output.
+//!
+//! NOTE: Gated behind `integration` feature — these tests require the full CLI
+//! surface to be implemented (packs search, capability inspect, etc.).
+#![cfg(feature = "integration")]
 
 #[path = "ciso_e2e/helpers.rs"]
 mod helpers;

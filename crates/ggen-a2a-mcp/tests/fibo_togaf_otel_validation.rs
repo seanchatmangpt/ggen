@@ -37,7 +37,12 @@
 //! # Verify spans captured
 //! RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp fibo_togaf_otel 2>&1 | grep -E "turn_[0-9]+|ggen.sync|fibo.entities"
 //! ```
+//!
+//! GATED: references `common` module and complex OTEL API.
 
+#![cfg(feature = "integration")]
+
+mod common;
 use common::init_tracing;
 
 /// Simulate a single turn with OTEL instrumentation

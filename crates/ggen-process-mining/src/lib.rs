@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn test_version_is_set() {
         assert!(!VERSION.is_empty());
-        assert!(VERSION.starts_with('0'));
+        assert_eq!(VERSION, env!("CARGO_PKG_VERSION"));
     }
 
     #[test]

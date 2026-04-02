@@ -92,7 +92,10 @@ fn test_hash_links_change_when_previous_receipt_data_changes() {
     let hash_a = receipt_a.hash().expect("hash a failed");
     let hash_b = receipt_b.hash().expect("hash b failed");
 
-    assert_ne!(hash_a, hash_b, "Different receipts must have different hashes");
+    assert_ne!(
+        hash_a, hash_b,
+        "Different receipts must have different hashes"
+    );
 
     // A receipt chained to A vs chained to B must have different previous hashes
     let linked_to_a = Receipt::new("next".to_string(), vec![], vec![], None)
@@ -104,8 +107,7 @@ fn test_hash_links_change_when_previous_receipt_data_changes() {
         .expect("chain failed");
 
     assert_ne!(
-        linked_to_a.previous_receipt_hash,
-        linked_to_b.previous_receipt_hash,
+        linked_to_a.previous_receipt_hash, linked_to_b.previous_receipt_hash,
         "Chain links must differ when parents differ"
     );
 }
@@ -373,7 +375,11 @@ fn test_chain_integrity_preserved_after_serialization_roundtrip() {
         restored.verify(&verifying_key).is_ok(),
         "Restored chain must verify"
     );
-    assert_eq!(restored.len(), chain.len(), "Chain length must be preserved");
+    assert_eq!(
+        restored.len(),
+        chain.len(),
+        "Chain length must be preserved"
+    );
 }
 
 #[test]
@@ -441,7 +447,10 @@ fn test_individual_receipt_integrity_after_json_roundtrip() {
     assert_eq!(original.input_hashes, restored.input_hashes);
     assert_eq!(original.output_hashes, restored.output_hashes);
     assert_eq!(original.signature, restored.signature);
-    assert_eq!(original.previous_receipt_hash, restored.previous_receipt_hash);
+    assert_eq!(
+        original.previous_receipt_hash,
+        restored.previous_receipt_hash
+    );
 
     // Signature must still verify
     assert!(
@@ -554,7 +563,8 @@ fn test_receipts_maintain_insertion_order() {
     assert_eq!(receipts[0].operation_id, "ordered-genesis");
     for (i, expected_id) in ids.iter().enumerate() {
         assert_eq!(
-            receipts[i + 1].operation_id, *expected_id,
+            receipts[i + 1].operation_id,
+            *expected_id,
             "Receipt at position {} must have correct operation_id",
             i + 1
         );
@@ -653,8 +663,12 @@ fn test_chain_with_large_data_payloads_integrity() {
 
     let receipt2 = Receipt::new(
         "large-op-2".to_string(),
-        (50..100).map(|i| format!("input-{}-{}", i, "a".repeat(64))).collect(),
-        (50..100).map(|i| format!("output-{}-{}", i, "b".repeat(64))).collect(),
+        (50..100)
+            .map(|i| format!("input-{}-{}", i, "a".repeat(64)))
+            .collect(),
+        (50..100)
+            .map(|i| format!("output-{}-{}", i, "b".repeat(64)))
+            .collect(),
         None,
     )
     .chain(&genesis)
@@ -696,9 +710,7 @@ fn test_append_rejects_receipt_with_wrong_previous_hash() {
         "bad-link".to_string(),
         vec![],
         vec![],
-        Some(
-            "0000000000000000000000000000000000000000000000000000000000000000".to_string(),
-        ),
+        Some("0000000000000000000000000000000000000000000000000000000000000000".to_string()),
     )
     .sign(&signing_key)
     .expect("signing failed");
@@ -740,8 +752,7 @@ fn test_append_rejects_genesis_after_chain_has_receipts() {
 fn test_hash_data_known_empty_value() {
     let hash = hash_data(b"");
     assert_eq!(
-        hash,
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        hash, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "SHA-256 of empty input must match known value"
     );
 }
@@ -754,7 +765,10 @@ fn test_hash_data_avalanche_property() {
     let hash1 = hash_data(data1);
     let hash2 = hash_data(data2);
 
-    assert_ne!(hash1, hash2, "One-bit input change must produce different hash");
+    assert_ne!(
+        hash1, hash2,
+        "One-bit input change must produce different hash"
+    );
 
     // Count differing hex characters (not bits, but still illustrative)
     let diff_count = hash1

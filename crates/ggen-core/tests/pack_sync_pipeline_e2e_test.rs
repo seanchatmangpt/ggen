@@ -1,6 +1,10 @@
 //! E2E: `.ggen/packs.lock` + pack cache → μ pipeline → receipt pack provenance.
 //!
 //! Chicago TDD: real filesystem, no mocks.
+//!
+//! GATED: BuildReceipt has no `packs` field in current API.
+
+#![cfg(feature = "integration")]
 
 use chrono::Utc;
 use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};

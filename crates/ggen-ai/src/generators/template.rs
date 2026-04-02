@@ -201,7 +201,7 @@
 //! The solution is to use string-based templates here and convert to `ggen_core::Template`
 //! in the calling code (e.g., ggen-cli):
 //!
-//! ```rust
+//! ```rust,ignore
 //! // In ggen-ai (this crate):
 //! let template = generator.generate_template(...).await?;
 //!

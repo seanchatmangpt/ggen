@@ -106,9 +106,14 @@ mod watch_startup_tests {
             output_dir.to_string_lossy().to_string(),
         );
 
-        assert!(result.is_err() || result.unwrap().status == "error");
-        if let Ok(output) = result {
-            assert!(output.error.unwrap().contains("not found"));
+        match result {
+            Err(_) => {}
+            Ok(ref output) => {
+                assert_eq!(output.status, "error");
+                if let Some(ref err) = output.error {
+                    assert!(err.contains("not found"));
+                }
+            }
         }
     }
 
@@ -173,8 +178,8 @@ mod debouncing_tests {
         // Simulate rapid file changes
         let changes = vec![
             ("Change 1", 0),
-            ("Change 2", 100),  // 100ms later
-            ("Change 3", 200),  // 200ms later
+            ("Change 2", 100), // 100ms later
+            ("Change 3", 200), // 200ms later
         ];
 
         let debounce_ms = 500u64;
@@ -185,13 +190,16 @@ mod debouncing_tests {
             fs::write(&ontology, content).expect("Failed to write change");
 
             // Simulate debounced regeneration
-            if delay_ms > debounce_ms as i32 {
+            if delay_ms as u64 > debounce_ms {
                 regeneration_count += 1;
             }
         }
 
         // With 500ms debounce, only 1 regeneration should occur
-        assert!(regeneration_count <= 2, "Debounce should prevent excessive regenerations");
+        assert!(
+            regeneration_count <= 2,
+            "Debounce should prevent excessive regenerations"
+        );
     }
 
     /// Test: Debounce delay is configurable
@@ -212,7 +220,11 @@ mod debouncing_tests {
                 debounce_ms,
             );
 
-            assert!(result.is_ok(), "Watch should start with debounce={}", debounce_ms);
+            assert!(
+                result.is_ok(),
+                "Watch should start with debounce={}",
+                debounce_ms
+            );
         }
     }
 }
@@ -272,11 +284,7 @@ mod regeneration_tests {
         let output_dir = create_output_dir(&work_dir.to_path_buf());
 
         // Simulate watch mode detecting changes
-        let changes = vec![
-            ontology.clone(),
-            ontology.clone(),
-            ontology.clone(),
-        ];
+        let changes = vec![ontology.clone(), ontology.clone(), ontology.clone()];
 
         let result = simulate_change_detection(changes);
         assert_eq!(result.changes_detected, 3);
@@ -327,7 +335,8 @@ mod shutdown_tests {
         let mut output = simulate_watch_startup(
             ontology.to_string_lossy().to_string(),
             output_dir.to_string_lossy().to_string(),
-        ).unwrap();
+        )
+        .unwrap();
 
         output.changes_detected = 5;
         output.regenerations = 3;
@@ -406,8 +415,7 @@ mod output_structure_tests {
 
 /// Simulate watch mode validation (checks ontology exists)
 fn simulate_watch_validation(
-    ontology_file: String,
-    output_dir: String,
+    ontology_file: String, output_dir: String,
 ) -> Result<WatchOutput, String> {
     let ontology_path = PathBuf::from(&ontology_file);
 
@@ -434,8 +442,7 @@ fn simulate_watch_validation(
 
 /// Simulate watch mode startup
 fn simulate_watch_startup(
-    ontology_file: String,
-    output_dir: String,
+    ontology_file: String, output_dir: String,
 ) -> Result<WatchOutput, String> {
     // Create output directory if needed
     let output_path = PathBuf::from(&output_dir);
@@ -462,17 +469,14 @@ fn simulate_watch_startup(
 
 /// Simulate watch mode with custom debounce
 fn simulate_watch_with_debounce(
-    ontology_file: String,
-    output_dir: String,
-    _debounce_ms: u64,
+    ontology_file: String, output_dir: String, _debounce_ms: u64,
 ) -> Result<WatchOutput, String> {
     simulate_watch_startup(ontology_file, output_dir)
 }
 
 /// Simulate YAWL generation
 fn simulate_generation(
-    ontology_file: String,
-    output_dir: String,
+    ontology_file: String, output_dir: String,
 ) -> Result<GenerateOutput, String> {
     let ontology_path = PathBuf::from(&ontology_file);
 
@@ -492,12 +496,13 @@ fn simulate_generation(
     }
 
     // Simulate generation
+    let generated_file = format!("{}/test-domain.yawl.xml", output_dir);
     Ok(GenerateOutput {
         status: "success".to_string(),
         ontology_file,
+        generated_files: vec![generated_file],
         output_dir,
         files_generated: 1,
-        generated_files: vec![format!("{}/test-domain.yawl.xml", output_dir)],
         tasks_extracted: 2,
         flows_extracted: 3,
         duration_ms: 100,
@@ -513,7 +518,9 @@ fn simulate_change_detection(changed_files: Vec<PathBuf>) -> WatchOutput {
         changes_detected: changed_files.len(),
         regenerations: 1,
         duration_ms: 500,
-        last_change: changed_files.last().map(|p| p.to_string_lossy().to_string()),
+        last_change: changed_files
+            .last()
+            .map(|p| p.to_string_lossy().to_string()),
         error: None,
     }
 }

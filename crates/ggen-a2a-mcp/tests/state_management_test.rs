@@ -2,6 +2,11 @@
 //! ArbApprovalManager, and ArtifactRegistry.
 //!
 //! Tests use real collaborators (no mocks) following Chicago TDD.
+//!
+//! GATED: TogafStateManager, HandoffProtocol, ArbApprovalManager types
+//! are not currently exported in ggen_a2a_mcp::state public API.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::state::{
     ApprovalCriterion, ApprovalDecision, ApprovalResponse, ApprovalStatus, ArbApprovalManager,

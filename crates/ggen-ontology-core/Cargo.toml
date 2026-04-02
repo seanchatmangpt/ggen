@@ -1,12 +1,11 @@
 [package]
 name = "ggen-ontology-core"
-version = "0.2.0"
+version = "6.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core ontology handling layer with RDF/TTL support, SPARQL querying, and entity mapping"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
-readme = "README.md"
 keywords = ["rdf", "ontology", "sparql", "ttl", "xml"]
 categories = ["development-tools"]
 

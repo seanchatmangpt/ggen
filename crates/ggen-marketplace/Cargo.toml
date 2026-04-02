@@ -1,10 +1,11 @@
 [package]
 name = "ggen-marketplace"
-version = "3.0.0"
+version = "6.1.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Marketplace system for ggen using RDF and semantic versioning"
-license = "MIT"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
 # Async runtime
@@ -78,6 +79,12 @@ arbitrary = { version = "1.3", features = ["derive"] }
 # Iteration helpers
 itertools = "0.12"
 
+# Platform directories (cache, config, data)
+dirs = "6.0"
+
+# Semantic versioning
+semver = "1.0"
+
 # Memory efficiency
 compact_str = "0.7"                  # Memory-efficient strings
 bytes = "1.5"
@@ -129,3 +136,8 @@ path = "tests/integration_rdf_mapping.rs"
 required-features = ["integration"]
 
 # Integration tests removed in Phase 1 consolidation
+
+[[test]]
+name = "install_security_test"
+path = "tests/install_security_test.rs"
+required-features = ["integration"]

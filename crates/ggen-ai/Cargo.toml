@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ai"
-version = "0.2.0"
+version = "6.1.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Thin wrapper around genai for ggen - LLM integration with environment support"
@@ -98,6 +98,7 @@ tokio-test = "0.4"
 tempfile = "3"
 testcontainers = "0.25"
 rand = "0.9"
+anyhow.workspace = true
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 criterion = { version = "0.7", features = ["html_reports"] }
 

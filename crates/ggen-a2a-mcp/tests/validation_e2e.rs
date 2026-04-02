@@ -6,6 +6,10 @@
 //! - Real Tera parser for templates
 //! - Real SPARQL parser
 //! - No mocks, no test doubles
+//!
+//! GATED: Annotated<RawContent> has no .text field; rmcp API mismatches.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};

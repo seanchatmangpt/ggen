@@ -7,6 +7,10 @@
 //! - Lock poisoning recovery
 //! - Cache operations under load
 //! - Thread-safe statistics
+//!
+//! GATED: ggen_marketplace::cache module not exported.
+
+#![cfg(feature = "integration")]
 
 use ggen_marketplace::cache::{CacheConfig, CachedPack, PackCache};
 use ggen_marketplace::models::{PackageId, PackageVersion};

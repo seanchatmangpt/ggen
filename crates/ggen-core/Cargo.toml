@@ -1,6 +1,6 @@
 [package]
 name = "ggen-core"
-version = "0.2.0"
+version = "6.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
@@ -187,4 +187,9 @@ required-features = ["integration"]
 [[test]]
 name = "watch_mode_tests"
 path = "tests/watch_mode_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "pack_query_template_integration_test"
+path = "tests/pack_query_template_integration_test.rs"
 required-features = ["integration"]

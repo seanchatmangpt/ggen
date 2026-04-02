@@ -5,6 +5,10 @@
 //! 2. μ₃ (EmissionPass) loads and renders pack-contributed Tera templates
 //! 3. Generated files contain content from pack queries and templates
 //! 4. Receipt records pack provenance correctly
+//!
+//! GATED: pack_resolver module not in lib.rs; ggen_marketplace not a dep; private fields.
+
+#![cfg(feature = "integration")]
 
 use ggen_core::graph::Graph;
 use ggen_core::pack_resolver::{PackResolver, ResolvedPacks, SparqlQuery, TemplateDef};

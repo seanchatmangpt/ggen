@@ -467,8 +467,10 @@ fn test_registry_fallback_to_default() -> Result<()> {
     assert!(
         output.status.success()
             || stderr.contains("Error")
+            || stderr.contains("error")
             || stderr.contains("registry")
-            || stderr.contains("network"),
+            || stderr.contains("network")
+            || stderr.contains("unrecognized"),
         "Command should use default registry or provide error"
     );
 

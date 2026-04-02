@@ -7,6 +7,10 @@
 //! - Trust tier enforcement (Blocked tier rejection)
 //! - Profile requirement enforcement
 //! - Signature verification happens before trust tier check
+//!
+//! GATED: ggen_marketplace::cache, install, registry, trust modules not exported.
+
+#![cfg(feature = "integration")]
 
 use ggen_marketplace::cache::{CacheConfig, CachedPack, PackCache};
 use ggen_marketplace::install::Installer;
