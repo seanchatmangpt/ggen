@@ -1,0 +1,8 @@
+{
+  "template_ref": "test.tmpl",
+  "variables": {
+    "key": "value"
+  },
+  "timestamp": "2025-12-11T23:13:14.394487Z",
+  "format": "json"
+}

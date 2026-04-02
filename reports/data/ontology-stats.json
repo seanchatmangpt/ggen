@@ -1,0 +1,12 @@
+{
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "ontology_file": ".specify/ggen-paas-ontology.ttl",
+  "containers": 10,
+  "data_stores": 7,
+  "total_statements": 420,
+  "unique_subjects": 45,
+  "unique_predicates": 32,
+  "communication_paths": 18,
+  "sla_definitions": 10,
+  "files_generated": 9
+}

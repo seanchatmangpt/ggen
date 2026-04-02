@@ -1,0 +1,456 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ec: <http://example.org/ecommerce#> .
+
+# Ontology definition
+<http://example.org/ecommerce> a owl:Ontology ;
+    rdfs:label "E-Commerce Ontology" ;
+    rdfs:comment "A comprehensive ontology for e-commerce platforms including products, orders, and customers" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+
+## Product Class
+ec:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product available for purchase in the catalog" ;
+    rdfs:subClassOf owl:Thing .
+
+## Order Class
+ec:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer purchase order" ;
+    rdfs:subClassOf owl:Thing .
+
+## OrderItem Class
+ec:OrderItem a owl:Class ;
+    rdfs:label "Order Item" ;
+    rdfs:comment "A line item within an order" ;
+    rdfs:subClassOf owl:Thing .
+
+## Customer Class
+ec:Customer a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "A customer who makes purchases" ;
+    rdfs:subClassOf owl:Thing .
+
+## Category Class
+ec:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "A product category for organization" ;
+    rdfs:subClassOf owl:Thing .
+
+## Review Class
+ec:Review a owl:Class ;
+    rdfs:label "Review" ;
+    rdfs:comment "A customer review of a product" ;
+    rdfs:subClassOf owl:Thing .
+
+## Supplier Class
+ec:Supplier a owl:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "A supplier of products" ;
+    rdfs:subClassOf owl:Thing .
+
+## Address Class
+ec:Address a owl:Class ;
+    rdfs:label "Address" ;
+    rdfs:comment "A physical address" ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES (Relationships)
+# ============================================================================
+
+## Product properties
+
+ec:hasCategory a owl:ObjectProperty ;
+    rdfs:label "has Category" ;
+    rdfs:comment "Links a product to its category" ;
+    rdfs:domain ec:Product ;
+    rdfs:range ec:Category .
+
+ec:hasSupplier a owl:ObjectProperty ;
+    rdfs:label "has Supplier" ;
+    rdfs:comment "Links a product to its supplier" ;
+    rdfs:domain ec:Product ;
+    rdfs:range ec:Supplier .
+
+ec:hasReviews a owl:ObjectProperty ;
+    rdfs:label "has Reviews" ;
+    rdfs:comment "Links a product to its reviews" ;
+    rdfs:domain ec:Product ;
+    rdfs:range ec:Review .
+
+## Order properties
+
+ec:orderedBy a owl:ObjectProperty ;
+    rdfs:label "ordered by" ;
+    rdfs:comment "Links an order to the customer who made it" ;
+    rdfs:domain ec:Order ;
+    rdfs:range ec:Customer ;
+    owl:inverseOf ec:hasOrders .
+
+ec:hasOrderItems a owl:ObjectProperty ;
+    rdfs:label "has Order Items" ;
+    rdfs:comment "Links an order to its line items" ;
+    rdfs:domain ec:Order ;
+    rdfs:range ec:OrderItem .
+
+ec:shippingAddress a owl:ObjectProperty ;
+    rdfs:label "shipping Address" ;
+    rdfs:comment "The shipping address for an order" ;
+    rdfs:domain ec:Order ;
+    rdfs:range ec:Address .
+
+ec:billingAddress a owl:ObjectProperty ;
+    rdfs:label "billing Address" ;
+    rdfs:comment "The billing address for an order" ;
+    rdfs:domain ec:Order ;
+    rdfs:range ec:Address .
+
+## OrderItem properties
+
+ec:itemProduct a owl:ObjectProperty ;
+    rdfs:label "item Product" ;
+    rdfs:comment "The product in this order item" ;
+    rdfs:domain ec:OrderItem ;
+    rdfs:range ec:Product .
+
+## Customer properties
+
+ec:hasOrders a owl:ObjectProperty ;
+    rdfs:label "has Orders" ;
+    rdfs:comment "Links a customer to their orders" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range ec:Order .
+
+ec:defaultAddress a owl:ObjectProperty ;
+    rdfs:label "default Address" ;
+    rdfs:comment "The customer's default address" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range ec:Address .
+
+## Review properties
+
+ec:reviewProduct a owl:ObjectProperty ;
+    rdfs:label "review Product" ;
+    rdfs:comment "The product being reviewed" ;
+    rdfs:domain ec:Review ;
+    rdfs:range ec:Product .
+
+ec:reviewAuthor a owl:ObjectProperty ;
+    rdfs:label "review Author" ;
+    rdfs:comment "The customer who wrote the review" ;
+    rdfs:domain ec:Review ;
+    rdfs:range ec:Customer .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+## Product datatype properties
+
+ec:productId a owl:DatatypeProperty ;
+    rdfs:label "product ID" ;
+    rdfs:comment "Unique identifier for the product" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:productName a owl:DatatypeProperty ;
+    rdfs:label "product Name" ;
+    rdfs:comment "Name of the product" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:comment "Detailed description of the product" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:string .
+
+ec:price a owl:DatatypeProperty ;
+    rdfs:label "price" ;
+    rdfs:comment "The price of the product" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:decimal ;
+    a owl:FunctionalProperty .
+
+ec:sku a owl:DatatypeProperty ;
+    rdfs:label "SKU" ;
+    rdfs:comment "Stock Keeping Unit identifier" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:inStock a owl:DatatypeProperty ;
+    rdfs:label "in Stock" ;
+    rdfs:comment "Whether the product is in stock" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:boolean ;
+    a owl:FunctionalProperty .
+
+ec:weight a owl:DatatypeProperty ;
+    rdfs:label "weight" ;
+    rdfs:comment "Weight of the product in kilograms" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:float .
+
+ec:createdAt a owl:DatatypeProperty ;
+    rdfs:label "created At" ;
+    rdfs:comment "When the product was added to the catalog" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:dateTime ;
+    a owl:FunctionalProperty .
+
+ec:updatedAt a owl:DatatypeProperty ;
+    rdfs:label "updated At" ;
+    rdfs:comment "When the product was last updated" ;
+    rdfs:domain ec:Product ;
+    rdfs:range xsd:dateTime ;
+    a owl:FunctionalProperty .
+
+## Order datatype properties
+
+ec:orderId a owl:DatatypeProperty ;
+    rdfs:label "order ID" ;
+    rdfs:comment "Unique identifier for the order" ;
+    rdfs:domain ec:Order ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:orderStatus a owl:DatatypeProperty ;
+    rdfs:label "order Status" ;
+    rdfs:comment "Current status of the order (pending, processing, shipped, delivered, cancelled)" ;
+    rdfs:domain ec:Order ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:totalAmount a owl:DatatypeProperty ;
+    rdfs:label "total Amount" ;
+    rdfs:comment "Total amount of the order" ;
+    rdfs:domain ec:Order ;
+    rdfs:range xsd:decimal ;
+    a owl:FunctionalProperty .
+
+ec:orderDate a owl:DatatypeProperty ;
+    rdfs:label "order Date" ;
+    rdfs:comment "When the order was placed" ;
+    rdfs:domain ec:Order ;
+    rdfs:range xsd:dateTime ;
+    a owl:FunctionalProperty .
+
+ec:estimatedDelivery a owl:DatatypeProperty ;
+    rdfs:label "estimated Delivery" ;
+    rdfs:comment "Estimated delivery date" ;
+    rdfs:domain ec:Order ;
+    rdfs:range xsd:date .
+
+## OrderItem datatype properties
+
+ec:quantity a owl:DatatypeProperty ;
+    rdfs:label "quantity" ;
+    rdfs:comment "Quantity of the product in this order item" ;
+    rdfs:domain ec:OrderItem ;
+    rdfs:range xsd:integer ;
+    a owl:FunctionalProperty .
+
+ec:unitPrice a owl:DatatypeProperty ;
+    rdfs:label "unit Price" ;
+    rdfs:comment "Price per unit at time of order" ;
+    rdfs:domain ec:OrderItem ;
+    rdfs:range xsd:decimal ;
+    a owl:FunctionalProperty .
+
+## Customer datatype properties
+
+ec:customerId a owl:DatatypeProperty ;
+    rdfs:label "customer ID" ;
+    rdfs:comment "Unique identifier for the customer" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:comment "Customer email address" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:firstName a owl:DatatypeProperty ;
+    rdfs:label "first Name" ;
+    rdfs:comment "Customer first name" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:lastName a owl:DatatypeProperty ;
+    rdfs:label "last Name" ;
+    rdfs:comment "Customer last name" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:phone a owl:DatatypeProperty ;
+    rdfs:label "phone" ;
+    rdfs:comment "Customer phone number" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range xsd:string .
+
+ec:registeredAt a owl:DatatypeProperty ;
+    rdfs:label "registered At" ;
+    rdfs:comment "When the customer registered" ;
+    rdfs:domain ec:Customer ;
+    rdfs:range xsd:dateTime ;
+    a owl:FunctionalProperty .
+
+## Category datatype properties
+
+ec:categoryName a owl:DatatypeProperty ;
+    rdfs:label "category Name" ;
+    rdfs:comment "Name of the category" ;
+    rdfs:domain ec:Category ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:categoryDescription a owl:DatatypeProperty ;
+    rdfs:label "category Description" ;
+    rdfs:comment "Description of the category" ;
+    rdfs:domain ec:Category ;
+    rdfs:range xsd:string .
+
+## Review datatype properties
+
+ec:rating a owl:DatatypeProperty ;
+    rdfs:label "rating" ;
+    rdfs:comment "Rating from 1 to 5" ;
+    rdfs:domain ec:Review ;
+    rdfs:range xsd:integer ;
+    a owl:FunctionalProperty .
+
+ec:reviewTitle a owl:DatatypeProperty ;
+    rdfs:label "review Title" ;
+    rdfs:comment "Title of the review" ;
+    rdfs:domain ec:Review ;
+    rdfs:range xsd:string .
+
+ec:reviewText a owl:DatatypeProperty ;
+    rdfs:label "review Text" ;
+    rdfs:comment "Full text of the review" ;
+    rdfs:domain ec:Review ;
+    rdfs:range xsd:string .
+
+ec:reviewDate a owl:DatatypeProperty ;
+    rdfs:label "review Date" ;
+    rdfs:comment "When the review was written" ;
+    rdfs:domain ec:Review ;
+    rdfs:range xsd:dateTime ;
+    a owl:FunctionalProperty .
+
+## Supplier datatype properties
+
+ec:supplierName a owl:DatatypeProperty ;
+    rdfs:label "supplier Name" ;
+    rdfs:comment "Name of the supplier" ;
+    rdfs:domain ec:Supplier ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:supplierEmail a owl:DatatypeProperty ;
+    rdfs:label "supplier Email" ;
+    rdfs:comment "Contact email for the supplier" ;
+    rdfs:domain ec:Supplier ;
+    rdfs:range xsd:string .
+
+ec:rating a owl:DatatypeProperty ;
+    rdfs:label "rating" ;
+    rdfs:comment "Supplier reliability rating" ;
+    rdfs:domain ec:Supplier ;
+    rdfs:range xsd:decimal .
+
+## Address datatype properties
+
+ec:street a owl:DatatypeProperty ;
+    rdfs:label "street" ;
+    rdfs:comment "Street address" ;
+    rdfs:domain ec:Address ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:city a owl:DatatypeProperty ;
+    rdfs:label "city" ;
+    rdfs:comment "City" ;
+    rdfs:domain ec:Address ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:state a owl:DatatypeProperty ;
+    rdfs:label "state" ;
+    rdfs:comment "State or province" ;
+    rdfs:domain ec:Address ;
+    rdfs:range xsd:string .
+
+ec:postalCode a owl:DatatypeProperty ;
+    rdfs:label "postal Code" ;
+    rdfs:comment "Postal code or ZIP code" ;
+    rdfs:domain ec:Address ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+ec:country a owl:DatatypeProperty ;
+    rdfs:label "country" ;
+    rdfs:comment "Country" ;
+    rdfs:domain ec:Address ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+# ============================================================================
+# CARDINALITY CONSTRAINTS
+# ============================================================================
+
+# Product must have a name and price
+ec:ProductRestriction1 a owl:Restriction ;
+    owl:onClass ec:Product ;
+    owl:onProperty ec:productName ;
+    owl:minCardinality 1 .
+
+ec:ProductRestriction2 a owl:Restriction ;
+    owl:onClass ec:Product ;
+    owl:onProperty ec:price ;
+    owl:minCardinality 1 .
+
+# Order must have at least one order item
+ec:OrderRestriction1 a owl:Restriction ;
+    owl:onClass ec:Order ;
+    owl:onProperty ec:hasOrderItems ;
+    owl:minCardinality 1 .
+
+# Order item must reference exactly one product
+ec:OrderItemRestriction1 a owl:Restriction ;
+    owl:onClass ec:OrderItem ;
+    owl:onProperty ec:itemProduct ;
+    owl:cardinality 1 .
+
+# Customer must have at least one order
+ec:CustomerRestriction1 a owl:Restriction ;
+    owl:onClass ec:Customer ;
+    owl:onProperty ec:hasOrders ;
+    owl:minCardinality 0 .
+
+# Review must have a rating and author
+ec:ReviewRestriction1 a owl:Restriction ;
+    owl:onClass ec:Review ;
+    owl:onProperty ec:rating ;
+    owl:cardinality 1 .
+
+ec:ReviewRestriction2 a owl:Restriction ;
+    owl:onClass ec:Review ;
+    owl:onProperty ec:reviewAuthor ;
+    owl:cardinality 1 .

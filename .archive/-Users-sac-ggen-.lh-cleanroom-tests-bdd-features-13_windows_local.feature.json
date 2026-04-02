@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/13_windows_local.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/13_windows_local.feature\n@windows @local\nFeature: Windows support via local backend\n  Background:\n    Given the OS is Windows\n\n  Scenario: Local backend works without container engine\n    Given docker is unavailable\n    When I run [\"--help\"] using \"local\"\n    Then exit code is 0\n"
+        }
+    ]
+}

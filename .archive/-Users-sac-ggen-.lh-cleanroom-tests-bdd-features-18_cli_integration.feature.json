@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/18_cli_integration.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/18_cli_integration.feature\n@cli @tools\nFeature: Cargo integration via package.metadata.cleanroom\n  Background:\n    Given Cargo.toml contains:\n      \"\"\"\n      [package.metadata.cleanroom]\n      bin = \"target/debug/cli_smoke\"\n      enabled = true\n      \"\"\"\n\n  Scenario: One-flag CI enablement uses container backend automatically\n    Given CI environment is detected\n    When I run [\"--help\"] with backend \"auto\"\n    Then resolved backend is not \"local\" if a container engine is available\n    And exit code is 0\n"
+        }
+    ]
+}

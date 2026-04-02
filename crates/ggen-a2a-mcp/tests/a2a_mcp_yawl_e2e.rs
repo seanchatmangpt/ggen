@@ -23,6 +23,27 @@ use common::init_tracing;
 // Helpers
 // ---------------------------------------------------------------------------
 
+#[allow(dead_code)]
+fn test_routing() -> MessageRouting {
+    MessageRouting {
+        path: vec!["test-agent".to_string()],
+        metadata: None,
+        qos: QoSRequirements {
+            reliability: ReliabilityLevel::AtLeastOnce,
+            latency: None,
+            throughput: None,
+        },
+    }
+}
+
+#[allow(dead_code)]
+fn test_lifecycle() -> MessageLifecycle {
+    MessageLifecycle {
+        state: MessageState::Created,
+        history: Vec::new(),
+        timeout: None,
+    }
+}
 
 fn make_text_message(
     id: &str, source: &str, content: &str, correlation_id: Option<&str>,

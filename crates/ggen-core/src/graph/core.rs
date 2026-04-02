@@ -19,7 +19,7 @@ use oxigraph::store::Store;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::hash::{Hash, Hasher};
-use std::io::{BufReader, Cursor};
+use std::io::BufReader;
 use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::{
@@ -135,16 +135,6 @@ impl Graph {
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let graph = Self::new()?;
         graph.load_path(path)?;
-        Ok(graph)
-    }
-
-    /// Load RDF data from a Turtle string
-    pub fn load_from_string(ttl: &str) -> Result<Self> {
-        let graph = Self::new()?;
-        graph.inner
-            .load_from_reader(RdfFormat::Turtle, Cursor::new(ttl))
-            .map_err(|e| Error::new(&format!("Failed to load RDF from string: {}", e)))?;
-        graph.bump_epoch();
         Ok(graph)
     }
 

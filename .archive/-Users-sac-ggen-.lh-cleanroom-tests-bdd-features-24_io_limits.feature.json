@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/24_io_limits.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/24_io_limits.feature\n@limits\nFeature: Output and resource limits\n  Background:\n    Given a fixture project \"cli_spam\"\n\n  Scenario: Output is truncated with indicator\n    Given max_output is 4KB\n    When I run [\"spam\",\"--bytes\",\"16384\"] using \"auto\"\n    Then captured stdout size is 4096 bytes\n    And stdout ends with \"[TRUNCATED]\"\n"
+        }
+    ]
+}

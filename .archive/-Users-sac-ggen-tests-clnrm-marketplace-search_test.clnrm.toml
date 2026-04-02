@@ -1,0 +1,37 @@
+# GGEN Marketplace - Search Test with OTEL Validation
+# ===================================================
+# Tests marketplace search with OpenTelemetry span validation
+
+[test.metadata]
+name = "ggen_marketplace_search"
+description = "Test marketplace search with OTEL validation"
+version = "1.0.0"
+timeout = "120s"
+tags = ["marketplace", "search", "otel"]
+
+[otel]
+exporter = "otlp"
+resources = { "service.name" = "ggen-marketplace-search-test", "test.type" = "integration" }
+
+[services.marketplace_api]
+# Note: 'plugin' defaults to "generic_container", so only 'image' is required
+image = "alpine:latest"
+
+[[steps]]
+name = "verify_service_startup"
+service = "marketplace_api"
+command = ["echo", "Service ready"]
+expected_output_regex = "Service ready"
+
+[[steps]]
+name = "test_search_operation"
+service = "marketplace_api"
+command = ["echo", "Search test"]
+expected_output_regex = "Search test"
+
+[expect.status]
+all = "OK"
+
+[expect.counts]
+spans_total = { gte = 1 }
+

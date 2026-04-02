@@ -83,10 +83,6 @@ impl Module for CodeGenModule {
         outputs.insert("code".to_string(), Value::String(code.to_string()));
         Ok(outputs)
     }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
 }
 
 #[tokio::main]

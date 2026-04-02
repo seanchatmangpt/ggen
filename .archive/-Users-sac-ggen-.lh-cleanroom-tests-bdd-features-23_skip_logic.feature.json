@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/23_skip_logic.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841878,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841878,
+            "name": "Commit-0",
+            "content": "# features/23_skip_logic.feature\n@skip\nFeature: Skip semantics for missing engines or capabilities\n  Scenario: Missing podman skips podman scenarios only\n    Given podman is unavailable\n    When I run the full feature suite\n    Then podman-tagged scenarios are skipped\n    And other scenarios run\n"
+        }
+    ]
+}

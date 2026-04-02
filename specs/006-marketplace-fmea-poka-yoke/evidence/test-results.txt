@@ -1,0 +1,45 @@
+[1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+[1m[32m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_domain-ff956c661a57c9a2)
+
+running 20 tests
+test generation::codeowners::tests::test_should_regenerate ... ok
+test generation::headers::tests::test_config_from_generation_safety ... ok
+test generation::headers::tests::test_config_disabled_via_poka_yoke ... ok
+test generation::headers::tests::test_inject_header_disabled ... ok
+test generation::headers::tests::test_format_header_python ... ok
+test generation::headers::tests::test_format_header_rust ... ok
+test generation::headers::tests::test_format_header_html ... ok
+test generation::headers::tests::test_format_header_multiline ... ok
+test generation::headers::tests::test_inject_header_preserves_shebang ... ok
+test generation::headers::tests::test_inject_header_rust ... ok
+test generation::protection::tests::test_disabled_validation_allows_all ... ok
+test generation::protection::tests::test_new_file_allowed ... ok
+test generation::protection::tests::test_existing_untracked_blocked ... ok
+test generation::protection::tests::test_protected_path_blocked ... ok
+test generation::protection::tests::test_regeneratable_path_allowed ... ok
+test generation::codeowners::tests::test_generate_codeowners_disabled ... ok
+test generation::codeowners::tests::test_generate_codeowners_custom_output ... ok
+test generation::codeowners::tests::test_generate_codeowners_empty_project ... ok
+test generation::codeowners::tests::test_generate_codeowners_default ... ok
+test generation::codeowners::tests::test_generate_codeowners_with_owners ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 208 filtered out; finished in 0.00s
+
+[1m[32m     Running[0m tests/integration_tests.rs (target/debug/deps/integration_tests-5e0656360c0eac20)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[32m     Running[0m tests/template_lint_performance_tests.rs (target/debug/deps/template_lint_performance_tests-4b0871183db78f8c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+[1m[32m     Running[0m tests/unit_tests.rs (target/debug/deps/unit_tests-9bd79699be58da3c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

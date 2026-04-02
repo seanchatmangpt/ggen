@@ -1,0 +1,25 @@
+## VM arguments for TPS Kanban
+
+## Name of the node
+-name tps_kanban@127.0.0.1
+
+## Cookie for distributed erlang
+-setcookie tps_kanban_secret_cookie
+
+## Enable kernel poll threads
++K true
+
+## Number of async threads
++A 256
+
+## Max number of ports
+-env ERL_MAX_PORTS 65536
+
+## Heartbeat interval
+-heart
+
+## Process flag settings
++P 262144
+
+## Memory allocation strategy
++MMmcs 50

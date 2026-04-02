@@ -1,0 +1,92 @@
+@startuml V6_ARCHITECTURE
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title ggen v6: Anchor + Extend Architecture
+
+Person(user, "User", "Developer using ggen")
+
+System_Boundary(v6, "ggen v6") {
+  System_Boundary(init, "ggen init") {
+    Component(screening, "BIG BANG 80/20\nScreening Gate", "5 litmus questions")
+    Component(scaffold, "Project Scaffold", "ggen.toml, schema/, templates/")
+    Component(standard_val, "Standard Ontology\nValidator", "Enforces schema.org,\nFOAF, Dublin Core,\nSKOS, Big Five")
+  }
+
+  System_Boundary(sync, "ggen sync") {
+    Component(executor, "SyncExecutor", "CLI entry point")
+    Component(stagedpipe, "StagedPipeline\n[v6 ANCHOR]", "5-stage deterministic\ngeneration (μ₁-μ₅)")
+    Component(passes, "5 Passes", "Normalize → Extract →\nEmit → Canonicalize →\nReceipt")
+    Component(llm_bridge, "LLM Bridge\n[v6 EXTEND]", "Predictor.forward()")
+    Component(vocab_val, "Vocabulary\nValidator", "Enforces standard\nontology extensions")
+  }
+
+  System_Boundary(storage, "Project Storage") {
+    Component(ggen_toml, "ggen.toml", "Config: ontology,\ngeneration rules")
+    Component(schema, "schema/", "Anchor ontology (RDF)")
+    Component(data, "data/", "Real user data\n(CSV/JSON)")
+    Component(templates, "templates/", "Tera templates")
+    Component(output, "src/generated/", "Generated code")
+  }
+
+  System_Boundary(external, "External") {
+    Component(llm, "LLM Client", "OpenAI, Anthropic,\nOllama, etc.")
+    Component(oxigraph, "Oxigraph", "RDF store, SPARQL")
+    Component(tera, "Tera", "Template renderer")
+  }
+}
+
+user --> screening: "ggen init"
+screening --> standard_val: "validate ontology base"
+standard_val --> scaffold: "allow or block"
+scaffold --> ggen_toml: "create config"
+scaffold --> schema: "create anchor.ttl"
+scaffold --> data: "create data/ dir"
+scaffold --> templates: "create templates/ dir"
+
+user --> executor: "ggen sync"
+executor --> stagedpipe: "instantiate [WIRING #1]"
+stagedpipe --> passes: "run 5 stages"
+passes --> vocab_val: "validate vocabularies\n[ACTION #4]"
+vocab_val --> llm_bridge: "if LLM-marked template\n[ACTION #2]"
+llm_bridge --> llm: "call Predictor.forward()"
+llm --> llm_bridge: "suggestions"
+llm_bridge --> passes: "enriched bindings"
+passes --> oxigraph: "load schema/"
+oxigraph --> passes: "SPARQL bindings"
+passes --> tera: "render with bindings"
+tera --> output: "write code"
+
+ggen_toml -.-> executor: "read config\n[ACTION #3 validation]"
+schema -.-> stagedpipe: "load anchor"
+data -.-> stagedpipe: "validate exists"
+templates -.-> passes: "load Tera"
+
+stagedpipe -.-> output: "receipt.json\n(hash + proof)"
+
+note right of stagedpipe
+  [v6 ANCHOR]
+  Proves: A = μ(O)
+  Deterministic 5-stage pipeline
+  with cryptographic receipts
+end note
+
+note right of llm_bridge
+  [v6 EXTEND]
+  Proves: Anchor + LLM
+  suggestions work together
+  (idempotent with temp=0.0)
+end note
+
+note right of screening
+  [v6 DISCIPLINE]
+  Prevents Seth patterns:
+  - Reject custom ontologies
+  - Require real data
+  - Enforce market signal
+  - Force speed validation
+end note
+
+SHOW_LEGEND()
+
+@enduml

@@ -1,0 +1,85 @@
+# Cloud Build Pipeline for TAI Erlang Autonomics
+# Automated deployment to Cloud Run
+
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:${COMMIT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:latest'
+      - '-f'
+      - 'container/Containerfile'
+      - '.'
+    waitFor: ['-']
+
+  # Step 2: Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:${COMMIT_SHA}'
+    waitFor: ['build-image']
+
+  # Step 3: Deploy to Cloud Run (Production)
+  - name: 'gcr.io/cloud-builders/run'
+    id: 'deploy-production'
+    args:
+      - 'deploy'
+      - 'tai-autonomics'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:${COMMIT_SHA}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+      - '--service-account'
+      - 'tai-autonomics-sa@${PROJECT_ID}.iam.gserviceaccount.com'
+      - '--set-env-vars'
+      - 'PORT=8080,GCP_PROJECT_ID=${PROJECT_ID},GCP_REGION=${_REGION},TRACING_ENABLED=true,FIRESTORE_ENABLED=true'
+      - '--allow-unauthenticated'
+      - '--min-instances=1'
+      - '--max-instances=10'
+    waitFor: ['push-image']
+
+  # Step 4: Run smoke tests
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: 'smoke-tests'
+    args:
+      - 'run'
+      - '-f'
+      - 'tests/smoke/'
+      - '-L'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:${COMMIT_SHA}'
+    waitFor: ['deploy-production']
+
+# Build configuration
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout for build (30 minutes for Erlang compilation + deployment)
+timeout: '1800s'
+
+# Images to store in Artifact Registry
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:${COMMIT_SHA}'
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REGISTRY_NAME}/tai-autonomics:latest'
+
+# Substitution variables
+substitutions:
+  _REGISTRY_NAME: 'tai-autonomics'
+  _REGION: 'us-central1'
+
+# Build triggers should set these for different branches
+# For main branch: deploy to production
+# For staging branch: deploy to staging with manual approval

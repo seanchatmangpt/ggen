@@ -200,42 +200,17 @@ Details the major structural building blocks and internal components that form t
   - Dependency resolution
 
 ### Data Flow
-```mermaid
-sequenceDiagram
-    title ggen PaaS End-to-End Data Flow
-    participant User as Development Team
-    participant UI as Web UI
-    participant GW as API Gateway
-    participant Engine as ggen Engine
-    participant RDF as RDF Processor
-    participant SPARQL as SPARQL Engine
-    participant Tmpl as Template Engine
-    participant CG as Code Generator
-    participant Job as Job Scheduler
-    participant Git as Git Integration
-    participant Reg as Package Registry
-
-    User->>UI: Submit RDF spec
-    UI->>GW: REST API request
-    GW->>Engine: Route + validate
-
-    Engine->>RDF: Parse + validate spec
-    RDF-->>Engine: Parsed graph
-
-    Engine->>SPARQL: CONSTRUCT patterns
-    SPARQL-->>Engine: Extracted data
-
-    Engine->>Tmpl: Render with data
-    Tmpl-->>Engine: Generated code
-
-    Engine->>CG: Validate + format
-    CG-->>Engine: Final output
-
-    Engine->>Job: Queue async job
-    Job->>Git: Commit generated code
-    Job->>Reg: Publish packages
-    Job-->>User: Results + notifications
-```
+1. User submits RDF spec via Web UI
+2. API Gateway validates and routes request
+3. ggen Engine orchestrates generation pipeline
+4. RDF Processor parses and validates specifications
+5. SPARQL Engine extracts data using CONSTRUCT patterns
+6. Template Engine renders code with extracted data
+7. Code Generator validates and formats output
+8. Job Scheduler queues async generation jobs
+9. Results are cached in Redis
+10. Generated code is committed to Git
+11. Packages are published to registries
 
 ---
 
@@ -362,57 +337,23 @@ Shows the internal structure of the most critical containers, revealing the fine
 
 The pipeline flows sequentially through generation stages:
 
-```mermaid
-flowchart LR
-    NORM["Normalization<br/><i>Merges files</i>"]
-    VAL["Validation<br/><i>Validates against<br/>SHACL shapes</i>"]
-    EXT["Extraction<br/><i>Uses RDF<br/>SPARQL queries</i>"]
-    EMI["Emission<br/><i>Renders<br/>templates</i>"]
-    CAN["Canonicalization<br/><i>Formats<br/>output</i>"]
-    REC["Receipt<br/><i>Verifies<br/>output</i>"]
-
-    NORM --> VAL --> EXT --> EMI --> CAN --> REC
-
-    style NORM fill:#e1f5ff
-    style VAL fill:#fff4e6
-    style EXT fill:#e1f5ff
-    style EMI fill:#c8e6c9
-    style CAN fill:#fff4e6
-    style REC fill:#fce4ec
+```
+Normalization → Validation → Extraction → Emission → Canonicalization → Receipt
+     ↓               ↓            ↓           ↓             ↓               ↓
+  Merges      Validates      Uses RDF    Renders      Formats         Verifies
+  files       against        SPARQL      templates    output          output
+              shapes         queries
 ```
 
 Cross-component dependencies:
 
-```mermaid
-flowchart LR
-    RDFP["RDF Parser"]
-    GRAPH["Graph<br/>(In-Memory)"]
-    QE["Query Executor"]
-    SV["Spec Validator"]
-    EXTRACT["Extraction"]
-    EMISSION["Emission"]
-    TR["Template Registry"]
-    LOG["Logging & Tracing"]
-    API["API Framework"]
-
-    RDFP -->|Populates| GRAPH
-    GRAPH -->|Queried by| QE
-    SV -->|Validates| RDFP
-    EXTRACT -->|Uses SPARQL| QE
-    EMISSION -->|Consumes| EXTRACT
-    TR -->|Provides templates| EMISSION
-    LOG -->|Instruments| API
-
-    style RDFP fill:#e1f5ff
-    style GRAPH fill:#fce4ec
-    style QE fill:#e1f5ff
-    style SV fill:#fff4e6
-    style EXTRACT fill:#e1f5ff
-    style EMISSION fill:#c8e6c9
-    style TR fill:#c8e6c9
-    style LOG fill:#fce4ec
-    style API fill:#fff4e6
-```
+- **RDF Parser** → **Graph**: Populates the in-memory graph
+- **Graph** ← **Query Executor**: Queries the graph
+- **Spec Validator** → **RDF Parser**: Validates parsed input
+- **Extraction** → **Query Executor**: Uses SPARQL for data extraction
+- **Emission** → **Extraction**: Consumes extracted data
+- **Template Registry** → **Emission**: Provides template libraries
+- **Logging** → **API Framework**: Instruments all operations
 
 ---
 

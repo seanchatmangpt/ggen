@@ -1,0 +1,47 @@
+[1m[33mwarning[0m[1m:[0m ggen@3.4.1: Discovered 335 templates
+[1m[32m   Compiling[0m ggen v3.4.1 (/Users/sac/ggen)
+[0m[1m[33mwarning[0m[0m[1m: fields `name`, `command`, `args`, and `script` are never read[0m
+[0m  [0m[0m[1m[38;5;12m--> [0m[0mtests/aci/mod.rs:14:9[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m13[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mpub struct CargoMakeTarget {[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m            [0m[0m[1m[38;5;12m---------------[0m[0m [0m[0m[1m[38;5;12mfields in this struct[0m
+[0m[1m[38;5;12m14[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pub name: String,[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m         [0m[0m[1m[33m^^^^[0m
+[0m[1m[38;5;12m15[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pub description: Option<String>,[0m
+[0m[1m[38;5;12m16[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pub command: Option<String>,[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m         [0m[0m[1m[33m^^^^^^^[0m
+[0m[1m[38;5;12m17[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pub args: Vec<String>,[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m         [0m[0m[1m[33m^^^^[0m
+[0m[1m[38;5;12m18[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    pub script: Option<String>,[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m         [0m[0m[1m[33m^^^^^^[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m   [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `CargoMakeTarget` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis[0m
+[0m   [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(dead_code)]` on by default[0m
+
+[0m[1m[33mwarning[0m[0m[1m: function `list_cargo_make_targets` is never used[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mtests/aci/mod.rs:169:8[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m169[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mpub fn list_cargo_make_targets() -> Vec<String> {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m        [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m:[0m `ggen` (test "tool_selection_tests") generated 2 warnings
+[1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1.87s
+[1m[32m     Running[0m tests/aci/tool_selection_tests.rs (target/debug/deps/tool_selection_tests-4001ed55b8ca8b62)
+
+running 13 tests
+test aci_utils::tests::test_component_check_complete ... ok
+test aci_utils::tests::test_component_check_incomplete ... ok
+test aci_utils::tests::test_validate_comprehensive_description ... ok
+test aci_utils::tests::test_validate_sparse_description ... ok
+test test_agent_selects_check_for_compilation ... ok
+test test_agent_selects_fmt_for_formatting ... ok
+test test_andon_signal_interpretation ... ok
+test test_agent_selects_ci_for_comprehensive_validation ... ok
+test test_agent_selects_clean_for_artifact_removal ... ok
+test test_all_targets_have_comprehensive_descriptions ... ok
+test test_agent_selects_lint_for_quality_checks ... ok
+test test_agent_distinguishes_test_vs_test_unit ... ok
+test test_overall_tool_selection_accuracy ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

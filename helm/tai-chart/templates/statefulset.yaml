@@ -1,0 +1,76 @@
+{{- if .Values.cache.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.cache.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.cache.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+spec:
+  serviceName: {{ .Values.cache.name }}
+  replicas: {{ .Values.cache.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.cache.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.cache.name }}
+    spec:
+      {{- if .Values.affinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{ .Values.affinity.podAntiAffinity }}DuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.cache.name }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      containers:
+      - name: {{ .Values.cache.name }}
+        image: "{{ .Values.cache.image.repository }}:{{ .Values.cache.image.tag }}"
+        imagePullPolicy: {{ .Values.cache.image.pullPolicy }}
+        ports:
+        - name: redis
+          containerPort: {{ .Values.cache.port }}
+          protocol: TCP
+        resources:
+          requests:
+            cpu: {{ .Values.cache.resources.requests.cpu }}
+            memory: {{ .Values.cache.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.cache.resources.limits.cpu }}
+            memory: {{ .Values.cache.resources.limits.memory }}
+        livenessProbe:
+          tcpSocket:
+            port: redis
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+              - redis-cli
+              - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      terminationGracePeriodSeconds: 30
+  {{- if .Values.cache.storage.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: {{ .Values.cache.storage.storageClassName }}
+      resources:
+        requests:
+          storage: {{ .Values.cache.storage.size }}
+  {{- end }}
+{{- end }}

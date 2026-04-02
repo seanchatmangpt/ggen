@@ -1,0 +1,264 @@
+@startuml chatman-cli-architecture
+!theme plain
+
+title chatman-cli Architecture - Three-Tier RDF-Driven Knowledge Hook System
+
+package "RDF Ontology Layer" {
+  [ontology.ttl] as ont
+  [SPARQL Queries] as sparql
+  [Oxigraph Store] as store
+  [Van der Aalst\nPatterns (43)] as patterns
+
+  note right of ont
+    @prefix chatman: <http://chatman.io/ontology#>
+    @prefix knhk: <http://chatman.io/knhk#>
+    @prefix wf: <http://chatman.io/workflow#>
+
+    Defines:
+    - Knowledge Hook types
+    - Workflow patterns
+    - Guard constraints
+    - Measurement functions
+  end note
+}
+
+package "CLI Layer (clap-noun-verb)" {
+  [main.rs] as main
+
+  package "4 Nouns" {
+    [hook (noun)] as hook_noun
+    [workflow (noun)] as wf_noun
+    [equation (noun)] as eq_noun
+    [lockchain (noun)] as lc_noun
+  }
+
+  package "~20 Verbs" {
+    [hook: create, execute,\nvalidate, list] as hook_verbs
+    [workflow: run, patterns,\nanalyze, export] as wf_verbs
+    [equation: measure,\noptimize, drift, bounds] as eq_verbs
+    [lockchain: init, verify,\naudit, export] as lc_verbs
+  }
+
+  note right of hook_verbs
+    Example verb:
+    #[verb]
+    fn execute_hook(
+      trigger: String,
+      check: String,
+      act: String
+    ) -> Result<Receipt>
+  end note
+}
+
+package "Knowledge Hook Engine" {
+  [Trigger Parser] as trigger
+  [Check Validator] as check
+  [Act Executor] as act
+  [Receipt Generator] as receipt
+
+  note right of trigger
+    Trigger types:
+    - Time-based (cron, interval)
+    - Event-based (state change)
+    - Condition-based (SPARQL)
+    - Manual (CLI invocation)
+  end note
+}
+
+package "KNHK Executor (Three-Tier)" {
+  package "Hot Path (C, ≤2ns)" {
+    [Rule Checker] as hot_rules
+    [Budget Validator] as hot_budget
+    [Type Safety] as hot_types
+    [Literal Guards] as hot_guards
+
+    note right of hot_rules
+      Hot-path rules:
+      - Integer bounds
+      - Boolean literals
+      - Enum validation
+      - Pointer safety
+
+      Target: ≤2ns latency
+    end note
+  }
+
+  package "Warm Path (Rust, ≤500ms)" {
+    [Pattern Matcher] as warm_pattern
+    [Resource Allocator] as warm_resource
+    [State Machine] as warm_state
+    [Orchestrator] as warm_orchestrator
+
+    note right of warm_pattern
+      43 Van der Aalst patterns:
+      - Sequence, Parallel, Choice
+      - Loop, Cancellation, Milestone
+      - Deferred Choice, etc.
+
+      Target: ≤500ms latency
+    end note
+  }
+
+  package "Cold Path (SPARQL, ≤500ms)" {
+    [Complex Queries] as cold_query
+    [Provenance Tracker] as cold_prov
+    [Reasoning Engine] as cold_reason
+    [Historical Analysis] as cold_history
+
+    note right of cold_query
+      Cold-path queries:
+      - Multi-hop reasoning
+      - Historical provenance
+      - Cross-entity patterns
+      - Complex aggregations
+
+      Target: ≤500ms latency
+    end note
+  }
+}
+
+package "Lockchain Module" {
+  [SHA3-256 Hasher] as hasher
+  [Merkle Tree Builder] as merkle
+  [Chain Manager] as chain
+  [Provenance Tracker] as prov
+
+  note right of merkle
+    Merkle tree structure:
+    root = H(H(obs) || H(action) || H(µ))
+
+    Properties:
+    - O(log n) verification
+    - Immutable chain
+    - Cryptographic proofs
+  end note
+}
+
+package "Workflow Pattern Engine" {
+  [Basic Patterns\n(1-6)] as basic
+  [Advanced Branching\n(7-15)] as branching
+  [Synchronization\n(16-29)] as sync
+  [Cancellation\n(30-43)] as cancel
+
+  note right of basic
+    Pattern categories:
+    1-6: Sequence, parallel, choice
+    7-15: Multi-choice, loops
+    16-29: Sync, milestones
+    30-43: Cancel, deferred choice
+  end note
+}
+
+package "Guard Enforcement (µ ⊣ H)" {
+  [Legal Guard] as legal
+  [Budget Guard] as budget
+  [Chronology Guard] as chrono
+  [Causality Guard] as causal
+
+  note right of legal
+    Adjunction µ ⊣ H ensures:
+    - µ is right adjoint to H
+    - Guards are monotonic
+    - Actions are bounded
+    - Proofs are verifiable
+  end note
+}
+
+' RDF → CLI flow
+ont --> sparql : defines structure
+sparql --> store : queries
+store --> main : loads ontology
+
+' CLI → Nouns → Verbs
+main --> hook_noun : route
+main --> wf_noun : route
+main --> eq_noun : route
+main --> lc_noun : route
+
+hook_noun --> hook_verbs : dispatch
+wf_noun --> wf_verbs : dispatch
+eq_noun --> eq_verbs : dispatch
+lc_noun --> lc_verbs : dispatch
+
+' Hook execution flow
+hook_verbs --> trigger : execute
+trigger --> check : validate
+check --> act : run action
+act --> receipt : generate
+
+' KNHK three-tier flow
+act --> hot_rules : try hot-path first
+hot_rules --> hot_budget : check
+hot_budget --> hot_types : verify
+hot_types --> hot_guards : enforce
+
+hot_guards --> receipt : fast receipt (≤2ns)
+hot_guards ..> warm_pattern : fallback if complex
+
+warm_pattern --> warm_resource : allocate
+warm_resource --> warm_state : transition
+warm_state --> warm_orchestrator : coordinate
+
+warm_orchestrator --> receipt : standard receipt (≤500ms)
+warm_orchestrator ..> cold_query : fallback if historical
+
+cold_query --> cold_prov : trace
+cold_prov --> cold_reason : infer
+cold_reason --> cold_history : analyze
+
+cold_history --> receipt : complex receipt (≤500ms)
+
+' Lockchain integration
+receipt --> hasher : SHA3-256
+hasher --> merkle : build tree
+merkle --> chain : link receipt
+chain --> prov : track provenance
+
+' Workflow patterns
+wf_verbs --> basic : execute pattern
+basic --> branching : complex flow
+branching --> sync : synchronize
+sync --> cancel : handle cancellation
+
+' Guard enforcement
+check --> legal : verify legal
+legal --> budget : verify budget
+budget --> chrono : verify chronology
+chrono --> causal : verify causality
+
+causal --> act : guards passed
+causal ..> receipt : guards failed (reject)
+
+' Pattern → KNHK integration
+patterns --> warm_pattern : define patterns
+patterns --> cold_query : complex patterns
+
+note bottom of ont
+  Three-tier architecture rationale:
+
+  Hot Path (C, ≤2ns):
+  - Simple rule checks (80% of cases)
+  - No heap allocation
+  - Inline assembly for critical paths
+  - Literal guards only
+
+  Warm Path (Rust, ≤500ms):
+  - Pattern matching (43 Van der Aalst)
+  - Resource orchestration
+  - State machine transitions
+  - Memory-safe allocation
+
+  Cold Path (SPARQL, ≤500ms):
+  - Complex reasoning (5% of cases)
+  - Historical provenance
+  - Multi-hop queries
+  - Oxigraph optimization
+
+  SLO enforcement:
+  - Hot: 95th %ile ≤2ns
+  - Warm: 95th %ile ≤500ms
+  - Cold: 95th %ile ≤500ms
+  - Drift: ≤0.5% bounded regeneration
+end note
+
+@enduml

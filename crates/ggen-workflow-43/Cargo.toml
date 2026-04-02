@@ -1,0 +1,27 @@
+[package]
+name = "ggen-workflow-43"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Complete implementation of van der Aalst's 43 workflow patterns"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+futures = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+dashmap = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tokio = { workspace = true, features = ["test-util", "macros", "time"] }
+tracing-subscriber = { workspace = true }
+
+[lints]
+workspace = true

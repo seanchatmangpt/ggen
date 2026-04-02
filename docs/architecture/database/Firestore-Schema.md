@@ -30,24 +30,14 @@ Complete Firestore collections structure for TAI system.
 
 ## Collections Overview
 
-```mermaid
-flowchart TD
-    subgraph FS["Firestore Database"]
-        POL["policies/<br/>Policy documents<br/>(versioned, permanent)"]
-        SIG["signals/<br/>Control signals<br/>(time-series, 7-day TTL)"]
-        ACT["actions/<br/>Coordination actions<br/>(30-day TTL)"]
-        CS["coordination_status/<br/>Service state<br/>(5-10 docs, updated 10s)"]
-        SNAP["snapshots/<br/>Event source snapshots<br/>(point lookups)"]
-        AUDIT["audit_logs/<br/>Immutable audit trail<br/>(7-year retention, append-only)"]
-    end
-
-    style FS fill:#f5f5f5
-    style POL fill:#e1f5ff
-    style SIG fill:#fff4e6
-    style ACT fill:#c8e6c9
-    style CS fill:#fce4ec
-    style SNAP fill:#e1f5ff
-    style AUDIT fill:#ffcdd2
+```
+firestore/
+├── policies/           # Policy documents (versioned)
+├── signals/            # Control signals (time-series)
+├── actions/            # Coordination actions
+├── coordination_status/# Service coordination state
+├── snapshots/          # Event source snapshots
+└── audit_logs/         # Immutable audit trail
 ```
 
 ## Collections Detail
@@ -248,31 +238,25 @@ flowchart TD
 
 ## Entity Relationships
 
-```mermaid
-flowchart TD
-    POL["policies<br/>(Policy documents)"]
-    SIG["signals<br/>(Control signals)"]
-    ACT["actions<br/>(Coordination actions)"]
-    CS["coordination_status<br/>(Service state)"]
-    SNAP["snapshots/<br/>(Event source)"]
-    AUDIT["audit_logs<br/>(Immutable trail)"]
+```
+policies
+  ├── Event: PolicyProposed
+  │     ├── Snapshot: snapshots/{policy_id}
+  │     └── Audit: audit_logs/{event_id}
+  │
+  ├── Event: PolicyEnforced
+  │     ├── Action: actions/{action_id}
+  │     └── Audit: audit_logs/{event_id}
+  │
+  └── Related: signals/{signal_id}
+        └── Coordination: coordination_status/{service}
 
-    POL -->|"Event: PolicyProposed"| SNAP
-    POL -->|"Event: PolicyProposed"| AUDIT
-    POL -->|"Event: PolicyEnforced"| ACT
-    POL -->|"Event: PolicyEnforced"| AUDIT
-    POL -.->|"Related"| SIG
-    SIG -->|"Event: SignalEmitted"| AUDIT
-    SIG -->|"Processing"| ACT
-    ACT -.->|"Coordination"| CS
-    SIG -.->|"Coordination"| CS
-
-    style POL fill:#e1f5ff
-    style SIG fill:#fff4e6
-    style ACT fill:#c8e6c9
-    style CS fill:#fce4ec
-    style SNAP fill:#e1f5ff
-    style AUDIT fill:#ffcdd2
+signals
+  ├── Event: SignalEmitted
+  │     └── Audit: audit_logs/{event_id}
+  │
+  └── Processing: actions/{action_id}
+        └── Coordination: coordination_status/{service}
 ```
 
 ## Storage Estimation

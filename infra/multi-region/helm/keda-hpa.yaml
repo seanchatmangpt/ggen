@@ -1,0 +1,362 @@
+###############################################################################
+# KEDA Horizontal Pod Autoscaling Configuration
+# Provides intelligent, metrics-driven autoscaling across all regions
+###############################################################################
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-cpu
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 10
+  pollingInterval: 15
+  cooldownPeriod: 60
+
+  triggers:
+  # CPU Utilization Trigger
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "70"  # Scale up when CPU > 70%
+      thresholdMetricValue: "70"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-memory
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 10
+  pollingInterval: 15
+  cooldownPeriod: 60
+
+  triggers:
+  # Memory Utilization Trigger
+  - type: memory
+    metricType: Utilization
+    metadata:
+      value: "80"  # Scale up when memory > 80%
+      thresholdMetricValue: "80"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-requests
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 20
+  pollingInterval: 30
+  cooldownPeriod: 120
+
+  triggers:
+  # HTTP Request Rate Trigger
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus:9090
+      metricName: http_request_rate
+      query: |
+        sum(rate(http_requests_total{job="ggen-api"}[1m]))
+      threshold: "1000"  # Scale up at 1000 req/sec
+      thresholdMetricValue: "1000"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-latency
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 15
+  pollingInterval: 30
+  cooldownPeriod: 60
+  fallback:
+    failureThreshold: 3
+    replicas: 5  # Fallback to 5 replicas if metrics unavailable
+
+  triggers:
+  # Latency-based Trigger (p95 latency)
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus:9090
+      metricName: http_latency_p95
+      query: |
+        histogram_quantile(0.95,
+          sum(rate(http_request_duration_seconds_bucket{job="ggen-api"}[1m])) by (le)
+        )
+      threshold: "200"  # Scale up if p95 latency > 200ms
+      thresholdMetricValue: "200"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-firestore
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 10
+  pollingInterval: 60
+  cooldownPeriod: 120
+
+  triggers:
+  # Database Read Operations Trigger
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus:9090
+      metricName: firestore_read_operations
+      query: |
+        sum(rate(firestore_reads_total[5m]))
+      threshold: "100000"  # Scale at 100k reads per 5 minutes
+      thresholdMetricValue: "100000"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-redis
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 8
+  pollingInterval: 30
+  cooldownPeriod: 60
+
+  triggers:
+  # Redis Cache Eviction Rate Trigger
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus:9090
+      metricName: redis_evictions
+      query: |
+        rate(redis_evicted_keys_total[5m])
+      threshold: "100"  # Scale if > 100 evictions/sec
+      thresholdMetricValue: "100"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-queue
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  pollingInterval: 30
+  cooldownPeriod: 120
+
+  triggers:
+  # Job Queue Depth Trigger
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus:9090
+      metricName: job_queue_depth
+      query: |
+        ggen_job_queue_depth
+      threshold: "50"  # Scale up if queue has 50+ jobs
+      thresholdMetricValue: "50"
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-api-scheduled
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 4
+
+  triggers:
+  # Time-based Scaling (Off-peak hours)
+  - type: cron
+    metadata:
+      timezone: UTC
+      start: "0 18 * * 5-6"      # 6 PM Friday to Sunday 6 AM
+      end: "0 6 * * 1-5"          # Monday-Friday 6 AM
+      desiredReplicas: "2"        # Reduce to 2 replicas off-peak
+      scalingValue: "2"
+
+  # Business hours scaling (Mon-Fri 9 AM - 5 PM)
+  - type: cron
+    metadata:
+      timezone: America/New_York
+      start: "0 9 * * 1-5"
+      end: "17 17 * * 1-5"
+      desiredReplicas: "5"
+      scalingValue: "5"
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-keda-config
+  namespace: ggen
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+    # Kubernetes metrics
+    - job_name: 'kubernetes-pods'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - ggen
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+
+    # Application metrics
+    - job_name: 'ggen-api'
+      static_configs:
+      - targets: ['localhost:9090']
+
+    # Firestore metrics (custom)
+    - job_name: 'firestore'
+      static_configs:
+      - targets: ['cloud-metrics-exporter:9100']
+
+    # Redis metrics
+    - job_name: 'redis'
+      static_configs:
+      - targets: ['redis-exporter:9121']
+---
+
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: ggen-marketplace-api
+  namespace: ggen
+spec:
+  selector:
+    matchLabels:
+      app: ggen-marketplace-api
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+---
+
+# Alert Rules for Autoscaling Issues
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keda-alert-rules
+  namespace: ggen
+data:
+  keda-rules.yml: |
+    groups:
+    - name: keda_alerts
+      interval: 30s
+      rules:
+      # Alert if we're at max replicas for sustained period
+      - alert: MaxReplicasReached
+        expr: |
+          keda_scaler_active == 1
+          and
+          count(keda_scaler_active == 1) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Multiple scalers at max replicas"
+          description: "Pods may need manual scaling or resource limits adjusted"
+
+      # Alert if scaling fails
+      - alert: KEDAScalingFailure
+        expr: keda_scaler_errors_total > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "KEDA scaling error detected"
+          description: "Check KEDA logs for metric collection errors"
+
+      # Alert if Prometheus metrics unavailable
+      - alert: KEDAMetricsUnavailable
+        expr: up{job="prometheus"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "KEDA metrics source unavailable"
+          description: "Fallback scaling may be in effect"
+---
+
+# Example KEDA Trigger with Firestore Integration
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: gcp-credentials
+  namespace: ggen
+spec:
+  secretTargetRef:
+  - parameter: GoogleApplicationCredentials
+    name: gcp-service-account
+    key: key.json
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ggen-marketplace-firestore-advanced
+  namespace: ggen
+spec:
+  scaleTargetRef:
+    name: ggen-marketplace-api
+  minReplicaCount: 2
+  maxReplicaCount: 20
+  pollingInterval: 45
+  cooldownPeriod: 300
+
+  triggers:
+  # Firestore replication lag trigger
+  - type: gcp-stackdriver
+    metadata:
+      projectId: ggen-marketplace-prod
+      filter: 'metric.type="custom.googleapis.com/firestore/replication_lag" AND resource.label.region!="us-central1"'
+      targetValue: "10000"  # milliseconds
+      aggregation:
+        alignmentPeriod: 60s
+        perSeriesAligner: ALIGN_MAX
+    authenticationRef:
+      name: gcp-credentials
+
+  fallback:
+    failureThreshold: 5
+    replicas: 3  # Use 3 replicas if metrics unavailable

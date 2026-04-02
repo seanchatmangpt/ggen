@@ -1,0 +1,68 @@
+[package]
+name = "tai-testing"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Production hardening & resilience testing framework for ggen - chaos engineering, property-based testing, compliance validation, load testing"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+
+[dependencies]
+# Core dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+# Testing and validation
+proptest = { workspace = true }
+chicago-tdd-tools = { workspace = true }
+
+# Logging and tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+log = { workspace = true }
+
+# Utilities
+rayon = { workspace = true }
+regex = { workspace = true }
+fastrand = "2.3"
+
+# HTTP for load testing
+reqwest = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+
+# Metrics and monitoring
+once_cell = { workspace = true }
+
+# Local workspace crates
+ggen-utils = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+criterion = { version = "0.7", features = ["html_reports"] }
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+
+[[bench]]
+name = "chaos_engineering_benchmarks"
+harness = false
+
+[[bench]]
+name = "property_test_performance"
+harness = false
+
+[[bench]]
+name = "load_test_performance"
+harness = false
+
+[lib]
+path = "src/lib.rs"

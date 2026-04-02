@@ -1,0 +1,13 @@
+{
+  "name": "test-snapshot",
+  "created_at": "2025-10-10T06:59:04.924314Z",
+  "graph": {
+    "hash": "729aacfdd2fa8581",
+    "triple_count": 0,
+    "sources": [],
+    "loaded_at": "2025-10-10T06:59:04.924329Z"
+  },
+  "files": [],
+  "templates": [],
+  "metadata": {}
+}

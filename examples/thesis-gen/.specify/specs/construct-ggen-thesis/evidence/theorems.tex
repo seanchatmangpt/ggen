@@ -1,0 +1,70 @@
+
+\\begin{theorem}[Semantic Fidelity]
+
+\label{def:fidelity}
+Let $G: \\mathcal{O} \\rightarrow \\mathcal{C}$ be a code generator. The semantic fidelity of $G$ is defined as $\\mathcal{F}(G) = \\frac{I(O; G(O))}{H(O)}$ where $I(O; G(O))$ is the mutual information between the ontology and generated code.
+\\end{theorem}
+
+
+
+\\begin{theorem}[Determinism Preservation]
+
+\label{lem:determinism}
+If generator $G$ is deterministic and ontology $O$ has entropy $H(O)$, then the conditional entropy $H(G(O)|O) = 0$.
+\\end{theorem}
+
+
+\\begin{proof}
+By definition, a deterministic function maps each input to exactly one output. Therefore, given $O$, there is no uncertainty about $G(O)$. Hence $H(G(O)|O) = 0$.
+\\end{proof}
+
+
+\\begin{theorem}[Zero-Drift Theorem]
+
+\label{thm:zero-drift}
+Let $G$ be a deterministic generator and $o \\in \\mathcal{O}$ be a complete specification. Then the generated code $G(o)$ is consistent with $o$ by construction. There exists no specification-implementation drift.
+\\end{theorem}
+
+
+\\begin{proof}
+Assume for contradiction that drift exists between $o$ and $G(o)$. This means some property $p$ specified in $o$ is not reflected in $G(o)$. But $G$ is a function of $o$ alone; it cannot introduce or omit information not determined by $o$. If $p$ is in $o$ and $G$ is correct, then $p$ must be in $G(o)$. Contradiction. Therefore, no drift exists.
+\\end{proof}
+
+
+\\begin{theorem}[CONSTRUCT Completeness]
+
+\label{thm:construct-completeness}
+Let $\\phi$ be a graph enrichment defined by first-order logic formulas over an RDF graph $G$. Then there exists a finite sequence of CONSTRUCT queries $Q_1, Q_2, \\ldots, Q_n$ such that sequential application produces the enriched graph: $\\phi(G) = Q_n(Q_{n-1}(\\cdots Q_1(G)))$.
+\\end{theorem}
+
+
+\\begin{proof}
+We prove by induction on the structure of $\\phi$. Base case: If $\\phi$ derives a single triple from a conjunctive pattern, it is expressible as one CONSTRUCT query. Inductive case: If $\\phi = \\phi_1 \\land \\phi_2$, then by hypothesis there exist sequences $Q^1_1, \\ldots, Q^1_k$ for $\\phi_1$ and $Q^2_1, \\ldots, Q^2_m$ for $\\phi_2$. The concatenated sequence $Q^1_1, \\ldots, Q^1_k, Q^2_1, \\ldots, Q^2_m$ computes $\\phi$. For disjunction $\\phi_1 \\lor \\phi_2$, a single CONSTRUCT with UNION combines both patterns. Therefore any first-order enrichment is CONSTRUCT-expressible.
+\\end{proof}
+
+
+\\begin{theorem}[State Machine Completeness]
+
+\label{lem:sm-complete}
+An ASTRO-generated state machine is total: for every state $s$ and event $e$, the transition function $\\delta(s, e)$ is defined.
+\\end{theorem}
+
+
+\\begin{proof}
+The generation template enumerates all (state, event) pairs and produces explicit handling for each. If the ontology omits a transition, the generator produces a rejection handler. Therefore $\\delta$ is total.
+\\end{proof}
+
+
+\\begin{theorem}[ASTRO Safety]
+
+\label{thm:astro-safety}
+Let $M$ be an ASTRO-generated state machine. If the ontology specifies safety property $\\phi$, then $M \\models \\phi$.
+\\end{theorem}
+
+
+\\begin{proof}
+We construct a simulation relation $R$ between ontology transitions and generated code transitions. By induction on execution length, we show that any execution of $M$ corresponds to a valid ontology trace. Since the ontology satisfies $\\phi$ and $R$ preserves $\\phi$, we conclude $M \\models \\phi$.
+\\end{proof}
+
+
+

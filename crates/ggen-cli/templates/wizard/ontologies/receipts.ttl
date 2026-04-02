@@ -1,6 +1,6 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/ontology#> .
 @prefix receipt: <https://ggen.io/ontology/receipt#> .
 
 # Receipt Schema Ontology

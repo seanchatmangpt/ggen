@@ -11,9 +11,9 @@ async fn main() {
             std::process::exit(0);
         }
         Err(e) => {
-            // Error occurred - print error and exit with semantic code
+            // Error occurred - print error and exit with code 1
             eprintln!("ERROR: {}", e);
-            std::process::exit(e.exit_code());
+            std::process::exit(1);
         }
     }
 }

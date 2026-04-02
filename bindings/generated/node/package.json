@@ -1,0 +1,41 @@
+{
+  "name": "ggen-bindings",
+  "version": "5.0.1",
+  "description": "Multi-language bindings for ggen code generator - Node.js ESM",
+  "type": "module",
+  "main": "./index.mjs",
+  "types": "./index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "types": "./index.d.mts"
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "ggen",
+    "code-generation",
+    "rdf",
+    "ontology",
+    "sparql",
+    "bindings",
+    "neon"
+  ],
+  "author": "ggen contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanchatmangpt/ggen"
+  },
+  "files": [
+    "index.mjs",
+    "index.d.mts",
+    "README.md"
+  ],
+  "peerDependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

@@ -2,9 +2,6 @@
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
 Stack: Rust 1.91.1 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 30 crates | 87% test coverage
-**Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — verified C4, real sync flow, stub registry, error map. Load this before modifying any code.
-
-**Recent Audit (2026-04-01):** `docs/crate-audits/AUDIT_DASHBOARD.md` — workspace health assessment with 54 stubs classified, 8,900 lines dead code identified, 4 P0 blockers prioritized.
 
 ## Rules (see .claude/rules/ for details)
 

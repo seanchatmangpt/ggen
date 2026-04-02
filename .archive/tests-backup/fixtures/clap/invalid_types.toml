@@ -1,0 +1,10 @@
+# Invalid types in configuration
+
+[project]
+name = "test-project"
+version = 123  # Should be string, not number
+enabled = "yes"  # Should be boolean, not string
+
+[template]
+cache_ttl = "3600"  # Should be number, not string
+output_dir = 42  # Should be string, not number

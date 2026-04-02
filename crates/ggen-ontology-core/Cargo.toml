@@ -47,3 +47,12 @@ sparql = []
 name = "ontology_integration"
 path = "tests/ontology_integration.rs"
 
+[[bench]]
+name = "ontology_benchmarks"
+path = "benches/ontology_benchmarks.rs"
+harness = false
+
+[[bench]]
+name = "sparql_query_benchmarks"
+path = "benches/sparql_query_benchmarks.rs"
+harness = false

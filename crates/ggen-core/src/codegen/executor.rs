@@ -96,9 +96,6 @@ pub struct SyncOptions {
     /// If None, uses default TODO stub generator
     /// Note: Box<dyn LlmService> avoids cyclic dependency with ggen-ai
     pub llm_service: Option<Box<dyn LlmService>>,
-
-    /// Timeout for sync operations in milliseconds (None = no timeout)
-    pub timeout_ms: Option<u64>,
 }
 
 impl Default for SyncOptions {
@@ -119,7 +116,6 @@ impl Default for SyncOptions {
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
-            timeout_ms: None,
         }
     }
 }
@@ -142,7 +138,6 @@ impl std::fmt::Debug for SyncOptions {
             .field("a2a_stage", &self.a2a_stage)
             .field("ontology_path", &self.ontology_path)
             .field("llm_service", &"<dyn LlmService>")
-            .field("timeout_ms", &self.timeout_ms)
             .finish()
     }
 }
@@ -164,7 +159,6 @@ impl Clone for SyncOptions {
             audit: self.audit,
             a2a_stage: self.a2a_stage.clone(),
             ontology_path: self.ontology_path.clone(),
-            timeout_ms: self.timeout_ms,
             llm_service: None, // trait objects cannot be cloned
         }
     }

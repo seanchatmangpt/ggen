@@ -1,0 +1,162 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sla: <http://example.com/ontology/sla/> .
+@prefix : <http://example.com/ontology/sla/> .
+
+# Service Level Agreement Ontology
+:ServiceLevelAgreement rdf:type owl:Class ;
+  rdfs:label "Service Level Agreement" ;
+  rdfs:comment "Contract defining service level commitments" .
+
+:AvailabilityMetric rdf:type owl:Class ;
+  rdfs:label "Availability Metric" ;
+  rdfs:comment "Measurement of service availability" .
+
+:ResponseTime rdf:type owl:Class ;
+  rdfs:label "Response Time" ;
+  rdfs:comment "Metric for response time performance" .
+
+:Throughput rdf:type owl:Class ;
+  rdfs:label "Throughput" ;
+  rdfs:comment "Measurement of service throughput" .
+
+:SLOTarget rdf:type owl:Class ;
+  rdfs:label "SLO Target" ;
+  rdfs:comment "Specific SLO target value" .
+
+:AlertThreshold rdf:type owl:Class ;
+  rdfs:label "Alert Threshold" ;
+  rdfs:comment "Threshold for alerting on metric breach" .
+
+:ServiceTier rdf:type owl:Class ;
+  rdfs:label "Service Tier" ;
+  rdfs:comment "Classification of service tier level" .
+
+# Properties
+:hasAvailabilityMetric rdf:type owl:ObjectProperty ;
+  rdfs:domain :ServiceLevelAgreement ;
+  rdfs:range :AvailabilityMetric .
+
+:hasResponseTimeTarget rdf:type owl:ObjectProperty ;
+  rdfs:domain :ServiceLevelAgreement ;
+  rdfs:range :ResponseTime .
+
+:percentageValue rdf:type owl:DatatypeProperty ;
+  rdfs:label "Percentage Value" ;
+  rdfs:domain :AvailabilityMetric ;
+  rdfs:range xsd:float .
+
+:milliseconds rdf:type owl:DatatypeProperty ;
+  rdfs:label "Milliseconds" ;
+  rdfs:domain :ResponseTime ;
+  rdfs:range xsd:integer .
+
+:requestsPerSecond rdf:type owl:DatatypeProperty ;
+  rdfs:label "Requests Per Second" ;
+  rdfs:domain :Throughput ;
+  rdfs:range xsd:integer .
+
+:hasSLOTarget rdf:type owl:ObjectProperty ;
+  rdfs:domain :ServiceLevelAgreement ;
+  rdfs:range :SLOTarget .
+
+:hasAlertThreshold rdf:type owl:ObjectProperty ;
+  rdfs:domain :ServiceLevelAgreement ;
+  rdfs:range :AlertThreshold .
+
+:serviceTier rdf:type owl:ObjectProperty ;
+  rdfs:domain :ServiceLevelAgreement ;
+  rdfs:range :ServiceTier .
+
+# Instances - Critical Service (99.99%)
+:CriticalService rdf:type :ServiceLevelAgreement ;
+  rdfs:label "Critical Service (99.99%)" ;
+  rdfs:comment "Enterprise-grade service with highest availability" ;
+  :hasAvailabilityMetric :Critical99_99 ;
+  :hasResponseTimeTarget :ResponseTime100ms ;
+  :hasSLOTarget :CriticalSLO ;
+  :serviceTier :EnterpriseTier .
+
+:Critical99_99 rdf:type :AvailabilityMetric ;
+  rdfs:label "99.99% Availability" ;
+  :percentageValue 99.99 .
+
+:ResponseTime100ms rdf:type :ResponseTime ;
+  rdfs:label "100ms Response Time" ;
+  :milliseconds 100 .
+
+:CriticalSLO rdf:type :SLOTarget ;
+  rdfs:label "Critical SLO" ;
+  rdfs:comment "Target for critical services" .
+
+:EnterpriseTier rdf:type :ServiceTier ;
+  rdfs:label "Enterprise Tier" .
+
+# Instances - High Availability (99.9%)
+:HighAvailabilityService rdf:type :ServiceLevelAgreement ;
+  rdfs:label "High Availability Service (99.9%)" ;
+  rdfs:comment "Production-grade service with high availability" ;
+  :hasAvailabilityMetric :HighAvail99_9 ;
+  :hasResponseTimeTarget :ResponseTime500ms ;
+  :hasSLOTarget :ProductionSLO ;
+  :serviceTier :ProductionTier .
+
+:HighAvail99_9 rdf:type :AvailabilityMetric ;
+  rdfs:label "99.9% Availability" ;
+  :percentageValue 99.9 .
+
+:ResponseTime500ms rdf:type :ResponseTime ;
+  rdfs:label "500ms Response Time" ;
+  :milliseconds 500 .
+
+:ProductionSLO rdf:type :SLOTarget ;
+  rdfs:label "Production SLO" .
+
+:ProductionTier rdf:type :ServiceTier ;
+  rdfs:label "Production Tier" .
+
+# Instances - Standard Service (99%)
+:StandardService rdf:type :ServiceLevelAgreement ;
+  rdfs:label "Standard Service (99%)" ;
+  rdfs:comment "General-purpose service" ;
+  :hasAvailabilityMetric :Standard99 ;
+  :hasResponseTimeTarget :ResponseTime1000ms ;
+  :serviceTier :StandardTier .
+
+:Standard99 rdf:type :AvailabilityMetric ;
+  rdfs:label "99% Availability" ;
+  :percentageValue 99.0 .
+
+:ResponseTime1000ms rdf:type :ResponseTime ;
+  rdfs:label "1000ms Response Time" ;
+  :milliseconds 1000 .
+
+:StandardTier rdf:type :ServiceTier ;
+  rdfs:label "Standard Tier" .
+
+# Additional instances
+:BasicService rdf:type :ServiceLevelAgreement ;
+  rdfs:label "Basic Service (95%)" ;
+  rdfs:comment "Basic service for development" ;
+  :serviceTier :DevelopmentTier .
+
+:DevelopmentTier rdf:type :ServiceTier ;
+  rdfs:label "Development Tier" .
+
+:HighThroughputTarget rdf:type :Throughput ;
+  rdfs:label "High Throughput Target" ;
+  :requestsPerSecond 10000 .
+
+:MediumThroughputTarget rdf:type :Throughput ;
+  rdfs:label "Medium Throughput Target" ;
+  :requestsPerSecond 1000 .
+
+:AlertThresholdWarning rdf:type :AlertThreshold ;
+  rdfs:label "Warning Threshold" ;
+  rdfs:comment "Threshold for warning alerts" .
+
+:AlertThresholdCritical rdf:type :AlertThreshold ;
+  rdfs:label "Critical Threshold" ;
+  rdfs:comment "Threshold for critical alerts" .

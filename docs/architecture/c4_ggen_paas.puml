@@ -1,0 +1,26 @@
+@startuml C1_System_Context
+!define DIRECTION top to bottom
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+title ggen PaaS - System Context Diagram (C1)
+caption Ontology-Driven Code Generation as a Platform Service
+
+Person(user, "Development Team", "Uses ggen PaaS to generate code from RDF specifications")
+Person(admin, "Platform Admin", "Manages ggen PaaS deployment and infrastructure")
+
+System(ggen_paas, "ggen PaaS", "Semantic code generation platform powered by RDF, SPARQL, and Tera templates")
+
+System_Ext(rdf_store, "RDF Store\n(Oxigraph)", "Persistent RDF triple store for specifications")
+System_Ext(git, "Git Repository", "Version control for generated code and specs")
+System_Ext(registry, "Package Registry\n(Cargo, npm)", "Distribution of generated packages")
+System_Ext(ci_cd, "CI/CD Pipeline\n(GitHub Actions)", "Automated testing and deployment")
+
+Rel(user, ggen_paas, "Submits RDF specs and templates")
+Rel(admin, ggen_paas, "Deploys and maintains")
+Rel(ggen_paas, rdf_store, "Stores and queries specifications")
+Rel(ggen_paas, git, "Commits generated code")
+Rel(ggen_paas, registry, "Publishes generated packages")
+Rel(ggen_paas, ci_cd, "Triggers on spec changes")
+
+SHOW_LEGEND()
+@enduml

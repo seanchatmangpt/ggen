@@ -1,0 +1,279 @@
+{#- Test Template - Generate ExUnit tests with AAA pattern -#}
+defmodule {{ module_prefix }}.{{ domain | capitalize }}.{{ entity_name }}Test do
+  {%- if doc_comments %}
+  @moduledoc """
+  Tests for {{ entity_name }}.
+
+  Generated from RDF specification with AAA pattern support.
+  """
+  {%- endif %}
+
+  use {{ module_prefix }}.DataCase
+  alias {{ module_prefix }}.{{ domain | capitalize }}.{{ entity_name }}
+
+  {%- if relationships | any(rel -> rel.kind == "belongs_to" and rel.name == "customer") %}
+  alias {{ module_prefix }}.CRM.Customer
+  {%- endif %}
+
+  describe "{{ entity_name }} resource" do
+    {%- for attr in attributes %}
+      {%- if attr.name == "name" %}
+
+    test "creates {{ entity_name | to_snake }} with valid name" do
+      # Arrange
+      actor = staff_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs()
+
+      # Act
+      {:ok, {{ entity_name | to_snake }}} = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {{ entity_name | to_snake }}.name == attrs.name
+      assert {{ entity_name | to_snake }}.id != nil
+    end
+
+    test "requires name to be present" do
+      # Arrange
+      actor = staff_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:name, "")
+
+      # Act
+      result = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {:error, %Ash.Changeset{errors: errors}} = result
+      assert Enum.any?(errors, fn
+        %{field: :name} -> true
+        _ -> false
+      end), "Expected name validation error"
+    end
+      {%- endif %}
+
+      {%- if attr.type == "decimal" %}
+
+    test "validates {{ attr.name }} is decimal" do
+      # Arrange
+      actor = staff_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:{{ attr.name }}, "invalid")
+
+      # Act
+      result = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {:error, %Ash.Changeset{}} = result
+    end
+      {%- endif %}
+
+      {%- if attr.constraints.min_length or attr.constraints.max_length %}
+
+    test "validates {{ attr.name }} length constraints" do
+      # Arrange
+      actor = staff_actor()
+      short_value = String.duplicate("a", {{ attr.constraints.min_length | default(value=0) }} - 1)
+      long_value = String.duplicate("a", {{ attr.constraints.max_length | default(value=255) }} + 1)
+
+      # Act & Assert - too short
+      attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:{{ attr.name }}, short_value)
+      assert {:error, %Ash.Changeset{}} = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Act & Assert - too long
+      attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:{{ attr.name }}, long_value)
+      assert {:error, %Ash.Changeset{}} = Ash.create({{ entity_name }}, attrs, actor: actor)
+    end
+      {%- endif %}
+
+      {%- if attr.constraints.pattern %}
+
+    test "validates {{ attr.name }} matches pattern" do
+      # Arrange
+      actor = staff_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:{{ attr.name }}, "invalid!@#")
+
+      # Act
+      result = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {:error, %Ash.Changeset{}} = result
+    end
+      {%- endif %}
+
+      {%- if attr.constraints.one_of %}
+
+    test "validates {{ attr.name }} is one of allowed values" do
+      # Arrange
+      actor = staff_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:{{ attr.name }}, :invalid_value)
+
+      # Act
+      result = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {:error, %Ash.Changeset{}} = result
+    end
+      {%- endif %}
+
+    {%- endfor %}
+
+    {%- if relationships | any(rel -> rel.kind == "belongs_to") %}
+
+    test "creates {{ entity_name | to_snake }} with associations" do
+      # Arrange
+      actor = staff_actor()
+      {%- for rel in relationships %}
+        {%- if rel.kind == "belongs_to" %}
+      {{ rel.name }} = Factory.create_{{ rel.name }}!(%{}, actor)
+        {%- endif %}
+      {%- endfor %}
+      attrs = valid_{{ entity_name | to_snake }}_attrs()
+      attrs = Map.merge(attrs, %{
+        {%- for rel in relationships %}
+          {%- if rel.kind == "belongs_to" %}
+        {{ rel.name }}_id: {{ rel.name }}.id,
+          {%- endif %}
+        {%- endfor %}
+      })
+
+      # Act
+      {:ok, {{ entity_name | to_snake }}} = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {{ entity_name | to_snake }}.id != nil
+      {%- for rel in relationships %}
+        {%- if rel.kind == "belongs_to" %}
+      assert {{ entity_name | to_snake }}.{{ rel.name }}_id == {{ rel.name }}.id
+        {%- endif %}
+      {%- endfor %}
+    end
+    {%- endif %}
+
+    test "lists {{ entity_name | to_snake }}s" do
+      # Arrange
+      actor = staff_actor()
+      Enum.each(1..3, fn _ ->
+        Factory.create_{{ entity_name | to_snake }}!(%{}, actor)
+      end)
+
+      # Act
+      {:ok, {{ entity_name | to_snake }}s} = Ash.read({{ entity_name }}, actor: actor, action: :list)
+
+      # Assert
+      assert length({{ entity_name | to_snake }}s) >= 3
+    end
+
+    test "updates {{ entity_name | to_snake }}" do
+      # Arrange
+      actor = staff_actor()
+      {{ entity_name | to_snake }} = Factory.create_{{ entity_name | to_snake }}!(%{}, actor)
+      updated_name = "Updated Name"
+
+      # Act
+      {:ok, updated} = Ash.update({{ entity_name | to_snake }}, %{name: updated_name}, actor: actor)
+
+      # Assert
+      assert updated.name == updated_name
+    end
+
+    test "deletes {{ entity_name | to_snake }}" do
+      # Arrange
+      actor = staff_actor()
+      {{ entity_name | to_snake }} = Factory.create_{{ entity_name | to_snake }}!(%{}, actor)
+
+      # Act
+      :ok = Ash.destroy({{ entity_name | to_snake }}, actor: actor)
+
+      # Assert
+      {:error, :not_found} = Ash.get({{ entity_name }}, {{ entity_name | to_snake }}.id, actor: actor)
+    end
+  end
+
+  describe "authorization" do
+    test "staff can create {{ entity_name | to_snake }}" do
+      # Arrange
+      actor = staff_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs()
+
+      # Act
+      result = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {:ok, _{{ entity_name | to_snake }}} = result
+    end
+
+    test "admin can create {{ entity_name | to_snake }}" do
+      # Arrange
+      actor = admin_actor()
+      attrs = valid_{{ entity_name | to_snake }}_attrs()
+
+      # Act
+      result = Ash.create({{ entity_name }}, attrs, actor: actor)
+
+      # Assert
+      assert {:ok, _{{ entity_name | to_snake }}} = result
+    end
+  end
+
+  describe "property-based tests" do
+    use PropCheck
+    use PropCheck.StateM
+
+    property "name constraints always hold" do
+      forall name <- valid_name_generator() do
+        actor = staff_actor()
+        attrs = valid_{{ entity_name | to_snake }}_attrs() |> Map.put(:name, name)
+
+        case Ash.create({{ entity_name }}, attrs, actor: actor) do
+          {:ok, {{ entity_name | to_snake }}} ->
+            {{ entity_name | to_snake }}.name == name
+
+          {:error, _changeset} ->
+            # Should only fail on invalid names
+            not String.match?(name, ~r/^[\w\s\-\.]+$/)
+        end
+      end
+    end
+
+    defp valid_name_generator() do
+      let components <- list(frequency([
+        {5, utf8(1, 10)},
+        {3, oneof([" ", "-", "."])}
+      ])), do:
+        components
+        |> List.flatten()
+        |> Enum.join()
+        |> String.trim()
+    end
+  end
+
+  # Private helpers
+
+  defp staff_actor, do: {{ module_prefix }}.DataCase.staff_actor()
+  defp admin_actor, do: {{ module_prefix }}.DataCase.admin_actor()
+
+  defp valid_{{ entity_name | to_snake }}_attrs do
+    %{
+      {%- for attr in attributes %}
+        {%- if attr.name == "name" %}
+      name: "Test {{ entity_name }}",
+        {%- elif attr.name == "sku" %}
+      sku: unique_code("{{ entity_name | upper }}"),
+        {%- elif attr.type == "decimal" %}
+      {{ attr.name }}: Decimal.new({{ attr.constraints.min | default(value=0) | plus(value=1) }}),
+        {%- elif attr.type == "atom" %}
+      {{ attr.name }}: {{ attr.constraints.one_of | default(value=":active") | split(pat=",") | first }},
+        {%- elif attr.type == "string" %}
+      {{ attr.name }}: "test value",
+        {%- elif attr.type == "integer" %}
+      {{ attr.name }}: {{ attr.constraints.min | default(value=0) | plus(value=1) }},
+        {%- elif attr.type == "utc_datetime" %}
+      {{ attr.name }}: DateTime.utc_now(),
+        {%- elif attr.type | contains(value="[]") %}
+      {{ attr.name }}: [],
+        {%- endif %}
+      {%- endfor %}
+    }
+  end
+
+  defp unique_code(prefix) do
+    String.downcase(prefix) <> "-" <> Ecto.UUID.generate()
+  end
+end

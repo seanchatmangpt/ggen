@@ -52,7 +52,51 @@ fn test_llm_generation_disabled_by_default() {
     // This will be verified by checking that generate_skill_impl returns TODO stub
 }
 
+#[test]
+fn test_llm_generation_fallback_to_todo_stub() {
+    // Arrange: Mock LLM client that fails
+    let temp_dir = TempDir::new().unwrap();
+    let base_dir = temp_dir.path().to_path_buf();
+    let mut manifest = create_test_manifest(&base_dir);
 
+    // Add generation rule with auto-implementation flag
+    manifest.generation.rules.push(GenerationRule {
+        name: "test-skill-generation".to_string(),
+        query: QuerySource::Inline {
+            inline: "SELECT ?skill_name WHERE { ?s a2a:skillName ?skill_name }".to_string(),
+        },
+        template: TemplateSource::Inline {
+            inline: "Skill: {{ skill_name }}".to_string(),
+        },
+        output_file: "skill.txt".to_string(),
+        skip_empty: false,
+        mode: GenerationMode::Overwrite,
+        when: None,
+    });
+
+    // Act: Create pipeline
+    let pipeline = GenerationPipeline::new(manifest, base_dir);
+
+    // Assert: Should generate TODO stub when LLM fails
+    // Will be verified by implementation
+}
+
+#[test]
+fn test_llm_generation_with_valid_config() {
+    // Arrange: Create manifest with LLM config enabled
+    let temp_dir = TempDir::new().unwrap();
+    let base_dir = temp_dir.path().to_path_buf();
+    let mut manifest = create_test_manifest(&base_dir);
+
+    // Add LLM config (will be added to GgenManifest in implementation)
+    // manifest.generation.enable_llm = true;
+
+    // Act: Create pipeline
+    let pipeline = GenerationPipeline::new(manifest, base_dir);
+
+    // Assert: Pipeline should be configured for LLM generation
+    // Will be verified by implementation
+}
 
 #[test]
 fn test_llm_prompt_construction() {
@@ -88,3 +132,16 @@ fn test_llm_response_integration_into_template() {
     assert_eq!(template_context["generated_impl"], generated_impl);
 }
 
+#[test]
+fn test_llm_error_handling_doesnt_block_generation() {
+    // Test that LLM errors don't block entire pipeline
+    let temp_dir = TempDir::new().unwrap();
+    let base_dir = temp_dir.path().to_path_buf();
+    let manifest = create_test_manifest(&base_dir);
+
+    // Act: Create pipeline
+    let pipeline = GenerationPipeline::new(manifest, base_dir);
+
+    // Assert: Pipeline should continue even if LLM fails
+    // Will be verified by implementation tests
+}

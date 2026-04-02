@@ -1,0 +1,142 @@
+
+# 12. RECORD BINDING **
+
+
+*SPARQL variables become Java record components; extraction becomes construction.*
+
+
+---
+
+## Context
+
+ggen extracts data from RDF via SPARQL SELECT queries. The result of a SELECT query is a list of solution bindings — each binding maps variable names to RDF values (IRIs, literals, blank nodes). These bindings are the bridge between the RDF world and the Java template world.\n\nIn naive code generation systems, bindings are passed to templates as generic Map<String, String>. This works for simple cases but loses type information, requires defensive null checks in templates, and makes it impossible to verify at generation time that all required variables are populated.\n\nJava records as binding containers give type-safe access in templates and make the binding contract explicit. Each SPARQL query corresponds to a Java record that carries exactly the variables the query SELECT statement projects. The Tera template can call binding.className() instead of binding[\
+
+---
+
+❖ ❖ ❖
+
+## The Problem
+
+**SPARQL result bindings passed as generic maps lose type safety during template rendering.**
+
+
+The forces at play create tension between competing needs. Without resolution, these forces lead to suboptimal outcomes—complexity where simplicity is needed, fragility where robustness is required, opacity where clarity is essential.
+
+
+---
+
+## Therefore
+
+Use Java records as the type-safe binding container between SPARQL extraction and Tera template rendering. Each query produces a list of typed binding records.\n\nDeclare binding records in the ontology using java26:BindingRecord. Each field corresponds to a SPARQL variable that the associated query projects. ggen generates the binding record, validates SPARQL query projection against the record fields, and passes a list of binding records to the Tera template.\n\nThe Tera template iterates over bindings and accesses each field by its record component name. Type coercion is handled in the binding record's compact canonical constructor (e.g., converting xsd:integer literals to Java int).
+
+---
+
+❖ ❖ ❖
+
+## Use This Pattern
+
+**Step 1 — Define your domain in TTL**
+
+Copy this into your `.specify/domain.ttl` (customize the URIs and literal values):
+
+```turtle
+# TTL snippet for this pattern
+```
+
+**Step 2 — Configure ggen.toml**
+
+Add this rule to your `ggen.toml`:
+
+```toml
+# ggen.toml rule for this pattern
+```
+
+**Step 3 — Generate**
+
+```bash
+ggen sync
+```
+
+**Step 4 — Generated Java 26 Code**
+
+```java
+// Java preview for this pattern
+```
+
+---
+
+## Implementation in ggen sync
+
+
+The record-binding template generates a simple record class with validation in the canonical constructor. The ggen SPARQL executor uses these records as the deserialization target: each result row is mapped to a new instance by matching SELECT variable names to record component names. Missing required components throw an error at generation time.
+
+
+
+
+
+
+---
+
+## The Deeper Pattern
+
+
+RECORD BINDING represents a fundamental approach to solving a recurring problem in Java 26 application development. Understanding the forces it resolves helps you apply it effectively and recognize when it applies to new situations.
+
+The pattern is not merely a technique—it is a **relationship** between context, forces, and resolution. When you find yourself in this context, with these forces at play, this pattern provides the shape of the solution.
+
+
+---
+
+## Confidence Level: **
+
+
+**Emerging Pattern** (★)
+
+This is an emerging pattern—promising but still evolving. Use it, but expect refinements in future versions as our understanding deepens.
+
+
+---
+
+## Pattern Connections
+
+This pattern exists within a network of related patterns:
+
+
+**Category:** Domain Model Patterns
+
+This pattern belongs to the Domain Model Patterns group, which governs how domain knowledge is expressed as Java 26 records, sealed types, and value objects.
+
+
+### Related Patterns
+
+Explore these connected patterns to deepen your understanding:
+
+- See the [Pattern Map](../pattern-map.md) for complete connection details
+
+---
+
+## When This Pattern Breaks
+
+No pattern is universal. RECORD BINDING may struggle when:
+
+- Circumstances differ significantly from the pattern's context
+- Forces balance differently than the pattern assumes
+- Integration with external systems introduces constraints
+- Java preview features are not yet stable or available in your JDK
+
+When the pattern doesn't fit, step back and examine the forces. The pattern may need adaptation, or a different pattern may apply.
+
+---
+
+
+
+## Summary
+
+**RECORD BINDING** resolves the tension between SPARQL result bindings passed as generic maps lose type safety during template rendering..
+
+The solution: Use Java records as the type-safe binding container between SPARQL extraction and Tera template rendering. Each query produces a list of typed binding records.\n\nDeclare binding records in the ontolo...
+
+---
+
+*This chapter was generated by ggen sync from the java26-patterns.ttl ontology.*
+*Pattern 12 of 35 in "A Pattern Language for Java 26 with ggen"*

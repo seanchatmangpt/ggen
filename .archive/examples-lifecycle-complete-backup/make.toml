@@ -1,0 +1,139 @@
+# Complete Lifecycle Example Configuration
+# Demonstrates all lifecycle features
+
+[project]
+name = "lifecycle-complete"
+version = "0.1.0"
+description = "Complete lifecycle system demonstration"
+
+# Workspace configuration for multi-project builds
+[workspace]
+members = ["backend", "frontend", "shared"]
+parallel = true  # Enable parallel execution across members
+
+# Initialize project structure
+[phases.init]
+description = "Initialize project structure"
+commands = [
+    "echo 'Creating project structure...'",
+    "mkdir -p src tests docs",
+    "echo 'Project initialized'"
+]
+
+[phases.init.hooks]
+before = ["echo 'Starting initialization...'"]
+after = ["echo 'Initialization complete!'"]
+
+# Setup dependencies and environment
+[phases.setup]
+description = "Install dependencies and setup environment"
+commands = [
+    "cargo fetch",
+    "rustup component add clippy rustfmt"
+]
+depends_on = ["init"]
+
+[phases.setup.hooks]
+before = ["echo 'Setting up environment...'"]
+after = [
+    "echo 'Dependencies installed'",
+    "cargo --version",
+    "rustc --version"
+]
+
+# Build the project
+[phases.build]
+description = "Build project in release mode"
+commands = [
+    "cargo build --release"
+]
+depends_on = ["setup"]
+cache_key = "build-{{ env.GIT_SHA | default('local') }}"
+
+[phases.build.hooks]
+before = [
+    "echo 'Starting build...'",
+    "echo 'Compiler: rustc'",
+    "echo 'Target: release'"
+]
+after = [
+    "echo 'Build complete!'",
+    "ls -lh target/release/"
+]
+
+# Run tests
+[phases.test]
+description = "Run all tests with coverage"
+commands = [
+    "cargo test --all-features",
+    "cargo test --doc"
+]
+depends_on = ["build"]
+
+[phases.test.hooks]
+before = ["echo 'Running tests...'"]
+after = [
+    "echo 'All tests passed!'"
+]
+
+# Run linting and formatting checks
+[phases.lint]
+description = "Run clippy and format checks"
+commands = [
+    "cargo clippy -- -D warnings",
+    "cargo fmt -- --check"
+]
+depends_on = ["build"]
+
+# Generate documentation
+[phases.docs]
+description = "Generate project documentation"
+commands = [
+    "cargo doc --no-deps --all-features",
+    "echo 'Documentation generated in target/doc/'"
+]
+depends_on = ["build"]
+
+# Run benchmarks
+[phases.bench]
+description = "Run performance benchmarks"
+commands = [
+    "cargo bench --no-fail-fast"
+]
+depends_on = ["test"]
+
+# Security audit
+[phases.audit]
+description = "Run security audit"
+commands = [
+    "cargo audit"
+]
+
+# Deploy application
+[phases.deploy]
+description = "Deploy application"
+commands = [
+    "cargo install --path .",
+    "echo 'Application deployed'"
+]
+depends_on = ["test", "lint"]
+
+[phases.deploy.hooks]
+before = [
+    "echo 'Preparing deployment...'",
+    "echo 'Running pre-deployment checks...'"
+]
+after = [
+    "echo 'Deployment complete!'",
+    "echo 'Application is now available'"
+]
+
+# Complete pipeline phase
+[phases.full]
+description = "Run complete pipeline"
+depends_on = ["init", "setup", "build", "test", "lint", "docs"]
+
+[phases.full.hooks]
+after = [
+    "echo 'Complete pipeline finished successfully!'"
+]

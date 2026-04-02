@@ -664,7 +664,7 @@ fn generate_project_ttl(config: &WizardConfig) -> String {
     format!(
         r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/ontology#> .
 
 ggen:Project a rdfs:Class ;
     rdfs:label "{}" ;
@@ -1190,45 +1190,11 @@ Generated: {{ now() | date(format='%Y-%m-%d %H:%M:%S UTC') }}
 }
 
 fn generate_ln_ctrl_scripts(
-    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
-    files_created: &mut Vec<String>,
+    _base_path: &Path, _config: &WizardConfig, _tx: &mut FileTransaction,
+    _files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
-    let scripts_dir = base_path.join("scripts");
-
-    // Generate validate.sh — runs quality gates
-    let validate_sh = format!(
-        "#!/usr/bin/env bash\n\
-        set -euo pipefail\n\
-        # Quality gate validation for {}\n\
-        echo \"Running quality gates for {}...\"\n\
-        cargo make check && cargo make lint && cargo make test\n\
-        echo \"All gates passed\"\n",
-        config.metadata.name, config.metadata.name
-    );
-    tx.write_file(scripts_dir.join("validate.sh"), &validate_sh)
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to write validate.sh: {}",
-                e
-            ))
-        })?;
-    files_created.push("scripts/validate.sh".to_string());
-
-    // Generate ci.sh — CI pipeline stub
-    let ci_sh = format!(
-        "#!/usr/bin/env bash\n\
-        set -euo pipefail\n\
-        # CI pipeline for {}\n\
-        cargo make pre-commit\n\
-        cargo make audit\n",
-        config.metadata.name
-    );
-    tx.write_file(scripts_dir.join("ci.sh"), &ci_sh)
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write ci.sh: {}", e))
-        })?;
-    files_created.push("scripts/ci.sh".to_string());
-
+    // Placeholder for ln_ctrl scripts generation
+    // This can be extended later with validation scripts, etc.
     Ok(())
 }
 

@@ -1,0 +1,52 @@
+[package]
+name = "knowledge-graph-builder"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen examples"]
+description = "AI-powered knowledge graph builder combining templates, SPARQL, and ontologies"
+license = "MIT"
+
+[[bin]]
+name = "kg-builder"
+path = "src/main.rs"
+
+[dependencies]
+# Core ggen dependencies
+ggen-core = { path = "../../ggen-core" }
+ggen-ai = { path = "../../ggen-ai" }
+
+# RDF/SPARQL
+oxigraph = "0.5"
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# CLI
+clap = { version = "4.0", features = ["derive"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Templates
+tera = "1.0"
+
+# AI integration
+genai = "0.4"
+
+# Utilities
+futures = "0.3"
+colored = "2.0"
+indicatif = "0.17"
+
+[dev-dependencies]
+tempfile = "3.0"

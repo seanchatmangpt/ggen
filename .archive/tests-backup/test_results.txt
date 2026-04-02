@@ -1,0 +1,395 @@
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m  [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:83:1[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m83[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "project gen command not fully implemented"][0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m  [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:84:1[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m84[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_project_gen_integration, {[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+[0m   [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(unused_attributes)]` on by default[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:109:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m109[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "lifecycle run command not fully implemented"][0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:110:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m110[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_lifecycle_execution_integration, {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:415:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m415[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "shell completion command not implemented"][0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:416:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m416[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_shell_completion_generation, {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:441:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m441[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "config file loading not fully implemented"][0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:442:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m442[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_config_file_loading, {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:592:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m592[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "frozen section feature not yet implemented"][0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:593:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m593[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_v2_frozen_section_preservation, {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:664:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m664[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "business logic protection not yet implemented"][0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:665:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m665[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_v2_business_logic_not_overwritten, {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused attribute `ignore`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:727:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m727[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m#[ignore = "RDF template generation not yet fully implemented"][0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;10mnote[0m[0m: the built-in attribute `ignore` will be ignored, since it's applied to the macro invocation `test`[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:728:1[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m728[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0mtest!(test_v2_rdf_based_template_generation, {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m [0m[0m[1m[38;5;10m^^^^[0m
+
+[0m[1m[33mwarning[0m[0m[1m: unused import: `chicago_tdd_tools::prelude::*`[0m
+[0m  [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-cli/tests/integration.rs:15:5[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m15[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0muse chicago_tdd_tools::prelude::*;[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m     [0m[0m[1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m   [0m[0m[1m[38;5;12m= [0m[0m[1mnote[0m[0m: `#[warn(unused_imports)]` on by default[0m
+
+[1m[33mwarning[0m[1m:[0m `ggen-cli-lib` (test "integration") generated 8 warnings (run `cargo fix --test "integration"` to apply 1 suggestion)
+[1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+[1m[32m     Running[0m tests/integration.rs (target/debug/deps/integration-0581b3f5324bc097)
+
+running 28 tests
+
+thread 'test_project_gen_integration' panicked at crates/ggen-cli/tests/integration.rs:106:5:
+assertion failed: output.status.success() || project_dir.path().exists()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'test_subcommand_help' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected failure.
+code=1
+stderr=``````
+Error: CLI error: CLI execution failed: Argument parsing failed: Generate CLI project from RDF/TTL file
+
+Usage: ggen template [COMMAND]
+
+Commands:
+  list           List templates
+  lint           Lint a template
+  generate       Generate from template (basic version without Vec support)
+  show           Show template metadata
+  generate_tree  Generate file tree from template
+  new            Create new template
+  regenerate     Regenerate from template
+  generate_rdf   Generate CLI project from RDF/TTL file
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+```
+command=`"/Users/sac/ggen/target/debug/ggen" "template" "--help"`
+code=1
+stdout=""
+stderr=```
+Error: CLI error: CLI execution failed: Argument parsing failed: Generate CLI project from RDF/TTL file
+
+Usage: ggen template [COMMAND]
+
+Commands:
+  list           List templates
+  lint           Lint a template
+  generate       Generate from template (basic version without Vec support)
+  show           Show template metadata
+  generate_tree  Generate file tree from template
+  new            Create new template
+  regenerate     Regenerate from template
+  generate_rdf   Generate CLI project from RDF/TTL file
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+
+test test_error_propagation_invalid_command ... ok
+test test_error_propagation_missing_required_var ... ok
+test test_subcommand_help ... FAILED
+test test_project_gen_integration ... FAILED
+
+thread 'test_shell_completion_generation' panicked at crates/ggen-cli/tests/integration.rs:434:5:
+assertion failed: output.status.success() || completion_file.path().exists()
+test test_manifest_path_option ... ok
+
+thread 'test_lifecycle_execution_integration' panicked at crates/ggen-cli/tests/integration.rs:149:5:
+assertion failed: output.status.success()
+test test_shell_completion_generation ... FAILED
+test test_lifecycle_execution_integration ... FAILED
+test test_json_output_project_info ... ok
+
+thread 'test_progressive_help' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected failure.
+code=1
+stderr=``````
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unrecognized subcommand \'help-me\'
+
+  tip: some similar subcommands exist: \'template\', \'help\'
+
+Usage: ggen [COMMAND]
+
+For more information, try \'--help\'.
+
+```
+```
+command=`"/Users/sac/ggen/target/debug/ggen" "help-me"`
+code=1
+stdout=""
+stderr=```
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unrecognized subcommand \'help-me\'
+
+  tip: some similar subcommands exist: \'template\', \'help\'
+
+Usage: ggen [COMMAND]
+
+For more information, try \'--help\'.
+
+```
+
+
+
+thread 'test_doctor_before_operations' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected failure.
+code=1
+stderr=``````
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unrecognized subcommand \'doctor\'
+
+Usage: ggen [COMMAND]
+
+For more information, try \'--help\'.
+
+```
+```
+command=`"/Users/sac/ggen/target/debug/ggen" "doctor"`
+code=1
+stdout=""
+stderr=```
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unrecognized subcommand \'doctor\'
+
+Usage: ggen [COMMAND]
+
+For more information, try \'--help\'.
+
+```
+
+
+test test_doctor_before_operations ... FAILED
+test test_progressive_help ... FAILED
+
+thread 'test_config_file_loading' panicked at crates/ggen-cli/tests/integration.rs:469:5:
+assertion failed: output.status.success()
+test test_error_propagation_invalid_template ... ok
+test test_config_file_loading ... FAILED
+
+thread 'test_help_command' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected failure.
+code=1
+stderr=``````
+Error: CLI error: CLI execution failed: Argument parsing failed: Usage: ggen [COMMAND]
+
+Commands:
+  paper        Track paper submission and peer review status  # Examples  Track paper status: ```bash ggen paper track my-paper.rdf ```  Track specific venue: ```bash ggen paper track research.rdf --venue neurips-2024 ```
+  utils        Manage environment variables
+  ai           Analyze code with AI insights  # Examples  Analyze code string: ```bash ggen ai analyze \"fn main() { println!(\\\"hello\\\"); }\" ```  Analyze from file: ```bash ggen ai analyze --file src/main.rs --api-key $OPENAI_API_KEY ```  Analyze project directory: ```bash ggen ai analyze --project ./my-crate --model gpt-4 ```
+  marketplace  Export marketplace assessments in various formats  # Usage  ```bash # Export to CSV ggen marketplace export --format csv --output packages.csv  # Export to HTML report ggen marketplace export --format html --output report.html  # Export detailed JSON ggen marketplace export --format json --output data.json --detailed  # Export with filters ggen marketplace export --format csv --min-maturity production --output production-only.csv ```
+  hook         Monitor hook events
+  graph        Visualize graph structure
+  template     Generate CLI project from RDF/TTL file
+  workflow     Generate workflow report  # Usage  ```bash # Generate HTML report ggen workflow report --workflow-file workflow.json --format html --output report.html  # Generate JSON report ggen workflow report --workflow-file workflow.json --format json --output report.json ```
+  project      Watch for changes and auto-regenerate  # Examples  Watch current directory: ```bash ggen project watch ```  Watch specific directory with custom debounce: ```bash ggen project watch --path ./my-project --debounce 500 ```
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+```
+command=`"/Users/sac/ggen/target/debug/ggen" "--help"`
+code=1
+stdout=""
+stderr=```
+Error: CLI error: CLI execution failed: Argument parsing failed: Usage: ggen [COMMAND]
+
+Commands:
+  paper        Track paper submission and peer review status  # Examples  Track paper status: ```bash ggen paper track my-paper.rdf ```  Track specific venue: ```bash ggen paper track research.rdf --venue neurips-2024 ```
+  utils        Manage environment variables
+  ai           Analyze code with AI insights  # Examples  Analyze code string: ```bash ggen ai analyze \"fn main() { println!(\\\"hello\\\"); }\" ```  Analyze from file: ```bash ggen ai analyze --file src/main.rs --api-key $OPENAI_API_KEY ```  Analyze project directory: ```bash ggen ai analyze --project ./my-crate --model gpt-4 ```
+  marketplace  Export marketplace assessments in various formats  # Usage  ```bash # Export to CSV ggen marketplace export --format csv --output packages.csv  # Export to HTML report ggen marketplace export --format html --output report.html  # Export detailed JSON ggen marketplace export --format json --output data.json --detailed  # Export with filters ggen marketplace export --format csv --min-maturity production --output production-only.csv ```
+  hook         Monitor hook events
+  graph        Visualize graph structure
+  template     Generate CLI project from RDF/TTL file
+  workflow     Generate workflow report  # Usage  ```bash # Generate HTML report ggen workflow report --workflow-file workflow.json --format html --output report.html  # Generate JSON report ggen workflow report --workflow-file workflow.json --format json --output report.json ```
+  project      Watch for changes and auto-regenerate  # Examples  Watch current directory: ```bash ggen project watch ```  Watch specific directory with custom debounce: ```bash ggen project watch --path ./my-project --debounce 500 ```
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+
+test test_error_propagation_missing_file ... ok
+test test_json_output_marketplace_search ... ok
+test test_help_command ... FAILED
+
+thread 'test_marketplace_search_integration' panicked at crates/ggen-cli/tests/integration.rs:80:5:
+assertion failed: output.status.success() || output.status.code() == Some(0)
+test test_marketplace_search_integration ... FAILED
+
+thread 'test_v2_help_me_command' panicked at crates/ggen-cli/tests/integration.rs:589:5:
+assertion failed: output.status.success()
+test test_v2_help_me_command ... FAILED
+
+thread 'test_template_generate_integration' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected failure.
+code=1
+stderr=``````
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unexpected argument \'/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml\' found
+
+Usage: ggen template generate [OPTIONS]
+
+For more information, try \'--help\'.
+
+```
+```
+command=`"/Users/sac/ggen/target/debug/ggen" "template" "generate" "/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml" "/Users/sac/.cache/tmp/.tmpnWHUay/output"`
+code=1
+stdout=""
+stderr=```
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unexpected argument \'/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml\' found
+
+Usage: ggen template generate [OPTIONS]
+
+For more information, try \'--help\'.
+
+```
+
+
+test test_v2_business_logic_not_overwritten ... ok
+test test_v2_rdf_based_template_generation ... ok
+test test_template_generate_integration ... FAILED
+
+thread 'test_v2_sync_wrapper_execution' panicked at crates/ggen-cli/tests/integration.rs:577:5:
+assertion failed: output.status.success()
+
+thread 'test_v2_auto_discovery' panicked at crates/ggen-cli/tests/integration.rs:562:5:
+assertion failed: stdout.contains("marketplace") || stdout.contains("market")
+test test_v2_auto_discovery ... FAILED
+test test_v2_sync_wrapper_execution ... FAILED
+
+thread 'test_version_command' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected stdout, failed var.contains(1.2.0)
+├── var: 
+└── var as str: 
+
+command=`"/Users/sac/ggen/target/debug/ggen" "--version"`
+code=0
+stdout=""
+stderr=""
+
+test test_version_command ... FAILED
+test test_v2_frozen_section_preservation ... ok
+
+thread 'test_v2_marketplace_search_with_rdf' panicked at crates/ggen-cli/tests/integration.rs:724:5:
+assertion failed: output.status.success() || output.status.code() == Some(0)
+test test_v2_marketplace_search_with_rdf ... FAILED
+
+thread 'test_workflow_marketplace_to_project' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+Unexpected failure.
+code=1
+stderr=``````
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unexpected argument \'cli-template\' found
+
+Usage: ggen marketplace search [OPTIONS] --query <QUERY>
+
+For more information, try \'--help\'.
+
+```
+```
+command=`"/Users/sac/ggen/target/debug/ggen" "marketplace" "search" "cli-template" "--limit" "1"`
+code=1
+stdout=""
+stderr=```
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unexpected argument \'cli-template\' found
+
+Usage: ggen marketplace search [OPTIONS] --query <QUERY>
+
+For more information, try \'--help\'.
+
+```
+
+
+test test_workflow_marketplace_to_project ... FAILED
+test test_workflow_graph_operations ... ok
+test test_workflow_template_to_lifecycle ... ok
+
+failures:
+
+failures:
+    test_config_file_loading
+    test_doctor_before_operations
+    test_help_command
+    test_lifecycle_execution_integration
+    test_marketplace_search_integration
+    test_progressive_help
+    test_project_gen_integration
+    test_shell_completion_generation
+    test_subcommand_help
+    test_template_generate_integration
+    test_v2_auto_discovery
+    test_v2_help_me_command
+    test_v2_marketplace_search_with_rdf
+    test_v2_sync_wrapper_execution
+    test_version_command
+    test_workflow_marketplace_to_project
+
+test result: FAILED. 12 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+[1m[31merror[0m[1m:[0m test failed, to rerun pass `-p ggen-cli-lib --test integration`

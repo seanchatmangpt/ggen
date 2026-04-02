@@ -1,0 +1,184 @@
+{{- if .Values.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.api.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.api.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.api.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.api.name }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.api.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ .Values.rbac.serviceAccount.name }}
+      {{- if .Values.affinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{ .Values.affinity.podAntiAffinity }}DuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.api.name }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.api.name }}
+        image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+        imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.api.port }}
+          protocol: TCP
+        env:
+        - name: LOG_LEVEL
+          value: {{ .Values.logging.level }}
+        - name: ENVIRONMENT
+          value: kubernetes
+        {{- if .Values.database.enabled }}
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.database.credentialsSecret }}
+              key: database_url
+        {{- end }}
+        {{- if .Values.cache.enabled }}
+        - name: CACHE_HOST
+          value: "{{ .Values.cache.name }}-0.{{ .Values.cache.name }}.{{ .Values.namespace }}.svc.cluster.local"
+        - name: CACHE_PORT
+          value: "{{ .Values.cache.port }}"
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.api.resources.requests.cpu }}
+            memory: {{ .Values.api.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.api.resources.limits.cpu }}
+            memory: {{ .Values.api.resources.limits.memory }}
+        {{- if .Values.healthCheck.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.healthCheck.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.healthCheck.livenessProbe.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.healthCheck.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.healthCheck.readinessProbe.failureThreshold }}
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.startupProbe.periodSeconds }}
+          failureThreshold: {{ .Values.healthCheck.startupProbe.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/tai
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: tai-config
+      terminationGracePeriodSeconds: 30
+{{- end }}
+---
+{{- if .Values.worker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.worker.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.worker.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.worker.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.worker.name }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.worker.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ .Values.rbac.serviceAccount.name }}
+      {{- if .Values.affinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{ .Values.affinity.podAntiAffinity }}DuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Values.worker.name }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      containers:
+      - name: {{ .Values.worker.name }}
+        image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+        imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.worker.port }}
+          protocol: TCP
+        env:
+        - name: LOG_LEVEL
+          value: {{ .Values.logging.level }}
+        - name: WORKER_TYPE
+          value: background-processor
+        resources:
+          requests:
+            cpu: {{ .Values.worker.resources.requests.cpu }}
+            memory: {{ .Values.worker.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.worker.resources.limits.cpu }}
+            memory: {{ .Values.worker.resources.limits.memory }}
+        {{- if .Values.healthCheck.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.livenessProbe.periodSeconds }}
+        {{- end }}
+      terminationGracePeriodSeconds: 30
+{{- end }}

@@ -1,0 +1,49 @@
+@prefix : <http://example.org/project#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:MyProject rdf:type :SoftwareProject ;
+    :name "example-rust-service" ;
+    :description "A sample Rust microservice with REST API" ;
+    :language "Rust" ;
+    :version "0.1.0" ;
+    :author "John Doe <john@example.com>" .
+
+:MainModule rdf:type :Module ;
+    :moduleName "api" ;
+    :belongsTo :MyProject ;
+    :hasStruct :UserStruct ;
+    :hasStruct :ConfigStruct .
+
+:UserStruct rdf:type :Struct ;
+    :structName "User" ;
+    :belongsTo :MainModule ;
+    :hasField :UserIdField ;
+    :hasField :UserNameField ;
+    :hasField :UserEmailField .
+
+:UserIdField rdf:type :Field ;
+    :fieldName "id" ;
+    :fieldType "u64" .
+
+:UserNameField rdf:type :Field ;
+    :fieldName "name" ;
+    :fieldType "String" .
+
+:UserEmailField rdf:type :Field ;
+    :fieldName "email" ;
+    :fieldType "String" .
+
+:ConfigStruct rdf:type :Struct ;
+    :structName "Config" ;
+    :belongsTo :MainModule ;
+    :hasField :ConfigHostField ;
+    :hasField :ConfigPortField .
+
+:ConfigHostField rdf:type :Field ;
+    :fieldName "host" ;
+    :fieldType "String" .
+
+:ConfigPortField rdf:type :Field ;
+    :fieldName "port" ;
+    :fieldType "u16" .

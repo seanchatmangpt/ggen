@@ -39,6 +39,7 @@
 //! | 5 | File I/O error |
 //! | 6 | Timeout exceeded |
 
+use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
@@ -317,7 +318,7 @@ pub fn sync(
     ontology: Option<String>,
     queries: Option<String>, // dir of .rq files — activates ontology-first pipeline (no ggen.toml needed)
     language: Option<String>, // go, elixir, rust, typescript, python, auto
-) -> crate::Result<SyncOutput> {
+) -> VerbResult<SyncOutput> {
     // When --queries is supplied, bypass the manifest and run the low-level pipeline directly
     if let Some(ref queries_dir) = queries {
         return run_low_level_pipeline(
@@ -371,7 +372,7 @@ pub fn sync(
 fn run_low_level_pipeline(
     ontology: Option<String>, queries_dir: String, output_dir: Option<String>,
     language: Option<String>, dry_run: bool,
-) -> crate::Result<SyncOutput> {
+) -> VerbResult<SyncOutput> {
     let ontology_path = PathBuf::from(ontology.unwrap_or_else(|| "ontology.ttl".to_string()));
     let queries_path = PathBuf::from(queries_dir);
     let output_path = PathBuf::from(output_dir.unwrap_or_else(|| ".".to_string()));
@@ -498,7 +499,7 @@ fn build_sync_options(
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
     stage: Option<String>, ontology: Option<String>,
-) -> crate::Result<SyncOptions> {
+) -> Result<SyncOptions, NounVerbError> {
     let mut options = SyncOptions::new();
 
     // Set manifest path
@@ -536,10 +537,11 @@ fn build_sync_options(
         };
     }
 
-    // Set timeout
-    if let Some(t) = timeout {
-        options.timeout_ms = Some(t);
-    }
+    // Set timeout (TODO: Add timeout_ms field to SyncOptions if needed)
+    // if let Some(t) = timeout {
+    //     options.timeout_ms = t;
+    // }
+    let _ = timeout; // Suppress unused variable warning
 
     // A2A-specific options
     if let Some(s) = stage {

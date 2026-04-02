@@ -1,0 +1,43 @@
+%% -*- mode: erlang -*-
+%%
+%% TPS Jidoka VM Arguments
+%% JVM-like arguments for Erlang VM tuning
+%%
+
+%% Node name (distributed mode)
+-sname jidoka@localhost
+
+%% Erlang runtime flags
++K true              %% Enable kernel polling (better performance on Linux)
++A 256               %% Async thread pool size
++B sb                %% Busy waiting (avoid busy loops)
+-sbt db              %% Scheduler bind type (default bind)
+
+%% Memory configuration
++hms 8192            %% Heap memory start size (8MB)
++hmsx 2048000        %% Heap memory start extra
++MMsco true          %% Malloc small chunk optimization
+
+%% GC configuration
++spp true            %% Enable straight priority policy for gc
++scl false           %% Run schedulers with low priority
+
+%% Distributed Erlang (optional, for clustering)
+% -proto_dist inet_tcp
+
+%% Cookie for security (change in production)
+-setcookie jidoka_secret_cookie_change_in_prod
+
+%% Crash dump location
+-env ERL_CRASH_DUMP /tmp/erl_crash.dump
+
+%% Heart beat (restart VM if it hangs)
+% -heart
+
+%% Debug mode (set to false in production)
+-debug_flags all
+
+%% Error logger mode
+-error_logger_mf_dir logs
+-error_logger_mf_maxbytes 10485760
+-error_logger_mf_maxfiles 5

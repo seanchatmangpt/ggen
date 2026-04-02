@@ -1,0 +1,8 @@
+PREFIX cli: <https://example.org/cli/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?command ?label
+WHERE {
+    ?tool cli:hasCommand ?command .
+    ?command rdfs:label ?label .
+}

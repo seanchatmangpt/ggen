@@ -1,0 +1,550 @@
+@prefix thesis: <https://ggen.io/ontology/thesis#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# THESIS GENERATION ONTOLOGY SCHEMA
+# Reusable schema for generating PhD theses via ggen sync
+# Version: 1.0.0
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# ONTOLOGY METADATA
+# -----------------------------------------------------------------------------
+
+<https://ggen.io/ontology/thesis> a owl:Ontology ;
+    rdfs:label "Thesis Generation Ontology" ;
+    rdfs:comment "Schema for ontology-driven PhD thesis generation with zero hardcoded content" ;
+    owl:versionInfo "1.0.0" .
+
+# -----------------------------------------------------------------------------
+# CLASSES
+# -----------------------------------------------------------------------------
+
+thesis:Thesis a rdfs:Class ;
+    rdfs:label "Thesis" ;
+    rdfs:comment "Root entity representing a complete PhD thesis document" .
+
+thesis:Chapter a rdfs:Class ;
+    rdfs:label "Chapter" ;
+    rdfs:comment "Major division of the thesis with sections" .
+
+thesis:Section a rdfs:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "Subdivision of a chapter containing content" .
+
+thesis:Subsection a rdfs:Class ;
+    rdfs:label "Subsection" ;
+    rdfs:comment "Further subdivision within a section" .
+
+thesis:Theorem a rdfs:Class ;
+    rdfs:label "Theorem" ;
+    rdfs:comment "Mathematical theorem, lemma, corollary, proposition, or definition" .
+
+thesis:Equation a rdfs:Class ;
+    rdfs:label "Equation" ;
+    rdfs:comment "Mathematical equation with LaTeX markup" .
+
+thesis:Algorithm a rdfs:Class ;
+    rdfs:label "Algorithm" ;
+    rdfs:comment "Pseudocode algorithm with input/output and steps" .
+
+thesis:Figure a rdfs:Class ;
+    rdfs:label "Figure" ;
+    rdfs:comment "Visual figure with caption and image path" .
+
+thesis:Table a rdfs:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "Data table with headers and rows" .
+
+thesis:TableRow a rdfs:Class ;
+    rdfs:label "Table Row" ;
+    rdfs:comment "Single row of data in a table" .
+
+thesis:Reference a rdfs:Class ;
+    rdfs:label "Reference" ;
+    rdfs:comment "Bibliography entry for citations" .
+
+thesis:Appendix a rdfs:Class ;
+    rdfs:label "Appendix" ;
+    rdfs:comment "Supplementary section after main content" .
+
+thesis:CodeListing a rdfs:Class ;
+    rdfs:label "Code Listing" ;
+    rdfs:comment "Source code with syntax highlighting" .
+
+thesis:LatexEnvironment a rdfs:Class ;
+    rdfs:label "LaTeX Environment" ;
+    rdfs:comment "Stores LaTeX environment syntax as data for zero-hardcoding" .
+
+# -----------------------------------------------------------------------------
+# THESIS PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:title a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Title" ;
+    rdfs:comment "Main thesis title" .
+
+thesis:subtitle a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Subtitle" ;
+    rdfs:comment "Secondary title line" .
+
+thesis:author a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Author" ;
+    rdfs:comment "Author name or citation authors" .
+
+thesis:institution a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Institution" ;
+    rdfs:comment "University or research institution" .
+
+thesis:department a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Department" ;
+    rdfs:comment "Academic department" .
+
+thesis:date a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Date" ;
+    rdfs:comment "Submission date" .
+
+thesis:abstract a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Abstract" ;
+    rdfs:comment "Summary text (200-500 words for thesis)" .
+
+thesis:dedication a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Dedication" ;
+    rdfs:comment "Dedication text" .
+
+thesis:acknowledgments a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string ;
+    rdfs:label "Acknowledgments" ;
+    rdfs:comment "Acknowledgments text" .
+
+# -----------------------------------------------------------------------------
+# STRUCTURAL PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:hasChapter a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Chapter ;
+    rdfs:label "Has Chapter" .
+
+thesis:hasSection a rdf:Property ;
+    rdfs:domain thesis:Chapter ;
+    rdfs:range thesis:Section ;
+    rdfs:label "Has Section" .
+
+thesis:hasSubsection a rdf:Property ;
+    rdfs:domain thesis:Section ;
+    rdfs:range thesis:Subsection ;
+    rdfs:label "Has Subsection" .
+
+thesis:hasTheorem a rdf:Property ;
+    rdfs:range thesis:Theorem ;
+    rdfs:label "Has Theorem" .
+
+thesis:hasEquation a rdf:Property ;
+    rdfs:range thesis:Equation ;
+    rdfs:label "Has Equation" .
+
+thesis:hasAlgorithm a rdf:Property ;
+    rdfs:range thesis:Algorithm ;
+    rdfs:label "Has Algorithm" .
+
+thesis:hasFigure a rdf:Property ;
+    rdfs:range thesis:Figure ;
+    rdfs:label "Has Figure" .
+
+thesis:hasTable a rdf:Property ;
+    rdfs:range thesis:Table ;
+    rdfs:label "Has Table" .
+
+thesis:hasRow a rdf:Property ;
+    rdfs:domain thesis:Table ;
+    rdfs:range thesis:TableRow ;
+    rdfs:label "Has Row" .
+
+thesis:hasReference a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Reference ;
+    rdfs:label "Has Reference" .
+
+thesis:hasAppendix a rdf:Property ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Appendix ;
+    rdfs:label "Has Appendix" .
+
+thesis:hasCodeListing a rdf:Property ;
+    rdfs:domain thesis:Appendix ;
+    rdfs:range thesis:CodeListing ;
+    rdfs:label "Has Code Listing" .
+
+thesis:cites a rdf:Property ;
+    rdfs:range thesis:Reference ;
+    rdfs:label "Cites" ;
+    rdfs:comment "Citation reference" .
+
+# -----------------------------------------------------------------------------
+# ORDERING AND IDENTIFICATION
+# -----------------------------------------------------------------------------
+
+thesis:orderIndex a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Order Index" ;
+    rdfs:comment "Numeric sort order (1, 2, 3...)" .
+
+thesis:labelId a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Label ID" ;
+    rdfs:comment "LaTeX cross-reference label (e.g., ch:intro, thm:main)" .
+
+# -----------------------------------------------------------------------------
+# CONTENT PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:content a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Content" ;
+    rdfs:comment "Main text content with optional LaTeX commands" .
+
+thesis:statement a rdf:Property ;
+    rdfs:domain thesis:Theorem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Statement" ;
+    rdfs:comment "Theorem statement text" .
+
+thesis:proof a rdf:Property ;
+    rdfs:domain thesis:Theorem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Proof" ;
+    rdfs:comment "Proof text" .
+
+thesis:theoremType a rdf:Property ;
+    rdfs:domain thesis:Theorem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Theorem Type" ;
+    rdfs:comment "theorem, lemma, corollary, proposition, definition" .
+
+thesis:theoremName a rdf:Property ;
+    rdfs:domain thesis:Theorem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Theorem Name" ;
+    rdfs:comment "Optional named theorem (e.g., Completeness Theorem)" .
+
+thesis:latex a rdf:Property ;
+    rdfs:domain thesis:Equation ;
+    rdfs:range xsd:string ;
+    rdfs:label "LaTeX" ;
+    rdfs:comment "LaTeX math markup" .
+
+thesis:description a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Description" ;
+    rdfs:comment "Explanatory description" .
+
+# -----------------------------------------------------------------------------
+# ALGORITHM PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:input a rdf:Property ;
+    rdfs:domain thesis:Algorithm ;
+    rdfs:range xsd:string ;
+    rdfs:label "Input" ;
+    rdfs:comment "Algorithm input description" .
+
+thesis:output a rdf:Property ;
+    rdfs:domain thesis:Algorithm ;
+    rdfs:range xsd:string ;
+    rdfs:label "Output" ;
+    rdfs:comment "Algorithm output description" .
+
+thesis:step a rdf:Property ;
+    rdfs:domain thesis:Algorithm ;
+    rdfs:range xsd:string ;
+    rdfs:label "Step" ;
+    rdfs:comment "Algorithm step (use with stepIndex for ordering)" .
+
+thesis:stepIndex a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Step Index" ;
+    rdfs:comment "Order of step within algorithm" .
+
+# -----------------------------------------------------------------------------
+# FIGURE AND TABLE PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:caption a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Caption" ;
+    rdfs:comment "Figure or table caption" .
+
+thesis:imagePath a rdf:Property ;
+    rdfs:domain thesis:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Image Path" ;
+    rdfs:comment "Path to image file" .
+
+thesis:width a rdf:Property ;
+    rdfs:domain thesis:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Width" ;
+    rdfs:comment "Figure width (e.g., 0.8\\textwidth)" .
+
+thesis:position a rdf:Property ;
+    rdfs:domain thesis:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "Position" ;
+    rdfs:comment "LaTeX float position (h, t, b, p)" .
+
+thesis:header a rdf:Property ;
+    rdfs:domain thesis:Table ;
+    rdfs:range xsd:string ;
+    rdfs:label "Header" ;
+    rdfs:comment "Column header (use with headerIndex for ordering)" .
+
+thesis:headerIndex a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Header Index" ;
+    rdfs:comment "Column position" .
+
+thesis:cell a rdf:Property ;
+    rdfs:domain thesis:TableRow ;
+    rdfs:range xsd:string ;
+    rdfs:label "Cell" ;
+    rdfs:comment "Cell value (use with cellIndex for ordering)" .
+
+thesis:cellIndex a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Cell Index" ;
+    rdfs:comment "Cell position in row" .
+
+thesis:rowIndex a rdf:Property ;
+    rdfs:domain thesis:TableRow ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Row Index" ;
+    rdfs:comment "Row position in table" .
+
+# -----------------------------------------------------------------------------
+# REFERENCE (BIBTEX) PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:citeKey a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "Citation Key" ;
+    rdfs:comment "BibTeX citation key (e.g., chatman2025)" .
+
+thesis:bibType a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "BibTeX Type" ;
+    rdfs:comment "article, inproceedings, book, phdthesis, misc" .
+
+thesis:journal a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "Journal" ;
+    rdfs:comment "Journal name (for @article)" .
+
+thesis:booktitle a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "Book Title" ;
+    rdfs:comment "Conference name (for @inproceedings)" .
+
+thesis:publisher a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "Publisher" ;
+    rdfs:comment "Publisher (for @book)" .
+
+thesis:school a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "School" ;
+    rdfs:comment "University (for @phdthesis)" .
+
+thesis:year a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Year" ;
+    rdfs:comment "Publication year" .
+
+thesis:volume a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "Volume" ;
+    rdfs:comment "Journal volume" .
+
+thesis:pages a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "Pages" ;
+    rdfs:comment "Page range" .
+
+thesis:doi a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "DOI" ;
+    rdfs:comment "Digital Object Identifier" .
+
+thesis:url a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "URL" ;
+    rdfs:comment "Web URL" .
+
+thesis:howpublished a rdf:Property ;
+    rdfs:domain thesis:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "How Published" ;
+    rdfs:comment "Publication method (for @misc)" .
+
+# -----------------------------------------------------------------------------
+# APPENDIX AND CODE LISTING PROPERTIES
+# -----------------------------------------------------------------------------
+
+thesis:letter a rdf:Property ;
+    rdfs:domain thesis:Appendix ;
+    rdfs:range xsd:string ;
+    rdfs:label "Letter" ;
+    rdfs:comment "Appendix letter (A, B, C...)" .
+
+thesis:language a rdf:Property ;
+    rdfs:domain thesis:CodeListing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Language" ;
+    rdfs:comment "Programming language for syntax highlighting" .
+
+thesis:code a rdf:Property ;
+    rdfs:domain thesis:CodeListing ;
+    rdfs:range xsd:string ;
+    rdfs:label "Code" ;
+    rdfs:comment "Source code content" .
+
+# -----------------------------------------------------------------------------
+# LATEX ENVIRONMENT PROPERTIES (META-SCHEMA)
+# -----------------------------------------------------------------------------
+
+thesis:envName a rdf:Property ;
+    rdfs:domain thesis:LatexEnvironment ;
+    rdfs:range xsd:string ;
+    rdfs:label "Environment Name" ;
+    rdfs:comment "Identifier for the environment" .
+
+thesis:envBegin a rdf:Property ;
+    rdfs:domain thesis:LatexEnvironment ;
+    rdfs:range xsd:string ;
+    rdfs:label "Begin Command" ;
+    rdfs:comment "LaTeX \\begin{...} command" .
+
+thesis:envEnd a rdf:Property ;
+    rdfs:domain thesis:LatexEnvironment ;
+    rdfs:range xsd:string ;
+    rdfs:label "End Command" ;
+    rdfs:comment "LaTeX \\end{...} command" .
+
+thesis:envLabel a rdf:Property ;
+    rdfs:domain thesis:LatexEnvironment ;
+    rdfs:range xsd:string ;
+    rdfs:label "Environment Label" ;
+    rdfs:comment "Display label (Theorem, Algorithm, etc.)" .
+
+thesis:requiresProof a rdf:Property ;
+    rdfs:domain thesis:LatexEnvironment ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Proof" ;
+    rdfs:comment "Whether proof environment follows" .
+
+# -----------------------------------------------------------------------------
+# LATEX ENVIRONMENT INSTANCES (DATA FOR ZERO-HARDCODING)
+# -----------------------------------------------------------------------------
+
+thesis:TheoremEnv a thesis:LatexEnvironment ;
+    thesis:envName "theorem" ;
+    thesis:envBegin "\\begin{theorem}" ;
+    thesis:envEnd "\\end{theorem}" ;
+    thesis:envLabel "Theorem" ;
+    thesis:requiresProof true .
+
+thesis:LemmaEnv a thesis:LatexEnvironment ;
+    thesis:envName "lemma" ;
+    thesis:envBegin "\\begin{lemma}" ;
+    thesis:envEnd "\\end{lemma}" ;
+    thesis:envLabel "Lemma" ;
+    thesis:requiresProof true .
+
+thesis:CorollaryEnv a thesis:LatexEnvironment ;
+    thesis:envName "corollary" ;
+    thesis:envBegin "\\begin{corollary}" ;
+    thesis:envEnd "\\end{corollary}" ;
+    thesis:envLabel "Corollary" ;
+    thesis:requiresProof true .
+
+thesis:PropositionEnv a thesis:LatexEnvironment ;
+    thesis:envName "proposition" ;
+    thesis:envBegin "\\begin{proposition}" ;
+    thesis:envEnd "\\end{proposition}" ;
+    thesis:envLabel "Proposition" ;
+    thesis:requiresProof true .
+
+thesis:DefinitionEnv a thesis:LatexEnvironment ;
+    thesis:envName "definition" ;
+    thesis:envBegin "\\begin{definition}" ;
+    thesis:envEnd "\\end{definition}" ;
+    thesis:envLabel "Definition" ;
+    thesis:requiresProof false .
+
+thesis:ProofEnv a thesis:LatexEnvironment ;
+    thesis:envName "proof" ;
+    thesis:envBegin "\\begin{proof}" ;
+    thesis:envEnd "\\end{proof}" ;
+    thesis:envLabel "Proof" ;
+    thesis:requiresProof false .
+
+thesis:AlgorithmEnv a thesis:LatexEnvironment ;
+    thesis:envName "algorithm" ;
+    thesis:envBegin "\\begin{algorithm}" ;
+    thesis:envEnd "\\end{algorithm}" ;
+    thesis:envLabel "Algorithm" ;
+    thesis:requiresProof false .
+
+thesis:FigureEnv a thesis:LatexEnvironment ;
+    thesis:envName "figure" ;
+    thesis:envBegin "\\begin{figure}" ;
+    thesis:envEnd "\\end{figure}" ;
+    thesis:envLabel "Figure" ;
+    thesis:requiresProof false .
+
+thesis:TableEnv a thesis:LatexEnvironment ;
+    thesis:envName "table" ;
+    thesis:envBegin "\\begin{table}" ;
+    thesis:envEnd "\\end{table}" ;
+    thesis:envLabel "Table" ;
+    thesis:requiresProof false .
+
+thesis:EquationEnv a thesis:LatexEnvironment ;
+    thesis:envName "equation" ;
+    thesis:envBegin "\\begin{equation}" ;
+    thesis:envEnd "\\end{equation}" ;
+    thesis:envLabel "Equation" ;
+    thesis:requiresProof false .
+
+# =============================================================================
+# END OF THESIS SCHEMA
+# =============================================================================

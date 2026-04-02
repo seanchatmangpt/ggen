@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/07_coverage.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841876,
+            "name": "Commit-0",
+            "content": "# features/07_coverage.feature\n@coverage\nFeature: Coverage artifacts collection and host merge\n  Background:\n    Given a fixture project \"cli_cov\" instrumented for llvm-cov\n\n  Scenario: Container-produced profraw is merged on host\n    When I run [\"cover\",\"--work\"] using \"docker\"\n    Then a .profraw file exists in artifacts\n    And cleanroom merges coverage into \"target/coverage/coverage.json\"\n    And remapped paths point to host sources\n"
+        }
+    ]
+}

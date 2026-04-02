@@ -1,0 +1,81 @@
+# Root Workspace Manifest
+# Orchestrates all ggen-core examples demonstrating 80/20 lifecycle patterns
+
+[workspace]
+resolver = "2"
+
+members = [
+    "advanced-cli-tool",
+    "perf-library",
+    "async-web-service",
+    "wasm-crypto",
+    "embedded-iot"
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["ggen-core contributors"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/your-org/ggen-core"
+homepage = "https://ggen.dev"
+documentation = "https://docs.ggen.dev"
+
+[workspace.dependencies]
+# Shared dependencies across all examples
+tokio = { version = "1.40", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# CLI tooling
+clap = { version = "4.5", features = ["derive", "cargo"] }
+
+# Testing
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.4"
+quickcheck = "1.0"
+
+# Security
+secrecy = "0.8"
+zeroize = "1.7"
+
+# Performance
+rayon = "1.10"
+dashmap = "6.0"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+unused_qualifications = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"
+nursery = "warn"
+cargo = "warn"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.release-with-debug]
+inherits = "release"
+debug = true
+strip = false
+
+[profile.bench]
+inherits = "release"
+debug = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+split-debuginfo = "unpacked"

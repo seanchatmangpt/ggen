@@ -1,0 +1,313 @@
+# Master Lifecycle Orchestrator
+# Production-ready workspace automation following 80/20 principles
+# Demonstrates ggen-core's lifecycle management capabilities
+
+[config]
+default_to_workspace = true
+skip_core_tasks = false
+min_version = "0.37.0"
+
+[env]
+RUST_BACKTRACE = "1"
+CARGO_TERM_COLOR = "always"
+WORKSPACE_ROOT = "${CARGO_MAKE_WORKING_DIRECTORY}"
+BUILD_MODE = { value = "release", condition = { env_not_set = ["BUILD_MODE"] } }
+
+# ============================================================================
+# WORKSPACE MEMBER REFERENCES
+# ============================================================================
+
+[env.WORKSPACE_MEMBERS]
+CLI = "advanced-cli-tool"
+LIB = "perf-library"
+WEB = "async-web-service"
+WASM = "wasm-crypto"
+EMBEDDED = "embedded-iot"
+
+# ============================================================================
+# LIFECYCLE: VALIDATE (Pre-flight checks)
+# ============================================================================
+
+[tasks.validate-all]
+description = "Run all validation checks across workspace"
+category = "Lifecycle"
+dependencies = [
+    "validate-format",
+    "validate-clippy",
+    "validate-security",
+    "validate-deps"
+]
+
+[tasks.validate-format]
+description = "Check code formatting"
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.validate-clippy]
+description = "Run Clippy lints"
+command = "cargo"
+args = ["clippy", "--workspace", "--all-targets", "--all-features", "--", "-D", "warnings"]
+
+[tasks.validate-security]
+description = "Security audit"
+command = "cargo"
+args = ["audit", "--deny", "warnings"]
+install_crate = { crate_name = "cargo-audit", binary = "cargo-audit", test_arg = "--version" }
+
+[tasks.validate-deps]
+description = "Check dependency tree"
+command = "cargo"
+args = ["tree", "--workspace", "--depth", "3"]
+
+# ============================================================================
+# LIFECYCLE: BUILD (Compilation)
+# ============================================================================
+
+[tasks.build-all]
+description = "Build all workspace members"
+category = "Lifecycle"
+command = "cargo"
+args = ["build", "--workspace", "--release"]
+dependencies = ["validate-all"]
+
+[tasks.build-cli]
+description = "Build CLI example"
+command = "cargo"
+args = ["build", "-p", "advanced-cli-tool", "--release"]
+
+[tasks.build-lib]
+description = "Build library example"
+command = "cargo"
+args = ["build", "-p", "perf-library", "--release"]
+
+[tasks.build-web]
+description = "Build web service example"
+command = "cargo"
+args = ["build", "-p", "async-web-service", "--release"]
+
+[tasks.build-wasm]
+description = "Build WASM example"
+command = "cargo"
+args = ["build", "-p", "wasm-crypto", "--release", "--target", "wasm32-unknown-unknown"]
+
+[tasks.build-embedded]
+description = "Build embedded example"
+command = "cargo"
+args = ["build", "-p", "embedded-iot", "--release"]
+
+# ============================================================================
+# LIFECYCLE: TEST (Quality assurance)
+# ============================================================================
+
+[tasks.test-all]
+description = "Run all tests across workspace"
+category = "Lifecycle"
+command = "cargo"
+args = ["test", "--workspace", "--all-features"]
+dependencies = ["build-all"]
+
+[tasks.test-unit]
+description = "Run unit tests"
+command = "cargo"
+args = ["test", "--workspace", "--lib"]
+
+[tasks.test-integration]
+description = "Run integration tests"
+command = "cargo"
+args = ["test", "--workspace", "--test", "*"]
+
+[tasks.test-doc]
+description = "Run documentation tests"
+command = "cargo"
+args = ["test", "--workspace", "--doc"]
+
+[tasks.test-coverage]
+description = "Generate test coverage report"
+command = "cargo"
+args = ["tarpaulin", "--workspace", "--out", "Html", "--output-dir", "coverage"]
+install_crate = { crate_name = "cargo-tarpaulin", binary = "cargo-tarpaulin", test_arg = "--version" }
+
+# ============================================================================
+# LIFECYCLE: BENCHMARK (Performance validation)
+# ============================================================================
+
+[tasks.bench-all]
+description = "Run all benchmarks"
+category = "Lifecycle"
+command = "cargo"
+args = ["bench", "--workspace"]
+
+[tasks.bench-lib]
+description = "Benchmark library performance"
+command = "cargo"
+args = ["bench", "-p", "perf-library"]
+
+[tasks.bench-web]
+description = "Benchmark web service"
+command = "cargo"
+args = ["bench", "-p", "async-web-service"]
+
+# ============================================================================
+# LIFECYCLE: PACKAGE (Distribution preparation)
+# ============================================================================
+
+[tasks.package-all]
+description = "Package all distributable artifacts"
+category = "Lifecycle"
+dependencies = [
+    "package-cli",
+    "package-lib",
+    "package-web",
+    "package-wasm"
+]
+
+[tasks.package-cli]
+description = "Package CLI binary"
+script = '''
+#!/bin/bash
+set -e
+cargo build -p advanced-cli-tool --release
+mkdir -p dist/cli
+cp target/release/advanced-cli-tool dist/cli/
+strip dist/cli/advanced-cli-tool || true
+echo "CLI packaged: dist/cli/advanced-cli-tool"
+'''
+
+[tasks.package-lib]
+description = "Package library crate"
+command = "cargo"
+args = ["package", "-p", "perf-library", "--no-verify"]
+
+[tasks.package-web]
+description = "Package web service"
+script = '''
+#!/bin/bash
+set -e
+cargo build -p async-web-service --release
+mkdir -p dist/web
+cp target/release/async-web-service dist/web/
+echo "Web service packaged: dist/web/async-web-service"
+'''
+
+[tasks.package-wasm]
+description = "Package WASM module"
+script = '''
+#!/bin/bash
+set -e
+cargo build -p wasm-crypto --release --target wasm32-unknown-unknown
+mkdir -p dist/wasm
+cp target/wasm32-unknown-unknown/release/wasm_crypto.wasm dist/wasm/
+echo "WASM packaged: dist/wasm/wasm_crypto.wasm"
+'''
+
+# ============================================================================
+# LIFECYCLE: DEPLOY (Production release)
+# ============================================================================
+
+[tasks.deploy-all]
+description = "Deploy all components"
+category = "Lifecycle"
+dependencies = [
+    "validate-all",
+    "build-all",
+    "test-all",
+    "bench-all",
+    "package-all",
+    "deploy-verify"
+]
+
+[tasks.deploy-verify]
+description = "Verify deployment readiness"
+script = '''
+#!/bin/bash
+set -e
+echo "🔍 Verifying deployment artifacts..."
+
+# Check binaries
+test -f dist/cli/advanced-cli-tool || { echo "❌ CLI binary missing"; exit 1; }
+test -f dist/web/async-web-service || { echo "❌ Web binary missing"; exit 1; }
+test -f dist/wasm/wasm_crypto.wasm || { echo "❌ WASM module missing"; exit 1; }
+
+echo "✅ All deployment artifacts verified"
+echo "✅ Workspace ready for production deployment"
+'''
+
+# ============================================================================
+# MAINTENANCE TASKS
+# ============================================================================
+
+[tasks.clean-all]
+description = "Clean all build artifacts"
+command = "cargo"
+args = ["clean"]
+
+[tasks.update-deps]
+description = "Update dependencies"
+command = "cargo"
+args = ["update"]
+
+[tasks.check-outdated]
+description = "Check for outdated dependencies"
+command = "cargo"
+args = ["outdated", "--workspace"]
+install_crate = { crate_name = "cargo-outdated", binary = "cargo-outdated", test_arg = "--version" }
+
+# ============================================================================
+# DEVELOPMENT WORKFLOWS
+# ============================================================================
+
+[tasks.dev]
+description = "Development workflow (quick iteration)"
+dependencies = ["validate-format", "build-all", "test-unit"]
+
+[tasks.ci]
+description = "CI workflow (comprehensive validation)"
+dependencies = ["validate-all", "build-all", "test-all", "bench-all"]
+
+[tasks.pre-commit]
+description = "Pre-commit checks"
+dependencies = ["validate-format", "validate-clippy", "test-unit"]
+
+# ============================================================================
+# DOCUMENTATION
+# ============================================================================
+
+[tasks.docs]
+description = "Generate documentation"
+command = "cargo"
+args = ["doc", "--workspace", "--no-deps", "--open"]
+
+[tasks.docs-check]
+description = "Check documentation"
+command = "cargo"
+args = ["doc", "--workspace", "--no-deps"]
+
+# ============================================================================
+# REPORTING
+# ============================================================================
+
+[tasks.status]
+description = "Show workspace status"
+script = '''
+#!/bin/bash
+echo "📊 Workspace Status Report"
+echo "=========================="
+echo ""
+echo "Members:"
+cargo metadata --no-deps --format-version 1 | jq -r '.workspace_members[]'
+echo ""
+echo "Build profiles:"
+cargo build --workspace --release --dry-run 2>&1 | grep -i "compiling" || echo "No changes needed"
+'''
+
+[tasks.report]
+description = "Generate comprehensive report"
+dependencies = ["status", "validate-deps", "test-coverage"]
+
+# ============================================================================
+# DEFAULT TASK
+# ============================================================================
+
+[tasks.default]
+description = "Default task: Run full lifecycle"
+dependencies = ["deploy-all"]

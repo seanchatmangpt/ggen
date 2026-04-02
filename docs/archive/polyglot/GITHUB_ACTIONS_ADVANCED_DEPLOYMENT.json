@@ -1,0 +1,484 @@
+{
+  "title": "Hyper-Advanced Deployment Innovations for ggen CI/CD",
+  "version": "1.0.0",
+  "description": "Enterprise-grade deployment patterns generated from RDF ontologies",
+
+  "innovations": [
+    {
+      "id": "container-orchestration",
+      "name": "Advanced Container Orchestration",
+      "description": "Multi-stage containerization with Kubernetes, Helm, and Docker Compose generation from RDF",
+
+      "externalTools": {
+        "docker": {
+          "version": ">=24.0",
+          "components": ["docker-compose", "buildx", "buildkit"]
+        },
+        "kubernetes": {
+          "version": ">=1.28",
+          "components": ["kubectl", "kustomize"]
+        },
+        "helm": {
+          "version": ">=3.12",
+          "plugins": ["helm-diff", "helm-secrets"]
+        },
+        "packages": [
+          "docker/build-push-action@v5",
+          "azure/k8s-deploy@v4",
+          "deliverybot/helm@v1"
+        ]
+      },
+
+      "rdfOntologyExtensions": {
+        "namespaces": {
+          "deploy": "https://ggen.example.com/deploy/",
+          "k8s": "https://ggen.example.com/kubernetes/",
+          "container": "https://ggen.example.com/container/"
+        },
+
+        "classes": [
+          {
+            "uri": "deploy:ContainerStrategy",
+            "label": "Container Deployment Strategy",
+            "properties": [
+              "deploy:baseImage",
+              "deploy:multistage",
+              "deploy:layers",
+              "deploy:buildArgs",
+              "deploy:targetPlatforms"
+            ]
+          },
+          {
+            "uri": "k8s:Deployment",
+            "label": "Kubernetes Deployment",
+            "properties": [
+              "k8s:replicas",
+              "k8s:strategy",
+              "k8s:resources",
+              "k8s:probes",
+              "k8s:volumes"
+            ]
+          },
+          {
+            "uri": "k8s:Service",
+            "label": "Kubernetes Service",
+            "properties": [
+              "k8s:type",
+              "k8s:ports",
+              "k8s:selector",
+              "k8s:annotations"
+            ]
+          },
+          {
+            "uri": "k8s:HelmChart",
+            "label": "Helm Chart",
+            "properties": [
+              "k8s:chartName",
+              "k8s:chartVersion",
+              "k8s:values",
+              "k8s:dependencies"
+            ]
+          }
+        ],
+
+        "exampleOntology": "@prefix deploy: <https://ggen.example.com/deploy/> .\n@prefix k8s: <https://ggen.example.com/kubernetes/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\ndeploy:api-service a deploy:ContainerStrategy ;\n  deploy:baseImage \"node:20-alpine\" ;\n  deploy:multistage true ;\n  deploy:layers (\n    deploy:builder-layer\n    deploy:production-layer\n  ) ;\n  deploy:targetPlatforms ( \"linux/amd64\" \"linux/arm64\" ) .\n\ndeploy:api-k8s-deployment a k8s:Deployment ;\n  k8s:replicas 3 ;\n  k8s:strategy \"RollingUpdate\" ;\n  k8s:resources [\n    k8s:requestsCpu \"100m\" ;\n    k8s:requestsMemory \"128Mi\" ;\n    k8s:limitsCpu \"500m\" ;\n    k8s:limitsMemory \"512Mi\"\n  ] ;\n  k8s:probes [\n    k8s:livenessPath \"/health\" ;\n    k8s:readinessPath \"/ready\" ;\n    k8s:startupPath \"/startup\"\n  ] .\n\ndeploy:api-helm-chart a k8s:HelmChart ;\n  k8s:chartName \"ggen-api\" ;\n  k8s:chartVersion \"1.0.0\" ;\n  k8s:values [\n    k8s:replicaCount 3 ;\n    k8s:autoscaling true ;\n    k8s:ingress true\n  ] ."
+      },
+
+      "generatedWorkflow": "name: Container Orchestration Pipeline\n\non:\n  push:\n    branches: [main, develop]\n    paths:\n      - 'src/**'\n      - 'Dockerfile'\n      - 'k8s/**'\n      - 'helm/**'\n\nenv:\n  REGISTRY: ghcr.io\n  IMAGE_NAME: ${{ github.repository }}\n\njobs:\n  generate-k8s-manifests:\n    name: Generate K8s from RDF\n    runs-on: ubuntu-latest\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Install ggen\n        run: curl -sSL https://ggen.example.com/install.sh | bash\n      \n      - name: Generate Kubernetes manifests from ontology\n        run: |\n          # Generate K8s YAML from RDF deployment ontology\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/kubernetes/deployment.yaml.tera \\\n            --output k8s/generated/\n          \n          # Generate Helm chart from RDF\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/helm/ \\\n            --output helm/charts/ggen-api/\n      \n      - name: Validate K8s manifests\n        run: |\n          kubectl --dry-run=client apply -f k8s/generated/\n          helm lint helm/charts/ggen-api/\n      \n      - name: Upload manifests\n        uses: actions/upload-artifact@v4\n        with:\n          name: k8s-manifests\n          path: |\n            k8s/generated/\n            helm/charts/\n  \n  build-multiplatform:\n    name: Build Multi-Platform Containers\n    runs-on: ubuntu-latest\n    needs: generate-k8s-manifests\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Set up QEMU\n        uses: docker/setup-qemu-action@v3\n      \n      - name: Set up Docker Buildx\n        uses: docker/setup-buildx-action@v3\n        with:\n          driver-opts: |\n            image=moby/buildkit:latest\n            network=host\n      \n      - name: Login to GitHub Container Registry\n        uses: docker/login-action@v3\n        with:\n          registry: ${{ env.REGISTRY }}\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n      \n      - name: Extract metadata\n        id: meta\n        uses: docker/metadata-action@v5\n        with:\n          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\n          tags: |\n            type=ref,event=branch\n            type=sha,prefix={{branch}}-\n            type=semver,pattern={{version}}\n            type=semver,pattern={{major}}.{{minor}}\n      \n      - name: Build and push multi-platform image\n        uses: docker/build-push-action@v5\n        with:\n          context: .\n          platforms: linux/amd64,linux/arm64\n          push: true\n          tags: ${{ steps.meta.outputs.tags }}\n          labels: ${{ steps.meta.outputs.labels }}\n          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache\n          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max\n          build-args: |\n            BUILD_DATE=${{ github.event.head_commit.timestamp }}\n            VCS_REF=${{ github.sha }}\n            VERSION=${{ steps.meta.outputs.version }}\n  \n  deploy-k8s:\n    name: Deploy to Kubernetes\n    runs-on: ubuntu-latest\n    needs: build-multiplatform\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download K8s manifests\n        uses: actions/download-artifact@v4\n        with:\n          name: k8s-manifests\n      \n      - name: Set up kubectl\n        uses: azure/setup-kubectl@v3\n        with:\n          version: 'v1.28.0'\n      \n      - name: Configure kubeconfig\n        run: |\n          mkdir -p ~/.kube\n          echo \"${{ secrets.KUBE_CONFIG }}\" | base64 -d > ~/.kube/config\n      \n      - name: Deploy with Helm\n        run: |\n          helm upgrade --install ggen-api \\\n            helm/charts/ggen-api/ \\\n            --namespace production \\\n            --create-namespace \\\n            --values helm/charts/ggen-api/values.yaml \\\n            --set image.tag=${{ github.sha }} \\\n            --wait \\\n            --timeout 5m\n      \n      - name: Verify deployment\n        run: |\n          kubectl rollout status deployment/ggen-api -n production\n          kubectl get pods -n production -l app=ggen-api",
+
+      "generatedTemplates": {
+        "dockerfile": "# Multi-stage Dockerfile generated from RDF ontology\n# Source: ontology/deployment.ttl (deploy:api-service)\n\n# Stage 1: Builder\nFROM node:20-alpine AS builder\n\nWORKDIR /app\n\n# Install build dependencies\nRUN apk add --no-cache python3 make g++\n\nCOPY package*.json ./\nRUN npm ci --only=production\n\nCOPY . .\nRUN npm run build\n\n# Stage 2: Production\nFROM node:20-alpine AS production\n\nWORKDIR /app\n\n# Security: Run as non-root\nRUN addgroup -g 1001 -S nodejs && \\\n    adduser -S nodejs -u 1001\n\n# Copy dependencies and built artifacts\nCOPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules\nCOPY --from=builder --chown=nodejs:nodejs /app/dist ./dist\nCOPY --chown=nodejs:nodejs package.json ./\n\nUSER nodejs\n\nEXPOSE 3000\n\nHEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\\n  CMD node healthcheck.js\n\nCMD [\"node\", \"dist/server.js\"]",
+
+        "dockerCompose": "# docker-compose.yml generated from RDF ontology\nversion: '3.8'\n\nservices:\n  api:\n    build:\n      context: .\n      dockerfile: Dockerfile\n      args:\n        NODE_ENV: production\n    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-ggen-api}:${TAG:-latest}\n    ports:\n      - \"${API_PORT:-3000}:3000\"\n    environment:\n      NODE_ENV: production\n      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ggen\n      REDIS_URL: redis://redis:6379\n    depends_on:\n      postgres:\n        condition: service_healthy\n      redis:\n        condition: service_started\n    healthcheck:\n      test: [\"CMD\", \"wget\", \"--no-verbose\", \"--tries=1\", \"--spider\", \"http://localhost:3000/health\"]\n      interval: 10s\n      timeout: 5s\n      retries: 5\n    restart: unless-stopped\n    networks:\n      - ggen-network\n  \n  postgres:\n    image: postgres:15-alpine\n    environment:\n      POSTGRES_DB: ggen\n      POSTGRES_USER: postgres\n      POSTGRES_PASSWORD: postgres\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n      interval: 5s\n      timeout: 5s\n      retries: 5\n    networks:\n      - ggen-network\n  \n  redis:\n    image: redis:7-alpine\n    volumes:\n      - redis_data:/data\n    networks:\n      - ggen-network\n\nvolumes:\n  postgres_data:\n  redis_data:\n\nnetworks:\n  ggen-network:\n    driver: bridge",
+
+        "kubernetesDeployment": "# Kubernetes Deployment generated from RDF ontology\n# Source: ontology/deployment.ttl (deploy:api-k8s-deployment)\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: ggen-api\n  namespace: production\n  labels:\n    app: ggen-api\n    version: v1\nspec:\n  replicas: 3\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 1\n      maxUnavailable: 0\n  selector:\n    matchLabels:\n      app: ggen-api\n  template:\n    metadata:\n      labels:\n        app: ggen-api\n        version: v1\n      annotations:\n        prometheus.io/scrape: \"true\"\n        prometheus.io/port: \"3000\"\n        prometheus.io/path: \"/metrics\"\n    spec:\n      serviceAccountName: ggen-api\n      securityContext:\n        runAsNonRoot: true\n        runAsUser: 1001\n        fsGroup: 1001\n      containers:\n      - name: api\n        image: ghcr.io/org/ggen-api:latest\n        imagePullPolicy: Always\n        ports:\n        - name: http\n          containerPort: 3000\n          protocol: TCP\n        env:\n        - name: NODE_ENV\n          value: production\n        - name: DATABASE_URL\n          valueFrom:\n            secretKeyRef:\n              name: ggen-secrets\n              key: database-url\n        resources:\n          requests:\n            cpu: 100m\n            memory: 128Mi\n          limits:\n            cpu: 500m\n            memory: 512Mi\n        livenessProbe:\n          httpGet:\n            path: /health\n            port: http\n          initialDelaySeconds: 30\n          periodSeconds: 10\n          timeoutSeconds: 5\n          failureThreshold: 3\n        readinessProbe:\n          httpGet:\n            path: /ready\n            port: http\n          initialDelaySeconds: 10\n          periodSeconds: 5\n          timeoutSeconds: 3\n          failureThreshold: 3\n        startupProbe:\n          httpGet:\n            path: /startup\n            port: http\n          initialDelaySeconds: 0\n          periodSeconds: 5\n          failureThreshold: 30\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: ggen-api\n  namespace: production\n  labels:\n    app: ggen-api\nspec:\n  type: ClusterIP\n  selector:\n    app: ggen-api\n  ports:\n  - name: http\n    port: 80\n    targetPort: http\n    protocol: TCP",
+
+        "helmChart": {
+          "Chart.yaml": "apiVersion: v2\nname: ggen-api\ndescription: Generated API service from RDF ontology\ntype: application\nversion: 1.0.0\nappVersion: \"1.0.0\"\nkeywords:\n  - api\n  - rdf\n  - code-generation\nmaintainers:\n  - name: ggen\n    email: support@ggen.example.com",
+
+          "values.yaml": "# Helm values generated from RDF ontology\nreplicaCount: 3\n\nimage:\n  repository: ghcr.io/org/ggen-api\n  pullPolicy: Always\n  tag: \"latest\"\n\nimagePullSecrets: []\nnameOverride: \"\"\nfullnameOverride: \"\"\n\nserviceAccount:\n  create: true\n  annotations: {}\n  name: \"ggen-api\"\n\npodAnnotations:\n  prometheus.io/scrape: \"true\"\n  prometheus.io/port: \"3000\"\n  prometheus.io/path: \"/metrics\"\n\npodSecurityContext:\n  runAsNonRoot: true\n  runAsUser: 1001\n  fsGroup: 1001\n\nsecurityContext:\n  capabilities:\n    drop:\n    - ALL\n  readOnlyRootFilesystem: true\n  allowPrivilegeEscalation: false\n\nservice:\n  type: ClusterIP\n  port: 80\n  targetPort: 3000\n\ningress:\n  enabled: true\n  className: \"nginx\"\n  annotations:\n    cert-manager.io/cluster-issuer: \"letsencrypt-prod\"\n  hosts:\n    - host: api.example.com\n      paths:\n        - path: /\n          pathType: Prefix\n  tls:\n    - secretName: ggen-api-tls\n      hosts:\n        - api.example.com\n\nresources:\n  limits:\n    cpu: 500m\n    memory: 512Mi\n  requests:\n    cpu: 100m\n    memory: 128Mi\n\nautoscaling:\n  enabled: true\n  minReplicas: 3\n  maxReplicas: 10\n  targetCPUUtilizationPercentage: 80\n  targetMemoryUtilizationPercentage: 80\n\nlivenessProbe:\n  httpGet:\n    path: /health\n    port: http\n  initialDelaySeconds: 30\n  periodSeconds: 10\n\nreadinessProbe:\n  httpGet:\n    path: /ready\n    port: http\n  initialDelaySeconds: 10\n  periodSeconds: 5\n\nenv:\n  - name: NODE_ENV\n    value: production\n\nenvFrom:\n  - secretRef:\n      name: ggen-secrets\n\nnodeSelector: {}\n\ntolerations: []\n\naffinity:\n  podAntiAffinity:\n    preferredDuringSchedulingIgnoredDuringExecution:\n      - weight: 100\n        podAffinityTerm:\n          labelSelector:\n            matchExpressions:\n              - key: app\n                operator: In\n                values:\n                  - ggen-api\n          topologyKey: kubernetes.io/hostname",
+
+          "templates/deployment.yaml": "{{- $fullName := include \"ggen-api.fullname\" . -}}\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: {{ $fullName }}\n  labels:\n    {{- include \"ggen-api.labels\" . | nindent 4 }}\nspec:\n  {{- if not .Values.autoscaling.enabled }}\n  replicas: {{ .Values.replicaCount }}\n  {{- end }}\n  selector:\n    matchLabels:\n      {{- include \"ggen-api.selectorLabels\" . | nindent 6 }}\n  template:\n    metadata:\n      annotations:\n        {{- toYaml .Values.podAnnotations | nindent 8 }}\n      labels:\n        {{- include \"ggen-api.selectorLabels\" . | nindent 8 }}\n    spec:\n      {{- with .Values.imagePullSecrets }}\n      imagePullSecrets:\n        {{- toYaml . | nindent 8 }}\n      {{- end }}\n      serviceAccountName: {{ include \"ggen-api.serviceAccountName\" . }}\n      securityContext:\n        {{- toYaml .Values.podSecurityContext | nindent 8 }}\n      containers:\n      - name: {{ .Chart.Name }}\n        securityContext:\n          {{- toYaml .Values.securityContext | nindent 12 }}\n        image: \"{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}\"\n        imagePullPolicy: {{ .Values.image.pullPolicy }}\n        ports:\n        - name: http\n          containerPort: 3000\n          protocol: TCP\n        {{- with .Values.env }}\n        env:\n          {{- toYaml . | nindent 10 }}\n        {{- end }}\n        {{- with .Values.envFrom }}\n        envFrom:\n          {{- toYaml . | nindent 10 }}\n        {{- end }}\n        livenessProbe:\n          {{- toYaml .Values.livenessProbe | nindent 10 }}\n        readinessProbe:\n          {{- toYaml .Values.readinessProbe | nindent 10 }}\n        resources:\n          {{- toYaml .Values.resources | nindent 10 }}\n      {{- with .Values.nodeSelector }}\n      nodeSelector:\n        {{- toYaml . | nindent 8 }}\n      {{- end }}\n      {{- with .Values.affinity }}\n      affinity:\n        {{- toYaml . | nindent 8 }}\n      {{- end }}\n      {{- with .Values.tolerations }}\n      tolerations:\n        {{- toYaml . | nindent 8 }}\n      {{- end }}"
+        }
+      }
+    },
+
+    {
+      "id": "infrastructure-as-code",
+      "name": "Advanced Infrastructure as Code",
+      "description": "Generate Terraform, Pulumi, and AWS CDK from RDF infrastructure ontologies",
+
+      "externalTools": {
+        "terraform": {
+          "version": ">=1.6",
+          "providers": ["aws", "google", "azure", "kubernetes"]
+        },
+        "pulumi": {
+          "version": ">=3.90",
+          "languages": ["typescript", "python", "go"]
+        },
+        "awsCdk": {
+          "version": ">=2.100",
+          "constructs": ["aws-cdk-lib", "@aws-cdk/aws-eks"]
+        },
+        "packages": [
+          "hashicorp/setup-terraform@v3",
+          "pulumi/actions@v4",
+          "aws-actions/configure-aws-credentials@v4"
+        ]
+      },
+
+      "rdfOntologyExtensions": {
+        "namespaces": {
+          "infra": "https://ggen.example.com/infrastructure/",
+          "cloud": "https://ggen.example.com/cloud/",
+          "network": "https://ggen.example.com/network/"
+        },
+
+        "classes": [
+          {
+            "uri": "infra:Infrastructure",
+            "label": "Infrastructure Definition",
+            "properties": [
+              "infra:provider",
+              "infra:region",
+              "infra:resources",
+              "infra:modules"
+            ]
+          },
+          {
+            "uri": "cloud:ComputeInstance",
+            "label": "Compute Instance",
+            "properties": [
+              "cloud:instanceType",
+              "cloud:ami",
+              "cloud:vpcId",
+              "cloud:subnetId"
+            ]
+          },
+          {
+            "uri": "cloud:DatabaseCluster",
+            "label": "Database Cluster",
+            "properties": [
+              "cloud:engine",
+              "cloud:version",
+              "cloud:instanceClass",
+              "cloud:storageType"
+            ]
+          },
+          {
+            "uri": "network:VPC",
+            "label": "Virtual Private Cloud",
+            "properties": [
+              "network:cidrBlock",
+              "network:subnets",
+              "network:internetGateway",
+              "network:natGateways"
+            ]
+          }
+        ],
+
+        "exampleOntology": "@prefix infra: <https://ggen.example.com/infrastructure/> .\n@prefix cloud: <https://ggen.example.com/cloud/> .\n@prefix network: <https://ggen.example.com/network/> .\n\ninfra:production-env a infra:Infrastructure ;\n  infra:provider \"aws\" ;\n  infra:region \"us-east-1\" ;\n  infra:resources (\n    network:production-vpc\n    cloud:api-cluster\n    cloud:postgres-rds\n    cloud:redis-cache\n  ) .\n\nnetwork:production-vpc a network:VPC ;\n  network:cidrBlock \"10.0.0.0/16\" ;\n  network:subnets (\n    [ network:name \"public-1\" ; network:cidr \"10.0.1.0/24\" ; network:az \"us-east-1a\" ]\n    [ network:name \"public-2\" ; network:cidr \"10.0.2.0/24\" ; network:az \"us-east-1b\" ]\n    [ network:name \"private-1\" ; network:cidr \"10.0.11.0/24\" ; network:az \"us-east-1a\" ]\n    [ network:name \"private-2\" ; network:cidr \"10.0.12.0/24\" ; network:az \"us-east-1b\" ]\n  ) ;\n  network:internetGateway true ;\n  network:natGateways 2 .\n\ncloud:api-cluster a cloud:EKSCluster ;\n  cloud:version \"1.28\" ;\n  cloud:nodeGroups [\n    cloud:name \"general\" ;\n    cloud:instanceTypes ( \"t3.medium\" \"t3.large\" ) ;\n    cloud:minSize 3 ;\n    cloud:maxSize 10 ;\n    cloud:desiredSize 3\n  ] .\n\ncloud:postgres-rds a cloud:DatabaseCluster ;\n  cloud:engine \"postgres\" ;\n  cloud:version \"15.4\" ;\n  cloud:instanceClass \"db.r6g.large\" ;\n  cloud:storageType \"gp3\" ;\n  cloud:allocatedStorage 100 ;\n  cloud:multiAz true ."
+      },
+
+      "generatedWorkflow": "name: Infrastructure as Code Pipeline\n\non:\n  push:\n    branches: [main]\n    paths:\n      - 'ontology/infrastructure.ttl'\n      - 'terraform/**'\n      - '.github/workflows/iac.yml'\n  pull_request:\n    paths:\n      - 'ontology/infrastructure.ttl'\n      - 'terraform/**'\n\njobs:\n  generate-iac:\n    name: Generate IaC from RDF\n    runs-on: ubuntu-latest\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Install ggen\n        run: curl -sSL https://ggen.example.com/install.sh | bash\n      \n      - name: Generate Terraform from ontology\n        run: |\n          ggen render \\\n            --ontology ontology/infrastructure.ttl \\\n            --template templates/terraform/ \\\n            --output terraform/generated/\n      \n      - name: Generate Pulumi TypeScript\n        run: |\n          ggen render \\\n            --ontology ontology/infrastructure.ttl \\\n            --template templates/pulumi-ts/ \\\n            --output pulumi/generated/\n      \n      - name: Generate AWS CDK\n        run: |\n          ggen render \\\n            --ontology ontology/infrastructure.ttl \\\n            --template templates/cdk/ \\\n            --output cdk/generated/\n      \n      - name: Upload generated IaC\n        uses: actions/upload-artifact@v4\n        with:\n          name: iac-artifacts\n          path: |\n            terraform/generated/\n            pulumi/generated/\n            cdk/generated/\n  \n  terraform-plan:\n    name: Terraform Plan\n    runs-on: ubuntu-latest\n    needs: generate-iac\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download generated Terraform\n        uses: actions/download-artifact@v4\n        with:\n          name: iac-artifacts\n      \n      - name: Setup Terraform\n        uses: hashicorp/setup-terraform@v3\n        with:\n          terraform_version: 1.6.0\n      \n      - name: Configure AWS credentials\n        uses: aws-actions/configure-aws-credentials@v4\n        with:\n          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}\n          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}\n          aws-region: us-east-1\n      \n      - name: Terraform Init\n        working-directory: terraform/generated\n        run: terraform init\n      \n      - name: Terraform Validate\n        working-directory: terraform/generated\n        run: terraform validate\n      \n      - name: Terraform Plan\n        working-directory: terraform/generated\n        run: |\n          terraform plan -out=tfplan -no-color | tee plan.txt\n      \n      - name: Comment PR with Plan\n        if: github.event_name == 'pull_request'\n        uses: actions/github-script@v7\n        with:\n          script: |\n            const fs = require('fs');\n            const plan = fs.readFileSync('terraform/generated/plan.txt', 'utf8');\n            const output = `#### Terraform Plan 📋\n            \n            <details><summary>Show Plan</summary>\n            \n            \\`\\`\\`terraform\n            ${plan}\n            \\`\\`\\`\n            \n            </details>`;\n            \n            github.rest.issues.createComment({\n              issue_number: context.issue.number,\n              owner: context.repo.owner,\n              repo: context.repo.repo,\n              body: output\n            });\n  \n  terraform-apply:\n    name: Terraform Apply\n    runs-on: ubuntu-latest\n    needs: terraform-plan\n    if: github.ref == 'refs/heads/main' && github.event_name == 'push'\n    environment:\n      name: production\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download generated Terraform\n        uses: actions/download-artifact@v4\n        with:\n          name: iac-artifacts\n      \n      - name: Setup Terraform\n        uses: hashicorp/setup-terraform@v3\n      \n      - name: Configure AWS credentials\n        uses: aws-actions/configure-aws-credentials@v4\n        with:\n          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}\n          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}\n          aws-region: us-east-1\n      \n      - name: Terraform Init\n        working-directory: terraform/generated\n        run: terraform init\n      \n      - name: Terraform Apply\n        working-directory: terraform/generated\n        run: terraform apply -auto-approve\n  \n  pulumi-preview:\n    name: Pulumi Preview\n    runs-on: ubuntu-latest\n    needs: generate-iac\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download generated Pulumi\n        uses: actions/download-artifact@v4\n        with:\n          name: iac-artifacts\n      \n      - uses: pulumi/actions@v4\n        with:\n          command: preview\n          stack-name: production\n          work-dir: pulumi/generated\n        env:\n          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}",
+
+      "generatedTemplates": {
+        "terraform": {
+          "main.tf": "# Terraform configuration generated from RDF ontology\n# Source: ontology/infrastructure.ttl (infra:production-env)\n\nterraform {\n  required_version = \">= 1.6\"\n  \n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n  \n  backend \"s3\" {\n    bucket         = \"ggen-terraform-state\"\n    key            = \"production/terraform.tfstate\"\n    region         = \"us-east-1\"\n    encrypt        = true\n    dynamodb_table = \"ggen-terraform-locks\"\n  }\n}\n\nprovider \"aws\" {\n  region = var.aws_region\n  \n  default_tags {\n    tags = {\n      Environment = \"production\"\n      ManagedBy   = \"terraform\"\n      Project     = \"ggen-api\"\n      GeneratedFrom = \"ontology/infrastructure.ttl\"\n    }\n  }\n}\n\nmodule \"vpc\" {\n  source = \"./modules/vpc\"\n  \n  cidr_block = \"10.0.0.0/16\"\n  \n  public_subnets = [\n    { cidr = \"10.0.1.0/24\", az = \"us-east-1a\" },\n    { cidr = \"10.0.2.0/24\", az = \"us-east-1b\" }\n  ]\n  \n  private_subnets = [\n    { cidr = \"10.0.11.0/24\", az = \"us-east-1a\" },\n    { cidr = \"10.0.12.0/24\", az = \"us-east-1b\" }\n  ]\n  \n  enable_nat_gateway = true\n  nat_gateway_count  = 2\n}\n\nmodule \"eks\" {\n  source = \"./modules/eks\"\n  \n  cluster_name    = \"ggen-api-cluster\"\n  cluster_version = \"1.28\"\n  \n  vpc_id     = module.vpc.vpc_id\n  subnet_ids = module.vpc.private_subnet_ids\n  \n  node_groups = {\n    general = {\n      desired_size = 3\n      min_size     = 3\n      max_size     = 10\n      \n      instance_types = [\"t3.medium\", \"t3.large\"]\n      capacity_type  = \"ON_DEMAND\"\n      \n      labels = {\n        workload = \"general\"\n      }\n      \n      taints = []\n    }\n  }\n}\n\nmodule \"rds\" {\n  source = \"./modules/rds\"\n  \n  identifier = \"ggen-postgres\"\n  engine     = \"postgres\"\n  engine_version = \"15.4\"\n  \n  instance_class    = \"db.r6g.large\"\n  allocated_storage = 100\n  storage_type      = \"gp3\"\n  storage_encrypted = true\n  \n  multi_az = true\n  \n  vpc_id     = module.vpc.vpc_id\n  subnet_ids = module.vpc.private_subnet_ids\n  \n  backup_retention_period = 7\n  backup_window          = \"03:00-04:00\"\n  maintenance_window     = \"mon:04:00-mon:05:00\"\n}\n\nmodule \"elasticache\" {\n  source = \"./modules/elasticache\"\n  \n  cluster_id = \"ggen-redis\"\n  engine     = \"redis\"\n  engine_version = \"7.0\"\n  \n  node_type       = \"cache.r6g.large\"\n  num_cache_nodes = 2\n  \n  vpc_id     = module.vpc.vpc_id\n  subnet_ids = module.vpc.private_subnet_ids\n}",
+
+          "variables.tf": "variable \"aws_region\" {\n  description = \"AWS region for resources\"\n  type        = string\n  default     = \"us-east-1\"\n}\n\nvariable \"environment\" {\n  description = \"Environment name\"\n  type        = string\n  default     = \"production\"\n}\n\nvariable \"project_name\" {\n  description = \"Project name\"\n  type        = string\n  default     = \"ggen-api\"\n}",
+
+          "outputs.tf": "output \"vpc_id\" {\n  description = \"VPC ID\"\n  value       = module.vpc.vpc_id\n}\n\output \"eks_cluster_endpoint\" {\n  description = \"EKS cluster endpoint\"\n  value       = module.eks.cluster_endpoint\n  sensitive   = true\n}\n\noutput \"rds_endpoint\" {\n  description = \"RDS endpoint\"\n  value       = module.rds.endpoint\n  sensitive   = true\n}\n\noutput \"redis_endpoint\" {\n  description = \"Redis endpoint\"\n  value       = module.elasticache.endpoint\n  sensitive   = true\n}"
+        },
+
+        "pulumi": {
+          "index.ts": "// Pulumi TypeScript generated from RDF ontology\n// Source: ontology/infrastructure.ttl\n\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport * as awsx from \"@pulumi/awsx\";\nimport * as eks from \"@pulumi/eks\";\n\nconst config = new pulumi.Config();\nconst awsRegion = config.get(\"awsRegion\") || \"us-east-1\";\n\n// VPC Configuration from RDF ontology\nconst vpc = new awsx.ec2.Vpc(\"ggen-vpc\", {\n    cidrBlock: \"10.0.0.0/16\",\n    numberOfAvailabilityZones: 2,\n    natGateways: {\n        strategy: \"OnePerAz\",\n    },\n    subnetSpecs: [\n        {\n            type: awsx.ec2.SubnetType.Public,\n            cidrMask: 24,\n        },\n        {\n            type: awsx.ec2.SubnetType.Private,\n            cidrMask: 24,\n        },\n    ],\n    tags: {\n        Name: \"ggen-production-vpc\",\n        Environment: \"production\",\n        GeneratedFrom: \"ontology/infrastructure.ttl\",\n    },\n});\n\n// EKS Cluster from RDF ontology\nconst cluster = new eks.Cluster(\"ggen-cluster\", {\n    vpcId: vpc.vpcId,\n    privateSubnetIds: vpc.privateSubnetIds,\n    publicSubnetIds: vpc.publicSubnetIds,\n    instanceType: \"t3.medium\",\n    desiredCapacity: 3,\n    minSize: 3,\n    maxSize: 10,\n    nodeRootVolumeSize: 20,\n    version: \"1.28\",\n    tags: {\n        Name: \"ggen-api-cluster\",\n        Environment: \"production\",\n    },\n});\n\n// RDS PostgreSQL from RDF ontology\nconst dbSubnetGroup = new aws.rds.SubnetGroup(\"ggen-db-subnet\", {\n    subnetIds: vpc.privateSubnetIds,\n    tags: {\n        Name: \"ggen-db-subnet-group\",\n    },\n});\n\nconst dbSecurityGroup = new aws.ec2.SecurityGroup(\"ggen-db-sg\", {\n    vpcId: vpc.vpcId,\n    ingress: [{\n        protocol: \"tcp\",\n        fromPort: 5432,\n        toPort: 5432,\n        cidrBlocks: [\"10.0.0.0/16\"],\n    }],\n    egress: [{\n        protocol: \"-1\",\n        fromPort: 0,\n        toPort: 0,\n        cidrBlocks: [\"0.0.0.0/0\"],\n    }],\n});\n\nconst db = new aws.rds.Instance(\"ggen-postgres\", {\n    engine: \"postgres\",\n    engineVersion: \"15.4\",\n    instanceClass: \"db.r6g.large\",\n    allocatedStorage: 100,\n    storageType: \"gp3\",\n    storageEncrypted: true,\n    multiAz: true,\n    dbSubnetGroupName: dbSubnetGroup.name,\n    vpcSecurityGroupIds: [dbSecurityGroup.id],\n    backupRetentionPeriod: 7,\n    backupWindow: \"03:00-04:00\",\n    maintenanceWindow: \"mon:04:00-mon:05:00\",\n    skipFinalSnapshot: false,\n    finalSnapshotIdentifier: \"ggen-postgres-final-snapshot\",\n    tags: {\n        Name: \"ggen-postgres\",\n        Environment: \"production\",\n    },\n});\n\n// Exports\nexport const vpcId = vpc.vpcId;\nexport const clusterName = cluster.eksCluster.name;\nexport const kubeconfig = cluster.kubeconfig;\nexport const dbEndpoint = db.endpoint;\nexport const dbConnection = pulumi.interpolate`postgresql://${db.username}:${db.password}@${db.endpoint}/${db.dbName}`;",
+
+          "Pulumi.yaml": "name: ggen-infrastructure\nruntime: nodejs\ndescription: Infrastructure generated from RDF ontology\n\nconfig:\n  awsRegion:\n    description: AWS region\n    default: us-east-1"
+        },
+
+        "awsCdk": {
+          "lib/infrastructure-stack.ts": "// AWS CDK TypeScript generated from RDF ontology\n// Source: ontology/infrastructure.ttl\n\nimport * as cdk from 'aws-cdk-lib';\nimport * as ec2 from 'aws-cdk-lib/aws-ec2';\nimport * as eks from 'aws-cdk-lib/aws-eks';\nimport * as rds from 'aws-cdk-lib/aws-rds';\nimport * as elasticache from 'aws-cdk-lib/aws-elasticache';\nimport { Construct } from 'constructs';\n\nexport class InfrastructureStack extends cdk.Stack {\n  constructor(scope: Construct, id: string, props?: cdk.StackProps) {\n    super(scope, id, props);\n\n    // VPC from RDF ontology (network:production-vpc)\n    const vpc = new ec2.Vpc(this, 'GgenVpc', {\n      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),\n      maxAzs: 2,\n      natGateways: 2,\n      subnetConfiguration: [\n        {\n          cidrMask: 24,\n          name: 'Public',\n          subnetType: ec2.SubnetType.PUBLIC,\n        },\n        {\n          cidrMask: 24,\n          name: 'Private',\n          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,\n        },\n      ],\n    });\n\n    // EKS Cluster from RDF ontology (cloud:api-cluster)\n    const cluster = new eks.Cluster(this, 'GgenCluster', {\n      vpc,\n      version: eks.KubernetesVersion.V1_28,\n      defaultCapacity: 0,\n      vpcSubnets: [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }],\n    });\n\n    cluster.addNodegroupCapacity('GeneralNodeGroup', {\n      instanceTypes: [\n        new ec2.InstanceType('t3.medium'),\n        new ec2.InstanceType('t3.large'),\n      ],\n      minSize: 3,\n      maxSize: 10,\n      desiredSize: 3,\n      diskSize: 20,\n    });\n\n    // RDS PostgreSQL from RDF ontology (cloud:postgres-rds)\n    const dbInstance = new rds.DatabaseInstance(this, 'GgenPostgres', {\n      engine: rds.DatabaseInstanceEngine.postgres({\n        version: rds.PostgresEngineVersion.VER_15_4,\n      }),\n      instanceType: ec2.InstanceType.of(\n        ec2.InstanceClass.R6G,\n        ec2.InstanceSize.LARGE\n      ),\n      vpc,\n      vpcSubnets: {\n        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,\n      },\n      allocatedStorage: 100,\n      storageType: rds.StorageType.GP3,\n      multiAz: true,\n      backupRetention: cdk.Duration.days(7),\n      deletionProtection: true,\n      removalPolicy: cdk.RemovalPolicy.SNAPSHOT,\n    });\n\n    // Redis from RDF ontology (cloud:redis-cache)\n    const redisSubnetGroup = new elasticache.CfnSubnetGroup(this, 'RedisSubnetGroup', {\n      description: 'Subnet group for Redis',\n      subnetIds: vpc.privateSubnets.map(subnet => subnet.subnetId),\n    });\n\n    const redisSecurityGroup = new ec2.SecurityGroup(this, 'RedisSecurityGroup', {\n      vpc,\n      description: 'Security group for Redis cluster',\n      allowAllOutbound: true,\n    });\n\n    redisSecurityGroup.addIngressRule(\n      ec2.Peer.ipv4(vpc.vpcCidrBlock),\n      ec2.Port.tcp(6379),\n      'Allow Redis access from VPC'\n    );\n\n    const redisCluster = new elasticache.CfnReplicationGroup(this, 'RedisCluster', {\n      replicationGroupDescription: 'ggen Redis cluster',\n      engine: 'redis',\n      engineVersion: '7.0',\n      cacheNodeType: 'cache.r6g.large',\n      numCacheClusters: 2,\n      automaticFailoverEnabled: true,\n      multiAzEnabled: true,\n      cacheSubnetGroupName: redisSubnetGroup.ref,\n      securityGroupIds: [redisSecurityGroup.securityGroupId],\n    });\n\n    // Outputs\n    new cdk.CfnOutput(this, 'VpcId', {\n      value: vpc.vpcId,\n      description: 'VPC ID',\n    });\n\n    new cdk.CfnOutput(this, 'ClusterName', {\n      value: cluster.clusterName,\n      description: 'EKS Cluster Name',\n    });\n\n    new cdk.CfnOutput(this, 'DbEndpoint', {\n      value: dbInstance.dbInstanceEndpointAddress,\n      description: 'RDS Endpoint',\n    });\n  }\n}"
+        }
+      }
+    },
+
+    {
+      "id": "monitoring-observability",
+      "name": "Advanced Monitoring and Observability",
+      "description": "Generate Prometheus, Grafana, Jaeger, and OpenTelemetry configurations from RDF",
+
+      "externalTools": {
+        "prometheus": {
+          "version": ">=2.47",
+          "components": ["alertmanager", "node-exporter", "blackbox-exporter"]
+        },
+        "grafana": {
+          "version": ">=10.0",
+          "plugins": ["grafana-piechart-panel", "grafana-worldmap-panel"]
+        },
+        "jaeger": {
+          "version": ">=1.50",
+          "components": ["jaeger-operator", "jaeger-agent", "jaeger-collector"]
+        },
+        "opentelemetry": {
+          "version": ">=0.88",
+          "components": ["otel-collector", "otel-operator"]
+        },
+        "packages": [
+          "prometheus-community/helm-charts",
+          "grafana/helm-charts",
+          "jaegertracing/helm-charts"
+        ]
+      },
+
+      "rdfOntologyExtensions": {
+        "namespaces": {
+          "mon": "https://ggen.example.com/monitoring/",
+          "metric": "https://ggen.example.com/metrics/",
+          "trace": "https://ggen.example.com/tracing/"
+        },
+
+        "classes": [
+          {
+            "uri": "mon:MetricDefinition",
+            "label": "Metric Definition",
+            "properties": [
+              "mon:name",
+              "mon:type",
+              "mon:labels",
+              "mon:scrapeInterval"
+            ]
+          },
+          {
+            "uri": "mon:AlertRule",
+            "label": "Alert Rule",
+            "properties": [
+              "mon:condition",
+              "mon:severity",
+              "mon:duration",
+              "mon:annotations"
+            ]
+          },
+          {
+            "uri": "mon:Dashboard",
+            "label": "Grafana Dashboard",
+            "properties": [
+              "mon:panels",
+              "mon:datasource",
+              "mon:refreshInterval"
+            ]
+          },
+          {
+            "uri": "trace:TracingConfig",
+            "label": "Distributed Tracing Config",
+            "properties": [
+              "trace:sampler",
+              "trace:exporters",
+              "trace:processors"
+            ]
+          }
+        ],
+
+        "exampleOntology": "@prefix mon: <https://ggen.example.com/monitoring/> .\n@prefix metric: <https://ggen.example.com/metrics/> .\n@prefix trace: <https://ggen.example.com/tracing/> .\n\nmetric:api-latency a mon:MetricDefinition ;\n  mon:name \"http_request_duration_seconds\" ;\n  mon:type \"histogram\" ;\n  mon:labels ( \"method\" \"route\" \"status\" ) ;\n  mon:scrapeInterval \"15s\" ;\n  mon:buckets ( 0.005 0.01 0.025 0.05 0.1 0.25 0.5 1.0 2.5 5.0 10.0 ) .\n\nmon:high-latency-alert a mon:AlertRule ;\n  mon:name \"HighAPILatency\" ;\n  mon:condition \"histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1.0\" ;\n  mon:severity \"warning\" ;\n  mon:duration \"5m\" ;\n  mon:annotations [\n    mon:summary \"95th percentile latency above 1s\" ;\n    mon:description \"API latency P95 is {{ $value }}s (threshold: 1s)\"\n  ] .\n\nmon:api-dashboard a mon:Dashboard ;\n  mon:title \"ggen API Metrics\" ;\n  mon:panels (\n    [ mon:type \"graph\" ; mon:title \"Request Rate\" ; mon:query \"rate(http_requests_total[5m])\" ]\n    [ mon:type \"graph\" ; mon:title \"Latency P95\" ; mon:query \"histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))\" ]\n    [ mon:type \"graph\" ; mon:title \"Error Rate\" ; mon:query \"rate(http_requests_total{status=~\\\"5..\\\"}[5m])\" ]\n  ) ;\n  mon:datasource \"Prometheus\" ;\n  mon:refreshInterval \"30s\" .\n\ntrace:otel-config a trace:TracingConfig ;\n  trace:sampler \"parentbased_traceidratio\" ;\n  trace:samplerArg \"0.1\" ;\n  trace:exporters ( \"jaeger\" \"otlp\" ) ;\n  trace:processors ( \"batch\" \"memory_limiter\" \"resource\" ) ."
+      },
+
+      "generatedWorkflow": "name: Monitoring and Observability Pipeline\n\non:\n  push:\n    branches: [main]\n    paths:\n      - 'ontology/monitoring.ttl'\n      - 'monitoring/**'\n\njobs:\n  generate-monitoring:\n    name: Generate Monitoring Configs from RDF\n    runs-on: ubuntu-latest\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Install ggen\n        run: curl -sSL https://ggen.example.com/install.sh | bash\n      \n      - name: Generate Prometheus config\n        run: |\n          ggen render \\\n            --ontology ontology/monitoring.ttl \\\n            --template templates/prometheus/prometheus.yml.tera \\\n            --output monitoring/prometheus/\n      \n      - name: Generate Grafana dashboards\n        run: |\n          ggen render \\\n            --ontology ontology/monitoring.ttl \\\n            --template templates/grafana/dashboards/ \\\n            --output monitoring/grafana/dashboards/\n      \n      - name: Generate alert rules\n        run: |\n          ggen render \\\n            --ontology ontology/monitoring.ttl \\\n            --template templates/prometheus/alerts/ \\\n            --output monitoring/prometheus/alerts/\n      \n      - name: Generate OpenTelemetry config\n        run: |\n          ggen render \\\n            --ontology ontology/monitoring.ttl \\\n            --template templates/otel/otel-collector.yaml.tera \\\n            --output monitoring/otel/\n      \n      - name: Validate Prometheus config\n        run: |\n          docker run --rm -v $PWD/monitoring/prometheus:/prometheus \\\n            prom/prometheus:latest \\\n            --config.file=/prometheus/prometheus.yml \\\n            --dry-run\n      \n      - name: Upload monitoring configs\n        uses: actions/upload-artifact@v4\n        with:\n          name: monitoring-configs\n          path: monitoring/\n  \n  deploy-monitoring:\n    name: Deploy Monitoring Stack\n    runs-on: ubuntu-latest\n    needs: generate-monitoring\n    if: github.ref == 'refs/heads/main'\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download monitoring configs\n        uses: actions/download-artifact@v4\n        with:\n          name: monitoring-configs\n      \n      - name: Set up kubectl\n        uses: azure/setup-kubectl@v3\n      \n      - name: Configure kubeconfig\n        run: |\n          mkdir -p ~/.kube\n          echo \"${{ secrets.KUBE_CONFIG }}\" | base64 -d > ~/.kube/config\n      \n      - name: Deploy Prometheus with Helm\n        run: |\n          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts\n          helm repo update\n          \n          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \\\n            --namespace monitoring \\\n            --create-namespace \\\n            --values monitoring/prometheus/values.yaml \\\n            --set prometheus.prometheusSpec.additionalScrapeConfigs[0].job_name=ggen-api \\\n            --wait\n      \n      - name: Deploy Grafana dashboards\n        run: |\n          kubectl create configmap grafana-dashboards \\\n            --from-file=monitoring/grafana/dashboards/ \\\n            -n monitoring \\\n            --dry-run=client -o yaml | kubectl apply -f -\n      \n      - name: Deploy Jaeger\n        run: |\n          helm repo add jaegertracing https://jaegertracing.github.io/helm-charts\n          helm upgrade --install jaeger jaegertracing/jaeger \\\n            --namespace monitoring \\\n            --set collector.service.otlp.grpc.enabled=true \\\n            --wait\n      \n      - name: Deploy OpenTelemetry Collector\n        run: |\n          kubectl apply -f monitoring/otel/otel-collector.yaml -n monitoring",
+
+      "generatedTemplates": {
+        "prometheusConfig": "# Prometheus configuration generated from RDF ontology\n# Source: ontology/monitoring.ttl\n\nglobal:\n  scrape_interval: 15s\n  evaluation_interval: 15s\n  external_labels:\n    cluster: 'ggen-production'\n    environment: 'production'\n\nalerting:\n  alertmanagers:\n    - static_configs:\n        - targets:\n            - alertmanager:9093\n\nrule_files:\n  - '/etc/prometheus/alerts/*.yml'\n\nscrape_configs:\n  # Kubernetes API Server\n  - job_name: 'kubernetes-apiservers'\n    kubernetes_sd_configs:\n      - role: endpoints\n    scheme: https\n    tls_config:\n      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token\n    relabel_configs:\n      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]\n        action: keep\n        regex: default;kubernetes;https\n\n  # Kubernetes Nodes\n  - job_name: 'kubernetes-nodes'\n    kubernetes_sd_configs:\n      - role: node\n    scheme: https\n    tls_config:\n      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token\n    relabel_configs:\n      - action: labelmap\n        regex: __meta_kubernetes_node_label_(.+)\n\n  # ggen API - Generated from RDF (metric:api-latency)\n  - job_name: 'ggen-api'\n    scrape_interval: 15s\n    kubernetes_sd_configs:\n      - role: pod\n    relabel_configs:\n      - source_labels: [__meta_kubernetes_pod_label_app]\n        action: keep\n        regex: ggen-api\n      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]\n        action: keep\n        regex: true\n      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]\n        action: replace\n        target_label: __metrics_path__\n        regex: (.+)\n      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]\n        action: replace\n        regex: ([^:]+)(?::\\d+)?;(\\d+)\n        replacement: $1:$2\n        target_label: __address__\n      - action: labelmap\n        regex: __meta_kubernetes_pod_label_(.+)\n      - source_labels: [__meta_kubernetes_namespace]\n        action: replace\n        target_label: kubernetes_namespace\n      - source_labels: [__meta_kubernetes_pod_name]\n        action: replace\n        target_label: kubernetes_pod_name\n\n  # PostgreSQL Exporter\n  - job_name: 'postgres'\n    static_configs:\n      - targets: ['postgres-exporter:9187']\n        labels:\n          database: 'ggen'\n\n  # Redis Exporter\n  - job_name: 'redis'\n    static_configs:\n      - targets: ['redis-exporter:9121']\n        labels:\n          cache: 'ggen-redis'",
+
+        "alertRules": "# Alert rules generated from RDF ontology\n# Source: ontology/monitoring.ttl (mon:high-latency-alert, etc.)\n\ngroups:\n  - name: api_alerts\n    interval: 30s\n    rules:\n      # Generated from mon:high-latency-alert\n      - alert: HighAPILatency\n        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1.0\n        for: 5m\n        labels:\n          severity: warning\n          component: api\n        annotations:\n          summary: \"95th percentile latency above 1s\"\n          description: \"API latency P95 is {{ $value }}s (threshold: 1s)\"\n          runbook_url: \"https://runbooks.example.com/HighAPILatency\"\n      \n      - alert: HighErrorRate\n        expr: rate(http_requests_total{status=~\"5..\"}[5m]) > 0.05\n        for: 5m\n        labels:\n          severity: critical\n          component: api\n        annotations:\n          summary: \"High 5xx error rate\"\n          description: \"Error rate is {{ $value | humanizePercentage }} (threshold: 5%)\"\n      \n      - alert: APIDown\n        expr: up{job=\"ggen-api\"} == 0\n        for: 1m\n        labels:\n          severity: critical\n          component: api\n        annotations:\n          summary: \"API is down\"\n          description: \"API has been down for more than 1 minute\"\n  \n  - name: database_alerts\n    interval: 30s\n    rules:\n      - alert: HighDatabaseConnections\n        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8\n        for: 5m\n        labels:\n          severity: warning\n          component: database\n        annotations:\n          summary: \"Database connection usage high\"\n          description: \"Database is using {{ $value | humanizePercentage }} of max connections\"\n      \n      - alert: DatabaseReplicationLag\n        expr: pg_replication_lag > 30\n        for: 5m\n        labels:\n          severity: warning\n          component: database\n        annotations:\n          summary: \"Database replication lag high\"\n          description: \"Replication lag is {{ $value }}s (threshold: 30s)\"\n  \n  - name: infrastructure_alerts\n    interval: 30s\n    rules:\n      - alert: HighCPUUsage\n        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100) > 80\n        for: 5m\n        labels:\n          severity: warning\n          component: infrastructure\n        annotations:\n          summary: \"High CPU usage\"\n          description: \"CPU usage is {{ $value }}% on {{ $labels.instance }}\"\n      \n      - alert: HighMemoryUsage\n        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85\n        for: 5m\n        labels:\n          severity: warning\n          component: infrastructure\n        annotations:\n          summary: \"High memory usage\"\n          description: \"Memory usage is {{ $value }}% on {{ $labels.instance }}\"",
+
+        "grafanaDashboard": "{\n  \"dashboard\": {\n    \"title\": \"ggen API Metrics\",\n    \"description\": \"Generated from RDF ontology (mon:api-dashboard)\",\n    \"tags\": [\"ggen\", \"api\", \"generated\"],\n    \"timezone\": \"browser\",\n    \"refresh\": \"30s\",\n    \"panels\": [\n      {\n        \"id\": 1,\n        \"title\": \"Request Rate\",\n        \"type\": \"graph\",\n        \"gridPos\": {\"x\": 0, \"y\": 0, \"w\": 12, \"h\": 8},\n        \"targets\": [\n          {\n            \"expr\": \"rate(http_requests_total{job=\\\"ggen-api\\\"}[5m])\",\n            \"legendFormat\": \"{{method}} {{route}}\",\n            \"refId\": \"A\"\n          }\n        ],\n        \"yaxes\": [\n          {\"format\": \"reqps\", \"label\": \"Requests/sec\"},\n          {\"format\": \"short\"}\n        ]\n      },\n      {\n        \"id\": 2,\n        \"title\": \"Latency Percentiles\",\n        \"type\": \"graph\",\n        \"gridPos\": {\"x\": 12, \"y\": 0, \"w\": 12, \"h\": 8},\n        \"targets\": [\n          {\n            \"expr\": \"histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\\\"ggen-api\\\"}[5m]))\",\n            \"legendFormat\": \"P50\",\n            \"refId\": \"A\"\n          },\n          {\n            \"expr\": \"histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\\\"ggen-api\\\"}[5m]))\",\n            \"legendFormat\": \"P95\",\n            \"refId\": \"B\"\n          },\n          {\n            \"expr\": \"histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\\\"ggen-api\\\"}[5m]))\",\n            \"legendFormat\": \"P99\",\n            \"refId\": \"C\"\n          }\n        ],\n        \"yaxes\": [\n          {\"format\": \"s\", \"label\": \"Latency\"},\n          {\"format\": \"short\"}\n        ]\n      },\n      {\n        \"id\": 3,\n        \"title\": \"Error Rate\",\n        \"type\": \"graph\",\n        \"gridPos\": {\"x\": 0, \"y\": 8, \"w\": 12, \"h\": 8},\n        \"targets\": [\n          {\n            \"expr\": \"rate(http_requests_total{job=\\\"ggen-api\\\",status=~\\\"5..\\\"}[5m])\",\n            \"legendFormat\": \"5xx errors\",\n            \"refId\": \"A\"\n          },\n          {\n            \"expr\": \"rate(http_requests_total{job=\\\"ggen-api\\\",status=~\\\"4..\\\"}[5m])\",\n            \"legendFormat\": \"4xx errors\",\n            \"refId\": \"B\"\n          }\n        ],\n        \"yaxes\": [\n          {\"format\": \"reqps\", \"label\": \"Errors/sec\"},\n          {\"format\": \"short\"}\n        ]\n      },\n      {\n        \"id\": 4,\n        \"title\": \"Database Query Duration\",\n        \"type\": \"graph\",\n        \"gridPos\": {\"x\": 12, \"y\": 8, \"w\": 12, \"h\": 8},\n        \"targets\": [\n          {\n            \"expr\": \"histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m]))\",\n            \"legendFormat\": \"P95 Query Time\",\n            \"refId\": \"A\"\n          }\n        ],\n        \"yaxes\": [\n          {\"format\": \"s\", \"label\": \"Duration\"},\n          {\"format\": \"short\"}\n        ]\n      }\n    ]\n  }\n}",
+
+        "otelCollectorConfig": "# OpenTelemetry Collector configuration generated from RDF ontology\n# Source: ontology/monitoring.ttl (trace:otel-config)\n\nreceivers:\n  otlp:\n    protocols:\n      grpc:\n        endpoint: 0.0.0.0:4317\n      http:\n        endpoint: 0.0.0.0:4318\n  \n  prometheus:\n    config:\n      scrape_configs:\n        - job_name: 'otel-collector'\n          scrape_interval: 10s\n          static_configs:\n            - targets: ['0.0.0.0:8888']\n\nprocessors:\n  # Resource processor from RDF\n  resource:\n    attributes:\n      - key: service.name\n        value: ggen-api\n        action: upsert\n      - key: deployment.environment\n        value: production\n        action: upsert\n  \n  # Batch processor from RDF\n  batch:\n    timeout: 10s\n    send_batch_size: 1024\n  \n  # Memory limiter from RDF\n  memory_limiter:\n    check_interval: 1s\n    limit_mib: 512\n    spike_limit_mib: 128\n\nexporters:\n  # Jaeger exporter from RDF (trace:exporters)\n  jaeger:\n    endpoint: jaeger-collector:14250\n    tls:\n      insecure: true\n  \n  # OTLP exporter from RDF\n  otlp:\n    endpoint: otel-collector:4317\n    tls:\n      insecure: true\n  \n  # Prometheus exporter\n  prometheus:\n    endpoint: 0.0.0.0:8889\n  \n  # Logging exporter for debugging\n  logging:\n    loglevel: info\n\nservice:\n  pipelines:\n    traces:\n      receivers: [otlp]\n      processors: [memory_limiter, resource, batch]\n      exporters: [jaeger, otlp, logging]\n    \n    metrics:\n      receivers: [otlp, prometheus]\n      processors: [memory_limiter, resource, batch]\n      exporters: [prometheus, logging]\n  \n  extensions: [health_check, pprof, zpages]\n  \n  telemetry:\n    logs:\n      level: info\n    metrics:\n      level: detailed\n      address: 0.0.0.0:8888\n\nextensions:\n  health_check:\n    endpoint: 0.0.0.0:13133\n  pprof:\n    endpoint: 0.0.0.0:1777\n  zpages:\n    endpoint: 0.0.0.0:55679"
+      }
+    },
+
+    {
+      "id": "gitops",
+      "name": "Advanced GitOps with ArgoCD and Flux",
+      "description": "Generate ArgoCD Applications and Flux HelmReleases from RDF deployment ontologies",
+
+      "externalTools": {
+        "argocd": {
+          "version": ">=2.9",
+          "components": ["argocd-cli", "argocd-server", "argocd-repo-server"]
+        },
+        "flux": {
+          "version": ">=2.1",
+          "components": ["source-controller", "kustomize-controller", "helm-controller"]
+        },
+        "kustomize": {
+          "version": ">=5.0"
+        },
+        "packages": [
+          "argoproj/argo-cd",
+          "fluxcd/flux2",
+          "kubernetes-sigs/kustomize"
+        ]
+      },
+
+      "rdfOntologyExtensions": {
+        "namespaces": {
+          "gitops": "https://ggen.example.com/gitops/",
+          "cd": "https://ggen.example.com/continuous-delivery/"
+        },
+
+        "classes": [
+          {
+            "uri": "gitops:Application",
+            "label": "GitOps Application",
+            "properties": [
+              "gitops:sourceRepo",
+              "gitops:targetRevision",
+              "gitops:path",
+              "gitops:syncPolicy"
+            ]
+          },
+          {
+            "uri": "gitops:Environment",
+            "label": "Deployment Environment",
+            "properties": [
+              "gitops:name",
+              "gitops:cluster",
+              "gitops:namespace",
+              "gitops:values"
+            ]
+          },
+          {
+            "uri": "cd:ProgressiveDelivery",
+            "label": "Progressive Delivery Strategy",
+            "properties": [
+              "cd:strategy",
+              "cd:steps",
+              "cd:analysis",
+              "cd:rollbackOn"
+            ]
+          }
+        ],
+
+        "exampleOntology": "@prefix gitops: <https://ggen.example.com/gitops/> .\n@prefix cd: <https://ggen.example.com/continuous-delivery/> .\n\ngitops:api-app a gitops:Application ;\n  gitops:name \"ggen-api\" ;\n  gitops:sourceRepo \"https://github.com/org/ggen-gitops\" ;\n  gitops:targetRevision \"main\" ;\n  gitops:path \"apps/ggen-api\" ;\n  gitops:syncPolicy [\n    gitops:automated true ;\n    gitops:prune true ;\n    gitops:selfHeal true ;\n    gitops:syncOptions ( \"CreateNamespace=true\" )\n  ] ;\n  gitops:environments (\n    gitops:staging-env\n    gitops:production-env\n  ) .\n\ngitops:staging-env a gitops:Environment ;\n  gitops:name \"staging\" ;\n  gitops:cluster \"https://staging-k8s.example.com\" ;\n  gitops:namespace \"staging\" ;\n  gitops:values [\n    gitops:replicaCount 2 ;\n    gitops:resources [\n      gitops:limitsCpu \"500m\" ;\n      gitops:limitsMemory \"512Mi\"\n    ]\n  ] .\n\ngitops:production-env a gitops:Environment ;\n  gitops:name \"production\" ;\n  gitops:cluster \"https://prod-k8s.example.com\" ;\n  gitops:namespace \"production\" ;\n  gitops:values [\n    gitops:replicaCount 3 ;\n    gitops:resources [\n      gitops:limitsCpu \"1000m\" ;\n      gitops:limitsMemory \"1Gi\"\n    ]\n  ] ;\n  gitops:progressiveDelivery cd:canary-strategy .\n\ncd:canary-strategy a cd:ProgressiveDelivery ;\n  cd:strategy \"canary\" ;\n  cd:steps (\n    [ cd:weight 20 ; cd:pause \"5m\" ]\n    [ cd:weight 50 ; cd:pause \"10m\" ]\n    [ cd:weight 100 ]\n  ) ;\n  cd:analysis [\n    cd:metrics ( \"error-rate\" \"latency-p95\" ) ;\n    cd:threshold [ cd:errorRate \"< 5%\" ; cd:latencyP95 \"< 500ms\" ]\n  ] ;\n  cd:rollbackOn \"analysis-failure\" ."
+      },
+
+      "generatedWorkflow": "name: GitOps Sync and Deploy\n\non:\n  push:\n    branches: [main]\n    paths:\n      - 'ontology/deployment.ttl'\n      - 'gitops/**'\n\njobs:\n  generate-gitops:\n    name: Generate GitOps Manifests from RDF\n    runs-on: ubuntu-latest\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Install ggen\n        run: curl -sSL https://ggen.example.com/install.sh | bash\n      \n      - name: Generate ArgoCD Applications\n        run: |\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/argocd/application.yaml.tera \\\n            --output gitops/argocd/\n      \n      - name: Generate Flux HelmReleases\n        run: |\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/flux/helmrelease.yaml.tera \\\n            --output gitops/flux/\n      \n      - name: Generate Kustomize overlays\n        run: |\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/kustomize/ \\\n            --output gitops/overlays/\n      \n      - name: Validate manifests\n        run: |\n          kubectl apply --dry-run=client -f gitops/argocd/\n          kubectl apply --dry-run=client -f gitops/flux/\n      \n      - name: Commit and push to GitOps repo\n        run: |\n          git config user.name \"GitHub Actions\"\n          git config user.email \"actions@github.com\"\n          git add gitops/\n          git commit -m \"chore: Update GitOps manifests from ontology [skip ci]\"\n          git push\n  \n  sync-argocd:\n    name: Sync ArgoCD Applications\n    runs-on: ubuntu-latest\n    needs: generate-gitops\n    if: github.ref == 'refs/heads/main'\n    \n    steps:\n      - name: Install ArgoCD CLI\n        run: |\n          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64\n          chmod +x /usr/local/bin/argocd\n      \n      - name: Login to ArgoCD\n        run: |\n          argocd login ${{ secrets.ARGOCD_SERVER }} \\\n            --username admin \\\n            --password ${{ secrets.ARGOCD_PASSWORD }} \\\n            --insecure\n      \n      - name: Sync ggen-api application\n        run: |\n          argocd app sync ggen-api \\\n            --prune \\\n            --timeout 300\n      \n      - name: Wait for sync completion\n        run: |\n          argocd app wait ggen-api \\\n            --health \\\n            --timeout 600\n  \n  reconcile-flux:\n    name: Reconcile Flux Resources\n    runs-on: ubuntu-latest\n    needs: generate-gitops\n    if: github.ref == 'refs/heads/main'\n    \n    steps:\n      - name: Install Flux CLI\n        run: |\n          curl -s https://fluxcd.io/install.sh | sudo bash\n      \n      - name: Configure kubeconfig\n        run: |\n          mkdir -p ~/.kube\n          echo \"${{ secrets.KUBE_CONFIG }}\" | base64 -d > ~/.kube/config\n      \n      - name: Reconcile HelmRelease\n        run: |\n          flux reconcile helmrelease ggen-api \\\n            --namespace production \\\n            --timeout 5m",
+
+      "generatedTemplates": {
+        "argoCDApplication": "# ArgoCD Application generated from RDF ontology\n# Source: ontology/deployment.ttl (gitops:api-app)\n\napiVersion: argoproj.io/v1alpha1\nkind: Application\nmetadata:\n  name: ggen-api\n  namespace: argocd\n  finalizers:\n    - resources-finalizer.argocd.argoproj.io\nspec:\n  project: default\n  \n  source:\n    repoURL: https://github.com/org/ggen-gitops\n    targetRevision: main\n    path: apps/ggen-api\n    \n    helm:\n      releaseName: ggen-api\n      valueFiles:\n        - values.yaml\n        - values-production.yaml\n  \n  destination:\n    server: https://kubernetes.default.svc\n    namespace: production\n  \n  syncPolicy:\n    automated:\n      prune: true\n      selfHeal: true\n      allowEmpty: false\n    \n    syncOptions:\n      - CreateNamespace=true\n      - PrunePropagationPolicy=foreground\n      - PruneLast=true\n    \n    retry:\n      limit: 5\n      backoff:\n        duration: 5s\n        factor: 2\n        maxDuration: 3m\n  \n  revisionHistoryLimit: 10\n  \n  # Health check configuration\n  ignoreDifferences:\n    - group: apps\n      kind: Deployment\n      jsonPointers:\n        - /spec/replicas\n  \n  # Notification configuration\n  annotations:\n    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: \"deployments\"\n    notifications.argoproj.io/subscribe.on-health-degraded.slack: \"alerts\"",
+
+        "fluxHelmRelease": "# Flux HelmRelease generated from RDF ontology\n# Source: ontology/deployment.ttl (gitops:api-app)\n\napiVersion: helm.toolkit.fluxcd.io/v2beta1\nkind: HelmRelease\nmetadata:\n  name: ggen-api\n  namespace: production\nspec:\n  interval: 5m\n  \n  chart:\n    spec:\n      chart: ggen-api\n      version: '>=1.0.0 <2.0.0'\n      sourceRef:\n        kind: HelmRepository\n        name: ggen-charts\n        namespace: flux-system\n      interval: 1m\n  \n  # Progressive delivery from RDF (cd:canary-strategy)\n  upgrade:\n    remediation:\n      retries: 3\n    crds: CreateReplace\n  \n  rollback:\n    recreate: true\n    cleanupOnFail: true\n  \n  values:\n    replicaCount: 3\n    \n    image:\n      repository: ghcr.io/org/ggen-api\n      tag: latest\n      pullPolicy: Always\n    \n    resources:\n      limits:\n        cpu: 1000m\n        memory: 1Gi\n      requests:\n        cpu: 100m\n        memory: 128Mi\n    \n    autoscaling:\n      enabled: true\n      minReplicas: 3\n      maxReplicas: 10\n      targetCPUUtilizationPercentage: 80\n  \n  # Health checks\n  test:\n    enable: true\n  \n  # Notification hooks\n  webhooks:\n    - url: https://hooks.slack.com/services/XXX\n      method: POST\n---\napiVersion: source.toolkit.fluxcd.io/v1beta2\nkind: HelmRepository\nmetadata:\n  name: ggen-charts\n  namespace: flux-system\nspec:\n  interval: 1h\n  url: https://charts.example.com/ggen",
+
+        "fluxCanaryRelease": "# Flux Canary Release with Flagger\n# Generated from RDF ontology (cd:canary-strategy)\n\napiVersion: flagger.app/v1beta1\nkind: Canary\nmetadata:\n  name: ggen-api\n  namespace: production\nspec:\n  # Target deployment\n  targetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: ggen-api\n  \n  # Progressive delivery strategy from RDF\n  progressDeadlineSeconds: 600\n  \n  service:\n    port: 80\n    targetPort: 3000\n  \n  # Canary analysis from RDF (cd:analysis)\n  analysis:\n    interval: 1m\n    threshold: 5\n    maxWeight: 100\n    stepWeight: 20\n    \n    # Metrics from RDF\n    metrics:\n      - name: request-success-rate\n        thresholdRange:\n          min: 95\n        interval: 1m\n      \n      - name: request-duration\n        thresholdRange:\n          max: 500\n        interval: 1m\n      \n      - name: error-rate\n        templateRef:\n          name: error-rate\n          namespace: flagger-system\n        thresholdRange:\n          max: 5\n        interval: 1m\n    \n    # Webhooks for testing\n    webhooks:\n      - name: smoke-tests\n        url: http://flagger-loadtester/\n        timeout: 15s\n        metadata:\n          type: bash\n          cmd: \"curl -sd 'test' http://ggen-api-canary:80/api/health | grep OK\"\n      \n      - name: load-test\n        url: http://flagger-loadtester/\n        timeout: 5s\n        metadata:\n          type: cmd\n          cmd: \"hey -z 1m -q 10 -c 2 http://ggen-api-canary:80/api\"\n  \n  # Canary steps from RDF (cd:steps)\n  canaryAnalysis:\n    stepWeights: [20, 50, 100]\n    stepWeightPromotion: 20\n  \n  # Rollback on failure from RDF (cd:rollbackOn)\n  rollback:\n    onFailure: true\n    threshold: 5",
+
+        "kustomization": "# Kustomize overlay for production\n# Generated from RDF ontology (gitops:production-env)\n\napiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\n\nnamespace: production\n\nresources:\n  - ../../base\n\nimages:\n  - name: ggen-api\n    newName: ghcr.io/org/ggen-api\n    newTag: latest\n\nreplicas:\n  - name: ggen-api\n    count: 3\n\npatches:\n  - target:\n      kind: Deployment\n      name: ggen-api\n    patch: |-\n      - op: replace\n        path: /spec/template/spec/containers/0/resources/limits/cpu\n        value: 1000m\n      - op: replace\n        path: /spec/template/spec/containers/0/resources/limits/memory\n        value: 1Gi\n\nconfigMapGenerator:\n  - name: ggen-config\n    literals:\n      - NODE_ENV=production\n      - LOG_LEVEL=info\n\nsecretGenerator:\n  - name: ggen-secrets\n    envs:\n      - secrets.env"
+      }
+    },
+
+    {
+      "id": "canary-rollback",
+      "name": "Advanced Rollback and Canary Deployment",
+      "description": "Generate canary deployments, blue-green strategies, and feature flags from RDF",
+
+      "externalTools": {
+        "flagger": {
+          "version": ">=1.34",
+          "components": ["flagger", "loadtester"]
+        },
+        "argo-rollouts": {
+          "version": ">=1.6",
+          "components": ["rollouts-controller", "rollouts-dashboard"]
+        },
+        "istio": {
+          "version": ">=1.19",
+          "components": ["istiod", "istio-ingressgateway"]
+        },
+        "featureFlags": {
+          "launchdarkly": ">=7.0",
+          "unleash": ">=5.0",
+          "flagsmith": ">=2.0"
+        },
+        "packages": [
+          "fluxcd/flagger",
+          "argoproj/argo-rollouts",
+          "istio/istio"
+        ]
+      },
+
+      "rdfOntologyExtensions": {
+        "namespaces": {
+          "deploy": "https://ggen.example.com/deployment/",
+          "release": "https://ggen.example.com/release/",
+          "feature": "https://ggen.example.com/features/"
+        },
+
+        "classes": [
+          {
+            "uri": "deploy:CanaryStrategy",
+            "label": "Canary Deployment Strategy",
+            "properties": [
+              "deploy:steps",
+              "deploy:metrics",
+              "deploy:analysis",
+              "deploy:rollbackThreshold"
+            ]
+          },
+          {
+            "uri": "deploy:BlueGreenStrategy",
+            "label": "Blue-Green Deployment",
+            "properties": [
+              "deploy:autoPromotion",
+              "deploy:scaleDownDelay",
+              "deploy:previewService"
+            ]
+          },
+          {
+            "uri": "feature:FeatureFlag",
+            "label": "Feature Flag",
+            "properties": [
+              "feature:key",
+              "feature:enabled",
+              "feature:rolloutPercentage",
+              "feature:targeting"
+            ]
+          },
+          {
+            "uri": "release:RollbackPolicy",
+            "label": "Automated Rollback Policy",
+            "properties": [
+              "release:triggers",
+              "release:window",
+              "release:notifications"
+            ]
+          }
+        ],
+
+        "exampleOntology": "@prefix deploy: <https://ggen.example.com/deployment/> .\n@prefix release: <https://ggen.example.com/release/> .\n@prefix feature: <https://ggen.example.com/features/> .\n\ndeploy:api-canary a deploy:CanaryStrategy ;\n  deploy:name \"ggen-api-canary\" ;\n  deploy:steps (\n    [ deploy:weight 10 ; deploy:pause \"2m\" ]\n    [ deploy:weight 25 ; deploy:pause \"5m\" ]\n    [ deploy:weight 50 ; deploy:pause \"10m\" ]\n    [ deploy:weight 75 ; deploy:pause \"5m\" ]\n    [ deploy:weight 100 ]\n  ) ;\n  deploy:metrics (\n    [ deploy:name \"request-success-rate\" ; deploy:threshold \">= 99%\" ]\n    [ deploy:name \"request-duration-p95\" ; deploy:threshold \"< 500ms\" ]\n    [ deploy:name \"error-rate-5xx\" ; deploy:threshold \"< 1%\" ]\n  ) ;\n  deploy:analysis [\n    deploy:interval \"1m\" ;\n    deploy:iterations 10 ;\n    deploy:threshold 3\n  ] ;\n  deploy:rollbackThreshold 5 ;\n  deploy:rollbackPolicy release:auto-rollback .\n\ndeploy:api-blue-green a deploy:BlueGreenStrategy ;\n  deploy:name \"ggen-api-blue-green\" ;\n  deploy:autoPromotion false ;\n  deploy:autoPromotionDelay \"5m\" ;\n  deploy:scaleDownDelay \"10m\" ;\n  deploy:previewService \"ggen-api-preview\" ;\n  deploy:activeService \"ggen-api\" .\n\nfeature:new-api-endpoint a feature:FeatureFlag ;\n  feature:key \"new_api_endpoint_v2\" ;\n  feature:enabled true ;\n  feature:rolloutPercentage 25 ;\n  feature:targeting [\n    feature:users ( \"beta-testers\" ) ;\n    feature:segments ( \"internal\" \"premium\" )\n  ] ;\n  feature:defaultVariation \"control\" ;\n  feature:variations (\n    [ feature:name \"control\" ; feature:value false ]\n    [ feature:name \"treatment\" ; feature:value true ]\n  ) .\n\nrelease:auto-rollback a release:RollbackPolicy ;\n  release:enabled true ;\n  release:triggers (\n    [ release:metric \"error-rate\" ; release:threshold \"> 5%\" ]\n    [ release:metric \"latency-p99\" ; release:threshold \"> 2s\" ]\n    [ release:metric \"availability\" ; release:threshold \"< 99%\" ]\n  ) ;\n  release:window \"15m\" ;\n  release:notifications [\n    release:slack \"#deployments\" ;\n    release:pagerduty \"deployment-team\"\n  ] ."
+      },
+
+      "generatedWorkflow": "name: Canary Deployment with Automated Rollback\n\non:\n  push:\n    branches: [main]\n    tags:\n      - 'v*'\n\njobs:\n  generate-deployment-strategies:\n    name: Generate Deployment Strategies from RDF\n    runs-on: ubuntu-latest\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Install ggen\n        run: curl -sSL https://ggen.example.com/install.sh | bash\n      \n      - name: Generate Argo Rollouts manifests\n        run: |\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/argo-rollouts/rollout.yaml.tera \\\n            --output deployments/argo-rollouts/\n      \n      - name: Generate Flagger canary\n        run: |\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/flagger/canary.yaml.tera \\\n            --output deployments/flagger/\n      \n      - name: Generate feature flags config\n        run: |\n          ggen render \\\n            --ontology ontology/deployment.ttl \\\n            --template templates/feature-flags/launchdarkly.json.tera \\\n            --output deployments/feature-flags/\n      \n      - name: Upload deployment configs\n        uses: actions/upload-artifact@v4\n        with:\n          name: deployment-configs\n          path: deployments/\n  \n  canary-deployment:\n    name: Canary Deployment\n    runs-on: ubuntu-latest\n    needs: generate-deployment-strategies\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download deployment configs\n        uses: actions/download-artifact@v4\n        with:\n          name: deployment-configs\n      \n      - name: Install Argo Rollouts kubectl plugin\n        run: |\n          curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64\n          chmod +x kubectl-argo-rollouts-linux-amd64\n          sudo mv kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts\n      \n      - name: Configure kubeconfig\n        run: |\n          mkdir -p ~/.kube\n          echo \"${{ secrets.KUBE_CONFIG }}\" | base64 -d > ~/.kube/config\n      \n      - name: Update Rollout image\n        run: |\n          kubectl argo rollouts set image ggen-api \\\n            ggen-api=ghcr.io/org/ggen-api:${{ github.sha }} \\\n            -n production\n      \n      - name: Monitor canary rollout\n        run: |\n          kubectl argo rollouts promote ggen-api -n production\n          kubectl argo rollouts status ggen-api -n production --watch\n      \n      - name: Check rollout health\n        run: |\n          ROLLOUT_STATUS=$(kubectl argo rollouts status ggen-api -n production)\n          if [[ $ROLLOUT_STATUS == *\"Degraded\"* ]]; then\n            echo \"Canary deployment degraded, triggering rollback\"\n            kubectl argo rollouts abort ggen-api -n production\n            exit 1\n          fi\n  \n  blue-green-deployment:\n    name: Blue-Green Deployment\n    runs-on: ubuntu-latest\n    needs: generate-deployment-strategies\n    if: startsWith(github.ref, 'refs/tags/v')\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download deployment configs\n        uses: actions/download-artifact@v4\n        with:\n          name: deployment-configs\n      \n      - name: Configure kubeconfig\n        run: |\n          mkdir -p ~/.kube\n          echo \"${{ secrets.KUBE_CONFIG }}\" | base64 -d > ~/.kube/config\n      \n      - name: Deploy green version\n        run: |\n          kubectl apply -f deployments/argo-rollouts/blue-green.yaml\n          kubectl argo rollouts set image ggen-api-bluegreen \\\n            ggen-api=ghcr.io/org/ggen-api:${{ github.ref_name }} \\\n            -n production\n      \n      - name: Wait for green deployment\n        run: |\n          kubectl rollout status deployment/ggen-api-green -n production\n      \n      - name: Run smoke tests on green\n        run: |\n          GREEN_URL=$(kubectl get svc ggen-api-preview -n production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')\n          curl -f http://$GREEN_URL/health || exit 1\n          npm run test:smoke -- --base-url http://$GREEN_URL\n      \n      - name: Promote to production\n        run: |\n          kubectl argo rollouts promote ggen-api-bluegreen -n production\n      \n      - name: Verify promotion\n        run: |\n          kubectl argo rollouts status ggen-api-bluegreen -n production --watch\n  \n  feature-flag-update:\n    name: Update Feature Flags\n    runs-on: ubuntu-latest\n    needs: canary-deployment\n    \n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Download feature flags config\n        uses: actions/download-artifact@v4\n        with:\n          name: deployment-configs\n      \n      - name: Update LaunchDarkly flags\n        env:\n          LD_API_KEY: ${{ secrets.LAUNCHDARKLY_API_KEY }}\n        run: |\n          curl -X PATCH https://app.launchdarkly.com/api/v2/flags/production/new_api_endpoint_v2 \\\n            -H \"Authorization: $LD_API_KEY\" \\\n            -H \"Content-Type: application/json\" \\\n            -d @deployments/feature-flags/launchdarkly.json",
+
+      "generatedTemplates": {
+        "argoRolloutCanary": "# Argo Rollouts Canary generated from RDF ontology\n# Source: ontology/deployment.ttl (deploy:api-canary)\n\napiVersion: argoproj.io/v1alpha1\nkind: Rollout\nmetadata:\n  name: ggen-api\n  namespace: production\nspec:\n  replicas: 3\n  \n  strategy:\n    canary:\n      # Canary steps from RDF (deploy:steps)\n      steps:\n        - setWeight: 10\n        - pause: {duration: 2m}\n        - setWeight: 25\n        - pause: {duration: 5m}\n        - setWeight: 50\n        - pause: {duration: 10m}\n        - setWeight: 75\n        - pause: {duration: 5m}\n      \n      # Analysis from RDF (deploy:analysis)\n      analysis:\n        templates:\n          - templateName: success-rate\n          - templateName: latency-check\n          - templateName: error-rate-check\n        startingStep: 1\n        args:\n          - name: service-name\n            value: ggen-api\n      \n      # Traffic management\n      trafficRouting:\n        istio:\n          virtualService:\n            name: ggen-api\n            routes:\n              - primary\n          destinationRule:\n            name: ggen-api\n            canarySubsetName: canary\n            stableSubsetName: stable\n      \n      # Anti-affinity for canary pods\n      antiAffinity:\n        preferredDuringSchedulingIgnoredDuringExecution:\n          podAffinityTerm:\n            labelSelector:\n              matchLabels:\n                app: ggen-api\n            topologyKey: kubernetes.io/hostname\n  \n  revisionHistoryLimit: 5\n  \n  selector:\n    matchLabels:\n      app: ggen-api\n  \n  template:\n    metadata:\n      labels:\n        app: ggen-api\n    spec:\n      containers:\n      - name: ggen-api\n        image: ghcr.io/org/ggen-api:latest\n        ports:\n        - containerPort: 3000\n          name: http\n          protocol: TCP\n        resources:\n          limits:\n            cpu: 500m\n            memory: 512Mi\n          requests:\n            cpu: 100m\n            memory: 128Mi\n---\n# Analysis Templates from RDF (deploy:metrics)\napiVersion: argoproj.io/v1alpha1\nkind: AnalysisTemplate\nmetadata:\n  name: success-rate\n  namespace: production\nspec:\n  args:\n    - name: service-name\n  metrics:\n    - name: success-rate\n      interval: 1m\n      successCondition: result[0] >= 0.99\n      failureLimit: 3\n      provider:\n        prometheus:\n          address: http://prometheus:9090\n          query: |\n            sum(rate(http_requests_total{job=\"{{args.service-name}}\",status!~\"5..\"}[5m]))\n            /\n            sum(rate(http_requests_total{job=\"{{args.service-name}}\"}[5m]))\n---\napiVersion: argoproj.io/v1alpha1\nkind: AnalysisTemplate\nmetadata:\n  name: latency-check\n  namespace: production\nspec:\n  args:\n    - name: service-name\n  metrics:\n    - name: latency-p95\n      interval: 1m\n      successCondition: result[0] < 0.5\n      failureLimit: 3\n      provider:\n        prometheus:\n          address: http://prometheus:9090\n          query: |\n            histogram_quantile(0.95,\n              rate(http_request_duration_seconds_bucket{job=\"{{args.service-name}}\"}[5m])\n            )\n---\napiVersion: argoproj.io/v1alpha1\nkind: AnalysisTemplate\nmetadata:\n  name: error-rate-check\n  namespace: production\nspec:\n  args:\n    - name: service-name\n  metrics:\n    - name: error-rate\n      interval: 1m\n      successCondition: result[0] < 0.01\n      failureLimit: 5\n      provider:\n        prometheus:\n          address: http://prometheus:9090\n          query: |\n            sum(rate(http_requests_total{job=\"{{args.service-name}}\",status=~\"5..\"}[5m]))\n            /\n            sum(rate(http_requests_total{job=\"{{args.service-name}}\"}[5m]))",
+
+        "argoRolloutBlueGreen": "# Argo Rollouts Blue-Green generated from RDF ontology\n# Source: ontology/deployment.ttl (deploy:api-blue-green)\n\napiVersion: argoproj.io/v1alpha1\nkind: Rollout\nmetadata:\n  name: ggen-api-bluegreen\n  namespace: production\nspec:\n  replicas: 3\n  \n  strategy:\n    blueGreen:\n      # Active service (blue)\n      activeService: ggen-api\n      # Preview service (green)\n      previewService: ggen-api-preview\n      \n      # Auto promotion from RDF\n      autoPromotionEnabled: false\n      autoPromotionSeconds: 300\n      \n      # Scale down delay from RDF\n      scaleDownDelaySeconds: 600\n      \n      # Anti-affinity\n      antiAffinity:\n        preferredDuringSchedulingIgnoredDuringExecution:\n          podAffinityTerm:\n            labelSelector:\n              matchLabels:\n                app: ggen-api\n            topologyKey: kubernetes.io/hostname\n      \n      # Preview metadata\n      previewMetadata:\n        labels:\n          version: preview\n      \n      # Active metadata\n      activeMetadata:\n        labels:\n          version: active\n  \n  selector:\n    matchLabels:\n      app: ggen-api\n  \n  template:\n    metadata:\n      labels:\n        app: ggen-api\n    spec:\n      containers:\n      - name: ggen-api\n        image: ghcr.io/org/ggen-api:latest\n        ports:\n        - containerPort: 3000\n          name: http\n        resources:\n          limits:\n            cpu: 500m\n            memory: 512Mi\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: ggen-api\n  namespace: production\nspec:\n  type: LoadBalancer\n  selector:\n    app: ggen-api\n  ports:\n  - port: 80\n    targetPort: http\n    protocol: TCP\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: ggen-api-preview\n  namespace: production\nspec:\n  type: LoadBalancer\n  selector:\n    app: ggen-api\n  ports:\n  - port: 80\n    targetPort: http\n    protocol: TCP",
+
+        "featureFlagsConfig": "{\n  \"comment\": \"LaunchDarkly feature flags generated from RDF ontology\",\n  \"source\": \"ontology/deployment.ttl (feature:new-api-endpoint)\",\n  \n  \"flags\": [\n    {\n      \"key\": \"new_api_endpoint_v2\",\n      \"name\": \"New API Endpoint V2\",\n      \"description\": \"Enable new API endpoint v2 for gradual rollout\",\n      \"kind\": \"boolean\",\n      \"temporary\": true,\n      \"tags\": [\"backend\", \"api\", \"canary\"],\n      \n      \"variations\": [\n        {\n          \"value\": false,\n          \"name\": \"Control\",\n          \"description\": \"Old API endpoint\"\n        },\n        {\n          \"value\": true,\n          \"name\": \"Treatment\",\n          \"description\": \"New API endpoint v2\"\n        }\n      ],\n      \n      \"defaultVariation\": 0,\n      \n      \"environments\": {\n        \"production\": {\n          \"on\": true,\n          \"fallthrough\": {\n            \"rollout\": {\n              \"variations\": [\n                {\"variation\": 0, \"weight\": 75000},\n                {\"variation\": 1, \"weight\": 25000}\n              ]\n            }\n          },\n          \n          \"targets\": [\n            {\n              \"values\": [\"beta-testers\"],\n              \"variation\": 1\n            }\n          ],\n          \n          \"rules\": [\n            {\n              \"clauses\": [\n                {\n                  \"attribute\": \"segment\",\n                  \"op\": \"in\",\n                  \"values\": [\"internal\", \"premium\"]\n                }\n              ],\n              \"variation\": 1\n            }\n          ],\n          \n          \"prerequisites\": [],\n          \"offVariation\": 0\n        },\n        \n        \"staging\": {\n          \"on\": true,\n          \"fallthrough\": {\n            \"variation\": 1\n          },\n          \"offVariation\": 0\n        }\n      }\n    }\n  ]\n}",
+
+        "rollbackPolicy": "# Automated rollback policy generated from RDF ontology\n# Source: ontology/deployment.ttl (release:auto-rollback)\n\napiVersion: monitoring.coreos.com/v1\nkind: PrometheusRule\nmetadata:\n  name: ggen-api-rollback-triggers\n  namespace: production\nspec:\n  groups:\n    - name: rollback_triggers\n      interval: 30s\n      rules:\n        # Error rate trigger from RDF\n        - alert: HighErrorRateTriggerRollback\n          expr: |\n            (\n              sum(rate(http_requests_total{job=\"ggen-api\",status=~\"5..\"}[5m]))\n              /\n              sum(rate(http_requests_total{job=\"ggen-api\"}[5m]))\n            ) > 0.05\n          for: 15m\n          labels:\n            severity: critical\n            action: rollback\n          annotations:\n            summary: \"Error rate exceeds 5% - triggering rollback\"\n            description: \"Error rate is {{ $value | humanizePercentage }}\"\n            rollback_command: \"kubectl argo rollouts abort ggen-api -n production\"\n        \n        # Latency trigger from RDF\n        - alert: HighLatencyTriggerRollback\n          expr: |\n            histogram_quantile(0.99,\n              rate(http_request_duration_seconds_bucket{job=\"ggen-api\"}[5m])\n            ) > 2.0\n          for: 15m\n          labels:\n            severity: critical\n            action: rollback\n          annotations:\n            summary: \"P99 latency exceeds 2s - triggering rollback\"\n            description: \"P99 latency is {{ $value }}s\"\n        \n        # Availability trigger from RDF\n        - alert: LowAvailabilityTriggerRollback\n          expr: |\n            (\n              sum(up{job=\"ggen-api\"})\n              /\n              count(up{job=\"ggen-api\"})\n            ) < 0.99\n          for: 15m\n          labels:\n            severity: critical\n            action: rollback\n          annotations:\n            summary: \"Availability below 99% - triggering rollback\"\n            description: \"Availability is {{ $value | humanizePercentage }}\""
+      }
+    }
+  ],
+
+  "integrationExample": {
+    "description": "Complete end-to-end deployment pipeline using all 5 innovations",
+
+    "workflowOrchestration": "name: Complete Advanced Deployment Pipeline\n\non:\n  push:\n    branches: [main]\n    tags: ['v*']\n\nenv:\n  REGISTRY: ghcr.io\n  IMAGE_NAME: ${{ github.repository }}\n\njobs:\n  # Phase 1: Generate all configs from RDF\n  generate-all:\n    name: Generate All Deployment Artifacts\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Install ggen\n        run: curl -sSL https://ggen.example.com/install.sh | bash\n      \n      - name: Generate everything from RDF ontology\n        run: |\n          # Container orchestration\n          ggen render --ontology ontology/ --template templates/k8s/ --output generated/k8s/\n          ggen render --ontology ontology/ --template templates/helm/ --output generated/helm/\n          \n          # Infrastructure as Code\n          ggen render --ontology ontology/ --template templates/terraform/ --output generated/terraform/\n          ggen render --ontology ontology/ --template templates/pulumi/ --output generated/pulumi/\n          \n          # Monitoring\n          ggen render --ontology ontology/ --template templates/prometheus/ --output generated/monitoring/\n          ggen render --ontology ontology/ --template templates/grafana/ --output generated/grafana/\n          \n          # GitOps\n          ggen render --ontology ontology/ --template templates/argocd/ --output generated/argocd/\n          ggen render --ontology ontology/ --template templates/flux/ --output generated/flux/\n          \n          # Deployment strategies\n          ggen render --ontology ontology/ --template templates/argo-rollouts/ --output generated/rollouts/\n      \n      - name: Upload all artifacts\n        uses: actions/upload-artifact@v4\n        with:\n          name: deployment-artifacts\n          path: generated/\n  \n  # Phase 2: Build and push container\n  build-container:\n    needs: generate-all\n    uses: ./.github/workflows/container-orchestration.yml\n  \n  # Phase 3: Provision infrastructure\n  provision-infrastructure:\n    needs: build-container\n    uses: ./.github/workflows/infrastructure-as-code.yml\n  \n  # Phase 4: Deploy monitoring\n  deploy-monitoring:\n    needs: provision-infrastructure\n    uses: ./.github/workflows/monitoring-observability.yml\n  \n  # Phase 5: GitOps sync\n  sync-gitops:\n    needs: deploy-monitoring\n    uses: ./.github/workflows/gitops.yml\n  \n  # Phase 6: Canary deployment with automated rollback\n  canary-deploy:\n    needs: sync-gitops\n    uses: ./.github/workflows/canary-rollback.yml",
+
+    "ggenToml": "# ggen.toml configuration for generating deployment artifacts\n\n[graph]\nontology_paths = [\n  \"ontology/infrastructure.ttl\",\n  \"ontology/deployment.ttl\",\n  \"ontology/monitoring.ttl\"\n]\n\n# Container Orchestration Rules\n[[rules.inference]]\nname = \"materialize_k8s_resources\"\nquery = '''\nCONSTRUCT {\n  ?deployment a k8s:Deployment ;\n    k8s:replicas ?replicas ;\n    k8s:image ?image ;\n    k8s:resources ?resources .\n}\nWHERE {\n  ?service a deploy:Service ;\n    deploy:replicas ?replicas ;\n    deploy:image ?image ;\n    deploy:resources ?resources .\n}\n'''\n\n[[rules.generation]]\nname = \"generate_k8s_deployment\"\nquery = '''\nSELECT ?name ?replicas ?image ?cpu ?memory\nWHERE {\n  ?deployment a k8s:Deployment ;\n    k8s:name ?name ;\n    k8s:replicas ?replicas ;\n    k8s:image ?image ;\n    k8s:resources [ k8s:cpu ?cpu ; k8s:memory ?memory ] .\n}\n'''\ntemplate = \"templates/kubernetes/deployment.yaml.tera\"\noutput = \"generated/k8s/{{ name }}-deployment.yaml\"\n\n# Infrastructure as Code Rules\n[[rules.generation]]\nname = \"generate_terraform\"\nquery = '''\nSELECT ?vpc ?region ?cidr ?subnets\nWHERE {\n  ?infra a infra:Infrastructure ;\n    infra:vpc ?vpc ;\n    infra:region ?region ;\n    infra:cidr ?cidr ;\n    infra:subnets ?subnets .\n}\n'''\ntemplate = \"templates/terraform/main.tf.tera\"\noutput = \"generated/terraform/main.tf\"\n\n# Monitoring Rules\n[[rules.generation]]\nname = \"generate_prometheus_alerts\"\nquery = '''\nSELECT ?name ?condition ?severity ?duration\nWHERE {\n  ?alert a mon:AlertRule ;\n    mon:name ?name ;\n    mon:condition ?condition ;\n    mon:severity ?severity ;\n    mon:duration ?duration .\n}\n'''\ntemplate = \"templates/prometheus/alerts.yml.tera\"\noutput = \"generated/monitoring/alerts.yml\"\n\n# GitOps Rules\n[[rules.generation]]\nname = \"generate_argocd_app\"\nquery = '''\nSELECT ?name ?repo ?path ?namespace\nWHERE {\n  ?app a gitops:Application ;\n    gitops:name ?name ;\n    gitops:sourceRepo ?repo ;\n    gitops:path ?path ;\n    gitops:namespace ?namespace .\n}\n'''\ntemplate = \"templates/argocd/application.yaml.tera\"\noutput = \"generated/argocd/{{ name }}.yaml\"\n\n# Canary Deployment Rules\n[[rules.generation]]\nname = \"generate_rollout_strategy\"\nquery = '''\nSELECT ?name ?steps ?metrics\nWHERE {\n  ?strategy a deploy:CanaryStrategy ;\n    deploy:name ?name ;\n    deploy:steps ?steps ;\n    deploy:metrics ?metrics .\n}\n'''\ntemplate = \"templates/argo-rollouts/canary.yaml.tera\"\noutput = \"generated/rollouts/{{ name }}.yaml\""
+  },
+
+  "summary": {
+    "totalInnovations": 5,
+    "generatedArtifacts": [\n      \"Kubernetes Deployments, Services, ConfigMaps\",\n      \"Helm Charts with values.yaml\",\n      \"Docker multi-stage Dockerfiles\",\n      \"docker-compose.yml for local development\",\n      \"Terraform main.tf, variables.tf, outputs.tf\",\n      \"Pulumi TypeScript infrastructure code\",\n      \"AWS CDK stacks\",\n      \"Prometheus configuration and alert rules\",\n      \"Grafana dashboards (JSON)\",\n      \"OpenTelemetry Collector config\",\n      \"Jaeger deployment manifests\",\n      \"ArgoCD Application manifests\",\n      \"Flux HelmRelease and Kustomization\",\n      \"Flagger Canary resources\",\n      \"Argo Rollouts (Canary and Blue-Green)\",\n      \"Feature flag configurations (LaunchDarkly)\",\n      \"Automated rollback policies\"\n    ],\n    \"rdfDrivenCapabilities\": [\n      \"Declarative infrastructure topology\",\n      \"Version-controlled deployment strategies\",\n      \"Queryable monitoring metrics\",\n      \"Composable GitOps configurations\",\n      \"Policy-as-code rollback triggers\",\n      \"Feature flag management from ontology\"\n    ],\n    \"deploymentBenefits\": {\n      \"consistency\": \"Single source of truth (RDF) for all deployment artifacts\",\n      \"reproducibility\": \"100% deterministic generation from ontology\",\n      \"maintainability\": \"Update ontology once, regenerate all configs\",\n      \"observability\": \"Built-in monitoring, tracing, and alerting\",\n      \"safety\": \"Automated canary analysis and rollback policies\",\n      \"agility\": \"GitOps-driven continuous deployment\"\n    }\n  }\n}\n

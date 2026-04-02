@@ -1,0 +1,7 @@
+// Missing frontmatter
+// Unclosed variable: {{ name
+// Empty variable: {{ }}
+
+pub struct Test {
+    {{ field
+}

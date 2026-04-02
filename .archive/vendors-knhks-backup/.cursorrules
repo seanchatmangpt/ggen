@@ -1,0 +1,228 @@
+# KNHKS Cursor Rules - 80/20 Production-Ready Code Standards
+
+## Core Principle: No Placeholders, Real Implementations
+
+All code must be production-ready with proper error handling. Focus on critical path implementations that provide 80% of value.
+
+**Key Principle from CONVO.txt**: "Never trust the text, only trust test results" - All implementations must be verifiable through tests and OTEL validation.
+
+## Prohibited Patterns ❌
+
+1. **Placeholders** - No "In production, this would..." comments
+2. **TODOs** - No TODO comments except clearly documented future enhancements
+3. **Unhandled errors** - No `unwrap()`, `expect()`, or panics in production code
+4. **Stubs** - No functions that always succeed without implementation
+5. **Simulated behavior** - Use real libraries when available (rdkafka, reqwest, etc.)
+6. **Claims without verification** - Never claim code works without test/OTEL validation
+
+## Required Patterns ✅
+
+1. **Real library integrations** - Use actual dependencies when available
+2. **Error handling** - `Result<T, E>` for all fallible operations
+3. **Feature gating** - `#[cfg(feature = "...")]` for optional dependencies
+4. **Input validation** - Validate all inputs, enforce guard constraints (max_run_len ≤ 8)
+5. **Test verification** - All code must be testable and tested (OTEL validation preferred)
+
+## Critical Best Practices
+
+### Security
+- Validate all inputs before processing
+- Never hardcode credentials or secrets
+- Enforce guard constraints (max_run_len ≤ 8, max_batch_size, etc.)
+
+### Performance (80/20 Hot Path Focus)
+- Zero-copy when possible (references over clones)
+- Maintain ≤8 tick budget for hot path operations (Chatman Constant: 2ns = 8 ticks)
+- Use SoA layout for SIMD (64-byte alignment)
+- Branchless operations for hot path (constant-time execution)
+- Focus on 20% of features that provide 80% of value (e.g., basic triple matching, simple constraints, not complex JOINs)
+- No bounds checks on hot path (validate at build/load time)
+
+### Error Handling
+- Use `Result<T, E>` for all fallible operations
+- Never use `unwrap()` or `expect()` in production code paths
+- Provide context in error messages
+- Validate early, fail fast
+
+### Resource Management
+- Clean up resources in error paths
+- Use RAII (Rust) or proper cleanup patterns
+- Close connections, files, handles
+
+### Testing & Validation (OTEL as Truth Source)
+- Test all public APIs
+- Test error paths and guard violations
+- Test critical paths (aim for 80%+ coverage)
+- **OTEL validation is ultimate truth source** - verify with real spans/metrics
+- Never trust claims without test/OTEL verification
+- Test results > code comments > agent claims
+
+### Determinism & Provenance
+- All operations must be deterministic and idempotent
+- Generate real span IDs for OTEL (not placeholders)
+- Track provenance through receipts (hash(A) = hash(μ(O)))
+- Enforce guard constraints at runtime
+
+## Language-Specific Rules
+
+### Rust
+- `Result<T, E>` for fallible operations
+- Feature gates: `#[cfg(feature = "...")]`
+- Borrow when possible: `&[u8]` over `Vec<u8>`
+- No `unwrap()` in production code paths
+- Use `no_std` compatible patterns when possible
+
+### C
+- Return error codes: `int process(...)` with `-1` on error
+- Validate inputs early: check NULL pointers, bounds
+- Generate real span IDs: `knhks_generate_span_id()` not `0`
+- Cleanup resources in error paths
+- Branchless hot path: use SIMD intrinsics (NEON/AVX2)
+- Constant-time operations: no branches in hot path
+- 64-byte alignment for SoA arrays
+
+### Erlang
+- Proper gen_server error handling
+- Validate state transitions
+- Cleanup in terminate callbacks
+
+## Code Review Checklist
+
+- [ ] All functions have proper error handling
+- [ ] All inputs are validated
+- [ ] No `unwrap()` or `panic!()` in production paths
+- [ ] Real implementations, not placeholders
+- [ ] Feature-gated when dependencies are optional
+- [ ] Tests cover critical paths
+- [ ] Guard constraints enforced (max_run_len ≤ 8)
+- [ ] Resources are properly cleaned up
+- [ ] No secrets or credentials in code
+- [ ] Hot path operations are branchless/constant-time
+- [ ] Performance constraints met (≤8 ticks for hot path)
+- [ ] Code verified with tests/OTEL validation
+
+## 80/20 Focus Areas
+
+### Critical Path (80% of value)
+- Basic triple pattern matching (ASK, SELECT on single predicate)
+- Simple property constraints (minCount, maxCount, unique)
+- Datatype validation (basic type checks)
+- Existence checks (ASK_SP, ASK_SPO)
+- Count aggregations (COUNT_SP_GE, COUNT_SP_EQ)
+
+### Defer (20% edge cases)
+- Complex JOINs across multiple predicates
+- OPTIONAL patterns
+- Transitive property paths
+- Full OWL inference
+- Complex SPARQL queries (multi-predicate, nested)
+
+## Examples
+
+### BAD: Placeholder Implementation
+```rust
+impl Connector for KafkaConnector {
+    fn fetch_delta(&mut self) -> Result<Delta, ConnectorError> {
+        // TODO: Implement Kafka consumer
+        Ok(Delta::empty())
+    }
+}
+```
+
+### GOOD: Real Implementation
+```rust
+impl Connector for KafkaConnector {
+    fn fetch_delta(&mut self) -> Result<Delta, ConnectorError> {
+        if self.state != KafkaConnectionState::Connected {
+            return Err(ConnectorError::NetworkError(
+                format!("Not connected: {:?}", self.state)
+            ));
+        }
+        
+        #[cfg(feature = "kafka")]
+        {
+            if let Some(ref consumer) = self.consumer {
+                match consumer.recv() {
+                    Ok(msg) => self.parse_message(&msg),
+                    Err(e) => Err(ConnectorError::NetworkError(e.to_string())),
+                }
+            } else {
+                Err(ConnectorError::NetworkError("Consumer not initialized".to_string()))
+            }
+        }
+        
+        #[cfg(not(feature = "kafka"))]
+        {
+            Err(ConnectorError::NetworkError("Kafka feature not enabled".to_string()))
+        }
+    }
+}
+```
+
+### BAD: Unhandled Error
+```rust
+fn process(input: &str) -> u64 {
+    input.parse().unwrap()
+}
+```
+
+### GOOD: Proper Error Handling
+```rust
+fn process(input: &str) -> Result<u64, ProcessingError> {
+    if input.is_empty() {
+        return Err(ProcessingError::EmptyInput);
+    }
+    
+    input.parse()
+        .map_err(|e| ProcessingError::ParseFailed(e.to_string()))
+}
+```
+
+### BAD: Missing Guard Validation
+```rust
+fn load(triples: &[Triple]) -> Result<SoAArrays> {
+    let soa = SoAArrays::new();
+    // Load triples without checking length
+    Ok(soa)
+}
+```
+
+### GOOD: Guard Validation
+```rust
+fn load(triples: &[Triple]) -> Result<SoAArrays, LoadError> {
+    if triples.len() > 8 {
+        return Err(LoadError::GuardViolation(
+            format!("Triple count {} exceeds max_run_len 8", triples.len())
+        ));
+    }
+    
+    let mut soa = SoAArrays::new();
+    for (i, triple) in triples.iter().enumerate() {
+        soa.s[i] = triple.subject;
+        soa.p[i] = triple.predicate;
+        soa.o[i] = triple.object;
+    }
+    
+    Ok(soa)
+}
+```
+
+### BAD: Placeholder Span ID
+```c
+rcpt->span_id = 0; // TODO: Generate from OTEL
+```
+
+### GOOD: Real Span ID Generation
+```c
+rcpt->span_id = knhks_generate_span_id(); // Generate OTEL-compatible span ID
+```
+
+## Summary
+
+**80/20 Focus**: Critical path implementations first, no placeholders, real error handling, proper validation, feature-gated dependencies.
+
+**Production-Ready**: No placeholders or stubs, real implementations, comprehensive testing, proper resource management.
+
+**Verification**: Never trust claims - verify with tests and OTEL validation. Test results are truth.
+
+**Performance**: Hot path ≤8 ticks (2ns), branchless operations, SIMD-aware, focus on critical 20% features.

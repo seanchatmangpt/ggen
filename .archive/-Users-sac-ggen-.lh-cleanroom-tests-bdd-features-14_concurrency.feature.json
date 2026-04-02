@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/14_concurrency.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/14_concurrency.feature\n@concurrency\nFeature: Concurrent steps with isolation and bounded output\n  Background:\n    Given a fixture project \"cli_workflow\"\n\n  Scenario: Two steps run concurrently without interference\n    When I define concurrent scenario \"dual-help\"\n      | step   | args       | expect  | max_output |\n      | help1  | [\"--help\"] | success | 64KB       |\n      | help2  | [\"--help\"] | success | 64KB       |\n    And I execute the scenario on backend \"auto\"\n    Then both steps succeeded\n    And total duration < 2x single-step duration\n    And per-step output <= max_output\n"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "sourceFile": "cli/tests/integration/mod.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1760253622187,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760254140792,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,4 +4,5 @@\n //! and real-world scenarios.\n \n pub mod marketplace_tests;\n pub mod testcontainers_readiness;\n+pub mod testcontainers_cleanroom;\n"
+                }
+            ],
+            "date": 1760253622187,
+            "name": "Commit-0",
+            "content": "//! Integration test module for marketplace\n//!\n//! These tests validate production readiness using testcontainers\n//! and real-world scenarios.\n\npub mod marketplace_tests;\npub mod testcontainers_readiness;\n"
+        }
+    ]
+}

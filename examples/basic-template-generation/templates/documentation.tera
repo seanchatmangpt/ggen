@@ -1,0 +1,199 @@
+# Template Fundamentals Guide
+
+This guide explains the core concepts used in ggen template generation.
+
+## Template Anatomy
+
+Every ggen template consists of two parts:
+
+### 1. YAML Frontmatter
+
+Located between `---` delimiters at the start of the file:
+
+{% raw %}
+```yaml
+---
+to: "output/path/{{ variable | filter }}.rs"
+vars:
+  variable_name: type
+  another_var: type
+---
+```
+{% endraw %}
+
+**Key fields:**
+- `to`: Output file path (supports variable substitution and filters)
+- `vars`: Required variables with their types
+
+### 2. Tera Template Body
+
+Everything after the frontmatter is processed with Tera template engine:
+
+{% raw %}
+```rust
+// Use variables: {{ variable_name }}
+// Apply filters: {{ variable_name | snake }}
+// Conditionals: {% if condition %}...{% endif %}
+// Loops: {% for item in items %}...{% endfor %}
+```
+{% endraw %}
+
+## Variable Types
+
+Tera templates support multiple variable types:
+
+| Type | Example | Description |
+|------|---------|-------------|
+| `string` | `"hello"` | Text values |
+| `boolean` | `true`, `false` | True or false |
+| `number` | `42`, `3.14` | Numeric values |
+| `array` | `["a", "b"]` | Lists of items |
+| `object` | `{key: "value"}` | Nested structures |
+
+## Filters
+
+Filters transform variables. Common filters:
+
+| Filter | Input | Output | Use Case |
+|--------|-------|--------|----------|
+| `snake` | `UserService` | `user_service` | Rust module/file names |
+| `pascal` | `user_service` | `UserService` | Rust type names |
+| `camel` | `user_service` | `userService` | JavaScript/JSON names |
+| `ucfirst` | `user` | `User` | Capitalize first letter |
+| `upper` | `user` | `USER` | All uppercase |
+| `lower` | `USER` | `user` | All lowercase |
+
+## Tera Syntax
+
+### Variables
+
+Insert a variable value:
+
+{% raw %}
+```tera
+{{ variable_name }}
+```
+{% endraw %}
+
+### Filters
+
+Apply a filter to transform values:
+
+{% raw %}
+```tera
+{{ variable_name | snake }}
+{{ name | ucfirst }}
+{{ description | upper }}
+```
+{% endraw %}
+
+### Conditionals
+
+Render content conditionally:
+
+{% raw %}
+```tera
+{% if condition %}
+  This shows if condition is true
+{% else %}
+  This shows if condition is false
+{% endif %}
+```
+{% endraw %}
+
+### Loops
+
+Iterate over arrays:
+
+{% raw %}
+```tera
+{% for item in items %}
+  Item: {{ item }}
+{% endfor %}
+```
+{% endraw %}
+
+Access loop metadata:
+
+{% raw %}
+```tera
+{% for item in items %}
+  {{ item }} {% if not loop.last %}, {% endif %}
+{% endfor %}
+```
+{% endraw %}
+
+### Comments
+
+Comments don't appear in output:
+
+{% raw %}
+```tera
+{# This is a comment #}
+```
+{% endraw %}
+
+## Common Patterns
+
+### Case Conversion Pattern
+
+Generate consistent naming across languages:
+
+{% raw %}
+```tera
+// Rust module name (snake)
+pub mod {{ name | snake }} {
+    // Rust type name (pascal)
+    pub struct {{ name | pascal }} {
+        // Field name (snake)
+        pub {{ field | snake }}: String,
+    }
+}
+```
+{% endraw %}
+
+### Conditional Field Pattern
+
+Include fields based on flags:
+
+{% raw %}
+```tera
+pub struct {{ struct_name | pascal }} {
+    {% if has_id %}
+    pub id: u64,
+    {% endif %}
+    {% for field in fields %}
+    pub {{ field }}: String,
+    {% endfor %}
+}
+```
+{% endraw %}
+
+### Optional Section Pattern
+
+Include entire sections conditionally:
+
+{% raw %}
+```tera
+{% if has_validation %}
+impl {{ struct_name | pascal }} {
+    pub fn validate(&self) -> Result<()> {
+        // Validation logic
+        Ok(())
+    }
+}
+{% endif %}
+```
+{% endraw %}
+
+## Best Practices
+
+1. **Use descriptive variable names** - `user_username` instead of `x`
+2. **Apply filters consistently** - Always use same filter for same type
+3. **Document with comments** - Use `{# comments #}` to explain complex logic
+4. **Test template output** - Verify generated code is valid before using in production
+5. **Keep templates focused** - One template = one output type
+
+## Next Steps
+
+See the example templates in `templates/` directory to understand practical applications.

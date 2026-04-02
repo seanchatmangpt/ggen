@@ -1,0 +1,43 @@
+## -------------------------------------------------------------------
+## BEAM Node Configuration
+## Generated for: Erlang Autonomics on GCP
+## -------------------------------------------------------------------
+
+%% Node name and cookie
+-name erlang-autonomics@127.0.0.1
+-setcookie erlang-autonomics-secret
+
+%% Distribution
+-kernel inet_default_connect_options "[{nodelay, true}]"
+-kernel inet_dist_listen_min 9000
+-kernel inet_dist_listen_max 9100
+
+%% Erlang VM tuning
+-kernel net_ticktime 60
++K true
++A 256
++P 2097152
++Q 131072
+
+%% Memory (GCP Cloud Run limit: 512M to 4G per container)
++t 256000
++hms 233
++hmbs 176
+
+%% Multi-threaded async I/O (for pub/sub/GCP API calls)
++sbt ts
++sbwt very_long
++swt very_long
+
+%% Heartbeat (prevent split brain)
+-heart
+
+%% JIT (Erlang 24+, improves performance ~10-20%)
+-JDOptions "-Xmx256m -Xms128m"
+
+%% Tracing (production monitoring)
++co true
++ct 10000
+
+%% Debug (disable in production)
+% -pa /srv/erlang-autonomics/ebin

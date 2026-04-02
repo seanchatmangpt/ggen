@@ -25,7 +25,7 @@ thiserror = { workspace = true }
 ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-utils.workspace = true
-# marketplace removed — migrated to separate project
+ggen-marketplace = { path = "../ggen-marketplace", version = "3.0.0", optional = true }
 
 # Crate-specific dependencies
 tera = { workspace = true }
@@ -54,7 +54,8 @@ sqlx = { workspace = true }      # Database support for audit trail
 # Domain must be CLI-agnostic
 
 [features]
-# marketplace feature removed — migrated to separate project
+# Marketplace (RDF-backed semantic marketplace) - optional feature
+marketplace = ["ggen-marketplace"]
 default = []
 integration = []
 
@@ -66,6 +67,10 @@ tempfile = { workspace = true }
 tokio-test = "0.4"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 criterion = { version = "0.7", features = ["html_reports"] }
+
+[[bench]]
+name = "swarm_primitives"
+harness = false
 
 [[test]]
 name = "integration_tests"

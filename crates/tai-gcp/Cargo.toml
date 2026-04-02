@@ -1,0 +1,70 @@
+[package]
+name = "tai-gcp"
+version = "0.1.0"
+edition = "2021"
+description = "Production-grade GCP service integration with official Google Cloud Client Libraries"
+license = "MIT"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+
+[dependencies]
+# Async runtime & utilities
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = "1.0"
+toml = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Logging & tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+log = { workspace = true }
+
+# Authentication & credentials
+# Note: Google Cloud Client Libraries should be added per project needs
+# They follow different versioning schemes and can conflict with application requirements
+# yup-oauth2 is optional and used when service account JSON authentication is needed
+yup-oauth2 = { version = "8.3", features = ["service_account"], optional = true }
+hyper = { version = "0.14", features = ["full"] }
+hyper-rustls = "0.24"
+
+# Configuration
+chrono = { workspace = true }
+uuid = { workspace = true }
+dashmap = { workspace = true }
+parking_lot = "0.12"
+once_cell = { workspace = true }
+
+# Retry & circuit breaker
+backoff = { version = "0.4", features = ["tokio"] }
+reqwest = { workspace = true }
+
+# Utilities
+bytes = "1.5"
+regex = { workspace = true }
+base64 = { workspace = true }
+urlencoding = "2.1"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
+proptest = { workspace = true }
+criterion = { version = "0.7", features = ["html_reports"] }
+chicago-tdd-tools = { workspace = true }
+serial_test = "3.2"
+mockall = "0.13"
+fake = "2.9"
+
+[features]
+default = []
+# OAuth2 service account authentication (optional, requires yup-oauth2)
+oauth2 = ["yup-oauth2"]
+# Optional metrics integration
+metrics = []

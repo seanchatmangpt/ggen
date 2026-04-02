@@ -1,0 +1,341 @@
+{{!--
+  Next.js App Router API Routes Generator
+  Generates RESTful API routes from RDF ontology classes
+--}}
+/**
+ * Auto-generated API routes for {{className}}
+ * Generated: {{generatedDate}}
+ * Route: /api/{{routePath}}
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import {
+  {{className}},
+  {{className}}Schema,
+  Create{{className}}Input,
+  Update{{className}}Input,
+  {{className}}Response,
+  PaginatedResponse,
+  formatZodError,
+} from '@/types/generated';
+{{#if hasDatabase}}
+import { prisma } from '@/lib/prisma';
+{{/if}}
+{{#if hasAuth}}
+import { auth } from '@/lib/auth';
+{{/if}}
+
+/**
+ * Query parameters schema for list endpoint
+ */
+const ListQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  pageSize: z.coerce.number().min(1).max(100).default(10),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+{{#each filterableProperties}}
+  {{propertyName}}: z.{{zodType}}.optional(),
+{{/each}}
+  search: z.string().optional(),
+});
+
+/**
+ * GET /api/{{routePath}}
+ * List all {{pluralName}} with pagination and filtering
+ */
+export async function GET(request: NextRequest) {
+  try {
+    {{#if hasAuth}}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {{/if}}
+
+    const { searchParams } = new URL(request.url);
+    const queryParams = Object.fromEntries(searchParams);
+
+    const validationResult = ListQuerySchema.safeParse(queryParams);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation Error',
+          message: 'Invalid query parameters',
+          details: formatZodError(validationResult.error),
+          statusCode: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { page, pageSize, sortBy, sortOrder, search, ...filters } = validationResult.data;
+
+    {{#if hasDatabase}}
+    // Build where clause
+    const where: any = {};
+
+    {{#each filterableProperties}}
+    if (filters.{{propertyName}}) {
+      where.{{propertyName}} = {{#if isStringType}}{ contains: filters.{{propertyName}}, mode: 'insensitive' }{{else}}filters.{{propertyName}}{{/if}};
+    }
+    {{/each}}
+
+    if (search) {
+      where.OR = [
+        {{#each searchableProperties}}
+        { {{propertyName}}: { contains: search, mode: 'insensitive' } },
+        {{/each}}
+      ];
+    }
+
+    // Execute query
+    const [data, total] = await Promise.all([
+      prisma.{{lowerCaseName}}.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: sortBy ? { [sortBy]: sortOrder } : { createdAt: 'desc' },
+      }),
+      prisma.{{lowerCaseName}}.count({ where }),
+    ]);
+
+    const response: PaginatedResponse<{{className}}Response> = {
+      data,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    };
+
+    return NextResponse.json({ success: true, data: response });
+    {{else}}
+    // Mock implementation - replace with actual data source
+    const mockData: {{className}}Response[] = [];
+    const response: PaginatedResponse<{{className}}Response> = {
+      data: mockData,
+      pagination: { page, pageSize, total: 0, totalPages: 0 },
+    };
+    return NextResponse.json({ success: true, data: response });
+    {{/if}}
+  } catch (error) {
+    console.error('Error fetching {{pluralName}}:', error);
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to fetch {{pluralName}}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/{{routePath}}
+ * Create a new {{className}}
+ */
+export async function POST(request: NextRequest) {
+  try {
+    {{#if hasAuth}}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {{/if}}
+
+    const body = await request.json();
+
+    const validationResult = {{className}}Schema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation Error',
+          message: 'Invalid request body',
+          details: formatZodError(validationResult.error),
+          statusCode: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    const input = validationResult.data as Create{{className}}Input;
+
+    {{#if hasDatabase}}
+    const created = await prisma.{{lowerCaseName}}.create({
+      data: input,
+    });
+
+    return NextResponse.json(
+      { success: true, data: created, message: '{{className}} created successfully' },
+      { status: 201 }
+    );
+    {{else}}
+    // Mock implementation
+    const created: {{className}}Response = {
+      ...input,
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as {{className}}Response;
+
+    return NextResponse.json(
+      { success: true, data: created, message: '{{className}} created successfully' },
+      { status: 201 }
+    );
+    {{/if}}
+  } catch (error) {
+    console.error('Error creating {{className}}:', error);
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to create {{className}}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/{{routePath}}/[id]
+ * Update an existing {{className}}
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    {{#if hasAuth}}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {{/if}}
+
+    const { id } = params;
+    const body = await request.json();
+
+    const validationResult = {{className}}Schema.partial().safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation Error',
+          message: 'Invalid request body',
+          details: formatZodError(validationResult.error),
+          statusCode: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    const input = validationResult.data as Update{{className}}Input;
+
+    {{#if hasDatabase}}
+    const updated = await prisma.{{lowerCaseName}}.update({
+      where: { id },
+      data: { ...input, updatedAt: new Date() },
+    });
+
+    return NextResponse.json({ success: true, data: updated, message: '{{className}} updated successfully' });
+    {{else}}
+    // Mock implementation
+    const updated: {{className}}Response = {
+      ...input,
+      id,
+      updatedAt: new Date(),
+    } as {{className}}Response;
+
+    return NextResponse.json({ success: true, data: updated, message: '{{className}} updated successfully' });
+    {{/if}}
+  } catch (error: any) {
+    console.error('Error updating {{className}}:', error);
+
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        {
+          error: 'Not Found',
+          message: '{{className}} not found',
+          statusCode: 404,
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to update {{className}}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/{{routePath}}/[id]
+ * Delete a {{className}}
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    {{#if hasAuth}}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {{/if}}
+
+    const { id } = params;
+
+    {{#if hasDatabase}}
+    await prisma.{{lowerCaseName}}.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: '{{className}} deleted successfully' });
+    {{else}}
+    // Mock implementation
+    return NextResponse.json({ success: true, message: '{{className}} deleted successfully' });
+    {{/if}}
+  } catch (error: any) {
+    console.error('Error deleting {{className}}:', error);
+
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        {
+          error: 'Not Found',
+          message: '{{className}} not found',
+          statusCode: 404,
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to delete {{className}}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}

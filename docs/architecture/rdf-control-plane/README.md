@@ -164,20 +164,10 @@ SELECT ?pkg WHERE { ?pkg mp:hasQualityScore/mp:overallScore ?score }
 
 **Package lifecycle as FSM:**
 
-```mermaid
-stateDiagram-v2
-    [*] --> Draft
-
-    Draft --> Published : publish()
-    Draft --> Withdrawn : withdraw()
-
-    Published --> Active : activate()
-    Published --> Withdrawn : withdraw()
-
-    Active --> Deprecated : deprecate()
-    Active --> Withdrawn : withdraw()
-
-    Deprecated --> Archived : archive()
+```
+Draft → Published → Active → Deprecated → Archived
+  │         │                     │
+  └─────────┴─────────────────────┴─────→ Withdrawn
 ```
 
 **Only valid transitions allowed** - encoded in RDF and enforced at multiple levels.
@@ -335,31 +325,6 @@ stateDiagram-v2
 - Unit tests
 - Integration tests
 - Property-based tests
-
-```mermaid
-gantt
-    title RDF Control Plane Implementation Timeline (12 Weeks)
-    dateFormat  YYYY-MM-DD
-    section Core RDF
-    Oxigraph store setup       :p1a, 2026-04-07, 5d
-    Ontology + schema loading  :p1b, after p1a, 5d
-    section POKA YOKE
-    NewType wrappers           :p2a, after p1b, 7d
-    Phantom types + builders   :p2b, after p2a, 3d
-    section Validation
-    SHACL integration          :p3, after p2b, 5d
-    section SPARQL Ops
-    Query library              :p4a, after p3, 7d
-    Update operations          :p4b, after p4a, 3d
-    section FMEA
-    Failure detectors          :p5, after p4b, 5d
-    section CLI
-    Command-to-SPARQL          :p6a, after p5, 7d
-    Result formatting          :p6b, after p6a, 3d
-    section Testing
-    Unit + integration tests   :p7a, after p6b, 7d
-    Property-based tests       :p7b, after p7a, 3d
-```
 
 **Total Timeline:** 12 weeks
 

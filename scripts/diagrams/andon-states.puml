@@ -1,0 +1,45 @@
+@startuml andon-states
+' Andon Signal State Machine
+' Based on Toyota Production System principles
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+skinparam roundcorner 10
+
+title **Andon Signal State Machine**\n<size:12>//DfLSS: Stop-the-Line Quality Control//</size>
+
+state "IDLE" as IDLE #E0E0E0 : No validation
+state "GREEN" as GREEN #90EE90 : All passed\n**Proceed**
+state "YELLOW" as YELLOW #FFFFE0 : Warnings\n**Caution**
+state "RED" as RED #FFB6C1 : Critical fail\n**STOP**
+state "FIXING" as FIX : Developer fixing
+
+[*] --> IDLE
+
+IDLE --> GREEN : hook starts\n[no issues]
+IDLE --> YELLOW : hook starts\n[warnings]
+IDLE --> RED : hook starts\n[critical]
+
+GREEN --> IDLE : complete
+YELLOW --> IDLE : acknowledged
+YELLOW --> RED : critical found
+RED --> FIX : developer notified
+FIX --> IDLE : fixed
+
+note right of RED
+    **RED Triggers:**
+    - Compile error
+    - Test failure
+    - Timeout
+    - Lint error
+end note
+
+note right of YELLOW
+    **YELLOW Triggers:**
+    - Format issues
+    - Security warnings
+    - Debug prints
+end note
+
+@enduml

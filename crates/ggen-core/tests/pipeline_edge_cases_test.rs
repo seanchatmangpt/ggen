@@ -11,14 +11,14 @@
 
 use ggen_core::codegen::pipeline::{GenerationPipeline, LlmService};
 use ggen_core::manifest::{
-    GenerationMode, GenerationRule, GgenManifest, InferenceRule, OntologyConfig, QuerySource,
+    GgenManifest, GenerationMode, GenerationRule, InferenceRule, OntologyConfig, QuerySource,
     TemplateSource,
 };
 use std::collections::BTreeMap;
-use std::fs;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
 use tempfile::TempDir;
+use std::fs;
+use std::sync::{Arc, Mutex};
 
 // ---------------------------------------------------------------------------
 // Helper Functions
@@ -181,9 +181,9 @@ fn test_generation_rule_empty_results_no_skip() {
 @prefix ex: <http://example.org/test#> .
 
 # No classes defined
-"#
-    .to_string();
-    fs::write(temp_dir.path().join("ontology.ttl"), empty_ontology).expect("Should write file");
+"#.to_string();
+    fs::write(temp_dir.path().join("ontology.ttl"), empty_ontology)
+        .expect("Should write file");
 
     // Add rule with skip_empty = false
     manifest.generation.rules = vec![create_test_rule("empty_test", "output.txt")];
@@ -197,16 +197,9 @@ fn test_generation_rule_empty_results_no_skip() {
     let result = pipeline.execute_generation_rules();
 
     // Should succeed but generate no files
-    assert!(
-        result.is_ok(),
-        "Generation should succeed even with empty results"
-    );
+    assert!(result.is_ok(), "Generation should succeed even with empty results");
     let generated = result.unwrap();
-    assert_eq!(
-        generated.len(),
-        0,
-        "Should generate zero files when query returns no results"
-    );
+    assert_eq!(generated.len(), 0, "Should generate zero files when query returns no results");
 }
 
 // ---------------------------------------------------------------------------
@@ -222,9 +215,9 @@ fn test_generation_rule_empty_results_with_skip() {
     let empty_ontology = r#"
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-"#
-    .to_string();
-    fs::write(temp_dir.path().join("ontology.ttl"), empty_ontology).expect("Should write file");
+"#.to_string();
+    fs::write(temp_dir.path().join("ontology.ttl"), empty_ontology)
+        .expect("Should write file");
 
     // Add rule with skip_empty = true
     let mut rule = create_test_rule("skip_test", "output.txt");
@@ -239,11 +232,7 @@ fn test_generation_rule_empty_results_with_skip() {
 
     assert!(result.is_ok(), "Generation should succeed");
     let generated = result.unwrap();
-    assert_eq!(
-        generated.len(),
-        0,
-        "Should skip generation when skip_empty is true"
-    );
+    assert_eq!(generated.len(), 0, "Should skip generation when skip_empty is true");
 }
 
 // ---------------------------------------------------------------------------
@@ -255,11 +244,8 @@ fn test_generation_rule_malformed_sparql() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add rule with invalid SPARQL
     let invalid_rule = GenerationRule {
@@ -301,11 +287,8 @@ fn test_generation_rule_missing_template_file() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add rule with non-existent template file
     let file_rule = GenerationRule {
@@ -347,11 +330,8 @@ fn test_generation_rule_invalid_template_syntax() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add rule with invalid Tera syntax
     let invalid_template_rule = GenerationRule {
@@ -393,11 +373,8 @@ fn test_generation_rule_template_variable_not_found() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Template references ?missing_var but SPARQL only returns ?class
     let mismatch_rule = GenerationRule {
@@ -421,10 +398,7 @@ fn test_generation_rule_template_variable_not_found() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(
-        result.is_err(),
-        "Should fail when template variable is missing"
-    );
+    assert!(result.is_err(), "Should fail when template variable is missing");
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Failed to render template"),
@@ -442,11 +416,8 @@ fn test_generation_mode_create_file_exists() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Pre-create the output file
     let output_dir = temp_dir.path().join("output");
@@ -478,18 +449,11 @@ fn test_generation_mode_create_file_exists() {
 
     assert!(result.is_ok(), "Generation should succeed");
     let generated = result.unwrap();
-    assert_eq!(
-        generated.len(),
-        0,
-        "Should skip file in Create mode when it exists"
-    );
+    assert_eq!(generated.len(), 0, "Should skip file in Create mode when it exists");
 
     // Verify original content is unchanged
     let original_content = fs::read_to_string(&existing_file).expect("Should read file");
-    assert_eq!(
-        original_content, "Existing content\n",
-        "File should not be modified"
-    );
+    assert_eq!(original_content, "Existing content\n", "File should not be modified");
 }
 
 // ---------------------------------------------------------------------------
@@ -501,11 +465,8 @@ fn test_generation_rule_non_select_query() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Use CONSTRUCT instead of SELECT
     let construct_rule = GenerationRule {
@@ -547,11 +508,8 @@ fn test_generation_rule_when_condition_true() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add rule with WHEN condition that evaluates to true
     let mut rule = create_test_rule("when_true", "output.txt");
@@ -564,15 +522,9 @@ fn test_generation_rule_when_condition_true() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(
-        result.is_ok(),
-        "Generation should succeed when WHEN condition is true"
-    );
+    assert!(result.is_ok(), "Generation should succeed when WHEN condition is true");
     let generated = result.unwrap();
-    assert!(
-        generated.len() > 0,
-        "Should generate files when condition is true"
-    );
+    assert!(generated.len() > 0, "Should generate files when condition is true");
 }
 
 // ---------------------------------------------------------------------------
@@ -584,11 +536,8 @@ fn test_generation_rule_when_condition_false() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add rule with WHEN condition that evaluates to false
     let mut rule = create_test_rule("when_false", "output.txt");
@@ -601,16 +550,9 @@ fn test_generation_rule_when_condition_false() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(
-        result.is_ok(),
-        "Generation should succeed when WHEN condition is false"
-    );
+    assert!(result.is_ok(), "Generation should succeed when WHEN condition is false");
     let generated = result.unwrap();
-    assert_eq!(
-        generated.len(),
-        0,
-        "Should skip generation when condition is false"
-    );
+    assert_eq!(generated.len(), 0, "Should skip generation when condition is false");
 }
 
 // ---------------------------------------------------------------------------
@@ -622,11 +564,8 @@ fn test_generation_rule_when_condition_invalid_ask() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Use SELECT instead of ASK for WHEN condition
     let mut rule = create_test_rule("invalid_when", "output.txt");
@@ -657,11 +596,8 @@ fn test_inference_rule_when_condition_skipped() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add inference rule with WHEN condition that evaluates to false
     let rule = InferenceRule {
@@ -669,8 +605,7 @@ fn test_inference_rule_when_condition_skipped() {
         description: None,
         order: 1,
         when: Some("ASK { ?class a <http://example.org/NonExistentClass> }".to_string()),
-        construct: "CONSTRUCT { ?s a <http://example.org/Inferred> } WHERE { ?s a rdfs:Class }"
-            .to_string(),
+        construct: "CONSTRUCT { ?s a <http://example.org/Inferred> } WHERE { ?s a rdfs:Class }".to_string(),
     };
     manifest.inference.rules = vec![rule];
 
@@ -683,14 +618,8 @@ fn test_inference_rule_when_condition_skipped() {
     assert!(result.is_ok(), "Inference execution should succeed");
     let executed = result.unwrap();
     assert_eq!(executed.len(), 1, "Should have one executed rule");
-    assert_eq!(
-        executed[0].triples_added, 0,
-        "Skipped rule should add no triples"
-    );
-    assert_eq!(
-        executed[0].query_hash, "skipped",
-        "Skipped rule should have 'skipped' hash"
-    );
+    assert_eq!(executed[0].triples_added, 0, "Skipped rule should add no triples");
+    assert_eq!(executed[0].query_hash, "skipped", "Skipped rule should have 'skipped' hash");
 }
 
 // ---------------------------------------------------------------------------
@@ -702,11 +631,8 @@ fn test_output_directory_created_automatically() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Use nested output directory that doesn't exist
     let nested_path = "output/nested/deep/output.txt";
@@ -786,11 +712,8 @@ fn test_execute_single_generation_rule() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add multiple rules
     let rule1 = create_test_rule("rule1", "output1.txt");
@@ -893,11 +816,8 @@ fn test_run_complete_pipeline() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Add generation rule
     manifest.generation.rules = vec![create_test_rule("test", "output.txt")];
@@ -929,7 +849,10 @@ fn test_llm_service_injection() {
 
     impl LlmService for MockLlmService {
         fn generate_skill_impl(
-            &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str,
+            &self,
+            skill_name: &str,
+            _system_prompt: &str,
+            _implementation_hint: &str,
             _language: &str,
         ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
             *self.call_count.lock().unwrap() += 1;
@@ -946,11 +869,8 @@ fn test_llm_service_injection() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Enable LLM
     manifest.generation.enable_llm = true;
@@ -966,8 +886,7 @@ fn test_llm_service_injection() {
                     BIND("Use async" AS ?implementation_hint)
                     BIND("rust" AS ?language)
                 }
-            "#
-            .to_string(),
+            "#.to_string(),
         },
         template: TemplateSource::Inline {
             inline: "{{generated_impl}}\n".to_string(),
@@ -997,11 +916,7 @@ fn test_llm_service_injection() {
     assert_eq!(generated.len(), 1, "Should generate one file");
 
     // Verify LLM service was called
-    assert_eq!(
-        *call_count.lock().unwrap(),
-        1,
-        "LLM service should be called once"
-    );
+    assert_eq!(*call_count.lock().unwrap(), 1, "LLM service should be called once");
 
     // Verify generated content
     let output_path = temp_dir.path().join("output/skill.rs");
@@ -1021,7 +936,10 @@ fn test_llm_service_disabled_in_manifest() {
 
     impl LlmService for CountingLlmService {
         fn generate_skill_impl(
-            &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str,
+            &self,
+            skill_name: &str,
+            _system_prompt: &str,
+            _implementation_hint: &str,
             _language: &str,
         ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
             *self.call_count.lock().unwrap() += 1;
@@ -1038,11 +956,8 @@ fn test_llm_service_disabled_in_manifest() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Disable LLM (default)
     manifest.generation.enable_llm = false;
@@ -1056,8 +971,7 @@ fn test_llm_service_disabled_in_manifest() {
                     BIND("test_skill" AS ?skill_name)
                     BIND("Test description" AS ?system_prompt)
                 }
-            "#
-            .to_string(),
+            "#.to_string(),
         },
         template: TemplateSource::Inline {
             inline: "{{generated_impl}}\n".to_string(),
@@ -1085,11 +999,7 @@ fn test_llm_service_disabled_in_manifest() {
     assert!(result.is_ok(), "Generation should succeed");
 
     // Verify LLM service was NOT called
-    assert_eq!(
-        *call_count.lock().unwrap(),
-        0,
-        "LLM service should not be called when disabled"
-    );
+    assert_eq!(*call_count.lock().unwrap(), 0, "LLM service should not be called when disabled");
 
     // Verify TODO stub was generated instead
     let output_path = temp_dir.path().join("output/skill.rs");
@@ -1106,11 +1016,8 @@ fn test_output_directory_override() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     manifest.generation.output_dir = PathBuf::from("default_output");
     manifest.generation.rules = vec![create_test_rule("test", "output.txt")];
@@ -1141,11 +1048,8 @@ fn test_force_overwrite_flag() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     manifest.generation.rules = vec![create_test_rule("test", "protected.txt")];
 
@@ -1158,10 +1062,7 @@ fn test_force_overwrite_flag() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(
-        result.is_ok(),
-        "Generation should succeed with force overwrite"
-    );
+    assert!(result.is_ok(), "Generation should succeed with force overwrite");
 }
 
 // ---------------------------------------------------------------------------
@@ -1173,11 +1074,8 @@ fn test_generate_skill_impl_without_llm_service() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let mut manifest = create_minimal_manifest();
 
-    fs::write(
-        temp_dir.path().join("ontology.ttl"),
-        create_minimal_ontology(),
-    )
-    .expect("Should write file");
+    fs::write(temp_dir.path().join("ontology.ttl"), create_minimal_ontology())
+        .expect("Should write file");
 
     // Enable LLM but don't inject service
     manifest.generation.enable_llm = true;
@@ -1190,8 +1088,7 @@ fn test_generate_skill_impl_without_llm_service() {
                     BIND("test_skill" AS ?skill_name)
                     BIND("Test description" AS ?system_prompt)
                 }
-            "#
-            .to_string(),
+            "#.to_string(),
         },
         template: TemplateSource::Inline {
             inline: "{{generated_impl}}\n".to_string(),
@@ -1211,10 +1108,7 @@ fn test_generate_skill_impl_without_llm_service() {
 
     let result = pipeline.execute_generation_rules();
 
-    assert!(
-        result.is_ok(),
-        "Generation should succeed with default LLM service"
-    );
+    assert!(result.is_ok(), "Generation should succeed with default LLM service");
 
     // Verify TODO stub was generated
     let output_path = temp_dir.path().join("output/skill.rs");

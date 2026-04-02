@@ -1,0 +1,64 @@
+# GitHub Actions Security Check Workflow
+name: Security Audit
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    # Run weekly on Mondays
+    - cron: '0 0 * * 1'
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      
+      - name: Run cargo audit
+        run: |
+          # Ignore RUSTSEC-2025-0111 (tokio-tar) - dev-only dependency
+          # Accepted risk: testcontainers is only used in development
+          cargo audit --deny warnings \
+            --ignore RUSTSEC-2025-0111
+      
+      - name: Run clippy security lints
+        run: |
+          cargo clippy -- \
+            -D clippy::unwrap_used \
+            -D clippy::expect_used \
+            -W clippy::panic \
+            -W clippy::todo \
+            -W clippy::unimplemented
+
+  dependency-check:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+
+  sast-scan:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run cargo-deny
+        run: |
+          cargo install cargo-deny
+          cargo deny check advisories

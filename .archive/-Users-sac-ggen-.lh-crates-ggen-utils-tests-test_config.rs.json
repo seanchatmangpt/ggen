@@ -1,0 +1,18 @@
+{
+    "sourceFile": "crates/ggen-utils/tests/test_config.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1762979113839,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1762979113839,
+            "name": "Commit-0",
+            "content": "use chicago_tdd_tools::test;\nuse ggen_utils::app_config::*;\nuse std::sync::Once;\n\nstatic INIT: Once = Once::new();\n\npub fn initialize() {\n    INIT.call_once(|| {\n        // Initialize configuration\n        let config_contents = include_str!(\"resources/test_config.toml\");\n        AppConfig::init(Some(config_contents)).unwrap();\n    });\n}\n\ntest!(fetch_config, {\n    // Arrange\n    initialize();\n\n    // Act\n    let config = AppConfig::fetch().unwrap();\n\n    // Assert\n    assert_eq!(config.debug, false);\n    assert_eq!(config.database.url, \"custom database url\");\n});\n\ntest!(verify_get, {\n    // Arrange\n    initialize();\n\n    // Act\n    let debug_value = AppConfig::get::<bool>(\"debug\").unwrap();\n    let db_url = AppConfig::get::<String>(\"database.url\").unwrap();\n\n    // Assert\n    assert_eq!(debug_value, false);\n    assert_eq!(db_url, \"custom database url\");\n});\n\ntest!(verify_set, {\n    // Arrange\n    initialize();\n\n    // Act\n    AppConfig::set(\"database.variable\", \"new value\").unwrap();\n    let config = AppConfig::fetch().unwrap();\n\n    // Assert\n    assert_eq!(config.database.variable, \"new value\");\n});\n"
+        }
+    ]
+}

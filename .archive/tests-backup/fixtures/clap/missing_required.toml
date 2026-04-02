@@ -1,0 +1,9 @@
+# Missing required fields
+
+[project]
+# Missing 'name' field
+version = "1.0.0"
+
+[template]
+# Missing 'output_dir' field
+engine = "tera"

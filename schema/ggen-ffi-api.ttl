@@ -1,0 +1,249 @@
+# =============================================================================
+# ggen FFI API Ontology
+# Describes ggen's core functions for multi-language bindings
+# This ontology IS the source of truth for Node.js, Python, and Erlang bindings
+# =============================================================================
+
+@prefix : <https://ggen.dev/api#> .
+@prefix ffi: <https://ggen.dev/ontology/node-ffi#> .
+@prefix py: <https://ggen.dev/ontology/python-ffi#> .
+@prefix erl: <https://ggen.dev/ontology/erlang-ffi#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Module Definition
+# =============================================================================
+
+:GgenModule a ffi:Module ;
+    ffi:name "ggen-bindings" ;
+    ffi:version "5.0.1" ;
+    ffi:description "Multi-language bindings for ggen code generator" ;
+    ffi:hasFunction :ParseRdfFunction, :GenerateCodeFunction, :ValidateOntologyFunction, :ExecuteSparqlFunction ;
+    ffi:hasType :RdfFormatType, :TripleType, :GenerationConfigType ;
+    ffi:hasStruct :TripleStruct, :GenerationConfigStruct, :ValidationResultStruct .
+
+# =============================================================================
+# Type Definitions
+# =============================================================================
+
+:RdfFormatType a ffi:Type ;
+    ffi:typeName "RdfFormat" ;
+    ffi:tsType "'turtle' | 'ntriples' | 'rdfxml' | 'jsonld'" ;
+    ffi:rustType "RdfFormat" ;
+    py:pythonType "Literal['turtle', 'ntriples', 'rdfxml', 'jsonld']" ;
+    erl:erlangType "binary()" ;
+    ffi:isPrimitive false ;
+    rdfs:comment "Supported RDF serialization formats" .
+
+:TripleType a ffi:Type ;
+    ffi:typeName "Triple" ;
+    ffi:tsType "Triple" ;
+    ffi:rustType "Triple" ;
+    py:pythonType "Triple" ;
+    erl:erlangType "map()" ;
+    ffi:isPrimitive false ;
+    rdfs:comment "An RDF triple (subject, predicate, object)" .
+
+:GenerationConfigType a ffi:Type ;
+    ffi:typeName "GenerationConfig" ;
+    ffi:tsType "GenerationConfig" ;
+    ffi:rustType "GenerationConfig" ;
+    py:pythonType "GenerationConfig" ;
+    erl:erlangType "map()" ;
+    ffi:isPrimitive false ;
+    rdfs:comment "Configuration for code generation" .
+
+# =============================================================================
+# Struct Definitions
+# =============================================================================
+
+:TripleStruct a ffi:Struct ;
+    ffi:structName "Triple" ;
+    rdfs:comment "Represents an RDF triple" ;
+    ffi:hasField :TripleSubjectField, :TriplePredicateField, :TripleObjectField .
+
+:TripleSubjectField a ffi:Field ;
+    ffi:fieldName "subject" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    ffi:readonly false ;
+    rdfs:comment "Subject URI or blank node" .
+
+:TriplePredicateField a ffi:Field ;
+    ffi:fieldName "predicate" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    ffi:readonly false ;
+    rdfs:comment "Predicate URI" .
+
+:TripleObjectField a ffi:Field ;
+    ffi:fieldName "object" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    ffi:readonly false ;
+    rdfs:comment "Object value (URI, literal, or blank node)" .
+
+:GenerationConfigStruct a ffi:Struct ;
+    ffi:structName "GenerationConfig" ;
+    rdfs:comment "Configuration for code generation" ;
+    ffi:hasField :ConfigTemplatePathField, :ConfigOntologyPathField, :ConfigOutputPathField, :ConfigVerboseField .
+
+:ConfigTemplatePathField a ffi:Field ;
+    ffi:fieldName "templatePath" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    ffi:readonly false ;
+    rdfs:comment "Path to Tera template file" .
+
+:ConfigOntologyPathField a ffi:Field ;
+    ffi:fieldName "ontologyPath" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    ffi:readonly false ;
+    rdfs:comment "Path to RDF ontology file" .
+
+:ConfigOutputPathField a ffi:Field ;
+    ffi:fieldName "outputPath" ;
+    ffi:fieldType "string" ;
+    ffi:required false ;
+    ffi:readonly false ;
+    rdfs:comment "Output file path (optional, defaults to stdout)" .
+
+:ConfigVerboseField a ffi:Field ;
+    ffi:fieldName "verbose" ;
+    ffi:fieldType "boolean" ;
+    ffi:required false ;
+    ffi:readonly false ;
+    rdfs:comment "Enable verbose logging" .
+
+:ValidationResultStruct a ffi:Struct ;
+    ffi:structName "ValidationResult" ;
+    rdfs:comment "Result of ontology validation" ;
+    ffi:hasField :ValidationValidField, :ValidationErrorsField, :ValidationWarningsField .
+
+:ValidationValidField a ffi:Field ;
+    ffi:fieldName "valid" ;
+    ffi:fieldType "boolean" ;
+    ffi:required true ;
+    ffi:readonly true ;
+    rdfs:comment "Whether the ontology is valid" .
+
+:ValidationErrorsField a ffi:Field ;
+    ffi:fieldName "errors" ;
+    ffi:fieldType "string[]" ;
+    ffi:required true ;
+    ffi:readonly true ;
+    rdfs:comment "Validation error messages" .
+
+:ValidationWarningsField a ffi:Field ;
+    ffi:fieldName "warnings" ;
+    ffi:fieldType "string[]" ;
+    ffi:required true ;
+    ffi:readonly true ;
+    rdfs:comment "Validation warning messages" .
+
+# =============================================================================
+# Function: parseRdf
+# =============================================================================
+
+:ParseRdfFunction a ffi:Function ;
+    ffi:functionName "parseRdf" ;
+    ffi:rustName "parse_rdf_file" ;
+    py:pythonName "parse_rdf" ;
+    erl:erlangName "parse_rdf" ;
+    erl:erlangArity 2 ;
+    ffi:returnType "Triple[]" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Parse an RDF file and return triples" ;
+    ffi:hasParameter :ParseRdfFilePathParam, :ParseRdfFormatParam .
+
+:ParseRdfFilePathParam a ffi:Parameter ;
+    ffi:paramName "filePath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF file to parse" .
+
+:ParseRdfFormatParam a ffi:Parameter ;
+    ffi:paramName "format" ;
+    ffi:type "RdfFormat" ;
+    ffi:required false ;
+    ffi:defaultValue "turtle" ;
+    rdfs:comment "RDF serialization format (defaults to Turtle)" .
+
+# =============================================================================
+# Function: generateCode
+# =============================================================================
+
+:GenerateCodeFunction a ffi:Function ;
+    ffi:functionName "generateCode" ;
+    ffi:rustName "generate_code_from_template" ;
+    py:pythonName "generate_code" ;
+    erl:erlangName "generate_code" ;
+    erl:erlangArity 1 ;
+    ffi:returnType "string" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Generate code from RDF ontology using Tera template" ;
+    ffi:hasParameter :GenerateCodeConfigParam .
+
+:GenerateCodeConfigParam a ffi:Parameter ;
+    ffi:paramName "config" ;
+    ffi:type "GenerationConfig" ;
+    ffi:required true ;
+    rdfs:comment "Code generation configuration" .
+
+# =============================================================================
+# Function: validateOntology
+# =============================================================================
+
+:ValidateOntologyFunction a ffi:Function ;
+    ffi:functionName "validateOntology" ;
+    ffi:rustName "validate_rdf_ontology" ;
+    py:pythonName "validate_ontology" ;
+    erl:erlangName "validate_ontology" ;
+    erl:erlangArity 1 ;
+    ffi:returnType "ValidationResult" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Validate RDF ontology for consistency and correctness" ;
+    ffi:hasParameter :ValidateOntologyPathParam .
+
+:ValidateOntologyPathParam a ffi:Parameter ;
+    ffi:paramName "ontologyPath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF ontology file to validate" .
+
+# =============================================================================
+# Function: executeSparql
+# =============================================================================
+
+:ExecuteSparqlFunction a ffi:Function ;
+    ffi:functionName "executeSparql" ;
+    ffi:rustName "execute_sparql_query" ;
+    py:pythonName "execute_sparql" ;
+    erl:erlangName "execute_sparql" ;
+    erl:erlangArity 2 ;
+    ffi:returnType "any" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Execute SPARQL query against RDF ontology" ;
+    ffi:hasParameter :ExecuteSparqlOntologyParam, :ExecuteSparqlQueryParam .
+
+:ExecuteSparqlOntologyParam a ffi:Parameter ;
+    ffi:paramName "ontologyPath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF ontology file" .
+
+:ExecuteSparqlQueryParam a ffi:Parameter ;
+    ffi:paramName "query" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "SPARQL query string" .

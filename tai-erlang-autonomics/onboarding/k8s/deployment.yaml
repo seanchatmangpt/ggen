@@ -1,0 +1,324 @@
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onboarding-backend
+  namespace: onboarding
+  labels:
+    app: onboarding-backend
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: onboarding-backend
+  template:
+    metadata:
+      labels:
+        app: onboarding-backend
+        version: v1
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '3001'
+        prometheus.io/path: '/metrics'
+    spec:
+      serviceAccountName: onboarding-backend
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: backend
+        image: onboarding:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3001
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: 'production'
+        - name: PORT
+          value: '3001'
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: db_host
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: db_port
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: onboarding-secrets
+              key: db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: onboarding-secrets
+              key: db_password
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: db_name
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: redis_host
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: redis_port
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: onboarding-secrets
+              key: jwt_secret
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: cors_origin
+        resources:
+          requests:
+            memory: '256Mi'
+            cpu: '250m'
+          limits:
+            memory: '512Mi'
+            cpu: '500m'
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        emptyDir: {}
+
+---
+# Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onboarding-frontend
+  namespace: onboarding
+  labels:
+    app: onboarding-frontend
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: onboarding-frontend
+  template:
+    metadata:
+      labels:
+        app: onboarding-frontend
+        version: v1
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: frontend
+        image: onboarding-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: REACT_APP_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: onboarding-config
+              key: api_url
+        - name: REACT_APP_ENV
+          value: 'production'
+        resources:
+          requests:
+            memory: '128Mi'
+            cpu: '100m'
+          limits:
+            memory: '256Mi'
+            cpu: '200m'
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+---
+# Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: onboarding-backend
+  namespace: onboarding
+  labels:
+    app: onboarding-backend
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  selector:
+    app: onboarding-backend
+
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: onboarding-frontend
+  namespace: onboarding
+  labels:
+    app: onboarding-frontend
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: onboarding-frontend
+
+---
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: onboarding-backend
+  namespace: onboarding
+
+---
+# Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: onboarding-backend
+  namespace: onboarding
+rules:
+- apiGroups: ['']
+  resources: ['configmaps', 'secrets']
+  verbs: ['get', 'list', 'watch']
+
+---
+# Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: onboarding-backend
+  namespace: onboarding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: onboarding-backend
+subjects:
+- kind: ServiceAccount
+  name: onboarding-backend
+  namespace: onboarding
+
+---
+# Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: onboarding-backend
+  namespace: onboarding
+spec:
+  podSelector:
+    matchLabels:
+      app: onboarding-backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: onboarding-frontend
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 3001
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53

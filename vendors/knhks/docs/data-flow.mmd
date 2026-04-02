@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant User
+    participant API
+    participant RDF as RDF Parser
+    participant Hash as Hash Function
+    participant SoA as SoA Arrays
+    participant Eval as Evaluator
+    participant SIMD as SIMD Ops
+    
+    User->>API: knhk_load_rdf(filename)
+    API->>RDF: Parse RDF file
+    RDF-->>API: Stream of triples
+    
+    loop For each triple
+        API->>Hash: Hash term (URI/literal)
+        Hash-->>API: uint64_t ID
+        API->>SoA: Store in S[], P[], O[]
+    end
+    
+    API->>SoA: Detect predicate runs
+    SoA-->>API: Run metadata
+    
+    User->>API: knhk_eval_bool(ctx, ir)
+    API->>Eval: Check predicate match
+    Eval->>SIMD: Execute SIMD operations
+    SIMD->>SoA: Access S[], P[], O[] arrays
+    SoA-->>SIMD: Return comparison results
+    SIMD-->>Eval: Boolean result
+    Eval-->>API: Query result
+    API-->>User: Return result
+

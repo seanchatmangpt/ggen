@@ -1,0 +1,67 @@
+{
+  "ociVersion": "1.0.0",
+  "process": {
+    "terminal": true,
+    "user": {
+      "uid": 0,
+      "gid": 0
+    },
+    "args": [
+      "/usr/local/bin/ggen",
+      "sync",
+      "--from",
+      "/workspace/README.md",
+      "--verbose"
+    ],
+    "env": [
+      "PATH=/usr/local/bin:/usr/bin:/bin",
+      "TERM=xterm",
+      "HOME=/root"
+    ],
+    "cwd": "/workspace"
+  },
+  "root": {
+    "path": "rootfs",
+    "readonly": false
+  },
+  "mounts": [
+    {
+      "destination": "/proc",
+      "type": "proc",
+      "source": "proc"
+    },
+    {
+      "destination": "/dev",
+      "type": "tmpfs",
+      "source": "tmpfs",
+      "options": ["nosuid", "strictatime", "mode=755", "size=65536k"]
+    },
+    {
+      "destination": "/sys",
+      "type": "sysfs",
+      "source": "sysfs"
+    }
+  ],
+  "linux": {
+    "namespaces": [
+      {
+        "type": "pid"
+      },
+      {
+        "type": "network"
+      },
+      {
+        "type": "ipc"
+      },
+      {
+        "type": "uts"
+      },
+      {
+        "type": "mount"
+      }
+    ],
+    "resources": {
+      "devices": []
+    }
+  }
+}

@@ -1,0 +1,12 @@
+---
+to: "output.txt"
+vars:
+  name: "Alice"
+  age: 30
+  items:
+    - "apple"
+    - "banana"
+---
+Name: {{name}}
+Age: {{age}}
+Items: {{items}}

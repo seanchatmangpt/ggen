@@ -1,0 +1,190 @@
+@startuml critical-path-v1.2.0
+!theme mars
+skinparam backgroundColor #FEFEFE
+skinparam roundcorner 10
+
+title Critical Path to v1.2.0 - 4 Day Sprint\n80/20 Pareto Analysis
+
+' Timeline
+concise "Day 1" as D1
+concise "Day 2" as D2
+concise "Day 3" as D3
+concise "Day 4" as D4
+concise "Impact" as Impact
+
+@0
+D1 is "Planning"
+D2 is "Waiting"
+D3 is "Waiting"
+D4 is "Waiting"
+Impact is "0%"
+
+@1
+D1 is "Marketplace Integration"
+note bottom
+  **P0-1: Fix ggen-marketplace**
+  • Resolve base64 conflicts
+  • Fix libp2p dependencies
+  • Remove workspace exclusion
+  • Verify compilation
+
+  **Deliverable:**
+  ✅ Workspace compiles
+
+  **Impact:** 25%
+end note
+Impact is "25%"
+
+@2
+D1 is "Complete"
+D2 is "Dual Track"
+note bottom
+  **Track A: Compilation Errors (P0-4)**
+  • Fix 23 workspace errors
+  • Focus on ggen-core, cli, ggen-ai
+
+  **Track B: Mock Registry Start**
+  • Design in-memory registry
+  • Sample package database
+
+  **Deliverable:**
+  ✅ cargo check --workspace succeeds
+  ✅ Mock registry scaffold
+
+  **Impact:** +15% (40% total)
+end note
+Impact is "40%"
+
+@3
+D2 is "Complete"
+D3 is "Mock Marketplace"
+note bottom
+  **P0-3: Complete Mock Implementation**
+  • Implement search with mock data
+  • Implement package installation
+  • Add CLI commands
+  • Integration tests
+
+  **Deliverable:**
+  ✅ ggen market search works
+  ✅ ggen market add works
+  ✅ ggen market list works
+
+  **Impact:** +20% (60% total)
+end note
+Impact is "60%"
+
+@4
+D3 is "Complete"
+D4 is "Validation"
+note bottom
+  **Final Sprint**
+  • Verify lifecycle commands (P0-2)
+  • End-to-end testing
+  • Production validation
+  • Documentation updates
+
+  **Deliverable:**
+  ✅ All tests pass
+  ✅ Production readiness: 90%+
+  ✅ Ready for cargo publish
+
+  **Impact:** +20% (80% total)
+end note
+Impact is "80%"
+
+@5
+D4 is "Release"
+note bottom
+  **v1.2.0 SHIPPED**
+  • Mock marketplace working
+  • Lifecycle system complete
+  • 80% deployment readiness
+  • Clear roadmap to v1.3.0
+end note
+Impact is "Released"
+
+' Parallel tracks visualization
+package "Day 2 Parallel Execution" {
+  [Fix Compilation Errors] as compile #LightCoral
+  [Build Mock Registry] as mock #LightBlue
+
+  compile -[hidden]down-> mock
+}
+
+note right of compile
+  **23 errors to fix**
+  Priority: High
+  Can run in parallel
+  with mock development
+end note
+
+note right of mock
+  **In-memory database**
+  Sample packages:
+  • rust-axum-service
+  • postgresql-database
+  • docker-compose
+end note
+
+' Risk indicators
+package "Risk Mitigation" #LightYellow {
+  [Dependency Conflicts] as risk1 #LightCoral
+  [Integration Issues] as risk2 #LightGreen
+  [Time Overrun] as risk3 #LightBlue
+
+  note right of risk1
+    **High Risk** (Day 1)
+    Mitigation: Cargo workspaces,
+    version pinning
+  end note
+
+  note right of risk2
+    **Low Risk** (Day 3)
+    Mitigation: Mock data,
+    integration tests
+  end note
+
+  note right of risk3
+    **Medium Risk**
+    Mitigation: 80/20 focus,
+    defer P1/P2
+  end note
+}
+
+' Metrics dashboard
+package "Success Metrics" #LightCyan {
+  rectangle "Completion: 72% → 90%" as metric1
+  rectangle "Compilation Errors: 23 → 0" as metric2
+  rectangle "Marketplace: Excluded → Integrated" as metric3
+  rectangle "Deploy Ready: No → Yes" as metric4
+}
+
+actor Developer
+actor User
+
+Developer --> D1 : Fix & integrate
+D1 --> D2 : Build foundation
+D2 --> D3 : Implement features
+D3 --> D4 : Validate & ship
+D4 --> User : Deliver v1.2.0
+
+' Legend
+legend right
+  **Pareto Principle Applied**
+  20% effort (4 days) = 80% value
+
+  **Deferred to v1.3.0:**
+  • P2P distribution (3 days)
+  • Ed25519 signing (1 day)
+  • Tantivy search (2 days)
+
+  **Total deferred:** 15 days
+
+  **Release Strategy:**
+  v1.2.0: Mock marketplace ✅
+  v1.3.0: Real P2P (3 weeks)
+  v1.4.0: Advanced features (4 weeks)
+endlegend
+
+@enduml

@@ -1,0 +1,11 @@
+@prefix ex: <http://example.com/> .
+
+# This Turtle file has invalid syntax
+ex:subject1 ex:predicate1 ex:object1 .
+ex:subject2 ex:predicate2 !!! INVALID SYNTAX !!!
+ex:subject3 ex:predicate3 ex:object3
+# Missing period on previous line
+
+@prefix invalid: prefix without URI>  .
+
+ex:subject4 ex:predicate4 "unclosed string literal .

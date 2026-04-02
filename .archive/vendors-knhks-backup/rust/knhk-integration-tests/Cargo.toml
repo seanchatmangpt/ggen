@@ -1,0 +1,25 @@
+[package]
+name = "knhk-integration-tests"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "integration_test"
+path = "src/main.rs"
+
+[dependencies]
+# Core testcontainers
+testcontainers = "0.16"
+testcontainers-modules = { version = "0.16", features = ["kafka", "postgres"] }
+tokio = { version = "1", features = ["full"] }
+
+# KNHK components
+knhk-connectors = { path = "../knhk-connectors", features = ["std"] }
+knhk-etl = { path = "../knhk-etl", features = ["std"] }
+knhk-hot = { path = "../knhk-hot", version = "1.0.0" }
+knhk-otel = { path = "../knhk-otel" }
+
+# Utilities
+anyhow = "1.0"
+
+[dev-dependencies]

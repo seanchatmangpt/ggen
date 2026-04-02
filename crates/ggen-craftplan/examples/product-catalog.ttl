@@ -1,0 +1,202 @@
+# Example RDF Ontology for Product Catalog
+# This demonstrates how to define entities that will be generated into Elixir code
+
+@prefix : <http://craftplan.org/ontology/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================
+# Domain: Catalog
+# ============================================
+
+:CatalogEntity a rdfs:Class ;
+    rdfs:label "CatalogEntity" ;
+    rdfs:comment "Base class for all catalog entities" .
+
+:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Catalog product with pricing and availability" ;
+    rdfs:subClassOf :CatalogEntity .
+
+:BOM a rdfs:Class ;
+    rdfs:label "BOM" ;
+    rdfs:comment "Bill of Materials defining product composition" ;
+    rdfs:subClassOf :CatalogEntity .
+
+:BOMComponent a rdfs:Class ;
+    rdfs:label "BOMComponent" ;
+    rdfs:comment "Component in a Bill of Materials" ;
+    rdfs:subClassOf :CatalogEntity .
+
+# ============================================
+# Product Attributes
+# ============================================
+
+:productName a rdf:Property ;
+    rdfs:label "productName" ;
+    rdfs:comment "Product display name" ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string ;
+    sh:minLength 2 ;
+    sh:maxLength 100 ;
+    sh:pattern "^[\w\s\-\.]+$" .
+
+:productSku a rdf:Property ;
+    rdfs:label "productSku" ;
+    rdfs:comment "Unique product SKU identifier" ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string ;
+    sh:minLength 2 ;
+    sh:maxLength 50 ;
+    sh:unique true .
+
+:productPrice a rdf:Property ;
+    rdfs:label "productPrice" ;
+    rdfs:comment "Product selling price" ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:decimal ;
+    sh:minInclusive 0 .
+
+:productStatus a rdf:Property ;
+    rdfs:label "productStatus" ;
+    rdfs:comment "Product status (draft, active, archived)" ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string ;
+    sh:in ( "draft" "active" "archived" ) .
+
+:productSellingAvailability a rdf:Property ;
+    rdfs:label "productSellingAvailability" ;
+    rdfs:comment "Customer-facing availability status" ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:string ;
+    sh:in ( "available" "preorder" "off" ) .
+
+:productMaxDailyQuantity a rdf:Property ;
+    rdfs:label "productMaxDailyQuantity" ;
+    rdfs:comment "Maximum quantity per day (0 = unlimited)" ;
+    rdfs:domain :Product ;
+    rdfs:range xsd:integer ;
+    sh:minInclusive 0 .
+
+# ============================================
+# BOM Attributes
+# ============================================
+
+:bomVersion a rdf:Property ;
+    rdfs:label "bomVersion" ;
+    rdfs:comment "BOM version number" ;
+    rdfs:domain :BOM ;
+    rdfs:range xsd:integer ;
+    sh:minInclusive 1 .
+
+:bomYieldQuantity a rdf:Property ;
+    rdfs:label "bomYieldQuantity" ;
+    rdfs:comment "Quantity produced by this BOM" ;
+    rdfs:domain :BOM ;
+    rdfs:range xsd:decimal ;
+    sh:minInclusive 0.01 .
+
+:bomStatus a rdf:Property ;
+    rdfs:label "bomStatus" ;
+    rdfs:comment "BOM status" ;
+    rdfs:domain :BOM ;
+    rdfs:range xsd:string ;
+    sh:in ( "draft" "active" "archived" ) .
+
+# ============================================
+# BOM Component Attributes
+# ============================================
+
+:bomComponentQuantity a rdf:Property ;
+    rdfs:label "bomComponentQuantity" ;
+    rdfs:comment "Quantity of material in BOM" ;
+    rdfs:domain :BOMComponent ;
+    rdfs:range xsd:decimal ;
+    sh:minInclusive 0 .
+
+:bomComponentTarget a rdf:Property ;
+    rdfs:label "bomComponentTarget" ;
+    rdfs:comment "Component usage target" ;
+    rdfs:domain :BOMComponent ;
+    rdfs:range xsd:string ;
+    sh:in ( "material" "labor" "overhead" ) .
+
+# ============================================
+# Relationships
+# ============================================
+
+# Product -> BOM (one-to-many)
+:productBoms a owl:ObjectProperty ;
+    rdfs:label "productBoms" ;
+    rdfs:comment "BOMs for this product" ;
+    rdfs:domain :Product ;
+    rdfs:range :BOM ;
+    rdfs:subPropertyOf :hasMany .
+
+# Product -> Active BOM (one-to-one)
+:productActiveBom a owl:ObjectProperty ;
+    rdfs:label "productActiveBom" ;
+    rdfs:comment "Currently active BOM" ;
+    rdfs:domain :Product ;
+    rdfs:range :BOM ;
+    rdfs:subPropertyOf :hasOne .
+
+# BOM -> Product (many-to-one)
+:bomProduct a owl:ObjectProperty ;
+    rdfs:label "bomProduct" ;
+    rdfs:comment "Product this BOM belongs to" ;
+    rdfs:domain :BOM ;
+    rdfs:range :Product ;
+    rdfs:subPropertyOf :belongsTo .
+
+# BOM -> BOMComponent (one-to-many)
+:bomComponents a owl:ObjectProperty ;
+    rdfs:label "bomComponents" ;
+    rdfs:comment "Components in this BOM" ;
+    rdfs:domain :BOM ;
+    rdfs:range :BOMComponent ;
+    rdfs:subPropertyOf :hasMany .
+
+# BOMComponent -> BOM (many-to-one)
+:bomComponentBom a owl:ObjectProperty ;
+    rdfs:label "bomComponentBom" ;
+    rdfs:comment "BOM this component belongs to" ;
+    rdfs:domain :BOMComponent ;
+    rdfs:range :BOM ;
+    rdfs:subPropertyOf :belongsTo .
+
+# ============================================
+# SHACL Shapes for Validation
+# ============================================
+
+:ProductShape a sh:NodeShape ;
+    sh:targetClass :Product ;
+    sh:property [
+        sh:path :productName ;
+        sh:minLength 2 ;
+        sh:maxLength 100 ;
+        sh:pattern "^[\w\s\-\.]+$"
+    ] ;
+    sh:property [
+        sh:path :productSku ;
+        sh:minLength 2 ;
+        sh:maxLength 50
+    ] ;
+    sh:property [
+        sh:path :productPrice ;
+        sh:minInclusive 0
+    ] .
+
+:BOMShape a sh:NodeShape ;
+    sh:targetClass :BOM ;
+    sh:property [
+        sh:path :bomVersion ;
+        sh:minInclusive 1
+    ] ;
+    sh:property [
+        sh:path :bomYieldQuantity ;
+        sh:minInclusive 0.01
+    ] .

@@ -1,0 +1,212 @@
+{#- Module Template - Generate basic Elixir modules -#}
+defmodule {{ module_path }} do
+  {%- if doc_comments %}
+  @moduledoc """
+  {{ doc_comments }}
+
+  ## Examples
+
+      iex> {{ module_path }}.some_function()
+      :ok
+
+  """
+  {%- else %}
+  @moduledoc false
+  {%- endif %}
+
+  @type result :: {:ok, term()} | {:error, term()}
+
+  {%- for attr in attributes %}
+    {%- if attr.type == "string" and attr.name == "name" %}
+
+  @doc """
+  Gets {{ entity_name | to_snake }} by name.
+
+  ## Parameters
+
+    - `name`: The name to search for
+
+  ## Returns
+
+    - `{:ok, {{ entity_name }}}` if found
+    - `{:error, :not_found}` if not found
+
+  ## Examples
+
+      iex> {{ module_path }}.get_by_name("test")
+      {:ok, %{{ entity_name }}{}}
+
+  """
+  @spec get_by_name(String.t()) :: result()
+  def get_by_name(name) when is_binary(name) do
+    case {{ module_prefix }}.Repo.get_by({{ entity_name }}, name: name) do
+      nil -> {:error, :not_found}
+      {{ entity_name | to_snake }} -> {:ok, {{ entity_name | to_snake }}}
+    end
+  end
+    {%- endif %}
+  {%- endfor %}
+
+  @doc """
+  Creates a new {{ entity_name }}.
+
+  ## Parameters
+
+    - `attrs`: Map of attributes for the {{ entity_name }}
+
+  ## Returns
+
+    - `{:ok, {{ entity_name }}}` on success
+    - `{:error, changeset}` on failure
+
+  ## Examples
+
+      iex> {{ module_path }}.create(%{name: "test"})
+      {:ok, %{{ entity_name }}{}}
+
+  """
+  @spec create(map()) :: result()
+  def create(attrs \\ %{}) do
+    %{{ entity_name }}{}
+    |> {{ entity_name }}.changeset(attrs)
+    |> {{ module_prefix }}.Repo.insert()
+  end
+
+  @doc """
+  Updates an existing {{ entity_name }}.
+
+  ## Parameters
+
+    - `{{ entity_name | to_snake }}`: The {{ entity_name }} to update
+    - `attrs`: Map of attributes to update
+
+  ## Returns
+
+    - `{:ok, {{ entity_name }}}` on success
+    - `{:error, changeset}` on failure
+
+  ## Examples
+
+      iex> {{ module_path }}.update({{ entity_name }}_struct, %{name: "updated"})
+      {:ok, %{{ entity_name }}{}}
+
+  """
+  @spec update(%{{ entity_name }}{}, map()) :: result()
+  def update(%{{ entity_name }}{} = {{ entity_name | to_snake }}, attrs) do
+    {{ entity_name | to_snake }}
+    |> {{ entity_name }}.changeset(attrs)
+    |> {{ module_prefix }}.Repo.update()
+  end
+
+  @doc """
+  Deletes a {{ entity_name }}.
+
+  ## Parameters
+
+    - `{{ entity_name | to_snake }}`: The {{ entity_name }} to delete
+
+  ## Returns
+
+    - `{:ok, {{ entity_name }}}` on success
+    - `{:error, changeset}` on failure
+
+  ## Examples
+
+      iex> {{ module_path }}.delete({{ entity_name }}_struct)
+      {:ok, %{{ entity_name }}{}}
+
+  """
+  @spec delete(%{{ entity_name }}{}) :: result()
+  def delete(%{{ entity_name }}{} = {{ entity_name | to_snake }}) do
+    {{ entity_name | to_snake }}
+    |> {{ module_prefix }}.Repo.delete()
+  end
+
+  @doc """
+  Lists all {{ entity_name }} records.
+
+  ## Parameters
+
+    - `opts`: Optional keyword list for filtering/pagination
+
+  ## Returns
+
+    - List of {{ entity_name }} structs
+
+  ## Examples
+
+      iex> {{ module_path }}.list()
+      [%{{ entity_name }}{}]
+
+  """
+  @spec list(keyword()) :: [%{{ entity_name }}{}]
+  def list(opts \\ []) do
+    {{ entity_name }}
+    |> Ash.Query()
+    |> Ash.Query.filter(^Keyword.get(opts, :filter, true))
+    |> Ash.Query.sort(Keyword.get(opts, :sort, inserted_at: :desc))
+    |> Ash.read!(actor: Keyword.get(opts, :actor), authorize?: true)
+  end
+
+  {%- if relationships | any(rel -> rel.kind == "belongs_to") %}
+
+  @doc """
+  Gets {{ entity_name }} with associations loaded.
+
+  ## Parameters
+
+    - `id`: The ID of the {{ entity_name }}
+    - `opts`: Optional keyword list for query customization
+
+  ## Returns
+
+    - `{:ok, {{ entity_name }}}` with associations loaded
+    - `{:error, :not_found}` if not found
+
+  """
+  @spec get_with_associations(binary(), keyword()) :: result()
+  def get_with_associations(id, opts \\ []) do
+    load_opts = Keyword.get(opts, :load, [
+      {%- for rel in relationships %}
+        {%- if rel.kind == "belongs_to" %}
+      :{{ rel.name }},
+        {%- endif %}
+      {%- endfor %}
+    ])
+
+    case Ash.get({{ entity_name }}, id,
+           actor: Keyword.get(opts, :actor),
+           authorize?: true,
+           load: load_opts
+         ) do
+      {:ok, {{ entity_name | to_snake }}} -> {:ok, {{ entity_name | to_snake }}}
+      {:error, error} -> {:error, error}
+    end
+  end
+  {%- endif %}
+
+  {%- for attr in attributes %}
+    {%- if attr.type == "decimal" %}
+
+  @doc """
+  Formats {{ attr.name }} as string for display.
+
+  ## Parameters
+
+    - `{{ entity_name | to_snake }}`: The {{ entity_name }} struct
+
+  ## Returns
+
+    - String representation of {{ attr.name }}
+
+  """
+  @spec format_{{ attr.name }}(%{{ entity_name }}{}) :: String.t()
+  def format_{{ attr.name }}(%{{ entity_name }}{} = {{ entity_name | to_snake }}) do
+    case {{ entity_name | to_snake }}.{{ attr.name }} do
+      nil -> "N/A"
+      decimal -> Decimal.to_string(decimal)
+    end
+  end
+    {%- endif %}
+  {%- endfor %}
+end

@@ -1,0 +1,37 @@
+[package]
+name = "tai-state"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Cloud-native state machine persistence with Firestore transactions, eventual consistency, and crash recovery"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+# Firestore integration (using high-level abstraction)
+# Real implementation would use google-cloud-firestore or similar
+# For now, using in-memory implementation for development
+
+# State machine and persistence
+tokio-util = { version = "0.7", features = ["codec"] }
+bytes = "1.5"
+futures = { workspace = true }
+
+# Timing and clocks
+parking_lot = "0.12"
+
+# Testing
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.4"
+mockito = "1.2"
+tempfile = { workspace = true }

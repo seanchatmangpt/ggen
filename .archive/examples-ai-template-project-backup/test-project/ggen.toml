@@ -1,0 +1,33 @@
+[package]
+name = "user-api"
+version = "0.1.0"
+description = "A REST API for user management"
+authors = ["AI Generated <ai@ggen.dev>"]
+license = "MIT"
+repository = "https://github.com/ggen/user-api"
+homepage = "https://ggen.dev/packages/user-api"
+keywords = ["ai-generated", "template", "python"]
+categories = ["templates"]
+
+[package.metadata.ggen]
+generated_by = "ggen-ai"
+generation_date = "2025-10-10"
+language = "python"
+framework = Some("fastapi")
+features = ["api"]
+dependencies = ["pydantic", "typing-extensions", "fastapi", "uvicorn"]
+quality_score = 0.85
+ai_model = "qwen3-coder:30b"
+
+[package.metadata.ggen.template]
+type = "project"
+structure = ["pyproject.toml", "src/main.py", "src/__init__.py", "tests/test_main.py", "README.md", ".github/workflows/ci.yml"]
+files_count = 6
+includes_tests = true
+includes_docs = true
+includes_ci = true
+
+[package.metadata.ggen.ai]
+prompt = "A REST API for user management"
+confidence = 0.9
+validation_passed = true

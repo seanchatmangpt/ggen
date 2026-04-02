@@ -1,0 +1,126 @@
+@startuml ggen-lifecycle-flow
+
+!theme mars
+skinparam backgroundColor #FEFEFE
+
+title ggen Lifecycle Execution Flow\n"From make.toml to Code Generation"
+
+actor Developer
+participant "ggen CLI" as CLI
+participant "make.toml\nParser" as Parser
+participant "Hook\nExecutor" as Hooks
+participant "Template\nEngine" as Engine
+participant "State\nManager" as State
+database ".ggen/\nstate.json" as StateDB
+
+== Phase 1: Command Invocation ==
+Developer -> CLI: ggen run dev
+activate CLI
+
+CLI -> Parser: Load make.toml
+activate Parser
+Parser -> Parser: Parse [lifecycle.dev]
+Parser --> CLI: Phase definition\n+ hooks\n+ commands
+deactivate Parser
+
+== Phase 2: Pre-execution Checks ==
+CLI -> State: Check if phase cached
+activate State
+State -> StateDB: Read state.json
+StateDB --> State: Last run, cache keys
+State --> CLI: Can skip? Or re-run?
+deactivate State
+
+alt Phase needs re-run
+  CLI -> CLI: Proceed with execution
+else Phase cached and valid
+  CLI --> Developer: ✓ Skipped (cached)
+  stop
+end
+
+== Phase 3: Before Hooks ==
+CLI -> Hooks: Execute before_dev hooks
+activate Hooks
+loop For each hook
+  Hooks -> Hooks: Run shell command
+  note right
+    **make.toml:**
+    before_dev = [
+      "ggen validate:env",
+      "ggen check:ports"
+    ]
+  end note
+end
+Hooks --> CLI: All hooks passed ✓
+deactivate Hooks
+
+== Phase 4: Template Generation (if applicable) ==
+alt Phase involves templates
+  CLI -> Engine: Render templates
+  activate Engine
+
+  Engine -> Engine: Load template.tmpl
+  note right
+    **Template (simple):**
+    ---
+    to: "{{output}}"
+    sh_before: "echo 'Starting...'"
+    sh_after: "ggen format {{output}}"
+    ---
+    {{body}}
+  end note
+
+  Engine -> Hooks: Execute sh_before
+  Hooks -> Hooks: Run template hook
+  Hooks --> Engine: ✓
+
+  Engine -> Engine: Render with Tera
+  Engine -> Engine: Write to filesystem
+
+  Engine -> Hooks: Execute sh_after
+  Hooks -> Hooks: Run template hook
+  Hooks --> Engine: ✓
+
+  Engine --> CLI: Generated files
+  deactivate Engine
+end
+
+== Phase 5: Main Command Execution ==
+CLI -> CLI: Execute phase command
+note right
+  **make.toml:**
+  [lifecycle.dev]
+  command = "nuxi dev"
+  port = 3000
+end note
+
+== Phase 6: After Hooks ==
+CLI -> Hooks: Execute after_dev hooks
+activate Hooks
+loop For each hook
+  Hooks -> Hooks: Run shell command
+  note right
+    **make.toml:**
+    after_dev = [
+      "ggen notify:ready"
+    ]
+  end note
+end
+Hooks --> CLI: All hooks passed ✓
+deactivate Hooks
+
+== Phase 7: State Persistence ==
+CLI -> State: Update state
+activate State
+State -> State: Record phase execution
+State -> State: Update cache keys
+State -> State: Track generated files
+State -> StateDB: Write state.json
+StateDB --> State: ✓
+State --> CLI: State saved
+deactivate State
+
+CLI --> Developer: ✓ dev phase complete\nServer running on :3000
+deactivate CLI
+
+@enduml

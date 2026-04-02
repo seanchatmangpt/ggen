@@ -1,0 +1,65 @@
+@startuml marketplace-workflow
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title ggen Marketplace Workflow - clap-noun-verb CLI Tools
+
+actor Developer
+participant "ggen CLI" as ggen
+participant "Marketplace\nRegistry" as registry
+participant "RDF\nOntology" as rdf
+participant "Template\nEngine" as template
+participant "Generated\nCLI" as cli
+
+== Discovery Phase ==
+Developer -> ggen: ggen market search "semantic cli"
+ggen -> registry: Query packages
+registry -> ggen: Return matching packages\n(semantic-cli, knowledge-graph-cli, etc.)
+ggen -> Developer: Display search results
+
+== Installation Phase ==
+Developer -> ggen: ggen market add semantic-cli
+ggen -> registry: Download package metadata
+registry -> ggen: package.toml + ontology.ttl
+ggen -> Developer: Package installed locally
+
+== Understanding Phase ==
+Developer -> ggen: ggen graph load semantic-cli.ttl
+ggen -> rdf: Load RDF ontology
+rdf -> ggen: Ontology loaded into Oxigraph
+Developer -> ggen: ggen graph query --sparql\n"SELECT ?class WHERE { ?class a owl:Class }"
+rdf -> ggen: Return classes:\n- Ontology, Schema, Query, etc.
+ggen -> Developer: Show CLI structure
+
+== Generation Phase ==
+Developer -> ggen: ggen template generate semantic-cli:cli.tmpl
+ggen -> template: Load template with RDF context
+template -> rdf: Query for CLI structure\n(nouns, verbs, arguments)
+rdf -> template: Return semantic model:\n- ontology noun (parse, validate, info)\n- schema noun (list, show)\n- query noun (sparql, ask)
+template -> template: Generate clap-noun-verb code:\n- #[noun] annotations\n- #[verb] functions\n- Type-inferred arguments
+template -> cli: Generate Rust project:\n- src/main.rs\n- src/commands/\n- Cargo.toml
+ggen -> Developer: CLI project generated
+
+== Customization Phase ==
+Developer -> ggen: Edit rdf/ontology.ttl\n(add new verb: ontology convert)
+Developer -> ggen: ggen template generate semantic-cli:cli.tmpl
+ggen -> template: Regenerate with updated ontology
+template -> rdf: Query updated structure
+rdf -> template: New verb detected
+template -> cli: Update generated code:\n- Add convert_ontology() verb
+ggen -> Developer: Code automatically updated
+
+== Build & Test Phase ==
+Developer -> cli: cargo build --release
+cli -> Developer: Binary built: semantic-cli
+Developer -> cli: ./semantic-cli ontology parse domain.ttl
+cli -> Developer: {"triples": 127, "classes": 5, "properties": 18}
+
+== Publish Phase ==
+Developer -> ggen: ggen market publish semantic-cli
+ggen -> registry: Upload package.toml + ontology.ttl
+registry -> ggen: Package published: io.ggen.semantic-cli
+ggen -> Developer: Now available for others
+
+@enduml

@@ -1,0 +1,51 @@
+[package]
+name = "tps-kaizen"
+version = "0.1.0"
+edition = "2021"
+description = "Toyota Production System - Kaizen continuous improvement metrics, analysis, and observability"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+async-trait = { workspace = true }
+regex = { workspace = true }
+rayon = { workspace = true }
+
+# Prometheus metrics
+prometheus = { version = "0.13", features = ["protobuf"] }
+prometheus-openmetrics = "0.1"
+
+# RDF and SPARQL
+oxigraph = { workspace = true }
+
+# Dashboard and telemetry
+opentelemetry = { workspace = true }
+opentelemetry-otlp = { workspace = true }
+opentelemetry_sdk = { workspace = true, features = ["rt-tokio"] }
+tracing-opentelemetry = { workspace = true }
+
+# Time series operations
+dashmap = { workspace = true }
+
+# Configuration
+toml = { workspace = true }
+serde_yaml = { workspace = true }
+
+# ggen workspace crates
+ggen-utils = { workspace = true }
+ggen-core = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+insta = { version = "1.43", features = ["json"] }
+
+[features]
+default = []

@@ -1,0 +1,55 @@
+# Terraform state files (sensitive data)
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Terraform plan files
+*.tfplan
+tfplan
+
+# Terraform directories
+.terraform/
+.terraform.d/
+
+# Local configuration (contains secrets)
+terraform.tfvars
+*.tfvars
+!terraform.tfvars.example
+
+# Generated files
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# IDE files
+.idea
+*.swp
+*.swo
+*~
+.vscode/
+
+# OS files
+.DS_Store
+.env
+.env.local
+
+# Service account keys (sensitive)
+*-service-account-key.json
+*.p8
+*.p12
+
+# Terraform Cloud
+.terraform/
+.terraform.lock.hcl
+
+# Environment variables
+.env*
+!.env.example
+
+# Build/output files
+*.zip
+*.tar.gz
+dist/

@@ -1,0 +1,34 @@
+@startuml C4_Components
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Example Generator - C4 Component Diagram
+
+Container_Boundary(generator, "Example Generator") {
+    Component(pattern_analyzer, "Pattern Analyzer", "Rust", "Analyzes RW-001 template\nExtracts reusable patterns\nIdentifies specializations")
+
+    Component(manifest_builder, "Manifest Builder", "Rust", "Generates ggen.toml\nDefines generation rules\nConfigures SPARQL queries")
+
+    Component(ontology_designer, "Ontology Designer", "Rust", "Creates RDF ontology\nDefines classes & properties\nAdds SHACL constraints")
+
+    Component(template_generator, "Template Generator", "Rust", "Creates Tera templates\nImplements filters & variables\nAdds conditionals & loops")
+
+    Component(golden_file_gen, "Golden File Generator", "Rust", "Generates expected outputs\nCreates test fixtures\nVerifies determinism")
+
+    Component(validation_script_gen, "Validation Script Generator", "Rust", "Creates validate.mjs\nImplements 6+ checks\nExports validation report")
+
+    Component(readme_generator, "README Generator", "Rust/Tera", "Generates 9-section README\nAdds learning objectives\nCreates tutorial structure")
+
+    Component(orchestrator, "Orchestrator", "Rust", "Coordinates components\nManages dependencies\nHandles errors")
+}
+
+Rel(orchestrator, pattern_analyzer, "Analyzes RW-001")
+Rel(pattern_analyzer, manifest_builder, "Feeds patterns")
+Rel(manifest_builder, ontology_designer, "Shares configuration")
+Rel(ontology_designer, template_generator, "Provides schema")
+Rel(template_generator, golden_file_gen, "Generates test data")
+Rel(golden_file_gen, validation_script_gen, "Provides fixtures")
+Rel(manifest_builder, readme_generator, "Shares config")
+Rel(ontology_designer, readme_generator, "Shares ontology info")
+Rel(orchestrator, readme_generator, "Triggers generation")
+
+@enduml

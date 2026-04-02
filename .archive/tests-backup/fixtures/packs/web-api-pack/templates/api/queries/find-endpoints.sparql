@@ -1,0 +1,10 @@
+PREFIX api: <https://example.org/api/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?endpoint ?method ?label
+WHERE {
+    ?api api:hasEndpoint ?endpoint .
+    ?endpoint api:httpMethod ?method ;
+              rdfs:label ?label .
+}
+ORDER BY ?label

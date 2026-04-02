@@ -1,0 +1,313 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+#==============================================================================
+# Enhanced SHACL Shapes for Spec-Kit-3T Thesis Generator
+# Comprehensive validation of RDF ontology for LaTeX generation
+#==============================================================================
+
+#------------------------------------------------------------------------------
+# Core Thesis Metadata Shapes
+#------------------------------------------------------------------------------
+
+thesis:ThesisShape a sh:NodeShape ;
+    sh:targetClass thesis:PhDThesis ;
+    sh:property [
+        sh:path thesis:hasTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Thesis must have exactly one title (1-200 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasSubtitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 300 ;
+        sh:message "Thesis must have exactly one subtitle (1-300 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasYear ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(19|20)\\d{2}$" ;
+        sh:message "Year must be a 4-digit year (1900-2099)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasAbstract ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:BlankNodeOrIRI ;
+        sh:message "Thesis must have exactly one abstract node" ;
+    ] ;
+    sh:property [
+        sh:path thesis:dedication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Thesis must have a dedication" ;
+    ] ;
+    sh:property [
+        sh:path thesis:acknowledgments ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Thesis must have acknowledgments" ;
+    ] ;
+    sh:property [
+        sh:path thesis:keywords ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Thesis must have keywords (comma-separated)" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Abstract Content Shape
+#------------------------------------------------------------------------------
+
+thesis:AbstractShape a sh:NodeShape ;
+    sh:targetSubjectsOf thesis:hasAbstract ;
+    sh:property [
+        sh:path thesis:hasContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 100 ;
+        sh:maxLength 5000 ;
+        sh:message "Abstract must have content (100-5000 characters)" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Chapter Shapes
+#------------------------------------------------------------------------------
+
+thesis:ChapterShape a sh:NodeShape ;
+    sh:targetClass thesis:Chapter ;
+    sh:property [
+        sh:path thesis:chapterNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 20 ;
+        sh:message "Chapter number must be 1-20" ;
+    ] ;
+    sh:property [
+        sh:path thesis:chapterTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Chapter must have a title (1-200 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasSection ;
+        sh:minCount 1 ;
+        sh:message "Chapter must have at least one section" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Section Shapes
+#------------------------------------------------------------------------------
+
+thesis:SectionShape a sh:NodeShape ;
+    sh:targetClass thesis:Section ;
+    sh:property [
+        sh:path thesis:sectionNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 50 ;
+        sh:message "Section number must be 1-50" ;
+    ] ;
+    sh:property [
+        sh:path thesis:sectionTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Section must have a title (1-200 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:sectionContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 50 ;
+        sh:message "Section must have content (minimum 50 characters)" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Diataxis Chapter Shapes
+#------------------------------------------------------------------------------
+
+thesis:DiataxisChapterShape a sh:NodeShape ;
+    sh:targetClass thesis:DiataxisChapter ;
+    sh:property [
+        sh:path thesis:diataxisType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("tutorial" "howto" "reference" "explanation") ;
+        sh:message "Diataxis type must be: tutorial, howto, reference, or explanation" ;
+    ] ;
+    sh:property [
+        sh:path thesis:chapterTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Diataxis chapter must have a title" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Template Variable Validation
+#------------------------------------------------------------------------------
+
+thesis:TemplateVariableShape a sh:NodeShape ;
+    sh:targetSubjectsOf thesis:sectionTitle ;
+    sh:property [
+        sh:path thesis:sectionTitle ;
+        sh:pattern "^[^{}\\\\]+$" ;
+        sh:message "Section title must not contain LaTeX special characters (braces, backslashes)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:sectionContent ;
+        sh:pattern "^[^\\x00-\\x08\\x0B-\\x0C\\x0E-\\x1F]*$" ;
+        sh:message "Section content must not contain control characters" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Author Shape
+#------------------------------------------------------------------------------
+
+thesis:AuthorShape a sh:NodeShape ;
+    sh:targetClass thesis:Author ;
+    sh:property [
+        sh:path thesis:hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Author must have a name (1-100 characters)" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Optional Fields Validation
+#------------------------------------------------------------------------------
+
+thesis:OptionalFieldsShape a sh:NodeShape ;
+    sh:targetClass thesis:DiataxisChapter ;
+    sh:property [
+        sh:path thesis:learningObjective ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:message "Learning objective (optional) max 500 characters" ;
+    ] ;
+    sh:property [
+        sh:path thesis:prerequisite ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:message "Prerequisite (optional) max 500 characters" ;
+    ] ;
+    sh:property [
+        sh:path thesis:task ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:message "Task description (optional) max 500 characters" ;
+    ] ;
+    sh:property [
+        sh:path thesis:technicalDetail ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:message "Technical detail (optional) max 500 characters" ;
+    ] ;
+    sh:property [
+        sh:path thesis:concept ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 500 ;
+        sh:message "Concept (optional) max 500 characters" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Content Quality Constraints
+#------------------------------------------------------------------------------
+
+thesis:ContentQualityShape a sh:NodeShape ;
+    sh:targetSubjectsOf thesis:sectionContent ;
+    sh:property [
+        sh:path thesis:sectionContent ;
+        # No excessive whitespace
+        sh:pattern "^(?!.*  {3,}).*$" ;
+        sh:message "Content must not contain excessive whitespace (3+ consecutive spaces)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:sectionContent ;
+        # No LaTeX template markers in content
+        sh:pattern "^(?!.*\\{\\{).*$" ;
+        sh:message "Content must not contain template markers ({{)" ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Referential Integrity
+#------------------------------------------------------------------------------
+
+thesis:ReferentialIntegrityShape a sh:NodeShape ;
+    sh:targetClass thesis:PhDThesis ;
+    sh:sparql [
+        sh:message "All chapters must have unique chapter numbers" ;
+        sh:select """
+            PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+            SELECT $this (COUNT(?chapter) as ?count)
+            WHERE {
+                $this thesis:hasChapter ?chapter .
+                ?chapter thesis:chapterNumber ?num .
+            }
+            GROUP BY $this ?num
+            HAVING (?count > 1)
+        """ ;
+    ] .
+
+#------------------------------------------------------------------------------
+# Structural Integrity
+#------------------------------------------------------------------------------
+
+thesis:StructuralIntegrityShape a sh:NodeShape ;
+    sh:targetClass thesis:PhDThesis ;
+    sh:sparql [
+        sh:message "Thesis must have at least 3 chapters" ;
+        sh:select """
+            PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+            SELECT $this
+            WHERE {
+                $this a thesis:PhDThesis .
+                FILTER NOT EXISTS {
+                    SELECT $this (COUNT(?chapter) as ?chapterCount)
+                    WHERE {
+                        $this thesis:hasChapter ?chapter .
+                    }
+                    GROUP BY $this
+                    HAVING (?chapterCount >= 3)
+                }
+            }
+        """ ;
+    ] .

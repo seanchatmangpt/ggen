@@ -1,0 +1,235 @@
+{#- Agent Template - Generate A2A protocol handlers -#}
+defmodule {{ module_prefix }}.Agents.{{ domain_name | capitalize }}Agent do
+  @moduledoc """
+  Agent business logic for {{ domain_name | capitalize }} domain.
+
+  Handles:
+  {%- for capability in capabilities %}
+    - {{ capability | capitalize }}
+  {%- endfor %}
+
+  All operations use Ash Framework actions with proper authorization.
+  """
+  @behaviour {{ module_prefix }}.Agents.AgentBehaviour
+
+  {%- if capabilities | length > 0 %}
+  alias {{ module_prefix }}.{{ domain_name | capitalize }}.{
+    {%- for capability in capabilities %}
+      {{ capability | capitalize }},
+    {%- endfor %}
+  }
+  {%- endif %}
+
+  @type result :: {:ok, map()} | {:error, term()}
+
+  @doc """
+  Handle {{ domain_name }} agent operations.
+  """
+  @spec handle(String.t(), map(), Ash.Resource.t() | nil) :: result()
+  def handle(action, params, actor)
+
+  {%- for capability in capabilities %}
+    {%- set entity_name = capability | capitalize %}
+
+    # List operations for {{ entity_name }}
+
+    def handle("{{ capability | to_snake }}.list", _params, actor) do
+      case Ash.read({{ entity_name }},
+             actor: actor,
+             authorize?: true,
+             action: :list
+           ) do
+        {:ok, {{ capability | to_snake }}s} ->
+          {:ok,
+           %{
+             "{{ capability | to_snake }}s" => Enum.map({{ capability | to_snake }}s, &{{ capability | to_snake }}_to_map/1),
+             "count" => length({{ capability | to_snake }}s)
+           }}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    # Get operations for {{ entity_name }}
+
+    def handle("{{ capability | to_snake }}.get", %{"id" => id}, actor) do
+      case Ash.get({{ entity_name }}, id, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          {:ok, {{ capability | to_snake }}_to_map({{ capability | to_snake }}, detailed: true)}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    def handle("{{ capability | to_snake }}.get", %{"sku" => sku}, actor) do
+      case Ash.get({{ entity_name }}, sku, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          {:ok, {{ capability | to_snake }}_to_map({{ capability | to_snake }}, detailed: true)}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    # Create operations for {{ entity_name }}
+
+    def handle("{{ capability | to_snake }}.create", params, actor) do
+      input = Map.take(params, [
+        {%- for attr in attributes %}
+          "{{ attr.name }}",
+        {%- endfor %}
+      ])
+
+      case Ash.create({{ entity_name }}, input, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          {:ok, {{ capability | to_snake }}_to_map({{ capability | to_snake }}, detailed: true)}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    # Update operations for {{ entity_name }}
+
+    def handle("{{ capability | to_snake }}.update", %{"id" => id} = params, actor) do
+      input = Map.drop(params, ["id", "sku"])
+
+      case Ash.get({{ entity_name }}, id, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          case Ash.update({{ capability | to_snake }}, input, actor: actor, authorize?: true) do
+            {:ok, updated} ->
+              {:ok, {{ capability | to_snake }}_to_map(updated, detailed: true)}
+
+            {:error, error} ->
+              {:error, error}
+          end
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    def handle("{{ capability | to_snake }}.update", %{"sku" => sku} = params, actor) do
+      input = Map.drop(params, ["id", "sku"])
+
+      case Ash.get({{ entity_name }}, sku, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          case Ash.update({{ capability | to_snake }}, input, actor: actor, authorize?: true) do
+            {:ok, updated} ->
+              {:ok, {{ capability | to_snake }}_to_map(updated, detailed: true)}
+
+            {:error, error} ->
+              {:error, error}
+          end
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    # Delete operations for {{ entity_name }}
+
+    def handle("{{ capability | to_snake }}.delete", %{"id" => id}, actor) do
+      case Ash.get({{ entity_name }}, id, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          case Ash.destroy({{ capability | to_snake }}, actor: actor, authorize?: true) do
+            :ok -> {:ok, %{"deleted" => true, "id" => id}}
+            {:error, error} -> {:error, error}
+          end
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    def handle("{{ capability | to_snake }}.delete", %{"sku" => sku}, actor) do
+      case Ash.get({{ entity_name }}, sku, actor: actor, authorize?: true) do
+        {:ok, {{ capability | to_snake }}} ->
+          case Ash.destroy({{ capability | to_snake }}, actor: actor, authorize?: true) do
+            :ok -> {:ok, %{"deleted" => true, "sku" => sku}}
+            {:error, error} -> {:error, error}
+          end
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    # Search operations for {{ entity_name }}
+
+    def handle("{{ capability | to_snake }}.search", %{"query" => query}, actor) do
+      case Ash.read(
+             {{ entity_name }},
+             actor: actor,
+             authorize?: true
+           ) do
+        {:ok, {{ capability | to_snake }}s} ->
+          filtered =
+            Enum.filter({{ capability | to_snake }}s, fn e ->
+              {%- if attributes | any(attr -> attr.name == "name") %}
+              String.contains?(e.name, query)
+              {%- else %}
+              true
+              {%- endif %}
+            end)
+
+          {:ok,
+           %{
+             "{{ capability | to_snake }}s" => Enum.map(filtered, &{{ capability | to_snake }}_to_map/1),
+             "count" => length(filtered)
+           }}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+  {%- end %}
+
+  # Default fallback for unknown actions
+
+  def handle(_action, _params, _actor) do
+    {:error, :method_not_found}
+  end
+
+  # Private conversion helpers
+
+  {%- for capability in capabilities %}
+    {%- set entity_name = capability | capitalize %}
+    {%- set snake_name = capability | to_snake %}
+
+  defp {{ snake_name }}_to_map({{ snake_name }}, opts \\ []) do
+    detailed = Keyword.get(opts, :detailed, false)
+
+    base = %{
+      "id" => {{ snake_name }}.id,
+      {%- for attr in attributes %}
+        {%- if attr.type == "atom" %}
+      "{{ attr.name }}" => Atom.to_string({{ snake_name }}.{{ attr.name }}),
+        {%- elif attr.type == "decimal" %}
+      "{{ attr.name }}" => decimal_to_string({{ snake_name }}.{{ attr.name }}),
+        {%- else %}
+      "{{ attr.name }}" => {{ snake_name }}.{{ attr.name }},
+        {%- endif %}
+      {%- endfor %}
+      "inserted_at" => DateTime.to_iso8601({{ snake_name }}.inserted_at),
+      "updated_at" => DateTime.to_iso8601({{ snake_name }}.updated_at)
+    }
+
+    if detailed do
+      base
+      {%- for attr in attributes %}
+        {%- if attr.sensitive %}
+        |> Map.put("{{ attr.name }}", "[REDACTED]")
+        {%- endif %}
+      {%- endfor %}
+    else
+      base
+    end
+  end
+  {%- endfor %}
+
+  defp decimal_to_string(nil), do: nil
+  defp decimal_to_string(decimal), do: Decimal.to_string(decimal)
+end

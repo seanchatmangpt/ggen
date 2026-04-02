@@ -1,0 +1,51 @@
+# Generated LaTeX files (regenerated via ggen sync)
+# These are derived from ontology/*.ttl and should NOT be version-controlled
+# Constitutional equation: thesis.tex = μ(ontology.ttl)
+
+generated/
+
+# Cryptographic receipts (regenerated each time)
+.receipt.json
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# LaTeX intermediate files
+*.dvi
+*.ps
+
+# PDF output (can be regenerated)
+*.pdf
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache (if using Python RDF tools)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary files
+*.tmp
+*.temp

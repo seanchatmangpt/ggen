@@ -1,0 +1,42 @@
+[package]
+name = "lifecycle-complete"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen examples"]
+description = "Complete lifecycle system demonstration with all phases and hooks"
+license = "MIT"
+
+[[bin]]
+name = "lifecycle-demo"
+path = "src/main.rs"
+
+[dependencies]
+# Core ggen dependencies
+ggen-core = { path = "../../ggen-core" }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# CLI
+clap = { version = "4.0", features = ["derive"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.9"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+colored = "2.0"
+indicatif = "0.17"
+
+[dev-dependencies]
+tempfile = "3.0"
+assert_cmd = "2.0"

@@ -1,0 +1,224 @@
+# ggen Configuration for Basic Template Generation Example
+# Demonstrates core template generation concepts through practical examples
+
+[project]
+name = "basic-template-generation"
+version = "0.1.0"
+description = "Learn template fundamentals: YAML frontmatter, Tera templating, variable substitution, filters"
+
+[ontology]
+source = "ontology/templates.ttl"
+imports = []
+base_iri = "https://ggen.io/ontology/templates#"
+
+[generation]
+output_dir = "."
+
+[ontology.prefixes]
+tmpl = "https://ggen.io/ontology/templates#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+# Phase 1: Enrichment via CONSTRUCT queries
+[[inference.rules]]
+name = "enrich-templates"
+description = "Materialize template metadata"
+construct = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT {
+  ?template tmpl:templateType ?type ;
+    tmpl:hasVariables ?vars ;
+    tmpl:hasFilters ?filters .
+}
+WHERE {
+  ?template a tmpl:Template ;
+    rdfs:label ?type ;
+    tmpl:variables ?vars ;
+    tmpl:filters ?filters .
+}
+"""
+
+# Phase 2: Generation via SELECT + Templates
+[[generation.rules]]
+name = "generate-rust-module"
+description = "Generate Rust module from template definition"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?module_name ?description ?has_validation
+WHERE {
+  ?module a tmpl:RustModule ;
+    tmpl:moduleName ?module_name ;
+    rdfs:comment ?description .
+  OPTIONAL { ?module tmpl:hasValidation ?has_validation }
+}
+ORDER BY ?module_name
+""" }
+template = { file = "templates/rust-module.tera" }
+output_file = "{{ module_name }}.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-rust-struct"
+description = "Generate Rust struct with derives and implementations"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?struct_name ?type_name ?struct_description ?fields ?has_id ?has_builder
+WHERE {
+  ?struct a tmpl:RustStruct ;
+    tmpl:structName ?struct_name ;
+    tmpl:typeName ?type_name ;
+    rdfs:comment ?struct_description ;
+    tmpl:hasFields ?fields .
+  OPTIONAL { ?struct tmpl:hasId ?has_id }
+  OPTIONAL { ?struct tmpl:hasBuilder ?has_builder }
+}
+ORDER BY ?struct_name
+""" }
+template = { file = "templates/rust-struct.tera" }
+output_file = "{{ struct_name }}.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-documentation"
+description = "Generate learning documentation"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?name ?description ?examples ?filters
+WHERE {
+  ?template a tmpl:Template ;
+    tmpl:name ?name ;
+    rdfs:comment ?description .
+  OPTIONAL { ?template tmpl:examples ?examples }
+  OPTIONAL { ?template tmpl:filters ?filters }
+}
+ORDER BY ?name
+""" }
+template = { file = "templates/documentation.tera" }
+output_file = "TEMPLATE_GUIDE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-test-module"
+description = "Generate test module for template examples"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?testName ?moduleName ?testDescription
+WHERE {
+  ?test a tmpl:TemplateTest ;
+    tmpl:name ?testName ;
+    tmpl:testsModule ?moduleName ;
+    rdfs:comment ?testDescription .
+}
+ORDER BY ?moduleName ?testName
+""" }
+template = { file = "templates/tests.tera" }
+output_file = "tests.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-filters-reference"
+description = "Generate Tera filters reference documentation"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?filterName ?filterDescription ?filterExample
+WHERE {
+  ?filter a tmpl:TeraFilter ;
+    tmpl:name ?filterName ;
+    rdfs:comment ?filterDescription .
+  OPTIONAL { ?filter tmpl:example ?filterExample }
+}
+ORDER BY ?filterName
+""" }
+template = { file = "templates/filters-reference.tera" }
+output_file = "FILTERS_REFERENCE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-variable-types"
+description = "Generate variable types documentation"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?typeName ?typeDescription ?typeExample
+WHERE {
+  ?type a tmpl:VariableType ;
+    tmpl:name ?typeName ;
+    rdfs:comment ?typeDescription .
+  OPTIONAL { ?type tmpl:example ?typeExample }
+}
+ORDER BY ?typeName
+""" }
+template = { file = "templates/variable-types.tera" }
+output_file = "VARIABLE_TYPES.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-frontmatter-examples"
+description = "Generate YAML frontmatter examples"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?exampleName ?yamlContent ?description
+WHERE {
+  ?example a tmpl:FrontmatterExample ;
+    tmpl:name ?exampleName ;
+    tmpl:yaml ?yamlContent ;
+    rdfs:comment ?description .
+}
+ORDER BY ?exampleName
+""" }
+template = { file = "templates/frontmatter-examples.tera" }
+output_file = "FRONTMATTER_EXAMPLES.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-tera-syntax-guide"
+description = "Generate Tera template syntax guide"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?syntaxName ?syntaxDescription ?syntaxExample ?syntaxCategory
+WHERE {
+  ?syntax a tmpl:TeraSyntax ;
+    tmpl:name ?syntaxName ;
+    rdfs:comment ?syntaxDescription ;
+    tmpl:example ?syntaxExample ;
+    tmpl:category ?syntaxCategory .
+}
+ORDER BY ?syntaxCategory ?syntaxName
+""" }
+template = { file = "templates/tera-syntax-guide.tera" }
+output_file = "TERA_SYNTAX_GUIDE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-troubleshooting-guide"
+description = "Generate troubleshooting and common errors guide"
+query = { inline = """
+PREFIX tmpl: <https://ggen.io/ontology/templates#>
+SELECT ?errorName ?errorCause ?errorSolution ?errorCategory
+WHERE {
+  ?error a tmpl:TemplateError ;
+    tmpl:name ?errorName ;
+    tmpl:cause ?errorCause ;
+    tmpl:solution ?errorSolution ;
+    tmpl:category ?errorCategory .
+}
+ORDER BY ?errorCategory ?errorName
+""" }
+template = { file = "templates/troubleshooting-guide.tera" }
+output_file = "TROUBLESHOOTING.md"
+mode = "Overwrite"
+
+# Validation configuration
+[validation]
+validate_syntax = true
+no_unsafe = true
+require_doc_comments = false
+max_line_length = 120

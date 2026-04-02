@@ -68,8 +68,8 @@
 
 use crate::graph::{build_prolog, Graph};
 use crate::register;
-use crate::template_types::Frontmatter;
 use crate::tracing::PipelineTracer;
+use crate::template_types::Frontmatter;
 use ggen_utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;

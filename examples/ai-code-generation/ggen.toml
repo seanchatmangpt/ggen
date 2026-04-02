@@ -1,0 +1,129 @@
+# AI-Powered Code Generation Configuration
+# Demonstrates code generation from RDF ontologies using ggen v5
+
+[project]
+name = "ai-code-generation"
+version = "1.0.0"
+description = "AI-powered code generation with comprehensive validation"
+
+[ontology]
+source = "ontology/code-gen-spec.ttl"
+base_iri = "http://ggen.dev/examples/code-gen#"
+
+[ontology.prefixes]
+cg = "http://ggen.dev/examples/code-gen#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+owl = "http://www.w3.org/2002/07/owl#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "."
+require_audit_trail = true
+
+# =============================================================================
+# RULE 1: Programming Languages Catalog
+# Lists all programming languages defined in the ontology
+# =============================================================================
+[[generation.rules]]
+name = "languages-catalog"
+query = { inline = """
+PREFIX cg: <http://ggen.dev/examples/code-gen#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?name ?comment
+WHERE {
+  ?lang a cg:ProgrammingLanguage ;
+        rdfs:label ?name .
+  OPTIONAL { ?lang rdfs:comment ?comment }
+}
+ORDER BY ?name
+""" }
+template = { file = "templates/languages.tera" }
+output_file = "languages.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Code Patterns Catalog
+# Lists all code patterns and their requirements
+# =============================================================================
+[[generation.rules]]
+name = "patterns-catalog"
+query = { inline = """
+PREFIX cg: <http://ggen.dev/examples/code-gen#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?patternName ?comment ?featureName
+WHERE {
+  ?pattern a cg:CodePattern ;
+           rdfs:label ?patternName .
+  OPTIONAL { ?pattern rdfs:comment ?comment }
+  OPTIONAL {
+    ?pattern cg:requires ?feature .
+    ?feature rdfs:label ?featureName .
+  }
+}
+ORDER BY ?patternName ?featureName
+""" }
+template = { file = "templates/patterns.tera" }
+output_file = "patterns.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 3: Frameworks Catalog
+# Lists frameworks and their supported languages
+# =============================================================================
+[[generation.rules]]
+name = "frameworks-catalog"
+query = { inline = """
+PREFIX cg: <http://ggen.dev/examples/code-gen#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?frameworkName ?comment ?languageName
+WHERE {
+  ?fw a cg:Framework ;
+      rdfs:label ?frameworkName .
+  OPTIONAL { ?fw rdfs:comment ?comment }
+  OPTIONAL {
+    ?fw cg:supportedLanguage ?lang .
+    ?lang rdfs:label ?languageName .
+  }
+}
+ORDER BY ?frameworkName
+""" }
+template = { file = "templates/frameworks.tera" }
+output_file = "frameworks.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 4: Code Specifications
+# Lists all concrete code specifications
+# =============================================================================
+[[generation.rules]]
+name = "specifications"
+query = { inline = """
+PREFIX cg: <http://ggen.dev/examples/code-gen#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?specName ?comment ?languageName ?frameworkName
+WHERE {
+  ?spec a cg:CodeSpecification ;
+        rdfs:label ?specName .
+  OPTIONAL { ?spec rdfs:comment ?comment }
+  OPTIONAL {
+    ?spec cg:hasLanguage ?lang .
+    ?lang rdfs:label ?languageName .
+  }
+  OPTIONAL {
+    ?spec cg:hasFramework ?fw .
+    ?fw rdfs:label ?frameworkName .
+  }
+}
+ORDER BY ?specName
+""" }
+template = { file = "templates/specifications.tera" }
+output_file = "specifications.md"
+mode = "Overwrite"

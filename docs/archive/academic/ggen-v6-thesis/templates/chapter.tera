@@ -1,0 +1,15 @@
+{% set current_chapter = "" %}
+{% for row in sparql_results %}
+{%- if row.chapterLabel != current_chapter -%}
+{% set_global current_chapter = row.chapterLabel %}
+
+\chapter{ {{- row.chapterTitle -}} }
+\label{ {{- row.chapterLabel -}} }
+
+{% endif %}
+\section{ {{- row.sectionTitle -}} }
+\label{ {{- row.sectionLabel -}} }
+
+{{ row.sectionContent }}
+
+{% endfor %}

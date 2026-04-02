@@ -212,7 +212,7 @@ pub struct CoreMetrics {
     pub tasks_failed: u64,
     pub wip_entries_processed: u64,
     pub avg_processing_time_ms: f64,
-    pub parallel_efficiency: f64,
+    pub swarm_efficiency: f64,
 }
 
 impl Default for CoreMetrics {
@@ -223,7 +223,7 @@ impl Default for CoreMetrics {
             tasks_failed: 0,
             wip_entries_processed: 0,
             avg_processing_time_ms: 0.0,
-            parallel_efficiency: 0.0,
+            swarm_efficiency: 0.0,
         }
     }
 }
@@ -396,7 +396,7 @@ impl UltrathinkCore {
             tasks_failed: metrics.tasks_failed,
             wip_entries_processed: metrics.wip_entries_processed,
             avg_processing_time_ms: metrics.avg_processing_time_ms,
-            parallel_efficiency: metrics.parallel_efficiency,
+            swarm_efficiency: metrics.swarm_efficiency,
         })
     }
 

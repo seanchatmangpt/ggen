@@ -1,0 +1,19 @@
+@startuml C4_System_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title ggen Examples Rewrite System - C4 Context Diagram
+
+Person(developer, "Developer", "User learning ggen through examples")
+System(ggen_examples, "ggen Examples\nRewrite System", "Generates, validates, and deploys\n33 learning examples")
+System_Ext(git, "Git Repository", "Stores example code and documentation")
+System_Ext(ggen_cli, "ggen CLI", "Code generation engine with RDF support")
+System_Ext(llm, "LLM APIs", "Claude, GPT, Ollama for AI-assisted generation")
+
+Rel(developer, ggen_examples, "Requests rewrite\nof examples")
+Rel(ggen_examples, git, "Commits and pushes\nexample artifacts")
+Rel(ggen_examples, ggen_cli, "Runs ggen sync\nfor validation")
+Rel(ggen_examples, llm, "Calls AI for\ntemplate generation")
+Rel(developer, git, "Reviews and pulls")
+Rel(developer, ggen_cli, "Tests generated code")
+
+@enduml

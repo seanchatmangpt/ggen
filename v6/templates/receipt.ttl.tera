@@ -1,0 +1,56 @@
+{# μ₅ Template: Renders Build Receipt from projection #}
+@prefix gv6: <http://ggen.dev/v6#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Build Receipt
+# A = μ(O) verification record
+# Generated: {{ receipt.timestamp }}
+
+gv6:Receipt_{{ receipt.id | truncate(length=16, end="") }}
+  a gv6:Receipt ;
+  gv6:receiptId "{{ receipt.id }}" ;
+  gv6:receiptHash "{{ receipt.hash }}" ;
+  gv6:toolchainVersion "{{ receipt.toolchain }}" ;
+  gv6:isValid {{ receipt.valid | default(value="true") }} ;
+  gv6:forEpoch gv6:Epoch_{{ epoch.id | truncate(length=16, end="") }} .
+
+# Epoch (frozen input state)
+gv6:Epoch_{{ epoch.id | truncate(length=16, end="") }}
+  a gv6:Epoch ;
+  gv6:epochId "{{ epoch.id }}" ;
+  gv6:epochTimestamp "{{ epoch.timestamp }}"^^xsd:dateTime ;
+{% for input in epoch.inputs %}
+  gv6:containsOntology gv6:Input_{{ input.path | replace(from="/", to="_") }} ;
+{% endfor %}
+  rdfs:comment "Frozen input state for projection"@en .
+
+# Input ontologies
+{% for input in epoch.inputs %}
+gv6:Input_{{ input.path | replace(from="/", to="_") }}
+  a gv6:OntologyInput ;
+  gv6:inputPath "{{ input.path }}" ;
+  gv6:inputHash "{{ input.hash }}" ;
+  gv6:inputTripleCount {{ input.triples | default(value=0) }} .
+
+{% endfor %}
+# Pass executions
+{% for exec in receipt.passes %}
+gv6:Exec_{{ exec.pass }}_{{ receipt.id | truncate(length=8, end="") }}
+  a gv6:PassExecution ;
+  gv6:executedPass gv6:{{ exec.pass }} ;
+  gv6:executionDurationMs {{ exec.duration_ms }} ;
+  gv6:queryHash "{{ exec.query_hash | default(value="") }}" ;
+  gv6:triplesProduced {{ exec.triples | default(value=0) }} .
+
+{% endfor %}
+# Output files
+{% for output in receipt.outputs %}
+gv6:Output_{{ output.path | replace(from="/", to="_") | replace(from=".", to="_") }}
+  a gv6:OutputFile ;
+  gv6:outputPath "{{ output.path }}" ;
+  gv6:outputHash "{{ output.hash }}" ;
+  gv6:outputSize {{ output.size }} ;
+  gv6:producedByPass gv6:{{ output.produced_by }} .
+
+{% endfor %}

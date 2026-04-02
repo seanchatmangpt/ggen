@@ -1,0 +1,21 @@
+# =============================================================================
+# SPARQL Query: Extract glossary terms
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+
+SELECT
+    ?term
+    ?label
+    ?definition
+    ?category
+WHERE {
+    ?term a pl:Term ;
+          rdfs:label ?label ;
+          pl:termDefinition ?definition ;
+          pl:termCategory ?category .
+}
+ORDER BY ?category ?label

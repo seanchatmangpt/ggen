@@ -1,0 +1,552 @@
+# Lifecycle Production Readiness Tests with OTEL Validation
+# Tests: readiness tracker, requirements validation, production checks
+
+[meta]
+name = "lifecycle_production_readiness"
+description = "Test production readiness validation with OTEL spans"
+version = "1.0.0"
+
+[otel]
+exporter = "otlp"
+endpoint = "http://localhost:4318"
+service_name = "ggen-lifecycle-readiness"
+enable_tracing = true
+enable_metrics = true
+
+[service.ggen]
+plugin = "generic_container"
+image = "rust:latest"
+volumes = ["/tmp/ggen-test:/workspace"]
+working_dir = "/workspace"
+
+# Test 1: Basic readiness tracking
+[[scenario]]
+name = "basic_readiness_tracking"
+service = "ggen"
+run = """
+mkdir -p /workspace/readiness-basic && cd /workspace/readiness-basic && \
+cat > make.toml << 'EOF'
+[project]
+name = "readiness-test"
+
+[readiness.auth-basic]
+name = "Basic Authentication"
+description = "Implement JWT-based authentication"
+category = "critical"
+status = "placeholder"
+components = ["src/auth.rs"]
+priority = 10
+
+[readiness.logging]
+name = "Structured Logging"
+description = "Implement structured logging with tracing"
+category = "important"
+status = "complete"
+priority = 8
+EOF
+ggen lifecycle readiness
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.readiness.check"
+attributes = { "project.name" = "readiness-test" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.load"
+parent = "ggen.lifecycle.readiness.check"
+attributes = { "config.source" = "make.toml" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.requirement.evaluate"
+parent = "ggen.lifecycle.readiness.check"
+count = 2
+attributes_pattern = { "requirement.id" = ".*" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.report.generate"
+must_follow = ["ggen.readiness.requirement.evaluate"]
+attributes = { "report.format" = "summary" }
+
+# Test 2: Readiness requirement lifecycle
+[[scenario]]
+name = "readiness_requirement_lifecycle"
+service = "ggen"
+run = """
+mkdir -p /workspace/req-lifecycle && cd /workspace/req-lifecycle && \
+cat > make.toml << 'EOF'
+[project]
+name = "requirement-lifecycle"
+
+[readiness.feature-x]
+name = "Feature X"
+description = "Critical feature"
+category = "critical"
+status = "placeholder"
+priority = 10
+EOF
+ggen lifecycle readiness && \
+ggen lifecycle readiness-update feature-x in_progress && \
+ggen lifecycle readiness-update feature-x complete && \
+ggen lifecycle readiness
+"""
+
+[[scenario.expect.span]]
+name = "ggen.readiness.requirement.update"
+count = 2
+attributes_unique = ["status.new"]
+
+[[scenario.expect.span]]
+name = "ggen.readiness.status.transition"
+parent = "ggen.readiness.requirement.update"
+count = 2
+
+[scenario.expect.temporal]
+ordering = [
+  "ggen.readiness.requirement.update[status=placeholder->in_progress]",
+  "ggen.readiness.requirement.update[status=in_progress->complete]"
+]
+
+# Test 3: Production readiness validation
+[[scenario]]
+name = "production_readiness_validation"
+service = "ggen"
+run = """
+mkdir -p /workspace/prod-readiness && cd /workspace/prod-readiness && \
+cat > make.toml << 'EOF'
+[project]
+name = "production-readiness"
+
+[readiness.error-handling]
+name = "Error Handling"
+description = "No .unwrap() in production code"
+category = "critical"
+status = "needs_review"
+components = ["src/**/*.rs"]
+priority = 9
+
+[readiness.testing]
+name = "Test Coverage"
+description = "Achieve >80% test coverage"
+category = "critical"
+status = "in_progress"
+priority = 9
+
+[lifecycle.validate-production]
+command = "echo 'Running production readiness checks'"
+EOF
+mkdir -p src && \
+echo 'fn main() { println!("Hello"); }' > src/main.rs && \
+ggen lifecycle validate --env production
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.validate"
+attributes = { "environment" = "production", "validation.type" = "production_readiness" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.validate"
+parent = "ggen.lifecycle.validate"
+
+[[scenario.expect.span]]
+name = "ggen.readiness.requirement.validate"
+parent = "ggen.readiness.validate"
+count = 2
+attributes_pattern = { "requirement.category" = "critical" }
+
+[[scenario.expect.span]]
+name = "ggen.validation.code_scan"
+parent = "ggen.readiness.requirement.validate"
+attributes = { "scan.type" = "unwrap_detection" }
+
+# Test 4: Readiness report generation
+[[scenario]]
+name = "readiness_report_generation"
+service = "ggen"
+run = """
+mkdir -p /workspace/readiness-report && cd /workspace/readiness-report && \
+cat > make.toml << 'EOF'
+[project]
+name = "report-generation"
+
+[readiness.auth]
+name = "Authentication"
+category = "critical"
+status = "complete"
+priority = 10
+
+[readiness.logging]
+name = "Logging"
+category = "important"
+status = "placeholder"
+priority = 7
+
+[readiness.caching]
+name = "Caching"
+category = "nice_to_have"
+status = "missing"
+priority = 3
+EOF
+ggen lifecycle readiness --format json > /tmp/readiness-report.json
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.readiness.check"
+
+[[scenario.expect.span]]
+name = "ggen.readiness.report.generate"
+parent = "ggen.lifecycle.readiness.check"
+attributes = { "report.format" = "json" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.stats.calculate"
+parent = "ggen.readiness.report.generate"
+attributes_exists = ["total_requirements", "completed", "completion_percentage"]
+
+[[scenario.expect.span]]
+name = "ggen.readiness.report.write"
+must_follow = ["ggen.readiness.report.generate"]
+attributes = { "output.path" = "/tmp/readiness-report.json" }
+
+[scenario.expect.attestation]
+files_created = ["/tmp/readiness-report.json"]
+sha256 = true
+
+# Test 5: Critical requirement blocking deployment
+[[scenario]]
+name = "critical_requirement_blocks_deployment"
+service = "ggen"
+run = """
+mkdir -p /workspace/blocking && cd /workspace/blocking && \
+cat > make.toml << 'EOF'
+[project]
+name = "deployment-blocking"
+
+[readiness.security-audit]
+name = "Security Audit"
+description = "Complete security audit"
+category = "critical"
+status = "missing"
+priority = 10
+blocks_deployment = true
+
+[lifecycle.deploy]
+command = "echo 'Attempting to deploy'"
+
+[lifecycle.validate-readiness]
+command = "ggen lifecycle readiness --strict"
+
+[hooks]
+before_deploy = ["validate-readiness"]
+EOF
+ggen lifecycle run deploy || echo "Deployment blocked by critical requirement"
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.validate-readiness"
+must_precede = ["ggen.lifecycle.deploy"]
+
+[[scenario.expect.span]]
+name = "ggen.readiness.validate.strict"
+parent = "ggen.lifecycle.validate-readiness"
+expect_error = true
+attributes = { "blocking.requirements" = "security-audit" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+should_not_exist = true
+
+[[scenario.expect.span]]
+name = "ggen.deploy.blocked"
+must_follow = ["ggen.readiness.validate.strict"]
+attributes = { "reason" = "critical_requirement_incomplete" }
+
+# Test 6: Readiness dependency checking
+[[scenario]]
+name = "readiness_dependency_checking"
+service = "ggen"
+run = """
+mkdir -p /workspace/dependencies && cd /workspace/dependencies && \
+cat > make.toml << 'EOF'
+[project]
+name = "dependency-checking"
+
+[readiness.database-setup]
+name = "Database Setup"
+category = "critical"
+status = "complete"
+priority = 10
+
+[readiness.migrations]
+name = "Database Migrations"
+category = "critical"
+status = "in_progress"
+priority = 9
+dependencies = ["database-setup"]
+
+[readiness.api-endpoints]
+name = "API Endpoints"
+category = "critical"
+status = "placeholder"
+priority = 8
+dependencies = ["migrations"]
+EOF
+ggen lifecycle readiness --check-dependencies
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.readiness.check"
+attributes = { "check.dependencies" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.dependency.validate"
+parent = "ggen.lifecycle.readiness.check"
+count_min = 2
+
+[[scenario.expect.span]]
+name = "ggen.readiness.dependency.check"
+parent = "ggen.readiness.dependency.validate"
+attributes_pattern = { "dependency.id" = ".*" }
+
+[scenario.expect.graph]
+must_include = [
+  ["database-setup", "migrations"],
+  ["migrations", "api-endpoints"]
+]
+acyclic = true
+
+# Test 7: Readiness with effort estimation
+[[scenario]]
+name = "readiness_effort_estimation"
+service = "ggen"
+run = """
+mkdir -p /workspace/effort && cd /workspace/effort && \
+cat > make.toml << 'EOF'
+[project]
+name = "effort-estimation"
+
+[readiness.auth]
+name = "Authentication"
+category = "critical"
+status = "placeholder"
+priority = 10
+effort_hours = 8
+
+[readiness.logging]
+name = "Logging"
+category = "important"
+status = "placeholder"
+priority = 7
+effort_hours = 4
+
+[readiness.caching]
+name = "Caching"
+category = "nice_to_have"
+status = "placeholder"
+priority = 3
+effort_hours = 16
+EOF
+ggen lifecycle readiness --show-effort
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.readiness.check"
+attributes = { "show.effort" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.effort.calculate"
+parent = "ggen.lifecycle.readiness.check"
+attributes_exists = ["total_effort_hours", "critical_effort_hours", "remaining_effort_hours"]
+
+# Test 8: Readiness validation with file scanning
+[[scenario]]
+name = "readiness_file_scanning"
+service = "ggen"
+run = """
+mkdir -p /workspace/file-scan && cd /workspace/file-scan && \
+cat > make.toml << 'EOF'
+[project]
+name = "file-scanning"
+
+[readiness.no-unwrap]
+name = "No .unwrap() in production"
+description = "All .unwrap() replaced with proper error handling"
+category = "critical"
+status = "needs_review"
+components = ["src/**/*.rs"]
+priority = 9
+EOF
+mkdir -p src && \
+echo 'fn main() { let x = Some(5); x.unwrap(); }' > src/main.rs && \
+ggen lifecycle readiness-validate no-unwrap
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.readiness.validate"
+attributes = { "requirement.id" = "no-unwrap" }
+
+[[scenario.expect.span]]
+name = "ggen.validation.file_scan"
+parent = "ggen.lifecycle.readiness.validate"
+attributes = { "scan.pattern" = "src/**/*.rs" }
+
+[[scenario.expect.span]]
+name = "ggen.validation.pattern_match"
+parent = "ggen.validation.file_scan"
+attributes = { "pattern" = ".unwrap()", "matches.found" = "1" }
+
+[[scenario.expect.span]]
+name = "ggen.validation.result"
+must_follow = ["ggen.validation.pattern_match"]
+attributes = { "validation.passed" = "false", "issues.count" = "1" }
+
+# Test 9: Readiness categories and prioritization
+[[scenario]]
+name = "readiness_categories_prioritization"
+service = "ggen"
+run = """
+mkdir -p /workspace/categories && cd /workspace/categories && \
+cat > make.toml << 'EOF'
+[project]
+name = "category-prioritization"
+
+[readiness.critical-1]
+category = "critical"
+status = "complete"
+priority = 10
+
+[readiness.critical-2]
+category = "critical"
+status = "in_progress"
+priority = 9
+
+[readiness.important-1]
+category = "important"
+status = "placeholder"
+priority = 7
+
+[readiness.nice-to-have-1]
+category = "nice_to_have"
+status = "missing"
+priority = 3
+EOF
+ggen lifecycle readiness --by-category
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.readiness.check"
+attributes = { "group.by" = "category" }
+
+[[scenario.expect.span]]
+name = "ggen.readiness.category.analyze"
+parent = "ggen.lifecycle.readiness.check"
+count = 3
+attributes_unique = ["category"]
+
+[[scenario.expect.span]]
+name = "ggen.readiness.priority.sort"
+parent = "ggen.readiness.category.analyze"
+
+# Test 10: Full production readiness workflow
+[[scenario]]
+name = "full_production_readiness_workflow"
+service = "ggen"
+run = """
+mkdir -p /workspace/full-workflow && cd /workspace/full-workflow && \
+cat > make.toml << 'EOF'
+[project]
+name = "full-readiness-workflow"
+
+[readiness.auth]
+name = "Authentication"
+category = "critical"
+status = "complete"
+priority = 10
+
+[readiness.error-handling]
+name = "Error Handling"
+category = "critical"
+status = "complete"
+priority = 9
+
+[readiness.testing]
+name = "Test Coverage"
+category = "critical"
+status = "complete"
+priority = 9
+
+[readiness.logging]
+name = "Structured Logging"
+category = "important"
+status = "complete"
+priority = 8
+
+[readiness.monitoring]
+name = "Monitoring & Alerts"
+category = "important"
+status = "complete"
+priority = 7
+
+[lifecycle.pre-deploy-validation]
+command = "ggen lifecycle readiness --strict"
+
+[lifecycle.deploy-production]
+command = "echo 'Deploying to production'"
+
+[hooks]
+before_deploy-production = ["pre-deploy-validation"]
+EOF
+mkdir -p src && \
+echo 'fn main() { println!("Ready for production"); }' > src/main.rs && \
+ggen lifecycle run deploy-production
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.pre-deploy-validation"
+must_precede = ["ggen.lifecycle.deploy-production"]
+
+[[scenario.expect.span]]
+name = "ggen.readiness.check.comprehensive"
+parent = "ggen.lifecycle.pre-deploy-validation"
+
+[[scenario.expect.span]]
+name = "ggen.readiness.requirement.validate"
+parent = "ggen.readiness.check.comprehensive"
+count = 5
+
+[[scenario.expect.span]]
+name = "ggen.readiness.validation.result"
+must_follow = ["ggen.readiness.requirement.validate"]
+attributes = { "all_critical_complete" = "true", "production_ready" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy-production"
+must_follow = ["ggen.lifecycle.pre-deploy-validation"]
+attributes = { "readiness.validated" = "true" }
+
+[scenario.expect.temporal]
+strict_ordering = [
+  "ggen.lifecycle.pre-deploy-validation",
+  "ggen.readiness.check.comprehensive",
+  "ggen.readiness.requirement.validate",
+  "ggen.readiness.validation.result",
+  "ggen.lifecycle.deploy-production"
+]
+
+[scenario.expect.attestation]
+all_critical_requirements_met = true
+production_deployment_validated = true
+
+# Summary expectations
+[expect.report]
+format = "json"
+output_path = "/tmp/lifecycle-readiness-report.json"
+include_metrics = true
+include_traces = true
+
+[expect.performance]
+max_duration_ms = 8000
+max_memory_mb = 512
+
+[expect.determinism]
+require_same_traces_on_retry = true
+retry_count = 2

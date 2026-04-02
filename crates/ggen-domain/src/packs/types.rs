@@ -82,15 +82,20 @@ pub struct PackMetadata {
 }
 
 /// Pack composition strategy
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CompositionStrategy {
     /// Merge all packs (default)
-    #[default]
     Merge,
     /// Layer packs (apply in order)
     Layer,
     /// Custom composition with rules
     Custom(HashMap<String, serde_json::Value>),
+}
+
+impl Default for CompositionStrategy {
+    fn default() -> Self {
+        Self::Merge
+    }
 }
 
 /// Pack file format (for serialization)

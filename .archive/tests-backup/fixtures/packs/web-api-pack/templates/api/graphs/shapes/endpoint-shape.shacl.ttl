@@ -1,0 +1,17 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix api: <https://example.org/api/> .
+
+api:EndpointShape
+    a sh:NodeShape ;
+    sh:targetClass api:Endpoint ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path api:httpMethod ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

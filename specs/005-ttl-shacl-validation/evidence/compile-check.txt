@@ -1,0 +1,10 @@
+[cargo-make] INFO - cargo make 0.37.24
+[cargo-make] INFO - 
+[cargo-make] INFO - Project: ggen
+[cargo-make] INFO - Build File: Makefile.toml
+[cargo-make] INFO - Task: check
+[cargo-make] INFO - Profile: development
+[cargo-make] INFO - Execute Command: "bash" "-c" "set -euo pipefail\n\nquick_timeout=\"15s\"\nretry_timeout=\"30s\"\n\nrun_check() {\n  timeout \"$1\" cargo check\n}\n\nif run_check \"$quick_timeout\"; then\n  exit 0\nfi\n\nstatus=$?\n# 124 = timeout, 137 = timeout killed by signal; retry on these to handle locks\nif [[ $status -eq 124 || $status -eq 137 ]]; then\n  echo \"⚠\u{fe0f}  Retrying cargo check with extended timeout ($retry_timeout) due to lock contention\"\n  run_check \"$retry_timeout\"\nelse\n  exit $status\nfi\n"
+[1m[32m   Compiling[0m oxrocksdb-sys v0.5.1
+[1m[32m   Compiling[0m ggen v5.0.1 (/Users/sac/ggen)
+[cargo-make] INFO - Build Done in 16.76 seconds.

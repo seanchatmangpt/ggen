@@ -1,0 +1,22 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/01_unified_execution.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1760261546746,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760261590259,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,5 +25,5 @@\n   Scenario: Exit codes propagate\n     When I run the binary with args [\"exit\", \"--code\", \"7\"] using backend \"auto\"\n     Then the exit code is 7\n     And stdout is empty\n-    And stderr contains \"exiting with 7\"\n\\ No newline at end of file\n+    And stderr contains \"exiting with 7\"\n"
+                }
+            ],
+            "date": 1760261546746,
+            "name": "Commit-0",
+            "content": "# features/01_unified_execution.feature\n@core @unified @auto\nFeature: Unified execution behaves identically local and in containers\n  Background:\n    Given a fixture project \"cli_smoke\" with binary \"target/debug/cli_smoke\"\n    And cleanroom is configured with defaults\n\n  Scenario Outline: Help prints with identical semantics across backends\n    Given backend \"<backend>\" is available or test is skipped\n    When I run the binary with args [\"--help\"] using backend \"<backend>\"\n    Then the exit code is 0\n    And stdout contains \"USAGE\"\n    And stderr is empty\n    And execution is hermetic\n    And mounts are deterministic\n    And clock is normalized\n\n    Examples:\n      | backend  |\n      | auto     |\n      | local    |\n      | docker   |\n      | podman   |\n\n  Scenario: Exit codes propagate\n    When I run the binary with args [\"exit\", \"--code\", \"7\"] using backend \"auto\"\n    Then the exit code is 7\n    And stdout is empty\n    And stderr contains \"exiting with 7\""
+        }
+    ]
+}

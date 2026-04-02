@@ -1,0 +1,262 @@
+Frontmatter { to: Some("src/main.rs"), from: None, force: false, unless_exists: false, inject: false, before: None, after: None, prepend: false, append: false, at_line: None, eof_last: false, skip_if: None, sh_before: None, sh_after: None, base: None, prefixes: {}, rdf_inline: [], rdf: ["schemas/test_schema.ttl"], sparql: {"test_containers": "SELECT ?container ?image ?port WHERE { ?container rdf:type test:Container ; test:image ?image ; test:port ?port }", "test_lifecycle": "SELECT ?hook ?phase ?action WHERE { ?hook rdf:type test:TestLifecycleHook ; test:phase ?phase ; test:action ?action }", "test_specs": "SELECT ?spec ?description ?feature ?scenario WHERE { ?spec rdf:type test:TestSpecification ; test:description ?description ; test:feature ?feature ; test:scenario ?scenario }"}, vars: {"var0": Mapping {"type": String("string"), "name": String("project_name"), "description": String("Name of the project"), "default": String("ggen-cleanroom")}, "var1": Mapping {"default": String("0.1.0"), "type": String("string"), "name": String("version"), "description": String("Project version")}}, backup: None, idempotent: false, shape: [], determinism: None, freeze_policy: None, freeze_slots_dir: None, sparql_results: {} }
+---
+use std::collections::HashMap;
+use std::sync::Arc;
+use async_trait::async_trait;
+use testcontainers::{ContainerAsync, core::WaitFor, runners::AsyncRunner, DockerError, TestcontainersError};
+use testcontainers::core::ContainerPort;
+use tokio::sync::Mutex;
+use serde::{Deserialize, Serialize};
+use reqwest::Client;
+use proptest::prelude::*;
+
+/// Test container manager for isolated testing environments
+pub struct TestContainerManager {
+    containers: Mutex<HashMap<String, ContainerAsync<testcontainers::clients::Docker>>>,
+    client: Client,
+}
+
+impl TestContainerManager {
+    pub fn new() -> Self {
+        Self {
+            containers: Mutex::new(HashMap::new()),
+            client: Client::new(),
+        }
+    }
+
+    /// Start a container with the given image and port
+    pub async fn start_container(
+        &self,
+        name: &str,
+        image: &str,
+        port: u16,
+    ) -> Result<ContainerAsync<testcontainers::clients::Docker>, TestcontainersError> {
+        let container = testcontainers::clients::Docker::default()
+            .run(testcontainers::core::Image::from(image)
+                .with_exposed_port(port.into())
+                .with_wait_for(WaitFor::message_on_stdout("ready")))
+            .await?;
+        
+        self.containers.lock().await.insert(name.to_string(), container.clone());
+        Ok(container)
+    }
+
+    /// Get a running container by name
+    pub async fn get_container(&self, name: &str) -> Option<ContainerAsync<testcontainers::clients::Docker>> {
+        self.containers.lock().await.get(name).cloned()
+    }
+}
+
+#[async_trait]
+pub trait TestRunner {
+    async fn run_test(&self, test_spec: &TestSpecification) -> Result<TestResult, Box<dyn std::error::Error>>;
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TestSpecification {
+    pub id: String,
+    pub description: String,
+    pub feature: String,
+    pub scenario: String,
+    pub steps: Vec<TestStep>,
+    pub data: Option<TestData>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TestStep {
+    pub action: String,
+    pub expected: String,
+    pub timeout: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TestData {
+    pub fixture: String,
+    pub data: HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TestResult {
+    pub test_id: String,
+    pub status: TestStatus,
+    pub duration: std::time::Duration,
+    pub error: Option<String>,
+    pub artifacts: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum TestStatus {
+    Passed,
+    Failed,
+    Skipped,
+    Pending,
+}
+
+/// BDD-style test framework
+pub struct BddTestFramework {
+    test_manager: Arc<TestContainerManager>,
+}
+
+impl BddTestFramework {
+    pub fn new() -> Self {
+        Self {
+            test_manager: Arc::new(TestContainerManager::new()),
+        }
+    }
+
+    pub async fn run_feature(&self, feature: &str, tests: Vec<TestSpecification>) -> Vec<TestResult> {
+        let mut results = Vec::new();
+        println!("Running feature: {}", feature);
+        
+        for test in tests {
+            let result = self.run_test(&test).await;
+            results.push(result);
+        }
+        
+        results
+    }
+
+    async fn run_test(&self, test_spec: &TestSpecification) -> TestResult {
+        let start_time = std::time::Instant::now();
+        let mut test_result = TestResult {
+            test_id: test_spec.id.clone(),
+            status: TestStatus::Pending,
+            duration: std::time::Duration::from_secs(0),
+            error: None,
+            artifacts: Vec::new(),
+        };
+
+        println!("Running test: {}", test_spec.description);
+        
+        // Setup containers
+        if let Some(ref data) = test_spec.data {
+            if let Some(fixture) = data.fixture.strip_prefix("container:") {
+                // Start container based on fixture
+                let parts: Vec<&str> = fixture.split(':').collect();
+                if parts.len() >= 2 {
+                    let image = parts[0];
+                    let port: u16 = parts[1].parse().unwrap_or(5432);
+                    match self.test_manager.start_container(&test_spec.id, image, port).await {
+                        Ok(_) => println!("Container started for test: {}", test_spec.id),
+                        Err(e) => {
+                            test_result.error = Some(format!("Failed to start container: {}", e));
+                            test_result.status = TestStatus::Failed;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Execute test steps
+        for step in &test_spec.steps {
+            match self.execute_step(step, &test_spec.id).await {
+                Ok(_) => println!("Step passed: {}", step.action),
+                Err(e) => {
+                    test_result.error = Some(e.to_string());
+                    test_result.status = TestStatus::Failed;
+                    break;
+                }
+            }
+        }
+
+        test_result.duration = start_time.elapsed();
+        if test_result.error.is_none() {
+            test_result.status = TestStatus::Passed;
+        }
+
+        println!("Test completed: {} - {:?}", test_spec.id, test_result.status);
+        test_result
+    }
+
+    async fn execute_step(&self, step: &TestStep, test_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+        // This would contain actual test execution logic
+        // For now, we'll just simulate the execution
+        println!("Executing step: {} for test: {}", step.action, test_id);
+        Ok(())
+    }
+}
+
+/// SPARQL-based test specification loader
+pub struct SparqlTestLoader {
+    // SPARQL query execution logic would go here
+}
+
+impl SparqlTestLoader {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn load_tests_from_sparql(&self, query: &str) -> Vec<TestSpecification> {
+        // In a real implementation, this would execute the SPARQL query
+        // and parse the results into TestSpecification objects
+        vec![]
+    }
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    println!("Starting ggen-cleanroom test framework");
+    
+    let framework = BddTestFramework::new();
+    
+    // Example test specifications loaded via SPARQL
+    let test_specs = vec![
+        TestSpecification {
+            id: "test-postgres".to_string(),
+            description: "Test PostgreSQL container".to_string(),
+            feature: "Database".to_string(),
+            scenario: "PostgreSQL container should start and accept connections".to_string(),
+            steps: vec![
+                TestStep {
+                    action: "Connect to PostgreSQL".to_string(),
+                    expected: "Connection successful".to_string(),
+                    timeout: 10,
+                }
+            ],
+            data: Some(TestData {
+                fixture: "container:postgres:5432".to_string(),
+                data: HashMap::new(),
+            }),
+        }
+    ];
+    
+    let results = framework.run_feature("Database Tests", test_specs).await;
+    
+    println!("Test results: {:?}", results);
+    
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn test_container_manager_initialization() {
+            let manager = TestContainerManager::new();
+            assert!(manager.containers.lock().await.is_empty());
+        }
+
+        #[test]
+        fn test_test_specification_serialization(test_spec in any::<TestSpecification>()) {
+            let serialized = serde_json::to_string(&test_spec).unwrap();
+            let deserialized: TestSpecification = serde_json::from_str(&serialized).unwrap();
+            assert_eq!(test_spec.id, deserialized.id);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_bdd_framework_creation() {
+        let framework = BddTestFramework::new();
+        assert!(framework.test_manager.containers.lock().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_test_container_manager() {
+        let manager = TestContainerManager::new();
+        let result = manager.start_container("test", "postgres:13", 5432).await;
+        assert!(result.is_ok());
+    }
+}

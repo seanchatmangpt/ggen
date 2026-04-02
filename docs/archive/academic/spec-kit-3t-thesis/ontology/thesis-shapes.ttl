@@ -1,0 +1,320 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#> .
+@prefix diataxis: <http://diataxis.fr/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# SHACL Shapes for PhD Thesis Validation (μ₁)
+# ==============================================================================
+# Purpose: Enforce quality constraints on thesis ontologies before generation
+# Constitutional Equation: valid_thesis.ttl → μ₂(SPARQL) → μ₃(Tera) → thesis.tex
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Thesis Entity Shape
+# ------------------------------------------------------------------------------
+thesis:ThesisShape
+    a sh:NodeShape ;
+    sh:targetClass thesis:Thesis ;
+    sh:property [
+        sh:path thesis:hasTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:maxLength 200 ;
+        sh:message "Thesis must have exactly one title (10-200 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasSubtitle ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:maxLength 150 ;
+        sh:message "Thesis may have at most one subtitle (max 150 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasYear ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 2000 ;
+        sh:maxInclusive 2050 ;
+        sh:message "Thesis must have valid year (2000-2050)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasAbstract ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Thesis must have exactly one abstract" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasInstitution ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Thesis must specify institution" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasDegree ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Thesis must specify degree (e.g., 'Doctor of Philosophy')" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasChapter ;
+        sh:minCount 3 ;  # At least Introduction, Body, Conclusion
+        sh:message "Thesis must have at least 3 chapters" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Chapter Shape
+# ------------------------------------------------------------------------------
+thesis:ChapterShape
+    a sh:NodeShape ;
+    sh:targetClass thesis:Chapter ;
+    sh:property [
+        sh:path thesis:chapterNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 20 ;
+        sh:message "Chapter must have valid number (1-20)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:chapterTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 5 ;
+        sh:maxLength 150 ;
+        sh:message "Chapter must have title (5-150 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasSection ;
+        sh:minCount 1 ;
+        sh:message "Chapter must have at least one section" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Section Shape
+# ------------------------------------------------------------------------------
+thesis:SectionShape
+    a sh:NodeShape ;
+    sh:targetClass thesis:Section ;
+    sh:property [
+        sh:path thesis:sectionTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:maxLength 150 ;
+        sh:message "Section must have title (3-150 characters)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 50 ;
+        sh:message "Section must have content (minimum 50 characters)" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Diataxis Tutorial Shape (Learning-oriented + Practical)
+# ------------------------------------------------------------------------------
+diataxis:TutorialShape
+    a sh:NodeShape ;
+    sh:targetClass diataxis:Tutorial ;
+    sh:property [
+        sh:path diataxis:learningObjective ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message "Tutorial must have learning objective (min 20 chars)" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis1 ;
+        sh:hasValue "learning" ;
+        sh:message "Tutorial axis1 must be 'learning'" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis2 ;
+        sh:hasValue "practical" ;
+        sh:message "Tutorial axis2 must be 'practical'" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Diataxis How-to Shape (Using-oriented + Practical)
+# ------------------------------------------------------------------------------
+diataxis:HowToShape
+    a sh:NodeShape ;
+    sh:targetClass diataxis:HowTo ;
+    sh:property [
+        sh:path diataxis:task ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message "How-to must define task (min 20 chars)" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis1 ;
+        sh:hasValue "using" ;
+        sh:message "How-to axis1 must be 'using'" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis2 ;
+        sh:hasValue "practical" ;
+        sh:message "How-to axis2 must be 'practical'" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Diataxis Reference Shape (Using-oriented + Theoretical)
+# ------------------------------------------------------------------------------
+diataxis:ReferenceShape
+    a sh:NodeShape ;
+    sh:targetClass diataxis:Reference ;
+    sh:property [
+        sh:path diataxis:technicalDetail ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message "Reference must specify technical details (min 20 chars)" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis1 ;
+        sh:hasValue "using" ;
+        sh:message "Reference axis1 must be 'using'" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis2 ;
+        sh:hasValue "theoretical" ;
+        sh:message "Reference axis2 must be 'theoretical'" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Diataxis Explanation Shape (Learning-oriented + Theoretical)
+# ------------------------------------------------------------------------------
+diataxis:ExplanationShape
+    a sh:NodeShape ;
+    sh:targetClass diataxis:Explanation ;
+    sh:property [
+        sh:path diataxis:concept ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 20 ;
+        sh:message "Explanation must define concept (min 20 chars)" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis1 ;
+        sh:hasValue "learning" ;
+        sh:message "Explanation axis1 must be 'learning'" ;
+    ] ;
+    sh:property [
+        sh:path diataxis:axis2 ;
+        sh:hasValue "theoretical" ;
+        sh:message "Explanation axis2 must be 'theoretical'" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Abstract Shape
+# ------------------------------------------------------------------------------
+thesis:AbstractShape
+    a sh:NodeShape ;
+    sh:targetClass thesis:Abstract ;
+    sh:property [
+        sh:path thesis:hasContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 200 ;
+        sh:maxLength 3000 ;
+        sh:message "Abstract must be 200-3000 characters" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Author Shape
+# ------------------------------------------------------------------------------
+thesis:AuthorShape
+    a sh:NodeShape ;
+    sh:targetClass thesis:Author ;
+    sh:property [
+        sh:path thesis:hasName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 2 ;
+        sh:message "Author must have name (min 2 chars)" ;
+    ] ;
+    sh:property [
+        sh:path thesis:hasEmail ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Author email must be valid format" ;
+    ] .
+
+# ------------------------------------------------------------------------------
+# Bibliography Entry Shape
+# ------------------------------------------------------------------------------
+thesis:BibliographyEntryShape
+    a sh:NodeShape ;
+    sh:targetClass thesis:BibliographyEntry ;
+    sh:property [
+        sh:path thesis:citationKey ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:message "Citation key must be alphanumeric with hyphens/underscores" ;
+    ] ;
+    sh:property [
+        sh:path thesis:entryType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("article" "book" "inproceedings" "techreport" "misc" "phdthesis" "mastersthesis") ;
+        sh:message "Entry type must be valid BibTeX type" ;
+    ] .
+
+# ==============================================================================
+# Quality Constraints (Andon Signals for μ₁)
+# ==============================================================================
+
+thesis:QualityConstraints
+    a sh:NodeShape ;
+    sh:targetClass thesis:Thesis ;
+    # RED SIGNAL: Missing critical metadata
+    sh:property [
+        sh:path thesis:dedication ;
+        sh:minCount 0 ;  # Changed to warning-only in separate SPARQL
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path thesis:acknowledgments ;
+        sh:minCount 0 ;  # Changed to warning-only in separate SPARQL
+        sh:maxCount 1 ;
+    ] ;
+    # YELLOW SIGNAL: Incomplete bibliography (informational only)
+    sh:property [
+        sh:path thesis:hasBibliographyEntry ;
+        sh:minCount 0 ;  # Bibliography optional, just a recommendation
+    ] .
+
+# ==============================================================================
+# Idempotence Constraints
+# ==============================================================================
+# Ensures μ∘μ = μ (running validation twice produces same result)
+
+thesis:IdempotenceConstraints
+    a sh:NodeShape ;
+    sh:targetClass thesis:Thesis ;
+    sh:property [
+        sh:path thesis:generatedBy ;
+        sh:maxCount 1 ;
+        sh:pattern "^ggen v[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:message "Generated-by must be valid ggen version (e.g., 'ggen v6.0.0')" ;
+    ] .

@@ -1,0 +1,177 @@
+use actix_web::{test, web, App};
+use serde_json::json;
+
+mod common {
+    use super::*;
+    use {{project_name}}::api;
+
+    pub fn create_test_app() -> actix_web::App<
+        impl actix_web::dev::ServiceFactory<
+            actix_web::dev::ServiceRequest,
+            Config = (),
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+            InitError = (),
+        >,
+    > {
+        App::new().configure(api::routes::configure)
+    }
+}
+
+#[actix_web::test]
+async fn test_health_check() {
+    let app = test::init_service(
+        App::new().route("/health", web::get().to(|| async { "OK" }))
+    ).await;
+
+    let req = test::TestRequest::get()
+        .uri("/health")
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert!(resp.status().is_success());
+}
+
+#[actix_web::test]
+async fn test_list_users_empty() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    let req = test::TestRequest::get()
+        .uri("{{api_prefix}}/users")
+        .to_request();
+
+    let resp: Vec<serde_json::Value> = test::call_and_read_body_json(&app, req).await;
+    assert_eq!(resp.len(), 0);
+}
+
+#[actix_web::test]
+async fn test_create_and_get_user() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    // Create user
+    let create_req = test::TestRequest::post()
+        .uri("{{api_prefix}}/users")
+        .set_json(json!({
+            "name": "John Doe",
+            "email": "john@example.com"
+        }))
+        .to_request();
+
+    let user: serde_json::Value = test::call_and_read_body_json(&app, create_req).await;
+    assert_eq!(user["name"], "John Doe");
+    assert_eq!(user["email"], "john@example.com");
+
+    let user_id = user["id"].as_str().unwrap();
+
+    // Get user by ID
+    let get_req = test::TestRequest::get()
+        .uri(&format!("{{api_prefix}}/users/{}", user_id))
+        .to_request();
+
+    let fetched_user: serde_json::Value = test::call_and_read_body_json(&app, get_req).await;
+    assert_eq!(fetched_user["id"], user["id"]);
+    assert_eq!(fetched_user["name"], "John Doe");
+}
+
+#[actix_web::test]
+async fn test_create_user_validation() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    // Invalid email
+    let req = test::TestRequest::post()
+        .uri("{{api_prefix}}/users")
+        .set_json(json!({
+            "name": "John Doe",
+            "email": "invalid-email"
+        }))
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 400);
+}
+
+#[actix_web::test]
+async fn test_list_products_empty() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    let req = test::TestRequest::get()
+        .uri("{{api_prefix}}/products")
+        .to_request();
+
+    let resp: Vec<serde_json::Value> = test::call_and_read_body_json(&app, req).await;
+    assert_eq!(resp.len(), 0);
+}
+
+#[actix_web::test]
+async fn test_create_and_get_product() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    // Create product
+    let create_req = test::TestRequest::post()
+        .uri("{{api_prefix}}/products")
+        .set_json(json!({
+            "name": "Laptop",
+            "description": "A powerful laptop",
+            "price": 999.99,
+            "stock": 10
+        }))
+        .to_request();
+
+    let product: serde_json::Value = test::call_and_read_body_json(&app, create_req).await;
+    assert_eq!(product["name"], "Laptop");
+    assert_eq!(product["price"], 999.99);
+
+    let product_id = product["id"].as_str().unwrap();
+
+    // Get product by ID
+    let get_req = test::TestRequest::get()
+        .uri(&format!("{{api_prefix}}/products/{}", product_id))
+        .to_request();
+
+    let fetched_product: serde_json::Value = test::call_and_read_body_json(&app, get_req).await;
+    assert_eq!(fetched_product["id"], product["id"]);
+    assert_eq!(fetched_product["name"], "Laptop");
+}
+
+#[actix_web::test]
+async fn test_create_product_validation() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    // Negative price
+    let req = test::TestRequest::post()
+        .uri("{{api_prefix}}/products")
+        .set_json(json!({
+            "name": "Invalid Product",
+            "description": "Test",
+            "price": -10.0,
+            "stock": 5
+        }))
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 400);
+}
+
+#[actix_web::test]
+async fn test_get_nonexistent_user() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    let req = test::TestRequest::get()
+        .uri("{{api_prefix}}/users/00000000-0000-0000-0000-000000000000")
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 404);
+}
+
+#[actix_web::test]
+async fn test_get_nonexistent_product() {
+    let app = test::init_service(common::create_test_app()).await;
+
+    let req = test::TestRequest::get()
+        .uri("{{api_prefix}}/products/00000000-0000-0000-0000-000000000000")
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 404);
+}

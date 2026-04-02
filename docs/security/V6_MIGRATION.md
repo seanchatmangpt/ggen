@@ -626,8 +626,6 @@ receipt_storage_path = ".ggen/receipts"
 - Multi-tenant isolation
 - Enhanced audit logging
 
-**Marketplace / packs track (same minor)** — See [docs/marketplace/V6_1_MARKETPLACE_SCOPE.md](../marketplace/V6_1_MARKETPLACE_SCOPE.md) and [docs/marketplace/PACK_QUERY_CONTRACT.md](../marketplace/PACK_QUERY_CONTRACT.md): lockfile updates on `ggen packs install`, `GGEN_PACK_CACHE_DIR`, μ₂ CONSTRUCT queries from packs, pack template staging under `.ggen/pack-stage/`, receipt `PackProvenance` digests, `GGEN_MARKETPLACE_PUBLIC_KEY`, synthetic epoch when only pack substrate is used.
-
 ### v7.0.0 (Q3 2026) - Future
 
 **Planned Breaking Changes**:

@@ -1,0 +1,385 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ap: <http://ggen.dev/schema/academic-paper#> .
+
+# ============================================================================
+# EXAMPLE: ACADEMIC PAPER WITH FULL LIFECYCLE
+# ============================================================================
+# This example demonstrates the complete structure of an academic paper
+# using the ggen Academic Paper Ontology v1.0.0
+#
+
+# ============================================================================
+# PAPER METADATA
+# ============================================================================
+
+ap:ExamplePaper a ap:Paper ;
+    ap:title "Semantic Code Projections: RDF-Driven Code Generation for Multi-Language Systems" ;
+    ap:abstract """
+This paper presents ggen, a novel approach to code generation that treats code as a projection
+of knowledge graphs represented in RDF (Resource Description Framework). Unlike traditional
+templating engines, ggen uses SPARQL queries and ontologies as the single source of truth,
+enabling automatic synchronization across multiple programming languages (Rust, TypeScript,
+Python, Go, Java) with zero divergence.
+
+We introduce a semantic projection model where ontology updates automatically regenerate code
+across all target languages without manual intervention. Through a comprehensive evaluation on
+58 marketplace packages spanning enterprise systems, APIs, AI agents, and infrastructure
+components, we demonstrate 34% reduction in integration bugs and 3x faster development cycles.
+
+The framework includes production-ready implementations for RDF/SPARQL integration,
+multi-language type mapping, and deterministic code generation. We validate our approach
+through real-world case studies in e-commerce, healthcare (FHIR), and financial systems,
+demonstrating practical applicability across diverse domains.
+    """ ;
+    ap:keywords "RDF, SPARQL, code generation, semantic web, knowledge graphs, polyglot development, deterministic systems" ;
+    ap:discipline ap:ComputerScience ;
+    ap:status "published" ;
+    ap:pageCount 12 ;
+    ap:wordCount 8500 ;
+    ap:createdDate "2024-06-15T10:00:00Z"^^xsd:dateTime ;
+    ap:modifiedDate "2024-12-10T14:30:00Z"^^xsd:dateTime ;
+
+    # Authors
+    ap:hasAuthor ap:AuthorJane, ap:AuthorJohn, ap:AuthorAlex ;
+
+    # Sections
+    ap:hasSection ap:IntroSection, ap:RelatedWorkSection, ap:MethodsSection,
+                  ap:ResultsSection, ap:DiscussionSection, ap:ConclusionSection ;
+
+    # Figures and Tables
+    ap:hasFigure ap:ArchitectureFigure, ap:TypeMappingFigure ;
+    ap:hasTable ap:BenchmarkTable, ap:ComparisonTable ;
+
+    # Bibliography
+    ap:hasBibliography ap:Ref1, ap:Ref2, ap:Ref3, ap:Ref4, ap:Ref5 ;
+
+    # Submission history
+    ap:hasSubmission ap:SubmissionArxiv, ap:SubmissionConference .
+
+# ============================================================================
+# AUTHORS
+# ============================================================================
+
+ap:AuthorJane a ap:Author ;
+    ap:authorName "Jane Researcher" ;
+    ap:authorOrder 1 ;
+    ap:email "jane@mit.edu" ;
+    ap:orcid "0000-0001-2345-6789" ;
+    ap:correspondingAuthor true ;
+    ap:hasAffiliation ap:MIT ;
+    ap:hasContribution ap:JaneConceptualization, ap:JaneMethodology ;
+    ap:hasContribution ap:JaneWriting .
+
+ap:AuthorJohn a ap:Author ;
+    ap:authorName "John Developer" ;
+    ap:authorOrder 2 ;
+    ap:email "john@stanford.edu" ;
+    ap:orcid "0000-0002-3456-7890" ;
+    ap:hasAffiliation ap:Stanford ;
+    ap:hasContribution ap:JohnSoftware, ap:JohnValidation .
+
+ap:AuthorAlex a ap:Author ;
+    ap:authorName "Alex Implementation" ;
+    ap:authorOrder 3 ;
+    ap:email "alex@berkeley.edu" ;
+    ap:orcid "0000-0003-4567-8901" ;
+    ap:hasAffiliation ap:Berkeley ;
+    ap:hasContribution ap:AlexImplementation, ap:AlexTesting .
+
+# ============================================================================
+# AFFILIATIONS
+# ============================================================================
+
+ap:MIT a ap:Affiliation ;
+    ap:affiliationName "Massachusetts Institute of Technology" ;
+    ap:department "Computer Science and Artificial Intelligence Laboratory" ;
+    ap:country "United States" .
+
+ap:Stanford a ap:Affiliation ;
+    ap:affiliationName "Stanford University" ;
+    ap:department "Department of Computer Science" ;
+    ap:country "United States" .
+
+ap:Berkeley a ap:Affiliation ;
+    ap:affiliationName "University of California, Berkeley" ;
+    ap:department "Electrical Engineering and Computer Sciences" ;
+    ap:country "United States" .
+
+# ============================================================================
+# CONTRIBUTIONS (CRediT TAXONOMY)
+# ============================================================================
+
+ap:JaneConceptualization a ap:Contribution ;
+    ap:contributionRole "Conceptualization" .
+
+ap:JaneMethodology a ap:Contribution ;
+    ap:contributionRole "Methodology" .
+
+ap:JaneWriting a ap:Contribution ;
+    ap:contributionRole "Writing" .
+
+ap:JohnSoftware a ap:Contribution ;
+    ap:contributionRole "Software" .
+
+ap:JohnValidation a ap:Contribution ;
+    ap:contributionRole "Validation" .
+
+ap:AlexImplementation a ap:Contribution ;
+    ap:contributionRole "Investigation" .
+
+ap:AlexTesting a ap:Contribution ;
+    ap:contributionRole "Testing" .
+
+# ============================================================================
+# SECTIONS
+# ============================================================================
+
+ap:IntroSection a ap:Section ;
+    ap:sectionType "introduction" ;
+    ap:sectionTitle "Introduction" ;
+    ap:sectionOrder 1 ;
+    ap:sectionContent """
+The proliferation of programming languages and frameworks creates significant engineering
+challenges in maintaining consistency across polyglot systems. Traditional code generation
+approaches treat each language as an independent target, leading to divergence when domain
+models evolve. This paper introduces ggen, a semantic approach to code generation that
+maintains a single source of truth through RDF ontologies and SPARQL queries.
+""" .
+
+ap:RelatedWorkSection a ap:Section ;
+    ap:sectionType "related-work" ;
+    ap:sectionTitle "Related Work" ;
+    ap:sectionOrder 2 ;
+    ap:sectionContent """
+Prior work in code generation includes template-based approaches (Cookiecutter, Yeoman),
+model-driven engineering (MDE), and ontology-driven development. Our approach differs by
+treating code explicitly as a projection of semantic knowledge graphs, enabling deterministic
+polyglot generation with zero drift.
+""" .
+
+ap:MethodsSection a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "Methodology" ;
+    ap:sectionOrder 3 ;
+    ap:sectionContent """
+We present the ggen framework architecture, consisting of:
+1. RDF ontology definition layer
+2. SPARQL query execution engine
+3. Tera template system with graph integration
+4. Type mapping system (RDF → language-specific types)
+5. Deterministic output generation pipeline
+""" ;
+    ap:subsectionOf ap:MethodSubsection1, ap:MethodSubsection2 .
+
+ap:MethodSubsection1 a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "RDF Ontology Model" ;
+    ap:sectionOrder 3.1 ;
+    ap:sectionContent """
+The core of ggen is an RDF ontology representing the domain model. Each class and property
+is defined as an RDF triple, enabling SPARQL queries to extract structured information...
+""" .
+
+ap:MethodSubsection2 a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "Type Mapping System" ;
+    ap:sectionOrder 3.2 ;
+    ap:sectionContent """
+We implement bidirectional mapping between RDF types and language-specific types...
+""" .
+
+ap:ResultsSection a ap:Section ;
+    ap:sectionType "results" ;
+    ap:sectionTitle "Results" ;
+    ap:sectionOrder 4 ;
+    ap:sectionContent """
+We evaluated ggen on 58 marketplace packages spanning enterprise systems, APIs,
+AI agents, and infrastructure. Results show significant improvements in code generation
+speed and consistency across languages.
+""" .
+
+ap:DiscussionSection a ap:Section ;
+    ap:sectionType "discussion" ;
+    ap:sectionTitle "Discussion" ;
+    ap:sectionOrder 5 ;
+    ap:sectionContent """
+The results demonstrate that ontology-driven code generation provides significant
+advantages for polyglot systems. The deterministic output ensures reproducibility
+and makes it suitable for production systems.
+""" .
+
+ap:ConclusionSection a ap:Section ;
+    ap:sectionType "conclusion" ;
+    ap:sectionTitle "Conclusion and Future Work" ;
+    ap:sectionOrder 6 ;
+    ap:sectionContent """
+This paper presented ggen, a semantic approach to code generation using RDF ontologies
+and SPARQL queries. Future work includes support for additional languages, advanced
+constraint solving, and integration with academic reproducibility platforms.
+""" .
+
+# ============================================================================
+# FIGURES
+# ============================================================================
+
+ap:ArchitectureFigure a ap:Figure ;
+    ap:figureName "architecture-diagram" ;
+    ap:figureCaption "ggen Architecture: From RDF Ontology to Multi-Language Code Generation" ;
+    ap:figureFile "figures/architecture-diagram.png" ;
+    ap:figureWidth "0.85\\textwidth" ;
+    ap:figureOrder 1 .
+
+ap:TypeMappingFigure a ap:Figure ;
+    ap:figureName "type-mapping" ;
+    ap:figureCaption "Type Mapping System: RDF Types to Language-Specific Types" ;
+    ap:figureFile "figures/type-mapping-diagram.pdf" ;
+    ap:figureWidth "0.75\\textwidth" ;
+    ap:figureOrder 2 .
+
+# ============================================================================
+# TABLES
+# ============================================================================
+
+ap:BenchmarkTable a ap:Table ;
+    ap:tableName "benchmark-results" ;
+    ap:tableCaption "Performance Comparison: ggen vs. Traditional Code Generation" ;
+    ap:tableOrder 1 ;
+    ap:tableContent """
+| Metric | ggen | Cookiecutter | Manual |
+|--------|------|--------------|--------|
+| Generation Time (ms) | 450 | 1200 | N/A |
+| Code Consistency (%) | 100 | 87 | 76 |
+| Languages Supported | 5 | 3 | - |
+| Maintenance Effort | Low | High | Very High |
+""" .
+
+ap:ComparisonTable a ap:Table ;
+    ap:tableName "system-comparison" ;
+    ap:tableCaption "Feature Comparison: ggen vs. Related Systems" ;
+    ap:tableOrder 2 ;
+    ap:tableContent """
+| Feature | ggen | MDE Tools | Templates |
+|---------|------|-----------|-----------|
+| RDF/SPARQL Support | ✓ | ✗ | ✗ |
+| Polyglot Generation | ✓ | ○ | ✗ |
+| Deterministic Output | ✓ | ✗ | ○ |
+| Zero Drift Guarantee | ✓ | ✗ | ✗ |
+""" .
+
+# ============================================================================
+# BIBLIOGRAPHY
+# ============================================================================
+
+ap:Ref1 a ap:BibliographyEntry ;
+    ap:citeKey "lecun2015deep" ;
+    ap:bibType "article" ;
+    ap:authors "Yann LeCun, Yoshua Bengio, Geoffrey Hinton" ;
+    ap:title "Deep Learning" ;
+    ap:journal "Nature" ;
+    ap:year 2015 ;
+    ap:volume "521" ;
+    ap:pages "436-444" ;
+    ap:doi "10.1038/nature14539" ;
+    ap:url "https://www.nature.com/articles/nature14539" .
+
+ap:Ref2 a ap:BibliographyEntry ;
+    ap:citeKey "vaswani2017attention" ;
+    ap:bibType "inproceedings" ;
+    ap:authors "Ashish Vaswani, Noam Shazeer, Parmar, Urzua, et al." ;
+    ap:title "Attention Is All You Need" ;
+    ap:booktitle "Advances in Neural Information Processing Systems 30" ;
+    ap:year 2017 ;
+    ap:pages "5998-6008" .
+
+ap:Ref3 a ap:BibliographyEntry ;
+    ap:citeKey "goodfellow2016deep" ;
+    ap:bibType "book" ;
+    ap:authors "Ian Goodfellow, Yoshua Bengio, Aaron Courville" ;
+    ap:title "Deep Learning" ;
+    ap:publisher "MIT Press" ;
+    ap:year 2016 ;
+    ap:url "https://www.deeplearningbook.org" .
+
+ap:Ref4 a ap:BibliographyEntry ;
+    ap:citeKey "w3c2012rdf" ;
+    ap:bibType "misc" ;
+    ap:authors "World Wide Web Consortium" ;
+    ap:title "RDF 1.1 Concepts and Abstract Syntax" ;
+    ap:year 2012 ;
+    ap:url "https://www.w3.org/TR/rdf11-concepts/" .
+
+ap:Ref5 a ap:BibliographyEntry ;
+    ap:citeKey "w3c2012sparql" ;
+    ap:bibType "misc" ;
+    ap:authors "World Wide Web Consortium" ;
+    ap:title "SPARQL 1.1 Query Language" ;
+    ap:year 2012 ;
+    ap:url "https://www.w3.org/TR/sparql11-query/" .
+
+# ============================================================================
+# SUBMISSION TRACKING
+# ============================================================================
+
+ap:SubmissionArxiv a ap:Submission ;
+    ap:submissionVenue ap:ArxivVenue ;
+    ap:submissionDate "2024-12-01T09:00:00Z"^^xsd:dateTime ;
+    ap:submissionStatus "published" ;
+    ap:decisionDate "2024-12-02T10:30:00Z"^^xsd:dateTime ;
+    ap:hasPeerReview ap:ArxivReview1, ap:ArxivReview2 .
+
+ap:SubmissionConference a ap:Submission ;
+    ap:submissionVenue ap:NeuripsVenue ;
+    ap:submissionDate "2024-11-15T23:59:00Z"^^xsd:dateTime ;
+    ap:submissionStatus "under-review" ;
+    ap:hasPeerReview ap:ConferenceReview1, ap:ConferenceReview2, ap:ConferenceReview3 .
+
+# ============================================================================
+# VENUES
+# ============================================================================
+
+ap:ArxivVenue a ap:Venue ;
+    ap:venueName "arXiv Computer Science" ;
+    ap:venueType "preprint" ;
+    ap:venueRanking "Preprint" .
+
+ap:NeuripsVenue a ap:Venue ;
+    ap:venueName "Neural Information Processing Systems (NeurIPS)" ;
+    ap:venueType "conference" ;
+    ap:venueRanking "A*" ;
+    ap:venueAcceptanceRate 0.22 ;
+    ap:venueDeadline "2024-05-15T23:59:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# PEER REVIEWS (EXAMPLE)
+# ============================================================================
+
+ap:ArxivReview1 a ap:PeerReview ;
+    ap:reviewNumber 1 ;
+    ap:reviewDate "2024-12-02T10:30:00Z"^^xsd:dateTime ;
+    ap:reviewContent "Strong paper with solid theoretical foundation and practical results." ;
+    ap:reviewRecommendation "accept" .
+
+ap:ConferenceReview1 a ap:PeerReview ;
+    ap:reviewNumber 1 ;
+    ap:reviewDate "2024-12-10T15:45:00Z"^^xsd:dateTime ;
+    ap:reviewContent """
+Strengths:
+- Novel approach to polyglot code generation
+- Comprehensive evaluation on 58 packages
+- Clear presentation and writing
+
+Weaknesses:
+- Limited discussion of limitations
+- Could include more case studies
+
+Questions:
+1. How does performance scale with large ontologies?
+2. What about other languages like C++ or Kotlin?
+""" ;
+    ap:reviewRecommendation "minor-revisions" .
+
+# ============================================================================
+# END OF EXAMPLE PAPER
+# ============================================================================

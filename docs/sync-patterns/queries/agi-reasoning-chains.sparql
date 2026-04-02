@@ -1,0 +1,65 @@
+# =============================================================================
+# SPARQL Query: Find reasoning chains through pattern connections
+# =============================================================================
+# Identifies chains of patterns that build toward AGI capabilities,
+# showing how foundational patterns lead to advanced capabilities.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+PREFIX agi: <https://ggen.dev/agi#>
+
+SELECT DISTINCT
+    ?sourcePatternNumber
+    ?sourcePatternLabel
+    ?connectionType
+    ?targetPatternNumber
+    ?targetPatternLabel
+    ?sourceCapabilityLabel
+    ?targetCapabilityLabel
+    ?sourceReasoningMode
+    ?targetReasoningMode
+    ?chainDescription
+WHERE {
+    # Source pattern with connection
+    ?sourcePattern a pl:Pattern ;
+                   rdfs:label ?sourcePatternLabel ;
+                   pl:hasNumber ?sourcePatternNumber ;
+                   pl:hasConnection ?connection .
+
+    ?connection pl:connectsTo ?targetPattern ;
+                pl:connectionType ?connectionType .
+
+    # Target pattern
+    ?targetPattern rdfs:label ?targetPatternLabel ;
+                   pl:hasNumber ?targetPatternNumber .
+
+    # Connection reason as chain description
+    OPTIONAL { ?connection pl:connectionReason ?chainDescription }
+
+    # Source pattern capabilities
+    OPTIONAL {
+        ?sourcePattern agi:enablesCapability ?sourceCapability .
+        ?sourceCapability rdfs:label ?sourceCapabilityLabel .
+    }
+
+    # Target pattern capabilities
+    OPTIONAL {
+        ?targetPattern agi:enablesCapability ?targetCapability .
+        ?targetCapability rdfs:label ?targetCapabilityLabel .
+    }
+
+    # Source reasoning mode
+    OPTIONAL {
+        ?sourcePattern agi:implementsReasoning ?sourceReasoning .
+        ?sourceReasoning rdfs:label ?sourceReasoningMode .
+    }
+
+    # Target reasoning mode
+    OPTIONAL {
+        ?targetPattern agi:implementsReasoning ?targetReasoning .
+        ?targetReasoning rdfs:label ?targetReasoningMode .
+    }
+}
+ORDER BY ?sourcePatternNumber ?targetPatternNumber

@@ -1,0 +1,197 @@
+name: CI - Spec-Kit-3T Thesis Generator
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y poppler-utils texlive-latex-base texlive-latex-extra texlive-fonts-recommended biber
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-cov
+
+    - name: Run tests
+      run: |
+        python -m pytest tests/cli/ -v --cov=cli --cov-report=xml --cov-report=term
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  validate:
+    name: SHACL Validation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install -e .
+
+    - name: Validate RDF ontology
+      run: |
+        spec-kit-3t validate spec-kit-3t-content.ttl --schema thesis-schema.ttl
+
+  generate:
+    name: Generate Thesis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended biber poppler-utils
+
+    - name: Install Python dependencies
+      run: |
+        pip install -e .
+
+    - name: Generate LaTeX files
+      run: |
+        spec-kit-3t generate --force --verbose
+
+    - name: Compile PDF
+      run: |
+        spec-kit-3t pdf --verbose
+
+    - name: Extract and analyze text
+      run: |
+        spec-kit-3t extract generated/thesis-main.pdf --output extracted.txt --analyze
+
+    - name: Clean extracted text
+      run: |
+        spec-kit-3t clean extracted.txt --output cleaned.txt
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: thesis-artifacts
+        path: |
+          generated/thesis-main.pdf
+          extracted.txt
+          cleaned.txt
+          .build-manifest.json
+
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install -e .
+        pip install pytest pytest-benchmark
+
+    - name: Run benchmarks
+      run: |
+        python -m pytest tests/performance/ -v --benchmark-only || true
+
+    - name: Check SLOs
+      run: |
+        # Validate generation completes within SLO
+        time timeout 30s spec-kit-3t generate --force || echo "Generation exceeded 30s SLO"
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install linters
+      run: |
+        pip install ruff black mypy
+
+    - name: Run ruff
+      run: |
+        ruff check cli/ tests/ || true
+
+    - name: Run black
+      run: |
+        black --check cli/ tests/ || true
+
+    - name: Run mypy
+      run: |
+        mypy cli/ || true
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+
+    - name: Run bandit
+      run: |
+        bandit -r cli/ || true
+
+    - name: Run safety check
+      run: |
+        safety check || true

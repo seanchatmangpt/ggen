@@ -1,0 +1,30 @@
+{# μ₁ Template: Renders SPARQL CONSTRUCT queries from rules #}
+# CONSTRUCT Query: {{ query.name }}
+# Pass: μ₁:normalization
+# Rule order: {{ query.order | default(value=1) }}
+
+{% if query.prefixes %}
+{% for prefix in query.prefixes %}
+PREFIX {{ prefix.short }}: <{{ prefix.uri }}>
+{% endfor %}
+{% endif %}
+
+CONSTRUCT {
+{% for triple in query.construct %}
+  {{ triple.subject }} {{ triple.predicate }} {{ triple.object }} .
+{% endfor %}
+}
+WHERE {
+{% for pattern in query.where %}
+{% if pattern.optional %}
+  OPTIONAL {
+    {{ pattern.subject }} {{ pattern.predicate }} {{ pattern.object }} .
+  }
+{% else %}
+  {{ pattern.subject }} {{ pattern.predicate }} {{ pattern.object }} .
+{% endif %}
+{% endfor %}
+{% if query.filter %}
+  FILTER({{ query.filter }})
+{% endif %}
+}

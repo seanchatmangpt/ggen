@@ -1,0 +1,5 @@
+gcp_project_id           = "tai-autonomics-prod"
+gcp_region              = "us-central1"
+environment             = "prod"
+enable_deletion_protection = true
+log_retention_days      = 90

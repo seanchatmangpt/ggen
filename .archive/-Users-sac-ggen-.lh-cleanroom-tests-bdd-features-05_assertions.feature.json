@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/05_assertions.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841876,
+            "name": "Commit-0",
+            "content": "# features/05_assertions.feature\n@assert\nFeature: Fluent assertions on output, JSON, and timing\n  Background:\n    Given a fixture project \"cli_json\"\n\n  Scenario: JSON assertion with predicate\n    When I run [\"json\",\"--emit\",\"{\\\"ok\\\":true,\\\"n\\\":3}\"] using \"auto\"\n    Then stdout is valid json\n    And stdout.json at \"$.ok\" is true\n    And stdout.json at \"$.n\" equals 3\n    And duration <= 1000 ms\n\n  Scenario: Regex assertions\n    When I run [\"--help\"] using \"local\"\n    Then stdout matches /USAGE(?s).*OPTIONS/\n"
+        }
+    ]
+}

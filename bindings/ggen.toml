@@ -1,0 +1,49 @@
+# ggen Bindings Generation Configuration
+# Uses ggen to generate its own multi-language bindings (dogfooding!)
+
+[project]
+name = "ggen-bindings"
+version = "5.0.1"
+description = "Multi-language bindings for ggen (Node.js, Python, Erlang)"
+
+[ontology]
+source = "../schema/ggen-ffi-api.ttl"
+base_iri = "https://ggen.dev/api#"
+
+[ontology.prefixes]
+ffi = "https://ggen.dev/ontology/node-ffi#"
+node = "https://ggen.dev/ontology/node#"
+py = "https://ggen.dev/ontology/python#"
+erl = "https://ggen.dev/ontology/erlang#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "generated"
+
+# =============================================================================
+# Node.js Bindings Generation
+# =============================================================================
+[[generation.rules]]
+name = "node-bindings"
+query = { inline = """
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX node: <https://ggen.dev/ontology/node#>
+
+SELECT ?funcName ?description ?returnType ?async ?throws
+WHERE {
+  ?func a ffi:Function ;
+        ffi:functionName ?funcName ;
+        ffi:description ?description ;
+        ffi:returnType ?returnType ;
+        ffi:async ?async ;
+        ffi:throws ?throws .
+}
+ORDER BY ?funcName
+""" }
+template = { file = "../templates/node-bindings/templates/index.mjs.tera" }
+output_file = "node/index-auto.mjs"
+mode = "Overwrite"

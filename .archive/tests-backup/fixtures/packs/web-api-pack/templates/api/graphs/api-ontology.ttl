@@ -1,0 +1,19 @@
+@prefix api: <https://example.org/api/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+
+api:RestAPI a rdfs:Class ;
+    rdfs:label "REST API" ;
+    rdfs:comment "A RESTful web API" .
+
+api:Endpoint a rdfs:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "A single API endpoint" .
+
+api:hasEndpoint a rdf:Property ;
+    rdfs:domain api:RestAPI ;
+    rdfs:range api:Endpoint .
+
+api:httpMethod a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range http:Method .

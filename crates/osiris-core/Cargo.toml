@@ -1,0 +1,46 @@
+[package]
+name = "osiris-core"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+edition = "2021"
+description = "OSIRIS Core - Toyota Production System Autonomic Life Management System"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+keywords = ["autonomic", "toyota", "production-system", "life-management"]
+categories = ["development-tools", "command-line-utilities"]
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+anyhow = { version = "1.0" }
+async-trait = { version = "0.1" }
+tracing = { version = "0.1" }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+futures = { version = "0.3" }
+thiserror = { version = "1.0" }
+rand = { version = "0.8" }
+crossbeam = { version = "0.8" }
+crossbeam-epoch = { version = "0.9" }
+crossbeam-utils = { version = "0.8" }
+lru = { version = "0.12" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.13"
+proptest = "1.8"
+criterion = "0.5"
+bincode = "1.3"
+
+[[bench]]
+name = "replication"
+harness = false
+
+[features]
+default = []
+nightly = []
+test-utils = []
+
+[lib]
+path = "src/lib.rs"

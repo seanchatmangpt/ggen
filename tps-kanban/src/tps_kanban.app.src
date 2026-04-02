@@ -1,0 +1,28 @@
+{application, tps_kanban,
+ [
+  {description, "Pull-based Kanban work queue system with NATS + RabbitMQ"},
+  {vsn, "1.0.0"},
+  {registered, [tps_kanban_sup]},
+  {applications,
+   [kernel,
+    stdlib,
+    sasl,
+    lager,
+    gnat,
+    amqp_client,
+    prometheus
+   ]},
+  {mod, {tps_kanban_app, []}},
+  {env, [
+      {nats_servers, ["nats://localhost:4222"]},
+      {rabbitmq_host, "localhost"},
+      {rabbitmq_port, 5672},
+      {rabbitmq_user, "guest"},
+      {rabbitmq_pass, "guest"},
+      {worker_pull_size, 10},
+      {worker_process_timeout_ms, 30000},
+      {dead_letter_timeout_ms, 300000},
+      {coordinator_check_interval_ms, 5000},
+      {stalled_item_threshold_ms, 300000}
+  ]}
+ ]}.

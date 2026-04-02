@@ -1,0 +1,132 @@
+@startuml c4-component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title **ggen Marketplace-V2: C4 Component Diagram**\n<size:12>//Module Dependencies & Detailed Architecture//</size>
+
+Container_Boundary(marketplace, "Marketplace-V2 Crate") {
+    ' Data Model Layer
+    Component(package_model, "PackageModel", "models.rs", "Package structure\nPackageVersion\nPackageId")
+    Component(manifest, "Manifest", "models.rs", "Package manifest\nmetadata\ndependencies")
+    Component(ontology_comp, "Ontology", "ontology.rs", "Semantic concepts\nRDF class definitions")
+    
+    ' Core Registry Systems
+    Component(registry_trait, "Registry Trait", "registry.rs", "Trait definition for\npackage storage")
+    Component(rdf_registry, "RdfRegistry", "registry_rdf.rs", "RDF-backed impl\nSPARQL queries")
+    Component(v3_registry, "V3OptimizedRegistry", "v3.rs", "Performance-optimized\ncaching layer")
+    
+    ' Search & Discovery
+    Component(search_trait, "Search Trait", "search.rs", "Trait for search\ninterfaces")
+    Component(sparql_search, "SparqlSearchEngine", "search_sparql.rs", "SPARQL-based\nfull-text search\nsemantic queries")
+    Component(fst_index, "FST Index", "search.rs", "Finite state transducers\nfor fast prefix matching")
+    
+    ' Installation & Downloads
+    Component(install_comp, "Installer", "install.rs", "Download & extract\nvalidate checksums\nmanage dependencies")
+    Component(dep_resolver, "DepResolver", "install.rs", "Dependency resolution\nconflict detection")
+    
+    ' Security & Verification
+    Component(security_comp, "SignatureVerifier", "security.rs", "Ed25519 signature\nverification")
+    Component(crypto_ops, "CryptoOps", "security.rs", "SHA-256 hashing\nkey management")
+    
+    ' Validation
+    Component(validator, "Validator", "validation.rs", "Manifest schema\nvalidation\nconstraint checking")
+    
+    ' RDF & Semantic Systems
+    Component(rdf_store, "RdfStore", "rdf/mod.rs", "oxigraph triplestore\nPersistent RDF storage")
+    Component(turtle_parser, "TurtleParser", "rdf/turtle_config.rs", "Turtle format parsing\nRDF serialization")
+    Component(state_machine, "RDFStateMachine", "rdf/state_machine.rs", "RDF state transitions\nversion history")
+    Component(rdf_mapper, "RDFMapper", "rdf_mapper.rs", "Package→RDF mapping\nconvert models to triples")
+    
+    ' Traits & Abstractions
+    Component(async_repo_trait, "AsyncRepository", "traits.rs", "Async storage interface")
+    Component(installable_trait, "Installable", "traits.rs", "Installation interface")
+    Component(observable_trait, "Observable", "traits.rs", "Metrics interface")
+    Component(queryable_trait, "Queryable", "traits.rs", "Search interface")
+    Component(signable_trait, "Signable", "traits.rs", "Signing interface")
+    Component(validatable_trait, "Validatable", "traits.rs", "Validation interface")
+    
+    ' Builders
+    Component(package_builder, "PackageBuilder", "builders.rs", "Type-safe package\nconstruction")
+    Component(version_builder, "VersionBuilder", "builders.rs", "Type-safe version\nconstruction")
+    
+    ' Observability
+    Component(metrics, "MetricsCollector", "metrics.rs", "Telemetry collection\ndownload stats\nperformance metrics")
+    
+    ' Migration
+    Component(v1_migrator, "V1Migrator", "migration.rs", "Convert v1→v2\npreserve metadata")
+    
+    ' Error Handling
+    Component(error_types, "ErrorTypes", "error.rs", "Result<T, Error>\ncustom error variants")
+}
+
+' Layer Organization
+note as layer_model
+  <b><u>Model Layer (Immutable)</u></b>
+  - Package models
+  - Manifest definitions
+  - Ontology semantics
+end note
+
+note as layer_storage
+  <b><u>Storage Layer</u></b>
+  - Registry trait & impls
+  - RDF triplestore
+  - Caching & optimization
+end note
+
+note as layer_query
+  <b><u>Query Layer</u></b>
+  - Search engines
+  - SPARQL queries
+  - Full-text indexing
+end note
+
+note as layer_operations
+  <b><u>Operation Layer</u></b>
+  - Installation
+  - Validation
+  - Security verification
+  - Metrics collection
+end note
+
+' Data Flow Relationships
+Rel_Right(package_model, manifest, "contains")
+Rel_Right(manifest, ontology_comp, "uses concepts")
+
+Rel(package_model, package_builder, "built by")
+Rel(manifest, version_builder, "built by")
+
+Rel(registry_trait, rdf_registry, "implemented by")
+Rel(registry_trait, v3_registry, "implemented by")
+
+Rel(rdf_registry, rdf_store, "persists to")
+Rel(rdf_registry, rdf_mapper, "uses for mapping")
+Rel(v3_registry, rdf_registry, "caches")
+
+Rel(search_trait, sparql_search, "implemented by")
+Rel(sparql_search, rdf_store, "queries via SPARQL")
+Rel(sparql_search, fst_index, "uses for indexing")
+
+Rel(install_comp, dep_resolver, "uses")
+Rel(install_comp, validator, "validates packages")
+Rel(install_comp, security_comp, "verifies signatures")
+
+Rel(security_comp, crypto_ops, "uses")
+
+Rel(validator, validatable_trait, "implements")
+Rel(install_comp, installable_trait, "implements")
+Rel(metrics, observable_trait, "implements")
+Rel(sparql_search, queryable_trait, "implements")
+Rel(security_comp, signable_trait, "implements")
+Rel(rdf_registry, async_repo_trait, "implements")
+
+Rel(rdf_mapper, package_model, "converts from")
+Rel(rdf_mapper, turtle_parser, "uses")
+
+Rel(state_machine, rdf_store, "manages")
+Rel(turtle_parser, rdf_store, "parses into")
+
+Rel(v1_migrator, package_model, "creates")
+Rel(v1_migrator, rdf_mapper, "uses")
+
+SHOW_LEGEND()
+@enduml

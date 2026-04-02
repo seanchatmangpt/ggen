@@ -1,0 +1,29 @@
+[package]
+name = "knhk-connectors"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+path = "src/lib.rs"
+
+[dependencies]
+# For no_std compatibility, we'll use core types
+# alloc is available via extern crate alloc when needed
+hashbrown = { version = "0.15", default-features = false }
+# Kafka connector dependencies
+rdkafka = { version = "0.36", optional = true, default-features = false }
+# Salesforce connector dependencies  
+reqwest = { version = "0.11", optional = true, default-features = false }
+serde = { version = "1.0", optional = true, default-features = false }
+serde_json = { version = "1.0", optional = true, default-features = false }
+
+[dev-dependencies]
+
+[features]
+default = []
+std = ["hashbrown/std"]
+kafka = ["std", "rdkafka"]
+salesforce = ["std", "reqwest", "serde", "serde_json"]
+
+

@@ -1,0 +1,65 @@
+# =============================================================================
+# SPARQL Query: Map patterns to AGI capabilities they enable
+# =============================================================================
+# Creates a complete mapping between synchronization patterns and AGI
+# capabilities, showing reasoning modes, learning strategies, and knowledge types.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+PREFIX agi: <https://ggen.dev/agi#>
+
+SELECT
+    ?patternNumber
+    ?patternLabel
+    ?patternSlug
+    ?patternConfidence
+    ?categoryLabel
+    ?capabilityLabel
+    ?capabilityId
+    ?cognitiveLevel
+    ?reasoningModeLabel
+    ?learningStrategyLabel
+    (GROUP_CONCAT(DISTINCT ?knowledgeTypeLabel; SEPARATOR="|") AS ?knowledgeTypes)
+WHERE {
+    # Match pattern
+    ?pattern a pl:Pattern ;
+             rdfs:label ?patternLabel ;
+             pl:hasNumber ?patternNumber ;
+             pl:hasSlug ?patternSlug ;
+             pl:hasConfidence ?patternConfidence ;
+             pl:hasCategory ?category .
+
+    ?category rdfs:label ?categoryLabel .
+
+    # Pattern enables AGI capability
+    OPTIONAL {
+        ?pattern agi:enablesCapability ?capability .
+        ?capability rdfs:label ?capabilityLabel ;
+                    agi:capabilityId ?capabilityId ;
+                    agi:cognitiveLevel ?cognitiveLevel .
+    }
+
+    # Reasoning mode
+    OPTIONAL {
+        ?pattern agi:implementsReasoning ?reasoningMode .
+        ?reasoningMode rdfs:label ?reasoningModeLabel .
+    }
+
+    # Learning strategy
+    OPTIONAL {
+        ?pattern agi:supportsLearning ?learningStrategy .
+        ?learningStrategy rdfs:label ?learningStrategyLabel .
+    }
+
+    # Knowledge types
+    OPTIONAL {
+        ?pattern agi:representsKnowledge ?knowledgeType .
+        ?knowledgeType rdfs:label ?knowledgeTypeLabel .
+    }
+}
+GROUP BY ?patternNumber ?patternLabel ?patternSlug ?patternConfidence
+         ?categoryLabel ?capabilityLabel ?capabilityId ?cognitiveLevel
+         ?reasoningModeLabel ?learningStrategyLabel
+ORDER BY ?patternNumber

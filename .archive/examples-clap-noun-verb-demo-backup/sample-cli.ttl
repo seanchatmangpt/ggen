@@ -1,0 +1,276 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cli: <http://ggen.dev/schema/cli#> .
+@prefix cnv: <http://ggen.dev/schema/clap-noun-verb#> .
+@prefix ex: <http://ggen.dev/projects/example-cli#> .
+
+# ============================================================================
+# PROJECT DEFINITION
+# ============================================================================
+
+ex:MyCliProject a cli:CliProject ;
+    cli:hasName "my-cli" ;
+    cli:hasVersion "0.1.0" ;
+    cli:hasDescription "A CLI tool for managing templates and projects" ;
+    cli:hasAuthors "Your Name <you@example.com>" ;
+    cli:hasEdition "2021" ;
+    cli:hasLicense "MIT" ;
+    cli:hasNoun ex:TemplateNoun, ex:ProjectNoun ;
+    cli:hasDependency ex:ClapDep, ex:AnyhowDep, ex:SerdeJsonDep .
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+ex:ClapDep a cnv:Dependency ;
+    cnv:depName "clap" ;
+    cnv:depVersion "4.0" ;
+    cnv:depFeatures "derive" .
+
+ex:AnyhowDep a cnv:Dependency ;
+    cnv:depName "anyhow" ;
+    cnv:depVersion "1.0" .
+
+ex:SerdeJsonDep a cnv:Dependency ;
+    cnv:depName "serde_json" ;
+    cnv:depVersion "1.0" .
+
+# ============================================================================
+# TEMPLATE NOUN
+# ============================================================================
+
+ex:TemplateNoun a cnv:Noun ;
+    cnv:nounName "template" ;
+    cnv:nounDescription "Manage project templates" ;
+    cnv:nounModulePath "cmds::template" ;
+    cnv:hasVerb ex:TemplateGenerate, ex:TemplateLint, ex:TemplateShow .
+
+# ----------------------------------------------------------------------------
+# template generate
+# ----------------------------------------------------------------------------
+
+ex:TemplateGenerate a cnv:Verb ;
+    cnv:verbName "generate" ;
+    cnv:verbAlias "gen" ;
+    cnv:verbDescription "Generate a new project from template" ;
+    cnv:hasArgument ex:TemplateNameArg, ex:OutputPathArg, ex:ForceFlag ;
+    cnv:executionLogic """
+        let template_name = args.template_name;
+        let output_path = args.output_path;
+        let force = args.force;
+
+        println!(\"Generating template '{}' to {:?}\", template_name, output_path);
+
+        // Template generation logic here
+        if output_path.exists() && !force {
+            anyhow::bail!(\"Output path already exists. Use --force to overwrite.\");
+        }
+
+        // Create project structure
+        std::fs::create_dir_all(&output_path)?;
+        println!(\"✓ Template generated successfully\");
+
+        Ok(())
+    """ .
+
+ex:TemplateNameArg a cnv:Argument ;
+    cnv:argName "template_name" ;
+    cnv:argPosition 0 ;
+    cnv:argHelp "Name of the template to use" ;
+    cnv:argValueName "TEMPLATE" ;
+    cnv:argRequired true ;
+    cnv:hasType ex:StringType .
+
+ex:OutputPathArg a cnv:Argument ;
+    cnv:argName "output_path" ;
+    cnv:argLong "output" ;
+    cnv:argShort "o" ;
+    cnv:argHelp "Output directory path" ;
+    cnv:argValueName "PATH" ;
+    cnv:argDefault "." ;
+    cnv:hasType ex:PathBufType .
+
+ex:ForceFlag a cnv:Argument ;
+    cnv:argName "force" ;
+    cnv:argLong "force" ;
+    cnv:argShort "f" ;
+    cnv:argHelp "Overwrite existing files" ;
+    cnv:argDefault "false" ;
+    cnv:hasType ex:BoolType .
+
+# ----------------------------------------------------------------------------
+# template lint
+# ----------------------------------------------------------------------------
+
+ex:TemplateLint a cnv:Verb ;
+    cnv:verbName "lint" ;
+    cnv:verbDescription "Validate template files" ;
+    cnv:hasArgument ex:TemplateLintPathArg, ex:StrictFlag ;
+    cnv:executionLogic """
+        let template_path = args.template_path;
+        let strict = args.strict;
+
+        println!(\"Linting template at {:?}\", template_path);
+
+        // Validation logic
+        if !template_path.exists() {
+            anyhow::bail!(\"Template path does not exist: {:?}\", template_path);
+        }
+
+        // Check template structure
+        println!(\"✓ Template is valid\");
+
+        Ok(())
+    """ .
+
+ex:TemplateLintPathArg a cnv:Argument ;
+    cnv:argName "template_path" ;
+    cnv:argPosition 0 ;
+    cnv:argHelp "Path to template directory" ;
+    cnv:argValueName "PATH" ;
+    cnv:argRequired true ;
+    cnv:hasType ex:PathBufType ;
+    cnv:hasValidation ex:PathExistsValidation .
+
+ex:StrictFlag a cnv:Argument ;
+    cnv:argName "strict" ;
+    cnv:argLong "strict" ;
+    cnv:argHelp "Enable strict validation mode" ;
+    cnv:argDefault "false" ;
+    cnv:hasType ex:BoolType .
+
+ex:PathExistsValidation a cnv:Validation ;
+    cnv:validationRule "file_exists" ;
+    cnv:validationMessage "Path does not exist" .
+
+# ----------------------------------------------------------------------------
+# template show
+# ----------------------------------------------------------------------------
+
+ex:TemplateShow a cnv:Verb ;
+    cnv:verbName "show" ;
+    cnv:verbDescription "Display template information" ;
+    cnv:hasArgument ex:TemplateShowNameArg, ex:JsonFlag ;
+    cnv:executionLogic """
+        let template_name = args.template_name;
+        let json = args.json;
+
+        // Fetch template info
+        let info = get_template_info(&template_name)?;
+
+        if json {
+            println!(\"{}\", serde_json::to_string_pretty(&info)?);
+        } else {
+            println!(\"Template: {}\", template_name);
+            println!(\"Description: {}\", info.description);
+        }
+
+        Ok(())
+    """ .
+
+ex:TemplateShowNameArg a cnv:Argument ;
+    cnv:argName "template_name" ;
+    cnv:argPosition 0 ;
+    cnv:argHelp "Template name to show" ;
+    cnv:argValueName "TEMPLATE" ;
+    cnv:argRequired true ;
+    cnv:hasType ex:StringType .
+
+ex:JsonFlag a cnv:Argument ;
+    cnv:argName "json" ;
+    cnv:argLong "json" ;
+    cnv:argHelp "Output in JSON format" ;
+    cnv:argDefault "false" ;
+    cnv:hasType ex:BoolType .
+
+# ============================================================================
+# PROJECT NOUN
+# ============================================================================
+
+ex:ProjectNoun a cnv:Noun ;
+    cnv:nounName "project" ;
+    cnv:nounDescription "Manage projects" ;
+    cnv:nounModulePath "cmds::project" ;
+    cnv:hasVerb ex:ProjectInit, ex:ProjectBuild .
+
+# ----------------------------------------------------------------------------
+# project init
+# ----------------------------------------------------------------------------
+
+ex:ProjectInit a cnv:Verb ;
+    cnv:verbName "init" ;
+    cnv:verbDescription "Initialize a new project" ;
+    cnv:hasArgument ex:ProjectNameArg, ex:ProjectPathArg ;
+    cnv:executionLogic """
+        let name = args.name;
+        let path = args.path;
+
+        println!(\"Initializing project '{}' at {:?}\", name, path);
+
+        std::fs::create_dir_all(&path)?;
+        println!(\"✓ Project initialized\");
+
+        Ok(())
+    """ .
+
+ex:ProjectNameArg a cnv:Argument ;
+    cnv:argName "name" ;
+    cnv:argPosition 0 ;
+    cnv:argHelp "Project name" ;
+    cnv:argValueName "NAME" ;
+    cnv:argRequired true ;
+    cnv:hasType ex:StringType .
+
+ex:ProjectPathArg a cnv:Argument ;
+    cnv:argName "path" ;
+    cnv:argLong "path" ;
+    cnv:argShort "p" ;
+    cnv:argHelp "Project directory" ;
+    cnv:argValueName "PATH" ;
+    cnv:argDefault "." ;
+    cnv:hasType ex:PathBufType .
+
+# ----------------------------------------------------------------------------
+# project build
+# ----------------------------------------------------------------------------
+
+ex:ProjectBuild a cnv:Verb ;
+    cnv:verbName "build" ;
+    cnv:verbDescription "Build the project" ;
+    cnv:hasArgument ex:ReleaseFlag ;
+    cnv:executionLogic """
+        let release = args.release;
+
+        let mode = if release { \"release\" } else { \"debug\" };
+        println!(\"Building project in {} mode\", mode);
+
+        // Build logic here
+        println!(\"✓ Build complete\");
+
+        Ok(())
+    """ .
+
+ex:ReleaseFlag a cnv:Argument ;
+    cnv:argName "release" ;
+    cnv:argLong "release" ;
+    cnv:argShort "r" ;
+    cnv:argHelp "Build in release mode" ;
+    cnv:argDefault "false" ;
+    cnv:hasType ex:BoolType .
+
+# ============================================================================
+# ARGUMENT TYPES
+# ============================================================================
+
+ex:StringType a cnv:ArgumentType ;
+    cnv:typeName "String" .
+
+ex:PathBufType a cnv:ArgumentType ;
+    cnv:typeName "PathBuf" .
+
+ex:BoolType a cnv:ArgumentType ;
+    cnv:typeName "bool" .
+
+ex:U32Type a cnv:ArgumentType ;
+    cnv:typeName "u32" .

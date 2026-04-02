@@ -1,0 +1,12 @@
+# Simple ggen.toml - Basic project configuration
+# Tests minimal required fields
+
+[project]
+name = "simple-project"
+version = "0.1.0"
+description = "A simple test project"
+author = "Test Author"
+
+[templates]
+source_dir = "templates"
+output_dir = "generated"

@@ -1,0 +1,1651 @@
+\begin{algorithm}[htbp]
+\caption{Algorithm for loading and indexing RDF ontologies}
+\label{alg:loading}
+\begin{algorithmic}[1]
+\Require Turtle file path $p$
+\Ensure RDF graph $G$
+\State Parse Turtle syntax from file $p$
+
+
+\State Return indexed graph $G = (T, I_s, I_p, I_o)$
+
+
+\State Build object index $I_o$
+
+
+\State Build predicate index $I_p$
+
+
+\State Build subject index $I_s$ for $O(\\log n)$ lookup
+
+
+\State Construct triple set $T$ from parsed content
+
+
+\State Parse Turtle syntax from file $p$
+
+
+\State Return indexed graph $G = (T, I_s, I_p, I_o)$
+
+
+\State Build object index $I_o$
+
+
+\State Build predicate index $I_p$
+
+
+\State Build subject index $I_s$ for $O(\\log n)$ lookup
+
+
+\State Construct triple set $T$ from parsed content
+
+
+\State Parse Turtle syntax from file $p$
+
+
+\State Build object index $I_o$
+
+
+\State Build predicate index $I_p$
+
+
+\State Build subject index $I_s$ for $O(\\log n)$ lookup
+
+
+\State Construct triple set $T$ from parsed content
+
+
+\State Return indexed graph $G = (T, I_s, I_p, I_o)$
+
+
+\State Build object index $I_o$
+
+
+\State Build predicate index $I_p$
+
+
+\State Build subject index $I_s$ for $O(\\log n)$ lookup
+
+
+\State Construct triple set $T$ from parsed content
+
+
+\State Return indexed graph $G = (T, I_s, I_p, I_o)$
+
+
+\State Parse Turtle syntax from file $p$
+
+
+\State Build object index $I_o$
+
+
+\State Build predicate index $I_p$
+
+
+\State Build subject index $I_s$ for $O(\\log n)$ lookup
+
+
+\State Return indexed graph $G = (T, I_s, I_p, I_o)$
+
+
+\State Construct triple set $T$ from parsed content
+
+
+\State Parse Turtle syntax from file $p$
+
+
+\State Build object index $I_o$
+
+
+\State Build predicate index $I_p$
+
+
+\State Build subject index $I_s$ for $O(\\log n)$ lookup
+
+
+\State Return indexed graph $G = (T, I_s, I_p, I_o)$
+
+
+\State Construct triple set $T$ from parsed content
+
+
+\State Parse Turtle syntax from file $p$
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Main ggen sync algorithm}
+\label{alg:pipeline}
+\begin{algorithmic}[1]
+\Require Ontology $O$, Rules $R$, Templates $T$
+\Ensure Generated files $F$
+\State Return generated file set $F$
+
+
+\State   Write output $\\text{write}(r.\\text{output}, C_r)$
+
+
+\State   Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$
+
+
+\State   Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$
+
+
+\State For each rule $r \\in R$ in parallel:
+
+
+\State Load ontology $G \\leftarrow \\text{load}(O)$
+
+
+\State Return generated file set $F$
+
+
+\State Load ontology $G \\leftarrow \\text{load}(O)$
+
+
+\State   Write output $\\text{write}(r.\\text{output}, C_r)$
+
+
+\State   Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$
+
+
+\State   Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$
+
+
+\State For each rule $r \\in R$ in parallel:
+
+
+\State Return generated file set $F$
+
+
+\State   Write output $\\text{write}(r.\\text{output}, C_r)$
+
+
+\State   Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$
+
+
+\State   Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$
+
+
+\State For each rule $r \\in R$ in parallel:
+
+
+\State Load ontology $G \\leftarrow \\text{load}(O)$
+
+
+\State Return generated file set $F$
+
+
+\State   Write output $\\text{write}(r.\\text{output}, C_r)$
+
+
+\State   Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$
+
+
+\State   Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$
+
+
+\State For each rule $r \\in R$ in parallel:
+
+
+\State Load ontology $G \\leftarrow \\text{load}(O)$
+
+
+\State Return generated file set $F$
+
+
+\State   Write output $\\text{write}(r.\\text{output}, C_r)$
+
+
+\State   Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$
+
+
+\State   Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$
+
+
+\State For each rule $r \\in R$ in parallel:
+
+
+\State Load ontology $G \\leftarrow \\text{load}(O)$
+
+
+\State Return generated file set $F$
+
+
+\State   Write output $\\text{write}(r.\\text{output}, C_r)$
+
+
+\State   Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$
+
+
+\State   Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$
+
+
+\State For each rule $r \\in R$ in parallel:
+
+
+\State Load ontology $G \\leftarrow \\text{load}(O)$
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Execute CONSTRUCT query and insert results into working graph}
+\label{alg:construct-materialize}
+\begin{algorithmic}[1]
+\Require CONSTRUCT query $Q$, RDF graph $G$
+\Ensure Enriched graph $G'$ with materialized triples
+\State   For each triple pattern $t \\in T$:
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Serialize $R$ to N-Triples format
+
+
+\State Initialize result triple set $R \\leftarrow \\emptyset$
+
+
+\State Return enriched graph $G'$ and count $|R|$
+
+
+\State Parse query $Q$ into template $T$ and WHERE clause $W$
+
+
+\State     Instantiate $t' \\leftarrow \\sigma_i(t)$ by substituting variables
+
+
+\State     Add $t'$ to result set $R \\leftarrow R \\cup \\{t'\\}$
+
+
+\State Load N-Triples into graph: $G' \\leftarrow G \\cup R$
+
+
+\State   For each triple pattern $t \\in T$:
+
+
+\State For each binding $\\sigma_i \\in \\Sigma$:
+
+
+\State Evaluate $W$ against $G$ to get bindings $\\Sigma = \\{\\sigma_1, \\ldots, \\sigma_n\\}$
+
+
+\State Serialize $R$ to N-Triples format
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{ASTRO state machine transition algorithm}
+\label{alg:sm-exec}
+\begin{algorithmic}[1]
+\Require Event $e$, Current state $s$
+\Ensure New state $s'$, Actions $A$
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+
+\State Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$
+
+
+\State Return $(t.\\text{target}, A)$
+
+
+\State Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$
+
+
+\State Execute exit actions $\\text{exec}(s.\\text{exit})$
+
+
+\State If $ eg g$: return $(s, \\emptyset)$ (guard failed)
+
+
+\State Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$
+
+
+\State If $t = \\bot$: return $(s, \\emptyset)$ (rejected)
+
+
+\State Lookup transition $t \\leftarrow \\delta[s][e]$
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Generate type-safe TanStack Router configuration}
+\label{alg:generate-routes}
+\begin{algorithmic}[1]
+\Require Route ontology $R$, Template $T$
+\Ensure TypeScript route files $F$
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State Generate route tree configuration
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State   Render template with createFileRoute call
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+
+\State For each route $r \\in Q$:
+
+
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State Generate route tree configuration
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State   Render template with createFileRoute call
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+
+\State For each route $r \\in Q$:
+
+
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State Generate route tree configuration
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State   Render template with createFileRoute call
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+
+\State For each route $r \\in Q$:
+
+
+\State For each route $r \\in Q$:
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Render template with createFileRoute call
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State Generate route tree configuration
+
+
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State For each route $r \\in Q$:
+
+
+\State Generate route tree configuration
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+
+\State   Render template with createFileRoute call
+
+
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State For each route $r \\in Q$:
+
+
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State Generate route tree configuration
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State   Render template with createFileRoute call
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+
+\State For each route $r \\in Q$:
+
+
+\State Query routes $Q \\leftarrow \\text{SPARQL}(R, \\text{SELECT route properties})$
+
+
+\State Generate route tree configuration
+
+
+\State   Write output file to $\\text{routes}/p.tsx$
+
+
+\State   Render template with createFileRoute call
+
+
+\State   Generate TypeScript types for params and search
+
+
+\State   Extract path $p$, params $P$, loader $L$
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Generate type-safe data fetching hooks}
+\label{alg:generate-queries}
+\begin{algorithmic}[1]
+\Require API ontology $A$, Cache policies $C$
+\Ensure Query hooks $H$
+\State   Create queryFn with typed fetch call
+
+
+\State   Generate query key from path and params
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State Export hook with JSDoc comments
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State   Apply cache policy from $C$
+
+
+\State   Generate query key from path and params
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State Export hook with JSDoc comments
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State   Apply cache policy from $C$
+
+
+\State   Create queryFn with typed fetch call
+
+
+\State Export hook with JSDoc comments
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State   Generate query key from path and params
+
+
+\State   Apply cache policy from $C$
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State   Create queryFn with typed fetch call
+
+
+\State   Generate query key from path and params
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State   Apply cache policy from $C$
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State Export hook with JSDoc comments
+
+
+\State   Create queryFn with typed fetch call
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State   Apply cache policy from $C$
+
+
+\State Export hook with JSDoc comments
+
+
+\State   Create queryFn with typed fetch call
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State   Generate query key from path and params
+
+
+\State Export hook with JSDoc comments
+
+
+\State   Apply cache policy from $C$
+
+
+\State   Create queryFn with typed fetch call
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State   Generate query key from path and params
+
+
+\State   Apply cache policy from $C$
+
+
+\State Query endpoints $E \\leftarrow \\text{SPARQL}(A, \\text{SELECT endpoints})$
+
+
+\State   Generate query key from path and params
+
+
+\State   Wrap in useQuery hook with types
+
+
+\State Export hook with JSDoc comments
+
+
+\State For each endpoint $e \\in E$:
+
+
+\State   Create queryFn with typed fetch call
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Generate reactive database with sync capabilities}
+\label{alg:electric-sync}
+\begin{algorithmic}[1]
+\Require Database ontology $D$, Sync rules $S$
+\Ensure PostgreSQL schema + Electric config
+\State For each table $t$ with sync enabled:
+
+
+\State Write migration files and sync config
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate replication filters from $S$
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State Generate base PostgreSQL schema from $D$
+
+
+\State Write migration files and sync config
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate replication filters from $S$
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State For each table $t$ with sync enabled:
+
+
+\State Generate base PostgreSQL schema from $D$
+
+
+\State Write migration files and sync config
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate replication filters from $S$
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State For each table $t$ with sync enabled:
+
+
+\State Generate base PostgreSQL schema from $D$
+
+
+\State Write migration files and sync config
+
+
+\State   Generate replication filters from $S$
+
+
+\State For each table $t$ with sync enabled:
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State Generate base PostgreSQL schema from $D$
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate replication filters from $S$
+
+
+\State For each table $t$ with sync enabled:
+
+
+\State Write migration files and sync config
+
+
+\State Generate base PostgreSQL schema from $D$
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State Write migration files and sync config
+
+
+\State Generate base PostgreSQL schema from $D$
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate replication filters from $S$
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State For each table $t$ with sync enabled:
+
+
+\State Write migration files and sync config
+
+
+\State   Generate reactive hooks with useElectric
+
+
+\State   Create TypeScript client types
+
+
+\State   Generate replication filters from $S$
+
+
+\State   Add ENABLE ELECTRIC annotation
+
+
+\State For each table $t$ with sync enabled:
+
+
+\State Generate base PostgreSQL schema from $D$
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Register knowledge hook with semantic trigger and dependencies}
+\label{alg:define-hook}
+\begin{algorithmic}[1]
+\Require Hook definition $H$, Manager $M$
+\Ensure Registered hook with semantic trigger
+\State Return hook handle for programmatic invocation
+
+
+\State Update dependency DAG with new hook and edges
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Return hook handle for programmatic invocation
+
+
+\State Update dependency DAG with new hook and edges
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Update dependency DAG with new hook and edges
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Return hook handle for programmatic invocation
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Update dependency DAG with new hook and edges
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Return hook handle for programmatic invocation
+
+
+\State Update dependency DAG with new hook and edges
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Return hook handle for programmatic invocation
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Update dependency DAG with new hook and edges
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Return hook handle for programmatic invocation
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Compile trigger SPARQL query into executable form
+
+
+\State Parse hook definition $H$ (name, trigger, dependencies, execute)
+
+
+\State Create hook execution context with RDF graph accessor
+
+
+\State Return hook handle for programmatic invocation
+
+
+\State Validate dependencies exist in registry or mark pending
+
+
+\State Register hook in manager $M$ indexed by name and trigger pattern
+
+
+\State Update dependency DAG with new hook and edges
+
+\end{algorithmic}
+\end{algorithm}\begin{algorithm}[htbp]
+\caption{Execute hook chain with dependency resolution and context propagation}
+\label{alg:execute-hook-chain}
+\begin{algorithmic}[1]
+\Require Event $E$, Registered hooks $H$, Knowledge graph $G$
+\Ensure Execution results with RDF context
+\State   Merge dependency outputs into $C$
+
+
+\State For each hook $h \\in O$:
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State For each hook $h \\in O$:
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State Return aggregated results and updated graph
+
+
+\State For each hook $h \\in O$:
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Return aggregated results and updated graph
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State For each hook $h \\in O$:
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State For each hook $h \\in O$:
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State For each hook $h \\in O$:
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State For each hook $h \\in O$:
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State For each hook $h \\in O$:
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State Return aggregated results and updated graph
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State For each hook $h \\in O$:
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State   Evaluate $h.\\text{trigger}$ against $G$, skip if no match
+
+
+\State   Propagate $R$ to dependent hooks as RDF triples
+
+
+\State For each hook $h \\in O$:
+
+
+\State Initialize context $C \\leftarrow \\{\\text{event}: E, \\text{graph}: G\\}$
+
+
+\State Topological sort $D$ to get execution order $O$
+
+
+\State Build dependency DAG $D$ from $H_E$ and their dependencies
+
+
+\State   Merge dependency outputs into $C$
+
+
+\State Return aggregated results and updated graph
+
+
+\State   Execute $h.\\text{execute}(C)$, capture result $R$
+
+
+\State Query hooks $H_E \\leftarrow \\{h \\in H : \\text{matches}(h.\\text{trigger}, E)\\}$
+
+\end{algorithmic}
+\end{algorithm}

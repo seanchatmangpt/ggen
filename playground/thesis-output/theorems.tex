@@ -1,0 +1,31 @@
+% ============================================================================
+% THEOREMS AND PROOFS - Generated from RDF Ontology
+% ============================================================================
+
+
+% Theorem from section: Fidelity: Measuring Information Loss
+\begin{theorem}
+  For deterministic generation (Murphy's law: code fully determined by ontology), fidelity F = 0.
+  \label{thm:thm1}
+\end{theorem}
+
+
+\begin{proof}
+  If generation is deterministic, R(O) = O (reconstruction is perfect). Then P(x) = P(R(x)) ∀x. Therefore KL divergence = 0, and F = 0. ∎
+\end{proof}
+
+
+
+% Theorem from section: Mutual Information and Correlation
+\begin{theorem}
+  If ontology O fully determines generated code C, then I(O;C) = H(C).
+  \label{thm:thm2}
+\end{theorem}
+
+
+\begin{proof}
+  1. Assume ∀c ∈ C, ∃! o ∈ O such that o → c (generation is deterministic). 2. Then H(C|O) = 0 (code fully determined by ontology). 3. By definition I(O;C) = H(C) - H(C|O) = H(C) - 0 = H(C). ∎
+\end{proof}
+
+
+

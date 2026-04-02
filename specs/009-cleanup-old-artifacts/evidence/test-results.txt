@@ -1,0 +1,10 @@
+[1m[32m   Compiling[0m ggen-utils v4.0.0 (/Users/sac/ggen/crates/ggen-utils)
+[0m[1m[38;5;9merror[0m[0m[1m: couldn't read `/Users/sac/ggen/target/debug/build/libsqlite3-sys-1b790f05d0620170/out/bindgen.rs`: No such file or directory (os error 2)[0m
+[0m  [0m[0m[1m[38;5;12m--> [0m[0m/Users/sac/.asdf/installs/rust/1.86.0/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.35.0/src/lib.rs:25:5[0m
+[0m   [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m25[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    include!(concat!(env!("OUT_DIR"), "/bindgen.rs"));[0m
+[0m   [0m[0m[1m[38;5;12m|[0m[0m     [0m[0m[1m[38;5;9m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[31merror[0m[1m:[0m could not compile `libsqlite3-sys` (lib) due to 1 previous error
+[1m[33mwarning[0m[1m:[0m build failed, waiting for other jobs to finish...
+[cargo-make] INFO - Build Done in 21.54 seconds.

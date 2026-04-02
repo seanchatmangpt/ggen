@@ -1,0 +1,22 @@
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/template1> a ggen:Template ;
+  ggen:templateName "Template with Variables" ;
+  ggen:templateVersion "1.0.0" ;
+  ggen:stability "stable" ;
+  ggen:hasVariable [
+    a ggen:Variable ;
+    ggen:variableName "project_name" ;
+    ggen:variableType "string" ;
+    ggen:isRequired "true"^^xsd:boolean ;
+    ggen:variableDescription "Name of the project"
+  ] ,
+  [
+    a ggen:Variable ;
+    ggen:variableName "port_number" ;
+    ggen:variableType "number" ;
+    ggen:isRequired "false"^^xsd:boolean ;
+    ggen:defaultValue "8080"
+  ] .

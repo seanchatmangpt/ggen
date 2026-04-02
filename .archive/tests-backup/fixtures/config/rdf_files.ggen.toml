@@ -1,0 +1,10 @@
+# Config with multiple RDF files
+
+[project]
+output_dir = "generated"
+
+[rdf]
+files = [
+  "tests/fixtures/sample.ttl",
+  "tests/fixtures/shapes.ttl"
+]

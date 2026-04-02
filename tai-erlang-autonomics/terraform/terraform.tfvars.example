@@ -1,0 +1,29 @@
+# Copy this file to terraform.tfvars and update with your values
+
+project_id = "your-gcp-project-id"
+region     = "us-central1"
+environment = "dev"
+
+# Container image
+image_tag = "latest"
+
+# Cloud Run configuration
+container_concurrency = 80
+cpu_limit            = "2"
+memory_limit         = "2Gi"
+min_instances        = 0
+max_instances        = 10
+timeout_seconds      = 300
+execution_environment = "gen2"
+
+# Application configuration
+receipt_ledger_backend = "ets"  # Options: ets, gcs, bigquery
+tracing_enabled       = true
+firestore_location    = "us-central"
+
+# Access control
+enable_public_access      = false
+enable_authenticated_access = true
+
+# Monitoring
+alert_notification_channels = []  # Add notification channel IDs

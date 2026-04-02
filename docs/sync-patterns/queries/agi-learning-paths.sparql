@@ -1,0 +1,65 @@
+# =============================================================================
+# SPARQL Query: Identify learning paths through the pattern network
+# =============================================================================
+# Constructs learning paths based on capability prerequisites and
+# pattern connections, guiding developers through pattern adoption.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+PREFIX agi: <https://ggen.dev/agi#>
+
+SELECT DISTINCT
+    ?targetCapabilityLabel
+    ?targetCognitiveLevel
+    ?targetMaturityLevel
+    ?prerequisiteCapabilityLabel
+    ?prerequisiteCognitiveLevel
+    ?patternNumber
+    ?patternLabel
+    ?patternConfidence
+    ?categoryLabel
+    ?learningStrategyLabel
+    (GROUP_CONCAT(DISTINCT ?knowledgeTypeLabel; SEPARATOR="|") AS ?knowledgeTypes)
+WHERE {
+    # Target capability with prerequisites
+    ?targetCapability a agi:Capability ;
+                      rdfs:label ?targetCapabilityLabel ;
+                      agi:cognitiveLevel ?targetCognitiveLevel ;
+                      agi:maturityLevel ?targetMaturityLevel .
+
+    # Prerequisite capability
+    OPTIONAL {
+        ?targetCapability agi:prerequisiteCapability ?prerequisiteCapability .
+        ?prerequisiteCapability rdfs:label ?prerequisiteCapabilityLabel ;
+                                agi:cognitiveLevel ?prerequisiteCognitiveLevel .
+    }
+
+    # Pattern that enables this capability
+    OPTIONAL {
+        ?pattern agi:enablesCapability ?targetCapability ;
+                 rdfs:label ?patternLabel ;
+                 pl:hasNumber ?patternNumber ;
+                 pl:hasConfidence ?patternConfidence ;
+                 pl:hasCategory ?category .
+        ?category rdfs:label ?categoryLabel .
+    }
+
+    # Learning strategy for this path
+    OPTIONAL {
+        ?pattern agi:supportsLearning ?learningStrategy .
+        ?learningStrategy rdfs:label ?learningStrategyLabel .
+    }
+
+    # Knowledge types involved
+    OPTIONAL {
+        ?pattern agi:representsKnowledge ?knowledgeType .
+        ?knowledgeType rdfs:label ?knowledgeTypeLabel .
+    }
+}
+GROUP BY ?targetCapabilityLabel ?targetCognitiveLevel ?targetMaturityLevel
+         ?prerequisiteCapabilityLabel ?prerequisiteCognitiveLevel
+         ?patternNumber ?patternLabel ?patternConfidence ?categoryLabel
+         ?learningStrategyLabel
+ORDER BY ?targetCognitiveLevel ?targetMaturityLevel DESC ?patternNumber

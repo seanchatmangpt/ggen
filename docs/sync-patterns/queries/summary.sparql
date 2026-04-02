@@ -1,0 +1,31 @@
+# =============================================================================
+# SPARQL Query: Extract patterns grouped by category for SUMMARY.md
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+
+SELECT
+    ?categoryLabel
+    ?categoryOrder
+    ?categoryDescription
+    ?patternLabel
+    ?patternNumber
+    ?confidenceStars
+    ?filename
+WHERE {
+    ?pattern a pl:Pattern ;
+             rdfs:label ?patternLabel ;
+             pl:hasNumber ?patternNumber ;
+             pl:hasCategory ?category .
+
+    ?category rdfs:label ?categoryLabel ;
+              pl:categoryOrder ?categoryOrder ;
+              pl:categoryDescription ?categoryDescription .
+
+    OPTIONAL { ?pattern pl:confidenceStars ?confidenceStars }
+    OPTIONAL { ?pattern pl:filename ?filename }
+}
+ORDER BY ?categoryOrder ?patternNumber

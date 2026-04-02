@@ -1,0 +1,469 @@
+# Lifecycle Phase Transition Tests with OTEL Validation
+# Tests: phase ordering, pipeline execution, hooks, dependencies
+
+[meta]
+name = "lifecycle_phase_transitions"
+description = "Test lifecycle phase transitions with temporal ordering validation"
+version = "1.0.0"
+
+[otel]
+exporter = "otlp"
+endpoint = "http://localhost:4318"
+service_name = "ggen-lifecycle-phases"
+enable_tracing = true
+enable_metrics = true
+
+[service.ggen]
+plugin = "generic_container"
+image = "rust:latest"
+volumes = ["/tmp/ggen-test:/workspace"]
+working_dir = "/workspace"
+
+# Test 1: Full lifecycle pipeline with phase ordering
+[[scenario]]
+name = "full_lifecycle_pipeline_ordered"
+service = "ggen"
+run = """
+mkdir -p /workspace/full-pipeline && cd /workspace/full-pipeline && \
+cat > make.toml << 'EOF'
+[project]
+name = "full-pipeline-test"
+
+[lifecycle.init]
+command = "echo 'Phase: init'"
+
+[lifecycle.setup]
+command = "echo 'Phase: setup'"
+
+[lifecycle.build]
+command = "echo 'Phase: build'"
+
+[lifecycle.test]
+command = "echo 'Phase: test'"
+
+[lifecycle.deploy]
+command = "echo 'Phase: deploy'"
+EOF
+ggen lifecycle run init && \
+ggen lifecycle run setup && \
+ggen lifecycle run build && \
+ggen lifecycle run test && \
+ggen lifecycle run deploy
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+must_precede = ["ggen.lifecycle.setup"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.setup"
+must_precede = ["ggen.lifecycle.build"]
+must_follow = ["ggen.lifecycle.init"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+must_precede = ["ggen.lifecycle.test"]
+must_follow = ["ggen.lifecycle.setup"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.test"
+must_precede = ["ggen.lifecycle.deploy"]
+must_follow = ["ggen.lifecycle.build"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+must_follow = ["ggen.lifecycle.test"]
+
+[scenario.expect.graph]
+must_include = [
+  ["ggen.lifecycle.init", "ggen.lifecycle.setup"],
+  ["ggen.lifecycle.setup", "ggen.lifecycle.build"],
+  ["ggen.lifecycle.build", "ggen.lifecycle.test"],
+  ["ggen.lifecycle.test", "ggen.lifecycle.deploy"]
+]
+acyclic = true
+dag_validated = true
+
+[scenario.expect.temporal]
+strict_ordering = [
+  "ggen.lifecycle.init",
+  "ggen.lifecycle.setup",
+  "ggen.lifecycle.build",
+  "ggen.lifecycle.test",
+  "ggen.lifecycle.deploy"
+]
+
+# Test 2: Phase with multiple commands
+[[scenario]]
+name = "phase_with_multiple_commands"
+service = "ggen"
+run = """
+mkdir -p /workspace/multi-cmd && cd /workspace/multi-cmd && \
+cat > make.toml << 'EOF'
+[project]
+name = "multi-command-phase"
+
+[lifecycle.setup]
+commands = [
+    "echo 'Step 1: Install dependencies'",
+    "echo 'Step 2: Configure environment'",
+    "echo 'Step 3: Verify setup'"
+]
+EOF
+ggen lifecycle run setup
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.setup"
+attributes = { "command_count" = "3" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.command.execute"
+parent = "ggen.lifecycle.setup"
+count = 3
+
+[scenario.expect.window]
+parent = "ggen.lifecycle.setup"
+must_contain = ["ggen.lifecycle.command.execute"]
+min_child_spans = 3
+max_child_spans = 3
+
+[scenario.expect.temporal]
+ordering = [
+  "ggen.lifecycle.setup",
+  "ggen.lifecycle.command.execute"
+]
+
+# Test 3: Pipeline failure stops execution
+[[scenario]]
+name = "pipeline_failure_stops_execution"
+service = "ggen"
+run = """
+mkdir -p /workspace/pipeline-fail && cd /workspace/pipeline-fail && \
+cat > make.toml << 'EOF'
+[project]
+name = "failing-pipeline"
+
+[lifecycle.init]
+command = "echo 'Init succeeded'"
+
+[lifecycle.build]
+command = "exit 1"
+
+[lifecycle.test]
+command = "echo 'This should not run'"
+EOF
+ggen lifecycle run init && \
+(ggen lifecycle run build || echo "Build failed as expected") && \
+! ggen lifecycle run test
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+expect_error = false
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+expect_error = true
+must_follow = ["ggen.lifecycle.init"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.test"
+should_not_exist = true
+
+[scenario.expect.graph]
+must_include = [
+  ["ggen.lifecycle.init", "ggen.lifecycle.build"]
+]
+must_not_include = [
+  ["ggen.lifecycle.build", "ggen.lifecycle.test"]
+]
+
+# Test 4: Before and after hooks execution
+[[scenario]]
+name = "hooks_execution_order"
+service = "ggen"
+run = """
+mkdir -p /workspace/hooks-test && cd /workspace/hooks-test && \
+cat > make.toml << 'EOF'
+[project]
+name = "hooks-test"
+
+[lifecycle.validate]
+command = "echo 'Validating'"
+
+[lifecycle.build]
+command = "echo 'Building'"
+
+[lifecycle.notify]
+command = "echo 'Notifying'"
+
+[hooks]
+before_build = ["validate"]
+after_build = ["notify"]
+EOF
+ggen lifecycle run build
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.validate"
+must_precede = ["ggen.lifecycle.build"]
+attributes = { "hook.type" = "before", "hook.target" = "build" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+must_precede = ["ggen.lifecycle.notify"]
+must_follow = ["ggen.lifecycle.validate"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.notify"
+must_follow = ["ggen.lifecycle.build"]
+attributes = { "hook.type" = "after", "hook.target" = "build" }
+
+[scenario.expect.temporal]
+strict_ordering = [
+  "ggen.lifecycle.validate",
+  "ggen.lifecycle.build",
+  "ggen.lifecycle.notify"
+]
+
+[scenario.expect.window]
+parent = "ggen.lifecycle.hooks.orchestrate"
+must_contain = ["ggen.lifecycle.validate", "ggen.lifecycle.build", "ggen.lifecycle.notify"]
+temporal_order = true
+
+# Test 5: Circular hook detection
+[[scenario]]
+name = "circular_hook_detection"
+service = "ggen"
+run = """
+mkdir -p /workspace/circular-hooks && cd /workspace/circular-hooks && \
+cat > make.toml << 'EOF'
+[project]
+name = "circular-hooks"
+
+[lifecycle.a]
+command = "echo 'Phase A'"
+
+[lifecycle.b]
+command = "echo 'Phase B'"
+
+[hooks]
+before_a = ["b"]
+before_b = ["a"]
+EOF
+ggen lifecycle run a || echo "Circular dependency detected"
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.validation.hooks"
+expect_error = true
+attributes = { "error.type" = "circular_dependency" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.a"
+should_not_exist = true
+
+[scenario.expect.graph]
+cycle_detection = true
+must_detect_cycle = ["a", "b"]
+
+# Test 6: Phase caching
+[[scenario]]
+name = "phase_caching_basic"
+service = "ggen"
+run = """
+mkdir -p /workspace/caching && cd /workspace/caching && \
+cat > make.toml << 'EOF'
+[project]
+name = "caching-test"
+
+[lifecycle.build]
+command = "echo 'Expensive build operation'"
+cache = true
+EOF
+ggen lifecycle run build && \
+ggen lifecycle run build
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+count = 2
+
+[[scenario.expect.span]]
+name = "ggen.cache.key.generate"
+parent = "ggen.lifecycle.build"
+count = 2
+attributes = { "cache.enabled" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.cache.hit"
+count = 1
+must_follow = ["ggen.lifecycle.build"]
+
+[[scenario.expect.span]]
+name = "ggen.cache.miss"
+count = 1
+must_precede = ["ggen.cache.hit"]
+
+# Test 7: State persistence across phases
+[[scenario]]
+name = "state_persistence_across_phases"
+service = "ggen"
+run = """
+mkdir -p /workspace/state-persist && cd /workspace/state-persist && \
+cat > make.toml << 'EOF'
+[project]
+name = "state-persistence"
+
+[lifecycle.init]
+command = "echo 'Initializing'"
+
+[lifecycle.build]
+command = "echo 'Building'"
+
+[lifecycle.test]
+command = "echo 'Testing'"
+EOF
+ggen lifecycle run init && \
+ggen lifecycle run build && \
+ggen lifecycle run test && \
+test -f .ggen/state.json && \
+grep -q '"phase_history"' .ggen/state.json
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.state.load"
+count = 3
+attributes_pattern = { "state.file" = ".*state.json" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.state.save"
+count = 3
+must_follow = ["ggen.lifecycle.state.load"]
+
+[scenario.expect.temporal]
+pattern = [
+  ["ggen.lifecycle.init", "ggen.lifecycle.state.save"],
+  ["ggen.lifecycle.state.load", "ggen.lifecycle.build"],
+  ["ggen.lifecycle.build", "ggen.lifecycle.state.save"],
+  ["ggen.lifecycle.state.load", "ggen.lifecycle.test"]
+]
+
+# Test 8: Parallel workspace builds
+[[scenario]]
+name = "parallel_workspace_builds"
+service = "ggen"
+run = """
+mkdir -p /workspace/monorepo && cd /workspace/monorepo && \
+cat > make.toml << 'EOF'
+[project]
+name = "monorepo-parallel"
+type = "monorepo"
+
+[workspace.frontend]
+path = "frontend"
+
+[workspace.backend]
+path = "backend"
+
+[lifecycle.build]
+command = "echo 'Building workspace'"
+parallel = true
+EOF
+mkdir -p frontend backend && \
+ggen lifecycle run build
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+attributes = { "parallel" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.workspace.build"
+parent = "ggen.lifecycle.build"
+count = 2
+attributes_unique = ["workspace.name"]
+
+[scenario.expect.graph]
+must_not_include = [
+  ["ggen.workspace.build[workspace=frontend]", "ggen.workspace.build[workspace=backend]"]
+]
+parallel_validated = true
+
+# Test 9: Error handling with detailed context
+[[scenario]]
+name = "error_handling_with_context"
+service = "ggen"
+run = """
+mkdir -p /workspace/error-context && cd /workspace/error-context && \
+cat > make.toml << 'EOF'
+[project]
+name = "error-context-test"
+
+[lifecycle.failing-phase]
+command = "nonexistent-command"
+EOF
+ggen lifecycle run failing-phase || echo "Error handled"
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.failing-phase"
+expect_error = true
+attributes = { "error.type" = "command_not_found" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.error.capture"
+parent = "ggen.lifecycle.failing-phase"
+attributes_exists = ["error.message", "error.command", "error.exit_code"]
+
+# Test 10: Cache invalidation on command change
+[[scenario]]
+name = "cache_invalidation_on_change"
+service = "ggen"
+run = """
+mkdir -p /workspace/cache-invalidate && cd /workspace/cache-invalidate && \
+cat > make.toml << 'EOF'
+[project]
+name = "cache-invalidation"
+
+[lifecycle.build]
+command = "echo 'Version 1'"
+cache = true
+EOF
+ggen lifecycle run build && \
+cat > make.toml << 'EOF'
+[project]
+name = "cache-invalidation"
+
+[lifecycle.build]
+command = "echo 'Version 2'"
+cache = true
+EOF
+ggen lifecycle run build
+"""
+
+[[scenario.expect.span]]
+name = "ggen.cache.key.generate"
+count = 2
+attributes_unique = ["cache.key"]
+
+[[scenario.expect.span]]
+name = "ggen.cache.invalidate"
+count = 1
+attributes = { "reason" = "command_changed" }
+
+# Summary expectations
+[expect.report]
+format = "json"
+output_path = "/tmp/lifecycle-phases-report.json"
+include_metrics = true
+include_traces = true
+
+[expect.performance]
+max_duration_ms = 10000
+max_memory_mb = 512
+
+[expect.determinism]
+require_same_traces_on_retry = true
+retry_count = 2

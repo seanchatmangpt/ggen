@@ -1,0 +1,69 @@
+# =============================================================================
+# SPARQL Query: Extract all patterns for chapter generation
+# =============================================================================
+# This query extracts complete pattern information for generating individual
+# pattern chapter files.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+
+SELECT
+    ?pattern
+    ?label
+    ?number
+    ?confidence
+    ?confidenceStars
+    ?categoryLabel
+    ?categorySlug
+    ?slug
+    ?filename
+    ?evocativeImage
+    ?context
+    ?problem
+    ?solution
+    ?implementation
+    ?deepPattern
+    (GROUP_CONCAT(DISTINCT ?flag; SEPARATOR="|") AS ?flags)
+    (GROUP_CONCAT(DISTINCT ?manifestSection; SEPARATOR="|") AS ?manifestSections)
+    (GROUP_CONCAT(DISTINCT ?codeRefStr; SEPARATOR="|||") AS ?codeRefs)
+WHERE {
+    ?pattern a pl:Pattern ;
+             rdfs:label ?label ;
+             pl:hasNumber ?number ;
+             pl:hasConfidence ?confidence ;
+             pl:hasCategory ?category ;
+             pl:hasSlug ?slug .
+
+    ?category rdfs:label ?categoryLabel ;
+              pl:categorySlug ?categorySlug .
+
+    # Inferred properties
+    OPTIONAL { ?pattern pl:confidenceStars ?confidenceStars }
+    OPTIONAL { ?pattern pl:filename ?filename }
+
+    # Pattern content
+    OPTIONAL { ?pattern pl:hasEvocativeImage ?evocativeImage }
+    OPTIONAL { ?pattern pl:hasContext ?context }
+    OPTIONAL { ?pattern pl:hasProblem ?problem }
+    OPTIONAL { ?pattern pl:hasSolution ?solution }
+    OPTIONAL { ?pattern pl:hasImplementation ?implementation }
+    OPTIONAL { ?pattern pl:hasDeepPattern ?deepPattern }
+
+    # Flags and manifest sections
+    OPTIONAL { ?pattern pl:hasFlag ?flag }
+    OPTIONAL { ?pattern pl:hasManifestSection ?manifestSection }
+
+    # Code references - concatenate as file::line::description::layer
+    OPTIONAL {
+        ?pattern pl:hasCodeRef ?codeRef .
+        ?codeRef pl:refFile ?refFile ;
+                 pl:refLine ?refLine ;
+                 pl:refDescription ?refDesc ;
+                 pl:refLayer ?refLayer .
+        BIND(CONCAT(?refFile, "::", STR(?refLine), "::", ?refDesc, "::", ?refLayer) AS ?codeRefStr)
+    }
+}
+GROUP BY ?pattern ?label ?number ?confidence ?confidenceStars ?categoryLabel ?categorySlug ?slug ?filename ?evocativeImage ?context ?problem ?solution ?implementation ?deepPattern
+ORDER BY ?number

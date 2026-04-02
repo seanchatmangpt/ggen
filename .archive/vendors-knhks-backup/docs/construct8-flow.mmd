@@ -1,0 +1,53 @@
+flowchart TD
+    Start([knhk_eval_construct8 called]) --> Validate[Validate Inputs]
+    Validate -->|Invalid| Return0[Return 0]
+    Validate -->|Valid| HotPath[Hot Path: Pure CONSTRUCT Logic]
+    
+    HotPath --> Prefetch[Prefetch Input Data<br/>L1 Cache Hint]
+    Prefetch --> SIMD[Architecture Selection]
+    
+    SIMD -->|ARM64| ARM_Load[Load 8 Subjects<br/>4x uint64x2_t vectors<br/>s0, s1, s2, s3]
+    SIMD -->|x86_64| x86_Load[Load 8 Subjects<br/>2x __m256i vectors<br/>s0, s1]
+    SIMD -->|Other| Scalar[Scalar Fallback Loop]
+    
+    ARM_Load --> ARM_Mask[Generate Masks<br/>Compare with zero<br/>XOR invert to UINT64_MAX<br/>m0, m1, m2, m3]
+    x86_Load --> x86_Mask[Generate Masks<br/>Compare with zero<br/>ANDNOT with all_ones<br/>m0, m1]
+    
+    ARM_Mask --> ARM_Blend[Blend Operations<br/>vbslq_u64 mask selection<br/>12 blends: 4x S, 4x P, 4x O]
+    x86_Mask --> x86_Blend[Blend Operations<br/>_mm256_blendv_epi8<br/>6 blends: 2x S, 2x P, 2x O]
+    
+    ARM_Blend --> ARM_Store[Store Results<br/>12 SIMD stores<br/>Aligned vst1q_u64]
+    x86_Blend --> x86_Store[Store Results<br/>6 SIMD stores<br/>Aligned _mm256_store_si256]
+    
+    ARM_Store --> ARM_MaskExtract[Extract Mask Bits<br/>8x lane extracts<br/>MSB bit extraction]
+    x86_Store --> x86_MaskExtract[Extract Mask Bits<br/>movemask_pd<br/>2x movemask operations]
+    
+    ARM_MaskExtract --> ApplyLenMask[Apply Length Mask<br/>len_mask_bits & mask]
+    x86_MaskExtract --> ApplyLenMask
+    
+    ApplyLenMask --> PopCount[Popcount<br/>__builtin_popcountll<br/>Count non-zero lanes]
+    
+    Scalar --> ScalarLoop[Loop len times<br/>if non-zero: emit triple<br/>build mask bitmap]
+    ScalarLoop --> ScalarReturn[Return count]
+    
+    PopCount --> FillReceipt[Fill Receipt<br/>User Knowledge Only]
+    FillReceipt --> SetLanes[rcpt->lanes = written]
+    SetLanes --> SetSpanID[rcpt->span_id = generate_span_id]
+    SetSpanID --> SetHash[rcpt->a_hash = provenance hash]
+    SetHash --> ReturnWritten[Return written count]
+    
+    ScalarReturn --> ReturnWritten
+    ReturnWritten --> End([End])
+    
+    style HotPath fill:#90EE90
+    style ARM_Load fill:#87CEEB
+    style ARM_Mask fill:#87CEEB
+    style ARM_Blend fill:#87CEEB
+    style ARM_Store fill:#87CEEB
+    style x86_Load fill:#FFB6C1
+    style x86_Mask fill:#FFB6C1
+    style x86_Blend fill:#FFB6C1
+    style x86_Store fill:#FFB6C1
+    style PopCount fill:#FFD700
+    style FillReceipt fill:#DDA0DD
+

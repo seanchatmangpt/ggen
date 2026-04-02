@@ -1,0 +1,7 @@
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<http://example.org/template1> a ggen:Template ;
+  ggen:templateName "Template with Invalid Version" ;
+  ggen:templateVersion "v1.0" ;
+  ggen:stability "stable" .

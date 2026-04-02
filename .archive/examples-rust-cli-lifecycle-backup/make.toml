@@ -1,0 +1,244 @@
+# make.toml - Universal Lifecycle Configuration for Rust CLI Project
+# This demonstrates ALL lifecycle features in ggen
+
+[project]
+name = "taskmgr"
+type = "cli-tool"
+version = "0.1.0"
+description = "Example Rust noun-verb CLI using ggen lifecycle system"
+
+# ============================================================================
+# LIFECYCLE PHASES
+# ============================================================================
+
+[lifecycle.init]
+description = "Initialize new Rust CLI project with noun-verb structure"
+commands = [
+    "cargo init --bin --name taskmgr .",
+    "echo '# TaskMgr - Example CLI with ggen Lifecycle' > README.md",
+    "mkdir -p src/commands tests docs .ggen",
+]
+first_run_only = true
+
+[lifecycle.setup]
+description = "Install dependencies and configure development environment"
+commands = [
+    "cargo add clap --features derive",
+    "cargo add serde --features derive",
+    "cargo add serde_json",
+    "cargo add anyhow",
+    "cargo add tokio --features full",
+    "cargo add colored",
+]
+cache_key = "Cargo.toml|Cargo.lock"
+
+[lifecycle.scaffold]
+description = "Generate noun-verb CLI structure"
+commands = [
+    "echo 'Scaffolding noun-verb command structure...'",
+    "mkdir -p src/commands/task src/commands/project",
+]
+
+[lifecycle.dev]
+description = "Run development server with hot reload"
+command = "cargo watch -x 'run -- --help'"
+watch = true
+
+[lifecycle.build]
+description = "Build optimized release binary"
+commands = [
+    "cargo build --release",
+    "ls -lh target/release/taskmgr",
+]
+outputs = ["target/release/taskmgr"]
+cache = true
+
+[lifecycle.test]
+description = "Run comprehensive test suite"
+commands = [
+    "echo 'Note: No tests yet - this is a CLI-only demonstration'",
+    "cargo check",
+]
+parallel = true
+
+[lifecycle.lint]
+description = "Run linting and code quality checks"
+commands = [
+    "cargo fmt --check",
+    "cargo clippy -- -D warnings",
+]
+
+[lifecycle.format]
+description = "Auto-format code"
+command = "cargo fmt"
+
+[lifecycle.docs]
+description = "Generate documentation"
+commands = [
+    "cargo doc --no-deps",
+    "echo 'Documentation available at target/doc/taskmgr/index.html'",
+]
+outputs = ["target/doc"]
+
+[lifecycle.install]
+description = "Install CLI globally"
+command = "cargo install --path ."
+
+[lifecycle.bench]
+description = "Run performance benchmarks"
+command = "cargo bench"
+
+[lifecycle.clean]
+description = "Clean build artifacts"
+commands = [
+    "cargo clean",
+    "rm -rf .ggen/cache",
+]
+
+[lifecycle.release]
+description = "Create release build with all checks"
+commands = [
+    "git tag v$VERSION",
+    "cargo build --release",
+    "strip target/release/taskmgr",
+]
+requires_approval = true
+
+# ============================================================================
+# HOOKS - Automation at Every Phase
+# ============================================================================
+
+[hooks]
+# Global hooks run for ALL phases
+before_all = []
+after_all = []
+
+# Phase-specific hooks
+before_init = []
+after_init = ["setup"]  # Auto-run setup after init
+
+before_setup = []
+after_setup = ["scaffold"]  # Auto-scaffold after setup
+
+before_build = ["test", "lint"]  # Ensure quality before building
+after_build = ["docs"]  # Generate docs after successful build
+
+before_test = ["format"]  # Auto-format before testing
+after_test = []
+
+before_lint = []
+after_lint = []
+
+before_release = ["build", "test", "bench"]  # Full validation before release
+after_release = ["install"]  # Auto-install after release
+
+# Error handling
+on_error = "echo '❌ Phase failed - check logs above'"
+on_success = "echo '✅ Phase completed successfully'"
+
+# ============================================================================
+# ENVIRONMENT CONFIGURATION
+# ============================================================================
+
+[env]
+detect = "auto"  # Auto-detect from environment variables
+
+[env.development]
+RUST_LOG = "debug"
+RUST_BACKTRACE = "1"
+commands.build = "cargo build"  # Debug build in dev
+commands.test = "cargo test -- --nocapture"  # Verbose test output
+
+[env.staging]
+RUST_LOG = "info"
+commands.build = "cargo build --release"
+
+[env.production]
+RUST_LOG = "warn"
+commands.build = "cargo build --release --locked"
+commands.test = "cargo test --release"
+
+# ============================================================================
+# WORKSPACE SUPPORT (for multi-component projects)
+# ============================================================================
+
+# Commented out - single binary for this example
+# [workspace.cli]
+# path = "."
+# framework = "rust-cli"
+# runtime = "rust:1.75"
+
+# [workspace.lib]
+# path = "lib"
+# framework = "rust-lib"
+# runtime = "rust:1.75"
+
+# ============================================================================
+# CUSTOM PHASES (Project-Specific)
+# ============================================================================
+
+[lifecycle."generate:command"]
+description = "Generate new noun-verb command"
+command = """
+echo 'Generating command...'
+# This would call: ggen gen command {{name}}
+"""
+
+[lifecycle."check:security"]
+description = "Run security audit"
+command = "cargo audit"
+
+[lifecycle."check:outdated"]
+description = "Check for outdated dependencies"
+command = "cargo outdated"
+
+[lifecycle."ci:prepare"]
+description = "Prepare for CI/CD"
+commands = [
+    "cargo vendor",
+    "tar -czf vendor.tar.gz vendor/",
+]
+
+[lifecycle."coverage:generate"]
+description = "Generate code coverage report"
+command = "cargo tarpaulin --out Html --output-dir coverage"
+outputs = ["coverage/"]
+
+# ============================================================================
+# SCRIPTS (Convenience Shortcuts)
+# ============================================================================
+
+[scripts]
+# Quick shortcuts for common workflows
+start = "ggen lifecycle run dev"
+check = "ggen lifecycle pipeline format lint test"
+release = "ggen lifecycle run release"
+full-check = "ggen lifecycle pipeline format lint test bench coverage:generate"
+
+# ============================================================================
+# DEPENDENCIES & REQUIREMENTS
+# ============================================================================
+
+[deps]
+rust = ">=1.75.0"
+cargo = ">=1.75.0"
+
+# ============================================================================
+# STATE TRACKING
+# ============================================================================
+
+[state]
+file = ".ggen/state.json"
+track_generated_files = true
+skip_if_exists = ["target/", "Cargo.lock"]
+force_rerun_if_changed = ["Cargo.toml", "make.toml"]
+
+# ============================================================================
+# CACHE CONFIGURATION
+# ============================================================================
+
+[cache]
+enabled = true
+directory = ".ggen/cache"
+# Cache keys are content-addressed SHA256 hashes
+# Automatically invalidated when inputs change

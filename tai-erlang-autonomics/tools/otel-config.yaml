@@ -1,0 +1,107 @@
+# OpenTelemetry Collector Configuration
+# Receives OTLP from TAIEA application and forwards to Google Cloud Trace
+# Run: otelcontribcol --config=tools/otel-config.yaml
+
+receivers:
+  # OTLP receiver for traces and metrics from TAIEA app
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Prometheus receiver for scraping Erlang metrics
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'tai-autonomics'
+          static_configs:
+            - targets: ['localhost:8888']
+          scrape_interval: 10s
+          metrics_path: '/metrics'
+
+processors:
+  # Batch processor - group spans into batches
+  batch:
+    timeout: 10s
+    send_batch_size: 512
+    send_batch_max_size: 2048
+
+  # Memory limiter - prevent OOM
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 32
+
+  # Resource detection - add GCP metadata
+  resourcedetection/gcp:
+    detectors: [gcp, env]
+    timeout: 2s
+    override: false
+
+  # Attributes processor - add custom attributes
+  attributes:
+    actions:
+      - key: service.name
+        value: tai-autonomics
+        action: insert
+      - key: service.version
+        value: "1.0.0"
+        action: insert
+      - key: deployment.environment
+        value: ${ENVIRONMENT}
+        action: insert
+
+exporters:
+  # Google Cloud Trace exporter
+  googlecloud:
+    project: ${GOOGLE_CLOUD_PROJECT}
+    metric:
+      prefix: custom.googleapis.com/tai_autonomics/
+    resource_filters:
+      - prefix: cloud_run_revision
+
+  # Logging exporter for debugging (stdout)
+  logging:
+    loglevel: debug
+
+  # Prometheus remote write for Cloud Monitoring
+  prometheusremotewrite:
+    endpoint: "https://monitoring.googleapis.com/api/prom/write?project=${GOOGLE_CLOUD_PROJECT}"
+    tls:
+      insecure: false
+    headers:
+      Authorization: "Bearer ${GCP_AUTH_TOKEN}"
+
+extensions:
+  # Health check extension
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+  # Performance profiler
+  pprof:
+    endpoint: localhost:1777
+
+service:
+  extensions: [health_check, pprof]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection/gcp, attributes]
+      exporters: [googlecloud, logging]
+
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch, resourcedetection/gcp, attributes]
+      exporters: [googlecloud, prometheusremotewrite, logging]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [logging]
+
+  # Telemetry for the collector itself
+  telemetry:
+    logs:
+      level: info

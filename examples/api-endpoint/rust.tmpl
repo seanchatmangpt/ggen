@@ -1,0 +1,29 @@
+---
+to: "src/api/{{endpoint}}.rs"
+vars:
+  endpoint: "users"
+  method: "GET"
+rdf:
+  - "graphs/api.ttl"
+shape:
+  - "graphs/shapes/api.shacl.ttl"
+sparql:
+  - "SELECT ?endpoint ?method WHERE { ?endpoint http:methodName ?method }"
+determinism:
+  seed: "api-endpoint"
+  sort_order: ["endpoint", "method"]
+---
+use axum::{routing::{{method|lower}}, Router, Json};
+use serde_json::{json, Value};
+use utils::error::Result;
+
+pub async fn {{endpoint}}_handler() -> Result<Json<Value>> {
+    Ok(Json(json!({
+        "{{endpoint}}": "data"
+    })))
+}
+
+pub fn {{endpoint}}_routes() -> Router {
+    Router::new()
+        .route("/{{endpoint}}", {{method|lower}}({{endpoint}}_handler))
+}

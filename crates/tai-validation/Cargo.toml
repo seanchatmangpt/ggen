@@ -1,0 +1,48 @@
+[package]
+name = "tai-validation"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "SLO/SLA validation, compliance framework, and security scanning for ggen"
+authors = ["ggen contributors"]
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+sha2.workspace = true
+hex.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+oxigraph.workspace = true
+tera.workspace = true
+regex.workspace = true
+futures.workspace = true
+futures-util.workspace = true
+rayon.workspace = true
+log.workspace = true
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile.workspace = true
+
+[[test]]
+name = "integration_tests"
+path = "tests/integration_tests.rs"
+
+[[test]]
+name = "compliance_tests"
+path = "tests/compliance_tests.rs"
+
+[[test]]
+name = "security_tests"
+path = "tests/security_tests.rs"
+
+[[test]]
+name = "evidence_tests"
+path = "tests/evidence_tests.rs"

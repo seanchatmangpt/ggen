@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Object Count Use Case
+# Counting object occurrences for analytics and validation
+# Test Case 10: Object Count (COUNT O,P)
+# Limited to 8 triples for hot path (single predicate run)
+# Counts how many users share a specific email domain
+
+ex:alice ex:email "alice@acme.com" .
+ex:bob ex:email "bob@acme.com" .
+ex:charlie ex:email "charlie@acme.com" .
+ex:dave ex:email "dave@acme.com" .
+ex:eve ex:email "eve@techcorp.com" .
+ex:frank ex:email "frank@techcorp.com" .
+ex:grace ex:email "grace@startup.io" .
+ex:henry ex:email "henry@startup.io" .
+

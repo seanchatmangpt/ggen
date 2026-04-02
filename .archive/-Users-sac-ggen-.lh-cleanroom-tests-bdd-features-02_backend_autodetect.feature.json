@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/02_backend_autodetect.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261590283,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261590283,
+            "name": "Commit-0",
+            "content": "# features/02_backend_autodetect.feature\n@core @detect\nFeature: Backend auto-detection and override\n  Background:\n    Given a fixture project \"cli_smoke\"\n    And docker is \"maybe\" available\n    And podman is \"maybe\" available\n\n  Scenario: Auto chooses docker if available\n    Given environment CLEANROOM_BACKEND is unset\n    When I request backend \"auto\"\n    Then the resolved backend is one of [\"docker\",\"podman\",\"local\"]\n    And preference order is docker > podman > local given availability\n\n  Scenario: Env override forces local\n    Given environment CLEANROOM_BACKEND=\"local\"\n    When I request backend \"auto\"\n    Then the resolved backend is \"local\"\n"
+        }
+    ]
+}

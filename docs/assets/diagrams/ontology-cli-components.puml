@@ -1,0 +1,73 @@
+@startuml ontology-cli-components
+!theme plain
+
+title Component Diagram - Three Ontology CLI Tools
+
+package "semantic-cli" {
+  [RDF Parser] as rdf_parser
+  [OWL Validator] as owl_val
+  [SPARQL Engine] as sparql
+  [Format Converter] as converter
+
+  note right of rdf_parser
+    Parse RDF/OWL/Turtle files
+    Validate syntax
+    Extract metadata
+  end note
+}
+
+package "knowledge-graph-cli" {
+  [Entity Manager] as entity
+  [Relation Manager] as relation
+  [Inference Engine] as inference
+  [Graph Store] as graph
+
+  note right of inference
+    Apply rules:
+    - Transitive relations
+    - Type inference
+    - Constraint validation
+  end note
+}
+
+package "schema-forge-cli" {
+  [Model Builder] as model
+  [Validator] as validator
+  [Code Generator] as codegen
+  [Schema Export] as export
+
+  note right of codegen
+    Generate from models:
+    - JSON Schema
+    - SQL DDL
+    - GraphQL SDL
+    - OpenAPI
+  end note
+}
+
+package "Shared Core (via ggen marketplace)" {
+  [clap-noun-verb] as clap
+  [RDF Triple Store] as triple
+  [JSON Serializer] as json
+  [Error Handler] as error
+}
+
+' Dependencies
+rdf_parser ..> triple
+owl_val ..> triple
+sparql ..> triple
+entity ..> triple
+relation ..> triple
+inference ..> triple
+model ..> triple
+validator ..> triple
+
+rdf_parser ..> clap
+entity ..> clap
+model ..> clap
+
+rdf_parser ..> json
+entity ..> json
+model ..> json
+
+@enduml

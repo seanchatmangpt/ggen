@@ -1,0 +1,2 @@
+# Empty RDF file - no triples
+@prefix ggen: <http://ggen.dev/ontology#> .

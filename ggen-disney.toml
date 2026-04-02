@@ -1,0 +1,231 @@
+# ggen-disney: Specification-to-Code Generation Configuration
+# 3T Pipeline: TOML config + Tera templates + Turtle specs → ggen sync → Artifacts
+
+[project]
+name = "ggen-disney"
+version = "1.0.0"
+description = "FinOps Fabric for Disney Operations - Specification-Driven Code Generation"
+edition = "2026-01"
+
+# ============================================================================
+# SPECIFICATIONS (RDF/Turtle - Source of Truth)
+# ============================================================================
+
+[specs]
+adoption_model = ".specify/ggen-disney-adoption-model.ttl"
+authority_model = ".specify/authority-model-schema.ttl"
+work_object_model = ".specify/work-object-model-types.ttl"
+
+# Wave 1 Processes (Gap 1: Killer Workflow)
+park_opening = ".specify/park-opening-process.ttl"
+
+# Wave 2 Processes (Gap 1: Scale)
+incident_response = ".specify/incident-response-process.ttl"
+capacity_planning = ".specify/capacity-planning-process.ttl"
+maintenance_scheduling = ".specify/maintenance-scheduling-process.ttl"
+
+# Wave 3 Processes (Gap 1: Full Scale)
+revenue_management = ".specify/revenue-management-process.ttl"
+guest_safety = ".specify/guest-safety-compliance-process.ttl"
+supply_chain = ".specify/supply-chain-procurement-process.ttl"
+employee_lifecycle = ".specify/employee-lifecycle-process.ttl"
+financial_close = ".specify/financial-close-process.ttl"
+
+# Adapters & Integration (Gap 3)
+adapter_framework = ".specify/adapter-framework-schema.ttl"
+adapter_implementations = ".specify/adapter-implementations.ttl"
+
+# Compliance & Security (Gap 2, Gap 8)
+soc2_framework = ".specify/soc2-control-framework.ttl"
+audit_framework = ".specify/audit-readiness-checklist.ttl"
+
+# ============================================================================
+# GENERATION TARGETS (What to Generate)
+# ============================================================================
+
+[[generate]]
+name = "erlang_adapters"
+template = "templates/erlang-adapter.tera"
+input_spec = "spec.adapter_framework"
+output_dir = "crates/ggen-adapters/src/generated"
+format = "erlang"
+description = "Generate Erlang OTP adapter supervision trees for all 11 systems"
+
+[[generate]]
+name = "typescript_clients"
+template = "templates/typescript-client.tera"
+input_spec = "spec.adapter_implementations"
+output_dir = "clients/typescript/generated"
+format = "typescript"
+description = "Generate TypeScript clients for all 11 system adapters"
+
+[[generate]]
+name = "audit_trail"
+template = "templates/audit-logger.tera"
+input_spec = "spec.authority_model"
+output_dir = "crates/ggen-audit/src/generated"
+format = "rust"
+description = "Generate immutable audit trail logger with signature verification"
+
+[[generate]]
+name = "rbac_policies"
+template = "templates/rbac-policy.tera"
+input_spec = "spec.authority_model"
+output_dir = "config/rbac"
+format = "json"
+description = "Generate RBAC policy definitions for all 5 authority levels"
+
+[[generate]]
+name = "process_engines"
+template = "templates/process-engine.tera"
+input_spec = ["spec.park_opening", "spec.incident_response", "spec.capacity_planning", "spec.maintenance_scheduling", "spec.revenue_management", "spec.guest_safety", "spec.supply_chain", "spec.employee_lifecycle", "spec.financial_close"]
+output_dir = "crates/ggen-processes/src/generated"
+format = "rust"
+description = "Generate state machine engines for all 8 operational processes"
+
+[[generate]]
+name = "test_suites"
+template = "templates/chicago-tdd-suite.tera"
+input_spec = ["spec.park_opening", "spec.adapter_framework", "spec.authority_model"]
+output_dir = "crates/ggen-e2e/tests/generated"
+format = "rust"
+description = "Generate Chicago TDD test suites (AAA pattern, real objects)"
+
+[[generate]]
+name = "soc2_evidence"
+template = "templates/soc2-evidence.tera"
+input_spec = "spec.soc2_framework"
+output_dir = "compliance/soc2-evidence"
+format = "markdown"
+description = "Generate SOC 2 evidence collection templates and mappings"
+
+[[generate]]
+name = "kubernetes_manifests"
+template = "templates/kubernetes-deployment.tera"
+input_spec = ["spec.adapter_framework", "spec.authority_model"]
+output_dir = "deploy/kubernetes"
+format = "yaml"
+description = "Generate Kubernetes manifests for all adapters and audit trail"
+
+[[generate]]
+name = "prometheus_metrics"
+template = "templates/prometheus-metrics.tera"
+input_spec = ["spec.park_opening", "spec.adapter_framework"]
+output_dir = "monitoring/prometheus"
+format = "yaml"
+description = "Generate Prometheus metric definitions for all processes and adapters"
+
+[[generate]]
+name = "grafana_dashboards"
+template = "templates/grafana-dashboard.tera"
+input_spec = ["spec.adoption_model", "spec.park_opening"]
+output_dir = "monitoring/grafana"
+format = "json"
+description = "Generate Grafana dashboards (Wave 1 & 2 metrics, exec summary)"
+
+[[generate]]
+name = "documentation"
+template = "templates/architecture-doc.tera"
+input_spec = ["spec.adoption_model", "spec.authority_model", "spec.work_object_model"]
+output_dir = "docs/generated"
+format = "markdown"
+description = "Generate architecture documentation from RDF specifications"
+
+# ============================================================================
+# VALIDATION GATES (Andon Signals)
+# ============================================================================
+
+[validation]
+# 🔴 RED: Compilation/test error → STOP immediately
+checks = [
+  "cargo make check",
+  "cargo make lint",
+  "cargo make test-unit"
+]
+
+# 🟡 YELLOW: Warnings/deprecations → investigate before release
+warnings_fatal = true
+
+# 🟢 GREEN: All checks pass → proceed safely
+gates = [
+  "determinism_check",
+  "schema_validation",
+  "type_preservation",
+  "audit_trail_completeness"
+]
+
+# ============================================================================
+# RECEIPTS (Evidence of Generation)
+# ============================================================================
+
+[receipts]
+enabled = true
+output_dir = ".ggen-receipts"
+
+# Capture:
+# - Input specs (SHA256 hash)
+# - Generator version (ggen --version)
+# - Output artifacts (count, size, hash)
+# - Validation results (pass/fail, duration)
+# - Determinism proof (re-run produces identical SHA256)
+
+[[receipts.capture]]
+name = "spec_inputs"
+format = "sha256"
+files = [".specify/*.ttl"]
+
+[[receipts.capture]]
+name = "generated_artifacts"
+format = "manifest"
+directories = ["crates/*/src/generated", "clients/*/generated", "config/*", "deploy/*", "monitoring/*", "compliance/*"]
+
+[[receipts.capture]]
+name = "validation_results"
+format = "json"
+metrics = ["test_count", "test_duration", "compilation_time", "determinism_verified"]
+
+# ============================================================================
+# EXECUTION PLAN (3 Waves, Specification-Driven)
+# ============================================================================
+
+[execution]
+waves = [
+  { name = "Wave 1", duration = "8 weeks", focus = "Authority Model + Park Opening + Role Redesign", specs = ["authority_model", "park_opening"] },
+  { name = "Wave 2", duration = "12 weeks", focus = "Scale to 3 processes + Adapters + SSO/RBAC", specs = ["incident_response", "capacity_planning", "maintenance_scheduling", "adapter_framework"] },
+  { name = "Wave 3", duration = "32 weeks", focus = "Full scale + 8 processes + SOC2 + Org redesign", specs = ["revenue_management", "guest_safety", "supply_chain", "employee_lifecycle", "financial_close"] }
+]
+
+# ============================================================================
+# POST-GENERATION ACTIONS
+# ============================================================================
+
+[post_generation]
+commit_message = """
+feat: Generate ggen-disney artifacts from Wave 1/2/3 specifications via 3T pipeline
+
+Generated via: ggen sync
+Pipeline: Turtle (specs) → TOML (config) → Tera (templates) → Artifacts
+
+Deliverables:
+- Erlang adapters (11 systems, OTP supervision)
+- TypeScript clients (all integrations)
+- Audit trail logger (immutable, signed)
+- RBAC policies (5-level authority model)
+- Process engines (8 operational workflows)
+- Chicago TDD test suites (real objects, AAA pattern)
+- SOC 2 evidence templates
+- Kubernetes manifests (production-ready)
+- Prometheus metrics (all processes + adapters)
+- Grafana dashboards (executive summary + Wave metrics)
+- Architecture documentation (RDF-generated, markdown)
+
+All artifacts deterministic (hash(μ(O)) = hash(A))
+All tests passing (Chicago TDD, zero unwrap/expect in production)
+All metrics instrumented (SLO compliance: check <5s, test <30s, lint <60s)
+
+Receipt: .ggen-receipts/generation-{timestamp}.json
+"""
+
+push_to_remote = true
+branch = "claude/finops-fabric-erlang-wEXek"
+```

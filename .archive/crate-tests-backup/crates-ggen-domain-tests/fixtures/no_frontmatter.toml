@@ -1,0 +1,4 @@
+// Template without frontmatter
+pub struct {{ name }} {
+    value: String,
+}

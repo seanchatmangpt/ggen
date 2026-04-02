@@ -1,0 +1,238 @@
+# ontology-explorer.ttl — RDF 1.2 Ontology Explorer Dashboard Vocabulary
+# A=mu(O) — Dashboard artifacts are projections of annotated ontology elements through SPARQL CONSTRUCT + Tera
+#
+# This vocabulary uses RDF 1.2 triple terms (<<s p o>>) to annotate ontology elements
+# (classes, properties, annotations) with dashboard metadata for the Ontology Explorer.
+# The explorer shows coverage, health, cross-references, and interactive metadata.
+#
+# Pipeline: ontology (.ttl) + annotations (.ttl) → SPARQL-star CONSTRUCT (.rq) → Tera template (.tera) → markdown dashboard
+#
+# Blue Ocean: No one generates interactive health dashboards from ontologies.
+
+@prefix exp: <https://ggen.dev/ontology/explorer#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# 1. ONTOLOGY METADATA
+# ============================================================================
+
+<https://ggen.dev/ontology/explorer>
+  a owl:Ontology ;
+  owl:imports
+    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>,
+    <http://www.w3.org/2000/01/rdf-schema#>,
+    <http://www.w3.org/2002/07/owl#>,
+    <http://www.w3.org/2001/XMLSchema#> ;
+  rdfs:label "Ontology Explorer"@en ;
+  rdfs:comment "RDF 1.2 vocabulary for annotating ontology elements with interactive dashboard metadata using triple terms. Generates health dashboards showing coverage, annotation status, cross-references, and size metrics."@en .
+
+# ============================================================================
+# 2. CLASSES — Dashboard Profile Types
+# ============================================================================
+
+exp:OntologyProfile
+  a owl:Class ;
+  rdfs:label "Ontology Profile"@en ;
+  rdfs:comment "Top-level profile for an entire ontology, containing summary statistics and coverage metrics."@en .
+
+exp:ClassProfile
+  a owl:Class ;
+  rdfs:label "Class Profile"@en ;
+  rdfs:comment "Dashboard metadata for a single ontology class, including widget type, section placement, and annotation status."@en .
+
+exp:PropertyProfile
+  a owl:Class ;
+  rdfs:label "Property Profile"@en ;
+  rdfs:comment "Dashboard metadata for a single ontology property (object or datatype), including widget type, section placement, and annotation status."@en .
+
+exp:AnnotationProfile
+  a owl:Class ;
+  rdfs:label "Annotation Profile"@en ;
+  rdfs:comment "Dashboard metadata for a single annotation property, including its usage frequency and completeness."@en .
+
+exp:CoverageReport
+  a owl:Class ;
+  rdfs:label "Coverage Report"@en ;
+  rdfs:comment "Aggregated coverage statistics for an ontology: total elements, annotated count, coverage percentage by category."@en .
+
+exp:CrossReference
+  a owl:Class ;
+  rdfs:label "Cross Reference"@en ;
+  rdfs:comment "A reference from this ontology to an external ontology (e.g., schema.org, FOAF, Dublin Core)."@en .
+
+# ============================================================================
+# 3. ANNOTATION PROPERTIES — Widget & Display Configuration
+# ============================================================================
+
+exp:widgetType
+  a owl:AnnotationProperty ;
+  rdfs:label "widget type"@en ;
+  rdfs:comment "UI widget for displaying this element: 'table', 'tree', 'badge', 'progress', 'card', 'chip'."@en ;
+  rdfs:range xsd:string .
+
+exp:displaySection
+  a owl:AnnotationProperty ;
+  rdfs:label "display section"@en ;
+  rdfs:comment "Which dashboard section this element appears in: 'overview', 'classes', 'properties', 'annotations', 'coverage', 'references'."@en ;
+  rdfs:range xsd:string .
+
+exp:displayOrder
+  a owl:AnnotationProperty ;
+  rdfs:label "display order"@en ;
+  rdfs:comment "Sort order within a dashboard section (lower values appear first)."@en ;
+  rdfs:range xsd:integer .
+
+exp:tooltip
+  a owl:AnnotationProperty ;
+  rdfs:label "tooltip"@en ;
+  rdfs:comment "Hover text describing this element in the dashboard."@en ;
+  rdfs:range xsd:string .
+
+exp:icon
+  a owl:AnnotationProperty ;
+  rdfs:label "icon"@en ;
+  rdfs:comment "Emoji or icon identifier for visual identification in the dashboard."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 4. ANNOTATION PROPERTIES — Importance & Status
+# ============================================================================
+
+exp:importance
+  a owl:AnnotationProperty ;
+  rdfs:label "importance"@en ;
+  rdfs:comment "Importance level of this element: 'critical', 'high', 'medium', 'low'."@en ;
+  rdfs:range xsd:string .
+
+exp:annotationStatus
+  a owl:AnnotationProperty ;
+  rdfs:label "annotation status"@en ;
+  rdfs:comment "How completely this element is annotated: 'complete', 'partial', 'missing', 'not_applicable'."@en ;
+  rdfs:range xsd:string .
+
+exp:coveragePercent
+  a owl:AnnotationProperty ;
+  rdfs:label "coverage percent"@en ;
+  rdfs:comment "Percentage of elements in a category that have annotations (0-100)."@en ;
+  rdfs:range xsd:integer .
+
+exp:externalOntology
+  a owl:AnnotationProperty ;
+  rdfs:label "external ontology"@en ;
+  rdfs:comment "IRI of an external ontology that this element references or imports."@en ;
+  rdfs:range xsd:string .
+
+exp:referenceCount
+  a owl:AnnotationProperty ;
+  rdfs:label "reference count"@en ;
+  rdfs:comment "Number of references to an external ontology from this element."@en ;
+  rdfs:range xsd:integer .
+
+# ============================================================================
+# 5. DATATYPE PROPERTIES — Extracted Metrics (used in CONSTRUCT output)
+# ============================================================================
+
+exp:elementName
+  a owl:DatatypeProperty ;
+  rdfs:label "element name"@en ;
+  rdfs:comment "Local name of the ontology element."@en ;
+  rdfs:range xsd:string .
+
+exp:elementIri
+  a owl:DatatypeProperty ;
+  rdfs:label "element IRI"@en ;
+  rdfs:comment "Full IRI of the ontology element."@en ;
+  rdfs:range xsd:string .
+
+exp:elementType
+  a owl:DatatypeProperty ;
+  rdfs:label "element type"@en ;
+  rdfs:comment "Type of the ontology element: 'class', 'objectProperty', 'datatypeProperty', 'annotationProperty'."@en ;
+  rdfs:range xsd:string .
+
+exp:section
+  a owl:DatatypeProperty ;
+  rdfs:label "section"@en ;
+  rdfs:comment "Dashboard section for this profile (from displaySection annotation)."@en ;
+  rdfs:range xsd:string .
+
+exp:order
+  a owl:DatatypeProperty ;
+  rdfs:label "order"@en ;
+  rdfs:comment "Display order within section (from displayOrder annotation)."@en ;
+  rdfs:range xsd:integer .
+
+exp:status
+  a owl:DatatypeProperty ;
+  rdfs:label "status"@en ;
+  rdfs:comment "Annotation status (from annotationStatus annotation)."@en ;
+  rdfs:range xsd:string .
+
+exp:totalElements
+  a owl:DatatypeProperty ;
+  rdfs:label "total elements"@en ;
+  rdfs:comment "Total number of elements in a category."@en ;
+  rdfs:range xsd:integer .
+
+exp:annotatedElements
+  a owl:DatatypeProperty ;
+  rdfs:label "annotated elements"@en ;
+  rdfs:comment "Number of elements with explorer annotations in a category."@en ;
+  rdfs:range xsd:integer .
+
+exp:missingElements
+  a owl:DatatypeProperty ;
+  rdfs:label "missing elements"@en ;
+  rdfs:comment "Number of elements without explorer annotations in a category."@en ;
+  rdfs:range xsd:string .
+
+exp:totalClasses
+  a owl:DatatypeProperty ;
+  rdfs:label "total classes"@en ;
+  rdfs:comment "Total number of classes in the ontology."@en ;
+  rdfs:range xsd:integer .
+
+exp:totalProperties
+  a owl:DatatypeProperty ;
+  rdfs:label "total properties"@en ;
+  rdfs:comment "Total number of properties (object + datatype) in the ontology."@en ;
+  rdfs:range xsd:integer .
+
+exp:totalAnnotations
+  a owl:DatatypeProperty ;
+  rdfs:label "total annotations"@en ;
+  rdfs:comment "Total number of annotation properties in the ontology."@en ;
+  rdfs:range xsd:integer .
+
+exp:overallCoverage
+  a owl:DatatypeProperty ;
+  rdfs:label "overall coverage"@en ;
+  rdfs:comment "Overall annotation coverage percentage across all element types."@en ;
+  rdfs:range xsd:integer .
+
+exp:crossRefTarget
+  a owl:DatatypeProperty ;
+  rdfs:label "cross reference target"@en ;
+  rdfs:comment "IRI of the external ontology being referenced."@en ;
+  rdfs:range xsd:string .
+
+exp:crossRefCount
+  a owl:DatatypeProperty ;
+  rdfs:label "cross reference count"@en ;
+  rdfs:comment "Number of references to the external ontology."@en ;
+  rdfs:range xsd:integer .
+
+exp:ontologyUri
+  a owl:DatatypeProperty ;
+  rdfs:label "ontology URI"@en ;
+  rdfs:comment "URI of the ontology being explored."@en ;
+  rdfs:range xsd:string .
+
+exp:ontologyLabel
+  a owl:DatatypeProperty ;
+  rdfs:label "ontology label"@en ;
+  rdfs:comment "Human-readable label of the ontology."@en ;
+  rdfs:range xsd:string .

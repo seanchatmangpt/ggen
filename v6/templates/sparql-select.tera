@@ -1,0 +1,42 @@
+{# μ₂ Template: Renders SPARQL SELECT queries for extraction #}
+# SELECT Query: {{ query.name }}
+# Pass: μ₂:extraction
+# Binding key: {{ query.binding_key | default(value="results") }}
+
+{% if query.prefixes %}
+{% for prefix in query.prefixes %}
+PREFIX {{ prefix.short }}: <{{ prefix.uri }}>
+{% endfor %}
+{% endif %}
+
+SELECT {% if query.distinct %}DISTINCT {% endif %}{% for var in query.variables %}?{{ var }}{% if not loop.last %} {% endif %}{% endfor %}
+
+WHERE {
+{% for pattern in query.where %}
+{% if pattern.optional %}
+  OPTIONAL {
+    ?{{ pattern.subject }} {{ pattern.predicate }} ?{{ pattern.object }} .
+  }
+{% elif pattern.union %}
+  {
+{% for alt in pattern.alternatives %}
+    ?{{ alt.subject }} {{ alt.predicate }} ?{{ alt.object }} .
+{% if not loop.last %}  } UNION {
+{% endif %}
+{% endfor %}
+  }
+{% else %}
+  ?{{ pattern.subject }} {{ pattern.predicate }} ?{{ pattern.object }} .
+{% endif %}
+{% endfor %}
+{% if query.filter %}
+  FILTER({{ query.filter }})
+{% endif %}
+}
+{% if query.order_by %}
+ORDER BY {% for o in query.order_by %}{% if o.desc %}DESC({% endif %}?{{ o.var }}{% if o.desc %}){% endif %}{% if not loop.last %} {% endif %}{% endfor %}
+
+{% endif %}
+{% if query.limit %}
+LIMIT {{ query.limit }}
+{% endif %}

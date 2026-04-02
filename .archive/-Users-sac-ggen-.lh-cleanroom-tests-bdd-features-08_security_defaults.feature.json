@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/08_security_defaults.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841876,
+            "name": "Commit-0",
+            "content": "# features/08_security_defaults.feature\n@security\nFeature: Secure-by-default policy\n  Background:\n    Given a fixture project \"cli_net\"\n\n  Scenario: Network is disabled by default\n    When I run [\"fetch\",\"http://example.org\"] using \"docker\"\n    Then the exit code is nonzero\n    And stderr contains \"network disabled\"\n    And capabilities dropped include ALL\n    And process runs as non-root\n\n  Scenario: Opt-in permissive policy\n    Given I enable policy \"permissive\" explicitly\n    When I run [\"fetch\",\"http://example.org\"] using \"docker\"\n    Then the exit code is 0\n"
+        }
+    ]
+}

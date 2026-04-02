@@ -1,0 +1,301 @@
+---
+# Output file path with variable substitution
+to: generated/{{ name | snake_case }}.rs
+
+# Variable definitions with types
+vars:
+  name: string              # Struct name
+  description: string       # Struct documentation
+  has_id: boolean          # Whether to include an ID field
+  has_timestamps: boolean  # Whether to include created_at/updated_at
+  fields: array            # Additional fields: [{name: string, type: string, doc: string}]
+---
+{#
+  Advanced template demonstrating:
+  - Multiple variables with different types
+  - Conditional rendering with {% if %}
+  - Loops with {% for %}
+  - Multiple filter applications
+  - Complex struct generation
+#}
+
+//! {{ description }}
+
+use std::fmt;
+
+{# Conditional imports based on features #}
+{% if has_timestamps %}
+use std::time::SystemTime;
+{% endif %}
+
+/// {{ description }}
+///
+/// This struct was generated using ggen's template system.
+/// It demonstrates advanced template features including conditional
+/// fields and automatic implementation generation.
+#[derive(Debug, Clone, PartialEq)]
+{% if has_id %}
+#[derive(Eq, Hash)]
+{% endif %}
+pub struct {{ name | pascal_case }} {
+    {# Conditionally include ID field #}
+    {% if has_id %}
+    /// Unique identifier for this {{ name | lower }}
+    pub id: u64,
+    {% endif %}
+
+    {# Loop through custom fields #}
+    {% for field in fields %}
+    /// {{ field.doc | default(value="Field: " ~ field.name) }}
+    pub {{ field.name | snake_case }}: {{ field.type }},
+    {% endfor %}
+
+    {# Conditionally include timestamp fields #}
+    {% if has_timestamps %}
+    /// When this {{ name | lower }} was created
+    pub created_at: SystemTime,
+
+    /// When this {{ name | lower }} was last updated
+    pub updated_at: SystemTime,
+    {% endif %}
+}
+
+impl {{ name | pascal_case }} {
+    /// Creates a new {{ name | pascal_case }}
+    ///
+    /// # Arguments
+    ///
+    {% if has_id %}
+    /// * `id` - Unique identifier
+    {% endif %}
+    {% for field in fields %}
+    /// * `{{ field.name | snake_case }}` - {{ field.doc | default(value="Value for " ~ field.name) }}
+    {% endfor %}
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use {{ name | snake_case }}::{{ name | pascal_case }};
+    ///
+    /// let instance = {{ name | pascal_case }}::new(
+    {% if has_id %}
+    ///     1,
+    {% endif %}
+    {% for field in fields %}
+    ///     {{ field.type | default(value="Default::default()") }},
+    {% endfor %}
+    /// );
+    /// ```
+    pub fn new(
+        {% if has_id %}
+        id: u64,
+        {% endif %}
+        {% for field in fields %}
+        {{ field.name | snake_case }}: {{ field.type }},
+        {% endfor %}
+    ) -> Self {
+        Self {
+            {% if has_id %}
+            id,
+            {% endif %}
+            {% for field in fields %}
+            {{ field.name | snake_case }},
+            {% endfor %}
+            {% if has_timestamps %}
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
+            {% endif %}
+        }
+    }
+
+    {% if has_id %}
+    /// Returns the unique identifier
+    pub fn id(&self) -> u64 {
+        self.id
+    }
+    {% endif %}
+
+    {# Generate getters for each field #}
+    {% for field in fields %}
+    /// Returns a reference to the {{ field.name | snake_case }}
+    pub fn {{ field.name | snake_case }}(&self) -> &{{ field.type }} {
+        &self.{{ field.name | snake_case }}
+    }
+
+    /// Sets the {{ field.name | snake_case }}
+    pub fn set_{{ field.name | snake_case }}(&mut self, value: {{ field.type }}) {
+        self.{{ field.name | snake_case }} = value;
+        {% if has_timestamps %}
+        self.updated_at = SystemTime::now();
+        {% endif %}
+    }
+    {% endfor %}
+
+    {% if has_timestamps %}
+    /// Updates the timestamp to the current time
+    pub fn touch(&mut self) {
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Returns when this {{ name | lower }} was created
+    pub fn created_at(&self) -> SystemTime {
+        self.created_at
+    }
+
+    /// Returns when this {{ name | lower }} was last updated
+    pub fn updated_at(&self) -> SystemTime {
+        self.updated_at
+    }
+    {% endif %}
+}
+
+impl Default for {{ name | pascal_case }} {
+    fn default() -> Self {
+        Self::new(
+            {% if has_id %}
+            0,
+            {% endif %}
+            {% for field in fields %}
+            Default::default(),
+            {% endfor %}
+        )
+    }
+}
+
+impl fmt::Display for {{ name | pascal_case }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{{ name | pascal_case }} {{ '{' }}{% if has_id %}id: {}{% endif %}{% if fields and has_id %}, {% endif %}{% for field in fields %}{{ field.name }}: {:?}{% if not loop.last %}, {% endif %}{% endfor %}{{ '}' }}",
+            {% if has_id %}
+            self.id,
+            {% endif %}
+            {% for field in fields %}
+            self.{{ field.name | snake_case }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        )
+    }
+}
+
+/// Builder for {{ name | pascal_case }}
+///
+/// Provides a fluent API for constructing {{ name | pascal_case }} instances.
+///
+/// # Examples
+///
+/// ```
+/// use {{ name | snake_case }}::{{ name | pascal_case }}Builder;
+///
+/// let instance = {{ name | pascal_case }}Builder::new()
+{% if has_id %}
+///     .id(1)
+{% endif %}
+{% for field in fields %}
+///     .{{ field.name | snake_case }}(value)
+{% endfor %}
+///     .build();
+/// ```
+#[derive(Debug, Default)]
+pub struct {{ name | pascal_case }}Builder {
+    {% if has_id %}
+    id: Option<u64>,
+    {% endif %}
+    {% for field in fields %}
+    {{ field.name | snake_case }}: Option<{{ field.type }}>,
+    {% endfor %}
+}
+
+impl {{ name | pascal_case }}Builder {
+    /// Creates a new builder
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    {% if has_id %}
+    /// Sets the ID
+    pub fn id(mut self, id: u64) -> Self {
+        self.id = Some(id);
+        self
+    }
+    {% endif %}
+
+    {% for field in fields %}
+    /// Sets the {{ field.name | snake_case }}
+    pub fn {{ field.name | snake_case }}(mut self, value: {{ field.type }}) -> Self {
+        self.{{ field.name | snake_case }} = Some(value);
+        self
+    }
+    {% endfor %}
+
+    /// Builds the {{ name | pascal_case }} instance
+    ///
+    /// # Panics
+    ///
+    /// Panics if required fields are not set.
+    pub fn build(self) -> {{ name | pascal_case }} {
+        {{ name | pascal_case }}::new(
+            {% if has_id %}
+            self.id.expect("id is required"),
+            {% endif %}
+            {% for field in fields %}
+            self.{{ field.name | snake_case }}.expect("{{ field.name }} is required"),
+            {% endfor %}
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let instance = {{ name | pascal_case }}::new(
+            {% if has_id %}
+            1,
+            {% endif %}
+            {% for field in fields %}
+            Default::default(),
+            {% endfor %}
+        );
+
+        {% if has_id %}
+        assert_eq!(instance.id(), 1);
+        {% endif %}
+    }
+
+    #[test]
+    fn test_default() {
+        let instance = {{ name | pascal_case }}::default();
+        {% if has_id %}
+        assert_eq!(instance.id(), 0);
+        {% endif %}
+    }
+
+    #[test]
+    fn test_builder() {
+        let instance = {{ name | pascal_case }}Builder::new()
+            {% if has_id %}
+            .id(42)
+            {% endif %}
+            {% for field in fields %}
+            .{{ field.name | snake_case }}(Default::default())
+            {% endfor %}
+            .build();
+
+        {% if has_id %}
+        assert_eq!(instance.id(), 42);
+        {% endif %}
+    }
+
+    {% if has_timestamps %}
+    #[test]
+    fn test_timestamps() {
+        let mut instance = {{ name | pascal_case }}::default();
+        let created = instance.created_at();
+        std::thread::sleep(std::time::Duration::from_millis(10));
+        instance.touch();
+        assert!(instance.updated_at() > created);
+    }
+    {% endif %}
+}

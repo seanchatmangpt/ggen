@@ -1,0 +1,5 @@
+@prefix ggen: <http://ggen.dev/ontology#> .
+
+<http://example.org/template1> a ggen:Template ;
+  ggen:templateName "Invalid Syntax
+  this is missing closing quote and semicolon

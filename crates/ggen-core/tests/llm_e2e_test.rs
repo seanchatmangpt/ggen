@@ -54,6 +54,15 @@ fn to_clean_json(result: &CachedResult) -> Value {
     }
 }
 
+/// Extract the first row's value for a column, with quotes stripped
+#[allow(dead_code)]
+fn first_row_value(json: &Value, column: &str) -> Option<String> {
+    json.as_array()?
+        .first()?
+        .get(column)?
+        .as_str()
+        .map(|s| s.to_string())
+}
 
 // ---------------------------------------------------------------------------
 // Test Ontology with Behavior Predicates

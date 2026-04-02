@@ -142,7 +142,7 @@ impl SparqlExecutor {
         let pack_ns = format!("http://ggen.io/pack/{}/", pack.id);
         let rdf_ns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         let rdfs_ns = "http://www.w3.org/2000/01/rdf-schema#";
-        let ggen_ns = "http://ggen.dev/ontology#";
+        let ggen_ns = "http://ggen.io/ontology#";
 
         // Pack basic properties
         triples.push(format!(

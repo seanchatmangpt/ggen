@@ -1,0 +1,22 @@
+---
+to: "src/{{module_name}}.rs"
+vars:
+  module_name: "hello"
+  function_name: "greet"
+  message: "Hello, World!"
+---
+//! {{module_name}} module
+
+pub fn {{function_name}}() {
+    println!("{{message}}");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_{{function_name}}() {
+        {{function_name}}();
+    }
+}

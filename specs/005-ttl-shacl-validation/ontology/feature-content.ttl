@@ -1,0 +1,212 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/005-ttl-shacl-validation#> .
+
+# ============================================================================
+# Feature: TTL SHACL Validation Command
+# ============================================================================
+
+:ttl-shacl-validation a sk:Feature ;
+    sk:featureBranch "005-ttl-shacl-validation" ;
+    sk:featureName "Add TTL validation command to ggen CLI that validates RDF files against SHACL shapes" ;
+    sk:created "2025-12-19"^^xsd:date ;
+    sk:status "Draft" ;
+    sk:userInput "Add TTL validation command to ggen CLI that validates RDF files against SHACL shapes" ;
+    sk:hasUserStory :us-001, :us-002, :us-003 ;
+    sk:hasFunctionalRequirement :fr-001, :fr-002, :fr-003, :fr-004, :fr-005 ;
+    sk:hasSuccessCriterion :sc-001, :sc-002, :sc-003, :sc-004 ;
+    sk:hasEntity :entity-001, :entity-002, :entity-003, :entity-004 ;
+    sk:hasEdgeCase :edge-001, :edge-002, :edge-003 ;
+    sk:hasAssumption :assume-001, :assume-002, :assume-003 .
+
+# ============================================================================
+# User Stories (Prioritized)
+# ============================================================================
+
+# User Story 1 - Core Validation Command (P1 - MVP)
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Developer validates single TTL file against SHACL shapes" ;
+    sk:priority "P1" ;
+    sk:description "As a ggen developer, I want to validate a single TTL file against SHACL shapes using a CLI command, so that I can ensure my RDF specifications comply with the defined constraints before committing them." ;
+    sk:priorityRationale "Core MVP functionality - without this, developers cannot validate their specifications. This is the foundational capability upon which all other validation features depend." ;
+    sk:independentTest "Run 'ggen validate <file>.ttl --shapes shapes.ttl' on a sample TTL file with known SHACL violations and verify violations are detected and reported with clear error messages." ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "a valid TTL file that conforms to SHACL shapes" ;
+    sk:when "developer runs 'ggen validate file.ttl --shapes shapes.ttl'" ;
+    sk:then "command exits with code 0 and displays 'Validation passed: 0 violations found'" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "an invalid TTL file with 3 SHACL violations" ;
+    sk:when "developer runs 'ggen validate file.ttl --shapes shapes.ttl'" ;
+    sk:then "command exits with code 1, lists all 3 violations with line numbers, and displays error count" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "a TTL file with syntax errors" ;
+    sk:when "developer runs validation command" ;
+    sk:then "command reports parsing error with exact location and helpful message before attempting SHACL validation" .
+
+# User Story 2 - Clear Error Reporting (P2 - Essential UX)
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "Developer receives actionable validation error messages" ;
+    sk:priority "P2" ;
+    sk:description "As a ggen developer, I want validation errors to include specific details about what failed and where, so that I can quickly fix issues without guessing." ;
+    sk:priorityRationale "Essential for developer productivity and reducing frustration. Without clear error messages, developers waste significant time debugging. This directly impacts adoption and satisfaction." ;
+    sk:independentTest "Introduce various SHACL violations (missing required property, wrong datatype, cardinality violation) and verify each error message includes: violation type, affected node, failed constraint, file location, and suggested fix." ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "a TTL file with a missing required property 'sk:title'" ;
+    sk:when "validation runs" ;
+    sk:then "error message states 'Missing required property sk:title on node :us-001 at line 45' with shape constraint reference" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "a TTL file with priority value 'HIGH' instead of 'P1'" ;
+    sk:when "validation runs" ;
+    sk:then "error message states 'Invalid value for sk:priority: got \"HIGH\", expected one of [\"P1\", \"P2\", \"P3\"] on node :us-001 at line 12'" .
+
+# User Story 3 - Batch Validation (P3 - Productivity Enhancement)
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "Developer validates multiple TTL files in batch" ;
+    sk:priority "P3" ;
+    sk:description "As a ggen developer, I want to validate multiple TTL files in a single command, so that I can check entire specification directories efficiently during continuous integration." ;
+    sk:priorityRationale "Productivity enhancement for larger projects with multiple specification files. While useful, single-file validation (US1) is sufficient for MVP. This becomes valuable as projects scale." ;
+    sk:independentTest "Run 'ggen validate specs/**/*.ttl --shapes shapes.ttl' on a directory with 10 TTL files (5 valid, 5 invalid) and verify all files are checked, results are aggregated, and summary shows pass/fail count." ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "a directory with 10 TTL files, 8 valid and 2 invalid" ;
+    sk:when "developer runs 'ggen validate specs/**/*.ttl --shapes shapes.ttl'" ;
+    sk:then "command validates all 10 files, reports violations for the 2 invalid files, displays summary '8/10 passed', and exits with code 1" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "a glob pattern matching no files" ;
+    sk:when "developer runs 'ggen validate nonexistent/**/*.ttl --shapes shapes.ttl'" ;
+    sk:then "command displays 'No files found matching pattern' and exits with code 0 (not an error, just no work to do)" .
+
+# ============================================================================
+# Functional Requirements
+# ============================================================================
+
+:fr-001 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-001" ;
+    sk:description "System SHALL provide CLI command 'ggen validate <file-pattern> --shapes <shapes-file>' to validate RDF files against SHACL constraints" ;
+    sk:category "Command Interface" .
+
+:fr-002 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-002" ;
+    sk:description "System SHALL exit with code 0 when all validations pass and non-zero when any violation is found" ;
+    sk:category "Process Control" .
+
+:fr-003 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-003" ;
+    sk:description "System SHALL report each SHACL violation with: node identifier, constraint type, failed shape, file path, line number, and suggested remediation" ;
+    sk:category "Error Reporting" .
+
+:fr-004 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-004" ;
+    sk:description "System SHALL support glob patterns for file selection (e.g., 'specs/**/*.ttl') to enable batch validation" ;
+    sk:category "File Handling" .
+
+:fr-005 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-005" ;
+    sk:description "System SHALL validate TTL syntax before SHACL validation and report parsing errors separately with exact location" ;
+    sk:category "Pre-validation" .
+
+# ============================================================================
+# Success Criteria (Measurable, Technology-Agnostic)
+# ============================================================================
+
+:sc-001 a sk:SuccessCriterion ;
+    sk:criterionId "SC-001" ;
+    sk:description "Validation completes in under 5 seconds for TTL files containing up to 10,000 RDF triples" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "execution-time" ;
+    sk:target "< 5 seconds for 10K triples" .
+
+:sc-002 a sk:SuccessCriterion ;
+    sk:criterionId "SC-002" ;
+    sk:description "100% of SHACL shape violations are detected and reported (no false negatives)" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "detection-accuracy" ;
+    sk:target "100% (verified against reference SHACL validator)" .
+
+:sc-003 a sk:SuccessCriterion ;
+    sk:criterionId "SC-003" ;
+    sk:description "Error messages include exact file location for 100% of violations" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "error-location-accuracy" ;
+    sk:target "100% of errors have line:column information" .
+
+:sc-004 a sk:SuccessCriterion ;
+    sk:criterionId "SC-004" ;
+    sk:description "Developers can understand and fix validation errors without consulting external documentation in 90% of cases" ;
+    sk:measurable "true"^^xsd:boolean ;
+    sk:metric "error-message-clarity" ;
+    sk:target "90% of test users fix errors without help" .
+
+# ============================================================================
+# Key Entities (Domain Model)
+# ============================================================================
+
+:entity-001 a sk:Entity ;
+    sk:entityName "ValidationCommand" ;
+    sk:definition "CLI command that orchestrates the validation process" ;
+    sk:keyAttributes "input_files (list of paths), shapes_file (path), options (flags), exit_code (integer)" .
+
+:entity-002 a sk:Entity ;
+    sk:entityName "RDFDocument" ;
+    sk:definition "Turtle/RDF file being validated against SHACL shapes" ;
+    sk:keyAttributes "file_path, content_triples (count), syntax_valid (boolean), shacl_valid (boolean)" .
+
+:entity-003 a sk:Entity ;
+    sk:entityName "SHACLShapeSet" ;
+    sk:definition "Collection of SHACL shape constraints defining validation rules" ;
+    sk:keyAttributes "shapes_file_path, shape_count, constraint_types (list)" .
+
+:entity-004 a sk:Entity ;
+    sk:entityName "ValidationResult" ;
+    sk:definition "Outcome of validation process with violations and metadata" ;
+    sk:keyAttributes "file_path, violation_count, violations (list of Violation), passed (boolean), duration_ms" .
+
+# ============================================================================
+# Edge Cases
+# ============================================================================
+
+:edge-001 a sk:EdgeCase ;
+    sk:scenario "TTL file contains Unicode characters in IRIs or literals" ;
+    sk:expectedBehavior "Validation processes Unicode correctly without errors or character corruption" .
+
+:edge-002 a sk:EdgeCase ;
+    sk:scenario "SHACL shapes file is malformed or contains syntax errors" ;
+    sk:expectedBehavior "Command reports clear error about shapes file being invalid and exits with code 2 (config error, distinct from validation failure)" .
+
+:edge-003 a sk:EdgeCase ;
+    sk:scenario "TTL file is extremely large (>1GB) or contains millions of triples" ;
+    sk:expectedBehavior "Command validates incrementally or reports resource limits clearly, does not crash or hang indefinitely" .
+
+# ============================================================================
+# Assumptions
+# ============================================================================
+
+:assume-001 a sk:Assumption ;
+    sk:description "Developers have basic understanding of RDF/Turtle syntax and SHACL constraints (validation is not a teaching tool)" .
+
+:assume-002 a sk:Assumption ;
+    sk:description "SHACL shapes files conform to W3C SHACL specification (no custom extensions)" .
+
+:assume-003 a sk:Assumption ;
+    sk:description "Validation is performed offline/locally (no remote shape fetching required in MVP)" .

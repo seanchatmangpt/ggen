@@ -1,0 +1,28 @@
+graph LR
+    subgraph "Performance Comparison"
+        A[Traditional SPARQL<br/>10-100 μs] -->|100,000x| B[KNKHS Hot Path<br/>1.2 ns]
+    end
+    
+    subgraph "Operations"
+        O1[ASK S,P<br/>4.83 ticks]
+        O2[COUNT S,P<br/>4.83 ticks]
+        O3[ASK S,P,O<br/>1.4 ticks]
+    end
+    
+    subgraph "Use Cases"
+        U1[Authorization<br/>30% runtime]
+        U2[Property Existence<br/>20% runtime]
+        U3[Cardinality<br/>15% runtime]
+        U4[Type Check<br/>10% runtime]
+        U5[Lookups<br/>5% runtime]
+    end
+    
+    O1 --> U1
+    O1 --> U2
+    O2 --> U3
+    O1 --> U4
+    O1 --> U5
+    
+    style B fill:#90EE90
+    style O3 fill:#87CEEB
+

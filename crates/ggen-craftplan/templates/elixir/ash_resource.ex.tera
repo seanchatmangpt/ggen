@@ -1,0 +1,230 @@
+{#- Ash Resource Template - Generate complete Ash.Resource definitions -#}
+defmodule {{ module_path }} do
+  {%- if doc_comments %}
+  @moduledoc """
+  {{ doc_comments }}
+
+  Ash resource for {{ entity_name }} with full CRUD capabilities.
+  """
+  {%- else %}
+  @moduledoc false
+  {%- endif %}
+
+  use Ash.Resource,
+    otp_app: :{{ module_prefix | lower | replace(from="Craftplan", to="craftplan") }},
+    domain: {{ module_prefix }}.{{ domain | capitalize }},
+    data_layer: AshPostgres.DataLayer,
+    authorizers: [Ash.Policy.Authorizer],
+    extensions: [AshJsonApi.Resource, AshGraphql.Resource]
+
+  {%- if relationships %}
+  alias {{ module_prefix }}.{
+    {%- for rel in relationships %}
+      {%- if rel.kind == "belongs_to" or rel.kind == "has_many" or rel.kind == "has_one" %}
+        {{ rel.related }},
+      {%- endif %}
+    {%- endfor %}
+  }
+  {%- endif %}
+
+  json_api do
+    type "{{ entity_name | lower }}"
+
+    routes do
+      base("/{{ entity_name | lower }}")
+      get(:read)
+      index :list
+      post(:create)
+      patch(:update)
+      {%- if not (relationships | any(rel -> rel.kind == "has_many")) %}
+      delete(:destroy)
+      {%- endif %}
+    end
+  end
+
+  graphql do
+    type :{{ entity_name | lower }}
+
+    queries do
+      get(:get_{{ entity_name | lower }}, :read)
+      list(:list_{{ entity_name | lower }}s, :list)
+    end
+
+    mutations do
+      create :create_{{ entity_name | lower }}, :create
+      update :update_{{ entity_name | lower }}, :update
+      {%- if not (relationships | any(rel -> rel.kind == "has_many")) %}
+      destroy :destroy_{{ entity_name | lower }}, :destroy
+      {%- endif %}
+    end
+  end
+
+  postgres do
+    table "{{ table_name }}"
+    repo {{ module_prefix }}.Repo
+  end
+
+  actions do
+    defaults [:read, :destroy]
+
+    create :create do
+      primary? true
+
+      accept [
+        {%- for attr in attributes %}
+          {%- if not (attr.name == "id" or attr.name == "inserted_at" or attr.name == "updated_at") %}
+            :{{ attr.name }},
+          {%- endif %}
+        {%- endfor %}
+      ]
+
+      {%- if relationships | any(rel -> rel.kind == "has_many") %}
+      argument :{{ relationships | find(rel -> rel.kind == "has_many").name }}, {:array, :map}
+      change manage_relationship({{ relationships | find(rel -> rel.kind == "has_many").name }}, type: :direct_control)
+      {%- endif %}
+    end
+
+    update :update do
+      require_atomic? false
+
+      accept [
+        {%- for attr in attributes %}
+          {%- if not (attr.name == "id" or attr.name == "inserted_at" or attr.name == "updated_at") %}
+            :{{ attr.name }},
+          {%- endif %}
+        {%- endfor %}
+      ]
+
+      {%- if relationships | any(rel -> rel.kind == "has_many") %}
+      argument :{{ relationships | find(rel -> rel.kind == "has_many").name }}, {:array, :map}
+      change manage_relationship({{ relationships | find(rel -> rel.kind == "has_many").name }}, type: :direct_control)
+      {%- endif %}
+    end
+
+    read :list do
+      prepare build(sort: :{{ attributes | find(attr -> attr.name == "name" or attr.type == "string").name | default(value="id") }})
+
+      {%- if attributes | any(attr -> attr.type == "atom" and attr.constraints.one_of) %}
+      argument :status, {:array, :atom} do
+        allow_nil? true
+        default nil
+      end
+
+      filter expr(is_nil(^arg(:status)) or status in ^arg(:status))
+      {%- endif %}
+
+      pagination do
+        required? false
+        offset? true
+        keyset? true
+        countable true
+      end
+    end
+
+    read :keyset do
+      prepare build(sort: :{{ attributes | find(attr -> attr.name == "name" or attr.type == "string").name | default(value="id") }})
+      pagination keyset?: true
+    end
+  end
+
+  policies do
+    # API key scope check
+    policy always() do
+      authorize_if {{ module_prefix }}.Accounts.Checks.ApiScopeCheck
+    end
+
+    # Admin can do anything
+    bypass expr(^actor(:role) == :admin) do
+      authorize_if always()
+    end
+
+    # Staff/admin read access
+    policy action_type(:read) do
+      authorize_if expr(^actor(:role) in [:staff, :admin])
+    end
+
+    # Writes restricted to staff/admin
+    policy action_type([:create, :update, :destroy]) do
+      authorize_if expr(^actor(:role) in [:staff, :admin])
+    end
+  end
+
+  attributes do
+    uuid_primary_key :id
+
+    {%- for attr in attributes %}
+      {%- if not (attr.name == "id" or attr.name == "inserted_at" or attr.name == "updated_at") %}
+    attribute :{{ attr.name }}, {{ attr.type }} do
+      {%- if attr.allow_nil == false %}
+      allow_nil? false
+      {%- else %}
+      allow_nil? true
+      {%- endif %}
+
+      {%- if attr.public == true %}
+      public? true
+      {%- endif %}
+
+      {%- if attr.default %}
+      default {{ attr.default }}
+      {%- endif %}
+
+      {%- if attr.constraints and attr.constraints | length > 0 %}
+      constraints {{ attr.constraints | stringify_constraints }}
+      {%- endif %}
+
+      {%- if attr.description %}
+      description "{{ attr.description }}"
+      {%- endif %}
+    end
+
+      {%- endif %}
+    {%- endfor %}
+
+    timestamps()
+  end
+
+  {%- if relationships and relationships | length > 0 %}
+  relationships do
+    {%- for rel in relationships %}
+    {{ rel.kind }} :{{ rel.name }}{%- if rel.kind != "many_to_many" %}, {{ rel.related }}{%- endif %}
+      {%- if rel.destination %} do
+        destination {{ rel.destination }}
+        {%- if rel.allow_nil == false %}
+        allow_nil? false
+        {%- endif %}
+      {%- endif %}
+
+      {%- if rel.through %} do
+        through {{ rel.through }}
+      {%- endif %}
+
+    {%- endfor %}
+  end
+  {%- endif %}
+
+  {%- if attributes | any(attr -> attr.type == "decimal") %}
+  calculations do
+    {%- for attr in attributes %}
+      {%- if attr.type == "decimal" %}
+    calculate :{{ attr.name }}_string, :string do
+      implementation {Decimal, :to_string}
+      argument :{{ attr.name }}, :decimal do
+        allow_nil? true
+      end
+    end
+      {%- endif %}
+    {%- endfor %}
+  end
+  {%- endif %}
+
+  {%- if attributes | any(attr -> attr.unique == true) %}
+  identities do
+    {%- for attr in attributes %}
+      {%- if attr.unique == true %}
+    identity :unique_{{ attr.name }}, [{{ attr.name }}]
+      {%- endif %}
+    {%- endfor %}
+  end
+  {%- endif %}
+end

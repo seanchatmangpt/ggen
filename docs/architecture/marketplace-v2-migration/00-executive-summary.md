@@ -57,169 +57,218 @@ This document provides a comprehensive architecture for migrating from marketpla
 
 ### High-Level Architecture
 
-```mermaid
-flowchart TD
-    subgraph CLI["CLI Layer (ggen-cli)"]
-        SEARCH["search"]
-        INSTALL["install"]
-        PUBLISH["publish"]
-        LIST["list"]
-    end
-
-    subgraph ADAPTER["Adapter Layer (ggen-domain/marketplace)"]
-        TRAIT["MarketplaceBackend Trait<br/>(Unified API)"]
-        V1ADAPTER["V1Adapter"]
-        V2ADAPTER["V2Adapter"]
-        DUALADAPTER["DualAdapter"]
-    end
-
-    subgraph BACKENDS["Backend Storage"]
-        V1["Marketplace V1<br/>(Tantivy)"]
-        V2["Marketplace V2<br/>(RDF/SPARQL)"]
-        BOTH["Both (A/B Testing)"]
-    end
-
-    SEARCH --> TRAIT
-    INSTALL --> TRAIT
-    PUBLISH --> TRAIT
-    LIST --> TRAIT
-
-    TRAIT --> V1ADAPTER
-    TRAIT --> V2ADAPTER
-    TRAIT --> DUALADAPTER
-
-    V1ADAPTER --> V1
-    V2ADAPTER --> V2
-    DUALADAPTER --> BOTH
-
-    style CLI fill:#e1f5ff
-    style ADAPTER fill:#fff4e6
-    style BACKENDS fill:#c8e6c9
+```
+┌─────────────────────────────────────────────────────────┐
+│                    CLI Layer (ggen-cli)                 │
+│  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐       │
+│  │ search │  │install │  │publish │  │ list   │       │
+│  └────┬───┘  └───┬────┘  └───┬────┘  └───┬────┘       │
+└───────┼──────────┼───────────┼───────────┼─────────────┘
+        │          │           │           │
+        └──────────┴───────────┴───────────┘
+                   │
+        ┌──────────▼──────────────────────────────────────┐
+        │   Adapter Layer (ggen-domain/marketplace)       │
+        │  ┌─────────────────────────────────────────┐    │
+        │  │  MarketplaceBackend Trait (Unified API) │    │
+        │  └─────────────────────────────────────────┘    │
+        │         ▲              ▲              ▲          │
+        │         │              │              │          │
+        │   ┌─────┴───┐    ┌────┴────┐   ┌────┴──────┐   │
+        │   │V1Adapter│    │V2Adapter│   │DualAdapter│   │
+        │   └─────────┘    └─────────┘   └───────────┘   │
+        └──────┬────────────────┬────────────────┬────────┘
+               │                │                │
+        ┌──────▼──────┐  ┌──────▼──────┐  ┌────▼─────┐
+        │Marketplace  │  │Marketplace  │  │Both (A/B)│
+        │    V1       │  │    V2       │  │          │
+        │  (Tantivy)  │  │(RDF/SPARQL)│  │          │
+        └─────────────┘  └─────────────┘  └──────────┘
 ```
 
 ### Feature Gate Architecture
 
-```mermaid
-flowchart LR
-    subgraph FEATURES["Cargo Features"]
-        DEFAULT["default = [marketplace-v1]"]
-        V1FEAT["marketplace-v1<br/>= [ggen-marketplace]"]
-        V2FEAT["marketplace-v2<br/>= [ggen-marketplace-v2,<br/>rdf-backend,<br/>crypto-signing]"]
-        PARALLEL["marketplace-parallel<br/>= [marketplace-v1,<br/>marketplace-v2,<br/>dual-backend]"]
-    end
-
-    subgraph BUILDS["Build Configurations"]
-        V1ONLY["V1 Only Backend"]
-        V2ONLY["V2 Only Backend"]
-        DUAL["V1 + V2 (Dual)"]
-    end
-
-    DEFAULT --> V1ONLY
-    V1FEAT --> V1ONLY
-    V2FEAT --> V2ONLY
-    PARALLEL --> DUAL
-
-    style FEATURES fill:#e1f5ff
-    style BUILDS fill:#c8e6c9
+```
+Cargo Features:
+┌──────────────────────────────────────────────────────┐
+│  default = ["marketplace-v1"]                        │
+│                                                       │
+│  marketplace-v1 = ["ggen-marketplace"]               │
+│  marketplace-v2 = ["ggen-marketplace-v2",            │
+│                    "rdf-backend",                    │
+│                    "crypto-signing"]                 │
+│  marketplace-parallel = ["marketplace-v1",           │
+│                          "marketplace-v2",           │
+│                          "dual-backend"]             │
+└──────────────────────────────────────────────────────┘
+           │                  │                  │
+           ▼                  ▼                  ▼
+      ┌────────┐        ┌────────┐        ┌──────────┐
+      │V1 Only │        │V2 Only │        │V1 + V2   │
+      │Backend │        │Backend │        │ (Dual)   │
+      └────────┘        └────────┘        └──────────┘
 ```
 
 ### Data Flow Architecture
 
-```mermaid
-sequenceDiagram
-    participant User as User Request
-    participant CLI as CLI (marketplace.rs)
-    participant Selector as Backend Selector
-    participant V1Adapter as V1 Adapter
-    participant V2Adapter as V2 Adapter
-    participant Tantivy as Tantivy Index
-    participant Oxigraph as Oxigraph RDF Store
-    participant Converter as UnifiedPackage Converter
-
-    User->>CLI: search "rust framework"
-    CLI->>CLI: Parse arguments
-    CLI->>Selector: Create backend from config
-
-    Selector->>Selector: Check feature flags
-    Selector->>Selector: Read config (v1/v2/ab-test)
-
-    alt V1 Backend
-        Selector->>V1Adapter: Create V1 adapter
-        V1Adapter->>V1Adapter: Convert to tantivy query
-        V1Adapter->>Tantivy: Search
-        Tantivy-->>V1Adapter: Tantivy results
-        V1Adapter->>Converter: Convert to UnifiedPackage
-    else V2 Backend
-        Selector->>V2Adapter: Create V2 adapter
-        V2Adapter->>V2Adapter: Convert to SPARQL query
-        V2Adapter->>Oxigraph: SPARQL query
-        Oxigraph-->>V2Adapter: RDF results
-        V2Adapter->>Converter: Convert to UnifiedPackage
-    end
-
-    Converter-->>CLI: UnifiedPackage results
-    CLI-->>User: SearchResults (JSON)
+```
+User Request (search "rust framework")
+    │
+    ▼
+┌─────────────────────────────────────┐
+│   CLI (marketplace.rs)              │
+│   - Parse arguments                 │
+│   - Create backend from config      │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│   Backend Selector                  │
+│   - Check feature flags             │
+│   - Read config (v1/v2/ab-test)     │
+│   - Create appropriate adapter      │
+└──────────────┬──────────────────────┘
+               │
+       ┌───────┴────────┐
+       │                │
+       ▼                ▼
+┌─────────────┐  ┌─────────────┐
+│ V1 Adapter  │  │ V2 Adapter  │
+│             │  │             │
+│ Convert to  │  │ Convert to  │
+│ tantivy     │  │ SPARQL      │
+│ query       │  │ query       │
+└──────┬──────┘  └──────┬──────┘
+       │                │
+       ▼                ▼
+┌─────────────┐  ┌─────────────┐
+│  Tantivy    │  │  Oxigraph   │
+│   Index     │  │  RDF Store  │
+│  (search)   │  │  (SPARQL)   │
+└──────┬──────┘  └──────┬──────┘
+       │                │
+       ▼                ▼
+┌─────────────┐  ┌─────────────┐
+│ V1 Results  │  │ V2 Results  │
+│ (tantivy)   │  │ (RDF)       │
+└──────┬──────┘  └──────┬──────┘
+       │                │
+       ▼                ▼
+┌─────────────────────────────┐
+│  Convert to UnifiedPackage  │
+│  (common data model)        │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│   SearchResults             │
+│   (JSON output for CLI)     │
+└─────────────────────────────┘
 ```
 
 ### Migration Phases Timeline
 
-```mermaid
-gantt
-    title Marketplace V2 Migration Timeline (5 Weeks)
-    dateFormat  YYYY-MM-DD
-    section Week 1: Feature Gates + Adapter
-    Feature Gates (Day 1-2)           :w1g1, 2026-04-01, 2d
-    Adapter Layer (Day 3-7)           :w1g2, after w1g1, 5d
+```
+Week 1: Feature Gates + Adapter Layer
+┌──────────────────────────────────────────────┐
+│ Day 1-2: Feature Gates                       │
+│   - Cargo.toml changes                       │
+│   - Conditional compilation                  │
+│   - CI tests all feature combinations        │
+│                                               │
+│ Day 3-7: Adapter Layer                       │
+│   - MarketplaceBackend trait                 │
+│   - V1Adapter + V2Adapter                    │
+│   - DualBackendAdapter                       │
+│   - All tests passing                        │
+└──────────────────────────────────────────────┘
 
-    section Week 2: Search Migration
-    10% V2 traffic (Day 8)            :w2g1, 2026-04-08, 1d
-    25% V2 traffic (Day 10)           :w2g2, after w2g1, 2d
-    50% V2 traffic (Day 12)           :w2g3, after w2g2, 2d
-    100% V2 with fallback (Day 14)    :w2g4, after w2g3, 2d
+Week 2: Search Migration (A/B Testing)
+┌──────────────────────────────────────────────┐
+│ Day 8:  10% V2 traffic                       │
+│ Day 10: 25% V2 traffic                       │
+│ Day 12: 50% V2 traffic                       │
+│ Day 14: 100% V2 (with V1 fallback)           │
+│   - Monitor latency, accuracy, error rate    │
+│   - SLO: <100ms p95 latency                  │
+└──────────────────────────────────────────────┘
 
-    section Week 3: Registry/Installation
-    Deploy V2 registry (Day 15-16)    :w3g1, 2026-04-15, 2d
-    10% V2 installation (Day 17)      :w3g2, after w3g1, 1d
-    50% V2 installation (Day 19)      :w3g3, after w3g2, 2d
-    100% V2 with fallback (Day 21)    :w3g4, after w3g3, 2d
+Week 3: Registry/Installation Migration
+┌──────────────────────────────────────────────┐
+│ Day 15-16: Deploy V2 registry                │
+│ Day 17: 10% V2 installation                  │
+│ Day 19: 50% V2 installation                  │
+│ Day 21: 100% V2 (with V1 fallback)           │
+│   - Dependency resolution working            │
+│   - SLO: <5s p95 installation time           │
+└──────────────────────────────────────────────┘
 
-    section Week 4: Publishing + Signing
-    Deploy Ed25519 signing (Day 22-23):w4g1, 2026-04-22, 2d
-    Enable signing opt-in (Day 24)    :w4g2, after w4g1, 1d
-    Monitor adoption (Day 25-27)      :w4g3, after w4g2, 3d
+Week 4: Publishing with Signing
+┌──────────────────────────────────────────────┐
+│ Day 22-23: Deploy Ed25519 signing            │
+│ Day 24: Enable signing (opt-in)              │
+│ Day 27: Monitor adoption                     │
+│   - Key generation working                   │
+│   - Signature verification working           │
+│   - Documentation published                  │
+└──────────────────────────────────────────────┘
 
-    section Week 5: Documentation & Cutover
-    Complete documentation (Day 29-30) :w5g1, 2026-04-29, 2d
-    75% V2 traffic (Day 31)           :w5g2, after w5g1, 1d
-    100% V2 traffic (Day 32)          :w5g3, after w5g2, 1d
-    Final validation (Day 33)         :w5g4, after w5g3, 1d
-    Announce V2 default (Day 34)      :w5g5, after w5g4, 1d
-    Post-launch monitoring (Day 35)   :w5g6, after w5g5, 1d
+Week 5: Documentation & Cutover
+┌──────────────────────────────────────────────┐
+│ Day 29-30: Complete documentation            │
+│ Day 31: 75% V2 traffic                       │
+│ Day 32: 100% V2 traffic                      │
+│ Day 33: Final validation                     │
+│ Day 34: Announce V2 as default               │
+│ Day 35: Post-launch monitoring               │
+└──────────────────────────────────────────────┘
 ```
 
 ### Error Handling and Fallback Flow
 
-```mermaid
-flowchart TD
-    START["User Operation<br/>(search/install/etc)"]
-    ADAPTER["DualBackendAdapter<br/>Strategy: V2WithFallback"]
-    V2EXEC["Execute on V2 Backend"]
-
-    START --> ADAPTER
-    ADAPTER --> V2EXEC
-
-    V2EXEC --> V2SUCCESS{V2 Success?}
-    V2SUCCESS -->|Yes| V2RETURN["Return V2 Results"]
-    V2SUCCESS -->|No| V2FAIL["Log V2 Failure<br/>Increment fallback_count"]
-
-    V2FAIL --> V1EXEC["Execute on V1 Backend<br/>(Automatic Fallback)"]
-    V1EXEC --> V1SUCCESS{V1 Success?}
-    V1SUCCESS -->|Yes| V1RETURN["Return V1 Results"]
-    V1SUCCESS -->|No| ERROR["Return Error<br/>(Both failed)"]
-
-    style V2RETURN fill:#c8e6c9
-    style V1RETURN fill:#fff4e6
-    style ERROR fill:#ffcdd2
+```
+┌─────────────────────────────────────────┐
+│  User Operation (search/install/etc)    │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│  DualBackendAdapter                     │
+│  Strategy: V2WithFallback               │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│  Execute on V2 Backend                  │
+└──────┬──────────────────────────────────┘
+       │
+   ────┴────
+  │         │
+Success    Failure
+  │         │
+  │         └────────────────────┐
+  │                              │
+  ▼                              ▼
+┌─────────────────┐   ┌─────────────────────────┐
+│ Return V2       │   │ Log V2 Failure          │
+│ Results         │   │ Increment fallback_count│
+└─────────────────┘   └──────────┬──────────────┘
+                                 │
+                                 ▼
+                      ┌─────────────────────────┐
+                      │ Execute on V1 Backend   │
+                      │ (Automatic Fallback)    │
+                      └──────┬──────────────────┘
+                             │
+                         ────┴────
+                        │         │
+                      Success   Failure
+                        │         │
+                        ▼         ▼
+                  ┌──────────┐ ┌──────────────┐
+                  │Return V1 │ │Return Error  │
+                  │Results   │ │(Both failed) │
+                  └──────────┘ └──────────────┘
 ```
 
 ## Key Technical Decisions

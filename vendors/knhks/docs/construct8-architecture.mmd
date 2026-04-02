@@ -1,0 +1,101 @@
+graph TB
+    subgraph TestLayer["Chicago TDD Test Layer"]
+        Test[chicago_construct8.c<br/>Test Framework]
+        Timing[Timing Measurement<br/>knhk_rd_ticks before/after<br/>Validate ≤ 2ns/8 ticks]
+        Test --> Timing
+    end
+    
+    subgraph APILayer["Public API Layer"]
+        Eval[knhk_eval_construct8<br/>include/knhk/eval.h<br/>Validation & Receipt Filling]
+        Context[knhk_context_t<br/>S, P, O arrays<br/>run metadata]
+        IR[knhk_hook_ir_t<br/>op, p_const, o_const<br/>out_S, out_P, out_O pointers]
+        Receipt[knhk_receipt_t<br/>lanes, span_id, a_hash<br/>No ticks in hot path]
+    end
+    
+    subgraph SIMDLayer["SIMD Implementation Layer"]
+        Construct8[knhk_construct8_emit_8<br/>src/simd/construct.h<br/>Hot Path: Pure CONSTRUCT Logic]
+        Common[common.h<br/>Architecture Detection<br/>SIMD Includes]
+        
+        subgraph ARM64["ARM64 Implementation"]
+            ARM_Load[4x vld1q_u64<br/>Load 8 subjects]
+            ARM_Mask[veorq_u64 + vceqq_u64<br/>Generate masks]
+            ARM_Blend[12x vbslq_u64<br/>Blend operations]
+            ARM_Store[12x vst1q_u64<br/>Aligned stores]
+            ARM_Extract[8x lane extracts<br/>MSB bit extraction]
+        end
+        
+        subgraph x86_64["x86_64 Implementation"]
+            x86_Load[2x _mm256_loadu_si256<br/>Load 8 subjects]
+            x86_Mask[_mm256_andnot_si256<br/>Generate masks]
+            x86_Blend[6x _mm256_blendv_epi8<br/>Blend operations]
+            x86_Store[6x _mm256_store_si256<br/>Aligned stores]
+            x86_Extract[_mm256_movemask_pd<br/>Bit extraction]
+        end
+        
+        subgraph Scalar["Scalar Fallback"]
+            ScalarLoop[for loop len times<br/>if non-zero emit triple]
+        end
+    end
+    
+    subgraph Optimizations["Optimizations Applied"]
+        Align[Alignment Hints<br/>__builtin_assume_aligned<br/>64-byte alignment]
+        Prefetch[Prefetch Hints<br/>__builtin_prefetch<br/>L1 cache warming]
+        ILP[ILP Optimization<br/>Overlap stores + mask extraction]
+        Branchless[Branchless Operations<br/>No conditionals in hot path<br/>SIMD mask operations]
+        Popcount[Popcount<br/>__builtin_popcountll<br/>Single instruction count]
+    end
+    
+    subgraph DataLayout["Data Layout (SoA)"]
+        SoA_S[Subject Array<br/>64-byte aligned<br/>8x uint64_t]
+        SoA_P[Predicate Array<br/>64-byte aligned<br/>8x uint64_t]
+        SoA_O[Object Array<br/>64-byte aligned<br/>8x uint64_t]
+        OutArrays[Output Arrays<br/>64-byte aligned<br/>Preallocated buffers]
+    end
+    
+    Test --> Eval
+    Timing -.->|Measures| Eval
+    
+    Eval --> Construct8
+    Eval --> Context
+    Eval --> IR
+    Eval --> Receipt
+    
+    Construct8 --> Common
+    Common --> ARM64
+    Common --> x86_64
+    Common --> Scalar
+    
+    ARM64 --> ARM_Load
+    ARM_Load --> ARM_Mask
+    ARM_Mask --> ARM_Blend
+    ARM_Blend --> ARM_Store
+    ARM_Store --> ARM_Extract
+    
+    x86_64 --> x86_Load
+    x86_Load --> x86_Mask
+    x86_Mask --> x86_Blend
+    x86_Blend --> x86_Store
+    x86_Store --> x86_Extract
+    
+    Construct8 --> Align
+    Construct8 --> Prefetch
+    Construct8 --> ILP
+    Construct8 --> Branchless
+    Construct8 --> Popcount
+    
+    Context --> SoA_S
+    Context --> SoA_P
+    Context --> SoA_O
+    IR --> OutArrays
+    
+    ARM_Store --> OutArrays
+    x86_Store --> OutArrays
+    ScalarLoop --> OutArrays
+    
+    style Construct8 fill:#FFD700
+    style Eval fill:#90EE90
+    style ARM64 fill:#87CEEB
+    style x86_64 fill:#FFB6C1
+    style Branchless fill:#DDA0DD
+    style Optimizations fill:#FFA500
+

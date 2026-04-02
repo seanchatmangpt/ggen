@@ -1,0 +1,90 @@
+sequenceDiagram
+    participant Caller as Test/Caller
+    participant Eval as knhk_eval_construct8
+    participant SIMD as knhk_construct8_emit_8
+    participant ARM as ARM64 SIMD
+    participant x86 as x86_64 SIMD
+    participant Memory as Memory (SoA Arrays)
+    
+    Caller->>Eval: knhk_eval_construct8(ctx, ir, rcpt)
+    Eval->>Eval: Validate inputs (ctx, ir, op)
+    Eval->>Eval: Check output buffers (out_S, out_P, out_O)
+    Eval->>Eval: Validate predicate match
+    
+    alt Architecture == ARM64
+        Eval->>SIMD: knhk_construct8_emit_8(S, off, len, p, o, ...)
+        SIMD->>SIMD: Alignment hints (__builtin_assume_aligned)
+        SIMD->>SIMD: Prefetch input data (L1 cache)
+        
+        SIMD->>Memory: Load 4x uint64x2_t (s0, s1, s2, s3)
+        Memory-->>SIMD: 8 subjects loaded
+        
+        SIMD->>ARM: vceqq_u64(s0, zero), vceqq_u64(s1, zero), ...
+        ARM-->>SIMD: Comparison results
+        SIMD->>ARM: veorq_u64(comparison, all_ones)
+        ARM-->>SIMD: Masks m0, m1, m2, m3 (UINT64_MAX or 0)
+        
+        SIMD->>ARM: vdupq_n_u64(p_const), vdupq_n_u64(o_const)
+        ARM-->>SIMD: Broadcast vectors p_vec, o_vec
+        
+        SIMD->>ARM: vbslq_u64(m0, s0, zero) - 12 blend operations
+        Note over ARM: Parallel blend: 4x S, 4x P, 4x O<br/>All 12 operations in registers
+        ARM-->>SIMD: Blended outputs (out_s0, out_p0, out_o0, ...)
+        
+        SIMD->>Memory: Store 12 SIMD vectors (vst1q_u64)
+        Note over Memory: 4 stores for S<br/>4 stores for P<br/>4 stores for O<br/>Aligned stores
+        
+        SIMD->>ARM: Extract MSBs from masks (8 lane extracts)
+        ARM-->>SIMD: Mask bitmap bits
+        
+        SIMD->>SIMD: Apply length mask (mask &= len_mask_bits)
+        SIMD->>SIMD: Popcount mask (__builtin_popcountll)
+        SIMD-->>Eval: Return count
+        
+    else Architecture == x86_64
+        Eval->>SIMD: knhk_construct8_emit_8(S, off, len, p, o, ...)
+        SIMD->>SIMD: Alignment hints (__builtin_assume_aligned)
+        SIMD->>SIMD: Prefetch input data (L1 cache)
+        
+        SIMD->>Memory: Load 2x __m256i (s0, s1)
+        Memory-->>SIMD: 8 subjects loaded
+        
+        SIMD->>x86: _mm256_cmpeq_epi64(s0, zero), _mm256_cmpeq_epi64(s1, zero)
+        x86-->>SIMD: Comparison results
+        SIMD->>x86: _mm256_andnot_si256(comparison, all_ones)
+        x86-->>SIMD: Masks m0, m1 (UINT64_MAX or 0)
+        
+        SIMD->>x86: _mm256_set1_epi64x(p_const), _mm256_set1_epi64x(o_const)
+        x86-->>SIMD: Broadcast vectors p_vec, o_vec
+        
+        SIMD->>x86: _mm256_blendv_epi8(zero, s0, m0) - 6 blend operations
+        Note over x86: Parallel blend: 2x S, 2x P, 2x O<br/>All 6 operations in registers
+        x86-->>SIMD: Blended outputs (out_s0, out_p0, out_o0, ...)
+        
+        SIMD->>Memory: Store 6 SIMD vectors (_mm256_store_si256)
+        Note over Memory: 2 stores for S<br/>2 stores for P<br/>2 stores for O<br/>Aligned stores
+        
+        SIMD->>x86: _mm256_movemask_pd(m0), _mm256_movemask_pd(m1)
+        x86-->>SIMD: Mask bits (8 bits total)
+        
+        SIMD->>SIMD: Apply length mask (mask &= len_mask_bits)
+        SIMD->>SIMD: Popcount mask (__builtin_popcountll)
+        SIMD-->>Eval: Return count
+        
+    else Scalar Fallback
+        Eval->>SIMD: Scalar loop (len iterations)
+        loop For each i < len
+            SIMD->>SIMD: if s_p[i] != 0
+            SIMD->>Memory: Write triple (out_S[idx], out_P[idx], out_O[idx])
+            SIMD->>SIMD: Set mask bit (mask |= 1ULL << i)
+            SIMD->>SIMD: idx++
+        end
+        SIMD-->>Eval: Return idx
+    end
+    
+    Eval->>Eval: Fill receipt (user knowledge only)
+    Eval->>Eval: rcpt->lanes = written
+    Eval->>Eval: rcpt->span_id = generate_span_id()
+    Eval->>Eval: rcpt->a_hash = provenance hash
+    Eval-->>Caller: Return written count
+

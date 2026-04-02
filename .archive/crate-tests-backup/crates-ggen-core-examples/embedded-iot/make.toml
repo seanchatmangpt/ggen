@@ -1,0 +1,410 @@
+# Embedded IoT Sensor Firmware - Build Lifecycle
+# Comprehensive phases for ARM Cortex-M cross-compilation
+
+[env]
+PROJECT_NAME = "embedded-iot-sensor"
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+# ARM target configurations
+ARM_TARGETS = "thumbv7em-none-eabihf thumbv7m-none-eabi thumbv6m-none-eabi"
+DEFAULT_TARGET = "thumbv7em-none-eabihf"
+
+# Binary paths
+TARGET_DIR = "target"
+BINARY_NAME = "sensor-firmware"
+
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+# ============================================
+# Phase 1: Setup Embedded Toolchain
+# ============================================
+
+[tasks.setup-embedded]
+description = "Install ARM targets and embedded tools"
+script = '''
+#!/bin/bash
+set -e
+
+echo "📦 Installing ARM Cortex-M targets..."
+
+# Install ARM targets
+rustup target add thumbv7em-none-eabihf  # Cortex-M4F/M7F (with FPU)
+rustup target add thumbv7m-none-eabi     # Cortex-M3
+rustup target add thumbv6m-none-eabi     # Cortex-M0/M0+
+
+echo "🔧 Installing embedded development tools..."
+
+# Install cargo-binutils for size analysis and objdump
+rustup component add llvm-tools-preview
+cargo install cargo-binutils || true
+
+# Install cargo-size for binary size analysis
+cargo install cargo-size || true
+
+# Install probe-run for flashing (if not already installed)
+cargo install probe-run || true
+
+# Install cargo-bloat for size profiling
+cargo install cargo-bloat || true
+
+echo "✅ Embedded toolchain setup complete!"
+echo "Installed targets:"
+rustup target list --installed | grep thumb || true
+'''
+
+# ============================================
+# Phase 2: Build Configurations
+# ============================================
+
+[tasks.build-debug]
+description = "Build debug version with symbols (size-optimized)"
+dependencies = ["setup-embedded"]
+command = "cargo"
+args = ["build", "--target", "${DEFAULT_TARGET}"]
+
+[tasks.build-release]
+description = "Build release version with maximum size optimization"
+dependencies = ["setup-embedded"]
+command = "cargo"
+args = ["build", "--release", "--target", "${DEFAULT_TARGET}"]
+
+[tasks.build-size]
+description = "Build with aggressive size optimization profile"
+dependencies = ["setup-embedded"]
+command = "cargo"
+args = ["build", "--profile", "size", "--target", "${DEFAULT_TARGET}"]
+
+[tasks.build-all-targets]
+description = "Build for all ARM targets in parallel"
+dependencies = ["setup-embedded"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "🏗️  Building for all ARM targets..."
+
+for target in ${ARM_TARGETS}; do
+  echo "Building for $target..."
+  cargo build --release --target $target &
+done
+
+wait
+echo "✅ All targets built successfully!"
+'''
+
+# ============================================
+# Phase 3: Size Analysis
+# ============================================
+
+[tasks.size-analysis]
+description = "Analyze binary size and memory usage"
+dependencies = ["build-release"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "📊 Binary Size Analysis"
+echo "======================="
+
+TARGET="${DEFAULT_TARGET}"
+BINARY="target/${TARGET}/release/${BINARY_NAME}"
+
+if [ ! -f "$BINARY" ]; then
+  echo "❌ Binary not found: $BINARY"
+  exit 1
+fi
+
+echo ""
+echo "📦 Binary file size:"
+ls -lh "$BINARY" | awk '{print $5, $9}'
+
+echo ""
+echo "🔍 Memory sections (cargo-size):"
+cargo size --release --target ${TARGET} -- -A
+
+echo ""
+echo "📈 Size by section (rust-size):"
+rust-size "$BINARY" || cargo size --release --target ${TARGET}
+
+echo ""
+echo "🎯 Top 10 largest symbols (cargo-bloat):"
+cargo bloat --release --target ${TARGET} -n 10 || echo "Install cargo-bloat for detailed analysis"
+
+echo ""
+echo "💾 Memory usage estimate:"
+echo "Flash: ~$(($(stat -f%z "$BINARY" 2>/dev/null || stat -c%s "$BINARY") / 1024)) KB"
+'''
+
+[tasks.size-compare]
+description = "Compare sizes across build profiles"
+script = '''
+#!/bin/bash
+set -e
+
+echo "📊 Size Comparison Across Profiles"
+echo "==================================="
+
+TARGET="${DEFAULT_TARGET}"
+
+for profile in debug release size; do
+  if [ "$profile" = "debug" ]; then
+    binary="target/${TARGET}/${profile}/${BINARY_NAME}"
+  else
+    binary="target/${TARGET}/${profile}/${BINARY_NAME}"
+  fi
+
+  if [ -f "$binary" ]; then
+    size=$(stat -f%z "$binary" 2>/dev/null || stat -c%s "$binary")
+    size_kb=$((size / 1024))
+    echo "Profile: $profile - Size: ${size_kb} KB ($size bytes)"
+  else
+    echo "Profile: $profile - Not built"
+  fi
+done
+'''
+
+# ============================================
+# Phase 4: Disassembly and Inspection
+# ============================================
+
+[tasks.disasm]
+description = "Generate disassembly listing"
+dependencies = ["build-release"]
+script = '''
+#!/bin/bash
+set -e
+
+TARGET="${DEFAULT_TARGET}"
+BINARY="target/${TARGET}/release/${BINARY_NAME}"
+OUTPUT="target/disassembly.asm"
+
+echo "🔍 Generating disassembly..."
+
+cargo objdump --release --target ${TARGET} -- -d > "$OUTPUT"
+
+echo "✅ Disassembly saved to: $OUTPUT"
+echo "📄 Lines: $(wc -l < "$OUTPUT")"
+head -n 50 "$OUTPUT"
+'''
+
+[tasks.symbols]
+description = "List all symbols with sizes"
+dependencies = ["build-release"]
+script = '''
+#!/bin/bash
+set -e
+
+TARGET="${DEFAULT_TARGET}"
+BINARY="target/${TARGET}/release/${BINARY_NAME}"
+
+echo "🔤 Symbol table:"
+cargo nm --release --target ${TARGET} | head -n 30
+'''
+
+# ============================================
+# Phase 5: Flash and Deploy
+# ============================================
+
+[tasks.flash]
+description = "Flash firmware to connected hardware"
+dependencies = ["build-release"]
+script = '''
+#!/bin/bash
+set -e
+
+TARGET="${DEFAULT_TARGET}"
+BINARY="target/${TARGET}/release/${BINARY_NAME}"
+
+echo "⚡ Flashing firmware to hardware..."
+echo "Binary: $BINARY"
+
+if command -v probe-run &> /dev/null; then
+  cargo run --release --target ${TARGET}
+else
+  echo "⚠️  probe-run not found. Install with: cargo install probe-run"
+  echo "Alternatively, use your preferred flash tool:"
+  echo "  st-flash write $BINARY 0x8000000"
+  echo "  openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c 'program $BINARY verify reset exit'"
+fi
+'''
+
+# ============================================
+# Phase 6: Testing and Simulation
+# ============================================
+
+[tasks.test-host]
+description = "Run host-compatible unit tests"
+command = "cargo"
+args = ["test", "--lib", "--features", "semihosting"]
+
+[tasks.simulate]
+description = "Run firmware in QEMU simulator"
+dependencies = ["build-debug"]
+script = '''
+#!/bin/bash
+set -e
+
+TARGET="thumbv7m-none-eabi"  # QEMU supports Cortex-M3
+BINARY="target/${TARGET}/debug/${BINARY_NAME}"
+
+echo "🖥️  Starting QEMU simulation..."
+
+if command -v qemu-system-arm &> /dev/null; then
+  cargo run --target ${TARGET} --features semihosting
+else
+  echo "⚠️  QEMU not found. Install with:"
+  echo "  apt-get install qemu-system-arm (Debian/Ubuntu)"
+  echo "  brew install qemu (macOS)"
+fi
+'''
+
+# ============================================
+# Phase 7: Cross-Target Builds
+# ============================================
+
+[tasks.cross-m4f]
+description = "Build for Cortex-M4F (with FPU)"
+dependencies = ["setup-embedded"]
+command = "cargo"
+args = ["build", "--release", "--target", "thumbv7em-none-eabihf"]
+
+[tasks.cross-m3]
+description = "Build for Cortex-M3 (no FPU)"
+dependencies = ["setup-embedded"]
+command = "cargo"
+args = ["build", "--release", "--target", "thumbv7m-none-eabi"]
+
+[tasks.cross-m0]
+description = "Build for Cortex-M0/M0+"
+dependencies = ["setup-embedded"]
+command = "cargo"
+args = ["build", "--release", "--target", "thumbv6m-none-eabi"]
+
+# ============================================
+# Phase 8: Continuous Integration
+# ============================================
+
+[tasks.ci]
+description = "Full CI pipeline for embedded builds"
+dependencies = [
+  "setup-embedded",
+  "build-all-targets",
+  "size-analysis",
+  "test-host",
+]
+
+[tasks.ci-extended]
+description = "Extended CI with all analysis"
+dependencies = [
+  "ci",
+  "size-compare",
+  "disasm",
+  "symbols",
+]
+
+# ============================================
+# Phase 9: Documentation and Reports
+# ============================================
+
+[tasks.report]
+description = "Generate comprehensive build report"
+script = '''
+#!/bin/bash
+set -e
+
+REPORT_FILE="target/build-report.txt"
+
+echo "📋 Embedded IoT Sensor Firmware - Build Report" > "$REPORT_FILE"
+echo "===============================================" >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+echo "Generated: $(date)" >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+echo "🎯 Targets:" >> "$REPORT_FILE"
+echo "${ARM_TARGETS}" | tr ' ' '\n' >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+echo "📦 Binary Sizes:" >> "$REPORT_FILE"
+for target in ${ARM_TARGETS}; do
+  binary="target/${target}/release/${BINARY_NAME}"
+  if [ -f "$binary" ]; then
+    size=$(stat -f%z "$binary" 2>/dev/null || stat -c%s "$binary")
+    echo "${target}: $((size / 1024)) KB" >> "$REPORT_FILE"
+  fi
+done
+
+echo "" >> "$REPORT_FILE"
+echo "✅ Report saved to: $REPORT_FILE"
+cat "$REPORT_FILE"
+'''
+
+# ============================================
+# Phase 10: Cleanup
+# ============================================
+
+[tasks.clean]
+description = "Clean all build artifacts"
+command = "cargo"
+args = ["clean"]
+
+[tasks.clean-embedded]
+description = "Clean only embedded target artifacts"
+script = '''
+#!/bin/bash
+for target in ${ARM_TARGETS}; do
+  rm -rf "target/${target}"
+done
+echo "✅ Embedded artifacts cleaned"
+'''
+
+# ============================================
+# Default Task
+# ============================================
+
+[tasks.default]
+alias = "build-release"
+
+# ============================================
+# Help Task
+# ============================================
+
+[tasks.help]
+description = "Show available tasks"
+script = '''
+echo "📚 Embedded IoT Sensor Firmware - Available Tasks"
+echo "=================================================="
+echo ""
+echo "🔧 Setup:"
+echo "  setup-embedded      - Install ARM targets and tools"
+echo ""
+echo "🏗️  Build:"
+echo "  build-debug         - Build with debug symbols"
+echo "  build-release       - Build optimized release"
+echo "  build-size          - Build with max size optimization"
+echo "  build-all-targets   - Build for all ARM targets"
+echo ""
+echo "📊 Analysis:"
+echo "  size-analysis       - Analyze binary size"
+echo "  size-compare        - Compare profile sizes"
+echo "  disasm              - Generate disassembly"
+echo "  symbols             - List symbols"
+echo ""
+echo "⚡ Deploy:"
+echo "  flash               - Flash to hardware"
+echo "  simulate            - Run in QEMU"
+echo ""
+echo "🧪 Test:"
+echo "  test-host           - Run host tests"
+echo ""
+echo "🎯 Cross-compile:"
+echo "  cross-m4f           - Build for Cortex-M4F"
+echo "  cross-m3            - Build for Cortex-M3"
+echo "  cross-m0            - Build for Cortex-M0"
+echo ""
+echo "📋 CI/CD:"
+echo "  ci                  - Full CI pipeline"
+echo "  ci-extended         - Extended CI with analysis"
+echo "  report              - Generate build report"
+'''

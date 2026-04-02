@@ -1,0 +1,79 @@
+# =============================================================================
+# SPARQL Query: Extract meta-cognitive patterns and audit mechanisms
+# =============================================================================
+# Identifies patterns that enable meta-cognition - the ability to reason
+# about reasoning itself, track execution, and enable self-improvement.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+PREFIX agi: <https://ggen.dev/agi#>
+
+SELECT DISTINCT
+    ?patternNumber
+    ?patternLabel
+    ?patternSlug
+    ?categoryLabel
+    ?metaCognitiveCapability
+    ?capabilityDescription
+    ?cognitiveLevel
+    ?reasoningModeLabel
+    ?knowledgeTypeLabel
+    ?auditFlag
+    ?evidenceType
+WHERE {
+    # Find patterns that enable meta-cognition or execution reflection
+    ?pattern a pl:Pattern ;
+             rdfs:label ?patternLabel ;
+             pl:hasNumber ?patternNumber ;
+             pl:hasSlug ?patternSlug ;
+             pl:hasCategory ?category .
+
+    ?category rdfs:label ?categoryLabel .
+
+    # Meta-cognitive capabilities
+    {
+        ?pattern agi:enablesMetaCognition ?metaCog .
+        ?metaCog rdfs:label ?metaCognitiveCapability ;
+                 rdfs:comment ?capabilityDescription ;
+                 agi:cognitiveLevel ?cognitiveLevel .
+    }
+    UNION
+    {
+        ?pattern agi:enablesCapability ?capability .
+        ?capability rdfs:label ?metaCognitiveCapability ;
+                    rdfs:comment ?capabilityDescription ;
+                    agi:cognitiveLevel ?cognitiveLevel .
+        FILTER(?cognitiveLevel = "autonomy")
+    }
+
+    # Reasoning mode
+    OPTIONAL {
+        ?pattern agi:implementsReasoning ?reasoningMode .
+        ?reasoningMode rdfs:label ?reasoningModeLabel .
+    }
+
+    # Knowledge type (episodic for audit/reflection)
+    OPTIONAL {
+        ?pattern agi:representsKnowledge ?knowledgeType .
+        ?knowledgeType rdfs:label ?knowledgeTypeLabel .
+    }
+
+    # Audit-related flags
+    OPTIONAL {
+        ?pattern pl:hasFlag ?auditFlag .
+        FILTER(CONTAINS(?auditFlag, "audit") || CONTAINS(?auditFlag, "dry"))
+    }
+
+    # Evidence type based on pattern
+    BIND(
+        IF(?patternLabel = "AUDIT TRAIL", "JSON audit trail",
+        IF(?patternLabel = "PIPELINE STATE", "State snapshots",
+        IF(?patternLabel = "DRY RUN", "Simulation results",
+        IF(?patternLabel = "ERROR SIGNALS", "Error diagnostics",
+        "Execution records"))))
+        AS ?evidenceType
+    )
+}
+ORDER BY ?cognitiveLevel ?patternNumber

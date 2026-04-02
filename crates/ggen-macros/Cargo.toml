@@ -1,0 +1,24 @@
+[package]
+name = "ggen-macros"
+version = "0.2.0"
+edition = "2021"
+description = "Procedural macros for ggen"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version = "2.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+# No marketplace dependencies needed for macro tests
+
+[lints]
+workspace = true

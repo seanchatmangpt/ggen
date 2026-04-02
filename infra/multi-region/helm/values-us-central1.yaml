@@ -1,0 +1,197 @@
+# Helm Values for Primary Region: us-central1
+# ggen Marketplace API Deployment
+
+replicaCount: 3
+
+image:
+  repository: us-central1-docker.pkg.dev/ggen-marketplace-prod/ggen-api/ggen-marketplace-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets:
+  - name: artifact-registry-secret
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations:
+    iam.gke.io/gcp-service-account: ggen-api-sa@ggen-marketplace-prod.iam.gserviceaccount.com
+  name: ggen-api
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9090"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+service:
+  type: LoadBalancer
+  port: 443
+  targetPort: 8443
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api-us-central1.ggen-marketplace.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: api-tls-cert
+      hosts:
+        - api-us-central1.ggen-marketplace.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8443
+    scheme: HTTPS
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8443
+    scheme: HTTPS
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+nodeSelector:
+  cloud.google.com/gke-nodepool: default-pool
+  workload-type: api-servers
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - ggen-marketplace-api
+        topologyKey: kubernetes.io/hostname
+
+env:
+  - name: GOOGLE_CLOUD_PROJECT
+    value: "ggen-marketplace-prod"
+  - name: FIRESTORE_DATABASE
+    value: "default"
+  - name: REGION
+    value: "us-central1"
+  - name: REDIS_HOST
+    value: "10.0.0.3"
+  - name: REDIS_PORT
+    value: "6379"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: ENABLE_PROFILING
+    value: "true"
+  - name: CACHE_TTL_SECONDS
+    value: "3600"
+  - name: DATABASE_POOL_SIZE
+    value: "10"
+  - name: WORKER_THREADS
+    value: "4"
+
+envFrom:
+  - secretRef:
+      name: api-secrets
+  - configMapRef:
+      name: api-config
+
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+  - name: cache
+    mountPath: /var/cache/app
+
+volumes:
+  - name: tmp
+    emptyDir:
+      sizeLimit: 100Mi
+  - name: cache
+    emptyDir:
+      sizeLimit: 500Mi
+
+# Primary region is master (accepts writes)
+# This deployment will NOT have read-only mode enabled
+readOnly: false
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    port: 9090
+  jaeger:
+    enabled: false
+    agent:
+      host: jaeger-agent
+      port: 6831
+
+# Region-specific configuration
+region:
+  name: us-central1
+  zone: us-central1-a
+  isPrimary: true
+  canWrite: true
+  canRead: true
+
+# Networking
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+  egress:
+    - to:
+      - namespaceSelector: {}
+
+# Priority class for critical workloads
+priorityClassName: system-cluster-critical

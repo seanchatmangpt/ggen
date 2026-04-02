@@ -1,0 +1,22 @@
+---
+to: src/{{ module_name }}.rs
+vars:
+  module_name: example
+  version: "1.0.0"
+---
+// Module: {{ module_name }}
+// Version: {{ version }}
+
+pub struct {{ module_name | capitalize }} {
+    pub name: String,
+    pub version: String,
+}
+
+impl {{ module_name | capitalize }} {
+    pub fn new() -> Self {
+        Self {
+            name: "{{ module_name }}".to_string(),
+            version: "{{ version }}".to_string(),
+        }
+    }
+}

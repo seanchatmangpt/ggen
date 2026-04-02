@@ -1,0 +1,223 @@
+# Example template extracted from config.rs
+# This shows what the AI would generate from analyzing the source code
+
+name: Configuration Pattern
+description: Configuration struct with builder pattern, validation, and environment loading
+version: 1.0.0
+
+variables:
+  - name: config_name
+    type: string
+    description: Name of the configuration struct
+    default: AppConfig
+
+  - name: component
+    type: string
+    description: Component this configuration is for
+    default: application
+
+  - name: with_tls
+    type: boolean
+    description: Include TLS configuration fields
+    default: true
+
+  - name: with_validation
+    type: boolean
+    description: Include validation methods
+    default: true
+
+files:
+  - path: "{{config_name | snake_case}}.rs"
+    content: |
+      // {{config_name}} for {{component}}
+      // Generated from configuration pattern template
+
+      use serde::{Deserialize, Serialize};
+      use std::path::PathBuf;
+
+      /// Configuration for {{component}}
+      #[derive(Debug, Clone, Serialize, Deserialize)]
+      pub struct {{config_name}} {
+          /// Host address
+          pub host: String,
+
+          /// Port number
+          pub port: u16,
+
+          /// Connection URL
+          pub connection_url: String,
+
+          /// Log level
+          pub log_level: String,
+
+          {{#if with_tls}}
+          /// Enable TLS
+          pub use_tls: bool,
+
+          /// TLS certificate path
+          pub tls_cert_path: Option<PathBuf>,
+
+          /// TLS key path
+          pub tls_key_path: Option<PathBuf>,
+          {{/if}}
+      }
+
+      impl Default for {{config_name}} {
+          fn default() -> Self {
+              Self {
+                  host: "127.0.0.1".to_string(),
+                  port: 8080,
+                  connection_url: String::new(),
+                  log_level: "info".to_string(),
+                  {{#if with_tls}}
+                  use_tls: false,
+                  tls_cert_path: None,
+                  tls_key_path: None,
+                  {{/if}}
+              }
+          }
+      }
+
+      impl {{config_name}} {
+          /// Create a new configuration builder
+          pub fn builder() -> {{config_name}}Builder {
+              {{config_name}}Builder::default()
+          }
+
+          {{#if with_validation}}
+          /// Validate the configuration
+          pub fn validate(&self) -> Result<(), String> {
+              if self.port == 0 {
+                  return Err("Port cannot be 0".to_string());
+              }
+
+              let valid_levels = ["debug", "info", "warn", "error"];
+              if !valid_levels.contains(&self.log_level.as_str()) {
+                  return Err(format!("Invalid log level: {}", self.log_level));
+              }
+
+              {{#if with_tls}}
+              if self.use_tls {
+                  if self.tls_cert_path.is_none() {
+                      return Err("tls_cert_path required when use_tls is true".to_string());
+                  }
+                  if self.tls_key_path.is_none() {
+                      return Err("tls_key_path required when use_tls is true".to_string());
+                  }
+              }
+              {{/if}}
+
+              Ok(())
+          }
+          {{/if}}
+
+          /// Load configuration from environment variables
+          pub fn from_env() -> Result<Self, String> {
+              let mut config = Self::default();
+
+              if let Ok(host) = std::env::var("{{component | upper}}_HOST") {
+                  config.host = host;
+              }
+
+              if let Ok(port) = std::env::var("{{component | upper}}_PORT") {
+                  config.port = port.parse()
+                      .map_err(|e| format!("Invalid port: {}", e))?;
+              }
+
+              {{#if with_validation}}
+              config.validate()?;
+              {{/if}}
+              Ok(config)
+          }
+      }
+
+      /// Builder for {{config_name}}
+      #[derive(Default)]
+      pub struct {{config_name}}Builder {
+          host: Option<String>,
+          port: Option<u16>,
+          connection_url: Option<String>,
+          log_level: Option<String>,
+          {{#if with_tls}}
+          use_tls: bool,
+          tls_cert_path: Option<PathBuf>,
+          tls_key_path: Option<PathBuf>,
+          {{/if}}
+      }
+
+      impl {{config_name}}Builder {
+          pub fn host(mut self, host: impl Into<String>) -> Self {
+              self.host = Some(host.into());
+              self
+          }
+
+          pub fn port(mut self, port: u16) -> Self {
+              self.port = Some(port);
+              self
+          }
+
+          pub fn connection_url(mut self, url: impl Into<String>) -> Self {
+              self.connection_url = Some(url.into());
+              self
+          }
+
+          pub fn log_level(mut self, level: impl Into<String>) -> Self {
+              self.log_level = Some(level.into());
+              self
+          }
+
+          {{#if with_tls}}
+          pub fn use_tls(mut self, use_tls: bool) -> Self {
+              self.use_tls = use_tls;
+              self
+          }
+
+          pub fn tls_cert_path(mut self, path: PathBuf) -> Self {
+              self.tls_cert_path = Some(path);
+              self
+          }
+
+          pub fn tls_key_path(mut self, path: PathBuf) -> Self {
+              self.tls_key_path = Some(path);
+              self
+          }
+          {{/if}}
+
+          pub fn build(self) -> Result<{{config_name}}, String> {
+              let default = {{config_name}}::default();
+
+              let config = {{config_name}} {
+                  host: self.host.unwrap_or(default.host),
+                  port: self.port.unwrap_or(default.port),
+                  connection_url: self.connection_url.unwrap_or(default.connection_url),
+                  log_level: self.log_level.unwrap_or(default.log_level),
+                  {{#if with_tls}}
+                  use_tls: self.use_tls,
+                  tls_cert_path: self.tls_cert_path,
+                  tls_key_path: self.tls_key_path,
+                  {{/if}}
+              };
+
+              {{#if with_validation}}
+              config.validate()?;
+              {{/if}}
+              Ok(config)
+          }
+      }
+
+metadata:
+  patterns:
+    - Builder Pattern
+    - Configuration Management
+    - Environment Variable Loading
+    - Validation
+    - Default Implementation
+
+  language: rust
+
+  best_practices:
+    - Type-safe configuration
+    - Fluent builder API
+    - Comprehensive validation
+    - Environment-aware defaults
+    - Optional TLS support

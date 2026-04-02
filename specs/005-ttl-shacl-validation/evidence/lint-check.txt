@@ -1,0 +1,18 @@
+[cargo-make] INFO - cargo make 0.37.24
+[cargo-make] INFO - 
+[cargo-make] INFO - Project: ggen
+[cargo-make] INFO - Build File: Makefile.toml
+[cargo-make] INFO - Task: lint
+[cargo-make] INFO - Profile: development
+[cargo-make] INFO - Running Task: lint
+[1m[32m    Checking[0m oxrdf v0.3.1
+[1m[32m    Checking[0m native-tls v0.2.14
+[1m[32m   Compiling[0m oxrocksdb-sys v0.5.1
+[1m[32m    Checking[0m bollard-stubs v1.49.1-rc.28.4.0
+[1m[32m   Compiling[0m ggen v5.0.1 (/Users/sac/ggen)
+[1m[32m    Checking[0m cucumber v0.21.1
+[1m[32m    Checking[0m tokio-native-tls v0.3.1
+[1m[32m    Checking[0m spargebra v0.4.1
+[1m[32m    Checking[0m oxttl v0.2.1
+[1m[32m    Checking[0m oxrdfxml v0.2.1
+[cargo-make] INFO - Build Done in 5.96 seconds.

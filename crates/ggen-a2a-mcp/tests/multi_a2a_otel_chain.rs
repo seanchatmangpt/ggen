@@ -45,6 +45,8 @@ impl ClientHandler for TestClientHandler {
 struct SelfPlayBridge {
     mcp_client: RunningService<RoleClient, TestClientHandler>,
     router: Arc<MessageRouter>,
+    #[allow(dead_code)]
+    converter: A2aMessageConverter,
 }
 
 impl SelfPlayBridge {
@@ -66,9 +68,12 @@ impl SelfPlayBridge {
         let _ = router.register(TextContentHandler::new());
         let router = Arc::new(router);
 
+        let converter = A2aMessageConverter::new();
+
         Ok(Self {
             mcp_client,
             router,
+            converter,
         })
     }
 

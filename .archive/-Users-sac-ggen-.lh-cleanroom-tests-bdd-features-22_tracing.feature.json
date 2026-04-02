@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/22_tracing.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/22_tracing.feature\n@tracing\nFeature: Structured tracing for runs\n  Background:\n    Given a fixture project \"cli_smoke\"\n\n  Scenario: Trace includes spans for prepare/run/teardown\n    When I run [\"--help\"] with tracing enabled\n    Then a trace file exists\n    And spans include \"prepare\",\"run\",\"teardown\"\n    And each span has duration and status\n"
+        }
+    ]
+}

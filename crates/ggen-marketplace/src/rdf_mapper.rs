@@ -520,13 +520,11 @@ impl RdfMapper {
 
         let query = format!(
             r"
-            SELECT ?releasedAt ?changelog ?checksum ?downloadUrl ?signature ?trustTier WHERE {{
+            SELECT ?releasedAt ?changelog ?checksum ?downloadUrl WHERE {{
                 <{}> <{}releasedAt> ?releasedAt .
                 <{}> <{}changelog> ?changelog .
                 <{}> <{}> ?checksum .
                 <{}> <{}downloadUrl> ?downloadUrl .
-                OPTIONAL {{ <{}> <{}> ?signature }}
-                OPTIONAL {{ <{}> <{}> ?trustTier }}
             }}
             ",
             version_uri.as_str(),
@@ -537,15 +535,11 @@ impl RdfMapper {
             Properties::checksum(),
             version_uri.as_str(),
             Namespaces::GGEN,
-            version_uri.as_str(),
-            Properties::signature(),
-            version_uri.as_str(),
-            Properties::trust_tier(),
         );
 
         // Extract all data from the iterator before await to ensure Send
         // Use a block scope to ensure results is dropped before await
-        let (released_at, changelog, checksum, download_url, signature, trust_tier) = {
+        let (released_at, changelog, checksum, download_url) = {
             let results = self
                 .store
                 .query(&query)
@@ -562,23 +556,8 @@ impl RdfMapper {
                         let checksum = Self::extract_literal(&solution, "checksum")?;
                         let download_url = Self::extract_literal(&solution, "downloadUrl")?;
 
-                        // Load signature from RDF store
-                        let signature = Self::extract_optional_literal(&solution, "signature");
-
-                        // Load trust tier from RDF store
-                        let trust_tier = Self::extract_optional_literal(&solution, "trustTier")
-                            .and_then(|s| crate::metadata::parse_trust_tier(&s))
-                            .unwrap_or(crate::trust::TrustTier::Experimental);
-
                         // Iterator and results are dropped here when block exits
-                        Ok((
-                            released_at,
-                            changelog,
-                            checksum,
-                            download_url,
-                            signature,
-                            trust_tier,
-                        ))
+                        Ok((released_at, changelog, checksum, download_url))
                     } else {
                         Err(Error::RegistryError(format!(
                             "Release info not found for version {}",
@@ -601,11 +580,8 @@ impl RdfMapper {
             released_at,
             changelog,
             checksum,
-            signature,
             download_url,
             dependencies,
-            trust_tier,
-            registry_class: crate::models::default_registry_class(),
         })
     }
 

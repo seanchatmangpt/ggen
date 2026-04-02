@@ -1,0 +1,56 @@
+%% ============================================================================
+%% Front Matter: Abstract, Dedication, Acknowledgments
+%% Generated from RDF ontology
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% Abstract
+%% ----------------------------------------------------------------------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+{% for row in rows %}
+{{ row.abstract }}
+{% endfor %}
+
+\cleardoublepage
+
+%% ----------------------------------------------------------------------------
+%% Dedication
+%% ----------------------------------------------------------------------------
+\chapter*{Dedication}
+\addcontentsline{toc}{chapter}{Dedication}
+
+\begin{center}
+\vspace*{5cm}
+\itshape
+{% for row in rows %}
+{{ row.dedication }}
+{% endfor %}
+\end{center}
+
+\cleardoublepage
+
+%% ----------------------------------------------------------------------------
+%% Acknowledgments
+%% ----------------------------------------------------------------------------
+\chapter*{Acknowledgments}
+\addcontentsline{toc}{chapter}{Acknowledgments}
+
+{% for row in rows %}
+{{ row.acknowledgments }}
+{% endfor %}
+
+\cleardoublepage
+
+%% ----------------------------------------------------------------------------
+%% Keywords
+%% ----------------------------------------------------------------------------
+\chapter*{Keywords}
+\addcontentsline{toc}{chapter}{Keywords}
+
+{% for row in rows %}
+{{ row.keywords }}
+{% endfor %}
+
+\cleardoublepage

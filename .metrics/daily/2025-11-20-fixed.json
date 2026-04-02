@@ -1,0 +1,148 @@
+grep: invalid option -- P
+usage: grep [-abcdDEFGHhIiJLlMmnOopqRSsUVvwXxZz] [-A num] [-B num] [-C[num]]
+	[-e pattern] [-f file] [--binary-files=value] [--color=when]
+	[--context[=num]] [--directories=action] [--label] [--line-buffered]
+	[--null] [pattern] [file ...]
+./scripts/metrics/parse_metrics.sh: line 97: [[: 0
+0: syntax error in expression (error token is "0")
+./scripts/metrics/parse_metrics.sh: line 99: [[: 0
+0: syntax error in expression (error token is "0")
+awk: syntax error at source line 2
+ context is
+	BEGIN {printf "%.2f", 10 - (0 >>> 
+ <<< 
+awk: illegal statement at source line 2
+awk: illegal statement at source line 2
+awk: syntax error at source line 1
+ context is
+	BEGIN >>>  {score=; <<< 
+awk: illegal statement at source line 1
+awk: illegal statement at source line 1
+./scripts/metrics/parse_metrics.sh: line 241: [[: 0
+0: syntax error in expression (error token is "0")
+grep: invalid option -- P
+grep: invalid option -- P
+usage: grep [-abcdDEFGHhIiJLlMmnOopqRSsUVvwXxZz] [-A num] [-B num] [-C[num]]
+	[-e pattern] [-f file] [--binary-files=value] [--color=when]
+	[--context[=num]] [--directories=action] [--label] [--line-buffered]
+	[--null] [pattern] [file ...]
+usage: grep [-abcdDEFGHhIiJLlMmnOopqRSsUVvwXxZz] [-A num] [-B num] [-C[num]]
+	[-e pattern] [-f file] [--binary-files=value] [--color=when]
+	[--context[=num]] [--directories=action] [--label] [--line-buffered]
+	[--null] [pattern] [file ...]
+./scripts/metrics/parse_metrics.sh: line 253: [[: 0
+0: syntax error in expression (error token is "0")
+{
+  "week": 1,
+  "date": "2025-11-20",
+  "metrics": {
+    "build_time": {
+      "first_build_seconds": 
+
+0.23,
+      "incremental_build_seconds": 
+
+0.23,
+      "test_suite_seconds": 0,
+      "improvement_percentage": 0
+    },
+    "test_pass_rate": {
+      "unit_tests_percentage": 0,
+      "integration_tests_percentage": 0,
+      "overall_percentage": 0,
+      "total_tests": 0,
+      "passing_tests": 0,
+      "failing_tests": 0
+    },
+    "compiler_errors": {
+      "total_errors": 0
+0,
+      "total_warnings": 0
+0,
+      "by_type": {},
+      "trend": "stable"
+    },
+    "code_quality": {
+      "quality_score": ,
+      "clippy_warnings": 0
+0,
+      "cyclomatic_complexity_avg": 0,
+      "test_coverage_percentage": 0,
+      "documentation_coverage_percentage": 0
+    },
+    "template_accessibility": {
+      "total_templates": 335,
+      "discovered_templates": 335,
+      "accessible_templates": 335,
+      "accessibility_percentage": 100.00
+    },
+    "waste_score": {
+      "overall_waste_score": 10.00,
+      "todo_count": 93,
+      "unwrap_count": 5860,
+      "dead_code_lines": 91,
+      "overproduction_percentage": 0,
+      "defect_count": 0
+    },
+    "velocity": {
+      "features_per_sprint": 0,
+      "average_fix_time_hours": 0,
+      "blockers_resolved": 0,
+      "commits_per_week": 0,
+      "pull_requests_merged": 0
+    },
+    "cost_per_hour": {
+      "developer_time_lost_hours": 0,
+      "rework_hours": 0,
+      "incident_response_hours": 0,
+      "hourly_cost_usd": 187,
+      "weekly_waste_cost_usd": 0,
+      "annual_waste_cost_usd": 0
+    }
+  },
+  "trend": {
+    "week_0": {
+      "compiler_errors": 158,
+      "test_pass_rate": 15,
+      "build_time_seconds": 30,
+      "template_accessibility": 5,
+      "waste_score": 8.4,
+      "velocity": 2,
+      "cost_usd": 634.62
+    },
+    "week_1": {
+      "compiler_errors": 0,
+      "test_pass_rate": 50,
+      "build_time_seconds": 1.5,
+      "template_accessibility": 60,
+      "waste_score": 6.5,
+      "velocity": 3.2,
+      "cost_usd": 187
+    },
+    "week_2": {
+      "compiler_errors": 0,
+      "test_pass_rate": 85,
+      "build_time_seconds": 1.5,
+      "template_accessibility": 90,
+      "waste_score": 4.0,
+      "velocity": 4.5,
+      "cost_usd": 100
+    },
+    "week_3": {
+      "compiler_errors": 0,
+      "test_pass_rate": 100,
+      "build_time_seconds": 1.5,
+      "template_accessibility": 100,
+      "waste_score": 2.0,
+      "velocity": 5,
+      "cost_usd": 50
+    }
+  },
+  "andon_signals": {
+    "critical": [],
+    "high": [],
+    "medium": []
+  },
+  "improvements": [],
+  "remaining_gaps": []
+}

@@ -1,0 +1,36 @@
+[package]
+name = "ggen-folk-strategy"
+version = "0.2.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Folk strategy quantification: Computes folk terms from measurable inputs via opportunity field dynamics"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["folk-strategy", "quantification", "dynamics", "opportunity"]
+categories = ["mathematics", "science"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+# Numerical computing
+ndarray = { version = "0.15", features = ["serde"] }
+ndarray-stats = "0.5"
+
+# Error handling and context
+anyhow = { workspace = true }
+
+# Local infrastructure
+ggen-utils = { workspace = true }
+
+[dev-dependencies]
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+tempfile = { workspace = true }

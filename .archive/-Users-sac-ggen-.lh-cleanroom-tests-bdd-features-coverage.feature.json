@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/coverage.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261427411,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261427411,
+            "name": "Commit-0",
+            "content": "Feature: Coverage Analysis and Reporting\n  As a developer\n  I want to analyze test coverage and generate reports\n  So that I can ensure comprehensive testing\n\n  Background:\n    Given I have a clean test environment\n\n  Scenario: Basic coverage analysis\n    Given I have coverage analysis enabled\n    When I generate a coverage report\n    Then the coverage report should be generated\n    And the coverage report should show \"Summary\"\n\n  Scenario: Coverage threshold validation\n    Given I have coverage analysis enabled\n    And I have a coverage threshold of 80%\n    When I check coverage against threshold\n    Then the coverage should meet the threshold\n\n  Scenario: File-specific coverage analysis\n    Given I have coverage analysis enabled\n    And I have coverage data for \"main.rs\"\n    When I analyze coverage for \"main.rs\"\n    Then the coverage analysis should identify uncovered lines\n\n  Scenario: Branch coverage analysis\n    Given I have coverage analysis enabled\n    And I have branch coverage data\n    When I generate a coverage report\n    Then the branch coverage should be reported\n\n  Scenario: Coverage export in JSON format\n    Given I have coverage analysis enabled\n    When I export coverage data to \"json\"\n    Then the coverage data should be exported in \"json\" format\n\n  Scenario: Coverage export in XML format\n    Given I have coverage analysis enabled\n    When I export coverage data to \"xml\"\n    Then the coverage data should be exported in \"xml\" format\n\n  Scenario: Coverage export in HTML format\n    Given I have coverage analysis enabled\n    When I export coverage data to \"html\"\n    Then the coverage data should be exported in \"html\" format\n\n  Scenario: Comprehensive coverage report\n    Given I have coverage analysis enabled\n    And I have coverage data for \"main.rs\"\n    And I have coverage data for \"lib.rs\"\n    And I have branch coverage data\n    When I generate a coverage report\n    Then the coverage report should be comprehensive\n    And the coverage metrics should be accurate\n\n  Scenario: Coverage tracking for multiple files\n    Given I have coverage analysis enabled\n    And I have coverage data for \"main.rs\"\n    And I have coverage data for \"lib.rs\"\n    And I have coverage data for \"utils.rs\"\n    When I generate a coverage report\n    Then the coverage should be tracked for \"main.rs\"\n    And the coverage should be tracked for \"lib.rs\"\n    And the coverage should be tracked for \"utils.rs\"\n\n  Scenario: Coverage threshold failure\n    Given I have coverage analysis enabled\n    And I have a coverage threshold of 95%\n    When I check coverage against threshold\n    Then the coverage should be at least 95%\n\n  Scenario: Coverage report with detailed metrics\n    Given I have coverage analysis enabled\n    And I have a coverage report \"detailed_coverage.json\"\n    When I generate a coverage report\n    Then the coverage report should show \"Lines\"\n    And the coverage report should show \"Functions\"\n    And the coverage report should show \"Branches\"\n"
+        }
+    ]
+}

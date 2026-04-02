@@ -1,0 +1,71 @@
+use clap::Args;
+use anyhow::Result;
+use crate::command::Command;
+{% if verb.needs_pathbuf -%}
+use std::path::PathBuf;
+{% endif %}
+
+/// {{ verb.description }}
+#[derive(Args, Debug)]
+pub struct {{ verb.name | capitalize }}Args {
+    {% for arg in verb.arguments -%}
+    {% if arg.position is defined -%}
+    /// {{ arg.help }}
+    #[arg(value_name = "{{ arg.value_name }}")]
+    {% else -%}
+    /// {{ arg.help }}
+    #[arg(long = "{{ arg.long }}"{% if arg.short %}, short = '{{ arg.short }}'{% endif %}{% if arg.default %}, default_value = "{{ arg.default }}"{% endif %})]
+    {% endif -%}
+    pub {{ arg.name }}: {{ arg.type }},
+    {% endfor %}
+}
+
+pub struct {{ verb.name | capitalize }} {
+    args: {{ verb.name | capitalize }}Args,
+}
+
+impl {{ verb.name | capitalize }} {
+    pub fn new(args: {{ verb.name | capitalize }}Args) -> Self {
+        Self { args }
+    }
+}
+
+impl Command for {{ verb.name | capitalize }} {
+    fn validate(&self) -> Result<()> {
+        {% for validation in verb.validations -%}
+        {% if validation.rule == "file_exists" -%}
+        if !self.args.{{ validation.arg_name }}.exists() {
+            anyhow::bail!("{{ validation.message }}: {:?}", self.args.{{ validation.arg_name }});
+        }
+        {% endif -%}
+        {% endfor -%}
+        Ok(())
+    }
+
+    fn execute(&self) -> Result<()> {
+        self.validate()?;
+
+        {% if verb.execution_logic -%}
+        {{ verb.execution_logic | safe }}
+        {% else -%}
+        // Implement {{ verb.name }} logic here
+        println!("Executing {{ noun.name }} {{ verb.name }}");
+
+        {% for arg in verb.arguments -%}
+        println!("  {{ arg.name }}: {:?}", self.args.{{ arg.name }});
+        {% endfor %}
+
+        Ok(())
+        {% endif %}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_{{ verb.name }}_basic() {
+        // Add tests here
+    }
+}
