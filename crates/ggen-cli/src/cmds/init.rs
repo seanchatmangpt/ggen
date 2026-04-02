@@ -428,7 +428,7 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 #[verb("init", "root")]
 pub fn init(
     path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>,
-) -> clap_noun_verb::Result<InitOutput> {
+) -> crate::Result<InitOutput> {
     // Thin CLI layer: parse arguments and delegate to helper
     let project_dir = path.unwrap_or_else(|| ".".to_string());
     let force = force.unwrap_or(false);
@@ -456,7 +456,7 @@ pub fn init(
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
     project_dir: &str, force: bool, skip_hooks: bool,
-) -> clap_noun_verb::Result<InitOutput> {
+) -> crate::Result<InitOutput> {
     // Convert to Path for easier manipulation
     let base_path = Path::new(project_dir);
 
@@ -557,7 +557,7 @@ fn perform_init(
 
     // Create FileTransaction for atomic file operations
     let mut tx = FileTransaction::new().map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
+        GgenError::CommandError(format!(
             "Failed to initialize file transaction: {}",
             e
         ))
@@ -573,7 +573,7 @@ fn perform_init(
         let dir_path = base_path.join(dir);
         let existed = dir_path.exists();
         fs::create_dir_all(&dir_path).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
+            GgenError::CommandError(format!(
                 "Failed to create directory {}: {}",
                 dir, e
             ))
@@ -602,13 +602,13 @@ fn perform_init(
     // Create ggen.toml
     let toml_path = base_path.join("ggen.toml");
     tx.write_file(&toml_path, GGEN_TOML).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write ggen.toml: {}", e))
+        GgenError::CommandError(format!("Failed to write ggen.toml: {}", e))
     })?;
 
     // Create schema/domain.ttl
     let schema_path = base_path.join("schema").join("domain.ttl");
     tx.write_file(&schema_path, DOMAIN_TTL).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
+        GgenError::CommandError(format!(
             "Failed to write schema/domain.ttl: {}",
             e
         ))
@@ -617,14 +617,14 @@ fn perform_init(
     // Create Makefile
     let makefile_path = base_path.join("Makefile");
     tx.write_file(&makefile_path, MAKEFILE).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write Makefile: {}", e))
+        GgenError::CommandError(format!("Failed to write Makefile: {}", e))
     })?;
 
     // Create example template (templates/example.txt.tera)
     let template_path = base_path.join("templates").join("example.txt.tera");
     tx.write_file(&template_path, EXAMPLE_TEMPLATE)
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
+            GgenError::CommandError(format!(
                 "Failed to write templates/example.txt.tera: {}",
                 e
             ))
@@ -633,7 +633,7 @@ fn perform_init(
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
     tx.write_file(&startup_sh_path, STARTUP_SH).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
+        GgenError::CommandError(format!(
             "Failed to write scripts/startup.sh: {}",
             e
         ))
@@ -644,7 +644,7 @@ fn perform_init(
         let gitignore_content = "# ggen outputs\n.ggen/\n";
         tx.write_file(&gitignore_path, gitignore_content)
             .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
+                GgenError::CommandError(format!(
                     "Failed to write .gitignore: {}",
                     e
                 ))
@@ -686,7 +686,7 @@ ggen mcp setup
 ```"#;
     if !readme_exists {
         tx.write_file(&readme_path, readme_content).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
+            GgenError::CommandError(format!(
                 "Failed to write README.md: {}",
                 e
             ))
@@ -699,7 +699,7 @@ ggen mcp setup
         use std::os::unix::fs::PermissionsExt;
         fs::set_permissions(&startup_sh_path, std::fs::Permissions::from_mode(0o755)).map_err(
             |e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
+                GgenError::CommandError(format!(
                     "Failed to set execute permissions on startup.sh: {}",
                     e
                 ))
@@ -710,7 +710,7 @@ ggen mcp setup
     // Commit transaction - this is the point of no return
     // After this, all changes are permanent and rollback is disabled
     let receipt = tx.commit().map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
+        GgenError::CommandError(format!(
             "Failed to commit file transaction: {}",
             e
         ))

@@ -1,0 +1,1169 @@
+# Ontology-Native Enterprise Construction — Textbook Knowledge Graph
+# A = μ(O): Artifact equals mu of Ontology
+# This ontology expresses the 54-chapter textbook as a formal RDF knowledge graph
+
+@prefix : <http://ggen.dev/textbook#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+
+<http://ggen.dev/textbook> a owl:Ontology ;
+    dc:title "Ontology-Native Enterprise Construction" ;
+    dc:description "A graduate textbook for machine-governed organizational systems" ;
+    dc:creator "ggen Project" ;
+    vann:preferredNamespacePrefix "textbook" ;
+    owl:versionInfo "1.0.0" .
+
+# ==============================================================================
+# PART I — Meta-structure: Parts and Chapters
+# ==============================================================================
+
+:Part a owl:Class ;
+    rdfs:label "Textbook Part" ;
+    rdfs:comment "A major division of the textbook, grouping related chapters" .
+
+:Chapter a owl:Class ;
+    rdfs:label "Chapter" ;
+    rdfs:comment "A numbered chapter within a Part" .
+
+:Section a owl:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "A numbered section within a Chapter" .
+
+:Concept a owl:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "A key concept defined or used in the textbook" .
+
+:Principle a owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Principle" ;
+    rdfs:comment "A foundational principle of ontology-native construction" .
+
+:Pattern a owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "A reusable design or implementation pattern" .
+
+:Tool a owl:Class ;
+    rdfs:label "Tool" ;
+    rdfs:comment "A software tool or framework referenced in the textbook" .
+
+:Implementation a owl:Class ;
+    rdfs:label "Implementation" ;
+    rdfs:comment "A ggen crate or module that implements a textbook concept" .
+
+# ==============================================================================
+# PART I — Properties
+# ==============================================================================
+
+:belongsToPart a owl:ObjectProperty ;
+    rdfs:label "belongs to part" ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Part .
+
+:hasChapter a owl:ObjectProperty ;
+    rdfs:label "has chapter" ;
+    rdfs:domain :Part ;
+    rdfs:range :Chapter .
+
+:hasSection a owl:ObjectProperty ;
+    rdfs:label "has section" ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Section .
+
+:introduces a owl:ObjectProperty ;
+    rdfs:label "introduces" ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Concept .
+
+:dependsOn a owl:ObjectProperty ;
+    rdfs:label "depends on" ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Chapter ;
+    rdfs:comment "Prerequisite relationship between chapters" .
+
+:implementsConcept a owl:ObjectProperty ;
+    rdfs:label "implements concept" ;
+    rdfs:domain :Implementation ;
+    rdfs:range :Concept .
+
+:usesTool a owl:ObjectProperty ;
+    rdfs:label "uses tool" ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Tool .
+
+:mapsToCrate a owl:ObjectProperty ;
+    rdfs:label "maps to crate" ;
+    rdfs:domain :Concept ;
+    rdfs:range :Implementation .
+
+:hasPrerequisite a owl:ObjectProperty ;
+    rdfs:label "has prerequisite" ;
+    rdfs:domain :Part ;
+    rdfs:range :Part ;
+    rdfs:comment "Part-level prerequisite for course sequencing" .
+
+:number a owl:DatatypeProperty ;
+    rdfs:label "number" ;
+    rdfs:range xsd:integer .
+
+:weekNumber a owl:DatatypeProperty ;
+    rdfs:label "week number" ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Syllabus week assignment" .
+
+:status a owl:DatatypeProperty ;
+    rdfs:label "status" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Implementation status: implemented, partial, not-implemented" .
+
+# ==============================================================================
+# PART I — Foundations of Ontology-Native Construction
+# ==============================================================================
+
+:Part_I a :Part ;
+    rdfs:label "Part I: Foundations of Ontology-Native Construction" ;
+    :number 1 ;
+    :hasChapter :Ch1, :Ch2, :Ch3, :Ch4 .
+
+:Ch1 a :Chapter ;
+    rdfs:label "Chapter 1: Artifact, Ontology, and Transformation" ;
+    :number 1 ;
+    :belongsToPart :Part_I ;
+    :weekNumber 1 ;
+    :introduces :artifact-as-transformed-ontology, :public-ontology, :transformation-pipeline, :loss-localization, :ontology-native-worldview ;
+    :hasSection :S1_1, :S1_2, :S1_3, :S1_4 .
+
+:artifact-as-transformed-ontology a :Principle ;
+    rdfs:label "Artifact as Transformed Ontology" ;
+    rdfs:comment "A = μ(O): every artifact is a deterministic projection of an ontology graph" ;
+    :mapsToCrate :impl-ggen-core .
+
+:public-ontology a :Concept ;
+    rdfs:label "Public Ontology" ;
+    rdfs:comment "The shared, versioned graph that serves as source of truth for all artifacts" ;
+    :mapsToCrate :impl-ggen-ontology-core .
+
+:transformation-pipeline a :Concept ;
+    rdfs:label "Transformation Pipeline" ;
+    rdfs:comment "The sequence of stages that project ontology to artifact" ;
+    :mapsToCrate :impl-ggen-core .
+
+:loss-localization a :Concept ;
+    rdfs:label "Loss Localization" ;
+    rdfs:comment "The ability to identify where information is lost in a transformation" .
+
+:ontology-native-worldview a :Principle ;
+    rdfs:label "Ontology-Native Worldview" ;
+    rdfs:comment "The paradigm that treats ontology as the primary source and artifacts as projections" .
+
+:S1_1 a :Section ;
+    rdfs:label "1.1 The artifact as transformed ontology" .
+
+:S1_2 a :Section ;
+    rdfs:label "1.2 Public ontology versus private model" .
+
+:S1_3 a :Section ;
+    rdfs:label "1.3 Transformation pipelines and loss localization" .
+
+:S1_4 a :Section ;
+    rdfs:label "1.4 The ontology-native worldview" .
+
+:Ch2 a :Chapter ;
+    rdfs:label "Chapter 2: Construct and Select/Do" ;
+    :number 2 ;
+    :belongsToPart :Part_I ;
+    :weekNumber 1 ;
+    :introduces :select-do-paradigm, :construct-paradigm, :coordination-ceiling ;
+    :dependsOn :Ch1 .
+
+:select-do-paradigm a :Concept ;
+    rdfs:label "Select/Do Paradigm" ;
+    rdfs:comment "The current enterprise approach: select a pattern, apply it manually" .
+
+:construct-paradigm a :Concept ;
+    rdfs:label "Construct Paradigm" ;
+    rdfs:comment "The ontology-native approach: transform the graph, project the artifact" ;
+    :mapsToCrate :impl-ggen-core .
+
+:coordination-ceiling a :Concept ;
+    rdfs:label "Coordination Ceiling" ;
+    rdfs:comment "The inherent limit on coordination complexity in pattern-selection approaches" .
+
+:Ch3 a :Chapter ;
+    rdfs:label "Chapter 3: Organizational Work as a Formal Domain" ;
+    :number 3 ;
+    :belongsToPart :Part_I ;
+    :weekNumber 2 ;
+    :introduces :organizational-work-as-executable-structure, :compiler-target ;
+    :dependsOn :Ch1 .
+
+:organizational-work-as-executable-structure a :Principle ;
+    rdfs:label "Organizational Work as Executable Structure" ;
+    rdfs:comment "Human work can be represented as formal, executable structures" .
+
+:compiler-target a :Concept ;
+    rdfs:label "Compiler Target" ;
+    rdfs:comment "Organizations can be treated as compilation targets for formal specifications" ;
+    :mapsToCrate :impl-ggen-craftplan .
+
+:Ch4 a :Chapter ;
+    rdfs:label "Chapter 4: Information, Meaning, and Abstraction" ;
+    :number 4 ;
+    :belongsToPart :Part_I ;
+    :weekNumber 2 ;
+    :introduces :abstraction-levels, :meaning-preserving-representation, :literate-modeling ;
+    :dependsOn :Ch1 .
+
+:abstraction-levels a :Concept ;
+    rdfs:label "Levels of Abstraction" ;
+    rdfs:comment "The hierarchy from informal knowledge to formal, executable specifications" .
+
+:meaning-preserving-representation a :Principle ;
+    rdfs:label "Meaning-Preserving Representation" ;
+    rdfs:comment "Transformations should preserve semantic meaning across abstraction levels" .
+
+:literate-modeling a :Pattern ;
+    rdfs:label "Literate Modeling" ;
+    rdfs:comment "Combining prose and formal models in aligned documents" .
+
+# ==============================================================================
+# PART II — Deployment, Governance, and Maturity
+# ==============================================================================
+
+:Part_II a :Part ;
+    rdfs:label "Part II: Deployment, Governance, and Maturity" ;
+    :number 2 ;
+    :hasChapter :Ch5, :Ch6, :Ch7, :Ch8, :Ch9 ;
+    :hasPrerequisite :Part_I .
+
+:Ch5 a :Chapter ;
+    rdfs:label "Chapter 5: Deployment Architecture" ;
+    :number 5 ;
+    :belongsToPart :Part_II ;
+    :weekNumber 2 ;
+    :introduces :deployment-question-set, :governance-before-execution ;
+    :dependsOn :Ch3 .
+
+:deployment-question-set a :Pattern ;
+    rdfs:label "Deployment Question Set" ;
+    rdfs:comment "A structured set of questions that must be answered before deploying ontology-native systems" .
+
+:governance-before-execution a :Principle ;
+    rdfs:label "Governance Before Execution" ;
+    rdfs:comment "Governance constraints must be established and encoded before any execution begins" ;
+    :mapsToCrate :impl-ggen-jidoka .
+
+:Ch6 a :Chapter ;
+    rdfs:label "Chapter 6: Leadership and Institutional Support" ;
+    :number 6 ;
+    :belongsToPart :Part_II ;
+    :weekNumber 2 ;
+    :introduces :leadership-as-runtime-dependency .
+
+:leadership-as-runtime-dependency a :Concept ;
+    rdfs:label "Leadership as Runtime Dependency" ;
+    rdfs:comment "Sponsorship and escalation authority are runtime requirements, not optional features" .
+
+:Ch7 a :Chapter ;
+    rdfs:label "Chapter 7: Culture, Adoption, and Resistance" ;
+    :number 7 ;
+    :belongsToPart :Part_II ;
+    :weekNumber 2 .
+
+:Ch8 a :Chapter ;
+    rdfs:label "Chapter 8: Measurement, Maturity, and Pipeline Control" ;
+    :number 8 ;
+    :belongsToPart :Part_II ;
+    :weekNumber 2 ;
+    :introduces :maturity-model, :pipeline-control .
+
+:maturity-model a :Pattern ;
+    rdfs:label "Maturity Model" ;
+    rdfs:comment "A staged model for assessing organizational readiness for ontology-native construction" .
+
+:pipeline-control a :Concept ;
+    rdfs:label "Pipeline Control" ;
+    rdfs:comment "Managing which transformation pipelines are active and their prioritization" .
+
+:Ch9 a :Chapter ;
+    rdfs:label "Chapter 9: Strategy Deployment" ;
+    :number 9 ;
+    :belongsToPart :Part_II ;
+    :weekNumber 2 ;
+    :introduces :hoshin-alignment .
+
+:hoshin-alignment a :Pattern ;
+    rdfs:label "Hoshin Alignment" ;
+    rdfs:comment "Top-down intent propagation with bottom-up execution alignment" .
+
+# ==============================================================================
+# PART III — Generative Analysis and Knowledge Capture
+# ==============================================================================
+
+:Part_III a :Part ;
+    rdfs:label "Part III: Generative Analysis and Knowledge Capture" ;
+    :number 3 ;
+    :hasChapter :Ch10, :Ch11, :Ch12, :Ch13 ;
+    :hasPrerequisite :Part_I .
+
+:Ch10 a :Chapter ;
+    rdfs:label "Chapter 10: Capturing the Preformal Domain" ;
+    :number 10 ;
+    :belongsToPart :Part_III ;
+    :weekNumber 3 ;
+    :introduces :knowledge-capture, :observatory-construction ;
+    :dependsOn :Ch4 .
+
+:knowledge-capture a :Pattern ;
+    rdfs:label "Knowledge Capture" ;
+    rdfs:comment "The process of extracting formal structures from informal domain knowledge" .
+
+:Ch11 a :Chapter ;
+    rdfs:label "Chapter 11: Generative Analysis" ;
+    :number 11 ;
+    :belongsToPart :Part_III ;
+    :weekNumber 3 ;
+    :introduces :information-typing, :semantic-highlighting, :proposition-extraction ;
+    :dependsOn :Ch10 .
+
+:information-typing a :Pattern ;
+    rdfs:label "Information Typing" ;
+    rdfs:comment "Classifying pieces of information by their semantic role (entity, relation, constraint)" .
+
+:semantic-highlighting a :Pattern ;
+    rdfs:label "Semantic Highlighting" ;
+    rdfs:comment "Identifying and marking semantically significant portions of text" .
+
+:Ch12 a :Chapter ;
+    rdfs:label "Chapter 12: Communication Models" ;
+    :number 12 ;
+    :belongsToPart :Part_III ;
+    :weekNumber 3 ;
+    :introduces :prompting-as-boundary-engineering ;
+    :dependsOn :Ch11 .
+
+:prompting-as-boundary-engineering a :Concept ;
+    rdfs:label "Prompting as Semantic Boundary Engineering" ;
+    rdfs:comment "LLM prompts define the semantic boundaries of acceptable output" ;
+    :mapsToCrate :impl-ggen-ai .
+
+:Ch13 a :Chapter ;
+    rdfs:label "Chapter 13: Literate Modeling" ;
+    :number 13 ;
+    :belongsToPart :Part_III ;
+    :weekNumber 3 ;
+    :introduces :narrative-as-scaffolding ;
+    :dependsOn :Ch11, :Ch12 .
+
+:narrative-as-scaffolding a :Concept ;
+    rdfs:label "Narrative as Executable Semantic Scaffolding" ;
+    rdfs:comment "Prose narratives that serve as scaffolding for formal model construction" .
+
+# ==============================================================================
+# PART IV — Process Intelligence
+# ==============================================================================
+
+:Part_IV a :Part ;
+    rdfs:label "Part IV: Process Intelligence" ;
+    :number 4 ;
+    :hasChapter :Ch14, :Ch15, :Ch16, :Ch17 ;
+    :hasPrerequisite :Part_I, :Part_III .
+
+:Ch14 a :Chapter ;
+    rdfs:label "Chapter 14: Process Mining Foundations" ;
+    :number 14 ;
+    :belongsToPart :Part_IV ;
+    :weekNumber 4 ;
+    :introduces :event-data, :process-discovery, :conformance-checking, :performance-analysis ;
+    :usesTool :tool-ggen-process-mining ;
+    :dependsOn :Ch3 .
+
+:event-data a :Concept ;
+    rdfs:label "Event Data" ;
+    rdfs:comment "Timestamped records of activity execution in an organization" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:process-discovery a :Pattern ;
+    rdfs:label "Process Discovery" ;
+    rdfs:comment "Automated extraction of process models from event logs" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:conformance-checking a :Pattern ;
+    rdfs:label "Conformance Checking" ;
+    rdfs:comment "Comparing observed behavior (event logs) against expected behavior (process models)" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:Ch15 a :Chapter ;
+    rdfs:label "Chapter 15: Object-Centric Process Mining" ;
+    :number 15 ;
+    :belongsToPart :Part_IV ;
+    :weekNumber 5 ;
+    :introduces :object-centric-event-data, :ocel ;
+    :dependsOn :Ch14 .
+
+:object-centric-event-data a :Concept ;
+    rdfs:label "Object-Centric Event Data" ;
+    rdfs:comment "Event data that references multiple objects, overcoming single-case-ID limitations" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:ocel a :Concept ;
+    rdfs:label "OCEL (Object-Centric Event Log)" ;
+    rdfs:comment "Standard format for object-centric event data" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:Ch16 a :Chapter ;
+    rdfs:label "Chapter 16: Process Intelligence" ;
+    :number 16 ;
+    :belongsToPart :Part_IV ;
+    :weekNumber 5 ;
+    :introduces :process-intelligence, :pi-grounding ;
+    :dependsOn :Ch14, :Ch15 .
+
+:process-intelligence a :Principle ;
+    rdfs:label "Process Intelligence" ;
+    rdfs:comment "The discipline of using process data to drive organizational intelligence" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:pi-grounding a :Principle ;
+    rdfs:label "PI as Grounding Layer for Enterprise AI" ;
+    rdfs:comment "Enterprise AI without process intelligence grounding is ungrounded speculation" ;
+    :mapsToCrate :impl-ggen-process-mining .
+
+:Ch17 a :Chapter ;
+    rdfs:label "Chapter 17: AI Grounded in Process" ;
+    :number 17 ;
+    :belongsToPart :Part_IV ;
+    :weekNumber 5 ;
+    :introduces :generative-ai-with-process-context, :prescriptive-ai ;
+    :dependsOn :Ch16 .
+
+:generative-ai-with-process-context a :Concept ;
+    rdfs:label "Generative AI with Process Context" ;
+    rdfs:comment "LLM generation constrained and informed by process intelligence" ;
+    :mapsToCrate :impl-ggen-ai .
+
+# ==============================================================================
+# PART V — Workflow, Coordination, and Execution
+# ==============================================================================
+
+:Part_V a :Part ;
+    rdfs:label "Part V: Workflow, Coordination, and Execution" ;
+    :number 5 ;
+    :hasChapter :Ch18, :Ch19, :Ch20, :Ch21 ;
+    :hasPrerequisite :Part_IV .
+
+:Ch18 a :Chapter ;
+    rdfs:label "Chapter 18: Workflow Theory" ;
+    :number 18 ;
+    :belongsToPart :Part_V ;
+    :weekNumber 5 ;
+    :introduces :workflow-semantics, :soundness, :deadlock-freedom ;
+    :dependsOn :Ch14 .
+
+:workflow-semantics a :Concept ;
+    rdfs:label "Workflow Semantics" ;
+    rdfs:comment "Formal semantics for workflow execution including tokens, places, transitions" ;
+    :mapsToCrate :impl-ggen-workflow-43 .
+
+:soundness a :Principle ;
+    rdfs:label "Soundness" ;
+    rdfs:comment "A workflow is sound if it always terminates properly with no deadlocks or livelocks" ;
+    :mapsToCrate :impl-ggen-workflow-43 .
+
+:deadlock-freedom a :Concept ;
+    rdfs:label "Deadlock Freedom" ;
+    rdfs:comment "The property that no reachable state in a workflow is a deadlock" .
+
+:Ch19 a :Chapter ;
+    rdfs:label "Chapter 19: YAWL and the Workflow Pattern Canon" ;
+    :number 19 ;
+    :belongsToPart :Part_V ;
+    :weekNumber 6 ;
+    :introduces :workflow-patterns-43, :yawl, :yawl-as-coordination-ir ;
+    :usesTool :tool-ggen-yawl ;
+    :dependsOn :Ch18 .
+
+:workflow-patterns-43 a :Concept ;
+    rdfs:label "43 Workflow Patterns" ;
+    rdfs:comment "The complete catalog of workflow coordination patterns by van der Aalst et al." ;
+    :mapsToCrate :impl-ggen-workflow-43 .
+
+:yawl a :Concept ;
+    rdfs:label "YAWL (Yet Another Workflow Language)" ;
+    rdfs:comment "A formal workflow language that covers all 43 workflow patterns" ;
+    :mapsToCrate :impl-ggen-yawl .
+
+:yawl-as-coordination-ir a :Concept ;
+    rdfs:label "YAWL as Coordination IR" ;
+    rdfs:comment "YAWL serves as an intermediate representation for organizational coordination" ;
+    :mapsToCrate :impl-ggen-yawl .
+
+:Ch20 a :Chapter ;
+    rdfs:label "Chapter 20: Graph-Based Coordination" ;
+    :number 20 ;
+    :belongsToPart :Part_V ;
+    :weekNumber 6 ;
+    :introduces :shared-graph-coordination, :pattern-satisfaction ;
+    :dependsOn :Ch19 .
+
+:shared-graph-coordination a :Principle ;
+    rdfs:label "Coordination Through Shared Graph State" ;
+    rdfs:comment "Multi-agent coordination achieved through shared RDF graph state, not message passing" ;
+    :mapsToCrate :impl-ggen-a2a .
+
+:Ch21 a :Chapter ;
+    rdfs:label "Chapter 21: Runtime Mapping" ;
+    :number 21 ;
+    :belongsToPart :Part_V ;
+    :weekNumber 6 ;
+    :introduces :runtime-isolation, :structured-concurrency ;
+    :dependsOn :Ch18, :Ch20 .
+
+:runtime-isolation a :Concept ;
+    rdfs:label "Runtime Isolation" ;
+    rdfs:comment "Isolated execution contexts that preserve soundness guarantees" .
+
+:structured-concurrency a :Concept ;
+    rdfs:label "Structured Concurrency" ;
+    rdfs:comment "Concurrency model where all tasks are structured in parent-child relationships" .
+
+# ==============================================================================
+# PART VI — Semantic Transformation and Compiler Architecture
+# ==============================================================================
+
+:Part_VI a :Part ;
+    rdfs:label "Part VI: Semantic Transformation and Compiler Architecture" ;
+    :number 6 ;
+    :hasChapter :Ch22, :Ch23, :Ch24, :Ch25, :Ch26 ;
+    :hasPrerequisite :Part_I, :Part_V .
+
+:Ch22 a :Chapter ;
+    rdfs:label "Chapter 22: RDF, OWL, and SPARQL as Construction Substrate" ;
+    :number 22 ;
+    :belongsToPart :Part_VI ;
+    :weekNumber 7 ;
+    :introduces :rdf-as-universal-representation, :sparql-construct ;
+    :usesTool :tool-oxigraph ;
+    :dependsOn :Ch1, :Ch4 .
+
+:rdf-as-universal-representation a :Principle ;
+    rdfs:label "RDF as Universal Representation" ;
+    rdfs:comment "RDF triples serve as the universal assembly language for organizational knowledge" ;
+    :mapsToCrate :impl-ggen-ontology-core .
+
+:sparql-construct a :Pattern ;
+    rdfs:label "SPARQL CONSTRUCT" ;
+    rdfs:comment "The CONSTRUCT query form as the fundamental graph transformation primitive" ;
+    :mapsToCrate :impl-ggen-ontology-core .
+
+:Ch23 a :Chapter ;
+    rdfs:label "Chapter 23: CONSTRUCT as Business Logic" ;
+    :number 23 ;
+    :belongsToPart :Part_VI ;
+    :weekNumber 7 ;
+    :introduces :graph-rewriting, :declarative-transformation ;
+    :dependsOn :Ch22 .
+
+:graph-rewriting a :Pattern ;
+    rdfs:label "Graph Rewriting" ;
+    rdfs:comment "Business logic expressed as graph rewriting rules rather than imperative code" .
+
+:Ch24 a :Chapter ;
+    rdfs:label "Chapter 24: Full-Text Compilation" ;
+    :number 24 ;
+    :belongsToPart :Part_VI ;
+    :weekNumber 8 ;
+    :introduces :text-as-enterprise-output, :projection-surface ;
+    :dependsOn :Ch22, :Ch23 .
+
+:text-as-enterprise-output a :Principle ;
+    rdfs:label "Text as Enterprise Output Medium" ;
+    rdfs:comment "Organizations run on text: code, contracts, spreadsheets, decks, policy" .
+
+:projection-surface a :Concept ;
+    rdfs:label "Projection Surface" ;
+    rdfs:comment "A rendering target for projected artifacts (code, config, docs, etc.)" ;
+    :mapsToCrate :impl-ggen-core .
+
+:Ch25 a :Chapter ;
+    rdfs:label "Chapter 25: Template Systems and Projection Layers" ;
+    :number 25 ;
+    :belongsToPart :Part_VI ;
+    :weekNumber 8 ;
+    :introduces :template-discipline ;
+    :dependsOn :Ch24 .
+
+:template-discipline a :Principle ;
+    rdfs:label "Template Discipline" ;
+    rdfs:comment "Templates must be pure projection with no semantic logic — semantics live in the graph" ;
+    :mapsToCrate :impl-ggen-core .
+
+:Ch26 a :Chapter ;
+    rdfs:label "Chapter 26: Compiler Pipelines" ;
+    :number 26 ;
+    :belongsToPart :Part_VI ;
+    :weekNumber 8 ;
+    :introduces :mu-pipeline, :receipt-emission ;
+    :dependsOn :Ch22, :Ch23, :Ch24, :Ch25 .
+
+:mu-pipeline a :Pattern ;
+    rdfs:label "μ Pipeline (Five-Stage)" ;
+    rdfs:comment "Load graph → Extract bindings → Render projections → Validate → Emit with receipt" ;
+    :mapsToCrate :impl-ggen-core .
+
+:receipt-emission a :Concept ;
+    rdfs:label "Receipt Emission" ;
+    rdfs:comment "Cryptographic proof of transformation provenance emitted at pipeline completion" ;
+    :mapsToCrate :impl-ggen-receipt .
+
+# ==============================================================================
+# PART VII — Capability Surfaces and Interface Systems
+# ==============================================================================
+
+:Part_VII a :Part ;
+    rdfs:label "Part VII: Capability Surfaces and Interface Systems" ;
+    :number 7 ;
+    :hasChapter :Ch27, :Ch28, :Ch29, :Ch30 ;
+    :hasPrerequisite :Part_VI .
+
+:Ch27 a :Chapter ;
+    rdfs:label "Chapter 27: Capability Modeling" ;
+    :number 27 ;
+    :belongsToPart :Part_VII ;
+    :weekNumber 9 ;
+    :introduces :capability-as-first-class, :capability-surface ;
+    :dependsOn :Ch22 .
+
+:capability-as-first-class a :Principle ;
+    rdfs:label "Capabilities as First-Class Graph Objects" ;
+    rdfs:comment "Organizational capabilities are explicit, typed objects in the ontology graph" .
+
+:capability-surface a :Concept ;
+    rdfs:label "Capability Surface" ;
+    rdfs:comment "The exposed interface of a capability, defining visibility and constraints" ;
+    :mapsToCrate :impl-ggen-a2a-mcp .
+
+:Ch28 a :Chapter ;
+    rdfs:label "Chapter 28: Machine Action Surfaces" ;
+    :number 28 ;
+    :belongsToPart :Part_VII ;
+    :weekNumber 9 ;
+    :introduces :tool-surface, :prompt-surface ;
+    :dependsOn :Ch27 .
+
+:tool-surface a :Concept ;
+    rdfs:label "Tool Surface" ;
+    rdfs:comment "The interface through which an AI agent can invoke tools and resources" ;
+    :mapsToCrate :impl-ggen-a2a-mcp .
+
+:Ch29 a :Chapter ;
+    rdfs:label "Chapter 29: Inter-Agent Capability Contracts" ;
+    :number 29 ;
+    :belongsToPart :Part_VII ;
+    :weekNumber 9 ;
+    :introduces :capability-contract ;
+    :dependsOn :Ch27, :Ch28 .
+
+:capability-contract a :Pattern ;
+    rdfs:label "Inter-Agent Capability Contract" ;
+    rdfs:comment "Formal contracts governing capability exchange between agents" ;
+    :mapsToCrate :impl-ggen-a2a .
+
+:Ch30 a :Chapter ;
+    rdfs:label "Chapter 30: CLI and Human Control Surfaces" ;
+    :number 30 ;
+    :belongsToPart :Part_VII ;
+    :weekNumber 9 ;
+    :introduces :noun-verb-grammar, :neutral-cli-ontology ;
+    :usesTool :tool-ggen-cli ;
+    :dependsOn :Ch27 .
+
+:noun-verb-grammar a :Pattern ;
+    rdfs:label "Noun-Verb Grammar" ;
+    rdfs:comment "CLI structure where nouns map to ontology classes and verbs to operations" ;
+    :mapsToCrate :impl-ggen-cli .
+
+:neutral-cli-ontology a :Concept ;
+    rdfs:label "Neutral CLI Ontology" ;
+    rdfs:comment "A base CLI ontology that application-specific overlays extend" ;
+    :mapsToCrate :impl-ggen-cli .
+
+# ==============================================================================
+# PART VIII — Packs, Profiles, and Registries
+# ==============================================================================
+
+:Part_VIII a :Part ;
+    rdfs:label "Part VIII: Packs, Profiles, and Registries" ;
+    :number 8 ;
+    :hasChapter :Ch31, :Ch32, :Ch33, :Ch34 ;
+    :hasPrerequisite :Part_VII .
+
+:Ch31 a :Chapter ;
+    rdfs:label "Chapter 31: Pack Algebra" ;
+    :number 31 ;
+    :belongsToPart :Part_VIII ;
+    :weekNumber 10 ;
+    :introduces :atomic-pack, :bundle, :profile, :foundation-pack ;
+    :dependsOn :Ch27 .
+
+:atomic-pack a :Concept ;
+    rdfs:label "Atomic Pack" ;
+    rdfs:comment "The smallest unit of distributable capability" ;
+    :mapsToCrate :impl-ggen-marketplace .
+
+:bundle a :Concept ;
+    rdfs:label "Bundle" ;
+    rdfs:comment "A composition of atomic packs with resolved dependencies" ;
+    :mapsToCrate :impl-ggen-marketplace .
+
+:Ch32 a :Chapter ;
+    rdfs:label "Chapter 32: Pack Composition" ;
+    :number 32 ;
+    :belongsToPart :Part_VIII ;
+    :weekNumber 10 ;
+    :introduces :dependency-resolution, :merge-overlay, :fail-closed ;
+    :dependsOn :Ch31 .
+
+:fail-closed a :Principle ;
+    rdfs:label "Fail-Closed Semantics" ;
+    rdfs:comment "Pack conflicts must fail the build rather than silently resolve" ;
+    :mapsToCrate :impl-ggen-marketplace .
+
+:Ch33 a :Chapter ;
+    rdfs:label "Chapter 33: Registries and Distribution" ;
+    :number 33 ;
+    :belongsToPart :Part_VIII ;
+    :weekNumber 10 ;
+    :introduces :pack-registry, :transport-vs-trust ;
+    :dependsOn :Ch31, :Ch32 .
+
+:pack-registry a :Concept ;
+    rdfs:label "Pack Registry" ;
+    rdfs:comment "A repository for publishing, discovering, and installing packs" ;
+    :mapsToCrate :impl-ggen-marketplace .
+
+:Ch34 a :Chapter ;
+    rdfs:label "Chapter 34: Trust and Policy Enforcement" ;
+    :number 34 ;
+    :belongsToPart :Part_VIII ;
+    :weekNumber 10 ;
+    :introduces :trust-tier, :signature-verification, :lockfile-authority ;
+    :dependsOn :Ch33 .
+
+:trust-tier a :Concept ;
+    rdfs:label "Trust Tier" ;
+    rdfs:comment "A classification of trust level for packs and registries" ;
+    :mapsToCrate :impl-ggen-marketplace .
+
+# ==============================================================================
+# PART IX — Receipts, Quality, and Proof
+# ==============================================================================
+
+:Part_IX a :Part ;
+    rdfs:label "Part IX: Receipts, Quality, and Proof" ;
+    :number 9 ;
+    :hasChapter :Ch35, :Ch36, :Ch37, :Ch38 ;
+    :hasPrerequisite :Part_VIII .
+
+:Ch35 a :Chapter ;
+    rdfs:label "Chapter 35: Receipts as Proof Objects" ;
+    :number 35 ;
+    :belongsToPart :Part_IX ;
+    :weekNumber 11 ;
+    :introduces :composition-receipt, :artifact-receipt, :chain-verification ;
+    :dependsOn :Ch26, :Ch34 .
+
+:composition-receipt a :Concept ;
+    rdfs:label "Composition Receipt" ;
+    rdfs:comment "A cryptographic receipt proving how an artifact was composed" ;
+    :mapsToCrate :impl-ggen-receipt .
+
+:chain-verification a :Pattern ;
+    rdfs:label "Chain Verification" ;
+    rdfs:comment "Verifying a chain of receipts to prove end-to-end transformation provenance" ;
+    :mapsToCrate :impl-ggen-receipt .
+
+:Ch36 a :Chapter ;
+    rdfs:label "Chapter 36: Determinism and Reproducibility" ;
+    :number 36 ;
+    :belongsToPart :Part_IX ;
+    :weekNumber 11 ;
+    :introduces :canonical-inputs, :deterministic-emission ;
+    :dependsOn :Ch35 .
+
+:canonical-inputs a :Principle ;
+    rdfs:label "Canonical Inputs" ;
+    rdfs:comment "All inputs to the pipeline must be in canonical, deterministic form" ;
+    :mapsToCrate :impl-ggen-canonical .
+
+:Ch37 a :Chapter ;
+    rdfs:label "Chapter 37: Quality Gates" ;
+    :number 37 ;
+    :belongsToPart :Part_IX ;
+    :weekNumber 11 ;
+    :introduces :quality-gate, :andon-escalation, :zero-defect ;
+    :dependsOn :Ch5 .
+
+:quality-gate a :Pattern ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "An evidence-based validation checkpoint in the pipeline" ;
+    :mapsToCrate :impl-ggen-jidoka .
+
+:andon-escalation a :Pattern ;
+    rdfs:label "Andon-Style Escalation" ;
+    rdfs:comment "Stop the line when quality fails — no silent degradation" ;
+    :mapsToCrate :impl-ggen-tps-andon .
+
+:zero-defect a :Principle ;
+    rdfs:label "Zero-Defect Operational Standard" ;
+    rdfs:comment "The operational standard that defects are prevented, not tolerated" .
+
+:Ch38 a :Chapter ;
+    rdfs:label "Chapter 38: Validation and Observability" ;
+    :number 38 ;
+    :belongsToPart :Part_IX ;
+    :weekNumber 11 ;
+    :introduces :runtime-observability, :otel-validation ;
+    :dependsOn :Ch37 .
+
+:otel-validation a :Pattern ;
+    rdfs:label "OTEL Span Validation" ;
+    rdfs:comment "Using OpenTelemetry spans as proof of external service execution" ;
+    :mapsToCrate :impl-knhk-otel .
+
+# ==============================================================================
+# PART X — Time, Versioning, and Temporal Navigation
+# ==============================================================================
+
+:Part_X a :Part ;
+    rdfs:label "Part X: Time, Versioning, and Temporal Navigation" ;
+    :number 10 ;
+    :hasChapter :Ch39, :Ch40, :Ch41, :Ch42 ;
+    :hasPrerequisite :Part_IX .
+
+:Ch39 a :Chapter ;
+    rdfs:label "Chapter 39: Event-Sourced Knowledge Graphs" ;
+    :number 39 ;
+    :belongsToPart :Part_X ;
+    :weekNumber 12 ;
+    :introduces :event-sourcing, :causal-consistency ;
+    :dependsOn :Ch14 .
+
+:event-sourcing a :Pattern ;
+    rdfs:label "Event Sourcing" ;
+    rdfs:comment "Storing state as a sequence of immutable events" .
+
+:Ch40 a :Chapter ;
+    rdfs:label "Chapter 40: Temporal Versioning" ;
+    :number 40 ;
+    :belongsToPart :Part_X ;
+    :weekNumber 12 ;
+    :introduces :temporal-versioning ;
+    :dependsOn :Ch39 .
+
+:temporal-versioning a :Concept ;
+    rdfs:label "Temporal Versioning" ;
+    rdfs:comment "Maintaining and querying historical states of the knowledge graph" ;
+    :status "not-implemented" .
+
+:Ch41 a :Chapter ;
+    rdfs:label "Chapter 41: Time-Travel Query Systems" ;
+    :number 41 ;
+    :belongsToPart :Part_X ;
+    :weekNumber 12 ;
+    :introduces :time-travel-query ;
+    :dependsOn :Ch40 .
+
+:time-travel-query a :Concept ;
+    rdfs:label "Time-Travel Query" ;
+    rdfs:comment "Queries that reconstruct the graph state at a specific point in time" ;
+    :status "not-implemented" .
+
+:Ch42 a :Chapter ;
+    rdfs:label "Chapter 42: Wormhole-Based Navigation" ;
+    :number 42 ;
+    :belongsToPart :Part_X ;
+    :weekNumber 12 ;
+    :introduces :wormhole-navigation ;
+    :dependsOn :Ch41 .
+
+:wormhole-navigation a :Concept ;
+    rdfs:label "Wormhole-Based Navigation" ;
+    rdfs:comment "Nonlinear temporal access through anchors and jump points" ;
+    :status "not-implemented" .
+
+# ==============================================================================
+# PART XI — Enterprise Text and Organizational Reality
+# ==============================================================================
+
+:Part_XI a :Part ;
+    rdfs:label "Part XI: Enterprise Text and Organizational Reality" ;
+    :number 11 ;
+    :hasChapter :Ch43, :Ch44, :Ch45 ;
+    :hasPrerequisite :Part_VI, :Part_X .
+
+:Ch43 a :Chapter ;
+    rdfs:label "Chapter 43: The Enterprise as a Text-Generating System" ;
+    :number 43 ;
+    :belongsToPart :Part_XI ;
+    :weekNumber 13 ;
+    :introduces :textual-drift, :semantic-synchronization ;
+    :dependsOn :Ch24 .
+
+:Ch44 a :Chapter ;
+    rdfs:label "Chapter 44: Architecture Frameworks and Method Systems" ;
+    :number 44 ;
+    :belongsToPart :Part_XI ;
+    :weekNumber 13 ;
+    :introduces :doctrine-as-compiler-input ;
+    :dependsOn :Ch5, :Ch43 .
+
+:doctrine-as-compiler-input a :Principle ;
+    rdfs:label "Doctrine as Compiler Input" ;
+    rdfs:comment "Enterprise architecture and doctrine can be encoded as ontology for compilation" .
+
+:Ch45 a :Chapter ;
+    rdfs:label "Chapter 45: Organizational Knowledge Graphs" ;
+    :number 45 ;
+    :belongsToPart :Part_XI ;
+    :weekNumber 13 ;
+    :introduces :organizational-knowledge-graph ;
+    :dependsOn :Ch22, :Ch43 .
+
+# ==============================================================================
+# PART XII — Advanced Topics
+# ==============================================================================
+
+:Part_XII a :Part ;
+    rdfs:label "Part XII: Advanced Topics in Machine-Governed Construction" ;
+    :number 12 ;
+    :hasChapter :Ch46, :Ch47, :Ch48, :Ch49 ;
+    :hasPrerequisite :Part_V, :Part_VII, :Part_XI .
+
+:Ch46 a :Chapter ;
+    rdfs:label "Chapter 46: Multi-Agent Organizational Systems" ;
+    :number 46 ;
+    :belongsToPart :Part_XII ;
+    :weekNumber 13 ;
+    :introduces :message-free-coordination, :capability-marketplace ;
+    :dependsOn :Ch20, :Ch29 .
+
+:message-free-coordination a :Principle ;
+    rdfs:label "Multi-Agent Coordination Without Message Passing" ;
+    rdfs:comment "Agents coordinate through shared graph state rather than explicit messages" ;
+    :mapsToCrate :impl-ggen-a2a .
+
+:Ch47 a :Chapter ;
+    rdfs:label "Chapter 47: Competitive Moats and Paradigm Advantage" ;
+    :number 47 ;
+    :belongsToPart :Part_XII ;
+    :weekNumber 13 ;
+    :introduces :coordination-cost-asymmetry ;
+    :dependsOn :Ch46 .
+
+:coordination-cost-asymmetry a :Concept ;
+    rdfs:label "Coordination Cost Asymmetry" ;
+    rdfs:comment "The structural advantage of ontology-native systems in coordination cost" .
+
+:Ch48 a :Chapter ;
+    rdfs:label "Chapter 48: Safety, Reliability, and Hard Constraints" ;
+    :number 48 ;
+    :belongsToPart :Part_XII ;
+    :weekNumber 13 ;
+    :introduces :hard-block-semantics, :safe-extension ;
+    :dependsOn :Ch37 .
+
+:hard-block-semantics a :Principle ;
+    rdfs:label "Hard Block Semantics" ;
+    rdfs:comment "Operations that violate constraints must be hard-blocked, not warned" .
+
+:Ch49 a :Chapter ;
+    rdfs:label "Chapter 49: Research Methods for Frontier Construction" ;
+    :number 49 ;
+    :belongsToPart :Part_XII ;
+    :weekNumber 14 ;
+    :introduces :llm-construct-method, :closed-graph-reconstruction ;
+    :dependsOn :Ch11, :Ch46 .
+
+:llm-construct-method a :Pattern ;
+    rdfs:label "LLM-CONSTRUCT" ;
+    rdfs:comment "Using LLMs to reconstruct the closed graph of a mature discipline from fragments" ;
+    :mapsToCrate :impl-ggen-ai .
+
+:closed-graph-reconstruction a :Concept ;
+    rdfs:label "Closed-Graph Reconstruction" ;
+    rdfs:comment "The method of reconstructing the complete concept graph of a discipline" .
+
+# ==============================================================================
+# PART XIII — Practicum
+# ==============================================================================
+
+:Part_XIII a :Part ;
+    rdfs:label "Part XIII: Practicum" ;
+    :number 13 ;
+    :hasChapter :Ch50, :Ch51, :Ch52, :Ch53 ;
+    :hasPrerequisite :Part_I, :Part_VI, :Part_VIII, :Part_IX .
+
+:Ch50 a :Chapter ;
+    rdfs:label "Chapter 50: Designing an Ontology-Native Program" ;
+    :number 50 ;
+    :belongsToPart :Part_XIII ;
+    :weekNumber 14 .
+
+:Ch51 a :Chapter ;
+    rdfs:label "Chapter 51: Building a Governed Compiler" ;
+    :number 51 ;
+    :belongsToPart :Part_XIII ;
+    :weekNumber 14 .
+
+:Ch52 a :Chapter ;
+    rdfs:label "Chapter 52: Building a Process-Intelligent Enterprise System" ;
+    :number 52 ;
+    :belongsToPart :Part_XIII ;
+    :weekNumber 14 .
+
+:Ch53 a :Chapter ;
+    rdfs:label "Chapter 53: Evaluating a Machine-Governed Organization" ;
+    :number 53 ;
+    :belongsToPart :Part_XIII ;
+    :weekNumber 14 .
+
+# ==============================================================================
+# PART XIV — Conclusion
+# ==============================================================================
+
+:Part_XIV a :Part ;
+    rdfs:label "Part XIV: Conclusion" ;
+    :number 14 ;
+    :hasChapter :Ch54 ;
+    :hasPrerequisite :Part_XIII .
+
+:Ch54 a :Chapter ;
+    rdfs:label "Chapter 54: The Event Horizon of Construction" ;
+    :number 54 ;
+    :belongsToPart :Part_XIV ;
+    :weekNumber 14 ;
+    :introduces :event-horizon-of-construction .
+
+:event-horizon-of-construction a :Concept ;
+    rdfs:label "Event Horizon of Construction" ;
+    rdfs:comment "The threshold beyond which machine-governed construction replaces human coordination" .
+
+# ==============================================================================
+# Implementations (ggen crates)
+# ==============================================================================
+
+:impl-ggen-core a :Implementation ;
+    rdfs:label "ggen-core" ;
+    :status "implemented" ;
+    dc:description "Graph-aware code generation engine (49 modules)" .
+
+:impl-ggen-cli a :Implementation ;
+    rdfs:label "ggen-cli" ;
+    :status "implemented" ;
+    dc:description "CLI via clap-noun-verb auto-discovery" .
+
+:impl-ggen-ai a :Implementation ;
+    rdfs:label "ggen-ai" ;
+    :status "implemented" ;
+    dc:description "Multi-provider LLM integration (17 modules)" .
+
+:impl-ggen-dspy a :Implementation ;
+    rdfs:label "ggen-dspy" ;
+    :status "implemented" ;
+    dc:description "DSPy-inspired LLM agent framework" .
+
+:impl-ggen-ontology-core a :Implementation ;
+    rdfs:label "ggen-ontology-core" ;
+    :status "implemented" ;
+    dc:description "RDF/TTL, SPARQL, entity mapping" .
+
+:impl-ggen-receipt a :Implementation ;
+    rdfs:label "ggen-receipt" ;
+    :status "implemented" ;
+    dc:description "Cryptographic receipts (Ed25519)" .
+
+:impl-ggen-marketplace a :Implementation ;
+    rdfs:label "ggen-marketplace" ;
+    :status "implemented" ;
+    dc:description "Pack registry, RDF store, SPARQL search" .
+
+:impl-ggen-jidoka a :Implementation ;
+    rdfs:label "ggen-jidoka" ;
+    :status "implemented" ;
+    dc:description "Quality gates and andon signal system" .
+
+:impl-ggen-tps-andon a :Implementation ;
+    rdfs:label "ggen-tps-andon" ;
+    :status "implemented" ;
+    dc:description "Production andon: visibility, alerting, diagnostics" .
+
+:impl-ggen-yawl a :Implementation ;
+    rdfs:label "ggen-yawl" ;
+    :status "implemented" ;
+    dc:description "YAWL workflow generation from industry ontologies" .
+
+:impl-ggen-workflow-43 a :Implementation ;
+    rdfs:label "ggen-workflow-43" ;
+    :status "implemented" ;
+    dc:description "van der Aalst's 43 workflow patterns" .
+
+:impl-ggen-process-mining a :Implementation ;
+    rdfs:label "ggen-process-mining" ;
+    :status "implemented" ;
+    dc:description "Process mining (Alpha++, XES/OCEL, PetriNet)" .
+
+:impl-ggen-a2a a :Implementation ;
+    rdfs:label "ggen-a2a" ;
+    :status "implemented" ;
+    dc:description "Task state machine protocol" .
+
+:impl-ggen-a2a-mcp a :Implementation ;
+    rdfs:label "ggen-a2a-mcp" ;
+    :status "implemented" ;
+    dc:description "Bridge A2A to MCP protocol" .
+
+:impl-ggen-canonical a :Implementation ;
+    rdfs:label "ggen-canonical" ;
+    :status "implemented" ;
+    dc:description "Deterministic canonicalization + hash verification" .
+
+:impl-ggen-craftplan a :Implementation ;
+    rdfs:label "ggen-craftplan" ;
+    :status "implemented" ;
+    dc:description "RDF to Elixir codegen (5-stage pipeline)" .
+
+:impl-ggen-transport a :Implementation ;
+    rdfs:label "ggen-transport" ;
+    :status "implemented" ;
+    dc:description "MCP/A2A transport with session management + streaming" .
+
+:impl-knhk-otel a :Implementation ;
+    rdfs:label "knhk-otel" ;
+    :status "implemented" ;
+    dc:description "no_std/std dual-mode OpenTelemetry" .
+
+# ==============================================================================
+# Tools
+# ==============================================================================
+
+:tool-ggen-cli a :Tool ;
+    rdfs:label "ggen-cli" ;
+    dc:description "Command-line interface for ggen" .
+
+:tool-ggen-yawl a :Tool ;
+    rdfs:label "ggen-yawl" ;
+    dc:description "YAWL workflow generation tool" .
+
+:tool-ggen-process-mining a :Tool ;
+    rdfs:label "ggen-process-mining" ;
+    dc:description "Process mining with Alpha++" .
+
+:tool-oxigraph a :Tool ;
+    rdfs:label "Oxigraph" ;
+    dc:description "RDF triplestore for SPARQL queries" .

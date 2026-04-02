@@ -2,7 +2,6 @@
 //!
 //! This module provides policy management commands wired to the marketplace layer.
 
-use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
@@ -87,7 +86,7 @@ struct RuntimeConstraintSummary {
 /// - Lockfile doesn't exist
 /// - Lockfile is invalid
 /// - Pack metadata cannot be loaded
-fn load_pack_contexts_from_project() -> Result<Vec<PackContext>, String> {
+fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
     use ggen_core::packs::lockfile::PackLockfile;
     use ggen_marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
     use std::path::Path;
@@ -171,7 +170,7 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
 
 /// List all available policy profiles
 #[verb]
-fn list(verbose: bool) -> VerbResult<ListOutput> {
+fn list(verbose: bool) -> crate::Result<ListOutput> {
     let profiles = predefined_profiles();
 
     if verbose {
@@ -314,3 +313,4 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
         runtime_constraints,
     })
 }
+

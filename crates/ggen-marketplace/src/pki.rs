@@ -363,7 +363,7 @@ mod tests {
 
     #[test]
     fn test_verify_key_trusted_unknown_key() {
-        let mut mgr = PkiManager::new();
+        let mgr = PkiManager::new();
         let (_sk, vk) = ggen_receipt::generate_keypair();
         assert!(!mgr.verify_key_trusted(&vk));
     }
@@ -448,7 +448,7 @@ mod tests {
 
     #[test]
     fn test_get_key_missing() {
-        let mut mgr = PkiManager::new();
+        let mgr = PkiManager::new();
         assert!(mgr.get_key("nope").is_none());
     }
 }

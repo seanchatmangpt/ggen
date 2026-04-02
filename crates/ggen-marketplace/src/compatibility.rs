@@ -447,7 +447,7 @@ impl CompatibilityChecker {
                 // Derive pack IDs from the actual owner_pack strings in the declarations
                 let pack_ids: Vec<AtomicPackId> = decls
                     .iter()
-                    .filter_map(|d| AtomicPackId::from_str(&d.owner_pack))
+                    .filter_map(|d| d.owner_pack.parse::<AtomicPackId>().ok())
                     .collect();
                 let conflict_packs = if pack_ids.len() >= 2 {
                     pack_ids
@@ -455,7 +455,7 @@ impl CompatibilityChecker {
                     // Fallback: construct IDs from the owner names when parsing fails
                     packs
                         .iter()
-                        .filter_map(|p| AtomicPackId::from_str(p))
+                        .filter_map(|p| p.parse::<AtomicPackId>().ok())
                         .collect()
                 };
 
@@ -520,7 +520,7 @@ impl CompatibilityChecker {
                 // Derive pack IDs from the actual owner_pack strings in the declarations
                 let pack_ids: Vec<AtomicPackId> = decls
                     .iter()
-                    .filter_map(|d| AtomicPackId::from_str(&d.owner_pack))
+                    .filter_map(|d| d.owner_pack.parse::<AtomicPackId>().ok())
                     .collect();
                 let conflict_packs = if pack_ids.len() >= 2 {
                     pack_ids
@@ -528,7 +528,7 @@ impl CompatibilityChecker {
                     // Fallback: construct IDs from the owner names when parsing fails
                     packs
                         .iter()
-                        .filter_map(|p| AtomicPackId::from_str(p))
+                        .filter_map(|p| p.parse::<AtomicPackId>().ok())
                         .collect()
                 };
 
@@ -710,8 +710,8 @@ impl CompatibilityChecker {
     /// Parse an `AtomicPackId` from a string, falling back to a constructed ID
     /// using the provided class and the raw string as the name.
     fn parse_pack_id_or_fallback(name: &str, fallback_class: AtomicPackClass) -> AtomicPackId {
-        AtomicPackId::from_str(name)
-            .unwrap_or_else(|| AtomicPackId::new(fallback_class, name.to_string()))
+        name.parse::<AtomicPackId>()
+            .unwrap_or_else(|_| AtomicPackId::new(fallback_class, name.to_string()))
     }
 
     /// Load ownership declarations for a validator pack from pack metadata.

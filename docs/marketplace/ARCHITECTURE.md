@@ -18,39 +18,59 @@ The ggen marketplace is a **governed capability composition platform** implement
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLI Layer                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │   capability │  │     packs    │  │   marketplace│         │
-│  │     noun     │  │     noun     │  │     noun     │         │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘         │
-│         │                 │                 │                   │
-└─────────┼─────────────────┼─────────────────┼───────────────────┘
-          │                 │                 │
-          ▼                 ▼                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Domain Layer                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │   Composer   │  │   Installer  │  │  Registry    │         │
-│  │              │  │              │  │              │         │
-│  │ - Resolve    │  │ - Download   │  │ - RDF Store  │         │
-│  │ - Expand     │  │ - Verify     │  │ - SPARQL     │         │
-│  │ - Validate   │  │ - Cache      │  │ - Search     │         │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘         │
-└─────────┼─────────────────┼─────────────────┼───────────────────┘
-          │                 │                 │
-          ▼                 ▼                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Core Pipeline (μ₀-μ₅)                       │
-│                                                                 │
-│  μ₀: Pack Resolution  → Resolve bundles to atomic packs        │
-│  μ₁: Normalization    → Merge ontologies                        │
-│  μ₂: Extraction       → Execute SPARQL queries                  │
-│  μ₃: Emission         → Render Tera templates                   │
-│  μ₄: Canonicalization → Deterministic hashing                   │
-│  μ₅: Receipt          → Cryptographic provenance                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph CLI["CLI Layer"]
+        CAP[capability noun]
+        PAC[packs noun]
+        MAR[marketplace noun]
+    end
+
+    subgraph Domain["Domain Layer"]
+        COM[Composer]
+        INS[Installer]
+        REG[Registry]
+
+        COM_S["- Resolve<br/>- Expand<br/>- Validate"]
+        INS_S["- Download<br/>- Verify<br/>- Cache"]
+        REG_S["- RDF Store<br/>- SPARQL<br/>- Search"]
+    end
+
+    subgraph Pipeline["Core Pipeline (μ₀-μ₅)"]
+        MU0["μ₀: Pack Resolution<br/>Resolve bundles to atomic packs"]
+        MU1["μ₁: Normalization<br/>Merge ontologies"]
+        MU2["μ₂: Extraction<br/>Execute SPARQL queries"]
+        MU3["μ₃: Emission<br/>Render Tera templates"]
+        MU4["μ₄: Canonicalization<br/>Deterministic hashing"]
+        MU5["μ₅: Receipt<br/>Cryptographic provenance"]
+    end
+
+    CAP --> COM
+    PAC --> INS
+    MAR --> REG
+
+    COM --> COM_S
+    INS --> INS_S
+    REG --> REG_S
+
+    COM --> MU0
+    INS --> MU0
+    REG --> MU0
+
+    MU0 --> MU1 --> MU2 --> MU3 --> MU4 --> MU5
+
+    style CAP fill:#e1f5ff
+    style PAC fill:#e1f5ff
+    style MAR fill:#e1f5ff
+    style COM fill:#fff4e6
+    style INS fill:#fff4e6
+    style REG fill:#fff4e6
+    style MU0 fill:#c8e6c9
+    style MU1 fill:#c8e6c9
+    style MU2 fill:#c8e6c9
+    style MU3 fill:#c8e6c9
+    style MU4 fill:#c8e6c9
+    style MU5 fill:#c8e6c9
 ```
 
 ## Atomic Pack Taxonomy
@@ -404,48 +424,29 @@ See [SECURITY_MODEL.md](SECURITY_MODEL.md) for complete details on:
 
 ## Data Flow
 
-```
-User Intent (ggen.toml)
-        │
-        ▼
-┌──────────────────┐
-│  Bundle Expansion│  (deterministic)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Pack Resolution │  (μ₀ stage)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Compatibility   │  (multi-dimensional)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Policy Check    │  (profile enforcement)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Ontology Merge  │  (foundation + packs)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Query Execution │  (SPARQL)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Template Render │  (Tera)
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│  Receipt Emit    │  (cryptographic proof)
-└──────────────────┘
+```mermaid
+flowchart LR
+    UI["User Intent<br/>(ggen.toml)"]
+    BE["Bundle Expansion<br/>(deterministic)"]
+    PR["Pack Resolution<br/>(μ₀ stage)"]
+    CM["Compatibility Check<br/>(multi-dimensional)"]
+    PC["Policy Check<br/>(profile enforcement)"]
+    OM["Ontology Merge<br/>(foundation + packs)"]
+    QE["Query Execution<br/>(SPARQL)"]
+    TR["Template Render<br/>(Tera)"]
+    RE["Receipt Emit<br/>(cryptographic proof)"]
+
+    UI --> BE --> PR --> CM --> PC --> OM --> QE --> TR --> RE
+
+    style UI fill:#e1f5ff
+    style BE fill:#fff4e6
+    style PR fill:#fff4e6
+    style CM fill:#fff4e6
+    style PC fill:#c8e6c9
+    style OM fill:#fff4e6
+    style QE fill:#fff4e6
+    style TR fill:#fff4e6
+    style RE fill:#fce4ec
 ```
 
 ## Key Files

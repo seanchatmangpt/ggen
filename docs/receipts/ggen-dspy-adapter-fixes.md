@@ -293,3 +293,40 @@ test result: ok. 28 passed; 0 failed
 **Blocked by**: ggen-ai compilation errors (separate issue, not related to adapter fixes)
 
 **Confidence**: HIGH - The adapters.rs code is production-ready and follows all CLAUDE.md requirements. Once ggen-ai compiles, the adapters will work correctly.
+
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph Adapters["Adapter Implementations"]
+        CHAT["ChatAdapter<br/>Format: Chat + Demonstrations"]
+        JSON["JSONAdapter<br/>Format: JSON Schema"]
+        COMP["CompletionAdapter<br/>Single/Multiple Output"]
+    end
+
+    subgraph Error["Error Handling"]
+        ERR1["Removed unwrap() calls<br/>Lines 262, 277"]
+        ERR2["Result&lt;T,E&gt; pattern<br/>Proper error propagation"]
+    end
+
+    subgraph Tests["Test Suite"]
+        T1["ChatAdapter Tests<br/>7 test cases"]
+        T2["JSONAdapter Tests<br/>7 test cases"]
+        T3["Completion Tests<br/>2 test cases"]
+        T4["Fallback Tests<br/>2 test cases"]
+        T5["Retry Tests<br/>3 test cases"]
+        T6["Token Counter Tests<br/>2 test cases"]
+    end
+
+    CHAT --> ERR1
+    JSON --> ERR1
+    COMP --> ERR2
+
+    ERR1 --> T1
+    ERR2 --> T2
+    ERR1 --> T3
+
+    style Adapters fill:#e1f5ff
+    style Error fill:#ffcdd2
+    style Tests fill:#c8e6c9
+```

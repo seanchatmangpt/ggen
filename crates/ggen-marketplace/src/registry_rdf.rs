@@ -23,7 +23,7 @@ use crate::rdf_mapper::RdfMapper;
 use crate::traits::AsyncRepository;
 
 /// RDF namespace for ggen marketplace
-const GGEN_NS: &str = "https://ggen.io/marketplace/";
+const GGEN_NS: &str = "http://ggen.dev/ontology#";
 const RDFS_NS: &str = "http://www.w3.org/2000/01/rdf-schema#";
 
 /// High-performance RDF-backed registry

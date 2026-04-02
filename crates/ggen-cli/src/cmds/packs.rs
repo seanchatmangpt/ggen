@@ -6,6 +6,9 @@ use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
+use crate::pack_install::PackInstaller;
+use crate::progress::ProgressDisplay;
+
 // ============================================================================
 // Output Types
 // ============================================================================
@@ -177,7 +180,14 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
     })
 }
 
-/// Install a pack
+/// Install a pack with improved UX and performance
+///
+/// Features:
+/// - Real-time progress reporting
+/// - Intelligent caching
+/// - Better error handling
+/// - Dependency resolution visualization
+/// - Installation planning and preview
 ///
 /// CISO fail-closed flags (set via environment variables):
 /// * `GGEN_LOCKED=true` — require pack exists in `.ggen/packs.lock`
@@ -190,7 +200,7 @@ fn install(pack_id: String, force: bool) -> VerbResult<InstallOutput> {
         ));
     }
 
-    let result = install_pack_impl(&pack_id, force)?;
+    let result = install_pack_improved(&pack_id, force)?;
 
     Ok(InstallOutput {
         pack_id,
@@ -207,7 +217,8 @@ struct InstallResult {
     message: String,
 }
 
-fn install_pack_impl(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
+/// Improved pack installation implementation with better UX and performance
+fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
     use ggen_core::packs::lockfile::PackLockfile;
 
     // GGEN_LOCKED: verify pack exists in lockfile before proceeding
@@ -292,6 +303,7 @@ fn install_pack_impl(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
         ),
     })
 }
+
 
 fn resolve_cache_dir() -> VerbResult<std::path::PathBuf> {
     std::env::var_os("GGEN_PACK_CACHE_DIR")

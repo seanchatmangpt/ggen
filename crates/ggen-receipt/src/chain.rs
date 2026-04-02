@@ -2,7 +2,7 @@
 
 use crate::error::{ReceiptError, Result};
 use crate::receipt::Receipt;
-use ed25519_dalek::{SigningKey, VerifyingKey};
+use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
 
 /// A chain of cryptographically linked receipts.

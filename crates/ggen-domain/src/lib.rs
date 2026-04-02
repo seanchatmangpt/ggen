@@ -54,20 +54,20 @@ pub use audit::security::{
     VulnerableDependency,
 };
 
-// AHI (Autonomic Hyper-Intelligence) subsystem
-pub mod ahi_contract;
-pub mod auto_promotion_pipeline;
-pub mod doctrine_engine;
-pub mod marketplace_scorer;
-pub mod ontology_proposal_engine;
-pub mod proof_carrier;
+// AHI (Autonomic Hyper-Intelligence) subsystem - REMOVED (dead code)
+// pub mod ahi_contract;
+// pub mod auto_promotion_pipeline;
+// pub mod doctrine_engine;
+// pub mod marketplace_scorer;
+// pub mod ontology_proposal_engine;
+// pub mod proof_carrier;
 
-// AHI Type-System Hardening (Phase 1-5)
+// AHI Type-System Hardening (Phase 1-5) - REMOVED (dead code)
 // Makes governance impossible-to-violate at compile time
-pub mod action_types; // Phase 1: Type-indexed actions (Risk, TickBudget, Mutation)
-pub mod capability_system; // Phase 3: Capability-based effects
-pub mod proof_types; // Phase 4: Proof-carrying decisions
-pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
+// pub mod action_types; // Phase 1: Type-indexed actions (Risk, TickBudget, Mutation)
+// pub mod capability_system; // Phase 3: Capability-based effects
+// pub mod proof_types; // Phase 4: Proof-carrying decisions
+// pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
 
 // Re-export commonly used types for convenience
 pub use ggen_utils::error::{Error, Result};

@@ -16,27 +16,65 @@
 
 **Two actual sync paths:**
 
-```
-Path A (default, manifest-driven):
-  cmds/sync.rs::sync()
-    → SyncExecutor::execute()               [codegen/executor.rs:275]
-      → ManifestParser::parse()
-      → QualityGateRunner::run_all()
-      → SyncExecutor::execute_full_sync()   [codegen/executor.rs:589]
-        → GenerationPipeline::new()          [codegen/pipeline.rs:255]
-        → GenerationPipeline::run()          [codegen/pipeline.rs:811]
-          → load_ontology()
-          → execute_inference_rules()        [CONSTRUCT queries]
-          → execute_generation_rules()       [SELECT + Tera templates]
+```mermaid
+sequenceDiagram
+    title Path A: Default Manifest-Driven Sync Flow
+    participant CLI as ggen-cli<br/>cmds/sync.rs
+    participant Executor as SyncExecutor<br/>codegen/executor.rs
+    participant Parser as ManifestParser
+    participant Gates as QualityGateRunner<br/>poka_yoke/quality_gates.rs
+    participant Pipeline as GenerationPipeline<br/>codegen/pipeline.rs
 
-Path B (--queries flag, ontology-first):
-  cmds/sync.rs::sync()
-    → ggen_core::sync::sync(config)         [sync/mod.rs:255]
-      → load_ontology()
-      → run_sparql_queries()                [*.rq files, lexicographic order]
-      → generate_code()                     [language-specific generators]
-      → soundness validation                [WvdA gates]
-      → write_files() + receipt
+    CLI->>Executor: sync()
+    Executor->>Executor: new(options)
+    Executor->>Parser: parse()
+    Parser-->>Executor: Manifest
+
+    Executor->>Gates: run_all()
+    Gates-->>Executor: Gate results
+
+    Executor->>Executor: execute_full_sync()
+    Executor->>Pipeline: new()
+    Pipeline-->>Executor: GenerationPipeline
+
+    Executor->>Pipeline: run()
+    Pipeline->>Pipeline: 1. load_ontology()<br/>[.ttl → Oxigraph Store]
+    Pipeline->>Pipeline: 2. execute_inference_rules()<br/>[CONSTRUCT SPARQL rewrites]
+    Pipeline->>Pipeline: 3. execute_generation_rules()<br/>[SELECT + Tera templates]
+    Pipeline->>Pipeline: 4. write output files
+
+    Pipeline-->>Executor: Results
+    Executor-->>CLI: Sync complete
+```
+
+```mermaid
+sequenceDiagram
+    title Path B: Ontology-First Sync Flow (--queries flag)
+    participant CLI as ggen-cli<br/>cmds/sync.rs
+    participant Core as ggen_core::sync<br/>sync/mod.rs
+    participant Ont as Ontology Loader
+    participant SPARQL as SPARQL Executor
+    participant Gen as Code Generators
+    participant Validator as Soundness Validator
+
+    CLI->>Core: sync(config)
+    Core->>Ont: load_ontology()
+    Ont-->>Core: Oxigraph Store
+
+    Core->>SPARQL: run_sparql_queries()
+    Note over SPARQL: [*.rq files,<br/>lexicographic order]
+    SPARQL-->>Core: Query results
+
+    Core->>Gen: generate_code()
+    Note over Gen: [language-specific<br/>generators]
+    Gen-->>Core: Generated code
+
+    Core->>Validator: soundness validation
+    Note over Validator: [WvdA gates]
+    Validator-->>Core: Validation results
+
+    Core->>Core: write_files() + receipt
+    Core-->>CLI: Sync complete
 ```
 
 ### 2. PackResolver file path is WRONG
@@ -193,57 +231,105 @@ The workspace Cargo.toml denies `unwrap_used`, `expect_used`, `panic`, `todo`, `
 
 ## THE CORRECTED DEPENDENCY GRAPH
 
+```mermaid
+flowchart TD
+    CLI["ggen-cli<br/>(entry point)"]
+
+    subgraph CorePath["Core Pipeline Path"]
+        GCORE["ggen-core<br/>pipeline, graph, generation"]
+        GUTILS["ggen-utils<br/>shared error, SafePath"]
+        GCANON["ggen-canonical<br/>deterministic hashing"]
+        GRECEIPT["ggen-receipt<br/>Ed25519 receipts"]
+        GMKT["ggen-marketplace<br/>packages, RDF store"]
+    end
+
+    subgraph AIPath["AI Integration Path"]
+        GAI["ggen-ai<br/>LLM integration"]
+        A2A["a2a-generated<br/>(feature-gated)"]
+    end
+
+    subgraph DomainPath["Domain Logic Path"]
+        GDOMAIN["ggen-domain<br/>business logic"]
+    end
+
+    subgraph A2APath["A2A Protocol Path"]
+        GMCP["ggen-a2a-mcp<br/>A2A↔MCP bridge"]
+    end
+
+    subgraph OntologyPath["Ontology Path"]
+        GONT["ggen-ontology-core<br/>TripleStore, SPARQL"]
+    end
+
+    CLI --> GCORE
+    CLI --> GAI
+    CLI --> GDOMAIN
+    CLI --> GMCP
+    CLI --> GONT
+    CLI --> GMKT
+
+    GCORE --> GUTILS
+    GCORE --> GCANON
+    GCORE --> GRECEIPT
+    GCORE --> GMKT
+
+    GAI --> GUTILS
+    GAI --> A2A
+
+    GDOMAIN --> GCORE
+    GDOMAIN --> GAI
+    GDOMAIN --> GUTILS
+
+    GMCP --> A2A
+    GMCP --> GAI
+    GMCP --> GCORE
+    GMCP --> GDOMAIN
+
+    GONT --> GUTILS
+
+    GMKT --> GRECEIPT
+
+    GTRAN["ggen-transport<br/>(standalone)"]
+    GTEST["ggen-testing<br/>(no consumers)"]
+    GMAC["ggen-macros<br/>(no consumers)"]
+
+    style CLI fill:#e1f5ff
+    style GCORE fill:#fff4e6
+    style GAI fill:#c8e6c9
+    style GDOMAIN fill:#ffcdd2
+    style GMCP fill:#fce4ec
+    style GONT fill:#e1f5ff
+    style GTEST fill:#f5f5f5
+    style GMAC fill:#f5f5f5
 ```
-                    ggen-cli
-                       │
-        ┌──────────────┼──────────────────┐
-        │              │                  │
-        v              v                  v
-    ggen-core       ggen-ai          ggen-domain
-        │              │                  │
-        │         (cycle deliberately     │
-        │          broken between         │
-        │          core ↔ ai)             │
-        │              │                  │
-        ├─→ ggen-utils  ├─→ ggen-utils   ├─→ ggen-core
-        ├─→ ggen-canonical               ├─→ ggen-ai
-        ├─→ ggen-receipt                 └─→ ggen-utils
-        └─→ ggen-marketplace
-              └─→ ggen-receipt
 
-    ggen-cli also depends on:
-      ggen-a2a-mcp ─→ ggen-ai + ggen-core + ggen-domain + a2a-generated
-      ggen-ontology-core ─→ ggen-utils
-      ggen-receipt (direct)
-      ggen-utils (direct)
+**Standalone (zero ggen-* deps):**
+`ggen-transport`, `ggen-canonical`, `ggen-utils`, `ggen-receipt`
 
-    Standalone (zero ggen-* deps):
-      ggen-transport, ggen-canonical, ggen-utils, ggen-receipt
-
-    Dead infrastructure (no consumers):
-      ggen-testing, ggen-macros
-```
+**Dead infrastructure (no consumers):**
+`ggen-testing`, `ggen-macros`
 
 ---
 
 ## THE REAL SYNC PIPELINE (corrected)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Production Pipeline                              │
-│                  (what ggen sync actually runs)                     │
-│                                                                     │
-│  GenerationPipeline::run()          [codegen/pipeline.rs:811]      │
-│    1. load_ontology()               [.ttl → Oxigraph Store]        │
-│    2. execute_inference_rules()     [CONSTRUCT SPARQL rewrites]    │
-│    3. execute_generation_rules()    [SELECT + Tera templates]      │
-│    4. write output files                                             │
-│                                                                     │
-│  StagedPipeline::run()              [v6/pipeline.rs:329]           │
-│    (constitutional μ₀-μ₅ pipeline)                                  │
-│    EXISTS but is NEVER CALLED from ggen sync                       │
-│    Only used in tests: tests/v6_pipeline_*_test.rs                 │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph PROD["Production Pipeline (ggen sync)"]
+        GEN["GenerationPipeline::run()<br/>[codegen/pipeline.rs:811]"]
+        GEN --> STEP1["1. load_ontology()<br/>[.ttl → Oxigraph Store]"]
+        GEN --> STEP2["2. execute_inference_rules()<br/>[CONSTRUCT SPARQL rewrites]"]
+        GEN --> STEP3["3. execute_generation_rules()<br/>[SELECT + Tera templates]"]
+        GEN --> STEP4["4. write output files"]
+    end
+
+    subgraph TEST["Test-Only Pipeline"]
+        STAGED["StagedPipeline::run()<br/>[v6/pipeline.rs:329]"]
+        NOTE["(constitutional μ₀-μ₅ pipeline)<br/>EXISTS but NEVER CALLED from ggen sync<br/>Only used in tests:<br/>tests/v6_pipeline_*_test.rs"]
+    end
+
+    style GEN fill:#c8e6c9
+    style STAGED fill:#f5f5f5
+    style NOTE fill:#ffcdd2
 ```
 
 ---

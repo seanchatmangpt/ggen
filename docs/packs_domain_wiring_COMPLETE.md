@@ -103,44 +103,81 @@ pub fn list_all() -> Result<Vec<PackageSummary>> {
 
 ### 4. Data Flow Architecture
 
+```mermaid
+flowchart TD
+    subgraph CLI["CLI Command (sync)"]
+        CMD["ggen packs list"]
+    end
+
+    subgraph DOMAIN["ggen_domain::marketplace (sync wrapper)"]
+        LIST["list_all()"]
+        GET["get_package(id)"]
+        DEPS["resolve_dependencies(id, version)"]
+    end
+
+    subgraph TOKIO["Tokio Runtime (async bridge)"]
+        BLOCK["rt.block_on(async { ... })"]
+    end
+
+    subgraph REGISTRY["ggen_marketplace::Registry (async)"]
+        ALL["all_packages().await"]
+        PKG["get_package(id).await"]
+    end
+
+    subgraph DATA["Foundation Packs Data (26 atomic packs)"]
+        SURFACE["surface-mcp, surface-a2a"]
+        PROJ["projection-rust, projection-typescript, ..."]
+        RUNTIME["runtime-stdio, runtime-axum, ..."]
+        POLICY["policy-no-defaults, policy-strict"]
+        VALIDATOR["validator-shacl, ..."]
+        RECEIPT["receipt-chained, ..."]
+        CORE["core-ontology, core-hooks, ..."]
+    end
+
+    CMD --> LIST
+    CMD --> GET
+    CMD --> DEPS
+
+    LIST --> BLOCK
+    GET --> BLOCK
+    DEPS --> BLOCK
+
+    BLOCK --> ALL
+    BLOCK --> PKG
+
+    ALL --> DATA
+    PKG --> DATA
+
+    style CLI fill:#e1f5ff
+    style DOMAIN fill:#fff4e6
+    style TOKIO fill:#e1f5ff
+    style REGISTRY fill:#fff4e6
+    style DATA fill:#c8e6c9
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ CLI Command (sync)                                          │
-│ ggen packs list                                            │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│ ggen_domain::marketplace (sync wrapper)                     │
-│ - list_all()                                                │
-│ - get_package(id)                                           │
-│ - resolve_dependencies(id, version)                         │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Tokio Runtime (async bridge)                                │
-│ rt.block_on(async { ... })                                  │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│ ggen_marketplace::Registry (async)                          │
-│ - all_packages().await                                      │
-│ - get_package(id).await                                     │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Foundation Packs Data (26 atomic packs)                     │
-│ - surface-mcp, surface-a2a                                  │
-│ - projection-rust, projection-typescript, ...              │
-│ - runtime-stdio, runtime-axum, ...                          │
-│ - policy-no-defaults, policy-strict                         │
-│ - validator-shacl, ...                                      │
-│ - receipt-chained, ...                                      │
-│ - core-ontology, core-hooks, ...                            │
-└─────────────────────────────────────────────────────────────┘
+
+**Async Runtime Sequence Diagram:**
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant CLI as CLI Command
+    participant Domain as ggen_domain
+    participant Runtime as Tokio Runtime
+    participant Registry as ggen_marketplace
+
+    User->>CLI: ggen packs list
+    CLI->>Domain: list_all()
+    Domain->>Domain: get_runtime() or create
+    Domain->>Runtime: block_on(async { ... })
+
+    Runtime->>Registry: all_packages().await
+    Registry-->>Runtime: Vec<Package>
+    Runtime-->>Domain: Vec<Package>
+    Domain->>Domain: Transform to PackageSummary
+    Domain-->>CLI: Vec<PackageSummary>
+    CLI-->>User: Display packs
+
+    Note over Runtime: Sync CLI blocks on async domain<br/>Domain manages Tokio runtime internally
 ```
 
 ### 5. Foundation Packs Available (26 Total)

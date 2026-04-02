@@ -50,6 +50,58 @@
 | **Action** | Standardize on one Result type for the CLI layer. Remove anyhow and clap_noun_verb Results from prelude. |
 | **Scale** | 23 crates define local error modules. Only 2 re-export shared type. |
 
+### P0 Dependency Cascade
+
+```mermaid
+flowchart TD
+    P0_1["P0-01: SHACL validation<br/>Always passes (no-op)"]
+    P0_2["P0-02: Wrong pipeline<br/>GenerationPipeline vs StagedPipeline"]
+    P0_3["P0-03: Namespace conflicts<br/>Three competing URIs"]
+    P0_4["P0-04: Error type chaos<br/>Three Result types"]
+
+    P0_1 --> BLOCKS1["Blocks Quality Gates"]
+    P0_1 --> BLOCKS2["Blocks Ontology Validation"]
+    P0_1 --> BLOCKS3["Blocks Marketplace Validation"]
+
+    P0_2 --> BLOCKS4["Blocks Receipt Provenance"]
+    P0_2 --> BLOCKS5["Blocks Epoch Verification"]
+    P0_2 --> BLOCKS6["Blocks Staged Governance"]
+
+    P0_3 --> BLOCKS7["Breaks SPARQL Queries"]
+    P0_3 --> BLOCKS8["Causes Silent Data Loss"]
+    P0_3 --> BLOCKS9["Blocks Package Search"]
+
+    P0_4 --> BLOCKS10["Error Handling Unreliable"]
+    P0_4 --> BLOCKS11["Loses Error Context"]
+    P0_4 --> BLOCKS12["Harder to Debug"]
+
+    BLOCKS1 --> P1_A["Unblocks P1-02: Marketplace v3"]
+    BLOCKS2 --> P1_B["Unblocks P1-03: RdfControlPlane"]
+    BLOCKS3 --> P1_C["Unblocks P1-04: Pack install tests"]
+
+    BLOCKS7 --> P1_D["Unblocks P1-03: RdfControlPlane"]
+    BLOCKS9 --> P1_D
+
+    style P0_1 fill:#ffcdd2
+    style P0_2 fill:#ffcdd2
+    style P0_3 fill:#ffcdd2
+    style P0_4 fill:#ffcdd2
+    style BLOCKS1 fill:#fff4e6
+    style BLOCKS2 fill:#fff4e6
+    style BLOCKS3 fill:#fff4e6
+    style BLOCKS4 fill:#fff4e6
+    style BLOCKS5 fill:#fff4e6
+    style BLOCKS6 fill:#fff4e6
+    style BLOCKS7 fill:#ffcdd2
+    style BLOCKS8 fill:#ffcdd2
+    style BLOCKS9 fill:#fff4e6
+    style BLOCKS10 fill:#fff4e6
+    style BLOCKS11 fill:#fff4e6
+    style BLOCKS12 fill:#fff4e6
+```
+
+**Key Insight:** P0-01 and P0-03 should be fixed first (widest impact). P0-01 unblocks 3 P1 items; P0-03 unblocks 2 P1 items.
+
 ---
 
 ## P1 — HIGH (Stubs that need real implementation)
