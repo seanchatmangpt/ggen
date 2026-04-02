@@ -5,7 +5,7 @@
 //! 2. Tracing spans are created correctly
 //! 3. PipelineTracer methods work as expected
 
-use ggen_core::tracing::{PipelineTracer, PerformanceTimer};
+use ggen_core::tracing::{PerformanceTimer, PipelineTracer};
 use std::fs;
 use tempfile::TempDir;
 
@@ -15,7 +15,13 @@ fn test_tracing_initialization() {
     std::env::set_var("GGEN_TRACE", "info");
     let result = ggen_core::tracing::init_tracing();
     // May fail if already initialized, that's OK for this test
-    assert!(result.is_ok() || result.unwrap_err().to_string().contains("a global tracer was already installed"));
+    assert!(
+        result.is_ok()
+            || result
+                .unwrap_err()
+                .to_string()
+                .contains("a global tracer was already installed")
+    );
 }
 
 #[test]

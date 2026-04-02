@@ -50,6 +50,10 @@ impl Module for FastMockQA {
         }
         Ok(outputs)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 fn create_large_dataset(size: usize) -> Vec<Example> {

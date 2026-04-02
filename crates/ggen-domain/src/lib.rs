@@ -15,7 +15,6 @@
 //! Domain logic is organized by functional area:
 //! - `ai` - AI operations (code analysis, generation)
 //! - `graph` - Graph operations (RDF loading, SPARQL queries)
-//! - `marketplace` - Marketplace operations (search, install, publish)
 //! - `template` - Template operations (generate, lint, render)
 //! - `project` - Project operations (create, generate, plan)
 //! - `rdf` - RDF metadata operations
@@ -44,6 +43,10 @@ pub mod shell;
 pub mod template;
 pub mod utils;
 
+// CISO governance scanners
+pub mod capability_scanner;
+pub mod template_scanner;
+
 // Re-export audit types for convenience
 pub use audit::security::{
     ConfigAuditor, ConfigIssue, ConfigIssueType, DependencyCheckResult, DependencyChecker,
@@ -51,24 +54,20 @@ pub use audit::security::{
     VulnerableDependency,
 };
 
-// Re-export hook module from marketplace for test convenience
-pub use marketplace::hook;
+// AHI (Autonomic Hyper-Intelligence) subsystem - REMOVED (dead code)
+// pub mod ahi_contract;
+// pub mod auto_promotion_pipeline;
+// pub mod doctrine_engine;
+// pub mod marketplace_scorer;
+// pub mod ontology_proposal_engine;
+// pub mod proof_carrier;
 
-// AHI (Autonomic Hyper-Intelligence) subsystem
-pub mod ahi_contract;
-pub mod auto_promotion_pipeline;
-pub mod doctrine_engine;
-pub mod marketplace_scorer;
-pub mod ontology_proposal_engine;
-pub mod proof_carrier;
-
-// AHI Type-System Hardening (Phase 1-5)
+// AHI Type-System Hardening (Phase 1-5) - REMOVED (dead code)
 // Makes governance impossible-to-violate at compile time
-pub mod action_types; // Phase 1: Type-indexed actions (Risk, TickBudget, Mutation)
-pub mod capability_system; // Phase 3: Capability-based effects
-pub mod proof_types; // Phase 4: Proof-carrying decisions
-pub mod swarm_coordination;
-pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
+// pub mod action_types; // Phase 1: Type-indexed actions (Risk, TickBudget, Mutation)
+// pub mod capability_system; // Phase 3: Capability-based effects
+// pub mod proof_types; // Phase 4: Proof-carrying decisions
+// pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
 
 // Re-export commonly used types for convenience
 pub use ggen_utils::error::{Error, Result};

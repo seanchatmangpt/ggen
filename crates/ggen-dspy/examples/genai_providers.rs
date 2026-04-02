@@ -41,7 +41,7 @@
 //!
 //! # Groq (fast inference)
 //! export GROQ_API_KEY=your_key_here
-//! export DEFAULT_MODEL=groq/llama-3.3-70b-versatile
+//! export DEFAULT_MODEL=groq::llama-3.3-70b-versatile
 //!
 //! cargo run --example genai_providers
 //! ```
@@ -103,7 +103,7 @@ fn show_all_provider_configs() {
         ("Ollama Llama 3.2", "ollama/llama3.2", "none (local)"),
         (
             "Groq Llama 3.3",
-            "groq/llama-3.3-70b-versatile",
+            "groq::llama-3.3-70b-versatile",
             "GROQ_API_KEY",
         ),
         (
@@ -321,7 +321,7 @@ fn example_groq_config() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Example 5: Groq Configuration ---");
 
     let groq_config = LlmConfig {
-        model: "groq/llama-3.3-70b-versatile".to_string(),
+        model: "groq::llama-3.3-70b-versatile".to_string(),
         max_tokens: Some(8000),
         temperature: Some(0.7),
         top_p: Some(1.0),

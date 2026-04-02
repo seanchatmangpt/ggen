@@ -1,3 +1,0 @@
-# Lock directories are ephemeral and should not be committed
-*
-!.gitignore

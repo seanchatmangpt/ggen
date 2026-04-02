@@ -1,5 +1,0 @@
-[workspace]
-members = [{% set items = members | split(pat=", ") %}{% for item in items %}"{{ item }}"{% if not loop.last %}, {% endif %}{% endfor %}]
-
-[workspace.metadata]
-name = "{{ workspaceName }}"

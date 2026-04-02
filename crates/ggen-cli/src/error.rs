@@ -1,4 +1,4 @@
-//! Semantic exit codes and error handling for ggen v5 CLI
+//! Semantic exit codes and error handling for ggen CLI
 //!
 //! Provides deterministic, agent-friendly error handling with semantic exit codes
 //! that enable agents to understand why a command failed and respond appropriately.
@@ -10,9 +10,11 @@
 //! - 3: TemplateError - Template rendering failed
 //! - 4: OutputInvalid - Generated code failed validation (not valid Rust)
 //! - 5: Timeout - Operation exceeded time limit
+//! - 6: FileError - File system operation failed
+//! - 7: NetworkError - Network operation failed
+//! - 8: ConfigError - Configuration validation failed
 //! - 127: Unknown - Unexpected error
 
-use std::fmt;
 use thiserror::Error;
 
 /// Semantic error types for ggen CLI operations
@@ -40,15 +42,107 @@ pub enum GgenError {
 
     /// File I/O error
     #[error("File error: {0}")]
-    FileError(#[from] std::io::Error),
+    FileError(String),
 
-    /// JSON serialization error
+    /// File I/O error with path context
+    #[error("File error in {path}: {message}")]
+    FileErrorWithPath { path: String, message: String },
+
+    /// Network operation error (HTTP, API calls, etc.)
+    #[error("Network error: {0}")]
+    NetworkError(String),
+
+    /// JSON serialization/deserialization error
     #[error("JSON error: {0}")]
-    JsonError(#[from] serde_json::error::Error),
+    JsonError(String),
 
-    /// Unexpected error (should be avoided - use specific variants above)
+    /// Configuration file parsing or validation error
+    #[error("Configuration error: {0}")]
+    ConfigError(String),
+
+    /// clap noun-verb command execution error
+    #[error("Command execution error: {0}")]
+    CommandError(String),
+
+    /// External tool/dependency error (LLM, marketplace, etc.)
+    #[error("External service error: {0}")]
+    ExternalServiceError(String),
+
+    /// Internal error (should be avoided - use specific variants above)
     #[error("Internal error: {0}")]
     Internal(String),
+
+    /// PaaS operation error (converted from PaasError)
+    #[error("PaaS error: {0}")]
+    PaasError(String),
+
+    /// Pack receipt error (converted from PackReceiptError)
+    #[error("Pack receipt error: {0}")]
+    PackReceiptError(String),
+
+    /// Validation error (converted from ValidationError)
+    #[error("Validation error: {0}")]
+    InvalidInput(String),
+}
+
+impl From<std::io::Error> for GgenError {
+    fn from(err: std::io::Error) -> Self {
+        GgenError::FileError(err.to_string())
+    }
+}
+
+impl From<serde_json::error::Error> for GgenError {
+    fn from(err: serde_json::error::Error) -> Self {
+        GgenError::JsonError(err.to_string())
+    }
+}
+
+impl GgenError {
+    /// Convert from clap noun-verb error
+    pub fn from_clap_error(err: clap_noun_verb::NounVerbError) -> Self {
+        match err {
+            clap_noun_verb::NounVerbError::argument_error(msg) => {
+                GgenError::InvalidInput(msg)
+            }
+            clap_noun_verb::NounVerbError::execution_error(msg) => {
+                GgenError::CommandError(msg)
+            }
+            _ => GgenError::CommandError(err.to_string()),
+        }
+    }
+
+    /// Convert from PaasError
+    pub fn from_paas_error(err: crate::commands::paas::errors::PaasError) -> Self {
+        GgenError::PaasError(err.to_string())
+    }
+
+    /// Convert from PackReceiptError
+    pub fn from_pack_receipt_error(err: crate::cmds::packs_receipt::PackReceiptError) -> Self {
+        GgenError::PackReceiptError(err.to_string())
+    }
+
+    /// Convert from ValidationError
+    pub fn from_validation_error(err: crate::validation::ValidationError) -> Self {
+        GgenError::InvalidInput(err.to_string())
+    }
+
+    /// Create a file error with path context
+    pub fn file_error(path: &str, message: &str) -> Self {
+        GgenError::FileErrorWithPath {
+            path: path.to_string(),
+            message: message.to_string(),
+        }
+    }
+
+    /// Create a network error
+    pub fn network_error(message: &str) -> Self {
+        GgenError::NetworkError(message.to_string())
+    }
+
+    /// Create an external service error
+    pub fn external_service_error(message: &str) -> Self {
+        GgenError::ExternalServiceError(message.to_string())
+    }
 }
 
 impl GgenError {
@@ -83,6 +177,32 @@ impl GgenError {
 
 /// Result type for ggen CLI operations
 pub type Result<T> = std::result::Result<T, GgenError>;
+
+/// Extension trait for easy error conversion
+pub trait GgenResultExt<T> {
+    /// Convert any result to GgenError using appropriate conversion
+    fn to_ggen_result(self) -> Result<T>;
+}
+
+impl<T, E> GgenResultExt<T> for std::result::Result<T, E>
+where
+    E: ToString,
+{
+    fn to_ggen_result(self) -> Result<T> {
+        self.map_err(|e| GgenError::Internal(e.to_string()))
+    }
+}
+
+/// Macro for easy error conversion in CLI commands
+#[macro_export]
+macro_rules! map_err {
+    ($expr:expr, $error_type:ident) => {
+        $expr.map_err(|e| $crate::error::GgenError::$error_type(e.to_string()))?
+    };
+    ($expr:expr, $error_type:ident, $message:expr) => {
+        $expr.map_err(|e| $crate::error::GgenError::$error_type(format!("{}: {}", $message, e)))?
+    };
+}
 
 /// Audit trail for code generation (enables agent verification)
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

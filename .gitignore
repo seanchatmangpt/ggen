@@ -932,6 +932,7 @@ claude-flow.config.json
 .swarm/
 .hive-mind/
 .claude-flow/
+.worktrees/
 memory/
 coordination/
 memory/claude-flow-data.json
@@ -955,10 +956,7 @@ hive-mind-prompt-*.txt
 # Wreckit local config (may contain secrets)
 .wreckit/config.local.json
 
-# Temporary test data files (RDF Turtle, templates)
-*.ttl
-# But allow marketplace package ontologies
-!marketplace/packages/**/*.ttl
+# Temporary test data files (templates)
 test-*.tmpl
 hello.tmpl
 bash.tmpl
@@ -973,3 +971,27 @@ goodbye.tmpl
 e2e_output.txt
 direct_test_output.txt
 *_output.txt
+
+# Project state that should not be tracked
+.archive/
+.cursor/
+.docs/
+.claude/worktrees/
+.ggen/
+.ggen-receipts/
+.metrics/
+.refactor/
+.removed-code-backup/
+.wiplocks/
+.wreckit/
+
+# Build artifacts that should not be tracked
+ggen-binary
+standalone_cycle_test
+evidence_demo
+show_quality_gates
+test_error_migration
+*.rlib
+named_ttl
+relationships_turtle
+.env.claude

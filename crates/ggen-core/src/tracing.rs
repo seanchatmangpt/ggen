@@ -85,8 +85,8 @@ use tracing::{debug, error, info, warn};
 pub fn init_tracing() -> ggen_utils::error::Result<()> {
     use tracing_subscriber::EnvFilter;
 
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("ggen=info"));
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("ggen=info"));
 
     tracing_subscriber::fmt()
         .with_env_filter(env_filter)
@@ -207,11 +207,7 @@ impl PipelineTracer {
 
     /// Log shell hook execution start
     pub fn shell_hook_start(command: &str, timing: &str) {
-        info!(
-            command = command,
-            timing = timing,
-            "Executing shell hook"
-        );
+        info!(command = command, timing = timing, "Executing shell hook");
     }
 
     /// Log shell hook completion
@@ -245,16 +241,9 @@ impl PipelineTracer {
     /// Log warning
     pub fn warning(message: &str, context: Option<&str>) {
         if let Some(ctx) = context {
-            warn!(
-                message = message,
-                context = ctx,
-                "Warning"
-            );
+            warn!(message = message, context = ctx, "Warning");
         } else {
-            warn!(
-                message = message,
-                "Warning"
-            );
+            warn!(message = message, "Warning");
         }
     }
 
@@ -278,11 +267,7 @@ impl PipelineTracer {
 
     /// Log skip conditions
     pub fn skip_condition(condition: &str, reason: &str) {
-        info!(
-            condition = condition,
-            reason = reason,
-            "Skipping operation"
-        );
+        info!(condition = condition, reason = reason, "Skipping operation");
     }
 }
 
@@ -352,17 +337,15 @@ mod tests {
         // Test that the macros compile and work
         let _span = trace_span!("test_span", operation = "test");
 
-        let result = time_operation!("test_op", {
-            42
-        });
+        let result = time_operation!("test_op", { 42 });
         assert_eq!(result, 42);
     }
 
     #[test]
     fn test_pipeline_tracer_methods() {
         // Test all public methods compile
-        use tempfile::TempDir;
         use std::fs;
+        use tempfile::TempDir;
 
         let temp_dir = TempDir::new().unwrap();
         let test_path = temp_dir.path().join("test.tmpl");
@@ -403,8 +386,8 @@ mod tests {
 
     #[test]
     fn test_template_span() {
-        use tempfile::TempDir;
         use std::fs;
+        use tempfile::TempDir;
 
         let temp_dir = TempDir::new().unwrap();
         let test_path = temp_dir.path().join("test.tmpl");

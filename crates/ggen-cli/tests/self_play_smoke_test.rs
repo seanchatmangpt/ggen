@@ -23,8 +23,10 @@ fn test_self_play_demo_command() {
             // We don't assert on status code because there might be
             // port conflicts or other runtime issues
             let stderr = String::from_utf8_lossy(&out.stderr);
-            assert!(!stderr.contains("unrecognized subcommand"),
-                    "self-play command should be registered");
+            assert!(
+                !stderr.contains("unrecognized subcommand"),
+                "self-play command should be registered"
+            );
         }
         Err(e) => {
             // Binary not built or other OS-level error
@@ -51,8 +53,10 @@ fn test_self_play_validate_command() {
         match output {
             Ok(out) => {
                 let stderr = String::from_utf8_lossy(&out.stderr);
-                assert!(!stderr.contains("unrecognized subcommand"),
-                        "self-play validate command should be registered");
+                assert!(
+                    !stderr.contains("unrecognized subcommand"),
+                    "self-play validate command should be registered"
+                );
             }
             Err(e) => {
                 eprintln!("Warning: Could not run ggen binary: {}", e);
@@ -70,8 +74,12 @@ fn test_self_play_module_exists() {
     // Verify it's referenced in mod.rs
     let mod_rs = std::fs::read_to_string("crates/ggen-cli/src/cmds/mod.rs")
         .expect("Should be able to read mod.rs");
-    assert!(mod_rs.contains("pub mod self_play"),
-            "mod.rs should declare pub mod self_play");
-    assert!(!mod_rs.contains("// pub mod self_play"),
-            "self_play module should not be commented out");
+    assert!(
+        mod_rs.contains("pub mod self_play"),
+        "mod.rs should declare pub mod self_play"
+    );
+    assert!(
+        !mod_rs.contains("// pub mod self_play"),
+        "self_play module should not be commented out"
+    );
 }

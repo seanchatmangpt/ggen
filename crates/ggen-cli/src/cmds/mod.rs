@@ -28,8 +28,10 @@
 pub mod helpers;
 
 // Core commands: ggen sync & ggen init & ggen wizard
+pub mod capability;
 pub mod git_hooks;
 pub mod init;
+pub mod receipt;
 pub mod sync;
 pub mod wizard;
 
@@ -37,12 +39,12 @@ pub mod wizard;
 pub mod ai;
 pub mod construct;
 pub mod graph;
-pub mod hook;
-pub mod marketplace; // Re-enabled with slim version (4 core verbs: search, install, list, publish)
+// marketplace and hook modules removed — migrated to separate project
 pub mod mcp;
 pub mod ontology;
 pub mod packs;
 pub mod paper;
+pub mod policy;
 pub mod project;
 pub mod self_play;
 pub mod template;
@@ -50,7 +52,7 @@ pub mod utils;
 pub mod workflow;
 pub mod yawl;
 
-use ggen_utils::error::Result;
+use crate::prelude::*;
 
 /// Setup and run the command router using clap-noun-verb v3.4.0 auto-discovery
 pub fn run_cli() -> Result<()> {
@@ -62,7 +64,6 @@ pub fn run_cli() -> Result<()> {
     }
 
     // Use clap-noun-verb's auto-discovery to find all [verb] functions
-    clap_noun_verb::run()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+    clap_noun_verb::run().map_err(GgenError::from_clap_error)?;
     Ok(())
 }
