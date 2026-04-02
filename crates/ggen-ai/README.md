@@ -66,7 +66,54 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### CLI Usage
+### Architecture
+
+```mermaid
+flowchart TD
+    subgraph Providers["LLM Providers"]
+        OPENAI["OpenAI<br/>GPT-4, GPT-3.5"]
+        ANTHROPIC["Anthropic<br/>Claude Opus/Sonnet"]
+        OLLAMA["Ollama<br/>Local models"]
+    end
+
+    subgraph Core["Core Components"]
+        CLIENT["GenAiClient<br/>Unified client"]
+        CONFIG["LlmConfig<br/>Provider settings"]
+        CACHE["LlmCache<br/>Response caching"]
+    end
+
+    subgraph Features["AI Features"]
+        TMPL_GEN["Template Generator<br/>Natural language → templates"]
+        SPARQL["SPARQL Generator<br/>Intent → queries"]
+        ONTO["Ontology Generator<br/>Description → RDF"]
+    end
+
+    subgraph Integration["Integration"]
+        MCP["MCP Server<br/>Tool protocol"]
+        TEMPLATES["Template Engine<br/>ggen-prompt-mfg"]
+    end
+
+    OPENAI --> CLIENT
+    ANTHROPIC --> CLIENT
+    OLLAMA --> CLIENT
+
+    CLIENT --> CONFIG
+    CLIENT --> CACHE
+
+    CLIENT --> TMPL_GEN
+    CLIENT --> SPARQL
+    CLIENT --> ONTO
+
+    TMPL_GEN --> TEMPLATES
+    CLIENT --> MCP
+
+    style Providers fill:#e1f5ff
+    style Core fill:#fff4e6
+    style Features fill:#c8e6c9
+    style Integration fill:#fce4ec
+```
+
+## CLI Usage
 
 ```bash
 # Generate template using AI

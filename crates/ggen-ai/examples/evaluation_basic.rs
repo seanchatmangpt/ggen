@@ -38,6 +38,10 @@ impl Module for MockQA {
         }
         Ok(outputs)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 #[tokio::main]

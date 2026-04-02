@@ -87,6 +87,10 @@ pub struct CompositionMetadata {
 pub struct LockfileManager;
 
 impl LockfileManager {
+    /// Create a new lockfile manager (for API compatibility)
+    pub fn new(_output_dir: &Path) -> Self {
+        Self
+    }
     /// Create a new lockfile from current configuration
     pub fn create(
         packages: BTreeMap<String, LockedPackage>, composition: CompositionMetadata,

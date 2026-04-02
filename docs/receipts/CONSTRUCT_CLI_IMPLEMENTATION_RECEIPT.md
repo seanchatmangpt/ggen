@@ -500,3 +500,40 @@ cd /home/user/ggen
 cargo check --package ggen-cli-lib
 cargo test --package ggen-cli-lib construct_command_test
 ```
+
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph CLI["CLI Layer"]
+        CREATE["ggen construct create<br/>spec_path → output"]
+        VALIDATE["ggen construct validate<br/>module_name → check"]
+    end
+
+    subgraph Types["Output Types"]
+        OUT1["ConstructCreateOutput<br/>JSON serialization"]
+        OUT2["ConstructValidateOutput<br/>Validation results"]
+        OUT3["OWLExtractionStats<br/>OWL parsing metrics"]
+        OUT4["SHACLGenerationStats<br/>SHACL metrics"]
+        OUT5["DSPyMappingStats<br/>DSPy mappings"]
+    end
+
+    subgraph Tests["Integration Tests"]
+        T1["Unit Tests<br/>Utility functions"]
+        T2["Integration Tests<br/>240 lines"]
+    end
+
+    CREATE --> OUT1
+    CREATE --> OUT3
+    VALIDATE --> OUT2
+    VALIDATE --> OUT4
+    VALIDATE --> OUT5
+
+    OUT1 --> T1
+    OUT2 --> T1
+    OUT3 --> T2
+
+    style CLI fill:#e1f5ff
+    style Types fill:#fff4e6
+    style Tests fill:#c8e6c9
+```

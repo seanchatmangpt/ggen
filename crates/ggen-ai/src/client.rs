@@ -350,17 +350,35 @@ impl LlmClient for GenAiClient {
                             usage: None,
                             extra: HashMap::new(),
                         },
-                        genai::chat::ChatStreamEvent::End(end) => LlmChunk {
-                            content: String::new(),
-                            model: model.clone(),
-                            finish_reason: Some("stop".to_string()),
-                            usage: end.captured_usage.map(|u| UsageStats {
+                        genai::chat::ChatStreamEvent::End(end) => {
+                            let usage = end.captured_usage.map(|u| UsageStats {
                                 prompt_tokens: u.prompt_tokens.unwrap_or(0) as u32,
                                 completion_tokens: u.completion_tokens.unwrap_or(0) as u32,
                                 total_tokens: u.total_tokens.unwrap_or(0) as u32,
-                            }),
-                            extra: HashMap::new(),
-                        },
+                            });
+
+                            // Record token counts on span (matching complete() behavior)
+                            if let Some(ref usage_stats) = usage {
+                                Span::current().record(
+                                    otel_attrs::LLM_PROMPT_TOKENS,
+                                    usage_stats.prompt_tokens,
+                                );
+                                Span::current().record(
+                                    otel_attrs::LLM_COMPLETION_TOKENS,
+                                    usage_stats.completion_tokens,
+                                );
+                                Span::current()
+                                    .record(otel_attrs::LLM_TOTAL_TOKENS, usage_stats.total_tokens);
+                            }
+
+                            LlmChunk {
+                                content: String::new(),
+                                model: model.clone(),
+                                finish_reason: Some("stop".to_string()),
+                                usage,
+                                extra: HashMap::new(),
+                            }
+                        }
                         genai::chat::ChatStreamEvent::Start => LlmChunk {
                             content: String::new(),
                             model: model.clone(),

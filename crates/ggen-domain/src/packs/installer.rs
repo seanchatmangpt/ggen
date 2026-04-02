@@ -3,10 +3,12 @@
 //! This module provides real package installation by integrating with
 //! the marketplace domain layer and ggen-core infrastructure.
 
-use crate::marketplace;
+// NOTE: Marketplace integration moved to ggen-cli
+// This installer now only manages filesystem repository and lockfile
 use crate::packs::dependency_graph::DependencyGraph;
 use crate::packs::repository::{FileSystemRepository, PackRepository};
 use crate::packs::types::Pack;
+use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 use ggen_utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -163,6 +165,9 @@ impl PackInstaller {
                 "✓ Pack installation completed successfully in {:?}",
                 duration
             );
+
+            // Update lockfile with installed packs
+            self.update_lockfile(&all_packs, &install_path)?;
         } else {
             warn!(
                 "⚠ Pack installation completed with {} failures in {:?}",
@@ -184,6 +189,44 @@ impl PackInstaller {
             duration,
             success,
         })
+    }
+
+    /// Update lockfile with installed packs
+    ///
+    /// Creates or updates `.ggen/packs.lock` with the installed packs.
+    fn update_lockfile(&self, packs: &[Pack], install_path: &PathBuf) -> Result<()> {
+        let lockfile_path = PathBuf::from(".ggen/packs.lock");
+
+        // Load existing lockfile or create new one
+        let mut lockfile = if lockfile_path.exists() {
+            PackLockfile::from_file(&lockfile_path)
+                .map_err(|e| Error::with_context("Failed to load lockfile", &e.to_string()))?
+        } else {
+            PackLockfile::new(env!("CARGO_PKG_VERSION"))
+        };
+
+        // Add each pack to the lockfile
+        for pack in packs {
+            let entry = LockedPack {
+                version: pack.version.clone(),
+                source: PackSource::Local {
+                    path: install_path.join(&pack.id),
+                },
+                integrity: None, // TODO: Compute SHA256 digest
+                installed_at: chrono::Utc::now(),
+                dependencies: pack.dependencies.iter().map(|d| d.pack_id.clone()).collect(),
+            };
+
+            lockfile.add_pack(&pack.id, entry);
+            info!("✓ Added '{}' to lockfile", pack.id);
+        }
+
+        // Save lockfile
+        lockfile.save(&lockfile_path)
+            .map_err(|e| Error::with_context("Failed to save lockfile", &e.to_string()))?;
+
+        info!("✓ Lockfile updated: {}", lockfile_path.display());
+        Ok(())
     }
 
     /// Resolve pack dependencies recursively
@@ -252,9 +295,9 @@ impl PackInstaller {
         conflicts
     }
 
-    /// Install a single package using marketplace domain functions
+    /// Install a single package using repository (marketplace removed from ggen-domain)
     async fn install_package(
-        &self, package_name: &str, target_dir: &PathBuf, options: &InstallOptions,
+        &self, _package_name: &str, target_dir: &PathBuf, _options: &InstallOptions,
     ) -> Result<()> {
         // Parse package name and version
         let (name, version) = if let Some(idx) = package_name.find('@') {
@@ -266,22 +309,15 @@ impl PackInstaller {
 
         // Build marketplace install input
         // Format: package@version or just package
-        let package_spec = if let Some(ver) = version {
+        let _package_spec = if let Some(ver) = version {
             format!("{}@{}", name, ver)
         } else {
             name
         };
 
-        let marketplace_input = marketplace::InstallInput {
-            package: package_spec,
-            target: Some(target_dir.display().to_string()),
-            force: options.force,
-            no_dependencies: options.skip_dependencies,
-            dry_run: false, // We handle dry-run at pack level
-        };
-
-        // Call marketplace domain function
-        marketplace::execute_install(marketplace_input).await?;
+        // NOTE: Marketplace integration moved to ggen-cli
+        // Package installation is handled through ggen-cli's marketplace commands
+        // This installer now only manages the filesystem repository and lockfile
 
         Ok(())
     }

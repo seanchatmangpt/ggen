@@ -101,9 +101,6 @@ rand = "0.9"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 criterion = { version = "0.7", features = ["html_reports"] }
 
-[[bench]]
-name = "swarm_coordination"
-harness = false
 
 [lib]
 name = "ggen_ai"
@@ -168,6 +165,21 @@ required-features = ["integration"]
 name = "dspy_property_tests"
 path = "tests/dspy_property_tests.rs"
 required-features = ["integration"]
+
+[[test]]
+name = "swarm_sparql_validator_tests"
+path = "tests/swarm_sparql_validator_tests.rs"
+required-features = ["swarm"]
+
+[[test]]
+name = "template_validator_agent_test"
+path = "tests/template_validator_agent_test.rs"
+required-features = ["swarm"]
+
+[[test]]
+name = "template_validator_standalone"
+path = "tests/template_validator_standalone.rs"
+required-features = ["swarm", "integration"]
 
 [[test]]
 name = "dspy_testing_property_tests"

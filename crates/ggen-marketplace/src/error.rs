@@ -87,6 +87,13 @@ pub enum Error {
         reason: String,
     },
 
+    /// Trust tier check failed
+    #[error("Trust tier check failed: {reason}")]
+    TrustTierCheckFailed {
+        /// The reason the trust tier check failed
+        reason: String,
+    },
+
     /// I/O error
     #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
@@ -154,6 +161,33 @@ pub enum Error {
     /// Generic error with context
     #[error("{0}")]
     Other(String),
+}
+
+// Implement From<ggen_receipt::ReceiptError> for compatibility
+impl From<ggen_receipt::ReceiptError> for Error {
+    fn from(err: ggen_receipt::ReceiptError) -> Self {
+        match err {
+            ggen_receipt::ReceiptError::InvalidSignature => Error::SignatureVerificationFailed {
+                reason: "Invalid signature".to_string(),
+            },
+            ggen_receipt::ReceiptError::InvalidChain(msg) => {
+                Error::CryptoError(format!("Invalid receipt chain: {}", msg))
+            }
+            ggen_receipt::ReceiptError::Serialization(err) => Error::SerializationError(err),
+            ggen_receipt::ReceiptError::InvalidReceipt(msg) => Error::ValidationFailed {
+                reason: format!("Invalid receipt: {}", msg),
+            },
+            ggen_receipt::ReceiptError::Crypto(msg) => {
+                Error::CryptoError(format!("Receipt crypto error: {}", msg))
+            }
+            ggen_receipt::ReceiptError::HashMismatch { expected, actual } => {
+                Error::CryptoError(format!(
+                    "Receipt hash mismatch: expected {}, got {}",
+                    expected, actual
+                ))
+            }
+        }
+    }
 }
 
 impl Error {
@@ -227,6 +261,14 @@ impl Error {
     #[must_use]
     pub fn timeout(reason: impl Into<String>) -> Self {
         Self::Timeout(reason.into())
+    }
+
+    /// Create a new trust tier check failed error
+    #[must_use]
+    pub fn trust_tier_check_failed(reason: impl Into<String>) -> Self {
+        Self::TrustTierCheckFailed {
+            reason: reason.into(),
+        }
     }
 }
 

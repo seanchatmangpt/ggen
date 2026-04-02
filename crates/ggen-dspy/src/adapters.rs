@@ -161,17 +161,36 @@ impl LlmAdapter for ChatAdapter {
         let mut results = HashMap::new();
 
         for field in output_fields {
-            // Find field marker
-            let pattern = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\s*\n(.*?)(?:\n\[\[|$)", field);
-            let field_regex = Regex::new(&pattern)
-                .map_err(|e| DspyError::ParsingError(format!("Invalid regex pattern: {}", e)))?;
+            // Find field marker — use [ \t]* instead of \s* before \n to avoid
+            // consuming content-separating newlines (\s includes \n which breaks parsing)
+            let _pattern = format!(
+                r"\[\[\s*##\s*{}\s*##\s*\]\][ \t]*\n(.*?)(?:\n\[\[|$)",
+                field
+            );
 
-            if let Some(captures) = field_regex.captures(response) {
+            // Debug: test the marker + newline
+            let marker_newline = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\n", field);
+            let marker_nl_regex = Regex::new(&marker_newline).unwrap();
+            eprintln!(
+                "DEBUG field='{}': marker+nl match={}",
+                field,
+                marker_nl_regex.captures(response).is_some()
+            );
+
+            let marker_newline_capture = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\n(.+)", field);
+            let marker_nl_cap_regex = Regex::new(&marker_newline_capture).unwrap();
+            eprintln!(
+                "DEBUG field='{}': marker+nl+capture match={}",
+                field,
+                marker_nl_cap_regex.captures(response).is_some()
+            );
+            if let Some(captures) = marker_nl_cap_regex.captures(response) {
                 let content = captures.get(1).map(|m| m.as_str().trim()).ok_or_else(|| {
                     DspyError::FieldError {
                         field: field.clone(),
                     }
                 })?;
+                eprintln!("DEBUG content='{}' ({} bytes)", content, content.len());
 
                 if content.is_empty() {
                     return Err(DspyError::FieldError {
@@ -247,8 +266,8 @@ impl JSONAdapter {
 
     /// Extract JSON from response (handles markdown code blocks)
     fn extract_json(&self, response: &str) -> Result<String> {
-        // Try to extract from ```json``` blocks
-        let json_block_regex = Regex::new(r"```json\s*\n(.*?)\n```")
+        // Try to extract from ```json``` blocks — (?s) allows . to match newlines for multi-line JSON
+        let json_block_regex = Regex::new(r"(?s)```json\s*\n(.*?)\n```")
             .map_err(|e| DspyError::ParsingError(format!("Regex error: {}", e)))?;
 
         if let Some(captures) = json_block_regex.captures(response) {
@@ -265,7 +284,7 @@ impl JSONAdapter {
         }
 
         // Try to extract from ``` blocks without json marker
-        let code_block_regex = Regex::new(r"```\s*\n(.*?)\n```")
+        let code_block_regex = Regex::new(r"(?s)```\s*\n(.*?)\n```")
             .map_err(|e| DspyError::ParsingError(format!("Regex error: {}", e)))?;
 
         if let Some(captures) = code_block_regex.captures(response) {

@@ -53,12 +53,12 @@ impl ConventionPreset for ClapNounVerbPreset {
     fn templates(&self) -> Vec<(&str, &str)> {
         vec![
             (
-                "clap-noun-verb/command.rs.hbs",
-                include_str!("../../templates/clap-noun-verb/command.rs.hbs"),
+                "clap-noun-verb/command.rs.tera",
+                include_str!("../../templates/clap-noun-verb/command.rs.tera"),
             ),
             (
-                "clap-noun-verb/domain.rs.hbs",
-                include_str!("../../templates/clap-noun-verb/domain.rs.hbs"),
+                "clap-noun-verb/domain.rs.tera",
+                include_str!("../../templates/clap-noun-verb/domain.rs.tera"),
             ),
         ]
     }

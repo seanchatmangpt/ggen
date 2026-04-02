@@ -3,25 +3,52 @@
 //! Orchestrates the complete v6 projection pipeline: A = μ(O)
 //!
 //! The pipeline runs passes in order:
+//! 0. μ₀: Pack Resolution (bundle expansion, dependency resolution, ontology merge)
 //! 1. μ₁: Normalization (CONSTRUCT)
 //! 2. μ₂: Extraction (SELECT)
 //! 3. μ₃: Emission (Tera)
 //! 4. μ₄: Canonicalization (formatting)
 //! 5. μ₅: Receipt (provenance)
 
-use crate::graph::Graph;
+use crate::graph::{Graph, GraphExport};
+use crate::pack_resolver::{PackResolver, ResolvedPacks};
 use crate::v6::epoch::Epoch;
 use crate::v6::guard::GuardSet;
 use crate::v6::pass::{Pass, PassContext, PassExecution, PassResult};
 use crate::v6::passes::{
     CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
 };
-use crate::v6::receipt::{BuildReceipt, OutputFile, ReceiptPolicies};
+use crate::v6::receipt::{
+    BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies,
+};
 use crate::v6::vocabulary::VocabularyRegistry;
+use ggen_marketplace::trust::TrustTier;
 use ggen_utils::error::{Error, Result};
+use oxigraph::io::RdfFormat;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use sha2::{Digest, Sha256};
+use std::path::{Path, PathBuf};
 use std::time::Instant;
+
+/// Stage pack templates into `<project>/.ggen/pack-stage/` for μ₃ rules or inspection.
+#[allow(dead_code)]
+fn stage_pack_templates(
+    base_path: &Path, templates: &[crate::pack_resolver::TemplateDef],
+) -> Result<Vec<String>> {
+    let stage = base_path.join(".ggen").join("pack-stage");
+    let mut names = Vec::new();
+    for t in templates {
+        let dest = stage.join(&t.path);
+        if let Some(p) = dest.parent() {
+            std::fs::create_dir_all(p)
+                .map_err(|e| Error::new(&format!("Failed to create pack-stage dir: {}", e)))?;
+        }
+        std::fs::write(&dest, &t.content)
+            .map_err(|e| Error::new(&format!("Failed to write staged template: {}", e)))?;
+        names.push(t.path.display().to_string());
+    }
+    Ok(names)
+}
 
 /// Verification mode for the pipeline
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -66,6 +93,10 @@ pub struct PipelineConfig {
 
     /// ggen version
     pub toolchain_version: String,
+
+    /// Enable μ₀ pack resolution stage
+    #[serde(default)]
+    pub enable_pack_resolution: bool,
 }
 
 impl PipelineConfig {
@@ -81,6 +112,7 @@ impl PipelineConfig {
             verify_mode: VerifyMode::None,
             previous_receipt: None,
             toolchain_version: env!("CARGO_PKG_VERSION").to_string(),
+            enable_pack_resolution: true,
         }
     }
 
@@ -150,6 +182,12 @@ pub struct StagedPipeline {
     /// Guard set for output validation
     guard_set: GuardSet,
 
+    /// μ₀: Pack resolver
+    pack_resolver: Option<PackResolver>,
+
+    /// μ₀: Resolved packs (after bundle expansion and dependency resolution)
+    resolved_packs: Option<ResolvedPacks>,
+
     /// Normalization pass
     normalization: NormalizationPass,
 
@@ -172,6 +210,9 @@ impl StagedPipeline {
     pub fn new(config: PipelineConfig) -> Result<Self> {
         let graph = Graph::new()?;
 
+        // Initialize pack resolver if lockfile exists
+        let pack_resolver = PackResolver::new(&config.base_path).ok();
+
         Ok(Self {
             config: config.clone(),
             graph,
@@ -180,6 +221,8 @@ impl StagedPipeline {
             generated_files: Vec::new(),
             vocabulary_registry: VocabularyRegistry::with_standard_vocabularies(),
             guard_set: GuardSet::default_v6(),
+            pack_resolver,
+            resolved_packs: None,
             normalization: NormalizationPass::with_standard_rules(),
             extraction: ExtractionPass::with_standard_rules(),
             emission: EmissionPass::new(),
@@ -249,6 +292,11 @@ impl StagedPipeline {
         Ok(self.epoch.as_ref().unwrap())
     }
 
+    /// Get resolved packs from μ₀ stage
+    pub fn resolved_packs(&self) -> Option<&ResolvedPacks> {
+        self.resolved_packs.as_ref()
+    }
+
     /// Verify inputs match a previous epoch
     pub fn verify_inputs(&self, previous_epoch: &Epoch) -> Result<bool> {
         if let Some(ref epoch) = self.epoch {
@@ -281,8 +329,37 @@ impl StagedPipeline {
     pub fn run(&mut self) -> Result<BuildReceipt> {
         let _pipeline_start = Instant::now();
 
-        // Load ontologies if not already loaded
-        if self.epoch.is_none() {
+        // μ₀: Pack Resolution (if lockfile exists)
+        if let Some(ref resolver) = self.pack_resolver {
+            match resolver.resolve() {
+                Ok(resolved) => {
+                    // Use merged ontology from resolved packs
+                    self.graph = resolved.merged_ontology.clone();
+                    self.resolved_packs = Some(resolved);
+                }
+                Err(e) if e.to_string().contains("Lockfile not found") => {
+                    // No lockfile - skip pack resolution, continue with project ontologies
+                    tracing::debug!("No lockfile found, skipping pack resolution");
+                }
+                Err(e) => {
+                    // Other errors should propagate
+                    return Err(e);
+                }
+            }
+        }
+
+        // Synthetic epoch when only pack substrate is present (no project TTL epoch yet)
+        if self.epoch.is_none() && self.resolved_packs.is_some() {
+            let turtle = GraphExport::new(&self.graph)
+                .write_to_string(RdfFormat::Turtle)
+                .map_err(|e| Error::new(&format!("Pack graph export failed: {}", e)))?;
+            let digest = format!("{:x}", Sha256::digest(turtle.as_bytes()));
+            let triple_count = self.graph.len();
+            self.epoch = Some(Epoch::from_pack_merged_substrate(digest, triple_count));
+        }
+
+        // Load ontologies if not already loaded (skip if μ₀ provided merged ontology)
+        if self.epoch.is_none() && self.resolved_packs.is_none() {
             self.load_ontologies()?;
         }
 
@@ -314,8 +391,16 @@ impl StagedPipeline {
 
         // Clone passes to avoid borrow issues
         let normalization = self.normalization.clone();
-        let extraction = self.extraction.clone();
-        let emission = self.emission.clone();
+        let mut extraction = self.extraction.clone();
+        let mut emission = self.emission.clone();
+
+        // Load pack queries into μ₂ and pack templates into μ₃
+        if let Some(ref rp) = self.resolved_packs {
+            // Load pack queries into μ₂ (CONSTRUCT-only queries from packs)
+            extraction.extend_with_pack_construct_queries(&rp.queries)?;
+            // Load pack templates into μ₃ (Tera templates from packs)
+            emission.extend_with_pack_templates(&rp.templates)?;
+        }
         let canonicalization = self.canonicalization.clone();
 
         // Create pass context
@@ -325,8 +410,15 @@ impl StagedPipeline {
                 self.config.project_version.clone(),
             );
 
-        // μ₁: Normalization
+        // μ₁: Normalization (pipeline.load — load RDF ontology into normalized graph)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.load",
+            "operation.name" = "pipeline.load",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu1",
+        );
+        let _guard = span.enter();
         let norm_result = normalization.execute(&mut ctx)?;
         let mut execution = normalization.create_execution_record(&norm_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -337,9 +429,24 @@ impl StagedPipeline {
                 norm_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(
+            stage = "mu1",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
+        drop(_guard);
 
-        // μ₂: Extraction
+        // μ₂: Extraction (pipeline.extract — extract skill definitions via SELECT)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.extract",
+            "operation.name" = "pipeline.extract",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu2",
+        );
+        let _guard = span.enter();
         let extract_result = extraction.execute(&mut ctx)?;
         let mut execution = extraction.create_execution_record(&extract_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -350,9 +457,30 @@ impl StagedPipeline {
                 extract_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(
+            stage = "mu2",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
+        drop(_guard);
 
-        // μ₃: Emission
+        // Stage pack templates under .ggen/pack-stage/ (μ₃ rules may reference these paths)
+        if let Some(ref rp) = self.resolved_packs {
+            let _staged = stage_pack_templates(&self.config.base_path, &rp.templates)?;
+        }
+
+        // μ₃: Emission (pipeline.generate — generate code via Tera templates)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.generate",
+            "operation.name" = "pipeline.generate",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu3",
+        );
+        let _guard = span.enter();
+
         let emission_result = emission.execute(&mut ctx)?;
         let mut execution = emission.create_execution_record(&emission_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -363,9 +491,24 @@ impl StagedPipeline {
                 emission_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(
+            stage = "mu3",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
+        drop(_guard);
 
-        // μ₄: Canonicalization
+        // μ₄: Canonicalization (pipeline.validate — quality gate validation)
         let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.validate",
+            "operation.name" = "pipeline.validate",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu4",
+        );
+        let _guard = span.enter();
         let canon_result = canonicalization.execute(&mut ctx)?;
         let mut execution = canonicalization.create_execution_record(&canon_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -376,6 +519,14 @@ impl StagedPipeline {
                 canon_result.error
             )));
         }
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(
+            stage = "mu4",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
+        drop(_guard);
 
         // Collect generated files
         self.generated_files = ctx.generated_files.clone();
@@ -383,9 +534,18 @@ impl StagedPipeline {
         // Create output file records
         let output_records = self.create_output_records(&ctx)?;
 
-        // μ₅: Receipt generation
+        // μ₅: Receipt generation (pipeline.emit — write generated files + provenance receipt)
+        let start = Instant::now();
+        let span = tracing::info_span!(
+            "pipeline.emit",
+            "operation.name" = "pipeline.emit",
+            "operation.type" = "pipeline",
+            "pipeline.stage" = "mu5",
+        );
+        let _guard = span.enter();
+
         let epoch = self.epoch.as_ref().unwrap();
-        let receipt = BuildReceipt::new(
+        let mut receipt = BuildReceipt::new(
             epoch,
             self.executed_passes.clone(),
             output_records,
@@ -397,6 +557,42 @@ impl StagedPipeline {
             formatting_policy: "language-specific".to_string(),
             active_guards: vec!["path-guard".to_string(), "secret-guard".to_string()],
         });
+
+        // Add pack provenance to receipt (if μ₀ resolved packs)
+        if let Some(ref resolved) = self.resolved_packs {
+            // Add bundle expansions
+            for expansion in &resolved.bundle_expansions {
+                receipt.add_bundle_expansion(BundleExpansionRef {
+                    bundle_id: expansion.bundle_id.clone(),
+                    expanded_to: expansion.expanded_to.clone(),
+                });
+            }
+
+            // Add pack provenance
+            for pack_id in &resolved.atomic_packs {
+                let version = resolved
+                    .pack_versions
+                    .get(&pack_id.to_string())
+                    .cloned()
+                    .unwrap_or_else(|| "unknown".to_string());
+
+                receipt.add_pack(PackProvenance {
+                    pack_id: pack_id.to_string(),
+                    version,
+                    signature: "local:unsigned".to_string(),
+                    digest: resolved.digest_for_pack(pack_id),
+                    templates_contributed: resolved.template_paths_for_pack(pack_id),
+                    queries_contributed: resolved.query_names_for_pack(pack_id),
+                    files_generated: vec![],
+                });
+            }
+
+            receipt.set_profile(crate::v6::receipt::ProfileRef {
+                profile_id: resolved.profile.clone(),
+                runtime_constraints: vec![],
+                trust_requirement: TrustTier::Experimental,
+            });
+        }
 
         // Write receipt if path specified
         if let Some(ref receipt_path) = self.config.receipt_path {
@@ -419,6 +615,15 @@ impl StagedPipeline {
                 ));
             }
         }
+
+        let elapsed = start.elapsed();
+        tracing::Span::current().record("pipeline.duration_ms", elapsed.as_millis() as u64);
+        tracing::info!(
+            stage = "mu5",
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Pipeline stage completed"
+        );
+        drop(_guard);
 
         Ok(receipt)
     }

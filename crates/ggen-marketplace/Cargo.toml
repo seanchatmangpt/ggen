@@ -28,6 +28,7 @@ futures = { workspace = true }
 futures-util = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
+semver = "1.0"
 
 # RDF & Semantic Data (Primary Data Store)
 oxigraph = { workspace = true }      # RDF triplestore (knowledge graph backend)
@@ -43,10 +44,11 @@ dashmap = { workspace = true }       # Concurrent hash maps for metrics/events
 lru = "0.16"                         # LRU cache
 
 # Cryptography & security
-ed25519-dalek = "2.1"                # Ed25519 signatures
-sha2 = "0.10"                        # SHA-256
-hex = "0.4"                          # Hex encoding
-rand = "0.8"                         # Random number generation
+# NOTE: Using ggen-receipt as canonical signing implementation
+ggen-receipt = { path = "../ggen-receipt" }  # Ed25519 signatures, SHA-256, receipt chains
+ed25519-dalek = "2.1"                        # Ed25519 types (SigningKey, VerifyingKey)
+hex = "0.4"                                  # Hex encoding
+sha2 = "0.10"                               # SHA-256 hashing
 
 # High-performance search & indexing
 fst = "0.4"                          # Finite state transducers
@@ -59,6 +61,7 @@ serde_derive = "1.0"
 
 # HTTP/REST (for future API implementation)
 hyper = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
 axum = { workspace = true }
 http = "1.0"
 tower = "0.4"
@@ -83,6 +86,15 @@ bytes = "1.5"
 moka = { version = "0.12", features = ["future"] }
 instant = "0.1"
 
+# Archive extraction
+flate2 = "1.0"                       # GZIP decompression
+tar = "0.4"                          # TAR archive extraction
+zip = "2.0"                          # ZIP archive extraction
+
+# File system utilities
+walkdir = "2.5"                      # Directory walking
+dirs = "5.0"                         # Platform-specific directories (cache, config, etc.)
+
 [features]
 integration = []
 
@@ -93,18 +105,7 @@ proptest = { workspace = true }
 mockall = "0.13"
 rand = "0.8"
 tempfile = "3.23"
-
-[[bench]]
-name = "comprehensive_performance"
-harness = false
-
-[[bench]]
-name = "v1_vs_v2_comparison"
-harness = false
-
-[[bench]]
-name = "slo_validation"
-harness = false
+semver = "1.0"
 
 # Unit tests
 [[test]]

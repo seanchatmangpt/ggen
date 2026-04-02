@@ -1,6 +1,6 @@
 //! CI commands - clap-noun-verb auto-discovery
 use clap::Subcommand;
-use ggen_utils::error::Result;
+use ggen_cli::prelude::*;
 
 use ggen_domain::ci;
 

@@ -74,46 +74,51 @@ This document defines the architecture for integrating advanced swarm intelligen
 
 ### 1.1 High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         ggen CLI                                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ User Commands│  │ Configuration│  │ Existing Subsystems   │  │
-│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  │
-│         │                 │                       │              │
-│         └─────────────────┴───────────────────────┘              │
-│                           │                                      │
-│                           ▼                                      │
-│         ┌─────────────────────────────────────┐                 │
-│         │   Swarm Coordinator (Integration)   │ ◄───NEW LAYER   │
-│         └─────────────────┬───────────────────┘                 │
-│                           │                                      │
-│         ┌─────────────────┴───────────────────┐                 │
-│         │                                     │                 │
-│         ▼                                     ▼                 │
-│  ┌──────────────┐                    ┌──────────────┐          │
-│  │ Hive Queen   │                    │ Ultrathink   │          │
-│  │ Coordinator  │                    │ Swarm        │          │
-│  │ (Existing)   │                    │ (Existing)   │          │
-│  └──────┬───────┘                    └──────┬───────┘          │
-│         │                                    │                  │
-└─────────┼────────────────────────────────────┼──────────────────┘
-          │                                    │
-          ▼                                    ▼
-┌─────────────────┐                  ┌─────────────────┐
-│ Agent Pool      │                  │ Task Queue      │
-│ (Workers)       │◄────────────────►│ (Priority)      │
-└─────────────────┘                  └─────────────────┘
-          │                                    │
-          └──────────────┬─────────────────────┘
-                         │
-                         ▼
-          ┌──────────────────────────────┐
-          │  Consensus & Memory Layer     │
-          │  - Majority Voting            │
-          │  - Shared State (Lock-Free)   │
-          │  - Conflict Resolution        │
-          └──────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph CLI["ggen CLI"]
+        CMD["User Commands"]
+        CONFIG["Configuration"]
+        EXIST["Existing Subsystems"]
+    end
+
+    COORD["Swarm Coordinator<br/>(NEW LAYER)"]
+
+    subgraph COORDINATORS["Existing Coordinators"]
+        HQ["Hive Queen<br/>Ontology-specific"]
+        UT["Ultrathink Swarm<br/>Generic multi-agent"]
+    end
+
+    POOL["Agent Pool<br/>(Workers)"]
+    QUEUE["Task Queue<br/>(Priority)"]
+
+    subgraph CONSENSUS["Consensus & Memory Layer"]
+        VOTE["Majority Voting"]
+        STATE["Shared State (Lock-Free)"]
+        CONFLICT["Conflict Resolution"]
+    end
+
+    CMD --> COORD
+    CONFIG --> COORD
+    EXIST --> COORD
+
+    COORD --> HQ
+    COORD --> UT
+
+    HQ --> POOL
+    UT --> POOL
+
+    POOL <---> QUEUE
+
+    POOL --> CONSENSUS
+    QUEUE --> CONSENSUS
+
+    style COORD fill:#c8e6c9
+    style CLI fill:#e1f5ff
+    style COORDINATORS fill:#fff4e6
+    style CONSENSUS fill:#fce4ec
+    style POOL fill:#ffcdd2
+    style QUEUE fill:#ffcdd2
 ```
 
 ### 1.2 Component Overview
@@ -202,40 +207,37 @@ impl SwarmCoordinator {
 
 ### 3.1 Majority Voting Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Consensus Engine                          │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Task: "Resolve version conflict: schema-org"        │  │
-│  └──────────────────┬───────────────────────────────────┘  │
-│                     │                                       │
-│                     ▼                                       │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Agent Assignment (N=5 for critical tasks)           │  │
-│  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐             │  │
-│  │  │ A1  │ │ A2  │ │ A3  │ │ A4  │ │ A5  │             │  │
-│  │  └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘             │  │
-│  └─────┼───────┼───────┼───────┼───────┼────────────────┘  │
-│        │       │       │       │       │                   │
-│        ▼       ▼       ▼       ▼       ▼                   │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Independent Execution (Parallel)                    │  │
-│  │  A1: "Use 3.13.0" (conf: 0.95)                       │  │
-│  │  A2: "Use 3.13.0" (conf: 0.92)                       │  │
-│  │  A3: "Use 3.14.0" (conf: 0.78)                       │  │
-│  │  A4: "Use 3.13.0" (conf: 0.89)                       │  │
-│  │  A5: "Use 3.13.0" (conf: 0.91)                       │  │
-│  └──────────────────┬───────────────────────────────────┘  │
-│                     │                                       │
-│                     ▼                                       │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Voting & Consensus (Majority: 3/5)                  │  │
-│  │  Result: "Use 3.13.0"                                │  │
-│  │  Confidence: 0.9175 (avg of 4 agreeing agents)       │  │
-│  │  Agreement: 80% (4/5 agents)                         │  │
-│  └──────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    title Consensus Engine: Majority Voting
+    participant Task as Task Dispatcher
+    participant Pool as Agent Pool
+    participant A1 as Agent 1
+    participant A2 as Agent 2
+    participant A3 as Agent 3
+    participant A4 as Agent 4
+    participant A5 as Agent 5
+    participant Vote as Consensus Aggregator
+
+    Task->>Pool: "Resolve version conflict: schema-org"
+    Note over Pool: N=5 agents for critical tasks
+
+    par Independent Execution (Parallel)
+        Pool->>A1: Execute
+        Pool->>A2: Execute
+        Pool->>A3: Execute
+        Pool->>A4: Execute
+        Pool->>A5: Execute
+    end
+
+    A1-->>Vote: "Use 3.13.0" (conf: 0.95)
+    A2-->>Vote: "Use 3.13.0" (conf: 0.92)
+    A3-->>Vote: "Use 3.14.0" (conf: 0.78)
+    A4-->>Vote: "Use 3.13.0" (conf: 0.89)
+    A5-->>Vote: "Use 3.13.0" (conf: 0.91)
+
+    Note over Vote: Majority: 3/5<br/>Result: "Use 3.13.0"<br/>Confidence: 0.9175<br/>Agreement: 80%
+    Vote-->>Task: Consensus result
 ```
 
 ### 3.2 Consensus Algorithm
@@ -294,36 +296,31 @@ impl ConsensusEngine {
 
 ### 4.1 Agent Roles and Specialization
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                       Agent Pool                                │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │  Specialized Worker Types                               │  │
-│  │                                                          │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │  │
-│  │  │ Analyzer     │  │ Resolver     │  │ Validator    │  │  │
-│  │  │ - Version    │  │ - Conflicts  │  │ - Schema     │  │  │
-│  │  │   analysis   │  │ - Deps       │  │ - Types      │  │  │
-│  │  │ - Patterns   │  │ - Namespace  │  │ - Ontology   │  │  │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘  │  │
-│  │                                                          │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │  │
-│  │  │ Optimizer    │  │ Monitor      │  │ Coordinator  │  │  │
-│  │  │ - Perf       │  │ - Health     │  │ - Workflow   │  │  │
-│  │  │ - Memory     │  │ - Metrics    │  │ - Dispatch   │  │  │
-│  │  │ - Cache      │  │ - Alerts     │  │ - Recovery   │  │  │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘  │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │  Dynamic Worker Scaling                                  │  │
-│  │  • Base pool: 3-5 workers (always running)              │  │
-│  │  • Scale up: +2 workers per 10 pending tasks            │  │
-│  │  • Scale down: -1 worker per 5 idle minutes             │  │
-│  │  • Max pool: 20 workers (configurable)                  │  │
-│  └─────────────────────────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph POOL["Agent Pool"]
+        subgraph SPECIALIZED["Specialized Worker Types"]
+            ANALYZER["Analyzer<br/>Version analysis<br/>Pattern detection"]
+            RESOLVER["Resolver<br/>Conflicts<br/>Dependencies<br/>Namespace"]
+            VALIDATOR["Validator<br/>Schema types<br/>Ontology"]
+            OPTIMIZER["Optimizer<br/>Performance<br/>Memory, Cache"]
+            MONITOR["Monitor<br/>Health, Metrics<br/>Alerts"]
+            COORD["Coordinator<br/>Workflow dispatch<br/>Recovery"]
+        end
+    end
+
+    subgraph SCALING["Dynamic Worker Scaling"]
+        BASE["Base: 3-5 workers<br/>(always running)"]
+        UP["+2 per 10 pending tasks"]
+        DOWN["-1 per 5 idle minutes"]
+        MAX["Max: 20 workers"]
+    end
+
+    BASE --> UP --> MAX
+    BASE --> DOWN
+
+    style SPECIALIZED fill:#e1f5ff
+    style SCALING fill:#fff4e6
 ```
 
 ### 4.2 Task Distribution Strategy
@@ -379,41 +376,32 @@ impl WorkerPool {
 
 ### 5.1 Lock-Free Memory Architecture
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                    Shared Memory Layer                          │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Snapshot-Based Lock-Free Reads                          │  │
-│  │                                                           │  │
-│  │   Current Snapshot: V42                                  │  │
-│  │   ┌────────────────────────────────────────────┐         │  │
-│  │   │ ontology_cache: {...}                     │         │  │
-│  │   │ version_matrix: {...}                     │         │  │
-│  │   │ conflict_history: {...}                   │         │  │
-│  │   └────────────────────────────────────────────┘         │  │
-│  │                                                           │  │
-│  │   Staging Snapshot: V43 (being built)                    │  │
-│  │   ┌────────────────────────────────────────────┐         │  │
-│  │   │ ontology_cache: {...updated...}           │         │  │
-│  │   │ version_matrix: {...updated...}           │         │  │
-│  │   │ conflict_history: {...updated...}         │         │  │
-│  │   └────────────────────────────────────────────┘         │  │
-│  │                                                           │  │
-│  │  Writers:                    Readers:                    │  │
-│  │  • Build staging snapshot    • Always read current V42   │  │
-│  │  • Atomic swap when ready    • Never block               │  │
-│  │  • Old snapshot GC'd         • Consistent view           │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Memory Partitions (Namespaced)                          │  │
-│  │  • hive/state/* - HiveQueen state                        │  │
-│  │  • swarm/tasks/* - Task queue and results                │  │
-│  │  • consensus/votes/* - Voting records                    │  │
-│  │  • workers/metrics/* - Performance metrics               │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph MEM["Shared Memory Layer"]
+        subgraph SNAPSHOTS["Snapshot-Based Lock-Free Reads"]
+            CUR["Current Snapshot: V42<br/>ontology_cache: {...}<br/>version_matrix: {...}<br/>conflict_history: {...}"]
+            STAGE["Staging Snapshot: V43<br/>(being built)<br/>ontology_cache: {...updated...}<br/>version_matrix: {...updated...}"]
+        end
+
+        subgraph PARTITIONS["Memory Partitions (Namespaced)"]
+            P1["hive/state/*<br/>HiveQueen state"]
+            P2["swarm/tasks/*<br/>Task queue and results"]
+            P3["consensus/votes/*<br/>Voting records"]
+            P4["workers/metrics/*<br/>Performance metrics"]
+        end
+
+        subgraph RW["Read/Write Strategy"]
+            W["Writers:<br/>Build staging snapshot<br/>Atomic swap when ready<br/>Old snapshot GC'd"]
+            R["Readers:<br/>Always read current V42<br/>Never block<br/>Consistent view"]
+        end
+    end
+
+    CUR -.->|atomic swap| STAGE
+
+    style SNAPSHOTS fill:#e1f5ff
+    style PARTITIONS fill:#fff4e6
+    style RW fill:#c8e6c9
 ```
 
 ### 5.2 Memory Synchronization Protocol
@@ -483,36 +471,19 @@ impl SwarmMemory {
 
 ### 6.2 Self-Healing Architecture
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                     Health Monitor                              │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Continuous Health Checks (every 10s)                    │  │
-│  │  • Worker heartbeats                                     │  │
-│  │  • Memory consistency                                    │  │
-│  │  • Task queue depth                                      │  │
-│  │  • Consensus success rate                                │  │
-│  └────────────────────┬─────────────────────────────────────┘  │
-│                       │                                         │
-│                       ▼                                         │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Anomaly Detection                                       │  │
-│  │  • Worker failure rate > 10% → Scale up pool            │  │
-│  │  • Consensus failures > 20% → Adjust thresholds         │  │
-│  │  • Queue depth > 100 → Add workers                      │  │
-│  │  • Memory usage > 80% → Trigger GC                      │  │
-│  └────────────────────┬─────────────────────────────────────┘  │
-│                       │                                         │
-│                       ▼                                         │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Automated Recovery                                      │  │
-│  │  1. Log failure event                                   │  │
-│  │  2. Execute recovery action                             │  │
-│  │  3. Verify system health                                │  │
-│  │  4. Resume normal operation                             │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph HEALTH["Health Monitor"]
+        CHECKS["Continuous Health Checks (every 10s)<br/>Worker heartbeats<br/>Memory consistency<br/>Task queue depth<br/>Consensus success rate"]
+        ANOMALY["Anomaly Detection<br/>Worker failure &gt; 10% → Scale up<br/>Consensus failures &gt; 20% → Adjust thresholds<br/>Queue depth &gt; 100 → Add workers<br/>Memory &gt; 80% → Trigger GC"]
+        RECOVERY["Automated Recovery<br/>1. Log failure event<br/>2. Execute recovery action<br/>3. Verify system health<br/>4. Resume normal operation"]
+    end
+
+    CHECKS --> ANOMALY --> RECOVERY --> CHECKS
+
+    style CHECKS fill:#c8e6c9
+    style ANOMALY fill:#fff4e6
+    style RECOVERY fill:#ffcdd2
 ```
 
 ### 6.3 Retry Logic

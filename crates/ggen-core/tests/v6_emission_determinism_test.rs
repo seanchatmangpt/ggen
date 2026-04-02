@@ -30,6 +30,7 @@ fn create_test_pass(template_name: &str, template_content: &str) -> (TempDir, Em
     pass.add_rule(EmissionRule {
         name: format!("test-{}", template_name),
         template_path: PathBuf::from(format!("templates/{}", template_name)),
+        inline_template: None,
         output_pattern: "output.rs".to_string(),
         binding_key: "data".to_string(),
         iterate: false,

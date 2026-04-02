@@ -15,13 +15,11 @@
 /// 2. Real ontologies from examples/
 /// 3. Verify each stage produces expected outputs
 /// 4. Check receipt generation and provenance
-
 use ggen_core::graph::Graph;
 use ggen_core::v6::epoch::Epoch;
 use ggen_core::v6::pass::PassContext;
 use ggen_core::v6::passes::{
-    CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass,
-    ReceiptGenerationPass,
+    CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
 };
 use ggen_core::v6::pipeline::{PipelineConfig, StagedPipeline, VerifyMode};
 use ggen_core::v6::receipt::BuildReceipt;
@@ -110,8 +108,7 @@ fn test_pipeline_creation() {
 fn test_load_ontologies_creates_epoch() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -147,8 +144,7 @@ fn test_load_ontologies_creates_epoch() {
 fn test_normalization_pass_mu1() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -159,8 +155,7 @@ fn test_normalization_pass_mu1() {
     // Add example.org to allowed vocabularies
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -201,8 +196,7 @@ fn test_normalization_pass_mu1() {
 fn test_extraction_pass_mu2() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -213,8 +207,7 @@ fn test_extraction_pass_mu2() {
     // Add example.org to allowed vocabularies
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -251,8 +244,7 @@ fn test_extraction_pass_mu2() {
 fn test_emission_pass_mu3() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -263,8 +255,7 @@ fn test_emission_pass_mu3() {
     // Add example.org to allowed vocabularies
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -306,8 +297,7 @@ fn test_emission_pass_mu3() {
 fn test_canonicalization_pass_mu4() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -318,8 +308,7 @@ fn test_canonicalization_pass_mu4() {
     // Add example.org to allowed vocabularies
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -356,8 +345,7 @@ fn test_canonicalization_pass_mu4() {
 fn test_receipt_generation_pass_mu5() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -369,8 +357,7 @@ fn test_receipt_generation_pass_mu5() {
     // Add example.org to allowed vocabularies
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -412,8 +399,7 @@ fn test_receipt_generation_pass_mu5() {
 fn test_full_pipeline_happy_path() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test-project", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -426,14 +412,16 @@ fn test_full_pipeline_happy_path() {
     // Add example.org to allowed vocabularies
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
     // Run full pipeline
     let receipt = pipeline.run();
-    assert!(receipt.is_ok(), "Full pipeline should complete successfully");
+    assert!(
+        receipt.is_ok(),
+        "Full pipeline should complete successfully"
+    );
 
     let receipt = receipt.unwrap();
     assert!(receipt.is_valid, "Receipt should be valid");
@@ -442,14 +430,21 @@ fn test_full_pipeline_happy_path() {
 
     // Verify all 5 passes executed
     let passes = pipeline.executed_passes();
-    assert_eq!(passes.len(), 4, "Should have 4 passes (μ₁-μ₄, μ₅ is implicit)");
+    assert_eq!(
+        passes.len(),
+        4,
+        "Should have 4 passes (μ₁-μ₄, μ₅ is implicit)"
+    );
 
     // Verify pass names
     let pass_names: Vec<&str> = passes.iter().map(|p| p.pass_name.as_str()).collect();
     assert!(pass_names.contains(&"μ₁:normalization"), "Should have μ₁");
     assert!(pass_names.contains(&"μ₂:extraction"), "Should have μ₂");
     assert!(pass_names.contains(&"μ₃:emission"), "Should have μ₃");
-    assert!(pass_names.contains(&"μ₄:canonicalization"), "Should have μ₄");
+    assert!(
+        pass_names.contains(&"μ₄:canonicalization"),
+        "Should have μ₄"
+    );
 
     // Verify receipt file was written
     let receipt_path = temp_dir.path().join(".ggen/receipt.json");
@@ -457,7 +452,10 @@ fn test_full_pipeline_happy_path() {
 
     // Verify receipt can be read back
     let loaded_receipt = BuildReceipt::read_from_file(&receipt_path);
-    assert!(loaded_receipt.is_ok(), "Should be able to read receipt back");
+    assert!(
+        loaded_receipt.is_ok(),
+        "Should be able to read receipt back"
+    );
     let loaded_receipt = loaded_receipt.unwrap();
     assert_eq!(loaded_receipt.epoch_id, receipt.epoch_id);
 }
@@ -472,7 +470,10 @@ fn test_pipeline_with_real_level1_ontology() {
     let ontology_path = root.join("examples/maturity-matrix-showcase/level1-simple/ontology.ttl");
 
     if !ontology_path.exists() {
-        eprintln!("[SKIP] level1-simple ontology not found at {}", ontology_path.display());
+        eprintln!(
+            "[SKIP] level1-simple ontology not found at {}",
+            ontology_path.display()
+        );
         return;
     }
 
@@ -543,14 +544,12 @@ fn test_pipeline_determinism() {
 
     let mut registry1 = VocabularyRegistry::with_standard_vocabularies();
     registry1.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
 
     let mut registry2 = VocabularyRegistry::with_standard_vocabularies();
     registry2.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
 
     let mut pipeline1 = StagedPipeline::new(config1)
@@ -586,8 +585,7 @@ fn test_pipeline_determinism() {
 fn test_pipeline_with_verify_mode_none() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -600,8 +598,7 @@ fn test_pipeline_with_verify_mode_none() {
 
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -620,15 +617,11 @@ fn test_pipeline_with_verify_mode_none() {
 fn test_epoch_creation_from_ontology_sources() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     // Create epoch from ontology sources
-    let epoch = Epoch::create(
-        temp_dir.path(),
-        &[PathBuf::from("test.ttl")],
-    )
-    .expect("Epoch should create successfully");
+    let epoch = Epoch::create(temp_dir.path(), &[PathBuf::from("test.ttl")])
+        .expect("Epoch should create successfully");
 
     assert!(!epoch.id.is_empty(), "Epoch should have ID");
     assert!(epoch.graph.len() > 0, "Epoch graph should have triples");
@@ -654,7 +647,10 @@ fn test_pipeline_error_handling_missing_ontology() {
     let mut pipeline = StagedPipeline::new(config).expect("Pipeline should create");
 
     let result = pipeline.run();
-    assert!(result.is_err(), "Pipeline should fail with missing ontology");
+    assert!(
+        result.is_err(),
+        "Pipeline should fail with missing ontology"
+    );
 
     let err = result.unwrap_err();
     let err_msg = err.to_string();
@@ -673,8 +669,7 @@ fn test_pipeline_error_handling_missing_ontology() {
 fn test_generated_files_tracking() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
-    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY)
-        .expect("Should write ontology file");
+    std::fs::write(&ontology_path, MINIMAL_ONTOLOGY).expect("Should write ontology file");
 
     let config = PipelineConfig::new("test", "1.0.0")
         .with_base_path(temp_dir.path())
@@ -686,8 +681,7 @@ fn test_generated_files_tracking() {
 
     let mut registry = VocabularyRegistry::with_standard_vocabularies();
     registry.add_allowed(
-        AllowedVocabulary::new("http://example.org/test#", "ex")
-            .with_description("Test namespace"),
+        AllowedVocabulary::new("http://example.org/test#", "ex").with_description("Test namespace"),
     );
     pipeline = pipeline.with_vocabulary_registry(registry);
 
@@ -698,5 +692,8 @@ fn test_generated_files_tracking() {
     assert!(generated_files.len() >= 0, "Should track generated files");
 
     // Verify receipt has output files record
-    assert!(receipt.output_files.len() >= 0, "Receipt should track outputs");
+    assert!(
+        receipt.output_files.len() >= 0,
+        "Receipt should track outputs"
+    );
 }

@@ -8,7 +8,7 @@
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 // ============================================================================
 // Output Types
@@ -69,7 +69,7 @@ fn validate_ontology(ontology: &str) -> Result<()> {
 }
 
 /// Create iteration directory
-fn create_iteration_dir(base_dir: &PathBuf, iteration: usize) -> Result<String> {
+fn create_iteration_dir(base_dir: &Path, iteration: usize) -> Result<String> {
     let iter_output_dir = base_dir.join(format!("iteration-{}", iteration));
     std::fs::create_dir_all(&iter_output_dir).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
@@ -87,7 +87,9 @@ fn create_iteration_dir(base_dir: &PathBuf, iteration: usize) -> Result<String> 
 
 /// Run self-play iterations
 #[verb]
-fn run(output_dir: String, ontology: String, iterations: Option<String>, _audit: bool) -> Result<RunOutput> {
+fn run(
+    output_dir: String, ontology: String, iterations: Option<String>, _audit: bool,
+) -> Result<RunOutput> {
     let iterations = iterations
         .and_then(|s| s.parse::<usize>().ok())
         .unwrap_or(3);
