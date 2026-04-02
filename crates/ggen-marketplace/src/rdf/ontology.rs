@@ -21,11 +21,10 @@ pub mod namespaces {
 
     // Custom ggen namespace
     pub const GGEN: &str = "http://ggen.dev/ontology#";
-    pub const MARKETPLACE: &str = "http://ggen.dev/marketplace#";
 }
 
 // Re-export commonly used namespaces
-pub use namespaces::{GGEN as GGEN_NS, MARKETPLACE as MARKETPLACE_NS};
+pub use namespaces::GGEN as GGEN_NS;
 
 /// Ontology helper type
 pub struct Ontology;
@@ -35,12 +34,6 @@ impl Ontology {
     #[must_use]
     pub fn ggen_ns() -> &'static str {
         namespaces::GGEN
-    }
-
-    /// Get the marketplace namespace
-    #[must_use]
-    pub fn marketplace_ns() -> &'static str {
-        namespaces::MARKETPLACE
     }
 }
 
@@ -52,12 +45,6 @@ impl UriBuilder {
     #[must_use]
     pub fn ggen(resource: &str) -> String {
         format!("{}{}", namespaces::GGEN, resource)
-    }
-
-    /// Build a marketplace namespace URI
-    #[must_use]
-    pub fn marketplace(resource: &str) -> String {
-        format!("{}{}", namespaces::MARKETPLACE, resource)
     }
 }
 

@@ -42,21 +42,23 @@ Weaver is an OpenTelemetry semantic convention validator that:
 
 ## Architecture
 
-```
-ggen services (Rust)
-       ↓ OTEL spans (OTLP)
-OTEL Collector (4317/4318)
-       ↓ fan-out
-    ┌───┴─────────────────┐
-    ↓                     ↓
-Jaeger (traces)      Weaver Live-Check
- (16686)               (4316)
-                       ↓
-                 Real-time validation
-                 against semconv/model/
-                       ↓
-              Violations to stdout
-              Reports to /reports/
+```mermaid
+flowchart TD
+    GGEN["ggen services (Rust)"] --> OTEL["OTEL spans (OTLP)"]
+    OTEL --> COLLECTOR["OTEL Collector (4317/4318)"]
+    COLLECTOR --> FAN["fan-out"]
+    FAN --> JAEGER["Jaeger (traces)<br/>16686"]
+    FAN --> WEAVER["Weaver Live-Check<br/>4316"]
+
+    WEAVER --> VALIDATION["Real-time validation<br/>against semconv/model/"]
+    VALIDATION --> OUTPUT["Violations to stdout<br/>Reports to /reports/"]
+
+    style GGEN fill:#e1f5ff
+    style COLLECTOR fill:#fff4e6
+    style JAEGER fill:#c8e6c9
+    style WEAVER fill:#ffcdd2
+    style VALIDATION fill:#e1f5ff
+    style OUTPUT fill:#fce4ec
 ```
 
 **Key Difference from Current:**

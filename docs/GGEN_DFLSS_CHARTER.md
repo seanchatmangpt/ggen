@@ -227,3 +227,245 @@ Establish: canonical pack algebra, compiler-stage integration of packs into `gge
 | **Success** | Packs install and govern; `ggen sync` authoritative; MCP/A2A/OpenAPI/Rust/Slidev/XLSX from shared truth; receipts prove outputs; profiles enforce CISO policy; coordination bottleneck reduced |
 | **Critical Risks** | Hidden defaults, ambiguous overlap, public dependency trust, split architecture, false-green CLI behavior |
 | **Strategic Payoff** | Cross event horizon from human-coordinated production to machine-governed construction |
+
+---
+
+## 14. DfLSS Visual Artifacts
+
+### 14.1 SIPOC Diagram (Suppliers-Inputs-Process-Outputs-Customers)
+
+```mermaid
+flowchart LR
+    subgraph Suppliers["Suppliers"]
+        ONTO["Ontology Engineers<br/>TTL schemas"]
+        TERA["Template Authors<br/>.tera templates"]
+        PACK["Pack Developers<br/>ggen-pack.toml"]
+        POLICY["CISO/Policy Team<br/>Enterprise rules"]
+    end
+
+    subgraph Inputs["Inputs"]
+        I1["RDF Ontologies<br/>(.ttl files)"]
+        I2["Templates<br/>(.tera files)"]
+        I3["Pack Definitions<br/>(ggen-pack.toml)"]
+        I4["Policy Rules<br/>(.rego files)"]
+    end
+
+    subgraph Process["Process: ggen sync"]
+        P1["Load Ontology<br/>(μ₁)"]
+        P2["Extract Queries<br/>(μ₂)"]
+        P3["Generate Code<br/>(μ₃)"]
+        P4["Merge & Validate<br/>(μ₄)"]
+        P5["Emit Artifacts<br/>(μ₅)"]
+    end
+
+    subgraph Outputs["Outputs"]
+        O1["Rust Code<br/>(.rs files)"]
+        O2["OpenAPI Specs<br/>(.yaml files)"]
+        O3["MCP Schemas<br/>(.json files)"]
+        O4["YAWL Workflows<br/>(.xml files)"]
+        O5["Receipts<br/>(.json files)"]
+    end
+
+    subgraph Customers["Customers"]
+        DEV["Developers<br/>Code consumers"]
+        OPS["Operations<br/>API consumers"]
+        AI["AI Agents<br/>MCP/A2A users"]
+        ARCH["Architects<br/>Workflow consumers"]
+        AUDIT["Auditors<br/>Receipt verifiers"]
+    end
+
+    Suppliers --> Inputs
+    Inputs --> Process
+    Process --> Outputs
+    Outputs --> Customers
+
+    style Suppliers fill:#e1f5ff
+    style Inputs fill:#fff4e6
+    style Process fill:#ffcdd2
+    style Outputs fill:#c8e6c9
+    style Customers fill:#fce4ec
+```
+
+### 14.2 CTQ Flowdown (Critical-to-Quality Tree)
+
+```mermaid
+flowchart TD
+    CUSTOMER["Customer Need:<br/>Reduce enterprise text<br/>drift & coordination"]
+
+    CTQ1["CTQ 1: Determinism<br/>Same inputs = same outputs"]
+    CTQ2["CTQ 2: Traceability<br/>Every output traceable"]
+    CTQ3["CTQ 3: Compiler Authority<br/>ggen sync is authoritative"]
+    CTQ4["CTQ 4: No Hidden Semantics<br/>Templates have no logic"]
+    CTQ5["CTQ 5: Signed Composition<br/>Packs versioned & trusted"]
+
+    M1["Metric: Reproducibility %<br/>100% for same inputs"]
+    M2["Metric: Trace coverage<br/>100% outputs traced"]
+    M3["Metric: Bypass rate<br/>0% manual generation"]
+    M4["Metric: Logic-in-template<br/>0 business logic in .tera"]
+    M5["Metric: Signature coverage<br/>100% packs signed"]
+
+    CUSTOMER --> CTQ1
+    CUSTOMER --> CTQ2
+    CUSTOMER --> CTQ3
+    CUSTOMER --> CTQ4
+    CUSTOMER --> CTQ5
+
+    CTQ1 --> M1
+    CTQ2 --> M2
+    CTQ3 --> M3
+    CTQ4 --> M4
+    CTQ5 --> M5
+
+    style CUSTOMER fill:#e1f5ff
+    style CTQ1 fill:#ffcdd2
+    style CTQ2 fill:#ffcdd2
+    style CTQ3 fill:#ffcdd2
+    style CTQ4 fill:#ffcdd2
+    style CTQ5 fill:#ffcdd2
+    style M1 fill:#c8e6c9
+    style M2 fill:#c8e6c9
+    style M3 fill:#c8e6c9
+    style M4 fill:#c8e6c9
+    style M5 fill:#c8e6c9
+```
+
+### 14.3 DMADV Phase/Gate Flowchart
+
+```mermaid
+flowchart TD
+    START["Project Start"] --> DEFINE["Define Phase<br/>Problem statement<br/>Goal statement<br/>Scope"]
+
+    DEFINE --> GATE1["Gate 1: Problem Defined?"]
+    GATE1 -->|No| DEFINE
+    GATE1 -->|Yes| MEASURE["Measure Phase<br/>Baseline metrics<br/>Current state<br/>Voice of customer"]
+
+    MEASURE --> GATE2["Gate 2: Measured?"]
+    GATE2 -->|No| MEASURE
+    GATE2 -->|Yes| ANALYZE["Analyze Phase<br/>Root cause analysis<br/>Gap analysis<br/>Failure modes"]
+
+    ANALYZE --> GATE3["Gate 3: Root Causes Found?"]
+    GATE3 -->|No| ANALYZE
+    GATE3 -->|Yes| DESIGN["Design Phase<br/>Pack taxonomy<br/>Sync integration<br/>Receipt model<br/>Policy engine"]
+
+    DESIGN --> GATE4["Gate 4: Design Complete?"]
+    GATE4 -->|No| DESIGN
+    GATE4 -->|Yes| VERIFY["Verify Phase<br/>Reference packs<br/>End-to-end tests<br/>Milestone proof"]
+
+    VERIFY --> GATE5["Gate 5: Validated?"]
+    GATE5 -->|No| VERIFY
+    GATE5 -->|Yes| COMPLETE["Project Complete<br/>Handoff to ops<br/>Sustainment plan"]
+
+    style DEFINE fill:#e1f5ff
+    style MEASURE fill:#fff4e6
+    style ANALYZE fill:#ffcdd2
+    style DESIGN fill:#e1f5ff
+    style VERIFY fill:#c8e6c9
+    style COMPLETE fill:#fce4ec
+    style GATE1 fill:#ffd93d
+    style GATE2 fill:#ffd93d
+    style GATE3 fill:#ffd93d
+    style GATE4 fill:#ffd93d
+    style GATE5 fill:#ffd93d
+```
+
+### 14.4 RACI Matrix (Roles and Responsibilities)
+
+```mermaid
+flowchart TD
+    subgraph Tasks["Key Tasks"]
+        T1["Pack Taxonomy Design"]
+        T2["Sync Integration"]
+        T3["Receipt Model"]
+        T4["Policy Engine"]
+        T5["Reference Pack: mcp-rust"]
+        T6["Enterprise Pilot"]
+    end
+
+    subgraph Roles["Roles"]
+        SPONSOR["Sponsor<br/>CISO/CTO"]
+        LEAD["Lead<br/>Sean Chatman"]
+        ARCH["Architects<br/>Enterprise Arch"]
+        DEV["Developers<br/>ggen Team"]
+        OPS["Operations<br/>Platform Team"]
+    end
+
+    T1 -->|R| LEAD
+    T1 -->|A| ARCH
+    T1 -->|C| DEV
+    T1 -->|I| SPONSOR
+
+    T2 -->|R| LEAD
+    T2 -->|A| DEV
+    T2 -->|C| ARCH
+    T2 -->|I| OPS
+
+    T3 -->|R| LEAD
+    T3 -->|A| DEV
+    T3 -->|C| ARCH
+    T3 -->|I| SPONSOR
+
+    T4 -->|R| SPONSOR
+    T4 -->|A| LEAD
+    T4 -->|C| ARCH
+
+    T5 -->|R| LEAD
+    T5 -->|A| DEV
+    T5 -->|C| ARCH
+
+    T6 -->|R| SPONSOR
+    T6 -->|A| LEAD
+    T6 -->|C| OPS
+    T6 -->|I| DEV
+
+    style LEAD fill:#ffcdd2
+    style SPONSOR fill:#fff4e6
+    style ARCH fill:#e1f5ff
+    style DEV fill:#c8e6c9
+    style OPS fill:#fce4ec
+```
+
+**Legend:** R = Responsible, A = Accountable, C = Consulted, I = Informed
+
+### 14.5 Gantt Chart (7-Month Timeline)
+
+```mermaid
+gantt
+    title ggen DfLSS Project Timeline
+    dateFormat YYYY-MM-DD
+    section Phase 1: Define
+    Problem definition           :done, p1a, 2026-04-01, 14d
+    Goal statement               :done, p1b, 2026-04-01, 14d
+    Scope definition             :active, p1c, 2026-04-15, 7d
+
+    section Phase 2: Measure
+    Baseline metrics             :p2a, after p1c, 14d
+    Current state analysis       :p2b, after p1c, 14d
+    Voice of customer            :p2c, after p1c, 14d
+
+    section Phase 3: Analyze
+    Root cause analysis          :p3a, after p2a, 21d
+    Pack algebra design          :p3b, after p2a, 21d
+    Failure mode analysis        :p3c, after p2a, 21d
+
+    section Phase 4: Design
+    Pack taxonomy                :p4a, after p3a, 28d
+    Sync integration             :p4b, after p3a, 28d
+    Receipt model                :p4c, after p3a, 28d
+    Policy engine                :p4d, after p3a, 28d
+
+    section Phase 5: Verify
+    Reference mcp-rust pack      :p5a, after p4a, 28d
+    End-to-end tests             :p5b, after p4a, 28d
+    Milestone proof              :p5c, after p4a, 28d
+
+    section Milestones
+    M1: Architecture approved    :milestone, m1, 2026-05-01, 0d
+    M2: Install path working     :milestone, m2, 2026-06-01, 0d
+    M3: Pack-aware sync          :milestone, m3, 2026-07-01, 0d
+    M4: Reference pack proof     :milestone, m4, 2026-08-01, 0d
+    M5: Multi-pack receipts      :milestone, m5, 2026-09-01, 0d
+    M6: Non-code output          :milestone, m6, 2026-10-01, 0d
+    M7: Enterprise pilot        :milestone, m7, 2026-11-01, 0d
+```
+
+**Note:** Timeline spans 7 months (April 2026 - November 2026) with overlapping phases for efficiency.

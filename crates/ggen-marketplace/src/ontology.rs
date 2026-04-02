@@ -11,7 +11,7 @@ pub struct Namespaces;
 
 impl Namespaces {
     /// ggen marketplace namespace
-    pub const GGEN: &'static str = "https://ggen.io/marketplace/";
+    pub const GGEN: &'static str = "http://ggen.dev/ontology#";
 
     /// RDF namespace
     pub const RDF: &'static str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -39,7 +39,7 @@ impl Classes {
     /// Create a class URI
     #[must_use]
     pub fn uri(name: &str) -> String {
-        format!("{}classes/{}", Namespaces::GGEN, name)
+        format!("{}{}", Namespaces::GGEN, name)
     }
 
     /// Package class
@@ -85,7 +85,7 @@ pub struct Properties;
 impl Properties {
     /// Create a property URI
     pub fn uri(name: &str) -> String {
-        format!("{}properties/{}", Namespaces::GGEN, name)
+        format!("{}{}", Namespaces::GGEN, name)
     }
 
     /// Package ID property
@@ -195,7 +195,7 @@ pub struct Uris;
 impl Uris {
     /// Create a resource URI
     pub fn resource(name: &str) -> String {
-        format!("{}resources/{}", Namespaces::GGEN, name)
+        format!("{}{}", Namespaces::GGEN, name)
     }
 
     /// RDF type

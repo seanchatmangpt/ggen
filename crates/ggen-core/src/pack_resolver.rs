@@ -572,7 +572,7 @@ impl PackResolver {
     /// Returns None if the string is not a valid atomic pack ID.
     fn parse_atomic_pack_id(&self, pack_id: &str) -> Result<Option<AtomicPackId>> {
         // Try to parse as atomic pack ID (e.g., "surface-mcp", "projection-rust")
-        Ok(AtomicPackId::from_str(pack_id))
+        Ok(pack_id.parse::<AtomicPackId>().ok())
     }
 }
 
@@ -696,7 +696,7 @@ impl PackRegistry {
         if let Some(array) = deps_array {
             for item in array {
                 if let Some(dep_str) = item.as_str() {
-                    if let Some(pack_id) = AtomicPackId::from_str(dep_str) {
+                    if let Some(pack_id) = dep_str.parse::<AtomicPackId>().ok() {
                         result.push(pack_id);
                     }
                 }
@@ -715,7 +715,7 @@ impl PackRegistry {
 
         let mut result = Vec::new();
         for dep_str in deps {
-            if let Some(pack_id) = AtomicPackId::from_str(&dep_str) {
+            if let Some(pack_id) = dep_str.parse::<AtomicPackId>().ok() {
                 result.push(pack_id);
             }
         }

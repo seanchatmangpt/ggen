@@ -664,7 +664,7 @@ fn generate_project_ttl(config: &WizardConfig) -> String {
     format!(
         r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ggen: <https://ggen.io/ontology#> .
+@prefix ggen: <http://ggen.dev/ontology#> .
 
 ggen:Project a rdfs:Class ;
     rdfs:label "{}" ;

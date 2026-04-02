@@ -137,6 +137,38 @@ The system prevents errors at multiple levels:
 | **Logic** | State machine FSM | Invalid state transitions impossible |
 | **Runtime** | FMEA detection | Automatic failure detection and mitigation |
 
+```mermaid
+flowchart TD
+    subgraph L1["Level 1: Type Safety"]
+        NT["NewType Wrappers<br/>PackageId, SemanticVersion<br/>Sha256Checksum"]
+    end
+
+    subgraph L2["Level 2: State Safety"]
+        PT["Phantom Types<br/>Package&lt;Draft&gt; → .publish()<br/>Package&lt;Published&gt; → .activate()"]
+    end
+
+    subgraph L3["Level 3: Build Safety"]
+        BP["Builder Pattern<br/>Required fields enforced<br/>at construction time"]
+    end
+
+    subgraph L4["Level 4: Schema Safety"]
+        SH["SHACL Constraints<br/>Cardinality, datatype<br/>pattern validation"]
+    end
+
+    subgraph L5["Level 5: Runtime Safety"]
+        FSM["State Machine FSM<br/>Validated transitions"]
+        FMEA["FMEA Detection<br/>Automatic mitigation"]
+    end
+
+    NT --> PT --> BP --> SH --> FSM --> FMEA
+
+    style L1 fill:#c8e6c9
+    style L2 fill:#e1f5ff
+    style L3 fill:#fff4e6
+    style L4 fill:#fce4ec
+    style L5 fill:#ffcdd2
+```
+
 ### 3. **No Alternative Paths**
 
 Traditional systems have multiple ways to perform operations:
@@ -168,59 +200,49 @@ Cannot bypass RDF validation. Cannot use JSON. Cannot write SQL.
 
 ### Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     CLI Interface                            │
-│                  (Rust + SPARQL Generator)                  │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  SPARQL Executor                            │
-│   - Query parsing and validation                           │
-│   - Transaction management                                 │
-│   - Error handling                                          │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│              SHACL Validation Layer                         │
-│   - Type constraints (Package, Author, License)            │
-│   - Cardinality (min/max count)                            │
-│   - State machine rules                                     │
-│   - FMEA triggers                                            │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Oxigraph RDF Store                          │
-│   - Triple storage (persistent)                            │
-│   - SPARQL 1.1 query engine                                │
-│   - Transaction log (WAL)                                   │
-│   - Backup/restore                                          │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    CLI["CLI Interface<br/>(Rust + SPARQL Generator)"]
+    EXEC["SPARQL Executor<br/>Query parsing & validation<br/>Transaction management<br/>Error handling"]
+    SHACL["SHACL Validation Layer<br/>Type constraints (Package, Author, License)<br/>Cardinality (min/max count)<br/>State machine rules<br/>FMEA triggers"]
+    STORE["Oxigraph RDF Store<br/>Triple storage (persistent)<br/>SPARQL 1.1 query engine<br/>Transaction log (WAL)<br/>Backup/restore"]
+
+    CLI --> EXEC --> SHACL --> STORE
+
+    style CLI fill:#e1f5ff
+    style EXEC fill:#fff4e6
+    style SHACL fill:#fff4e6
+    style STORE fill:#fce4ec
 ```
 
 ### Data Flow
 
-```
-User Command
-    ↓
-CLI generates SPARQL query
-    ↓
-SPARQL executor validates syntax
-    ↓
-SHACL validator checks constraints
-    ↓
-State machine FSM validates transitions
-    ↓
-FMEA detector checks for failure modes
-    ↓
-Oxigraph executes transaction
-    ↓
-Audit event created (immutable RDF)
-    ↓
-Result returned to user
+```mermaid
+sequenceDiagram
+    title RDF Control Plane Request Flow
+    participant User as User Command
+    participant CLI as CLI Interface
+    participant EXEC as SPARQL Executor
+    participant SHACL as SHACL Validator
+    participant FSM as State Machine FSM
+    participant FMEA as FMEA Detector
+    participant OXI as Oxigraph Store
+    participant AUDIT as Audit Trail (RDF)
+
+    User->>CLI: ggen pack publish/install/search
+    CLI->>EXEC: Generated SPARQL query
+    EXEC->>EXEC: Validate syntax
+    EXEC->>SHACL: Check constraints
+    SHACL-->>EXEC: Constraints valid
+    EXEC->>FSM: Validate transition
+    FSM-->>EXEC: Transition allowed
+    EXEC->>FMEA: Check failure modes
+    FMEA-->>EXEC: No failures detected
+    EXEC->>OXI: Execute transaction
+    OXI-->>EXEC: Transaction result
+    EXEC->>AUDIT: Create immutable audit event
+    EXEC-->>CLI: Result
+    CLI-->>User: Formatted output
 ```
 
 ---
@@ -410,30 +432,27 @@ ORDER BY DESC(?score)
 
 ### Package Lifecycle FSM
 
-```
-                    ┌─────────┐
-                    │  Draft  │ (initial)
-                    └────┬────┘
-                         │ publish()
-                         ▼
-                  ┌────────────┐
-                  │ Published  │
-                  └─────┬──────┘
-                        │ activate()
-                        ▼
-                   ┌─────────┐
-              ┌────┤ Active  ├────┐
-              │    └─────────┘    │
-    deprecate()│                  │ withdraw()
-              ▼                   ▼
-        ┌────────────┐      ┌────────────┐
-        │ Deprecated │      │ Withdrawn  │ (terminal)
-        └──────┬─────┘      └────────────┘
-               │ archive()
-               ▼
-         ┌──────────┐
-         │ Archived │ (terminal)
-         └──────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+
+    Draft --> Published : publish()
+    Draft --> Withdrawn : withdraw()
+
+    Published --> Active : activate()
+    Published --> Withdrawn : withdraw()
+
+    Active --> Deprecated : deprecate()
+    Active --> Withdrawn : withdraw()
+
+    Deprecated --> Archived : archive()
+
+    Draft: Initial state
+    Published: Requires signature
+    Active: Public, installable
+    Deprecated: Superseded
+    Withdrawn: Terminal
+    Archived: Terminal
 ```
 
 ### State Definitions
@@ -669,6 +688,30 @@ Multi-tier caching:
 ---
 
 ## Security Model
+
+```mermaid
+flowchart TD
+    subgraph CRYPTO["Cryptographic Verification"]
+        SIGN["Ed25519 Signing<br/>64-byte signatures<br/>32-byte public keys"]
+        CHECK["SHA-256 Checksums<br/>64 hex chars"]
+    end
+
+    subgraph ACCESS["Access Control"]
+        TRUST["Trusted Publisher List<br/>RDF-based permissions"]
+        RBAC["RBAC Policies<br/>role-based access"]
+    end
+
+    subgraph AUDIT["Audit Trail"]
+        EVENTS["Immutable RDF Events<br/>eventType, timestamp<br/>actor, changeSet"]
+        LOG["Comprehensive Log<br/>7-year retention"]
+    end
+
+    CRYPTO --> ACCESS --> AUDIT
+
+    style CRYPTO fill:#e1f5ff
+    style ACCESS fill:#fff4e6
+    style AUDIT fill:#fce4ec
+```
 
 ### Cryptographic Verification
 

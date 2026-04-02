@@ -72,26 +72,6 @@ fn assert_result_non_empty(result: &CachedResult, label: &str) {
     }
 }
 
-#[allow(dead_code)]
-/// Helper: for Solutions variant, assert that rows contain expected column names.
-fn assert_has_columns(result: &CachedResult, expected_columns: &[&str], label: &str) {
-    if let CachedResult::Solutions(rows) = result {
-        if let Some(first) = rows.first() {
-            for col in expected_columns {
-                assert!(
-                    first.contains_key(*col),
-                    "{}: Expected column '{}' not found in first row. Columns: {:?}",
-                    label,
-                    col,
-                    first.keys().collect::<Vec<_>>()
-                );
-            }
-        } else {
-            panic!("{}: No rows to check columns against", label);
-        }
-    }
-    // Graph and Boolean variants don't have columns — skip silently
-}
 
 // ---------------------------------------------------------------------------
 // Test 1: DoD extract query returns expected triples

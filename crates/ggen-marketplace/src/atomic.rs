@@ -7,7 +7,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use std::str::FromStr;
 
 /// Atomic pack class (the "what" of the pack).
 ///
@@ -26,11 +25,11 @@ pub enum AtomicPackClass {
     SurfaceA2a,
 
     // ===== CONTRACTS (external API contracts) =====
-    /// OpenAPI contract surface
+    /// `OpenAPI` contract surface
     #[serde(rename = "contract-openapi")]
     ContractOpenapi,
 
-    /// GraphQL contract surface
+    /// `GraphQL` contract surface
     #[serde(rename = "contract-graphql")]
     ContractGraphql,
 
@@ -104,11 +103,11 @@ pub enum AtomicPackClass {
     ReceiptChained,
 
     // ===== CONSEQUENCES (migration/upgrade behavior) =====
-    /// Semver migration consequence
+    /// `SemVer` migration consequence
     #[serde(rename = "consequence-semver-migration")]
     ConsequenceSemverMigration,
 
-    /// Breaking change consequence
+    /// `breaking change` consequence
     #[serde(rename = "consequence-breaking-change")]
     ConsequenceBreakingChange,
 
@@ -226,66 +225,66 @@ impl AtomicPackId {
     ///
     /// Returns None if the string is not a valid atomic pack ID.
     #[must_use]
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn from_string(s: &str) -> Option<Self> {
         let (class_str, name) = s.split_once('-')?;
-        let class = match class_str {
+        let class: Option<AtomicPackClass> = match class_str {
             "surface" => match name {
-                "mcp" => Some(AtomicPackClass::SurfaceMcp),
-                "a2a" => Some(AtomicPackClass::SurfaceA2a),
+                "mcp" => AtomicPackClass::SurfaceMcp,
+                "a2a" => AtomicPackClass::SurfaceA2a,
                 _ => return None,
             },
             "contract" => match name {
-                "openapi" => Some(AtomicPackClass::ContractOpenapi),
-                "graphql" => Some(AtomicPackClass::ContractGraphql),
+                "openapi" => AtomicPackClass::ContractOpenapi,
+                "graphql" => AtomicPackClass::ContractGraphql,
                 _ => return None,
             },
             "projection" => match name {
-                "rust" => Some(AtomicPackClass::ProjectionRust),
-                "typescript" | "ts" => Some(AtomicPackClass::ProjectionTypescript),
-                "python" => Some(AtomicPackClass::ProjectionPython),
-                "java" => Some(AtomicPackClass::ProjectionJava),
-                "go" => Some(AtomicPackClass::ProjectionGo),
+                "rust" => AtomicPackClass::ProjectionRust,
+                "typescript" | "ts" => AtomicPackClass::ProjectionTypescript,
+                "python" => AtomicPackClass::ProjectionPython,
+                "java" => AtomicPackClass::ProjectionJava,
+                "go" => AtomicPackClass::ProjectionGo,
                 _ => return None,
             },
             "runtime" => match name {
-                "stdio" => Some(AtomicPackClass::RuntimeStdio),
-                "axum" => Some(AtomicPackClass::RuntimeAxum),
-                "actix" => Some(AtomicPackClass::RuntimeActix),
-                "embedded" => Some(AtomicPackClass::RuntimeEmbedded),
-                "standalone" => Some(AtomicPackClass::RuntimeStandalone),
+                "stdio" => AtomicPackClass::RuntimeStdio,
+                "axum" => AtomicPackClass::RuntimeAxum,
+                "actix" => AtomicPackClass::RuntimeActix,
+                "embedded" => AtomicPackClass::RuntimeEmbedded,
+                "standalone" => AtomicPackClass::RuntimeStandalone,
                 _ => return None,
             },
             "policy" => match name {
-                "no-defaults" => Some(AtomicPackClass::PolicyNoDefaults),
-                "strict" => Some(AtomicPackClass::PolicyStrict),
+                "no-defaults" => AtomicPackClass::PolicyNoDefaults,
+                "strict" => AtomicPackClass::PolicyStrict,
                 _ => return None,
             },
             "validator" => match name {
-                "protocol-visible-values" => Some(AtomicPackClass::ValidatorProtocolVisibleValues),
-                "shacl" => Some(AtomicPackClass::ValidatorShacl),
+                "protocol-visible-values" => AtomicPackClass::ValidatorProtocolVisibleValues,
+                "shacl" => AtomicPackClass::ValidatorShacl,
                 _ => return None,
             },
             "receipt" => match name {
-                "enterprise-signed" => Some(AtomicPackClass::ReceiptEnterpriseSigned),
-                "chained" => Some(AtomicPackClass::ReceiptChained),
+                "enterprise-signed" => AtomicPackClass::ReceiptEnterpriseSigned,
+                "chained" => AtomicPackClass::ReceiptChained,
                 _ => return None,
             },
             "consequence" => match name {
-                "semver-migration" => Some(AtomicPackClass::ConsequenceSemverMigration),
-                "breaking-change" => Some(AtomicPackClass::ConsequenceBreakingChange),
+                "semver-migration" => AtomicPackClass::ConsequenceSemverMigration,
+                "breaking-change" => AtomicPackClass::ConsequenceBreakingChange,
                 _ => return None,
             },
             "core" => match name {
-                "ontology" => Some(AtomicPackClass::CoreOntology),
-                "hooks" => Some(AtomicPackClass::CoreHooks),
-                "receipts" => Some(AtomicPackClass::CoreReceipts),
-                "versioning" => Some(AtomicPackClass::CoreVersioning),
-                "validation" => Some(AtomicPackClass::CoreValidation),
-                "policy" => Some(AtomicPackClass::CorePolicy),
+                "ontology" => AtomicPackClass::CoreOntology,
+                "hooks" => AtomicPackClass::CoreHooks,
+                "receipts" => AtomicPackClass::CoreReceipts,
+                "versioning" => AtomicPackClass::CoreVersioning,
+                "validation" => AtomicPackClass::CoreValidation,
+                "policy" => AtomicPackClass::CorePolicy,
                 _ => return None,
             },
             _ => return None,
-        };
+        }.into();
 
         class.map(|class| Self {
             class,
@@ -296,36 +295,43 @@ impl AtomicPackId {
     /// Get the string representation of this atomic pack ID.
     #[must_use]
     pub fn as_str(&self) -> String {
-        let class_str = match self.class {
-            AtomicPackClass::SurfaceMcp => "surface-mcp",
-            AtomicPackClass::SurfaceA2a => "surface-a2a",
-            AtomicPackClass::ContractOpenapi => "contract-openapi",
-            AtomicPackClass::ContractGraphql => "contract-graphql",
-            AtomicPackClass::ProjectionRust => "projection-rust",
-            AtomicPackClass::ProjectionTypescript => "projection-typescript",
-            AtomicPackClass::ProjectionPython => "projection-python",
-            AtomicPackClass::ProjectionJava => "projection-java",
-            AtomicPackClass::ProjectionGo => "projection-go",
-            AtomicPackClass::RuntimeStdio => "runtime-stdio",
-            AtomicPackClass::RuntimeAxum => "runtime-axum",
-            AtomicPackClass::RuntimeActix => "runtime-actix",
-            AtomicPackClass::RuntimeEmbedded => "runtime-embedded",
-            AtomicPackClass::RuntimeStandalone => "runtime-standalone",
-            AtomicPackClass::PolicyNoDefaults => "policy-no-defaults",
-            AtomicPackClass::PolicyStrict => "policy-strict",
-            AtomicPackClass::ValidatorProtocolVisibleValues => "validator-protocol-visible-values",
-            AtomicPackClass::ValidatorShacl => "validator-shacl",
-            AtomicPackClass::ReceiptEnterpriseSigned => "receipt-enterprise-signed",
-            AtomicPackClass::ReceiptChained => "receipt-chained",
-            AtomicPackClass::ConsequenceSemverMigration => "consequence-semver-migration",
-            AtomicPackClass::ConsequenceBreakingChange => "consequence-breaking-change",
-            AtomicPackClass::CoreOntology => "core-ontology",
-            AtomicPackClass::CoreHooks => "core-hooks",
-            AtomicPackClass::CoreReceipts => "core-receipts",
-            AtomicPackClass::CoreVersioning => "core-versioning",
-            AtomicPackClass::CoreValidation => "core-validation",
-            AtomicPackClass::CorePolicy => "core-policy",
-        };
+        const CLASS_MAPPINGS: &[(AtomicPackClass, &str)] = &[
+            (AtomicPackClass::SurfaceMcp, "surface-mcp"),
+            (AtomicPackClass::SurfaceA2a, "surface-a2a"),
+            (AtomicPackClass::ContractOpenapi, "contract-openapi"),
+            (AtomicPackClass::ContractGraphql, "contract-graphql"),
+            (AtomicPackClass::ProjectionRust, "projection-rust"),
+            (AtomicPackClass::ProjectionTypescript, "projection-typescript"),
+            (AtomicPackClass::ProjectionPython, "projection-python"),
+            (AtomicPackClass::ProjectionJava, "projection-java"),
+            (AtomicPackClass::ProjectionGo, "projection-go"),
+            (AtomicPackClass::RuntimeStdio, "runtime-stdio"),
+            (AtomicPackClass::RuntimeAxum, "runtime-axum"),
+            (AtomicPackClass::RuntimeActix, "runtime-actix"),
+            (AtomicPackClass::RuntimeEmbedded, "runtime-embedded"),
+            (AtomicPackClass::RuntimeStandalone, "runtime-standalone"),
+            (AtomicPackClass::PolicyNoDefaults, "policy-no-defaults"),
+            (AtomicPackClass::PolicyStrict, "policy-strict"),
+            (AtomicPackClass::ValidatorProtocolVisibleValues, "validator-protocol-visible-values"),
+            (AtomicPackClass::ValidatorShacl, "validator-shacl"),
+            (AtomicPackClass::ReceiptEnterpriseSigned, "receipt-enterprise-signed"),
+            (AtomicPackClass::ReceiptChained, "receipt-chained"),
+            (AtomicPackClass::ConsequenceSemverMigration, "consequence-semver-migration"),
+            (AtomicPackClass::ConsequenceBreakingChange, "consequence-breaking-change"),
+            (AtomicPackClass::CoreOntology, "core-ontology"),
+            (AtomicPackClass::CoreHooks, "core-hooks"),
+            (AtomicPackClass::CoreReceipts, "core-receipts"),
+            (AtomicPackClass::CoreVersioning, "core-versioning"),
+            (AtomicPackClass::CoreValidation, "core-validation"),
+            (AtomicPackClass::CorePolicy, "core-policy"),
+        ];
+
+        let class_str = CLASS_MAPPINGS
+            .iter()
+            .find(|(class, _)| *class == self.class)
+            .map(|(_, name)| name)
+            .unwrap_or_else(|| panic!("Unknown atomic pack class: {:?}", self.class));
+
         format!("{}-{}", class_str, self.name)
     }
 }
@@ -336,11 +342,11 @@ impl fmt::Display for AtomicPackId {
     }
 }
 
-impl FromStr for AtomicPackId {
+impl std::str::FromStr for AtomicPackId {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from_str(s).ok_or_else(|| format!("Invalid atomic pack ID: {}", s))
+        Self::from_string(s).ok_or_else(|| format!("Invalid atomic pack ID: {s}"))
     }
 }
 
@@ -348,6 +354,7 @@ impl FromStr for AtomicPackId {
 ///
 /// CISO requirement: Shared ontology must be owned by foundation packs,
 /// not duplicated across feature packs.
+#[must_use]
 pub fn foundation_packs() -> Vec<AtomicPackId> {
     vec![
         AtomicPackId::new(AtomicPackClass::CoreOntology, "ontology".to_string()),
@@ -364,16 +371,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_atomic_pack_id_from_str() {
-        let mcp_surface = AtomicPackId::from_str("surface-mcp").unwrap();
+    fn test_atomic_pack_id_from_string() {
+        let mcp_surface = AtomicPackId::from_string("surface-mcp").unwrap();
         assert_eq!(mcp_surface.class, AtomicPackClass::SurfaceMcp);
         assert_eq!(mcp_surface.name, "mcp");
 
-        let rust_projection = AtomicPackId::from_str("projection-rust").unwrap();
+        let rust_projection = AtomicPackId::from_string("projection-rust").unwrap();
         assert_eq!(rust_projection.class, AtomicPackClass::ProjectionRust);
         assert_eq!(rust_projection.name, "rust");
 
-        let axum_runtime = AtomicPackId::from_str("runtime-axum").unwrap();
+        let axum_runtime = AtomicPackId::from_string("runtime-axum").unwrap();
         assert_eq!(axum_runtime.class, AtomicPackClass::RuntimeAxum);
         assert_eq!(axum_runtime.name, "axum");
     }
@@ -413,8 +420,8 @@ mod tests {
 
     #[test]
     fn test_invalid_pack_id() {
-        assert!(AtomicPackId::from_str("invalid-pack").is_none());
-        assert!(AtomicPackId::from_str("surface-invalid").is_none());
-        assert!(AtomicPackId::from_str("projection-elixir").is_none()); // elixir not supported
+        assert!(AtomicPackId::from_string("invalid-pack").is_none());
+        assert!(AtomicPackId::from_string("surface-invalid").is_none());
+        assert!(AtomicPackId::from_string("projection-elixir").is_none()); // elixir not supported
     }
 }
