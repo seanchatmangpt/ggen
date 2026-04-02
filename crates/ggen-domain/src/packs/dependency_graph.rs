@@ -50,9 +50,7 @@ impl DependencyGraph {
     /// Add a node to the graph
     pub fn add_node(&mut self, pack_id: &str) {
         self.nodes.insert(pack_id.to_string());
-        self.edges
-            .entry(pack_id.to_string())
-            .or_insert_with(Vec::new);
+        self.edges.entry(pack_id.to_string()).or_default();
     }
 
     /// Add an edge from pack to dependency
@@ -62,7 +60,7 @@ impl DependencyGraph {
 
         self.edges
             .entry(from.to_string())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(to.to_string());
     }
 

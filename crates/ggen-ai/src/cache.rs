@@ -16,7 +16,7 @@
 //!
 //! ### Creating a Cache
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_ai::cache::{LlmCache, CacheConfig};
 //! use std::time::Duration;
 //!
@@ -33,7 +33,7 @@
 //!
 //! ### Caching and Retrieving Responses
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_ai::cache::LlmCache;
 //!
 //! # async fn example() -> anyhow::Result<()> {

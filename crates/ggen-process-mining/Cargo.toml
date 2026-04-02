@@ -1,6 +1,6 @@
 [package]
 name = "ggen-process-mining"
-version = "0.1.0"
+version = "6.1.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
@@ -15,10 +15,10 @@ multiple_crate_versions = "allow"
 
 [dependencies]
 # Workspace dependencies
-ggen-utils = { path = "../ggen-utils", version = "0.2.0" }
-ggen-core = { path = "../ggen-core", version = "0.2.0" }
-ggen-yawl = { path = "../ggen-yawl", version = "0.1.0" }
-ggen-domain = { path = "../ggen-domain", version = "0.2.0" }
+ggen-utils = { path = "../ggen-utils", version = "6.1.0" }
+ggen-core = { path = "../ggen-core", version = "6.1.0" }
+ggen-yawl = { path = "../ggen-yawl", version = "6.1.0" }
+ggen-domain = { path = "../ggen-domain", version = "6.1.0" }
 
 tokio = { workspace = true, features = ["sync", "rt"] }
 serde = { workspace = true, features = ["derive"] }

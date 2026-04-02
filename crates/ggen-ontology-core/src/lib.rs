@@ -97,6 +97,6 @@ mod tests {
     #[test]
     fn test_version_is_set() {
         assert!(!VERSION.is_empty());
-        assert_eq!(VERSION, "0.2.0");
+        assert_eq!(VERSION, env!("CARGO_PKG_VERSION"));
     }
 }

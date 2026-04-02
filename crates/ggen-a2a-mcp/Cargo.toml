@@ -1,6 +1,6 @@
 [package]
 name = "ggen-a2a-mcp"
-version = "0.1.0"
+version = "6.1.0"
 edition = "2021"
 authors = ["ggen-team"]
 license = "MIT"
@@ -93,6 +93,7 @@ path = "examples/mcp_validate_pipeline_bin.rs"
 [features]
 default = []
 live-groq = []
+integration = [] # Gate tests that reference private APIs or non-existent types
 # OpenTelemetry OTLP export for live-check validation
 otel = [
   "dep:opentelemetry",

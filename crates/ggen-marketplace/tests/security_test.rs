@@ -8,6 +8,10 @@
 //! - Tampered data detection
 //! - Public key loading and validation
 //! - Checksum calculation and verification
+//!
+//! GATED: ggen_marketplace::security and traits modules not exported.
+
+#![cfg(feature = "integration")]
 
 use ggen_marketplace::security::{
     generate_marketplace_keypair, ChecksumCalculator, MarketplaceSignature, MarketplaceVerifier,

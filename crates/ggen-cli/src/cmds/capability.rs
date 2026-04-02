@@ -27,6 +27,8 @@ struct CapabilityEnableOutput {
     runtime: Option<String>,
     profile: Option<String>,
     atomic_packs: Vec<String>,
+    /// `ggen packs add <pack_id>` commands for each resolved pack
+    install_commands: Vec<String>,
     status: String,
     message: String,
 }
@@ -110,7 +112,7 @@ struct ConflictInfo {
 // ============================================================================
 
 /// Update lockfile with resolved atomic packs
-fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(), String> {
+fn update_lockfile(lockfile_path: &std::path::Path, atomic_packs: &[String]) -> Result<(), String> {
     let mut lockfile = if lockfile_path.exists() {
         PackLockfile::from_file(lockfile_path)
             .map_err(|e| format!("Failed to load lockfile: {}", e))?
@@ -230,12 +232,19 @@ fn run_capability_enable(
     let surface_clone = surface.clone();
     let pack_count = atomic_packs.len();
 
+    // Build install commands so callers know exactly how to materialise each pack
+    let install_commands: Vec<String> = atomic_packs
+        .iter()
+        .map(|pack_id| format!("ggen packs add {}", pack_id))
+        .collect();
+
     Ok(CapabilityEnableOutput {
         capability: surface,
         projection,
         runtime,
         profile: Some(selected_profile),
         atomic_packs,
+        install_commands,
         status: "enabled".to_string(),
         message: format!(
             "Enabled {} with {} atomic packs; receipt at {}",
@@ -628,7 +637,7 @@ fn detect_all_conflicts(
 
 /// Helper: Detect file path conflicts
 fn detect_file_conflicts(
-    pack_ids: &[String], cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &std::path::Path,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -645,7 +654,7 @@ fn detect_file_conflicts(
                             let output_file = name.replace(".tera", "");
                             file_owners
                                 .entry(output_file)
-                                .or_insert_with(Vec::new)
+                                .or_default()
                                 .push(pack_id.clone());
                         }
                     }
@@ -678,7 +687,7 @@ fn detect_file_conflicts(
 
 /// Helper: Detect template name conflicts
 fn detect_template_conflicts(
-    pack_ids: &[String], cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &std::path::Path,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -694,7 +703,7 @@ fn detect_template_conflicts(
                         let template_name = name.replace(".tera", "");
                         template_names
                             .entry(template_name)
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(pack_id.clone());
                     }
                 }
@@ -723,7 +732,7 @@ fn detect_template_conflicts(
 
 /// Helper: Detect query name conflicts
 fn detect_query_conflicts(
-    pack_ids: &[String], cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &std::path::Path,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -739,7 +748,7 @@ fn detect_query_conflicts(
                         let query_name = name.replace(".rq", "");
                         query_names
                             .entry(query_name)
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(pack_id.clone());
                     }
                 }
@@ -845,22 +854,17 @@ fn has_cycle(
 // Helper Functions
 // ============================================================================
 
-/// Resolve capability to atomic packs
+/// Resolve capability to atomic packs using the domain capability registry.
+///
+/// Delegates to `ggen_domain::packs::capability_registry::resolve_capability_to_packs`
+/// which maps (surface, projection, runtime) to real marketplace pack IDs and
+/// validates their existence against the local pack metadata store.
 async fn resolve_capability(
     surface: &str, projection: &Option<String>, runtime: &Option<String>,
 ) -> Result<Vec<String>, String> {
-    let mut atomic_packs = vec![format!("surface-{}", surface)];
-
-    if let Some(ref proj) = projection {
-        atomic_packs.push(format!("projection-{}", proj));
-    }
-
-    if let Some(ref rt) = runtime {
-        atomic_packs.push(format!("runtime-{}", rt));
-    }
-
-    // Add default dependencies
-    atomic_packs.push("core-ontology".to_string());
-
-    Ok(atomic_packs)
+    ggen_domain::packs::capability_registry::resolve_capability_to_packs(
+        surface,
+        projection.as_deref(),
+        runtime.as_deref(),
+    )
 }

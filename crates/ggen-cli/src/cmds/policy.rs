@@ -2,6 +2,7 @@
 //!
 //! This module provides policy management commands wired to the marketplace layer.
 
+use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
@@ -93,24 +94,28 @@ fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
 
     let lockfile_path = Path::new(".ggen/packs.lock");
     if !lockfile_path.exists() {
-        return Err(
-            "No project found. Please install packs first with 'ggen packs install <pack-id>'"
-                .to_string(),
-        );
+        return Err(ggen_utils::error::Error::new(
+            "No project found. Please install packs first with 'ggen packs install <pack-id>'",
+        ));
     }
 
     let lockfile = PackLockfile::from_file(lockfile_path)
-        .map_err(|e| format!("Failed to load lockfile: {}", e))?;
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load lockfile: {}", e)))?;
 
     let mut pack_contexts = Vec::new();
     for (pack_id, locked_pack) in &lockfile.packs {
-        let package_id = ggen_marketplace::models::PackageId::new(pack_id)
-            .map_err(|e| format!("Invalid package ID {}: {}", pack_id, e))?;
+        let package_id = ggen_marketplace::models::PackageId::new(pack_id).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Invalid package ID {}: {}", pack_id, e))
+        })?;
 
         let cache_dir = get_pack_cache_dir(&package_id, &locked_pack.version);
 
-        let metadata = load_pack_metadata(&cache_dir)
-            .map_err(|e| format!("Failed to load metadata for pack {}: {}", pack_id, e))?;
+        let metadata = load_pack_metadata(&cache_dir).map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to load metadata for pack {}: {}",
+                pack_id, e
+            ))
+        })?;
 
         let (template_defaults, runtime) = load_pack_config_from_cache(&cache_dir);
 
@@ -170,7 +175,7 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
 
 /// List all available policy profiles
 #[verb]
-fn list(verbose: bool) -> crate::Result<ListOutput> {
+fn list(verbose: bool) -> VerbResult<ListOutput> {
     let profiles = predefined_profiles();
 
     if verbose {
@@ -209,12 +214,12 @@ fn list(verbose: bool) -> crate::Result<ListOutput> {
 fn validate(profile: String) -> VerbResult<ValidateOutput> {
     // Get the profile
     let profile_obj = ggen_marketplace::profile::get_profile(&profile).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e))
+        clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
     })?;
 
     // Load pack contexts from project
-    let pack_contexts =
-        load_pack_contexts_from_project().map_err(clap_noun_verb::NounVerbError::argument_error)?;
+    let pack_contexts = load_pack_contexts_from_project()
+        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(format!("{}", e)))?;
 
     // Enforce policy
     let report = profile_obj.enforce(&pack_contexts).map_err(|e| {
@@ -255,7 +260,7 @@ fn validate(profile: String) -> VerbResult<ValidateOutput> {
 #[verb]
 fn show(profile_id: String) -> VerbResult<ShowOutput> {
     let profile = ggen_marketplace::profile::get_profile(&profile_id).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e))
+        clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
     })?;
 
     println!("Profile: {} ({})", profile.id.as_str(), profile.name);
@@ -313,4 +318,3 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
         runtime_constraints,
     })
 }
-

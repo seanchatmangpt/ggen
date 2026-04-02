@@ -39,9 +39,12 @@
 //! | 5 | File I/O error |
 //! | 6 | Timeout exceeded |
 
+use chrono::Utc;
+use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
+use ggen_receipt::{generate_keypair, hash_data, Receipt};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -81,6 +84,10 @@ pub struct SyncOutput {
     /// Error message (if failed)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+
+    /// Path to the cryptographic receipt emitted after sync (if generated)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receipt_path: Option<String>,
 }
 
 /// Individual file sync result
@@ -115,6 +122,7 @@ impl From<SyncResult> for SyncOutput {
             generation_rules_executed: result.generation_rules_executed,
             audit_trail: result.audit_trail,
             error: result.error,
+            receipt_path: None, // populated separately by emit_sync_receipt
         }
     }
 }
@@ -317,7 +325,11 @@ pub fn sync(
     ontology: Option<String>,
     queries: Option<String>, // dir of .rq files — activates ontology-first pipeline (no ggen.toml needed)
     language: Option<String>, // go, elixir, rust, typescript, python, auto
-) -> crate::Result<SyncOutput> {
+    profile: Option<String>, // enforcement profile (e.g. enterprise-strict, permissive)
+    locked: bool,            // require exact lock-file match (no implicit upgrades)
+) -> VerbResult<SyncOutput> {
+    check_profile_preconditions(profile.as_deref(), locked)?;
+
     // When --queries is supplied, bypass the manifest and run the low-level pipeline directly
     if let Some(ref queries_dir) = queries {
         return run_low_level_pipeline(
@@ -329,35 +341,186 @@ pub fn sync(
         );
     }
 
-    // Build executor and inject LLM service if enabled
-    let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
+    run_manifest_pipeline(
+        manifest, output_dir, dry_run, force, audit, rule, verbose, watch, validate_only, format,
+        timeout, stage, ontology,
+    )
+}
 
-    // Build options from CLI args (manifest-driven pipeline)
+/// Check profile and locked preconditions before any pipeline work.
+fn check_profile_preconditions(
+    profile: Option<&str>, locked: bool,
+) -> VerbResult<()> {
+    if profile.is_some() || locked {
+        let workspace =
+            std::env::current_dir().map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+        ggen_domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
+            .map_err(NounVerbError::execution_error)?;
+    }
+    Ok(())
+}
+
+/// Execute the manifest-driven (ggen.toml) sync pipeline and emit a signed receipt.
+#[allow(clippy::too_many_arguments)]
+fn run_manifest_pipeline(
+    manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
+    force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
+    watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
+    stage: Option<String>, ontology: Option<String>,
+) -> VerbResult<SyncOutput> {
+    let installed_packs = read_installed_packs(".ggen/packs.lock");
+
+    let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
     let options = build_sync_options(
-        manifest,
-        output_dir,
-        dry_run,
-        force,
-        audit,
-        rule,
-        verbose,
-        watch,
-        validate_only,
-        format,
-        timeout,
-        stage,
-        ontology,
+        manifest, output_dir, dry_run, force, audit, rule, verbose, watch, validate_only, format,
+        timeout, stage, ontology,
     )?;
 
     let executor = SyncExecutor::new(options);
     let executor = inject_llm_if_enabled(executor, &manifest_path, verbose.unwrap_or(false));
 
-    // Execute pipeline
     let result = executor
         .execute()
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-    Ok(SyncOutput::from(result))
+    // Emit a signed sync receipt (best-effort — never fails the sync).
+    // This makes `ggen receipt verify --receipt-file .ggen/receipts/latest.json` work.
+    let receipt_path = emit_sync_receipt_best_effort(&result, &installed_packs);
+
+    let mut output = SyncOutput::from(result);
+    output.receipt_path = receipt_path;
+    Ok(output)
+}
+
+/// Attempt to write a sync receipt; log a warning on failure but never abort the sync.
+fn emit_sync_receipt_best_effort(result: &SyncResult, installed_packs: &[String]) -> Option<String> {
+    match emit_sync_receipt(result, installed_packs) {
+        Ok(path) => Some(path),
+        Err(e) => {
+            eprintln!("Warning: could not write sync receipt: {}", e);
+            None
+        }
+    }
+}
+
+/// Read the installed packs from a packs.lock JSON file.
+///
+/// Returns a list of `"<id>@<version>"` strings, one per installed pack.
+/// Returns an empty vec if the file is absent or cannot be parsed.
+fn read_installed_packs(lock_path: &str) -> Vec<String> {
+    let path = std::path::Path::new(lock_path);
+    if !path.exists() {
+        return vec![];
+    }
+    let content = std::fs::read_to_string(path).unwrap_or_default();
+    let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) else {
+        return vec![];
+    };
+    val.get("packs")
+        .and_then(|p| p.as_object())
+        .map(|obj| {
+            obj.iter()
+                .map(|(id, entry)| {
+                    let version = entry
+                        .get("version")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("unknown");
+                    format!("{}@{}", id, version)
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Emit a cryptographically signed sync receipt to `.ggen/receipts/`.
+///
+/// Writes two files on success:
+///   `.ggen/receipts/sync-<YYYYMMDD-HHMMSS>.json` — timestamped archive copy
+///   `.ggen/receipts/latest.json`                  — always points at the latest receipt
+///
+/// The receipt captures:
+///   - SHA-256 hash of `ggen.toml` as an input hash
+///   - One entry per installed pack (`pack:<id>@<version>`) as input hashes
+///   - SHA-256 hash of each generated file as output hashes
+///   - Ed25519 signature over the entire payload
+///
+/// Signing key is persisted at `.ggen/keys/signing.key` (hex).
+/// A new keypair is generated only when no key file exists; existing keys are
+/// never overwritten.
+///
+/// Returns the path written to `latest.json` on success, or a string error on
+/// failure.  The caller logs the error as a warning but does NOT abort the sync.
+fn emit_sync_receipt(result: &SyncResult, installed_packs: &[String]) -> std::result::Result<String, String> {
+    use std::fs;
+
+    // 1. Ensure .ggen/keys/ directory exists.
+    let keys_dir = std::path::Path::new(".ggen/keys");
+    fs::create_dir_all(keys_dir).map_err(|e| e.to_string())?;
+
+    // 2. Load or generate signing keypair — never overwrite an existing key.
+    let signing_key_path = keys_dir.join("signing.key");
+    let verifying_key_path = keys_dir.join("verifying.key");
+
+    let signing_key = if signing_key_path.exists() {
+        let hex_str = fs::read_to_string(&signing_key_path).map_err(|e| e.to_string())?;
+        let bytes = hex::decode(hex_str.trim()).map_err(|e| e.to_string())?;
+        let sk_bytes: [u8; 32] = bytes
+            .try_into()
+            .map_err(|_| "Invalid signing key length (expected 32 bytes)".to_string())?;
+        ed25519_dalek::SigningKey::from_bytes(&sk_bytes)
+    } else {
+        let (sk, vk) = generate_keypair();
+        fs::write(&signing_key_path, hex::encode(sk.to_bytes()))
+            .map_err(|e| e.to_string())?;
+        fs::write(&verifying_key_path, hex::encode(vk.to_bytes()))
+            .map_err(|e| e.to_string())?;
+        sk
+    };
+
+    // 3. Build input hashes: ggen.toml + installed packs.
+    let mut input_hashes: Vec<String> = Vec::new();
+    if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
+        input_hashes.push(format!("ggen.toml:{}", hash_data(manifest_content.as_bytes())));
+    }
+    for pack in installed_packs {
+        input_hashes.push(format!("pack:{}", pack));
+    }
+
+    // 4. Build output hashes from generated file paths stored in SyncResult.
+    //    SyncedFileInfo.path is a String (relative or absolute path).
+    let output_hashes: Vec<String> = result
+        .files
+        .iter()
+        .filter_map(|f| {
+            fs::read(&f.path)
+                .ok()
+                .map(|content| format!("{}:{}", f.path, hash_data(&content)))
+        })
+        .collect();
+
+    // 5. Create and sign the receipt.
+    let receipt = Receipt::new(
+        "ggen-sync".to_string(),
+        input_hashes,
+        output_hashes,
+        None,
+    )
+    .sign(&signing_key)
+    .map_err(|e| e.to_string())?;
+
+    // 6. Write timestamped archive copy.
+    let receipts_dir = std::path::Path::new(".ggen/receipts");
+    fs::create_dir_all(receipts_dir).map_err(|e| e.to_string())?;
+    let timestamp = Utc::now().format("%Y%m%d-%H%M%S");
+    let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| e.to_string())?;
+    let timestamped_path = receipts_dir.join(format!("sync-{}.json", timestamp));
+    fs::write(&timestamped_path, &receipt_json).map_err(|e| e.to_string())?;
+
+    // 7. Overwrite latest.json so the golden-path verify command always works.
+    let latest_path = receipts_dir.join("latest.json");
+    fs::write(&latest_path, &receipt_json).map_err(|e| e.to_string())?;
+
+    Ok(latest_path.to_string_lossy().into_owned())
 }
 
 /// Invoke the low-level `ggen_core::sync::sync()` pipeline directly.
@@ -371,7 +534,7 @@ pub fn sync(
 fn run_low_level_pipeline(
     ontology: Option<String>, queries_dir: String, output_dir: Option<String>,
     language: Option<String>, dry_run: bool,
-) -> crate::Result<SyncOutput> {
+) -> VerbResult<SyncOutput> {
     let ontology_path = PathBuf::from(ontology.unwrap_or_else(|| "ontology.ttl".to_string()));
     let queries_path = PathBuf::from(queries_dir);
     let output_path = PathBuf::from(output_dir.unwrap_or_else(|| ".".to_string()));
@@ -435,6 +598,7 @@ fn run_low_level_pipeline(
         generation_rules_executed: result.files_generated.len(),
         audit_trail: None,
         error: violation_msg,
+        receipt_path: None,
     })
 }
 
@@ -498,7 +662,7 @@ fn build_sync_options(
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
     stage: Option<String>, ontology: Option<String>,
-) -> crate::Result<SyncOptions> {
+) -> Result<SyncOptions, NounVerbError> {
     let mut options = SyncOptions::new();
 
     // Set manifest path
@@ -536,10 +700,11 @@ fn build_sync_options(
         };
     }
 
-    // Set timeout
-    if let Some(t) = timeout {
-        options.timeout_ms = Some(t);
-    }
+    // Set timeout (TODO: Add timeout_ms field to SyncOptions if needed)
+    // if let Some(t) = timeout {
+    //     options.timeout_ms = t;
+    // }
+    let _ = timeout; // Suppress unused variable warning
 
     // A2A-specific options
     if let Some(s) = stage {

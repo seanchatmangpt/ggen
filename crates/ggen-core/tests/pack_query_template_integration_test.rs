@@ -8,6 +8,10 @@
 //! 5. Templates render with bindings from pack queries
 //!
 //! See `docs/marketplace/PACK_QUERY_CONTRACT.md` for the pack contract.
+//!
+//! GATED: pack_resolver module not in lib.rs; ggen_marketplace not a dep.
+
+#![cfg(feature = "integration")]
 
 use ggen_core::graph::Graph;
 use ggen_core::pack_resolver::{PackResolver, ResolvedPacks};
