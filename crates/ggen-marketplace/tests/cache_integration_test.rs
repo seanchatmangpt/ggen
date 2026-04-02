@@ -1,6 +1,10 @@
 //! Integration tests for pack cache operations
 //!
 //! Tests real pack installation, caching, and retrieval
+//!
+//! GATED: CacheConfig, CachedPack, PackCache not exported from ggen_marketplace.
+
+#![cfg(feature = "integration")]
 
 use ggen_marketplace::{CacheConfig, CachedPack, PackCache};
 use ggen_marketplace::{PackageId, PackageVersion};

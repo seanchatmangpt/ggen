@@ -105,8 +105,7 @@ impl RegistryClass {
     #[must_use]
     pub fn url(&self) -> &str {
         match self {
-            Self::Public { url } => url,
-            Self::PrivateEnterprise { url, .. } => url,
+            Self::Public { url } | Self::PrivateEnterprise { url, .. } => url,
             Self::MirroredAirGapped { primary_url, .. } => primary_url,
         }
     }

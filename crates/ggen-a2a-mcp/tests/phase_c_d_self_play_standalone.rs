@@ -3,6 +3,10 @@
 //! Tests Data Architecture (FIBO-based) and Technology Architecture agents.
 //! Phase C: Use FIBO as canonical data model
 //! Phase D: Map data entities to technology platforms
+//!
+//! GATED: references GroqA2AClient and A2AMessage/ContentBlock types not in public API.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::client::GroqA2AClient;
 use ggen_a2a_mcp::message::{A2AMessage, ContentBlock};

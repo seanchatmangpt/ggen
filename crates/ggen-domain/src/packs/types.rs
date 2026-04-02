@@ -82,7 +82,7 @@ pub struct PackMetadata {
 }
 
 /// Pack composition strategy
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub enum CompositionStrategy {
     /// Merge all packs (default)
     #[default]

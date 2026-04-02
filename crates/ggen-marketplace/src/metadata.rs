@@ -3,7 +3,7 @@
 //! This module provides functionality to load pack metadata (signatures, trust tiers, checksums)
 //! from cached pack directories. Packs can store metadata in either:
 //! - `package.toml` - TOML format with [package] and [security] sections
-//! - `metadata.json` - JSON format with signature, trust_tier, checksum fields
+//! - `metadata.json` - JSON format with signature, `trust_tier`, checksum fields
 //!
 //! Both formats are supported with fallback logic for backwards compatibility.
 
@@ -120,7 +120,7 @@ pub fn load_pack_metadata(cache_dir: &Path) -> Result<PackMetadata> {
 
 /// Load metadata from package.toml
 fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
-    let content = fs::read_to_string(toml_path).map_err(|e| Error::IoError(e))?;
+    let content = fs::read_to_string(toml_path).map_err(Error::IoError)?;
 
     let package_toml: PackageToml = toml::from_str(&content).map_err(Error::TomlError)?;
 
@@ -157,10 +157,10 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
 
 /// Load metadata from metadata.json
 fn load_from_json(json_path: &Path) -> Result<PackMetadata> {
-    let content = fs::read_to_string(json_path).map_err(|e| Error::IoError(e))?;
+    let content = fs::read_to_string(json_path).map_err(Error::IoError)?;
 
     let metadata_json: MetadataJson =
-        serde_json::from_str(&content).map_err(|e| Error::SerializationError(e.into()))?;
+        serde_json::from_str(&content).map_err(Error::SerializationError)?;
 
     let signature = metadata_json.signature;
     let trust_tier = metadata_json

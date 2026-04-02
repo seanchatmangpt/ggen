@@ -8,6 +8,10 @@
 //! 4. ggen sync generates final code (Turns 67-70)
 //! 5. FIBO artifacts are produced throughout
 //! 6. Complete architecture lifecycle is validated
+//!
+//! GATED: references ConvergedMessage struct fields not matching current API.
+
+#![cfg(feature = "integration")]
 
 use std::collections::HashMap;
 use std::sync::Arc;

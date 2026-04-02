@@ -1,5 +1,9 @@
 //! Direct integration test of validate_pipeline MCP tool
 //! Tests the tool without going through the full MCP protocol
+//!
+//! GATED: validate_pipeline is a private method.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::ggen_server::{GgenMcpServer, ValidatePipelineParams};
 

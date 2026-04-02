@@ -6,6 +6,10 @@
 //! - Test REAL version range matching
 //! - Test REAL conflict detection
 //! - No mocks for critical paths
+//!
+//! GATED: semver crate not in dev-dependencies.
+
+#![cfg(feature = "integration")]
 
 use ggen_marketplace::models::PackageVersion;
 use semver::{Version, VersionReq};

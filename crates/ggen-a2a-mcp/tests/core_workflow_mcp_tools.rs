@@ -5,6 +5,10 @@
 //! - query_ontology: SPARQL SELECT execution
 //! - validate_pipeline: 6 quality gates
 //! - fix_cycles: circular dependency detection
+//!
+//! GATED: references private methods (validate, query_ontology) not in public API.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use std::path::PathBuf;

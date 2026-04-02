@@ -243,9 +243,9 @@ impl Policy {
     #[must_use]
     pub fn require_trust_tier(tier: TrustTier) -> Self {
         Self::new(
-            PolicyId::new(&format!("require-trust-tier-{:?}", tier)),
-            format!("Require Trust Tier: {:?}", tier),
-            format!("All packs must meet trust tier requirement: {:?}", tier),
+            PolicyId::new(&format!("require-trust-tier-{tier:?}")),
+            format!("Require Trust Tier: {tier:?}"),
+            format!("All packs must meet trust tier requirement: {tier:?}"),
             vec![PolicyRule::RequireTrustTier(tier)],
         )
     }
@@ -256,7 +256,7 @@ impl Policy {
         Self::new(
             PolicyId::new("require-approved-runtime"),
             "Require Approved Runtime".to_string(),
-            format!("Only approved runtimes allowed: {:?}", runtimes),
+            format!("Only approved runtimes allowed: {runtimes:?}"),
             vec![PolicyRule::RequireApprovedRuntime(runtimes)],
         )
     }
@@ -543,6 +543,7 @@ impl Default for PolicyEnforcer {
 }
 
 /// Pack context for policy enforcement.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackContext {
     /// Pack identifier.

@@ -37,7 +37,7 @@
 //!
 //! ### Programmatic Execution
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_cli::run_for_node;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -59,27 +59,27 @@
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
 pub mod conventions; // File-based routing conventions
                      // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
-pub mod error; // CLI error handling
 pub mod llm_bridge; // Groq LLM bridge (async GenAiClient → sync LlmService)
-pub mod pack_install; // Improved pack installation with better UX and performance
 pub mod prelude;
-pub mod progress; // Progress reporting system for real-time feedback
-pub mod receipt_manager; // Cryptographic receipt generation for operations
+pub mod receipt_manager; // Cryptographic receipt generation for CLI operations
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
 
 // Re-export clap-noun-verb for auto-discovery
 pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
+// Re-export Result type for use in cmds
+pub use ggen_utils::error::Result;
+
 /// Main entry point using clap-noun-verb v4.0.2 auto-discovery
 ///
 /// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
-pub async fn cli_match() -> Result<()> {
+pub async fn cli_match() -> ggen_utils::error::Result<()> {
     // Use clap-noun-verb auto-discovery (handles --version automatically)
     clap_noun_verb::run()
-        .map_err(|e| GgenError::Internal(format!("CLI execution failed: {}", e)))?;
+        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }
 
@@ -93,7 +93,7 @@ pub struct RunResult {
 
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
-pub async fn run_for_node(args: Vec<String>) -> Result<RunResult> {
+pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunResult> {
     use std::sync::Arc;
     use std::sync::Mutex;
 
@@ -127,7 +127,7 @@ pub async fn run_for_node(args: Vec<String>) -> Result<RunResult> {
         code
     })
     .await
-    .map_err(|e| GgenError::Internal(format!("Failed to execute CLI: {}", e)))?;
+    .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
 
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {

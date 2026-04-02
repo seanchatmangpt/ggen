@@ -4,11 +4,10 @@
 
 use ggen_receipt::{generate_keypair, Receipt};
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 /// Test helper: Create a test receipt
-fn create_test_receipt(temp_dir: &PathBuf) -> (String, String) {
+fn create_test_receipt(temp_dir: &std::path::Path) -> (String, String) {
     let (signing_key, _verifying_key) = generate_keypair();
 
     let receipt = Receipt::new(
@@ -32,7 +31,7 @@ fn create_test_receipt(temp_dir: &PathBuf) -> (String, String) {
 }
 
 /// Test helper: Create a public key file
-fn create_public_key_file(temp_dir: &PathBuf, key_hex: &str) -> String {
+fn create_public_key_file(temp_dir: &std::path::Path, key_hex: &str) -> String {
     let key_path = temp_dir.join("public-key.hex");
     fs::write(&key_path, key_hex).expect("Failed to write public key file");
 

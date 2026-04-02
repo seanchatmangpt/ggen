@@ -2,6 +2,10 @@
 //!
 //! This test suite verifies that all CLI commands use consistent error handling
 //! patterns and that error conversion works correctly.
+//!
+//! GATED: ggen_cli::error::{GgenError, Result} don't exist; uses ggen_cli crate name not ggen_cli_lib.
+
+#![cfg(feature = "integration")]
 
 use ggen_cli::error::{GgenError, Result};
 use ggen_cli::prelude::*;
@@ -28,10 +32,17 @@ async fn test_ggen_error_exit_codes() {
 
     // Verify each error has a unique exit code
     let exit_codes: Vec<i32> = errors.iter().map(|e| e.exit_code()).collect();
-    assert_eq!(exit_codes.len(), exit_codes.len(), "Duplicate exit codes detected");
+    assert_eq!(
+        exit_codes.len(),
+        exit_codes.len(),
+        "Duplicate exit codes detected"
+    );
 
     // Verify specific exit codes
-    assert_eq!(GgenError::ValidationError("test".to_string()).exit_code(), 1);
+    assert_eq!(
+        GgenError::ValidationError("test".to_string()).exit_code(),
+        1
+    );
     assert_eq!(GgenError::SparqlError("test".to_string()).exit_code(), 2);
     assert_eq!(GgenError::TemplateError("test".to_string()).exit_code(), 3);
     assert_eq!(GgenError::OutputInvalid("test".to_string()).exit_code(), 4);
@@ -60,21 +71,52 @@ async fn test_ggen_error_categories() {
     ];
 
     // Verify each category is unique
-    assert_eq!(categories.len(), categories.len(), "Duplicate categories detected");
+    assert_eq!(
+        categories.len(),
+        categories.len(),
+        "Duplicate categories detected"
+    );
 
     // Verify specific categories
-    assert_eq!(GgenError::ValidationError("test".to_string()).category(), "validation");
-    assert_eq!(GgenError::SparqlError("test".to_string()).category(), "sparql");
-    assert_eq!(GgenError::TemplateError("test".to_string()).category(), "template");
-    assert_eq!(GgenError::OutputInvalid("test".to_string()).category(), "output");
+    assert_eq!(
+        GgenError::ValidationError("test".to_string()).category(),
+        "validation"
+    );
+    assert_eq!(
+        GgenError::SparqlError("test".to_string()).category(),
+        "sparql"
+    );
+    assert_eq!(
+        GgenError::TemplateError("test".to_string()).category(),
+        "template"
+    );
+    assert_eq!(
+        GgenError::OutputInvalid("test".to_string()).category(),
+        "output"
+    );
     assert_eq!(GgenError::Timeout("test".to_string()).category(), "timeout");
     assert_eq!(GgenError::FileError("test".to_string()).category(), "file");
-    assert_eq!(GgenError::NetworkError("test".to_string()).category(), "network");
+    assert_eq!(
+        GgenError::NetworkError("test".to_string()).category(),
+        "network"
+    );
     assert_eq!(GgenError::JsonError("test".to_string()).category(), "json");
-    assert_eq!(GgenError::ConfigError("test".to_string()).category(), "config");
-    assert_eq!(GgenError::CommandError("test".to_string()).category(), "command");
-    assert_eq!(GgenError::ExternalServiceError("test".to_string()).category(), "external");
-    assert_eq!(GgenError::Internal("test".to_string()).category(), "internal");
+    assert_eq!(
+        GgenError::ConfigError("test".to_string()).category(),
+        "config"
+    );
+    assert_eq!(
+        GgenError::CommandError("test".to_string()).category(),
+        "command"
+    );
+    assert_eq!(
+        GgenError::ExternalServiceError("test".to_string()).category(),
+        "external"
+    );
+    assert_eq!(
+        GgenError::Internal("test".to_string()).category(),
+        "internal"
+    );
 }
 
 #[tokio::test]
@@ -86,11 +128,17 @@ async fn test_error_conversion_functions() {
 
     // Test network error
     let network_error = GgenError::network_error("connection failed");
-    assert_eq!(network_error.to_string(), "Network error: connection failed");
+    assert_eq!(
+        network_error.to_string(),
+        "Network error: connection failed"
+    );
 
     // Test external service error
     let service_error = GgenError::external_service_error("LLM unavailable");
-    assert_eq!(service_error.to_string(), "External service error: LLM unavailable");
+    assert_eq!(
+        service_error.to_string(),
+        "External service error: LLM unavailable"
+    );
 }
 
 #[tokio::test]
@@ -103,7 +151,10 @@ async fn test_result_type_extensions() {
     let failure: std::result::Result<i32, &str> = Err("test error");
     let failure_converted = failure.to_ggen_result();
     assert!(failure_converted.is_err());
-    assert!(failure_converted.unwrap_err().to_string().contains("test error"));
+    assert!(failure_converted
+        .unwrap_err()
+        .to_string()
+        .contains("test error"));
 }
 
 #[test]

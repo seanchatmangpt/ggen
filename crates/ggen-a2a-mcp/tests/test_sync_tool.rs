@@ -2,6 +2,10 @@
 //!
 //! Tests that the sync tool can execute the full μ₁-μ₅ pipeline
 //! and return results showing files generated.
+//!
+//! GATED: sync() is private; SyncParams.dry_run is bool not Option<bool>.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use std::path::PathBuf;

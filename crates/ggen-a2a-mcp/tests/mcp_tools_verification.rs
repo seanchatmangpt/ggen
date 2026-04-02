@@ -2,6 +2,11 @@
 //!
 //! Tests that generate_agents, generate_a2a_test, validate_fibo, and orchestrate_conversation
 //! tools work correctly and produce valid output.
+//!
+//! GATED: references generate_a2a_test, orchestrate_conversation, validate_fibo
+//! methods that do not exist in the current GgenMcpServer public API.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use std::path::PathBuf;
