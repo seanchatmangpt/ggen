@@ -1,0 +1,18 @@
+{
+    "sourceFile": "tests/bdd/features/installation.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760245905696,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760245905696,
+            "name": "Commit-0",
+            "content": "Feature: Installation\n  Verify all installation methods documented in README\n\n  Scenario: Install from crates.io\n    When I run \"cargo install ggen\"\n    Then ggen should be installed\n    And \"ggen --version\" should output \"ggen 1.0.0\"\n\n  Scenario: Build from source\n    Given I clone the repository\n    When I run \"cargo make build\"\n    Then the binary \"target/debug/ggen\" should exist\n    And \"./target/debug/ggen --version\" should output \"ggen 1.0.0\"\n\n  Scenario: System installation\n    Given I have built from source\n    When I run \"cargo make install\"\n    Then \"ggen\" should be in PATH\n    And \"ggen --version\" should work\n"
+        }
+    ]
+}

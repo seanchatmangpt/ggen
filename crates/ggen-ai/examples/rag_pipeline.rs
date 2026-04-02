@@ -206,10 +206,6 @@ impl Module for RAGPipeline {
 
         self.synthesizer.forward(synth_inputs).await
     }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
 }
 
 /// Enhanced RAG with Query Rewriting
@@ -278,20 +274,10 @@ impl Module for EnhancedRAGPipeline {
         println!("Optimized Query: {}", optimized);
 
         // Use optimized query for RAG
-        let mut rag_inputs = HashMap::new();
+        let mut rag_inputs = inputs;
         rag_inputs.insert("question".to_string(), json!(optimized));
-        // Add any other inputs from the original
-        for (key, value) in inputs {
-            if key != "question" {
-                rag_inputs.insert(key, value);
-            }
-        }
 
         self.base_rag.forward(rag_inputs).await
-    }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
     }
 }
 

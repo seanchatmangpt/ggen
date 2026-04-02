@@ -1,0 +1,58 @@
+%% ============================================================================
+%% DIATAXIS TUTORIAL CHAPTER (Learning-Oriented + Practical)
+%% Chapter: {{ rows[0].chapterTitle }}
+%% ============================================================================
+
+\chapter{ {{- rows[0].chapterTitle -}} }
+\label{ch:{{ rows[0].chapterTitle | slugify }}}
+
+%% Diataxis quadrant marker
+\begin{center}
+\colorbox{TutorialColor!20}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Diataxis Framework: TUTORIAL}\\
+    \textit{Learning-oriented | Practical steps | Taking first steps}
+    \end{minipage}
+}
+\end{center}
+
+\vspace{1em}
+
+{% if rows[0].learningObjective %}
+%% Learning objective
+\begin{quote}
+\textbf{Learning Objective:} {{ rows[0].learningObjective }}
+\end{quote}
+{% endif %}
+
+{% if rows[0].prerequisite %}
+%% Prerequisites
+\begin{quote}
+\textbf{Prerequisites:} {{ rows[0].prerequisite }}
+\end{quote}
+{% endif %}
+
+\vspace{1em}
+
+%% Sections
+{% for row in rows %}
+\section{ {{- row.sectionTitle -}} }
+\label{sec:{{ row.sectionTitle | slugify }}}
+
+{{ row.sectionContent }}
+
+{% endfor %}
+
+%% Tutorial completion marker
+\begin{center}
+\fcolorbox{TutorialColor}{TutorialColor!10}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Tutorial Complete!}\\
+    You've learned the fundamentals. Next: Chapter 4 (How-to Guides) for task-specific solutions.
+    \end{minipage}
+}
+\end{center}
+
+%% End of tutorial chapter

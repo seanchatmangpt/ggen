@@ -1,0 +1,100 @@
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use validator::Validate;
+
+pub type ProductId = Uuid;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
+pub struct Product {
+    pub id: ProductId,
+
+    #[validate(length(min = 1, max = 200))]
+    pub name: String,
+
+    #[validate(length(max = 1000))]
+    pub description: Option<String>,
+
+    #[validate(range(min = 0.0))]
+    pub price: f64,
+
+    #[validate(range(min = 0))]
+    pub stock: i32,
+
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+impl Product {
+    pub fn new(name: String, description: Option<String>, price: f64, stock: i32) -> Self {
+        let now = Utc::now();
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            description,
+            price,
+            stock,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+
+    pub fn is_in_stock(&self) -> bool {
+        self.stock > 0
+    }
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct CreateProductRequest {
+    #[validate(length(min = 1, max = 200))]
+    pub name: String,
+
+    #[validate(length(max = 1000))]
+    pub description: Option<String>,
+
+    #[validate(range(min = 0.0))]
+    pub price: f64,
+
+    #[validate(range(min = 0))]
+    pub stock: i32,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_product_creation() {
+        let product = Product::new(
+            "Laptop".to_string(),
+            Some("A powerful laptop".to_string()),
+            999.99,
+            10,
+        );
+        assert_eq!(product.name, "Laptop");
+        assert_eq!(product.price, 999.99);
+        assert!(product.is_in_stock());
+    }
+
+    #[test]
+    fn test_product_out_of_stock() {
+        let product = Product::new(
+            "Mouse".to_string(),
+            None,
+            29.99,
+            0,
+        );
+        assert!(!product.is_in_stock());
+    }
+
+    #[test]
+    fn test_product_validation() {
+        let product = Product::new(
+            "Keyboard".to_string(),
+            Some("Mechanical keyboard".to_string()),
+            79.99,
+            5,
+        );
+        assert!(product.validate().is_ok());
+    }
+}

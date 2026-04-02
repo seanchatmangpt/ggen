@@ -1,0 +1,300 @@
+# Example Prompts for ggen AI Template Generation
+
+This file contains example prompts organized by complexity level.
+Use these as starting points for your own template generation.
+
+## ============================================
+## SIMPLE PROMPTS (Single Struct)
+## ============================================
+
+# Basic struct with primitive types
+A User struct with id (UUID), name (string), and age (integer)
+
+# Struct with validation
+A Product struct with id, name (max 100 chars), price (positive decimal), and quantity (non-negative integer)
+
+# Struct with timestamps
+A BlogPost struct with id, title, content, author, created_at, and updated_at timestamps
+
+# Enum type
+An OrderStatus enum with values: Pending, Confirmed, Shipped, Delivered, Cancelled
+
+# Struct with optional fields
+A Customer struct with id, name (required), email (required), phone (optional), address (optional)
+
+## ============================================
+## MEDIUM PROMPTS (REST API / Multi-Type)
+## ============================================
+
+# Basic CRUD API
+REST API for blog posts with:
+- CRUD operations (Create, Read, Update, Delete)
+- Posts have title, content, author, and timestamps
+- Pagination support (limit and offset)
+- Author validation required
+
+# API with relationships
+REST API for a task management system:
+- Projects with name and description
+- Tasks belonging to projects (foreign key)
+- Users who can be assigned to tasks
+- Status enum (Todo, InProgress, Done)
+- CRUD operations for all entities
+
+# API with authentication
+User authentication REST API with:
+- User registration (email, password, name)
+- Login endpoint (email, password)
+- JWT token generation (24h expiration)
+- Password validation (min 8 chars, requires symbols)
+- Rate limiting (5 attempts per minute)
+
+# API with filtering and sorting
+Product catalog API with:
+- Products with name, description, price, category
+- GET /products with filters (category, price_min, price_max)
+- Sorting by price, name, created_at (asc/desc)
+- Pagination (page, per_page)
+- Search by name (partial match)
+
+## ============================================
+## COMPLEX PROMPTS (Domain Models)
+## ============================================
+
+# E-commerce order system
+E-commerce order processing system with:
+- Order aggregate with line items
+- Each line item has product_id, quantity, unit_price
+- Order has status (draft, pending, confirmed, shipped, delivered, cancelled)
+- Payment information (method, status, transaction_id)
+- Shipping address (street, city, state, zip, country)
+- Calculate order total from line items
+- Validate stock availability before confirming
+- State machine for order status transitions
+
+# Event-sourced system
+Event-sourced banking system using CQRS:
+- Account aggregate with balance
+- Commands: CreateAccount, Deposit, Withdraw, Transfer
+- Events: AccountCreated, MoneyDeposited, MoneyWithdrawn, MoneyTransferred
+- Event store for audit trail
+- Projections for current state
+- Command validation (sufficient funds, positive amounts)
+- Transfer between accounts (atomic operation)
+
+# Multi-tenant SaaS
+Multi-tenant SaaS application with:
+- Tenant table with name, subdomain, plan (free, pro, enterprise)
+- User table with tenant foreign key
+- Role-based access control (owner, admin, member, viewer)
+- Subscription management (plan, status, billing_period)
+- Per-tenant data isolation
+- Usage tracking (API calls, storage, users)
+- Audit logs for all operations
+
+# Microservices system
+Microservices e-commerce platform:
+- Product catalog service (products, categories, inventory)
+- Order service (orders, line items, status)
+- Payment service (transactions, payment methods)
+- User service (authentication, profiles, preferences)
+- Inter-service communication via events
+- Eventual consistency between services
+- Saga pattern for distributed transactions
+- Service discovery and health checks
+
+## ============================================
+## DOMAIN-SPECIFIC PROMPTS
+## ============================================
+
+### Database Schema
+
+PostgreSQL schema for content management system:
+- Articles with title, content (rich text), author, status (draft, published, archived)
+- Categories with name, slug, parent_id (self-referential)
+- Tags with name, slug
+- Many-to-many relationship between articles and tags
+- Comments on articles with moderation status
+- Full-text search indexes on title and content
+- Soft deletes with deleted_at timestamps
+- Row-level security based on author
+
+### Healthcare System
+
+Healthcare patient management system:
+- Patient records (demographics, medical history)
+- Appointments with providers (date, time, status)
+- Prescriptions with medications and dosages
+- Medical notes (SOAP format: Subjective, Objective, Assessment, Plan)
+- Lab results with reference ranges
+- HIPAA compliance (encryption, audit logs, access control)
+- Consent management for data sharing
+- Emergency contact information
+
+### Financial System
+
+Trading platform with:
+- User accounts with KYC verification
+- Portfolio with holdings (symbol, quantity, cost_basis)
+- Orders (market, limit, stop-loss types)
+- Transactions with detailed audit trail
+- Real-time price feeds integration
+- Risk management (margin requirements, position limits)
+- Regulatory reporting (wash sales, tax lots)
+- Multi-currency support with FX conversion
+
+### IoT Platform
+
+IoT device management platform:
+- Devices with type, manufacturer, firmware_version
+- Sensors reporting telemetry (temperature, humidity, etc.)
+- Time-series data storage with compression
+- Device groups and hierarchies
+- Commands sent to devices (with acknowledgment)
+- Firmware over-the-air (OTA) updates
+- Device health monitoring and alerts
+- Data retention policies
+
+### Social Media
+
+Social networking platform:
+- User profiles with bio, avatar, preferences
+- Posts with text, images, and reactions
+- Comments with nested threading
+- Follow relationships (followers/following)
+- News feed algorithm (relevance, recency)
+- Notifications for interactions
+- Privacy controls (public, friends, private)
+- Content moderation (reports, flags, automated detection)
+
+## ============================================
+## BEST PRACTICES FOR PROMPTS
+## ============================================
+
+### 1. Start Simple, Then Add Details
+
+❌ Don't start with: "Complex distributed microservices platform"
+✅ Start with: "REST API for users with CRUD operations"
+Then iterate: "Add authentication, rate limiting, and validation"
+
+### 2. Specify Data Types
+
+❌ "User with name and email"
+✅ "User with name (string, 1-100 chars) and email (validated email format)"
+
+### 3. Include Validation Requirements
+
+❌ "Product with price"
+✅ "Product with price (decimal, must be positive, max 999999.99)"
+
+### 4. Mention Relationships Explicitly
+
+❌ "Orders and customers"
+✅ "Orders with customer_id foreign key referencing customers.id"
+
+### 5. Specify Business Rules
+
+❌ "Order processing system"
+✅ "Order processing with: minimum order $10, max 100 items, free shipping over $50"
+
+### 6. Reference Patterns When Applicable
+
+❌ "Complex system"
+✅ "Event-sourced system using CQRS pattern with command/query separation"
+
+### 7. Include Performance Requirements
+
+❌ "Product catalog"
+✅ "Product catalog with pagination (max 100 items per page), indexed search on name and category"
+
+### 8. Mention Security Requirements
+
+❌ "User system"
+✅ "User system with bcrypt password hashing, JWT tokens, rate limiting on login (5 attempts/min)"
+
+## ============================================
+## ITERATIVE REFINEMENT EXAMPLES
+## ============================================
+
+### Example 1: User Authentication
+
+Iteration 1:
+"User authentication system"
+
+Iteration 2 (after validation feedback):
+"User authentication with email/password, JWT tokens, password validation (min 8 chars)"
+
+Iteration 3 (after more feedback):
+"User authentication with:
+- Email/password registration
+- JWT tokens (24h expiration, refresh tokens)
+- Password validation (min 8 chars, uppercase, lowercase, number, symbol)
+- Rate limiting (5 login attempts per 15 minutes)
+- Password reset via email token (1h expiration)
+- Account lockout after 5 failed attempts
+- Audit log of login attempts"
+
+### Example 2: Product Catalog
+
+Iteration 1:
+"Product catalog"
+
+Iteration 2:
+"Product catalog with name, description, price, and category"
+
+Iteration 3:
+"Product catalog with:
+- Products: name (max 200 chars), description (rich text), price (positive decimal), category_id
+- Categories: name, slug (unique), parent_id (for hierarchical categories)
+- Inventory: product_id, quantity, location
+- Images: product_id, url, alt_text, display_order
+- Search: full-text search on name and description
+- Filtering: by category, price range, in_stock status
+- Pagination: max 50 products per page"
+
+## ============================================
+## TIPS FOR MOCK MODE
+## ============================================
+
+Mock mode works best with these patterns:
+
+1. Standard CRUD operations
+2. Common validation rules (email, phone, URL)
+3. Typical data types (string, integer, decimal, UUID, timestamp)
+4. Basic relationships (foreign keys, one-to-many, many-to-many)
+5. REST API patterns (GET, POST, PUT, DELETE)
+6. Authentication patterns (JWT, sessions, API keys)
+7. Common business rules (min/max values, required fields)
+
+Mock mode may struggle with:
+
+1. Highly domain-specific logic
+2. Custom validation algorithms
+3. Novel architectural patterns
+4. Complex state machines
+5. Industry-specific compliance rules
+
+For these cases, consider using real AI mode with Claude.
+
+## ============================================
+## RESOURCES
+## ============================================
+
+- More examples: /examples/templates/
+- Documentation: /docs/AI_FEATURES.md
+- Template syntax: /docs/TEMPLATE_SYNTAX.md
+- Validation rules: /docs/VALIDATION_RULES.md
+- Best practices: /docs/BEST_PRACTICES.md
+
+## ============================================
+## FEEDBACK
+## ============================================
+
+Found a great prompt? Share it with the community!
+- GitHub Discussions: https://github.com/ggen/discussions
+- Discord: #template-sharing channel
+- Twitter: @ggen_ai #ggen_templates
+
+Have suggestions for mock mode improvements?
+- Open an issue: https://github.com/ggen/issues
+- Contribute patterns: /mock_patterns/ directory

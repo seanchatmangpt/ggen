@@ -1,0 +1,252 @@
+@startuml test-strategy
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+
+title **Marketplace-V2: Comprehensive Testing Strategy**\n<size:12>//Chicago TDD: State-Based Testing with Real Collaborators//</size>
+
+|QA Lead|
+start
+
+partition "Phase 1: Unit Test Validation" #E4FFE4 {
+    |Unit Test Engineer|
+    :Execute Test Suite 84;
+    note right: **Marketplace Core Unit Tests**
+                Test file: tests/unit/84_marketplace_core_unit.rs
+                Scope: Models, builders, basic operations
+                Target: ≥100% pass rate
+    
+    if (Core tests pass?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        |DebugDev|
+        :Debug test failures;
+        :Fix core implementation;
+        :(back to core tests)
+    endif
+    
+    :Execute Test Suite 85;
+    note right: **Marketplace Registry Unit Tests**
+                Test file: tests/unit/85_marketplace_registry_unit.rs
+                Scope: Registry CRUD, RDF operations
+                Target: ≥100% pass rate
+    
+    if (Registry tests pass?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        |DebugDev|
+        :Debug failures;
+        :(back to registry tests)
+    endif
+    
+    :Execute Test Suite 86;
+    note right: **Marketplace Search Unit Tests**
+                Test file: tests/unit/86_marketplace_search_unit.rs
+                Scope: Search, SPARQL, indexing
+                Target: ≥100% pass rate
+    
+    :Execute Test Suite 87;
+    note right: **Marketplace Install Unit Tests**
+                Test file: tests/unit/87_marketplace_install_unit.rs
+                Scope: Download, extract, validation
+                Target: ≥100% pass rate
+    
+    :Execute Test Suite 88;
+    note right: **Marketplace Security Unit Tests**
+                Test file: tests/unit/88_marketplace_security_unit.rs
+                Scope: Signatures, crypto, verification
+                Target: ≥100% pass rate
+    
+    :Aggregate unit test results;
+    note right: Total: 5 suites
+            Target: 107 unit tests PASSING
+            Current: PASSING (per completion report)
+}
+
+partition "Phase 2: Integration Test Validation" #FFF4E4 {
+    |Integration Test Engineer|
+    :Execute Integration Test Suite 89;
+    note right: **Marketplace Integration Tests**
+                Test file: tests/89_marketplace_integration.rs
+                Scope: End-to-end workflows
+                
+                **Test Coverage:**
+                1. Install → Download → Extract → Validate
+                2. Search → Query → Filter → Return results
+                3. Publish → Validate → Sign → Store
+                4. RDF → SPARQL → Graph traversal
+                5. Error handling & edge cases
+    
+    if (Integration tests pass?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        |DebugDev|
+        :Debug integration issues;
+        :Check component interactions;
+        :(back to integration tests)
+    endif
+}
+
+partition "Phase 3: Property-Based Testing" #FFFBE4 {
+    |Property Test Engineer|
+    :Execute Property-Based Test Suite 90;
+    note right: **Marketplace Property Tests**
+                Test file: tests/90_marketplace_property_based.rs
+                Tool: proptest crate
+                
+                **Property Tests:**
+                1. Package models can serialize/deserialize
+                2. Manifest validation is idempotent
+                3. Search results are deterministic
+                4. Installation creates valid state
+                5. RDF round-trip preserves data
+    
+    if (Property tests pass?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        |DebugDev|
+        :Analyze shrunk test case;
+        :Fix generative issue;
+        :(back to property tests)
+    endif
+}
+
+partition "Phase 4: CLI Command Testing" #FFE4E4 {
+    |CLI Tester|
+    :Test marketplace install command;
+    note right: **Test Scenario:**
+                1. Setup: Create test marketplace
+                2. Action: ggen marketplace install pkg-name
+                3. Verify: Package installed correctly
+                4. Assert: Files present, checksums valid
+    
+    :Test marketplace search command;
+    note right: **Test Scenario:**
+                1. Setup: Populate test packages
+                2. Action: ggen marketplace search pattern
+                3. Verify: Results match pattern
+                4. Assert: Ranking is reasonable
+    
+    :Test marketplace publish command;
+    note right: **Test Scenario:**
+                1. Setup: Create package manifest
+                2. Action: ggen marketplace publish
+                3. Verify: Package stored in registry
+                4. Assert: Signature valid, metadata correct
+    
+    :Test marketplace info command;
+    :Test marketplace validate command;
+    :Test marketplace metrics command;
+    :Test marketplace sparql command;
+    :Test marketplace rdf_stats command;
+    note right: Similar test scenarios for each command
+    
+    if (All CLI commands work?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        |DebugDev|
+        :Debug command integration;
+        :Fix clap/async issues;
+        :(back to CLI testing)
+    endif
+}
+
+partition "Phase 5: Performance Testing" #E4F4FF {
+    |Performance Engineer|
+    :Benchmark search performance;
+    note right: **Benchmark:**
+                Test 10,000 packages in registry
+                Measure: Query latency
+                Target: <100ms for typical search
+                Metric: Percentile p95, p99
+    
+    :Benchmark install performance;
+    note right: **Benchmark:**
+                Test install of 100 packages
+                Measure: Download + extract time
+                Target: <5s per package
+                Metric: Throughput, memory usage
+    
+    :Benchmark RDF operations;
+    note right: **Benchmark:**
+                Test SPARQL query performance
+                Measure: Query time on 100k triples
+                Target: <500ms per query
+                Metric: Optimization opportunities
+    
+    if (SLOs met?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        |Optimization|
+        :Profile bottlenecks;
+        :Implement optimizations;
+        :(back to performance)
+    endif
+}
+
+partition "Phase 6: Security Testing" #FFE4F4 {
+    |Security Engineer|
+    :Run cargo audit;
+    note right: Check for known vulnerabilities
+    
+    :Verify signature verification;
+    note right: Test Ed25519 signature validation
+    
+    :Test checksum validation;
+    note right: Ensure package integrity checks work
+    
+    :Test dependency constraint validation;
+    note right: Verify conflict detection works
+    
+    if (Security checks pass?) then (yes)
+        :Mark PASS ✓;
+    else (no)
+        :Fix security issues;
+        :(back to security)
+    endif
+}
+
+partition "Phase 7: Version Control & Release" #F4E4FF {
+    |Release Manager|
+    :Update version in Cargo.toml;
+    note right: v2 → v3
+    
+    :Update CHANGELOG.md;
+    note right: Document migration, fixes, features
+    
+    :Create release branch;
+    note right: feature/marketplace-v2-integration
+    
+    :Create pull request;
+    note right: Document all changes
+    
+    :Request code review;
+    
+    if (Review approved?) then (yes)
+        :Merge to main;
+        :Tag release;
+        :Update documentation;
+    else (needs work)
+        :Address feedback;
+        :(back to review)
+    endif
+}
+
+|QA Lead|
+:All tests PASSING ✓;
+stop
+
+legend right
+    <b>Test Suite Summary</b>
+    |= Suite |= Count |= Status |
+    | Core (84) | 15 | PASSING |
+    | Registry (85) | 20 | PASSING |
+    | Search (86) | 22 | PASSING |
+    | Install (87) | 18 | PASSING |
+    | Security (88) | 16 | PASSING |
+    | Integration (89) | 12 | PASSING |
+    | Property (90) | 4 | PASSING |
+    | <b>Total</b> | <b>107</b> | <b>PASSING</b> |
+endlegend
+
+@enduml

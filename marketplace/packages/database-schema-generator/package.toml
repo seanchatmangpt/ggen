@@ -15,9 +15,9 @@ namespace = "http://ggen.io/ontology/database#"
 queries = "sparql/queries.rq"
 
 [templates]
-postgresql = "templates/postgresql/schema.sql.tera"
-mysql = "templates/mysql/schema.sql.tera"
-sqlite = "templates/sqlite/schema.sql.tera"
+postgresql = "templates/postgresql/schema.sql.hbs"
+mysql = "templates/mysql/schema.sql.hbs"
+sqlite = "templates/sqlite/schema.sql.hbs"
 
 [outputs]
 postgresql = "generated/postgresql/"
@@ -26,7 +26,7 @@ sqlite = "generated/sqlite/"
 
 [dependencies]
 oxigraph = "0.3"
-tera = "1.19"
+handlebars = "4.0"
 sqlx = { version = "0.7", features = ["postgres", "mysql", "sqlite", "runtime-tokio-native-tls"] }
 testcontainers = "0.15"
 

@@ -1,0 +1,55 @@
+use std::env;
+
+#[derive(Debug, Clone)]
+pub struct Settings {
+    pub port: u16,
+    pub log_level: String,
+    pub environment: String,
+}
+
+impl Settings {
+    pub fn new() -> Self {
+        Self {
+            port: env::var("PORT")
+                .unwrap_or_else(|_| "{{port}}".to_string())
+                .parse()
+                .expect("PORT must be a valid number"),
+            log_level: env::var("LOG_LEVEL")
+                .unwrap_or_else(|_| "{{log_level}}".to_string()),
+            environment: env::var("ENVIRONMENT")
+                .unwrap_or_else(|_| "development".to_string()),
+        }
+    }
+
+    pub fn is_production(&self) -> bool {
+        self.environment == "production"
+    }
+
+    pub fn is_development(&self) -> bool {
+        self.environment == "development"
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_settings() {
+        let settings = Settings::new();
+        assert_eq!(settings.port, {{port}});
+        assert_eq!(settings.log_level, "{{log_level}}");
+    }
+
+    #[test]
+    fn test_environment_check() {
+        let settings = Settings::new();
+        assert!(settings.is_development() || settings.is_production());
+    }
+}

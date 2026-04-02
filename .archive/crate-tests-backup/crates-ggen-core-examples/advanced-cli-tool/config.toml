@@ -1,0 +1,27 @@
+# Advanced CLI Tool Configuration
+
+# Buffer size for file I/O operations (bytes)
+buffer_size = 8192
+
+# Maximum concurrent workers
+max_workers = 4
+
+# Enable compression by default
+compress = false
+
+[logging]
+# Log level: trace, debug, info, warn, error
+level = "info"
+
+# Use JSON format for logs
+json_format = false
+
+# Optional log file path
+# log_file = "/var/log/advanced-cli-tool.log"
+
+[performance]
+# Chunk size for processing (bytes)
+chunk_size = 1048576  # 1MB
+
+# Timeout for operations (seconds)
+timeout_secs = 300

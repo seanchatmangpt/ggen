@@ -1,0 +1,348 @@
+# ggen PaaS - Infrastructure-as-Code Generation Configuration
+# This file drives the ggen sync pipeline to generate the complete PaaS system
+# from the RDF ontology: .specify/ggen-paas-ontology.ttl
+
+[project]
+name = "ggen-paas"
+version = "1.0.0"
+description = "Ontology-driven Platform-as-Service code generation using ggen sync and Bree semantic scheduler"
+
+[ontology]
+source = ".specify/ggen-paas-ontology.ttl"
+imports = []
+base_iri = "http://ggen.org/paas#"
+
+[ontology.prefixes]
+paas = "http://ggen.org/paas#"
+arch = "http://ggen.org/architecture#"
+comp = "http://ggen.org/component#"
+deploy = "http://ggen.org/deployment#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+owl = "http://www.w3.org/2002/07/owl#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+# =============================================================================
+# PHASE 1: ENRICHMENT - Materialize computed properties
+# =============================================================================
+
+[[inference.rules]]
+name = "materialize-container-slas"
+description = "Enrich containers with computed SLA properties"
+construct = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT {
+  ?container paas:hasSLAComputed ?sla ;
+    paas:slaResponseTimeMs ?responseTime ;
+    paas:slaAvailabilityPercent ?availability .
+}
+WHERE {
+  ?container a paas:Container ;
+    paas:hasSLA ?sla .
+  ?sla paas:responseTimeMs ?responseTime ;
+    paas:availabilityPercent ?availability .
+}
+"""
+
+[[inference.rules]]
+name = "materialize-communication-matrix"
+description = "Build complete communication matrix between containers"
+construct = """
+PREFIX paas: <http://ggen.org/paas#>
+CONSTRUCT {
+  ?from paas:communicatesWithComputed ?to .
+}
+WHERE {
+  {
+    ?from paas:communicatesWith ?to .
+  } UNION {
+    ?from paas:usesDataStore ?ds .
+    ?to paas:usesDataStore ?ds .
+    FILTER (?from != ?to)
+  }
+}
+"""
+
+[[inference.rules]]
+name = "compute-technology-stack"
+description = "Aggregate technology stack across all containers"
+construct = """
+PREFIX paas: <http://ggen.org/paas#>
+CONSTRUCT {
+  ?system paas:usesTechnologyComputed ?tech .
+}
+WHERE {
+  ?system ?relation ?container .
+  FILTER (?relation IN (paas:hasContainer, paas:includes))
+  ?container paas:hasTechnology ?tech .
+}
+"""
+
+# =============================================================================
+# PHASE 2: GENERATION - Extract and render code
+# =============================================================================
+
+# Generate Docker Compose for local development
+[[generation.rules]]
+name = "generate-docker-compose"
+description = "Generate docker-compose.yml from container specifications"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?containerName ?technology ?description ?communicatesWithJson
+WHERE {
+  ?container a paas:Container ;
+    rdfs:label ?containerName ;
+    paas:hasTechnology ?technology ;
+    paas:hasDescription ?description .
+}
+ORDER BY ?containerName
+"""
+template = { file = "templates/docker-compose.tera" }
+output_file = "generated/docker-compose.yml"
+mode = "Overwrite"
+
+# Generate container definitions
+[[generation.rules]]
+name = "generate-container-specs"
+description = "Generate container specification files for each service"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?containerName ?technology ?description ?responseTimeMs ?availabilityPercent
+WHERE {
+  ?container a paas:Container ;
+    rdfs:label ?containerName ;
+    paas:hasTechnology ?technology ;
+    paas:hasDescription ?description ;
+    paas:hasSLA ?sla .
+  ?sla paas:responseTimeMs ?responseTimeMs ;
+    paas:availabilityPercent ?availabilityPercent .
+}
+ORDER BY ?containerName
+"""
+template = { file = "templates/container-spec.tera" }
+output_file = "generated/containers/{{ container_name | snake_case }}.yaml"
+mode = "Overwrite"
+
+# Generate Kubernetes manifests
+[[generation.rules]]
+name = "generate-kubernetes-deployments"
+description = "Generate Kubernetes Deployment manifests"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?containerName ?technology ?replicas ?memoryRequest ?cpuRequest
+WHERE {
+  ?container a paas:Container ;
+    rdfs:label ?containerName ;
+    paas:hasTechnology ?technology .
+  OPTIONAL { ?container paas:replicas ?replicas }
+  OPTIONAL { ?container paas:memoryRequest ?memoryRequest }
+  OPTIONAL { ?container paas:cpuRequest ?cpuRequest }
+}
+ORDER BY ?containerName
+"""
+template = { file = "templates/k8s-deployment.tera" }
+output_file = "generated/k8s/{{ container_name | snake_case }}-deployment.yaml"
+mode = "Overwrite"
+
+# Generate API Gateway routing
+[[generation.rules]]
+name = "generate-api-routes"
+description = "Generate API Gateway route definitions"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?fromContainer ?toContainer ?protocol ?endpoint
+WHERE {
+  ?from a paas:Container ;
+    rdfs:label ?fromContainer ;
+    paas:communicatesWith ?to .
+  ?to rdfs:label ?toContainer .
+  OPTIONAL { ?to paas:apiEndpoint ?endpoint }
+}
+ORDER BY ?fromContainer ?toContainer
+"""
+template = { file = "templates/api-routes.tera" }
+output_file = "generated/api/routes.yaml"
+mode = "Overwrite"
+
+# Generate Terraform infrastructure code
+[[generation.rules]]
+name = "generate-terraform-aws"
+description = "Generate Terraform configuration for AWS deployment"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX deploy: <http://ggen.org/deployment#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nodeName ?technology ?description ?regionZones ?instanceType
+WHERE {
+  ?node a deploy:DeploymentNode ;
+    rdfs:label ?nodeName ;
+    paas:hasTechnology ?technology ;
+    paas:hasDescription ?description .
+  OPTIONAL { ?node deploy:regionZones ?regionZones }
+  OPTIONAL { ?node deploy:instanceType ?instanceType }
+}
+ORDER BY ?nodeName
+"""
+template = { file = "templates/terraform-main.tera" }
+output_file = "generated/terraform/main.tf"
+mode = "Overwrite"
+
+# Generate data store initialization scripts
+[[generation.rules]]
+name = "generate-datastore-init"
+description = "Generate database initialization and migration scripts"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?storeName ?technology ?description ?schema
+WHERE {
+  ?store a paas:DataStore ;
+    rdfs:label ?storeName ;
+    paas:hasTechnology ?technology ;
+    paas:hasDescription ?description .
+  OPTIONAL { ?store paas:schema ?schema }
+}
+ORDER BY ?storeName
+"""
+template = { file = "templates/datastore-init.tera" }
+output_file = "generated/db/{{ store_name | snake_case }}-init.sql"
+mode = "Overwrite"
+
+# Generate architectural documentation
+[[generation.rules]]
+name = "generate-architecture-docs"
+description = "Generate architecture documentation from ontology"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?containerName ?technology ?description
+WHERE {
+  ?container a paas:Container ;
+    rdfs:label ?containerName ;
+    paas:hasTechnology ?technology ;
+    paas:hasDescription ?description .
+}
+ORDER BY ?containerName
+"""
+template = { file = "templates/architecture-docs.tera" }
+output_file = "generated/docs/ARCHITECTURE.md"
+mode = "Overwrite"
+
+# Generate API OpenAPI specification
+[[generation.rules]]
+name = "generate-openapi-spec"
+description = "Generate OpenAPI 3.0 specification from containers"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?containerName ?apiEndpoint ?description ?responseTimeMs
+WHERE {
+  ?container a paas:Container ;
+    rdfs:label ?containerName ;
+    paas:hasDescription ?description ;
+    paas:hasSLA ?sla .
+  ?sla paas:responseTimeMs ?responseTimeMs .
+  OPTIONAL { ?container paas:apiEndpoint ?apiEndpoint }
+}
+ORDER BY ?containerName
+"""
+template = { file = "templates/openapi.tera" }
+output_file = "generated/api/openapi.yaml"
+mode = "Overwrite"
+
+# Generate deployment checklist
+[[generation.rules]]
+name = "generate-deployment-checklist"
+description = "Generate deployment validation checklist"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?containerName ?technology ?slaResponseTime ?slaAvailability
+WHERE {
+  ?container a paas:Container ;
+    rdfs:label ?containerName ;
+    paas:hasTechnology ?technology ;
+    paas:hasSLA ?sla .
+  ?sla paas:responseTimeMs ?slaResponseTime ;
+    paas:availabilityPercent ?slaAvailability .
+}
+ORDER BY ?containerName
+"""
+template = { file = "templates/deployment-checklist.tera" }
+output_file = "generated/docs/DEPLOYMENT_CHECKLIST.md"
+mode = "Overwrite"
+
+# Generate service mesh configuration (Istio)
+[[generation.rules]]
+name = "generate-istio-config"
+description = "Generate Istio service mesh configuration"
+sparql = """
+PREFIX paas: <http://ggen.org/paas#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?fromContainer ?toContainer
+WHERE {
+  ?from a paas:Container ;
+    rdfs:label ?fromContainer ;
+    paas:communicatesWith ?to .
+  ?to rdfs:label ?toContainer .
+}
+"""
+template = { file = "templates/istio-virtualservice.tera" }
+output_file = "generated/istio/{{ from_container | snake_case }}-vs.yaml"
+mode = "Overwrite"
+
+# =============================================================================
+# GENERATION ORDERING AND DEPENDENCIES
+# =============================================================================
+
+[generation.ordering]
+priority = [
+  "generate-container-specs",
+  "generate-docker-compose",
+  "generate-datastore-init",
+  "generate-kubernetes-deployments",
+  "generate-terraform-aws",
+  "generate-api-routes",
+  "generate-openapi-spec",
+  "generate-istio-config",
+  "generate-architecture-docs",
+  "generate-deployment-checklist"
+]
+
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+
+[validation]
+validate_syntax = true
+require_all_containers_have_sla = true
+require_all_containers_defined = true
+require_all_datastores_defined = true
+require_all_communication_defined = true
+max_response_time_ms = 60000
+min_availability_percent = 95.0
+
+# =============================================================================
+# OUTPUT CONFIGURATION
+# =============================================================================
+
+[output]
+directory = "generated/"
+format = "structured"
+preserve_timestamps = true
+create_manifest = true
+
+# =============================================================================
+# POST-GENERATION HOOKS
+# =============================================================================
+
+[hooks]
+post_generation = [
+  "cargo make validate-generated",
+  "docker-compose -f generated/docker-compose.yml config",
+  "kubectl apply -f generated/k8s/ --dry-run=client"
+]

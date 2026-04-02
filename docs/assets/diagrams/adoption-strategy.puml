@@ -1,0 +1,171 @@
+@startuml ggen-adoption-strategy
+
+!theme blueprint
+skinparam backgroundColor #FEFEFE
+
+title ggen Adoption Strategy - v1.2.0 Progress\nCurrent: Phase 1 Complete | Next: Early Adopters (v1.3.0)
+
+' Timeline visualization
+scale 1.5
+
+concise "Phase 1\nFoundation" as P1
+concise "Phase 2\nEarly Adopters" as P2
+concise "Phase 3\nMainstream" as P3
+concise "Phase 4\nStandard" as P4
+
+@0
+P1 is "Building"
+P2 is "Waiting"
+P3 is "Waiting"
+P4 is "Waiting"
+
+@1
+P1 is "Core Features ✅"
+note bottom
+  **v1.2.0 Status: 95% Complete**
+  ✅ make.toml parser (5,252 LOC)
+  ✅ Lifecycle system (14 modules)
+  ✅ Hooks execution (pre/post)
+  ✅ State management
+  ✅ Template engine
+  ✅ Bootstrap command (ggen project new)
+  ✅ Node NIF architecture (71 tests)
+  ✅ London TDD validation (60 test files)
+  ✅ Production readiness (90% score)
+
+  ⚠️ **4 days to deployment:**
+  - Fix marketplace workspace
+  - Resolve 23 compilation errors
+  - Implement mock marketplace
+
+  **Target: ggen early adopters**
+  **Users: Internal testing**
+end note
+
+@2
+P1 is "Complete ✅"
+P2 is "P2P Marketplace 📋"
+note bottom
+  **v1.3.0 Planned (3 weeks)**
+  📋 Real P2P distribution (libp2p)
+  📋 Ed25519 signing CLI
+  📋 Tantivy full-text search
+  📋 Offline-first operation
+  📋 Package verification
+
+  **Target: Technical early adopters**
+  - Decentralized package sharing
+  - Cryptographic trust
+  - Developer communities
+
+  **Prerequisite:**
+  ✅ v1.2.0 marketplace workspace fixed
+  ✅ v1.2.0 mock marketplace working
+end note
+
+@3
+P2 is "Growing"
+note bottom
+  **Community adoption**
+  - Blog posts & tutorials
+  - Conference talks
+  - Success stories
+  - Template marketplace grows
+
+  **Key metric:**
+  100+ projects using make.toml
+end note
+
+@4
+P2 is "Established"
+P3 is "Framework Adapters 📋"
+note bottom
+  **v1.4.0 Planned (4 weeks after v1.3.0)**
+  📋 Nuxt 4 adapter
+  📋 Next.js 15 adapter
+  📋 Rust/Cargo adapter
+  📋 WASM plugin system
+  📋 ML recommendations
+  📋 GraphQL API deployment
+
+  **Target: Framework communities**
+  - "Add Rust to your Nuxt project"
+  - Cross-language workflows
+  - Smart template discovery
+  - IDE integration (VS Code, IntelliJ)
+
+  **Key milestone:**
+  First framework community adoption
+end note
+
+@5
+P3 is "Expanding 📋"
+note bottom
+  **v1.5.0 Planned (2 weeks after v1.4.0)**
+  📋 Production hardening
+  📋 Performance monitoring (Prometheus)
+  📋 Docker containers
+  📋 Quality scoring
+  📋 Advanced caching (Moka)
+
+  **Target: Production deployments**
+  - Enterprise-ready
+  - SLA guarantees
+  - Monitoring dashboards
+  - CI/CD integration (GitHub Actions, GitLab CI)
+
+  **Key metric:**
+  100+ production deployments
+end note
+
+@6
+P3 is "Mature"
+P4 is "Enterprise Scale 📋"
+note bottom
+  **v2.0.0 Planned (6 weeks after v1.5.0)**
+  📋 IPFS distributed storage
+  📋 Raft replication
+  📋 Multi-tenancy
+  📋 High availability
+  📋 Global CDN
+
+  **Target: Enterprise adoption**
+  - Fortune 500 companies
+  - Multi-region deployments
+  - Compliance certifications
+  - Support contracts
+
+  **Key metric:**
+  10+ enterprise customers
+end note
+
+@7
+P4 is "Universal Standard 🎯"
+note bottom
+  **Long-Term Vision (2026+)**
+
+  **Framework Integration:**
+  - Nuxt 5 includes make.toml by default
+  - Next.js considers adoption
+  - Rust community endorses
+  - Python/Poetry integration
+
+  **Ecosystem Adoption:**
+  - GitHub detects and uses make.toml
+  - AI tools (Claude, GPT) understand it
+  - Teaching curriculum includes it
+  - Technical books reference it
+  - 10K+ projects using make.toml
+  - 1000+ marketplace templates
+
+  **Current Progress:**
+  ✅ Phase 1 complete (95%)
+  📋 4 days to v1.2.0 deployment
+  📋 3 weeks to v1.3.0 (P2P)
+  📋 4 weeks to v1.4.0 (Frameworks)
+  📋 6 weeks to v2.0.0 (Enterprise)
+
+  **Goal:** make.toml becomes THE universal project descriptor
+end note
+
+@enduml

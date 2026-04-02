@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package tai;
+
+// Signal represents a control or monitoring signal in the system
+message Signal {
+  string id = 1;
+  string signal_type = 2;
+  int64 timestamp_ns = 3;
+  map<string, string> metadata = 4;
+  bytes payload = 5;
+  int32 priority = 6;
+}
+
+// Action represents an action to be taken by a service
+message Action {
+  string id = 1;
+  string action_type = 2;
+  int64 timestamp_ns = 3;
+  map<string, string> parameters = 4;
+  bytes payload = 5;
+  string source_service = 6;
+}
+
+// Receipt represents acknowledgment or result of an operation
+message Receipt {
+  string id = 1;
+  string request_id = 2;
+  string status = 3; // "success", "failure", "partial"
+  int64 timestamp_ns = 4;
+  map<string, string> result_data = 5;
+  string error_message = 6;
+  int64 execution_time_us = 7; // microseconds
+}
+
+// Policy represents a governance or configuration policy
+message Policy {
+  string id = 1;
+  string policy_type = 2;
+  string policy_name = 3;
+  int64 version = 4;
+  map<string, string> rules = 5;
+  bool enabled = 6;
+  int64 created_at_ns = 7;
+  int64 updated_at_ns = 8;
+}
+
+// HealthStatus represents the health of a service
+message HealthStatus {
+  string service_name = 1;
+  string status = 2; // "healthy", "degraded", "unhealthy"
+  int64 timestamp_ns = 3;
+  repeated string details = 4;
+  int64 uptime_seconds = 5;
+}
+
+// Governor Service - Manages system-wide governance and policies
+service Governor {
+  // Propose a new policy for system adoption
+  rpc ProposePolicy(Policy) returns (Receipt);
+
+  // Enforce a policy across the system
+  rpc EnforcePolicy(Policy) returns (Receipt);
+
+  // Revoke a policy
+  rpc RevokePolicy(Policy) returns (Receipt);
+
+  // Get current policies
+  rpc GetPolicies(GetPoliciesRequest) returns (GetPoliciesResponse);
+
+  // Stream policy updates
+  rpc StreamPolicies(StreamPoliciesRequest) returns (stream Policy);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthStatus);
+}
+
+// Coordinator Service - Coordinates actions across services
+service Coordinator {
+  // Submit a signal for coordination
+  rpc SubmitSignal(Signal) returns (Receipt);
+
+  // Request an action to be performed
+  rpc RequestAction(Action) returns (Receipt);
+
+  // Stream actions for a service
+  rpc StreamActions(StreamActionsRequest) returns (stream Action);
+
+  // Acknowledge receipt of an action
+  rpc AcknowledgeAction(AcknowledgeActionRequest) returns (Receipt);
+
+  // Get coordination status
+  rpc GetStatus(GetStatusRequest) returns (CoordinationStatus);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthStatus);
+}
+
+// Scheduler Service - Manages task scheduling and execution
+service Scheduler {
+  // Submit a task for scheduling
+  rpc SubmitTask(ScheduleTaskRequest) returns (Receipt);
+
+  // Cancel a scheduled task
+  rpc CancelTask(CancelTaskRequest) returns (Receipt);
+
+  // Get task status
+  rpc GetTaskStatus(GetTaskStatusRequest) returns (TaskStatus);
+
+  // Stream task status updates
+  rpc StreamTaskUpdates(StreamTaskUpdatesRequest) returns (stream TaskUpdate);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthStatus);
+}
+
+// ============ Request/Response Messages ============
+
+message GetPoliciesRequest {
+  string policy_type = 1; // Optional filter
+  bool enabled_only = 2;
+}
+
+message GetPoliciesResponse {
+  repeated Policy policies = 1;
+}
+
+message StreamPoliciesRequest {
+  string policy_type = 1; // Optional filter
+}
+
+message GetStatusRequest {
+  string service_name = 1;
+}
+
+message CoordinationStatus {
+  string service_name = 1;
+  int64 timestamp_ns = 2;
+  int32 pending_signals = 3;
+  int32 pending_actions = 4;
+  int64 last_signal_ns = 5;
+}
+
+message StreamActionsRequest {
+  string service_name = 1;
+  bool include_history = 2;
+}
+
+message AcknowledgeActionRequest {
+  string action_id = 1;
+  string status = 2; // "accepted", "rejected", "failed"
+  string message = 3;
+}
+
+message ScheduleTaskRequest {
+  string task_id = 1;
+  string task_type = 2;
+  map<string, string> parameters = 3;
+  int64 scheduled_time_ns = 4; // Unix timestamp in nanoseconds
+  int32 priority = 5;
+}
+
+message CancelTaskRequest {
+  string task_id = 1;
+  string reason = 2;
+}
+
+message GetTaskStatusRequest {
+  string task_id = 1;
+}
+
+message TaskStatus {
+  string task_id = 1;
+  string status = 2; // "pending", "running", "completed", "failed", "cancelled"
+  int64 created_at_ns = 3;
+  int64 started_at_ns = 4;
+  int64 completed_at_ns = 5;
+  string error_message = 6;
+  map<string, string> result = 7;
+}
+
+message StreamTaskUpdatesRequest {
+  string task_id = 1;
+}
+
+message TaskUpdate {
+  string task_id = 1;
+  string status = 2;
+  int64 timestamp_ns = 3;
+  string message = 4;
+}
+
+message HealthCheckRequest {
+  string service_name = 1;
+}

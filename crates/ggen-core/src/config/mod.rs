@@ -37,7 +37,8 @@ pub mod lock_manager;
 pub mod ontology_config;
 pub mod qa_cli;
 pub mod quality_assurance;
-
+pub mod swarm_coordinator;
+pub mod swarm_intelligence;
 pub mod system_health;
 pub mod template_config;
 
@@ -69,6 +70,13 @@ pub use quality_assurance::{
     DetectionMechanism, DifficultyLevel, FailureMode, MuraViolation, OptimizationOpportunity,
     PokaYoke, PreventionRule, PreventionType, SeverityLevel, Standard, ViolationSeverity,
     WasteItem, WasteType, FMEA, MUDA, MURA,
+};
+pub use swarm_coordinator::{
+    CoordinatorStats, RecoveryConfig, SwarmCoordinator, Task, TaskStatus, TaskType,
+};
+pub use swarm_intelligence::{
+    AgentMessage, AgentPerformance, AgentStatus, CollectiveMemory, ConsensusVoting, LearnedPattern,
+    MemoryEntry, MessageType, Proposal, VotingStatus, WorkerState,
 };
 pub use system_health::{
     AlertThresholds, CheckResult, HealthMetrics, HealthMonitor, HealthStatus, HealthTrend,

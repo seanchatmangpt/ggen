@@ -219,7 +219,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Define metrics
 
     // 1. Exact match metric
-    let exact_match: MetricFn = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+    let exact_match = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
         let expected = example
             .outputs
             .get("operation")
@@ -289,34 +289,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Part 4: Custom Metrics ---\n");
 
     // Multi-criteria metric
-    let multi_criteria: MetricFn =
-        Arc::new(|example: &Example, output: &HashMap<String, Value>| {
-            // Check if output exists
-            let has_output = output.contains_key("operation");
+    let multi_criteria = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+        // Check if output exists
+        let has_output = output.contains_key("operation");
 
-            // Check if matches expected
-            let expected = example
-                .outputs
-                .get("operation")
-                .and_then(|v| v.as_str())
-                .map(|s| s.to_lowercase());
+        // Check if matches expected
+        let expected = example
+            .outputs
+            .get("operation")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_lowercase());
 
-            let actual = output
-                .get("operation")
-                .and_then(|v| v.as_str())
-                .map(|s| s.to_lowercase());
+        let actual = output
+            .get("operation")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_lowercase());
 
-            let is_correct = expected == actual;
+        let is_correct = expected == actual;
 
-            // Check if response is one of the valid operations
-            let valid_ops = ["addition", "subtraction", "multiplication", "division"];
-            let is_valid = actual
-                .as_ref()
-                .map(|s| valid_ops.contains(&s.as_str()))
-                .unwrap_or(false);
+        // Check if response is one of the valid operations
+        let valid_ops = ["addition", "subtraction", "multiplication", "division"];
+        let is_valid = actual
+            .as_ref()
+            .map(|s| valid_ops.contains(&s.as_str()))
+            .unwrap_or(false);
 
-            Ok(has_output && is_correct && is_valid)
-        });
+        Ok(has_output && is_correct && is_valid)
+    });
 
     match evaluate(&predictor, &dataset, &multi_criteria).await {
         Ok(accuracy) => {

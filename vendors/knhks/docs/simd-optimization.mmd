@@ -1,0 +1,36 @@
+graph TB
+    subgraph "SIMD Operation Flow"
+        A[Load Key] --> B[Broadcast to Vector]
+        B --> C[Load Data Array]
+        C --> D[SIMD Compare]
+        D --> E{Operation Type}
+    end
+    
+    subgraph "ASK Operation"
+        E -->|ASK| F[OR Reduction]
+        F --> G[Extract Result]
+        G --> H[Boolean Result]
+    end
+    
+    subgraph "COUNT Operation"
+        E -->|COUNT| I[Mask & 1]
+        I --> J[ADD Accumulation]
+        J --> K[Sum Result]
+    end
+    
+    subgraph "ASK SPO Operation"
+        E -->|ASK SPO| L[Load S Array]
+        E -->|ASK SPO| M[Load O Array]
+        L --> N[SIMD Compare S]
+        M --> O[SIMD Compare O]
+        N --> P[AND Combine]
+        O --> P
+        P --> Q[OR Reduction]
+        Q --> R[Boolean Result]
+    end
+    
+    style D fill:#87CEEB
+    style F fill:#90EE90
+    style J fill:#90EE90
+    style P fill:#FFD700
+

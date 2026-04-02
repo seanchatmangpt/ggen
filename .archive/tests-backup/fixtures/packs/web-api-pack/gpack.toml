@@ -1,0 +1,26 @@
+[gpack]
+id = "test.web-api"
+name = "Web API Pack"
+version = "1.0.0"
+description = "REST API template pack with RDF metadata"
+license = "MIT"
+ggen_compat = ">=3.0.0"
+
+[dependencies]
+
+[templates]
+# Use default patterns
+
+[rdf]
+base = "https://example.org/api/"
+
+[rdf.prefixes]
+api = "https://example.org/api/"
+http = "http://www.w3.org/2011/http#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[queries]
+# Use default patterns
+
+[shapes]
+# Use default patterns

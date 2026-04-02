@@ -1,0 +1,51 @@
+%% ============================================================================
+%% DIATAXIS REFERENCE CHAPTER (Using-Oriented + Theoretical)
+%% Chapter: {{ rows[0].chapterTitle }}
+%% ============================================================================
+
+\chapter{ {{- rows[0].chapterTitle -}} }
+\label{ch:{{ rows[0].chapterTitle | slugify }}}
+
+%% Diataxis quadrant marker
+\begin{center}
+\colorbox{ReferenceColor!20}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Diataxis Framework: REFERENCE}\\
+    \textit{Information-oriented | Technical description | Describing machinery}
+    \end{minipage}
+}
+\end{center}
+
+\vspace{1em}
+
+{% if rows[0].technicalDetail %}
+%% Technical detail scope
+\begin{quote}
+\textbf{Reference Scope:} {{ rows[0].technicalDetail }}
+\end{quote}
+
+\vspace{1em}
+{% endif %}
+
+%% Sections (API reference material)
+{% for row in rows %}
+\section{ {{- row.sectionTitle -}} }
+\label{sec:{{ row.sectionTitle | slugify }}}
+
+{{ row.sectionContent }}
+
+{% endfor %}
+
+%% Reference completion marker
+\begin{center}
+\fcolorbox{ReferenceColor}{ReferenceColor!10}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Complete Reference Material}\\
+    For conceptual understanding, see Chapter 6 (Explanation). For practical tasks, see Chapter 4 (How-to).
+    \end{minipage}
+}
+\end{center}
+
+%% End of reference chapter

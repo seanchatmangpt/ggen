@@ -1,0 +1,145 @@
+# Lifecycle Configuration for api-endpoint Example
+# Purpose: REST API example built with Axum
+
+[env]
+RUST_LOG = "debug"
+CARGO_MAKE_SKIP_GIT_SKIP_ALLOWED_PUSH_BRANCH_CHECK = true
+
+[config]
+skip_core_tasks = false
+default_to_shell = false
+
+# ==============================================================================
+# CORE LIFECYCLE TASKS
+# ==============================================================================
+
+[tasks.check]
+description = "Fast compilation check (< 5s)"
+command = "cargo"
+args = ["check"]
+dependencies = []
+
+[tasks.fmt]
+description = "Format code using rustfmt"
+command = "cargo"
+args = ["fmt"]
+dependencies = []
+
+[tasks.lint]
+description = "Run clippy linter"
+command = "cargo"
+args = ["clippy", "--all-targets", "--", "-D", "warnings"]
+dependencies = []
+
+[tasks.test-unit]
+description = "Run unit tests only (< 10s)"
+command = "cargo"
+args = ["test", "--lib"]
+dependencies = ["check"]
+
+[tasks.test]
+description = "Run all tests (< 30s)"
+command = "cargo"
+args = ["test"]
+dependencies = ["check"]
+
+[tasks.pre-commit]
+description = "Full validation before commit (format + lint + test)"
+script = """
+cargo fmt
+cargo clippy --all-targets -- -D warnings
+cargo test
+"""
+dependencies = []
+
+[tasks.ci]
+description = "Full CI pipeline"
+script = """
+cargo check
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test
+"""
+dependencies = []
+
+# ==============================================================================
+# BUILD & RUN TASKS
+# ==============================================================================
+
+[tasks.build]
+description = "Build the API server"
+command = "cargo"
+args = ["build", "--release"]
+dependencies = ["check"]
+
+[tasks.run]
+description = "Run the API server locally"
+command = "cargo"
+args = ["run"]
+dependencies = []
+
+[tasks.dev]
+description = "Run in development mode with auto-reload"
+command = "cargo"
+args = ["watch", "-x", "run"]
+dependencies = []
+
+# ==============================================================================
+# DEMO TASK
+# ==============================================================================
+
+[tasks.demo]
+description = "Run API and show example requests"
+script = """
+echo "API Endpoint Example - REST API for User Management"
+echo ""
+echo "To test the API:"
+echo "  1. cargo make run          - Start the server on http://localhost:3000"
+echo "  2. In another terminal:"
+echo ""
+echo "  # List all users"
+echo "  curl http://localhost:3000/users"
+echo ""
+echo "  # Create a new user"
+echo "  curl -X POST http://localhost:3000/users \\\\"
+echo "    -H 'Content-Type: application/json' \\\\"
+echo "    -d '{\"name\": \"John Doe\", \"email\": \"john@example.com\"}'"
+echo ""
+echo "  # Get a specific user (replace {id} with actual UUID)"
+echo "  curl http://localhost:3000/users/{id}"
+echo ""
+echo "  # Delete a user"
+echo "  curl -X DELETE http://localhost:3000/users/{id}"
+"""
+dependencies = []
+
+# ==============================================================================
+# HELP
+# ==============================================================================
+
+[tasks.help]
+description = "Show available tasks"
+script = """
+echo "API Endpoint Example - Available Tasks:"
+echo ""
+echo "Build & Check:"
+echo "  cargo make check        - Fast compilation check"
+echo "  cargo make build        - Build release binary"
+echo ""
+echo "Testing & Quality:"
+echo "  cargo make test         - Run all tests"
+echo "  cargo make fmt          - Format code"
+echo "  cargo make lint         - Run linter (clippy)"
+echo "  cargo make pre-commit   - Run all checks"
+echo ""
+echo "Running:"
+echo "  cargo make run          - Run the API server"
+echo "  cargo make demo         - Show demo instructions"
+echo ""
+echo "CI Pipeline:"
+echo "  cargo make ci           - Full CI validation"
+"""
+
+[tasks.default]
+command = "cargo"
+args = ["make", "help"]

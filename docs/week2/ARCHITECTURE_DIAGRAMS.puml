@@ -1,0 +1,761 @@
+@startuml Domain Module Architecture
+
+!define RECTANGLE class
+
+title Domain Module Architecture - ggen-domain
+
+' Style definitions
+skinparam componentStyle rectangle
+skinparam backgroundColor #FEFEFE
+skinparam component {
+  BackgroundColor<<domain>> #E1F5FE
+  BackgroundColor<<cli>> #FFF3E0
+  BackgroundColor<<infra>> #F3E5F5
+  BorderColor #000000
+}
+
+package "Interface Layer" <<cli>> {
+  [CLI (clap)] as CLI
+  [Web API (axum)] as WebAPI
+  [Agents (swarm)] as Agents
+  [Python Bindings] as Python
+}
+
+package "Domain Layer (ggen-domain)" <<domain>> {
+  package "marketplace" {
+    [search()] as MS
+    [install()] as MI
+    [publish()] as MP
+    [uninstall()] as MU
+    [list()] as ML
+    [validate()] as MV
+  }
+
+  package "template" {
+    [generate()] as TG
+    [validate()] as TV
+    [discover()] as TD
+    [list()] as TL
+    [show()] as TS
+    [create()] as TC
+  }
+
+  package "project" {
+    [create()] as PC
+    [configure()] as PCF
+    [generate()] as PG
+    [list()] as PL
+    [init()] as PI
+    [plan()] as PP
+    [apply()] as PA
+  }
+
+  note right of marketplace
+    All functions:
+    - async
+    - Result<T>
+    - Serialize outputs
+    - ZERO clap deps
+  end note
+}
+
+package "Infrastructure Layer" <<infra>> {
+  [ggen-core\n(engine)] as Core
+  [ggen-utils\n(errors)] as Utils
+  [ggen-ai\n(LLM)] as AI
+  [ggen-marketplace\n(registry)] as MPInfra
+}
+
+' Interface → Domain connections
+CLI --> MS
+CLI --> MI
+CLI --> MP
+CLI --> TG
+CLI --> TV
+CLI --> PC
+CLI --> PG
+
+WebAPI --> MS
+WebAPI --> MI
+WebAPI --> TG
+WebAPI --> PC
+
+Agents --> MS
+Agents --> MI
+Agents --> TG
+Agents --> PC
+
+Python --> MS
+Python --> TG
+Python --> PC
+
+' Domain → Infrastructure connections
+MS --> Core
+MS --> MPInfra
+MS --> Utils
+
+MI --> Core
+MI --> MPInfra
+MI --> Utils
+
+MP --> Core
+MP --> MPInfra
+MP --> Utils
+
+TG --> Core
+TG --> Utils
+
+TV --> Core
+TV --> Utils
+
+PC --> Core
+PC --> Utils
+PC --> TG
+
+PG --> Core
+PG --> Utils
+PG --> TG
+
+@enduml
+
+@startuml Marketplace Module Structure
+
+title Marketplace Domain Module - Internal Structure
+
+package "marketplace" {
+  [mod.rs\n(Public API)] as ModRs
+
+  package "Core Operations" {
+    [search.rs] as Search
+    [install.rs] as Install
+    [publish.rs] as Publish
+    [uninstall.rs] as Uninstall
+    [list.rs] as List
+    [validate.rs] as Validate
+  }
+
+  package "Types & Errors" {
+    [types.rs\n(Input/Output types)] as Types
+    [errors.rs\n(MarketplaceError)] as Errors
+  }
+
+  package "Internal" {
+    [registry.rs] as Registry
+    [adapter.rs] as Adapter
+  }
+}
+
+ModRs --> Search : re-export
+ModRs --> Install : re-export
+ModRs --> Publish : re-export
+ModRs --> Uninstall : re-export
+ModRs --> List : re-export
+ModRs --> Validate : re-export
+
+Search --> Types : uses
+Search --> Errors : returns
+Search --> Registry : uses
+
+Install --> Types : uses
+Install --> Errors : returns
+Install --> Registry : uses
+Install --> Adapter : uses
+
+Publish --> Types : uses
+Publish --> Errors : returns
+Publish --> Registry : uses
+
+note right of Types
+  All types derive:
+  - Debug
+  - Clone
+  - Serialize
+  - Deserialize
+end note
+
+note right of Errors
+  #[derive(Error, Serialize)]
+  pub enum MarketplaceError {
+    PackageNotFound(String),
+    AlreadyInstalled(String),
+    InvalidMetadata(String),
+    ...
+  }
+end note
+
+@enduml
+
+@startuml Template Module Structure
+
+title Template Domain Module - Internal Structure
+
+package "template" {
+  [mod.rs\n(Public API)] as ModRs
+
+  package "Core Operations" {
+    [generate.rs] as Generate
+    [validate.rs] as Validate
+    [discover.rs] as Discover
+    [list.rs] as List
+    [show.rs] as Show
+    [create.rs] as Create
+  }
+
+  package "Types & Errors" {
+    [types.rs\n(Input/Output types)] as Types
+    [errors.rs\n(TemplateError)] as Errors
+  }
+
+  package "Internal" {
+    [service.rs\n(TemplateService)] as Service
+  }
+}
+
+ModRs --> Generate : re-export
+ModRs --> Validate : re-export
+ModRs --> Discover : re-export
+ModRs --> List : re-export
+ModRs --> Show : re-export
+ModRs --> Create : re-export
+
+Generate --> Types : uses
+Generate --> Errors : returns
+Generate --> Service : uses
+
+Validate --> Types : uses
+Validate --> Errors : returns
+Validate --> Service : uses
+
+Discover --> Types : uses
+Discover --> Errors : returns
+
+note right of Types
+  GenerateInput
+  GenerateResult
+  ValidateInput
+  ValidationResult
+  DiscoverInput
+  DiscoveryResult
+  ...
+end note
+
+note right of Service
+  Internal helper
+  for template operations
+  (not exposed publicly)
+end note
+
+@enduml
+
+@startuml Project Module Structure
+
+title Project Domain Module - Internal Structure
+
+package "project" {
+  [mod.rs\n(Public API)] as ModRs
+
+  package "Core Operations" {
+    [create.rs] as Create
+    [configure.rs] as Configure
+    [generate.rs] as Generate
+    [list.rs] as List
+    [init.rs] as Init
+    [plan.rs] as Plan
+    [apply.rs] as Apply
+  }
+
+  package "Types & Errors" {
+    [types.rs\n(Input/Output types)] as Types
+    [errors.rs\n(ProjectError)] as Errors
+  }
+}
+
+ModRs --> Create : re-export
+ModRs --> Configure : re-export
+ModRs --> Generate : re-export
+ModRs --> List : re-export
+ModRs --> Init : re-export
+ModRs --> Plan : re-export
+ModRs --> Apply : re-export
+
+Create --> Types : uses
+Create --> Errors : returns
+
+Configure --> Types : uses
+Configure --> Errors : returns
+
+Generate --> Types : uses
+Generate --> Errors : returns
+
+note right of Types
+  CreateInput
+  CreateResult
+  ConfigureInput
+  ProjectConfig
+  GenerateInput
+  GenerationPlan
+  ...
+end note
+
+note bottom of Generate
+  Depends on template module
+  for code generation
+end note
+
+@enduml
+
+@startuml Type Definitions - Marketplace
+
+title Marketplace Type Definitions
+
+class SearchQuery <<Input>> {
+  + query: String
+  + limit: usize
+  + category: Option<String>
+  + min_score: Option<f64>
+  --
+  + default() -> Self
+}
+
+class SearchResults <<Output>> {
+  + packages: Vec<PackageInfo>
+  + total: usize
+}
+
+class PackageInfo <<Output>> {
+  + name: String
+  + version: String
+  + description: String
+  + author: Option<String>
+  + downloads: u32
+  + stars: u32
+}
+
+class InstallInput <<Input>> {
+  + package: String
+  + target: Option<PathBuf>
+  + force: bool
+  + no_dependencies: bool
+  + dry_run: bool
+}
+
+class InstallResult <<Output>> {
+  + package_name: String
+  + version: String
+  + install_path: PathBuf
+  + dependencies_installed: Vec<String>
+}
+
+enum MarketplaceError <<Error>> {
+  PackageNotFound(String)
+  AlreadyInstalled(String)
+  InvalidMetadata(String)
+  NetworkError(String)
+  IoError(String)
+}
+
+SearchQuery --> SearchResults : async search()
+InstallInput --> InstallResult : async install()
+SearchResults *-- PackageInfo
+SearchResults --> MarketplaceError : Result<T, E>
+InstallResult --> MarketplaceError : Result<T, E>
+
+note right of SearchQuery
+  All inputs:
+  - Derive Serialize, Deserialize
+  - Provide Default impl
+  - Used by async functions
+end note
+
+note right of SearchResults
+  All outputs:
+  - Derive Serialize, Deserialize
+  - Used for JSON responses
+  - Consumed by CLI, Web, Agents
+end note
+
+@enduml
+
+@startuml Type Definitions - Template
+
+title Template Type Definitions
+
+class GenerateInput <<Input>> {
+  + template: String
+  + output_dir: PathBuf
+  + vars: BTreeMap<String, String>
+  + force: bool
+}
+
+class GenerateResult <<Output>> {
+  + files_generated: Vec<PathBuf>
+  + template_used: String
+  + total_files: usize
+}
+
+class ValidateInput <<Input>> {
+  + template: String
+}
+
+class ValidationResult <<Output>> {
+  + valid: bool
+  + errors: Vec<ValidationError>
+  + warnings: Vec<ValidationWarning>
+}
+
+class ValidationError <<Output>> {
+  + line: usize
+  + column: usize
+  + message: String
+}
+
+class ValidationWarning <<Output>> {
+  + line: usize
+  + message: String
+}
+
+enum TemplateError <<Error>> {
+  NotFound(String)
+  InvalidSyntax(String)
+  AlreadyExists(String)
+  RenderingFailed(String)
+  IoError(String)
+}
+
+GenerateInput --> GenerateResult : async generate()
+ValidateInput --> ValidationResult : async validate()
+ValidationResult *-- ValidationError
+ValidationResult *-- ValidationWarning
+GenerateResult --> TemplateError : Result<T, E>
+ValidationResult --> TemplateError : Result<T, E>
+
+@enduml
+
+@startuml Type Definitions - Project
+
+title Project Type Definitions
+
+class CreateInput <<Input>> {
+  + name: String
+  + template: Option<String>
+  + output_dir: PathBuf
+  + vars: BTreeMap<String, String>
+}
+
+class CreateResult <<Output>> {
+  + project_name: String
+  + project_path: PathBuf
+  + files_created: Vec<PathBuf>
+}
+
+class ConfigureInput <<Input>> {
+  + project_path: PathBuf
+  + config: ProjectConfig
+}
+
+class ProjectConfig <<Value>> {
+  + name: String
+  + version: String
+  + description: Option<String>
+  + author: Option<String>
+  + settings: BTreeMap<String, String>
+}
+
+class GenerateInput <<Input>> {
+  + project_path: PathBuf
+  + plan: Option<GenerationPlan>
+  + force: bool
+}
+
+class GenerationPlan <<Value>> {
+  + files: Vec<FileSpec>
+  + templates: Vec<String>
+}
+
+class FileSpec <<Value>> {
+  + path: PathBuf
+  + template: String
+  + vars: BTreeMap<String, String>
+}
+
+enum ProjectError <<Error>> {
+  NotFound(String)
+  AlreadyExists(String)
+  InvalidConfig(String)
+  TemplateError(String)
+  IoError(String)
+}
+
+CreateInput --> CreateResult : async create()
+ConfigureInput --> ProjectConfig : uses
+ConfigureInput --> "ConfigureResult" : async configure()
+GenerateInput --> GenerationPlan : uses
+GenerationPlan *-- FileSpec
+CreateResult --> ProjectError : Result<T, E>
+
+@enduml
+
+@startuml Sequence - Search Operation
+
+title Marketplace Search Flow
+
+actor User
+participant "CLI" as CLI
+participant "ggen_domain::marketplace::search()" as Search
+participant "Registry" as Registry
+database "Packages" as DB
+
+User -> CLI: ggen marketplace search --query "rust"
+activate CLI
+
+CLI -> Search: search(SearchQuery)
+activate Search
+
+Search -> Registry: query_packages("rust")
+activate Registry
+
+Registry -> DB: SELECT * WHERE name LIKE '%rust%'
+activate DB
+DB --> Registry: packages
+deactivate DB
+
+Registry --> Search: Vec<Package>
+deactivate Registry
+
+Search -> Search: filter by score\nmap to PackageInfo
+Search --> CLI: SearchResults { packages, total }
+deactivate Search
+
+CLI -> CLI: format as JSON
+CLI --> User: Display results
+deactivate CLI
+
+note right of Search
+  Pure domain logic
+  - No clap dependencies
+  - Returns Serializable types
+  - Async execution
+end note
+
+@enduml
+
+@startuml Sequence - Install Operation
+
+title Marketplace Install Flow
+
+actor User
+participant "CLI" as CLI
+participant "ggen_domain::marketplace::install()" as Install
+participant "Registry" as Registry
+participant "Filesystem" as FS
+
+User -> CLI: ggen marketplace install my-package
+activate CLI
+
+CLI -> Install: install(InstallInput)
+activate Install
+
+Install -> Registry: resolve_package("my-package")
+activate Registry
+Registry --> Install: PackageMetadata
+deactivate Registry
+
+Install -> Registry: resolve_dependencies()
+activate Registry
+Registry --> Install: Vec<Dependency>
+deactivate Registry
+
+Install -> FS: create_dir_all(target_path)
+activate FS
+FS --> Install: Ok(())
+deactivate FS
+
+loop for each file in package
+  Install -> FS: copy_file(src, dest)
+  activate FS
+  FS --> Install: Ok(())
+  deactivate FS
+end
+
+Install --> CLI: InstallResult
+deactivate Install
+
+CLI -> CLI: format as JSON
+CLI --> User: Display success
+deactivate CLI
+
+note right of Install
+  All filesystem operations
+  are pure domain logic
+  - No CLI formatting
+  - Returns structured result
+end note
+
+@enduml
+
+@startuml Sequence - Template Generate Flow
+
+title Template Generate Flow
+
+actor User
+participant "CLI" as CLI
+participant "ggen_domain::template::generate()" as Generate
+participant "TemplateService" as Service
+participant "ggen-core\nTemplateEngine" as Engine
+participant "Filesystem" as FS
+
+User -> CLI: ggen template generate my-template
+activate CLI
+
+CLI -> Generate: generate(GenerateInput)
+activate Generate
+
+Generate -> Service: read_template("my-template")
+activate Service
+Service -> FS: read_to_string("my-template.tmpl")
+activate FS
+FS --> Service: template_content
+deactivate FS
+Service --> Generate: template_content
+deactivate Service
+
+Generate -> Engine: render(template, vars)
+activate Engine
+Engine -> Engine: parse template\napply variables
+Engine --> Generate: rendered_output
+deactivate Engine
+
+Generate -> FS: write_all(output_path, content)
+activate FS
+FS --> Generate: Ok(())
+deactivate FS
+
+Generate --> CLI: GenerateResult { files_generated }
+deactivate Generate
+
+CLI -> CLI: format as JSON
+CLI --> User: Display results
+deactivate CLI
+
+@enduml
+
+@startuml Component - Error Handling
+
+title Error Handling Strategy
+
+package "Domain Layer" {
+  [marketplace::search()] as Search
+  [template::generate()] as Generate
+  [project::create()] as Create
+}
+
+package "Error Types" {
+  enum MarketplaceError {
+    PackageNotFound
+    AlreadyInstalled
+    InvalidMetadata
+    NetworkError
+    IoError
+  }
+
+  enum TemplateError {
+    NotFound
+    InvalidSyntax
+    AlreadyExists
+    RenderingFailed
+    IoError
+  }
+
+  enum ProjectError {
+    NotFound
+    AlreadyExists
+    InvalidConfig
+    TemplateError
+    IoError
+  }
+}
+
+package "Interface Layer" {
+  [CLI\n(clap_noun_verb)] as CLI
+  [Web API\n(axum)] as Web
+  [Agents] as Agents
+}
+
+Search --> MarketplaceError : Result<T, E>
+Generate --> TemplateError : Result<T, E>
+Create --> ProjectError : Result<T, E>
+
+MarketplaceError --> CLI : map to NounVerbError
+MarketplaceError --> Web : map to HTTP status
+MarketplaceError --> Agents : handle directly
+
+TemplateError --> CLI : map to NounVerbError
+TemplateError --> Web : map to HTTP status
+
+ProjectError --> CLI : map to NounVerbError
+ProjectError --> Web : map to HTTP status
+
+note right of MarketplaceError
+  All errors:
+  - Derive thiserror::Error
+  - Derive Serialize
+  - Implement Display
+  - Converted at interface layer
+end note
+
+@enduml
+
+@startuml Dependency Graph
+
+title Cross-Module Dependency Graph
+
+package "ggen-domain" {
+  [marketplace] as M
+  [template] as T
+  [project] as P
+  [common] as C
+}
+
+package "Infrastructure" {
+  [ggen-core] as Core
+  [ggen-utils] as Utils
+  [ggen-marketplace] as MPInfra
+  [ggen-ai] as AI
+}
+
+M --> Core
+M --> Utils
+M --> MPInfra
+M --> T : can use templates
+
+T --> Core
+T --> Utils
+T --> C : shared types
+
+P --> Core
+P --> Utils
+P --> T : uses templates
+P --> C : shared types
+
+C --> Utils
+
+note right of T
+  Template module is pure
+  - No dependency on marketplace
+  - No dependency on project
+  - Can be used by both
+end note
+
+note right of P
+  Project depends on template
+  - Uses template::generate()
+  - Shares common types
+end note
+
+note right of M
+  Marketplace can use templates
+  - For package generation
+  - For scaffolding
+end note
+
+@enduml

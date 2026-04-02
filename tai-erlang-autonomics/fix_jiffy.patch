@@ -1,0 +1,10 @@
+--- a/c_src/objects.cc
++++ b/c_src/objects.cc
+@@ -1,6 +1,7 @@
+ #include "jiffy.h"
+ #include <set>
+ #include <string>
++#include <memory>
+ 
+ using namespace std;
+ 

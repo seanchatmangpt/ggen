@@ -1,0 +1,51 @@
+%% ============================================================================
+%% DIATAXIS HOW-TO CHAPTER (Using-Oriented + Practical)
+%% Chapter: {{ rows[0].chapterTitle }}
+%% ============================================================================
+
+\chapter{ {{- rows[0].chapterTitle -}} }
+\label{ch:{{ rows[0].chapterTitle | slugify }}}
+
+%% Diataxis quadrant marker
+\begin{center}
+\colorbox{HowToColor!20}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Diataxis Framework: HOW-TO GUIDE}\\
+    \textit{Task-oriented | Problem-solving | Achieving specific goals}
+    \end{minipage}
+}
+\end{center}
+
+\vspace{1em}
+
+{% if rows[0].task %}
+%% Task overview
+\begin{quote}
+\textbf{What You'll Learn:} {{ rows[0].task }}
+\end{quote}
+
+\vspace{1em}
+{% endif %}
+
+%% Sections (each is a specific task)
+{% for row in rows %}
+\section{ {{- row.sectionTitle -}} }
+\label{sec:{{ row.sectionTitle | slugify }}}
+
+{{ row.sectionContent }}
+
+{% endfor %}
+
+%% How-to completion marker
+\begin{center}
+\fcolorbox{HowToColor}{HowToColor!10}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Tasks Completed!}\\
+    For detailed API reference, see Chapter 5. For conceptual understanding, see Chapter 6.
+    \end{minipage}
+}
+\end{center}
+
+%% End of how-to chapter

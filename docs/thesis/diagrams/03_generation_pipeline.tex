@@ -1,0 +1,60 @@
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    phase/.style={rectangle, draw, fill=purple!20, minimum width=9cm, minimum height=2.5cm, font=\bfseries},
+    process/.style={rectangle, draw, fill=blue!15, rounded corners, minimum width=2.2cm, minimum height=0.8cm, font=\small},
+    data/.style={cylinder, draw, fill=green!15, shape border rotate=90, minimum width=1.8cm, minimum height=0.7cm, font=\small},
+    decision/.style={diamond, draw, fill=yellow!20, aspect=2, minimum width=2cm, font=\tiny},
+    arrow/.style={->, >=stealth, thick},
+    feedback/.style={->, >=stealth, thick, dashed, color=red!60},
+    node distance=0.3cm
+]
+
+% Phase 1: SPARQL Query Execution
+\node[phase] (phase1) at (0,4) {};
+\node[font=\small\bfseries, anchor=north west] at (-4.5,5.2) {Phase 1: SPARQL Query Execution};
+
+\node[data, below=0.5cm of phase1, xshift=-3cm] (ontology) {RDF\\Ontology};
+\node[data, below=0.5cm of phase1, xshift=-0.5cm] (query) {Query\\Pattern};
+\node[process, below=1.2cm of phase1] (matcher) {Pattern\\Matching};
+\node[data, below=1.9cm of phase1, xshift=2.5cm] (resultset) {Result\\Set};
+
+\draw[arrow] (ontology) -- (matcher);
+\draw[arrow] (query) -- (matcher);
+\draw[arrow] (matcher) -- (resultset);
+
+% Phase 2: Template Rendering
+\node[phase, below=3.5cm of phase1] (phase2) at (0,-1.5) {};
+\node[font=\small\bfseries, anchor=north west] at (-4.5,0.7) {Phase 2: Template Rendering};
+
+\node[data, below=0.5cm of phase2, xshift=-3.5cm] (template) {Tera\\Template};
+\node[data, below=0.5cm of phase2, xshift=-1cm] (config) {Config};
+\node[process, below=1.2cm of phase2] (renderer) {Template\\Expansion};
+\node[decision, below=1.9cm of phase2] (validate) {Valid?};
+\node[data, below=3cm of phase2, xshift=2cm] (artifact) {Code\\Artifact};
+
+\draw[arrow] (resultset) -- (renderer);
+\draw[arrow] (template) -- (renderer);
+\draw[arrow] (config) -- (renderer);
+\draw[arrow] (renderer) -- (validate);
+\draw[arrow] (validate) -- node[right, font=\tiny] {Yes} (artifact);
+\draw[feedback] (validate) -| node[above, font=\tiny, pos=0.2] {No} (-5,-2) |- (matcher);
+
+% Error handling path
+\node[process, fill=red!15, right=0.5cm of validate] (error) {Error\\Handler};
+\draw[arrow, color=red!60] (validate) -- node[above, font=\tiny] {Error} (error);
+
+% Feedback loop for validation
+\node[process, fill=cyan!15, below=0.3cm of artifact] (validation) {Validation\\Check};
+\draw[arrow] (artifact) -- (validation);
+\draw[feedback] (validation) -| node[below, font=\tiny, pos=0.8] {Refine} (4,1) -- (resultset);
+
+% Labels for data flow
+\node[font=\tiny, color=blue!70] at (-1.5,3.2) {Triples};
+\node[font=\tiny, color=blue!70] at (1.5,0.8) {Variables};
+\node[font=\tiny, color=blue!70] at (0.5,-2.8) {AST};
+
+\end{tikzpicture}
+\caption{Generation Pipeline Flow showing the two-phase generation process. Phase 1 executes SPARQL queries against the RDF ontology to extract relevant data. Phase 2 renders Tera templates with the query results and configuration, producing validated code artifacts. Feedback loops enable iterative refinement and error handling.}
+\label{fig:generation-pipeline}
+\end{figure}

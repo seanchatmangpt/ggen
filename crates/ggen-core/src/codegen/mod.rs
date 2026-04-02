@@ -34,7 +34,8 @@ pub mod merge;
 pub mod pipeline;
 pub mod proof_archive;
 pub mod python; // Python microservice code generation (FastAPI / Pydantic v2 / SQLAlchemy 2.0)
-
+pub mod swarm_execution;
+pub mod swarm_executor_bridge;
 pub mod terraform; // Terraform IaC generation
 pub mod transaction; // Atomic file operations with rollback
 pub mod typescript;
@@ -72,6 +73,8 @@ pub use pipeline::{
 };
 pub use proof_archive::{ChainVerification, ProofArchive};
 pub use python::{Endpoint as PythonEndpoint, Field as PythonField, PythonGenerator};
+pub use swarm_execution::{Agent, SwarmCoordinator, SwarmSummary};
+pub use swarm_executor_bridge::{ExecutionStrategy, SwarmExecutorBridge};
 pub use terraform::TerraformGenerator;
 pub use transaction::{FileTransaction, TransactionReceipt};
 pub use typescript::TypeScriptGenerator;

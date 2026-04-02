@@ -1,0 +1,53 @@
+[package]
+name = "ggen-auth"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Authentication system for ggen: OAuth2, JWT, and API key management"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# JWT & OAuth
+jsonwebtoken = "9.3"
+oauth2 = "4.4"
+
+# Cryptography
+sha2 = { workspace = true }
+hex = { workspace = true }
+base64 = { workspace = true }
+rand = "0.8"
+argon2 = "0.5"
+rsa = "0.9"
+zeroize = "1.7"
+
+# RBAC
+bitflags = { version = "2.4", features = ["serde"] }
+
+# Redis for session management
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+
+# HTTP & Utilities
+reqwest = { workspace = true }
+http = "1.0"
+urlencoding = "2.1"
+
+# Local crates
+ggen-utils = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+insta = "1.43"
+mockall = "0.13"
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }

@@ -1,0 +1,30 @@
+//! Generated command module for {{command_name}}
+
+use clap::Parser;
+use anyhow::Result;
+
+/// {{command_name}} command
+#[derive(Debug, Parser)]
+pub struct {{pascal_case command_name}}Args {
+    {{#each arguments}}
+    /// {{this.comment}}
+    {{#if this.required}}
+    pub {{this.name}}: {{this.type}},
+    {{else}}
+    #[arg(long)]
+    pub {{this.name}}: Option<{{this.type}}>,
+    {{/if}}
+    {{/each}}
+
+    {{#each flags}}
+    /// {{this.comment}}
+    #[arg(short = '{{this.short_flag}}', long)]
+    pub {{this.name}}: bool,
+    {{/each}}
+}
+
+/// Execute the {{command_name}} command
+pub async fn execute(args: {{pascal_case command_name}}Args) -> Result<()> {
+    // Call domain logic
+    crate::domain::{{snake_case command_name}}::execute(args).await
+}

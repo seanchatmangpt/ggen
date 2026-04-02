@@ -1,0 +1,18 @@
+{
+    "sourceFile": "tests/data/enterprise_objectcount_exact.ttl",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1762310767401,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1762310767401,
+            "name": "Commit-0",
+            "content": "@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n# Enterprise Object Count Exact Use Case\n# Precise object occurrence counting for role distribution\n# Test Case 12: Object Count Exact (COUNT O,P == k)\n# Limited to 8 triples for hot path (single predicate run)\n# Validates exact role distribution (e.g., exactly 2 users per role)\n\nex:alice ex:role ex:admin .\nex:bob ex:role ex:admin .\nex:charlie ex:role ex:viewer .\nex:dave ex:role ex:viewer .\nex:eve ex:role ex:editor .\nex:frank ex:role ex:editor .\nex:grace ex:role ex:contributor .\nex:henry ex:role ex:contributor .\n\n"
+        }
+    ]
+}

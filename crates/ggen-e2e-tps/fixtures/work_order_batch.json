@@ -1,0 +1,38 @@
+[
+  {
+    "objective": "Implement user authentication",
+    "owner": "backend-team",
+    "priority": "High",
+    "constraints": [
+      {
+        "description": "Must use OAuth2",
+        "constraint_type": "Compliance",
+        "enforced": true
+      }
+    ]
+  },
+  {
+    "objective": "Add payment processing",
+    "owner": "backend-team",
+    "priority": "Critical",
+    "constraints": [
+      {
+        "description": "PCI-DSS compliant",
+        "constraint_type": "Compliance",
+        "enforced": true
+      }
+    ]
+  },
+  {
+    "objective": "Optimize database queries",
+    "owner": "performance-team",
+    "priority": "Normal",
+    "constraints": [
+      {
+        "description": "Response time < 100ms",
+        "constraint_type": "Quality",
+        "enforced": true
+      }
+    ]
+  }
+]

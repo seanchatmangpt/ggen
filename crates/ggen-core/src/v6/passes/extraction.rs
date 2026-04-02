@@ -191,45 +191,6 @@ impl ExtractionPass {
         self
     }
 
-    /// Append pack-contributed queries (must be CONSTRUCT-only).
-    ///
-    /// See `docs/marketplace/PACK_QUERY_CONTRACT.md`.
-    pub fn extend_with_pack_construct_queries(
-        &mut self, queries: &[crate::pack_resolver::SparqlQuery],
-    ) -> Result<()> {
-        let base_order = self
-            .tensor_queries
-            .iter()
-            .map(|q| q.order)
-            .max()
-            .unwrap_or(0);
-
-        for (i, sq) in queries.iter().enumerate() {
-            let upper = sq.sparql.to_uppercase();
-            if !upper.contains("CONSTRUCT") {
-                return Err(Error::new(&format!(
-                    "Pack query '{}' is not CONSTRUCT; see docs/marketplace/PACK_QUERY_CONTRACT.md",
-                    sq.name
-                )));
-            }
-            let pred = format!(
-                "http://ggen.dev/v6/pack-query#{}",
-                sq.name.replace(['/', '\\', ' '], "_")
-            );
-            let order_offset = i32::try_from(i)
-                .map_err(|_| Error::new("Too many pack queries for i32 order index"))?;
-            self.tensor_queries.push(TensorQuery {
-                name: format!("pack::{}", sq.name),
-                construct: sq.sparql.clone(),
-                target_predicates: vec![pred],
-                order: base_order.saturating_add(1).saturating_add(order_offset),
-                description: Some(format!("Pack-contributed query {}", sq.name)),
-            });
-        }
-        self.tensor_queries.sort_by_key(|q| q.order);
-        Ok(())
-    }
-
     /// Verify all queries are CONSTRUCT-only (SELECT/ASK/DESCRIBE gate)
     ///
     /// This is a critical Andon gate - any violation stops the line.

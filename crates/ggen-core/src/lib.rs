@@ -144,9 +144,7 @@ pub mod template_types;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
 pub mod ontology_pack;
-pub mod pack_resolver; // μ₀: Pack resolution stage
 pub mod packs; // Pack installation system - Phase 1
-pub mod pki;
 pub mod pipeline;
 pub mod poc;
 pub mod poka_yoke;
@@ -169,9 +167,9 @@ pub mod tera_env;
 pub mod types;
 pub mod validation;
 // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
-pub mod simple_tracing;
-pub mod tracing;
 pub mod v6;
+pub mod tracing;
+pub mod simple_tracing;
 
 // Re-export template types
 pub use template_types::{Frontmatter, Template};
@@ -196,21 +194,19 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
-pub use config::LockfileManager;
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
 pub use graph::Graph;
-pub use lockfile::Lockfile;
+pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
     ThreeWayMerger,
 };
 pub use packs::{LockedPack, PackLockfile, PackSource};
 pub use pipeline::{Pipeline, PipelineBuilder};
-pub use pki::{verify_ed25519, KeyPurpose, PkiManager, TrustedKeyEntry, TrustedKeysConfig};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
 pub use rdf::{
     GgenOntology, Iri, Literal, SparqlQueryBuilder, TemplateMetadata, TemplateMetadataStore,

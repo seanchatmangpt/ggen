@@ -1,0 +1,59 @@
+{
+  "name": "onboarding-platform",
+  "version": "1.0.0",
+  "description": "30-day value-based pricing onboarding automation platform",
+  "main": "backend/src/server.ts",
+  "scripts": {
+    "dev": "docker-compose up -d",
+    "dev:down": "docker-compose down",
+    "dev:logs": "docker-compose logs -f",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "backend:start": "cd backend && npm start",
+    "backend:test": "cd backend && npm test",
+    "backend:test:watch": "cd backend && npm run test:watch",
+    "backend:lint": "cd backend && npm run lint",
+    "backend:typecheck": "cd backend && npm run typecheck",
+    "frontend:dev": "cd frontend && npm start",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:test": "cd frontend && npm test",
+    "frontend:test:watch": "cd frontend && npm run test:watch",
+    "frontend:lint": "cd frontend && npm run lint",
+    "frontend:typecheck": "cd frontend && npm run typecheck",
+    "db:migrate": "npm run backend:migrate",
+    "db:seed": "npm run backend:seed",
+    "db:rollback": "npm run backend:rollback",
+    "lint": "npm run backend:lint && npm run frontend:lint",
+    "typecheck": "npm run backend:typecheck && npm run frontend:typecheck",
+    "test": "npm run backend:test && npm run frontend:test",
+    "test:e2e": "npm run backend:build && playwright test",
+    "prebuild": "npm run lint && npm run typecheck && npm test",
+    "build": "npm run backend:build && npm run frontend:build",
+    "docker:build": "docker build -f Dockerfile -t onboarding:latest .",
+    "docker:push": "docker push onboarding:latest",
+    "k8s:deploy": "kubectl apply -f k8s/",
+    "k8s:delete": "kubectl delete -f k8s/",
+    "terraform:init": "cd terraform && terraform init",
+    "terraform:plan": "cd terraform && terraform plan",
+    "terraform:apply": "cd terraform && terraform apply",
+    "terraform:destroy": "cd terraform && terraform destroy",
+    "docs:build": "cd docs && npm run build",
+    "docs:serve": "cd docs && npm start"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "value-based-pricing",
+    "onboarding",
+    "automation",
+    "saas"
+  ],
+  "author": "Onboarding Platform Team",
+  "license": "Apache-2.0"
+}

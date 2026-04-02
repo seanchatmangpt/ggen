@@ -100,10 +100,10 @@ pub mod models {
     pub const GROQ_DEFAULT: &str = "groq::openai/gpt-oss-20b";
 
     /// Groq fast model — lowest latency, ideal for agent loops
-    pub const GROQ_FAST: &str = "groq::llama-3.1-8b-instant";
+    pub const GROQ_FAST: &str = "llama-3.1-8b-instant";
 
     /// Groq reasoning model — DeepSeek R1 distilled on Groq hardware
-    pub const GROQ_SMART: &str = "groq::deepseek-r1-distill-llama-70b";
+    pub const GROQ_SMART: &str = "deepseek-r1-distill-llama-70b";
 
     /// Mock model for testing
     pub const MOCK_MODEL: &str = "mock-model";

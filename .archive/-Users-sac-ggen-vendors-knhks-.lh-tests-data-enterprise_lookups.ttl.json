@@ -1,0 +1,18 @@
+{
+    "sourceFile": "tests/data/enterprise_lookups.ttl",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1762310767400,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1762310767400,
+            "name": "Commit-0",
+            "content": "@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n# Enterprise Simple Lookups Use Case\n# Single predicate property value retrieval\n# Test Case 5: Simple Lookups (5% of runtime)\n# Limited to 8 triples for hot path (single predicate run)\n# Fast property value lookups for configuration and metadata\n\nex:config1 ex:property \"production\" .\nex:config1 ex:property \"region-us-east\" .\nex:config2 ex:property \"staging\" .\nex:config3 ex:property \"region-eu-west\" .\nex:config4 ex:property \"development\" .\nex:config5 ex:property \"region-ap-south\" .\nex:config6 ex:property \"testing\" .\nex:config7 ex:property \"region-us-west\" .\n"
+        }
+    ]
+}

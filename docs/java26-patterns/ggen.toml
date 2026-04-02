@@ -1,0 +1,121 @@
+# =============================================================================
+# ggen Java 26 Pattern Language mdBook Generator
+# =============================================================================
+# This manifest generates a complete mdBook from the java26-patterns.ttl ontology.
+#
+# Usage: ggen sync
+#
+# The 3T Approach:
+#   Turtle  → ontology/java26-patterns.ttl (domain knowledge)
+#   TOML    → this file (generation rules)
+#   Tera    → templates/*.tera (output shaping)
+#   Target  → src/ (generated mdBook)
+# =============================================================================
+
+[project]
+name = "java26-patterns-mdbook"
+version = "1.0.0"
+description = "A Pattern Language for Java 26 with ggen - Generated from RDF ontology"
+
+# =============================================================================
+# ONTOLOGY CONFIGURATION
+# =============================================================================
+
+[ontology]
+source = "ontology/java26-patterns.ttl"
+imports = []
+base_iri = "https://ggen.dev/java26-patterns#"
+
+[ontology.prefixes]
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+owl = "http://www.w3.org/2002/07/owl#"
+pl = "https://ggen.dev/pattern-language#"
+j26 = "https://ggen.dev/java26-patterns#"
+
+# =============================================================================
+# INFERENCE RULES
+# =============================================================================
+# These CONSTRUCT queries derive additional facts before generation.
+
+[inference]
+max_reasoning_timeout_ms = 10000
+
+[generation]
+output_dir = "src"
+require_audit_trail = true
+max_sparql_timeout_ms = 10000
+
+# -----------------------------------------------------------------------------
+# Pattern Chapter Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "pattern-chapters"
+query = { file = "queries/patterns.sparql" }
+template = { file = "templates/pattern.tera" }
+output_file = "patterns/{{ filename }}"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# SUMMARY.md Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "summary"
+query = { file = "queries/summary.sparql" }
+template = { file = "templates/summary.tera" }
+output_file = "SUMMARY.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Introduction/README Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "readme"
+query = { file = "queries/overview.sparql" }
+template = { file = "templates/readme.tera" }
+output_file = "README.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Pattern Map Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "pattern-map"
+query = { file = "queries/connections.sparql" }
+template = { file = "templates/pattern-map.tera" }
+output_file = "pattern-map.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Glossary Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "glossary"
+query = { file = "queries/terms.sparql" }
+template = { file = "templates/glossary.tera" }
+output_file = "glossary.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# How-to-Use Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "how-to-use"
+query = { file = "queries/categories.sparql" }
+template = { file = "templates/how-to-use.tera" }
+output_file = "how-to-use.md"
+mode = "Overwrite"
+
+# =============================================================================
+# VALIDATION
+# =============================================================================
+
+[validation]
+validate_syntax = false

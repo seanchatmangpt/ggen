@@ -709,17 +709,65 @@ impl GgenMcpServer {
     }
 
     /// Search marketplace packages by keyword or category.
-    /// NOTE: Marketplace has been migrated to a separate project.
-    /// This tool now returns a deprecation notice.
     #[tool(
-        description = "DEPRECATED: Marketplace has been migrated to a separate project. This tool is no longer available."
+        description = "Search ggen marketplace packages by query string. Optionally filter by category. Returns matching packages with name, description, version, tags."
     )]
     async fn search(
-        &self, Parameters(_params): Parameters<SearchParams>,
+        &self, Parameters(params): Parameters<SearchParams>,
     ) -> Result<CallToolResult, McpError> {
-        Ok(CallToolResult::error(vec![Content::text(
-            "Marketplace search has been migrated to a separate project. This tool is deprecated.",
-        )]))
+        use ggen_domain::marketplace::search::{search_packages, SearchFilters};
+        let span = tracing::info_span!(
+            "ggen.mcp.tool_call",
+            "operation.name" = "mcp.search",
+            query = %params.query,
+        );
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "search");
+        info!(query = %params.query, "search tool called");
+
+        let limit = params.limit.unwrap_or(10).min(50);
+        let filters = SearchFilters::new()
+            .with_limit(limit)
+            .with_fuzzy(true)
+            .pipe_if_some(params.category.as_deref(), |f, cat| f.with_category(cat));
+
+        match search_packages(&params.query, &filters).await {
+            Ok(results) => {
+                let items: Vec<serde_json::Value> = results
+                    .iter()
+                    .map(|r| {
+                        serde_json::json!({
+                            "name": r.name,
+                            "version": r.version,
+                            "description": r.description,
+                            "category": r.category,
+                            "tags": r.tags,
+                            "stars": r.stars,
+                            "downloads": r.downloads,
+                            "is_8020_certified": r.is_8020_certified
+                        })
+                    })
+                    .collect();
+                info!(result_count = items.len(), "search tool complete");
+                Ok(CallToolResult::success(vec![Content::text(
+                    serde_json::to_string_pretty(&serde_json::json!({
+                        "query": params.query,
+                        "results": items,
+                        "count": items.len()
+                    }))
+                    .unwrap_or_else(|_| format!("{} results", items.len())),
+                )]))
+            }
+            Err(e) => {
+                warn!(error = %e, "search tool failed");
+                tracing::Span::current().record("error", true);
+                tracing::Span::current().record("error.type", "search_failure");
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Search failed: {}",
+                    e
+                ))]))
+            }
+        }
     }
 
     /// Scaffold a new project by copying a bundled example to a target directory.
@@ -1720,6 +1768,21 @@ fn find_files_by_extensions(dir: &Path, extensions: &[&str]) -> std::io::Result<
     }
     Ok(files)
 }
+
+// ---------------------------------------------------------------------------
+// Helper trait for builder chaining with optional values
+// ---------------------------------------------------------------------------
+
+trait PipeIfSome: Sized {
+    fn pipe_if_some<T, F: FnOnce(Self, T) -> Self>(self, opt: Option<T>, f: F) -> Self {
+        match opt {
+            Some(v) => f(self, v),
+            None => self,
+        }
+    }
+}
+
+impl<T> PipeIfSome for T {}
 
 // ---------------------------------------------------------------------------
 // File system helpers

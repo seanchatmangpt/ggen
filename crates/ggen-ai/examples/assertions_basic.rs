@@ -69,10 +69,6 @@ impl Module for QAModule {
         outputs.insert("answer".to_string(), Value::String(answer.to_string()));
         Ok(outputs)
     }
-
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
 }
 
 #[tokio::main]

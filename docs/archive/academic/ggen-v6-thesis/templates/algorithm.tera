@@ -1,0 +1,10 @@
+{% for row in sparql_results %}
+\begin{algorithm}
+\caption{ {{- row.algName -}} }
+\label{ {{- row.algLabel -}} }
+\begin{algorithmic}
+{{ row.algContent }}
+\end{algorithmic}
+\end{algorithm}
+
+{% endfor %}

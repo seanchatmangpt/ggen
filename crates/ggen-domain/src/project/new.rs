@@ -45,12 +45,11 @@ pub fn create_project(args: &NewInput) -> Result<CreationResult> {
         path: output_path,
     };
 
-    // Create project — use block_in_place to avoid nested runtime panic
-    // when called from within an existing tokio runtime (e.g., #[tokio::main]).
-    tokio::task::block_in_place(|| {
-        let handle = tokio::runtime::Handle::current();
-        handle.block_on(async { create_new_project(&config).await })
-    })?;
+    // Create project synchronously
+    let runtime = tokio::runtime::Runtime::new()
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Runtime error: {}", e)))?;
+
+    runtime.block_on(async { create_new_project(&config).await })?;
 
     // Generate next steps message
     let next_steps = match project_type {

@@ -1,0 +1,34 @@
+[book]
+title = "A Pattern Language for ggen sync"
+description = "Patterns for knowledge-driven code synchronization, in the style of Christopher Alexander"
+authors = ["ggen Contributors"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = true
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/seanchatmangpt/ggen"
+git-repository-icon = "fa-github"
+
+[output.html.search]
+enable = true
+limit-results = 30
+teaser-word-count = 30
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 1
+boost-paragraph = 1
+expand = true
+heading-split-level = 3
+
+[output.html.playground]
+editable = false
+copyable = true
+runnable = false
+line-numbers = true

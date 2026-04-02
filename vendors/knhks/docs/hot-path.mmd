@@ -1,0 +1,43 @@
+graph TD
+    A[Query IR] --> B{Predicate Match?}
+    B -->|No| C[Return 0]
+    B -->|Yes| D{Operation Type}
+    
+    D -->|ASK SP| E[Load Subject Key]
+    D -->|COUNT SP| F[Load Subject Key]
+    D -->|ASK SPO| G[Load Subject + Object Keys]
+    
+    E --> H[Load S Array 4 elements]
+    H --> I[Load S Array 4 elements]
+    I --> J[SIMD Compare]
+    J --> K[OR Reduction]
+    K --> L[Boolean Result]
+    
+    F --> M[Load S Array 4 elements]
+    M --> N[Load S Array 4 elements]
+    N --> O[SIMD Compare]
+    O --> P[Mask & 1]
+    P --> Q[ADD Accumulation]
+    Q --> R[Compare >= k]
+    R --> S[Boolean Result]
+    
+    G --> T[Load S Array 4 elements]
+    G --> U[Load O Array 4 elements]
+    T --> V[SIMD Compare S]
+    U --> W[SIMD Compare O]
+    V --> X[AND Combine]
+    W --> X
+    X --> Y[Load S Array 4 elements]
+    X --> Z[Load O Array 4 elements]
+    Y --> AA[SIMD Compare S]
+    Z --> BB[SIMD Compare O]
+    AA --> CC[AND Combine]
+    BB --> CC
+    CC --> DD[OR Reduction]
+    DD --> EE[Boolean Result]
+    
+    style K fill:#90EE90
+    style Q fill:#90EE90
+    style X fill:#FFD700
+    style CC fill:#FFD700
+

@@ -98,11 +98,6 @@ pub struct PackLockfile {
 
     /// Version of ggen that created this lockfile
     pub ggen_version: String,
-
-    /// Policy profile for pack resolution (optional)
-    /// If not specified, defaults to "development" profile
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub profile: Option<String>,
 }
 
 /// A locked pack with its installation metadata
@@ -180,7 +175,6 @@ impl PackLockfile {
             packs: BTreeMap::new(),
             updated_at: Utc::now(),
             ggen_version: ggen_version.into(),
-            profile: None,
         }
     }
 

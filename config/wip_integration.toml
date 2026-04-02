@@ -1,0 +1,72 @@
+# WIP Integration Configuration
+# Real-time autonomous graph evolution from WIP events
+
+[wip]
+# WebSocket URL for WIP event stream
+ws_url = "ws://localhost:8080/events"
+
+# Enable automatic graph evolution from natural language events
+auto_evolve = true
+
+# Enable automatic code regeneration after evolution
+auto_regenerate = true
+
+# Minimum confidence threshold for accepting evolved graphs (0.0-1.0)
+# Events with confidence below this will be ignored
+confidence_threshold = 0.7
+
+# Connection settings
+reconnect_delay_secs = 5
+max_reconnect_attempts = 0  # 0 = infinite retries
+connection_timeout_secs = 30
+
+[feedback]
+# Send telemetry and status updates back to WIP
+send_telemetry = true
+
+# Send generated artifacts back to WIP
+send_artifacts = true
+
+[processing]
+# Event types that trigger autonomous processing
+# Valid types: requirement, specification, document, review, test, config
+enabled_event_types = ["requirement", "specification", "document"]
+
+# Batch processing settings
+batch_size = 10
+batch_timeout_secs = 30
+
+[security]
+# Enable event validation
+validate_events = true
+
+# Enable rate limiting
+enable_rate_limit = true
+max_events_per_minute = 60
+
+# Event signature verification (optional)
+verify_signatures = false
+# public_key = "your-ed25519-public-key"
+
+[logging]
+# Log level for WIP integration (trace, debug, info, warn, error)
+log_level = "info"
+
+# Log all events to file
+log_events = true
+log_path = ".swarm/wip_events.log"
+
+# Example WIP server configurations for different environments
+
+[environments.development]
+ws_url = "ws://localhost:8080/events"
+confidence_threshold = 0.6  # Lower threshold for dev
+
+[environments.staging]
+ws_url = "wss://staging.wip.example.com/events"
+confidence_threshold = 0.7
+
+[environments.production]
+ws_url = "wss://wip.example.com/events"
+confidence_threshold = 0.8  # Higher threshold for prod
+verify_signatures = true

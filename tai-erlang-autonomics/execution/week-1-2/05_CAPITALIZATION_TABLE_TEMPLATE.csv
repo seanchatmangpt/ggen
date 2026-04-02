@@ -1,0 +1,11 @@
+Shareholder Name,Share Class,Shares Issued,Par Value,Issue Price,Aggregate Value,Percentage Ownership,Vesting Schedule,Strike Price (Options),Notes
+[Founder Name],Common,1000000,0.0001,0.0001,100.00,10.00%,4 years with 1-year cliff,N/A,Founder A - Restricted Stock Agreement pending
+[Co-Founder Name],Common,1000000,0.0001,0.0001,100.00,10.00%,4 years with 1-year cliff,N/A,Founder B - Restricted Stock Agreement pending
+Reserved for Options,Common,2000000,0.0001,0.0001,200.00,20.00%,Various,0.0001,Employee stock option pool (20% pool)
+Available for Future Issuance,Common,5000000,0.0001,0.0001,500.00,50.00%,N/A,N/A,Future rounds and cap grants
+Preferred Stock (Series A),Preferred,0,0.0001,TBD,0.00,0.00%,N/A,N/A,Reserved for future financing round
+Preferred Stock (Series B),Preferred,0,0.0001,TBD,0.00,0.00%,N/A,N/A,Reserved for future financing round
+,,,,,,,,,
+TOTALS:,Common,10000000,0.0001,,1000.00,100.00%,,,
+,Preferred,0,0.0001,,0.00,0.00%,,,
+,TOTAL AUTHORIZED,15000000,,,1000.00,100.00%,,,

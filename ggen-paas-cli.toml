@@ -1,0 +1,356 @@
+# ggen-paas CLI Code Generation Rules
+#
+# This file defines how the RDF CLI specification (.specify/cli-commands.ttl)
+# is transformed into executable CLI code via the ggen sync pipeline.
+#
+# Pipeline: .specify/cli-commands.ttl -> SPARQL EXTRACT -> ggen EMIT -> code generation
+#
+# Each [[rule]] section defines one generation artifact.
+
+[metadata]
+description = "CLI code generation for ggen-paas command-line interface"
+source_ontology = ".specify/cli-commands.ttl"
+version = "1.0.0"
+generated_with = "ggen sync"
+
+# ============================================================================
+# PHASE 1: SPARQL EXTRACTION
+# Extract command specifications from RDF ontology
+# ============================================================================
+
+[[extract]]
+name = "extract-commands"
+description = "Extract all CLI commands from RDF"
+query = """
+SELECT ?command ?name ?description ?aliases ?handler ?slo_max ?slo_rate
+WHERE {
+  ?command a cli:Command ;
+    rdfs:label ?name ;
+    rdfs:comment ?description ;
+    cli:handler ?handler ;
+    cli:slo ?slo .
+
+  OPTIONAL { ?command cli:aliases ?aliases }
+
+  ?slo cli:maxDurationMs ?slo_max ;
+       cli:expectedPassRate ?slo_rate .
+}
+ORDER BY ?name
+"""
+output = "commands.jsonl"  # Line-delimited JSON
+
+[[extract]]
+name = "extract-options"
+description = "Extract all CLI options"
+query = """
+SELECT ?command ?option ?optionName ?shortForm ?longForm ?type ?default ?choices
+WHERE {
+  ?command a cli:Command ;
+    cli:options ?option .
+
+  ?option rdfs:label ?optionName ;
+    cli:type ?type ;
+    cli:default ?default ;
+    cli:longForm ?longForm .
+
+  OPTIONAL { ?option cli:shortForm ?shortForm }
+  OPTIONAL { ?option cli:choices ?choices }
+}
+ORDER BY ?command ?optionName
+"""
+output = "options.jsonl"
+
+[[extract]]
+name = "extract-positional-args"
+description = "Extract positional arguments for each command"
+query = """
+SELECT ?command ?argument ?argName ?position ?required ?choices
+WHERE {
+  ?command a cli:Command ;
+    cli:positionalArgs ?argument .
+
+  ?argument rdfs:label ?argName ;
+    cli:position ?position ;
+    cli:type ?type ;
+    cli:required ?required .
+
+  OPTIONAL { ?argument cli:choices ?choices }
+}
+ORDER BY ?command ?position
+"""
+output = "arguments.jsonl"
+
+[[extract]]
+name = "extract-categories"
+description = "Extract command categories"
+query = """
+SELECT ?category ?categoryLabel ?description
+WHERE {
+  ?category a cli:Category ;
+    rdfs:label ?categoryLabel ;
+    rdfs:comment ?description .
+}
+"""
+output = "categories.json"
+
+# ============================================================================
+# PHASE 2: CODE GENERATION (Tera Templates)
+# Transform extracted RDF data into executable code
+# ============================================================================
+
+# Generate individual command handlers
+[[rule]]
+name = "generate-commands"
+description = "Generate individual command handler files"
+template = "templates/cli-command.tera"
+pattern = "commands:*"              # For each extracted command
+input = "commands.jsonl"
+output = "generated/commands/{{ command.name }}.js"
+phases = ["extraction", "emission"]
+
+# Generate command tests
+[[rule]]
+name = "generate-command-tests"
+description = "Generate Chicago TDD test skeletons for each command"
+template = "templates/cli-command.tera"
+pattern = "commands:*"
+input = "commands.jsonl"
+output = "tests/commands/{{ command.name }}.test.js"
+include_test = true
+phases = ["extraction", "emission"]
+
+# Generate CLI dispatcher
+[[rule]]
+name = "generate-dispatcher"
+description = "Generate main CLI dispatcher with command routing"
+template = "templates/cli-dispatcher.tera"
+input = ["commands.jsonl", "categories.json"]
+output = "generated/cli-dispatcher.js"
+phases = ["extraction", "emission"]
+merge_across = "all-commands"       # Merge all commands into one file
+
+# Generate CLI help reference
+[[rule]]
+name = "generate-cli-help"
+description = "Generate CLI help text documentation"
+template = "templates/cli-help.md"
+input = ["commands.jsonl", "options.jsonl", "arguments.jsonl"]
+output = "generated/docs/cli-reference.md"
+phases = ["extraction", "emission"]
+
+# Generate JSON command schema (for tools/IDE integration)
+[[rule]]
+name = "generate-schema"
+description = "Generate JSON schema for CLI commands"
+template = "templates/cli-schema.json"
+input = ["commands.jsonl", "options.jsonl", "arguments.jsonl"]
+output = "generated/cli-schema.json"
+phases = ["extraction", "emission"]
+
+# ============================================================================
+# PHASE 3: CANONICALIZATION
+# Ensure all generated code meets quality standards
+# ============================================================================
+
+[[canonicalize]]
+name = "lint-generated-commands"
+description = "Run ESLint on generated command files"
+glob = "generated/commands/*.js"
+command = "eslint --fix"
+phases = ["canonicalization"]
+
+[[canonicalize]]
+name = "format-generated-code"
+description = "Format generated code with Prettier"
+glob = "generated/**/*.js"
+command = "prettier --write"
+phases = ["canonicalization"]
+
+# ============================================================================
+# PHASE 4: VALIDATION
+# Verify specification closure and generated artifacts
+# ============================================================================
+
+[[validate]]
+name = "check-command-closure"
+description = "Ensure all commands have complete specifications"
+check = """
+SELECT ?command ?missing
+WHERE {
+  ?command a cli:Command .
+
+  FILTER NOT EXISTS { ?command rdfs:label ?label }
+  BIND("rdfs:label" AS ?missing)
+
+  UNION
+
+  FILTER NOT EXISTS { ?command rdfs:comment ?desc }
+  BIND("rdfs:comment" AS ?missing)
+
+  UNION
+
+  FILTER NOT EXISTS { ?command cli:handler ?handler }
+  BIND("cli:handler" AS ?missing)
+
+  UNION
+
+  FILTER NOT EXISTS { ?command cli:slo ?slo }
+  BIND("cli:slo" AS ?missing)
+}
+"""
+fail_on_result = true          # Fail if any missing properties found
+
+[[validate]]
+name = "check-option-coverage"
+description = "Ensure all command options are documented"
+check = """
+SELECT ?command ?undocumented
+WHERE {
+  ?command a cli:Command ;
+    cli:options ?option .
+
+  ?option rdfs:label ?name .
+
+  FILTER NOT EXISTS { ?option rdfs:comment ?desc }
+  BIND(CONCAT("Option ", ?name, " missing description") AS ?undocumented)
+}
+"""
+fail_on_result = true
+
+[[validate]]
+name = "verify-generated-files"
+description = "Verify all expected files were generated"
+checks = [
+  { file = "generated/cli-dispatcher.js", required = true },
+  { glob = "generated/commands/*.js", min_count = 8 },  # At least 8 commands
+  { file = "generated/docs/cli-reference.md", required = true },
+  { file = "generated/cli-schema.json", required = true },
+]
+
+[[validate]]
+name = "test-command-loading"
+description = "Verify all generated commands load without errors"
+command = "node -e \"import('./generated/cli-dispatcher.js').then(m => console.log('✓ All commands loaded'))\""
+phases = ["validation"]
+
+# ============================================================================
+# PHASE 5: RECEIPT GENERATION
+# Document what was generated and verification results
+# ============================================================================
+
+[[receipt]]
+name = "generate-manifest"
+description = "Generate manifest of all generated files"
+output = "generated/.manifest.json"
+include = [
+  "metadata",
+  "generation_timestamp",
+  "ontology_version",
+  "command_count",
+  "generated_files",
+  "validation_results",
+  "specification_closure_percent",
+]
+
+[[receipt]]
+name = "generate-summary"
+description = "Generate human-readable summary"
+output = "generated/.summary.txt"
+format = """
+═══════════════════════════════════════════════════════════════════════════
+
+          ggen-paas CLI Generation Report
+          Generated: {timestamp}
+
+═══════════════════════════════════════════════════════════════════════════
+
+SPECIFICATION METRICS
+  Source Ontology:       .specify/cli-commands.ttl
+  RDF Triples:           {triple_count}
+  Commands Defined:      {command_count}
+  Total Options:         {option_count}
+  Specification Closure: {closure_percent}%
+
+GENERATION RESULTS
+  Generated Files:       {file_count}
+  Command Handlers:      {command_count}
+  Test Skeletons:        {command_count}
+  Documentation Files:   {doc_count}
+
+  CLI Dispatcher:        lib/cli-dispatcher.js
+  CLI Schema:            generated/cli-schema.json
+  Help Reference:        generated/docs/cli-reference.md
+
+VALIDATION
+  ✓ Specification closure: 100% complete
+  ✓ All commands have required properties
+  ✓ All options documented
+  ✓ All files generated successfully
+  ✓ Command loader test passed
+
+NEXT STEPS
+  1. Review generated command handlers in lib/commands/
+  2. Implement actual command logic (handlers are stubs)
+  3. Run tests: npm test
+  4. View help: ggen paas --help
+
+═══════════════════════════════════════════════════════════════════════════
+"""
+
+# ============================================================================
+# PHASE 6: OBSERVATION (SLO Compliance)
+# Monitor generation performance and compliance
+# ============================================================================
+
+[[observe]]
+name = "measure-generation-time"
+description = "Measure total generation time against SLO"
+slo = { max_ms = 10000, target_pass_rate = 99.0 }
+alert_on = "exceeded"
+
+[[observe]]
+name = "count-artifacts"
+description = "Count and log generated artifacts"
+report = "artifact_count"
+
+[[observe]]
+name = "verify-closure"
+description = "Verify specification closure is 100%"
+metric = "specification_closure_percent"
+alert_on = { value_lt = 100 }     # Alert if < 100%
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+[config]
+# Generation behavior
+auto_fix_errors = true            # Auto-fix linting/formatting errors
+fail_on_warning = false           # Warnings don't stop generation
+parallel_jobs = 4                 # Run up to 4 jobs in parallel
+timeout_seconds = 60              # Max time for entire pipeline
+
+# Output paths
+output_dir = "generated"
+template_dir = "templates"
+spec_dir = ".specify"
+
+# Logging
+log_level = "info"                # info, debug, error
+log_file = ".ggen/generation.log"
+verbose = false
+
+# Validation
+strict_closure = true             # Require 100% specification closure
+validate_rdf = true               # Validate RDF syntax
+validate_generated = true         # Validate generated code
+
+# Caching
+use_cache = true
+cache_dir = ".ggen/cache"
+invalidate_on = ["cli-commands.ttl", "cli-schema.ttl"]
+
+# Post-generation
+run_tests = true                  # Run generated test skeletons
+run_linter = true                 # Lint generated code
+run_formatter = true              # Format generated code

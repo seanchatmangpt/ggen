@@ -11,7 +11,7 @@ pub struct Namespaces;
 
 impl Namespaces {
     /// ggen marketplace namespace
-    pub const GGEN: &'static str = "http://ggen.dev/ontology#";
+    pub const GGEN: &'static str = "https://ggen.io/marketplace/";
 
     /// RDF namespace
     pub const RDF: &'static str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -39,7 +39,7 @@ impl Classes {
     /// Create a class URI
     #[must_use]
     pub fn uri(name: &str) -> String {
-        format!("{}{}", Namespaces::GGEN, name)
+        format!("{}classes/{}", Namespaces::GGEN, name)
     }
 
     /// Package class
@@ -85,7 +85,7 @@ pub struct Properties;
 impl Properties {
     /// Create a property URI
     pub fn uri(name: &str) -> String {
-        format!("{}{}", Namespaces::GGEN, name)
+        format!("{}properties/{}", Namespaces::GGEN, name)
     }
 
     /// Package ID property
@@ -182,11 +182,6 @@ impl Properties {
     pub fn public_key() -> String {
         Self::uri("publicKey")
     }
-
-    /// Trust tier classification
-    pub fn trust_tier() -> String {
-        Self::uri("trustTier")
-    }
 }
 
 /// Named node URIs for common concepts
@@ -195,7 +190,7 @@ pub struct Uris;
 impl Uris {
     /// Create a resource URI
     pub fn resource(name: &str) -> String {
-        format!("{}{}", Namespaces::GGEN, name)
+        format!("{}resources/{}", Namespaces::GGEN, name)
     }
 
     /// RDF type

@@ -51,42 +51,6 @@ Following CLAUDE.md conventions:
 - **Deterministic**: Same inputs produce same outputs (with seed control)
 - **Testable**: Clear separation of pure logic and LLM interactions
 
-## Architecture
-
-```mermaid
-flowchart TD
-    subgraph Modules["Core Modules"]
-        PRED["Predictor<br/>Basic LLM call"]
-        COT["ChainOfThought<br/>Reasoning"]
-        REACT["ReAct<br/>Reason + Act"]
-    end
-
-    subgraph Optimizers["Optimizers"]
-        BFS["BootstrapFewShot<br/>Few-shot learning"]
-        MIPRO["MIPRO<br/>Self-improvement"]
-    end
-
-    subgraph Support["Support Systems"]
-        ADAPT["Adapters<br/>LLM integration"]
-        EVAL["Evaluation<br/>Metrics & scoring"]
-        ASSERT["Assertions<br/>Runtime validation"]
-    end
-
-    PRED --> ADAPT
-    COT --> ADAPT
-    REACT --> ADAPT
-
-    PRED --> BFS
-    COT --> MIPRO
-
-    ADAPT --> EVAL
-    EVAL --> ASSERT
-
-    style Modules fill:#e1f5ff
-    style Optimizers fill:#fff4e6
-    style Support fill:#c8e6c9
-```
-
 ## Module Organization
 
 ```

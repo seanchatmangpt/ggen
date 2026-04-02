@@ -1,0 +1,66 @@
+{{!--
+  Type Mapping Helpers
+  Maps XSD types to TypeScript and Zod types
+--}}
+
+{{!-- XSD to TypeScript type mapping --}}
+{{#*inline "xsdToTs"}}
+{{#if (eq xsdType "xsd:string")}}string{{/if}}
+{{#if (eq xsdType "xsd:integer")}}number{{/if}}
+{{#if (eq xsdType "xsd:int")}}number{{/if}}
+{{#if (eq xsdType "xsd:decimal")}}number{{/if}}
+{{#if (eq xsdType "xsd:float")}}number{{/if}}
+{{#if (eq xsdType "xsd:double")}}number{{/if}}
+{{#if (eq xsdType "xsd:boolean")}}boolean{{/if}}
+{{#if (eq xsdType "xsd:dateTime")}}Date{{/if}}
+{{#if (eq xsdType "xsd:date")}}Date{{/if}}
+{{#if (eq xsdType "xsd:time")}}string{{/if}}
+{{#if (eq xsdType "xsd:anyURI")}}string{{/if}}
+{{#unless xsdType}}unknown{{/unless}}
+{{/inline}}
+
+{{!-- XSD to Zod schema mapping --}}
+{{#*inline "xsdToZod"}}
+{{#if (eq xsdType "xsd:string")}}z.string(){{#if minLength}}.min({{minLength}}){{/if}}{{#if maxLength}}.max({{maxLength}}){{/if}}{{#if pattern}}.regex(/{{pattern}}/){{/if}}{{/if}}
+{{#if (eq xsdType "xsd:integer")}}z.number().int(){{#if minValue}}.min({{minValue}}){{/if}}{{#if maxValue}}.max({{maxValue}}){{/if}}{{/if}}
+{{#if (eq xsdType "xsd:int")}}z.number().int(){{#if minValue}}.min({{minValue}}){{/if}}{{#if maxValue}}.max({{maxValue}}){{/if}}{{/if}}
+{{#if (eq xsdType "xsd:decimal")}}z.number(){{#if minValue}}.min({{minValue}}){{/if}}{{#if maxValue}}.max({{maxValue}}){{/if}}{{/if}}
+{{#if (eq xsdType "xsd:float")}}z.number(){{#if minValue}}.min({{minValue}}){{/if}}{{#if maxValue}}.max({{maxValue}}){{/if}}{{/if}}
+{{#if (eq xsdType "xsd:double")}}z.number(){{#if minValue}}.min({{minValue}}){{/if}}{{#if maxValue}}.max({{maxValue}}){{/if}}{{/if}}
+{{#if (eq xsdType "xsd:boolean")}}z.boolean(){{/if}}
+{{#if (eq xsdType "xsd:dateTime")}}z.date(){{/if}}
+{{#if (eq xsdType "xsd:date")}}z.date(){{/if}}
+{{#if (eq xsdType "xsd:time")}}z.string(){{/if}}
+{{#if (eq xsdType "xsd:anyURI")}}z.string().url(){{/if}}
+{{#unless xsdType}}z.unknown(){{/unless}}
+{{/inline}}
+
+{{!-- Check if type is a date type --}}
+{{#*inline "isDateType"}}
+{{#if (or (eq xsdType "xsd:dateTime") (eq xsdType "xsd:date"))}}true{{/if}}
+{{/inline}}
+
+{{!-- Check if type is a number type --}}
+{{#*inline "isNumberType"}}
+{{#if (or (eq xsdType "xsd:integer") (eq xsdType "xsd:int") (eq xsdType "xsd:decimal") (eq xsdType "xsd:float") (eq xsdType "xsd:double"))}}true{{/if}}
+{{/inline}}
+
+{{!-- Check if type is a boolean type --}}
+{{#*inline "isBooleanType"}}
+{{#if (eq xsdType "xsd:boolean")}}true{{/if}}
+{{/inline}}
+
+{{!-- Check if type is a string type --}}
+{{#*inline "isStringType"}}
+{{#if (eq xsdType "xsd:string")}}true{{/if}}
+{{/inline}}
+
+{{!-- Format property name (camelCase) --}}
+{{#*inline "formatPropertyName"}}
+{{camelCase propertyName}}
+{{/inline}}
+
+{{!-- Format class name (PascalCase) --}}
+{{#*inline "formatClassName"}}
+{{pascalCase className}}
+{{/inline}}

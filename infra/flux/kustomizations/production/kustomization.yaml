@@ -1,0 +1,139 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: production
+
+# Reference base configuration
+bases:
+  - ../base
+
+# Override namespace
+namespaceOverride: production
+
+# Common labels for production
+commonLabels:
+  environment: production
+
+# Patches for production environment
+patches:
+  # Increase replicas in production for HA
+  - target:
+      kind: Deployment
+      name: tai-controller
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+
+  # Strict resource limits in production
+  - target:
+      kind: Deployment
+      name: tai-controller
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+  # Add pod disruption budget for HA
+  - target:
+      kind: Deployment
+      name: tai-controller
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/name
+                        operator: In
+                        values:
+                          - tai
+                  topologyKey: kubernetes.io/hostname
+
+  # Production logging level
+  - target:
+      kind: ConfigMap
+      name: tai-config
+    patch: |-
+      - op: replace
+        path: /data/LOG_LEVEL
+        value: "warn"
+      - op: add
+        path: /data/RUST_LOG
+        value: "warn,ggen=info"
+
+  # Enable structured logging
+  - target:
+      kind: ConfigMap
+      name: tai-config
+    patch: |-
+      - op: add
+        path: /data/LOG_FORMAT
+        value: "json"
+
+# Production-specific secrets
+secretGenerator:
+  - name: tai-production-secrets
+    literals:
+      - DATABASE_HOST=postgres-prod.db.svc.cluster.local
+      - DATABASE_PORT=5432
+      - DATABASE_SSL_MODE=require
+    behavior: merge
+
+# Production-specific ConfigMap
+configMapGenerator:
+  - name: tai-production-config
+    literals:
+      - ENVIRONMENT=production
+      - LOG_FORMAT=json
+      - METRICS_ENABLED=true
+
+# Image configuration for production (use releases)
+images:
+  - name: catalog-controller
+    newName: artifacts.example.com/catalog-controller
+    newTag: v0.2.0  # Use semantic version tags in production
+
+# Priority and policy configuration
+replicas:
+  - name: tai-controller
+    count: 3
+
+# Health check configuration
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+patchesStrategicMerge:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: tai-controller
+    spec:
+      template:
+        spec:
+          containers:
+            - name: controller
+              livenessProbe:
+                httpGet:
+                  path: /health
+                  port: 8080
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 3
+              readinessProbe:
+                httpGet:
+                  path: /ready
+                  port: 8080
+                initialDelaySeconds: 10
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 2

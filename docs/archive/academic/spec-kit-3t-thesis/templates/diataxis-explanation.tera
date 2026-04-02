@@ -1,0 +1,51 @@
+%% ============================================================================
+%% DIATAXIS EXPLANATION CHAPTER (Learning-Oriented + Theoretical)
+%% Chapter: {{ rows[0].chapterTitle }}
+%% ============================================================================
+
+\chapter{ {{- rows[0].chapterTitle -}} }
+\label{ch:{{ rows[0].chapterTitle | slugify }}}
+
+%% Diataxis quadrant marker
+\begin{center}
+\colorbox{ExplanationColor!20}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Diataxis Framework: EXPLANATION}\\
+    \textit{Understanding-oriented | Clarifying | Illuminating topics}
+    \end{minipage}
+}
+\end{center}
+
+\vspace{1em}
+
+{% if rows[0].concept %}
+%% Concept being explained
+\begin{quote}
+\textbf{Central Concept:} {{ rows[0].concept }}
+\end{quote}
+
+\vspace{1em}
+{% endif %}
+
+%% Sections (explanatory material)
+{% for row in rows %}
+\section{ {{- row.sectionTitle -}} }
+\label{sec:{{ row.sectionTitle | slugify }}}
+
+{{ row.sectionContent }}
+
+{% endfor %}
+
+%% Explanation completion marker
+\begin{center}
+\fcolorbox{ExplanationColor}{ExplanationColor!10}{
+    \begin{minipage}{0.9\textwidth}
+    \centering
+    \textbf{Conceptual Understanding Achieved}\\
+    For hands-on learning, see Chapter 3 (Tutorial). For technical details, see Chapter 5 (Reference).
+    \end{minipage}
+}
+\end{center}
+
+%% End of explanation chapter

@@ -1,0 +1,222 @@
+name: GCP Deployment and Testing
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'apps/**'
+      - 'container/**'
+      - 'terraform/**'
+      - '.github/workflows/gcp-deploy.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/**'
+      - 'container/**'
+      - 'terraform/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  ARTIFACT_REGISTRY: ${{ secrets.GCP_ARTIFACT_REGISTRY }}
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Erlang/OTP
+        uses: erlang/otp@v1
+        with:
+          otp-version: '26.0'
+
+      - name: Install Rebar3
+        run: |
+          curl -L https://s3.amazonaws.com/rebar3/rebar3 -o rebar3
+          chmod +x rebar3
+          sudo mv rebar3 /usr/local/bin/
+
+      - name: Compile
+        run: rebar3 compile
+
+      - name: Run unit tests
+        run: rebar3 eunit
+
+      - name: Run Common Test
+        run: rebar3 ct
+
+      - name: Run property tests
+        run: rebar3 proper
+
+  build-container:
+    name: Build Container Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build and push container image
+        run: |
+          IMAGE_TAG="${{ github.sha }}"
+          IMAGE_URI="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/tai-autonomics:${IMAGE_TAG}"
+          
+          docker build -f container/Containerfile -t ${IMAGE_URI} .
+          docker push ${IMAGE_URI}
+          
+          # Also tag as latest
+          docker tag ${IMAGE_URI} ${IMAGE_URI%:*}:latest
+          docker push ${IMAGE_URI%:*}:latest
+
+  terraform-validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+  terraform-plan:
+    name: Terraform Plan
+    needs: [build-container, terraform-validate]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -out=tfplan
+
+  terraform-apply:
+    name: Deploy to GCP
+    needs: [build-container, terraform-validate]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: |
+          terraform apply -auto-approve \
+            -var="project_id=${{ env.PROJECT_ID }}" \
+            -var="region=${{ env.REGION }}" \
+            -var="image_tag=${{ github.sha }}" \
+            -var="environment=${{ github.event.inputs.environment || 'dev' }}"
+
+  integration-tests:
+    name: GCP Integration Tests
+    needs: terraform-apply
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Erlang/OTP
+        uses: erlang/otp@v1
+        with:
+          otp-version: '26.0'
+
+      - name: Install Rebar3
+        run: |
+          curl -L https://s3.amazonaws.com/rebar3/rebar3 -o rebar3
+          chmod +x rebar3
+          sudo mv rebar3 /usr/local/bin/
+
+      - name: Get Cloud Run Service URL
+        id: get-url
+        run: |
+          SERVICE_URL=$(gcloud run services describe tai-autonomics \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+          echo "url=${SERVICE_URL}" >> $GITHUB_OUTPUT
+
+      - name: Run integration tests
+        env:
+          GCP_PROJECT_ID: ${{ env.PROJECT_ID }}
+          GCP_REGION: ${{ env.REGION }}
+          CLOUD_RUN_SERVICE_URL: ${{ steps.get-url.outputs.url }}
+        run: |
+          rebar3 ct --suite=test/gcp_integration_SUITE

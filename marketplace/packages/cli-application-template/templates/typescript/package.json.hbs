@@ -1,0 +1,41 @@
+{
+  "name": "{{package_name}}",
+  "version": "{{version}}",
+  "description": "{{description}}",
+  "main": "dist/index.js",
+  "bin": {
+    "{{bin_name}}": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0"{{#if has_prompts}},
+    "inquirer": "^9.2.0"{{/if}}{{#if config_yaml}},
+    "js-yaml": "^4.1.0"{{/if}}{{#if has_config}},
+    "fs-extra": "^11.2.0"{{/if}}
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/jest": "^29.5.0"{{#if has_prompts}},
+    "@types/inquirer": "^9.0.0"{{/if}}{{#if config_yaml}},
+    "@types/js-yaml": "^4.0.0"{{/if}},
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["cli", "command-line"],
+  "license": "MIT"
+}

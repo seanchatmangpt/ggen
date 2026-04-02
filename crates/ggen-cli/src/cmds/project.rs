@@ -693,7 +693,7 @@ fn generate(
             // Generate template
             let options = template::RenderWithRdfOptions {
                 template_path: template_path.clone(),
-                output_path: output_dir.join(template_path.file_stem().unwrap_or_default()),
+                output_path: output_dir.join("placeholder"),
                 rdf_files: Vec::new(),
                 variables: BTreeMap::new(),
                 force_overwrite: force,

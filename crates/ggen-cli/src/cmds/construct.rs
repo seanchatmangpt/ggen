@@ -269,41 +269,33 @@ pub fn validate(module_name: String) -> clap_noun_verb::Result<ConstructValidate
 fn perform_create(
     spec_path: &str, output_dir: &str,
 ) -> clap_noun_verb::Result<ConstructCreateOutput> {
-    // NOTE: Implementation blocked — ggen_ai::llm_construct module is
-    // temporarily disabled in ggen-ai/src/lib.rs (depends on dspy module).
-    // The builder, codegen, and SHACL pipeline code exist at
-    // crates/ggen-ai/src/llm_construct/ but cannot be imported until
-    // the module is re-enabled.
-
-    let module_name = Some(to_snake_case(
-        Path::new(spec_path)
-            .file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or("unknown"),
-    ));
+    // TODO: Implementation pending - depends on:
+    // - crates/ggen-ai/src/llm_construct/mod.rs (LLMConstructBuilder)
+    // - crates/ggen-ai/src/llm_construct/owl_extractor.rs (OWLExtractor)
+    // - crates/ggen-ai/src/llm_construct/shacl_generator.rs (SHACLGenerator)
+    // - crates/ggen-ai/src/llm_construct/codegen.rs (LLMConstructCodeGen)
 
     Ok(ConstructCreateOutput {
         status: "not_implemented".to_string(),
         spec_path: spec_path.to_string(),
         output_dir: output_dir.to_string(),
-        module_name,
+        module_name: None,
         generated_file: None,
         owl_stats: None,
         shacl_stats: None,
         dspy_stats: None,
         error: Some(
-            "LLM-Construct pipeline is temporarily disabled. \
-            The ggen_ai::llm_construct module (builder, codegen, SHACL generator) \
-            exists but is commented out in ggen-ai/src/lib.rs due to a dspy \
-            dependency. Re-enable the module and update this function to call \
-            LLMConstructBuilder::build() + LLMConstructCodeGen::generate_rust_module()."
+            "LLM-Construct implementation is not yet available. \
+            This command will be functional once the core LLM-Construct \
+            pipeline is implemented in ggen-ai crate."
                 .to_string(),
         ),
         next_steps: vec![
-            "Re-enable ggen_ai::llm_construct in ggen-ai/src/lib.rs".to_string(),
-            "Resolve dspy module dependency".to_string(),
-            "Wire LLMConstructBuilder::build() into this function".to_string(),
-            "Wire LLMConstructCodeGen::generate_rust_module() for code emission".to_string(),
+            "Implement OWL extractor (ggen-ai/src/llm_construct/owl_extractor.rs)".to_string(),
+            "Implement SHACL generator (ggen-ai/src/llm_construct/shacl_generator.rs)".to_string(),
+            "Implement DSPy mapper (existing in ggen-ai/src/dspy/)".to_string(),
+            "Implement code generator (ggen-ai/src/llm_construct/codegen.rs)".to_string(),
+            "See docs/LLM_CONSTRUCT_IMPLEMENTATION.md for specification".to_string(),
         ],
     })
 }
@@ -315,13 +307,12 @@ fn perform_create(
 /// - cargo make lint (clippy warnings)
 /// - cargo make test (test suite)
 fn perform_validate(module_name: &str) -> clap_noun_verb::Result<ConstructValidateOutput> {
-    // NOTE: Validation depends on construct creation being implemented first.
-    // Once constructs can be created, this function should use
-    // std::process::Command to run:
-    //   - cargo make check  (compilation, <5s SLO)
-    //   - cargo make lint   (clippy warnings)
-    //   - cargo make test   (test suite, <30s SLO)
-    // and parse output into ValidationResult structs with timing.
+    // TODO: Implementation pending - will use:
+    // - std::process::Command to run cargo make check
+    // - std::process::Command to run cargo make lint
+    // - std::process::Command to run cargo make test
+    // - Capture output and parse results
+    // - Measure execution time for SLO validation
 
     Ok(ConstructValidateOutput {
         status: "not_implemented".to_string(),
@@ -330,16 +321,15 @@ fn perform_validate(module_name: &str) -> clap_noun_verb::Result<ConstructValida
         lint_result: None,
         test_result: None,
         error: Some(
-            "Construct validation is blocked until construct creation is implemented. \
-            Once available, this will run cargo make check/lint/test against the \
-            generated construct module and report results with SLO timing."
+            "LLM-Construct validation is not yet available. \
+            This command will be functional once the core LLM-Construct \
+            pipeline is implemented."
                 .to_string(),
         ),
         next_steps: vec![
             "Implement construct creation first (ggen construct create)".to_string(),
-            "Use std::process::Command to run cargo make check/lint/test".to_string(),
-            "Parse command output into ValidationResult with duration_ms".to_string(),
-            "Enforce SLOs: check <5s, lint pass, test <30s".to_string(),
+            "Add validation logic using std::process::Command".to_string(),
+            "Integrate with cargo make quality gates".to_string(),
         ],
     })
 }

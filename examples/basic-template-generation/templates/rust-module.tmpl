@@ -1,0 +1,123 @@
+---
+# Output file path - uses variable substitution and snake_case filter
+# The generated file will be: generated/<name_in_snake_case>.rs
+to: generated/{{ name | snake_case }}.rs
+
+# Variable definitions
+# Each variable must be provided when generating, either through:
+# - Command line: --var name=value
+# - Config file: vars section
+# - Interactive prompt
+vars:
+  name: string          # Module name (will be converted to snake_case)
+  description: string   # Module description for documentation
+---
+{# This is a Tera comment - it won't appear in generated code #}
+{# Template body starts here - everything below becomes the generated file #}
+
+//! {{ description }}
+//!
+//! This module was generated using ggen template system.
+//! It demonstrates basic template functionality including:
+//! - Variable substitution
+//! - Filter application (snake_case)
+//! - Documentation generation
+
+/// Main module for {{ name }}
+pub mod {{ name | snake_case }} {
+    use std::error::Error;
+    use std::fmt;
+
+    /// Result type for {{ name }} operations
+    pub type Result<T> = std::result::Result<T, {{ name | pascal_case }}Error>;
+
+    /// Error type for {{ name }} operations
+    #[derive(Debug, Clone)]
+    pub struct {{ name | pascal_case }}Error {
+        message: String,
+    }
+
+    impl {{ name | pascal_case }}Error {
+        /// Creates a new error with the given message
+        pub fn new(message: impl Into<String>) -> Self {
+            Self {
+                message: message.into(),
+            }
+        }
+    }
+
+    impl fmt::Display for {{ name | pascal_case }}Error {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "{{ name | pascal_case }} error: {}", self.message)
+        }
+    }
+
+    impl Error for {{ name | pascal_case }}Error {}
+
+    /// Initializes the {{ name }} module
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use {{ name | snake_case }}::initialize;
+    ///
+    /// let result = initialize();
+    /// assert!(result.is_ok());
+    /// ```
+    pub fn initialize() -> Result<()> {
+        println!("Initializing {{ name }}...");
+        Ok(())
+    }
+
+    /// Performs a basic operation in {{ name }}
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - Input data for the operation
+    ///
+    /// # Returns
+    ///
+    /// Returns Ok with the result string, or Err on failure
+    pub fn process(input: &str) -> Result<String> {
+        if input.is_empty() {
+            return Err({{ name | pascal_case }}Error::new("Input cannot be empty"));
+        }
+        Ok(format!("Processed: {}", input))
+    }
+
+    /// Shuts down the {{ name }} module cleanly
+    pub fn shutdown() -> Result<()> {
+        println!("Shutting down {{ name }}...");
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{{ name | snake_case }}::*;
+
+    #[test]
+    fn test_initialize() {
+        let result = initialize();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_process_valid_input() {
+        let result = process("test data");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "Processed: test data");
+    }
+
+    #[test]
+    fn test_process_empty_input() {
+        let result = process("");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_shutdown() {
+        let result = shutdown();
+        assert!(result.is_ok());
+    }
+}

@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+
+# Common labels and annotations
+commonLabels:
+  app.kubernetes.io/name: tai
+  app.kubernetes.io/component: controller
+
+commonAnnotations:
+  git.fluxcd.io/sync-timestamp: "2026-01-25T00:00:00Z"
+
+# Resources to include
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+# Image replacement for controlled deployments
+images:
+  - name: catalog-controller
+    newName: artifacts.example.com/catalog-controller
+    newTag: latest
+
+# Secrets from environment variables
+secretGenerator:
+  - name: tai-secrets
+    env: .env.secret
+    behavior: merge
+
+# ConfigMap generation
+configMapGenerator:
+  - name: tai-config
+    literals:
+      - LOG_LEVEL=info
+      - RUST_LOG=info
+    files:
+      - config.toml
+
+# Variable references for cross-resource patching
+vars:
+  - name: REPLICA_COUNT
+    objref:
+      kind: Deployment
+      name: tai-controller
+      apiVersion: apps/v1
+    fieldref:
+      fieldpath: spec.replicas

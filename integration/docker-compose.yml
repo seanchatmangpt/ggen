@@ -1,0 +1,31 @@
+# =============================================================================
+# Integration Stack - Craftplan + A2A Bridge
+# =============================================================================
+# This docker-compose runs Craftplan alongside the A2A bridge service
+
+services:
+  # =============================================================================
+  # Craftplan - Manufacturing ERP (already running separately)
+  # =============================================================================
+  # This connects to the existing Craftplan instance
+
+  # =============================================================================
+  # Craftplan-A2A Bridge Service
+  # =============================================================================
+  craftplan-a2a-bridge:
+    build:
+      context: ./craftplan-a2a-bridge
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    environment:
+      RUST_LOG: "info"
+      CRAFTPLAN_URL: "http://craftplan:4000"
+      BIND_ADDR: "0.0.0.0:5000"
+    networks:
+      - craftplan_default
+    restart: unless-stopped
+
+networks:
+  craftplan_default:
+    external: true

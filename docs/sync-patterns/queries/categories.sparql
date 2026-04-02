@@ -1,0 +1,27 @@
+# =============================================================================
+# SPARQL Query: Extract categories for how-to-use navigation
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+
+SELECT
+    ?category
+    ?categoryLabel
+    ?categoryOrder
+    ?categoryDescription
+    ?categorySlug
+    (COUNT(?pattern) AS ?patternCount)
+WHERE {
+    ?category a pl:PatternCategory ;
+              rdfs:label ?categoryLabel ;
+              pl:categoryOrder ?categoryOrder ;
+              pl:categoryDescription ?categoryDescription ;
+              pl:categorySlug ?categorySlug .
+
+    ?pattern pl:hasCategory ?category .
+}
+GROUP BY ?category ?categoryLabel ?categoryOrder ?categoryDescription ?categorySlug
+ORDER BY ?categoryOrder

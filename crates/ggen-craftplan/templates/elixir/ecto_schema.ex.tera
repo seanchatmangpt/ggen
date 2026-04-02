@@ -1,0 +1,166 @@
+{#- Ecto Schema Template - Generate database schema definitions -#}
+defmodule {{ module_path }} do
+  {%- if doc_comments %}
+  @moduledoc """
+  {{ doc_comments }}
+
+  Ecto schema for {{ entity_name }}.
+  """
+  {%- else %}
+  @moduledoc false
+  {%- endif %}
+
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  {%- if relationships %}
+  alias {{ module_prefix }}.{
+    {%- for rel in relationships | unique(attribute="related") %}
+      {{ rel.related }},
+    {%- endfor %}
+  }
+  {%- endif %}
+
+  @type t :: %__MODULE__{
+    {%- for attr in attributes %}
+    {{ attr.name }}: {{ attr | elixir_type }}{% if not loop.last %},{% endif %},
+    {%- endfor %}
+  }
+
+  schema "{{ table_name }}" do
+    {%- for attr in attributes %}
+      {%- if attr.name == "id" %}
+    field :id, :binary_id
+      {%- elif attr.type == "uuid" %}
+    field :{{ attr.name }}, :binary_id
+      {%- elif attr.type == "decimal" %}
+    field :{{ attr.name }}, :decimal
+      {%- elif attr.type == "utc_datetime" %}
+    field :{{ attr.name }}, :utc_datetime
+      {%- elif attr.type == "atom" %}
+    field :{{ attr.name }}, :string
+      {%- elif attr.type | replace(from="[]", to="") == "map" %}
+    field :{{ attr.name }}, :map
+      {%- elif attr.type | contains(value="[]") %}
+    field :{{ attr.name }}, {{ attr.type | replace(from="[]", to=":") }}s
+      {%- else %}
+    field :{{ attr.name }}, :{{ attr.type }}
+      {%- endif %}
+    {%- endfor %}
+
+    {%- for rel in relationships %}
+      {%- if rel.kind == "belongs_to" %}
+    belongs_to :{{ rel.name }}, {{ rel.related }}
+      {%- elif rel.kind == "has_many" %}
+    has_many :{{ rel.name }}, {{ rel.related }}
+      {%- elif rel.kind == "has_one" %}
+    has_one :{{ rel.name }}, {{ rel.related }}
+      {%- elif rel.kind == "many_to_many" %}
+    many_to_many :{{ rel.name }}, {{ rel.related }}, join_through: {{ rel.through }}
+      {%- endif %}
+    {%- endfor %}
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset({{ entity_name | to_snake }} \\ %__MODULE__{}, attrs) do
+    {{ entity_name | to_snake }}
+    |> cast(attrs, [
+      {%- for attr in attributes %}
+        {%- if not (attr.name == "id" or attr.name == "inserted_at" or attr.name == "updated_at") %}
+          :{{ attr.name }},
+        {%- endif %}
+      {%- endfor %}
+    ])
+    {%- if attributes | any(attr -> attr.unique == true) %}
+    |> validate_required([
+      {%- for attr in attributes %}
+        {%- if attr.allow_nil == false %}
+          :{{ attr.name }},
+        {%- endif %}
+      {%- endfor %}
+    ])
+    {%- endif %}
+    {%- for attr in attributes %}
+      {%- if attr.constraints.min_length or attr.constraints.max_length %}
+    |> validate_length(:{{ attr.name }}, min: {{ attr.constraints.min_length | default(value=0) }}, max: {{ attr.constraints.max_length | default(value=255) }})
+      {%- endif %}
+      {%- if attr.constraints.pattern %}
+    |> validate_format(:{{ attr.name }}, ~r/{{ attr.constraints.pattern }}/)
+      {%- endif %}
+      {%- if attr.constraints.one_of %}
+    |> validate_inclusion(:{{ attr.name }}, {{ attr.constraints.one_of }})
+      {%- endif %}
+      {%- if attr.constraints.min or attr.constraints.max %}
+    |> validate_number(:{{ attr.name }}, greater_than_or_equal_to: {{ attr.constraints.min | default(value=0) }}, less_than_or_equal_to: {{ attr.constraints.max | default(value=999999) }})
+      {%- endif %}
+    {%- endfor %}
+    {%- if relationships | any(rel -> rel.kind == "belongs_to") %}
+    |> cast_assoc([
+      {%- for rel in relationships %}
+        {%- if rel.kind == "belongs_to" %}
+          :{{ rel.name }},
+        {%- endif %}
+      {%- endfor %}
+    ])
+    {%- endif %}
+    {%- if attributes | any(attr -> attr.unique == true) %}
+    |> unique_constraint([
+      {%- for attr in attributes %}
+        {%- if attr.unique == true %}
+          :{{ attr.name }},
+        {%- endif %}
+      {%- endfor %}
+    ])
+    {%- endif %}
+  end
+
+  @doc """
+  Returns a list of all {{ entity_name }} records.
+  """
+  @spec list :: [%__MODULE__{}]
+  def list do
+    {{ module_prefix }}.Repo.all(__MODULE__)
+  end
+
+  @doc """
+  Gets a single {{ entity_name }} by ID.
+  """
+  @spec get(binary()) :: {:ok, %__MODULE__{}} | {:error, :not_found}
+  def get(id) do
+    case {{ module_prefix }}.Repo.get(__MODULE__, id) do
+      nil -> {:error, :not_found}
+      {{ entity_name | to_snake }} -> {:ok, {{ entity_name | to_snake }}}
+    end
+  end
+
+  @doc """
+  Creates a new {{ entity_name }}.
+  """
+  @spec create(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def create(attrs \\ %{}) do
+    %__MODULE__{}
+    |> changeset(attrs)
+    |> {{ module_prefix }}.Repo.insert()
+  end
+
+  @doc """
+  Updates a {{ entity_name }}.
+  """
+  @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def update(%__MODULE__{} = {{ entity_name | to_snake }}, attrs) do
+    {{ entity_name | to_snake }}
+    |> changeset(attrs)
+    |> {{ module_prefix }}.Repo.update()
+  end
+
+  @doc """
+  Deletes a {{ entity_name }}.
+  """
+  @spec delete(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def delete(%__MODULE__{} = {{ entity_name | to_snake }}) do
+    {{ entity_name | to_snake }}
+    |> {{ module_prefix }}.Repo.delete()
+  end
+end

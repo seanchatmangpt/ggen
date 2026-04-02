@@ -1,0 +1,23 @@
+use actix_web::web;
+
+use super::handlers::{
+    create_product, create_user, get_product, get_user, list_products, list_users, AppState,
+};
+
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    // Initialize application state
+    let app_state = web::Data::new(AppState::new());
+
+    cfg.app_data(app_state)
+        .service(
+            web::scope("{{api_prefix}}")
+                // User routes
+                .route("/users", web::get().to(list_users))
+                .route("/users", web::post().to(create_user))
+                .route("/users/{id}", web::get().to(get_user))
+                // Product routes
+                .route("/products", web::get().to(list_products))
+                .route("/products", web::post().to(create_product))
+                .route("/products/{id}", web::get().to(get_product)),
+        );
+}

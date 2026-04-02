@@ -1,0 +1,33 @@
+{application, tai_autonomics,
+ [
+  {description, "TAI Erlang Autonomics - Production SKU runtime"},
+  {vsn, "1.0.0"},
+  {registered, [
+    tai_autonomics_sup,
+    tai_http,
+    governance_sup,
+    receipt_ledger_sup,
+    cluster_sup,
+    observability_sup
+  ]},
+  {applications, [
+    kernel,
+    stdlib,
+    sasl,
+    cowboy,
+    jsx,
+    jose,
+    gproc,
+    poolboy,
+    prometheus,
+    opentelemetry,
+    opentelemetry_api
+  ]},
+  {env, [
+    {port, 8080},
+    {gcp_project_id, "tai-autonomics"},
+    {firestore_enabled, true},
+    {verify_signatures, false}
+  ]},
+  {mod, {tai_autonomics_app, []}}
+ ]}.

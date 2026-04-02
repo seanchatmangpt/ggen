@@ -1,0 +1,83 @@
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    basetype/.style={rectangle, draw, fill=blue!15, minimum width=1.5cm, minimum height=0.6cm, font=\small},
+    uniontype/.style={rectangle, draw, fill=purple!15, rounded corners, minimum width=2.5cm, minimum height=0.8cm, font=\small},
+    guard/.style={ellipse, draw, fill=green!20, minimum width=2cm, minimum height=0.7cm, font=\small},
+    narrowed/.style={rectangle, draw, fill=orange!20, thick, minimum width=2cm, minimum height=0.7cm, font=\small},
+    arrow/.style={->, >=stealth, thick},
+    composition/.style={->, >=stealth, thick, color=purple!60},
+    node distance=0.4cm
+]
+
+% Base types layer
+\node[basetype] (string) at (-3,5) {string};
+\node[basetype] (number) at (-1,5) {number};
+\node[basetype] (boolean) at (1,5) {boolean};
+\node[basetype] (unknown) at (3,5) {unknown};
+
+\node[font=\footnotesize\bfseries, anchor=west] at (-5,5) {Base Types:};
+
+% Union type layer
+\node[uniontype] (union1) at (0,3.5) {BlogPost | Draft | Archived};
+\node[font=\footnotesize\bfseries, anchor=west] at (-5,3.5) {Union Types:};
+
+\draw[arrow] (string) -- (union1);
+\draw[arrow] (number) -- (union1);
+\draw[arrow] (unknown) -- (union1);
+
+% Discriminated union layer
+\node[uniontype, fill=cyan!15] (disc1) at (-2,2) {\{type: 'draft'\}};
+\node[uniontype, fill=cyan!15] (disc2) at (2,2) {\{type: 'published'\}};
+\node[font=\footnotesize\bfseries, anchor=west] at (-5,2) {Discriminated:};
+
+\draw[arrow] (union1) -- (disc1);
+\draw[arrow] (union1) -- (disc2);
+
+% Type guard functions layer
+\node[guard] (ispub) at (-2.5,0.5) {isPublished()};
+\node[guard] (isdraft) at (0.5,0.5) {isDraft()};
+\node[guard] (isarch) at (3.5,0.5) {isArchived()};
+
+\node[font=\footnotesize\bfseries, anchor=west] at (-5,0.5) {Type Guards:};
+
+\draw[arrow] (disc1) -- (isdraft);
+\draw[arrow] (disc2) -- (ispub);
+\draw[arrow] (union1) -- (isarch);
+
+% Narrowing effect
+\node[narrowed] (narrow1) at (-2,-1) {Draft};
+\node[narrowed] (narrow2) at (2,-1) {Published};
+
+\node[font=\footnotesize\bfseries, anchor=west] at (-5,-1) {Narrowed Types:};
+
+\draw[arrow, color=green!60, thick] (isdraft) -- (narrow1);
+\draw[arrow, color=green!60, thick] (ispub) -- (narrow2);
+
+% Composition operators
+\node[guard, fill=yellow!20] (and) at (-2,-2.5) {guard1 \&\& guard2};
+\node[guard, fill=yellow!20] (or) at (2,-2.5) {guard1 || guard2};
+
+\node[font=\footnotesize\bfseries, anchor=west] at (-5,-2.5) {Composition:};
+
+\draw[composition] (narrow1) -- (and);
+\draw[composition] (narrow2) -- (or);
+
+\node[narrowed, fill=red!15] (composed) at (0,-4) {Draft \& Editable};
+\draw[arrow, color=purple!60, thick] (and) -- (composed);
+\draw[arrow, color=purple!60, thick] (or) -- (composed);
+
+% Legend
+\node[draw, rectangle, fill=white, minimum width=2cm, minimum height=1.5cm] at (5.5,-3) {};
+\node[font=\tiny\bfseries] at (5.5,-2.3) {Effects:};
+\draw[arrow, color=green!60, thick] (4.5,-2.7) -- (5,-2.7);
+\node[font=\tiny] at (6,-2.7) {Narrows};
+\draw[composition] (4.5,-3.1) -- (5,-3.1);
+\node[font=\tiny] at (6,-3.1) {Composes};
+\draw[arrow] (4.5,-3.5) -- (5,-3.5);
+\node[font=\tiny] at (6,-3.5) {Derives};
+
+\end{tikzpicture}
+\caption{Type Guard Composition for Type Narrowing. Base types combine into union types, which can be discriminated using type guards. Guards compose with logical operators (\&\& and ||) to enable precise type narrowing, allowing TypeScript to infer more specific types within conditional branches.}
+\label{fig:type-guard-composition}
+\end{figure}
