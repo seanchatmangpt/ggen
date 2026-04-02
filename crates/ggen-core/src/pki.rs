@@ -524,11 +524,18 @@ pub fn verify_ed25519(message: &[u8], signature_hex: &str, public_key_b64: &str)
 mod tests {
     use super::*;
     use ed25519_dalek::{Signer, SigningKey};
-    use rand::rngs::OsRng;
 
-    /// Helper: generate a valid keypair and return (TrustedKeyEntry, SigningKey).
+    /// Helper: generate a deterministic keypair from a name-based seed.
+    /// Uses SigningKey::from_bytes to avoid rand version conflicts.
     fn generate_test_key(name: &str, purpose: &str) -> (TrustedKeyEntry, SigningKey) {
-        let signing_key = SigningKey::generate(&mut OsRng);
+        let mut seed = [0u8; 32];
+        let name_bytes = name.as_bytes();
+        for (i, &b) in name_bytes.iter().enumerate().take(32) {
+            seed[i] = b;
+        }
+        // Ensure at least some non-zero bytes for valid key
+        if seed[0] == 0 { seed[0] = 1; }
+        let signing_key = SigningKey::from_bytes(&seed);
         let verifying_key = signing_key.verifying_key();
         let pk_bytes = verifying_key.to_bytes();
         let pk_b64 = general_purpose::STANDARD.encode(pk_bytes);
@@ -649,7 +656,7 @@ mod tests {
     #[test]
     fn test_pki_manager_duplicate_public_key_rejected() {
         let (entry1, _) = generate_test_key("key-a", "general");
-        let mut entry2 = TrustedKeyEntry::new(
+        let entry2 = TrustedKeyEntry::new(
             "key-b".to_string(),
             entry1.public_key.clone(),
             "general".to_string(),
@@ -777,7 +784,8 @@ mod tests {
 
     #[test]
     fn test_verify_ed25519_standalone() {
-        let signing_key = SigningKey::generate(&mut OsRng);
+        let seed = [99u8; 32];
+        let signing_key = SigningKey::from_bytes(&seed);
         let verifying_key = signing_key.verifying_key();
         let pk_b64 = general_purpose::STANDARD.encode(verifying_key.to_bytes());
 

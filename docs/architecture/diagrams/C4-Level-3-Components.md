@@ -167,55 +167,80 @@ POLICY_ENFORCEMENTS.inc();
 
 ## Request Flow (Example: ProposePolicy)
 
-```
-1. Client → gRPC Handler (ProposePolicy request)
-2. Handler → Middleware
-   - Extract mTLS certificate (authentication)
-   - Check rate limit
-   - Create span (OpenTelemetry)
-3. Handler → Policy Service
-   - Validate policy structure
-   - Call Validator
-4. Policy Service → Validator
-   - Check policy_type valid
-   - Check rules valid SPARQL
-5. Policy Service → Cache
-   - Try to get related policies
-6. Cache miss → Repository
-   - Query Firestore
-   - Return to cache
-7. Repository → Firestore Client
-   - Execute query
-   - Return documents
-8. Policy Service → Enforcer
-   - Check authorization (RBAC)
-   - Apply policy rules
-   - Store new policy state
-9. Policy Service → Metrics
-   - Emit policy_enforcements counter
-   - Emit latency histogram
-10. Handler → Logger
-    - Log operation details (structured)
-11. Handler → Response
-    - Return Receipt with success status
+```mermaid
+sequenceDiagram
+    title ProposePolicy Request Flow
+    participant Client as gRPC Client
+    participant Handler as Handler<br/>(gRPC methods)
+    participant MW as Middleware<br/>(Auth, Rate Limit, OTEL)
+    participant PS as Policy Service
+    participant Val as Validator<br/>(Rules Engine)
+    participant Cache as Cache Layer<br/>(Redis)
+    participant Repo as Repository Pattern
+    participant FS as Firestore Client
+    participant Enf as Policy Enforcer
+    participant Metrics as Metrics Emitter
+    participant Log as Logger<br/>(OpenTelemetry)
+
+    Client->>Handler: ProposePolicy request
+    Handler->>MW: Decrypt token, authenticate
+    MW-->>Handler: Auth OK, rate limit check
+    Note over MW: mTLS cert extraction<br/>Rate limiting (token bucket)<br/>Span creation (OTEL)
+
+    Handler->>PS: Forward request
+    PS->>Val: Validate policy structure
+    Val-->>PS: policy_type valid<br/>SPARQL rules valid
+    Note over Val: Type checking<br/>SPARQL expressions<br/>SHACL shapes
+
+    PS->>Cache: Try get related policies
+    Cache-->>PS: Cache miss
+    PS->>Repo: Query related policies
+    Repo->>FS: Execute Firestore query
+    FS-->>Repo: Documents
+    Repo-->>PS: Related policies
+    Note over Repo,FS: Document queries<br/>Transaction support
+
+    PS->>Enf: Enforce policy (RBAC)
+    Enf-->>PS: Policy state updated
+    Note over Enf: Apply rules<br/>Update state<br/>Emit signals
+
+    PS->>Metrics: Emit counters/histograms
+    Note over Metrics: policy_enforcements<br/>latency histogram
+
+    Handler->>Log: Log operation details
+    Handler-->>Client: Receipt (success)
 ```
 
 ## Error Handling
 
-```
-gRPC Status Code
-    ↓
-Business Logic Exception
-    ↓
-Logger (error level)
-    ↓
-Metrics (error counter)
-    ↓
-Circuit Breaker (if service dependent failed)
-    ↓
-Response with error details
-    ↓
-Client retry (with exponential backoff)
+```mermaid
+sequenceDiagram
+    title Error Handling Flow
+    participant Client as gRPC Client
+    participant Handler as Handler
+    participant BL as Business Logic
+    participant Log as Logger<br/>(error level)
+    participant Metrics as Metrics<br/>(error counter)
+    participant CB as Circuit Breaker<br/>(downstream deps)
+
+    Client->>Handler: Request
+    Handler->>BL: Process request
+    BL--xHandler: Business Logic Exception
+
+    Handler->>Log: Log error (structured)
+    Note over Log: error level<br/>span context
+
+    Handler->>Metrics: Increment error counter
+
+    alt Downstream Service Failure
+        Handler->>CB: Check circuit state
+        CB-->>Handler: Circuit OPEN → Fail fast
+    end
+
+    Handler-->>Client: gRPC Status Code + error details
+
+    Note over Client: Retry with<br/>exponential backoff
+    Client->>Handler: Retry request
 ```
 
 ## Key Design Patterns

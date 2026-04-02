@@ -6,72 +6,124 @@
 
 ## C4 Container Diagram — Actual Dependencies
 
-```
-ggen-cli (entry point)
-  ├── ggen-core         (pipeline, graph, generation)
-  │     ├── ggen-utils      (shared error, SafePath, SafeCommand)
-  │     ├── ggen-canonical  (deterministic hashing)
-  │     ├── ggen-receipt    (Ed25519 receipts)
-  │     └── ggen-marketplace (packages, RDF store, install)
-  │           └── ggen-receipt
-  ├── ggen-ai            (LLM integration, providers, tools)
-  │     ├── ggen-utils
-  │     └── a2a-generated (optional, feature-gated)
-  ├── ggen-domain        (business logic, security, MAPE-K)
-  │     ├── ggen-core
-  │     ├── ggen-ai
-  │     └── ggen-utils
-  ├── ggen-a2a-mcp       (A2A↔MCP bridge, handlers)
-  │     ├── a2a-generated
-  │     ├── ggen-ai
-  │     ├── ggen-core
-  │     └── ggen-domain
-  ├── ggen-ontology-core (TripleStore, SPARQL, EntityMapper)
-  │     └── ggen-utils
-  ├── ggen-marketplace   (see above)
-  ├── ggen-receipt       (standalone, no ggen-* deps)
-  └── ggen-utils         (standalone, no ggen-* deps)
+```mermaid
+flowchart TD
+    CLI["ggen-cli<br/>(entry point)"]
 
-Standalone (zero ggen-* deps):
-  ggen-transport, ggen-canonical, ggen-utils, ggen-receipt
+    subgraph CorePath["Core Pipeline Path"]
+        GCORE["ggen-core<br/>pipeline, graph, generation"]
+        GUTILS["ggen-utils<br/>shared error, SafePath"]
+        GCANON["ggen-canonical<br/>deterministic hashing"]
+        GRECEIPT["ggen-receipt<br/>Ed25519 receipts"]
+        GMKT["ggen-marketplace<br/>packages, RDF store"]
+    end
 
-CRITICAL: ggen-core ↔ ggen-ai cycle was deliberately broken.
-  Both have comments documenting removed mutual dependencies.
+    subgraph AIPath["AI Integration Path"]
+        GAI["ggen-ai<br/>LLM integration"]
+        A2A["a2a-generated<br/>(feature-gated)"]
+    end
+
+    subgraph DomainPath["Domain Logic Path"]
+        GDOMAIN["ggen-domain<br/>business logic"]
+    end
+
+    subgraph A2APath["A2A Protocol Path"]
+        GMCP["ggen-a2a-mcp<br/>A2A↔MCP bridge"]
+    end
+
+    subgraph OntologyPath["Ontology Path"]
+        GONT["ggen-ontology-core<br/>TripleStore, SPARQL"]
+    end
+
+    CLI --> GCORE
+    CLI --> GAI
+    CLI --> GDOMAIN
+    CLI --> GMCP
+    CLI --> GONT
+    CLI --> GMKT
+
+    GCORE --> GUTILS
+    GCORE --> GCANON
+    GCORE --> GRECEIPT
+    GCORE --> GMKT
+
+    GAI --> GUTILS
+    GAI --> A2A
+
+    GDOMAIN --> GCORE
+    GDOMAIN --> GAI
+    GDOMAIN --> GUTILS
+
+    GMCP --> A2A
+    GMCP --> GAI
+    GMCP --> GCORE
+    GMCP --> GDOMAIN
+
+    GONT --> GUTILS
+
+    GMKT --> GRECEIPT
+
+    style CLI fill:#e1f5ff
+    style GCORE fill:#fff4e6
+    style GAI fill:#c8e6c9
+    style GDOMAIN fill:#ffcdd2
+    style GMCP fill:#fce4ec
+    style GONT fill:#e1f5ff
 ```
+
+**Standalone (zero ggen-* deps):**
+`ggen-transport`, `ggen-canonical`, `ggen-utils`, `ggen-receipt`
+
+**CRITICAL:** `ggen-core` ↔ `ggen-ai` cycle was deliberately broken.
+Both have comments documenting removed mutual dependencies.
 
 ---
 
 ## Production Sync Flow — The REAL Path
 
-```
-ggen sync
-  │
-  ├─ Path A (default, manifest-driven):
-  │   cmds/sync.rs::sync()                         [ggen-cli/src/cmds/sync.rs:305]
-  │     → SyncExecutor::new(options)                [ggen-core/src/codegen/executor.rs:249]
-  │     → SyncExecutor::execute()                   [ggen-core/src/codegen/executor.rs:275]
-  │       → ManifestParser::parse()
-  │       → QualityGateRunner::run_all()            [ggen-core/src/poka_yoke/quality_gates.rs]
-  │       → SyncExecutor::execute_full_sync()       [ggen-core/src/codegen/executor.rs:589]
-  │         → GenerationPipeline::new()             [ggen-core/src/codegen/pipeline.rs:255]
-  │         → GenerationPipeline::run()             [ggen-core/src/codegen/pipeline.rs:811]
-  │           1. load_ontology()                    [.ttl → Oxigraph Store]
-  │           2. execute_inference_rules()          [CONSTRUCT SPARQL rewrites]
-  │           3. execute_generation_rules()         [SELECT + Tera templates]
-  │           4. write output files
-  │
-  └─ Path B (--queries flag, ontology-first):
-      cmds/sync.rs::run_low_level_pipeline()
-        → ggen_core::sync::sync(config)             [ggen-core/src/sync/mod.rs:255]
-          1. load_ontology()                         [.ttl file]
-          2. run_sparql_queries()                    [*.rq files, lexicographic]
-          3. generate_code()                         [language-specific generators]
-          4. soundness validation                    [WvdA gates]
-          5. write_files() + SHA256 receipt
+```mermaid
+flowchart TD
+    SYNC["ggen sync"]
 
-NOT USED BY SYNC: StagedPipeline at ggen-core/src/v6/pipeline.rs:329
-  This is the constitutional μ₀-μ₅ pipeline with receipt provenance.
-  It exists but is only used in tests (tests/v6_pipeline_*_test.rs).
+    subgraph PATHA["Path A: Default Manifest-Driven"]
+        direction TB
+        A1["cmds/sync.rs::sync()<br/>[sync.rs:305]"]
+        A2["SyncExecutor::new(options)<br/>[executor.rs:249]"]
+        A3["SyncExecutor::execute()<br/>[executor.rs:275]"]
+        A4["ManifestParser::parse()"]
+        A5["QualityGateRunner::run_all()<br/>[quality_gates.rs]"]
+        A6["execute_full_sync()<br/>[executor.rs:589]"]
+        A7["GenerationPipeline::new()<br/>[pipeline.rs:255]"]
+        A8["GenerationPipeline::run()<br/>[pipeline.rs:811]"]
+        A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8
+    end
+
+    subgraph PATHB["Path B: Ontology-First (--queries flag)"]
+        direction TB
+        B1["run_low_level_pipeline()"]
+        B2["ggen_core::sync::sync(config)<br/>[sync/mod.rs:255]"]
+        B3["load_ontology()"]
+        B4["run_sparql_queries()"]
+        B5["generate_code()"]
+        B6["soundness validation"]
+        B7["write_files() + receipt"]
+        B1 --> B2 --> B3 --> B4 --> B5 --> B6 --> B7
+    end
+
+    subgraph STUB["NOT USED BY SYNC"]
+        S1["StagedPipeline::run()<br/>[v6/pipeline.rs:329]"]
+        S2["Constitutional mu0-mu5<br/>Tests only"]
+        S1 --> S2
+    end
+
+    SYNC --> PATHA
+    SYNC --> PATHB
+
+    style PATHA fill:#c8e6c9
+    style PATHB fill:#e1f5ff
+    style STUB fill:#f5f5f5
+    style S1 fill:#ffcdd2
+    style S2 fill:#ffcdd2
 ```
 
 ---
@@ -97,6 +149,38 @@ NOT USED BY SYNC: StagedPipeline at ggen-core/src/v6/pipeline.rs:329
 ---
 
 ## Stub Registry — What's Real vs Fake
+
+```mermaid
+flowchart TD
+    subgraph P0["P0 — Silently Wrong (always passes)"]
+        SHACL["SHACL Validation<br/>Returns empty shape set"]
+        SPARQL["SparqlValidator<br/>Empty violations Vec"]
+        SIGMA["Sigma Invariants (4/7)<br/>TypeSoundness, GuardSoundness<br/>ProjectionDeterminism, SLOPreservation"]
+    end
+
+    subgraph P1["P1 — Returns error or placeholder"]
+        CONSTRUCT["Construct command<br/>not_implemented"]
+        MKT_V3["Marketplace v3 get<br/>not yet implemented"]
+        PACK["Pack install (core)<br/>redirects to marketplace"]
+        JSON["JSON Schema parser<br/>not yet implemented"]
+        PYTHON["Python codegen<br/>not yet implemented"]
+        MCP["MCP tool exec<br/>Placeholder JSON"]
+        YAWL["YAWL watch mode<br/>not fully implemented"]
+        DSPY["DSPy optimizers<br/>Pass-through"]
+    end
+
+    subgraph P2["P2 — Returns wrong answer silently"]
+        CONFLICT["Marketplace conflict<br/>Always Ok — no semver"]
+        WEAK["WeakProof::is_valid<br/>Always true"]
+        GRAPH["Graph export formats<br/>Hardcoded example data"]
+        GEN["Pack generator<br/>Logs Would generate"]
+        SEARCH["Marketplace search/list<br/>Returns empty Vec"]
+    end
+
+    style P0 fill:#ffcdd2
+    style P1 fill:#fff4e6
+    style P2 fill:#fce4ec
+```
 
 ### P0 — Silently wrong (always passes when it shouldn't)
 
@@ -162,6 +246,22 @@ Rule: Crate-local Error + From<ggen_utils::Error> for boundary conversion.
 ---
 
 ## Dead Infrastructure (do not use)
+
+```mermaid
+flowchart LR
+    subgraph DEAD["Dead Infrastructure — No Consumers"]
+        TESTING["ggen-testing<br/>Complete TDD harness<br/>Zero consumers"]
+        MACROS["ggen-macros<br/>5 proc macros<br/>3 dead_code, 2 self-test only"]
+        DOMAIN_MK["ggen-domain::marketplace<br/>All functions return Err<br/>'Moved to ggen-cli'"]
+        V6["ggen-core::v6::V6Pipeline<br/>#[allow(dead_code)]"]
+        HIVE["ggen-core::config::hive_coordinator<br/>All dead_code"]
+        AHI["~4,200 lines AHI types<br/>Zero external consumers<br/>ahi_contract, doctrine_engine<br/>proof_carrier, temporal_fabric"]
+    end
+
+    style DEAD fill:#f5f5f5
+    style TESTING fill:#ffcdd2
+    style MACROS fill:#ffcdd2
+```
 
 | Crate/Module | Status | Why |
 |-------------|--------|-----|

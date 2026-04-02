@@ -27,10 +27,8 @@ members = [
   "crates/ggen-config-clap",
   "crates/ggen-test-audit",
   "crates/ggen-test-opt",
-  "crates/ggen-testing",
   "crates/ggen-e2e",
   "crates/ggen-node",
-  "crates/ggen-macros",
   # Ontology / RDF
   "crates/ggen-ontology-core",
   "crates/ggen-canonical",
@@ -38,7 +36,6 @@ members = [
   "crates/ggen-prompt-mfg",
   "crates/ggen-codegen",
   "crates/ggen-yawl",
-  "crates/ggen-craftplan",
   "crates/ggen-process-mining",
   # A2A / MCP Protocol
   "crates/a2a-generated",
@@ -54,16 +51,11 @@ exclude = [
   "examples/a2a-agent-lifecycle",
   "examples/distributed-consensus",
   "examples/e2e-complete-system",
-  "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
-  "examples/api-endpoint",
-  "examples/advanced-lifecycle-demo",
   "marketplace/packages/workflow-engine-cli",
   "examples/a2a-groq-agent",
   "examples/a2a-rs-agents",
   # Migrated crates (now separate projects)
-  "crates/ggen-workflow",
-  "crates/ggen-workflow/native",
 ]
 resolver = "2" # Use new resolver for better dependency resolution
 
@@ -122,7 +114,6 @@ ggen-node = { path = "crates/ggen-node", version = "0.2.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "0.2.0" }
 ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.2.0" }
 ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.2.0" }
-ggen-testing = { path = "crates/ggen-testing", version = "0.2.0" }
 ggen-e2e = { path = "crates/ggen-e2e", version = "0.2.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
 ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
@@ -148,9 +139,6 @@ ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.0.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 # TPS (Toyota Production System) Kaizen implementation (continuous improvement)
-# ggen-craftplan: RDF-driven Elixir code generation
-ggen-craftplan = { path = "crates/ggen-craftplan", version = "0.1.0" }
-
 # ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
 ggen-codegen = { path = "crates/ggen-codegen", version = "0.1.0" }
 
