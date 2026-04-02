@@ -3,8 +3,9 @@
 //! This module provides domain operations for working with packs,
 //! separating business logic from CLI concerns.
 
-pub mod compose;
-pub mod generator;
+pub mod capability_registry;
+pub mod dependency_graph;
+pub mod install;
 pub mod metadata;
 pub mod types;
 pub mod validate;

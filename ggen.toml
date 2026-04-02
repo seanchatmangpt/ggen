@@ -203,9 +203,7 @@ rules = [
     # Define agents in RDF with a2a:Agent nodes, then run: ggen sync
     { name = "elixir-a2a-agents",     query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/agents.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_agents.ex",     mode = "Overwrite" },
     { name = "elixir-a2a-router",     query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/router.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_router.ex",     mode = "Overwrite" },
-    { name = "elixir-a2a-supervisor", query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera", output_file = "crates/elixir-a2a-generated/lib/a2a_supervisor.ex", mode = "Overwrite" },
-    # Domain config generation
-    { name = "domain-config", source = ".specify/specs/014-a2a-integration/", output = "crates/ggen-domain/src/domain/", templates = "crates/ggen-core/templates/domain/" }
+    { name = "elixir-a2a-supervisor", query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera", output_file = "crates/elixir-a2a-generated/lib/a2a_supervisor.ex", mode = "Overwrite" }
 ]
 
 # Protected paths (glob patterns) - NEVER overwrite

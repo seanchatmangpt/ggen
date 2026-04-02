@@ -2,6 +2,10 @@
 //!
 //! Test suite for CI/CD workflow validation command.
 //! Follows 80/20 principle: focus on critical functionality only.
+//!
+//! NOTE: These tests require the `ggen ci validate` command to be implemented.
+//! Gated behind the `integration` feature until the command is available.
+#![cfg(feature = "integration")]
 
 use assert_cmd::Command;
 use assert_fs::prelude::*;

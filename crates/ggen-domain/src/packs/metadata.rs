@@ -6,22 +6,43 @@ use std::fs;
 use std::path::PathBuf;
 
 /// Get packs directory
+///
+/// Resolution order (first match wins):
+/// 1. `GGEN_PACKS_DIR` environment variable (highest priority)
+/// 2. Relative paths (for development / source checkout)
+/// 3. `~/.ggen/packs` (conventional home location for installed binaries)
 pub fn get_packs_dir() -> Result<PathBuf> {
-    // Try multiple locations
-    let possible_paths = vec![
+    // 1. GGEN_PACKS_DIR env var override — highest priority
+    if let Ok(env_dir) = std::env::var("GGEN_PACKS_DIR") {
+        let p = PathBuf::from(env_dir);
+        if p.exists() && p.is_dir() {
+            return Ok(p);
+        }
+    }
+
+    // 2. Relative paths (development / source checkout)
+    let relative_paths = vec![
         PathBuf::from("marketplace/packs"),
         PathBuf::from("../marketplace/packs"),
         PathBuf::from("../../marketplace/packs"),
     ];
 
-    for path in possible_paths {
+    for path in relative_paths {
         if path.exists() && path.is_dir() {
             return Ok(path);
         }
     }
 
+    // 3. ~/.ggen/packs (conventional home location for cargo-installed binaries)
+    if let Some(home) = dirs::home_dir() {
+        let p = home.join(".ggen").join("packs");
+        if p.exists() && p.is_dir() {
+            return Ok(p);
+        }
+    }
+
     Err(ggen_utils::error::Error::new(
-        "Packs directory not found. Expected marketplace/packs/",
+        "Packs directory not found. Set GGEN_PACKS_DIR or create ~/.ggen/packs/",
     ))
 }
 
@@ -94,9 +115,42 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_packs_dir_tries_multiple_paths() {
-        // This test verifies the function tries multiple paths
-        // Actual success depends on test environment
-        let _ = get_packs_dir();
+    fn test_ggen_packs_dir_env_var() {
+        let temp = tempfile::TempDir::new().unwrap();
+        std::env::set_var("GGEN_PACKS_DIR", temp.path().to_str().unwrap());
+        let result = get_packs_dir();
+        std::env::remove_var("GGEN_PACKS_DIR");
+        assert!(result.is_ok(), "expected Ok when GGEN_PACKS_DIR points to a valid dir");
+        assert_eq!(result.unwrap(), temp.path());
+    }
+
+    #[test]
+    fn test_ggen_packs_dir_env_var_missing_dir_skipped() {
+        // Points to a path that does not exist — should NOT succeed via env var,
+        // must fall through to other lookups (which also fail in CI) → Err
+        std::env::set_var("GGEN_PACKS_DIR", "/nonexistent/path/that/cannot/exist");
+        let result = get_packs_dir();
+        std::env::remove_var("GGEN_PACKS_DIR");
+        // We cannot assert Ok here because relative + home paths also absent in CI,
+        // but we confirm the function does not panic and returns a Result.
+        let _ = result;
+    }
+
+    #[test]
+    fn test_get_packs_dir_no_env_var_returns_err_when_absent() {
+        // Ensure no GGEN_PACKS_DIR is set; relative paths and home path absent in
+        // the test sandbox → function must return Err, not Ok(empty).
+        std::env::remove_var("GGEN_PACKS_DIR");
+        // Only assert Err if none of the fallback paths happen to exist.
+        let relative_exists = PathBuf::from("marketplace/packs").exists()
+            || PathBuf::from("../marketplace/packs").exists()
+            || PathBuf::from("../../marketplace/packs").exists();
+        let home_exists = dirs::home_dir()
+            .map(|h| h.join(".ggen").join("packs").exists())
+            .unwrap_or(false);
+        if !relative_exists && !home_exists {
+            let result = get_packs_dir();
+            assert!(result.is_err(), "expected Err when no packs dir is reachable");
+        }
     }
 }

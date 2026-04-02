@@ -89,7 +89,7 @@ fn load_optional_key(
     match public_key {
         Some(key_path) => {
             let key = read_verifying_key(&PathBuf::from(key_path))
-                .map_err(|e| clap_noun_verb::NounVerbError::argument_error(&e))?;
+                .map_err(clap_noun_verb::NounVerbError::argument_error)?;
             Ok(Some(key))
         }
         None => Ok(None),
@@ -133,7 +133,7 @@ fn verify_single_receipt(
                 receipt_file,
                 is_valid: false,
                 message:
-                    "Public key required for single receipt verification. Use --public-key <path>"
+                    "No public key provided and no local key found at .ggen/keys/verifying.key. Use --public-key <path> or run ggen sync first to generate local keys."
                         .to_string(),
                 operation_id: Some(receipt.operation_id.clone()),
                 timestamp: Some(format_timestamp(&receipt.timestamp)),
@@ -178,7 +178,7 @@ fn verify_receipt_chain(
             return Ok(VerifyOutput {
                 receipt_file,
                 is_valid: false,
-                message: "Public key required for chain verification. Use --public-key <path>"
+                message: "No public key provided and no local key found at .ggen/keys/verifying.key. Use --public-key <path> or run ggen sync first to generate local keys."
                     .to_string(),
                 operation_id: None,
                 timestamp: None,
@@ -237,13 +237,21 @@ fn verify(receipt_file: String, public_key: Option<String>) -> VerbResult<Verify
     }
 
     let file_content = fs::read_to_string(&receipt_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(&format!(
-            "Failed to read receipt file: {}",
-            e
-        ))
+        clap_noun_verb::NounVerbError::argument_error(format!("Failed to read receipt file: {}", e))
     })?;
 
-    let key = load_optional_key(&public_key)?;
+    // Auto-discover local key from .ggen/keys/verifying.key if no --public-key provided
+    let resolved_key_path = if public_key.is_some() {
+        public_key.clone()
+    } else {
+        let local_key = std::path::Path::new(".ggen/keys/verifying.key");
+        if local_key.exists() {
+            Some(local_key.to_string_lossy().to_string())
+        } else {
+            None
+        }
+    };
+    let key = load_optional_key(&resolved_key_path)?;
     verify_receipt_content(&receipt_file, &file_content, &key)
 }
 
@@ -255,17 +263,14 @@ fn info(receipt_file: String) -> VerbResult<InfoOutput> {
     let receipt_path = PathBuf::from(&receipt_file);
 
     if !receipt_path.exists() {
-        return Err(clap_noun_verb::NounVerbError::argument_error(&format!(
+        return Err(clap_noun_verb::NounVerbError::argument_error(format!(
             "Receipt file not found: {}",
             receipt_file
         )));
     }
 
     let file_content = fs::read_to_string(&receipt_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(&format!(
-            "Failed to read receipt file: {}",
-            e
-        ))
+        clap_noun_verb::NounVerbError::argument_error(format!("Failed to read receipt file: {}", e))
     })?;
 
     if let Ok(receipt) = serde_json::from_str::<Receipt>(&file_content) {
@@ -278,7 +283,7 @@ fn info(receipt_file: String) -> VerbResult<InfoOutput> {
             signature_present: !receipt.signature.is_empty(),
             previous_hash: receipt.previous_receipt_hash.clone(),
             own_hash: receipt.hash().map_err(|e| {
-                clap_noun_verb::NounVerbError::argument_error(&format!(
+                clap_noun_verb::NounVerbError::argument_error(format!(
                     "Failed to compute receipt hash: {}",
                     e
                 ))
@@ -298,7 +303,7 @@ fn info(receipt_file: String) -> VerbResult<InfoOutput> {
             signature_present: !latest.signature.is_empty(),
             previous_hash: latest.previous_receipt_hash.clone(),
             own_hash: latest.hash().map_err(|e| {
-                clap_noun_verb::NounVerbError::argument_error(&format!(
+                clap_noun_verb::NounVerbError::argument_error(format!(
                     "Failed to compute receipt hash: {}",
                     e
                 ))
@@ -330,15 +335,15 @@ fn chain_verify(chain_file: String, public_key: String) -> VerbResult<ChainVerif
     }
 
     let file_content = fs::read_to_string(&chain_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(&format!("Failed to read chain file: {}", e))
+        clap_noun_verb::NounVerbError::argument_error(format!("Failed to read chain file: {}", e))
     })?;
 
     let chain: ReceiptChain = serde_json::from_str(&file_content).map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(&format!("Failed to parse chain: {}", e))
+        clap_noun_verb::NounVerbError::argument_error(format!("Failed to parse chain: {}", e))
     })?;
 
     let verifying_key = read_verifying_key(&PathBuf::from(public_key))
-        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(&e))?;
+        .map_err(clap_noun_verb::NounVerbError::argument_error)?;
 
     let is_valid = chain.verify(&verifying_key).is_ok();
     let message = if is_valid {

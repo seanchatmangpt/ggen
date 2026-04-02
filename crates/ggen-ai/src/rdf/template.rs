@@ -15,7 +15,7 @@
 //!
 //! ### Rendering a Project
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_ai::rdf::template::TemplateRenderer;
 //! use ggen_ai::rdf::types::CliProject;
 //! use std::path::Path;

@@ -1,9 +1,11 @@
 [package]
 name = "ggen-codegen"
-version = "0.1.0"
+version = "6.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 description = "Generic code generation framework: trait-based, zero-cost abstractions"
 license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
 sha2 = "0.10"

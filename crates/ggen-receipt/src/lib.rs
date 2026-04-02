@@ -82,3 +82,30 @@ pub mod receipt;
 pub use chain::ReceiptChain;
 pub use error::{ReceiptError, Result};
 pub use receipt::{generate_keypair, hash_data, Receipt};
+
+/// Convenience function to create a new receipt chained to a parent.
+///
+/// Creates a receipt for `operation_id` with the given `input_hashes` and
+/// `output_hashes`, links it to `parent` via its hash, and signs it with
+/// `signing_key`. Returns the signed, chained receipt on success.
+///
+/// # Example
+///
+/// ```
+/// use ggen_receipt::{Receipt, create_chained_receipt, generate_keypair};
+///
+/// let (key, _vk) = generate_keypair();
+/// let parent = Receipt::new("parent-op".to_string(), vec![], vec![], None)
+///     .sign(&key).expect("sign");
+/// let child = create_chained_receipt(&parent, "child-op".to_string(), vec![], vec![], &key)
+///     .expect("chained");
+/// assert_eq!(child.previous_receipt_hash, Some(parent.hash().unwrap()));
+/// ```
+pub fn create_chained_receipt(
+    parent: &Receipt, operation_id: String, input_hashes: Vec<String>, output_hashes: Vec<String>,
+    signing_key: &ed25519_dalek::SigningKey,
+) -> Result<Receipt> {
+    Receipt::new(operation_id, input_hashes, output_hashes, None)
+        .chain(parent)?
+        .sign(signing_key)
+}

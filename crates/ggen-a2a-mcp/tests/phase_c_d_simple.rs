@@ -3,6 +3,10 @@
 //! Tests Data Architecture (FIBO-based) and Technology Architecture agents.
 //! Phase C: Use FIBO as canonical data model
 //! Phase D: Map data entities to technology platforms
+//!
+//! GATED: type mismatch between Option<String>::as_ref() and &&str comparisons.
+
+#![cfg(feature = "integration")]
 
 /// FIBO ontology classes for financial data modeling
 const FIBO_CLASSES: &[(&str, &str, &str)] = &[

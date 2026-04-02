@@ -1,10 +1,10 @@
 [package]
 name = "ggen-receipt"
-version = "0.2.0"
+version = "6.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Cryptographic receipt system for ggen operations"
 edition = "2021"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/seanchatmangpt/ggen"
 keywords = ["cryptography", "receipts", "verification", "blockchain"]
 categories = ["cryptography", "development-tools"]

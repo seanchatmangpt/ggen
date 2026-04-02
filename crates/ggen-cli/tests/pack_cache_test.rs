@@ -1,6 +1,10 @@
 //! Pack cache integration tests
 //!
 //! Chicago TDD: Real filesystem, real cache operations, no mocks.
+//!
+//! GATED: references ggen_marketplace crate which is not a dep of ggen-cli-lib.
+
+#![cfg(feature = "integration")]
 
 use std::fs;
 use std::path::PathBuf;

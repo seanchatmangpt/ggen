@@ -33,10 +33,11 @@ impl ProfileId {
 }
 
 /// Receipt specification for profile.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ReceiptSpec {
     /// No receipt required.
+    #[default]
     None,
     /// Unsigned receipt (digest only).
     DigestOnly,
@@ -44,12 +45,6 @@ pub enum ReceiptSpec {
     Signed,
     /// Signed and chained receipt (with hash links).
     SignedAndChained,
-}
-
-impl Default for ReceiptSpec {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 /// Runtime constraint for profile.
@@ -328,9 +323,13 @@ impl From<CustomPolicyRef> for PolicyRule {
             CustomPolicyRef::ForbidInferredCapabilities => PolicyRule::ForbidInferredCapabilities,
             CustomPolicyRef::RequireSignedReceipts => PolicyRule::RequireSignedReceipts,
             CustomPolicyRef::RequireExplicitRuntime => PolicyRule::RequireExplicitRuntime,
-            CustomPolicyRef::ForbidPublicRegistryInRegulated => PolicyRule::ForbidPublicRegistryInRegulated,
+            CustomPolicyRef::ForbidPublicRegistryInRegulated => {
+                PolicyRule::ForbidPublicRegistryInRegulated
+            }
             CustomPolicyRef::ForbidUnlistedPackages => PolicyRule::ForbidUnlistedPackages,
-            CustomPolicyRef::RequireSignatureVerification => PolicyRule::RequireSignatureVerification,
+            CustomPolicyRef::RequireSignatureVerification => {
+                PolicyRule::RequireSignatureVerification
+            }
             CustomPolicyRef::RequireSemanticVersioning => PolicyRule::RequireSemanticVersioning,
             CustomPolicyRef::ForbidVersionDowngrade => PolicyRule::ForbidVersionDowngrade,
             CustomPolicyRef::RequireCompositionReceipts => PolicyRule::RequireCompositionReceipts,
@@ -646,7 +645,10 @@ policies = ["require_signed_receipts"]
         std::fs::write(ggen_dir.join("profiles.toml"), toml).unwrap();
         let profiles = ProfileLoader::load(dir.path()).unwrap();
         assert_eq!(profiles.len(), 4);
-        let custom = profiles.iter().find(|p| p.id.as_str() == "my-team").unwrap();
+        let custom = profiles
+            .iter()
+            .find(|p| p.id.as_str() == "my-team")
+            .unwrap();
         assert_eq!(custom.name, "My Team");
         assert_eq!(custom.trust_requirements, TrustTier::CommunityReviewed);
     }
@@ -664,7 +666,10 @@ description = "Should be ignored"
         std::fs::write(ggen_dir.join("profiles.toml"), toml).unwrap();
         let profiles = ProfileLoader::load(dir.path()).unwrap();
         assert_eq!(profiles.len(), 3);
-        let builtin = profiles.iter().find(|p| p.id.as_str() == "enterprise-strict").unwrap();
+        let builtin = profiles
+            .iter()
+            .find(|p| p.id.as_str() == "enterprise-strict")
+            .unwrap();
         assert_eq!(builtin.name, "Enterprise Strict");
     }
 

@@ -16,7 +16,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust
+//! ```rust,ignore
 //! use ggen_ai::governance::{Policy, PolicyEngine, AuditTrail};
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {

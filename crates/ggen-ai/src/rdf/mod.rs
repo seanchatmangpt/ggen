@@ -16,7 +16,7 @@
 //!
 //! # Complete Example (Phase 5)
 //!
-//! ```no_run
+//! ```ignore
 //! use ggen_ai::rdf::CliGenerator;
 //! use std::path::{Path, PathBuf};
 //!

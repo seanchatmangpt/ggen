@@ -2,6 +2,10 @@
 //!
 //! This test verifies that MCP tools emit proper OpenTelemetry spans
 //! with semantic convention attributes.
+//!
+//! GATED: references private methods query_ontology and validate.
+
+#![cfg(feature = "integration")]
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 

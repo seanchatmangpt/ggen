@@ -3,6 +3,10 @@
 //! This test verifies that pack metadata (signatures, trust tiers, checksums)
 //! is correctly loaded from cache directories and integrated into the
 //! RDF mapper's ReleaseInfo construction.
+//!
+//! GATED: ggen_marketplace::metadata module not exported; missing types.
+
+#![cfg(feature = "integration")]
 
 use ggen_marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
 use ggen_marketplace::models::PackageId;

@@ -40,6 +40,7 @@ pub mod packs;
 pub mod project;
 pub mod rdf;
 pub mod shell;
+pub mod sync_profile;
 pub mod template;
 pub mod utils;
 
