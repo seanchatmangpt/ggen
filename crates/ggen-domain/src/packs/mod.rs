@@ -4,9 +4,13 @@
 //! separating business logic from CLI concerns.
 
 pub mod capability_registry;
+pub mod compose;
 pub mod dependency_graph;
+pub mod generator;
 pub mod install;
 pub mod metadata;
+pub mod registry;
+pub mod repository;
 pub mod types;
 pub mod validate;
 

@@ -97,32 +97,36 @@ impl From<serde_json::error::Error> for GgenError {
     }
 }
 
+impl From<GgenError> for ggen_utils::Error {
+    fn from(err: GgenError) -> Self {
+        ggen_utils::Error::new(&err.to_string())
+    }
+}
+
+impl From<GgenError> for clap_noun_verb::NounVerbError {
+    fn from(err: GgenError) -> Self {
+        clap_noun_verb::NounVerbError::execution_error(&err.to_string())
+    }
+}
+
 impl GgenError {
     /// Convert from clap noun-verb error
     pub fn from_clap_error(err: clap_noun_verb::NounVerbError) -> Self {
-        match err {
-            clap_noun_verb::NounVerbError::argument_error(msg) => {
-                GgenError::InvalidInput(msg)
-            }
-            clap_noun_verb::NounVerbError::execution_error(msg) => {
-                GgenError::CommandError(msg)
-            }
-            _ => GgenError::CommandError(err.to_string()),
-        }
+        GgenError::CommandError(err.to_string())
     }
 
     /// Convert from PaasError
-    pub fn from_paas_error(err: crate::commands::paas::errors::PaasError) -> Self {
+    pub fn from_paas_error(err: impl std::fmt::Display) -> Self {
         GgenError::PaasError(err.to_string())
     }
 
     /// Convert from PackReceiptError
-    pub fn from_pack_receipt_error(err: crate::cmds::packs_receipt::PackReceiptError) -> Self {
+    pub fn from_pack_receipt_error(err: impl std::fmt::Display) -> Self {
         GgenError::PackReceiptError(err.to_string())
     }
 
     /// Convert from ValidationError
-    pub fn from_validation_error(err: crate::validation::ValidationError) -> Self {
+    pub fn from_validation_error(err: impl std::fmt::Display) -> Self {
         GgenError::InvalidInput(err.to_string())
     }
 
@@ -157,6 +161,7 @@ impl GgenError {
             GgenError::FileError(_) => 127,
             GgenError::JsonError(_) => 127,
             GgenError::Internal(_) => 127,
+            _ => 1,
         }
     }
 
@@ -171,6 +176,7 @@ impl GgenError {
             GgenError::FileError(_) => "file",
             GgenError::JsonError(_) => "json",
             GgenError::Internal(_) => "internal",
+            _ => "unknown",
         }
     }
 }

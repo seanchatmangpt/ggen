@@ -7,7 +7,6 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tokio::sync::broadcast;
 use tracing::{debug, info, warn};
-use uuid::Uuid;
 
 /// Progress reporting system for async operations
 #[derive(Clone)]
@@ -87,7 +86,7 @@ impl ProgressReporter {
 
     /// Create a progress reporter for a specific operation
     pub fn for_operation(operation_name: &str) -> Self {
-        let mut reporter = Self::new();
+        let reporter = Self::new();
         reporter.start_operation(operation_name);
         reporter
     }
@@ -150,10 +149,10 @@ impl ProgressReporter {
         state.bytes_processed = bytes_processed;
         state.total_bytes = total_bytes;
 
-        let progress = if total_bytes > 0 {
+        let _progress = if total_bytes > 0 {
             (bytes_processed as f64 / total_bytes as f64) * 100.0
         } else {
-            0.0;
+            0.0
         };
 
         self.broadcast_event(ProgressEvent::DataProcessed {

@@ -22,11 +22,15 @@
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 
+use crate::error::GgenError;
+use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::FileTransaction;
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
+
+pub type Result<T> = std::result::Result<T, GgenError>;
 
 // ============================================================================
 // Output Types
@@ -428,14 +432,14 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 #[verb("init", "root")]
 pub fn init(
     path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>,
-) -> crate::Result<InitOutput> {
+) -> VerbResult<InitOutput> {
     // Thin CLI layer: parse arguments and delegate to helper
     let project_dir = path.unwrap_or_else(|| ".".to_string());
     let force = force.unwrap_or(false);
     let skip_hooks = skip_hooks.unwrap_or(false);
 
     // Delegate to initialization logic
-    perform_init(&project_dir, force, skip_hooks)
+    perform_init(&project_dir, force, skip_hooks).map_err(|e| e.into())
 }
 
 /// Helper function that performs the actual initialization.
@@ -456,7 +460,7 @@ pub fn init(
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
     project_dir: &str, force: bool, skip_hooks: bool,
-) -> crate::Result<InitOutput> {
+) -> std::result::Result<InitOutput, GgenError> {
     // Convert to Path for easier manipulation
     let base_path = Path::new(project_dir);
 

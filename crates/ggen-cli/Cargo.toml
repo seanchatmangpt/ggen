@@ -40,7 +40,9 @@ clap.workspace = true
 clap-noun-verb.workspace = true
 once_cell.workspace = true
 uuid.workspace = true
+indexmap.workspace = true
 futures.workspace = true
+async-trait.workspace = true
 
 # Local dependencies (use workspace = true pattern for consistency)
 ggen-utils.workspace = true
@@ -180,10 +182,3 @@ name = "sync_tests"
 path = "tests/sync_tests.rs"
 required-features = ["integration"]
 
-[[bench]]
-name = "marketplace_benchmark"
-harness = false
-
-[[bench]]
-name = "packs_phase2_3_benchmarks"
-harness = false

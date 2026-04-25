@@ -14,27 +14,51 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-## ⚡ RDF-First Architecture
+## Pre-Execution Checks
 
-**Constitutional Equation**: `constitution.md = μ(constitution.ttl)`
+**Check for extension hooks (before constitution update)**:
+- Check if `.specify/extensions.yml` exists in the project root.
+- If it exists, read it and look for entries under the `hooks.before_constitution` key
+- If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
+- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
+- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
+  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
+  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
+- For each executable hook, output the following based on its `optional` flag:
+  - **Optional hook** (`optional: true`):
+    ```
+    ## Extension Hooks
 
-The project constitution is a Turtle/RDF ontology. Markdown is a **generated artifact** for GitHub viewing.
+    **Optional Pre-Hook**: {extension}
+    Command: `/{command}`
+    Description: {description}
 
-- **Source of Truth**: `constitution.ttl` (edit this)
-- **Derived Artifact**: `constitution.md` (generated via `ggen render`, NEVER edit manually)
-- **Schema**: Constitution ontology schema in `spec-kit-schema.ttl`
+    Prompt: {prompt}
+    To execute: `/{command}`
+    ```
+  - **Mandatory hook** (`optional: false`):
+    ```
+    ## Extension Hooks
+
+    **Automatic Pre-Hook**: {extension}
+    Executing: `/{command}`
+    EXECUTE_COMMAND: {command}
+
+    Wait for the result of the hook command before proceeding to the Outline.
+    ```
+- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
 ## Outline
 
-You are updating the project constitution at `.specify/memory/constitution.ttl` (TTL source) and generating `.specify/memory/constitution.md` (markdown artifact). The TTL file defines principles as RDF instances. Your job is to (a) collect/derive concrete values, (b) create/update RDF instances in constitution.ttl, (c) generate constitution.md from TTL, and (d) propagate any amendments across dependent artifacts.
+You are updating the project constitution at `.specify/memory/constitution.md`. This file is a TEMPLATE containing placeholder tokens in square brackets (e.g. `[PROJECT_NAME]`, `[PRINCIPLE_1_NAME]`). Your job is to (a) collect/derive concrete values, (b) fill the template precisely, and (c) propagate any amendments across dependent artifacts.
+
+**Note**: If `.specify/memory/constitution.md` does not exist yet, it should have been initialized from `.specify/templates/constitution-template.md` during project setup. If it's missing, copy the template first.
 
 Follow this execution flow:
 
-1. **Load or create constitution.ttl**:
-   - If exists: Read `.specify/memory/constitution.ttl` and parse existing principles
-   - If not exists: Create from RDF constitution template
-   - Identify RDF instances of type `sk:Principle`, `sk:BuildStandard`, `sk:WorkflowRule`
-   **IMPORTANT**: The user might require less or more principles than currently defined. If a number is specified, respect that - add/remove principle instances in the RDF graph accordingly.
+1. Load the existing constitution at `.specify/memory/constitution.md`.
+   - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
+   **IMPORTANT**: The user might require less or more principles than the ones used in the template. If a number is specified, respect that - follow the general template. You will update the doc accordingly.
 
 2. Collect/derive values for placeholders:
    - If user input (conversation) supplies a value, use it.
@@ -46,20 +70,11 @@ Follow this execution flow:
      - PATCH: Clarifications, wording, typo fixes, non-semantic refinements.
    - If version bump type ambiguous, propose reasoning before finalizing.
 
-3. **Draft updated constitution RDF (constitution.ttl)**:
-   - Create/update RDF instances in Turtle syntax:
-     - Feature metadata (project name, version, ratification date)
-     - Principle instances with properties:
-       - `sk:principleName` - Succinct name
-       - `sk:principleDescription` - Non-negotiable rules
-       - `sk:rationale` - Why this principle exists
-       - `sk:principleIndex` - Order (1, 2, 3...)
-     - Build standards (cargo make rules, timeout requirements)
-     - Workflow rules (TDD, error handling, concurrent execution)
-     - Governance rules (amendment procedure, versioning policy)
-   - Preserve RDF graph structure and use proper Turtle syntax
-   - Ensure each Principle has: name, description, rationale, index
-   - Ensure Governance section has: amendment procedure, versioning policy, compliance review expectations
+3. Draft the updated constitution content:
+   - Replace every placeholder with concrete text (no bracketed tokens left except intentionally retained template slots that the project has chosen not to define yet—explicitly justify any left).
+   - Preserve heading hierarchy and comments can be removed once replaced unless they still add clarifying guidance.
+   - Ensure each Principle section: succinct name line, paragraph (or bullet list) capturing non‑negotiable rules, explicit rationale if not obvious.
+   - Ensure Governance section lists amendment procedure, versioning policy, and compliance review expectations.
 
 4. Consistency propagation checklist (convert prior checklist into active validations):
    - Read `.specify/templates/plan-template.md` and ensure any "Constitution Check" or rules align with updated principles.
@@ -82,23 +97,12 @@ Follow this execution flow:
    - Dates ISO format YYYY-MM-DD.
    - Principles are declarative, testable, and free of vague language ("should" → replace with MUST/SHOULD rationale where appropriate).
 
-7. **Write constitution.ttl** (SOURCE OF TRUTH):
-   - Save updated RDF graph to `.specify/memory/constitution.ttl`
-   - Validate against SHACL shapes
+7. Write the completed constitution back to `.specify/memory/constitution.md` (overwrite).
 
-8. **Generate constitution.md** (DERIVED ARTIFACT):
-   - Run: `ggen render .specify/templates/constitution.tera constitution.ttl > constitution.md`
-   - Add header: `<!-- Generated from constitution.ttl - DO NOT EDIT MANUALLY -->`
-   - Prepend Sync Impact Report as HTML comment (see step 5)
-   - Add footer: `**Generated with**: ggen v6 ontology-driven constitution system`
-
-9. **Output final summary** to the user with:
-   - TTL source path: constitution.ttl (SOURCE OF TRUTH)
-   - Generated markdown path: constitution.md (derived artifact)
-   - New version and bump rationale
-   - Any files flagged for manual follow-up
-   - Suggested commit message (e.g., `docs: amend constitution to vX.Y.Z (principle additions + governance update)`)
-   - Reminder: **Edit constitution.ttl, NOT constitution.md. Regenerate with: `ggen render constitution.tera constitution.ttl > constitution.md`**
+8. Output a final summary to the user with:
+   - New version and bump rationale.
+   - Any files flagged for manual follow-up.
+   - Suggested commit message (e.g., `docs: amend constitution to vX.Y.Z (principle additions + governance update)`).
 
 Formatting & Style Requirements:
 
@@ -112,3 +116,35 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
 Do not create a new template; always operate on the existing `.specify/memory/constitution.md` file.
+
+## Post-Execution Checks
+
+**Check for extension hooks (after constitution update)**:
+Check if `.specify/extensions.yml` exists in the project root.
+- If it exists, read it and look for entries under the `hooks.after_constitution` key
+- If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
+- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
+- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
+  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
+  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
+- For each executable hook, output the following based on its `optional` flag:
+  - **Optional hook** (`optional: true`):
+    ```
+    ## Extension Hooks
+
+    **Optional Hook**: {extension}
+    Command: `/{command}`
+    Description: {description}
+
+    Prompt: {prompt}
+    To execute: `/{command}`
+    ```
+  - **Mandatory hook** (`optional: false`):
+    ```
+    ## Extension Hooks
+
+    **Automatic Hook**: {extension}
+    Executing: `/{command}`
+    EXECUTE_COMMAND: {command}
+    ```
+- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently

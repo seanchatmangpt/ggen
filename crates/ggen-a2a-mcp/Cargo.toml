@@ -62,26 +62,6 @@ rand = "0.8"
 tonic = { workspace = true }
 reqwest = { version = "0.12", features = ["json"] }
 
-[[bench]]
-name = "mcp_tool_benchmarks"
-harness = false
-
-[[bench]]
-name = "mcp_stress_tests"
-harness = false
-
-[[bench]]
-name = "mcp_a2a_stress_benchmarks"
-harness = false
-
-[[bench]]
-name = "a2a_lifecycle_benchmarks"
-harness = false
-
-[[bench]]
-name = "groq_integration_benchmarks"
-harness = false
-
 [[example]]
 name = "mcp_validate_pipeline_client"
 path = "examples/mcp_validate_pipeline_client.rs"

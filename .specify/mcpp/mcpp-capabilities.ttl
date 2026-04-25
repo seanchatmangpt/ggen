@@ -1,0 +1,9 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix mcpp: <https://chatmangpt.com/ns/mcpp#> .
+
+mcpp:CommandSurfaceShape a sh:NodeShape ;
+    sh:targetClass mcpp:CommandSurface ;
+    sh:property [
+        sh:path mcpp:hasCommand ;
+        sh:minCount 1 ;
+    ] .
