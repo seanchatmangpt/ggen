@@ -7,58 +7,22 @@
 //! - Dependency resolution visualization
 //! - Installation planning and preview
 
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use uuid::Uuid;
+use tokio::sync::Semaphore;
+use async_trait::async_trait;
+use futures::future::join_all;
 
 use crate::progress::{ProgressReporter, InstallationPlan, PlanStep, CacheStatus};
 use crate::error::GgenError;
-
-// Mock the marketplace types for now
-#[derive(Debug, Clone)]
-pub struct MockPackageId(String);
-
-#[derive(Debug, Clone)]
-pub struct MockPackageVersion(String);
-
-#[derive(Debug, Clone)]
-pub struct MockPackage {
-    pub id: MockPackageId,
-    pub name: String,
-    pub estimated_size_mb: Option<f64>,
-}
-
-#[async_trait::async_trait]
-pub trait MockAsyncRepository {
-    async fn get_package(&self, package_id: &MockPackageId) -> Result<MockPackage, String>;
-    async fn get_package_version(&self, package_id: &MockPackageId, version: &MockPackageVersion) -> Result<MockPackage, String>;
-}
-
-struct MockRepository;
-
-#[async_trait::async_trait]
-impl MockAsyncRepository for MockRepository {
-    async fn get_package(&self, package_id: &MockPackageId) -> Result<MockPackage, String> {
-        Ok(MockPackage {
-            id: package_id.clone(),
-            name: format!("Mock Pack {}", package_id.0),
-            estimated_size_mb: Some(10.0),
-        })
-    }
-
-    async fn get_package_version(&self, package_id: &MockPackageId, version: &MockPackageVersion) -> Result<MockPackage, String> {
-        Ok(MockPackage {
-            id: package_id.clone(),
-            name: format!("Mock Pack {} {}", package_id.0, version.0),
-            estimated_size_mb: Some(10.0),
-        })
-    }
-}
+use ggen_marketplace::{
+    AsyncRepository, Package, PackageId, PackageVersion, 
+    error::Error as MarketplaceError,
+    cache::{PackCache, CacheConfig, CachedPack}
+};
 
 /// Improved pack installer with better UX
 pub struct PackInstaller {
-    repository: Box<dyn AsyncRepository>,
+    repository: Box<dyn AsyncRepository<PackageIterator = std::vec::IntoIter<Package>>>,
     cache: PackCache,
     progress: ProgressReporter,
     max_concurrent_downloads: usize,
@@ -85,10 +49,10 @@ impl PackInstaller {
     }
 
     /// Create a repository with default configuration
-    async fn create_default_repository() -> Result<Box<dyn AsyncRepository>, GgenError> {
+    async fn create_default_repository() -> Result<Box<dyn AsyncRepository<PackageIterator = std::vec::IntoIter<Package>>>, GgenError> {
         // For now, use a mock repository
         // In production, this would connect to the actual marketplace
-        Ok(Box::new(MockRepository {}))
+        Ok(Box::new(TestRepository {}))
     }
 
     /// Install a pack with improved UX
@@ -177,7 +141,7 @@ impl PackInstaller {
     async fn resolve_dependencies_tree(
         &self,
         package_id: &PackageId,
-        version: &PackageVersion,
+        _version: &PackageVersion,
     ) -> Result<Vec<PackageId>, GgenError> {
         let mut resolved = Vec::new();
         let mut visited = std::collections::HashSet::new();
@@ -218,16 +182,16 @@ impl PackInstaller {
 
         // Check main package cache
         if let Some(cached) = self.cache.get(package_id, version) {
-            cached_size_mb += cached.size_mb();
+            cached_size_mb += cached.size_bytes as f64 / 1_048_576.0;
             cache_hits += 1;
         }
 
         // Check dependency caches
         for dep_id in dependencies {
             // Use latest version for dependencies
-            if let Some(dep_version) = self.get_latest_version(dep_id).await {
+            if let Ok(dep_version) = self.get_latest_version(dep_id).await {
                 if let Some(cached) = self.cache.get(dep_id, &dep_version) {
-                    cached_size_mb += cached.size_mb();
+                    cached_size_mb += cached.size_bytes as f64 / 1_048_576.0;
                     cache_hits += 1;
                 }
             }
@@ -244,13 +208,13 @@ impl PackInstaller {
     /// Calculate total installation size
     async fn calculate_total_size(
         &self,
-        package: &ggen_marketplace::Package,
+        _package: &Package,
         dependencies: &[PackageId],
     ) -> Result<f64, GgenError> {
         let mut total_size = 0.0;
 
         // Main package size
-        total_size += package.estimated_size_mb.unwrap_or(1.0);
+        total_size += 1.0; // Mock main package size
 
         // Dependency sizes (mock estimates)
         for dep_id in dependencies {
@@ -263,7 +227,7 @@ impl PackInstaller {
     /// Create installation steps plan
     fn create_installation_steps(
         &self,
-        package: &ggen_marketplace::Package,
+        _package: &Package,
         dependencies: &[PackageId],
         total_size_mb: f64,
     ) -> Vec<PlanStep> {
@@ -346,7 +310,7 @@ impl PackInstaller {
     async fn execute_installation(
         &self,
         plan: &InstallationPlan,
-        force_reinstall: bool,
+        _force_reinstall: bool,
     ) -> Result<InstallResult, GgenError> {
         let progress = self.progress.clone();
         progress.set_total_steps(plan.steps.len());
@@ -366,7 +330,7 @@ impl PackInstaller {
         let package_id = PackageId::new(&plan.pack_id)
             .map_err(|e| GgenError::ValidationError(format!("Invalid pack ID: {}", e)))?;
 
-        let package = self.download_and_cache_package(&package_id, &plan.steps[1].name).await?;
+        let _package = self.download_and_cache_package(&package_id, &plan.steps[1].name).await?;
         progress.complete_step(&plan.steps[1].name);
 
         // Step 3: Download dependencies
@@ -375,6 +339,7 @@ impl PackInstaller {
             progress.update_step_progress(0.0, "Downloading dependencies...");
 
             let dependency_ids = self.get_mock_dependencies(&package_id).await?;
+            let total_deps = dependency_ids.len();
             let download_tasks = dependency_ids.into_iter()
                 .map(|dep_id| {
                     let semaphore = semaphore.clone();
@@ -382,12 +347,12 @@ impl PackInstaller {
                     async move {
                         let _permit = semaphore.acquire().await.unwrap();
                         let dep_name = format!("Dependency: {}", dep_id);
-                        progress.update_item_progress(&dep_name, 0, dependency_ids.len());
+                        progress.update_item_progress(&dep_name, 0, total_deps);
 
                         match self.download_and_cache_package(&dep_id, &dep_name).await {
-                            Ok(dep_package) => {
-                                progress.update_item_progress(&dep_name, 1, dependency_ids.len());
-                                Ok(dep_package)
+                            Ok(_dep_package) => {
+                                progress.update_item_progress(&dep_name, 1, total_deps);
+                                Ok(())
                             }
                             Err(e) => {
                                 progress.report_error(&format!("Failed to download {}: {}", dep_id, e), &dep_name);
@@ -398,7 +363,7 @@ impl PackInstaller {
                 });
 
             // Run downloads in parallel with limited concurrency
-            let results = futures::future::join_all(download_tasks).await;
+            let results = join_all(download_tasks).await;
 
             for result in results {
                 if let Err(e) = result {
@@ -440,8 +405,8 @@ impl PackInstaller {
     async fn download_and_cache_package(
         &self,
         package_id: &PackageId,
-        step_name: &str,
-    ) -> Result<ggen_marketplace::CachedPack, GgenError> {
+        _step_name: &str,
+    ) -> Result<CachedPack, GgenError> {
         let progress = self.progress.clone();
         progress.update_step_progress(0.0, &format!("Checking cache for {}", package_id));
 
@@ -461,8 +426,8 @@ impl PackInstaller {
             .await
             .map_err(|e| self.map_repository_error(e, "download package"))?;
 
-        // Mock download simulation
-        let total_size = package.estimated_size_mb.unwrap_or(1.0) * 1024.0 * 1024.0;
+        // Mock download simulation (1MB default)
+        let total_size = 1.0 * 1024.0 * 1024.0;
         let mut downloaded = 0.0;
         let progress_step = 100.0 / 10.0; // 10 progress steps
 
@@ -481,17 +446,17 @@ impl PackInstaller {
     }
 
     /// Mock helper methods (replace with real implementations)
-    async fn get_mock_dependencies(&self, package_id: &PackageId) -> Result<Vec<PackageId>, GgenError> {
+    async fn get_mock_dependencies(&self, _package_id: &PackageId) -> Result<Vec<PackageId>, GgenError> {
         // Return mock dependencies based on package ID
         Ok(vec![])
     }
 
-    async fn get_latest_version(&self, package_id: &PackageId) -> Result<PackageVersion, GgenError> {
+    async fn get_latest_version(&self, _package_id: &PackageId) -> Result<PackageVersion, GgenError> {
         Ok(PackageVersion::new("1.0.0")
             .map_err(|e| GgenError::ValidationError(format!("Invalid version: {}", e)))?)
     }
 
-    async fn get_mock_package_size(&self, package_id: &PackageId) -> Result<f64, GgenError> {
+    async fn get_mock_package_size(&self, _package_id: &PackageId) -> Result<f64, GgenError> {
         Ok(1.0) // 1MB per package
     }
 
@@ -500,45 +465,45 @@ impl PackInstaller {
         Ok(1024.0)
     }
 
-    async fn validate_package(&self, package_id: &str) -> Result<(), GgenError> {
+    async fn validate_package(&self, _package_id: &str) -> Result<(), GgenError> {
         // Mock validation
         Ok(())
     }
 
-    async fn verify_package_signatures(&self, package_id: &PackageId) -> Result<(), GgenError> {
+    async fn verify_package_signatures(&self, _package_id: &PackageId) -> Result<(), GgenError> {
         // Mock signature verification
         Ok(())
     }
 
-    async fn extract_package_files(&self, package_id: &PackageId) -> Result<(), GgenError> {
+    async fn extract_package_files(&self, _package_id: &PackageId) -> Result<(), GgenError> {
         // Mock extraction
         Ok(())
     }
 
-    async fn update_installation_lockfile(&self, pack_id: &str) -> Result<(), GgenError> {
+    async fn update_installation_lockfile(&self, _pack_id: &str) -> Result<(), GgenError> {
         // Mock lockfile update
         Ok(())
     }
 
     async fn cache_package(
         &self,
-        package_id: &PackageId,
-        version: &PackageVersion,
-        package: ggen_marketplace::Package,
-    ) -> Result<ggen_marketplace::CachedPack, GgenError> {
+        _package_id: &PackageId,
+        _version: &PackageVersion,
+        _package: Package,
+    ) -> Result<CachedPack, GgenError> {
         // Mock caching
         Err(GgenError::ValidationError("Mock implementation - needs real caching".to_string()))
     }
 
     fn map_repository_error(&self, error: MarketplaceError, operation: &str) -> GgenError {
         match error {
-            MarketplaceError::PackageNotFound { id } => {
-                GgenError::ValidationError(format!("Package '{}' not found in marketplace", id))
+            MarketplaceError::PackageNotFound { package_id } => {
+                GgenError::ValidationError(format!("Package '{}' not found in marketplace", package_id))
             }
-            MarketplaceError::NetworkError { reason } => {
-                GgenError::NetworkError(format!("Network error while {}: {}", operation, reason))
+            MarketplaceError::IoError(e) => {
+                GgenError::NetworkError(format!("Network/IO error while {}: {}", operation, e))
             }
-            MarketplaceError::ValidationError { reason } => {
+            MarketplaceError::ValidationFailed { reason } => {
                 GgenError::ValidationError(format!("Validation error while {}: {}", operation, reason))
             }
             _ => GgenError::FileError(format!("Failed to {}: {}", operation, error)),
@@ -549,18 +514,56 @@ impl PackInstaller {
 /// Mock repository for testing
 struct TestRepository {}
 
-#[async_trait::async_trait]
+#[async_trait]
 impl AsyncRepository for TestRepository {
-    async fn get_package(&self, package_id: &PackageId) -> Result<ggen_marketplace::Package, MarketplaceError> {
-        Ok(ggen_marketplace::Package::mock(package_id))
+    type PackageIterator = std::vec::IntoIter<Package>;
+
+    async fn get_package(&self, package_id: &PackageId) -> Result<Package, MarketplaceError> {
+        let version = PackageVersion::new("1.0.0").unwrap();
+        let metadata = ggen_marketplace::PackageMetadata::new(
+            package_id.clone(),
+            format!("Pack {}", package_id),
+            "Mock description",
+            "MIT",
+        );
+        Ok(Package {
+            metadata,
+            latest_version: version.clone(),
+            versions: vec![version],
+            releases: indexmap::IndexMap::new(),
+        })
     }
 
     async fn get_package_version(
         &self,
         package_id: &PackageId,
         version: &PackageVersion,
-    ) -> Result<ggen_marketplace::Package, MarketplaceError> {
-        Ok(ggen_marketplace::Package::mock(package_id))
+    ) -> Result<Package, MarketplaceError> {
+        let metadata = ggen_marketplace::PackageMetadata::new(
+            package_id.clone(),
+            format!("Pack {}", package_id),
+            "Mock description",
+            "MIT",
+        );
+        Ok(Package {
+            metadata,
+            latest_version: version.clone(),
+            versions: vec![version.clone()],
+            releases: indexmap::IndexMap::new(),
+        })
+    }
+
+    async fn all_packages(&self) -> Result<Vec<Package>, MarketplaceError> {
+        let id = PackageId::new("test-pack").unwrap();
+        Ok(vec![self.get_package(&id).await?])
+    }
+
+    async fn list_versions(&self, _id: &PackageId) -> Result<Vec<PackageVersion>, MarketplaceError> {
+        Ok(vec![PackageVersion::new("1.0.0").unwrap()])
+    }
+
+    async fn package_exists(&self, _id: &PackageId) -> Result<bool, MarketplaceError> {
+        Ok(true)
     }
 }
 

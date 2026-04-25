@@ -1,0 +1,27 @@
+[project]
+name = "mcpp-core"
+public_name = "MCP Plus"
+version = "0.1.0"
+description = "Public-ontology-backed MCP Plus control substrate"
+
+[ontology]
+profiles = [
+    "https://chatmangpt.com/ns/mcpp",
+    "http://www.w3.org/ns/odrl/2/",
+    "http://www.w3.org/ns/prov#"
+]
+source = ".specify/mcpp.ttl"
+
+[capabilities]
+doctor = { enabled = true, diagnostics = "standard" }
+wizard = { enabled = true, profiles = ["receipts-first"] }
+telco = { enabled = true, bridge_protocol = "a2a" }
+
+[execution]
+isa = "powl8"
+deterministic = true
+
+[receipts]
+format = "spdx-prov"
+storage = ".mcpp/receipts/"
+auto_verify = true

@@ -1,0 +1,22 @@
+[package]
+name = "validation-system"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+# Async runtime
+tokio = { workspace = true, features = ["full"] }
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+# Time handling
+chrono = { workspace = true }
+# Tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+
+[lints]
+workspace = true

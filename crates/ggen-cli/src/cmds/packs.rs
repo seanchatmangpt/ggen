@@ -6,9 +6,6 @@ use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
-use crate::pack_install::PackInstaller;
-use crate::progress::ProgressDisplay;
-
 // ============================================================================
 // Output Types
 // ============================================================================
@@ -43,10 +40,10 @@ struct ShowOutput {
 }
 
 #[derive(Serialize)]
-struct InstallOutput {
-    pack_id: String,
-    status: String,
-    message: String,
+pub struct InstallOutput {
+    pub pack_id: String,
+    pub status: String,
+    pub message: String,
 }
 
 #[derive(Serialize)]
@@ -117,7 +114,7 @@ struct CheckCompatibilityOutput {
 /// List all available packs
 #[verb]
 fn list(verbose: bool) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
@@ -130,10 +127,6 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
                 println!("  - {} (v{})", pkg.id, pkg.version);
                 println!("    Name: {}", pkg.name);
                 println!("    Description: {}", pkg.description);
-                println!("    Downloads: {}", pkg.downloads);
-                if let Some(score) = pkg.quality_score {
-                    println!("    Quality Score: {}%", score);
-                }
                 println!();
             }
 
@@ -145,7 +138,7 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
                 category: "marketplace".to_string(),
                 package_count: 0,
                 template_count: 0,
-                production_ready: pkg.quality_score.map_or(false, |s| s >= 95),
+                production_ready: pkg.production_ready,
             }
         })
         .collect();
@@ -156,7 +149,7 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::marketplace::get_package(&pack_id).map_err(|e| {
+    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to get pack '{}': {}",
             pack_id, e
@@ -166,7 +159,7 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
     let dependencies: Vec<String> = detail
         .dependencies
         .iter()
-        .map(|d| format!("{} {}", d.id, d.version_req))
+        .map(|d| format!("{} {}", d.pack_id, d.version))
         .collect();
 
     Ok(ShowOutput {
@@ -605,27 +598,26 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 
 /// Show pack dependencies
 #[verb]
-fn dependencies(pack_id: String, version: Option<String>) -> VerbResult<DependenciesOutput> {
-    let graph = ggen_domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(&format!(
-                "Failed to resolve dependencies: {}",
-                e
-            ))
-        })?;
+fn dependencies(pack_id: String, _version: Option<String>) -> VerbResult<DependenciesOutput> {
+    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to resolve dependencies for '{}': {}",
+            pack_id, e
+        ))
+    })?;
 
-    let dependencies: Vec<DependencyNode> = graph
+    let dependencies: Vec<DependencyNode> = detail
         .dependencies
         .into_iter()
         .map(|dep| DependencyNode {
-            pack_id: dep.id,
-            version: dep.version_req,
-            dependencies: dep.dependencies,
+            pack_id: dep.pack_id,
+            version: dep.version,
+            dependencies: vec![],
         })
         .collect();
 
     Ok(DependenciesOutput {
-        pack_id: graph.package_id,
+        pack_id,
         dependencies,
     })
 }
@@ -637,7 +629,7 @@ fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
 }
 
 fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packages: {}", e))
     })?;
 

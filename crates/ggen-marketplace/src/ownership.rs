@@ -6,6 +6,7 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::unnecessary_wraps)]
 
+use semver;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
