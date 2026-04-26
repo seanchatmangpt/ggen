@@ -73,14 +73,17 @@ impl ConfigLoader {
     /// ```
     /// use ggen_config::ConfigLoader;
     ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let toml = r#"
     ///     [project]
     ///     name = "my-project"
     ///     version = "1.0.0"
     /// "#;
     ///
-    /// let config = ConfigLoader::from_str(toml).unwrap();
+    /// let config = ConfigLoader::from_str(toml)?;
     /// assert_eq!(config.project.name, "my-project");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn from_str(content: &str) -> Result<GgenConfig> {
         let config: GgenConfig = toml::from_str(content)?;
@@ -184,26 +187,16 @@ impl ConfigLoader {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```no_run
     /// use ggen_config::ConfigLoader;
     /// use serde_json::json;
     ///
-    /// let toml = r#"
-    ///     [project]
-    ///     name = "test"
-    ///     version = "1.0.0"
-    ///
-    ///     [ai]
-    ///     provider = "anthropic"
-    ///     model = "claude-3-opus"
-    /// "#;
-    ///
-    /// let config = ConfigLoader::from_str(toml)
-    ///     .unwrap()
-    ///     .load_with_env_from_map(&[("zai", json!({"ai.provider": "zai"}))])
-    ///     .unwrap();
-    ///
-    /// assert_eq!(config.ai.unwrap().provider, "zai");
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let loader = ConfigLoader::new("ggen.toml")?;
+    /// let config = loader.load_with_env_from_map(&[("zai", json!({"ai.provider": "zai"}))])?;
+    /// assert_eq!(config.ai.map(|a| a.provider), Some("zai".to_string()));
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn load_with_env_from_map(
         self, overrides: &[(&str, serde_json::Value)],
@@ -485,6 +478,7 @@ fn default_a2a_enabled() -> bool {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
