@@ -854,6 +854,11 @@ path = "tests/mcpp_e2e/autonomics_verification.rs"
 required-features = ["integration"]
 
 [[test]]
+name = "promotion_verification"
+path = "tests/mcpp_e2e/promotion_verification.rs"
+required-features = ["integration"]
+
+[[test]]
 name = "factory_paas_runner"
 path = "tests/factory_paas_runner.rs"
 required-features = ["integration"]

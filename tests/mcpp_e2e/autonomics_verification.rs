@@ -12,20 +12,16 @@ fn test_second_order_autonomics_loop() {
     let controller = MetaController::new(initial_config.clone());
 
     // 2. Simulate Operational Failure (High failure rate in receipts)
-    let receipt_history = vec![
-        Receipt {
-            id: "op1".into(),
-            status: "failed".into(),
-        },
-        Receipt {
-            id: "op2".into(),
-            status: "failed".into(),
-        },
-        Receipt {
-            id: "op3".into(),
-            status: "success".into(),
-        },
-    ]; // 66% failure rate > 20% threshold
+    let receipt_history: Vec<Receipt> = ["failed", "failed", "success"]
+        .iter()
+        .enumerate()
+        .map(|(i, s)| {
+            let mut r = Receipt::pending(format!("op{}", i + 1));
+            r.status = (*s).into();
+            r
+        })
+        .collect();
+    // 66% failure rate > 20% threshold
 
     // 3. Trigger Second-Order Adaptation
     let optimized_config = controller.evaluate_and_adapt(&receipt_history);
@@ -65,16 +61,15 @@ fn test_meta_loop_stability() {
     };
     let controller = MetaController::new(config);
 
-    let stable_history = vec![
-        Receipt {
-            id: "op1".into(),
-            status: "success".into(),
-        },
-        Receipt {
-            id: "op2".into(),
-            status: "success".into(),
-        },
-    ];
+    let stable_history: Vec<Receipt> = ["success", "success"]
+        .iter()
+        .enumerate()
+        .map(|(i, s)| {
+            let mut r = Receipt::pending(format!("op{}", i + 1));
+            r.status = (*s).into();
+            r
+        })
+        .collect();
 
     let result = controller.evaluate_and_adapt(&stable_history);
     assert!(
