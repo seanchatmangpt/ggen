@@ -70,16 +70,11 @@ mod tests {
         };
         let controller = MetaController::new(config);
 
-        let receipts = vec![
-            Receipt {
-                id: "1".into(),
-                status: "failed".into(),
-            },
-            Receipt {
-                id: "2".into(),
-                status: "success".into(),
-            },
-        ]; // 50% failure rate > 10% threshold
+        let mut r1 = Receipt::pending("1");
+        r1.status = "failed".into();
+        let mut r2 = Receipt::pending("2");
+        r2.status = "success".into();
+        let receipts = vec![r1, r2]; // 50% failure rate > 10% threshold
 
         let new_config = controller.evaluate_and_adapt(&receipts).unwrap();
         assert!(new_config.jidoka_sensitivity > 0.5);
