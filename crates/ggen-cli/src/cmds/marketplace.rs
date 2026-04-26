@@ -172,10 +172,7 @@ struct SyncOutput {
 ///   ggen marketplace sync --verbose
 #[verb]
 fn sync(
-    force: Option<bool>,
-    dry_run: Option<bool>,
-    source: Option<String>,
-    verbose: Option<bool>,
+    force: Option<bool>, dry_run: Option<bool>, source: Option<String>, verbose: Option<bool>,
 ) -> VerbResult<SyncOutput> {
     let force = force.unwrap_or(false);
     let dry_run = dry_run.unwrap_or(false);
@@ -189,10 +186,7 @@ fn sync(
 // ============================================================================
 
 fn perform_marketplace_sync(
-    force: bool,
-    dry_run: bool,
-    source: Option<String>,
-    verbose: bool,
+    force: bool, dry_run: bool, source: Option<String>, verbose: bool,
 ) -> VerbResult<SyncOutput> {
     use std::time::Instant;
 
@@ -211,7 +205,8 @@ fn perform_marketplace_sync(
         })?;
     }
 
-    let registry_url = source.unwrap_or_else(|| "https://marketplace.ggen.dev/registry".to_string());
+    let registry_url =
+        source.unwrap_or_else(|| "https://marketplace.ggen.dev/registry".to_string());
     if verbose {
         eprintln!("Marketplace registry: {}", registry_url);
     }
@@ -223,7 +218,8 @@ fn perform_marketplace_sync(
         eprintln!("Found {} packages to evaluate", packages_to_sync.len());
     }
 
-    let (synced, updated, skipped) = perform_sync_loop(&cache_dir, &packages_to_sync, dry_run, verbose)?;
+    let (synced, updated, skipped) =
+        perform_sync_loop(&cache_dir, &packages_to_sync, dry_run, verbose)?;
     invalidate_registry_cache(&cache_dir)?;
 
     let duration_ms = start.elapsed().as_millis() as u64;
@@ -244,10 +240,7 @@ fn perform_marketplace_sync(
 }
 
 fn perform_sync_loop(
-    cache_dir: &std::path::Path,
-    packages: &[PackageInfo],
-    dry_run: bool,
-    verbose: bool,
+    cache_dir: &std::path::Path, packages: &[PackageInfo], dry_run: bool, verbose: bool,
 ) -> VerbResult<(usize, usize, usize)> {
     let mut synced = 0usize;
     let mut updated = 0usize;
@@ -276,7 +269,9 @@ fn perform_sync_loop(
         }
 
         if !dry_run {
-            if let Err(e) = download_package_metadata(&pkg_cache_dir, &pkg_info.id, &pkg_info.version) {
+            if let Err(e) =
+                download_package_metadata(&pkg_cache_dir, &pkg_info.id, &pkg_info.version)
+            {
                 eprintln!("  ✗ Failed to sync {}: {}", pkg_info.id, e);
                 continue;
             }
@@ -331,9 +326,7 @@ struct PackageInfo {
 }
 
 /// Get list of packages available in the marketplace
-fn get_marketplace_packages(
-    _registry: &Registry, _force: bool,
-) -> VerbResult<Vec<PackageInfo>> {
+fn get_marketplace_packages(_registry: &Registry, _force: bool) -> VerbResult<Vec<PackageInfo>> {
     // In production, this would fetch from the marketplace registry
     // For now, return empty list (marketplace is seeded via other means)
     Ok(Vec::new())

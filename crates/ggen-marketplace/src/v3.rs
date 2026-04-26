@@ -26,8 +26,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tracing::{debug, info, warn};
 
-use crate::error::{Result, Error};
-use crate::models::{Package, PackageId, PackageVersion, Manifest};
+use crate::error::{Error, Result};
+use crate::models::{Manifest, Package, PackageId, PackageVersion};
 use crate::traits::AsyncRepository;
 
 /// v3 optimized registry with distributed caching and indexing
@@ -277,9 +277,18 @@ impl V3OptimizedRegistry {
             0.0
         };
 
-        let cache_hits = self.metrics.cache_hits.load(std::sync::atomic::Ordering::Relaxed);
-        let cache_misses = self.metrics.cache_misses.load(std::sync::atomic::Ordering::Relaxed);
-        let cache_size = self.metrics.cache_size.load(std::sync::atomic::Ordering::Relaxed);
+        let cache_hits = self
+            .metrics
+            .cache_hits
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let cache_misses = self
+            .metrics
+            .cache_misses
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let cache_size = self
+            .metrics
+            .cache_size
+            .load(std::sync::atomic::Ordering::Relaxed);
 
         V3RegistryStats {
             total_queries: total,
@@ -333,7 +342,9 @@ impl V3OptimizedRegistry {
     /// Returns error if any package installation fails; all-or-nothing semantics
     pub async fn batch_insert(&self, manifests: Vec<Manifest>) -> Result<Vec<Package>> {
         let start = Instant::now();
-        self.metrics.batch_ops.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.metrics
+            .batch_ops
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         let results = Vec::with_capacity(manifests.len());
 
@@ -360,7 +371,9 @@ impl V3OptimizedRegistry {
     /// Returns error if any package deletion fails; all-or-nothing semantics
     pub async fn batch_delete(&self, ids: Vec<PackageId>) -> Result<u64> {
         let start = Instant::now();
-        self.metrics.batch_ops.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.metrics
+            .batch_ops
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         // In a real implementation, this would be a transaction
         let deleted = ids.len() as u64;
@@ -389,7 +402,9 @@ impl V3OptimizedRegistry {
     /// For large registries, parallel search can provide significant speedup
     /// by distributing the search across multiple CPU cores
     pub fn search_parallel(&self, term: &str) -> Vec<String> {
-        self.metrics.parallel_searches.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.metrics
+            .parallel_searches
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         let index = self.search_index.read();
 
@@ -426,12 +441,30 @@ impl V3OptimizedRegistry {
     #[must_use]
     pub fn metrics_snapshot(&self) -> V3MetricsSnapshot {
         V3MetricsSnapshot {
-            cache_hits: self.metrics.cache_hits.load(std::sync::atomic::Ordering::Relaxed),
-            cache_misses: self.metrics.cache_misses.load(std::sync::atomic::Ordering::Relaxed),
-            batch_ops: self.metrics.batch_ops.load(std::sync::atomic::Ordering::Relaxed),
-            parallel_searches: self.metrics.parallel_searches.load(std::sync::atomic::Ordering::Relaxed),
-            cache_size: self.metrics.cache_size.load(std::sync::atomic::Ordering::Relaxed),
-            search_index_entries: self.metrics.search_index_entries.load(std::sync::atomic::Ordering::Relaxed),
+            cache_hits: self
+                .metrics
+                .cache_hits
+                .load(std::sync::atomic::Ordering::Relaxed),
+            cache_misses: self
+                .metrics
+                .cache_misses
+                .load(std::sync::atomic::Ordering::Relaxed),
+            batch_ops: self
+                .metrics
+                .batch_ops
+                .load(std::sync::atomic::Ordering::Relaxed),
+            parallel_searches: self
+                .metrics
+                .parallel_searches
+                .load(std::sync::atomic::Ordering::Relaxed),
+            cache_size: self
+                .metrics
+                .cache_size
+                .load(std::sync::atomic::Ordering::Relaxed),
+            search_index_entries: self
+                .metrics
+                .search_index_entries
+                .load(std::sync::atomic::Ordering::Relaxed),
             latency_buckets: [
                 self.metrics.latency_buckets[0].load(std::sync::atomic::Ordering::Relaxed),
                 self.metrics.latency_buckets[1].load(std::sync::atomic::Ordering::Relaxed),

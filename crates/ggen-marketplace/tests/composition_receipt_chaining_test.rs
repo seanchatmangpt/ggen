@@ -7,7 +7,7 @@
 //! - Storage and retrieval
 
 use ggen_marketplace::composition_receipt::{
-    CompositionReceipt, RuntimeProfile, AtomicPackRef, BundleExpansion,
+    AtomicPackRef, BundleExpansion, CompositionReceipt, RuntimeProfile,
 };
 use ggen_marketplace::trust::TrustTier;
 
@@ -158,7 +158,10 @@ fn test_json_serialization_with_chain() {
     // Deserialize and verify chain is preserved
     let deserialized = CompositionReceipt::from_json(&json).unwrap();
     assert!(deserialized.is_child());
-    assert_eq!(deserialized.get_parent_id(), Some(root.receipt_id.as_ref().unwrap().as_str()));
+    assert_eq!(
+        deserialized.get_parent_id(),
+        Some(root.receipt_id.as_ref().unwrap().as_str())
+    );
 }
 
 #[test]
@@ -299,8 +302,5 @@ fn test_multiple_roots_with_independent_chains() {
     // Verify chains are independent
     assert_eq!(child1.get_parent_id(), root1.receipt_id.as_deref());
     assert_eq!(child2.get_parent_id(), root2.receipt_id.as_deref());
-    assert_ne!(
-        child1.get_parent_id(),
-        child2.get_parent_id()
-    );
+    assert_ne!(child1.get_parent_id(), child2.get_parent_id());
 }
