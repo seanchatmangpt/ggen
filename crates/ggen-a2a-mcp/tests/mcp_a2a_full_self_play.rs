@@ -57,10 +57,7 @@ impl SelfPlayBridge {
         let _ = router.register(TextContentHandler::new());
         let router = Arc::new(router);
 
-        Ok(Self {
-            mcp_client,
-            router,
-        })
+        Ok(Self { mcp_client, router })
     }
 
     /// Call an MCP tool and return the first text content as a String.

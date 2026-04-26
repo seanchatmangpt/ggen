@@ -72,7 +72,6 @@ fn assert_result_non_empty(result: &CachedResult, label: &str) {
     }
 }
 
-
 // ---------------------------------------------------------------------------
 // Test 1: DoD extract query returns expected triples
 // ---------------------------------------------------------------------------

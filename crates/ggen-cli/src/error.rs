@@ -241,9 +241,7 @@ pub struct AuditTrail {
 impl AuditTrail {
     /// Create new audit trail
     pub fn new(
-        input_ontology_hash: String,
-        sparql_query: String,
-        template_name: String,
+        input_ontology_hash: String, sparql_query: String, template_name: String,
         output_code: String,
     ) -> Self {
         Self {
@@ -286,7 +284,10 @@ mod tests {
 
     #[test]
     fn test_exit_codes() {
-        assert_eq!(GgenError::ValidationError("test".to_string()).exit_code(), 1);
+        assert_eq!(
+            GgenError::ValidationError("test".to_string()).exit_code(),
+            1
+        );
         assert_eq!(GgenError::SparqlError("test".to_string()).exit_code(), 2);
         assert_eq!(GgenError::TemplateError("test".to_string()).exit_code(), 3);
         assert_eq!(GgenError::OutputInvalid("test".to_string()).exit_code(), 4);

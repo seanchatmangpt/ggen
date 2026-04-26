@@ -146,8 +146,8 @@ pub mod ontology;
 pub mod ontology_pack;
 pub mod pack_resolver; // μ₀: Pack resolution stage
 pub mod packs; // Pack installation system - Phase 1
-pub mod pki;
 pub mod pipeline;
+pub mod pki;
 pub mod poc;
 pub mod poka_yoke;
 pub mod pqc;

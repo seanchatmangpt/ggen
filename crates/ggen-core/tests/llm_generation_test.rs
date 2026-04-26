@@ -52,8 +52,6 @@ fn test_llm_generation_disabled_by_default() {
     // This will be verified by checking that generate_skill_impl returns TODO stub
 }
 
-
-
 #[test]
 fn test_llm_prompt_construction() {
     // Test that prompts are constructed correctly from skill metadata
@@ -87,4 +85,3 @@ fn test_llm_response_integration_into_template() {
 
     assert_eq!(template_context["generated_impl"], generated_impl);
 }
-

@@ -141,7 +141,8 @@ impl Graph {
     /// Load RDF data from a Turtle string
     pub fn load_from_string(ttl: &str) -> Result<Self> {
         let graph = Self::new()?;
-        graph.inner
+        graph
+            .inner
             .load_from_reader(RdfFormat::Turtle, Cursor::new(ttl))
             .map_err(|e| Error::new(&format!("Failed to load RDF from string: {}", e)))?;
         graph.bump_epoch();

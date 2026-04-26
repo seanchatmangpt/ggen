@@ -2,12 +2,18 @@
 //!
 //! Extends ggen-receipt with pack-specific provenance tracking.
 //! Implements CISO requirement for full chain of evidence.
+//!
+//! Supports receipt chaining for composite package tracking:
+//! - Parent-child relationships (store parent ID in child)
+//! - Chain traversal (walk up/down the receipt tree)
+//! - Chain verification (validate all signatures)
+//! - Anomaly detection (broken links, cycles, orphaned receipts)
 
 use crate::error::Result;
 use crate::trust::TrustTier;
 use ggen_receipt::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// Reference to an atomic pack in the composition.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -149,8 +155,20 @@ pub struct RuntimeProfile {
 ///
 /// Records the full provenance of how a generated artifact came to exist.
 /// Implements CISO requirement for defensible chain of evidence.
+///
+/// Supports chaining: each receipt can link to a parent receipt (for composite packages),
+/// forming a tree of receipts. The parent_receipt_id is a SHA-256 hash (hex-encoded).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CompositionReceipt {
+    /// Unique receipt identifier (SHA-256 hash of the receipt)
+    /// Optional during construction, computed and set during emission
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receipt_id: Option<String>,
+
+    /// Parent receipt ID (if this is a child receipt in a composition chain)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_receipt_id: Option<String>,
+
     /// Contributing atomic packs
     pub atomic_packs: Vec<AtomicPackRef>,
 
@@ -229,11 +247,22 @@ pub struct OwnershipRecord {
     pub merge_strategy: Option<String>,
 }
 
+/// Compute SHA-256 hash of data and return as hex string.
+fn sha2_digest(data: &str) -> String {
+    use sha2::{Digest, Sha256};
+
+    let mut hasher = Sha256::new();
+    hasher.update(data.as_bytes());
+    hex::encode(hasher.finalize())
+}
+
 impl CompositionReceipt {
     /// Create a new composition receipt.
     #[must_use]
     pub fn new(runtime_context: RuntimeProfile) -> Self {
         Self {
+            receipt_id: None,
+            parent_receipt_id: None,
             atomic_packs: Vec::new(),
             bundle_aliases: Vec::new(),
             versions: HashMap::new(),
@@ -422,6 +451,260 @@ impl CompositionReceipt {
         Ok(())
     }
 
+    /// Chain this receipt to a parent receipt (link for composite package tracking).
+    ///
+    /// Sets the parent_receipt_id to the parent's receipt_id. This indicates that
+    /// this composition is a child of another composition.
+    ///
+    /// # Arguments
+    ///
+    /// * `parent` - The parent composition receipt
+    ///
+    /// # Errors
+    ///
+    /// Returns error if the parent receipt doesn't have a receipt_id set.
+    pub fn chain_parent(&mut self, parent: &CompositionReceipt) -> Result<()> {
+        let parent_id = parent.receipt_id.as_ref().ok_or_else(|| {
+            crate::error::Error::ValidationFailed {
+                reason: "Parent receipt must have receipt_id set before chaining".to_string(),
+            }
+        })?;
+
+        self.parent_receipt_id = Some(parent_id.clone());
+        tracing::debug!(
+            "Chained composition receipt to parent: {}",
+            parent_id
+        );
+
+        Ok(())
+    }
+
+    /// Compute and set the receipt_id for this receipt.
+    ///
+    /// The receipt_id is a SHA-256 hash of the entire receipt JSON.
+    /// Must be called before chaining this receipt as a parent.
+    ///
+    /// # Errors
+    ///
+    /// Returns error if the receipt cannot be serialized to JSON.
+    pub fn compute_receipt_id(&mut self) -> Result<()> {
+        // Temporarily clear the receipt_id for hashing
+        let _ = self.receipt_id.take();
+
+        let json = self.to_json()?;
+        let hash = sha2_digest(&json);
+
+        self.receipt_id = Some(hash.clone());
+        tracing::debug!("Computed receipt_id: {}", hash);
+
+        Ok(())
+    }
+
+    /// Get the parent receipt ID if this receipt is linked to a parent.
+    #[must_use]
+    pub fn get_parent_id(&self) -> Option<&str> {
+        self.parent_receipt_id.as_deref()
+    }
+
+    /// Check if this receipt is a child (has a parent).
+    #[must_use]
+    pub fn is_child(&self) -> bool {
+        self.parent_receipt_id.is_some()
+    }
+
+    /// Check if this receipt is a root (has no parent).
+    #[must_use]
+    pub fn is_root(&self) -> bool {
+        self.parent_receipt_id.is_none()
+    }
+
+    /// Validate the chain starting from this receipt.
+    ///
+    /// Checks for:
+    /// - Broken links (child with parent_id that cannot be resolved)
+    /// - Cycles (receipt is its own ancestor)
+    /// - Orphaned receipts (parent_id set but empty)
+    ///
+    /// Note: This is a local check only. To validate all chains in a repository,
+    /// you need to provide a resolver function.
+    ///
+    /// # Arguments
+    ///
+    /// * `resolver` - Function to resolve parent receipt by ID
+    ///
+    /// # Errors
+    ///
+    /// Returns error if:
+    /// - A cycle is detected in the chain
+    /// - A parent receipt cannot be resolved
+    /// - The chain exceeds reasonable depth (>100 levels)
+    pub fn validate_chain<F>(&self, resolver: F) -> Result<()>
+    where
+        F: Fn(&str) -> Result<CompositionReceipt>,
+    {
+        // If this is a root receipt, no validation needed
+        if self.is_root() {
+            return Ok(());
+        }
+
+        let mut visited = HashSet::new();
+        let mut current_id = self
+            .parent_receipt_id
+            .as_ref()
+            .ok_or_else(|| {
+                crate::error::Error::ValidationFailed {
+                    reason: "Receipt marked as child but parent_receipt_id is None"
+                        .to_string(),
+                }
+            })?
+            .clone();
+
+        const MAX_CHAIN_DEPTH: usize = 100;
+        let mut depth = 0;
+
+        loop {
+            depth += 1;
+            if depth > MAX_CHAIN_DEPTH {
+                return Err(crate::error::Error::ValidationFailed {
+                    reason: format!(
+                        "Receipt chain exceeds maximum depth of {}",
+                        MAX_CHAIN_DEPTH
+                    ),
+                });
+            }
+
+            // Check for cycles
+            if visited.contains(&current_id) {
+                return Err(crate::error::Error::ValidationFailed {
+                    reason: format!("Cycle detected in receipt chain at: {}", current_id),
+                });
+            }
+
+            visited.insert(current_id.clone());
+
+            // Try to resolve the parent
+            let parent = resolver(&current_id).map_err(|_| {
+                crate::error::Error::ValidationFailed {
+                    reason: format!("Cannot resolve parent receipt: {}", current_id),
+                }
+            })?;
+
+            // If parent is a root, we've reached the end of the chain
+            if parent.is_root() {
+                break;
+            }
+
+            // Move to the next parent
+            current_id = parent
+                .parent_receipt_id
+                .ok_or_else(|| {
+                    crate::error::Error::ValidationFailed {
+                        reason: "Parent receipt marked as child but parent_receipt_id is None"
+                            .to_string(),
+                    }
+                })?;
+        }
+
+        tracing::debug!(
+            "Receipt chain validated: {} levels, no cycles or broken links",
+            depth
+        );
+
+        Ok(())
+    }
+
+    /// Get the full chain from this receipt to root (if chained).
+    ///
+    /// Returns a vector of receipt IDs from this receipt up to the root.
+    /// The first element is this receipt's ID, the last is the root receipt ID.
+    ///
+    /// # Arguments
+    ///
+    /// * `resolver` - Function to resolve parent receipt by ID
+    ///
+    /// # Errors
+    ///
+    /// Returns error if a parent cannot be resolved or a cycle is detected.
+    pub fn get_full_chain<F>(&self, resolver: F) -> Result<Vec<String>>
+    where
+        F: Fn(&str) -> Result<CompositionReceipt>,
+    {
+        let mut chain = vec![];
+
+        // Add this receipt's ID if available
+        if let Some(id) = &self.receipt_id {
+            chain.push(id.clone());
+        } else {
+            return Err(crate::error::Error::ValidationFailed {
+                reason: "Receipt must have receipt_id set to get chain".to_string(),
+            });
+        }
+
+        // If this is a root, we're done
+        if self.is_root() {
+            return Ok(chain);
+        }
+
+        let mut current_id = self
+            .parent_receipt_id
+            .as_ref()
+            .ok_or_else(|| {
+                crate::error::Error::ValidationFailed {
+                    reason: "Receipt marked as child but parent_receipt_id is None"
+                        .to_string(),
+                }
+            })?
+            .clone();
+
+        const MAX_CHAIN_DEPTH: usize = 100;
+        let mut depth = 0;
+
+        loop {
+            depth += 1;
+            if depth > MAX_CHAIN_DEPTH {
+                return Err(crate::error::Error::ValidationFailed {
+                    reason: format!(
+                        "Receipt chain exceeds maximum depth of {}",
+                        MAX_CHAIN_DEPTH
+                    ),
+                });
+            }
+
+            // Check for cycles
+            if chain.contains(&current_id) {
+                return Err(crate::error::Error::ValidationFailed {
+                    reason: format!("Cycle detected in receipt chain at: {}", current_id),
+                });
+            }
+
+            chain.push(current_id.clone());
+
+            // Resolve the parent
+            let parent = resolver(&current_id).map_err(|_| {
+                crate::error::Error::ValidationFailed {
+                    reason: format!("Cannot resolve parent receipt: {}", current_id),
+                }
+            })?;
+
+            // If parent is a root, we've reached the end
+            if parent.is_root() {
+                break;
+            }
+
+            // Move to next parent
+            current_id = parent
+                .parent_receipt_id
+                .ok_or_else(|| {
+                    crate::error::Error::ValidationFailed {
+                        reason: "Parent receipt marked as child but parent_receipt_id is None"
+                            .to_string(),
+                    }
+                })?;
+        }
+
+        Ok(chain)
+    }
+
     /// Serialize the composition receipt to JSON.
     ///
     /// # Errors
@@ -458,6 +741,8 @@ mod tests {
         assert_eq!(receipt.artifact_count(), 0);
         assert!(receipt.all_validators_passed());
         assert!(!receipt.has_conflicts());
+        assert!(receipt.receipt_id.is_none());
+        assert!(receipt.parent_receipt_id.is_none());
     }
 
     #[test]
@@ -498,5 +783,320 @@ mod tests {
         let deserialized = CompositionReceipt::from_json(&json.unwrap());
         assert!(deserialized.is_ok());
         assert_eq!(deserialized.unwrap().runtime_context.profile_id, "test");
+    }
+
+    #[test]
+    fn test_compute_receipt_id() {
+        let mut receipt = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "test".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+
+        assert!(receipt.receipt_id.is_none());
+
+        let result = receipt.compute_receipt_id();
+        assert!(result.is_ok());
+        assert!(receipt.receipt_id.is_some());
+
+        // Receipt ID should be 64 hex characters (SHA-256)
+        let id = receipt.receipt_id.unwrap();
+        assert_eq!(id.len(), 64);
+
+        // Computing again should produce the same ID
+        let mut receipt2 = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "test".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        receipt2.compute_receipt_id().unwrap();
+        assert_eq!(receipt.receipt_id, receipt2.receipt_id);
+    }
+
+    #[test]
+    fn test_receipt_is_root_and_child() {
+        let mut receipt = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "test".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+
+        // Initially should be root
+        assert!(receipt.is_root());
+        assert!(!receipt.is_child());
+        assert!(receipt.get_parent_id().is_none());
+
+        // Set parent
+        receipt.parent_receipt_id = Some("parent_hash".to_string());
+
+        assert!(!receipt.is_root());
+        assert!(receipt.is_child());
+        assert_eq!(receipt.get_parent_id(), Some("parent_hash"));
+    }
+
+    #[test]
+    fn test_chain_parent() {
+        let mut root = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "root".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        root.compute_receipt_id().unwrap();
+
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+
+        // Child should chain to root
+        let result = child.chain_parent(&root);
+        assert!(result.is_ok());
+        assert!(child.is_child());
+        assert_eq!(
+            child.get_parent_id(),
+            root.receipt_id.as_deref()
+        );
+    }
+
+    #[test]
+    fn test_chain_parent_without_parent_id_fails() {
+        let parent_without_id = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "parent".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+
+        // Should fail because parent has no receipt_id
+        let result = child.chain_parent(&parent_without_id);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_multi_level_chain() {
+        // Create a 3-level chain: root -> child -> grandchild
+        let mut root = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "root".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        root.compute_receipt_id().unwrap();
+
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        child.chain_parent(&root).unwrap();
+        child.compute_receipt_id().unwrap();
+
+        let mut grandchild = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "grandchild".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        grandchild.chain_parent(&child).unwrap();
+        grandchild.compute_receipt_id().unwrap();
+
+        // Verify relationships
+        assert!(root.is_root());
+        assert!(child.is_child());
+        assert!(grandchild.is_child());
+
+        assert_eq!(
+            child.get_parent_id(),
+            root.receipt_id.as_deref()
+        );
+        assert_eq!(
+            grandchild.get_parent_id(),
+            child.receipt_id.as_deref()
+        );
+    }
+
+    #[test]
+    fn test_validate_chain_on_root() {
+        let root = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "root".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+
+        // Root receipt should always validate
+        let result = root.validate_chain(|_| {
+            Err(crate::error::Error::ValidationFailed {
+                reason: "Should not be called for root".to_string(),
+            })
+        });
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_chain_detects_broken_links() {
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        child.parent_receipt_id = Some("nonexistent_parent".to_string());
+
+        // Validation should fail because resolver cannot find parent
+        let result = child.validate_chain(|_| {
+            Err(crate::error::Error::ValidationFailed {
+                reason: "Cannot resolve".to_string(),
+            })
+        });
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Cannot resolve"));
+    }
+
+    #[test]
+    fn test_validate_chain_detects_cycles() {
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        child.receipt_id = Some("parent_id".to_string());
+        child.parent_receipt_id = Some("parent_id".to_string()); // Points to itself
+
+        let result = child.validate_chain(|id| {
+            // Return a receipt that points back, creating a cycle
+            let mut parent = CompositionReceipt::new(RuntimeProfile {
+                profile_id: "parent".to_string(),
+                runtime_constraints: vec![],
+                trust_requirement: TrustTier::Experimental,
+            });
+            parent.receipt_id = Some(id.to_string());
+            parent.parent_receipt_id = Some("parent_id".to_string()); // Back to child
+            Ok(parent)
+        });
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Cycle"));
+    }
+
+    #[test]
+    fn test_get_full_chain_without_receipt_id_fails() {
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        child.parent_receipt_id = Some("parent_id".to_string());
+
+        let result = child.get_full_chain(|_| {
+            Err(crate::error::Error::ValidationFailed {
+                reason: "Not called".to_string(),
+            })
+        });
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("receipt_id"));
+    }
+
+    #[test]
+    fn test_get_full_chain_for_root() {
+        let mut root = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "root".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        root.compute_receipt_id().unwrap();
+
+        let result = root.get_full_chain(|_| {
+            Err(crate::error::Error::ValidationFailed {
+                reason: "Should not be called".to_string(),
+            })
+        });
+
+        assert!(result.is_ok());
+        let chain = result.unwrap();
+        assert_eq!(chain.len(), 1);
+        assert_eq!(chain[0], root.receipt_id.as_ref().unwrap());
+    }
+
+    #[test]
+    fn test_get_full_chain_multi_level() {
+        let mut root = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "root".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        root.compute_receipt_id().unwrap();
+        let root_id = root.receipt_id.clone().unwrap();
+
+        let mut child = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "child".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        child.chain_parent(&root).unwrap();
+        child.compute_receipt_id().unwrap();
+        let child_id = child.receipt_id.clone().unwrap();
+
+        let mut grandchild = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "grandchild".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        grandchild.chain_parent(&child).unwrap();
+        grandchild.compute_receipt_id().unwrap();
+
+        // Create a resolver that can resolve both root and child
+        let resolver = |id: &str| -> Result<CompositionReceipt> {
+            if id == &child_id {
+                Ok(child.clone())
+            } else if id == &root_id {
+                Ok(root.clone())
+            } else {
+                Err(crate::error::Error::ValidationFailed {
+                    reason: format!("Unknown ID: {}", id),
+                })
+            }
+        };
+
+        let result = grandchild.get_full_chain(resolver);
+        assert!(result.is_ok());
+
+        let chain = result.unwrap();
+        assert_eq!(chain.len(), 3);
+        assert_eq!(chain[0], grandchild.receipt_id.as_ref().unwrap());
+        assert_eq!(chain[1], child_id);
+        assert_eq!(chain[2], root_id);
+    }
+
+    #[test]
+    fn test_chain_exceeds_max_depth() {
+        let mut deep = CompositionReceipt::new(RuntimeProfile {
+            profile_id: "deep".to_string(),
+            runtime_constraints: vec![],
+            trust_requirement: TrustTier::Experimental,
+        });
+        deep.receipt_id = Some("deep_id".to_string());
+        deep.parent_receipt_id = Some("parent_id".to_string());
+
+        // Create a resolver that always returns a parent with another parent
+        let resolver = |_id: &str| -> Result<CompositionReceipt> {
+            let mut parent = CompositionReceipt::new(RuntimeProfile {
+                profile_id: "parent".to_string(),
+                runtime_constraints: vec![],
+                trust_requirement: TrustTier::Experimental,
+            });
+            parent.parent_receipt_id = Some("another_parent".to_string());
+            Ok(parent)
+        };
+
+        let result = deep.get_full_chain(resolver);
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("exceeds maximum depth"));
     }
 }

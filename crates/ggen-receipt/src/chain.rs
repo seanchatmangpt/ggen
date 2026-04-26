@@ -185,11 +185,10 @@ impl ReceiptChain {
     }
 }
 
-
 /// Convenience function to create a chained and signed receipt.
 pub fn create_chained_receipt(
-    previous: &Receipt, operation_id: String, input_hashes: Vec<String>, output_hashes: Vec<String>,
-    signing_key: &ed25519_dalek::SigningKey,
+    previous: &Receipt, operation_id: String, input_hashes: Vec<String>,
+    output_hashes: Vec<String>, signing_key: &ed25519_dalek::SigningKey,
 ) -> Result<Receipt> {
     Receipt::new(operation_id, input_hashes, output_hashes, None)
         .chain(previous)?

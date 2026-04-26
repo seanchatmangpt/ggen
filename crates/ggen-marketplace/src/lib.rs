@@ -76,6 +76,7 @@ pub use validation::Validator;
 /// Prelude for convenient imports
 pub mod prelude {
     pub use crate::{
+        composition_receipt::CompositionReceipt,
         error::{Error, Result},
         install::Installer,
         metrics::MetricsCollector,

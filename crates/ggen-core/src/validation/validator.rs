@@ -68,18 +68,16 @@ impl SparqlValidator {
     /// Validate a single shape against the ontology graph
     fn validate_shape(&self, graph: &Graph, shape: &ShaclShape, violations: &mut Vec<Violation>) {
         for (path, constraint) in &shape.properties {
-            let effective_severity =
-                constraint.severity;
+            let effective_severity = constraint.severity;
 
             // sh:minCount — required property check
             if let Some(min_count) = constraint.min_count {
                 if min_count > 0 {
                     let nodes = self.find_missing_property_nodes(graph, &shape.target_class, path);
                     for node in &nodes {
-                        let msg = constraint
-                            .message
-                            .clone()
-                            .unwrap_or_else(|| format!("Missing required property {path} on {node}"));
+                        let msg = constraint.message.clone().unwrap_or_else(|| {
+                            format!("Missing required property {path} on {node}")
+                        });
                         violations.push(
                             Violation::new(node, ConstraintType::Cardinality, msg)
                                 .with_result_path(path)
@@ -92,17 +90,11 @@ impl SparqlValidator {
 
             // sh:maxCount — too many values check
             if let Some(max_count) = constraint.max_count {
-                let nodes = self.find_over_cardinality_nodes(
-                    graph,
-                    &shape.target_class,
-                    path,
-                    max_count,
-                );
+                let nodes =
+                    self.find_over_cardinality_nodes(graph, &shape.target_class, path, max_count);
                 for (node, actual) in &nodes {
                     let msg = constraint.message.clone().unwrap_or_else(|| {
-                        format!(
-                            "Property {path} on {node} has {actual} values (max {max_count})"
-                        )
+                        format!("Property {path} on {node} has {actual} values (max {max_count})")
                     });
                     violations.push(
                         Violation::new(node, ConstraintType::Cardinality, msg)
@@ -136,12 +128,8 @@ impl SparqlValidator {
 
             // sh:in — enumeration check
             if let Some(ref allowed) = constraint.allowed_values {
-                let nodes = self.find_invalid_enumeration_nodes(
-                    graph,
-                    &shape.target_class,
-                    path,
-                    allowed,
-                );
+                let nodes =
+                    self.find_invalid_enumeration_nodes(graph, &shape.target_class, path, allowed);
                 for (node, actual) in &nodes {
                     let allowed_str = allowed.join(", ");
                     let msg = constraint.message.clone().unwrap_or_else(|| {
@@ -161,8 +149,7 @@ impl SparqlValidator {
 
             // sh:pattern — regex validation
             if let Some(ref pattern) = constraint.pattern {
-                let nodes =
-                    self.find_pattern_violations(graph, &shape.target_class, path, pattern);
+                let nodes = self.find_pattern_violations(graph, &shape.target_class, path, pattern);
                 for (node, actual) in &nodes {
                     let msg = constraint.message.clone().unwrap_or_else(|| {
                         format!(
@@ -181,12 +168,7 @@ impl SparqlValidator {
 
             // sh:minLength — minimum string length
             if let Some(min_len) = constraint.min_length {
-                let nodes = self.find_too_short_nodes(
-                    graph,
-                    &shape.target_class,
-                    path,
-                    min_len,
-                );
+                let nodes = self.find_too_short_nodes(graph, &shape.target_class, path, min_len);
                 for (node, actual) in &nodes {
                     let msg = constraint.message.clone().unwrap_or_else(|| {
                         format!(
@@ -205,12 +187,7 @@ impl SparqlValidator {
 
             // sh:maxLength — maximum string length
             if let Some(max_len) = constraint.max_length {
-                let nodes = self.find_too_long_nodes(
-                    graph,
-                    &shape.target_class,
-                    path,
-                    max_len,
-                );
+                let nodes = self.find_too_long_nodes(graph, &shape.target_class, path, max_len);
                 for (node, actual) in &nodes {
                     let msg = constraint.message.clone().unwrap_or_else(|| {
                         format!(
@@ -501,8 +478,14 @@ mod tests {
 
         assert!(!result.passed);
         assert_eq!(result.violation_count, 1);
-        assert_eq!(result.violations[0].constraint_type, ConstraintType::Cardinality);
-        assert_eq!(result.violations[0].message, "Every person must have a name");
+        assert_eq!(
+            result.violations[0].constraint_type,
+            ConstraintType::Cardinality
+        );
+        assert_eq!(
+            result.violations[0].message,
+            "Every person must have a name"
+        );
     }
 
     #[test]
@@ -534,7 +517,10 @@ mod tests {
 
         assert!(!result.passed);
         assert_eq!(result.violation_count, 1);
-        assert_eq!(result.violations[0].constraint_type, ConstraintType::Datatype);
+        assert_eq!(
+            result.violations[0].constraint_type,
+            ConstraintType::Datatype
+        );
     }
 
     #[test]
@@ -568,8 +554,14 @@ mod tests {
 
         assert!(!result.passed);
         assert_eq!(result.violation_count, 1);
-        assert_eq!(result.violations[0].constraint_type, ConstraintType::Enumeration);
-        assert_eq!(result.violations[0].actual_value.as_deref(), Some("INVALID"));
+        assert_eq!(
+            result.violations[0].constraint_type,
+            ConstraintType::Enumeration
+        );
+        assert_eq!(
+            result.violations[0].actual_value.as_deref(),
+            Some("INVALID")
+        );
     }
 
     #[test]
@@ -603,7 +595,10 @@ mod tests {
 
         assert!(!result.passed);
         assert_eq!(result.violation_count, 1);
-        assert_eq!(result.violations[0].constraint_type, ConstraintType::Pattern);
+        assert_eq!(
+            result.violations[0].constraint_type,
+            ConstraintType::Pattern
+        );
     }
 
     #[test]
@@ -637,7 +632,10 @@ mod tests {
 
         assert!(!result.passed);
         assert_eq!(result.violation_count, 1);
-        assert_eq!(result.violations[0].constraint_type, ConstraintType::StringLength);
+        assert_eq!(
+            result.violations[0].constraint_type,
+            ConstraintType::StringLength
+        );
     }
 
     #[test]
@@ -671,7 +669,10 @@ mod tests {
 
         assert!(!result.passed);
         assert_eq!(result.violation_count, 1);
-        assert_eq!(result.violations[0].constraint_type, ConstraintType::StringLength);
+        assert_eq!(
+            result.violations[0].constraint_type,
+            ConstraintType::StringLength
+        );
     }
 
     #[test]
