@@ -10,7 +10,6 @@ use ggen_marketplace::composition_receipt::{
     CompositionReceipt, RuntimeProfile, AtomicPackRef, BundleExpansion,
 };
 use ggen_marketplace::trust::TrustTier;
-use std::collections::HashMap;
 
 #[test]
 fn test_simple_parent_child_chain() {
@@ -113,7 +112,7 @@ fn test_composition_with_bundle_expansion() {
     let mut root = CompositionReceipt::new(RuntimeProfile {
         profile_id: "root".to_string(),
         runtime_constraints: vec![],
-        trust_requirement: TrustTier::Community,
+        trust_requirement: TrustTier::CommunityReviewed,
     });
 
     root.add_bundle_expansion(BundleExpansion {
@@ -126,7 +125,7 @@ fn test_composition_with_bundle_expansion() {
     let mut child = CompositionReceipt::new(RuntimeProfile {
         profile_id: "child".to_string(),
         runtime_constraints: vec![],
-        trust_requirement: TrustTier::Community,
+        trust_requirement: TrustTier::CommunityReviewed,
     });
 
     child.chain_parent(&root).unwrap();
@@ -226,10 +225,12 @@ fn test_get_full_chain_returns_correct_sequence() {
     // Create a resolver
     let root_c = root.clone();
     let mid_c = mid.clone();
+    let mid_id_ref = mid_id.clone();
+    let root_id_ref = root_id.clone();
     let resolver = move |id: &str| -> Result<CompositionReceipt, ggen_marketplace::Error> {
-        if id == &mid_id {
+        if id == mid_id_ref {
             Ok(mid_c.clone())
-        } else if id == &root_id {
+        } else if id == root_id_ref {
             Ok(root_c.clone())
         } else {
             Err(ggen_marketplace::Error::ValidationFailed {

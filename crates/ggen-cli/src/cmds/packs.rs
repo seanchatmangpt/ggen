@@ -123,10 +123,10 @@ fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
-    let filtered_packages: Vec<_> = if let Some(ref cat) = category {
+    let filtered_packages: Vec<_> = if let Some(cat) = category.as_ref() {
         packages
             .into_iter()
-            .filter(|pkg| pkg.category.as_ref() == Some(cat))
+            .filter(|pkg| &pkg.category == cat)
             .collect()
     } else {
         packages

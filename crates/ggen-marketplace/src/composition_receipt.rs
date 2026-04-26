@@ -800,7 +800,7 @@ mod tests {
         assert!(receipt.receipt_id.is_some());
 
         // Receipt ID should be 64 hex characters (SHA-256)
-        let id = receipt.receipt_id.unwrap();
+        let id = receipt.receipt_id.as_ref().unwrap();
         assert_eq!(id.len(), 64);
 
         // Computing again should produce the same ID

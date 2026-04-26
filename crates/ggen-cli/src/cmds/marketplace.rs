@@ -70,7 +70,7 @@ struct DetailOutput {
 
 /// Search for packages by query
 #[verb]
-fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
+fn search(query: String, _limit: Option<usize>) -> VerbResult<SearchOutput> {
     if query.is_empty() {
         return Err(clap_noun_verb::NounVerbError::argument_error(
             "Search query cannot be empty",
@@ -177,21 +177,31 @@ fn sync(
     source: Option<String>,
     verbose: Option<bool>,
 ) -> VerbResult<SyncOutput> {
-    use std::path::PathBuf;
-    use std::time::Instant;
-
-    let start = Instant::now();
     let force = force.unwrap_or(false);
     let dry_run = dry_run.unwrap_or(false);
     let verbose = verbose.unwrap_or(false);
 
-    // Resolve cache directory
+    perform_marketplace_sync(force, dry_run, source, verbose)
+}
+
+// ============================================================================
+// Domain Logic for sync (extracted for complexity reduction)
+// ============================================================================
+
+fn perform_marketplace_sync(
+    force: bool,
+    dry_run: bool,
+    source: Option<String>,
+    verbose: bool,
+) -> VerbResult<SyncOutput> {
+    use std::time::Instant;
+
+    let start = Instant::now();
     let cache_dir = resolve_cache_directory()?;
     if verbose {
         eprintln!("Cache directory: {}", cache_dir.display());
     }
 
-    // Create cache if needed
     if !dry_run {
         std::fs::create_dir_all(&cache_dir).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!(
@@ -201,74 +211,19 @@ fn sync(
         })?;
     }
 
-    // Log registry source
-    let registry_url = source.clone().unwrap_or_else(|| {
-        "https://marketplace.ggen.dev/registry".to_string()
-    });
+    let registry_url = source.unwrap_or_else(|| "https://marketplace.ggen.dev/registry".to_string());
     if verbose {
         eprintln!("Marketplace registry: {}", registry_url);
     }
 
-    // Initialize registry (in-memory)
     let registry = Registry::new(1000);
-
-    // Simulate syncing packages from marketplace
-    // In a production environment, this would fetch from the registry URL
     let packages_to_sync = get_marketplace_packages(&registry, force)?;
 
     if verbose {
         eprintln!("Found {} packages to evaluate", packages_to_sync.len());
     }
 
-    let mut synced = 0;
-    let mut updated = 0;
-    let mut skipped = 0;
-
-    for (idx, pkg_info) in packages_to_sync.iter().enumerate() {
-        if verbose {
-            eprintln!(
-                "[{}/{}] Processing {}@{}",
-                idx + 1,
-                packages_to_sync.len(),
-                pkg_info.id,
-                pkg_info.version
-            );
-        }
-
-        // Check if package needs update (checksum comparison)
-        let pkg_cache_dir = cache_dir.join(&pkg_info.id);
-        let needs_update = should_update_package(&pkg_cache_dir, &pkg_info.checksum, force)?;
-
-        if !needs_update {
-            skipped += 1;
-            if verbose {
-                eprintln!("  ✓ Skipped (cache valid)");
-            }
-            continue;
-        }
-
-        // Download/update package metadata
-        if !dry_run {
-            if let Err(e) = download_package_metadata(&pkg_cache_dir, &pkg_info.id, &pkg_info.version) {
-                eprintln!("  ✗ Failed to sync {}: {}", pkg_info.id, e);
-                continue;
-            }
-
-            // Update checksum file
-            if let Err(e) = write_checksum_file(&pkg_cache_dir, &pkg_info.checksum) {
-                eprintln!("  ✗ Failed to write checksum for {}: {}", pkg_info.id, e);
-                continue;
-            }
-        }
-
-        updated += 1;
-        if verbose {
-            eprintln!("  ✓ Synced");
-        }
-        synced += 1;
-    }
-
-    // Invalidate registry cache (epoch bump)
+    let (synced, updated, skipped) = perform_sync_loop(&cache_dir, &packages_to_sync, dry_run, verbose)?;
     invalidate_registry_cache(&cache_dir)?;
 
     let duration_ms = start.elapsed().as_millis() as u64;
@@ -286,6 +241,60 @@ fn sync(
         duration_ms,
         error: None,
     })
+}
+
+fn perform_sync_loop(
+    cache_dir: &std::path::Path,
+    packages: &[PackageInfo],
+    dry_run: bool,
+    verbose: bool,
+) -> VerbResult<(usize, usize, usize)> {
+    let mut synced = 0usize;
+    let mut updated = 0usize;
+    let mut skipped = 0usize;
+
+    for (idx, pkg_info) in packages.iter().enumerate() {
+        if verbose {
+            eprintln!(
+                "[{}/{}] Processing {}@{}",
+                idx + 1,
+                packages.len(),
+                pkg_info.id,
+                pkg_info.version
+            );
+        }
+
+        let pkg_cache_dir = cache_dir.join(&pkg_info.id);
+        let needs_update = should_update_package(&pkg_cache_dir, &pkg_info.checksum, false)?;
+
+        if !needs_update {
+            skipped += 1;
+            if verbose {
+                eprintln!("  ✓ Skipped (cache valid)");
+            }
+            continue;
+        }
+
+        if !dry_run {
+            if let Err(e) = download_package_metadata(&pkg_cache_dir, &pkg_info.id, &pkg_info.version) {
+                eprintln!("  ✗ Failed to sync {}: {}", pkg_info.id, e);
+                continue;
+            }
+
+            if let Err(e) = write_checksum_file(&pkg_cache_dir, &pkg_info.checksum) {
+                eprintln!("  ✗ Failed to write checksum for {}: {}", pkg_info.id, e);
+                continue;
+            }
+        }
+
+        updated += 1;
+        synced += 1;
+        if verbose {
+            eprintln!("  ✓ Synced");
+        }
+    }
+
+    Ok((synced, updated, skipped))
 }
 
 // ============================================================================
