@@ -140,3 +140,16 @@ required-features = ["integration"]
 name = "install_security_test"
 path = "tests/install_security_test.rs"
 required-features = ["integration"]
+
+[[test]]
+name = "pack_migration_test"
+path = "tests/pack_migration_test.rs"
+
+[[test]]
+name = "v3_registry_test"
+path = "tests/v3_registry_test.rs"
+
+# Benchmarks
+[[bench]]
+name = "v3_registry"
+harness = false

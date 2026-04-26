@@ -39,7 +39,7 @@ pub mod capability;
 pub mod construct;
 pub mod doctor;
 pub mod graph;
-// marketplace and hook modules removed — migrated to separate project
+pub mod marketplace;
 pub mod mcp;
 pub mod ontology;
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
