@@ -4,7 +4,7 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ed25519_dalek::VerifyingKey;
+use ed25519_dalek::{SigningKey, VerifyingKey};
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -47,9 +47,42 @@ struct ChainVerifyOutput {
     latest_operation: Option<String>,
 }
 
+#[derive(Serialize)]
+struct SignOutput {
+    receipt_file: String,
+    output_file: String,
+    operation_id: String,
+    own_hash: String,
+    previous_receipt_hash: Option<String>,
+    chain_file: Option<String>,
+    chain_length: Option<usize>,
+}
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
+
+/// Reads an Ed25519 signing key from a file (hex-encoded, 32 bytes / 64 hex chars).
+/// Matches the convention used by `receipt_manager.rs` for `private.pem`.
+fn read_signing_key(path: &PathBuf) -> Result<SigningKey, String> {
+    let content =
+        fs::read_to_string(path).map_err(|e| format!("Failed to read private key file: {}", e))?;
+
+    let key_bytes = hex::decode(content.trim())
+        .map_err(|e| format!("Failed to decode private key (expected hex): {}", e))?;
+
+    if key_bytes.len() != 32 {
+        return Err(format!(
+            "Private key must be 32 bytes (got {})",
+            key_bytes.len()
+        ));
+    }
+
+    let key_array: [u8; 32] = key_bytes
+        .try_into()
+        .map_err(|_| "Invalid signing key length".to_string())?;
+    Ok(SigningKey::from_bytes(&key_array))
+}
 
 /// Reads a verifying key from a file (hex-encoded or base64-encoded)
 fn read_verifying_key(path: &PathBuf) -> Result<VerifyingKey, String> {
@@ -361,5 +394,132 @@ fn chain_verify(chain_file: String, public_key: String) -> VerbResult<ChainVerif
         receipt_count: chain.len(),
         genesis_operation: genesis.map(|r| r.operation_id.clone()),
         latest_operation: latest.map(|r| r.operation_id.clone()),
+    })
+}
+
+/// Sign an unsigned receipt with an Ed25519 key, optionally chaining to a previous receipt
+#[verb]
+fn sign(
+    receipt_file: String, private_key: String, chain_file: Option<String>, output: Option<String>,
+) -> VerbResult<SignOutput> {
+    use ggen_receipt::{Receipt, ReceiptChain};
+
+    let receipt_path = PathBuf::from(&receipt_file);
+    if !receipt_path.exists() {
+        return Err(clap_noun_verb::NounVerbError::argument_error(format!(
+            "Receipt file not found: {}",
+            receipt_file
+        )));
+    }
+
+    let receipt_content = fs::read_to_string(&receipt_path).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!("Failed to read receipt file: {}", e))
+    })?;
+
+    let mut receipt: Receipt = serde_json::from_str(&receipt_content).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!(
+            "Failed to parse unsigned receipt JSON: {}",
+            e
+        ))
+    })?;
+
+    let signing_key = read_signing_key(&PathBuf::from(&private_key))
+        .map_err(clap_noun_verb::NounVerbError::argument_error)?;
+
+    // Optional: link to chain by setting previous_receipt_hash to last chain entry.
+    let mut chain_to_persist: Option<(PathBuf, ReceiptChain)> = None;
+    if let Some(ref chain_path_str) = chain_file {
+        let chain_path = PathBuf::from(chain_path_str);
+        let chain = if chain_path.exists() {
+            let chain_content = fs::read_to_string(&chain_path).map_err(|e| {
+                clap_noun_verb::NounVerbError::argument_error(format!(
+                    "Failed to read chain file: {}",
+                    e
+                ))
+            })?;
+            serde_json::from_str::<ReceiptChain>(&chain_content).map_err(|e| {
+                clap_noun_verb::NounVerbError::argument_error(format!(
+                    "Failed to parse chain file: {}",
+                    e
+                ))
+            })?
+        } else {
+            ReceiptChain::new()
+        };
+
+        if let Some(last) = chain.last() {
+            receipt = receipt.chain(last).map_err(|e| {
+                clap_noun_verb::NounVerbError::argument_error(format!(
+                    "Failed to link receipt to previous chain entry: {}",
+                    e
+                ))
+            })?;
+        } else {
+            // Genesis: chain expects no previous_receipt_hash.
+            receipt.previous_receipt_hash = None;
+        }
+
+        chain_to_persist = Some((chain_path, chain));
+    }
+
+    let signed = receipt.sign(&signing_key).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!("Failed to sign receipt: {}", e))
+    })?;
+
+    let own_hash = signed.hash().map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!(
+            "Failed to compute receipt hash: {}",
+            e
+        ))
+    })?;
+
+    // Persist signed receipt.
+    let output_path = output.clone().unwrap_or_else(|| receipt_file.clone());
+    let signed_json = serde_json::to_string_pretty(&signed).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!(
+            "Failed to serialize signed receipt: {}",
+            e
+        ))
+    })?;
+    fs::write(&output_path, &signed_json).map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!(
+            "Failed to write signed receipt: {}",
+            e
+        ))
+    })?;
+
+    // Append to chain if requested.
+    let chain_length = if let Some((chain_path, mut chain)) = chain_to_persist {
+        chain.append(signed.clone()).map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!(
+                "Failed to append signed receipt to chain: {}",
+                e
+            ))
+        })?;
+        let chain_json = serde_json::to_string_pretty(&chain).map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!(
+                "Failed to serialize chain: {}",
+                e
+            ))
+        })?;
+        fs::write(&chain_path, &chain_json).map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!(
+                "Failed to write chain file: {}",
+                e
+            ))
+        })?;
+        Some(chain.len())
+    } else {
+        None
+    };
+
+    Ok(SignOutput {
+        receipt_file,
+        output_file: output_path,
+        operation_id: signed.operation_id.clone(),
+        own_hash,
+        previous_receipt_hash: signed.previous_receipt_hash.clone(),
+        chain_file,
+        chain_length,
     })
 }
