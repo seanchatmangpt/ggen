@@ -23,6 +23,7 @@ pub const RECEIPT_POLICY_VERSION: &str = "chatmangpt.mcpp.receipt-policy.v1";
 ///
 /// Returns `Ok(())` if all rules pass.
 /// Returns `Err(Envelope)` typed as `RECEIPT_DEFECT` on any violation.
+#[allow(clippy::result_large_err)] // Envelope is the domain error type; callers handle it by value
 pub fn validate_receipt_for_completion(
     receipt: &ReceiptEvidence, command: &str, target: &str,
 ) -> Result<(), Envelope> {
@@ -62,6 +63,7 @@ pub fn validate_receipt_for_completion(
 /// Returns `Err(Envelope)` typed as `RECEIPT_DEFECT` when:
 /// - `work_unit` is empty.
 /// - `entries` is empty.
+#[allow(clippy::result_large_err)] // Envelope is the domain error type; callers handle it by value
 pub fn emit_receipt(
     work_unit: &str, entries: Vec<(&str, &str)>, command: &str, target: &str,
 ) -> Result<ReceiptEvidence, Envelope> {
