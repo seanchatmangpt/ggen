@@ -159,8 +159,8 @@ impl V3OptimizedRegistry {
         // Query all packages from RDF store
         let query = r"
             SELECT ?name ?package WHERE {
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ggen.dev/ontology#Package> .
-                ?package <http://ggen.dev/ontology#name> ?name .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://ggen.io/marketplace/Package> .
+                ?package <https://ggen.io/marketplace/name> ?name .
             }
         ";
 
@@ -213,7 +213,7 @@ impl V3OptimizedRegistry {
     /// * [`Error::RegistryError`] - When the search index lock fails
     #[must_use]
     pub fn update_search_index(&self, package_id: &str, package_name: &str) -> Result<()> {
-        let package_uri = format!("http://ggen.dev/ontology#packages/{package_id}");
+        let package_uri = format!("https://ggen.io/marketplace/packages/{package_id}");
         let mut index = self.search_index.write();
 
         // Index by name terms
@@ -515,10 +515,10 @@ impl AsyncRepository for V3OptimizedRegistry {
         let _query = format!(
             r"
             SELECT ?name ?version ?description WHERE {{
-                <http://ggen.dev/ontology#packages/{id}>
-                    <http://ggen.dev/ontology#name> ?name ;
-                    <http://ggen.dev/ontology#version> ?version ;
-                    <http://ggen.dev/ontology#description> ?description .
+                <https://ggen.io/marketplace/packages/{id}>
+                    <https://ggen.io/marketplace/name> ?name ;
+                    <https://ggen.io/marketplace/version> ?version ;
+                    <https://ggen.io/marketplace/description> ?description .
             }}
             "
         );
@@ -604,8 +604,8 @@ impl AsyncRepository for V3OptimizedRegistry {
         // Query all packages from RDF store
         let _query = r"
             SELECT ?name ?package WHERE {
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ggen.dev/ontology#Package> .
-                ?package <http://ggen.dev/ontology#name> ?name .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://ggen.io/marketplace/Package> .
+                ?package <https://ggen.io/marketplace/name> ?name .
             }
         ";
 

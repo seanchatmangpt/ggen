@@ -85,7 +85,7 @@
 ```rust
 fn convert_json_to_rdf(json_package: &JsonPackage) -> Result<String> {
     let turtle = format!(r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
         <http://ggen.dev/packages/{id}>

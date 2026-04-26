@@ -119,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let query = format!(
         r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?varName ?varType ?required ?default
         WHERE {{
             <{}> ggen:hasVariable ?var .
@@ -173,7 +173,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("7. Template discovery via SPARQL...");
 
     let discovery_query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?template ?name ?description ?category
         WHERE {
             ?template a ggen:Template ;

@@ -8,7 +8,7 @@
 //! - Error recovery
 
 use ggen_core::cache::CacheManager;
-use ggen_core::lockfile::LockfileManager;
+use ggen_core::LockfileManager;
 use tempfile::TempDir;
 
 // ============================================================================

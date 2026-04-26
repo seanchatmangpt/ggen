@@ -387,7 +387,7 @@ mod tests {
         fs::create_dir_all(&test_dir).unwrap();
 
         let config_content = r#"
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/marketplace/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 :marketplace a ggen:MarketplaceConfig ;

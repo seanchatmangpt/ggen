@@ -14,14 +14,14 @@ This is the highest-impact issue in the crate. Three incompatible URIs create si
 | URI | Defined At | Used By |
 |-----|-----------|---------|
 | `https://ggen.io/marketplace/` | `src/ontology.rs:14` | `v3.rs`, `registry_rdf.rs:26`, `rdf/control.rs` SPARQL, `rdf/sparql.rs` |
-| `http://ggen.dev/ontology#` | `src/rdf/ontology.rs:23` | Config TTL files, `rdf/rdf_control.rs`, tests |
-| `http://ggen.dev/marketplace#` | `src/rdf/ontology.rs:24` | Only one file |
+| `https://ggen.io/marketplace/` | `src/rdf/ontology.rs:23` | Config TTL files, `rdf/rdf_control.rs`, tests |
+| `https://ggen.io/marketplace/` | `src/rdf/ontology.rs:24` | Only one file |
 
-**The conflict:** `rdf/control.rs` builds URIs like `https://ggen.io/marketplace/<id>` but `rdf/sparql.rs` builds them as `http://ggen.dev/ontology#<id>`. A SPARQL query with one prefix returns zero results against triples inserted with the other. No error. Just empty data.
+**The conflict:** `rdf/control.rs` builds URIs like `https://ggen.io/marketplace/<id>` but `rdf/sparql.rs` builds them as `https://ggen.io/marketplace/<id>`. A SPARQL query with one prefix returns zero results against triples inserted with the other. No error. Just empty data.
 
 **Two files export same constant name with different values:**
 - `src/ontology.rs:14` → `pub const GGEN = "https://ggen.io/marketplace/"`
-- `src/rdf/ontology.rs:23` → `pub const GGEN = "http://ggen.dev/ontology#"`
+- `src/rdf/ontology.rs:23` → `pub const GGEN = "https://ggen.io/marketplace/"`
 
 ---
 

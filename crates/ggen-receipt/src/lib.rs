@@ -76,10 +76,15 @@
 #![deny(missing_docs)]
 
 pub mod chain;
+pub mod envelope;
 pub mod error;
 pub mod receipt;
 
 pub use chain::ReceiptChain;
+pub use envelope::{
+    payload_hash, EnvelopeChain, EnvelopeChainLink, EnvelopeSignature, PayloadRef, Producer,
+    ReceiptEnvelope, ENVELOPE_SCHEMA, HASH_PREFIX, SIGNATURE_ALGORITHM,
+};
 pub use error::{ReceiptError, Result};
 pub use receipt::{generate_keypair, hash_data, Receipt};
 

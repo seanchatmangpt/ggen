@@ -384,9 +384,16 @@ fn run_manifest_pipeline(
     let manifest_data = ggen_core::manifest::ManifestParser::parse(&manifest_path)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-    let base_path = manifest_path.parent().unwrap_or(std::path::Path::new("")).to_path_buf();
-    let out_dir = output_dir.clone().unwrap_or_else(|| manifest_data.generation.output_dir.display().to_string());
-    let ontology_path = ontology.clone().unwrap_or_else(|| manifest_data.ontology.source.display().to_string());
+    let base_path = manifest_path
+        .parent()
+        .unwrap_or(std::path::Path::new(""))
+        .to_path_buf();
+    let out_dir = output_dir
+        .clone()
+        .unwrap_or_else(|| manifest_data.generation.output_dir.display().to_string());
+    let ontology_path = ontology
+        .clone()
+        .unwrap_or_else(|| manifest_data.ontology.source.display().to_string());
 
     let config = ggen_core::v6::pipeline::PipelineConfig::new(
         &manifest_data.project.name,
@@ -399,19 +406,24 @@ fn run_manifest_pipeline(
 
     let mut pipeline = ggen_core::v6::pipeline::StagedPipeline::new(config)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
-        
+
     let start_time = std::time::Instant::now();
-    let receipt = pipeline.run()
+    let receipt = pipeline
+        .run()
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
-        
+
     let duration_ms = start_time.elapsed().as_millis() as u64;
 
     let files_synced = receipt.outputs.len();
-    let synced_files: Vec<SyncedFile> = receipt.outputs.into_iter().map(|f| SyncedFile {
-        path: f.path.display().to_string(),
-        size_bytes: f.size_bytes,
-        action: "created".to_string(),
-    }).collect();
+    let synced_files: Vec<SyncedFile> = receipt
+        .outputs
+        .into_iter()
+        .map(|f| SyncedFile {
+            path: f.path.display().to_string(),
+            size_bytes: f.size_bytes,
+            action: "created".to_string(),
+        })
+        .collect();
 
     Ok(SyncOutput {
         status: "success".to_string(),
@@ -425,7 +437,6 @@ fn run_manifest_pipeline(
         receipt_path: Some(".ggen/receipts/latest.json".to_string()),
     })
 }
-
 
 /// Attempt to write a sync receipt; log a warning on failure but never abort the sync.
 #[allow(dead_code)]

@@ -20,7 +20,7 @@ pub mod namespaces {
     pub const SPDX: &str = "http://spdx.org/rdf/terms#";
 
     // Custom ggen namespace
-    pub const GGEN: &str = "http://ggen.dev/ontology#";
+    pub const GGEN: &str = "https://ggen.io/marketplace/";
 }
 
 // Re-export commonly used namespaces
@@ -595,10 +595,10 @@ mod tests {
 
     #[test]
     fn test_class_uris() {
-        assert_eq!(Class::Package.uri(), "http://ggen.dev/ontology#Package");
+        assert_eq!(Class::Package.uri(), "https://ggen.io/marketplace/Package");
         assert_eq!(
             Class::PackageVersion.uri(),
-            "http://ggen.dev/ontology#PackageVersion"
+            "https://ggen.io/marketplace/PackageVersion"
         );
     }
 
@@ -610,7 +610,7 @@ mod tests {
         );
         assert_eq!(
             Property::HasVersion.uri(),
-            "http://ggen.dev/ontology#hasVersion"
+            "https://ggen.io/marketplace/hasVersion"
         );
     }
 

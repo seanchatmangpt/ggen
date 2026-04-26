@@ -790,7 +790,7 @@ mod tests {
         let result =
             SafeCommand::new("cargo")
                 .unwrap()
-                .args(&["build", "--release", "--all-features"]);
+                .args(["build", "--release", "--all-features"]);
 
         // Assert
         assert!(result.is_ok());
@@ -1031,7 +1031,7 @@ mod tests {
         let mut cmd = SafeCommand::new("cargo").unwrap();
 
         for i in 0..100 {
-            cmd = cmd.arg(&format!("arg{}", i)).unwrap();
+            cmd = cmd.arg(format!("arg{}", i)).unwrap();
         }
 
         // Act

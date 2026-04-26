@@ -316,7 +316,7 @@ fn test_max_length_many_args() {
 
     // Add 500 args of 10 chars each = 5000 chars total (exceeds 4096)
     for i in 0..500 {
-        cmd = cmd.arg(&format!("arg_{:05}", i)).unwrap();
+        cmd = cmd.arg(format!("arg_{:05}", i)).unwrap();
     }
 
     // Act
@@ -595,7 +595,7 @@ fn test_command_with_many_short_args() {
 
     // Add 1000 short args
     for i in 0..1000 {
-        cmd = cmd.arg(&format!("a{}", i)).unwrap();
+        cmd = cmd.arg(format!("a{}", i)).unwrap();
     }
 
     // Act

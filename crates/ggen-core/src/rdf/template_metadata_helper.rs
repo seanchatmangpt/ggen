@@ -37,7 +37,7 @@ impl TemplateMetadataStore {
         // Query basic fields
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name ?version ?description ?author ?category ?stability ?coverage ?usage
             WHERE {{
                 <{template_id}> a ggen:Template ;
@@ -83,7 +83,7 @@ impl TemplateMetadataStore {
         // Query tags
         let tags_query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?tag
             WHERE {{
                 <{template_id}> ggen:tag ?tag .

@@ -32,7 +32,7 @@ impl SparqlValidator {
 
     /// Validate an RDF graph against SHACL shapes.
     ///
-    /// Loads shapes from the `shapes` graph, then for each shape:
+    /// Loads shapes from the \`shapes\` graph, then for each shape:
     /// 1. Find all instances of the target class
     /// 2. Check each property constraint via SPARQL
     /// 3. Collect violations
@@ -213,16 +213,19 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node WHERE {{
-                    ?node a <{target_class}> .
-                    FILTER NOT EXISTS {{ ?node <{path}> ?value }}
+                    ?node a {} .
+                    FILTER NOT EXISTS {{ ?node {} ?value }}
                 }}
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path)
         );
 
         match graph.query_cached(&query) {
             Ok(CachedResult::Solutions(rows)) => rows
                 .iter()
                 .filter_map(|row| row.get("node").cloned())
+                .map(|v| strip_iri_brackets(&v).to_string())
                 .collect(),
             _ => Vec::new(),
         }
@@ -235,12 +238,14 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node (COUNT(?value) AS ?count) WHERE {{
-                    ?node a <{target_class}> .
-                    ?node <{path}> ?value .
+                    ?node a {} .
+                    ?node {} ?value .
                 }}
                 GROUP BY ?node
                 HAVING (COUNT(?value) > {max_count})
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path)
         );
 
         match graph.query_cached(&query) {
@@ -249,7 +254,10 @@ impl SparqlValidator {
                 .filter_map(|row| {
                     let node = row.get("node").cloned()?;
                     let count = row.get("count").cloned()?;
-                    Some((node, count))
+                    Some((
+                        strip_iri_brackets(&node).to_string(),
+                        strip_literal_quotes(&count).to_string(),
+                    ))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -263,12 +271,15 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node ?actualType WHERE {{
-                    ?node a <{target_class}> .
-                    ?node <{path}> ?value .
+                    ?node a {} .
+                    ?node {} ?value .
                     BIND (datatype(?value) AS ?actualType)
-                    FILTER (?actualType != <{expected_datatype}> && ?actualType != <http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>)
+                    FILTER (?actualType != {} && ?actualType != <http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>)
                 }}
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path),
+            format_term_for_sparql(expected_datatype)
         );
 
         match graph.query_cached(&query) {
@@ -277,7 +288,10 @@ impl SparqlValidator {
                 .filter_map(|row| {
                     let node = row.get("node").cloned()?;
                     let actual = row.get("actualType").cloned()?;
-                    Some((node, actual))
+                    Some((
+                        strip_iri_brackets(&node).to_string(),
+                        strip_iri_brackets(&actual).to_string(),
+                    ))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -297,11 +311,13 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node ?value WHERE {{
-                    ?node a <{target_class}> .
-                    ?node <{path}> ?value .
+                    ?node a {} .
+                    ?node {} ?value .
                     FILTER (?value NOT IN ({values_list}))
                 }}
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path)
         );
 
         match graph.query_cached(&query) {
@@ -310,7 +326,10 @@ impl SparqlValidator {
                 .filter_map(|row| {
                     let node = row.get("node").cloned()?;
                     let value = row.get("value").cloned()?;
-                    Some((node, value))
+                    Some((
+                        strip_iri_brackets(&node).to_string(),
+                        strip_literal_quotes(&value).to_string(),
+                    ))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -325,11 +344,13 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node ?value WHERE {{
-                    ?node a <{target_class}> .
-                    ?node <{path}> ?value .
+                    ?node a {} .
+                    ?node {} ?value .
                     FILTER (!REGEX(STR(?value), '{escaped_pattern}'))
                 }}
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path)
         );
 
         match graph.query_cached(&query) {
@@ -338,7 +359,10 @@ impl SparqlValidator {
                 .filter_map(|row| {
                     let node = row.get("node").cloned()?;
                     let value = row.get("value").cloned()?;
-                    Some((node, value))
+                    Some((
+                        strip_iri_brackets(&node).to_string(),
+                        strip_literal_quotes(&value).to_string(),
+                    ))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -352,12 +376,14 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node ?length WHERE {{
-                    ?node a <{target_class}> .
-                    ?node <{path}> ?value .
+                    ?node a {} .
+                    ?node {} ?value .
                     BIND (STRLEN(STR(?value)) AS ?length)
                     FILTER (?length < {min_length})
                 }}
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path)
         );
 
         match graph.query_cached(&query) {
@@ -366,7 +392,10 @@ impl SparqlValidator {
                 .filter_map(|row| {
                     let node = row.get("node").cloned()?;
                     let length = row.get("length").cloned()?;
-                    Some((node, length))
+                    Some((
+                        strip_iri_brackets(&node).to_string(),
+                        strip_literal_quotes(&length).to_string(),
+                    ))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -380,12 +409,14 @@ impl SparqlValidator {
         let query = format!(
             r#"
                 SELECT ?node ?length WHERE {{
-                    ?node a <{target_class}> .
-                    ?node <{path}> ?value .
+                    ?node a {} .
+                    ?node {} ?value .
                     BIND (STRLEN(STR(?value)) AS ?length)
                     FILTER (?length > {max_length})
                 }}
-            "#
+            "#,
+            format_term_for_sparql(target_class),
+            format_term_for_sparql(path)
         );
 
         match graph.query_cached(&query) {
@@ -394,7 +425,10 @@ impl SparqlValidator {
                 .filter_map(|row| {
                     let node = row.get("node").cloned()?;
                     let length = row.get("length").cloned()?;
-                    Some((node, length))
+                    Some((
+                        strip_iri_brackets(&node).to_string(),
+                        strip_literal_quotes(&length).to_string(),
+                    ))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -406,6 +440,36 @@ impl Default for SparqlValidator {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// Helper to format terms for SPARQL.
+/// Wraps IRIs in <> and leaves blank nodes as-is.
+fn format_term_for_sparql(s: &str) -> String {
+    if s.starts_with("_:") {
+        s.to_string()
+    } else if s.starts_with('<') && s.ends_with('>') {
+        s.to_string()
+    } else {
+        format!("<{}>", s)
+    }
+}
+
+/// Strip surrounding angle brackets from an IRI returned by SPARQL.
+fn strip_iri_brackets(s: &str) -> &str {
+    s.strip_prefix('<')
+        .and_then(|s| s.strip_suffix('>'))
+        .unwrap_or(s)
+}
+
+/// Strip surrounding quotes from a literal string returned by SPARQL.
+/// Handles datatypes and language tags (e.g. "Alice"@en -> Alice).
+fn strip_literal_quotes(s: &str) -> &str {
+    if let Some(inner) = s.strip_prefix('"') {
+        if let Some(end_quote_idx) = inner.rfind('"') {
+            return &inner[..end_quote_idx];
+        }
+    }
+    s
 }
 
 #[cfg(test)]

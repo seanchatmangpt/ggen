@@ -10,6 +10,7 @@ mcpp-telco = { path = "../mcpp-telco", version = "6.1.0" }
 clap = { workspace = true }
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
+linkme = "0.3"
 tokio = { workspace = true }
 anyhow = { workspace = true }
 serde = { workspace = true }

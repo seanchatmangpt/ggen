@@ -115,7 +115,7 @@
 
 **Required Namespaces**:
 ```turtle
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/marketplace/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -148,7 +148,7 @@
 **Sample Validation**:
 ```turtle
 # ✅ Valid absolute URI
-<http://ggen.dev/ontology#Template> a rdfs:Class .
+<https://ggen.io/marketplace/Template> a rdfs:Class .
 
 # ✅ Valid prefixed URI
 ggen:Template rdfs:subClassOf owl:Thing .
@@ -211,7 +211,7 @@ ggen:isRequired "true"^^xsd:boolean .
 #### ✅ **Query 1: List All Templates**
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 SELECT ?template ?name ?version
@@ -233,7 +233,7 @@ ORDER BY ?name
 #### ✅ **Query 2: Search by Category**
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 
 SELECT ?template ?name ?category
 WHERE {
@@ -253,7 +253,7 @@ WHERE {
 #### ✅ **Query 3: Find Templates by Stability**
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 
 SELECT ?template ?name ?stability
 WHERE {
@@ -274,7 +274,7 @@ ORDER BY ?stability ?name
 #### ✅ **Query 4: Templates with Variables**
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 
 SELECT ?template ?name (COUNT(?var) AS ?varCount)
 WHERE {
@@ -296,7 +296,7 @@ ORDER BY DESC(?varCount)
 #### ✅ **Query 5: Templates by Tag**
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 
 SELECT DISTINCT ?template ?name
 WHERE {
@@ -487,7 +487,7 @@ ggen:VariableShape a sh:NodeShape ;
 #[test]
 fn test_cardinality_violation_multiple_names() {
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
 
         <http://example.org/template1>
             ggen:templateName "Name1" ;
@@ -567,7 +567,7 @@ fn test_version_pattern_validation() {
 
 **RDF Representation**:
 ```turtle
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/marketplace/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://ggen.dev/marketplace/installations/install-001>
@@ -753,7 +753,7 @@ fn test_no_json_in_metadata_path() {
 
     // RDF parsing should work
     let rdf_result = parse_template_metadata_turtle(r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://example.org/template1> ggen:templateName "test" .
     "#);
     assert!(rdf_result.is_ok());
@@ -806,7 +806,7 @@ WHERE {
 fn test_rdf_control_plane_workflow() {
     // 1. Create template (Turtle)
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://example.org/template1>
             a ggen:Template ;
             ggen:templateName "test-template" ;

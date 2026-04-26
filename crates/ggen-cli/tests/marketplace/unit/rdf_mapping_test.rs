@@ -35,31 +35,31 @@ mod rdf_mapping_tests {
             (
                 base_uri.clone(),
                 "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".to_string(),
-                "http://ggen.dev/ontology#Package".to_string(),
+                "https://ggen.io/marketplace/Package".to_string(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#name".to_string(),
+                "https://ggen.io/marketplace/name".to_string(),
                 pkg.metadata.name.clone(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#version".to_string(),
+                "https://ggen.io/marketplace/version".to_string(),
                 pkg.metadata.version.to_string(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#description".to_string(),
+                "https://ggen.io/marketplace/description".to_string(),
                 pkg.metadata.description.clone(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#author".to_string(),
+                "https://ggen.io/marketplace/author".to_string(),
                 pkg.metadata.author.clone(),
             ),
             (
                 base_uri,
-                "http://ggen.dev/ontology#license".to_string(),
+                "https://ggen.io/marketplace/license".to_string(),
                 pkg.metadata.license.clone(),
             ),
         ]
@@ -87,7 +87,7 @@ mod rdf_mapping_tests {
 
         let name_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#name");
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/name");
 
         assert!(name_triple.is_some());
         let (_, _, obj) = name_triple.unwrap();
@@ -101,7 +101,7 @@ mod rdf_mapping_tests {
 
         let version_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#version");
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/version");
 
         assert!(version_triple.is_some());
         let (_, _, obj) = version_triple.unwrap();
@@ -115,7 +115,7 @@ mod rdf_mapping_tests {
 
         let name_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#name");
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/name");
 
         assert!(name_triple.is_some());
         let (_, _, obj) = name_triple.unwrap();
@@ -155,7 +155,7 @@ mod rdf_mapping_tests {
 
         let desc_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#description");
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/description");
 
         assert!(desc_triple.is_some());
         // Should preserve special characters (escaping handled by RDF library)
@@ -174,7 +174,7 @@ mod rdf_mapping_tests {
         // Optional fields should not generate triples if None
         let repo_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#repositoryUrl");
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/repositoryUrl");
 
         assert!(repo_triple.is_none());
     }
@@ -212,13 +212,13 @@ mod rdf_mapping_tests {
         // Simulate parsing triples back to package (simplified)
         let reconstructed_name = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#name")
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/name")
             .map(|(_, _, o)| o.clone())
             .unwrap();
 
         let reconstructed_version = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#version")
+            .find(|(_, p, _)| p == "https://ggen.io/marketplace/version")
             .map(|(_, _, o)| o.clone())
             .unwrap();
 

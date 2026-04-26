@@ -49,7 +49,7 @@ fn test_turtle_parse_multiple_triples() {
 #[test]
 fn test_turtle_prefix_declaration() {
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
         ggen:Package rdf:type rdfs:Class .
@@ -331,26 +331,26 @@ fn test_rdf_type_triple() {
 
 #[test]
 fn test_namespace_ggen() {
-    assert_eq!(GGEN_NAMESPACE, "http://ggen.dev/ontology#");
+    assert_eq!(GGEN_NAMESPACE, "https://ggen.io/marketplace/");
 }
 
 #[test]
 fn test_namespace_resolution() {
     let package_class = format!("{}Package", GGEN_NAMESPACE);
-    assert_eq!(package_class, "http://ggen.dev/ontology#Package");
+    assert_eq!(package_class, "https://ggen.io/marketplace/Package");
 }
 
 #[test]
 fn test_ontology_template_class() {
     let uri = GgenOntology::template();
-    assert!(uri.starts_with("http://ggen.dev/ontology#"));
+    assert!(uri.starts_with("https://ggen.io/marketplace/"));
     assert!(uri.ends_with("Template"));
 }
 
 #[test]
 fn test_ontology_package_class() {
     let uri = format!("{}Package", GGEN_NAMESPACE);
-    assert_eq!(uri, "http://ggen.dev/ontology#Package");
+    assert_eq!(uri, "https://ggen.io/marketplace/Package");
 }
 
 #[test]
@@ -368,7 +368,7 @@ fn test_ontology_dependency_property() {
 #[test]
 fn test_prefix_expansion() {
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         ggen:Package a ggen:Class .
     "#;
 

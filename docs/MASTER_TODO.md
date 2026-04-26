@@ -34,8 +34,8 @@
 | Detail | Value |
 |--------|-------|
 | **URI 1** | `https://ggen.io/marketplace/` — used by `ontology.rs`, `v3.rs`, `registry_rdf.rs`, `rdf/control.rs` |
-| **URI 2** | `http://ggen.dev/ontology#` — used by `rdf/ontology.rs`, config TTL files, tests |
-| **URI 3** | `http://ggen.dev/marketplace#` — used in `rdf/ontology.rs:24` |
+| **URI 2** | `https://ggen.io/marketplace/` — used by `rdf/ontology.rs`, config TTL files, tests |
+| **URI 3** | `https://ggen.io/marketplace/` — used in `rdf/ontology.rs:24` |
 | **Impact** | SPARQL queries with one namespace return empty results against triples stored with another. No error, just silent empty data. |
 | **Action** | Consolidate to single canonical namespace. Audit every SPARQL query, every TTL file, every URI constructor. |
 | **Files** | `ggen-marketplace/src/ontology.rs:14`, `ggen-marketplace/src/rdf/ontology.rs:23-24`, `ggen-core/src/rdf/schema.rs:46`, `ggen-domain/src/rdf/schema.rs:9` |

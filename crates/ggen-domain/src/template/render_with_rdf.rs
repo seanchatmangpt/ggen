@@ -326,7 +326,7 @@ pub fn generate_from_rdf(
 
     // Query for template metadata
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?template ?name ?description ?to
         WHERE {
             ?template a ggen:Template ;
@@ -535,7 +535,7 @@ Hello {{ name }}!"#,
 
         // Create RDF metadata
         let rdf_content = r#"
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/marketplace/> .
 
 <http://example.org/template1> a ggen:Template ;
     ggen:templateName "My Template" ;

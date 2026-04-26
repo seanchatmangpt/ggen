@@ -992,7 +992,7 @@ mod tests {
         assert!(result.is_ok());
         let chain = result.unwrap();
         assert_eq!(chain.len(), 1);
-        assert_eq!(chain[0], root.receipt_id.as_ref().unwrap());
+        assert_eq!(&chain[0], root.receipt_id.as_ref().unwrap());
     }
 
     #[test]
@@ -1040,7 +1040,7 @@ mod tests {
 
         let chain = result.unwrap();
         assert_eq!(chain.len(), 3);
-        assert_eq!(chain[0], grandchild.receipt_id.as_ref().unwrap());
+        assert_eq!(&chain[0], grandchild.receipt_id.as_ref().unwrap());
         assert_eq!(chain[1], child_id);
         assert_eq!(chain[2], root_id);
     }

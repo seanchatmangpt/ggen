@@ -164,7 +164,7 @@ impl UserActivity {
             .iter()
             .map(|(k, v)| (k.clone(), *v))
             .collect();
-        commands.sort_by(|a, b| b.1.cmp(&a.1));
+        commands.sort_by_key(|b| std::cmp::Reverse(b.1));
         commands.into_iter().take(limit).collect()
     }
 

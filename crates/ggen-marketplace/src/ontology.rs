@@ -11,7 +11,7 @@ pub struct Namespaces;
 
 impl Namespaces {
     /// ggen marketplace namespace
-    pub const GGEN: &'static str = "http://ggen.dev/ontology#";
+    pub const GGEN: &'static str = "https://ggen.io/marketplace/";
 
     /// RDF namespace
     pub const RDF: &'static str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";

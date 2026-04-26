@@ -147,7 +147,7 @@ if !cycles.is_empty() {
 ### Search Packages
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 PREFIX dc: <http://purl.org/dc/terms/>
 
 SELECT ?package ?name ?description ?rating
@@ -165,7 +165,7 @@ LIMIT 10
 ### Get Dependencies
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 
 SELECT ?dep ?depName ?depVersion ?optional
 WHERE {
@@ -182,7 +182,7 @@ WHERE {
 ### Detect Circular Dependencies
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX ggen: <https://ggen.io/marketplace/>
 
 SELECT ?dep1 ?dep2 ?dep3
 WHERE {

@@ -162,7 +162,7 @@ test!(test_validate_turtle_invalid_variable_name, {
 test!(test_validate_turtle_malformed_unicode, {
     // Arrange
     let turtle =
-        "@prefix ggen: <http://ggen.dev/ontology#> .\n<test> ggen:name \"Invalid \\uZZZZ\" .";
+        "@prefix ggen: <https://ggen.io/marketplace/> .\n<test> ggen:name \"Invalid \\uZZZZ\" .";
     let validator = Validator::new();
 
     // Act
@@ -176,7 +176,7 @@ test!(test_validate_turtle_very_long_name, {
     // Arrange
     let long_name = "A".repeat(10000);
     let turtle = format!(
-        "@prefix ggen: <http://ggen.dev/ontology#> .\n\
+        "@prefix ggen: <https://ggen.io/marketplace/> .\n\
          <http://example.org/test> a ggen:Template ;\n\
          ggen:templateName \"{}\" .",
         long_name
@@ -192,7 +192,7 @@ test!(test_validate_turtle_very_long_name, {
 
 test!(test_validate_turtle_special_characters, {
     // Arrange
-    let turtle = r#"@prefix ggen: <http://ggen.dev/ontology#> .
+    let turtle = r#"@prefix ggen: <https://ggen.io/marketplace/> .
 <http://example.org/test> a ggen:Template ;
   ggen:templateName "Template with \"quotes\" and 'apostrophes'" ;
   ggen:templateDescription "Description with\nnewlines\tand\ttabs" ."#;
@@ -207,7 +207,7 @@ test!(test_validate_turtle_special_characters, {
 
 test!(test_validate_turtle_multiple_templates, {
     // Arrange - RDF can have multiple resources
-    let turtle = r#"@prefix ggen: <http://ggen.dev/ontology#> .
+    let turtle = r#"@prefix ggen: <https://ggen.io/marketplace/> .
 
 <http://example.org/template1> a ggen:Template ;
   ggen:templateName "Template 1" .
@@ -230,7 +230,7 @@ test!(test_validate_turtle_multiple_templates, {
 test!(test_validate_turtle_large_file, {
     // Arrange - create RDF with many variables
     let mut turtle = String::from(
-        "@prefix ggen: <http://ggen.dev/ontology#> .\n\
+        "@prefix ggen: <https://ggen.io/marketplace/> .\n\
          @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n\
          <http://example.org/large> a ggen:Template ;\n\
          ggen:templateName \"Large Template\" ;\n",

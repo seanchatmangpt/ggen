@@ -397,11 +397,10 @@ impl PathValidator {
                     std::path::Component::Normal(c) => {
                         absolute.push(c);
                     }
-                    std::path::Component::RootDir => {
-                        if self.allow_absolute {
-                            absolute = PathBuf::from("/");
-                        }
+                    std::path::Component::RootDir if self.allow_absolute => {
+                        absolute = PathBuf::from("/");
                     }
+                    std::path::Component::RootDir => {}
                     std::path::Component::ParentDir => {
                         // Already checked, should not reach here
                         return Err(PathValidationError::PathTraversal {
