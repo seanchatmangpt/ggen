@@ -348,7 +348,10 @@ fn check() -> VerbResult<ValidateOutput> {
         .collect();
 
     if report.passed {
-        println!("✓ Current environment passes '{}' profile", profile_obj.name);
+        println!(
+            "✓ Current environment passes '{}' profile",
+            profile_obj.name
+        );
     } else {
         println!("✗ Current environment fails '{}' profile", profile_obj.name);
         println!("  Violations: {}", report.violation_count());

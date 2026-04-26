@@ -144,10 +144,7 @@ impl Migrator {
         }
 
         Err(crate::error::Error::ValidationFailed {
-            reason: format!(
-                "No upgrade path found from {} to {}",
-                from, to
-            ),
+            reason: format!("No upgrade path found from {} to {}", from, to),
         })
     }
 
@@ -175,13 +172,19 @@ impl Migrator {
 
     /// Save a package state for rollback
     fn save_rollback_state(&mut self, package: &Package) {
-        let key = format!("{}_{}@{}", package.metadata.id, "rollback", package.latest_version);
+        let key = format!(
+            "{}_{}@{}",
+            package.metadata.id, "rollback", package.latest_version
+        );
         self.rollback_states.insert(key, package.clone());
     }
 
     /// Restore a package from rollback state
     fn restore_rollback_state(&mut self, package: &Package) -> Result<Package> {
-        let key = format!("{}_{}@{}", package.metadata.id, "rollback", package.latest_version);
+        let key = format!(
+            "{}_{}@{}",
+            package.metadata.id, "rollback", package.latest_version
+        );
         self.rollback_states
             .remove(&key)
             .ok_or_else(|| crate::error::Error::ValidationFailed {
@@ -202,7 +205,10 @@ impl Migrator {
     pub fn migrate(
         &mut self, mut package: Package, from: &PackageVersion, to: &PackageVersion,
     ) -> Result<Package> {
-        info!("Starting migration of {} from {} to {}", package.metadata.id, from, to);
+        info!(
+            "Starting migration of {} from {} to {}",
+            package.metadata.id, from, to
+        );
 
         // Validate upgrade path exists
         let path = self.compute_upgrade_path(from, to)?;
@@ -217,10 +223,7 @@ impl Migrator {
 
             match self.apply_migration_transform(&mut package, from_v, to_v) {
                 Ok(()) => {
-                    info!(
-                        "Migration step {}: {} -> {} completed",
-                        i + 1, from_v, to_v
-                    );
+                    info!("Migration step {}: {} -> {} completed", i + 1, from_v, to_v);
                 }
                 Err(e) => {
                     warn!("Migration step failed: {}, attempting rollback", e);
@@ -892,12 +895,7 @@ mod tests {
 
         let pkg_id = crate::models::PackageId::new("test-pkg").unwrap();
         let package = Package {
-            metadata: PackageMetadata::new(
-                pkg_id,
-                "Test Package",
-                "A test package",
-                "MIT",
-            ),
+            metadata: PackageMetadata::new(pkg_id, "Test Package", "A test package", "MIT"),
             latest_version: v1.clone(),
             versions: vec![v1.clone()],
             releases: indexmap::IndexMap::new(),

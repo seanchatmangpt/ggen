@@ -964,7 +964,13 @@ impl<R: AsyncRepository> Installer<R> {
             match self.install_pack(pkg_id, version).await {
                 Ok(cached_pack) => {
                     installed.push((pkg_id.clone(), version.clone(), cached_pack));
-                    debug!("Installed package {}/{}: {}@{}", idx + 1, total_count, pkg_id, version);
+                    debug!(
+                        "Installed package {}/{}: {}@{}",
+                        idx + 1,
+                        total_count,
+                        pkg_id,
+                        version
+                    );
                 }
                 Err(e) => {
                     warn!(
@@ -1220,7 +1226,11 @@ pub struct BatchInstallationResult {
 impl std::fmt::Display for BatchInstallationResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Batch Installation Result {}", self.manifest_id)?;
-        writeln!(f, "Packages: {}/{}", self.packages_installed, self.total_packages)?;
+        writeln!(
+            f,
+            "Packages: {}/{}",
+            self.packages_installed, self.total_packages
+        )?;
         writeln!(f, "Duration: {:.2}s", self.duration.as_secs_f64())?;
         Ok(())
     }

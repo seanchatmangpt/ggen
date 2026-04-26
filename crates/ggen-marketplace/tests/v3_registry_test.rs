@@ -2,8 +2,8 @@
 
 #![allow(dead_code)]
 
-use ggen_marketplace::v3::{V3OptimizedRegistry, V3MetricsSnapshot};
 use ggen_marketplace::models::PackageId;
+use ggen_marketplace::v3::{V3MetricsSnapshot, V3OptimizedRegistry};
 use oxigraph::store::Store;
 use std::sync::Arc;
 
@@ -46,7 +46,10 @@ fn test_v3_parallel_search() {
 
     // Search
     let results = registry.search_parallel("test");
-    assert!(results.is_empty() || results.len() > 0, "search should execute without error");
+    assert!(
+        results.is_empty() || results.len() > 0,
+        "search should execute without error"
+    );
 }
 
 /// Test: Metrics snapshot collection
@@ -62,7 +65,11 @@ fn test_v3_metrics_snapshot() {
     assert_eq!(snapshot.cache_misses, 0);
     assert_eq!(snapshot.batch_ops, 0);
     assert_eq!(snapshot.parallel_searches, 0);
-    assert_eq!(snapshot.latency_buckets.len(), 8, "should have 8 latency buckets");
+    assert_eq!(
+        snapshot.latency_buckets.len(),
+        8,
+        "should have 8 latency buckets"
+    );
 }
 
 /// Test: Latency recording
@@ -72,14 +79,14 @@ fn test_v3_latency_recording() {
     let registry = V3OptimizedRegistry::new(store).unwrap();
 
     // Record latencies at different levels
-    registry.record_latency(5);    // <10us
-    registry.record_latency(25);   // <50us
-    registry.record_latency(75);   // <100us
-    registry.record_latency(250);  // <500us
-    registry.record_latency(750);  // <1ms
+    registry.record_latency(5); // <10us
+    registry.record_latency(25); // <50us
+    registry.record_latency(75); // <100us
+    registry.record_latency(250); // <500us
+    registry.record_latency(750); // <1ms
     registry.record_latency(2500); // <5ms
     registry.record_latency(7500); // <10ms
-    registry.record_latency(15000);// >=10ms
+    registry.record_latency(15000); // >=10ms
 
     let snapshot = registry.metrics_snapshot();
     // Each bucket should have one entry
@@ -105,7 +112,10 @@ async fn test_v3_batch_operations_metric() {
 
     // Verify metric was recorded
     let snapshot = registry.metrics_snapshot();
-    assert_eq!(snapshot.batch_ops, 1, "should have 1 batch operation recorded");
+    assert_eq!(
+        snapshot.batch_ops, 1,
+        "should have 1 batch operation recorded"
+    );
 }
 
 /// Test: Search index update
@@ -130,11 +140,17 @@ fn test_v3_display_formatting() {
 
     let stats = registry.stats();
     let stats_display = format!("{}", stats);
-    assert!(stats_display.contains("v3 Registry"), "stats display should contain 'v3 Registry'");
+    assert!(
+        stats_display.contains("v3 Registry"),
+        "stats display should contain 'v3 Registry'"
+    );
 
     let metrics = registry.metrics_snapshot();
     let metrics_display = format!("{}", metrics);
-    assert!(metrics_display.contains("v3 Metrics"), "metrics display should contain 'v3 Metrics'");
+    assert!(
+        metrics_display.contains("v3 Metrics"),
+        "metrics display should contain 'v3 Metrics'"
+    );
 }
 
 /// Test: Multiple searches update metrics correctly

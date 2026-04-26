@@ -108,7 +108,10 @@ async fn test_batch_installation_result_display() {
     };
 
     let display = result.to_string();
-    assert!(display.contains("3/5"), "Display should show packages_installed/total_packages");
+    assert!(
+        display.contains("3/5"),
+        "Display should show packages_installed/total_packages"
+    );
     assert!(
         display.contains("15.00s"),
         "Display should show duration in seconds"

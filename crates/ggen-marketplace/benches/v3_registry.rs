@@ -3,9 +3,9 @@
 //! Compares performance of v3 registry with caching, parallel search, and batch operations
 //! against baseline operations.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use ggen_marketplace::v3::V3OptimizedRegistry;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use ggen_marketplace::models::PackageId;
+use ggen_marketplace::v3::V3OptimizedRegistry;
 use oxigraph::store::Store;
 use std::sync::Arc;
 
@@ -144,9 +144,7 @@ fn bench_batch_operations(c: &mut Criterion) {
                 b.to_async(tokio::runtime::Runtime::new().unwrap())
                     .iter(|| async {
                         let ids: Vec<PackageId> = (0.._size)
-                            .map(|i| {
-                                PackageId::new(format!("test/package-{}", i)).unwrap()
-                            })
+                            .map(|i| PackageId::new(format!("test/package-{}", i)).unwrap())
                             .collect();
                         let _ = registry.batch_delete(black_box(ids)).await;
                     })

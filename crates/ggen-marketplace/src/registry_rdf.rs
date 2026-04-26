@@ -438,7 +438,11 @@ impl RdfRegistry {
         );
 
         let results = self.query_sparql(&search_query)?;
-        debug!("Search for '{}' returned {} results", keyword, results.len());
+        debug!(
+            "Search for '{}' returned {} results",
+            keyword,
+            results.len()
+        );
 
         let mut search_results = Vec::new();
         let keyword_lower = keyword.to_lowercase();
@@ -448,17 +452,18 @@ impl RdfRegistry {
         for result in results {
             if let Ok(package_id) = PackageId::new(result.clone()) {
                 if let Ok(package) = self.mapper.rdf_to_package(&package_id) {
-                    let relevance = if package.metadata.name.to_lowercase().contains(&keyword_lower)
+                    let relevance = if package
+                        .metadata
+                        .name
+                        .to_lowercase()
+                        .contains(&keyword_lower)
                     {
                         1.0 // Higher relevance for name matches
                     } else {
                         0.5 // Lower relevance for description matches
                     };
 
-                    search_results.push(SearchResult {
-                        package,
-                        relevance,
-                    });
+                    search_results.push(SearchResult { package, relevance });
                 }
             }
         }
@@ -486,7 +491,12 @@ impl RdfRegistry {
         );
 
         let results = self.query_sparql(&query)?;
-        debug!("Listed {} packages (offset: {}, limit: {})", results.len(), offset, limit);
+        debug!(
+            "Listed {} packages (offset: {}, limit: {})",
+            results.len(),
+            offset,
+            limit
+        );
 
         // Reconstruct packages
         let mut packages = Vec::with_capacity(results.len());
