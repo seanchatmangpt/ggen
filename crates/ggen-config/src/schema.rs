@@ -740,9 +740,7 @@ const fn default_true() -> bool {
 }
 
 fn num_cpus() -> u32 {
-    std::thread::available_parallelism()
-        .map(|n| n.get() as u32)
-        .unwrap_or(4)
+    std::thread::available_parallelism().map_or(4, |n| n.get() as u32)
 }
 
 impl Default for GgenConfig {
