@@ -22,6 +22,7 @@
 use crate::builders::PackageBuilder;
 use crate::error::{Error, Result};
 use crate::models::{Package, PackageId, PackageVersion, QualityScore};
+use dashmap::DashMap;
 use lru::LruCache;
 use oxigraph::store::Store;
 use rayon::prelude::*;
@@ -33,16 +34,15 @@ use std::sync::{
     Arc, Mutex,
 };
 use std::time::Duration;
-use dashmap::DashMap;
 
 use super::sparql::SparqlExecutor;
 use super::state_machine::StateMachineExecutor;
 use super::turtle_config::TurtleConfigLoader;
 
 /// Cache sizes optimized for performance
-const DEFAULT_PLAN_CACHE_SIZE: usize = 500;  // Increased from 100
+const DEFAULT_PLAN_CACHE_SIZE: usize = 500; // Increased from 100
 const DEFAULT_RESULT_CACHE_SIZE: usize = 5000; // Increased from 1000
-const QUERY_BATCH_SIZE: usize = 10;          // Batch queries for efficiency
+const QUERY_BATCH_SIZE: usize = 10; // Batch queries for efficiency
 const CACHE_CLEANUP_INTERVAL: Duration = Duration::from_secs(300); // 5 minutes
 const INITIAL_EPOCH: u64 = 1;
 const EPOCH_INCREMENT: u64 = 1;
@@ -154,11 +154,14 @@ impl QueryBatch {
         }
 
         // Execute queries in parallel for better performance
-        let results: Result<Vec<Vec<String>>> = self.queries
+        let results: Result<Vec<Vec<String>>> = self
+            .queries
             .par_iter()
             .map(|query| {
                 let mut results = Vec::new();
-                if let oxigraph::sparql::QueryResults::Solutions(solutions) = executor.query(query)? {
+                if let oxigraph::sparql::QueryResults::Solutions(solutions) =
+                    executor.query(query)?
+                {
                     for solution in solutions {
                         if let Ok(solution) = solution {
                             if let Some(value) = solution.get("result") {
@@ -190,9 +193,7 @@ struct QueryPlanOptimizer {
 impl QueryPlanOptimizer {
     fn new() -> Self {
         Self {
-            plan_cache: Arc::new(Mutex::new(
-                LruCache::new(NonZeroUsize::new(100).unwrap())
-            )),
+            plan_cache: Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(100).unwrap()))),
         }
     }
 
@@ -204,10 +205,7 @@ impl QueryPlanOptimizer {
         }
 
         // Simple optimization: remove whitespace and normalize
-        let optimized = query
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ");
+        let optimized = query.split_whitespace().collect::<Vec<_>>().join(" ");
 
         cache.put(query.to_string(), optimized.clone());
         optimized
@@ -329,7 +327,7 @@ impl RdfControlPlane {
         // Add frequently used queries
         queries.insert(
             "get_package_state".to_string(),
-            "SELECT ?state WHERE { ?package mp:state ?state }".to_string()
+            "SELECT ?state WHERE { ?package mp:state ?state }".to_string(),
         );
         queries.insert(
             "list_packages".to_string(),
@@ -441,19 +439,22 @@ impl RdfControlPlane {
         }
 
         // Cache miss - execute query
-        let result = self.executor.query(&optimized_query).and_then(|query_results| {
-            let mut results = Vec::new();
-            if let oxigraph::sparql::QueryResults::Solutions(solutions) = query_results {
-                for solution in solutions {
-                    if let Ok(solution) = solution {
-                        if let Some(value) = solution.get("result") {
-                            results.push(value.to_string());
+        let result = self
+            .executor
+            .query(&optimized_query)
+            .and_then(|query_results| {
+                let mut results = Vec::new();
+                if let oxigraph::sparql::QueryResults::Solutions(solutions) = query_results {
+                    for solution in solutions {
+                        if let Ok(solution) = solution {
+                            if let Some(value) = solution.get("result") {
+                                results.push(value.to_string());
+                            }
                         }
                     }
                 }
-            }
-            Ok(results)
-        })?;
+                Ok(results)
+            })?;
 
         // Cache the result
         {
@@ -515,7 +516,9 @@ impl RdfControlPlane {
         // Remove entries older than cleanup interval
         let entries_to_remove: Vec<_> = cache
             .iter()
-            .filter(|(_, entry)| current_time.duration_since(entry.timestamp) > CACHE_CLEANUP_INTERVAL)
+            .filter(|(_, entry)| {
+                current_time.duration_since(entry.timestamp) > CACHE_CLEANUP_INTERVAL
+            })
             .map(|(key, _)| key.clone())
             .collect();
 
@@ -594,6 +597,7 @@ impl RdfControlPlane {
         let insert_query = format!(
             r#"
             PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             INSERT DATA {{
                 <https://ggen.io/marketplace/{0}> a mp:Package ;
                     mp:id "{1}" ;
