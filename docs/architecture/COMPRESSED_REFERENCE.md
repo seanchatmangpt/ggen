@@ -218,9 +218,9 @@ flowchart TD
 ## Ontology Namespace — CANONICAL
 
 ```
-Primary:   http://ggen.dev/ontology#       (ggen-core, ggen-domain, config TTLs)
+Primary:   https://ggen.io/marketplace/       (ggen-core, ggen-domain, config TTLs)
 Legacy:    https://ggen.io/marketplace/     (ggen-marketplace operational SPARQL)
-Third:     http://ggen.dev/marketplace#     (ggen-marketplace/rdf/ontology.rs:24)
+Third:     https://ggen.io/marketplace/     (ggen-marketplace/rdf/ontology.rs:24)
 
 CONFLICT: SPARQL queries with one namespace return empty against triples stored with another.
 ACTION NEEDED: Consolidate to single URI. Track in MASTER_TODO.md P0-03.

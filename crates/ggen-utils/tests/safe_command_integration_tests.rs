@@ -208,7 +208,7 @@ fn test_builder_pattern_with_args_bulk() {
     // Arrange & Act
     let result = SafeCommand::new("cargo")
         .unwrap()
-        .args(&["build", "--release", "--all-features"])
+        .args(["build", "--release", "--all-features"])
         .unwrap()
         .validate();
 

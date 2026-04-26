@@ -38,6 +38,7 @@ pub mod ai;
 pub mod capability;
 pub mod construct;
 pub mod doctor;
+pub mod envelope;
 pub mod graph;
 pub mod marketplace;
 pub mod mcp;

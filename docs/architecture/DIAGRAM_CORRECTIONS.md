@@ -218,10 +218,10 @@ The Rust crates are a **migration from Erlang/Elixir**, not greenfield. This exp
 | URI | Used By |
 |-----|---------|
 | `https://ggen.io/marketplace/` | RdfControlPlane SPARQL, registry_rdf, v3, sparql |
-| `http://ggen.dev/ontology#` | rdf/ontology.rs, config TTL files, tests |
-| `http://ggen.dev/marketplace#` | rdf/ontology.rs (third namespace) |
+| `https://ggen.io/marketplace/` | rdf/ontology.rs, config TTL files, tests |
+| `https://ggen.io/marketplace/` | rdf/ontology.rs (third namespace) |
 
-The SPARQL executor's `package_uri()` builds URIs like `http://ggen.dev/ontology#<id>`, but the control plane queries use `https://ggen.io/marketplace/<id>`. These would not match the same triples.
+The SPARQL executor's `package_uri()` builds URIs like `https://ggen.io/marketplace/<id>`, but the control plane queries use `https://ggen.io/marketplace/<id>`. These would not match the same triples.
 
 ### 7. Workspace-level Poka-Yoke enforcement
 

@@ -7,8 +7,10 @@ edition = "2021"
 anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_yaml = "0.9"
 toml = { workspace = true }
 thiserror = { workspace = true }
 dirs = "5.0"
 chrono = { workspace = true }
 ggen-utils = { workspace = true }
+mcpp-core = { path = "../mcpp-core", version = "6.1.0" }

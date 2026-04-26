@@ -113,7 +113,7 @@ impl TemplateMetadata {
     /// Generate Turtle RDF representation
     pub fn to_turtle(&self) -> Result<String> {
         let mut turtle = String::new();
-        turtle.push_str("@prefix ggen: <http://ggen.dev/ontology#> .\n");
+        turtle.push_str("@prefix ggen: <https://ggen.io/marketplace/> .\n");
         turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
         turtle.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n");
 
@@ -250,7 +250,7 @@ impl TemplateMetadata {
         // Query for template metadata
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name ?version ?description ?author ?created ?updated ?category ?stability ?coverage ?usage
             WHERE {{
                 <{template_id}> a ggen:Template ;
@@ -405,7 +405,7 @@ impl TemplateMetadataStore {
         // Query from store
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name
             WHERE {{
                 <{template_id}> a ggen:Template ;
@@ -467,7 +467,7 @@ impl TemplateMetadataStore {
     pub fn find_by_category(&self, category: &str) -> Result<Vec<String>> {
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?template ?name
             WHERE {{
                 ?template a ggen:Template ;
@@ -492,7 +492,7 @@ impl TemplateMetadataStore {
     pub fn find_by_tag(&self, tag: &str) -> Result<Vec<String>> {
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?template
             WHERE {{
                 ?template a ggen:Template ;
@@ -516,7 +516,7 @@ impl TemplateMetadataStore {
     pub fn get_dependencies(&self, template_id: &str) -> Result<Vec<String>> {
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?dependency
             WHERE {{
                 <{template_id}> ggen:dependsOn ?dependency .
@@ -539,7 +539,7 @@ impl TemplateMetadataStore {
     pub fn export_turtle(&self) -> Result<String> {
         // Query all templates and reconstruct Turtle
         let query = r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT DISTINCT ?template
             WHERE {
                 ?template a ggen:Template .
@@ -550,7 +550,7 @@ impl TemplateMetadataStore {
         let mut turtle = String::new();
 
         // Add prefixes
-        turtle.push_str("@prefix ggen: <http://ggen.dev/ontology#> .\n");
+        turtle.push_str("@prefix ggen: <https://ggen.io/marketplace/> .\n");
         turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
         turtle.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n");
 

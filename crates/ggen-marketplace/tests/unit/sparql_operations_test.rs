@@ -440,7 +440,7 @@ async fn test_search_by_name() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://ggen.dev/packages/pkg1> ggen:packageName "test-package" .
         <http://ggen.dev/packages/pkg2> ggen:packageName "another-package" .
     "#;
@@ -450,7 +450,7 @@ async fn test_search_by_name() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?pkg WHERE {
             ?pkg ggen:packageName ?name .
             FILTER(CONTAINS(?name, "test"))
@@ -469,7 +469,7 @@ async fn test_search_by_tag() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://ggen.dev/packages/pkg1> ggen:tag "rust" .
         <http://ggen.dev/packages/pkg2> ggen:tag "javascript" .
     "#;
@@ -479,7 +479,7 @@ async fn test_search_by_tag() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?pkg WHERE {
             ?pkg ggen:tag "rust" .
         }
@@ -497,7 +497,7 @@ async fn test_search_by_quality_score() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://ggen.dev/packages/pkg1> ggen:qualityScore 85 .
         <http://ggen.dev/packages/pkg2> ggen:qualityScore 65 .
         <http://ggen.dev/packages/pkg3> ggen:qualityScore 95 .
@@ -508,7 +508,7 @@ async fn test_search_by_quality_score() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?pkg ?score WHERE {
             ?pkg ggen:qualityScore ?score .
             FILTER(?score >= 80)
@@ -532,7 +532,7 @@ async fn test_query_direct_dependencies() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
         <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg3> .
     "#;
@@ -542,7 +542,7 @@ async fn test_query_direct_dependencies() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?dep WHERE {
             <http://ggen.dev/packages/pkg1> ggen:dependsOn ?dep .
         }
@@ -560,7 +560,7 @@ async fn test_query_reverse_dependencies() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix ggen: <https://ggen.io/marketplace/> .
         <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
         <http://ggen.dev/packages/pkg3> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
     "#;
@@ -570,7 +570,7 @@ async fn test_query_reverse_dependencies() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?pkg WHERE {
             ?pkg ggen:dependsOn <http://ggen.dev/packages/pkg2> .
         }

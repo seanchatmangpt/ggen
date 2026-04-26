@@ -2,7 +2,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix ggen: <https://ggen.io/marketplace/> .
 @prefix : <http://ggen.dev/validation#> .
 
 # Package Validation Rules using SHACL
@@ -253,7 +253,7 @@
     sh:targetClass ggen:Package ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT $this
             WHERE {
                 $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn+ $this .
@@ -308,7 +308,7 @@
     sh:sparql [
         sh:select """
             PREFIX dc: <http://purl.org/dc/terms/>
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT $this (COUNT(?other) AS ?count)
             WHERE {
                 $this dc:title ?name .
@@ -327,7 +327,7 @@
     sh:targetClass ggen:PackageVersion ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT $this (COUNT(?other) AS ?count)
             WHERE {
                 ?pkg ggen:hasVersion $this, ?other .
@@ -346,7 +346,7 @@
     sh:targetClass ggen:InstallationState ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             SELECT $this
             WHERE {
@@ -366,7 +366,7 @@
     sh:targetClass ggen:Package ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT $this
             WHERE {
                 $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/

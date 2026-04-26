@@ -12,6 +12,7 @@ categories = ["cryptography", "development-tools"]
 [dependencies]
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 sha2 = { workspace = true }
+blake3 = "1"
 serde = { workspace = true }
 serde_json = { workspace = true }
 chrono = { workspace = true }

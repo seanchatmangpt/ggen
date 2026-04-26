@@ -23,7 +23,7 @@ use crate::rdf_mapper::RdfMapper;
 use crate::traits::AsyncRepository;
 
 /// RDF namespace for ggen marketplace
-const GGEN_NS: &str = "http://ggen.dev/ontology#";
+const GGEN_NS: &str = "https://ggen.io/marketplace/";
 const RDFS_NS: &str = "http://www.w3.org/2000/01/rdf-schema#";
 
 /// High-performance RDF-backed registry
@@ -603,7 +603,6 @@ mod tests {
             license: "MIT".to_string(),
             repository: Some("https://github.com/test/package".to_string()),
             homepage: None,
-            documentation: None,
             keywords: vec![],
             categories: vec![],
             downloads: 0,
@@ -639,7 +638,6 @@ mod tests {
             license: "MIT".to_string(),
             repository: None,
             homepage: None,
-            documentation: None,
             keywords: vec![],
             categories: vec![],
             downloads: 0,
@@ -675,7 +673,6 @@ mod tests {
             license: "MIT".to_string(),
             repository: None,
             homepage: None,
-            documentation: None,
             keywords: vec![],
             categories: vec![],
             downloads: 0,
@@ -721,7 +718,6 @@ mod tests {
             license: "MIT".to_string(),
             repository: None,
             homepage: None,
-            documentation: None,
             keywords: vec![],
             categories: vec![],
             downloads: 0,
@@ -731,7 +727,7 @@ mod tests {
         };
 
         let package = Package {
-            metadata,
+            metadata: metadata.clone(),
             latest_version: PackageVersion::new("1.0.0").unwrap(),
             versions: vec![PackageVersion::new("1.0.0").unwrap()],
             releases: IndexMap::new(),
@@ -772,7 +768,6 @@ mod tests {
                 license: "MIT".to_string(),
                 repository: None,
                 homepage: None,
-                documentation: None,
                 keywords: vec!["search".to_string()],
                 categories: vec![],
                 downloads: 0,
@@ -811,7 +806,6 @@ mod tests {
                 license: "MIT".to_string(),
                 repository: None,
                 homepage: None,
-                documentation: None,
                 keywords: vec![],
                 categories: vec![],
                 downloads: 0,
@@ -850,7 +844,6 @@ mod tests {
                 license: "MIT".to_string(),
                 repository: None,
                 homepage: None,
-                documentation: None,
                 keywords: vec![],
                 categories: vec![],
                 downloads: 0,

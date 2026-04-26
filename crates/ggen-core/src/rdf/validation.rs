@@ -278,10 +278,10 @@ impl Validator {
         shapes.insert(
             "TemplateShape".to_string(),
             Shape {
-                target_class: "http://ggen.dev/ontology#Template".to_string(),
+                target_class: "https://ggen.io/marketplace/Template".to_string(),
                 properties: vec![
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#templateName".to_string(),
+                        path: "https://ggen.io/marketplace/templateName".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -289,7 +289,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#templateVersion".to_string(),
+                        path: "https://ggen.io/marketplace/templateVersion".to_string(),
                         min_count: None,
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -297,7 +297,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#stability".to_string(),
+                        path: "https://ggen.io/marketplace/stability".to_string(),
                         min_count: None,
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -312,10 +312,10 @@ impl Validator {
         shapes.insert(
             "VariableShape".to_string(),
             Shape {
-                target_class: "http://ggen.dev/ontology#Variable".to_string(),
+                target_class: "https://ggen.io/marketplace/Variable".to_string(),
                 properties: vec![
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#variableName".to_string(),
+                        path: "https://ggen.io/marketplace/variableName".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -323,7 +323,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#variableType".to_string(),
+                        path: "https://ggen.io/marketplace/variableType".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -331,7 +331,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#isRequired".to_string(),
+                        path: "https://ggen.io/marketplace/isRequired".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#boolean".to_string()),

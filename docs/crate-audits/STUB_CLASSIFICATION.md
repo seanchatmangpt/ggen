@@ -27,7 +27,7 @@ Users invoke these commands/features and get incorrect or silent results.
 |---|------|----------|---------------|--------|
 | 1 | `check_conflicts()` | ggen-marketplace/install.rs:234 | Every `ggen marketplace install` | Always Ok — missing semver conflict detection. Two packs with same major version can coexist silently |
 | 2 | `get_marketplace_public_key()` | ggen-marketplace/install.rs | Every `ggen marketplace install` | Blocks install without `MARKETPLACE_PUBLIC_KEY` env var. No config file fallback |
-| 3 | Ontology namespace conflict | ggen-marketplace/ontology.rs:14 vs rdf/ontology.rs:23 | Every SPARQL query in marketplace | Three competing URIs cause silent empty results. `https://ggen.io/marketplace/` vs `http://ggen.dev/ontology#` vs `http://ggen.dev/marketplace#` |
+| 3 | Ontology namespace conflict | ggen-marketplace/ontology.rs:14 vs rdf/ontology.rs:23 | Every SPARQL query in marketplace | Three competing URIs cause silent empty results. `https://ggen.io/marketplace/` vs `https://ggen.io/marketplace/` vs `https://ggen.io/marketplace/` |
 | 4 | Prelude triple-Result | ggen-cli/prelude.rs | Every CLI command | Three `Result` types in scope; commands must pick correctly |
 
 ### P1 — Feature doesn't work when invoked

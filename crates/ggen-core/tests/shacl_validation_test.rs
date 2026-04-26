@@ -1,12 +1,12 @@
 //! SHACL shape file loading and structure validation tests.
 //!
-//! These tests verify that ggen's `.shacl.ttl` files are valid Turtle, contain
+//! These tests verify that ggen's \`.shacl.ttl\` files are valid Turtle, contain
 //! the expected SHACL constructs (NodeShape, targetClass, property constraints,
 //! datatype restrictions), and that SPARQL queries can detect violations.
 //!
-//! Note: `ShapeLoader::load()` is currently stubbed (always returns empty).
-//! These tests bypass the stub by loading `.shacl.ttl` files directly into a
-//! `Graph` and querying with SPARQL.
+//! Note: \`ShapeLoader::load()\` is fully implemented.
+//! These tests bypass the validator by loading \`.shacl.ttl\` files directly into a
+//! \`Graph\` and querying with SPARQL, but they also verify \`ShapeLoader\`.
 
 use ggen_core::graph::{CachedResult, Graph};
 use ggen_core::validation::shacl::ShapeLoader;
@@ -310,13 +310,11 @@ fn test_shacl_violation_detectable_via_sparql() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 10: ShapeLoader stub baseline
+// Test 10: ShapeLoader loads shapes
 // ---------------------------------------------------------------------------
 
 #[test]
-fn test_shape_loader_stub_returns_empty_set() {
-    // Document the current stub behavior: ShapeLoader::load() always returns
-    // an empty ShaclShapeSet regardless of input.
+fn test_shape_loader_loads_shapes() {
     let loader = ShapeLoader::new();
 
     let graph = Graph::new().expect("Graph::new should succeed");
@@ -336,14 +334,10 @@ fn test_shape_loader_stub_returns_empty_set() {
         .load(&graph)
         .expect("ShapeLoader::load should not error");
     assert!(
-        result.is_empty(),
-        "ShapeLoader::load is stubbed and should return empty ShaclShapeSet"
+        !result.is_empty(),
+        "ShapeLoader should load at least one shape"
     );
-    assert_eq!(
-        result.len(),
-        0,
-        "ShapeLoader stub should report 0 shapes loaded"
-    );
+    assert_eq!(result.len(), 1, "ShapeLoader should report 1 shape loaded");
 }
 
 // ---------------------------------------------------------------------------

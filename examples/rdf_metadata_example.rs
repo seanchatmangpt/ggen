@@ -199,7 +199,7 @@ fn main() -> Result<()> {
 
     // Query all stable templates
     let stable_query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         SELECT ?template ?name ?version
         WHERE {
             ?template a ggen:Template ;
@@ -227,7 +227,7 @@ fn main() -> Result<()> {
 
     // Query templates with test coverage > 80%
     let coverage_query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX ggen: <https://ggen.io/marketplace/>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         SELECT ?template ?name ?coverage
         WHERE {
