@@ -155,8 +155,11 @@ impl ShapeLoader {
         };
 
         for row in &shape_rows {
-            let shape_iri = strip_iri_brackets(row.get("shape").map(|s| s.as_str()).unwrap_or("")).to_string();
-            let target_class = strip_iri_brackets(row.get("targetClass").map(|s| s.as_str()).unwrap_or("")).to_string();
+            let shape_iri =
+                strip_iri_brackets(row.get("shape").map(|s| s.as_str()).unwrap_or("")).to_string();
+            let target_class =
+                strip_iri_brackets(row.get("targetClass").map(|s| s.as_str()).unwrap_or(""))
+                    .to_string();
 
             if shape_iri.is_empty() || target_class.is_empty() {
                 continue;
@@ -182,8 +185,12 @@ impl ShapeLoader {
             };
 
             for prop_row in &prop_rows {
-                let property_iri = strip_iri_brackets(prop_row.get("property").map(|s| s.as_str()).unwrap_or("")).to_string();
-                let path = strip_iri_brackets(prop_row.get("path").map(|s| s.as_str()).unwrap_or("")).to_string();
+                let property_iri =
+                    strip_iri_brackets(prop_row.get("property").map(|s| s.as_str()).unwrap_or(""))
+                        .to_string();
+                let path =
+                    strip_iri_brackets(prop_row.get("path").map(|s| s.as_str()).unwrap_or(""))
+                        .to_string();
 
                 if path.is_empty() {
                     continue;
@@ -291,7 +298,10 @@ impl ShapeLoader {
 
         let values: Vec<String> = rows
             .iter()
-            .filter_map(|row| row.get("value").map(|v| strip_literal_quotes(v).to_string()))
+            .filter_map(|row| {
+                row.get("value")
+                    .map(|v| strip_literal_quotes(v).to_string())
+            })
             .collect();
 
         if !values.is_empty() {
@@ -331,7 +341,9 @@ impl Default for ShapeLoader {
 /// Oxigraph's `Term::to_string()` wraps IRIs in `<...>`, e.g. `<http://example.org#Person>`.
 /// This helper removes those brackets for cleaner comparison.
 fn strip_iri_brackets(s: &str) -> &str {
-    s.strip_prefix('<').and_then(|s| s.strip_suffix('>')).unwrap_or(s)
+    s.strip_prefix('<')
+        .and_then(|s| s.strip_suffix('>'))
+        .unwrap_or(s)
 }
 
 /// Strip surrounding quotes from a literal string returned by SPARQL.
@@ -339,7 +351,9 @@ fn strip_iri_brackets(s: &str) -> &str {
 /// Oxigraph's `Term::to_string()` wraps literals in quotes, e.g. `"Alice"`.
 /// This helper removes the outermost quotes.
 fn strip_literal_quotes(s: &str) -> &str {
-    s.strip_prefix('"').and_then(|s| s.strip_suffix('"')).unwrap_or(s)
+    s.strip_prefix('"')
+        .and_then(|s| s.strip_suffix('"'))
+        .unwrap_or(s)
 }
 
 /// Parse a SHACL severity IRI into a Severity enum
@@ -365,7 +379,10 @@ mod tests {
 
     #[test]
     fn test_shacl_shape_new() {
-        let s = ShaclShape::new("http://example.org#PersonShape", "http://example.org#Person");
+        let s = ShaclShape::new(
+            "http://example.org#PersonShape",
+            "http://example.org#Person",
+        );
         assert_eq!(s.iri, "http://example.org#PersonShape");
         assert_eq!(s.target_class, "http://example.org#Person");
         assert!(s.properties.is_empty());
@@ -405,7 +422,10 @@ mod tests {
 
     #[test]
     fn test_parse_severity_unknown() {
-        assert_eq!(parse_severity("http://unknown.org#Something"), Severity::Violation);
+        assert_eq!(
+            parse_severity("http://unknown.org#Something"),
+            Severity::Violation
+        );
     }
 
     #[test]
@@ -483,7 +503,10 @@ mod tests {
 
         let shape = &set.shapes["http://example.org#TaskShape"];
         let priority = &shape.properties["http://example.org#priority"];
-        let values = priority.allowed_values.as_ref().expect("should have allowed values");
+        let values = priority
+            .allowed_values
+            .as_ref()
+            .expect("should have allowed values");
         assert_eq!(values.len(), 3);
         assert!(values.contains(&"P1".to_string()));
         assert!(values.contains(&"P2".to_string()));
@@ -542,10 +565,7 @@ mod tests {
 
         let shape = &set.shapes["http://example.org#CodeShape"];
         let id_constraint = &shape.properties["http://example.org#id"];
-        assert_eq!(
-            id_constraint.pattern.as_deref(),
-            Some("^[A-Z]{3}-[0-9]+$")
-        );
+        assert_eq!(id_constraint.pattern.as_deref(), Some("^[A-Z]{3}-[0-9]+$"));
         assert_eq!(id_constraint.max_length, Some(20));
     }
 

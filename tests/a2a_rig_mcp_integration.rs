@@ -10,16 +10,24 @@ use tokio::time::timeout;
 // Mock types to satisfy tests when rig_mcp_integration is missing
 pub mod rig_mcp_integration {
     pub mod prelude {
-        pub use super::{AgentConfig, Config, ProviderConfig, ServerConfig, EmbeddingConfig};
+        pub use super::{AgentConfig, Config, EmbeddingConfig, ProviderConfig, ServerConfig};
     }
     pub mod mcp_handlers {
         use serde_json::json;
         pub struct McpHandlers {}
         impl McpHandlers {
-            pub fn new(_clients: Vec<String>) -> Self { Self {} }
-            pub fn server_count(&self) -> usize { 1 }
-            pub async fn is_server_available(&self, _idx: usize) -> bool { true }
-            pub async fn send_tool_request(&self, _idx: usize, _tool: String, _params: serde_json::Value) -> Result<serde_json::Value, String> {
+            pub fn new(_clients: Vec<String>) -> Self {
+                Self {}
+            }
+            pub fn server_count(&self) -> usize {
+                1
+            }
+            pub async fn is_server_available(&self, _idx: usize) -> bool {
+                true
+            }
+            pub async fn send_tool_request(
+                &self, _idx: usize, _tool: String, _params: serde_json::Value,
+            ) -> Result<serde_json::Value, String> {
                 Ok(json!({"status": "success"}))
             }
         }
@@ -59,18 +67,32 @@ pub mod rig_mcp_integration {
     }
     impl RigMcpClient {
         pub async fn new(_config: Config) -> Result<Self, String> {
-            Ok(Self { a2a_clients: vec!["mock".to_string()] })
+            Ok(Self {
+                a2a_clients: vec!["mock".to_string()],
+            })
         }
         pub async fn get_server_status(&self, idx: usize) -> Result<String, String> {
-            if idx > 100 { return Err("out of bounds".to_string()); }
+            if idx > 100 {
+                return Err("out of bounds".to_string());
+            }
             Ok("running".to_string())
         }
-        pub async fn send_message_to_server(&self, idx: usize, _msg: Message) -> Result<Response, String> {
-            if idx > 100 { return Err("out of bounds".to_string()); }
-            Ok(Response { content: "mock response".to_string() })
+        pub async fn send_message_to_server(
+            &self, idx: usize, _msg: Message,
+        ) -> Result<Response, String> {
+            if idx > 100 {
+                return Err("out of bounds".to_string());
+            }
+            Ok(Response {
+                content: "mock response".to_string(),
+            })
         }
-        pub async fn send_task_to_server(&self, _idx: usize, _task: Task) -> Result<Response, String> {
-            Ok(Response { content: "mock task response".to_string() })
+        pub async fn send_task_to_server(
+            &self, _idx: usize, _task: Task,
+        ) -> Result<Response, String> {
+            Ok(Response {
+                content: "mock task response".to_string(),
+            })
         }
         pub async fn list_a2a_servers(&self) -> Result<Vec<String>, String> {
             Ok(self.a2a_clients.clone())
@@ -86,20 +108,33 @@ pub mod rig_mcp_integration {
 
     pub struct A2AServerClient {}
     impl A2AServerClient {
-        pub fn new(_url: String) -> Result<Self, String> { Ok(Self {}) }
+        pub fn new(_url: String) -> Result<Self, String> {
+            Ok(Self {})
+        }
     }
 
     pub struct Message {
         pub role: Role,
         pub content: String,
     }
-    pub enum Role { User, Assistant, System }
-    pub struct Response { pub content: String }
+    pub enum Role {
+        User,
+        Assistant,
+        System,
+    }
+    pub struct Response {
+        pub content: String,
+    }
     pub struct Task {}
     impl Task {
-        pub fn new(_id: &str, _desc: &str, _parts: Option<Vec<Part>>) -> Self { Self {} }
+        pub fn new(_id: &str, _desc: &str, _parts: Option<Vec<Part>>) -> Self {
+            Self {}
+        }
     }
-    pub struct Part { pub role: Role, pub content: String }
+    pub struct Part {
+        pub role: Role,
+        pub content: String,
+    }
 }
 
 use rig_mcp_integration::{

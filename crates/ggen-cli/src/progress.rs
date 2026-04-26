@@ -36,14 +36,38 @@ pub struct ProgressState {
 /// Progress events for real-time updates
 #[derive(Debug, Clone)]
 pub enum ProgressEvent {
-    StepStarted { step: String, step_number: usize },
-    StepProgress { progress: f64, message: String },
-    StepCompleted { step: String, duration_ms: u64 },
-    OverallProgress { percent: f64, message: String },
-    DataProcessed { bytes: u64, total: u64 },
-    ItemProcessed { item: String, current: usize, total: usize },
-    Error { message: String, step: String },
-    Completed { total_duration_ms: u64 },
+    StepStarted {
+        step: String,
+        step_number: usize,
+    },
+    StepProgress {
+        progress: f64,
+        message: String,
+    },
+    StepCompleted {
+        step: String,
+        duration_ms: u64,
+    },
+    OverallProgress {
+        percent: f64,
+        message: String,
+    },
+    DataProcessed {
+        bytes: u64,
+        total: u64,
+    },
+    ItemProcessed {
+        item: String,
+        current: usize,
+        total: usize,
+    },
+    Error {
+        message: String,
+        step: String,
+    },
+    Completed {
+        total_duration_ms: u64,
+    },
     Cancelled,
 }
 
@@ -282,7 +306,8 @@ impl ProgressState {
         if self.total_steps == 0 {
             self.step_progress
         } else {
-            ((self.completed_steps as f64 + self.step_progress / 100.0) / self.total_steps as f64) * 100.0
+            ((self.completed_steps as f64 + self.step_progress / 100.0) / self.total_steps as f64)
+                * 100.0
         }
     }
 
@@ -330,27 +355,41 @@ impl ProgressDisplay {
         let state = self.reporter.get_state();
 
         if self.show_detailed {
-            println!("📦 {} - {:.1}% complete", state.current_operation, state.overall_progress());
-            println!("  Step: {} ({:.1}%)", state.current_step, state.step_progress);
-            println!("  Progress: {}/{} steps completed", state.completed_steps, state.total_steps);
+            println!(
+                "📦 {} - {:.1}% complete",
+                state.current_operation,
+                state.overall_progress()
+            );
+            println!(
+                "  Step: {} ({:.1}%)",
+                state.current_step, state.step_progress
+            );
+            println!(
+                "  Progress: {}/{} steps completed",
+                state.completed_steps, state.total_steps
+            );
 
             if state.total_bytes > 0 {
-                println!("  Data: {}/{} MB ({:.1}%)",
+                println!(
+                    "  Data: {}/{} MB ({:.1}%)",
                     state.bytes_processed / 1_048_576,
                     state.total_bytes / 1_048_576,
-                    (state.bytes_processed as f64 / state.total_bytes as f64) * 100.0);
+                    (state.bytes_processed as f64 / state.total_bytes as f64) * 100.0
+                );
             }
 
             if let Some(remaining) = state.estimated_time_remaining() {
                 println!("  Estimated remaining: {:.0}s", remaining.as_secs_f64());
             }
         } else {
-            println!("📦 {}: {:.1}% - {} ({}/{})",
+            println!(
+                "📦 {}: {:.1}% - {} ({}/{})",
                 state.current_operation,
                 state.overall_progress(),
                 state.current_step,
                 state.completed_steps,
-                state.total_steps);
+                state.total_steps
+            );
         }
     }
 
@@ -366,12 +405,15 @@ impl ProgressDisplay {
         let filled = "█".repeat(filled_width);
         let empty = "░".repeat(empty_width);
 
-        println!("📦 {} |{}{}| {:.1}% ({}/{})",
+        println!(
+            "📦 {} |{}{}| {:.1}% ({}/{})",
             state.current_operation,
-            filled, empty,
+            filled,
+            empty,
             overall,
             state.completed_steps,
-            state.total_steps);
+            state.total_steps
+        );
     }
 }
 

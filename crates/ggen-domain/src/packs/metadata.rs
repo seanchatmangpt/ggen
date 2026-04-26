@@ -120,7 +120,10 @@ mod tests {
         std::env::set_var("GGEN_PACKS_DIR", temp.path().to_str().unwrap());
         let result = get_packs_dir();
         std::env::remove_var("GGEN_PACKS_DIR");
-        assert!(result.is_ok(), "expected Ok when GGEN_PACKS_DIR points to a valid dir");
+        assert!(
+            result.is_ok(),
+            "expected Ok when GGEN_PACKS_DIR points to a valid dir"
+        );
         assert_eq!(result.unwrap(), temp.path());
     }
 
@@ -150,7 +153,10 @@ mod tests {
             .unwrap_or(false);
         if !relative_exists && !home_exists {
             let result = get_packs_dir();
-            assert!(result.is_err(), "expected Err when no packs dir is reachable");
+            assert!(
+                result.is_err(),
+                "expected Err when no packs dir is reachable"
+            );
         }
     }
 }

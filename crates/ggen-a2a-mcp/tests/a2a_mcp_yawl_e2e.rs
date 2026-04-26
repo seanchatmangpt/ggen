@@ -23,7 +23,6 @@ use common::init_tracing;
 // Helpers
 // ---------------------------------------------------------------------------
 
-
 fn make_text_message(
     id: &str, source: &str, content: &str, correlation_id: Option<&str>,
 ) -> ConvergedMessage {

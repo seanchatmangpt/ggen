@@ -59,9 +59,7 @@ impl SelfPlayBridge {
 
         // Unused components that would be needed if extending with message routing
 
-        Ok(Self {
-            mcp_client,
-        })
+        Ok(Self { mcp_client })
     }
 
     /// Call an MCP tool and return the first text content as a String.

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::Receipt;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MetaControllerConfig {
@@ -25,7 +25,7 @@ impl MetaController {
         }
 
         let failure_rate = self.calculate_failure_rate(receipt_history);
-        
+
         if failure_rate > self.config.adaptation_threshold {
             // 2. Adversarial Protection: Use dampening factor (0.5) to prevent oscillation
             let dampening = 0.5;
@@ -34,7 +34,8 @@ impl MetaController {
 
             Some(MetaControllerConfig {
                 jidoka_sensitivity: (self.config.jidoka_sensitivity + sensitivity_delta).min(1.0),
-                heijunka_leveling_factor: (self.config.heijunka_leveling_factor - leveling_delta).max(0.1),
+                heijunka_leveling_factor: (self.config.heijunka_leveling_factor - leveling_delta)
+                    .max(0.1),
                 adaptation_threshold: self.config.adaptation_threshold,
             })
         } else {
@@ -44,7 +45,7 @@ impl MetaController {
 
     fn verify_receipt_provenance(&self, _receipts: &[Receipt]) -> bool {
         // Cryptographic verification of Ed25519 signatures would happen here
-        true 
+        true
     }
 
     fn calculate_failure_rate(&self, receipts: &[Receipt]) -> f64 {
@@ -68,10 +69,16 @@ mod tests {
             adaptation_threshold: 0.1,
         };
         let controller = MetaController::new(config);
-        
+
         let receipts = vec![
-            Receipt { id: "1".into(), status: "failed".into() },
-            Receipt { id: "2".into(), status: "success".into() },
+            Receipt {
+                id: "1".into(),
+                status: "failed".into(),
+            },
+            Receipt {
+                id: "2".into(),
+                status: "success".into(),
+            },
         ]; // 50% failure rate > 10% threshold
 
         let new_config = controller.evaluate_and_adapt(&receipts).unwrap();

@@ -5,7 +5,7 @@
 //! tool discovery, message passing, and error scenarios.
 
 use ggen_domain::error::{A2aError, AgentError, McpError};
-use ggen_domain::mcp_config::{A2aConfig, A2aAgentConfig as AgentConfig, McpServerConfig};
+use ggen_domain::mcp_config::{A2aAgentConfig as AgentConfig, A2aConfig, McpServerConfig};
 use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
@@ -13,8 +13,13 @@ use std::time::Duration;
 // Local test types to match missing domain types
 #[derive(Debug, Clone)]
 pub enum AgentTransport {
-    WebSocket { url: String, reconnect_interval_ms: u64 },
-    Http { url: String },
+    WebSocket {
+        url: String,
+        reconnect_interval_ms: u64,
+    },
+    Http {
+        url: String,
+    },
     Local,
 }
 
@@ -27,13 +32,20 @@ pub struct IntegrationConfig {
 
 impl IntegrationConfig {
     pub fn new(a2a: A2aConfig, mcp: McpServerConfig) -> Self {
-        Self { a2a, mcp, agents: vec![], enable_integration: true }
+        Self {
+            a2a,
+            mcp,
+            agents: vec![],
+            enable_integration: true,
+        }
     }
     pub fn add_agent(mut self, agent: AgentConfig) -> Self {
         self.agents.push(agent);
         self
     }
-    pub fn validate(&self) -> Result<(), String> { Ok(()) }
+    pub fn validate(&self) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 // Local extensions for domain types to satisfy tests
@@ -82,7 +94,9 @@ impl AgentConfigTestExt for AgentConfig {
         self.config.insert("capabilities".to_string(), caps_val);
         self
     }
-    fn with_transport_test(self, _transport: AgentTransport) -> Self { self }
+    fn with_transport_test(self, _transport: AgentTransport) -> Self {
+        self
+    }
     fn validate_test(&self) -> Result<(), String> {
         if self.name.is_empty() {
             return Err("Empty name".to_string());
@@ -389,20 +403,20 @@ mod agent_commands {
     #[test]
     fn test_agent_transport_configurations() {
         // Arrange
-        let _websocket_agent = AgentConfig::new_test("websocket-agent".to_string()).with_transport_test(
-            AgentTransport::WebSocket {
+        let _websocket_agent = AgentConfig::new_test("websocket-agent".to_string())
+            .with_transport_test(AgentTransport::WebSocket {
                 url: "ws://localhost:8080".to_string(),
                 reconnect_interval_ms: 5000,
+            });
+
+        let _http_agent = AgentConfig::new_test("http-agent".to_string()).with_transport_test(
+            AgentTransport::Http {
+                url: "http://localhost:8080".to_string(),
             },
         );
 
-        let _http_agent =
-            AgentConfig::new_test("http-agent".to_string()).with_transport_test(AgentTransport::Http {
-                url: "http://localhost:8080".to_string(),
-            });
-
-        let _local_agent =
-            AgentConfig::new_test("local-agent".to_string()).with_transport_test(AgentTransport::Local);
+        let _local_agent = AgentConfig::new_test("local-agent".to_string())
+            .with_transport_test(AgentTransport::Local);
 
         // Act & Assert
         // (Matching logic removed as AgentConfig lacks transport field)
@@ -469,7 +483,8 @@ mod error_scenarios {
         let _invalid_auth = A2aConfig::new_with_url("http://localhost:8080".to_string());
 
         // Act & Assert - simulate authentication failure
-        let result = if false { // Mock auth failure
+        let result = if false {
+            // Mock auth failure
             Ok(())
         } else {
             Err(A2aError::Authentication("No API key provided".to_string()))
@@ -529,7 +544,8 @@ mod configuration_tests {
         assert!(invalid_agent.validate_test().is_err());
 
         // Test empty capabilities
-        let invalid_caps = AgentConfig::new_test("no-caps".to_string()).with_capabilities_test(vec![]);
+        let invalid_caps =
+            AgentConfig::new_test("no-caps".to_string()).with_capabilities_test(vec![]);
         assert!(invalid_caps.validate_test().is_err());
     }
 
@@ -599,9 +615,18 @@ mod message_passing_tests {
         assert!(message.contains_key("from"));
         assert!(message.contains_key("to"));
         assert!(message.contains_key("content"));
-        assert_eq!(message["from"], serde_json::Value::String("client".to_string()));
-        assert_eq!(message["to"], serde_json::Value::String("agent".to_string()));
-        assert_eq!(message["content"], serde_json::Value::String("Hello, agent!".to_string()));
+        assert_eq!(
+            message["from"],
+            serde_json::Value::String("client".to_string())
+        );
+        assert_eq!(
+            message["to"],
+            serde_json::Value::String("agent".to_string())
+        );
+        assert_eq!(
+            message["content"],
+            serde_json::Value::String("Hello, agent!".to_string())
+        );
 
         // Cleanup
         a2a_server.stop();
@@ -615,7 +640,10 @@ mod message_passing_tests {
 
         // Test malformed message
         let malformed_message = HashMap::from([
-            ("from".to_string(), serde_json::Value::String("".to_string())),
+            (
+                "from".to_string(),
+                serde_json::Value::String("".to_string()),
+            ),
             ("to".to_string(), serde_json::Value::String("".to_string())),
         ]);
 
