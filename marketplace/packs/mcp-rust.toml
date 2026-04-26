@@ -1,0 +1,55 @@
+[pack]
+id = "mcp-rust"
+name = "MCP Rust"
+version = "1.0.0"
+description = "Model Context Protocol server in Rust with Axum"
+category = "integration"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "rmcp",
+    "axum",
+    "tokio",
+]
+
+[[pack.templates]]
+name = "mcp-server"
+path = "templates/mcp-server"
+description = "MCP server scaffold with Axum and tool registration"
+variables = ["server_name", "transport", "tools"]
+
+[[pack.templates]]
+name = "mcp-tool"
+path = "templates/mcp-tool"
+description = "Individual MCP tool implementation template"
+variables = ["tool_name", "input_schema", "output_schema"]
+
+[[pack.templates]]
+name = "mcp-client"
+path = "templates/mcp-client"
+description = "MCP client for connecting to MCP servers"
+variables = ["client_name", "server_url", "auth_method"]
+
+[pack.metadata]
+test_coverage = "90%"
+code_examples = 8
+documentation_files = 5
+rdf_ontology_size = "200+ lines"
+sparql_templates = 6
+
+tags = ["mcp", "rust", "axum", "server"]
+keywords = ["model-context-protocol", "mcp", "axum", "rust", "server", "tools"]
+
+[pack.sparql_queries]
+list_tools = """
+PREFIX ggen: <http://ggen.io/ontology#>
+SELECT ?tool ?name ?description
+WHERE {
+    ?tool a ggen:McpTool ;
+          ggen:toolName ?name ;
+          ggen:toolDescription ?description .
+}
+"""

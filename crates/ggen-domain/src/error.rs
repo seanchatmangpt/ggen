@@ -58,7 +58,9 @@ impl From<A2aError> for Error {
             A2aError::Timeout(msg) => Error::new(&format!("Timeout: {}", msg)),
             A2aError::Protocol(msg) => Error::new(&format!("Protocol error: {}", msg)),
             A2aError::Transport(msg) => Error::network_error(msg),
-            A2aError::MessageDelivery(msg) => Error::new(&format!("Message delivery failed: {}", msg)),
+            A2aError::MessageDelivery(msg) => {
+                Error::new(&format!("Message delivery failed: {}", msg))
+            }
             A2aError::ResourceNotFound(msg) => Error::file_not_found(std::path::PathBuf::from(msg)),
             A2aError::PermissionDenied(msg) => Error::invalid_input(msg),
             A2aError::Internal(msg) => Error::internal_error(msg),
@@ -105,7 +107,9 @@ impl From<McpError> for Error {
             McpError::ServerNotFound(msg) => Error::file_not_found(std::path::PathBuf::from(msg)),
             McpError::ToolNotFound(msg) => Error::file_not_found(std::path::PathBuf::from(msg)),
             McpError::RequestFailed(msg) => Error::new(&format!("Request failed: {}", msg)),
-            McpError::ResponseParse(msg) => Error::new(&format!("Response parsing failed: {}", msg)),
+            McpError::ResponseParse(msg) => {
+                Error::new(&format!("Response parsing failed: {}", msg))
+            }
             McpError::Authentication(msg) => Error::invalid_input(msg),
             McpError::Configuration(msg) => Error::invalid_input(msg),
             McpError::Timeout(msg) => Error::new(&format!("Timeout: {}", msg)),

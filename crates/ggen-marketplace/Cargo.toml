@@ -29,7 +29,6 @@ futures = { workspace = true }
 futures-util = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
-semver = "1.0"
 
 # RDF & Semantic Data (Primary Data Store)
 oxigraph = { workspace = true }      # RDF triplestore (knowledge graph backend)
@@ -100,7 +99,7 @@ zip = "2.0"                          # ZIP archive extraction
 
 # File system utilities
 walkdir = "2.5"                      # Directory walking
-dirs = "5.0"                         # Platform-specific directories (cache, config, etc.)
+# dirs = "5.0" removed - duplicate of line 82 (dirs = "6.0")
 
 [features]
 integration = []
@@ -112,7 +111,7 @@ proptest = { workspace = true }
 mockall = "0.13"
 rand = "0.8"
 tempfile = "3.23"
-semver = "1.0"
+# semver = "1.0" removed - duplicate of line 32
 
 # Unit tests
 [[test]]
@@ -141,3 +140,16 @@ required-features = ["integration"]
 name = "install_security_test"
 path = "tests/install_security_test.rs"
 required-features = ["integration"]
+
+[[test]]
+name = "pack_migration_test"
+path = "tests/pack_migration_test.rs"
+
+[[test]]
+name = "v3_registry_test"
+path = "tests/v3_registry_test.rs"
+
+# Benchmarks
+[[bench]]
+name = "v3_registry"
+harness = false

@@ -506,7 +506,8 @@ pub fn verify_ed25519(message: &[u8], signature_hex: &str, public_key_b64: &str)
     let sig_bytes = hex::decode(signature_hex)
         .map_err(|e| Error::with_context("Failed to decode signature hex", &e.to_string()))?;
 
-    let pk_array: [u8; 32] = pk_bytes.try_into()
+    let pk_array: [u8; 32] = pk_bytes
+        .try_into()
         .map_err(|_| Error::new("Ed25519 public key must be 32 bytes"))?;
     let verifying_key = VerifyingKey::from_bytes(&pk_array)
         .map_err(|e| Error::with_context("Invalid Ed25519 public key", &e.to_string()))?;
@@ -534,7 +535,9 @@ mod tests {
             seed[i] = b;
         }
         // Ensure at least some non-zero bytes for valid key
-        if seed[0] == 0 { seed[0] = 1; }
+        if seed[0] == 0 {
+            seed[0] = 1;
+        }
         let signing_key = SigningKey::from_bytes(&seed);
         let verifying_key = signing_key.verifying_key();
         let pk_bytes = verifying_key.to_bytes();

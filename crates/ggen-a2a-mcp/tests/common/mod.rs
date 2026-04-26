@@ -243,4 +243,3 @@ fn init_otlp(endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-

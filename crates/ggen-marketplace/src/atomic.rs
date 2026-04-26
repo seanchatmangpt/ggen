@@ -284,7 +284,8 @@ impl AtomicPackId {
                 _ => return None,
             },
             _ => return None,
-        }.into();
+        }
+        .into();
 
         class.map(|class| Self {
             class,
@@ -301,7 +302,10 @@ impl AtomicPackId {
             (AtomicPackClass::ContractOpenapi, "contract-openapi"),
             (AtomicPackClass::ContractGraphql, "contract-graphql"),
             (AtomicPackClass::ProjectionRust, "projection-rust"),
-            (AtomicPackClass::ProjectionTypescript, "projection-typescript"),
+            (
+                AtomicPackClass::ProjectionTypescript,
+                "projection-typescript",
+            ),
             (AtomicPackClass::ProjectionPython, "projection-python"),
             (AtomicPackClass::ProjectionJava, "projection-java"),
             (AtomicPackClass::ProjectionGo, "projection-go"),
@@ -312,12 +316,24 @@ impl AtomicPackId {
             (AtomicPackClass::RuntimeStandalone, "runtime-standalone"),
             (AtomicPackClass::PolicyNoDefaults, "policy-no-defaults"),
             (AtomicPackClass::PolicyStrict, "policy-strict"),
-            (AtomicPackClass::ValidatorProtocolVisibleValues, "validator-protocol-visible-values"),
+            (
+                AtomicPackClass::ValidatorProtocolVisibleValues,
+                "validator-protocol-visible-values",
+            ),
             (AtomicPackClass::ValidatorShacl, "validator-shacl"),
-            (AtomicPackClass::ReceiptEnterpriseSigned, "receipt-enterprise-signed"),
+            (
+                AtomicPackClass::ReceiptEnterpriseSigned,
+                "receipt-enterprise-signed",
+            ),
             (AtomicPackClass::ReceiptChained, "receipt-chained"),
-            (AtomicPackClass::ConsequenceSemverMigration, "consequence-semver-migration"),
-            (AtomicPackClass::ConsequenceBreakingChange, "consequence-breaking-change"),
+            (
+                AtomicPackClass::ConsequenceSemverMigration,
+                "consequence-semver-migration",
+            ),
+            (
+                AtomicPackClass::ConsequenceBreakingChange,
+                "consequence-breaking-change",
+            ),
             (AtomicPackClass::CoreOntology, "core-ontology"),
             (AtomicPackClass::CoreHooks, "core-hooks"),
             (AtomicPackClass::CoreReceipts, "core-receipts"),

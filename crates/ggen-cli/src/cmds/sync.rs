@@ -342,15 +342,24 @@ pub fn sync(
     }
 
     run_manifest_pipeline(
-        manifest, output_dir, dry_run, force, audit, rule, verbose, watch, validate_only, format,
-        timeout, stage, ontology,
+        manifest,
+        output_dir,
+        dry_run,
+        force,
+        audit,
+        rule,
+        verbose,
+        watch,
+        validate_only,
+        format,
+        timeout,
+        stage,
+        ontology,
     )
 }
 
 /// Check profile and locked preconditions before any pipeline work.
-fn check_profile_preconditions(
-    profile: Option<&str>, locked: bool,
-) -> VerbResult<()> {
+fn check_profile_preconditions(profile: Option<&str>, locked: bool) -> VerbResult<()> {
     if profile.is_some() || locked {
         let workspace =
             std::env::current_dir().map_err(|e| NounVerbError::execution_error(e.to_string()))?;
@@ -372,8 +381,19 @@ fn run_manifest_pipeline(
 
     let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
     let options = build_sync_options(
-        manifest, output_dir, dry_run, force, audit, rule, verbose, watch, validate_only, format,
-        timeout, stage, ontology,
+        manifest,
+        output_dir,
+        dry_run,
+        force,
+        audit,
+        rule,
+        verbose,
+        watch,
+        validate_only,
+        format,
+        timeout,
+        stage,
+        ontology,
     )?;
 
     let executor = SyncExecutor::new(options);
@@ -393,7 +413,9 @@ fn run_manifest_pipeline(
 }
 
 /// Attempt to write a sync receipt; log a warning on failure but never abort the sync.
-fn emit_sync_receipt_best_effort(result: &SyncResult, installed_packs: &[String]) -> Option<String> {
+fn emit_sync_receipt_best_effort(
+    result: &SyncResult, installed_packs: &[String],
+) -> Option<String> {
     match emit_sync_receipt(result, installed_packs) {
         Ok(path) => Some(path),
         Err(e) => {
@@ -450,7 +472,9 @@ fn read_installed_packs(lock_path: &str) -> Vec<String> {
 ///
 /// Returns the path written to `latest.json` on success, or a string error on
 /// failure.  The caller logs the error as a warning but does NOT abort the sync.
-fn emit_sync_receipt(result: &SyncResult, installed_packs: &[String]) -> std::result::Result<String, String> {
+fn emit_sync_receipt(
+    result: &SyncResult, installed_packs: &[String],
+) -> std::result::Result<String, String> {
     use std::fs;
 
     // 1. Ensure .ggen/keys/ directory exists.
@@ -470,17 +494,18 @@ fn emit_sync_receipt(result: &SyncResult, installed_packs: &[String]) -> std::re
         ed25519_dalek::SigningKey::from_bytes(&sk_bytes)
     } else {
         let (sk, vk) = generate_keypair();
-        fs::write(&signing_key_path, hex::encode(sk.to_bytes()))
-            .map_err(|e| e.to_string())?;
-        fs::write(&verifying_key_path, hex::encode(vk.to_bytes()))
-            .map_err(|e| e.to_string())?;
+        fs::write(&signing_key_path, hex::encode(sk.to_bytes())).map_err(|e| e.to_string())?;
+        fs::write(&verifying_key_path, hex::encode(vk.to_bytes())).map_err(|e| e.to_string())?;
         sk
     };
 
     // 3. Build input hashes: ggen.toml + installed packs.
     let mut input_hashes: Vec<String> = Vec::new();
     if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
-        input_hashes.push(format!("ggen.toml:{}", hash_data(manifest_content.as_bytes())));
+        input_hashes.push(format!(
+            "ggen.toml:{}",
+            hash_data(manifest_content.as_bytes())
+        ));
     }
     for pack in installed_packs {
         input_hashes.push(format!("pack:{}", pack));
@@ -499,14 +524,9 @@ fn emit_sync_receipt(result: &SyncResult, installed_packs: &[String]) -> std::re
         .collect();
 
     // 5. Create and sign the receipt.
-    let receipt = Receipt::new(
-        "ggen-sync".to_string(),
-        input_hashes,
-        output_hashes,
-        None,
-    )
-    .sign(&signing_key)
-    .map_err(|e| e.to_string())?;
+    let receipt = Receipt::new("ggen-sync".to_string(), input_hashes, output_hashes, None)
+        .sign(&signing_key)
+        .map_err(|e| e.to_string())?;
 
     // 6. Write timestamped archive copy.
     let receipts_dir = std::path::Path::new(".ggen/receipts");

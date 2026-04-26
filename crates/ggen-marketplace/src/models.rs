@@ -555,9 +555,7 @@ fn default_trust_tier() -> TrustTier {
 
 /// Default registry class for releases (backward compatibility)
 pub(crate) fn default_registry_class() -> RegistryClass {
-    RegistryClass::Public {
-        url: String::new(),
-    }
+    RegistryClass::Public { url: String::new() }
 }
 
 /// Search query result

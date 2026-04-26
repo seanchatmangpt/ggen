@@ -31,7 +31,11 @@
 //! - SPARQL-based queries
 //! - Version history as RDF facts
 
+pub mod atomic;
 pub mod builders;
+pub mod bundle;
+pub mod cache;
+pub mod composition_receipt;
 pub mod error;
 pub mod install;
 pub mod metadata;
@@ -54,15 +58,17 @@ pub mod trust;
 pub mod v3;
 pub mod validation;
 
+pub use composition_receipt::CompositionReceipt;
 pub use error::{Error, Result};
 pub use install::Installer;
 pub use metrics::MetricsCollector;
+pub use migration::{Migrator, UpgradeEdge};
 pub use models::*;
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
 pub use search::SearchEngine;
 pub use search_sparql::SparqlSearchEngine;
-pub use security::SignatureVerifier;
+pub use security::MarketplaceVerifier;
 pub use traits::*;
 pub use v3::V3OptimizedRegistry;
 pub use validation::Validator;
@@ -70,15 +76,17 @@ pub use validation::Validator;
 /// Prelude for convenient imports
 pub mod prelude {
     pub use crate::{
+        composition_receipt::CompositionReceipt,
         error::{Error, Result},
         install::Installer,
         metrics::MetricsCollector,
+        migration::{Migrator, UpgradeEdge},
         models::{Manifest, Package, PackageId, PackageMetadata, PackageVersion},
         registry::Registry,
         registry_rdf::RdfRegistry,
         search::SearchEngine,
         search_sparql::SparqlSearchEngine,
-        security::SignatureVerifier,
+        security::MarketplaceVerifier,
         traits::{AsyncRepository, Installable, Observable, Queryable, Signable, Validatable},
         v3::V3OptimizedRegistry,
         validation::Validator,

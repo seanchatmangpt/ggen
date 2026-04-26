@@ -6,9 +6,6 @@ use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
-use crate::pack_install::PackInstaller;
-use crate::progress::ProgressDisplay;
-
 // ============================================================================
 // Output Types
 // ============================================================================
@@ -33,20 +30,22 @@ struct PackSummary {
 
 #[derive(Serialize)]
 struct ShowOutput {
-    pack_id: String,
+    id: String,
     name: String,
     description: String,
     version: String,
+    category: String,
+    package_count: usize,
+    packages: Vec<String>,
     dependencies: Vec<String>,
-    templates: Vec<String>,
-    queries: Vec<String>,
 }
 
 #[derive(Serialize)]
-struct InstallOutput {
-    pack_id: String,
-    status: String,
-    message: String,
+pub struct InstallOutput {
+    pub pack_id: String,
+    pub pack_name: String,
+    pub status: String,
+    pub message: String,
 }
 
 #[derive(Serialize)]
@@ -60,7 +59,10 @@ struct GenerateOutput {
 #[derive(Serialize)]
 struct ValidateOutput {
     pack_id: String,
-    is_valid: bool,
+    valid: bool,
+    message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    package_count: Option<usize>,
     errors: Vec<String>,
     warnings: Vec<String>,
 }
@@ -116,24 +118,30 @@ struct CheckCompatibilityOutput {
 
 /// List all available packs
 #[verb]
-fn list(verbose: bool) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
+    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
-    let total = packages.len();
+    let filtered_packages: Vec<_> = if let Some(cat) = category.as_ref() {
+        packages
+            .into_iter()
+            .filter(|pkg| &pkg.category == cat)
+            .collect()
+    } else {
+        packages
+    };
 
-    let packs: Vec<PackSummary> = packages
+    let total = filtered_packages.len();
+    let default_category = category.unwrap_or_else(|| "marketplace".to_string());
+
+    let packs: Vec<PackSummary> = filtered_packages
         .into_iter()
         .map(|pkg| {
             if verbose {
                 println!("  - {} (v{})", pkg.id, pkg.version);
                 println!("    Name: {}", pkg.name);
                 println!("    Description: {}", pkg.description);
-                println!("    Downloads: {}", pkg.downloads);
-                if let Some(score) = pkg.quality_score {
-                    println!("    Quality Score: {}%", score);
-                }
                 println!();
             }
 
@@ -142,10 +150,10 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
                 name: pkg.name,
                 description: pkg.description,
                 version: pkg.version,
-                category: "marketplace".to_string(),
+                category: default_category.clone(),
                 package_count: 0,
                 template_count: 0,
-                production_ready: pkg.quality_score.map_or(false, |s| s >= 95),
+                production_ready: pkg.production_ready,
             }
         })
         .collect();
@@ -156,7 +164,7 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::marketplace::get_package(&pack_id).map_err(|e| {
+    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to get pack '{}': {}",
             pack_id, e
@@ -166,17 +174,21 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
     let dependencies: Vec<String> = detail
         .dependencies
         .iter()
-        .map(|d| format!("{} {}", d.id, d.version_req))
+        .map(|d| format!("{} {}", d.pack_id, d.version))
         .collect();
 
+    let package_count = detail.packages.len();
+    let packages: Vec<String> = detail.packages.iter().map(|p| p.to_string()).collect();
+
     Ok(ShowOutput {
-        pack_id: detail.id,
+        id: detail.id,
         name: detail.name,
         description: detail.description,
         version: detail.version,
+        category: "marketplace".to_string(),
+        package_count,
+        packages,
         dependencies,
-        templates: vec![],
-        queries: vec![],
     })
 }
 
@@ -193,17 +205,32 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
 /// * `GGEN_LOCKED=true` — require pack exists in `.ggen/packs.lock`
 /// * `GGEN_OFFLINE=true` — require pack exists in local cache (no network fetch)
 #[verb]
-fn install(pack_id: String, force: bool) -> VerbResult<InstallOutput> {
+fn install(pack_id: String, force: bool, dry_run: bool) -> VerbResult<InstallOutput> {
     if pack_id.is_empty() {
         return Err(clap_noun_verb::NounVerbError::argument_error(
             "Pack ID cannot be empty",
         ));
     }
 
+    // Get pack name from metadata
+    let pack_name = ggen_domain::packs::metadata::show_pack(&pack_id)
+        .map(|p| p.name)
+        .unwrap_or_else(|_| pack_id.clone());
+
+    if dry_run {
+        return Ok(InstallOutput {
+            pack_id: pack_id.clone(),
+            pack_name,
+            status: "DRY RUN".to_string(),
+            message: format!("Would install pack '{}' (dry run mode)", pack_id),
+        });
+    }
+
     let result = install_pack_improved(&pack_id, force)?;
 
     Ok(InstallOutput {
         pack_id,
+        pack_name,
         status: "installed".to_string(),
         message: result.message,
     })
@@ -303,7 +330,6 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
         ),
     })
 }
-
 
 fn resolve_cache_dir() -> VerbResult<std::path::PathBuf> {
     std::env::var_os("GGEN_PACK_CACHE_DIR")
@@ -518,36 +544,52 @@ fn validate(pack_id: String) -> VerbResult<ValidateOutput> {
 }
 
 fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
-    let result = ggen_domain::packs::validate::validate_pack(&pack_id).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(&format!(
-            "Failed to validate pack '{}': {}",
-            pack_id, e
-        ))
-    })?;
+    // Try to validate the pack; if it doesn't exist, return with valid: false
+    match ggen_domain::packs::validate::validate_pack(&pack_id) {
+        Ok(result) => {
+            let message = if result.valid {
+                format!(
+                    "Pack '{}' is valid (score: {:.0}%, {} checks passed)",
+                    pack_id,
+                    result.score,
+                    result.checks.iter().filter(|c| c.passed).count()
+                )
+            } else {
+                format!("Pack '{}' is INVALID", pack_id)
+            };
 
-    if result.valid {
-        println!(
-            "Pack '{}' is valid (score: {:.0}%, {} checks passed)",
-            pack_id,
-            result.score,
-            result.checks.iter().filter(|c| c.passed).count()
-        );
-    } else {
-        println!("Pack '{}' is INVALID:", pack_id);
-        for err in &result.errors {
-            println!("  ERROR: {}", err);
+            println!("{}", message);
+            if !result.valid {
+                for err in &result.errors {
+                    println!("  ERROR: {}", err);
+                }
+                for warn in &result.warnings {
+                    println!("  WARNING: {}", warn);
+                }
+            }
+
+            Ok(ValidateOutput {
+                pack_id,
+                valid: result.valid,
+                message,
+                package_count: Some(result.checks.len()),
+                errors: result.errors,
+                warnings: result.warnings,
+            })
         }
-        for warn in &result.warnings {
-            println!("  WARNING: {}", warn);
+        Err(_) => {
+            // Pack not found or validation error
+            let message = format!("Pack '{}' not found or invalid", pack_id);
+            Ok(ValidateOutput {
+                pack_id,
+                valid: false,
+                message,
+                package_count: None,
+                errors: vec![],
+                warnings: vec![],
+            })
         }
     }
-
-    Ok(ValidateOutput {
-        pack_id,
-        is_valid: result.valid,
-        errors: result.errors,
-        warnings: result.warnings,
-    })
 }
 
 /// Compose multiple packs
@@ -605,27 +647,26 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 
 /// Show pack dependencies
 #[verb]
-fn dependencies(pack_id: String, version: Option<String>) -> VerbResult<DependenciesOutput> {
-    let graph = ggen_domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
-        .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(&format!(
-                "Failed to resolve dependencies: {}",
-                e
-            ))
-        })?;
+fn dependencies(pack_id: String, _version: Option<String>) -> VerbResult<DependenciesOutput> {
+    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!(
+            "Failed to resolve dependencies for '{}': {}",
+            pack_id, e
+        ))
+    })?;
 
-    let dependencies: Vec<DependencyNode> = graph
+    let dependencies: Vec<DependencyNode> = detail
         .dependencies
         .into_iter()
         .map(|dep| DependencyNode {
-            pack_id: dep.id,
-            version: dep.version_req,
-            dependencies: dep.dependencies,
+            pack_id: dep.pack_id,
+            version: dep.version,
+            dependencies: vec![],
         })
         .collect();
 
     Ok(DependenciesOutput {
-        pack_id: graph.package_id,
+        pack_id,
         dependencies,
     })
 }
@@ -637,7 +678,7 @@ fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
 }
 
 fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packages: {}", e))
     })?;
 

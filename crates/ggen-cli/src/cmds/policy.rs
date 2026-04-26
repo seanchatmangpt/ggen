@@ -318,3 +318,53 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
         runtime_constraints,
     })
 }
+
+/// Check current environment against default profile
+#[verb]
+fn check() -> VerbResult<ValidateOutput> {
+    // Use Production as the default profile
+    let profile_obj = ggen_marketplace::profile::get_profile("enterprise-strict").map_err(|e| {
+        clap_noun_verb::NounVerbError::argument_error(format!("Default profile not found: {}", e))
+    })?;
+
+    // Load pack contexts from project
+    let pack_contexts = load_pack_contexts_from_project()
+        .map_err(|e| clap_noun_verb::NounVerbError::argument_error(format!("{}", e)))?;
+
+    // Enforce policy
+    let report = profile_obj.enforce(&pack_contexts).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Policy enforcement failed: {}", e))
+    })?;
+
+    // Format violations
+    let violations: Vec<ViolationSummary> = report
+        .violations
+        .iter()
+        .map(|v| ViolationSummary {
+            policy_id: v.policy_id.as_str().to_string(),
+            pack_id: v.pack_id.clone(),
+            description: v.description.clone(),
+        })
+        .collect();
+
+    if report.passed {
+        println!(
+            "✓ Current environment passes '{}' profile",
+            profile_obj.name
+        );
+    } else {
+        println!("✗ Current environment fails '{}' profile", profile_obj.name);
+        println!("  Violations: {}", report.violation_count());
+        for violation in &violations {
+            println!("    - {}: {}", violation.pack_id, violation.description);
+        }
+    }
+
+    Ok(ValidateOutput {
+        profile_id: profile_obj.id.as_str().to_string(),
+        passed: report.passed,
+        violation_count: report.violation_count(),
+        policies_checked: report.policies_checked.len(),
+        violations,
+    })
+}

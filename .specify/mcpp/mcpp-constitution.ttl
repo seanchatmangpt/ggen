@@ -1,0 +1,7 @@
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix mcpp: <https://chatmangpt.com/ns/mcpp#> .
+
+mcpp:NoUnboundedCommandSurface a odrl:Prohibition ;
+    odrl:action mcpp:ExposeUnboundedCommand ;
+    odrl:target mcpp:CommandSurface .

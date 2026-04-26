@@ -18,15 +18,39 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
-## ⚡ RDF-First Architecture
+## Pre-Execution Checks
 
-**Constitutional Equation**: `spec.md = μ(feature.ttl)`
+**Check for extension hooks (before specification)**:
+- Check if `.specify/extensions.yml` exists in the project root.
+- If it exists, read it and look for entries under the `hooks.before_specify` key
+- If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
+- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
+- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
+  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
+  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
+- For each executable hook, output the following based on its `optional` flag:
+  - **Optional hook** (`optional: true`):
+    ```
+    ## Extension Hooks
 
-All specifications are Turtle/RDF ontologies. Markdown is a **generated artifact** for GitHub viewing.
+    **Optional Pre-Hook**: {extension}
+    Command: `/{command}`
+    Description: {description}
 
-- **Source of Truth**: `feature.ttl` (edit this)
-- **Derived Artifact**: `spec.md` (generated via `ggen render`, NEVER edit manually)
-- **Validation**: SHACL shapes in `spec-kit-schema.ttl`
+    Prompt: {prompt}
+    To execute: `/{command}`
+    ```
+  - **Mandatory hook** (`optional: false`):
+    ```
+    ## Extension Hooks
+
+    **Automatic Pre-Hook**: {extension}
+    Executing: `/{command}`
+    EXECUTE_COMMAND: {command}
+
+    Wait for the result of the hook command before proceeding to the Outline.
+    ```
+- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
 ## Outline
 
@@ -34,7 +58,7 @@ The text the user typed after `/speckit.specify` in the triggering message **is*
 
 Given that feature description, do this:
 
-1. **Generate a concise short name** (2-4 words) for the branch:
+1. **Generate a concise short name** (2-4 words) for the feature:
    - Analyze the feature description and extract the most meaningful keywords
    - Create a 2-4 word short name that captures the essence of the feature
    - Use action-noun format when possible (e.g., "add-user-auth", "fix-payment-bug")
@@ -46,50 +70,47 @@ Given that feature description, do this:
      - "Create a dashboard for analytics" → "analytics-dashboard"
      - "Fix payment processing timeout bug" → "fix-payment-timeout"
 
-2. **Check for existing branches before creating new one**:
+2. **Branch creation** (optional, via hook):
 
-   a. First, fetch all remote branches to ensure we have the latest information:
+   If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to a git branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
 
-      ```bash
-      git fetch --all --prune
-      ```
+   If the user explicitly provided `GIT_BRANCH_NAME`, pass it through to the hook so the branch script uses the exact value as the branch name (bypassing all prefix/suffix generation).
 
-   b. Find the highest feature number across all sources for the short-name:
-      - Remote branches: `git ls-remote --heads origin | grep -E 'refs/heads/[0-9]+-<short-name>$'`
-      - Local branches: `git branch | grep -E '^[* ]*[0-9]+-<short-name>$'`
-      - Specs directories: Check for directories matching `specs/[0-9]+-<short-name>`
+3. **Create the spec feature directory**:
 
-   c. Determine the next available number:
-      - Extract all numbers from all three sources
-      - Find the highest number N
-      - Use N+1 for the new branch number
+   Specs live under the default `specs/` directory unless the user explicitly provides `SPECIFY_FEATURE_DIRECTORY`.
 
-   d. Run the script `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"` with the calculated number and short-name:
-      - Pass `--number N+1` and `--short-name "your-short-name"` along with the feature description
-      - Bash example: `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS" --json --number 5 --short-name "user-auth" "Add user authentication"`
-      - PowerShell example: `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS" -Json -Number 5 -ShortName "user-auth" "Add user authentication"`
+   **Resolution order for `SPECIFY_FEATURE_DIRECTORY`**:
+   1. If the user explicitly provided `SPECIFY_FEATURE_DIRECTORY` (e.g., via environment variable, argument, or configuration), use it as-is
+   2. Otherwise, auto-generate it under `specs/`:
+      - Check `.specify/init-options.json` for `branch_numbering`
+      - If `"timestamp"`: prefix is `YYYYMMDD-HHMMSS` (current timestamp)
+      - If `"sequential"` or absent: prefix is `NNN` (next available 3-digit number after scanning existing directories in `specs/`)
+      - Construct the directory name: `<prefix>-<short-name>` (e.g., `003-user-auth` or `20260319-143022-user-auth`)
+      - Set `SPECIFY_FEATURE_DIRECTORY` to `specs/<directory-name>`
+
+   **Create the directory and spec file**:
+   - `mkdir -p SPECIFY_FEATURE_DIRECTORY`
+   - Copy `.specify/templates/spec-template.md` to `SPECIFY_FEATURE_DIRECTORY/spec.md` as the starting point
+   - Set `SPEC_FILE` to `SPECIFY_FEATURE_DIRECTORY/spec.md`
+   - Persist the resolved path to `.specify/feature.json`:
+     ```json
+     {
+       "feature_directory": "<resolved feature dir>"
+     }
+     ```
+     Write the actual resolved directory path value (for example, `specs/003-user-auth`), not the literal string `SPECIFY_FEATURE_DIRECTORY`.
+     This allows downstream commands (`/speckit.plan`, `/speckit.tasks`, etc.) to locate the feature directory without relying on git branch name conventions.
 
    **IMPORTANT**:
-   - Check all three sources (remote branches, local branches, specs directories) to find the highest number
-   - Only match branches/directories with the exact short-name pattern
-   - If no existing branches/directories found with this short-name, start with number 1
-   - You must only ever run this script once per feature
-   - The JSON is provided in the terminal as output - always refer to it to get the actual content you're looking for
-   - The JSON output will contain BRANCH_NAME and SPEC_FILE paths
-   - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot")
+   - You must only create one feature per `/speckit.specify` invocation
+   - The spec directory name and the git branch name are independent — they may be the same but that is the user's choice
+   - The spec directory and file are always created by this command, never by the hook
 
-3. **Load RDF templates and schema**:
-   - Read `.specify/ontology/spec-kit-schema.ttl` to understand vocabulary
-   - Load TTL templates from `.specify/templates/rdf-helpers/`:
-     - `user-story.ttl.template` - User story instances
-     - `functional-requirement.ttl.template` - Requirements
-     - `success-criterion.ttl.template` - Success criteria
-     - `entity.ttl.template` - Domain entities
-   - Load `.specify/templates/spec.tera` for markdown generation
+4. Load `.specify/templates/spec-template.md` to understand required sections.
 
-4. **Follow RDF-first execution flow**:
-
-    1. Parse user description from Input
+5. Follow this execution flow:
+    1. Parse user description from arguments
        If empty: ERROR "No feature description provided"
     2. Extract key concepts from description
        Identify: actors, actions, data, constraints
@@ -113,37 +134,11 @@ Given that feature description, do this:
     7. Identify Key Entities (if data involved)
     8. Return: SUCCESS (spec ready for planning)
 
-5. **Write Turtle/RDF specification (SOURCE OF TRUTH)**:
-   - Create `FEATURE_DIR/feature.ttl` using TTL templates
-   - Structure the RDF graph with:
-     - Feature metadata (name, branch, status, user input)
-     - User stories with priorities (MUST be "P1", "P2", or "P3" - SHACL validated)
-     - Acceptance scenarios (minimum 1 per story)
-     - Functional requirements
-     - Success criteria (with measurable metrics)
-     - Domain entities (if applicable)
-     - Edge cases and assumptions
-   - **CRITICAL**: Priority values MUST be exactly "P1", "P2", or "P3" (not "HIGH", "LOW", etc.)
-   - Validate against SHACL shapes in spec-kit-schema.ttl
+6. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
-6. **Generate markdown artifact (DERIVED, DO NOT EDIT)**:
-   - Run: `ggen render .specify/templates/spec.tera FEATURE_DIR/feature.ttl > FEATURE_DIR/spec.md`
-   - This creates spec.md from the TTL source using SPARQL queries
-   - Add header comment: `<!-- Generated from feature.ttl - DO NOT EDIT MANUALLY -->`
-   - Add footer: `**Generated with**: ggen v6 ontology-driven specification system`
+7. **Specification Quality Validation**: After writing the initial spec, validate it against quality criteria:
 
-7. **RDF Validation (SHACL)**:
-   - Validate feature.ttl against SHACL shapes: `ggen validate FEATURE_DIR/feature.ttl`
-   - Check for:
-     - Priority values exactly "P1", "P2", or "P3"
-     - All required fields present (title, description, acceptance scenarios)
-     - Minimum 1 acceptance scenario per user story
-     - Valid RDF syntax and structure
-   - Fix any validation errors before proceeding
-
-8. **Specification Quality Validation**: After writing the TTL spec and generating markdown, validate against quality criteria:
-
-   a. **Create Spec Quality Checklist**: Generate a checklist file at `FEATURE_DIR/checklists/requirements.md` using the checklist template structure with these validation items:
+   a. **Create Spec Quality Checklist**: Generate a checklist file at `SPECIFY_FEATURE_DIRECTORY/checklists/requirements.md` using the checklist template structure with these validation items:
 
       ```markdown
       # Specification Quality Checklist: [FEATURE NAME]
@@ -188,7 +183,7 @@ Given that feature description, do this:
 
    c. **Handle Validation Results**:
 
-      - **If all items pass**: Mark checklist complete and proceed to step 6
+      - **If all items pass**: Mark checklist complete and proceed to step 7
 
       - **If items fail (excluding [NEEDS CLARIFICATION])**:
         1. List the failing items and specific issues
@@ -233,28 +228,49 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-9. **Report completion** with:
-   - Branch name
-   - TTL source file path: `FEATURE_DIR/feature.ttl` (SOURCE OF TRUTH)
-   - Generated markdown path: `FEATURE_DIR/spec.md` (derived artifact)
-   - SHACL validation results
-   - Checklist results
-   - Readiness for next phase (`/speckit.clarify` or `/speckit.plan`)
-   - Reminder: **Edit feature.ttl, NOT spec.md. Regenerate markdown with: `ggen render spec.tera feature.ttl > spec.md`**
+8. **Report completion** to the user with:
+   - `SPECIFY_FEATURE_DIRECTORY` — the feature directory path
+   - `SPEC_FILE` — the spec file path
+   - Checklist results summary
+   - Readiness for the next phase (`/speckit.clarify` or `/speckit.plan`)
 
-**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
+9. **Check for extension hooks**: After reporting completion, check if `.specify/extensions.yml` exists in the project root.
+   - If it exists, read it and look for entries under the `hooks.after_specify` key
+   - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
+   - Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
+   - For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
+     - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
+     - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
+   - For each executable hook, output the following based on its `optional` flag:
+     - **Optional hook** (`optional: true`):
+       ```
+       ## Extension Hooks
 
-## General Guidelines
+       **Optional Hook**: {extension}
+       Command: `/{command}`
+       Description: {description}
+
+       Prompt: {prompt}
+       To execute: `/{command}`
+       ```
+     - **Mandatory hook** (`optional: false`):
+       ```
+       ## Extension Hooks
+
+       **Automatic Hook**: {extension}
+       Executing: `/{command}`
+       EXECUTE_COMMAND: {command}
+       ```
+   - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
+
+**NOTE:** Branch creation is handled by the `before_specify` hook (git extension). Spec directory and file creation are always handled by this core command.
 
 ## Quick Guidelines
 
-- **RDF-First**: Create feature.ttl (source), generate spec.md (artifact)
 - Focus on **WHAT** users need and **WHY**.
 - Avoid HOW to implement (no tech stack, APIs, code structure).
 - Written for business stakeholders, not developers.
-- **Priority values**: MUST be exactly "P1", "P2", or "P3" (SHACL validated)
 - DO NOT create any checklists that are embedded in the spec. That will be a separate command.
-- **Regenerate markdown**: After editing feature.ttl, run `ggen render spec.tera feature.ttl > spec.md`
 
 ### Section Requirements
 
@@ -285,7 +301,7 @@ When creating this spec from a user prompt:
 - Performance targets: Standard web/mobile app expectations unless specified
 - Error handling: User-friendly messages with appropriate fallbacks
 - Authentication method: Standard session-based or OAuth2 for web apps
-- Integration patterns: RESTful APIs unless specified otherwise
+- Integration patterns: Use project-appropriate patterns (REST/GraphQL for web services, function calls for libraries, CLI args for tools, etc.)
 
 ### Success Criteria Guidelines
 

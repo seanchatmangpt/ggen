@@ -22,11 +22,15 @@
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 
+use crate::error::GgenError;
+use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::FileTransaction;
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
+
+pub type Result<T> = std::result::Result<T, GgenError>;
 
 // ============================================================================
 // Output Types
@@ -428,14 +432,14 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 #[verb("init", "root")]
 pub fn init(
     path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>,
-) -> crate::Result<InitOutput> {
+) -> VerbResult<InitOutput> {
     // Thin CLI layer: parse arguments and delegate to helper
     let project_dir = path.unwrap_or_else(|| ".".to_string());
     let force = force.unwrap_or(false);
     let skip_hooks = skip_hooks.unwrap_or(false);
 
     // Delegate to initialization logic
-    perform_init(&project_dir, force, skip_hooks)
+    perform_init(&project_dir, force, skip_hooks).map_err(|e| e.into())
 }
 
 /// Helper function that performs the actual initialization.
@@ -456,7 +460,7 @@ pub fn init(
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
     project_dir: &str, force: bool, skip_hooks: bool,
-) -> crate::Result<InitOutput> {
+) -> std::result::Result<InitOutput, GgenError> {
     // Convert to Path for easier manipulation
     let base_path = Path::new(project_dir);
 
@@ -557,10 +561,7 @@ fn perform_init(
 
     // Create FileTransaction for atomic file operations
     let mut tx = FileTransaction::new().map_err(|e| {
-        GgenError::CommandError(format!(
-            "Failed to initialize file transaction: {}",
-            e
-        ))
+        GgenError::CommandError(format!("Failed to initialize file transaction: {}", e))
     })?;
 
     let mut directories_created = vec![];
@@ -573,10 +574,7 @@ fn perform_init(
         let dir_path = base_path.join(dir);
         let existed = dir_path.exists();
         fs::create_dir_all(&dir_path).map_err(|e| {
-            GgenError::CommandError(format!(
-                "Failed to create directory {}: {}",
-                dir, e
-            ))
+            GgenError::CommandError(format!("Failed to create directory {}: {}", dir, e))
         })?;
         if !existed {
             directories_created.push(dir.to_string());
@@ -601,54 +599,38 @@ fn perform_init(
 
     // Create ggen.toml
     let toml_path = base_path.join("ggen.toml");
-    tx.write_file(&toml_path, GGEN_TOML).map_err(|e| {
-        GgenError::CommandError(format!("Failed to write ggen.toml: {}", e))
-    })?;
+    tx.write_file(&toml_path, GGEN_TOML)
+        .map_err(|e| GgenError::CommandError(format!("Failed to write ggen.toml: {}", e)))?;
 
     // Create schema/domain.ttl
     let schema_path = base_path.join("schema").join("domain.ttl");
     tx.write_file(&schema_path, DOMAIN_TTL).map_err(|e| {
-        GgenError::CommandError(format!(
-            "Failed to write schema/domain.ttl: {}",
-            e
-        ))
+        GgenError::CommandError(format!("Failed to write schema/domain.ttl: {}", e))
     })?;
 
     // Create Makefile
     let makefile_path = base_path.join("Makefile");
-    tx.write_file(&makefile_path, MAKEFILE).map_err(|e| {
-        GgenError::CommandError(format!("Failed to write Makefile: {}", e))
-    })?;
+    tx.write_file(&makefile_path, MAKEFILE)
+        .map_err(|e| GgenError::CommandError(format!("Failed to write Makefile: {}", e)))?;
 
     // Create example template (templates/example.txt.tera)
     let template_path = base_path.join("templates").join("example.txt.tera");
     tx.write_file(&template_path, EXAMPLE_TEMPLATE)
         .map_err(|e| {
-            GgenError::CommandError(format!(
-                "Failed to write templates/example.txt.tera: {}",
-                e
-            ))
+            GgenError::CommandError(format!("Failed to write templates/example.txt.tera: {}", e))
         })?;
 
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
     tx.write_file(&startup_sh_path, STARTUP_SH).map_err(|e| {
-        GgenError::CommandError(format!(
-            "Failed to write scripts/startup.sh: {}",
-            e
-        ))
+        GgenError::CommandError(format!("Failed to write scripts/startup.sh: {}", e))
     })?;
 
     // Create .gitignore (only if it doesn't exist - preserve user's gitignore)
     if !gitignore_exists {
         let gitignore_content = "# ggen outputs\n.ggen/\n";
         tx.write_file(&gitignore_path, gitignore_content)
-            .map_err(|e| {
-                GgenError::CommandError(format!(
-                    "Failed to write .gitignore: {}",
-                    e
-                ))
-            })?;
+            .map_err(|e| GgenError::CommandError(format!("Failed to write .gitignore: {}", e)))?;
     }
 
     // Create README.md (only if it doesn't exist - preserve user's README)
@@ -685,12 +667,8 @@ To set up Claude Desktop integration:
 ggen mcp setup
 ```"#;
     if !readme_exists {
-        tx.write_file(&readme_path, readme_content).map_err(|e| {
-            GgenError::CommandError(format!(
-                "Failed to write README.md: {}",
-                e
-            ))
-        })?;
+        tx.write_file(&readme_path, readme_content)
+            .map_err(|e| GgenError::CommandError(format!("Failed to write README.md: {}", e)))?;
     }
 
     // Set executable permissions on startup.sh before commit
@@ -710,10 +688,7 @@ ggen mcp setup
     // Commit transaction - this is the point of no return
     // After this, all changes are permanent and rollback is disabled
     let receipt = tx.commit().map_err(|e| {
-        GgenError::CommandError(format!(
-            "Failed to commit file transaction: {}",
-            e
-        ))
+        GgenError::CommandError(format!("Failed to commit file transaction: {}", e))
     })?;
 
     // Install git hooks after successful file creation
