@@ -9,7 +9,10 @@ from typing import List, Optional, Dict
 from decimal import Decimal
 import xml.etree.ElementTree as ET
 import re
+import logging
 from schwifty import IBAN, BIC
+
+_logger = logging.getLogger(__name__)
 
 # ============================================================
 # Data Classes
@@ -200,7 +203,8 @@ def validate_iban(iban_str: str) -> bool:
     try:
         iban = IBAN(iban_str)
         return iban.is_valid
-    except:
+    except (ValueError, AttributeError, TypeError) as e:
+        _logger.debug("ISO-20022 validation error: %s: %s", type(e).__name__, e)
         return False
 
 def validate_bic(bic_str: str) -> bool:
@@ -208,7 +212,8 @@ def validate_bic(bic_str: str) -> bool:
     try:
         bic = BIC(bic_str)
         return bic.is_valid
-    except:
+    except (ValueError, AttributeError, TypeError) as e:
+        _logger.debug("ISO-20022 validation error: %s: %s", type(e).__name__, e)
         return False
 
 def format_iban(iban_str: str) -> str:
@@ -216,7 +221,8 @@ def format_iban(iban_str: str) -> str:
     try:
         iban = IBAN(iban_str)
         return iban.formatted
-    except:
+    except (ValueError, AttributeError, TypeError) as e:
+        _logger.debug("ISO-20022 validation error: %s: %s", type(e).__name__, e)
         return iban_str
 
 # ============================================================
