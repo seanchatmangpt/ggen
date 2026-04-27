@@ -20,5 +20,17 @@
 
 pub mod adapter;
 
+// Ollama client integration (feature-gated)
+#[cfg(feature = "ollama")]
+pub mod ollama_client;
+#[cfg(feature = "ollama")]
+pub mod ollama_types;
+
 // Re-export provider types
 pub use adapter::*;
+
+// Re-export Ollama types when feature is enabled
+#[cfg(feature = "ollama")]
+pub use ollama_client::OllamaClient;
+#[cfg(feature = "ollama")]
+pub use ollama_types::{GenerateOptions, GenerateRequest, GenerateResponse, ShowRequest, ShowResponse};

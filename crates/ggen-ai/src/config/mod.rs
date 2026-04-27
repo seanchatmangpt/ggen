@@ -14,12 +14,15 @@
 //!
 //! - `ai` - AI-specific configuration structures
 //! - `global` - Global LLM configuration and initialization
+//! - `ollama` - Ollama-specific configuration
 
 pub mod ai;
 pub mod global;
+pub mod ollama;
 
 pub use ai::{AiConfig, GenerationConfig};
 pub use global::{get_global_config, init_global_config, GlobalLlmConfig, LlmProvider};
+pub use ollama::OllamaConfig;
 
 // Re-export types for convenience
 pub use crate::client::LlmConfig;

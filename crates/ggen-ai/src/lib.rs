@@ -97,7 +97,7 @@ pub mod otel_attrs {
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
 // Re-export genai for direct access when needed
-pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
+pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider, OllamaConfig};
 pub use error::{GgenAiError, Result};
 pub use genai;
 pub use generators::{
@@ -115,6 +115,10 @@ pub use streaming::StreamConfig;
 pub use tool::{AuthScope, Tool, ToolExample, ToolSlo, ToolTag};
 pub use tool_registry::{ToolRegistry, REGISTRY};
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};
+
+// Re-export Ollama client when feature is enabled
+#[cfg(feature = "ollama")]
+pub use providers::{OllamaClient, GenerateOptions, GenerateRequest, GenerateResponse};
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
