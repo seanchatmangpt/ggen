@@ -533,6 +533,8 @@ integration = []  # Enable workspace-level integration tests (requires external 
 otel = [
   "ggen-core/otel",
 ]
+# Advanced ontology feature removed - no ggen-ontology-advanced crate exists
+# advanced-ontology = ["ggen-domain/advanced-ontology"]
 [dependencies]
 ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
