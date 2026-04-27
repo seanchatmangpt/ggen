@@ -6,7 +6,7 @@
 use crate::types::{AssertionStrength, AuditResult, TestId};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use syn::{Expr, ExprCall, ExprMacro, Item, ItemFn};
+use syn::{Expr, ExprCall, ExprMacro, ExprMethodCall, Item, ItemFn};
 use walkdir::WalkDir;
 
 /// Assertion strength analyzer using AST parsing
@@ -95,7 +95,12 @@ impl AssertionAnalyzer {
     fn classify_expression(&self, expr: &Expr) -> AssertionStrength {
         match expr {
             Expr::Macro(ExprMacro { mac, .. }) => self.classify_macro_assertion(mac),
+            // Free function call: is_ok(result), assert_eq!(a, b) when not a macro
             Expr::Call(ExprCall { func, .. }) => self.classify_method_call_assertion(func),
+            // Method call: result.is_ok(), result.is_some(), val.is_err()
+            Expr::MethodCall(ExprMethodCall { method, .. }) => {
+                self.classify_assertion(&method.to_string())
+            }
             _ => AssertionStrength::Weak,
         }
     }
@@ -112,11 +117,23 @@ impl AssertionAnalyzer {
         self.classify_assertion(&path_str)
     }
 
-    /// Classify method call assertions (is_ok(), is_some(), etc.)
-    fn classify_method_call_assertion(&self, _func: &Expr) -> AssertionStrength {
-        // For now, classify method calls as weak
-        // TODO: Extract method name and classify properly
-        AssertionStrength::Weak
+    /// Classify method call assertions for free-function-style calls.
+    ///
+    /// Extracts the function name from the path expression (e.g. `is_ok(x)` → `"is_ok"`)
+    /// and delegates to `classify_assertion`. Falls back to `Weak` for non-path callees
+    /// (closures, indirect calls, etc.).
+    fn classify_method_call_assertion(&self, func: &Expr) -> AssertionStrength {
+        if let Expr::Path(expr_path) = func {
+            let name = expr_path
+                .path
+                .segments
+                .last()
+                .map(|seg| seg.ident.to_string())
+                .unwrap_or_default();
+            self.classify_assertion(&name)
+        } else {
+            AssertionStrength::Weak
+        }
     }
 
     /// Classify assertion by name into strength category
@@ -221,4 +238,143 @@ pub struct TestAssertion {
     pub assertion_strength: AssertionStrength,
     /// Number of assertions in test
     pub assertion_count: usize,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_analyzer() -> AssertionAnalyzer {
+        AssertionAnalyzer::new(vec![])
+    }
+
+    // --- classify_assertion (baseline) ---
+
+    #[test]
+    fn classify_assert_eq_is_strong() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("assert_eq"), AssertionStrength::Strong);
+    }
+
+    #[test]
+    fn classify_assert_ne_is_strong() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("assert_ne"), AssertionStrength::Strong);
+    }
+
+    #[test]
+    fn classify_assert_is_medium() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("assert"), AssertionStrength::Medium);
+    }
+
+    #[test]
+    fn classify_is_err_is_medium() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("is_err"), AssertionStrength::Medium);
+    }
+
+    #[test]
+    fn classify_is_ok_is_weak() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("is_ok"), AssertionStrength::Weak);
+    }
+
+    #[test]
+    fn classify_is_some_is_weak() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("is_some"), AssertionStrength::Weak);
+    }
+
+    #[test]
+    fn classify_is_none_is_weak() {
+        let a = make_analyzer();
+        assert_eq!(a.classify_assertion("is_none"), AssertionStrength::Weak);
+    }
+
+    // --- classify_method_call_assertion: path-based free function calls ---
+
+    #[test]
+    fn method_call_path_assert_eq_is_strong() {
+        let a = make_analyzer();
+        // Simulate: assert_eq(a, b) — Expr::Call with Expr::Path func
+        let path: syn::ExprPath = syn::parse_str("assert_eq").expect("parse path");
+        let func_expr = Expr::Path(path);
+        assert_eq!(
+            a.classify_method_call_assertion(&func_expr),
+            AssertionStrength::Strong,
+            "free function assert_eq must be Strong"
+        );
+    }
+
+    #[test]
+    fn method_call_path_is_ok_is_weak() {
+        let a = make_analyzer();
+        let path: syn::ExprPath = syn::parse_str("is_ok").expect("parse path");
+        let func_expr = Expr::Path(path);
+        assert_eq!(
+            a.classify_method_call_assertion(&func_expr),
+            AssertionStrength::Weak,
+            "free function is_ok must be Weak"
+        );
+    }
+
+    #[test]
+    fn method_call_non_path_fallback_is_weak() {
+        let a = make_analyzer();
+        // Non-path callee (closure): should fall back to Weak
+        let closure: syn::ExprClosure = syn::parse_str("|| true").expect("parse closure");
+        let func_expr = Expr::Closure(closure);
+        assert_eq!(
+            a.classify_method_call_assertion(&func_expr),
+            AssertionStrength::Weak,
+            "non-path callee must fall back to Weak"
+        );
+    }
+
+    // --- classify_expression: MethodCall branch (result.is_ok(), val.is_err()) ---
+
+    #[test]
+    fn expression_method_call_is_ok_is_weak() {
+        let a = make_analyzer();
+        let expr: Expr = syn::parse_str("result.is_ok()").expect("parse method call");
+        assert_eq!(
+            a.classify_expression(&expr),
+            AssertionStrength::Weak,
+            "result.is_ok() must be Weak"
+        );
+    }
+
+    #[test]
+    fn expression_method_call_is_err_is_medium() {
+        let a = make_analyzer();
+        let expr: Expr = syn::parse_str("result.is_err()").expect("parse method call");
+        assert_eq!(
+            a.classify_expression(&expr),
+            AssertionStrength::Medium,
+            "result.is_err() must be Medium"
+        );
+    }
+
+    #[test]
+    fn expression_method_call_is_some_is_weak() {
+        let a = make_analyzer();
+        let expr: Expr = syn::parse_str("opt.is_some()").expect("parse method call");
+        assert_eq!(
+            a.classify_expression(&expr),
+            AssertionStrength::Weak,
+            "opt.is_some() must be Weak"
+        );
+    }
+
+    #[test]
+    fn expression_macro_assert_eq_is_strong() {
+        let a = make_analyzer();
+        let expr: Expr = syn::parse_str("assert_eq!(1, 1)").expect("parse macro");
+        assert_eq!(
+            a.classify_expression(&expr),
+            AssertionStrength::Strong,
+            "assert_eq! macro must be Strong"
+        );
+    }
 }

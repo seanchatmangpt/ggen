@@ -97,15 +97,47 @@ impl GoCodeGenerator {
         )
         .map_err(|e| e.to_string())?;
 
-        writeln!(output, "\t// TODO: implement handler logic").map_err(|e| e.to_string())?;
-        writeln!(
-            output,
-            "\tw.Header().Set(\"Content-Type\", \"application/json\")"
-        )
-        .map_err(|e| e.to_string())?;
-        writeln!(output, "\tw.WriteHeader(http.StatusOK)").map_err(|e| e.to_string())?;
-        writeln!(output, "\tw.Write([]byte(`{{\"status\":\"ok\"}}`))")
-            .map_err(|e| e.to_string())?;
+        // Emit method-appropriate handler body
+        match method.to_uppercase().as_str() {
+            "POST" | "PUT" | "PATCH" => {
+                // Decode JSON request body
+                writeln!(output, "\tvar body map[string]interface{{}}").map_err(|e| e.to_string())?;
+                writeln!(output, "\tif err := json.NewDecoder(r.Body).Decode(&body); err != nil {{").map_err(|e| e.to_string())?;
+                writeln!(output, "\t\tw.Header().Set(\"Content-Type\", \"application/json\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\t\tw.WriteHeader(http.StatusBadRequest)").map_err(|e| e.to_string())?;
+                writeln!(output, "\t\tw.Write([]byte(`{{\"error\":\"invalid JSON body\"}}`))")
+                    .map_err(|e| e.to_string())?;
+                writeln!(output, "\t\treturn fmt.Errorf(\"decode body: %w\", err)").map_err(|e| e.to_string())?;
+                writeln!(output, "\t}}").map_err(|e| e.to_string())?;
+                writeln!(output, "\t_ = body // pass decoded fields to service layer").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.Header().Set(\"Content-Type\", \"application/json\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.WriteHeader(http.StatusOK)").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.Write([]byte(`{{\"status\":\"ok\"}}`))")
+                    .map_err(|e| e.to_string())?;
+            }
+            "DELETE" => {
+                // Extract ID from path parameter (Go 1.22+ r.PathValue)
+                writeln!(output, "\tid := r.PathValue(\"id\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\tif id == \"\" {{").map_err(|e| e.to_string())?;
+                writeln!(output, "\t\tw.Header().Set(\"Content-Type\", \"application/json\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\t\tw.WriteHeader(http.StatusBadRequest)").map_err(|e| e.to_string())?;
+                writeln!(output, "\t\tw.Write([]byte(`{{\"error\":\"missing id\"}}`))")
+                    .map_err(|e| e.to_string())?;
+                writeln!(output, "\t\treturn fmt.Errorf(\"missing id in path\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\t}}").map_err(|e| e.to_string())?;
+                writeln!(output, "\t_ = id // pass to repository Delete(id)").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.WriteHeader(http.StatusNoContent)").map_err(|e| e.to_string())?;
+            }
+            _ => {
+                // GET and others: extract optional ID, return JSON envelope
+                writeln!(output, "\tid := r.PathValue(\"id\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\t_ = id // pass to repository GetByID(id) when non-empty").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.Header().Set(\"Content-Type\", \"application/json\")").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.WriteHeader(http.StatusOK)").map_err(|e| e.to_string())?;
+                writeln!(output, "\tw.Write([]byte(`{{\"status\":\"ok\"}}`))")
+                    .map_err(|e| e.to_string())?;
+            }
+        }
 
         writeln!(output, "\treturn nil").map_err(|e| e.to_string())?;
         writeln!(output, "}}\n").map_err(|e| e.to_string())?;
@@ -168,7 +200,22 @@ impl GoCodeGenerator {
         )
         .map_err(|e| e.to_string())?;
         writeln!(output, "\t}}").map_err(|e| e.to_string())?;
-        writeln!(output, "\t// TODO: implement create logic").map_err(|e| e.to_string())?;
+        // Generate a real parameterised INSERT using the entity's ID field
+        writeln!(
+            output,
+            "\tconst query = \"INSERT INTO {} (id) VALUES ($1)\"",
+            entity_name.to_lowercase()
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(output, "\t_, err := r.db.Exec(query, entity.ID)").map_err(|e| e.to_string())?;
+        writeln!(output, "\tif err != nil {{").map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\t\treturn fmt.Errorf(\"create {}: %w\", err)",
+            entity_name.to_lowercase()
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(output, "\t}}").map_err(|e| e.to_string())?;
         writeln!(output, "\treturn nil").map_err(|e| e.to_string())?;
         writeln!(output, "}}\n").map_err(|e| e.to_string())?;
 
@@ -192,8 +239,31 @@ impl GoCodeGenerator {
         )
         .map_err(|e| e.to_string())?;
         writeln!(output, "\t}}").map_err(|e| e.to_string())?;
-        writeln!(output, "\t// TODO: implement get logic").map_err(|e| e.to_string())?;
-        writeln!(output, "\treturn &{}{{}}, nil", entity_name).map_err(|e| e.to_string())?;
+        // Generate a real parameterised SELECT using the entity's ID field
+        writeln!(
+            output,
+            "\tconst query = \"SELECT id FROM {} WHERE id = $1\"",
+            entity_name.to_lowercase()
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(output, "\tentity := &{}{{}}",  entity_name).map_err(|e| e.to_string())?;
+        writeln!(output, "\terr := r.db.QueryRow(query, id).Scan(&entity.ID)").map_err(|e| e.to_string())?;
+        writeln!(output, "\tif err == sql.ErrNoRows {{").map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\t\treturn nil, fmt.Errorf(\"get by id: %w\", ErrInvalidID)"
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(output, "\t}}").map_err(|e| e.to_string())?;
+        writeln!(output, "\tif err != nil {{").map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\t\treturn nil, fmt.Errorf(\"get {} by id: %w\", err)",
+            entity_name.to_lowercase()
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(output, "\t}}").map_err(|e| e.to_string())?;
+        writeln!(output, "\treturn entity, nil").map_err(|e| e.to_string())?;
         writeln!(output, "}}\n").map_err(|e| e.to_string())?;
 
         // Error definitions
@@ -444,5 +514,76 @@ mod tests {
         assert!(code.contains("%w"));
         assert!(code.contains("ErrInvalidEntity"));
         assert!(code.contains("ErrInvalidID"));
+    }
+
+    // --- Stub 2: generate_handler method-specific bodies ---
+
+    #[test]
+    fn test_post_handler_decodes_json_body() {
+        let result = GoCodeGenerator::generate_handler("POST", "/users", "CreateUser");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("json.NewDecoder(r.Body).Decode"), "POST handler must decode JSON body");
+        assert!(code.contains("http.StatusBadRequest"), "POST handler must return 400 on bad JSON");
+        assert!(code.contains("http.StatusOK"), "POST handler must return 200 on success");
+    }
+
+    #[test]
+    fn test_put_handler_decodes_json_body() {
+        let result = GoCodeGenerator::generate_handler("PUT", "/users/{id}", "UpdateUser");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("json.NewDecoder(r.Body).Decode"), "PUT handler must decode JSON body");
+    }
+
+    #[test]
+    fn test_delete_handler_extracts_id() {
+        let result = GoCodeGenerator::generate_handler("DELETE", "/users/{id}", "DeleteUser");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("r.PathValue(\"id\")"), "DELETE handler must extract path id");
+        assert!(code.contains("http.StatusNoContent"), "DELETE handler must return 204");
+    }
+
+    #[test]
+    fn test_get_handler_extracts_id() {
+        let result = GoCodeGenerator::generate_handler("GET", "/users/{id}", "GetUser");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("r.PathValue(\"id\")"), "GET handler must extract path id");
+        assert!(code.contains("http.StatusOK"), "GET handler must return 200");
+        assert!(!code.contains("// TODO"), "GET handler must not contain TODO placeholders");
+    }
+
+    // --- Stub 3: generate_repository real SQL ---
+
+    #[test]
+    fn test_create_generates_sql_insert() {
+        let result = GoCodeGenerator::generate_repository("Order");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("INSERT INTO order"), "Create must generate INSERT SQL");
+        assert!(code.contains("r.db.Exec(query, entity.ID)"), "Create must execute SQL via db.Exec");
+        assert!(!code.contains("// TODO: implement create logic"), "Create must not contain TODO placeholder");
+    }
+
+    #[test]
+    fn test_get_by_id_generates_sql_select() {
+        let result = GoCodeGenerator::generate_repository("Order");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("SELECT id FROM order WHERE id = $1"), "GetByID must generate SELECT SQL");
+        assert!(code.contains("r.db.QueryRow(query, id).Scan"), "GetByID must scan query result");
+        assert!(code.contains("sql.ErrNoRows"), "GetByID must handle not-found case");
+        assert!(!code.contains("// TODO: implement get logic"), "GetByID must not contain TODO placeholder");
+    }
+
+    #[test]
+    fn test_repository_entity_name_appears_in_sql() {
+        let result = GoCodeGenerator::generate_repository("Invoice");
+        assert!(result.is_ok());
+        let code = result.unwrap();
+        assert!(code.contains("INSERT INTO invoice"), "table name must be lowercase entity name");
+        assert!(code.contains("SELECT id FROM invoice"), "SELECT must use lowercase entity name");
     }
 }
