@@ -1053,24 +1053,34 @@ mod tests {
             trust_requirement: TrustTier::Experimental,
         });
         deep.receipt_id = Some("deep_id".to_string());
-        deep.parent_receipt_id = Some("parent_id".to_string());
+        deep.parent_receipt_id = Some("parent_0".to_string());
 
-        // Create a resolver that always returns a parent with another parent
-        let resolver = |_id: &str| -> Result<CompositionReceipt> {
-            let mut parent = CompositionReceipt::new(RuntimeProfile {
-                profile_id: "parent".to_string(),
+        // Create a resolver that returns incrementally deeper chains
+        let resolver = |id: &str| -> Result<CompositionReceipt> {
+            // Extract number from id like "parent_5"
+            if let Some(num_str) = id.strip_prefix("parent_") {
+                if let Ok(num) = num_str.parse::<usize>() {
+                    let mut parent = CompositionReceipt::new(RuntimeProfile {
+                        profile_id: format!("parent_{}", num),
+                        runtime_constraints: vec![],
+                        trust_requirement: TrustTier::Experimental,
+                    });
+                    // Continue chain until we hit max depth
+                    parent.parent_receipt_id = Some(format!("parent_{}", num + 1));
+                    return Ok(parent);
+                }
+            }
+            // For non-matching patterns, create a root (no parent)
+            Ok(CompositionReceipt::new(RuntimeProfile {
+                profile_id: id.to_string(),
                 runtime_constraints: vec![],
                 trust_requirement: TrustTier::Experimental,
-            });
-            parent.parent_receipt_id = Some("another_parent".to_string());
-            Ok(parent)
+            }))
         };
 
         let result = deep.get_full_chain(resolver);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("exceeds maximum depth"));
+        let err_str = result.unwrap_err().to_string();
+        assert!(err_str.contains("exceeds maximum depth"));
     }
 }

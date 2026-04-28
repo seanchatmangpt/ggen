@@ -1240,8 +1240,34 @@ impl std::fmt::Display for BatchInstallationResult {
 mod tests {
     use super::*;
     use crate::cache::CacheConfig;
+    use crate::models::{Package, PackageMetadata, PackageVersion};
     use crate::registry::Registry;
     use tempfile::TempDir;
+
+    /// Helper to create test packages with minimal boilerplate
+    fn create_test_package(id: &str, name: &str) -> Package {
+        let now = chrono::Utc::now();
+        Package {
+            metadata: PackageMetadata {
+                id: PackageId::new(id).unwrap(),
+                name: name.to_string(),
+                description: format!("Test package: {}", name),
+                authors: vec!["test".to_string()],
+                license: "MIT".to_string(),
+                repository: None,
+                homepage: None,
+                keywords: vec![],
+                categories: vec![],
+                created_at: now,
+                updated_at: now,
+                downloads: 0,
+                quality_score: None,
+            },
+            latest_version: PackageVersion::new("1.0.0").unwrap(),
+            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            releases: indexmap::IndexMap::new(),
+        }
+    }
 
     #[tokio::test]
     async fn test_installation_manifest_creation() {
@@ -1501,9 +1527,12 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
 
         let pkg_id = PackageId::new("test-pkg").unwrap();
+        let pkg = create_test_package("test-pkg", "test-pkg");
+        registry.insert(&pkg).unwrap();
+
+        let installer = Installer::new(registry, cache);
         let resolved = installer
             .batch_resolve_dependencies(vec![pkg_id.clone()])
             .await
@@ -1521,11 +1550,18 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
 
         let pkg_id1 = PackageId::new("pkg-1").unwrap();
         let pkg_id2 = PackageId::new("pkg-2").unwrap();
 
+        registry
+            .insert(&create_test_package("pkg-1", "pkg-1"))
+            .unwrap();
+        registry
+            .insert(&create_test_package("pkg-2", "pkg-2"))
+            .unwrap();
+
+        let installer = Installer::new(registry, cache);
         let resolved = installer
             .batch_resolve_dependencies(vec![pkg_id1.clone(), pkg_id2.clone()])
             .await
@@ -1574,10 +1610,18 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
 
         let pkg_id1 = PackageId::new("batch-test-1").unwrap();
         let pkg_id2 = PackageId::new("batch-test-2").unwrap();
+
+        registry
+            .insert(&create_test_package("batch-test-1", "batch-test-1"))
+            .unwrap();
+        registry
+            .insert(&create_test_package("batch-test-2", "batch-test-2"))
+            .unwrap();
+
+        let installer = Installer::new(registry, cache);
 
         let _manifest = installer
             .create_manifest(
@@ -1601,9 +1645,14 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
 
         let pkg_id = PackageId::new("progress-test").unwrap();
+        registry
+            .insert(&create_test_package("progress-test", "progress-test"))
+            .unwrap();
+
+        let installer = Installer::new(registry, cache);
+
         let _manifest = installer
             .create_manifest(
                 vec![pkg_id.clone()],
