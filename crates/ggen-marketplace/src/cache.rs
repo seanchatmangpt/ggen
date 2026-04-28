@@ -244,7 +244,7 @@ impl PackCache {
         // Sort packs by last accessed time (LRU)
         let mut packs_vec: Vec<(String, CachedPack)> =
             packs.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
-        packs_vec.sort_by(|a, b| a.1.last_accessed.cmp(&b.1.last_accessed));
+        packs_vec.sort_by_key(|a| a.1.last_accessed);
 
         let mut evicted = 0;
         let mut freed_bytes = 0;
@@ -382,9 +382,9 @@ impl PackCache {
         let metadata_path = self.config.cache_dir.join("cache_metadata.json");
         let packs = self.packs.read().unwrap();
 
-        let file = fs::File::create(&metadata_path).map_err(|e| Error::IoError(e))?;
+        let file = fs::File::create(&metadata_path).map_err(Error::IoError)?;
         let writer = BufWriter::new(file);
-        serde_json::to_writer(writer, &*packs).map_err(|e| Error::SerializationError(e))?;
+        serde_json::to_writer(writer, &*packs).map_err(Error::SerializationError)?;
 
         debug!("Saved cache metadata to {:?}", metadata_path);
         Ok(())

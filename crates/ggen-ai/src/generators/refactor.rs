@@ -546,7 +546,7 @@ mod tests {
     async fn test_refactor_assistant_creation() {
         let assistant = create_refactor_test_assistant();
         // Test passes if assistant was created successfully
-        assert!(assistant.client.get_config().model.len() > 0);
+        assert!(!assistant.client.get_config().model.is_empty());
     }
 
     #[tokio::test]
@@ -555,7 +555,7 @@ mod tests {
         let assistant = RefactorAssistant::with_config(client, LlmConfig::default());
 
         // Test that the assistant was created successfully
-        assert!(assistant.client.get_config().model.len() > 0);
+        assert!(!assistant.client.get_config().model.is_empty());
     }
 
     #[tokio::test]

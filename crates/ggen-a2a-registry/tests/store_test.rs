@@ -2,6 +2,8 @@
 //!
 //! Uses a real `MemoryStore` -- no mocks, no test doubles.
 
+#![allow(clippy::unwrap_used)]
+
 use ggen_a2a_registry::{AgentEntry, AgentStore, HealthStatus, MemoryStore};
 use std::sync::Arc;
 

@@ -2,6 +2,8 @@
 //!
 //! Uses real `MemoryStore` -- no mocks.
 
+#![allow(clippy::unwrap_used)]
+
 use ggen_a2a_registry::{
     AgentEntry, AgentQuery, AgentRegistry, HealthConfig, HealthStatus, MemoryStore,
 };

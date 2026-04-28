@@ -21,7 +21,7 @@
 //! cargo run --example genai_error_handling
 //! ```
 
-use ggen_ai::{GenAiClient, GgenAiError, LlmClient, LlmConfig, MockClient, Result};
+use ggen_ai::{GenAiClient, GgenAiError, LlmClient, LlmConfig, MockClient};
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -141,7 +141,7 @@ async fn example_result_patterns() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Example 2: Result<T,E> Patterns ---");
 
     // Pattern 1: Using ? operator for error propagation
-    async fn make_request(client: &MockClient, prompt: &str) -> Result<String> {
+    async fn make_request(client: &MockClient, prompt: &str) -> std::result::Result<String, GgenAiError> {
         let response = client.complete(prompt).await?;
         Ok(response.content)
     }
@@ -165,7 +165,7 @@ async fn example_result_patterns() -> Result<(), Box<dyn std::error::Error>> {
     println!("  ✓ Pattern 2 - match: {}", result);
 
     // Pattern 3: Using map_err for error context
-    async fn request_with_context(client: &MockClient, prompt: &str) -> Result<String> {
+    async fn request_with_context(client: &MockClient, prompt: &str) -> std::result::Result<String, GgenAiError> {
         let response = client
             .complete(prompt)
             .await
@@ -221,7 +221,7 @@ async fn example_error_recovery() -> Result<(), Box<dyn std::error::Error>> {
     // Strategy 2: Fallback to cached response
     async fn get_response_with_cache(
         client: &MockClient, prompt: &str, cache: &HashMap<String, String>,
-    ) -> Result<String> {
+    ) -> std::result::Result<String, GgenAiError> {
         match client.complete(prompt).await {
             Ok(response) => Ok(response.content),
             Err(_) => cache
@@ -238,7 +238,7 @@ async fn example_error_recovery() -> Result<(), Box<dyn std::error::Error>> {
     println!("  Strategy 2 - Cache fallback: {}", result);
 
     // Strategy 3: Try multiple clients in sequence
-    async fn try_multiple_clients(prompts: &str) -> Result<String> {
+    async fn try_multiple_clients(prompts: &str) -> std::result::Result<String, GgenAiError> {
         // First try: Primary client
         let primary = MockClient::with_response("Primary response");
         if let Ok(response) = primary.complete(prompts).await {
@@ -293,10 +293,10 @@ async fn example_retry_logic() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     /// Execute request with retry logic
-    async fn retry_request<F, Fut>(retry_config: &RetryConfig, operation: F) -> Result<String>
+    async fn retry_request<F, Fut>(retry_config: &RetryConfig, operation: F) -> std::result::Result<String, GgenAiError>
     where
-        F: Fn() -> Fut,
-        Fut: std::future::Future<Output = Result<String>>,
+        F: FnMut() -> Fut,
+        Fut: std::future::Future<Output = std::result::Result<String, GgenAiError>>,
     {
         let mut attempt = 0;
         let mut delay = retry_config.initial_delay_ms;
@@ -379,7 +379,7 @@ async fn example_token_budgets() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        fn check_budget(&self, estimated_tokens: u32) -> Result<()> {
+        fn check_budget(&self, estimated_tokens: u32) -> std::result::Result<(), GgenAiError> {
             if self.used_tokens + estimated_tokens > self.total_budget {
                 return Err(GgenAiError::validation(format!(
                     "Token budget exceeded: {} + {} > {}",
@@ -458,9 +458,9 @@ async fn example_timeout_handling() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Example 6: Timeout Handling ---");
 
     /// Execute with timeout
-    async fn with_timeout<F, T>(duration: Duration, operation: F) -> Result<T>
+    async fn with_timeout<F, T>(duration: Duration, operation: F) -> std::result::Result<T, GgenAiError>
     where
-        F: std::future::Future<Output = Result<T>>,
+        F: std::future::Future<Output = std::result::Result<T, GgenAiError>>,
     {
         tokio::time::timeout(duration, operation)
             .await
@@ -489,7 +489,7 @@ async fn example_timeout_handling() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Test 3: Adaptive timeout based on request size
-    async fn adaptive_timeout_request(client: &MockClient, prompt: &str) -> Result<String> {
+    async fn adaptive_timeout_request(client: &MockClient, prompt: &str) -> std::result::Result<String, GgenAiError> {
         // Calculate timeout based on prompt length
         let base_timeout = Duration::from_secs(5);
         let extra_time = Duration::from_millis(prompt.len() as u64 * 10);

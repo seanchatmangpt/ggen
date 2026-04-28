@@ -483,7 +483,7 @@ mod tests {
         let emergency = controller.emergency_stop.read().await;
         assert!(emergency.active);
         assert_eq!(
-            emergency.reason.as_ref().map(String::as_str),
+            emergency.reason.as_deref(),
             Some("test emergency"),
             "Expected emergency stop reason to be 'test emergency'"
         );

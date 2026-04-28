@@ -228,7 +228,7 @@ impl V3OptimizedRegistry {
     }
 
     /// Record latency in the appropriate histogram bucket
-    pub fn record_latency(fn record_latency(&selfself, latency_us: u64) {
+    pub fn record_latency(&self, latency_us: u64) {
         let bucket = match latency_us {
             0..=10 => 0,
             11..=50 => 1,

@@ -273,7 +273,7 @@ fn test_entity_mapper_multiple_keywords() {
     let matches = EntityMapper::match_policy(policy).expect("Failed to match");
 
     // Should have multiple matches for a comprehensive policy description
-    assert!(matches.len() > 0, "Should match privacy keywords");
+    assert!(!matches.is_empty(), "Should match privacy keywords");
 
     // Should be sorted by score
     for i in 0..matches.len() - 1 {

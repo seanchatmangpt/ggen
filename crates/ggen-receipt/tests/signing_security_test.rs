@@ -3,6 +3,8 @@
 //! Chicago TDD: Real cryptographic operations, no mocks.
 //! Tests cover:
 //! - Ed25519 key generation and validation
+
+#![allow(unused_variables)]
 //! - Signing and verification with real keys
 //! - SHA-256 hash verification
 //! - Receipt chain security

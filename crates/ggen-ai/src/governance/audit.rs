@@ -451,7 +451,7 @@ impl AuditTrail {
             .collect();
 
         // Sort by timestamp (newest first)
-        filtered.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+        filtered.sort_by_key(|b| std::cmp::Reverse(b.timestamp));
 
         // Apply pagination
         let offset = query.offset.unwrap_or(0);

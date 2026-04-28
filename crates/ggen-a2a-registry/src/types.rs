@@ -79,7 +79,7 @@ pub struct HealthConfig {
 impl Default for HealthConfig {
     fn default() -> Self {
         Self {
-            check_interval: std::time::Duration::from_secs(60),
+            check_interval: std::time::Duration::from_mins(1),
             ping_timeout: std::time::Duration::from_secs(10),
             offline_threshold: 3,
         }

@@ -824,11 +824,10 @@ impl ConvergedMessage {
 
         // Validate payload
         match &self.payload.content {
-            UnifiedContent::Text { content, .. } => {
-                if content.is_empty() {
-                    return Err("Text content cannot be empty".to_string());
-                }
+            UnifiedContent::Text { content, .. } if content.is_empty() => {
+                return Err("Text content cannot be empty".to_string());
             }
+            UnifiedContent::Text { .. } => {}
             UnifiedContent::File { file, .. } => match (&file.bytes, &file.uri) {
                 (Some(_), None) | (None, Some(_)) => (),
                 (Some(_), Some(_)) => {
@@ -838,11 +837,10 @@ impl ConvergedMessage {
                     return Err("File content must have either bytes or URI".to_string())
                 }
             },
-            UnifiedContent::Data { data, .. } => {
-                if data.is_empty() {
-                    return Err("Data content cannot be empty".to_string());
-                }
+            UnifiedContent::Data { data, .. } if data.is_empty() => {
+                return Err("Data content cannot be empty".to_string());
             }
+            UnifiedContent::Data { .. } => {}
             _ => (),
         }
 

@@ -3,6 +3,8 @@
 //! Tests cover:
 //! - Ed25519 key generation
 //! - Signing and verification
+
+#![allow(unused_variables)]
 //! - SHA-256 hash verification
 //! - Receipt chain verification
 //! - Invalid signatures fail verification

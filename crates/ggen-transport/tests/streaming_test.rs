@@ -1,5 +1,4 @@
 use bytes::Bytes;
-use futures::StreamExt;
 use ggen_transport::streaming::{StreamBuilder, StreamControl, StreamMessage};
 use ggen_transport::SessionId;
 

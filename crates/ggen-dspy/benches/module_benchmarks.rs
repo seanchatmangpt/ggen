@@ -1,6 +1,7 @@
 //! Benchmarks for module performance
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 
 fn benchmark_predictor_forward(c: &mut Criterion) {
     c.bench_function("predictor_forward", |b| {
