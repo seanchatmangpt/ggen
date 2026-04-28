@@ -86,7 +86,10 @@ fn test_v3_latency_recording() {
 
     // Verify metrics snapshot structure exists
     let snapshot = registry.metrics_snapshot();
-    assert!(!snapshot.latency_buckets.is_empty(), "latency_buckets should exist");
+    assert!(
+        !snapshot.latency_buckets.is_empty(),
+        "latency_buckets should exist"
+    );
 }
 
 /// Test: Batch operations metric
