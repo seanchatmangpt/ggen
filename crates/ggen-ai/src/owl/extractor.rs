@@ -204,7 +204,7 @@ mod tests {
     fn test_owl_extractor_creation() {
         let store = Store::new().expect("Failed to create store");
         let extractor = OWLExtractor::new(store);
-        assert!(std::ptr::addr_of!(extractor).is_null() == false);
+        assert!(!std::ptr::addr_of!(extractor).is_null());
     }
 
     #[test]

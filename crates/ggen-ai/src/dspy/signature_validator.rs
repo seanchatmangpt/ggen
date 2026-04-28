@@ -443,7 +443,7 @@ mod tests {
             Signature::new("Test", "Test").with_input(InputField::new("score", "Score", "f64"));
         let validator = SignatureValidator::new(sig);
 
-        let valid_input = json!({"score": 3.14});
+        let valid_input = json!({"score": std::f64::consts::PI});
         assert!(validator.validate(&valid_input).is_ok());
 
         let invalid_input = json!({"score": "3.14"});

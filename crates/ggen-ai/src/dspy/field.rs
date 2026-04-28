@@ -966,7 +966,7 @@ mod tests {
         let deserialized: FieldConstraints =
             serde_json::from_value(json).expect("deserialization failed");
 
-        assert_eq!(deserialized.required, true);
+        assert!(deserialized.required);
         assert_eq!(deserialized.min_length, Some(5));
         assert_eq!(deserialized.max_length, Some(50));
         assert_eq!(deserialized.enum_values.unwrap().len(), 2);

@@ -4,9 +4,10 @@
     deprecated,
     dead_code,
     elided_lifetimes_in_paths,
-    mismatched_lifetime_syntaxes
+    mismatched_lifetime_syntaxes,
+    clippy::pedantic
 )]
-#![warn(clippy::all, clippy::pedantic)]
+#![warn(clippy::all)]
 
 //! # ggen-marketplace-v2: Hyper-Advanced Marketplace System
 //!

@@ -218,7 +218,7 @@ fn test_tampering_genesis_timestamp_detected() {
         .sign(&signing_key)
         .expect("signing failed");
 
-    genesis.timestamp = genesis.timestamp - chrono::Duration::hours(24);
+    genesis.timestamp -= chrono::Duration::hours(24);
 
     let chain = ReceiptChain::from_genesis(genesis).expect("genesis creation failed");
 

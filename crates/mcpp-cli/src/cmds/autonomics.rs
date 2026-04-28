@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs, clippy::unused_unit)]
+
 use clap_noun_verb_macros::verb;
 use mcpp_core::Envelope;
 use serde_json::json;

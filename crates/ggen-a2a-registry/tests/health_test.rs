@@ -2,6 +2,8 @@
 //!
 //! Uses real stores and real HTTP endpoints (via `tokio::net::TcpListener`).
 
+#![allow(clippy::unwrap_used)]
+
 use ggen_a2a_registry::{
     AgentEntry, AgentStore, HealthConfig, HealthMonitor, HealthStatus, MemoryStore,
 };

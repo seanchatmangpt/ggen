@@ -831,7 +831,7 @@ pub mod message_handler {
             );
 
             // Set data content
-            use crate::converged::{ConvergedPayload, UnifiedContent};
+            use crate::converged::UnifiedContent;
             let mut message = message;
             message.payload.content = UnifiedContent::Data { data, schema: None };
 

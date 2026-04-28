@@ -1,5 +1,4 @@
 use ggen_transport::session::{ResumeCursor, Session, SessionId, SessionManager};
-use std::collections::HashMap;
 
 #[tokio::test]
 async fn test_session_creation_and_retrieval() {
