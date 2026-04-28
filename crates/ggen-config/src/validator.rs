@@ -307,6 +307,7 @@ fn has_duplicates<T: Eq + std::hash::Hash>(items: &[T]) -> bool {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::{ConfigLoader, ProjectConfig};
