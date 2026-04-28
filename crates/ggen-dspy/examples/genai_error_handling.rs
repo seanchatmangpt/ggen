@@ -141,7 +141,9 @@ async fn example_result_patterns() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Example 2: Result<T,E> Patterns ---");
 
     // Pattern 1: Using ? operator for error propagation
-    async fn make_request(client: &MockClient, prompt: &str) -> std::result::Result<String, GgenAiError> {
+    async fn make_request(
+        client: &MockClient, prompt: &str,
+    ) -> std::result::Result<String, GgenAiError> {
         let response = client.complete(prompt).await?;
         Ok(response.content)
     }
@@ -165,7 +167,9 @@ async fn example_result_patterns() -> Result<(), Box<dyn std::error::Error>> {
     println!("  ✓ Pattern 2 - match: {}", result);
 
     // Pattern 3: Using map_err for error context
-    async fn request_with_context(client: &MockClient, prompt: &str) -> std::result::Result<String, GgenAiError> {
+    async fn request_with_context(
+        client: &MockClient, prompt: &str,
+    ) -> std::result::Result<String, GgenAiError> {
         let response = client
             .complete(prompt)
             .await
@@ -293,7 +297,9 @@ async fn example_retry_logic() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     /// Execute request with retry logic
-    async fn retry_request<F, Fut>(retry_config: &RetryConfig, operation: F) -> std::result::Result<String, GgenAiError>
+    async fn retry_request<F, Fut>(
+        retry_config: &RetryConfig, operation: F,
+    ) -> std::result::Result<String, GgenAiError>
     where
         F: FnMut() -> Fut,
         Fut: std::future::Future<Output = std::result::Result<String, GgenAiError>>,
@@ -458,7 +464,9 @@ async fn example_timeout_handling() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Example 6: Timeout Handling ---");
 
     /// Execute with timeout
-    async fn with_timeout<F, T>(duration: Duration, operation: F) -> std::result::Result<T, GgenAiError>
+    async fn with_timeout<F, T>(
+        duration: Duration, operation: F,
+    ) -> std::result::Result<T, GgenAiError>
     where
         F: std::future::Future<Output = std::result::Result<T, GgenAiError>>,
     {
@@ -489,7 +497,9 @@ async fn example_timeout_handling() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Test 3: Adaptive timeout based on request size
-    async fn adaptive_timeout_request(client: &MockClient, prompt: &str) -> std::result::Result<String, GgenAiError> {
+    async fn adaptive_timeout_request(
+        client: &MockClient, prompt: &str,
+    ) -> std::result::Result<String, GgenAiError> {
         // Calculate timeout based on prompt length
         let base_timeout = Duration::from_secs(5);
         let extra_time = Duration::from_millis(prompt.len() as u64 * 10);
