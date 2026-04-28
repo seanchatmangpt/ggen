@@ -1,0 +1,22 @@
+{
+  "task": "T005",
+  "title": "ggen-dspy concrete Evaluator",
+  "status": "complete",
+  "date": "2026-04-26",
+  "files": [
+    "crates/ggen-dspy/src/evaluation.rs",
+    "crates/ggen-dspy/src/lib.rs",
+    "crates/ggen-dspy/src/optimizers/mipro.rs"
+  ],
+  "changes": [
+    "Added ExactMatchEvaluator: returns 1.0 if prediction equals ground_truth (case-insensitive trim), else 0.0",
+    "Added ContainsEvaluator: returns 1.0 if ground_truth is substring of prediction (lowercased), else 0.0",
+    "Both implement Evaluator trait with async evaluate() and name()",
+    "Exported ExactMatchEvaluator and ContainsEvaluator from lib.rs",
+    "Added 6 unit tests (exact match/no-match/name, contains/no-match/name) using #[tokio::test]",
+    "Added evaluator: Box<dyn Evaluator> field to MiproOptimizer (defaults to ContainsEvaluator)",
+    "Added with_evaluator() builder method on MiproOptimizer",
+    "Rewrote score_instruction to accept &dyn Evaluator and call evaluator.evaluate() instead of inline heuristic"
+  ],
+  "cargo_make_check": "pass"
+}

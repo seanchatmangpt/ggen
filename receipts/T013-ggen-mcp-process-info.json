@@ -1,0 +1,21 @@
+{
+  "task": "T013",
+  "title": "MCP get_process_info real implementation",
+  "functions_fixed": ["get_server_status"],
+  "pid_real": true,
+  "address_stub_removed": true,
+  "files_changed": [
+    "crates/ggen-domain/src/mcp_config.rs"
+  ],
+  "changes": [
+    "Added MCP_SERVER_ADDRESS_FILE constant (.ggen/mcp/server.addr)",
+    "Replaced hardcoded '127.0.0.1:0' address with: (1) address file read if present, (2) configured A2A listen address from a2a.toml, (3) default A2A address (127.0.0.1:8080)",
+    "Added write_address_file() helper for servers to record their bound address on startup",
+    "Added unit test: test_get_server_status_uses_real_pid_and_address asserts PID matches current process and address is not '127.0.0.1:0'"
+  ],
+  "test_results": {
+    "test_get_server_status_uses_real_pid_and_address": "PASS"
+  },
+  "cargo_make_check": "PASS",
+  "timestamp": "2026-04-26T00:00:00Z"
+}

@@ -1,0 +1,27 @@
+{
+  "task": "T014",
+  "title": "Pack installer BLAKE3 integrity",
+  "functions_fixed": ["update_lockfile", "check_integrity"],
+  "blake3_implemented": true,
+  "files_changed": [
+    "crates/ggen-domain/src/packs/installer.rs",
+    "crates/ggen-domain/src/packs/mod.rs",
+    "crates/ggen-domain/Cargo.toml",
+    "crates/ggen-cli/src/cmds/packs.rs",
+    "crates/ggen-cli/Cargo.toml"
+  ],
+  "changes": [
+    "Added blake3 = '1' to ggen-domain and ggen-cli Cargo.toml",
+    "ggen-domain installer.rs: added blake3_dir_hash() helper that hashes all files under a directory deterministically; used in update_lockfile() to populate LockedPack.integrity as 'blake3:<hex>'",
+    "ggen-domain installer.rs: exposed installer module in packs/mod.rs; fixed pre-existing _package_name bug",
+    "ggen-cli packs.rs: added blake3_dir_hash(), IntegrityError enum, and check_integrity() function; update_lockfile() now computes BLAKE3 hash of the downloaded cache dir",
+    "Tests: test_blake3_integrity_pass (round-trip passes), test_blake3_integrity_fail_on_mutation (tampered file returns HashMismatch), test_blake3_dir_hash_round_trip (stable hash, changes on mutation)"
+  ],
+  "test_results": {
+    "test_blake3_integrity_pass": "PASS",
+    "test_blake3_integrity_fail_on_mutation": "PASS",
+    "test_blake3_dir_hash_round_trip": "PASS"
+  },
+  "cargo_make_check": "PASS",
+  "timestamp": "2026-04-26T00:00:00Z"
+}

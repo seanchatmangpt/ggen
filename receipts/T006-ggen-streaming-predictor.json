@@ -1,0 +1,22 @@
+{
+  "task": "T006",
+  "title": "ggen-dspy real streaming predictor",
+  "status": "complete",
+  "date": "2026-04-26",
+  "files_changed": [
+    "crates/ggen-dspy/src/predictors/a2a_predictor.rs"
+  ],
+  "changes": [
+    "Added `futures::stream::StreamExt` and `genai::chat::ChatStreamEvent` imports",
+    "Replaced single-chunk stub in `StreamingA2aPredictor::forward_stream` with real `genai` streaming call via `client.exec_chat_stream()`",
+    "Stream iterates `ChatStreamEvent::Chunk` and `ChatStreamEvent::ReasoningChunk` events, yielding each as `StreamingChunk { content: delta, is_final: false }`",
+    "Stream handles `ChatStreamEvent::End` to extract `TokenUsage` from `captured_usage`",
+    "Final sentinel `StreamingChunk { content: \"\", is_final: true, usage: Some(final_usage) }` is emitted after all events",
+    "Events are collected into a Vec while holding the Mutex lock, then the lock is released before the returned stream is constructed",
+    "Added unit test `test_mock_llm_client_emits_multiple_chunks` using synthetic `ChatStreamEvent` vector to verify: (a) at least two chunks emitted, (b) intermediate chunks have is_final=false, (c) final chunk has is_final=true with usage"
+  ],
+  "test_results": {
+    "test_mock_llm_client_emits_multiple_chunks": "ok",
+    "cargo_make_check": "Finished dev profile — no errors"
+  }
+}

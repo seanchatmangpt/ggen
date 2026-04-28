@@ -1,0 +1,30 @@
+{
+  "task": "T007",
+  "title": "ggen-dspy optimizer integration tests",
+  "status": "complete",
+  "date": "2026-04-26",
+  "files_changed": [
+    "crates/ggen-dspy/tests/optimizer_integration_tests.rs",
+    "crates/ggen-dspy/src/optimizers/mipro.rs",
+    "crates/ggen-dspy/src/lib.rs",
+    "crates/ggen-dspy/Cargo.toml"
+  ],
+  "changes": [
+    "Created `tests/optimizer_integration_tests.rs` with four #[tokio::test] tests",
+    "test_bootstrap_compile_collects_demos: MockModule returns fixed output matching trainset; compiled module name contains '+Bootstrap'",
+    "test_bootstrap_compile_empty_trainset: empty trainset returns module unchanged (no '+Bootstrap')",
+    "test_mipro_compile_no_model_returns_unchanged: no model env var or .with_model(); compile returns module unchanged (no '+MIPRO')",
+    "test_mipro_compile_with_model_wraps_in_instructed_module: preset candidates injected via with_preset_candidates(); compiled name contains '+MIPRO'",
+    "Added `testing-utils` as default feature in Cargo.toml to expose MockModule and test_output for integration tests without requiring explicit --features flag",
+    "with_preset_candidates method on MiproOptimizer gated to cfg(any(test, feature = live-llm-tests, feature = testing-utils))",
+    "pub mod testing in lib.rs gated to cfg(any(test, feature = live-llm-tests, feature = testing-utils))",
+    "Uses existing ggen_dspy::testing::MockModule and test_output helpers"
+  ],
+  "test_results": {
+    "test_bootstrap_compile_collects_demos": "ok",
+    "test_bootstrap_compile_empty_trainset": "ok",
+    "test_mipro_compile_no_model_returns_unchanged": "ok",
+    "test_mipro_compile_with_model_wraps_in_instructed_module": "ok",
+    "cargo_make_check": "Finished dev profile — no errors"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "task": "T004",
+  "title": "ggen-process-mining BFS alignment",
+  "status": "complete",
+  "date": "2026-04-26",
+  "file": "crates/ggen-process-mining/src/conformance.rs",
+  "changes": [
+    "Replaced stub compute_alignment (returned empty cost:0 steps:[]) with BFS/greedy implementation",
+    "For each trace event: emits SyncMove if matching transition is enabled, else LogMove",
+    "After trace: emits ModelMove for remaining enabled transitions (bounded by transition count)",
+    "cost = log_moves + model_moves",
+    "Added test_alignment_two_event_trace_produces_sync_move_with_zero_cost: verifies a two-event [A,B] trace against a matching net produces at least one SyncMove and cost==0"
+  ],
+  "cargo_make_check": "pass"
+}
