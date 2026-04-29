@@ -3,6 +3,8 @@
 //! Demonstrates the simplest evaluation pattern using the Evaluate struct.
 //!
 //! Run with: cargo run --example evaluation_basic --features live-llm-tests
+
+#![allow(unused_imports)]
 //!
 //! Prerequisites:
 //! - Set GGEN_LLM_MODEL environment variable (e.g., "gpt-4")

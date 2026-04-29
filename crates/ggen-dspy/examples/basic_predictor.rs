@@ -4,7 +4,7 @@
 //! Run with: cargo run --example basic_predictor
 
 use ggen_ai::dspy::{InputField, OutputField, Signature};
-use ggen_dspy::{Predictor, Result};
+use ggen_dspy::{Module, Predictor, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {

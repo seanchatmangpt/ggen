@@ -21,7 +21,7 @@
 //! cargo run --example genai_error_handling
 //! ```
 
-use ggen_ai::{GenAiClient, GgenAiError, LlmClient, LlmConfig, MockClient};
+use ggen_ai::{GgenAiError, LlmClient, LlmConfig, MockClient};
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -298,7 +298,7 @@ async fn example_retry_logic() -> Result<(), Box<dyn std::error::Error>> {
 
     /// Execute request with retry logic
     async fn retry_request<F, Fut>(
-        retry_config: &RetryConfig, operation: F,
+        retry_config: &RetryConfig, mut operation: F,
     ) -> std::result::Result<String, GgenAiError>
     where
         F: FnMut() -> Fut,

@@ -114,7 +114,7 @@ pub use modules::{
     HopState, InMemoryRetriever, Module, ModuleContext, ModuleOutput, MultiHopConfig, MultiHopQA,
     MultiHopQABuilder, Passage, Predictor, ProgramOfThought, ProgramOfThoughtBuilder,
     ProgramOfThoughtConfig, ReAct, ReactAgent, Retrieve, RetrieveBuilder, RetrieverBackend,
-    SimplifiedBaleen,
+    SimplifiedBaleen, Tool,
 };
 
 // Optimizer exports

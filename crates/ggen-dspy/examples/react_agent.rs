@@ -5,7 +5,7 @@
 
 use async_trait::async_trait;
 use ggen_ai::dspy::{InputField, OutputField, Signature};
-use ggen_dspy::{ReAct, Result, Tool};
+use ggen_dspy::{Module, ReAct, Result, Tool};
 
 // Example Calculator tool
 struct Calculator;

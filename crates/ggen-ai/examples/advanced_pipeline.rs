@@ -123,9 +123,12 @@ impl Module for ParallelPipeline {
             .analyzers
             .iter()
             .enumerate()
-            .map(|(i, analyzer)| async move {
-                let result = analyzer.forward(inputs.clone()).await?;
-                Ok::<_, ModuleError>((i, result))
+            .map(|(i, analyzer)| {
+                let inputs = inputs.clone();
+                async move {
+                    let result = analyzer.forward(inputs).await?;
+                    Ok::<_, ModuleError>((i, result))
+                }
             })
             .collect();
 

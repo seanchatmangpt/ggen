@@ -107,7 +107,7 @@ async fn detailed_evaluate(
 
 /// Cross-validation helper
 fn split_dataset(dataset: &[Example], k: usize) -> Vec<Vec<Example>> {
-    let chunk_size = (dataset.len() + k - 1) / k;
+    let chunk_size = dataset.len().div_ceil(k);
     dataset
         .chunks(chunk_size)
         .map(|chunk| chunk.to_vec())

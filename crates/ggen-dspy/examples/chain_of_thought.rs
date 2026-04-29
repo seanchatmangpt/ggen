@@ -4,7 +4,7 @@
 //! Run with: cargo run --example chain_of_thought
 
 use ggen_ai::dspy::{InputField, OutputField, Signature};
-use ggen_dspy::{ChainOfThought, Result};
+use ggen_dspy::{ChainOfThought, Module, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {

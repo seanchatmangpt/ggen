@@ -195,7 +195,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Test set: {} examples\n", testset.len());
 
     // Step 4: Define metric function
-    let metric = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+    let metric: Arc<
+        dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError>
+            + Send
+            + Sync,
+    > = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
         let expected = example
             .outputs
             .get("sentiment")

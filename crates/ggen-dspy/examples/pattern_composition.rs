@@ -106,11 +106,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let baleen = SimplifiedBaleen::with_backend(backend);
 
     let query = "programming language features";
+    let query_inputs = [("query", query)];
+    let question_inputs1 = [("question", query)];
+    let question_inputs2 = [("question", query)];
 
     let (retrieve_result, multihop_result, baleen_result) = tokio::join!(
-        retrieve.forward(&[("query", query)]),
-        multihop.forward(&[("question", query)]),
-        baleen.forward(&[("question", query)])
+        retrieve.forward(&query_inputs),
+        multihop.forward(&question_inputs1),
+        baleen.forward(&question_inputs2)
     );
 
     println!("All patterns completed!");

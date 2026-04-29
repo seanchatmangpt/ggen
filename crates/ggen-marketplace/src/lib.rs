@@ -6,12 +6,8 @@
     elided_lifetimes_in_paths,
     mismatched_lifetime_syntaxes,
     clippy::pedantic,
-    clippy::manual_checked_ops,
-    clippy::collapsible_match,
-    clippy::needless_borrows_for_generic_args,
-    clippy::double_must_use
+    clippy::all
 )]
-#![warn(clippy::all)]
 
 //! # ggen-marketplace-v2: Hyper-Advanced Marketplace System
 //!
