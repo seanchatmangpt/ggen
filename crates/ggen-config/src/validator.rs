@@ -32,15 +32,18 @@ impl<'a> ConfigValidator<'a> {
     /// ```
     /// use ggen_config::{ConfigLoader, ConfigValidator};
     ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let toml = r#"
     ///     [project]
     ///     name = "my-project"
     ///     version = "1.0.0"
     /// "#;
     ///
-    /// let config = ConfigLoader::from_str(toml).unwrap();
+    /// let config = ConfigLoader::from_str(toml)?;
     /// let result = ConfigValidator::validate(&config);
     /// assert!(result.is_ok());
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn validate(config: &'a GgenConfig) -> Result<()> {
         let mut validator = Self::new(config);
