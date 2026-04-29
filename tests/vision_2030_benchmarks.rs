@@ -55,7 +55,8 @@ mod benchmarks {
     #[test]
     #[ignore] // Run with: cargo test -- --ignored
     fn bench_json_rpc_parsing() {
-        let json_request = r#"{"jsonrpc":"2.0","method":"tools/create_task","params":{"name":"test"},"id":1}"#;
+        let json_request =
+            r#"{"jsonrpc":"2.0","method":"tools/create_task","params":{"name":"test"},"id":1}"#;
 
         let iterations = 10000;
         let start = Instant::now();

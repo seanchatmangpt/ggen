@@ -81,13 +81,7 @@ mod unit_tests {
         // Verify deletion
         assert!(marketplace["packages"]["acme/base"].is_null());
         assert!(!marketplace["packages"]["acme/advanced"].is_null());
-        assert_eq!(
-            marketplace["packages"]
-                .as_object()
-                .unwrap()
-                .len(),
-            1
-        );
+        assert_eq!(marketplace["packages"].as_object().unwrap().len(), 1);
     }
 
     /// Unit 1: RDF triple assertion
@@ -101,7 +95,10 @@ mod unit_tests {
         });
 
         // Verify triple structure
-        assert_eq!(triple["subject"].as_str().unwrap(), "market:Package_ACMEBase");
+        assert_eq!(
+            triple["subject"].as_str().unwrap(),
+            "market:Package_ACMEBase"
+        );
         assert_eq!(triple["predicate"].as_str().unwrap(), "rdf:type");
         assert_eq!(triple["object"].as_str().unwrap(), "market:Package");
     }
@@ -133,7 +130,11 @@ mod unit_tests {
         // Valid quality scores: 0.0 to 1.0
         let valid_scores = vec![0.0, 0.5, 0.88, 0.95, 1.0];
         for score in valid_scores {
-            assert!(score >= 0.0 && score <= 1.0, "Score {} should be valid", score);
+            assert!(
+                score >= 0.0 && score <= 1.0,
+                "Score {} should be valid",
+                score
+            );
         }
 
         // Invalid scores

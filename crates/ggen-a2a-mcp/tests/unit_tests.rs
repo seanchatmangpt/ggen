@@ -63,7 +63,10 @@ mod unit_tests {
         ];
 
         for method in methods {
-            assert!(method.starts_with("tools/"), "All methods should be in tools namespace");
+            assert!(
+                method.starts_with("tools/"),
+                "All methods should be in tools namespace"
+            );
             let parts: Vec<&str> = method.split('/').collect();
             assert_eq!(parts.len(), 2, "Method should have namespace/verb format");
         }
@@ -103,7 +106,10 @@ mod unit_tests {
         });
 
         assert_eq!(error_response["error"]["code"], -32601);
-        assert!(error_response["error"]["message"].as_str().unwrap().contains("not found"));
+        assert!(error_response["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("not found"));
     }
 }
 

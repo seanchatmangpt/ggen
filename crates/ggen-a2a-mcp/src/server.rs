@@ -222,14 +222,14 @@ async fn handle_mcp_request(
                 },
                 "id": id
             })
-        },
+        }
         "create_task" => {
             // Extract and validate params
             match serde_json::from_value::<crate::ggen_server::CreateTaskParams>(_params.clone()) {
                 Ok(_params) => {
                     // Delegate to ggen_server HTTP handler (direct implementation)
                     _server.http_create_task(&_params).await
-                },
+                }
                 Err(e) => {
                     serde_json::json!({
                         "jsonrpc": "2.0",
@@ -241,14 +241,16 @@ async fn handle_mcp_request(
                     })
                 }
             }
-        },
+        }
         "update_task_state" => {
             // Extract and validate params
-            match serde_json::from_value::<crate::ggen_server::UpdateTaskStateParams>(_params.clone()) {
+            match serde_json::from_value::<crate::ggen_server::UpdateTaskStateParams>(
+                _params.clone(),
+            ) {
                 Ok(params) => {
                     // Delegate to ggen_server HTTP handler (direct implementation)
                     _server.http_update_task_state(&params).await
-                },
+                }
                 Err(e) => {
                     serde_json::json!({
                         "jsonrpc": "2.0",
@@ -260,14 +262,14 @@ async fn handle_mcp_request(
                     })
                 }
             }
-        },
+        }
         "list_tasks" => {
             // Extract and validate params
             match serde_json::from_value::<crate::ggen_server::ListTasksParams>(_params.clone()) {
                 Ok(params) => {
                     // Delegate to ggen_server HTTP handler (direct implementation)
                     _server.http_list_tasks(&params).await
-                },
+                }
                 Err(e) => {
                     serde_json::json!({
                         "jsonrpc": "2.0",
@@ -279,7 +281,7 @@ async fn handle_mcp_request(
                     })
                 }
             }
-        },
+        }
         _ => {
             // Unknown method
             serde_json::json!({

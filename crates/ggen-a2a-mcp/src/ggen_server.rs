@@ -2103,7 +2103,9 @@ impl GgenMcpServer {
 
     /// HTTP handler for update_task_state JSON-RPC method.
     /// Returns JSON response with old and new states.
-    pub async fn http_update_task_state(&self, params: &UpdateTaskStateParams) -> serde_json::Value {
+    pub async fn http_update_task_state(
+        &self, params: &UpdateTaskStateParams,
+    ) -> serde_json::Value {
         let new_state = match TaskState::from_str(&params.new_state) {
             Ok(state) => state,
             Err(e) => {

@@ -18,7 +18,7 @@ mod unit_tests {
         // that the function is callable and returns a Result.
         match result {
             Ok(()) => {} // No args - unusual but valid
-            Err(_) => {}  // Expected - clap requires subcommands
+            Err(_) => {} // Expected - clap requires subcommands
         }
     }
 

@@ -166,7 +166,7 @@ impl RdfRegistry {
                     for (_, term) in solution.iter() {
                         if let Term::NamedNode(node) = term {
                             packages.push(node.as_str().to_string());
-                            break;  // Take first variable per solution
+                            break; // Take first variable per solution
                         }
                     }
                 }
