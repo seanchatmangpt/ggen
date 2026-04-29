@@ -1347,7 +1347,7 @@ impl GgenMcpServer {
             "task_id": params.task_id,
             "old_state": old_state.to_string(),
             "new_state": new_state.to_string(),
-            "reason": params.reason.as_ref().unwrap_or(&"no reason provided".to_string())
+            "reason": params.reason.as_deref().unwrap_or("no reason provided")
         });
 
         drop(tasks);
@@ -2141,7 +2141,7 @@ impl GgenMcpServer {
             "task_id": params.task_id,
             "old_state": old_state.to_string(),
             "new_state": new_state.to_string(),
-            "reason": params.reason.as_ref().unwrap_or(&"no reason provided".to_string())
+            "reason": params.reason.as_deref().unwrap_or("no reason provided")
         });
 
         drop(tasks);
