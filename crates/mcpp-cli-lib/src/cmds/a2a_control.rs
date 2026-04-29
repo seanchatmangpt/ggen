@@ -51,6 +51,7 @@ pub fn send() -> clap_noun_verb::Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::Value;
 
     #[test]
     fn register_returns_json_envelope() {

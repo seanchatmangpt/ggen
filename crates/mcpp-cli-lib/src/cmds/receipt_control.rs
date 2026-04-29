@@ -34,6 +34,7 @@ pub fn emit() -> clap_noun_verb::Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::Value;
 
     #[test]
     fn emit_creates_receipt_envelope() {

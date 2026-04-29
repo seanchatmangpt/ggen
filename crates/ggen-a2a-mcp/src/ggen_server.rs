@@ -250,7 +250,7 @@ pub struct UpdateTaskStateParams {
 }
 
 /// Parameters for the `list_tasks` tool.
-#[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[derive(Debug, Deserialize, Serialize, schemars::JsonSchema)]
 pub struct ListTasksParams {
     /// Optional state filter
     #[serde(default)]
@@ -1339,12 +1339,13 @@ impl GgenMcpServer {
             McpError::invalid_params(format!("Task not found: {}", params.task_id), None)
         })?;
 
+        let old_state = task.state.clone();
         task.state = new_state;
         task.updated_at = chrono::Utc::now().to_rfc3339();
 
         let result = serde_json::json!({
             "task_id": params.task_id,
-            "old_state": task.state.to_string(),
+            "old_state": old_state.to_string(),
             "new_state": new_state.to_string(),
             "reason": params.reason.as_ref().unwrap_or(&"no reason provided".to_string())
         });
@@ -2065,6 +2066,125 @@ impl GgenMcpServer {
             .await
             .map_err(|e| anyhow::anyhow!("{e}"))?;
         Ok(())
+    }
+
+    // ------------------------------------------------------------------
+    // HTTP handlers (direct implementations for HTTP dispatcher)
+    // ------------------------------------------------------------------
+
+    /// HTTP handler for create_task JSON-RPC method.
+    /// Returns JSON response with task ID.
+    pub async fn http_create_task(&self, params: &CreateTaskParams) -> serde_json::Value {
+        let task_id = uuid::Uuid::new_v4().to_string();
+        let now = chrono::Utc::now().to_rfc3339();
+
+        let task = Task {
+            id: task_id.clone(),
+            title: params.title.clone(),
+            description: params.description.clone().unwrap_or_default(),
+            state: TaskState::Pending,
+            created_at: now.clone(),
+            updated_at: now,
+        };
+
+        let mut tasks = self.tasks.lock().await;
+        tasks.insert(task_id.clone(), task.clone());
+        drop(tasks);
+
+        serde_json::json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "task_id": task_id,
+                "title": params.title,
+                "state": "pending"
+            }
+        })
+    }
+
+    /// HTTP handler for update_task_state JSON-RPC method.
+    /// Returns JSON response with old and new states.
+    pub async fn http_update_task_state(&self, params: &UpdateTaskStateParams) -> serde_json::Value {
+        let new_state = match TaskState::from_str(&params.new_state) {
+            Ok(state) => state,
+            Err(e) => {
+                return serde_json::json!({
+                    "jsonrpc": "2.0",
+                    "error": {
+                        "code": -32602,
+                        "message": format!("Invalid state: {}", e)
+                    }
+                });
+            }
+        };
+
+        let mut tasks = self.tasks.lock().await;
+        let task = match tasks.get_mut(&params.task_id) {
+            Some(t) => t,
+            None => {
+                return serde_json::json!({
+                    "jsonrpc": "2.0",
+                    "error": {
+                        "code": -32602,
+                        "message": format!("Task not found: {}", params.task_id)
+                    }
+                });
+            }
+        };
+
+        let old_state = task.state.clone();
+        task.state = new_state;
+        task.updated_at = chrono::Utc::now().to_rfc3339();
+
+        let result = serde_json::json!({
+            "task_id": params.task_id,
+            "old_state": old_state.to_string(),
+            "new_state": new_state.to_string(),
+            "reason": params.reason.as_ref().unwrap_or(&"no reason provided".to_string())
+        });
+
+        drop(tasks);
+
+        serde_json::json!({
+            "jsonrpc": "2.0",
+            "result": result
+        })
+    }
+
+    /// HTTP handler for list_tasks JSON-RPC method.
+    /// Returns JSON response with task list, optionally filtered by state.
+    pub async fn http_list_tasks(&self, params: &ListTasksParams) -> serde_json::Value {
+        let tasks = self.tasks.lock().await;
+        let mut task_list: Vec<Task> = tasks.values().cloned().collect();
+        drop(tasks);
+
+        if let Some(filter) = &params.state_filter {
+            if let Ok(state) = TaskState::from_str(filter) {
+                task_list.retain(|t| t.state == state);
+            }
+        }
+
+        task_list.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+
+        let task_json: Vec<_> = task_list
+            .iter()
+            .map(|t| {
+                serde_json::json!({
+                    "id": t.id,
+                    "title": t.title,
+                    "state": t.state.to_string(),
+                    "created_at": t.created_at,
+                    "updated_at": t.updated_at
+                })
+            })
+            .collect();
+
+        serde_json::json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "count": task_list.len(),
+                "tasks": task_json
+            }
+        })
     }
 
     // ------------------------------------------------------------------

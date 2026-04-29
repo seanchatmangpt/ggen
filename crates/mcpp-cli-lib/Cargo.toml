@@ -1,0 +1,33 @@
+[package]
+name = "mcpp-cli-lib"
+version = "6.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "CLI library for MCPP (MCP Plus)"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[lib]
+name = "mcpp_cli_lib"
+path = "src/lib.rs"
+
+[dependencies]
+# Workspace dependencies
+anyhow = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true }
+clap-noun-verb = { workspace = true }
+clap-noun-verb-macros = { workspace = true }
+linkme = "0.3"
+
+# Local dependencies
+mcpp-domain = { path = "../mcpp-domain", version = "6.1.0" }
+mcpp-core = { path = "../mcpp-core", version = "6.1.0" }
+mcpp-telco = { path = "../mcpp-telco", version = "6.1.0" }
+ggen-cli-lib = { path = "../ggen-cli", version = "6.1.0" }
+ggen-utils = { workspace = true }
+ggen-ai = { workspace = true }
+ggen-a2a-mcp = { path = "../ggen-a2a-mcp", version = "6.1.0" }

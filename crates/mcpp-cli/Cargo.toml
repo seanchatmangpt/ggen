@@ -4,22 +4,8 @@ version = "6.1.0"
 edition = "2021"
 
 [dependencies]
-mcpp-domain = { path = "../mcpp-domain", version = "6.1.0" }
-mcpp-core = { path = "../mcpp-core", version = "6.1.0" }
-mcpp-telco = { path = "../mcpp-telco", version = "6.1.0" }
-ggen-cli-lib = { path = "../ggen-cli", version = "6.1.0" }
-clap = { workspace = true }
+mcpp-cli-lib = { path = "../mcpp-cli-lib", version = "6.1.0" }
 clap-noun-verb = { workspace = true }
-clap-noun-verb-macros = { workspace = true }
-linkme = "0.3"
-tokio = { workspace = true }
-anyhow = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }
-ggen-utils = { workspace = true }
-ggen-ai = { workspace = true }
-ggen-a2a-mcp = { path = "../ggen-a2a-mcp", version = "6.1.0" }
 
 [[bin]]
 name = "mcpp"

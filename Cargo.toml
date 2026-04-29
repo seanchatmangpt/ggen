@@ -35,6 +35,7 @@ members = [
   "crates/ggen-test-opt",
   "crates/ggen-e2e",
   "crates/mcpp-cli",
+  "crates/mcpp-cli-lib",
   "crates/mcpp-core",
   "crates/mcpp-domain",
   "crates/mcpp-telco",
@@ -141,6 +142,7 @@ ggen-receipt = { path = "crates/ggen-receipt", version = "6.1.0" }
 ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "6.1.0" }
 
 mcpp-cli = { path = "crates/mcpp-cli", version = "6.1.0" }
+mcpp-cli-lib = { path = "crates/mcpp-cli-lib", version = "6.1.0" }
 mcpp-core = { path = "crates/mcpp-core", version = "6.1.0" }
 mcpp-domain = { path = "crates/mcpp-domain", version = "6.1.0" }
 mcpp-telco = { path = "crates/mcpp-telco", version = "6.1.0" }
