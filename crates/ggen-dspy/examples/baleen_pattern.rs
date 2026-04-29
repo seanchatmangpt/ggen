@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let hops: Vec<serde_json::Value> = serde_json::from_str(hops_json)?;
 
     println!("\n--- Reasoning Trace ---");
-    for (i, hop) in hops.iter().enumerate() {
+    for hop in hops.iter() {
         let hop_num = hop["hop_num"].as_u64().unwrap_or(0);
         let query = hop["query"].as_str().unwrap_or("");
         let reasoning = hop["reasoning"].as_str().unwrap_or("");

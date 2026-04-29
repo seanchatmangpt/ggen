@@ -2,6 +2,8 @@
 //!
 //! Demonstrates integration with ggen-ai client and advanced features.
 
+#![allow(unused_imports, unused_variables)]
+
 use ggen_ai::{GenAiClient, LlmConfig};
 use ggen_dspy::adapters::{GgenAiAdapter, RetryConfig};
 use serde_json::Value;

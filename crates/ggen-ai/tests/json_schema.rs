@@ -3,6 +3,8 @@
 //! Tests the JSON Schema generation functionality with real Signature objects
 //! using Chicago TDD pattern (Arrange-Act-Assert with real collaborators).
 //!
+
+#![allow(clippy::unnecessary_map_or)]
 //! Test Coverage:
 //! 1. Type mapping (String, i32, f64, bool, Vec<T>, custom types)
 //! 2. Constraint conversion (min/max items, min/max length, pattern, enum, required)

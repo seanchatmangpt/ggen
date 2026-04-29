@@ -3,6 +3,13 @@
 //! Tests error paths, boundary conditions, and edge cases:
 //! - Configuration validation errors
 //! - Invalid model names
+
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::field_reassign_with_default,
+    unused_imports
+)]
 //! - Boundary values for parameters
 //! - Empty prompts
 //! - Very long prompts

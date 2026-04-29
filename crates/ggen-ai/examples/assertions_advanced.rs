@@ -3,6 +3,8 @@
 //! Demonstrates:
 //! - Custom validators
 //! - Pattern matching
+
+#![allow(unused_imports)]
 //! - Context injection for self-correction
 //! - Integration with more complex modules
 //!

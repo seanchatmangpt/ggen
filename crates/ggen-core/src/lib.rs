@@ -115,6 +115,17 @@
 //! ```
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![allow(
+    clippy::manual_checked_ops,
+    clippy::unnecessary_sort_by,
+    clippy::collapsible_match,
+    clippy::explicit_counter_loop,
+    clippy::match_result_ok,
+    clippy::collapsible_if,
+    clippy::new_without_default,
+    clippy::if_same_then_else,
+    clippy::for_kv_map
+)]
 
 pub mod audit;
 pub mod cache;

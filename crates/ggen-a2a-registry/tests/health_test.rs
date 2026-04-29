@@ -136,7 +136,7 @@ async fn ping_agent_timeout_returns_error() {
 #[tokio::test]
 async fn health_config_defaults() {
     let config = HealthConfig::default();
-    assert_eq!(config.check_interval, Duration::from_secs(60));
+    assert_eq!(config.check_interval, Duration::from_mins(1));
     assert_eq!(config.ping_timeout, Duration::from_secs(10));
     assert_eq!(config.offline_threshold, 3);
 }

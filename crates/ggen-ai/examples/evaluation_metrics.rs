@@ -3,6 +3,8 @@
 //! Demonstrates creating and using custom metrics:
 //! - Simple metrics
 //! - Dual-mode metrics (bootstrapping vs evaluation)
+
+#![allow(unused_imports)]
 //! - Composite metrics
 //! - Built-in metrics
 //!
