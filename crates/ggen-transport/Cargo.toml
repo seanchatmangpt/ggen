@@ -20,6 +20,7 @@ bytes = { version = "1.9", features = ["serde"] }
 futures = "0.3"
 url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.12", features = ["json"] }
 
 [features]
 integration = []

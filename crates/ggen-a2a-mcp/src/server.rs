@@ -79,11 +79,13 @@ pub async fn serve_http(host: &str, port: u16) -> Result<(), A2aMcpError> {
 
 /// Handle incoming MCP JSON-RPC requests via HTTP.
 ///
-/// Validates content-type, parses JSON-RPC, delegates to GgenMcpServer,
+/// Validates content-type, parses JSON-RPC, dispatches to tool handlers,
 /// and returns JSON-RPC response.
 async fn handle_mcp_request(
-    State(_server): State<Arc<GgenMcpServer>>, headers: HeaderMap, req: Request<Body>,
+    State(server): State<Arc<GgenMcpServer>>, headers: HeaderMap, req: Request<Body>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    use rmcp::handler::server::tool::ToolRouter;
+
     // Validate content-type
     let content_type = headers
         .get("content-type")
@@ -118,26 +120,112 @@ async fn handle_mcp_request(
         }
     };
 
-    // For now, return a simple response indicating the server is running
-    // Full JSON-RPC handling would require integrating with rmcp's protocol layer
-    let response = serde_json::json!({
-        "jsonrpc": "2.0",
-        "result": {
-            "status": "ggen MCP HTTP server is running",
-            "tools": [
-                "generate",
-                "validate",
-                "sync",
-                "list_generators",
-                "list_examples",
-                "get_example",
-                "search",
-                "scaffold_from_example",
-                "query_ontology"
-            ]
-        },
-        "id": json_req.get("id").unwrap_or(&serde_json::Value::Null)
-    });
+    // Extract request fields
+    let method = json_req
+        .get("method")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    let params = json_req.get("params").cloned().unwrap_or(serde_json::json!({}));
+    let id = json_req.get("id").cloned().unwrap_or(serde_json::Value::Null);
+
+    // Dispatch to tool handler via rmcp's tool router
+    let response = if method == "list_tools" {
+        // List all available tools
+        let tool_definitions = vec![
+            serde_json::json!({
+                "name": "generate",
+                "description": "Generate code from a RDF ontology file via the ggen μ₁-μ₅ pipeline",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "ontology_path": { "type": "string" },
+                        "queries_dir": { "type": "string" },
+                        "output_dir": { "type": "string" },
+                        "language": { "type": "string" }
+                    },
+                    "required": ["ontology_path"]
+                }
+            }),
+            serde_json::json!({
+                "name": "validate",
+                "description": "Validate a Turtle (.ttl) ontology content string",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "ttl": { "type": "string" }
+                    },
+                    "required": ["ttl"]
+                }
+            }),
+            serde_json::json!({
+                "name": "sync",
+                "description": "Run the full ggen sync pipeline",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "ontology_path": { "type": "string" },
+                        "queries_dir": { "type": "string" },
+                        "output_dir": { "type": "string" },
+                        "language": { "type": "string" },
+                        "dry_run": { "type": "boolean" }
+                    },
+                    "required": ["ontology_path"]
+                }
+            }),
+            serde_json::json!({
+                "name": "create_task",
+                "description": "Create a new task with title and description",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "title": { "type": "string" },
+                        "description": { "type": "string" }
+                    },
+                    "required": ["title"]
+                }
+            }),
+            serde_json::json!({
+                "name": "update_task_state",
+                "description": "Update task state with state transition",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "task_id": { "type": "string" },
+                        "new_state": { "type": "string" },
+                        "reason": { "type": "string" }
+                    },
+                    "required": ["task_id", "new_state"]
+                }
+            }),
+            serde_json::json!({
+                "name": "list_tasks",
+                "description": "List all tasks, optionally filtered by state",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "state_filter": { "type": "string" }
+                    }
+                }
+            }),
+        ];
+        serde_json::json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "tools": tool_definitions
+            },
+            "id": id
+        })
+    } else {
+        // Unknown method
+        serde_json::json!({
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32601,
+                "message": format!("Method not found: {}", method)
+            },
+            "id": id
+        })
+    };
 
     Ok(Response::builder()
         .status(StatusCode::OK)

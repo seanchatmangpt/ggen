@@ -5,7 +5,9 @@
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use ed25519_dalek::{SigningKey, VerifyingKey};
+use mcpp_core::emit_pass;
 use serde::Serialize;
+use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 
@@ -56,6 +58,21 @@ struct SignOutput {
     previous_receipt_hash: Option<String>,
     chain_file: Option<String>,
     chain_length: Option<usize>,
+}
+
+// ============================================================================
+// Envelope Output Wrapper
+// ============================================================================
+
+/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
+fn emit_envelope_if_needed_verify(output: &VerifyOutput) -> bool {
+    if std::env::var("MCPP_JSON").is_ok() {
+        let data = serde_json::to_value(output).unwrap_or(Value::Null);
+        emit_pass("mcpp.receipt.verify", "workspace", data);
+        true
+    } else {
+        false
+    }
 }
 
 // ============================================================================
@@ -266,7 +283,9 @@ fn verify(receipt_file: String, public_key: Option<String>) -> VerbResult<Verify
     let receipt_path = PathBuf::from(&receipt_file);
 
     if !receipt_path.exists() {
-        return Ok(not_found_output(&receipt_file));
+        let output = not_found_output(&receipt_file);
+        emit_envelope_if_needed_verify(&output);
+        return Ok(output);
     }
 
     let file_content = fs::read_to_string(&receipt_path).map_err(|e| {
@@ -285,7 +304,9 @@ fn verify(receipt_file: String, public_key: Option<String>) -> VerbResult<Verify
         }
     };
     let key = load_optional_key(&resolved_key_path)?;
-    verify_receipt_content(&receipt_file, &file_content, &key)
+    let output = verify_receipt_content(&receipt_file, &file_content, &key)?;
+    emit_envelope_if_needed_verify(&output);
+    Ok(output)
 }
 
 /// Show detailed receipt information

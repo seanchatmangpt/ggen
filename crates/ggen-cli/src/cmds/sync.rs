@@ -45,7 +45,9 @@ use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use ggen_receipt::{generate_keypair, hash_data, Receipt};
+use mcpp_core::emit_pass;
 use serde::Serialize;
+use serde_json::Value;
 use std::path::{Path, PathBuf};
 
 // Import llm_bridge module from the same crate
@@ -124,6 +126,22 @@ impl From<SyncResult> for SyncOutput {
             error: result.error,
             receipt_path: None, // populated separately by emit_sync_receipt
         }
+    }
+}
+
+// ============================================================================
+// Envelope Output Wrapper
+// ============================================================================
+
+/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
+/// Returns true if wrapped (output already printed), false otherwise
+fn emit_envelope_if_needed(output: &SyncOutput) -> bool {
+    if std::env::var("MCPP_JSON").is_ok() {
+        let data = serde_json::to_value(output).unwrap_or(Value::Null);
+        emit_pass("mcpp.sync", "workspace", data);
+        true
+    } else {
+        false
     }
 }
 
@@ -332,16 +350,18 @@ pub fn sync(
 
     // When --queries is supplied, bypass the manifest and run the low-level pipeline directly
     if let Some(ref queries_dir) = queries {
-        return run_low_level_pipeline(
+        let output = run_low_level_pipeline(
             ontology,
             queries_dir.clone(),
             output_dir,
             language,
             dry_run.unwrap_or(false),
-        );
+        )?;
+        emit_envelope_if_needed(&output);
+        return Ok(output);
     }
 
-    run_manifest_pipeline(
+    let output = run_manifest_pipeline(
         manifest,
         output_dir,
         dry_run,
@@ -355,7 +375,9 @@ pub fn sync(
         timeout,
         stage,
         ontology,
-    )
+    )?;
+    emit_envelope_if_needed(&output);
+    Ok(output)
 }
 
 /// Check profile and locked preconditions before any pipeline work.

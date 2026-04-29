@@ -53,6 +53,7 @@ ggen-marketplace.workspace = true
 ggen-a2a-mcp.workspace = true
 ggen-ontology-core.workspace = true
 ggen-receipt.workspace = true
+mcpp-core = { path = "../mcpp-core", version = "6.1.0" }
 
 # Crate-specific dependencies
 clap_complete = "4.5.58"

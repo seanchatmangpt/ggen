@@ -808,13 +808,64 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::NotImplemented`] - This feature is not yet implemented
-    #[allow(clippy::unused_self)]
-    fn get_published_package(&self, _package_id: &PackageId) -> Result<Package> {
-        // This is a simplified version - in production would fully reconstruct from RDF
-        Err(Error::NotImplemented {
-            feature: "get_published_package".to_string(),
-        })
+    /// * [`Error::PackageNotFound`] - When the package does not exist or is not published
+    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    fn get_published_package(&self, package_id: &PackageId) -> Result<Package> {
+        // Use epoch for cache lookups
+        let _epoch = self.current_epoch();
+
+        // Query for published package with all metadata
+        #[allow(clippy::uninlined_format_args)]
+        let query = format!(
+            r#"
+            PREFIX mp: <https://ggen.io/marketplace/>
+            SELECT ?name ?description ?version ?license ?state ?quality
+            WHERE {{
+                <https://ggen.io/marketplace/{}> a mp:Package ;
+                    mp:name ?name ;
+                    mp:description ?description ;
+                    mp:latestVersion ?version ;
+                    mp:license ?license ;
+                    mp:state ?state .
+                OPTIONAL {{ <https://ggen.io/marketplace/{}> mp:qualityScore ?quality . }}
+                FILTER(?state = "Published")
+            }}
+            "#,
+            package_id, package_id
+        );
+
+        let solutions = execute_sparql_solutions(&self.executor, &query)?;
+
+        if let Some(solution) = solutions.into_iter().next() {
+            let name = extract_literal_from_solution(&solution, "name");
+            let description = extract_literal_from_solution(&solution, "description");
+            let version_str = extract_literal_from_solution(&solution, "version");
+            let version = PackageVersion::new(version_str)
+                .unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+            let license = extract_literal_from_solution(&solution, "license");
+
+            let metadata = PackageBuilder::new()
+                .id(package_id.clone())
+                .name(name)
+                .description(description)
+                .license(license)
+                .build()?;
+
+            let _quality_score = opt_literal_from_solution(&solution, "quality")
+                .and_then(|q| q.parse::<f64>().ok())
+                .and_then(|q| QualityScore::new(q as u32).ok());
+
+            Ok(Package {
+                metadata,
+                latest_version: version.clone(),
+                versions: vec![version],
+                releases: indexmap::IndexMap::new(),
+            })
+        } else {
+            Err(Error::PackageNotFound {
+                package_id: package_id.as_str().to_string(),
+            })
+        }
     }
 
     /// Search packages by keyword
@@ -900,28 +951,124 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// This function currently never returns an error
+    /// * [`Error::SparqlError`] - When SPARQL query execution fails
     pub fn list_packages(
-        &self, _category: Option<&str>, _min_quality: Option<u32>, _limit: usize, _offset: usize,
+        &self, category: Option<&str>, min_quality: Option<u32>, limit: usize, offset: usize,
     ) -> Result<Vec<PackageListEntry>> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
-        // Returns empty placeholder - SPARQL-based listing implementation pending
-        Ok(Vec::new())
+
+        // Build SPARQL query with optional filters
+        let mut query = String::from(
+            r#"
+            PREFIX mp: <https://ggen.io/marketplace/>
+            SELECT ?package ?name ?version ?quality
+            WHERE {
+                ?package a mp:Package ;
+                    mp:name ?name ;
+                    mp:latestVersion ?version .
+                OPTIONAL { ?package mp:qualityScore ?quality . }
+        "#,
+        );
+
+        // Add category filter if provided
+        if let Some(cat) = category {
+            let escaped_cat = cat.replace('\\', "\\\\").replace('"', "\\\"");
+            query.push_str(&format!(
+                "\n                FILTER(CONTAINS(?package, \"{}\"))",
+                escaped_cat
+            ));
+        }
+
+        // Add quality score filter if provided
+        if let Some(min_q) = min_quality {
+            query.push_str(&format!("\n                FILTER(?quality >= {})", min_q));
+        }
+
+        query.push_str("\n            }\n            ORDER BY ASC(?name)\n");
+        query.push_str(&format!("            LIMIT {} OFFSET {}", limit, offset));
+        query.push('}');
+
+        let solutions = execute_sparql_solutions(&self.executor, &query)?;
+        let mut results = Vec::new();
+
+        for solution in solutions {
+            if let Some(pkg_uri) = solution.get("package") {
+                let pkg_str = pkg_uri.to_string();
+                let pkg_str = pkg_str.trim_start_matches('<').trim_end_matches('>');
+
+                if let Some(id_str) = pkg_str.strip_prefix("https://ggen.io/marketplace/") {
+                    if let Ok(package_id) = PackageId::new(id_str) {
+                        let name = extract_literal_from_solution(&solution, "name");
+                        let version_str = extract_literal_from_solution(&solution, "version");
+                        let version = PackageVersion::new(version_str)
+                            .unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+
+                        let quality_score = opt_literal_from_solution(&solution, "quality")
+                            .and_then(|q| q.parse::<f64>().ok())
+                            .and_then(|q| QualityScore::new(q as u32).ok());
+
+                        results.push(PackageListEntry {
+                            package_id,
+                            name,
+                            version,
+                            quality_score,
+                        });
+                    }
+                }
+            }
+        }
+
+        Ok(results)
     }
 
     /// Get package dependencies
     ///
     /// # Errors
     ///
-    /// This function currently never returns an error
+    /// * [`Error::SparqlError`] - When SPARQL query execution fails
     pub fn get_dependencies(
-        &self, _package_id: &PackageId, _version: &PackageVersion,
+        &self, package_id: &PackageId, version: &PackageVersion,
     ) -> Result<Vec<DependencyInfo>> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
-        // Returns empty placeholder - dependency graph traversal pending
-        Ok(Vec::new())
+
+        // Build SPARQL query to find dependencies for a specific package version
+        #[allow(clippy::uninlined_format_args)]
+        let query = format!(
+            r#"
+            PREFIX mp: <https://ggen.io/marketplace/>
+            SELECT ?dep_id ?dep_version ?is_optional
+            WHERE {{
+                <https://ggen.io/marketplace/{}/versions/{}> mp:hasDependency ?dep .
+                ?dep mp:packageId ?dep_id ;
+                     mp:versionRequirement ?dep_version .
+                OPTIONAL {{ ?dep mp:isOptional ?is_optional . }}
+            }}
+            "#,
+            package_id, version
+        );
+
+        let solutions = execute_sparql_solutions(&self.executor, &query)?;
+        let mut results = Vec::new();
+
+        for solution in solutions {
+            let dep_id_str = extract_literal_from_solution(&solution, "dep_id");
+            if let Ok(dep_package_id) = PackageId::new(dep_id_str) {
+                let version_requirement = extract_literal_from_solution(&solution, "dep_version");
+                let is_optional_str = opt_literal_from_solution(&solution, "is_optional");
+                let is_optional =
+                    is_optional_str.as_deref() == Some("true") || is_optional_str.is_some();
+
+                results.push(DependencyInfo {
+                    package_id: dep_package_id,
+                    version_requirement,
+                    is_optional,
+                });
+            }
+        }
+
+        Ok(results)
     }
 
     /// Validate package integrity

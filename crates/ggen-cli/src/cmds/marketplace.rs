@@ -5,7 +5,9 @@
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use ggen_marketplace::prelude::*;
+use mcpp_core::emit_pass;
 use serde::Serialize;
+use serde_json::Value;
 
 // ============================================================================
 // Output Types
@@ -62,6 +64,22 @@ struct DetailOutput {
     versions: Vec<String>,
     created_at: String,
     updated_at: String,
+}
+
+// ============================================================================
+// Envelope Output Wrapper
+// ============================================================================
+
+/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
+#[allow(dead_code)]
+fn emit_envelope_if_needed_sync(output: &SyncOutput) -> bool {
+    if std::env::var("MCPP_JSON").is_ok() {
+        let data = serde_json::to_value(output).unwrap_or(Value::Null);
+        emit_pass("mcpp.marketplace.sync", "workspace", data);
+        true
+    } else {
+        false
+    }
 }
 
 // ============================================================================
@@ -178,7 +196,9 @@ fn sync(
     let dry_run = dry_run.unwrap_or(false);
     let verbose = verbose.unwrap_or(false);
 
-    perform_marketplace_sync(force, dry_run, source, verbose)
+    let output = perform_marketplace_sync(force, dry_run, source, verbose)?;
+    emit_envelope_if_needed_sync(&output);
+    Ok(output)
 }
 
 // ============================================================================

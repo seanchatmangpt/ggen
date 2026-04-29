@@ -7,6 +7,7 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
+use mcpp_core::emit_pass;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -471,6 +472,21 @@ struct GroqStreamChunk {
 }
 
 // ============================================================================
+// Envelope Output Wrapper
+// ============================================================================
+
+/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
+fn emit_envelope_if_needed_list(output: &MCPListOutput) -> bool {
+    if std::env::var("MCPP_JSON").is_ok() {
+        let data = serde_json::to_value(output).unwrap_or(JsonValue::Null);
+        emit_pass("mcpp.mcp.list", "workspace", data);
+        true
+    } else {
+        false
+    }
+}
+
+// ============================================================================
 // Verb Functions (MCP Commands)
 // ============================================================================
 
@@ -494,7 +510,7 @@ fn list(verbose: bool) -> VerbResult<MCPListOutput> {
         }
     }
 
-    Ok(MCPListOutput {
+    let output = MCPListOutput {
         tools: tools
             .into_iter()
             .map(|t| MCPTool {
@@ -509,7 +525,9 @@ fn list(verbose: bool) -> VerbResult<MCPListOutput> {
         total_count: core_count + agent_count,
         core_tools: core_count,
         agent_tools: agent_count,
-    })
+    };
+    emit_envelope_if_needed_list(&output);
+    Ok(output)
 }
 
 /// Bridge an agent as an MCP tool

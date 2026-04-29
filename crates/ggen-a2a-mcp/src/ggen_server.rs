@@ -33,6 +33,10 @@
 //!   - `generator` argument    — lists known generator names
 
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::str::FromStr;
+use tokio::sync::Mutex;
+use std::collections::HashMap;
 
 use crate::otel_attrs;
 use rmcp::{
@@ -223,6 +227,91 @@ pub struct ValidateDependencyGraphParams {
     pub manifest_path: Option<String>,
 }
 
+/// Parameters for the `create_task` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct CreateTaskParams {
+    /// Task title
+    pub title: String,
+    /// Task description (optional)
+    #[serde(default)]
+    pub description: Option<String>,
+}
+
+/// Parameters for the `update_task_state` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct UpdateTaskStateParams {
+    /// Task ID (UUID)
+    pub task_id: String,
+    /// New state: pending, running, completed, failed, cancelled
+    pub new_state: String,
+    /// Optional reason for state change
+    #[serde(default)]
+    pub reason: Option<String>,
+}
+
+/// Parameters for the `list_tasks` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct ListTasksParams {
+    /// Optional state filter
+    #[serde(default)]
+    pub state_filter: Option<String>,
+}
+
+/// Task state enum
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TaskState {
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "running")]
+    Running,
+    #[serde(rename = "completed")]
+    Completed,
+    #[serde(rename = "failed")]
+    Failed,
+    #[serde(rename = "cancelled")]
+    Cancelled,
+}
+
+impl FromStr for TaskState {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "pending" => Ok(TaskState::Pending),
+            "running" => Ok(TaskState::Running),
+            "completed" => Ok(TaskState::Completed),
+            "failed" => Ok(TaskState::Failed),
+            "cancelled" => Ok(TaskState::Cancelled),
+            _ => Err(format!("Invalid state: {}", s)),
+        }
+    }
+}
+
+impl std::fmt::Display for TaskState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TaskState::Pending => write!(f, "pending"),
+            TaskState::Running => write!(f, "running"),
+            TaskState::Completed => write!(f, "completed"),
+            TaskState::Failed => write!(f, "failed"),
+            TaskState::Cancelled => write!(f, "cancelled"),
+        }
+    }
+}
+
+/// Task structure
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Task {
+    pub id: String,
+    pub title: String,
+    pub description: String,
+    pub state: TaskState,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+use serde::Serialize;
+
 // ---------------------------------------------------------------------------
 // Server struct
 // ---------------------------------------------------------------------------
@@ -233,6 +322,8 @@ pub struct GgenMcpServer {
     tool_router: ToolRouter<GgenMcpServer>,
     /// Root directory for bundled examples (resolved once at construction)
     examples_dir: PathBuf,
+    /// Shared task store: task_id -> Task
+    tasks: Arc<Mutex<HashMap<String, Task>>>,
 }
 
 // ---------------------------------------------------------------------------
@@ -368,6 +459,7 @@ impl GgenMcpServer {
         Self {
             tool_router: Self::tool_router(),
             examples_dir: resolve_examples_dir(),
+            tasks: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -1176,6 +1268,142 @@ impl GgenMcpServer {
                 ))]))
             }
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Task management tools
+    // ------------------------------------------------------------------
+
+    /// Create a new task with title and optional description.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        title = %params.title,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Create a new task with title and optional description. Returns task ID."
+    )]
+    async fn create_task(
+        &self, Parameters(params): Parameters<CreateTaskParams>,
+    ) -> Result<CallToolResult, McpError> {
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "create_task");
+        tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.title);
+        info!(title = %params.title, "create_task tool called");
+
+        let task_id = uuid::Uuid::new_v4().to_string();
+        let now = chrono::Utc::now().to_rfc3339();
+
+        let task = Task {
+            id: task_id.clone(),
+            title: params.title.clone(),
+            description: params.description.unwrap_or_default(),
+            state: TaskState::Pending,
+            created_at: now.clone(),
+            updated_at: now,
+        };
+
+        let mut tasks = self.tasks.lock().await;
+        tasks.insert(task_id.clone(), task.clone());
+        drop(tasks);
+
+        info!(task_id = %task_id, "create_task tool complete");
+        Ok(CallToolResult::success(vec![Content::text(
+            serde_json::to_string_pretty(&serde_json::json!({
+                "task_id": task_id,
+                "title": params.title,
+                "state": "pending"
+            })).unwrap_or_else(|_| format!("Created task: {}", task_id))
+        )]))
+    }
+
+    /// Update a task's state with optional reason.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        task_id = %params.task_id,
+        new_state = %params.new_state,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Update task state. Valid states: pending, running, completed, failed, cancelled. Optional reason for transition."
+    )]
+    async fn update_task_state(
+        &self, Parameters(params): Parameters<UpdateTaskStateParams>,
+    ) -> Result<CallToolResult, McpError> {
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "update_task_state");
+        info!(task_id = %params.task_id, new_state = %params.new_state, "update_task_state tool called");
+
+        let new_state = TaskState::from_str(&params.new_state)
+            .map_err(|e| McpError::invalid_params(e, None))?;
+
+        let mut tasks = self.tasks.lock().await;
+        let task = tasks.get_mut(&params.task_id)
+            .ok_or_else(|| McpError::invalid_params(
+                format!("Task not found: {}", params.task_id),
+                None
+            ))?;
+
+        task.state = new_state;
+        task.updated_at = chrono::Utc::now().to_rfc3339();
+
+        let result = serde_json::json!({
+            "task_id": params.task_id,
+            "old_state": task.state.to_string(),
+            "new_state": new_state.to_string(),
+            "reason": params.reason.as_ref().unwrap_or(&"no reason provided".to_string())
+        });
+
+        drop(tasks);
+
+        info!(task_id = %params.task_id, "update_task_state tool complete");
+        Ok(CallToolResult::success(vec![Content::text(
+            serde_json::to_string_pretty(&result)
+                .unwrap_or_else(|_| format!("Updated task: {} to {}", params.task_id, new_state))
+        )]))
+    }
+
+    /// List all tasks, optionally filtered by state.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        state_filter = ?params.state_filter,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "List all tasks, optionally filtered by state (pending, running, completed, failed, cancelled)."
+    )]
+    async fn list_tasks(
+        &self, Parameters(params): Parameters<ListTasksParams>,
+    ) -> Result<CallToolResult, McpError> {
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "list_tasks");
+        info!(state_filter = ?params.state_filter, "list_tasks tool called");
+
+        let tasks = self.tasks.lock().await;
+        let mut task_list: Vec<Task> = tasks.values().cloned().collect();
+        drop(tasks);
+
+        if let Some(filter) = &params.state_filter {
+            if let Ok(state) = TaskState::from_str(filter) {
+                task_list.retain(|t| t.state == state);
+            }
+        }
+
+        task_list.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+
+        let result = serde_json::json!({
+            "count": task_list.len(),
+            "tasks": task_list.iter().map(|t| serde_json::json!({
+                "id": t.id,
+                "title": t.title,
+                "state": t.state.to_string(),
+                "created_at": t.created_at,
+                "updated_at": t.updated_at
+            })).collect::<Vec<_>>()
+        });
+
+        info!(count = task_list.len(), "list_tasks tool complete");
+        Ok(CallToolResult::success(vec![Content::text(
+            serde_json::to_string_pretty(&result)
+                .unwrap_or_else(|_| format!("{} tasks", task_list.len()))
+        )]))
     }
 
     // ------------------------------------------------------------------

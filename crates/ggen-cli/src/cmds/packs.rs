@@ -4,7 +4,9 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
+use mcpp_core::emit_pass;
 use serde::Serialize;
+use serde_json::Value;
 
 // ============================================================================
 // Output Types
@@ -113,6 +115,21 @@ struct CheckCompatibilityOutput {
 }
 
 // ============================================================================
+// Envelope Output Wrapper
+// ============================================================================
+
+/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
+fn emit_envelope_if_needed_install(output: &InstallOutput) -> bool {
+    if std::env::var("MCPP_JSON").is_ok() {
+        let data = serde_json::to_value(output).unwrap_or(Value::Null);
+        emit_pass("mcpp.packs.install", "workspace", data);
+        true
+    } else {
+        false
+    }
+}
+
+// ============================================================================
 // Verb Functions
 // ============================================================================
 
@@ -218,22 +235,26 @@ fn install(pack_id: String, force: bool, dry_run: bool) -> VerbResult<InstallOut
         .unwrap_or_else(|_| pack_id.clone());
 
     if dry_run {
-        return Ok(InstallOutput {
+        let output = InstallOutput {
             pack_id: pack_id.clone(),
             pack_name,
             status: "DRY RUN".to_string(),
             message: format!("Would install pack '{}' (dry run mode)", pack_id),
-        });
+        };
+        emit_envelope_if_needed_install(&output);
+        return Ok(output);
     }
 
     let result = install_pack_improved(&pack_id, force)?;
 
-    Ok(InstallOutput {
+    let output = InstallOutput {
         pack_id,
         pack_name,
         status: "installed".to_string(),
         message: result.message,
-    })
+    };
+    emit_envelope_if_needed_install(&output);
+    Ok(output)
 }
 
 // ============================================================================
