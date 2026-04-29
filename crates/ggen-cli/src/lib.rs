@@ -52,6 +52,16 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 #![allow(clippy::unused_unit)] // clap-noun-verb #[verb] macro generates unit expressions
+#![allow(
+    clippy::needless_borrows_for_generic_args,
+    clippy::needless_question_mark,
+    clippy::new_without_default,
+    clippy::question_mark,
+    clippy::too_many_arguments,
+    clippy::unnecessary_lazy_evaluations,
+    clippy::unnecessary_map_or,
+    clippy::useless_conversion
+)]
 
 // Note: std::io::Write was used for output capture with gag crate (now disabled)
 

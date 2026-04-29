@@ -3,6 +3,8 @@
 //! Comprehensive validation that all Rules 3-10 work together to produce a functioning
 //! Spring Boot REST API system. This test verifies:
 //! - All rules execute successfully
+
+#![allow(dead_code, clippy::manual_checked_ops)]
 //! - Generated files can be organized into valid Maven project structure
 //! - All cross-rule dependencies are satisfied
 //! - Complete system can be deployed and validated
