@@ -341,9 +341,7 @@ mod tests {
             .collect()
     }
 
-    fn create_simple_metric(
-    ) -> Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>
-    {
+    fn create_simple_metric() -> MetricFn {
         Arc::new(|_example: &Example, _output: &HashMap<String, Value>| {
             Ok(true) // Always pass for testing
         })

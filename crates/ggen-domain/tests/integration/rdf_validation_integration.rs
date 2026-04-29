@@ -132,10 +132,7 @@ test!(test_validate_turtle_invalid_variable_name, {
                 // If no errors, check if variables were parsed
                 // This may happen if from_turtle doesn't properly extract variables
                 // That's acceptable - test documents expected behavior
-                assert!(
-                    true,
-                    "Turtle parsed but validation may not extract variables from blank nodes"
-                );
+                // Turtle parsed but validation may not extract variables from blank nodes
             } else {
                 // If there are errors, they should be about variable name
                 assert!(
@@ -148,9 +145,8 @@ test!(test_validate_turtle_invalid_variable_name, {
                 );
             }
         }
-        Err(e) => {
+        Err(_e) => {
             // Parser error is also acceptable for malformed input
-            assert!(true, "Parser rejected as expected: {}", e);
         }
     }
 });
@@ -184,7 +180,7 @@ test!(test_validate_turtle_very_long_name, {
     let validator = Validator::new();
 
     // Act
-    let result = validator.validate_turtle(&turtle, "http://example.org/test");
+    let result = validator.validate_turtle(turtle, "http://example.org/test");
 
     // Assert - should handle long names without crashing
     assert!(result.is_ok() || result.is_err());

@@ -274,9 +274,9 @@ mod tests {
 
     #[test]
     fn test_validation_limits() {
-        assert!(llm::MIN_TEMPERATURE <= llm::DEFAULT_TEMPERATURE);
-        assert!(llm::DEFAULT_TEMPERATURE <= llm::MAX_TEMPERATURE);
-        assert!(llm::MIN_TOP_P <= llm::DEFAULT_TOP_P);
-        assert!(llm::DEFAULT_TOP_P <= llm::MAX_TOP_P);
+        const { assert!(llm::MIN_TEMPERATURE <= llm::DEFAULT_TEMPERATURE) };
+        const { assert!(llm::DEFAULT_TEMPERATURE <= llm::MAX_TEMPERATURE) };
+        const { assert!(llm::MIN_TOP_P <= llm::DEFAULT_TOP_P) };
+        const { assert!(llm::DEFAULT_TOP_P <= llm::MAX_TOP_P) };
     }
 }

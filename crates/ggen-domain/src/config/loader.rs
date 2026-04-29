@@ -820,7 +820,7 @@ mod tests {
     fn test_config_loader_default() {
         use crate::config::validation::ConfigValidator;
         let validator = ConfigValidator::new();
-        assert!(validator.allowed_licenses().len() > 0);
+        assert!(!validator.allowed_licenses().is_empty());
     }
 
     #[test]

@@ -88,15 +88,14 @@ impl ParallelPipeline {
         let analyzers = perspectives
             .into_iter()
             .map(|(name, instructions)| {
-                let sig =
-                    Signature::new(&format!("{}Analysis", name), &format!("{} analysis", name))
-                        .with_input(InputField::new("text", "Text to analyze", "String"))
-                        .with_output(OutputField::new(
-                            "analysis",
-                            &format!("{} analysis", name),
-                            "String",
-                        ))
-                        .with_instructions(instructions);
+                let sig = Signature::new(format!("{}Analysis", name), format!("{} analysis", name))
+                    .with_input(InputField::new("text", "Text to analyze", "String"))
+                    .with_output(OutputField::new(
+                        "analysis",
+                        format!("{} analysis", name),
+                        "String",
+                    ))
+                    .with_instructions(instructions);
 
                 Predictor::new(sig)
             })

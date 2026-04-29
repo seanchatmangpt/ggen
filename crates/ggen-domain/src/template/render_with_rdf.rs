@@ -386,6 +386,47 @@ pub fn generate_from_rdf(
     Ok(output_template_path)
 }
 
+/// Split rendered content by file markers
+///
+/// Parses `{# FILE: path/to/file.ext #}` markers and returns a vector of
+/// (file_path, content) tuples. Content before the first marker is discarded.
+fn split_file_markers(content: &str, base_dir: &Path) -> Result<Vec<(PathBuf, String)>> {
+    let file_marker_re = Regex::new(r"\{#\s*FILE:\s*([^\s#]+)\s*#\}").map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to compile file marker regex: {}", e))
+    })?;
+
+    let mut files = Vec::new();
+    let mut current_file: Option<PathBuf> = None;
+    let mut current_content = String::new();
+
+    for line in content.lines() {
+        if let Some(captures) = file_marker_re.captures(line) {
+            // Write previous file if exists
+            if let Some(path) = current_file.take() {
+                files.push((path, current_content.trim_end().to_string()));
+            }
+
+            // Start new file
+            let file_path = captures.get(1).unwrap().as_str();
+            let full_path = base_dir.join(file_path);
+            current_file = Some(full_path);
+            current_content.clear();
+        } else if current_file.is_some() {
+            // Accumulate content for current file
+            current_content.push_str(line);
+            current_content.push('\n');
+        }
+        // Content before first marker is ignored
+    }
+
+    // Write last file if exists
+    if let Some(path) = current_file {
+        files.push((path, current_content.trim_end().to_string()));
+    }
+
+    Ok(files)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -573,45 +614,4 @@ Content for file 2
         assert_eq!(files[1].0, base_dir.join("subdir/file2.txt"));
         assert_eq!(files[1].1.trim(), "Content for file 2");
     }
-}
-
-/// Split rendered content by file markers
-///
-/// Parses `{# FILE: path/to/file.ext #}` markers and returns a vector of
-/// (file_path, content) tuples. Content before the first marker is discarded.
-fn split_file_markers(content: &str, base_dir: &Path) -> Result<Vec<(PathBuf, String)>> {
-    let file_marker_re = Regex::new(r"\{#\s*FILE:\s*([^\s#]+)\s*#\}").map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to compile file marker regex: {}", e))
-    })?;
-
-    let mut files = Vec::new();
-    let mut current_file: Option<PathBuf> = None;
-    let mut current_content = String::new();
-
-    for line in content.lines() {
-        if let Some(captures) = file_marker_re.captures(line) {
-            // Write previous file if exists
-            if let Some(path) = current_file.take() {
-                files.push((path, current_content.trim_end().to_string()));
-            }
-
-            // Start new file
-            let file_path = captures.get(1).unwrap().as_str();
-            let full_path = base_dir.join(file_path);
-            current_file = Some(full_path);
-            current_content.clear();
-        } else if current_file.is_some() {
-            // Accumulate content for current file
-            current_content.push_str(line);
-            current_content.push('\n');
-        }
-        // Content before first marker is ignored
-    }
-
-    // Write last file if exists
-    if let Some(path) = current_file {
-        files.push((path, current_content.trim_end().to_string()));
-    }
-
-    Ok(files)
 }

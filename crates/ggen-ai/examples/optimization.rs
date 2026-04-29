@@ -24,14 +24,16 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 
+/// Type alias for metric function
+type MetricFn = Arc<
+    dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError>
+        + Send
+        + Sync,
+>;
+
 /// Evaluation function
 async fn evaluate(
-    module: &dyn Module, dataset: &[Example],
-    metric: &Arc<
-        dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError>
-            + Send
-            + Sync,
-    >,
+    module: &dyn Module, dataset: &[Example], metric: &MetricFn,
 ) -> Result<f64, Box<dyn std::error::Error>> {
     let mut total = 0.0;
 
@@ -195,11 +197,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Test set: {} examples\n", testset.len());
 
     // Step 4: Define metric function
-    let metric: Arc<
-        dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError>
-            + Send
-            + Sync,
-    > = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+    let metric: MetricFn = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
         let expected = example
             .outputs
             .get("sentiment")

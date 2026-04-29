@@ -431,32 +431,49 @@ mod tests {
         assert!(config.validate().is_ok());
 
         // Empty model
-        let mut config = LlmConfig::default();
-        config.model = "".to_string();
+        let config = LlmConfig {
+            model: "".to_string(),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
         // Invalid max_tokens
-        let mut config = LlmConfig::default();
-        config.max_tokens = Some(0);
+        let config = LlmConfig {
+            max_tokens: Some(0),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
-        config.max_tokens = Some(200000);
+        let config = LlmConfig {
+            max_tokens: Some(200000),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
         // Invalid temperature
-        let mut config = LlmConfig::default();
-        config.temperature = Some(-0.1);
+        let config = LlmConfig {
+            temperature: Some(-0.1),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
-        config.temperature = Some(2.5);
+        let config = LlmConfig {
+            temperature: Some(2.5),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
         // Invalid top_p
-        let mut config = LlmConfig::default();
-        config.top_p = Some(-0.1);
+        let config = LlmConfig {
+            top_p: Some(-0.1),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
-        config.top_p = Some(1.5);
+        let config = LlmConfig {
+            top_p: Some(1.5),
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
     }
 
