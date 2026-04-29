@@ -7,6 +7,7 @@ edition = "2021"
 mcpp-domain = { path = "../mcpp-domain", version = "6.1.0" }
 mcpp-core = { path = "../mcpp-core", version = "6.1.0" }
 mcpp-telco = { path = "../mcpp-telco", version = "6.1.0" }
+ggen-cli-lib = { path = "../ggen-cli", version = "6.1.0" }
 clap = { workspace = true }
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
@@ -17,3 +18,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 ggen-utils = { workspace = true }
 ggen-ai = { workspace = true }
+
+[[bin]]
+name = "mcpp"
+path = "src/main.rs"
