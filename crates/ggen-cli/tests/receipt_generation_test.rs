@@ -5,7 +5,6 @@
 
 #[cfg(test)]
 mod receipt_tests {
-    use std::path::PathBuf;
 
     #[test]
     fn test_receipt_manager_creation() {

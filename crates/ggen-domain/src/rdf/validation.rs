@@ -5,7 +5,6 @@
 
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 use super::metadata::TemplateMetadata;
 
@@ -92,113 +91,12 @@ impl ValidationReport {
 }
 
 /// SHACL-based validator for template metadata
-pub struct Validator {
-    #[allow(dead_code)]
-    shapes: HashMap<String, Shape>,
-}
-
-/// SHACL shape definition
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
-struct Shape {
-    target_class: String,
-    properties: Vec<PropertyConstraint>,
-}
-
-/// Property constraint in SHACL shape
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
-struct PropertyConstraint {
-    path: String,
-    min_count: Option<usize>,
-    max_count: Option<usize>,
-    datatype: Option<String>,
-    pattern: Option<String>,
-    node_kind: Option<NodeKind>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-#[allow(dead_code)]
-enum NodeKind {
-    Iri,
-    Literal,
-    BlankNode,
-}
+pub struct Validator;
 
 impl Validator {
     /// Create new validator with default shapes
     pub fn new() -> Self {
-        let mut shapes = HashMap::new();
-
-        // Template shape
-        shapes.insert(
-            "TemplateShape".to_string(),
-            Shape {
-                target_class: "https://ggen.io/marketplace/Template".to_string(),
-                properties: vec![
-                    PropertyConstraint {
-                        path: "https://ggen.io/marketplace/templateName".to_string(),
-                        min_count: Some(1),
-                        max_count: Some(1),
-                        datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
-                        pattern: None,
-                        node_kind: Some(NodeKind::Literal),
-                    },
-                    PropertyConstraint {
-                        path: "https://ggen.io/marketplace/templateVersion".to_string(),
-                        min_count: None,
-                        max_count: Some(1),
-                        datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
-                        pattern: Some(r"^\d+\.\d+\.\d+$".to_string()), // Semantic versioning
-                        node_kind: Some(NodeKind::Literal),
-                    },
-                    PropertyConstraint {
-                        path: "https://ggen.io/marketplace/stability".to_string(),
-                        min_count: None,
-                        max_count: Some(1),
-                        datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
-                        pattern: Some(r"^(experimental|stable|deprecated)$".to_string()),
-                        node_kind: Some(NodeKind::Literal),
-                    },
-                ],
-            },
-        );
-
-        // Variable shape
-        shapes.insert(
-            "VariableShape".to_string(),
-            Shape {
-                target_class: "https://ggen.io/marketplace/Variable".to_string(),
-                properties: vec![
-                    PropertyConstraint {
-                        path: "https://ggen.io/marketplace/variableName".to_string(),
-                        min_count: Some(1),
-                        max_count: Some(1),
-                        datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
-                        pattern: Some(r"^[a-zA-Z_][a-zA-Z0-9_]*$".to_string()), // Valid identifier
-                        node_kind: Some(NodeKind::Literal),
-                    },
-                    PropertyConstraint {
-                        path: "https://ggen.io/marketplace/variableType".to_string(),
-                        min_count: Some(1),
-                        max_count: Some(1),
-                        datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
-                        pattern: Some(r"^(string|number|boolean|array|object)$".to_string()),
-                        node_kind: Some(NodeKind::Literal),
-                    },
-                    PropertyConstraint {
-                        path: "https://ggen.io/marketplace/isRequired".to_string(),
-                        min_count: Some(1),
-                        max_count: Some(1),
-                        datatype: Some("http://www.w3.org/2001/XMLSchema#boolean".to_string()),
-                        pattern: None,
-                        node_kind: Some(NodeKind::Literal),
-                    },
-                ],
-            },
-        );
-
-        Self { shapes }
+        Self
     }
 
     /// Validate template metadata against SHACL shapes
