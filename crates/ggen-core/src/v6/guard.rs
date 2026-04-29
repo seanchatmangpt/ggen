@@ -288,6 +288,82 @@ impl Guard for SecretGuard {
     }
 }
 
+/// Guard that detects runtime model-serving dependencies
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelDependencyGuard {
+    /// Guard name
+    pub name: String,
+
+    /// Regex pattern to match model dependencies
+    pub pattern: String,
+
+    /// Compiled regex (not serialized)
+    #[serde(skip)]
+    pub pattern_regex: Option<Regex>,
+
+    /// Action when violated
+    pub action: GuardAction,
+
+    /// Whether enabled
+    pub enabled: bool,
+}
+
+impl ModelDependencyGuard {
+    /// Create a new model dependency guard
+    pub fn new(name: impl Into<String>) -> Self {
+        // Pattern to detect AI/ML serving frameworks
+        let pattern = r#"(?i)(tensorflow|onnxruntime|candle-core|tch-rs|pytorch|transformers|huggingface|llm-chain|burn|ort)"#;
+        Self {
+            name: name.into(),
+            pattern: pattern.to_string(),
+            pattern_regex: Regex::new(pattern).ok(),
+            action: GuardAction::Reject,
+            enabled: true,
+        }
+    }
+}
+
+impl Guard for ModelDependencyGuard {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn action(&self) -> GuardAction {
+        self.action
+    }
+
+    fn is_enabled(&self) -> bool {
+        self.enabled
+    }
+
+    fn check_path(&self, _path: &Path) -> Option<GuardViolation> {
+        None
+    }
+
+    fn check_content(&self, content: &str, path: &Path) -> Option<GuardViolation> {
+        if !self.enabled {
+            return None;
+        }
+
+        if let Some(ref regex) = self.pattern_regex {
+            if let Some(m) = regex.find(content) {
+                return Some(GuardViolation {
+                    guard_name: self.name.clone(),
+                    violating_content: m.as_str().to_string(),
+                    message: format!(
+                        "Runtime model-serving dependency detected in '{}': {}. Zero Dependency and Compile-Time AutoML doctrines require artifact-resident cognition via branchless deterministic const structures.",
+                        path.display(),
+                        m.as_str()
+                    ),
+                    action: self.action,
+                });
+            }
+        }
+
+        None
+    }
+}
+
 /// Collection of guards to apply during projection
 pub struct GuardSet {
     guards: Vec<Box<dyn Guard>>,
@@ -355,6 +431,7 @@ impl GuardSet {
         let mut set = Self::new();
         set.add_guard(PathGuard::new("path-guard", "ontology/**"));
         set.add_guard(SecretGuard::new("secret-guard"));
+        set.add_guard(ModelDependencyGuard::new("model-dependency-guard"));
         set
     }
 }
@@ -397,6 +474,22 @@ mod tests {
         let guard = SecretGuard::new("secret-guard");
         let violation = guard.check_path(Path::new(".env"));
         assert!(violation.is_some());
+    }
+
+    #[test]
+    fn test_model_dependency_guard_clean() {
+        let guard = ModelDependencyGuard::new("model");
+        let content = "const A: u32 = 42;";
+        assert!(guard.check_content(content, Path::new("main.rs")).is_none());
+    }
+
+    #[test]
+    fn test_model_dependency_guard_detects_tensorflow() {
+        let guard = ModelDependencyGuard::new("model");
+        let content = "import tensorflow as tf";
+        let violation = guard.check_content(content, Path::new("model.py"));
+        assert!(violation.is_some());
+        assert!(violation.unwrap().message.contains("Zero Dependency and Compile-Time AutoML doctrines"));
     }
 
     #[test]

@@ -1,9 +1,5 @@
 pub mod cmds;
 
-#[tokio::main]
-async fn main() {
-    if let Err(e) = clap_noun_verb::run().await {
-        eprintln!("{}", e);
-        std::process::exit(1);
-    }
+fn main() -> clap_noun_verb::Result<()> {
+    clap_noun_verb::run()
 }

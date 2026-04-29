@@ -252,9 +252,10 @@ impl A2aTransport {
             .map_err(|e| TransportError::ConnectionFailed(format!("HTTP request failed: {}", e)))?;
 
         let status = resp.status();
-        let body: serde_json::Value = resp.json().await.map_err(|e| {
-            TransportError::SerializationError(e)
-        })?;
+        let body: serde_json::Value = resp
+            .json()
+            .await
+            .map_err(|e| TransportError::Internal(format!("Failed to parse response: {}", e)))?;
 
         if !status.is_success() {
             return Err(TransportError::ProtocolError(format!(
