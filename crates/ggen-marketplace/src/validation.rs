@@ -7,9 +7,9 @@
 //! - Detailed reporting
 
 use async_trait::async_trait;
+use semver::Version;
 use std::sync::Arc;
 use tracing::info;
-use semver::Version;
 
 use crate::error::Result;
 use crate::models::{Manifest, Package};
@@ -274,24 +274,25 @@ impl Validatable for PackageValidator {
         checks.push(id_len_check);
 
         // Check 6: Valid license string (non-empty, ASCII)
-        let license_check = if manifest.metadata.license.is_empty() || !manifest.metadata.license.is_ascii() {
-            ValidationCheck {
-                name: "Valid license string".to_string(),
-                passed: false,
-                severity: CheckSeverity::Major,
-                message: "License must be non-empty and ASCII".to_string(),
-                weight: 100 / total_checks,
-            }
-        } else {
-            passed_count += 1;
-            ValidationCheck {
-                name: "Valid license string".to_string(),
-                passed: true,
-                severity: CheckSeverity::Minor,
-                message: "License is valid".to_string(),
-                weight: 100 / total_checks,
-            }
-        };
+        let license_check =
+            if manifest.metadata.license.is_empty() || !manifest.metadata.license.is_ascii() {
+                ValidationCheck {
+                    name: "Valid license string".to_string(),
+                    passed: false,
+                    severity: CheckSeverity::Major,
+                    message: "License must be non-empty and ASCII".to_string(),
+                    weight: 100 / total_checks,
+                }
+            } else {
+                passed_count += 1;
+                ValidationCheck {
+                    name: "Valid license string".to_string(),
+                    passed: true,
+                    severity: CheckSeverity::Minor,
+                    message: "License is valid".to_string(),
+                    weight: 100 / total_checks,
+                }
+            };
         checks.push(license_check);
 
         // Check 7: At least 1 author
