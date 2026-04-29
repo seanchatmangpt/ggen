@@ -14,11 +14,10 @@ use serde_json::json;
 pub fn serve() -> clap_noun_verb::Result<String> {
     // MCP server would be started in a tokio runtime context
     // For now, return success envelope
-    let env = Envelope::pass("mcpp.mcpp_mcp.serve", "mcpp")
-        .with_data(json!({
-            "transport": "stdio",
-            "status": "listening"
-        }));
+    let env = Envelope::pass("mcpp.mcpp_mcp.serve", "mcpp").with_data(json!({
+        "transport": "stdio",
+        "status": "listening"
+    }));
     Ok(env.to_json())
 }
 

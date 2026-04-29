@@ -35,16 +35,15 @@ pub fn register() -> clap_noun_verb::Result<String> {
 #[verb("mcpp-a2a", "send")]
 pub fn send() -> clap_noun_verb::Result<String> {
     // Send message (stub implementation)
-    let env = Envelope::pass("mcpp.mcpp_a2a.send", "mcpp")
-        .with_data(json!({
-            "agent_id": "agent-001",
-            "message": {
-                "type": "task",
-                "action": "generate"
-            },
-            "status": "sent",
-            "timestamp": chrono::Utc::now().to_rfc3339(),
-        }));
+    let env = Envelope::pass("mcpp.mcpp_a2a.send", "mcpp").with_data(json!({
+        "agent_id": "agent-001",
+        "message": {
+            "type": "task",
+            "action": "generate"
+        },
+        "status": "sent",
+        "timestamp": chrono::Utc::now().to_rfc3339(),
+    }));
 
     Ok(env.to_json())
 }

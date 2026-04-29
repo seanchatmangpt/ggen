@@ -489,7 +489,10 @@ mod tests {
         let content = "import tensorflow as tf";
         let violation = guard.check_content(content, Path::new("model.py"));
         assert!(violation.is_some());
-        assert!(violation.unwrap().message.contains("Zero Dependency and Compile-Time AutoML doctrines"));
+        assert!(violation
+            .unwrap()
+            .message
+            .contains("Zero Dependency and Compile-Time AutoML doctrines"));
     }
 
     #[test]
