@@ -113,27 +113,6 @@ rand = "0.8"
 tempfile = "3.23"
 # semver = "1.0" removed - duplicate of line 32
 
-# Unit tests
-[[test]]
-name = "poka_yoke_types_test"
-path = "tests/unit/poka_yoke_types_test.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "rdf_turtle_test"
-path = "tests/unit/rdf_turtle_test.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "sparql_operations_test"
-path = "tests/unit/sparql_operations_test.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "integration_rdf_mapping"
-path = "tests/integration_rdf_mapping.rs"
-required-features = ["integration"]
-
 # Integration tests removed in Phase 1 consolidation
 
 [[test]]

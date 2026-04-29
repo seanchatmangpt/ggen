@@ -339,3 +339,73 @@ fn test_trust_tier_comprehensive_hierarchy() {
     assert!(!TrustTier::Blocked.meets_requirement(TrustTier::Experimental));
     assert!(!TrustTier::Blocked.meets_requirement(TrustTier::EnterpriseApproved));
 }
+
+#[test]
+fn test_ed25519_valid_signature_verifies() {
+    use ggen_receipt::{generate_keypair, Receipt};
+
+    let (signing_key, verifying_key) = generate_keypair();
+
+    let receipt = Receipt::new(
+        "pack-install:test-pack@1.0.0".to_string(),
+        vec!["sha256:abc123".to_string()],
+        vec!["sha256:def456".to_string()],
+        None,
+    )
+    .sign(&signing_key)
+    .expect("signing must succeed");
+
+    assert!(!receipt.signature.is_empty(), "signature field must be populated");
+    assert_eq!(receipt.signature.len(), 128, "Ed25519 signature hex is 64 bytes = 128 chars");
+
+    receipt
+        .verify(&verifying_key)
+        .expect("verification of valid signature must succeed");
+}
+
+#[test]
+fn test_ed25519_tampered_signature_rejected() {
+    use ggen_receipt::{generate_keypair, Receipt};
+
+    let (signing_key, verifying_key) = generate_keypair();
+
+    let mut receipt = Receipt::new(
+        "pack-install:tampered@2.0.0".to_string(),
+        vec!["sha256:input".to_string()],
+        vec!["sha256:output".to_string()],
+        None,
+    )
+    .sign(&signing_key)
+    .expect("signing must succeed");
+
+    // Corrupt the first byte of the hex signature
+    let mut sig_bytes = receipt.signature.as_bytes().to_vec();
+    sig_bytes[0] = if sig_bytes[0] == b'a' { b'b' } else { b'a' };
+    receipt.signature = String::from_utf8(sig_bytes).expect("valid utf8");
+
+    let result = receipt.verify(&verifying_key);
+    assert!(result.is_err(), "tampered signature must not verify");
+}
+
+#[test]
+fn test_ed25519_wrong_key_rejected() {
+    use ggen_receipt::{generate_keypair, Receipt};
+
+    let (signing_key_a, _) = generate_keypair();
+    let (_, verifying_key_b) = generate_keypair();
+
+    let receipt = Receipt::new(
+        "pack-install:cross-key@3.0.0".to_string(),
+        vec!["sha256:input-a".to_string()],
+        vec!["sha256:output-a".to_string()],
+        None,
+    )
+    .sign(&signing_key_a)
+    .expect("signing with key A must succeed");
+
+    let result = receipt.verify(&verifying_key_b);
+    assert!(
+        result.is_err(),
+        "signature from key A must not verify against key B"
+    );
+}

@@ -6,7 +6,9 @@
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
+use std::path::PathBuf;
 
+use ggen_core::packs::lockfile::PackLockfile;
 use ggen_domain::packs::install::{install_pack, InstallInput};
 use ggen_domain::packs::metadata::load_pack_metadata;
 
@@ -94,6 +96,61 @@ fn validate_pack_name(pack_name: &str) -> Result<()> {
 #[verb]
 fn remove(pack_name: String) -> Result<RemoveOutput> {
     validate_pack_name(&pack_name)?;
+
+    // Step 1: Resolve lock_path
+    let lock_path = std::env::current_dir()
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Cannot resolve project directory: {}",
+                e
+            ))
+        })?
+        .join(".ggen")
+        .join("packs.lock");
+
+    // Step 2: Check if lockfile exists
+    if !lock_path.exists() {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "No packs installed: .ggen/packs.lock not found",
+        ));
+    }
+
+    // Step 3: Load lockfile
+    let mut lockfile = PackLockfile::from_file(&lock_path).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {}", e))
+    })?;
+
+    // Step 4: Check if pack exists in lockfile
+    if lockfile.get_pack(&pack_name).is_none() {
+        return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+            "Pack '{}' is not installed",
+            pack_name
+        )));
+    }
+
+    // Step 5: Compute pack_dir and remove if exists
+    let pack_dir = resolve_cache_dir()?.join(&pack_name);
+
+    if pack_dir.exists() {
+        std::fs::remove_dir_all(&pack_dir).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to remove pack directory: {}",
+                e
+            ))
+        })?;
+    }
+
+    // Step 6: Remove from lockfile
+    lockfile.remove_pack(&pack_name);
+
+    // Step 7: Save lockfile
+    lockfile.save(&lock_path).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to save lockfile (partial removal may have occurred): {}",
+            e
+        ))
+    })?;
+
     Ok(RemoveOutput {
         pack_name: pack_name.clone(),
         status: "removed".to_string(),
@@ -103,4 +160,15 @@ fn remove(pack_name: String) -> Result<RemoveOutput> {
             pack_name
         ),
     })
+}
+
+fn resolve_cache_dir() -> Result<PathBuf> {
+    std::env::var_os("GGEN_PACK_CACHE_DIR")
+        .map(PathBuf::from)
+        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
+        .ok_or_else(|| {
+            clap_noun_verb::NounVerbError::execution_error(
+                "Cannot resolve pack cache: set HOME or GGEN_PACK_CACHE_DIR",
+            )
+        })
 }

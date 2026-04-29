@@ -378,7 +378,7 @@ fn run_manifest_pipeline(
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
     stage: Option<String>, ontology: Option<String>,
 ) -> VerbResult<SyncOutput> {
-    let _installed_packs = read_installed_packs(".ggen/packs.lock");
+    let installed_packs = read_installed_packs(".ggen/packs.lock");
 
     let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
     let manifest_data = ggen_core::manifest::ManifestParser::parse(&manifest_path)
@@ -425,6 +425,26 @@ fn run_manifest_pipeline(
         })
         .collect();
 
+    let synced_file_infos: Vec<ggen_core::codegen::SyncedFileInfo> = synced_files
+        .iter()
+        .map(|f| ggen_core::codegen::SyncedFileInfo {
+            path: f.path.clone(),
+            size_bytes: f.size_bytes,
+            action: f.action.clone(),
+        })
+        .collect();
+
+    let receipt_file_path = emit_sync_receipt_best_effort(&SyncResult {
+        status: "success".to_string(),
+        files_synced,
+        duration_ms,
+        files: synced_file_infos,
+        inference_rules_executed: 0,
+        generation_rules_executed: files_synced,
+        audit_trail: None,
+        error: None,
+    }, &installed_packs);
+
     Ok(SyncOutput {
         status: "success".to_string(),
         files_synced,
@@ -434,12 +454,11 @@ fn run_manifest_pipeline(
         generation_rules_executed: files_synced,
         audit_trail: None,
         error: None,
-        receipt_path: Some(".ggen/receipts/latest.json".to_string()),
+        receipt_path: receipt_file_path.or_else(|| Some(".ggen/receipts/latest.json".to_string())),
     })
 }
 
 /// Attempt to write a sync receipt; log a warning on failure but never abort the sync.
-#[allow(dead_code)]
 fn emit_sync_receipt_best_effort(
     result: &SyncResult, installed_packs: &[String],
 ) -> Option<String> {
@@ -499,7 +518,6 @@ fn read_installed_packs(lock_path: &str) -> Vec<String> {
 ///
 /// Returns the path written to `latest.json` on success, or a string error on
 /// failure.  The caller logs the error as a warning but does NOT abort the sync.
-#[allow(dead_code)]
 fn emit_sync_receipt(
     result: &SyncResult, installed_packs: &[String],
 ) -> std::result::Result<String, String> {
@@ -552,7 +570,8 @@ fn emit_sync_receipt(
         .collect();
 
     // 5. Create and sign the receipt.
-    let receipt = Receipt::new("ggen-sync".to_string(), input_hashes, output_hashes, None)
+    let operation_id = uuid::Uuid::new_v4().to_string();
+    let receipt = Receipt::new(operation_id, input_hashes, output_hashes, None)
         .sign(&signing_key)
         .map_err(|e| e.to_string())?;
 

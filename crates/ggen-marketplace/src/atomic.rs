@@ -296,57 +296,36 @@ impl AtomicPackId {
     /// Get the string representation of this atomic pack ID.
     #[must_use]
     pub fn as_str(&self) -> String {
-        const CLASS_MAPPINGS: &[(AtomicPackClass, &str)] = &[
-            (AtomicPackClass::SurfaceMcp, "surface-mcp"),
-            (AtomicPackClass::SurfaceA2a, "surface-a2a"),
-            (AtomicPackClass::ContractOpenapi, "contract-openapi"),
-            (AtomicPackClass::ContractGraphql, "contract-graphql"),
-            (AtomicPackClass::ProjectionRust, "projection-rust"),
-            (
-                AtomicPackClass::ProjectionTypescript,
-                "projection-typescript",
-            ),
-            (AtomicPackClass::ProjectionPython, "projection-python"),
-            (AtomicPackClass::ProjectionJava, "projection-java"),
-            (AtomicPackClass::ProjectionGo, "projection-go"),
-            (AtomicPackClass::RuntimeStdio, "runtime-stdio"),
-            (AtomicPackClass::RuntimeAxum, "runtime-axum"),
-            (AtomicPackClass::RuntimeActix, "runtime-actix"),
-            (AtomicPackClass::RuntimeEmbedded, "runtime-embedded"),
-            (AtomicPackClass::RuntimeStandalone, "runtime-standalone"),
-            (AtomicPackClass::PolicyNoDefaults, "policy-no-defaults"),
-            (AtomicPackClass::PolicyStrict, "policy-strict"),
-            (
-                AtomicPackClass::ValidatorProtocolVisibleValues,
-                "validator-protocol-visible-values",
-            ),
-            (AtomicPackClass::ValidatorShacl, "validator-shacl"),
-            (
-                AtomicPackClass::ReceiptEnterpriseSigned,
-                "receipt-enterprise-signed",
-            ),
-            (AtomicPackClass::ReceiptChained, "receipt-chained"),
-            (
-                AtomicPackClass::ConsequenceSemverMigration,
-                "consequence-semver-migration",
-            ),
-            (
-                AtomicPackClass::ConsequenceBreakingChange,
-                "consequence-breaking-change",
-            ),
-            (AtomicPackClass::CoreOntology, "core-ontology"),
-            (AtomicPackClass::CoreHooks, "core-hooks"),
-            (AtomicPackClass::CoreReceipts, "core-receipts"),
-            (AtomicPackClass::CoreVersioning, "core-versioning"),
-            (AtomicPackClass::CoreValidation, "core-validation"),
-            (AtomicPackClass::CorePolicy, "core-policy"),
-        ];
-
-        let class_str = CLASS_MAPPINGS
-            .iter()
-            .find(|(class, _)| *class == self.class)
-            .map(|(_, name)| name)
-            .unwrap_or_else(|| panic!("Unknown atomic pack class: {:?}", self.class));
+        let class_str = match self.class {
+            AtomicPackClass::SurfaceMcp => "surface-mcp",
+            AtomicPackClass::SurfaceA2a => "surface-a2a",
+            AtomicPackClass::ContractOpenapi => "contract-openapi",
+            AtomicPackClass::ContractGraphql => "contract-graphql",
+            AtomicPackClass::ProjectionRust => "projection-rust",
+            AtomicPackClass::ProjectionTypescript => "projection-typescript",
+            AtomicPackClass::ProjectionPython => "projection-python",
+            AtomicPackClass::ProjectionJava => "projection-java",
+            AtomicPackClass::ProjectionGo => "projection-go",
+            AtomicPackClass::RuntimeStdio => "runtime-stdio",
+            AtomicPackClass::RuntimeAxum => "runtime-axum",
+            AtomicPackClass::RuntimeActix => "runtime-actix",
+            AtomicPackClass::RuntimeEmbedded => "runtime-embedded",
+            AtomicPackClass::RuntimeStandalone => "runtime-standalone",
+            AtomicPackClass::PolicyNoDefaults => "policy-no-defaults",
+            AtomicPackClass::PolicyStrict => "policy-strict",
+            AtomicPackClass::ValidatorProtocolVisibleValues => "validator-protocol-visible-values",
+            AtomicPackClass::ValidatorShacl => "validator-shacl",
+            AtomicPackClass::ReceiptEnterpriseSigned => "receipt-enterprise-signed",
+            AtomicPackClass::ReceiptChained => "receipt-chained",
+            AtomicPackClass::ConsequenceSemverMigration => "consequence-semver-migration",
+            AtomicPackClass::ConsequenceBreakingChange => "consequence-breaking-change",
+            AtomicPackClass::CoreOntology => "core-ontology",
+            AtomicPackClass::CoreHooks => "core-hooks",
+            AtomicPackClass::CoreReceipts => "core-receipts",
+            AtomicPackClass::CoreVersioning => "core-versioning",
+            AtomicPackClass::CoreValidation => "core-validation",
+            AtomicPackClass::CorePolicy => "core-policy",
+        };
 
         format!("{}-{}", class_str, self.name)
     }

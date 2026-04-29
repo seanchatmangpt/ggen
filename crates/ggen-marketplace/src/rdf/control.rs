@@ -24,6 +24,7 @@ use crate::error::{Error, Result};
 use crate::models::{Package, PackageId, PackageVersion, QualityScore};
 use dashmap::DashMap;
 use lru::LruCache;
+use oxigraph::model::Term;
 use oxigraph::store::Store;
 use rayon::prelude::*;
 use std::hash::{Hash, Hasher};
@@ -210,6 +211,46 @@ impl QueryPlanOptimizer {
         cache.put(query.to_string(), optimized.clone());
         optimized
     }
+}
+
+/// Helper: Execute SPARQL query and return solutions
+fn execute_sparql_solutions(
+    executor: &Arc<SparqlExecutor>, query: &str,
+) -> Result<Vec<oxigraph::sparql::QuerySolution>> {
+    let results = executor.query(query)?;
+    match results {
+        oxigraph::sparql::QueryResults::Solutions(solutions) => {
+            Ok(solutions.filter_map(|s| s.ok()).collect())
+        }
+        _ => Ok(Vec::new()),
+    }
+}
+
+/// Helper: Extract literal value from SPARQL solution
+fn extract_literal_from_solution(solution: &oxigraph::sparql::QuerySolution, var: &str) -> String {
+    solution
+        .get(var)
+        .and_then(|t| {
+            if let Term::Literal(lit) = t {
+                Some(lit.value().to_string())
+            } else {
+                None
+            }
+        })
+        .unwrap_or_default()
+}
+
+/// Helper: Optionally extract literal value from SPARQL solution
+fn opt_literal_from_solution(
+    solution: &oxigraph::sparql::QuerySolution, var: &str,
+) -> Option<String> {
+    solution.get(var).and_then(|t| {
+        if let Term::Literal(lit) = t {
+            Some(lit.value().to_string())
+        } else {
+            None
+        }
+    })
 }
 
 /// RDF Control Plane - High-performance central coordinator for all RDF operations
@@ -780,12 +821,78 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// This function currently never returns an error
-    pub fn search_packages(&self, _keyword: &str, _limit: usize) -> Result<Vec<SearchResult>> {
+    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    pub fn search_packages(&self, keyword: &str, limit: usize) -> Result<Vec<SearchResult>> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
-        // Returns empty placeholder - SPARQL-based search implementation pending
-        Ok(Vec::new())
+
+        // Escape keyword for SPARQL: replace backslash and quote
+        let escaped_keyword = keyword.replace('\\', "\\\\").replace('"', "\\\"");
+
+        // Build SPARQL query for search
+        #[allow(clippy::uninlined_format_args)]
+        let query = format!(
+            r#"
+            PREFIX mp: <https://ggen.io/marketplace/>
+            SELECT ?package ?name ?description ?version ?quality WHERE {{
+                ?package a mp:Package ;
+                    mp:name ?name ;
+                    mp:description ?description ;
+                    mp:latestVersion ?version .
+                OPTIONAL {{ ?package mp:qualityScore ?quality . }}
+                FILTER(
+                    CONTAINS(LCASE(str(?name)), LCASE("{}")) ||
+                    CONTAINS(LCASE(str(?description)), LCASE("{}"))
+                )
+            }}
+            LIMIT {}
+            "#,
+            escaped_keyword, escaped_keyword, limit
+        );
+
+        let solutions = execute_sparql_solutions(&self.executor, &query)?;
+        let mut results = Vec::new();
+
+        for solution in solutions {
+            // Extract package ID from URI (strip <https://ggen.io/marketplace/> prefix and angle brackets)
+            if let Some(pkg_uri) = solution.get("package") {
+                let pkg_str = pkg_uri.to_string();
+                // Strip angle brackets if present
+                let pkg_str = pkg_str.trim_start_matches('<').trim_end_matches('>');
+
+                if let Some(id_str) = pkg_str.strip_prefix("https://ggen.io/marketplace/") {
+                    if let Ok(package_id) = PackageId::new(id_str) {
+                        let name = extract_literal_from_solution(&solution, "name");
+                        let description = extract_literal_from_solution(&solution, "description");
+                        let version_str = extract_literal_from_solution(&solution, "version");
+                        let version = PackageVersion::new(version_str).unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+
+                        // Determine relevance: 1.0 for name match, 0.5 for description match
+                        let relevance = if name.to_lowercase().contains(&keyword.to_lowercase()) {
+                            1.0
+                        } else {
+                            0.5
+                        };
+
+                        let quality_score = opt_literal_from_solution(&solution, "quality")
+                            .and_then(|q| q.parse::<f64>().ok())
+                            .map(|q| QualityScore::new(q as u32).ok())
+                            .flatten();
+
+                        results.push(SearchResult {
+                            package_id,
+                            name,
+                            description,
+                            version,
+                            quality_score,
+                            relevance,
+                        });
+                    }
+                }
+            }
+        }
+
+        Ok(results)
     }
 
     /// List all packages with filters
@@ -825,10 +932,32 @@ impl RdfControlPlane {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
 
+        // Build SPARQL ASK query to check if package exists
+        let query = format!(
+            r#"
+            PREFIX mp: <https://ggen.io/marketplace/>
+            ASK {{ <https://ggen.io/marketplace/{}> a mp:Package . }}
+            "#,
+            package_id.as_str()
+        );
+
+        // Execute query and match on result
+        let results = self.executor.query(&query)?;
+        let is_valid = match results {
+            oxigraph::sparql::QueryResults::Boolean(b) => b,
+            _ => false, // Unexpected result type
+        };
+
+        let errors = if !is_valid {
+            vec![format!("Package {} does not exist in marketplace", package_id)]
+        } else {
+            Vec::new()
+        };
+
         Ok(ValidationResult {
             package_id: package_id.clone(),
-            is_valid: true,
-            errors: Vec::new(),
+            is_valid,
+            errors,
         })
     }
 

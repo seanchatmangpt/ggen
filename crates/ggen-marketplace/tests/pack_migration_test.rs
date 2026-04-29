@@ -102,7 +102,7 @@ fn migrate_package_to_new_version() {
 
     migrator.add_upgrade_edge(UpgradeEdge::new(v1.clone(), v2.clone()));
 
-    let mut package = create_test_package("test-pkg", "1.0.0");
+    let package = create_test_package("test-pkg", "1.0.0");
     let initial_id = package.metadata.id.clone();
 
     let result = migrator.migrate(package.clone(), &v1, &v2);
@@ -228,7 +228,7 @@ fn upgrade_preserves_package_metadata() {
 
     migrator.add_upgrade_edge(UpgradeEdge::new(v1.clone(), v2.clone()));
 
-    let mut package = create_test_package("my-package", "1.0.0");
+    let package = create_test_package("my-package", "1.0.0");
     let original_name = package.metadata.name.clone();
     let original_description = package.metadata.description.clone();
 
