@@ -12,10 +12,8 @@ use serde_json::json;
 /// JSON-first contract: returns a chatmangpt.mcpp.result.v1 envelope.
 #[verb("mcpp-a2a", "register")]
 pub async fn register(
-    #[arg(help = "Unique agent identifier")]
-    agent_id: String,
-    #[arg(help = "Agent endpoint URL (e.g., http://localhost:3000)")]
-    endpoint: String,
+    #[arg(help = "Unique agent identifier")] agent_id: String,
+    #[arg(help = "Agent endpoint URL (e.g., http://localhost:3000)")] endpoint: String,
 ) -> clap_noun_verb::Result<String> {
     // Validate agent_id and endpoint format
     if agent_id.is_empty() {
@@ -40,14 +38,12 @@ pub async fn register(
 
     // Register agent (stub implementation)
     let env = Envelope::pass("mcpp.mcpp_a2a.register", "mcpp")
-        .with_data(
-            json!({
-                "agent_id": agent_id.clone(),
-                "endpoint": endpoint.clone(),
-                "status": "registered",
-                "timestamp": chrono::Utc::now().to_rfc3339(),
-            }),
-        )
+        .with_data(json!({
+            "agent_id": agent_id.clone(),
+            "endpoint": endpoint.clone(),
+            "status": "registered",
+            "timestamp": chrono::Utc::now().to_rfc3339(),
+        }))
         .with_next(
             &format!("mcpp mcpp-a2a send {} <message>", agent_id),
             "Send a message to the registered agent.",
@@ -64,10 +60,8 @@ pub async fn register(
 /// JSON-first contract: returns a chatmangpt.mcpp.result.v1 envelope.
 #[verb("mcpp-a2a", "send")]
 pub async fn send(
-    #[arg(help = "Target agent identifier")]
-    agent_id: String,
-    #[arg(help = "Message content (JSON string)")]
-    message: String,
+    #[arg(help = "Target agent identifier")] agent_id: String,
+    #[arg(help = "Message content (JSON string)")] message: String,
 ) -> clap_noun_verb::Result<String> {
     // Validate inputs
     if agent_id.is_empty() {
@@ -100,15 +94,12 @@ pub async fn send(
     };
 
     // Send message (stub implementation)
-    let env = Envelope::pass("mcpp.mcpp_a2a.send", "mcpp")
-        .with_data(
-            json!({
-                "agent_id": agent_id,
-                "message": message_json,
-                "status": "sent",
-                "timestamp": chrono::Utc::now().to_rfc3339(),
-            }),
-        );
+    let env = Envelope::pass("mcpp.mcpp_a2a.send", "mcpp").with_data(json!({
+        "agent_id": agent_id,
+        "message": message_json,
+        "status": "sent",
+        "timestamp": chrono::Utc::now().to_rfc3339(),
+    }));
 
     Ok(env.to_json())
 }
@@ -120,11 +111,7 @@ mod tests {
 
     #[tokio::test]
     async fn register_valid_agent_succeeds() {
-        let result = register(
-            "agent-001".to_string(),
-            "http://localhost:3000".to_string(),
-        )
-        .await;
+        let result = register("agent-001".to_string(), "http://localhost:3000".to_string()).await;
 
         assert!(result.is_ok());
         let s = result.unwrap();

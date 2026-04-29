@@ -32,11 +32,11 @@
 //!   - `example_name` argument — lists discovered example names
 //!   - `generator` argument    — lists known generator names
 
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::str::FromStr;
-use tokio::sync::Mutex;
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 use crate::otel_attrs;
 use rmcp::{
@@ -1280,9 +1280,7 @@ impl GgenMcpServer {
         service.name = "ggen-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
-    #[tool(
-        description = "Create a new task with title and optional description. Returns task ID."
-    )]
+    #[tool(description = "Create a new task with title and optional description. Returns task ID.")]
     async fn create_task(
         &self, Parameters(params): Parameters<CreateTaskParams>,
     ) -> Result<CallToolResult, McpError> {
@@ -1312,7 +1310,8 @@ impl GgenMcpServer {
                 "task_id": task_id,
                 "title": params.title,
                 "state": "pending"
-            })).unwrap_or_else(|_| format!("Created task: {}", task_id))
+            }))
+            .unwrap_or_else(|_| format!("Created task: {}", task_id)),
         )]))
     }
 
@@ -1336,11 +1335,9 @@ impl GgenMcpServer {
             .map_err(|e| McpError::invalid_params(e, None))?;
 
         let mut tasks = self.tasks.lock().await;
-        let task = tasks.get_mut(&params.task_id)
-            .ok_or_else(|| McpError::invalid_params(
-                format!("Task not found: {}", params.task_id),
-                None
-            ))?;
+        let task = tasks.get_mut(&params.task_id).ok_or_else(|| {
+            McpError::invalid_params(format!("Task not found: {}", params.task_id), None)
+        })?;
 
         task.state = new_state;
         task.updated_at = chrono::Utc::now().to_rfc3339();
@@ -1357,7 +1354,7 @@ impl GgenMcpServer {
         info!(task_id = %params.task_id, "update_task_state tool complete");
         Ok(CallToolResult::success(vec![Content::text(
             serde_json::to_string_pretty(&result)
-                .unwrap_or_else(|_| format!("Updated task: {} to {}", params.task_id, new_state))
+                .unwrap_or_else(|_| format!("Updated task: {} to {}", params.task_id, new_state)),
         )]))
     }
 
@@ -1402,7 +1399,7 @@ impl GgenMcpServer {
         info!(count = task_list.len(), "list_tasks tool complete");
         Ok(CallToolResult::success(vec![Content::text(
             serde_json::to_string_pretty(&result)
-                .unwrap_or_else(|_| format!("{} tasks", task_list.len()))
+                .unwrap_or_else(|_| format!("{} tasks", task_list.len())),
         )]))
     }
 

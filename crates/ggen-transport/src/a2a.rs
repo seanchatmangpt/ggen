@@ -234,9 +234,12 @@ impl A2aTransport {
 
     pub async fn send_message(&self, message: A2aMessage) -> Result<A2aResponse> {
         let router = self.message_router.read().await;
-        let endpoint = router.get(&message.to_agent).ok_or_else(|| {
-            TransportError::ProtocolError(format!("No route to agent: {}", message.to_agent))
-        })?.clone();
+        let endpoint = router
+            .get(&message.to_agent)
+            .ok_or_else(|| {
+                TransportError::ProtocolError(format!("No route to agent: {}", message.to_agent))
+            })?
+            .clone();
         drop(router);
 
         let client = reqwest::Client::new();
@@ -246,13 +249,12 @@ impl A2aTransport {
             .json(&message)
             .send()
             .await
-            .map_err(|e| TransportError::NetworkError(format!("HTTP request failed: {}", e)))?;
+            .map_err(|e| TransportError::ConnectionFailed(format!("HTTP request failed: {}", e)))?;
 
         let status = resp.status();
-        let body: serde_json::Value = resp
-            .json()
-            .await
-            .map_err(|e| TransportError::DeserializationError(format!("Failed to parse response: {}", e)))?;
+        let body: serde_json::Value = resp.json().await.map_err(|e| {
+            TransportError::SerializationError(e)
+        })?;
 
         if !status.is_success() {
             return Err(TransportError::ProtocolError(format!(
@@ -264,15 +266,27 @@ impl A2aTransport {
         let response = A2aResponse {
             id: uuid::Uuid::new_v4().to_string(),
             correlation_id: message.id,
-            from_agent: body.get("from_agent")
+            from_agent: body
+                .get("from_agent")
                 .and_then(|v| v.as_str())
                 .unwrap_or(&message.to_agent)
                 .to_string(),
             to_agent: self.agent_id.clone(),
-            payload: body.get("payload").cloned().unwrap_or(serde_json::json!({})),
+            payload: body
+                .get("payload")
+                .cloned()
+                .unwrap_or(serde_json::json!({})),
             error: body.get("error").and_then(|v| {
-                let code = v.get("code").and_then(|c| c.as_str()).unwrap_or("UNKNOWN").to_string();
-                let msg = v.get("message").and_then(|m| m.as_str()).unwrap_or("Unknown error").to_string();
+                let code = v
+                    .get("code")
+                    .and_then(|c| c.as_str())
+                    .unwrap_or("UNKNOWN")
+                    .to_string();
+                let msg = v
+                    .get("message")
+                    .and_then(|m| m.as_str())
+                    .unwrap_or("Unknown error")
+                    .to_string();
                 Some(A2aError::new(code, msg))
             }),
             session_id: message.session_id,

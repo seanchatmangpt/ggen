@@ -13,8 +13,7 @@ use std::fs;
 /// JSON-first contract: returns a chatmangpt.mcpp.result.v1 envelope.
 #[verb("mcpp-receipt", "verify")]
 pub async fn verify(
-    #[arg(help = "Path to receipt JSON file")]
-    path: String,
+    #[arg(help = "Path to receipt JSON file")] path: String,
 ) -> clap_noun_verb::Result<String> {
     // Read receipt file
     match fs::read_to_string(&path) {
@@ -56,14 +55,12 @@ pub async fn verify(
                     let is_valid = has_sig && has_hash;
 
                     let env = if is_valid {
-                        Envelope::pass("mcpp.mcpp_receipt.verify", "mcpp").with_data(
-                            json!({
-                                "is_valid": true,
-                                "signature_present": true,
-                                "content_hash_present": true,
-                                "file_path": path
-                            }),
-                        )
+                        Envelope::pass("mcpp.mcpp_receipt.verify", "mcpp").with_data(json!({
+                            "is_valid": true,
+                            "signature_present": true,
+                            "content_hash_present": true,
+                            "file_path": path
+                        }))
                     } else {
                         Envelope::fail(
                             "mcpp.mcpp_receipt.verify",
@@ -71,13 +68,11 @@ pub async fn verify(
                             "VERIFICATION_FAILED",
                             "Receipt missing required signature or content hash",
                         )
-                        .with_data(
-                            json!({
-                                "is_valid": false,
-                                "signature_present": has_sig,
-                                "content_hash_present": has_hash
-                            }),
-                        )
+                        .with_data(json!({
+                            "is_valid": false,
+                            "signature_present": has_sig,
+                            "content_hash_present": has_hash
+                        }))
                     };
 
                     Ok(env.to_json())
@@ -95,8 +90,7 @@ pub async fn verify(
 /// JSON-first contract: returns a chatmangpt.mcpp.result.v1 envelope.
 #[verb("mcpp-receipt", "emit")]
 pub async fn emit(
-    #[arg(help = "Work unit identifier")]
-    work_unit: String,
+    #[arg(help = "Work unit identifier")] work_unit: String,
     #[arg(
         long,
         help = "Evidence entry (key=value format, repeatable)",
@@ -115,14 +109,12 @@ pub async fn emit(
 
     // Build receipt envelope
     let env = Envelope::pass("mcpp.mcpp_receipt.emit", "mcpp")
-        .with_data(
-            json!({
-                "work_unit": work_unit,
-                "evidence": evidence,
-                "timestamp": chrono::Utc::now().to_rfc3339(),
-                "signature": "", // Would be populated by actual signer
-            }),
-        )
+        .with_data(json!({
+            "work_unit": work_unit,
+            "evidence": evidence,
+            "timestamp": chrono::Utc::now().to_rfc3339(),
+            "signature": "", // Would be populated by actual signer
+        }))
         .with_next(
             "mcpp mcpp-receipt verify <receipt-file>",
             "Verify the emitted receipt's integrity.",

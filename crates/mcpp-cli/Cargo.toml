@@ -16,8 +16,10 @@ tokio = { workspace = true }
 anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+chrono = { workspace = true }
 ggen-utils = { workspace = true }
 ggen-ai = { workspace = true }
+ggen-a2a-mcp = { path = "../ggen-a2a-mcp", version = "6.1.0" }
 
 [[bin]]
 name = "mcpp"

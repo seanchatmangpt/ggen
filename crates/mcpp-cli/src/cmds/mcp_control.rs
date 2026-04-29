@@ -12,8 +12,7 @@ use serde_json::json;
 /// JSON-first contract: returns a chatmangpt.mcpp.result.v1 envelope on success or failure.
 #[verb("mcpp-mcp", "serve")]
 pub async fn serve(
-    #[arg(long, default_value = "stdio", help = "MCP transport: stdio or http")]
-    transport: String,
+    #[arg(long, default_value = "stdio", help = "MCP transport: stdio or http")] transport: String,
 ) -> clap_noun_verb::Result<String> {
     // Route to appropriate transport
     match transport.as_str() {
@@ -21,12 +20,10 @@ pub async fn serve(
             // Serve over stdio (standard MCP client pattern)
             match ggen_a2a_mcp::server::serve_stdio().await {
                 Ok(_) => {
-                    let env = Envelope::pass("mcpp.mcpp_mcp.serve", "mcpp").with_data(
-                        json!({
-                            "transport": "stdio",
-                            "status": "listening"
-                        }),
-                    );
+                    let env = Envelope::pass("mcpp.mcpp_mcp.serve", "mcpp").with_data(json!({
+                        "transport": "stdio",
+                        "status": "listening"
+                    }));
                     Ok(env.to_json())
                 }
                 Err(e) => {
@@ -44,13 +41,11 @@ pub async fn serve(
             // Serve over HTTP (for testing or local integration)
             match ggen_a2a_mcp::server::serve_http("127.0.0.1:3000").await {
                 Ok(_) => {
-                    let env = Envelope::pass("mcpp.mcpp_mcp.serve", "mcpp").with_data(
-                        json!({
-                            "transport": "http",
-                            "address": "127.0.0.1:3000",
-                            "status": "listening"
-                        }),
-                    );
+                    let env = Envelope::pass("mcpp.mcpp_mcp.serve", "mcpp").with_data(json!({
+                        "transport": "http",
+                        "address": "127.0.0.1:3000",
+                        "status": "listening"
+                    }));
                     Ok(env.to_json())
                 }
                 Err(e) => {

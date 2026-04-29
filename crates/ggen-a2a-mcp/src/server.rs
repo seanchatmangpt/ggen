@@ -82,9 +82,9 @@ pub async fn serve_http(host: &str, port: u16) -> Result<(), A2aMcpError> {
 /// Validates content-type, parses JSON-RPC, dispatches to tool handlers,
 /// and returns JSON-RPC response.
 async fn handle_mcp_request(
-    State(server): State<Arc<GgenMcpServer>>, headers: HeaderMap, req: Request<Body>,
+    State(_server): State<Arc<GgenMcpServer>>, headers: HeaderMap, req: Request<Body>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    use rmcp::handler::server::tool::ToolRouter;
+    // Note: ToolRouter import removed — MCP dispatch handled directly below
 
     // Validate content-type
     let content_type = headers
@@ -125,8 +125,14 @@ async fn handle_mcp_request(
         .get("method")
         .and_then(|v| v.as_str())
         .unwrap_or("");
-    let params = json_req.get("params").cloned().unwrap_or(serde_json::json!({}));
-    let id = json_req.get("id").cloned().unwrap_or(serde_json::Value::Null);
+    let _params = json_req
+        .get("params")
+        .cloned()
+        .unwrap_or(serde_json::json!({}));
+    let id = json_req
+        .get("id")
+        .cloned()
+        .unwrap_or(serde_json::Value::Null);
 
     // Dispatch to tool handler via rmcp's tool router
     let response = if method == "list_tools" {

@@ -1,4 +1,7 @@
+pub mod a2a_control;
 pub mod autonomics; // mcpp-native
+pub mod mcp_control; // mcpp-native
+pub mod receipt_control; // mcpp-native // mcpp-native
 
 // Re-export all ggen-cli noun modules (25 nouns = 83 ggen verbs)
 pub use ggen_cli_lib::cmds::ai;

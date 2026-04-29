@@ -350,14 +350,14 @@ impl RdfRegistry {
     /// * [`Error::RdfStoreError`] - When inserting into the RDF store fails
     /// * [`Error::SerializationError`] - When serializing package data fails
     pub async fn create_package(&self, package: Package) -> Result<Package> {
-        let _lock = self.write_lock.write();
-
-        // Check if package already exists
+        // Check if package already exists BEFORE acquiring lock (to avoid holding sync lock during async)
         if self.package_exists(&package.metadata.id).await? {
             return Err(crate::error::Error::PackageAlreadyExists {
                 package_id: package.metadata.id.to_string(),
             });
         }
+
+        let _lock = self.write_lock.write();
 
         // Insert package as RDF triples (already holding lock, use inner)
         self.insert_package_rdf_inner(&package)?;
@@ -374,14 +374,14 @@ impl RdfRegistry {
     /// * [`Error::RdfStoreError`] - When updating the RDF store fails
     /// * [`Error::SerializationError`] - When serializing updated package data fails
     pub async fn update_package(&self, id: &PackageId, package: Package) -> Result<Package> {
-        let _lock = self.write_lock.write();
-
-        // Check if package exists
+        // Check if package exists BEFORE acquiring lock (to avoid holding sync lock during async)
         if !self.package_exists(id).await? {
             return Err(crate::error::Error::PackageNotFound {
                 package_id: id.to_string(),
             });
         }
+
+        let _lock = self.write_lock.write();
 
         // Delete old package data via SPARQL DELETE
         self.delete_package_triples(id)?;
@@ -400,14 +400,15 @@ impl RdfRegistry {
     /// * [`Error::PackageNotFound`] - When the package does not exist
     /// * [`Error::RdfStoreError`] - When deleting from the RDF store fails
     pub async fn delete_package(&self, id: &PackageId) -> Result<()> {
-        let _lock = self.write_lock.write();
-
-        // Check if package exists
+        // Check if package exists BEFORE acquiring lock (to avoid holding sync lock during async)
         if !self.package_exists(id).await? {
             return Err(crate::error::Error::PackageNotFound {
                 package_id: id.to_string(),
             });
         }
+
+        // Now acquire lock for the actual deletion
+        let _lock = self.write_lock.write();
 
         // Delete package via SPARQL DELETE
         self.delete_package_triples(id)?;
