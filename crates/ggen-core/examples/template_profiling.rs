@@ -34,7 +34,7 @@ fn main() {
             result.push_str(&i.to_string());
             result.push_str(" = value");
             result.push_str(&i.to_string());
-            result.push_str("\n");
+            result.push('\n');
         }
         std::hint::black_box(result);
     }
