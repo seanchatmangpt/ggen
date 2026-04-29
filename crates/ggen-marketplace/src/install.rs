@@ -11,13 +11,13 @@
 
 use async_trait::async_trait;
 use flate2::read::GzDecoder;
+use semver::Version;
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use tracing::{debug, info, instrument, span, warn};
 use uuid::Uuid;
-use semver::Version;
 
 use crate::cache::{CachedPack, PackCache};
 use crate::error::{Error, Result};
@@ -250,11 +250,13 @@ impl<R: AsyncRepository> Installer<R> {
 
         // Parse all versions and group by package ID
         for (pkg_id, version_str) in dependencies {
-            let version = Version::parse(version_str.as_str()).map_err(|_| {
-                Error::ValidationFailed {
-                    reason: format!("Invalid semver version '{}' for package {}", version_str, pkg_id),
-                }
-            })?;
+            let version =
+                Version::parse(version_str.as_str()).map_err(|_| Error::ValidationFailed {
+                    reason: format!(
+                        "Invalid semver version '{}' for package {}",
+                        version_str, pkg_id
+                    ),
+                })?;
 
             package_versions
                 .entry(pkg_id.clone())

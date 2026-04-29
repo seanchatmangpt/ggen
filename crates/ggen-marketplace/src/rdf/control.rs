@@ -865,7 +865,8 @@ impl RdfControlPlane {
                         let name = extract_literal_from_solution(&solution, "name");
                         let description = extract_literal_from_solution(&solution, "description");
                         let version_str = extract_literal_from_solution(&solution, "version");
-                        let version = PackageVersion::new(version_str).unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
+                        let version = PackageVersion::new(version_str)
+                            .unwrap_or_else(|_| PackageVersion::new("1.0.0").unwrap());
 
                         // Determine relevance: 1.0 for name match, 0.5 for description match
                         let relevance = if name.to_lowercase().contains(&keyword.to_lowercase()) {
@@ -949,7 +950,10 @@ impl RdfControlPlane {
         };
 
         let errors = if !is_valid {
-            vec![format!("Package {} does not exist in marketplace", package_id)]
+            vec![format!(
+                "Package {} does not exist in marketplace",
+                package_id
+            )]
         } else {
             Vec::new()
         };
