@@ -161,10 +161,13 @@ impl RdfRegistry {
 
         // Parse results
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
-            for solution in solutions.flatten() {
-                for (_, term) in solution.iter() {
-                    if let Term::NamedNode(node) = term {
-                        packages.push(node.as_str().to_string());
+            for solution in solutions {
+                if let Ok(solution) = solution {
+                    for (_, term) in solution.iter() {
+                        if let Term::NamedNode(node) = term {
+                            packages.push(node.as_str().to_string());
+                            break;  // Take first variable per solution
+                        }
                     }
                 }
             }
@@ -325,10 +328,10 @@ impl RdfRegistry {
             r#"
             PREFIX mp: <https://ggen.io/marketplace/>
             DELETE {{
-                <https://ggen.io/marketplace/{0}> ?p ?o .
+                <https://ggen.io/marketplace/packages/{0}> ?p ?o .
             }}
             WHERE {{
-                <https://ggen.io/marketplace/{0}> ?p ?o .
+                <https://ggen.io/marketplace/packages/{0}> ?p ?o .
             }}
             "#,
             id
