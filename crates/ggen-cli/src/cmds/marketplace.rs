@@ -327,9 +327,11 @@ struct PackageInfo {
 
 /// Get list of packages available in the marketplace
 fn get_marketplace_packages(_registry: &Registry, _force: bool) -> VerbResult<Vec<PackageInfo>> {
-    // In production, this would fetch from the marketplace registry
-    // For now, return empty list (marketplace is seeded via other means)
-    Ok(Vec::new())
+    // Marketplace registry sync is not yet implemented
+    // Use 'ggen packs install <pack-id>' to install packs directly
+    Err(clap_noun_verb::NounVerbError::execution_error(
+        "Marketplace registry sync is not yet implemented. Use 'ggen packs install <pack-id>' to install packs."
+    ))
 }
 
 /// Check if a package needs to be updated based on checksum

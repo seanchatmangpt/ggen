@@ -9,6 +9,7 @@
 use async_trait::async_trait;
 use std::sync::Arc;
 use tracing::info;
+use semver::Version;
 
 use crate::error::Result;
 use crate::models::{Manifest, Package};
@@ -160,12 +161,168 @@ impl Validatable for PackageValidator {
         self.validate_all(package).await
     }
 
-    async fn validate_manifest(&self, _manifest: &Manifest) -> Result<Self::ValidationResult> {
-        // Manifest validation would go here
+    async fn validate_manifest(&self, manifest: &Manifest) -> Result<Self::ValidationResult> {
+        let mut checks = Vec::new();
+        let mut passed_count = 0u32;
+        let total_checks = 7u32;
+
+        // Check 1: Non-empty ID
+        let id_str = manifest.id.as_str();
+        let id_check = if id_str.is_empty() {
+            ValidationCheck {
+                name: "Non-empty ID".to_string(),
+                passed: false,
+                severity: CheckSeverity::Critical,
+                message: "Manifest ID cannot be empty".to_string(),
+                weight: 100 / total_checks,
+            }
+        } else {
+            passed_count += 1;
+            ValidationCheck {
+                name: "Non-empty ID".to_string(),
+                passed: true,
+                severity: CheckSeverity::Minor,
+                message: "Manifest has valid ID".to_string(),
+                weight: 100 / total_checks,
+            }
+        };
+        checks.push(id_check);
+
+        // Check 2: Valid semver version
+        let version_check = match Version::parse(manifest.version.as_str()) {
+            Ok(_) => {
+                passed_count += 1;
+                ValidationCheck {
+                    name: "Valid semver version".to_string(),
+                    passed: true,
+                    severity: CheckSeverity::Minor,
+                    message: format!("Version '{}' is valid semver", manifest.version),
+                    weight: 100 / total_checks,
+                }
+            }
+            Err(_) => ValidationCheck {
+                name: "Valid semver version".to_string(),
+                passed: false,
+                severity: CheckSeverity::Critical,
+                message: format!("Version '{}' is not valid semver", manifest.version),
+                weight: 100 / total_checks,
+            },
+        };
+        checks.push(version_check);
+
+        // Check 3: Non-empty name (from metadata)
+        let name_check = if manifest.metadata.name.is_empty() {
+            ValidationCheck {
+                name: "Non-empty name".to_string(),
+                passed: false,
+                severity: CheckSeverity::Critical,
+                message: "Package name cannot be empty".to_string(),
+                weight: 100 / total_checks,
+            }
+        } else {
+            passed_count += 1;
+            ValidationCheck {
+                name: "Non-empty name".to_string(),
+                passed: true,
+                severity: CheckSeverity::Minor,
+                message: "Package has valid name".to_string(),
+                weight: 100 / total_checks,
+            }
+        };
+        checks.push(name_check);
+
+        // Check 4: Non-empty description (from metadata)
+        let desc_check = if manifest.metadata.description.is_empty() {
+            ValidationCheck {
+                name: "Non-empty description".to_string(),
+                passed: false,
+                severity: CheckSeverity::Major,
+                message: "Package description cannot be empty".to_string(),
+                weight: 100 / total_checks,
+            }
+        } else {
+            passed_count += 1;
+            ValidationCheck {
+                name: "Non-empty description".to_string(),
+                passed: true,
+                severity: CheckSeverity::Minor,
+                message: "Package has valid description".to_string(),
+                weight: 100 / total_checks,
+            }
+        };
+        checks.push(desc_check);
+
+        // Check 5: Max ID length (≤ 64 chars)
+        let id_len_check = if id_str.len() > 64 {
+            ValidationCheck {
+                name: "ID max length (64)".to_string(),
+                passed: false,
+                severity: CheckSeverity::Major,
+                message: format!("ID length {} exceeds maximum 64 chars", id_str.len()),
+                weight: 100 / total_checks,
+            }
+        } else {
+            passed_count += 1;
+            ValidationCheck {
+                name: "ID max length (64)".to_string(),
+                passed: true,
+                severity: CheckSeverity::Minor,
+                message: "ID length is valid".to_string(),
+                weight: 100 / total_checks,
+            }
+        };
+        checks.push(id_len_check);
+
+        // Check 6: Valid license string (non-empty, ASCII)
+        let license_check = if manifest.metadata.license.is_empty() || !manifest.metadata.license.is_ascii() {
+            ValidationCheck {
+                name: "Valid license string".to_string(),
+                passed: false,
+                severity: CheckSeverity::Major,
+                message: "License must be non-empty and ASCII".to_string(),
+                weight: 100 / total_checks,
+            }
+        } else {
+            passed_count += 1;
+            ValidationCheck {
+                name: "Valid license string".to_string(),
+                passed: true,
+                severity: CheckSeverity::Minor,
+                message: "License is valid".to_string(),
+                weight: 100 / total_checks,
+            }
+        };
+        checks.push(license_check);
+
+        // Check 7: At least 1 author
+        let authors_check = if manifest.metadata.authors.is_empty() {
+            ValidationCheck {
+                name: "At least one author".to_string(),
+                passed: false,
+                severity: CheckSeverity::Major,
+                message: "Package must have at least one author".to_string(),
+                weight: 100 / total_checks,
+            }
+        } else {
+            passed_count += 1;
+            ValidationCheck {
+                name: "At least one author".to_string(),
+                passed: true,
+                severity: CheckSeverity::Minor,
+                message: format!("Package has {} author(s)", manifest.metadata.authors.len()),
+                weight: 100 / total_checks,
+            }
+        };
+        checks.push(authors_check);
+
+        // Compute weighted quality score
+        let quality_score = (passed_count * 100) / total_checks;
+        let passed = quality_score >= 80;
+
         Ok(ValidationResult {
-            passed: true,
-            quality_score: 100,
-            checks: vec![],
+            passed,
+            quality_score,
+            checks,
         })
     }
 

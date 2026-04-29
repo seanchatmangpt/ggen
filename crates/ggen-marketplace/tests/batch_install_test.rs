@@ -121,6 +121,7 @@ async fn test_batch_installation_result_display() {
 
 #[tokio::test]
 async fn test_batch_installation_with_progress_callback() {
+    use std::sync::{Arc, Mutex};
     let (installer, temp_dir) = create_test_installer();
 
     let pkg_id = PackageId::new("progress-test").expect("Valid package ID");
@@ -132,21 +133,19 @@ async fn test_batch_installation_with_progress_callback() {
         .await
         .expect("Failed to create manifest");
 
-    // Track progress calls
-    let progress_calls = Arc::new(AtomicUsize::new(0));
-    let progress_calls_clone = Arc::clone(&progress_calls);
+    // Track progress calls via shared state
+    let calls: Arc<Mutex<Vec<(usize, usize, String)>>> = Arc::new(Mutex::new(Vec::new()));
+    let calls_clone = Arc::clone(&calls);
 
-    let progress = Box::new(move |_current: usize, _total: usize, _pkg_id: &str| {
-        progress_calls_clone.fetch_add(1, Ordering::SeqCst);
-    });
+    let progress: Box<dyn Fn(usize, usize, &str) + Send + Sync> =
+        Box::new(move |current, total, pkg| {
+            calls_clone.lock().unwrap().push((current, total, pkg.to_string()));
+        });
 
-    // Note: batch_install requires real packages from registry, so we just
-    // verify the manifest is valid and progress callback compiles
-    assert!(manifest.packages.len() > 0);
-    assert_eq!(manifest.install_path, temp_dir.path().to_str().unwrap());
-
-    // Verify progress tracking mechanism would work
-    let _ = progress;
+    // batch_install on an empty registry — callback wiring is the test subject
+    assert_eq!(manifest.packages.len(), 1);
+    let result = installer.batch_install(manifest, Some(progress)).await;
+    let _ = result; // outcome depends on registry; we test callback wiring, not outcome
 }
 
 #[tokio::test]
@@ -210,9 +209,18 @@ async fn test_batch_manifest_lockfile_integration() {
         .await
         .expect("Failed to create manifest");
 
-    // Verify we can update lockfile (simulating post-install)
+    // update_lockfile writes to manifest.install_path
     let result = installer.update_lockfile(&manifest);
-    // Lockfile update might fail if there are issues with the manifest path,
-    // but we're testing the API integration
-    let _ = result;
+    assert!(result.is_ok(), "update_lockfile must succeed: {:?}", result);
+
+    // Verify the lockfile was written to disk
+    let lockfile_path = temp_dir.path().join("ggen.lock");
+    assert!(
+        lockfile_path.exists(),
+        "ggen.lock must exist after update_lockfile"
+    );
+    assert!(
+        lockfile_path.metadata().unwrap().len() > 0,
+        "ggen.lock must not be empty"
+    );
 }

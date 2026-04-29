@@ -46,10 +46,7 @@ fn test_v3_parallel_search() {
 
     // Search
     let results = registry.search_parallel("test");
-    assert!(
-        results.is_empty() || results.len() > 0,
-        "search should execute without error"
-    );
+    assert_eq!(results.len(), 1, "searching 'test' should find exactly the one indexed package");
 }
 
 /// Test: Metrics snapshot collection
@@ -129,7 +126,7 @@ fn test_v3_search_index_update() {
 
     // Search should find it
     let results = registry.search_parallel("awesome");
-    assert!(results.len() >= 0, "search should execute");
+    assert!(!results.is_empty(), "searching 'awesome' should find 'My Awesome Package'");
 }
 
 /// Test: Display formatting for stats and metrics

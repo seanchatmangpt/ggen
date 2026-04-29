@@ -29,7 +29,7 @@ pub fn resolve_capability_to_packs(
         "mcp" => vec!["mcp-rust"],
 
         // SOC2 compliance
-        "compliance.soc2" => vec!["enterprise-backend"],
+        "compliance-soc2" => vec!["enterprise-backend"],
 
         // Web surface
         "web" => match projection {
@@ -53,7 +53,7 @@ pub fn resolve_capability_to_packs(
         _ => {
             return Err(format!(
                 "Unknown capability surface '{}'. \
-                 Available surfaces: mcp, compliance.soc2, web, devops, \
+                 Available surfaces: mcp, compliance-soc2, web, devops, \
                  data-science, startup, enterprise",
                 surface
             ));
@@ -109,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_compliance_soc2_resolves_to_enterprise_backend() {
-        let packs = resolve_capability_to_packs("compliance.soc2", None, None).unwrap();
+        let packs = resolve_capability_to_packs("compliance-soc2", None, None).unwrap();
         assert_eq!(packs, vec!["enterprise-backend"]);
     }
 

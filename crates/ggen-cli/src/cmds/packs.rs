@@ -303,11 +303,19 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
     // Create pack structure
     create_pack_structure(&pack_dir, pack_id)?;
 
-    // Update lockfile
-    let lock_path = update_lockfile(pack_id, &cache_dir)?;
-
-    // Calculate digest
+    // Calculate digest (before updating lockfile)
     let (digest, size_bytes) = calculate_pack_digest(&pack_dir);
+
+    // Read real version from pack metadata
+    let version = ggen_domain::packs::metadata::load_pack_metadata(pack_id)
+        .map(|p| p.version)
+        .unwrap_or_else(|_| "1.0.0".to_string());
+
+    // Format integrity as sha256-{hex}
+    let integrity = Some(format!("sha256-{}", digest));
+
+    // Update lockfile with real version and integrity
+    let lock_path = update_lockfile(pack_id, &cache_dir, &version, integrity)?;
 
     // Stage pack contributions for sync pipeline (non-fatal)
     if let Err(e) = stage_pack_for_sync(&pack_dir, pack_id) {
@@ -420,7 +428,9 @@ installed_at = "{}"
     Ok(())
 }
 
-fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std::path::PathBuf> {
+fn update_lockfile(
+    pack_id: &str, cache_dir: &std::path::Path, version: &str, integrity: Option<String>,
+) -> VerbResult<std::path::PathBuf> {
     use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
     use std::fs;
 
@@ -452,11 +462,11 @@ fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std
     lockfile.add_pack(
         pack_id.to_string(),
         LockedPack {
-            version: "1.0.0".to_string(),
+            version: version.to_string(),
             source: PackSource::Local {
                 path: cache_dir.to_path_buf(),
             },
-            integrity: None,
+            integrity,
             installed_at: chrono::Utc::now(),
             dependencies: vec![],
         },
@@ -577,15 +587,16 @@ fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
                 warnings: result.warnings,
             })
         }
-        Err(_) => {
+        Err(e) => {
             // Pack not found or validation error
-            let message = format!("Pack '{}' not found or invalid", pack_id);
+            let error_message = e.to_string();
+            let message = format!("Pack '{}' validation failed: {}", pack_id, error_message);
             Ok(ValidateOutput {
                 pack_id,
                 valid: false,
                 message,
                 package_count: None,
-                errors: vec![],
+                errors: vec![error_message],
                 warnings: vec![],
             })
         }

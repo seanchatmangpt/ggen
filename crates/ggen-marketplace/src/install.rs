@@ -17,6 +17,7 @@ use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use tracing::{debug, info, instrument, span, warn};
 use uuid::Uuid;
+use semver::Version;
 
 use crate::cache::{CachedPack, PackCache};
 use crate::error::{Error, Result};
@@ -244,8 +245,42 @@ impl<R: AsyncRepository> Installer<R> {
     pub fn check_conflicts(
         &self, dependencies: &indexmap::IndexMap<PackageId, PackageVersion>,
     ) -> Result<()> {
-        // In a real implementation, this would check semantic version constraints
-        // For now, we allow any version combination
+        // Check for version conflicts - same package with incompatible major versions
+        let mut package_versions: HashMap<PackageId, Vec<Version>> = HashMap::new();
+
+        // Parse all versions and group by package ID
+        for (pkg_id, version_str) in dependencies {
+            let version = Version::parse(version_str.as_str()).map_err(|_| {
+                Error::ValidationFailed {
+                    reason: format!("Invalid semver version '{}' for package {}", version_str, pkg_id),
+                }
+            })?;
+
+            package_versions
+                .entry(pkg_id.clone())
+                .or_insert_with(Vec::new)
+                .push(version);
+        }
+
+        // Check for incompatible major versions for the same package
+        for (pkg_id, versions) in package_versions {
+            if versions.len() > 1 {
+                // Check if all versions have the same major version
+                let major_versions: std::collections::HashSet<u64> =
+                    versions.iter().map(|v| v.major).collect();
+
+                if major_versions.len() > 1 {
+                    return Err(Error::DependencyResolutionFailed {
+                        package_id: pkg_id.to_string(),
+                        reason: format!(
+                            "Incompatible versions for package {}: found {} different major versions",
+                            pkg_id,
+                            major_versions.len()
+                        ),
+                    });
+                }
+            }
+        }
 
         debug!("Checked {} dependencies for conflicts", dependencies.len());
 
@@ -1028,9 +1063,14 @@ impl<R: AsyncRepository> Installer<R> {
     ) -> HashMap<PackageId, Vec<PackageId>> {
         let mut graph = HashMap::new();
 
+        // Initialize all packages in the dependency set with empty edge lists
         for (pkg_id, _) in dependencies {
             graph.insert(pkg_id.clone(), Vec::new());
         }
+
+        // In a real implementation, we would populate edges from package metadata
+        // that specifies dependencies. For now, we return the initialized graph.
+        // The actual dependency data would come from the repository's package metadata.
 
         graph
     }

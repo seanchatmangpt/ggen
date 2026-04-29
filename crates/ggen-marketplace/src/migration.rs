@@ -9,12 +9,13 @@
 #![allow(clippy::missing_errors_doc)]
 
 use crate::error::Result;
-use crate::models::{Package, PackageId, PackageVersion};
+use crate::models::{Package, PackageId, PackageVersion, ReleaseInfo};
 use crate::registry_rdf::RdfRegistry;
 use crate::traits::AsyncRepository;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use tracing::{info, warn};
+use semver::Version;
 
 // ============================================================================
 // PACK UPGRADE MIGRATION SYSTEM
@@ -263,20 +264,61 @@ impl Migrator {
     ) -> Result<()> {
         info!("Applying migration transform: {} -> {}", from, to);
 
-        // Example transforms (these are patterns; real transforms would be version-specific)
-        // v1 → v2: Add new required field with default
-        // v2 → v3: Rename field, transform structure
-        // v2a → v2b: Branching path, specific rules for branch
+        // Parse versions as semver for comparison
+        let from_semver = Version::parse(from.as_str()).map_err(|_| {
+            crate::error::Error::ValidationFailed {
+                reason: format!("Invalid semver version: {}", from),
+            }
+        })?;
 
-        // For now, ensure the package metadata is preserved
+        let to_semver = Version::parse(to.as_str()).map_err(|_| {
+            crate::error::Error::ValidationFailed {
+                reason: format!("Invalid semver version: {}", to),
+            }
+        })?;
+
+        // Reject downgrades (from_version >= to_version)
+        if from_semver >= to_semver {
+            return Err(crate::error::Error::ValidationFailed {
+                reason: format!(
+                    "Cannot downgrade from {} to {}. Migrations only support upgrades.",
+                    from, to
+                ),
+            });
+        }
+
+        // Ensure package metadata is valid
         if package.metadata.id.as_str().is_empty() {
             return Err(crate::error::Error::ValidationFailed {
                 reason: "Package ID cannot be empty during migration".to_string(),
             });
         }
 
-        // Validate versions are in correct order (from < to for semver)
-        // This is a basic validation; real implementations would use semver crate
+        // Create ReleaseInfo for the target version if it doesn't exist
+        if !package.releases.contains_key(to) {
+            use crate::trust::TrustTier;
+            let release_info = ReleaseInfo {
+                version: to.clone(),
+                released_at: chrono::Utc::now(),
+                changelog: String::new(),
+                checksum: String::new(),
+                signature: None,
+                download_url: String::new(),
+                dependencies: Vec::new(),
+                trust_tier: TrustTier::Experimental,
+                registry_class: crate::models::default_registry_class(),
+            };
+            package.releases.insert(to.clone(), release_info);
+        }
+
+        // Update the package's updated_at timestamp to current time
+        package.metadata.updated_at = chrono::Utc::now();
+
+        info!(
+            "Migration transform complete: {} -> {} for package {}",
+            from, to, package.metadata.id
+        );
+
         Ok(())
     }
 
