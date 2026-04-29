@@ -1,5 +1,5 @@
-pub mod autonomics;
 pub mod a2a_control;
+pub mod autonomics;
 pub mod mcp_control;
 pub mod receipt_control;
 
