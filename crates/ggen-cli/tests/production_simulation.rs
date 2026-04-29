@@ -1,3 +1,5 @@
+#![cfg(feature = "marketplace-live")]
+
 //! Production Environment Simulation Tests
 //!
 //! These tests simulate a production environment with:

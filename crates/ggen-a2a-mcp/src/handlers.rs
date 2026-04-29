@@ -1315,19 +1315,18 @@ mod tests {
             .map(|t| t.contains("test-stream"))
             .unwrap_or(false));
     }
-}
 
-// Helper extension for UnifiedContent
-#[allow(dead_code)]
-trait UnifiedContentExt {
-    fn as_text(&self) -> Option<&str>;
-}
+    // Helper extension for UnifiedContent
+    trait UnifiedContentExt {
+        fn as_text(&self) -> Option<&str>;
+    }
 
-impl UnifiedContentExt for UnifiedContent {
-    fn as_text(&self) -> Option<&str> {
-        match self {
-            Self::Text { content, .. } => Some(content),
-            _ => None,
+    impl UnifiedContentExt for UnifiedContent {
+        fn as_text(&self) -> Option<&str> {
+            match self {
+                Self::Text { content, .. } => Some(content),
+                _ => None,
+            }
         }
     }
 }

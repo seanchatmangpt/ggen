@@ -92,6 +92,8 @@ paas = []
 # Testing features
 live-llm-tests = [] # Opt-in for live LLM integration tests
 integration = [] # Gate tests that reference missing/future crates
+marketplace-live = [] # Live marketplace tests
+node-tests = [] # Node.js tests
 
 # A2A Protocol support - temporarily disabled due to compilation errors
 use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
@@ -172,4 +174,9 @@ required-features = ["integration"]
 name = "sabotage_tests"
 path = "tests/sabotage_tests.rs"
 required-features = ["integration"]
+
+[[test]]
+name = "production_simulation"
+path = "tests/production_simulation.rs"
+required-features = ["marketplace-live"]
 

@@ -41,7 +41,7 @@ fn test_lint_workflow_all_checks_enabled() -> Result<()> {
     let report = lint_template(&fixture_path("template_with_sparql.toml"), &options)?;
 
     // Should perform all validations
-    assert!(report.warnings.len() > 0, "Should find SPARQL warnings");
+    assert!(!report.warnings.is_empty(), "Should find SPARQL warnings");
 
     Ok(())
 }

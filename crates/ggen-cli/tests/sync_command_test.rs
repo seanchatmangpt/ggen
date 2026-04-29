@@ -607,6 +607,7 @@ mod integration_tests {
                 ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
             )),
             llm_service: None,
+            timeout_ms: None,
         };
 
         assert_eq!(options.manifest_path, PathBuf::from("project/ggen.toml"));
@@ -636,6 +637,7 @@ mod integration_tests {
                 ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
             )),
             llm_service: None,
+            timeout_ms: None,
         };
 
         assert!(options.audit);
@@ -666,6 +668,7 @@ mod integration_tests {
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
+            timeout_ms: None,
         };
 
         assert!(options.validate_only);
@@ -690,6 +693,7 @@ mod integration_tests {
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
+            timeout_ms: None,
         };
 
         assert!(options.dry_run);
@@ -715,6 +719,7 @@ mod integration_tests {
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
+            timeout_ms: None,
         };
 
         assert!(options.watch);
@@ -740,6 +745,7 @@ mod integration_tests {
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
+            timeout_ms: None,
         };
 
         assert!(matches!(options.output_format, OutputFormat::Json));

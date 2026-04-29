@@ -21,7 +21,6 @@ fn test_groq_llm_bridge_implements_llm_service() {
 
     // Test 2: Bridge implements clone_box
     let _cloned = bridge.clone_box();
-    assert!(true, "clone_box should work");
 }
 
 #[test]

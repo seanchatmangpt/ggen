@@ -20,7 +20,6 @@ mod receipt_tests {
 
         // In actual usage, ReceiptManager::new() would be called here
         // For now, we just verify the module compiles
-        assert!(true);
     }
 
     #[test]
@@ -28,6 +27,5 @@ mod receipt_tests {
         // Verify that the receipt_manager module compiles
         // This is a compile-time test
         let _ = std::path::PathBuf::new();
-        assert!(true);
     }
 }

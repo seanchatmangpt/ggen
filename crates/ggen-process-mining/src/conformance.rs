@@ -462,7 +462,7 @@ mod tests {
 
         assert_eq!(report.conforming_count(), 1);
         assert_eq!(report.non_conforming_count(), 1);
-        assert_eq!(report.conforming_percentage(), 50.0);
+        assert!((report.conforming_percentage() - 50.0).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -482,7 +482,7 @@ mod tests {
         let checker = ConformanceChecker::new();
         let report = checker.check(&net, &log).unwrap();
 
-        assert_eq!(report.fitness, 1.0); // No violations in empty log
+        assert!((report.fitness - 1.0).abs() < f64::EPSILON); // No violations in empty log
         assert_eq!(report.trace_results.len(), 0);
     }
 }

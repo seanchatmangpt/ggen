@@ -1339,7 +1339,7 @@ impl GgenMcpServer {
             McpError::invalid_params(format!("Task not found: {}", params.task_id), None)
         })?;
 
-        let old_state = task.state.clone();
+        let old_state = task.state;
         task.state = new_state;
         task.updated_at = chrono::Utc::now().to_rfc3339();
 
@@ -2133,7 +2133,7 @@ impl GgenMcpServer {
             }
         };
 
-        let old_state = task.state.clone();
+        let old_state = task.state;
         task.state = new_state;
         task.updated_at = chrono::Utc::now().to_rfc3339();
 

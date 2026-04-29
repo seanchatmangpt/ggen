@@ -470,7 +470,7 @@ mod tests {
             .with_min_support(0.5);
 
         assert!(!miner.config().validate_output);
-        assert_eq!(miner.config().min_support, 0.5);
+        assert!((miner.config().min_support - 0.5).abs() < f64::EPSILON);
     }
 
     #[test]
@@ -531,7 +531,7 @@ mod tests {
     #[test]
     fn test_alpha_plusplus_default() {
         let algo = AlphaPlusPlus::default();
-        assert_eq!(algo.min_support, 0.1);
+        assert!((algo.min_support - 0.1).abs() < f64::EPSILON);
         assert!(algo.validate);
     }
 }

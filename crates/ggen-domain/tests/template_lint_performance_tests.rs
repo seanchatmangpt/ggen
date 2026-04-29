@@ -236,7 +236,7 @@ fn bench_lint_error_accumulation() -> Result<()> {
         duration.as_millis()
     );
 
-    assert!(report.errors.len() > 0, "Should have accumulated errors");
+    assert!(!report.errors.is_empty(), "Should have accumulated errors");
 
     Ok(())
 }
