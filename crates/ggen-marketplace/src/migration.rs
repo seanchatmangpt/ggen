@@ -12,10 +12,10 @@ use crate::error::Result;
 use crate::models::{Package, PackageId, PackageVersion, ReleaseInfo};
 use crate::registry_rdf::RdfRegistry;
 use crate::traits::AsyncRepository;
+use semver::Version;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use tracing::{info, warn};
-use semver::Version;
 
 // ============================================================================
 // PACK UPGRADE MIGRATION SYSTEM
@@ -265,17 +265,15 @@ impl Migrator {
         info!("Applying migration transform: {} -> {}", from, to);
 
         // Parse versions as semver for comparison
-        let from_semver = Version::parse(from.as_str()).map_err(|_| {
-            crate::error::Error::ValidationFailed {
+        let from_semver =
+            Version::parse(from.as_str()).map_err(|_| crate::error::Error::ValidationFailed {
                 reason: format!("Invalid semver version: {}", from),
-            }
-        })?;
+            })?;
 
-        let to_semver = Version::parse(to.as_str()).map_err(|_| {
-            crate::error::Error::ValidationFailed {
+        let to_semver =
+            Version::parse(to.as_str()).map_err(|_| crate::error::Error::ValidationFailed {
                 reason: format!("Invalid semver version: {}", to),
-            }
-        })?;
+            })?;
 
         // Reject downgrades (from_version >= to_version)
         if from_semver >= to_semver {
