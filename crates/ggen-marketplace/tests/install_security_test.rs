@@ -355,8 +355,15 @@ fn test_ed25519_valid_signature_verifies() {
     .sign(&signing_key)
     .expect("signing must succeed");
 
-    assert!(!receipt.signature.is_empty(), "signature field must be populated");
-    assert_eq!(receipt.signature.len(), 128, "Ed25519 signature hex is 64 bytes = 128 chars");
+    assert!(
+        !receipt.signature.is_empty(),
+        "signature field must be populated"
+    );
+    assert_eq!(
+        receipt.signature.len(),
+        128,
+        "Ed25519 signature hex is 64 bytes = 128 chars"
+    );
 
     receipt
         .verify(&verifying_key)

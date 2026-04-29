@@ -434,16 +434,19 @@ fn run_manifest_pipeline(
         })
         .collect();
 
-    let receipt_file_path = emit_sync_receipt_best_effort(&SyncResult {
-        status: "success".to_string(),
-        files_synced,
-        duration_ms,
-        files: synced_file_infos,
-        inference_rules_executed: 0,
-        generation_rules_executed: files_synced,
-        audit_trail: None,
-        error: None,
-    }, &installed_packs);
+    let receipt_file_path = emit_sync_receipt_best_effort(
+        &SyncResult {
+            status: "success".to_string(),
+            files_synced,
+            duration_ms,
+            files: synced_file_infos,
+            inference_rules_executed: 0,
+            generation_rules_executed: files_synced,
+            audit_trail: None,
+            error: None,
+        },
+        &installed_packs,
+    );
 
     Ok(SyncOutput {
         status: "success".to_string(),

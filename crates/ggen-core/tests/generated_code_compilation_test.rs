@@ -174,7 +174,7 @@ fn render_template_with_graph(
     let template_content = std::fs::read_to_string(&template_path)
         .unwrap_or_else(|e| panic!("Cannot read {}: {}", template_path.display(), e));
 
-    let template_name = template_filename.replace('/', "_").replace('.', "_");
+    let template_name = template_filename.replace(['/', '.'], "_");
     tera.add_raw_template(&template_name, &template_content)
         .unwrap_or_else(|e| panic!("Template parse error for {}: {}", template_filename, e));
 

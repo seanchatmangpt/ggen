@@ -96,10 +96,13 @@ impl CapabilityScanner {
                 continue;
             }
 
+            let line_lower = line.to_lowercase();
             for pattern in &capability_patterns {
-                if line.contains(pattern) {
-                    // Extract the identifier
-                    if let Some(ident) = self.extract_capability_identifier(line, pattern) {
+                let pattern_lower = pattern.to_lowercase();
+                if line_lower.contains(&pattern_lower) {
+                    // Extract the identifier using case-insensitive position
+                    if let Some(ident) = self.extract_capability_identifier_ci(line, &pattern_lower)
+                    {
                         // Check if this capability is ontology-backed
                         let normalized = ident.to_lowercase();
                         if !self
@@ -121,10 +124,11 @@ impl CapabilityScanner {
         Ok(())
     }
 
-    fn extract_capability_identifier(&self, line: &str, pattern: &str) -> Option<String> {
-        // Simple extraction: find the word containing the pattern
-        let idx = line.find(pattern)?;
-        // Find word boundaries
+    /// Case-insensitive variant: find the word in `line` that contains `pattern_lower`
+    fn extract_capability_identifier_ci(&self, line: &str, pattern_lower: &str) -> Option<String> {
+        let line_lower = line.to_lowercase();
+        let idx = line_lower.find(pattern_lower)?;
+        // Find word boundaries in the original line
         let start = line[..idx]
             .rfind(|c: char| !c.is_alphanumeric() && c != '_')
             .map(|i| i + 1)
@@ -134,7 +138,7 @@ impl CapabilityScanner {
             .map(|i| idx + i)
             .unwrap_or(line.len());
         let ident = line[start..end].trim().to_string();
-        if ident.len() > 2 && ident.contains(pattern) {
+        if ident.len() > 2 && line_lower[start..end].contains(pattern_lower) {
             Some(ident)
         } else {
             None

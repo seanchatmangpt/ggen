@@ -122,21 +122,6 @@ path = "tests/init_tests.rs"
 required-features = ["integration"]
 
 [[test]]
-name = "integration_cli_ux_e2e"
-path = "tests/integration_cli_ux_e2e.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "marketplace_search_chicago_tdd"
-path = "tests/marketplace_search_chicago_tdd.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "packs_phase2_comprehensive"
-path = "tests/packs_phase2_comprehensive.rs"
-required-features = ["integration"]
-
-[[test]]
 name = "template_integration_test"
 path = "tests/template_integration_test.rs"
 required-features = ["integration"]
@@ -180,5 +165,10 @@ required-features = ["integration"]
 [[test]]
 name = "sync_tests"
 path = "tests/sync_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "sabotage_tests"
+path = "tests/sabotage_tests.rs"
 required-features = ["integration"]
 

@@ -96,7 +96,19 @@ impl RdfRegistry {
         debug!("Initialized RDF marketplace ontology");
     }
 
-    /// Insert a package as RDF triples using the mapper
+    /// Insert a package as RDF triples (inner, no lock acquisition)
+    ///
+    /// This is called by methods that already hold the write lock.
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
+    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    fn insert_package_rdf_inner(&self, package: &Package) -> Result<()> {
+        self.mapper.package_to_rdf(package)
+    }
+
+    /// Insert a package as RDF triples using the mapper (public wrapper with locking)
     ///
     /// # Errors
     ///
@@ -104,7 +116,7 @@ impl RdfRegistry {
     /// * [`Error::SerializationError`] - When serializing package data to RDF fails
     pub fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
-        self.mapper.package_to_rdf(package)
+        self.insert_package_rdf_inner(package)
     }
 
     /// Batch insert multiple packages for efficient loading
@@ -347,8 +359,8 @@ impl RdfRegistry {
             });
         }
 
-        // Insert package as RDF triples
-        self.insert_package_rdf(&package)?;
+        // Insert package as RDF triples (already holding lock, use inner)
+        self.insert_package_rdf_inner(&package)?;
 
         debug!("Created package {} in RDF store", package.metadata.id);
         Ok(package)
@@ -374,8 +386,8 @@ impl RdfRegistry {
         // Delete old package data via SPARQL DELETE
         self.delete_package_triples(id)?;
 
-        // Insert updated package data
-        self.insert_package_rdf(&package)?;
+        // Insert updated package data (already holding lock, use inner)
+        self.insert_package_rdf_inner(&package)?;
 
         debug!("Updated package {} in RDF store", id);
         Ok(package)

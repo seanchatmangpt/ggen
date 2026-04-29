@@ -591,7 +591,7 @@ async fn example_error_context() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Simulate various errors and report them
-    let errors = vec![
+    let errors = [
         GgenAiError::validation("Invalid temperature value"),
         GgenAiError::rate_limit("TestProvider", Some(60)),
         GgenAiError::timeout("TestProvider", 30),

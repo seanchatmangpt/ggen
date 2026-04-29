@@ -53,6 +53,10 @@ impl Module for MockQA {
 
         Ok(outputs)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 #[tokio::main]
@@ -105,7 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .ok_or_else(|| MetricError::MissingField("answer".to_string()))?;
 
             let word_count = answer.split_whitespace().count();
-            Ok(if word_count >= 1 && word_count <= 20 {
+            Ok(if (1..=20).contains(&word_count) {
                 1.0
             } else {
                 0.0

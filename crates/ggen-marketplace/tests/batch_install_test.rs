@@ -139,7 +139,10 @@ async fn test_batch_installation_with_progress_callback() {
 
     let progress: Box<dyn Fn(usize, usize, &str) + Send + Sync> =
         Box::new(move |current, total, pkg| {
-            calls_clone.lock().unwrap().push((current, total, pkg.to_string()));
+            calls_clone
+                .lock()
+                .unwrap()
+                .push((current, total, pkg.to_string()));
         });
 
     // batch_install on an empty registry — callback wiring is the test subject

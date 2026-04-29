@@ -144,6 +144,21 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
     }
 }
 
+/// Execute query with input (pure domain function)
+pub async fn execute_query(input: QueryInput) -> Result<QueryResult> {
+    let options = QueryOptions {
+        query: input.query,
+        graph_file: input
+            .graph_file
+            .as_ref()
+            .map(|p| p.to_string_lossy().to_string()),
+        output_format: input.format,
+    };
+
+    execute_sparql(options)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -298,19 +313,4 @@ mod tests {
 
         Ok(())
     }
-}
-
-/// Execute query with input (pure domain function)
-pub async fn execute_query(input: QueryInput) -> Result<QueryResult> {
-    let options = QueryOptions {
-        query: input.query,
-        graph_file: input
-            .graph_file
-            .as_ref()
-            .map(|p| p.to_string_lossy().to_string()),
-        output_format: input.format,
-    };
-
-    execute_sparql(options)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))
 }
