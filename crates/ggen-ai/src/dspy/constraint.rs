@@ -806,9 +806,10 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)]
     fn test_coerce_to_float() {
         let value = coerce_to_type("3.14", "f64");
-        assert_eq!(value, json!(std::f64::consts::PI));
+        assert_eq!(value, json!(3.14));
     }
 
     #[test]

@@ -200,7 +200,7 @@ impl MonitorEngine {
         let min = sorted.first().copied().unwrap_or(0.0);
         let max = sorted.last().copied().unwrap_or(0.0);
         let avg = values.iter().sum::<f64>() / count as f64;
-        let p50 = sorted[(count / 2).max(0)];
+        let p50 = sorted[count / 2];
         let p95 = sorted[((count * 95) / 100).min(count - 1)];
         let p99 = sorted[((count * 99) / 100).min(count - 1)];
 
