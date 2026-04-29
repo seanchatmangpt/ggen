@@ -2,7 +2,7 @@
 
 use clap_noun_verb_macros::verb;
 use mcpp_core::Envelope;
-use serde_json::{json, Value};
+use serde_json::json;
 
 /// `mcpp mcpp-receipt emit` — emit a new receipt with evidence entries.
 ///

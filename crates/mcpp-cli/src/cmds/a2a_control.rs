@@ -2,7 +2,7 @@
 
 use clap_noun_verb_macros::verb;
 use mcpp_core::Envelope;
-use serde_json::{json, Value};
+use serde_json::json;
 
 /// `mcpp mcpp-a2a register` — register an agent in the A2A transport registry.
 ///
