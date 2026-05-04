@@ -49,9 +49,10 @@ ggen-utils.workspace = true
 ggen-core.workspace = true
 ggen-domain = { workspace = true, features = ["marketplace"] }
 ggen-marketplace.workspace = true
+pictl-types = { path = "/Users/sac/wasm4pm/crates/pictl-types" }
+pictl-algos = { path = "/Users/sac/wasm4pm/crates/pictl-algos" }
 ggen-semantic-bit.workspace = true
 ggen-ontology-core.workspace = true
-ggen-process-mining.workspace = true
 ggen-receipt.workspace = true
 
 # Crate-specific dependencies

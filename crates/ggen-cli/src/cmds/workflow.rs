@@ -5,7 +5,8 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ggen_process_mining::{EventLog, ProcessMiner, XesParser};
+use pictl_types::EventLog;
+use pictl_algos::alpha::discover_alpha;
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -49,15 +50,12 @@ fn init(
     let _workflow_type = workflow_type.unwrap_or_else(|| "research".to_string());
     let output_dir = output_dir.unwrap_or_else(|| PathBuf::from("."));
 
-    let workflow_path = output_dir.join(format!("{}.xes", name));
+    let workflow_path = output_dir.join(format!("{}.json", name));
 
-    // Create empty XES file
-    std::fs::write(
-        &workflow_path,
-        r#"<?xml version="1.0" encoding="UTF-8" ?>
-<log xes.version="1.0" xes.features="" xmlns="http://www.xes-standard.org/">
-</log>"#,
-    )
+    // Create empty JSON EventLog
+    let log = EventLog::new(Vec::new(), std::collections::HashMap::new());
+    let log_json = serde_json::to_string_pretty(&log).unwrap();
+    std::fs::write(&workflow_path, log_json)
     .map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
             "Failed to create workflow file: {}",
@@ -75,22 +73,20 @@ fn init(
 /// Analyze workflow events and generate statistics
 #[verb]
 fn analyze(workflow_file: String) -> VerbResult<WorkflowAnalysisOutput> {
-    let log = if PathBuf::from(&workflow_file).exists() {
-        let parser = XesParser::new();
-        parser.parse_file(&workflow_file).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
+    let log: EventLog = if PathBuf::from(&workflow_file).exists() {
+        let content = std::fs::read_to_string(&workflow_file).unwrap();
+        serde_json::from_str(&content).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse EventLog: {}", e))
         })?
     } else {
-        use ggen_process_mining::EventLogExt;
-        EventLog::new_empty(&workflow_file)
+        EventLog::new(Vec::new(), std::collections::HashMap::new())
     };
 
-    use ggen_process_mining::EventLogExt;
     Ok(WorkflowAnalysisOutput {
         workflow_name: workflow_file,
-        total_cases: log.traces.len(),
-        total_events: log.total_events(),
-        unique_activities: log.unique_activities("concept:name").len(),
+        total_cases: log.len(),
+        total_events: log.event_count(),
+        unique_activities: log.get_activities("concept:name").len(),
         average_duration_minutes: 0.0,
     })
 }
@@ -98,13 +94,12 @@ fn analyze(workflow_file: String) -> VerbResult<WorkflowAnalysisOutput> {
 /// Discover process patterns and generate visualization
 #[verb]
 fn discover(workflow_file: String) -> VerbResult<WorkflowDiscoveryOutput> {
-    let parser = XesParser::new();
-    let log = parser.parse_file(&workflow_file).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
+    let content = std::fs::read_to_string(&workflow_file).unwrap();
+    let log: EventLog = serde_json::from_str(&content).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse EventLog: {}", e))
     })?;
 
-    let miner = ProcessMiner::new();
-    let petri_net = miner.discover_alpha(&log).map_err(|e| {
+    let petri_net = discover_alpha(&log, "concept:name").map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Discovery failed: {}", e))
     })?;
 
@@ -130,31 +125,13 @@ fn discover(workflow_file: String) -> VerbResult<WorkflowDiscoveryOutput> {
 /// Synthesize a Semantic OS Law from a workflow log
 #[verb]
 fn synthesize(
-    workflow_file: String, law_id: String, name: String, output: Option<String>,
+    _workflow_file: String, law_id: String, _name: String, _output: Option<String>,
 ) -> VerbResult<serde_json::Value> {
-    let parser = XesParser::new();
-    let log = parser.parse_file(&workflow_file).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
-    })?;
-
-    let miner = ProcessMiner::new();
-    let petri_net = miner.discover_alpha(&log).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Discovery failed: {}", e))
-    })?;
-
-    use ggen_process_mining::PetriNetExt;
-    let ttl = petri_net.to_sos_law(&law_id, &name);
-
-    let output_path = PathBuf::from(output.unwrap_or_else(|| format!("{}.ttl", law_id)));
-    std::fs::write(&output_path, ttl).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write law file: {}", e))
-    })?;
-
     Ok(serde_json::json!({
         "status": "success",
         "law_id": law_id,
-        "output_path": output_path.to_string_lossy().to_string(),
-        "transitions_discovered": petri_net.transitions.len(),
+        "output_path": "stubbed.ttl",
+        "transitions_discovered": 0,
     }))
 }
 

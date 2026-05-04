@@ -36,7 +36,6 @@ members = [
   "crates/ggen-semantic-bit",
   "crates/ggen-ontology-core",
   "crates/ggen-codegen",
-  "crates/ggen-process-mining",
   "crates/a2a-generated",
   "crates/ggen-a2a-registry",
   "crates/ggen-canonical",
@@ -57,7 +56,6 @@ exclude = [
   "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
   "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
-  "crates/ggen-process-mining", # Temporarily excluded - has missing benchmark files
   "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
   "crates/tai-security",  # Temporarily excluded - has dependency issues
   "crates/tai-resilience",  # Temporarily excluded - has dependency issues
@@ -148,8 +146,6 @@ ggen-codegen = { path = "crates/ggen-codegen", version = "6.1.0" }
 # ggen-yawl: YAWL workflow generation from industry ontologies
 ggen-yawl = { path = "crates/ggen-yawl", version = "6.1.0" }
 
-# ggen-process-mining: Process mining integration with rust4pm (Alpha++, XES/OCEL)
-ggen-process-mining = { path = "crates/ggen-process-mining", version = "6.1.0" }
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
 opentelemetry = { version = "0.31" }
@@ -582,7 +578,6 @@ lazy_static = "1.4"
 fastrand = "2.3"
 # Process Mining for workflow analytics
 process_mining = "0.2"
-ggen-process-mining = { path = "crates/ggen-process-mining", version = "6.1.0" }
 # Cryptographic hashing for receipt tests
 sha2 = "0.10"
 # A2A/TPS System Benchmarks
