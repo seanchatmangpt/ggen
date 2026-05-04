@@ -223,11 +223,8 @@ impl NormalizationPass {
             }
 
             let validator = SparqlValidator::new();
-            // Note: The validator signature takes (ontology, shapes), but we need to pass the graph
-            // For now, create a dummy shapes graph (SHACL validation is stubbed)
-            let shapes_graph = Graph::new()?;
             let report = validator
-                .validate(ctx.graph, &shapes_graph)
+                .validate_shapes(ctx.graph, shapes)
                 .map_err(|e| Error::new(&e.to_string()))?;
 
             // Fail-fast: Any violation stops the line

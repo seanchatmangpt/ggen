@@ -5,7 +5,7 @@
 
 use crate::graph::{CachedResult, Graph};
 use crate::validation::error::Result;
-use crate::validation::shacl::{ShaclShape, ShapeLoader};
+use crate::validation::shacl::{ShaclShape, ShaclShapeSet, ShapeLoader};
 use crate::validation::violation::{ConstraintType, ValidationResult, Violation};
 use std::time::Instant;
 
@@ -37,12 +37,15 @@ impl SparqlValidator {
     /// 2. Check each property constraint via SPARQL
     /// 3. Collect violations
     pub fn validate(&self, ontology: &Graph, shapes: &Graph) -> Result<ValidationResult> {
-        let start = Instant::now();
-        let mut violations = Vec::new();
-
-        // Load shapes from the shapes graph
         let loader = ShapeLoader::new();
         let shape_set = loader.load(shapes)?;
+        self.validate_shapes(ontology, &shape_set)
+    }
+
+    /// Validate an RDF graph against a pre-loaded ShaclShapeSet.
+    pub fn validate_shapes(&self, ontology: &Graph, shape_set: &ShaclShapeSet) -> Result<ValidationResult> {
+        let start = Instant::now();
+        let mut violations = Vec::new();
 
         for (_iri, shape) in &shape_set.shapes {
             // Check timeout

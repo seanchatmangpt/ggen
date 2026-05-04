@@ -500,6 +500,11 @@ impl RdfGraph {
     pub fn is_empty(&self) -> bool {
         self.triples.is_empty()
     }
+
+    /// Iterate over triples in the graph
+    pub fn iter(&self) -> impl Iterator<Item = &Triple> {
+        self.triples.iter()
+    }
 }
 
 impl Default for RdfGraph {

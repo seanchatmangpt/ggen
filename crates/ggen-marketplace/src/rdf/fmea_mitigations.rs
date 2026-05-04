@@ -462,15 +462,36 @@ impl FmeaMitigationManager {
     }
 
     #[allow(clippy::unused_self)]
-    fn attempt_triple_repair(&self, _triple: &str) -> Option<String> {
-        // Stub: Actual implementation would parse and fix common issues
-        None
+    fn attempt_triple_repair(&self, triple: &str) -> Option<String> {
+        // Attempt basic syntactic fixes for common RDF/Turtle errors
+        let mut repaired = triple.trim().to_string();
+        
+        // Fix missing periods
+        if !repaired.ends_with('.') && !repaired.ends_with(';') && !repaired.ends_with(',') {
+            repaired.push_str(" .");
+        }
+        
+        // Fix unescaped quotes in literals
+        if repaired.contains('"') {
+            // A simplistic check: if it has an odd number of quotes, it's malformed
+            let quote_count = repaired.chars().filter(|&c| c == '"').count();
+            if quote_count % 2 != 0 {
+                return None; // Too complex for simple repair
+            }
+        }
+        
+        Some(repaired)
     }
 
     #[allow(clippy::unused_self)]
-    fn has_no_references(&self, _resource_id: &str) -> bool {
-        // Stub: Check if resource is referenced anywhere
-        true
+    fn has_no_references(&self, resource_id: &str) -> bool {
+        // A full implementation would query the graph.
+        // As a mitigation helper without graph access, we assume false to be safe,
+        // unless it's a known isolated temporary node (e.g. blank nodes).
+        if resource_id.starts_with("_:") {
+            return true;
+        }
+        false
     }
 
     #[allow(clippy::unused_self)]
@@ -484,9 +505,13 @@ impl FmeaMitigationManager {
     }
 
     #[allow(clippy::unused_self)]
-    fn load_backup_config(&self, _file_path: &str) -> Option<String> {
-        // Stub: Load backup configuration
-        None
+    fn load_backup_config(&self, file_path: &str) -> Option<String> {
+        let backup_path = format!("{}.bak", file_path);
+        if std::path::Path::new(&backup_path).exists() {
+            std::fs::read_to_string(&backup_path).ok()
+        } else {
+            None
+        }
     }
 }
 

@@ -167,9 +167,64 @@ impl TurtleConfigLoader {
     }
 
     /// Parse state machine definitions
-    fn parse_state_machines(_turtle: &str) -> Vec<StateMachine> {
-        // Stub - would parse state machine triples
-        Vec::new()
+    fn parse_state_machines(turtle: &str) -> Vec<StateMachine> {
+        let mut machines = Vec::new();
+        let mut current_machine: Option<String> = None;
+        let mut transitions = Vec::new();
+
+        for line in turtle.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("mfg:stateMachine") {
+                if let Some(m) = current_machine.take() {
+                    let id = m.to_lowercase().replace(" ", "-");
+                    machines.push(StateMachine {
+                        id: id.clone(),
+                        name: m,
+                        initial_state: "draft".to_string(),
+                        states: Vec::new(),
+                        transitions: std::mem::take(&mut transitions),
+                    });
+                }
+                if let Some(start) = trimmed.find('"') {
+                    if let Some(end) = trimmed[start + 1..].find('"') {
+                        current_machine = Some(trimmed[start + 1..start + 1 + end].to_string());
+                    }
+                }
+            } else if trimmed.starts_with("mfg:transition") {
+                // A simple parser for mfg:transition "from -> to : event"
+                if let Some(start) = trimmed.find('"') {
+                    if let Some(end) = trimmed[start + 1..].find('"') {
+                        let content = &trimmed[start + 1..start + 1 + end];
+                        let parts: Vec<&str> = content.split(':').collect();
+                        if parts.len() == 2 {
+                            let event = parts[1].trim().to_string();
+                            let states: Vec<&str> = parts[0].split("->").collect();
+                            if states.len() == 2 {
+                                transitions.push(Transition {
+                                    from_state: states[0].trim().to_string(),
+                                    to_state: states[1].trim().to_string(),
+                                    event,
+                                    conditions: Vec::new(),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if let Some(m) = current_machine {
+            let id = m.to_lowercase().replace(" ", "-");
+            machines.push(StateMachine {
+                id: id.clone(),
+                name: m,
+                initial_state: "draft".to_string(),
+                states: Vec::new(),
+                transitions,
+            });
+        }
+        
+        machines
     }
 
     fn extract_string_value(line: &str) -> Option<String> {

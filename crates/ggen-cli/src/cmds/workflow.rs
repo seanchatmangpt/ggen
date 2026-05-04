@@ -5,8 +5,8 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use pictl_types::EventLog;
 use pictl_algos::alpha::discover_alpha;
+use pictl_types::EventLog;
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -55,8 +55,7 @@ fn init(
     // Create empty JSON EventLog
     let log = EventLog::new(Vec::new(), std::collections::HashMap::new());
     let log_json = serde_json::to_string_pretty(&log).unwrap();
-    std::fs::write(&workflow_path, log_json)
-    .map_err(|e| {
+    std::fs::write(&workflow_path, log_json).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
             "Failed to create workflow file: {}",
             e
@@ -76,7 +75,10 @@ fn analyze(workflow_file: String) -> VerbResult<WorkflowAnalysisOutput> {
     let log: EventLog = if PathBuf::from(&workflow_file).exists() {
         let content = std::fs::read_to_string(&workflow_file).unwrap();
         serde_json::from_str(&content).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse EventLog: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to parse EventLog: {}",
+                e
+            ))
         })?
     } else {
         EventLog::new(Vec::new(), std::collections::HashMap::new())
