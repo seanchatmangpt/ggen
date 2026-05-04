@@ -85,6 +85,10 @@ pub enum Error {
     #[error("Conformance checking failed: {0}")]
     ConformanceChecking(String),
 
+    /// High-level conformance error.
+    #[error("Conformance error: {0}")]
+    ConformanceError(String),
+
     /// Invalid trace in event log.
     #[error("Invalid trace '{trace}': {reason}")]
     InvalidTrace {

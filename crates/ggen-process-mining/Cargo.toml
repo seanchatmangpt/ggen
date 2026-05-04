@@ -16,8 +16,6 @@ multiple_crate_versions = "allow"
 [dependencies]
 # Workspace dependencies
 ggen-utils = { path = "../ggen-utils", version = "6.1.0" }
-ggen-core = { path = "../ggen-core", version = "6.1.0" }
-ggen-domain = { path = "../ggen-domain", version = "6.1.0" }
 
 tokio = { workspace = true, features = ["sync", "rt"] }
 serde = { workspace = true, features = ["derive"] }
@@ -26,8 +24,9 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 tracing = { workspace = true }
 
-# Process mining dependencies (stubbed for future rust4pm integration)
-# rust4pm = "0.2"  # TODO: Add when rust4pm is published
+# Process mining dependencies from wasm4pm
+pictl-types = { path = "/Users/sac/wasm4pm/crates/pictl-types" }
+pictl-algos = { path = "/Users/sac/wasm4pm/crates/pictl-algos" }
 
 # RDF/OWL for ontology integration
 oxigraph = { workspace = true }

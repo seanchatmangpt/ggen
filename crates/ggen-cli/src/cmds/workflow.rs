@@ -81,14 +81,16 @@ fn analyze(workflow_file: String) -> VerbResult<WorkflowAnalysisOutput> {
             clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
         })?
     } else {
-        EventLog::new(workflow_file.clone())
+        use ggen_process_mining::EventLogExt;
+        EventLog::new_empty(&workflow_file)
     };
 
+    use ggen_process_mining::EventLogExt;
     Ok(WorkflowAnalysisOutput {
         workflow_name: workflow_file,
         total_cases: log.traces.len(),
         total_events: log.total_events(),
-        unique_activities: log.unique_activities().len(),
+        unique_activities: log.unique_activities("concept:name").len(),
         average_duration_minutes: 0.0,
     })
 }
@@ -102,18 +104,18 @@ fn discover(workflow_file: String) -> VerbResult<WorkflowDiscoveryOutput> {
     })?;
 
     let miner = ProcessMiner::new();
-    let petri_net = miner.discover_alpha_plusplus(&log).map_err(|e| {
+    let petri_net = miner.discover_alpha(&log).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Discovery failed: {}", e))
     })?;
 
     // Generate basic Mermaid
     let mut mermaid = "graph TD\n".to_string();
     for p in &petri_net.places {
-        let label = p.label.as_deref().unwrap_or(&p.id);
+        let label = if p.label.is_empty() { &p.id } else { &p.label };
         mermaid.push_str(&format!("  P{}[\"{}\"]\n", p.id, label));
     }
     for t in &petri_net.transitions {
-        let label = t.label.as_deref().unwrap_or(&t.id);
+        let label = if t.label.is_empty() { &t.id } else { &t.label };
         mermaid.push_str(&format!("  T{}[\"{}\"]\n", t.id, label));
     }
 
@@ -136,10 +138,11 @@ fn synthesize(
     })?;
 
     let miner = ProcessMiner::new();
-    let petri_net = miner.discover_alpha_plusplus(&log).map_err(|e| {
+    let petri_net = miner.discover_alpha(&log).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Discovery failed: {}", e))
     })?;
 
+    use ggen_process_mining::PetriNetExt;
     let ttl = petri_net.to_sos_law(&law_id, &name);
 
     let output_path = PathBuf::from(output.unwrap_or_else(|| format!("{}.ttl", law_id)));
