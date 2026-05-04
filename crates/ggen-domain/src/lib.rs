@@ -24,7 +24,6 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
-pub mod ai;
 pub mod audit;
 pub mod ci;
 pub mod config;
@@ -33,7 +32,6 @@ pub mod environment;
 pub mod error;
 pub mod generation;
 pub mod graph;
-pub mod mape_k;
 pub mod mcp_config;
 pub mod ontology;
 pub mod packs;

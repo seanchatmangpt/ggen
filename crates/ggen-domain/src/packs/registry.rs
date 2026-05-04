@@ -207,6 +207,7 @@ mod tests {
             author: Some("Test Author".to_string()),
             repository: None,
             license: Some("MIT".to_string()),
+            registry_type: None,
             packages: vec![],
             templates: vec![],
             sparql_queries: HashMap::new(),

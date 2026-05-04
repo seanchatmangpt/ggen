@@ -180,7 +180,7 @@ test!(test_validate_turtle_very_long_name, {
     let validator = Validator::new();
 
     // Act
-    let result = validator.validate_turtle(turtle, "http://example.org/test");
+    let result = validator.validate_turtle(&turtle, "http://example.org/test");
 
     // Assert - should handle long names without crashing
     assert!(result.is_ok() || result.is_err());

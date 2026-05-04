@@ -228,6 +228,7 @@ mod tests {
             author: None,
             repository: None,
             license: None,
+            registry_type: None,
             packages: vec![],
             templates: vec![],
             sparql_queries: HashMap::new(),

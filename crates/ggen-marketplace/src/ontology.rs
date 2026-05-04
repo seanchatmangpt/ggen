@@ -187,6 +187,11 @@ impl Properties {
     pub fn trust_tier() -> String {
         Self::uri("trustTier")
     }
+
+    /// Registry type (ggen, crates.io, npm, pypi, etc.)
+    pub fn registry_type() -> String {
+        Self::uri("registryType")
+    }
 }
 
 /// Named node URIs for common concepts

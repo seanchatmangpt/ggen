@@ -296,6 +296,47 @@ impl PetriNet {
             .collect()
     }
 
+    /// Export this Petri Net as a Semantic OS Law (Turtle format)
+    #[must_use]
+    pub fn to_sos_law(&self, law_id: &str, name: &str) -> String {
+        let mut ttl = format!(
+            r#"@prefix sos: <https://ggen.io/semantic-os/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://ggen.io/laws/{law_id}> a sos:Law ;
+    sos:lawId "{law_id}" ;
+    sos:name "{name}" ;
+    sos:description "Discovered process from event log" ;
+    sos:fieldType "u8" ;
+    sos:conditionType "{name}Condition" .
+
+"#
+        );
+
+        for (i, transition) in self.transitions.iter().enumerate() {
+            let input_value = 1 << (i % 8); // Simplistic bit mapping for Field8
+            let t_uri = format!("https://ggen.io/laws/{law_id}/t{i}");
+
+            let label = transition.label.as_deref().unwrap_or(&transition.id);
+            let condition = label.replace(' ', "");
+
+            ttl.push_str(&format!(
+                r#"<{t_uri}> a sos:Transition ;
+    sos:inputValue {input_value} ;
+    sos:selectCondition "{condition}" ;
+    sos:description "{label}" .
+
+<https://ggen.io/laws/{law_id}> sos:hasTransition <{t_uri}> .
+
+"#
+            ));
+        }
+
+        ttl
+    }
+
     /// Get all output transitions for a place.
     #[must_use]
     pub fn output_transitions_for(&self, place_id: &str) -> Vec<&Transition> {

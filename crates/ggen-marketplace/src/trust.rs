@@ -3,6 +3,7 @@
 //! Implements Fortune 5 CISO requirements for enterprise trust boundaries.
 
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Trust tier classification for packs.
 ///
@@ -70,6 +71,43 @@ impl TrustTier {
     }
 }
 
+/// Supported registry types for pack distribution.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum RegistryType {
+    /// Native ggen marketplace
+    #[default]
+    Ggen,
+
+    /// Rust package registry (crates.io)
+    CratesIo,
+
+    /// JavaScript/TypeScript package registry (npm)
+    Npm,
+
+    /// Python package registry (pypi)
+    PyPi,
+
+    /// GitHub releases or repository
+    GitHub,
+
+    /// Custom external registry
+    Other,
+}
+
+impl fmt::Display for RegistryType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Ggen => write!(f, "ggen"),
+            Self::CratesIo => write!(f, "crates.io"),
+            Self::Npm => write!(f, "npm"),
+            Self::PyPi => write!(f, "pypi"),
+            Self::GitHub => write!(f, "github"),
+            Self::Other => write!(f, "other"),
+        }
+    }
+}
+
 /// Registry class for pack distribution.
 ///
 /// CISO requirement: Cargo is transport, not trust.
@@ -79,7 +117,11 @@ pub enum RegistryClass {
     /// Public registry (crates.io, public npm, etc.)
     ///
     /// Transport only, not trusted by default.
-    Public { url: String },
+    Public {
+        url: String,
+        #[serde(default)]
+        registry_type: RegistryType,
+    },
 
     /// Private enterprise registry
     ///
@@ -105,7 +147,7 @@ impl RegistryClass {
     #[must_use]
     pub fn url(&self) -> &str {
         match self {
-            Self::Public { url } | Self::PrivateEnterprise { url, .. } => url,
+            Self::Public { url, .. } | Self::PrivateEnterprise { url, .. } => url,
             Self::MirroredAirGapped { primary_url, .. } => primary_url,
         }
     }
@@ -168,6 +210,7 @@ mod tests {
     fn test_registry_class_signature_requirement() {
         let public = RegistryClass::Public {
             url: "https://crates.io".to_string(),
+            registry_type: RegistryType::CratesIo,
         };
         assert!(!public.requires_signature());
 

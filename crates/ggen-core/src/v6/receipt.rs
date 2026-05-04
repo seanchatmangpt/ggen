@@ -95,6 +95,14 @@ pub struct PackProvenance {
     /// SHA-256 digest of pack contents
     pub digest: String,
 
+    /// Registry type for external registries (e.g., "npm", "crates.io")
+    #[serde(default)]
+    pub registry_type: Option<String>,
+
+    /// Origin URL where the artifact was fetched from
+    #[serde(default)]
+    pub origin_url: Option<String>,
+
     /// Templates contributed by this pack
     #[serde(default)]
     pub templates_contributed: Vec<String>,
@@ -850,6 +858,8 @@ mod tests {
             version: "1.0.0".to_string(),
             signature: "ed25519:abc123".to_string(),
             digest: "sha256:def456".to_string(),
+            registry_type: Some("npm".to_string()),
+            origin_url: Some("https://registry.npmjs.org/surface-mcp".to_string()),
             templates_contributed: vec!["mcp/server.tera".to_string()],
             queries_contributed: vec!["mcp/tools.sparql".to_string()],
             files_generated: vec!["src/mcp/server.rs".to_string()],
@@ -919,6 +929,8 @@ mod tests {
             version: "1.0.0".to_string(),
             signature: "sig1".to_string(),
             digest: "digest1".to_string(),
+            registry_type: Some("local".to_string()),
+            origin_url: None,
             templates_contributed: vec!["template1.tera".to_string()],
             queries_contributed: vec!["query1.sparql".to_string()],
             files_generated: vec!["file1.rs".to_string()],

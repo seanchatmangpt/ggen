@@ -148,6 +148,13 @@ impl RdfMapper {
             package.metadata.downloads,
         )?;
 
+        // Insert registry type
+        self.insert_literal_triple(
+            &package_uri,
+            &Properties::registry_type(),
+            &package.metadata.registry_type.to_string(),
+        )?;
+
         // Insert timestamps
         self.insert_datetime_triple(
             &package_uri,
@@ -332,7 +339,7 @@ impl RdfMapper {
         // Query for all metadata fields
         let query = format!(
             r"
-            SELECT ?name ?desc ?license ?repo ?homepage ?quality ?downloads ?created ?updated WHERE {{
+            SELECT ?name ?desc ?license ?repo ?homepage ?quality ?downloads ?created ?updated ?regType WHERE {{
                 <{}> <{}> ?name .
                 <{}> <{}> ?desc .
                 <{}> <{}> ?license .
@@ -342,6 +349,7 @@ impl RdfMapper {
                 OPTIONAL {{ <{}> <{}> ?downloads }}
                 OPTIONAL {{ <{}> <{}> ?created }}
                 OPTIONAL {{ <{}> <{}> ?updated }}
+                OPTIONAL {{ <{}> <{}> ?regType }}
             }}
             ",
             package_uri.as_str(),
@@ -362,6 +370,8 @@ impl RdfMapper {
             Properties::created_at(),
             package_uri.as_str(),
             Properties::updated_at(),
+            package_uri.as_str(),
+            Properties::registry_type(),
         );
 
         // Extract data from results without holding across await
@@ -375,6 +385,7 @@ impl RdfMapper {
             downloads,
             created_at,
             updated_at,
+            registry_type,
         ) = {
             let results = self
                 .store
@@ -405,6 +416,16 @@ impl RdfMapper {
                         .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
                         .map_or_else(Utc::now, |dt| dt.with_timezone(&Utc));
 
+                    let registry_type = Self::extract_optional_literal(&solution, "regType")
+                        .map(|s| match s.as_str() {
+                            "crates.io" => crate::trust::RegistryType::CratesIo,
+                            "npm" => crate::trust::RegistryType::Npm,
+                            "pypi" => crate::trust::RegistryType::PyPi,
+                            "github" => crate::trust::RegistryType::GitHub,
+                            _ => crate::trust::RegistryType::Ggen,
+                        })
+                        .unwrap_or(crate::trust::RegistryType::Ggen);
+
                     (
                         name,
                         description,
@@ -415,6 +436,7 @@ impl RdfMapper {
                         downloads,
                         created_at,
                         updated_at,
+                        registry_type,
                     )
                 } else {
                     return Err(Error::PackageNotFound {
@@ -441,6 +463,7 @@ impl RdfMapper {
         metadata.downloads = downloads;
         metadata.created_at = created_at;
         metadata.updated_at = updated_at;
+        metadata.registry_type = registry_type;
 
         Ok(metadata)
     }
@@ -810,6 +833,7 @@ fn xsd_datetime() -> NamedNode {
 mod tests {
     use super::*;
     use crate::models::{PackageMetadata, PackageVersion};
+    use crate::trust::RegistryType;
 
     #[tokio::test]
     async fn test_package_to_rdf_basic() {
@@ -827,5 +851,67 @@ mod tests {
 
         let result = mapper.package_to_rdf(&package);
         assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_rdf_mapping_registry_type() {
+        let store = Arc::new(Store::new().unwrap());
+        let mapper = RdfMapper::new(store);
+
+        let id = PackageId::new("npm-pkg").unwrap();
+        let mut metadata = PackageMetadata::new(id.clone(), "NPM Package", "A test", "MIT");
+        metadata.registry_type = RegistryType::Npm;
+
+        let package = Package {
+            metadata,
+            latest_version: PackageVersion::new("1.0.0").unwrap(),
+            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            releases: indexmap::IndexMap::new(),
+        };
+
+        // Convert to RDF
+        mapper
+            .package_to_rdf(&package)
+            .expect("Failed to convert to RDF");
+
+        // Reconstruct from RDF
+        let reconstructed = mapper
+            .rdf_to_package(&id)
+            .expect("Failed to reconstruct from RDF");
+
+        assert_eq!(reconstructed.metadata.registry_type, RegistryType::Npm);
+        assert_eq!(reconstructed.metadata.id, id);
+    }
+
+    #[tokio::test]
+    async fn test_rdf_mapping_all_registry_types() {
+        let registry_types = vec![
+            RegistryType::CratesIo,
+            RegistryType::Npm,
+            RegistryType::PyPi,
+            RegistryType::GitHub,
+            RegistryType::Ggen,
+        ];
+
+        for reg_type in registry_types {
+            let store = Arc::new(Store::new().unwrap());
+            let mapper = RdfMapper::new(store);
+
+            let id = PackageId::new(&format!("pkg-{}", reg_type)).unwrap();
+            let mut metadata = PackageMetadata::new(id.clone(), "Test Package", "A test", "MIT");
+            metadata.registry_type = reg_type;
+
+            let package = Package {
+                metadata,
+                latest_version: PackageVersion::new("1.0.0").unwrap(),
+                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                releases: indexmap::IndexMap::new(),
+            };
+
+            mapper.package_to_rdf(&package).unwrap();
+            let reconstructed = mapper.rdf_to_package(&id).unwrap();
+
+            assert_eq!(reconstructed.metadata.registry_type, reg_type);
+        }
     }
 }

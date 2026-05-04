@@ -102,6 +102,12 @@ pub struct ResolvedPacks {
 
     /// SHA-256 checksums per pack, loaded from pack metadata.
     pub pack_checksums: HashMap<String, String>,
+
+    /// Registry types per pack (e.g., "npm", "crates.io"), loaded from pack metadata.
+    pub pack_registry_types: HashMap<String, String>,
+
+    /// Origin URLs per pack, loaded from pack metadata.
+    pub pack_origin_urls: HashMap<String, String>,
 }
 
 /// Record of a bundle expansion (for provenance in receipts).
@@ -264,6 +270,8 @@ impl PackResolver {
         // Load pack signatures and checksums from metadata for receipt provenance
         let mut pack_signatures = HashMap::new();
         let mut pack_checksums = HashMap::new();
+        let mut pack_registry_types = HashMap::new();
+        let mut pack_origin_urls = HashMap::new();
         for pack in &resolved_packs {
             let pack_dir = self.registry.pack_dir(pack);
             let metadata = load_pack_metadata(&pack_dir).unwrap_or_default();
@@ -275,7 +283,13 @@ impl PackResolver {
                     .unwrap_or_else(|| "local:unsigned".to_string()),
             );
             if let Some(checksum) = metadata.checksum {
-                pack_checksums.insert(pid, checksum);
+                pack_checksums.insert(pid.clone(), checksum);
+            }
+            if let Some(reg_type) = metadata.registry_type {
+                pack_registry_types.insert(pid.clone(), reg_type.to_string());
+            }
+            if let Some(url) = metadata.origin_url {
+                pack_origin_urls.insert(pid.clone(), url);
             }
         }
 
@@ -290,6 +304,8 @@ impl PackResolver {
             templates: all_templates,
             pack_signatures,
             pack_checksums,
+            pack_registry_types,
+            pack_origin_urls,
         })
     }
 

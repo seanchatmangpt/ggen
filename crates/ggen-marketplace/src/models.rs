@@ -455,6 +455,9 @@ pub struct PackageMetadata {
     pub downloads: u64,
     /// Quality score (0-100)
     pub quality_score: Option<QualityScore>,
+    /// Registry type
+    #[serde(default)]
+    pub registry_type: crate::trust::RegistryType,
 }
 
 impl PackageMetadata {
@@ -479,6 +482,7 @@ impl PackageMetadata {
             updated_at: now,
             downloads: 0,
             quality_score: None,
+            registry_type: crate::trust::RegistryType::default(),
         }
     }
 }
@@ -555,7 +559,10 @@ fn default_trust_tier() -> TrustTier {
 
 /// Default registry class for releases (backward compatibility)
 pub(crate) fn default_registry_class() -> RegistryClass {
-    RegistryClass::Public { url: String::new() }
+    RegistryClass::Public {
+        url: String::new(),
+        registry_type: crate::trust::RegistryType::Ggen,
+    }
 }
 
 /// Search query result

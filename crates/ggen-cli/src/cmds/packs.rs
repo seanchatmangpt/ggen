@@ -4,9 +4,7 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use mcpp_core::emit_pass;
 use serde::Serialize;
-use serde_json::Value;
 
 // ============================================================================
 // Output Types
@@ -28,6 +26,7 @@ struct PackSummary {
     package_count: usize,
     template_count: usize,
     production_ready: bool,
+    registry_type: String,
 }
 
 #[derive(Serialize)]
@@ -40,6 +39,7 @@ struct ShowOutput {
     package_count: usize,
     packages: Vec<String>,
     dependencies: Vec<String>,
+    registry_type: String,
 }
 
 #[derive(Serialize)]
@@ -103,6 +103,7 @@ struct SearchResult {
     name: String,
     description: String,
     score: f64,
+    registry_type: String,
 }
 
 #[derive(Serialize)]
@@ -112,21 +113,6 @@ struct CheckCompatibilityOutput {
     conflicts: Vec<String>,
     warnings: Vec<String>,
     message: String,
-}
-
-// ============================================================================
-// Envelope Output Wrapper
-// ============================================================================
-
-/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
-fn emit_envelope_if_needed_install(output: &InstallOutput) -> bool {
-    if std::env::var("MCPP_JSON").is_ok() {
-        let data = serde_json::to_value(output).unwrap_or(Value::Null);
-        emit_pass("mcpp.packs.install", "workspace", data);
-        true
-    } else {
-        false
-    }
 }
 
 // ============================================================================
@@ -171,6 +157,7 @@ fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
                 package_count: 0,
                 template_count: 0,
                 production_ready: pkg.production_ready,
+                registry_type: pkg.registry_type.unwrap_or_else(|| "local".to_string()),
             }
         })
         .collect();
@@ -206,6 +193,7 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
         package_count,
         packages,
         dependencies,
+        registry_type: detail.registry_type.unwrap_or_else(|| "local".to_string()),
     })
 }
 
@@ -235,26 +223,22 @@ fn install(pack_id: String, force: bool, dry_run: bool) -> VerbResult<InstallOut
         .unwrap_or_else(|_| pack_id.clone());
 
     if dry_run {
-        let output = InstallOutput {
+        return Ok(InstallOutput {
             pack_id: pack_id.clone(),
             pack_name,
             status: "DRY RUN".to_string(),
             message: format!("Would install pack '{}' (dry run mode)", pack_id),
-        };
-        emit_envelope_if_needed_install(&output);
-        return Ok(output);
+        });
     }
 
     let result = install_pack_improved(&pack_id, force)?;
 
-    let output = InstallOutput {
+    Ok(InstallOutput {
         pack_id,
         pack_name,
         status: "installed".to_string(),
         message: result.message,
-    };
-    emit_envelope_if_needed_install(&output);
-    Ok(output)
+    })
 }
 
 // ============================================================================
@@ -737,6 +721,7 @@ fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
                 name: p.name,
                 description: p.description,
                 score: relevance,
+                registry_type: p.registry_type.unwrap_or_else(|| "local".to_string()),
             })
         })
         .collect();
@@ -777,10 +762,10 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
     let result =
         crate::runtime::block_on(ggen_domain::packs::check_packs_compatibility(&pack_id_list))
             .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
+                clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
             })?
             .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(&format!(
+                clap_noun_verb::NounVerbError::execution_error(format!(
                     "Compatibility check failed: {}",
                     e
                 ))
@@ -805,6 +790,24 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
         warnings: result.warnings,
         message: result.message,
     })
+}
+
+/// Run health check on installed packs and lockfile
+#[verb]
+fn doctor() -> VerbResult<serde_json::Value> {
+    use ggen_domain::utils::{execute_doctor, DoctorInput};
+
+    let result = crate::runtime::block_on(execute_doctor(DoctorInput {
+        verbose: true,
+        check: Some("cache".to_string()),
+        env: false,
+    }))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Doctor execution failed: {}", e))
+    })?;
+
+    Ok(serde_json::to_value(result).unwrap_or(serde_json::Value::Null))
 }
 
 // ============================================================================

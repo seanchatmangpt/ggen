@@ -579,8 +579,17 @@ impl StagedPipeline {
                 receipt.add_pack(PackProvenance {
                     pack_id: pack_id.to_string(),
                     version,
-                    signature: "local:unsigned".to_string(),
+                    signature: resolved
+                        .pack_signatures
+                        .get(&pack_id.to_string())
+                        .cloned()
+                        .unwrap_or_else(|| "local:unsigned".to_string()),
                     digest: resolved.digest_for_pack(pack_id),
+                    registry_type: resolved
+                        .pack_registry_types
+                        .get(&pack_id.to_string())
+                        .cloned(),
+                    origin_url: resolved.pack_origin_urls.get(&pack_id.to_string()).cloned(),
                     templates_contributed: resolved.template_paths_for_pack(pack_id),
                     queries_contributed: resolved.query_names_for_pack(pack_id),
                     files_generated: vec![],

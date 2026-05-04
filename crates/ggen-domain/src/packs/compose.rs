@@ -150,6 +150,7 @@ fn merge_packs(packs: &[Pack]) -> Result<Pack> {
         keywords: Vec::new(),
         production_ready: packs.iter().all(|p| p.production_ready),
         metadata: first.metadata.clone(),
+        registry_type: None,
     };
 
     // Merge packages (remove duplicates)
@@ -221,6 +222,7 @@ mod tests {
             keywords: vec![],
             production_ready: true,
             metadata: PackMetadata::default(),
+            registry_type: None,
         };
 
         let pack2 = Pack {
@@ -244,6 +246,7 @@ mod tests {
             keywords: vec![],
             production_ready: true,
             metadata: PackMetadata::default(),
+            registry_type: None,
         };
 
         let packs = vec![pack1, pack2];
@@ -269,6 +272,7 @@ mod tests {
             keywords: vec![],
             production_ready: true,
             metadata: PackMetadata::default(),
+            registry_type: None,
         };
 
         let pack2 = Pack {
@@ -288,6 +292,7 @@ mod tests {
             keywords: vec![],
             production_ready: true,
             metadata: PackMetadata::default(),
+            registry_type: None,
         };
 
         let packs = vec![pack1, pack2];

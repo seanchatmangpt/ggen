@@ -3,8 +3,9 @@
 //! Commands for tracking and analyzing marketplace and university research workflows
 //! using process mining techniques.
 
-use clap_noun_verb::Result;
+use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
+use ggen_process_mining::{EventLog, ProcessMiner, XesParser};
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -26,18 +27,14 @@ struct WorkflowAnalysisOutput {
     total_events: usize,
     unique_activities: usize,
     average_duration_minutes: f64,
-    median_duration_minutes: f64,
-    variant_count: usize,
-    most_common_variant: Option<String>,
 }
 
 #[derive(Serialize)]
 struct WorkflowDiscoveryOutput {
     workflow_name: String,
-    total_edges: usize,
-    pareto_edges: usize,
+    total_places: usize,
+    total_transitions: usize,
     graph_mermaid: String,
-    top_paths: Vec<String>,
 }
 
 // ============================================================================
@@ -45,140 +42,124 @@ struct WorkflowDiscoveryOutput {
 // ============================================================================
 
 /// Initialize a new workflow for tracking
-///
-/// # Usage
-///
-/// ```bash
-/// # Create university research workflow
-/// ggen workflow init --name "university-research" --type research
-///
-/// # Create package maturity workflow
-/// ggen workflow init --name "package-maturity" --type maturity
-///
-/// # Create RevOps workflow
-/// ggen workflow init --name "revops-pipeline" --type revops
-/// ```
 #[verb]
 fn init(
     name: String, workflow_type: Option<String>, output_dir: Option<PathBuf>,
-) -> Result<WorkflowInitOutput> {
+) -> VerbResult<WorkflowInitOutput> {
     let _workflow_type = workflow_type.unwrap_or_else(|| "research".to_string());
-    let _output_dir = output_dir.unwrap_or_else(|| PathBuf::from("."));
+    let output_dir = output_dir.unwrap_or_else(|| PathBuf::from("."));
+
+    let workflow_path = output_dir.join(format!("{}.xes", name));
+
+    // Create empty XES file
+    std::fs::write(
+        &workflow_path,
+        r#"<?xml version="1.0" encoding="UTF-8" ?>
+<log xes.version="1.0" xes.features="" xmlns="http://www.xes-standard.org/">
+</log>"#,
+    )
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to create workflow file: {}",
+            e
+        ))
+    })?;
 
     Ok(WorkflowInitOutput {
         workflow_name: name.clone(),
-        path: format!(".workflows/{}.json", name),
+        path: workflow_path.to_string_lossy().to_string(),
         status: "Workflow initialized - ready to track events".to_string(),
     })
 }
 
 /// Analyze workflow events and generate statistics
-///
-/// # Usage
-///
-/// ```bash
-/// # Analyze workflow
-/// ggen workflow analyze --workflow-file workflow.json
-///
-/// # Show summary
-/// ggen workflow analyze --workflow-file workflow.json --summary
-/// ```
 #[verb]
-fn analyze(workflow_file: String, summary: bool) -> Result<WorkflowAnalysisOutput> {
-    let _workflow_file = workflow_file;
-    let _summary = summary;
+fn analyze(workflow_file: String) -> VerbResult<WorkflowAnalysisOutput> {
+    let log = if PathBuf::from(&workflow_file).exists() {
+        let parser = XesParser::new();
+        parser.parse_file(&workflow_file).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
+        })?
+    } else {
+        EventLog::new(workflow_file.clone())
+    };
 
-    // Demo output showing what analysis would reveal
     Ok(WorkflowAnalysisOutput {
-        workflow_name: "university-research".to_string(),
-        total_cases: 12,
-        total_events: 156,
-        unique_activities: 10,
-        average_duration_minutes: (8.0 * 7.0 * 24.0 * 60.0), // ~8 weeks in minutes
-        median_duration_minutes: (8.0 * 7.0 * 24.0 * 60.0),
-        variant_count: 4,
-        most_common_variant: Some(
-            "PaperSubmitted→CodeGenerated→TestsRun→SecurityAudit→MarketplacePublished".to_string(),
-        ),
+        workflow_name: workflow_file,
+        total_cases: log.traces.len(),
+        total_events: log.total_events(),
+        unique_activities: log.unique_activities().len(),
+        average_duration_minutes: 0.0,
     })
 }
 
 /// Discover process patterns and generate visualization
-///
-/// # Usage
-///
-/// ```bash
-/// # Discover process patterns
-/// ggen workflow discover --workflow-file workflow.json
-///
-/// # Export as Mermaid diagram
-/// ggen workflow discover --workflow-file workflow.json --export mermaid
-///
-/// # Show 80/20 critical path
-/// ggen workflow discover --workflow-file workflow.json --pareto
-/// ```
 #[verb]
-fn discover(
-    workflow_file: String, export_format: Option<String>, pareto: bool,
-) -> Result<WorkflowDiscoveryOutput> {
-    let _workflow_file = workflow_file;
-    let _export_format = export_format;
-    let _pareto = pareto;
+fn discover(workflow_file: String) -> VerbResult<WorkflowDiscoveryOutput> {
+    let parser = XesParser::new();
+    let log = parser.parse_file(&workflow_file).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
+    })?;
 
-    // Demo output showing discovered process
-    let mermaid = r#"graph TD
-    PaperSubmitted["Paper Submitted"]
-    DeptOnboard["Department Onboarded"]
-    PilotStart["Pilot Started"]
-    CodeGen["Code Generated"]
-    Tests["Tests Run"]
-    Audit["Security Audit"]
-    Bench["Benchmark Completed"]
-    Docs["Documentation Generated"]
-    Published["Published to Marketplace"]
+    let miner = ProcessMiner::new();
+    let petri_net = miner.discover_alpha_plusplus(&log).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Discovery failed: {}", e))
+    })?;
 
-    PaperSubmitted -->|100%| DeptOnboard
-    DeptOnboard -->|95%| PilotStart
-    PilotStart -->|92%| CodeGen
-    CodeGen -->|90%| Tests
-    Tests -->|88%| Audit
-    Audit -->|85%| Bench
-    Bench -->|82%| Docs
-    Docs -->|80%| Published"#;
+    // Generate basic Mermaid
+    let mut mermaid = "graph TD\n".to_string();
+    for p in &petri_net.places {
+        let label = p.label.as_deref().unwrap_or(&p.id);
+        mermaid.push_str(&format!("  P{}[\"{}\"]\n", p.id, label));
+    }
+    for t in &petri_net.transitions {
+        let label = t.label.as_deref().unwrap_or(&t.id);
+        mermaid.push_str(&format!("  T{}[\"{}\"]\n", t.id, label));
+    }
 
     Ok(WorkflowDiscoveryOutput {
-        workflow_name: "university-research".to_string(),
-        total_edges: 8,
-        pareto_edges: 5,
-        graph_mermaid: mermaid.to_string(),
-        top_paths: vec![
-            "Submitted → Onboarded → Pilot → Generated → Tests (92% frequency)".to_string(),
-            "Generated → Tests → Audit → Bench → Docs (85% frequency)".to_string(),
-            "Tests → Audit → Published (78% frequency)".to_string(),
-        ],
+        workflow_name: workflow_file,
+        total_places: petri_net.places.len(),
+        total_transitions: petri_net.transitions.len(),
+        graph_mermaid: mermaid,
     })
 }
 
+/// Synthesize a Semantic OS Law from a workflow log
+#[verb]
+fn synthesize(
+    workflow_file: String, law_id: String, name: String, output: Option<String>,
+) -> VerbResult<serde_json::Value> {
+    let parser = XesParser::new();
+    let log = parser.parse_file(&workflow_file).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse XES: {}", e))
+    })?;
+
+    let miner = ProcessMiner::new();
+    let petri_net = miner.discover_alpha_plusplus(&log).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Discovery failed: {}", e))
+    })?;
+
+    let ttl = petri_net.to_sos_law(&law_id, &name);
+
+    let output_path = PathBuf::from(output.unwrap_or_else(|| format!("{}.ttl", law_id)));
+    std::fs::write(&output_path, ttl).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write law file: {}", e))
+    })?;
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "law_id": law_id,
+        "output_path": output_path.to_string_lossy().to_string(),
+        "transitions_discovered": petri_net.transitions.len(),
+    }))
+}
+
 /// Track workflow event
-///
-/// # Usage
-///
-/// ```bash
-/// # Record event
-/// ggen workflow event --workflow-file workflow.json \
-///   --case-id paper-123 \
-///   --activity "CodeGenerated" \
-///   --resource "researcher-1"
-/// ```
 #[verb]
 fn event(
-    workflow_file: String, case_id: String, activity: String, resource: Option<String>,
-) -> Result<serde_json::Value> {
-    let _workflow_file = workflow_file;
-    let _case_id = case_id;
-    let _activity = activity;
-    let _resource = resource;
-
+    _workflow_file: String, _case_id: String, _activity: String, _resource: Option<String>,
+) -> VerbResult<serde_json::Value> {
     Ok(serde_json::json!({
         "status": "Event recorded",
         "timestamp": chrono::Utc::now().to_rfc3339(),
@@ -186,21 +167,10 @@ fn event(
 }
 
 /// Generate workflow report
-///
-/// # Usage
-///
-/// ```bash
-/// # Generate HTML report
-/// ggen workflow report --workflow-file workflow.json --format html --output report.html
-///
-/// # Generate JSON report
-/// ggen workflow report --workflow-file workflow.json --format json --output report.json
-/// ```
 #[verb]
 fn report(
-    workflow_file: String, format: Option<String>, output: Option<String>,
-) -> Result<serde_json::Value> {
-    let _workflow_file = workflow_file;
+    _workflow_file: String, format: Option<String>, output: Option<String>,
+) -> VerbResult<serde_json::Value> {
     let _format = format.unwrap_or_else(|| "html".to_string());
     let _output = output.unwrap_or_else(|| "workflow-report.html".to_string());
 

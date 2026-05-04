@@ -74,6 +74,18 @@ pub async fn execute_doctor(input: DoctorInput) -> Result<DoctorResult> {
         checks.push(git_check);
     }
 
+    // Check Marketplace
+    if input.check.is_none() || input.check.as_deref() == Some("marketplace") {
+        let marketplace_check = check_marketplace().await?;
+        checks.push(marketplace_check);
+    }
+
+    // Check User Cache
+    if input.check.is_none() || input.check.as_deref() == Some("cache") {
+        let cache_check = check_cache().await?;
+        checks.push(cache_check);
+    }
+
     // Collect environment info if requested
     let environment = if input.env {
         Some(collect_environment().await?)
@@ -84,6 +96,67 @@ pub async fn execute_doctor(input: DoctorInput) -> Result<DoctorResult> {
     Ok(DoctorResult {
         checks,
         environment,
+    })
+}
+
+/// Check Marketplace health
+async fn check_marketplace() -> Result<CheckResult> {
+    use std::path::PathBuf;
+
+    let cache_dir = if let Some(dir) = dirs::cache_dir() {
+        dir.join("ggen").join("packs")
+    } else {
+        PathBuf::from(".cache").join("ggen").join("packs")
+    };
+
+    let db_path = cache_dir.join("marketplace.db");
+
+    if !db_path.exists() {
+        return Ok(CheckResult {
+            name: "Marketplace DB".to_string(),
+            status: CheckStatus::Warning,
+            message: "RDF store not found. Run 'ggen marketplace sync' to initialize.".to_string(),
+        });
+    }
+
+    // Try to open the store (check for corruption/locks)
+    match oxigraph::store::Store::open(&db_path) {
+        Ok(_) => Ok(CheckResult {
+            name: "Marketplace DB".to_string(),
+            status: CheckStatus::Ok,
+            message: format!("RDF store healthy: {}", db_path.display()),
+        }),
+        Err(e) => Ok(CheckResult {
+            name: "Marketplace DB".to_string(),
+            status: CheckStatus::Error,
+            message: format!("RDF store error (possibly locked or corrupt): {}", e),
+        }),
+    }
+}
+
+/// Check User Cache health
+async fn check_cache() -> Result<CheckResult> {
+    let mut pack_count = 0;
+
+    if let Some(home) = dirs::home_dir() {
+        let user_packs = home.join(".ggen").join("packs");
+        if user_packs.exists() {
+            if let Ok(entries) = std::fs::read_dir(user_packs) {
+                pack_count = entries
+                    .filter_map(|e| e.ok())
+                    .filter(|e| e.path().is_dir())
+                    .count();
+            }
+        }
+    }
+
+    Ok(CheckResult {
+        name: "User Cache".to_string(),
+        status: CheckStatus::Ok,
+        message: format!(
+            "Found {} packs in global user cache (~/.ggen/packs)",
+            pack_count
+        ),
     })
 }
 

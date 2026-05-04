@@ -1432,6 +1432,7 @@ mod tests {
         let version = PackageVersion::new("1.0.0").unwrap();
         let public_registry = RegistryClass::Public {
             url: "https://crates.io".to_string(),
+            registry_type: crate::trust::RegistryType::default(),
         };
 
         let result = installer
@@ -1516,6 +1517,7 @@ mod tests {
         let version = PackageVersion::new("1.0.0").unwrap();
         let public_registry = RegistryClass::Public {
             url: "https://crates.io".to_string(),
+            registry_type: crate::trust::RegistryType::default(),
         };
 
         let result = installer

@@ -1,0 +1,23 @@
+[pack]
+id = "payment-admission-discipline"
+name = "Payment Admission Discipline"
+version = "1.0.0"
+description = "Vision 2030: Compiled admission discipline for high-value payments"
+category = "financial"
+author = "ggen"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "payment-admission"
+]
+
+[[pack.templates]]
+name = "semantic-law"
+path = "crates/ggen-core/templates/semantic_os/law.rs.tera"
+description = "Compiled Rust law from ontology"
+
+[pack.sparql_queries]
+laws = "crates/ggen-core/queries/semantic_os/extract-laws.rq"
+transitions = "crates/ggen-core/queries/semantic_os/extract-transitions.rq"

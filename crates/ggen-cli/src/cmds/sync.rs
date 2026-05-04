@@ -42,17 +42,11 @@
 use chrono::Utc;
 use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
-use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
+use ggen_core::codegen::{OutputFormat, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use ggen_receipt::{generate_keypair, hash_data, Receipt};
-use mcpp_core::emit_pass;
 use serde::Serialize;
-use serde_json::Value;
-use std::path::{Path, PathBuf};
-
-// Import llm_bridge module from the same crate
-#[allow(unused_imports)]
-use crate::llm_bridge::GroqLlmBridge;
+use std::path::PathBuf;
 
 // ============================================================================
 // Output Types (re-exported for CLI compatibility)
@@ -126,22 +120,6 @@ impl From<SyncResult> for SyncOutput {
             error: result.error,
             receipt_path: None, // populated separately by emit_sync_receipt
         }
-    }
-}
-
-// ============================================================================
-// Envelope Output Wrapper
-// ============================================================================
-
-/// Wrap output in MCPP Envelope JSON if MCPP_JSON env var is set
-/// Returns true if wrapped (output already printed), false otherwise
-fn emit_envelope_if_needed(output: &SyncOutput) -> bool {
-    if std::env::var("MCPP_JSON").is_ok() {
-        let data = serde_json::to_value(output).unwrap_or(Value::Null);
-        emit_pass("mcpp.sync", "workspace", data);
-        true
-    } else {
-        false
     }
 }
 
@@ -350,18 +328,16 @@ pub fn sync(
 
     // When --queries is supplied, bypass the manifest and run the low-level pipeline directly
     if let Some(ref queries_dir) = queries {
-        let output = run_low_level_pipeline(
+        return run_low_level_pipeline(
             ontology,
             queries_dir.clone(),
             output_dir,
             language,
             dry_run.unwrap_or(false),
-        )?;
-        emit_envelope_if_needed(&output);
-        return Ok(output);
+        );
     }
 
-    let output = run_manifest_pipeline(
+    run_manifest_pipeline(
         manifest,
         output_dir,
         dry_run,
@@ -375,9 +351,7 @@ pub fn sync(
         timeout,
         stage,
         ontology,
-    )?;
-    emit_envelope_if_needed(&output);
-    Ok(output)
+    )
 }
 
 /// Check profile and locked preconditions before any pipeline work.
@@ -428,6 +402,34 @@ fn run_manifest_pipeline(
 
     let mut pipeline = ggen_core::v6::pipeline::StagedPipeline::new(config)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+
+    if watch.unwrap_or(false) {
+        log::info!("Watch mode enabled. Monitoring project for changes...");
+
+        let mut watcher = crate::conventions::watcher::ProjectWatcher::new(base_path.clone())
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to initialize watcher: {}",
+                    e
+                ))
+            })?;
+
+        watcher.watch().map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to start watch: {}", e))
+        })?;
+
+        loop {
+            // Run initial or triggered pipeline
+            log::info!("Triggering μ-pipeline...");
+            let _ = pipeline.run(); // Ignore errors in watch loop to keep it running
+
+            // Wait for events
+            std::thread::sleep(std::time::Duration::from_millis(500));
+            while watcher.process_events().unwrap_or_default().is_empty() {
+                std::thread::sleep(std::time::Duration::from_millis(500));
+            }
+        }
+    }
 
     let start_time = std::time::Instant::now();
     let receipt = pipeline
@@ -693,58 +695,6 @@ fn run_low_level_pipeline(
         error: violation_msg,
         receipt_path: None,
     })
-}
-
-/// Inject LLM service into executor if enable_llm is set in manifest
-///
-/// This helper function checks if the manifest has enable_llm set to true,
-/// and if so, creates a GroqLlmBridge and injects it into the executor.
-///
-/// # Arguments
-/// * `executor` - The SyncExecutor to inject the service into
-/// * `manifest_path` - Path to the ggen.toml manifest file
-/// * `verbose` - Whether to print verbose output
-///
-/// # Returns
-/// * The executor with LLM service injected if enabled
-#[allow(dead_code)]
-fn inject_llm_if_enabled(
-    executor: SyncExecutor, manifest_path: &Path, verbose: bool,
-) -> SyncExecutor {
-    if !manifest_path.exists() {
-        return executor;
-    }
-
-    // Parse manifest to check enable_llm flag
-    let manifest_data = match ggen_core::manifest::ManifestParser::parse(manifest_path) {
-        Ok(data) => data,
-        Err(_) => return executor, // If parsing fails, return executor as-is
-    };
-
-    // Only inject if enable_llm is true
-    if !manifest_data.generation.enable_llm {
-        return executor;
-    }
-
-    // Create Groq LLM bridge
-    let bridge = match GroqLlmBridge::new() {
-        Ok(b) => b,
-        Err(e) => {
-            eprintln!(
-                "Error: enable_llm is true but GroqLlmBridge creation failed: {}\n\
-                 Hint: Set GROQ_API_KEY environment variable\n\
-                 Continuing without LLM auto-generation.",
-                e
-            );
-            return executor;
-        }
-    };
-
-    if verbose {
-        eprintln!("✓ LLM auto-generation enabled (Groq)");
-    }
-
-    executor.with_llm_service(Some(Box::new(bridge)))
 }
 
 /// Build SyncOptions from CLI arguments

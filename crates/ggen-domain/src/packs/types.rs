@@ -15,6 +15,10 @@ pub struct Pack {
     pub repository: Option<String>,
     pub license: Option<String>,
 
+    /// Registry type for external registries
+    #[serde(default)]
+    pub registry_type: Option<String>,
+
     /// Packages included in this pack
     pub packages: Vec<String>,
 

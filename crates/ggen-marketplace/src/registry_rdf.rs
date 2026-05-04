@@ -57,7 +57,11 @@ impl RdfRegistry {
     #[must_use]
     pub fn new() -> Self {
         let store = Store::new().expect("Failed to create RDF store");
+        Self::from_store(store)
+    }
 
+    /// Create a new RDF-backed registry from an existing store
+    pub fn from_store(store: Store) -> Self {
         // Initialize ontology
         Self::initialize_ontology(&store);
 
@@ -164,9 +168,16 @@ impl RdfRegistry {
             for solution in solutions {
                 if let Ok(solution) = solution {
                     for (_, term) in solution.iter() {
-                        if let Term::NamedNode(node) = term {
-                            packages.push(node.as_str().to_string());
-                            break; // Take first variable per solution
+                        match term {
+                            Term::NamedNode(node) => {
+                                packages.push(node.as_str().to_string());
+                                break;
+                            }
+                            Term::Literal(lit) => {
+                                packages.push(lit.value().to_string());
+                                break;
+                            }
+                            _ => {}
                         }
                     }
                 }
@@ -435,19 +446,22 @@ impl RdfRegistry {
             PREFIX mp: <https://ggen.io/marketplace/>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-            SELECT ?package ?name ?description ?downloads WHERE {{
+            SELECT ?packageId ?name ?description ?downloads WHERE {{
                 ?package a mp:Package .
+                ?package mp:packageId ?packageId .
                 ?package mp:name ?name .
                 ?package mp:description ?description .
                 ?package mp:downloads ?downloads .
 
                 FILTER(
+                    CONTAINS(LCASE(str(?packageId)), LCASE("{}")) ||
                     CONTAINS(LCASE(str(?name)), LCASE("{}")) ||
                     CONTAINS(LCASE(str(?description)), LCASE("{}"))
                 )
             }}
             LIMIT {}
             "#,
+            keyword.replace('\"', "\\\""),
             keyword.replace('\"', "\\\""),
             keyword.replace('\"', "\\\""),
             limit
@@ -625,6 +639,7 @@ mod tests {
             quality_score: None,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
+            registry_type: crate::trust::RegistryType::default(),
         };
 
         let package = Package {
@@ -660,6 +675,7 @@ mod tests {
             quality_score: None,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
+            registry_type: crate::trust::RegistryType::default(),
         };
 
         let package = Package {
@@ -695,6 +711,7 @@ mod tests {
             quality_score: None,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
+            registry_type: crate::trust::RegistryType::default(),
         };
 
         let package = Package {
@@ -740,6 +757,7 @@ mod tests {
             quality_score: None,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
+            registry_type: crate::trust::RegistryType::default(),
         };
 
         let package = Package {
@@ -790,6 +808,7 @@ mod tests {
                 quality_score: None,
                 created_at: chrono::Utc::now(),
                 updated_at: chrono::Utc::now(),
+                registry_type: crate::trust::RegistryType::default(),
             };
 
             let package = Package {
@@ -828,6 +847,7 @@ mod tests {
                 quality_score: None,
                 created_at: chrono::Utc::now(),
                 updated_at: chrono::Utc::now(),
+                registry_type: crate::trust::RegistryType::default(),
             };
 
             let package = Package {
@@ -866,6 +886,7 @@ mod tests {
                 quality_score: None,
                 created_at: chrono::Utc::now(),
                 updated_at: chrono::Utc::now(),
+                registry_type: crate::trust::RegistryType::default(),
             };
 
             let package = Package {

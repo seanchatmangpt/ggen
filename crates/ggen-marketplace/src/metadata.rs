@@ -9,7 +9,7 @@
 
 use crate::error::{Error, Result};
 use crate::models::PackageId;
-use crate::trust::TrustTier;
+use crate::trust::{RegistryType, TrustTier};
 use serde::Deserialize;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -24,6 +24,10 @@ pub struct PackMetadata {
     pub trust_tier: TrustTier,
     /// SHA-256 checksum
     pub checksum: Option<String>,
+    /// Registry type for external registries
+    pub registry_type: Option<RegistryType>,
+    /// Origin URL where the artifact was fetched from
+    pub origin_url: Option<String>,
 }
 
 impl Default for PackMetadata {
@@ -32,6 +36,8 @@ impl Default for PackMetadata {
             signature: None,
             trust_tier: TrustTier::Experimental,
             checksum: None,
+            registry_type: None,
+            origin_url: None,
         }
     }
 }
@@ -48,6 +54,10 @@ struct PackageToml {
 struct PackageSection {
     name: String,
     version: String,
+    #[serde(default)]
+    registry_type: Option<String>,
+    #[serde(default)]
+    origin_url: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -69,6 +79,10 @@ struct MetadataJson {
     trust_tier: Option<String>,
     #[serde(default)]
     checksum: Option<String>,
+    #[serde(default)]
+    registry_type: Option<String>,
+    #[serde(default)]
+    origin_url: Option<String>,
 }
 
 /// Load pack metadata from cache directory
@@ -141,17 +155,35 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
         .as_ref()
         .and_then(|s| s.checksum.clone());
 
+    let registry_type =
+        package_toml
+            .package
+            .registry_type
+            .as_ref()
+            .map(|s| match s.to_lowercase().as_str() {
+                "crates.io" | "cratesio" => RegistryType::CratesIo,
+                "npm" => RegistryType::Npm,
+                "pypi" => RegistryType::PyPi,
+                "github" => RegistryType::GitHub,
+                _ => RegistryType::Ggen,
+            });
+
+    let origin_url = package_toml.package.origin_url.clone();
+
     debug!(
-        "Loaded metadata from package.toml: signature={}, trust_tier={:?}, checksum={}",
+        "Loaded metadata from package.toml: signature={}, trust_tier={:?}, checksum={}, registry={:?}",
         signature.is_some(),
         trust_tier,
-        checksum.is_some()
+        checksum.is_some(),
+        registry_type
     );
 
     Ok(PackMetadata {
         signature,
         trust_tier,
         checksum,
+        registry_type,
+        origin_url,
     })
 }
 
@@ -169,17 +201,34 @@ fn load_from_json(json_path: &Path) -> Result<PackMetadata> {
         .unwrap_or(TrustTier::Experimental);
     let checksum = metadata_json.checksum;
 
+    let registry_type =
+        metadata_json
+            .registry_type
+            .as_ref()
+            .map(|s| match s.to_lowercase().as_str() {
+                "crates.io" | "cratesio" => RegistryType::CratesIo,
+                "npm" => RegistryType::Npm,
+                "pypi" => RegistryType::PyPi,
+                "github" => RegistryType::GitHub,
+                _ => RegistryType::Ggen,
+            });
+
+    let origin_url = metadata_json.origin_url;
+
     debug!(
-        "Loaded metadata from metadata.json: signature={}, trust_tier={:?}, checksum={}",
+        "Loaded metadata from metadata.json: signature={}, trust_tier={:?}, checksum={}, registry={:?}",
         signature.is_some(),
         trust_tier,
-        checksum.is_some()
+        checksum.is_some(),
+        registry_type
     );
 
     Ok(PackMetadata {
         signature,
         trust_tier,
         checksum,
+        registry_type,
+        origin_url,
     })
 }
 

@@ -1,10 +1,13 @@
-//! Simple Ontology Commands - Fixed Version
+//! Ontology Commands - Wired to Domain Layer
 //!
-//! This module provides fixed versions of ontology commands with reduced complexity.
+//! This module provides ontology management commands wired to the domain layer.
 
+use crate::runtime::block_on;
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
+use ggen_domain::ontology;
 use serde::Serialize;
+use std::path::PathBuf;
 
 // ============================================================================
 // Output Types
@@ -36,41 +39,89 @@ struct InitOutput {
 }
 
 // ============================================================================
-// Verb Functions (Reduced Complexity)
+// Verb Functions
 // ============================================================================
 
-/// Generate code from ontology schema - Simplified
+/// Generate code from ontology schema
 #[verb]
 fn generate(
-    _schema_file: String, language: String, output: Option<String>, _zod: bool, _utilities: bool,
+    schema_file: String, language: String, output: Option<String>, zod: bool, utilities: bool,
 ) -> VerbResult<GenerateOutput> {
+    let schema_path = PathBuf::from(&schema_file);
+    let output_dir = PathBuf::from(output.clone().unwrap_or_else(|| ".".to_string()));
+
+    let (files_generated, primary_file) = block_on(async {
+        // First extract schema
+        let schema = ontology::extract_ontology_schema(&schema_path, "http://example.org#")
+            .await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Extraction failed: {}", e)))?;
+
+        // Then generate code
+        ontology::generate_code_from_ontology(&schema, &language, &output_dir, zod, utilities).await
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
+    })?;
+
     Ok(GenerateOutput {
         language,
-        files_generated: 0,
-        output_directory: output.unwrap_or_else(|| ".".to_string()),
-        primary_file: "types.ts".to_string(),
+        files_generated,
+        output_directory: output_dir.to_string_lossy().to_string(),
+        primary_file,
     })
 }
 
-/// Validate ontology schema quality - Simplified
+/// Validate ontology schema quality
 #[verb]
-fn validate(_schema_file: String, _strict: bool) -> VerbResult<ValidateOutput> {
+fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
+    let schema_path = PathBuf::from(&schema_file);
+
+    let (is_valid, warnings, errors, classes_count, properties_count) = block_on(async {
+        let schema = ontology::extract_ontology_schema(&schema_path, "http://example.org#")
+            .await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Extraction failed: {}", e)))?;
+
+        let (valid, warnings, errors) = ontology::validate_ontology_schema(&schema, strict).await?;
+        Ok((
+            valid,
+            warnings,
+            errors,
+            schema.classes.len(),
+            schema.properties.len(),
+        ))
+    })
+    .map_err(|e: ggen_utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+    })?
+    .map_err(|e: ggen_utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Validation failed: {}", e))
+    })?;
+
     Ok(ValidateOutput {
-        is_valid: true,
-        classes_count: 0,
-        properties_count: 0,
-        warnings: vec![],
-        errors: vec![],
+        is_valid,
+        classes_count,
+        properties_count,
+        warnings,
+        errors,
     })
 }
 
-/// Initialize ontology project - Simplified
+/// Initialize ontology project
 #[verb]
-fn init(project_name: String, _template: Option<String>) -> VerbResult<InitOutput> {
+fn init(project_name: String, template: Option<String>) -> VerbResult<InitOutput> {
+    let (ontology_file, config_file, generated_files) = block_on(async {
+        ontology::initialize_ontology_project(&project_name, template.as_deref()).await
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Initialization failed: {}", e))
+    })?;
+
     Ok(InitOutput {
         project_name,
-        ontology_file: "ontologies/example.ttl".to_string(),
-        config_file: "ggen.config.json".to_string(),
-        generated_files: vec!["package.json".to_string(), "README.md".to_string()],
+        ontology_file,
+        config_file,
+        generated_files,
     })
 }

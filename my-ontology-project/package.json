@@ -1,0 +1,17 @@
+{
+  "name": "my-ontology-project",
+  "version": "1.0.0",
+  "description": "Ontology-driven code generation project",
+  "type": "module",
+  "scripts": {
+    "extract": "ggen ontology extract ontologies/schema.ttl --output schema.json",
+    "generate": "ggen ontology generate schema.json --language typescript --zod --utilities",
+    "validate": "ggen ontology validate schema.json --strict"
+  },
+  "dependencies": {
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

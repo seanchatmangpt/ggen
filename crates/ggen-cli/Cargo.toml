@@ -47,13 +47,12 @@ async-trait.workspace = true
 # Local dependencies (use workspace = true pattern for consistency)
 ggen-utils.workspace = true
 ggen-core.workspace = true
-ggen-ai.workspace = true
 ggen-domain = { workspace = true, features = ["marketplace"] }
 ggen-marketplace.workspace = true
-ggen-a2a-mcp.workspace = true
+ggen-semantic-bit.workspace = true
 ggen-ontology-core.workspace = true
+ggen-process-mining.workspace = true
 ggen-receipt.workspace = true
-mcpp-core = { path = "../mcpp-core", version = "6.1.0" }
 
 # Crate-specific dependencies
 clap_complete = "4.5.58"
@@ -67,6 +66,7 @@ reqwest = { version = "0.12", features = ["json"] }
 glob = "0.3"
 semver = "1.0"
 dirs = "6.0"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 walkdir = "2.5"
 colored = "3.0"
 indicatif = "0.17"

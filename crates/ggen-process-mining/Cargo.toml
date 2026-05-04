@@ -17,7 +17,6 @@ multiple_crate_versions = "allow"
 # Workspace dependencies
 ggen-utils = { path = "../ggen-utils", version = "6.1.0" }
 ggen-core = { path = "../ggen-core", version = "6.1.0" }
-ggen-yawl = { path = "../ggen-yawl", version = "6.1.0" }
 ggen-domain = { path = "../ggen-domain", version = "6.1.0" }
 
 tokio = { workspace = true, features = ["sync", "rt"] }

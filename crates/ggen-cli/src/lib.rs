@@ -69,7 +69,6 @@
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
 pub mod conventions; // File-based routing conventions
 pub mod error;
-pub mod llm_bridge; // Groq LLM bridge (async GenAiClient → sync LlmService)
 pub mod pack_install;
 pub mod prelude;
 pub mod progress;

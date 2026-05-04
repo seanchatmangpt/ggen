@@ -1,0 +1,16 @@
+[package]
+name = "payment-admission"
+full_name = "payment-admission-discipline"
+version = "1.0.0"
+description = "Vision 2030: Compiled admission discipline for high-value payments"
+category = "financial"
+author = "ggen"
+license = "MIT"
+keywords = ["semantic-os", "financial", "admissibility", "compliance"]
+
+[docs]
+quick_start = "Install and manufacture to generate high-performance payment admission law."
+
+[generation]
+type = "semantic_os"
+ontology = "ontology/payment.ttl"

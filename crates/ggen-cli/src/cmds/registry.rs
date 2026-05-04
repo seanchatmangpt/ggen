@@ -34,6 +34,7 @@ struct RegistryEntry {
     description: String,
     tags: Vec<String>,
     production_ready: bool,
+    registry_type: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -49,6 +50,7 @@ struct InfoOutput {
     tags: Vec<String>,
     packages: Vec<String>,
     production_ready: bool,
+    registry_type: Option<String>,
 }
 
 // ============================================================================
@@ -76,6 +78,7 @@ fn search(query: String) -> Result<SearchOutput> {
             description: p.description,
             tags: p.tags,
             production_ready: p.production_ready,
+            registry_type: p.registry_type,
         })
         .collect();
     let total = matched.len();
@@ -100,6 +103,7 @@ fn list() -> Result<ListOutput> {
             description: p.description,
             tags: p.tags,
             production_ready: p.production_ready,
+            registry_type: p.registry_type,
         })
         .collect();
     let total = entries.len();
@@ -125,6 +129,7 @@ fn info(pack_id: String) -> Result<InfoOutput> {
             tags: p.tags,
             packages: p.packages,
             production_ready: p.production_ready,
+            registry_type: p.registry_type,
         }),
         Err(e) => Err(NounVerbError::execution_error(e.to_string())),
     }

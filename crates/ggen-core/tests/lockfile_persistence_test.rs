@@ -142,23 +142,20 @@ fn test_lockfile_validation_detects_missing_dependencies() {
         installed_at: chrono::Utc::now(),
         dependencies: vec!["missing-dep".to_string()],
     };
-
     lockfile.add_pack("test-pack", pack);
 
-    // Save should succeed (validation happens on load)
-    lockfile.save(&lock_path).expect("Failed to save lockfile");
-
-    // Loading should fail validation
-    let result = PackLockfile::from_file(&lock_path);
+    // Save should fail because validation is enforced on save
+    let result = lockfile.save(&lock_path);
     assert!(
         result.is_err(),
-        "Should fail validation for missing dependency"
+        "Should fail validation for missing dependency on save"
     );
 
     let err_msg = result.unwrap_err().to_string();
     assert!(
         err_msg.contains("missing-dep") || err_msg.contains("not in lockfile"),
-        "Error should mention missing dependency"
+        "Error message should mention missing dependency, got: {}",
+        err_msg
     );
 }
 

@@ -1,0 +1,13 @@
+{
+  "ontologies": [
+    "ontologies/schema.ttl"
+  ],
+  "namespace": "http://example.org#",
+  "output": {
+    "typescript": {
+      "path": "src/types",
+      "useZod": true,
+      "generateUtilities": true
+    }
+  }
+}
