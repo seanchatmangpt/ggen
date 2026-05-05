@@ -17,7 +17,9 @@ pub fn init_tracing() -> ggen_utils::error::Result<()> {
         tracing_subscriber::fmt()
             .with_env_filter(env_filter)
             .try_init()
-            .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize tracing", e))?;
+            .map_err(|e| {
+                ggen_utils::error::Error::with_source("Failed to initialize tracing", e)
+            })?;
 
         Ok(())
     }
@@ -26,13 +28,13 @@ pub fn init_tracing() -> ggen_utils::error::Result<()> {
 #[cfg(feature = "otel")]
 fn init_otel_tracing() -> ggen_utils::error::Result<()> {
     use opentelemetry::{global, KeyValue};
+    use opentelemetry_otlp::WithExportConfig;
     use opentelemetry_sdk::{
         propagation::TraceContextPropagator,
         runtime,
         trace::{self, Sampler},
         Resource,
     };
-    use opentelemetry_otlp::WithExportConfig;
     use tracing_opentelemetry::OpenTelemetryLayer;
     use tracing_subscriber::layer::SubscriberExt;
     use tracing_subscriber::util::SubscriberInitExt;
@@ -50,13 +52,12 @@ fn init_otel_tracing() -> ggen_utils::error::Result<()> {
         .with_trace_config(
             trace::config()
                 .with_sampler(Sampler::AlwaysOn)
-                .with_resource(Resource::new(vec![KeyValue::new(
-                    "service.name",
-                    "ggen",
-                )])),
+                .with_resource(Resource::new(vec![KeyValue::new("service.name", "ggen")])),
         )
         .install_batch(runtime::Tokio)
-        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize OTel pipeline", e))?;
+        .map_err(|e| {
+            ggen_utils::error::Error::with_source("Failed to initialize OTel pipeline", e)
+        })?;
 
     let otel_layer = OpenTelemetryLayer::new(tracer);
     let env_filter =
@@ -67,7 +68,9 @@ fn init_otel_tracing() -> ggen_utils::error::Result<()> {
         .with(otel_layer)
         .with(tracing_subscriber::fmt::layer())
         .try_init()
-        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize tracing registry", e))?;
+        .map_err(|e| {
+            ggen_utils::error::Error::with_source("Failed to initialize tracing registry", e)
+        })?;
 
     Ok(())
 }
@@ -160,7 +163,7 @@ impl PipelineTracer {
             "Frontmatter processed"
         );
     }
-    
+
     pub fn dry_run(output_path: &Path, content_size: usize) {
         info!(
             output_path = %output_path.display(),

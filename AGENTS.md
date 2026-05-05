@@ -12,15 +12,15 @@ The following constructs are **defects** and must not appear in the codebase:
 
 ### Testing & Verification
 - **Unit tests** without real boundary crossing
-- **Mocks** of primary evidence paths (tracer, meter, OTel client, MCP server)
+- **Mocks** of primary evidence paths (tracer, meter, OTel client, MCP server) via `mockall` or manual stubs
 - **Stubs** that simulate behavior without execution
 - **Fixtures** that fabricate traces, spans, OCEL events, or receipts
-- **Synthetic telemetry** builders (fake span dicts, fabricated events)
+- **Synthetic telemetry** builders (fake span structs, fabricated events)
 - **Test-only fake clients** for LLM, MCP, observability, or state
 
 ### Code Quality
 - **TODO, FIXME** placeholders (use real implementation or block work)
-- **Monkeypatching** of code paths (including `patch()`, `monkeypatch`, `Mock()`, `MagicMock`)
+- **Monkeypatching** of code paths (including `mockall::mock!`, `#[automock]`, or manual trait implementation for testing only)
 - **Hardcoded returns** that simulate success
 - **Documentation-only contracts** (code must enforce, not docs)
 
@@ -100,42 +100,49 @@ A single surface (e.g., "OTel span exists") can be faked. Multiple surfaces (exe
 
 ## Examples
 
-### ❌ Forbidden: Mock Testing
+### ❌ Forbidden: Mock Testing (London TDD)
 
-```python
-@patch("ostar.utils.observability_v2.get_tracer")
-def test_operator(mock_tracer):
-    result = await operator.execute(artifact)
-    assert result.state == BRED
+```rust
+#[test]
+fn test_operator_forbidden() {
+    let mut mock = MockTracer::new();
+    mock.expect_export().times(1).returning(|_| Ok(()));
+    
+    let result = operator.execute(artifact, &mock);
+    assert_eq!(result.state, ArtifactState::Bred);
+}
 ```
 
-**Why:** This test passes whether or not tracing actually happened. The mock accepts any call. This is fake evidence.
+**Why:** This test passes whether or not tracing actually happened in a real environment. The mock accepts any call. This is fake evidence.
 
-### ✅ Required: Real-Boundary Testing
+### ✅ Required: Real-Boundary Testing (Chicago TDD)
 
-```python
-async def test_operator():
-    result = await operator.execute(artifact)
+```rust
+#[tokio::test]
+async fn test_operator_real() {
+    let mut pipeline = Pipeline::new(config);
+    let receipt = pipeline.run().await.unwrap();
     
-    # Execution boundary crossed ✓
-    assert result.state == BRED
+    // 1. Evidence: BuildReceipt exists and is cryptographically valid ✓
+    assert!(receipt.verify().is_ok());
     
-    # Observability boundary crossed ✓
-    span = tempo.get_span_by_name("breed-ontology")
-    assert span is not None
+    // 2. Proof Gates: Interrogate the receipt against 8 canonical gates ✓
+    let validator = ProofGateValidator::new();
+    let reports = validator.validate(&receipt);
     
-    # State boundary crossed ✓
-    assert artifact.receipts[-1].previous_hash == old_hash
+    // 3. Multi-surface corroboration ✓
+    // Gate 7: Observability Present
+    assert!(reports.iter().any(|r| r.gate_type == ProofGateType::ObservabilityPresent && r.pass));
     
-    # Process boundary crossed ✓
-    ocel = tempo.traces_to_ocel()
-    assert any(e["activity"] == "breed-ontology" for e in ocel)
+    // Gate 8: Causal Consistency (Receipt chain)
+    assert!(reports.iter().any(|r| r.gate_type == ProofGateType::CausalConsistent && r.pass));
     
-    # Causality validated ✓
-    assert span.attributes["artifact_id"] == artifact.id
+    // 4. Execution boundary crossed (Physical output verification) ✓
+    assert!(Path::new("generated/output.rs").exists());
+}
 ```
 
-This test requires real execution across 5 surfaces. Faking any one fails the entire test.
+This test requires real execution across 4 surfaces. Faking any one fails the entire test.
 
 ---
 

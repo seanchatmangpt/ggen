@@ -1,5 +1,5 @@
-use crate::signals::AndonSignal;
 use super::operator::OperatorContext;
+use crate::signals::AndonSignal;
 use ggen_utils::error::Result;
 
 pub struct GateResult {
@@ -16,8 +16,10 @@ pub trait ProofGate {
 pub struct ObservabilityPresentGate;
 
 impl ProofGate for ObservabilityPresentGate {
-    fn name(&self) -> &str { "observability-present" }
-    
+    fn name(&self) -> &str {
+        "observability-present"
+    }
+
     fn validate(&self, _ctx: &OperatorContext) -> Result<GateResult> {
         // Verification logic for OTel spans goes here
         Ok(GateResult {

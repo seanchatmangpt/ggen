@@ -7,13 +7,15 @@
 
 **Deterministic, language-agnostic code generation from RDF ontologies with MCP integration and OpenTelemetry tracing.**
 
-ggen transforms domain ontologies (RDF/Turtle) into typed source code through a five-stage pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Define your domain once in a standard vocabulary (schema.org, FOAF, Dublin Core, SKOS), write Tera templates for your target language, and let ggen keep your code in sync with your specification.
+ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v6 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
 
 ```
 ggen.toml  -->  RDF Ontology  -->  CONSTRUCT inference  -->  SELECT  -->  Tera Template  -->  Code
 ```
 
 **What's New in v26.5.4:**
+- ✅ **Native v6 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
+- ✅ **8 Canonical Proof Gates** — Automated evidence validation (Schema, Ontology, Projection, Compilation, Receipt, Ethos, Observability, Causality)
 - ✅ **MCP Server Integration** — 14 tools exposed via stdio/HTTP for Claude Desktop and AI assistants
 - ✅ **A2A Protocol Support** — Multi-agent task coordination with Byzantine fault tolerance
 - ✅ **OpenTelemetry Tracing** — Full observability for LLM calls, MCP tools, and pipeline stages

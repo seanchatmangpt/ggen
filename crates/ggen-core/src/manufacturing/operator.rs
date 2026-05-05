@@ -1,8 +1,8 @@
-use std::path::PathBuf;
 use crate::graph::Graph;
 use ggen_utils::error::Result;
-use tracing::instrument;
 use std::fmt;
+use std::path::PathBuf;
+use tracing::instrument;
 
 #[derive(Clone)]
 pub struct OperatorContext {
@@ -28,7 +28,9 @@ pub trait ManufacturingOperator: Send + Sync {
 pub struct ValidateOntologyOperator;
 
 impl ManufacturingOperator for ValidateOntologyOperator {
-    fn name(&self) -> &str { "ValidateOntology" }
+    fn name(&self) -> &str {
+        "ValidateOntology"
+    }
 
     #[instrument(skip(self, ctx), fields(artifact_id = %ctx.artifact_id))]
     fn execute(&self, ctx: &OperatorContext) -> Result<()> {
@@ -40,7 +42,9 @@ impl ManufacturingOperator for ValidateOntologyOperator {
 pub struct ProjectArtifactOperator;
 
 impl ManufacturingOperator for ProjectArtifactOperator {
-    fn name(&self) -> &str { "ProjectArtifact" }
+    fn name(&self) -> &str {
+        "ProjectArtifact"
+    }
 
     #[instrument(skip(self, ctx), fields(artifact_id = %ctx.artifact_id))]
     fn execute(&self, ctx: &OperatorContext) -> Result<()> {
