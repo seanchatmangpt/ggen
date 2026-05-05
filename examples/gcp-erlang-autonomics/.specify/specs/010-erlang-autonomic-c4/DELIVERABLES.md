@@ -1,6 +1,6 @@
 # Erlang Autonomic C4 RDF Ontology - Deliverables Summary
 
-**Project**: ggen - Specification-Driven Code Generation (v6.0.0)
+**Project**: ggen - Specification-Driven Code Generation (v26.5.4)
 **Specification**: Erlang Autonomic C4 Architecture & SKU Governance
 **Delivery Date**: 2026-01-25
 **Status**: ✅ Complete & Production-Ready
