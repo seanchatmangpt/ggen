@@ -352,7 +352,7 @@ cargo make test
 cargo make release-validate
 
 # Tag release
-git tag -s v6.0.1 -m "Security patch for CVE-2026-XXXX"
+git tag -s v26.5.4 -m "Security patch for CVE-2026-XXXX"
 
 # Publish to crates.io
 cargo publish
@@ -362,7 +362,7 @@ cargo publish
 
 ```bash
 # Deploy patch
-./scripts/deploy.sh --version=v6.0.1 --emergency
+./scripts/deploy.sh --version=v26.5.4 --emergency
 
 # Verify deployment
 ./scripts/verify_deployment.sh --check=security
@@ -378,7 +378,7 @@ cargo publish
 
 **Severity**: High (P1)
 **Affected Versions**: 6.0.0
-**Fixed Version**: 6.0.1
+**Fixed Version**: 26.5.4
 
 ### Description
 
@@ -392,7 +392,7 @@ malicious template path.
 
 ### Remediation
 
-Update to ggen v6.0.1 immediately:
+Update to ggen v26.5.4 immediately:
 
     cargo update ggen
 
@@ -416,7 +416,7 @@ Discovered by: [Researcher Name] (with permission)
 - 2026-01-24: Vulnerability reported
 - 2026-01-24: Acknowledged and confirmed
 - 2026-01-25: Patch developed and tested
-- 2026-01-25: v6.0.1 released
+- 2026-01-25: v26.5.4 released
 - 2026-01-26: Public disclosure
 ```
 
@@ -484,7 +484,7 @@ Discovered by: [Researcher Name] (with permission)
 - 2026-01-24 11:00 UTC: Initial assessment complete
 - 2026-01-24 13:00 UTC: Containment measures deployed
 - 2026-01-25 09:00 UTC: Patch developed
-- 2026-01-25 15:00 UTC: Patch released (v6.0.1)
+- 2026-01-25 15:00 UTC: Patch released (v26.5.4)
 - 2026-01-26 09:00 UTC: Public disclosure
 
 ## Root Cause

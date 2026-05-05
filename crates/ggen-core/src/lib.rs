@@ -142,7 +142,8 @@ pub mod github;
 pub mod gpack;
 pub mod graph;
 pub mod inject;
-pub mod lean_six_sigma; // DMAIC quality gates for Lean Six Sigma
+pub mod lean_six_sigma;
+pub mod manufacturing; // DMAIC quality gates for Lean Six Sigma
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;

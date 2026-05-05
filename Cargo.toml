@@ -112,7 +112,7 @@ predicates = "3.1"
 rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-# NOTE: v6.1.0 unified release
+# NOTE: v26.5.4 unified release
 ggen-utils = { path = "crates/ggen-utils", version = "26.5.4" }
 ggen-core = { path = "crates/ggen-core", version = "26.5.4" }
 ggen-config = { path = "crates/ggen-config", version = "26.5.4" }

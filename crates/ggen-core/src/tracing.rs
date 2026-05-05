@@ -72,6 +72,15 @@
 
 use std::path::Path;
 use tracing::{debug, error, info, warn};
+use opentelemetry::{global, KeyValue};
+use opentelemetry_sdk::{
+    propagation::TraceContextPropagator,
+    runtime,
+    trace::{self, Sampler, TracerProvider},
+    Resource,
+};
+use opentelemetry_otlp::WithExportConfig;
+use tracing_opentelemetry::OpenTelemetryLayer;
 
 /// Initialize tracing based on environment variables
 ///
@@ -82,18 +91,49 @@ use tracing::{debug, error, info, warn};
 ///
 /// Returns an error if tracing subscriber initialization fails (e.g., if
 /// already initialized).
+/// Initialize tracing with OpenTelemetry and fmt layers
 pub fn init_tracing() -> ggen_utils::error::Result<()> {
+    use tracing_subscriber::layer::SubscriberExt;
+    use tracing_subscriber::util::SubscriberInitExt;
     use tracing_subscriber::EnvFilter;
 
+    global::set_text_map_propagator(TraceContextPropagator::new());
+
+    let otlp_exporter = opentelemetry_otlp::new_exporter()
+        .tonic()
+        .with_endpoint("http://localhost:4317");
+
+    let tracer = opentelemetry_otlp::new_pipeline()
+        .tracing()
+        .with_exporter(otlp_exporter)
+        .with_trace_config(
+            trace::config()
+                .with_sampler(Sampler::AlwaysOn)
+                .with_resource(Resource::new(vec![KeyValue::new(
+                    "service.name",
+                    "ggen",
+                )])),
+        )
+        .install_batch(runtime::Tokio)
+        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize OTel pipeline", e))?;
+
+    let otel_layer = OpenTelemetryLayer::new(tracer);
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("ggen=info"));
 
-    tracing_subscriber::fmt()
-        .with_env_filter(env_filter)
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(otel_layer)
+        .with(tracing_subscriber::fmt::layer())
         .try_init()
-        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize tracing", e))?;
+        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize tracing registry", e))?;
 
     Ok(())
+}
+
+/// Shutdown the global tracer provider to flush spans
+pub fn shutdown_tracing() {
+    global::shutdown_tracer_provider();
 }
 
 /// Pipeline tracer for structured logging of template operations

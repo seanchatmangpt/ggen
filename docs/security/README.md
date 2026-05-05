@@ -28,7 +28,7 @@
     - [Current Status (v6.0.0)](#current-status-v600)
     - [Historical Improvements](#historical-improvements)
   - [Roadmap](#roadmap)
-    - [v6.1.0 (Q1 2026)](#v610-q1-2026)
+    - [v26.5.4 (Q1 2026)](#v610-q1-2026)
     - [v6.2.0 (Q2 2026)](#v620-q2-2026)
     - [v7.0.0 (Q3 2026)](#v700-q3-2026)
   - [External Resources](#external-resources)
@@ -317,7 +317,7 @@ return Err(sanitized.user_message());
 
 ## Roadmap
 
-### v6.1.0 (Q1 2026)
+### v26.5.4 (Q1 2026)
 - [ ] API authentication (API keys)
 - [ ] Multi-tenant isolation
 - [ ] Enhanced audit logging

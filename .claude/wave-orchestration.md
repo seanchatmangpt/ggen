@@ -1,6 +1,6 @@
-# ggen v6.1.0 Wave Orchestration
+# ggen v26.5.4 Wave Orchestration
 
-**Goal:** Publish v6.1.0 to crates.io AND validate CLI via `cargo install ggen` inside a testcontainer.
+**Goal:** Publish v26.5.4 to crates.io AND validate CLI via `cargo install ggen` inside a testcontainer.
 **Stop condition:** Either 10 waves complete OR both goals achieved (published + container-validated).
 
 ## Wave Status
@@ -8,10 +8,10 @@
 | Wave | Tasks | Status | Exit Criteria |
 |------|-------|--------|---------------|
 | 1 | Compile fix, registry.rs, marketplace tests, receipt/core fix, OTEL/publish checklist | 🔄 RUNNING | `cargo make check` passes |
-| 2 | Remaining errors, full test suite, doctor command, capability fix, binary rebuild | ⏳ PENDING | `cargo make test` passes + `ggen --version` = 6.1.0 |
+| 2 | Remaining errors, full test suite, doctor command, capability fix, binary rebuild | ⏳ PENDING | `cargo make test` passes + `ggen --version` = 26.5.4 |
 | 3 | Lint clean, CLI completeness, golden path | ⏳ PENDING | `cargo make lint` clean + golden path runs |
 | 4 | Full pre-commit, integration tests, OTEL spans | ⏳ PENDING | `cargo make pre-commit` passes + OTEL verified |
-| 5 | Publish foundation crates (phase 1-3) | ⏳ PENDING | ggen-utils, ggen-core etc at v6.1.0 on crates.io |
+| 5 | Publish foundation crates (phase 1-3) | ⏳ PENDING | ggen-utils, ggen-core etc at v26.5.4 on crates.io |
 | 6 | Publish middle-layer crates (phase 4-7) | ⏳ PENDING | domain, marketplace, CLI crates published |
 | 7 | Publish ggen binary + verify crates.io | ⏳ PENDING | `cargo install ggen` works from crates.io |
 | 8 | Testcontainer install + golden path | ⏳ PENDING | Container: install + capability→pack→sync→receipt |
@@ -30,10 +30,10 @@
 
 ## Blockers Identified (from Ralph Loop iteration 1)
 
-1. **Compilation:** 93+ errors — partially fixed in commit `fix(v6.1.0)` by Agent 10
+1. **Compilation:** 93+ errors — partially fixed in commit `fix(v26.5.4)` by Agent 10
 2. **CLI:** `registry.rs` missing, `doctor` unimplemented, `capability` not auto-discovered
 3. **Marketplace tests:** `regulated_finance_profile` and other missing API imports
-4. **Version:** Binary shows v5.5.0; code says v6.1.0 — needs rebuild
+4. **Version:** Binary shows v5.5.0; code says v26.5.4 — needs rebuild
 5. **Publish deps:** `ggen-a2a-mcp` and other crates not yet published to crates.io
 
 ## Golden Path (must work in testcontainer by Wave 8)
@@ -64,7 +64,7 @@ Phase 13: Verify all on crates.io
 ## Completion Evidence Required
 
 - [ ] `cargo install ggen` from crates.io succeeds
-- [ ] `ggen --version` in container = 6.1.0
+- [ ] `ggen --version` in container = 26.5.4
 - [ ] `ggen capability enable compliance.soc2` works
 - [ ] `ggen pack add mcp-rust` works
 - [ ] `ggen sync --profile enterprise-strict --locked` works

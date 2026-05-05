@@ -1,4 +1,4 @@
-# Target State — Golden Path (v6.1.0)
+# Target State — Golden Path (v26.5.4)
 
 ## Flow Diagram
 
@@ -186,7 +186,7 @@ return VerifyOutput
 
 ```json
 {
-  "ggen_version": "6.1.0",
+  "ggen_version": "26.5.4",
   "created_at": "2026-04-02T...",
   "packs": {
     "mcp-rust": {

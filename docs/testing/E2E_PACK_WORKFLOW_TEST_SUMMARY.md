@@ -51,7 +51,7 @@ Comprehensive end-to-end tests for CLI pack management workflows have been creat
 {
   "packs": { ... },
   "updated_at": "ISO8601 timestamp",
-  "ggen_version": "6.0.1"
+  "ggen_version": "26.5.4"
 }
 ```
 

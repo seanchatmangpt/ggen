@@ -1,5 +1,5 @@
 ---
-version: 6.1.0
+version: 26.5.4
 last_updated: 2026-04-02
 gate: mandatory — read before every agent dispatch
 ---
@@ -138,7 +138,7 @@ ggen sync && diff /tmp/r1.json .ggen/receipts/latest.json  # must differ
 
 ---
 
-## 2. The Authoritative Path for ggen v6.1.0
+## 2. The Authoritative Path for ggen v26.5.4
 
 ```
 intent

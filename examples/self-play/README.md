@@ -7,7 +7,7 @@ This demonstration showcases **ggen generating itself** - a recursive self-gener
 ### The Self-Play Loop
 
 ```
-ggen v6.0.0 → Reads Ontology → Generates ggen v6.0.1 → Reads Ontology → Generates ggen v6.0.2 → ...
+ggen v6.0.0 → Reads Ontology → Generates ggen v26.5.4 → Reads Ontology → Generates ggen v6.0.2 → ...
 ```
 
 This demonstrates:
@@ -48,7 +48,7 @@ graph TD
     E --> F
 
     F --> G[Generated Code]
-    G --> H[ggen v6.0.1]
+    G --> H[ggen v26.5.4]
     H -->|Repeat| A
 
     style A fill:#90EE90

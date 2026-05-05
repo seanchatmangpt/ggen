@@ -312,7 +312,7 @@ Communication mechanism for the server.
 
 ex:GgenServer a mcp:McpServer ;
     mcp:serverName "ggen-mcp" ;
-    mcp:serverVersion "6.0.1" ;
+    mcp:serverVersion "26.5.4" ;
     mcp:serverDescription "ggen code generation MCP server" ;
     mcp:hasProtocolVersion "2025-11-25" ;
     mcp:hasTransport mcp:StdioTransport ;

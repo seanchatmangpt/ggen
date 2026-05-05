@@ -542,6 +542,6 @@ The ggen marketplace implementation satisfies Gate 6 requirements with:
 
 ---
 
-**Validator:** Claude Code (ggen v6.0.1)
+**Validator:** Claude Code (ggen v26.5.4)
 **Evidence Reviewed:** 3 receipt implementations, 2 test files, 1 pipeline integration
 **Code Coverage:** Receipt structures have comprehensive unit tests (90%+ coverage)

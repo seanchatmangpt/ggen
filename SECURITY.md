@@ -349,7 +349,7 @@ For critical vulnerabilities:
 ### Update Cadence
 
 - **Security patches**: Released within 72 hours (critical), 1 week (high), 2 weeks (medium)
-- **Minor updates**: Monthly (v6.1.0, v6.2.0, etc.)
+- **Minor updates**: Monthly (v26.5.4, v6.2.0, etc.)
 - **Major releases**: Quarterly (v7.0.0 planned Q2 2026)
 
 ## Compliance

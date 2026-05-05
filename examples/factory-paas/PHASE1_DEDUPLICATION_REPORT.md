@@ -100,8 +100,8 @@ Successfully completed Phase 1 of dependency deduplication, eliminating all crit
 - Consolidated through workspace version management
 
 #### 3. dashmap (Concurrent Hash Map) ✅
-**Before**: 2 versions (v5.5.3, v6.1.0)
-**After**: 1 version (v6.1.0)
+**Before**: 2 versions (v5.5.3, v26.5.4)
+**After**: 1 version (v26.5.4)
 **Impact**: Direct dependency, minimal transitive impact
 
 **Changes**:

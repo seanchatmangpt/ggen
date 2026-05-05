@@ -1,6 +1,6 @@
 # Pipeline Integration
 
-**Version:** 6.0.1
+**Version:** 26.5.4
 **Last Updated:** 2026-04-01
 **Status:** Production (pack μ₂ wiring landed in v6.1 track)
 
@@ -464,7 +464,7 @@ Example receipt (`.ggen/latest.json`):
 ```json
 {
   "epoch_id": "2024-03-31T12:00:00Z",
-  "toolchain_version": "6.0.1",
+  "toolchain_version": "26.5.4",
   "input_hash": "sha256:...",
   "output_files": [
     {
