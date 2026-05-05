@@ -11,7 +11,7 @@
 ## DOCUMENT STRUCTURE
 
 ### Primary Research Document
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/PHASE_2_INSURANCE_AND_CONTRACTS.md`
+**File**: `./tai-erlang-autonomics/PHASE_2_INSURANCE_AND_CONTRACTS.md`
 - **Size**: 87 KB
 - **Lines**: 2,060
 - **Sections**: 9 major parts
@@ -72,7 +72,7 @@
    - Success criteria at end of Phase 2
 
 ### Quick Reference Guide
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/PHASE_2_INSURANCE_QUICK_REFERENCE.md`
+**File**: `./tai-erlang-autonomics/PHASE_2_INSURANCE_QUICK_REFERENCE.md`
 - **Size**: 9.5 KB
 - **Lines**: 272
 - **Purpose**: Executive summary for rapid decision-making
@@ -266,7 +266,7 @@
 ## FILES & DIRECTORY STRUCTURE
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 
 PRIMARY RESEARCH DELIVERABLES:
 ├── PHASE_2_INSURANCE_AND_CONTRACTS.md (2,060 lines)

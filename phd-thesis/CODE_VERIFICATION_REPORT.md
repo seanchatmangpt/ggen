@@ -17,7 +17,7 @@ All code referenced in the PhD thesis has been verified to work correctly. The c
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| **ggen CLI** | ✅ Working | Binary builds successfully (`/Users/sac/ggen/target/release/ggen`, 26MB) |
+| **ggen CLI** | ✅ Working | Binary builds successfully (`./target/release/ggen`, 26MB) |
 | **Version** | ✅ 5.5.0 | `ggen --version` returns "cli 5.5.0" |
 | **Commands** | ✅ Working | `wizard`, `help` and all subcommands functional |
 | **Compilation** | ✅ Success | Release build completes in 41.12 seconds |
@@ -140,7 +140,7 @@ All 13 Service Level Objectives documented in the thesis are passing:
 
 ```bash
 # Verify core system compiles
-cd /Users/sac/ggen
+cd .
 cargo check                    # ✅ Compiles successfully
 
 # Verify tests pass

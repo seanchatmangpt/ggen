@@ -58,6 +58,18 @@
 //! });
 //! ```
 
+/// Macro to time an operation and record it in the current trace.
+#[macro_export]
+macro_rules! simple_time_operation {
+    ($name:expr, $block:block) => {{
+        let start = std::time::Instant::now();
+        let result = $block;
+        let elapsed = start.elapsed();
+        $crate::simple_tracing::SimpleTracer::performance($name, elapsed.as_millis() as u64);
+        result
+    }};
+}
+
 use std::path::Path;
 use std::time::Instant;
 
@@ -405,7 +417,7 @@ mod tests {
 
     #[test]
     fn test_time_operation_macro() {
-        let result = crate::time_operation!("test_op", {
+        let result = time_operation!("test_op", {
             std::thread::sleep(std::time::Duration::from_millis(2));
             42
         });

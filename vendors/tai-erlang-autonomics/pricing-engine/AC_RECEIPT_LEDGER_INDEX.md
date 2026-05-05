@@ -403,7 +403,7 @@ Receipts = maps:get(receipts, Ledger).
 ## File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/
+./tai-erlang-autonomics/pricing-engine/
 ├── src/
 │   └── ac_receipt_ledger_mcp.erl                      [625 lines]
 ├── test/

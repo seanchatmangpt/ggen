@@ -369,7 +369,7 @@ These are the 4 legally/financially binding documents:
 
 All files stored in:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+./tai-erlang-autonomics/execution/week-7-9/
 
 ├── INDEX.md (this file)
 ├── README.md (navigation & overview)

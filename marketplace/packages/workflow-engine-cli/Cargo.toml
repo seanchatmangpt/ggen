@@ -1,6 +1,6 @@
 [package]
 name = "workflow-engine-cli"
-version = "1.0.0"
+version.workspace = true
 edition = "2021"
 authors = ["Generated Ontology System"]
 license = "MIT OR Apache-2.0"

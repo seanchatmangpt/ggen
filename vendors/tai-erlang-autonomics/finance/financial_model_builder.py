@@ -9,6 +9,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime, timedelta
 import json
+from pathlib import Path
 
 class FinancialModelBuilder:
     def __init__(self, filename: str):
@@ -679,7 +680,8 @@ class FinancialModelBuilder:
 
 # Scenario parameters
 def main():
-    builder = FinancialModelBuilder("/Users/sac/ggen/tai-erlang-autonomics/finance/FINANCIAL_MODEL.xlsx")
+    base_path = Path(__file__).resolve().parent
+    builder = FinancialModelBuilder(str(base_path / "FINANCIAL_MODEL.xlsx"))
 
     # Create summary sheet
     builder.create_summary_sheet()

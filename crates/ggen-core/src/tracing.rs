@@ -1,5 +1,5 @@
 use std::path::Path;
-use tracing::{debug, info};
+use tracing::info;
 
 /// Initialize tracing based on environment variables
 pub fn init_tracing() -> ggen_utils::error::Result<()> {
@@ -52,11 +52,14 @@ fn init_otel_tracing() -> ggen_utils::error::Result<()> {
         .with_trace_config(
             trace::config()
                 .with_sampler(Sampler::AlwaysOn)
-                .with_resource(Resource::new(vec![KeyValue::new("service.name", "ggen")])),
+                .with_resource(Resource::new(vec![KeyValue::new(
+                    "service.name",
+                    "ggen",
+                )])),
         )
         .install_batch(runtime::Tokio)
         .map_err(|e| {
-            ggen_utils::error::Error::with_source("Failed to initialize OTel pipeline", e)
+            ggen_utils::error::Error::with_source("Failed to initialize OTLP tracing", e)
         })?;
 
     let otel_layer = OpenTelemetryLayer::new(tracer);
@@ -66,16 +69,12 @@ fn init_otel_tracing() -> ggen_utils::error::Result<()> {
     tracing_subscriber::registry()
         .with(env_filter)
         .with(otel_layer)
-        .with(tracing_subscriber::fmt::layer())
-        .try_init()
-        .map_err(|e| {
-            ggen_utils::error::Error::with_source("Failed to initialize tracing registry", e)
-        })?;
+        .init();
 
     Ok(())
 }
 
-/// Shutdown the global tracer provider to flush spans
+/// Shutdown tracing and flush providers
 pub fn shutdown_tracing() {
     #[cfg(feature = "otel")]
     opentelemetry::global::shutdown_tracer_provider();
@@ -93,11 +92,33 @@ impl PipelineTracer {
         )
     }
 
-    /// Log template processing start
-    pub fn template_start(template_path: &Path) {
+    /// Log frontmatter processing
+    pub fn frontmatter_processed(front: &crate::template_types::Frontmatter) {
+        info!(
+            target = %front.to.as_deref().unwrap_or("unknown"),
+            "Frontmatter processed"
+        );
+    }
+
+    /// Log context blessing
+    pub fn context_blessed(vars_count: usize) {
+        info!(vars_count = vars_count, "Template context blessed");
+    }
+
+    /// Log template parsing completion
+    pub fn template_parsing_complete(template_path: &Path, content_size: usize) {
         info!(
             template = %template_path.display(),
-            "Starting template processing"
+            content_size = content_size,
+            "Template parsing completed"
+        );
+    }
+
+    /// Log template rendering start
+    pub fn template_rendering_start(output_path: &Path) {
+        info!(
+            output_path = %output_path.display(),
+            "Starting template rendering"
         );
     }
 
@@ -107,6 +128,14 @@ impl PipelineTracer {
             output_path = %output_path.display(),
             content_size = content_size,
             "Template rendering completed"
+        );
+    }
+
+    /// Log template start
+    pub fn template_start(template_path: &Path) {
+        info!(
+            template = %template_path.display(),
+            "Starting template processing"
         );
     }
 
@@ -121,76 +150,162 @@ impl PipelineTracer {
 
     /// Log RDF loading completion
     pub fn rdf_loading_complete(triples_count: usize) {
-        info!(
-            triples_count = triples_count,
-            "RDF data loaded successfully"
-        );
-    }
-
-    /// Log performance metrics
-    pub fn performance_metric(operation: &str, duration_ms: u64) {
-        debug!(
-            operation = operation,
-            duration_ms = duration_ms,
-            "Performance metric"
-        );
+        info!(triples_count = triples_count, "RDF loading completed");
     }
 
     /// Log SPARQL query execution
-    pub fn sparql_query(query: &str, result_count: Option<usize>) {
-        debug!(
-            query = query,
-            result_count = ?result_count,
+    pub fn sparql_query(query: &str, results: Option<usize>) {
+        info!(
+            query_len = query.len(),
+            results_count = results.unwrap_or(0),
             "SPARQL query executed"
         );
     }
 
-    /// Log context blessing
-    pub fn context_blessed(vars_count: usize) {
-        debug!(
-            vars_count = vars_count,
-            "Context variables blessed (Name, locals added)"
-        );
-    }
-
-    /// Log frontmatter processing
-    pub fn frontmatter_processed(frontmatter: &crate::template_types::Frontmatter) {
-        debug!(
-            to = ?frontmatter.to,
-            inject = frontmatter.inject,
-            rdf_inline_count = frontmatter.rdf_inline.len(),
-            sparql_queries_count = frontmatter.sparql.len(),
-            "Frontmatter processed"
-        );
-    }
-
-    pub fn dry_run(output_path: &Path, content_size: usize) {
+    /// Log file injection start
+    pub fn file_injection_start(path: &Path, mode: &str) {
         info!(
-            output_path = %output_path.display(),
-            content_size = content_size,
-            "DRY RUN - File would be generated"
+            path = %path.display(),
+            mode = mode,
+            "Starting file injection"
+        );
+    }
+
+    /// Log file injection completion
+    pub fn file_injection_complete(path: &Path, mode: &str) {
+        info!(
+            path = %path.display(),
+            mode = mode,
+            "File injection completed"
+        );
+    }
+
+    /// Log shell hook start
+    pub fn shell_hook_start(command: &str, timing: &str) {
+        info!(
+            command = command,
+            timing = timing,
+            "Executing shell hook"
+        );
+    }
+
+    /// Log shell hook completion
+    pub fn shell_hook_complete(command: &str, timing: &str, exit_code: i32) {
+        info!(
+            command = command,
+            timing = timing,
+            exit_code = exit_code,
+            "Shell hook completed"
+        );
+    }
+
+    /// Log performance metric
+    pub fn performance_metric(operation: &str, duration_ms: u64) {
+        info!(
+            operation = operation,
+            duration_ms = duration_ms,
+            "Performance metric recorded"
+        );
+    }
+
+    /// Log error with context
+    pub fn error_with_context(error: &ggen_utils::error::Error, context: &str) {
+        tracing::error!(
+            error = %error,
+            context = context,
+            "Error occurred"
+        );
+    }
+
+    /// Log warning
+    pub fn warning(message: &str, context: Option<&str>) {
+        tracing::warn!(
+            message = message,
+            context = context.unwrap_or(""),
+            "Warning"
+        );
+    }
+
+    /// Log backup creation
+    pub fn backup_created(original: &Path, backup: &Path) {
+        info!(
+            original = %original.display(),
+            backup = %backup.display(),
+            "Backup created"
+        );
+    }
+
+    /// Log skip condition
+    pub fn skip_condition(condition: &str, reason: &str) {
+        info!(
+            condition = condition,
+            reason = reason,
+            "Template skipped"
+        );
+    }
+
+    /// Log dry run information
+    pub fn dry_run(path: &Path, size: usize) {
+        info!(
+            path = %path.display(),
+            size = size,
+            "Dry run: skipping file write"
         );
     }
 }
 
-/// Performance timing utilities
+/// Performance timer for measuring operation duration (RAII)
 pub struct PerformanceTimer {
-    start: std::time::Instant,
     operation: String,
+    start: std::time::Instant,
+    finished: bool,
 }
 
 impl PerformanceTimer {
-    /// Start timing an operation
+    /// Start a new performance timer
     pub fn start(operation: &str) -> Self {
         Self {
-            start: std::time::Instant::now(),
             operation: operation.to_string(),
+            start: std::time::Instant::now(),
+            finished: false,
         }
     }
 
-    /// Finish timing and log the result
-    pub fn finish(self) {
-        let duration = self.start.elapsed();
-        PipelineTracer::performance_metric(&self.operation, duration.as_millis() as u64);
+    /// Finish the timer and record the duration
+    pub fn finish(mut self) {
+        if !self.finished {
+            let duration = self.start.elapsed();
+            PipelineTracer::performance_metric(&self.operation, duration.as_millis() as u64);
+            self.finished = true;
+        }
     }
 }
+
+impl Drop for PerformanceTimer {
+    fn drop(&mut self) {
+        if !self.finished {
+            let duration = self.start.elapsed();
+            PipelineTracer::performance_metric(&self.operation, duration.as_millis() as u64);
+        }
+    }
+}
+
+/// Macro to time an operation using PerformanceTimer
+#[macro_export]
+macro_rules! time_operation {
+    ($name:expr, $block:block) => {{
+        let _timer = $crate::tracing::PerformanceTimer::start($name);
+        $block
+    }};
+}
+
+/// Macro to create a tracing span
+#[macro_export]
+macro_rules! trace_span {
+    ($name:expr, $($fields:tt)*) => {
+        tracing::info_span!($name, $($fields)*)
+    };
+}
+
+pub use time_operation;
+pub use trace_span;

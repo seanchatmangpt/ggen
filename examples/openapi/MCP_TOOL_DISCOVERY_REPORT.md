@@ -459,11 +459,11 @@ The ggen-generated OpenAPI schemas and Zod validation schemas are **fully functi
 
 ## Appendix: Test Code Location
 
-**Test File**: `/Users/sac/ggen/examples/openapi/tests/mcp-tool-discovery.test.mjs`
+**Test File**: `./examples/openapi/tests/mcp-tool-discovery.test.mjs`
 
 **Run Tests**:
 ```bash
-cd /Users/sac/ggen/examples/openapi
+cd ./examples/openapi
 npm install zod
 node tests/mcp-tool-discovery.test.mjs
 ```

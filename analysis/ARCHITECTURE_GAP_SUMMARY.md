@@ -445,5 +445,5 @@ This approach delivers a **production-ready CLI tool** while maintaining a clear
 
 ---
 
-**Analysis Complete. Stored in:** `/Users/sac/ggen/analysis/architecture-gap-analysis.json`
+**Analysis Complete. Stored in:** `./analysis/architecture-gap-analysis.json`
 

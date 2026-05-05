@@ -284,10 +284,10 @@ e2e_pack_workflow_test.rs
 
 ## Related Documentation
 
-- **CLI Commands**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/`
-- **Receipt Manager**: `/Users/sac/ggen/crates/ggen-cli/src/receipt_manager.rs`
-- **Lockfile**: `/Users/sac/ggen/crates/ggen-core/src/packs/lockfile.rs`
-- **Testing Policy**: `/Users/sac/ggen/.claude/rules/rust/testing.md`
+- **CLI Commands**: `./crates/ggen-cli/src/cmds/`
+- **Receipt Manager**: `./crates/ggen-cli/src/receipt_manager.rs`
+- **Lockfile**: `./crates/ggen-core/src/packs/lockfile.rs`
+- **Testing Policy**: `./.claude/rules/rust/testing.md`
 
 ## Summary
 

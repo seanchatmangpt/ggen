@@ -12,7 +12,7 @@ hooks = {
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate",
+            "command": "./tools/truth-gate/target/release/truth-gate",
             "timeout": 10
           }
         ]
@@ -24,7 +24,7 @@ hooks = {
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate",
+            "command": "./tools/truth-gate/target/release/truth-gate",
             "timeout": 10
           }
         ]
@@ -35,7 +35,7 @@ hooks = {
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate",
+            "command": "./tools/truth-gate/target/release/truth-gate",
             "timeout": 10
           }
         ]

@@ -315,9 +315,9 @@ Before claiming any LLM/external service feature is complete:
 
 ### References
 
-- `/Users/sac/ggen/.claude/rules/rust/testing.md` - Detailed Chicago TDD requirements
-- `/Users/sac/ggen/.claude/rules/rust/testing-forbidden.md` - Forbidden London TDD patterns
-- `/Users/sac/ggen/TEST_CATEGORIZATION_REPORT.md` - Current test categorization (63% Chicago, 37% London)
+- `./.claude/rules/rust/testing.md` - Detailed Chicago TDD requirements
+- `./.claude/rules/rust/testing-forbidden.md` - Forbidden London TDD patterns
+- `./TEST_CATEGORIZATION_REPORT.md` - Current test categorization (63% Chicago, 37% London)
 
 ### Migration Path
 
@@ -326,7 +326,7 @@ Existing London TDD tests should be:
 2. **Deleted** if they only test mock wiring (not real behavior)
 3. **Archived** to `tests-archive/london_tdd_legacy/` with DEPRECATED notice
 
-**See:** `/Users/sac/ggen/docs/LONDON_TDD_MIGRATION_GUIDE.md` (to be created)
+**See:** `./docs/LONDON_TDD_MIGRATION_GUIDE.md` (to be created)
 
 ## Workflow
 
@@ -372,7 +372,7 @@ launch 20 agents to implement all changes
 ```
 
 **Auto-Resume:** State saved to `.claude/autonomous/workflow-state.json`. On restart, continues from last incomplete phase.
-**See:** `/Users/sac/ggen/.claude/autonomous/workflow-pattern.md` for templates and examples.
+**See:** `./.claude/autonomous/workflow-pattern.md` for templates and examples.
 
 ### Agent Verification Protocol
 
@@ -390,6 +390,6 @@ Before launching agents:
 ## Support
 
 - **Repository**: https://github.com/seanchatmangpt/ggen
-- **Documentation**: /Users/sac/ggen/docs/
-- **Detailed Rules**: /Users/sac/ggen/.claude/rules/
-- **Research**: /Users/sac/ggen/docs/research/
+- **Documentation**: ./docs/
+- **Detailed Rules**: ./.claude/rules/
+- **Research**: ./docs/research/

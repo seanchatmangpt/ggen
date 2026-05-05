@@ -126,12 +126,12 @@ crates/ggen-cli/src/
 **Research conducted through parallel exploration agents:**
 
 1. **Thesis 3T System Analysis** (Reference Pattern)
-   - Explored `/Users/sac/ggen/docs/ggen-v6-thesis/` thesis generation system
+   - Explored `./docs/ggen-v6-thesis/` thesis generation system
    - Key findings: 5-pass pipeline (μ₁-μ₅), SHACL validation, SPARQL ORDER BY for determinism
    - Pattern: Schema ontology + content ontology + templates + configuration = generated documentation
 
 2. **v6 Ontology Vocabulary Patterns** (RDF Best Practices)
-   - Explored `/Users/sac/ggen/v6/ontology/ggen-v6.ttl` and related schemas
+   - Explored `./v6/ontology/ggen-v6.ttl` and related schemas
    - Key findings: Class hierarchies, datatype vs object properties, SHACL shape patterns
    - Pattern: Use `rdfs:domain`/`rdfs:range` for properties, SHACL shapes for validation
 
@@ -229,7 +229,7 @@ shacl:pattern "^(FR|NFR)-[0-9]{3}$"  # Enforces: FR-001, FR-002, etc.
 
 **Generation Workflow**:
 ```bash
-cd /Users/sac/ggen/specs/001-v6-3t-implementation
+cd ./specs/001-v6-3t-implementation
 
 # Generate specification from ontology
 ggen sync

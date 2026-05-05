@@ -82,18 +82,28 @@ impl ProofGateValidator {
     }
 
     fn check_schema_valid(&self, receipt: &BuildReceipt) -> GateReport {
-        // Validation: Did the normalization pass (which parses RDF) succeed?
-        let passed = receipt.passes.iter()
+        // Validation 1: Did the normalization pass (which parses RDF) succeed?
+        let normalization_success = receipt.passes.iter()
             .find(|p| p.pass_type == PassType::Normalization)
             .is_some_and(|p| p.success);
+            
+        // Validation 2: Check for SHACL validation results in the receipt metadata/passes
+        // The normalization pass records SHACL violations if they occur.
+        let shacl_passed = receipt.passes.iter()
+            .find(|p| p.pass_type == PassType::Normalization)
+            .map_or(true, |p| p.error.as_deref().map_or(true, |e| !e.to_lowercase().contains("shacl violation")));
+
+        let passed = normalization_success && shacl_passed;
             
         GateReport {
             gate_type: ProofGateType::SchemaValid,
             passed,
-            message: if passed {
-                "Ontology conforms to base vocabulary and parsed successfully.".to_string()
+            message: if !normalization_success {
+                "Ontology normalization failed (RDF parsing error).".to_string()
+            } else if !shacl_passed {
+                "Ontology failed SHACL validation constraints.".to_string()
             } else {
-                "Ontology schema validation or normalization failed.".to_string()
+                "Ontology conforms to base vocabulary and SHACL shapes.".to_string()
             },
         }
     }
@@ -171,20 +181,44 @@ impl ProofGateValidator {
             // Check for audit logs to perform real process mining verification
             let audit_log_path = std::path::Path::new(".ggen/audit/latest_events.json");
             if audit_log_path.exists() {
-                if let Ok(log_content) = std::fs::read_to_string(audit_log_path) {
-                    if let Ok(log) = serde_json::from_str::<pictl_types::EventLog>(&log_content) {
-                        // Discover net from log or use a pre-defined one
-                        if let Ok(net) = pictl_algos::alpha::discover_alpha(&log, "concept:name") {
-                            if let Ok(result) = pictl_algos::conformance::check_conformance_alignment(&log, &net, "concept:name") {
-                                let fitness = result.fitness;
-                                if fitness < 0.8 {
-                                    passed = false;
-                                    message.push_str(&format!(" (Process fitness {:.2} below threshold 0.80)", fitness));
-                                } else {
-                                    message.push_str(&format!(" (Process fitness {:.2} verified via pictl engine)", fitness));
+                match std::fs::read_to_string(audit_log_path) {
+                    Ok(log_content) => {
+                        match serde_json::from_str::<pictl_types::EventLog>(&log_content) {
+                            Ok(log) => {
+                                // Discover net from log or use a pre-defined one
+                                match pictl_algos::alpha::discover_alpha(&log, "concept:name") {
+                                    Ok(net) => {
+                                        match pictl_algos::conformance::check_conformance_alignment(&log, &net, "concept:name") {
+                                            Ok(result) => {
+                                                let fitness = result.fitness;
+                                                if fitness < 0.8 {
+                                                    passed = false;
+                                                    message.push_str(&format!(" (FAILED: Process fitness {:.2} below threshold 0.80)", fitness));
+                                                } else {
+                                                    message.push_str(&format!(" (Process fitness {:.2} verified via pictl engine)", fitness));
+                                                }
+                                            }
+                                            Err(e) => {
+                                                passed = false;
+                                                message.push_str(&format!(" (FAILED: Conformance checking failed: {})", e));
+                                            }
+                                        }
+                                    }
+                                    Err(e) => {
+                                        passed = false;
+                                        message.push_str(&format!(" (FAILED: Process discovery failed: {})", e));
+                                    }
                                 }
                             }
+                            Err(e) => {
+                                passed = false;
+                                message.push_str(&format!(" (FAILED: Malformed audit log: {})", e));
+                            }
                         }
+                    }
+                    Err(e) => {
+                        passed = false;
+                        message.push_str(&format!(" (FAILED: Could not read audit log: {})", e));
                     }
                 }
             } else {

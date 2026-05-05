@@ -24,7 +24,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
 ## Documentation Deliverables
 
 ### 1. ARCHITECTURE.md (Comprehensive)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ARCHITECTURE.md`
+**Location**: `./tai-erlang-autonomics/docs/ARCHITECTURE.md`
 **Status**: COMPLETE (31KB)
 **Audience**: Architects, senior developers
 
@@ -57,7 +57,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
 - Persistence & Observability
 
 ### 2. DEVELOPER_GUIDE.md (Comprehensive)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/DEVELOPER_GUIDE.md`
+**Location**: `./tai-erlang-autonomics/docs/DEVELOPER_GUIDE.md`
 **Status**: COMPLETE (18KB)
 **Audience**: Development team, contributors
 
@@ -104,7 +104,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
 - Resources (4 external links)
 
 ### 3. OPERATIONAL_GUIDE.md (Comprehensive)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/OPERATIONAL_GUIDE.md`
+**Location**: `./tai-erlang-autonomics/docs/OPERATIONAL_GUIDE.md`
 **Status**: COMPLETE (18KB)
 **Audience**: DevOps engineers, SREs, operations team
 
@@ -140,7 +140,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
   * Escalation path (Phase 1 → Phase 2 → Phase 3)
 
 ### 4. README.md (Root Project)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/README.md`
+**Location**: `./tai-erlang-autonomics/README.md`
 **Status**: COMPLETE (11KB)
 **Audience**: All users (end users, developers, operators)
 
@@ -166,7 +166,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
 - License and Support info
 
 ### 5. CONTRIBUTING.md (Root Project)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/CONTRIBUTING.md`
+**Location**: `./tai-erlang-autonomics/CONTRIBUTING.md`
 **Status**: COMPLETE (10KB)
 **Audience**: Contributors and open source community
 
@@ -178,7 +178,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
 - Signoff and guidelines
 
 ### 6. .gitignore (Version Control)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/.gitignore`
+**Location**: `./tai-erlang-autonomics/.gitignore`
 **Status**: VERIFIED (391 bytes, existing + comprehensive)
 **Content**:
 - Erlang patterns: _build/, .rebar3/, *.beam, *.o, *.so, *.dylib
@@ -223,7 +223,7 @@ Agent 20 has delivered production-grade technical documentation for the TAI Erla
 ### Documentation Files (7 total)
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── docs/
 │   ├── ARCHITECTURE.md           [31 KB] System architecture reference
 │   ├── DEVELOPER_GUIDE.md        [18 KB] Development setup & workflow

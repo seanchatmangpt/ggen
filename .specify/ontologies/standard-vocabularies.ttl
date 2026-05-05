@@ -1,0 +1,37 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix gv6: <http://ggen.dev/v6#> .
+@prefix meta: <http://ggen.ai/ontology/meta#> .
+@prefix ggen: <https://ggen.io/marketplace/> .
+
+# Standard Vocabulary Definitions for v26.5.4 Release
+# This file defines the "Authorized Baseline" for all Genesis admissions.
+
+gv6:StandardVocabulary a owl:Class ;
+    rdfs:label "Standard Vocabulary" ;
+    rdfs:comment "A namespace authorized for use in ggen v6 projects." .
+
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#> a gv6:StandardVocabulary ;
+    gv6:prefix "rdf" ;
+    rdfs:label "RDF syntax vocabulary" .
+
+<http://www.w3.org/2000/01/rdf-schema#> a gv6:StandardVocabulary ;
+    gv6:prefix "rdfs" ;
+    rdfs:label "RDF Schema vocabulary" .
+
+<http://www.w3.org/2002/07/owl#> a gv6:StandardVocabulary ;
+    gv6:prefix "owl" ;
+    rdfs:label "Web Ontology Language" .
+
+<http://ggen.dev/v6#> a gv6:StandardVocabulary ;
+    gv6:prefix "gv6" ;
+    rdfs:label "ggen v6 ontology" .
+
+<http://ggen.ai/ontology/meta#> a gv6:StandardVocabulary ;
+    gv6:prefix "meta" ;
+    rdfs:label "ggen meta-ontology" .
+
+<https://ggen.io/marketplace/> a gv6:StandardVocabulary ;
+    gv6:prefix "ggen" ;
+    rdfs:label "ggen marketplace vocabulary" .

@@ -44,7 +44,7 @@
 - [x] docker-compose.yml is syntactically valid
 - [x] Dockerfile is syntactically valid
 - [x] start.sh has valid bash syntax
-- [x] All files are in `/Users/sac/ggen/deploy/staging/`
+- [x] All files are in `./deploy/staging/`
 - [x] start.sh is executable
 - [x] No circular dependencies in compose file
 - [x] All required volumes defined
@@ -56,7 +56,7 @@
 The staging deployment is ready for testing. To start:
 
 ```bash
-cd /Users/sac/ggen
+cd .
 ./deploy/staging/start.sh
 ```
 
@@ -139,7 +139,7 @@ Expected: Real-time logs from node-1
 ## Files Located At
 
 ```
-/Users/sac/ggen/
+./
 └── deploy/
     └── staging/
         ├── Dockerfile          (63 lines)

@@ -16,22 +16,10 @@ output_dir = "."
 enable_llm = true
 llm_provider = "groq"
 llm_model = "llama-3.3-70b-versatile"
-
-[[generation.rules]]
-name = "generate-rust-skills"
-query = "extract-rust-skills.rq"
-template = "rust-skill.tera"
-output_file = "skills/{{ skill_name | snake_case }}.rs"
-skip_empty = true
-mode = "overwrite"
-
-[[generation.rules]]
-name = "generate-elixir-skills"
-query = "extract-elixir-skills.rq"
-template = "elixir-skill.tera"
-output_file = "skills/{{ skill_name | snake_case }}.ex"
-skip_empty = true
-mode = "overwrite"
+rules = [
+    { name = "generate-rust-skills", query = { file = "extract-rust-skills.rq" }, template = { file = "rust-skill.tera" }, output_file = "skills/{{ skill_name | snake_case }}.rs", skip_empty = true, mode = "Overwrite" },
+    { name = "generate-elixir-skills", query = { file = "extract-elixir-skills.rq" }, template = { file = "elixir-skill.tera" }, output_file = "skills/{{ skill_name | snake_case }}.ex", skip_empty = true, mode = "Overwrite" },
+]
 
 [validation]
 require_shacl = false

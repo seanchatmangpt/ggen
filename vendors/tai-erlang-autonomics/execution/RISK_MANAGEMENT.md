@@ -1183,7 +1183,7 @@ Next Week Risks to Watch:
 
 **Owner:** CEO (supported by VP Sales, CTO, VP CS)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/RISK_MANAGEMENT.md`
+**Location:** `./tai-erlang-autonomics/execution/RISK_MANAGEMENT.md`
 
 ---
 

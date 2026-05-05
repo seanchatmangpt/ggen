@@ -78,7 +78,7 @@ The noun-verb-cli-generator package is ready to be published to the ggen marketp
 ### Step 1: Verify Package Structure
 
 ```bash
-cd /Users/sac/ggen/templates/cli/noun-verb-cli
+cd ./templates/cli/noun-verb-cli
 
 # Check all required files
 ls -la gpack.toml package.json README.md
@@ -115,7 +115,7 @@ ls -lh docs/*.md
 
 ```bash
 # Create a test installation
-ggen market add noun-verb-cli-generator --local /Users/sac/ggen/templates/cli/noun-verb-cli
+ggen market add noun-verb-cli-generator --local ./templates/cli/noun-verb-cli
 
 # Verify it's installed
 ggen market info noun-verb-cli-generator
@@ -136,7 +136,7 @@ cargo test
 
 ```bash
 # Navigate to package directory
-cd /Users/sac/ggen/templates/cli/noun-verb-cli
+cd ./templates/cli/noun-verb-cli
 
 # Publish
 ggen market publish

@@ -310,7 +310,7 @@ Total: 2 tasks, 4.5 hours
 ### Primary Files
 
 ```
-/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/
+./specs/012-grand-unified-kgc-thesis/
 ├── ontology/
 │   ├── thesis-schema.ttl           # Updated by T051, T061
 │   └── kgc-unified-content.ttl     # Updated by T052-T060, T062-T075

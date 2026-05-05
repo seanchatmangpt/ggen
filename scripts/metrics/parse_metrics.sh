@@ -139,7 +139,7 @@ EOF
 
 # Extract template accessibility metrics
 extract_template_accessibility() {
-    local templates_dir="/Users/sac/ggen/templates"
+    local templates_dir="./templates"
     local total_templates=0
     local discovered_templates=0
 
@@ -168,7 +168,7 @@ EOF
 # Extract waste score metrics
 extract_waste_score() {
     local log_file="$1"
-    local codebase_dir="/Users/sac/ggen/crates"
+    local codebase_dir="./crates"
 
     local todo_count=0
     local unwrap_count=0

@@ -25,7 +25,7 @@ Gate 6 is **SATISFIED** with comprehensive receipt infrastructure in place. The 
 
 ### ✅ 1. CompositionReceipt Structure (PASS)
 
-**File:** `/Users/sac/ggen/crates/ggen-marketplace/src/composition_receipt.rs`
+**File:** `./crates/ggen-marketplace/src/composition_receipt.rs`
 
 **Provenance Tracked:**
 
@@ -92,7 +92,7 @@ pub struct AtomicPackRef {
 
 ### ✅ 2. BuildReceipt Extended with Pack Provenance (PASS)
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/v6/receipt.rs`
+**File:** `./crates/ggen-core/src/v6/receipt.rs`
 
 **Extensions Added:**
 
@@ -153,7 +153,7 @@ pub struct PackProvenance {
 
 ### ✅ 4. ReceiptChain Hash-Linked Proofs (PASS)
 
-**File:** `/Users/sac/ggen/crates/ggen-receipt/src/chain.rs`
+**File:** `./crates/ggen-receipt/src/chain.rs`
 
 **Chain Implementation:**
 ```rust
@@ -402,7 +402,7 @@ chain.verify(&verifying_key)?;
 
 1. **Pipeline Integration TODOs:**
 
-   **File:** `/Users/sac/ggen/crates/ggen-core/src/v6/pipeline.rs:465-473`
+   **File:** `./crates/ggen-core/src/v6/pipeline.rs:465-473`
 
    ```rust
    receipt.add_pack(PackProvenance {

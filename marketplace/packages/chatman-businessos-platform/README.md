@@ -36,7 +36,7 @@ ggen sync --spec ontology/businessos.ttl --output /tmp/generated-businessos/
 ## What This Package Does
 
 ### Input
-- **Ontology:** `ontology/businessos.ttl` — Linked to `/Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl`
+- **Ontology:** `ontology/businessos.ttl` — Linked to `~/.ggen/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl`
   - Services (OrderService, InvoiceService, ComplianceEngine, WebhookHandler)
   - Entities (Order, Invoice, Compliance Rules, Webhooks)
   - Endpoints (REST APIs, gRPC, WebSocket)
@@ -372,7 +372,7 @@ The ontology is symlinked to the actual BusinessOS ontology. Ensure the link is 
 
 ```bash
 ls -la ontology/businessos.ttl
-# Should show: ontology/businessos.ttl -> /Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl
+# Should show: ontology/businessos.ttl -> ~/.ggen/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl
 ```
 
 ### Error: SPARQL query returns no results

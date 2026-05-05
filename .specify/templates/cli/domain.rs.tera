@@ -56,7 +56,7 @@ pub mod {{ command.name | snake }} {
         {%- endif %}
         {%- endfor %}
     ) -> Result<impl Serialize, DomainError> {
-        unimplemented!("{{ command.name | snake }}::{{ subcmd.name | snake }} -- implement your logic here")
+        Err(DomainError::not_implemented("{{ command.name | snake }}::{{ subcmd.name | snake }}"))
     }
 
     {%- endfor %}
@@ -78,7 +78,7 @@ pub mod {{ command.name | snake }} {
         {%- if not loop.last %}, {% endif %}
         {%- endfor %}
     ) -> Result<impl Serialize, DomainError> {
-        unimplemented!("{{ command.name | snake }}::run -- implement your logic here")
+        Err(DomainError::not_implemented("{{ command.name | snake }}::run"))
     }
 }
 

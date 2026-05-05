@@ -481,7 +481,7 @@ WEEK_10_13_COMPLIANCE_CHECKPOINT.md
 - **Legal review**: Recommend external counsel for DPA + employment agreements
 
 ### Archive & Retention
-- **Storage**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+- **Storage**: `./tai-erlang-autonomics/execution/week-10-13/`
 - **Backup**: Sync to Google Drive for team access
 - **Retention**: Keep permanently (compliance record)
 - **Sharing**: Share selectively with investors (executive summary only)

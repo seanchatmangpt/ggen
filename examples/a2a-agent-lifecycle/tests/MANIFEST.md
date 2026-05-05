@@ -129,7 +129,7 @@ path = "tests/groq_schema_agent_integration.rs"
 
 ### Run Tests
 ```bash
-cd /Users/sac/ggen/examples/a2a-agent-lifecycle
+cd ./examples/a2a-agent-lifecycle
 cargo test --test groq_schema_agent_integration
 ```
 
@@ -165,7 +165,7 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured
 ## Directory Structure
 
 ```
-/Users/sac/ggen/examples/a2a-agent-lifecycle/
+./examples/a2a-agent-lifecycle/
 ├── Cargo.toml ......................... UPDATED
 ├── GROQ_SCHEMA_TESTING.md ............ NEW (master index)
 ├── README.md .......................... (existing)

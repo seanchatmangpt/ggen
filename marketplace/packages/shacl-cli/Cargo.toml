@@ -1,6 +1,6 @@
 [package]
 name = "shacl-cli"
-version = "0.1.0"
+version.workspace = true
 authors = ["ggen contributors"]
 edition = "2021"
 description = "SHACL validation, constraint enforcement, and reporting using clap-noun-verb"

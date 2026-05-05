@@ -79,7 +79,7 @@ def cli(ctx, {%- if config_file %}config, {% endif %}verbose):
 @click.option('{%- if option.short %}-{{ option.short }}, {%- endif %}--{{ option.long }}'{%- if option.help %}, help='{{ option.help }}'{%- endif %}{%- if option.default %}, default='{{ option.default }}'{%- endif %}{%- if option.multiple %}, multiple=True{%- endif %}{%- if option.type %}, type={{ option.python_click_type }}{%- endif %})
 {%- endfor %}
 @click.pass_context
-def {{ command.name | snake }}(
+def {{ command.name | snake_case }}(
     ctx,
     {%- for argument in command.arguments %}
     {{ argument.name }},
@@ -112,11 +112,11 @@ def {{ command.name | snake }}(
 
         # TODO: Implement {{ command.name }} command logic
         {%- for argument in command.arguments %}
-        console.print(f"  {{ argument.name }}: {{{ argument.name }}}")
+        console.print(f"  {{ argument.name }}: { {{ argument.name }} }")
         {%- endfor %}
         {%- for option in command.options %}
         if {{ option.long }}:
-            console.print(f"  {{ option.long }}: {{{ option.long }}}")
+            console.print(f"  {{ option.long }}: { {{ option.long }} }")
         {%- endfor %}
 
     except Exception as e:

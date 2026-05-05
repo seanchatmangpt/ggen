@@ -21,7 +21,7 @@ ls: .ggen/receipts/: No such file or directory
 **Answer:** The `packs install` command completes successfully but does not call any receipt generation code.
 
 **Evidence:**
-- Reading `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs` shows the `install()` function (line 176) calls `PackInstaller::install()` but has no receipt generation logic
+- Reading `./crates/ggen-cli/src/cmds/packs.rs` shows the `install()` function (line 176) calls `PackInstaller::install()` but has no receipt generation logic
 - The function returns `InstallOutput` with a success message but no cryptographic proof
 
 ### Why 2: Why wasn't receipt generation wired?
@@ -29,7 +29,7 @@ ls: .ggen/receipts/: No such file or directory
 **Answer:** The receipt generation infrastructure (`ggen-receipt` crate) exists but was never integrated into CLI operations.
 
 **Evidence:**
-- `/Users/sac/ggen/crates/ggen-receipt/` crate exists with full Ed25519 signing API
+- `./crates/ggen-receipt/` crate exists with full Ed25519 signing API
 - CLI code has TODO comments: `// TODO: Wire to ggen_domain::packs::Installer::install()`
 - No import of `ggen_receipt` in `ggen-cli/Cargo.toml` before the fix
 
@@ -67,7 +67,7 @@ ls: .ggen/receipts/: No such file or directory
 
 ### 1. Created ReceiptManager Utility
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/src/receipt_manager.rs`
+**File:** `./crates/ggen-cli/src/receipt_manager.rs`
 
 **Purpose:** Bridge between CLI operations and cryptographic receipt generation.
 
@@ -85,7 +85,7 @@ ls: .ggen/receipts/: No such file or directory
 
 ### 2. Integrated Receipt Generation into Pack Install
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs`
+**File:** `./crates/ggen-cli/src/cmds/packs.rs`
 
 **Changes:**
 - Added `use crate::receipt_manager::ReceiptManager;`
@@ -119,7 +119,7 @@ if report.success {
 
 ### 3. Added Required Dependencies
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/Cargo.toml`
+**File:** `./crates/ggen-cli/Cargo.toml`
 
 **Added:**
 ```toml
@@ -134,7 +134,7 @@ tempfile = "3.23"
 
 ### 4. Updated Module Exports
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/src/lib.rs`
+**File:** `./crates/ggen-cli/src/lib.rs`
 
 **Added:**
 ```rust
@@ -320,7 +320,7 @@ fn test_receipt_verification() {
 
 ### Integration Test
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/tests/receipt_generation_test.rs`
+**File:** `./crates/ggen-cli/tests/receipt_generation_test.rs`
 
 Tests that the ReceiptManager module compiles and can be instantiated.
 

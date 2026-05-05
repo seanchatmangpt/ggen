@@ -70,9 +70,9 @@ graph TD
 
 1. **ggen v26.5.4+ installed**
    ```bash
-   cd /Users/sac/ggen
+   cd .
    cargo build --release
-   export PATH="/Users/sac/ggen/target/release:$PATH"
+   export PATH="./target/release:$PATH"
    ```
 
 2. **Required tools**
@@ -86,7 +86,7 @@ graph TD
 #### Option 1: Automated Script (Recommended)
 
 ```bash
-cd /Users/sac/ggen/examples/self-play
+cd ./examples/self-play
 ./run-demo.sh
 ```
 
@@ -220,7 +220,7 @@ The demo tracks convergence across 3 iterations:
 
 **Solution**:
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo build --release
 ```
 
@@ -377,7 +377,7 @@ This demo is part of ggen and follows the same license.
 
 For issues or questions:
 - GitHub: https://github.com/seanchatmangpt/ggen/issues
-- Documentation: /Users/sac/ggen/docs/
+- Documentation: ./docs/
 
 ---
 

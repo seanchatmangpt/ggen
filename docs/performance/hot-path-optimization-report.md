@@ -11,7 +11,7 @@ This report identifies and optimizes the 20% hot paths in the ggen codebase that
 ## Identified Hot Paths
 
 ### 1. Template Parsing (HIGHEST PRIORITY)
-**Location:** `/Users/sac/ggen/crates/ggen-core/src/template_types.rs`
+**Location:** `./crates/ggen-core/src/template_types.rs`
 **Frequency:** Every template file processed
 **Current Issues:**
 - Multiple string allocations during frontmatter parsing
@@ -21,7 +21,7 @@ This report identifies and optimizes the 20% hot paths in the ggen codebase that
 **Impact:** Template parsing happens on every file in the codebase. For a typical project with 100 files, this operation runs 100+ times.
 
 ### 2. Frontmatter Rendering
-**Location:** `/Users/sac/ggen/crates/ggen-core/src/template_types.rs`
+**Location:** `./crates/ggen-core/src/template_types.rs`
 **Frequency:** Every template rendered
 **Current Issues:**
 - Repeated YAML parsing
@@ -30,7 +30,7 @@ This report identifies and optimizes the 20% hot paths in the ggen codebase that
 **Impact:** Frontmatter rendering occurs once per template use.
 
 ### 3. RDF/SPARQL Processing
-**Location:** `/Users/sac/ggen/crates/ggen-core/src/ontology/extractor.rs`
+**Location:** `./crates/ggen-core/src/ontology/extractor.rs`
 **Frequency:** When templates contain RDF inline
 **Current Issues:**
 - Graph insertion is O(n) per triple
@@ -39,7 +39,7 @@ This report identifies and optimizes the 20% hot paths in the ggen codebase that
 **Impact:** RDF processing is moderately frequent (when templates have `rdf_inline`).
 
 ### 4. LLM API Calls
-**Location:** `/Users/sac/ggen/crates/ggen-ai/src/client.rs`
+**Location:** `./crates/ggen-ai/src/client.rs`
 **Frequency:** When AI features are used
 **Current Issues:**
 - No response caching
@@ -236,9 +236,9 @@ These optimizations maintain code clarity while significantly improving performa
 ---
 
 **Files to Optimize:**
-- `/Users/sac/ggen/crates/ggen-core/src/template_types.rs` (template parsing)
-- `/Users/sac/ggen/crates/ggen-core/src/pipeline.rs` (template caching)
-- `/Users/sac/ggen/crates/ggen-core/src/ontology/extractor.rs` (RDF processing)
+- `./crates/ggen-core/src/template_types.rs` (template parsing)
+- `./crates/ggen-core/src/pipeline.rs` (template caching)
+- `./crates/ggen-core/src/ontology/extractor.rs` (RDF processing)
 
 **Benchmarks to Run:**
 - `cargo bench -p ggen-core --bench quick_hot_path` (template parsing)

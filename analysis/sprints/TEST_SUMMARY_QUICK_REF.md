@@ -81,5 +81,5 @@ All critical success factors met:
 
 ---
 
-**Full Report:** `/Users/sac/ggen/FINAL_VALIDATION_REPORT.md`
+**Full Report:** `./FINAL_VALIDATION_REPORT.md`
 **Test Output:** `/tmp/full_test_output.txt` (279KB)

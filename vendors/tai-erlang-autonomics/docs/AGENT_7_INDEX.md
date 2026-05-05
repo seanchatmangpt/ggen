@@ -44,7 +44,7 @@
 ## File Structure
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── apps/tai_autonomics/src/
 │   └── taiea_governor.erl                          [536 lines]
 │       ✓ Main implementation
@@ -353,7 +353,7 @@ Pid ! {action_failed, ActionId, <<"reason">>}
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_governor_SUITE
 ```
 
@@ -425,17 +425,17 @@ Agent 7 delivers a **production-grade state machine** for entitlement-driven bou
 ## File Locations
 
 **Implementation**:
-- `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_governor.erl`
+- `./tai-erlang-autonomics/apps/tai_autonomics/src/taiea_governor.erl`
 
 **Tests**:
-- `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_governor_SUITE.erl`
+- `./tai-erlang-autonomics/apps/tai_autonomics/test/taiea_governor_SUITE.erl`
 
 **Documentation**:
-- `/Users/sac/ggen/tai-erlang-autonomics/docs/QUICK_START.md`
-- `/Users/sac/ggen/tai-erlang-autonomics/docs/TAIEA_GOVERNOR_STATE_GRAPH.md`
-- `/Users/sac/ggen/tai-erlang-autonomics/docs/AGENT_7_IMPLEMENTATION_GUIDE.md`
-- `/Users/sac/ggen/tai-erlang-autonomics/docs/GOVERNOR_ARCHITECTURE.md`
-- `/Users/sac/ggen/tai-erlang-autonomics/docs/AGENT_7_RECEIPT.md`
+- `./tai-erlang-autonomics/docs/QUICK_START.md`
+- `./tai-erlang-autonomics/docs/TAIEA_GOVERNOR_STATE_GRAPH.md`
+- `./tai-erlang-autonomics/docs/AGENT_7_IMPLEMENTATION_GUIDE.md`
+- `./tai-erlang-autonomics/docs/GOVERNOR_ARCHITECTURE.md`
+- `./tai-erlang-autonomics/docs/AGENT_7_RECEIPT.md`
 
 ---
 

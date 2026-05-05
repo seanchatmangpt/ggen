@@ -225,15 +225,29 @@ async fn check_observability() -> Result<CheckResult> {
 /// Check SLO Performance (Vision 2030 Gate)
 async fn check_slo() -> Result<CheckResult> {
     use std::time::Instant;
+    use ggen_core::v6::vocabulary::VocabularyRegistry;
+    use std::collections::BTreeSet;
 
     let start = Instant::now();
 
-    // SLO Target: Metadata access / Lockfile load should be < 10ms
-    // For the doctor check, we perform a lightweight IO operation on the lockfile if it exists
-    let lockfile = std::path::Path::new("ggen.lock");
-    if lockfile.exists() {
-        let _ = std::fs::read_to_string(lockfile);
-    }
+    // Deep SLO Check: Execute a full Vocabulary Validation Cycle
+    // This measures the real architectural bottleneck of the v6 pipeline.
+    let registry = VocabularyRegistry::with_standard_vocabularies();
+    
+    // Test a synthetic set of 10 namespaces to measure resolution latency
+    let mut test_ns = BTreeSet::new();
+    test_ns.insert("http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
+    test_ns.insert("http://www.w3.org/2000/01/rdf-schema#".to_string());
+    test_ns.insert("http://www.w3.org/2002/07/owl#".to_string());
+    test_ns.insert("http://ggen.dev/v6#".to_string());
+    test_ns.insert("https://ggen.io/marketplace/".to_string());
+    test_ns.insert("http://www.w3.org/2001/XMLSchema#".to_string());
+    test_ns.insert("http://www.w3.org/ns/shacl#".to_string());
+    test_ns.insert("https://schema.org/".to_string());
+    test_ns.insert("http://purl.org/dc/terms/".to_string());
+    test_ns.insert("http://xmlns.com/foaf/0.1/".to_string());
+    
+    let _ = registry.validate_namespaces(&test_ns);
 
     let duration = start.elapsed();
     let limit = std::time::Duration::from_millis(10);
@@ -242,14 +256,14 @@ async fn check_slo() -> Result<CheckResult> {
         Ok(CheckResult {
             name: "SLO Performance".to_string(),
             status: CheckStatus::Ok,
-            message: format!("Metadata access latency: {:?} (< 10ms target)", duration),
+            message: format!("Vocabulary validation latency: {:?} (< 10ms target)", duration),
         })
     } else {
         Ok(CheckResult {
             name: "SLO Performance".to_string(),
             status: CheckStatus::Warning,
             message: format!(
-                "Metadata access latency: {:?} exceeds 10ms target (Vision 2030 violation)",
+                "Vocabulary validation latency: {:?} exceeds 10ms target (Vision 2030 violation)",
                 duration
             ),
         })

@@ -19,7 +19,7 @@
 ### Terraform Setup
 
 - [ ] Terraform v1.0+ installed (`terraform version`)
-- [ ] Terraform working directory: `/Users/sac/ggen/tai-erlang-autonomics/gcp/`
+- [ ] Terraform working directory: `./tai-erlang-autonomics/gcp/`
 - [ ] All `.tf` files present (7 files: main, cloud-run, firestore, iam, monitoring, outputs, variables)
 - [ ] All documentation files present (TERRAFORM_GUIDE.md, RECEIPT.md, this file)
 
@@ -57,7 +57,7 @@
 ### Step 1: Initialize Terraform
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/gcp/
+cd ./tai-erlang-autonomics/gcp/
 
 # Set credentials
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/terraform-key.json"

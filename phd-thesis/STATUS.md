@@ -132,7 +132,7 @@ Each chapter needs to be expanded 10-20x:
 ## Build Commands
 
 ```bash
-cd /Users/sac/ggen/phd-thesis
+cd ./phd-thesis
 
 # Build complete thesis
 make thesis

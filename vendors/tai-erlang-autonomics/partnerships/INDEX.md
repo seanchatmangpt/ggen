@@ -1,6 +1,6 @@
 # ggen Partnership Strategy: Complete Index
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/partnerships/`
+**Location**: `./tai-erlang-autonomics/partnerships/`
 **Status**: Ready for Implementation
 **Date**: January 25, 2026
 **Total Documents**: 6 files, 3,767 lines, 128 KB

@@ -9,7 +9,7 @@ This document serves as the central index for the TAI Entitlement Resolver imple
 ### Core Code (3 modules, 1,036 lines)
 
 #### 1. Main Module: taiea_entitlement.erl (561 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_entitlement.erl`
+**Location**: `./tai-erlang-autonomics/apps/tai_autonomics/src/taiea_entitlement.erl`
 
 Production-ready gen_server implementing:
 - Entitlement state tracking per tenant
@@ -39,7 +39,7 @@ start_link() -> {ok, Pid} | {error, Reason}
 - Timestamp management
 
 #### 2. Supervisor: taiea_entitlement_sup.erl (48 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_entitlement_sup.erl`
+**Location**: `./tai-erlang-autonomics/apps/tai_autonomics/src/taiea_entitlement_sup.erl`
 
 Supervision tree integration:
 - Starts taiea_entitlement gen_server
@@ -48,7 +48,7 @@ Supervision tree integration:
 - 5-second shutdown timeout
 
 #### 3. Test Suite: taiea_entitlement_SUITE.erl (427 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/test/taiea_entitlement_SUITE.erl`
+**Location**: `./tai-erlang-autonomics/test/taiea_entitlement_SUITE.erl`
 
 Comprehensive test coverage (28 test cases):
 - **Initialization**: Test data setup (1 test)
@@ -61,7 +61,7 @@ Comprehensive test coverage (28 test cases):
 ### Documentation (1,302 lines)
 
 #### 1. ENTITLEMENT_RESOLVER.md (486 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ENTITLEMENT_RESOLVER.md`
+**Location**: `./tai-erlang-autonomics/docs/ENTITLEMENT_RESOLVER.md`
 
 **Contents**:
 - Module overview and purpose
@@ -83,7 +83,7 @@ Comprehensive test coverage (28 test cases):
 **Use This For**: Complete API understanding, function signatures, error codes, integration strategy
 
 #### 2. ENTITLEMENT_DEMO.md (424 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ENTITLEMENT_DEMO.md`
+**Location**: `./tai-erlang-autonomics/docs/ENTITLEMENT_DEMO.md`
 
 **Contents**:
 - Quick start guide
@@ -106,7 +106,7 @@ Comprehensive test coverage (28 test cases):
 **Use This For**: Learning by example, copy-paste patterns, quick implementation
 
 #### 3. ENTITLEMENT_QUICK_REFERENCE.md (384 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ENTITLEMENT_QUICK_REFERENCE.md`
+**Location**: `./tai-erlang-autonomics/docs/ENTITLEMENT_QUICK_REFERENCE.md`
 
 **Contents**:
 - Module at a glance
@@ -124,7 +124,7 @@ Comprehensive test coverage (28 test cases):
 **Use This For**: Quick lookup, reference during development, checklists
 
 #### 4. ENTITLEMENT_ARCHITECTURE.md (486 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ENTITLEMENT_ARCHITECTURE.md`
+**Location**: `./tai-erlang-autonomics/docs/ENTITLEMENT_ARCHITECTURE.md`
 
 **Contents**:
 - System overview diagrams
@@ -147,7 +147,7 @@ Comprehensive test coverage (28 test cases):
 **Use This For**: Understanding design, integration planning, scaling strategy
 
 #### 5. ENTITLEMENT_IMPLEMENTATION_RECEIPT.md (392 lines)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ENTITLEMENT_IMPLEMENTATION_RECEIPT.md`
+**Location**: `./tai-erlang-autonomics/docs/ENTITLEMENT_IMPLEMENTATION_RECEIPT.md`
 
 **Contents**:
 - Scope completion checklist
@@ -170,7 +170,7 @@ Comprehensive test coverage (28 test cases):
 ### Summary Documents
 
 #### AGENT_8_SUMMARY.md (extensive)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/AGENT_8_SUMMARY.md`
+**Location**: `./tai-erlang-autonomics/AGENT_8_SUMMARY.md`
 
 High-level completion summary including:
 - Deliverables overview
@@ -345,7 +345,7 @@ See **ENTITLEMENT_DEMO.md** for 8+ more examples.
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=test/taiea_entitlement_SUITE
 ```
 

@@ -107,7 +107,7 @@ All implementation files are in `apps/tai_autonomics/src/`:
 
 ### Compile All Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 erlc -I apps/tai_autonomics/include -o apps/tai_autonomics/test \
   apps/tai_autonomics/test/taiea_mcp_server_test.erl \
   apps/tai_autonomics/test/taiea_tool_health_test.erl \
@@ -118,7 +118,7 @@ erlc -I apps/tai_autonomics/include -o apps/tai_autonomics/test \
 
 ### Run Tests with rebar3
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 eunit apps=tai_autonomics
 ```
 
@@ -184,7 +184,7 @@ Total Test Cases:             33
 ## File Structure
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── apps/tai_autonomics/
 │   ├── src/
 │   │   ├── taiea_mcp_server.erl

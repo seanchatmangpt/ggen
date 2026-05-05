@@ -48,7 +48,7 @@ The application demonstrates solid architectural foundations but requires immedi
 
 ### 1.1 Endpoint Overview
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_http.erl`
+**File:** `./tai-erlang-autonomics/apps/tai_autonomics/src/tai_http.erl`
 
 The application exposes three HTTP endpoints via Cowboy web server:
 

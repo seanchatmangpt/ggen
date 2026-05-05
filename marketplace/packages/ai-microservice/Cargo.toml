@@ -1,6 +1,6 @@
 [package]
 name = "ai-microservice"
-version = "0.1.0"
+version.workspace = true
 edition = "2021"
 authors = ["ggen examples"]
 description = "Comprehensive AI-powered microservice showcasing all ggen-ai features"

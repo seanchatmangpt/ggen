@@ -468,7 +468,7 @@ EOF
 
 ## References
 
-- Vision 2030 Complete: `/Users/sac/ggen/docs/VISION_2030_COMPLETE.md`
-- Release Notes: `/Users/sac/ggen/CHANGELOG.md`
-- Architecture: `/Users/sac/ggen/docs/architecture/COMPRESSED_REFERENCE.md`
-- Test Audit: `/Users/sac/ggen/docs/crate-audits/TEST_AUDIT.md`
+- Vision 2030 Complete: `./docs/VISION_2030_COMPLETE.md`
+- Release Notes: `./CHANGELOG.md`
+- Architecture: `./docs/architecture/COMPRESSED_REFERENCE.md`
+- Test Audit: `./docs/crate-audits/TEST_AUDIT.md`

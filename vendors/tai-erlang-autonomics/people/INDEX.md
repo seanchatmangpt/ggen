@@ -463,7 +463,7 @@
 
 ## Files Location
 
-All documents located in: `/Users/sac/ggen/tai-erlang-autonomics/people/`
+All documents located in: `./tai-erlang-autonomics/people/`
 
 ```
 people/

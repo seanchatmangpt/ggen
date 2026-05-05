@@ -1,9 +1,6 @@
-# Standalone package (not part of workspace)
-[workspace]
-
 [package]
 name = "chatman-cli"
-version = "0.1.0"
+version.workspace = true
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"

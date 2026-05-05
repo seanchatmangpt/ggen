@@ -32,7 +32,7 @@ This Risk Management system consists of **3 core documents + 1 index** (this doc
 
 **Read Time:** 45-60 minutes (full), 10-15 minutes (executive summary), 2-3 minutes (specific risk)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/RISK_MANAGEMENT.md`
+**Location:** `./tai-erlang-autonomics/execution/RISK_MANAGEMENT.md`
 
 ---
 
@@ -56,7 +56,7 @@ This Risk Management system consists of **3 core documents + 1 index** (this doc
 
 **Read Time:** 60-90 minutes (full), 5-10 minutes (specific contingency), 2-3 minutes (decision tree)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/CONTINGENCY_PROCEDURES.md`
+**Location:** `./tai-erlang-autonomics/execution/CONTINGENCY_PROCEDURES.md`
 
 ---
 
@@ -83,7 +83,7 @@ This Risk Management system consists of **3 core documents + 1 index** (this doc
 
 **Read Time:** 5 minutes (full), 30 seconds (specific trigger)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/RISK_CONTINGENCY_QUICK_REFERENCE.md`
+**Location:** `./tai-erlang-autonomics/execution/RISK_CONTINGENCY_QUICK_REFERENCE.md`
 
 ---
 
@@ -366,7 +366,7 @@ Output: Filled-in weekly template sent to board
 ## 📁 File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/
+./tai-erlang-autonomics/execution/
 ├── RISK_MANAGEMENT.md                      [Main risk document - 15K words]
 ├── CONTINGENCY_PROCEDURES.md               [Playbooks - 12K words]
 ├── RISK_CONTINGENCY_QUICK_REFERENCE.md    [Cheat sheet - 2.5K words]
@@ -467,7 +467,7 @@ Output: Filled-in weekly template sent to board
 
 ---
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/RISK_MANAGEMENT_INDEX.md`
+**Location:** `./tai-erlang-autonomics/execution/RISK_MANAGEMENT_INDEX.md`
 
 **Version:** 1.0.0
 **Created:** January 26, 2026

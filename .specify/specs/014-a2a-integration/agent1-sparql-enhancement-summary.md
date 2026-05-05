@@ -5,8 +5,8 @@
 **Date:** 2026-03-30
 **Agent:** Agent 1 of 7 (A2A Templating Completion)
 **Files Modified:**
-- `/Users/sac/ggen/crates/ggen-core/queries/a2a/extract-a2a-full.rq`
-- `/Users/sac/ggen/crates/ggen-core/queries/a2a/extract-a2a-skills.rq`
+- `./crates/ggen-core/queries/a2a/extract-a2a-full.rq`
+- `./crates/ggen-core/queries/a2a/extract-a2a-skills.rq`
 
 ---
 
@@ -69,7 +69,7 @@ This directly accesses the property on the Skill entity.
 
 ## Expected Query Results
 
-When executed against `/Users/sac/ggen/.specify/specs/014-a2a-integration/example-agent.ttl`, the enhanced queries will return:
+When executed against `./.specify/specs/014-a2a-integration/example-agent.ttl`, the enhanced queries will return:
 
 ### Skills with Complex Type Schemas
 1. **file_read**

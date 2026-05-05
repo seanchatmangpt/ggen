@@ -288,4 +288,4 @@ ggen wizard --profile receipts-first --output-dir /tmp/test-wizard --yes --no-sy
 
 **Report Generated**: 2026-04-01
 **Investigated By**: Claude Code Agent
-**Plan File**: `/Users/sac/.claude/plans/clever-skipping-axolotl-agent-a1ce9c05630c0a644.md`
+**Plan File**: `~/.ggen/.claude/plans/clever-skipping-axolotl-agent-a1ce9c05630c0a644.md`

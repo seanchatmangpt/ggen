@@ -47,7 +47,7 @@ Result: 6/7 pass → reject with specific failure reason
 ### As a Demo
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo run --example property-based-validation
 ```
 

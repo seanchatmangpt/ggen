@@ -62,6 +62,9 @@ pub mod passes;
 // Pipeline orchestration
 pub mod pipeline;
 
+pub mod intent;
+pub mod proof_gate;
+
 // Re-exports
 pub use epoch::{Epoch, EpochId, OntologyInput};
 pub use guard::{Guard, GuardAction, GuardViolation, PathGuard, SecretGuard};

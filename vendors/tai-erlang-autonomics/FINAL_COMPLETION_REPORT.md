@@ -154,7 +154,7 @@ Created structured 239-item completion checklist covering:
 - 🟡 Git & Version Control (10 items) - Ready for finalization
 - 🟡 CI/CD Pipeline (10 items) - Ready for setup
 
-**File Location**: `/Users/sac/ggen/tai-erlang-autonomics/TODO_100_ITEMS.md`
+**File Location**: `./tai-erlang-autonomics/TODO_100_ITEMS.md`
 
 ---
 

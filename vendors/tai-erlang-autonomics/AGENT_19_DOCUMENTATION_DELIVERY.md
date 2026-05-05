@@ -185,7 +185,7 @@ Four comprehensive, customer-facing documentation files have been created and de
 ## File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/docs/
+./tai-erlang-autonomics/docs/
 ├── SUPPORT_MODEL.md (343 lines, 10.8 KB)
 ├── INSTALL.md (514 lines, 10.3 KB)
 ├── API.md (712 lines, 15.3 KB)

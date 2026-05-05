@@ -213,10 +213,10 @@ Explicit Parameter > GROQ_MODEL env var > GROQ_DEFAULT constant
 
 ## Files Modified
 
-- ✅ `/Users/sac/ggen/crates/ggen-cli/tests/mcp_a2a_validation.rs` - 504 lines (NEW)
-- ✅ `/Users/sac/ggen/crates/ggen-cli/tests/mcp_groq_integration.rs` - 495 lines (NEW)
-- ✅ `/Users/sac/ggen/crates/knhk-etl/src/lib.rs` - Added `#[derive(Clone)]` to TypedTriple
-- ✅ `/Users/sac/ggen/crates/ggen-packet/src/lib.rs` - Added `# Errors` documentation (4 methods)
+- ✅ `./crates/ggen-cli/tests/mcp_a2a_validation.rs` - 504 lines (NEW)
+- ✅ `./crates/ggen-cli/tests/mcp_groq_integration.rs` - 495 lines (NEW)
+- ✅ `./crates/knhk-etl/src/lib.rs` - Added `#[derive(Clone)]` to TypedTriple
+- ✅ `./crates/ggen-packet/src/lib.rs` - Added `# Errors` documentation (4 methods)
 
 ---
 

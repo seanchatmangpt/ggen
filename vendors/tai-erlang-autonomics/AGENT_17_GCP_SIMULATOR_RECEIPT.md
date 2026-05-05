@@ -18,7 +18,7 @@ Agent 17 successfully created a comprehensive GCP Cloud Run deployment simulator
 
 ### 1. Deployment Simulator: `tools/gcp-deploy.sh`
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/tools/gcp-deploy.sh`
+**Location**: `./tai-erlang-autonomics/tools/gcp-deploy.sh`
 **Size**: 570 lines
 **Status**: Executable, tested, production-ready
 
@@ -78,7 +78,7 @@ GCP_PROJECT=my-project GCP_REGION=europe-west1 ./tools/gcp-deploy.sh
 
 ### 2. Production Dockerfile: `tools/Dockerfile`
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/tools/Dockerfile`
+**Location**: `./tai-erlang-autonomics/tools/Dockerfile`
 **Size**: 58 lines
 **Status**: Production-ready multi-stage build
 
@@ -114,7 +114,7 @@ docker push gcr.io/taiea-phase1/taiea:1.0.0
 
 ### 3. Updated Documentation: `docs/GCP_DEPLOYMENT.md`
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/GCP_DEPLOYMENT.md`
+**Location**: `./tai-erlang-autonomics/docs/GCP_DEPLOYMENT.md`
 **Sections Added**:
 1. **Simulator Quick Start** (Step 0)
 2. **Cloud Run Deployment Simulator** section with:
@@ -360,21 +360,21 @@ Next Steps (Phase 2):
 
 ### Created Files
 
-1. **`/Users/sac/ggen/tai-erlang-autonomics/tools/gcp-deploy.sh`**
+1. **`./tai-erlang-autonomics/tools/gcp-deploy.sh`**
    - 570 lines, executable
    - Deployment simulator with full feature set
 
-2. **`/Users/sac/ggen/tai-erlang-autonomics/tools/Dockerfile`**
+2. **`./tai-erlang-autonomics/tools/Dockerfile`**
    - 58 lines
    - Multi-stage production Dockerfile
 
-3. **`/Users/sac/ggen/tai-erlang-autonomics/AGENT_17_GCP_SIMULATOR_RECEIPT.md`**
+3. **`./tai-erlang-autonomics/AGENT_17_GCP_SIMULATOR_RECEIPT.md`**
    - This receipt document
    - Comprehensive delivery summary
 
 ### Modified Files
 
-1. **`/Users/sac/ggen/tai-erlang-autonomics/docs/GCP_DEPLOYMENT.md`**
+1. **`./tai-erlang-autonomics/docs/GCP_DEPLOYMENT.md`**
    - Added Step 0: Simulate Deployment
    - Added Cloud Run Deployment Simulator section
    - Updated Next Steps with Phase 1/2 checklist

@@ -84,6 +84,21 @@ pub struct SyncOutput {
     /// Path to the cryptographic receipt emitted after sync (if generated)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receipt_path: Option<String>,
+
+    /// Results of the manufacturing proof gates
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub gates: Vec<GateResult>,
+}
+
+/// Result of a single proof gate
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct GateResult {
+    /// Gate name
+    pub name: String,
+    /// Whether the gate passed
+    pub passed: bool,
+    /// Detailed message
+    pub message: String,
 }
 
 /// Individual file sync result
@@ -118,7 +133,8 @@ impl From<SyncResult> for SyncOutput {
             generation_rules_executed: result.generation_rules_executed,
             audit_trail: result.audit_trail,
             error: result.error,
-            receipt_path: None, // populated separately by emit_sync_receipt
+            receipt_path: None,
+            gates: Vec::new(),
         }
     }
 }
@@ -482,6 +498,7 @@ fn run_manifest_pipeline(
         audit_trail: None,
         error: None,
         receipt_path: receipt_file_path.or_else(|| Some(".ggen/receipts/latest.json".to_string())),
+        gates: Vec::new(),
     })
 }
 
@@ -694,6 +711,7 @@ fn run_low_level_pipeline(
         audit_trail: None,
         error: violation_msg,
         receipt_path: None,
+        gates: Vec::new(),
     })
 }
 

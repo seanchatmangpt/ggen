@@ -511,7 +511,7 @@ cargo test --lib
 # Result: running 80 tests ... test result: ok. 80 passed
 
 # Combined
-cd /Users/sac/ggen
+cd .
 cargo test --example ai-code-generation --lib
 cargo test --example ai-templates --lib
 # Total: 168 tests, 100% pass rate

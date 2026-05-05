@@ -5,14 +5,14 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-METRICS_DIR="/Users/sac/ggen/.metrics"
+METRICS_DIR="./.metrics"
 DATE=$(date +%Y-%m-%d)
 WEEK="${1:-1}"
 LOG_FILE="$METRICS_DIR/logs/$DATE.log"
 
 mkdir -p "$METRICS_DIR/logs"
 mkdir -p "$METRICS_DIR/daily"
-mkdir -p "/Users/sac/ggen/docs/metrics"
+mkdir -p "./docs/metrics"
 
 echo "🔍 Collecting metrics for Week $WEEK - $DATE"
 
@@ -37,7 +37,7 @@ echo "Generating dashboard..."
 
 # Step 4: Create latest symlink
 ln -sf "$METRICS_JSON" "$METRICS_DIR/latest.json"
-ln -sf "/Users/sac/ggen/docs/metrics/dashboard-$DATE.html" "/Users/sac/ggen/docs/metrics/latest.html"
+ln -sf "./docs/metrics/dashboard-$DATE.html" "./docs/metrics/latest.html"
 
 # Step 5: Check for Andon signals
 echo "Checking for Andon signals..."
@@ -54,5 +54,5 @@ elif [[ $HIGH_SIGNALS -gt 0 ]]; then
 fi
 
 echo "✅ Metrics collection complete"
-echo "📊 Dashboard: /Users/sac/ggen/docs/metrics/latest.html"
+echo "📊 Dashboard: ./docs/metrics/latest.html"
 echo "📈 Metrics JSON: $METRICS_JSON"

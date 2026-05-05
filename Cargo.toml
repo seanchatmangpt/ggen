@@ -44,6 +44,8 @@ members = [
   "crates/ggen-transport",
   "crates/pictl-types",
   "crates/pictl-algos",
+  "crates/ggen-a2a",
+  "crates/ggen-node",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
@@ -54,7 +56,6 @@ exclude = [
   "examples/gcp-erlang-autonomics",
   "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
   "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
-  "marketplace/packages/workflow-engine-cli",
   "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
   "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
@@ -837,6 +838,10 @@ required-features = ["integration"]
 [[test]]
 name = "factory_paas_runner"
 path = "tests/factory_paas_runner.rs"
+required-features = ["integration"]
+[[test]]
+name = "test_telco_routing"
+path = "tests/integration/test_telco_routing.rs"
 required-features = ["integration"]
 # ============================================================================
 # DEBIAN PACKAGING (cargo-deb)

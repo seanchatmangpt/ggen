@@ -84,7 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Run Demo
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo run --example 7-agent-validation
 ```
 

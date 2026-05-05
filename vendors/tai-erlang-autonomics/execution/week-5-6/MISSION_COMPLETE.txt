@@ -393,7 +393,7 @@ DOCUMENT LOCATIONS
 ═════════════════════════════════════════════════════════════════════════════
 
 All files located in:
-  /Users/sac/ggen/tai-erlang-autonomics/execution/week-5-6/
+  ./tai-erlang-autonomics/execution/week-5-6/
 
 Core Financial Documents:
   ✓ EXECUTIVE_SUMMARY.md

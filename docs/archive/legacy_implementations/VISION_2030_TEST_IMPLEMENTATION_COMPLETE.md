@@ -254,8 +254,8 @@ cargo test --test vision_2030_benchmarks -- --ignored
 
 - [VISION_2030_TEST_RESULTS.md](docs/VISION_2030_TEST_RESULTS.md) — Detailed test strategy
 - [VISION_2030_IMPLEMENTATION_SUMMARY.md](docs/VISION_2030_IMPLEMENTATION_SUMMARY.md) — Implementation details
-- [Makefile.toml](/Users/sac/ggen/Makefile.toml) — Build tasks
-- [CLAUDE.md](/Users/sac/ggen/CLAUDE.md) — Testing philosophy
+- [Makefile.toml](./Makefile.toml) — Build tasks
+- [CLAUDE.md](./CLAUDE.md) — Testing philosophy
 
 ---
 

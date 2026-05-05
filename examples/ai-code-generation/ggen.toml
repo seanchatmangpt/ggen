@@ -1,0 +1,14 @@
+[project]
+name = "ai-code-generation"
+version = "0.1.0"
+description = "AI-powered code generation example"
+
+[ontology]
+source = "ontology.ttl"
+
+[[generation.rules]]
+name = "readme"
+query = { inline = "SELECT * WHERE { ?s ?p ?o }" }
+template = { inline = "# AI Code Generation\n\nGenerated with ggen." }
+output_file = "README.md"
+mode = "Overwrite"

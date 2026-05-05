@@ -20,7 +20,7 @@ Gate 3 is **PARTIALLY SATISFIED**. The ownership map and multi-dimensional confl
 
 **Evidence:**
 ```rust
-// /Users/sac/ggen/crates/ggen-marketplace/src/ownership.rs:16-30
+// ./crates/ggen-marketplace/src/ownership.rs:16-30
 pub enum OwnershipClass {
     /// Exactly one pack may own this artifact/field.
     Exclusive,
@@ -49,7 +49,7 @@ pub enum OwnershipClass {
 
 **Evidence:**
 ```rust
-// /Users/sac/ggen/crates/ggen-marketplace/src/ownership.rs:109-125
+// ./crates/ggen-marketplace/src/ownership.rs:109-125
 pub struct OwnershipDeclaration {
     pub target: OwnershipTarget,
     pub class: OwnershipClass,
@@ -75,7 +75,7 @@ pub struct OwnershipDeclaration {
 
 **Evidence:**
 ```rust
-// /Users/sac/ggen/crates/ggen-marketplace/src/compatibility.rs:17-47
+// ./crates/ggen-marketplace/src/compatibility.rs:17-47
 pub enum CompatibilityDimension {
     OntologyNamespace,      // ✅ Implemented
     ProtocolField,          // ✅ Implemented
@@ -117,7 +117,7 @@ pub enum CompatibilityDimension {
 
 **Evidence:**
 ```rust
-// /Users/sac/ggen/crates/ggen-marketplace/src/compatibility.rs:70-79
+// ./crates/ggen-marketplace/src/compatibility.rs:70-79
 pub enum ConflictSeverity {
     Error,   // Hard failure, cannot proceed
     Warning, // Requires user confirmation
@@ -237,7 +237,7 @@ fn check_capabilities(packs: &[AtomicPackId]) -> Result<Vec<Conflict>> {
 
 **Evidence:**
 ```rust
-// /Users/sac/ggen/crates/ggen-marketplace/src/compatibility.rs:323-350
+// ./crates/ggen-marketplace/src/compatibility.rs:323-350
 pub fn check(
     packs: &[AtomicPackId],
     ownership_declarations: &[OwnershipDeclaration],
@@ -280,7 +280,7 @@ pub fn check(
 
 **Evidence:**
 ```rust
-// /Users/sac/ggen/crates/ggen-marketplace/src/atomic.rs:200-213
+// ./crates/ggen-marketplace/src/atomic.rs:200-213
 pub enum AtomicPackCategory {
     Surface,    // MCP, A2A surfaces
     Contract,   // OpenAPI, GraphQL contracts
@@ -523,9 +523,9 @@ test_invalid_pack_id                    // ✅ Pass
 ## Evidence Artifacts
 
 ### Source Files Reviewed
-- `/Users/sac/ggen/crates/ggen-marketplace/src/ownership.rs` (429 lines)
-- `/Users/sac/ggen/crates/ggen-marketplace/src/compatibility.rs` (749 lines)
-- `/Users/sac/ggen/crates/ggen-marketplace/src/atomic.rs` (430 lines)
+- `./crates/ggen-marketplace/src/ownership.rs` (429 lines)
+- `./crates/ggen-marketplace/src/compatibility.rs` (749 lines)
+- `./crates/ggen-marketplace/src/atomic.rs` (430 lines)
 
 ### Test Results
 - Test execution blocked by compilation errors

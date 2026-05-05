@@ -401,7 +401,7 @@ cargo test --test performance_regression  # Detects regressions
 ## 11. Project Structure
 
 ```
-/Users/sac/ggen/examples/performance-benchmarks/
+./examples/performance-benchmarks/
 ├── Cargo.toml                          (Dependencies + test/bench metadata)
 ├── README.md                           (User guide)
 ├── BENCHMARK_SUMMARY.md                (This file)
@@ -491,16 +491,16 @@ cargo test --test performance_regression  # Detects regressions
 ## 14. References and Files
 
 **Source Files:**
-- `/Users/sac/ggen/examples/performance-benchmarks/src/lib.rs`
-- `/Users/sac/ggen/examples/performance-benchmarks/benches/osiris_benchmarks.rs`
-- `/Users/sac/ggen/examples/performance-benchmarks/benches/a2a_tool_use_benchmarks.rs`
-- `/Users/sac/ggen/examples/performance-benchmarks/benches/a2a_lifecycle_benchmarks.rs`
-- `/Users/sac/ggen/examples/performance-benchmarks/tests/wave4_slo_validation.rs`
-- `/Users/sac/ggen/examples/performance-benchmarks/tests/load_tests.rs`
+- `./examples/performance-benchmarks/src/lib.rs`
+- `./examples/performance-benchmarks/benches/osiris_benchmarks.rs`
+- `./examples/performance-benchmarks/benches/a2a_tool_use_benchmarks.rs`
+- `./examples/performance-benchmarks/benches/a2a_lifecycle_benchmarks.rs`
+- `./examples/performance-benchmarks/tests/wave4_slo_validation.rs`
+- `./examples/performance-benchmarks/tests/load_tests.rs`
 
 **Documentation:**
-- `/Users/sac/ggen/examples/performance-benchmarks/README.md`
-- `/Users/sac/ggen/examples/performance-benchmarks/BENCHMARK_SUMMARY.md` (this file)
+- `./examples/performance-benchmarks/README.md`
+- `./examples/performance-benchmarks/BENCHMARK_SUMMARY.md` (this file)
 
 ---
 

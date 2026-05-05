@@ -305,10 +305,10 @@ cargo flamegraph --test vision_2030_benchmarks -- --ignored
 
 ## See Also
 
-- [Makefile.toml](/Users/sac/ggen/Makefile.toml) — `slo-check`, `vision-2030-test` tasks
-- [Unit Tests](/Users/sac/ggen/crates/mcpp-cli-lib/src/tests.rs) — mcpp-cli-lib tests
-- [MCP Unit Tests](/Users/sac/ggen/crates/ggen-a2a-mcp/tests/unit_tests.rs) — JSON-RPC tests
-- [Marketplace Unit Tests](/Users/sac/ggen/crates/ggen-marketplace/tests/unit_tests.rs) — SPARQL tests
-- [E2E Script](/Users/sac/ggen/tests/vision_2030_e2e.sh) — Integration test script
-- [Benchmarks](/Users/sac/ggen/tests/vision_2030_benchmarks.rs) — Performance benchmarks
-- [CLAUDE.md](/Users/sac/ggen/CLAUDE.md) — Testing philosophy (Chicago TDD)
+- [Makefile.toml](./Makefile.toml) — `slo-check`, `vision-2030-test` tasks
+- [Unit Tests](./crates/mcpp-cli-lib/src/tests.rs) — mcpp-cli-lib tests
+- [MCP Unit Tests](./crates/ggen-a2a-mcp/tests/unit_tests.rs) — JSON-RPC tests
+- [Marketplace Unit Tests](./crates/ggen-marketplace/tests/unit_tests.rs) — SPARQL tests
+- [E2E Script](./tests/vision_2030_e2e.sh) — Integration test script
+- [Benchmarks](./tests/vision_2030_benchmarks.rs) — Performance benchmarks
+- [CLAUDE.md](./CLAUDE.md) — Testing philosophy (Chicago TDD)

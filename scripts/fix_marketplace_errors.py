@@ -6,14 +6,18 @@ Batch fix all 35 compilation errors in ggen-marketplace
 
 import re
 import subprocess
+import os
 from pathlib import Path
 from typing import List, Tuple
+
+# Get the project root directory (parent of scripts/)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 def run_cargo_and_extract_errors():
     """Run cargo build and extract error details"""
     result = subprocess.run(
         ["cargo", "build", "--package", "ggen-marketplace"],
-        cwd="/Users/sac/ggen",
+        cwd=str(BASE_DIR),
         capture_output=True,
         text=True
     )
@@ -213,9 +217,9 @@ def main():
     print("\n🔨 Applying fixes...")
     fixed_count = 0
     for file_path in files_to_fix.keys():
-        full_path = f"/Users/sac/ggen/{file_path}"
-        if Path(full_path).exists():
-            if apply_fixes_to_file(full_path):
+        full_path = BASE_DIR / file_path
+        if full_path.exists():
+            if apply_fixes_to_file(str(full_path)):
                 fixed_count += 1
                 print(f"  ✅ Fixed {file_path}")
         else:
@@ -227,7 +231,7 @@ def main():
     print("\n🔍 Verifying fixes...")
     result = subprocess.run(
         ["cargo", "build", "--package", "ggen-marketplace"],
-        cwd="/Users/sac/ggen",
+        cwd=str(BASE_DIR),
         capture_output=True,
         text=True
     )

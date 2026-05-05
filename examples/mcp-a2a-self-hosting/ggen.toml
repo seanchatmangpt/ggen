@@ -10,13 +10,10 @@ format = "turtle"
 [generation]
 output_dir = "src"
 templates_dir = "templates/"
-
-[generation.rules]
-# SPARQL queries for A2A agent extraction
-"ontology/agent.ttl" = [
-    { query = "queries/extract-agent.rq", template = "agent.rs.tera", output = "agent.rs" },
-    { query = "queries/extract-skills.rq", template = "skills.tera", output = "skills.rs" },
-    { query = "queries/extract-agent-card.rq", template = "agent-card.json.tera", output = "agent_card.json" },
+rules = [
+    { name = "agent-rs", query = { file = "queries/extract-agent.rq" }, template = { file = "agent.rs.tera" }, output_file = "agent.rs" },
+    { name = "skills-rs", query = { file = "queries/extract-skills.rq" }, template = { file = "skills.tera" }, output_file = "skills.rs" },
+    { name = "agent-card-json", query = { file = "queries/extract-agent-card.rq" }, template = { file = "agent-card.json.tera" }, output_file = "agent_card.json" },
 ]
 
 [llm]
@@ -27,8 +24,12 @@ model = "gpt-4"
 temperature = 0.7
 max_tokens = 2000
 
-[quality]
-# Enable quality gates
-gates = ["specification", "compilation", "tests"]
-slo_timeout_ms = 5000
-require_closure = true
+[validation]
+validate_syntax = true
+no_unsafe = true
+
+[[validation.rules]]
+name = "check-agent-name"
+description = "Agent must have a non-empty name"
+ask = "ASK { ?s a agent:Agent ; agent:agentName ?name . FILTER(STRLEN(?name) > 0) }"
+severity = "Error"

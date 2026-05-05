@@ -287,7 +287,7 @@
 ## Files in This Directory
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/legal/
+./tai-erlang-autonomics/legal/
 ├── README.md (this file)
 ├── LEGAL_FRAMEWORK.md (14,000+ words, primary legal analysis)
 ├── MSA_TEMPLATE.md (8,000+ words, production-ready contract)

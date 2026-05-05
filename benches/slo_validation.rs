@@ -230,7 +230,7 @@ fn load_workspace_dependencies(count: usize) -> Vec<String> {
 
 fn initialize_workspace() -> HashMap<String, String> {
     let mut workspace = HashMap::new();
-    workspace.insert("root".to_string(), "/Users/sac/ggen".to_string());
+    workspace.insert("root".to_string(), env!("CARGO_MANIFEST_DIR").to_string());
     workspace.insert("members".to_string(), "30".to_string());
     workspace.insert("resolver".to_string(), "2".to_string());
     workspace

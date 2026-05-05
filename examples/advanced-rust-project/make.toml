@@ -35,10 +35,10 @@ cache = true
 description = "Generate code using AI and templates"
 commands = [
   "mkdir -p generated/src/services generated/src/api generated/src/database generated/docs",
-  "/Users/sac/ggen/target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
-  "/Users/sac/ggen/target/release/ggen ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
-  "/Users/sac/ggen/target/release/ggen ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
-  "/Users/sac/ggen/target/release/ggen ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
+  "../../target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
+  "../../target/release/ggen ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
+  "../../target/release/ggen ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
+  "../../target/release/ggen ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
   "echo 'Code generation completed'",
 ]
 depends_on = ["setup"]

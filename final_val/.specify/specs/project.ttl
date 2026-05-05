@@ -1,9 +1,0 @@
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ggen: <https://ggen.io/marketplace/> .
-
-ggen:Project a rdfs:Class ;
-    rdfs:label "my-ggen-project" ;
-    rdfs:comment "A ggen project initialized with wizard" ;
-    ggen:version "0.1.0" ;
-    ggen:profile "receipts-first" .

@@ -432,7 +432,7 @@ Memory Trend (180s sustained):
 
 ```bash
 # Navigate to project root
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 
 # Run all benchmarks
 ./scripts/run_performance_benchmarks.sh all

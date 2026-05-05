@@ -247,10 +247,10 @@ The following 6 tests fail due to pre-Vision 2030 API incompatibilities. These a
 
 ## References
 
-- Architecture: `/Users/sac/ggen/docs/architecture/COMPRESSED_REFERENCE.md`
-- Deployment: `/Users/sac/ggen/docs/DEPLOYMENT_STRATEGY.md`
-- Changelog: `/Users/sac/ggen/CHANGELOG.md`
-- Test audit: `/Users/sac/ggen/docs/crate-audits/TEST_AUDIT.md`
+- Architecture: `./docs/architecture/COMPRESSED_REFERENCE.md`
+- Deployment: `./docs/DEPLOYMENT_STRATEGY.md`
+- Changelog: `./CHANGELOG.md`
+- Test audit: `./docs/crate-audits/TEST_AUDIT.md`
 
 ---
 

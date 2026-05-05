@@ -5,8 +5,8 @@
 set -euo pipefail
 
 WEEK="${1:-1}"
-METRICS_DIR="/Users/sac/ggen/.metrics"
-OUTPUT_DIR="/Users/sac/ggen/docs/metrics"
+METRICS_DIR="./.metrics"
+OUTPUT_DIR="./docs/metrics"
 DATE=$(date +%Y-%m-%d)
 OUTPUT_FILE="$OUTPUT_DIR/weekly-report-week-$WEEK.md"
 

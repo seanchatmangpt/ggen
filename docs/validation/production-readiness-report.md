@@ -651,7 +651,7 @@ cargo make check
 find docs -name "*.md" -type f | wc -l
 ```
 
-**Validation scripts location**: `/Users/sac/ggen/scripts/validate-docs/`
+**Validation scripts location**: `./scripts/validate-docs/`
 
 ---
 

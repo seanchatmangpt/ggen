@@ -108,7 +108,7 @@ A2A Agents: 3/3 healthy
   workflow-agent     : ready (http://localhost:8082)
 
 Configuration: Valid
-  Config file: /Users/sac/ggen/.mcp.json
+  Config file: ./.mcp.json
   Sources: CLI args, Environment, Project config
 
 Connectivity: All transports operational

@@ -1,9 +1,6 @@
-[workspace]
-# This package is standalone and not part of the parent workspace
-
 [package]
 name = "data-pipeline-cli"
-version = "1.0.0"
+version.workspace = true
 description = "ETL data pipelines, transformation, and integration using clap-noun-verb"
 authors = ["ggen Marketplace <marketplace@ggen.cli>"]
 license = "MIT OR Apache-2.0"

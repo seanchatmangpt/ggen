@@ -50,7 +50,7 @@ Result: Mutation Score = 33% (tests caught 1/3 mutations)
 ### As a Demo
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo run --example mutation-validation
 ```
 
@@ -166,8 +166,8 @@ Target Score:
 
 - **Mutation Testing**: Jia, Harrold (2011), "An Analysis and Survey of the Evaluation of Mutation Testing"
 - **Property-Based Testing**: proptest framework, QuickCheck (Haskell)
-- **Consensus-Based**: `/Users/sac/ggen/examples/7-agent-validation/`
-- **Property-Based**: `/Users/sac/ggen/examples/property-based-validation/`
+- **Consensus-Based**: `./examples/7-agent-validation/`
+- **Property-Based**: `./examples/property-based-validation/`
 
 ## License
 

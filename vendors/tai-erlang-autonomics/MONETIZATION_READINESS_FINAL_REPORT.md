@@ -608,7 +608,7 @@ You now have a business model that scales that principle infinitely.
 **Version**: 1.0.0 FINAL
 **Quality Certification**: PRODUCTION READY ✅
 
-All 97 files, 2.1GB of documentation, code, and templates are ready in `/Users/sac/ggen/tai-erlang-autonomics/`
+All 97 files, 2.1GB of documentation, code, and templates are ready in `./tai-erlang-autonomics/`
 
 **Time to start**: NOW
 **Expected outcome**: Revenue within 13 weeks

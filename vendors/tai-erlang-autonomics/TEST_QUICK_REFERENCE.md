@@ -6,7 +6,7 @@
 ## Test Files Location
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/
+./tai-erlang-autonomics/apps/tai_autonomics/test/
 ├── taiea_receipts_test.erl      (22 tests, 828 lines)
 └── taiea_gates_test.erl          (24 tests, 844 lines)
 ```
@@ -49,7 +49,7 @@
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 eunit
 ```
 

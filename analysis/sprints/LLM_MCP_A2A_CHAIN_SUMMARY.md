@@ -13,7 +13,7 @@ Create and execute a self-play test that chains LLM → MCP tool → A2A agent �
 ## What Was Created
 
 ### Test File
-**Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs`
+**Location:** `./crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs`
 
 **Test Functions:**
 1. `test_llm_mcp_a2a_chain_with_otel_trace` - Main integration test
@@ -55,7 +55,7 @@ total_tokens=1145
 **First Tool Call (validate_pipeline):**
 ```
 span_name=ggen.mcp.tool_call
-project_path=/Users/sac/ggen
+project_path=.
 service.name=ggen-mcp-server
 service.version=0.1.0
 ```
@@ -94,7 +94,7 @@ INFO llm.complete{...}: LLM complete response model=groq::openai/gpt-oss-20b ela
 LLM tokens: prompt=121, completion=1024, total=1145
 
 === Step 2: MCP Tool Call - validate_pipeline (mcp.tool.call span) ===
-INFO ggen.mcp.tool_call{...}: validate_pipeline tool called project_path=/Users/sac/ggen
+INFO ggen.mcp.tool_call{...}: validate_pipeline tool called project_path=.
 
 === Step 3: MCP Tool Call - list_generators (second mcp.tool.call span) ===
 INFO ggen.mcp.tool_call{...}: list_generators tool called
@@ -179,7 +179,7 @@ For Agents 2 and 3:
 
 ## Files Modified/Created
 
-- **Created:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs` (272 lines)
+- **Created:** `./crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs` (272 lines)
 - **Test Output:** `/tmp/llm_mcp_a2a_chain_output.txt` (full trace)
 
 ---

@@ -189,8 +189,8 @@ Generated Documents:
      - Key metrics
 
 Generated Files:
-  - /Users/sac/ggen/tai-erlang-autonomics/TEST_EXECUTION_REPORT.md
-  - /Users/sac/ggen/tai-erlang-autonomics/test_report.md (in repo root)
+  - ./tai-erlang-autonomics/TEST_EXECUTION_REPORT.md
+  - ./tai-erlang-autonomics/test_report.md (in repo root)
 
 ================================================================================
 CONCLUSION

@@ -7,7 +7,7 @@
           {
             "name": "truth-gate-guard",
             "type": "command",
-            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate"
+            "command": "./tools/truth-gate/target/release/truth-gate"
           }
         ]
       }
@@ -19,7 +19,7 @@
           {
             "name": "truth-gate-emitter",
             "type": "command",
-            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate"
+            "command": "./tools/truth-gate/target/release/truth-gate"
           }
         ]
       }

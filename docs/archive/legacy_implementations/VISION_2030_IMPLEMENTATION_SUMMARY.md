@@ -315,5 +315,5 @@ If extending Vision 2030 testing:
 ## See Also
 
 - [VISION_2030_TEST_RESULTS.md](VISION_2030_TEST_RESULTS.md) — Detailed test strategy
-- [Makefile.toml](/Users/sac/ggen/Makefile.toml) — `slo-check`, `vision-2030-test` tasks
-- [CLAUDE.md](/Users/sac/ggen/CLAUDE.md) — Testing philosophy (Chicago TDD)
+- [Makefile.toml](./Makefile.toml) — `slo-check`, `vision-2030-test` tasks
+- [CLAUDE.md](./CLAUDE.md) — Testing philosophy (Chicago TDD)

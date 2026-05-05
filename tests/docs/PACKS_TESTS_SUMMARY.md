@@ -175,23 +175,23 @@ cargo test pack_validator_test
 ## Files Created
 
 ### Unit Tests (5 files)
-1. `/Users/sac/ggen/tests/unit/packs/pack_core_domain_test.rs` - 195 lines
-2. `/Users/sac/ggen/tests/unit/packs/pack_composer_test.rs` - 251 lines
-3. `/Users/sac/ggen/tests/unit/packs/pack_installer_test.rs` - 218 lines
-4. `/Users/sac/ggen/tests/unit/packs/pack_generator_test.rs` - 266 lines
-5. `/Users/sac/ggen/tests/unit/packs/pack_validator_test.rs` - 235 lines
+1. `./tests/unit/packs/pack_core_domain_test.rs` - 195 lines
+2. `./tests/unit/packs/pack_composer_test.rs` - 251 lines
+3. `./tests/unit/packs/pack_installer_test.rs` - 218 lines
+4. `./tests/unit/packs/pack_generator_test.rs` - 266 lines
+5. `./tests/unit/packs/pack_validator_test.rs` - 235 lines
 
 ### Integration Tests (3 files)
-6. `/Users/sac/ggen/tests/integration/packs/user_workflow_single_pack_test.rs` - 283 lines
-7. `/Users/sac/ggen/tests/integration/packs/user_workflow_multi_pack_test.rs` - 368 lines
-8. `/Users/sac/ggen/tests/integration/packs/user_workflow_template_reuse_test.rs` - 347 lines
+6. `./tests/integration/packs/user_workflow_single_pack_test.rs` - 283 lines
+7. `./tests/integration/packs/user_workflow_multi_pack_test.rs` - 368 lines
+8. `./tests/integration/packs/user_workflow_template_reuse_test.rs` - 347 lines
 
 ### Performance Tests (1 file)
-9. `/Users/sac/ggen/tests/performance/packs_performance_test.rs` - 315 lines
+9. `./tests/performance/packs_performance_test.rs` - 315 lines
 
 ### Module Files (2 files)
-10. `/Users/sac/ggen/tests/unit/packs/mod.rs` - Updated
-11. `/Users/sac/ggen/tests/integration/packs/mod.rs` - Updated
+10. `./tests/unit/packs/mod.rs` - Updated
+11. `./tests/integration/packs/mod.rs` - Updated
 
 **Total Lines of Test Code: ~2,478 lines**
 **Total Test Files: 11 files**

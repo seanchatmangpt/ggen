@@ -400,7 +400,7 @@ TAI is an autonomous inventory management platform that uses value-indexed prici
 ## File Manifest
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/business/
+./tai-erlang-autonomics/business/
 ├── README.md                           (407 lines, 12 KB) ← START HERE
 ├── BUSINESS_MODEL_CANVAS.md            (1,217 lines, 40 KB)
 ├── EXECUTIVE_SUMMARY_BUSINESS.md       (472 lines, 15 KB)
