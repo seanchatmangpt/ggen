@@ -1,10 +1,10 @@
 [package]
 name = "ggen-transport"
-version = "6.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 authors = ["ggen contributors"]
 description = "MCP/A2A transport layer with streaming support"
-license = "MIT OR Apache-2.0"
+license.workspace = true
 
 [dependencies]
 tokio = { version = "1.41", features = ["full"] }

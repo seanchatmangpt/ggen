@@ -600,11 +600,11 @@
   },
   "rdfPipeline": {
     "stages": [
-      "μ₁-normalize",
-      "μ₂-extract",
-      "μ₃-emit",
-      "μ₄-canonicalize",
-      "μ₅-receipt"
+      "\u03bc\u2081-normalize",
+      "\u03bc\u2082-extract",
+      "\u03bc\u2083-emit",
+      "\u03bc\u2084-canonicalize",
+      "\u03bc\u2085-receipt"
     ],
     "sourceOfTruth": ".specify/**/*.ttl",
     "validationCommand": "cargo make speckit-validate",
@@ -685,5 +685,42 @@
   },
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": true
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }

@@ -1,11 +1,11 @@
 [package]
 name = "ggen-canonical"
-version = "6.1.0"
-edition = "2021"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
-license = "MIT"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 description = "Deterministic canonicalization system for ggen - ensures reproducible hashes across code, JSON, and RDF"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository.workspace = true
 
 [dependencies]
 serde = { workspace = true }

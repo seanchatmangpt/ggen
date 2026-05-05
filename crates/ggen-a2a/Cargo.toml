@@ -1,11 +1,11 @@
 [package]
 name = "ggen-a2a"
-version = "6.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 authors = ["ggen contributors"]
 description = "Agent-to-Agent task state machine protocol for ggen"
-license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 tokio = { version = "1.41", features = ["full"] }

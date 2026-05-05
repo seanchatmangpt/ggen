@@ -280,29 +280,33 @@ impl SchemaParser {
 
     /// Parse a JSON Schema into a Schema struct
     pub fn from_json_schema(json: &str) -> Result<Schema, String> {
-        let v: serde_json::Value = serde_json::from_str(json).map_err(|e| format!("Invalid JSON: {}", e))?;
-        
-        let title = v.get("title")
+        let v: serde_json::Value =
+            serde_json::from_str(json).map_err(|e| format!("Invalid JSON: {}", e))?;
+
+        let title = v
+            .get("title")
             .and_then(|t| t.as_str())
             .unwrap_or("UnnamedSchema")
             .to_string();
-            
-        let description = v.get("description")
+
+        let description = v
+            .get("description")
             .and_then(|d| d.as_str())
             .map(String::from);
-            
+
         let mut fields = Vec::new();
-        
+
         if let Some(properties) = v.get("properties").and_then(|p| p.as_object()) {
-            let required_fields: Vec<&str> = v.get("required")
+            let required_fields: Vec<&str> = v
+                .get("required")
                 .and_then(|r| r.as_array())
                 .map(|r| r.iter().filter_map(|v| v.as_str()).collect())
                 .unwrap_or_default();
-                
+
             for (key, prop) in properties {
                 let optional = !required_fields.contains(&key.as_str());
                 let field_type_str = prop.get("type").and_then(|t| t.as_str()).unwrap_or("any");
-                
+
                 let field_type = match field_type_str {
                     "string" => SchemaType::String,
                     "integer" => SchemaType::Integer,
@@ -310,7 +314,8 @@ impl SchemaParser {
                     "boolean" => SchemaType::Boolean,
                     "array" => {
                         if let Some(items) = prop.get("items") {
-                            let item_type = items.get("type").and_then(|t| t.as_str()).unwrap_or("any");
+                            let item_type =
+                                items.get("type").and_then(|t| t.as_str()).unwrap_or("any");
                             let inner = match item_type {
                                 "string" => SchemaType::String,
                                 "integer" => SchemaType::Integer,
@@ -325,9 +330,12 @@ impl SchemaParser {
                     }
                     _ => SchemaType::Any,
                 };
-                
-                let field_desc = prop.get("description").and_then(|d| d.as_str()).map(String::from);
-                
+
+                let field_desc = prop
+                    .get("description")
+                    .and_then(|d| d.as_str())
+                    .map(String::from);
+
                 fields.push(Field {
                     name: key.clone(),
                     field_type,

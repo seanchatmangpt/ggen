@@ -43,7 +43,9 @@ impl SparqlValidator {
     }
 
     /// Validate an RDF graph against a pre-loaded ShaclShapeSet.
-    pub fn validate_shapes(&self, ontology: &Graph, shape_set: &ShaclShapeSet) -> Result<ValidationResult> {
+    pub fn validate_shapes(
+        &self, ontology: &Graph, shape_set: &ShaclShapeSet,
+    ) -> Result<ValidationResult> {
         let start = Instant::now();
         let mut violations = Vec::new();
 

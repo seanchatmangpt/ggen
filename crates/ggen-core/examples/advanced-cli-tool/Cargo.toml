@@ -1,10 +1,10 @@
 [package]
 name = "advanced-cli-tool"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
 authors = ["GGEN Team"]
 description = "Production-ready CLI tool demonstrating advanced Rust patterns with ggen lifecycle"
-license = "MIT"
+license.workspace = true
 readme = "README.md"
 
 [dependencies]

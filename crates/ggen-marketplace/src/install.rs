@@ -1545,9 +1545,9 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
-
         let pkg_id = PackageId::new("test-pkg").unwrap();
+        registry.insert(&crate::models::Package { metadata: crate::models::PackageMetadata::new(pkg_id.clone(), "Test", "Test", "MIT"), latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(), versions: vec![crate::models::PackageVersion::new("1.0.0").unwrap()], releases: indexmap::IndexMap::new() }).unwrap();
+        let installer = Installer::new(registry, cache);
         let resolved = installer
             .batch_resolve_dependencies(vec![pkg_id.clone()])
             .await
@@ -1565,10 +1565,11 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
-
         let pkg_id1 = PackageId::new("pkg-1").unwrap();
         let pkg_id2 = PackageId::new("pkg-2").unwrap();
+        registry.insert(&crate::models::Package { metadata: crate::models::PackageMetadata::new(pkg_id1.clone(), "Test", "Test", "MIT"), latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(), versions: vec![crate::models::PackageVersion::new("1.0.0").unwrap()], releases: indexmap::IndexMap::new() }).unwrap();
+        registry.insert(&crate::models::Package { metadata: crate::models::PackageMetadata::new(pkg_id2.clone(), "Test", "Test", "MIT"), latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(), versions: vec![crate::models::PackageVersion::new("1.0.0").unwrap()], releases: indexmap::IndexMap::new() }).unwrap();
+        let installer = Installer::new(registry, cache);
 
         let resolved = installer
             .batch_resolve_dependencies(vec![pkg_id1.clone(), pkg_id2.clone()])
@@ -1618,10 +1619,11 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
-
         let pkg_id1 = PackageId::new("batch-test-1").unwrap();
         let pkg_id2 = PackageId::new("batch-test-2").unwrap();
+        registry.insert(&crate::models::Package { metadata: crate::models::PackageMetadata::new(pkg_id1.clone(), "Test", "Test", "MIT"), latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(), versions: vec![crate::models::PackageVersion::new("1.0.0").unwrap()], releases: indexmap::IndexMap::new() }).unwrap();
+        registry.insert(&crate::models::Package { metadata: crate::models::PackageMetadata::new(pkg_id2.clone(), "Test", "Test", "MIT"), latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(), versions: vec![crate::models::PackageVersion::new("1.0.0").unwrap()], releases: indexmap::IndexMap::new() }).unwrap();
+        let installer = Installer::new(registry, cache);
 
         let _manifest = installer
             .create_manifest(
@@ -1645,9 +1647,9 @@ mod tests {
             ..Default::default()
         };
         let cache = PackCache::new(cache_config).unwrap();
-        let installer = Installer::new(registry, cache);
-
         let pkg_id = PackageId::new("progress-test").unwrap();
+        registry.insert(&crate::models::Package { metadata: crate::models::PackageMetadata::new(pkg_id.clone(), "Test", "Test", "MIT"), latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(), versions: vec![crate::models::PackageVersion::new("1.0.0").unwrap()], releases: indexmap::IndexMap::new() }).unwrap();
+        let installer = Installer::new(registry, cache);
         let _manifest = installer
             .create_manifest(
                 vec![pkg_id.clone()],

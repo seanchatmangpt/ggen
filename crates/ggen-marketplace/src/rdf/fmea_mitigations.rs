@@ -465,12 +465,12 @@ impl FmeaMitigationManager {
     fn attempt_triple_repair(&self, triple: &str) -> Option<String> {
         // Attempt basic syntactic fixes for common RDF/Turtle errors
         let mut repaired = triple.trim().to_string();
-        
+
         // Fix missing periods
         if !repaired.ends_with('.') && !repaired.ends_with(';') && !repaired.ends_with(',') {
             repaired.push_str(" .");
         }
-        
+
         // Fix unescaped quotes in literals
         if repaired.contains('"') {
             // A simplistic check: if it has an odd number of quotes, it's malformed
@@ -479,7 +479,7 @@ impl FmeaMitigationManager {
                 return None; // Too complex for simple repair
             }
         }
-        
+
         Some(repaired)
     }
 

@@ -212,7 +212,7 @@ impl TurtleConfigLoader {
                 }
             }
         }
-        
+
         if let Some(m) = current_machine {
             let id = m.to_lowercase().replace(" ", "-");
             machines.push(StateMachine {
@@ -223,7 +223,7 @@ impl TurtleConfigLoader {
                 transitions,
             });
         }
-        
+
         machines
     }
 

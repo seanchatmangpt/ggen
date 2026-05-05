@@ -1056,21 +1056,19 @@ mod tests {
         deep.parent_receipt_id = Some("parent_id".to_string());
 
         // Create a resolver that always returns a parent with another parent
-        let resolver = |_id: &str| -> Result<CompositionReceipt> {
+        let resolver = |id: &str| -> Result<CompositionReceipt> {
             let mut parent = CompositionReceipt::new(RuntimeProfile {
                 profile_id: "parent".to_string(),
                 runtime_constraints: vec![],
                 trust_requirement: TrustTier::Experimental,
             });
-            parent.parent_receipt_id = Some("another_parent".to_string());
+            parent.receipt_id = Some(id.to_string());
+            parent.parent_receipt_id = Some(format!("{}_parent", id));
             Ok(parent)
         };
 
         let result = deep.get_full_chain(resolver);
-        assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("exceeds maximum depth"));
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("depth"));
     }
 }

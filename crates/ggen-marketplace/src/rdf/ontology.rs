@@ -68,6 +68,14 @@ pub enum Class {
     InstallationState,
     ValidationResult,
     RegistryEntry,
+    LifecycleState,
+
+    // KGC-4D Dimensions
+    Kgc4dContext,
+    Observable,
+    TemporalSnapshot,
+    CausalityChain,
+    GitCommit,
 
     // Provenance
     PublishEvent,
@@ -108,6 +116,12 @@ impl Class {
             Self::InstallationState => "InstallationState",
             Self::ValidationResult => "ValidationResult",
             Self::RegistryEntry => "RegistryEntry",
+            Self::LifecycleState => "LifecycleState",
+            Self::Kgc4dContext => "Kgc4dContext",
+            Self::Observable => "Observable",
+            Self::TemporalSnapshot => "TemporalSnapshot",
+            Self::CausalityChain => "CausalityChain",
+            Self::GitCommit => "GitCommit",
             Self::PublishEvent => "PublishEvent",
             Self::InstallEvent => "InstallEvent",
             Self::UpdateEvent => "UpdateEvent",
@@ -167,12 +181,21 @@ pub enum Property {
     InstallationStatus,
     ValidationStatus,
     LastValidated,
+    CurrentLifecycleState,
+
+    // KGC-4D properties
+    HasObservable,
+    AtTime,
+    HasCausality,
+    HasGitCommit,
+    VectorClock,
+    CommitHash,
+    SourceUrl,
 
     // Provenance properties (PROV-O)
     WasGeneratedBy,
     WasAttributedTo,
     WasDerivedFrom,
-    AtTime,
 
     // Security properties
     HasSignature,
@@ -216,6 +239,11 @@ impl Property {
             Self::WasDerivedFrom => format!("{}wasDerivedFrom", namespaces::PROV),
             Self::AtTime => format!("{}atTime", namespaces::PROV),
 
+            // KGC-4D
+            Self::HasObservable => format!("{}hasObservable", namespaces::GGEN),
+            Self::HasCausality => format!("{}hasCausality", namespaces::GGEN),
+            Self::HasGitCommit => format!("{}hasGitCommit", namespaces::GGEN),
+
             // SHACL properties
             Self::TargetClass => format!("{}targetClass", namespaces::SHACL),
             Self::PropertyPath => format!("{}path", namespaces::SHACL),
@@ -258,10 +286,17 @@ impl Property {
             Self::InstallationStatus => "installationStatus",
             Self::ValidationStatus => "validationStatus",
             Self::LastValidated => "lastValidated",
+            Self::CurrentLifecycleState => "currentLifecycleState",
+            Self::HasObservable => "hasObservable",
+            Self::AtTime => "atTime",
+            Self::HasCausality => "hasCausality",
+            Self::HasGitCommit => "hasGitCommit",
+            Self::VectorClock => "vectorClock",
+            Self::CommitHash => "commitHash",
+            Self::SourceUrl => "sourceUrl",
             Self::WasGeneratedBy => "wasGeneratedBy",
             Self::WasAttributedTo => "wasAttributedTo",
             Self::WasDerivedFrom => "wasDerivedFrom",
-            Self::AtTime => "atTime",
             Self::HasSignature => "hasSignature",
             Self::HasAttestation => "hasAttestation",
             Self::SignatureAlgorithm => "signatureAlgorithm",
@@ -282,6 +317,7 @@ impl Property {
         }
     }
 }
+
 
 impl fmt::Display for Property {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

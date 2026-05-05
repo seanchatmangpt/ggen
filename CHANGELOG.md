@@ -5,6 +5,30 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.5.4] — CalVer Transition & Manufacturing Governance (2026-05-03)
+
+### Added
+
+- **Manufacturing Governance Pipeline**
+  - Integrated 8 Canonical Proof Gates (SchemaValid, OntologyLawful, ProjectionComplete, CompilationPasses, ReceiptValid, EthosConformant, ObservabilityPresent, CausalConsistent)
+  - Formalized `ManufacturingIntent` for semantic objective tracking
+  - Automatic cryptographic receipt validation and chaining
+- **High-Performance Process Mining**
+  - Native integration with `wasm4pm`'s `pictl-types` and `pictl-algos`
+  - Alpha miner and conformance checking for workflow validation
+- **Gemini CLI Skills**
+  - Specialized skills for `ggen-sync`, `ggen-governance`, and `ggen-audit`
+
+### Changed
+
+- Transitioned workspace to CalVer (v26.5.4)
+- Modernized `ggen-cli` workflow commands to use native process mining engine
+
+### Fixed
+
+- Resolved Oxigraph API regressions in marketplace registry
+- Fixed TOML parsing errors in `ggen.toml` manifest
+
 ## [6.1.0] — Vision 2030 Complete (2026-04-28)
 
 ### Added

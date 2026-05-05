@@ -129,11 +129,82 @@ fn discover(workflow_file: String) -> VerbResult<WorkflowDiscoveryOutput> {
 fn synthesize(
     _workflow_file: String, law_id: String, _name: String, _output: Option<String>,
 ) -> VerbResult<serde_json::Value> {
+    let content = std::fs::read_to_string(&_workflow_file).unwrap_or_else(|_| "{}".to_string());
+    let log: EventLog = serde_json::from_str(&content)
+        .unwrap_or_else(|_| EventLog::new(Vec::new(), std::collections::HashMap::new()));
+
+    let petri_net = discover_alpha(&log, "concept:name").unwrap_or_default();
+    let mut ttl = format!(
+        r#"@prefix sos: <http://seanchatmangpt.com/sos#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<{law_id}> a sos:Law ;
+    rdfs:label "{_name}" ;
+    sos:implementation "petri-net" .
+"#
+    );
+
+    for place in &petri_net.places {
+        ttl.push_str(&format!(
+            r#"
+<{law_id}/place/{id}> a sos:Place ;
+    rdfs:label "{label}" .
+"#,
+            id = place.id,
+            label = place.label
+        ));
+    }
+
+    for trans in &petri_net.transitions {
+        ttl.push_str(&format!(
+            r#"
+<{law_id}/transition/{id}> a sos:Transition ;
+    rdfs:label "{label}" ;
+    sos:isInvisible {invisible} .
+"#,
+            id = trans.id,
+            label = trans.label,
+            invisible = trans.invisible
+        ));
+    }
+
+    for (i, arc) in petri_net.arcs.iter().enumerate() {
+        ttl.push_str(&format!(
+            r#"
+<{law_id}/arc/{i}> a sos:Arc ;
+    sos:source <{law_id}/{src_type}/{source}> ;
+    sos:target <{law_id}/{target_type}/{target}> ;
+    sos:weight {weight} .
+"#,
+            i = i,
+            src_type = if petri_net.places.iter().any(|p| p.id == arc.source) {
+                "place"
+            } else {
+                "transition"
+            },
+            source = arc.source,
+            target_type = if petri_net.places.iter().any(|p| p.id == arc.target) {
+                "place"
+            } else {
+                "transition"
+            },
+            target = arc.target,
+            weight = arc.weight
+        ));
+    }
+
+    let output_path = PathBuf::from(_output.unwrap_or_else(|| format!("{}.ttl", law_id)));
+    std::fs::write(&output_path, ttl).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write law file: {}", e))
+    })?;
+
     Ok(serde_json::json!({
         "status": "success",
         "law_id": law_id,
-        "output_path": "stubbed.ttl",
-        "transitions_discovered": 0,
+        "output_path": output_path.to_string_lossy().to_string(),
+        "transitions_discovered": petri_net.transitions.len(),
     }))
 }
 
@@ -142,9 +213,52 @@ fn synthesize(
 fn event(
     _workflow_file: String, _case_id: String, _activity: String, _resource: Option<String>,
 ) -> VerbResult<serde_json::Value> {
+    let content = std::fs::read_to_string(&_workflow_file).unwrap_or_else(|_| "{}".to_string());
+    let mut log: EventLog = serde_json::from_str(&content)
+        .unwrap_or_else(|_| EventLog::new(Vec::new(), std::collections::HashMap::new()));
+
+    use pictl_types::{AttributeValue, Event};
+    let mut attrs = std::collections::HashMap::new();
+    attrs.insert(
+        "concept:name".to_string(),
+        AttributeValue::String(_activity.clone()),
+    );
+    let timestamp = chrono::Utc::now().to_rfc3339();
+    attrs.insert(
+        "time:timestamp".to_string(),
+        AttributeValue::Date(timestamp.clone()),
+    );
+    if let Some(r) = _resource {
+        attrs.insert("org:resource".to_string(), AttributeValue::String(r));
+    }
+    let new_event = Event::new(attrs);
+
+    let mut found = false;
+    for trace in &mut log.traces {
+        if trace.case_id == _case_id {
+            trace.events.push(new_event.clone());
+            found = true;
+            break;
+        }
+    }
+    if !found {
+        log.traces
+            .push(pictl_types::Trace::new(_case_id.clone(), vec![new_event]));
+    }
+
+    let log_json = serde_json::to_string_pretty(&log).unwrap();
+    std::fs::write(&_workflow_file, log_json).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write workflow file: {}",
+            e
+        ))
+    })?;
+
     Ok(serde_json::json!({
         "status": "Event recorded",
-        "timestamp": chrono::Utc::now().to_rfc3339(),
+        "timestamp": timestamp,
+        "case_id": _case_id,
+        "activity": _activity,
     }))
 }
 
@@ -153,12 +267,30 @@ fn event(
 fn report(
     _workflow_file: String, format: Option<String>, output: Option<String>,
 ) -> VerbResult<serde_json::Value> {
+    let content = std::fs::read_to_string(&_workflow_file).unwrap_or_else(|_| "{}".to_string());
+    let log: EventLog = serde_json::from_str(&content)
+        .unwrap_or_else(|_| EventLog::new(Vec::new(), std::collections::HashMap::new()));
+
     let _format = format.unwrap_or_else(|| "html".to_string());
     let _output = output.unwrap_or_else(|| "workflow-report.html".to_string());
+
+    let report_content = format!(
+        "<html><body><h1>Workflow Report</h1><p>Cases: {}</p><p>Events: {}</p></body></html>",
+        log.len(),
+        log.traces.iter().map(|t| t.len()).sum::<usize>()
+    );
+
+    std::fs::write(&_output, report_content).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write report file: {}",
+            e
+        ))
+    })?;
 
     Ok(serde_json::json!({
         "status": "Report generated",
         "path": _output,
         "format": _format,
+        "total_cases": log.len(),
     }))
 }

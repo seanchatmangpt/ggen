@@ -1,11 +1,11 @@
 [package]
 name = "ggen-marketplace"
-version = "6.1.0"
-edition = "2021"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 description = "Marketplace system for ggen using RDF and semantic versioning"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/seanchatmangpt/ggen"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 # Async runtime

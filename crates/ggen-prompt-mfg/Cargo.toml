@@ -1,11 +1,11 @@
 [package]
 name = "ggen-prompt-mfg"
-version = "6.1.0"
-edition = "2021"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
-license = "MIT"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 description = "Prompt manufacturing via CONSTRUCT - deterministic prompt compilation from RDF ontologies"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository.workspace = true
 
 [dependencies]
 serde = { workspace = true }

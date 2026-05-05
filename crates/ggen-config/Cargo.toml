@@ -1,13 +1,13 @@
 [package]
 name = "ggen-config"
-version = "6.1.0"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
-edition = "2021"
-license = "MIT"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 description = "Configuration parser and validator for ggen.toml files"
 keywords = ["config", "toml", "parser"]
 categories = ["config"]
-repository = "https://github.com/seanchatmangpt/ggen"
+repository.workspace = true
 
 [dependencies]
 # Core dependencies

@@ -1,11 +1,11 @@
 [package]
 name = "ggen-e2e"
-version = "6.1.0"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
+version.workspace = true
+authors.workspace = true
 description = "End-to-end testing framework for ggen with testcontainers and cross-platform validation"
-edition = "2021"
-license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 keywords = ["e2e", "testing", "testcontainers", "cross-platform"]
 categories = ["development-tools", "development-tools::testing"]
 

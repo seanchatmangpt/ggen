@@ -1,9 +1,9 @@
 [package]
 name = "ggen-node"
-version = "6.1.0"
-edition = "2021"
-license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "Node.js N-API bindings for ggen"
 
 [lib]

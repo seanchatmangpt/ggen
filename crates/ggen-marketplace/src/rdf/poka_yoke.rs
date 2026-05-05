@@ -17,6 +17,8 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Write};
 use std::marker::PhantomData;
+use oxigraph::store::Store;
+use oxigraph::model::{NamedNode, Triple as OxiTriple, Quad, Term, Literal as OxiLiteral};
 
 use super::ontology::{Class, Property, XsdType};
 
@@ -133,6 +135,16 @@ pub struct Triple {
     subject: ResourceId,
     predicate: ResourceId,
     object: TripleObject,
+    metadata: Option<Kgc4dMetadata>,
+}
+
+/// KGC-4D Metadata for a triple
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Kgc4dMetadata {
+    pub observable: ResourceId,
+    pub timestamp: String,
+    pub vector_clock: String,
+    pub commit_hash: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -149,6 +161,7 @@ impl Triple {
             subject: None,
             predicate: None,
             object: None,
+            metadata: None,
             _state: PhantomData,
         }
     }
@@ -169,12 +182,28 @@ impl Triple {
     }
 
     #[must_use]
+    pub fn metadata(&self) -> Option<&Kgc4dMetadata> {
+        self.metadata.as_ref()
+    }
+
+    #[must_use]
     pub fn to_turtle(&self) -> String {
         let object_str = match &self.object {
             TripleObject::Resource(r) => r.to_string(),
             TripleObject::Literal(l) => l.to_turtle(),
         };
-        format!("{} {} {} .", self.subject, self.predicate, object_str)
+
+        let mut ttl = format!("{} {} {} .", self.subject, self.predicate, object_str);
+
+        if let Some(meta) = &self.metadata {
+            // RDF-star annotation (simulated in turtle output for now)
+            ttl.push_str(&format!(
+                " # KGC-4D: [O: {}, T: {}, V: {}, G: {}]",
+                meta.observable, meta.timestamp, meta.vector_clock, meta.commit_hash
+            ));
+        }
+
+        ttl
     }
 }
 
@@ -185,6 +214,7 @@ pub struct TripleBuilder<State> {
     subject: Option<ResourceId>,
     predicate: Option<ResourceId>,
     object: Option<TripleObject>,
+    metadata: Option<Kgc4dMetadata>,
     _state: PhantomData<State>,
 }
 
@@ -195,6 +225,7 @@ impl TripleBuilder<typestate::NoSubject> {
             subject: Some(subject),
             predicate: self.predicate,
             object: self.object,
+            metadata: self.metadata,
             _state: PhantomData,
         }
     }
@@ -207,6 +238,7 @@ impl TripleBuilder<typestate::HasSubject> {
             subject: self.subject,
             predicate: Some(predicate),
             object: self.object,
+            metadata: self.metadata,
             _state: PhantomData,
         }
     }
@@ -226,6 +258,7 @@ impl TripleBuilder<typestate::HasPredicate> {
             subject: self.subject,
             predicate: self.predicate,
             object: Some(TripleObject::Resource(object)),
+            metadata: self.metadata,
             _state: PhantomData,
         }
     }
@@ -236,12 +269,20 @@ impl TripleBuilder<typestate::HasPredicate> {
             subject: self.subject,
             predicate: self.predicate,
             object: Some(TripleObject::Literal(object)),
+            metadata: self.metadata,
             _state: PhantomData,
         }
     }
 }
 
 impl TripleBuilder<typestate::Complete> {
+    /// Add KGC-4D metadata to the triple
+    #[must_use]
+    pub fn with_kgc4d(mut self, metadata: Kgc4dMetadata) -> Self {
+        self.metadata = Some(metadata);
+        self
+    }
+
     /// Build the triple
     ///
     /// # Panics
@@ -253,6 +294,7 @@ impl TripleBuilder<typestate::Complete> {
             subject: self.subject.unwrap(),
             predicate: self.predicate.unwrap(),
             object: self.object.unwrap(),
+            metadata: self.metadata,
         }
     }
 }
@@ -421,9 +463,9 @@ impl SparqlQuery<typestate::Validated> {
 }
 
 /// Type-safe graph operations
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct RdfGraph {
-    triples: Vec<Triple>,
+    pub store: Store,
     named_graph: Option<ResourceId>,
 }
 
@@ -431,7 +473,7 @@ impl RdfGraph {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            triples: Vec::new(),
+            store: Store::new().expect("Failed to create Oxigraph store"),
             named_graph: None,
         }
     }
@@ -439,7 +481,7 @@ impl RdfGraph {
     #[must_use]
     pub fn with_name(named_graph: ResourceId) -> Self {
         Self {
-            triples: Vec::new(),
+            store: Store::new().expect("Failed to create Oxigraph store"),
             named_graph: Some(named_graph),
         }
     }
@@ -448,10 +490,78 @@ impl RdfGraph {
     ///
     /// # Errors
     ///
-    /// This function currently never returns an error
+    /// * [`PokaYokeError::GraphOperationError`] - When oxigraph insertion fails
     pub fn add_triple(&mut self, triple: Triple) -> Result<(), PokaYokeError> {
-        // Could add additional validation here
-        self.triples.push(triple);
+        let subject = NamedNode::new(triple.subject().as_str())
+            .map_err(|e| PokaYokeError::InvalidUri(e.to_string()))?;
+        let predicate = NamedNode::new(triple.predicate().as_str())
+            .map_err(|e| PokaYokeError::InvalidUri(e.to_string()))?;
+        let object = match triple.object() {
+            TripleObject::Resource(r) => Term::NamedNode(
+                NamedNode::new(r.as_str()).map_err(|e| PokaYokeError::InvalidUri(e.to_string()))?,
+            ),
+            TripleObject::Literal(l) => match l {
+                Literal::String(s) => Term::Literal(OxiLiteral::new_simple_literal(s)),
+                Literal::Integer(i) => Term::Literal(OxiLiteral::from(*i)),
+                Literal::Boolean(b) => Term::Literal(OxiLiteral::from(*b)),
+                Literal::DateTime(dt) => Term::Literal(OxiLiteral::new_typed_literal(
+                    dt,
+                    NamedNode::new(XsdType::DateTime.uri()).unwrap(),
+                )),
+                Literal::Decimal(d) => Term::Literal(OxiLiteral::from(*d)),
+                Literal::Uri(u) => Term::NamedNode(
+                    NamedNode::new(u).map_err(|e| PokaYokeError::InvalidUri(e.to_string()))?,
+                ),
+            },
+        };
+
+        let oxi_triple = OxiTriple::new(subject, predicate, object);
+
+        // If metadata present, use RDF-star to annotate (simulated here with separate triples for now)
+        self.store
+            .insert(&Quad::new(oxi_triple.subject.clone(), oxi_triple.predicate.clone(), oxi_triple.object.clone(), oxigraph::model::GraphName::DefaultGraph))
+            .map_err(|e| PokaYokeError::GraphOperationError(e.to_string()))?;
+
+        if let Some(meta) = triple.metadata() {
+            self.add_kgc4d_metadata(triple.subject(), meta)?;
+        }
+
+        Ok(())
+    }
+
+    fn add_kgc4d_metadata(
+        &self, subject: &ResourceId, meta: &Kgc4dMetadata,
+    ) -> Result<(), PokaYokeError> {
+        // Add metadata triples related to the subject
+        let meta_subject = NamedNode::new(subject.as_str()).unwrap();
+
+        let obs_pred = NamedNode::new(Property::HasObservable.uri()).unwrap();
+        let obs_obj = NamedNode::new(meta.observable.as_str()).unwrap();
+        self.store
+            .insert(&Quad::new(meta_subject.clone(), obs_pred, Term::NamedNode(obs_obj), oxigraph::model::GraphName::DefaultGraph))
+            .unwrap();
+
+        let time_pred = NamedNode::new(Property::AtTime.uri()).unwrap();
+        let time_obj = OxiLiteral::new_typed_literal(
+            meta.timestamp.clone(),
+            NamedNode::new(XsdType::DateTime.uri()).unwrap(),
+        );
+        self.store
+            .insert(&Quad::new(meta_subject.clone(), time_pred, Term::Literal(time_obj), oxigraph::model::GraphName::DefaultGraph))
+            .unwrap();
+
+        let vc_pred = NamedNode::new(Property::VectorClock.uri()).unwrap();
+        let vc_obj = OxiLiteral::new_simple_literal(meta.vector_clock.clone());
+        self.store
+            .insert(&Quad::new(meta_subject.clone(), vc_pred, Term::Literal(vc_obj), oxigraph::model::GraphName::DefaultGraph))
+            .unwrap();
+
+        let git_pred = NamedNode::new(Property::HasGitCommit.uri()).unwrap();
+        let git_obj = OxiLiteral::new_simple_literal(meta.commit_hash.clone());
+        self.store
+            .insert(&Quad::new(meta_subject, git_pred, Term::Literal(git_obj), oxigraph::model::GraphName::DefaultGraph))
+            .unwrap();
+
         Ok(())
     }
 
@@ -459,51 +569,77 @@ impl RdfGraph {
     ///
     /// # Errors
     ///
-    /// This function currently never returns an error
+    /// * [`PokaYokeError::GraphOperationError`] - When oxigraph insertion fails
     pub fn add_triples(&mut self, triples: Vec<Triple>) -> Result<(), PokaYokeError> {
-        // Validate all before adding any
-        for triple in &triples {
-            // Validation logic
-            let _ = triple;
+        for triple in triples {
+            self.add_triple(triple)?;
         }
-        self.triples.extend(triples);
         Ok(())
     }
 
     #[must_use]
     pub fn to_turtle(&self) -> String {
+        // Export store to Turtle
         let mut ttl = String::new();
-
-        if let Some(graph) = &self.named_graph {
-            let _ = writeln!(ttl, "GRAPH {graph} {{");
+        for quad in self.store.iter() {
+            let quad = quad.unwrap();
+            let _ = writeln!(ttl, "{} {} {} .", quad.subject, quad.predicate, quad.object);
         }
-
-        for triple in &self.triples {
-            ttl.push_str("  ");
-            ttl.push_str(&triple.to_turtle());
-            ttl.push('\n');
-        }
-
-        if self.named_graph.is_some() {
-            ttl.push_str("}\n");
-        }
-
         ttl
     }
 
     #[must_use]
     pub fn len(&self) -> usize {
-        self.triples.len()
+        self.store.len().unwrap()
     }
 
     #[must_use]
     pub fn is_empty(&self) -> bool {
-        self.triples.is_empty()
+        self.len() == 0
     }
 
-    /// Iterate over triples in the graph
-    pub fn iter(&self) -> impl Iterator<Item = &Triple> {
-        self.triples.iter()
+    /// Iterate over triples (simulated for backward compatibility)
+    pub fn iter(&self) -> impl Iterator<Item = Triple> {
+        // This is expensive as it converts Oxigraph results back to PokaYoke triples
+        let mut results = Vec::new();
+        for quad in self.store.iter() {
+            let quad = quad.unwrap();
+            if let Some(triple) = self.oxi_to_poka(OxiTriple::new(quad.subject.clone(), quad.predicate.clone(), quad.object.clone())) {
+                results.push(triple);
+            }
+        }
+        results.into_iter()
+    }
+
+    fn oxi_to_poka(&self, triple: OxiTriple) -> Option<Triple> {
+        let subject = ResourceId::new(
+            triple
+                .subject
+                .to_string()
+                .trim_matches(|c| c == '<' || c == '>'),
+        )
+        .ok()?;
+        let predicate = ResourceId::new(
+            triple
+                .predicate
+                .to_string()
+                .trim_matches(|c| c == '<' || c == '>'),
+        )
+        .ok()?;
+        let object = match triple.object {
+            Term::NamedNode(n) => TripleObject::Resource(
+                ResourceId::new(n.to_string().trim_matches(|c| c == '<' || c == '>')).ok()?,
+            ),
+            Term::Literal(l) => TripleObject::Literal(Literal::String(l.value().to_string())),
+            _ => return None,
+        };
+
+        Some(Triple {
+            subject,
+            predicate,
+            object,
+            metadata: None,
+        })
     }
 }
 
@@ -609,6 +745,7 @@ pub enum PokaYokeError {
     ConstraintViolation { constraint: String, value: String },
     OrphanedResource(ResourceId),
     CircularDependency { resources: Vec<ResourceId> },
+    GraphOperationError(String),
 }
 
 impl fmt::Display for PokaYokeError {
@@ -627,6 +764,7 @@ impl fmt::Display for PokaYokeError {
                 write!(f, "Constraint '{constraint}' violated by value '{value}'")
             }
             Self::OrphanedResource(id) => write!(f, "Orphaned resource: {id}"),
+            Self::GraphOperationError(msg) => write!(f, "Graph operation error: {msg}"),
             Self::CircularDependency { resources } => {
                 write!(f, "Circular dependency detected: {resources:?}")
             }

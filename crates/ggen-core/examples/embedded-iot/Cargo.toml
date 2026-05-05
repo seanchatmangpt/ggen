@@ -1,7 +1,7 @@
 [package]
 name = "embedded-iot-sensor"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
 authors = ["GGEN Project"]
 description = "IoT sensor firmware for ARM Cortex-M with no-std support"
 build = "build.rs"

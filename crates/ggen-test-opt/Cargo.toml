@@ -1,10 +1,10 @@
 [package]
 name = "ggen-test-opt"
-version = "6.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 authors = ["ggen contributors"]
 description = "Test optimization and selection tooling for ggen - value scoring, Pareto selection, parallel execution"
-license = "MIT OR Apache-2.0"
+license.workspace = true
 repository = "https://github.com/ggen-project/ggen"
 readme = "README.md"
 

@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "replace|write_file",
+        "hooks": [
+          {
+            "name": "truth-gate-guard",
+            "type": "command",
+            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate"
+          }
+        ]
+      }
+    ],
+    "AfterTool": [
+      {
+        "matcher": "replace|write_file",
+        "hooks": [
+          {
+            "name": "truth-gate-emitter",
+            "type": "command",
+            "command": "/Users/sac/ggen/tools/truth-gate/target/release/truth-gate"
+          }
+        ]
+      }
+    ]
+  }
+}

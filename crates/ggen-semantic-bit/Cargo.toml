@@ -1,10 +1,10 @@
 [package]
 name = "ggen-semantic-bit"
-version = "6.1.0"
-edition = "2021"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 description = "Vision 2030 Kernel: Compiled Operational Semantics and Field8 Automata"
-license = "MIT"
+license.workspace = true
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

@@ -104,8 +104,8 @@ async fn test_v3_batch_operations_metric() {
 
     // Execute batch delete
     let ids = vec![
-        PackageId::new("test/pkg1".to_string()).unwrap(),
-        PackageId::new("test/pkg2".to_string()).unwrap(),
+        PackageId::new("test-pkg1".to_string()).unwrap(),
+        PackageId::new("test-pkg2".to_string()).unwrap(),
     ];
 
     let deleted = registry.batch_delete(ids).await.unwrap();

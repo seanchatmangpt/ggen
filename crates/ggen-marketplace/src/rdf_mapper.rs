@@ -897,7 +897,8 @@ mod tests {
             let store = Arc::new(Store::new().unwrap());
             let mapper = RdfMapper::new(store);
 
-            let id = PackageId::new(&format!("pkg-{}", reg_type)).unwrap();
+            let name = format!("pkg-{}", reg_type).replace(".", "-");
+            let id = PackageId::new(&name).unwrap();
             let mut metadata = PackageMetadata::new(id.clone(), "Test Package", "A test", "MIT");
             metadata.registry_type = reg_type;
 

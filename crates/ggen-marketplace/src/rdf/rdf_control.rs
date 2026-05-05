@@ -105,10 +105,44 @@ impl RdfControlPlane {
             });
         }
 
-        // RDF store query execution
-        // Since RdfGraph is an in-memory triple list without a query engine,
-        // we simulate execution for now.
-        Ok(format!("Executed: {}", query_string))
+        // Real Oxigraph store query execution
+        let graph = self.graph.read().unwrap();
+        let _results = graph
+            .store
+            .query(&query_string)
+            .map_err(|e| {
+                ControlPlaneError::QueryBuildError(PokaYokeError::GraphOperationError(e.to_string()))
+            })?;
+
+        Ok("Executed successfully.".to_string())
+    }
+
+    /// Reconstruct graph at a specific temporal snapshot (KGC-4D)
+    ///
+    /// # Errors
+    ///
+    /// * [`ControlPlaneError::QueryBuildError`] - When SPARQL query fails
+    pub fn reconstruct_at_time(&self, timestamp: &str) -> Result<String, ControlPlaneError> {
+        info!("Reconstructing graph at time: {timestamp}");
+
+        let query = format!(
+            r#"
+            PREFIX ggen: <https://ggen.io/marketplace/>
+            CONSTRUCT {{ ?s ?p ?o }}
+            WHERE {{
+                ?s ?p ?o .
+                ?s ggen:atTime ?t .
+                FILTER (?t <= "{timestamp}"^^xsd:dateTime)
+            }}
+            "#
+        );
+
+        let graph = self.graph.read().unwrap();
+        let _results = graph.store.query(&query).map_err(|e| {
+            ControlPlaneError::QueryBuildError(PokaYokeError::GraphOperationError(e.to_string()))
+        })?;
+
+        Ok("Reconstructed graph successfully.".to_string())
     }
 
     /// Search for packages
@@ -217,12 +251,12 @@ impl RdfControlPlane {
 
         // Basic validation: ensure it has a type and name
         let graph = self.graph.read().unwrap();
-        
-        let has_type = graph.iter().any(|t| 
-            t.subject() == package_id && 
-            t.predicate().to_string() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-        );
-        
+
+        let has_type = graph.iter().any(|t| {
+            t.subject() == package_id
+                && t.predicate().to_string() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+        });
+
         if !has_type {
             violations.push("Missing rdf:type".to_string());
         }
@@ -234,39 +268,59 @@ impl RdfControlPlane {
         }
     }
 
-    /// Transition package through state machine
+    /// Transition package through the 8-operator state machine
+    ///
+    /// Lifecycle Operators:
+    /// 1. Admit (draft -> admitted)
+    /// 2. Breed (admitted -> bred)
+    /// 3. Validate (bred -> validated)
+    /// 4. Canonicalize (validated -> canonicalized)
+    /// 5. Receipt (canonicalized -> receipted)
+    /// 6. Audit (receipted -> audited)
+    /// 7. Release (audited -> released)
+    /// 8. Archive (released -> archived)
     ///
     /// # Errors
     ///
-    /// This function currently never returns an error
+    /// * [`ControlPlaneError::StateTransitionError`] - When transition is invalid
     pub fn transition_state(
-        &self, package_id: &ResourceId, event: &str,
+        &self, package_id: &ResourceId, operator: &str,
     ) -> Result<StateTransitionResult, ControlPlaneError> {
-        info!("Transitioning state for package: {package_id} with event: {event}");
+        info!("Applying operator: {operator} for package: {package_id}");
 
-        // Basic state machine transition
         let graph = self.graph.read().unwrap();
-        
+
         // Find current state
-        let state_pred = ResourceId::new("http://ggen.dev/vocab/state").unwrap();
-        
-        let current_state = graph.iter()
+        let state_pred = ResourceId::new(Property::CurrentLifecycleState.uri()).unwrap();
+
+        let current_state = graph
+            .iter()
             .find(|t| t.subject() == package_id && t.predicate() == &state_pred)
             .map(|t| format!("{:?}", t.object()))
             .unwrap_or_else(|| "\"draft\"".to_string());
-            
+
         let current_state_str = current_state.trim_matches('"');
-            
-        let to_state = match (current_state_str, event) {
-            ("draft", "publish") => "published",
-            ("published", "deprecate") => "deprecated",
-            (state, ev) => return Err(ControlPlaneError::StateTransitionError { reason: format!("Invalid transition: {} -> {}", state, ev) }),
+
+        let to_state = match (current_state_str, operator) {
+            ("draft", "admit") => "admitted",
+            ("admitted", "breed") => "bred",
+            ("bred", "validate") => "validated",
+            ("validated", "canonicalize") => "canonicalized",
+            ("canonicalized", "receipt") => "receipted",
+            ("receipted", "audit") => "audited",
+            ("audited", "release") => "released",
+            ("released", "archive") => "archived",
+            (state, op) => {
+                return Err(ControlPlaneError::StateTransitionError {
+                    reason: format!("Invalid lifecycle transition: {state} via {op}"),
+                })
+            }
         };
 
         Ok(StateTransitionResult {
             from_state: current_state_str.to_string(),
             to_state: to_state.to_string(),
-            event: event.to_string(),
+            event: operator.to_string(),
         })
     }
 

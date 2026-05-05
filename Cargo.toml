@@ -1,5 +1,5 @@
 [workspace.package]
-version = "6.1.0"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -113,38 +113,38 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v6.1.0 unified release
-ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "6.1.0" }
-ggen-config = { path = "crates/ggen-config", version = "6.1.0" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "6.1.0" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "6.1.0" }
-ggen-domain = { path = "crates/ggen-domain", version = "6.1.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "6.1.0" }
-ggen-semantic-bit = { path = "crates/ggen-semantic-bit", version = "6.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
-ggen-node = { path = "crates/ggen-node", version = "6.1.0" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "6.1.0" }
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "6.1.0" }
-ggen-e2e = { path = "crates/ggen-e2e", version = "6.1.0" }
-ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "6.1.0" }
-ggen-canonical = { path = "crates/ggen-canonical", version = "6.1.0" }
-ggen-receipt = { path = "crates/ggen-receipt", version = "6.1.0" }
-ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "6.1.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "26.5.4" }
+ggen-core = { path = "crates/ggen-core", version = "26.5.4" }
+ggen-config = { path = "crates/ggen-config", version = "26.5.4" }
+ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "26.5.4" }
+ggen-config-clap = { path = "crates/ggen-config-clap", version = "26.5.4" }
+ggen-domain = { path = "crates/ggen-domain", version = "26.5.4" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.5.4" }
+ggen-semantic-bit = { path = "crates/ggen-semantic-bit", version = "26.5.4" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.4" }
+ggen-node = { path = "crates/ggen-node", version = "26.5.4" }
+ggen-test-audit = { path = "crates/ggen-test-audit", version = "26.5.4" }
+ggen-test-opt = { path = "crates/ggen-test-opt", version = "26.5.4" }
+ggen-e2e = { path = "crates/ggen-e2e", version = "26.5.4" }
+ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "26.5.4" }
+ggen-canonical = { path = "crates/ggen-canonical", version = "26.5.4" }
+ggen-receipt = { path = "crates/ggen-receipt", version = "26.5.4" }
+ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "26.5.4" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
-a2a-generated = { path = "crates/a2a-generated", version = "6.1.0" }
+a2a-generated = { path = "crates/a2a-generated", version = "26.5.4" }
 
 # A2A Registry: Multi-agent orchestration registry
-ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "6.1.0" }
+ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "26.5.4" }
 
-ggen-transport = { path = "crates/ggen-transport", version = "6.1.0" }
+ggen-transport = { path = "crates/ggen-transport", version = "26.5.4" }
 
 # ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
-ggen-codegen = { path = "crates/ggen-codegen", version = "6.1.0" }
+ggen-codegen = { path = "crates/ggen-codegen", version = "26.5.4" }
 
 # ggen-yawl: YAWL workflow generation from industry ontologies
-ggen-yawl = { path = "crates/ggen-yawl", version = "6.1.0" }
+ggen-yawl = { path = "crates/ggen-yawl", version = "26.5.4" }
 
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
@@ -515,9 +515,9 @@ otel = [
   "ggen-core/otel",
 ]
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "6.1.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "26.5.4" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.4" }
+ggen-core = { path = "crates/ggen-core", version = "26.5.4" }
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
@@ -543,7 +543,7 @@ predicates = "3.1.3"
 serde_json = "1.0"
 tempfile = "3.23"
 anyhow = "1.0"
-ggen-domain = { path = "crates/ggen-domain", version = "6.1.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "26.5.4" }
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.20"

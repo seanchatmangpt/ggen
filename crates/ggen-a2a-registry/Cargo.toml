@@ -1,11 +1,11 @@
 [package]
 name = "ggen-a2a-registry"
-version = "6.1.0"
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 description = "Multi-agent A2A orchestration registry for agent discovery, health monitoring, and lifecycle management"
-license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+license.workspace = true
+repository.workspace = true
 homepage = "https://github.com/seanchatmangpt/ggen"
 keywords = ["a2a", "agent", "registry", "discovery", "health"]
 categories = ["development-tools", "network-programming"]
