@@ -444,7 +444,7 @@ Rendering templates (12 files):
 
 Next steps:
   1. cd my-api
-  2. npm install
+  2. cargo build
   3. npm run dev
 ```
 

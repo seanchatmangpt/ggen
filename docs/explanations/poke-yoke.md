@@ -62,7 +62,7 @@ ggen itself implements poke-yoke at the code generation level:
 ### The Failure Mode
 
 ```
-Failure: "Code inconsistency between Rust, TypeScript, and Python"
+Failure: "Code inconsistency between Rust, TypeScript, and Rust"
 Severity: 8/10 (causes bugs and security issues)
 Occurrence: 10/10 (happens constantly without ggen)
 Detection: 3/10 (found late in integration testing)
@@ -75,9 +75,9 @@ Risk Priority Number (RPN) = 240 (CRITICAL)
 Manual Process:
 ├─ Rust implementation (write struct)
 ├─ TypeScript implementation (write interface)
-├─ Python implementation (write class)
+├─ Rust implementation (write class)
 ├─ Update Rust → might forget TypeScript
-├─ Update TypeScript → might forget Python
+├─ Update TypeScript → might forget Rust
 ├─ Integration tests fail
 └─ Hours debugging: "Why is TypeScript different from Rust?"
 ```
@@ -91,7 +91,7 @@ Ontology-Driven Approach:
 ├─ Define domain ONCE in RDF (single source of truth)
 ├─ Generate Rust from ontology
 ├─ Generate TypeScript from ontology
-├─ Generate Python from ontology
+├─ Generate Rust from ontology
 ├─ Update ontology → regenerate ALL languages
 └─ Guaranteed consistency (impossible to drift)
 ```
@@ -166,7 +166,7 @@ $ ggen template generate-rdf --ontology fmea.ttl --template typescript-models
 → Generates TypeScript interface with EXACTLY 4 fields
 
 $ ggen template generate-rdf --ontology fmea.ttl --template python-pydantic
-→ Generates Python class with EXACTLY 4 fields
+→ Generates Rust class with EXACTLY 4 fields
 ```
 
 **Result**: All languages have identical structure. Drift is **impossible**. Poke-yoke SUCCEEDED.
@@ -205,9 +205,9 @@ $ ggen template generate-rdf --ontology fmea.ttl --template python-pydantic
 
 Example:
 ```
-xsd:integer    → i32 (Rust)    → number (TypeScript)    → int (Python)
-xsd:string     → String (Rust) → string (TypeScript)     → str (Python)
-xsd:decimal    → f64 (Rust)    → number (TypeScript)     → Decimal (Python)
+xsd:integer    → i32 (Rust)    → number (TypeScript)    → int (Rust)
+xsd:string     → String (Rust) → string (TypeScript)     → str (Rust)
+xsd:decimal    → f64 (Rust)    → number (TypeScript)     → Decimal (Rust)
 ```
 
 **Prevents**: Type mismatches between languages

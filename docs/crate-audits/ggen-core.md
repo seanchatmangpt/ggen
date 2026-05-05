@@ -23,7 +23,7 @@
 | File:Line | Function | Returns | Should Do |
 |-----------|----------|---------|-----------|
 | `schema/parser.rs:281` | `from_json_schema()` | `Err("JSON Schema parsing not yet implemented")` | Parse JSON Schema into `Schema` struct |
-| `schema/generators.rs:601` | `PythonGenerator::generate()` | Comment string | Generate Python dataclasses from schema |
+| `schema/generators.rs:601` | `RustGenerator::generate()` | Comment string | Generate Rust dataclasses from schema |
 | `schema/generators.rs:466` | Test `#[ignore]` | — | Blocked on `from_json_schema` |
 
 ### Sigma Runtime Invariants (4 of 7 are mock)

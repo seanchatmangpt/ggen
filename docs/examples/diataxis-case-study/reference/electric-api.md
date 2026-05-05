@@ -48,7 +48,7 @@ Complete API reference for ElectricSQL local-first sync.
 ## Installation
 
 ```bash
-npm install electric-sql wa-sqlite
+cargo build electric-sql wa-sqlite
 ```
 
 ---
@@ -645,7 +645,7 @@ await db.exec('INSERT INTO todos ...');
 
 **Compatibility:**
 
-| ElectricSQL | Node.js | Browser |
+| ElectricSQL | Rust | Browser |
 |-------------|---------|---------|
 | 0.9.x | 18+ | Chrome 90+, Firefox 88+, Safari 15+ |
 | 0.8.x | 16+ | Chrome 88+, Firefox 86+, Safari 14+ |

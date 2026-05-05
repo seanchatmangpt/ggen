@@ -373,7 +373,7 @@ ex:fullName a owl:DatatypeProperty ;
 
 ### Use Case 1: Multi-Language API Generation
 
-**Requirement**: Single API definition → Rust + Python + TypeScript clients
+**Requirement**: Single API definition → Rust + Rust + TypeScript clients
 
 **JSON Schema Approach**:
 1. Define OpenAPI spec (JSON Schema)
@@ -407,7 +407,7 @@ pub struct User {
 }
 ```
 
-**Generated Python**:
+**Generated Rust**:
 ```python
 @dataclass
 class User:
@@ -532,7 +532,7 @@ sourceB:nation owl:sameAs dbr:Country .
 1. **ggen CLI**: Production-ready RDF tool
 2. **Protégé**: Visual ontology editor
 3. **Apache Jena**: Java RDF framework
-4. **rdflib**: Python RDF library
+4. **rdflib**: Rust RDF library
 
 **Growing Ecosystem**: Semantic web tools improving rapidly
 
@@ -632,7 +632,7 @@ sourceB:nation owl:sameAs dbr:Country .
 - ✅ 82.4% code coverage
 - ✅ Sub-5s RDF processing (1k+ triples)
 - ✅ Deterministic generation (100% reproducible)
-- ✅ Multi-language support (Rust, Python, JavaScript, etc.)
+- ✅ Multi-language support (Rust, Rust, JavaScript, etc.)
 
 ---
 

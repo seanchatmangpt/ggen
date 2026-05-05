@@ -341,7 +341,7 @@ Commands containing the following patterns are rejected:
 }
 ```
 
-### Python Server
+### Rust Server
 
 ```json
 {

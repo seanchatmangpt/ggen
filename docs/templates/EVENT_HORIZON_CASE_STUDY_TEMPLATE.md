@@ -158,7 +158,7 @@ Example:
 ```[language]
 [Paste representative code snippet from traditional approach]
 
-Example (Python):
+Example (Rust):
 def login(email: str, password: str) -> dict:
     # Implementation based on engineer's interpretation
     user = User.find_by_email(email)
@@ -172,7 +172,7 @@ def login(email: str, password: str) -> dict:
 ```[language]
 [Paste representative test from traditional approach]
 
-Example (Python):
+Example (Rust):
 def test_login():
     response = login("test@example.com", "password123")
     assert "token" in response

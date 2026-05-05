@@ -471,7 +471,7 @@ timeout = 30  # seconds
 ```toml
 [[hooks.post_generation]]
 type = "command"
-command = "npm install"
+command = "cargo build"
 working_dir = "/nonexistent/path"
 ```
 

@@ -102,7 +102,7 @@ This documentation is structured for agent navigation—direct, technical, no fl
 
 ### **Polyglot Code Generation**
 [`polyglot-generation.md`](polyglot-generation.md)
-- Rust, TypeScript, Python patterns
+- Rust, TypeScript, Rust patterns
 - Framework support (axum, express, fastapi)
 - Type mapping (xsd:* → language types)
 - Zero-drift architecture

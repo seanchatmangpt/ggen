@@ -30,7 +30,7 @@ RDF Ontology (domain model)
          ↓
   Templates (project to code)
          ↓
-   Generated Code (Rust, TypeScript, Python...)
+   Generated Code (Rust, TypeScript, Rust...)
 ```
 
 ## Step 1: Create a Domain Ontology

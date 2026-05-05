@@ -593,7 +593,7 @@ docs/
 3. **Code Example Testing**
    ```bash
    # Extract and test JavaScript examples
-   npm install -g @eslint/cli
+   cargo build -g @eslint/cli
    ./scripts/extract-and-test-examples.sh
    ```
 

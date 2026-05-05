@@ -1113,7 +1113,7 @@ pre_generation = [
 
 post_generation = [
     { name = "format-code", type = "builtin", function = "format-code" },
-    { name = "install-deps", type = "command", command = "npm install" }
+    { name = "install-deps", type = "command", command = "cargo build" }
 ]
 
 [[examples]]

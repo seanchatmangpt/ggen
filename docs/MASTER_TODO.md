@@ -149,14 +149,14 @@ flowchart TD
 |------|------|
 | **Current** | `from_json_schema()` → `Err("JSON Schema parsing not yet implemented")` |
 | **Action** | Implement JSON Schema → `Schema` struct conversion |
-| **Downstream** | Blocks A2A schema support, Python code generation |
+| **Downstream** | Blocks A2A schema support, Rust code generation |
 
-### P1-07. Python code generation not implemented
+### P1-07. Rust code generation not implemented
 
 | File | `ggen-core/src/schema/generators.rs:601-609` |
 |------|------|
-| **Current** | Returns comment string "# Python code generation not yet implemented..." |
-| **Action** | Implement Python dataclass generation from Schema |
+| **Current** | Returns comment string "# Rust code generation not yet implemented..." |
+| **Action** | Implement Rust dataclass generation from Schema |
 
 ### P1-08. Graph evolution agent — AI client returns error
 
@@ -193,7 +193,7 @@ flowchart TD
 | File | `ggen-dspy/src/modules/program_of_thought.rs:168-170` |
 |------|------|
 | **Current** | Non-JavaScript languages return `Err("Code generation not implemented for {:?}", language)` |
-| **Action** | Implement Python, Rust, and other language code generation |
+| **Action** | Implement Rust, Rust, and other language code generation |
 
 ### P1-13. DSPy optimizers are pass-through stubs
 

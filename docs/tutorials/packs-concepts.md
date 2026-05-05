@@ -170,7 +170,7 @@ Packs are **opinionated** about:
 - Architecture patterns (proven designs)
 
 But **flexible** in:
-- Language choices (Rust, TypeScript, Python, etc.)
+- Language choices (Rust, TypeScript, Rust, etc.)
 - Customization (config files override defaults)
 - Extension (add templates beyond the pack)
 

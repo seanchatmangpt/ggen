@@ -139,7 +139,7 @@ ggen template generate-rdf \
 1. **Ontology as single source of truth:** RDF defines your domain
 2. **Automatic code generation:** Templates project ontology into code
 3. **Change propagation:** Modify ontology → regenerate → code updates
-4. **Multi-language support:** Same ontology can generate Rust, TypeScript, Python
+4. **Multi-language support:** Same ontology can generate Rust, TypeScript, Rust
 
 ## Next Steps
 

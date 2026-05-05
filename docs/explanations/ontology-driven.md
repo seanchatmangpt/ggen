@@ -27,7 +27,7 @@ ggen uses ontology-driven development: the domain model (RDF ontology) is the si
 
 Traditional development:
 ```
-Code (Rust) ← Manually sync → Code (TypeScript) ← Manually sync → Code (Python)
+Code (Rust) ← Manually sync → Code (TypeScript) ← Manually sync → Code (Rust)
 ```
 
 Ontology-driven development:
@@ -36,7 +36,7 @@ RDF Ontology (Single Source of Truth)
     ↓
     ├──→ Rust Code
     ├──→ TypeScript Code
-    └──→ Python Code
+    └──→ Rust Code
 ```
 
 ## Why Ontology-Driven?
@@ -62,7 +62,7 @@ ex:price rdfs:range xsd:decimal .
 Maps to:
 - Rust: `f64`
 - TypeScript: `number`
-- Python: `float`
+- Rust: `float`
 
 ### Evolution Without Drift
 

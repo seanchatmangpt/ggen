@@ -275,7 +275,7 @@ ggen mcp server start --verbose --debug
    which uvx
 
    # Install missing dependencies
-   npm install -g @anthropic-ai/claude-code-guide
+   cargo build -g @anthropic-ai/claude-code-guide
    ```
 
 4. **Permission denied**

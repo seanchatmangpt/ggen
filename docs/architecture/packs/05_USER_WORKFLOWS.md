@@ -97,8 +97,8 @@ $ ggen packs generate web-api-starter my-api --var author="John Doe"
 
 # Step 5: Verify project structure
 $ cd my-api
-$ npm install
-$ npm test
+$ cargo build
+$ cargo test
 ```
 
 ### Detailed Execution Flow
@@ -253,7 +253,7 @@ Setting permissions:
 
 Next steps:
   1. cd my-api
-  2. npm install
+  2. cargo build
   3. npm run dev
 
 📚 Documentation: ./my-api/README.md
@@ -274,11 +274,11 @@ drwxr-xr-x  3 user  staff    96 Jan 15 10:30 .github
 drwxr-xr-x  8 user  staff   256 Jan 15 10:30 src
 drwxr-xr-x  4 user  staff   128 Jan 15 10:30 tests
 
-$ npm install
+$ cargo build
 ...
 ✅ Dependencies installed (48 packages)
 
-$ npm test
+$ cargo test
 
  PASS  tests/api.test.ts
   ✓ GET /api/health returns 200 (45 ms)
@@ -682,7 +682,7 @@ Required Variables:
 Optional Variables:
 ? License (MIT): Apache-2.0
 ? Project description: Advanced REST + GraphQL API with auth
-? Node.js version (18): 20
+? Rust version (18): 20
 ? Enable strict TypeScript? (Y/n): y
 ? Enable Swagger documentation? (Y/n): y
 ? Enable rate limiting? (Y/n): y

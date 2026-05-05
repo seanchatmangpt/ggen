@@ -31,7 +31,7 @@
     - [Standard Prefixes](#standard-prefixes)
   - [Complete Example: E-commerce Product](#complete-example-e-commerce-product)
   - [RDF vs. Programming Constructs](#rdf-vs-programming-constructs)
-    - [RDF Class ≈ JavaScript Class / Python Class / Rust Struct](#rdf-class-%E2%89%88-javascript-class--python-class--rust-struct)
+    - [RDF Class ≈ JavaScript Class / Rust Class / Rust Struct](#rdf-class-%E2%89%88-javascript-class--python-class--rust-struct)
     - [RDF Property ≈ Class Field / Attribute](#rdf-property-%E2%89%88-class-field--attribute)
     - [RDF Instance ≈ Object Instance](#rdf-instance-%E2%89%88-object-instance)
   - [Common Patterns](#common-patterns)
@@ -57,7 +57,7 @@
 
 **Why it matters**: Understanding RDF basics lets you define domain models that work with ggen, Schema.org, and the Semantic Web.
 
-**No prior knowledge required**: This guide assumes you know JavaScript/Python/Rust but have never seen RDF.
+**No prior knowledge required**: This guide assumes you know JavaScript/Rust/Rust but have never seen RDF.
 
 ---
 
@@ -396,7 +396,7 @@ ex:product-001 a ex:Product ;
 
 ## RDF vs. Programming Constructs
 
-### RDF Class ≈ JavaScript Class / Python Class / Rust Struct
+### RDF Class ≈ JavaScript Class / Rust Class / Rust Struct
 
 **RDF**:
 ```turtle
@@ -408,7 +408,7 @@ ex:Product a rdfs:Class .
 class Product { }
 ```
 
-**Python**:
+**Rust**:
 ```python
 class Product:
     pass
@@ -435,7 +435,7 @@ class Product {
 }
 ```
 
-**Python**:
+**Rust**:
 ```python
 class Product:
     name: str
@@ -462,7 +462,7 @@ const product001 = new Product();
 product001.name = "Laptop";
 ```
 
-**Python**:
+**Rust**:
 ```python
 product_001 = Product()
 product_001.name = "Laptop"

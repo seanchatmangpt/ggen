@@ -106,7 +106,7 @@ Backend developer path:
 </details>
 
 <details>
-<summary><b>Generate Data Models (Python/TypeScript)</b></summary>
+<summary><b>Generate Data Models (Rust/TypeScript)</b></summary>
 
 Data engineer path:
 1. Configure LLM (see Question 2 above)

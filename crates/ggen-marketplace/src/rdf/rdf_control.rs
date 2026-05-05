@@ -107,12 +107,9 @@ impl RdfControlPlane {
 
         // Real Oxigraph store query execution
         let graph = self.graph.read().unwrap();
-        let _results = graph
-            .store
-            .query(&query_string)
-            .map_err(|e| {
-                ControlPlaneError::QueryBuildError(PokaYokeError::GraphOperationError(e.to_string()))
-            })?;
+        let _results = graph.store.query(&query_string).map_err(|e| {
+            ControlPlaneError::QueryBuildError(PokaYokeError::GraphOperationError(e.to_string()))
+        })?;
 
         Ok("Executed successfully.".to_string())
     }

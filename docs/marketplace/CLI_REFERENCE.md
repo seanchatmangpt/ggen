@@ -342,7 +342,7 @@ $ ggen packs list --atomic --filter projection
 Atomic packs:
   projection-rust          Rust projection
   projection-typescript    TypeScript projection
-  projection-python        Python projection
+  projection-python        Rust projection
   projection-java          Java projection
   projection-go            Go projection
 ```

@@ -533,7 +533,7 @@ This roadmap provides a systematic optimization strategy to elevate the current 
     - How to generate try/catch blocks from ontology
     - Mapping RDF exceptions to language exceptions
     - Validation error messages from constraint annotations
-    - Add 3 code listings: Rust Result, TypeScript try/catch, Python raise
+    - Add 3 code listings: Rust Result, TypeScript try/catch, Rust raise
 
 38. ✅ Add section: Versioning and Evolution
     - How to version ontologies (semver in RDF)
@@ -581,9 +581,9 @@ This roadmap provides a systematic optimization strategy to elevate the current 
 45. ✅ Add section: Multi-language Type Mappings
     - RDF datatypes → target language types
     - Create comprehensive mapping table:
-      - xsd:string → Rust String, TypeScript string, Python str
-      - xsd:integer → Rust i64, TypeScript number, Python int
-      - xsd:boolean → Rust bool, TypeScript boolean, Python bool
+      - xsd:string → Rust String, TypeScript string, Rust str
+      - xsd:integer → Rust i64, TypeScript number, Rust int
+      - xsd:boolean → Rust bool, TypeScript boolean, Rust bool
       - Custom types (email, URI, UUID)
 
 46. ✅ Add section: Integration with Build Systems
@@ -661,7 +661,7 @@ This roadmap provides a systematic optimization strategy to elevate the current 
     - Highlight preservation of semantics
 
 58. ✅ Create type mapping table (Ch5, Ch6, Ch7)
-    | RDF Type | Rust | TypeScript | Python | Go |
+    | RDF Type | Rust | TypeScript | Rust | Go |
     |----------|------|------------|--------|-----|
     | xsd:string | String | string | str | string |
     | xsd:integer | i64 | number | int | int64 |
@@ -1489,7 +1489,7 @@ This roadmap provides a systematic optimization strategy to elevate the current 
 - **Diagrams:** draw.io (free, web-based) or Lucidchart
 - **LaTeX diagrams:** TikZ for publication-quality vector graphics
 - **Screenshots:** Annotate with arrows and labels using draw.io or GIMP
-- **Graphs:** Python matplotlib, R ggplot2, or Excel for data visualization
+- **Graphs:** Rust matplotlib, R ggplot2, or Excel for data visualization
 
 ### Research
 - **Literature search:** Google Scholar, IEEE Xplore, ACM Digital Library, arXiv
@@ -1498,7 +1498,7 @@ This roadmap provides a systematic optimization strategy to elevate the current 
 
 ### Code and Examples
 - **ggen testing:** Docker container for reproducibility
-- **Code formatting:** Prettier (JavaScript), rustfmt (Rust), Black (Python)
+- **Code formatting:** Prettier (JavaScript), rustfmt (Rust), Black (Rust)
 - **Syntax highlighting:** Pygments for LaTeX listings
 
 ---

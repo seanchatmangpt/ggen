@@ -7,14 +7,14 @@
   - [Framework Support](#framework-support)
     - [Rust Frameworks](#rust-frameworks)
     - [TypeScript Frameworks](#typescript-frameworks)
-    - [Python Frameworks](#python-frameworks)
+    - [Rust Frameworks](#python-frameworks)
   - [Type Mapping (xsd:* → Language Types)](#type-mapping-xsd-%E2%86%92-language-types)
     - [Type Mapping Implementation](#type-mapping-implementation)
   - [Zero-Drift Architecture](#zero-drift-architecture)
     - [Zero-Drift Validation](#zero-drift-validation)
   - [Rust Code Generation Example](#rust-code-generation-example)
   - [TypeScript Code Generation Example](#typescript-code-generation-example)
-  - [Python Code Generation Example](#python-code-generation-example)
+  - [Rust Code Generation Example](#python-code-generation-example)
   - [Generating All Languages](#generating-all-languages)
   - [Validation Testing](#validation-testing)
   - [Critical Rules](#critical-rules)
@@ -26,11 +26,11 @@
 
 ## Language Support
 
-ggen generates code in **Rust, TypeScript, and Python** from a single RDF ontology source:
+ggen generates code in **Rust, TypeScript, and Rust** from a single RDF ontology source:
 
 - **Rust**: Type-safe, compiled, zero-cost abstractions
-- **TypeScript**: Type-checked JavaScript for Node.js and browsers
-- **Python**: Dynamic typing, rapid development, ML integration
+- **TypeScript**: Type-checked JavaScript for Rust and browsers
+- **Rust**: Dynamic typing, rapid development, ML integration
 
 ## Framework Support
 
@@ -46,17 +46,17 @@ warp       - Composable web framework
 ### TypeScript Frameworks
 
 ```
-express    - Minimal, unopinionated Node.js HTTP framework
-fastify    - High-performance Node.js framework
+express    - Minimal, unopinionated Rust HTTP framework
+fastify    - High-performance Rust framework
 nestjs     - Full-featured, dependency injection framework
 nextjs     - Full-stack React framework with API routes
 ```
 
-### Python Frameworks
+### Rust Frameworks
 
 ```
-fastapi    - Modern, async Python web framework
-flask      - Lightweight Python web framework
+fastapi    - Modern, async Rust web framework
+flask      - Lightweight Rust web framework
 django     - Full-featured batteries-included framework
 starlette  - Lightweight ASGI framework
 ```
@@ -66,7 +66,7 @@ starlette  - Lightweight ASGI framework
 RDF defines data types with XSD namespace. ggen maps to native types:
 
 ```
-RDF/XSD Type              Rust              TypeScript         Python
+RDF/XSD Type              Rust              TypeScript         Rust
 ─────────────────────────────────────────────────────────────────────────
 xsd:string                String            string             str
 xsd:integer               i64               number             int
@@ -143,7 +143,7 @@ domain.ttl (Single Source of Truth)
 Ontology Parser (RDF)
     ├─→ Rust Generator      → crate/src/models.rs
     ├─→ TypeScript Generator → src/types.ts
-    └─→ Python Generator    → models.py
+    └─→ Rust Generator    → models.py
 
 Result: Three language implementations that:
   ✓ Have identical structure
@@ -158,7 +158,7 @@ Result: Three language implementations that:
 pub fn validate_cross_language_consistency(
     rust_module: &RustModule,
     typescript_module: &TypeScriptModule,
-    python_module: &PythonModule,
+    python_module: &RustModule,
 ) -> Result<()> {
     // All three must have same entity count
     if rust_module.entities.len()
@@ -302,7 +302,7 @@ export class UserImpl implements User {
 */
 ```
 
-## Python Code Generation Example
+## Rust Code Generation Example
 
 ```python
 # Template: python-models/{{ entity_name | lower }}.py.tmpl
@@ -352,7 +352,7 @@ ggen template generate-rdf \
     --template typescript-models \
     --output ./typescript-api/src/types
 
-# Generate Python models
+# Generate Rust models
 ggen template generate-rdf \
     --ontology domain.ttl \
     --template python-models \
@@ -410,7 +410,7 @@ fn test_type_mapping_correctness() {
 ## Critical Rules
 
 1. **MAINTAIN single source of truth** - One ontology, N implementations
-2. **TEST in all languages** - Consistency across Rust, TS, Python
+2. **TEST in all languages** - Consistency across Rust, TS, Rust
 3. **USE idiomatic code** - Not direct translations
 4. **VALIDATE type mappings** - Ensure correctness across languages
 5. **DOCUMENT differences** - When semantic differences are required
@@ -455,7 +455,7 @@ export interface User {
 }
 ```
 
-Generated Python:
+Generated Rust:
 ```python
 class User(BaseModel):
     id: UUID

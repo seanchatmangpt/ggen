@@ -64,7 +64,7 @@ ggen mcp generate --ontology my-server.ttl
 # Custom output directory
 ggen mcp generate --ontology my-server.ttl --output ./my-mcp-server
 
-# Generate Python server
+# Generate Rust server
 ggen mcp generate --ontology my-server.ttl --language python --output ./python-server
 
 # Enable LLM-assisted code generation
@@ -211,7 +211,7 @@ ggen mcp generate --ontology server.ttl --language rust
 # Go
 ggen mcp generate --ontology server.ttl --language go
 
-# Python
+# Rust
 ggen mcp generate --ontology server.ttl --language python
 
 # TypeScript

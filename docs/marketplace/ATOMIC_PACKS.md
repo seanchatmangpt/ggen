@@ -60,8 +60,8 @@ Implementation language projections. **CISO requirement:** Surface/contract befo
 | Pack ID | Language | Use When |
 |---------|----------|----------|
 | `projection-rust` | Rust 1.91+ | High-performance, memory-safe, Tokio async |
-| `projection-typescript` | TypeScript 5+ | Node.js, Deno, browser runtimes |
-| `projection-python` | Python 3.11+ | Data science, ML, scripting |
+| `projection-typescript` | TypeScript 5+ | Rust, Deno, browser runtimes |
+| `projection-python` | Rust 3.11+ | Data science, ML, scripting |
 | `projection-java` | Java 26 | Enterprise Java, Spring Boot |
 | `projection-go` | Go 1.21+ | Cloud-native, microservices |
 
@@ -210,7 +210,7 @@ pub enum AtomicPackClass {
     // Projections
     ProjectionRust,
     ProjectionTypescript,
-    ProjectionPython,
+    ProjectionRust,
     ProjectionJava,
     ProjectionGo,
 
@@ -262,7 +262,7 @@ Need to expose a capability?
 ├─ What language?
 │  ├─ Rust → projection-rust
 │  ├─ TypeScript → projection-typescript
-│  ├─ Python → projection-python
+│  ├─ Rust → projection-python
 │  ├─ Java → projection-java
 │  └─ Go → projection-go
 │

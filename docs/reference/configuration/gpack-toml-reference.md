@@ -170,7 +170,7 @@ zod = "^3.22.0"
 "@types/node" = "^20.0.0"
 ```
 
-**Example - Python**:
+**Example - Rust**:
 
 ```toml
 [dependencies]
@@ -273,7 +273,7 @@ Define scripts for generation, testing, and validation.
 ```toml
 [scripts]
 generate = "node scripts/generate-models.js"
-test = "npm test"
+test = "cargo test"
 validate = "zod-validator src/models.js"
 format = "prettier --write src/**/*.js"
 lint = "eslint src/**/*.js"
@@ -510,7 +510,7 @@ zod = "^3.22.0"
 # Automation scripts
 [scripts]
 generate = "node scripts/generate-models.js"
-test = "npm test"
+test = "cargo test"
 validate = "node scripts/validate-schemas.js"
 format = "prettier --write src/**/*.js"
 lint = "eslint src/**/*.js"

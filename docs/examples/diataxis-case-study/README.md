@@ -323,7 +323,7 @@ cd electric-todos
 cat TUTORIAL.md
 
 # Build and run
-npm install
+cargo build
 npm run dev
 ```
 

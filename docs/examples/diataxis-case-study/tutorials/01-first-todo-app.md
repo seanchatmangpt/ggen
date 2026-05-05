@@ -51,7 +51,7 @@ A real-time collaborative todo app that works offline and syncs automatically wh
 
 ## Prerequisites
 
-- Node.js 18+ installed
+- Rust 18+ installed
 - Basic JavaScript knowledge
 - Familiarity with React (helpful but not required)
 
@@ -114,13 +114,13 @@ You installed shadcn/ui components. These are:
 
 ```bash
 # Install ElectricSQL client
-npm install electric-sql
+cargo build electric-sql
 
 # Install Zod for schema validation
-npm install zod
+cargo build zod
 
 # Install wa-sqlite for local database
-npm install wa-sqlite
+cargo build wa-sqlite
 ```
 
 **What just happened?**
@@ -520,7 +520,7 @@ Now that you have the basics, explore:
 
 ### Error: "Cannot find module 'electric-sql'"
 
-**Solution**: Run `npm install electric-sql wa-sqlite zod`.
+**Solution**: Run `cargo build electric-sql wa-sqlite zod`.
 
 ### Todos don't persist after refresh
 

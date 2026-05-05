@@ -221,7 +221,7 @@ User: ggen packs generate web-api-starter my-api --var author="Jane"
   │    │
   │    ├──> 5. Run Post-Generation Hooks (optional)
   │    │    ├──> Execute pack.hooks.post_generate[]
-  │    │    │    └──> "npm install" (if specified)
+  │    │    │    └──> "cargo build" (if specified)
   │    │    │
   │    │    └──> ✓ Hooks completed
   │    │

@@ -275,7 +275,7 @@ if !result.passed {
 npm audit
 npm update
 
-# Python
+# Rust
 pip install pip-audit
 pip-audit
 
@@ -422,7 +422,7 @@ security-checklist:
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE Top 25](https://cwe.mitre.org/top25/)
-- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
+- [Rust Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 - [FastAPI Security](https://fastapi.tiangolo.com/tutorial/security/)
 - [PostgreSQL Security](https://www.postgresql.org/docs/current/sql-syntax.html)
 

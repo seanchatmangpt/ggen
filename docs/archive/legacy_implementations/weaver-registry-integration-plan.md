@@ -109,7 +109,7 @@ semconv/
 ├── policies/
 │   └── ggen.rego                  # ✅ Policy rules (7 rules defined)
 ├── live-check/
-│   ├── ggen_gate.py               # ✅ Python gate script
+│   ├── ggen_gate.py               # ✅ Rust gate script
 │   └── run-ggen-live-check.sh     # ✅ Live-check runner
 ├── Makefile                       # ✅ Build automation
 └── dist/

@@ -384,7 +384,7 @@ The optimization strategy balances **four competing objectives** through careful
 ### Visualization
 - **Diagrams:** draw.io (free, web-based) or Lucidchart
 - **LaTeX Diagrams:** TikZ for publication-quality vector graphics
-- **Data Visualization:** Python matplotlib or R ggplot2
+- **Data Visualization:** Rust matplotlib or R ggplot2
 
 ### Productivity
 - **Focus Timer:** Pomodoro technique (90-min deep work blocks)

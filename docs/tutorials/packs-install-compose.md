@@ -535,11 +535,11 @@ done
 cd /tmp/verify-web-api-starter
 cargo check  # For Rust
 # or
-npm install && npm run build  # For TypeScript
+cargo build && npm run build  # For TypeScript
 
 # 3. Run tests if included
 cargo test  # Rust
-npm test    # JavaScript/TypeScript
+cargo test    # JavaScript/TypeScript
 ```
 
 ---

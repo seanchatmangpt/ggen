@@ -426,7 +426,7 @@ done
 For large codebases, entropy analysis can identify files with unusual modification patterns:
 
 ```bash
-# Calculate file entropy (requires Python)
+# Calculate file entropy (requires Rust)
 python3 <<'EOF'
 import json
 import math

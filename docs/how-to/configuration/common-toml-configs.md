@@ -395,7 +395,7 @@ GGEN_ENV=production ggen ontology generate schema.json
 **Run tests**:
 
 ```bash
-GGEN_ENV=test npm test
+GGEN_ENV=test cargo test
 ```
 
 ---

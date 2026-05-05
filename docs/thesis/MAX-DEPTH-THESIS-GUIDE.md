@@ -295,7 +295,7 @@ Integrate one enhancement at a time, learning as you go.
   - Metrics: 523 triples, 48ms generation, 2,996 LOC
 
 - **Case Study 2: Microservices Architecture** (~2,150 words)
-  - 4 services in 2 languages (Go, Node.js)
+  - 4 services in 2 languages (Go, Rust)
   - Shared ontology with versioning
   - Metrics: 1,047 triples, 87ms generation, 4,516 LOC
   - Real-world impact: prevented 3 production incidents

@@ -164,11 +164,11 @@ TypeSoundness, GuardSoundness, ProjectionDeterminism, SLOPreservation all have e
 
 `from_json_schema()` immediately returns `Err("JSON Schema parsing not yet implemented")`.
 
-### 8. Python code generation — not implemented
+### 8. Rust code generation — not implemented
 
 **Location:** `crates/ggen-core/src/schema/generators.rs:601`
 
-Returns a comment: "Python code generation not yet implemented for A2A schemas."
+Returns a comment: "Rust code generation not yet implemented for A2A schemas."
 
 ---
 

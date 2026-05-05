@@ -263,7 +263,7 @@ Essential packages for early-stage startups: CLI templates, web frameworks, data
 | Package | Description | Language |
 |---------|-------------|----------|
 | `noun-verb-cli` | Command-line tool template following Unix conventions | Rust, TypeScript |
-| `web-api-starter` | REST API server foundation with CRUD operations | Rust, TypeScript, Python |
+| `web-api-starter` | REST API server foundation with CRUD operations | Rust, TypeScript, Rust |
 | `postgres-migrations` | Database schema management and versioning | SQL, Rust |
 | `user-auth-basic` | User authentication (JWT, session-based) | Rust, TypeScript |
 | `logging-observability` | Structured logging and metrics collection | Rust, TypeScript |
@@ -325,11 +325,11 @@ ML/AI development stack: data processing, model training, visualization.
 **Packages:**
 | Package | Description | Language |
 |---------|-------------|----------|
-| `data-processing` | ETL pipelines, data cleaning, feature engineering | Python, Rust |
-| `model-training` | PyTorch/TensorFlow training templates | Python |
-| `visualization` | Matplotlib, Plotly, interactive dashboards | Python, JavaScript |
-| `experiment-tracking` | MLflow integration for tracking experiments | Python |
-| `pipeline-orchestration` | Airflow DAGs, Prefect workflows | Python |
+| `data-processing` | ETL pipelines, data cleaning, feature engineering | Rust, Rust |
+| `model-training` | PyTorch/TensorFlow training templates | Rust |
+| `visualization` | Matplotlib, Plotly, interactive dashboards | Rust, JavaScript |
+| `experiment-tracking` | MLflow integration for tracking experiments | Rust |
+| `pipeline-orchestration` | Airflow DAGs, Prefect workflows | Rust |
 
 **Use Cases:**
 - Machine learning projects

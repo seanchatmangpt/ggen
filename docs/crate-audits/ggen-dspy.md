@@ -14,7 +14,7 @@
 | `optimizers/bootstrap.rs:7` | `config` field | `#[allow(dead_code)]` — stored, unused | |
 | `optimizers/mipro.rs:28` | `MiproOptimizer::compile()` | `Ok(module)` unchanged | Multi-prompt instruction proposal optimization |
 | `optimizers/mipro.rs:7` | `config` field | `#[allow(dead_code)]` — stored, unused | |
-| `modules/program_of_thought.rs:168` | Non-JS languages | `Err("Code generation not implemented for {:?}", language)` | Python, Rust, other language code generation |
+| `modules/program_of_thought.rs:168` | Non-JS languages | `Err("Code generation not implemented for {:?}", language)` | Rust, Rust, other language code generation |
 
 ---
 
@@ -35,6 +35,6 @@
 |--------|------|----------|
 | **FIX** | BootstrapFewShot optimizer: implement demo selection algorithm | P1 |
 | **FIX** | MIPRO optimizer: implement instruction optimization | P1 |
-| **FIX** | Program of Thought: add Python/Rust code generation | P2 |
+| **FIX** | Program of Thought: add Rust/Rust code generation | P2 |
 | **DELETE** | Dead `config` fields in both optimizers | P3 |
 | **DELETE** | Dead code in react, adapters, a2a_predictor | P3 |

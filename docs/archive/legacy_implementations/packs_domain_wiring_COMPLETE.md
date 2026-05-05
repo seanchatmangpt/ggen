@@ -193,7 +193,7 @@ sequenceDiagram
 **Projections (5):**
 - `projection-rust` - Rust code projection
 - `projection-typescript` - TypeScript code projection
-- `projection-python` - Python code projection
+- `projection-python` - Rust code projection
 - `projection-java` - Java 26 code projection
 - `projection-go` - Go code projection
 

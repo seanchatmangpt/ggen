@@ -124,7 +124,7 @@ These crates have no stubs, no dead code, and no architectural issues requiring 
 ## ggen-node
 
 **Path:** `crates/ggen-node/`
-**Role:** Node.js N-API bindings
+**Role:** Rust N-API bindings
 **Status:** Clean.
 **Test count:** 15
 

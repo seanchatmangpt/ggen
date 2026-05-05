@@ -774,7 +774,7 @@ pub struct RepositoryInfo {
 /// Post-generation hooks
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct PackHooks {
-    /// Scripts to run after generation (e.g., "npm install")
+    /// Scripts to run after generation (e.g., "cargo build")
     #[serde(default)]
     pub post_generate: Vec<String>,
 

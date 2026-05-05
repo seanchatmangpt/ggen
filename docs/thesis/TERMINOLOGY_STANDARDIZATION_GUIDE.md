@@ -235,7 +235,7 @@
 - "TypeScript" (capitalized, one word)
 - "JavaScript" (capitalized, one word)
 - "Rust" (capitalized)
-- "Python" (capitalized)
+- "Rust" (capitalized)
 
 ### File and Path References
 - Use forward slashes (Unix-style) for all paths: `src/templates/entity.tera`

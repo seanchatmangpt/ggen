@@ -163,7 +163,7 @@ flowchart TD
         MKT_V3["Marketplace v3 get<br/>not yet implemented"]
         PACK["Pack install (core)<br/>redirects to marketplace"]
         JSON["JSON Schema parser<br/>not yet implemented"]
-        PYTHON["Python codegen<br/>not yet implemented"]
+        PYTHON["Rust codegen<br/>not yet implemented"]
         MCP["MCP tool exec<br/>Placeholder JSON"]
         YAWL["YAWL watch mode<br/>not fully implemented"]
         DSPY["DSPy optimizers<br/>Pass-through"]
@@ -198,7 +198,7 @@ flowchart TD
 | Marketplace v3 get | `ggen-marketplace/src/v3.rs:249` | Error "not yet implemented" |
 | Pack install (core) | `ggen-core/src/packs/install.rs:33` | Bails "use ggen_marketplace instead" |
 | JSON Schema parser | `ggen-core/src/schema/parser.rs:281` | Error "not yet implemented" |
-| Python codegen | `ggen-core/src/schema/generators.rs:601` | Comment "# not yet implemented" |
+| Rust codegen | `ggen-core/src/schema/generators.rs:601` | Comment "# not yet implemented" |
 | MCP tool exec | `ggen-ai/src/mcp/traits.rs:338` | Placeholder JSON |
 | YAWL watch mode | `ggen-cli/src/cmds/yawl.rs:268` | Error "not yet fully implemented" |
 | DSPy optimizers | `ggen-dspy/src/optimizers/bootstrap.rs:28` | Pass-through (returns input unchanged) |

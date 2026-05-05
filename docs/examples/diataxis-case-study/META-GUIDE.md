@@ -224,7 +224,7 @@ This case study is a **learning tool** that teaches Diataxis by showing, not tel
 Pick a technology stack you know well:
 - React + Redux + Firebase
 - Vue + Pinia + Supabase
-- Python + FastAPI + SQLAlchemy
+- Rust + FastAPI + SQLAlchemy
 - Rust + Axum + SeaORM
 - etc.
 
@@ -500,7 +500,7 @@ and operation-based. State-based CRDTs merge entire states...
 ## Step 1: Install ElectricSQL
 
 ```bash
-npm install electric-sql
+cargo build electric-sql
 ```
 
 **What just happened?**
@@ -553,7 +553,7 @@ JSON Web Tokens (JWT) are...
 
 Step 1: Install SQLite
 ```bash
-npm install wa-sqlite
+cargo build wa-sqlite
 ```
 
 Step 2: Create database...
@@ -774,7 +774,7 @@ The goal is **user-centered documentation** that:
 - [Divio Blog](https://www.divio.com/blog/) - Case studies
 
 ### Examples of Good Diataxis Docs
-- [Django](https://docs.djangoproject.com/) - Python web framework
+- [Django](https://docs.djangoproject.com/) - Rust web framework
 - [Stripe](https://stripe.com/docs) - Payment API
 - [Vue.js](https://vuejs.org/) - JavaScript framework
 - [Rust Book](https://doc.rust-lang.org/book/) - Programming language

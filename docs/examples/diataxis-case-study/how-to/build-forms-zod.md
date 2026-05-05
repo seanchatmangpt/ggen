@@ -58,9 +58,9 @@ User Input → shadcn Form Component → Zod Validation → Database
 
 ```bash
 # Install form dependencies
-npm install zod
-npm install react-hook-form
-npm install @hookform/resolvers
+cargo build zod
+cargo build react-hook-form
+cargo build @hookform/resolvers
 
 # Install shadcn form components
 npx shadcn-ui@latest add form
@@ -383,7 +383,7 @@ export const TodoFormSchema = z.object({
 
 **Solution**:
 ```bash
-npm install @hookform/resolvers
+cargo build @hookform/resolvers
 ```
 
 ### Validation Not Triggering
@@ -405,7 +405,7 @@ const form = useForm({
 **Solution**:
 ```bash
 npx shadcn-ui@latest add calendar
-npm install date-fns
+cargo build date-fns
 ```
 
 ---

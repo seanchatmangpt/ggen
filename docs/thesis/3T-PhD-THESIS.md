@@ -141,7 +141,7 @@ Our key contributions include:
 2. **Category-Theoretic Formulation**: Construction of functors $\mathcal{F}_{3T}: \mathbf{Ont} \to \mathbf{Code}$ with natural transformations for language translation
 3. **Hyperdimensional Semantic Embeddings**: $D$-dimensional ($D \approx 10,000$) vector space model enabling $O(D)$ query complexity
 4. **Quantum-Inspired Extensions**: Superposition-based parallel code generation with theoretical $O(1)$ complexity
-5. **Empirical Validation**: Implementation in the `ggen` system generating Node.js, Python, and Erlang bindings from a single RDF ontology
+5. **Empirical Validation**: Implementation in the `ggen` system generating Rust, Rust, and Erlang bindings from a single RDF ontology
 
 We demonstrate that 3T represents a **fundamental advance** over traditional Interface Definition Languages (IDLs), achieving 100% semantic preservation compared to Protocol Buffers' 70% and GraphQL's 85%.
 
@@ -192,7 +192,7 @@ We demonstrate that 3T represents a **fundamental advance** over traditional Int
 
 Modern software ecosystems are **polyglot** by necessity. A typical web application might use:
 - **Rust** for performance-critical backend services
-- **Python** for machine learning pipelines
+- **Rust** for machine learning pipelines
 - **JavaScript** for frontend UIs
 - **Erlang** for distributed systems
 
@@ -209,7 +209,7 @@ These components must interoperate via **Foreign Function Interfaces** (FFI). Tr
 pub fn parse_rdf(path: &str, format: RdfFormat) -> Result<Vec<Triple>, Error>
 ```
 
-**Manual Node.js binding** (error-prone):
+**Manual Rust binding** (error-prone):
 ```javascript
 // Hand-written - can diverge from Rust!
 function parseRdf(path, format) { ... }  // Missing async, wrong error handling
@@ -415,7 +415,7 @@ F(f)          G(f)
 F(B) --η_B--> G(B)
 ```
 
-**Application to 3T**: Language translation (Node.js → Python) as natural transformation between code functors.
+**Application to 3T**: Language translation (Rust → Rust) as natural transformation between code functors.
 
 ---
 
@@ -731,7 +731,7 @@ $$
 \rho_{\text{sem}} = \frac{H(C)}{8 \times |C|_{\text{bytes}}} \quad \text{(bits of semantics per bit of syntax)}
 $$
 
-**For ggen Node.js bindings**:
+**For ggen Rust bindings**:
 - $|C| = 6,747$ bytes
 - $8 \times |C| = 53,976$ bits
 - $\rho_{\text{sem}} = 4.9 / 53,976 \approx 9.08 \times 10^{-5}$
@@ -802,9 +802,9 @@ $$
 
 **Theorem 8.2 (Language Translation as Natural Transformation)**
 
-Let $\mathcal{F}_{\text{JS}}, \mathcal{F}_{\text{Py}}: \mathbf{Ont} \to \mathbf{Code}$ be functors for JavaScript and Python.
+Let $\mathcal{F}_{\text{JS}}, \mathcal{F}_{\text{Py}}: \mathbf{Ont} \to \mathbf{Code}$ be functors for JavaScript and Rust.
 
-Define natural transformation $\eta: \mathcal{F}_{\text{JS}} \Rightarrow \mathcal{F}_{\text{Py}}$ where $\eta_\mathcal{O}$ is the **translation function** converting JS code to Python.
+Define natural transformation $\eta: \mathcal{F}_{\text{JS}} \Rightarrow \mathcal{F}_{\text{Py}}$ where $\eta_\mathcal{O}$ is the **translation function** converting JS code to Rust.
 
 The naturality square commutes:
 ```
@@ -818,7 +818,7 @@ F_JS(O2) --η_O2--> F_Py(O2)
 
 **Interpretation**: Translation commutes with ontology transformations—can translate first or transform first, same result.
 
-**Proof**: Both paths produce semantically equivalent Python code derived from the same ontology. ∎
+**Proof**: Both paths produce semantically equivalent Rust code derived from the same ontology. ∎
 
 ### 8.4 Adjunctions and Universal Properties
 
@@ -1131,7 +1131,7 @@ $$
 
 **Examples**:
 - `Rust::Result<T, E>` $\to$ `JS::Promise<T>` (loses error type)
-- `Rust::Vec<T>` $\to$ `Python::List[T]` (exact mapping)
+- `Rust::Vec<T>` $\to$ `Rust::List[T]` (exact mapping)
 
 **Theorem 14.1 (Type Safety Preservation)**
 
@@ -1187,7 +1187,7 @@ $$
 **Recursive application**:
 1. Describe ggen API in `schema/ggen-ffi-api.ttl`
 2. Create templates in `templates/node-bindings/`
-3. Run `ggen sync` to generate Node.js bindings
+3. Run `ggen sync` to generate Rust bindings
 4. Generated bindings expose: `parseRdf`, `generateCode`, `validateOntology`, `executeSparql`
 
 **This proves**: The system works on itself (ultimate validation).
@@ -1204,7 +1204,7 @@ $$
 
 **Ontology**: ggen API (4 functions, 3 structs, 52 triples)
 
-**Languages**: Node.js (ESM + JSDoc)
+**Languages**: Rust (ESM + JSDoc)
 
 **Hardware**: AMD EPYC 7763, 128 GB RAM
 
@@ -1238,7 +1238,7 @@ $$
 
 **Cross-language signature equivalence**:
 
-| Function | Node.js | Python | Erlang |
+| Function | Rust | Rust | Erlang |
 |----------|---------|--------|--------|
 | `parseRdf` | ✅ | ✅ | ✅ |
 | `generateCode` | ✅ | ✅ | ✅ |
@@ -1336,7 +1336,7 @@ $$
 1. **Template Complexity**: Writing data-driven templates requires understanding Tera syntax + SPARQL results
 2. **Error Messages**: Template errors can be cryptic (line numbers don't match source)
 3. **Debugging**: No visual debugger for SPARQL query results
-4. **Language Support**: Only Node.js templates fully developed (Python/Erlang WIP)
+4. **Language Support**: Only Rust templates fully developed (Rust/Erlang WIP)
 5. **CLI Bug**: Verb discovery issue (fixed in this dissertation)
 
 ### 18.2 Future Research Directions
@@ -1420,7 +1420,7 @@ This dissertation established a **rigorous mathematical foundation** for the 3T 
 ### 19.2 Impact and Adoption
 
 **Potential users**:
-- Multi-language library authors (Rust → JS/Python/Go bindings)
+- Multi-language library authors (Rust → JS/Rust/Go bindings)
 - API-first companies (OpenAPI → typed clients)
 - Research institutions (ontology → domain-specific languages)
 

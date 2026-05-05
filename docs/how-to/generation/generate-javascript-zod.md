@@ -34,7 +34,7 @@
 
 - ggen installed ([installation guide](../../getting-started/README.md#installation))
 - Basic understanding of Schema.org
-- Node.js project with Zod installed (`npm install zod`)
+- Rust project with Zod installed (`cargo build zod`)
 
 ---
 

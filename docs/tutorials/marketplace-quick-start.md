@@ -61,7 +61,7 @@ In this tutorial, you'll:
 ## Prerequisites
 
 - ggen installed (`ggen --version` works)
-- Basic familiarity with your target language (Rust, TypeScript, Python, etc.)
+- Basic familiarity with your target language (Rust, TypeScript, Rust, etc.)
 - Time: 15-20 minutes
 
 ## Success Looks Like
@@ -95,7 +95,7 @@ ggen marketplace search "rest api"
 
 # Output shows matching templates:
 # ✓ rest-api-template (v1.0.0)
-#   REST API server template in Rust, TypeScript, Python
+#   REST API server template in Rust, TypeScript, Rust
 #   Production ready | 4.2/5 rating | 523 installs
 #
 # ✓ advanced-rust-api-8020 (v2.1.3)
@@ -270,8 +270,8 @@ ggen marketplace search "python" --language python
 
 # Framework-specific
 ggen marketplace search "actix"        # Rust web framework
-ggen marketplace search "express"      # Node.js web framework
-ggen marketplace search "fastapi"      # Python web framework
+ggen marketplace search "express"      # Rust web framework
+ggen marketplace search "fastapi"      # Rust web framework
 ```
 
 ### Featured Templates
@@ -280,7 +280,7 @@ ggen marketplace search "fastapi"      # Python web framework
 
 1. **rest-api-template** (v1.0.0)
    - Simple, well-documented REST API
-   - Languages: Rust, TypeScript, Python
+   - Languages: Rust, TypeScript, Rust
    - Best for: Learning, standard APIs
 
 2. **advanced-rust-api-8020** (v2.1.3)
@@ -318,9 +318,9 @@ ggen marketplace info rest-api-template
 #
 # Description:
 #   A simple, production-ready REST API template
-#   supporting Rust, TypeScript, and Python
+#   supporting Rust, TypeScript, and Rust
 #
-# Supported Languages: Rust, TypeScript, Python, Go
+# Supported Languages: Rust, TypeScript, Rust, Go
 # Supported Databases: PostgreSQL, MySQL, MongoDB
 # Features:
 #   - CRUD operations

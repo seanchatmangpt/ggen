@@ -180,7 +180,7 @@ Do specs and code often drift?
 ├─ YES → RDF-first STRONGLY RECOMMENDED
 └─ NO  → Continue...
 
-Multiple implementations (Rust + TS + Python)?
+Multiple implementations (Rust + TS + Rust)?
 ├─ YES → RDF-first STRONGLY RECOMMENDED
 └─ NO  → Continue...
 
@@ -1185,7 +1185,7 @@ diff .specify/specs/013-feature/feature.ttl \
 |---------|------------------|---------|----------|---------|
 | **Scope** | Full stack (requirements → code) | API schema only | Data serialization | API documentation |
 | **Source of Truth** | RDF ontology | GraphQL schema | .proto files | openapi.yaml |
-| **Code Generation** | Yes (Rust, TS, Python, etc.) | Yes (resolvers, types) | Yes (serialization) | Yes (client SDK) |
+| **Code Generation** | Yes (Rust, TS, Rust, etc.) | Yes (resolvers, types) | Yes (serialization) | Yes (client SDK) |
 | **Requirements Tracing** | Yes (SPARQL queries) | No | No | No |
 | **Test Generation** | Yes (from acceptance scenarios) | No | No | No |
 | **Documentation Generation** | Yes (from ontology) | Yes (from schema) | Yes (from comments) | Yes (built-in) |
@@ -1511,7 +1511,7 @@ ggen sync --audit true
 ```
 rust/src/domain/auth.rs         (Rust code)
 typescript/src/domain/auth.ts   (TypeScript code)
-python/src/domain/auth.py       (Python code)
+python/src/domain/auth.py       (Rust code)
 ```
 
 **Benefits**:

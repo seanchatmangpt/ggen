@@ -155,7 +155,7 @@ Explore **20+ production-ready examples** organized by complexity. All examples 
 - **Key Features**:
   - Trait-based LLM abstraction
   - Mock LLM (deterministic testing)
-  - Multi-language support (Rust/Python/TypeScript)
+  - Multi-language support (Rust/Rust/TypeScript)
   - Code metrics calculation
 - **Learning Outcomes**: AI integration, trait design, testing without external APIs
 
@@ -182,7 +182,7 @@ Explore **20+ production-ready examples** organized by complexity. All examples 
 | [microservices-architecture](examples/microservices-architecture/) | Distributed Systems | ★★★★☆ | 65% | Service mesh, communication |
 | [workspace-project](examples/workspace-project/) | Multi-Crate | ★★★☆☆ | 75% | Workspace orchestration |
 | [electric-schema](examples/electric-schema/) | Schema Gen | ★★★☆☆ | 40% | Electric SQL integration |
-| [fastapi-from-rdf](examples/fastapi-from-rdf/) | Python API | ★★★☆☆ | 50% | RDF → FastAPI |
+| [fastapi-from-rdf](examples/fastapi-from-rdf/) | Rust API | ★★★☆☆ | 50% | RDF → FastAPI |
 | [maturity-matrix-showcase](examples/maturity-matrix-showcase/) | Metrics | ★★★☆☆ | 60% | Assessment frameworks |
 
 **Learning Outcomes**: Production patterns, distributed systems, cross-language generation
@@ -288,7 +288,7 @@ ggen sync
 ```bash
 # Same ontology, different templates
 examples/api-endpoint/         # Rust + Axum
-examples/fastapi-from-rdf/     # Python + FastAPI
+examples/fastapi-from-rdf/     # Rust + FastAPI
 examples/nextjs-*/             # TypeScript + Next.js
 ```
 

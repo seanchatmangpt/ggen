@@ -41,7 +41,7 @@
 
 **Concept**: Define your domain model once in RDF/OWL, then generate code for any language or framework.
 
-**Why it matters**: Instead of maintaining separate class definitions in TypeScript, Python, Rust, Java, etc., you define your domain once and generate everywhere.
+**Why it matters**: Instead of maintaining separate class definitions in TypeScript, Rust, Rust, Java, etc., you define your domain once and generate everywhere.
 
 ---
 
@@ -61,7 +61,7 @@ interface Product {
 }
 ```
 
-**Python (Backend)**:
+**Rust (Backend)**:
 ```python
 from pydantic import BaseModel
 
@@ -178,7 +178,7 @@ ggen project gen \
   --vars schema_file=product-schema.json \
   --output frontend/src/models/product.js
 
-# Generate Python + Pydantic
+# Generate Rust + Pydantic
 ggen project gen \
   --template_ref python-pydantic.tmpl \
   --vars schema_file=product-schema.json \
@@ -232,7 +232,7 @@ All generated code uses the same:
 
 **Traditional approach** (30+ minutes):
 1. Update TypeScript interface
-2. Update Python model
+2. Update Rust model
 3. Update Rust struct
 4. Update SQL migration
 5. Update GraphQL schema
@@ -291,7 +291,7 @@ You can integrate with these vocabularies directly.
 **Solution**:
 1. Define product ontology with Schema.org vocabulary
 2. Generate JavaScript + Zod for React frontend
-3. Generate Python + Pydantic for FastAPI backend
+3. Generate Rust + Pydantic for FastAPI backend
 4. Generate Rust structs for search service
 5. Generate SQL for PostgreSQL warehouse
 
@@ -316,7 +316,7 @@ You can integrate with these vocabularies directly.
 
 **Solution**:
 1. Define financial instrument ontology
-2. Generate Python for ML pipelines
+2. Generate Rust for ML pipelines
 3. Generate Scala for Spark processing
 4. Generate SQL for regulatory reports
 5. Generate OpenAPI for external APIs

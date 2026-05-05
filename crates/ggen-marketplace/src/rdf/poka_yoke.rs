@@ -14,11 +14,11 @@
 
 #![allow(clippy::return_self_not_must_use)]
 
+use oxigraph::model::{Literal as OxiLiteral, NamedNode, Quad, Term, Triple as OxiTriple};
+use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Write};
 use std::marker::PhantomData;
-use oxigraph::store::Store;
-use oxigraph::model::{NamedNode, Triple as OxiTriple, Quad, Term, Literal as OxiLiteral};
 
 use super::ontology::{Class, Property, XsdType};
 
@@ -519,7 +519,12 @@ impl RdfGraph {
 
         // If metadata present, use RDF-star to annotate (simulated here with separate triples for now)
         self.store
-            .insert(&Quad::new(oxi_triple.subject.clone(), oxi_triple.predicate.clone(), oxi_triple.object.clone(), oxigraph::model::GraphName::DefaultGraph))
+            .insert(&Quad::new(
+                oxi_triple.subject.clone(),
+                oxi_triple.predicate.clone(),
+                oxi_triple.object.clone(),
+                oxigraph::model::GraphName::DefaultGraph,
+            ))
             .map_err(|e| PokaYokeError::GraphOperationError(e.to_string()))?;
 
         if let Some(meta) = triple.metadata() {
@@ -538,7 +543,12 @@ impl RdfGraph {
         let obs_pred = NamedNode::new(Property::HasObservable.uri()).unwrap();
         let obs_obj = NamedNode::new(meta.observable.as_str()).unwrap();
         self.store
-            .insert(&Quad::new(meta_subject.clone(), obs_pred, Term::NamedNode(obs_obj), oxigraph::model::GraphName::DefaultGraph))
+            .insert(&Quad::new(
+                meta_subject.clone(),
+                obs_pred,
+                Term::NamedNode(obs_obj),
+                oxigraph::model::GraphName::DefaultGraph,
+            ))
             .unwrap();
 
         let time_pred = NamedNode::new(Property::AtTime.uri()).unwrap();
@@ -547,19 +557,34 @@ impl RdfGraph {
             NamedNode::new(XsdType::DateTime.uri()).unwrap(),
         );
         self.store
-            .insert(&Quad::new(meta_subject.clone(), time_pred, Term::Literal(time_obj), oxigraph::model::GraphName::DefaultGraph))
+            .insert(&Quad::new(
+                meta_subject.clone(),
+                time_pred,
+                Term::Literal(time_obj),
+                oxigraph::model::GraphName::DefaultGraph,
+            ))
             .unwrap();
 
         let vc_pred = NamedNode::new(Property::VectorClock.uri()).unwrap();
         let vc_obj = OxiLiteral::new_simple_literal(meta.vector_clock.clone());
         self.store
-            .insert(&Quad::new(meta_subject.clone(), vc_pred, Term::Literal(vc_obj), oxigraph::model::GraphName::DefaultGraph))
+            .insert(&Quad::new(
+                meta_subject.clone(),
+                vc_pred,
+                Term::Literal(vc_obj),
+                oxigraph::model::GraphName::DefaultGraph,
+            ))
             .unwrap();
 
         let git_pred = NamedNode::new(Property::HasGitCommit.uri()).unwrap();
         let git_obj = OxiLiteral::new_simple_literal(meta.commit_hash.clone());
         self.store
-            .insert(&Quad::new(meta_subject, git_pred, Term::Literal(git_obj), oxigraph::model::GraphName::DefaultGraph))
+            .insert(&Quad::new(
+                meta_subject,
+                git_pred,
+                Term::Literal(git_obj),
+                oxigraph::model::GraphName::DefaultGraph,
+            ))
             .unwrap();
 
         Ok(())
@@ -604,7 +629,11 @@ impl RdfGraph {
         let mut results = Vec::new();
         for quad in self.store.iter() {
             let quad = quad.unwrap();
-            if let Some(triple) = self.oxi_to_poka(OxiTriple::new(quad.subject.clone(), quad.predicate.clone(), quad.object.clone())) {
+            if let Some(triple) = self.oxi_to_poka(OxiTriple::new(
+                quad.subject.clone(),
+                quad.predicate.clone(),
+                quad.object.clone(),
+            )) {
                 results.push(triple);
             }
         }

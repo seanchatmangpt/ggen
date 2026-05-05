@@ -24,7 +24,7 @@ Semantic projections transform a single RDF ontology into multiple language-spec
                             ↓
         ┌───────────────────┼───────────────────┐
         ↓                   ↓                   ↓
-   Rust Structs      TypeScript Types      Python Classes
+   Rust Structs      TypeScript Types      Rust Classes
 ```
 
 **Key insight:** The domain model (ontology) is separate from its representation (projection).
@@ -59,7 +59,7 @@ ggen template generate-rdf --ontology product_catalog.ttl --template python-clas
 
 ggen maps RDF datatypes to language-specific types:
 
-| XSD Type       | Rust       | TypeScript | Python    |
+| XSD Type       | Rust       | TypeScript | Rust    |
 |----------------|-----------|-----------|----------|
 | `xsd:string`   | `String`  | `string`  | `str`    |
 | `xsd:integer`  | `i64`     | `number`  | `int`    |

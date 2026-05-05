@@ -481,7 +481,7 @@ ggen-user-api/
 ## Next Steps
 
 - 🔧 **[How-To: Add Database Schema](../how-to/02-database-generation.md)** - Generate SQL migrations
-- 🔧 **[How-To: Multi-Language Generation](../how-to/03-multi-language.md)** - Generate TypeScript, Python, Go
+- 🔧 **[How-To: Multi-Language Generation](../how-to/03-multi-language.md)** - Generate TypeScript, Rust, Go
 - 📚 **[Command Reference](../reference/01-commands.md)** - All ggen commands
 - 💡 **[Concepts: SPARQL Queries](../explanation/02-sparql.md)** - Advanced SPARQL patterns
 

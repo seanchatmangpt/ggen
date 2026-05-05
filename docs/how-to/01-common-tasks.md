@@ -8,7 +8,7 @@
   - [How to: Generate Database Migrations](#how-to-generate-database-migrations)
     - [Task: Create SQL migrations from ontology](#task-create-sql-migrations-from-ontology)
   - [How to: Generate Multi-Language Code](#how-to-generate-multi-language-code)
-    - [Task: Generate TypeScript and Python from same ontology](#task-generate-typescript-and-python-from-same-ontology)
+    - [Task: Generate TypeScript and Rust from same ontology](#task-generate-typescript-and-python-from-same-ontology)
   - [How to: Update Existing Generation](#how-to-update-existing-generation)
     - [Task: Modify generated code by editing ontology](#task-modify-generated-code-by-editing-ontology)
   - [How to: Debug Generation Issues](#how-to-debug-generation-issues)
@@ -131,7 +131,7 @@ psql -U postgres -d mydb -f migrations/*.sql
 
 ## How to: Generate Multi-Language Code
 
-### Task: Generate TypeScript and Python from same ontology
+### Task: Generate TypeScript and Rust from same ontology
 
 ```bash
 # 1. Add templates for multiple languages

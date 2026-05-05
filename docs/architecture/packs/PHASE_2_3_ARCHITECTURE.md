@@ -842,7 +842,7 @@ Step 5: Code Generation
 
 Step 6: Post-Generation
 ├─ Run initialization scripts (if defined)
-├─ Install dependencies (npm install, cargo build)
+├─ Install dependencies (cargo build, cargo build)
 ├─ Display next steps to user
 └─ Success message
 ```

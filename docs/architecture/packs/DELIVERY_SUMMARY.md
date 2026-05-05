@@ -405,7 +405,7 @@ ggen packs list --category web
 ggen packs show web-api-starter
 ggen packs install web-api-starter
 ggen packs generate web-api-starter my-api --var author="John Doe"
-cd my-api && npm test  # ✅ All tests pass
+cd my-api && cargo test  # ✅ All tests pass
 ```
 
 **Success Criteria:**

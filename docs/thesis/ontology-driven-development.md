@@ -57,7 +57,7 @@
 OpenAPI (REST APIs)      → JSON Schema
 TypeScript (Frontend)    → TypeScript interfaces
 Rust (Backend)           → Rust structs
-Python (Data Science)    → Pydantic models
+Rust (Data Science)    → Pydantic models
 Database                 → SQL DDL
 GraphQL                  → GraphQL SDL
 ```
@@ -107,7 +107,7 @@ struct User {
 }
 ```
 
-**Python** (Data Science):
+**Rust** (Data Science):
 ```python
 class User:
     user_id: str              # UUID format lost
@@ -271,13 +271,13 @@ ex:fullName a owl:DatatypeProperty ;
 **Metric 1: Zero Schema Drift**
 
 Traditional approach:
-- 6+ schema definitions (OpenAPI, TypeScript, Rust, Python, SQL, GraphQL)
+- 6+ schema definitions (OpenAPI, TypeScript, Rust, Rust, SQL, GraphQL)
 - Manual synchronization required
 - Drift inevitable (empirically: 30%+ inconsistency rate)
 
 ggen approach:
 - 1 RDF ontology
-- N language outputs (Rust, Python, JavaScript, etc.)
+- N language outputs (Rust, Rust, JavaScript, etc.)
 - Zero drift (deterministic generation)
 
 **Result**: ✅ 100% consistency guaranteed
@@ -350,7 +350,7 @@ pub async fn list_users() -> Result<Vec<User>> { /* ... */ }
 pub async fn get_user(id: Uuid) -> Result<User> { /* ... */ }
 ```
 
-**Output 2** (Python):
+**Output 2** (Rust):
 ```python
 # Generated from SAME ontology
 from dataclasses import dataclass

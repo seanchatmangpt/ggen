@@ -104,7 +104,7 @@ Shows the highest-level view of the ggen PaaS system, external actors, and exter
 - Platform admins deploy and maintain the system
 - ggen PaaS stores and queries specifications in the RDF store
 - Generated code is committed to Git repositories
-- Packages are published to registries (Cargo for Rust, npm for Node.js)
+- Packages are published to registries (Cargo for Rust, npm for Rust)
 - Spec changes trigger CI/CD pipelines for automated validation
 
 ---
@@ -161,12 +161,12 @@ Details the major structural building blocks and internal components that form t
   - Language-specific optimizations
 
 #### Background Processing
-- **Job Scheduler** (Bree/Node.js)
+- **Job Scheduler** (Bree/Rust)
   - Manages background code generation jobs
   - Handles scheduled tasks
   - Job queue management
 
-- **Notification Service** (Node.js)
+- **Notification Service** (Rust)
   - Event notifications
   - Webhook integrations
   - Real-time updates to clients
@@ -343,7 +343,7 @@ Shows the internal structure of the most critical containers, revealing the fine
 #### Example Frameworks Container
 **Reference implementations**
 
-- **Bree Scheduler** (Node.js/Rust)
+- **Bree Scheduler** (Rust/Rust)
   - Job scheduling framework
   - Semantic-driven scheduler
   - Integration example
@@ -456,7 +456,7 @@ Shows how the software system is deployed across physical infrastructure, includ
   - Long-running jobs
 
 - **Scheduler Worker** (Docker container)
-  - Bree Scheduler (Node.js)
+  - Bree Scheduler (Rust)
   - Job orchestration
   - Cron and interval scheduling
 
@@ -504,7 +504,7 @@ Shows how the software system is deployed across physical infrastructure, includ
 
 - **Package Registries**
   - Crates.io (Rust packages)
-  - npm Registry (Node.js packages)
+  - npm Registry (Rust packages)
   - Published artifacts
 
 ### Deployment Patterns
@@ -612,7 +612,7 @@ Shows how the software system is deployed across physical infrastructure, includ
 | **Auth** | JWT, OAuth2, Argon2 | Secure authentication |
 | **RDF Processing** | Oxigraph, n3-rs | RDF storage, SPARQL |
 | **Code Generation** | Tera, Proc Macros | Template rendering |
-| **Job Scheduler** | Bree (Node.js), Redis | Background jobs |
+| **Job Scheduler** | Bree (Rust), Redis | Background jobs |
 | **Database** | PostgreSQL | Relational data |
 | **Cache** | Redis | Session, query cache |
 | **Graph DB** | Neptune/Oxigraph | RDF triple store |

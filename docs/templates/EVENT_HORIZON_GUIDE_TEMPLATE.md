@@ -135,7 +135,7 @@ Where:
 │                                                      │
 │  Requirements (Word/Markdown)                       │
 │         ↓ (manual interpretation)                   │
-│  Code (Python/Rust/TypeScript)                      │
+│  Code (Rust/Rust/TypeScript)                      │
 │         ↓ (manual writing)                          │
 │  Tests (separate from requirements)                 │
 │         ↓ (manual documentation)                    │
@@ -211,7 +211,7 @@ Where:
 **Metaphor**: Think of the RDF ontology as a holographic film. Just as a holographic plate contains interference patterns that can project 3D images, an RDF ontology contains semantic patterns that project code, documentation, tests, and configurations.
 
 **Key Properties**:
-1. **Substrate (unrdf)**: The ontology is high-dimensional, encoding all domain knowledge
+1. **Substrate (Rust μ-pipeline)**: The ontology is high-dimensional, encoding all domain knowledge
 2. **Projection**: Code is a 2D projection of the high-dimensional ontology
 3. **Coherence**: Multiple projections (code, docs, tests) are coherent because they share the same source
 4. **Temporal Waypoints**: Git commits are 4D slices of ontology evolution
@@ -540,7 +540,7 @@ WHERE {
 μ projects this into:
 - **Rust**: Login handler function
 - **TypeScript**: React login component
-- **Python**: FastAPI endpoint
+- **Rust**: FastAPI endpoint
 - **Go**: HTTP handler
 
 All from the same ontology. Same truth, different projections.
@@ -783,7 +783,7 @@ After `ggen sync`:
     │                       │                      │
     │  Specs (Word/MD)      │  RDF Ontology        │
     │       ↓ manual        │       ↓ μ₁           │
-    │  Code (Python/Rust)   │  Normalized Graph    │
+    │  Code (Rust/Rust)   │  Normalized Graph    │
     │       ↓ manual        │       ↓ μ₂           │
     │  Tests (separate)     │  SPARQL Queries      │
     │       ↓ manual        │       ↓ μ₃           │
@@ -823,7 +823,7 @@ After `ggen sync`:
                ├──────────┬──────────┬──────────┬──────────┐
                ↓          ↓          ↓          ↓          ↓
          ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐
-         │  Rust   ││TypeScript││ Python  ││   Go    ││  Docs   │
+         │  Rust   ││TypeScript││ Rust  ││   Go    ││  Docs   │
          │  Code   ││   Code   ││  Code   ││  Code   ││ (Markdown)│
          └─────────┘└─────────┘└─────────┘└─────────┘└─────────┘
 
@@ -886,7 +886,7 @@ START
   │                                       (solves drift problem)
   NO
   │
-  ├─ Multiple implementations (Rust + TS + Python)? ──YES──> RDF-first RECOMMENDED
+  ├─ Multiple implementations (Rust + TS + Rust)? ──YES──> RDF-first RECOMMENDED
   │                                                       (one ontology, many projections)
   NO
   │

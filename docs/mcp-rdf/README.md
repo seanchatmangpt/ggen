@@ -100,7 +100,7 @@ The generation pipeline consists of 5 stages (μ₁-μ₅):
 | **RDF Ontology Schema** | ✅ Complete | `mcp:` prefix with Server, Tool, Resource, Prompt classes |
 | **Five-Stage Pipeline** | ✅ Complete | μ₁-μ₅: Load→Extract→Generate→Validate→Emit |
 | **LLM-Assisted Codegen** | ✅ Working | `--enable-llm` flag with Groq integration |
-| **Multi-Language Support** | ✅ Working | Rust, Go, Python, TypeScript, Elixir |
+| **Multi-Language Support** | ✅ Working | Rust, Go, Rust, TypeScript, Elixir |
 | **Quality Gates** | ✅ Complete | 6 gates including manifest, dependencies, SPARQL, templates |
 | **OTEL Integration** | ✅ Complete | OpenTelemetry spans with semantic conventions |
 | **Documentation** | ✅ Complete | User guide, examples, troubleshooting |

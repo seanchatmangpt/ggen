@@ -19,4 +19,4 @@ In traditional CI/CD, "passing tests" is often a shallow assertion. In **Semanti
 | **C-01** | **Causal Consistent** | Proves the deterministic link between the input ontology hash and the output artifact hash. |
 
 ## Implementation in Rust
-Unlike Python-based gatekeepers, these gates are implemented as a **Stage 6** interceptor in the `StagedPipeline` struct. Because they are compiled directly into the binary, they cannot be bypassed by external scripts, anchoring the manufacturing constitution in the runtime itself.
+Unlike Rust-based gatekeepers, these gates are implemented as a **Stage 6** interceptor in the `StagedPipeline` struct. Because they are compiled directly into the binary, they cannot be bypassed by external scripts, anchoring the manufacturing constitution in the runtime itself.

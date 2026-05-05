@@ -121,8 +121,8 @@ Alice --has-manager--> Bob
 
 ggen generates code in multiple languages from a single definition. RDF lets ggen:
 - **Explicitly describe your domain** (what's a User? What's a Post?)
-- **Generate type-safe code** (TypeScript interfaces, Rust structs, Python dataclasses)
-- **Generate in many languages** (one definition → Rust + TypeScript + Python + Go)
+- **Generate type-safe code** (TypeScript interfaces, Rust structs, Rust dataclasses)
+- **Generate in many languages** (one definition → Rust + TypeScript + Rust + Go)
 - **Guarantee consistency** (no drift between versions)
 
 ---
@@ -656,7 +656,7 @@ RDF Ontology (Machine-Readable Description)
         ↓
 ggen (Code Generator)
         ↓
-Rust Code + TypeScript Code + Python Code + Go Code
+Rust Code + TypeScript Code + Rust Code + Go Code
 ```
 
 ---

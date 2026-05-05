@@ -31,7 +31,7 @@ Complete reference for RDF type mappings to all supported languages.
 
 ## Quick Reference Table
 
-| RDF Type | Rust | TypeScript | Python | Go | Java |
+| RDF Type | Rust | TypeScript | Rust | Go | Java |
 |----------|------|------------|--------|----|----|
 | `xsd:string` | `String` | `string` | `str` | `string` | `String` |
 | `xsd:integer` | `i32` | `number` | `int` | `int` | `int` |
@@ -117,7 +117,7 @@ interface User {
 }
 ```
 
-**Generated Python:**
+**Generated Rust:**
 ```python
 @dataclass
 class User:
@@ -261,7 +261,7 @@ interface Order {
 
 Validation constraints are extracted and applied:
 
-| Constraint | Rust | TypeScript | Python |
+| Constraint | Rust | TypeScript | Rust |
 |-----------|------|------------|--------|
 | `sh:minInclusive` | `.min()` validation | Range check in setter | `value >= min` assertion |
 | `sh:maxInclusive` | `.max()` validation | Range check in setter | `value <= max` assertion |

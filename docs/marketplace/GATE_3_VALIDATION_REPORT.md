@@ -284,7 +284,7 @@ pub fn check(
 pub enum AtomicPackCategory {
     Surface,    // MCP, A2A surfaces
     Contract,   // OpenAPI, GraphQL contracts
-    Projection, // Rust, TypeScript, Python, Java, Go
+    Projection, // Rust, TypeScript, Rust, Java, Go
     Runtime,    // stdio, Axum, Actix, Embedded, Standalone
     Policy,     // NoDefaults, Strict
     Validator,  // ProtocolVisibleValues, SHACL
@@ -297,7 +297,7 @@ pub enum AtomicPackCategory {
 **Pack Count by Category:**
 - Surface: 2 (MCP, A2A)
 - Contract: 2 (OpenAPI, GraphQL)
-- Projection: 5 (Rust, TypeScript, Python, Java, Go)
+- Projection: 5 (Rust, TypeScript, Rust, Java, Go)
 - Runtime: 5 (stdio, Axum, Actix, Embedded, Standalone)
 - Policy: 2 (NoDefaults, Strict)
 - Validator: 2 (ProtocolVisibleValues, SHACL)

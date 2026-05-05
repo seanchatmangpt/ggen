@@ -438,7 +438,7 @@ echo ""
 # Measure first build
 echo "1. Measuring first build time..."
 START=$(date +%s%N)
-timeout 30s cargo build -p mcpp-cli --release 2>/dev/null || timeout 30s cargo build -p mcpp-cli 2>/dev/null
+timeout 30s cargo build -p ggen-cli-lib --release 2>/dev/null || timeout 30s cargo build -p ggen-cli-lib 2>/dev/null
 END=$(date +%s%N)
 BUILD_TIME_MS=$(( (END - START) / 1000000 ))
 echo "   First build: ${BUILD_TIME_MS}ms (SLO: ≤15000ms)"
@@ -450,7 +450,7 @@ echo ""
 # Measure incremental build
 echo "2. Measuring incremental build time..."
 START=$(date +%s%N)
-timeout 10s cargo build -p mcpp-cli 2>/dev/null || true
+timeout 10s cargo build -p ggen-cli-lib 2>/dev/null || true
 END=$(date +%s%N)
 INCREMENTAL_MS=$(( (END - START) / 1000000 ))
 echo "   Incremental build: ${INCREMENTAL_MS}ms (SLO: ≤2000ms)"

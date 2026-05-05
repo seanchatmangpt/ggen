@@ -151,7 +151,7 @@ See [GENERATED_EXAMPLES.md](GENERATED_EXAMPLES.md) for 20+ working examples:
 
 #### Common Patterns
 - [REST API Generation](../README.md#rest-api-generation) - API design from ontology
-- [Multi-Language Support](../README.md#multi-language-support) - Generate Rust, TypeScript, Python
+- [Multi-Language Support](../README.md#multi-language-support) - Generate Rust, TypeScript, Rust
 - [Database Schema Generation](../README.md#database-schema-generation) - SQL DDL from ontology
 
 ### Contributing

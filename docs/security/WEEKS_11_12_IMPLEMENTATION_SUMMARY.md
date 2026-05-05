@@ -318,7 +318,7 @@ assert!(error_rate < 0.05, "Error rate: {:.2}%", error_rate * 100.0);
 #### Attack Scenario Code:
 
 All scenarios include:
-- Python/Rust test implementations
+- Rust/Rust test implementations
 - Expected behavior assertions
 - Proof-of-concept exploits
 - Verification steps

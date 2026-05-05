@@ -145,7 +145,7 @@ ggen graph validate domain.ttl --shacl shapes.ttl
 
 Map RDF types to code types:
 
-| RDF Type | Rust | TypeScript | Python |
+| RDF Type | Rust | TypeScript | Rust |
 |----------|------|------------|--------|
 | `xsd:string` | `String` | `string` | `str` |
 | `xsd:integer` | `i32` | `number` | `int` |
