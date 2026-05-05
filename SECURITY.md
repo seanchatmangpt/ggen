@@ -1,4 +1,4 @@
-# Security Policy for ggen (v6.0.0)
+# Security Policy for ggen (v26.5.4)
 
 ## Reporting Security Vulnerabilities
 
@@ -24,7 +24,7 @@ Provide as much detail as possible:
 - Component affected (crate, module, function)
 - Description of the vulnerability
 - Steps to reproduce (if possible)
-- Affected versions (v6.0.0+)
+- Affected versions (v26.5.4+)
 - Suggested fix (if you have one)
 - Your name and contact (for acknowledgment)
 ```
@@ -40,7 +40,7 @@ Provide as much detail as possible:
   - Low (Minor Issues): Next release
 - **Public disclosure**: After patch release
 
-## Security Practices (v6.0.0)
+## Security Practices (v26.5.4)
 
 ### Code Review
 
@@ -79,7 +79,7 @@ Unsafe code is:
 - **Reviewed thoroughly** by 2+ maintainers
 - **Tested extensively** with property-based testing
 
-Current unsafe usage (v6.0.0):
+Current unsafe usage (v26.5.4):
 - **None in production code** - v6 eliminates all unsafe blocks
 - Historical unsafe code (v5.x) has been refactored to safe alternatives
 - If unsafe is required in future, it must be justified with FMEA analysis
@@ -101,7 +101,7 @@ if user_password.ct_eq(&stored_password).into() {
 }
 ```
 
-### v6.0.0 Security Enhancements
+### v26.5.4 Security Enhancements
 
 **Major Security Improvements:**
 
@@ -146,7 +146,7 @@ if user_password.ct_eq(&stored_password).into() {
 - Edge cases with low impact
 - Documentation gaps
 
-## Security Architecture (v6.0.0)
+## Security Architecture (v26.5.4)
 
 ### Defense in Depth
 
@@ -186,7 +186,7 @@ Trusted Output
 - Template engine ↔ Filesystem (SafePath prevents traversal)
 - Command execution (whitelist-based, no shell expansion)
 
-### Input Validation (v6.0.0)
+### Input Validation (v26.5.4)
 
 All external inputs are validated with strict limits:
 
@@ -221,14 +221,14 @@ const MAX_CONCURRENT_GENERATIONS: usize = 10;
 - **Secrets**: Never logged, never in error messages, never in receipts
 - **Receipts**: HMAC-SHA256 for integrity verification
 
-### Isolation (v6.0.0)
+### Isolation (v26.5.4)
 
 - **Filesystem isolation**: SafePath restricts all file operations to allowed directories
 - **Template sandboxing**: Tera templates cannot access filesystem directly
 - **SPARQL isolation**: Query builder prevents cross-ontology leakage
 - **Process isolation**: No shell execution, direct command invocation only
 
-## Known Security Considerations (v6.0.0)
+## Known Security Considerations (v26.5.4)
 
 ### Path Traversal Prevention
 
@@ -311,7 +311,7 @@ cargo audit --fetch deny
 
 ## Release Process Security
 
-### Pre-release Checklist (v6.0.0)
+### Pre-release Checklist (v26.5.4)
 
 - [ ] All tests passing (`cargo make test`)
 - [ ] No compiler warnings (`cargo make check` with `-D warnings`)
@@ -335,7 +335,7 @@ For critical vulnerabilities:
 5. **Full disclosure** in release notes and SECURITY.md
 6. **Credit researcher** (with permission) in acknowledgments
 
-## Security Updates (v6.0.0)
+## Security Updates (v26.5.4)
 
 ### Version Support
 
@@ -362,7 +362,7 @@ For critical vulnerabilities:
 - **NIST Cybersecurity Framework**: Risk management guidance
 - **Rust Secure Code Guidelines**: Rust-specific best practices
 
-### Code Review Standards (v6.0.0)
+### Code Review Standards (v26.5.4)
 
 All code must pass:
 
@@ -383,7 +383,7 @@ cargo make pre-commit  # All quality gates
 - Direct PathBuf from user input (use SafePath)
 - Hardcoded secrets or credentials
 
-## Security Hardening (v6.0.0)
+## Security Hardening (v26.5.4)
 
 ### Enable Security Features
 
@@ -476,13 +476,13 @@ We acknowledge responsible security researchers who report vulnerabilities:
 - Recognized in security advisories
 - Credited in CHANGELOG.md
 
-**Hall of Fame (v6.0.0):**
+**Hall of Fame (v26.5.4):**
 - (No vulnerabilities reported yet - be the first!)
 
 Thank you for helping keep ggen secure!
 
 ---
 
-**Last Updated**: 2026-01-24 (v6.0.0)
+**Last Updated**: 2026-01-24 (v26.5.4)
 **Security Contact**: sean@chatmangpt.com
 **GPG Key**: (Available on request)

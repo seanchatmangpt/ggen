@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Migration Guide: v5.x → v6.0.0](#security-migration-guide-v5x-%E2%86%92-v600)
+- [Security Migration Guide: v5.x → v26.5.4](#security-migration-guide-v5x-%E2%86%92-v600)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Breaking Changes Summary](#breaking-changes-summary)
@@ -32,7 +32,7 @@
     - [Removed: `output_directory`](#removed-output_directory)
     - [New: Security Configuration](#new-security-configuration)
   - [Timeline and Deprecation Schedule](#timeline-and-deprecation-schedule)
-    - [v6.0.0 (January 2026) - Current](#v600-january-2026---current)
+    - [v26.5.4 (January 2026) - Current](#v600-january-2026---current)
     - [v26.5.4 (Q1 2026) - Planned](#v610-q1-2026---planned)
     - [v7.0.0 (Q3 2026) - Future](#v700-q3-2026---future)
   - [Migration Checklist](#migration-checklist)
@@ -47,15 +47,15 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Migration Guide: v5.x → v6.0.0
+# Security Migration Guide: v5.x → v26.5.4
 
 ## Overview
 
-This guide covers security-related breaking changes when migrating from ggen v5.x to v6.0.0, including SafePath adoption, SPARQL builder migration, rate limiting configuration, and timeline/deprecation schedule.
+This guide covers security-related breaking changes when migrating from ggen v5.x to v26.5.4, including SafePath adoption, SPARQL builder migration, rate limiting configuration, and timeline/deprecation schedule.
 
 **Last Updated**: 2026-01-24
 **Source Version**: v5.x
-**Target Version**: v6.0.0
+**Target Version**: v26.5.4
 **Migration Time**: 1-4 hours (depending on codebase size)
 
 ---
@@ -76,7 +76,7 @@ This guide covers security-related breaking changes when migrating from ggen v5.
 
 ## Breaking Changes Summary
 
-| Area | v5.x Behavior | v6.0.0 Behavior | Impact |
+| Area | v5.x Behavior | v26.5.4 Behavior | Impact |
 |------|---------------|-----------------|--------|
 | **File Paths** | Direct `PathBuf` | `SafePath` required | 🔴 **HIGH** - All path operations |
 | **SPARQL Queries** | String concatenation | `QueryBuilder` required | 🔴 **HIGH** - All queries |
@@ -91,7 +91,7 @@ This guide covers security-related breaking changes when migrating from ggen v5.
 
 ### Overview
 
-**v6.0.0 requires SafePath for all file operations** to prevent path traversal attacks.
+**v26.5.4 requires SafePath for all file operations** to prevent path traversal attacks.
 
 ### Breaking Change
 
@@ -104,7 +104,7 @@ fn load_template(path: &str) -> Result<String, Error> {
     fs::read_to_string(full_path)  // ⚠️ Path traversal risk!
 }
 
-// ✅ v6.0.0 (REQUIRED)
+// ✅ v26.5.4 (REQUIRED)
 use ggen_core::security::SafePath;
 
 fn load_template(path: &str) -> Result<String, Error> {
@@ -183,7 +183,7 @@ fn load_template(name: &str) -> Result<String, Error> {
     fs::read_to_string(path)
 }
 
-// ✅ v6.0.0
+// ✅ v26.5.4
 fn load_template(name: &str) -> Result<String, Error> {
     let path = SafePath::new(name)?
         .within_directory(Path::new("templates"))?;
@@ -201,7 +201,7 @@ fn write_output(name: &str, content: &str) -> Result<(), Error> {
     fs::write(path, content)
 }
 
-// ✅ v6.0.0
+// ✅ v26.5.4
 fn write_output(name: &str, content: &str) -> Result<(), Error> {
     let path = SafePath::new(name)?
         .within_directory(Path::new("output"))?;
@@ -230,7 +230,7 @@ fn find_templates(dir: &Path) -> Result<Vec<PathBuf>, Error> {
     Ok(templates)
 }
 
-// ✅ v6.0.0 (secure against symlinks)
+// ✅ v26.5.4 (secure against symlinks)
 use ggen_core::security::SafePath;
 
 fn find_templates(dir: &str) -> Result<Vec<SafePath>, Error> {
@@ -260,7 +260,7 @@ fn find_templates(dir: &str) -> Result<Vec<SafePath>, Error> {
 
 ### Overview
 
-**v6.0.0 requires QueryBuilder for all SPARQL queries** to prevent SPARQL injection.
+**v26.5.4 requires QueryBuilder for all SPARQL queries** to prevent SPARQL injection.
 
 ### Breaking Change
 
@@ -273,7 +273,7 @@ fn find_users(name: &str) -> String {
     )
 }
 
-// ✅ v6.0.0 (REQUIRED)
+// ✅ v26.5.4 (REQUIRED)
 use ggen_core::sparql::QueryBuilder;
 
 fn find_users(name: &str) -> Result<String, Error> {
@@ -384,12 +384,12 @@ let var = QueryBuilder::validate_variable("userName")?;
 
 ### Overview
 
-**v6.0.0 enforces rate limiting by default** to prevent DoS attacks.
+**v26.5.4 enforces rate limiting by default** to prevent DoS attacks.
 
 ### New Configuration
 
 ```toml
-# v6.0.0 ggen.toml
+# v26.5.4 ggen.toml
 [rate_limit]
 # Per-client limits
 max_requests_per_minute = 60
@@ -457,7 +457,7 @@ match ggen::sync(&config) {
 
 ### Overview
 
-**v6.0.0 sanitizes error messages** to prevent information disclosure.
+**v26.5.4 sanitizes error messages** to prevent information disclosure.
 
 ### Breaking Change
 
@@ -466,7 +466,7 @@ match ggen::sync(&config) {
 Err(format!("Failed to read file: {}", path.display()))
 // Error: "Failed to read file: /home/user/.config/ggen/secret.key"
 
-// v6.0.0 (sanitized)
+// v26.5.4 (sanitized)
 use ggen_core::security::ErrorSanitizer;
 
 let sanitized = ErrorSanitizer::file_error("read", &path_str, &error_msg);
@@ -514,7 +514,7 @@ pub enum Error {
 
 ### Overview
 
-**v6.0.0 sandboxes template rendering** to prevent filesystem access.
+**v26.5.4 sandboxes template rendering** to prevent filesystem access.
 
 ### Breaking Change
 
@@ -523,7 +523,7 @@ pub enum Error {
 {% include "/etc/passwd" %}
 {{ system("rm -rf /") }}
 
-{# ✅ v6.0.0 (blocked) #}
+{# ✅ v26.5.4 (blocked) #}
 {# Templates cannot access filesystem or execute commands #}
 ```
 
@@ -549,7 +549,7 @@ pub enum Error {
 {% include "/etc/passwd" %}
 {{ load_file("config.toml") }}
 
-{# ✅ After (v6.0.0) #}
+{# ✅ After (v26.5.4) #}
 {# Pass data via context instead #}
 {{ config_data }}
 {% include "partials/header.tera" %}  {# Only allowed directories #}
@@ -567,7 +567,7 @@ pub enum Error {
 output_directory = "generated"  # ❌ Removed in v6
 ```
 
-**v6.0.0**:
+**v26.5.4**:
 ```rust
 // Use SafePath for output instead
 let output_path = SafePath::new("output/generated.rs")?
@@ -578,7 +578,7 @@ fs::write(output_path.as_path(), content)?;
 
 ### New: Security Configuration
 
-**v6.0.0**:
+**v26.5.4**:
 ```toml
 [security]
 # Path validation
@@ -607,7 +607,7 @@ receipt_storage_path = ".ggen/receipts"
 
 ## Timeline and Deprecation Schedule
 
-### v6.0.0 (January 2026) - Current
+### v26.5.4 (January 2026) - Current
 
 **Breaking Changes (Immediate)**:
 - ✅ SafePath required for all file operations

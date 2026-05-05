@@ -2,7 +2,7 @@
 
 **Created**: March 24, 2026
 **Status**: ✅ Complete & Production Ready
-**Project**: ggen v6.0.0 Example Suite
+**Project**: ggen v26.5.4 Example Suite
 
 ---
 

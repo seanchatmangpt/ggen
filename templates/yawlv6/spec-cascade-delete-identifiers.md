@@ -3,7 +3,7 @@
 ## Runtime Evidence
 - **File:** `docs/validation/evidence/cascade-delete-exceptions.log`
 - **Test Case:** `YIdentifierCascadeDeleteTest.testCascadeDeleteCausesObjectDeletedException`
-- **Engine Version:** YAWL 6.0.0 GA
+- **Engine Version:** YAWL 26.5.4 GA
 
 ## The Problem
 

@@ -353,7 +353,7 @@ condition: |
 
 # Condition 4: IP Restriction (GCP internal)
 condition: |
-  origin.ip in ["10.0.0.0/8", "172.16.0.0/12"]
+  origin.ip in ["10.0.0.0/8", "172.126.5.4/12"]
 ```
 
 #### Deploy Rollback Guard: Execution Conditions

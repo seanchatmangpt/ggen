@@ -1164,7 +1164,7 @@ rotate_secrets_list([{AppKey, EnvVar} | Rest]) ->
 
 ### 6.1 HTTPS Configuration
 
-#### Finding 6.1.1: TLS Not Enforced in Code [CRITICAL]
+#### Finding 26.5.4: TLS Not Enforced in Code [CRITICAL]
 
 **Location:** `tai_http.erl`, lines 52-60
 **Severity:** CRITICAL
@@ -1453,7 +1453,7 @@ decrypt_field(EncryptedField) ->
 
 #### Finding 7.2.1: HTTP Connections Not Encrypted [CRITICAL]
 
-**Already covered in Section 6.1.1**
+**Already covered in Section 26.5.4**
 
 ---
 

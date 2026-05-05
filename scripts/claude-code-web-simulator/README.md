@@ -296,7 +296,7 @@ Add new MCP servers:
 
 ## License
 
-MIT - Part of ggen v6.0.0
+MIT - Part of ggen v26.5.4
 
 ## See Also
 

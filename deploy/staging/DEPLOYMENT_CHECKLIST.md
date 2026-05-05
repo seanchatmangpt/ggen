@@ -158,4 +158,4 @@ All files created and validated. No errors or warnings. Deployment is ready to l
 ---
 
 **Created:** 2026-03-24
-**ggen Version:** 6.0.0
+**ggen Version:** 26.5.4

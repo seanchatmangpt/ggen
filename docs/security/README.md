@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Documentation Index (v6.0.0)](#security-documentation-index-v600)
+- [Security Documentation Index (v26.5.4)](#security-documentation-index-v600)
   - [Overview](#overview)
   - [Quick Links](#quick-links)
   - [Documentation Structure](#documentation-structure)
@@ -25,7 +25,7 @@
     - [Required Training](#required-training)
     - [Training Materials](#training-materials)
   - [Security Metrics](#security-metrics)
-    - [Current Status (v6.0.0)](#current-status-v600)
+    - [Current Status (v26.5.4)](#current-status-v600)
     - [Historical Improvements](#historical-improvements)
   - [Roadmap](#roadmap)
     - [v26.5.4 (Q1 2026)](#v610-q1-2026)
@@ -40,14 +40,14 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Documentation Index (v6.0.0)
+# Security Documentation Index (v26.5.4)
 
 ## Overview
 
-This directory contains comprehensive security documentation for ggen v6.0.0, including architecture, safe coding guidelines, testing procedures, incident response plans, and migration guides.
+This directory contains comprehensive security documentation for ggen v26.5.4, including architecture, safe coding guidelines, testing procedures, incident response plans, and migration guides.
 
 **Last Updated**: 2026-01-24
-**Version**: 6.0.0
+**Version**: 26.5.4
 **Status**: Production-Ready
 
 ---
@@ -59,7 +59,7 @@ This directory contains comprehensive security documentation for ggen v6.0.0, in
 - **🏗️ [Security Architecture](ARCHITECTURE.md)** - Defense-in-depth design
 - **🧪 [Security Testing](TESTING.md)** - Fuzzing, penetration testing, scanning
 - **🚨 [Incident Response Plan](INCIDENT_RESPONSE.md)** - What to do when incidents occur
-- **🔄 [v6 Migration Guide](V6_MIGRATION.md)** - Migrating from v5.x to v6.0.0
+- **🔄 [v6 Migration Guide](V6_MIGRATION.md)** - Migrating from v5.x to v26.5.4
 
 ---
 
@@ -73,7 +73,7 @@ docs/security/
 ├── ARCHITECTURE.md            # Security architecture (defense-in-depth)
 ├── TESTING.md                 # Security testing (fuzzing, pen testing, scanning)
 ├── INCIDENT_RESPONSE.md       # Incident response procedures
-├── V6_MIGRATION.md            # Migration guide from v5.x to v6.0.0
+├── V6_MIGRATION.md            # Migration guide from v5.x to v26.5.4
 ├── WEEK_4_SECURITY_HARDENING_REPORT.md  # Historical: Week 4 security improvements
 ├── WEEK_4_QUICK_REFERENCE.md           # Historical: Quick reference for v5.x security
 └── WEEK_4_IMPLEMENTATION_SUMMARY.md    # Historical: Implementation details
@@ -292,7 +292,7 @@ return Err(sanitized.user_message());
 
 ## Security Metrics
 
-### Current Status (v6.0.0)
+### Current Status (v26.5.4)
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
@@ -306,7 +306,7 @@ return Err(sanitized.user_message());
 
 ### Historical Improvements
 
-**v5.1.0 → v6.0.0**:
+**v5.1.0 → v26.5.4**:
 - Path traversal vulnerabilities: 3 → 0 (100% reduction)
 - SPARQL injection risks: 5 → 0 (100% reduction)
 - Information disclosure: 7 → 0 (100% reduction)
@@ -395,5 +395,5 @@ return Err(sanitized.user_message());
 ---
 
 **Last Updated**: 2026-01-24
-**Version**: 6.0.0
+**Version**: 26.5.4
 **License**: MIT

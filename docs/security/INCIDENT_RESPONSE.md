@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Incident Response Plan (v6.0.0)](#incident-response-plan-v600)
+- [Incident Response Plan (v26.5.4)](#incident-response-plan-v600)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Incident Severity Levels](#incident-severity-levels)
@@ -39,14 +39,14 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Incident Response Plan (v6.0.0)
+# Incident Response Plan (v26.5.4)
 
 ## Overview
 
-This document defines the incident response procedures for ggen v6.0.0, covering detection, analysis, containment, eradication, recovery, and post-incident review.
+This document defines the incident response procedures for ggen v26.5.4, covering detection, analysis, containment, eradication, recovery, and post-incident review.
 
 **Last Updated**: 2026-01-24
-**Version**: 6.0.0
+**Version**: 26.5.4
 **Audience**: Security Team, Maintainers, Incident Responders
 
 ---
@@ -377,12 +377,12 @@ cargo publish
 ## Security Advisory: CVE-2026-XXXX (Path Traversal)
 
 **Severity**: High (P1)
-**Affected Versions**: 6.0.0
+**Affected Versions**: 26.5.4
 **Fixed Version**: 26.5.4
 
 ### Description
 
-A path traversal vulnerability was discovered in ggen v6.0.0 that allows
+A path traversal vulnerability was discovered in ggen v26.5.4 that allows
 arbitrary file read when processing templates.
 
 ### Impact

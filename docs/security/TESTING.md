@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Testing Guide (v6.0.0)](#security-testing-guide-v600)
+- [Security Testing Guide (v26.5.4)](#security-testing-guide-v600)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Security Test Categories](#security-test-categories)
@@ -41,14 +41,14 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Testing Guide (v6.0.0)
+# Security Testing Guide (v26.5.4)
 
 ## Overview
 
-This document describes the security testing strategy for ggen v6.0.0, including test categories, fuzzing strategy, penetration testing, dependency scanning, and static analysis.
+This document describes the security testing strategy for ggen v26.5.4, including test categories, fuzzing strategy, penetration testing, dependency scanning, and static analysis.
 
 **Last Updated**: 2026-01-24
-**Version**: 6.0.0
+**Version**: 26.5.4
 **Audience**: Developers, Security Engineers, QA
 
 ---

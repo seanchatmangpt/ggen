@@ -202,9 +202,9 @@ The following 6 tests fail due to pre-Vision 2030 API incompatibilities. These a
 5. `install::tests::test_batch_resolve_dependencies_single_package`
 6. `registry_rdf::tests::test_search_packages`
 
-**Impact:** None. These are unit test stubs for v6.0 marketplace API; they do not block v26.5.4 deployment or affect end-user functionality.
+**Impact:** None. These are unit test stubs for v26.5.4 marketplace API; they do not block v26.5.4 deployment or affect end-user functionality.
 
-**Timeline:** Addressed in v6.1.1 (ETA: 2026-05-15)
+**Timeline:** Addressed in v26.5.4 (ETA: 2026-05-15)
 
 ## Monitoring & Alerting
 
@@ -239,8 +239,8 @@ The following 6 tests fail due to pre-Vision 2030 API incompatibilities. These a
 
 ## Success Criteria
 
-1. **Zero breaking changes** — v6.0.x users can upgrade without code modification
-2. **100% backward compatibility** — All v6.0 CLI verbs work in v6.1
+1. **Zero breaking changes** — v26.5.4 users can upgrade without code modification
+2. **100% backward compatibility** — All v26.5.4 CLI verbs work in v26.5.4
 3. **Zero critical alerts** — No production incidents in first 7 days
 4. **Error rate <0.1%** — Sustained across all traffic phases
 5. **SLO compliance** — All metrics meet P95 targets

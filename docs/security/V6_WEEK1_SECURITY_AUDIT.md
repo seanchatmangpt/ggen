@@ -66,7 +66,7 @@
 **Audit Date**: 2026-01-24
 **Auditor**: Security Analysis System
 **Scope**: Comprehensive security audit of all input validation and OWASP Top 10 vulnerabilities
-**Version**: ggen v6.0.0
+**Version**: ggen v26.5.4
 
 ## Executive Summary
 

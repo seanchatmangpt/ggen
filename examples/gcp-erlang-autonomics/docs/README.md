@@ -431,4 +431,4 @@ Apache License 2.0 — See LICENSE file for details.
 
 ---
 
-**Last Updated**: January 2026 | **ggen Version**: 6.0.0+ | **Status**: Production-Ready ✓
+**Last Updated**: January 2026 | **ggen Version**: 26.5.4+ | **Status**: Production-Ready ✓

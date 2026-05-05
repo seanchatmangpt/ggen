@@ -288,7 +288,7 @@ shasum -a 256 generated/*.rs
 # - Ontology hash: 7f8a3d2b5c9e1f4a...
 # - Template hashes: a3f8b9c2d1e4f7a5..., 9c2d1e4f7a0b3c6d..., 7e4a9c2d5f8b1e4a...
 # - Execution time: 2026-01-24T15:32:41Z
-# - ggen version: 6.0.0
+# - ggen version: 26.5.4
 ```
 
 Compliance/security teams can verify:
@@ -340,5 +340,5 @@ Compliance/security teams can verify:
 ---
 
 **Analysis Date**: 2026-01-24
-**ggen Version**: 6.0.0
+**ggen Version**: 26.5.4
 **Methodology**: Stopwatch timing (5 runs averaged), tokei for LOC, manual bug tracking (30 days production)

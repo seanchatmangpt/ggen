@@ -177,7 +177,7 @@ RUN cargo install ggen --locked --quiet
 
 To specify version:
 ```dockerfile
-RUN cargo install ggen@6.0.0 --locked --quiet
+RUN cargo install ggen@26.5.4 --locked --quiet
 ```
 
 ### Add MCP Proxy

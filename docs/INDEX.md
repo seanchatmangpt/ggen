@@ -23,7 +23,7 @@
       - [Constitutional Rules (v6)](#constitutional-rules-v6)
       - [Project Constitution](#project-constitution)
     - [Migration & Upgrade](#migration--upgrade)
-      - [v5.1.0 → v6.0.0 Migration](#v510-%E2%86%92-v600-migration)
+      - [v5.1.0 → v26.5.4 Migration](#v510-%E2%86%92-v600-migration)
     - [API & Reference](#api--reference)
       - [Core APIs](#core-apis)
       - [Tools & Utilities](#tools--utilities)
@@ -119,7 +119,7 @@ Complete documentation for ggen v6 - specification-driven code generation with m
 
 ### Migration & Upgrade
 
-#### v5.1.0 → v6.0.0 Migration
+#### v5.1.0 → v26.5.4 Migration
 - [Upgrade Guide](migration/upgrade-guide.md) - Complete migration path
 - [Breaking Changes](migration/breaking-changes.md) - What changed and how to adapt
 - [Migration Deliverables](migration/deliverables.md) - Tools and scripts for migration
@@ -227,7 +227,7 @@ See [GENERATED_EXAMPLES.md](GENERATED_EXAMPLES.md) for 20+ working examples:
 ---
 
 **Last Updated**: 2026-01-09  
-**Version**: ggen v6.0.0  
+**Version**: ggen v26.5.4  
 **Status**: Production Ready
 
 > See something missing or outdated? [Open an issue](https://github.com/seanchatmangpt/ggen/issues) or [contribute](CONTRIBUTING.md)!

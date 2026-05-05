@@ -10,7 +10,7 @@
 
 The marketplace crate still has **rich infrastructure** (RDF registry, signing, policy, bundles). **Partial wiring (2026-04):** `ggen packs install` for curated atomic IDs materializes `~/.ggen/packs/<pack>/` (or `GGEN_PACK_CACHE_DIR`), updates `.ggen/packs.lock`, and the v6 pipeline runs μ₀ → merged ontology, **μ₂ pack CONSTRUCT** queries (see [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md)), stages pack templates under `.ggen/pack-stage/`, and records **non-placeholder** `PackProvenance` digests in receipts. `ggen marketplace *` remains removed; broader search/list/compose CLI verbs are still thin.
 
-**Bottom line:** Core “transmission” for governed packs + sync is **in progress**; see v6.1 scope doc for remaining gaps.
+**Bottom line:** Core “transmission” for governed packs + sync is **in progress**; see v26.5.4 scope doc for remaining gaps.
 
 ---
 

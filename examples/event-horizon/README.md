@@ -151,7 +151,7 @@ All metrics collected via:
 
 ---
 
-**Event Horizon Status**: Production-ready (v6.0.0, Jan 2026)
+**Event Horizon Status**: Production-ready (v26.5.4, Jan 2026)
 
 **License**: MIT
 

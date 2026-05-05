@@ -7,7 +7,7 @@ This demonstration showcases **ggen generating itself** - a recursive self-gener
 ### The Self-Play Loop
 
 ```
-ggen v6.0.0 → Reads Ontology → Generates ggen v26.5.4 → Reads Ontology → Generates ggen v6.0.2 → ...
+ggen v26.5.4 → Reads Ontology → Generates ggen v26.5.4 → Reads Ontology → Generates ggen v26.5.4.2 → ...
 ```
 
 This demonstrates:
@@ -38,7 +38,7 @@ graph LR
 
 ```mermaid
 graph TD
-    A[ggen v6.0.0] -->|Parses| B[ontology.ttl]
+    A[ggen v26.5.4] -->|Parses| B[ontology.ttl]
     B -->|Describes| C[Skills & Tools]
     B -->|Defines| D[Quality Metrics]
     B -->|Specifies| E[Behavior Predicates]
@@ -68,7 +68,7 @@ graph TD
 
 ### Prerequisites
 
-1. **ggen v6.0.0+ installed**
+1. **ggen v26.5.4+ installed**
    ```bash
    cd /Users/sac/ggen
    cargo build --release
@@ -383,4 +383,4 @@ For issues or questions:
 
 **Version**: 1.0.0
 **Last Updated**: 2026-03-30
-**Demo Version**: ggen v6.0.0
+**Demo Version**: ggen v26.5.4

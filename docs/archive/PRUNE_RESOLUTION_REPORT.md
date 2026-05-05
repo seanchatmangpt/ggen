@@ -105,7 +105,7 @@ git restore --source=master --staged --worktree -- \
   test_template_validator_simple.rs vendors/gvisor
 ```
 
-**Reason:** Master branch **added** these files (commit ea6b227c: "feat: marketplace v6.1 expansion"). Our prune attempted to delete them, causing merge conflict. We must keep master's version.
+**Reason:** Master branch **added** these files (commit ea6b227c: "feat: marketplace v26.5.4 expansion"). Our prune attempted to delete them, causing merge conflict. We must keep master's version.
 
 ---
 

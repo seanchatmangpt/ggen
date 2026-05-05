@@ -1,4 +1,4 @@
-# ggen v6.0.0 Staging Deployment
+# ggen v26.5.4 Staging Deployment
 
 Production-grade Docker Compose deployment for ggen clustering, event store management, and metrics collection.
 
@@ -442,5 +442,5 @@ docker-compose -f deploy/staging/docker-compose.yml up ggen-node-1
 ---
 
 **Last Updated:** 2026-03-24
-**ggen Version:** 6.0.0
+**ggen Version:** 26.5.4
 **Maintainer:** Sean Chatman

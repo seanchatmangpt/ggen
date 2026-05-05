@@ -2,7 +2,7 @@
 
 ## Deliverables
 
-Deterministic canonicalization system for ggen v6.0.0 implemented in Rust.
+Deterministic canonicalization system for ggen v26.5.4 implemented in Rust.
 
 ## Structure
 

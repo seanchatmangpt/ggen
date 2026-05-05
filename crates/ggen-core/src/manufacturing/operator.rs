@@ -2,12 +2,22 @@ use std::path::PathBuf;
 use crate::graph::Graph;
 use ggen_utils::error::Result;
 use tracing::instrument;
+use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct OperatorContext {
     pub workspace_root: PathBuf,
     pub artifact_id: String,
     pub graph: Graph,
+}
+
+impl fmt::Debug for OperatorContext {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OperatorContext")
+            .field("workspace_root", &self.workspace_root)
+            .field("artifact_id", &self.artifact_id)
+            .finish()
+    }
 }
 
 pub trait ManufacturingOperator: Send + Sync {

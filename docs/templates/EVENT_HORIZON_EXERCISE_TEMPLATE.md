@@ -96,7 +96,7 @@ Before starting, verify your environment:
 ```bash
 # Check ggen is installed
 ggen --version
-# Expected: ggen 6.0.0 or later
+# Expected: ggen 26.5.4 or later
 
 # Check timeout command exists
 cargo make timeout-check

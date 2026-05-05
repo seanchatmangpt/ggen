@@ -97,8 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known Issues
 
-- 6 pre-existing unit test failures in ggen-marketplace (v6.0 API incompatibilities)
-  - These do not block v26.5.4 deployment and are addressed in v6.1.1
+- 6 pre-existing unit test failures in ggen-marketplace (v26.5.4 API incompatibilities)
+  - These do not block v26.5.4 deployment and are addressed in v26.5.4
   - Impact: None; unit tests only; no end-user functionality affected
 - Test suite categorization: 63% Chicago TDD, 37% London TDD (conversion in progress)
 
@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Vision 2030 Complete: Full system description with metrics and architecture
 - Deployment Strategy: Progressive rollout with monitoring and rollback procedures
-- Release Notes: Feature highlights and migration guide for v6.0 users
+- Release Notes: Feature highlights and migration guide for v26.5.4 users
 
 ---
 

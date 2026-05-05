@@ -758,7 +758,7 @@ Timeout: GNU coreutils 9.4
 
 # Project Configuration
 Project: rust-attribution-context v1.0.0
-ggen Version: v6.0.0 (expected)
+ggen Version: v26.5.4 (expected)
 Workspace Crates: 27 crates
 ```
 

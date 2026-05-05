@@ -7,7 +7,7 @@ Complete guide to using the ggen templates for C4 diagrams and Kubernetes deploy
 ### 1. Prerequisites
 ```bash
 # Required tools
-- ggen v6.0.0+ (CLI)
+- ggen v26.5.4+ (CLI)
 - Tera template engine (included in ggen)
 - SPARQL processor (Oxigraph, included in ggen)
 - kubectl (for Kubernetes validation)
@@ -549,7 +549,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install ggen
-        run: cargo install ggen --version 6.0.0
+        run: cargo install ggen --version 26.5.4
 
       - name: Generate diagrams & manifests
         working-directory: examples/gcp-erlang-autonomics
@@ -585,7 +585,7 @@ generate_diagrams:
   stage: generate
   image: rust:latest
   script:
-    - cargo install ggen --version 6.0.0
+    - cargo install ggen --version 26.5.4
     - cd examples/gcp-erlang-autonomics
     - ggen sync --audit true
   artifacts:

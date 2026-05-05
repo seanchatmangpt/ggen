@@ -32,7 +32,7 @@ grep -E "(ERROR|WARN|failed)" diagnostics.log
 
 ### Diagnostic Checklist
 
-- [ ] ggen version >= 6.0.0
+- [ ] ggen version >= 26.5.4
 - [ ] Rust version >= 1.70.0
 - [ ] Ontology file exists and is valid Turtle
 - [ ] Output directory is writable

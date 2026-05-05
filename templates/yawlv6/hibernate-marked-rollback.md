@@ -3,7 +3,7 @@
 ## Runtime Evidence
 - **File:** `docs/validation/evidence/rollback-exceptions.log`
 - **Test Case:** `HibernateMarkedRollbackTest.testMergeAfterCascadeDeleteCausesRollbackOnly`
-- **Engine Version:** YAWL 6.0.0 GA
+- **Engine Version:** YAWL 26.5.4 GA
 - **Hibernate:** 7.2.0.Final
 
 ## The Problem

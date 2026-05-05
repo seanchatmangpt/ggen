@@ -1,6 +1,6 @@
 # Wave 2 - Scaffold Examples Completion Report
 
-**Project**: ggen v6.0.0 - Specification-Driven Code Generation
+**Project**: ggen v26.5.4 - Specification-Driven Code Generation
 **Wave**: 2 (Scaffold Examples)
 **Status**: COMPLETED ✓
 **Date**: 2026-03-24

@@ -77,7 +77,7 @@ Generates:
 **Estimated Time**: 10 minutes
 
 ## Prerequisites
-- Node.js >= 16.0.0
+- Node.js >= 126.5.4
 - Basic JavaScript knowledge
 
 ## What You'll Learn

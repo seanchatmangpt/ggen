@@ -1,5 +1,5 @@
 # Sprint 1 & 2 Completion Report
-**ggen v6.0.0 - Specification-Driven Code Generation**
+**ggen v26.5.4 - Specification-Driven Code Generation**
 
 **Period:** March 17-30, 2026 (2 weeks)
 **Status:** ✅ COMPLETE
@@ -259,8 +259,8 @@ ggen mcp start-server --transport stdio
 ### Test Execution Summary
 ```bash
 $ cargo make test
-   Compiling ggen-core v6.0.0
-   Compiling ggen-a2a-mcp v6.0.0
+   Compiling ggen-core v26.5.4
+   Compiling ggen-a2a-mcp v26.5.4
     Finished test [unoptimized + debuginfo] target(s) in 14.23s
 
      Running unittests src/lib.rs (target/debug/deps/ggen_core-*)

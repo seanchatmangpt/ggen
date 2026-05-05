@@ -1,6 +1,6 @@
 # ggen-canonical
 
-Deterministic canonicalization system for ggen v6.0.0
+Deterministic canonicalization system for ggen v26.5.4
 
 ## Overview
 
@@ -129,7 +129,7 @@ use ggen_canonical::hash;
 use serde_json::json;
 
 // Canonicalize JSON
-let input = r#"{"project":"ggen","version":"6.0.0"}"#;
+let input = r#"{"project":"ggen","version":"26.5.4"}"#;
 let canonical = canonicalize_json_str(input)?;
 
 // Compute hash

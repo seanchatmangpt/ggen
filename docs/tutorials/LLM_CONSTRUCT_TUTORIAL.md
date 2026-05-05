@@ -140,7 +140,7 @@ After LLM-Construct:
 cargo install ggen-cli --features ai
 
 # Verify installation
-ggen --version  # Should show v6.0.0+
+ggen --version  # Should show v26.5.4+
 ```
 
 **2. Set up LLM provider** (choose one):

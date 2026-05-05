@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Developer Security Checklist (v6.0.0)](#developer-security-checklist-v600)
+- [Developer Security Checklist (v26.5.4)](#developer-security-checklist-v600)
   - [Overview](#overview)
   - [Pre-Development Checklist](#pre-development-checklist)
   - [Code Development Checklist](#code-development-checklist)
@@ -41,14 +41,14 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Developer Security Checklist (v6.0.0)
+# Developer Security Checklist (v26.5.4)
 
 ## Overview
 
-This checklist ensures all security best practices are followed when developing for ggen v6.0.0. Use this before submitting pull requests or deploying code.
+This checklist ensures all security best practices are followed when developing for ggen v26.5.4. Use this before submitting pull requests or deploying code.
 
 **Last Updated**: 2026-01-24
-**Version**: 6.0.0
+**Version**: 26.5.4
 **Audience**: All developers contributing to ggen
 
 ---

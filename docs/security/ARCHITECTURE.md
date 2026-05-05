@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Architecture (v6.0.0)](#security-architecture-v600)
+- [Security Architecture (v26.5.4)](#security-architecture-v600)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Defense in Depth Layers](#defense-in-depth-layers)
@@ -44,14 +44,14 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Architecture (v6.0.0)
+# Security Architecture (v26.5.4)
 
 ## Overview
 
-ggen v6.0.0 implements defense-in-depth security through multiple layers of protection. This document describes the security architecture, trust boundaries, and protection mechanisms.
+ggen v26.5.4 implements defense-in-depth security through multiple layers of protection. This document describes the security architecture, trust boundaries, and protection mechanisms.
 
 **Last Updated**: 2026-01-24
-**Version**: 6.0.0
+**Version**: 26.5.4
 **Status**: Production-Ready
 
 ---
@@ -183,7 +183,7 @@ let limiter = RateLimiter::new()
 limiter.check_and_increment(client_id, endpoint)?;
 ```
 
-**Limits (v6.0.0)**:
+**Limits (v26.5.4)**:
 - Max requests per minute: 60
 - Max concurrent generations: 10
 - Max file size: 10MB
@@ -387,7 +387,7 @@ log::error!("{}", sanitized.internal_message());  // Full details for logs
 
 ## Authentication & Authorization
 
-**Current Status (v6.0.0)**: CLI-based, single-user model
+**Current Status (v26.5.4)**: CLI-based, single-user model
 
 **Future Enhancements (v26.5.4+)**:
 - API key authentication

@@ -65,4 +65,4 @@ line_length = 100
 indent = 2
 
 [security]
-allowed_domains = ["ggen.io", "w3.org", "schema.org"]
+allowed_domains = ["io", "org", "dev", "com"]

@@ -34,7 +34,7 @@ Each pattern doc follows this structure:
 ## Runtime Evidence
 - **File:** `docs/validation/evidence/<pattern-name>.log`
 - **Test Case:** `test/org/yawlfoundation/yawl/validation/<PatternName>Test.java`
-- **Engine Version:** YAWL 6.0.0 GA
+- **Engine Version:** YAWL 26.5.4 GA
 - **Hibernate:** 7.0.0.Final (or relevant version)
 
 ## The Problem
@@ -169,7 +169,7 @@ cat > ~/ggen/templates/yawlv6/<pattern-name>.md << 'EOF'
 ## Runtime Evidence
 - **File:** `docs/validation/evidence/<bug-name>.log`
 - **Test Case:** `test/org/yawlfoundation/yawl/validation/<BugName>Test.java`
-- **Engine Version:** YAWL 6.0.0 GA
+- **Engine Version:** YAWL 26.5.4 GA
 - **Hibernate:** 7.0.0.Final
 
 ## The Problem

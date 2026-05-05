@@ -459,7 +459,7 @@ When Agent 2 (Code Generation & Validation) runs, it will:
 
 ### Planned Features
 1. Cached binary path detection (avoiding repeated lookups)
-2. Version constraint checking (e.g., ggen >= 6.0.0)
+2. Version constraint checking (e.g., ggen >= 26.5.4)
 3. Binary update checking (new version available)
 4. Fallback mirror support (if primary installation fails)
 5. Custom installation paths (--install-path option)

@@ -13,7 +13,7 @@
 
 | Tool | Version | Installation |
 |------|---------|--------------|
-| **ggen** | ≥6.0.0 | `cargo install ggen-cli` or [brew install](../../README.md#quick-start-5-minutes) |
+| **ggen** | ≥26.5.4 | `cargo install ggen-cli` or [brew install](../../README.md#quick-start-5-minutes) |
 | **Terraform** | ≥1.5.0 | [terraform.io/downloads](https://terraform.io/downloads) |
 | **gcloud CLI** | ≥450.0.0 | [cloud.google.com/sdk/install](https://cloud.google.com/sdk/install) |
 | **Rust toolchain** | ≥1.91.1 | [rustup.rs](https://rustup.rs) |
@@ -604,4 +604,4 @@ gcloud sql export sql factorypaas-postgres \
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-24
-**Tested on**: GCP (us-central1), Terraform 1.5.7, ggen 6.0.0
+**Tested on**: GCP (us-central1), Terraform 1.5.7, ggen 26.5.4

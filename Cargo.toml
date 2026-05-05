@@ -192,7 +192,7 @@ darling_core = "0.21"
 darling_macro = "0.21"
 
 # Utilities (Moderate impact - direct dependencies)
-# dashmap: 2 versions → 1 (v5.5, v6.1 consolidated)
+# dashmap: 2 versions → 1 (v5.5, v26.5.4 consolidated)
 # bitflags: 3 versions → 1 (consolidated)
 # config: 2 versions → 1 (consolidated, default-features=false to allow customization)
 # convert_case: 2 versions → 1 (consolidated)

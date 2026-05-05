@@ -53,7 +53,7 @@ cargo make test security::
 
 ### Network Configuration
 
-- **Internal Network**: `172.16.0.0/24`
+- **Internal Network**: `172.126.5.4/24`
 - **External Access**: Port 8080 (HTTPS)
 - **Database**: PostgreSQL on `172.16.0.2:5432`
 - **Redis**: Cache on `172.16.0.3:6379`

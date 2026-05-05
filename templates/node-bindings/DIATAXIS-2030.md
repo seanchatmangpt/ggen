@@ -151,7 +151,7 @@ doc:relatedTo a rdf:Property ;
 # In ontology
 :GettingStartedTutorial a doc:Tutorial ;
     doc:title "Getting Started with ggen-node" ;
-    doc:hasPrerequisite "Node.js >= 16.0.0" ;
+    doc:hasPrerequisite "Node.js >= 126.5.4" ;
     doc:hasPrerequisite "Basic JavaScript knowledge" ;
     doc:hasLearningObjective "Parse your first RDF file" ;
     doc:hasLearningObjective "Generate code from ontology" ;
@@ -176,7 +176,7 @@ WHERE {
 # Getting Started with ggen-node
 
 **Time**: 10 minutes
-**Prerequisites**: Node.js >= 16.0.0, Basic JavaScript knowledge
+**Prerequisites**: Node.js >= 126.5.4, Basic JavaScript knowledge
 
 ## What You'll Learn
 - Parse your first RDF file

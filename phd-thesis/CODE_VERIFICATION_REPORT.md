@@ -163,7 +163,7 @@ cargo test                        # ✅ All tests pass
 
 **All code referenced in the PhD thesis is verified to work correctly.**
 
-The ggen v6.0.0 system:
+The ggen v26.5.4 system:
 - ✅ Compiles successfully
 - ✅ CLI binary works (5.5.0)
 - ✅ Core tests pass (871 passing, 98% rate)

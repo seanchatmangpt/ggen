@@ -298,7 +298,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- --default-toolchain 1.91.1 -y
 
 # Install specific ggen version
-ENV GGEN_VERSION=6.0.0
+ENV GGEN_VERSION=26.5.4
 RUN cargo install ggen --version $GGEN_VERSION
 ```
 
@@ -313,7 +313,7 @@ This Dockerfile ensures reproducible code generation across platforms.
 ## Pinned Versions
 - Ubuntu: 24.04
 - Rust: 1.91.1
-- ggen: 6.0.0
+- ggen: 26.5.4
 - Tokio: 1.47
 - Cargo dependencies: Locked with Cargo.lock
 

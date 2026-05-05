@@ -1,6 +1,6 @@
 # Wave 5 (Integration) Documentation
 
-**Complete reference library for ggen v6.0.0 architecture, patterns, troubleshooting, and adoption**
+**Complete reference library for ggen v26.5.4 architecture, patterns, troubleshooting, and adoption**
 
 ---
 
@@ -250,7 +250,7 @@ Found something unclear? Want to add content?
 ## Version Information
 
 **Documentation Version:** Wave 5 (Integration)  
-**ggen Version:** 6.0.0  
+**ggen Version:** 26.5.4  
 **Created:** 2026-03-24  
 **Last Updated:** 2026-03-24  
 

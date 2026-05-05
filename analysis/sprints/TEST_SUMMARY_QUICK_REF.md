@@ -1,4 +1,4 @@
-# GGEN V6.0.0 - Test Summary Quick Reference
+# GGEN V26.5.4 - Test Summary Quick Reference
 
 **Generated:** 2026-03-30
 **Command:** `cargo test --workspace --lib --bins`

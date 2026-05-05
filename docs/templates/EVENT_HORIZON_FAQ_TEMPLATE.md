@@ -1331,7 +1331,7 @@ Track and share:
 
 ### How do I optimize generation performance? {#optimize-performance}
 
-**Performance SLOs** (ggen v6.0.0):
+**Performance SLOs** (ggen v26.5.4):
 - First build: ≤ 15s
 - Incremental: ≤ 2s
 - RDF processing: ≤ 5s (1k+ triples)

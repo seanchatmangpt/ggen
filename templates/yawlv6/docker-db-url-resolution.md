@@ -3,7 +3,7 @@
 ## Runtime Evidence
 - **File:** `docs/validation/evidence/docker-db-connection.log`
 - **Test Case:** `DockerDBConnectionTest.testHostDockerInternalResolution`
-- **Engine Version:** YAWL 6.0.0 GA
+- **Engine Version:** YAWL 26.5.4 GA
 - **Docker:** Docker Desktop 4.x+
 
 ## The Problem

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This test validates the complete LLM-assisted code generation pipeline in ggen v6.0.0:
+This test validates the complete LLM-assisted code generation pipeline in ggen v26.5.4:
 1. SPARQL extraction of behavior predicates (`a2a:hasSystemPrompt`, `a2a:hasImplementationHint`)
 2. Template rendering with `{{ generated_impl }}` blocks
 3. LLM bridge integration for generating implementation code

@@ -281,7 +281,7 @@ receipt.verify_chain(&public_key)?;
 ### Example 2: Build Receipt with Pack Provenance
 
 ```rust
-let mut receipt = BuildReceipt::new(&epoch, passes, outputs, "6.0.0");
+let mut receipt = BuildReceipt::new(&epoch, passes, outputs, "26.5.4");
 
 // Add pack provenance
 receipt.add_pack(PackProvenance {
