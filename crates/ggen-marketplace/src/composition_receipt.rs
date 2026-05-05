@@ -1072,7 +1072,6 @@ mod tests {
         assert!(err.to_string().contains("depth"));
     }
 
-
     fn create_test_receipt_for_adv(id: &str) -> CompositionReceipt {
         let mut r = CompositionReceipt::new(RuntimeProfile {
             profile_id: "test".to_string(),
@@ -1088,19 +1087,27 @@ mod tests {
         let mut r1 = create_test_receipt_for_adv("operator1");
         let mut r2 = create_test_receipt_for_adv("operator2");
         let mut r3 = create_test_receipt_for_adv("operator3");
-        
+
         r2.parent_receipt_id = Some(r1.receipt_id.clone().unwrap());
         r3.parent_receipt_id = Some(r2.receipt_id.clone().unwrap());
-        
+
         // ADVERSARIAL: Corrupt the middle hash
         r2.receipt_id = Some("fake_hash_999".to_string());
-        
+
         let resolver = |id: &str| -> Result<CompositionReceipt> {
-            if id == r1.receipt_id.as_ref().unwrap() { Ok(r1.clone()) }
-            else if id == "fake_hash_999" { Ok(r2.clone()) } // Resolver is tricked
-            else { Err(crate::error::Error::PackageNotFound { package_id: id.to_string() }) }
+            if id == r1.receipt_id.as_ref().unwrap() {
+                Ok(r1.clone())
+            } else if id == "fake_hash_999" {
+                Ok(r2.clone())
+            }
+            // Resolver is tricked
+            else {
+                Err(crate::error::Error::PackageNotFound {
+                    package_id: id.to_string(),
+                })
+            }
         };
-        
+
         let chain = r3.get_full_chain(resolver);
         // The chain retrieval shouldn't crash but it might fail structural logic, or we verify it manually
         assert!(chain.is_err() || chain.unwrap().len() <= 3); // It will fail to build a valid chain or return the bad chain
@@ -1110,18 +1117,22 @@ mod tests {
     fn test_adversarial_skip_operator_receipt() {
         let mut r1 = create_test_receipt_for_adv("operator1");
         let r3 = create_test_receipt_for_adv("operator3");
-        
+
         // ADVERSARIAL: Skip r2 completely by claiming r1 is parent, but missing the sequence
         // r3 links directly to r1, hiding operator2
         r1.receipt_id = Some("operator1_hash".to_string());
-        
-        let resolver = |id: &str| -> Result<CompositionReceipt> {
-            if id == r1.receipt_id.as_ref().unwrap() { Ok(r1.clone()) }
-            else { Err(crate::error::Error::PackageNotFound { package_id: id.to_string() }) }
-        };
-        
-        let chain = r3.get_full_chain(resolver);
-        assert!(chain.is_err() || chain.unwrap().len() < 3); 
-    }
 
+        let resolver = |id: &str| -> Result<CompositionReceipt> {
+            if id == r1.receipt_id.as_ref().unwrap() {
+                Ok(r1.clone())
+            } else {
+                Err(crate::error::Error::PackageNotFound {
+                    package_id: id.to_string(),
+                })
+            }
+        };
+
+        let chain = r3.get_full_chain(resolver);
+        assert!(chain.is_err() || chain.unwrap().len() < 3);
+    }
 }

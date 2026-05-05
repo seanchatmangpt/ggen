@@ -224,16 +224,16 @@ async fn check_observability() -> Result<CheckResult> {
 
 /// Check SLO Performance (Vision 2030 Gate)
 async fn check_slo() -> Result<CheckResult> {
-    use std::time::Instant;
     use ggen_core::v6::vocabulary::VocabularyRegistry;
     use std::collections::BTreeSet;
+    use std::time::Instant;
 
     let start = Instant::now();
 
     // Deep SLO Check: Execute a full Vocabulary Validation Cycle
     // This measures the real architectural bottleneck of the v6 pipeline.
     let registry = VocabularyRegistry::with_standard_vocabularies();
-    
+
     // Test a synthetic set of 10 namespaces to measure resolution latency
     let mut test_ns = BTreeSet::new();
     test_ns.insert("http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
@@ -246,7 +246,7 @@ async fn check_slo() -> Result<CheckResult> {
     test_ns.insert("https://schema.org/".to_string());
     test_ns.insert("http://purl.org/dc/terms/".to_string());
     test_ns.insert("http://xmlns.com/foaf/0.1/".to_string());
-    
+
     let _ = registry.validate_namespaces(&test_ns);
 
     let duration = start.elapsed();
@@ -256,7 +256,10 @@ async fn check_slo() -> Result<CheckResult> {
         Ok(CheckResult {
             name: "SLO Performance".to_string(),
             status: CheckStatus::Ok,
-            message: format!("Vocabulary validation latency: {:?} (< 10ms target)", duration),
+            message: format!(
+                "Vocabulary validation latency: {:?} (< 10ms target)",
+                duration
+            ),
         })
     } else {
         Ok(CheckResult {

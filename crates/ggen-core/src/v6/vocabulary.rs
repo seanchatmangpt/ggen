@@ -102,7 +102,7 @@ impl VocabularyRegistry {
     /// Create a registry with standard W3C vocabularies loaded from ontology
     pub fn with_standard_vocabularies() -> Self {
         let mut registry = Self::new();
-        
+
         // In v26.5.4, we bootstrap from the standard-vocabularies.ttl specification
         let path = std::path::Path::new(".specify/ontologies/standard-vocabularies.ttl");
         if path.exists() {
@@ -113,7 +113,7 @@ impl VocabularyRegistry {
                     if line.contains("gv6:StandardVocabulary") && line.contains("<") {
                         if let Some(start) = line.find('<') {
                             if let Some(end) = line.find('>') {
-                                let ns = &line[start+1..end];
+                                let ns = &line[start + 1..end];
                                 registry.add_allowed(AllowedVocabulary::new(ns, "boot"));
                             }
                         }

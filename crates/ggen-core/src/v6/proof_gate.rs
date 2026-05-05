@@ -83,18 +83,26 @@ impl ProofGateValidator {
 
     fn check_schema_valid(&self, receipt: &BuildReceipt) -> GateReport {
         // Validation 1: Did the normalization pass (which parses RDF) succeed?
-        let normalization_success = receipt.passes.iter()
+        let normalization_success = receipt
+            .passes
+            .iter()
             .find(|p| p.pass_type == PassType::Normalization)
             .is_some_and(|p| p.success);
-            
+
         // Validation 2: Check for SHACL validation results in the receipt metadata/passes
         // The normalization pass records SHACL violations if they occur.
-        let shacl_passed = receipt.passes.iter()
+        let shacl_passed = receipt
+            .passes
+            .iter()
             .find(|p| p.pass_type == PassType::Normalization)
-            .map_or(true, |p| p.error.as_deref().map_or(true, |e| !e.to_lowercase().contains("shacl violation")));
+            .map_or(true, |p| {
+                p.error
+                    .as_deref()
+                    .map_or(true, |e| !e.to_lowercase().contains("shacl violation"))
+            });
 
         let passed = normalization_success && shacl_passed;
-            
+
         GateReport {
             gate_type: ProofGateType::SchemaValid,
             passed,
@@ -110,7 +118,9 @@ impl ProofGateValidator {
 
     fn check_ontology_lawful(&self, receipt: &BuildReceipt) -> GateReport {
         // Validation: Did extraction succeed without errors?
-        let passed = receipt.passes.iter()
+        let passed = receipt
+            .passes
+            .iter()
             .find(|p| p.pass_type == PassType::Extraction)
             .is_some_and(|p| p.success);
 
@@ -131,7 +141,10 @@ impl ProofGateValidator {
             gate_type: ProofGateType::ProjectionComplete,
             passed,
             message: if passed {
-                format!("Projected {} files from ontology bindings.", receipt.outputs.len())
+                format!(
+                    "Projected {} files from ontology bindings.",
+                    receipt.outputs.len()
+                )
             } else {
                 "No output artifacts were projected.".to_string()
             },
@@ -140,7 +153,9 @@ impl ProofGateValidator {
 
     fn check_compilation_passes(&self, receipt: &BuildReceipt) -> GateReport {
         // Validation: Did canonicalization (formatting/syntax check) succeed?
-        let passed = receipt.passes.iter()
+        let passed = receipt
+            .passes
+            .iter()
             .find(|p| p.pass_type == PassType::Canonicalization)
             .is_some_and(|p| p.success);
 
@@ -148,7 +163,8 @@ impl ProofGateValidator {
             gate_type: ProofGateType::CompilationPasses,
             passed,
             message: if passed {
-                "All generated artifacts formatted via rustfmt and passed basic syntax check.".to_string()
+                "All generated artifacts formatted via rustfmt and passed basic syntax check."
+                    .to_string()
             } else {
                 "Generated artifacts failed syntax validation or canonicalization.".to_string()
             },
@@ -161,7 +177,10 @@ impl ProofGateValidator {
             gate_type: ProofGateType::ReceiptValid,
             passed,
             message: if passed {
-                format!("Cryptographic receipt '{}' correctly signed and chained to project epoch.", receipt.id)
+                format!(
+                    "Cryptographic receipt '{}' correctly signed and chained to project epoch.",
+                    receipt.id
+                )
             } else {
                 "Receipt validation failed or receipt is not properly chained.".to_string()
             },
@@ -171,7 +190,10 @@ impl ProofGateValidator {
     fn check_ethos_conformant(&self, _receipt: &BuildReceipt) -> GateReport {
         let mut passed = !self.intent.objective.is_empty();
         let mut message = if passed {
-            format!("Artifact aligns with objective: '{}'", self.intent.objective)
+            format!(
+                "Artifact aligns with objective: '{}'",
+                self.intent.objective
+            )
         } else {
             "Manufacturing intent objective is missing or not conformant.".to_string()
         };
@@ -188,7 +210,11 @@ impl ProofGateValidator {
                                 // Discover net from log or use a pre-defined one
                                 match pictl_algos::alpha::discover_alpha(&log, "concept:name") {
                                     Ok(net) => {
-                                        match pictl_algos::conformance::check_conformance_alignment(&log, &net, "concept:name") {
+                                        match pictl_algos::conformance::check_conformance_alignment(
+                                            &log,
+                                            &net,
+                                            "concept:name",
+                                        ) {
                                             Ok(result) => {
                                                 let fitness = result.fitness;
                                                 if fitness < 0.8 {
@@ -200,13 +226,19 @@ impl ProofGateValidator {
                                             }
                                             Err(e) => {
                                                 passed = false;
-                                                message.push_str(&format!(" (FAILED: Conformance checking failed: {})", e));
+                                                message.push_str(&format!(
+                                                    " (FAILED: Conformance checking failed: {})",
+                                                    e
+                                                ));
                                             }
                                         }
                                     }
                                     Err(e) => {
                                         passed = false;
-                                        message.push_str(&format!(" (FAILED: Process discovery failed: {})", e));
+                                        message.push_str(&format!(
+                                            " (FAILED: Process discovery failed: {})",
+                                            e
+                                        ));
                                     }
                                 }
                             }
@@ -236,12 +268,17 @@ impl ProofGateValidator {
 
     fn check_observability_present(&self, receipt: &BuildReceipt) -> GateReport {
         // Validation: Ensure passes took measurable time, indicating telemetry traces
-        let passed = receipt.total_duration_ms > 0 && receipt.passes.iter().all(|p| p.duration_ms > 0);
+        let passed =
+            receipt.total_duration_ms > 0 && receipt.passes.iter().all(|p| p.duration_ms > 0);
         GateReport {
             gate_type: ProofGateType::ObservabilityPresent,
             passed,
             message: if passed {
-                format!("Full telemetry traces emitted for all {} μ stages ({}ms total).", receipt.passes.len(), receipt.total_duration_ms)
+                format!(
+                    "Full telemetry traces emitted for all {} μ stages ({}ms total).",
+                    receipt.passes.len(),
+                    receipt.total_duration_ms
+                )
             } else {
                 "Observability traces or timing metrics missing.".to_string()
             },
@@ -249,12 +286,15 @@ impl ProofGateValidator {
     }
 
     fn check_causal_consistent(&self, receipt: &BuildReceipt) -> GateReport {
-        let passed = !receipt.ontology_hash.is_empty() && !receipt.outputs_hash.is_empty() && receipt.is_valid;
+        let passed = !receipt.ontology_hash.is_empty()
+            && !receipt.outputs_hash.is_empty()
+            && receipt.is_valid;
         GateReport {
             gate_type: ProofGateType::CausalConsistent,
             passed,
             message: if passed {
-                "Output hashes are strictly deterministic relative to ontology substrate.".to_string()
+                "Output hashes are strictly deterministic relative to ontology substrate."
+                    .to_string()
             } else {
                 "Causal linkage between inputs and outputs could not be verified.".to_string()
             },

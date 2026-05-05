@@ -52,10 +52,7 @@ fn init_otel_tracing() -> ggen_utils::error::Result<()> {
         .with_trace_config(
             trace::config()
                 .with_sampler(Sampler::AlwaysOn)
-                .with_resource(Resource::new(vec![KeyValue::new(
-                    "service.name",
-                    "ggen",
-                )])),
+                .with_resource(Resource::new(vec![KeyValue::new("service.name", "ggen")])),
         )
         .install_batch(runtime::Tokio)
         .map_err(|e| {
@@ -182,11 +179,7 @@ impl PipelineTracer {
 
     /// Log shell hook start
     pub fn shell_hook_start(command: &str, timing: &str) {
-        info!(
-            command = command,
-            timing = timing,
-            "Executing shell hook"
-        );
+        info!(command = command, timing = timing, "Executing shell hook");
     }
 
     /// Log shell hook completion
@@ -237,11 +230,7 @@ impl PipelineTracer {
 
     /// Log skip condition
     pub fn skip_condition(condition: &str, reason: &str) {
-        info!(
-            condition = condition,
-            reason = reason,
-            "Template skipped"
-        );
+        info!(condition = condition, reason = reason, "Template skipped");
     }
 
     /// Log dry run information

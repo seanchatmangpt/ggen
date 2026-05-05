@@ -48,13 +48,19 @@ pub struct UMotion<State> {
 
 impl UMotion<Pending> {
     pub fn new(payload: String) -> Self {
-        Self { payload, _state: PhantomData }
+        Self {
+            payload,
+            _state: PhantomData,
+        }
     }
-    
+
     pub fn admit(self) -> Result<UMotion<Hot>> {
         // Lawful admission logic: check artifact signature/receipt
         tracing::info!("UniverseOS: Admitting motion for payload {}", self.payload);
-        Ok(UMotion { payload: self.payload, _state: PhantomData })
+        Ok(UMotion {
+            payload: self.payload,
+            _state: PhantomData,
+        })
     }
 }
 
@@ -62,23 +68,28 @@ impl UMotion<Hot> {
     pub fn execute(self) -> UMotion<Spent> {
         // Execution logic: perform the operation and transition to Spent
         tracing::info!("UniverseOS: Executing motion for payload {}", self.payload);
-        UMotion { payload: self.payload, _state: PhantomData }
+        UMotion {
+            payload: self.payload,
+            _state: PhantomData,
+        }
     }
 }
 
 pub struct UniverseOsTypestateGate;
 
 impl ProofGate for UniverseOsTypestateGate {
-    fn name(&self) -> &str { "universeos-typestate-admission" }
-    
+    fn name(&self) -> &str {
+        "universeos-typestate-admission"
+    }
+
     fn validate(&self, ctx: &OperatorContext) -> Result<GateResult> {
         // Run the artifact through the Pending -> Hot -> Spent typestate lifecycle
         let pending = UMotion::<Pending>::new(ctx.artifact_id.clone());
-        
+
         let hot = pending.admit()?;
-        
+
         let _spent = hot.execute();
-        
+
         Ok(GateResult {
             gate_name: self.name().to_string(),
             passed: true,

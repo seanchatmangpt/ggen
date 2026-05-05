@@ -59,7 +59,11 @@ fn test_businessos_ontology_loads() {
 
     let exists = businessos_path.exists() || actual_path.exists();
     if !exists {
-        eprintln!("Skipping test: BusinessOS ontology not found at {} or {}", businessos_path.display(), actual_path.display());
+        eprintln!(
+            "Skipping test: BusinessOS ontology not found at {} or {}",
+            businessos_path.display(),
+            actual_path.display()
+        );
         return;
     }
     assert!(exists);

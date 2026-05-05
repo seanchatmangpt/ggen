@@ -5,8 +5,8 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use pictl_types::EventLog;
 use pictl_algos::alpha::discover_alpha;
+use pictl_types::EventLog;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -53,8 +53,12 @@ fn init(
 
     let log = EventLog::new(Vec::new(), std::collections::HashMap::new());
     let log_json = serde_json::to_string_pretty(&log).unwrap();
-    std::fs::write(&workflow_path, log_json)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create workflow file: {}", e)))?;
+    std::fs::write(&workflow_path, log_json).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to create workflow file: {}",
+            e
+        ))
+    })?;
 
     Ok(WorkflowInitOutput {
         workflow_name: name,
@@ -100,10 +104,10 @@ fn synthesize(
 ) -> VerbResult<serde_json::Value> {
     let log = load_log(&workflow_file)?;
     let petri_net = discover_alpha(&log, "concept:name").unwrap_or_default();
-    
+
     let ttl = petri_net_to_ttl(&petri_net, &law_id, &name);
     let output_path = PathBuf::from(output.unwrap_or_else(|| format!("{}.ttl", law_id)));
-    
+
     std::fs::write(&output_path, ttl).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to write law file: {}", e))
     })?;
@@ -123,12 +127,15 @@ fn event(
 ) -> VerbResult<serde_json::Value> {
     let mut log = load_log(&workflow_file)?;
     let timestamp = chrono::Utc::now().to_rfc3339();
-    
+
     append_event(&mut log, &case_id, &activity, &timestamp, resource);
 
     let log_json = serde_json::to_string_pretty(&log).unwrap();
     std::fs::write(&workflow_file, log_json).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write workflow file: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write workflow file: {}",
+            e
+        ))
     })?;
 
     Ok(serde_json::json!({
@@ -150,11 +157,15 @@ fn report(
 
     let report_content = format!(
         "<html><body><h1>Workflow Report</h1><p>Cases: {}</p><p>Events: {}</p></body></html>",
-        log.len(), log.event_count()
+        log.len(),
+        log.event_count()
     );
 
     std::fs::write(&_output, report_content).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write report file: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write report file: {}",
+            e
+        ))
     })?;
 
     Ok(serde_json::json!({
@@ -174,7 +185,10 @@ fn load_log(path: &str) -> VerbResult<EventLog> {
         return Ok(EventLog::new(Vec::new(), std::collections::HashMap::new()));
     }
     let content = std::fs::read_to_string(path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to read workflow file: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to read workflow file: {}",
+            e
+        ))
     })?;
     serde_json::from_str(&content).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to parse EventLog: {}", e))
@@ -206,19 +220,35 @@ fn petri_net_to_ttl(net: &pictl_types::PetriNet, law_id: &str, name: &str) -> St
     );
 
     for p in &net.places {
-        ttl.push_str(&format!("<{law_id}/place/{id}> a sos:Place ; rdfs:label \"{label}\" .\n", id = p.id, label = p.label));
+        ttl.push_str(&format!(
+            "<{law_id}/place/{id}> a sos:Place ; rdfs:label \"{label}\" .\n",
+            id = p.id,
+            label = p.label
+        ));
     }
     for t in &net.transitions {
-        ttl.push_str(&format!("<{law_id}/transition/{id}> a sos:Transition ; rdfs:label \"{label}\" .\n", id = t.id, label = t.label));
+        ttl.push_str(&format!(
+            "<{law_id}/transition/{id}> a sos:Transition ; rdfs:label \"{label}\" .\n",
+            id = t.id,
+            label = t.label
+        ));
     }
     ttl
 }
 
-fn append_event(log: &mut EventLog, case_id: &str, activity: &str, timestamp: &str, resource: Option<String>) {
-    use pictl_types::{Event, AttributeValue, Trace};
+fn append_event(
+    log: &mut EventLog, case_id: &str, activity: &str, timestamp: &str, resource: Option<String>,
+) {
+    use pictl_types::{AttributeValue, Event, Trace};
     let mut attrs = std::collections::HashMap::new();
-    attrs.insert("concept:name".to_string(), AttributeValue::String(activity.to_string()));
-    attrs.insert("time:timestamp".to_string(), AttributeValue::Date(timestamp.to_string()));
+    attrs.insert(
+        "concept:name".to_string(),
+        AttributeValue::String(activity.to_string()),
+    );
+    attrs.insert(
+        "time:timestamp".to_string(),
+        AttributeValue::Date(timestamp.to_string()),
+    );
     if let Some(r) = resource {
         attrs.insert("org:resource".to_string(), AttributeValue::String(r));
     }
@@ -227,6 +257,7 @@ fn append_event(log: &mut EventLog, case_id: &str, activity: &str, timestamp: &s
     if let Some(trace) = log.traces.iter_mut().find(|t| t.case_id == case_id) {
         trace.events.push(new_event);
     } else {
-        log.traces.push(Trace::new(case_id.to_string(), vec![new_event]));
+        log.traces
+            .push(Trace::new(case_id.to_string(), vec![new_event]));
     }
 }
