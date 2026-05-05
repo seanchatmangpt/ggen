@@ -22,6 +22,7 @@ pub struct RouteOutput {
 pub fn route(payload: Option<String>) -> VerbResult<RouteOutput> {
     use a2a_generated::converged::ConvergedMessage;
     use a2a_generated::handlers::HandlerFactory;
+    use tracing::{info, info_span, Instrument};
 
     let payload_str = payload.unwrap_or_else(|| "{\"test\": \"v26.5.4\"}".to_string());
 
@@ -36,17 +37,37 @@ pub fn route(payload: Option<String>) -> VerbResult<RouteOutput> {
             payload_str,
         );
 
-        // 3. Execute real routing logic
-        let result = router.route(&message).await.map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Routing failed: {:?}", e))
-        })?;
+        // 3. Execute real routing logic with instrumentation
+        let span = info_span!(
+            "telco_route",
+            msg_id = %message.message_id,
+            source = %message.source,
+            target = ?message.target,
+            otel.kind = "client"
+        );
+
+        let result = async {
+            info!("Initiating A2A routing cycle");
+            router.route(&message).await.map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Routing failed: {:?}", e))
+            })
+        }
+        .instrument(span)
+        .await?;
 
         // 4. Extract real trace_id and metrics
+        // In Vision 2030, the trace_id must be tied to the causal message_id
         let trace_id = Some(format!("trace-{}", message.message_id));
+
+        info!(
+            status = ?result.status,
+            ops = result.metrics.operations,
+            "Routing cycle complete"
+        );
 
         Ok(RouteOutput {
             status: format!("{:?}", result.status),
-            message: format!("Routed via {}", result.metrics.operations),
+            message: format!("Routed via {} ops", result.metrics.operations),
             trace_id,
         })
     })

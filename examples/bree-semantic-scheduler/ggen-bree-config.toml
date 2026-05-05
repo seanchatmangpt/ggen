@@ -41,17 +41,17 @@ WHERE {
 
 [entities.generation.javascript]
 template = "templates/bree-instance.js.tera"
-output_file = "generated/bree-instance.js"
+output_file = "src/bree-instance.js"
 output_format = "javascript"
 
 [entities.generation.typescript]
 template = "templates/bree-instance.ts.tera"
-output_file = "generated/bree-instance.ts"
+output_file = "src/bree-instance.ts"
 output_format = "typescript"
 
 [entities.generation.config]
 template = "templates/bree-instance-config.json.tera"
-output_file = "generated/bree-instance-config.json"
+output_file = "src/bree-instance-config.json"
 output_format = "json"
 
 # ============================================================================
@@ -73,12 +73,12 @@ WHERE {
 
 [entities.generation.definition]
 template = "templates/job-definition.js.tera"
-output_file = "generated/jobs/{name}.definition.js"
+output_file = "src/jobs/{name}.definition.js"
 output_format = "javascript"
 
 [entities.generation.executor]
 template = "templates/job-executor.js.tera"
-output_file = "generated/job-executor-{name}.js"
+output_file = "src/job-executor-{name}.js"
 output_format = "javascript"
 
 # ============================================================================
@@ -126,7 +126,7 @@ WHERE {
 
 [transformations.generation]
 template = "templates/citty-command.js.tera"
-output_file = "generated/citty-commands/{jobName}-command.js"
+output_file = "src/citty-commands/{jobName}-command.js"
 output_format = "javascript"
 
 # ============================================================================
@@ -191,7 +191,7 @@ cli_reference = "cli-reference.md.tera"
 # ============================================================================
 [output]
 structure = """
-generated/
+src/
 ├── bree-instance.js          # Main Bree instance
 ├── bree-instance.ts          # TypeScript definitions
 ├── bree-instance-config.json # Configuration JSON

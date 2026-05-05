@@ -49,7 +49,7 @@ purpose = "architecture"
 
 [templates]
 base_path = "templates/mcp-board-report"
-output_path = "generated/mcp-board-report"
+output_path = "src/mcp-board-report"
 
 # Erlang OTP Templates
 [[templates.files]]

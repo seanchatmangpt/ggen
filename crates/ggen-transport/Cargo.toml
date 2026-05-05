@@ -29,8 +29,3 @@ integration = []
 tokio-test = "0.4"
 mockito = "1.6"
 proptest = "1.6"
-
-[[test]]
-name = "mcp_test"
-path = "tests/mcp_test.rs"
-required-features = ["integration"]

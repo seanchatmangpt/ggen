@@ -55,7 +55,7 @@ Phase 5: ggen-marketplace, ggen-a2a, ggen-transport
 Phase 6: ggen-a2a-registry, ggen-a2a-mcp, a2a-generated
 Phase 7: ggen-cli-validation, ggen-config-clap
 Phase 8: ggen-dspy, ggen-yawl
-Phase 9: ggen-process-mining
+Phase 9: native pictl process mining
 Phase 10: ggen-node (skip if napi issues)
 Phase 11: ggen-cli
 Phase 12: ggen (binary)

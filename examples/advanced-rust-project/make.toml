@@ -11,10 +11,10 @@ author = "ggen-examples"
 [lifecycle.init]
 description = "Initialize project structure and dependencies"
 commands = [
-  "mkdir -p generated/{src,api,database,docs}",
+  "mkdir -p src/{src,api,database,docs}",
   "mkdir -p data/{domain,api,database}",
   "mkdir -p scripts/{build,deploy,test}",
-  "if [ ! -f generated/Cargo.toml ]; then cargo init --name advanced-rust-project generated/; fi",
+  "if [ ! -f src/Cargo.toml ]; then cargo init --name advanced-rust-project src/; fi",
   "echo 'Project initialized successfully'",
 ]
 watch = true
@@ -34,11 +34,11 @@ cache = true
 [lifecycle.generate]
 description = "Generate code using AI and templates"
 commands = [
-  "mkdir -p generated/src/services generated/src/api generated/src/database generated/docs",
-  "../../target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
-  "../../target/release/ggen ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
-  "../../target/release/ggen ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
-  "../../target/release/ggen ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
+  "mkdir -p src/src/services src/src/api src/src/database src/docs",
+  "../../target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output src/src/services/user_service.rs --mock",
+  "../../target/release/ggen ai generate --description 'REST API endpoint for user management' --output src/src/api/users.rs --mock",
+  "../../target/release/ggen ai generate --description 'Database schema and models for user system' --output src/src/database/schema.rs --mock",
+  "../../target/release/ggen ai generate --description 'API documentation for user service' --output src/docs/api.md --mock",
   "echo 'Code generation completed'",
 ]
 depends_on = ["setup"]

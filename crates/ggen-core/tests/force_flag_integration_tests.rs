@@ -13,7 +13,7 @@ use tempfile::TempDir;
 #[test]
 fn test_protected_paths_blocked_by_validation() {
     // Arrange: Create protection config with protected paths
-    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/**"])
         .expect("Failed to create protection config");
 
     // Act: Try to validate write to protected path
@@ -37,11 +37,11 @@ fn test_protected_paths_blocked_by_validation() {
 #[test]
 fn test_regeneratable_paths_allow_writes() {
     // Arrange: Create protection config with regenerate paths
-    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/**"])
         .expect("Failed to create protection config");
 
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let regenerate_file = temp_dir.path().join("src/generated/user_generated.rs");
+    let regenerate_file = temp_dir.path().join("src/user_generated.rs");
 
     fs::create_dir_all(regenerate_file.parent().unwrap()).expect("Failed to create generated dir");
 
@@ -50,7 +50,7 @@ fn test_regeneratable_paths_allow_writes() {
         .expect("Failed to write regeneratable file");
 
     // Act: Validate write to regeneratable path (should succeed WITHOUT force)
-    let result_without_force = protection.validate_write("src/generated/user_generated.rs", true);
+    let result_without_force = protection.validate_write("src/user_generated.rs", true);
 
     // Assert: Regeneratable paths should allow overwrite without force
     assert!(

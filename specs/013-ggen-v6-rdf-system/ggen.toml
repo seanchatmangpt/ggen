@@ -132,7 +132,7 @@ WHERE {
 ORDER BY ?storyIndex ?scenarioIndex ?requirementId ?criterionId ?entityName
 """
 template = "templates/spec.tera"
-output = "generated/spec.md"
+output = "src/spec.md"
 
 # ----------------------------------------------------------------------------
 # SHACL Validation Configuration (μ₁ Pass)
@@ -183,4 +183,4 @@ max_line_length = 0
 [v6.receipt]
 enabled = true
 algorithm = "SHA-256"
-output_file = "generated/.receipt.json"
+output_file = "src/.receipt.json"

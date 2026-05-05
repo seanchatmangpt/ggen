@@ -47,7 +47,7 @@ Full public API surface derived from LSP `documentSymbol` sweep of all workspace
 | `ggen-receipt` | Cryptographic receipts (Ed25519) | `Receipt`, `ReceiptChain`, `generate_keypair()`, `hash_data()`, `sign()`, `verify()` |
 | `ggen-yawl` | YAWL workflow gen from industry ontologies | `YawlGenerator`, `YawlXmlGenerator`, `ConstructExecutor`, `OntologyLoader` |
 | `ggen-craftplan` | RDF → Elixir codegen (5-stage μ pipeline) | `CodeGenerator`, `generate_from_rdf()`, `with_receipts()` |
-| `ggen-process-mining` | Process mining (Alpha++, XES/OCEL, PetriNet) | `ProcessMiner`, `AlphaPlusPlus`, `PetriNet`, `EventLog`, `ConformanceChecker`, `XesParser`, `OcelParser` |
+| `pictl-algos` | Native high-performance process mining via pictl | `discover_alpha`, `check_conformance_alignment`, `EventLog`, `PetriNet` |
 
 #### TPS (Toyota Production System)
 

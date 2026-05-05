@@ -93,7 +93,7 @@ pub struct SyncOptions {
     pub ontology_path: Option<PathBuf>,
 
     /// Optional LLM service for auto-generating skill implementations
-    /// If None, uses default TODO stub generator
+    /// If None, uses default TemplateFallback generator
     /// Note: Box<dyn LlmService> avoids cyclic dependency with ggen-ai
     pub llm_service: Option<Box<dyn LlmService>>,
 
@@ -263,7 +263,7 @@ impl SyncExecutor {
     /// Set LLM service for auto-generating skill implementations
     ///
     /// # Arguments
-    /// * `service` - Optional boxed LLM service (None = use default TODO stubs)
+    /// * `service` - Optional boxed LLM service (None = use fallback generators)
     pub fn with_llm_service(mut self, service: Option<Box<dyn LlmService>>) -> Self {
         self.options.llm_service = service;
         self

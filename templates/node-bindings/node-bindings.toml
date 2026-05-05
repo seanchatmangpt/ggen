@@ -120,6 +120,6 @@ scripts = [
 
 [lifecycle.phases.post_generate]
 scripts = [
-    "cd generated/node-bindings && npm install",
-    "cd generated/node-bindings && npm run build"
+    "cd src/node-bindings && npm install",
+    "cd src/node-bindings && npm run build"
 ]

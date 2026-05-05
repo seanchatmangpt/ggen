@@ -174,49 +174,91 @@ async fn check_cache() -> Result<CheckResult> {
 
 /// Check Observability Stack health (Anti-Cheating Gate)
 async fn check_observability() -> Result<CheckResult> {
-    use std::net::TcpStream;
+    use reqwest::Client;
     use std::time::Duration;
 
-    // Standard OTel/Tempo/Jaeger ports
-    let targets = [
-        ("OTel Collector (gRPC)", "127.0.0.1:4317"),
-        ("Tempo (HTTP)", "127.0.0.1:3200"),
-    ];
+    let client = Client::builder()
+        .timeout(Duration::from_millis(500))
+        .build()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to build HTTP client: {}", e)))?;
+
+    // 1. Check Tempo Health (Deep Check)
+    let tempo_url = "http://127.0.0.1:3200/ready";
+    let tempo_status = client.get(tempo_url).send().await;
+
+    // 2. Check OTel Health Check extension (standard port 13133)
+    let otel_url = "http://127.0.0.1:13133/";
+    let otel_status = client.get(otel_url).send().await;
 
     let mut reachable = Vec::new();
-    let mut unreachable = Vec::new();
+    let mut failures = Vec::new();
 
-    for (name, addr) in targets {
-        if TcpStream::connect_timeout(&addr.parse().unwrap(), Duration::from_millis(100)).is_ok() {
-            reachable.push(name);
-        } else {
-            unreachable.push(name);
+    match tempo_status {
+        Ok(resp) if resp.status().is_success() => {
+            reachable.push("Tempo (API)");
+        }
+        Ok(resp) => {
+            failures.push(format!("Tempo returned {}", resp.status()));
+        }
+        Err(_) => {
+            failures.push("Tempo unreachable (port 3200)".to_string());
         }
     }
 
-    if unreachable.is_empty() {
+    match otel_status {
+        Ok(resp) if resp.status().is_success() => {
+            reachable.push("OTel Collector (Health)");
+        }
+        Ok(resp) => {
+            failures.push(format!("OTel Collector returned {}", resp.status()));
+        }
+        Err(_) => {
+            failures.push("OTel Collector unreachable (port 13133)".to_string());
+        }
+    }
+
+    // 3. Evidence Check: Fetch recent traces from Tempo (The "Un-fakeable" Proof)
+    let mut trace_evidence = false;
+    if reachable.contains(&"Tempo (API)") {
+        let query_url = "http://127.0.0.1:3200/api/search?limit=1&start=now-10m";
+        if let Ok(resp) = client.get(query_url).send().await {
+            if let Ok(text) = resp.text().await {
+                if text.contains("traceID") {
+                    trace_evidence = true;
+                }
+            }
+        }
+    }
+
+    if reachable.len() == 2 && trace_evidence {
         Ok(CheckResult {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Ok,
-            message: "All observability services are reachable on localhost".to_string(),
+            message: "All services healthy. Recent trace evidence confirmed in Tempo.".to_string(),
         })
     } else if reachable.is_empty() {
         Ok(CheckResult {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Warning,
             message: format!(
-                "No local observability services found (tried: {}). Chicago TDD tests will skip boundary validation.",
-                unreachable.join(", ")
+                "No observability services found (tried: Tempo, OTel). Errors: {}",
+                failures.join(", ")
             ),
         })
     } else {
+        let evidence_msg = if trace_evidence {
+            "Traces confirmed."
+        } else {
+            "NO recent trace evidence found (system might be failing to emit)."
+        };
         Ok(CheckResult {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Warning,
             message: format!(
-                "Partial observability: {} reachable, {} unreachable.",
+                "Partial health: {}. {}. {}",
                 reachable.join(", "),
-                unreachable.join(", ")
+                failures.join(", "),
+                evidence_msg
             ),
         })
     }
@@ -226,39 +268,70 @@ async fn check_observability() -> Result<CheckResult> {
 async fn check_slo() -> Result<CheckResult> {
     use ggen_core::v6::vocabulary::VocabularyRegistry;
     use std::collections::BTreeSet;
-    use std::time::Instant;
+    use std::time::{Duration, Instant};
+    use rayon::prelude::*;
+    use oxigraph::store::Store;
+    use oxigraph::model::*;
 
-    let start = Instant::now();
+    let total_start = Instant::now();
 
-    // Deep SLO Check: Execute a full Vocabulary Validation Cycle
-    // This measures the real architectural bottleneck of the v6 pipeline.
+    // 1. Vocabulary Registry Contention Test
+    let vocab_start = Instant::now();
     let registry = VocabularyRegistry::with_standard_vocabularies();
-
-    // Test a synthetic set of 10 namespaces to measure resolution latency
     let mut test_ns = BTreeSet::new();
     test_ns.insert("http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
     test_ns.insert("http://www.w3.org/2000/01/rdf-schema#".to_string());
     test_ns.insert("http://www.w3.org/2002/07/owl#".to_string());
     test_ns.insert("http://ggen.dev/v6#".to_string());
-    test_ns.insert("https://ggen.io/marketplace/".to_string());
-    test_ns.insert("http://www.w3.org/2001/XMLSchema#".to_string());
-    test_ns.insert("http://www.w3.org/ns/shacl#".to_string());
-    test_ns.insert("https://schema.org/".to_string());
-    test_ns.insert("http://purl.org/dc/terms/".to_string());
-    test_ns.insert("http://xmlns.com/foaf/0.1/".to_string());
+    
+    // Stress test: 1000 parallel lookups to measure lock contention
+    (0..1000).into_par_iter().for_each(|_| {
+        let _ = registry.validate_namespaces(&test_ns);
+    });
+    let vocab_duration = vocab_start.elapsed();
 
-    let _ = registry.validate_namespaces(&test_ns);
+    // 2. RDF Graph Synthesis Throughput Test (Oxigraph)
+    let graph_start = Instant::now();
+    let store = Store::new().map_err(|e| ggen_utils::error::Error::new(&format!("Graph error: {}", e)))?;
+    for i in 0..2000 {
+        let s = NamedNode::new(format!("http://ggen.io/s{}", i)).unwrap();
+        let p = NamedNode::new("http://ggen.io/p").unwrap();
+        let o = Literal::from(i);
+        store.insert(&Quad::new(s, p, o, GraphName::DefaultGraph)).unwrap();
+    }
+    let graph_duration = graph_start.elapsed();
 
-    let duration = start.elapsed();
-    let limit = std::time::Duration::from_millis(10);
+    // 3. Template Rendering Bottleneck Test (Tera)
+    let template_start = Instant::now();
+    let mut tera = tera::Tera::default();
+    let mut context = tera::Context::new();
+    context.insert("name", "GGen Doctor");
+    context.insert("items", &(0..100).collect::<Vec<i32>>());
+    let template = "Hello {{ name }}! Count: {% for i in items %}{{ i }}{% if not loop.last %}, {% endif %}{% endfor %}";
+    for _ in 0..500 {
+        let _ = tera.render_str(template, &context).unwrap();
+    }
+    let template_duration = template_start.elapsed();
 
-    if duration < limit {
+    let total_duration = total_start.elapsed();
+
+    // SLO Thresholds (Vision 2030 Standards)
+    let vocab_limit = Duration::from_millis(50);
+    let graph_limit = Duration::from_millis(100);
+    let template_limit = Duration::from_millis(150);
+
+    let mut violations = Vec::new();
+    if vocab_duration > vocab_limit { violations.push(format!("Vocab Registry slow ({:?})", vocab_duration)); }
+    if graph_duration > graph_limit { violations.push(format!("Graph Synthesis slow ({:?})", graph_duration)); }
+    if template_duration > template_limit { violations.push(format!("Template Rendering slow ({:?})", template_duration)); }
+
+    if violations.is_empty() {
         Ok(CheckResult {
             name: "SLO Performance".to_string(),
             status: CheckStatus::Ok,
             message: format!(
-                "Vocabulary validation latency: {:?} (< 10ms target)",
-                duration
+                "Architectural benchmarks passed. Total: {:?}. (Vocab: {:?}, Graph: {:?}, Template: {:?})",
+                total_duration, vocab_duration, graph_duration, template_duration
             ),
         })
     } else {
@@ -266,8 +339,9 @@ async fn check_slo() -> Result<CheckResult> {
             name: "SLO Performance".to_string(),
             status: CheckStatus::Warning,
             message: format!(
-                "Vocabulary validation latency: {:?} exceeds 10ms target (Vision 2030 violation)",
-                duration
+                "SLO Violations: {}. Total: {:?}.",
+                violations.join(", "),
+                total_duration
             ),
         })
     }

@@ -1,6 +1,6 @@
 [package]
 name = "pictl-types"
-version.workspace = true
+version = "26.5.4"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Binary data structures for pictl process mining platform"

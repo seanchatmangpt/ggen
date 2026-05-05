@@ -284,6 +284,6 @@ output = "risks.md"
 #   μ₄: Canonicalize output (normalize whitespace)
 #   μ₅: Generate cryptographic receipt
 #
-# Output: generated/spec.md = μ(ontology)
-# Provenance: generated/.receipt.json proves spec.md derived from RDF
+# Output: src/spec.md = μ(ontology)
+# Provenance: src/.receipt.json proves spec.md derived from RDF
 # ============================================================================

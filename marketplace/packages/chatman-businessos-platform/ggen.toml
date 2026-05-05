@@ -41,19 +41,19 @@ directory = "templates"
 [[templates.patterns]]
 name = "go-service"
 template = "service.go.tera"
-output = "generated/services/{{service_name}}.go"
+output = "src/services/{{service_name}}.go"
 description = "Generate Go service code"
 
 [[templates.patterns]]
 name = "dockerfile"
 template = "Dockerfile.tera"
-output = "generated/docker/{{service_name}}/Dockerfile"
+output = "src/docker/{{service_name}}/Dockerfile"
 description = "Generate multi-stage Dockerfile"
 
 [[templates.patterns]]
 name = "k8s-deployment"
 template = "k8s-deployment.yaml.tera"
-output = "generated/k8s/{{service_name}}-deployment.yaml"
+output = "src/k8s/{{service_name}}-deployment.yaml"
 description = "Generate Kubernetes Deployment manifest"
 
 # ─────────────────────────────────────────────────────────────────────────────

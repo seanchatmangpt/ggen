@@ -192,18 +192,18 @@ enabled = true
 rules = [
     # A2A-RS Pipeline (μ₁-μ₅): Agent-to-Agent code generation from RDF ontology
     # Each rule follows the pattern: query → template → output_file
-    { name = "a2a-agents", query = { file = "crates/ggen-core/queries/a2a/construct-agents.rq" }, template = { file = "crates/ggen-core/templates/a2a/agent.rs.tera" }, output_file = "crates/a2a-generated/src/agent.rs", mode = "Overwrite" },
-    { name = "a2a-messages", query = { file = "crates/ggen-core/queries/a2a/extract-messages.rq" }, template = { file = "crates/ggen-core/templates/a2a/message.rs.tera" }, output_file = "crates/a2a-generated/src/message.rs", mode = "Overwrite" },
-    { name = "a2a-tasks", query = { file = "crates/ggen-core/queries/a2a/extract-tasks.rq" }, template = { file = "crates/ggen-core/templates/a2a/task.rs.tera" }, output_file = "crates/a2a-generated/src/task.rs", mode = "Overwrite" },
-    { name = "a2a-transports", query = { file = "crates/ggen-core/queries/a2a/extract-transports.rq" }, template = { file = "crates/ggen-core/templates/a2a/transport.rs.tera" }, output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
-    { name = "a2a-skills", query = { file = "crates/ggen-core/queries/a2a/extract-skills.rq" }, template = { file = "crates/ggen-core/templates/a2a/skill.rs.tera" }, output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
-    { name = "a2a-lib", query = { file = "" }, template = { file = "crates/ggen-core/templates/a2a/lib.rs.tera" }, output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
+    { name = "a2a-agents", query = { file = "crates/ggen-core/queries/a2a/construct-agents.rq" }, template = { file = "crates/ggen-core/templates/a2a/agent.rs.tera" }, output_file = "crates/a2a-src/src/agent.rs", mode = "Overwrite" },
+    { name = "a2a-messages", query = { file = "crates/ggen-core/queries/a2a/extract-messages.rq" }, template = { file = "crates/ggen-core/templates/a2a/message.rs.tera" }, output_file = "crates/a2a-src/src/message.rs", mode = "Overwrite" },
+    { name = "a2a-tasks", query = { file = "crates/ggen-core/queries/a2a/extract-tasks.rq" }, template = { file = "crates/ggen-core/templates/a2a/task.rs.tera" }, output_file = "crates/a2a-src/src/task.rs", mode = "Overwrite" },
+    { name = "a2a-transports", query = { file = "crates/ggen-core/queries/a2a/extract-transports.rq" }, template = { file = "crates/ggen-core/templates/a2a/transport.rs.tera" }, output_file = "crates/a2a-src/src/transport.rs", mode = "Overwrite" },
+    { name = "a2a-skills", query = { file = "crates/ggen-core/queries/a2a/extract-skills.rq" }, template = { file = "crates/ggen-core/templates/a2a/skill.rs.tera" }, output_file = "crates/a2a-src/src/skill.rs", mode = "Overwrite" },
+    { name = "a2a-lib", query = { file = "" }, template = { file = "crates/ggen-core/templates/a2a/lib.rs.tera" }, output_file = "crates/a2a-src/src/lib.rs", mode = "Overwrite" },
     # ── Elixir A2A ──────────────────────────────────────────────────────────────
     # Generates idiomatic Elixir boilerplate using the a2a ~> 0.2 hex package.
     # Define agents in RDF with a2a:Agent nodes, then run: ggen sync
-    { name = "elixir-a2a-agents", query = { file = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq" }, template = { file = "crates/ggen-core/templates/elixir-a2a/agents.ex.tera" }, output_file = "crates/elixir-a2a-generated/lib/a2a_agents.ex", mode = "Overwrite" },
-    { name = "elixir-a2a-router", query = { file = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq" }, template = { file = "crates/ggen-core/templates/elixir-a2a/router.ex.tera" }, output_file = "crates/elixir-a2a-generated/lib/a2a_router.ex", mode = "Overwrite" },
-    { name = "elixir-a2a-supervisor", query = { file = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq" }, template = { file = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera" }, output_file = "crates/elixir-a2a-generated/lib/a2a_supervisor.ex", mode = "Overwrite" }
+    { name = "elixir-a2a-agents", query = { file = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq" }, template = { file = "crates/ggen-core/templates/elixir-a2a/agents.ex.tera" }, output_file = "crates/elixir-a2a-src/lib/a2a_agents.ex", mode = "Overwrite" },
+    { name = "elixir-a2a-router", query = { file = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq" }, template = { file = "crates/ggen-core/templates/elixir-a2a/router.ex.tera" }, output_file = "crates/elixir-a2a-src/lib/a2a_router.ex", mode = "Overwrite" },
+    { name = "elixir-a2a-supervisor", query = { file = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq" }, template = { file = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera" }, output_file = "crates/elixir-a2a-src/lib/a2a_supervisor.ex", mode = "Overwrite" }
 ]
 
 # Protected paths (glob patterns) - NEVER overwrite
@@ -217,8 +217,8 @@ protected_paths = [
 # Regeneratable paths (glob patterns) - safe to overwrite
 # These contain generated scaffolding from templates
 regenerate_paths = [
-    "src/generated/**",
-    "crates/*/src/generated/**",
+    "src/src/**",
+    "crates/*/src/src/**",
 ]
 
 # Header to inject into generated files

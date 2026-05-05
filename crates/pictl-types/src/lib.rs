@@ -26,4 +26,4 @@ pub use models::{
 pub use ocel::{OCELEvent, OCELObject, OCEL};
 pub use provenance::ProvenanceChain;
 
-pub const VERSION: &str = "26.4.10";
+pub const VERSION: &str = "26.5.4";

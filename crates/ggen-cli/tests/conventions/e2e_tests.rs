@@ -572,23 +572,23 @@ pub struct {{model.label}} {
 
     // Verify isolation and correct routing
     assert!(project_path
-        .join("generated/commands/import_command.rs")
+        .join("src/commands/import_command.rs")
         .exists());
     assert!(project_path
-        .join("generated/api_endpoints/users_handler.rs")
+        .join("src/api_endpoints/users_handler.rs")
         .exists());
-    assert!(project_path.join("generated/models/user.rs").exists());
+    assert!(project_path.join("src/models/user.rs").exists());
 
     // Verify content correctness
     let command_content =
-        fs::read_to_string(project_path.join("generated/commands/import_command.rs")).unwrap();
+        fs::read_to_string(project_path.join("src/commands/import_command.rs")).unwrap();
     assert!(command_content.contains("pub struct ImportCommand"));
 
     let api_content =
-        fs::read_to_string(project_path.join("generated/api_endpoints/users_handler.rs")).unwrap();
+        fs::read_to_string(project_path.join("src/api_endpoints/users_handler.rs")).unwrap();
     assert!(api_content.contains("/api/users"));
 
-    let model_content = fs::read_to_string(project_path.join("generated/models/user.rs")).unwrap();
+    let model_content = fs::read_to_string(project_path.join("src/models/user.rs")).unwrap();
     assert!(model_content.contains("pub struct User"));
     assert!(model_content.contains("pub id: u64"));
     assert!(model_content.contains("pub username: String"));

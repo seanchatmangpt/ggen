@@ -26,7 +26,7 @@ output_dir = "crates/ggen-cli/src"
 name = "extract-commands"
 query = ".specify/queries/cli/commands.rq"
 template = ".specify/templates/cli/main.rs.tera"
-output = "generated/generated_commands.rs"
+output = "src/commands.rs"
 
 # ---------------------------------------------------------------------------
 # Stage 2: Extract subcommand details (options, arguments, constraints)
@@ -66,7 +66,7 @@ query = ".specify/queries/cli/constraints.rq"
 name = "extract-help"
 query = ".specify/queries/cli/help.rq"
 template = ".specify/templates/cli/help.rs.tera"
-output = "generated/generated_help.rs"
+output = "src/help.rs"
 
 [generation.validation]
 shacl = ".specify/ontology/cli-ggen-shacl.ttl"

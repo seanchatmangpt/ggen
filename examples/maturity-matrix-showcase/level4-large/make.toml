@@ -5,7 +5,7 @@ version = "1.0.0"
 [lifecycle.init]
 description = "Initialize large project structure"
 commands = [
-    "mkdir -p generated/{workspaces,services,infrastructure}",
+    "mkdir -p src/{workspaces,services,infrastructure}",
     "echo 'Large project initialized'"
 ]
 

@@ -5,7 +5,7 @@ version = "1.0.0"
 [lifecycle.init]
 description = "Initialize enterprise project"
 commands = [
-    "mkdir -p generated/{tenants,services,infrastructure,monitoring}",
+    "mkdir -p src/{tenants,services,infrastructure,monitoring}",
     "echo 'Enterprise project initialized'"
 ]
 

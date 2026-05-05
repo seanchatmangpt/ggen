@@ -20,9 +20,9 @@ mysql = "templates/mysql/schema.sql.tera"
 sqlite = "templates/sqlite/schema.sql.tera"
 
 [outputs]
-postgresql = "generated/postgresql/"
-mysql = "generated/mysql/"
-sqlite = "generated/sqlite/"
+postgresql = "src/postgresql/"
+mysql = "src/mysql/"
+sqlite = "src/sqlite/"
 
 [dependencies]
 oxigraph = "0.3"

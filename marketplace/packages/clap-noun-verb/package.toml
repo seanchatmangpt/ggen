@@ -85,7 +85,7 @@ protected_paths = [
 
 # Regeneration targets: can be blown away and regenerated freely
 regenerate_paths = [
-    "src/generated/",
+    "src/src/",
 ]
 
 # Validation before generation
@@ -119,7 +119,7 @@ ci_checks = [
 
 # Git controls (Physical Controls)
 gitignore_patterns = [
-    "src/generated/",          # Never commit generated code
+    "src/src/",          # Never commit generated code
 ]
 
 [fmea]
@@ -146,7 +146,7 @@ ggen generate \\
 ggen generate \\
   --template clap-noun-verb/templates/generated-traits.tmpl \\
   --domain ontology/cli.ttl \\
-  --output ./my-cli/src/generated/ \\
+  --output ./my-cli/src/src/ \\
   --force
 """
 
@@ -161,8 +161,8 @@ user:suspend a cnv:Verb ;
     cnv:hasArguments user:suspend_id, user:suspend_reason .
 EOF
 
-# 2. Regenerate generated/ (domain untouched)
-ggen generate --domain ontology/cli.ttl --output src/generated/ --force
+# 2. Regenerate src/ (domain untouched)
+ggen generate --domain ontology/cli.ttl --output src/src/ --force
 
 # 3. Implement domain logic (new file = no merge conflict)
 # src/domain/user/suspend.rs - implement UserCommands::suspend()

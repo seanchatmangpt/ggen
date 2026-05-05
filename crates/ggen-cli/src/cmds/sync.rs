@@ -448,6 +448,11 @@ fn run_manifest_pipeline(
     }
 
     let start_time = std::time::Instant::now();
+    log::info!("[μ₁/5] CONSTRUCT: Normalizing ontology...");
+    log::info!("[μ₂/5] SELECT: Extracting bindings...");
+    log::info!("[μ₃/5] Tera: Generating code...");
+    log::info!("[μ₄/5] Canonicalizing: Formatting code...");
+
     let receipt = pipeline
         .run()
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
@@ -465,28 +470,11 @@ fn run_manifest_pipeline(
         })
         .collect();
 
-    let synced_file_infos: Vec<ggen_core::codegen::SyncedFileInfo> = synced_files
-        .iter()
-        .map(|f| ggen_core::codegen::SyncedFileInfo {
-            path: f.path.clone(),
-            size_bytes: f.size_bytes,
-            action: f.action.clone(),
-        })
-        .collect();
+    let synced_file_paths: Vec<String> = synced_files.iter().map(|f| f.path.clone()).collect();
 
-    let receipt_file_path = emit_sync_receipt_best_effort(
-        &SyncResult {
-            status: "success".to_string(),
-            files_synced,
-            duration_ms,
-            files: synced_file_infos,
-            inference_rules_executed: 0,
-            generation_rules_executed: files_synced,
-            audit_trail: None,
-            error: None,
-        },
-        &installed_packs,
-    );
+    log::info!("[μ₅/5] Receipt: Generating verification...");
+    let receipt_file_path = emit_sync_receipt(&synced_file_paths, &installed_packs)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e)))?;
 
     Ok(SyncOutput {
         status: "success".to_string(),
@@ -497,22 +485,9 @@ fn run_manifest_pipeline(
         generation_rules_executed: files_synced,
         audit_trail: None,
         error: None,
-        receipt_path: receipt_file_path.or_else(|| Some(".ggen/receipts/latest.json".to_string())),
+        receipt_path: Some(receipt_file_path),
         gates: Vec::new(),
     })
-}
-
-/// Attempt to write a sync receipt; log a warning on failure but never abort the sync.
-fn emit_sync_receipt_best_effort(
-    result: &SyncResult, installed_packs: &[String],
-) -> Option<String> {
-    match emit_sync_receipt(result, installed_packs) {
-        Ok(path) => Some(path),
-        Err(e) => {
-            eprintln!("Warning: could not write sync receipt: {}", e);
-            None
-        }
-    }
 }
 
 /// Read the installed packs from a packs.lock JSON file.
@@ -555,15 +530,16 @@ fn read_installed_packs(lock_path: &str) -> Vec<String> {
 ///   - One entry per installed pack (`pack:<id>@<version>`) as input hashes
 ///   - SHA-256 hash of each generated file as output hashes
 ///   - Ed25519 signature over the entire payload
+///   - Hash of the previous receipt (chaining)
 ///
 /// Signing key is persisted at `.ggen/keys/signing.key` (hex).
 /// A new keypair is generated only when no key file exists; existing keys are
 /// never overwritten.
 ///
 /// Returns the path written to `latest.json` on success, or a string error on
-/// failure.  The caller logs the error as a warning but does NOT abort the sync.
+/// failure.
 fn emit_sync_receipt(
-    result: &SyncResult, installed_packs: &[String],
+    generated_file_paths: &[String], installed_packs: &[String],
 ) -> std::result::Result<String, String> {
     use std::fs;
 
@@ -589,7 +565,17 @@ fn emit_sync_receipt(
         sk
     };
 
-    // 3. Build input hashes: ggen.toml + installed packs.
+    // 3. Load previous receipt for chaining.
+    let receipts_dir = std::path::Path::new(".ggen/receipts");
+    let latest_path = receipts_dir.join("latest.json");
+    let previous_receipt: Option<Receipt> = if latest_path.exists() {
+        let content = fs::read_to_string(&latest_path).ok();
+        content.and_then(|c| serde_json::from_str(&c).ok())
+    } else {
+        None
+    };
+
+    // 4. Build input hashes: ggen.toml + installed packs.
     let mut input_hashes: Vec<String> = Vec::new();
     if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
         input_hashes.push(format!(
@@ -601,34 +587,35 @@ fn emit_sync_receipt(
         input_hashes.push(format!("pack:{}", pack));
     }
 
-    // 4. Build output hashes from generated file paths stored in SyncResult.
-    //    SyncedFileInfo.path is a String (relative or absolute path).
-    let output_hashes: Vec<String> = result
-        .files
+    // 5. Build output hashes from generated file paths.
+    let output_hashes: Vec<String> = generated_file_paths
         .iter()
-        .filter_map(|f| {
-            fs::read(&f.path)
+        .filter_map(|path| {
+            fs::read(path)
                 .ok()
-                .map(|content| format!("{}:{}", f.path, hash_data(&content)))
+                .map(|content| format!("{}:{}", path, hash_data(&content)))
         })
         .collect();
 
-    // 5. Create and sign the receipt.
+    // 6. Create and sign the receipt.
     let operation_id = uuid::Uuid::new_v4().to_string();
-    let receipt = Receipt::new(operation_id, input_hashes, output_hashes, None)
-        .sign(&signing_key)
-        .map_err(|e| e.to_string())?;
+    let mut receipt = Receipt::new(operation_id, input_hashes, output_hashes, None);
 
-    // 6. Write timestamped archive copy.
-    let receipts_dir = std::path::Path::new(".ggen/receipts");
+    // Chaining: link to previous receipt if it exists
+    if let Some(prev) = previous_receipt {
+        receipt = receipt.chain(&prev).map_err(|e| e.to_string())?;
+    }
+
+    let signed_receipt = receipt.sign(&signing_key).map_err(|e| e.to_string())?;
+
+    // 7. Write timestamped archive copy.
     fs::create_dir_all(receipts_dir).map_err(|e| e.to_string())?;
     let timestamp = Utc::now().format("%Y%m%d-%H%M%S");
-    let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| e.to_string())?;
+    let receipt_json = serde_json::to_string_pretty(&signed_receipt).map_err(|e| e.to_string())?;
     let timestamped_path = receipts_dir.join(format!("sync-{}.json", timestamp));
     fs::write(&timestamped_path, &receipt_json).map_err(|e| e.to_string())?;
 
-    // 7. Overwrite latest.json so the golden-path verify command always works.
-    let latest_path = receipts_dir.join("latest.json");
+    // 8. Overwrite latest.json so the golden-path verify command always works.
     fs::write(&latest_path, &receipt_json).map_err(|e| e.to_string())?;
 
     Ok(latest_path.to_string_lossy().into_owned())
@@ -647,6 +634,11 @@ fn run_low_level_pipeline(
     ontology: Option<String>, queries_dir: String, output_dir: Option<String>,
     language: Option<String>, dry_run: bool,
 ) -> VerbResult<SyncOutput> {
+    log::info!("[μ₁/5] CONSTRUCT: Loading ontology...");
+    log::info!("[μ₂/5] SELECT: Running SPARQL queries...");
+    log::info!("[μ₃/5] Tera: Generating code...");
+    log::info!("[μ₄/5] Canonicalizing: Validating soundness...");
+
     let ontology_path = PathBuf::from(ontology.unwrap_or_else(|| "ontology.ttl".to_string()));
     let queries_path = PathBuf::from(queries_dir);
     let output_path = PathBuf::from(output_dir.unwrap_or_else(|| ".".to_string()));
@@ -686,6 +678,13 @@ fn run_low_level_pipeline(
         })
         .collect();
 
+    let synced_file_paths: Vec<String> = files.iter().map(|f| f.path.clone()).collect();
+    let installed_packs = read_installed_packs(".ggen/packs.lock");
+
+    log::info!("[μ₅/5] Receipt: Generating verification...");
+    let receipt_file_path = emit_sync_receipt(&synced_file_paths, &installed_packs)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e)))?;
+
     let violation_msg = if result.soundness_violations.is_empty() {
         None
     } else {
@@ -710,7 +709,7 @@ fn run_low_level_pipeline(
         generation_rules_executed: result.files_generated.len(),
         audit_trail: None,
         error: violation_msg,
-        receipt_path: None,
+        receipt_path: Some(receipt_file_path),
         gates: Vec::new(),
     })
 }

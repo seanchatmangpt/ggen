@@ -12,11 +12,11 @@ author = "ggen-examples"
 description = "Initialize project structure and dependencies"
 commands = [
     "echo '🚀 Initializing comprehensive Rust showcase project...'",
-    "mkdir -p generated/{src/{services,api,database,models,utils},tests,deployment,docs}",
+    "mkdir -p src/{src/{services,api,database,models,utils},tests,deployment,docs}",
     "mkdir -p data/{domain,api,database,queries,validation}",
     "mkdir -p scripts/{build,deploy,test,monitor}",
     "mkdir -p .ggen/{logs,cache,profiles,state}",
-    "cargo init --name comprehensive-rust-showcase generated/",
+    "cargo init --name comprehensive-rust-showcase src/",
     "echo '✅ Project structure initialized'"
 ]
 watch = ["**/*.toml", "**/*.ttl"]
@@ -118,7 +118,7 @@ commands = [
     "echo '🔒 Running security scans...'",
     "cd generated && cargo audit",
     "cd generated && cargo deny check",
-    "ggen security scan generated/",
+    "ggen security scan src/",
     "echo '✅ Security scan completed'"
 ]
 depends_on = ["test"]
@@ -175,8 +175,8 @@ commands = [
 [hooks.after_init]
 commands = [
     "echo '✅ Project initialization completed'",
-    "ls -la generated/",
-    "tree generated/ -I target"
+    "ls -la src/",
+    "tree src/ -I target"
 ]
 
 [hooks.before_setup]
@@ -213,8 +213,8 @@ commands = [
 [hooks.after_generate]
 commands = [
     "echo '✅ Code generation completed'",
-    "find generated/ -name '*.rs' | wc -l",
-    "find generated/ -name '*.md' | wc -l"
+    "find src/ -name '*.rs' | wc -l",
+    "find src/ -name '*.md' | wc -l"
 ]
 
 [hooks.before_build]

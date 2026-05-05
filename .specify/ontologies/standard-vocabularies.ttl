@@ -32,6 +32,10 @@ gv6:StandardVocabulary a owl:Class ;
     gv6:prefix "meta" ;
     rdfs:label "ggen meta-ontology" .
 
+<http://www.w3.org/2001/XMLSchema#> a gv6:StandardVocabulary ;
+    gv6:prefix "xsd" ;
+    rdfs:label "XML Schema Definition" .
+
 <https://ggen.io/marketplace/> a gv6:StandardVocabulary ;
     gv6:prefix "ggen" ;
     rdfs:label "ggen marketplace vocabulary" .

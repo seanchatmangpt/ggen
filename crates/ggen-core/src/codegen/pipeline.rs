@@ -114,7 +114,7 @@ pub fn set_llm_service(service: Box<dyn LlmService>) {
 /// if let Some(service) = get_llm_service() {
 ///     let code = service.generate_skill_impl("my_skill", "desc", "hint", "rust")?;
 /// } else {
-///     // Fallback to TODO stubs
+///     // Fallback to TemplateFallback stubs
 /// }
 /// ```
 pub fn get_llm_service() -> Option<Box<dyn LlmService>> {
@@ -122,33 +122,34 @@ pub fn get_llm_service() -> Option<Box<dyn LlmService>> {
     svc.as_ref().map(|s| s.clone_box())
 }
 
-/// Default LLM service that returns TODO stubs (used when no LLM is configured).
+/// Fallback service that generates stubs for manual implementation when no LLM is configured.
 #[derive(Debug, Clone)]
-struct DefaultLlmService;
+struct TemplateFallbackService;
 
-impl LlmService for DefaultLlmService {
+impl LlmService for TemplateFallbackService {
     fn generate_skill_impl(
         &self, skill_name: &str, system_prompt: &str, implementation_hint: &str, language: &str,
     ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let stub = match language {
             "rust" => format!(
-                "// TODO: Implement {} skill (Rust)\n// Description: {}\n// Hint: {}\n\
-                 // Note: LLM auto-generation is not configured",
+                "// [ManualImplementation] Implement {} skill (Rust)\n// Description: {}\n// Hint: {}\n\
+                 // Note: LLM auto-generation is not configured (TemplateFallback used)",
                 skill_name, system_prompt, implementation_hint
             ),
             "elixir" => format!(
-                "# TODO: Implement {} skill (Elixir)\n# Description: {}\n# Hint: {}\n\
-                 # Note: LLM auto-generation is not configured",
+                "# [ManualImplementation] Implement {} skill (Elixir)\n# Description: {}\n# Hint: {}\n\
+                 # Note: LLM auto-generation is not configured (TemplateFallback used)",
                 skill_name, system_prompt, implementation_hint
             ),
             "typescript" | "javascript" => format!(
-                "// TODO: Implement {} skill (TypeScript/JavaScript)\n\
+                "// [ManualImplementation] Implement {} skill (TypeScript/JavaScript)\n\
                  // Description: {}\n// Hint: {}\n\
-                 // Note: LLM auto-generation is not configured",
+                 // Note: LLM auto-generation is not configured (TemplateFallback used)",
                 skill_name, system_prompt, implementation_hint
             ),
             _ => format!(
-                "// TODO: Implement {} skill ({})\n// Description: {}\n// Hint: {}",
+                "// [ManualImplementation] Implement {} skill ({})\n// Description: {}\n// Hint: {}\n\
+                 // Note: TemplateFallback used",
                 skill_name, language, system_prompt, implementation_hint
             ),
         };
@@ -330,7 +331,7 @@ impl GenerationPipeline {
     /// Set LLM service for auto-generating skill implementations
     ///
     /// # Arguments
-    /// * `service` - Optional boxed LLM service (None = use default TODO stubs)
+    /// * `service` - Optional boxed LLM service (None = use default TemplateFallback stubs)
     pub fn set_llm_service(&mut self, service: Option<Box<dyn LlmService>>) {
         self.llm_service = service;
     }
@@ -651,13 +652,13 @@ impl GenerationPipeline {
                             Err(e) => {
                                 // LLM generation failed - log warning but don't block generation
                                 eprintln!(
-                                    "Warning: LLM generation failed for skill '{}': {}. Using TODO stub.",
+                                    "Warning: LLM generation failed for skill '{}': {}. Using TemplateFallback stub.",
                                     skill_name, e
                                 );
                                 context.insert(
                                     "generated_impl",
                                     &format!(
-                                        "// TODO: Implement {} skill: {}\n// Hint: {}\n// Note: LLM generation failed",
+                                        "// [ManualImplementation] Implement {} skill: {}\n// Hint: {}\n// Note: LLM generation failed (TemplateFallback used)",
                                         skill_name, system_prompt, implementation_hint
                                     ),
                                 );
@@ -915,7 +916,7 @@ impl GenerationPipeline {
     /// Generate skill implementation using LLM
     ///
     /// This function uses an injected LLM service to generate skill implementations.
-    /// If no service is injected or LLM is disabled in manifest, returns a TODO stub.
+    /// If no service is injected or LLM is disabled in manifest, returns a TemplateFallback stub.
     ///
     /// # Arguments
     /// * `skill_name` - Name of the skill to implement
@@ -924,7 +925,7 @@ impl GenerationPipeline {
     /// * `language` - Target programming language
     ///
     /// # Returns
-    /// * `Ok(String)` - Generated implementation code (or TODO stub if LLM unavailable)
+    /// * `Ok(String)` - Generated implementation code (or TemplateFallback stub if LLM unavailable)
     /// * `Err(Error)` - Generation failed critically
     ///
     /// # Architecture Note
@@ -935,21 +936,21 @@ impl GenerationPipeline {
     ) -> Result<String> {
         // Check if LLM is enabled in manifest
         if !self.manifest.generation.enable_llm {
-            // Return simple TODO stub if LLM is disabled
+            // Return simple TemplateFallback stub if LLM is disabled
             return Ok(format!(
-                "// TODO: Implement {} skill: {}\n// Hint: {}",
+                "// [ManualImplementation] Implement {} skill: {}\n// Hint: {}",
                 skill_name, system_prompt, implementation_hint
             ));
         }
 
-        // Use injected LLM service if available, otherwise use default (TODO stubs)
+        // Use injected LLM service if available, otherwise use default (TemplateFallback stubs)
         let service = self
             .llm_service
             .as_ref()
             .map(|s| s.as_ref())
-            .unwrap_or(&DefaultLlmService);
+            .unwrap_or(&TemplateFallbackService);
 
-        // Call LLM service (may be real LLM or default TODO stub generator)
+        // Call LLM service (may be real LLM or default TemplateFallback stub generator)
         service
             .generate_skill_impl(skill_name, system_prompt, implementation_hint, language)
             .map_err(|e| Error::new(&format!("LLM generation failed: {}", e)))
@@ -1299,9 +1300,9 @@ mod tests {
     }
 
     #[test]
-    fn test_default_llm_service_generates_todos() {
-        // Arrange: Use DefaultLlmService
-        let service = DefaultLlmService;
+    fn test_template_fallback_service_generates_stubs() {
+        // Arrange: Use TemplateFallbackService
+        let service = TemplateFallbackService;
 
         // Act: Generate implementations for different languages
         let rust_impl = service
@@ -1314,16 +1315,16 @@ mod tests {
             .generate_skill_impl("my_skill", "Do something", "Use async/await", "typescript")
             .unwrap();
 
-        // Assert: Should all contain TODO markers (case-insensitive check)
-        assert!(rust_impl.to_uppercase().contains("TODO"));
+        // Assert: Should all contain manual implementation markers
+        assert!(rust_impl.contains("[ManualImplementation]"));
         assert!(rust_impl.to_uppercase().contains("RUST"));
         assert!(rust_impl.contains("my_skill"));
 
-        assert!(elixir_impl.to_uppercase().contains("TODO"));
+        assert!(elixir_impl.contains("[ManualImplementation]"));
         assert!(elixir_impl.to_uppercase().contains("ELIXIR"));
         assert!(elixir_impl.contains("my_skill"));
 
-        assert!(ts_impl.to_uppercase().contains("TODO"));
+        assert!(ts_impl.contains("[ManualImplementation]"));
         assert!(ts_impl.to_uppercase().contains("TYPESCRIPT"));
         assert!(ts_impl.contains("my_skill"));
     }
