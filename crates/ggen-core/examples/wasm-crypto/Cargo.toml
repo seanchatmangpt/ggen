@@ -1,6 +1,6 @@
 [package]
 name = "wasm-crypto"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
 authors = ["ggen team"]
 description = "WebAssembly cryptographic operations module"

@@ -1,6 +1,6 @@
 [package]
 name = "advanced-cli-tool"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
 authors = ["GGEN Team"]
 description = "Production-ready CLI tool demonstrating advanced Rust patterns with ggen lifecycle"

@@ -131,8 +131,16 @@ impl CodeGraphBuilder {
                 is_async: false,
                 self_param: Some("&self".to_string()),
                 params: Vec::new(),
-                return_type: Some(return_type),
-                body: Some("todo!()".to_string()),
+                return_type: Some(return_type.clone()),
+                body: Some(if return_type.starts_with("Vec<") {
+                    "Vec::new()".to_string()
+                } else if return_type.starts_with("Option<") {
+                    "None".to_string()
+                } else if return_type.starts_with("Result<") {
+                    "Err(ggen_utils::error::Error::new(\"Not implemented\"))".to_string()
+                } else {
+                    "Default::default()".to_string()
+                }),
                 docstring: Some(format!(
                     "Get {} {}(s)",
                     rel_type.replace('_', " "),

@@ -156,6 +156,11 @@ impl VocabularyRegistry {
                 .with_description("ggen meta-ontology"),
         );
 
+        registry.add_allowed(
+            AllowedVocabulary::new("https://ggen.io/marketplace/", "ggen")
+                .with_description("ggen marketplace vocabulary"),
+        );
+
         registry
     }
 

@@ -48,6 +48,7 @@ pub mod policy;
 pub mod registry;
 pub mod self_play;
 pub mod semantic_os;
+pub mod telco;
 pub mod template;
 pub mod utils;
 pub mod workflow;

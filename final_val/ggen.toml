@@ -1,0 +1,65 @@
+[project]
+name = "my-ggen-project"
+version = "0.1.0"
+description = "A ggen project initialized with wizard"
+authors = ["ggen wizard"]
+license = "MIT"
+
+[ontology]
+source = ".specify/ontologies/main.ttl"
+
+[generation]
+output_dir = "."
+
+# World manifest generation
+[[generation.rules]]
+name = "world-manifest"
+query = { file = "sparql/world/outputs.sparql" }
+template = { file = "templates/world-manifest.tera" }
+output_file = "./world.manifest.json"
+mode = "Overwrite"
+
+# World verifier generation
+[[generation.rules]]
+name = "world-verifier"
+query = { file = "sparql/world/outputs.sparql" }
+template = { file = "templates/world-verify.tera" }
+output_file = "./world.verify.mjs"
+mode = "Overwrite"
+
+# Receipt schema generation
+[[generation.rules]]
+name = "receipt-schema"
+query = { file = "sparql/receipts/receipt_contract.sparql" }
+template = { file = "templates/receipts/receipt.schema.tera" }
+output_file = "./receipts/receipt.schema.json"
+mode = "Overwrite"
+
+# Verdict schema generation
+[[generation.rules]]
+name = "verdict-schema"
+query = { file = "sparql/receipts/receipt_contract.sparql" }
+template = { file = "templates/receipts/verdict.schema.tera" }
+output_file = "./receipts/verdict.schema.json"
+mode = "Overwrite"
+
+[sync]
+enabled = true
+on_change = "manual"
+validate_after = true
+conflict_mode = "fail"
+
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+strict_validation = true
+
+[templates]
+enable_caching = true
+auto_reload = true
+
+[output]
+formatting = "default"
+deterministic = true
+line_length = 100
+indent = 2

@@ -19,8 +19,8 @@ ggen-utils.workspace = true
 ggen-canonical.workspace = true
 ggen-receipt.workspace = true
 ggen-marketplace.workspace = true
-pictl-types = { path = "/Users/sac/wasm4pm/crates/pictl-types" }
-pictl-algos = { path = "/Users/sac/wasm4pm/crates/pictl-algos" }
+pictl-types.workspace = true
+pictl-algos.workspace = true
 tera = "1.20"
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 serde = { version = "1.0", features = ["derive"] }

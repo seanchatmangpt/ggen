@@ -13,7 +13,8 @@ impl{% if generics %}<{{ generics }}>{% endif %} {{ for_type }}{% if generics %}
 {% if method.body %}
         {{ method.body }}
 {% else %}
-        todo!()
+        // Critical Error: Method body was not defined in the source ontology or template context.
+        panic!("Implementation for '{{ method.name }}' in '{{ for_type }}' is missing from the ontology substrate.");
 {% endif %}
     }
 {% endfor %}

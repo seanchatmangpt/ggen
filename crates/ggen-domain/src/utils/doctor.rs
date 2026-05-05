@@ -86,6 +86,18 @@ pub async fn execute_doctor(input: DoctorInput) -> Result<DoctorResult> {
         checks.push(cache_check);
     }
 
+    // Check Observability Stack (Anti-Cheating Gate)
+    if input.check.is_none() || input.check.as_deref() == Some("observability") {
+        let observability_check = check_observability().await?;
+        checks.push(observability_check);
+    }
+
+    // Check SLO Performance (Vision 2030 Gate)
+    if input.check.is_none() || input.check.as_deref() == Some("slo") {
+        let slo_check = check_slo().await?;
+        checks.push(slo_check);
+    }
+
     // Collect environment info if requested
     let environment = if input.env {
         Some(collect_environment().await?)
@@ -158,6 +170,90 @@ async fn check_cache() -> Result<CheckResult> {
             pack_count
         ),
     })
+}
+
+/// Check Observability Stack health (Anti-Cheating Gate)
+async fn check_observability() -> Result<CheckResult> {
+    use std::net::TcpStream;
+    use std::time::Duration;
+
+    // Standard OTel/Tempo/Jaeger ports
+    let targets = [
+        ("OTel Collector (gRPC)", "127.0.0.1:4317"),
+        ("Tempo (HTTP)", "127.0.0.1:3200"),
+    ];
+
+    let mut reachable = Vec::new();
+    let mut unreachable = Vec::new();
+
+    for (name, addr) in targets {
+        if TcpStream::connect_timeout(
+            &addr.parse().unwrap(),
+            Duration::from_millis(100),
+        ).is_ok() {
+            reachable.push(name);
+        } else {
+            unreachable.push(name);
+        }
+    }
+
+    if unreachable.is_empty() {
+        Ok(CheckResult {
+            name: "Observability Stack".to_string(),
+            status: CheckStatus::Ok,
+            message: "All observability services are reachable on localhost".to_string(),
+        })
+    } else if reachable.is_empty() {
+        Ok(CheckResult {
+            name: "Observability Stack".to_string(),
+            status: CheckStatus::Warning,
+            message: format!(
+                "No local observability services found (tried: {}). Chicago TDD tests will skip boundary validation.",
+                unreachable.join(", ")
+            ),
+        })
+    } else {
+        Ok(CheckResult {
+            name: "Observability Stack".to_string(),
+            status: CheckStatus::Warning,
+            message: format!(
+                "Partial observability: {} reachable, {} unreachable.",
+                reachable.join(", "),
+                unreachable.join(", ")
+            ),
+        })
+    }
+}
+
+/// Check SLO Performance (Vision 2030 Gate)
+async fn check_slo() -> Result<CheckResult> {
+    use std::time::Instant;
+
+    let start = Instant::now();
+    
+    // SLO Target: Metadata access / Lockfile load should be < 10ms
+    // For the doctor check, we perform a lightweight IO operation on the lockfile if it exists
+    let lockfile = std::path::Path::new("ggen.lock");
+    if lockfile.exists() {
+        let _ = std::fs::read_to_string(lockfile);
+    }
+    
+    let duration = start.elapsed();
+    let limit = std::time::Duration::from_millis(10);
+
+    if duration < limit {
+        Ok(CheckResult {
+            name: "SLO Performance".to_string(),
+            status: CheckStatus::Ok,
+            message: format!("Metadata access latency: {:?} (< 10ms target)", duration),
+        })
+    } else {
+        Ok(CheckResult {
+            name: "SLO Performance".to_string(),
+            status: CheckStatus::Warning,
+            message: format!("Metadata access latency: {:?} exceeds 10ms target (Vision 2030 violation)", duration),
+        })
+    }
 }
 
 /// Check Rust installation

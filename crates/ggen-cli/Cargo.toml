@@ -49,11 +49,12 @@ ggen-utils.workspace = true
 ggen-core.workspace = true
 ggen-domain = { workspace = true, features = ["marketplace"] }
 ggen-marketplace.workspace = true
-pictl-types = { path = "/Users/sac/wasm4pm/crates/pictl-types" }
-pictl-algos = { path = "/Users/sac/wasm4pm/crates/pictl-algos" }
+pictl-types.workspace = true
+pictl-algos.workspace = true
 ggen-semantic-bit.workspace = true
 ggen-ontology-core.workspace = true
 ggen-receipt.workspace = true
+a2a-generated = { workspace = true, optional = true }
 
 # Crate-specific dependencies
 clap_complete = "4.5.58"
@@ -73,8 +74,6 @@ colored = "3.0"
 indicatif = "0.17"
 genai = { workspace = true }
 
-# Optional A2A Protocol support (using generated code)
-a2a-generated = { path = "../a2a-generated", optional = true, default-features = false }
 linkme = "0.3"
 notify = "6.1"
 notify-debouncer-full = "0.3"
@@ -95,8 +94,8 @@ live-llm-tests = [] # Opt-in for live LLM integration tests
 integration = [] # Gate tests that reference missing/future crates
 
 # A2A Protocol support - temporarily disabled due to compilation errors
-use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
-# default = ["use-a2a-rs"]  # Temporarily disabled
+use-a2a-rs = ["dep:a2a-generated"]  # Use generated a2a code
+default = ["use-a2a-rs"]  # Re-enabled for v26.5.4
 
 [dev-dependencies]
 assert_cmd = "2"
