@@ -80,8 +80,7 @@ pub fn build_edge_counts(log: &EventLog, activity_key: &str) -> ColumnarEdgeCoun
 ///
 /// This is the inner loop that was repeated verbatim across 11 discovery files.
 pub fn materialize_dfg_edges(
-    edge_counts: &HashMap<(u32, u32), usize>,
-    vocab: &[String],
+    edge_counts: &HashMap<(u32, u32), usize>, vocab: &[String],
 ) -> Vec<DFGEdge> {
     edge_counts
         .iter()

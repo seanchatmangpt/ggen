@@ -18,20 +18,18 @@ pub struct RouteOutput {
 /// This command bridges the marketplace signal to the A2A routing layer.
 /// In Vision 2030, this is the "Routing Discipline".
 #[verb("telco", "root")]
-pub fn route(
-    payload: Option<String>,
-) -> Result<RouteOutput> {
+pub fn route(payload: Option<String>) -> Result<RouteOutput> {
     use a2a_generated::handlers::UnifiedMessageRouter;
 
     let _payload = payload.unwrap_or_else(|| "{}".to_string());
-    
+
     // In a real implementation, we would pass the payload to the router.
     // For this CLI bridge, we instantiate the router and simulate a route check.
     let _router = UnifiedMessageRouter::default();
-    
+
     // Boundary Crossing: The UnifiedMessageRouter implementation in a2a-generated
     // is expected to emit OTel spans.
-    
+
     Ok(RouteOutput {
         status: "success".to_string(),
         message: "Message routed through Telco UnifiedMessageRouter".to_string(),

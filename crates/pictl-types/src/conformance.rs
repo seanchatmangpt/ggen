@@ -12,10 +12,7 @@ pub struct TokenReplayResult {
 
 impl TokenReplayResult {
     pub fn new(
-        fitness: f64,
-        produced_tokens: usize,
-        consumed_tokens: usize,
-        missing_tokens: usize,
+        fitness: f64, produced_tokens: usize, consumed_tokens: usize, missing_tokens: usize,
         remaining_tokens: usize,
     ) -> Self {
         TokenReplayResult {
@@ -28,10 +25,7 @@ impl TokenReplayResult {
     }
 
     pub fn calculate_fitness(
-        produced: usize,
-        consumed: usize,
-        missing: usize,
-        remaining: usize,
+        produced: usize, consumed: usize, missing: usize, remaining: usize,
     ) -> f64 {
         let denom = (produced + remaining).max(1) as f64;
         let num = consumed.saturating_sub(missing) as f64;
@@ -53,10 +47,7 @@ pub struct ConformanceResult {
 
 impl ConformanceResult {
     pub fn new(
-        fitness: f64,
-        total_traces: usize,
-        fitting_traces: usize,
-        deviating_traces: usize,
+        fitness: f64, total_traces: usize, fitting_traces: usize, deviating_traces: usize,
     ) -> Self {
         ConformanceResult {
             fitness,

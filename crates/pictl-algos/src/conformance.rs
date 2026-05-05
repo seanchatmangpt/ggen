@@ -7,9 +7,7 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 /// For each trace: simulate a token multiset through the DFG model.
 /// Fitness = 1.0 - missing / (consumed + missing)
 pub fn check_conformance_token_replay(
-    log: &EventLog,
-    model: &DFG,
-    activity_key: &str,
+    log: &EventLog, model: &DFG, activity_key: &str,
 ) -> Result<ConformanceResult> {
     // Build adjacency: source -> set of targets
     let mut successors: HashMap<&str, HashSet<&str>> = HashMap::new();
@@ -152,9 +150,7 @@ pub struct TraceAlignment {
 ///
 /// Log moves cost 1, model moves cost 1, sync moves cost 0.
 pub fn check_conformance_alignment(
-    log: &EventLog,
-    model: &PetriNet,
-    activity_key: &str,
+    log: &EventLog, model: &PetriNet, activity_key: &str,
 ) -> Result<ConformanceResult> {
     let total_traces = log.traces.len();
     let mut fitting_traces = 0usize;
@@ -282,9 +278,7 @@ fn derive_model_sequence(model: &PetriNet) -> Vec<String> {
 ///   - log move:  consume trace[i]       -> (i+1, j),   cost 1
 ///   - model move: consume model[j]      -> (i, j+1),   cost 1
 fn align_trace_to_model(
-    trace: &[String],
-    model_seq: &[String],
-    _label_to_tid: &HashMap<&str, &str>,
+    trace: &[String], model_seq: &[String], _label_to_tid: &HashMap<&str, &str>,
 ) -> TraceAlignment {
     let n = trace.len();
     let m = model_seq.len();

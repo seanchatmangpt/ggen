@@ -420,7 +420,7 @@ pub mod domain {
             {% if domain_classes %}
             self.config
             {% else %}
-            unimplemented!("Domain configuration not generated from specification")
+            panic!("Critical Error: Domain configuration builder was called, but no domain classes were defined in the ontology substrate.");
             {% endif %}
         }
     }

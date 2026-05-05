@@ -188,7 +188,8 @@ impl ProofGateValidator {
                     }
                 }
             } else {
-                message.push_str(" (Note: No runtime audit logs found; assuming static conformance based on intent objective)");
+                passed = false;
+                message.push_str(" (FAILED: No runtime audit logs found. Claims of correctness must be provable, not asserted.)");
             }
         }
 

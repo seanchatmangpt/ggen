@@ -41,16 +41,9 @@ impl ProvenanceChain {
 
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        input_hash: String,
-        config_hash: String,
-        plan_hash: String,
-        output_hash: String,
-        combined_hash: String,
-        algorithm_id: String,
-        algorithm_version: String,
-        backend_id: String,
-        kernel_version: String,
-        wasm_build_hash: String,
+        input_hash: String, config_hash: String, plan_hash: String, output_hash: String,
+        combined_hash: String, algorithm_id: String, algorithm_version: String, backend_id: String,
+        kernel_version: String, wasm_build_hash: String,
     ) -> Self {
         ProvenanceChain {
             input_hash,

@@ -187,10 +187,7 @@ async fn check_observability() -> Result<CheckResult> {
     let mut unreachable = Vec::new();
 
     for (name, addr) in targets {
-        if TcpStream::connect_timeout(
-            &addr.parse().unwrap(),
-            Duration::from_millis(100),
-        ).is_ok() {
+        if TcpStream::connect_timeout(&addr.parse().unwrap(), Duration::from_millis(100)).is_ok() {
             reachable.push(name);
         } else {
             unreachable.push(name);
@@ -230,14 +227,14 @@ async fn check_slo() -> Result<CheckResult> {
     use std::time::Instant;
 
     let start = Instant::now();
-    
+
     // SLO Target: Metadata access / Lockfile load should be < 10ms
     // For the doctor check, we perform a lightweight IO operation on the lockfile if it exists
     let lockfile = std::path::Path::new("ggen.lock");
     if lockfile.exists() {
         let _ = std::fs::read_to_string(lockfile);
     }
-    
+
     let duration = start.elapsed();
     let limit = std::time::Duration::from_millis(10);
 
@@ -251,7 +248,10 @@ async fn check_slo() -> Result<CheckResult> {
         Ok(CheckResult {
             name: "SLO Performance".to_string(),
             status: CheckStatus::Warning,
-            message: format!("Metadata access latency: {:?} exceeds 10ms target (Vision 2030 violation)", duration),
+            message: format!(
+                "Metadata access latency: {:?} exceeds 10ms target (Vision 2030 violation)",
+                duration
+            ),
         })
     }
 }
