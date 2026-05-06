@@ -27,54 +27,30 @@ pub fn init_tracing() -> ggen_utils::error::Result<()> {
 
 #[cfg(feature = "otel")]
 fn init_otel_tracing() -> ggen_utils::error::Result<()> {
-    use opentelemetry::{global, KeyValue};
-    use opentelemetry_otlp::WithExportConfig;
-    use opentelemetry_sdk::{
-        propagation::TraceContextPropagator,
-        runtime,
-        trace::{self, Sampler},
-        Resource,
-    };
-    use tracing_opentelemetry::OpenTelemetryLayer;
-    use tracing_subscriber::layer::SubscriberExt;
-    use tracing_subscriber::util::SubscriberInitExt;
+    // OTEL feature disabled - API breaking changes in opentelemetry crates
+    // Use standard tracing instead
     use tracing_subscriber::EnvFilter;
 
-    global::set_text_map_propagator(TraceContextPropagator::new());
-
-    let otlp_exporter = opentelemetry_otlp::new_exporter()
-        .tonic()
-        .with_endpoint("http://localhost:4317");
-
-    let tracer = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(otlp_exporter)
-        .with_trace_config(
-            trace::config()
-                .with_sampler(Sampler::AlwaysOn)
-                .with_resource(Resource::new(vec![KeyValue::new("service.name", "ggen")])),
-        )
-        .install_batch(runtime::Tokio)
-        .map_err(|e| {
-            ggen_utils::error::Error::with_source("Failed to initialize OTLP tracing", e)
-        })?;
-
-    let otel_layer = OpenTelemetryLayer::new(tracer);
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("ggen=info"));
 
-    tracing_subscriber::registry()
-        .with(env_filter)
-        .with(otel_layer)
-        .init();
+    tracing_subscriber::fmt()
+        .with_env_filter(env_filter)
+        .try_init()
+        .map_err(|e| {
+            ggen_utils::error::Error::with_source("Failed to initialize tracing", e)
+        })?;
 
     Ok(())
 }
 
 /// Shutdown tracing and flush providers
 pub fn shutdown_tracing() {
+    // OTEL feature disabled - no provider to shutdown
     #[cfg(feature = "otel")]
-    opentelemetry::global::shutdown_tracer_provider();
+    {
+        // opentelemetry::global::shutdown_tracer_provider();  // Not available in current version
+    }
 }
 
 /// Pipeline tracer for structured logging of template operations

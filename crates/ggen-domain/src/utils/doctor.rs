@@ -19,6 +19,7 @@ pub struct CheckResult {
     pub name: String,
     pub status: CheckStatus,
     pub message: String,
+    pub recovery: Option<String>,
 }
 
 /// Doctor command input (pure domain type)
@@ -128,6 +129,7 @@ async fn check_marketplace() -> Result<CheckResult> {
             name: "Marketplace DB".to_string(),
             status: CheckStatus::Warning,
             message: "RDF store not found. Run 'ggen marketplace sync' to initialize.".to_string(),
+            recovery: Some("ggen marketplace sync".to_string()),
         });
     }
 
@@ -137,11 +139,13 @@ async fn check_marketplace() -> Result<CheckResult> {
             name: "Marketplace DB".to_string(),
             status: CheckStatus::Ok,
             message: format!("RDF store healthy: {}", db_path.display()),
+            recovery: None,
         }),
         Err(e) => Ok(CheckResult {
             name: "Marketplace DB".to_string(),
             status: CheckStatus::Error,
             message: format!("RDF store error (possibly locked or corrupt): {}", e),
+            recovery: Some("rm -rf ~/.cache/ggen/packs/marketplace.db && ggen marketplace sync".to_string()),
         }),
     }
 }
@@ -169,6 +173,7 @@ async fn check_cache() -> Result<CheckResult> {
             "Found {} packs in global user cache (~/.ggen/packs)",
             pack_count
         ),
+        recovery: None,
     })
 }
 
@@ -180,7 +185,9 @@ async fn check_observability() -> Result<CheckResult> {
     let client = Client::builder()
         .timeout(Duration::from_millis(500))
         .build()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to build HTTP client: {}", e)))?;
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to build HTTP client: {}", e))
+        })?;
 
     // 1. Check Tempo Health (Deep Check)
     let tempo_url = "http://127.0.0.1:3200/ready";
@@ -235,6 +242,7 @@ async fn check_observability() -> Result<CheckResult> {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Ok,
             message: "All services healthy. Recent trace evidence confirmed in Tempo.".to_string(),
+            recovery: None,
         })
     } else if reachable.is_empty() {
         Ok(CheckResult {
@@ -244,6 +252,7 @@ async fn check_observability() -> Result<CheckResult> {
                 "No observability services found (tried: Tempo, OTel). Errors: {}",
                 failures.join(", ")
             ),
+            recovery: Some("docker compose -f docker-compose.otel.yml up -d".to_string()),
         })
     } else {
         let evidence_msg = if trace_evidence {
@@ -260,18 +269,19 @@ async fn check_observability() -> Result<CheckResult> {
                 failures.join(", "),
                 evidence_msg
             ),
+            recovery: Some("docker compose -f docker-compose.otel.yml restart".to_string()),
         })
     }
 }
 
 /// Check SLO Performance (Vision 2030 Gate)
 async fn check_slo() -> Result<CheckResult> {
-    use ggen_core::v6::vocabulary::VocabularyRegistry;
+    use ggen_core::pipeline_engine::vocabulary::VocabularyRegistry;
+    use oxigraph::model::*;
+    use oxigraph::store::Store;
+    use rayon::prelude::*;
     use std::collections::BTreeSet;
     use std::time::{Duration, Instant};
-    use rayon::prelude::*;
-    use oxigraph::store::Store;
-    use oxigraph::model::*;
 
     let total_start = Instant::now();
 
@@ -283,7 +293,7 @@ async fn check_slo() -> Result<CheckResult> {
     test_ns.insert("http://www.w3.org/2000/01/rdf-schema#".to_string());
     test_ns.insert("http://www.w3.org/2002/07/owl#".to_string());
     test_ns.insert("http://ggen.dev/v6#".to_string());
-    
+
     // Stress test: 1000 parallel lookups to measure lock contention
     (0..1000).into_par_iter().for_each(|_| {
         let _ = registry.validate_namespaces(&test_ns);
@@ -292,12 +302,15 @@ async fn check_slo() -> Result<CheckResult> {
 
     // 2. RDF Graph Synthesis Throughput Test (Oxigraph)
     let graph_start = Instant::now();
-    let store = Store::new().map_err(|e| ggen_utils::error::Error::new(&format!("Graph error: {}", e)))?;
+    let store =
+        Store::new().map_err(|e| ggen_utils::error::Error::new(&format!("Graph error: {}", e)))?;
     for i in 0..2000 {
         let s = NamedNode::new(format!("http://ggen.io/s{}", i)).unwrap();
         let p = NamedNode::new("http://ggen.io/p").unwrap();
         let o = Literal::from(i);
-        store.insert(&Quad::new(s, p, o, GraphName::DefaultGraph)).unwrap();
+        store
+            .insert(&Quad::new(s, p, o, GraphName::DefaultGraph))
+            .unwrap();
     }
     let graph_duration = graph_start.elapsed();
 
@@ -321,9 +334,15 @@ async fn check_slo() -> Result<CheckResult> {
     let template_limit = Duration::from_millis(150);
 
     let mut violations = Vec::new();
-    if vocab_duration > vocab_limit { violations.push(format!("Vocab Registry slow ({:?})", vocab_duration)); }
-    if graph_duration > graph_limit { violations.push(format!("Graph Synthesis slow ({:?})", graph_duration)); }
-    if template_duration > template_limit { violations.push(format!("Template Rendering slow ({:?})", template_duration)); }
+    if vocab_duration > vocab_limit {
+        violations.push(format!("Vocab Registry slow ({:?})", vocab_duration));
+    }
+    if graph_duration > graph_limit {
+        violations.push(format!("Graph Synthesis slow ({:?})", graph_duration));
+    }
+    if template_duration > template_limit {
+        violations.push(format!("Template Rendering slow ({:?})", template_duration));
+    }
 
     if violations.is_empty() {
         Ok(CheckResult {
@@ -333,6 +352,7 @@ async fn check_slo() -> Result<CheckResult> {
                 "Architectural benchmarks passed. Total: {:?}. (Vocab: {:?}, Graph: {:?}, Template: {:?})",
                 total_duration, vocab_duration, graph_duration, template_duration
             ),
+            recovery: None,
         })
     } else {
         Ok(CheckResult {
@@ -343,6 +363,7 @@ async fn check_slo() -> Result<CheckResult> {
                 violations.join(", "),
                 total_duration
             ),
+            recovery: Some("cargo build --release; reduce background CPU load".to_string()),
         })
     }
 }
@@ -352,7 +373,6 @@ async fn check_rust() -> Result<CheckResult> {
     use std::process::Command;
 
     let output = Command::new("rustc").arg("--version").output();
-
     match output {
         Ok(output) if output.status.success() => {
             let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -360,12 +380,14 @@ async fn check_rust() -> Result<CheckResult> {
                 name: "Rust".to_string(),
                 status: CheckStatus::Ok,
                 message: format!("Installed: {}", version),
+                recovery: None,
             })
         }
         _ => Ok(CheckResult {
             name: "Rust".to_string(),
             status: CheckStatus::Error,
-            message: "Not installed. Install from https://rustup.rs".to_string(),
+            message: "Not installed. Install Rust from https://rustup.rs".to_string(),
+            recovery: Some("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string()),
         }),
     }
 }
@@ -375,7 +397,6 @@ async fn check_cargo() -> Result<CheckResult> {
     use std::process::Command;
 
     let output = Command::new("cargo").arg("--version").output();
-
     match output {
         Ok(output) if output.status.success() => {
             let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -383,12 +404,14 @@ async fn check_cargo() -> Result<CheckResult> {
                 name: "Cargo".to_string(),
                 status: CheckStatus::Ok,
                 message: format!("Installed: {}", version),
+                recovery: None,
             })
         }
         _ => Ok(CheckResult {
             name: "Cargo".to_string(),
             status: CheckStatus::Error,
             message: "Not installed. Install Rust from https://rustup.rs".to_string(),
+            recovery: Some("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string()),
         }),
     }
 }
@@ -406,12 +429,14 @@ async fn check_git() -> Result<CheckResult> {
                 name: "Git".to_string(),
                 status: CheckStatus::Ok,
                 message: format!("Installed: {}", version),
+                recovery: None,
             })
         }
         _ => Ok(CheckResult {
             name: "Git".to_string(),
             status: CheckStatus::Warning,
             message: "Not installed. Optional but recommended".to_string(),
+            recovery: Some("brew install git".to_string()),
         }),
     }
 }

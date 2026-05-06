@@ -452,6 +452,8 @@ impl QualityGate for TemplateValidationGate {
                 crate::manifest::TemplateSource::Inline { inline: _ } => {
                     // Inline templates always exist
                 }
+                crate::manifest::TemplateSource::Git { .. } => {}
+                crate::manifest::TemplateSource::Package { .. } => {}
             }
         }
 
@@ -469,6 +471,9 @@ impl QualityGate for TemplateValidationGate {
                     })?
                 }
                 crate::manifest::TemplateSource::Inline { inline } => inline.clone(),
+                crate::manifest::TemplateSource::Git { .. } => String::new(),
+                crate::manifest::TemplateSource::Package { .. } => String::new(),
+
             };
 
             // Validate template syntax
@@ -587,6 +592,9 @@ impl QualityGate for RuleValidationGate {
                 crate::manifest::TemplateSource::Inline { inline: _ } => {
                     // Inline templates are always valid
                 }
+                crate::manifest::TemplateSource::Git { .. } => {}
+                crate::manifest::TemplateSource::Package { .. } => {}
+
             }
         }
 

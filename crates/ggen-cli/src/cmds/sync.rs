@@ -407,7 +407,7 @@ fn run_manifest_pipeline(
         .clone()
         .unwrap_or_else(|| manifest_data.ontology.source.display().to_string());
 
-    let config = ggen_core::v6::pipeline::PipelineConfig::new(
+    let config = ggen_core::pipeline_engine::pipeline::PipelineConfig::new(
         &manifest_data.project.name,
         &manifest_data.project.version,
     )
@@ -416,7 +416,7 @@ fn run_manifest_pipeline(
     .with_output_dir(base_path.join(out_dir))
     .with_receipt_path(base_path.join(".ggen/receipts/latest.json"));
 
-    let mut pipeline = ggen_core::v6::pipeline::StagedPipeline::new(config)
+    let mut pipeline = ggen_core::pipeline_engine::pipeline::StagedPipeline::new(config)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     if watch.unwrap_or(false) {
@@ -473,8 +473,10 @@ fn run_manifest_pipeline(
     let synced_file_paths: Vec<String> = synced_files.iter().map(|f| f.path.clone()).collect();
 
     log::info!("[μ₅/5] Receipt: Generating verification...");
-    let receipt_file_path = emit_sync_receipt(&synced_file_paths, &installed_packs)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e)))?;
+    let receipt_file_path =
+        emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
+        })?;
 
     Ok(SyncOutput {
         status: "success".to_string(),
@@ -682,8 +684,10 @@ fn run_low_level_pipeline(
     let installed_packs = read_installed_packs(".ggen/packs.lock");
 
     log::info!("[μ₅/5] Receipt: Generating verification...");
-    let receipt_file_path = emit_sync_receipt(&synced_file_paths, &installed_packs)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e)))?;
+    let receipt_file_path =
+        emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
+        })?;
 
     let violation_msg = if result.soundness_violations.is_empty() {
         None

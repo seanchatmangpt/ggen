@@ -183,7 +183,7 @@ pub mod validation;
 // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 pub mod simple_tracing;
 pub mod tracing;
-pub mod v6;
+pub mod pipeline_engine;
 
 // Re-export template types
 pub use template_types::{Frontmatter, Template};

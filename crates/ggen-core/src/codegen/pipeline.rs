@@ -567,6 +567,50 @@ impl GenerationPipeline {
                 TemplateSource::Inline { inline } => {
                     (inline.clone(), "inline template".to_string())
                 }
+                TemplateSource::Git { git, branch, path } => {
+                    let temp_id = uuid::Uuid::new_v4();
+                    let temp_dir = std::env::temp_dir().join(format!("ggen-git-{}", temp_id));
+                    let mut cmd = std::process::Command::new("git");
+                    cmd.arg("clone").arg("--depth").arg("1");
+                    if let Some(b) = branch {
+                        cmd.arg("--branch").arg(b);
+                    }
+                    cmd.arg(git).arg(&temp_dir);
+                    
+                    let status = cmd.status().map_err(|e| {
+                        Error::new(&format!("Failed to execute git clone: {}", e))
+                    })?;
+                    
+                    if !status.success() {
+                        return Err(Error::new(&format!("Failed to clone git repository: {}", git)));
+                    }
+                    
+                    let template_path = temp_dir.join(path);
+                    let content = std::fs::read_to_string(&template_path).map_err(|e| {
+                        Error::new(&format!("Failed to read template file from git: {}", e))
+                    })?;
+                    
+                    // Clean up temp dir
+                    let _ = std::fs::remove_dir_all(temp_dir);
+                    
+                    (content, format!("git '{}'", git))
+                }
+                TemplateSource::Package { package, version, path } => {
+                    let home = dirs::home_dir().ok_or_else(|| Error::new("Failed to determine home directory"))?;
+                    let mut pack_dir = home.join(".ggen").join("packs").join(package);
+                    if let Some(v) = version {
+                        pack_dir = pack_dir.join(v);
+                    } else {
+                        pack_dir = pack_dir.join("latest");
+                    }
+                    
+                    let template_path = pack_dir.join(path);
+                    let content = std::fs::read_to_string(&template_path).map_err(|e| {
+                        Error::new(&format!("Failed to read template file from package {}: {}", package, e))
+                    })?;
+                    
+                    (content, format!("package '{}'", package))
+                }
             };
 
             // 5. For each row, render template and generate file

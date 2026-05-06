@@ -8,8 +8,8 @@
 #![cfg(feature = "integration")]
 
 use ggen_core::graph::Graph;
-use ggen_core::v6::pass::{Pass, PassContext};
-use ggen_core::v6::passes::{EmissionPass, EmissionRule};
+use ggen_core::pipeline_engine::pass::{Pass, PassContext};
+use ggen_core::pipeline_engine::passes::{EmissionPass, EmissionRule};
 use std::path::PathBuf;
 use tempfile::TempDir;
 
@@ -37,7 +37,7 @@ fn test_pack_template_resolution() {
     std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create emission pass with pack template reference
-    let mut pass = EmissionPass::new().with_guards(ggen_core::v6::guard::GuardSet::new()); // Disable guards
+    let mut pass = EmissionPass::new().with_guards(ggen_core::pipeline_engine::guard::GuardSet::new()); // Disable guards
 
     pass.add_rule(EmissionRule {
         name: "generate-handler".to_string(),
@@ -118,7 +118,7 @@ pub fn {{ name | lower }}() -> &'static str {
     std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create emission pass
-    let mut pass = EmissionPass::new().with_guards(ggen_core::v6::guard::GuardSet::new());
+    let mut pass = EmissionPass::new().with_guards(ggen_core::pipeline_engine::guard::GuardSet::new());
 
     pass.add_rule(EmissionRule {
         name: "generate-tools".to_string(),
@@ -174,7 +174,7 @@ fn test_pack_template_not_cached_error() {
     std::env::set_var("GGEN_PACK_CACHE_DIR", cache_dir.path());
 
     // Create emission pass with non-existent pack
-    let mut pass = EmissionPass::new().with_guards(ggen_core::v6::guard::GuardSet::new());
+    let mut pass = EmissionPass::new().with_guards(ggen_core::pipeline_engine::guard::GuardSet::new());
 
     pass.add_rule(EmissionRule {
         name: "generate-handler".to_string(),

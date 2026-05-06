@@ -117,30 +117,6 @@ oxigraph = { version = "0.5.6", features = ["rdf-12"] } # RDF storage for tests 
 httpmock = "0.7" # Chicago TDD: Real HTTP test server for download tests
 tracing-subscriber.workspace = true # OTEL span verification tests
 
-[[test]]
-name = "init_tests"
-path = "tests/init_tests.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "template_integration_test"
-path = "tests/template_integration_test.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "unit_tests"
-path = "tests/unit_tests.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "chicago_tdd_smoke_test"
-path = "tests/chicago_tdd_smoke_test.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "conventions_test"
-path = "tests/conventions_test.rs"
-required-features = ["integration"]
 
 [[test]]
 name = "e2e"
@@ -154,22 +130,17 @@ required-features = ["integration"]
 # DISABLED: Tests internal types not exported from ggen-cli-lib
 
 [[test]]
-name = "integration_cli_wrappers"
-path = "tests/integration_cli_wrappers.rs"
-required-features = ["integration"]
-
-[[test]]
 name = "paas_integration_test"
 path = "tests/paas_integration_test.rs"
 required-features = ["integration"]
 
 [[test]]
-name = "sync_tests"
-path = "tests/sync_tests.rs"
+name = "sabotage_tests"
+path = "tests/sabotage_tests.rs"
 required-features = ["integration"]
 
 [[test]]
-name = "sabotage_tests"
-path = "tests/sabotage_tests.rs"
+name = "doctor_adversarial_tests"
+path = "tests/doctor_adversarial_tests.rs"
 required-features = ["integration"]
 

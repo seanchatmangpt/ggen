@@ -16,4 +16,3 @@ pub mod streaming;
 pub use pictl_types;
 
 pub const VERSION: &str = "26.5.4";
-

@@ -10,7 +10,6 @@
 //! 4. Error messages are meaningful when failures occur
 //! 5. No false positives (exit 0 with errors in stderr)
 
-use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::{assert_ok, async_test_with_timeout};
 
 #[cfg(test)]

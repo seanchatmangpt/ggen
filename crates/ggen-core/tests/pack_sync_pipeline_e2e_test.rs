@@ -8,8 +8,8 @@
 
 use chrono::Utc;
 use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
-use ggen_core::v6::pipeline::{PipelineConfig, StagedPipeline};
-use ggen_core::v6::vocabulary::{AllowedVocabulary, VocabularyRegistry};
+use ggen_core::pipeline_engine::pipeline::{PipelineConfig, StagedPipeline};
+use ggen_core::pipeline_engine::vocabulary::{AllowedVocabulary, VocabularyRegistry};
 use tempfile::TempDir;
 
 struct EnvVarGuard {

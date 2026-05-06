@@ -346,6 +346,7 @@ impl SimpleTimer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::time_operation;
     use std::fs;
     use tempfile::TempDir;
 

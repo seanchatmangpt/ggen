@@ -189,7 +189,7 @@ pub enum QuerySource {
     },
 }
 
-/// Source for a Tera template - file or inline
+/// Source for a Tera template - file, inline, git, or package manager
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TemplateSource {
@@ -203,6 +203,24 @@ pub enum TemplateSource {
         /// Tera template text
         inline: String,
     },
+    /// Load template from a Git repository
+    Git {
+        /// Git repository URL
+        git: String,
+        /// Optional branch or tag
+        branch: Option<String>,
+        /// Path within the repository
+        path: PathBuf,
+    },
+    /// Load template from a Package Manager (e.g. ggen marketplace)
+    Package {
+        /// Package name
+        package: String,
+        /// Optional version
+        version: Option<String>,
+        /// Path within the package
+        path: PathBuf,
+    }
 }
 
 /// File generation mode

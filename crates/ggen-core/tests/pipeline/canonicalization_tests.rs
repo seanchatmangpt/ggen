@@ -9,8 +9,8 @@
 //! - Multi-file canonicalization
 
 use ggen_core::graph::Graph;
-use ggen_core::v6::pass::{Pass, PassContext};
-use ggen_core::v6::passes::canonicalization::{CanonicalizationPass, CanonicalizationReceipt};
+use ggen_core::pipeline_engine::pass::{Pass, PassContext};
+use ggen_core::pipeline_engine::passes::canonicalization::{CanonicalizationPass, CanonicalizationReceipt};
 use std::path::PathBuf;
 use tempfile::TempDir;
 

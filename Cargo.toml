@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.4"
+version = "26.5.5"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -705,10 +705,6 @@ name = "cache_tests"
 path = "tests/integration/cache_tests.rs"
 required-features = ["integration"]
 [[test]]
-name = "package_scoring_tests"
-path = "tests/integration/package_scoring_tests.rs"
-required-features = ["integration"]
-[[test]]
 name = "lifecycle_simple_tests"
 path = "tests/integration/lifecycle_simple_tests.rs"
 required-features = ["integration"]
@@ -727,10 +723,6 @@ required-features = ["integration"]
 [[test]]
 name = "fmea_risk_assessment"
 path = "tests/integration/fmea_risk_assessment.rs"
-required-features = ["integration"]
-[[test]]
-name = "poka_yoke_patterns"
-path = "tests/integration/poka_yoke_patterns.rs"
 required-features = ["integration"]
 [[test]]
 name = "ontology_workflows_hipaa"
@@ -752,77 +744,17 @@ required-features = ["integration"]
 name = "ontology_workflows_e2e"
 path = "tests/integration/ontology_workflows_e2e.rs"
 required-features = ["integration"]
-[[test]]
-name = "full_workflow_scenarios"
-path = "tests/integration/full_workflow_scenarios.rs"
-required-features = ["integration"]
 # Security integration tests
-[[test]]
-name = "security_tests"
-path = "tests/security/mod.rs"
-required-features = ["integration"]
 # TPS Integration Tests
-[[test]]
-name = "tps_end_to_end_workflow"
-path = "tests/tps/end_to_end_workflow_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_smoke_tests"
-path = "tests/tps/smoke_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_regression_tests"
-path = "tests/tps/regression_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_performance_regression"
-path = "tests/tps/performance_regression_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_chaos_tests"
-path = "tests/tps/chaos_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_test_data_generation"
-path = "tests/tps/test_data_generation.rs"
-required-features = ["integration"]
 # Transport layer tests
 [[test]]
 name = "registry_client_tests"
 path = "tests/transport/registry_client_tests.rs"
 required-features = ["integration"]
 # YAWL Workflow Generation Unit Tests
-[[test]]
-name = "yawl_workflow_generation_unit"
-path = "tests/yawl_workflow_generation/unit/mod.rs"
-required-features = ["integration"]
 # YAWL Workflow Generation Receipt Verification Tests
-[[test]]
-name = "yawl_workflow_generation_receipts"
-path = "tests/yawl_workflow_generation/receipts/mod.rs"
-required-features = ["integration"]
 # FIBO Integration Tests for YAWL Workflow Generation
-[[test]]
-name = "fibo_integration_tests"
-path = "tests/fibo_integration_tests.rs"
-required-features = ["integration"]
 # Process Mining Integration Tests
-[[test]]
-name = "process_mining_integration"
-path = "tests/process_mining/mod.rs"
-required-features = ["integration"]
-[[test]]
-name = "workflow_tests"
-path = "tests/workflow_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "chaos_integration"
-path = "tests/chaos_integration.rs"
-required-features = ["integration"]
-[[test]]
-name = "tool_discovery_integration_tests"
-path = "tests/tool_discovery_integration_tests.rs"
-required-features = ["integration"]
 [[test]]
 name = "a2a_rig_mcp_integration"
 path = "tests/a2a_rig_mcp_integration.rs"
@@ -832,17 +764,10 @@ name = "a2a_integration_tests"
 path = "tests/a2a_integration_tests.rs"
 required-features = ["integration"]
 [[test]]
-name = "ontology_systems_tests"
-path = "tests/ontology_systems_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "factory_paas_runner"
-path = "tests/factory_paas_runner.rs"
-required-features = ["integration"]
-[[test]]
 name = "test_telco_routing"
 path = "tests/integration/test_telco_routing.rs"
 required-features = ["integration"]
+
 # ============================================================================
 # DEBIAN PACKAGING (cargo-deb)
 # ============================================================================

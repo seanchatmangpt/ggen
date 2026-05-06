@@ -10,7 +10,6 @@
 //! 4. No unexpected errors in stderr
 
 use chicago_tdd_tools::async_test;
-use chicago_tdd_tools::prelude::*;
 use ggen_cli_lib::{run_for_node, RunResult};
 
 /// Helper to assert successful command execution with content validation

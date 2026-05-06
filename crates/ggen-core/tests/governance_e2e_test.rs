@@ -4,9 +4,9 @@
 
 #![cfg(feature = "integration")]
 
-use ggen_core::v6::intent::ManufacturingIntent;
-use ggen_core::v6::pipeline::{PipelineConfig, StagedPipeline};
-use ggen_core::v6::proof_gate::{ProofGateType, ProofGateValidator};
+use ggen_core::pipeline_engine::intent::ManufacturingIntent;
+use ggen_core::pipeline_engine::pipeline::{PipelineConfig, StagedPipeline};
+use ggen_core::pipeline_engine::proof_gate::{ProofGateType, ProofGateValidator};
 use std::fs;
 use tempfile::TempDir;
 
