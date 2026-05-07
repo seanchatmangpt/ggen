@@ -247,8 +247,10 @@ mod tests {
 
     #[test]
     fn test_valid_hooks_pass_validation() {
-        let mut hooks = Hooks::default();
-        hooks.before_build = Some(vec!["validate".to_string()]);
+        let hooks = Hooks {
+            before_build: Some(vec!["validate".to_string()]),
+            ..Default::default()
+        };
 
         let mut phase_names = HashSet::new();
         phase_names.insert("validate".to_string());
@@ -259,8 +261,10 @@ mod tests {
 
     #[test]
     fn test_invalid_phase_reference_fails() {
-        let mut hooks = Hooks::default();
-        hooks.before_build = Some(vec!["nonexistent".to_string()]);
+        let hooks = Hooks {
+            before_build: Some(vec!["nonexistent".to_string()]),
+            ..Default::default()
+        };
 
         let mut phase_names = HashSet::new();
         phase_names.insert("build".to_string());
@@ -270,8 +274,10 @@ mod tests {
 
     #[test]
     fn test_self_reference_fails() {
-        let mut hooks = Hooks::default();
-        hooks.before_build = Some(vec!["build".to_string()]);
+        let hooks = Hooks {
+            before_build: Some(vec!["build".to_string()]),
+            ..Default::default()
+        };
 
         let mut phase_names = HashSet::new();
         phase_names.insert("build".to_string());
@@ -282,8 +288,10 @@ mod tests {
     #[test]
     fn test_circular_dependency_fails() {
         // Test circular dependency with existing hook types
-        let mut hooks = Hooks::default();
-        hooks.before_build = Some(vec!["validate".to_string()]);
+        let hooks = Hooks {
+            before_build: Some(vec!["validate".to_string()]),
+            ..Default::default()
+        };
         hooks.before_test = Some(vec!["build".to_string()]);
         // Create indirect cycle: validate -> build -> test -> validate
         // This would require a before_validate hook, but we can test the logic
