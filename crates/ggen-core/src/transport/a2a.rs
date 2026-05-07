@@ -277,7 +277,7 @@ impl A2aTransport {
                 .get("payload")
                 .cloned()
                 .unwrap_or(serde_json::json!({})),
-            error: body.get("error").and_then(|v| {
+            error: body.get("error").map(|v| {
                 let code = v
                     .get("code")
                     .and_then(|c| c.as_str())
@@ -288,7 +288,7 @@ impl A2aTransport {
                     .and_then(|m| m.as_str())
                     .unwrap_or("Unknown error")
                     .to_string();
-                Some(A2aError::new(code, msg))
+                A2aError::new(code, msg)
             }),
             session_id: message.session_id,
         };

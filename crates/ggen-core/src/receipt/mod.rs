@@ -86,7 +86,7 @@ pub use envelope::{
     ReceiptEnvelope, ENVELOPE_SCHEMA, HASH_PREFIX, SIGNATURE_ALGORITHM,
 };
 pub use error::{ReceiptError, Result};
-pub use receipt::{generate_keypair, hash_data, Receipt};
+pub use self::receipt::{generate_keypair, hash_data, Receipt};
 
 /// Convenience function to create a new receipt chained to a parent.
 ///

@@ -98,7 +98,7 @@ impl ProofGateValidator {
             .is_none_or(|p| {
                 p.error
                     .as_ref()
-                    .map_or(true, |e| !e.to_lowercase().contains("shacl violation"))
+                    .is_none_or(|e| !e.to_lowercase().contains("shacl violation"))
             });
 
         let passed = normalization_success && shacl_passed;
