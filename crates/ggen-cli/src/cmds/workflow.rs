@@ -59,6 +59,9 @@ impl EventLog {
     pub fn len(&self) -> usize {
         self.traces.len()
     }
+    pub fn is_empty(&self) -> bool {
+        self.traces.is_empty()
+    }
     pub fn event_count(&self) -> usize {
         self.traces.iter().map(|t| t.events.len()).sum()
     }
