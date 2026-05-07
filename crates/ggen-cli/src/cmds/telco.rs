@@ -100,15 +100,20 @@ pub fn dial(extension: Option<String>) -> VerbResult<TelcoOutput> {
         );
         message.target = Some(ext.clone());
 
-        let result = router.route(&message).await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Dial failed: {:?}", e)))?;
+        let result = router.route(&message).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Dial failed: {:?}", e))
+        })?;
 
         Ok(TelcoOutput {
             status: format!("{:?}", result.status),
-            message: format!("Direct connection established via {} ops", result.metrics.operations),
+            message: format!(
+                "Direct connection established via {} ops",
+                result.metrics.operations
+            ),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Manage the routing fabric and crossbar switches
@@ -122,21 +127,27 @@ pub fn switch(config: Option<String>) -> VerbResult<TelcoOutput> {
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
-        let message = ConvergedMessage::text(
-            "switch-cfg".to_string(),
-            "telco-cli".to_string(),
-            cfg,
-        ).with_metadata("type".to_string(), serde_json::Value::String("config".to_string()));
+        let message =
+            ConvergedMessage::text("switch-cfg".to_string(), "telco-cli".to_string(), cfg)
+                .with_metadata(
+                    "type".to_string(),
+                    serde_json::Value::String("config".to_string()),
+                );
 
-        let result = router.route(&message).await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Switch failed: {:?}", e)))?;
+        let result = router.route(&message).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Switch failed: {:?}", e))
+        })?;
 
         Ok(TelcoOutput {
             status: format!("{:?}", result.status),
-            message: format!("Crossbar routing matrix updated via {} ops", result.metrics.operations),
+            message: format!(
+                "Crossbar routing matrix updated via {} ops",
+                result.metrics.operations
+            ),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Establish a high-capacity multiplexed trunk line
@@ -154,17 +165,26 @@ pub fn trunk(capacity: Option<u32>) -> VerbResult<TelcoOutput> {
             "trunk-est".to_string(),
             "telco-cli".to_string(),
             format!("Capacity {}", cap),
-        ).with_metadata("capacity".to_string(), serde_json::Value::Number(cap.into()));
+        )
+        .with_metadata(
+            "capacity".to_string(),
+            serde_json::Value::Number(cap.into()),
+        );
 
-        let result = router.route(&message).await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Trunk failed: {:?}", e)))?;
+        let result = router.route(&message).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Trunk failed: {:?}", e))
+        })?;
 
         Ok(TelcoOutput {
             status: format!("{:?}", result.status),
-            message: format!("Established trunk line with capacity: {} channels ({} ops)", cap, result.metrics.operations),
+            message: format!(
+                "Established trunk line with capacity: {} channels ({} ops)",
+                cap, result.metrics.operations
+            ),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Emit a 2600Hz control tone to drop into supervisor mode
@@ -181,17 +201,26 @@ pub fn bluebox() -> VerbResult<TelcoOutput> {
             "bluebox-tone".to_string(),
             "telco-cli".to_string(),
             "2600Hz".to_string(),
-        ).with_metadata("otel.kind".to_string(), serde_json::Value::String("supervisor".to_string()));
+        )
+        .with_metadata(
+            "otel.kind".to_string(),
+            serde_json::Value::String("supervisor".to_string()),
+        );
 
-        let result = router.route(&message).await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Bluebox failed: {:?}", e)))?;
+        let result = router.route(&message).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Bluebox failed: {:?}", e))
+        })?;
 
         Ok(TelcoOutput {
             status: format!("{:?}", result.status),
-            message: format!("2600Hz tone accepted. Dropping to raw control protocol ({} ops).", result.metrics.operations),
+            message: format!(
+                "2600Hz tone accepted. Dropping to raw control protocol ({} ops).",
+                result.metrics.operations
+            ),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Wiretap a connection to monitor the event bus
@@ -212,15 +241,20 @@ pub fn tap(channel: Option<String>) -> VerbResult<TelcoOutput> {
         );
         message.target = Some(chan.clone());
 
-        let result = router.route(&message).await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Tap failed: {:?}", e)))?;
+        let result = router.route(&message).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Tap failed: {:?}", e))
+        })?;
 
         Ok(TelcoOutput {
             status: format!("{:?}", result.status),
-            message: format!("Observability wiretap active on channel: {} ({} ops)", chan, result.metrics.operations),
+            message: format!(
+                "Observability wiretap active on channel: {} ({} ops)",
+                chan, result.metrics.operations
+            ),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Escalate an unresolved signal to a human Operator
@@ -240,15 +274,20 @@ pub fn operator() -> VerbResult<TelcoOutput> {
         );
         message.target = Some("operator".to_string());
 
-        let result = router.route(&message).await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Operator call failed: {:?}", e)))?;
+        let result = router.route(&message).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Operator call failed: {:?}", e))
+        })?;
 
         Ok(TelcoOutput {
             status: format!("{:?}", result.status),
-            message: format!("Escalated to operator ({} ops). Please hold...", result.metrics.operations),
+            message: format!(
+                "Escalated to operator ({} ops). Please hold...",
+                result.metrics.operations
+            ),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Exploit or fuzz the routing pathways
@@ -266,11 +305,12 @@ pub fn phreak() -> VerbResult<TelcoOutput> {
             "phreak-fuzz".to_string(),
             "telco-cli".to_string(),
             "!@#$%^&*()_+".to_string(),
-        ).with_metadata("chaos".to_string(), serde_json::Value::Bool(true));
+        )
+        .with_metadata("chaos".to_string(), serde_json::Value::Bool(true));
 
         // It might fail, but that's what we want to trace
         let result = router.route(&message).await;
-        
+
         let (status, ops) = match result {
             Ok(res) => (format!("{:?}", res.status), res.metrics.operations),
             Err(_) => ("chaos_handled".to_string(), 1), // handled gracefully
@@ -281,6 +321,6 @@ pub fn phreak() -> VerbResult<TelcoOutput> {
             message: format!("Chaos injection processed. Ops: {}", ops),
             trace_id: Some(format!("trace-{}", message.message_id)),
         })
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
-

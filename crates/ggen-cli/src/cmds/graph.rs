@@ -63,7 +63,9 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
             .await
             .map_err(|e| ggen_core::utils::error::Error::new(&format!("Load failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+    })?
     .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
@@ -94,7 +96,9 @@ fn query(
             .await
             .map_err(|e| ggen_core::utils::error::Error::new(&format!("Query failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+    })?
     .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
@@ -123,7 +127,9 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
             .await
             .map_err(|e| ggen_core::utils::error::Error::new(&format!("Export failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+    })?
     .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
@@ -155,7 +161,9 @@ fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutp
             .await
             .map_err(|e| ggen_core::utils::error::Error::new(&format!("Visualize failed: {}", e)))
     })
-    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+    })?
     .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;

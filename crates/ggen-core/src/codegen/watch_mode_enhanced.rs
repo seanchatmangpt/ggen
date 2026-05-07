@@ -10,8 +10,8 @@ use super::watch::{
 };
 use super::watch_cache_integration::WatchCacheIntegration;
 use crate::manifest::ManifestParser;
-use colored::Colorize;
 use crate::utils::error::{Error, Result};
+use colored::Colorize;
 use std::path::Path;
 use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};

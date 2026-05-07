@@ -220,7 +220,7 @@ pub enum TemplateSource {
         version: Option<String>,
         /// Path within the package
         path: PathBuf,
-    }
+    },
 }
 
 /// File generation mode

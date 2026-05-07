@@ -27,8 +27,8 @@ use crate::codegen::{DependencyValidator, IncrementalCache, MarketplaceValidator
 use crate::drift::DriftDetector;
 use crate::manifest::{ManifestParser, ManifestValidator};
 use crate::poka_yoke::QualityGateRunner;
-use crate::validation::PreFlightValidator;
 use crate::utils::error::{Error, Result};
+use crate::validation::PreFlightValidator;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::time::Instant;

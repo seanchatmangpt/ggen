@@ -55,8 +55,8 @@
 //! # }
 //! ```
 
-use ahash::AHasher;
 use crate::utils::error::Result;
+use ahash::AHasher;
 use oxigraph::model::Quad;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};

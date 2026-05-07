@@ -128,8 +128,9 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
     let template_path = template_source.template_path;
 
     // Step 4: Generate using ggen-core Generator
-    let pipeline = Pipeline::new()
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
+    let pipeline = Pipeline::new().map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to create pipeline: {}", e))
+    })?;
 
     // Convert HashMap to BTreeMap for Generator
     let vars_btree: BTreeMap<String, String> = vars.into_iter().collect();

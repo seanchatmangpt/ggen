@@ -31,7 +31,6 @@
 use crate::bail;
 
 use crate::graph::Graph;
-use crate::packs::lockfile::PackLockfile;
 use crate::marketplace::atomic::{foundation_packs, AtomicPackId};
 use crate::marketplace::bundle::Bundle;
 use crate::marketplace::metadata::load_pack_metadata;
@@ -40,9 +39,8 @@ use crate::marketplace::ownership::{
 };
 use crate::marketplace::policy::{PackContext, PolicyEnforcer};
 use crate::marketplace::profile::get_profile;
-use crate::utils::{
-    error::{Error, Result},
-};
+use crate::packs::lockfile::PackLockfile;
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -1041,7 +1039,6 @@ mod tests {
 
         // Create a mock lockfile with mcp-rust bundle
         let _lockfile = PackLockfile::new("6.0.0");
-
     }
 
     #[test]

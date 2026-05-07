@@ -4,8 +4,8 @@
 //! It extracts metadata from template frontmatter, stores it in an Oxigraph store,
 //! and provides SPARQL-based querying capabilities.
 
-use chrono::{DateTime, Utc};
 use crate::utils::error::{Error, Result};
+use chrono::{DateTime, Utc};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};

@@ -3,8 +3,8 @@
 //! This module provides the v2 API for rendering templates with RDF/SPARQL support,
 //! maintaining backward compatibility with v1 template rendering.
 
-use crate::{Graph, Template};
 use crate::utils::error::Result;
+use crate::{Graph, Template};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -380,8 +380,9 @@ pub fn generate_from_rdf(
     template_content.push_str("Hello from {{ name }}!\n");
 
     // Write template file
-    std::fs::write(&output_template_path, template_content)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
+    std::fs::write(&output_template_path, template_content).map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to write template: {}", e))
+    })?;
 
     Ok(output_template_path)
 }

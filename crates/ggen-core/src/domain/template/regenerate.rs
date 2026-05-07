@@ -1,7 +1,7 @@
 //! Template regeneration domain logic
 
-use crate::{MergeStrategy, RegionAwareMerger};
 use crate::utils::error::Result;
+use crate::{MergeStrategy, RegionAwareMerger};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -60,8 +60,9 @@ pub fn regenerate_with_merge(
         })?;
     } else {
         // New file - just write generated content
-        fs::write(output_path, generated_content)
-            .map_err(|e| crate::utils::error::Error::new(&format!("Failed to write file: {}", e)))?;
+        fs::write(output_path, generated_content).map_err(|e| {
+            crate::utils::error::Error::new(&format!("Failed to write file: {}", e))
+        })?;
     }
 
     Ok(())
@@ -164,8 +165,9 @@ pub async fn execute_regenerate(input: RegenerateInput) -> Result<()> {
     }
 
     // Create pipeline and generator
-    let pipeline = Pipeline::new()
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
+    let pipeline = Pipeline::new().map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to create pipeline: {}", e))
+    })?;
 
     let ctx = GenContext::new(
         input.template.clone(),

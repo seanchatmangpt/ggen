@@ -94,11 +94,8 @@ impl PythonGenerator {
             "    logger.info(\"{service_name} starting on port {port}\")"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "    # Initialise DB pool, cache, OTEL exporter here"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "    # Initialise DB pool, cache, OTEL exporter here")
+            .map_err(|e| e.to_string())?;
         writeln!(out, "    yield").map_err(|e| e.to_string())?;
         writeln!(
             out,

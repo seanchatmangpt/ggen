@@ -131,10 +131,9 @@ impl SparqlSearchEngine {
 
     /// Execute a SPARQL query and extract results
     fn execute_query(&self, query: &str) -> Result<Vec<String>> {
-        let results = self
-            .store
-            .query(query)
-            .map_err(|e| crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {}", e)))?;
+        let results = self.store.query(query).map_err(|e| {
+            crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {}", e))
+        })?;
 
         let mut packages = Vec::new();
 

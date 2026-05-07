@@ -2,8 +2,8 @@
 //!
 //! Chicago TDD: Uses REAL in-memory RDF stores and ACTUAL SPARQL queries
 
-use crate::Graph;
 use crate::utils::error::{Context, Result};
+use crate::Graph;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;

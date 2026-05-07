@@ -308,7 +308,9 @@ fn apply_single_override(config: &mut GgenConfig, key: &str, value: &serde_json:
 }
 
 /// Update AI configuration field
-fn update_ai_field(ai: &mut crate::config_lib::schema::AiConfig, field: &str, value: &serde_json::Value) {
+fn update_ai_field(
+    ai: &mut crate::config_lib::schema::AiConfig, field: &str, value: &serde_json::Value,
+) {
     match field {
         "model" => {
             if let Some(s) = value.as_str() {
@@ -331,7 +333,8 @@ fn update_ai_field(ai: &mut crate::config_lib::schema::AiConfig, field: &str, va
 
 /// Update security configuration field
 fn update_security_field(
-    security: &mut crate::config_lib::schema::SecurityConfig, field: &str, value: &serde_json::Value,
+    security: &mut crate::config_lib::schema::SecurityConfig, field: &str,
+    value: &serde_json::Value,
 ) {
     match field {
         "require_confirmation" => {
@@ -374,7 +377,8 @@ fn update_logging_field(
 
 /// Update performance configuration field
 fn update_performance_field(
-    performance: &mut crate::config_lib::schema::PerformanceConfig, field: &str, value: &serde_json::Value,
+    performance: &mut crate::config_lib::schema::PerformanceConfig, field: &str,
+    value: &serde_json::Value,
 ) {
     match field {
         "max_workers" => {
@@ -402,7 +406,9 @@ fn update_performance_field(
 }
 
 /// Update MCP configuration field
-fn update_mcp_field(mcp: &mut crate::config_lib::schema::McpConfig, field: &str, value: &serde_json::Value) {
+fn update_mcp_field(
+    mcp: &mut crate::config_lib::schema::McpConfig, field: &str, value: &serde_json::Value,
+) {
     match field {
         "enabled" => {
             if let Some(b) = value.as_bool() {
@@ -434,7 +440,9 @@ fn update_mcp_field(mcp: &mut crate::config_lib::schema::McpConfig, field: &str,
 }
 
 /// Update A2A configuration field
-fn update_a2a_field(a2a: &mut crate::config_lib::schema::A2AConfig, field: &str, value: &serde_json::Value) {
+fn update_a2a_field(
+    a2a: &mut crate::config_lib::schema::A2AConfig, field: &str, value: &serde_json::Value,
+) {
     match field {
         "enabled" => {
             if let Some(b) = value.as_bool() {

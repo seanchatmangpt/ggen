@@ -85,8 +85,8 @@
 //! # }
 //! ```
 
-use chrono::{DateTime, Utc};
 use crate::utils::error::{Error, Result};
+use chrono::{DateTime, Utc};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

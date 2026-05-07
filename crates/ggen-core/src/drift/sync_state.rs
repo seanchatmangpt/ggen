@@ -3,8 +3,8 @@
 //! Stores SHA256 hashes and timestamps of ontology files, manifests,
 //! and inference rules after each sync operation.
 
-use chrono::{DateTime, Utc};
 use crate::utils::error::{Error, Result};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

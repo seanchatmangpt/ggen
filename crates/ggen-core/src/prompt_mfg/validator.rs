@@ -197,7 +197,9 @@ mod semver {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prompt_mfg::ir::{BlockType, ContentBlock, PromptMetadata, PromptVariable, VariableType};
+    use crate::prompt_mfg::ir::{
+        BlockType, ContentBlock, PromptMetadata, PromptVariable, VariableType,
+    };
     use std::collections::BTreeMap;
 
     #[test]

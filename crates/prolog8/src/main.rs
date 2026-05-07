@@ -1,7 +1,7 @@
-use clap::{Parser, Subcommand};
-use prolog8::{Prolog8Compiler, Prolog8Doctor, Prolog8Kernel, Prolog8Replay};
-use prolog8::types::{Atom8, QueryAtom8, ProofMode, Receipt};
 use anyhow::Result;
+use clap::{Parser, Subcommand};
+use prolog8::types::{Atom8, ProofMode, QueryAtom8, Receipt};
+use prolog8::{Prolog8Compiler, Prolog8Doctor, Prolog8Kernel, Prolog8Replay};
 
 #[derive(Parser)]
 #[command(name = "prolog8")]
@@ -68,7 +68,7 @@ fn main() -> Result<()> {
         Commands::Query { store, query } => {
             println!("Querying store {} with '{}'...", store, query);
             let kernel = Prolog8Kernel::new();
-            
+
             // 80/20 Implementation: Dummy QueryAtom8
             let q = QueryAtom8 {
                 atom: Atom8 {

@@ -37,9 +37,7 @@ fn init_otel_tracing() -> crate::utils::error::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(env_filter)
         .try_init()
-        .map_err(|e| {
-            crate::utils::error::Error::with_source("Failed to initialize tracing", e)
-        })?;
+        .map_err(|e| crate::utils::error::Error::with_source("Failed to initialize tracing", e))?;
 
     Ok(())
 }

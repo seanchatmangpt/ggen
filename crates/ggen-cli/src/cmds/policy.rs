@@ -88,8 +88,8 @@ struct RuntimeConstraintSummary {
 /// - Lockfile is invalid
 /// - Pack metadata cannot be loaded
 fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
-    use ggen_core::packs::lockfile::PackLockfile;
     use ggen_core::marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
+    use ggen_core::packs::lockfile::PackLockfile;
     use std::path::Path;
 
     let lockfile_path = Path::new(".ggen/packs.lock");
@@ -99,8 +99,9 @@ fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
         ));
     }
 
-    let lockfile = PackLockfile::from_file(lockfile_path)
-        .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to load lockfile: {}", e)))?;
+    let lockfile = PackLockfile::from_file(lockfile_path).map_err(|e| {
+        ggen_core::utils::error::Error::new(&format!("Failed to load lockfile: {}", e))
+    })?;
 
     let mut pack_contexts = Vec::new();
     for (pack_id, locked_pack) in &lockfile.packs {
@@ -323,9 +324,13 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
 #[verb]
 fn check() -> VerbResult<ValidateOutput> {
     // Use Production as the default profile
-    let profile_obj = ggen_core::marketplace::profile::get_profile("enterprise-strict").map_err(|e| {
-        clap_noun_verb::NounVerbError::argument_error(format!("Default profile not found: {}", e))
-    })?;
+    let profile_obj =
+        ggen_core::marketplace::profile::get_profile("enterprise-strict").map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!(
+                "Default profile not found: {}",
+                e
+            ))
+        })?;
 
     // Load pack contexts from project
     let pack_contexts = load_pack_contexts_from_project()

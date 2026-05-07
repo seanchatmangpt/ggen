@@ -1,7 +1,7 @@
 //! File tree generation domain logic
 
-use crate::{FileTreeTemplate, GenerationResult, TemplateContext, TemplateParser};
 use crate::utils::error::Result;
+use crate::{FileTreeTemplate, GenerationResult, TemplateContext, TemplateParser};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -10,8 +10,9 @@ pub fn generate_file_tree(
     template_path: &Path, output_dir: &Path, variables: &HashMap<String, String>, force: bool,
 ) -> Result<GenerationResult> {
     // Load and parse template
-    let template = TemplateParser::parse_file(template_path)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to parse template: {}", e)))?;
+    let template = TemplateParser::parse_file(template_path).map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to parse template: {}", e))
+    })?;
 
     // Create template context from variables
     let var_map: std::collections::BTreeMap<String, String> = variables
@@ -19,8 +20,9 @@ pub fn generate_file_tree(
         .map(|(k, v)| (k.clone(), v.clone()))
         .collect();
 
-    let context = TemplateContext::from_map(var_map)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to create context: {}", e)))?;
+    let context = TemplateContext::from_map(var_map).map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to create context: {}", e))
+    })?;
 
     // Validate required variables
     if let Err(e) = context.validate_required(template.required_variables()) {
@@ -52,9 +54,9 @@ fn would_overwrite(
         nodes: &[crate::FileTreeNode], current_path: &Path, context: &TemplateContext,
     ) -> Result<bool> {
         for node in nodes {
-            let rendered_name = context
-                .render_string(&node.name)
-                .map_err(|e| crate::utils::error::Error::new(&format!("Failed to render: {}", e)))?;
+            let rendered_name = context.render_string(&node.name).map_err(|e| {
+                crate::utils::error::Error::new(&format!("Failed to render: {}", e))
+            })?;
 
             let node_path = current_path.join(&rendered_name);
 
@@ -181,8 +183,9 @@ pub async fn execute_generate_tree(input: GenerateTreeInput) -> Result<GenerateT
 /// CLI run function - bridges sync CLI to async domain logic
 pub fn run(args: &GenerateTreeInput) -> Result<()> {
     // Use tokio runtime for async execution
-    let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+    let runtime = tokio::runtime::Runtime::new().map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to create runtime: {}", e))
+    })?;
 
     let output = runtime.block_on(execute_generate_tree(args.clone()))?;
 

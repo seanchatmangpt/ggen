@@ -4,8 +4,8 @@
 //! allowing multiple backends (filesystem, remote registry, etc.)
 
 use crate::domain::packs::types::Pack;
-use async_trait::async_trait;
 use crate::utils::error::{Error, Result};
+use async_trait::async_trait;
 use std::path::PathBuf;
 
 /// Repository trait for pack storage operations

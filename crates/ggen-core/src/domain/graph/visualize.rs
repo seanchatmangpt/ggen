@@ -6,8 +6,8 @@
 //! - JSON export for web-based visualization
 //! - Interactive graph exploration
 
-use crate::Graph;
 use crate::utils::error::Result;
+use crate::Graph;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;

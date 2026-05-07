@@ -464,13 +464,11 @@ impl CompositionReceipt {
     ///
     /// Returns error if the parent receipt doesn't have a receipt_id set.
     pub fn chain_parent(&mut self, parent: &CompositionReceipt) -> Result<()> {
-        let parent_id =
-            parent
-                .receipt_id
-                .as_ref()
-                .ok_or_else(|| crate::marketplace::error::Error::ValidationFailed {
-                    reason: "Parent receipt must have receipt_id set before chaining".to_string(),
-                })?;
+        let parent_id = parent.receipt_id.as_ref().ok_or_else(|| {
+            crate::marketplace::error::Error::ValidationFailed {
+                reason: "Parent receipt must have receipt_id set before chaining".to_string(),
+            }
+        })?;
 
         self.parent_receipt_id = Some(parent_id.clone());
         tracing::debug!("Chained composition receipt to parent: {}", parent_id);
@@ -576,10 +574,11 @@ impl CompositionReceipt {
             visited.insert(current_id.clone());
 
             // Try to resolve the parent
-            let parent =
-                resolver(&current_id).map_err(|_| crate::marketplace::error::Error::ValidationFailed {
+            let parent = resolver(&current_id).map_err(|_| {
+                crate::marketplace::error::Error::ValidationFailed {
                     reason: format!("Cannot resolve parent receipt: {}", current_id),
-                })?;
+                }
+            })?;
 
             // If parent is a root, we've reached the end of the chain
             if parent.is_root() {
@@ -587,13 +586,12 @@ impl CompositionReceipt {
             }
 
             // Move to the next parent
-            current_id =
-                parent
-                    .parent_receipt_id
-                    .ok_or_else(|| crate::marketplace::error::Error::ValidationFailed {
-                        reason: "Parent receipt marked as child but parent_receipt_id is None"
-                            .to_string(),
-                    })?;
+            current_id = parent.parent_receipt_id.ok_or_else(|| {
+                crate::marketplace::error::Error::ValidationFailed {
+                    reason: "Parent receipt marked as child but parent_receipt_id is None"
+                        .to_string(),
+                }
+            })?;
         }
 
         tracing::debug!(
@@ -665,10 +663,11 @@ impl CompositionReceipt {
             chain.push(current_id.clone());
 
             // Resolve the parent
-            let parent =
-                resolver(&current_id).map_err(|_| crate::marketplace::error::Error::ValidationFailed {
+            let parent = resolver(&current_id).map_err(|_| {
+                crate::marketplace::error::Error::ValidationFailed {
                     reason: format!("Cannot resolve parent receipt: {}", current_id),
-                })?;
+                }
+            })?;
 
             // If parent is a root, we've reached the end
             if parent.is_root() {
@@ -676,13 +675,12 @@ impl CompositionReceipt {
             }
 
             // Move to next parent
-            current_id =
-                parent
-                    .parent_receipt_id
-                    .ok_or_else(|| crate::marketplace::error::Error::ValidationFailed {
-                        reason: "Parent receipt marked as child but parent_receipt_id is None"
-                            .to_string(),
-                    })?;
+            current_id = parent.parent_receipt_id.ok_or_else(|| {
+                crate::marketplace::error::Error::ValidationFailed {
+                    reason: "Parent receipt marked as child but parent_receipt_id is None"
+                        .to_string(),
+                }
+            })?;
         }
 
         Ok(chain)

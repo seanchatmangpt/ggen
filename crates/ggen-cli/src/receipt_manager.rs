@@ -102,8 +102,9 @@ impl ReceiptManager {
                 .map_err(|_| ggen_core::utils::Error::new("Invalid verifying key length"))?;
 
             let signing_key = SigningKey::from_bytes(&signing_key_array);
-            let verifying_key = VerifyingKey::from_bytes(&verifying_key_array)
-                .map_err(|e| ggen_core::utils::Error::new(&format!("Invalid verifying key: {}", e)))?;
+            let verifying_key = VerifyingKey::from_bytes(&verifying_key_array).map_err(|e| {
+                ggen_core::utils::Error::new(&format!("Invalid verifying key: {}", e))
+            })?;
 
             self.signing_key = Some(signing_key);
             self.verifying_key = Some(verifying_key);
@@ -119,11 +120,13 @@ impl ReceiptManager {
         let private_key_hex = hex::encode(signing_key.to_bytes());
         let public_key_hex = hex::encode(verifying_key.to_bytes());
 
-        fs::write(&private_key_path, private_key_hex)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to write private key: {}", e)))?;
+        fs::write(&private_key_path, private_key_hex).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to write private key: {}", e))
+        })?;
 
-        fs::write(&public_key_path, public_key_hex)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to write public key: {}", e)))?;
+        fs::write(&public_key_path, public_key_hex).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to write public key: {}", e))
+        })?;
 
         info!(
             "Generated new keypair: private={:?}, public={:?}",
@@ -183,11 +186,13 @@ impl ReceiptManager {
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
-        let receipt_json = serde_json::to_string_pretty(&receipt)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
+        let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to serialize receipt: {}", e))
+        })?;
 
-        fs::write(&receipt_path, receipt_json)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
+        fs::write(&receipt_path, receipt_json).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to write receipt: {}", e))
+        })?;
 
         info!(
             "Generated receipt: {} ({} packages installed)",
@@ -217,8 +222,9 @@ impl ReceiptManager {
             .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to read receipt: {}", e)))?;
 
         // Parse receipt
-        let receipt: Receipt = serde_json::from_str(&receipt_content)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to parse receipt: {}", e)))?;
+        let receipt: Receipt = serde_json::from_str(&receipt_content).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to parse receipt: {}", e))
+        })?;
 
         // Verify signature
         let is_valid = receipt.verify(&verifying_key).is_ok();
@@ -249,11 +255,13 @@ impl ReceiptManager {
 
     /// Read verifying key from file
     fn read_verifying_key(&self, key_path: &PathBuf) -> Result<VerifyingKey> {
-        let content = fs::read_to_string(key_path)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to read public key: {}", e)))?;
+        let content = fs::read_to_string(key_path).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to read public key: {}", e))
+        })?;
 
-        let key_bytes = hex::decode(content.trim())
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to decode public key: {}", e)))?;
+        let key_bytes = hex::decode(content.trim()).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to decode public key: {}", e))
+        })?;
 
         let key_array: [u8; 32] = key_bytes[..32]
             .try_into()
@@ -317,11 +325,13 @@ impl ReceiptManager {
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
-        let receipt_json = serde_json::to_string_pretty(&receipt)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
+        let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to serialize receipt: {}", e))
+        })?;
 
-        fs::write(&receipt_path, receipt_json)
-            .map_err(|e| ggen_core::utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
+        fs::write(&receipt_path, receipt_json).map_err(|e| {
+            ggen_core::utils::Error::new(&format!("Failed to write receipt: {}", e))
+        })?;
 
         info!(
             "Generated composition receipt: {} ({} packs composed)",

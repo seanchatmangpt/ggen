@@ -11,6 +11,7 @@
 //! 5. μ₅: Receipt (provenance)
 
 use crate::graph::{Graph, GraphExport};
+use crate::marketplace::trust::TrustTier;
 use crate::pack_resolver::{PackResolver, ResolvedPacks};
 use crate::pipeline_engine::epoch::Epoch;
 use crate::pipeline_engine::guard::GuardSet;
@@ -22,7 +23,6 @@ use crate::pipeline_engine::receipt::{
     BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies,
 };
 use crate::pipeline_engine::vocabulary::VocabularyRegistry;
-use crate::marketplace::trust::TrustTier;
 use crate::utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use serde::{Deserialize, Serialize};

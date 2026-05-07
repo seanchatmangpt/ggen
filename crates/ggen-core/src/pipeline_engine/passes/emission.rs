@@ -9,10 +9,10 @@
 //! - **Stop-the-line**: Any non-deterministic output halts the pipeline
 //! - **Receipt integration**: All generated files are hashed and recorded
 
-use crate::resolver::TemplateResolver;
+use crate::marketplace::ownership::{OwnershipMap, OwnershipTarget};
 use crate::pipeline_engine::guard::{GuardAction, GuardSet, GuardViolation};
 use crate::pipeline_engine::pass::{Pass, PassContext, PassResult, PassType};
-use crate::marketplace::ownership::{OwnershipMap, OwnershipTarget};
+use crate::resolver::TemplateResolver;
 use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

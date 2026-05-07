@@ -4,8 +4,8 @@
 
 use crate::domain::packs::repository::PackRepository;
 use crate::domain::packs::types::Pack;
-use async_trait::async_trait;
 use crate::utils::error::{Error, Result};
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tracing::{info, warn};

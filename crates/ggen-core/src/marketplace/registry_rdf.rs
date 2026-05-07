@@ -153,10 +153,9 @@ impl RdfRegistry {
     /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
     /// * [`Error::RdfStoreError`] - When querying the RDF store fails
     pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
-        let results = self
-            .store
-            .query(query)
-            .map_err(|e| crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {e}")))?;
+        let results = self.store.query(query).map_err(|e| {
+            crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {e}"))
+        })?;
 
         self.queries_executed
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -311,10 +310,9 @@ impl AsyncRepository for RdfRegistry {
             GGEN_NS, id
         );
 
-        let results = self
-            .store
-            .query(&query)
-            .map_err(|e| crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {e}")))?;
+        let results = self.store.query(&query).map_err(|e| {
+            crate::marketplace::error::Error::SearchError(format!("SPARQL query failed: {e}"))
+        })?;
 
         match results {
             oxigraph::sparql::QueryResults::Boolean(exists) => {
@@ -348,12 +346,12 @@ impl RdfRegistry {
             id
         );
 
-        self.store
-            .update(&delete_query)
-            .map_err(|e| crate::marketplace::error::Error::RdfStoreError {
+        self.store.update(&delete_query).map_err(|e| {
+            crate::marketplace::error::Error::RdfStoreError {
                 operation: "delete".to_string(),
                 reason: e.to_string(),
-            })
+            }
+        })
     }
 
     /// Create a new package in the RDF store
@@ -556,10 +554,9 @@ impl RdfRegistry {
             "
         );
 
-        let results = self
-            .store
-            .query(&query)
-            .map_err(|e| crate::marketplace::error::Error::SearchError(format!("Count query failed: {e}")))?;
+        let results = self.store.query(&query).map_err(|e| {
+            crate::marketplace::error::Error::SearchError(format!("Count query failed: {e}"))
+        })?;
 
         if let oxigraph::sparql::QueryResults::Solutions(mut solutions) = results {
             if let Some(Ok(solution)) = solutions.next() {

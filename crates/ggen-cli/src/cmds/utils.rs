@@ -63,7 +63,9 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
             ggen_core::utils::error::Error::new(&format!("System diagnostics failed: {}", e))
         })
     })
-    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+    })?
     .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;

@@ -9,8 +9,8 @@
 //! - **Thread safety**: Cheap cloning via `Arc` for concurrent access
 
 use crate::graph::types::CachedResult;
-use ahash::AHasher;
 use crate::utils::error::{Error, Result};
+use ahash::AHasher;
 use lru::LruCache;
 use oxigraph::io::RdfFormat;
 use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};

@@ -2,8 +2,8 @@
 
 use crate::domain::packs::external_fetcher::ExternalFetcherFactory;
 use crate::domain::packs::types::Pack;
-use flate2::read::GzDecoder;
 use crate::utils::error::Result;
+use flate2::read::GzDecoder;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tar::Archive;
@@ -120,8 +120,9 @@ async fn download_and_verify_external_pack(
     // In a real implementation, remote_pkg would include the expected checksum.
     // For now, we just write it.
     let artifact_path = install_path.join("artifact.tar.gz");
-    fs::write(&artifact_path, artifact_bytes)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to write artifact: {}", e)))?;
+    fs::write(&artifact_path, artifact_bytes).map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to write artifact: {}", e))
+    })?;
 
     Ok(())
 }
@@ -141,9 +142,9 @@ async fn unpack_external_pack(_pack_id: &str, pack: &Pack, install_path: &Path) 
     let mut archive = Archive::new(tar);
 
     // Extract to the install path
-    archive
-        .unpack(install_path)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to unpack artifact: {}", e)))?;
+    archive.unpack(install_path).map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to unpack artifact: {}", e))
+    })?;
 
     // Generate package.toml for compatibility
     let package_toml_path = install_path.join("package.toml");

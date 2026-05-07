@@ -461,7 +461,6 @@ mod tests {
     #[test]
     fn test_generate_service_struct() {
         let _result = GoCodeGenerator::generate_service_struct("UserService", &["cache", "queue"]);
-        
     }
 
     // --- Stub 3: generate_repository real SQL ---

@@ -124,12 +124,23 @@ fn perform_publish_checks() -> Vec<CheckItem> {
     checks.push(CheckItem {
         name: "Receipt Chain".to_string(),
         passed: receipt_passed,
-        detail: if receipt_passed { "Cryptographic lineage verified".to_string() } else { "Missing receipt chain".to_string() },
-        recovery: if receipt_passed { None } else { Some("Run `ggen sync --audit` to generate receipts".to_string()) },
+        detail: if receipt_passed {
+            "Cryptographic lineage verified".to_string()
+        } else {
+            "Missing receipt chain".to_string()
+        },
+        recovery: if receipt_passed {
+            None
+        } else {
+            Some("Run `ggen sync --audit` to generate receipts".to_string())
+        },
     });
 
     let vocab_path = Path::new(".specify/ontologies/standard-vocabularies.ttl");
-    let vocab_passed = vocab_path.exists() && std::fs::read_to_string(vocab_path).unwrap_or_default().contains("gv6:StandardVocabulary");
+    let vocab_passed = vocab_path.exists()
+        && std::fs::read_to_string(vocab_path)
+            .unwrap_or_default()
+            .contains("gv6:StandardVocabulary");
     checks.push(CheckItem {
         name: "Governance Policy".to_string(),
         passed: vocab_passed,
@@ -138,21 +149,39 @@ fn perform_publish_checks() -> Vec<CheckItem> {
     });
 
     let cargo_toml = std::fs::read_to_string("Cargo.toml").unwrap_or_default();
-    let manifest_passed = cargo_toml.contains("version.workspace = true") || cargo_toml.contains("version = ");
+    let manifest_passed =
+        cargo_toml.contains("version.workspace = true") || cargo_toml.contains("version = ");
     checks.push(CheckItem {
         name: "Manifest Consistency".to_string(),
         passed: manifest_passed,
-        detail: if manifest_passed { "Workspace version unification verified".to_string() } else { "Manifest inconsistencies detected".to_string() },
-        recovery: if manifest_passed { None } else { Some("Use version.workspace = true in all crate Cargo.toml files".to_string()) },
+        detail: if manifest_passed {
+            "Workspace version unification verified".to_string()
+        } else {
+            "Manifest inconsistencies detected".to_string()
+        },
+        recovery: if manifest_passed {
+            None
+        } else {
+            Some("Use version.workspace = true in all crate Cargo.toml files".to_string())
+        },
     });
 
-    let binary_path = std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("target/release/ggen"));
+    let binary_path =
+        std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("target/release/ggen"));
     let binary_passed = binary_path.exists();
     checks.push(CheckItem {
         name: "Canonical Binary".to_string(),
         passed: binary_passed,
-        detail: if binary_passed { "Artifact signature matches canonical profile".to_string() } else { "Binary missing or unsigned".to_string() },
-        recovery: if binary_passed { None } else { Some("Run `cargo make` to build the binary".to_string()) },
+        detail: if binary_passed {
+            "Artifact signature matches canonical profile".to_string()
+        } else {
+            "Binary missing or unsigned".to_string()
+        },
+        recovery: if binary_passed {
+            None
+        } else {
+            Some("Run `cargo make` to build the binary".to_string())
+        },
     });
 
     checks
@@ -167,7 +196,11 @@ fn publish(dry_run: Option<bool>) -> Result<RunOutput> {
 
     Ok(RunOutput {
         healthy,
-        message: if is_dry_run { "Dry-run: Pre-publish validation checks PASSED".to_string() } else { "Pre-publish checks completed".to_string() },
+        message: if is_dry_run {
+            "Dry-run: Pre-publish validation checks PASSED".to_string()
+        } else {
+            "Pre-publish checks completed".to_string()
+        },
         checks,
         binary_version: env!("CARGO_PKG_VERSION").to_string(),
         ggen_toml_found: true,
@@ -175,34 +208,34 @@ fn publish(dry_run: Option<bool>) -> Result<RunOutput> {
     })
 }
 
-    /// Run a full health check: ggen.toml presence, binary version, workspace state, and toolchain
-    #[verb]
-    fn run() -> Result<RunOutput> {
-        let cwd = std::env::current_dir()
-            .map(|p| p.display().to_string())
-            .unwrap_or_else(|_| "<unknown>".to_string());
-        let ggen_toml_found = Path::new("ggen.toml").exists();
-        let binary_version = env!("CARGO_PKG_VERSION").to_string();
+/// Run a full health check: ggen.toml presence, binary version, workspace state, and toolchain
+#[verb]
+fn run() -> Result<RunOutput> {
+    let cwd = std::env::current_dir()
+        .map(|p| p.display().to_string())
+        .unwrap_or_else(|_| "<unknown>".to_string());
+    let ggen_toml_found = Path::new("ggen.toml").exists();
+    let binary_version = env!("CARGO_PKG_VERSION").to_string();
 
-        let mut checks = workspace_checks();
-        checks.extend(toolchain_checks()?);
+    let mut checks = workspace_checks();
+    checks.extend(toolchain_checks()?);
 
-        let healthy = is_healthy(&checks);
-        let message = if healthy {
-            "All critical health checks passed".to_string()
-        } else {
-            "One or more health checks failed — see checks for details".to_string()
-        };
+    let healthy = is_healthy(&checks);
+    let message = if healthy {
+        "All critical health checks passed".to_string()
+    } else {
+        "One or more health checks failed — see checks for details".to_string()
+    };
 
-        Ok(RunOutput {
-            healthy,
-            binary_version,
-            ggen_toml_found,
-            workspace_root: cwd,
-            checks,
-            message,
-        })
-    }
+    Ok(RunOutput {
+        healthy,
+        binary_version,
+        ggen_toml_found,
+        workspace_root: cwd,
+        checks,
+        message,
+    })
+}
 
 /// Quick validation: verifies the workspace can be found and ggen.toml is present
 #[verb]
@@ -224,23 +257,33 @@ fn check() -> Result<CheckOutput> {
         ggen_toml_found,
         workspace_root: cwd,
         message,
-        recovery: if ggen_toml_found { None } else { Some("Create ggen.toml in the workspace root".to_string()) },
+        recovery: if ggen_toml_found {
+            None
+        } else {
+            Some("Create ggen.toml in the workspace root".to_string())
+        },
     })
 }
 
 /// Scans ggen.toml for configuration issues
 #[verb]
 fn config() -> Result<CheckOutput> {
-    let cwd = std::env::current_dir().unwrap_or_default().display().to_string();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .display()
+        .to_string();
     let toml_exists = Path::new("ggen.toml").exists();
-    
+
     let (passed, message) = if toml_exists {
         use ggen_core::manifest::ManifestParser;
         match ManifestParser::parse(Path::new("ggen.toml")) {
             Ok(manifest) => {
                 let name = manifest.project.name;
                 let version = manifest.project.version;
-                (true, format!("ggen.toml is valid. Project: {} v{}", name, version))
+                (
+                    true,
+                    format!("ggen.toml is valid. Project: {} v{}", name, version),
+                )
             }
             Err(e) => (false, format!("ggen.toml is invalid or corrupted: {}", e)),
         }
@@ -253,14 +296,21 @@ fn config() -> Result<CheckOutput> {
         ggen_toml_found: toml_exists,
         workspace_root: cwd,
         message,
-        recovery: if passed { None } else { Some("Create or fix ggen.toml".to_string()) },
+        recovery: if passed {
+            None
+        } else {
+            Some("Create or fix ggen.toml".to_string())
+        },
     })
 }
 
 /// Validates RDF ontologies in the workspace
 #[verb]
 fn ontology() -> Result<CheckOutput> {
-    let cwd = std::env::current_dir().unwrap_or_default().display().to_string();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .display()
+        .to_string();
     let toml_exists = Path::new("ggen.toml").exists();
     let ontology_dir = Path::new(".specify/ontologies");
     let passed = ontology_dir.exists();
@@ -275,16 +325,23 @@ fn ontology() -> Result<CheckOutput> {
         ggen_toml_found: toml_exists,
         workspace_root: cwd,
         message,
-        recovery: if passed { None } else { Some("Create .specify/ontologies directory".to_string()) },
+        recovery: if passed {
+            None
+        } else {
+            Some("Create .specify/ontologies directory".to_string())
+        },
     })
 }
 
 /// Verifies connection to OpenTelemetry collector and Tempo
 #[verb]
 fn telemetry() -> Result<CheckOutput> {
-    let cwd = std::env::current_dir().unwrap_or_default().display().to_string();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .display()
+        .to_string();
     let toml_exists = Path::new("ggen.toml").exists();
-    
+
     let domain_result = crate::runtime::block_on(execute_doctor(DoctorInput {
         verbose: false,
         check: Some("observability".to_string()),
@@ -292,20 +349,23 @@ fn telemetry() -> Result<CheckOutput> {
     }))
     .map_err(|e| NounVerbError::execution_error(format!("tokio runtime error: {}", e)))?
     .map_err(|e| NounVerbError::execution_error(format!("doctor domain error: {}", e)))?;
-    
+
     let passed = if let Some(check) = domain_result.checks.first() {
         matches!(check.status, CheckStatus::Ok)
     } else {
         false
     };
-    
+
     let message = if let Some(check) = domain_result.checks.first() {
         check.message.clone()
     } else {
         "No observability result".to_string()
     };
-    
-    let recovery = domain_result.checks.first().and_then(|c| c.recovery.clone());
+
+    let recovery = domain_result
+        .checks
+        .first()
+        .and_then(|c| c.recovery.clone());
 
     Ok(CheckOutput {
         passed,
@@ -319,9 +379,12 @@ fn telemetry() -> Result<CheckOutput> {
 /// Validates the local marketplace registry
 #[verb]
 fn registry() -> Result<CheckOutput> {
-    let cwd = std::env::current_dir().unwrap_or_default().display().to_string();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .display()
+        .to_string();
     let toml_exists = Path::new("ggen.toml").exists();
-    
+
     let domain_result = crate::runtime::block_on(execute_doctor(DoctorInput {
         verbose: false,
         check: Some("marketplace".to_string()),
@@ -329,20 +392,23 @@ fn registry() -> Result<CheckOutput> {
     }))
     .map_err(|e| NounVerbError::execution_error(format!("tokio runtime error: {}", e)))?
     .map_err(|e| NounVerbError::execution_error(format!("doctor domain error: {}", e)))?;
-    
+
     let passed = if let Some(check) = domain_result.checks.first() {
         matches!(check.status, CheckStatus::Ok)
     } else {
         false
     };
-    
+
     let message = if let Some(check) = domain_result.checks.first() {
         check.message.clone()
     } else {
         "No marketplace result".to_string()
     };
 
-    let recovery = domain_result.checks.first().and_then(|c| c.recovery.clone());
+    let recovery = domain_result
+        .checks
+        .first()
+        .and_then(|c| c.recovery.clone());
 
     Ok(CheckOutput {
         passed,
@@ -355,27 +421,45 @@ fn registry() -> Result<CheckOutput> {
 
 fn perform_security_check() -> (bool, String, Option<String>) {
     if Path::new(".env").exists() {
-        return (false, "Found .env file in workspace root. This is a security risk.".to_string(), Some("Move .env outside of the workspace or securely manage secrets.".to_string()));
+        return (
+            false,
+            "Found .env file in workspace root. This is a security risk.".to_string(),
+            Some("Move .env outside of the workspace or securely manage secrets.".to_string()),
+        );
     }
 
     let mcp_path = Path::new(".mcp.json");
     if mcp_path.exists() {
         if let Ok(content) = std::fs::read_to_string(mcp_path) {
             if content.contains("\"*\"") || content.contains("\"**/*\"") {
-                return (false, "DANGER: .mcp.json contains broad wildcard permissions ('*').".to_string(), Some("Scope down permissions in .mcp.json to specific paths/tools.".to_string()));
+                return (
+                    false,
+                    "DANGER: .mcp.json contains broad wildcard permissions ('*').".to_string(),
+                    Some(
+                        "Scope down permissions in .mcp.json to specific paths/tools.".to_string(),
+                    ),
+                );
             }
         }
     }
 
-    (true, "Security posture is acceptable. No exposed .env or broad MCP permissions found.".to_string(), None)
+    (
+        true,
+        "Security posture is acceptable. No exposed .env or broad MCP permissions found."
+            .to_string(),
+        None,
+    )
 }
 
 /// Scans the workspace for secrets or dangerous permissions
 #[verb]
 fn security() -> Result<CheckOutput> {
-    let cwd = std::env::current_dir().unwrap_or_default().display().to_string();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .display()
+        .to_string();
     let toml_exists = Path::new("ggen.toml").exists();
-    
+
     let (passed, message, recovery) = perform_security_check();
 
     Ok(CheckOutput {

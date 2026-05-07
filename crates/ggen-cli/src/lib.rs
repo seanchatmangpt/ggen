@@ -65,12 +65,11 @@
     clippy::useless_conversion
 )]
 pub mod config_clap;
-pub mod validation_lib;
 pub mod error;
 pub mod pack_install;
 pub mod prelude;
 pub mod progress;
-
+pub mod validation_lib;
 
 // Note: std::io::Write was used for output capture with gag crate (now disabled)
 
@@ -94,8 +93,9 @@ pub use ggen_core::utils::error::Result;
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
     // Use clap-noun-verb auto-discovery (handles --version automatically)
-    clap_noun_verb::run()
-        .map_err(|e| ggen_core::utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+    clap_noun_verb::run().map_err(|e| {
+        ggen_core::utils::error::Error::new(&format!("CLI execution failed: {}", e))
+    })?;
     Ok(())
 }
 

@@ -4,8 +4,8 @@
 
 use super::sync_state::{FileHashState, SyncState};
 use crate::pqc::calculate_sha256_file;
-use chrono::Utc;
 use crate::utils::error::Result;
+use chrono::Utc;
 use std::fs;
 use std::path::{Path, PathBuf};
 

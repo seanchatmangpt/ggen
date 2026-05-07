@@ -91,7 +91,10 @@ pub fn validate_sparql_query(query: &str) -> Result<()> {
         // If it's a query error (as opposed to other errors), it's a syntax issue
         match e {
             crate::ontology_core::errors::OntologyError::QueryError(msg) => {
-                crate::ontology_core::errors::OntologyError::query(format!("Invalid SPARQL query: {}", msg))
+                crate::ontology_core::errors::OntologyError::query(format!(
+                    "Invalid SPARQL query: {}",
+                    msg
+                ))
             }
             _ => e,
         }
@@ -129,10 +132,9 @@ pub fn validate_ontology<P: AsRef<Path>>(path: P, file_type: &str) -> Result<Val
     match file_type.to_lowercase().as_str() {
         "ttl" | "turtle" => validate_turtle(path),
         "rdf" | "xml" => validate_rdf_xml(path),
-        _ => Err(crate::ontology_core::errors::OntologyError::config(format!(
-            "Unknown file type: {}",
-            file_type
-        ))),
+        _ => Err(crate::ontology_core::errors::OntologyError::config(
+            format!("Unknown file type: {}", file_type),
+        )),
     }
 }
 

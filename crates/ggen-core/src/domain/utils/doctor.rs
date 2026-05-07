@@ -145,7 +145,9 @@ async fn check_marketplace() -> Result<CheckResult> {
             name: "Marketplace DB".to_string(),
             status: CheckStatus::Error,
             message: format!("RDF store error (possibly locked or corrupt): {}", e),
-            recovery: Some("rm -rf ~/.cache/ggen/packs/marketplace.db && ggen marketplace sync".to_string()),
+            recovery: Some(
+                "rm -rf ~/.cache/ggen/packs/marketplace.db && ggen marketplace sync".to_string(),
+            ),
         }),
     }
 }
@@ -302,8 +304,8 @@ async fn check_slo() -> Result<CheckResult> {
 
     // 2. RDF Graph Synthesis Throughput Test (Oxigraph)
     let graph_start = Instant::now();
-    let store =
-        Store::new().map_err(|e| crate::utils::error::Error::new(&format!("Graph error: {}", e)))?;
+    let store = Store::new()
+        .map_err(|e| crate::utils::error::Error::new(&format!("Graph error: {}", e)))?;
     for i in 0..2000 {
         let s = NamedNode::new(format!("http://ggen.io/s{}", i)).unwrap();
         let p = NamedNode::new("http://ggen.io/p").unwrap();
@@ -387,7 +389,9 @@ async fn check_rust() -> Result<CheckResult> {
             name: "Rust".to_string(),
             status: CheckStatus::Error,
             message: "Not installed. Install Rust from https://rustup.rs".to_string(),
-            recovery: Some("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string()),
+            recovery: Some(
+                "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string(),
+            ),
         }),
     }
 }
@@ -411,7 +415,9 @@ async fn check_cargo() -> Result<CheckResult> {
             name: "Cargo".to_string(),
             status: CheckStatus::Error,
             message: "Not installed. Install Rust from https://rustup.rs".to_string(),
-            recovery: Some("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string()),
+            recovery: Some(
+                "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string(),
+            ),
         }),
     }
 }

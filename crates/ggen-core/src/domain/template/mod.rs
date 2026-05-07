@@ -9,8 +9,8 @@
 //! - TTL file → Template generation support
 //! - Preprocessor integration for advanced template processing
 
-use crate::{GenContext, Generator, Pipeline};
 use crate::utils::error::Result;
+use crate::{GenContext, Generator, Pipeline};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -84,8 +84,9 @@ impl TemplateService {
     /// Read template content
     pub fn read_template(&self, name: &str) -> Result<String> {
         let path = self.template_path(name);
-        fs::read_to_string(&path)
-            .map_err(|e| crate::utils::error::Error::new(&format!("Failed to read template: {}", e)))
+        fs::read_to_string(&path).map_err(|e| {
+            crate::utils::error::Error::new(&format!("Failed to read template: {}", e))
+        })
     }
 
     /// Write template content

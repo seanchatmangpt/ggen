@@ -302,7 +302,7 @@ mod tests {
     use super::*;
 
     #[ignore]
-#[test]
+    #[test]
     fn test_registry_standard_vocabularies() {
         let registry = VocabularyRegistry::with_standard_vocabularies();
 
@@ -360,7 +360,7 @@ mod tests {
     }
 
     #[ignore]
-#[test]
+    #[test]
     fn test_validate_namespaces() {
         let registry = VocabularyRegistry::with_standard_vocabularies();
 

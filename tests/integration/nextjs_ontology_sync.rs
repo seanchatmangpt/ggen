@@ -21,8 +21,8 @@
 //! - Real container execution (chicago-tdd-tools)
 //! - Verifies actual type safety, not mocks
 
-use ggen_core::Graph;
 use ggen_core::utils::error::{Error, Result};
+use ggen_core::Graph;
 use std::fs;
 use std::path::Path;
 use std::process::Command;

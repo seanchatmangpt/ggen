@@ -43,10 +43,10 @@ mod tests;
 use crate::codegen::go::GoCodeGenerator;
 use crate::graph::types::CachedResult;
 use crate::graph::Graph;
+use crate::utils::error::Error as GgenError;
 use crate::validation::soundness_gates::{
     check_boundedness, check_deadlock_freedom, check_liveness, SoundnessViolation,
 };
-use crate::utils::error::Error as GgenError;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;

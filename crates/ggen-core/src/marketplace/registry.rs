@@ -111,7 +111,9 @@ impl Registry {
     /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
     pub fn update(&self, id: &PackageId, package: Package) -> Result<()> {
         if !self.packages.contains_key(id) {
-            return Err(crate::marketplace::error::Error::package_not_found(id.to_string()));
+            return Err(crate::marketplace::error::Error::package_not_found(
+                id.to_string(),
+            ));
         }
 
         self.packages.insert(id.clone(), package);
@@ -185,7 +187,9 @@ impl AsyncRepository for Registry {
         self.cache_misses
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         warn!("Package not found: {}", id);
-        Err(crate::marketplace::error::Error::package_not_found(id.to_string()))
+        Err(crate::marketplace::error::Error::package_not_found(
+            id.to_string(),
+        ))
     }
 
     /// Get a package with only the specified version

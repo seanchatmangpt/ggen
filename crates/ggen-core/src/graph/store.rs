@@ -58,8 +58,9 @@ impl GraphStore {
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
         // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         // Pattern: Always use `.map_err()` for external library errors that don't implement `From`
-        let store = Store::open(path.as_ref())
-            .map_err(|e| crate::utils::error::Error::new(&format!("Failed to open store: {}", e)))?;
+        let store = Store::open(path.as_ref()).map_err(|e| {
+            crate::utils::error::Error::new(&format!("Failed to open store: {}", e))
+        })?;
         Ok(Self {
             store: Arc::new(store),
         })

@@ -43,8 +43,8 @@ use chrono::Utc;
 use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
-use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use ggen_core::receipt::{generate_keypair, hash_data, Receipt};
+use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use serde::Serialize;
 use std::path::PathBuf;
 

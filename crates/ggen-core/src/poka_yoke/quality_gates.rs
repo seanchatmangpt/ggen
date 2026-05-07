@@ -473,7 +473,6 @@ impl QualityGate for TemplateValidationGate {
                 crate::manifest::TemplateSource::Inline { inline } => inline.clone(),
                 crate::manifest::TemplateSource::Git { .. } => String::new(),
                 crate::manifest::TemplateSource::Package { .. } => String::new(),
-
             };
 
             // Validate template syntax
@@ -594,7 +593,6 @@ impl QualityGate for RuleValidationGate {
                 }
                 crate::manifest::TemplateSource::Git { .. } => {}
                 crate::manifest::TemplateSource::Package { .. } => {}
-
             }
         }
 

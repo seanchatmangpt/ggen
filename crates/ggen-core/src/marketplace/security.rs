@@ -5,9 +5,9 @@
 
 use crate::marketplace::error::Result;
 use crate::marketplace::traits::Signable;
+use crate::receipt::hash_data;
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
-use crate::receipt::hash_data;
 use tracing::{debug, instrument};
 
 /// Re-export the canonical keypair generation from ggen-receipt.

@@ -10,9 +10,9 @@
 //! - **Receipt integration**: All canonicalized files are hashed and verified
 //! - **Deterministic hashing**: Same input always produces same canonical hash
 
-use crate::pipeline_engine::pass::{Pass, PassContext, PassResult, PassType};
 use crate::canonical::hash::compute_hash;
 use crate::canonical::{json, rust, ttl};
+use crate::pipeline_engine::pass::{Pass, PassContext, PassResult, PassType};
 use crate::receipt::{hash_data, Receipt};
 use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};

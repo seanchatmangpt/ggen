@@ -759,17 +759,13 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
         ));
     }
 
-    let result =
-        crate::runtime::block_on(ggen_core::domain::packs::check_packs_compatibility(&pack_id_list))
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
-            })?
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
-                    "Compatibility check failed: {}",
-                    e
-                ))
-            })?;
+    let result = crate::runtime::block_on(ggen_core::domain::packs::check_packs_compatibility(
+        &pack_id_list,
+    ))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Compatibility check failed: {}", e))
+    })?;
 
     if result.compatible {
         println!("{}", result.message);

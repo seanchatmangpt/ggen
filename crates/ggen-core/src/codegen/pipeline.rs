@@ -576,39 +576,50 @@ impl GenerationPipeline {
                         cmd.arg("--branch").arg(b);
                     }
                     cmd.arg(git).arg(&temp_dir);
-                    
-                    let status = cmd.status().map_err(|e| {
-                        Error::new(&format!("Failed to execute git clone: {}", e))
-                    })?;
-                    
+
+                    let status = cmd
+                        .status()
+                        .map_err(|e| Error::new(&format!("Failed to execute git clone: {}", e)))?;
+
                     if !status.success() {
-                        return Err(Error::new(&format!("Failed to clone git repository: {}", git)));
+                        return Err(Error::new(&format!(
+                            "Failed to clone git repository: {}",
+                            git
+                        )));
                     }
-                    
+
                     let template_path = temp_dir.join(path);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
                         Error::new(&format!("Failed to read template file from git: {}", e))
                     })?;
-                    
+
                     // Clean up temp dir
                     let _ = std::fs::remove_dir_all(temp_dir);
-                    
+
                     (content, format!("git '{}'", git))
                 }
-                TemplateSource::Package { package, version, path } => {
-                    let home = dirs::home_dir().ok_or_else(|| Error::new("Failed to determine home directory"))?;
+                TemplateSource::Package {
+                    package,
+                    version,
+                    path,
+                } => {
+                    let home = dirs::home_dir()
+                        .ok_or_else(|| Error::new("Failed to determine home directory"))?;
                     let mut pack_dir = home.join(".ggen").join("packs").join(package);
                     if let Some(v) = version {
                         pack_dir = pack_dir.join(v);
                     } else {
                         pack_dir = pack_dir.join("latest");
                     }
-                    
+
                     let template_path = pack_dir.join(path);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
-                        Error::new(&format!("Failed to read template file from package {}: {}", package, e))
+                        Error::new(&format!(
+                            "Failed to read template file from package {}: {}",
+                            package, e
+                        ))
                     })?;
-                    
+
                     (content, format!("package '{}'", package))
                 }
             };
@@ -1279,7 +1290,7 @@ mod tests {
     }
 
     #[ignore]
-#[test]
+    #[test]
     fn test_get_llm_service_returns_none_when_not_set() {
         // Arrange: Clear any existing service (by setting a new empty one)
         let mut svc = GLOBAL_LLM_SERVICE.lock().unwrap();

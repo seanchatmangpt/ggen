@@ -98,7 +98,7 @@ pub struct Transition {
 fn discover_dfg(log: &EventLog, key: &str) -> PetriNet {
     let mut net = PetriNet::default();
     let activities = log.get_activities(key);
-    
+
     // Add transitions for each activity
     for (i, act) in activities.iter().enumerate() {
         net.transitions.push(Transition {
@@ -106,7 +106,7 @@ fn discover_dfg(log: &EventLog, key: &str) -> PetriNet {
             label: act.clone(),
         });
     }
-    
+
     // Add simple places connecting them (just a linear flow simulation for 80/20)
     for i in 0..activities.len() {
         net.places.push(Place {
@@ -116,7 +116,6 @@ fn discover_dfg(log: &EventLog, key: &str) -> PetriNet {
     }
     net
 }
-
 
 // ============================================================================
 // Output Types

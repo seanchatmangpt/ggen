@@ -8,9 +8,9 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
-use ggen_core::packs::lockfile::PackLockfile;
 use ggen_core::domain::packs::install::{install_pack, InstallInput};
 use ggen_core::domain::packs::metadata::load_pack_metadata;
+use ggen_core::packs::lockfile::PackLockfile;
 
 #[derive(Serialize)]
 struct AddOutput {

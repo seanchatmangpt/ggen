@@ -49,8 +49,8 @@
 //! let verifier = PqcVerifier::from_public_key(&public_key_bytes).unwrap();
 //! assert!(verifier.verify(content, &signature).unwrap());
 //! ```
-use base64::{engine::general_purpose, Engine as _};
 use crate::utils::error::{Error, Result};
+use base64::{engine::general_purpose, Engine as _};
 use pqcrypto_mldsa::mldsa65;
 use pqcrypto_traits::sign::{PublicKey, SecretKey, SignedMessage};
 use sha2::{Digest, Sha256};

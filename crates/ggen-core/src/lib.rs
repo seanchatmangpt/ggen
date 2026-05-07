@@ -128,26 +128,19 @@
     clippy::if_same_then_else,
     clippy::for_kv_map
 )]
-pub mod marketplace;
 pub mod a2a;
-pub mod a2a_registry;
 pub mod a2a_generated;
-pub mod transport;
-pub mod receipt;
-pub mod prompt_mfg;
-pub mod semantic_bit;
-pub mod canonical;
-pub mod codegen_lib;
-pub mod ontology_core;
-pub mod config_lib;
-pub mod domain;
-pub mod utils;
+pub mod a2a_registry;
 pub mod audit;
 pub mod cache;
+pub mod canonical;
 pub mod cli_generator;
 pub mod codegen;
+pub mod codegen_lib;
 pub mod config;
+pub mod config_lib;
 pub mod delta;
+pub mod domain;
 pub mod e2e_tests;
 pub mod generator;
 pub mod github;
@@ -158,49 +151,55 @@ pub mod lean_six_sigma;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
+pub mod marketplace;
 pub mod merge;
-pub mod parallel_generator;
-pub mod schema;
-pub mod template;
-pub mod template_types;
 pub mod ontology;
+pub mod ontology_core;
 pub mod ontology_pack;
+pub mod parallel_generator;
 pub mod pipeline;
+pub mod pipeline_engine;
 pub mod pki;
 pub mod poc;
 pub mod poka_yoke;
 pub mod pqc;
 pub mod preprocessor;
 pub mod project_generator;
+pub mod prompt_mfg;
 pub mod rdf;
+pub mod receipt;
 pub mod register;
 pub mod registry;
 pub mod resolver;
+pub mod schema;
+pub mod semantic_bit;
 pub mod signals;
+pub mod simple_tracing;
 pub mod snapshot;
 pub mod streaming_generator;
 pub mod telemetry;
+pub mod template;
 pub mod template_cache;
+pub mod template_types;
 pub mod templates;
 pub mod tera_env;
-pub mod types;
-pub mod validation;
-pub mod simple_tracing;
 pub mod tracing;
-pub mod pipeline_engine;
-
+pub mod transport;
+pub mod types;
+pub mod utils;
+pub mod validation;
 
 // Schema parser and code generators for A2A communication
 pub mod drift; // Drift detection for ontology changes
 #[cfg(test)]
 pub mod manufacturing; // DMAIC quality gates for Lean Six Sigma
 pub mod metrics; // Quality metrics system (Code, Process, Six Sigma, TPS, Flow, OEE, Kaizen)
-// Ontology system - re-enabled after oxigraph API compatibility fixes
+                 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod pack_resolver; // μ₀: Pack resolution stage
 pub mod packs; // Pack installation system - Phase 1
 pub mod security; // Week 4 Security Hardening
 pub mod sync; // Sync orchestrator: load_ontology → run_sparql → generate_code → validate → write_files
-// v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
+              // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 
 // Re-export template types
 pub use template_types::{Frontmatter, Template};

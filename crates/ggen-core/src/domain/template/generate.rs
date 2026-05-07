@@ -3,8 +3,8 @@
 //! This module provides core business logic for generating individual files
 //! from templates using the ggen-core TemplateEngine.
 
-use crate::{GenContext, Generator, Pipeline};
 use crate::utils::error::Result;
+use crate::{GenContext, Generator, Pipeline};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};

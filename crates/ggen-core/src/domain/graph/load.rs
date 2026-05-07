@@ -3,10 +3,8 @@
 //! Chicago TDD: Uses REAL RDF file loading and graph state verification
 use crate::bail;
 
+use crate::utils::error::{Context, Result};
 use crate::Graph;
-use crate::utils::{
-    error::{Context, Result},
-};
 use std::path::{Path, PathBuf};
 
 /// Supported RDF formats

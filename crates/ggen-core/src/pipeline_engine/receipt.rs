@@ -20,8 +20,8 @@
 //! - Templates and queries per pack
 //! - Files generated per pack
 
-use crate::pipeline_engine::{Epoch, PassExecution};
 use crate::marketplace::trust::TrustTier;
+use crate::pipeline_engine::{Epoch, PassExecution};
 use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

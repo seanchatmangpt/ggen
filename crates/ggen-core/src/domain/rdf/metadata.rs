@@ -3,9 +3,9 @@
 //! This module provides RDF-based metadata storage and querying for templates.
 //! Refactored from v1 to use v2 error handling and pure domain logic.
 
-use chrono::{DateTime, Utc};
 use crate::graph::Graph;
 use crate::utils::error::{Error, Result};
+use chrono::{DateTime, Utc};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};

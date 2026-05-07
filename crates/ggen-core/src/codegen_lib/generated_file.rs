@@ -34,7 +34,9 @@ impl GeneratedFile {
     }
 
     /// Render the file path with bindings
-    pub fn render_path(&self, bindings: &HashMap<String, String>) -> crate::codegen_lib::Result<PathBuf> {
+    pub fn render_path(
+        &self, bindings: &HashMap<String, String>,
+    ) -> crate::codegen_lib::Result<PathBuf> {
         let path_str = self.path.to_string_lossy().to_string();
 
         // Simple template variable substitution ({{ varName }} → value)

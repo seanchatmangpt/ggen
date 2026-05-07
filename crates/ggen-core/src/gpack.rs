@@ -219,7 +219,8 @@ fn discover_files(base_path: &Path, patterns: &[&str]) -> Result<Vec<PathBuf>> {
             .map_err(|e| crate::utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
         {
             files.push(
-                entry.map_err(|e| crate::utils::error::Error::new(&format!("Glob error: {}", e)))?,
+                entry
+                    .map_err(|e| crate::utils::error::Error::new(&format!("Glob error: {}", e)))?,
             );
         }
     }

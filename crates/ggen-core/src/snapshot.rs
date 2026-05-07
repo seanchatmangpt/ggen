@@ -55,8 +55,8 @@
 //! # }
 //! ```
 
-use chrono::{DateTime, Utc};
 use crate::utils::error::Result;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::{self, File};

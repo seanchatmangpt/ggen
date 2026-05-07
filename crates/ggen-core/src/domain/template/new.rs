@@ -108,8 +108,9 @@ pub fn execute_new(input: NewInput) -> Result<NewOutput> {
     })?;
 
     // Write template file
-    std::fs::write(&output_path, content)
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
+    std::fs::write(&output_path, content).map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to write template: {}", e))
+    })?;
 
     // Return output
     Ok(NewOutput {

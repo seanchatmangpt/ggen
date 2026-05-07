@@ -94,7 +94,10 @@ pub fn generate_codeowners(
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                crate::utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+                crate::utils::error::Error::new(&format!(
+                    "Failed to create output directory: {}",
+                    e
+                ))
             })?;
         }
         let content = generator.generate();

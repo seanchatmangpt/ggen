@@ -54,7 +54,9 @@ fn generate(
         // First extract schema
         let schema = ontology::extract_ontology_schema(&schema_path, "http://example.org#")
             .await
-            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Extraction failed: {}", e)))?;
+            .map_err(|e| {
+                ggen_core::utils::error::Error::new(&format!("Extraction failed: {}", e))
+            })?;
 
         // Then generate code
         ontology::generate_code_from_ontology(&schema, &language, &output_dir, zod, utilities).await
@@ -80,7 +82,9 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
     let (is_valid, warnings, errors, classes_count, properties_count) = block_on(async {
         let schema = ontology::extract_ontology_schema(&schema_path, "http://example.org#")
             .await
-            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Extraction failed: {}", e)))?;
+            .map_err(|e| {
+                ggen_core::utils::error::Error::new(&format!("Extraction failed: {}", e))
+            })?;
 
         let (valid, warnings, errors) = ontology::validate_ontology_schema(&schema, strict).await?;
         Ok((

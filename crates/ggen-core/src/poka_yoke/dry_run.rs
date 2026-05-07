@@ -126,7 +126,9 @@ impl DryRunMode {
     /// Returns error if any operation fails. Attempts rollback.
     pub fn execute(&mut self) -> Result<()> {
         if self.executed {
-            return Err(crate::utils::error::Error::new("Operations already executed"));
+            return Err(crate::utils::error::Error::new(
+                "Operations already executed",
+            ));
         }
 
         // Validate all operations first (fail-fast)
@@ -199,7 +201,10 @@ impl DryRunMode {
                     .args(args)
                     .status()
                     .map_err(|e| {
-                        crate::utils::error::Error::new(&format!("Failed to execute command: {}", e))
+                        crate::utils::error::Error::new(&format!(
+                            "Failed to execute command: {}",
+                            e
+                        ))
                     })?;
 
                 if !status.success() {
@@ -211,12 +216,18 @@ impl DryRunMode {
             }
             Operation::DirCreate { path } => {
                 std::fs::create_dir_all(path.as_path()).map_err(|e| {
-                    crate::utils::error::Error::io_error(format!("Failed to create directory: {}", e))
+                    crate::utils::error::Error::io_error(format!(
+                        "Failed to create directory: {}",
+                        e
+                    ))
                 })?;
             }
             Operation::DirDelete { path } => {
                 std::fs::remove_dir_all(path.as_path()).map_err(|e| {
-                    crate::utils::error::Error::io_error(format!("Failed to delete directory: {}", e))
+                    crate::utils::error::Error::io_error(format!(
+                        "Failed to delete directory: {}",
+                        e
+                    ))
                 })?;
             }
         }

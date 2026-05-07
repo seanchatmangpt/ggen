@@ -22,7 +22,9 @@ fn test_doctor_config_sabotage() {
         .success()
         .stdout(predicate::str::contains("\"passed\":false"))
         .stdout(predicate::str::contains("ggen.toml not found"))
-        .stdout(predicate::str::contains("Run 'ggen init' to create a ggen.toml"));
+        .stdout(predicate::str::contains(
+            "Run 'ggen init' to create a ggen.toml",
+        ));
 
     // 2. Corrupt ggen.toml
     fs::write(&ggen_toml, "[project\nmissing_bracket = true").unwrap();
@@ -62,8 +64,12 @@ fn test_doctor_ontology_sabotage() {
         .assert()
         .success()
         .stdout(predicate::str::contains("\"passed\":false"))
-        .stdout(predicate::str::contains(".specify/ontologies/main.ttl missing"))
-        .stdout(predicate::str::contains("Create .specify/ontologies/main.ttl or run 'ggen init'"));
+        .stdout(predicate::str::contains(
+            ".specify/ontologies/main.ttl missing",
+        ))
+        .stdout(predicate::str::contains(
+            "Create .specify/ontologies/main.ttl or run 'ggen init'",
+        ));
 
     // 2. Corrupt ontology
     let ont_dir = temp.path().join(".specify/ontologies");
@@ -80,7 +86,7 @@ fn test_doctor_ontology_sabotage() {
         .stdout(predicate::str::contains("\"passed\":false"))
         .stdout(predicate::str::contains("Ontology syntax error"))
         .stdout(predicate::str::contains("Fix RDF Turtle syntax errors"));
-        
+
     // 3. Valid ontology
     fs::write(&main_ttl, "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n<http://test> rdfs:label \"Test\" .").unwrap();
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -109,7 +115,9 @@ fn test_doctor_security_sabotage() {
         .success()
         .stdout(predicate::str::contains("\"passed\":false"))
         .stdout(predicate::str::contains("Found .env file"))
-        .stdout(predicate::str::contains("Move .env outside of the workspace"));
+        .stdout(predicate::str::contains(
+            "Move .env outside of the workspace",
+        ));
 
     fs::remove_file(&env_file).unwrap();
 
@@ -126,9 +134,9 @@ fn test_doctor_security_sabotage() {
         .stdout(predicate::str::contains("\"passed\":false"))
         .stdout(predicate::str::contains("broad wildcard permissions ('*')"))
         .stdout(predicate::str::contains("Scope down permissions"));
-        
+
     fs::remove_file(&mcp_file).unwrap();
-    
+
     // 3. Clean
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.current_dir(temp.path())

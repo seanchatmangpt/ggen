@@ -3,8 +3,8 @@
 //! This module provides traits and implementations for fetching package metadata
 //! and artifacts from external registries.
 
-use async_trait::async_trait;
 use crate::utils::error::{Error, Result};
+use async_trait::async_trait;
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

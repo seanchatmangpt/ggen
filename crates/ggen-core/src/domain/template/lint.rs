@@ -326,8 +326,9 @@ pub async fn execute_lint(input: LintInput) -> Result<LintOutput> {
 /// CLI run function - bridges sync CLI to async domain logic
 pub fn run(args: &LintInput) -> Result<()> {
     // Use tokio runtime for async execution
-    let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| crate::utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+    let runtime = tokio::runtime::Runtime::new().map_err(|e| {
+        crate::utils::error::Error::new(&format!("Failed to create runtime: {}", e))
+    })?;
 
     let output = runtime.block_on(execute_lint(args.clone()))?;
 
@@ -363,7 +364,9 @@ pub fn run(args: &LintInput) -> Result<()> {
 
     // Return error if errors were found
     if output.errors_found > 0 {
-        return Err(crate::utils::error::Error::new("Template validation failed"));
+        return Err(crate::utils::error::Error::new(
+            "Template validation failed",
+        ));
     }
 
     Ok(())

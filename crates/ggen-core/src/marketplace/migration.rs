@@ -186,11 +186,11 @@ impl Migrator {
             "{}_{}@{}",
             package.metadata.id, "rollback", package.latest_version
         );
-        self.rollback_states
-            .remove(&key)
-            .ok_or_else(|| crate::marketplace::error::Error::ValidationFailed {
+        self.rollback_states.remove(&key).ok_or_else(|| {
+            crate::marketplace::error::Error::ValidationFailed {
                 reason: format!("No rollback state available for {}", package.metadata.id),
-            })
+            }
+        })
     }
 
     /// Migrate a package from one version to another
@@ -265,15 +265,17 @@ impl Migrator {
         info!("Applying migration transform: {} -> {}", from, to);
 
         // Parse versions as semver for comparison
-        let from_semver =
-            Version::parse(from.as_str()).map_err(|_| crate::marketplace::error::Error::ValidationFailed {
+        let from_semver = Version::parse(from.as_str()).map_err(|_| {
+            crate::marketplace::error::Error::ValidationFailed {
                 reason: format!("Invalid semver version: {}", from),
-            })?;
+            }
+        })?;
 
-        let to_semver =
-            Version::parse(to.as_str()).map_err(|_| crate::marketplace::error::Error::ValidationFailed {
+        let to_semver = Version::parse(to.as_str()).map_err(|_| {
+            crate::marketplace::error::Error::ValidationFailed {
                 reason: format!("Invalid semver version: {}", to),
-            })?;
+            }
+        })?;
 
         // Reject downgrades (from_version >= to_version)
         if from_semver >= to_semver {

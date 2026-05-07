@@ -12,7 +12,9 @@
 #![allow(clippy::cast_sign_loss)]
 
 use crate::marketplace::error::{Error, Result};
-use crate::marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion, ReleaseInfo};
+use crate::marketplace::models::{
+    Package, PackageId, PackageMetadata, PackageVersion, ReleaseInfo,
+};
 use crate::marketplace::ontology::{Classes, Namespaces, Properties};
 use chrono::{DateTime, Utc};
 use oxigraph::model::{GraphNameRef, Literal, NamedNode, QuadRef, Term};

@@ -12,11 +12,11 @@ pub mod kernel;
 pub mod macros;
 pub mod replay;
 
-pub use ids::*;
-pub use types::*;
 pub use caps::*;
-pub use error::AdmissionError;
-pub use kernel::*;
 pub use compiler::*;
 pub use doctor::*;
+pub use error::AdmissionError;
+pub use ids::*;
+pub use kernel::*;
 pub use replay::*;
+pub use types::*;
