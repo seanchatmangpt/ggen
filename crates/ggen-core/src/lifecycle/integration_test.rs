@@ -237,7 +237,7 @@ command = "echo 'Building...'"
         let state = fixture.load_state();
 
         // Build phase has hooks (test, lint), so we'll have cache keys for: test, lint, build
-        assert!(state.cache_keys.len() >= 1);
+        assert!(!state.cache_keys.is_empty());
 
         // Find the build cache entry
         let build_cache = state

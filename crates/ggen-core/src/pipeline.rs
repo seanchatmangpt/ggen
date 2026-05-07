@@ -886,8 +886,10 @@ Hello {{ name }}"#;
         // Create existing file
         std::fs::write(&output_path, "Original content")?;
 
-        let mut frontmatter = crate::template_types::Frontmatter::default();
-        frontmatter.unless_exists = true;
+        let frontmatter = crate::template_types::Frontmatter {
+            unless_exists: true,
+            ..Default::default()
+        };
 
         let plan = Plan {
             template_path: temp_dir.path().join("test.tmpl"),

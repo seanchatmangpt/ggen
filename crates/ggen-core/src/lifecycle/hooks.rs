@@ -247,7 +247,7 @@ mod tests {
 
     #[test]
     fn test_valid_hooks_pass_validation() {
-        let mut hooks = Hooks {
+        let hooks = Hooks {
             before_build: Some(vec!["validate".to_string()]),
             ..Default::default()
         };
@@ -288,7 +288,7 @@ mod tests {
     #[test]
     fn test_circular_dependency_fails() {
         // Test circular dependency with existing hook types
-        let mut hooks = Hooks {
+        let hooks = Hooks {
             before_build: Some(vec!["validate".to_string()]),
             ..Default::default()
         };

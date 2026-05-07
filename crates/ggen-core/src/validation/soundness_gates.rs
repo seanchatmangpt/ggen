@@ -603,6 +603,6 @@ mod tests {
         end
         "#;
         let violations = verify_soundness(code);
-        assert!(violations.len() > 0);
+        assert!(!violations.is_empty());
     }
 }

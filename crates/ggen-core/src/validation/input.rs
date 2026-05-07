@@ -1112,7 +1112,7 @@ mod tests {
     #[test]
     fn test_precision_rule() {
         let rule = PrecisionRule::new(2);
-        assert!(rule.validate(&3.14, "test").is_ok());
-        assert!(rule.validate(&3.141, "test").is_err());
+        assert!(rule.validate(&std::f64::consts::PI, "test").is_ok());
+        assert!(rule.validate(&std::f64::consts::PI, "test").is_err());
     }
 }
