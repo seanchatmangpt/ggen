@@ -639,7 +639,7 @@ command = "date +%s%N > timestamp.txt"
         let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         let start = Instant::now();
-        exec::run_pipeline(&ctx, &vec!["timestamp".to_string()]).unwrap();
+        exec::run_pipeline(&ctx, &["timestamp".to_string()]).unwrap();
         let duration = start.elapsed();
 
         // Verify all workspace files were created
@@ -740,7 +740,7 @@ command = "echo 'test'"
         let state_path = temp_dir.path().join(".ggen/state.json");
         let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
-        let result = exec::run_pipeline(&ctx, &vec!["process".to_string()]);
+        let result = exec::run_pipeline(&ctx, &["process".to_string()]);
 
         // Should propagate error
         assert!(result.is_err(), "Pipeline should fail when workspace fails");

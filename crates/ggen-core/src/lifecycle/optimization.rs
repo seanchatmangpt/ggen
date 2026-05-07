@@ -632,7 +632,7 @@ mod tests {
         let metric2 = StageMetrics::new("slow", Duration::from_secs(10), Duration::from_secs(5));
         let metric3 = StageMetrics::new("medium", Duration::from_secs(5), Duration::from_secs(5));
 
-        let mut metrics = vec![metric1.clone(), metric2.clone(), metric3.clone()];
+        let metrics = [metric1.clone(), metric2.clone(), metric3.clone()];
         metrics.sort_by(|a, b| b.duration.cmp(&a.duration));
 
         assert_eq!(metrics[0].name, "slow");

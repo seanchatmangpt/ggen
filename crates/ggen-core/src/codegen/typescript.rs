@@ -192,7 +192,7 @@ mod tests {
     use crate::ontology::{OntClass, OntProperty};
 
     fn create_test_schema() -> OntologySchema {
-        let schema = OntologySchema {
+        OntologySchema {
             classes: vec![OntClass {
                 uri: "http://example.org#User".to_string(),
                 name: "User".to_string(),
@@ -240,8 +240,7 @@ mod tests {
             label: "Example Schema".to_string(),
             description: None,
             metadata: Default::default(),
-        };
-        schema
+        }
     }
 
     #[test]

@@ -233,8 +233,10 @@ async fn check_observability() -> Result<CheckResult> {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_secs().saturating_sub(3600))
             .unwrap_or(0);
-        let query_url =
-            format!("http://127.0.0.1:3200/api/search?limit=1&start={}", start_epoch);
+        let query_url = format!(
+            "http://127.0.0.1:3200/api/search?limit=1&start={}",
+            start_epoch
+        );
         if let Ok(resp) = client.get(&query_url).send().await {
             if let Ok(text) = resp.text().await {
                 if text.contains("traceID") {
