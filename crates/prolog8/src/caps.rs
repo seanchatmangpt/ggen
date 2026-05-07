@@ -1,6 +1,5 @@
 // GENERATED — DO NOT EDIT — source: schema/domain.ttl
 
-
 /// Predicate arity cap
 pub const ArityMax8: u32 = 8;
 
@@ -18,4 +17,3 @@ pub const RuleBodyAtomsMax8: u32 = 8;
 
 /// Rule variable cap
 pub const RuleVariablesMax8: u32 = 8;
-

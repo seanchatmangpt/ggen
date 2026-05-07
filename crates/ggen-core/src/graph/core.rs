@@ -767,7 +767,7 @@ mod tests {
 
         // Assert
         assert!(!graph.is_empty());
-        assert!(graph.len() > 0);
+        assert!(!graph.is_empty());
     }
 
     #[test]

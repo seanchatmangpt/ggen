@@ -1,6 +1,5 @@
 // GENERATED — DO NOT EDIT — source: schema/domain.ttl
 
-
 /// Execution epoch identifier.
 pub type EpochId = u64;
 
@@ -24,4 +23,3 @@ pub type SourceId = u32;
 
 /// Admitted term identity. Display labels are outside kernel.
 pub type TermId = u32;
-

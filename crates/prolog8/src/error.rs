@@ -4,7 +4,6 @@ use thiserror::Error;
 /// Admission error: a rule, fact, or query failed the byte-governor invariant.
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum AdmissionError {
-
     /// Arity cap exceeded — Repair: Split predicate into entity plus attribute predicates.
 
     #[error("Arity cap exceeded")]
@@ -64,5 +63,4 @@ pub enum AdmissionError {
 
     #[error("Rule variable cap exceeded")]
     E_VARIABLE_CAP_EXCEEDED,
-
 }

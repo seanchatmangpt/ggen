@@ -1,5 +1,5 @@
-use crate::types::*;
 use crate::ids::PredicateId;
+use crate::types::*;
 use anyhow::Result;
 use std::collections::HashMap;
 

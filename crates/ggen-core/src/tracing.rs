@@ -5,7 +5,7 @@ use tracing::info;
 pub fn init_tracing() -> crate::utils::error::Result<()> {
     #[cfg(feature = "otel")]
     {
-        return init_otel_tracing();
+        init_otel_tracing()
     }
 
     #[cfg(not(feature = "otel"))]

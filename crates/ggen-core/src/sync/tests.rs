@@ -140,7 +140,7 @@ fn test_sync_go_generates_service_struct() {
     assert!(!go_files.is_empty(), "expected at least one .go file");
 
     // Claim: the first Go file contains a `struct` keyword — proving a struct was generated
-    let content = fs::read_to_string(&go_files[0]).expect("read generated go file");
+    let content = fs::read_to_string(go_files[0]).expect("read generated go file");
     assert!(
         content.contains("struct"),
         "generated Go file should contain a struct definition, got:\n{}",

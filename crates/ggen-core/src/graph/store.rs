@@ -147,7 +147,7 @@ mod tests {
 
         // Assert
         assert!(!graph.is_empty());
-        assert!(graph.len() > 0);
+        assert!(!graph.is_empty());
     }
 
     #[test]
@@ -242,6 +242,6 @@ mod tests {
         let store2 = GraphStore::open(&store_path).unwrap();
         let graph2 = store2.create_graph().unwrap();
         assert!(!graph2.is_empty());
-        assert!(graph2.len() > 0);
+        assert!(!graph2.is_empty());
     }
 }

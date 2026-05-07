@@ -1,5 +1,5 @@
-use crate::types::*;
 use crate::ids::TermId;
+use crate::types::*;
 use anyhow::{anyhow, Result};
 
 pub struct Prolog8Compiler {}

@@ -26,5 +26,4 @@ pub mod feature {
 
     /// Contracted foreign predicates
     pub const CONTRACTEDFOREIGNPREDICATES: u8 = 1 << 7;
-
 }

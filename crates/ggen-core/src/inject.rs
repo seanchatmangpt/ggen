@@ -435,7 +435,7 @@ mod tests {
         let content = "function hello() {\n  console.log('world');\n}";
         fs::write(
             temp_file.path(),
-            &format!("// Header\n{}\n// Footer", content),
+            format!("// Header\n{}\n// Footer", content),
         )?;
 
         // Content should exist

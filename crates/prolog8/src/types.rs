@@ -2,7 +2,7 @@
 // Prolog8 Types
 
 pub use crate::ids::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProofMode {
@@ -34,16 +34,12 @@ pub enum DecisionKind {
     Invalid,
 }
 
-
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AccessPath8 {
     pub pred_id: PredicateId,
     pub binding_mask: u8,
     pub index_key: u8,
 }
-
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Atom8 {
@@ -53,15 +49,11 @@ pub struct Atom8 {
     pub args: [TermId; 8],
 }
 
-
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionTrace8 {
     pub results: Vec<[TermId; 8]>,
     pub decision: DecisionKind,
 }
-
-
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FactBlock8 {
@@ -73,8 +65,6 @@ pub struct FactBlock8 {
     pub block_hash: Hash,
 }
 
-
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FactBlockMeta8 {
     pub pred_id: PredicateId,
@@ -82,8 +72,6 @@ pub struct FactBlockMeta8 {
     pub row_count: u32,
     pub block_hash: Hash,
 }
-
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FactRow8 {
@@ -94,15 +82,11 @@ pub struct FactRow8 {
     pub fact_hash: Hash,
 }
 
-
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Plan8 {
     pub ops: Vec<PlanOp8>,
     pub op_count: u8,
 }
-
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PlanOp8 {
@@ -111,16 +95,12 @@ pub struct PlanOp8 {
     pub binding_mask: u8,
 }
 
-
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProofDAG8 {
     pub nodes: Vec<ProofNode8>,
     pub root: ProofNodeId,
     pub dag_hash: Hash,
 }
-
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProofNode8 {
@@ -134,8 +114,6 @@ pub struct ProofNode8 {
     pub node_hash: Hash,
 }
 
-
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct QueryAtom8 {
     pub atom: Atom8,
@@ -144,16 +122,12 @@ pub struct QueryAtom8 {
     pub epoch: EpochId,
 }
 
-
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct QueryResult8 {
     pub bindings: Vec<[TermId; 8]>,
     pub proof: ProofDAG8,
     pub receipt: Receipt8,
 }
-
-
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Receipt8 {
@@ -169,16 +143,12 @@ pub struct Receipt8 {
     pub receipt_hash: Hash,
 }
 
-
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ReplayStatus8 {
     pub verified: bool,
     pub proof_root_matches: bool,
     pub output_root_matches: bool,
 }
-
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Rule8 {
@@ -195,5 +165,3 @@ pub struct Rule8 {
     pub proof_mask: u8,
     pub plan_id: u32,
 }
-
-
