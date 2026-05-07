@@ -1,0 +1,1977 @@
+# Prolog8 PRD / ARD
+
+## Byte-Capped Proof Engine for Policy, Workflow, and Agent Action
+
+---
+
+# Part I — PRD
+
+# Product Requirements Document
+
+## 1. Product Name
+
+**Prolog8**
+
+## 2. One-Line Definition
+
+> **Prolog8 is a Rust/WASM proof engine for bounded rules, graph/bit execution, action admission, and replayable decisions.**
+
+## 3. Product Category
+
+**Proof-backed action admission infrastructure**
+
+Adjacent categories:
+
+```text
+policy engine
+rules engine
+authorization engine
+workflow guard
+agent tool gate
+process conformance checker
+audit replay engine
+embedded logic kernel
+```
+
+But Prolog8 should not be positioned as merely another policy DSL or Prolog implementation.
+
+It is:
+
+```text
+bounded consequence engine
+proof-native decision kernel
+parserless graph/bit rule substrate
+```
+
+---
+
+# 4. Core Customer Problem
+
+Modern systems increasingly take actions:
+
+```text
+agent calls a tool
+user accesses a resource
+workflow advances a case
+deployment modifies infrastructure
+claim moves to payout
+configuration becomes active
+model output triggers automation
+```
+
+The organization later needs to know:
+
+```text
+Was this allowed?
+Why was it allowed?
+Which facts supported it?
+Which rule fired?
+What was missing if denied?
+Can the decision be replayed?
+Which policy version applied?
+```
+
+Current answers are fragmented across:
+
+```text
+application code
+middleware
+prompts
+IAM roles
+workflow engines
+logs
+spreadsheets
+policy PDFs
+manual reviews
+homegrown DSLs
+```
+
+This creates an operational gap:
+
+> **Decisions happen faster than organizations can prove why they happened.**
+
+Prolog8 closes that gap.
+
+---
+
+# 5. Product Thesis
+
+Prolog’s enduring value is:
+
+> **Given facts and rules, derive what follows.**
+
+But classic Prolog is too open-ended for hot-path infrastructure.
+
+Prolog8 keeps the derivation power and removes the unstable execution surface:
+
+```text
+no parser in the kernel
+no runtime code strings
+no arbitrary scripting
+no dynamic text evaluation
+no unbounded rule bodies
+no uncontrolled recursion
+no proofless decisions
+```
+
+Instead:
+
+```text
+graph objects in
+bits execute
+proof out
+```
+
+---
+
+# 6. Design Doctrine
+
+## 6.1 Text Is Authoring, Not Execution
+
+Text may exist in tooling.
+
+Text may not execute inside the kernel.
+
+```text
+authoring layer:
+  text allowed
+
+admission layer:
+  text becomes IDs, graph objects, fact blocks, rule objects, indexes
+
+kernel:
+  no strings
+  no parser
+  no runtime source evaluation
+
+execution:
+  graph/bit structures only
+```
+
+## 6.2 The Byte Is the Governor
+
+Local hot-path surfaces must fit into byte-capped structures:
+
+```text
+arity ≤ 8
+rule body atoms ≤ 8
+variables ≤ 8
+binding patterns ≤ 256
+local operational states ≤ 256
+feature mask = u8
+negation mask = u8
+built-in mask = u8
+proof mask = u8
+```
+
+## 6.3 Need9 Means Split
+
+If a construct needs more than eight primary elements, it is under-decomposed.
+
+```text
+Need9 arguments      → split predicate
+Need9 body atoms     → introduce intermediate rule
+Need9 variables      → split rule surface
+Need257 states       → split rule family
+Need dynamic text    → compile at boundary
+Need mutation        → submit epoch delta
+Need side effect     → boundary predicate with replay contract
+```
+
+## 6.4 Proof Is the Product
+
+A boolean decision is incomplete.
+
+Every serious decision should produce:
+
+```text
+answer
+proof
+negative proof if denied
+facts used
+rules fired
+blocked alternatives
+receipt
+replay material
+```
+
+---
+
+# 7. Target Users
+
+## 7.1 Developer User
+
+Needs:
+
+```text
+small embedded decision engine
+Rust crate
+WASM package
+clear APIs
+predictable constraints
+local proof output
+```
+
+## 7.2 Platform / Security Engineer
+
+Needs:
+
+```text
+authorization decisions
+tool-call gates
+capability checks
+policy proofs
+deny explanations
+```
+
+## 7.3 Agent Platform Engineer
+
+Needs:
+
+```text
+deterministic pre-action gate
+tool permission checks
+agent capability proof
+escalation decisions
+receipts for action attempts
+```
+
+## 7.4 Workflow / Process Owner
+
+Needs:
+
+```text
+transition legality
+conformance checks
+missing evidence detection
+blocked path explanation
+case replay
+```
+
+## 7.5 Compliance / Audit User
+
+Needs:
+
+```text
+decision evidence
+policy versioning
+proof trails
+replayable receipts
+negative proof explanations
+```
+
+---
+
+# 8. Primary Use Cases
+
+## 8.1 Agent Tool Admission
+
+Question:
+
+```text
+Can this agent call this tool with these inputs now?
+```
+
+Inputs:
+
+```text
+agent identity
+tool ID
+capability ID
+resource ID
+epoch
+evidence facts
+policy facts
+```
+
+Outputs:
+
+```text
+allow / deny / escalate
+proof
+negative proof
+receipt
+```
+
+Example result:
+
+```text
+DENY
+because:
+  tool requires capability export_customer_data
+  agent lacks current capability
+  business purpose evidence missing
+  escalation path exists
+```
+
+---
+
+## 8.2 Authorization With Explanation
+
+Question:
+
+```text
+Can this user access this resource?
+```
+
+Inputs:
+
+```text
+user
+resource
+action
+role
+capability
+resource class
+epoch
+revocation facts
+exception facts
+```
+
+Outputs:
+
+```text
+allow / deny
+facts used
+rules fired
+missing facts
+receipt
+```
+
+---
+
+## 8.3 Workflow Transition Guard
+
+Question:
+
+```text
+Can this case move from state A to state B?
+```
+
+Inputs:
+
+```text
+case ID
+current activity
+proposed activity
+actor
+timestamp/epoch
+evidence
+process constraints
+separation-of-duties facts
+```
+
+Outputs:
+
+```text
+transition_allowed
+transition_denied
+blocked reason
+proof receipt
+```
+
+---
+
+## 8.4 Compliance Rule Evaluation
+
+Question:
+
+```text
+Is this decision compliant under the active rule pack?
+```
+
+Inputs:
+
+```text
+case facts
+evidence facts
+policy facts
+regulatory mapping
+epoch
+```
+
+Outputs:
+
+```text
+compliant / noncompliant / needs_review
+proof
+missing evidence
+receipt
+```
+
+---
+
+## 8.5 Configuration Validity
+
+Question:
+
+```text
+Can this configuration become active?
+```
+
+Inputs:
+
+```text
+configuration ID
+environment
+approval facts
+test facts
+rollback facts
+risk class
+policy facts
+```
+
+Outputs:
+
+```text
+valid / invalid / escalate
+proof
+missing gates
+receipt
+```
+
+---
+
+# 9. Product Components
+
+## 9.1 Prolog8 Core
+
+The trusted Rust/WASM kernel.
+
+Responsibilities:
+
+```text
+load admitted catalogs
+load admitted fact blocks
+load admitted rule graphs
+execute bounded queries
+return decisions
+emit proof DAG
+emit receipt
+support deterministic replay
+```
+
+Non-responsibilities:
+
+```text
+parse code strings
+evaluate text
+perform arbitrary I/O
+mutate fact database during query
+execute uncontracted foreign predicates
+support full ISO Prolog
+```
+
+---
+
+## 9.2 Prolog8 Compiler
+
+Boundary tool that converts authoring material into admitted graph/bit artifacts.
+
+Inputs:
+
+```text
+Prolog-like source
+Datalog-like source
+policy DSL
+CSV facts
+RDF-derived facts
+event logs
+database exports
+agent tool manifests
+workflow definitions
+```
+
+Outputs:
+
+```text
+catalog
+term dictionary
+predicate dictionary
+fact blocks
+rule graphs
+index manifest
+proof templates
+admission report
+```
+
+---
+
+## 9.3 Prolog8 Doctor
+
+Admissibility checker and decomposition assistant.
+
+Responsibilities:
+
+```text
+detect non-admitted constructs
+detect caps exceeded
+detect unstratified negation
+detect unbounded recursion
+detect non-indexable predicates
+detect missing replay contracts
+suggest decomposition
+classify tier: Prolog8 / Prolog64 / rejected
+```
+
+---
+
+## 9.4 Prolog8 Explain
+
+Human-readable proof renderer.
+
+Responsibilities:
+
+```text
+map IDs to labels
+render positive proof
+render negative proof
+show blocked alternatives
+show rule/fact provenance
+show policy version
+show epoch
+```
+
+---
+
+## 9.5 Prolog8 Replay
+
+Receipt verifier.
+
+Responsibilities:
+
+```text
+load receipt
+load referenced catalog/rule/fact roots
+replay decision
+verify proof root
+verify output root
+report mismatch
+```
+
+---
+
+# 10. MVP Scope
+
+## 10.1 MVP Must Support
+
+```text
+Rust core crate
+WASM build
+no runtime parser in kernel
+catalog IDs
+fact loading
+bounded Atom8
+bounded Rule8
+query execution
+positive proof
+negative proof for missing facts
+receipt hash
+replay verification
+CLI demo
+three examples:
+  agent tool gate
+  authorization
+  workflow transition
+```
+
+## 10.2 MVP May Support
+
+```text
+simple compiler from restricted text syntax
+CSV fact import
+JSON boundary import only outside kernel
+human-readable explain renderer
+basic Doctor checks
+```
+
+## 10.3 MVP Must Not Support
+
+```text
+full ISO Prolog
+cut
+assert/retract inside query
+dynamic predicates
+runtime text query in kernel
+general lists
+DCGs
+unbounded compound terms
+uncontracted FFI
+unstratified negation
+arbitrary side effects
+```
+
+---
+
+# 11. V1 Scope
+
+V1 expands MVP into a useful developer product.
+
+## V1 Features
+
+```text
+Prolog8 Core stable API
+WASM ABI stable API
+compiler artifact format
+Doctor with decomposition hints
+Explain output
+Replay verifier
+stratified negation
+bounded recursion
+basic aggregates
+typed comparisons
+time/epoch predicates
+bitmask predicates
+plan cache
+index manifest
+proof DAG compression
+```
+
+## V1 Demos
+
+```text
+agent tool admission
+authorization with deny explanation
+workflow transition conformance
+configuration gate
+compliance missing-evidence check
+```
+
+---
+
+# 12. V2 Scope
+
+V2 turns Prolog8 into a platform wedge.
+
+```text
+managed receipt store
+policy version registry
+rule pack format
+agent runtime SDKs
+workflow engine adapters
+process log import
+audit export
+negative proof expansion
+incremental fact updates by epoch
+materialized derived predicates
+Prolog64 audit tier
+```
+
+---
+
+# 13. Functional Requirements
+
+## FR-1: Kernel Must Reject Strings
+
+The trusted kernel must not accept:
+
+```text
+query strings
+predicate strings
+term strings
+runtime source text
+textual meta-call
+operator syntax
+```
+
+Kernel APIs must accept only IDs, byte buffers, graph objects, fact blocks, and query structs.
+
+---
+
+## FR-2: Kernel Must Execute `QueryAtom8`
+
+A query atom must include:
+
+```text
+predicate ID
+arity
+binding mask
+arguments
+output mask
+proof mode
+```
+
+The kernel must return:
+
+```text
+answer set
+proof reference
+receipt reference
+execution status
+```
+
+---
+
+## FR-3: Kernel Must Enforce Arity Cap
+
+For Prolog8 hot tier:
+
+```text
+predicate arity ≤ 8
+```
+
+Any predicate exceeding the cap must be rejected before execution.
+
+---
+
+## FR-4: Kernel Must Enforce Rule Body Cap
+
+For Prolog8 hot tier:
+
+```text
+rule body atom count ≤ 8
+```
+
+Exceeding rules must fail admission.
+
+---
+
+## FR-5: Kernel Must Enforce Variable Cap
+
+For Prolog8 hot tier:
+
+```text
+variables per rule ≤ 8
+```
+
+---
+
+## FR-6: Kernel Must Support Binding-Mask Dispatch
+
+Each predicate must support access-path lookup by:
+
+```text
+predicate_id + binding_mask
+```
+
+Maximum binding patterns per predicate:
+
+```text
+2^8 = 256
+```
+
+---
+
+## FR-7: Kernel Must Support Positive Proof
+
+For `true` decisions, kernel must emit proof structure containing:
+
+```text
+facts used
+rules fired
+substitutions
+proof node hashes
+output root
+```
+
+---
+
+## FR-8: Kernel Must Support Negative Proof
+
+For `false` decisions, kernel must report at least one failure reason:
+
+```text
+missing fact
+failed join
+failed built-in
+blocked by negation
+expired epoch
+revoked capability
+source/root mismatch
+```
+
+---
+
+## FR-9: Kernel Must Emit Receipts
+
+Every decision must be able to produce:
+
+```text
+input root
+rule root
+fact root
+proof root
+output root
+engine version
+policy/catalog version
+timestamp or epoch reference
+```
+
+---
+
+## FR-10: Kernel Must Support Replay
+
+Given a receipt and required input artifacts, the system must verify:
+
+```text
+same decision
+same proof root
+same output root
+```
+
+or return a clear mismatch.
+
+---
+
+## FR-11: Compiler Must Produce Admitted Graph/Bit Artifacts
+
+Compiler output must contain no executable text authority.
+
+It may include labels for display, but execution must reference IDs.
+
+---
+
+## FR-12: Doctor Must Explain Rejections
+
+Doctor must return structured errors and repair hints.
+
+Examples:
+
+```text
+E_ARITY_CAP_EXCEEDED
+E_RULE_BODY_CAP_EXCEEDED
+E_VARIABLE_CAP_EXCEEDED
+E_STRING_QUERY_NOT_ADMITTED
+E_UNSTRATIFIED_NEGATION
+E_DYNAMIC_MUTATION_NOT_ADMITTED
+E_FOREIGN_CONTRACT_MISSING
+E_STATE_SURFACE_EXCEEDED
+```
+
+---
+
+# 14. Non-Functional Requirements
+
+## NFR-1: Determinism
+
+Same admitted inputs must produce same outputs.
+
+## NFR-2: No Hidden Runtime Parsing
+
+Kernel must not contain a source parser path.
+
+## NFR-3: Bounded Hot Path
+
+Hot-tier constructs must fit declared caps.
+
+## NFR-4: WASM Compatibility
+
+Core execution must compile to WASM.
+
+## NFR-5: Replayability
+
+Receipts must be sufficient to verify decisions against referenced artifacts.
+
+## NFR-6: Explainability
+
+Proofs must be renderable into human-readable explanations outside the kernel.
+
+## NFR-7: Small Embeddable Footprint
+
+The product should be viable as:
+
+```text
+local library
+edge module
+browser-side WASM package
+agent runtime plugin
+workflow middleware
+```
+
+## NFR-8: No Internal JSON Representation
+
+Boundary import/export may support JSON as external projection.
+
+The core must not use JSON as internal state or execution representation.
+
+---
+
+# 15. Product Invariants
+
+```text
+I1. No parser in the kernel.
+I2. No strings in execution.
+I3. No uninterned symbols in execution.
+I4. No arbitrary scripting.
+I5. No dynamic mutation during query.
+I6. No proofless decision.
+I7. Need9 means split.
+I8. Need257 means split.
+I9. Text is authoring, never execution.
+I10. Graph in, bits execute, proof out.
+```
+
+---
+
+# 16. Success Metrics
+
+## Developer Adoption
+
+```text
+time to first successful local decision
+time to first proof explanation
+number of GitHub examples cloned/run
+Rust crate downloads
+WASM package downloads
+```
+
+## Product Utility
+
+```text
+decisions evaluated per second
+proofs emitted per second
+average proof size
+replay success rate
+admission rejection clarity
+percentage of rejected rules with repair hints
+```
+
+## Enterprise Value
+
+```text
+agent tool calls gated
+workflow transitions checked
+authorization decisions explained
+audit replays completed
+manual review reductions
+policy drift findings
+```
+
+---
+
+# Part II — ARD
+
+# Architecture Requirements Document
+
+---
+
+# 1. Architecture Objective
+
+Build a Rust/WASM proof engine that executes bounded rule graphs over admitted fact blocks using byte-capped operational surfaces.
+
+The engine must derive decisions with proof and replay while refusing arbitrary code execution, text parsing, unbounded rule forms, and non-replayable side effects.
+
+---
+
+# 2. System Architecture Overview
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                    Authoring / Import Layer                   │
+│ Prolog-like text | CSV | RDF-derived facts | logs | DSLs       │
+└──────────────────────────────┬───────────────────────────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Admission Compiler                         │
+│ parse outside kernel | intern IDs | check caps | build graphs  │
+└──────────────────────────────┬───────────────────────────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Artifact Builder                           │
+│ catalog | fact blocks | rule graphs | index manifest           │
+└──────────────────────────────┬───────────────────────────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Prolog8 Kernel                             │
+│ no parser | graph/bit API | indexed execution | proof DAG       │
+└──────────────────────────────┬───────────────────────────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Proof / Receipt Layer                      │
+│ proof root | output root | receipt | replay bundle             │
+└──────────────────────────────┬───────────────────────────────┘
+                               │
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Explain / Replay / Audit                   │
+│ label rendering | proof explanation | deterministic replay     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+# 3. Trusted Kernel Boundary
+
+## 3.1 Kernel Accepts
+
+```text
+CatalogId
+PredicateId
+TermId
+RuleId
+SourceId
+Atom8
+Rule8
+RuleGraph8
+FactBlock8
+QueryAtom8
+ProofMode
+Receipt
+ReplayBundle
+```
+
+## 3.2 Kernel Rejects
+
+```text
+raw strings
+raw Prolog source
+runtime source parsing
+predicate names as strings
+term names as strings
+textual meta-call
+operator declarations
+dynamic clauses
+uninterned symbols
+JSON objects as internal execution state
+```
+
+---
+
+# 4. Core Types
+
+## 4.1 TermId
+
+```text
+TermId = u32 or u64
+```
+
+Represents admitted term identity.
+
+Display label is external.
+
+---
+
+## 4.2 PredicateId
+
+```text
+PredicateId = u32
+```
+
+Represents admitted predicate identity.
+
+Associated metadata:
+
+```text
+arity
+argument types
+index manifest
+proof policy
+materialization policy
+```
+
+---
+
+## 4.3 Atom8
+
+```text
+Atom8 {
+  pred_id: PredicateId,
+  arity: u8,
+  binding_mask: u8,
+  args: [TermId; 8]
+}
+```
+
+Requirements:
+
+```text
+arity ≤ 8
+binding_mask may not bind positions ≥ arity
+unused args must be zero/sentinel
+pred_id must exist in catalog
+arity must match predicate catalog
+```
+
+---
+
+## 4.4 Rule8
+
+```text
+Rule8 {
+  rule_id: RuleId,
+  head: Atom8,
+  body: [Atom8; 8],
+  body_len: u8,
+  body_mask: u8,
+  negation_mask: u8,
+  builtin_mask: u8,
+  var_count: u8,
+  var_live_mask: u8,
+  feature_mask: u8,
+  proof_mask: u8,
+  plan_id: PlanId
+}
+```
+
+Requirements:
+
+```text
+body_len ≤ 8
+var_count ≤ 8
+body_mask corresponds to body_len
+negation_mask only references present atoms
+builtin_mask only references present atoms
+proof_mask only references present proof slots
+```
+
+---
+
+## 4.5 QueryAtom8
+
+```text
+QueryAtom8 {
+  atom: Atom8,
+  output_mask: u8,
+  proof_mode: ProofMode,
+  epoch: EpochId
+}
+```
+
+---
+
+## 4.6 FactRow8
+
+```text
+FactRow8 {
+  pred_id: PredicateId,
+  arity: u8,
+  args: [TermId; 8],
+  source_id: SourceId,
+  fact_hash: Hash
+}
+```
+
+---
+
+## 4.7 FactBlock8
+
+```text
+FactBlock8 {
+  pred_id: PredicateId,
+  arity: u8,
+  arg_order: [u8; 8],
+  row_count: u32,
+  rows: EncodedRows,
+  metadata: FactBlockMeta,
+  block_hash: Hash
+}
+```
+
+Metadata:
+
+```text
+min_terms
+max_terms
+constant_columns
+epoch_min
+epoch_max
+source_root
+fact_root
+capability_mask_or
+capability_mask_and
+```
+
+---
+
+## 4.8 ProofNode
+
+```text
+ProofNode {
+  node_id: ProofNodeId,
+  kind: ProofKind,
+  pred_id: PredicateId,
+  rule_id: Optional<RuleId>,
+  fact_hash: Optional<Hash>,
+  children: [ProofNodeId; 8],
+  child_count: u8,
+  substitution_id: SubstitutionId,
+  node_hash: Hash
+}
+```
+
+Proof kinds:
+
+```text
+Fact
+Rule
+Builtin
+Negation
+AntiJoin
+Aggregate
+Foreign
+MissingFact
+FailedJoin
+BlockedAlternative
+```
+
+---
+
+## 4.9 Receipt
+
+```text
+Receipt {
+  engine_version: Version,
+  catalog_root: Hash,
+  rule_root: Hash,
+  fact_root: Hash,
+  input_root: Hash,
+  proof_root: Hash,
+  output_root: Hash,
+  decision: DecisionKind,
+  epoch: EpochId,
+  receipt_hash: Hash
+}
+```
+
+Decision kinds:
+
+```text
+Allow
+Deny
+Escalate
+Unknown
+Invalid
+```
+
+---
+
+# 5. Feature Mask
+
+Prolog8 hot tier defines at most eight admitted feature classes:
+
+```text
+bit 0 = facts
+bit 1 = Horn rules
+bit 2 = equality
+bit 3 = typed comparisons
+bit 4 = stratified negation
+bit 5 = bounded recursion
+bit 6 = controlled aggregates
+bit 7 = contracted foreign predicates
+```
+
+If a construct has no admitted feature bit, it is rejected.
+
+---
+
+# 6. Admission Law
+
+A program artifact is admitted only if:
+
+```text
+Admit(x) ⇔
+  valid_shape(x)
+  ∧ ids_exist_in_catalog(x)
+  ∧ arity_within_cap(x)
+  ∧ body_within_cap(x)
+  ∧ variables_within_cap(x)
+  ∧ feature_mask_admitted(x)
+  ∧ negation_stratified(x)
+  ∧ recursion_bounded_or_declared(x)
+  ∧ predicates_indexable(x)
+  ∧ builtins_typed(x)
+  ∧ foreign_calls_contracted(x)
+  ∧ proof_emittable(x)
+  ∧ replay_deterministic(x)
+```
+
+---
+
+# 7. Rejection Classes
+
+## 7.1 Shape Rejections
+
+```text
+E_ARITY_CAP_EXCEEDED
+E_RULE_BODY_CAP_EXCEEDED
+E_VARIABLE_CAP_EXCEEDED
+E_PROOF_FANIN_EXCEEDED
+E_STATE_SURFACE_EXCEEDED
+```
+
+## 7.2 Language Surface Rejections
+
+```text
+E_STRING_QUERY_NOT_ADMITTED
+E_RUNTIME_PARSE_REJECTED
+E_TEXTUAL_META_CALL_REJECTED
+E_UNINTERNED_TERM
+E_OPERATOR_DECLARATION_REJECTED
+```
+
+## 7.3 Logic Rejections
+
+```text
+E_UNSTRATIFIED_NEGATION
+E_UNBOUNDED_RECURSION
+E_NON_INDEXABLE_BUILTIN
+E_DYNAMIC_MUTATION_NOT_ADMITTED
+E_CUT_NOT_ADMITTED
+```
+
+## 7.4 Boundary Rejections
+
+```text
+E_FOREIGN_CONTRACT_MISSING
+E_NONDETERMINISTIC_FOREIGN_CALL
+E_SIDE_EFFECT_IN_KERNEL
+E_REPLAY_CONTRACT_MISSING
+```
+
+---
+
+# 8. Execution Model
+
+## 8.1 Query Path
+
+```text
+QueryAtom8
+  ↓
+validate query shape
+  ↓
+lookup predicate
+  ↓
+derive binding mask
+  ↓
+select access path
+  ↓
+execute scan/join/anti-join
+  ↓
+capture proof
+  ↓
+emit answer
+  ↓
+emit receipt
+```
+
+## 8.2 Binding-Mask Dispatch
+
+For arity ≤ 8:
+
+```text
+binding_mask: u8
+```
+
+Each predicate may maintain:
+
+```text
+AccessPath[256]
+```
+
+Lookup:
+
+```text
+access_path = predicate.access_paths[binding_mask]
+```
+
+Access path types:
+
+```text
+ExactLookup
+PrefixRangeScan
+ColumnScan
+IndexJoinSeed
+FullScan
+MaterializedView
+Rejected
+```
+
+---
+
+# 9. Planner Requirements
+
+The planner must:
+
+```text
+choose join order
+push typed filters early
+choose predicate indexes
+avoid unnecessary full scans
+identify anti-joins
+detect recursion groups
+select materialized predicates where available
+attach proof templates
+```
+
+Planner inputs:
+
+```text
+rule graph
+predicate stats
+binding masks
+index manifest
+feature mask
+proof mode
+epoch
+```
+
+Planner outputs:
+
+```text
+physical plan
+estimated cost
+proof template
+required indexes
+```
+
+---
+
+# 10. Index Requirements
+
+## 10.1 Predicate Indexes
+
+For each predicate, index by useful argument orders.
+
+Example:
+
+```text
+allowed(actor, action, resource)
+
+allowed_by_actor_action_resource
+allowed_by_action_resource_actor
+allowed_by_resource_actor_action
+```
+
+## 10.2 Index Selection
+
+Index selection must be based on:
+
+```text
+binding mask
+predicate arity
+query frequency
+selectivity stats
+materialization policy
+```
+
+## 10.3 Block Metadata
+
+Fact blocks must allow skip decisions:
+
+```text
+skip expired epoch
+skip impossible term range
+skip wrong constant column
+skip source mismatch
+skip incompatible capability mask
+```
+
+---
+
+# 11. Proof Requirements
+
+## 11.1 Positive Proof
+
+Must capture:
+
+```text
+facts used
+rules fired
+substitutions
+built-ins evaluated
+child proof nodes
+proof root
+```
+
+## 11.2 Negative Proof
+
+Must capture at least one stable failure explanation:
+
+```text
+missing required fact
+failed join
+failed comparison
+negated predicate present
+required predicate absent
+expired epoch
+revoked capability
+foreign predicate denied
+```
+
+## 11.3 Blocked Alternatives
+
+Where configured, proof must include:
+
+```text
+alternative rule considered
+reason blocked
+missing facts
+conflicting facts
+```
+
+---
+
+# 12. Replay Requirements
+
+Replay must verify:
+
+```text
+catalog root
+rule root
+fact root
+input root
+proof root
+output root
+engine version compatibility
+```
+
+Replay outcomes:
+
+```text
+ReplayVerified
+ReplayMismatch
+MissingArtifact
+VersionIncompatible
+ReceiptInvalid
+```
+
+---
+
+# 13. WASM ABI Requirements
+
+The WASM interface should be byte-buffer oriented.
+
+Example API shape:
+
+```text
+load_catalog(ptr, len) -> CatalogHandle
+load_fact_block(ptr, len) -> FactBlockHandle
+load_rule_graph(ptr, len) -> RuleHandle
+query_atom(ptr, len) -> QueryHandle
+next_result(query_handle) -> ResultCode
+get_proof(result_handle, out_ptr) -> len
+get_receipt(result_handle, out_ptr) -> len
+replay(receipt_ptr, len) -> ReplayStatus
+```
+
+No API should accept source text for kernel execution.
+
+---
+
+# 14. CLI Requirements
+
+## 14.1 Compile
+
+```bash
+prolog8 compile policy.p8src --out policy.p8g
+```
+
+## 14.2 Doctor
+
+```bash
+prolog8 doctor policy.p8src
+```
+
+## 14.3 Query
+
+Human-facing CLI may accept text, but must compile to `QueryAtom8` before invoking kernel.
+
+```bash
+prolog8 query store.p8 "can_access(sean, repo7)"
+```
+
+Internal flow:
+
+```text
+parse outside kernel
+resolve labels to IDs
+construct QueryAtom8
+invoke kernel
+render explanation
+```
+
+## 14.4 Explain
+
+```bash
+prolog8 explain receipt.p8r
+```
+
+## 14.5 Replay
+
+```bash
+prolog8 replay receipt.p8r --store store.p8
+```
+
+---
+
+# 15. Storage Artifact Requirements
+
+## 15.1 Catalog Artifact
+
+Contains:
+
+```text
+predicate catalog
+term catalog
+type catalog
+label dictionary
+public reference mappings
+catalog root
+```
+
+Labels are display-only.
+
+## 15.2 Rule Artifact
+
+Contains:
+
+```text
+Rule8 records
+RuleGraph8 records
+dependency graph
+strata
+proof templates
+rule root
+```
+
+## 15.3 Fact Artifact
+
+Contains:
+
+```text
+FactBlock8 records
+index blocks
+source roots
+fact root
+```
+
+## 15.4 Receipt Artifact
+
+Contains:
+
+```text
+decision
+roots
+proof root
+output root
+epoch
+engine version
+receipt hash
+```
+
+---
+
+# 16. Tier Model
+
+## 16.1 Prolog8 Hot Tier
+
+```text
+arity ≤ 8
+body atoms ≤ 8
+variables ≤ 8
+local states ≤ 256
+proof fan-in ≤ 8
+kernel safe
+WASM safe
+```
+
+## 16.2 Prolog64 Audit Tier
+
+For larger offline/batch workloads:
+
+```text
+arity preferably ≤ 8
+body atoms ≤ 64
+variables ≤ 64
+proof fan-in ≤ 64
+batch/audit only
+not hot path
+```
+
+## 16.3 Rejected
+
+Any construct that cannot be bounded, indexed, proved, or replayed.
+
+---
+
+# 17. Decomposition Rules
+
+Doctor must recommend decompositions.
+
+## 17.1 Predicate Arity Split
+
+Bad:
+
+```text
+event(case, activity, actor, resource, start, end, region, device, policy)
+```
+
+Good:
+
+```text
+event(case, event_id)
+event_activity(event_id, activity)
+event_actor(event_id, actor)
+event_resource(event_id, resource)
+event_time(event_id, start, end)
+event_policy(event_id, policy)
+```
+
+## 17.2 Rule Body Split
+
+Bad:
+
+```text
+allowed(X) :- a(X), b(X), c(X), d(X), e(X), f(X), g(X), h(X), i(X).
+```
+
+Good:
+
+```text
+allowed_precheck(X) :- a(X), b(X), c(X), d(X).
+allowed_context(X)  :- e(X), f(X), g(X), h(X).
+allowed(X)          :- allowed_precheck(X), allowed_context(X), i(X).
+```
+
+## 17.3 State Surface Split
+
+If a rule family requires more than 256 local states:
+
+```text
+split into identity surface
+capability surface
+resource surface
+epoch surface
+evidence surface
+```
+
+---
+
+# 18. Security / Safety Requirements
+
+Without cybersecurity framing, the product still requires strong integrity properties:
+
+```text
+no runtime code parsing in kernel
+no arbitrary source evaluation
+no uncontracted host effects
+no nondeterministic kernel calls
+no mutable fact database during query
+no hidden string lookup
+no untracked decision
+no proofless allow/deny
+```
+
+---
+
+# 19. Testing Requirements
+
+## 19.1 Unit Tests
+
+```text
+Atom8 validation
+Rule8 validation
+binding mask validation
+feature mask validation
+proof node hashing
+receipt hashing
+catalog lookup
+fact block scan
+index selection
+```
+
+## 19.2 Admission Tests
+
+```text
+accept valid Prolog8
+reject arity 9
+reject body atom 9
+reject variable 9
+reject cut
+reject assert/retract
+reject runtime parse
+reject unstratified negation
+reject uncontracted foreign predicate
+```
+
+## 19.3 Golden Proof Tests
+
+For each demo:
+
+```text
+expected decision
+expected proof shape
+expected negative reason
+expected receipt root
+```
+
+## 19.4 Replay Tests
+
+```text
+valid replay succeeds
+modified fact root fails
+modified rule root fails
+modified output root fails
+missing artifact fails clearly
+```
+
+## 19.5 WASM Tests
+
+```text
+load catalog
+load facts
+query atom
+receive proof
+receive receipt
+replay receipt
+```
+
+---
+
+# 20. Performance Targets
+
+Initial non-binding targets:
+
+```text
+hot exact lookup: sub-microsecond target
+simple rule decision: low microsecond target
+proof emission: bounded overhead
+receipt generation: deterministic and cheap
+WASM query path: suitable for inline tool/action gates
+```
+
+Important: proof correctness and replay determinism outrank premature benchmark claims.
+
+---
+
+# 21. Milestones
+
+## Milestone 0 — Skeleton
+
+```text
+crate layout
+core IDs
+Atom8
+Rule8
+FactRow8
+basic validation
+```
+
+## Milestone 1 — Kernel Query
+
+```text
+catalog
+fact block
+exact lookup
+binding mask dispatch
+simple QueryAtom8
+```
+
+## Milestone 2 — Rule Execution
+
+```text
+Rule8 body execution
+joins
+substitution table
+basic planner
+```
+
+## Milestone 3 — Proof
+
+```text
+positive proof DAG
+negative proof for missing fact
+proof hashing
+```
+
+## Milestone 4 — Receipt / Replay
+
+```text
+receipt struct
+root hashing
+replay verifier
+```
+
+## Milestone 5 — Compiler / Doctor
+
+```text
+restricted authoring parser outside kernel
+admission report
+decomposition hints
+```
+
+## Milestone 6 — WASM
+
+```text
+WASM ABI
+browser/node demo
+agent tool gate demo
+```
+
+## Milestone 7 — V1 Release
+
+```text
+Rust crate
+WASM package
+CLI
+examples
+docs
+bench harness
+```
+
+---
+
+# 22. Open Design Questions
+
+```text
+TermId width: u32 vs u64?
+Hash function: BLAKE3 by default?
+Artifact binary format?
+How much of planner lives in compiler vs kernel?
+Proof compression strategy?
+How rich should negative proof be in MVP?
+How to represent controlled aggregates?
+How to version rule packs?
+How to handle incremental fact deltas by epoch?
+How to expose Prolog64 without weakening Prolog8?
+```
+
+---
+
+# 23. Non-Goals
+
+```text
+full ISO Prolog
+interactive Prolog REPL as core product
+general-purpose scripting
+runtime parser in kernel
+string-based query API in kernel
+arbitrary dynamic database mutation
+general theorem proving
+LLM reasoning replacement
+compliance dashboard as MVP
+large distributed database as MVP
+```
+
+---
+
+# 24. Final Product Definition
+
+Prolog8 is successful when a developer can embed it and say:
+
+```text
+Before this action happens, Prolog8 proves whether it is allowed.
+
+If allowed, I get the proof.
+
+If denied, I get the reason.
+
+If audited later, I can replay the decision.
+```
+
+The core architecture remains:
+
+```text
+No parser in the kernel.
+No strings in execution.
+No unbounded rule surface.
+No proofless decision.
+
+Graph in.
+Bits execute.
+Proof out.
+```

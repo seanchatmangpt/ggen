@@ -28,7 +28,7 @@
 //! ```rust,no_run
 //! use ggen_cli::cli_match;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> ggen_core::utils::error::Result<()> {
 //! // Execute CLI with auto-discovered commands
 //! cli_match().await?;
 //! # Ok(())
@@ -40,7 +40,7 @@
 //! ```rust,ignore
 //! use ggen_cli::run_for_node;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> ggen_core::utils::error::Result<()> {
 //! let args = vec!["template".to_string(), "generate".to_string()];
 //! let result = run_for_node(args).await?;
 //! println!("Exit code: {}", result.code);
@@ -48,8 +48,10 @@
 //! # Ok(())
 //! # }
 //! ```
-
-#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![deny(warnings)]
+#![allow(unexpected_cfgs)]
+#![allow(unused_imports)]
+#![allow(dead_code)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 #![allow(clippy::unused_unit)] // clap-noun-verb #[verb] macro generates unit expressions
 #![allow(
@@ -62,16 +64,19 @@
     clippy::unnecessary_map_or,
     clippy::useless_conversion
 )]
+pub mod config_clap;
+pub mod validation_lib;
+pub mod error;
+pub mod pack_install;
+pub mod prelude;
+pub mod progress;
+
 
 // Note: std::io::Write was used for output capture with gag crate (now disabled)
 
 // Command modules - clap-noun-verb v4.0.2 auto-discovery
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
 pub mod conventions; // File-based routing conventions
-pub mod error;
-pub mod pack_install;
-pub mod prelude;
-pub mod progress;
 pub mod receipt_manager; // Cryptographic receipt generation for CLI operations
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
@@ -80,17 +85,17 @@ pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Co
 pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
 // Re-export Result type for use in cmds
-pub use ggen_utils::error::Result;
+pub use ggen_core::utils::error::Result;
 
 /// Main entry point using clap-noun-verb v4.0.2 auto-discovery
 ///
 /// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
-pub async fn cli_match() -> ggen_utils::error::Result<()> {
+pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
     // Use clap-noun-verb auto-discovery (handles --version automatically)
     clap_noun_verb::run()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }
 
@@ -104,7 +109,7 @@ pub struct RunResult {
 
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
-pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunResult> {
+pub async fn run_for_node(args: Vec<String>) -> ggen_core::utils::error::Result<RunResult> {
     use std::sync::Arc;
     use std::sync::Mutex;
 
@@ -138,7 +143,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
         code
     })
     .await
-    .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
+    .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
 
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {

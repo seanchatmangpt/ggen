@@ -14,7 +14,7 @@ use tokio::sync::Semaphore;
 
 use crate::error::GgenError;
 use crate::progress::{CacheStatus, InstallationPlan, PlanStep, ProgressReporter};
-use ggen_marketplace::{
+use ggen_core::marketplace::{
     cache::{CacheConfig, CachedPack, PackCache},
     error::Error as MarketplaceError,
     AsyncRepository, Package, PackageId, PackageVersion,
@@ -528,7 +528,7 @@ impl AsyncRepository for TestRepository {
 
     async fn get_package(&self, package_id: &PackageId) -> Result<Package, MarketplaceError> {
         let version = PackageVersion::new("1.0.0").unwrap();
-        let metadata = ggen_marketplace::PackageMetadata::new(
+        let metadata = ggen_core::marketplace::PackageMetadata::new(
             package_id.clone(),
             format!("Pack {}", package_id),
             "Mock description",
@@ -545,7 +545,7 @@ impl AsyncRepository for TestRepository {
     async fn get_package_version(
         &self, package_id: &PackageId, version: &PackageVersion,
     ) -> Result<Package, MarketplaceError> {
-        let metadata = ggen_marketplace::PackageMetadata::new(
+        let metadata = ggen_core::marketplace::PackageMetadata::new(
             package_id.clone(),
             format!("Pack {}", package_id),
             "Mock description",

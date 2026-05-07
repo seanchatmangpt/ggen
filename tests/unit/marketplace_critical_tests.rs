@@ -8,7 +8,7 @@
 //! Tests use state-based assertions with real dependencies (filesystem, RDF store)
 //! and minimal mocking (network calls only).
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;

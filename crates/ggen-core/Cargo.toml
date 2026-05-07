@@ -1,29 +1,27 @@
+[[test]]
+name = "template_comprehensive_test"
+path = "tests/template_comprehensive_test.rs"
+required-features = [ "integration",]
+
 [package]
 name = "ggen-core"
-version.workspace = true
-authors.workspace = true
 description = "Core graph-aware code generation engine"
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
 readme = "README.md"
-keywords = ["cli", "code-generation", "rdf", "templates"]
-categories = ["development-tools", "command-line-utilities"]
-
-[lints.clippy]
-multiple_crate_versions = "allow"
+keywords = [ "cli", "code-generation", "rdf", "templates",]
+categories = [ "development-tools", "command-line-utilities",]
 
 [dependencies]
-# Use workspace = true pattern for workspace-local crates
-ggen-utils.workspace = true
-ggen-canonical.workspace = true
-ggen-receipt.workspace = true
-ggen-marketplace.workspace = true
-pictl-types.workspace = true
-pictl-algos.workspace = true
+rand_core = "0.6"
+
+blake3 = "1.5"
+
+slog = "2.7"
+slog-scope = "4.4"
+slog-stdlog = "4.1"
+slog-async = "2.8"
+clap = { version = "4.5", features = ["derive"] }
+
 tera = "1.20"
-oxigraph = { version = "0.5.6", features = ["rdf-12"] }
-serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1.0"
 sha2 = "0.10"
@@ -31,10 +29,7 @@ rayon = "1.11"
 thiserror = "2.0"
 log = "0.4.28"
 rand = "0.9"
-chrono = { workspace = true }
-ed25519-dalek = { workspace = true }
 tempfile = "3.14"
-gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"
 heck = "0.5"
 regex = "1.12"
@@ -46,11 +41,8 @@ toml = "0.9"
 lru = "0.16"
 ahash = "0.8"
 glob = "0.3"
-tokio = { version = "1.47", features = ["full"] }
 once_cell = "1.20"
-reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
 url = "2.5"
-git2 = { version = "0.20", features = ["vendored-openssl"] }
 tar = "0.4"
 flate2 = "1.1"
 dirs = "6.0"
@@ -58,77 +50,188 @@ semver = "1.0"
 num_cpus = "1.16"
 walkdir = "2.5"
 tracing = "0.1"
-tracing-subscriber = { workspace = true }
-# OpenTelemetry instrumentation (optional - enable with "otel" feature)
-opentelemetry = { workspace = true, optional = true }
-opentelemetry-otlp = { workspace = true, optional = true }
-opentelemetry_sdk = { workspace = true, optional = true }
-tracing-opentelemetry = { workspace = true, optional = true }
-# Post-Quantum Cryptography (PQC) - NIST-approved algorithms
-pqcrypto-mldsa = "0.1"  # ML-DSA (maintained replacement for Dilithium)
+pqcrypto-mldsa = "0.1"
 pqcrypto-traits = "0.3"
 base64 = "0.22"
 hex = "0.4"
-# LLM integration dependencies
 async-trait = "0.1"
 futures = "0.3"
 bytes = "1.10"
-# Note: ggen-ai dependency removed to avoid cyclic dependency
-# ggen-core is a foundational crate and should not depend on ggen-ai
-# If AI functionality is needed, it should be injected from above
 petgraph = "0.8.3"
-uuid = { version = "1.18", features = ["v4", "serde"] }
-# File watching with debouncing for watch mode
-notify = { workspace = true }
-notify-debouncer-full = { workspace = true }
 signal-hook = "0.3"
-signal-hook-tokio = { version = "0.3", features = ["futures-v0_3"] }
-
-[target.'cfg(unix)'.dependencies]
-# Unix system calls for disk space checking
-nix = { version = "0.29", features = ["fs"] }
-
-[target.'cfg(windows)'.dependencies]
-# Windows API for disk space checking
-windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
+parking_lot = "0.12"
+smallvec = "1.11"
+tinyvec = "1.6"
+fst = "0.4"
+typed-builder = "0.18"
+serde_derive = "1.0"
+http = "1.0"
+tower = "0.4"
+itertools = "0.12"
+compact_str = "0.7"
+instant = "0.1"
+zip = "2.0"
 
 [features]
-default = ["dx"]
-dx = []             # Hyper-advanced developer experience features
-live-llm-tests = [] # Opt-in for OpenAI/Anthropic integration tests
-proptest = []       # Property-based testing with proptest
-docker = []         # Docker testcontainers support
-testcontainers = [] # Testcontainers feature for production validation tests
-integration = []    # Gate tests with API mismatches from production changes
-# OpenTelemetry instrumentation (optional - adds ~200 dependencies)
-otel = ["opentelemetry", "opentelemetry-otlp", "opentelemetry_sdk", "tracing-opentelemetry"]
+default = [ "dx",]
+dx = []
+live-llm-tests = []
+proptest = []
+docker = []
+testcontainers = []
+integration = []
+otel = [ "opentelemetry", "opentelemetry-otlp", "opentelemetry_sdk", "tracing-opentelemetry",]
 
 [dev-dependencies]
 tempfile = "3"
 serde_json = "1"
 mockall = "0.13"
-criterion = { version = "0.7", features = ["html_reports"] }
-proptest = { workspace = true }
-tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 testcontainers = "0.25"
-uuid = { version = "1.18", features = ["v4"] }
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
 anyhow = "1.0"
 mockito = "1.7"
 
+[package.version]
+workspace = true
 
+[package.authors]
+workspace = true
 
-[[test]]
-name = "template_comprehensive_test"
-path = "tests/template_comprehensive_test.rs"
-required-features = ["integration"]
+[package.edition]
+workspace = true
 
+[package.license]
+workspace = true
 
+[package.repository]
+workspace = true
 
+[dependencies.oxigraph]
+version = "0.5.6"
+features = [ "rdf-12",]
 
+[dependencies.serde]
+version = "1.0"
+features = [ "derive",]
 
+[dependencies.chrono]
+workspace = true
 
+[dependencies.ed25519-dalek]
+workspace = true
 
+[dependencies.gray_matter]
+version = "0.3.2"
+features = [ "yaml",]
 
+[dependencies.tokio]
+version = "1.47"
+features = [ "full",]
 
+[dependencies.reqwest]
+workspace = true
+features = [ "rustls-tls", "stream",]
 
+[dependencies.git2]
+version = "0.20"
+features = [ "vendored-openssl",]
+
+[dependencies.tracing-subscriber]
+workspace = true
+
+[dependencies.opentelemetry]
+workspace = true
+optional = true
+
+[dependencies.opentelemetry-otlp]
+workspace = true
+optional = true
+
+[dependencies.opentelemetry_sdk]
+workspace = true
+optional = true
+
+[dependencies.tracing-opentelemetry]
+workspace = true
+optional = true
+
+[dependencies.uuid]
+version = "1.18"
+features = [ "v4", "serde",]
+
+[dependencies.notify]
+workspace = true
+
+[dependencies.notify-debouncer-full]
+workspace = true
+
+[dependencies.signal-hook-tokio]
+version = "0.3"
+features = [ "futures-v0_3",]
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.futures-util]
+workspace = true
+
+[dependencies.indexmap]
+version = "2.0"
+features = [ "serde",]
+
+[dependencies.dashmap]
+workspace = true
+
+[dependencies.hyper]
+version = "1.0"
+features = [ "full",]
+
+[dependencies.axum]
+workspace = true
+
+[dependencies.tower-http]
+version = "0.5"
+features = [ "cors", "trace",]
+
+[dependencies.config]
+workspace = true
+
+[dependencies.proptest]
+workspace = true
+
+[dependencies.arbitrary]
+version = "1.3"
+features = [ "derive",]
+
+[dependencies.moka]
+version = "0.12"
+features = [ "future",]
+
+[dev-dependencies.criterion]
+version = "0.7"
+features = [ "html_reports",]
+
+[dev-dependencies.proptest]
+workspace = true
+
+[dev-dependencies.tracing-subscriber]
+version = "0.3"
+features = [ "json", "env-filter",]
+
+[dev-dependencies.uuid]
+version = "1.18"
+features = [ "v4",]
+
+[dev-dependencies.chicago-tdd-tools]
+version = "1.4.0"
+features = [ "testing-extras", "testcontainers",]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[target."cfg(unix)".dependencies.nix]
+version = "0.29"
+features = [ "fs",]
+
+[target."cfg(windows)".dependencies.windows]
+version = "0.58"
+features = [ "Win32_Storage_FileSystem",]

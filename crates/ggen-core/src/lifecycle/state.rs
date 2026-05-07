@@ -16,8 +16,8 @@
 //! ### Loading and Saving State
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::state::{load_state, save_state, LifecycleState};
-//! use ggen_core::lifecycle::Result;
+//! use crate::lifecycle::state::{load_state, save_state, LifecycleState};
+//! use crate::lifecycle::Result;
 //! use std::path::PathBuf;
 //!
 //! # fn main() -> Result<()> {
@@ -38,8 +38,8 @@
 //! ### Tracking Phase Execution
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::state::{LifecycleState, RunRecord};
-//! use ggen_core::lifecycle::Result;
+//! use crate::lifecycle::state::{LifecycleState, RunRecord};
+//! use crate::lifecycle::Result;
 //! use chrono::Utc;
 //!
 //! # fn main() -> Result<()> {
@@ -49,7 +49,7 @@
 //! use std::time::{SystemTime, UNIX_EPOCH};
 //! let started_ms = SystemTime::now()
 //!     .duration_since(UNIX_EPOCH)
-//!     .map_err(|_| ggen_utils::error::Error::new("Time went backwards"))?
+//!     .map_err(|_| crate::utils::error::Error::new("Time went backwards"))?
 //!     .as_millis();
 //! state.phase_history.push(RunRecord {
 //!     phase: "test".to_string(),

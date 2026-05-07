@@ -3,7 +3,7 @@
 //! Parses TOML manifests into strongly-typed `GgenManifest` structures.
 
 use crate::manifest::types::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// Parser for ggen.toml manifest files
@@ -21,12 +21,12 @@ impl ManifestParser {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use ggen_core::manifest::ManifestParser;
+    /// use crate::manifest::ManifestParser;
     /// use std::path::Path;
     ///
     /// let manifest = ManifestParser::parse(Path::new("ggen.toml"))?;
     /// println!("Project: {}", manifest.project.name);
-    /// # Ok::<(), ggen_utils::error::Error>(())
+    /// # Ok::<(), crate::utils::error::Error>(())
     /// ```
     pub fn parse(path: &Path) -> Result<GgenManifest> {
         // Read file contents

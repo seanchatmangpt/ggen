@@ -5,10 +5,10 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ggen_semantic_bit::phase::Input;
-use ggen_semantic_bit::root::{StatusCondition, StatusLaw};
-use ggen_semantic_bit::Machine;
-use ggen_utils::error::Result;
+use ggen_core::semantic_bit::phase::Input;
+use ggen_core::semantic_bit::root::{StatusCondition, StatusLaw};
+use ggen_core::semantic_bit::Machine;
+use ggen_core::utils::error::Result;
 use serde::Serialize;
 use std::path::Path;
 

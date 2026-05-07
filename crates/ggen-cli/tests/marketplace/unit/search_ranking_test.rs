@@ -7,8 +7,8 @@
 //! - Recency (update time, 10%)
 
 use chrono::{Duration, Utc};
-use ggen_marketplace::search::scoring::CustomScorer;
-use ggen_marketplace::types::Package;
+use ggen_core::marketplace::search::scoring::CustomScorer;
+use ggen_core::marketplace::types::Package;
 
 fn create_test_package(id: &str, downloads: u64, rating: f32, days_old: i64) -> Package {
     Package {

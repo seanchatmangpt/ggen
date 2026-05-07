@@ -1,79 +1,51 @@
-[package]
-name = "ggen-cli-lib"
-version.workspace = true
-authors.workspace = true
-description = "CLI interface for ggen"
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-readme = "README.md"
-keywords = ["cli", "code-generation", "rdf", "templates"]
-categories = ["development-tools", "command-line-utilities"]
-
-[lints.clippy]
-multiple_crate_versions = "allow"
-
 [[bin]]
 name = "ggen"
 path = "src/main.rs"
+
+[[test]]
+name = "e2e"
+path = "tests/e2e.rs"
+required-features = [ "integration",]
+
+[[test]]
+name = "paas_integration_test"
+path = "tests/paas_integration_test.rs"
+required-features = [ "integration",]
+
+[[test]]
+name = "sabotage_tests"
+path = "tests/sabotage_tests.rs"
+required-features = [ "integration",]
+
+[[test]]
+name = "doctor_adversarial_tests"
+path = "tests/doctor_adversarial_tests.rs"
+required-features = [ "integration",]
+
+[package]
+name = "ggen-cli-lib"
+description = "CLI interface for ggen"
+readme = "README.md"
+keywords = [ "cli", "code-generation", "rdf", "templates",]
+categories = [ "development-tools", "command-line-utilities",]
 
 [lib]
 name = "ggen_cli_lib"
 path = "src/lib.rs"
 
 [dependencies]
-# Workspace dependencies
-anyhow.workspace = true
-thiserror.workspace = true
-tokio.workspace = true
-serde.workspace = true
-serde_json.workspace = true
 serde_yaml = "0.9"
-chrono = { version = "0.4", features = ["serde"] }
-toml.workspace = true
-tera.workspace = true
-regex.workspace = true
-rayon.workspace = true
-tracing.workspace = true
 log = "0.4.28"
-clap.workspace = true
-clap-noun-verb.workspace = true
-once_cell.workspace = true
-uuid.workspace = true
-indexmap.workspace = true
-futures.workspace = true
-async-trait.workspace = true
-
-# Local dependencies (use workspace = true pattern for consistency)
-ggen-utils.workspace = true
-ggen-core.workspace = true
-ggen-domain = { workspace = true, features = ["marketplace"] }
-ggen-marketplace.workspace = true
-pictl-types.workspace = true
-pictl-algos.workspace = true
-ggen-semantic-bit.workspace = true
-ggen-ontology-core.workspace = true
-ggen-receipt.workspace = true
-a2a-generated = { workspace = true, optional = true }
-
-# Crate-specific dependencies
 clap_complete = "4.5.58"
-clap-noun-verb-macros.workspace = true
 sha2 = "0.10"
-hex.workspace = true
-base64.workspace = true
 ed25519-dalek = "2.1"
 dotenvy = "0.15"
-reqwest = { version = "0.12", features = ["json"] }
 glob = "0.3"
 semver = "1.0"
 dirs = "6.0"
-oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 walkdir = "2.5"
 colored = "3.0"
 indicatif = "0.17"
-genai = { workspace = true }
-
 linkme = "0.3"
 notify = "6.1"
 notify-debouncer-full = "0.3"
@@ -81,66 +53,136 @@ tar = "0.4"
 flate2 = "1.0"
 md5 = "0.8"
 
-
 [features]
-# Autonomic CLI features (used by clap-noun-verb macros)
 autonomic = []
-
-# PaaS feature gate for #[cfg(feature = "paas")] modules
 paas = []
-
-# Testing features
-live-llm-tests = [] # Opt-in for live LLM integration tests
-integration = [] # Gate tests that reference missing/future crates
-
-# A2A Protocol support - temporarily disabled due to compilation errors
-use-a2a-rs = ["dep:a2a-generated"]  # Use generated a2a code
-default = ["use-a2a-rs"]  # Re-enabled for v26.5.4
+live-llm-tests = []
+integration = []
+default = []
 
 [dev-dependencies]
 assert_cmd = "2"
 assert_fs = "1"
-predicates = "3" # Assertions for CLI testing
-mockall = "0.13" # London TDD mocking framework (DEPRECATED - use real collaborators)
-fake = { version = "4.4", features = ["derive"] } # Fake data generation
-tempfile = "3.23" # Temporary files/directories for testing
-serde_yaml = "0.9" # YAML parsing for frontmatter tests
-serde_json = "1.0" # JSON parsing for AI response tests
-criterion = { version = "0.5", features = [
-  "async_tokio",
-  "html_reports",
-] } # Benchmarking framework
-tokio-test = "0.4" # Tokio testing utilities
-notify = "6.1" # File system watcher for watch mode tests
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
-oxigraph = { version = "0.5.6", features = ["rdf-12"] } # RDF storage for tests (not needed for binary)
-httpmock = "0.7" # Chicago TDD: Real HTTP test server for download tests
-tracing-subscriber.workspace = true # OTEL span verification tests
+predicates = "3"
+mockall = "0.13"
+tempfile = "3.23"
+serde_yaml = "0.9"
+serde_json = "1.0"
+tokio-test = "0.4"
+notify = "6.1"
+httpmock = "0.7"
 
+[package.version]
+workspace = true
 
-[[test]]
-name = "e2e"
-path = "tests/e2e.rs"
-required-features = ["integration"]
+[package.authors]
+workspace = true
 
-# [[test]]
-# name = "marketplace_install_e2e"
-# path = "tests/marketplace_install_e2e.rs"
-# required-features = ["integration"]
-# DISABLED: Tests internal types not exported from ggen-cli-lib
+[package.edition]
+workspace = true
 
-[[test]]
-name = "paas_integration_test"
-path = "tests/paas_integration_test.rs"
-required-features = ["integration"]
+[package.license]
+workspace = true
 
-[[test]]
-name = "sabotage_tests"
-path = "tests/sabotage_tests.rs"
-required-features = ["integration"]
+[package.repository]
+workspace = true
 
-[[test]]
-name = "doctor_adversarial_tests"
-path = "tests/doctor_adversarial_tests.rs"
-required-features = ["integration"]
+[dependencies.anyhow]
+workspace = true
 
+[dependencies.thiserror]
+workspace = true
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.chrono]
+version = "0.4"
+features = [ "serde",]
+
+[dependencies.toml]
+workspace = true
+
+[dependencies.tera]
+workspace = true
+
+[dependencies.regex]
+workspace = true
+
+[dependencies.rayon]
+workspace = true
+
+[dependencies.tracing]
+workspace = true
+
+[dependencies.clap]
+workspace = true
+
+[dependencies.clap-noun-verb]
+workspace = true
+
+[dependencies.once_cell]
+workspace = true
+
+[dependencies.uuid]
+workspace = true
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.futures]
+workspace = true
+
+[dependencies.async-trait]
+workspace = true
+
+[dependencies.ggen-core]
+workspace = true
+
+[dependencies.clap-noun-verb-macros]
+workspace = true
+
+[dependencies.hex]
+workspace = true
+
+[dependencies.base64]
+workspace = true
+
+[dependencies.reqwest]
+version = "0.12"
+features = [ "json",]
+
+[dependencies.oxigraph]
+version = "0.5.6"
+features = [ "rdf-12",]
+
+[dependencies.genai]
+workspace = true
+
+[dev-dependencies.fake]
+version = "4.4"
+features = [ "derive",]
+
+[dev-dependencies.criterion]
+version = "0.5"
+features = [ "async_tokio", "html_reports",]
+
+[dev-dependencies.chicago-tdd-tools]
+version = "1.4.0"
+features = [ "testing-extras",]
+
+[dev-dependencies.oxigraph]
+version = "0.5.6"
+features = [ "rdf-12",]
+
+[dev-dependencies.tracing-subscriber]
+workspace = true
+
+[lints.clippy]
+multiple_crate_versions = "allow"

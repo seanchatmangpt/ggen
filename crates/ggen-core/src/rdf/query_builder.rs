@@ -20,9 +20,9 @@
 //! ### SELECT query with filter
 //!
 //! ```rust
-//! use ggen_core::rdf::query_builder::{SparqlQueryBuilder, Variable, Iri};
+//! use crate::rdf::query_builder::{SparqlQueryBuilder, Variable, Iri};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let query = SparqlQueryBuilder::select()
 //!     .prefix("ex", Iri::new("https://example.com/")?)
 //!     .var(Variable::new("subject")?)
@@ -41,9 +41,9 @@
 //! ### CONSTRUCT query
 //!
 //! ```rust
-//! use ggen_core::rdf::query_builder::{SparqlQueryBuilder, Iri};
+//! use crate::rdf::query_builder::{SparqlQueryBuilder, Iri};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let query = SparqlQueryBuilder::construct()
 //!     .prefix("ex", Iri::new("https://example.com/")?)
 //!     .construct_pattern("?s <http://example.com/new> ?o")
@@ -55,7 +55,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::marker::PhantomData;
 
 /// Type-safe IRI wrapper with automatic validation and escaping
@@ -78,9 +78,9 @@ impl Iri {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::query_builder::Iri;
+    /// use crate::rdf::query_builder::Iri;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let iri = Iri::new("https://example.com/resource")?;
     /// # Ok(())
     /// # }
@@ -127,9 +127,9 @@ impl Variable {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::query_builder::Variable;
+    /// use crate::rdf::query_builder::Variable;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let var = Variable::new("subject")?;
     /// # Ok(())
     /// # }
@@ -183,7 +183,7 @@ impl Literal {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::query_builder::Literal;
+    /// use crate::rdf::query_builder::Literal;
     ///
     /// let lit = Literal::new("Alice's value");
     /// assert!(lit.as_str().contains("Alice"));
@@ -280,7 +280,7 @@ impl SparqlQueryBuilder<Select, Building> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::query_builder::SparqlQueryBuilder;
+    /// use crate::rdf::query_builder::SparqlQueryBuilder;
     ///
     /// let builder = SparqlQueryBuilder::select();
     /// ```

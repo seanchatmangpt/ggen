@@ -31,9 +31,9 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use ggen_core::pipeline_engine::{StagedPipeline, PipelineConfig, Epoch};
+//! use crate::pipeline_engine::{StagedPipeline, PipelineConfig, Epoch};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! // Create pipeline configuration
 //! let config = PipelineConfig::new("project", "1.0.0")
 //!     .with_ontology("ontology/domain.ttl")

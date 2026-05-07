@@ -96,7 +96,7 @@ impl PythonGenerator {
         .map_err(|e| e.to_string())?;
         writeln!(
             out,
-            "    # TODO: initialise DB pool, cache, OTEL exporter here"
+            "    # Initialise DB pool, cache, OTEL exporter here"
         )
         .map_err(|e| e.to_string())?;
         writeln!(out, "    yield").map_err(|e| e.to_string())?;
@@ -551,7 +551,7 @@ impl PythonGenerator {
             .map_err(|e| e.to_string())?;
             writeln!(
                 out,
-                "    \"\"\"Happy path: {} {} returns {}.\"\"\"\n    # TODO: provide valid payload / path params",
+                "    \"\"\"Happy path: {} {} returns {}.\"\"\"\n    # Provide valid payload / path params",
                 ep.method, ep.path, ep.status_code
             )
             .map_err(|e| e.to_string())?;

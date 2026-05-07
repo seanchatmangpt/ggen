@@ -1,0 +1,6 @@
+// GENERATED — DO NOT EDIT — source: schema/domain.ttl
+
+{% for entity in entities %}
+/// {{ entity.cap_label }}
+pub const {{ entity.cap_name }}: u32 = {{ entity.max_value }};
+{% endfor %}

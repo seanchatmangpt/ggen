@@ -37,10 +37,10 @@
 //! ### Using the Preprocessor
 //!
 //! ```rust,no_run
-//! use ggen_core::preprocessor::{Preprocessor, FreezePolicy, PrepCtx};
+//! use crate::preprocessor::{Preprocessor, FreezePolicy, PrepCtx};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let preprocessor = Preprocessor::new(FreezePolicy::Checksum);
 //! let ctx = PrepCtx {
 //!     template_path: Path::new("template.tmpl"),
@@ -59,7 +59,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -84,7 +84,7 @@ pub trait Stage: Send + Sync {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::preprocessor::FreezePolicy;
+/// use crate::preprocessor::FreezePolicy;
 ///
 /// # fn main() {
 /// let policy = FreezePolicy::Always;

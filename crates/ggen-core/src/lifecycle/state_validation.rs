@@ -78,8 +78,8 @@ impl ValidatedLifecycleState {
     /// # Example
     ///
     /// ```rust
-    /// # use ggen_core::lifecycle::state_validation::ValidatedLifecycleState;
-    /// # use ggen_core::lifecycle::state::LifecycleState;
+    /// # use crate::lifecycle::state_validation::ValidatedLifecycleState;
+    /// # use crate::lifecycle::state::LifecycleState;
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let mut state = LifecycleState::default();
     /// state.record_run("init".to_string(), 0, 100, true);

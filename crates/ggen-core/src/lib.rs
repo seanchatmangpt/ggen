@@ -55,11 +55,11 @@
 //! ### Basic Template Generation
 //!
 //! ```rust,no_run
-//! use ggen_core::{Generator, GenContext, Pipeline};
+//! use crate::{Generator, GenContext, Pipeline};
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let mut vars = BTreeMap::new();
 //! vars.insert("name".to_string(), "MyApp".to_string());
@@ -79,9 +79,9 @@
 //! ### Using RDF Graph
 //!
 //! ```rust
-//! use ggen_core::Graph;
+//! use crate::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix ex: <http://example.org/> .
@@ -98,10 +98,10 @@
 //! ### Creating a New Project
 //!
 //! ```rust,no_run
-//! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
+//! use crate::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-cli".to_string(),
 //!     project_type: ProjectType::RustCli,
@@ -113,8 +113,10 @@
 //! # Ok(())
 //! # }
 //! ```
-
-#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![deny(warnings)]
+#![allow(unexpected_cfgs)]
+#![allow(unused_imports)]
+#![allow(dead_code)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(
     clippy::manual_checked_ops,
     clippy::unnecessary_sort_by,
@@ -126,16 +128,26 @@
     clippy::if_same_then_else,
     clippy::for_kv_map
 )]
-
+pub mod marketplace;
+pub mod a2a;
+pub mod a2a_registry;
+pub mod a2a_generated;
+pub mod transport;
+pub mod receipt;
+pub mod prompt_mfg;
+pub mod semantic_bit;
+pub mod canonical;
+pub mod codegen_lib;
+pub mod ontology_core;
+pub mod config_lib;
+pub mod domain;
+pub mod utils;
 pub mod audit;
 pub mod cache;
 pub mod cli_generator;
 pub mod codegen;
 pub mod config;
-// Schema parser and code generators for A2A communication
 pub mod delta;
-pub mod drift; // Drift detection for ontology changes
-#[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
 pub mod github;
@@ -146,18 +158,13 @@ pub mod lean_six_sigma;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
-pub mod manufacturing; // DMAIC quality gates for Lean Six Sigma
 pub mod merge;
-pub mod metrics; // Quality metrics system (Code, Process, Six Sigma, TPS, Flow, OEE, Kaizen)
 pub mod parallel_generator;
 pub mod schema;
 pub mod template;
 pub mod template_types;
-// Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
 pub mod ontology_pack;
-pub mod pack_resolver; // μ₀: Pack resolution stage
-pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod pki;
 pub mod poc;
@@ -169,21 +176,31 @@ pub mod rdf;
 pub mod register;
 pub mod registry;
 pub mod resolver;
-pub mod security; // Week 4 Security Hardening
 pub mod signals;
 pub mod snapshot;
 pub mod streaming_generator;
-pub mod sync; // Sync orchestrator: load_ontology → run_sparql → generate_code → validate → write_files
 pub mod telemetry;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
 pub mod types;
 pub mod validation;
-// v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 pub mod simple_tracing;
 pub mod tracing;
 pub mod pipeline_engine;
+
+
+// Schema parser and code generators for A2A communication
+pub mod drift; // Drift detection for ontology changes
+#[cfg(test)]
+pub mod manufacturing; // DMAIC quality gates for Lean Six Sigma
+pub mod metrics; // Quality metrics system (Code, Process, Six Sigma, TPS, Flow, OEE, Kaizen)
+// Ontology system - re-enabled after oxigraph API compatibility fixes
+pub mod pack_resolver; // μ₀: Pack resolution stage
+pub mod packs; // Pack installation system - Phase 1
+pub mod security; // Week 4 Security Hardening
+pub mod sync; // Sync orchestrator: load_ontology → run_sparql → generate_code → validate → write_files
+// v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 
 // Re-export template types
 pub use template_types::{Frontmatter, Template};

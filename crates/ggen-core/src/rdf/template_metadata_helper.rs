@@ -16,9 +16,9 @@
 //! ### Querying Full Metadata
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::TemplateMetadataStore;
+//! use crate::rdf::TemplateMetadataStore;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let store = TemplateMetadataStore::new()?;
 //! let metadata = store.query_full_metadata("http://example.org/template1")?;
 //!
@@ -29,7 +29,7 @@
 //! ```
 
 use super::template_metadata::{TemplateMetadata, TemplateMetadataStore};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 impl TemplateMetadataStore {
     /// Query full metadata by executing multiple SPARQL queries

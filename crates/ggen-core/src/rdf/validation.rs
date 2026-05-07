@@ -15,10 +15,10 @@
 //! ### Validating Template Metadata
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::validation::Validator;
-//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//! use crate::rdf::validation::Validator;
+//! use crate::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -37,10 +37,10 @@
 //! ### Getting Validation Report
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::validation::Validator;
-//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//! use crate::rdf::validation::Validator;
+//! use crate::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -52,7 +52,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -65,7 +65,7 @@ use super::template_metadata::TemplateMetadata;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::validation::{ValidationResult, ValidationError, Severity};
+/// use crate::rdf::validation::{ValidationResult, ValidationError, Severity};
 ///
 /// # fn main() {
 /// // Valid result
@@ -111,7 +111,7 @@ pub struct ValidationError {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::validation::Severity;
+/// use crate::rdf::validation::Severity;
 ///
 /// # fn main() {
 /// let error = Severity::Error;
@@ -149,7 +149,7 @@ impl ValidationReport {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::validation::ValidationReport;
+    /// use crate::rdf::validation::ValidationReport;
     ///
     /// # fn main() {
     /// let report = ValidationReport::new("template://example/test".to_string());
@@ -200,7 +200,7 @@ impl ValidationReport {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::validation::ValidationReport;
+    /// use crate::rdf::validation::ValidationReport;
     ///
     /// # fn main() {
     /// let mut report = ValidationReport::new("template://test".to_string());
@@ -219,7 +219,7 @@ impl ValidationReport {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::validation::ValidationReport;
+    /// use crate::rdf::validation::ValidationReport;
     ///
     /// # fn main() {
     /// let mut report = ValidationReport::new("template://test".to_string());

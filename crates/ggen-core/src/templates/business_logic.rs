@@ -35,10 +35,10 @@
 //! ### Generating Separated Files
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::business_logic::BusinessLogicSeparator;
+//! use crate::templates::business_logic::BusinessLogicSeparator;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let cli_path = Path::new("cli/create_project.rs");
 //! let domain_path = Path::new("domain/create_project.rs");
 //!
@@ -59,7 +59,7 @@
 //!
 //! ```rust,no_run
 //! //! CLI wrapper for create project
-//! use ggen_utils::error::Result;
+//! use crate::utils::error::Result;
 //! use clap::Args;
 //! use crate::domain::create_project;
 //!
@@ -82,7 +82,7 @@
 //!
 //! ```rust,no_run
 //! //! Business logic for create project
-//! use ggen_utils::error::Result;
+//! use crate::utils::error::Result;
 //!
 //! #[derive(Debug)]
 //! pub struct CreateProjectArgs {
@@ -96,7 +96,7 @@
 //! }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -108,10 +108,10 @@ use std::path::Path;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+/// use crate::templates::business_logic::BusinessLogicSeparator;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let cli_path = Path::new("cli/create_project.rs");
 /// let domain_path = Path::new("domain/create_project.rs");
 ///
@@ -147,7 +147,7 @@ impl BusinessLogicSeparator {
 //!
 //! This is a thin synchronous wrapper that delegates to async business logic.
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use clap::Args;
 use crate::{}::{};
 
@@ -201,7 +201,7 @@ pub fn {}(args: {}Args) -> Result<()> {{
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+    /// use crate::templates::business_logic::BusinessLogicSeparator;
     ///
     /// let code = BusinessLogicSeparator::generate_domain_skeleton("delete", "user");
     /// assert!(code.contains("pub async fn delete_user"));
@@ -218,7 +218,7 @@ pub fn {}(args: {}Args) -> Result<()> {{
 //! This module contains the async business logic implementation.
 //! Modify this file freely - it will never be regenerated.
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 /// Arguments for {} {} operation
 #[derive(Debug)]
@@ -291,7 +291,7 @@ mod tests {{
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+    /// use crate::templates::business_logic::BusinessLogicSeparator;
     /// use std::path::Path;
     ///
     /// let exists = BusinessLogicSeparator::business_logic_exists(Path::new("domain/create.rs"));
@@ -325,10 +325,10 @@ mod tests {{
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+    /// use crate::templates::business_logic::BusinessLogicSeparator;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// BusinessLogicSeparator::generate_separated_files(
     ///     Path::new("cli/create_project.rs"),
     ///     Path::new("domain/create_project.rs"),

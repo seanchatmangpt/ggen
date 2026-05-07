@@ -2,7 +2,7 @@ use std::path::Path;
 use tracing::info;
 
 /// Initialize tracing based on environment variables
-pub fn init_tracing() -> ggen_utils::error::Result<()> {
+pub fn init_tracing() -> crate::utils::error::Result<()> {
     #[cfg(feature = "otel")]
     {
         return init_otel_tracing();
@@ -18,7 +18,7 @@ pub fn init_tracing() -> ggen_utils::error::Result<()> {
             .with_env_filter(env_filter)
             .try_init()
             .map_err(|e| {
-                ggen_utils::error::Error::with_source("Failed to initialize tracing", e)
+                crate::utils::error::Error::with_source("Failed to initialize tracing", e)
             })?;
 
         Ok(())
@@ -26,7 +26,7 @@ pub fn init_tracing() -> ggen_utils::error::Result<()> {
 }
 
 #[cfg(feature = "otel")]
-fn init_otel_tracing() -> ggen_utils::error::Result<()> {
+fn init_otel_tracing() -> crate::utils::error::Result<()> {
     // OTEL feature disabled - API breaking changes in opentelemetry crates
     // Use standard tracing instead
     use tracing_subscriber::EnvFilter;
@@ -38,7 +38,7 @@ fn init_otel_tracing() -> ggen_utils::error::Result<()> {
         .with_env_filter(env_filter)
         .try_init()
         .map_err(|e| {
-            ggen_utils::error::Error::with_source("Failed to initialize tracing", e)
+            crate::utils::error::Error::with_source("Failed to initialize tracing", e)
         })?;
 
     Ok(())
@@ -178,7 +178,7 @@ impl PipelineTracer {
     }
 
     /// Log error with context
-    pub fn error_with_context(error: &ggen_utils::error::Error, context: &str) {
+    pub fn error_with_context(error: &crate::utils::error::Error, context: &str) {
         tracing::error!(
             error = %error,
             context = context,

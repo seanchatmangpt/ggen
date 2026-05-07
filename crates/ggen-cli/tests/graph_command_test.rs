@@ -15,7 +15,7 @@ use std::path::PathBuf;
 // Domain Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
-use ggen_domain::graph::{
+use ggen_core::domain::graph::{
     ExportInput, ExportOutput, LoadInput, LoadOutput, QueryInput, QueryResult, RdfFormat,
     VisualizeInput, VisualizeOutput,
 };

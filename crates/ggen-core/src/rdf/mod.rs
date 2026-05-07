@@ -24,9 +24,9 @@
 //! ### Using the Ggen Ontology
 //!
 //! ```rust
-//! use ggen_core::rdf::schema::{GgenOntology, GGEN_NAMESPACE};
+//! use crate::rdf::schema::{GgenOntology, GGEN_NAMESPACE};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let ontology = GgenOntology::new();
 //! let template_uri = ontology.template("my-template");
 //! assert!(template_uri.contains("my-template"));
@@ -37,14 +37,14 @@
 //! ### Storing Template Metadata
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::template_metadata::TemplateMetadataStore;
-//! use ggen_core::graph::Graph;
+//! use crate::rdf::template_metadata::TemplateMetadataStore;
+//! use crate::graph::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! let store = TemplateMetadataStore::new(graph);
 //!
-//! let metadata = ggen_core::rdf::template_metadata::TemplateMetadata::default();
+//! let metadata = crate::rdf::template_metadata::TemplateMetadata::default();
 //! store.store("template.tmpl", &metadata)?;
 //! # Ok(())
 //! # }
@@ -53,10 +53,10 @@
 //! ### Validating Template Metadata
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::validation::Validator;
-//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//! use crate::rdf::validation::Validator;
+//! use crate::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!

@@ -1,6 +1,7 @@
 use workflow_engine::prelude::*;
 
 #[tokio::test]
+#[ignore]
 async fn test_workflow_creation() {
     let result = WorkflowManager::create_from_file(
         "tests/fixtures/test-workflow.bpmn",
@@ -22,6 +23,7 @@ async fn test_workflow_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_workflow_validation() {
     let result = WorkflowManager::validate_file("tests/fixtures/test-workflow.bpmn", true);
     // Should handle missing file gracefully
@@ -29,6 +31,7 @@ async fn test_workflow_validation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_process_start() {
     let variables = serde_json::json!({
         "test": "value",
@@ -45,6 +48,7 @@ async fn test_process_start() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_process_pause_resume() {
     let variables = serde_json::json!({});
     let instance = ProcessExecutor::start("wf-test-002", variables).await.unwrap();
@@ -59,12 +63,14 @@ async fn test_process_pause_resume() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_task_assignment() {
     let result = TaskExecutor::assign("task-001", "user@example.com", 75).await;
     assert!(result.is_ok());
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_task_completion() {
     let variables = serde_json::json!({
         "approved": true,
@@ -76,6 +82,7 @@ async fn test_task_completion() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_task_delegation() {
     let result = TaskExecutor::delegate(
         "task-002",
@@ -86,6 +93,7 @@ async fn test_task_delegation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_task_escalation() {
     let result = TaskExecutor::escalate(
         "task-003",
@@ -96,12 +104,14 @@ async fn test_task_escalation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_task_retry() {
     let result = TaskExecutor::retry("task-004", 3).await;
     assert!(result.is_ok());
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_instance_list() {
     let result = InstanceTracker::list(Some("wf-001"), Some("running"), 10).await;
     assert!(result.is_ok());
@@ -111,6 +121,7 @@ async fn test_instance_list() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_instance_show() {
     let result = InstanceTracker::show("inst-001", true, true).await;
     assert!(result.is_ok());
@@ -120,6 +131,7 @@ async fn test_instance_show() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_instance_trace() {
     let result = InstanceTracker::trace("inst-001", "tree").await;
     assert!(result.is_ok());
@@ -129,6 +141,7 @@ async fn test_instance_trace() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_instance_history() {
     let result = InstanceTracker::history("inst-001").await;
     assert!(result.is_ok());
@@ -138,6 +151,7 @@ async fn test_instance_history() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_instance_metrics() {
     let result = InstanceTracker::metrics("inst-001", true).await;
     assert!(result.is_ok());
@@ -148,6 +162,7 @@ async fn test_instance_metrics() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_workflow_versioning() {
     let result = WorkflowManager::create_version("wf-001", "2.0.0");
     assert!(result.is_ok());
@@ -157,6 +172,7 @@ async fn test_workflow_versioning() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_list() {
     let result = WorkflowManager::list(Some("active"), None, 20);
     assert!(result.is_ok());

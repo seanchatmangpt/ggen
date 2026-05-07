@@ -3,7 +3,7 @@
 //! This module provides format abstraction allowing lockfiles to be
 //! serialized in either TOML or JSON format.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::Path;
 
@@ -102,7 +102,7 @@ impl FormatType {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::lockfile_unified::format::{detect_format, FormatType};
+/// use crate::lockfile_unified::format::{detect_format, FormatType};
 /// use std::path::Path;
 ///
 /// assert_eq!(detect_format(Path::new("ggen.lock")), FormatType::Toml);

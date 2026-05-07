@@ -16,9 +16,9 @@
 //! ### Creating a CLI Project
 //!
 //! ```rust,no_run
-//! use ggen_core::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType};
+//! use crate::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let project = CliProject {
 //!     name: "my-cli".to_string(),
 //!     version: "1.0.0".to_string(),
@@ -72,9 +72,9 @@
 //! ### Working with Nouns and Verbs
 //!
 //! ```rust,no_run
-//! use ggen_core::cli_generator::types::{Noun, Verb};
+//! use crate::cli_generator::types::{Noun, Verb};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let noun = Noun {
 //!     name: "project".to_string(),
 //!     description: "Project management".to_string(),

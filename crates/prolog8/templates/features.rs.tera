@@ -1,0 +1,9 @@
+// GENERATED — DO NOT EDIT — source: schema/domain.ttl
+
+/// Prolog8 feature flags, encoded as a u8 bitmask in Rule8.feature_mask.
+pub mod feature {
+{% for entity in entities %}
+    /// {{ entity.feature_label }}
+    pub const {{ entity.feature_name | upper }}: u8 = 1 << {{ entity.bit_index }};
+{% endfor %}
+}

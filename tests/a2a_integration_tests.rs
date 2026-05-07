@@ -4,8 +4,8 @@
 //! covering CLI commands with real a2a-rs backend, agent lifecycle management,
 //! tool discovery, message passing, and error scenarios.
 
-use ggen_domain::error::{A2aError, AgentError, McpError};
-use ggen_domain::mcp_config::{A2aAgentConfig as AgentConfig, A2aConfig, McpServerConfig};
+use ggen_core::domain::error::{A2aError, AgentError, McpError};
+use ggen_core::domain::mcp_config::{A2aAgentConfig as AgentConfig, A2aConfig, McpServerConfig};
 use std::collections::HashMap;
 use std::thread;
 use std::time::Duration;
@@ -841,9 +841,9 @@ mod main_test_suite {
         let agent_error = AgentError::StartupFailed("Test startup failed".to_string());
 
         // These should all be convertible to domain errors
-        let domain_error1: ggen_utils::error::Error = a2a_error.into();
-        let domain_error2: ggen_utils::error::Error = mcp_error.into();
-        let domain_error3: ggen_utils::error::Error = agent_error.into();
+        let domain_error1: ggen_core::utils::error::Error = a2a_error.into();
+        let domain_error2: ggen_core::utils::error::Error = mcp_error.into();
+        let domain_error3: ggen_core::utils::error::Error = agent_error.into();
 
         assert!(!domain_error1.to_string().is_empty());
         assert!(!domain_error2.to_string().is_empty());

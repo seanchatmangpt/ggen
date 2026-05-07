@@ -4,7 +4,7 @@
 //! Templates can be referenced as `pack_id:template_path` in ggen.toml
 //! and will be loaded from the pack cache at `~/.cache/ggen/packs/<pack-id>/templates/`.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::PathBuf;
 use tracing::{debug, info};
 

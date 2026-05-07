@@ -1,5 +1,5 @@
 use crate::graph::Graph;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::fmt;
 use std::path::PathBuf;
 use tracing::instrument;

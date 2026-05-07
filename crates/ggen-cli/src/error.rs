@@ -97,9 +97,9 @@ impl From<serde_json::error::Error> for GgenError {
     }
 }
 
-impl From<GgenError> for ggen_utils::Error {
+impl From<GgenError> for ggen_core::utils::Error {
     fn from(err: GgenError) -> Self {
-        ggen_utils::Error::new(&err.to_string())
+        ggen_core::utils::Error::new(&err.to_string())
     }
 }
 

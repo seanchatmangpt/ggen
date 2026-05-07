@@ -7,7 +7,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use ggen_core::graph::Graph;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::path::PathBuf;
 
 // ============================================================================

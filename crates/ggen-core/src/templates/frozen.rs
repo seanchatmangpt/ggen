@@ -44,9 +44,9 @@
 //! ### Parsing Frozen Sections
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::frozen::FrozenParser;
+//! use crate::templates::frozen::FrozenParser;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let content = r#"
 //! // Generated code
 //! {% frozen id="custom" %}
@@ -67,9 +67,9 @@
 //! ### Merging Frozen Sections
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::frozen::FrozenMerger;
+//! use crate::templates::frozen::FrozenMerger;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let old_content = r#"
 //! {% frozen id="logic" %}
 //! // User's preserved code
@@ -88,7 +88,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use regex::Regex;
 
 /// Represents a frozen section in a template
@@ -100,9 +100,9 @@ use regex::Regex;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::frozen::{FrozenSection, FrozenParser};
+/// use crate::templates::frozen::{FrozenSection, FrozenParser};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let content = r#"
 /// {% frozen id="custom" %}
 /// fn my_function() {
@@ -138,9 +138,9 @@ pub struct FrozenSection {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::frozen::FrozenParser;
+/// use crate::templates::frozen::FrozenParser;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let content = r#"
 /// {% frozen %}
 /// preserved code
@@ -188,9 +188,9 @@ impl FrozenParser {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::frozen::FrozenParser;
+    /// use crate::templates::frozen::FrozenParser;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let content = r#"
     /// {% frozen id="logic" %}
     /// fn custom_logic() {}
@@ -261,9 +261,9 @@ impl FrozenParser {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::frozen::FrozenParser;
+    /// use crate::templates::frozen::FrozenParser;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let content = r#"
     /// {% frozen id="custom" %}
     /// preserved code
@@ -299,9 +299,9 @@ impl FrozenParser {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::frozen::FrozenMerger;
+/// use crate::templates::frozen::FrozenMerger;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let old = r#"{% frozen id="custom" %}old code{% endfrozen %}"#;
 /// let new = r#"{% frozen id="custom" %}new code{% endfrozen %}"#;
 /// let merged = FrozenMerger::merge_with_frozen(old, new)?;
@@ -334,9 +334,9 @@ impl FrozenMerger {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::frozen::FrozenMerger;
+    /// use crate::templates::frozen::FrozenMerger;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let old_content = r#"
     /// {% frozen id="logic" %}
     /// fn my_custom_function() {
@@ -439,7 +439,7 @@ impl FrozenMerger {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::frozen::FrozenMerger;
+    /// use crate::templates::frozen::FrozenMerger;
     ///
     /// assert!(FrozenMerger::has_frozen_sections("{% frozen %}code{% endfrozen %}"));
     /// assert!(!FrozenMerger::has_frozen_sections("regular code"));
@@ -465,7 +465,7 @@ impl FrozenMerger {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::frozen::FrozenMerger;
+    /// use crate::templates::frozen::FrozenMerger;
     ///
     /// let content = r#"
     /// {% frozen id="test" %}

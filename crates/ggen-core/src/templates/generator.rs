@@ -27,11 +27,11 @@
 //! ### Generating a Simple File Tree
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
-//! use ggen_core::templates::format::{TemplateFormat, FileTreeNode, NodeType};
+//! use crate::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
+//! use crate::templates::format::{TemplateFormat, FileTreeNode, NodeType};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut format = TemplateFormat::new("my-template");
 //! format.add_node(FileTreeNode::directory("src"));
 //!
@@ -48,12 +48,12 @@
 //! ### Generating with Variables
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
-//! use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+//! use crate::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
+//! use crate::templates::format::{TemplateFormat, FileTreeNode};
 //! use serde_json::json;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut format = TemplateFormat::new("service-template");
 //! format.add_variable("service_name");
 //! format.add_node(FileTreeNode::directory("{{ service_name }}"));
@@ -68,7 +68,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -84,12 +84,12 @@ use super::format::{FileTreeNode, NodeType};
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::generator::FileTreeGenerator;
-/// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
-/// use ggen_core::templates::format::TemplateFormat;
+/// use crate::templates::generator::FileTreeGenerator;
+/// use crate::templates::{FileTreeTemplate, TemplateContext};
+/// use crate::templates::format::TemplateFormat;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let format = TemplateFormat::new("my-template");
 /// let template = FileTreeTemplate::new(format);
 /// let context = TemplateContext::new();
@@ -122,12 +122,12 @@ impl FileTreeGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::generator::FileTreeGenerator;
-    /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
-    /// use ggen_core::templates::format::TemplateFormat;
+    /// use crate::templates::generator::FileTreeGenerator;
+    /// use crate::templates::{FileTreeTemplate, TemplateContext};
+    /// use crate::templates::format::TemplateFormat;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let format = TemplateFormat::new("my-template");
     /// let template = FileTreeTemplate::new(format);
     /// let context = TemplateContext::new();
@@ -164,12 +164,12 @@ impl FileTreeGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::generator::FileTreeGenerator;
-    /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
-    /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+    /// use crate::templates::generator::FileTreeGenerator;
+    /// use crate::templates::{FileTreeTemplate, TemplateContext};
+    /// use crate::templates::format::{TemplateFormat, FileTreeNode};
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     /// let template = FileTreeTemplate::new(format);
@@ -208,7 +208,7 @@ impl FileTreeGenerator {
     ) -> Result<()> {
         // Render the node name with variables
         let rendered_name = self.context.render_string(&node.name).map_err(|e| {
-            ggen_utils::error::Error::with_context(
+            crate::utils::error::Error::with_context(
                 "Failed to render node name",
                 &format!("{}: {}", node.name, e),
             )
@@ -235,7 +235,7 @@ impl FileTreeGenerator {
         // Create directory if it doesn't exist
         if !path.exists() {
             fs::create_dir_all(path).map_err(|e| {
-                ggen_utils::error::Error::with_context(
+                crate::utils::error::Error::with_context(
                     "Failed to create directory",
                     &format!("{}: {}", path.display(), e),
                 )
@@ -259,7 +259,7 @@ impl FileTreeGenerator {
         if let Some(parent) = path.parent() {
             if !parent.exists() {
                 fs::create_dir_all(parent).map_err(|e| {
-                    ggen_utils::error::Error::with_context(
+                    crate::utils::error::Error::with_context(
                         "Failed to create parent directory",
                         &format!("{}: {}", parent.display(), e),
                     )
@@ -283,7 +283,7 @@ impl FileTreeGenerator {
 
         // Write file
         fs::write(path, content).map_err(|e| {
-            ggen_utils::error::Error::with_context(
+            crate::utils::error::Error::with_context(
                 "Failed to write file",
                 &format!("{}: {}", path.display(), e),
             )
@@ -295,7 +295,7 @@ impl FileTreeGenerator {
             use std::os::unix::fs::PermissionsExt;
             let permissions = fs::Permissions::from_mode(mode);
             fs::set_permissions(path, permissions).map_err(|e| {
-                ggen_utils::error::Error::with_context(
+                crate::utils::error::Error::with_context(
                     "Failed to set permissions",
                     &format!("{}: {}", path.display(), e),
                 )
@@ -311,14 +311,14 @@ impl FileTreeGenerator {
         let full_path = self.base_dir.join(template_path);
 
         let template_content = fs::read_to_string(&full_path).map_err(|e| {
-            ggen_utils::error::Error::with_context(
+            crate::utils::error::Error::with_context(
                 "Failed to read template file",
                 &format!("{}: {}", full_path.display(), e),
             )
         })?;
 
         self.context.render_string(&template_content).map_err(|e| {
-            ggen_utils::error::Error::with_context(
+            crate::utils::error::Error::with_context(
                 "Failed to render template",
                 &format!("{}: {}", template_path, e),
             )
@@ -344,7 +344,7 @@ impl FileTreeGenerator {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::templates::generator::GenerationResult;
+/// use crate::templates::generator::GenerationResult;
 ///
 /// let result = GenerationResult::new();
 /// assert!(result.is_empty());
@@ -382,7 +382,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::generator::GenerationResult;
+    /// use crate::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// let dirs = result.directories();
@@ -399,7 +399,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::generator::GenerationResult;
+    /// use crate::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// let files = result.files();
@@ -416,7 +416,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::generator::GenerationResult;
+    /// use crate::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// let total = result.total_count();
@@ -433,7 +433,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::generator::GenerationResult;
+    /// use crate::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// assert!(result.is_empty());
@@ -465,11 +465,11 @@ impl GenerationResult {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
-/// use ggen_core::templates::format::TemplateFormat;
+/// use crate::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
+/// use crate::templates::format::TemplateFormat;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let format = TemplateFormat::new("my-template");
 /// let template = FileTreeTemplate::new(format);
 /// let context = TemplateContext::new();

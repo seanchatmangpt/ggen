@@ -14,15 +14,15 @@
 //! # Usage
 //!
 //! ```ignore
-//! use ggen_core::lean_six_sigma::{LeanSixSigmaGate, DmaicPhase};
-//! use ggen_core::poka_yoke::QualityGate;
+//! use crate::lean_six_sigma::{LeanSixSigmaGate, DmaicPhase};
+//! use crate::poka_yoke::QualityGate;
 //!
 //! let define_gate = LeanSixSigmaGate::new(DmaicPhase::Define);
 //! define_gate.check(&manifest, base_path)?;
 //! ```
 
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// DMAIC phases for Lean Six Sigma process improvement

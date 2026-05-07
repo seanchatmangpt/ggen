@@ -5,7 +5,7 @@
 //! This module provides comprehensive validation for paths, environment variables,
 //! and user inputs to prevent exploitation via malformed or malicious data.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 
 /// Error type for validation failures
@@ -60,7 +60,7 @@ impl PathValidator {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::security::validation::PathValidator;
+    /// use crate::security::validation::PathValidator;
     /// use std::path::Path;
     ///
     /// # fn example() -> Result<(), Box<dyn std::error::Error>> {

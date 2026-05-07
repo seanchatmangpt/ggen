@@ -27,7 +27,7 @@ use std::path::{Path, PathBuf};
 /// # Example
 ///
 /// ```rust
-/// use ggen_core::lifecycle::poka_yoke::NonEmptyPath;
+/// use crate::lifecycle::poka_yoke::NonEmptyPath;
 /// use std::path::PathBuf;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -140,7 +140,7 @@ impl std::fmt::Display for NonEmptyPath {
 /// # Example
 ///
 /// ```rust
-/// use ggen_core::lifecycle::poka_yoke::NonEmptyString;
+/// use crate::lifecycle::poka_yoke::NonEmptyString;
 ///
 /// // ✅ Valid: Non-empty string
 /// let s = NonEmptyString::new("hello".to_string()).unwrap();
@@ -217,7 +217,7 @@ impl std::fmt::Display for NonEmptyString {
 /// # Example
 ///
 /// ```rust
-/// use ggen_core::lifecycle::poka_yoke::Counter;
+/// use crate::lifecycle::poka_yoke::Counter;
 ///
 /// let mut counter = Counter::new(0);
 /// counter.increment();  // Safe - cannot overflow
@@ -303,7 +303,7 @@ pub struct Closed;
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::lifecycle::poka_yoke::{FileHandle, Open};
+/// use crate::lifecycle::poka_yoke::{FileHandle, Open};
 /// use std::path::Path;
 ///
 /// // Open file (type: FileHandle<Open>)

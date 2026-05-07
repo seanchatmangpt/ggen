@@ -35,11 +35,11 @@
 //! ### Basic Template with RDF
 //!
 //! ```rust,no_run
-//! use ggen_core::poc::poc_hygen;
+//! use crate::poc::poc_hygen;
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let template_path = Path::new("template.tmpl");
 //! let output_dir = Path::new("output");
 //! let mut vars = BTreeMap::new();
@@ -82,7 +82,7 @@ use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HygenFrontmatter {

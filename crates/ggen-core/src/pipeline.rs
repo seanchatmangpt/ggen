@@ -26,11 +26,11 @@
 //! ### Basic Pipeline Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::pipeline::{Pipeline, PipelineBuilder};
+//! use crate::pipeline::{Pipeline, PipelineBuilder};
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! // Create a new pipeline
 //! let mut pipeline = Pipeline::new()?;
 //!
@@ -50,10 +50,10 @@
 //! ### Using PipelineBuilder
 //!
 //! ```rust,no_run
-//! use ggen_core::pipeline::PipelineBuilder;
+//! use crate::pipeline::PipelineBuilder;
 //! use std::collections::BTreeMap;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut prefixes = BTreeMap::new();
 //! prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 //!
@@ -70,7 +70,7 @@ use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::template_types::Frontmatter;
 use crate::tracing::PipelineTracer;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -89,7 +89,7 @@ impl Pipeline {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_core::pipeline::Pipeline;
+    /// use crate::pipeline::Pipeline;
     ///
     /// let pipeline = Pipeline::new().unwrap();
     /// // Pipeline is ready to use
@@ -219,7 +219,7 @@ impl PipelineBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_core::pipeline::PipelineBuilder;
+    /// use crate::pipeline::PipelineBuilder;
     ///
     /// let builder = PipelineBuilder::new();
     /// // Builder is ready to use
@@ -255,10 +255,10 @@ impl PipelineBuilder {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::pipeline::PipelineBuilder;
+    /// use crate::pipeline::PipelineBuilder;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut prefixes = BTreeMap::new();
     /// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
     ///

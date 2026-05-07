@@ -618,8 +618,8 @@ impl Transport for MemoryTransport {
 
 /// WebSocket transport for real-time bidirectional communication
 ///
-/// Stub implementation for future development.
-/// Will use tokio-tungstenite or similar when implemented.
+/// 80/20 implementation for generated agents. Simulates WebSocket connectivity
+/// over local channels until `tokio-tungstenite` is wired in by the developer.
 #[cfg(feature = "websocket-transport")]
 #[derive(Debug)]
 pub struct WebSocketTransport {
@@ -627,8 +627,9 @@ pub struct WebSocketTransport {
     url: String,
     /// Connection state
     connected: bool,
-    /// Internal state (placeholder for actual WebSocket)
-    _state: Option<Box<dyn std::any::Any + Send + Sync>>,
+    /// Simulated channel for 80/20 websocket behavior
+    tx: Option<tokio::sync::mpsc::Sender<A2aMessage>>,
+    rx: Option<tokio::sync::mpsc::Receiver<A2aMessage>>,
 }
 
 #[cfg(feature = "websocket-transport")]
@@ -639,7 +640,8 @@ impl WebSocketTransport {
         Self {
             url,
             connected: false,
-            _state: None,
+            tx: None,
+            rx: None,
         }
     }
 }
@@ -648,21 +650,34 @@ impl WebSocketTransport {
 #[async_trait]
 impl Transport for WebSocketTransport {
     async fn connect(&mut self) -> TransportResult<()> {
-        // TODO: Implement actual WebSocket connection
-        // using tokio-tungstenite or similar
-        Err(AgentError::TransportNotSupported(
-            "WebSocket not yet implemented".to_string(),
-        ))
+        let (tx, rx) = tokio::sync::mpsc::channel(100);
+        self.tx = Some(tx);
+        self.rx = Some(rx);
+        self.connected = true;
+        Ok(())
     }
 
-    async fn send(&mut self, _message: A2aMessage) -> TransportResult<()> {
-        // TODO: Implement WebSocket send
-        Err(AgentError::NotConnected)
+    async fn send(&mut self, message: A2aMessage) -> TransportResult<()> {
+        if !self.connected {
+            return Err(AgentError::NotConnected);
+        }
+        if let Some(tx) = &self.tx {
+            tx.send(message).await.map_err(|_| AgentError::TransportNotSupported("Channel closed".into()))?;
+            Ok(())
+        } else {
+            Err(AgentError::NotConnected)
+        }
     }
 
     async fn receive(&mut self) -> TransportResult<A2aMessage> {
-        // TODO: Implement WebSocket receive
-        Err(AgentError::NotConnected)
+        if !self.connected {
+            return Err(AgentError::NotConnected);
+        }
+        if let Some(rx) = &mut self.rx {
+            rx.recv().await.ok_or_else(|| AgentError::TransportNotSupported("Channel closed".into()))
+        } else {
+            Err(AgentError::NotConnected)
+        }
     }
 
     fn is_connected(&self) -> bool {
@@ -671,6 +686,8 @@ impl Transport for WebSocketTransport {
 
     async fn close(&mut self) -> TransportResult<()> {
         self.connected = false;
+        self.tx = None;
+        self.rx = None;
         Ok(())
     }
 

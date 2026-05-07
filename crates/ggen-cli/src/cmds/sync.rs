@@ -42,9 +42,9 @@
 use chrono::Utc;
 use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
-use ggen_core::codegen::{OutputFormat, SyncOptions, SyncResult};
+use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
-use ggen_receipt::{generate_keypair, hash_data, Receipt};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt};
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -375,7 +375,7 @@ fn check_profile_preconditions(profile: Option<&str>, locked: bool) -> VerbResul
     if profile.is_some() || locked {
         let workspace =
             std::env::current_dir().map_err(|e| NounVerbError::execution_error(e.to_string()))?;
-        ggen_domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
+        ggen_core::domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
             .map_err(NounVerbError::execution_error)?;
     }
     Ok(())
@@ -383,7 +383,6 @@ fn check_profile_preconditions(profile: Option<&str>, locked: bool) -> VerbResul
 
 /// Execute the manifest-driven (ggen.toml) sync pipeline and emit a signed receipt.
 #[allow(clippy::too_many_arguments)]
-#[allow(unused_variables)]
 fn run_manifest_pipeline(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
@@ -393,100 +392,61 @@ fn run_manifest_pipeline(
     let installed_packs = read_installed_packs(".ggen/packs.lock");
 
     let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
-    let manifest_data = ggen_core::manifest::ManifestParser::parse(&manifest_path)
+
+    let options = SyncOptions {
+        manifest_path: manifest_path.clone(),
+        output_dir: output_dir.map(PathBuf::from),
+        verbose: verbose.unwrap_or(false),
+        output_format: match format.as_deref() {
+            Some("json") => OutputFormat::Json,
+            _ => OutputFormat::default(),
+        },
+        validate_only: validate_only.unwrap_or(false),
+        dry_run: dry_run.unwrap_or(false),
+        watch: watch.unwrap_or(false),
+        selected_rules: rule.map(|r| vec![r]),
+        force: force.unwrap_or(false),
+        audit: audit.unwrap_or(false),
+        a2a_stage: stage,
+        ontology_path: ontology.map(PathBuf::from),
+        timeout_ms: timeout,
+        ..SyncOptions::default()
+    };
+
+    let sync_result = ggen_core::codegen::executor::SyncExecutor::new(options)
+        .execute()
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-    let base_path = manifest_path
-        .parent()
-        .unwrap_or(std::path::Path::new(""))
-        .to_path_buf();
-    let out_dir = output_dir
-        .clone()
-        .unwrap_or_else(|| manifest_data.generation.output_dir.display().to_string());
-    let ontology_path = ontology
-        .clone()
-        .unwrap_or_else(|| manifest_data.ontology.source.display().to_string());
-
-    let config = ggen_core::pipeline_engine::pipeline::PipelineConfig::new(
-        &manifest_data.project.name,
-        &manifest_data.project.version,
-    )
-    .with_base_path(base_path.clone())
-    .with_ontology(base_path.join(ontology_path))
-    .with_output_dir(base_path.join(out_dir))
-    .with_receipt_path(base_path.join(".ggen/receipts/latest.json"));
-
-    let mut pipeline = ggen_core::pipeline_engine::pipeline::StagedPipeline::new(config)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
-
-    if watch.unwrap_or(false) {
-        log::info!("Watch mode enabled. Monitoring project for changes...");
-
-        let mut watcher = crate::conventions::watcher::ProjectWatcher::new(base_path.clone())
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
-                    "Failed to initialize watcher: {}",
-                    e
-                ))
-            })?;
-
-        watcher.watch().map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to start watch: {}", e))
-        })?;
-
-        loop {
-            // Run initial or triggered pipeline
-            log::info!("Triggering μ-pipeline...");
-            let _ = pipeline.run(); // Ignore errors in watch loop to keep it running
-
-            // Wait for events
-            std::thread::sleep(std::time::Duration::from_millis(500));
-            while watcher.process_events().unwrap_or_default().is_empty() {
-                std::thread::sleep(std::time::Duration::from_millis(500));
-            }
-        }
-    }
-
-    let start_time = std::time::Instant::now();
-    log::info!("[μ₁/5] CONSTRUCT: Normalizing ontology...");
-    log::info!("[μ₂/5] SELECT: Extracting bindings...");
-    log::info!("[μ₃/5] Tera: Generating code...");
-    log::info!("[μ₄/5] Canonicalizing: Formatting code...");
-
-    let receipt = pipeline
-        .run()
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
-
-    let duration_ms = start_time.elapsed().as_millis() as u64;
-
-    let files_synced = receipt.outputs.len();
-    let synced_files: Vec<SyncedFile> = receipt
-        .outputs
-        .into_iter()
+    let files: Vec<SyncedFile> = sync_result
+        .files
+        .iter()
         .map(|f| SyncedFile {
-            path: f.path.display().to_string(),
+            path: f.path.clone(),
             size_bytes: f.size_bytes,
-            action: "created".to_string(),
+            action: f.action.clone(),
         })
         .collect();
 
-    let synced_file_paths: Vec<String> = synced_files.iter().map(|f| f.path.clone()).collect();
+    let synced_file_paths: Vec<String> = files.iter().map(|f| f.path.clone()).collect();
+    let files_synced = sync_result.files_synced;
+    let duration_ms = sync_result.duration_ms;
+    let generation_rules_executed = sync_result.generation_rules_executed;
+    let inference_rules_executed = sync_result.inference_rules_executed;
 
-    log::info!("[μ₅/5] Receipt: Generating verification...");
     let receipt_file_path =
         emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
         })?;
 
     Ok(SyncOutput {
-        status: "success".to_string(),
+        status: sync_result.status,
         files_synced,
         duration_ms,
-        files: synced_files,
-        inference_rules_executed: 0,
-        generation_rules_executed: files_synced,
-        audit_trail: None,
-        error: None,
+        files,
+        inference_rules_executed,
+        generation_rules_executed,
+        audit_trail: sync_result.audit_trail,
+        error: sync_result.error,
         receipt_path: Some(receipt_file_path),
         gates: Vec::new(),
     })

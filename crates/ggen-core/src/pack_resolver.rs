@@ -28,19 +28,19 @@
 //! ```text
 //! μ₀ (pack resolution) → μ₁ (normalization) → μ₂ (extraction) → μ₃ (emission) → μ₄ (canonicalization) → μ₅ (receipt)
 //! ```
+use crate::bail;
 
 use crate::graph::Graph;
 use crate::packs::lockfile::PackLockfile;
-use ggen_marketplace::atomic::{foundation_packs, AtomicPackId};
-use ggen_marketplace::bundle::Bundle;
-use ggen_marketplace::metadata::load_pack_metadata;
-use ggen_marketplace::ownership::{
+use crate::marketplace::atomic::{foundation_packs, AtomicPackId};
+use crate::marketplace::bundle::Bundle;
+use crate::marketplace::metadata::load_pack_metadata;
+use crate::marketplace::ownership::{
     MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
 };
-use ggen_marketplace::policy::{PackContext, PolicyEnforcer};
-use ggen_marketplace::profile::get_profile;
-use ggen_utils::{
-    bail,
+use crate::marketplace::policy::{PackContext, PolicyEnforcer};
+use crate::marketplace::profile::get_profile;
+use crate::utils::{
     error::{Error, Result},
 };
 use serde::{Deserialize, Serialize};
@@ -620,7 +620,7 @@ impl PackRegistry {
 
     /// Initialize common bundle definitions.
     fn initialize_bundles(&mut self) {
-        use ggen_marketplace::bundle::Bundles;
+        use crate::marketplace::bundle::Bundles;
 
         // Register common bundles
         self.bundles
@@ -924,7 +924,7 @@ impl PackRegistry {
         let mut queries = Vec::new();
 
         let entries = std::fs::read_dir(&queries_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            crate::utils::error::Error::new(&format!(
                 "Failed to read queries directory {}: {}",
                 queries_dir.display(),
                 e
@@ -933,7 +933,7 @@ impl PackRegistry {
 
         for entry in entries {
             let entry = entry.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
             })?;
             let path = entry.path();
 
@@ -943,7 +943,7 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to read query file {}: {}",
                     path.display(),
                     e
@@ -981,7 +981,7 @@ impl PackRegistry {
         let mut templates = Vec::new();
 
         let entries = std::fs::read_dir(&templates_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            crate::utils::error::Error::new(&format!(
                 "Failed to read templates directory {}: {}",
                 templates_dir.display(),
                 e
@@ -990,7 +990,7 @@ impl PackRegistry {
 
         for entry in entries {
             let entry = entry.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
             })?;
             let path = entry.path();
 
@@ -1000,7 +1000,7 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to read template file {}: {}",
                     path.display(),
                     e
@@ -1009,7 +1009,7 @@ impl PackRegistry {
 
             // Get relative path from templates_dir
             let relative_path = path.strip_prefix(&self.cache_dir).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to create relative path: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to create relative path: {}", e))
             })?;
 
             templates.push(TemplateDef {
@@ -1041,7 +1041,7 @@ mod tests {
 
         // Create a mock lockfile with mcp-rust bundle
         let _lockfile = PackLockfile::new("6.0.0");
-        // TODO: Add test when lockfile structure is finalized
+
     }
 
     #[test]

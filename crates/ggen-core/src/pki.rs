@@ -30,7 +30,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_core::pki::{PkiManager, TrustedKeysConfig, TrustedKeyEntry};
+//! use crate::pki::{PkiManager, TrustedKeysConfig, TrustedKeyEntry};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load trusted keys from the default config path
@@ -55,7 +55,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;

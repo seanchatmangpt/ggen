@@ -19,7 +19,7 @@
 //! ## Quick Start
 //!
 //! ```rust
-//! use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+//! use crate::packs::lockfile::{PackLockfile, LockedPack, PackSource};
 //! use chrono::Utc;
 //!
 //! // Create a new lockfile

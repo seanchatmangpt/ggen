@@ -1,0 +1,10 @@
+PREFIX p8:   <https://prolog8.dev/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?error_name ?error_label ?repair_hint
+WHERE {
+    ?s a p8:AdmissionError .
+    BIND(STRAFTER(STR(?s), "https://prolog8.dev/error#") AS ?error_name)
+    ?s rdfs:label ?error_label .
+    OPTIONAL { ?s p8:repairHint ?repair_hint }
+} ORDER BY ?error_name

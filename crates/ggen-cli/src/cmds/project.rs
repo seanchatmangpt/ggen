@@ -111,7 +111,7 @@ fn new(
     name: String, project_type: String, framework: Option<String>, output: PathBuf,
     skip_install: bool,
 ) -> Result<NewOutput> {
-    use ggen_domain::project;
+    use ggen_core::domain::project;
 
     // Helper function to bridge sync/async and handle errors
     async fn new_impl(
@@ -176,7 +176,7 @@ fn new(
 fn plan(
     template_ref: String, vars: Option<String>, output: Option<String>, format: Option<String>,
 ) -> Result<PlanOutput> {
-    use ggen_domain::project;
+    use ggen_core::domain::project;
 
     // Validate and sanitize variables
     let vars: Vec<String> = vars
@@ -252,7 +252,7 @@ fn plan(
 /// ```
 #[verb]
 fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenOutput> {
-    use ggen_domain::project;
+    use ggen_core::domain::project;
 
     // Validate and sanitize variables
     let vars: Vec<String> = vars
@@ -342,7 +342,7 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
 /// ```
 #[verb]
 fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
-    use ggen_domain::project;
+    use ggen_core::domain::project;
 
     // Helper function to bridge sync/async and handle errors
     async fn apply_impl(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
@@ -618,7 +618,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
 fn generate(
     template: Option<String>, path: PathBuf, output: Option<String>, force: bool,
 ) -> Result<GenerateOutput> {
-    use ggen_domain::template;
+    use ggen_core::domain::template;
     use std::fs;
 
     // Helper function to bridge sync/async and handle errors
@@ -772,7 +772,7 @@ fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
 // Helper Functions
 // ============================================================================
 
-// Use utility function from ggen_utils::cli instead of duplicating here
+// Use utility function from ggen_core::utils::cli instead of duplicating here
 
 // ============================================================================
 // Usage Notes
@@ -780,7 +780,7 @@ fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
 
 // To use this in your CLI:
 // 1. Update main.rs to use: clap_noun_verb::run()
-// 2. Ensure ggen_domain::project modules exist with proper interfaces
+// 2. Ensure ggen_core::domain::project modules exist with proper interfaces
 // 3. Test with: cargo run -- project --help
 // 4. Test verbs: cargo run -- project new my-app
 // 5. JSON output: cargo run -- project new my-app --output json

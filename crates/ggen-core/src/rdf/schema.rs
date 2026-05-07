@@ -14,7 +14,7 @@
 //! ### Using Namespace Constants
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::schema::{GGEN_NAMESPACE, RDF_NAMESPACE, RDFS_NAMESPACE};
+//! use crate::rdf::schema::{GGEN_NAMESPACE, RDF_NAMESPACE, RDFS_NAMESPACE};
 //!
 //! // Construct URIs with proper namespacing
 //! let template_uri = format!("{}Template", GGEN_NAMESPACE);
@@ -25,7 +25,7 @@
 //! ### Building Ontology Triples
 //!
 //! ```rust
-//! use ggen_core::rdf::schema::GgenOntology;
+//! use crate::rdf::schema::GgenOntology;
 //!
 //! # fn main() {
 //! // Create a template class URI
@@ -40,7 +40,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 /// Ggen ontology namespace
 pub const GGEN_NAMESPACE: &str = "https://ggen.io/marketplace/";
@@ -64,7 +64,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::template();
@@ -80,7 +80,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::file();
@@ -96,7 +96,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::variable();
@@ -112,7 +112,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::directory();
@@ -128,7 +128,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::artifact();
@@ -144,7 +144,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::dependency();
@@ -160,7 +160,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::file_format();
@@ -177,7 +177,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::generates_file();
@@ -193,7 +193,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::generates_directory();
@@ -209,7 +209,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::has_variable();
@@ -225,7 +225,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::requires_variable();
@@ -242,7 +242,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::template_name();
@@ -258,7 +258,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::template_version();
@@ -274,7 +274,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::template_description();
@@ -290,7 +290,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::template_author();
@@ -306,7 +306,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::created_at();
@@ -322,7 +322,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::updated_at();
@@ -339,7 +339,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::variable_name();
@@ -355,7 +355,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::variable_type();
@@ -371,7 +371,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::variable_default();
@@ -387,7 +387,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::variable_description();
@@ -403,7 +403,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::is_required();
@@ -420,7 +420,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::file_path();
@@ -436,7 +436,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::file_extension();
@@ -452,7 +452,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::file_size();
@@ -469,7 +469,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::depends_on();
@@ -485,7 +485,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::extends();
@@ -501,7 +501,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::includes();
@@ -517,7 +517,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::overrides();
@@ -534,7 +534,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::category();
@@ -550,7 +550,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::tag();
@@ -567,7 +567,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::test_coverage();
@@ -583,7 +583,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::stability();
@@ -599,7 +599,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::usage_count();
@@ -616,7 +616,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::rdf_type();
@@ -632,7 +632,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::rdfs_label();
@@ -648,7 +648,7 @@ impl GgenOntology {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::schema::GgenOntology;
+    /// use crate::rdf::schema::GgenOntology;
     ///
     /// # fn main() {
     /// let uri = GgenOntology::rdfs_comment();
@@ -667,9 +667,9 @@ impl GgenOntology {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::schema::load_schema;
+/// use crate::rdf::schema::load_schema;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let schema = load_schema()?;
 /// assert!(schema.contains("@prefix ggen:"));
 /// assert!(schema.contains("ggen:Template"));

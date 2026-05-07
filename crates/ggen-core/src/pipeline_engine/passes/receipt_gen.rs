@@ -6,7 +6,7 @@
 use crate::pipeline_engine::pass::{Pass, PassContext, PassExecution, PassResult, PassType};
 use crate::pipeline_engine::receipt::{BuildReceipt, OutputFile, ReceiptPolicies};
 use crate::pipeline_engine::Epoch;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 use std::time::Instant;

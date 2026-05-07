@@ -4,7 +4,7 @@
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
-use ggen_domain::utils::{execute_doctor, CheckStatus, DoctorInput};
+use ggen_core::domain::utils::{execute_doctor, CheckStatus, DoctorInput};
 use serde::Serialize;
 use std::path::Path;
 

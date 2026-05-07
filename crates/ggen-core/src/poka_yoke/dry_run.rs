@@ -3,7 +3,7 @@
 //! Allows users to preview destructive operations before committing.
 
 use crate::poka_yoke::ValidatedPath;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 /// Operation to be performed.
 #[derive(Debug, Clone)]
@@ -34,7 +34,7 @@ pub enum Operation {
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::poka_yoke::{DryRunMode, Operation, ValidatedPath};
+/// use crate::poka_yoke::{DryRunMode, Operation, ValidatedPath};
 ///
 /// let mut dry_run = DryRunMode::new();
 /// dry_run.add_operation(Operation::FileCreate {
@@ -46,7 +46,7 @@ pub enum Operation {
 /// if dry_run.confirm()? {
 ///     dry_run.execute()?;
 /// }
-/// # Ok::<(), ggen_core::error::Error>(())
+/// # Ok::<(), crate::error::Error>(())
 /// ```
 pub struct DryRunMode {
     operations: Vec<Operation>,
@@ -106,12 +106,12 @@ impl DryRunMode {
         print!("\nProceed with these operations? [y/N]: ");
         use std::io::Write;
         std::io::stdout().flush().map_err(|e| {
-            ggen_utils::error::Error::io_error(format!("Failed to flush stdout: {}", e))
+            crate::utils::error::Error::io_error(format!("Failed to flush stdout: {}", e))
         })?;
 
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).map_err(|e| {
-            ggen_utils::error::Error::io_error(format!("Failed to read stdin: {}", e))
+            crate::utils::error::Error::io_error(format!("Failed to read stdin: {}", e))
         })?;
 
         Ok(input.trim().to_lowercase().starts_with('y'))
@@ -126,7 +126,7 @@ impl DryRunMode {
     /// Returns error if any operation fails. Attempts rollback.
     pub fn execute(&mut self) -> Result<()> {
         if self.executed {
-            return Err(ggen_utils::error::Error::new("Operations already executed"));
+            return Err(crate::utils::error::Error::new("Operations already executed"));
         }
 
         // Validate all operations first (fail-fast)
@@ -158,7 +158,7 @@ impl DryRunMode {
                 // Check parent directory exists
                 if let Some(parent) = path.as_path().parent() {
                     if !parent.exists() {
-                        return Err(ggen_utils::error::Error::invalid_input(format!(
+                        return Err(crate::utils::error::Error::invalid_input(format!(
                             "Parent directory does not exist: {}",
                             parent.display()
                         )));
@@ -168,7 +168,7 @@ impl DryRunMode {
             Operation::FileDelete { path } | Operation::DirDelete { path } => {
                 // Check path exists
                 if !path.as_path().exists() {
-                    return Err(ggen_utils::error::Error::invalid_input(format!(
+                    return Err(crate::utils::error::Error::invalid_input(format!(
                         "Path does not exist: {}",
                         path
                     )));
@@ -186,12 +186,12 @@ impl DryRunMode {
         match op {
             Operation::FileCreate { path, .. } | Operation::FileWrite { path, .. } => {
                 std::fs::write(path.as_path(), b"").map_err(|e| {
-                    ggen_utils::error::Error::io_error(format!("Failed to write file: {}", e))
+                    crate::utils::error::Error::io_error(format!("Failed to write file: {}", e))
                 })?;
             }
             Operation::FileDelete { path } => {
                 std::fs::remove_file(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(format!("Failed to delete file: {}", e))
+                    crate::utils::error::Error::io_error(format!("Failed to delete file: {}", e))
                 })?;
             }
             Operation::CommandExec { command, args } => {
@@ -199,11 +199,11 @@ impl DryRunMode {
                     .args(args)
                     .status()
                     .map_err(|e| {
-                        ggen_utils::error::Error::new(&format!("Failed to execute command: {}", e))
+                        crate::utils::error::Error::new(&format!("Failed to execute command: {}", e))
                     })?;
 
                 if !status.success() {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(crate::utils::error::Error::new(&format!(
                         "Command failed with exit code: {:?}",
                         status.code()
                     )));
@@ -211,12 +211,12 @@ impl DryRunMode {
             }
             Operation::DirCreate { path } => {
                 std::fs::create_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(format!("Failed to create directory: {}", e))
+                    crate::utils::error::Error::io_error(format!("Failed to create directory: {}", e))
                 })?;
             }
             Operation::DirDelete { path } => {
                 std::fs::remove_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(format!("Failed to delete directory: {}", e))
+                    crate::utils::error::Error::io_error(format!("Failed to delete directory: {}", e))
                 })?;
             }
         }

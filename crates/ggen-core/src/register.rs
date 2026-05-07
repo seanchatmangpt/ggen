@@ -47,10 +47,10 @@
 //! ### Registering Filters
 //!
 //! ```rust
-//! use ggen_core::register::register_all;
+//! use crate::register::register_all;
 //! use tera::Tera;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut tera = Tera::default();
 //! register_all(&mut tera);
 //!
@@ -66,10 +66,10 @@
 //! ### Context Blessing
 //!
 //! ```rust
-//! use ggen_core::register::bless_context;
+//! use crate::register::bless_context;
 //! use tera::Context;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut ctx = Context::new();
 //! ctx.insert("name", "user_profile");
 //!

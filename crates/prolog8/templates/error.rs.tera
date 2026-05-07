@@ -1,0 +1,13 @@
+// GENERATED — DO NOT EDIT — source: schema/domain.ttl
+use thiserror::Error;
+
+/// Admission error: a rule, fact, or query failed the byte-governor invariant.
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum AdmissionError {
+{% for entity in entities %}
+    /// {{ entity.error_label }}{% if entity.repair_hint %} — Repair: {{ entity.repair_hint }}{% endif %}
+
+    #[error("{{ entity.error_label }}")]
+    {{ entity.error_name }},
+{% endfor %}
+}

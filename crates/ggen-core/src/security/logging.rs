@@ -10,8 +10,8 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::security::logging::SecurityLogger;
-//! use ggen_core::security::events::{SecurityEvent, SecuritySeverity, EventCategory};
+//! use crate::security::logging::SecurityLogger;
+//! use crate::security::events::{SecurityEvent, SecuritySeverity, EventCategory};
 //! use std::path::PathBuf;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {

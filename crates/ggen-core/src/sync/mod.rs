@@ -21,7 +21,7 @@
 //! ## Quick start
 //!
 //! ```rust,no_run
-//! use ggen_core::sync::{SyncConfig, SyncLanguage, sync};
+//! use crate::sync::{SyncConfig, SyncLanguage, sync};
 //! use std::path::PathBuf;
 //!
 //! let config = SyncConfig {
@@ -46,7 +46,7 @@ use crate::graph::Graph;
 use crate::validation::soundness_gates::{
     check_boundedness, check_deadlock_freedom, check_liveness, SoundnessViolation,
 };
-use ggen_utils::error::Error as GgenError;
+use crate::utils::error::Error as GgenError;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;

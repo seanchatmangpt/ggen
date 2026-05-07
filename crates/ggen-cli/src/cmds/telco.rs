@@ -28,8 +28,8 @@ pub struct RouteOutput {
 /// In Vision 2030, this is the "Routing Discipline".
 #[verb]
 pub fn route(payload: Option<String>) -> VerbResult<RouteOutput> {
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
     use tracing::{info, info_span, Instrument};
 
     let payload_str = payload.unwrap_or_else(|| "{\"test\": \"v26.5.4\"}".to_string());
@@ -88,8 +88,8 @@ pub fn route(payload: Option<String>) -> VerbResult<RouteOutput> {
 #[verb]
 pub fn dial(extension: Option<String>) -> VerbResult<TelcoOutput> {
     let ext = extension.unwrap_or_else(|| "0".to_string());
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
@@ -117,8 +117,8 @@ pub fn dial(extension: Option<String>) -> VerbResult<TelcoOutput> {
 #[verb]
 pub fn switch(config: Option<String>) -> VerbResult<TelcoOutput> {
     let cfg = config.unwrap_or_default();
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
@@ -145,8 +145,8 @@ pub fn switch(config: Option<String>) -> VerbResult<TelcoOutput> {
 #[verb]
 pub fn trunk(capacity: Option<u32>) -> VerbResult<TelcoOutput> {
     let cap = capacity.unwrap_or(10);
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
@@ -172,8 +172,8 @@ pub fn trunk(capacity: Option<u32>) -> VerbResult<TelcoOutput> {
 /// Sends raw control signals to the MCP matrix.
 #[verb]
 pub fn bluebox() -> VerbResult<TelcoOutput> {
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
@@ -200,8 +200,8 @@ pub fn bluebox() -> VerbResult<TelcoOutput> {
 #[verb]
 pub fn tap(channel: Option<String>) -> VerbResult<TelcoOutput> {
     let chan = channel.unwrap_or_else(|| "global".to_string());
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
@@ -228,8 +228,8 @@ pub fn tap(channel: Option<String>) -> VerbResult<TelcoOutput> {
 /// Dials "0" to invoke human-in-the-loop assistance.
 #[verb]
 pub fn operator() -> VerbResult<TelcoOutput> {
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();
@@ -256,8 +256,8 @@ pub fn operator() -> VerbResult<TelcoOutput> {
 /// Chaos engineering injection to test routing resilience.
 #[verb]
 pub fn phreak() -> VerbResult<TelcoOutput> {
-    use a2a_generated::converged::ConvergedMessage;
-    use a2a_generated::handlers::HandlerFactory;
+    use ggen_core::a2a_generated::converged::ConvergedMessage;
+    use ggen_core::a2a_generated::handlers::HandlerFactory;
 
     runtime::block_on(async move {
         let mut router = HandlerFactory::create_router();

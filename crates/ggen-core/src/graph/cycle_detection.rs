@@ -17,7 +17,7 @@
 //! - Time: O(V + E) where V = vertices (files), E = edges (imports)
 //! - Space: O(V) for recursion stack and visited sets
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
 
 /// Detect cycles in a directed graph represented as adjacency lists
@@ -34,7 +34,7 @@ use std::collections::{HashMap, HashSet};
 ///
 /// ```ignore
 /// use std::collections::HashMap;
-/// use ggen_core::graph::cycle_detection::detect_cycles;
+/// use crate::graph::cycle_detection::detect_cycles;
 ///
 /// let mut graph = HashMap::new();
 /// graph.insert("A".to_string(), vec!["B".to_string()]);
@@ -123,7 +123,7 @@ fn dfs(
 /// # Examples
 ///
 /// ```ignore
-/// use ggen_core::graph::cycle_detection::validate_acyclic;
+/// use crate::graph::cycle_detection::validate_acyclic;
 ///
 /// let mut imports = std::collections::HashMap::new();
 /// imports.insert("ontology.ttl".to_string(), vec!["common.ttl".to_string()]);

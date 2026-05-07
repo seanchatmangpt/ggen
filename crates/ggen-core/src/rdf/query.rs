@@ -14,10 +14,10 @@
 //! ## Examples
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::query::QueryCache;
-//! use ggen_core::graph::Graph;
+//! use crate::rdf::query::QueryCache;
+//! use crate::graph::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut cache = QueryCache::new(1000);
 //! let graph = Graph::new()?;
 //!
@@ -28,7 +28,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use lru::LruCache;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
@@ -70,7 +70,7 @@ impl QueryCache {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::query::QueryCache;
+    /// use crate::rdf::query::QueryCache;
     ///
     /// let cache = QueryCache::new(1000);
     /// ```

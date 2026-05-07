@@ -4,9 +4,9 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ggen_marketplace::prelude::*;
-use ggen_marketplace::registry_rdf::RdfRegistry;
-use ggen_marketplace::trust::RegistryType;
+use ggen_core::marketplace::prelude::*;
+use ggen_core::marketplace::registry_rdf::RdfRegistry;
+use ggen_core::marketplace::trust::RegistryType;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -274,7 +274,7 @@ fn info(package_id: String) -> VerbResult<DetailOutput> {
 /// Run health check on the marketplace RDF store and cache
 #[verb]
 fn doctor() -> VerbResult<serde_json::Value> {
-    use ggen_domain::utils::{execute_doctor, DoctorInput};
+    use ggen_core::domain::utils::{execute_doctor, DoctorInput};
 
     let result = block_on(async {
         execute_doctor(DoctorInput {
@@ -297,7 +297,7 @@ fn doctor() -> VerbResult<serde_json::Value> {
 fn install(
     package_id: String, force: Option<bool>, dry_run: Option<bool>,
 ) -> VerbResult<serde_json::Value> {
-    use ggen_domain::packs::install::{install_pack, InstallInput};
+    use ggen_core::domain::packs::install::{install_pack, InstallInput};
 
     let force = force.unwrap_or(false);
     let dry_run = dry_run.unwrap_or(false);
@@ -562,7 +562,7 @@ fn parse_local_package(path: &Path) -> Result<Package> {
 }
 
 fn parse_local_pack(path: &Path) -> Result<Package> {
-    use ggen_domain::packs::types::PackFile;
+    use ggen_core::domain::packs::types::PackFile;
 
     let content = std::fs::read_to_string(path).map_err(Error::IoError)?;
     let pack_file: PackFile = toml::from_str(&content)

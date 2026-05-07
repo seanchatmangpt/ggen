@@ -176,7 +176,7 @@ fn test_error_propagation() {
     use ggen_cli_lib::runtime::execute;
 
     let result = execute(async {
-        Err(ggen_utils::error::Error::new("Test error"))
+        Err(ggen_core::utils::error::Error::new("Test error"))
     });
 
     assert!(result.is_err(), "Errors should propagate");

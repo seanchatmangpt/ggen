@@ -1,0 +1,544 @@
+@prefix p8:      <https://prolog8.dev/ontology#> .
+@prefix impl:    <https://prolog8.dev/implementation#> .
+@prefix crate:   <https://prolog8.dev/crate#> .
+@prefix mod:     <https://prolog8.dev/module#> .
+@prefix fn:      <https://prolog8.dev/function#> .
+@prefix type:    <https://prolog8.dev/type#> .
+@prefix art:     <https://prolog8.dev/artifact#> .
+@prefix test:    <https://prolog8.dev/test#> .
+@prefix err:     <https://prolog8.dev/error#> .
+@prefix cap:     <https://prolog8.dev/cap#> .
+@prefix feat:    <https://prolog8.dev/feature#> .
+@prefix demo:    <https://prolog8.dev/demo#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# 0. PRODUCT IDENTITY
+#################################################################
+
+p8:Prolog8
+    a p8:Product ;
+    dcterms:title "Prolog8" ;
+    dcterms:description
+        "A Rust/WASM byte-capped proof engine for bounded rules, graph/bit execution, action admission, proof receipts, and deterministic replay." ;
+    p8:hasDoctrine p8:NoKernelParserDoctrine ;
+    p8:hasDoctrine p8:NoStringsInExecutionDoctrine ;
+    p8:hasDoctrine p8:Need9MeansSplitDoctrine ;
+    p8:hasDoctrine p8:ProofIsProductDoctrine ;
+    p8:hasKernel crate:prolog8_core ;
+    p8:hasCompiler crate:prolog8_compile ;
+    p8:hasDoctor crate:prolog8_doctor ;
+    p8:hasExplainer crate:prolog8_explain ;
+    p8:hasReplayVerifier crate:prolog8_replay ;
+    p8:hasWasmBridge crate:prolog8_wasm .
+
+#################################################################
+# 1. DOCTRINES
+#################################################################
+
+p8:NoKernelParserDoctrine
+    a p8:Doctrine ;
+    rdfs:label "No parser in the kernel" ;
+    p8:requires p8:KernelRejectsRuntimeText ;
+    p8:requires p8:CompilerOutsideKernel ;
+    p8:requires p8:KernelAcceptsOnlyAdmittedObjects .
+
+p8:NoStringsInExecutionDoctrine
+    a p8:Doctrine ;
+    rdfs:label "No strings in execution" ;
+    p8:requires p8:KernelRejectsStringQueries ;
+    p8:requires p8:KernelUsesCatalogIds ;
+    p8:requires p8:LabelsAreDisplayOnly .
+
+p8:Need9MeansSplitDoctrine
+    a p8:Doctrine ;
+    rdfs:label "Need9 means split" ;
+    p8:requires cap:ArityMax8 ;
+    p8:requires cap:RuleBodyAtomsMax8 ;
+    p8:requires cap:RuleVariablesMax8 ;
+    p8:requires cap:ProofFanInMax8 ;
+    p8:requires cap:LocalStateSurfaceMax256 .
+
+p8:ProofIsProductDoctrine
+    a p8:Doctrine ;
+    rdfs:label "Proof is the product" ;
+    p8:requires p8:EveryDecisionHasProof ;
+    p8:requires p8:EveryDecisionHasReceipt ;
+    p8:requires p8:ReplayVerifiesReceipt .
+
+#################################################################
+# 2. CRATES
+#################################################################
+
+crate:prolog8_core
+    a p8:RustCrate ;
+    rdfs:label "prolog8-core" ;
+    p8:isTrustedKernel true ;
+    p8:exportsModule mod:core_ids ;
+    p8:exportsModule mod:core_atom8 ;
+    p8:exportsModule mod:core_rule8 ;
+    p8:exportsModule mod:core_factblock8 ;
+    p8:exportsModule mod:core_query ;
+    p8:exportsModule mod:core_index ;
+    p8:exportsModule mod:core_plan ;
+    p8:exportsModule mod:core_exec ;
+    p8:exportsModule mod:core_proof ;
+    p8:exportsModule mod:core_receipt .
+
+#################################################################
+# 3. CORE MODULES
+#################################################################
+
+mod:core_ids
+    a p8:RustModule ;
+    rdfs:label "core::ids" ;
+    p8:defines type:TermId ;
+    p8:defines type:PredicateId ;
+    p8:defines type:RuleId ;
+    p8:defines type:SourceId ;
+    p8:defines type:ProofNodeId ;
+    p8:defines type:ReceiptId ;
+    p8:defines type:EpochId .
+
+mod:core_atom8
+    a p8:RustModule ;
+    rdfs:label "core::atom8" ;
+    p8:defines type:Atom8 ;
+    p8:exportsFunction fn:validate_atom8 ;
+    p8:enforces cap:ArityMax8 .
+
+mod:core_rule8
+    a p8:RustModule ;
+    rdfs:label "core::rule8" ;
+    p8:defines type:Rule8 ;
+    p8:exportsFunction fn:validate_rule8 ;
+    p8:enforces cap:RuleBodyAtomsMax8 ;
+    p8:enforces cap:RuleVariablesMax8 ;
+    p8:enforces cap:ProofFanInMax8 .
+
+mod:core_factblock8
+    a p8:RustModule ;
+    rdfs:label "core::factblock8" ;
+    p8:defines type:FactRow8 ;
+    p8:defines type:FactBlock8 ;
+    p8:exportsFunction fn:validate_fact_block8 ;
+    p8:exportsFunction fn:scan_fact_block8 .
+
+mod:core_query
+    a p8:RustModule ;
+    rdfs:label "core::query" ;
+    p8:defines type:QueryAtom8 ;
+    p8:defines type:QueryResult8 ;
+    p8:exportsFunction fn:execute_query_atom8 .
+
+mod:core_index
+    a p8:RustModule ;
+    rdfs:label "core::index" ;
+    p8:defines type:AccessPath8 ;
+    p8:exportsFunction fn:select_access_path8 .
+
+mod:core_plan
+    a p8:RustModule ;
+    rdfs:label "core::plan" ;
+    p8:defines type:Plan8 ;
+    p8:defines type:PlanOp8 ;
+    p8:exportsFunction fn:plan_rule8 .
+
+mod:core_exec
+    a p8:RustModule ;
+    rdfs:label "core::exec" ;
+    p8:exportsFunction fn:execute_plan8 ;
+    p8:exportsFunction fn:execute_join8 ;
+    p8:exportsFunction fn:execute_antijoin8 .
+
+mod:core_proof
+    a p8:RustModule ;
+    rdfs:label "core::proof" ;
+    p8:defines type:ProofNode8 ;
+    p8:defines type:ProofDAG8 ;
+    p8:exportsFunction fn:emit_positive_proof8 ;
+    p8:exportsFunction fn:emit_negative_proof8 ;
+    p8:enforces p8:EveryDecisionHasProof .
+
+mod:core_receipt
+    a p8:RustModule ;
+    rdfs:label "core::receipt" ;
+    p8:defines type:Receipt8 ;
+    p8:exportsFunction fn:emit_receipt8 ;
+    p8:exportsFunction fn:verify_receipt8 ;
+    p8:enforces p8:EveryDecisionHasReceipt .
+
+#################################################################
+# 4. TYPES — RustType (simple type aliases)
+#################################################################
+
+type:TermId
+    a p8:RustType ;
+    rdfs:label "TermId" ;
+    p8:repr "u32" ;
+    p8:purpose "Admitted term identity. Display labels are outside kernel." .
+
+type:PredicateId
+    a p8:RustType ;
+    rdfs:label "PredicateId" ;
+    p8:repr "u32" ;
+    p8:purpose "Admitted predicate identity." .
+
+type:RuleId
+    a p8:RustType ;
+    rdfs:label "RuleId" ;
+    p8:repr "u32" ;
+    p8:purpose "Admitted rule identity." .
+
+type:SourceId
+    a p8:RustType ;
+    rdfs:label "SourceId" ;
+    p8:repr "u32" ;
+    p8:purpose "Source identifier for facts." .
+
+type:ProofNodeId
+    a p8:RustType ;
+    rdfs:label "ProofNodeId" ;
+    p8:repr "u32" ;
+    p8:purpose "Node identifier within a proof DAG." .
+
+type:ReceiptId
+    a p8:RustType ;
+    rdfs:label "ReceiptId" ;
+    p8:repr "u32" ;
+    p8:purpose "Admitted receipt identity." .
+
+type:EpochId
+    a p8:RustType ;
+    rdfs:label "EpochId" ;
+    p8:repr "u64" ;
+    p8:purpose "Execution epoch identifier." .
+
+type:Hash
+    a p8:RustType ;
+    rdfs:label "Hash" ;
+    p8:repr "[u8; 32]" ;
+    p8:purpose "BLAKE3 hash output (32 bytes)." .
+
+#################################################################
+# 5. TYPES — RustStruct (core data structures)
+#################################################################
+
+type:Atom8
+    a p8:RustStruct ;
+    rdfs:label "Atom8" ;
+    p8:purpose "A bounded query or fact atom with ≤8 arguments." .
+
+type:Rule8
+    a p8:RustStruct ;
+    rdfs:label "Rule8" ;
+    p8:purpose "A bounded rule with ≤8 body atoms." .
+
+type:QueryAtom8
+    a p8:RustStruct ;
+    rdfs:label "QueryAtom8" ;
+    p8:purpose "An atom wrapper with proof modes and output masks." .
+
+type:FactRow8
+    a p8:RustStruct ;
+    rdfs:label "FactRow8" ;
+    p8:purpose "A grounded fact row within a FactBlock8." .
+
+type:FactBlock8
+    a p8:RustStruct ;
+    rdfs:label "FactBlock8" ;
+    p8:purpose "A block of grounded facts." .
+
+type:ProofNode8
+    a p8:RustStruct ;
+    rdfs:label "ProofNode8" ;
+    p8:purpose "A node in the proof DAG." .
+
+type:ProofDAG8
+    a p8:RustStruct ;
+    rdfs:label "ProofDAG8" ;
+    p8:purpose "A directed acyclic graph of proof nodes." .
+
+type:Receipt8
+    a p8:RustStruct ;
+    rdfs:label "Receipt8" ;
+    p8:purpose "A cryptographic receipt of a decision." .
+
+type:QueryResult8
+    a p8:RustStruct ;
+    rdfs:label "QueryResult8" ;
+    p8:purpose "Output of execute_query_atom8: answer, bindings, proof, receipt." .
+
+type:ReplayStatus8
+    a p8:RustStruct ;
+    rdfs:label "ReplayStatus8" ;
+    p8:purpose "Outcome of a replay verification attempt." .
+
+type:AccessPath8
+    a p8:RustStruct ;
+    rdfs:label "AccessPath8" ;
+    p8:purpose "Selected index access path for a predicate + binding mask." .
+
+type:Plan8
+    a p8:RustStruct ;
+    rdfs:label "Plan8" ;
+    p8:purpose "Execution plan for a rule body." .
+
+type:PlanOp8
+    a p8:RustStruct ;
+    rdfs:label "PlanOp8" ;
+    p8:purpose "A single operation within a Plan8." .
+
+type:ExecutionTrace8
+    a p8:RustStruct ;
+    rdfs:label "ExecutionTrace8" ;
+    p8:purpose "Internal trace produced by execute_plan8." .
+
+type:FactBlockMeta8
+    a p8:RustStruct ;
+    rdfs:label "FactBlockMeta8" ;
+    p8:purpose "Metadata header for a FactBlock8." .
+
+#################################################################
+# 6. CAPABILITY BOUNDS (byte governors)
+#################################################################
+
+cap:ArityMax8
+    a p8:ImplementationCap ;
+    rdfs:label "Predicate arity cap" ;
+    p8:maxInclusive 8 ;
+    p8:failure err:E_ARITY_CAP_EXCEEDED .
+
+cap:RuleBodyAtomsMax8
+    a p8:ImplementationCap ;
+    rdfs:label "Rule body atom cap" ;
+    p8:maxInclusive 8 ;
+    p8:failure err:E_RULE_BODY_CAP_EXCEEDED .
+
+cap:RuleVariablesMax8
+    a p8:ImplementationCap ;
+    rdfs:label "Rule variable cap" ;
+    p8:maxInclusive 8 ;
+    p8:failure err:E_VARIABLE_CAP_EXCEEDED .
+
+cap:ProofFanInMax8
+    a p8:ImplementationCap ;
+    rdfs:label "Proof fan-in cap" ;
+    p8:maxInclusive 8 ;
+    p8:failure err:E_PROOF_FANIN_EXCEEDED .
+
+cap:BindingPatternsMax256
+    a p8:ImplementationCap ;
+    rdfs:label "Binding pattern cap" ;
+    p8:maxInclusive 256 ;
+    p8:derivedFrom cap:ArityMax8 .
+
+cap:LocalStateSurfaceMax256
+    a p8:ImplementationCap ;
+    rdfs:label "Local state surface cap" ;
+    p8:maxInclusive 256 ;
+    p8:failure err:E_STATE_SURFACE_EXCEEDED .
+
+#################################################################
+# 7. FEATURE BITS
+#################################################################
+
+feat:Facts
+    a p8:FeatureBit ;
+    p8:bitIndex 0 ;
+    rdfs:label "Facts" .
+
+feat:HornRules
+    a p8:FeatureBit ;
+    p8:bitIndex 1 ;
+    rdfs:label "Horn rules" .
+
+feat:Equality
+    a p8:FeatureBit ;
+    p8:bitIndex 2 ;
+    rdfs:label "Equality" .
+
+feat:TypedComparisons
+    a p8:FeatureBit ;
+    p8:bitIndex 3 ;
+    rdfs:label "Typed comparisons" .
+
+feat:StratifiedNegation
+    a p8:FeatureBit ;
+    p8:bitIndex 4 ;
+    rdfs:label "Stratified negation" .
+
+feat:BoundedRecursion
+    a p8:FeatureBit ;
+    p8:bitIndex 5 ;
+    rdfs:label "Bounded recursion" .
+
+feat:ControlledAggregates
+    a p8:FeatureBit ;
+    p8:bitIndex 6 ;
+    rdfs:label "Controlled aggregates" .
+
+feat:ContractedForeignPredicates
+    a p8:FeatureBit ;
+    p8:bitIndex 7 ;
+    rdfs:label "Contracted foreign predicates" .
+
+#################################################################
+# 8. ERRORS
+#################################################################
+
+err:E_ARITY_CAP_EXCEEDED
+    a p8:AdmissionError ;
+    rdfs:label "Arity cap exceeded" ;
+    p8:repairHint "Split predicate into entity plus attribute predicates." .
+
+err:E_RULE_BODY_CAP_EXCEEDED
+    a p8:AdmissionError ;
+    rdfs:label "Rule body atom cap exceeded" ;
+    p8:repairHint "Introduce intermediate derived predicates." .
+
+err:E_VARIABLE_CAP_EXCEEDED
+    a p8:AdmissionError ;
+    rdfs:label "Rule variable cap exceeded" ;
+    p8:repairHint "Split rule around shared key or route condition." .
+
+err:E_PROOF_FANIN_EXCEEDED
+    a p8:AdmissionError ;
+    rdfs:label "Proof fan-in cap exceeded" ;
+    p8:repairHint "Split proof into nested proof nodes." .
+
+err:E_STATE_SURFACE_EXCEEDED
+    a p8:AdmissionError ;
+    rdfs:label "Local state surface exceeds 256" ;
+    p8:repairHint "Split rule family into byte-capped surfaces." .
+
+err:E_STRING_QUERY_NOT_ADMITTED
+    a p8:AdmissionError ;
+    rdfs:label "String query not admitted" ;
+    p8:repairHint "Compile query into QueryAtom8 before invoking kernel." .
+
+err:E_RUNTIME_PARSE_REJECTED
+    a p8:AdmissionError ;
+    rdfs:label "Runtime parse rejected" ;
+    p8:repairHint "Move parsing to compiler boundary." .
+
+err:E_UNINTERNED_TERM
+    a p8:AdmissionError ;
+    rdfs:label "Uninterned term" ;
+    p8:repairHint "Admit term into catalog and use TermId." .
+
+err:E_UNSTRATIFIED_NEGATION
+    a p8:AdmissionError ;
+    rdfs:label "Unstratified negation" ;
+    p8:repairHint "Split predicates into stratified rule layers." .
+
+err:E_DYNAMIC_MUTATION_NOT_ADMITTED
+    a p8:AdmissionError ;
+    rdfs:label "Dynamic mutation not admitted" ;
+    p8:repairHint "Submit epoch delta and rebuild affected indexes." .
+
+err:E_CUT_NOT_ADMITTED
+    a p8:AdmissionError ;
+    rdfs:label "Cut not admitted" ;
+    p8:repairHint "Replace source-order control with explicit rule conditions." .
+
+err:E_FOREIGN_CONTRACT_MISSING
+    a p8:AdmissionError ;
+    rdfs:label "Foreign predicate contract missing" ;
+    p8:repairHint "Declare determinism, replay policy, binding requirements, and cost." .
+
+err:E_PROOF_FANIN_EXCEEDED
+    a p8:AdmissionError ;
+    rdfs:label "Proof fan-in cap exceeded" ;
+    p8:repairHint "Split proof into nested proof nodes." .
+
+#################################################################
+# 9. FUNCTIONS — STUBS
+#################################################################
+
+fn:validate_atom8
+    a p8:RustFunction ;
+    rdfs:label "validate_atom8" ;
+    p8:implementedIn mod:core_atom8 ;
+    p8:rejects err:E_ARITY_CAP_EXCEEDED ;
+    p8:rejects err:E_UNINTERNED_TERM .
+
+fn:validate_rule8
+    a p8:RustFunction ;
+    rdfs:label "validate_rule8" ;
+    p8:implementedIn mod:core_rule8 ;
+    p8:rejects err:E_RULE_BODY_CAP_EXCEEDED ;
+    p8:rejects err:E_VARIABLE_CAP_EXCEEDED ;
+    p8:rejects err:E_PROOF_FANIN_EXCEEDED .
+
+fn:validate_fact_block8
+    a p8:RustFunction ;
+    rdfs:label "validate_fact_block8" ;
+    p8:implementedIn mod:core_factblock8 .
+
+fn:scan_fact_block8
+    a p8:RustFunction ;
+    rdfs:label "scan_fact_block8" ;
+    p8:implementedIn mod:core_factblock8 .
+
+fn:select_access_path8
+    a p8:RustFunction ;
+    rdfs:label "select_access_path8" ;
+    p8:implementedIn mod:core_index .
+
+fn:execute_query_atom8
+    a p8:RustFunction ;
+    rdfs:label "execute_query_atom8" ;
+    p8:implementedIn mod:core_query ;
+    p8:calls fn:validate_atom8 ;
+    p8:calls fn:select_access_path8 ;
+    p8:calls fn:execute_plan8 ;
+    p8:calls fn:emit_positive_proof8 ;
+    p8:calls fn:emit_receipt8 .
+
+fn:execute_plan8
+    a p8:RustFunction ;
+    rdfs:label "execute_plan8" ;
+    p8:implementedIn mod:core_exec ;
+    p8:calls fn:execute_join8 ;
+    p8:calls fn:execute_antijoin8 .
+
+fn:execute_join8
+    a p8:RustFunction ;
+    rdfs:label "execute_join8" ;
+    p8:implementedIn mod:core_exec .
+
+fn:execute_antijoin8
+    a p8:RustFunction ;
+    rdfs:label "execute_antijoin8" ;
+    p8:implementedIn mod:core_exec .
+
+fn:plan_rule8
+    a p8:RustFunction ;
+    rdfs:label "plan_rule8" ;
+    p8:implementedIn mod:core_plan .
+
+fn:emit_positive_proof8
+    a p8:RustFunction ;
+    rdfs:label "emit_positive_proof8" ;
+    p8:implementedIn mod:core_proof .
+
+fn:emit_negative_proof8
+    a p8:RustFunction ;
+    rdfs:label "emit_negative_proof8" ;
+    p8:implementedIn mod:core_proof .
+
+fn:emit_receipt8
+    a p8:RustFunction ;
+    rdfs:label "emit_receipt8" ;
+    p8:implementedIn mod:core_receipt .
+
+fn:verify_receipt8
+    a p8:RustFunction ;
+    rdfs:label "verify_receipt8" ;
+    p8:implementedIn mod:core_receipt .

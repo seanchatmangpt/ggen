@@ -25,7 +25,7 @@
 //! ### Generating a Key Pair
 //!
 //! ```rust
-//! use ggen_core::pqc::PqcSigner;
+//! use crate::pqc::PqcSigner;
 //!
 //! // Generate a new keypair (in-memory, no files needed)
 //! let signer = PqcSigner::new();
@@ -36,7 +36,7 @@
 //! ### Signing Content
 //!
 //! ```rust
-//! use ggen_core::pqc::{PqcSigner, PqcVerifier};
+//! use crate::pqc::{PqcSigner, PqcVerifier};
 //!
 //! let signer = PqcSigner::new();
 //! let content = b"package content";
@@ -50,7 +50,7 @@
 //! assert!(verifier.verify(content, &signature).unwrap());
 //! ```
 use base64::{engine::general_purpose, Engine as _};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use pqcrypto_mldsa::mldsa65;
 use pqcrypto_traits::sign::{PublicKey, SecretKey, SignedMessage};
 use sha2::{Digest, Sha256};

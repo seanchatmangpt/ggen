@@ -1,2 +1,0 @@
-# Empty RDF file - no triples
-@prefix ggen: <https://ggen.io/marketplace/> .

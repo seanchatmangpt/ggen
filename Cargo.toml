@@ -22,52 +22,11 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 
 [workspace]
 members = [
-  "crates/ggen-utils",
-  "crates/ggen-cli",
-  "crates/ggen-domain",
   "crates/ggen-core",
-  "crates/ggen-config",
-  "crates/ggen-cli-validation",
-  "crates/ggen-config-clap",
-  "crates/ggen-test-audit",
-  "crates/ggen-test-opt",
-  "crates/ggen-e2e",
-  "crates/ggen-marketplace",
-  "crates/ggen-semantic-bit",
-  "crates/ggen-ontology-core",
-  "crates/ggen-codegen",
-  "crates/a2a-generated",
-  "crates/ggen-a2a-registry",
-  "crates/ggen-canonical",
-  "crates/ggen-prompt-mfg",
-  "crates/ggen-receipt",
-  "crates/ggen-transport",
-  "crates/pictl-types",
-  "crates/pictl-algos",
-  "crates/ggen-a2a",
-  "crates/ggen-node",
-]
-exclude = [
-  "examples/rust-cli-lifecycle",
-  "examples/a2a-agent-lifecycle", # Wave 4: Agent lifecycle - excluded for Docker builds (examples not in build context)
-  "examples/distributed-consensus", # Byzantine consensus - excluded for Docker builds
-  "examples/e2e-complete-system", # E2E Complete System - excluded for Docker builds
-  "examples/marketplace-demo/generated",
-  "examples/gcp-erlang-autonomics",
-  "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
-  "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
-  "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
-  "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
-  "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
-  "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
-  "crates/tai-security",  # Temporarily excluded - has dependency issues
-  "crates/tai-resilience",  # Temporarily excluded - has dependency issues
-  "crates/tai-cache",  # Temporarily excluded - has dependency issues
-  "crates/tai-grpc",  # Temporarily excluded - has dependency issues
-  "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
-  "examples/a2a-groq-agent",
-  "examples/a2a-rs-agents",
+  "crates/ggen-cli",
+  "crates/prolog8",
   ]
+exclude = []
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -101,7 +60,7 @@ toml = "0.9"
 serde_yaml = "0.9"
 hex = "0.4"
 sha2 = "0.10"
-ed25519-dalek = "2.1"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 blake3 = "1.5"
 hashbrown = "0.15"
 smallvec = "1.13"
@@ -122,37 +81,16 @@ rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v26.5.4 unified release
-ggen-utils = { path = "crates/ggen-utils", version = "26.5.4" }
 ggen-core = { path = "crates/ggen-core", version = "26.5.4" }
-ggen-config = { path = "crates/ggen-config", version = "26.5.4" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "26.5.4" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "26.5.4" }
-ggen-domain = { path = "crates/ggen-domain", version = "26.5.4" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "26.5.4" }
-ggen-semantic-bit = { path = "crates/ggen-semantic-bit", version = "26.5.4" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.4" }
-ggen-node = { path = "crates/ggen-node", version = "26.5.4" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "26.5.4" }
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "26.5.4" }
-ggen-e2e = { path = "crates/ggen-e2e", version = "26.5.4" }
-ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "26.5.4" }
-ggen-canonical = { path = "crates/ggen-canonical", version = "26.5.4" }
-ggen-receipt = { path = "crates/ggen-receipt", version = "26.5.4" }
-ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "26.5.4" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
-a2a-generated = { path = "crates/a2a-generated", version = "26.5.4" }
 
 # A2A Registry: Multi-agent orchestration registry
-ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "26.5.4" }
 
-ggen-transport = { path = "crates/ggen-transport", version = "26.5.4" }
-pictl-types = { path = "crates/pictl-types", version = "26.5.4" }
-pictl-algos = { path = "crates/pictl-algos", version = "26.5.4" }
 
 # ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
-ggen-codegen = { path = "crates/ggen-codegen", version = "26.5.4" }
 
 # ggen-yawl: YAWL workflow generation from industry ontologies
 ggen-yawl = { path = "crates/ggen-yawl", version = "26.5.4" }
@@ -209,7 +147,7 @@ darling_macro = "0.21"
 # convert_case: 2 versions → 1 (consolidated)
 dashmap = "6.1"
 bitflags = "2.10"
-config = { version = "0.15", default-features = false }
+config = { version = "0.15", default-features = false, features = ["toml"] }
 convert_case = "0.10"
 
 # SQLite version patch - resolve conflict between a2a-rs (0.8) and ggen-api (0.7)
@@ -513,10 +451,10 @@ explicit_iter_loop = "allow"
 # ===================================================================
 [features]
 default = []
-nightly = ["ggen-utils/nightly"]
-termlog = ["ggen-utils/termlog"]
-journald = ["ggen-utils/journald"]
-syslog = ["ggen-utils/syslog"]
+nightly = []
+termlog = []
+journald = []
+syslog = []
 london_tdd = []
 integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
@@ -526,9 +464,8 @@ otel = [
   "ggen-core/otel",
 ]
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "26.5.4" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.4" }
-ggen-core = { path = "crates/ggen-core", version = "26.5.4" }
+ggen-core = { path = "crates/ggen-core", version = "26.5.5" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.5" }
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
@@ -553,9 +490,7 @@ assert_cmd = "2.0.17"
 predicates = "3.1.3"
 serde_json = "1.0"
 tempfile = "3.23"
-a2a-generated.workspace = true
 anyhow = "1.0"
-ggen-domain = { path = "crates/ggen-domain", version = "26.5.4" }
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.20"
@@ -593,11 +528,9 @@ process_mining = "0.2"
 # Cryptographic hashing for receipt tests
 sha2 = "0.10"
 # A2A/TPS System Benchmarks
-ggen-receipt.workspace = true
-ggen-canonical.workspace = true
 regex = "1.12"
 validator = "0.19"
-ed25519-dalek = "2.1"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 [profile.dev]
 opt-level = 0
 debug = true

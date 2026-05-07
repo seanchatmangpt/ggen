@@ -25,8 +25,8 @@
 //! ## Example Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::validation::{SparqlValidator, ValidationResult};
-//! use ggen_core::graph::Graph;
+//! use crate::validation::{SparqlValidator, ValidationResult};
+//! use crate::graph::Graph;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load ontology and shapes

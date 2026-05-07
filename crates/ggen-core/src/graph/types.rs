@@ -19,9 +19,9 @@ use std::collections::BTreeMap;
 /// ## Boolean result
 ///
 /// ```rust,no_run
-/// use ggen_core::graph::{Graph, CachedResult};
+/// use crate::graph::{Graph, CachedResult};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// graph.insert_turtle(r#"
 ///     @prefix ex: <http://example.org/> .
@@ -39,9 +39,9 @@ use std::collections::BTreeMap;
 /// ## Solutions result
 ///
 /// ```rust,no_run
-/// use ggen_core::graph::{Graph, CachedResult};
+/// use crate::graph::{Graph, CachedResult};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// graph.insert_turtle(r#"
 ///     @prefix ex: <http://example.org/> .

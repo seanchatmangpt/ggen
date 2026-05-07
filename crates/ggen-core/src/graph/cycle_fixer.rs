@@ -12,7 +12,7 @@
 //! # Examples
 //!
 //! ```ignore
-//! use ggen_core::graph::cycle_fixer::{CycleFixer, FixStrategy, FixReport};
+//! use crate::graph::cycle_fixer::{CycleFixer, FixStrategy, FixReport};
 //!
 //! let fixer = CycleFixer::new("/path/to/ontology");
 //! let report = fixer.detect_and_fix(FixStrategy::RemoveImport, false)?;
@@ -22,7 +22,7 @@
 //! ```
 
 use crate::graph::cycle_detection::detect_cycles;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fs;

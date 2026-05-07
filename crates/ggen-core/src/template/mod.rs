@@ -3,7 +3,7 @@
 //! The canonical implementation lives in template_main.rs.
 //! This module provides the stable public API.
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::collections::HashSet;
 
 pub use crate::template_types::{Frontmatter, Template};
@@ -11,7 +11,7 @@ pub use crate::template_types::{Frontmatter, Template};
 /// Validate a Tera template for syntax correctness.
 pub fn validate_template(
     template_content: &str,
-) -> ggen_utils::error::Result<template_validation::TemplateValidationResult> {
+) -> crate::utils::error::Result<template_validation::TemplateValidationResult> {
     template_validation::validate_template(template_content)
 }
 
@@ -23,10 +23,10 @@ pub fn extract_template_variables(template: &str) -> HashSet<String> {
 /// Extract variable names from SPARQL JSON results file.
 pub fn extract_variables_from_sparql_results(results_path: &str) -> Result<HashSet<String>> {
     let content = std::fs::read_to_string(results_path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read SPARQL results: {}", e))
+        crate::utils::error::Error::new(&format!("Failed to read SPARQL results: {}", e))
     })?;
     let json: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to parse SPARQL results JSON: {}", e))
+        crate::utils::error::Error::new(&format!("Failed to parse SPARQL results JSON: {}", e))
     })?;
 
     let mut vars = HashSet::new();
@@ -47,7 +47,7 @@ pub fn extract_variables_from_sparql_results(results_path: &str) -> Result<HashS
 }
 
 pub mod template_validation {
-    use ggen_utils::error::Result;
+    use crate::utils::error::Result;
     use std::collections::HashSet;
     use tera::Tera;
 

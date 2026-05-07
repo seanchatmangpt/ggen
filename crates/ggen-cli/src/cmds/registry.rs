@@ -5,7 +5,7 @@
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
-use ggen_domain::packs::metadata::{list_packs, load_pack_metadata};
+use ggen_core::domain::packs::metadata::{list_packs, load_pack_metadata};
 use serde::Serialize;
 
 // ============================================================================

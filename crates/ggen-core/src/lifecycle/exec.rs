@@ -16,16 +16,16 @@
 //! ### Running a Phase
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::exec::Context;
-//! use ggen_core::lifecycle::exec::run_phase;
-//! use ggen_core::lifecycle::Result;
+//! use crate::lifecycle::exec::Context;
+//! use crate::lifecycle::exec::run_phase;
+//! use crate::lifecycle::Result;
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
 //! # fn main() -> Result<()> {
 //! // Create execution context
 //! let root = PathBuf::from(".");
-//! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
+//! let make = Arc::new(crate::lifecycle::loader::load_make("make.toml")?);
 //! let state_path = root.join(".ggen/state.json");
 //! let ctx = Context::new(root, make, state_path, vec![]);
 //!
@@ -38,17 +38,17 @@
 //! ### Running Multiple Phases
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::exec::run_pipeline;
-//! use ggen_core::lifecycle::Result;
+//! use crate::lifecycle::exec::run_pipeline;
+//! use crate::lifecycle::Result;
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
 //! # fn main() -> Result<()> {
 //! // Create context (same as above)
 //! let root = PathBuf::from(".");
-//! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
+//! let make = Arc::new(crate::lifecycle::loader::load_make("make.toml")?);
 //! let state_path = root.join(".ggen/state.json");
-//! let ctx = ggen_core::lifecycle::exec::Context::new(root, make, state_path, vec![]);
+//! let ctx = crate::lifecycle::exec::Context::new(root, make, state_path, vec![]);
 //!
 //! // Run multiple phases in sequence
 //! run_pipeline(&ctx, &vec!["test".to_string(), "lint".to_string(), "build".to_string()])?;
@@ -203,7 +203,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     run_before_hooks(ctx, phase_name)?;
 
     // Print phase start message for CLI output (after hooks)
-    ggen_utils::alert_info!(&format!("Running phase: {}", phase_name));
+    crate::alert_info!(&format!("Running phase: {}", phase_name));
 
     // Get commands for this phase using new Phase::commands() method
     let cmds = phase.commands();

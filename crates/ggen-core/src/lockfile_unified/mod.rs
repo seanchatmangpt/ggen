@@ -33,7 +33,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_core::lockfile_unified::prelude::*;
+//! use crate::lockfile_unified::prelude::*;
 //!
 //! // Use unified manager for any lockfile type
 //! let manager = UnifiedLockfileManager::new(Path::new("."));

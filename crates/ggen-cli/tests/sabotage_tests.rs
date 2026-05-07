@@ -68,7 +68,7 @@ fn test_sabotage_corrupt_lockfile_sync_locked_exits_nonzero() {
 /// Test 3: Empty signature in receipt, verify should return is_valid:false
 #[test]
 fn test_sabotage_empty_signature_receipt_verify_returns_invalid() {
-    use ggen_receipt::{generate_keypair, Receipt};
+    use ggen_core::receipt::{generate_keypair, Receipt};
 
     let temp_dir = TempDir::new().unwrap();
     let receipt_path = temp_dir.path().join("receipt.json");

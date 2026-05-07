@@ -1,6 +1,6 @@
 use super::operator::OperatorContext;
 use crate::signals::AndonSignal;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 pub struct GateResult {
     pub gate_name: String,

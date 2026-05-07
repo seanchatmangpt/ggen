@@ -39,7 +39,7 @@
 //! ### Creating a Pack Lockfile
 //!
 //! ```rust
-//! use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+//! use crate::packs::lockfile::{PackLockfile, LockedPack, PackSource};
 //! use std::collections::BTreeMap;
 //! use chrono::Utc;
 //!
@@ -65,10 +65,10 @@
 //! ### Loading from File
 //!
 //! ```rust,no_run
-//! use ggen_core::packs::lockfile::PackLockfile;
+//! use crate::packs::lockfile::PackLockfile;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let lockfile = PackLockfile::from_file(Path::new(".ggen/packs.lock"))?;
 //! println!("Loaded {} packs", lockfile.packs.len());
 //! # Ok(())
@@ -76,7 +76,7 @@
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -169,7 +169,7 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::packs::lockfile::PackLockfile;
+    /// use crate::packs::lockfile::PackLockfile;
     ///
     /// let lockfile = PackLockfile::new("4.0.0");
     /// assert_eq!(lockfile.packs.len(), 0);
@@ -196,10 +196,10 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::packs::lockfile::PackLockfile;
+    /// use crate::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let lockfile = PackLockfile::from_file(Path::new(".ggen/packs.lock"))?;
     /// println!("Loaded {} packs", lockfile.packs.len());
     /// # Ok(())
@@ -245,10 +245,10 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::packs::lockfile::PackLockfile;
+    /// use crate::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let lockfile = PackLockfile::new("4.0.0");
     /// lockfile.save(Path::new(".ggen/packs.lock"))?;
     /// # Ok(())
@@ -292,7 +292,7 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+    /// use crate::packs::lockfile::{PackLockfile, LockedPack, PackSource};
     /// use std::collections::BTreeMap;
     /// use chrono::Utc;
     ///

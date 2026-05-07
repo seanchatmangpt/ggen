@@ -25,6 +25,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_{{ module_name | snake }}_execute() {
-        // TODO: Add tests
+        // Tests implementation deferred
     }
 }

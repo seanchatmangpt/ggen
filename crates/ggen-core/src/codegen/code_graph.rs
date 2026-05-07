@@ -3,7 +3,7 @@
 //! Converts SPARQL query results into strongly-typed code graph entities
 //! that can be rendered by Tera templates.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -137,7 +137,7 @@ impl CodeGraphBuilder {
                 } else if return_type.starts_with("Option<") {
                     "None".to_string()
                 } else if return_type.starts_with("Result<") {
-                    "Err(ggen_utils::error::Error::new(\"Not implemented\"))".to_string()
+                    "Err(crate::utils::error::Error::new(\"Not implemented\"))".to_string()
                 } else {
                     "Default::default()".to_string()
                 }),

@@ -122,7 +122,7 @@ struct CheckCompatibilityOutput {
 /// List all available packs
 #[verb]
 fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
+    let packages = ggen_core::domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
@@ -168,7 +168,7 @@ fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
+    let detail = ggen_core::domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to get pack '{}': {}",
             pack_id, e
@@ -218,7 +218,7 @@ fn install(pack_id: String, force: bool, dry_run: bool) -> VerbResult<InstallOut
     }
 
     // Get pack name from metadata
-    let pack_name = ggen_domain::packs::metadata::show_pack(&pack_id)
+    let pack_name = ggen_core::domain::packs::metadata::show_pack(&pack_id)
         .map(|p| p.name)
         .unwrap_or_else(|_| pack_id.clone());
 
@@ -312,7 +312,7 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
     let (digest, size_bytes) = calculate_pack_digest(&pack_dir);
 
     // Read real version from pack metadata
-    let version = ggen_domain::packs::metadata::load_pack_metadata(pack_id)
+    let version = ggen_core::domain::packs::metadata::load_pack_metadata(pack_id)
         .map(|p| p.version)
         .unwrap_or_else(|_| "1.0.0".to_string());
 
@@ -516,7 +516,7 @@ fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput>
 }
 
 fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
-    use ggen_domain::packs::generator::{generate_from_pack, GenerateInput};
+    use ggen_core::domain::packs::generator::{generate_from_pack, GenerateInput};
     use std::collections::BTreeMap;
 
     let input = GenerateInput {
@@ -560,7 +560,7 @@ fn validate(pack_id: String) -> VerbResult<ValidateOutput> {
 
 fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
     // Try to validate the pack; if it doesn't exist, return with valid: false
-    match ggen_domain::packs::validate::validate_pack(&pack_id) {
+    match ggen_core::domain::packs::validate::validate_pack(&pack_id) {
         Ok(result) => {
             let message = if result.valid {
                 format!(
@@ -627,14 +627,14 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
         ));
     }
 
-    let input = ggen_domain::packs::compose::ComposePacksInput {
+    let input = ggen_core::domain::packs::compose::ComposePacksInput {
         pack_ids: pack_id_list.clone(),
         project_name: "composed-project".to_string(),
         output_dir: None,
-        strategy: ggen_domain::packs::types::CompositionStrategy::Merge,
+        strategy: ggen_core::domain::packs::types::CompositionStrategy::Merge,
     };
 
-    let result = crate::runtime::block_on(ggen_domain::packs::compose::compose_packs(&input))
+    let result = crate::runtime::block_on(ggen_core::domain::packs::compose::compose_packs(&input))
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
         })?
@@ -664,7 +664,7 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 /// Show pack dependencies
 #[verb]
 fn dependencies(pack_id: String, _version: Option<String>) -> VerbResult<DependenciesOutput> {
-    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
+    let detail = ggen_core::domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to resolve dependencies for '{}': {}",
             pack_id, e
@@ -694,7 +694,7 @@ fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
 }
 
 fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
+    let packages = ggen_core::domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packages: {}", e))
     })?;
 
@@ -760,7 +760,7 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
     }
 
     let result =
-        crate::runtime::block_on(ggen_domain::packs::check_packs_compatibility(&pack_id_list))
+        crate::runtime::block_on(ggen_core::domain::packs::check_packs_compatibility(&pack_id_list))
             .map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
             })?
@@ -795,7 +795,7 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
 /// Run health check on installed packs and lockfile
 #[verb]
 fn doctor() -> VerbResult<serde_json::Value> {
-    use ggen_domain::utils::{execute_doctor, DoctorInput};
+    use ggen_core::domain::utils::{execute_doctor, DoctorInput};
 
     let result = crate::runtime::block_on(execute_doctor(DoctorInput {
         verbose: true,

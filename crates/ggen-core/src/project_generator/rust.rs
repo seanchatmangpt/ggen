@@ -23,11 +23,11 @@
 //! ### Generating a Rust CLI Project
 //!
 //! ```rust,no_run
-//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
-//! use ggen_core::project_generator::rust::RustProjectGenerator;
+//! use crate::project_generator::{ProjectConfig, ProjectType};
+//! use crate::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-cli".to_string(),
 //!     project_type: ProjectType::RustCli,
@@ -44,11 +44,11 @@
 //! ### Generating a Rust Web Project
 //!
 //! ```rust,no_run
-//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
-//! use ggen_core::project_generator::rust::RustProjectGenerator;
+//! use crate::project_generator::{ProjectConfig, ProjectType};
+//! use crate::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-web".to_string(),
 //!     project_type: ProjectType::RustWeb,
@@ -63,7 +63,7 @@
 //! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 pub struct RustProjectGenerator;
 
@@ -130,7 +130,7 @@ tokio-test = "0.4"
                 let framework = config.framework.as_deref().unwrap_or("axum");
                 if framework == "axum" {
                     format!(
-                        r#"use ggen_utils::error::Result;
+                        r#"use crate::utils::error::Result;
 use axum::{{
     routing::get,
     Router,
@@ -170,7 +170,7 @@ async fn health() -> &'static str {{
                     )
                 } else {
                     format!(
-                        r#"use ggen_utils::error::Result;
+                        r#"use crate::utils::error::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {{
@@ -184,7 +184,7 @@ async fn main() -> Result<()> {{
             }
             ProjectType::RustCli => {
                 format!(
-                    r#"use ggen_utils::error::Result;
+                    r#"use crate::utils::error::Result;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -220,7 +220,7 @@ async fn main() -> Result<()> {{
 //!
 //! This library provides...
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 /// Main library function
 pub fn run() -> Result<()> {{

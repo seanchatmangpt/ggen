@@ -1,5 +1,5 @@
 use crate::codegen::ExecutionProof;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;

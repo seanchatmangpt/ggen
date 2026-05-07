@@ -1,0 +1,10 @@
+PREFIX p8:   <https://prolog8.dev/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?cap_name ?max_value ?cap_label
+WHERE {
+    ?s a p8:ImplementationCap .
+    BIND(STRAFTER(STR(?s), "https://prolog8.dev/cap#") AS ?cap_name)
+    ?s p8:maxInclusive ?max_value .
+    ?s rdfs:label ?cap_label .
+} ORDER BY ?cap_name

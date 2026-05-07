@@ -5,7 +5,7 @@
 //! and provides SPARQL-based querying capabilities.
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ use crate::graph::Graph;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::template_metadata::TemplateVariable;
+/// use crate::rdf::template_metadata::TemplateVariable;
 ///
 /// # fn main() {
 /// let variable = TemplateVariable {
@@ -77,7 +77,7 @@ impl TemplateMetadata {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::template_metadata::TemplateMetadata;
+    /// use crate::rdf::template_metadata::TemplateMetadata;
     ///
     /// # fn main() {
     /// let metadata = TemplateMetadata::new(
@@ -310,7 +310,7 @@ impl TemplateMetadata {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::template_metadata::TemplateRelationship;
+/// use crate::rdf::template_metadata::TemplateRelationship;
 ///
 /// # fn main() {
 /// let relationship = TemplateRelationship::DependsOn;

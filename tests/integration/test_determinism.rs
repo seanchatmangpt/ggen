@@ -57,7 +57,7 @@ Version: {{ version }}"#;
     assert_eq!(output1, output2, "Identical inputs should produce identical outputs");
     assert_eq!(output1, "Hello, World!\nVersion: 1.0.0", "Output should match expected content");
     
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 // Note: Removed mock tests that used simulate_deterministic_generation

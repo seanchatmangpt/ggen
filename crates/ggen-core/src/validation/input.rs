@@ -16,7 +16,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use ggen_core::validation::input::{StringValidator, LengthRule, PatternRule};
+//! use crate::validation::input::{StringValidator, LengthRule, PatternRule};
 //!
 //! # fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Validate username: 3-32 chars, alphanumeric + underscore
@@ -38,7 +38,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result as GgenResult};
+use crate::utils::error::{Error, Result as GgenResult};
 use regex::Regex;
 use std::fmt;
 use std::path::{Path, PathBuf};

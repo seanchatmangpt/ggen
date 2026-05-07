@@ -49,7 +49,7 @@ use forensics::ForensicsPack;
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_core::cleanroom::{CleanroomCore, Policy};
+/// use crate::cleanroom::{CleanroomCore, Policy};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let env = CleanroomCore::builder()

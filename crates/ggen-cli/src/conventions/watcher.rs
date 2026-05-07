@@ -1,6 +1,6 @@
 //! File watcher for automatic regeneration on RDF changes
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use notify::{Event, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
 use std::path::{Path, PathBuf};
@@ -39,7 +39,7 @@ impl ProjectWatcher {
             },
         )
         .map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create file watcher: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create file watcher: {}", e))
         })?;
 
         let resolver = ConventionResolver::new(project_root.clone());
@@ -68,7 +68,7 @@ impl ProjectWatcher {
                     .watcher()
                     .watch(dir, RecursiveMode::Recursive)
                     .map_err(|e| {
-                        ggen_utils::error::Error::new(&format!(
+                        ggen_core::utils::error::Error::new(&format!(
                             "Failed to watch directory {:?}: {}",
                             dir, e
                         ))

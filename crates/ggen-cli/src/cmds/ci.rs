@@ -2,7 +2,7 @@
 use clap::Subcommand;
 use ggen_cli::prelude::*;
 
-use ggen_domain::ci;
+use ggen_core::domain::ci;
 
 #[derive(Debug, Subcommand)]
 pub enum CiCmd {

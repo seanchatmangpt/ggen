@@ -8,7 +8,7 @@
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use ed25519_dalek::{SigningKey, VerifyingKey};
-use ggen_receipt::{EnvelopeChain, ReceiptEnvelope};
+use ggen_core::receipt::{EnvelopeChain, ReceiptEnvelope};
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -169,7 +169,7 @@ fn persist_envelope(
 fn do_sign(a: SignArgs) -> Result<EnvelopeSignOutput, String> {
     let payload_bytes =
         fs::read(&a.payload_path).map_err(|e| format!("Failed to read payload: {}", e))?;
-    let phash = ggen_receipt::payload_hash(&payload_bytes);
+    let phash = ggen_core::receipt::payload_hash(&payload_bytes);
 
     let signing_key = read_signing_key(&PathBuf::from(&a.private_key))?;
     let (chain, previous_envelope_hash) = load_chain_for_link(&a.chain_file)?;
@@ -177,11 +177,11 @@ fn do_sign(a: SignArgs) -> Result<EnvelopeSignOutput, String> {
     let env = ReceiptEnvelope::new(
         a.envelope_id.clone(),
         a.operation_id.clone(),
-        ggen_receipt::Producer {
+        ggen_core::receipt::Producer {
             system: a.producer_system.clone(),
             kind: a.producer_kind.clone(),
         },
-        ggen_receipt::PayloadRef {
+        ggen_core::receipt::PayloadRef {
             schema: a.payload_schema,
             hash: phash.clone(),
             path: Some(a.payload_path.clone()),

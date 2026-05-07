@@ -21,9 +21,9 @@
 //! ### Creating a Client
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo)?;
 //!
@@ -37,9 +37,9 @@
 //! ### Getting Pages Configuration
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -52,9 +52,9 @@
 //! ### Listing Workflow Runs
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -93,9 +93,9 @@
 //! ### Getting Pages Configuration
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -108,9 +108,9 @@
 //! ### Listing Workflow Runs
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -125,9 +125,9 @@
 //! ### Triggering a Workflow
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -165,9 +165,9 @@
 //! ### Creating a Client
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo)?;
 //!
@@ -181,9 +181,9 @@
 //! ### Querying GitHub Pages
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -198,9 +198,9 @@
 //! ### Working with Workflows
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use crate::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -216,7 +216,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::env;

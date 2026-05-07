@@ -8,7 +8,7 @@
 //! Use [`generate_service`] for a single entry point across all supported languages:
 //!
 //! ```rust,no_run
-//! use ggen_core::codegen::{GeneratorLanguage, generate_service};
+//! use crate::codegen::{GeneratorLanguage, generate_service};
 //!
 //! let code = generate_service(GeneratorLanguage::Go, "UserService", 8080).unwrap();
 //! assert!(code.contains("UserService"));
@@ -121,7 +121,7 @@ impl std::error::Error for CodeGenError {}
 ///
 /// # Example
 /// ```
-/// use ggen_core::codegen::{GeneratorLanguage, generate_service};
+/// use crate::codegen::{GeneratorLanguage, generate_service};
 ///
 /// let go_code = generate_service(GeneratorLanguage::Go, "OrderService", 8080).unwrap();
 /// assert!(go_code.contains("OrderService"));

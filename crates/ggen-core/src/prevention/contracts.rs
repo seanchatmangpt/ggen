@@ -24,7 +24,7 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::contracts::TemplateProvider;
+/// use crate::prevention::contracts::TemplateProvider;
 ///
 /// struct FilesystemProvider { /* ... */ }
 ///

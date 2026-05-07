@@ -4,7 +4,7 @@
 //! including execution and materialization (inserting results back into the graph).
 
 use crate::graph::Graph;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use sha2::{Digest, Sha256};
 
@@ -34,7 +34,7 @@ impl<'a> ConstructExecutor<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use ggen_core::graph::{Graph, ConstructExecutor};
+    /// use crate::graph::{Graph, ConstructExecutor};
     ///
     /// let graph = Graph::new()?;
     /// graph.insert_turtle(r#"
@@ -47,7 +47,7 @@ impl<'a> ConstructExecutor<'a> {
     ///     CONSTRUCT { ?s ?p ?o }
     ///     WHERE { ?s ?p ?o }
     /// "#)?;
-    /// # Ok::<(), ggen_utils::error::Error>(())
+    /// # Ok::<(), crate::utils::error::Error>(())
     /// ```
     pub fn execute(&self, query: &str) -> Result<Vec<String>> {
         // Execute query using the graph's query method

@@ -28,7 +28,7 @@
 //! ### Basic Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::simple_tracing::SimpleTracer;
+//! use crate::simple_tracing::SimpleTracer;
 //! use std::path::Path;
 //!
 //! // Check if tracing is enabled
@@ -40,7 +40,7 @@
 //! ### Performance Timing
 //!
 //! ```rust,no_run
-//! use ggen_core::simple_tracing::SimpleTimer;
+//! use crate::simple_tracing::SimpleTimer;
 //!
 //! let timer = SimpleTimer::start("template_processing");
 //! // ... do work ...
@@ -50,7 +50,7 @@
 //! ### Using the Macro
 //!
 //! ```rust,no_run
-//! use ggen_core::time_operation;
+//! use crate::time_operation;
 //!
 //! let result = time_operation!("expensive_operation", {
 //!     // ... operation code ...
@@ -298,7 +298,7 @@ impl SimpleTracer {
     }
 
     /// Log error
-    pub fn error(error: &ggen_utils::error::Error, context: &str) {
+    pub fn error(error: &crate::utils::error::Error, context: &str) {
         Self::trace(
             TraceLevel::Error,
             &format!("Error in {}: {}", context, error),
@@ -389,7 +389,7 @@ mod tests {
         SimpleTracer::backup_created(&test_path, &temp_dir.path().join("backup.tmpl"));
         SimpleTracer::skip_condition("skip_if", "pattern found");
 
-        let error = ggen_utils::error::Error::new("Test error");
+        let error = crate::utils::error::Error::new("Test error");
         SimpleTracer::error(&error, "test context");
         SimpleTracer::warning("Test warning", Some("test context"));
         SimpleTracer::warning("Test warning", None);

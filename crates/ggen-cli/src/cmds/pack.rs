@@ -9,8 +9,8 @@ use serde::Serialize;
 use std::path::PathBuf;
 
 use ggen_core::packs::lockfile::PackLockfile;
-use ggen_domain::packs::install::{install_pack, InstallInput};
-use ggen_domain::packs::metadata::load_pack_metadata;
+use ggen_core::domain::packs::install::{install_pack, InstallInput};
+use ggen_core::domain::packs::metadata::load_pack_metadata;
 
 #[derive(Serialize)]
 struct AddOutput {

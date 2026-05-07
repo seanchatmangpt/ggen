@@ -2,7 +2,7 @@
 //! This test bypasses the compilation issues in the existing test suite
 
 use ggen_core::graph::{cycle_detection, cycle_fixer::CycleFixer, cycle_fixer::FixStrategy};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::collections::HashMap;
 use tempfile::TempDir;
 

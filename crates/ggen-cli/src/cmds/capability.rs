@@ -856,13 +856,13 @@ fn has_cycle(
 
 /// Resolve capability to atomic packs using the domain capability registry.
 ///
-/// Delegates to `ggen_domain::packs::capability_registry::resolve_capability_to_packs`
+/// Delegates to `ggen_core::domain::packs::capability_registry::resolve_capability_to_packs`
 /// which maps (surface, projection, runtime) to real marketplace pack IDs and
 /// validates their existence against the local pack metadata store.
 async fn resolve_capability(
     surface: &str, projection: &Option<String>, runtime: &Option<String>,
 ) -> Result<Vec<String>, String> {
-    ggen_domain::packs::capability_registry::resolve_capability_to_packs(
+    ggen_core::domain::packs::capability_registry::resolve_capability_to_packs(
         surface,
         projection.as_deref(),
         runtime.as_deref(),

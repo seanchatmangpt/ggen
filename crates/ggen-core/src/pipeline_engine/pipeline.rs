@@ -22,8 +22,8 @@ use crate::pipeline_engine::receipt::{
     BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies,
 };
 use crate::pipeline_engine::vocabulary::VocabularyRegistry;
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use crate::marketplace::trust::TrustTier;
+use crate::utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

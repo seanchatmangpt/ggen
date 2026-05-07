@@ -24,7 +24,7 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use ggen_domain::error::A2aError;
+//! use ggen_core::domain::error::A2aError;
 //! use mcp_a2a::mock_a2a_server::{MockA2AServer, AgentConfig, AgentState};
 //!
 //! #[tokio::test]
@@ -53,7 +53,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use ggen_domain::error::{A2aError, AgentError};
+use ggen_core::domain::error::{A2aError, AgentError};
 
 //=============================================================================
 // Domain Types - A2A Protocol Compatible
