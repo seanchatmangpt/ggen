@@ -892,7 +892,7 @@ fn main() {
 
                 let template_str = format!("---\nto: {}\n---\nContent", path);
 
-                let mut template = Template::parse(&template_str);
+                let template = Template::parse(&template_str);
 
                 match template {
                     Ok(mut t) => {
