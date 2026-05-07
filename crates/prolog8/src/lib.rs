@@ -15,7 +15,7 @@ pub mod replay;
 pub use caps::*;
 pub use compiler::*;
 pub use doctor::*;
-pub use error::AdmissionError;
+// pub use error::AdmissionError;  // uncomment after ggen sync generates error.rs
 pub use ids::*;
 pub use kernel::*;
 pub use replay::*;
