@@ -78,15 +78,14 @@
 pub mod chain;
 pub mod envelope;
 pub mod error;
-pub mod receipt;
-
+pub mod receipt_impl;
+pub use self::receipt_impl::{generate_keypair, hash_data, Receipt};
 pub use chain::ReceiptChain;
 pub use envelope::{
     payload_hash, EnvelopeChain, EnvelopeChainLink, EnvelopeSignature, PayloadRef, Producer,
     ReceiptEnvelope, ENVELOPE_SCHEMA, HASH_PREFIX, SIGNATURE_ALGORITHM,
 };
 pub use error::{ReceiptError, Result};
-pub use self::receipt::{generate_keypair, hash_data, Receipt};
 
 /// Convenience function to create a new receipt chained to a parent.
 ///
