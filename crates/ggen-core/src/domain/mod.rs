@@ -27,7 +27,7 @@
 pub mod audit;
 pub mod ci;
 pub mod config;
-pub mod domain;
+// pub mod domain; // Removed due to module inception warning
 pub mod environment;
 pub mod error;
 pub mod generation;

@@ -95,9 +95,9 @@ impl ProofGateValidator {
             .passes
             .iter()
             .find(|p| p.pass_type == PassType::Normalization)
-            .map_or(true, |p| {
+            .is_none_or(|p| {
                 p.error
-                    .as_deref()
+                    .as_ref()
                     .map_or(true, |e| !e.to_lowercase().contains("shacl violation"))
             });
 
