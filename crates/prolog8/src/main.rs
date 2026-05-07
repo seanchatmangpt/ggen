@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use prolog8::types::{Atom8, ProofMode, QueryAtom8, Receipt};
+use prolog8::types::{Atom8, ProofMode, QueryAtom8, Receipt8};
 use prolog8::{Prolog8Compiler, Prolog8Doctor, Prolog8Kernel, Prolog8Replay};
 
 #[derive(Parser)]
@@ -84,7 +84,7 @@ fn main() -> Result<()> {
 
             match kernel.query(q) {
                 Ok((decision, _receipt, _proof)) => {
-                    println!("Decision: {}", decision);
+                    println!("Decision: {:?}", decision);
                     println!("Proof generated and receipt output to local dir.");
                 }
                 Err(e) => {
@@ -100,7 +100,7 @@ fn main() -> Result<()> {
         }
         Commands::Replay { receipt, store } => {
             println!("Replaying receipt {} against store {}...", receipt, store);
-            let dummy_receipt = Receipt {
+            let dummy_receipt = Receipt8 {
                 engine_version: "0.1.0".to_string(),
                 catalog_root: [0; 32],
                 rule_root: [0; 32],

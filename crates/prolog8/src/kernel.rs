@@ -1,4 +1,5 @@
 use crate::types::*;
+use crate::ids::PredicateId;
 use anyhow::Result;
 use std::collections::HashMap;
 
@@ -43,7 +44,7 @@ impl Prolog8Kernel {
     }
 
     /// Evaluates a query and returns a receipt and proof.
-    pub fn query(&self, query: QueryAtom8) -> Result<(DecisionKind, Receipt, Option<ProofNode>)> {
+    pub fn query(&self, query: QueryAtom8) -> Result<(DecisionKind, Receipt8, Option<ProofNode8>)> {
         // Enforce constraints (FR-3: Arity Cap)
         if query.atom.arity > 8 {
             return Ok((
@@ -109,7 +110,7 @@ impl Prolog8Kernel {
         let proof = if decision == DecisionKind::Allow
             && (query.proof_mode == ProofMode::Positive || query.proof_mode == ProofMode::Full)
         {
-            Some(ProofNode {
+            Some(ProofNode8 {
                 node_id: 1,
                 kind: ProofKind::Fact,
                 pred_id: query.atom.pred_id,
@@ -117,7 +118,6 @@ impl Prolog8Kernel {
                 fact_hash: None,
                 children: [0; 8],
                 child_count: 0,
-                substitution_id: 0,
                 node_hash: [0; 32],
             })
         } else if decision == DecisionKind::Deny
@@ -131,8 +131,8 @@ impl Prolog8Kernel {
         Ok((decision, receipt, proof))
     }
 
-    fn negative_proof(&self, pred_id: PredicateId, kind: ProofKind) -> Option<ProofNode> {
-        Some(ProofNode {
+    fn negative_proof(&self, pred_id: PredicateId, kind: ProofKind) -> Option<ProofNode8> {
+        Some(ProofNode8 {
             node_id: 2,
             kind,
             pred_id,
@@ -140,13 +140,12 @@ impl Prolog8Kernel {
             fact_hash: None,
             children: [0; 8],
             child_count: 0,
-            substitution_id: 0,
             node_hash: [0; 32],
         })
     }
 
-    fn dummy_receipt(&self, decision: DecisionKind) -> Receipt {
-        Receipt {
+    fn dummy_receipt(&self, decision: DecisionKind) -> Receipt8 {
+        Receipt8 {
             engine_version: "0.1.0".to_string(),
             catalog_root: [0; 32],
             rule_root: [0; 32],
