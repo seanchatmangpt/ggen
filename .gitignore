@@ -995,3 +995,4 @@ test_error_migration
 named_ttl
 relationships_turtle
 .env.claude
+vendors/
