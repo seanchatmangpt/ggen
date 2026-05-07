@@ -226,11 +226,16 @@ async fn check_observability() -> Result<CheckResult> {
         }
     }
 
-    // 3. Evidence Check: Fetch recent traces from Tempo (The "Un-fakeable" Proof)
+    // 3. Evidence Check: Fetch recent traces from Tempo using a Unix epoch start time
     let mut trace_evidence = false;
     if reachable.contains(&"Tempo (API)") {
-        let query_url = "http://127.0.0.1:3200/api/search?limit=1&start=now-10m";
-        if let Ok(resp) = client.get(query_url).send().await {
+        let start_epoch = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs().saturating_sub(3600))
+            .unwrap_or(0);
+        let query_url =
+            format!("http://127.0.0.1:3200/api/search?limit=1&start={}", start_epoch);
+        if let Ok(resp) = client.get(&query_url).send().await {
             if let Ok(text) = resp.text().await {
                 if text.contains("traceID") {
                     trace_evidence = true;
@@ -239,14 +244,7 @@ async fn check_observability() -> Result<CheckResult> {
         }
     }
 
-    if reachable.len() == 2 && trace_evidence {
-        Ok(CheckResult {
-            name: "Observability Stack".to_string(),
-            status: CheckStatus::Ok,
-            message: "All services healthy. Recent trace evidence confirmed in Tempo.".to_string(),
-            recovery: None,
-        })
-    } else if reachable.is_empty() {
+    if reachable.is_empty() {
         Ok(CheckResult {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Warning,
@@ -256,20 +254,32 @@ async fn check_observability() -> Result<CheckResult> {
             ),
             recovery: Some("docker compose -f docker-compose.otel.yml up -d".to_string()),
         })
-    } else {
-        let evidence_msg = if trace_evidence {
-            "Traces confirmed."
+    } else if reachable.len() == 2 {
+        let (msg, recovery) = if trace_evidence {
+            (
+                "All services healthy. Recent trace evidence confirmed in Tempo.".to_string(),
+                None,
+            )
         } else {
-            "NO recent trace evidence found (system might be failing to emit)."
+            (
+                "All services healthy. No recent traces in Tempo (emit a trace to verify end-to-end).".to_string(),
+                None,
+            )
         };
+        Ok(CheckResult {
+            name: "Observability Stack".to_string(),
+            status: CheckStatus::Ok,
+            message: msg,
+            recovery,
+        })
+    } else {
         Ok(CheckResult {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Warning,
             message: format!(
-                "Partial health: {}. {}. {}",
+                "Partial health: {}. Down: {}",
                 reachable.join(", "),
-                failures.join(", "),
-                evidence_msg
+                failures.join(", ")
             ),
             recovery: Some("docker compose -f docker-compose.otel.yml restart".to_string()),
         })

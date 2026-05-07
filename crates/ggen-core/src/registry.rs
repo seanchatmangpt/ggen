@@ -647,7 +647,6 @@ mod tests {
         use super::*;
         use proptest::prelude::*;
 
-        /// Property test: Registry index parsing should be idempotent
         proptest! {
             #[test]
             fn registry_index_parsing_idempotent(

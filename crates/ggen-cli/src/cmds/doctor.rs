@@ -499,15 +499,23 @@ fn domain_check_to_verb_result(verb: &str, check_name: &str) -> VerbResult {
         env: false,
     })) {
         Ok(Ok(dr)) => {
-            let passed =
-                dr.checks.first().map(|c| matches!(c.status, CheckStatus::Ok)).unwrap_or(false);
+            let passed = dr
+                .checks
+                .first()
+                .map(|c| matches!(c.status, CheckStatus::Ok))
+                .unwrap_or(false);
             let message = dr
                 .checks
                 .first()
                 .map(|c| c.message.clone())
                 .unwrap_or_else(|| format!("No {} result", verb));
             let recovery = dr.checks.first().and_then(|c| c.recovery.clone());
-            VerbResult { verb: verb.to_string(), passed, message, recovery }
+            VerbResult {
+                verb: verb.to_string(),
+                passed,
+                message,
+                recovery,
+            }
         }
         Ok(Err(e)) => VerbResult {
             verb: verb.to_string(),
@@ -533,8 +541,15 @@ fn perform_full_checks() -> Result<Vec<VerbResult>> {
     results.push(VerbResult {
         verb: "publish".to_string(),
         passed: pub_passed,
-        message: if pub_passed { "Pre-publish checks passed".to_string() } else { "Pre-publish checks failed".to_string() },
-        recovery: pub_checks.iter().find(|c| !c.passed).and_then(|c| c.recovery.clone()),
+        message: if pub_passed {
+            "Pre-publish checks passed".to_string()
+        } else {
+            "Pre-publish checks failed".to_string()
+        },
+        recovery: pub_checks
+            .iter()
+            .find(|c| !c.passed)
+            .and_then(|c| c.recovery.clone()),
     });
 
     // run
@@ -547,8 +562,15 @@ fn perform_full_checks() -> Result<Vec<VerbResult>> {
     results.push(VerbResult {
         verb: "run".to_string(),
         passed: healthy,
-        message: if healthy { "All critical health checks passed".to_string() } else { "One or more health checks failed".to_string() },
-        recovery: ws_checks.iter().find(|c| !c.passed).and_then(|c| c.recovery.clone()),
+        message: if healthy {
+            "All critical health checks passed".to_string()
+        } else {
+            "One or more health checks failed".to_string()
+        },
+        recovery: ws_checks
+            .iter()
+            .find(|c| !c.passed)
+            .and_then(|c| c.recovery.clone()),
     });
 
     // check
@@ -556,8 +578,16 @@ fn perform_full_checks() -> Result<Vec<VerbResult>> {
     results.push(VerbResult {
         verb: "check".to_string(),
         passed: ggen_toml,
-        message: if ggen_toml { "ggen.toml found".to_string() } else { "ggen.toml not found".to_string() },
-        recovery: if ggen_toml { None } else { Some("Create ggen.toml in the workspace root".to_string()) },
+        message: if ggen_toml {
+            "ggen.toml found".to_string()
+        } else {
+            "ggen.toml not found".to_string()
+        },
+        recovery: if ggen_toml {
+            None
+        } else {
+            Some("Create ggen.toml in the workspace root".to_string())
+        },
     });
 
     // config
@@ -568,8 +598,16 @@ fn perform_full_checks() -> Result<Vec<VerbResult>> {
     results.push(VerbResult {
         verb: "ontology".to_string(),
         passed: ontology_exists,
-        message: if ontology_exists { "Ontology directory found".to_string() } else { "Ontology directory missing".to_string() },
-        recovery: if ontology_exists { None } else { Some("Create .specify/ontologies directory".to_string()) },
+        message: if ontology_exists {
+            "Ontology directory found".to_string()
+        } else {
+            "Ontology directory missing".to_string()
+        },
+        recovery: if ontology_exists {
+            None
+        } else {
+            Some("Create .specify/ontologies directory".to_string())
+        },
     });
 
     // telemetry
@@ -580,7 +618,12 @@ fn perform_full_checks() -> Result<Vec<VerbResult>> {
 
     // security
     let (sec_passed, sec_msg, sec_recovery) = perform_security_check();
-    results.push(VerbResult { verb: "security".to_string(), passed: sec_passed, message: sec_msg, recovery: sec_recovery });
+    results.push(VerbResult {
+        verb: "security".to_string(),
+        passed: sec_passed,
+        message: sec_msg,
+        recovery: sec_recovery,
+    });
 
     Ok(results)
 }
@@ -590,7 +633,13 @@ fn perform_config_check() -> VerbResult {
     let (passed, msg) = if ggen_toml {
         use ggen_core::manifest::ManifestParser;
         match ManifestParser::parse(Path::new("ggen.toml")) {
-            Ok(m) => (true, format!("ggen.toml valid. Project: {} v{}", m.project.name, m.project.version)),
+            Ok(m) => (
+                true,
+                format!(
+                    "ggen.toml valid. Project: {} v{}",
+                    m.project.name, m.project.version
+                ),
+            ),
             Err(e) => (false, format!("ggen.toml invalid: {}", e)),
         }
     } else {
@@ -600,16 +649,29 @@ fn perform_config_check() -> VerbResult {
         verb: "config".to_string(),
         passed,
         message: msg,
-        recovery: if passed { None } else { Some("Create or fix ggen.toml".to_string()) },
+        recovery: if passed {
+            None
+        } else {
+            Some("Create or fix ggen.toml".to_string())
+        },
     }
 }
 
 /// Runs every doctor verb and returns an aggregated report
 #[verb]
 fn full() -> Result<FullOutput> {
-    let cwd = std::env::current_dir().unwrap_or_default().display().to_string();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .display()
+        .to_string();
     let results = perform_full_checks()?;
     let passed_count = results.iter().filter(|r| r.passed).count();
     let total_count = results.len();
-    Ok(FullOutput { all_passed: passed_count == total_count, passed_count, total_count, workspace_root: cwd, results })
+    Ok(FullOutput {
+        all_passed: passed_count == total_count,
+        passed_count,
+        total_count,
+        workspace_root: cwd,
+        results,
+    })
 }

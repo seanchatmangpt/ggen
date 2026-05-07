@@ -376,7 +376,6 @@ ggen_compat = ">=0.1 <0.2"
         use super::*;
         use proptest::prelude::*;
 
-        /// Property test: GPack manifest parsing should be idempotent
         proptest! {
             #[test]
             fn gpack_manifest_parsing_idempotent(

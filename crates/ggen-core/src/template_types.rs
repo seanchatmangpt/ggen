@@ -839,7 +839,6 @@ fn main() {
         use super::*;
         use proptest::prelude::*;
 
-        /// Property test: Template parsing should be idempotent for valid inputs
         proptest! {
             #[test]
             fn template_parsing_idempotent(
