@@ -310,7 +310,7 @@ fn test_mcp_server_name_validation() {
     // Arrange: Valid and invalid server names
     let valid_names = vec!["GgenMcpServer", "TestServer", "MyServer123", "server_v1"];
 
-    let invalid_names = vec![
+    let _invalid_names = vec![
         "test-server", // Contains hyphen
         "test server", // Contains space
         "test@server", // Contains special char
@@ -338,7 +338,7 @@ fn test_mcp_tool_order_validation() {
     println!("🔍 CLI Test: Tool order validation");
 
     // Arrange: Create tools with specific order
-    let tools = vec![("tool1", 1), ("tool2", 2), ("tool3", 3)];
+    let tools = [("tool1", 1), ("tool2", 2), ("tool3", 3)];
 
     // Assert: Tools are in correct order
     for (idx, (name, order)) in tools.iter().enumerate() {

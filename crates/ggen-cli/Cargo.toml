@@ -144,6 +144,7 @@ workspace = true
 
 [dependencies.ggen-core]
 workspace = true
+features = ["otel"]
 
 [dependencies.clap-noun-verb-macros]
 workspace = true

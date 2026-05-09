@@ -16,7 +16,7 @@ fn test_rule_macro() {
     let b1 = atom!(2, 10);
     let b2 = atom!(3, 20);
 
-    let r = rule!(100, head.clone(), b1.clone(), b2.clone());
+    let r = rule!(100, head, b1, b2);
 
     assert_eq!(r.rule_id, 100);
     assert_eq!(r.head.pred_id, 1);
@@ -28,7 +28,7 @@ fn test_rule_macro() {
 #[test]
 fn test_query_macro() {
     let a = atom!(5, 42);
-    let q1 = query!(a.clone());
+    let q1 = query!(a);
     assert_eq!(q1.proof_mode, ProofMode::Positive);
     assert_eq!(q1.atom.pred_id, 5);
 

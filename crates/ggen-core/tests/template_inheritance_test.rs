@@ -286,7 +286,7 @@ fn test_all_mcp_server_children_extend_head() {
     for entry in WalkDir::new(&mcp_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "tera"))
     {
         // Skip the base template itself
         if entry.file_name() == "_head.tera" {
@@ -365,7 +365,7 @@ fn test_benchmark_include_templates_resolve() {
     let tera_files: Vec<std::path::PathBuf> = WalkDir::new(&components_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "tera"))
         .map(|e| e.path().to_path_buf())
         .collect();
 
@@ -493,7 +493,7 @@ fn test_no_circular_extends_chains() {
     for entry in WalkDir::new(&templates_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "tera"))
     {
         let content = match std::fs::read_to_string(entry.path()) {
             Ok(c) => c,
@@ -708,7 +708,7 @@ fn test_all_children_call_super_in_imports_block() {
     for entry in WalkDir::new(&mcp_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "tera"))
     {
         if entry.file_name() == "_head.tera" {
             continue;

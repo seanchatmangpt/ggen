@@ -170,7 +170,7 @@ mod tests {
     fn create_test_template(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {
         let path = dir.join(format!("{}.tmpl", name));
         std::fs::write(&path, content).map_err(|e| {
-            Error::with_source("Failed to write test template".to_string(), Box::new(e))
+            Error::with_source("Failed to write test template", Box::new(e))
         })?;
         Ok(path)
     }

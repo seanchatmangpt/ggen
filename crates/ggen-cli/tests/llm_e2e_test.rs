@@ -10,7 +10,7 @@
 //! The test will fail if GROQ_API_KEY is not set.
 
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 use tempfile::TempDir;
 
@@ -82,7 +82,7 @@ max_tokens = 4096
 
     /// Run ggen sync command
     fn run_sync(&self) -> std::process::Output {
-        let output = Command::new(&self.ggen_binary())
+        let output = Command::new(self.ggen_binary())
             .arg("sync")
             .arg("--ontology")
             .arg(self.project_dir.join(".ggen/test.ttl"))

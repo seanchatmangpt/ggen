@@ -1,3 +1,10 @@
+---
+name: RDF Ontology Editor
+description: Edit and validate RDF ontologies for ggen specification-driven pipeline
+paths: ["**/*.ttl", "**/*.rdf", ".specify/**"]
+type: skill
+---
+
 # RDF Ontology Patterns
 
 ## Core Principle

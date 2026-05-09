@@ -1,3 +1,10 @@
+---
+name: SPARQL Query Designer
+description: Write SPARQL queries for RDF extraction in ggen's μ₂-μ₅ pipeline
+paths: [".specify/**/*.ttl", "crates/ggen-ontology-core/**", "crates/ggen-prompt-mfg/**"]
+type: skill
+---
+
 # SPARQL Query Patterns
 
 ## Overview

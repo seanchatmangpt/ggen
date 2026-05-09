@@ -226,20 +226,26 @@ async fn check_observability() -> Result<CheckResult> {
         }
     }
 
-    // 3. Evidence Check: Fetch recent traces from Tempo using a Unix epoch start time
+    // 3. Check Jaeger health and ggen service registration
+    let jaeger_url = "http://127.0.0.1:16686/api/services";
+    match client.get(jaeger_url).send().await {
+        Ok(resp) if resp.status().is_success() => {
+            reachable.push("Jaeger (API)");
+        }
+        Ok(resp) => {
+            failures.push(format!("Jaeger returned {}", resp.status()));
+        }
+        Err(_) => {
+            failures.push("Jaeger unreachable (port 16686)".to_string());
+        }
+    }
+
+    // 4. Evidence Check: verify ggen service has emitted traces to Jaeger
     let mut trace_evidence = false;
-    if reachable.contains(&"Tempo (API)") {
-        let start_epoch = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_secs().saturating_sub(3600))
-            .unwrap_or(0);
-        let query_url = format!(
-            "http://127.0.0.1:3200/api/search?limit=1&start={}",
-            start_epoch
-        );
-        if let Ok(resp) = client.get(&query_url).send().await {
+    if reachable.contains(&"Jaeger (API)") {
+        if let Ok(resp) = client.get(jaeger_url).send().await {
             if let Ok(text) = resp.text().await {
-                if text.contains("traceID") {
+                if text.contains("\"ggen\"") {
                     trace_evidence = true;
                 }
             }
@@ -251,20 +257,26 @@ async fn check_observability() -> Result<CheckResult> {
             name: "Observability Stack".to_string(),
             status: CheckStatus::Warning,
             message: format!(
-                "No observability services found (tried: Tempo, OTel). Errors: {}",
+                "No observability services found (tried: Tempo, OTel, Jaeger). Errors: {}",
                 failures.join(", ")
             ),
             recovery: Some("docker compose -f docker-compose.otel.yml up -d".to_string()),
         })
-    } else if reachable.len() == 2 {
+    } else if failures.is_empty() {
         let (msg, recovery) = if trace_evidence {
             (
-                "All services healthy. Recent trace evidence confirmed in Tempo.".to_string(),
+                format!(
+                    "All services healthy: {}. ggen service confirmed in Jaeger.",
+                    reachable.join(", ")
+                ),
                 None,
             )
         } else {
             (
-                "All services healthy. No recent traces in Tempo (emit a trace to verify end-to-end).".to_string(),
+                format!(
+                    "All services healthy: {}. No ggen traces in Jaeger yet (run a command to emit traces).",
+                    reachable.join(", ")
+                ),
                 None,
             )
         };

@@ -1,3 +1,10 @@
+---
+name: Sync Executor
+description: Execute ggen sync (μ₁-μ₅ pipeline) from RDF TTL specs
+paths: [".specify/**/*.ttl", "crates/ggen-core/**"]
+type: skill
+---
+
 # Skill: sync-executor
 
 ## Purpose

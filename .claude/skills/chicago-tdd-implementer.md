@@ -1,3 +1,10 @@
+---
+name: Chicago TDD Implementer
+description: Implement Chicago TDD tests with real collaborators for Rust code in ggen
+paths: ["crates/**/*.rs", "crates/**/tests/**"]
+type: skill
+---
+
 # Skill: chicago-tdd-implementer
 
 ## Purpose

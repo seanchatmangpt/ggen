@@ -198,7 +198,7 @@ proptest! {
             .filter(|l| l.trim().starts_with("// -"))
             .count();
 
-        prop_assert_eq!(tool_lines, num_tools as usize);
+        prop_assert_eq!(tool_lines, num_tools);
     }
 }
 

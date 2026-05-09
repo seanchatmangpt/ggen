@@ -139,7 +139,7 @@ fn test_all_rq_files_parse_without_error() {
         for entry in WalkDir::new(dir)
             .into_iter()
             .filter_map(|e| e.ok())
-            .filter(|e| e.path().extension().map_or(false, |ext| ext == "rq"))
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "rq"))
         {
             let content = match std::fs::read_to_string(entry.path()) {
                 Ok(c) => c,
@@ -251,7 +251,7 @@ fn test_all_ttl_files_parse_without_error() {
         for entry in WalkDir::new(dir)
             .into_iter()
             .filter_map(|e| e.ok())
-            .filter(|e| e.path().extension().map_or(false, |ext| ext == "ttl"))
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "ttl"))
         {
             let content = match std::fs::read_to_string(entry.path()) {
                 Ok(c) => c,

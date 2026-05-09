@@ -5,6 +5,33 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.5.5] — Claude Code Maximization & Development Infrastructure (2026-05-08)
+
+### Added
+
+- **Claude Code Configuration**
+  - Wired SessionStart, UserPromptSubmit, Stop, and PreToolUse/PostToolUse hooks into settings.json
+  - Enabled automated evidence collection and release gate enforcement
+  - Created three high-value context-aware skills: cargo-make-runner, otel-span-verifier, andon-stop
+
+- **Skills Infrastructure**
+  - Added YAML frontmatter path scoping to chicago-tdd-implementer, sync-executor, and rdf skills
+  - Reduced cognitive load by loading only relevant skills for file context
+  - Enhanced skill discovery and lifecycle management
+
+### Changed
+
+- **Test Import Fixes**: Corrected mutability and import issues across ggen-core, ggen-cli, and prolog8 test suites
+- **Doctor Utility**: Enhanced domain utilities with improved error handling and state management
+- **Example Programs**: Updated template profiling example with current API patterns
+
+### Fixed
+
+- Resolved test mutability warnings in template inheritance, syntax validation, and rendering tests
+- Fixed simple_cycle_test import resolution in prolog8
+- Corrected MCP command test bindings
+- Enhanced kernel and main module imports in prolog8
+
 ## [26.5.4] — CalVer Transition & Manufacturing Governance (2026-05-04)
 
 ### Added

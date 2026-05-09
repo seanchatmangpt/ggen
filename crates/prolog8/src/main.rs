@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use prolog8::types::{Atom8, ProofMode, QueryAtom8, Receipt8};
-use prolog8::{Prolog8Compiler, Prolog8Doctor, Prolog8Kernel, Prolog8Replay};
+use prolog8::{Prolog8Kernel, Prolog8Replay};
 
 #[derive(Parser)]
 #[command(name = "prolog8")]

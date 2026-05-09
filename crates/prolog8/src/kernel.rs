@@ -24,6 +24,12 @@ pub enum AccessPathType {
     Rejected,
 }
 
+impl Default for Prolog8Kernel {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Prolog8Kernel {
     pub fn new() -> Self {
         Self {
@@ -82,12 +88,11 @@ impl Prolog8Kernel {
                 for row in &block.rows {
                     let mut matched = true;
                     for i in 0..query.atom.arity as usize {
-                        if (query.atom.binding_mask & (1 << i)) != 0 {
-                            if row.args[i] != query.atom.args[i] {
+                        if (query.atom.binding_mask & (1 << i)) != 0
+                            && row.args[i] != query.atom.args[i] {
                                 matched = false;
                                 break;
                             }
-                        }
                     }
                     if matched {
                         found = true;
