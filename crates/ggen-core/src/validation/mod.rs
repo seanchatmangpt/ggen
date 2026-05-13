@@ -47,6 +47,7 @@
 //! # }
 //! ```
 
+pub mod andon;
 pub mod checks;
 pub mod error;
 pub mod gate;
@@ -64,6 +65,7 @@ pub mod violation;
 mod tests;
 
 // Re-export public API
+pub use andon::{AndonContext, AndonSignal};
 pub use checks::{Check, CheckError, CompilationCheck, LintCheck, SecurityCheck, TestCheck};
 pub use error::{Result, ValidationError};
 pub use gate::{CheckResult, QualityGate, QualityGateResult};

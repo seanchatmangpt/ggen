@@ -173,7 +173,6 @@ pub mod registry;
 pub mod resolver;
 pub mod schema;
 pub mod semantic_bit;
-pub mod signals;
 pub mod simple_tracing;
 pub mod snapshot;
 pub mod streaming_generator;

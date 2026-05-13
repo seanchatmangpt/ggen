@@ -1,5 +1,5 @@
 use super::operator::OperatorContext;
-use crate::signals::AndonSignal;
+use crate::validation::AndonSignal;
 use crate::utils::error::Result;
 
 pub struct GateResult {

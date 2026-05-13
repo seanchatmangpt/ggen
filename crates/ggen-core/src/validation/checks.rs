@@ -1,4 +1,4 @@
-use crate::signals::AndonSignal;
+use crate::validation::AndonSignal;
 use std::fmt;
 
 #[derive(Debug, Clone)]

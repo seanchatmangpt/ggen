@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-use crate::signals::{AndonSignal, AndonContext};
+use crate::validation::{AndonSignal, AndonContext};
 use super::path_protector::{PathProtector, PathProtectionError};
 
 /// Integration point for PathProtector in code generation pipeline

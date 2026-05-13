@@ -1,7 +1,7 @@
 use super::checks::Check;
 #[cfg(test)]
 use super::checks::CheckError;
-use crate::signals::AndonSignal;
+use crate::validation::AndonSignal;
 use std::fmt;
 
 #[derive(Debug, Clone)]

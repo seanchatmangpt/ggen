@@ -1,7 +1,7 @@
 use std::fmt;
 use std::path::Path;
 
-use crate::signals::AndonSignal;
+use crate::validation::AndonSignal;
 
 #[derive(Debug, Clone)]
 pub struct GlobPattern(String);
