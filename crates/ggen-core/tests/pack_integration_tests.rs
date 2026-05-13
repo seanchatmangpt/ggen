@@ -1,7 +1,7 @@
 //! Integration tests for pack lockfile management.
 
-use crate::marketplace::trust::TrustTier;
 use ggen_core::lockfile::{Lockfile, LockfileEntry, ProfileRef, RegistrySource};
+use ggen_core::marketplace::trust::TrustTier;
 use std::path::PathBuf;
 use tempfile::TempDir;
 

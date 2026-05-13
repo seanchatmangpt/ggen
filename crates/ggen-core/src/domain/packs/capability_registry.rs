@@ -103,13 +103,48 @@ pub struct CapabilityDescriptor {
 /// `ggen capability list`.
 pub fn list_capabilities() -> Vec<CapabilityDescriptor> {
     let surfaces = [
-        ("mcp", "Model Context Protocol", "MCP server and tooling for agent integration", "surface"),
-        ("compliance-soc2", "SOC2 Compliance", "SOC2-aligned enterprise scaffolding", "compliance"),
-        ("web", "Web Full-Stack", "Full-stack web application templates", "surface"),
-        ("devops", "DevOps Automation", "CI/CD and infrastructure automation", "infrastructure"),
-        ("data-science", "Data Science Toolkit", "ML/DS workflow templates", "domain"),
-        ("startup", "Startup Essentials", "Startup project bootstrap kit", "domain"),
-        ("enterprise-backend", "Enterprise Backend", "Production enterprise backend stack", "domain"),
+        (
+            "mcp",
+            "Model Context Protocol",
+            "MCP server and tooling for agent integration",
+            "surface",
+        ),
+        (
+            "compliance-soc2",
+            "SOC2 Compliance",
+            "SOC2-aligned enterprise scaffolding",
+            "compliance",
+        ),
+        (
+            "web",
+            "Web Full-Stack",
+            "Full-stack web application templates",
+            "surface",
+        ),
+        (
+            "devops",
+            "DevOps Automation",
+            "CI/CD and infrastructure automation",
+            "infrastructure",
+        ),
+        (
+            "data-science",
+            "Data Science Toolkit",
+            "ML/DS workflow templates",
+            "domain",
+        ),
+        (
+            "startup",
+            "Startup Essentials",
+            "Startup project bootstrap kit",
+            "domain",
+        ),
+        (
+            "enterprise-backend",
+            "Enterprise Backend",
+            "Production enterprise backend stack",
+            "domain",
+        ),
     ];
 
     surfaces

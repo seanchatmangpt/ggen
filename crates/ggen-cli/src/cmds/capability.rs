@@ -530,9 +530,7 @@ fn graph(format: Option<String>) -> VerbResult<CapabilityGraphOutput> {
 }
 
 /// Read trust info for one locked pack from marketplace metadata.
-fn read_trust_for_pack(
-    pack_id: &str, locked_pack: &LockedPack,
-) -> TrustInfo {
+fn read_trust_for_pack(pack_id: &str, locked_pack: &LockedPack) -> TrustInfo {
     use ggen_core::marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
     use ggen_core::marketplace::models::PackageId;
 
@@ -545,8 +543,14 @@ fn read_trust_for_pack(
         Some(meta) => TrustInfo {
             pack_id: pack_id.to_string(),
             trust_tier: format!("{:?}", meta.trust_tier),
-            signature: meta.signature.clone().unwrap_or_else(|| "unsigned".to_string()),
-            digest: meta.checksum.clone().unwrap_or_else(|| "no-digest".to_string()),
+            signature: meta
+                .signature
+                .clone()
+                .unwrap_or_else(|| "unsigned".to_string()),
+            digest: meta
+                .checksum
+                .clone()
+                .unwrap_or_else(|| "no-digest".to_string()),
         },
         None => TrustInfo {
             pack_id: pack_id.to_string(),
