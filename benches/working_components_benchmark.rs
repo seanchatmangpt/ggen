@@ -3,8 +3,9 @@
 //! This benchmark suite evaluates the performance of working WIP components
 //! that don't have compilation issues.
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
+use std::hint::black_box;
 use std::time::Duration;
 
 // Use existing components that work
@@ -209,7 +210,7 @@ fn bench_io_simulation(c: &mut Criterion) {
             ];
 
             for url in &urls {
-                black_box(reqwest::blocking::get(url).is_ok());
+                black_box(reqwest::blocking::get(*url).is_ok());
             }
         });
     });

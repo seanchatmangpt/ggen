@@ -1,10 +1,11 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_packet::validation::validate_work_order;
 use ggen_packet::{
     AcceptanceCriterion, AcceptanceTest, Constraint, ConstraintType, Priority, ReversibilityPolicy,
     TestType, WorkOrder, WorkOrderId, WorkOrderStatus,
 };
 use std::collections::HashSet;
+use std::hint::black_box;
 
 fn bench_work_order_creation(c: &mut Criterion) {
     c.bench_function("work_order_creation", |b| {

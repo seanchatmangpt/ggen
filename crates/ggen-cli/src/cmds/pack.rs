@@ -28,7 +28,7 @@ struct RemoveOutput {
 
 /// Add (install) a pack by name
 #[verb]
-fn add(pack_name: String) -> Result<AddOutput> {
+fn add(pack_name: String, force: Option<bool>) -> Result<AddOutput> {
     // Verify the pack exists before attempting installation
     if let Err(e) = load_pack_metadata(&pack_name) {
         return Ok(AddOutput {
@@ -46,7 +46,7 @@ fn add(pack_name: String) -> Result<AddOutput> {
     let input = InstallInput {
         pack_id: pack_name.clone(),
         target_dir: None,
-        force: false,
+        force: force.unwrap_or(false),
         dry_run: false,
     };
 

@@ -84,6 +84,16 @@ description = "Clean build artifacts"
 command = "timeout"
 args = ["5s", "cargo", "clean"]
 
+[tasks.jtbd-verbs]
+description = "Run JTBD runtime smoke test against every CLI verb"
+dependencies = ["build"]
+script = ["bash scripts/jtbd-all-verbs.sh"]
+
+[tasks.jtbd-report]
+description = "Run JTBD smoke test and emit markdown classification report"
+dependencies = ["build"]
+script = ["bash scripts/jtbd-all-verbs.sh --report > docs/jtbd-verb-classification.md && echo 'Report written to docs/jtbd-verb-classification.md'"]
+
 [tasks.fmt]
 description = "Format code"
 workspace = false
@@ -322,7 +332,7 @@ script = '''
 #!/bin/bash
 set -euo pipefail
 
-TEST_CMD=(cargo test --workspace --tests --lib)
+TEST_CMD=(cargo test --workspace)
 
 if [ "$#" -gt 0 ]; then
   TEST_CMD+=("$@")

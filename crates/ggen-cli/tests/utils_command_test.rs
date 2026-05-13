@@ -496,11 +496,13 @@ mod integration_tests {
                 name: "Cargo".to_string(),
                 status: CheckStatus::Warning,
                 message: "Version may be outdated".to_string(),
+                recovery: None,
             },
             CheckResult {
                 name: "Git".to_string(),
                 status: CheckStatus::Error,
                 message: "Not installed".to_string(),
+                recovery: None,
             },
         ];
 
@@ -537,16 +539,19 @@ mod integration_tests {
                     name: "Rust".to_string(),
                     status: CheckStatus::Ok,
                     message: "Installed".to_string(),
+                    recovery: None,
                 },
                 CheckResult {
                     name: "Cargo".to_string(),
                     status: CheckStatus::Ok,
                     message: "Installed".to_string(),
+                    recovery: None,
                 },
                 CheckResult {
                     name: "Git".to_string(),
                     status: CheckStatus::Ok,
                     message: "Installed".to_string(),
+                    recovery: None,
                 },
             ],
             environment: Some(EnvironmentInfo {

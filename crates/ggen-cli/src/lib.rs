@@ -93,9 +93,8 @@ pub use ggen_core::utils::error::Result;
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
     // Initialize OTLP telemetry (non-fatal — CLI continues if collector is unreachable)
-    let _telemetry_guard = ggen_core::telemetry::init_telemetry(
-        ggen_core::telemetry::TelemetryConfig::default(),
-    );
+    let _telemetry_guard =
+        ggen_core::telemetry::init_telemetry(ggen_core::telemetry::TelemetryConfig::default());
 
     // Root span so every CLI invocation produces at least one exportable trace
     let args: Vec<String> = std::env::args().skip(1).collect();

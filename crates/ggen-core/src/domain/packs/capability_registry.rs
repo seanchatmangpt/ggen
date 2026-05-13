@@ -88,6 +88,45 @@ pub fn resolve_capability_to_packs(
     Ok(resolved)
 }
 
+/// Descriptor for a known capability surface — exposed for `ggen capability list`.
+#[derive(Debug, Clone)]
+pub struct CapabilityDescriptor {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub category: String,
+    pub atomic_packs: Vec<String>,
+}
+
+/// List all known capability surfaces, each enriched with the pack IDs returned
+/// by `resolve_capability_to_packs`.  This is the canonical list used by
+/// `ggen capability list`.
+pub fn list_capabilities() -> Vec<CapabilityDescriptor> {
+    let surfaces = [
+        ("mcp", "Model Context Protocol", "MCP server and tooling for agent integration", "surface"),
+        ("compliance-soc2", "SOC2 Compliance", "SOC2-aligned enterprise scaffolding", "compliance"),
+        ("web", "Web Full-Stack", "Full-stack web application templates", "surface"),
+        ("devops", "DevOps Automation", "CI/CD and infrastructure automation", "infrastructure"),
+        ("data-science", "Data Science Toolkit", "ML/DS workflow templates", "domain"),
+        ("startup", "Startup Essentials", "Startup project bootstrap kit", "domain"),
+        ("enterprise-backend", "Enterprise Backend", "Production enterprise backend stack", "domain"),
+    ];
+
+    surfaces
+        .iter()
+        .map(|(id, name, desc, cat)| {
+            let atomic_packs = resolve_capability_to_packs(id, None, None).unwrap_or_default();
+            CapabilityDescriptor {
+                id: (*id).to_string(),
+                name: (*name).to_string(),
+                description: (*desc).to_string(),
+                category: (*cat).to_string(),
+                atomic_packs,
+            }
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

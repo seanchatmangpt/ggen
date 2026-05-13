@@ -89,10 +89,11 @@ impl Prolog8Kernel {
                     let mut matched = true;
                     for i in 0..query.atom.arity as usize {
                         if (query.atom.binding_mask & (1 << i)) != 0
-                            && row.args[i] != query.atom.args[i] {
-                                matched = false;
-                                break;
-                            }
+                            && row.args[i] != query.atom.args[i]
+                        {
+                            matched = false;
+                            break;
+                        }
                     }
                     if matched {
                         found = true;

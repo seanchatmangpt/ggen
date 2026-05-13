@@ -430,29 +430,19 @@ fn inspect_pack_details(
 /// List available capabilities
 #[verb]
 fn list(verbose: bool) -> VerbResult<CapabilityListOutput> {
-    let capabilities = vec![
-        CapabilityInfo {
-            id: "mcp".to_string(),
-            name: "Model Context Protocol".to_string(),
-            description: "MCP server and tools".to_string(),
-            category: "surface".to_string(),
-            atomic_packs: vec!["surface-mcp".to_string()],
-        },
-        CapabilityInfo {
-            id: "a2a".to_string(),
-            name: "Agent-to-Agent".to_string(),
-            description: "A2A protocol and messaging".to_string(),
-            category: "surface".to_string(),
-            atomic_packs: vec!["surface-a2a".to_string()],
-        },
-        CapabilityInfo {
-            id: "openapi".to_string(),
-            name: "OpenAPI Contract".to_string(),
-            description: "OpenAPI specification and validation".to_string(),
-            category: "contract".to_string(),
-            atomic_packs: vec!["contract-openapi".to_string()],
-        },
-    ];
+    use ggen_core::domain::packs::capability_registry::list_capabilities;
+
+    let descriptors = list_capabilities();
+    let capabilities: Vec<CapabilityInfo> = descriptors
+        .iter()
+        .map(|d| CapabilityInfo {
+            id: d.id.clone(),
+            name: d.name.clone(),
+            description: d.description.clone(),
+            category: d.category.clone(),
+            atomic_packs: d.atomic_packs.clone(),
+        })
+        .collect();
 
     if verbose {
         for cap in &capabilities {
@@ -464,82 +454,143 @@ fn list(verbose: bool) -> VerbResult<CapabilityListOutput> {
         }
     }
 
+    let total = capabilities.len();
     Ok(CapabilityListOutput {
         capabilities,
-        total: 3,
+        total,
     })
 }
 
-/// Show resolved atomic pack graph before compile
-#[verb]
-fn graph(format: Option<String>) -> VerbResult<CapabilityGraphOutput> {
-    let nodes = vec![
-        GraphNode {
-            id: "surface-mcp".to_string(),
-            label: "MCP Surface".to_string(),
-            node_type: "surface".to_string(),
-        },
-        GraphNode {
-            id: "projection-rust".to_string(),
-            label: "Rust Projection".to_string(),
-            node_type: "projection".to_string(),
-        },
-    ];
+/// Build the capability surface → atomic pack graph from the registry.
+fn build_capability_graph() -> (Vec<GraphNode>, Vec<GraphEdge>) {
+    use ggen_core::domain::packs::capability_registry::list_capabilities;
 
-    let edges = vec![GraphEdge {
-        from: "surface-mcp".to_string(),
-        to: "projection-rust".to_string(),
-        label: "projects-to".to_string(),
-    }];
+    let descriptors = list_capabilities();
+    let mut nodes: Vec<GraphNode> = Vec::new();
+    let mut edges: Vec<GraphEdge> = Vec::new();
+    let mut seen_pack_ids = HashSet::new();
 
-    if format.as_deref() == Some("dot") {
-        println!("digraph capabilities {{");
-        for node in &nodes {
-            println!(
-                "  \"{}\" [label=\"{}\", type=\"{}\"]",
-                node.id, node.label, node.node_type
-            );
-        }
-        for edge in &edges {
-            println!(
-                "  \"{}\" -> \"{}\" [label=\"{}\"]",
-                edge.from, edge.to, edge.label
-            );
-        }
-        println!("}}");
+    for d in &descriptors {
+        nodes.push(GraphNode {
+            id: d.id.clone(),
+            label: d.name.clone(),
+            node_type: "capability".to_string(),
+        });
+        push_pack_nodes_and_edges(d, &mut nodes, &mut edges, &mut seen_pack_ids);
     }
 
+    (nodes, edges)
+}
+
+fn push_pack_nodes_and_edges(
+    d: &ggen_core::domain::packs::capability_registry::CapabilityDescriptor,
+    nodes: &mut Vec<GraphNode>, edges: &mut Vec<GraphEdge>, seen: &mut HashSet<String>,
+) {
+    for pack_id in &d.atomic_packs {
+        if seen.insert(pack_id.clone()) {
+            nodes.push(GraphNode {
+                id: pack_id.clone(),
+                label: pack_id.clone(),
+                node_type: "pack".to_string(),
+            });
+        }
+        edges.push(GraphEdge {
+            from: d.id.clone(),
+            to: pack_id.clone(),
+            label: "resolves-to".to_string(),
+        });
+    }
+}
+
+fn print_dot_graph(nodes: &[GraphNode], edges: &[GraphEdge]) {
+    println!("digraph capabilities {{");
+    for node in nodes {
+        println!(
+            "  \"{}\" [label=\"{}\", type=\"{}\"]",
+            node.id, node.label, node.node_type
+        );
+    }
+    for edge in edges {
+        println!(
+            "  \"{}\" -> \"{}\" [label=\"{}\"]",
+            edge.from, edge.to, edge.label
+        );
+    }
+    println!("}}");
+}
+
+/// Show capability surface → atomic pack graph (derived from registry)
+#[verb]
+fn graph(format: Option<String>) -> VerbResult<CapabilityGraphOutput> {
+    let (nodes, edges) = build_capability_graph();
+    if format.as_deref() == Some("dot") {
+        print_dot_graph(&nodes, &edges);
+    }
     Ok(CapabilityGraphOutput { nodes, edges })
 }
 
-/// Show trust status for all packs
+/// Read trust info for one locked pack from marketplace metadata.
+fn read_trust_for_pack(
+    pack_id: &str, locked_pack: &LockedPack,
+) -> TrustInfo {
+    use ggen_core::marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
+    use ggen_core::marketplace::models::PackageId;
+
+    let meta_opt = PackageId::new(pack_id)
+        .ok()
+        .map(|pid| get_pack_cache_dir(&pid, &locked_pack.version))
+        .and_then(|cache_dir| load_pack_metadata(&cache_dir).ok());
+
+    match meta_opt {
+        Some(meta) => TrustInfo {
+            pack_id: pack_id.to_string(),
+            trust_tier: format!("{:?}", meta.trust_tier),
+            signature: meta.signature.clone().unwrap_or_else(|| "unsigned".to_string()),
+            digest: meta.checksum.clone().unwrap_or_else(|| "no-digest".to_string()),
+        },
+        None => TrustInfo {
+            pack_id: pack_id.to_string(),
+            trust_tier: "unknown".to_string(),
+            signature: "metadata-not-found".to_string(),
+            digest: "metadata-not-found".to_string(),
+        },
+    }
+}
+
+fn collect_trust_info_from_lockfile() -> Vec<TrustInfo> {
+    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    if !lockfile_path.exists() {
+        return Vec::new();
+    }
+    let lockfile = match PackLockfile::from_file(&lockfile_path) {
+        Ok(l) => l,
+        Err(_) => return Vec::new(),
+    };
+    lockfile
+        .packs
+        .iter()
+        .map(|(pid, locked)| read_trust_for_pack(pid, locked))
+        .collect()
+}
+
+fn print_trust_verbose(packs: &[TrustInfo]) {
+    for pack in packs {
+        println!("  - {}: {}", pack.pack_id, pack.trust_tier);
+        println!("    Signature: {}", pack.signature);
+        println!("    Digest: {}", pack.digest);
+        println!();
+    }
+}
+
+/// Show trust status for all packs in the lockfile (read from real metadata)
 #[verb]
 fn trust(verbose: bool) -> VerbResult<CapabilityTrustOutput> {
-    let packs = vec![
-        TrustInfo {
-            pack_id: "surface-mcp".to_string(),
-            trust_tier: "enterprise-certified".to_string(),
-            signature: "abcd1234".to_string(),
-            digest: "sha256:efgh5678".to_string(),
-        },
-        TrustInfo {
-            pack_id: "projection-rust".to_string(),
-            trust_tier: "enterprise-approved".to_string(),
-            signature: "ijkl9012".to_string(),
-            digest: "sha256:mnop3456".to_string(),
-        },
-    ];
-
+    let packs = collect_trust_info_from_lockfile();
     if verbose {
-        for pack in &packs {
-            println!("  - {}: {}", pack.pack_id, pack.trust_tier);
-            println!("    Signature: {}", pack.signature);
-            println!("    Digest: {}", pack.digest);
-            println!();
-        }
+        print_trust_verbose(&packs);
     }
-
-    Ok(CapabilityTrustOutput { packs, total: 2 })
+    let total = packs.len();
+    Ok(CapabilityTrustOutput { packs, total })
 }
 
 /// Detect and report conflicts
