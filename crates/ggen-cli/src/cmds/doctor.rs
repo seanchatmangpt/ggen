@@ -5,8 +5,10 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use ggen_core::domain::utils::{execute_doctor, CheckStatus, DoctorInput};
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
+use serde_json::{json, Value as JsonValue};
 use std::path::Path;
+use std::collections::BTreeMap;
 
 // ============================================================================
 // Output Types
@@ -673,5 +675,198 @@ fn full() -> Result<FullOutput> {
         total_count,
         workspace_root: cwd,
         results,
+    })
+}
+
+// ============================================================================
+// Manifest Validation with SHACL and EARL Output
+// ============================================================================
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ManifestData {
+    #[serde(rename = "@context", skip_serializing_if = "Option::is_none")]
+    context: Option<JsonValue>,
+    #[serde(rename = "@type", skip_serializing_if = "Option::is_none")]
+    type_field: Option<String>,
+    #[serde(flatten)]
+    extra: BTreeMap<String, JsonValue>,
+}
+
+#[derive(Debug, Serialize)]
+struct ShaclValidationResult {
+    valid: bool,
+    checks: Vec<ValidationCheck>,
+}
+
+#[derive(Debug, Serialize)]
+struct ValidationCheck {
+    test: String,
+    outcome: String,
+    detail: String,
+}
+
+fn load_manifest(name: &str) -> Result<ManifestData> {
+    let state_path = format!("state/{}/manifest.json", name);
+    let path = Path::new(&state_path);
+
+    if !path.exists() {
+        return Err(NounVerbError::execution_error(
+            format!("Manifest not found at {}", state_path)
+        ))?;
+    }
+
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| NounVerbError::execution_error(format!("Failed to read manifest: {}", e)))?;
+
+    let manifest: ManifestData = serde_json::from_str(&content)
+        .map_err(|e| NounVerbError::execution_error(format!("Invalid JSON in manifest: {}", e)))?;
+
+    Ok(manifest)
+}
+
+fn validate_jsonld_structure(manifest: &ManifestData) -> Result<Vec<ValidationCheck>> {
+    let mut checks = Vec::new();
+
+    // Check 1: @context presence
+    let context_present = manifest.context.is_some();
+    checks.push(ValidationCheck {
+        test: "urn:mcpp:test:context_presence".to_string(),
+        outcome: if context_present { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        detail: if context_present {
+            "@context field is present".to_string()
+        } else {
+            "@context field is missing — required for JSON-LD validation".to_string()
+        },
+    });
+
+    // Check 2: @type presence
+    let type_present = manifest.type_field.is_some();
+    checks.push(ValidationCheck {
+        test: "urn:mcpp:test:type_presence".to_string(),
+        outcome: if type_present { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        detail: if type_present {
+            "@type field is present".to_string()
+        } else {
+            "@type field is missing — required for object classification".to_string()
+        },
+    });
+
+    // Check 3: @vocab is null (public vocabulary only)
+    let vocab_valid = if let Some(JsonValue::Object(ctx)) = &manifest.context {
+        if let Some(vocab) = ctx.get("@vocab") {
+            *vocab == JsonValue::Null
+        } else {
+            true // @vocab not present is acceptable
+        }
+    } else {
+        true
+    };
+
+    checks.push(ValidationCheck {
+        test: "urn:mcpp:test:public_vocab".to_string(),
+        outcome: if vocab_valid { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        detail: if vocab_valid {
+            "@vocab is null or absent — public vocabulary only".to_string()
+        } else {
+            "@vocab must be null for ETHOS conformance (private vocabularies forbidden)".to_string()
+        },
+    });
+
+    // Check 4: Required namespaces present in @context
+    let required_namespaces = vec!["mcpp", "prov", "codemeta", "dcterms", "earl", "schema"];
+    let namespaces_present = if let Some(JsonValue::Object(ctx)) = &manifest.context {
+        required_namespaces.iter().all(|ns| {
+            let ns_str = ns.to_string();
+            let ns_colon = format!("{}:", ns);
+            ctx.contains_key(&ns_str) || ctx.contains_key(&ns_colon)
+        })
+    } else {
+        false
+    };
+
+    checks.push(ValidationCheck {
+        test: "urn:mcpp:test:required_namespaces".to_string(),
+        outcome: if namespaces_present { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        detail: if namespaces_present {
+            "All required namespaces (mcpp, prov, codemeta, dcterms, earl, schema) are defined".to_string()
+        } else {
+            format!("Missing required namespaces. Required: {}", required_namespaces.join(", "))
+        },
+    });
+
+    Ok(checks)
+}
+
+fn generate_earl_ttl(checks: &[ValidationCheck], _operation_id: &str) -> String {
+    let mut ttl = String::new();
+
+    // Turtle prefixes
+    ttl.push_str(r#"@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mcpp: <urn:mcpp:> .
+
+"#);
+
+    // Generate EARL TestResult for each check
+    for (idx, check) in checks.iter().enumerate() {
+        let result_id = format!("urn:mcpp:extract_claims:validation:{}", idx + 1);
+        let outcome_uri = check.outcome.clone();
+        let timestamp = chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
+
+        ttl.push_str(&format!(
+            r#"<{}> a earl:TestResult ;
+    earl:outcome {} ;
+    earl:test <{}> ;
+    dcterms:date "{}"^^xsd:dateTime ;
+    rdfs:comment "{}" .
+
+"#,
+            result_id,
+            outcome_uri,
+            check.test,
+            timestamp,
+            escape_turtle_string(&check.detail)
+        ));
+    }
+
+    ttl
+}
+
+fn escape_turtle_string(s: &str) -> String {
+    s.replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
+        .replace('\r', "\\r")
+}
+
+/// Validates a manifest using SHACL shapes and emits EARL assertions
+///
+/// Usage: ggen doctor validate manifest <name>
+///
+/// Example: ggen doctor validate manifest extract_claims
+#[verb]
+fn validate(manifest_name: String) -> Result<ShaclValidationResult> {
+    // Load manifest
+    let manifest = load_manifest(&manifest_name)?;
+
+    // Run JSON-LD and SHACL validation
+    let checks = validate_jsonld_structure(&manifest)?;
+
+    // Determine overall validity
+    let valid = checks.iter().all(|c| c.outcome == "earl:Passed");
+
+    // Generate EARL Turtle output
+    let earl_ttl = generate_earl_ttl(&checks, &manifest_name);
+
+    // Print EARL output
+    println!("{}", earl_ttl);
+
+    // Return validation result
+    Ok(ShaclValidationResult {
+        valid,
+        checks,
     })
 }

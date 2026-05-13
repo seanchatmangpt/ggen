@@ -38,6 +38,7 @@ pub mod capability;
 pub mod construct;
 pub mod doctor;
 pub mod envelope;
+pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
 pub mod marketplace;
 pub mod ontology;
