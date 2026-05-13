@@ -83,6 +83,7 @@ mod check_result_tests {
             name: "Rust".to_string(),
             status: CheckStatus::Ok,
             message: "Installed: rustc 1.91.1".to_string(),
+            recovery: None,
         };
 
         assert_eq!(result.name, "Rust");
@@ -97,6 +98,7 @@ mod check_result_tests {
             name: "Git".to_string(),
             status: CheckStatus::Error,
             message: "Not installed".to_string(),
+            recovery: None,
         };
 
         assert_eq!(result.name, "Git");
@@ -111,6 +113,7 @@ mod check_result_tests {
             name: "Cargo".to_string(),
             status: CheckStatus::Warning,
             message: "Version outdated".to_string(),
+            recovery: None,
         };
 
         assert!(matches!(result.status, CheckStatus::Warning));
@@ -123,6 +126,7 @@ mod check_result_tests {
             name: "Test".to_string(),
             status: CheckStatus::Ok,
             message: "Test message".to_string(),
+            recovery: None,
         };
 
         let json = serde_json::to_string(&result).unwrap();
@@ -280,11 +284,13 @@ mod doctor_result_tests {
                     name: "Rust".to_string(),
                     status: CheckStatus::Ok,
                     message: "Installed".to_string(),
+                    recovery: None,
                 },
                 CheckResult {
                     name: "Cargo".to_string(),
                     status: CheckStatus::Ok,
                     message: "Installed".to_string(),
+                    recovery: None,
                 },
             ],
             environment: None,
@@ -491,6 +497,7 @@ mod integration_tests {
                 name: "Rust".to_string(),
                 status: CheckStatus::Ok,
                 message: "Installed: rustc 1.91.1".to_string(),
+                recovery: None,
             },
             CheckResult {
                 name: "Cargo".to_string(),
