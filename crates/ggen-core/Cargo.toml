@@ -90,6 +90,9 @@ testcontainers = "0.25"
 anyhow = "1.0"
 mockito = "1.7"
 
+[dependencies.ggen-config]
+path = "../ggen-config"
+
 [package.version]
 workspace = true
 

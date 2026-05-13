@@ -3,13 +3,12 @@
 //! This module provides functionality for loading and parsing ggen.toml files.
 
 use crate::config_lib::{ConfigError, GgenConfig, Result};
-use crate::utils::SafePath;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Configuration loader and parser
 pub struct ConfigLoader {
-    path: SafePath,
+    path: PathBuf,
 }
 
 impl ConfigLoader {
@@ -23,11 +22,10 @@ impl ConfigLoader {
     ///
     /// Returns an error if the file doesn't exist or path validation fails
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let path = SafePath::new_absolute(path.as_ref())
-            .map_err(|e| ConfigError::Validation(format!("Path validation failed: {e}")))?;
+        let path = path.as_ref().to_path_buf();
 
         if !path.exists() {
-            return Err(ConfigError::FileNotFound(path.as_path_buf()));
+            return Err(ConfigError::FileNotFound(path));
         }
         Ok(Self { path })
     }
@@ -129,27 +127,26 @@ impl ConfigLoader {
     ///
     /// # Errors
     ///
-    /// Returns an error if no configuration file is found or path validation fails
-    pub fn find_config_file() -> Result<SafePath> {
-        let mut current = SafePath::current_dir().map_err(|e| {
-            ConfigError::Validation(format!("Failed to get current directory: {e}"))
-        })?;
+    /// Returns an error if no configuration file is found
+    pub fn find_config_file() -> Result<PathBuf> {
+        let mut current = std::env::current_dir()
+            .map_err(|e| ConfigError::Validation(format!("Failed to get current directory: {e}")))?;
 
         loop {
-            let candidate = current
-                .join("ggen.toml")
-                .map_err(|e| ConfigError::Validation(format!("Path join failed: {e}")))?;
+            let candidate = current.join("ggen.toml");
 
             if candidate.exists() {
                 return Ok(candidate);
             }
 
             // Try parent directory
-            current = current.parent().map_err(|_e: crate::utils::error::Error| {
-                ConfigError::FileNotFound(std::path::PathBuf::from(
+            if let Some(parent) = current.parent() {
+                current = parent.to_path_buf();
+            } else {
+                return Err(ConfigError::FileNotFound(PathBuf::from(
                     "ggen.toml (searched all parent directories)",
-                ))
-            })?;
+                )));
+            }
         }
     }
 

@@ -6,7 +6,7 @@
 //! - Version constraints and lock files
 //! - Multi-language code generation configuration
 
-use crate::utils::error::Result;
+use crate::config_lib::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
@@ -189,33 +189,33 @@ impl OntologyConfig {
     /// Load from TOML file section
     pub fn from_toml_section(toml_content: &str) -> Result<Self> {
         toml::from_str(toml_content).map_err(|e| {
-            crate::utils::error::Error::new(&format!("Failed to parse ontology config: {}", e))
+            crate::config_lib::ConfigError::Validation(format!("Failed to parse ontology config: {}", e))
         })
     }
 
     /// Save to TOML format
     pub fn to_toml(&self) -> Result<String> {
         toml::to_string_pretty(self).map_err(|e| {
-            crate::utils::error::Error::new(&format!("Failed to serialize ontology config: {}", e))
+            crate::config_lib::ConfigError::Validation(format!("Failed to serialize ontology config: {}", e))
         })
     }
 
     /// Validate configuration
     pub fn validate(&self) -> Result<()> {
         if self.packs.is_empty() {
-            return Err(crate::utils::error::Error::new(
-                "No ontology packs configured",
+            return Err(crate::config_lib::ConfigError::Validation(
+                "No ontology packs configured".to_string(),
             ));
         }
 
         // Validate pack references
         for pack in &self.packs {
             if pack.name.is_empty() {
-                return Err(crate::utils::error::Error::new("Pack name cannot be empty"));
+                return Err(crate::config_lib::ConfigError::Validation("Pack name cannot be empty".to_string()));
             }
 
             if pack.version.is_empty() {
-                return Err(crate::utils::error::Error::new(&format!(
+                return Err(crate::config_lib::ConfigError::Validation(format!(
                     "Version for pack '{}' cannot be empty",
                     pack.name
                 )));
@@ -225,7 +225,7 @@ impl OntologyConfig {
         // Validate targets
         for (name, target) in &self.targets {
             if target.language.is_empty() {
-                return Err(crate::utils::error::Error::new(&format!(
+                return Err(crate::config_lib::ConfigError::Validation(format!(
                     "Language for target '{}' cannot be empty",
                     name
                 )));

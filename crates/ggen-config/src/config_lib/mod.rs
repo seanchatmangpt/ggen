@@ -41,7 +41,7 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::missing_panics_doc)]
 
-mod error;
+pub mod error;
 mod parser;
 mod schema;
 mod validator;

@@ -108,16 +108,16 @@ impl Default for MarketplaceSettings {
 
 impl TemplateConfig {
     /// Load configuration from file
-    pub fn load(path: &PathBuf) -> crate::utils::error::Result<Self> {
+    pub fn load(path: &PathBuf) -> crate::config_lib::Result<Self> {
         let content = std::fs::read_to_string(path)?;
         let config: Self = toml::from_str(&content)?;
         Ok(config)
     }
 
     /// Save configuration to file
-    pub fn save(&self, path: &PathBuf) -> crate::utils::error::Result<()> {
+    pub fn save(&self, path: &PathBuf) -> crate::config_lib::Result<()> {
         let content = toml::to_string_pretty(self).map_err(|e| {
-            crate::utils::error::Error::new(&format!("Failed to serialize config: {}", e))
+            crate::config_lib::ConfigError::Validation(format!("Failed to serialize config: {}", e))
         })?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;

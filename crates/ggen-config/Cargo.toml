@@ -1,0 +1,32 @@
+[package]
+name = "ggen-config"
+description = "Configuration parser and validator for ggen.toml files"
+readme = "README.md"
+keywords = ["config", "toml", "parsing", "validation"]
+categories = ["development-tools", "command-line-utilities"]
+
+[package.version]
+workspace = true
+
+[package.authors]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.repository]
+workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.9"
+thiserror = "2.0"
+tokio = { version = "1.47", features = ["sync"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tempfile = "3"

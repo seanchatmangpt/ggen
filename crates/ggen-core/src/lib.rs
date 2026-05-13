@@ -137,8 +137,6 @@ pub mod canonical;
 pub mod cli_generator;
 pub mod codegen;
 pub mod codegen_lib;
-pub mod config;
-pub mod config_lib;
 pub mod delta;
 pub mod domain;
 pub mod e2e_tests;
@@ -223,7 +221,9 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
-pub use config::LockfileManager;
+// Re-export config types from ggen-config crate for backward compatibility
+pub use ggen_config::{config, config_lib, ConfigError, ConfigLoader, GgenConfig, Result};
+pub use ggen_config::config::LockfileManager;
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};

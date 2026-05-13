@@ -18,7 +18,7 @@
 //! use crate::config::TemplateConfig;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> crate::config_lib::Result<()> {
 //! let config = TemplateConfig {
 //!     search_paths: vec![PathBuf::from("templates")],
 //!     default_variables: std::collections::HashMap::new(),
