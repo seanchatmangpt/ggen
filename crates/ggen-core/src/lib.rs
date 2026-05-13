@@ -128,9 +128,6 @@
     clippy::if_same_then_else,
     clippy::for_kv_map
 )]
-pub mod a2a;
-pub mod a2a_generated;
-pub mod a2a_registry;
 pub mod audit;
 pub mod cache;
 pub mod canonical;
@@ -221,12 +218,13 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
-// Re-export config types from ggen-config crate for backward compatibility
-pub use ggen_config::{config, config_lib, ConfigError, ConfigLoader, GgenConfig, Result};
-pub use ggen_config::config::LockfileManager;
+// Re-export A2A types from ggen-a2a-mcp crate for backward compatibility
+pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
+pub use ggen_config::config::LockfileManager;
+pub use ggen_config::{config, config_lib, ConfigError, ConfigLoader, GgenConfig, Result};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
 pub use graph::Graph;

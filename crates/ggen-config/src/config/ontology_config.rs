@@ -189,14 +189,20 @@ impl OntologyConfig {
     /// Load from TOML file section
     pub fn from_toml_section(toml_content: &str) -> Result<Self> {
         toml::from_str(toml_content).map_err(|e| {
-            crate::config_lib::ConfigError::Validation(format!("Failed to parse ontology config: {}", e))
+            crate::config_lib::ConfigError::Validation(format!(
+                "Failed to parse ontology config: {}",
+                e
+            ))
         })
     }
 
     /// Save to TOML format
     pub fn to_toml(&self) -> Result<String> {
         toml::to_string_pretty(self).map_err(|e| {
-            crate::config_lib::ConfigError::Validation(format!("Failed to serialize ontology config: {}", e))
+            crate::config_lib::ConfigError::Validation(format!(
+                "Failed to serialize ontology config: {}",
+                e
+            ))
         })
     }
 
@@ -211,7 +217,9 @@ impl OntologyConfig {
         // Validate pack references
         for pack in &self.packs {
             if pack.name.is_empty() {
-                return Err(crate::config_lib::ConfigError::Validation("Pack name cannot be empty".to_string()));
+                return Err(crate::config_lib::ConfigError::Validation(
+                    "Pack name cannot be empty".to_string(),
+                ));
             }
 
             if pack.version.is_empty() {

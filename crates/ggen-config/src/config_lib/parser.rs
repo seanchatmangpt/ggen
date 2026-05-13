@@ -129,8 +129,9 @@ impl ConfigLoader {
     ///
     /// Returns an error if no configuration file is found
     pub fn find_config_file() -> Result<PathBuf> {
-        let mut current = std::env::current_dir()
-            .map_err(|e| ConfigError::Validation(format!("Failed to get current directory: {e}")))?;
+        let mut current = std::env::current_dir().map_err(|e| {
+            ConfigError::Validation(format!("Failed to get current directory: {e}"))
+        })?;
 
         loop {
             let candidate = current.join("ggen.toml");

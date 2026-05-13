@@ -1,0 +1,44 @@
+[package]
+name = "ggen-a2a-mcp"
+description = "A2A protocol and MCP server for agent-to-agent communication"
+readme = "README.md"
+keywords = ["a2a", "mcp", "agent", "protocol", "communication"]
+categories = ["network-programming", "development-tools"]
+
+[package.version]
+workspace = true
+
+[package.authors]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.repository]
+workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+uuid = { version = "1.18", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+tracing = "0.1"
+
+[dependencies.tokio]
+workspace = true
+
+[dependencies.reqwest]
+workspace = true
+features = ["json"]
+
+[features]
+http-adapter = []
+default = ["http-adapter"]
+
+[dev-dependencies]
+tempfile = "3"

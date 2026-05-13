@@ -93,6 +93,9 @@ mockito = "1.7"
 [dependencies.ggen-config]
 path = "../ggen-config"
 
+[dependencies.ggen-a2a-mcp]
+path = "../ggen-a2a-mcp"
+
 [package.version]
 workspace = true
 

@@ -134,7 +134,10 @@ impl LockfileManager {
         }
 
         let content = toml::to_string_pretty(lockfile).map_err(|e| {
-            crate::config_lib::ConfigError::Validation(format!("Failed to serialize lock file: {}", e))
+            crate::config_lib::ConfigError::Validation(format!(
+                "Failed to serialize lock file: {}",
+                e
+            ))
         })?;
 
         std::fs::write(path, content).map_err(|e| {
