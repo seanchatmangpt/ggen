@@ -1,6 +1,6 @@
 [package]
 name = "prolog8"
-version = "26.5.5"
+version = "26.5.12"
 edition = "2021"
 
 [dependencies]
