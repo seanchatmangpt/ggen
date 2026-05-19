@@ -27,6 +27,7 @@ members = [
   "crates/ggen-marketplace",
   "crates/ggen-core",
   "crates/ggen-cli",
+  "crates/ggen-prompt-mfg",
   "crates/prolog8",
   ]
 exclude = []

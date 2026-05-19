@@ -1,6 +1,7 @@
 [package]
+publish = false
 name = "prolog8"
-version = "26.5.12"
+version.workspace = true
 edition = "2021"
 
 [dependencies]

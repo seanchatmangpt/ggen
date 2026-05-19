@@ -32,7 +32,7 @@ pub fn route(payload: Option<String>) -> VerbResult<RouteOutput> {
     use ggen_core::a2a_generated::handlers::HandlerFactory;
     use tracing::{info, info_span, Instrument};
 
-    let payload_str = payload.unwrap_or_else(|| "{\"test\": \"v26.5.4\"}".to_string());
+    let payload_str = payload.unwrap_or_else(|| "{\"test\": \"data\"}".to_string());
 
     runtime::block_on(async move {
         // 1. Boundary Crossing: Instantiate the REAL router from factory
