@@ -191,12 +191,10 @@ impl SystemHealthReport {
     /// Recalculate overall health status
     fn recalculate_health(&mut self) {
         let total_checks = self.metrics.checks_passed + self.metrics.checks_failed;
-        if total_checks == 0 {
-            self.metrics.health_score = 100;
-        } else {
-            self.metrics.health_score =
-                ((self.metrics.checks_passed * 100) / total_checks).min(100);
-        }
+        self.metrics.health_score = (self.metrics.checks_passed * 100)
+            .checked_div(total_checks)
+            .unwrap_or(100)
+            .min(100);
 
         // Determine status based on issues and health score
         self.status = if self.metrics.critical_issues > 0 {

@@ -713,7 +713,8 @@ fn load_manifest(name: &str) -> Result<ManifestData> {
         return Err(NounVerbError::execution_error(format!(
             "Manifest not found at {}",
             state_path
-        )))?;
+        ))
+        .into());
     }
 
     let content = std::fs::read_to_string(path)
@@ -789,7 +790,7 @@ fn validate_jsonld_structure(manifest: &ManifestData) -> Result<Vec<ValidationCh
     });
 
     // Check 4: Required namespaces present in @context
-    let required_namespaces = vec!["mcpp", "prov", "codemeta", "dcterms", "earl", "schema"];
+    let required_namespaces = ["mcpp", "prov", "codemeta", "dcterms", "earl", "schema"];
     let namespaces_present = if let Some(JsonValue::Object(ctx)) = &manifest.context {
         required_namespaces.iter().all(|ns| {
             let ns_str = ns.to_string();
