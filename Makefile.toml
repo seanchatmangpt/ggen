@@ -50,7 +50,7 @@ args = ["10s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen"]
 description = "Build in release mode"
 command = "timeout"
 args = [
-  "30s",
+  "600s",
   "cargo",
   "build",
   "--release",
