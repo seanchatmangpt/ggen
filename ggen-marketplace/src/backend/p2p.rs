@@ -131,13 +131,13 @@ impl P2PRegistry {
             .heartbeat_interval(std::time::Duration::from_secs(10))
             .validation_mode(gossipsub::ValidationMode::Strict)
             .build()
-            .map_err(|e| MarketplaceError::network_error(format!("Gossipsub config error: {}", e)))?;
+            .map_err(|e| MarketplaceError::network_error_simple(format!("Gossipsub config error: {}", e)))?;
 
         let gossipsub = gossipsub::Behaviour::new(
             gossipsub::MessageAuthenticity::Signed(local_key.clone()),
             gossipsub_config,
         )
-        .map_err(|e| MarketplaceError::network_error(format!("Failed to create gossipsub: {}", e)))?;
+        .map_err(|e| MarketplaceError::network_error_simple(format!("Failed to create gossipsub: {}", e)))?;
 
         // Create Identify protocol
         let identify = identify::Behaviour::new(identify::Config::new(
@@ -160,9 +160,9 @@ impl P2PRegistry {
                 libp2p::noise::Config::new,
                 libp2p::yamux::Config::default,
             )
-            .map_err(|e| MarketplaceError::network_error(format!("Failed to configure TCP: {}", e)))?
+            .map_err(|e| MarketplaceError::network_error_simple(format!("Failed to configure TCP: {}", e)))?
             .with_behaviour(|_| behaviour)
-            .map_err(|e| MarketplaceError::network_error(format!("Failed to create behavior: {}", e)))?
+            .map_err(|e| MarketplaceError::network_error_simple(format!("Failed to create behavior: {}", e)))?
             .build();
 
         let packages_topic = gossipsub::IdentTopic::new(&config.packages_topic);
@@ -184,7 +184,7 @@ impl P2PRegistry {
         for addr in &self.config.listen_addresses {
             swarm
                 .listen_on(addr.clone())
-                .map_err(|e| MarketplaceError::network_error(format!("Failed to listen: {}", e)))?;
+                .map_err(|e| MarketplaceError::network_error_simple(format!("Failed to listen: {}", e)))?;
         }
         Ok(())
     }
@@ -196,7 +196,7 @@ impl P2PRegistry {
             .behaviour_mut()
             .gossipsub
             .subscribe(&self.packages_topic)
-            .map_err(|e| MarketplaceError::network_error(format!("Failed to subscribe: {}", e)))?;
+            .map_err(|e| MarketplaceError::network_error_simple(format!("Failed to subscribe: {}", e)))?;
         Ok(())
     }
 
@@ -207,7 +207,7 @@ impl P2PRegistry {
             .behaviour_mut()
             .kademlia
             .bootstrap()
-            .map_err(|e| MarketplaceError::network_error(format!("Bootstrap failed: {}", e)))?;
+            .map_err(|e| MarketplaceError::network_error_simple(format!("Bootstrap failed: {}", e)))?;
         Ok(())
     }
 
@@ -221,7 +221,7 @@ impl P2PRegistry {
             .behaviour_mut()
             .gossipsub
             .publish(self.packages_topic.clone(), announcement)
-            .map_err(|e| MarketplaceError::network_error(format!("Failed to publish: {}", e)))?;
+            .map_err(|e| MarketplaceError::network_error_simple(format!("Failed to publish: {}", e)))?;
 
         Ok(())
     }
@@ -244,7 +244,7 @@ impl P2PRegistry {
             .behaviour_mut()
             .kademlia
             .put_record(record, kad::Quorum::One)
-            .map_err(|e| MarketplaceError::network_error(format!("DHT put failed: {}", e)))?;
+            .map_err(|e| MarketplaceError::network_error_simple(format!("DHT put failed: {}", e)))?;
 
         Ok(())
     }

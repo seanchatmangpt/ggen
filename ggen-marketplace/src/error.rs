@@ -196,4 +196,59 @@ impl MarketplaceError {
             reason: reason.into(),
         }
     }
+
+    pub fn serialize_error(operation: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::SerializationError {
+            operation: operation.into(),
+            source: Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                context.into(),
+            )),
+        }
+    }
+
+    pub fn parse_error(operation: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::SerializationError {
+            operation: operation.into(),
+            source: Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                context.into(),
+            )),
+        }
+    }
+
+    pub fn not_found(resource: impl Into<String>, id: impl Into<String>) -> Self {
+        Self::PackageNotFound {
+            package_id: id.into(),
+            context: format!("{} not found", resource.into()),
+        }
+    }
+
+    pub fn already_exists(operation: impl Into<String>, reason: impl Into<String>) -> Self {
+        Self::InvalidPackage {
+            reason: reason.into(),
+            context: format!("Already exists: {}", operation.into()),
+        }
+    }
+
+    pub fn network_error(reason: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::IoError {
+            operation: context.into(),
+            source: std::io::Error::new(
+                std::io::ErrorKind::ConnectionRefused,
+                reason.into(),
+            ),
+        }
+    }
+
+    /// Create a network error with just a reason (no context)
+    pub fn network_error_simple(reason: impl Into<String>) -> Self {
+        Self::IoError {
+            operation: "network".to_string(),
+            source: std::io::Error::new(
+                std::io::ErrorKind::ConnectionRefused,
+                reason.into(),
+            ),
+        }
+    }
 }

@@ -1,7 +1,10 @@
 use crate::error::{MarketplaceError, Result};
 use crate::models::signature::{KeyPair, PublicKey, Signature, SignatureAlgorithm};
 use crate::traits::CryptoVerifier;
+
+#[cfg(feature = "crypto")]
 use ed25519_dalek::{Signer, Verifier, SigningKey, VerifyingKey};
+#[cfg(feature = "crypto")]
 use rand::rngs::OsRng;
 
 /// Ed25519 cryptographic verifier
@@ -73,6 +76,7 @@ impl Ed25519Verifier {
     }
 
     /// Convert bytes to SigningKey with proper error handling
+    #[cfg(feature = "crypto")]
     fn bytes_to_signing_key(&self, private_key_bytes: &[u8]) -> Result<SigningKey> {
         if private_key_bytes.len() != 32 {
             return Err(MarketplaceError::verification_error(
@@ -91,6 +95,7 @@ impl Ed25519Verifier {
     }
 
     /// Convert bytes to VerifyingKey with proper error handling
+    #[cfg(feature = "crypto")]
     fn bytes_to_verifying_key(&self, public_key_bytes: &[u8]) -> Result<VerifyingKey> {
         if public_key_bytes.len() != 32 {
             return Err(MarketplaceError::verification_error(
@@ -121,6 +126,7 @@ impl Default for Ed25519Verifier {
 }
 
 impl CryptoVerifier for Ed25519Verifier {
+    #[cfg(feature = "crypto")]
     fn sign(&self, content: &[u8]) -> Result<Signature> {
         // Ensure we have a keypair for signing
         let keypair = self.keypair.as_ref().ok_or_else(|| {
@@ -143,7 +149,15 @@ impl CryptoVerifier for Ed25519Verifier {
             keypair.public_key.clone(),
         ))
     }
+    #[cfg(not(feature = "crypto"))]
+    fn sign(&self, _content: &[u8]) -> Result<Signature> {
+        Err(MarketplaceError::verification_error(
+            "Crypto feature not enabled",
+            "Ed25519 signing",
+        ))
+    }
 
+    #[cfg(feature = "crypto")]
     fn verify(&self, content: &[u8], signature: &Signature) -> Result<bool> {
         // Validate signature algorithm
         if signature.algorithm != SignatureAlgorithm::Ed25519 {
@@ -181,22 +195,39 @@ impl CryptoVerifier for Ed25519Verifier {
             Err(_) => Ok(false), // Return false for invalid signatures, not an error
         }
     }
+    #[cfg(not(feature = "crypto"))]
+    fn verify(&self, _content: &[u8], _signature: &Signature) -> Result<bool> {
+        Err(MarketplaceError::verification_error(
+            "Crypto feature not enabled",
+            "Ed25519 verification",
+        ))
+    }
 
     fn generate_keypair(&self) -> Result<KeyPair> {
-        // Generate a new random keypair using OsRng for cryptographic security
-        let signing_key = SigningKey::generate(&mut OsRng);
-        let verifying_key = signing_key.verifying_key();
+        #[cfg(feature = "crypto")]
+        {
+            // Generate a new random keypair using OsRng for cryptographic security
+            let signing_key = SigningKey::generate(&mut OsRng);
+            let verifying_key = signing_key.verifying_key();
 
-        // Extract key bytes
-        let private_key_bytes = signing_key.to_bytes().to_vec();
-        let public_key_bytes = verifying_key.to_bytes().to_vec();
+            // Extract key bytes
+            let private_key_bytes = signing_key.to_bytes().to_vec();
+            let public_key_bytes = verifying_key.to_bytes().to_vec();
 
-        // Create KeyPair
-        Ok(KeyPair::new(
-            SignatureAlgorithm::Ed25519,
-            private_key_bytes,
-            public_key_bytes,
-        ))
+            // Create KeyPair
+            Ok(KeyPair::new(
+                SignatureAlgorithm::Ed25519,
+                private_key_bytes,
+                public_key_bytes,
+            ))
+        }
+        #[cfg(not(feature = "crypto"))]
+        {
+            Err(MarketplaceError::verification_error(
+                "Crypto feature not enabled",
+                "Ed25519 keypair generation",
+            ))
+        }
     }
 
     fn import_public_key(&self, pem: &str) -> Result<PublicKey> {

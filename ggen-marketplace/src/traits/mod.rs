@@ -9,10 +9,10 @@ pub mod storage;
 pub mod search;
 pub mod crypto;
 
-pub use registry::Registry;
-pub use storage::PackageStore;
-pub use search::SearchEngine;
-pub use crypto::CryptoVerifier;
+pub use registry::RegistryExt;
+pub use storage::PackageStoreExt;
+pub use search::SearchEngineExt;
+pub use crypto::CryptoVerifierExt;
 
 /// Trait for package discovery and management
 #[async_trait]
@@ -68,7 +68,7 @@ pub trait PackageStore: Send + Sync {
 }
 
 /// Metadata about stored content
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ContentMetadata {
     pub size: u64,
     pub content_type: Option<String>,
