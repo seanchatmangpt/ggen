@@ -4,7 +4,7 @@
 //! Passes must be idempotent and deterministic.
 
 use crate::graph::Graph;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::PathBuf;

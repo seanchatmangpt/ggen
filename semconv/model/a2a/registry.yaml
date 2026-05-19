@@ -1,9 +1,9 @@
 groups:
-  - id: registry.ggen.a2a
+  - id: registry.mcpp.a2a
     type: attribute_group
     stability: development
     display_name: A2A Protocol Attributes
-    brief: Attributes for A2A agent-to-agent protocol operations in ggen.
+    brief: Attributes for A2A agent-to-agent protocol operations in mcpp.
     attributes:
       - id: a2a.message_id
         type: string
@@ -21,13 +21,13 @@ groups:
         type: string
         stability: development
         brief: Source agent identifier.
-        examples: ["agent-alpha", "ggen-compiler"]
+        examples: ["agent-alpha", "mcpp-compiler"]
         requirement_level: recommended
       - id: a2a.target
         type: string
         stability: development
         brief: Target agent identifier.
-        examples: ["agent-beta", "ggen-validator"]
+        examples: ["agent-beta", "mcpp-validator"]
         requirement_level: recommended
       - id: a2a.causation_chain
         type: string[]

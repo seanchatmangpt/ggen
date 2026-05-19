@@ -5,7 +5,7 @@
 Run all end-to-end tests:
 
 ```bash
-cd /Users/sac/ggen/crates/ggen-yawl
+cd ~/.ggen/mcpp/crates/mcpp-yawl
 cargo test --test e2e_complete_system_test
 ```
 
@@ -294,7 +294,7 @@ Exit codes:
 
 - **Test Duration:** ~100ms for all 3 tests
 - **File Generation:** <1s for all 22 files
-- **Compilation:** ~5s (including ggen-codegen)
+- **Compilation:** ~5s (including mcpp-codegen)
 
 ## Quality Metrics
 

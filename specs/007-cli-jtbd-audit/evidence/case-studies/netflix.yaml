@@ -14,25 +14,25 @@ scale_requirements:
   latency_slo: "<30min for schema evolution"
 
 required_commands:
-  - command: "ggen ontology init"
+  - command: "mcpp ontology init"
     purpose: "Initialize content ontology structure"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen marketplace validate"
+  - command: "mcpp marketplace validate"
     purpose: "Validate schema evolution rules"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen template lint"
+  - command: "mcpp template lint"
     purpose: "Lint templates for backward compatibility"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen template new"
+  - command: "mcpp template new"
     purpose: "Create new content type templates"
     criticality: P2
     current_support: pending
@@ -45,16 +45,16 @@ validator: claude-code
 test_scenarios:
   - scenario: "Backward-compatible schema evolution"
     steps:
-      - "ggen ontology init content-taxonomy-v2"
-      - "ggen template lint --check-compatibility content-v1.tmpl content-v2.tmpl"
-      - "ggen marketplace validate --package_id content-schema"
+      - "mcpp ontology init content-taxonomy-v2"
+      - "mcpp template lint --check-compatibility content-v1.tmpl content-v2.tmpl"
+      - "mcpp marketplace validate --package_id content-schema"
     expected: "Schema changes validated for backward compatibility"
     actual: pending
 
   - scenario: "Content type extension"
     steps:
-      - "ggen template new --name interactive-content --base content.tmpl"
-      - "ggen template lint --strict interactive-content.tmpl"
+      - "mcpp template new --name interactive-content --base content.tmpl"
+      - "mcpp template lint --strict interactive-content.tmpl"
     expected: "New content type extends base without breaking changes"
     actual: pending
 

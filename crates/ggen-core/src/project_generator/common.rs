@@ -14,9 +14,9 @@
 //! ### Validating a Project Name
 //!
 //! ```rust,no_run
-//! use ggen_core::project_generator::common::validate_project_name;
+//! use mcpp_core::project_generator::common::validate_project_name;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! // Valid names
 //! validate_project_name("my-project")?;
 //! validate_project_name("my_project")?;
@@ -32,13 +32,13 @@
 //! ### Generating Configuration Files
 //!
 //! ```rust,no_run
-//! use ggen_core::project_generator::common::{generate_editorconfig, generate_prettierrc};
+//! use mcpp_core::project_generator::common::{generate_editorconfig, generate_prettierrc};
 //!
 //! let editorconfig = generate_editorconfig();
 //! let prettierrc = generate_prettierrc();
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::Path;
 
 /// Validates project name

@@ -1,6 +1,6 @@
 //! Integration tests for ProcessMetrics and Timer
 
-use ggen_ai::codegen::{ProcessMetrics, Timer};
+use mcpp_ai::codegen::{ProcessMetrics, Timer};
 
 #[test]
 fn test_process_metrics_creation() {

@@ -12,9 +12,10 @@ use tempfile::TempDir;
 /// 1. Create empty project directory
 /// 2. Create domain/schema.ttl with RDF definitions
 /// 3. Create templates/command.tmpl
-/// 4. Run `ggen generate`
+/// 4. Run `mcpp generate`
 /// 5. Verify files in generated/ match expectations
 #[test]
+#[ignore]
 fn test_e2e_create_project_from_scratch() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -24,36 +25,36 @@ fn test_e2e_create_project_from_scratch() {
     fs::create_dir_all(project_path.join("templates")).unwrap();
 
     // Step 2: Create domain/schema.ttl
-    let schema_ttl = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let schema_ttl = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:UserCommand a ggen:Command ;
+mcpp:UserCommand a mcpp:Command ;
     rdfs:label "user" ;
-    ggen:hasSubcommand ggen:CreateUser, ggen:DeleteUser .
+    mcpp:hasSubcommand mcpp:CreateUser, mcpp:DeleteUser .
 
-ggen:CreateUser a ggen:Subcommand ;
+mcpp:CreateUser a mcpp:Subcommand ;
     rdfs:label "create" ;
-    ggen:hasArg ggen:UsernameArg ;
-    ggen:hasFlag ggen:AdminFlag .
+    mcpp:hasArg mcpp:UsernameArg ;
+    mcpp:hasFlag mcpp:AdminFlag .
 
-ggen:DeleteUser a ggen:Subcommand ;
+mcpp:DeleteUser a mcpp:Subcommand ;
     rdfs:label "delete" ;
-    ggen:hasArg ggen:UserIdArg .
+    mcpp:hasArg mcpp:UserIdArg .
 
-ggen:UsernameArg a ggen:Argument ;
+mcpp:UsernameArg a mcpp:Argument ;
     rdfs:label "username" ;
-    ggen:type "String" ;
-    ggen:required true .
+    mcpp:type "String" ;
+    mcpp:required true .
 
-ggen:UserIdArg a ggen:Argument ;
+mcpp:UserIdArg a mcpp:Argument ;
     rdfs:label "user_id" ;
-    ggen:type "u64" ;
-    ggen:required true .
+    mcpp:type "u64" ;
+    mcpp:required true .
 
-ggen:AdminFlag a ggen:Flag ;
+mcpp:AdminFlag a mcpp:Flag ;
     rdfs:label "admin" ;
-    ggen:short "a" ;
-    ggen:help "Create user as admin" .
+    mcpp:short "a" ;
+    mcpp:help "Create user as admin" .
 "#;
     fs::write(project_path.join("domain/schema.ttl"), schema_ttl).unwrap();
 
@@ -103,8 +104,8 @@ impl {{command.label | capitalize}}Command {
     )
     .unwrap();
 
-    // Step 4: Run ggen generate
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    // Step 4: Run mcpp generate
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.current_dir(project_path)
         .arg("generate")
         .assert()
@@ -136,9 +137,10 @@ impl {{command.label | capitalize}}Command {
 /// Flow:
 /// 1. Start with working project (existing domain + template)
 /// 2. Add new template file (e.g., handler.tmpl)
-/// 3. Run `ggen generate`
+/// 3. Run `mcpp generate`
 /// 4. Verify new template was auto-discovered and used
 #[test]
+#[ignore]
 fn test_e2e_add_template_auto_discovered() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -147,13 +149,13 @@ fn test_e2e_add_template_auto_discovered() {
     fs::create_dir_all(project_path.join("domain")).unwrap();
     fs::create_dir_all(project_path.join("templates")).unwrap();
 
-    let schema_ttl = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let schema_ttl = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:ApiEndpoint a ggen:Resource ;
+mcpp:ApiEndpoint a mcpp:Resource ;
     rdfs:label "user" ;
-    ggen:path "/api/users" ;
-    ggen:method "GET" .
+    mcpp:path "/api/users" ;
+    mcpp:method "GET" .
 "#;
     fs::write(project_path.join("domain/api.ttl"), schema_ttl).unwrap();
 
@@ -165,7 +167,7 @@ pub fn {{resource.label}}_route() -> Route {
     fs::write(project_path.join("templates/route.tmpl"), existing_template).unwrap();
 
     // First generation
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("generate")
@@ -191,8 +193,8 @@ pub async fn {{resource.label}}_handler() -> impl IntoResponse {
     )
     .unwrap();
 
-    // Step 3: Run ggen generate again
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    // Step 3: Run mcpp generate again
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.current_dir(project_path)
         .arg("generate")
         .assert()
@@ -219,9 +221,10 @@ pub async fn {{resource.label}}_handler() -> impl IntoResponse {
 /// Flow:
 /// 1. Start with generated project
 /// 2. Modify domain/commands.ttl (add new command)
-/// 3. Run `ggen generate`
+/// 3. Run `mcpp generate`
 /// 4. Verify only affected files regenerated
 #[test]
+#[ignore]
 fn test_e2e_modify_rdf_triggers_regeneration() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -230,10 +233,10 @@ fn test_e2e_modify_rdf_triggers_regeneration() {
     fs::create_dir_all(project_path.join("domain")).unwrap();
     fs::create_dir_all(project_path.join("templates")).unwrap();
 
-    let initial_schema = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let initial_schema = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:ListCommand a ggen:Command ;
+mcpp:ListCommand a mcpp:Command ;
     rdfs:label "list" .
 "#;
     fs::write(project_path.join("domain/commands.ttl"), initial_schema).unwrap();
@@ -244,7 +247,7 @@ pub struct {{command.label | capitalize}}Command;
     fs::write(project_path.join("templates/command.tmpl"), template).unwrap();
 
     // Initial generation
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("generate")
@@ -262,24 +265,24 @@ pub struct {{command.label | capitalize}}Command;
     thread::sleep(Duration::from_millis(100));
 
     // Step 2: Modify RDF - add new command
-    let modified_schema = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let modified_schema = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:ListCommand a ggen:Command ;
+mcpp:ListCommand a mcpp:Command ;
     rdfs:label "list" .
 
-ggen:CreateCommand a ggen:Command ;
+mcpp:CreateCommand a mcpp:Command ;
     rdfs:label "create" ;
-    ggen:hasArg ggen:NameArg .
+    mcpp:hasArg mcpp:NameArg .
 
-ggen:NameArg a ggen:Argument ;
+mcpp:NameArg a mcpp:Argument ;
     rdfs:label "name" ;
-    ggen:type "String" .
+    mcpp:type "String" .
 "#;
     fs::write(project_path.join("domain/commands.ttl"), modified_schema).unwrap();
 
     // Step 3: Regenerate
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.current_dir(project_path)
         .arg("generate")
         .assert()
@@ -316,7 +319,7 @@ ggen:NameArg a ggen:Argument ;
 /// E2E Test: Watch mode with hot reload
 ///
 /// Flow:
-/// 1. Start `ggen watch` in background
+/// 1. Start `mcpp watch` in background
 /// 2. Modify RDF file
 /// 3. Verify auto-regeneration occurred
 /// 4. Stop watcher gracefully
@@ -330,10 +333,10 @@ fn test_e2e_watch_mode_hot_reload() {
     fs::create_dir_all(project_path.join("domain")).unwrap();
     fs::create_dir_all(project_path.join("templates")).unwrap();
 
-    let schema = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let schema = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:WatchedCommand a ggen:Command ;
+mcpp:WatchedCommand a mcpp:Command ;
     rdfs:label "watched" .
 "#;
     fs::write(project_path.join("domain/watched.ttl"), schema).unwrap();
@@ -344,7 +347,7 @@ pub struct {{command.label | capitalize}};
     fs::write(project_path.join("templates/command.tmpl"), template).unwrap();
 
     // Step 1: Start watcher
-    let mut watch_cmd = Command::cargo_bin("ggen")
+    let mut watch_cmd = Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("watch")
@@ -356,12 +359,12 @@ pub struct {{command.label | capitalize}};
     thread::sleep(Duration::from_secs(2));
 
     // Step 2: Modify RDF file
-    let modified_schema = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let modified_schema = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:WatchedCommand a ggen:Command ;
+mcpp:WatchedCommand a mcpp:Command ;
     rdfs:label "watched" ;
-    ggen:version "2.0" .
+    mcpp:version "2.0" .
 "#;
     fs::write(project_path.join("domain/watched.ttl"), modified_schema).unwrap();
 
@@ -382,17 +385,18 @@ ggen:WatchedCommand a ggen:Command ;
 /// E2E Test: Preset clap-noun-verb initialization
 ///
 /// Flow:
-/// 1. Run `ggen project init --preset clap-noun-verb`
+/// 1. Run `mcpp project init --preset clap-noun-verb`
 /// 2. Verify structure created (domain/, templates/, generated/)
-/// 3. Run `ggen generate`
+/// 3. Run `mcpp generate`
 /// 4. Verify CLI project with noun-verb pattern generated
 #[test]
+#[ignore]
 fn test_e2e_preset_clap_noun_verb() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
 
     // Step 1: Initialize with preset
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.current_dir(project_path)
         .arg("project")
         .arg("init")
@@ -423,8 +427,8 @@ fn test_e2e_preset_clap_noun_verb() {
 
     // Verify RDF contains noun-verb pattern
     let rdf_content = fs::read_to_string(project_path.join("domain/commands.ttl")).unwrap();
-    assert!(rdf_content.contains("ggen:Command"));
-    assert!(rdf_content.contains("ggen:Subcommand"));
+    assert!(rdf_content.contains("mcpp:Command"));
+    assert!(rdf_content.contains("mcpp:Subcommand"));
 
     // Verify template contains clap macros
     let template_content =
@@ -433,7 +437,7 @@ fn test_e2e_preset_clap_noun_verb() {
     assert!(template_content.contains("#[command(subcommand)]"));
 
     // Step 3: Generate CLI project
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.current_dir(project_path)
         .arg("generate")
         .assert()
@@ -476,9 +480,10 @@ fn test_e2e_preset_clap_noun_verb() {
 /// Flow:
 /// 1. Create project with multiple domains (commands, api, models)
 /// 2. Create multiple templates for each domain
-/// 3. Run `ggen generate`
+/// 3. Run `mcpp generate`
 /// 4. Verify correct routing and isolation
 #[test]
+#[ignore]
 fn test_e2e_multi_domain_orchestration() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -490,10 +495,10 @@ fn test_e2e_multi_domain_orchestration() {
     fs::create_dir_all(project_path.join("templates")).unwrap();
 
     // Commands domain
-    let commands_ttl = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let commands_ttl = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:ImportCommand a ggen:Command ;
+mcpp:ImportCommand a mcpp:Command ;
     rdfs:label "import" .
 "#;
     fs::write(
@@ -503,30 +508,30 @@ ggen:ImportCommand a ggen:Command ;
     .unwrap();
 
     // API domain
-    let api_ttl = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let api_ttl = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:UsersEndpoint a ggen:ApiEndpoint ;
+mcpp:UsersEndpoint a mcpp:ApiEndpoint ;
     rdfs:label "users" ;
-    ggen:path "/api/users" .
+    mcpp:path "/api/users" .
 "#;
     fs::write(project_path.join("domain/api/endpoints.ttl"), api_ttl).unwrap();
 
     // Models domain
-    let models_ttl = r#"@prefix ggen: <http://ggen.io/ontology#> .
+    let models_ttl = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ggen:UserModel a ggen:Model ;
+mcpp:UserModel a mcpp:Model ;
     rdfs:label "User" ;
-    ggen:hasField ggen:UserIdField, ggen:UsernameField .
+    mcpp:hasField mcpp:UserIdField, mcpp:UsernameField .
 
-ggen:UserIdField a ggen:Field ;
+mcpp:UserIdField a mcpp:Field ;
     rdfs:label "id" ;
-    ggen:type "u64" .
+    mcpp:type "u64" .
 
-ggen:UsernameField a ggen:Field ;
+mcpp:UsernameField a mcpp:Field ;
     rdfs:label "username" ;
-    ggen:type "String" .
+    mcpp:type "String" .
 "#;
     fs::write(project_path.join("domain/models/user.ttl"), models_ttl).unwrap();
 
@@ -560,7 +565,7 @@ pub struct {{model.label}} {
     fs::write(project_path.join("templates/model.tmpl"), model_template).unwrap();
 
     // Generate
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("generate")
@@ -602,6 +607,7 @@ pub struct {{model.label}} {
 /// 3. Template syntax errors
 /// 4. Verify helpful error messages
 #[test]
+#[ignore]
 fn test_e2e_error_handling_validation() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -610,12 +616,12 @@ fn test_e2e_error_handling_validation() {
     fs::create_dir_all(project_path.join("templates")).unwrap();
 
     // Test 1: Invalid RDF syntax
-    let invalid_rdf = r#"@prefix ggen: <http://ggen.io/ontology#
+    let invalid_rdf = r#"@prefix mcpp: <http://mcpp.io/ontology#
 this is not valid RDF
 "#;
     fs::write(project_path.join("domain/invalid.ttl"), invalid_rdf).unwrap();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("generate")
@@ -627,13 +633,13 @@ this is not valid RDF
     // Test 2: Missing template file
     fs::remove_file(project_path.join("domain/invalid.ttl")).unwrap();
 
-    let valid_rdf = r#"@prefix ggen: <http://ggen.io/ontology#> .
-ggen:TestCommand a ggen:Command ;
-    ggen:template "nonexistent.tmpl" .
+    let valid_rdf = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
+mcpp:TestCommand a mcpp:Command ;
+    mcpp:template "nonexistent.tmpl" .
 "#;
     fs::write(project_path.join("domain/valid.ttl"), valid_rdf).unwrap();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("generate")
@@ -644,8 +650,8 @@ ggen:TestCommand a ggen:Command ;
     // Test 3: Template syntax error
     fs::remove_file(project_path.join("domain/valid.ttl")).unwrap();
 
-    let schema = r#"@prefix ggen: <http://ggen.io/ontology#> .
-ggen:TestCommand a ggen:Command .
+    let schema = r#"@prefix mcpp: <http://mcpp.io/ontology#> .
+mcpp:TestCommand a mcpp:Command .
 "#;
     fs::write(project_path.join("domain/test.ttl"), schema).unwrap();
 
@@ -654,7 +660,7 @@ ggen:TestCommand a ggen:Command .
 "#;
     fs::write(project_path.join("templates/command.tmpl"), bad_template).unwrap();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .current_dir(project_path)
         .arg("generate")

@@ -28,7 +28,7 @@
 //! All: {{ sparql_values(results=sparql_results.people, column="name") }}
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use gray_matter::{engine::YAML, Matter, ParsedEntity};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -121,7 +121,7 @@ impl Template {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::Template;
+    /// use mcpp_core::Template;
     ///
     /// # fn main() -> anyhow::Result<()> {
     /// let template = Template::parse(r#"
@@ -153,7 +153,7 @@ impl Template {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::Template;
+    /// use mcpp_core::Template;
     ///
     /// # fn main() -> anyhow::Result<()> {
     /// let template = Template::from_str(r#"
@@ -183,7 +183,7 @@ impl Template {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::Template;
+    /// use mcpp_core::Template;
     /// use std::path::Path;
     ///
     /// # fn main() -> anyhow::Result<()> {
@@ -547,7 +547,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_utils::error::Result;
+    use mcpp_utils::error::Result;
     use std::{io::Write, path::Path};
     use tempfile::NamedTempFile;
     use tera::Context;

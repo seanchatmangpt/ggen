@@ -1,8 +1,8 @@
 //! PKI manager for trusted key management and revocation.
 //!
-//! Loads trusted public keys from `.ggen/trusted-keys.toml` and maintains
+//! Loads trusted public keys from `.mcpp/trusted-keys.toml` and maintains
 //! a revocation list for key lifecycle management. Uses Ed25519 keys from
-//! `ggen-receipt` as the canonical key type (no separate certificate parsing).
+//! `mcpp-receipt` as the canonical key type (no separate certificate parsing).
 
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -19,7 +19,7 @@ pub use ed25519_dalek::VerifyingKey as PublicKey;
 /// Deserialization format for a single trusted key in `trusted-keys.toml`.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TrustedKeyEntry {
-    /// Human-readable identifier (e.g. `"ggen-official"`, `"team-alice"`).
+    /// Human-readable identifier (e.g. `"mcpp-official"`, `"team-alice"`).
     pub key_id: String,
     /// Ed25519 public key as 64-character lowercase hex string.
     pub public_key_hex: String,
@@ -28,7 +28,7 @@ pub struct TrustedKeyEntry {
     pub label: String,
 }
 
-/// Top-level TOML structure for `.ggen/trusted-keys.toml`.
+/// Top-level TOML structure for `.mcpp/trusted-keys.toml`.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct TrustedKeysConfig {
     /// List of trusted public keys.
@@ -197,7 +197,7 @@ mod tests {
     }
 
     fn make_trusted_entry(id: &str) -> (TrustedKeyEntry, VerifyingKey) {
-        let (_sk, vk) = ggen_receipt::generate_keypair();
+        let (_sk, vk) = mcpp_receipt::generate_keypair();
         let entry = TrustedKeyEntry {
             key_id: id.to_string(),
             public_key_hex: hex::encode(vk.to_bytes()),
@@ -364,7 +364,7 @@ mod tests {
     #[test]
     fn test_verify_key_trusted_unknown_key() {
         let mgr = PkiManager::new();
-        let (_sk, vk) = ggen_receipt::generate_keypair();
+        let (_sk, vk) = mcpp_receipt::generate_keypair();
         assert!(!mgr.verify_key_trusted(&vk));
     }
 

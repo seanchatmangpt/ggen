@@ -1,7 +1,7 @@
 [project]
 name = "test-codegen"
 version = "0.1.0"
-description = "Test configuration for ggen integration tests"
+description = "Test configuration for mcpp integration tests"
 
 [ontology]
 source = "tests/fixtures/mini-ontology.ttl"

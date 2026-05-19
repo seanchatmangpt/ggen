@@ -1,6 +1,6 @@
-# ggen-canonical
+# mcpp-canonical
 
-Deterministic canonicalization system for ggen v6.0.0
+Deterministic canonicalization system for mcpp v6.0.0
 
 ## Overview
 
@@ -44,8 +44,8 @@ pub trait Canonicalizer {
 ### JSON Canonicalization
 
 ```rust
-use ggen_canonical::json::JsonCanonicalizer;
-use ggen_canonical::Canonicalizer;
+use mcpp_canonical::json::JsonCanonicalizer;
+use mcpp_canonical::Canonicalizer;
 use serde_json::json;
 
 let data = json!({"z": 1, "a": 2});
@@ -57,8 +57,8 @@ let result = canon.canonicalize(data)?;
 ### Rust Code Canonicalization
 
 ```rust
-use ggen_canonical::rust::RustCanonicalizer;
-use ggen_canonical::Canonicalizer;
+use mcpp_canonical::rust::RustCanonicalizer;
+use mcpp_canonical::Canonicalizer;
 
 let code = "fn main(){println!(\"hello\");}";
 let canon = RustCanonicalizer::new();
@@ -69,7 +69,7 @@ let formatted = canon.canonicalize(code.to_string())?;
 ### Hash Computation
 
 ```rust
-use ggen_canonical::hash;
+use mcpp_canonical::hash;
 
 let data = b"test data";
 let hash1 = hash::compute_hash(&data)?;
@@ -80,7 +80,7 @@ assert_eq!(hash1, hash2); // Always equal
 ### Hash Verification
 
 ```rust
-use ggen_canonical::hash::HashVerifier;
+use mcpp_canonical::hash::HashVerifier;
 
 let data = b"test";
 let hash = hash::compute_hash(&data)?;
@@ -124,12 +124,12 @@ assert!(verifier.verify(&data).is_ok());
 ### Complete Workflow
 
 ```rust
-use ggen_canonical::json::{JsonCanonicalizer, canonicalize_json_str};
-use ggen_canonical::hash;
+use mcpp_canonical::json::{JsonCanonicalizer, canonicalize_json_str};
+use mcpp_canonical::hash;
 use serde_json::json;
 
 // Canonicalize JSON
-let input = r#"{"project":"ggen","version":"6.0.0"}"#;
+let input = r#"{"project":"mcpp","version":"6.0.0"}"#;
 let canonical = canonicalize_json_str(input)?;
 
 // Compute hash
@@ -168,7 +168,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ggen-canonical = { path = "crates/ggen-canonical", version = "0.2.0" }
+mcpp-canonical = { path = "crates/mcpp-canonical", version = "0.2.0" }
 ```
 
 ## License

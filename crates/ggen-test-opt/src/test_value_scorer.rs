@@ -106,7 +106,7 @@ impl TestValueScorer {
     /// - RDF parsing: 100.0
     /// - Ontology projection: 90.0
     /// - Code generation: 85.0
-    /// - ggen.toml config: 95.0
+    /// - mcpp.toml config: 95.0
     /// - CLI commands: 70.0
     /// - Utilities: 50.0
     /// - Other: 30.0
@@ -132,7 +132,7 @@ impl TestValueScorer {
     fn path_criticality_score(&self, path: &str) -> f64 {
         if path.contains("rdf") || path.contains("parser") {
             100.0
-        } else if path.contains("ggen.toml") || path.contains("config") {
+        } else if path.contains("mcpp.toml") || path.contains("config") {
             95.0
         } else if path.contains("ontology") || path.contains("projection") {
             90.0
@@ -309,15 +309,15 @@ mod tests {
     #[test]
     fn test_criticality_score_rdf_parsing() {
         let scorer = TestValueScorer::new();
-        let score = scorer.calculate_criticality_score(&["crates/ggen-rdf/src/parser.rs".into()]);
+        let score = scorer.calculate_criticality_score(&["crates/mcpp-rdf/src/parser.rs".into()]);
         assert_eq!(score, 100.0);
     }
 
     #[test]
-    fn test_criticality_score_ggen_toml() {
+    fn test_criticality_score_mcpp_toml() {
         let scorer = TestValueScorer::new();
         let score =
-            scorer.calculate_criticality_score(&["crates/ggen-config/src/ggen.toml".into()]);
+            scorer.calculate_criticality_score(&["crates/mcpp-config/src/mcpp.toml".into()]);
         assert_eq!(score, 95.0);
     }
 

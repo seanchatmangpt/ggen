@@ -28,7 +28,7 @@ pub async fn stream_logs(
     println!();
 
     // Check for local log files
-    let log_dirs = vec!["logs", ".ggen/logs", "/var/log/ggen"];
+    let log_dirs = vec!["logs", ".mcpp/logs", "/var/log/mcpp"];
     let mut found_logs = false;
 
     for log_dir in &log_dirs {

@@ -1,8 +1,8 @@
-# ggen-a2a-mcp
+# mcpp-a2a-mcp
 
-MCP (Model Context Protocol) server for ggen, built on the official [rmcp 1.3.0](https://github.com/modelcontextprotocol/rust-sdk) Rust SDK.
+MCP (Model Context Protocol) server for mcpp, built on the official [rmcp 1.3.0](https://github.com/modelcontextprotocol/rust-sdk) Rust SDK.
 
-Exposes ggen's code-generation capabilities as first-class MCP primitives: **Tools**, **Resources**, **Prompts**, and **Completions**.
+Exposes mcpp's code-generation capabilities as first-class MCP primitives: **Tools**, **Resources**, **Prompts**, and **Completions**.
 
 ---
 
@@ -10,18 +10,18 @@ Exposes ggen's code-generation capabilities as first-class MCP primitives: **Too
 
 ```bash
 # Start as stdio MCP server (Claude Desktop / any MCP client)
-ggen mcp start-server --transport stdio
+mcpp mcp start-server --transport stdio
 
 # Start as HTTP server
-ggen mcp start-server --transport http
+mcpp mcp start-server --transport http
 ```
 
 **Claude Desktop config** (`~/.claude/claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "ggen": {
-      "command": "ggen",
+    "mcpp": {
+      "command": "mcpp",
       "args": ["mcp", "start-server", "--transport", "stdio"]
     }
   }
@@ -39,7 +39,7 @@ ggen mcp start-server --transport http
 | `validate` | Parse Turtle content, report triple count or errors | `ttl` |
 | `list_generators` | List supported code generators | — |
 | `list_examples` | Browse bundled example projects | `category?`, `limit?` |
-| `get_example` | Get ggen.toml + TTL + README for an example | `name` |
+| `get_example` | Get mcpp.toml + TTL + README for an example | `name` |
 | `search` | Search marketplace packages by keyword | `query`, `category?`, `limit?` |
 | `scaffold_from_example` | Copy an example to a target directory | `example_name`, `target_dir` |
 | `query_ontology` | Run SPARQL SELECT on inline TTL, return JSON rows | `ttl`, `sparql` |
@@ -60,16 +60,16 @@ Resources expose bundled examples as browsable MCP resources with cursor-based p
 
 | URI pattern | Content |
 |-------------|---------|
-| `ggen://example/{name}` | JSON summary: name, description, category, raw ggen.toml |
-| `ggen://example/{name}/ttl` | Raw Turtle ontology content |
-| `ggen://example/{name}/readme` | README.md content |
-| `ggen://example/{name}/config` | Raw ggen.toml content |
+| `mcpp://example/{name}` | JSON summary: name, description, category, raw mcpp.toml |
+| `mcpp://example/{name}/ttl` | Raw Turtle ontology content |
+| `mcpp://example/{name}/readme` | README.md content |
+| `mcpp://example/{name}/config` | Raw mcpp.toml content |
 
 ---
 
 ## Prompts
 
-Three domain-specific prompt templates for LLM-assisted ggen workflows:
+Three domain-specific prompt templates for LLM-assisted mcpp workflows:
 
 ### `explain-rdf-schema`
 Explains a Turtle schema in plain English.
@@ -77,12 +77,12 @@ Explains a Turtle schema in plain English.
 **Arguments:** `ttl_content` (required)
 
 ### `generate-from-example`
-Adapts a bundled example to a new domain. Loads the real TTL + ggen.toml from the example.
+Adapts a bundled example to a new domain. Loads the real TTL + mcpp.toml from the example.
 
 **Arguments:** `example_name` (required), `target_domain` (required)
 
 ### `scaffold-project`
-Designs a new ggen project (TTL + ggen.toml) from scratch.
+Designs a new mcpp project (TTL + mcpp.toml) from scratch.
 
 **Arguments:** `domain` (required), `language` (optional, default: `auto`)
 
@@ -102,10 +102,10 @@ Argument autocomplete for MCP clients that support it:
 ```
 GgenMcpServer (rmcp 1.3.0)
 ├── #[tool_router] impl GgenMcpServer   — 9 tools
-│   ├── generate / sync → ggen_core::sync::sync() via spawn_blocking
+│   ├── generate / sync → mcpp_core::sync::sync() via spawn_blocking
 │   ├── validate       → oxigraph::io::RdfParser
 │   ├── list_examples  → std::fs::read_dir(examples/)
-│   ├── search         → ggen_domain::marketplace::search_packages()
+│   ├── search         → mcpp_domain::marketplace::search_packages()
 │   └── query_ontology → oxigraph::sparql::SparqlEvaluator
 └── #[tool_handler] impl ServerHandler
     ├── list_resources / read_resource → examples/ scan
@@ -118,7 +118,7 @@ GgenMcpServer (rmcp 1.3.0)
 ## Testing
 
 ```bash
-cargo test -p ggen-a2a-mcp
+cargo test -p mcpp-a2a-mcp
 ```
 
 15 Chicago TDD tests (AAA pattern, in-process `tokio::io::duplex` transport):
@@ -129,7 +129,7 @@ cargo test -p ggen-a2a-mcp
 ### Documentation Validation
 
 ```bash
-cargo test -p ggen-a2a-mcp doc_validation_test
+cargo test -p mcpp-a2a-mcp doc_validation_test
 ```
 
 6 runtime tests that verify documented tools, resources, and prompts match actual server capabilities.
@@ -137,7 +137,7 @@ cargo test -p ggen-a2a-mcp doc_validation_test
 ### Property-Based Tests
 
 ```bash
-cargo test -p ggen-a2a-mcp property_tests
+cargo test -p mcpp-a2a-mcp property_tests
 ```
 
 3 proptest-based property tests verifying tool robustness with random inputs.
@@ -150,13 +150,13 @@ cargo test -p ggen-a2a-mcp property_tests
 
 ```bash
 # Run all Criterion benchmarks
-cargo bench -p ggen-a2a-mcp
+cargo bench -p mcpp-a2a-mcp
 
 # Run only tool benchmarks
-cargo bench -p ggen-a2a-mcp --bench mcp_tool_benchmarks
+cargo bench -p mcpp-a2a-mcp --bench mcp_tool_benchmarks
 
 # Run only stress tests
-cargo bench -p ggen-a2a-mcp --bench mcp_stress_tests
+cargo bench -p mcpp-a2a-mcp --bench mcp_stress_tests
 ```
 
 **Tool benchmarks** (`mcp_tool_benchmarks`):
@@ -185,7 +185,7 @@ HTML reports generated in `target/criterion/report/`.
 
 ## See Also
 
-- [`crates/ggen-core/src/sync/mod.rs`](../ggen-core/src/sync/mod.rs) — μ₁-μ₅ pipeline
-- [`crates/ggen-domain/src/marketplace/search.rs`](../ggen-domain/src/marketplace/search.rs) — search backend
+- [`crates/mcpp-core/src/sync/mod.rs`](../mcpp-core/src/sync/mod.rs) — μ₁-μ₅ pipeline
+- [`crates/mcpp-domain/src/marketplace/search.rs`](../mcpp-domain/src/marketplace/search.rs) — search backend
 - [`docs/RMCP_NOTES.md`](../../docs/RMCP_NOTES.md) — rmcp 1.3.0 API facts and gotchas
 - [Official Rust MCP SDK](https://github.com/modelcontextprotocol/rust-sdk)

@@ -1,6 +1,6 @@
-//! Tests for RDF literal type handling across ggen's SPARQL pipeline.
+//! Tests for RDF literal type handling across mcpp's SPARQL pipeline.
 //!
-//! ggen's pipeline converts SPARQL results into Tera template variables via
+//! mcpp's pipeline converts SPARQL results into Tera template variables via
 //! `Graph::query_cached()`, which materializes oxigraph `Term::to_string()` output
 //! into `CachedResult::Solutions(Vec<BTreeMap<String, String>>)`.
 //!
@@ -19,7 +19,7 @@
 //! These tests DOCUMENT the current (dirty) serialization behavior so that any future
 //! cleanup of the pipeline is caught by regressions.
 
-use ggen_core::graph::{CachedResult, Graph};
+use mcpp_core::graph::{CachedResult, Graph};
 use serde_json::{Map, Value};
 
 // ---------------------------------------------------------------------------

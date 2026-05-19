@@ -14,7 +14,7 @@
 //! ### Creating and Using Template Context
 //!
 //! ```rust
-//! use ggen_core::templates::context::TemplateContext;
+//! use mcpp_core::templates::context::TemplateContext;
 //! use serde_json::json;
 //!
 //! let mut ctx = TemplateContext::new();
@@ -31,7 +31,7 @@
 //! ### Working with Nested Values
 //!
 //! ```rust
-//! use ggen_core::templates::context::TemplateContext;
+//! use mcpp_core::templates::context::TemplateContext;
 //! use serde_json::json;
 //!
 //! let mut ctx = TemplateContext::new();
@@ -48,7 +48,7 @@
 //! assert!(project.is_object());
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use tera::Context;
@@ -61,7 +61,7 @@ use tera::Context;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::templates::context::TemplateContext;
+/// use mcpp_core::templates::context::TemplateContext;
 /// use serde_json::json;
 ///
 /// let mut ctx = TemplateContext::new();
@@ -82,7 +82,7 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     ///
     /// let ctx = TemplateContext::new();
     /// assert!(ctx.variable_names().is_empty());
@@ -113,10 +113,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut vars = BTreeMap::new();
     /// vars.insert("service_name".to_string(), "my-service".to_string());
     /// vars.insert("port".to_string(), "8080".to_string());
@@ -155,10 +155,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     ///
     /// // Set string value
@@ -195,10 +195,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -230,10 +230,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -267,10 +267,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -295,10 +295,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx1 = TemplateContext::new();
     /// ctx1.set("name", json!("App1"))?;
     ///
@@ -335,10 +335,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -376,10 +376,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -420,10 +420,10 @@ impl TemplateContext {
     /// ## Success case
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -437,10 +437,10 @@ impl TemplateContext {
     /// ## Error case
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -458,7 +458,7 @@ impl TemplateContext {
             .collect();
 
         if !missing.is_empty() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Missing required template variables: {}",
                 missing
                     .iter()
@@ -483,11 +483,11 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?; // Existing value
     ///
@@ -536,10 +536,10 @@ impl TemplateContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::context::TemplateContext;
+    /// use mcpp_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("World"))?;
     /// ctx.set("count", json!(42))?;

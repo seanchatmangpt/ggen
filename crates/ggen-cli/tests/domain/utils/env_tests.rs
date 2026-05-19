@@ -1,4 +1,4 @@
-use ggen_cli_lib::domain::utils::*;
+use mcpp_cli_lib::domain::utils::*;
 use std::io::Write;
 use tempfile::NamedTempFile;
 

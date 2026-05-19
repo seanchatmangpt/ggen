@@ -129,7 +129,7 @@ impl ConstructExecutor {
 2. **Incremental Materialization**: Each rule builds on previous inferences
 3. **Provenance Tracking**: Derivation metadata for audit trails
 
-**Implementation**: `ggen-core/src/graph/construct.rs` (zero-cost abstractions)
+**Implementation**: `mcpp-core/src/graph/construct.rs` (zero-cost abstractions)
 
 ---
 
@@ -174,7 +174,7 @@ fibo-fbc-fi:Equity
 - OMG (Object Management Group) standard
 - Complete process orchestration capabilities
 
-**ggen Implementation**:
+**mcpp Implementation**:
 - Package: `workflow-engine-cli`
 - Full BPMN 2.0 compliance
 - RDF-backed state model for SPARQL querying
@@ -318,10 +318,10 @@ Equity trade execution workflow subject to MiFID II regulations.
 | Graph Size Increase | 13% | From 23 to 26 triples |
 
 **Generated Code Example**:
-From the materialized compliance triples, ggen generates TypeScript validation hooks:
+From the materialized compliance triples, mcpp generates TypeScript validation hooks:
 
 ```typescript
-// Auto-generated from RDF ontology by ggen
+// Auto-generated from RDF ontology by mcpp
 import { defineHook } from '@unrdf/hooks';
 
 export const tradeExecutionComplianceHook = defineHook({
@@ -400,7 +400,7 @@ CONSTRUCT queries are **additive only** - they do not modify or delete existing 
 - Extends Zero-Drift Theorem to cross-domain scenarios
 - Demonstrates completeness preservation across ontology boundaries
 - Provides practical template for domain integration patterns
-- Validates ggen's CONSTRUCT executor architecture
+- Validates mcpp's CONSTRUCT executor architecture
 
 ---
 
@@ -436,11 +436,11 @@ CONSTRUCT queries are **additive only** - they do not modify or delete existing 
 
 ### Prerequisites
 
-1. **ggen CLI v5.0.0+**
+1. **mcpp CLI v5.0.0+**
    ```bash
-   cd /home/user/ggen
-   cargo build --release -p ggen-cli-lib
-   # Binary will be at: target/release/ggen
+   cd /home/user/mcpp
+   cargo build --release -p mcpp-cli-lib
+   # Binary will be at: target/release/mcpp
    ```
 
 2. **LaTeX Distribution**
@@ -452,10 +452,10 @@ CONSTRUCT queries are **additive only** - they do not modify or delete existing 
 
 ```bash
 # 1. Navigate to thesis directory
-cd /home/user/ggen/specs/012-grand-unified-kgc-thesis
+cd /home/user/mcpp/specs/012-grand-unified-kgc-thesis
 
 # 2. Generate LaTeX files from RDF ontology
-/home/user/ggen/target/release/ggen sync
+/home/user/mcpp/target/release/mcpp sync
 
 # 3. Navigate to output directory
 cd output
@@ -504,7 +504,7 @@ If you prefer to save the generated PDF with a specific name:
 
 ```bash
 # After successful compilation
-cd /home/user/ggen/specs/012-grand-unified-kgc-thesis/output
+cd /home/user/mcpp/specs/012-grand-unified-kgc-thesis/output
 
 # Copy with descriptive name
 cp thesis.pdf "Grand_Unified_KGC_Thesis_with_CONSTRUCT_FIBO_BPMN_Integration_2025.pdf"
@@ -559,7 +559,7 @@ cp thesis.pdf "KGC_Thesis_v2.0_8chapters_$(date +%Y%m%d).pdf"
 This PhD thesis has been successfully extended with Chapter 7, demonstrating cross-domain knowledge graph construction through SPARQL CONSTRUCT queries bridging FIBO and BPMN. The thesis now provides a comprehensive treatment of:
 
 - Theoretical foundations (Zero-Drift, Semantic Fidelity, Temporal Consistency)
-- Practical implementations (ggen toolchain, @unrdf ecosystem)
+- Practical implementations (mcpp toolchain, @unrdf ecosystem)
 - Empirical validation (73% defect reduction)
 - Cross-domain integration (FIBO-BPMN with formal guarantees)
 

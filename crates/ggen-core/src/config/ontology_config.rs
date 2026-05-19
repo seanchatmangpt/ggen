@@ -1,17 +1,17 @@
 //! Ontology configuration system
 //!
-//! Integrates ontology packs with ggen.toml configuration, enabling:
+//! Integrates ontology packs with mcpp.toml configuration, enabling:
 //! - Declarative ontology pack management
 //! - Automatic composition and resolution
 //! - Version constraints and lock files
 //! - Multi-language code generation configuration
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 
-/// Ontology configuration section in ggen.toml
+/// Ontology configuration section in mcpp.toml
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OntologyConfig {
     /// Installed ontology pack references
@@ -149,7 +149,7 @@ impl Default for OntologyConfig {
 impl Default for LockConfig {
     fn default() -> Self {
         Self {
-            file: PathBuf::from("ggen.lock"),
+            file: PathBuf::from("mcpp.lock"),
             auto_update: true,
             enforce: false,
         }
@@ -189,21 +189,21 @@ impl OntologyConfig {
     /// Load from TOML file section
     pub fn from_toml_section(toml_content: &str) -> Result<Self> {
         toml::from_str(toml_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to parse ontology config: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to parse ontology config: {}", e))
         })
     }
 
     /// Save to TOML format
     pub fn to_toml(&self) -> Result<String> {
         toml::to_string_pretty(self).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to serialize ontology config: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to serialize ontology config: {}", e))
         })
     }
 
     /// Validate configuration
     pub fn validate(&self) -> Result<()> {
         if self.packs.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(mcpp_utils::error::Error::new(
                 "No ontology packs configured",
             ));
         }
@@ -211,11 +211,11 @@ impl OntologyConfig {
         // Validate pack references
         for pack in &self.packs {
             if pack.name.is_empty() {
-                return Err(ggen_utils::error::Error::new("Pack name cannot be empty"));
+                return Err(mcpp_utils::error::Error::new("Pack name cannot be empty"));
             }
 
             if pack.version.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Version for pack '{}' cannot be empty",
                     pack.name
                 )));
@@ -225,7 +225,7 @@ impl OntologyConfig {
         // Validate targets
         for (name, target) in &self.targets {
             if target.language.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Language for target '{}' cannot be empty",
                     name
                 )));

@@ -344,7 +344,7 @@ Year 1 Total: $39-42K
 
 All files located in:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+./tai-erlang-autonomics/execution/week-1-2/
 ```
 
 To access:

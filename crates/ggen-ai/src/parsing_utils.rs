@@ -1,4 +1,4 @@
-//! Code block parsing utilities for ggen-ai
+//! Code block parsing utilities for mcpp-ai
 //!
 //! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
 //!
@@ -63,7 +63,7 @@
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::parsing_utils::extract_code_block;
+/// use mcpp_ai::parsing_utils::extract_code_block;
 ///
 /// let text = "Here's some code:\n```rust\nfn main() {}\n```";
 /// let content = extract_code_block(text, "rust");
@@ -100,7 +100,7 @@ pub fn extract_code_block(text: &str, language: &str) -> Option<String> {
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::parsing_utils::extract_any_code_block;
+/// use mcpp_ai::parsing_utils::extract_any_code_block;
 ///
 /// let text = "```\nSome content\n```";
 /// let content = extract_any_code_block(text);
@@ -132,7 +132,7 @@ pub fn extract_any_code_block(text: &str) -> Option<String> {
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::parsing_utils::extract_all_code_blocks;
+/// use mcpp_ai::parsing_utils::extract_all_code_blocks;
 ///
 /// let text = "```sparql\nSELECT * WHERE { ?s ?p ?o }\n```\n\n```sparql\nASK { ?s a ?c }\n```";
 /// let blocks = extract_all_code_blocks(text, "sparql");
@@ -179,7 +179,7 @@ pub fn extract_all_code_blocks(text: &str, language: &str) -> Vec<String> {
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::parsing_utils::is_rdf_like_content;
+/// use mcpp_ai::parsing_utils::is_rdf_like_content;
 ///
 /// let turtle = "@prefix ex: <http://example.org/> .\nex:Thing a ex:Class .";
 /// assert!(is_rdf_like_content(turtle));
@@ -220,7 +220,7 @@ pub fn is_rdf_like_content(text: &str) -> bool {
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::parsing_utils::validate_turtle_syntax;
+/// use mcpp_ai::parsing_utils::validate_turtle_syntax;
 ///
 /// // Valid Turtle passes
 /// let valid = "@prefix ex: <http://example.org/> .\nex:Thing a ex:Class .";
@@ -303,7 +303,7 @@ pub fn validate_turtle_syntax(content: &str) -> Result<(), String> {
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::parsing_utils::extract_turtle_content;
+/// use mcpp_ai::parsing_utils::extract_turtle_content;
 ///
 /// // Handles explicit turtle marker
 /// let response1 = "```turtle\n@prefix ex: <http://example.org/> .\n```";

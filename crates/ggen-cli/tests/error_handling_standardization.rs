@@ -3,11 +3,11 @@
 //! This test suite verifies that all CLI commands use consistent error handling
 //! patterns and that error conversion works correctly.
 
-use ggen_cli::error::{GgenError, Result};
-use ggen_cli::prelude::*;
+use mcpp_cli::error::{GgenError, Result};
+use mcpp_cli::prelude::*;
 
 #[tokio::test]
-async fn test_ggen_error_exit_codes() {
+async fn test_mcpp_error_exit_codes() {
     let errors = vec![
         GgenError::ValidationError("test".to_string()),
         GgenError::SparqlError("test".to_string()),
@@ -43,7 +43,7 @@ async fn test_ggen_error_exit_codes() {
 }
 
 #[tokio::test]
-async fn test_ggen_error_categories() {
+async fn test_mcpp_error_categories() {
     let categories = vec![
         GgenError::ValidationError("test".to_string()).category(),
         GgenError::SparqlError("test".to_string()).category(),
@@ -97,11 +97,11 @@ async fn test_error_conversion_functions() {
 async fn test_result_type_extensions() {
     // Test GgenResultExt trait
     let success: Result<i32> = Ok(42);
-    let success_converted = success.to_ggen_result();
+    let success_converted = success.to_mcpp_result();
     assert!(success_converted.is_ok());
 
     let failure: std::result::Result<i32, &str> = Err("test error");
-    let failure_converted = failure.to_ggen_result();
+    let failure_converted = failure.to_mcpp_result();
     assert!(failure_converted.is_err());
     assert!(failure_converted.unwrap_err().to_string().contains("test error"));
 }

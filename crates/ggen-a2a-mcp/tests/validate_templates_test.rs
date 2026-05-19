@@ -17,7 +17,7 @@ You have {{ count }} items.
 
     // This would normally go through the MCP server
     // For now, we'll test the underlying function directly
-    let result = ggen_core::template::validate_template(valid_template);
+    let result = mcpp_core::template::validate_template(valid_template);
     assert!(result.is_ok());
     let validation = result.unwrap();
     assert!(validation.is_valid);
@@ -37,7 +37,7 @@ Unclosed brace: {{ unclosed
 {% endfor %}
 "#;
 
-    let result = ggen_core::template::validate_template(invalid_template);
+    let result = mcpp_core::template::validate_template(invalid_template);
     assert!(result.is_ok());
     let validation = result.unwrap();
     assert!(!validation.is_valid);
@@ -52,7 +52,7 @@ Count: {{ count }}
 Items: {{ items | length }}
 "#;
 
-    let vars = ggen_core::template::extract_template_variables(template);
+    let vars = mcpp_core::template::extract_template_variables(template);
     assert!(vars.contains("name"));
     assert!(vars.contains("count"));
     assert!(vars.contains("items")); // Without filter
@@ -86,7 +86,7 @@ async fn test_extract_sparql_variables() {
     .unwrap();
 
     let vars =
-        ggen_core::template::extract_variables_from_sparql_results(results_path.to_str().unwrap())
+        mcpp_core::template::extract_variables_from_sparql_results(results_path.to_str().unwrap())
             .unwrap();
 
     assert!(vars.contains("name"));

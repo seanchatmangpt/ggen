@@ -1,6 +1,6 @@
 //! Lockfile manager for governed marketplace packs.
 //!
-//! This module provides the real lockfile implementation for the ggen marketplace,
+//! This module provides the real lockfile implementation for the mcpp marketplace,
 //! tracking atomic packs, bundles, and profiles with cryptographic provenance.
 //!
 //! ## Features
@@ -14,7 +14,7 @@
 //!
 //! ## Lockfile Format
 //!
-//! The `.ggen/packs.lock` file is a JSON file with the following structure:
+//! The `.mcpp/packs.lock` file is a JSON file with the following structure:
 //!
 //! ```json
 //! {
@@ -24,7 +24,7 @@
 //!       "pack_id": "surface-mcp",
 //!       "version": "1.0.0",
 //!       "source": {
-//!         "Registry": { "url": "https://registry.ggen.io" }
+//!         "Registry": { "url": "https://registry.mcpp.io" }
 //!       },
 //!       "digest": "sha256:abc123...",
 //!       "signature": "ed25519:...",
@@ -53,10 +53,10 @@
 //! ### Creating a Lockfile Manager
 //!
 //! ```rust,no_run
-//! use ggen_core::lockfile::LockfileManager;
+//! use mcpp_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! # Ok(())
 //! # }
@@ -65,13 +65,13 @@
 //! ### Adding a Pack to the Lockfile
 //!
 //! ```rust,no_run
-//! use ggen_core::lockfile::LockfileManager;
+//! use mcpp_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert(
-//!     "io.ggen.rust.cli",
+//!     "io.mcpp.rust.cli",
 //!     "1.0.0",
 //!     "abc123...",
 //!     "https://github.com/example/pack.git"
@@ -83,13 +83,13 @@
 //! ### Adding a Pack with PQC Signature
 //!
 //! ```rust,no_run
-//! use ggen_core::lockfile::LockfileManager;
+//! use mcpp_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert_with_pqc(
-//!     "io.ggen.rust.cli",
+//!     "io.mcpp.rust.cli",
 //!     "1.0.0",
 //!     "abc123...",
 //!     "https://github.com/example/pack.git",
@@ -100,8 +100,8 @@
 //! # }
 //! ```
 
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use mcpp_marketplace::trust::TrustTier;
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -261,9 +261,9 @@ impl Lockfile {
         self.bundles.push(expansion);
     }
 
-    /// Save lockfile to `.ggen/packs.lock`.
+    /// Save lockfile to `.mcpp/packs.lock`.
     pub fn save(&self, project_root: &Path) -> Result<()> {
-        let lockfile_path = project_root.join(".ggen").join("packs.lock");
+        let lockfile_path = project_root.join(".mcpp").join("packs.lock");
 
         // Create parent directory
         if let Some(parent) = lockfile_path.parent() {
@@ -292,9 +292,9 @@ impl Lockfile {
         Ok(())
     }
 
-    /// Load lockfile from `.ggen/packs.lock`.
+    /// Load lockfile from `.mcpp/packs.lock`.
     pub fn load(project_root: &Path) -> Result<Option<Self>> {
-        let lockfile_path = project_root.join(".ggen").join("packs.lock");
+        let lockfile_path = project_root.join(".mcpp").join("packs.lock");
 
         if !lockfile_path.exists() {
             return Ok(None);
@@ -391,7 +391,7 @@ mod tests {
             "surface-mcp".to_string(),
             "1.0.0".to_string(),
             RegistrySource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             "sha256:abc123".to_string(),
             "ed25519:def456".to_string(),
@@ -470,7 +470,7 @@ mod tests {
             "surface-mcp".to_string(),
             "1.0.0".to_string(),
             RegistrySource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             "sha256:abc123".to_string(),
             "sig".to_string(),
@@ -499,7 +499,7 @@ mod tests {
             "surface-mcp".to_string(),
             "1.0.0".to_string(),
             RegistrySource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             "sha256:abc123".to_string(),
             "sig".to_string(),

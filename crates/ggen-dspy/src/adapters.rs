@@ -1,4 +1,4 @@
-//! LLM client adapters for integrating with ggen-ai and other providers
+//! LLM client adapters for integrating with mcpp-ai and other providers
 //!
 //! Provides comprehensive adapter pattern implementation with:
 //! - Multiple adapter types (Chat, JSON, Completion)
@@ -10,7 +10,7 @@
 
 use crate::{DspyError, Result};
 use async_trait::async_trait;
-use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
+use mcpp_ai::{GenAiClient, LlmClient, LlmConfig};
 use moka::future::Cache;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -757,17 +757,17 @@ pub struct TokenStats {
 }
 
 // ============================================================================
-// GgenAiAdapter - Integration with ggen-ai
+// GgenAiAdapter - Integration with mcpp-ai
 // ============================================================================
 
-/// Adapter for ggen-ai client
+/// Adapter for mcpp-ai client
 pub struct GgenAiAdapter {
     /// Integrated adapter with client
     integrated: IntegratedAdapter,
 }
 
 impl GgenAiAdapter {
-    /// Create a new ggen-ai adapter
+    /// Create a new mcpp-ai adapter
     pub fn new(client: GenAiClient) -> Self {
         let model = client.get_config().model.clone();
         let adapter = AdapterWithFallback::new(model);

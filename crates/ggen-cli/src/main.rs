@@ -1,11 +1,11 @@
-//! ggen CLI entry point
+//! mcpp CLI entry point
 //!
-//! This is the main entry point for the ggen command-line interface. It delegates
-//! to the `ggen_cli_lib` crate for the actual CLI implementation.
+//! This is the main entry point for the mcpp command-line interface. It delegates
+//! to the `mcpp_cli_lib` crate for the actual CLI implementation.
 
 #[tokio::main]
 async fn main() {
-    match ggen_cli_lib::cli_match().await {
+    match mcpp_cli_lib::cli_match().await {
         Ok(()) => {
             // Successful execution
             std::process::exit(0);

@@ -27,8 +27,8 @@
 //! 5. Demonstrate blocking of absolute path escapes
 //! 6. Demonstrate extension-based filtering
 
-use ggen_utils::error::Result;
-use ggen_utils::path_validator::{PathValidator, SafePath};
+use ggen_core::utils::error::Result;
+use ggen_core::utils::path_validator::{PathValidator, SafePath};
 use std::path::Path;
 
 fn main() -> Result<()> {

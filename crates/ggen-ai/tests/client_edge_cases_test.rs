@@ -12,7 +12,7 @@
 //! - Concurrent requests
 //! - Configuration serialization/deserialization
 
-use ggen_ai::client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse};
+use mcpp_ai::client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -180,7 +180,7 @@ fn test_config_validation_top_p_above_maximum() {
 
 #[test]
 fn test_config_validation_max_tokens_minimum_boundary() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let mut config = LlmConfig::default();
     config.max_tokens = Some(llm::MIN_TOKEN_LIMIT);
@@ -196,7 +196,7 @@ fn test_config_validation_max_tokens_minimum_boundary() {
 
 #[test]
 fn test_config_validation_max_tokens_maximum_boundary() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let mut config = LlmConfig::default();
     config.max_tokens = Some(llm::MAX_TOKEN_LIMIT);
@@ -212,7 +212,7 @@ fn test_config_validation_max_tokens_maximum_boundary() {
 
 #[test]
 fn test_config_validation_temperature_minimum_boundary() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let mut config = LlmConfig::default();
     config.temperature = Some(llm::MIN_TEMPERATURE);
@@ -228,7 +228,7 @@ fn test_config_validation_temperature_minimum_boundary() {
 
 #[test]
 fn test_config_validation_temperature_maximum_boundary() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let mut config = LlmConfig::default();
     config.temperature = Some(llm::MAX_TEMPERATURE);
@@ -244,7 +244,7 @@ fn test_config_validation_temperature_maximum_boundary() {
 
 #[test]
 fn test_config_validation_top_p_minimum_boundary() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let mut config = LlmConfig::default();
     config.top_p = Some(llm::MIN_TOP_P);
@@ -260,7 +260,7 @@ fn test_config_validation_top_p_minimum_boundary() {
 
 #[test]
 fn test_config_validation_top_p_maximum_boundary() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let mut config = LlmConfig::default();
     config.top_p = Some(llm::MAX_TOP_P);
@@ -413,7 +413,7 @@ fn test_config_deserialization() {
 
 #[test]
 fn test_llm_response_serialization() {
-    use ggen_ai::client::UsageStats;
+    use mcpp_ai::client::UsageStats;
 
     let response = LlmResponse {
         content: "Test response".to_string(),
@@ -442,7 +442,7 @@ fn test_llm_response_serialization() {
 
 #[test]
 fn test_llm_chunk_serialization() {
-    use ggen_ai::client::UsageStats;
+    use mcpp_ai::client::UsageStats;
 
     let chunk = LlmChunk {
         content: "Partial response".to_string(),
@@ -715,7 +715,7 @@ fn test_config_top_p_precision() {
 
 #[test]
 fn test_config_all_parameters_at_boundaries() {
-    use ggen_ai::constants::llm;
+    use mcpp_ai::constants::llm;
 
     let config = LlmConfig {
         model: "test-model".to_string(),
@@ -836,7 +836,7 @@ fn test_config_clone_independence() {
 
 #[test]
 fn test_usage_stats_arithmetic() {
-    use ggen_ai::client::UsageStats;
+    use mcpp_ai::client::UsageStats;
 
     let stats = UsageStats {
         prompt_tokens: 100,
@@ -856,7 +856,7 @@ fn test_usage_stats_arithmetic() {
 
 #[test]
 fn test_usage_stats_zero_values() {
-    use ggen_ai::client::UsageStats;
+    use mcpp_ai::client::UsageStats;
 
     let stats = UsageStats {
         prompt_tokens: 0,
@@ -875,7 +875,7 @@ fn test_usage_stats_zero_values() {
 
 #[test]
 fn test_usage_stats_serialization_roundtrip() {
-    use ggen_ai::client::UsageStats;
+    use mcpp_ai::client::UsageStats;
 
     let original = UsageStats {
         prompt_tokens: 100,
@@ -916,7 +916,7 @@ fn test_llm_response_no_usage() {
 
 #[test]
 fn test_llm_chunk_with_usage() {
-    use ggen_ai::client::UsageStats;
+    use mcpp_ai::client::UsageStats;
 
     let chunk = LlmChunk {
         content: "".to_string(),

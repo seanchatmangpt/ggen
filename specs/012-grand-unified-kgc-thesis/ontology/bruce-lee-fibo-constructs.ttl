@@ -1,10 +1,10 @@
-@prefix : <https://ggen.io/bruce-lee/> .
+@prefix : <https://mcpp.io/bruce-lee/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/> .
-@prefix risk: <http://ggen.io/ontology/systemic-risk#> .
+@prefix risk: <http://mcpp.io/ontology/systemic-risk#> .
 
 # =============================================================================
 # BRUCE LEE STYLE FIBO CONSTRUCTS
@@ -17,7 +17,7 @@
 # Synthesized from 10 EPIC 9 parallel agents exploring PhD innovation.
 # =============================================================================
 
-<https://ggen.io/bruce-lee/fibo-constructs>
+<https://mcpp.io/bruce-lee/fibo-constructs>
     a owl:Ontology ;
     rdfs:label "Bruce Lee Style FIBO CONSTRUCT Patterns" ;
     rdfs:comment "Absorb what is useful, discard what is not. Add what is uniquely your own." ;
@@ -33,7 +33,7 @@
     rdfs:comment "One query → complete compliance graph. No iteration needed." ;
     :construct """
 PREFIX fibo: <https://spec.edmcouncil.org/fibo/>
-PREFIX : <https://ggen.io/bruce-lee/>
+PREFIX : <https://mcpp.io/bruce-lee/>
 
 CONSTRUCT {
   ?instrument :subjectTo ?regulation ;
@@ -63,7 +63,7 @@ WHERE {
     rdfs:label "Water Flow: Risk Propagation" ;
     rdfs:comment "Risk flows through the network. Decay with distance. Be water." ;
     :construct """
-PREFIX risk: <http://ggen.io/ontology/systemic-risk#>
+PREFIX risk: <http://mcpp.io/ontology/systemic-risk#>
 PREFIX math: <http://www.w3.org/2005/xpath-functions/math#>
 
 CONSTRUCT {
@@ -102,7 +102,7 @@ WHERE {
     rdfs:comment "Mushin - empty mind sees all timelines at once." ;
     :construct """
 PREFIX time: <http://www.w3.org/2006/time#>
-PREFIX : <https://ggen.io/bruce-lee/>
+PREFIX : <https://mcpp.io/bruce-lee/>
 
 CONSTRUCT {
   ?instrument :complianceStateAt ?snapshot .
@@ -144,7 +144,7 @@ WHERE {
     rdfs:comment "The shortest distance between two points is a straight line." ;
     :construct """
 PREFIX fibo: <https://spec.edmcouncil.org/fibo/>
-PREFIX gen: <https://ggen.io/codegen#>
+PREFIX gen: <https://mcpp.io/codegen#>
 
 CONSTRUCT {
   ?class gen:rustStruct ?structName ;
@@ -232,7 +232,7 @@ WHERE {
     rdfs:label "Simplicity: G-SIB Score" ;
     rdfs:comment "Simplicity is the key to brilliance." ;
     :construct """
-PREFIX risk: <http://ggen.io/ontology/systemic-risk#>
+PREFIX risk: <http://mcpp.io/ontology/systemic-risk#>
 PREFIX math: <http://www.w3.org/2005/xpath-functions/math#>
 
 CONSTRUCT {
@@ -275,8 +275,8 @@ WHERE {
     rdfs:label "Adaptation: Market-Responsive Workflows" ;
     rdfs:comment "Be formless, shapeless, like water. Adapt to the market." ;
     :construct """
-PREFIX wfe: <http://ggen.ruv.io/workflow-engine#>
-PREFIX : <https://ggen.io/bruce-lee/>
+PREFIX wfe: <http://mcpp.ruv.io/workflow-engine#>
+PREFIX : <https://mcpp.io/bruce-lee/>
 
 CONSTRUCT {
   ?task a :DynamicApprovalGate ;
@@ -309,8 +309,8 @@ WHERE {
     rdfs:label "Economy of Motion: Auto-Audit" ;
     rdfs:comment "Every movement has purpose. Every task leaves a trail." ;
     :construct """
-PREFIX wfe: <http://ggen.ruv.io/workflow-engine#>
-PREFIX : <https://ggen.io/bruce-lee/>
+PREFIX wfe: <http://mcpp.ruv.io/workflow-engine#>
+PREFIX : <https://mcpp.io/bruce-lee/>
 
 CONSTRUCT {
   ?task :generatesAuditEvent ?event .

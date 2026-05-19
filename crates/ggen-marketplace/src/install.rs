@@ -77,7 +77,7 @@ impl<R: AsyncRepository> Installer<R> {
                 dirs::home_dir()
                     .unwrap_or_else(|| std::env::temp_dir())
                     .join(".cache")
-                    .join("ggen")
+                    .join("mcpp")
                     .join("packs")
             })
             .join(package_id.as_str())
@@ -492,7 +492,7 @@ impl<R: AsyncRepository> Installer<R> {
         let start = std::time::Instant::now();
         debug!("Verifying pack signature");
 
-        // SECURITY: Real signature verification using ggen-receipt
+        // SECURITY: Real signature verification using mcpp-receipt
         // 1. Get marketplace public key from trusted source
         // 2. Create MarketplaceSignature from hex
         // 3. Verify using Ed25519
@@ -508,7 +508,7 @@ impl<R: AsyncRepository> Installer<R> {
         let signature = MarketplaceSignature {
             signature: signature_hex.to_string(),
             public_key: public_key_hex,
-            checksum: ggen_receipt::hash_data(data),
+            checksum: mcpp_receipt::hash_data(data),
         };
 
         // Verify signature
@@ -790,7 +790,7 @@ impl<R: AsyncRepository> Installer<R> {
     ///
     /// * [`Error::IoError`] - When lockfile operations fail
     pub fn update_lockfile(&self, manifest: &InstallationManifest) -> Result<()> {
-        let lockfile_path = PathBuf::from(&manifest.install_path).join("ggen.lock");
+        let lockfile_path = PathBuf::from(&manifest.install_path).join("mcpp.lock");
 
         let lockfile = Lockfile::from_manifest(manifest);
 

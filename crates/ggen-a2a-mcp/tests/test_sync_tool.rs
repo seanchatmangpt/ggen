@@ -3,7 +3,7 @@
 //! Tests that the sync tool can execute the full μ₁-μ₅ pipeline
 //! and return results showing files generated.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use std::path::PathBuf;
 
 #[tokio::test]
@@ -14,11 +14,11 @@ async fn test_sync_tool_basic() {
     let ontology_path = "examples/basic-template-generation/ontology/templates.ttl";
 
     // Create a temporary output directory
-    let temp_dir = std::env::temp_dir().join("ggen_sync_test");
+    let temp_dir = std::env::temp_dir().join("mcpp_sync_test");
     let _ = std::fs::create_dir_all(&temp_dir);
 
     let result = server
-        .sync(ggen_a2a_mcp::ggen_server::SyncParams {
+        .sync(mcpp_a2a_mcp::mcpp_server::SyncParams {
             ontology_path: ontology_path.to_string(),
             queries_dir: None,
             output_dir: Some(temp_dir.to_string_lossy().to_string()),
@@ -62,7 +62,7 @@ async fn test_sync_tool_dry_run() {
     let ontology_path = "examples/basic-template-generation/ontology/templates.ttl";
 
     let result = server
-        .sync(ggen_a2a_mcp::ggen_server::SyncParams {
+        .sync(mcpp_a2a_mcp::mcpp_server::SyncParams {
             ontology_path: ontology_path.to_string(),
             queries_dir: None,
             output_dir: None,

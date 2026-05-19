@@ -2,8 +2,8 @@
 //!
 //! Tests SPARQL-based extraction of RDF/OWL ontologies into structured Rust types
 
-use ggen_core::graph::Graph;
-use ggen_core::ontology::{Cardinality, OntologyExtractor, PropertyRange, RelationshipType};
+use mcpp_core::graph::Graph;
+use mcpp_core::ontology::{Cardinality, OntologyExtractor, PropertyRange, RelationshipType};
 use std::fs;
 use std::path::Path;
 

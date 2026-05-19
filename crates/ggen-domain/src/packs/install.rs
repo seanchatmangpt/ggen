@@ -1,7 +1,7 @@
 //! Pack installation logic
 
 use crate::packs::metadata::load_pack_metadata;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -58,7 +58,7 @@ pub async fn install_pack(input: &InstallInput) -> Result<InstallOutput> {
     let install_path = input.target_dir.clone().unwrap_or_else(|| {
         dirs::home_dir()
             .unwrap_or_else(|| PathBuf::from("."))
-            .join(".ggen")
+            .join(".mcpp")
             .join("packages")
     });
 

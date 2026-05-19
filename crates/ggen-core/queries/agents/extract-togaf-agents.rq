@@ -12,9 +12,9 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX a2a: <http://ggen.ai/a2a#>
-PREFIX togaf: <http://ggen.ai/togaf#>
-PREFIX turn: <http://ggen.ai/turn#>
+PREFIX a2a: <http://mcpp.ai/a2a#>
+PREFIX togaf: <http://mcpp.ai/togaf#>
+PREFIX turn: <http://mcpp.ai/turn#>
 
 SELECT DISTINCT ?phase_id ?phase_name ?phase_description ?system_prompt
                 ?phase_number ?turn_start ?turn_end ?turns_required

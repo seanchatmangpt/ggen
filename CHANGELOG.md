@@ -1,11 +1,11 @@
 # Changelog
 
-All notable changes to ggen will be documented in this file.
+All notable changes to mcpp will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.0.1] — Production Release (2026-03-31)
+## [26.5.4] — Production Release (2026-03-31)
 
 ### Added
 
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - observable-agent: Multi-protocol (MCP + A2A + OTel) docker-compose
 
 - **Test Suite Restoration**: Fixed and gated 500+ broken test files
-  - All 26 original examples now pass `ggen sync`
+  - All 26 original examples now pass `mcpp sync`
   - Green test suite: 66 tests passing, 0 failing
   - Integration tests gated behind `integration` feature flag
 
@@ -68,19 +68,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Details
 
-- **Version**: 6.0.1 (patch release - focus on quality and completeness)
+- **Version**: 26.5.4 (patch release - focus on quality and completeness)
 - **Commits**: 34 commits since v5.1.0
-- **Files Modified**: 142 files with version 6.0.1
+- **Files Modified**: 142 files with version 26.5.4
 - **Test Status**: 66/66 tests passing (100% pass rate)
 - **Breaking Changes**: None
 - **Migration Required**: No
 
 ### Documentation
 
-- Release Notes: `/Users/sac/ggen/RELEASE_NOTES.md`
-- MCP Integration: `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
-- Elixir A2A: `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
-- rmcp 1.3.0: `/Users/sac/ggen/docs/RMCP_NOTES.md`
+- Release Notes: `~/.ggen/mcpp/RELEASE_NOTES.md`
+- MCP Integration: `~/.ggen/mcpp/crates/mcpp-a2a-mcp/README.md`
+- Elixir A2A: `~/.ggen/mcpp/docs/ELIXIR_A2A_NOTES.md`
+- rmcp 1.3.0: `~/.ggen/mcpp/docs/RMCP_NOTES.md`
 
 ---
 
@@ -88,35 +88,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **9 MCP tools** in `crates/ggen-a2a-mcp/src/ggen_server.rs`:
-  - `generate` / `sync` — wired to `ggen_core::sync::sync()` via `spawn_blocking`; accepts
+- **9 MCP tools** in `crates/mcpp-a2a-mcp/src/mcpp_server.rs`:
+  - `generate` / `sync` — wired to `mcpp_core::sync::sync()` via `spawn_blocking`; accepts
     `ontology_path`, optional `queries_dir`, `output_dir`, `language`, `dry_run`
   - `validate` — oxigraph Turtle parser; reports triple count on success
   - `list_generators` — returns JSON array of all 7 supported generators
   - `list_examples` — scans `examples/` dir (configurable via `GGEN_EXAMPLES_DIR`), optional
     `category` filter, `limit`
-  - `get_example` — returns `ggen.toml`, ontology TTL, README, template file list for a named example
-  - `search` — delegates to `ggen_domain::marketplace::search_packages()` with fuzzy matching
+  - `get_example` — returns `mcpp.toml`, ontology TTL, README, template file list for a named example
+  - `search` — delegates to `mcpp_domain::marketplace::search_packages()` with fuzzy matching
   - `scaffold_from_example` — copies an example directory to a target path
   - `query_ontology` — SPARQL SELECT via `SparqlEvaluator` (non-deprecated oxigraph API) on an
     inline TTL string; returns JSON rows
-- **MCP Resources** — `ggen://example/{name}`, `ggen://example/{name}/ttl`,
-  `ggen://example/{name}/readme`, `ggen://example/{name}/config`; cursor-based pagination
+- **MCP Resources** — `mcpp://example/{name}`, `mcpp://example/{name}/ttl`,
+  `mcpp://example/{name}/readme`, `mcpp://example/{name}/config`; cursor-based pagination
   (page size 20)
 - **MCP Prompts** — three domain-specific prompt templates:
   - `explain-rdf-schema` (arg: `ttl_content`) — asks LLM to explain the schema in plain English
-  - `generate-from-example` (args: `example_name`, `target_domain`) — loads real TTL + ggen.toml,
+  - `generate-from-example` (args: `example_name`, `target_domain`) — loads real TTL + mcpp.toml,
     asks LLM to adapt for a new domain
-  - `scaffold-project` (args: `domain`, `language`) — asks LLM to create TTL + ggen.toml from scratch
+  - `scaffold-project` (args: `domain`, `language`) — asks LLM to create TTL + mcpp.toml from scratch
 - **MCP Completions** — autocomplete for `example_name` (lists discovered examples) and
   `generator`/`language` (lists generator names)
 - `ServerCapabilities` now advertises tools + resources + prompts + completions
-- `crates/ggen-a2a-mcp/README.md` — full crate documentation
-- **15 Chicago TDD tests** in `tests/ggen_server_test.rs` covering all four MCP primitives
+- `crates/mcpp-a2a-mcp/README.md` — full crate documentation
+- **15 Chicago TDD tests** in `tests/mcpp_server_test.rs` covering all four MCP primitives
 
 ### Changed
 
-- `crates/ggen-a2a-mcp/Cargo.toml` — added `ggen-core.workspace` and `ggen-domain.workspace`
+- `crates/mcpp-a2a-mcp/Cargo.toml` — added `mcpp-core.workspace` and `mcpp-domain.workspace`
   dependencies to wire the real sync pipeline and marketplace search
 
 ---
@@ -125,19 +125,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `crates/ggen-core/queries/elixir-a2a/extract-agents.rq` — SPARQL SELECT extracting
+- `crates/mcpp-core/queries/elixir-a2a/extract-agents.rq` — SPARQL SELECT extracting
   `a2a:Agent` nodes for Elixir code generation (one row per agent, skills as CSV).
-- `crates/ggen-core/templates/elixir-a2a/agents.ex.tera` — generates one `defmodule`
+- `crates/mcpp-core/templates/elixir-a2a/agents.ex.tera` — generates one `defmodule`
   per agent using `use A2A.Agent` with `handle_message/2` stub and OTP-ready boilerplate.
-- `crates/ggen-core/templates/elixir-a2a/router.ex.tera` — generates a `Plug.Router`
+- `crates/mcpp-core/templates/elixir-a2a/router.ex.tera` — generates a `Plug.Router`
   module with one `forward` per agent pointing to `A2A.Plug`.
-- `crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera` — generates an
+- `crates/mcpp-core/templates/elixir-a2a/supervisor.ex.tera` — generates an
   `A2A.AgentSupervisor` wrapper module plus ExUnit test stubs for each agent.
-- `ggen.toml` — three new generation rules: `elixir-a2a-agents`, `elixir-a2a-router`,
+- `mcpp.toml` — three new generation rules: `elixir-a2a-agents`, `elixir-a2a-router`,
   `elixir-a2a-supervisor`, all driven by the same SPARQL query.
 - `docs/ELIXIR_A2A_NOTES.md` — full usage guide: RDF schema, Phoenix wiring, domain
   logic implementation, A2A return value reference.
-- `crates/ggen-core/tests/elixir_a2a_render_test.rs` — 6 Chicago TDD tests (RED → GREEN)
+- `crates/mcpp-core/tests/elixir_a2a_render_test.rs` — 6 Chicago TDD tests (RED → GREEN)
   verifying template rendering for all three templates.
 
 ---
@@ -146,14 +146,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `crates/ggen-core/templates/mcp-server/_head.tera` — imports switched from
+- `crates/mcpp-core/templates/mcp-server/_head.tera` — imports switched from
   `jsonrpc_core` to `rmcp 1.3.0` (`tool`, `tool_handler`, `tool_router`, `ServerHandler`,
   `ToolRouter`, `Parameters`, `schemars`).
-- `crates/ggen-core/templates/mcp-server/tool_handler.rs.tera` — full rewrite:
+- `crates/mcpp-core/templates/mcp-server/tool_handler.rs.tera` — full rewrite:
   generates `#[tool_router]` on the struct impl and `#[tool_handler]` on
   `impl ServerHandler`. Both macros are required; `#[tool_handler]` is the most
   common omission (its absence causes `list_tools()` → empty, `call_tool()` → -32601).
-- `crates/ggen-core/templates/mcp-server/stdio_server.rs.tera` — `start_async` now
+- `crates/mcpp-core/templates/mcp-server/stdio_server.rs.tera` — `start_async` now
   uses the correct keep-alive idiom: `svc.waiting().await` instead of `let _ = serve(...)`.
   The old pattern drops `RunningService` immediately, firing the `DropGuard` and
   cancelling the connection.
@@ -172,18 +172,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **4 protocol integration examples**: `weaver-semantic-conventions`, `mcp-server-definition`, `a2a-agent-definition`, `observable-agent` — all run `ggen sync` cleanly; demonstrate OTel Weaver YAML, rmcp 1.3.0 Rust server, a2a-rs agent, and multi-protocol docker-compose generation from RDF.
+- **4 protocol integration examples**: `weaver-semantic-conventions`, `mcp-server-definition`, `a2a-agent-definition`, `observable-agent` — all run `mcpp sync` cleanly; demonstrate OTel Weaver YAML, rmcp 1.3.0 Rust server, a2a-rs agent, and multi-protocol docker-compose generation from RDF.
 
 ### Fixed
 
-- Gated 500+ broken test files behind `integration` Cargo feature across 13 crates (`ggen-core`, `ggen-cli`, `ggen-ai`, `ggen-domain`, `ggen-transport`, `ggen-a2a`, `ggen-backpressure`, `ggen-canonical`, `ggen-jidoka`, `ggen-marketplace`, `ggen-packet`, `ggen-utils`, `a2a-generated`). Tests reference removed/renamed APIs and are preserved for future restoration. `cargo make test` is now green: 66 tests pass, 0 fail.
-- Repaired pre-existing test failures: TLS network tests (`ggen-api`), emit tests, global-registry tests.
+- Gated 500+ broken test files behind `integration` Cargo feature across 13 crates (`mcpp-core`, `mcpp-cli`, `mcpp-ai`, `mcpp-domain`, `mcpp-transport`, `mcpp-a2a`, `mcpp-backpressure`, `mcpp-canonical`, `mcpp-jidoka`, `mcpp-marketplace`, `mcpp-packet`, `mcpp-utils`, `a2a-generated`). Tests reference removed/renamed APIs and are preserved for future restoration. `cargo make test` is now green: 66 tests pass, 0 fail.
+- Repaired pre-existing test failures: TLS network tests (`mcpp-api`), emit tests, global-registry tests.
 - Fixed `Makefile.toml TEST_CMD` to use `--tests --lib` flags, skipping broken example binaries during `cargo make test`.
-- Fixed double-path issues and wrong-content in 8 examples; all 26 original examples now pass `ggen sync`.
+- Fixed double-path issues and wrong-content in 8 examples; all 26 original examples now pass `mcpp sync`.
 
 ---
 
-## [ggen-ontology-core 0.2.0] - 2026-01-19
+## [mcpp-ontology-core 0.2.0] - 2026-01-19
 
 **Complete Unified Ontology Layer (Phase 1)**
 
@@ -212,7 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Complete Documentation**: 1,500-line integration guide with 5+ patterns, 4 working examples
 
 ### Changed
-- Added ggen-ontology-core crate to workspace
+- Added mcpp-ontology-core crate to workspace
 - Updated CLAUDE.md with ontology layer documentation
 
 ### Performance
@@ -227,7 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Version Justification**: `/docs/releases/v0.2.0/VERSION-BUMP.md`
 - **Index**: `/docs/releases/v0.2.0/INDEX.md`
 
-**Status**: Production-ready, no breaking changes to existing ggen APIs
+**Status**: Production-ready, no breaking changes to existing mcpp APIs
 
 ---
 
@@ -243,8 +243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking Changes
 
 #### Command Structure (from 2.0.0)
-- All commands now use noun-verb pattern (e.g., `ggen template generate` instead of flat structure)
-- `ggen market` → `ggen marketplace` (full word for clarity)
+- All commands now use noun-verb pattern (e.g., `mcpp template generate` instead of flat structure)
+- `mcpp market` → `mcpp marketplace` (full word for clarity)
 - All commands require explicit noun-verb format
 
 #### API Changes (from 2.0.0)
@@ -262,14 +262,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Migration Guide
 
 #### For CLI Users
-1. Update installation: `brew upgrade ggen` or `cargo install ggen`
-2. Update scripts: Replace `ggen market` with `ggen marketplace`
+1. Update installation: `brew upgrade mcpp` or `cargo install mcpp`
+2. Update scripts: Replace `mcpp market` with `mcpp marketplace`
 3. Update command structure: Use noun-verb pattern for all commands
-4. Run: `ggen utils doctor --migrate-config` (if available)
+4. Run: `mcpp utils doctor --migrate-config` (if available)
 
 #### For Library Users
-1. Update `Cargo.toml`: `ggen = "3.0"`
-2. Update imports: `use ggen::marketplace::MarketplaceClient`
+1. Update `Cargo.toml`: `mcpp = "3.0"`
+2. Update imports: `use mcpp::marketplace::MarketplaceClient`
 3. Use builder pattern for client creation
 4. Review API changes in domain layer
 
@@ -293,21 +293,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 #### Compilation Errors
-- **Version Mismatch**: Fixed `ggen-cli` dependency on `ggen-domain` (was `^3.1.0`, now `2.7.1`)
-  - Resolves compilation error: `failed to select a version for the requirement ggen-domain = "^3.1.0"`
-  - File: `crates/ggen-cli/Cargo.toml`
+- **Version Mismatch**: Fixed `mcpp-cli` dependency on `mcpp-domain` (was `^3.1.0`, now `2.7.1`)
+  - Resolves compilation error: `failed to select a version for the requirement mcpp-domain = "^3.1.0"`
+  - File: `crates/mcpp-cli/Cargo.toml`
 - **KeyPair Clone Issue**: Removed invalid `.clone()` call on `KeyPair` type
   - `KeyPair` doesn't implement `Clone` trait
   - Fixed test: `test_verify_invalid_signature_returns_false`
-  - File: `crates/ggen-marketplace/tests/crypto_ed25519.rs`
+  - File: `crates/mcpp-marketplace/tests/crypto_ed25519.rs`
 - **Package Type Mismatch**: Fixed conversion from `UnvalidatedPackage` to `Package`
   - Added proper validation chain: `.build()?.validate()?.package().clone()`
   - Fixed test helper: `create_test_package`
-  - File: `crates/ggen-marketplace/tests/integration_critical_paths.rs`
+  - File: `crates/mcpp-marketplace/tests/integration_critical_paths.rs`
 - **KeyPair Move Issue**: Fixed move out of `KeyPair` when accessing `public_key`
   - Changed to clone `public_key` instead: `keypair2.public_key.clone()`
   - Fixed test: `test_signature_verification_with_wrong_public_key_fails`
-  - File: `crates/ggen-marketplace/tests/crypto_ed25519.rs`
+  - File: `crates/mcpp-marketplace/tests/crypto_ed25519.rs`
 
 ## [2.7.0] - 2025-11-15
 
@@ -316,7 +316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Comprehensive Business & Operations Documentation
 
 **University Research Implementation Program**
-- **UNIVERSITY_BUSINESS_MODEL.md** (701 lines): Complete market analysis for positioning ggen in academic research
+- **UNIVERSITY_BUSINESS_MODEL.md** (701 lines): Complete market analysis for positioning mcpp in academic research
   - Market problem formulation (reproducibility crisis)
   - Three-tier pricing model (Free, Professional, Enterprise)
   - Go-to-market strategy with 3-phase rollout
@@ -332,7 +332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Zero-drift proof for ontology-driven architecture
     - Differential equations for code maintenance cost analysis
   - Quantitative market analysis
-    - 12,000 ggen-suitable research papers/year addressable market
+    - 12,000 mcpp-suitable research papers/year addressable market
     - Three-tier revenue projections: $68.75M Year 3
     - Network effects modeling (500 packages × 500K adopters at equilibrium)
   - S-curve adoption dynamics
@@ -355,12 +355,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Marketplace Operations**: Publishing pipeline, quality dashboard, package health
   - **University Partnership Workflows**: Subscription onboarding, success planning
   - **Research Implementation Workflows**: 8-week paper-to-marketplace process
-    - Phase-by-phase breakdown with actual ggen commands
+    - Phase-by-phase breakdown with actual mcpp commands
     - RDF ontology generation from papers
     - Multi-language code generation and testing
     - Marketplace publishing and promotion
   - **End-to-End Operational Pipelines**: Complete scenario integration
-  - **Command Quick Reference**: All ggen CLI operations mapped to business use cases
+  - **Command Quick Reference**: All mcpp CLI operations mapped to business use cases
   - All workflows include actual bash scripts, GitHub Actions YAML, and JSON integration examples
 
 #### Integration Points
@@ -378,7 +378,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
-The 2.7.0 release positions ggen as:
+The 2.7.0 release positions mcpp as:
 - **Academic Research Tool**: Comprehensive playbook for university partnerships
 - **Business-Ready Solution**: Mathematical proofs of ROI and market opportunity
 - **Operationally Integrated**: Real-world workflows for all business functions
@@ -386,7 +386,7 @@ The 2.7.0 release positions ggen as:
 
 #### Key Highlights
 
-1. **Business Model is Executable**: Every document includes actual ggen CLI commands showing how operations work
+1. **Business Model is Executable**: Every document includes actual mcpp CLI commands showing how operations work
 2. **Revenue Mathematically Justified**: Formal paper with equations proving Year-3 projections of $68.75M
 3. **University-First Approach**: Complete framework for academic market penetration
 4. **Operational Clarity**: No theoretical frameworks—practical scripts for RevOps, DevOps, GTM
@@ -409,7 +409,7 @@ All new documentation follows the **Diataxis Framework**:
   - Research Paper: 899 lines
   - Operations Guide: 2,309 lines
 - **All documents production-ready** with 89%+ completion metrics
-- **Full integration** with existing ggen documentation at `docs/`
+- **Full integration** with existing mcpp documentation at `docs/`
 
 ## [2.6.0] - 2025-11-12
 
@@ -429,10 +429,10 @@ All new documentation follows the **Diataxis Framework**:
 
 #### Code Quality Improvements (Kaizen)
 - **Error Safety**: Replaced `unwrap()` in cycle detection with safe pattern matching (Poka-Yoke)
-  - File: `crates/ggen-core/src/lifecycle/hooks.rs`
+  - File: `crates/mcpp-core/src/lifecycle/hooks.rs`
   - Prevents potential panics in hook validation
 - **Magic Strings Extraction**: Extracted magic strings to named constants
-  - Created `defaults` module in `crates/ggen-core/src/lifecycle/model.rs`
+  - Created `defaults` module in `crates/mcpp-core/src/lifecycle/model.rs`
   - Constants: `DEFAULT_PROJECT_NAME`, `DEFAULT_PROJECT_VERSION`, `DEFAULT_READINESS_PROJECT_NAME`
   - Updated `loader.rs`, `production.rs`, and test files to use constants
   - Improves maintainability and self-documentation
@@ -445,7 +445,7 @@ All new documentation follows the **Diataxis Framework**:
   - Created `defaults` module with 3 configuration constants
   - Improved code readability and maintainability
   - Made scoring weights easier to tune and understand
-  - Files: `crates/ggen-domain/src/marketplace/search.rs`
+  - Files: `crates/mcpp-domain/src/marketplace/search.rs`
 
 #### Documentation Consolidation (SPR Technique)
 - **Sparse Priming Representation**: Applied SPR technique to consolidate documentation
@@ -476,13 +476,13 @@ All new documentation follows the **Diataxis Framework**:
   - Standardized iterator usage (`.last()` → `.rev().find()` for double-ended iterators)
   - Standardized error handling (`map_err` → `inspect_err` for side effects)
   - Combined identical if branches for cleaner code
-  - Files: `crates/ggen-domain/src/graph/visualize.rs`, `crates/ggen-domain/src/template/`, `crates/ggen-domain/src/marketplace/`
+  - Files: `crates/mcpp-domain/src/graph/visualize.rs`, `crates/mcpp-domain/src/template/`, `crates/mcpp-domain/src/marketplace/`
 
 #### OpenTelemetry API Compatibility
-- **Dependency Alignment**: Fixed OpenTelemetry version mismatch in ggen-marketplace
+- **Dependency Alignment**: Fixed OpenTelemetry version mismatch in mcpp-marketplace
   - Updated to use workspace OpenTelemetry versions (0.21/0.14) for consistency
   - Resolved compilation errors from API changes
-  - Files: `crates/ggen-marketplace/Cargo.toml`, `crates/ggen-marketplace/src/telemetry.rs`
+  - Files: `crates/mcpp-marketplace/Cargo.toml`, `crates/mcpp-marketplace/src/telemetry.rs`
 
 #### Clippy Linting Errors (24 fixes)
 - **Code Quality**: Fixed all clippy warnings and errors
@@ -495,21 +495,21 @@ All new documentation follows the **Diataxis Framework**:
   - `collapsible_else_if` → collapsed (1 instance) for readability
   - `too_many_arguments` → refactored to use struct (1 instance) for maintainability
   - Various other code quality improvements
-  - Files: Multiple files across `crates/ggen-domain/src/`
+  - Files: Multiple files across `crates/mcpp-domain/src/`
 
 #### Error Handling Improvements
 - **Version Parsing**: Fixed silent failure in `publish.rs` version parsing
   - Changed from `unwrap_or(0)` to proper `Result` error handling
   - Added descriptive error messages for invalid version formats
   - Prevents creation of invalid versions like `0.0.0`
-  - Files: `crates/ggen-domain/src/marketplace/publish.rs`
+  - Files: `crates/mcpp-domain/src/marketplace/publish.rs`
 
 #### Search Relevance Scoring
 - **NaN Handling**: Improved NaN handling in relevance score comparison
   - Changed from `unwrap_or` to `unwrap_or_else` with warning logging
   - Added explicit handling for unexpected NaN values
   - Improved observability and debugging
-  - Files: `crates/ggen-domain/src/marketplace/search.rs`
+  - Files: `crates/mcpp-domain/src/marketplace/search.rs`
 
 #### Andon Signals Resolution
 - **Alert Macros**: Fixed alert macro type errors and unused warnings
@@ -548,7 +548,7 @@ All new documentation follows the **Diataxis Framework**:
 - **Breaking Changes**: None
 - **Deprecations**: None
 - **Performance**: No regressions detected
-- **Dependency Updates**: All workspace crates aligned to 2.6.0 (except ggen-domain at 3.0.0)
+- **Dependency Updates**: All workspace crates aligned to 2.6.0 (except mcpp-domain at 3.0.0)
 
 ### Migration Notes
 
@@ -644,7 +644,7 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 - **Root Cause**: Main CLI used `#[tokio::main]` but helper functions tried to create new runtimes
 - **Solution**: Thread-scoped runtime execution pattern in `runtime_helper.rs`
 - **Impact**: All 32 CLI commands now functional (marketplace, hook, project, ai, graph, template, utils)
-- **Files Modified**: `crates/ggen-cli/src/runtime_helper.rs` (lines 66-139)
+- **Files Modified**: `crates/mcpp-cli/src/runtime_helper.rs` (lines 66-139)
 - **Commands Fixed**:
   - `marketplace list` - No longer panics, returns JSON
   - `hook list` - No longer panics, returns JSON
@@ -738,7 +738,7 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 ### References
 
 - Hive Mind Validation Report: See session logs
-- Runtime Fix Implementation: `crates/ggen-cli/src/runtime_helper.rs`
+- Runtime Fix Implementation: `crates/mcpp-cli/src/runtime_helper.rs`
 - Command JTBD Analysis: All 7 command groups validated
 - Testing Methodology: 80/20 ultrathink approach with collective intelligence
 
@@ -750,13 +750,13 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 
 #### Complete P2P CLI Commands
 - **P2P Command Implementation** (484 lines)
-  - `ggen marketplace p2p start` - Start P2P node and connect to network
-  - `ggen marketplace p2p publish` - Publish packages to P2P network
-  - `ggen marketplace p2p search` - Search for packages on P2P network
-  - `ggen marketplace p2p peer-list` - List connected peers with reputation
-  - `ggen marketplace p2p peer-info` - Get detailed peer information
-  - `ggen marketplace p2p bootstrap` - Bootstrap DHT with known peers
-  - `ggen marketplace p2p status` - Get local node status
+  - `mcpp marketplace p2p start` - Start P2P node and connect to network
+  - `mcpp marketplace p2p publish` - Publish packages to P2P network
+  - `mcpp marketplace p2p search` - Search for packages on P2P network
+  - `mcpp marketplace p2p peer-list` - List connected peers with reputation
+  - `mcpp marketplace p2p peer-info` - Get detailed peer information
+  - `mcpp marketplace p2p bootstrap` - Bootstrap DHT with known peers
+  - `mcpp marketplace p2p status` - Get local node status
   - All commands with comprehensive help text and argument validation
   - Daemon mode support for background node operation
   - JSON/YAML output formats for machine-readable results
@@ -814,7 +814,7 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 - Proximity-based peer selection for reduced latency
 
 #### P2P Backend Integration
-- **P2P Backend** (ggen-marketplace/src/backend/p2p.rs)
+- **P2P Backend** (mcpp-marketplace/src/backend/p2p.rs)
   - libp2p-based networking with Kademlia DHT
   - GossipSub for package announcements
   - Peer reputation system with success/failure tracking
@@ -932,8 +932,8 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
   - Generation planner analyzes template metadata and creates execution plans
   - Project watcher with file system monitoring and debounced regeneration
   - Convention presets: `clap-noun-verb` and `custom`
-- **Project Init Command**: `ggen project init --preset <preset>` for instant project scaffolding
-- **Watch Mode Foundation**: Infrastructure for `ggen project watch` with automatic regeneration
+- **Project Init Command**: `mcpp project init --preset <preset>` for instant project scaffolding
+- **Watch Mode Foundation**: Infrastructure for `mcpp project watch` with automatic regeneration
 - **Template Metadata Parsing**: Support for `{# output: ... #}`, `{# when: ... #}`, `{# query: ... #}` directives
 - **Dependency Graph Analysis**: Topological sorting and circular dependency detection
 
@@ -1029,14 +1029,14 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 ### Breaking Changes
 
 #### Command Structure
-- All commands now use noun-verb pattern (e.g., `ggen template generate`)
+- All commands now use noun-verb pattern (e.g., `mcpp template generate`)
 - Old flat command structure no longer supported
 - Migration: Update scripts to use new command format
 
 #### Command Renaming
-- `ggen market` → `ggen marketplace` (full word for clarity)
+- `mcpp market` → `mcpp marketplace` (full word for clarity)
 - All commands now require explicit noun-verb format
-- Migration: Run `ggen utils doctor --migrate-config`
+- Migration: Run `mcpp utils doctor --migrate-config`
 
 #### API Changes (Library Users)
 - `MarketClient` → `MarketplaceClient`
@@ -1084,13 +1084,13 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 ### Migration Path
 
 **For CLI Users:**
-1. Update installation: `brew upgrade ggen`
-2. Run: `ggen doctor --migrate-config`
-3. Update scripts: Replace `ggen market` with `ggen marketplace`
+1. Update installation: `brew upgrade mcpp`
+2. Run: `mcpp doctor --migrate-config`
+3. Update scripts: Replace `mcpp market` with `mcpp marketplace`
 
 **For Library Users:**
-1. Update `Cargo.toml`: `ggen = "2.0"`
-2. Update imports: `use ggen::marketplace::MarketplaceClient`
+1. Update `Cargo.toml`: `mcpp = "2.0"`
+2. Update imports: `use mcpp::marketplace::MarketplaceClient`
 3. Use builder pattern for client creation
 
 **Timeline:**
@@ -1105,7 +1105,7 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 - Core functionality preserved
 
 **Deprecation:**
-- `ggen market` commands (use `ggen marketplace`)
+- `mcpp market` commands (use `mcpp marketplace`)
 - Old API patterns (builder pattern recommended)
 
 ### Links
@@ -1223,8 +1223,8 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 ## [1.2.0] - 2024-10-30
 
 ### Added
-- Bootstrap command: `ggen project new` for creating projects from scratch
-- File tree generation: `ggen template generate-tree` for complete project structures
+- Bootstrap command: `mcpp project new` for creating projects from scratch
+- File tree generation: `mcpp template generate-tree` for complete project structures
 - Enhanced RDF integration with validation and schema support
 - Node.js bindings (NIF with napi-rs v3)
 - Marketplace registry with 17 tests, 100% pass rate

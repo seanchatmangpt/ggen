@@ -1,8 +1,8 @@
-//! # ggen-ai - LLM integration layer for ggen
+//! # mcpp-ai - LLM integration layer for mcpp
 //!
-//! Thin wrapper around genai for ggen with environment support and caching.
+//! Thin wrapper around genai for mcpp with environment support and caching.
 //!
-//! This crate provides a simplified LLM integration layer for ggen, focusing on:
+//! This crate provides a simplified LLM integration layer for mcpp, focusing on:
 //! - Environment-based configuration
 //! - Response caching
 //! - Template generation
@@ -15,7 +15,7 @@
 //! - **Multi-provider LLM support**: OpenAI, Anthropic, Ollama, Gemini, DeepSeek, xAI/Grok, Groq, Cohere (via genai)
 //! - **Environment-based configuration**: Automatic API key detection and model selection
 //! - **Response caching**: Reduce API costs and latency with intelligent caching
-//! - **Template generation**: Natural language to ggen templates
+//! - **Template generation**: Natural language to mcpp templates
 //! - **SPARQL query generation**: Intent-based query construction
 //! - **Ontology generation**: Domain descriptions to RDF/OWL
 //! - **Code refactoring**: AI-assisted code improvement suggestions
@@ -24,7 +24,7 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
+//! use mcpp_ai::{GenAiClient, LlmClient, LlmConfig};
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Initialize client with default configuration
@@ -81,7 +81,7 @@ pub mod owl;
 #[cfg(test)]
 pub mod test_helpers;
 
-/// OTEL semantic convention attribute names used across ggen-ai.
+/// OTEL semantic convention attribute names used across mcpp-ai.
 pub mod otel_attrs {
     pub const SERVICE_NAME: &str = "service.name";
     pub const SERVICE_VERSION: &str = "service.version";
@@ -119,12 +119,12 @@ pub use types::{DecisionId, PolicyId, RequestId, RuleId};
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Initialize tracing for the ggen-ai crate
+/// Initialize tracing for the mcpp-ai crate
 pub fn init_logging() {
     use tracing_subscriber::{fmt, EnvFilter};
 
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "ggen_ai=info");
+        std::env::set_var("RUST_LOG", "mcpp_ai=info");
     }
 
     let _ = fmt()

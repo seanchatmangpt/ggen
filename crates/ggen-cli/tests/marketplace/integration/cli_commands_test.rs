@@ -17,7 +17,7 @@ use tempfile::TempDir;
 #[test]
 fn test_marketplace_list_command() {
     // Arrange
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act
     let assert = cmd.arg("marketplace").arg("list").assert();
@@ -28,7 +28,7 @@ fn test_marketplace_list_command() {
 
 #[test]
 fn test_marketplace_list_with_json_output() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd.arg("marketplace").arg("list").arg("--json").assert();
 
@@ -39,7 +39,7 @@ fn test_marketplace_list_with_json_output() {
 
 #[test]
 fn test_marketplace_search_with_query() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -55,7 +55,7 @@ fn test_marketplace_search_with_query() {
 
 #[test]
 fn test_marketplace_search_with_limit() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -71,7 +71,7 @@ fn test_marketplace_search_with_limit() {
 
 #[test]
 fn test_marketplace_search_with_category_filter() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -87,7 +87,7 @@ fn test_marketplace_search_with_category_filter() {
 
 #[test]
 fn test_marketplace_search_empty_query_fails() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -102,12 +102,12 @@ fn test_marketplace_search_empty_query_fails() {
 
 #[test]
 fn test_marketplace_maturity_command() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("maturity")
-        .arg("io.ggen.rust.microservice")
+        .arg("io.mcpp.rust.microservice")
         .assert();
 
     assert
@@ -117,12 +117,12 @@ fn test_marketplace_maturity_command() {
 
 #[test]
 fn test_marketplace_maturity_detailed_flag() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("maturity")
-        .arg("io.ggen.rust.microservice")
+        .arg("io.mcpp.rust.microservice")
         .arg("--detailed")
         .assert();
 
@@ -133,13 +133,13 @@ fn test_marketplace_maturity_detailed_flag() {
 
 #[test]
 fn test_marketplace_maturity_verify_production() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // This might fail if package isn't production-ready
     let _ = cmd
         .arg("marketplace")
         .arg("maturity")
-        .arg("io.ggen.rust.microservice")
+        .arg("io.mcpp.rust.microservice")
         .arg("--verify")
         .arg("production")
         .assert();
@@ -149,12 +149,12 @@ fn test_marketplace_maturity_verify_production() {
 
 #[test]
 fn test_marketplace_maturity_verify_beta() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("maturity")
-        .arg("io.ggen.rust.microservice")
+        .arg("io.mcpp.rust.microservice")
         .arg("--verify")
         .arg("beta")
         .assert();
@@ -165,7 +165,7 @@ fn test_marketplace_maturity_verify_beta() {
 
 #[test]
 fn test_marketplace_dashboard_command() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd.arg("marketplace").arg("dashboard").assert();
 
@@ -180,7 +180,7 @@ fn test_marketplace_dashboard_with_output_file() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("dashboard.json");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act
     let assert = cmd
@@ -201,7 +201,7 @@ fn test_marketplace_dashboard_with_output_file() {
 
 #[test]
 fn test_marketplace_dashboard_filter_production() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -215,14 +215,14 @@ fn test_marketplace_dashboard_filter_production() {
 
 #[test]
 fn test_marketplace_validate_single_package() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Use a package that should exist
     let assert = cmd
         .arg("marketplace")
         .arg("validate")
         .arg("--package")
-        .arg("io.ggen.rust.microservice")
+        .arg("io.mcpp.rust.microservice")
         .assert();
 
     assert.success().stdout(predicate::str::contains("score"));
@@ -230,7 +230,7 @@ fn test_marketplace_validate_single_package() {
 
 #[test]
 fn test_marketplace_validate_all_packages() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd.arg("marketplace").arg("validate").assert();
 
@@ -241,7 +241,7 @@ fn test_marketplace_validate_all_packages() {
 
 #[test]
 fn test_marketplace_validate_require_production() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Might fail if packages aren't production-ready
     let _ = cmd
@@ -254,13 +254,13 @@ fn test_marketplace_validate_require_production() {
 
 #[test]
 fn test_marketplace_validate_improvement_plan() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("validate")
         .arg("--package")
-        .arg("io.ggen.rust.microservice")
+        .arg("io.mcpp.rust.microservice")
         .arg("--improvement-plan")
         .assert();
 
@@ -272,7 +272,7 @@ fn test_marketplace_export_json() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("export.json");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -295,7 +295,7 @@ fn test_marketplace_export_csv() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("export.csv");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -318,7 +318,7 @@ fn test_marketplace_export_html() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("export.html");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -342,7 +342,7 @@ fn test_marketplace_export_filter_by_maturity() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("production.json");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -361,15 +361,15 @@ fn test_marketplace_export_filter_by_maturity() {
 
 #[test]
 fn test_marketplace_compare_two_packages() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("compare")
         .arg("--package-a")
-        .arg("io.ggen.compiler")
+        .arg("io.mcpp.compiler")
         .arg("--package-b")
-        .arg("io.ggen.parser")
+        .arg("io.mcpp.parser")
         .assert();
 
     assert
@@ -379,15 +379,15 @@ fn test_marketplace_compare_two_packages() {
 
 #[test]
 fn test_marketplace_compare_detailed() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("compare")
         .arg("--package-a")
-        .arg("io.ggen.compiler")
+        .arg("io.mcpp.compiler")
         .arg("--package-b")
-        .arg("io.ggen.parser")
+        .arg("io.mcpp.parser")
         .arg("--detailed")
         .assert();
 
@@ -399,15 +399,15 @@ fn test_marketplace_compare_with_output() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("comparison.json");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("compare")
         .arg("--package-a")
-        .arg("io.ggen.compiler")
+        .arg("io.mcpp.compiler")
         .arg("--package-b")
-        .arg("io.ggen.parser")
+        .arg("io.mcpp.parser")
         .arg("--output")
         .arg(&output_path)
         .assert();
@@ -418,7 +418,7 @@ fn test_marketplace_compare_with_output() {
 
 #[test]
 fn test_marketplace_recommend_production() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -434,7 +434,7 @@ fn test_marketplace_recommend_production() {
 
 #[test]
 fn test_marketplace_recommend_research() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -448,7 +448,7 @@ fn test_marketplace_recommend_research() {
 
 #[test]
 fn test_marketplace_recommend_with_priority() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -464,7 +464,7 @@ fn test_marketplace_recommend_with_priority() {
 
 #[test]
 fn test_marketplace_recommend_min_score() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -480,7 +480,7 @@ fn test_marketplace_recommend_min_score() {
 
 #[test]
 fn test_marketplace_search_maturity_production() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -494,7 +494,7 @@ fn test_marketplace_search_maturity_production() {
 
 #[test]
 fn test_marketplace_search_maturity_dimensions() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -512,7 +512,7 @@ fn test_marketplace_search_maturity_dimensions() {
 
 #[test]
 fn test_marketplace_maturity_batch() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd.arg("marketplace").arg("maturity-batch").assert();
 
@@ -526,7 +526,7 @@ fn test_marketplace_maturity_batch_with_output() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("batch.json");
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")

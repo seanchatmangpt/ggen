@@ -1,15 +1,15 @@
 //! Groq LLM Bridge - Connects async GenAiClient to sync LlmService trait
 //!
-//! This module provides the bridge between the async LLM client in ggen-ai
-//! and the sync LlmService trait in ggen-core, avoiding cyclic dependencies.
+//! This module provides the bridge between the async LLM client in mcpp-ai
+//! and the sync LlmService trait in mcpp-core, avoiding cyclic dependencies.
 //!
 //! Architecture:
-//! - ggen-ai: Async GenAiClient (rust-genai based)
-//! - ggen-core: Sync LlmService trait (for dependency injection)
-//! - ggen-cli: GroqLlmBridge (async→sync bridge using tokio runtime)
+//! - mcpp-ai: Async GenAiClient (rust-genai based)
+//! - mcpp-core: Sync LlmService trait (for dependency injection)
+//! - mcpp-cli: GroqLlmBridge (async→sync bridge using tokio runtime)
 
-use ggen_ai::client::{GenAiClient, LlmClient, LlmConfig};
-use ggen_core::codegen::pipeline::LlmService;
+use mcpp_ai::client::{GenAiClient, LlmClient, LlmConfig};
+use mcpp_core::codegen::pipeline::LlmService;
 use std::error::Error;
 
 /// Bridge implementation that converts async GenAiClient to sync LlmService
@@ -76,7 +76,7 @@ impl GroqLlmBridge {
             .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
 
         // Block on async call
-        let response: ggen_ai::client::LlmResponse = rt
+        let response: mcpp_ai::client::LlmResponse = rt
             .block_on(async { self.client.complete(prompt).await })
             .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
 

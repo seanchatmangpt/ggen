@@ -1,7 +1,7 @@
 /**
- * Vanilla JavaScript test suite for @ggen/node
+ * Vanilla JavaScript test suite for @mcpp/node
  *
- * These tests demonstrate that ggen-node works in vanilla JavaScript environments
+ * These tests demonstrate that mcpp-node works in vanilla JavaScript environments
  * without React, TypeScript, or any framework dependencies.
  *
  * @file Browser-compatible vanilla JS tests (non-React, non-TypeScript)
@@ -160,7 +160,7 @@ describe('Vanilla JavaScript API - Utility Commands', () => {
   it('help() returns help text in vanilla JS', async () => {
     const result = await help();
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain('ggen');
+    expect(result.stdout).toContain('mcpp');
   });
 
   it('help(command) with specific command', async () => {
@@ -261,7 +261,7 @@ describe('Vanilla JavaScript API - Browser Compatibility', () => {
         return result.stdout;
       })
       .then((stdout) => {
-        expect(stdout).toContain('ggen');
+        expect(stdout).toContain('mcpp');
       });
   });
 

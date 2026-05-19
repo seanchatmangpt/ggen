@@ -1,16 +1,16 @@
-# FMEA Analysis & Poka-Yoke Code Recommendations for ggen
+# FMEA Analysis & Poka-Yoke Code Recommendations for mcpp
 
 **Feature Branch**: `006-marketplace-fmea-poka-yoke`
 **Created**: 2025-12-14 | **Status**: Complete | **Completed**: 2025-12-14
-**Purpose**: Identify failure modes in ggen and recommend structural code changes to prevent them
+**Purpose**: Identify failure modes in mcpp and recommend structural code changes to prevent them
 
 ---
 
-## Critical Context: ggen is for AI Coding Agents
+## Critical Context: mcpp is for AI Coding Agents
 
-**ggen is NOT intended for human developers**. It's used by AI coding agents (Claude Code, etc.) to generate code from RDF ontologies.
+**mcpp is NOT intended for human developers**. It's used by AI coding agents (Claude Code, etc.) to generate code from RDF ontologies.
 
-**Who uses ggen**:
+**Who uses mcpp**:
 - Claude Code authoring CLI applications
 - AI agents generating domain models from ontologies
 - Automated pipelines creating type-safe code from RDF
@@ -22,12 +22,12 @@
 
 ---
 
-## Architectural Principle: ggen.toml is the Single Source of Truth
+## Architectural Principle: mcpp.toml is the Single Source of Truth
 
-**ALL configuration and automation flows from ggen.toml**. The agent reads ggen.toml, understands the project structure, and operates accordingly.
+**ALL configuration and automation flows from mcpp.toml**. The agent reads mcpp.toml, understands the project structure, and operates accordingly.
 
 ```toml
-# ggen.toml - The ONLY file that defines project behavior
+# mcpp.toml - The ONLY file that defines project behavior
 [project]
 name = "my-cli"
 ontology = "ontology/"
@@ -38,7 +38,7 @@ domain_dir = "src/domain"         # Agent NEVER overwrites here (after stubs)
 warning_headers = true
 ```
 
-**Why ggen.toml-centric**:
+**Why mcpp.toml-centric**:
 1. Single file to read = deterministic agent behavior
 2. All paths defined = no guessing where files go
 3. Declarative config = agent knows the rules upfront
@@ -49,11 +49,11 @@ warning_headers = true
 
 **Question**: "How do AI agents regenerate code freely without losing previously authored domain logic?"
 
-**Current Risk**: When an AI agent runs `ggen generate`, it could accidentally overwrite domain implementations it authored in a previous session.
+**Current Risk**: When an AI agent runs `mcpp generate`, it could accidentally overwrite domain implementations it authored in a previous session.
 
 ---
 
-## FMEA Analysis: ggen Generation Lifecycle (AI Agent Context)
+## FMEA Analysis: mcpp Generation Lifecycle (AI Agent Context)
 
 ### Failure Mode Identification
 
@@ -63,7 +63,7 @@ warning_headers = true
 | F2 | Regenerate overwrites domain logic from prior session | 10 | 4 | 3 | **120** | Generated and domain code in same location |
 | F3 | Agent loses context between sessions | 5 | 7 | 8 | **280** | No persistent record of what was generated vs authored |
 | F4 | Trait signature doesn't enforce Result<T, E> | 8 | 6 | 5 | **240** | No contract enforcement in generated code |
-| F5 | Agent doesn't know ggen.toml conventions | 6 | 8 | 4 | **192** | Configuration not self-documenting |
+| F5 | Agent doesn't know mcpp.toml conventions | 6 | 8 | 4 | **192** | Configuration not self-documenting |
 
 **RPN = Severity × Occurrence × Detection** (higher = worse)
 
@@ -75,24 +75,24 @@ warning_headers = true
 
 ---
 
-## Poka-Yoke Recommendations (ggen.toml-Driven Changes)
+## Poka-Yoke Recommendations (mcpp.toml-Driven Changes)
 
-### Recommendation 1: Directory Separation via ggen.toml (Fixes F2, F3)
+### Recommendation 1: Directory Separation via mcpp.toml (Fixes F2, F3)
 
 **Current State**: No clear separation between generated and domain code.
 
-**ggen.toml Configuration**:
+**mcpp.toml Configuration**:
 ```toml
 [generation]
-# These paths are read by ggen and respected by the agent
-generated_dir = "src/generated"   # ggen ALWAYS regenerates here
-domain_dir = "src/domain"         # ggen NEVER touches here (after initial stubs)
+# These paths are read by mcpp and respected by the agent
+generated_dir = "src/generated"   # mcpp ALWAYS regenerates here
+domain_dir = "src/domain"         # mcpp NEVER touches here (after initial stubs)
 ```
 
 **Resulting Structure**:
 ```
 src/
-├── generated/     # ggen regenerates freely here
+├── generated/     # mcpp regenerates freely here
 │   └── user/
 │       ├── mod.rs
 │       └── suspend.rs  # pub trait UserSuspend { ... }
@@ -103,11 +103,11 @@ src/
         └── suspend.rs  # impl UserSuspend for User { ... }
 ```
 
-**Implementation Location**: `crates/ggen-domain/src/template.rs`
+**Implementation Location**: `crates/mcpp-domain/src/template.rs`
 
 **Code Change**:
 ```rust
-// Read paths from ggen.toml config
+// Read paths from mcpp.toml config
 fn get_output_path(config: &GgenConfig, noun: &str, verb: &str, file_type: FileType) -> PathBuf {
     match file_type {
         FileType::Trait => config.generation.generated_dir.join(noun).join(format!("{}.rs", verb)),
@@ -116,7 +116,7 @@ fn get_output_path(config: &GgenConfig, noun: &str, verb: &str, file_type: FileT
 }
 ```
 
-**Why This Works**: ggen.toml declares the contract. Agent reads it. Physical separation makes overwrites **impossible**.
+**Why This Works**: mcpp.toml declares the contract. Agent reads it. Physical separation makes overwrites **impossible**.
 
 ---
 
@@ -128,8 +128,8 @@ fn get_output_path(config: &GgenConfig, noun: &str, verb: &str, file_type: FileT
 
 **Generated file** (`src/generated/user/suspend.rs`):
 ```rust
-// DO NOT EDIT - Generated by ggen from user.ttl
-// Regenerate with: ggen generate
+// DO NOT EDIT - Generated by mcpp from user.ttl
+// Regenerate with: mcpp generate
 
 /// Trait defining the contract for suspend operation
 pub trait UserSuspend {
@@ -170,23 +170,23 @@ impl UserSuspend for UserService {
 
 **Current State**: No indication that a file is generated.
 
-**Recommended Code Change**: `ggen generate` prepends a warning header to all generated files:
+**Recommended Code Change**: `mcpp generate` prepends a warning header to all generated files:
 
 ```rust
 // ============================================================
 // DO NOT EDIT THIS FILE
 //
-// This file is auto-generated by ggen from RDF ontology.
+// This file is auto-generated by mcpp from RDF ontology.
 // Any manual changes will be OVERWRITTEN on regeneration.
 //
 // To customize behavior, implement the trait in:
 //   src/domain/user/suspend.rs
 //
-// Regenerate with: ggen generate
+// Regenerate with: mcpp generate
 // ============================================================
 ```
 
-**Implementation Location**: `crates/ggen-domain/src/generation/headers.rs` (new file)
+**Implementation Location**: `crates/mcpp-domain/src/generation/headers.rs` (new file)
 
 **Code Change**:
 ```rust
@@ -203,7 +203,7 @@ pub fn inject_warning_header(content: &str, file_type: &str) -> String {
         "{cs} ============================================================\n\
          {cs} DO NOT EDIT THIS FILE\n\
          {cs}\n\
-         {cs} This file is auto-generated by ggen from RDF ontology.\n\
+         {cs} This file is auto-generated by mcpp from RDF ontology.\n\
          {cs} Any manual changes will be OVERWRITTEN on regeneration.\n\
          {cs} ============================================================\n\n",
         cs = comment_start
@@ -253,13 +253,13 @@ use crate::generated::user::suspend::UserSuspend;
 impl UserSuspend for UserService {
     fn suspend(&self, user_id: UserId, reason: String) -> Result<SuspendResult, DomainError> {
         // TODO: Implement suspend logic
-        // This stub was created by ggen. Fill in your implementation.
+        // This stub was created by mcpp. Fill in your implementation.
         unimplemented!("UserService::suspend")
     }
 }
 ```
 
-**Implementation Location**: `crates/ggen-domain/src/generation/stubs.rs` (new file)
+**Implementation Location**: `crates/mcpp-domain/src/generation/stubs.rs` (new file)
 
 **Code Change**:
 ```rust
@@ -270,7 +270,7 @@ pub fn should_create_stub(domain_path: &Path) -> bool {
 pub fn generate_stub(trait_name: &str, method_sig: &str) -> String {
     format!(
         "// TODO: Implement {} logic\n\
-         // This stub was created by ggen. Fill in your implementation.\n\
+         // This stub was created by mcpp. Fill in your implementation.\n\
          unimplemented!(\"{}\")",
         trait_name, trait_name
     )
@@ -285,11 +285,11 @@ pub fn generate_stub(trait_name: &str, method_sig: &str) -> String {
 
 | Change | File Location | What to Implement |
 |--------|---------------|-------------------|
-| Directory separation | `crates/ggen-domain/src/template.rs` | Output to `src/generated/` and `src/domain/` |
+| Directory separation | `crates/mcpp-domain/src/template.rs` | Output to `src/generated/` and `src/domain/` |
 | Trait boundary | Template files | Generate `pub trait` in generated, `impl` in domain |
-| Warning headers | `crates/ggen-domain/src/generation/headers.rs` | Inject "DO NOT EDIT" header |
+| Warning headers | `crates/mcpp-domain/src/generation/headers.rs` | Inject "DO NOT EDIT" header |
 | One-file-per-verb | Template structure | Each verb in separate file |
-| Stub creation | `crates/ggen-domain/src/generation/stubs.rs` | Create `unimplemented!()` stubs |
+| Stub creation | `crates/mcpp-domain/src/generation/stubs.rs` | Create `unimplemented!()` stubs |
 
 ---
 
@@ -299,17 +299,17 @@ pub fn generate_stub(trait_name: &str, method_sig: &str) -> String {
 
 **Answer**:
 1. `src/generated/` contains **only traits** (the contract) - regenerate anytime
-2. `src/domain/` contains **only implementations** - ggen never touches this
+2. `src/domain/` contains **only implementations** - mcpp never touches this
 3. Rust compiler ensures domain implements the traits correctly
 4. Warning headers prevent accidental edits to generated files
 
-**Result**: Run `ggen generate` as often as you want. Your domain code is safe.
+**Result**: Run `mcpp generate` as often as you want. Your domain code is safe.
 
 ---
 
-## Configuration Reference: What Already Exists in ggen.toml
+## Configuration Reference: What Already Exists in mcpp.toml
 
-The ggen-config schema (`crates/ggen-config/src/schema.rs`) already defines these structures:
+The mcpp-config schema (`crates/mcpp-config/src/schema.rs`) already defines these structures:
 
 ### Already Implemented in Schema
 
@@ -387,12 +387,12 @@ The config structs exist but the **behavior is not implemented**. The code chang
 | `[generation].regenerate_paths` | ✅ Yes | ❌ No | Add path classification logic |
 | `[generation].generated_header` | ✅ Yes | ❌ No | Inject header in template render |
 | `[generation.poka_yoke].warning_headers` | ✅ Yes | ❌ No | Header injection based on file type |
-| `[marketplace].fmea_validation` | ✅ Yes | ❌ No | Validate during `ggen marketplace install` |
+| `[marketplace].fmea_validation` | ✅ Yes | ❌ No | Validate during `mcpp marketplace install` |
 | `[codeowners].enabled` | ✅ Yes | ❌ No | Generate CODEOWNERS from OWNERS files |
 
 ---
 
-## Example ggen.toml Using Poka-Yoke
+## Example mcpp.toml Using Poka-Yoke
 
 ```toml
 [project]
@@ -403,8 +403,8 @@ version = "1.0.0"
 [generation]
 enabled = true
 protected_paths = ["src/domain/**/*"]           # Agent code lives here permanently
-regenerate_paths = ["src/generated/**/*"]       # ggen regenerates here freely
-generated_header = "// DO NOT EDIT - Generated by ggen from RDF ontology"
+regenerate_paths = ["src/generated/**/*"]       # mcpp regenerates here freely
+generated_header = "// DO NOT EDIT - Generated by mcpp from RDF ontology"
 backup_before_write = true
 
 [generation.poka_yoke]

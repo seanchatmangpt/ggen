@@ -7,7 +7,7 @@
 //! - Score validation and overflow prevention
 //! - Tamper detection and cryptographic verification
 
-use ggen_marketplace::prelude::*;
+use mcpp_marketplace::prelude::*;
 
 // ============================================================================
 // ED25519 SIGNATURE TESTS (original ed25519_signature_test.rs)
@@ -15,7 +15,7 @@ use ggen_marketplace::prelude::*;
 
 #[cfg(feature = "marketplace-v2")]
 mod ed25519_security_tests {
-    use ggen_marketplace_v2::security::SignatureManager;
+    use mcpp_marketplace_v2::security::SignatureManager;
 
     #[test]
     fn test_keypair_generation() {
@@ -123,7 +123,7 @@ mod ed25519_security_tests {
 fn test_package_id_validation() {
     // Valid package IDs
     let valid_ids = vec![
-        "io.ggen.rust.cli",
+        "io.mcpp.rust.cli",
         "com.example.package",
         "org.test.valid_name",
         "package.with.many.segments",

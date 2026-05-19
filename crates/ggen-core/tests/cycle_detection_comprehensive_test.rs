@@ -3,8 +3,8 @@
 //! This test suite verifies that cycle detection and fixing works correctly
 //! with real RDF ontologies containing circular dependencies.
 
-use ggen_core::graph::{cycle_detection, cycle_fixer::CycleFixer, cycle_fixer::FixStrategy};
-use ggen_utils::error::Result;
+use mcpp_core::graph::{cycle_detection, cycle_fixer::CycleFixer, cycle_fixer::FixStrategy};
+use mcpp_utils::error::Result;
 use std::fs;
 use tempfile::TempDir;
 

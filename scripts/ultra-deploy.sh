@@ -9,8 +9,8 @@ set -euo pipefail
 # ============================================================================
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly CLEANROOM_DIR="/Users/sac/ggen/cleanroom/examples/cleanroom"
-readonly GGEN_BIN="/Users/sac/ggen/target/release/ggen"
+readonly CLEANROOM_DIR="./cleanroom/examples/cleanroom"
+readonly GGEN_BIN="./target/release/ggen"
 readonly DEPLOY_START="${SECONDS}"
 
 # Colors for output

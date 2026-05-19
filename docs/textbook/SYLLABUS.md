@@ -5,7 +5,7 @@
 **Course Number:** CS/SE 6XX
 **Prerequisites:** Formal languages, databases, software engineering, enterprise architecture
 **Core Text:** *Ontology-Native Enterprise Construction* (14 Parts, 54 Chapters)
-**Lab Stack:** ggen v6.0.1 (Rust), Oxigraph, SPARQL, Tera templates
+**Lab Stack:** ggen v26.5.4 (Rust), Oxigraph, SPARQL, Tera templates
 **Philosophy:** A = μ(O) — every artifact is a deterministic projection of an ontology graph
 
 ---
@@ -116,7 +116,7 @@ ggen query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
 
 **Lab 4.1 — Event Log to Petri Net**
 ```rust
-// Using ggen-process-mining
+// Using native pictl process mining
 use ggen_process_mining::{EventLog, ProcessMiner, AlphaPlusPlus};
 
 // Parse an XES event log
@@ -148,7 +148,7 @@ assert!(petri_net.is_sound());
 - Formal execution models — tokens, enabled transitions, firing rules
 
 **Lab 5.1 — Alpha++ on Real Event Data**
-- Use `ggen-process-mining` to parse an OCEL log
+- Use `native pictl process mining` to parse an OCEL log
 - Run multi-object discovery
 - Identify the top 3 process variants
 - Generate conformance report
@@ -397,10 +397,10 @@ ggen pack publish --registry local --sign
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| ggen-cli | 6.0.1+ | Code generation, YAWL, packs |
+| ggen-cli | 26.5.4+ | Code generation, YAWL, packs |
 | Rust toolchain | 1.91.1+ | Lab development |
 | Oxigraph | latest | RDF triplestore |
-| ggen-process-mining | latest | Process mining labs |
+| native pictl process mining | latest | Process mining labs |
 | ggen-yawl | latest | Workflow generation |
 
 ## Supplementary Reading

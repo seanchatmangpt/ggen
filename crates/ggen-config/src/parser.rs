@@ -1,9 +1,9 @@
 //! Configuration file parser
 //!
-//! This module provides functionality for loading and parsing ggen.toml files.
+//! This module provides functionality for loading and parsing mcpp.toml files.
 
 use crate::{ConfigError, GgenConfig, Result};
-use ggen_utils::SafePath;
+use mcpp_utils::SafePath;
 use std::fs;
 use std::path::Path;
 
@@ -17,7 +17,7 @@ impl ConfigLoader {
     ///
     /// # Arguments
     ///
-    /// * `path` - Path to the ggen.toml file
+    /// * `path` - Path to the mcpp.toml file
     ///
     /// # Errors
     ///
@@ -36,7 +36,7 @@ impl ConfigLoader {
     ///
     /// # Arguments
     ///
-    /// * `path` - Path to the ggen.toml file
+    /// * `path` - Path to the mcpp.toml file
     ///
     /// # Errors
     ///
@@ -45,10 +45,10 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```no_run
-    /// use ggen_config::ConfigLoader;
+    /// use mcpp_config::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// let config = ConfigLoader::from_file("ggen.toml")?;
+    /// let config = ConfigLoader::from_file("mcpp.toml")?;
     /// println!("Loaded project: {}", config.project.name);
     /// # Ok(())
     /// # }
@@ -71,7 +71,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```
-    /// use ggen_config::ConfigLoader;
+    /// use mcpp_config::ConfigLoader;
     ///
     /// let toml = r#"
     ///     [project]
@@ -97,22 +97,22 @@ impl ConfigLoader {
         Self::from_str(&content)
     }
 
-    /// Find and load ggen.toml from current or parent directories
+    /// Find and load mcpp.toml from current or parent directories
     ///
-    /// Searches upward through the directory tree until finding ggen.toml
+    /// Searches upward through the directory tree until finding mcpp.toml
     /// or reaching the filesystem root.
     ///
     /// # Errors
     ///
-    /// Returns an error if no ggen.toml is found or if it cannot be parsed
+    /// Returns an error if no mcpp.toml is found or if it cannot be parsed
     ///
     /// # Example
     ///
     /// ```no_run
-    /// use ggen_config::ConfigLoader;
+    /// use mcpp_config::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// // Searches current directory and parents for ggen.toml
+    /// // Searches current directory and parents for mcpp.toml
     /// let config = ConfigLoader::find_and_load()?;
     /// # Ok(())
     /// # }
@@ -122,7 +122,7 @@ impl ConfigLoader {
         Self::from_file(path)
     }
 
-    /// Find ggen.toml by searching current and parent directories
+    /// Find mcpp.toml by searching current and parent directories
     ///
     /// # Errors
     ///
@@ -134,7 +134,7 @@ impl ConfigLoader {
 
         loop {
             let candidate = current
-                .join("ggen.toml")
+                .join("mcpp.toml")
                 .map_err(|e| ConfigError::Validation(format!("Path join failed: {e}")))?;
 
             if candidate.exists() {
@@ -142,9 +142,9 @@ impl ConfigLoader {
             }
 
             // Try parent directory
-            current = current.parent().map_err(|_e: ggen_utils::error::Error| {
+            current = current.parent().map_err(|_e: mcpp_utils::error::Error| {
                 ConfigError::FileNotFound(std::path::PathBuf::from(
-                    "ggen.toml (searched all parent directories)",
+                    "mcpp.toml (searched all parent directories)",
                 ))
             })?;
         }
@@ -185,7 +185,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```
-    /// use ggen_config::ConfigLoader;
+    /// use mcpp_config::ConfigLoader;
     /// use serde_json::json;
     ///
     /// let toml = r#"

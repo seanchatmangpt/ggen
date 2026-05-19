@@ -33,7 +33,7 @@
 
 ### Key Modules
 ```
-ggen-domain/src/packs/
+mcpp-domain/src/packs/
 ├── installer.rs          # Production pack installer
 ├── dependency_graph.rs   # Dependency resolution
 ├── repository.rs         # Storage abstraction
@@ -89,7 +89,7 @@ ggen-domain/src/packs/
    - Fix: `cargo clippy --fix --all-targets`
 
 ### Phase 2 Tasks
-3. **CLI Integration**: No `ggen pack install` command yet
+3. **CLI Integration**: No `mcpp pack install` command yet
    - Impact: Medium (works via marketplace)
    - Fix: Add CLI command in Phase 2
 
@@ -153,7 +153,7 @@ git add -p  # Review changes
 git commit -m "style: Fix formatting and clippy warnings in packs module"
 
 # 3. Verify tests still pass
-cargo test --lib --package ggen-domain packs --release
+cargo test --lib --package mcpp-domain packs --release
 ```
 
 ### Phase 2 Start Checklist
@@ -161,7 +161,7 @@ cargo test --lib --package ggen-domain packs --release
 - [ ] Add region detection logic
 - [ ] Extend `DependencyGraph` for region constraints
 - [ ] Test lifecycle integration (`PackLockfile` + snapshots)
-- [ ] Add `ggen pack install <pack-id>` CLI command
+- [ ] Add `mcpp pack install <pack-id>` CLI command
 - [ ] Create architecture documentation
 - [ ] Add OpenTelemetry spans for observability
 
@@ -171,7 +171,7 @@ cargo test --lib --package ggen-domain packs --release
 
 ### Using Pack Installer
 ```rust
-use ggen_domain::packs::{PackInstaller, InstallOptions};
+use mcpp_domain::packs::{PackInstaller, InstallOptions};
 
 #[tokio::main]
 async fn main() -> Result<()> {

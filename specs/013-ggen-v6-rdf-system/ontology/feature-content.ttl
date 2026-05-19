@@ -2,18 +2,18 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sk: <http://github.com/github/spec-kit#> .
-@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-mcpp-v6-rdf-system#> .
 
 # ============================================================================
-# Feature: ggen v6 - RDF-First Code Generation System
+# Feature: mcpp v6 - RDF-First Code Generation System
 # ============================================================================
 
-:ggen-v6-system a sk:Feature ;
-    sk:featureBranch "013-ggen-v6-rdf-system" ;
-    sk:featureName "ggen v6: RDF-First Code Generation System" ;
+:mcpp-v6-system a sk:Feature ;
+    sk:featureBranch "013-mcpp-v6-rdf-system" ;
+    sk:featureName "mcpp v6: RDF-First Code Generation System" ;
     sk:created "2025-12-20"^^xsd:date ;
     sk:status "Planning" ;
-    sk:userInput "ggen v6: RDF-First Code Generation System - Transforms Turtle specifications into code via deterministic transformation pipelines" ;
+    sk:userInput "mcpp v6: RDF-First Code Generation System - Transforms Turtle specifications into code via deterministic transformation pipelines" ;
     sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005 ;
     sk:hasFunctionalRequirement :fr-001, :fr-002, :fr-003, :fr-004, :fr-005, :fr-006, :fr-007, :fr-008 ;
     sk:hasSuccessCriterion :sc-001, :sc-002, :sc-003, :sc-004, :sc-005 ;
@@ -74,13 +74,13 @@
 :us-002-as-001 a sk:AcceptanceScenario ;
     sk:scenarioIndex 1 ;
     sk:given "a TTL specification and Tera template" ;
-    sk:when "developer runs 'ggen sync' twice without changing inputs" ;
+    sk:when "developer runs 'mcpp sync' twice without changing inputs" ;
     sk:then "both generated outputs are byte-for-byte identical (SHA256 hashes match)" .
 
 :us-002-as-002 a sk:AcceptanceScenario ;
     sk:scenarioIndex 2 ;
     sk:given "the same TTL spec on two different machines with different OSes and timestamps" ;
-    sk:when "both run 'ggen sync' with identical ggen.toml configuration" ;
+    sk:when "both run 'mcpp sync' with identical mcpp.toml configuration" ;
     sk:then "generated code files are identical across all environments" .
 
 :us-002-as-003 a sk:AcceptanceScenario ;
@@ -97,7 +97,7 @@
     sk:priority "P1" ;
     sk:implementationPhase "MVP-Phase-1" ;
     sk:eightyTwentyCategory "Core-20-Percent" ;
-    sk:estimatedEffort "2 days (CAP-005 ggen sync command + CLI integration)" ;
+    sk:estimatedEffort "2 days (CAP-005 mcpp sync command + CLI integration)" ;
     sk:description "As a software developer, I want to define Tera templates that receive SPARQL query results and render them into code for any programming language or framework, so that I can customize code generation for my specific tech stack without modifying the core engine." ;
     sk:priorityRationale "Critical for adoption - developers need to generate code in THEIR languages (Rust, Python, TypeScript, etc.), not just markdown. Templates decouple specification format from output format, enabling infinite customization." ;
     sk:independentTest "Create SPARQL query extracting user stories from TTL spec. Create Tera template that renders results as Rust struct definitions. Run generation and verify Rust code compiles and contains expected struct fields from spec." ;
@@ -128,13 +128,13 @@
     sk:implementWhen "When developers complain about unnecessary git diffs in code review" ;
     sk:description "As a software developer, I want transformations to be idempotent (running generation multiple times on unchanged input produces zero file changes), so that git status stays clean and code review focuses on actual specification changes, not regeneration noise." ;
     sk:priorityRationale "Essential for workflow quality. Non-idempotent generation causes constant churn in version control, making git diff useless and code review painful. While determinism ensures same output, idempotence ensures NO OUTPUT when there's no change." ;
-    sk:independentTest "Generate code, commit to git, run 'ggen sync' again without changing spec, and verify 'git status' shows zero modified files. Repeat 100 times and verify git stays clean." ;
+    sk:independentTest "Generate code, commit to git, run 'mcpp sync' again without changing spec, and verify 'git status' shows zero modified files. Repeat 100 times and verify git stays clean." ;
     sk:hasAcceptanceScenario :us-004-as-001, :us-004-as-002 .
 
 :us-004-as-001 a sk:AcceptanceScenario ;
     sk:scenarioIndex 1 ;
     sk:given "generated code already exists and matches current spec" ;
-    sk:when "developer runs 'ggen sync' again" ;
+    sk:when "developer runs 'mcpp sync' again" ;
     sk:then "no files are modified (git status shows 'nothing to commit, working tree clean')" .
 
 :us-004-as-002 a sk:AcceptanceScenario ;
@@ -162,7 +162,7 @@
 :us-005-as-001 a sk:AcceptanceScenario ;
     sk:scenarioIndex 1 ;
     sk:given "code generated from spec with receipt created" ;
-    sk:when "developer reviews .ggen/receipts/ directory" ;
+    sk:when "developer reviews .mcpp/receipts/ directory" ;
     sk:then "receipt contains SHA256 hash of spec.ttl, template, and generated output with timestamp" .
 
 :us-005-as-002 a sk:AcceptanceScenario ;
@@ -202,7 +202,7 @@
 
 :fr-006 a sk:FunctionalRequirement ;
     sk:requirementId "FR-006" ;
-    sk:description "System SHALL support configuration via ggen.toml defining sources, queries, templates, and outputs as [[generation]] arrays" ;
+    sk:description "System SHALL support configuration via mcpp.toml defining sources, queries, templates, and outputs as [[generation]] arrays" ;
     sk:category "Configuration" .
 
 :fr-007 a sk:FunctionalRequirement ;
@@ -212,7 +212,7 @@
 
 :fr-008 a sk:FunctionalRequirement ;
     sk:requirementId "FR-008" ;
-    sk:description "System SHALL provide 'ggen sync' command that reads ggen.toml and executes all configured generation pipelines in dependency order" ;
+    sk:description "System SHALL provide 'mcpp sync' command that reads mcpp.toml and executes all configured generation pipelines in dependency order" ;
     sk:category "CLI Interface" .
 
 # ============================================================================
@@ -280,7 +280,7 @@
 
 :entity-005 a sk:Entity ;
     sk:entityName "GenerationConfig" ;
-    sk:definition "Configuration in ggen.toml defining source specs, queries, templates, and output paths for generation pipeline" ;
+    sk:definition "Configuration in mcpp.toml defining source specs, queries, templates, and output paths for generation pipeline" ;
     sk:keyAttributes "sources (TTL files), query, template, output, format" .
 
 :entity-006 a sk:Entity ;
@@ -301,12 +301,12 @@
     sk:expectedBehavior "System uses streaming rendering or pagination to handle large result sets without crashing, or reports clear memory limit error" .
 
 :edge-003 a sk:EdgeCase ;
-    sk:scenario "Multiple [[generation]] entries in ggen.toml have conflicting output paths" ;
+    sk:scenario "Multiple [[generation]] entries in mcpp.toml have conflicting output paths" ;
     sk:expectedBehavior "System detects output path conflicts during validation phase and reports error with conflicting entries before generation starts" .
 
 :edge-004 a sk:EdgeCase ;
     sk:scenario "Developer modifies generated code manually after generation" ;
-    sk:expectedBehavior "Next 'ggen sync' overwrites manual changes and warns about detected modifications (via hash mismatch), or refuses to regenerate until manual changes are resolved" .
+    sk:expectedBehavior "Next 'mcpp sync' overwrites manual changes and warns about detected modifications (via hash mismatch), or refuses to regenerate until manual changes are resolved" .
 
 # ============================================================================
 # Assumptions

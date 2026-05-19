@@ -8,7 +8,7 @@
 //! - State management and caching
 //! - Security boundary enforcement
 
-use ggen_ai::ultrathink::cleanroom::{CleanroomConfig, CleanroomEnvironment};
+use mcpp_ai::ultrathink::cleanroom::{CleanroomConfig, CleanroomEnvironment};
 use testcontainers::{clients, images::generic::GenericImage, Container};
 
 #[cfg(test)]
@@ -18,12 +18,12 @@ mod production_validation {
     use std::path::PathBuf;
     use std::process::Command;
 
-    /// Get the ggen binary path
-    fn ggen_binary() -> PathBuf {
+    /// Get the mcpp binary path
+    fn mcpp_binary() -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .parent()
             .unwrap()
-            .join("target/release/ggen")
+            .join("target/release/mcpp")
     }
 
     /// Create a Rust container for testing
@@ -36,18 +36,18 @@ mod production_validation {
     #[test]
     #[ignore] // Requires Docker
     fn test_clean_environment_build() {
-        // This test validates that ggen works in a clean container environment
+        // This test validates that mcpp works in a clean container environment
         let docker = clients::Cli::default();
         let container = docker.run(create_rust_container());
 
-        // Copy ggen binary into container
-        let ggen_bin = ggen_binary();
+        // Copy mcpp binary into container
+        let mcpp_bin = mcpp_binary();
         assert!(
-            ggen_bin.exists(),
-            "ggen binary not found. Run: cargo build --release"
+            mcpp_bin.exists(),
+            "mcpp binary not found. Run: cargo build --release"
         );
 
-        // Test would execute ggen lifecycle commands in container
+        // Test would execute mcpp lifecycle commands in container
         // Validates: Clean environment, no host dependencies
     }
 
@@ -75,7 +75,7 @@ mod production_validation {
 
         // Validate test results
         match test_result.status {
-            ggen_ai::ultrathink::cleanroom::TestStatus::Completed => {
+            mcpp_ai::ultrathink::cleanroom::TestStatus::Completed => {
                 assert!(test_result.tasks_processed > 0, "No tasks were processed");
                 assert!(
                     test_result.tasks_failed == 0,
@@ -92,7 +92,7 @@ mod production_validation {
                     "Test completed but no duration recorded"
                 );
             }
-            ggen_ai::ultrathink::cleanroom::TestStatus::Failed(reason) => {
+            mcpp_ai::ultrathink::cleanroom::TestStatus::Failed(reason) => {
                 panic!("Cleanroom tests failed: {}", reason);
             }
             _ => {
@@ -149,10 +149,10 @@ mod production_validation {
 
         // Submit WIP-related tasks for testing
         for i in 0..config.task_load {
-            let task = ggen_ai::ultrathink::create_task(
-                ggen_ai::ultrathink::core::TaskType::WipSync,
+            let task = mcpp_ai::ultrathink::create_task(
+                mcpp_ai::ultrathink::core::TaskType::WipSync,
                 format!("WIP integration test task {}", i),
-                ggen_ai::ultrathink::core::TaskPriority::Medium,
+                mcpp_ai::ultrathink::core::TaskPriority::Medium,
             );
 
             cleanroom_env
@@ -230,7 +230,7 @@ mod production_validation {
     #[test]
     #[ignore] // Requires Docker
     fn test_cleanroom_resource_constraints() {
-        // Test ggen under resource constraints in cleanroom environment
+        // Test mcpp under resource constraints in cleanroom environment
         let docker = clients::Cli::default();
 
         // Create container with limited resources
@@ -241,21 +241,21 @@ mod production_validation {
                 .with_cpu_limit(0.5), // 0.5 CPU cores
         );
 
-        // Test that ggen respects resource constraints
+        // Test that mcpp respects resource constraints
         // Validates: Resource limits, memory usage, CPU constraints
     }
 
     #[test]
     #[ignore] // Requires Docker
     fn test_cleanroom_network_isolation() {
-        // Test ggen in network-isolated cleanroom environment
+        // Test mcpp in network-isolated cleanroom environment
         let docker = clients::Cli::default();
 
         // Create isolated network
-        let network_name = format!("ggen-cleanroom-{}", uuid::Uuid::new_v4());
+        let network_name = format!("mcpp-cleanroom-{}", uuid::Uuid::new_v4());
         let container = docker.run(create_rust_container().with_network(&network_name));
 
-        // Test that ggen respects network isolation
+        // Test that mcpp respects network isolation
         // Validates: Network boundaries, security isolation
     }
 
@@ -284,7 +284,7 @@ mod production_validation {
     #[test]
     fn test_lifecycle_security_boundaries() {
         // Validate path canonicalization and traversal prevention
-        use ggen_core::lifecycle::Lifecycle;
+        use mcpp_core::lifecycle::Lifecycle;
 
         let lifecycle = Lifecycle::new("test-lifecycle");
 
@@ -318,7 +318,7 @@ mod production_validation {
         // Simulate a command that would hang
         let start = std::time::Instant::now();
 
-        // In real test, this would use ggen's execute_command with timeout
+        // In real test, this would use mcpp's execute_command with timeout
         // For now, validate timeout logic works
         let timeout = Duration::from_secs(1);
 
@@ -391,7 +391,7 @@ mod production_validation {
         // 1. Copy advanced-cli-tool to container
         // 2. cargo build --release
         // 3. cargo test
-        // 4. ggen lifecycle run test
+        // 4. mcpp lifecycle run test
         //
         // Validates: Examples are production-ready
     }
@@ -408,7 +408,7 @@ mod production_validation {
         );
 
         // Would test:
-        // 1. Run ggen lifecycle with multiple workspaces
+        // 1. Run mcpp lifecycle with multiple workspaces
         // 2. Validate parallel execution works
         // 3. Ensure thread pool respects limits
         // 4. Check no resource exhaustion
@@ -420,13 +420,13 @@ mod production_validation {
         use std::fs;
         use std::path::PathBuf;
 
-        let temp_dir = std::env::temp_dir().join("ggen-test-cache");
+        let temp_dir = std::env::temp_dir().join("mcpp-test-cache");
         fs::create_dir_all(&temp_dir).expect("Failed to create temp dir");
 
-        let state_file = temp_dir.join(".ggen/state.json");
+        let state_file = temp_dir.join(".mcpp/state.json");
 
         // Simulate state write
-        fs::create_dir_all(state_file.parent().unwrap()).expect("Failed to create .ggen dir");
+        fs::create_dir_all(state_file.parent().unwrap()).expect("Failed to create .mcpp dir");
         fs::write(&state_file, r#"{"phase":"build","timestamp":1234567890}"#)
             .expect("Failed to write state");
 
@@ -440,7 +440,7 @@ mod production_validation {
     #[test]
     fn test_error_context_preservation() {
         // Validate that errors have full context (for production debugging)
-        use ggen_core::error::LifecycleError;
+        use mcpp_core::error::LifecycleError;
 
         let error = LifecycleError::Other("Test error with context".to_string());
 
@@ -456,10 +456,10 @@ mod production_validation {
     #[ignore] // Integration test
     fn test_full_lifecycle_pipeline() {
         // Validate complete pipeline: format -> lint -> build -> test -> deploy
-        let ggen_bin = ggen_binary();
+        let mcpp_bin = mcpp_binary();
 
-        if !ggen_bin.exists() {
-            println!("Skipping: ggen binary not found. Run: cargo build --release");
+        if !mcpp_bin.exists() {
+            println!("Skipping: mcpp binary not found. Run: cargo build --release");
             return;
         }
 

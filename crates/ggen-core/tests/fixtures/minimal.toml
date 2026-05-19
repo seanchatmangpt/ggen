@@ -1,7 +1,7 @@
 [metadata]
 version = "1.0"
 name = "test-ontology"
-description = "Minimal test ontology for ggen testing"
+description = "Minimal test ontology for mcpp testing"
 
 [[generation]]
 source = "tests/fixtures/minimal.ttl"

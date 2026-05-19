@@ -93,7 +93,7 @@ impl Default for CacheConfig {
             max_packs: 100,
             cache_dir: dirs::cache_dir()
                 .unwrap_or_else(|| PathBuf::from(".cache"))
-                .join("ggen")
+                .join("mcpp")
                 .join("packs"),
             persistent: true,
         }

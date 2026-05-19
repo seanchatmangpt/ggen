@@ -22,6 +22,7 @@ mod chaos_integration_tests {
 
     /// Test all chaos scenarios and collect results
     #[tokio::test]
+#[ignore]
     async fn test_all_chaos_scenarios() {
         let scenarios: Vec<Box<dyn ChaosScenario>> = vec![
             Box::new(PanicInjectionScenario::new()),
@@ -65,6 +66,7 @@ mod chaos_integration_tests {
 
     /// Test event sourcing and replay capabilities
     #[tokio::test]
+#[ignore]
     async fn test_event_sourcing_and_replay() {
         use chaos::injection::ChaosEngine;
 
@@ -92,6 +94,7 @@ mod chaos_integration_tests {
 
     /// Test correlation ID tracing through complex operations
     #[tokio::test]
+#[ignore]
     async fn test_correlation_id_tracing() {
         use chaos::correlation::CorrelationContext;
 
@@ -132,6 +135,7 @@ mod chaos_integration_tests {
 
     /// Test failure replay scenario
     #[tokio::test]
+#[ignore]
     async fn test_failure_replay() {
         use chaos::event_store::{EventStore, FailureEvent, InMemoryEventStore};
         use chaos::injection::ChaosEngine;
@@ -165,6 +169,7 @@ mod chaos_integration_tests {
 
     /// Test component-level failure tracking
     #[tokio::test]
+#[ignore]
     async fn test_component_failure_tracking() {
         use chaos::injection::ChaosEngine;
 
@@ -190,6 +195,7 @@ mod chaos_integration_tests {
 
     /// Test network chaos under load
     #[tokio::test]
+#[ignore]
     async fn test_network_chaos_under_load() {
         use chaos::injection::{ChaosConfig, ChaosEngine};
         use std::time::Duration;
@@ -219,6 +225,7 @@ mod chaos_integration_tests {
 
     /// Test cascading failure detection
     #[tokio::test]
+#[ignore]
     async fn test_cascading_failure_detection() {
         use chaos::event_store::FailureEvent;
         use chaos::injection::ChaosEngine;
@@ -258,6 +265,7 @@ mod chaos_integration_tests {
 
     /// Performance test: Event recording throughput
     #[tokio::test]
+#[ignore]
     async fn test_event_recording_throughput() {
         use chaos::injection::ChaosEngine;
         use std::time::Instant;

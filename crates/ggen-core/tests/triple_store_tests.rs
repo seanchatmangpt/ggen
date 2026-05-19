@@ -5,14 +5,14 @@
 //!
 //! AAA Pattern: Arrange (real RDF data) -> Act (extract/query) -> Assert (state changes)
 
-use ggen_core::graph::Graph;
-use ggen_core::ontology::{Cardinality, OntologyExtractor, PropertyRange, RelationshipType};
+use mcpp_core::graph::Graph;
+use mcpp_core::ontology::{Cardinality, OntologyExtractor, PropertyRange, RelationshipType};
 use std::fs;
 use std::path::Path;
 
 /// Load RDF/Turtle fixture file from disk
 fn load_fixture(filename: &str) -> String {
-    let fixture_path = Path::new("crates/ggen-core/tests/fixtures").join(filename);
+    let fixture_path = Path::new("crates/mcpp-core/tests/fixtures").join(filename);
     fs::read_to_string(fixture_path)
         .unwrap_or_else(|e| panic!("Failed to load fixture {}: {}", filename, e))
 }
@@ -30,7 +30,7 @@ fn setup_graph_from_fixture(fixture_name: &str) -> Graph {
 /// Helper: Extract ontology schema from graph
 fn extract_schema(
     graph: &Graph, namespace: &str,
-) -> Result<ggen_core::ontology::OntologySchema, String> {
+) -> Result<mcpp_core::ontology::OntologySchema, String> {
     OntologyExtractor::extract(graph, namespace)
 }
 
@@ -543,7 +543,7 @@ fn ontology_extraction_is_idempotent() {
 
     // Assert: All three identical (idempotent)
     let verify_schemas_equal =
-        |s1: &ggen_core::ontology::OntologySchema, s2: &ggen_core::ontology::OntologySchema| {
+        |s1: &mcpp_core::ontology::OntologySchema, s2: &mcpp_core::ontology::OntologySchema| {
             assert_eq!(
                 s1.classes.len(),
                 s2.classes.len(),

@@ -1,6 +1,6 @@
 //! Integration test for git hooks installation in init command
 //!
-//! Tests that `ggen init` automatically installs git hooks.
+//! Tests that `mcpp init` automatically installs git hooks.
 
 use std::fs;
 use tempfile::TempDir;
@@ -14,7 +14,7 @@ fn test_init_installs_git_hooks_in_git_repo() {
     fs::create_dir_all(&git_dir).expect("Failed to create .git directory");
 
     // Act: Run init (skip_hooks = false)
-    let result = ggen_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
+    let result = mcpp_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
 
     // Assert: Hooks should be installed
     assert!(result.is_ok(), "Hook installation should succeed");
@@ -43,7 +43,7 @@ fn test_init_skips_hooks_with_flag() {
     fs::create_dir_all(&git_dir).expect("Failed to create .git directory");
 
     // Act: Run init with skip_hooks = true
-    let result = ggen_cli_lib::cmds::git_hooks::install_git_hooks(project_path, true);
+    let result = mcpp_cli_lib::cmds::git_hooks::install_git_hooks(project_path, true);
 
     // Assert: Hooks should be skipped
     assert!(result.is_ok());
@@ -66,7 +66,7 @@ fn test_init_handles_non_git_repo_gracefully() {
     let project_path = temp.path();
 
     // Act: Run init
-    let result = ggen_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
+    let result = mcpp_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
 
     // Assert: Should succeed but skip hooks
     assert!(result.is_ok());
@@ -92,7 +92,7 @@ fn test_hooks_are_executable_on_unix() {
         fs::create_dir_all(&git_dir).expect("Failed to create .git directory");
 
         // Act
-        let result = ggen_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
+        let result = mcpp_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
         assert!(result.is_ok());
 
         // Assert: Hooks should be executable
@@ -123,7 +123,7 @@ fn test_hook_content_includes_cargo_make() {
     fs::create_dir_all(&git_dir).expect("Failed to create .git directory");
 
     // Act
-    ggen_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false)
+    mcpp_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false)
         .expect("Installation should succeed");
 
     // Assert: Hook content should reference cargo check/fmt/make
@@ -162,7 +162,7 @@ fn test_existing_hooks_are_not_overwritten() {
         .expect("Failed to write existing hook");
 
     // Act
-    let result = ggen_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
+    let result = mcpp_cli_lib::cmds::git_hooks::install_git_hooks(project_path, false);
 
     // Assert: Existing hook should be preserved
     assert!(result.is_ok());

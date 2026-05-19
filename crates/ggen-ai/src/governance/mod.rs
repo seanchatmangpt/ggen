@@ -17,7 +17,7 @@
 //! ## Usage
 //!
 //! ```rust
-//! use ggen_ai::governance::{Policy, PolicyEngine, AuditTrail};
+//! use mcpp_ai::governance::{Policy, PolicyEngine, AuditTrail};
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Initialize governance layer

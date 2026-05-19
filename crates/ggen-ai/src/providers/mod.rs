@@ -1,7 +1,7 @@
 //! LLM provider implementations
 //!
 //! This module provides adapter implementations for various LLM providers,
-//! allowing ggen-ai to work with multiple LLM backends through a unified interface.
+//! allowing mcpp-ai to work with multiple LLM backends through a unified interface.
 //!
 //! ## Supported Providers
 //!

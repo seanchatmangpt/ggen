@@ -1,4 +1,4 @@
-command: "ggen marketplace install"
+command: "mcpp marketplace install"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to install a marketplace template or package,
-  I need to run 'ggen marketplace install' with package name,
+  I need to run 'mcpp marketplace install' with package name,
   so that I can add community content to my project.

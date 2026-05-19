@@ -1,4 +1,4 @@
-command: "ggen template show"
+command: "mcpp template show"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I want to examine a template's structure and metadata,
-  I need to run 'ggen template show <name>',
+  I need to run 'mcpp template show <name>',
   so that I can understand its composition before using it.

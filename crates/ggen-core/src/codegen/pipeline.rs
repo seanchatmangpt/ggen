@@ -10,7 +10,7 @@
 use crate::codegen::transaction::FileTransaction;
 use crate::graph::{ConstructExecutor, Graph};
 use crate::manifest::{GenerationRule, GgenManifest, InferenceRule};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -24,11 +24,11 @@ use std::time::Instant;
 /// Trait for LLM-based code generation services.
 ///
 /// This trait allows injecting LLM functionality from the CLI layer
-/// (ggen-cli depends on ggen-ai, avoiding cyclic dependency with ggen-core).
+/// (mcpp-cli depends on mcpp-ai, avoiding cyclic dependency with mcpp-core).
 ///
 /// # Architecture Note
-/// ggen-core cannot depend on ggen-ai (would create cyclic dependency).
-/// Implementations of this trait should be provided by ggen-cli or ggen-ai.
+/// mcpp-core cannot depend on mcpp-ai (would create cyclic dependency).
+/// Implementations of this trait should be provided by mcpp-cli or mcpp-ai.
 pub trait LlmService: Send + Sync {
     /// Generate skill implementation code using LLM.
     ///
@@ -59,14 +59,14 @@ type GlobalLlmService = Arc<Mutex<Option<Box<dyn LlmService>>>>;
 /// Global LLM service slot for dependency injection from CLI layer.
 ///
 /// This allows the CLI to set an LLM service that can be used by the codegen
-/// pipeline without creating a cyclic dependency (ggen-core → ggen-ai).
+/// pipeline without creating a cyclic dependency (mcpp-core → mcpp-ai).
 ///
 /// # Thread Safety
 /// Uses Arc<Mutex<>> for safe concurrent access from multiple threads.
 ///
 /// # Example
 /// ```rust
-/// // In CLI layer (ggen-cli):
+/// // In CLI layer (mcpp-cli):
 /// let service = Box::new(GroqLlmService::new(api_key));
 /// set_llm_service(service);
 ///
@@ -81,15 +81,15 @@ static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
 /// Set the global LLM service for code generation.
 ///
 /// This function should be called from the CLI layer to inject an LLM service
-/// implementation (e.g., from ggen-ai) into the codegen pipeline.
+/// implementation (e.g., from mcpp-ai) into the codegen pipeline.
 ///
 /// # Arguments
 /// * `service` - Boxed LLM service implementation
 ///
 /// # Example
 /// ```rust
-/// use ggen_core::codegen::pipeline::set_llm_service;
-/// use ggen_ai::GroqLlmService;
+/// use mcpp_core::codegen::pipeline::set_llm_service;
+/// use mcpp_ai::GroqLlmService;
 ///
 /// let service = Box::new(GroqLlmService::new("api_key"));
 /// set_llm_service(service);
@@ -109,7 +109,7 @@ pub fn set_llm_service(service: Box<dyn LlmService>) {
 ///
 /// # Example
 /// ```rust
-/// use ggen_core::codegen::pipeline::get_llm_service;
+/// use mcpp_core::codegen::pipeline::get_llm_service;
 ///
 /// if let Some(service) = get_llm_service() {
 ///     let code = service.generate_skill_impl("my_skill", "desc", "hint", "rust")?;
@@ -310,7 +310,7 @@ impl GenerationPipeline {
     /// Create a new generation pipeline from a manifest
     ///
     /// # Arguments
-    /// * `manifest` - Parsed ggen.toml manifest
+    /// * `manifest` - Parsed mcpp.toml manifest
     /// * `base_path` - Base path for resolving relative paths
     pub fn new(manifest: GgenManifest, base_path: PathBuf) -> Self {
         Self {
@@ -556,7 +556,7 @@ impl GenerationPipeline {
                     let template_path = self.base_path.join(file);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
                         Error::new(&format!(
-                            "error[E0008]: Failed to read template file\n  --> path: '{}'\n  |\n  = error: {}\n  = help: Check if file exists and is readable\n  = help: Verify template path in ggen.toml is relative to project root",
+                            "error[E0008]: Failed to read template file\n  --> path: '{}'\n  |\n  = error: {}\n  = help: Check if file exists and is readable\n  = help: Verify template path in mcpp.toml is relative to project root",
                             template_path.display(),
                             e
                         ))
@@ -881,7 +881,7 @@ impl GenerationPipeline {
         // Check 1: Content must not be empty
         if content.is_empty() {
             return Err(Error::new(&format!(
-                "error[E0004]: Generated content is empty\n  --> rule: '{}', output: '{}'\n  |\n  = help: Check if:\n  =   1. SPARQL query returned results (test in separate SPARQL tool)\n  =   2. Template has content (not empty file)\n  =   3. Template variables match query result columns\n  = help: Use 'ggen validate --dry-run' to see query results",
+                "error[E0004]: Generated content is empty\n  --> rule: '{}', output: '{}'\n  |\n  = help: Check if:\n  =   1. SPARQL query returned results (test in separate SPARQL tool)\n  =   2. Template has content (not empty file)\n  =   3. Template variables match query result columns\n  = help: Use 'mcpp validate --dry-run' to see query results",
                 rule_id,
                 path.display()
             )));
@@ -928,7 +928,7 @@ impl GenerationPipeline {
     /// * `Err(Error)` - Generation failed critically
     ///
     /// # Architecture Note
-    /// ggen-core cannot depend on ggen-ai (would create cyclic dependency).
+    /// mcpp-core cannot depend on mcpp-ai (would create cyclic dependency).
     /// LLM service should be injected from CLI layer via set_llm_service().
     pub fn generate_skill_impl(
         &self, skill_name: &str, system_prompt: &str, implementation_hint: &str, language: &str,

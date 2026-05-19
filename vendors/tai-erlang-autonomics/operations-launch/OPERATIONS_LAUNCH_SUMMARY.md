@@ -476,7 +476,7 @@ A: Use free alternatives: Prometheus + Grafana (free), Opsgenie free tier, Cloud
 
 ## Appendix: Files in This Package
 
-All files located in `/Users/sac/ggen/tai-erlang-autonomics/operations-launch/`:
+All files located in `./tai-erlang-autonomics/operations-launch/`:
 
 1. **LAUNCH_READINESS_CHECKLIST.md** (25KB)
    - 100+ specific, actionable checklist items

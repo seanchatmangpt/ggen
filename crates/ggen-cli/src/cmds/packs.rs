@@ -6,9 +6,6 @@ use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
-use crate::pack_install::PackInstaller;
-use crate::progress::ProgressDisplay;
-
 // ============================================================================
 // Output Types
 // ============================================================================
@@ -115,9 +112,32 @@ struct CheckCompatibilityOutput {
 // ============================================================================
 
 /// List all available packs
+///
+/// Displays all packs available in the marketplace with their metadata including
+/// version, description, quality score, and download counts.
+///
+/// ## Arguments
+/// * `verbose` - Show detailed pack information [default: false]
+///
+/// ## Examples
+/// ```bash
+/// mcpp pack list
+/// mcpp pack list --verbose
+/// ```
+///
+/// ## Output
+/// Returns a JSON array of pack summaries with the following fields:
+/// - `id`: Pack identifier
+/// - `name`: Human-readable pack name
+/// - `description`: Pack description
+/// - `version`: Pack version
+/// - `category`: Pack category (e.g., "marketplace")
+/// - `production_ready`: Whether quality score >= 95%
 #[verb]
-fn list(verbose: bool) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+fn list(
+    verbose: bool,
+) -> VerbResult<ListOutput> {
+    let packages = mcpp_domain::marketplace::list_all().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
@@ -154,9 +174,33 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 }
 
 /// Show detailed pack information
+///
+/// Displays comprehensive metadata for a specific pack including dependencies,
+/// templates, SPARQL queries, and other relevant details.
+///
+/// ## Arguments
+/// * `pack_id` - Pack identifier [required]
+///
+/// ## Examples
+/// ```bash
+/// mcpp pack show mcp-rust
+/// mcpp pack show acme/base
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `pack_id`: Pack identifier
+/// - `name`: Human-readable name
+/// - `description`: Detailed description
+/// - `version`: Pack version
+/// - `dependencies`: List of dependency requirements
+/// - `templates`: Available templates
+/// - `queries`: SPARQL queries provided
 #[verb]
-fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::marketplace::get_package(&pack_id).map_err(|e| {
+fn show(
+    pack_id: String,
+) -> VerbResult<ShowOutput> {
+    let detail = mcpp_domain::marketplace::get_package(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to get pack '{}': {}",
             pack_id, e
@@ -180,20 +224,58 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
     })
 }
 
-/// Install a pack with improved UX and performance
+/// Install a pack from the registry
 ///
-/// Features:
-/// - Real-time progress reporting
-/// - Intelligent caching
-/// - Better error handling
-/// - Dependency resolution visualization
-/// - Installation planning and preview
+/// Downloads and installs a pack from the registry with intelligent caching,
+/// dependency resolution, and lockfile management. The pack is staged for
+/// the sync pipeline automatically.
 ///
-/// CISO fail-closed flags (set via environment variables):
-/// * `GGEN_LOCKED=true` — require pack exists in `.ggen/packs.lock`
-/// * `GGEN_OFFLINE=true` — require pack exists in local cache (no network fetch)
+/// ## Arguments
+/// * `pack_id` - Pack identifier [required]
+/// * `force` - Reinstall even if already installed [default: false]
+///
+/// ## CISO Fail-Closed Flags
+/// Set these via environment variables to enforce security policies:
+///
+/// * `GGEN_LOCKED=true` — Require pack exists in `.mcpp/packs.lock` before installation.
+///   Prevents installing packs not previously approved in the lockfile.
+///   Exit code: non-zero if pack not found in lockfile.
+///
+/// * `GGEN_OFFLINE=true` — Require pack exists in local cache (no network fetch).
+///   Prevents unauthorized network access during installation.
+///   Exit code: non-zero if pack not found in cache.
+///
+/// ## Examples
+/// ```bash
+/// # Standard installation
+/// mcpp pack install mcp-rust
+///
+/// # Force reinstall
+/// mcpp pack install mcp-rust --force
+///
+/// # CISO fail-closed: require lockfile verification
+/// GGEN_LOCKED=true mcpp pack install mcp-rust
+///
+/// # CISO fail-closed: offline mode (no network)
+/// GGEN_OFFLINE=true mcpp pack install mcp-rust
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `pack_id`: Installed pack identifier
+/// - `status`: Installation status ("installed")
+/// - `message`: Details including lockfile path, digest, and size
+///
+/// ## Notes
+/// - Updates `.mcpp/packs.lock` with pack metadata and digest
+/// - Stages pack contributions (queries, templates, ontology) for sync pipeline
+/// - Failures in sync staging are non-fatal (logged but don't block installation)
+/// - Digest is computed over all pack files for integrity verification
 #[verb]
-fn install(pack_id: String, force: bool) -> VerbResult<InstallOutput> {
+fn install(
+    pack_id: String,
+    force: bool,
+) -> VerbResult<InstallOutput> {
     if pack_id.is_empty() {
         return Err(clap_noun_verb::NounVerbError::argument_error(
             "Pack ID cannot be empty",
@@ -219,7 +301,7 @@ struct InstallResult {
 
 /// Improved pack installation implementation with better UX and performance
 fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
-    use ggen_core::packs::lockfile::PackLockfile;
+    use mcpp_core::packs::lockfile::PackLockfile;
 
     // GGEN_LOCKED: verify pack exists in lockfile before proceeding
     let locked = std::env::var_os("GGEN_LOCKED").map_or(false, |v| v == "true" || v == "1");
@@ -230,11 +312,11 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
                 e
             ))
         })?;
-        let lock_path = project_root.join(".ggen").join("packs.lock");
+        let lock_path = project_root.join(".mcpp").join("packs.lock");
 
         if !lock_path.exists() {
             return Err(clap_noun_verb::NounVerbError::execution_error(
-                "GGEN_LOCKED requires a .ggen/packs.lock file; none found",
+                "GGEN_LOCKED requires a .mcpp/packs.lock file; none found",
             ));
         }
 
@@ -308,7 +390,7 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
 fn resolve_cache_dir() -> VerbResult<std::path::PathBuf> {
     std::env::var_os("GGEN_PACK_CACHE_DIR")
         .map(std::path::PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
         .ok_or_else(|| {
             clap_noun_verb::NounVerbError::execution_error(
                 "Cannot resolve pack cache: set HOME or GGEN_PACK_CACHE_DIR",
@@ -343,7 +425,7 @@ fn create_pack_structure(pack_dir: &std::path::Path, pack_id: &str) -> VerbResul
     let ontology_ttl = r#"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ex: <http://example.org/pack#> .
 ex:PackRoot a rdfs:Resource ;
-    rdfs:label "ggen pack substrate" .
+    rdfs:label "mcpp pack substrate" .
 "#;
     fs::write(pack_dir.join("ontology").join("pack.ttl"), ontology_ttl).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
@@ -354,7 +436,7 @@ ex:PackRoot a rdfs:Resource ;
 
     // Write query
     let pack_construct = r#"PREFIX ex: <http://example.org/pack#>
-PREFIX gen: <http://ggen.dev/gen#>
+PREFIX gen: <http://mcpp.dev/gen#>
 CONSTRUCT {
   ex:PackRoot gen:annotatedBy gen:PackQuery .
 }
@@ -395,7 +477,7 @@ installed_at = "{}"
 }
 
 fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std::path::PathBuf> {
-    use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+    use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
     use std::fs;
 
     let project_root = std::env::current_dir().map_err(|e| {
@@ -404,12 +486,12 @@ fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std
             e
         ))
     })?;
-    let lock_path = project_root.join(".ggen").join("packs.lock");
+    let lock_path = project_root.join(".mcpp").join("packs.lock");
 
     fs::create_dir_all(lock_path.parent().unwrap_or_else(|| project_root.as_path())).map_err(
         |e| {
             clap_noun_verb::NounVerbError::execution_error(&format!(
-                "Failed to create .ggen: {}",
+                "Failed to create .mcpp: {}",
                 e
             ))
         },
@@ -468,14 +550,45 @@ fn calculate_pack_digest(pack_dir: &std::path::Path) -> (String, u64) {
     (hex::encode(hasher.finalize()), size_bytes)
 }
 
-/// Generate project from pack
+/// Generate a project from an installed pack
+///
+/// Creates a new project by applying templates and queries from an installed
+/// pack. The pack must already be installed via `mcpp pack install`.
+///
+/// ## Arguments
+/// * `pack_id` - Pack identifier to use for generation [required]
+/// * `project_path` - Target directory for generated project [required]
+///
+/// ## Examples
+/// ```bash
+/// # Generate project in current directory
+/// mcpp pack generate mcp-rust ./my-project
+///
+/// # Generate project in specific path
+/// mcpp pack generate acme/base /path/to/project
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `pack_id`: Pack used for generation
+/// - `project_path`: Path where project was generated
+/// - `files_generated`: Number of files created
+/// - `status`: Generation status ("generated")
+///
+/// ## Notes
+/// - Project directory will be created if it doesn't exist
+/// - Existing files may be overwritten depending on pack templates
+/// - Generation is asynchronous; progress is reported in real-time
 #[verb]
-fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
+fn generate(
+    pack_id: String,
+    project_path: String,
+) -> VerbResult<GenerateOutput> {
     run_generate(pack_id, project_path)
 }
 
 fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
-    use ggen_domain::packs::generator::{generate_from_pack, GenerateInput};
+    use mcpp_domain::packs::generator::{generate_from_pack, GenerateInput};
     use std::collections::BTreeMap;
 
     let input = GenerateInput {
@@ -512,13 +625,51 @@ fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOut
 }
 
 /// Validate a pack
+///
+/// Performs comprehensive validation of a pack including structure integrity,
+/// schema compliance, and quality checks. Returns a quality score and
+/// detailed error/warning information.
+///
+/// ## Arguments
+/// * `pack_id` - Pack identifier to validate [required]
+///
+/// ## Examples
+/// ```bash
+/// # Validate installed pack
+/// mcpp pack validate mcp-rust
+///
+/// # Validate custom pack
+/// mcpp pack validate acme/base
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `pack_id`: Validated pack identifier
+/// - `is_valid`: Overall validation result (true/false)
+/// - `errors`: List of validation errors (empty if valid)
+/// - `warnings`: List of validation warnings (non-critical issues)
+///
+/// ## Validation Checks
+/// - Pack structure completeness (ontology/, queries/, templates/)
+/// - Metadata file validity (pack.toml)
+/// - RDF ontology syntax and semantics
+/// - SPARQL query correctness
+/// - Template rendering capability
+/// - Quality score calculation (0-100%)
+///
+/// ## Notes
+/// - Quality score >= 95% indicates production-ready pack
+/// - Warnings don't block usage but should be reviewed
+/// - Errors indicate the pack is not safe to use
 #[verb]
-fn validate(pack_id: String) -> VerbResult<ValidateOutput> {
+fn validate(
+    pack_id: String,
+) -> VerbResult<ValidateOutput> {
     run_validate(pack_id)
 }
 
 fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
-    let result = ggen_domain::packs::validate::validate_pack(&pack_id).map_err(|e| {
+    let result = mcpp_domain::packs::validate::validate_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to validate pack '{}': {}",
             pack_id, e
@@ -550,9 +701,46 @@ fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
     })
 }
 
-/// Compose multiple packs
+/// Compose multiple packs into a unified project
+///
+/// Merges multiple packs into a single coherent project by resolving
+/// dependencies, merging templates, and combining queries. Useful for
+/// creating projects that combine functionality from multiple packs.
+///
+/// ## Arguments
+/// * `pack_ids` - Comma-separated list of pack identifiers [required]
+///
+/// ## Examples
+/// ```bash
+/// # Compose two packs
+/// mcpp pack compose mcp-rust,acme/base
+///
+/// # Compose multiple packs
+/// mcpp pack compose mcp-rust,acme/base,templates/web
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `pack_ids`: List of composed pack IDs
+/// - `atomic_packs`: Packs that remain separate (not merged)
+/// - `compatible`: Whether composition succeeded without conflicts
+/// - `conflicts`: List of any conflicts found (empty if compatible)
+///
+/// ## Composition Strategy
+/// - Uses merge strategy by default
+/// - Resolves dependency graphs across all packs
+/// - Merges templates with override logic (later packs override earlier)
+/// - Combines SPARQL queries into unified query set
+/// - Preserves atomic packs that cannot be merged
+///
+/// ## Notes
+/// - Pack order matters: later packs override earlier ones in conflicts
+/// - Conflicts prevent successful composition and are reported in output
+/// - All packs must be installed before composing
 #[verb]
-fn compose(pack_ids: String) -> VerbResult<ComposeOutput> {
+fn compose(
+    pack_ids: String,
+) -> VerbResult<ComposeOutput> {
     run_compose(pack_ids)
 }
 
@@ -569,14 +757,14 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
         ));
     }
 
-    let input = ggen_domain::packs::compose::ComposePacksInput {
+    let input = mcpp_domain::packs::compose::ComposePacksInput {
         pack_ids: pack_id_list.clone(),
         project_name: "composed-project".to_string(),
         output_dir: None,
-        strategy: ggen_domain::packs::types::CompositionStrategy::Merge,
+        strategy: mcpp_domain::packs::types::CompositionStrategy::Merge,
     };
 
-    let result = crate::runtime::block_on(ggen_domain::packs::compose::compose_packs(&input))
+    let result = crate::runtime::block_on(mcpp_domain::packs::compose::compose_packs(&input))
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
         })?
@@ -603,10 +791,46 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
     })
 }
 
-/// Show pack dependencies
+/// Show pack dependency tree
+///
+/// Displays the complete dependency graph for a pack including transitive
+/// dependencies. Useful for understanding what a pack requires and ensuring
+/// all dependencies are available.
+///
+/// ## Arguments
+/// * `pack_id` - Pack identifier [required]
+/// * `version` - Specific version to analyze [default: latest]
+///
+/// ## Examples
+/// ```bash
+/// # Show dependencies for latest version
+/// mcpp pack dependencies mcp-rust
+///
+/// # Show dependencies for specific version
+/// mcpp pack dependencies mcp-rust --version 1.2.0
+///
+/// # Show dependencies with version flag
+/// mcpp pack dependencies acme/base --version 2.0.0
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `pack_id`: Root pack identifier
+/// - `dependencies`: Array of dependency nodes, each containing:
+///   - `pack_id`: Dependency pack identifier
+///   - `version`: Version requirement
+///   - `dependencies`: Nested array of transitive dependencies
+///
+/// ## Notes
+/// - Dependency tree is fully resolved (includes transitive dependencies)
+/// - Version requirements follow semver syntax
+/// - Circular dependencies are detected and reported
 #[verb]
-fn dependencies(pack_id: String, version: Option<String>) -> VerbResult<DependenciesOutput> {
-    let graph = ggen_domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
+fn dependencies(
+    pack_id: String,
+    version: Option<String>,
+) -> VerbResult<DependenciesOutput> {
+    let graph = mcpp_domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!(
                 "Failed to resolve dependencies: {}",
@@ -630,14 +854,57 @@ fn dependencies(pack_id: String, version: Option<String>) -> VerbResult<Dependen
     })
 }
 
-/// Search for packs
+/// Search for packs in the marketplace
+///
+/// Searches available packs by name, identifier, or description with relevance
+/// scoring. Results are ranked by match quality (name matches rank highest).
+///
+/// ## Arguments
+/// * `query` - Search query string [required]
+/// * `limit` - Maximum number of results to return [default: 20]
+///
+/// ## Examples
+/// ```bash
+/// # Search for packs
+/// mcpp pack search rust
+///
+/// # Search with limited results
+/// mcpp pack search mcp --limit 5
+///
+/// # Search for specific functionality
+/// mcpp pack search "web server"
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `query`: Original search query
+/// - `results`: Array of search results, each containing:
+///   - `pack_id`: Pack identifier
+///   - `name`: Human-readable name
+///   - `description`: Pack description
+///   - `score`: Relevance score (0.0-1.0, higher is better)
+/// - `total`: Number of results returned
+///
+/// ## Scoring
+/// - Exact name match: 1.0
+/// - Pack ID match: 0.8
+/// - Description match: 0.5
+/// - Non-matching packs are excluded from results
+///
+/// ## Notes
+/// - Search is case-insensitive
+/// - Results are sorted by relevance score (highest first)
+/// - Default limit of 20 results can be overridden
 #[verb]
-fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
+fn search(
+    query: String,
+    limit: Option<usize>,
+) -> VerbResult<SearchOutput> {
     run_search(query, limit)
 }
 
 fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+    let packages = mcpp_domain::marketplace::list_all().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packages: {}", e))
     })?;
 
@@ -686,9 +953,48 @@ fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
     })
 }
 
-/// Check if packs are compatible
+/// Check compatibility between packs
+///
+/// Analyzes multiple packs for potential conflicts, dependency issues,
+/// and compatibility problems. Essential validation step before composing
+/// packs or using them together in a project.
+///
+/// ## Arguments
+/// * `pack_ids` - Comma-separated list of pack identifiers [required]
+///
+/// ## Examples
+/// ```bash
+/// # Check two packs for compatibility
+/// mcpp pack check-compatibility mcp-rust,acme/base
+///
+/// # Check multiple packs
+/// mcpp pack check-compatibility mcp-rust,acme/base,templates/web
+/// ```
+///
+/// ## Output
+/// Returns JSON with:
+/// - `compatible`: Overall compatibility result (true/false)
+/// - `pack_ids`: List of pack IDs checked
+/// - `conflicts`: List of conflict descriptions (empty if compatible)
+/// - `warnings`: List of non-critical compatibility warnings
+/// - `message`: Human-readable compatibility summary
+///
+/// ## Compatibility Checks
+/// - Dependency version conflicts
+/// - Template name collisions
+/// - SPARQL query incompatibilities
+/// - Resource ID clashes
+/// - Schema validation issues
+///
+/// ## Notes
+/// - Compatible packs can be safely used together
+/// - Conflicts must be resolved before composition
+/// - Warnings indicate potential issues but don't block usage
+/// - Order of pack IDs doesn't affect compatibility results
 #[verb]
-fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput> {
+fn check_compatibility(
+    pack_ids: String,
+) -> VerbResult<CheckCompatibilityOutput> {
     let pack_id_list: Vec<String> = pack_ids
         .split(',')
         .map(|s| s.trim().to_string())
@@ -702,7 +1008,7 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
     }
 
     let result =
-        crate::runtime::block_on(ggen_domain::packs::check_packs_compatibility(&pack_id_list))
+        crate::runtime::block_on(mcpp_domain::packs::check_packs_compatibility(&pack_id_list))
             .map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
             })?
@@ -747,7 +1053,7 @@ fn stage_pack_for_sync(pack_dir: &std::path::Path, pack_id: &str) -> VerbResult<
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!("Cannot get cwd: {}", e))
         })?
-        .join(".ggen")
+        .join(".mcpp")
         .join("pack-stage");
 
     // Stage queries

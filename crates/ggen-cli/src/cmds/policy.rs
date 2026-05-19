@@ -2,12 +2,16 @@
 //!
 //! This module provides policy management commands wired to the marketplace layer.
 
+use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
+// Import Result type for CLI error handling
+use crate::error::Result;
+
 // Re-export marketplace types for policy enforcement
-pub use ggen_marketplace::policy::{PackContext, PolicyReport};
-pub use ggen_marketplace::profile::{predefined_profiles, Profile, ProfileId};
+pub use mcpp_marketplace::policy::{PackContext, PolicyReport};
+pub use mcpp_marketplace::profile::{predefined_profiles, Profile, ProfileId};
 
 // ============================================================================
 // Output Types
@@ -77,7 +81,7 @@ struct RuntimeConstraintSummary {
 
 /// Load pack contexts from the current project's lockfile
 ///
-/// This function reads `.ggen/packs.lock` and loads metadata for each
+/// This function reads `.mcpp/packs.lock` and loads metadata for each
 /// installed pack to create `PackContext` objects for policy validation.
 ///
 /// # Errors
@@ -86,15 +90,15 @@ struct RuntimeConstraintSummary {
 /// - Lockfile doesn't exist
 /// - Lockfile is invalid
 /// - Pack metadata cannot be loaded
-fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
-    use ggen_core::packs::lockfile::PackLockfile;
-    use ggen_marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
+fn load_pack_contexts_from_project() -> Result<Vec<PackContext>> {
+    use mcpp_core::packs::lockfile::PackLockfile;
+    use mcpp_marketplace::metadata::{get_pack_cache_dir, load_pack_metadata};
     use std::path::Path;
 
-    let lockfile_path = Path::new(".ggen/packs.lock");
+    let lockfile_path = Path::new(".mcpp/packs.lock");
     if !lockfile_path.exists() {
         return Err(
-            "No project found. Please install packs first with 'ggen packs install <pack-id>'"
+            "No project found. Please install packs first with 'mcpp packs install <pack-id>'"
                 .to_string(),
         );
     }
@@ -104,7 +108,7 @@ fn load_pack_contexts_from_project() -> crate::Result<Vec<PackContext>> {
 
     let mut pack_contexts = Vec::new();
     for (pack_id, locked_pack) in &lockfile.packs {
-        let package_id = ggen_marketplace::models::PackageId::new(pack_id)
+        let package_id = mcpp_marketplace::models::PackageId::new(pack_id)
             .map_err(|e| format!("Invalid package ID {}: {}", pack_id, e))?;
 
         let cache_dir = get_pack_cache_dir(&package_id, &locked_pack.version);
@@ -170,7 +174,7 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
 
 /// List all available policy profiles
 #[verb]
-fn list(verbose: bool) -> crate::Result<ListOutput> {
+fn list(verbose: bool) -> Result<ListOutput> {
     let profiles = predefined_profiles();
 
     if verbose {
@@ -208,7 +212,7 @@ fn list(verbose: bool) -> crate::Result<ListOutput> {
 #[verb]
 fn validate(profile: String) -> VerbResult<ValidateOutput> {
     // Get the profile
-    let profile_obj = ggen_marketplace::profile::get_profile(&profile).map_err(|e| {
+    let profile_obj = mcpp_marketplace::profile::get_profile(&profile).map_err(|e| {
         clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e))
     })?;
 
@@ -254,7 +258,7 @@ fn validate(profile: String) -> VerbResult<ValidateOutput> {
 /// Show detailed profile information
 #[verb]
 fn show(profile_id: String) -> VerbResult<ShowOutput> {
-    let profile = ggen_marketplace::profile::get_profile(&profile_id).map_err(|e| {
+    let profile = mcpp_marketplace::profile::get_profile(&profile_id).map_err(|e| {
         clap_noun_verb::NounVerbError::argument_error(&format!("Profile not found: {}", e))
     })?;
 

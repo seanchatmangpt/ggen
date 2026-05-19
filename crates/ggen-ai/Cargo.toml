@@ -1,20 +1,20 @@
 [package]
-name = "ggen-ai"
+name = "mcpp-ai"
 version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
-description = "Thin wrapper around genai for ggen - LLM integration with environment support"
+description = "Thin wrapper around genai for mcpp - LLM integration with environment support"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
+homepage = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["cli", "code-generation", "rdf", "templates", "llm"]
 categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
-# Core ggen dependencies (use workspace = true pattern)
-# NOTE: ggen-core removed to break circular dependency
-# ggen-ai is now a pure LLM integration layer without code-generation dependencies
-ggen-utils.workspace = true
+# Core mcpp dependencies (use workspace = true pattern)
+# NOTE: mcpp-core removed to break circular dependency
+# mcpp-ai is now a pure LLM integration layer without code-generation dependencies
+mcpp-utils.workspace = true
 
 # HTTP client and async runtime
 tokio = { workspace = true }
@@ -32,7 +32,7 @@ chrono = { workspace = true }
 uuid = { workspace = true }
 
 # Note: SQLite database access moved to optional feature due to conflicts with sqlx v0.7
-# ggen-ai focuses on LLM integration; database operations belong in domain/api layers
+# mcpp-ai focuses on LLM integration; database operations belong in domain/api layers
 
 # Configuration and environment
 dotenvy = "0.15"
@@ -103,7 +103,7 @@ criterion = { version = "0.7", features = ["html_reports"] }
 
 
 [lib]
-name = "ggen_ai"
+name = "mcpp_ai"
 path = "src/lib.rs"
 
 [[test]]

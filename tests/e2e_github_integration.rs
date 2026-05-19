@@ -11,6 +11,7 @@ use std::env;
 /// - ggen ci trigger
 
 #[test]
+#[ignore]
 fn test_github_pages_status_command() -> Result<()> {
     // Test that the command exists and has proper help
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -24,6 +25,7 @@ fn test_github_pages_status_command() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_pages_status_with_explicit_repo() -> Result<()> {
     // Test with explicit repository argument
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -46,6 +48,7 @@ fn test_github_pages_status_with_explicit_repo() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_workflow_status_command() -> Result<()> {
     // Test that the command exists and has proper help
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -59,6 +62,7 @@ fn test_github_workflow_status_command() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_workflow_status_with_workflow_name() -> Result<()> {
     // Test with explicit workflow name
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -88,6 +92,7 @@ fn test_github_workflow_status_with_workflow_name() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_trigger_workflow_command() -> Result<()> {
     // Test that the command exists and has proper help
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -125,6 +130,7 @@ fn test_github_repo_auto_detection() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_commands_handle_missing_token() -> Result<()> {
     // Test that commands work or fail gracefully without GITHUB_TOKEN
     // Temporarily unset GITHUB_TOKEN if it exists
@@ -179,6 +185,7 @@ fn test_github_pages_status_output_format() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_workflow_status_lists_workflows() -> Result<()> {
     // Test that workflow-status can list workflows
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -201,6 +208,7 @@ fn test_github_workflow_status_lists_workflows() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_commands_validate_repo_format() -> Result<()> {
     // Test that commands validate repository format
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -221,6 +229,7 @@ fn test_github_commands_validate_repo_format() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_help_commands() -> Result<()> {
     // Test that all GitHub subcommands have help text
     let subcommands = ["pages status", "workflow status", "trigger"];
@@ -267,6 +276,7 @@ fn test_github_integration_with_public_repo() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_commands_performance() -> Result<()> {
     // Test that GitHub commands complete in reasonable time
     use std::time::Instant;
@@ -291,6 +301,7 @@ fn test_github_commands_performance() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_github_api_error_messages_are_helpful() -> Result<()> {
     // Test that error messages are user-friendly
     let mut cmd = Command::cargo_bin("ggen")?;

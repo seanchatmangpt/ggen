@@ -1,6 +1,6 @@
 //! Error handling types and utilities
 //!
-//! This module provides the core error handling infrastructure for the ggen project.
+//! This module provides the core error handling infrastructure for the mcpp project.
 //! It defines a custom `Error` type that supports error chaining, context, and
 //! conversion from common error types.
 //!
@@ -13,7 +13,7 @@
 //!
 //! ## Error Type
 //!
-//! The `Error` type is the primary error type used throughout ggen. It implements
+//! The `Error` type is the primary error type used throughout mcpp. It implements
 //! `std::error::Error` and provides:
 //!
 //! - Message: Primary error message
@@ -25,7 +25,7 @@
 //! ### Creating Errors
 //!
 //! ```rust
-//! use ggen_utils::error::Error;
+//! use mcpp_utils::error::Error;
 //!
 //! # fn main() {
 //! // Simple error
@@ -46,7 +46,7 @@
 //! ### Using Result Type
 //!
 //! ```rust,no_run
-//! use ggen_utils::error::{Error, Result};
+//! use mcpp_utils::error::{Error, Result};
 //!
 //! fn read_config() -> Result<String> {
 //!     std::fs::read_to_string("config.toml")
@@ -62,7 +62,7 @@
 //! ### Helper Methods
 //!
 //! ```rust
-//! use ggen_utils::error::Error;
+//! use mcpp_utils::error::Error;
 //! use std::path::PathBuf;
 //!
 //! # fn main() {
@@ -81,7 +81,7 @@
 use std::error::Error as StdError;
 use std::fmt;
 
-/// Custom error type for the ggen project
+/// Custom error type for the mcpp project
 #[derive(Debug)]
 pub struct Error {
     message: String,
@@ -184,7 +184,7 @@ impl StdError for Error {
     }
 }
 
-/// Result type alias for the ggen project
+/// Result type alias for the mcpp project
 pub type Result<T> = std::result::Result<T, Error>;
 
 // Implement From for common error types
@@ -321,7 +321,7 @@ impl<T> Context<T> for Result<T> {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::error::{Result, bail};
+/// use mcpp_utils::error::{Result, bail};
 ///
 /// fn validate_positive(n: i32) -> Result<()> {
 ///     if n < 0 {
@@ -348,7 +348,7 @@ macro_rules! bail {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::error::{Result, ensure};
+/// use mcpp_utils::error::{Result, ensure};
 ///
 /// fn divide(a: i32, b: i32) -> Result<i32> {
 ///     ensure!(b != 0, "Division by zero");

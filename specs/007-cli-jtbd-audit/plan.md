@@ -5,7 +5,7 @@
 
 ## Summary
 
-Comprehensive JTBD audit framework evaluating 47+ ggen CLI commands for:
+Comprehensive JTBD audit framework evaluating 47+ mcpp CLI commands for:
 1. **Functional Correctness**: Command execution, error handling, output format
 2. **Agent Accessibility**: AI coding agent usability (7 avatars)
 3. **Maturity Classification**: L0-L5 maturity levels with L4+ required for "agent-usable"
@@ -16,8 +16,8 @@ Comprehensive JTBD audit framework evaluating 47+ ggen CLI commands for:
 
 ## Technical Context
 
-**Language/Version**: Rust 1.74+ (edition 2021) - existing ggen toolchain
-**Primary Dependencies**: ggen CLI (v4.0.0), cargo-make, existing workspace crates
+**Language/Version**: Rust 1.74+ (edition 2021) - existing mcpp toolchain
+**Primary Dependencies**: mcpp CLI (v4.0.0), cargo-make, existing workspace crates
 **Storage**: Filesystem-based (YAML audit results, markdown reports) in feature evidence directory
 **Testing**: cargo make test, shell script execution for CLI validation
 **Target Platform**: macOS/Linux (CLI audit execution environment)
@@ -30,7 +30,7 @@ Comprehensive JTBD audit framework evaluating 47+ ggen CLI commands for:
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.md`):
+Verify compliance with mcpp Constitution v1.0.0 (`.specify/memory/constitution.md`):
 
 - [x] **I. Crate-First Architecture**: N/A - This is an audit feature, not a new crate. Uses existing CLI infrastructure.
 - [x] **II. Deterministic RDF Projections**: Audit results are deterministic (same command → same evaluation). Evidence files are version-controlled.
@@ -79,7 +79,7 @@ specs/007-cli-jtbd-audit/
 This feature does not create new source code. It audits existing CLI:
 
 ```text
-crates/ggen-cli/src/cmds/    # Existing CLI commands being audited
+crates/mcpp-cli/src/cmds/    # Existing CLI commands being audited
 ├── workflow.rs
 ├── template.rs
 ├── project.rs
@@ -90,7 +90,7 @@ crates/ggen-cli/src/cmds/    # Existing CLI commands being audited
 └── ai.rs
 ```
 
-**Structure Decision**: Audit-only feature using existing ggen infrastructure. All outputs stored in feature spec directory (`specs/007-cli-jtbd-audit/`).
+**Structure Decision**: Audit-only feature using existing mcpp infrastructure. All outputs stored in feature spec directory (`specs/007-cli-jtbd-audit/`).
 
 ## Complexity Tracking
 

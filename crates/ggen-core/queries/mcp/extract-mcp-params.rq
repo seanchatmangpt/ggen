@@ -5,7 +5,7 @@
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
 
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
 
 SELECT ?tool_name ?param_name ?param_description ?rust_type ?json_schema ?is_required ?default_value ?enum_values
 WHERE {

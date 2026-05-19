@@ -1,6 +1,6 @@
 // Shared test utilities for E2E validation
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use std::process::Command as StdCommand;
 use tempfile::TempDir;

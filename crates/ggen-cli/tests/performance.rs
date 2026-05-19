@@ -23,7 +23,7 @@ fn perf_startup_time_help_command() {
     // Test: CLI must start and show help in ≤3s
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--help"])
         .assert()
@@ -41,7 +41,7 @@ fn perf_startup_time_help_command() {
 fn perf_startup_time_version_command() {
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--version"])
         .assert()
@@ -61,7 +61,7 @@ fn perf_startup_time_subcommand_help() {
     for subcommand in &["template", "market", "project", "lifecycle"] {
         let start = Instant::now();
 
-        Command::cargo_bin("ggen")
+        Command::cargo_bin("mcpp")
             .unwrap()
             .args([*subcommand, "--help"])
             .assert()
@@ -100,7 +100,7 @@ enabled = true
 
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--config", config_file.path().to_str().unwrap(), "--help"])
         .assert()
@@ -124,7 +124,7 @@ fn perf_memory_usage_basic_command() {
     use std::process::{Command as StdCommand, Stdio};
 
     // Run command and measure memory usage via /proc
-    let mut child = StdCommand::new(env!("CARGO_BIN_EXE_ggen"))
+    let mut child = StdCommand::new(env!("CARGO_BIN_EXE_mcpp"))
         .args(["--help"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -197,7 +197,7 @@ nodes:
     template_file.write_str(&template).unwrap();
 
     // Execute and verify no OOM
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -224,7 +224,7 @@ fn perf_concurrent_help_commands() {
     let handles: Vec<_> = (0..5)
         .map(|_| {
             thread::spawn(|| {
-                Command::cargo_bin("ggen")
+                Command::cargo_bin("mcpp")
                     .unwrap()
                     .args(["--help"])
                     .assert()
@@ -243,7 +243,7 @@ fn perf_concurrent_version_commands() {
     let handles: Vec<_> = (0..10)
         .map(|_| {
             thread::spawn(|| {
-                Command::cargo_bin("ggen")
+                Command::cargo_bin("mcpp")
                     .unwrap()
                     .args(["--version"])
                     .assert()
@@ -289,7 +289,7 @@ nodes:
             thread::spawn(move || {
                 let output_dir = temp_clone.child(format!("output_{}", i));
 
-                Command::cargo_bin("ggen")
+                Command::cargo_bin("mcpp")
                     .unwrap()
                     .args([
                         "template",
@@ -321,7 +321,7 @@ fn perf_concurrent_marketplace_searches() {
         .into_iter()
         .map(|query| {
             thread::spawn(move || {
-                Command::cargo_bin("ggen")
+                Command::cargo_bin("mcpp")
                     .unwrap()
                     .args(["market", "search", query, "--limit", "5"])
                     .assert()
@@ -344,7 +344,7 @@ fn perf_response_time_doctor_command() {
     // Doctor should complete quickly
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["doctor"])
         .assert()
@@ -363,7 +363,7 @@ fn perf_response_time_marketplace_search() {
     // Marketplace search should be reasonably fast
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["market", "search", "rust", "--limit", "10"])
         .assert()
@@ -404,7 +404,7 @@ nodes:
 
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -472,7 +472,7 @@ nodes:
 
     let start = Instant::now();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -537,7 +537,7 @@ nodes:
 
     template_file.write_str(&template).unwrap();
 
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -562,7 +562,7 @@ nodes:
 fn perf_no_resource_leaks_repeated_commands() {
     // Run same command multiple times and verify no leaks
     for _ in 0..10 {
-        Command::cargo_bin("ggen")
+        Command::cargo_bin("mcpp")
             .unwrap()
             .args(["--version"])
             .assert()
@@ -574,7 +574,7 @@ fn perf_no_resource_leaks_repeated_commands() {
 fn perf_no_resource_leaks_failed_commands() {
     // Verify failed commands don't leak resources
     for _ in 0..5 {
-        let _ = Command::cargo_bin("ggen")
+        let _ = Command::cargo_bin("mcpp")
             .unwrap()
             .args([
                 "template",
@@ -620,7 +620,7 @@ nodes:
     for i in 0..5 {
         let output_dir = temp.child(format!("output_{}", i));
 
-        Command::cargo_bin("ggen")
+        Command::cargo_bin("mcpp")
             .unwrap()
             .args([
                 "template",

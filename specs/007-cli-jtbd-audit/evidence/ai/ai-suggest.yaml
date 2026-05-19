@@ -1,4 +1,4 @@
-command: "ggen ai suggest"
+command: "mcpp ai suggest"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I want AI suggestions for improvement,
-  I need to run 'ggen ai suggest' with code/object path,
+  I need to run 'mcpp ai suggest' with code/object path,
   so that I can get improvement recommendations.

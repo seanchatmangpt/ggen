@@ -1,8 +1,8 @@
-//! A2A-MCP Integration for ggen
+//! A2A-MCP Integration for mcpp
 //!
 //! This crate provides integration between the Agent-to-Agent (A2A) protocol
 //! and Rusty Model Context Protocol (RMCP), enabling bidirectional
-//! communication for ggen's AI agent ecosystem.
+//! communication for mcpp's AI agent ecosystem.
 //!
 //! ## Architecture
 //!
@@ -10,10 +10,10 @@
 //!
 //! ```text
 //! ┌─────────────────────────────────────────────┐
-//! │              ggen-a2a-mcp Crate             │
+//! │              mcpp-a2a-mcp Crate             │
 //! ├─────────────┬─────────────┬─────────────────┤
 //! │  LLM Client │ Translation │  A2A Protocol   │
-//! │  (ggen-ai)  │    Layer    │  (a2a-gen)      │
+//! │  (mcpp-ai)  │    Layer    │  (a2a-gen)      │
 //! ├─────────────┼─────────────┼─────────────────┤
 //! │  RMCP Tool  │ Conversion  │  Agent Skills   │
 //! │  Interface  │    Layer    │  Interface      │
@@ -24,7 +24,7 @@ pub mod adapter;
 pub mod client;
 pub mod correlation;
 pub mod error;
-pub mod ggen_server;
+pub mod mcpp_server;
 pub mod handlers;
 pub mod message;
 pub mod server;
@@ -49,7 +49,7 @@ pub use yawl_bridge::{
 // Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// OTEL semantic convention attribute names used across ggen-a2a-mcp.
+/// OTEL semantic convention attribute names used across mcpp-a2a-mcp.
 ///
 /// All tracing spans and structured log fields should reference these
 /// constants rather than inline string literals, ensuring consistency

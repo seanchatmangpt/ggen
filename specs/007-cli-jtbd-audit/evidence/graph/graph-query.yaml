@@ -1,4 +1,4 @@
-command: "ggen graph query"
+command: "mcpp graph query"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to query an RDF graph with SPARQL,
-  I need to run 'ggen graph query' with SPARQL statement,
+  I need to run 'mcpp graph query' with SPARQL statement,
   so that I can extract specific RDF data from the graph.

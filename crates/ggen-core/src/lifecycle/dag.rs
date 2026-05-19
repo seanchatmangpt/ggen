@@ -16,8 +16,8 @@
 //! ### Topological Sorting
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::dag::topo;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::dag::topo;
+//! use mcpp_core::lifecycle::Result;
 //!
 //! # fn main() -> Result<()> {
 //! let phases = &["init", "setup", "build", "test"];
@@ -36,7 +36,7 @@
 //! ### Extracting Dependencies from Hooks
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::dag::deps_from_hooks;
+//! use mcpp_core::lifecycle::dag::deps_from_hooks;
 //!
 //! // If build phase has before=["test", "lint"] and after=["deploy"]
 //! let deps = deps_from_hooks(

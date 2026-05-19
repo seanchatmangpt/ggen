@@ -3,12 +3,12 @@
 # Returns one row per (agent, skill) pair. Skills and their input params are
 # aggregated as pipe-delimited strings. Template parses these to reconstruct arrays.
 #
-# ggen pipeline: renders template ONCE PER ROW. Each row = one skill of one agent.
+# mcpp pipeline: renders template ONCE PER ROW. Each row = one skill of one agent.
 # sparql_results contains ALL rows for the full agent module generation.
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> agent.rs.tera
 
-PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT

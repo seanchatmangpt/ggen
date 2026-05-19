@@ -11,7 +11,7 @@ use std::path::Path;
 use std::process::Command;
 use std::time::Duration;
 
-/// Output from a ggen sync execution
+/// Output from a mcpp sync execution
 #[derive(Debug, Clone)]
 pub struct SyncOutput {
     /// Exit code
@@ -47,10 +47,10 @@ impl SyncOutput {
     }
 }
 
-/// Trait for executing ggen in different environments
+/// Trait for executing mcpp in different environments
 #[async_trait]
 pub trait GgenExecutor: Send + Sync {
-    /// Execute ggen sync in this environment
+    /// Execute mcpp sync in this environment
     async fn execute(&self, project_dir: &Path) -> Result<SyncOutput>;
     /// Get the platform this executor runs on
     fn platform(&self) -> &Platform;
@@ -59,15 +59,15 @@ pub trait GgenExecutor: Send + Sync {
 /// Native executor for macOS
 pub struct NativeExecutor {
     platform: Platform,
-    ggen_path: std::path::PathBuf,
+    mcpp_path: std::path::PathBuf,
 }
 
 impl NativeExecutor {
     /// Create a new native executor
-    pub fn new(platform: Platform, ggen_path: std::path::PathBuf) -> Self {
+    pub fn new(platform: Platform, mcpp_path: std::path::PathBuf) -> Self {
         NativeExecutor {
             platform,
-            ggen_path,
+            mcpp_path,
         }
     }
 }
@@ -75,12 +75,12 @@ impl NativeExecutor {
 #[async_trait]
 impl GgenExecutor for NativeExecutor {
     async fn execute(&self, project_dir: &Path) -> Result<SyncOutput> {
-        // Execute native ggen sync on macOS
-        let output = Command::new(&self.ggen_path)
+        // Execute native mcpp sync on macOS
+        let output = Command::new(&self.mcpp_path)
             .arg("sync")
             .current_dir(project_dir)
             .output()
-            .map_err(|e| RunnerError::ExecutionFailed(format!("Failed to execute ggen: {}", e)))?;
+            .map_err(|e| RunnerError::ExecutionFailed(format!("Failed to execute mcpp: {}", e)))?;
 
         let stdout = String::from_utf8_lossy(&output.stdout).to_string();
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -114,7 +114,7 @@ impl ContainerExecutor {
 #[async_trait]
 impl GgenExecutor for ContainerExecutor {
     async fn execute(&self, _project_dir: &Path) -> Result<SyncOutput> {
-        // Execute ggen sync in container
+        // Execute mcpp sync in container
         // Full implementation in Phase 4 with testcontainers
         Err(RunnerError::ExecutionFailed(
             "ContainerExecutor implementation pending (Phase 4)".to_string(),
@@ -193,9 +193,9 @@ impl TestRunner {
 
     /// Run with native executor (macOS)
     pub async fn run_with_native(
-        &self, fixture: &TestFixture, ggen_path: std::path::PathBuf,
+        &self, fixture: &TestFixture, mcpp_path: std::path::PathBuf,
     ) -> Result<TestResult> {
-        let executor = NativeExecutor::new(self.platform.clone(), ggen_path);
+        let executor = NativeExecutor::new(self.platform.clone(), mcpp_path);
         let temp_dir = fixture.copy_to_temp()?;
 
         let output = executor.execute(temp_dir.path()).await?;
@@ -241,7 +241,7 @@ mod tests {
             docker_available: false,
         };
         let executor =
-            NativeExecutor::new(platform.clone(), std::path::PathBuf::from("/usr/bin/ggen"));
+            NativeExecutor::new(platform.clone(), std::path::PathBuf::from("/usr/bin/mcpp"));
         assert_eq!(executor.platform(), &platform);
     }
 

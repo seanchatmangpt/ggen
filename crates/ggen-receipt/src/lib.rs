@@ -1,4 +1,4 @@
-//! Cryptographic receipt system for ggen operations.
+//! Cryptographic receipt system for mcpp operations.
 //!
 //! This crate provides a production-ready receipt system with Ed25519 signatures
 //! for verifiable operation tracking. Receipts can be chained together to form
@@ -17,7 +17,7 @@
 //! ## Creating and signing a receipt
 //!
 //! ```
-//! use ggen_receipt::{Receipt, generate_keypair};
+//! use mcpp_receipt::{Receipt, generate_keypair};
 //!
 //! let (signing_key, verifying_key) = generate_keypair();
 //!
@@ -37,7 +37,7 @@
 //! ## Building a receipt chain
 //!
 //! ```
-//! use ggen_receipt::{Receipt, ReceiptChain, generate_keypair};
+//! use mcpp_receipt::{Receipt, ReceiptChain, generate_keypair};
 //!
 //! let (signing_key, verifying_key) = generate_keypair();
 //!

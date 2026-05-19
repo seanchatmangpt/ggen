@@ -145,7 +145,7 @@ erlc -I apps/tai_autonomics/include -o apps/tai_autonomics/test \
 
 ### Run Tests (eunit)
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 eunit apps=tai_autonomics
 ```
 

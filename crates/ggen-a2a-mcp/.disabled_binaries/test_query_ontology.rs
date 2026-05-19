@@ -1,7 +1,7 @@
 //! Direct test of query_ontology MCP tool
 //! Tests the tool by creating a GgenMcpServer instance and calling query_ontology
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{
     handler::server::wrapper::Parameters,
     model::{CallToolRequestParams, ClientCapabilities},
@@ -82,7 +82,7 @@ ex:Person2 a ex:Person ;
 async fn test_query_ontology(
     server: &GgenMcpServer, ttl: &str, sparql: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    use ggen_a2a_mcp::ggen_server::QueryOntologyParams;
+    use mcpp_a2a_mcp::mcpp_server::QueryOntologyParams;
     use rmcp::handler::server::wrapper::Parameters;
 
     // Direct method call (should work if #[tool] macro makes it public)

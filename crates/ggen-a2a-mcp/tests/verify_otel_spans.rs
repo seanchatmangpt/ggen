@@ -3,7 +3,7 @@
 //! This test checks that each MCP tool records the `mcp.tool_name` attribute
 //! as required by the OTEL validation rules.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::CallToolResult, server::ServerImpl};
 
 #[tokio::test]
@@ -80,6 +80,6 @@ async fn verify_otel_attributes_in_source() {
     // This test serves as documentation that OTEL spans are required
     assert!(
         true,
-        "OTEL span instrumentation is present in ggen_server.rs"
+        "OTEL span instrumentation is present in mcpp_server.rs"
     );
 }

@@ -5,16 +5,16 @@
 
 ## Summary
 
-Generate a complete PhD thesis document on "Grand Unified Theory of Full-Stack Knowledge Graph Completeness" from RDF ontology using ggen. The thesis proves that deterministic code generation from semantic ontologies eliminates specification-implementation drift across the technology stack, integrating ggen, @unrdf/hooks, @unrdf/kgc-4d, NextJS, TanStack, and Electric SQL.
+Generate a complete PhD thesis document on "Grand Unified Theory of Full-Stack Knowledge Graph Completeness" from RDF ontology using mcpp. The thesis proves that deterministic code generation from semantic ontologies eliminates specification-implementation drift across the technology stack, integrating mcpp, @unrdf/hooks, @unrdf/kgc-4d, NextJS, TanStack, and Electric SQL.
 
 **Technical Approach**: Extend existing `examples/thesis-gen` patterns with 15+ generation rules, 17 entity classes, 30+ SPARQL queries, and 14 Tera templates to produce publication-ready LaTeX with amsthm theorems, algorithm2e pseudocode, and biblatex bibliography.
 
 ## Technical Context
 
-**Language/Version**: Rust 1.75+ (ggen v5), LaTeX (pdflatex + biber)
-**Primary Dependencies**: ggen-core, Oxigraph (RDF), Tera (templates), memoir (LaTeX), amsthm, biblatex, algorithm2e
+**Language/Version**: Rust 1.75+ (mcpp v5), LaTeX (pdflatex + biber)
+**Primary Dependencies**: mcpp-core, Oxigraph (RDF), Tera (templates), memoir (LaTeX), amsthm, biblatex, algorithm2e
 **Storage**: File system (RDF ontology .ttl files, generated .tex files)
-**Testing**: `cargo make test` (ggen), `pdflatex` compilation verification
+**Testing**: `cargo make test` (mcpp), `pdflatex` compilation verification
 **Target Platform**: macOS/Linux CLI, PDF output
 **Project Type**: Single project - thesis content generation
 **Performance Goals**: <5s generation for 10K triples, first-compile success rate >99%
@@ -25,17 +25,17 @@ Generate a complete PhD thesis document on "Grand Unified Theory of Full-Stack K
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.md`):
+Verify compliance with mcpp Constitution v1.0.0 (`.specify/memory/constitution.md`):
 
-- [x] **I. Crate-First Architecture**: Uses existing ggen-core crate infrastructure. No new crates needed - content generation via templates.
+- [x] **I. Crate-First Architecture**: Uses existing mcpp-core crate infrastructure. No new crates needed - content generation via templates.
 - [x] **II. Deterministic RDF Projections**: All SPARQL queries use ORDER BY for deterministic results. Templates have zero hardcoded strings. Regeneration produces identical output.
 - [x] **III. Chicago TDD**: Tests verify observable LaTeX output against expected structure. Real Oxigraph collaborator. 80%+ coverage via generation rule tests.
-- [x] **IV. cargo make Protocol**: All commands via `cargo make check`, `cargo make test`, `ggen sync`. SLOs: <5s generation, <15s compilation.
+- [x] **IV. cargo make Protocol**: All commands via `cargo make check`, `cargo make test`, `mcpp sync`. SLOs: <5s generation, <15s compilation.
 - [x] **V. Type-First Thinking**: RDF schema defines all entity types. SPARQL variables typed via XSD. Tera templates type-safe.
 - [x] **VI. Andon Signal Protocol**: RED: pdflatex errors, undefined refs. YELLOW: LaTeX warnings. GREEN: clean compilation. Stop on RED.
-- [x] **VII. Error Handling**: ggen uses `Result<T, E>`. Template rendering errors propagate. No unwrap in production code.
-- [x] **VIII. Concurrent Execution**: Batch all file writes in single ggen sync. Files organized in specs/012-*/output/ (not root).
-- [x] **IX. Lean Six Sigma Quality**: Pre-commit hooks run ggen check. Full validation via `cargo make ci`. Zero tolerance for compilation errors.
+- [x] **VII. Error Handling**: mcpp uses `Result<T, E>`. Template rendering errors propagate. No unwrap in production code.
+- [x] **VIII. Concurrent Execution**: Batch all file writes in single mcpp sync. Files organized in specs/012-*/output/ (not root).
+- [x] **IX. Lean Six Sigma Quality**: Pre-commit hooks run mcpp check. Full validation via `cargo make ci`. Zero tolerance for compilation errors.
 
 **Quality Gates Pass?**: [x] YES
 
@@ -61,7 +61,7 @@ specs/012-grand-unified-kgc-thesis/
 
 ```text
 specs/012-grand-unified-kgc-thesis/
-├── ggen.toml                    # Generation manifest (15 rules)
+├── mcpp.toml                    # Generation manifest (15 rules)
 ├── ontology/
 │   ├── thesis-schema.ttl        # Class/property definitions
 │   └── kgc-unified-content.ttl  # Thesis content (7 chapters, 10+ theorems, 20+ equations)
@@ -97,7 +97,7 @@ specs/012-grand-unified-kgc-thesis/
     └── preamble.tex
 ```
 
-**Structure Decision**: Single project structure using existing ggen infrastructure. All thesis-specific content in `specs/012-grand-unified-kgc-thesis/` following speckit conventions. No new Rust crates required - extends existing thesis-gen patterns.
+**Structure Decision**: Single project structure using existing mcpp infrastructure. All thesis-specific content in `specs/012-grand-unified-kgc-thesis/` following speckit conventions. No new Rust crates required - extends existing thesis-gen patterns.
 
 ## Complexity Tracking
 
@@ -150,7 +150,7 @@ specs/012-grand-unified-kgc-thesis/
 - Create thesis-schema.ttl with 17 entity classes
 - Create kgc-unified-content.ttl with 7 chapters, thesis content
 - Create 14 Tera templates
-- Create ggen.toml manifest with 15 generation rules
+- Create mcpp.toml manifest with 15 generation rules
 
 ### Phase 2: Content Authoring (Days 4-7)
 - Author 7 chapters in RDF (Introduction, Foundations, Info Theory, KGC-4D, Case Study, @unrdf, Conclusions)
@@ -160,7 +160,7 @@ specs/012-grand-unified-kgc-thesis/
 - Add 30+ bibliography references
 
 ### Phase 3: Generation & Validation (Days 8-10)
-- Run `ggen sync` to generate LaTeX
+- Run `mcpp sync` to generate LaTeX
 - Compile with pdflatex/biber
 - Verify cross-references resolve
 - Verify bibliography renders
@@ -170,7 +170,7 @@ specs/012-grand-unified-kgc-thesis/
 
 | Metric | Target | Verification |
 |--------|--------|--------------|
-| Generation time | <5s | `time ggen sync` |
+| Generation time | <5s | `time mcpp sync` |
 | First compile errors | 0 | `pdflatex thesis.tex` |
 | Undefined references | 0 | grep for "??" in PDF |
 | Page count | 100+ | PDF properties |
@@ -183,7 +183,7 @@ specs/012-grand-unified-kgc-thesis/
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| ggen | v5 | Code generation engine |
+| mcpp | v5 | Code generation engine |
 | Oxigraph | latest | RDF processing |
 | Tera | latest | Template rendering |
 | pdflatex | TeX Live 2024 | LaTeX compilation |

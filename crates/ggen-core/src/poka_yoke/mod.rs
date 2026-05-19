@@ -1,4 +1,4 @@
-//! Poka-Yoke (Error-Proofing) mechanisms for ggen CLI.
+//! Poka-Yoke (Error-Proofing) mechanisms for mcpp CLI.
 //!
 //! This module provides error-proofing mechanisms following DfLSS principles:
 //! - Type-level safety (compile-time guarantees)

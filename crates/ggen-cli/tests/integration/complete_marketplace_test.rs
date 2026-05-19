@@ -14,14 +14,14 @@ use testcontainers::{clients, Container, RunnableImage};
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::redis::Redis;
 
-use ggen_cli_lib::cmds::market::{
+use mcpp_cli_lib::cmds::market::{
     add::{run_with_deps as add_run_with_deps, AddArgs, GpackInstaller, InstallResult},
     list::{run_with_deps as list_run_with_deps, ListArgs, GpackLister},
     search::{run_with_deps as search_run_with_deps, SearchArgs, MarketplaceClient, SearchFilters, SearchResult},
     registry::Registry,
 };
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 /// Complete marketplace integration test
 #[tokio::test]
@@ -70,10 +70,10 @@ async fn test_complete_marketplace_workflow() {
     let mock_client = MockMarketplaceClient::new().with_package(SearchResult {
         id: "hello-world".to_string(),
         name: "hello-world-utils".to_string(),
-        description: "Simple utility package demonstrating ggen marketplace functionality".to_string(),
+        description: "Simple utility package demonstrating mcpp marketplace functionality".to_string(),
         version: "0.1.0".to_string(),
         category: Some("utilities".to_string()),
-        author: Some("ggen-team".to_string()),
+        author: Some("mcpp-team".to_string()),
         license: Some("MIT".to_string()),
         stars: 42,
         downloads: 1337,
@@ -230,7 +230,7 @@ impl GpackInstaller for MockGpackInstaller {
                 already_installed: false,
             })
         } else {
-            Err(ggen_utils::error::Error::new("Mock installation failed"))
+            Err(mcpp_utils::error::Error::new("Mock installation failed"))
         }
     }
 }

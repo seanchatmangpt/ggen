@@ -4,7 +4,7 @@
 //! It supports variable validation, interactive prompts, and post-generation hooks.
 
 use crate::packs::types::{Pack, PackTemplate};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};

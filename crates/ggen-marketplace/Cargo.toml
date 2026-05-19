@@ -1,9 +1,9 @@
 [package]
-name = "ggen-marketplace"
+name = "mcpp-marketplace"
 version = "3.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
-description = "Marketplace system for ggen using RDF and semantic versioning"
+description = "Marketplace system for mcpp using RDF and semantic versioning"
 license = "MIT"
 
 [dependencies]
@@ -44,8 +44,8 @@ dashmap = { workspace = true }       # Concurrent hash maps for metrics/events
 lru = "0.16"                         # LRU cache
 
 # Cryptography & security
-# NOTE: Using ggen-receipt as canonical signing implementation
-ggen-receipt = { path = "../ggen-receipt" }  # Ed25519 signatures, SHA-256, receipt chains
+# NOTE: Using mcpp-receipt as canonical signing implementation
+mcpp-receipt = { path = "../mcpp-receipt" }  # Ed25519 signatures, SHA-256, receipt chains
 ed25519-dalek = "2.1"                        # Ed25519 types (SigningKey, VerifyingKey)
 hex = "0.4"                                  # Hex encoding
 sha2 = "0.10"                               # SHA-256 hashing

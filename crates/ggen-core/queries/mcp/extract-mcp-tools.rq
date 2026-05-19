@@ -8,7 +8,7 @@
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
 
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
 
 SELECT ?tool_name ?tool_description
 WHERE {

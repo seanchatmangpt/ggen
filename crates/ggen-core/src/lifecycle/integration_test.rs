@@ -25,7 +25,7 @@ mod integration_tests {
         /// Create new test fixture with make.toml
         fn new() -> Self {
             let temp_dir = TempDir::new().expect("Failed to create temp dir");
-            let state_path = temp_dir.path().join(".ggen/state.json");
+            let state_path = temp_dir.path().join(".mcpp/state.json");
 
             // Create basic make.toml
             let make_toml = r#"
@@ -77,7 +77,7 @@ after_build = []
         /// Create fixture with workspace configuration
         fn new_with_workspaces() -> Self {
             let temp_dir = TempDir::new().expect("Failed to create temp dir");
-            let state_path = temp_dir.path().join(".ggen/state.json");
+            let state_path = temp_dir.path().join(".mcpp/state.json");
 
             // Create workspace directories
             fs::create_dir_all(temp_dir.path().join("frontend")).unwrap();
@@ -489,7 +489,7 @@ command = "echo 'Building...'"
     #[test]
     fn test_cache_storage_and_validation() {
         let temp_dir = TempDir::new().unwrap();
-        let cache_dir = temp_dir.path().join(".ggen/cache");
+        let cache_dir = temp_dir.path().join(".mcpp/cache");
 
         let phase = "build";
         let key = "test_cache_key_123";
@@ -635,7 +635,7 @@ command = "date +%s%N > timestamp.txt"
 
         // Load and execute
         let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
-        let state_path = temp_dir.path().join(".ggen/state.json");
+        let state_path = temp_dir.path().join(".mcpp/state.json");
         let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         let start = Instant::now();
@@ -666,7 +666,7 @@ command = "date +%s%N > timestamp.txt"
         for i in 1..=3 {
             let ws_state_path = temp_dir
                 .path()
-                .join(format!("workspace{}/.ggen/state.json", i));
+                .join(format!("workspace{}/.mcpp/state.json", i));
             assert!(
                 ws_state_path.exists(),
                 "Workspace {} should have state file",
@@ -737,7 +737,7 @@ command = "echo 'test'"
 
         // Execute - should fail due to workspace2
         let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
-        let state_path = temp_dir.path().join(".ggen/state.json");
+        let state_path = temp_dir.path().join(".mcpp/state.json");
         let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         let result = exec::run_pipeline(&ctx, &vec!["process".to_string()]);

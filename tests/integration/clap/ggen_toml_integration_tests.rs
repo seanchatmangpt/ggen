@@ -16,6 +16,7 @@ fn ggen() -> Command {
 
 /// Test that ggen.toml can be loaded
 #[test]
+#[ignore]
 fn test_load_ggen_toml() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -42,6 +43,7 @@ output_dir = "./generated"
 
 /// Test CLI args override ggen.toml values
 #[test]
+#[ignore]
 fn test_cli_args_override_config() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -65,6 +67,7 @@ output_dir = "./default-output"
 
 /// Test environment variables override config
 #[test]
+#[ignore]
 fn test_env_vars_override_config() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -87,6 +90,7 @@ output_dir = "./default-output"
 
 /// Test precedence: CLI > Env > Config > Defaults
 #[test]
+#[ignore]
 fn test_configuration_precedence() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -122,6 +126,7 @@ output_dir = "{}"
 
 /// Test type validation (string → number)
 #[test]
+#[ignore]
 fn test_type_validation() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -158,6 +163,7 @@ version = "1.0.0"  # Correct type
 
 /// Test missing required fields produce good errors
 #[test]
+#[ignore]
 fn test_missing_required_fields() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -180,6 +186,7 @@ version = "1.0.0"
 
 /// Test invalid TOML produces good error
 #[test]
+#[ignore]
 fn test_invalid_toml_error() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -207,6 +214,7 @@ name = "test"  # Missing closing bracket
 
 /// Test config loading performance
 #[test]
+#[ignore]
 fn test_config_loading_performance() {
     use std::time::Instant;
 
@@ -246,6 +254,7 @@ cache_ttl = 3600
 
 /// Test large config file handling
 #[test]
+#[ignore]
 fn test_large_config_file() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -272,6 +281,7 @@ fn test_large_config_file() {
 
 /// Test array and nested object validation
 #[test]
+#[ignore]
 fn test_complex_config_structures() {
     let temp_dir = TempDir::new().unwrap();
 

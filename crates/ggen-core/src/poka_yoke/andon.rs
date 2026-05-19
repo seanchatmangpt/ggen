@@ -15,18 +15,18 @@
 //! let signal = AndonSignal::Red(CriticalError {
 //!     code: "MANIFEST_INVALID".to_string(),
 //!     message: "Manifest validation failed".to_string(),
-//!     context: "File: ggen.toml\nIssue: [ontology].source is required".to_string(),
+//!     context: "File: mcpp.toml\nIssue: [ontology].source is required".to_string(),
 //!     recovery_steps: vec![
-//!         "Open ggen.toml in editor".to_string(),
+//!         "Open mcpp.toml in editor".to_string(),
 //!         "Add [ontology] section".to_string(),
 //!     ],
-//!     documentation_link: "https://ggen.dev/docs/manifest".to_string(),
+//!     documentation_link: "https://mcpp.dev/docs/manifest".to_string(),
 //! });
 //!
 //! signal.enforce()?;  // Displays error and returns Err
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::fmt;
 
 /// Critical error information for RED signal
@@ -106,7 +106,7 @@ impl AndonSignal {
                 missing_fields.len()
             ),
             context: format!(
-                "File: ggen.toml\nMissing fields:\n{}",
+                "File: mcpp.toml\nMissing fields:\n{}",
                 missing_fields
                     .iter()
                     .enumerate()
@@ -115,11 +115,11 @@ impl AndonSignal {
                     .join("\n")
             ),
             recovery_steps: vec![
-                "Open ggen.toml in editor".to_string(),
+                "Open mcpp.toml in editor".to_string(),
                 "Add missing fields with values".to_string(),
-                format!("Or use `ggen init` to create valid template"),
+                format!("Or use `mcpp init` to create valid template"),
             ],
-            documentation_link: "https://ggen.dev/docs/manifest-format".to_string(),
+            documentation_link: "https://mcpp.dev/docs/manifest-format".to_string(),
         })
     }
 
@@ -149,9 +149,9 @@ impl AndonSignal {
                 "Restructure as directed acyclic graph (DAG)".to_string(),
                 "Option A: Create root ontology that imports all".to_string(),
                 "Option B: Move shared definitions to base ontology".to_string(),
-                "Use `ggen sync --validate-only` to verify".to_string(),
+                "Use `mcpp sync --validate-only` to verify".to_string(),
             ],
-            documentation_link: "https://ggen.dev/docs/ontology-structure".to_string(),
+            documentation_link: "https://mcpp.dev/docs/ontology-structure".to_string(),
         })
     }
 
@@ -166,10 +166,10 @@ impl AndonSignal {
             ),
             recovery_steps: vec![
                 format!("Make directory writable: chmod u+w {}", path),
-                "Or change output_dir in ggen.toml [generation] section".to_string(),
+                "Or change output_dir in mcpp.toml [generation] section".to_string(),
                 "(Not recommended) Run with sudo".to_string(),
             ],
-            documentation_link: "https://ggen.dev/docs/permissions".to_string(),
+            documentation_link: "https://mcpp.dev/docs/permissions".to_string(),
         })
     }
 

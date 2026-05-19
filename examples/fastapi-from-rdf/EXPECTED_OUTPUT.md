@@ -564,7 +564,7 @@ Similar tests for orders:
 
 ### Step 1: Generate
 ```bash
-cd /Users/sac/ggen/examples/fastapi-from-rdf
+cd ./examples/fastapi-from-rdf
 ggen template generate api-stack.tmpl --var project_name=my_api
 ```
 
@@ -628,7 +628,7 @@ pytest
 **Try it yourself**:
 ```bash
 # Generate the example
-cd /Users/sac/ggen/examples/fastapi-from-rdf
+cd ./examples/fastapi-from-rdf
 ggen template generate api-stack.tmpl
 
 # Run it

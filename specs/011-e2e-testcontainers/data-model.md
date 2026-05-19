@@ -73,7 +73,7 @@ A test project with ontology, templates, and expected output.
 | `path` | `PathBuf` | Path to fixture directory |
 | `ontology_files` | `Vec<PathBuf>` | TTL/RDF ontology files |
 | `template_files` | `Vec<PathBuf>` | Tera template files |
-| `ggen_toml` | `PathBuf` | ggen.toml manifest |
+| `mcpp_toml` | `PathBuf` | mcpp.toml manifest |
 | `golden_dir` | `PathBuf` | Expected output directory |
 
 ```rust
@@ -83,7 +83,7 @@ pub struct TestFixture {
     pub path: PathBuf,
     pub ontology_files: Vec<PathBuf>,
     pub template_files: Vec<PathBuf>,
-    pub ggen_toml: PathBuf,
+    pub mcpp_toml: PathBuf,
     pub golden_dir: PathBuf,
 }
 
@@ -197,7 +197,7 @@ impl TestRunner {
     pub fn with_container(self, config: ContainerConfig) -> Self;
 
     pub async fn run(&self, fixture: &TestFixture) -> Result<TestResult, RunnerError>;
-    pub async fn run_ggen_sync(&self, project_dir: &Path) -> Result<SyncOutput, RunnerError>;
+    pub async fn run_mcpp_sync(&self, project_dir: &Path) -> Result<SyncOutput, RunnerError>;
 }
 ```
 
@@ -239,7 +239,7 @@ Outcome of a test execution.
 |-------|------|-------------|
 | `execution` | `TestExecution` | Execution metadata |
 | `status` | `TestStatus` | Pass/Fail/Skip |
-| `generated_files` | `Vec<PathBuf>` | Files created by ggen sync |
+| `generated_files` | `Vec<PathBuf>` | Files created by mcpp sync |
 | `mismatches` | `Vec<GoldenMismatch>` | Golden file differences |
 | `logs` | `String` | Captured stdout/stderr |
 | `error` | `Option<String>` | Error message if failed |
@@ -344,7 +344,7 @@ pub enum FixtureError {
     #[error("Fixture not found: {0}")]
     NotFound(PathBuf),
 
-    #[error("Invalid ggen.toml: {0}")]
+    #[error("Invalid mcpp.toml: {0}")]
     InvalidManifest(String),
 
     #[error("IO error: {0}")]
@@ -377,7 +377,7 @@ pub enum ContainerError {
 
 #[derive(Debug, thiserror::Error)]
 pub enum RunnerError {
-    #[error("ggen sync failed: {0}")]
+    #[error("mcpp sync failed: {0}")]
     SyncFailed(String),
 
     #[error("Container error: {0}")]
@@ -391,7 +391,7 @@ pub enum RunnerError {
 ## Module Organization
 
 ```
-crates/ggen-e2e/src/
+crates/mcpp-e2e/src/
 ├── lib.rs                 # Public API exports
 ├── platform.rs            # Platform, Os, Arch
 ├── fixture.rs             # TestFixture
@@ -406,7 +406,7 @@ crates/ggen-e2e/src/
 ## Trait Abstractions
 
 ```rust
-/// Trait for executing ggen in different environments
+/// Trait for executing mcpp in different environments
 #[async_trait]
 pub trait GgenExecutor: Send + Sync {
     async fn execute(&self, project_dir: &Path) -> Result<SyncOutput, RunnerError>;
@@ -416,7 +416,7 @@ pub trait GgenExecutor: Send + Sync {
 /// Native executor (macOS)
 pub struct NativeExecutor {
     platform: Platform,
-    ggen_path: PathBuf,
+    mcpp_path: PathBuf,
 }
 
 /// Container executor (Linux via testcontainers)

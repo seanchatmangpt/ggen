@@ -68,7 +68,7 @@ ggen packs list
 **Status:** ❌ CANNOT TEST (no binary)
 
 **Code Analysis:**
-- File: `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs`
+- File: `./crates/ggen-cli/src/cmds/packs.rs`
 - Line 117: Imports `ggen_domain::packs::metadata` - **MISSING EXPORT**
 - Line 160: Imports `ggen_domain::packs::metadata` - **MISSING EXPORT**
 - Line 179: Imports `ggen_domain::packs::installer` - **MISSING EXPORT**
@@ -79,7 +79,7 @@ ggen packs list
 - Line 294: Imports `ggen_domain::packs::dependency_graph` - **MISSING EXPORT**
 
 **Fix Applied:**
-- Updated `/Users/sac/ggen/crates/ggen-domain/src/packs/mod.rs` to export all submodules
+- Updated `./crates/ggen-domain/src/packs/mod.rs` to export all submodules
 
 **Remaining Issues:**
 - Pre-existing trait bound errors in `composer.rs` prevent compilation
@@ -102,7 +102,7 @@ ggen capability enable --surface mcp --projection rust
 **Status:** ❌ CANNOT TEST (no binary)
 
 **Code Analysis:**
-- File: `/Users/sac/ggen/crates/ggen-cli/src/cmds/capability.rs`
+- File: `./crates/ggen-cli/src/cmds/capability.rs`
 - Lines 10-16: Fixed unused imports (`Deserialize`, `std::fs`, `std::path::PathBuf`)
 - Functionality: Stub implementation returning fake success
 - Line 117-159: `enable()` calls `resolve_capability()` which returns hardcoded pack list
@@ -146,7 +146,7 @@ ggen policy validate --profile enterprise-strict
 **Status:** ❌ CANNOT TEST (no binary)
 
 **Code Analysis:**
-- File: `/Users/sac/ggen/crates/ggen-cli/src/cmds/policy.rs`
+- File: `./crates/ggen-cli/src/cmds/policy.rs`
 - Lines 14-16: Fixed unused imports (removed top-level imports that were duplicated in function)
 - Functionality: Calls `load_pack_contexts_from_project()` helper function
 - Lines 83-123: Helper function loads lockfile and metadata, creates `PackContext` objects
@@ -194,7 +194,7 @@ ggen sync
 
 **Code Analysis:**
 - Cannot inspect sync command implementation due to compilation errors blocking all analysis
-- Likely exists in `/Users/sac/ggen/crates/ggen-cli/src/cmds/` but cannot verify
+- Likely exists in `./crates/ggen-cli/src/cmds/` but cannot verify
 
 ---
 
@@ -202,7 +202,7 @@ ggen sync
 
 ### Gap 1: Missing Module Exports (CRITICAL)
 **Severity:** 🔴 BLOCKS ALL TESTING
-**Location:** `/Users/sac/ggen/crates/ggen-domain/src/packs/mod.rs`
+**Location:** `./crates/ggen-domain/src/packs/mod.rs`
 **Issue:** Submodules not exported
 **Impact:** CLI cannot import domain functions
 **Fix Applied:** Added pub mod declarations for all submodules
@@ -210,7 +210,7 @@ ggen sync
 
 ### Gap 2: Trait Bound Error (CRITICAL)
 **Severity:** 🔴 BLOCKS ALL TESTING
-**Location:** `/Users/sac/ggen/crates/ggen-domain/src/packs/composer.rs:299`
+**Location:** `./crates/ggen-domain/src/packs/composer.rs:299`
 **Issue:** `Clone` not satisfied for `Box<dyn PackRepository>`
 **Impact:** Domain layer fails to compile
 **Root Cause:** Trait objects (dyn) cannot be cloned
@@ -222,14 +222,14 @@ ggen sync
 
 ### Gap 3: Type Mismatch Error (HIGH)
 **Severity:** 🟡 BLOCKS TESTING
-**Location:** `/Users/sac/ggen/crates/ggen-domain/src/packs/validate.rs`
+**Location:** `./crates/ggen-domain/src/packs/validate.rs`
 **Issue:** Type mismatch (details not inspected)
 **Impact:** Domain layer fails to compile
 **Status:** ❌ NOT FIXED
 
 ### Gap 4: Fake Success in Capability Enable (HIGH)
 **Severity:** 🟡 MISLEADING BEHAVIOR
-**Location:** `/Users/sac/ggen/crates/ggen-cli/src/cmds/capability.rs:117-159`
+**Location:** `./crates/ggen-cli/src/cmds/capability.rs:117-159`
 **Issue:** Returns fake success without actual lockfile update
 **Impact:** Users think capability was enabled but no state change occurred
 **Fix Required:**

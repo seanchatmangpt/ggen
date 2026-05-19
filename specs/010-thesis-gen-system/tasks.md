@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/010-thesis-gen-system/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/thesis-schema.ttl
 
-**Tests**: Not explicitly requested - validation via ggen sync and LaTeX compilation.
+**Tests**: Not explicitly requested - validation via mcpp sync and LaTeX compilation.
 
 **Organization**: Tasks grouped by user story for independent implementation and testing.
 
@@ -32,10 +32,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-### Core Manifest (ggen.toml)
+### Core Manifest (mcpp.toml)
 
-- [X] T005 Create `examples/thesis-gen/ggen.toml` with project metadata and ontology prefixes
-- [X] T006 Add ontology source configuration to `ggen.toml` pointing to `ontology/thesis-schema.ttl` and `ontology/thesis-content.ttl`
+- [X] T005 Create `examples/thesis-gen/mcpp.toml` with project metadata and ontology prefixes
+- [X] T006 Add ontology source configuration to `mcpp.toml` pointing to `ontology/thesis-schema.ttl` and `ontology/thesis-content.ttl`
 
 ### LaTeX Package Configuration (ontology-driven)
 
@@ -47,7 +47,7 @@
 - [X] T009 Create `examples/thesis-gen/ontology/thesis-content.ttl` with thesis metadata (title, author, institution, date)
 - [X] T010 Add abstract, dedication, acknowledgments to thesis-content.ttl (200-500 words each)
 
-**Checkpoint**: Foundation ready - ontology structure established, ggen.toml configured
+**Checkpoint**: Foundation ready - ontology structure established, mcpp.toml configured
 
 ---
 
@@ -55,7 +55,7 @@
 
 **Goal**: Generate 50+ page PDF with ALL content from ontology, zero hardcoded strings in templates
 
-**Independent Test**: Run `ggen sync && cd output && make pdf` and verify 50+ page PDF with content from ontology
+**Independent Test**: Run `mcpp sync && cd output && make pdf` and verify 50+ page PDF with content from ontology
 
 ### Templates for Basic Document Structure
 
@@ -73,7 +73,7 @@
 
 - [X] T017 [US1] Add Chapter 1 (Introduction) to `ontology/thesis-content.ttl` with 4 sections (~2000 words)
 - [X] T018 [P] [US1] Add Chapter 2 (Theoretical Foundations) with 5 sections (~2500 words)
-- [X] T019 [P] [US1] Add Chapter 3 (ggen Architecture) with 5 sections (~2500 words)
+- [X] T019 [P] [US1] Add Chapter 3 (mcpp Architecture) with 5 sections (~2500 words)
 - [X] T020 [P] [US1] Add Chapter 4 (ASTRO Case Study) with 5 sections (~2500 words)
 - [X] T021 [P] [US1] Add Chapter 5 (Figex Case Study) with 5 sections (~2500 words)
 - [X] T022 [P] [US1] Add Chapter 6 (Methodology Synthesis) with 4 sections (~2000 words)
@@ -81,15 +81,15 @@
 
 ### Generation Rules
 
-- [X] T024 [US1] Add generation rule for `thesis-main` in `ggen.toml` (SELECT thesis metadata)
-- [X] T025 [P] [US1] Add generation rule for `front-matter` in `ggen.toml`
-- [X] T026 [P] [US1] Add generation rule for `toc` in `ggen.toml`
-- [X] T027 [P] [US1] Add generation rule for `chapters` in `ggen.toml` (SELECT all chapters ORDER BY orderIndex)
-- [X] T028 [P] [US1] Add generation rule for `sections` in `ggen.toml` (SELECT all sections with chapter relation)
+- [X] T024 [US1] Add generation rule for `thesis-main` in `mcpp.toml` (SELECT thesis metadata)
+- [X] T025 [P] [US1] Add generation rule for `front-matter` in `mcpp.toml`
+- [X] T026 [P] [US1] Add generation rule for `toc` in `mcpp.toml`
+- [X] T027 [P] [US1] Add generation rule for `chapters` in `mcpp.toml` (SELECT all chapters ORDER BY orderIndex)
+- [X] T028 [P] [US1] Add generation rule for `sections` in `mcpp.toml` (SELECT all sections with chapter relation)
 
 ### Validation
 
-- [X] T029 [US1] Run `ggen sync` in `examples/thesis-gen/` - verify no template errors
+- [X] T029 [US1] Run `mcpp sync` in `examples/thesis-gen/` - verify no template errors
 - [X] T030 [US1] Run `pdflatex` and `bibtex` in `output/` - verify compilation succeeds
 - [X] T031 [US1] Verify generated PDF is minimum 50 pages
 
@@ -101,15 +101,15 @@
 
 **Goal**: Same templates work with different thesis content ontology
 
-**Independent Test**: Create alternate `thesis-content-alt.ttl`, run `ggen sync`, verify valid thesis output
+**Independent Test**: Create alternate `thesis-content-alt.ttl`, run `mcpp sync`, verify valid thesis output
 
 ### Reusability Verification
 
 - [X] T032 [US2] Create `examples/thesis-gen/ontology/thesis-content-alt.ttl` with different topic (AI Ethics in Healthcare)
 - [X] T033 [P] [US2] Add 7 chapters with different titles/content to `thesis-content-alt.ttl`
 - [X] T034 [P] [US2] Add thesis metadata (different author, title, institution) to `thesis-content-alt.ttl`
-- [X] T035 [US2] Update `ggen.toml` to use `thesis-content-alt.ttl` (or create `ggen-alt.toml`)
-- [X] T036 [US2] Run `ggen sync` with alternate ontology - verify same templates render successfully
+- [X] T035 [US2] Update `mcpp.toml` to use `thesis-content-alt.ttl` (or create `mcpp-alt.toml`)
+- [X] T036 [US2] Run `mcpp sync` with alternate ontology - verify same templates render successfully
 - [X] T037 [US2] Compile alternate thesis PDF - verify different content appears
 
 ### Zero Hardcoding Verification
@@ -132,36 +132,36 @@
 - [X] T040 [P] [US3] Create `templates/theorem.tera` - theorem/lemma/corollary/definition environments from ontology `thesis:LatexEnvironment`
 - [X] T041 [P] [US3] Create `templates/proof.tera` - proof environment from ontology
 - [X] T042 [US3] Add 10 theorems with proofs to `ontology/thesis-content.ttl` (3 lemmas, 5 theorems, 2 corollaries)
-- [X] T043 [US3] Add generation rule for `theorems` in `ggen.toml`
+- [X] T043 [US3] Add generation rule for `theorems` in `mcpp.toml`
 
 ### Equation Templates
 
 - [X] T044 [P] [US3] Create `templates/equation.tera` - equation environment with `\label{}` from ontology
 - [X] T045 [US3] Add 20 equations to `ontology/thesis-content.ttl` (entropy, drift metric, generation function, etc.)
-- [X] T046 [US3] Add generation rule for `equations` in `ggen.toml`
+- [X] T046 [US3] Add generation rule for `equations` in `mcpp.toml`
 
 ### Algorithm Templates
 
 - [X] T047 [P] [US3] Create `templates/algorithm.tera` - algorithm environment with input/output/steps from ontology
-- [X] T048 [US3] Add 5 algorithms to `ontology/thesis-content.ttl` (ggen sync pipeline, SPARQL execution, template rendering, etc.)
-- [X] T049 [US3] Add generation rule for `algorithms` in `ggen.toml`
+- [X] T048 [US3] Add 5 algorithms to `ontology/thesis-content.ttl` (mcpp sync pipeline, SPARQL execution, template rendering, etc.)
+- [X] T049 [US3] Add generation rule for `algorithms` in `mcpp.toml`
 
 ### Figure Templates
 
 - [X] T050 [P] [US3] Create `templates/figure.tera` - figure environment with `\includegraphics`, caption, label from ontology
 - [X] T051 [P] [US3] Add 10 figure placeholder images to `examples/thesis-gen/figures/` (architecture diagrams, flowcharts)
 - [X] T052 [US3] Add 10 figure definitions to `ontology/thesis-content.ttl` with paths, captions, labels
-- [X] T053 [US3] Add generation rule for `figures` in `ggen.toml`
+- [X] T053 [US3] Add generation rule for `figures` in `mcpp.toml`
 
 ### Table Templates
 
 - [X] T054 [P] [US3] Create `templates/table.tera` - booktabs table with headers and rows from ontology
 - [X] T055 [US3] Add 5 tables to `ontology/thesis-content.ttl` (results, comparisons, metrics)
-- [X] T056 [US3] Add generation rule for `tables` in `ggen.toml`
+- [X] T056 [US3] Add generation rule for `tables` in `mcpp.toml`
 
 ### Validation
 
-- [X] T057 [US3] Run `ggen sync` - verify theorem/equation/algorithm/figure/table files generate
+- [X] T057 [US3] Run `mcpp sync` - verify theorem/equation/algorithm/figure/table files generate
 - [X] T058 [US3] Compile PDF - verify all environments render correctly with proper numbering
 
 **Checkpoint**: User Story 3 complete - all academic elements render with proper LaTeX environments
@@ -172,7 +172,7 @@
 
 **Goal**: Generate valid BibTeX file from ontology-defined references
 
-**Independent Test**: Define 30 references in ontology, run `ggen sync`, verify `references.bib` compiles with bibtex
+**Independent Test**: Define 30 references in ontology, run `mcpp sync`, verify `references.bib` compiles with bibtex
 
 ### Bibliography Template
 
@@ -186,12 +186,12 @@
 
 ### Generation Rules
 
-- [X] T063 [US4] Add generation rule for `bibliography` in `ggen.toml` outputting `references.bib`
-- [X] T064 [US4] Add generation rule for `back-matter` in `ggen.toml`
+- [X] T063 [US4] Add generation rule for `bibliography` in `mcpp.toml` outputting `references.bib`
+- [X] T064 [US4] Add generation rule for `back-matter` in `mcpp.toml`
 
 ### Validation
 
-- [X] T065 [US4] Run `ggen sync` - verify `output/references.bib` generates
+- [X] T065 [US4] Run `mcpp sync` - verify `output/references.bib` generates
 - [X] T066 [US4] Run `bibtex thesis` - verify no undefined citations
 - [X] T067 [US4] Verify all 30 references appear in bibliography section of PDF
 
@@ -218,12 +218,12 @@
 
 ### Generation Rules
 
-- [X] T073 [US5] Add generation rule for `appendices` in `ggen.toml`
-- [X] T074 [US5] Add generation rule for `code-listings` in `ggen.toml`
+- [X] T073 [US5] Add generation rule for `appendices` in `mcpp.toml`
+- [X] T074 [US5] Add generation rule for `code-listings` in `mcpp.toml`
 
 ### Validation
 
-- [X] T075 [US5] Run `ggen sync` - verify appendix files generate
+- [X] T075 [US5] Run `mcpp sync` - verify appendix files generate
 - [X] T076 [US5] Compile PDF - verify Appendix A, B, C appear with proper lettering after main content
 
 **Checkpoint**: User Story 5 complete - appendices with code listings render correctly
@@ -248,7 +248,7 @@
 
 ### Quality Assurance
 
-- [X] T083 Final `ggen sync` - verify <5s generation time
+- [X] T083 Final `mcpp sync` - verify <5s generation time
 - [X] T084 Final PDF compilation - verify zero errors, <5 warnings
 - [X] T085 Verify final PDF page count is 50+ pages
 - [X] T086 Template audit: confirm 100% of visible text from ontology (zero hardcoded strings)
@@ -344,7 +344,7 @@ Task: "Add Chapter 7 to ontology/thesis-content.ttl"
 1. Complete Phase 1: Setup (4 tasks)
 2. Complete Phase 2: Foundational (6 tasks)
 3. Complete Phase 3: User Story 1 (21 tasks)
-4. **STOP and VALIDATE**: Run `ggen sync`, compile PDF, verify 50+ pages
+4. **STOP and VALIDATE**: Run `mcpp sync`, compile PDF, verify 50+ pages
 5. Complete Phase 4: User Story 2 (8 tasks)
 6. **STOP and VALIDATE**: Verify template reusability with alternate content
 7. Deploy/demo MVP with core thesis generation working

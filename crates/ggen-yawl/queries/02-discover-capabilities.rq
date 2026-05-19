@@ -1,5 +1,5 @@
 # PATTERN 2: Capability Discovery
-PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a>
 
 CONSTRUCT {
   ?capabilityProfile a a2a:CapabilityProfile ;

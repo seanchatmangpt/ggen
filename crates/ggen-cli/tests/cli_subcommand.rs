@@ -1,6 +1,6 @@
 // Unused imports removed - test file contains only commented legacy tests
 
-// COMMENTED OUT: Legacy "gen" command test (use "ggen project gen" instead)
+// COMMENTED OUT: Legacy "gen" command test (use "mcpp project gen" instead)
 // #[test]
 // fn cli_gen_creates_files() {
 //     let td = assert_fs::TempDir::new().unwrap();
@@ -33,10 +33,10 @@
 // sha256 = "abc123"
 // source = "local"
 // "#;
-//     std::fs::write(root.join("ggen.lock"), lockfile_content).unwrap();
+//     std::fs::write(root.join("mcpp.lock"), lockfile_content).unwrap();
 //
 //     // Create a cache entry for the local pack in the system cache directory
-//     let system_cache_dir = dirs::cache_dir().unwrap().join("ggen/gpacks");
+//     let system_cache_dir = dirs::cache_dir().unwrap().join("mcpp/gpacks");
 //     let cache_dir = system_cache_dir.join("local.test/1.0.0");
 //     let cache_templates_dir = cache_dir.join("templates");
 //     std::fs::create_dir_all(&cache_templates_dir).unwrap();
@@ -52,7 +52,7 @@
 //
 //     // Create the manifest
 //     std::fs::write(
-//         cache_templates_dir.join("ggen.toml"),
+//         cache_templates_dir.join("mcpp.toml"),
 //         r#"
 // [gpack]
 // id = "local.test"
@@ -60,13 +60,13 @@
 // version = "1.0.0"
 // description = "Local test pack"
 // license = "MIT"
-// ggen_compat = "1.0.0"
+// mcpp_compat = "1.0.0"
 // "#,
 //     )
 //     .unwrap();
 //
-//     // Run `ggen gen local.test:cli/subcommand/rust.tmpl --var cmd=hello --dry`
-//     let mut cmd = Command::cargo_bin("ggen").unwrap();
+//     // Run `mcpp gen local.test:cli/subcommand/rust.tmpl --var cmd=hello --dry`
+//     let mut cmd = Command::cargo_bin("mcpp").unwrap();
 //     cmd.current_dir(root)
 //         .arg("gen")
 //         .arg("local.test:cli/subcommand/rust.tmpl")

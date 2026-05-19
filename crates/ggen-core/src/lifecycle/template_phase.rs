@@ -47,8 +47,8 @@ pub async fn execute_template_phase(
     config: &TemplatePhaseConfig,
     context: &Context,
 ) -> Result<()> {
-    use ggen_template::template_tree::TemplateTree;
-    use ggen_template::rdf_metadata::MetadataStore;
+    use mcpp_template::template_tree::TemplateTree;
+    use mcpp_template::rdf_metadata::MetadataStore;
 
     log::info!("🔧 Template Generation Phase");
     log::info!("   Template: {}", config.template);
@@ -106,7 +106,7 @@ pub async fn execute_template_phase(
 
 /// Validate template variables are provided
 fn validate_template_variables(
-    tree: &ggen_template::template_tree::TemplateTree,
+    tree: &mcpp_template::template_tree::TemplateTree,
     variables: &HashMap<String, String>,
 ) -> Result<()> {
     let required_vars = tree.required_variables();
@@ -130,7 +130,7 @@ fn validate_template_variables(
 
 /// Check for file conflicts
 fn check_file_conflicts(
-    tree: &ggen_template::template_tree::TemplateTree,
+    tree: &mcpp_template::template_tree::TemplateTree,
     output_dir: &Path,
     variables: &HashMap<String, String>,
 ) -> Result<()> {

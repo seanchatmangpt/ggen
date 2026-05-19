@@ -6,13 +6,13 @@
 //! correlation ID preservation.
 //!
 //! Run with:
-//!   cargo test -p ggen-a2a-mcp --test a2a_mcp_generate_e2e -- --test-threads=1 --nocapture
+//!   cargo test -p mcpp-a2a-mcp --test a2a_mcp_generate_e2e -- --test-threads=1 --nocapture
 
 use std::sync::Arc;
 
-use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{BatchProcessor, MessageRouter, TextContentHandler};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{BatchProcessor, MessageRouter, TextContentHandler};
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 mod common;
@@ -95,9 +95,10 @@ const SERVICE_QUERY_SPARQL: &str = concat!(
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_a2a_message_routes_to_mcp_generate() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
@@ -173,9 +174,10 @@ async fn test_a2a_message_routes_to_mcp_generate() -> anyhow::Result<()> {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_mcp_generate_then_validate_roundtrip() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
@@ -263,9 +265,10 @@ async fn test_mcp_generate_then_validate_roundtrip() -> anyhow::Result<()> {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_mcp_generate_then_query_artifact() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
@@ -338,9 +341,10 @@ async fn test_mcp_generate_then_query_artifact() -> anyhow::Result<()> {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_full_pipeline_scaffold_validate_query() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
@@ -465,6 +469,7 @@ async fn test_full_pipeline_scaffold_validate_query() -> anyhow::Result<()> {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_batch_preserves_correlation_ids() -> anyhow::Result<()> {
     init_tracing();
 

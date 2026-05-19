@@ -8,7 +8,7 @@
 //! - Context injection
 //! - Warning collection
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     assertions::{
         AllValidator, AnyValidator, AssertableModule, Assertion, AssertionLevel, BacktrackExecutor,
         BoxedValidator, ContainsValidator, FnValidator, ItemCountValidator, LengthValidator,

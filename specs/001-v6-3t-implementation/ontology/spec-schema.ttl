@@ -1,4 +1,4 @@
-@prefix spec: <http://ggen.dev/speckit#> .
+@prefix spec: <http://mcpp.dev/speckit#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -17,8 +17,8 @@
 # Ontology Metadata
 # ----------------------------------------------------------------------------
 
-<http://ggen.dev/speckit#> a owl:Ontology ;
-    rdfs:label "ggen Specification Kit Ontology"@en ;
+<http://mcpp.dev/speckit#> a owl:Ontology ;
+    rdfs:label "mcpp Specification Kit Ontology"@en ;
     rdfs:comment "Vocabulary for representing software specifications as RDF triples"@en ;
     owl:versionInfo "1.0.0" .
 

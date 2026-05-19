@@ -1,11 +1,11 @@
 [package]
-name = "ggen-prompt-mfg"
+name = "mcpp-prompt-mfg"
 version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
 description = "Prompt manufacturing via CONSTRUCT - deterministic prompt compilation from RDF ontologies"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 
 [dependencies]
 serde = { workspace = true }

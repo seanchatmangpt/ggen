@@ -1,7 +1,7 @@
-//! # ggen-yawl: YAWL Workflow Generation from Industry Ontologies
+//! # mcpp-yawl: YAWL Workflow Generation from Industry Ontologies
 //!
 //! This crate generates YAWL (Yet Another Workflow Language) workflows from industry
-//! ontologies (FIBO, HL7, ISO standards) using SPARQL CONSTRUCT queries and the ggen
+//! ontologies (FIBO, HL7, ISO standards) using SPARQL CONSTRUCT queries and the mcpp
 //! five-stage pipeline (A = μ(O)).
 //!
 //! ## Architecture
@@ -21,7 +21,7 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use ggen_yawl::YawlGenerator;
+//! use mcpp_yawl::YawlGenerator;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Read industry ontology

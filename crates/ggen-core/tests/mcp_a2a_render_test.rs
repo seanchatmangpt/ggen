@@ -1,12 +1,12 @@
 //! Integration test: render ALL MCP + A2A templates with mock data
 //!
-//! Validates that every template in /templates/ and /crates/ggen-core/templates/
+//! Validates that every template in /templates/ and /crates/mcpp-core/templates/
 //! produces non-empty output with realistic mock context data.
 //!
-//! Output is written to /tmp/ggen-mcp-a2a-test/ for manual inspection and
+//! Output is written to /tmp/mcpp-mcp-a2a-test/ for manual inspection and
 //! downstream compilation checks (cargo check, go vet, elixirc, javac, etc.).
 
-use ggen_core::register::register_all;
+use mcpp_core::register::register_all;
 use tera::{Context, Tera};
 
 // ---------------------------------------------------------------------------
@@ -19,9 +19,9 @@ fn create_test_tera() -> Tera {
     tera
 }
 
-/// Write rendered output to /tmp/ggen-mcp-a2a-test/{filename}
+/// Write rendered output to /tmp/mcpp-mcp-a2a-test/{filename}
 fn write_output(filename: &str, content: &str) {
-    let dir = "/tmp/ggen-mcp-a2a-test";
+    let dir = "/tmp/mcpp-mcp-a2a-test";
     let _ = std::fs::create_dir_all(dir);
     let path = std::path::Path::new(dir).join(filename);
     std::fs::write(&path, content).unwrap_or_else(|e| {
@@ -262,14 +262,14 @@ fn a2a_context() -> Context {
 /// Java-specific MCP context (has package_name).
 fn mcp_java_context() -> Context {
     let mut ctx = mcp_context();
-    ctx.insert("package_name", "com.ggen.mcp");
+    ctx.insert("package_name", "com.mcpp.mcp");
     ctx
 }
 
 /// Java-specific A2A context (has package_name).
 fn a2a_java_context() -> Context {
     let mut ctx = a2a_context();
-    ctx.insert("package_name", "com.ggen.a2a");
+    ctx.insert("package_name", "com.mcpp.a2a");
     ctx
 }
 
@@ -314,24 +314,24 @@ fn adapter_a2a_sparql_context() -> Context {
 // Template resolution helper
 // ---------------------------------------------------------------------------
 
-/// Resolve the ggen workspace root directory.
+/// Resolve the mcpp workspace root directory.
 /// Tests run with CWD set by cargo, which may be the workspace root or the target dir.
 fn workspace_root() -> std::path::PathBuf {
-    // CARGO_MANIFEST_DIR = /Users/sac/ggen/crates/ggen-core
+    // CARGO_MANIFEST_DIR = ~/.ggen/mcpp/crates/mcpp-core
     // Workspace root = two levels up
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR must be set");
     let manifest = std::path::Path::new(&manifest_dir);
-    // ggen-core is at crates/ggen-core, so workspace root is ../../
+    // mcpp-core is at crates/mcpp-core, so workspace root is ../../
     let root = manifest
         .parent()
         .unwrap() // crates/
         .parent()
-        .unwrap() // ggen/
+        .unwrap() // mcpp/
         .to_path_buf();
     root
 }
 
-/// Load a template from the ggen repo root templates/ directory.
+/// Load a template from the mcpp repo root templates/ directory.
 fn load_root_template(name: &str) -> String {
     let root = workspace_root();
     let candidates = [root.join("templates").join(name)];
@@ -349,12 +349,12 @@ fn load_root_template(name: &str) -> String {
     );
 }
 
-/// Load a template from crates/ggen-core/templates/
+/// Load a template from crates/mcpp-core/templates/
 fn load_core_template(name: &str) -> String {
     let root = workspace_root();
     let candidates = [root
         .join("crates")
-        .join("ggen-core")
+        .join("mcpp-core")
         .join("templates")
         .join(name)];
     for path in &candidates {
@@ -515,7 +515,7 @@ fn test_render_mcp_java() {
         &ctx,
     );
 
-    assert!(result.rendered.contains("package com.ggen.mcp;"));
+    assert!(result.rendered.contains("package com.mcpp.mcp;"));
     assert!(result
         .rendered
         .contains("public class OrderProcessorServer"));
@@ -686,7 +686,7 @@ fn test_render_a2a_java() {
     let ctx = a2a_java_context();
     let result = render_and_save(&mut tera, "a2a-java.tera", "A2AAgent.java", &template, &ctx);
 
-    assert!(result.rendered.contains("package com.ggen.a2a;"));
+    assert!(result.rendered.contains("package com.mcpp.a2a;"));
     assert!(result.rendered.contains("@RestController"));
     assert!(result.rendered.contains("public class InventoryAgentAgent"));
     assert!(result.rendered.contains("record CheckStockInput("));
@@ -696,11 +696,11 @@ fn test_render_a2a_java() {
 }
 
 // ===========================================================================
-// Adapter Template Tests (crates/ggen-core/templates/)
+// Adapter Template Tests (crates/mcpp-core/templates/)
 // ===========================================================================
 // NOTE: Adapter templates use Tera's {% set %} tag to build arrays from
 // SPARQL results. This is NOT supported by Tera's render_str() one-off mode.
-// These templates are designed to be used through the ggen pipeline, not
+// These templates are designed to be used through the mcpp pipeline, not
 // directly via render_str. We test them by verifying they produce the expected
 // error (missing context variables set by {% set %} blocks).
 
@@ -825,7 +825,7 @@ fn test_render_mcp_rust_http_transport() {
 
 #[test]
 fn test_summary_print_rendered_outputs() {
-    let dir = "/tmp/ggen-mcp-a2a-test";
+    let dir = "/tmp/mcpp-mcp-a2a-test";
     let mut entries: Vec<_> = std::fs::read_dir(dir)
         .unwrap()
         .filter_map(|e| e.ok())

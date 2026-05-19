@@ -1,13 +1,13 @@
-//! # ggen-domain - Domain Logic Layer
+//! # mcpp-domain - Domain Logic Layer
 //!
-//! This crate contains all domain/business logic for ggen, completely separated
+//! This crate contains all domain/business logic for mcpp, completely separated
 //! from CLI concerns. It provides pure business logic functions that can be used
 //! by CLI, web APIs, or other interfaces.
 //!
 //! ## Architecture
 //!
 //! - **No CLI dependencies**: This crate has ZERO dependencies on clap or clap-noun-verb
-//! - **Infrastructure dependencies**: Uses ggen-core, ggen-ai, ggen-marketplace for operations
+//! - **Infrastructure dependencies**: Uses mcpp-core, mcpp-ai, mcpp-marketplace for operations
 //! - **Async by default**: Domain functions are async for non-blocking operations
 //!
 //! ## Module Organization
@@ -70,4 +70,4 @@ pub use audit::security::{
 // pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
 
 // Re-export commonly used types for convenience
-pub use ggen_utils::error::{Error, Result};
+pub use mcpp_utils::error::{Error, Result};

@@ -11,7 +11,7 @@
 
 ### 1. README.md (Primary Navigation Document)
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/execution/README.md`
+**File:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/README.md`
 **Size:** 610 lines, 17 KB
 **Read Time:** 15-30 minutes
 
@@ -38,7 +38,7 @@
 
 ### 2. 90DAY_EXECUTION_PLAN.md (Primary Execution Document)
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/execution/90DAY_EXECUTION_PLAN.md`
+**File:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/90DAY_EXECUTION_PLAN.md`
 **Size:** 876 lines, 30 KB
 **Read Time:** 1-2 hours (full) or 15 min (your phase)
 
@@ -80,7 +80,7 @@
 
 ### 3. SPRINT_BACKLOG.md (Engineering Execution)
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/execution/SPRINT_BACKLOG.md`
+**File:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/SPRINT_BACKLOG.md`
 **Size:** 1,008 lines, 31 KB
 **Read Time:** 45-60 minutes (full) or 10 min (current sprint)
 
@@ -126,7 +126,7 @@ DoD: [definition of done]
 
 ### 4. DAILY_CHECKLIST.csv (Daily Operations Tracking)
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/execution/DAILY_CHECKLIST.csv`
+**File:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/DAILY_CHECKLIST.csv`
 **Size:** 111 rows (90+ tasks), 12 KB
 **Format:** CSV (importable to Excel, Google Sheets, Notion, Asana)
 
@@ -164,7 +164,7 @@ DoD: [definition of done]
 
 ### 5. QUICK_REFERENCE.md (Desk Reference Card)
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/execution/QUICK_REFERENCE.md`
+**File:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/QUICK_REFERENCE.md`
 **Size:** ~200 lines, 8 KB
 **Read Time:** 5 minutes
 
@@ -258,7 +258,7 @@ DoD: [definition of done]
 ## File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/
 ├── INDEX.md                    (this file)
 ├── README.md                   (start here)
 ├── 90DAY_EXECUTION_PLAN.md    (primary execution doc)

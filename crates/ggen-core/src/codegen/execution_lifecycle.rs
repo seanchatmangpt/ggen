@@ -1,5 +1,5 @@
 use crate::codegen::{SyncOptions, SyncResult};
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::time::Instant;
 
 pub struct ExecutionLifecycle {
@@ -76,7 +76,7 @@ impl ExecutionLifecycle {
     }
 
     pub async fn handle_execution_error(
-        &self, _error: &ggen_utils::error::Error, options: &SyncOptions,
+        &self, _error: &mcpp_utils::error::Error, options: &SyncOptions,
     ) -> Result<()> {
         for handler in &self.error_handlers {
             if options.verbose {
@@ -170,7 +170,7 @@ mod tests {
         let mut lifecycle = ExecutionLifecycle::new();
         lifecycle.register_error_handler("error_handler".to_string());
 
-        let error = ggen_utils::error::Error::new("test error");
+        let error = mcpp_utils::error::Error::new("test error");
         let options = SyncOptions::default();
 
         let result = lifecycle.handle_execution_error(&error, &options).await;

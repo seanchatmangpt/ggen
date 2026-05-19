@@ -28,7 +28,7 @@
 use ggen_core::drift::{DriftDetector, DriftStatus};
 use std::path::Path;
 
-fn main() -> ggen_utils::error::Result<()> {
+fn main() -> ggen_core::utils::error::Result<()> {
     println!("=== Drift Detection Example ===\n");
 
     // Step 1: Create a drift detector for the project

@@ -185,7 +185,7 @@ DOCUMENT LOCATION
 ───────────────────────────────────────────────────────────────────────────────
 
 All files in:
-  /Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+  ./tai-erlang-autonomics/execution/week-7-9/
 
   ├── INDEX.md (this index)
   ├── README.md (navigation guide)

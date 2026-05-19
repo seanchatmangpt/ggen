@@ -9,14 +9,14 @@
 //!   - 3 a2a.message spans with parent-child relationships
 //!   - 2+ mcp.tool.call spans (delegation calls)
 //!   - Correlation IDs link spans across agent boundaries
-//!   - ggen.a2a.message group has all 3 agent spans
+//!   - mcpp.a2a.message group has all 3 agent spans
 //!
 //! Run with:
-//!   RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp --test multi_a2a_chain -- --test-threads=1 --nocapture
+//!   RUST_LOG=trace,mcpp_a2a_mcp=trace cargo test -p mcpp-a2a-mcp --test multi_a2a_chain -- --test-threads=1 --nocapture
 
-use a2a_generated::converged::message::{ConvergedMessage, ConvergedMessageType, UnifiedContent};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, ConvergedMessageType, UnifiedContent};
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 mod common;
@@ -74,7 +74,7 @@ async fn agent_a_template_validator(
 
     // Simulate Agent A work with OTEL span
     let span_a = tracing::info_span!(
-        "ggen.a2a.message",
+        "mcpp.a2a.message",
         otel_operation_name = "template_validator",
         a2a.correlation_id = %correlation_id,
         a2a.agent_name = "template_validator",
@@ -84,7 +84,7 @@ async fn agent_a_template_validator(
 
     // Simulate MCP tool call span
     let mcp_span_a = tracing::info_span!(
-        "ggen.mcp.tool.call",
+        "mcpp.mcp.tool.call",
         otel_operation_name = "validate_templates",
         mcp.tool.name = "validate_templates",
         mcp.tool.duration_ms = 45,
@@ -114,7 +114,7 @@ async fn agent_b_sparql_validator(
 
     // Simulate Agent B work with OTEL span
     let span_b = tracing::info_span!(
-        "ggen.a2a.message",
+        "mcpp.a2a.message",
         otel_operation_name = "sparql_validator",
         a2a.correlation_id = %correlation_id,
         a2a.agent_name = "sparql_validator",
@@ -124,7 +124,7 @@ async fn agent_b_sparql_validator(
 
     // Simulate MCP tool call span
     let mcp_span_b = tracing::info_span!(
-        "ggen.mcp.tool.call",
+        "mcpp.mcp.tool.call",
         otel_operation_name = "validate_sparql",
         mcp.tool.name = "validate_sparql",
         mcp.tool.duration_ms = 32,
@@ -154,7 +154,7 @@ async fn agent_c_quality_autopilot(
 
     // Simulate Agent C work with OTEL span
     let span_c = tracing::info_span!(
-        "ggen.a2a.message",
+        "mcpp.a2a.message",
         otel_operation_name = "quality_autopilot",
         a2a.correlation_id = %correlation_id,
         a2a.agent_name = "quality_autopilot",
@@ -164,7 +164,7 @@ async fn agent_c_quality_autopilot(
 
     // Simulate MCP tool call span
     let mcp_span_c = tracing::info_span!(
-        "ggen.mcp.tool.call",
+        "mcpp.mcp.tool.call",
         otel_operation_name = "validate_pipeline",
         mcp.tool.name = "validate_pipeline",
         mcp.tool.duration_ms = 78,
@@ -189,7 +189,7 @@ async fn agent_c_quality_autopilot(
 #[tokio::test]
 async fn test_multi_a2a_agent_chain_with_otel_traces() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
 
     // Start duplex MCP server
     let client = start_duplex_server(examples_dir).await?;
@@ -249,16 +249,16 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
         message_id: format!("msg-a-{}", uuid::Uuid::new_v4()),
         source: "template_validator_agent".to_string(),
         target: Some("sparql_validator_agent".to_string()),
-        envelope: a2a_generated::converged::message::MessageEnvelope {
+        envelope: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageEnvelope {
             message_type: ConvergedMessageType::Task,
-            priority: a2a_generated::converged::message::MessagePriority::Normal,
+            priority: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessagePriority::Normal,
             timestamp: chrono::Utc::now(),
             schema_version: "1.0".to_string(),
             content_type: "application/json".to_string(),
             correlation_id: Some(correlation_id.clone()),
             causation_chain: Some(vec!["root-workflow".to_string()]),
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Text {
                 content: "Validate template syntax".to_string(),
                 metadata: None,
@@ -267,20 +267,20 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
             hints: None,
             integrity: None,
         },
-        routing: a2a_generated::converged::message::MessageRouting {
+        routing: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageRouting {
             path: vec![
                 "template_validator_agent".to_string(),
                 "sparql_validator_agent".to_string(),
             ],
             metadata: None,
-            qos: a2a_generated::converged::message::QoSRequirements {
-                reliability: a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
+            qos: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::QoSRequirements {
+                reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
                 latency: None,
                 throughput: None,
             },
         },
-        lifecycle: a2a_generated::converged::message::MessageLifecycle {
-            state: a2a_generated::converged::message::MessageState::Created,
+        lifecycle: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageLifecycle {
+            state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState::Created,
             history: vec![],
             timeout: None,
         },
@@ -291,16 +291,16 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
         message_id: format!("msg-b-{}", uuid::Uuid::new_v4()),
         source: "sparql_validator_agent".to_string(),
         target: Some("quality_autopilot_agent".to_string()),
-        envelope: a2a_generated::converged::message::MessageEnvelope {
+        envelope: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageEnvelope {
             message_type: ConvergedMessageType::Task,
-            priority: a2a_generated::converged::message::MessagePriority::Normal,
+            priority: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessagePriority::Normal,
             timestamp: chrono::Utc::now(),
             schema_version: "1.0".to_string(),
             content_type: "application/json".to_string(),
             correlation_id: Some(correlation_id.clone()),
             causation_chain: Some(vec!["root-workflow".to_string(), msg_a.message_id.clone()]),
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Text {
                 content: "Validate SPARQL query".to_string(),
                 metadata: None,
@@ -309,20 +309,20 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
             hints: None,
             integrity: None,
         },
-        routing: a2a_generated::converged::message::MessageRouting {
+        routing: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageRouting {
             path: vec![
                 "sparql_validator_agent".to_string(),
                 "quality_autopilot_agent".to_string(),
             ],
             metadata: None,
-            qos: a2a_generated::converged::message::QoSRequirements {
-                reliability: a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
+            qos: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::QoSRequirements {
+                reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
                 latency: None,
                 throughput: None,
             },
         },
-        lifecycle: a2a_generated::converged::message::MessageLifecycle {
-            state: a2a_generated::converged::message::MessageState::Created,
+        lifecycle: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageLifecycle {
+            state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState::Created,
             history: vec![],
             timeout: None,
         },
@@ -333,9 +333,9 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
         message_id: format!("msg-c-{}", uuid::Uuid::new_v4()),
         source: "quality_autopilot_agent".to_string(),
         target: Some("orchestrator".to_string()),
-        envelope: a2a_generated::converged::message::MessageEnvelope {
+        envelope: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageEnvelope {
             message_type: ConvergedMessageType::Task,
-            priority: a2a_generated::converged::message::MessagePriority::Normal,
+            priority: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessagePriority::Normal,
             timestamp: chrono::Utc::now(),
             schema_version: "1.0".to_string(),
             content_type: "application/json".to_string(),
@@ -346,7 +346,7 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
                 msg_b.message_id.clone(),
             ]),
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Text {
                 content: "Quality gate validation complete".to_string(),
                 metadata: None,
@@ -355,20 +355,20 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
             hints: None,
             integrity: None,
         },
-        routing: a2a_generated::converged::message::MessageRouting {
+        routing: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageRouting {
             path: vec![
                 "quality_autopilot_agent".to_string(),
                 "orchestrator".to_string(),
             ],
             metadata: None,
-            qos: a2a_generated::converged::message::QoSRequirements {
-                reliability: a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
+            qos: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::QoSRequirements {
+                reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
                 latency: None,
                 throughput: None,
             },
         },
-        lifecycle: a2a_generated::converged::message::MessageLifecycle {
-            state: a2a_generated::converged::message::MessageState::Created,
+        lifecycle: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageLifecycle {
+            state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState::Created,
             history: vec![],
             timeout: None,
         },
@@ -445,11 +445,11 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
     // Create a trace span for the root workflow
     let root_span = tracing::info_span!(
-        "ggen.a2a.message",
+        "mcpp.a2a.message",
         otel_operation_name = "multi_agent_chain",
         a2a.correlation_id = %correlation_id,
         a2a.agent_count = 3,
-        service.name = "ggen-a2a-mcp",
+        service.name = "mcpp-a2a-mcp",
         service.version = env!("CARGO_PKG_VERSION"),
     );
 
@@ -460,7 +460,7 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
         // Agent A span
         let span_a = tracing::info_span!(
-            "ggen.a2a.message",
+            "mcpp.a2a.message",
             otel_operation_name = "template_validator",
             a2a.correlation_id = %correlation_id,
             a2a.agent_name = "template_validator",
@@ -477,7 +477,7 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
             // Simulate MCP tool call span
             let mcp_span_a = tracing::info_span!(
-                "ggen.mcp.tool.call",
+                "mcpp.mcp.tool.call",
                 otel_operation_name = "validate_templates",
                 mcp.tool.name = "validate_templates",
                 mcp.tool.duration_ms = 45,
@@ -493,7 +493,7 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
         // Agent B span (child of root, sibling of A)
         let span_b = tracing::info_span!(
-            "ggen.a2a.message",
+            "mcpp.a2a.message",
             otel_operation_name = "sparql_validator",
             a2a.correlation_id = %correlation_id,
             a2a.agent_name = "sparql_validator",
@@ -510,7 +510,7 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
             // Simulate MCP tool call span
             let mcp_span_b = tracing::info_span!(
-                "ggen.mcp.tool.call",
+                "mcpp.mcp.tool.call",
                 otel_operation_name = "validate_sparql",
                 mcp.tool.name = "validate_sparql",
                 mcp.tool.duration_ms = 32,
@@ -526,7 +526,7 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
         // Agent C span
         let span_c = tracing::info_span!(
-            "ggen.a2a.message",
+            "mcpp.a2a.message",
             otel_operation_name = "quality_autopilot",
             a2a.correlation_id = %correlation_id,
             a2a.agent_name = "quality_autopilot",
@@ -543,7 +543,7 @@ async fn test_otel_span_hierarchy_across_agents() -> anyhow::Result<()> {
 
             // Simulate MCP tool call span
             let mcp_span_c = tracing::info_span!(
-                "ggen.mcp.tool.call",
+                "mcpp.mcp.tool.call",
                 otel_operation_name = "validate_pipeline",
                 mcp.tool.name = "validate_pipeline",
                 mcp.tool.duration_ms = 78,

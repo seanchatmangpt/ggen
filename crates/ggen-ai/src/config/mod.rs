@@ -1,6 +1,6 @@
-//! Configuration management for ggen-ai
+//! Configuration management for mcpp-ai
 //!
-//! This module provides configuration management for AI operations in ggen,
+//! This module provides configuration management for AI operations in mcpp,
 //! including LLM provider settings, generation parameters, and global configuration.
 //!
 //! ## Features

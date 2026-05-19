@@ -354,9 +354,9 @@ async fn test_full_integration_workflow() {
 - ✅ **Full Documentation**: API documentation and guides
 
 **Implementation Files**:
-- `/Users/sac/ggen/.specify/specs/014-a2a-integration/final-converged-implementation.md`
-- `/Users/sac/ggen/crates/ggen-domain/src/environment/mod.rs`
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/mcp.rs`
-- `/Users/sac/ggen/crates/a2a-generated/src/lib.rs`
+- `./.specify/specs/014-a2a-integration/final-converged-implementation.md`
+- `./crates/ggen-domain/src/environment/mod.rs`
+- `./crates/ggen-cli/src/cmds/mcp.rs`
+- `./crates/a2a-generated/src/lib.rs`
 
 **Ready for Deployment**: ✅ All quality gates passed, comprehensive test suite, production-ready configuration.

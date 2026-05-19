@@ -1,4 +1,4 @@
-//! `ggen-a2a-registry` -- Multi-agent A2A orchestration registry.
+//! `mcpp-a2a-registry` -- Multi-agent A2A orchestration registry.
 //!
 //! This crate provides a central registry for managing the lifecycle of
 //! A2A (Agent-to-Agent) participants: registration, discovery, health
@@ -7,7 +7,7 @@
 //! # Quick start
 //!
 //! ```no_run
-//! use ggen_a2a_registry::{AgentRegistry, MemoryStore, AgentEntry, HealthStatus};
+//! use mcpp_a2a_registry::{AgentRegistry, MemoryStore, AgentEntry, HealthStatus};
 //! use std::sync::Arc;
 //!
 //! #[tokio::main]

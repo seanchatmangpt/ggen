@@ -8,9 +8,9 @@
 //! - Usage tracking and cost estimation
 //! - RAII cleanup and error handling
 //! - Thread isolation
-//! - Integration with ggen-ai GlobalLlmConfig
+//! - Integration with mcpp-ai GlobalLlmConfig
 
-use ggen_dspy::{
+use mcpp_dspy::{
     get_dspy_config, init_dspy_config, with_context, CacheConfig, CacheManager, DspySettings,
     UsageTracker,
 };

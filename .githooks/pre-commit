@@ -1,6 +1,6 @@
 #!/bin/bash
 # Ggen Pre-Commit Hook: Panic Point Prevention
-# Uses ggen's own tools to prevent panic points from being committed
+# Uses mcpp's own tools to prevent panic points from being committed
 
 set -euo pipefail
 

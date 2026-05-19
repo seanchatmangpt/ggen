@@ -1,4 +1,4 @@
-command: "ggen marketplace trending"
+command: "mcpp marketplace trending"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to find trending marketplace packages,
-  I need to run 'ggen marketplace trending',
+  I need to run 'mcpp marketplace trending',
   so that I can discover popular community templates.

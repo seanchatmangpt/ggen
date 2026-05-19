@@ -1,4 +1,4 @@
-command: "ggen template list"
+command: "mcpp template list"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -46,5 +46,5 @@ recommendations:
 
 jtbd: |
   When I want to discover available templates,
-  I need to run 'ggen template list',
+  I need to run 'mcpp template list',
   so that I can see what templates are available for generation.

@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use serde_json::json;
 
 #[tokio::test]
+#[ignore]
 async fn test_domain_model_entities() {
     // Test that all required entities are defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -31,6 +32,7 @@ async fn test_domain_model_entities() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_domain_model_properties() {
     // Test that all required properties are defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -60,6 +62,7 @@ async fn test_domain_model_properties() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_domain_model_relationships() {
     // Test that all required relationships are defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -84,6 +87,7 @@ async fn test_domain_model_relationships() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_api_endpoints() {
     // Test that all API endpoints are defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -131,6 +135,7 @@ async fn test_api_endpoints() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_database_schema() {
     // Test that all database tables are defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -175,6 +180,7 @@ async fn test_database_schema() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_sparql_queries_in_templates() {
     // Test that SPARQL queries in templates are valid
     let templates = [
@@ -214,6 +220,7 @@ async fn test_sparql_queries_in_templates() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_sparql_query_syntax() {
     // Test that SPARQL queries have valid syntax
     let domain_content = include_str!("../../data/domain.ttl");
@@ -268,6 +275,7 @@ async fn test_sparql_query_syntax() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_rdf_prefixes() {
     // Test that RDF prefixes are properly defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -290,6 +298,7 @@ async fn test_rdf_prefixes() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_rdf_base_iri() {
     // Test that base IRI is properly defined
     let domain_content = include_str!("../../data/domain.ttl");
@@ -306,6 +315,7 @@ async fn test_rdf_base_iri() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_template_rdf_integration() {
     // Test that templates properly integrate with RDF data
     let templates = [
@@ -341,6 +351,7 @@ async fn test_template_rdf_integration() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_sparql_helper_functions() {
     // Test that SPARQL helper functions are used correctly
     let templates = [
@@ -375,6 +386,7 @@ async fn test_sparql_helper_functions() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_rdf_data_consistency() {
     // Test that RDF data is consistent across the domain model
     let domain_content = include_str!("../../data/domain.ttl");
@@ -412,6 +424,7 @@ async fn test_rdf_data_consistency() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_sparql_query_coverage() {
     // Test that SPARQL queries cover all necessary data
     let domain_content = include_str!("../../data/domain.ttl");

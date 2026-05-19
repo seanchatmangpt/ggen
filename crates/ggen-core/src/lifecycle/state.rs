@@ -16,12 +16,12 @@
 //! ### Loading and Saving State
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::state::{load_state, save_state, LifecycleState};
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::state::{load_state, save_state, LifecycleState};
+//! use mcpp_core::lifecycle::Result;
 //! use std::path::PathBuf;
 //!
 //! # fn main() -> Result<()> {
-//! let state_path = PathBuf::from(".ggen/state.json");
+//! let state_path = PathBuf::from(".mcpp/state.json");
 //!
 //! // Load existing state or create new
 //! let mut state = load_state(&state_path).unwrap_or_default();
@@ -38,8 +38,8 @@
 //! ### Tracking Phase Execution
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::state::{LifecycleState, RunRecord};
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::state::{LifecycleState, RunRecord};
+//! use mcpp_core::lifecycle::Result;
 //! use chrono::Utc;
 //!
 //! # fn main() -> Result<()> {
@@ -49,7 +49,7 @@
 //! use std::time::{SystemTime, UNIX_EPOCH};
 //! let started_ms = SystemTime::now()
 //!     .duration_since(UNIX_EPOCH)
-//!     .map_err(|_| ggen_utils::error::Error::new("Time went backwards"))?
+//!     .map_err(|_| mcpp_utils::error::Error::new("Time went backwards"))?
 //!     .as_millis();
 //! state.phase_history.push(RunRecord {
 //!     phase: "test".to_string(),
@@ -106,7 +106,7 @@ pub struct CacheKey {
     pub key: String,
 }
 
-/// Load lifecycle state from .ggen/state.json
+/// Load lifecycle state from .mcpp/state.json
 ///
 /// Returns an error if the file exists but cannot be read or parsed.
 /// Returns a default state if the file doesn't exist (first run).
@@ -160,7 +160,7 @@ pub fn load_state<P: AsRef<Path>>(path: P) -> Result<LifecycleState> {
     Ok(state)
 }
 
-/// Save lifecycle state to .ggen/state.json with atomic write
+/// Save lifecycle state to .mcpp/state.json with atomic write
 ///
 /// PRODUCTION FIX: Uses atomic write pattern (write temp, rename) to prevent corruption
 /// in parallel workspace execution

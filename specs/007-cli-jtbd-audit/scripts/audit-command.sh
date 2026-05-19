@@ -1,5 +1,5 @@
 #!/bin/bash
-# Audit script for ggen CLI JTBD evaluation
+# Audit script for mcpp CLI JTBD evaluation
 # Usage: ./scripts/audit-command.sh <category> <command> <subcommand>
 # Example: ./scripts/audit-command.sh template generate
 
@@ -14,7 +14,7 @@ CMD_SLUG="${CATEGORY}-${CMD_NAME}"
 EVIDENCE_DIR="$FEATURE_DIR/evidence/$CATEGORY"
 mkdir -p "$EVIDENCE_DIR"
 
-echo "🔍 Auditing: ggen $FULL_CMD"
+echo "🔍 Auditing: mcpp $FULL_CMD"
 echo "   Evidence dir: $EVIDENCE_DIR"
 echo ""
 

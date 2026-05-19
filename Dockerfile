@@ -20,8 +20,8 @@ COPY crates ./crates
 COPY playground ./playground
 COPY benches ./benches
 
-# Build release binary from workspace (ggen-cli package)
-RUN cargo build --release --package ggen-cli-lib --bin ggen
+# Build release binary from workspace (mcpp-cli package)
+RUN cargo build --release --package mcpp-cli-lib --bin mcpp
 
 # Production image - minimal
 FROM debian:bookworm-slim
@@ -33,13 +33,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy binary from builder
-COPY --from=builder /build/target/release/ggen /usr/local/bin/ggen
+COPY --from=builder /build/target/release/mcpp /usr/local/bin/mcpp
 
 # Set working directory for user projects
 WORKDIR /workspace
 
 # Verify installation
-RUN ggen --version
+RUN mcpp --version
 
 # Default command
-CMD ["ggen", "--help"]
+CMD ["mcpp", "--help"]

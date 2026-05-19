@@ -1,9 +1,9 @@
-# ggen-config
+# mcpp-config
 
-[![Crates.io](https://img.shields.io/crates/v/ggen-config.svg)](https://crates.io/crates/ggen-config)
-[![Documentation](https://docs.rs/ggen-config/badge.svg)](https://docs.rs/ggen-config)
+[![Crates.io](https://img.shields.io/crates/v/mcpp-config.svg)](https://crates.io/crates/mcpp-config)
+[![Documentation](https://docs.rs/mcpp-config/badge.svg)](https://docs.rs/mcpp-config)
 
-Configuration parser and validator for `ggen.toml` files.
+Configuration parser and validator for `mcpp.toml` files.
 
 ## Features
 
@@ -11,7 +11,7 @@ Configuration parser and validator for `ggen.toml` files.
 - **Schema validation**: Validates configuration against expected schema
 - **Environment overrides**: Support for environment-specific configs (development, staging, production)
 - **Workspace support**: Mono-repo and workspace configuration
-- **Automatic discovery**: Searches upward through directories to find `ggen.toml`
+- **Automatic discovery**: Searches upward through directories to find `mcpp.toml`
 - **Comprehensive error handling**: Detailed error types with context
 - **Well-tested**: 24 tests with 100% pass rate
 - **Documented**: Full rustdoc coverage for all public APIs
@@ -22,7 +22,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ggen-config = { version = "3.2.0", path = "../ggen-config" }
+mcpp-config = { version = "3.2.0", path = "../mcpp-config" }
 ```
 
 ## Usage
@@ -30,10 +30,10 @@ ggen-config = { version = "3.2.0", path = "../ggen-config" }
 ### Basic Loading
 
 ```rust
-use ggen_config::{ConfigLoader, ConfigValidator};
+use mcpp_config::{ConfigLoader, ConfigValidator};
 
 // Load configuration from file
-let config = ConfigLoader::from_file("ggen.toml")?;
+let config = ConfigLoader::from_file("mcpp.toml")?;
 
 // Validate the configuration
 ConfigValidator::validate(&config)?;
@@ -48,7 +48,7 @@ if let Some(ai) = &config.ai {
 ### Auto-Discovery
 
 ```rust
-// Automatically find and load ggen.toml from current or parent directories
+// Automatically find and load mcpp.toml from current or parent directories
 let config = ConfigLoader::find_and_load()?;
 ```
 
@@ -56,7 +56,7 @@ let config = ConfigLoader::find_and_load()?;
 
 ```rust
 // Load with environment overrides
-let loader = ConfigLoader::new("ggen.toml")?;
+let loader = ConfigLoader::new("mcpp.toml")?;
 let dev_config = loader.load_with_env("development")?;
 let prod_config = loader.load_with_env("production")?;
 ```
@@ -129,8 +129,8 @@ cache_enabled = true
 [lifecycle]
 enabled = true
 config_file = "make.toml"
-cache_directory = ".ggen/cache"
-state_file = ".ggen/state.json"
+cache_directory = ".mcpp/cache"
+state_file = ".mcpp/state.json"
 
 [lifecycle.phases]
 default = ["init", "build", "test"]
@@ -149,7 +149,7 @@ cache_size = "1GB"
 [logging]
 level = "info"
 format = "json"
-file = "logs/ggen.log"
+file = "logs/mcpp.log"
 rotation = "daily"
 
 [features]
@@ -251,7 +251,7 @@ The validator checks for:
 - Valid size formats (e.g., "1GB", "512MB")
 
 ```rust
-use ggen_config::{ConfigValidator, ConfigError};
+use mcpp_config::{ConfigValidator, ConfigError};
 
 match ConfigValidator::validate(&config) {
     Ok(_) => println!("Configuration is valid"),
@@ -277,13 +277,13 @@ The crate provides comprehensive error types:
 
 ### Optional Features
 
-- `graph` - Enable graph integration with `ggen-core`
-- `ontology` - Enable ontology integration with `ggen-domain`
+- `graph` - Enable graph integration with `mcpp-core`
+- `ontology` - Enable ontology integration with `mcpp-domain`
 - `full` - Enable all optional features
 
 ```toml
 [dependencies]
-ggen-config = { version = "3.2.0", features = ["full"] }
+mcpp-config = { version = "3.2.0", features = ["full"] }
 ```
 
 ## Testing
@@ -297,7 +297,7 @@ The crate includes comprehensive tests:
 Run tests with:
 
 ```bash
-cargo test -p ggen-config
+cargo test -p mcpp-config
 ```
 
 ## Examples
@@ -315,10 +315,10 @@ MIT
 
 ## Contributing
 
-This crate is part of the `ggen` workspace. Contributions are welcome!
+This crate is part of the `mcpp` workspace. Contributions are welcome!
 
 ## Related Crates
 
-- `ggen-core` - Core functionality for graph operations
-- `ggen-domain` - Domain models and ontology support
-- `ggen-cli` - Command-line interface using this config parser
+- `mcpp-core` - Core functionality for graph operations
+- `mcpp-domain` - Domain models and ontology support
+- `mcpp-cli` - Command-line interface using this config parser

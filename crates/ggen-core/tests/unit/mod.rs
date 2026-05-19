@@ -1,4 +1,4 @@
-//! Unit tests for ggen-marketplace/registry
+//! Unit tests for mcpp-marketplace/registry
 //!
 //! This module contains focused unit tests for individual components,
 //! testing trait implementations, error handling, and edge cases.

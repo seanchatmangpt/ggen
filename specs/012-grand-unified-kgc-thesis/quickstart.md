@@ -5,7 +5,7 @@
 
 ## Prerequisites
 
-- ggen v5 CLI installed (`cargo install ggen`)
+- mcpp v5 CLI installed (`cargo install mcpp`)
 - LaTeX distribution with pdflatex and biber
 - Required packages: memoir, amsmath, amsthm, biblatex, algorithm2e, hyperref, cleveref
 
@@ -14,13 +14,13 @@
 ### 1. Navigate to Feature Directory
 
 ```bash
-cd /Users/sac/ggen/specs/012-grand-unified-kgc-thesis
+cd ~/.ggen/mcpp/specs/012-grand-unified-kgc-thesis
 ```
 
 ### 2. Generate LaTeX from Ontology
 
 ```bash
-ggen sync --manifest ggen.toml
+mcpp sync --manifest mcpp.toml
 ```
 
 **Expected Output**:
@@ -76,7 +76,7 @@ Check that the PDF contains:
 
 ```
 specs/012-grand-unified-kgc-thesis/
-├── ggen.toml                    # Generation manifest
+├── mcpp.toml                    # Generation manifest
 ├── ontology/
 │   ├── thesis-schema.ttl        # Class/property definitions
 │   └── kgc-unified-content.ttl  # Thesis content
@@ -118,7 +118,7 @@ specs/012-grand-unified-kgc-thesis/
 ### Modify Thesis Content
 
 1. Edit `ontology/kgc-unified-content.ttl`
-2. Run `ggen sync --manifest ggen.toml`
+2. Run `mcpp sync --manifest mcpp.toml`
 3. Recompile PDF
 
 ### Add a New Theorem
@@ -171,13 +171,13 @@ thesis:ref-newauthor2025 a thesis:Reference ;
 ### Check Ontology Validity
 
 ```bash
-ggen validate --ontology ontology/kgc-unified-content.ttl
+mcpp validate --ontology ontology/kgc-unified-content.ttl
 ```
 
 ### Preview SPARQL Query Results
 
 ```bash
-ggen query --ontology ontology/kgc-unified-content.ttl --query "
+mcpp query --ontology ontology/kgc-unified-content.ttl --query "
   SELECT ?title ?orderIndex WHERE {
     ?chapter a thesis:Chapter ;
              thesis:title ?title ;
@@ -217,7 +217,7 @@ grep -c "\\\\label{" output/*.tex
 ### Generation takes >10 seconds
 
 **Cause**: Ontology too large or inefficient SPARQL
-**Fix**: Run `ggen benchmark` to identify slow queries
+**Fix**: Run `mcpp benchmark` to identify slow queries
 
 ### Biber errors
 
@@ -228,7 +228,7 @@ grep -c "\\\\label{" output/*.tex
 
 ## Success Criteria Checklist
 
-- [ ] `ggen sync` completes in <10 seconds
+- [ ] `mcpp sync` completes in <10 seconds
 - [ ] PDF compiles without errors on first attempt
 - [ ] All cross-references resolve (no "??")
 - [ ] All citations resolve (no "undefined")

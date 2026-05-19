@@ -57,7 +57,7 @@ pub enum FixtureError {
     #[error("Fixture not found: {0}")]
     NotFound(PathBuf),
 
-    #[error("Invalid ggen.toml: {0}")]
+    #[error("Invalid mcpp.toml: {0}")]
     InvalidManifest(String),
 
     #[error("Missing required file: {0}")]
@@ -111,7 +111,7 @@ pub enum ContainerError {
         reason: String,
     },
 
-    #[error("Failed to inject ggen binary into container: {0}")]
+    #[error("Failed to inject mcpp binary into container: {0}")]
     BinaryInjectionFailed(String),
 
     #[error("Container cleanup failed: {0}")]
@@ -130,13 +130,13 @@ pub enum ContainerError {
 /// Test runner and execution errors
 #[derive(Debug, Error)]
 pub enum RunnerError {
-    #[error("ggen sync failed: {0}")]
+    #[error("mcpp sync failed: {0}")]
     SyncFailed(String),
 
     #[error("Container error: {0}")]
     Container(#[from] ContainerError),
 
-    #[error("Failed to locate ggen binary: {0}")]
+    #[error("Failed to locate mcpp binary: {0}")]
     BinaryNotFound(String),
 
     #[error("Test execution error: {0}")]

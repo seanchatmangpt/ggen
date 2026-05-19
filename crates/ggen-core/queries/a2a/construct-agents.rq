@@ -16,8 +16,8 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX ggen: <http://ggen.dev/ontology#>
-PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX mcpp: <http://mcpp.dev/ontology#>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 CONSTRUCT {
@@ -175,8 +175,8 @@ WHERE {
     # Alternative: Match entities with agent-like properties
     {
         ?agent a ?type .
-        ?agent ggen:name ?agentName .
-        FILTER EXISTS { ?agent ggen:skill ?skill }
+        ?agent mcpp:name ?agentName .
+        FILTER EXISTS { ?agent mcpp:skill ?skill }
         BIND(IRI(CONCAT(STR(a2a:), "agent/", SHA1(STR(?agent)))) AS ?normalizedAgent)
     }
 
@@ -200,7 +200,7 @@ WHERE {
     }
     UNION
     {
-        ?agent ggen:name ?agentName .
+        ?agent mcpp:name ?agentName .
         FILTER NOT EXISTS { ?agent a2a:name ?name }
     }
 
@@ -210,7 +210,7 @@ WHERE {
     }
     UNION
     {
-        ?agent ggen:description ?agentDescription .
+        ?agent mcpp:description ?agentDescription .
         FILTER NOT EXISTS { ?agent a2a:description ?desc }
     }
 
@@ -220,7 +220,7 @@ WHERE {
     }
     UNION
     {
-        ?agent ggen:version ?agentVersion .
+        ?agent mcpp:version ?agentVersion .
         FILTER NOT EXISTS { ?agent a2a:version ?ver }
     }
 

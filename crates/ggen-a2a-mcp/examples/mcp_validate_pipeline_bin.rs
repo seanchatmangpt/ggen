@@ -5,7 +5,7 @@
 //! 2. Call the validate_pipeline tool directly
 //! 3. Print the 6 quality gate results
 
-use ggen_a2a_mcp::ggen_server::{GgenMcpServer, ValidatePipelineParams};
+use mcpp_a2a_mcp::mcpp_server::{GgenMcpServer, ValidatePipelineParams};
 use rmcp::handler::server::wrapper::Parameters;
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ fn main() -> anyhow::Result<()> {
         server_info.server_info.name, server_info.server_info.version
     );
 
-    // Step 3: Get project path (current ggen project)
+    // Step 3: Get project path (current mcpp project)
     let project_path = std::env::current_dir()
         .map(|p| {
             p.parent()

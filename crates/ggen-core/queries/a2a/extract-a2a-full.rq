@@ -7,8 +7,8 @@
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> a2a-elixir.tera
 
-PREFIX a2a: <https://ggen.dev/ontology/a2a#>
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
 
 SELECT DISTINCT ?agent_name ?agent_version ?agent_description ?agent_url ?provider_name
                 ?skill_name ?skill_description ?skill_tags ?streaming ?timeout_ms ?retry_policy

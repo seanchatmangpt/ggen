@@ -16,9 +16,9 @@
 //! ### Querying Full Metadata
 //!
 //! ```rust,no_run
-//! use ggen_core::rdf::TemplateMetadataStore;
+//! use mcpp_core::rdf::TemplateMetadataStore;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let store = TemplateMetadataStore::new()?;
 //! let metadata = store.query_full_metadata("http://example.org/template1")?;
 //!
@@ -29,7 +29,7 @@
 //! ```
 
 use super::template_metadata::{TemplateMetadata, TemplateMetadataStore};
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 impl TemplateMetadataStore {
     /// Query full metadata by executing multiple SPARQL queries
@@ -37,18 +37,18 @@ impl TemplateMetadataStore {
         // Query basic fields
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?name ?version ?description ?author ?category ?stability ?coverage ?usage
             WHERE {{
-                <{template_id}> a ggen:Template ;
-                    ggen:templateName ?name .
-                OPTIONAL {{ <{template_id}> ggen:templateVersion ?version }}
-                OPTIONAL {{ <{template_id}> ggen:templateDescription ?description }}
-                OPTIONAL {{ <{template_id}> ggen:templateAuthor ?author }}
-                OPTIONAL {{ <{template_id}> ggen:category ?category }}
-                OPTIONAL {{ <{template_id}> ggen:stability ?stability }}
-                OPTIONAL {{ <{template_id}> ggen:testCoverage ?coverage }}
-                OPTIONAL {{ <{template_id}> ggen:usageCount ?usage }}
+                <{template_id}> a mcpp:Template ;
+                    mcpp:templateName ?name .
+                OPTIONAL {{ <{template_id}> mcpp:templateVersion ?version }}
+                OPTIONAL {{ <{template_id}> mcpp:templateDescription ?description }}
+                OPTIONAL {{ <{template_id}> mcpp:templateAuthor ?author }}
+                OPTIONAL {{ <{template_id}> mcpp:category ?category }}
+                OPTIONAL {{ <{template_id}> mcpp:stability ?stability }}
+                OPTIONAL {{ <{template_id}> mcpp:testCoverage ?coverage }}
+                OPTIONAL {{ <{template_id}> mcpp:usageCount ?usage }}
             }}
             "#,
             template_id = template_id
@@ -83,10 +83,10 @@ impl TemplateMetadataStore {
         // Query tags
         let tags_query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?tag
             WHERE {{
-                <{template_id}> ggen:tag ?tag .
+                <{template_id}> mcpp:tag ?tag .
             }}
             "#,
             template_id = template_id

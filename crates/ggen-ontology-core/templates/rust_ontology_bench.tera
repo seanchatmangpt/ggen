@@ -1,9 +1,9 @@
 {#
   Rust Criterion Benchmark Generator for Ontology Operations
-  Generates Criterion.rs benchmarks for ggen-ontology-core
+  Generates Criterion.rs benchmarks for mcpp-ontology-core
 #}
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use ggen_ontology_core::{
+use mcpp_ontology_core::{
     triple_store::TripleStore,
     sparql_generator::SparqlGenerator,
     entity_mapper::EntityMapper,

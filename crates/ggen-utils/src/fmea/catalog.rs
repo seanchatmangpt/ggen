@@ -1,7 +1,7 @@
 //! Pre-registered critical failure modes (Pareto 80/20 analysis).
 //!
 //! This module defines the top 8 failure modes that account for 75% of risk.
-//! Based on RPN (Risk Priority Number) analysis of ggen CLI codebase.
+//! Based on RPN (Risk Priority Number) analysis of mcpp CLI codebase.
 //!
 //! Top Failure Modes (by RPN):
 //! 1. path_traversal_attack (RPN 441) - 18.4% of risk
@@ -36,7 +36,7 @@ pub fn register_critical_failures(registry: &mut FmeaRegistry) {
 /// - Occurrence: 7 (Common attack vector)
 /// - Detection: 7 (Difficult to detect without validation)
 ///
-/// **Location**: `crates/ggen-domain/src/project/apply.rs:36-43`
+/// **Location**: `crates/mcpp-domain/src/project/apply.rs:36-43`
 fn path_traversal_attack() -> FailureMode {
     FailureMode::builder()
         .id("path_traversal_attack")
@@ -66,7 +66,7 @@ fn path_traversal_attack() -> FailureMode {
 /// - Occurrence: 6 (Moderate, requires user input)
 /// - Detection: 7 (Difficult without sanitization)
 ///
-/// **Location**: `crates/ggen-domain/src/template/mod.rs`
+/// **Location**: `crates/mcpp-domain/src/template/mod.rs`
 fn template_ssti() -> FailureMode {
     FailureMode::builder()
         .id("template_ssti")
@@ -96,7 +96,7 @@ fn template_ssti() -> FailureMode {
 /// - Occurrence: 7 (Common in complex dependency graphs)
 /// - Detection: 7 (Only detected at runtime)
 ///
-/// **Location**: `crates/ggen-domain/src/marketplace/install.rs:350-650`
+/// **Location**: `crates/mcpp-domain/src/marketplace/install.rs:350-650`
 fn dep_cycle_detected() -> FailureMode {
     FailureMode::builder()
         .id("dep_cycle_detected")
@@ -126,7 +126,7 @@ fn dep_cycle_detected() -> FailureMode {
 /// - Occurrence: 6 (Common: ENOSPC, EPERM, race conditions)
 /// - Detection: 6 (Detected but often too late)
 ///
-/// **Location**: `crates/ggen-domain/src/template/generate.rs:79-107`
+/// **Location**: `crates/mcpp-domain/src/template/generate.rs:79-107`
 fn file_io_write_fail() -> FailureMode {
     FailureMode::builder()
         .id("file_io_write_fail")
@@ -156,7 +156,7 @@ fn file_io_write_fail() -> FailureMode {
 /// - Occurrence: 5 (Moderate, concurrent usage)
 /// - Detection: 6 (Detected by checksum mismatch)
 ///
-/// **Location**: `crates/ggen-core/src/lockfile.rs:210-224`
+/// **Location**: `crates/mcpp-core/src/lockfile.rs:210-224`
 fn lockfile_race_corrupt() -> FailureMode {
     FailureMode::builder()
         .id("lockfile_race_corrupt")
@@ -186,7 +186,7 @@ fn lockfile_race_corrupt() -> FailureMode {
 /// - Occurrence: 5 (Moderate, network issues common)
 /// - Detection: 6 (User must manually interrupt)
 ///
-/// **Location**: `crates/ggen-domain/src/marketplace/install.rs:350-650`
+/// **Location**: `crates/mcpp-domain/src/marketplace/install.rs:350-650`
 fn network_timeout() -> FailureMode {
     FailureMode::builder()
         .id("network_timeout")

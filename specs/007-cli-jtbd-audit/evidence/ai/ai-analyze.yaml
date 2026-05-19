@@ -1,4 +1,4 @@
-command: "ggen ai analyze"
+command: "mcpp ai analyze"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want AI to analyze code or ontologies,
-  I need to run 'ggen ai analyze' with code/ontology path,
+  I need to run 'mcpp ai analyze' with code/ontology path,
   so that I can get AI insights about the code.

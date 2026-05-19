@@ -127,10 +127,10 @@ async fn test_market_search_finds_packages() {
 
 ### Problem
 
-Traditional tests can pass even if ggen is completely broken:
+Traditional tests can pass even if mcpp is completely broken:
 
 ```rust
-// This test passes even if ggen returns garbage
+// This test passes even if mcpp returns garbage
 #[test]
 fn test_version() {
     let result = run(vec!["--version".to_string()]).await?;

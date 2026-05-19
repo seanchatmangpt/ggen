@@ -315,11 +315,11 @@ mod tests {
     #[test]
     fn test_unified_entry_creation() {
         let entry = UnifiedLockEntry::new(
-            "io.ggen.test",
+            "io.mcpp.test",
             "1.0.0",
             "abc123def456",
             LockSource::Registry {
-                url: "https://registry.ggen.io".into(),
+                url: "https://registry.mcpp.io".into(),
                 resolved: None,
             },
         );
@@ -331,17 +331,17 @@ mod tests {
     #[test]
     fn test_lock_source_display() {
         let registry = LockSource::Registry {
-            url: "https://registry.ggen.io".into(),
+            url: "https://registry.mcpp.io".into(),
             resolved: None,
         };
-        assert_eq!(registry.to_string(), "registry+https://registry.ggen.io");
+        assert_eq!(registry.to_string(), "registry+https://registry.mcpp.io");
 
         let github = LockSource::GitHub {
             org: "seanchatmangpt".into(),
-            repo: "ggen".into(),
+            repo: "mcpp".into(),
             branch: "main".into(),
         };
-        assert_eq!(github.to_string(), "github:seanchatmangpt/ggen#main");
+        assert_eq!(github.to_string(), "github:seanchatmangpt/mcpp#main");
     }
 
     #[test]

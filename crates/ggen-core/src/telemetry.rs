@@ -1,7 +1,7 @@
-//! OpenTelemetry instrumentation for ggen
+//! OpenTelemetry instrumentation for mcpp
 //!
 //! This module provides OTLP (OpenTelemetry Protocol) tracing capabilities for
-//! all ggen operations. It enables distributed tracing, performance monitoring,
+//! all mcpp operations. It enables distributed tracing, performance monitoring,
 //! and trace validation by clnrm tests.
 //!
 //! **NOTE**: OpenTelemetry support is optional. Enable with `--features otel` when building.
@@ -17,7 +17,7 @@
 //!
 //! Telemetry can be configured via environment variables:
 //! - `OTEL_EXPORTER_OTLP_ENDPOINT`: OTLP endpoint URL (default: http://localhost:4318)
-//! - `OTEL_SERVICE_NAME`: Service name for traces (default: "ggen")
+//! - `OTEL_SERVICE_NAME`: Service name for traces (default: "mcpp")
 //! - `RUST_LOG`: Log level filter (default: "info")
 //!
 //! ## Examples
@@ -25,12 +25,12 @@
 //! ### Initializing Telemetry (with "otel" feature enabled)
 //!
 //! ```rust,no_run
-//! use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
+//! use mcpp_core::telemetry::{init_telemetry, TelemetryConfig};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let config = TelemetryConfig {
 //!     endpoint: "http://localhost:4317".to_string(),
-//!     service_name: "ggen".to_string(),
+//!     service_name: "mcpp".to_string(),
 //!     console_output: true,
 //! };
 //!
@@ -40,11 +40,11 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 // OpenTelemetry implementation (only when "otel" feature is enabled)
 #[cfg(feature = "otel")]
-use ggen_utils::error::Error;
+use mcpp_utils::error::Error;
 #[cfg(feature = "otel")]
 use opentelemetry::{global, KeyValue};
 #[cfg(feature = "otel")]
@@ -70,7 +70,7 @@ impl Default for TelemetryConfig {
             Self {
                 endpoint: std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
                     .unwrap_or_else(|_| "http://localhost:4317".to_string()),
-                service_name: "ggen".to_string(),
+                service_name: "mcpp".to_string(),
                 console_output: true,
             }
         }
@@ -78,7 +78,7 @@ impl Default for TelemetryConfig {
         {
             Self {
                 endpoint: String::new(),
-                service_name: "ggen".to_string(),
+                service_name: "mcpp".to_string(),
                 console_output: false,
             }
         }
@@ -111,10 +111,10 @@ impl Drop for TelemetryGuard {
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
+/// use mcpp_core::telemetry::{init_telemetry, TelemetryConfig};
 ///
 /// #[tokio::main]
-/// async fn main() -> ggen_utils::error::Result<()> {
+/// async fn main() -> mcpp_utils::error::Result<()> {
 ///     let config = TelemetryConfig::default();
 ///     let _guard = init_telemetry(config)?;
 ///
@@ -148,7 +148,7 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<TelemetryGuard> {
 
     global::set_tracer_provider(provider.clone());
 
-    let tracer = global::tracer("ggen");
+    let tracer = global::tracer("mcpp");
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
     let subscriber = Registry::default()
@@ -225,7 +225,7 @@ mod tests {
     #[cfg(feature = "otel")]
     fn test_telemetry_config_default() {
         let config = TelemetryConfig::default();
-        assert_eq!(config.service_name, "ggen");
+        assert_eq!(config.service_name, "mcpp");
         assert!(config.console_output);
     }
 
@@ -233,7 +233,7 @@ mod tests {
     #[cfg(not(feature = "otel"))]
     fn test_telemetry_config_default_no_otel() {
         let config = TelemetryConfig::default();
-        assert_eq!(config.service_name, "ggen");
+        assert_eq!(config.service_name, "mcpp");
         assert!(!config.console_output);
     }
 

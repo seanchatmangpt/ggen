@@ -9,7 +9,7 @@
 //! - Progressive disclosure of complexity
 
 use crate::cli_generator::types::{Argument, CliProject, Noun, Verb};
-use ggen_utils::error::Error;
+use mcpp_utils::error::Error;
 
 /// Enhanced error messages with fix suggestions
 pub struct ErrorEnhancer;
@@ -36,7 +36,7 @@ impl ErrorEnhancer {
         let err_msg = err.to_string().to_lowercase();
 
         if err_msg.contains("template not found") {
-            Some("Check that templates exist in the templates/cli/ directory. Run 'ggen template list' to see available templates.".to_string())
+            Some("Check that templates exist in the templates/cli/ directory. Run 'mcpp template list' to see available templates.".to_string())
         } else if err_msg.contains("domain function") {
             Some("Ensure domain function path matches the generated module structure. Use format: {crate}::{module}::{verb}".to_string())
         } else if err_msg.contains("circular dependency") {
@@ -178,7 +178,7 @@ impl TemplatePreview {
              // crates/{cli_crate}/src/cmds/{noun_name}/{verb_name}.rs\n\
              \n\
              use clap::Args;\n\
-             use ggen_utils::error::Result;\n\
+             use mcpp_utils::error::Result;\n\
              use crate::runtime::execute;\n\
              use {core_crate}::{noun_name}::{verb_name}::{{Input, execute as domain_{verb_name}}};\n\
              \n\

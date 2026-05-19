@@ -23,8 +23,8 @@
 //! ### Generating a Cache Key
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::cache::cache_key;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::cache::cache_key;
+//! use mcpp_core::lifecycle::Result;
 //!
 //! # fn main() -> Result<()> {
 //! let phase_name = "build";
@@ -41,8 +41,8 @@
 //! ### Using Cache Keys for Conditional Execution
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::cache::cache_key;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::cache::cache_key;
+//! use mcpp_core::lifecycle::Result;
 //! use std::collections::HashSet;
 //!
 //! # fn main() -> Result<()> {

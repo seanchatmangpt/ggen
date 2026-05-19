@@ -1,13 +1,13 @@
 [package]
-name = "ggen-bridge-nif"
+name = "mcpp-bridge-nif"
 version = "0.1.0"
 edition = "2021"
-authors = ["ggen Project"]
-description = "Rust NIF for gen_yawl to ggen RDF integration"
+authors = ["mcpp Project"]
+description = "Rust NIF for gen_yawl to mcpp RDF integration"
 license = "MIT"
 
 [lib]
-name = "ggen_bridge_nif"
+name = "mcpp_bridge_nif"
 path = "src/lib.rs"
 crate-type = ["cdylib"]
 

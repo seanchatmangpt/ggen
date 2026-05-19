@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Pure business logic with REAL plan application
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -35,7 +35,7 @@ struct GenerationPlan {
 /// Validate path to prevent directory traversal
 fn validate_path(path: &Path) -> Result<()> {
     if path.components().any(|c| matches!(c, Component::ParentDir)) {
-        return Err(ggen_utils::error::Error::new(
+        return Err(mcpp_utils::error::Error::new(
             "Path traversal detected: paths containing '..' are not allowed",
         ));
     }
@@ -49,39 +49,39 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
     validate_path(plan_path)?;
 
     if !plan_path.exists() {
-        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+        return Err(mcpp_utils::error::Error::new_fmt(format_args!(
             "Plan file not found: {}",
             args.plan_file
         )));
     }
 
     // Read and parse plan file
-    let content = fs::read_to_string(plan_path).map_err(ggen_utils::error::Error::from)?;
+    let content = fs::read_to_string(plan_path).map_err(mcpp_utils::error::Error::from)?;
 
     let plan: GenerationPlan = match plan_path.extension().and_then(|ext| ext.to_str()) {
-        Some("json") => serde_json::from_str(&content).map_err(ggen_utils::error::Error::from)?,
+        Some("json") => serde_json::from_str(&content).map_err(mcpp_utils::error::Error::from)?,
         Some("yaml") | Some("yml") => {
-            serde_yaml::from_str(&content).map_err(ggen_utils::error::Error::from)?
+            serde_yaml::from_str(&content).map_err(mcpp_utils::error::Error::from)?
         }
-        Some("toml") => toml::from_str(&content).map_err(ggen_utils::error::Error::from)?,
+        Some("toml") => toml::from_str(&content).map_err(mcpp_utils::error::Error::from)?,
         _ => {
-            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            return Err(mcpp_utils::error::Error::new_fmt(format_args!(
                 "Unsupported plan file format. Supported: .json, .yaml, .yml, .toml"
             )))
         }
     };
 
     // Show plan summary
-    ggen_utils::alert_info!("📋 Plan Summary:");
-    ggen_utils::alert_info!("  Template: {}", plan.template_ref);
-    ggen_utils::alert_info!("  Variables: {}", plan.variables.len());
-    ggen_utils::alert_info!(
+    mcpp_utils::alert_info!("📋 Plan Summary:");
+    mcpp_utils::alert_info!("  Template: {}", plan.template_ref);
+    mcpp_utils::alert_info!("  Variables: {}", plan.variables.len());
+    mcpp_utils::alert_info!(
         "  Created: {}",
         plan.timestamp.format("%Y-%m-%d %H:%M:%S UTC")
     );
 
     if args.dry_run {
-        ggen_utils::alert_info!("🔍 Dry run mode - no changes will be applied");
+        mcpp_utils::alert_info!("🔍 Dry run mode - no changes will be applied");
         return Ok(ApplicationResult {
             operations_count: plan.variables.len(),
             plan_file: args.plan_file.clone(),
@@ -90,16 +90,16 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
 
     // Confirm before applying (if not auto-confirmed)
     if !args.auto_confirm {
-        ggen_utils::alert_warning!("\nThis will apply the generation plan to your project.");
-        ggen_utils::alert_info!("Continue? [y/N]: ");
+        mcpp_utils::alert_warning!("\nThis will apply the generation plan to your project.");
+        mcpp_utils::alert_info!("Continue? [y/N]: ");
 
         let mut input = String::new();
         std::io::stdin()
             .read_line(&mut input)
-            .map_err(ggen_utils::error::Error::from)?;
+            .map_err(mcpp_utils::error::Error::from)?;
 
         if !input.trim().to_lowercase().starts_with('y') {
-            ggen_utils::alert_info!("Plan application cancelled by user");
+            mcpp_utils::alert_info!("Plan application cancelled by user");
             return Ok(ApplicationResult {
                 operations_count: 0,
                 plan_file: args.plan_file.clone(),

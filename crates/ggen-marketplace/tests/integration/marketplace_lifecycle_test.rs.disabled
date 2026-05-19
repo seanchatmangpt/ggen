@@ -5,7 +5,7 @@
 //!
 //! Test Count: 200+ tests
 
-use ggen_marketplace_v2::prelude::*;
+use mcpp_marketplace_v2::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 

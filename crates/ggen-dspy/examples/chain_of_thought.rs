@@ -3,13 +3,13 @@
 //! Demonstrates reasoning before answering.
 //! Run with: cargo run --example chain_of_thought
 
-use ggen_ai::dspy::{InputField, OutputField, Signature};
-use ggen_dspy::{ChainOfThought, Result};
+use mcpp_ai::dspy::{InputField, OutputField, Signature};
+use mcpp_dspy::{ChainOfThought, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize logging
-    ggen_dspy::init_logging();
+    mcpp_dspy::init_logging();
 
     // Define a signature for complex reasoning tasks
     let signature = Signature::new("MathReasoning", "Solve math problems with reasoning")

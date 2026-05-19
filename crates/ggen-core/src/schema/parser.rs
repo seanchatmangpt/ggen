@@ -121,7 +121,7 @@ impl SchemaParser {
     /// # Examples
     ///
     /// ```
-    /// use ggen_core::schema::SchemaParser;
+    /// use mcpp_core::schema::SchemaParser;
     ///
     /// let schema = SchemaParser::parse("Request { field: string }").unwrap();
     /// assert_eq!(schema.name, "Request");

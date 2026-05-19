@@ -1,5 +1,5 @@
 use crate::manifest::GenerationRule;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use tokio::task::JoinSet;

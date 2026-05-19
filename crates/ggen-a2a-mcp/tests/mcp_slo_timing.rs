@@ -16,11 +16,11 @@
 //!   - Resource read:                      50 ms
 //!   - Full lifecycle (discover->scaffold->validate->sync): 3 s
 //!
-//! Run: cargo test -p ggen-a2a-mcp --test mcp_slo_timing -- --test-threads=1 --nocapture
+//! Run: cargo test -p mcpp-a2a-mcp --test mcp_slo_timing -- --test-threads=1 --nocapture
 
 use std::time::Instant;
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ impl ClientHandler for TestClientHandler {
 // ---------------------------------------------------------------------------
 
 async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientHandler>> {
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let (server_transport, client_transport) = tokio::io::duplex(65536);
 
     let server = GgenMcpServer::new();
@@ -309,7 +309,7 @@ async fn slo_read_resource() -> anyhow::Result<()> {
     let start = Instant::now();
     let result = client
         .read_resource(ReadResourceRequestParams::new(String::from(
-            "ggen://example/a2a-groq-agent/ttl",
+            "mcpp://example/a2a-groq-agent/ttl",
         )))
         .await?;
     let elapsed = start.elapsed();
@@ -435,7 +435,7 @@ async fn slo_full_lifecycle() -> anyhow::Result<()> {
     let t9 = Instant::now();
     let resource = client
         .read_resource(ReadResourceRequestParams::new(String::from(
-            "ggen://example/a2a-groq-agent",
+            "mcpp://example/a2a-groq-agent",
         )))
         .await?;
     let t9_elapsed = t9.elapsed();
@@ -510,8 +510,8 @@ async fn slo_scaffold_from_example() -> anyhow::Result<()> {
         extract_text(&result)
     );
     assert!(
-        target_dir.join("ggen.toml").exists(),
-        "scaffolded dir must contain ggen.toml"
+        target_dir.join("mcpp.toml").exists(),
+        "scaffolded dir must contain mcpp.toml"
     );
     assert_slo("scaffold_from_example (file copy)", elapsed, 500);
     client.cancel().await?;

@@ -2,7 +2,7 @@
 
 **Generated**: 2025-11-18
 **Reviewer**: Code Quality Analyzer Agent
-**Phase**: Pack Installation System (Phase 1 of ggen v4.0 Roadmap)
+**Phase**: Pack Installation System (Phase 1 of mcpp v4.0 Roadmap)
 
 ---
 
@@ -28,7 +28,7 @@ Phase 1 implementation is **production-ready** with high code quality, comprehen
 
 **Module Organization**:
 ```
-crates/ggen-domain/src/packs/
+crates/mcpp-domain/src/packs/
 ├── mod.rs (48 lines)           # Clean re-exports
 ├── types.rs (106 lines)        # Core types
 ├── install.rs (93 lines)       # Simple installation
@@ -105,7 +105,7 @@ pub async fn install(&self, pack_id: &str, options: &InstallOptions)
 ### Error Handling: 9.0/10 ✅ Excellent
 
 **Strengths**:
-- ✅ Custom error types from `ggen_utils::error::Error`
+- ✅ Custom error types from `mcpp_utils::error::Error`
 - ✅ Contextual error messages
 - ✅ No swallowed errors
 - ✅ Proper error propagation with `?`
@@ -127,7 +127,7 @@ if result.len() != self.nodes.len() {
 ### Existing Packs Module Integration ✅ Good
 
 **Current State**:
-- ✅ Reuses existing pack discovery from `ggen-domain/marketplace/packs/`
+- ✅ Reuses existing pack discovery from `mcpp-domain/marketplace/packs/`
 - ✅ Compatible with existing `packs list/show/validate` commands
 - ✅ No duplication of pack metadata logic
 - ✅ Extends existing functionality (not replacing)
@@ -161,8 +161,8 @@ pub async fn install_pack(input: &InstallInput) -> Result<InstallOutput> {
 
 **Current State**:
 ```rust
-// From crates/ggen-cli/tests/marketplace_install_e2e.rs
-use ggen_domain::marketplace::{
+// From crates/mcpp-cli/tests/marketplace_install_e2e.rs
+use mcpp_domain::marketplace::{
     install_package, InstallOptions, Lockfile, PackageManifest,
 };
 
@@ -183,7 +183,7 @@ let result = install_package(&options).await.unwrap();
 **Minor Issue**:
 - ⚠️ Current CLI tests use `marketplace::install_package`, not `packs::install_pack`
 - **Impact**: Medium - needs CLI command update for pack installation
-- **Recommendation**: Add `ggen pack install <pack-id>` CLI command in Phase 2
+- **Recommendation**: Add `mcpp pack install <pack-id>` CLI command in Phase 2
 
 ---
 
@@ -195,13 +195,13 @@ let result = install_package(&options).await.unwrap();
 ```toml
 [dependencies]
 # Core workspace dependencies
-ggen-core.workspace = true
-ggen-marketplace.workspace = true
-ggen-utils.workspace = true
+mcpp-core.workspace = true
+mcpp-marketplace.workspace = true
+mcpp-utils.workspace = true
 
 # Pack-specific
 async-trait = "0.1"  # For PackRepository trait
-dirs = "5.0"         # For ~/.ggen/packs discovery
+dirs = "5.0"         # For ~/.mcpp/packs discovery
 glob = "0.3"         # For pack file discovery
 toml = { workspace = true }  # Pack manifest parsing
 tokio = { workspace = true } # Async operations
@@ -230,7 +230,7 @@ This is **excellent** - domain layer properly separated from CLI.
 ### Test Results
 
 ```bash
-$ cargo test --lib --package ggen-domain packs
+$ cargo test --lib --package mcpp-domain packs
 
 running 63 tests
 ✓ All 63 tests passing (0 failed, 0 ignored)
@@ -360,12 +360,12 @@ pub async fn install(&self, pack_id: &str, options: &InstallOptions)
 - **Recommendation**: Create integration tests for `PackLockfile` with snapshots
 
 **Risk 2: CLI Command Gap**
-- **Status**: No `ggen pack install` command yet
+- **Status**: No `mcpp pack install` command yet
 - **Impact**: Low (works via marketplace)
 - **Mitigation**: Add CLI command in Phase 2
 - **Recommendation**:
   ```rust
-  // Add to ggen-cli/src/cmds/pack.rs
+  // Add to mcpp-cli/src/cmds/pack.rs
   pub async fn install(pack_id: String) -> Result<()> {
       let installer = PackInstaller::with_default_repo()?;
       let report = installer.install(&pack_id, &opts).await?;
@@ -373,12 +373,12 @@ pub async fn install(&self, pack_id: &str, options: &InstallOptions)
   }
   ```
 
-**Risk 3: ggen-core gpack.rs Overlap**
+**Risk 3: mcpp-core gpack.rs Overlap**
 - **Status**: Both exist independently
 - **Impact**: Low (different purposes)
 - **Clarification**:
-  - `ggen-core/gpack.rs`: GPack manifest parsing (template packs)
-  - `ggen-domain/packs/`: Pack installation & composition
+  - `mcpp-core/gpack.rs`: GPack manifest parsing (template packs)
+  - `mcpp-domain/packs/`: Pack installation & composition
 - **Recommendation**: Document distinction in Phase 2
 
 ---
@@ -395,7 +395,7 @@ pub async fn install(&self, pack_id: &str, options: &InstallOptions)
 
 2. **Add CLI Command**
    ```rust
-   // ggen-cli/src/cmds/pack.rs
+   // mcpp-cli/src/cmds/pack.rs
    pub async fn cmd_install(pack_id: String) -> Result<()>
    ```
 
@@ -488,7 +488,7 @@ pub async fn install(&self, pack_id: &str, options: &InstallOptions)
    - **Fix**: `cargo fmt && cargo clippy --fix`
 
 2. **CLI Integration** (Medium Priority)
-   - No `ggen pack install` command
+   - No `mcpp pack install` command
    - **Fix**: Add CLI command in Phase 2
 
 3. **Documentation** (Low Priority)
@@ -510,7 +510,7 @@ pub async fn install(&self, pack_id: &str, options: &InstallOptions)
 ### 📋 Integration Checklist for Phase 2
 
 - [ ] Test `PackLockfile` with lifecycle snapshots
-- [ ] Add `ggen pack install` CLI command
+- [ ] Add `mcpp pack install` CLI command
 - [ ] Extend `PackRepository` for remote repositories
 - [ ] Add region constraints to `DependencyGraph`
 - [ ] Create Phase 1 architecture documentation
@@ -587,7 +587,7 @@ git add -p  # Review and commit style fixes
 ### A. Test Execution Log
 
 ```bash
-$ cargo test --lib --package ggen-domain packs --release
+$ cargo test --lib --package mcpp-domain packs --release
 
 running 63 tests
 test marketplace::packs::list::tests::test_format_size_bytes ... ok
@@ -635,7 +635,7 @@ async fn test_pack_installation_with_lifecycle() {
     let report = installer.install("web-api-stack", &options).await.unwrap();
 
     // Verify lockfile created
-    let lockfile = Lockfile::load("ggen.lock").await.unwrap();
+    let lockfile = Lockfile::load("mcpp.lock").await.unwrap();
     assert!(lockfile.packs.contains_key("web-api-stack"));
 
     // Verify lifecycle state updated

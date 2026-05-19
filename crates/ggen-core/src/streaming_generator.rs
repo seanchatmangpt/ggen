@@ -3,7 +3,7 @@
 //! Processes templates one at a time instead of loading entire file tree
 //! into memory, enabling constant memory usage regardless of project size.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use tera::Context;
 use walkdir::WalkDir;
@@ -27,11 +27,11 @@ use crate::template_cache::TemplateCache;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::streaming_generator::StreamingGenerator;
+/// use mcpp_core::streaming_generator::StreamingGenerator;
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -65,10 +65,10 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -98,10 +98,10 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// // Create generator with larger cache for many templates
     /// let generator = StreamingGenerator::with_cache_capacity(
     ///     PathBuf::from("templates"),
@@ -140,11 +140,11 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use tera::Context;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -276,10 +276,10 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -303,11 +303,11 @@ impl StreamingGenerator {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::streaming_generator::{StreamingGenerator, GenerationResult};
+/// use mcpp_core::streaming_generator::{StreamingGenerator, GenerationResult};
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let mut generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -336,7 +336,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use mcpp_core::streaming_generator::GenerationResult;
     ///
     /// # fn main() {
     /// let mut result = GenerationResult::default();
@@ -358,7 +358,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use mcpp_core::streaming_generator::GenerationResult;
     ///
     /// # fn main() {
     /// let mut result = GenerationResult::default();
@@ -383,7 +383,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use mcpp_core::streaming_generator::GenerationResult;
     /// use std::time::Duration;
     ///
     /// # fn main() {

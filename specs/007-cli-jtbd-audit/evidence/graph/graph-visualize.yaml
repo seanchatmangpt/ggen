@@ -1,4 +1,4 @@
-command: "ggen graph visualize"
+command: "mcpp graph visualize"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I want to visualize an RDF graph structure,
-  I need to run 'ggen graph visualize',
+  I need to run 'mcpp graph visualize',
   so that I can understand the relationships visually.

@@ -1,10 +1,10 @@
-# Quickstart: Generate a PhD Thesis with ggen
+# Quickstart: Generate a PhD Thesis with mcpp
 
-Generate a complete 50+ page PhD thesis PDF from RDF ontology using `ggen sync`.
+Generate a complete 50+ page PhD thesis PDF from RDF ontology using `mcpp sync`.
 
 ## Prerequisites
 
-- ggen CLI installed (`cargo install ggen`)
+- mcpp CLI installed (`cargo install mcpp`)
 - pdflatex installed (TeX Live or MacTeX)
 - bibtex installed (comes with TeX distributions)
 
@@ -14,7 +14,7 @@ Generate a complete 50+ page PhD thesis PDF from RDF ontology using `ggen sync`.
 
 ```bash
 # Copy the thesis-gen example to your project
-cp -r /path/to/ggen/examples/thesis-gen my-thesis
+cp -r /path/to/mcpp/examples/thesis-gen my-thesis
 cd my-thesis
 ```
 
@@ -23,8 +23,8 @@ cd my-thesis
 Modify `ontology/thesis-content.ttl` with your thesis data:
 
 ```turtle
-@prefix content: <https://ggen.io/thesis/content#> .
-@prefix thesis: <https://ggen.io/ontology/thesis#> .
+@prefix content: <https://mcpp.io/thesis/content#> .
+@prefix thesis: <https://mcpp.io/ontology/thesis#> .
 
 content:MainThesis a thesis:Thesis ;
     thesis:title "Your Thesis Title Here" ;
@@ -47,18 +47,18 @@ content:Chapter1 a thesis:Chapter ;
 ### 3. Generate LaTeX files
 
 ```bash
-ggen sync
+mcpp sync
 ```
 
 Output:
 ```
-[ggen] Loading ontology from ontology/thesis-content.ttl
-[ggen] Executing 15 generation rules...
-[ggen] Generated: output/thesis.tex
-[ggen] Generated: output/front-matter.tex
-[ggen] Generated: output/chapters/chapter-1.tex
+[mcpp] Loading ontology from ontology/thesis-content.ttl
+[mcpp] Executing 15 generation rules...
+[mcpp] Generated: output/thesis.tex
+[mcpp] Generated: output/front-matter.tex
+[mcpp] Generated: output/chapters/chapter-1.tex
 ...
-[ggen] Synced 25 files in 0.8s
+[mcpp] Synced 25 files in 0.8s
 ```
 
 ### 4. Compile to PDF
@@ -81,7 +81,7 @@ Open `output/thesis.pdf` - a complete 50+ page thesis!
 
 ```
 my-thesis/
-├── ggen.toml                  # Generation rules (don't modify)
+├── mcpp.toml                  # Generation rules (don't modify)
 ├── ontology/
 │   ├── thesis-schema.ttl      # Schema (don't modify)
 │   └── thesis-content.ttl     # YOUR CONTENT (edit this!)
@@ -250,11 +250,11 @@ Pre-escape these in ontology content: `& % $ # _ { } ~ ^`
 - `#` → `\#`
 - `_` → `\_`
 
-### ggen sync errors
+### mcpp sync errors
 
 Check that your ontology validates:
 ```bash
-ggen check ontology/thesis-content.ttl
+mcpp check ontology/thesis-content.ttl
 ```
 
 ## Next Steps
@@ -265,4 +265,4 @@ ggen check ontology/thesis-content.ttl
 
 ---
 
-**Remember**: Edit `ontology/thesis-content.ttl`, run `ggen sync`, compile with `make pdf`. That's it!
+**Remember**: Edit `ontology/thesis-content.ttl`, run `mcpp sync`, compile with `make pdf`. That's it!

@@ -1,15 +1,15 @@
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix mcpp: <http://mcpp.dev/ontology#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
-<http://example.org/template1> a ggen:Template ;
-  ggen:templateName "Valid Template" ;
-  ggen:templateVersion "1.0.0" ;
-  ggen:templateDescription "A valid RDF template" ;
-  ggen:templateAuthor "Test Author" ;
-  ggen:stability "stable" ;
-  ggen:testCoverage "85.5"^^xsd:double ;
-  ggen:category "testing" ;
-  ggen:tag "test", "rdf", "valid" .
+<http://example.org/template1> a mcpp:Template ;
+  mcpp:templateName "Valid Template" ;
+  mcpp:templateVersion "1.0.0" ;
+  mcpp:templateDescription "A valid RDF template" ;
+  mcpp:templateAuthor "Test Author" ;
+  mcpp:stability "stable" ;
+  mcpp:testCoverage "85.5"^^xsd:double ;
+  mcpp:category "testing" ;
+  mcpp:tag "test", "rdf", "valid" .

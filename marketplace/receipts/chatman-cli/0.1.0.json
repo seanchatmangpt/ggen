@@ -40,7 +40,7 @@
       "guard_name": "Chicago Compliance Guard",
       "guard_type": "chicago_compliance",
       "passed": false,
-      "message": "❌ Forbidden patterns found:\n  - Unwrap without fallback: unwrap() in /Users/sac/ggen/marketplace/packages/chatman-cli/src/lib.rs",
+      "message": "❌ Forbidden patterns found:\n  - Unwrap without fallback: unwrap() in ./marketplace/packages/chatman-cli/src/lib.rs",
       "weight": 15,
       "severity": "Critical"
     }

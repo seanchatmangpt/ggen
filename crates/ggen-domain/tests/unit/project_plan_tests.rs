@@ -4,7 +4,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::project::plan::{create_plan, PlanInput};
+use mcpp_domain::project::plan::{create_plan, PlanInput};
 use std::fs;
 use tempfile::tempdir;
 
@@ -14,7 +14,7 @@ test!(test_create_plan_json_success, {
     let output_path = temp_dir.path().join("test-plan.json");
 
     let input = PlanInput {
-        template_ref: "io.ggen.test-template".to_string(),
+        template_ref: "io.mcpp.test-template".to_string(),
         vars: vec!["name=TestProject".to_string(), "version=1.0.0".to_string()],
         output: Some(output_path.to_string_lossy().to_string()),
         format: "json".to_string(),
@@ -34,7 +34,7 @@ test!(test_create_plan_json_success, {
 
     // Verify JSON content
     let content = fs::read_to_string(&plan_result.output_path).unwrap();
-    assert!(content.contains("io.ggen.test-template"));
+    assert!(content.contains("io.mcpp.test-template"));
     assert!(content.contains("TestProject"));
 });
 
@@ -44,7 +44,7 @@ test!(test_create_plan_yaml_success, {
     let output_path = temp_dir.path().join("test-plan.yaml");
 
     let input = PlanInput {
-        template_ref: "io.ggen.yaml-template".to_string(),
+        template_ref: "io.mcpp.yaml-template".to_string(),
         vars: vec!["key=value".to_string()],
         output: Some(output_path.to_string_lossy().to_string()),
         format: "yaml".to_string(),
@@ -60,7 +60,7 @@ test!(test_create_plan_yaml_success, {
 
     // Verify YAML content
     let content = fs::read_to_string(&plan_result.output_path).unwrap();
-    assert!(content.contains("io.ggen.yaml-template"));
+    assert!(content.contains("io.mcpp.yaml-template"));
     assert!(content.contains("key"));
 });
 
@@ -70,7 +70,7 @@ test!(test_create_plan_toml_success, {
     let output_path = temp_dir.path().join("test-plan.toml");
 
     let input = PlanInput {
-        template_ref: "io.ggen.toml-template".to_string(),
+        template_ref: "io.mcpp.toml-template".to_string(),
         vars: vec!["author=TestUser".to_string()],
         output: Some(output_path.to_string_lossy().to_string()),
         format: "toml".to_string(),
@@ -86,7 +86,7 @@ test!(test_create_plan_toml_success, {
 
     // Verify TOML content
     let content = fs::read_to_string(&plan_result.output_path).unwrap();
-    assert!(content.contains("io.ggen.toml-template"));
+    assert!(content.contains("io.mcpp.toml-template"));
     assert!(content.contains("TestUser"));
 });
 
@@ -117,7 +117,7 @@ test!(test_create_plan_invalid_variable_format_error, {
     let output_path = temp_dir.path().join("plan.json");
 
     let input = PlanInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec!["invalid_format".to_string()], // Missing '='
         output: Some(output_path.to_string_lossy().to_string()),
         format: "json".to_string(),
@@ -141,7 +141,7 @@ test!(test_create_plan_unsupported_format_error, {
     let output_path = temp_dir.path().join("plan.xml");
 
     let input = PlanInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec![],
         output: Some(output_path.to_string_lossy().to_string()),
         format: "xml".to_string(), // Unsupported
@@ -162,7 +162,7 @@ test!(test_create_plan_unsupported_format_error, {
 test!(test_create_plan_path_traversal_prevention, {
     // Arrange
     let input = PlanInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec![],
         output: Some("../../../etc/passwd".to_string()),
         format: "json".to_string(),
@@ -187,7 +187,7 @@ test!(test_create_plan_default_output_path, {
     std::env::set_current_dir(temp_dir.path()).unwrap();
 
     let input = PlanInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec!["key=value".to_string()],
         output: None, // Use default
         format: "json".to_string(),
@@ -203,7 +203,7 @@ test!(test_create_plan_default_output_path, {
     assert_ok!(result);
     let plan_result = result.unwrap();
     assert!(
-        plan_result.output_path.contains("ggen-plan.json"),
+        plan_result.output_path.contains("mcpp-plan.json"),
         "Should use default filename"
     );
 });
@@ -214,7 +214,7 @@ test!(test_create_plan_multiple_variables, {
     let output_path = temp_dir.path().join("multi-var-plan.json");
 
     let input = PlanInput {
-        template_ref: "io.ggen.multi-var".to_string(),
+        template_ref: "io.mcpp.multi-var".to_string(),
         vars: vec![
             "name=MyProject".to_string(),
             "version=2.1.0".to_string(),
@@ -247,7 +247,7 @@ test!(test_create_plan_variable_with_equals_in_value, {
     let output_path = temp_dir.path().join("equals-plan.json");
 
     let input = PlanInput {
-        template_ref: "io.ggen.url-test".to_string(),
+        template_ref: "io.mcpp.url-test".to_string(),
         vars: vec!["url=https://example.com?foo=bar&baz=qux".to_string()],
         output: Some(output_path.to_string_lossy().to_string()),
         format: "json".to_string(),

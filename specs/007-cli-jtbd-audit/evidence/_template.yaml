@@ -2,7 +2,7 @@
 # Schema: ../contracts/audit-result.schema.yaml
 # Copy this file and fill in for each command audit
 
-command: "ggen <category> <subcommand>"
+command: "mcpp <category> <subcommand>"
 version_tested: "5.3.2"
 date: "2024-12-14"
 tester: "claude-code"

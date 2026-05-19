@@ -107,7 +107,7 @@ impl TestEnv {
     }
 
     fn lockfile_path(&self) -> PathBuf {
-        self.temp_dir.path().join("ggen.lock")
+        self.temp_dir.path().join("mcpp.lock")
     }
 
     fn package_install_path(&self, name: &str) -> PathBuf {

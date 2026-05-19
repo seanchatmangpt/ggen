@@ -3,8 +3,8 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::template::lint::*;
-use ggen_utils::error::Result;
+use mcpp_domain::template::lint::*;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::Path;
 

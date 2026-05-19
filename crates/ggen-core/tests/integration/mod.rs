@@ -1,4 +1,4 @@
-//! Integration tests for ggen-marketplace and lifecycle
+//! Integration tests for mcpp-marketplace and lifecycle
 //!
 //! These tests validate end-to-end functionality including:
 //! - Complete package publish/retrieve flows

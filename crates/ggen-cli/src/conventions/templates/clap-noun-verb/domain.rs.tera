@@ -3,7 +3,7 @@
     It is intentionally minimal: no business logic is ever generated.
 
     Expected variables:
-    - interface_name: string (e.g., "ggen")
+    - interface_name: string (e.g., "mcpp")
     - commands: array of { name, summary, description, subcommands[], special, options[] }
       - subcommands[]: { name, summary, about, options[], positional_arguments[] }
         - options[]: { name, long_name, type, summary, required, global }

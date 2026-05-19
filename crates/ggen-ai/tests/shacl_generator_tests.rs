@@ -8,8 +8,8 @@
 //! - Turtle serialization (3 tests): syntax valid, parseable, round-trip
 //! - Integration with existing SHACL parser (4+ tests)
 
-use ggen_ai::owl::extractor::{DatatypeFacet, OWLClass, OWLProperty, OWLRestriction};
-use ggen_ai::owl::shacl_generator::SHACLGenerator;
+use mcpp_ai::owl::extractor::{DatatypeFacet, OWLClass, OWLProperty, OWLRestriction};
+use mcpp_ai::owl::shacl_generator::SHACLGenerator;
 use oxigraph::model::NamedNode;
 use oxigraph::store::Store;
 
@@ -358,7 +358,7 @@ fn test_round_trip_owl_to_shacl_to_parser() {
     assert!(store.len().unwrap() > 0);
 
     // Use existing SHACL parser
-    use ggen_ai::codegen::shacl_parser::SHACLParser;
+    use mcpp_ai::codegen::shacl_parser::SHACLParser;
     let parser = SHACLParser::new(&store);
 
     // Try to extract properties (shape URI needs to match)
@@ -390,7 +390,7 @@ fn test_parser_extracts_cardinality_constraints() {
         .load_from_slice(oxigraph::io::RdfFormat::Turtle, ttl.as_bytes())
         .unwrap();
 
-    use ggen_ai::codegen::shacl_parser::SHACLParser;
+    use mcpp_ai::codegen::shacl_parser::SHACLParser;
     let _parser = SHACLParser::new(&store);
 
     // Assert: Can parse the generated Turtle

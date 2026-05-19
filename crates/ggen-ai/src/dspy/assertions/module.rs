@@ -141,7 +141,7 @@ impl<M: Module + Send + Sync + 'static> Module for AssertedModule<M> {
 ///
 /// # Example
 /// ```ignore
-/// use ggen_ai::dspy::assertions::*;
+/// use mcpp_ai::dspy::assertions::*;
 ///
 /// let module = create_asserted_module(
 ///     my_module,
@@ -161,8 +161,8 @@ pub fn create_asserted_module<M: Module>(
 ///
 /// # Example
 /// ```ignore
-/// use ggen_ai::dspy::assertions::*;
-/// use ggen_ai::dspy::optimizer::BootstrapFewShot;
+/// use mcpp_ai::dspy::assertions::*;
+/// use mcpp_ai::dspy::optimizer::BootstrapFewShot;
 ///
 /// let asserted_module = my_module.with_assertion(
 ///     Assertion::assert(validator).max_retries(3)

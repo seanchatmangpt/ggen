@@ -1,11 +1,11 @@
 [package]
-name = "ggen-utils"
+name = "mcpp-utils"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
-description = "Shared utilities for ggen"
+description = "Shared utilities for mcpp"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 readme = "README.md"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]

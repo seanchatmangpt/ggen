@@ -14,10 +14,10 @@ use std::time::Instant;
 // TEST UTILITIES
 // ============================================================================
 
-/// Execute ggen packs command and return stdout
+/// Execute mcpp packs command and return stdout
 fn run_packs_command(args: &[&str]) -> Result<String, String> {
     let output = Command::new("cargo")
-        .args(["run", "--bin", "ggen", "--"])
+        .args(["run", "--bin", "mcpp", "--"])
         .args(["packs"])
         .args(args)
         .output()
@@ -41,7 +41,7 @@ fn parse_json_output(output: &str) -> Result<Value, String> {
 
 #[test]
 fn test_packs_list_returns_valid_json() {
-    // Execute: ggen packs list
+    // Execute: mcpp packs list
     let output = run_packs_command(&["list"]).expect("packs list should execute successfully");
 
     // Verify output is valid JSON
@@ -76,7 +76,7 @@ fn test_packs_list_returns_valid_json() {
 
 #[test]
 fn test_packs_show_returns_pack_details() {
-    // Execute: ggen packs show --pack_id startup-essentials
+    // Execute: mcpp packs show --pack_id startup-essentials
     let output = run_packs_command(&["show", "--pack_id", "startup-essentials"])
         .expect("packs show should execute successfully");
 
@@ -110,7 +110,7 @@ fn test_packs_show_returns_pack_details() {
 
 #[test]
 fn test_packs_install_lists_packages() {
-    // Execute: ggen packs install --pack_id startup-essentials --dry_run
+    // Execute: mcpp packs install --pack_id startup-essentials --dry_run
     let result = run_packs_command(&["install", "--pack_id", "startup-essentials", "--dry_run"]);
 
     // For now, accept either success or graceful failure due to marketplace unavailability
@@ -147,7 +147,7 @@ fn test_packs_install_lists_packages() {
 
 #[test]
 fn test_packs_validate_checks_pack() {
-    // Execute: ggen packs validate --pack_id startup-essentials
+    // Execute: mcpp packs validate --pack_id startup-essentials
     let output = run_packs_command(&["validate", "--pack_id", "startup-essentials"])
         .expect("packs validate should execute successfully");
 
@@ -180,7 +180,7 @@ fn test_packs_validate_checks_pack() {
 
 #[test]
 fn test_packs_invalid_id_returns_error() {
-    // Execute: ggen packs show --pack_id nonexistent-pack
+    // Execute: mcpp packs show --pack_id nonexistent-pack
     let result = run_packs_command(&["show", "--pack_id", "nonexistent-pack"]);
 
     // Should return error (not panic)
@@ -195,7 +195,7 @@ fn test_packs_invalid_id_returns_error() {
 
 #[test]
 fn test_packs_validate_invalid_pack_returns_false() {
-    // Execute: ggen packs validate --pack_id invalid-pack-xyz
+    // Execute: mcpp packs validate --pack_id invalid-pack-xyz
     let output = run_packs_command(&["validate", "--pack_id", "invalid-pack-xyz"])
         .expect("validate should handle invalid packs gracefully");
 
@@ -255,7 +255,7 @@ fn test_packs_all_commands_work_end_to_end() {
 
 #[test]
 fn test_packs_list_with_category_filter() {
-    // Execute: ggen packs list --category startup
+    // Execute: mcpp packs list --category startup
     let output = run_packs_command(&["list", "--category", "startup"])
         .expect("list with category should work");
 

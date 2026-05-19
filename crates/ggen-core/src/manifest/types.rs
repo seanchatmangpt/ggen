@@ -1,4 +1,4 @@
-//! Manifest type definitions for ggen.toml parsing
+//! Manifest type definitions for mcpp.toml parsing
 //!
 //! These types map directly to the TOML structure defined in the specification.
 //! All collections use BTreeMap for deterministic serialization.
@@ -17,12 +17,12 @@ fn default_reasoning_timeout() -> u64 {
     5000
 }
 
-/// Default output directory (project root, relative to ggen.toml)
+/// Default output directory (project root, relative to mcpp.toml)
 fn default_output_dir() -> PathBuf {
     PathBuf::from(".")
 }
 
-/// Root manifest structure from ggen.toml
+/// Root manifest structure from mcpp.toml
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GgenManifest {
     /// Project metadata
@@ -60,7 +60,7 @@ pub struct ProjectConfig {
 /// Ontology configuration section
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OntologyConfig {
-    /// Primary ontology file path (relative to ggen.toml)
+    /// Primary ontology file path (relative to mcpp.toml)
     pub source: PathBuf,
 
     /// Additional ontology imports
@@ -128,7 +128,7 @@ pub struct GenerationConfig {
     #[serde(default)]
     pub determinism_salt: Option<String>,
 
-    /// Output directory (relative to ggen.toml)
+    /// Output directory (relative to mcpp.toml)
     #[serde(default = "default_output_dir")]
     pub output_dir: PathBuf,
 

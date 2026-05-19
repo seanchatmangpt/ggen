@@ -27,20 +27,20 @@
 
 ## Section 1: JTBD Coverage Analysis
 
-### Complete JTBD Lifecycle (ggen marketplace)
+### Complete JTBD Lifecycle (mcpp marketplace)
 
 | ID | JTBD | Command | Covered | User Story | Poka-Yoke Type |
 |----|------|---------|---------|------------|----------------|
-| JTBD-1 | Package Discovery | `ggen marketplace search` | ❌ NO | - | - |
-| JTBD-2 | Package Installation | `ggen marketplace install` | ✅ YES | US3 | Sequence (FMEA Gate) |
-| JTBD-3 | Package Publishing | `ggen marketplace publish` | ⚠️ PARTIAL | T092 | Sequence (FMEA Required) |
-| JTBD-4 | Package Update | `ggen marketplace update` | ❌ NO | - | - |
-| JTBD-5 | Package Removal | `ggen marketplace remove` | ❌ NO | - | - |
-| JTBD-6 | Code Generation | `ggen generate` | ✅ YES | US1, US2, US5 | Physical + Sequence + Information |
-| JTBD-7 | Team Ownership | `ggen generate --codeowners` | ✅ YES | US4 | Information (CODEOWNERS) |
-| JTBD-8 | Version Migration | `ggen marketplace migrate` | ❌ NO | - | - |
-| JTBD-9 | Dependency Resolution | `ggen marketplace deps` | ❌ NO | - | - |
-| JTBD-10 | Package Validation | `ggen marketplace validate` | ⚠️ PARTIAL | Embedded in install | - |
+| JTBD-1 | Package Discovery | `mcpp marketplace search` | ❌ NO | - | - |
+| JTBD-2 | Package Installation | `mcpp marketplace install` | ✅ YES | US3 | Sequence (FMEA Gate) |
+| JTBD-3 | Package Publishing | `mcpp marketplace publish` | ⚠️ PARTIAL | T092 | Sequence (FMEA Required) |
+| JTBD-4 | Package Update | `mcpp marketplace update` | ❌ NO | - | - |
+| JTBD-5 | Package Removal | `mcpp marketplace remove` | ❌ NO | - | - |
+| JTBD-6 | Code Generation | `mcpp generate` | ✅ YES | US1, US2, US5 | Physical + Sequence + Information |
+| JTBD-7 | Team Ownership | `mcpp generate --codeowners` | ✅ YES | US4 | Information (CODEOWNERS) |
+| JTBD-8 | Version Migration | `mcpp marketplace migrate` | ❌ NO | - | - |
+| JTBD-9 | Dependency Resolution | `mcpp marketplace deps` | ❌ NO | - | - |
+| JTBD-10 | Package Validation | `mcpp marketplace validate` | ⚠️ PARTIAL | Embedded in install | - |
 
 ### Gap Analysis by JTBD
 
@@ -54,7 +54,7 @@
 **TRIZ Contradiction**: User wants fast search (minimal friction) BUT safe packages (maximum vetting)
 
 **Recommended Poka-Yoke**: Sequence Control
-- `ggen marketplace search` MUST display:
+- `mcpp marketplace search` MUST display:
   - Package trust score (verified publisher, FMEA completeness)
   - Deprecation status with replacement suggestion
   - Typosquatting warning for similar names
@@ -84,7 +84,7 @@
 
 **Recommended Poka-Yoke**: Sequence Control
 - TRIZ #10 (Prior Action): Dependency check BEFORE removal
-- TRIZ #11 (Beforehand Cushioning): Archive package to `.ggen/removed/` before deletion
+- TRIZ #11 (Beforehand Cushioning): Archive package to `.mcpp/removed/` before deletion
 - Sequence gate: Block removal if dependents exist
 
 #### ❌ JTBD-8: Version Migration (NOT COVERED)
@@ -113,7 +113,7 @@
 **Recommended Poka-Yoke**: Information Control
 - TRIZ #35 (Parameter Changes): Lockfile with exact versions (like Cargo.lock)
 - TRIZ #1 (Segmentation): Dependency tree visualization
-- Information control: `ggen.lock` file with checksums
+- Information control: `mcpp.lock` file with checksums
 
 ---
 
@@ -175,7 +175,7 @@
 | 4 | One-file-per-verb | Physical | F3 (merge conflicts) |
 | 5 | Warning headers | Information | F1 (edit wrong file) |
 | 6 | CODEOWNERS | Information | Cross-team conflicts |
-| 7 | ggen.lock | Information | F7, F9 (dep issues) |
+| 7 | mcpp.lock | Information | F7, F9 (dep issues) |
 | 8 | Migration backup | Physical | F10 (migration failure) |
 
 ---
@@ -186,7 +186,7 @@
 
 | Principle | Alignment | Notes |
 |-----------|-----------|-------|
-| I. Crate-First Architecture | ✅ ALIGNED | Feature uses ggen-config, ggen-core, ggen-domain separation |
+| I. Crate-First Architecture | ✅ ALIGNED | Feature uses mcpp-config, mcpp-core, mcpp-domain separation |
 | II. Deterministic RDF Projections | ✅ ALIGNED | Generation remains deterministic with Poka-Yoke layer |
 | III. Chicago TDD (Zero Tolerance) | ✅ ALIGNED | Tests verify observable state (file not modified, header present) |
 | IV. cargo make Protocol | ✅ ALIGNED | All commands use cargo make |
@@ -253,7 +253,7 @@ measurement_points = ["generation", "installation", "update"]
 | Fast search BUT safe packages | #10 Prior Action | FMEA validation before install |
 | Latest features BUT stable code | #11 Beforehand Cushioning | Backup before update |
 | Simple deps BUT complex features | #35 Parameter Changes | Lockfile with checksums |
-| Clean removal BUT safe removal | #11 Beforehand Cushioning | Archive to .ggen/removed/ |
+| Clean removal BUT safe removal | #11 Beforehand Cushioning | Archive to .mcpp/removed/ |
 | Automatic migration BUT manual review | #10 Prior Action | Migration report before execution |
 
 ### Unresolved Contradictions (Need TRIZ Analysis)
@@ -287,8 +287,8 @@ measurement_points = ["generation", "installation", "update"]
 
 | Gap | Remediation | Effort |
 |-----|-------------|--------|
-| IX. DPMO targets | Add quality metrics to ggen.toml | Low |
-| FMEA tracking | Add defect log to .ggen/ | Low |
+| IX. DPMO targets | Add quality metrics to mcpp.toml | Low |
+| FMEA tracking | Add defect log to .mcpp/ | Low |
 
 ---
 
@@ -303,7 +303,7 @@ measurement_points = ["generation", "installation", "update"]
 ### Short-term (Next Sprint)
 
 4. **Implement FMEA diff gate** for package updates
-5. **Add ggen.lock** for dependency locking
+5. **Add mcpp.lock** for dependency locking
 6. **Add DPMO metrics** for Constitution IX compliance
 
 ### Long-term (Backlog)

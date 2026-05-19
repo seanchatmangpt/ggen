@@ -3,7 +3,7 @@
 //! Tests the `[codeowners]` configuration to aggregate OWNERS files
 //! from noun directories and generate .github/CODEOWNERS.
 
-use ggen_domain::generation::codeowners::{
+use mcpp_domain::generation::codeowners::{
     generate_codeowners, generate_codeowners_default, CodeownersConfig,
 };
 use std::fs;

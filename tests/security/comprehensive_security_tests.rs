@@ -20,9 +20,9 @@
 //! Uses Chicago TDD: AAA pattern, state-based verification, real collaborators
 
 use ggen_core::validation::input::{CharsetRule, FormatRule, StringValidator, UrlValidator};
-use ggen_utils::error::Error;
-use ggen_utils::safe_command::{CommandArg, SafeCommand};
-use ggen_utils::safe_path::SafePath;
+use ggen_core::utils::error::Error;
+use ggen_core::utils::safe_command::{CommandArg, SafeCommand};
+use ggen_core::utils::safe_path::SafePath;
 use std::path::PathBuf;
 
 // ============================================================================

@@ -54,7 +54,7 @@ impl XesParser {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::XesParser;
+    /// use mcpp_process_mining::XesParser;
     ///
     /// let parser = XesParser::new();
     /// let log = parser.parse_file("log.xes")?;
@@ -74,7 +74,7 @@ impl XesParser {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::XesParser;
+    /// use mcpp_process_mining::XesParser;
     ///
     /// let parser = XesParser::new();
     /// let log = parser.parse_str(xes_string)?;
@@ -309,7 +309,7 @@ impl XesWriter {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::XesWriter;
+    /// use mcpp_process_mining::XesWriter;
     ///
     /// let writer = XesWriter::new();
     /// writer.write_file("output.xes", &log)?;
@@ -328,7 +328,7 @@ impl XesWriter {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::XesWriter;
+    /// use mcpp_process_mining::XesWriter;
     ///
     /// let writer = XesWriter::new();
     /// let xes_string = writer.write_to_string(&log)?;

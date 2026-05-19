@@ -14,7 +14,7 @@ Successfully created an end-to-end integration test for the LLM-assisted code ge
 ### ✅ Phase 1: Ontology Creation
 **Status:** PASSED
 
-- Created test ontology at `/Users/sac/ggen/examples/llm-full-integration/ontology.ttl`
+- Created test ontology at `./examples/llm-full-integration/ontology.ttl`
 - Defined 3 skills with behavior predicates:
   - `DataAnalysisSkill` - "analytical" behavior
   - `TextProcessingSkill` - "transformational" behavior
@@ -25,7 +25,7 @@ Successfully created an end-to-end integration test for the LLM-assisted code ge
   - `a2a:hasInputType` / `a2a:hasOutputType` - Schema types
   - `a2a:hasBehavior` - Behavior classification
 
-**File:** `/Users/sac/ggen/examples/llm-full-integration/ontology.ttl`
+**File:** `./examples/llm-full-integration/ontology.ttl`
 
 ### ✅ Phase 2: SPARQL Extraction
 **Status:** PASSED
@@ -42,9 +42,9 @@ Successfully created an end-to-end integration test for the LLM-assisted code ge
   - `input_type` / `output_type` ✅
 
 **Files:**
-- `/Users/sac/ggen/examples/llm-full-integration/extract-agent-skills.rq`
-- `/Users/sac/ggen/examples/llm-full-integration/extract-skills.rq`
-- `/Users/sac/ggen/examples/llm-full-integration/extract-types.rq`
+- `./examples/llm-full-integration/extract-agent-skills.rq`
+- `./examples/llm-full-integration/extract-skills.rq`
+- `./examples/llm-full-integration/extract-types.rq`
 
 ### ✅ Phase 3: Template Rendering
 **Status:** PASSED
@@ -57,9 +57,9 @@ Successfully created an end-to-end integration test for the LLM-assisted code ge
 - Variable substitution working correctly
 
 **Files:**
-- `/Users/sac/ggen/examples/llm-full-integration/agent-rs.tera`
-- `/Users/sac/ggen/examples/llm-full-integration/skill-rs.tera`
-- `/Users/sac/ggen/examples/llm-full-integration/types-rs.tera`
+- `./examples/llm-full-integration/agent-rs.tera`
+- `./examples/llm-full-integration/skill-rs.tera`
+- `./examples/llm-full-integration/types-rs.tera`
 
 ### ✅ Phase 4: Code Generation Pipeline
 **Status:** PASSED
@@ -74,7 +74,7 @@ Successfully created an end-to-end integration test for the LLM-assisted code ge
   - Rule Validation ✅
 - Generated 17 files in 12ms (8556 total bytes)
 
-**Command:** `ggen sync --manifest /Users/sac/ggen/examples/llm-full-integration/ggen.toml`
+**Command:** `ggen sync --manifest ./examples/llm-full-integration/ggen.toml`
 
 ### ✅ Phase 5: Generated Code Quality
 **Status:** PASSED
@@ -264,7 +264,7 @@ The test successfully validates the end-to-end flow from ontology to generated c
 
 ## Test Artifacts
 
-**Location:** `/Users/sac/ggen/examples/llm-full-integration/`
+**Location:** `./examples/llm-full-integration/`
 
 **Files Created:**
 - `ontology.ttl` - Test ontology with 3 skills
@@ -279,7 +279,7 @@ The test successfully validates the end-to-end flow from ontology to generated c
 - `output.log` - Generation logs
 - `INTEGRATION_TEST_REPORT.md` - This report
 
-**Generated Code:** `/Users/sac/ggen/examples/llm-full-integration/generated/`
+**Generated Code:** `./examples/llm-full-integration/generated/`
 
 ---
 

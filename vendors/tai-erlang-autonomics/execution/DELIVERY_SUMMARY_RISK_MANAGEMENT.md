@@ -267,7 +267,7 @@ ANYTIME (Risk Triggers):
 
 **Primary Location:**
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/
 
 ├── RISK_MANAGEMENT.md (54 KB)
 ├── CONTINGENCY_PROCEDURES.md (55 KB)

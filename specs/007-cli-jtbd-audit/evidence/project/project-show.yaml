@@ -1,4 +1,4 @@
-command: "ggen project show"
+command: "mcpp project show"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -44,5 +44,5 @@ recommendations:
 
 jtbd: |
   When I want to examine project structure and metadata,
-  I need to run 'ggen project show <name>',
+  I need to run 'mcpp project show <name>',
   so that I can understand its composition.

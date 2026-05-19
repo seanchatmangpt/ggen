@@ -1,10 +1,10 @@
 //! Template resolver for pack_id:template_path syntax
 //!
 //! This module provides template resolution from cached packs.
-//! Templates can be referenced as `pack_id:template_path` in ggen.toml
-//! and will be loaded from the pack cache at `~/.cache/ggen/packs/<pack-id>/templates/`.
+//! Templates can be referenced as `pack_id:template_path` in mcpp.toml
+//! and will be loaded from the pack cache at `~/.cache/mcpp/packs/<pack-id>/templates/`.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::PathBuf;
 use tracing::{debug, info};
 
@@ -44,7 +44,7 @@ impl TemplateResolver {
     pub fn new() -> Result<Self> {
         let cache_dir = std::env::var_os("GGEN_PACK_CACHE_DIR")
             .map(PathBuf::from)
-            .or_else(|| dirs::cache_dir().map(|d| d.join("ggen").join("packs")))
+            .or_else(|| dirs::cache_dir().map(|d| d.join("mcpp").join("packs")))
             .ok_or_else(|| {
                 Error::new("Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR")
             })?;
@@ -90,7 +90,7 @@ impl TemplateResolver {
         // Verify pack exists in cache
         if !pack_cache_dir.exists() {
             return Err(Error::new(&format!(
-                "Pack '{}' is not cached. Run 'ggen packs install {}' first.",
+                "Pack '{}' is not cached. Run 'mcpp packs install {}' first.",
                 pack_id, pack_id
             )));
         }

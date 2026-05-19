@@ -5,7 +5,7 @@
 use std::path::{Component, Path, PathBuf};
 use std::str::FromStr;
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// Validated path that has passed all security checks.
 ///
@@ -22,7 +22,7 @@ use ggen_utils::error::{Error, Result};
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::poka_yoke::ValidatedPath;
+/// use mcpp_core::poka_yoke::ValidatedPath;
 ///
 /// // Valid path
 /// let path = ValidatedPath::new("templates/hello.tmpl")?;
@@ -30,7 +30,7 @@ use ggen_utils::error::{Error, Result};
 /// // Invalid path (contains ..)
 /// let bad = ValidatedPath::new("../etc/passwd");
 /// assert!(bad.is_err());
-/// # Ok::<(), ggen_core::error::Error>(())
+/// # Ok::<(), mcpp_core::error::Error>(())
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ValidatedPath {

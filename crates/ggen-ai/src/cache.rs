@@ -17,7 +17,7 @@
 //! ### Creating a Cache
 //!
 //! ```rust,no_run
-//! use ggen_ai::cache::{LlmCache, CacheConfig};
+//! use mcpp_ai::cache::{LlmCache, CacheConfig};
 //! use std::time::Duration;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -34,7 +34,7 @@
 //! ### Caching and Retrieving Responses
 //!
 //! ```rust,no_run
-//! use ggen_ai::cache::LlmCache;
+//! use mcpp_ai::cache::LlmCache;
 //!
 //! # async fn example() -> anyhow::Result<()> {
 //! let cache = LlmCache::default();
@@ -52,7 +52,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use moka::future::Cache;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;

@@ -2,14 +2,14 @@
 //!
 //! Test Philosophy: Chicago TDD (state-based testing with real objects)
 //! - Tests complete user journey: wizard → sync → verify → determinism
-//! - No mocks - uses real filesystem, real ggen binary, real Node.js execution
+//! - No mocks - uses real filesystem, real mcpp binary, real Node.js execution
 //! - Verifies observable state changes and side effects
 //!
 //! Test Coverage:
-//! 1. `ggen wizard --profile ln_ctrl` creates all expected files
-//! 2. `ggen sync` runs successfully and generates outputs
+//! 1. `mcpp wizard --profile ln_ctrl` creates all expected files
+//! 2. `mcpp sync` runs successfully and generates outputs
 //! 3. `node world.verify.mjs` validates all artifacts
-//! 4. Second `ggen sync` produces byte-identical world.manifest.json (determinism)
+//! 4. Second `mcpp sync` produces byte-identical world.manifest.json (determinism)
 //! 5. All schemas validate their respective golden examples
 //! 6. SHACL validation passes (if implemented)
 //!
@@ -32,10 +32,10 @@ fn setup_test_project() -> TempDir {
     TempDir::new().expect("Failed to create temp directory")
 }
 
-/// Execute ggen wizard with ln_ctrl profile
+/// Execute mcpp wizard with ln_ctrl profile
 fn run_wizard(project_dir: &Path) -> assert_cmd::assert::Assert {
-    Command::cargo_bin("ggen")
-        .expect("Failed to find ggen binary")
+    Command::cargo_bin("mcpp")
+        .expect("Failed to find mcpp binary")
         .args([
             "wizard",
             "--profile",
@@ -47,10 +47,10 @@ fn run_wizard(project_dir: &Path) -> assert_cmd::assert::Assert {
         .assert()
 }
 
-/// Execute ggen sync in project directory
+/// Execute mcpp sync in project directory
 fn run_sync(project_dir: &Path) -> assert_cmd::assert::Assert {
-    Command::cargo_bin("ggen")
-        .expect("Failed to find ggen binary")
+    Command::cargo_bin("mcpp")
+        .expect("Failed to find mcpp binary")
         .current_dir(project_dir)
         .args(["sync"])
         .assert()
@@ -134,7 +134,7 @@ fn test_wizard_creates_all_expected_files() {
     run_wizard(project_path).success();
 
     // Assert: Verify core configuration files
-    assert_file_exists(&project_path.join("ggen.toml"), "ggen.toml");
+    assert_file_exists(&project_path.join("mcpp.toml"), "mcpp.toml");
     assert_file_exists(&project_path.join("README.md"), "README.md");
 
     // Assert: Verify ontology files
@@ -180,28 +180,28 @@ fn test_wizard_creates_all_expected_files() {
     let specs_dir = project_path.join(".specify/specs");
     assert_file_exists(&specs_dir.join("project.ttl"), "project.ttl");
 
-    // Assert: Verify ggen.toml content
+    // Assert: Verify mcpp.toml content
     assert_file_contains(
-        &project_path.join("ggen.toml"),
+        &project_path.join("mcpp.toml"),
         "[project]",
-        "ggen.toml project section",
+        "mcpp.toml project section",
     );
     assert_file_contains(
-        &project_path.join("ggen.toml"),
+        &project_path.join("mcpp.toml"),
         "world-manifest",
-        "ggen.toml world-manifest rule",
+        "mcpp.toml world-manifest rule",
     );
     assert_file_contains(
-        &project_path.join("ggen.toml"),
+        &project_path.join("mcpp.toml"),
         "deterministic = true",
-        "ggen.toml deterministic output flag",
+        "mcpp.toml deterministic output flag",
     );
 
     // Assert: Verify README.md content
     assert_file_contains(
         &project_path.join("README.md"),
-        "ggen sync",
-        "README.md ggen sync command",
+        "mcpp sync",
+        "README.md mcpp sync command",
     );
     assert_file_contains(
         &project_path.join("README.md"),
@@ -211,7 +211,7 @@ fn test_wizard_creates_all_expected_files() {
 }
 
 #[test]
-fn test_wizard_ggen_toml_has_correct_generation_rules() {
+fn test_wizard_mcpp_toml_has_correct_generation_rules() {
     // Arrange
     let temp_dir = setup_test_project();
     let project_path = temp_dir.path();
@@ -219,9 +219,9 @@ fn test_wizard_ggen_toml_has_correct_generation_rules() {
     // Act: Run wizard
     run_wizard(project_path).success();
 
-    // Assert: Parse and verify ggen.toml structure
-    let ggen_toml_path = project_path.join("ggen.toml");
-    let content = read_file(&ggen_toml_path);
+    // Assert: Parse and verify mcpp.toml structure
+    let mcpp_toml_path = project_path.join("mcpp.toml");
+    let content = read_file(&mcpp_toml_path);
 
     // Verify essential sections exist
     assert!(content.contains("[project]"), "Missing [project] section");
@@ -262,13 +262,13 @@ fn test_wizard_ggen_toml_has_correct_generation_rules() {
 }
 
 #[test]
-fn test_ggen_sync_runs_successfully() {
+fn test_mcpp_sync_runs_successfully() {
     // Arrange: Setup wizard project
     let temp_dir = setup_test_project();
     let project_path = temp_dir.path();
     run_wizard(project_path).success();
 
-    // Act: Run ggen sync
+    // Act: Run mcpp sync
     let sync_output = run_sync(project_path);
 
     // Assert: Sync succeeded
@@ -625,8 +625,8 @@ fn test_wizard_fails_with_invalid_profile() {
     let project_path = temp_dir.path();
 
     // Act: Attempt wizard with invalid profile
-    let result = Command::cargo_bin("ggen")
-        .expect("Failed to find ggen binary")
+    let result = Command::cargo_bin("mcpp")
+        .expect("Failed to find mcpp binary")
         .args([
             "wizard",
             "--profile",
@@ -642,14 +642,14 @@ fn test_wizard_fails_with_invalid_profile() {
 }
 
 #[test]
-fn test_sync_fails_without_ggen_toml() {
+fn test_sync_fails_without_mcpp_toml() {
     // Arrange: Create empty directory (no wizard)
     let temp_dir = setup_test_project();
     let project_path = temp_dir.path();
 
     // Act: Attempt sync without initialization
-    let result = Command::cargo_bin("ggen")
-        .expect("Failed to find ggen binary")
+    let result = Command::cargo_bin("mcpp")
+        .expect("Failed to find mcpp binary")
         .current_dir(project_path)
         .args(["sync"])
         .assert();
@@ -657,7 +657,7 @@ fn test_sync_fails_without_ggen_toml() {
     // Assert: Should fail with manifest not found
     result
         .failure()
-        .stderr(predicate::str::contains("Manifest").or(predicate::str::contains("ggen.toml")));
+        .stderr(predicate::str::contains("Manifest").or(predicate::str::contains("mcpp.toml")));
 }
 
 // ============================================================================
@@ -683,7 +683,7 @@ fn test_complete_user_journey_wizard_to_validation() {
     run_wizard(project_path).success();
 
     // Assert: Essential files created
-    assert_file_exists(&project_path.join("ggen.toml"), "ggen.toml");
+    assert_file_exists(&project_path.join("mcpp.toml"), "mcpp.toml");
     assert_file_exists(
         &project_path.join(".specify/ontologies/main.ttl"),
         "main.ttl",

@@ -10,8 +10,8 @@
     "thesis-output/theorems.tex": "c425f9a462ecabe8adc4a1ce6b96446413defae32cce8431d9b8de411c07bc24"
   },
   "metadata": {
-    "ggen_version": "5.1.0",
-    "manifest_path": "ggen.toml",
+    "mcpp_version": "5.1.0",
+    "manifest_path": "mcpp.toml",
     "ontology_path": "thesis-ontology.ttl",
     "spec_hash": "manifest-1.0.0",
     "duration_ms": 76

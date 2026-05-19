@@ -2,8 +2,8 @@
 //!
 //! Chicago TDD: Pure business logic with REAL project creation
 
-use ggen_core::project_generator::{create_new_project, ProjectConfig, ProjectType};
-use ggen_utils::error::Result;
+use mcpp_core::project_generator::{create_new_project, ProjectConfig, ProjectType};
+use mcpp_utils::error::Result;
 
 /// New project command input (pure domain type)
 #[derive(Debug, Clone, Default)]
@@ -25,7 +25,7 @@ pub struct CreationResult {
 /// Create a new project (Chicago TDD: REAL implementation)
 pub fn create_project(args: &NewInput) -> Result<CreationResult> {
     // Validate project name
-    ggen_core::project_generator::common::validate_project_name(&args.name)?;
+    mcpp_core::project_generator::common::validate_project_name(&args.name)?;
 
     // Parse project type
     let project_type: ProjectType = args.project_type.parse()?;
@@ -83,12 +83,12 @@ mod tests {
     #[test]
     fn test_validate_project_name() {
         // Valid names
-        assert!(ggen_core::project_generator::common::validate_project_name("my-project").is_ok());
-        assert!(ggen_core::project_generator::common::validate_project_name("my_project").is_ok());
+        assert!(mcpp_core::project_generator::common::validate_project_name("my-project").is_ok());
+        assert!(mcpp_core::project_generator::common::validate_project_name("my_project").is_ok());
 
         // Invalid names
-        assert!(ggen_core::project_generator::common::validate_project_name("my project").is_err());
-        assert!(ggen_core::project_generator::common::validate_project_name("").is_err());
+        assert!(mcpp_core::project_generator::common::validate_project_name("my project").is_err());
+        assert!(mcpp_core::project_generator::common::validate_project_name("").is_err());
     }
 
     #[test]

@@ -16,9 +16,9 @@ fn test_new_tools_status() {
     let existing_tools = vec![
         "1. generate - Generate code from RDF ontology",
         "2. validate - Validate Turtle (.ttl) content",
-        "3. sync - Run full ggen sync pipeline",
+        "3. sync - Run full mcpp sync pipeline",
         "4. list_generators - List available code generators",
-        "5. list_examples - List bundled ggen examples",
+        "5. list_examples - List bundled mcpp examples",
         "6. get_example - Get example details",
         "7. search - Search marketplace packages",
         "8. scaffold_from_example - Copy example as starting point",
@@ -52,12 +52,12 @@ fn test_new_tools_status() {
     }
 
     println!("\n=== Evidence ===");
-    println!("1. File: crates/ggen-a2a-mcp/src/ggen_server.rs");
+    println!("1. File: crates/mcpp-a2a-mcp/src/mcpp_server.rs");
     println!("   - Contains 13 #[tool] annotated methods");
     println!("   - Does NOT contain generate_agents, generate_a2a_test, validate_fibo, or orchestrate_conversation");
     println!("   - Lines 342-1190: All tool implementations");
 
-    println!("\n2. File: crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs");
+    println!("\n2. File: crates/mcpp-a2a-mcp/tests/mcp_tools_verification.rs");
     println!("   - References non-existent methods:");
     println!("     * server.generate_a2a_test() - Line 14");
     println!("     * server.validate_fibo() - Line 39");
@@ -73,7 +73,7 @@ fn test_new_tools_status() {
     println!("\n=== Conclusion ===");
     println!("The 4 new tools are NOT implemented in GgenMcpServer.");
     println!("They need to be:");
-    println!("  1. Added as #[tool] methods in ggen_server.rs");
+    println!("  1. Added as #[tool] methods in mcpp_server.rs");
     println!("  2. Given parameter structs (e.g., GenerateAgentsParams)");
     println!("  3. Registered in the tool_router via #[tool_router] macro");
     println!("  4. Implemented with actual logic");

@@ -3,8 +3,8 @@
 //! This module provides comprehensive RDF support for template metadata,
 //! including schema definitions, SHACL validation, and SPARQL querying.
 //!
-//! Refactored from v1 (ggen-core/src/rdf) to v2 domain layer architecture:
-//! - Uses ggen_utils::error::Result instead of anyhow::Result
+//! Refactored from v1 (mcpp-core/src/rdf) to v2 domain layer architecture:
+//! - Uses mcpp_utils::error::Result instead of anyhow::Result
 //! - Pure domain logic (no CLI coupling)
 //! - Async support preserved for domain layer operations
 //! - All SPARQL queries and RDF parsing logic maintained

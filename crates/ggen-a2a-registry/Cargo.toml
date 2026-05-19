@@ -1,18 +1,18 @@
 [package]
-name = "ggen-a2a-registry"
+name = "mcpp-a2a-registry"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 description = "Multi-agent A2A orchestration registry for agent discovery, health monitoring, and lifecycle management"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
+homepage = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["a2a", "agent", "registry", "discovery", "health"]
 categories = ["development-tools", "network-programming"]
 readme = "README.md"
 
 [lib]
-name = "ggen_a2a_registry"
+name = "mcpp_a2a_registry"
 path = "src/lib.rs"
 
 [dependencies]

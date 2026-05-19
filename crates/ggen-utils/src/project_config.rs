@@ -1,12 +1,12 @@
 //! Project configuration types
 //!
-//! This module provides comprehensive configuration structures for ggen projects,
-//! implementing the full ggen.toml schema with support for workspaces, dependencies,
+//! This module provides comprehensive configuration structures for mcpp projects,
+//! implementing the full mcpp.toml schema with support for workspaces, dependencies,
 //! ontology integration, templates, generators, lifecycle management, plugins, and profiles.
 //!
 //! ## Configuration Structure
 //!
-//! The `GgenConfig` structure represents the root configuration for a ggen project:
+//! The `GgenConfig` structure represents the root configuration for a mcpp project:
 //!
 //! - **Project**: Project metadata and settings
 //! - **Workspace**: Mono-repo configuration
@@ -34,11 +34,11 @@
 //! ### Loading Configuration
 //!
 //! ```rust,no_run
-//! use ggen_utils::project_config::GgenConfig;
+//! use mcpp_utils::project_config::GgenConfig;
 //! use std::fs;
 //!
 //! # fn main() -> anyhow::Result<()> {
-//! let content = fs::read_to_string("ggen.toml")?;
+//! let content = fs::read_to_string("mcpp.toml")?;
 //! let config: GgenConfig = toml::from_str(&content)?;
 //!
 //! println!("Project: {} v{}", config.project.name, config.project.version);
@@ -49,7 +49,7 @@
 //! ### Workspace Configuration
 //!
 //! ```rust,no_run
-//! use ggen_utils::project_config::{GgenConfig, Workspace};
+//! use mcpp_utils::project_config::{GgenConfig, Workspace};
 //! use std::collections::BTreeMap;
 //!
 //! let workspace = Workspace {
@@ -68,9 +68,9 @@ use std::path::PathBuf;
 // Root Configuration
 // ============================================================================
 
-/// Root configuration structure for ggen projects
+/// Root configuration structure for mcpp projects
 ///
-/// Supports full ggen.toml schema with all features including workspaces,
+/// Supports full mcpp.toml schema with all features including workspaces,
 /// dependencies, ontology, templates, generators, lifecycle, plugins, and profiles.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

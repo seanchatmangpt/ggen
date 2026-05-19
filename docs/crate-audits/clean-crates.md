@@ -103,9 +103,9 @@ These crates have no stubs, no dead code, and no architectural issues requiring 
 
 ---
 
-## ggen-process-mining
+## native pictl process mining
 
-**Path:** `crates/ggen-process-mining/`
+**Path:** `crates/native pictl process mining/`
 **Role:** Process mining (Alpha++, XES/OCEL, PetriNet)
 **Status:** Clean. Minor `#[allow(dead_code)]` in `discovery.rs:425,435`. No dedicated test directory (66 inline tests).
 **Test count:** 66

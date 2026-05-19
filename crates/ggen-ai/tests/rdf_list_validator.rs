@@ -2,7 +2,7 @@
 //!
 //! Tests the validation of RDF list chains for well-formedness and integrity.
 
-use ggen_ai::{RdfListValidator, ValidationError};
+use mcpp_ai::{RdfListValidator, ValidationError};
 use oxigraph::model::{GraphName, Literal, NamedNode};
 use oxigraph::store::Store;
 

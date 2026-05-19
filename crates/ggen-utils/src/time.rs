@@ -1,4 +1,4 @@
-//! Time utilities for ggen
+//! Time utilities for mcpp
 //!
 //! This module provides utilities for working with timestamps and durations,
 //! including Unix timestamp generation and human-readable duration formatting.
@@ -14,7 +14,7 @@
 //! ### Getting Current Timestamp
 //!
 //! ```rust
-//! use ggen_utils::time::current_timestamp;
+//! use mcpp_utils::time::current_timestamp;
 //!
 //! # fn main() {
 //! let timestamp = current_timestamp();
@@ -25,7 +25,7 @@
 //! ### Formatting Durations
 //!
 //! ```rust
-//! use ggen_utils::time::format_duration;
+//! use mcpp_utils::time::format_duration;
 //!
 //! # fn main() {
 //! assert_eq!(format_duration(30), "30s");

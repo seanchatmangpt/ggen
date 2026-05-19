@@ -33,7 +33,7 @@ use ggen_core::{
     snapshot::{Snapshot, SnapshotManager},
 };
 
-use ggen_domain::packs::check_packs_compatibility;
+use ggen_core::domain::packs::check_packs_compatibility;
 
 // ============================================================================
 // TEST HELPERS

@@ -1,14 +1,14 @@
-# ggen Partnership Ecosystem Strategy
+# mcpp Partnership Ecosystem Strategy
 
-Comprehensive partnership strategy and execution roadmap for ggen code generation platform (2026-2028).
+Comprehensive partnership strategy and execution roadmap for mcpp code generation platform (2026-2028).
 
 ---
 
 ## Overview
 
-This directory contains the complete partnership strategy for ggen, focusing on accelerating adoption through strategic partnerships with cloud platforms, enterprise systems integrators, compliance vendors, academic institutions, and complementary technology partners.
+This directory contains the complete partnership strategy for mcpp, focusing on accelerating adoption through strategic partnerships with cloud platforms, enterprise systems integrators, compliance vendors, academic institutions, and complementary technology partners.
 
-**Mission**: Position ggen as the specification-first standard for deterministic code generation across enterprise, cloud, and compliance sectors.
+**Mission**: Position mcpp as the specification-first standard for deterministic code generation across enterprise, cloud, and compliance sectors.
 
 **Vision**: Build a 10,000+ enterprise customer base by 2027 through strategic ecosystem partnerships, generating $160M+ ARR with 50%+ from partner channels.
 
@@ -70,27 +70,27 @@ This directory contains the complete partnership strategy for ggen, focusing on 
 **Agreement Types**:
 1. **Cloud Platform Partnership** (Diamond Tier)
    - AWS, Azure, GCP model
-   - Marketplace integration, revenue sharing (25-30% ggen), MDF, co-marketing
+   - Marketplace integration, revenue sharing (25-30% mcpp), MDF, co-marketing
    - Technical integration roadmap
    - 3-year term with annual renewal
 
 2. **Systems Integrator Partnership** (Platinum Tier)
    - Accenture, Deloitte, IBM Services model
-   - Implementation services revenue share (10-15% ggen)
+   - Implementation services revenue share (10-15% mcpp)
    - Consultant certification program
    - Vertical solution delivery
    - 3-year term with annual renewal
 
 3. **Compliance & Audit Partnership** (Platinum Tier)
    - Big Four audit firms model
-   - Compliance automation revenue share (15-20% ggen)
+   - Compliance automation revenue share (15-20% mcpp)
    - Auditor certification and enablement
    - Deterministic receipt framework for audit evidence
    - 3-year term with annual renewal
 
 4. **Consultancy Partnership** (Gold Tier)
    - McKinsey, Bain, BCG model
-   - Revenue share on ggen-influenced transformations
+   - Revenue share on mcpp-influenced transformations
    - Co-branded research and thought leadership
    - Executive alignment and strategy sessions
 
@@ -198,7 +198,7 @@ This directory contains the complete partnership strategy for ggen, focusing on 
 ### Diamond Tier (Cloud Platforms)
 - **Partners**: AWS, Azure, GCP
 - **Focus**: Deep platform integration, marketplace integration
-- **Revenue**: 25-30% ggen share of marketplace sales
+- **Revenue**: 25-30% mcpp share of marketplace sales
 - **Commitment**: $50M+ annual potential
 - **Key Deliverables**: Native integration, reference architectures, certification
 - **Timeline**: Pilot by Q2 2026, launch by Q3 2026
@@ -206,7 +206,7 @@ This directory contains the complete partnership strategy for ggen, focusing on 
 ### Platinum Tier (Enterprise Services & Compliance)
 - **Partners**: Accenture, Deloitte, IBM Services, PwC, EY, KPMG
 - **Focus**: Enterprise delivery, compliance automation
-- **Revenue**: 10-20% ggen share of services
+- **Revenue**: 10-20% mcpp share of services
 - **Commitment**: $20-50M annual potential
 - **Key Deliverables**: Vertical accelerators, certification programs, methodology
 - **Timeline**: Pilot by Q3 2026, revenue by Q4 2026
@@ -214,7 +214,7 @@ This directory contains the complete partnership strategy for ggen, focusing on 
 ### Gold Tier (Consultancies, Academic, Standards)
 - **Partners**: McKinsey, Bain, Stanford, MIT, CNCF, ISO/IEC
 - **Focus**: Thought leadership, adoption acceleration
-- **Revenue**: 5-10% ggen share of influenced deals
+- **Revenue**: 5-10% mcpp share of influenced deals
 - **Commitment**: $5-20M potential
 - **Key Deliverables**: Research papers, case studies, certifications
 - **Timeline**: Announcement by Q3 2026, publication by Q4 2026
@@ -222,7 +222,7 @@ This directory contains the complete partnership strategy for ggen, focusing on 
 ### Silver Tier (Technology, Complementary Tools)
 - **Partners**: OpenAI, Databricks, Confluent, Postman, JetBrains
 - **Focus**: Ecosystem expansion, integration breadth
-- **Revenue**: 3-5% ggen share of integrated solutions
+- **Revenue**: 3-5% mcpp share of integrated solutions
 - **Commitment**: $1-5M potential
 - **Key Deliverables**: API integrations, technical documentation
 - **Timeline**: Integration by Q2-Q3 2026
@@ -295,7 +295,7 @@ This directory contains the complete partnership strategy for ggen, focusing on 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|-----------|
 | **Cloud Platform Delays** | Missing launch windows | Medium | Early technical alignment, dedicated teams |
-| **Integrator Commitment** | Partner deprioritizes ggen | Medium | Executive sponsorship, revenue incentives |
+| **Integrator Commitment** | Partner deprioritizes mcpp | Medium | Executive sponsorship, revenue incentives |
 | **Technology Incompatibilities** | Integration failures | Medium | Early POCs, joint architecture reviews |
 | **Competitive Pressure** | Partners choose competitors | High | Unique value, exclusive partnerships |
 | **Regulatory Changes** | Compliance framework shifts | Medium | Proactive standards monitoring |
@@ -417,16 +417,16 @@ See `PARTNERSHIP_ROADMAP.md` (Section: "Detailed Partnership Timeline") for spec
 ## FAQ
 
 **Q: Why focus on partnerships vs direct sales?**
-A: Partners provide 50:1 CAC:LTV ratio vs 10:1 for direct sales. Partners own customer relationships and can deliver 3-5x faster than ggen direct sales.
+A: Partners provide 50:1 CAC:LTV ratio vs 10:1 for direct sales. Partners own customer relationships and can deliver 3-5x faster than mcpp direct sales.
 
 **Q: What's the difference between Diamond/Platinum/Gold/Silver tiers?**
 A: Tiers reflect revenue potential ($50M+, $20-50M, $5-20M, $1-5M respectively) and depth of integration. Cloud platforms are Diamond (high revenue, high integration). Complementary tools are Silver (lower revenue, broader ecosystem).
 
 **Q: How do you prevent channel conflict between partners and direct sales?**
-A: Clear territory allocation, customer assignment rules, and escalation process. ggen maintains 30-40% direct sales portion, partners handle 60-70%.
+A: Clear territory allocation, customer assignment rules, and escalation process. mcpp maintains 30-40% direct sales portion, partners handle 60-70%.
 
 **Q: What's the typical deal size for each partner category?**
-A: Cloud platforms: $10K-100K average customer ASP. Systems integrators: $200K-500K per project. Compliance: $250K-500K per engagement. Consultancies: $1M+ per transformation project (ggen portion: 5-10%).
+A: Cloud platforms: $10K-100K average customer ASP. Systems integrators: $200K-500K per project. Compliance: $250K-500K per engagement. Consultancies: $1M+ per transformation project (mcpp portion: 5-10%).
 
 **Q: How are partner revenues tracked and reported?**
 A: Monthly revenue reconciliation from partner (marketplace/software), payment in 30-60 days. Quarterly business reviews include revenue actuals vs forecast. Annual true-up for any discrepancies.
@@ -458,5 +458,5 @@ As partnerships launch and mature, this section will include:
 
 ---
 
-**For questions or partnership inquiries**: partnerships@ggen.dev
+**For questions or partnership inquiries**: partnerships@mcpp.dev
 

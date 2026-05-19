@@ -1471,7 +1471,7 @@ description = "Open latest metrics dashboard in browser"
 workspace = false
 script = '''
 #!/bin/bash
-DASHBOARD="/Users/sac/ggen/docs/metrics/latest.html"
+DASHBOARD="./docs/metrics/latest.html"
 if [[ -f "$DASHBOARD" ]]; then
     open "$DASHBOARD" 2>/dev/null || xdg-open "$DASHBOARD" 2>/dev/null || echo "Dashboard: $DASHBOARD"
 else
@@ -1484,7 +1484,7 @@ description = "Show current Kaizen metrics status"
 workspace = false
 script = '''
 #!/bin/bash
-LATEST="/Users/sac/ggen/.metrics/latest.json"
+LATEST="./.metrics/latest.json"
 if [[ ! -f "$LATEST" ]]; then
     echo "⚠️  No metrics collected yet. Run: cargo make metrics-collect"
     exit 1

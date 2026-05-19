@@ -376,7 +376,7 @@ In `/tai-erlang-autonomics/`:
 - **architecture/**: System architecture, ontology design, technical specs
 - **compliance/**: Legal frameworks, regulations, MSA templates
 
-In root `/ggen/`:
+In root `/mcpp/`:
 - **CLAUDE.md**: Project configuration (SPR principles, cargo make, Andon signals)
 - **Makefile.toml**: Build system (timeouts, quality gates, SLOs)
 

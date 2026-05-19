@@ -8,7 +8,7 @@
 //!
 //! Run with: cargo run --example evaluation_metrics
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     evaluation::{
         composite, exact_match, exact_match_ci, f1_score, length_within_range, passage_match,
         substring_match, token_overlap, Evaluate, ExactMatchMetric, F1Metric, MetricError,

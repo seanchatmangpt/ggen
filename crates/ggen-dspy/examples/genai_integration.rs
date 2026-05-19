@@ -1,6 +1,6 @@
 //! # GenAI Integration Example
 //!
-//! Demonstrates correct usage of rust-genai library through ggen-ai wrapper.
+//! Demonstrates correct usage of rust-genai library through mcpp-ai wrapper.
 //! This example shows:
 //! - Client initialization with configuration
 //! - Proper model configuration
@@ -21,7 +21,7 @@
 //! ```
 
 use futures::StreamExt;
-use ggen_ai::{GenAiClient, LlmClient, LlmConfig, MockClient};
+use mcpp_ai::{GenAiClient, LlmClient, LlmConfig, MockClient};
 
 /// Main entry point demonstrating GenAI integration patterns
 #[tokio::main]

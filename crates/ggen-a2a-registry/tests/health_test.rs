@@ -2,7 +2,7 @@
 //!
 //! Uses real stores and real HTTP endpoints (via `tokio::net::TcpListener`).
 
-use ggen_a2a_registry::{
+use mcpp_a2a_registry::{
     AgentEntry, AgentStore, HealthConfig, HealthMonitor, HealthStatus, MemoryStore,
 };
 use std::sync::Arc;
@@ -70,7 +70,7 @@ async fn ping_agent_200_returns_healthy() {
     store.register(entry).await.unwrap();
 
     let stored = store.get("p1").await.unwrap().unwrap();
-    let result = ggen_a2a_registry::ping_agent(&stored, Duration::from_secs(2))
+    let result = mcpp_a2a_registry::ping_agent(&stored, Duration::from_secs(2))
         .await
         .unwrap();
 
@@ -86,7 +86,7 @@ async fn ping_agent_400_returns_degraded() {
     store.register(entry).await.unwrap();
 
     let stored = store.get("p2").await.unwrap().unwrap();
-    let result = ggen_a2a_registry::ping_agent(&stored, Duration::from_secs(2))
+    let result = mcpp_a2a_registry::ping_agent(&stored, Duration::from_secs(2))
         .await
         .unwrap();
 
@@ -102,7 +102,7 @@ async fn ping_agent_500_returns_unhealthy() {
     store.register(entry).await.unwrap();
 
     let stored = store.get("p3").await.unwrap().unwrap();
-    let result = ggen_a2a_registry::ping_agent(&stored, Duration::from_secs(2))
+    let result = mcpp_a2a_registry::ping_agent(&stored, Duration::from_secs(2))
         .await
         .unwrap();
 
@@ -125,7 +125,7 @@ async fn ping_agent_timeout_returns_error() {
     store.register(entry).await.unwrap();
 
     let stored = store.get("pt").await.unwrap().unwrap();
-    let result = ggen_a2a_registry::ping_agent(&stored, Duration::from_millis(50)).await;
+    let result = mcpp_a2a_registry::ping_agent(&stored, Duration::from_millis(50)).await;
 
     // Either a timeout or connection refused error -- both acceptable.
     assert!(result.is_err(), "expected error for unreachable endpoint");

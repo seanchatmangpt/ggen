@@ -4,7 +4,7 @@
 //! Following London TDD principles with 100% production-safe error handling.
 
 use anyhow::Result;
-use ggen_core::{Graph, Template};
+use mcpp_core::{Graph, Template};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
@@ -15,7 +15,7 @@ use tera::Context;
 
 fn mk_tera() -> tera::Tera {
     let mut tera = tera::Tera::default();
-    ggen_core::register::register_all(&mut tera);
+    mcpp_core::register::register_all(&mut tera);
     tera
 }
 

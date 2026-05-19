@@ -109,7 +109,7 @@ Where $\equiv$ denotes semantic equivalence of generated code (modulo formatting
 **Empirical Test**: Execute the same FIBO+BPMN inference pipeline $N$ times:
 ```bash
 for i in {1..1000}; do
-  ggen sync --manifest fibo_mifid.toml --output gen_$i.rs
+  mcpp sync --manifest fibo_mifid.toml --output gen_$i.rs
   sha256sum gen_$i.rs >> hashes.txt
 done
 uniq hashes.txt | wc -l  # Should output: 1 (all identical)
@@ -353,13 +353,13 @@ $$T_{inference} \approx 3.2 \text{ seconds (95th percentile)}$$
    - Adding dependency overhead: $T_{total} \approx 0.9 + (10^2 \cdot 4 \cdot 2.8 \times 10^{-6}) \approx 0.9 + 0.001 \approx 0.9$ seconds
    - With real-world query complexity and caching: $T_{95th} \approx 3.2$ seconds
 
-**Conclusion**: FIBO+BPMN inference scales as $\mathcal{O}(r \cdot n \log n)$, meeting ggen's 5-second SLO for typical deployments. ∎
+**Conclusion**: FIBO+BPMN inference scales as $\mathcal{O}(r \cdot n \log n)$, meeting mcpp's 5-second SLO for typical deployments. ∎
 
 ### Novel Contributions
 
 1. **First empirically-validated complexity bound** for FIBO inference
 2. **Explicit constants**: Provides $\alpha$ constant for Oxigraph, enabling accurate predictions
-3. **SLO compliance proof**: Demonstrates $T < 5$ seconds for FIBO-scale (meets ggen requirements)
+3. **SLO compliance proof**: Demonstrates $T < 5$ seconds for FIBO-scale (meets mcpp requirements)
 4. **Scaling guidance**: Predicts performance for larger ontologies (e.g., full FIBO 2M+ triples)
 
 ### Key Citations
@@ -400,7 +400,7 @@ cargo make bench-fibo
 
 # Generate scaling curve
 for size in 1000 5000 10000 50000 100000; do
-  ggen sync --ontology fibo_$size.ttl --measure-time
+  mcpp sync --ontology fibo_$size.ttl --measure-time
 done | plot_complexity_curve.py
 
 # Expected output: O(n log n) curve with α ≈ 2.8e-6
@@ -458,7 +458,7 @@ done | plot_complexity_curve.py
 - Cross-domain integration: financial instruments + operational workflows
 
 **Chapter 8: Implementation and Tooling**
-- ggen architecture: CONSTRUCT executor, template engine
+- mcpp architecture: CONSTRUCT executor, template engine
 - Oxigraph integration and index optimization
 - Provenance tracking and audit trails
 - End-to-end demo: specification → generated code
@@ -595,7 +595,7 @@ done | plot_complexity_curve.py
 ### Phase 5: User Study (Practical Impact)
 - **Participants**: 20 financial software developers
 - **Task**: Generate compliance code for MiFID II, Basel III, Dodd-Frank
-- **Comparison**: Manual coding vs. ggen CONSTRUCT-based generation
+- **Comparison**: Manual coding vs. mcpp CONSTRUCT-based generation
 - **Measure**: Time to completion, defect rate, maintainability (subjective)
 - **Success criteria**: 50% time reduction, 80% fewer defects, 4/5 maintainability score
 

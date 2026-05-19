@@ -17,8 +17,8 @@
 //! - Data migration must preserve semantic relationships
 //! - Regulatory compliance (BCBS 239) requires FIBO-based risk aggregation
 
-use ggen_a2a_mcp::server::MCPHandler;
-use ggen_a2a_mcp::message::Message;
+use mcpp_a2a_mcp::server::MCPHandler;
+use mcpp_a2a_mcp::message::Message;
 use std::time::Duration;
 use tokio::time::sleep;
 

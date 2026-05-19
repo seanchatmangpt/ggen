@@ -1,4 +1,4 @@
-//! Semantic exit codes and error handling for ggen CLI
+//! Semantic exit codes and error handling for mcpp CLI
 //!
 //! Provides deterministic, agent-friendly error handling with semantic exit codes
 //! that enable agents to understand why a command failed and respond appropriately.
@@ -17,7 +17,7 @@
 
 use thiserror::Error;
 
-/// Semantic error types for ggen CLI operations
+/// Semantic error types for mcpp CLI operations
 #[derive(Error, Debug)]
 pub enum GgenError {
     /// RDF parsing, SHACL validation, or type consistency error
@@ -175,20 +175,20 @@ impl GgenError {
     }
 }
 
-/// Result type for ggen CLI operations
+/// Result type for mcpp CLI operations
 pub type Result<T> = std::result::Result<T, GgenError>;
 
 /// Extension trait for easy error conversion
 pub trait GgenResultExt<T> {
     /// Convert any result to GgenError using appropriate conversion
-    fn to_ggen_result(self) -> Result<T>;
+    fn to_mcpp_result(self) -> Result<T>;
 }
 
 impl<T, E> GgenResultExt<T> for std::result::Result<T, E>
 where
     E: ToString,
 {
-    fn to_ggen_result(self) -> Result<T> {
+    fn to_mcpp_result(self) -> Result<T> {
         self.map_err(|e| GgenError::Internal(e.to_string()))
     }
 }

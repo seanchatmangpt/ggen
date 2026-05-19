@@ -1,16 +1,16 @@
 //! Tests for OpenTelemetry instrumentation
 //!
-//! These tests verify that ggen operations generate correct spans
+//! These tests verify that mcpp operations generate correct spans
 //! that can be validated by clnrm tests.
 
-use ggen_core::registry::{RegistryClient, SearchParams};
-use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
+use mcpp_core::registry::{RegistryClient, SearchParams};
+use mcpp_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
 
 #[tokio::test]
 async fn test_telemetry_initialization() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
-        service_name: "ggen-test".to_string(),
+        service_name: "mcpp-test".to_string(),
         console_output: false,
     };
 
@@ -27,7 +27,7 @@ async fn test_registry_search_generates_spans() {
     // Initialize telemetry
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
-        service_name: "ggen-test".to_string(),
+        service_name: "mcpp-test".to_string(),
         console_output: false,
     };
     init_telemetry(config).expect("Failed to init telemetry");
@@ -35,7 +35,7 @@ async fn test_registry_search_generates_spans() {
     // Create registry client and perform search
     let client = RegistryClient::new().expect("Failed to create client");
 
-    // This should generate a "ggen.market.search" span
+    // This should generate a "mcpp.market.search" span
     let _results = client.search("rust").await;
 
     shutdown_telemetry();
@@ -49,14 +49,14 @@ async fn test_registry_search_generates_spans() {
 async fn test_registry_resolve_generates_spans() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
-        service_name: "ggen-test".to_string(),
+        service_name: "mcpp-test".to_string(),
         console_output: false,
     };
     init_telemetry(config).expect("Failed to init telemetry");
 
     let client = RegistryClient::new().expect("Failed to create client");
 
-    // This should generate a "ggen.market.resolve" span
+    // This should generate a "mcpp.market.resolve" span
     let _resolved = client.resolve("test-pack", None).await;
 
     shutdown_telemetry();
@@ -67,7 +67,7 @@ async fn test_registry_resolve_generates_spans() {
 async fn test_advanced_search_generates_spans() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
-        service_name: "ggen-test".to_string(),
+        service_name: "mcpp-test".to_string(),
         console_output: false,
     };
     init_telemetry(config).expect("Failed to init telemetry");
@@ -83,7 +83,7 @@ async fn test_advanced_search_generates_spans() {
         limit: 10,
     };
 
-    // This should generate a "ggen.market.advanced_search" span
+    // This should generate a "mcpp.market.advanced_search" span
     let _results = client.advanced_search(&params).await;
 
     shutdown_telemetry();
@@ -118,7 +118,7 @@ fn test_telemetry_config_custom_service_name() {
 async fn test_span_attributes_correctness() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
-        service_name: "ggen-test".to_string(),
+        service_name: "mcpp-test".to_string(),
         console_output: true, // Enable console for debugging
     };
     init_telemetry(config).expect("Failed to init telemetry");
@@ -126,7 +126,7 @@ async fn test_span_attributes_correctness() {
     let client = RegistryClient::new().expect("Failed to create client");
 
     // Perform search - should create span with:
-    // - span name: "ggen.market.search"
+    // - span name: "mcpp.market.search"
     // - attributes: query, result_count
     let results = client.search("rust").await;
 
@@ -135,7 +135,7 @@ async fn test_span_attributes_correctness() {
     }
 
     // Perform resolve - should create span with:
-    // - span name: "ggen.market.resolve"
+    // - span name: "mcpp.market.resolve"
     // - attributes: pack_id, version, resolved_version
     let _resolved = client.resolve("test-pack", Some("1.0.0")).await;
 

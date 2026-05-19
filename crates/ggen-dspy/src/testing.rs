@@ -1,4 +1,4 @@
-//! Test utilities and fixtures for ggen-dspy
+//! Test utilities and fixtures for mcpp-dspy
 
 use crate::{Module, ModuleOutput, Result};
 

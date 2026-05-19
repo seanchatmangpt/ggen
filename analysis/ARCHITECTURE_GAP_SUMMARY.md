@@ -10,7 +10,7 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
 
 ### 🚨 Critical Finding
 
-**ggen-marketplace is excluded** from workspace (Cargo.toml:29), blocking:
+**mcpp-marketplace is excluded** from workspace (Cargo.toml:29), blocking:
 - All marketplace CLI commands
 - Package search and installation
 - Template generation from marketplace
@@ -80,21 +80,21 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
    - Phase execution engine
    - Hooks system
    - State management
-   - Location: `ggen-core/src/lifecycle/`
+   - Location: `mcpp-core/src/lifecycle/`
 
 2. **Production Readiness** (90%)
    - ReadinessTracker
    - ReadinessValidator
    - Deployment validation
    - All critical requirements met
-   - Location: `ggen-core/src/lifecycle/production.rs`
+   - Location: `mcpp-core/src/lifecycle/production.rs`
 
 3. **Core Marketplace Traits** (100%)
    - Registry, PackageStore, SearchEngine, CryptoVerifier
    - LocalRegistry implementation
    - FilesystemStore implementation
    - Data models (Package, PackageId, Query, Version)
-   - Location: `ggen-marketplace/src/`
+   - Location: `mcpp-marketplace/src/`
 
 4. **Security & Cryptography** (100%)
    - Ed25519Verifier (205+ lines, 12+ tests)
@@ -131,7 +131,7 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
 1. **Workspace Fragmentation**
    ```toml
    # Cargo.toml:29
-   exclude = ["ggen-marketplace"]
+   exclude = ["mcpp-marketplace"]
    ```
    - Marketplace excluded due to compilation errors
    - Blocks all marketplace functionality
@@ -180,7 +180,7 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
 4. Verify workspace compilation
 
 # Deliverable
-✅ ggen-marketplace compiles with workspace
+✅ mcpp-marketplace compiles with workspace
 ```
 
 **Day 2: Fix Compilation Errors + Mock Registry**
@@ -204,8 +204,8 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
 4. Integration tests
 
 # Deliverable
-✅ ggen market search "rust web" returns results
-✅ ggen market add "sample-package" works
+✅ mcpp market search "rust web" returns results
+✅ mcpp market add "sample-package" works
 ```
 
 **Day 4: Validation & Testing**
@@ -230,14 +230,14 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
 
 **Priority Order:**
 
-1. **Fix ggen-marketplace workspace** (P0-1)
+1. **Fix mcpp-marketplace workspace** (P0-1)
    - Resolve dependency conflicts
    - Enable workspace compilation
    - Impact: 25%
 
 2. **Fix compilation errors** (P0-4)
    - Systematic error fixing
-   - Focus on ggen-core, cli, ggen-ai
+   - Focus on mcpp-core, cli, mcpp-ai
    - Impact: 15%
 
 3. **Implement mock marketplace** (P0-3)
@@ -247,7 +247,7 @@ Analysis of 30 PlantUML diagrams reveals a **well-architected system with critic
    - Impact: 20%
 
 4. **Validate lifecycle commands** (P0-2)
-   - Test all `ggen lifecycle` commands
+   - Test all `mcpp lifecycle` commands
    - Verify make.toml parsing
    - Integration tests
    - Impact: 20%
@@ -406,7 +406,7 @@ Remaining P2 Gaps:
 
 ## Conclusion
 
-The ggen architecture is **exceptionally well-designed** with comprehensive PlantUML documentation and a solid foundation. However, **critical integration gaps** prevent immediate deployment.
+The mcpp architecture is **exceptionally well-designed** with comprehensive PlantUML documentation and a solid foundation. However, **critical integration gaps** prevent immediate deployment.
 
 ### Recommendation
 
@@ -445,5 +445,5 @@ This approach delivers a **production-ready CLI tool** while maintaining a clear
 
 ---
 
-**Analysis Complete. Stored in:** `/Users/sac/ggen/analysis/architecture-gap-analysis.json`
+**Analysis Complete. Stored in:** `~/.ggen/mcpp/analysis/architecture-gap-analysis.json`
 

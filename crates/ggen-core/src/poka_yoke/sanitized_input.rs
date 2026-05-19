@@ -4,7 +4,7 @@
 
 use std::str::FromStr;
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// Input type for validation rules.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -32,7 +32,7 @@ pub enum InputType {
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::poka_yoke::{SanitizedInput, InputType};
+/// use mcpp_core::poka_yoke::{SanitizedInput, InputType};
 ///
 /// // Valid input
 /// let var = SanitizedInput::new("user_name", InputType::TemplateVar)?;
@@ -40,7 +40,7 @@ pub enum InputType {
 /// // Invalid input (injection attempt)
 /// let bad = SanitizedInput::new("{{7*7}}", InputType::TemplateVar);
 /// assert!(bad.is_err());
-/// # Ok::<(), ggen_core::error::Error>(())
+/// # Ok::<(), mcpp_core::error::Error>(())
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SanitizedInput {

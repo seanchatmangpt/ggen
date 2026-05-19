@@ -349,7 +349,7 @@ POST-LAUNCH REVIEW SCHEDULE:
 - Monthly (30 days): Comprehensive review, post-mortems
 
 FILE LOCATIONS:
-All files in: /Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+All files in: ./tai-erlang-autonomics/operations-launch/
 
 GETTING STARTED RIGHT NOW:
 1. Download & print (10 min)
@@ -433,7 +433,7 @@ HOW TO USE THIS PACKAGE
 
 IMMEDIATE (Next 24 hours):
 1. Download all 5 files from:
-   /Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+   ./tai-erlang-autonomics/operations-launch/
 
 2. Read README.md (30 minutes) to understand overview
 
@@ -627,7 +627,7 @@ Quality Level: Production Grade (99.99% defect-free standard)
 Ready for Launch: YES
 
 All files located in:
-/Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+./tai-erlang-autonomics/operations-launch/
 
 Total Package Value: Years of operational experience compressed into usable docs
 Time to Implement: 20-30 hours (spread over 5 days)

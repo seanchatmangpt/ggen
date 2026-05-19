@@ -1,6 +1,6 @@
-# ggen Partnership Roadmap 2026-2028
+# mcpp Partnership Roadmap 2026-2028
 
-**Vision**: Build ggen into the dominant specification-driven code generation platform through strategic partnerships with cloud platforms, enterprise integrators, and compliance vendors.
+**Vision**: Build mcpp into the dominant specification-driven code generation platform through strategic partnerships with cloud platforms, enterprise integrators, and compliance vendors.
 
 ---
 
@@ -44,19 +44,19 @@
 
 #### Cloud Platform Integration Development
 1. **AWS CloudFormation Integration**
-   - Build ggen ontology → CloudFormation template generation
+   - Build mcpp ontology → CloudFormation template generation
    - Target: 10 AWS solution templates
    - Customer pilot: 3-5 AWS customers
    - Deliverable: Joint case studies
 
 2. **Azure ARM Template Integration**
-   - Build ggen ontology → ARM template generation
+   - Build mcpp ontology → ARM template generation
    - Target: 10 Azure solution templates
    - Customer pilot: 2-3 Azure customers
    - Deliverable: Joint case studies
 
 3. **GCP K8s Integration**
-   - Build ggen ontology → K8s manifest generation
+   - Build mcpp ontology → K8s manifest generation
    - Target: 15 K8s deployment patterns
    - Customer pilot: 2-3 GCP customers
    - Deliverable: Joint reference architecture
@@ -112,7 +112,7 @@
 #### Big Four Audit Consortium
 - **Structure**: Joint steering committee (PwC, EY, KPMG, Deloitte)
 - **Initial focus**: Continuous audit framework
-- **Deliverable**: "ggen for Audit Effectiveness" methodology
+- **Deliverable**: "mcpp for Audit Effectiveness" methodology
 - **Target**: Pilot with 5 audit teams
 
 #### Academic Partnerships Announcement
@@ -130,7 +130,7 @@
 - **GCP**: 1500+ customers, $8M ARR, 25+ reference architectures
 
 #### Enterprise Integrator Revenue
-1. **Accenture**: $3M annual ggen-enabled project revenue
+1. **Accenture**: $3M annual mcpp-enabled project revenue
    - 2 finance transformation projects live
    - 2 healthcare IT projects in pipeline
    - 100+ trained consultants
@@ -146,12 +146,12 @@
 #### Big Four Audit Partnerships
 - **Revenue**: $1.5M from compliance automation
 - **Customers**: 20+ enterprise audit engagements
-- **Methodology**: "ggen for Audit Effectiveness" published
+- **Methodology**: "mcpp for Audit Effectiveness" published
 
 #### Academic & Research
 - **Publications**: 8 research papers published
 - **Research funding**: $2M in active grants
-- **Student pipeline**: 15 PhD students working on ggen research
+- **Student pipeline**: 15 PhD students working on mcpp research
 
 #### Targets for End of Q4 2026
 - **Total enterprise customers**: 3000+
@@ -168,7 +168,7 @@
 #### Technology Partner Integrations
 1. **LLM Providers**
    - OpenAI/Anthropic partnership announcement
-   - ggen-ai integration (already built)
+   - mcpp-ai integration (already built)
    - Natural language → specification generation
 
 2. **Data Infrastructure**
@@ -213,12 +213,12 @@
 
 #### Insurance & Risk Management
 1. **Professional Liability Insurance**
-   - ggen Certified Code product launch
+   - mcpp Certified Code product launch
    - 20% premium reduction for insured customers
    - Target: 100+ insured companies
 
 2. **Cyber Insurance**
-   - ggen + security compliance bundle
+   - mcpp + security compliance bundle
    - Automated security control verification
    - Target: 50+ insured companies, $500K revenue
 
@@ -227,16 +227,16 @@
 ### Q3 2027: Compliance & Industry Leadership
 
 #### Big Four Full Deployment
-- **PwC**: 10+ audit teams using ggen
-- **EY**: 8+ audit teams using ggen
-- **KPMG**: 8+ audit teams using ggen
-- **Deloitte**: 12+ audit teams using ggen (expansion)
+- **PwC**: 10+ audit teams using mcpp
+- **EY**: 8+ audit teams using mcpp
+- **KPMG**: 8+ audit teams using mcpp
+- **Deloitte**: 12+ audit teams using mcpp (expansion)
 - **Revenue**: $5M+ from compliance automation
 
 #### Standards Body Adoption
-- **ISO/IEC 26000**: ggen as reference implementation
-- **CNCF K8s**: ggen certified tool
-- **NIST Cybersecurity Framework**: ggen compliance templates
+- **ISO/IEC 26000**: mcpp as reference implementation
+- **CNCF K8s**: mcpp certified tool
+- **NIST Cybersecurity Framework**: mcpp compliance templates
 
 #### Academic Impact
 - **Research output**: 20+ published papers
@@ -476,7 +476,7 @@
 
 ## Conclusion
 
-ggen's partnership roadmap positions the company for exponential growth through strategic ecosystem partnerships. By targeting cloud platforms (50-70% of revenue), enterprise integrators (25-35% of revenue), and compliance vendors (10-15% of revenue), ggen can reach $160M+ ARR by 2027 with 10,000+ enterprise customers.
+mcpp's partnership roadmap positions the company for exponential growth through strategic ecosystem partnerships. By targeting cloud platforms (50-70% of revenue), enterprise integrators (25-35% of revenue), and compliance vendors (10-15% of revenue), mcpp can reach $160M+ ARR by 2027 with 10,000+ enterprise customers.
 
 **Key success factors**:
 1. Early mover advantage in cloud platform integrations

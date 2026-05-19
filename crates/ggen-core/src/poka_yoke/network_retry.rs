@@ -6,7 +6,7 @@ use std::future::Future;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// Circuit breaker state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -79,15 +79,15 @@ impl CircuitBreaker {
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::poka_yoke::NetworkRetry;
+/// use mcpp_core::poka_yoke::NetworkRetry;
 /// use std::time::Duration;
 ///
-/// async fn fetch_data() -> Result<String, ggen_core::error::Error> {
+/// async fn fetch_data() -> Result<String, mcpp_core::error::Error> {
 ///     // Simulate network call
 ///     Ok("data".to_string())
 /// }
 ///
-/// async fn example() -> Result<(), ggen_core::error::Error> {
+/// async fn example() -> Result<(), mcpp_core::error::Error> {
 ///     let retry = NetworkRetry::new(3, Duration::from_secs(1));
 ///     let result = retry.execute(|| fetch_data()).await?;
 ///     Ok(())

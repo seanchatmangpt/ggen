@@ -3,7 +3,7 @@
 //! This module provides pure business logic for generating and installing shell
 //! completion scripts. It's independent of CLI presentation concerns.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::path::PathBuf;
 
 /// Supported shell types
@@ -131,10 +131,10 @@ pub struct FileSystemCompletionInstaller;
 impl CompletionInstaller for FileSystemCompletionInstaller {
     fn install(&self, result: &CompletionResult, force: bool) -> Result<PathBuf> {
         let dir = result.shell.default_completion_dir().ok_or_else(|| {
-            ggen_utils::error::Error::new("Could not determine completion directory")
+            mcpp_utils::error::Error::new("Could not determine completion directory")
         })?;
 
-        let filename = format!("ggen.{}", result.shell.as_str());
+        let filename = format!("mcpp.{}", result.shell.as_str());
         let path = dir.join(filename);
 
         self.install_to(result, path, force)
@@ -143,7 +143,7 @@ impl CompletionInstaller for FileSystemCompletionInstaller {
     fn install_to(&self, result: &CompletionResult, path: PathBuf, force: bool) -> Result<PathBuf> {
         // Check if file exists and force is not set
         if path.exists() && !force {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Completion file already exists: {}. Use --force to overwrite",
                 path.display()
             )));

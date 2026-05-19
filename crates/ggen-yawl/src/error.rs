@@ -1,13 +1,13 @@
-//! Error types for ggen-yawl.
+//! Error types for mcpp-yawl.
 //!
-//! This module defines the error types used throughout the ggen-yawl crate.
+//! This module defines the error types used throughout the mcpp-yawl crate.
 //! All operations return [`Result<T, Error>`] where [`Error`] represents
 //! the various failure modes that can occur during YAWL workflow generation.
 //!
 //! # Example
 //!
 //! ```rust
-//! use ggen_yawl::Error;
+//! use mcpp_yawl::Error;
 //!
 //! fn handle_result(result: Result<String, Error>) {
 //!     match result {
@@ -19,10 +19,10 @@
 //! }
 //! ```
 
-use ggen_utils::error::Error as GgenError;
+use mcpp_utils::error::Error as GgenError;
 use thiserror::Error;
 
-/// Result type for ggen-yawl operations.
+/// Result type for mcpp-yawl operations.
 ///
 /// This type alias is used throughout the crate for operations that can fail.
 /// It wraps a successful value `T` or an [`Error`].
@@ -45,7 +45,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// * [`Validation`] - YAWL validation errors
 /// * [`Io`] - File I/O errors
 /// * [`Serde`] - JSON serialization/deserialization errors
-/// * [`Ggen`] - Errors from underlying ggen-utils
+/// * [`Ggen`] - Errors from underlying mcpp-utils
 /// * [`Oxigraph`] - RDF store errors from Oxigraph
 /// * [`Other`] - Generic errors with context
 #[derive(Debug, Error)]
@@ -90,9 +90,9 @@ pub enum Error {
     #[error("Serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
-    /// Underlying ggen-utils error.
+    /// Underlying mcpp-utils error.
     ///
-    /// This variant wraps errors from the ggen-utils crate.
+    /// This variant wraps errors from the mcpp-utils crate.
     #[error("Ggen error: {0}")]
     Ggen(#[from] GgenError),
 
@@ -120,7 +120,7 @@ impl Error {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::Error;
+    /// use mcpp_yawl::Error;
     ///
     /// let err = Error::sparql("Query execution timeout");
     /// assert_eq!(err.to_string(), "SPARQL error: Query execution timeout");
@@ -138,7 +138,7 @@ impl Error {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::Error;
+    /// use mcpp_yawl::Error;
     ///
     /// let err = Error::template("Missing variable: workflow_name");
     /// assert_eq!(err.to_string(), "Template error: Missing variable: workflow_name");
@@ -156,7 +156,7 @@ impl Error {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::Error;
+    /// use mcpp_yawl::Error;
     ///
     /// let err = Error::validation("Missing <decomposition> element");
     /// assert_eq!(err.to_string(), "YAWL validation failed: Missing <decomposition> element");

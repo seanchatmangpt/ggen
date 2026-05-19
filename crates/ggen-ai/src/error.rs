@@ -1,9 +1,9 @@
-//! Error types for ggen-ai
+//! Error types for mcpp-ai
 //!
 //! Provides comprehensive error handling for LLM provider interactions,
 //! configuration issues, validation failures, and generation operations.
 
-/// Errors that can occur in ggen-ai operations
+/// Errors that can occur in mcpp-ai operations
 #[derive(Debug, thiserror::Error)]
 pub enum GgenAiError {
     /// OpenAI API error with status code and message
@@ -127,9 +127,9 @@ pub enum GgenAiError {
     #[error("UTF-8 conversion error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
 
-    /// Generic errors from ggen-core and ggen-utils
+    /// Generic errors from mcpp-core and mcpp-utils
     #[error("Generic error: {0}")]
-    Generic(#[from] ggen_utils::error::Error),
+    Generic(#[from] mcpp_utils::error::Error),
 
     /// Tera template errors
     #[error("Template error: {0}")]
@@ -140,7 +140,7 @@ pub enum GgenAiError {
     Other { message: String },
 }
 
-/// Result type for ggen-ai operations
+/// Result type for mcpp-ai operations
 pub type Result<T> = std::result::Result<T, GgenAiError>;
 
 impl GgenAiError {

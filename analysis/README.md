@@ -8,7 +8,7 @@
 
 ## 📋 Report Contents
 
-This directory contains a comprehensive architecture gap analysis for the ggen project, based on 30 PlantUML diagrams and codebase inspection.
+This directory contains a comprehensive architecture gap analysis for the mcpp project, based on 30 PlantUML diagrams and codebase inspection.
 
 ### Core Documents
 
@@ -51,7 +51,7 @@ This directory contains a comprehensive architecture gap analysis for the ggen p
 
 ### Critical Findings
 
-**BLOCKER:** `ggen-marketplace` is excluded from workspace (Cargo.toml:29) due to compilation errors, preventing:
+**BLOCKER:** `mcpp-marketplace` is excluded from workspace (Cargo.toml:29) due to compilation errors, preventing:
 - All marketplace CLI commands
 - Package search and installation
 - Template generation
@@ -273,7 +273,7 @@ Total impact in 4 days:            ███████████████
 
 ### For Architects
 1. Study **architecture-gap-analysis.json** for complete analysis
-2. Review PlantUML diagrams in `/docs` and `/ggen-marketplace/docs/diagrams`
+2. Review PlantUML diagrams in `/docs` and `/mcpp-marketplace/docs/diagrams`
 3. Validate technical decisions
 
 ---

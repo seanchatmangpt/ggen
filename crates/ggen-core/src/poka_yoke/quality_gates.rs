@@ -5,7 +5,7 @@
 //!
 //! # Gates
 //!
-//! 1. **Manifest Schema** - ggen.toml structure is valid
+//! 1. **Manifest Schema** - mcpp.toml structure is valid
 //! 2. **Ontology Dependencies** - All .ttl files exist, no circular imports
 //! 3. **SPARQL Validation** - All queries have valid syntax
 //! 4. **Template Validation** - All templates exist and have valid Tera syntax
@@ -22,7 +22,7 @@
 use super::andon::AndonSignal;
 use crate::lean_six_sigma::{DmaicPhase, LeanSixSigmaGate};
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::Path;
 
 /// A validation checkpoint that must pass
@@ -111,7 +111,7 @@ impl QualityGateRunner {
         vec![
             ValidationCheckpoint {
                 name: "Manifest Schema".to_string(),
-                description: "ggen.toml structure is valid".to_string(),
+                description: "mcpp.toml structure is valid".to_string(),
                 checks: vec![
                     "TOML parsing succeeds".to_string(),
                     "All required fields present".to_string(),
@@ -264,16 +264,16 @@ impl QualityGate for ManifestSchemaGate {
 
     fn recovery_suggestions(&self, _error: &str) -> Vec<String> {
         vec![
-            "Open ggen.toml in editor".to_string(),
+            "Open mcpp.toml in editor".to_string(),
             "Ensure [project] section has name".to_string(),
             "Ensure [ontology] section has source".to_string(),
             "Ensure [generation] section has at least one rule".to_string(),
-            "Or use `ggen init` to create valid template".to_string(),
+            "Or use `mcpp init` to create valid template".to_string(),
         ]
     }
 
     fn docs_link(&self) -> String {
-        "https://ggen.dev/docs/manifest-format".to_string()
+        "https://mcpp.dev/docs/manifest-format".to_string()
     }
 }
 
@@ -339,7 +339,7 @@ impl QualityGate for OntologyDependenciesGate {
         let mut suggestions = vec![
             "Check that all ontology files exist".to_string(),
             "Verify file paths in [ontology] section".to_string(),
-            "Use `ggen sync --validate-only` for detailed analysis".to_string(),
+            "Use `mcpp sync --validate-only` for detailed analysis".to_string(),
         ];
 
         if error.contains("not found") {
@@ -350,7 +350,7 @@ impl QualityGate for OntologyDependenciesGate {
     }
 
     fn docs_link(&self) -> String {
-        "https://ggen.dev/docs/ontology-dependencies".to_string()
+        "https://mcpp.dev/docs/ontology-dependencies".to_string()
     }
 }
 
@@ -422,7 +422,7 @@ impl QualityGate for SparqlValidationGate {
     }
 
     fn docs_link(&self) -> String {
-        "https://ggen.dev/docs/sparql-queries".to_string()
+        "https://mcpp.dev/docs/sparql-queries".to_string()
     }
 }
 
@@ -496,19 +496,19 @@ impl QualityGate for TemplateValidationGate {
     fn recovery_suggestions(&self, error: &str) -> Vec<String> {
         let mut suggestions = vec![
             "Verify template files exist in correct location".to_string(),
-            "Check template file paths in ggen.toml".to_string(),
+            "Check template file paths in mcpp.toml".to_string(),
         ];
 
         if error.contains("not found") {
             suggestions.insert(0, "Create the missing template file".to_string());
         }
 
-        suggestions.push("Use `ggen sync --validate-only` for more details".to_string());
+        suggestions.push("Use `mcpp sync --validate-only` for more details".to_string());
         suggestions
     }
 
     fn docs_link(&self) -> String {
-        "https://ggen.dev/docs/templates".to_string()
+        "https://mcpp.dev/docs/templates".to_string()
     }
 }
 
@@ -535,7 +535,7 @@ impl QualityGate for FilePermissionsGate {
         }
 
         // Test writability by attempting a test write
-        let test_file = output_dir.join(".ggen-write-test");
+        let test_file = output_dir.join(".mcpp-write-test");
         match std::fs::write(&test_file, "") {
             Ok(_) => {
                 let _ = std::fs::remove_file(&test_file);
@@ -552,13 +552,13 @@ impl QualityGate for FilePermissionsGate {
     fn recovery_suggestions(&self, _error: &str) -> Vec<String> {
         vec![
             "Make directory writable: chmod u+w <directory>".to_string(),
-            "Or change output_dir in ggen.toml [generation] section".to_string(),
+            "Or change output_dir in mcpp.toml [generation] section".to_string(),
             "Or run with elevated privileges (not recommended)".to_string(),
         ]
     }
 
     fn docs_link(&self) -> String {
-        "https://ggen.dev/docs/permissions".to_string()
+        "https://mcpp.dev/docs/permissions".to_string()
     }
 }
 
@@ -602,7 +602,7 @@ impl QualityGate for RuleValidationGate {
     }
 
     fn docs_link(&self) -> String {
-        "https://ggen.dev/docs/generation-rules".to_string()
+        "https://mcpp.dev/docs/generation-rules".to_string()
     }
 }
 

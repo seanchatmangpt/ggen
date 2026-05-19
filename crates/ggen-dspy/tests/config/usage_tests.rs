@@ -1,6 +1,6 @@
 //! Tests for usage tracking and cost estimation
 
-use ggen_dspy::config::{UsageStats, UsageTracker};
+use mcpp_dspy::config::{UsageStats, UsageTracker};
 
 #[test]
 fn test_basic_tracking() {

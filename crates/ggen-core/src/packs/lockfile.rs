@@ -1,4 +1,4 @@
-//! Pack lockfile management for ggen v4.0
+//! Pack lockfile management for mcpp v4.0
 //!
 //! This module provides the Pack Installation System lockfile functionality,
 //! which tracks installed packs with their sources, versions, and dependencies.
@@ -10,27 +10,27 @@
 //! - **Multiple sources**: Support Registry, GitHub, and Local sources
 //! - **Dependency management**: Track pack dependencies for resolution
 //! - **Integrity verification**: Optional checksums for pack verification
-//! - **JSON serialization**: Standard .ggen/packs.lock format
+//! - **JSON serialization**: Standard .mcpp/packs.lock format
 //!
 //! ## Lockfile Format
 //!
-//! The `.ggen/packs.lock` file is a JSON file with the following structure:
+//! The `.mcpp/packs.lock` file is a JSON file with the following structure:
 //!
 //! ```json
 //! {
 //!   "packs": {
-//!     "io.ggen.rust.cli": {
+//!     "io.mcpp.rust.cli": {
 //!       "version": "1.0.0",
 //!       "source": {
-//!         "Registry": { "url": "https://registry.ggen.io" }
+//!         "Registry": { "url": "https://registry.mcpp.io" }
 //!       },
 //!       "integrity": "sha256-abc123...",
 //!       "installed_at": "2024-01-01T00:00:00Z",
-//!       "dependencies": ["io.ggen.macros.std"]
+//!       "dependencies": ["io.mcpp.macros.std"]
 //!     }
 //!   },
 //!   "updated_at": "2024-01-01T00:00:00Z",
-//!   "ggen_version": "4.0.0"
+//!   "mcpp_version": "4.0.0"
 //! }
 //! ```
 //!
@@ -39,44 +39,44 @@
 //! ### Creating a Pack Lockfile
 //!
 //! ```rust
-//! use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+//! use mcpp_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
 //! use std::collections::BTreeMap;
 //! use chrono::Utc;
 //!
 //! let mut lockfile = PackLockfile {
 //!     packs: BTreeMap::new(),
 //!     updated_at: Utc::now(),
-//!     ggen_version: "4.0.0".to_string(),
+//!     mcpp_version: "4.0.0".to_string(),
 //! };
 //!
 //! let pack = LockedPack {
 //!     version: "1.0.0".to_string(),
 //!     source: PackSource::Registry {
-//!         url: "https://registry.ggen.io".to_string()
+//!         url: "https://registry.mcpp.io".to_string()
 //!     },
 //!     integrity: Some("sha256-abc123".to_string()),
 //!     installed_at: Utc::now(),
-//!     dependencies: vec!["io.ggen.macros.std".to_string()],
+//!     dependencies: vec!["io.mcpp.macros.std".to_string()],
 //! };
 //!
-//! lockfile.packs.insert("io.ggen.rust.cli".to_string(), pack);
+//! lockfile.packs.insert("io.mcpp.rust.cli".to_string(), pack);
 //! ```
 //!
 //! ### Loading from File
 //!
 //! ```rust,no_run
-//! use ggen_core::packs::lockfile::PackLockfile;
+//! use mcpp_core::packs::lockfile::PackLockfile;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
-//! let lockfile = PackLockfile::from_file(Path::new(".ggen/packs.lock"))?;
+//! # fn main() -> mcpp_utils::error::Result<()> {
+//! let lockfile = PackLockfile::from_file(Path::new(".mcpp/packs.lock"))?;
 //! println!("Loaded {} packs", lockfile.packs.len());
 //! # Ok(())
 //! # }
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -85,7 +85,7 @@ use std::path::{Path, PathBuf};
 
 /// Pack lockfile containing all installed packs
 ///
-/// This structure represents the `.ggen/packs.lock` file, which tracks
+/// This structure represents the `.mcpp/packs.lock` file, which tracks
 /// all installed packs, their versions, sources, and dependencies.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PackLockfile {
@@ -96,8 +96,8 @@ pub struct PackLockfile {
     /// When the lockfile was last updated
     pub updated_at: DateTime<Utc>,
 
-    /// Version of ggen that created this lockfile
-    pub ggen_version: String,
+    /// Version of mcpp that created this lockfile
+    pub mcpp_version: String,
 
     /// Policy profile for pack resolution (optional)
     /// If not specified, defaults to "development" profile
@@ -134,7 +134,7 @@ pub struct LockedPack {
 /// Source from which a pack was installed
 ///
 /// Supports three types of pack sources:
-/// - Registry: Official ggen registry
+/// - Registry: Official mcpp registry
 /// - GitHub: Direct from GitHub repository
 /// - Local: Local filesystem path
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -142,7 +142,7 @@ pub struct LockedPack {
 pub enum PackSource {
     /// Pack installed from a registry
     Registry {
-        /// Registry URL (e.g., "https://registry.ggen.io")
+        /// Registry URL (e.g., "https://registry.mcpp.io")
         url: String,
     },
 
@@ -150,7 +150,7 @@ pub enum PackSource {
     GitHub {
         /// GitHub organization or user (e.g., "seanchatmangpt")
         org: String,
-        /// Repository name (e.g., "ggen")
+        /// Repository name (e.g., "mcpp")
         repo: String,
         /// Branch or tag (e.g., "main", "v1.0.0")
         branch: String,
@@ -169,17 +169,17 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::packs::lockfile::PackLockfile;
+    /// use mcpp_core::packs::lockfile::PackLockfile;
     ///
     /// let lockfile = PackLockfile::new("4.0.0");
     /// assert_eq!(lockfile.packs.len(), 0);
-    /// assert_eq!(lockfile.ggen_version, "4.0.0");
+    /// assert_eq!(lockfile.mcpp_version, "4.0.0");
     /// ```
-    pub fn new(ggen_version: impl Into<String>) -> Self {
+    pub fn new(mcpp_version: impl Into<String>) -> Self {
         Self {
             packs: BTreeMap::new(),
             updated_at: Utc::now(),
-            ggen_version: ggen_version.into(),
+            mcpp_version: mcpp_version.into(),
             profile: None,
         }
     }
@@ -191,16 +191,16 @@ impl PackLockfile {
     ///
     /// # Arguments
     ///
-    /// * `path` - Path to the lockfile (typically `.ggen/packs.lock`)
+    /// * `path` - Path to the lockfile (typically `.mcpp/packs.lock`)
     ///
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::packs::lockfile::PackLockfile;
+    /// use mcpp_core::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
-    /// let lockfile = PackLockfile::from_file(Path::new(".ggen/packs.lock"))?;
+    /// # fn main() -> mcpp_utils::error::Result<()> {
+    /// let lockfile = PackLockfile::from_file(Path::new(".mcpp/packs.lock"))?;
     /// println!("Loaded {} packs", lockfile.packs.len());
     /// # Ok(())
     /// # }
@@ -245,12 +245,12 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::packs::lockfile::PackLockfile;
+    /// use mcpp_core::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let lockfile = PackLockfile::new("4.0.0");
-    /// lockfile.save(Path::new(".ggen/packs.lock"))?;
+    /// lockfile.save(Path::new(".mcpp/packs.lock"))?;
     /// # Ok(())
     /// # }
     /// ```
@@ -292,7 +292,7 @@ impl PackLockfile {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+    /// use mcpp_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
     /// use std::collections::BTreeMap;
     /// use chrono::Utc;
     ///
@@ -300,7 +300,7 @@ impl PackLockfile {
     /// let pack = LockedPack {
     ///     version: "1.0.0".to_string(),
     ///     source: PackSource::Registry {
-    ///         url: "https://registry.ggen.io".to_string()
+    ///         url: "https://registry.mcpp.io".to_string()
     ///     },
     ///     integrity: None,
     ///     installed_at: Utc::now(),
@@ -398,7 +398,7 @@ impl PackLockfile {
 
 impl fmt::Display for PackLockfile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Pack Lockfile (ggen v{})", self.ggen_version)?;
+        writeln!(f, "Pack Lockfile (mcpp v{})", self.mcpp_version)?;
         writeln!(
             f,
             "Updated: {}",
@@ -442,7 +442,7 @@ mod tests {
         LockedPack {
             version: version.to_string(),
             source: PackSource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             integrity: Some("sha256-test".to_string()),
             installed_at: Utc::now(),
@@ -454,7 +454,7 @@ mod tests {
     fn test_new_lockfile() {
         let lockfile = PackLockfile::new("4.0.0");
         assert_eq!(lockfile.packs.len(), 0);
-        assert_eq!(lockfile.ggen_version, "4.0.0");
+        assert_eq!(lockfile.mcpp_version, "4.0.0");
     }
 
     #[test]
@@ -489,16 +489,16 @@ mod tests {
     #[test]
     fn test_pack_source_display() {
         let registry = PackSource::Registry {
-            url: "https://registry.ggen.io".to_string(),
+            url: "https://registry.mcpp.io".to_string(),
         };
-        assert_eq!(registry.to_string(), "Registry(https://registry.ggen.io)");
+        assert_eq!(registry.to_string(), "Registry(https://registry.mcpp.io)");
 
         let github = PackSource::GitHub {
             org: "seanchatmangpt".to_string(),
-            repo: "ggen".to_string(),
+            repo: "mcpp".to_string(),
             branch: "main".to_string(),
         };
-        assert_eq!(github.to_string(), "GitHub(seanchatmangpt/ggen@main)");
+        assert_eq!(github.to_string(), "GitHub(seanchatmangpt/mcpp@main)");
 
         let local = PackSource::Local {
             path: PathBuf::from("/tmp/pack"),

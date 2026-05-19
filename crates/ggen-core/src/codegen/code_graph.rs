@@ -3,7 +3,7 @@
 //! Converts SPARQL query results into strongly-typed code graph entities
 //! that can be rendered by Tera templates.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
 

@@ -3,7 +3,7 @@
 //! This program creates an in-process MCP server and client, then calls the
 //! validate tool with valid Turtle content, printing the result.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
                 .add_directive(tracing::Level::INFO.into())
-                .add_directive("ggen_a2a_mcp=trace".parse()?)
+                .add_directive("mcpp_a2a_mcp=trace".parse()?)
                 .add_directive("rmcp=info".parse()?),
         )
         .init();

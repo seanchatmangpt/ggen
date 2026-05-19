@@ -5,7 +5,7 @@
 
 use std::path::Path;
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// A detected template default violation
 #[derive(Debug, Clone)]

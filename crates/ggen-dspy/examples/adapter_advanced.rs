@@ -1,9 +1,9 @@
 //! Advanced adapter usage with retry, caching, and token tracking
 //!
-//! Demonstrates integration with ggen-ai client and advanced features.
+//! Demonstrates integration with mcpp-ai client and advanced features.
 
-use ggen_ai::{GenAiClient, LlmConfig};
-use ggen_dspy::adapters::{GgenAiAdapter, RetryConfig};
+use mcpp_ai::{GenAiClient, LlmConfig};
+use mcpp_dspy::adapters::{GgenAiAdapter, RetryConfig};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::time::Duration;

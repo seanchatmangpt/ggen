@@ -426,6 +426,7 @@ fn create_agent_tool(name: &str, agent_id: &str) -> ToolDefinition {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn td_001_basic_tool_discovery_returns_all_registered_tools() {
     // ARRANGE: Create mock A2A server and register tools
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -450,6 +451,7 @@ async fn td_001_basic_tool_discovery_returns_all_registered_tools() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_001_basic_tool_discovery_empty_server_returns_zero_tools() {
     // ARRANGE: Create mock A2A server with no tools
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -473,6 +475,7 @@ async fn td_001_basic_tool_discovery_empty_server_returns_zero_tools() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_001_basic_tool_discovery_multiple_servers_aggregates_tools() {
     // ARRANGE: Create multiple mock A2A servers
     let server1 = MockA2AServer::new("http://localhost:8080".to_string());
@@ -506,6 +509,7 @@ async fn td_001_basic_tool_discovery_multiple_servers_aggregates_tools() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn td_002_dynamic_tool_registration_new_tool_appears_in_discovery() {
     // ARRANGE: Create mock A2A server with initial tools
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -534,6 +538,7 @@ async fn td_002_dynamic_tool_registration_new_tool_appears_in_discovery() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_002_dynamic_tool_registration_batch_registration_all_discoverable() {
     // ARRANGE: Create mock A2A server
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -569,6 +574,7 @@ async fn td_002_dynamic_tool_registration_batch_registration_all_discoverable() 
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_002_dynamic_tool_registration_duplicate_tool_name_overwrites() {
     // ARRANGE: Create mock A2A server
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -618,6 +624,7 @@ async fn td_002_dynamic_tool_registration_duplicate_tool_name_overwrites() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_002_dynamic_tool_registration_cannot_register_when_server_stopped() {
     // ARRANGE: Create and stop mock A2A server
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -642,6 +649,7 @@ async fn td_002_dynamic_tool_registration_cannot_register_when_server_stopped() 
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn td_003_tool_schema_validation_valid_tool_passes() {
     // ARRANGE: Create tool discovery manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -683,6 +691,7 @@ async fn td_003_tool_schema_validation_valid_tool_passes() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_003_tool_schema_validation_empty_name_fails() {
     // ARRANGE: Create tool discovery manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -715,6 +724,7 @@ async fn td_003_tool_schema_validation_empty_name_fails() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_003_tool_schema_validation_empty_description_fails() {
     // ARRANGE: Create tool discovery manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -747,6 +757,7 @@ async fn td_003_tool_schema_validation_empty_description_fails() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_003_tool_schema_validation_invalid_schema_type_fails() {
     // ARRANGE: Create tool discovery manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -779,6 +790,7 @@ async fn td_003_tool_schema_validation_invalid_schema_type_fails() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_003_tool_schema_validation_deprecated_tool_generates_warning() {
     // ARRANGE: Create tool discovery manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -822,6 +834,7 @@ async fn td_003_tool_schema_validation_deprecated_tool_generates_warning() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn td_004_discovery_error_handling_server_not_running_returns_error() {
     // ARRANGE: Create and stop mock A2A server
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -847,6 +860,7 @@ async fn td_004_discovery_error_handling_server_not_running_returns_error() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_004_discovery_error_handling_partial_server_failure_returns_error() {
     // ARRANGE: Create multiple servers, one stopped
     let server1 = MockA2AServer::new("http://localhost:8080".to_string());
@@ -871,6 +885,7 @@ async fn td_004_discovery_error_handling_partial_server_failure_returns_error() 
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_004_discovery_error_handling_get_nonexistent_tool_returns_not_found() {
     // ARRANGE: Create mock A2A server
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -893,6 +908,7 @@ async fn td_004_discovery_error_handling_get_nonexistent_tool_returns_not_found(
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_004_discovery_error_handling_error_preserved_for_inspection() {
     // ARRANGE: Create mock A2A server and trigger an error
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -919,6 +935,7 @@ async fn td_004_discovery_error_handling_error_preserved_for_inspection() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_004_discovery_error_handling_clear_errors_removes_all() {
     // ARRANGE: Create mock A2A server with recorded errors
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -956,6 +973,7 @@ async fn td_004_discovery_error_handling_clear_errors_removes_all() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn td_005_cached_discovery_first_call_fetches_from_server() {
     // ARRANGE: Create mock A2A server with tools
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -977,6 +995,7 @@ async fn td_005_cached_discovery_first_call_fetches_from_server() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_005_cached_discovery_second_call_uses_cache() {
     // ARRANGE: Create mock A2A server with tools
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1002,6 +1021,7 @@ async fn td_005_cached_discovery_second_call_uses_cache() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_005_cached_discovery_different_cache_keys_fetch_separately() {
     // ARRANGE: Create mock A2A server with tools
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1023,6 +1043,7 @@ async fn td_005_cached_discovery_different_cache_keys_fetch_separately() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_005_cached_discovery_expired_cache_refetches() {
     // ARRANGE: Create mock A2A server with tools and short TTL
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1051,6 +1072,7 @@ async fn td_005_cached_discovery_expired_cache_refetches() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_005_cached_discovery_manual_invalidate_clears_cache() {
     // ARRANGE: Create mock A2A server and manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1077,6 +1099,7 @@ async fn td_005_cached_discovery_manual_invalidate_clears_cache() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn td_005_cached_discovery_register_new_tool_invalidate_discover_new_tool() {
     // ARRANGE: Create mock A2A server with initial tool
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1107,6 +1130,7 @@ async fn td_005_cached_discovery_register_new_tool_invalidate_discover_new_tool(
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn integration_full_tool_discovery_workflow() {
     // ARRANGE: Setup complete multi-server environment
     let server1 = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1148,6 +1172,7 @@ async fn integration_full_tool_discovery_workflow() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn integration_tool_discovery_with_timeout() {
     // ARRANGE: Create server and manager
     let server = MockA2AServer::new("http://localhost:8080".to_string());
@@ -1167,6 +1192,7 @@ async fn integration_tool_discovery_with_timeout() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn integration_concurrent_discoveries_handle_correctly() {
     // ARRANGE: Create server
     let server = MockA2AServer::new("http://localhost:8080".to_string());

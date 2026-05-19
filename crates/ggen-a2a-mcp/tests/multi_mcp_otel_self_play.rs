@@ -1,7 +1,7 @@
 //! Multi-MCP tool chain OTEL self-play tests.
 //!
 //! Exercises MULTIPLE MCP tools in sequence and validates that each emits
-//! a `ggen.mcp.tool_call` span with the expected semconv attributes:
+//! a `mcpp.mcp.tool_call` span with the expected semconv attributes:
 //!   - `mcp.tool_name` (required)
 //!   - `mcp.ontology_path`, `mcp.sparql_query_length`, `mcp.ttl_length`, etc.
 //!
@@ -10,15 +10,15 @@
 //! All tests use --test-threads=1 to avoid MCP server port conflicts.
 //!
 //! Run with:
-//!   cargo test -p ggen-a2a-mcp --features otel --test multi_mcp_otel_self_play -- --test-threads=1
+//!   cargo test -p mcpp-a2a-mcp --features otel --test multi_mcp_otel_self_play -- --test-threads=1
 
 #![cfg(feature = "otel")]
 
 use std::sync::Arc;
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
-use ggen_a2a_mcp::message::A2aMessageConverter;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
+use mcpp_a2a_mcp::message::A2aMessageConverter;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -143,11 +143,11 @@ fn args(json: serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
 
 #[tokio::test]
 async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
-        // Step 1: validate -- emits ggen.mcp.tool_call with mcp.tool_name=validate
+        // Step 1: validate -- emits mcpp.mcp.tool_call with mcp.tool_name=validate
         let validate_result = bridge
             .call_mcp_tool("validate", args(serde_json::json!({ "ttl": RICH_TTL })))
             .await?;
@@ -157,8 +157,8 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
             validate_result
         );
 
-        // Step 2: validate_sparql -- emits ggen.mcp.tool_call with mcp.tool_name=validate_sparql
-        let sparql_path = "/Users/sac/ggen/crates/ggen-core/queries/a2a/extract-agents.rq";
+        // Step 2: validate_sparql -- emits mcpp.mcp.tool_call with mcp.tool_name=validate_sparql
+        let sparql_path = "~/.ggen/mcpp/crates/mcpp-core/queries/a2a/extract-agents.rq";
         let sparql_result = bridge
             .call_mcp_tool(
                 "validate_sparql",
@@ -171,8 +171,8 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
             sparql_result
         );
 
-        // Step 3: validate_templates -- emits ggen.mcp.tool_call with mcp.tool_name=validate_templates
-        let template_path = "/Users/sac/ggen/templates/hello.tmpl";
+        // Step 3: validate_templates -- emits mcpp.mcp.tool_call with mcp.tool_name=validate_templates
+        let template_path = "~/.ggen/mcpp/templates/hello.tmpl";
         let tmpl_result = bridge
             .call_mcp_tool(
                 "validate_templates",
@@ -185,7 +185,7 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
             "validate_templates should return a non-empty response"
         );
 
-        // Step 4: validate_pipeline -- emits ggen.mcp.tool_call with mcp.tool_name=validate_pipeline
+        // Step 4: validate_pipeline -- emits mcpp.mcp.tool_call with mcp.tool_name=validate_pipeline
         // Use a real example project directory
         let pipeline_result = bridge
             .call_mcp_tool(
@@ -193,7 +193,7 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
                 args(serde_json::json!({ "project_path": examples_dir })),
             )
             .await;
-        // validate_pipeline may fail if ggen.toml doesn't exist at root -- acceptable
+        // validate_pipeline may fail if mcpp.toml doesn't exist at root -- acceptable
         assert!(
             pipeline_result.is_ok() || pipeline_result.is_err(),
             "validate_pipeline MCP call should complete"
@@ -214,11 +214,11 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
-        // Step 1: list_examples -- emits ggen.mcp.tool_call with mcp.tool_name=list_examples
+        // Step 1: list_examples -- emits mcpp.mcp.tool_call with mcp.tool_name=list_examples
         let list_result = bridge
             .call_mcp_tool("list_examples", serde_json::Map::new())
             .await?;
@@ -241,7 +241,7 @@ async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
         // Pick the first example
         let first_example = examples[0]["name"].as_str().unwrap_or("");
 
-        // Step 2: get_example -- emits ggen.mcp.tool_call with mcp.tool_name=get_example
+        // Step 2: get_example -- emits mcpp.mcp.tool_call with mcp.tool_name=get_example
         let get_result = bridge
             .call_mcp_tool(
                 "get_example",
@@ -254,7 +254,7 @@ async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
             "get_example should return the example name"
         );
 
-        // Step 3: validate the example's TTL -- emits ggen.mcp.tool_call with mcp.tool_name=validate
+        // Step 3: validate the example's TTL -- emits mcpp.mcp.tool_call with mcp.tool_name=validate
         let example_ttl = get_json["ttl"].as_str().unwrap_or("");
         if !example_ttl.is_empty() && example_ttl != "(no .ttl file found)" {
             let validate_result = bridge
@@ -267,7 +267,7 @@ async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
             );
         }
 
-        // Step 4: query_ontology on our rich TTL -- emits ggen.mcp.tool_call with mcp.tool_name=query_ontology
+        // Step 4: query_ontology on our rich TTL -- emits mcpp.mcp.tool_call with mcp.tool_name=query_ontology
         let sparql =
             "PREFIX ex: <http://example.org/> SELECT ?s ?l WHERE { ?s a ex:Skill ; rdfs:label ?l }";
         let query_result = bridge
@@ -299,11 +299,11 @@ async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_generator_discovery() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
-        // Step 1: list_generators -- emits ggen.mcp.tool_call with mcp.tool_name=list_generators
+        // Step 1: list_generators -- emits mcpp.mcp.tool_call with mcp.tool_name=list_generators
         let gen_result = bridge
             .call_mcp_tool("list_generators", serde_json::Map::new())
             .await?;
@@ -326,7 +326,7 @@ async fn test_multi_mcp_generator_discovery() -> anyhow::Result<()> {
             );
         }
 
-        // Step 2: search -- emits ggen.mcp.tool_call with mcp.tool_name=search
+        // Step 2: search -- emits mcpp.mcp.tool_call with mcp.tool_name=search
         let search_result = bridge
             .call_mcp_tool(
                 "search",
@@ -341,7 +341,7 @@ async fn test_multi_mcp_generator_discovery() -> anyhow::Result<()> {
             "search should echo the query string back"
         );
 
-        // Step 3: list_examples -- emits ggen.mcp.tool_call with mcp.tool_name=list_examples
+        // Step 3: list_examples -- emits mcpp.mcp.tool_call with mcp.tool_name=list_examples
         let list_result = bridge
             .call_mcp_tool(
                 "list_examples",
@@ -380,13 +380,13 @@ async fn test_multi_mcp_generator_discovery() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_concurrent_tools() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = Arc::new(SelfPlayBridge::new(examples_dir).await?);
 
     let result = (|| async {
         let mut handles = Vec::new();
 
-        // Task A: validate -- emits ggen.mcp.tool_call with mcp.tool_name=validate
+        // Task A: validate -- emits mcpp.mcp.tool_call with mcp.tool_name=validate
         let bridge_a = Arc::clone(&bridge);
         handles.push(tokio::spawn(async move {
             let validate_result = bridge_a
@@ -400,7 +400,7 @@ async fn test_multi_mcp_concurrent_tools() -> anyhow::Result<()> {
             Ok::<_, anyhow::Error>("validate")
         }));
 
-        // Task B: query_ontology -- emits ggen.mcp.tool_call with mcp.tool_name=query_ontology
+        // Task B: query_ontology -- emits mcpp.mcp.tool_call with mcp.tool_name=query_ontology
         let bridge_b = Arc::clone(&bridge);
         handles.push(tokio::spawn(async move {
             let sparql = "PREFIX ex: <http://example.org/> SELECT ?s WHERE { ?s a ex:Agent }";
@@ -420,7 +420,7 @@ async fn test_multi_mcp_concurrent_tools() -> anyhow::Result<()> {
             Ok::<_, anyhow::Error>("query_ontology")
         }));
 
-        // Task C: list_generators -- emits ggen.mcp.tool_call with mcp.tool_name=list_generators
+        // Task C: list_generators -- emits mcpp.mcp.tool_call with mcp.tool_name=list_generators
         let bridge_c = Arc::clone(&bridge);
         handles.push(tokio::spawn(async move {
             let gen_result = bridge_c
@@ -475,11 +475,11 @@ async fn test_multi_mcp_concurrent_tools() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_error_recovery_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
-        // Step 1: validate broken TTL -- emits ggen.mcp.tool_call (error span)
+        // Step 1: validate broken TTL -- emits mcpp.mcp.tool_call (error span)
         let broken_result = bridge
             .call_mcp_tool("validate", args(serde_json::json!({ "ttl": BROKEN_TTL })))
             .await?;
@@ -489,7 +489,7 @@ async fn test_multi_mcp_error_recovery_chain() -> anyhow::Result<()> {
             broken_result
         );
 
-        // Step 2: validate fixed TTL -- emits ggen.mcp.tool_call (success span)
+        // Step 2: validate fixed TTL -- emits mcpp.mcp.tool_call (success span)
         let valid_result = bridge
             .call_mcp_tool("validate", args(serde_json::json!({ "ttl": RICH_TTL })))
             .await?;
@@ -499,7 +499,7 @@ async fn test_multi_mcp_error_recovery_chain() -> anyhow::Result<()> {
             valid_result
         );
 
-        // Step 3: query_ontology on the fixed TTL -- emits ggen.mcp.tool_call
+        // Step 3: query_ontology on the fixed TTL -- emits mcpp.mcp.tool_call
         let sparql = "PREFIX ex: <http://example.org/> SELECT ?agent ?skill WHERE { ?agent a ex:Agent ; ex:uses ?skill }";
         let query_result = bridge
             .call_mcp_tool(
@@ -515,7 +515,7 @@ async fn test_multi_mcp_error_recovery_chain() -> anyhow::Result<()> {
             count
         );
 
-        // Step 4: additional validate on minimal TTL -- another ggen.mcp.tool_call span
+        // Step 4: additional validate on minimal TTL -- another mcpp.mcp.tool_call span
         let minimal_result = bridge
             .call_mcp_tool("validate", args(serde_json::json!({ "ttl": MINIMAL_TTL })))
             .await?;
@@ -525,7 +525,7 @@ async fn test_multi_mcp_error_recovery_chain() -> anyhow::Result<()> {
             minimal_result
         );
 
-        // Step 5: query on minimal TTL -- another ggen.mcp.tool_call span
+        // Step 5: query on minimal TTL -- another mcpp.mcp.tool_call span
         let minimal_sparql = "PREFIX ex: <http://example.org/> SELECT ?s WHERE { ?s a ex:Concept }";
         let minimal_query = bridge
             .call_mcp_tool(

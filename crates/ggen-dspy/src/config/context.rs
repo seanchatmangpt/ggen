@@ -180,7 +180,7 @@ impl ContextBuilder {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_dspy::config::with_context;
+/// use mcpp_dspy::config::with_context;
 ///
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// with_context()

@@ -1,12 +1,12 @@
 #!/bin/bash
-# Comprehensive test execution script for ggen packs Phase 2-3
+# Comprehensive test execution script for mcpp packs Phase 2-3
 #
 # This script runs all tests with coverage reporting and FMEA validation
 
 set -e
 
 echo "=================================="
-echo "ggen Packs Phase 2-3 Test Suite"
+echo "mcpp Packs Phase 2-3 Test Suite"
 echo "=================================="
 echo ""
 

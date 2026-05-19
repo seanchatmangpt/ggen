@@ -1,12 +1,12 @@
-//! Direct usage of ggen MCP tools via rmcp protocol
+//! Direct usage of mcpp MCP tools via rmcp protocol
 //!
 //! This example demonstrates using MCP tools via rmcp protocol,
 //! similar to how you would use Desktop Commander tools.
 //!
 //! Run with:
-//!   RUST_LOG=trace,ggen_a2a_mcp=trace cargo run -p ggen-a2a-mcp --example use_mcp_tools_directly
+//!   RUST_LOG=trace,mcpp_a2a_mcp=trace cargo run -p mcpp-a2a-mcp --example use_mcp_tools_directly
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 #[derive(Debug, Clone, Default)]
@@ -36,8 +36,8 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("ggen_a2a_mcp=trace".parse()?)
-                .add_directive("ggen_core=trace".parse()?),
+                .add_directive("mcpp_a2a_mcp=trace".parse()?)
+                .add_directive("mcpp_core=trace".parse()?),
         )
         .init();
 

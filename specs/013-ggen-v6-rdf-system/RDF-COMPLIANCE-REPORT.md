@@ -1,14 +1,14 @@
-# RDF Compliance Report - ggen v6 (013-ggen-v6-rdf-system)
+# RDF Compliance Report - mcpp v6 (013-mcpp-v6-rdf-system)
 
 **Date**: 2025-12-20
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-mcpp-v6-rdf-system
 **Status**: ✅ FULLY RDF-COMPLIANT
 
 ---
 
 ## Executive Summary
 
-All shell scripts, configuration files, and documentation have been audited and updated to use **RDF-first architecture** with `ggen sync` workflow. The project is now a complete, self-contained specification of ggen v6 using the very methodology it describes.
+All shell scripts, configuration files, and documentation have been audited and updated to use **RDF-first architecture** with `mcpp sync` workflow. The project is now a complete, self-contained specification of mcpp v6 using the very methodology it describes.
 
 **Constitutional Equation**: `code = μ(spec.ttl)`
 
@@ -16,8 +16,8 @@ All shell scripts, configuration files, and documentation have been audited and 
 
 ## 1. Project Configuration ✅
 
-### ggen.toml
-**Location**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/ggen.toml`
+### mcpp.toml
+**Location**: `~/.ggen/mcpp/specs/013-mcpp-v6-rdf-system/mcpp.toml`
 
 **Configuration Status**:
 - ✅ `[v6]` section enabled
@@ -80,8 +80,8 @@ output = "generated/spec.md"
 ### Updated Scripts
 
 **vendors/spec-kit/scripts/bash/setup-plan.sh**
-- ❌ **BEFORE**: `ggen render templates/plan.tera ontology/plan.ttl > generated/plan.md`
-- ✅ **AFTER**: `ggen sync` (reads ggen.toml configuration)
+- ❌ **BEFORE**: `mcpp render templates/plan.tera ontology/plan.ttl > generated/plan.md`
+- ✅ **AFTER**: `mcpp sync` (reads mcpp.toml configuration)
 - **Line**: 76-77
 - **Status**: Fixed
 
@@ -89,7 +89,7 @@ output = "generated/spec.md"
 - ✅ RDF-aware path variables defined:
   - `FEATURE_SPEC_TTL` → `ontology/feature-content.ttl`
   - `IMPL_PLAN_TTL` → `ontology/plan.ttl`
-  - `GGEN_CONFIG` → `ggen.toml`
+  - `GGEN_CONFIG` → `mcpp.toml`
   - `ONTOLOGY_DIR`, `GENERATED_DIR`
 
 **vendors/spec-kit/scripts/bash/check-prerequisites.sh**
@@ -99,7 +99,7 @@ output = "generated/spec.md"
 - ✅ Supports `--json` and `--paths-only` modes
 
 **vendors/spec-kit/scripts/validate-promises.sh**
-- ✅ Checks for "ggen render" references (Promise 1)
+- ✅ Checks for "mcpp render" references (Promise 1)
 - ✅ Validates TTL syntax with Python rdflib (Promise 3)
 - ✅ Verifies constitutional equation references (Promise 10)
 
@@ -111,11 +111,11 @@ output = "generated/spec.md"
 **Location**: `scripts/validate-rdf-workflow.sh`
 
 **Validates**:
-1. ggen.toml configuration
+1. mcpp.toml configuration
 2. RDF ontology files (with syntax validation)
 3. Tera templates
 4. Generated artifacts
-5. No "ggen render" references
+5. No "mcpp render" references
 6. Constitutional equation references
 7. 80/20 markers in RDF
 8. Project documentation
@@ -126,9 +126,9 @@ output = "generated/spec.md"
 **Location**: `scripts/sync.sh`
 
 **Features**:
-- Pre-flight checks (ggen.toml, TTL files)
+- Pre-flight checks (mcpp.toml, TTL files)
 - TTL syntax validation (if rdflib installed)
-- Runs `ggen sync`
+- Runs `mcpp sync`
 - Verifies determinism (runs twice, compares SHA256)
 - Shows generated files
 - Validates constitutional equation
@@ -176,17 +176,17 @@ output = "generated/spec.md"
 ## 6. Python Test Infrastructure ✅
 
 ### RDF-Based Tests
-**Location**: `/Users/sac/ggen/vendors/spec-kit/tests/integration/test_ggen_sync.py`
+**Location**: `~/.ggen/mcpp/vendors/spec-kit/tests/integration/test_mcpp_sync.py`
 
 **Test Coverage**:
-1. `test_ggen_sync_generates_markdown` - End-to-end workflow
-2. `test_ggen_sync_idempotence` - Verifies μ∘μ = μ
-3. `test_ggen_validates_ttl_syntax` - Error handling
+1. `test_mcpp_sync_generates_markdown` - End-to-end workflow
+2. `test_mcpp_sync_idempotence` - Verifies μ∘μ = μ
+3. `test_mcpp_validates_ttl_syntax` - Error handling
 4. `test_constitutional_equation_verification` - SHA256 determinism
 
 **Fixtures**:
 - `feature-content.ttl` - RDF specification (35 triples)
-- `ggen.toml` - Configuration with SPARQL
+- `mcpp.toml` - Configuration with SPARQL
 - `spec.tera` - Template
 - `expected-spec.md` - Expected output
 
@@ -202,14 +202,14 @@ Uses Python rdflib to parse TTL and count triples.
 
 **Audit Results**:
 ```bash
-$ grep -r "ggen render" --include="*.sh" --include="*.md" --include="*.toml" \
-    /Users/sac/ggen/specs/013-ggen-v6-rdf-system/ \
-    /Users/sac/ggen/vendors/spec-kit/scripts/
+$ grep -r "mcpp render" --include="*.sh" --include="*.md" --include="*.toml" \
+    ~/.ggen/mcpp/specs/013-mcpp-v6-rdf-system/ \
+    ~/.ggen/mcpp/vendors/spec-kit/scripts/
 ```
 
 **Findings**: ✅ ZERO references (excluding validation report documentation)
 
-**All references now use**: `ggen sync`
+**All references now use**: `mcpp sync`
 
 ---
 
@@ -254,7 +254,7 @@ $ python3 -c "from rdflib import Graph; g = Graph(); \
 Valid! 430 triples
 ```
 
-### ggen.toml Validation
+### mcpp.toml Validation
 - ✅ Valid TOML syntax
 - ✅ All required sections present
 - ✅ SPARQL query valid
@@ -273,20 +273,20 @@ code = μ(spec.ttl)
 
 ## 10. Outstanding Work (Expected) ✅
 
-### ggen v6 Not Yet Implemented
+### mcpp v6 Not Yet Implemented
 **Status**: This is EXPECTED
 
-**Reason**: This project SPECIFIES ggen v6 using RDF. We're eating our own dog food - using spec-kit to specify the tool that implements spec-kit.
+**Reason**: This project SPECIFIES mcpp v6 using RDF. We're eating our own dog food - using spec-kit to specify the tool that implements spec-kit.
 
 **Next Steps**:
-1. Implement ggen v6 MVP (8 days, 5 capabilities)
-2. Test with: `ggen sync`
-3. Use ggen v6 to regenerate its own spec (self-hosting)
+1. Implement mcpp v6 MVP (8 days, 5 capabilities)
+2. Test with: `mcpp sync`
+3. Use mcpp v6 to regenerate its own spec (self-hosting)
 
 **When Ready**:
 ```bash
-cd /Users/sac/ggen/specs/013-ggen-v6-rdf-system
-ggen sync
+cd ~/.ggen/mcpp/specs/013-mcpp-v6-rdf-system
+mcpp sync
 # Generates: generated/spec.md from ontology/feature-content.ttl
 ```
 
@@ -294,9 +294,9 @@ ggen sync
 
 ## Summary
 
-✅ **All shell scripts** use `ggen sync` (no "ggen render" references)
+✅ **All shell scripts** use `mcpp sync` (no "mcpp render" references)
 ✅ **All RDF files** parse correctly (430 triples)
-✅ **ggen.toml** fully configured for v6 pipeline
+✅ **mcpp.toml** fully configured for v6 pipeline
 ✅ **80/20 markers** added to all user stories
 ✅ **Validation scripts** created and tested
 ✅ **Helper scripts** created (sync.sh, validate-rdf-workflow.sh)
@@ -314,7 +314,7 @@ ggen sync
 
 ### Created
 - `scripts/validate-rdf-workflow.sh` (comprehensive RDF validation)
-- `scripts/sync.sh` (ggen sync helper with checks)
+- `scripts/sync.sh` (mcpp sync helper with checks)
 - `RDF-WORKFLOW.md` (complete workflow guide)
 - `80-20-PRIORITIZATION.md` (prioritization summary)
 - `RDF-COMPLIANCE-REPORT.md` (this document)
@@ -323,8 +323,8 @@ ggen sync
 
 ## Compliance Checklist
 
-- [x] All scripts use `ggen sync` instead of `ggen render`
-- [x] ggen.toml configured for RDF-first workflow
+- [x] All scripts use `mcpp sync` instead of `mcpp render`
+- [x] mcpp.toml configured for RDF-first workflow
 - [x] TTL files parse without errors (430 triples)
 - [x] 80/20 markers in RDF specification
 - [x] Validation scripts created
@@ -338,11 +338,11 @@ ggen sync
 
 **Status**: ✅ PROJECT IS FULLY RDF-COMPLIANT
 
-**Ready For**: ggen v6 implementation and self-hosting validation
+**Ready For**: mcpp v6 implementation and self-hosting validation
 
 ---
 
 **Generated**: 2025-12-20
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-mcpp-v6-rdf-system
 **Total RDF Triples**: 430
 **Core Capabilities**: 5 (20% effort, 80% value)

@@ -17,7 +17,7 @@ use thiserror::Error;
 // Top-Level Error Type
 // ============================================================================
 
-/// Top-level error type for ggen
+/// Top-level error type for mcpp
 ///
 /// This error type encompasses all possible failure modes in the system.
 /// Each variant provides rich context and actionable information.
@@ -25,7 +25,7 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::errors::GgenError;
+/// use mcpp_core::prevention::errors::GgenError;
 ///
 /// fn load_template(path: &str) -> Result<Template, GgenError> {
 ///     // ...
@@ -221,12 +221,12 @@ pub enum ConfigError {
 // Result Type Alias
 // ============================================================================
 
-/// Result type alias for ggen operations
+/// Result type alias for mcpp operations
 ///
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::errors::Result;
+/// use mcpp_core::prevention::errors::Result;
 ///
 /// fn validate_template(template: &Template) -> Result<()> {
 ///     // ...
@@ -243,7 +243,7 @@ pub type Result<T> = std::result::Result<T, GgenError>;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::errors::ErrorContext;
+/// use mcpp_core::prevention::errors::ErrorContext;
 ///
 /// fn load_file(path: &str) -> Result<String> {
 ///     std::fs::read_to_string(path)
@@ -292,11 +292,11 @@ impl<T, E: Into<GgenError>> ErrorContext<T> for std::result::Result<T, E> {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::errors::ErrorBuilder;
+/// use mcpp_core::prevention::errors::ErrorBuilder;
 ///
 /// let error = ErrorBuilder::template_not_found("config.toml")
 ///     .context("Loading application configuration")
-///     .suggestion("Run 'ggen init' to create a default configuration")
+///     .suggestion("Run 'mcpp init' to create a default configuration")
 ///     .build();
 /// ```
 pub struct ErrorBuilder {
@@ -358,7 +358,7 @@ impl ErrorBuilder {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::errors::{GgenError, format_error};
+/// use mcpp_core::prevention::errors::{GgenError, format_error};
 ///
 /// let error = GgenError::TemplateNotFound { /* ... */ };
 /// println!("{}", format_error(&error));
@@ -373,7 +373,7 @@ pub fn format_error(error: &GgenError) -> String {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::errors::{GgenError, report_error};
+/// use mcpp_core::prevention::errors::{GgenError, report_error};
 ///
 /// if let Err(error) = risky_operation() {
 ///     report_error(&error);

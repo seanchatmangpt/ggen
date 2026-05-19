@@ -1,7 +1,7 @@
 //! Mock implementations for testing
 
 use chrono::Utc;
-use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
 use std::collections::HashMap;
 
 /// Create a mock VersionMetadata for testing

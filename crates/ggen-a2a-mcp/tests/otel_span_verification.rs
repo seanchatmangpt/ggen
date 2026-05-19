@@ -3,7 +3,7 @@
 //! This test verifies that MCP tools emit proper OpenTelemetry spans
 //! with semantic convention attributes.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 
 #[tokio::test]
 async fn test_validate_tool_emits_otel_spans() {
@@ -24,13 +24,13 @@ ex:Subject a ex:Resource ;
 "#;
 
     // This should emit spans with:
-    // - ggen.mcp.tool_call span
+    // - mcpp.mcp.tool_call span
     // - operation.name = "mcp.validate"
     // - mcp.tool_name = "validate"
     // - mcp.ttl_length = <length>
     // - mcp.triple_count = 3
     let result = server
-        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+        .validate(mcpp_a2a_mcp::mcpp_server::ValidateParams {
             ttl: valid_ttl.to_string(),
         })
         .await;
@@ -71,13 +71,13 @@ ex:Subject a ex:Resource ;
     let sparql = "SELECT ?s WHERE { ?s a ex:Resource }";
 
     // This should emit spans with:
-    // - ggen.mcp.tool_call span
+    // - mcpp.mcp.tool_call span
     // - mcp.tool_name = "query_ontology"
     // - mcp.sparql_query_length = <length>
     // - mcp.ttl_length = <length>
     // - Row count logged on success
     let result = server
-        .query_ontology(ggen_a2a_mcp::ggen_server::QueryOntologyParams {
+        .query_ontology(mcpp_a2a_mcp::mcpp_server::QueryOntologyParams {
             ttl: ttl.to_string(),
             sparql: sparql.to_string(),
         })
@@ -110,10 +110,10 @@ INVALID TURTLE SYNTAX!!!
 "#;
 
     // This should emit:
-    // - ggen.mcp.tool_call span
-    // - ggen.error span with error.type="parse_error"
+    // - mcpp.mcp.tool_call span
+    // - mcpp.error span with error.type="parse_error"
     let result = server
-        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+        .validate(mcpp_a2a_mcp::mcpp_server::ValidateParams {
             ttl: invalid_ttl.to_string(),
         })
         .await;

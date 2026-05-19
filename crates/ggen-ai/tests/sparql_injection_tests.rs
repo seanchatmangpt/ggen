@@ -28,13 +28,13 @@
 //! - No panics on malicious input
 //! - Observable state remains consistent
 
-use ggen_ai::codegen::TTLToSignatureTranspiler;
+use mcpp_ai::codegen::TTLToSignatureTranspiler;
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use std::fs;
 use std::path::Path;
 
-const FIXTURES_DIR: &str = "crates/ggen-ai/tests/fixtures";
+const FIXTURES_DIR: &str = "crates/mcpp-ai/tests/fixtures";
 
 /// Helper function to load a TTL file into an RDF store
 fn load_ttl_fixture(filename: &str) -> oxigraph::store::Store {

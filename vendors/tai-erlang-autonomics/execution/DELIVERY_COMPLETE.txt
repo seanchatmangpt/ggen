@@ -14,7 +14,7 @@ DELIVERABLES SUMMARY
 PRIMARY DOCUMENTS CREATED:
 
 1. COMPREHENSIVE_100_ITEM_CHECKLIST.md
-   Location: /Users/sac/ggen/tai-erlang-autonomics/execution/
+   Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/
    Size: 53 KB | Lines: 1,314
    Status: ✅ READY FOR EXECUTION
    
@@ -26,7 +26,7 @@ PRIMARY DOCUMENTS CREATED:
    - Summary metrics and completion evidence
 
 2. CHECKLIST_INDEX.md
-   Location: /Users/sac/ggen/tai-erlang-autonomics/execution/
+   Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/
    Size: 9.6 KB | Lines: 324
    Status: ✅ QUICK REFERENCE GUIDE
    
@@ -38,7 +38,7 @@ PRIMARY DOCUMENTS CREATED:
    - Critical path to revenue visualization
 
 3. CHECKLIST_DELIVERY_SUMMARY.txt
-   Location: /Users/sac/ggen/tai-erlang-autonomics/execution/
+   Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/
    Size: 13 KB | File format: Plain text
    Status: ✅ EXECUTIVE SUMMARY
    
@@ -52,7 +52,7 @@ PRIMARY DOCUMENTS CREATED:
    - Next steps (immediate through long-term)
 
 4. START_HERE_COMPREHENSIVE_CHECKLIST.md
-   Location: /Users/sac/ggen/tai-erlang-autonomics/execution/
+   Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/
    Size: Navigation guide
    Status: ✅ ENTRY POINT FOR NEW READERS
    

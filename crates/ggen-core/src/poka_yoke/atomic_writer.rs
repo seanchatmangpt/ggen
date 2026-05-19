@@ -7,7 +7,7 @@ use std::io::Write;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// Minimum free disk space required (10 MB).
 const MIN_FREE_SPACE: u64 = 10 * 1024 * 1024;
@@ -28,12 +28,12 @@ const MIN_FREE_SPACE: u64 = 10 * 1024 * 1024;
 /// # Example
 ///
 /// ```no_run
-/// use ggen_core::poka_yoke::{AtomicFileWriter, Uncommitted};
+/// use mcpp_core::poka_yoke::{AtomicFileWriter, Uncommitted};
 ///
 /// let mut writer = AtomicFileWriter::new("/path/to/file.txt")?;
 /// writer.write_all(b"Hello, world!")?;
 /// let _committed = writer.commit()?; // Atomic rename
-/// # Ok::<(), ggen_core::error::Error>(())
+/// # Ok::<(), mcpp_core::error::Error>(())
 /// ```
 pub struct AtomicFileWriter<State = Uncommitted> {
     target_path: PathBuf,

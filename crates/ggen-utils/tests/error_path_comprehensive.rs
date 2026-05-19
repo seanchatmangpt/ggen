@@ -1,4 +1,4 @@
-//! Comprehensive Error Handling Tests for ggen-utils
+//! Comprehensive Error Handling Tests for mcpp-utils
 //!
 //! Chicago-style TDD tests (state-based, real collaborators).
 //!
@@ -16,9 +16,9 @@
 //! - Path traversal prevention (5+ variants)
 //! - Input validation (5+ variants)
 
-use ggen_utils::error::{Context, Error, Result};
-use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
-use ggen_utils::safe_path::SafePath;
+use mcpp_utils::error::{Context, Error, Result};
+use mcpp_utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use mcpp_utils::safe_path::SafePath;
 use std::error::Error as StdError;
 use std::io;
 use std::path::PathBuf;

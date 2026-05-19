@@ -201,7 +201,7 @@ QUICK LOOKUP: FIND ITEM BY NUMBER
 
 Need details on a specific item?
 
-1. Go to: /Users/sac/ggen/tai-erlang-autonomics/execution/
+1. Go to: /Users/sac/mcpp/tai-erlang-autonomics/execution/
 2. Open: COMPREHENSIVE_100_ITEM_CHECKLIST.md
 3. Use Find (Ctrl+F): Search for "Item [NUMBER]:"
 4. Read: Full details including status, evidence, owner, metrics

@@ -1,4 +1,4 @@
-//! Integration tests for ontology configuration with ggen.toml and ggen.lock
+//! Integration tests for ontology configuration with mcpp.toml and mcpp.lock
 
 #[cfg(test)]
 mod tests {
@@ -9,9 +9,9 @@ mod tests {
     use std::collections::BTreeMap;
     use std::path::PathBuf;
 
-    /// Test creating ontology configuration from ggen.toml
+    /// Test creating ontology configuration from mcpp.toml
     #[test]
-    fn test_ggen_toml_ontology_section() {
+    fn test_mcpp_toml_ontology_section() {
         let config = OntologyConfig::new()
             .with_pack(OntologyPackRef {
                 name: "schema-org".to_string(),
@@ -28,18 +28,18 @@ mod tests {
         assert_eq!(config.pack_names(), vec!["schema-org"]);
     }
 
-    /// Test ggen.lock file creation for reproducible builds
+    /// Test mcpp.lock file creation for reproducible builds
     #[test]
-    fn test_ggen_lock_creation() {
+    fn test_mcpp_lock_creation() {
         let mut packages = BTreeMap::new();
 
         packages.insert(
             "schema-org".to_string(),
             LockedPackage {
                 version: "3.13.0".to_string(),
-                resolved: "registry://ggen-marketplace/schema-org@3.13.0".to_string(),
+                resolved: "registry://mcpp-marketplace/schema-org@3.13.0".to_string(),
                 integrity: "sha256-abc123def456".to_string(),
-                location: ".ggen/packages/schema-org/3.13.0".to_string(),
+                location: ".mcpp/packages/schema-org/3.13.0".to_string(),
                 namespace: Some("https://schema.org/".to_string()),
                 classes_count: 788,
                 properties_count: 2500,
@@ -64,7 +64,7 @@ mod tests {
         assert_eq!(lockfile.composition.total_classes, 788);
     }
 
-    /// Test reproducible builds with ggen.lock version spec
+    /// Test reproducible builds with mcpp.lock version spec
     #[test]
     fn test_lock_file_version_spec() {
         let mut packages = BTreeMap::new();
@@ -73,9 +73,9 @@ mod tests {
             "schema-org".to_string(),
             LockedPackage {
                 version: "3.13.0".to_string(),
-                resolved: "registry://ggen-marketplace/schema-org@3.13.0".to_string(),
+                resolved: "registry://mcpp-marketplace/schema-org@3.13.0".to_string(),
                 integrity: "sha256-abc123".to_string(),
-                location: ".ggen/packages/schema-org/3.13.0".to_string(),
+                location: ".mcpp/packages/schema-org/3.13.0".to_string(),
                 namespace: None,
                 classes_count: 788,
                 properties_count: 2500,
@@ -88,9 +88,9 @@ mod tests {
             "dublin-core".to_string(),
             LockedPackage {
                 version: "1.11.0".to_string(),
-                resolved: "registry://ggen-marketplace/dublin-core@1.11.0".to_string(),
+                resolved: "registry://mcpp-marketplace/dublin-core@1.11.0".to_string(),
                 integrity: "sha256-def456".to_string(),
-                location: ".ggen/packages/dublin-core/1.11.0".to_string(),
+                location: ".mcpp/packages/dublin-core/1.11.0".to_string(),
                 namespace: None,
                 classes_count: 35,
                 properties_count: 50,
@@ -238,9 +238,9 @@ mod tests {
             "schema-org".to_string(),
             LockedPackage {
                 version: "3.13.0".to_string(),
-                resolved: "registry://ggen-marketplace/schema-org@3.13.0".to_string(),
+                resolved: "registry://mcpp-marketplace/schema-org@3.13.0".to_string(),
                 integrity: "sha256-abc123".to_string(),
-                location: ".ggen/packages/schema-org/3.13.0".to_string(),
+                location: ".mcpp/packages/schema-org/3.13.0".to_string(),
                 namespace: None,
                 classes_count: 788,
                 properties_count: 2500,

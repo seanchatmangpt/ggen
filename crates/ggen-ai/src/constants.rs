@@ -1,4 +1,4 @@
-//! Constants for ggen-ai
+//! Constants for mcpp-ai
 //!
 //! Centralized configuration values to avoid magic numbers across the codebase.
 //! This module provides default values for LLM configurations, autonomous systems,

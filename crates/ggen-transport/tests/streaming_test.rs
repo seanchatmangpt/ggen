@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use futures::StreamExt;
-use ggen_transport::streaming::{StreamBuilder, StreamControl, StreamMessage};
-use ggen_transport::SessionId;
+use mcpp_transport::streaming::{StreamBuilder, StreamControl, StreamMessage};
+use mcpp_transport::SessionId;
 
 #[tokio::test]
 async fn test_streaming_basic_send_receive() {
@@ -118,11 +118,11 @@ async fn test_streaming_control_pause_resume() {
     let pause_control = StreamControl::pause(session_id.clone());
     assert!(matches!(
         pause_control.action,
-        ggen_transport::streaming::StreamAction::Pause
+        mcpp_transport::streaming::StreamAction::Pause
     ));
 
     let resume_control = StreamControl::resume(session_id.clone(), Some(42));
-    if let ggen_transport::streaming::StreamAction::Resume { from_position } = resume_control.action
+    if let mcpp_transport::streaming::StreamAction::Resume { from_position } = resume_control.action
     {
         assert_eq!(from_position, Some(42));
     } else {
@@ -136,7 +136,7 @@ async fn test_streaming_control_cancel() {
     let cancel_control = StreamControl::cancel(session_id);
     assert!(matches!(
         cancel_control.action,
-        ggen_transport::streaming::StreamAction::Cancel
+        mcpp_transport::streaming::StreamAction::Cancel
     ));
 }
 
@@ -144,7 +144,7 @@ async fn test_streaming_control_cancel() {
 async fn test_streaming_control_acknowledge() {
     let session_id = SessionId::new();
     let ack_control = StreamControl::acknowledge(session_id, 100);
-    if let ggen_transport::streaming::StreamAction::Acknowledge { sequence } = ack_control.action {
+    if let mcpp_transport::streaming::StreamAction::Acknowledge { sequence } = ack_control.action {
         assert_eq!(sequence, 100);
     } else {
         panic!("Expected Acknowledge action");
@@ -153,7 +153,7 @@ async fn test_streaming_control_acknowledge() {
 
 #[tokio::test]
 async fn test_streaming_error_propagation() {
-    use ggen_transport::TransportError;
+    use mcpp_transport::TransportError;
 
     let session_id = SessionId::new();
     let builder = StreamBuilder::new(session_id);

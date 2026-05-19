@@ -1,9 +1,9 @@
 groups:
-  - id: registry.ggen.pipeline
+  - id: registry.mcpp.pipeline
     type: attribute_group
     stability: development
     display_name: Pipeline Attributes
-    brief: Attributes for ggen code generation pipeline operations.
+    brief: Attributes for mcpp code generation pipeline operations.
     attributes:
       - id: pipeline.operation
         type: string

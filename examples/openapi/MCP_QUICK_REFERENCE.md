@@ -21,7 +21,7 @@
 
 ### Test Suite
 ```
-/Users/sac/ggen/examples/openapi/tests/mcp-tool-discovery.test.mjs
+./examples/openapi/tests/mcp-tool-discovery.test.mjs
 ```
 - 21 comprehensive test cases
 - 6 test suites
@@ -30,7 +30,7 @@
 
 ### Documentation
 ```
-/Users/sac/ggen/examples/openapi/MCP_TOOL_DISCOVERY_REPORT.md
+./examples/openapi/MCP_TOOL_DISCOVERY_REPORT.md
 ```
 - Detailed validation report
 - Examples and use cases
@@ -38,7 +38,7 @@
 - Registry implementation
 
 ```
-/Users/sac/ggen/examples/openapi/MCP_SERVER_INTEGRATION_EXAMPLE.md
+./examples/openapi/MCP_SERVER_INTEGRATION_EXAMPLE.md
 ```
 - Practical implementation guide
 - Code examples
@@ -46,7 +46,7 @@
 - Advanced patterns (middleware, caching, batching)
 
 ```
-/Users/sac/ggen/examples/openapi/MCP_VALIDATION_SUMMARY.txt
+./examples/openapi/MCP_VALIDATION_SUMMARY.txt
 ```
 - Executive summary
 - Test results
@@ -211,7 +211,7 @@ type User = z.infer<typeof userSchema>;
 
 ### 1. Run Tests
 ```bash
-cd /Users/sac/ggen/examples/openapi
+cd ./examples/openapi
 npm install zod
 node tests/mcp-tool-discovery.test.mjs
 ```

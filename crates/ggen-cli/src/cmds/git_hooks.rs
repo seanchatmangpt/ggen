@@ -54,7 +54,7 @@ pub fn is_hook_installed(hooks_dir: &Path, hook_name: &str) -> Result<bool, std:
 /// Pre-commit hook content
 const PRE_COMMIT_HOOK: &str = r#"#!/usr/bin/env bash
 # Pre-commit hook - Fast validation tier
-# Auto-installed by ggen init
+# Auto-installed by mcpp init
 # Target: <10 seconds | Catches compilation errors early
 
 set -e
@@ -94,7 +94,7 @@ exit 0
 /// Pre-push hook content
 const PRE_PUSH_HOOK: &str = r#"#!/usr/bin/env bash
 # Pre-push hook - Full validation tier
-# Auto-installed by ggen init
+# Auto-installed by mcpp init
 # Target: <90 seconds | Comprehensive checks
 
 set -e

@@ -12,7 +12,7 @@
 //! - Set GGEN_LLM_MODEL environment variable
 //! - Set appropriate API key
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     field::{InputField, OutputField},
     module::Module,
     optimizer::{BootstrapFewShot, Example, MetricFn},

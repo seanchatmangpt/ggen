@@ -1,7 +1,7 @@
 //! Capability-first CLI for governed pack composition
 //!
 //! Canonical form:
-//!   ggen capability enable mcp --projection rust --runtime axum --profile enterprise-strict
+//!   mcpp capability enable mcp --projection rust --runtime axum --profile enterprise-strict
 //!
 //! Underlying model: expands to atomic packs, creates composition receipt
 
@@ -14,7 +14,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::runtime::block_on;
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 
 // ============================================================================
 // Output Types
@@ -123,7 +123,7 @@ fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(
         let locked_pack = LockedPack {
             version: "1.0.0".to_string(),
             source: PackSource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             integrity: None,
             installed_at: chrono::Utc::now(),
@@ -143,9 +143,62 @@ fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(
 // ============================================================================
 
 /// Enable a capability with explicit parameters (canonical form)
+///
+/// Resolves a high-level capability to its atomic pack composition and persists
+/// the result to the lockfile with cryptographic receipt generation.
+///
+/// ## Canonical Form
+///
+/// ```bash
+/// mcpp capability enable mcp --projection rust --runtime axum --profile enterprise-strict
+/// ```
+///
+/// ## Arguments
+///
+/// * `surface` - Capability surface to enable (e.g., `mcp`, `a2a`, `openapi`)
+/// * `projection` - Target language projection (e.g., `rust`, `python`, `go`)
+/// * `runtime` - Runtime framework (e.g., `axum`, `actix-web`, `tokio`)
+/// * `profile` - Governance profile (e.g., `default`, `enterprise-strict`)
+///
+/// ## Examples
+///
+/// Enable MCP server capability with Rust projection:
+/// ```bash
+/// mcpp capability enable mcp --projection rust
+/// ```
+///
+/// Enable A2A protocol with full stack specification:
+/// ```bash
+/// mcpp capability enable a2a --projection rust --runtime axum --profile enterprise-strict
+/// ```
+///
+/// Enable OpenAPI contract validation with defaults:
+/// ```bash
+/// mcpp capability enable openapi
+/// ```
+///
+/// ## Environment Variables
+///
+/// * `GGEN_PROJECTION` - Default projection if not specified
+/// * `GGEN_RUNTIME` - Default runtime if not specified
+/// * `GGEN_PROFILE` - Default governance profile
+///
+/// ## Output
+///
+/// Returns JSON with:
+/// * `capability` - Enabled capability ID
+/// * `projection` - Selected projection
+/// * `runtime` - Selected runtime
+/// * `profile` - Governance profile applied
+/// * `atomic_packs` - Resolved atomic pack IDs
+/// * `status` - Always "enabled"
+/// * `message` - Human-readable summary with receipt path
 #[verb]
 fn enable(
-    surface: String, projection: Option<String>, runtime: Option<String>, profile: Option<String>,
+    surface: String,
+    projection: Option<String>,
+    runtime: Option<String>,
+    profile: Option<String>,
 ) -> VerbResult<CapabilityEnableOutput> {
     run_capability_enable(surface, projection, runtime, profile)
 }
@@ -189,7 +242,7 @@ fn run_capability_enable(
     }
 
     // Persist to lockfile
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
     update_lockfile(&lockfile_path, &atomic_packs).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to update lockfile: {}", e))
     })?;
@@ -203,8 +256,8 @@ fn run_capability_enable(
             e
         ))
     })?;
-    let ggen_dir = project_root.join(".ggen");
-    let mut receipt_manager = ReceiptManager::new(ggen_dir).map_err(|e| {
+    let mcpp_dir = project_root.join(".mcpp");
+    let mut receipt_manager = ReceiptManager::new(mcpp_dir).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
             "Failed to create receipt manager: {}",
             e
@@ -247,9 +300,50 @@ fn run_capability_enable(
 }
 
 /// Disable a capability and remove its atomic packs
+///
+/// Removes all atomic packs associated with a capability from the lockfile.
+/// This operation is irreversible unless the capability is re-enabled.
+///
+/// ## Arguments
+///
+/// * `capability` - Capability ID to disable (e.g., `mcp`, `a2a`, `openapi`)
+///
+/// ## Examples
+///
+/// Disable MCP server capability:
+/// ```bash
+/// mcpp capability disable mcp
+/// ```
+///
+/// Disable A2A protocol capability:
+/// ```bash
+/// mcpp capability disable a2a
+/// ```
+///
+/// Disable OpenAPI contract validation:
+/// ```bash
+/// mcpp capability disable openapi
+/// ```
+///
+/// ## Behavior
+///
+/// * Resolves capability to its atomic pack composition
+/// * Removes all associated packs from `.mcpp/packs.lock`
+/// * Updates lockfile atomically
+/// * No receipt is generated for disable operations
+///
+/// ## Output
+///
+/// Returns JSON with:
+/// * `capability` - Disabled capability ID
+/// * `status` - Always "disabled"
+/// * `removed_packs` - Number of packs removed from lockfile
+/// * `message` - Human-readable summary
 #[verb]
-fn disable(capability: String) -> VerbResult<serde_json::Value> {
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+fn disable(
+    capability: String,
+) -> VerbResult<serde_json::Value> {
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     if !lockfile_path.exists() {
         return Ok(serde_json::json!({
@@ -303,8 +397,50 @@ fn disable(capability: String) -> VerbResult<serde_json::Value> {
 }
 
 /// Inspect a capability's atomic pack composition
+///
+/// Displays detailed information about a capability including its resolved
+/// atomic packs, dependencies, templates, and SPARQL queries.
+///
+/// ## Arguments
+///
+/// * `capability` - Capability ID to inspect (e.g., `mcp`, `a2a`, `openapi`)
+///
+/// ## Examples
+///
+/// Inspect MCP server capability composition:
+/// ```bash
+/// mcpp capability inspect mcp
+/// ```
+///
+/// Inspect A2A protocol capability details:
+/// ```bash
+/// mcpp capability inspect a2a
+/// ```
+///
+/// Inspect OpenAPI contract validation:
+/// ```bash
+/// mcpp capability inspect openapi
+/// ```
+///
+/// ## Output
+///
+/// Prints to console:
+/// * Capability name
+/// * Atomic packs count and list
+/// * Dependencies count and list
+/// * Templates count and list (pack-id:template-name format)
+/// * Queries count and list (pack-id:query-name format)
+///
+/// Returns JSON with:
+/// * `capability` - Inspected capability ID
+/// * `atomic_packs` - Resolved atomic pack IDs
+/// * `dependencies` - All pack dependencies
+/// * `templates` - Template files (pack-id:name format)
+/// * `queries` - SPARQL query files (pack-id:name format)
 #[verb]
-fn inspect(capability: String) -> VerbResult<CapabilityInspectOutput> {
+fn inspect(
+    capability: String,
+) -> VerbResult<CapabilityInspectOutput> {
     use crate::runtime::block_on;
 
     println!("Inspecting capability: {}", capability);
@@ -360,7 +496,7 @@ fn inspect_pack_details(
 ) -> VerbResult<(Vec<String>, Vec<String>, Vec<String>)> {
     use std::fs;
 
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
     let mut dependencies = vec![];
     let mut templates = vec![];
     let mut queries = vec![];
@@ -376,8 +512,8 @@ fn inspect_pack_details(
     let cache_base = std::env::var("GGEN_PACK_CACHE_DIR")
         .ok()
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     for pack_id in atomic_packs {
         if let Some(locked_pack) = lockfile.get_pack(pack_id) {
@@ -419,8 +555,47 @@ fn inspect_pack_details(
 }
 
 /// List available capabilities
+///
+/// Displays all available capabilities with their categories and atomic pack compositions.
+///
+/// ## Arguments
+///
+/// * `verbose` - Show detailed information for each capability
+///
+/// ## Examples
+///
+/// List all capabilities with brief info:
+/// ```bash
+/// mcpp capability list
+/// ```
+///
+/// List all capabilities with detailed information:
+/// ```bash
+/// mcpp capability list --verbose
+/// ```
+///
+/// ## Output
+///
+/// With `--verbose`, prints to console for each capability:
+/// * Capability ID and name
+/// * Description
+/// * Category (surface, contract, etc.)
+/// * Atomic packs
+///
+/// Returns JSON with:
+/// * `capabilities` - Array of capability information objects
+/// * `total` - Total number of capabilities available
+///
+/// Each capability object contains:
+/// * `id` - Capability identifier
+/// * `name` - Human-readable name
+/// * `description` - Capability description
+/// * `category` - Capability category
+/// * `atomic_packs` - Associated atomic pack IDs
 #[verb]
-fn list(verbose: bool) -> VerbResult<CapabilityListOutput> {
+fn list(
+    verbose: bool,
+) -> VerbResult<CapabilityListOutput> {
     let capabilities = vec![
         CapabilityInfo {
             id: "mcp".to_string(),
@@ -462,8 +637,49 @@ fn list(verbose: bool) -> VerbResult<CapabilityListOutput> {
 }
 
 /// Show resolved atomic pack graph before compile
+///
+/// Displays the dependency graph of atomic packs for enabled capabilities.
+/// Useful for visualizing pack relationships before code generation.
+///
+/// ## Arguments
+///
+/// * `format` - Output format: `dot` for Graphviz DOT format, or JSON for structured output
+///
+/// ## Examples
+///
+/// Display graph in JSON format (default):
+/// ```bash
+/// mcpp capability graph
+/// ```
+///
+/// Display graph in Graphviz DOT format:
+/// ```bash
+/// mcpp capability graph --format dot
+/// ```
+///
+/// Pipe DOT output to Graphviz for visualization:
+/// ```bash
+/// mcpp capability graph --format dot | dot -Tpng -o graph.png
+/// ```
+///
+/// ## Output
+///
+/// With `--format dot`, prints Graphviz DOT format to stdout:
+/// ```dot
+/// digraph capabilities {
+///   "surface-mcp" [label="MCP Surface", type="surface"];
+///   "projection-rust" [label="Rust Projection", type="projection"];
+///   "surface-mcp" -> "projection-rust" [label="projects-to"];
+/// }
+/// ```
+///
+/// Returns JSON with:
+/// * `nodes` - Array of graph nodes with id, label, and type
+/// * `edges` - Array of graph edges with from, to, and label
 #[verb]
-fn graph(format: Option<String>) -> VerbResult<CapabilityGraphOutput> {
+fn graph(
+    format: Option<String>,
+) -> VerbResult<CapabilityGraphOutput> {
     let nodes = vec![
         GraphNode {
             id: "surface-mcp".to_string(),
@@ -504,8 +720,52 @@ fn graph(format: Option<String>) -> VerbResult<CapabilityGraphOutput> {
 }
 
 /// Show trust status for all packs
+///
+/// Displays trust tier, signature, and digest information for all installed packs.
+/// Useful for security audits and compliance verification.
+///
+/// ## Arguments
+///
+/// * `verbose` - Show detailed trust information for each pack
+///
+/// ## Examples
+///
+/// Show trust status summary:
+/// ```bash
+/// mcpp capability trust
+/// ```
+///
+/// Show detailed trust information:
+/// ```bash
+/// mcpp capability trust --verbose
+/// ```
+///
+/// ## Output
+///
+/// With `--verbose`, prints to console for each pack:
+/// * Pack ID and trust tier
+/// * Signature (first 8 characters)
+/// * Digest (SHA-256)
+///
+/// Trust tiers include:
+/// * `enterprise-certified` - Enterprise certified with full verification
+/// * `enterprise-approved` - Enterprise approved with standard verification
+/// * `community` - Community-maintained packages
+/// * `unverified` - Packages without signature verification
+///
+/// Returns JSON with:
+/// * `packs` - Array of trust information objects
+/// * `total` - Total number of packs
+///
+/// Each trust object contains:
+/// * `pack_id` - Pack identifier
+/// * `trust_tier` - Trust tier classification
+/// * `signature` - Pack signature hash
+/// * `digest` - SHA-256 digest of pack contents
 #[verb]
-fn trust(verbose: bool) -> VerbResult<CapabilityTrustOutput> {
+fn trust(
+    verbose: bool,
+) -> VerbResult<CapabilityTrustOutput> {
     let packs = vec![
         TrustInfo {
             pack_id: "surface-mcp".to_string(),
@@ -534,11 +794,68 @@ fn trust(verbose: bool) -> VerbResult<CapabilityTrustOutput> {
 }
 
 /// Detect and report conflicts
+///
+/// Analyzes all installed packs for conflicts across multiple dimensions:
+/// file paths, template names, query names, and dependency cycles.
+///
+/// ## Arguments
+///
+/// * `verbose` - Show detailed conflict information including resolutions
+///
+/// ## Examples
+///
+/// Check for conflicts with detailed output:
+/// ```bash
+/// mcpp capability conflicts --verbose
+/// ```
+///
+/// Check for conflicts with summary only:
+/// ```bash
+/// mcpp capability conflicts
+/// ```
+///
+/// ## Conflict Dimensions
+///
+/// 1. **File Path Conflicts** - Multiple packs writing to the same output file
+///    * Severity: ERROR
+///    * Resolution: Remove one pack or specify different output paths
+///
+/// 2. **Template Name Conflicts** - Multiple packs providing templates with the same name
+///    * Severity: WARNING
+///    * Resolution: Templates are namespaced by pack ID automatically
+///
+/// 3. **Query Name Conflicts** - Multiple packs providing SPARQL queries with the same name
+///    * Severity: ERROR
+///    * Resolution: Queries must have unique names across all packs
+///
+/// 4. **Dependency Cycles** - Circular dependencies between packs
+///    * Severity: ERROR
+///    * Resolution: Refactor pack structure to remove cycles
+///
+/// ## Output
+///
+/// With `--verbose`, prints to console:
+/// * Total conflicts found
+/// * For each conflict: dimension, severity, affected packs, description, and resolution
+///
+/// Returns JSON with:
+/// * `conflicts` - Array of conflict information objects
+/// * `compatible` - Boolean indicating if packs are compatible (no ERROR conflicts)
+///
+/// Each conflict object contains:
+/// * `dimension` - Conflict dimension (file_path, template_name, query_name, dependency_cycle)
+/// * `pack_a` - First pack involved in conflict
+/// * `pack_b` - Second pack involved in conflict
+/// * `description` - Human-readable conflict description
+/// * `severity` - Conflict severity (error, warning)
+/// * `resolution` - Suggested resolution (if available)
 #[verb]
-fn conflicts(verbose: bool) -> VerbResult<CapabilityConflictsOutput> {
+fn conflicts(
+    verbose: bool,
+) -> VerbResult<CapabilityConflictsOutput> {
     println!("Checking for conflicts across all capabilities...");
 
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     if !lockfile_path.exists() {
         println!("No lockfile found - no packs to check for conflicts");
@@ -608,8 +925,8 @@ fn detect_all_conflicts(
     let cache_dir = std::env::var("GGEN_PACK_CACHE_DIR")
         .ok()
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     // Dimension 1: File path conflicts
     all_conflicts.extend(detect_file_conflicts(pack_ids, &cache_dir)?);

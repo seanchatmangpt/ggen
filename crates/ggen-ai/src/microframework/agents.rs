@@ -1,6 +1,6 @@
 //! Pre-built agent types for common tasks
 //!
-//! These agents integrate with ggen's existing code generation infrastructure.
+//! These agents integrate with mcpp's existing code generation infrastructure.
 
 use super::tasks::{Task, TaskResult, TaskType};
 use crate::error::Result;

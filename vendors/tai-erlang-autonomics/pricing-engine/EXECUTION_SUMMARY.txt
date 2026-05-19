@@ -379,7 +379,7 @@ Prerequisites:
   - Docker (optional)
 
 Local Development:
-  cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+  cd ./tai-erlang-autonomics/pricing-engine
   rebar3 compile
   rebar3 eunit        # Run unit tests
   rebar3 ct           # Run integration tests

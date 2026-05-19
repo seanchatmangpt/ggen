@@ -305,4 +305,4 @@ rmcp = { version = "1.3.0", features = ["server", "client", "macros", "transport
 
 - crates.io: https://crates.io/crates/rmcp
 - Source: https://github.com/modelcontextprotocol/rust-sdk
-- Session file: `/Users/sac/chatmangpt/memory/weaver_automation_session_2026-03-28.md`
+- Session file: `~/.ggen/chatmangpt/memory/weaver_automation_session_2026-03-28.md`

@@ -2,8 +2,8 @@
 2026/01/04-12:33:56.244521 6148157440 DB SUMMARY
 2026/01/04-12:33:56.244524 6148157440 Host name (Env):  Seans-MacBook-Pro.local
 2026/01/04-12:33:56.244526 6148157440 DB Session ID:  V886VDC4TF6R31YZJ4FS
-2026/01/04-12:33:56.244550 6148157440 SST files in .ggen/rdf-store dir, Total Num: 0, files: 
-2026/01/04-12:33:56.244552 6148157440 Write Ahead Log file in .ggen/rdf-store: 
+2026/01/04-12:33:56.244550 6148157440 SST files in .mcpp/rdf-store dir, Total Num: 0, files: 
+2026/01/04-12:33:56.244552 6148157440 Write Ahead Log file in .mcpp/rdf-store: 
 2026/01/04-12:33:56.244554 6148157440                         Options.error_if_exists: 0
 2026/01/04-12:33:56.244556 6148157440                       Options.create_if_missing: 1
 2026/01/04-12:33:56.244557 6148157440                         Options.paranoid_checks: 1

@@ -21,7 +21,7 @@
 //! cargo run --example genai_error_handling
 //! ```
 
-use ggen_ai::{GenAiClient, GgenAiError, LlmClient, LlmConfig, MockClient, Result};
+use mcpp_ai::{GenAiClient, GgenAiError, LlmClient, LlmConfig, MockClient, Result};
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;

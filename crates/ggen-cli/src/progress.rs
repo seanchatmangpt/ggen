@@ -7,7 +7,6 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tokio::sync::broadcast;
 use tracing::{debug, info, warn};
-use uuid::Uuid;
 
 /// Progress reporting system for async operations
 #[derive(Clone)]

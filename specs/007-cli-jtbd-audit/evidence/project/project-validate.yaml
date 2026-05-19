@@ -1,4 +1,4 @@
-command: "ggen project validate"
+command: "mcpp project validate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I have a project configuration to validate,
-  I need to run 'ggen project validate',
+  I need to run 'mcpp project validate',
   so that I can ensure configuration correctness before applying.

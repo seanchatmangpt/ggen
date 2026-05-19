@@ -4,7 +4,7 @@
 //! Packs are converted to RDF graphs and can be queried using SPARQL.
 
 use crate::packs::types::Pack;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use oxigraph::model::*;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
@@ -139,15 +139,15 @@ impl SparqlExecutor {
         let mut triples = Vec::new();
 
         // Define namespace
-        let pack_ns = format!("http://ggen.io/pack/{}/", pack.id);
+        let pack_ns = format!("http://mcpp.io/pack/{}/", pack.id);
         let rdf_ns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         let rdfs_ns = "http://www.w3.org/2000/01/rdf-schema#";
-        let ggen_ns = "http://ggen.dev/ontology#";
+        let mcpp_ns = "http://mcpp.dev/ontology#";
 
         // Pack basic properties
         triples.push(format!(
             "<{}> <{}type> <{}Pack> .",
-            pack_ns, rdf_ns, ggen_ns
+            pack_ns, rdf_ns, mcpp_ns
         ));
         triples.push(format!(
             "<{}> <{}label> \"{}\" .",
@@ -155,36 +155,36 @@ impl SparqlExecutor {
         ));
         triples.push(format!(
             "<{}> <{}version> \"{}\" .",
-            pack_ns, ggen_ns, pack.version
+            pack_ns, mcpp_ns, pack.version
         ));
         triples.push(format!(
             "<{}> <{}description> \"{}\" .",
-            pack_ns, ggen_ns, pack.description
+            pack_ns, mcpp_ns, pack.description
         ));
         triples.push(format!(
             "<{}> <{}category> \"{}\" .",
-            pack_ns, ggen_ns, pack.category
+            pack_ns, mcpp_ns, pack.category
         ));
 
         // Optional fields
         if let Some(author) = &pack.author {
             triples.push(format!(
                 "<{}> <{}author> \"{}\" .",
-                pack_ns, ggen_ns, author
+                pack_ns, mcpp_ns, author
             ));
         }
 
         if let Some(license) = &pack.license {
             triples.push(format!(
                 "<{}> <{}license> \"{}\" .",
-                pack_ns, ggen_ns, license
+                pack_ns, mcpp_ns, license
             ));
         }
 
         // Production ready flag
         triples.push(format!(
             "<{}> <{}productionReady> \"{}\" .",
-            pack_ns, ggen_ns, pack.production_ready
+            pack_ns, mcpp_ns, pack.production_ready
         ));
 
         // Packages
@@ -192,7 +192,7 @@ impl SparqlExecutor {
             let pkg_uri = format!("{}package/{}", pack_ns, idx);
             triples.push(format!(
                 "<{}> <{}hasPackage> <{}> .",
-                pack_ns, ggen_ns, pkg_uri
+                pack_ns, mcpp_ns, pkg_uri
             ));
             triples.push(format!(
                 "<{}> <{}label> \"{}\" .",
@@ -205,7 +205,7 @@ impl SparqlExecutor {
             let tmpl_uri = format!("{}template/{}", pack_ns, idx);
             triples.push(format!(
                 "<{}> <{}hasTemplate> <{}> .",
-                pack_ns, ggen_ns, tmpl_uri
+                pack_ns, mcpp_ns, tmpl_uri
             ));
             triples.push(format!(
                 "<{}> <{}label> \"{}\" .",
@@ -213,11 +213,11 @@ impl SparqlExecutor {
             ));
             triples.push(format!(
                 "<{}> <{}path> \"{}\" .",
-                tmpl_uri, ggen_ns, template.path
+                tmpl_uri, mcpp_ns, template.path
             ));
             triples.push(format!(
                 "<{}> <{}description> \"{}\" .",
-                tmpl_uri, ggen_ns, template.description
+                tmpl_uri, mcpp_ns, template.description
             ));
         }
 
@@ -226,32 +226,32 @@ impl SparqlExecutor {
             let dep_uri = format!("{}dependency/{}", pack_ns, idx);
             triples.push(format!(
                 "<{}> <{}hasDependency> <{}> .",
-                pack_ns, ggen_ns, dep_uri
+                pack_ns, mcpp_ns, dep_uri
             ));
             triples.push(format!(
                 "<{}> <{}packId> \"{}\" .",
-                dep_uri, ggen_ns, dep.pack_id
+                dep_uri, mcpp_ns, dep.pack_id
             ));
             triples.push(format!(
                 "<{}> <{}version> \"{}\" .",
-                dep_uri, ggen_ns, dep.version
+                dep_uri, mcpp_ns, dep.version
             ));
             triples.push(format!(
                 "<{}> <{}optional> \"{}\" .",
-                dep_uri, ggen_ns, dep.optional
+                dep_uri, mcpp_ns, dep.optional
             ));
         }
 
         // Tags
         for tag in &pack.tags {
-            triples.push(format!("<{}> <{}tag> \"{}\" .", pack_ns, ggen_ns, tag));
+            triples.push(format!("<{}> <{}tag> \"{}\" .", pack_ns, mcpp_ns, tag));
         }
 
         // Keywords
         for keyword in &pack.keywords {
             triples.push(format!(
                 "<{}> <{}keyword> \"{}\" .",
-                pack_ns, ggen_ns, keyword
+                pack_ns, mcpp_ns, keyword
             ));
         }
 

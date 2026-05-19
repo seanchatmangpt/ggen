@@ -1,7 +1,7 @@
 //! Gpack manifest structure and file discovery
 //!
 //! This module provides the structure and functionality for gpack manifests (`gpack.toml`),
-//! which define template packs for ggen. It handles manifest parsing, file discovery,
+//! which define template packs for mcpp. It handles manifest parsing, file discovery,
 //! and provides default conventions for organizing pack files.
 //!
 //! ## Gpack Structure
@@ -37,10 +37,10 @@
 //! ### Loading a Manifest
 //!
 //! ```rust,no_run
-//! use ggen_core::gpack::GpackManifest;
+//! use mcpp_core::gpack::GpackManifest;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! println!("Pack: {} v{}", manifest.metadata.name, manifest.metadata.version);
 //! # Ok(())
@@ -50,10 +50,10 @@
 //! ### Discovering Templates
 //!
 //! ```rust,no_run
-//! use ggen_core::gpack::GpackManifest;
+//! use mcpp_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! let templates = manifest.discover_templates(Path::new("."))?;
 //!
@@ -67,10 +67,10 @@
 //! ### Discovering Files
 //!
 //! ```rust,no_run
-//! use ggen_core::gpack::GpackManifest;
+//! use mcpp_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&Path::new("gpack.toml").to_path_buf())?;
 //!
 //! // Discover templates using manifest patterns or conventions
@@ -85,7 +85,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -147,7 +147,7 @@ pub struct GpackMetadata {
     pub version: String,
     pub description: String,
     pub license: String,
-    pub ggen_compat: String,
+    pub mcpp_compat: String,
 }
 
 /// Templates configuration
@@ -216,10 +216,10 @@ fn discover_files(base_path: &Path, patterns: &[&str]) -> Result<Vec<PathBuf>> {
     for pattern in patterns {
         let full_pattern = base_path.join(pattern);
         for entry in glob(&full_pattern.to_string_lossy())
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
         {
             files.push(
-                entry.map_err(|e| ggen_utils::error::Error::new(&format!("Glob error: {}", e)))?,
+                entry.map_err(|e| mcpp_utils::error::Error::new(&format!("Glob error: {}", e)))?,
             );
         }
     }
@@ -310,15 +310,15 @@ mod tests {
     fn test_manifest_parsing() {
         let toml_content = r#"
 [gpack]
-id = "io.ggen.rust.cli-subcommand"
+id = "io.mcpp.rust.cli-subcommand"
 name = "Rust CLI subcommand"
 version = "0.1.0"
 description = "Generate clap subcommands"
 license = "MIT"
-ggen_compat = ">=0.1 <0.2"
+mcpp_compat = ">=0.1 <0.2"
 
 [dependencies]
-"io.ggen.macros.std" = "^0.1"
+"io.mcpp.macros.std" = "^0.1"
 
 [templates]
 patterns = ["cli/subcommand/*.tmpl"]
@@ -338,13 +338,13 @@ aliases.component_by_name = "../queries/component_by_name.rq"
 patterns = ["../shapes/*.ttl"]
 
 [preset]
-config = "../preset/ggen.toml"
+config = "../preset/mcpp.toml"
 vars = { author = "Acme", license = "MIT" }
 "#;
 
         let manifest: GpackManifest = toml::from_str(toml_content).unwrap();
 
-        assert_eq!(manifest.metadata.id, "io.ggen.rust.cli-subcommand");
+        assert_eq!(manifest.metadata.id, "io.mcpp.rust.cli-subcommand");
         assert_eq!(manifest.metadata.name, "Rust CLI subcommand");
         assert_eq!(manifest.metadata.version, "0.1.0");
         assert_eq!(manifest.templates.patterns.len(), 1);
@@ -362,7 +362,7 @@ name = "Test"
 version = "0.1.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=0.1 <0.2"
+mcpp_compat = ">=0.1 <0.2"
 "#;
         temp_file.write_all(toml_content.as_bytes()).unwrap();
 
@@ -384,7 +384,7 @@ ggen_compat = ">=0.1 <0.2"
                 pack_version in r"[0-9]+\.[0-9]+\.[0-9]+",
                 pack_description in r"[a-zA-Z0-9_\s\-\.\/\?\!]+",
                 pack_license in r"[a-zA-Z0-9_\s\-\.]+",
-                ggen_compat in r"[><=0-9\.\s]+"
+                mcpp_compat in r"[><=0-9\.\s]+"
             ) {
                 // Skip invalid combinations
                 if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
@@ -409,7 +409,7 @@ ggen_compat = ">=0.1 <0.2"
                         version: pack_version.clone(),
                         description: pack_description.clone(),
                         license: pack_license.clone(),
-                        ggen_compat: ggen_compat.clone(),
+                        mcpp_compat: mcpp_compat.clone(),
                     },
                     dependencies: BTreeMap::new(),
                     templates: TemplatesConfig::default(),
@@ -430,7 +430,7 @@ ggen_compat = ">=0.1 <0.2"
                 assert_eq!(manifest.metadata.version, parsed_manifest.metadata.version);
                 assert_eq!(manifest.metadata.description, parsed_manifest.metadata.description);
                 assert_eq!(manifest.metadata.license, parsed_manifest.metadata.license);
-                assert_eq!(manifest.metadata.ggen_compat, parsed_manifest.metadata.ggen_compat);
+                assert_eq!(manifest.metadata.mcpp_compat, parsed_manifest.metadata.mcpp_compat);
             }
 
             #[test]
@@ -461,7 +461,7 @@ ggen_compat = ">=0.1 <0.2"
                     version: pack_version.clone(),
                     description: pack_description.clone(),
                     license: "MIT".to_string(),
-                    ggen_compat: ">=0.1 <0.2".to_string(),
+                    mcpp_compat: ">=0.1 <0.2".to_string(),
                 };
 
                 // Validate required fields
@@ -470,7 +470,7 @@ ggen_compat = ">=0.1 <0.2"
                 assert!(!metadata.version.is_empty());
                 assert!(!metadata.description.is_empty());
                 assert!(!metadata.license.is_empty());
-                assert!(!metadata.ggen_compat.is_empty());
+                assert!(!metadata.mcpp_compat.is_empty());
 
                 // Validate ID format (should be reverse domain notation)
                 if metadata.id.contains('.') {

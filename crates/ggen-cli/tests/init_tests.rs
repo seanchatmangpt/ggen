@@ -1,4 +1,4 @@
-//! Chicago TDD Unit Tests for `ggen init` Command
+//! Chicago TDD Unit Tests for `mcpp init` Command
 //!
 //! Test Coverage:
 //! - Success cases (fresh init, --path, --force)
@@ -7,7 +7,7 @@
 //!
 //! Pattern: AAA (Arrange, Act, Assert) with real filesystem (Chicago TDD)
 
-use ggen_cli_lib::cmds::init::InitOutput;
+use mcpp_cli_lib::cmds::init::InitOutput;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -24,7 +24,7 @@ use std::os::unix::fs::PermissionsExt;
 /// and verify the InitOutput structure.
 fn init_project(path: &str, force: bool) -> InitOutput {
     // Call the public init function from the CLI module
-    ggen_cli_lib::cmds::init::init(Some(path.to_string()), Some(force))
+    mcpp_cli_lib::cmds::init::init(Some(path.to_string()), Some(force))
         .expect("init should return Result")
 }
 
@@ -66,7 +66,7 @@ fn test_fresh_init_in_empty_directory() {
 
     // Assert: All expected files were created
     let expected_files = vec![
-        "ggen.toml",
+        "mcpp.toml",
         "schema/domain.ttl",
         "Makefile",
         "templates/example.txt.tera",
@@ -95,15 +95,15 @@ fn test_fresh_init_in_empty_directory() {
 
     // Assert: Files exist on filesystem with correct content
     let base = temp_dir.path();
-    assert_file_contains(&base.join("ggen.toml"), "[project]");
-    assert_file_contains(&base.join("ggen.toml"), "BIG BANG 80/20");
+    assert_file_contains(&base.join("mcpp.toml"), "[project]");
+    assert_file_contains(&base.join("mcpp.toml"), "BIG BANG 80/20");
     assert_file_contains(&base.join("schema/domain.ttl"), "@prefix");
     assert_file_contains(&base.join("schema/domain.ttl"), "schema:Person");
-    assert_file_contains(&base.join("Makefile"), "ggen sync");
+    assert_file_contains(&base.join("Makefile"), "mcpp sync");
     assert_file_contains(&base.join("templates/example.txt.tera"), "Tera Template");
     assert_file_contains(&base.join("scripts/startup.sh"), "#!/bin/bash");
-    assert_file_contains(&base.join(".gitignore"), ".ggen/");
-    assert_file_contains(&base.join("README.md"), "# My ggen Project");
+    assert_file_contains(&base.join(".gitignore"), ".mcpp/");
+    assert_file_contains(&base.join("README.md"), "# My mcpp Project");
 
     // Assert: Directories exist
     assert_dir_exists(&base.join("schema"));
@@ -137,7 +137,7 @@ fn test_init_with_path_argument() {
     assert!(project_path.is_dir());
 
     // Assert: Files were created in the specified path
-    assert_file_contains(&project_path.join("ggen.toml"), "[project]");
+    assert_file_contains(&project_path.join("mcpp.toml"), "[project]");
     assert_dir_exists(&project_path.join("schema"));
 }
 
@@ -151,8 +151,8 @@ fn test_init_with_force_to_reinitialize() {
     assert_eq!(first_output.status, "success");
 
     // Modify an existing file to verify it gets overwritten
-    let ggen_toml = temp_dir.path().join("ggen.toml");
-    fs::write(&ggen_toml, "# CUSTOM CONTENT").unwrap();
+    let mcpp_toml = temp_dir.path().join("mcpp.toml");
+    fs::write(&mcpp_toml, "# CUSTOM CONTENT").unwrap();
 
     // Act: Reinitialize with --force
     let output = init_project(project_path, true);
@@ -164,8 +164,8 @@ fn test_init_with_force_to_reinitialize() {
     // Assert: Files were overwritten (not created)
     let overwritten = output.files_overwritten.unwrap();
     assert!(
-        overwritten.contains(&"ggen.toml".to_string()),
-        "ggen.toml should be in overwritten list"
+        overwritten.contains(&"mcpp.toml".to_string()),
+        "mcpp.toml should be in overwritten list"
     );
 
     // Assert: Warning about overwritten files
@@ -173,14 +173,14 @@ fn test_init_with_force_to_reinitialize() {
     assert!(output.warning.unwrap().contains("Overwrote"));
 
     // Assert: File content was replaced (no longer has custom content)
-    let content = fs::read_to_string(&ggen_toml).unwrap();
+    let content = fs::read_to_string(&mcpp_toml).unwrap();
     assert!(
         !content.contains("# CUSTOM CONTENT"),
         "Custom content should be overwritten"
     );
     assert!(
         content.contains("[project]"),
-        "Should have new ggen.toml content"
+        "Should have new mcpp.toml content"
     );
 }
 
@@ -338,18 +338,18 @@ fn test_error_invalid_path_characters() {
 
 #[test]
 fn test_partial_file_exists_scenario() {
-    // Arrange: Create directory with only some ggen files present
+    // Arrange: Create directory with only some mcpp files present
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path().to_str().unwrap();
 
-    // Create only ggen.toml (but not other files)
-    let ggen_toml = temp_dir.path().join("ggen.toml");
-    fs::write(&ggen_toml, "# PARTIAL INIT").unwrap();
+    // Create only mcpp.toml (but not other files)
+    let mcpp_toml = temp_dir.path().join("mcpp.toml");
+    fs::write(&mcpp_toml, "# PARTIAL INIT").unwrap();
 
     // Act: Try to initialize without --force
     let output = init_project(project_path, false);
 
-    // Assert: Error because ggen.toml exists
+    // Assert: Error because mcpp.toml exists
     assert_eq!(output.status, "error");
     assert!(output.error.is_some());
     assert!(output.error.unwrap().contains("already initialized"));
@@ -360,9 +360,9 @@ fn test_partial_file_exists_scenario() {
     // Assert: Success with force flag
     assert_eq!(output_force.status, "success");
 
-    // Assert: ggen.toml was overwritten, other files created
+    // Assert: mcpp.toml was overwritten, other files created
     let overwritten = output_force.files_overwritten.as_ref().unwrap();
-    assert!(overwritten.contains(&"ggen.toml".to_string()));
+    assert!(overwritten.contains(&"mcpp.toml".to_string()));
 
     let created = &output_force.files_created;
     assert!(created.contains(&"Makefile".to_string()));
@@ -382,7 +382,7 @@ fn test_init_in_current_directory() {
     assert!(output.error.is_none());
 
     // Assert: Files created in current directory (passed as path)
-    assert!(temp_dir.path().join("ggen.toml").exists());
+    assert!(temp_dir.path().join("mcpp.toml").exists());
     assert!(temp_dir.path().join("Makefile").exists());
 }
 
@@ -437,9 +437,9 @@ fn test_idempotency_with_force_flag() {
     assert_eq!(output3.status, "success");
 
     // Assert: All files still exist and have correct content
-    assert_file_contains(&temp_dir.path().join("ggen.toml"), "[project]");
+    assert_file_contains(&temp_dir.path().join("mcpp.toml"), "[project]");
     assert_file_contains(&temp_dir.path().join("schema/domain.ttl"), "schema:Person");
-    assert_file_contains(&temp_dir.path().join("Makefile"), "ggen sync");
+    assert_file_contains(&temp_dir.path().join("Makefile"), "mcpp sync");
 
     // Assert: Each reinit reported overwritten files
     assert!(output2.files_overwritten.is_some());
@@ -465,7 +465,7 @@ fn test_nested_directory_creation() {
     assert!(nested_path.is_dir());
 
     // Assert: Files exist in nested location
-    assert!(nested_path.join("ggen.toml").exists());
+    assert!(nested_path.join("mcpp.toml").exists());
     assert!(nested_path.join("Makefile").exists());
 }
 
@@ -474,7 +474,7 @@ fn test_nested_directory_creation() {
 // ============================================================================
 
 #[test]
-fn test_ggen_toml_content() {
+fn test_mcpp_toml_content() {
     // Arrange
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path().to_str().unwrap();
@@ -483,9 +483,9 @@ fn test_ggen_toml_content() {
     let output = init_project(project_path, false);
     assert_eq!(output.status, "success");
 
-    // Assert: ggen.toml has correct structure
-    let ggen_toml_path = temp_dir.path().join("ggen.toml");
-    let content = fs::read_to_string(&ggen_toml_path).unwrap();
+    // Assert: mcpp.toml has correct structure
+    let mcpp_toml_path = temp_dir.path().join("mcpp.toml");
+    let content = fs::read_to_string(&mcpp_toml_path).unwrap();
 
     // Check for required sections
     assert!(content.contains("[project]"));
@@ -549,7 +549,7 @@ fn test_makefile_content() {
     assert!(content.contains("setup:"));
     assert!(content.contains("build:"));
     assert!(content.contains("clean:"));
-    assert!(content.contains("ggen sync"));
+    assert!(content.contains("mcpp sync"));
 }
 
 #[test]
@@ -671,7 +671,7 @@ fn test_concurrent_init_attempts() {
     assert_eq!(output3.status, "error");
 
     // Assert: Files remain intact after failed attempts
-    assert_file_contains(&temp_dir.path().join("ggen.toml"), "[project]");
+    assert_file_contains(&temp_dir.path().join("mcpp.toml"), "[project]");
 }
 
 #[test]

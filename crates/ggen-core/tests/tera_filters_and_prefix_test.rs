@@ -12,9 +12,9 @@
 //! - **Part C**: Prefix registration via `Pipeline::register_prefixes()`
 //! - **Part D**: `build_prolog()` for SPARQL prolog generation
 
-use ggen_core::graph::build_prolog;
-use ggen_core::pipeline::Pipeline;
-use ggen_core::register::register_all;
+use mcpp_core::graph::build_prolog;
+use mcpp_core::pipeline::Pipeline;
+use mcpp_core::register::register_all;
 use std::collections::BTreeMap;
 use tera::{Context, Tera};
 
@@ -22,7 +22,7 @@ use tera::{Context, Tera};
 // Helpers
 // ---------------------------------------------------------------------------
 
-/// Create a Tera instance with all ggen filters/functions registered.
+/// Create a Tera instance with all mcpp filters/functions registered.
 fn full_tera() -> Tera {
     let mut tera = Tera::default();
     tera.autoescape_on(vec![]);
@@ -608,7 +608,7 @@ mod prefix_registration {
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 
-        let mut pipeline = ggen_core::pipeline::PipelineBuilder::new()
+        let mut pipeline = mcpp_core::pipeline::PipelineBuilder::new()
             .with_prefixes(prefixes, None)
             .with_inline_rdf(vec![
                 r#"@prefix ex: <http://example.org/> .
@@ -665,7 +665,7 @@ mod prefix_registration {
             "http://www.w3.org/2001/XMLSchema#".to_string(),
         );
 
-        let mut pipeline = ggen_core::pipeline::PipelineBuilder::new()
+        let mut pipeline = mcpp_core::pipeline::PipelineBuilder::new()
             .with_prefixes(prefixes, Some("http://example.org/base/".to_string()))
             .build()
             .expect("PipelineBuilder::build failed");
@@ -691,7 +691,7 @@ mod prefix_registration {
             "http://www.w3.org/2000/01/rdf-schema#".to_string(),
         );
 
-        let mut pipeline = ggen_core::pipeline::PipelineBuilder::new()
+        let mut pipeline = mcpp_core::pipeline::PipelineBuilder::new()
             .with_prefixes(prefixes, None)
             .with_inline_rdf(vec![
                 r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .

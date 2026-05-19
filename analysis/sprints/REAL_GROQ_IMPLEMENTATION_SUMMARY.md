@@ -8,7 +8,7 @@ Tests were not executing with real Groq API calls despite claims of success. Roo
 
 ## Changes Made
 
-### 1. Fixed `is_test_mode()` in `crates/ggen-ai/src/config/global.rs`
+### 1. Fixed `is_test_mode()` in `crates/mcpp-ai/src/config/global.rs`
 
 **Before:**
 ```rust
@@ -35,10 +35,10 @@ pub fn is_test_mode(&self) -> bool {
 ### 2. Removed Feature Gates from Tests
 
 Removed `#[cfg_attr(not(feature = "live-groq"), ignore)]` from:
-- `crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs` (2 tests)
-- `crates/ggen-a2a-mcp/tests/groq_slo_timing.rs` (6 tests)
-- `crates/ggen-a2a-mcp/tests/a2a_groq_integration.rs` (3 tests)
-- `crates/ggen-a2a-mcp/tests/a2a_self_play.rs` (1 test)
+- `crates/mcpp-a2a-mcp/tests/llm_mcp_a2a_chain.rs` (2 tests)
+- `crates/mcpp-a2a-mcp/tests/groq_slo_timing.rs` (6 tests)
+- `crates/mcpp-a2a-mcp/tests/a2a_groq_integration.rs` (3 tests)
+- `crates/mcpp-a2a-mcp/tests/a2a_self_play.rs` (1 test)
 
 **Impact:** Tests are always visible and runnable. Runtime `GROQ_API_KEY` check is sufficient.
 
@@ -67,7 +67,7 @@ assert_eq!(
 
 ### 4. Updated Documentation
 
-Updated `semconv/live-check/run-ggen-live-check.sh` to remove `--features live-groq` from test invocation.
+Updated `semconv/live-check/run-mcpp-live-check.sh` to remove `--features live-groq` from test invocation.
 
 Updated test file comments to replace references to `live-groq` feature with `requires GROQ_API_KEY`.
 
@@ -76,8 +76,8 @@ Updated test file comments to replace references to `live-groq` feature with `re
 ### Test Results (with GROQ_API_KEY)
 
 ```bash
-RUST_LOG=trace,ggen_ai=trace,ggen_a2a_mcp=trace \
-cargo test -p ggen-a2a-mcp --test llm_mcp_a2a_chain \
+RUST_LOG=trace,mcpp_ai=trace,mcpp_a2a_mcp=trace \
+cargo test -p mcpp-a2a-mcp --test llm_mcp_a2a_chain \
   test_llm_mcp_a2a_chain_with_otel_trace -- --nocapture
 ```
 
@@ -90,8 +90,8 @@ llm.complete{operation.name="llm.complete" operation.type="llm" llm.model=groq::
   completion_tokens=1024
   total_tokens=1145
 
-ggen.mcp.tool_call{...}: validate_pipeline tool called project_path=/Users/sac/ggen
-ggen.mcp.tool_call{...}: list_generators tool called
+mcpp.mcp.tool_call{...}: validate_pipeline tool called project_path=~/.ggen/mcpp
+mcpp.mcp.tool_call{...}: list_generators tool called
 
 ✓ LLM called successfully (real API call, 1145 tokens total)
 ✓ validate_pipeline tool executed
@@ -105,7 +105,7 @@ test test_llm_mcp_a2a_chain_with_otel_trace ... ok
 
 ```bash
 unset GROQ_API_KEY
-cargo test -p ggen-a2a-mcp --test llm_mcp_a2a_chain \
+cargo test -p mcpp-a2a-mcp --test llm_mcp_a2a_chain \
   test_llm_mcp_a2a_chain_with_otel_trace -- --nocapture
 ```
 
@@ -118,7 +118,7 @@ test test_llm_mcp_a2a_chain_with_otel_trace ... ok
 ### All SLO Tests Pass
 
 ```bash
-cargo test -p ggen-a2a-mcp --test groq_slo_timing -- --nocapture
+cargo test -p mcpp-a2a-mcp --test groq_slo_timing -- --nocapture
 ```
 
 **Results:** 6/6 tests pass with real API calls:
@@ -142,7 +142,7 @@ All tests now emit proper OTEL spans proving real API calls:
 - `llm.total_tokens` attribute
 - Real network latency (~1-6 seconds, not mock values)
 
-✅ `ggen.mcp.tool_call` spans
+✅ `mcpp.mcp.tool_call` spans
 - Tool names captured
 - Parameters logged
 - Service metadata present
@@ -157,12 +157,12 @@ All tests now emit proper OTEL spans proving real API calls:
 
 ## Files Modified
 
-1. `crates/ggen-ai/src/config/global.rs` - Removed `cfg!(test)` from `is_test_mode()`
-2. `crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs` - Removed feature gate, added assertions
-3. `crates/ggen-a2a-mcp/tests/groq_slo_timing.rs` - Removed feature gate
-4. `crates/ggen-a2a-mcp/tests/a2a_groq_integration.rs` - Removed feature gate
-5. `crates/ggen-a2a-mcp/tests/a2a_self_play.rs` - Removed feature gate
-6. `semconv/live-check/run-ggen-live-check.sh` - Removed `--features live-groq`
+1. `crates/mcpp-ai/src/config/global.rs` - Removed `cfg!(test)` from `is_test_mode()`
+2. `crates/mcpp-a2a-mcp/tests/llm_mcp_a2a_chain.rs` - Removed feature gate, added assertions
+3. `crates/mcpp-a2a-mcp/tests/groq_slo_timing.rs` - Removed feature gate
+4. `crates/mcpp-a2a-mcp/tests/a2a_groq_integration.rs` - Removed feature gate
+5. `crates/mcpp-a2a-mcp/tests/a2a_self_play.rs` - Removed feature gate
+6. `semconv/live-check/run-mcpp-live-check.sh` - Removed `--features live-groq`
 
 ## Definition of Done
 

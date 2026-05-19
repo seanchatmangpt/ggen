@@ -15,7 +15,7 @@ use std::path::PathBuf;
 // Domain Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
-use ggen_domain::ai::{
+use mcpp_domain::ai::{
     analyze_code, analyze_project, format_result, generate_code, GenerateMetadata, GenerateOptions,
     GenerateResult, OutputFormat,
 };

@@ -2,8 +2,8 @@
 //!
 //! Tests for auto-generating skill implementations using LLM during sync pipeline.
 
-use ggen_core::codegen::pipeline::{GenerationPipeline, RuleType};
-use ggen_core::manifest::{
+use mcpp_core::codegen::pipeline::{GenerationPipeline, RuleType};
+use mcpp_core::manifest::{
     GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
     OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
 };

@@ -10,7 +10,7 @@
 //! - Set GGEN_LLM_MODEL environment variable (e.g., gpt-4, claude-3-opus-20240229)
 //! - Set appropriate API key (OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.)
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     field::{InputField, OutputField},
     module::Module,
     predictor::{ChainOfThought, Predictor},

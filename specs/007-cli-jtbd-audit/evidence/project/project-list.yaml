@@ -1,4 +1,4 @@
-command: "ggen project list"
+command: "mcpp project list"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to discover available projects,
-  I need to run 'ggen project list',
+  I need to run 'mcpp project list',
   so that I can see what projects are configured.

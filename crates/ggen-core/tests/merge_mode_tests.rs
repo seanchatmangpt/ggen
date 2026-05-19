@@ -10,7 +10,7 @@
 //! - Malformed marker handling
 //! - End-to-end merge integration
 
-use ggen_core::codegen::merge::{merge_sections, parse_merge_markers};
+use mcpp_core::codegen::merge::{merge_sections, parse_merge_markers};
 
 // ============================================================================
 // T023.1: test_marker_preserved_in_merge

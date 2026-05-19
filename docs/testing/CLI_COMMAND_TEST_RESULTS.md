@@ -2,7 +2,7 @@
 
 **Test Date:** 2026-04-01
 **ggen Version:** 5.5.0
-**Test Location:** /Users/sac/ggen
+**Test Location:** .
 **Total Commands Tested:** 19
 
 ## Summary
@@ -250,8 +250,8 @@ ggen receipt chain-verify <file>
 **Action:** Update documentation with correct command syntax
 
 **Files to update:**
-- `/Users/sac/ggen/docs/mcp/DELTA.md`
-- `/Users/sac/ggen/docs/marketplace/DELTA.md`
+- `./docs/mcp/DELTA.md`
+- `./docs/marketplace/DELTA.md`
 - Any CLI usage examples
 
 ---
@@ -324,6 +324,6 @@ ggen ontology init --project_name test-project
 ---
 
 **Tested by:** Claude Code Agent
-**Test Environment:** /Users/sac/ggen (ggen v5.5.0)
+**Test Environment:** . (ggen v5.5.0)
 **Test Method:** Runtime execution of all 19 commands
 **Evidence:** Actual command output captured and analyzed

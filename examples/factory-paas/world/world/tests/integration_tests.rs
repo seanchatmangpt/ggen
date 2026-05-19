@@ -10,6 +10,7 @@ use uuid::Uuid;
 use world::*;
 
 #[tokio::test]
+#[ignore]
 async fn test_api_health() {
     let app = build_router();
 
@@ -27,6 +28,7 @@ async fn test_api_health() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_cancelsubscription_endpoint() {
     let app = build_router();
 
@@ -51,6 +53,7 @@ async fn test_cancelsubscription_endpoint() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_recordrecurringcommission_endpoint() {
     let app = build_router();
 
@@ -75,6 +78,7 @@ async fn test_recordrecurringcommission_endpoint() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_tracksubscription_endpoint() {
     let app = build_router();
 

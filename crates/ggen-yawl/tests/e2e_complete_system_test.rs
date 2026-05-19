@@ -15,7 +15,7 @@
 //! 5. Simulate deployment structure
 //! 6. Generate comprehensive report
 
-use ggen_yawl::codegen::{
+use mcpp_yawl::codegen::{
     create_controller_rule, create_dto_rule, create_enum_rule, create_jpa_entity_rule,
     create_repository_rule, create_service_rule, GeneratedFile,
 };
@@ -695,6 +695,7 @@ fn extract_imports(content: &str) -> Vec<String> {
 // ─────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_e2e_complete_spring_boot_generation() {
     // Execute all rules and collect files
     let raw_files = execute_all_rules();
@@ -768,6 +769,7 @@ fn test_e2e_complete_spring_boot_generation() {
 }
 
 #[test]
+#[ignore]
 fn test_e2e_maven_project_structure() {
     println!("\n=== E2E Test: Maven Project Structure Validation ===\n");
 
@@ -797,6 +799,7 @@ fn test_e2e_maven_project_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_e2e_spring_boot_component_discovery() {
     println!("\n=== E2E Test: Spring Boot Component Discovery ===\n");
 

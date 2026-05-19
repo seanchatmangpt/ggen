@@ -3,7 +3,7 @@
 //! Demonstrates how to combine Retrieve, MultiHopQA, and SimplifiedBaleen
 //! for advanced reasoning pipelines.
 
-use ggen_dspy::{
+use mcpp_dspy::{
     BaleenConfig, InMemoryRetriever, Module, MultiHopConfig, MultiHopQA, Retrieve, SimplifiedBaleen,
 };
 use std::sync::Arc;

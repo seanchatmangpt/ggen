@@ -1,10 +1,10 @@
-# ggen-core
+# mcpp-core
 
-Core graph-aware code generation engine for ggen, providing RDF processing, template management, and code generation capabilities.
+Core graph-aware code generation engine for mcpp, providing RDF processing, template management, and code generation capabilities.
 
 ## Overview
 
-ggen-core implements the five-stage μ₁-μ₅ pipeline for ontology-governed code generation:
+mcpp-core implements the five-stage μ₁-μ₅ pipeline for ontology-governed code generation:
 
 ```mermaid
 flowchart LR
@@ -70,7 +70,7 @@ flowchart TD
 
 ## Usage
 
-This crate is primarily used internally by the main ggen binary. See the main ggen documentation for usage examples.
+This crate is primarily used internally by the main mcpp binary. See the main mcpp documentation for usage examples.
 
 **Key Types:**
 - `Graph` - RDF triplestore wrapper
@@ -81,8 +81,8 @@ This crate is primarily used internally by the main ggen binary. See the main gg
 
 ## Related Crates
 
-- `ggen-cli` - Command-line interface
-- `ggen-domain` - Business logic layer
-- `ggen-ontology-core` - RDF/SPARQL utilities
-- `ggen-receipt` - Ed25519 receipt infrastructure
+- `mcpp-cli` - Command-line interface
+- `mcpp-domain` - Business logic layer
+- `mcpp-ontology-core` - RDF/SPARQL utilities
+- `mcpp-receipt` - Ed25519 receipt infrastructure
 

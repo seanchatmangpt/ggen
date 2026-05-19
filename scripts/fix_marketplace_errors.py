@@ -13,7 +13,7 @@ def run_cargo_and_extract_errors():
     """Run cargo build and extract error details"""
     result = subprocess.run(
         ["cargo", "build", "--package", "ggen-marketplace"],
-        cwd="/Users/sac/ggen",
+        cwd=".",
         capture_output=True,
         text=True
     )
@@ -213,7 +213,7 @@ def main():
     print("\n🔨 Applying fixes...")
     fixed_count = 0
     for file_path in files_to_fix.keys():
-        full_path = f"/Users/sac/ggen/{file_path}"
+        full_path = f"./{file_path}"
         if Path(full_path).exists():
             if apply_fixes_to_file(full_path):
                 fixed_count += 1
@@ -227,7 +227,7 @@ def main():
     print("\n🔍 Verifying fixes...")
     result = subprocess.run(
         ["cargo", "build", "--package", "ggen-marketplace"],
-        cwd="/Users/sac/ggen",
+        cwd=".",
         capture_output=True,
         text=True
     )

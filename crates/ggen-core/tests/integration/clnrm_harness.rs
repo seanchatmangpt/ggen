@@ -1,7 +1,7 @@
-//! Clnrm-based test harness for ggen marketplace and lifecycle testing
+//! Clnrm-based test harness for mcpp marketplace and lifecycle testing
 //!
 //! This module provides a production-ready test harness using the cleanroom (clnrm)
-//! testing framework for isolated, deterministic testing of ggen functionality.
+//! testing framework for isolated, deterministic testing of mcpp functionality.
 //!
 //! # Key Features
 //! - Container lifecycle management with proper cleanup
@@ -13,7 +13,7 @@
 //! # Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::tests::integration::clnrm_harness::{TestHarness, MarketplaceFixture};
+//! use mcpp_core::tests::integration::clnrm_harness::{TestHarness, MarketplaceFixture};
 //!
 //! #[tokio::test]
 //! async fn test_marketplace_search() -> anyhow::Result<()> {
@@ -34,11 +34,11 @@ use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::RwLock;
 
-use ggen_core::registry::{
+use mcpp_core::registry::{
     PackMetadata, RegistryClient, RegistryIndex, ResolvedPack, SearchResult, VersionMetadata,
 };
 
-/// Main test harness for ggen testing with clnrm integration
+/// Main test harness for mcpp testing with clnrm integration
 ///
 /// Provides isolated test environments with proper lifecycle management.
 /// All operations return `Result` for graceful error handling.
@@ -461,7 +461,7 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         "1.0.0".to_string(),
         VersionMetadata {
             version: "1.0.0".to_string(),
-            git_url: "https://github.com/ggen/rust-web-service.git".to_string(),
+            git_url: "https://github.com/mcpp/rust-web-service.git".to_string(),
             git_rev: "v1.0.0".to_string(),
             manifest_url: None,
             sha256: "a".repeat(64),
@@ -471,7 +471,7 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         "1.1.0".to_string(),
         VersionMetadata {
             version: "1.1.0".to_string(),
-            git_url: "https://github.com/ggen/rust-web-service.git".to_string(),
+            git_url: "https://github.com/mcpp/rust-web-service.git".to_string(),
             git_rev: "v1.1.0".to_string(),
             manifest_url: None,
             sha256: "b".repeat(64),
@@ -491,8 +491,8 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         downloads: Some(1500),
         updated: Some(chrono::Utc::now()),
         license: Some("MIT".to_string()),
-        homepage: Some("https://github.com/ggen/rust-web-service".to_string()),
-        repository: Some("https://github.com/ggen/rust-web-service".to_string()),
+        homepage: Some("https://github.com/mcpp/rust-web-service".to_string()),
+        repository: Some("https://github.com/mcpp/rust-web-service".to_string()),
         documentation: Some("https://docs.rs/rust-web-service".to_string()),
     });
 
@@ -502,7 +502,7 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         "1.0.0".to_string(),
         VersionMetadata {
             version: "1.0.0".to_string(),
-            git_url: "https://github.com/ggen/postgresql-setup.git".to_string(),
+            git_url: "https://github.com/mcpp/postgresql-setup.git".to_string(),
             git_rev: "v1.0.0".to_string(),
             manifest_url: None,
             sha256: "c".repeat(64),
@@ -522,8 +522,8 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         downloads: Some(800),
         updated: Some(chrono::Utc::now()),
         license: Some("MIT".to_string()),
-        homepage: Some("https://github.com/ggen/postgresql-setup".to_string()),
-        repository: Some("https://github.com/ggen/postgresql-setup".to_string()),
+        homepage: Some("https://github.com/mcpp/postgresql-setup".to_string()),
+        repository: Some("https://github.com/mcpp/postgresql-setup".to_string()),
         documentation: None,
     });
 
@@ -533,7 +533,7 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         "2.0.0".to_string(),
         VersionMetadata {
             version: "2.0.0".to_string(),
-            git_url: "https://github.com/ggen/cli-template.git".to_string(),
+            git_url: "https://github.com/mcpp/cli-template.git".to_string(),
             git_rev: "v2.0.0".to_string(),
             manifest_url: None,
             sha256: "d".repeat(64),
@@ -553,8 +553,8 @@ fn create_test_packages() -> Result<Vec<PackMetadata>> {
         downloads: Some(2100),
         updated: Some(chrono::Utc::now()),
         license: Some("MIT".to_string()),
-        homepage: Some("https://github.com/ggen/cli-template".to_string()),
-        repository: Some("https://github.com/ggen/cli-template".to_string()),
+        homepage: Some("https://github.com/mcpp/cli-template".to_string()),
+        repository: Some("https://github.com/mcpp/cli-template".to_string()),
         documentation: Some("https://docs.rs/cli-template".to_string()),
     });
 

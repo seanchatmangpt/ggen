@@ -5,7 +5,7 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::otel_attrs;
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
     MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     UnifiedContent,
@@ -99,12 +99,12 @@ impl TaskMapper {
     ///
     /// Creates a Task-type message with the YAWL task data encoded
     /// in the payload. The message can be sent to A2A agents for execution.
-    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", skip(self), fields(
         task_id = %yawl_task.id,
         task_name = %yawl_task.name,
         task_type = ?yawl_task.task_type,
         workflow_id = ?yawl_task.workflow_id,
-        service.name = "ggen-a2a-mcp",
+        service.name = "mcpp-a2a-mcp",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     pub fn yawl_to_a2a_task(&self, yawl_task: &YawlTask) -> A2aMcpResult<ConvergedMessage> {
@@ -211,7 +211,7 @@ impl TaskMapper {
     /// Returns an error if the message is not a valid YAWL task message.
     pub fn a2a_to_yawl_task(message: &ConvergedMessage) -> A2aMcpResult<YawlTask> {
         let span = tracing::info_span!(
-            "ggen.yawl.task_execution",
+            "mcpp.yawl.task_execution",
             otel_operation_name = "task_mapper.a2a_to_yawl_task",
             message_id = %message.message_id,
         );
@@ -221,7 +221,7 @@ impl TaskMapper {
         info!(message_id = %message.message_id, "A2A message converting to YAWL task");
         if message.envelope.message_type != ConvergedMessageType::Task {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "translation",
                 error.message = "Message is not a Task type",
             );
@@ -235,7 +235,7 @@ impl TaskMapper {
             UnifiedContent::Data { data, schema } => {
                 if schema.as_ref().is_some_and(|s| s != "YawlTask") {
                     let error_span = tracing::error_span!(
-                        "ggen.error",
+                        "mcpp.error",
                         error.type = "translation",
                         error.message = "Message payload is not a YawlTask schema",
                     );
@@ -248,7 +248,7 @@ impl TaskMapper {
             }
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "translation",
                     error.message = "Message payload is not Data content",
                 );
@@ -282,7 +282,7 @@ impl TaskMapper {
             "MultipleInstance" => YawlTaskType::MultipleInstance,
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "translation",
                     error.message = format!("Unknown task type: {}", task_type_str),
                 );
@@ -338,7 +338,7 @@ impl TaskMapper {
     /// Batch convert multiple YAWL tasks to A2A messages
     pub fn yawl_to_a2a_batch(&self, tasks: &[YawlTask]) -> A2aMcpResult<Vec<ConvergedMessage>> {
         let span = tracing::info_span!(
-            "ggen.yawl.task_execution",
+            "mcpp.yawl.task_execution",
             otel_operation_name = "task_mapper.yawl_to_a2a_batch",
             task_count = tasks.len(),
         );

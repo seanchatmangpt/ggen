@@ -1,13 +1,13 @@
-# ggen-canonical Implementation Summary
+# mcpp-canonical Implementation Summary
 
 ## Deliverables
 
-Deterministic canonicalization system for ggen v6.0.0 implemented in Rust.
+Deterministic canonicalization system for mcpp v6.0.0 implemented in Rust.
 
 ## Structure
 
 ```
-crates/ggen-canonical/
+crates/mcpp-canonical/
 ├── Cargo.toml              (21 lines)   - Package manifest with dependencies
 ├── README.md                            - Complete usage documentation
 ├── VERIFICATION.txt                     - Cryptographic hash verification
@@ -114,28 +114,28 @@ All modules tested with:
 
 ### JSON
 ```rust
-use ggen_canonical::json::canonicalize_json_str;
+use mcpp_canonical::json::canonicalize_json_str;
 let canonical = canonicalize_json_str(r#"{"z":1,"a":2}"#)?;
 // Result: {"a":2,"z":1}
 ```
 
 ### Rust
 ```rust
-use ggen_canonical::rust::canonicalize_rust;
+use mcpp_canonical::rust::canonicalize_rust;
 let formatted = canonicalize_rust("fn main(){}")?;
 // Result: Properly formatted Rust code
 ```
 
 ### TTL
 ```rust
-use ggen_canonical::ttl::canonicalize_ttl;
+use mcpp_canonical::ttl::canonicalize_ttl;
 let normalized = canonicalize_ttl("ex:z ex:p ex:o .\nex:a ex:p ex:o .")?;
 // Result: Lines sorted alphabetically
 ```
 
 ### Hash
 ```rust
-use ggen_canonical::hash::compute_hash;
+use mcpp_canonical::hash::compute_hash;
 let hash = compute_hash(&b"data")?;
 // Result: SHA-256 hex string (64 chars)
 ```
@@ -157,16 +157,16 @@ let hash = compute_hash(&b"data")?;
 - **TTL**: O(n log n) - Line sorting
 - **Hash**: O(n) - Single pass SHA-256
 
-## Integration with ggen
+## Integration with mcpp
 
 Added to workspace:
-- `Cargo.toml` members: `"crates/ggen-canonical"`
-- `workspace.dependencies`: `ggen-canonical = { path = "...", version = "0.2.0" }`
+- `Cargo.toml` members: `"crates/mcpp-canonical"`
+- `workspace.dependencies`: `mcpp-canonical = { path = "...", version = "0.2.0" }`
 
 Usage in other crates:
 ```toml
 [dependencies]
-ggen-canonical = { workspace = true }
+mcpp-canonical = { workspace = true }
 ```
 
 ## Hash Verification
@@ -200,10 +200,10 @@ See `VERIFICATION.txt` for complete hashes.
 
 ```bash
 # Build
-cargo build -p ggen-canonical
+cargo build -p mcpp-canonical
 
 # Test
-cargo test -p ggen-canonical
+cargo test -p mcpp-canonical
 
 # All tests pass in <1s
 # Compile time: <5s

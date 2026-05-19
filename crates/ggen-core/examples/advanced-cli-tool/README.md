@@ -1,6 +1,6 @@
 # Advanced CLI Tool
 
-Production-ready Rust CLI tool demonstrating ggen's complete lifecycle management with make.toml.
+Production-ready Rust CLI tool demonstrating mcpp's complete lifecycle management with make.toml.
 
 ## Features
 

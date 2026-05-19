@@ -12,7 +12,7 @@ use std::collections::HashMap;
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::{assert_example_valid, qa_example};
+/// use mcpp_ai::dspy::testing::{assert_example_valid, qa_example};
 ///
 /// let example = qa_example("Q", "A");
 /// assert_example_valid(&example, &["question"], &["answer"]);
@@ -77,7 +77,7 @@ pub fn assert_demonstration_valid(demo: &Demonstration, signature: &Signature) {
 ///
 /// ```ignore
 /// use std::sync::Arc;
-/// use ggen_ai::dspy::testing::assert_metric_filters_correctly;
+/// use mcpp_ai::dspy::testing::assert_metric_filters_correctly;
 ///
 /// let metric = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
 ///     Ok(example.outputs.get("answer") == output.get("answer"))

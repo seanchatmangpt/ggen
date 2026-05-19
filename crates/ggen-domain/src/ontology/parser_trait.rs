@@ -3,7 +3,7 @@
 //! This module defines a unified trait for parsing RDF/OWL ontologies,
 //! allowing runtime selection between different parser implementations.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::future::Future;
 use std::path::Path;
 use std::pin::Pin;

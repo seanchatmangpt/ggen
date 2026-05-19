@@ -46,7 +46,7 @@ Extend the Grand Unified KGC Thesis (spec 012) with a new chapter demonstrating 
 **Description**: Added complete Chapter 8 with 6 sections to existing thesis content.
 
 **Sections**:
-1. **SPARQL CONSTRUCT and Sequential Materialization**: Explains ggen's CONSTRUCT executor architecture
+1. **SPARQL CONSTRUCT and Sequential Materialization**: Explains mcpp's CONSTRUCT executor architecture
 2. **FIBO Overview**: Introduces Financial Industry Business Ontology and selected modules
 3. **BPMN Workflow Engine Integration**: Documents workflow-engine-cli RDF representation
 4. **Bridge Ontology and CONSTRUCT Inference Rules**: Describes the three inference rules in detail
@@ -98,7 +98,7 @@ Grand Unified Theory of Full-Stack KGC
 ## Key Contributions of Chapter 8
 
 1. **Demonstrates CONSTRUCT Query Patterns**: Shows sequential materialization with 3 chained inference rules
-2. **Cross-Domain Integration Example**: First demonstration of FIBO + BPMN integration in ggen ecosystem
+2. **Cross-Domain Integration Example**: First demonstration of FIBO + BPMN integration in mcpp ecosystem
 3. **Practical Code Generation**: Shows how materialized compliance triples generate TypeScript validation hooks
 4. **Formal Guarantees**: Proves Cross-Domain Consistency Preservation Theorem via induction
 5. **Performance Characterization**: Documents 47ms inference time for 23-triple input graph
@@ -110,7 +110,7 @@ Grand Unified Theory of Full-Stack KGC
 - [x] Chapter numbering updated (Conclusions moved from 7 to 8)
 - [x] Cross-references use consistent labelId pattern (`ch:*`, `sec:*`)
 - [x] All sections linked to parent chapter via `thesis:hasSection`
-- [ ] LaTeX compilation test (pending - requires `ggen sync` execution)
+- [ ] LaTeX compilation test (pending - requires `mcpp sync` execution)
 - [ ] PDF generation test (pending - requires pdflatex toolchain)
 
 ## Next Steps for Complete Integration
@@ -123,7 +123,7 @@ Grand Unified Theory of Full-Stack KGC
 2. **Generation Testing**:
    ```bash
    cd specs/012-grand-unified-kgc-thesis
-   ggen sync  # Generate LaTeX files from ontology
+   mcpp sync  # Generate LaTeX files from ontology
    cd output
    pdflatex thesis.tex && biber thesis && pdflatex thesis.tex
    ```
@@ -138,7 +138,7 @@ Grand Unified Theory of Full-Stack KGC
 This extension supports the thesis's core argument by:
 - **Demonstrating Zero-Drift in Practice**: CONSTRUCT rules eliminate manual cross-domain mapping
 - **Extending Completeness Definition**: Shows completeness applies across ontology boundaries
-- **Validating Sequential Materialization**: Proves ggen's CONSTRUCT executor design is sound
+- **Validating Sequential Materialization**: Proves mcpp's CONSTRUCT executor design is sound
 - **Providing Real-World Use Case**: Financial compliance is high-value application of ontology-driven development
 
 ## Conclusion

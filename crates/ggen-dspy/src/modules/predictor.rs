@@ -5,7 +5,7 @@
 
 use crate::{DspyError, Module, ModuleOutput, Result};
 use async_trait::async_trait;
-use ggen_ai::dspy::Signature;
+use mcpp_ai::dspy::Signature;
 use tracing::{debug, warn};
 
 /// Basic predictor module that executes an LLM call
@@ -17,8 +17,8 @@ use tracing::{debug, warn};
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_dspy::{Predictor, Result};
-/// use ggen_ai::dspy::{Signature, InputField, OutputField};
+/// use mcpp_dspy::{Predictor, Result};
+/// use mcpp_ai::dspy::{Signature, InputField, OutputField};
 ///
 /// # async fn example() -> Result<()> {
 /// let signature = Signature::new("QA", "Answer questions")
@@ -44,7 +44,7 @@ pub struct Predictor {
     temperature: f64,
     /// Maximum tokens to generate
     max_tokens: usize,
-    /// Model name (optional, falls back to ggen-ai default)
+    /// Model name (optional, falls back to mcpp-ai default)
     model: Option<String>,
 }
 
@@ -188,21 +188,21 @@ impl Predictor {
         None
     }
 
-    /// Call LLM using ggen-ai client
+    /// Call LLM using mcpp-ai client
     async fn call_llm(&self, prompt: &str) -> Result<String> {
-        // Use genai client directly (same as ggen-ai predictor)
+        // Use genai client directly (same as mcpp-ai predictor)
         use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
         use genai::Client;
 
         let client = Client::default();
 
         // Determine model to use
-        let ggen_model = std::env::var("GGEN_LLM_MODEL").ok();
+        let mcpp_model = std::env::var("GGEN_LLM_MODEL").ok();
         let default_model = std::env::var("DEFAULT_MODEL").ok();
         let model = self
             .model
             .as_deref()
-            .or(ggen_model.as_deref())
+            .or(mcpp_model.as_deref())
             .or(default_model.as_deref())
             .unwrap_or("");
 
@@ -270,7 +270,7 @@ impl Module for Predictor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_ai::dspy::{InputField, OutputField};
+    use mcpp_ai::dspy::{InputField, OutputField};
 
     // Arrange-Act-Assert pattern from chicago-tdd-tools
 

@@ -1,6 +1,6 @@
 /**
- * Production-grade TypeScript type definitions for @ggen/node
- * Node.js N-API bindings for the ggen CLI toolkit
+ * Production-grade TypeScript type definitions for @mcpp/node
+ * Node.js N-API bindings for the mcpp CLI toolkit
  */
 
 /** Result of a CLI command execution */
@@ -13,7 +13,7 @@ export interface RunResult {
   stderr: string;
 }
 
-/** Get the ggen version */
+/** Get the mcpp version */
 export function version(): string;
 
 /**
@@ -45,7 +45,7 @@ export function marketRemove(packageId: string): Promise<RunResult>;
 // Lifecycle Commands
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/** Initialize a new ggen project */
+/** Initialize a new mcpp project */
 export function lifecycleInit(): Promise<RunResult>;
 
 /** Run tests for the current project */

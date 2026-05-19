@@ -6,8 +6,8 @@
 //! 3. Task is properly aborted on Drop
 //! 4. No memory leaks from abandoned tasks
 
-use ggen_a2a_mcp::client::{A2aClientConfig, A2aLlmClient};
-use ggen_ai::dspy::model_capabilities::Model;
+use mcpp_a2a_mcp::client::{A2aClientConfig, A2aLlmClient};
+use mcpp_ai::dspy::model_capabilities::Model;
 use std::time::Duration;
 use tokio::time::{sleep, timeout};
 
@@ -33,7 +33,7 @@ async fn test_health_handle_stored_after_creation() {
     let health = client.health().await;
     assert_eq!(
         health.state,
-        ggen_a2a_mcp::client::ConnectionState::Connected
+        mcpp_a2a_mcp::client::ConnectionState::Connected
     );
 }
 
@@ -88,7 +88,7 @@ async fn test_health_check_aborted_on_drop() {
         let health = client.health().await;
         assert_eq!(
             health.state,
-            ggen_a2a_mcp::client::ConnectionState::Connected
+            mcpp_a2a_mcp::client::ConnectionState::Connected
         );
 
         // Client goes out of scope here, Drop should be called
@@ -119,7 +119,7 @@ async fn test_shutdown_aborts_health_check() {
     let health = client.health().await;
     assert_eq!(
         health.state,
-        ggen_a2a_mcp::client::ConnectionState::Connected
+        mcpp_a2a_mcp::client::ConnectionState::Connected
     );
 
     // Shutdown the client
@@ -134,7 +134,7 @@ async fn test_shutdown_aborts_health_check() {
     let health = client.health().await;
     assert_eq!(
         health.state,
-        ggen_a2a_mcp::client::ConnectionState::ShuttingDown
+        mcpp_a2a_mcp::client::ConnectionState::ShuttingDown
     );
 }
 
@@ -186,7 +186,7 @@ async fn test_health_check_state_updates() {
     let health = client.health().await;
     assert_eq!(
         health.state,
-        ggen_a2a_mcp::client::ConnectionState::Connected
+        mcpp_a2a_mcp::client::ConnectionState::Connected
     );
 
     // Verify heartbeat is recent
@@ -229,6 +229,6 @@ async fn test_concurrent_client_lifecycle() {
     for result in results {
         assert!(result.is_ok(), "Task should complete without error");
         let state = result.unwrap();
-        assert_eq!(state, ggen_a2a_mcp::client::ConnectionState::Connected);
+        assert_eq!(state, mcpp_a2a_mcp::client::ConnectionState::Connected);
     }
 }

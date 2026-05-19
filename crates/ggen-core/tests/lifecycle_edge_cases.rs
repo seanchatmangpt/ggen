@@ -10,8 +10,8 @@
 //! 4. Concurrency issues
 //! 5. Resource exhaustion
 
-use ggen_core::lifecycle::loader::load_make;
-use ggen_core::lifecycle::*;
+use mcpp_core::lifecycle::loader::load_make;
+use mcpp_core::lifecycle::*;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -29,7 +29,7 @@ struct EdgeCaseFixture {
 impl EdgeCaseFixture {
     fn new() -> Self {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
-        let state_path = temp_dir.path().join(".ggen/state.json");
+        let state_path = temp_dir.path().join(".mcpp/state.json");
         Self {
             temp_dir,
             state_path,
@@ -93,7 +93,7 @@ command = "echo test"
     // 1. Path to state file
     // 2. JSON parsing error
     assert!(
-        err_msg.contains("state.json") || err_msg.contains(".ggen"),
+        err_msg.contains("state.json") || err_msg.contains(".mcpp"),
         "Error should mention state file path"
     );
     assert!(
@@ -587,7 +587,7 @@ parallel = true
 
     // Verify each workspace has its own state file
     for i in 1..=3 {
-        let ws_state = fixture.path().join(format!("ws{}/.ggen/state.json", i));
+        let ws_state = fixture.path().join(format!("ws{}/.mcpp/state.json", i));
         assert!(
             ws_state.exists(),
             "Workspace {} should have isolated state file",

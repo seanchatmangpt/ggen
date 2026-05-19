@@ -1,9 +1,9 @@
-//! Error handling utilities for ggen-ai
+//! Error handling utilities for mcpp-ai
 //!
 //! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
 //!
 //! ## PURPOSE
-//! This module should eliminate duplicate error handling code across ggen-ai by providing
+//! This module should eliminate duplicate error handling code across mcpp-ai by providing
 //! reusable helper functions that construct clear, actionable GgenAiError instances with
 //! consistent messaging patterns.
 //!
@@ -92,7 +92,7 @@ impl ErrorContext {
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let response = "Here's some text without a code block";
 /// let result: Result<String> = missing_code_block_error(
@@ -134,7 +134,7 @@ pub fn missing_code_block_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let result: Result<String> = missing_closing_marker_error(
 ///     "```",
@@ -172,7 +172,7 @@ pub fn missing_closing_marker_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let result: Result<String> = unsupported_type_error(
 ///     "DELETE",
@@ -213,7 +213,7 @@ pub fn unsupported_type_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let result: Result<String> = missing_field_error(
 ///     "type",
@@ -252,7 +252,7 @@ pub fn missing_field_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let result: Result<String> = invalid_format_error(
 ///     "Turtle/RDF with @prefix declarations",
@@ -292,7 +292,7 @@ pub fn invalid_format_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let result: Result<String> = no_valid_content_error(
 ///     "SPARQL query (SELECT/CONSTRUCT/ASK/DESCRIBE)",
@@ -332,7 +332,7 @@ pub fn no_valid_content_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let result: Result<String> = parse_failure_error(
 ///     "JSON response",
@@ -378,7 +378,7 @@ pub fn parse_failure_error<T>(
 ///
 /// # Example
 /// ```rust,ignore
-/// use ggen_ai::error_utils::*;
+/// use mcpp_ai::error_utils::*;
 ///
 /// let invalid_turtle = "ex:Thing a ex:Class ."; // Missing prefix
 /// let result: Result<String> = turtle_validation_error(

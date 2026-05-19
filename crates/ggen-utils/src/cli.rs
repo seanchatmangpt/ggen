@@ -1,4 +1,4 @@
-//! CLI utility functions for ggen command-line interface
+//! CLI utility functions for mcpp command-line interface
 //!
 //! This module provides shared utilities for CLI argument parsing and processing.
 
@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 /// # Example
 ///
 /// ```
-/// # use ggen_utils::cli::parse_variables;
+/// # use mcpp_utils::cli::parse_variables;
 /// let vars = vec!["name=value".to_string(), "count=42".to_string()];
 /// let result = parse_variables(&vars);
 /// assert!(result.is_ok());

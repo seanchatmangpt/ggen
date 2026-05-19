@@ -1,7 +1,7 @@
 //! MCP (Model Context Protocol) Commands
 //!
 //! This module provides MCP and A2A configuration, server management,
-//! and tool bridging commands for the ggen CLI.
+//! and tool bridging commands for the mcpp CLI.
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 
@@ -13,9 +13,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use ggen_ai::constants::{env_vars, models};
-use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
-use ggen_domain::mcp_config::{
+use mcpp_ai::constants::{env_vars, models};
+use mcpp_ai::{GenAiClient, LlmClient, LlmConfig};
+use mcpp_domain::mcp_config::{
     load_config, stop_server, A2aConfig, McpServerConfig, PROJECT_A2A_CONFIG, PROJECT_MCP_CONFIG,
 };
 use serde_json::Value as JsonValue;
@@ -429,7 +429,7 @@ struct SetupOutput {
     success: bool,
     claude_desktop_config_path: String,
     backup_path: Option<String>,
-    ggen_server_added: bool,
+    mcpp_server_added: bool,
     message: String,
 }
 
@@ -475,6 +475,17 @@ struct GroqStreamChunk {
 // ============================================================================
 
 /// List all available MCP tools
+///
+/// Lists all registered MCP tools including core tools, agent tools, and server tools.
+///
+/// ## Arguments
+/// * `verbose` - Show detailed tool information
+///
+/// ## Examples
+/// ```bash
+/// mcpp mcp list
+/// mcpp mcp list --verbose
+/// ```
 #[verb]
 fn list(verbose: bool) -> VerbResult<MCPListOutput> {
     let mut manager = McpBackendManager::new(None);
@@ -513,6 +524,19 @@ fn list(verbose: bool) -> VerbResult<MCPListOutput> {
 }
 
 /// Bridge an agent as an MCP tool
+///
+/// Creates a bridge between an A2A agent and an MCP tool, allowing Claude Desktop
+/// to invoke agents as if they were native MCP tools.
+///
+/// ## Arguments
+/// * `agent_name` - Name of the agent to bridge
+/// * `tool_name` - Optional custom tool name [default: agent-<agent_name>]
+///
+/// ## Examples
+/// ```bash
+/// mcpp mcp bridge my-agent
+/// mcpp mcp bridge my-agent --tool-name custom-tool
+/// ```
 #[verb]
 fn bridge(agent_name: String, tool_name: Option<String>) -> VerbResult<MCPBridgeOutput> {
     let mut manager = McpBackendManager::new(None);
@@ -539,6 +563,18 @@ fn bridge(agent_name: String, tool_name: Option<String>) -> VerbResult<MCPBridge
 }
 
 /// Show status of a specific MCP tool
+///
+/// Displays detailed information about a specific MCP tool including its type,
+/// availability, agent mapping (if applicable), and input schema.
+///
+/// ## Arguments
+/// * `tool_name` - Name of the tool to query
+///
+/// ## Examples
+/// ```bash
+/// mcpp mcp show agent-list
+/// mcpp mcp show my-agent-tool
+/// ```
 #[verb]
 fn status(tool_name: String) -> VerbResult<MCPStatusOutput> {
     let mut manager = McpBackendManager::new(None);
@@ -570,6 +606,18 @@ fn status(tool_name: String) -> VerbResult<MCPStatusOutput> {
 }
 
 /// Get all MCP tool schemas
+///
+/// Retrieves JSON schemas for all registered MCP tools, useful for validation
+/// and documentation purposes.
+///
+/// ## Arguments
+/// * `verbose` - Print full schema JSON for each tool
+///
+/// ## Examples
+/// ```bash
+/// mcpp mcp schemas
+/// mcpp mcp schemas --verbose
+/// ```
 #[verb]
 fn schemas(verbose: bool) -> VerbResult<MCPSchemasOutput> {
     let mut manager = McpBackendManager::new(None);
@@ -594,6 +642,19 @@ fn schemas(verbose: bool) -> VerbResult<MCPSchemasOutput> {
 }
 
 /// Test an MCP tool
+///
+/// Executes an MCP tool with optional arguments and returns the result.
+/// Useful for testing tool implementations before integration.
+///
+/// ## Arguments
+/// * `tool_name` - Name of the tool to test
+/// * `arguments` - Optional JSON string with tool arguments
+///
+/// ## Examples
+/// ```bash
+/// mcpp mcp test agent-list
+/// mcpp mcp test agent-start --arguments '{"name":"test-agent"}'
+/// ```
 #[verb]
 fn test(tool_name: String, arguments: Option<String>) -> VerbResult<MCPTestOutput> {
     let parsed_args = if let Some(args_str) = arguments {
@@ -627,7 +688,7 @@ fn init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput
 
 /// Helper function to perform config initialization (reduces complexity)
 fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput> {
-    use ggen_domain::mcp_config::{
+    use mcpp_domain::mcp_config::{
         init_a2a_config as domain_init_a2a, init_mcp_config as domain_init_mcp,
     };
 
@@ -709,7 +770,8 @@ fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigIn
 /// Validate MCP configuration
 #[verb]
 fn validate_config(
-    mcp_file: Option<String>, a2a_file: Option<String>,
+    mcp_file: Option<String>,
+    a2a_file: Option<String>,
 ) -> VerbResult<ConfigValidateOutput> {
     perform_validate_config(mcp_file, a2a_file)
 }
@@ -718,7 +780,7 @@ fn validate_config(
 fn perform_validate_config(
     mcp_file: Option<String>, a2a_file: Option<String>,
 ) -> VerbResult<ConfigValidateOutput> {
-    use ggen_domain::mcp_config::validate_mcp_config as domain_validate_mcp;
+    use mcpp_domain::mcp_config::validate_mcp_config as domain_validate_mcp;
     use std::path::PathBuf;
 
     let project_dir = std::env::current_dir().map_err(|e| {
@@ -831,9 +893,9 @@ fn start_server(server_name: String, background: bool) -> VerbResult<ServerStart
     // Foreground mode: run the MCP stdio server.
     // This blocks until the MCP client disconnects.
     let serve_result = block_on(async {
-        ggen_a2a_mcp::server::serve_stdio()
+        mcpp_a2a_mcp::server::serve_stdio()
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("{}", e)))
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("{}", e)))
     });
     match serve_result {
         Ok(Ok(())) => {}
@@ -889,7 +951,7 @@ fn setup(force: bool) -> VerbResult<SetupOutput> {
             success: false,
             claude_desktop_config_path: config_path.display().to_string(),
             backup_path: None,
-            ggen_server_added: false,
+            mcpp_server_added: false,
             message: format!(
                 "Claude Desktop config not found at {}. Is Claude Desktop installed?",
                 config_path.display()
@@ -925,20 +987,20 @@ fn setup(force: bool) -> VerbResult<SetupOutput> {
             })
         })?;
 
-    // Get ggen binary path
-    let ggen_binary = std::env::current_exe()
+    // Get mcpp binary path
+    let mcpp_binary = std::env::current_exe()
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to get ggen binary path: {}",
+                "Failed to get mcpp binary path: {}",
                 e
             ))
         })?
         .display()
         .to_string();
 
-    // Add ggen server entry
-    let ggen_server = serde_json::json!({
-        "command": ggen_binary,
+    // Add mcpp server entry
+    let mcpp_server = serde_json::json!({
+        "command": mcpp_binary,
         "args": ["mcp", "start-server", "--transport", "stdio"]
     });
 
@@ -948,7 +1010,7 @@ fn setup(force: bool) -> VerbResult<SetupOutput> {
             success: false,
             claude_desktop_config_path: config_path.display().to_string(),
             backup_path,
-            ggen_server_added: false,
+            mcpp_server_added: false,
             message: "Invalid Claude Desktop config format: expected object at root".to_string(),
         });
     }
@@ -960,8 +1022,8 @@ fn setup(force: bool) -> VerbResult<SetupOutput> {
         .as_object_mut()
         .unwrap();
 
-    // Add or update ggen server
-    mcp_servers.insert("ggen".to_string(), ggen_server);
+    // Add or update mcpp server
+    mcp_servers.insert("mcpp".to_string(), mcpp_server);
 
     // Write updated config
     let updated_config = serde_json::to_string_pretty(&config).map_err(|e| {
@@ -976,9 +1038,9 @@ fn setup(force: bool) -> VerbResult<SetupOutput> {
         success: true,
         claude_desktop_config_path: config_path.display().to_string(),
         backup_path,
-        ggen_server_added: true,
+        mcpp_server_added: true,
         message: format!(
-            "✓ ggen MCP server added to Claude Desktop config at {}",
+            "✓ mcpp MCP server added to Claude Desktop config at {}",
             config_path.display()
         ),
     })
@@ -1051,7 +1113,10 @@ fn create_groq_config(
 /// Generate text using Groq
 #[verb]
 fn groq_generate(
-    prompt: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
+    prompt: String,
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
 ) -> VerbResult<GroqGenerateOutput> {
     let config = create_groq_config(model, temperature, max_tokens)
         .map_err(clap_noun_verb::NounVerbError::execution_error)?;
@@ -1070,7 +1135,7 @@ fn groq_generate(
         })?;
     let duration = start.elapsed();
 
-    let usage = response.usage.unwrap_or(ggen_ai::UsageStats {
+    let usage = response.usage.unwrap_or(mcpp_ai::UsageStats {
         prompt_tokens: 0,
         completion_tokens: 0,
         total_tokens: 0,
@@ -1090,7 +1155,10 @@ fn groq_generate(
 /// Chat with Groq (multi-turn conversation)
 #[verb]
 fn groq_chat(
-    message: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
+    message: String,
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
     system: Option<String>,
 ) -> VerbResult<GroqChatOutput> {
     let config = create_groq_config(model, temperature, max_tokens)
@@ -1132,7 +1200,7 @@ fn groq_chat(
         content: response.content.clone(),
     });
 
-    let usage = response.usage.unwrap_or(ggen_ai::UsageStats {
+    let usage = response.usage.unwrap_or(mcpp_ai::UsageStats {
         prompt_tokens: 0,
         completion_tokens: 0,
         total_tokens: 0,
@@ -1150,7 +1218,10 @@ fn groq_chat(
 /// Stream text generation using Groq
 #[verb]
 fn groq_stream(
-    prompt: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
+    prompt: String,
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
 ) -> VerbResult<Vec<GroqStreamChunk>> {
     let config = create_groq_config(model, temperature, max_tokens)
         .map_err(clap_noun_verb::NounVerbError::execution_error)?;
@@ -1173,7 +1244,7 @@ fn groq_stream(
 
     // Collect all chunks
     loop {
-        let chunk_result: Option<ggen_ai::LlmChunk> = block_on(async {
+        let chunk_result: Option<mcpp_ai::LlmChunk> = block_on(async {
             use futures::StreamExt;
             stream.next().await
         })

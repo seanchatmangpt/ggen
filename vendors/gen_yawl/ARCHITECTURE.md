@@ -26,7 +26,7 @@
 8. [RDF Integration](#8-rdf-integration)
 9. [API Design](#9-api-design)
 10. [Example Workflows](#10-example-workflows)
-11. [ggen Integration](#11-ggen-integration)
+11. [mcpp Integration](#11-mcpp-integration)
 12. [Deployment Architecture](#12-deployment-architecture)
 
 ---
@@ -1638,30 +1638,30 @@ init_workflow(_Args) ->
 
 ---
 
-## 11. ggen Integration
+## 11. mcpp Integration
 
-### 11.1 Integration with ggen Core
+### 11.1 Integration with mcpp Core
 
-`gen_yawl` integrates with the ggen ecosystem through:
+`gen_yawl` integrates with the mcpp ecosystem through:
 
 1. **RDF Specification Loading**: Load workflow specs from `.specify/specs/` directories
 2. **KGC-4D Event Sourcing**: Receipts stored in KGC-4D for time-travel
-3. **SPARQL Queries**: Use ggen's SPARQL engine for workflow analysis
+3. **SPARQL Queries**: Use mcpp's SPARQL engine for workflow analysis
 4. **Cryptographic Receipts**: BLAKE3 hashing for verifiable execution
 
 ```erlang
 %%====================================================================
-%% gen_yawl_ggen - Integration with ggen ecosystem
+%% gen_yawl_mcpp - Integration with mcpp ecosystem
 %%====================================================================
 
--module(gen_yawl_ggen).
+-module(gen_yawl_mcpp).
 
-%% Load workflow from ggen spec directory
+%% Load workflow from mcpp spec directory
 -spec load_from_specify(SpecId :: binary()) ->
     {ok, #yawl_spec{}} | {error, Reason}.
 load_from_specify(SpecId) ->
     SpecPath = filename:join([
-        code:priv_dir(ggen),
+        code:priv_dir(mcpp),
         "../../.specify/specs",
         SpecId,
         "workflow.ttl"
@@ -1682,24 +1682,24 @@ load_from_specify(SpecId) ->
 ) -> {ok, #receipt{}}.
 generate_receipt(CaseId, EventType, BeforeState, AfterState) ->
     %% Use KGC-4D for deterministic hashing
-    BeforeHash = ggen_kgc4d:hash_state(BeforeState),
-    AfterHash = ggen_kgc4d:hash_state(AfterState),
+    BeforeHash = mcpp_kgc4d:hash_state(BeforeState),
+    AfterHash = mcpp_kgc4d:hash_state(AfterState),
 
     Receipt = #receipt{
-        id = ggen_utils:generate_id(),
+        id = mcpp_utils:generate_id(),
         prev_hash = BeforeHash,
         current_hash = AfterHash,
-        timestamp = ggen_kgc4d:now(),
+        timestamp = mcpp_kgc4d:now(),
         event_type = EventType,
         case_id = CaseId,
         justification = #{
-            ggen_version => ggen:version(),
+            mcpp_version => mcpp:version(),
             gen_yawl_version => ?VERSION
         }
     },
 
     %% Persist to KGC-4D
-    ggen_kgc4d:append_event(CaseId, Receipt),
+    mcpp_kgc4d:append_event(CaseId, Receipt),
 
     {ok, Receipt}.
 
@@ -1707,7 +1707,7 @@ generate_receipt(CaseId, EventType, BeforeState, AfterState) ->
 -spec query_workflow(SPARQL :: binary()) ->
     {ok, [map()]} | {error, Reason}.
 query_workflow(SPARQL) ->
-    ggen_sparql:query(SPARQL).
+    mcpp_sparql:query(SPARQL).
 ```
 
 ### 11.2 Receipt Integration
@@ -1858,8 +1858,8 @@ receipts_to_turtle(Receipts) ->
          stdlib,
          sasl,
          gen_pnet,
-         ggen_core,
-         ggen_kgc4d
+         mcpp_core,
+         mcpp_kgc4d
      ]},
      {mod, {gen_yawl_app, []}},
      {env, [
@@ -1893,9 +1893,9 @@ receipts_to_turtle(Receipts) ->
 
 {deps, [
     {gen_pnet, {git, "https://github.com/joergen7/gen_pnet.git", {tag, "0.1.7"}}},
-    {ggen_core, {path, "../ggen-core"}},
-    {ggen_kgc4d, {path, "../ggen-kgc4d"}},
-    {ggen_sparql, {path, "../ggen-sparql"}},
+    {mcpp_core, {path, "../mcpp-core"}},
+    {mcpp_kgc4d, {path, "../mcpp-kgc4d"}},
+    {mcpp_sparql, {path, "../mcpp-sparql"}},
     {gun, "2.0.0"},  %% HTTP client for RDF loading
     {jiffy, "1.1.1"},  %% JSON codec
     {ranch, "2.1.0"},  %% Socket acceptor pool
@@ -1955,7 +1955,7 @@ receipts_to_turtle(Receipts) ->
         ]},
         {sync_nodes_timeout, 5000}
     ]},
-    {ggen_kgc4d, [
+    {mcpp_kgc4d, [
         {cluster_nodes, [
             'gen_yawl_1@node1.example.com',
             'gen_yawl_2@node2.example.com',
@@ -2003,8 +2003,8 @@ receipts_to_turtle(Receipts) ->
 2. **YAWL Specification**: http://www.yawlfoundation.org/
 3. **Van der Aalst Patterns**: https://www.workflowpatterns.com/
 4. **CRE (Common Runtime Environment)**: https://github.com/joergen7/cre
-5. **ggen Architecture**: /Users/sac/ggen/docs/architecture.md
-6. **UNRDF YAWL Package**: /Users/sac/ggen/external/unrdf/packages/yawl/
+5. **mcpp Architecture**: ~/.ggen/mcpp/docs/architecture.md
+6. **UNRDF YAWL Package**: ~/.ggen/mcpp/external/unrdf/packages/yawl/
 
 ---
 

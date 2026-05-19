@@ -7,13 +7,13 @@
 //!
 //! ```bash
 //! # List all available verbs for a specific noun
-//! ggen --capabilities template generate
+//! mcpp --capabilities template generate
 //!
 //! # Show detailed verb metadata (types, validation, description)
-//! ggen --introspect template generate
+//! mcpp --introspect template generate
 //!
 //! # Export complete command graph for workflow planning
-//! ggen --graph
+//! mcpp --graph
 //! ```
 
 #![cfg(feature = "autonomic")]

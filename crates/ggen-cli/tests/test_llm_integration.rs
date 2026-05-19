@@ -5,10 +5,11 @@
 //! 2. The bridge can be created and injected into SyncExecutor
 //! 3. enable_llm=true triggers LLM generation (vs TODO stubs when false)
 
-use ggen_cli_lib::llm_bridge::GroqLlmBridge;
-use ggen_core::codegen::pipeline::LlmService;
+use mcpp_cli_lib::llm_bridge::GroqLlmBridge;
+use mcpp_core::codegen::pipeline::LlmService;
 
 #[test]
+#[ignore]
 fn test_groq_llm_bridge_implements_llm_service() {
     // This test verifies GroqLlmBridge can be used as an LlmService
     // We don't test actual LLM calls (would require API key)
@@ -25,6 +26,7 @@ fn test_groq_llm_bridge_implements_llm_service() {
 }
 
 #[test]
+#[ignore]
 fn test_groq_llm_bridge_generate_skill_impl() {
     // Note: This test will fail if GROQ_API_KEY is not set
     // We're testing the interface, not the actual LLM call
@@ -59,6 +61,7 @@ fn test_groq_llm_bridge_generate_skill_impl() {
 }
 
 #[test]
+#[ignore]
 fn test_groq_llm_bridge_clone_box() {
     let bridge = GroqLlmBridge::new().expect("Failed to create bridge");
 

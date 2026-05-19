@@ -1,12 +1,12 @@
 //! SPARQL CONSTRUCT query validation tests
 //!
 //! Verifies that CONSTRUCT queries produce valid RDF triples that can be
-//! re-inserted into the graph. This is critical because ggen uses CONSTRUCT
+//! re-inserted into the graph. This is critical because mcpp uses CONSTRUCT
 //! as its inference rule mechanism.
 //!
 //! Chicago TDD: Black-box behavior verification with real Graph instances.
 
-use ggen_core::graph::{CachedResult, ConstructExecutor, Graph};
+use mcpp_core::graph::{CachedResult, ConstructExecutor, Graph};
 
 // ---------------------------------------------------------------------------
 // Test 1: CONSTRUCT produces valid N-Triples

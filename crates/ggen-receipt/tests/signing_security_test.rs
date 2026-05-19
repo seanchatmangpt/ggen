@@ -1,4 +1,4 @@
-//! Comprehensive security tests for ggen-receipt Ed25519 signing.
+//! Comprehensive security tests for mcpp-receipt Ed25519 signing.
 //!
 //! Chicago TDD: Real cryptographic operations, no mocks.
 //! Tests cover:
@@ -10,7 +10,7 @@
 //! - Tampered receipt detection
 //! - Edge cases and error paths
 
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use mcpp_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 use std::fs;
 use tempfile::TempDir;
 

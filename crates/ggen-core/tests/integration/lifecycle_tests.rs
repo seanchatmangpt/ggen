@@ -11,7 +11,7 @@
 
 use anyhow::{Context as AnyhowContext, Result};
 use chicago_tdd_tools::prelude::*;
-use ggen_core::lifecycle::*;
+use mcpp_core::lifecycle::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -32,11 +32,11 @@ impl LifecycleTestFixture {
     fn new() -> Result<Self> {
         let temp_dir = TempDir::new().with_context(|| "Failed to create temp directory")?;
         let project_root = temp_dir.path().to_path_buf();
-        let state_path = project_root.join(".ggen/state.json");
+        let state_path = project_root.join(".mcpp/state.json");
 
-        // Create .ggen directory
+        // Create .mcpp directory
         fs::create_dir_all(state_path.parent().unwrap())
-            .with_context(|| "Failed to create .ggen directory")?;
+            .with_context(|| "Failed to create .mcpp directory")?;
 
         Ok(Self {
             temp_dir,
@@ -684,8 +684,8 @@ name = "marketplace-integration"
 [lifecycle.setup]
 commands = [
     "echo 'Installing marketplace packages'",
-    "echo 'ggen market add rust-web-framework'",
-    "echo 'ggen market add database-migrations'"
+    "echo 'mcpp market add rust-web-framework'",
+    "echo 'mcpp market add database-migrations'"
 ]
 
 [lifecycle.build]
@@ -716,8 +716,8 @@ name = "template-generation"
 [lifecycle.init]
 commands = [
     "echo 'Initializing project structure'",
-    "echo 'ggen template generate rust-service:api.tmpl'",
-    "echo 'ggen template generate rust-service:database.tmpl'"
+    "echo 'mcpp template generate rust-service:api.tmpl'",
+    "echo 'mcpp template generate rust-service:database.tmpl'"
 ]
 "#,
         )
@@ -742,13 +742,13 @@ test!(test_end_to_end_marketplace_lifecycle_flow, {
 name = "e2e-marketplace-lifecycle"
 
 [lifecycle.init]
-command = "echo 'ggen lifecycle run init'"
+command = "echo 'mcpp lifecycle run init'"
 
 [lifecycle.setup]
 commands = [
-    "echo 'ggen market search rust-web'",
-    "echo 'ggen market add rust-axum-service'",
-    "echo 'ggen template generate rust-axum-service:main.tmpl'"
+    "echo 'mcpp market search rust-web'",
+    "echo 'mcpp market add rust-axum-service'",
+    "echo 'mcpp template generate rust-axum-service:main.tmpl'"
 ]
 
 [lifecycle.build]
@@ -758,12 +758,12 @@ command = "echo 'cargo build --release'"
 command = "echo 'cargo test'"
 
 [lifecycle.validate]
-command = "echo 'ggen lifecycle readiness'"
+command = "echo 'mcpp lifecycle readiness'"
 
 [lifecycle.deploy]
 commands = [
-    "echo 'ggen lifecycle validate --env production'",
-    "echo 'ggen lifecycle run deploy --env production'"
+    "echo 'mcpp lifecycle validate --env production'",
+    "echo 'mcpp lifecycle run deploy --env production'"
 ]
 "#,
         )

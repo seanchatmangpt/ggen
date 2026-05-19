@@ -1,9 +1,9 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(clippy::unwrap_used)] // Safe unwrap in JSON parsing where structure is controlled
 #![allow(clippy::expect_used)] // NAPI functions use expect for error conversion
-//! # ggen-node - Production-grade Node.js N-API bindings for ggen CLI
+//! # mcpp-node - Production-grade Node.js N-API bindings for mcpp CLI
 //!
-//! This module provides high-performance, type-safe bindings to the ggen CLI
+//! This module provides high-performance, type-safe bindings to the mcpp CLI
 //! for use in Node.js applications. All functions use proper error handling
 //! without .expect() or .unwrap() to ensure production readiness.
 
@@ -21,28 +21,28 @@ pub struct RunResult {
     pub stderr: String,
 }
 
-/// Get the ggen version
+/// Get the mcpp version
 ///
 /// # Returns
 /// Version string matching the Cargo package version
 ///
 /// # Example
 /// ```typescript
-/// import { version } from '@ggen/node';
-/// console.log('ggen version:', version());
+/// import { version } from '@mcpp/node';
+/// console.log('mcpp version:', version());
 /// ```
 #[napi]
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
-/// Execute ggen CLI with provided arguments
+/// Execute mcpp CLI with provided arguments
 ///
 /// This is the low-level API that all other functions use internally.
 /// Prefer using the high-level wrapper functions for better ergonomics.
 ///
 /// # Arguments
-/// * `args` - Command-line arguments (without the 'ggen' binary name)
+/// * `args` - Command-line arguments (without the 'mcpp' binary name)
 ///
 /// # Returns
 /// RunResult containing exit code and captured stdout/stderr
@@ -54,7 +54,7 @@ pub fn version() -> String {
 /// ```
 #[napi]
 pub async fn run(args: Vec<String>) -> Result<RunResult> {
-    let result = ggen_cli_lib::run_for_node(args)
+    let result = mcpp_cli_lib::run_for_node(args)
         .await
         .map_err(|e| Error::from_reason(format!("CLI execution failed: {}", e)))?;
     Ok(RunResult {
@@ -87,11 +87,11 @@ pub async fn market_search(query: String) -> Result<RunResult> {
 /// Add a marketplace package to the current project
 ///
 /// # Arguments
-/// * `package_id` - Package identifier (e.g., "io.ggen.rust.axum-service")
+/// * `package_id` - Package identifier (e.g., "io.mcpp.rust.axum-service")
 ///
 /// # Example
 /// ```typescript
-/// await marketAdd('io.ggen.rust.axum-service');
+/// await marketAdd('io.mcpp.rust.axum-service');
 /// ```
 #[napi]
 pub async fn market_add(package_id: String) -> Result<RunResult> {
@@ -132,7 +132,7 @@ pub async fn market_categories() -> Result<RunResult> {
 ///
 /// # Example
 /// ```typescript
-/// await marketRemove('io.ggen.rust.axum-service');
+/// await marketRemove('io.mcpp.rust.axum-service');
 /// ```
 #[napi]
 pub async fn market_remove(package_id: String) -> Result<RunResult> {
@@ -144,7 +144,7 @@ pub async fn market_remove(package_id: String) -> Result<RunResult> {
 // Lifecycle Commands
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/// Initialize a new ggen project
+/// Initialize a new mcpp project
 ///
 /// # Example
 /// ```typescript
@@ -298,7 +298,7 @@ pub async fn lifecycle_list() -> Result<RunResult> {
 /// # Arguments
 /// * `template_path` - Path to template file
 /// * `vars` - Optional variable map for template rendering (as JSON string)
-/// * `manifest_path` - Optional path to ggen.toml manifest
+/// * `manifest_path` - Optional path to mcpp.toml manifest
 ///
 /// # Example
 /// ```typescript

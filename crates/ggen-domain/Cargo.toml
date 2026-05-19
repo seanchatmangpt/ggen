@@ -1,12 +1,12 @@
 [package]
-name = "ggen-domain"
+name = "mcpp-domain"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
-description = "Domain logic layer for ggen - pure business logic without CLI dependencies"
+description = "Domain logic layer for mcpp - pure business logic without CLI dependencies"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
+homepage = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["code-generation", "rdf", "templates", "domain"]
 categories = ["development-tools"]
 
@@ -22,9 +22,9 @@ serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 
 # Local infrastructure dependencies (use workspace = true pattern)
-ggen-core.workspace = true
-ggen-ai.workspace = true
-ggen-utils.workspace = true
+mcpp-core.workspace = true
+mcpp-ai.workspace = true
+mcpp-utils.workspace = true
 # marketplace removed — migrated to separate project
 
 # Crate-specific dependencies

@@ -156,7 +156,7 @@ evidence/
 
 ## Constitutional Alignment Verification
 
-All ggen Constitution v1.0.0 principles maintained:
+All mcpp Constitution v1.0.0 principles maintained:
 
 - ✅ **I. Crate-First Architecture**: N/A (audit framework, no new crates)
 - ✅ **II. Deterministic RDF Projections**: Audit structure deterministic

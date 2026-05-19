@@ -16,13 +16,13 @@
 
 use std::sync::Arc;
 
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
     MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     UnifiedContent,
 };
 use chrono::Utc;
-use ggen_a2a_mcp::{
+use mcpp_a2a_mcp::{
     A2aMessageConverter, BatchProcessor, LlmResponse, MessageRouter, TaskMapper,
     YawlEventPublisher, YawlStateMapper, YawlTask, YawlTaskType,
 };
@@ -442,7 +442,7 @@ async fn test_a2a_yawl_workflow() {
     }
 
     // --- TaskMapper round-trip: YAWL -> A2A -> YAWL ---
-    let roundtrip_task = ggen_a2a_mcp::TaskMapper::a2a_to_yawl_task(&messages[0])
+    let roundtrip_task = mcpp_a2a_mcp::TaskMapper::a2a_to_yawl_task(&messages[0])
         .expect("round-trip should succeed");
     assert_eq!(roundtrip_task.id, "t1");
     assert_eq!(roundtrip_task.name, "Authenticate");
@@ -502,8 +502,8 @@ async fn test_a2a_groq_live_client() {
         return;
     }
 
-    use ggen_a2a_mcp::client::A2aLlmClient;
-    use ggen_ai::dspy::model_capabilities::Model;
+    use mcpp_a2a_mcp::client::A2aLlmClient;
+    use mcpp_ai::dspy::model_capabilities::Model;
 
     let model = Model::from_name("groq::openai/gpt-oss-20b");
     let client: A2aLlmClient = A2aLlmClient::new(model)

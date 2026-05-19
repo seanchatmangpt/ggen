@@ -1,6 +1,6 @@
 //! Structured logging infrastructure
 //!
-//! This module provides logging setup and configuration for ggen applications.
+//! This module provides logging setup and configuration for mcpp applications.
 //! It uses the `slog` crate for structured logging with support for multiple
 //! output destinations including terminal, syslog, and systemd journald.
 //!
@@ -24,9 +24,9 @@
 //! ### Setting Up Logging
 //!
 //! ```rust,no_run
-//! use ggen_utils::logger::setup_logging;
+//! use mcpp_utils::logger::setup_logging;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! // Setup logging (returns guard that must be kept alive)
 //! let _guard = setup_logging()?;
 //!

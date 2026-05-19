@@ -218,7 +218,7 @@ These documents integrate with:
 FILE LOCATIONS
 ================================================================================
 
-ALL FILES IN: /Users/sac/ggen/tai-erlang-autonomics/execution/
+ALL FILES IN: /Users/sac/mcpp/tai-erlang-autonomics/execution/
 
 NEW DOCUMENTS:
   - PRODUCT_EXECUTION_LOG.md (22 KB)

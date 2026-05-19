@@ -12,8 +12,8 @@
 use crate::resolver::TemplateResolver;
 use crate::v6::guard::{GuardAction, GuardSet, GuardViolation};
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
-use ggen_marketplace::ownership::{OwnershipMap, OwnershipTarget};
-use ggen_utils::error::{Error, Result};
+use mcpp_marketplace::ownership::{OwnershipMap, OwnershipTarget};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
@@ -233,7 +233,7 @@ impl EmissionPass {
         for declaration in declarations {
             if declaration.owner_pack != emitting_pack {
                 match declaration.class {
-                    ggen_marketplace::ownership::OwnershipClass::Exclusive => {
+                    mcpp_marketplace::ownership::OwnershipClass::Exclusive => {
                         return Err(Error::new(&format!(
                             "Ownership conflict: '{}' claims exclusive ownership of '{}', but '{}' is attempting to emit to it",
                             declaration.owner_pack,
@@ -241,7 +241,7 @@ impl EmissionPass {
                             emitting_pack,
                         )));
                     }
-                    ggen_marketplace::ownership::OwnershipClass::ForbiddenOverlap => {
+                    mcpp_marketplace::ownership::OwnershipClass::ForbiddenOverlap => {
                         return Err(Error::new(&format!(
                             "Forbidden overlap: '{}' and '{}' both target '{}'",
                             declaration.owner_pack,
@@ -249,8 +249,8 @@ impl EmissionPass {
                             artifact_path.display(),
                         )));
                     }
-                    ggen_marketplace::ownership::OwnershipClass::Mergeable
-                    | ggen_marketplace::ownership::OwnershipClass::Overlay => {
+                    mcpp_marketplace::ownership::OwnershipClass::Mergeable
+                    | mcpp_marketplace::ownership::OwnershipClass::Overlay => {
                         // Allowed — merge strategy or overlay transfer handled upstream
                     }
                 }
@@ -720,7 +720,7 @@ impl Pass for EmissionPass {
 mod tests {
     use super::*;
     use crate::graph::Graph;
-    use ggen_marketplace::ownership::{OwnershipClass, OwnershipDeclaration};
+    use mcpp_marketplace::ownership::{OwnershipClass, OwnershipDeclaration};
     use tempfile::TempDir;
 
     #[test]
@@ -907,7 +907,7 @@ mod tests {
     #[test]
     fn test_ownership_conflict_mergeable_allowed() {
         // Mergeable allows overlap
-        use ggen_marketplace::ownership::MergeStrategy;
+        use mcpp_marketplace::ownership::MergeStrategy;
 
         let mut map = OwnershipMap::new();
         map.add(OwnershipDeclaration::mergeable(

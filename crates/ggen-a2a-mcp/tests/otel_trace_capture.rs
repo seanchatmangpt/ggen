@@ -6,11 +6,11 @@
 //! the functions complete successfully, proving spans are created and closed.
 //!
 //! Run with:
-//!   cargo test -p ggen-a2a-mcp --test otel_trace_capture -- --test-threads=1 --nocapture
+//!   cargo test -p mcpp-a2a-mcp --test otel_trace_capture -- --test-threads=1 --nocapture
 
 use std::sync::Arc;
 
-use ggen_a2a_mcp::{
+use mcpp_a2a_mcp::{
     BatchProcessor, MessageRouter, TaskMapper, YawlStateMapper, YawlTask, YawlTaskType,
 };
 
@@ -47,13 +47,13 @@ async fn test_generate_span_emitted() -> anyhow::Result<()> {
     assert_eq!(msg.source, "yawl-engine");
     assert_eq!(
         msg.envelope.message_type,
-        a2a_generated::converged::message::ConvergedMessageType::Task
+        ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessageType::Task
     );
 
     // The span was created (proven by successful completion of the
     // instrumented function). Verify payload data integrity.
     match &msg.payload.content {
-        a2a_generated::converged::message::UnifiedContent::Data { data, schema } => {
+        ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent::Data { data, schema } => {
             assert_eq!(schema.as_deref(), Some("YawlTask"));
             assert_eq!(
                 data.get("taskId").and_then(|v| v.as_str()),
@@ -127,7 +127,7 @@ async fn test_batch_span_emitted() -> anyhow::Result<()> {
 
     let messages: Vec<_> = (0..3)
         .map(|i| {
-            a2a_generated::converged::message::ConvergedMessage::text(
+            ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                 format!("batch-otel-{}", i),
                 "test-agent".to_string(),
                 format!("message {}", i),
@@ -206,7 +206,7 @@ async fn test_state_mapper_span_records_attributes() -> anyhow::Result<()> {
     }
 
     // Verify the reverse mapping also works
-    use a2a_generated::task::TaskStatus;
+    use ggen_core::ggen_core::ggen_core::a2a_generated::task::TaskStatus;
     let reverse_mappings = vec![
         (TaskStatus::Pending, "NotStarted"),
         (TaskStatus::Ready, "Ready"),
@@ -241,37 +241,37 @@ async fn test_correlation_span_created() -> anyhow::Result<()> {
     // If causation_chain is present, each parent ID is recorded via span.record().
 
     // Test 5a: Basic correlation span (no correlation_id)
-    let msg = a2a_generated::converged::message::ConvergedMessage::text(
+    let msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
         "corr-test-1".to_string(),
         "test-agent".to_string(),
         "hello".to_string(),
     );
 
-    let span = ggen_a2a_mcp::correlation::span_from_a2a_context(&msg);
+    let span = mcpp_a2a_mcp::correlation::span_from_a2a_context(&msg);
     let _guard = span.enter();
 
-    let cid = ggen_a2a_mcp::correlation::correlation_id_or_fallback(&msg);
+    let cid = mcpp_a2a_mcp::correlation::correlation_id_or_fallback(&msg);
     assert_eq!(cid, "corr-test-1", "fallback should use message_id");
 
     // Test 5b: With correlation_id
-    let mut msg2 = a2a_generated::converged::message::ConvergedMessage::text(
+    let mut msg2 = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
         "corr-test-2".to_string(),
         "agent-b".to_string(),
         "chained message".to_string(),
     );
     msg2.envelope.correlation_id = Some("corr-parent-99".to_string());
 
-    let span2 = ggen_a2a_mcp::correlation::span_from_a2a_context(&msg2);
+    let span2 = mcpp_a2a_mcp::correlation::span_from_a2a_context(&msg2);
     let _guard2 = span2.enter();
 
-    let cid2 = ggen_a2a_mcp::correlation::correlation_id_or_fallback(&msg2);
+    let cid2 = mcpp_a2a_mcp::correlation::correlation_id_or_fallback(&msg2);
     assert_eq!(
         cid2, "corr-parent-99",
         "should use correlation_id when present"
     );
 
     // Test 5c: With correlation_id and causation_chain
-    let mut msg3 = a2a_generated::converged::message::ConvergedMessage::text(
+    let mut msg3 = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
         "corr-test-3".to_string(),
         "agent-c".to_string(),
         "deep chain".to_string(),
@@ -283,20 +283,20 @@ async fn test_correlation_span_created() -> anyhow::Result<()> {
         "ancestor-3".to_string(),
     ]);
 
-    let span3 = ggen_a2a_mcp::correlation::span_from_a2a_context(&msg3);
+    let span3 = mcpp_a2a_mcp::correlation::span_from_a2a_context(&msg3);
     let _guard3 = span3.enter();
 
-    let cid3 = ggen_a2a_mcp::correlation::correlation_id_or_fallback(&msg3);
+    let cid3 = mcpp_a2a_mcp::correlation::correlation_id_or_fallback(&msg3);
     assert_eq!(cid3, "corr-deep-001");
 
     // Test 5d: Verify span_from_a2a_context does not panic for edge cases
-    let mut msg4 = a2a_generated::converged::message::ConvergedMessage::text(
+    let mut msg4 = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
         "corr-test-4".to_string(),
         "agent-d".to_string(),
         "empty chain".to_string(),
     );
     msg4.envelope.causation_chain = Some(vec![]);
-    let _span4 = ggen_a2a_mcp::correlation::span_from_a2a_context(&msg4);
+    let _span4 = mcpp_a2a_mcp::correlation::span_from_a2a_context(&msg4);
 
     Ok(())
 }

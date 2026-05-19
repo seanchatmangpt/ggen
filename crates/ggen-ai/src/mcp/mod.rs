@@ -73,7 +73,7 @@ pub struct MCPServerConfig {
 impl Default for MCPServerConfig {
     fn default() -> Self {
         Self {
-            name: "ggen-mcp-server".to_string(),
+            name: "mcpp-mcp-server".to_string(),
             version: "0.1.0".to_string(),
             tool_timeout_ms: 30000,
             max_concurrent_requests: 100,
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn test_default_config() {
         let config = MCPServerConfig::default();
-        assert_eq!(config.name, "ggen-mcp-server");
+        assert_eq!(config.name, "mcpp-mcp-server");
         assert_eq!(config.version, "0.1.0");
         assert_eq!(config.tool_timeout_ms, 30000);
     }

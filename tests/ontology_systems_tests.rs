@@ -10,7 +10,7 @@
 //! - Atomic promotion
 
 use ggen_core::ontology::*;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::BTreeMap;
 
 // =============================================================================

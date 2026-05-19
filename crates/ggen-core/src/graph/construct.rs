@@ -4,7 +4,7 @@
 //! including execution and materialization (inserting results back into the graph).
 
 use crate::graph::Graph;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use sha2::{Digest, Sha256};
 
@@ -34,7 +34,7 @@ impl<'a> ConstructExecutor<'a> {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use ggen_core::graph::{Graph, ConstructExecutor};
+    /// use mcpp_core::graph::{Graph, ConstructExecutor};
     ///
     /// let graph = Graph::new()?;
     /// graph.insert_turtle(r#"
@@ -47,7 +47,7 @@ impl<'a> ConstructExecutor<'a> {
     ///     CONSTRUCT { ?s ?p ?o }
     ///     WHERE { ?s ?p ?o }
     /// "#)?;
-    /// # Ok::<(), ggen_utils::error::Error>(())
+    /// # Ok::<(), mcpp_utils::error::Error>(())
     /// ```
     pub fn execute(&self, query: &str) -> Result<Vec<String>> {
         // Execute query using the graph's query method
@@ -169,17 +169,17 @@ mod tests {
     #[test]
     fn test_generate_iri_deterministic() {
         let iri1 = ConstructExecutor::generate_iri(
-            "http://ggen.dev/code#",
+            "http://mcpp.dev/code#",
             &["User", "struct"],
             Some("salt-v1"),
         );
         let iri2 = ConstructExecutor::generate_iri(
-            "http://ggen.dev/code#",
+            "http://mcpp.dev/code#",
             &["User", "struct"],
             Some("salt-v1"),
         );
         let iri3 = ConstructExecutor::generate_iri(
-            "http://ggen.dev/code#",
+            "http://mcpp.dev/code#",
             &["Order", "struct"],
             Some("salt-v1"),
         );

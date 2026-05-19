@@ -328,7 +328,7 @@ Team Guidance:           4 role-specific sections
 ## Files at a Glance
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+~/.ggen/mcpp/tai-erlang-autonomics/
 
 AGENT_18_CCW_SANDBOX_RECEIPT.md     (Executive receipt, 613 lines)
 AGENT_18_INDEX.md                   (This index, 400+ lines)

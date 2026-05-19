@@ -4,8 +4,8 @@
 //! Phase C: Use FIBO as canonical data model
 //! Phase D: Map data entities to technology platforms
 
-use ggen_a2a_mcp::client::GroqA2AClient;
-use ggen_a2a_mcp::message::{A2AMessage, ContentBlock};
+use mcpp_a2a_mcp::client::GroqA2AClient;
+use mcpp_a2a_mcp::message::{A2AMessage, ContentBlock};
 use std::time::Duration;
 use tokio::time::timeout;
 

@@ -13,10 +13,10 @@
 //! - Test REAL user workflows
 //! - Use REAL data from production registry
 
-use ggen_domain::marketplace::{
+use mcpp_domain::marketplace::{
     execute_install, execute_search, InstallInput, InstallOptions, SearchInput,
 };
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -35,8 +35,8 @@ impl ProductionTestEnv {
     fn new() -> Result<Self> {
         let temp_dir = TempDir::new()?;
         let packages_dir = temp_dir.path().join("packages");
-        let cache_dir = temp_dir.path().join(".ggen").join("cache");
-        let registry_cache = temp_dir.path().join(".ggen").join("registry");
+        let cache_dir = temp_dir.path().join(".mcpp").join("cache");
+        let registry_cache = temp_dir.path().join(".mcpp").join("registry");
 
         // Create directory structure matching production
         fs::create_dir_all(&packages_dir)?;
@@ -67,7 +67,7 @@ impl ProductionTestEnv {
     fn set_production_registry(&self) {
         std::env::set_var(
             "GGEN_REGISTRY_URL",
-            "https://seanchatmangpt.github.io/ggen/marketplace/registry/index.json",
+            "https://seanchatmangpt.github.io/mcpp/marketplace/registry/index.json",
         );
     }
 
@@ -94,14 +94,14 @@ fn create_production_like_registry(dir: &Path) -> Result<PathBuf> {
                 "description": "AI-powered CLI copilot for developers",
                 "tags": ["ai", "cli", "copilot", "assistant"],
                 "keywords": ["ai", "cli", "copilot"],
-                "author": "ggen-team",
+                "author": "mcpp-team",
                 "license": "MIT",
                 "downloads": 1250,
                 "stars": 45,
                 "production_ready": true,
                 "dependencies": [],
                 "path": "marketplace/packages/agent-cli-copilot",
-                "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+                "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
                 "checksum": null
             },
             {
@@ -111,14 +111,14 @@ fn create_production_like_registry(dir: &Path) -> Result<PathBuf> {
                 "description": "Production-ready Rust web service template",
                 "tags": ["rust", "web", "axum", "api"],
                 "keywords": ["rust", "web", "api"],
-                "author": "ggen-team",
+                "author": "mcpp-team",
                 "license": "Apache-2.0",
                 "downloads": 890,
                 "stars": 32,
                 "production_ready": true,
                 "dependencies": ["tokio", "axum"],
                 "path": "marketplace/packages/rust-web-service",
-                "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+                "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
                 "checksum": null
             },
             {
@@ -128,14 +128,14 @@ fn create_production_like_registry(dir: &Path) -> Result<PathBuf> {
                 "description": "CLI tool for data pipeline management",
                 "tags": ["data", "cli", "pipeline", "etl"],
                 "keywords": ["data", "pipeline"],
-                "author": "ggen-team",
+                "author": "mcpp-team",
                 "license": "MIT",
                 "downloads": 567,
                 "stars": 18,
                 "production_ready": true,
                 "dependencies": [],
                 "path": "marketplace/packages/data-pipeline-cli",
-                "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+                "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
                 "checksum": null
             }
         ],
@@ -241,7 +241,7 @@ async fn test_production_install_workflow() -> Result<()> {
         .with_target(env.packages_path().to_path_buf())
         .dry_run(); // Use dry-run to avoid actual network download in tests
 
-    let install_input = ggen_domain::marketplace::InstallInput {
+    let install_input = mcpp_domain::marketplace::InstallInput {
         package: format!("{}@latest", options.package_name),
         target: options.target_path.map(|p| p.to_string_lossy().to_string()),
         force: options.force,

@@ -10,7 +10,6 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use uuid::Uuid;
 
 use crate::progress::{ProgressReporter, InstallationPlan, PlanStep, CacheStatus};
 use crate::error::GgenError;
@@ -244,7 +243,7 @@ impl PackInstaller {
     /// Calculate total installation size
     async fn calculate_total_size(
         &self,
-        package: &ggen_marketplace::Package,
+        package: &mcpp_marketplace::Package,
         dependencies: &[PackageId],
     ) -> Result<f64, GgenError> {
         let mut total_size = 0.0;
@@ -263,7 +262,7 @@ impl PackInstaller {
     /// Create installation steps plan
     fn create_installation_steps(
         &self,
-        package: &ggen_marketplace::Package,
+        package: &mcpp_marketplace::Package,
         dependencies: &[PackageId],
         total_size_mb: f64,
     ) -> Vec<PlanStep> {
@@ -441,7 +440,7 @@ impl PackInstaller {
         &self,
         package_id: &PackageId,
         step_name: &str,
-    ) -> Result<ggen_marketplace::CachedPack, GgenError> {
+    ) -> Result<mcpp_marketplace::CachedPack, GgenError> {
         let progress = self.progress.clone();
         progress.update_step_progress(0.0, &format!("Checking cache for {}", package_id));
 
@@ -524,8 +523,8 @@ impl PackInstaller {
         &self,
         package_id: &PackageId,
         version: &PackageVersion,
-        package: ggen_marketplace::Package,
-    ) -> Result<ggen_marketplace::CachedPack, GgenError> {
+        package: mcpp_marketplace::Package,
+    ) -> Result<mcpp_marketplace::CachedPack, GgenError> {
         // Mock caching
         Err(GgenError::ValidationError("Mock implementation - needs real caching".to_string()))
     }
@@ -551,16 +550,16 @@ struct TestRepository {}
 
 #[async_trait::async_trait]
 impl AsyncRepository for TestRepository {
-    async fn get_package(&self, package_id: &PackageId) -> Result<ggen_marketplace::Package, MarketplaceError> {
-        Ok(ggen_marketplace::Package::mock(package_id))
+    async fn get_package(&self, package_id: &PackageId) -> Result<mcpp_marketplace::Package, MarketplaceError> {
+        Ok(mcpp_marketplace::Package::mock(package_id))
     }
 
     async fn get_package_version(
         &self,
         package_id: &PackageId,
         version: &PackageVersion,
-    ) -> Result<ggen_marketplace::Package, MarketplaceError> {
-        Ok(ggen_marketplace::Package::mock(package_id))
+    ) -> Result<mcpp_marketplace::Package, MarketplaceError> {
+        Ok(mcpp_marketplace::Package::mock(package_id))
     }
 }
 

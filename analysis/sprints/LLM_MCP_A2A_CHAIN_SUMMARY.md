@@ -13,7 +13,7 @@ Create and execute a self-play test that chains LLM → MCP tool → A2A agent �
 ## What Was Created
 
 ### Test File
-**Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs`
+**Location:** `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/llm_mcp_a2a_chain.rs`
 
 **Test Functions:**
 1. `test_llm_mcp_a2a_chain_with_otel_trace` - Main integration test
@@ -54,15 +54,15 @@ total_tokens=1145
 
 **First Tool Call (validate_pipeline):**
 ```
-span_name=ggen.mcp.tool_call
-project_path=/Users/sac/ggen
-service.name=ggen-mcp-server
+span_name=mcpp.mcp.tool_call
+project_path=~/.ggen/mcpp
+service.name=mcpp-mcp-server
 service.version=0.1.0
 ```
 
 **Second Tool Call (list_generators):**
 ```
-span_name=ggen.mcp.tool_call
+span_name=mcpp.mcp.tool_call
 tool_name=mcp.list_generators
 ```
 
@@ -79,8 +79,8 @@ llm.complete (parent)
 
 ### Command
 ```bash
-RUST_LOG=trace,ggen_ai=trace,ggen_a2a_mcp=trace \
-cargo test -p ggen-a2a-mcp --test llm_mcp_a2a_chain \
+RUST_LOG=trace,mcpp_ai=trace,mcpp_a2a_mcp=trace \
+cargo test -p mcpp-a2a-mcp --test llm_mcp_a2a_chain \
   --features live-groq -- --nocapture \
   test_llm_mcp_a2a_chain_with_otel_trace
 ```
@@ -94,10 +94,10 @@ INFO llm.complete{...}: LLM complete response model=groq::openai/gpt-oss-20b ela
 LLM tokens: prompt=121, completion=1024, total=1145
 
 === Step 2: MCP Tool Call - validate_pipeline (mcp.tool.call span) ===
-INFO ggen.mcp.tool_call{...}: validate_pipeline tool called project_path=/Users/sac/ggen
+INFO mcpp.mcp.tool_call{...}: validate_pipeline tool called project_path=~/.ggen/mcpp
 
 === Step 3: MCP Tool Call - list_generators (second mcp.tool.call span) ===
-INFO ggen.mcp.tool_call{...}: list_generators tool called
+INFO mcpp.mcp.tool_call{...}: list_generators tool called
 
 === Test Complete ===
 ✓ LLM called successfully
@@ -126,9 +126,9 @@ INFO ggen.mcp.tool_call{...}: list_generators tool called
 - Token sum: 121 + 1024 = 1145 (mathematically consistent) ✓
 
 **Proof of MCP Tool Execution:**
-- `ggen.mcp.tool_call` spans exist for each tool ✓
+- `mcpp.mcp.tool_call` spans exist for each tool ✓
 - Tool names and parameters captured ✓
-- Service metadata (name=ggen-mcp-server, version=0.1.0) ✓
+- Service metadata (name=mcpp-mcp-server, version=0.1.0) ✓
 
 ## Technical Implementation
 
@@ -154,8 +154,8 @@ let tool_result = mcp_client.call_tool(...).await?;   // mcp.tool_call span
 ### Dependencies
 
 - **rmcp 1.3.0:** Official MCP Rust SDK
-- **ggen-ai:** LLM client with OTEL instrumentation
-- **ggen-a2a-mcp:** MCP server implementation
+- **mcpp-ai:** LLM client with OTEL instrumentation
+- **mcpp-a2a-mcp:** MCP server implementation
 - **tokio:** Async runtime
 - **tracing:** OTEL span generation
 
@@ -179,7 +179,7 @@ For Agents 2 and 3:
 
 ## Files Modified/Created
 
-- **Created:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs` (272 lines)
+- **Created:** `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/llm_mcp_a2a_chain.rs` (272 lines)
 - **Test Output:** `/tmp/llm_mcp_a2a_chain_output.txt` (full trace)
 
 ---

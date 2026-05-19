@@ -153,7 +153,7 @@ test_health_endpoint_returns_200(Config) ->
 
 ### Execute HTTP Server Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_server_test
 ```
 
@@ -287,12 +287,12 @@ ERROR RESPONSE FORMAT:
 
 ## Files Created
 
-1. **`/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_server_test.erl`**
+1. **`~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_server_test.erl`**
    - 695 lines
    - 23 test cases
    - Comprehensive HTTP endpoint testing
 
-2. **`/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_core_app_test.erl`**
+2. **`~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_core_app_test.erl`**
    - 556 lines
    - 18 test cases
    - Application lifecycle and configuration testing

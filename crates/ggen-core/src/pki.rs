@@ -8,18 +8,18 @@
 //! - **Trusted Key Store**: TOML-backed registry of trusted public keys
 //! - **Key Addition/Removal**: Add and revoke trust for public keys with fingerprinting
 //! - **Verification**: Verify Ed25519 signatures against the trusted key set
-//! - **Config Discovery**: Auto-discover `.ggen/trusted-keys.toml` in project and user dirs
+//! - **Config Discovery**: Auto-discover `.mcpp/trusted-keys.toml` in project and user dirs
 //! - **Fingerprint Generation**: SHA-256 fingerprints for human-readable key identification
 //!
 //! ## Configuration File Format
 //!
-//! The trusted keys file (`.ggen/trusted-keys.toml`) has the following structure:
+//! The trusted keys file (`.mcpp/trusted-keys.toml`) has the following structure:
 //!
 //! ```toml
 //! version = "1.0"
 //!
 //! [[keys]]
-//! name = "ggen-project-signing"
+//! name = "mcpp-project-signing"
 //! public_key = "base64-encoded-ed25519-public-key"
 //! fingerprint = "sha256:hex-encoded-fingerprint"
 //! purpose = "receipt-verification"
@@ -30,7 +30,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_core::pki::{PkiManager, TrustedKeysConfig, TrustedKeyEntry};
+//! use mcpp_core::pki::{PkiManager, TrustedKeysConfig, TrustedKeyEntry};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load trusted keys from the default config path
@@ -55,7 +55,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signature, Verifier, VerifyingKey};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -107,7 +107,7 @@ impl std::fmt::Display for KeyPurpose {
 /// A single trusted key entry in the key store.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrustedKeyEntry {
-    /// Human-readable name for this key (e.g., "ggen-project-signing").
+    /// Human-readable name for this key (e.g., "mcpp-project-signing").
     pub name: String,
     /// Base64-encoded Ed25519 public key.
     pub public_key: String,
@@ -180,7 +180,7 @@ impl TrustedKeyEntry {
     }
 }
 
-/// Configuration file structure for `.ggen/trusted-keys.toml`.
+/// Configuration file structure for `.mcpp/trusted-keys.toml`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrustedKeysConfig {
     /// Config format version (currently "1.0").
@@ -229,7 +229,7 @@ impl TrustedKeysConfig {
         Ok(config)
     }
 
-    /// Load trusted keys from the project-local `.ggen/trusted-keys.toml`.
+    /// Load trusted keys from the project-local `.mcpp/trusted-keys.toml`.
     ///
     /// Falls back to an empty config if the file does not exist.
     pub fn load_from_project() -> Result<Self> {
@@ -239,9 +239,9 @@ impl TrustedKeysConfig {
 
     /// Load trusted keys from the user-level config directory.
     ///
-    /// On macOS: `~/Library/Application Support/ggen/trusted-keys.toml`
-    /// On Linux: `~/.config/ggen/trusted-keys.toml`
-    /// On Windows: `C:\Users\<user>\AppData\Roaming\ggen\trusted-keys.toml`
+    /// On macOS: `~/Library/Application Support/mcpp/trusted-keys.toml`
+    /// On Linux: `~/.config/mcpp/trusted-keys.toml`
+    /// On Windows: `C:\Users\<user>\AppData\Roaming\mcpp\trusted-keys.toml`
     pub fn load_from_user_dir() -> Result<Self> {
         let path = Self::user_config_path()?;
         Self::load_from_path(&path)
@@ -266,16 +266,16 @@ impl TrustedKeysConfig {
         Ok(())
     }
 
-    /// Get the project-local config path (`.ggen/trusted-keys.toml`).
+    /// Get the project-local config path (`.mcpp/trusted-keys.toml`).
     pub fn project_config_path() -> Result<PathBuf> {
-        Ok(PathBuf::from(".ggen").join(TRUSTED_KEYS_FILENAME))
+        Ok(PathBuf::from(".mcpp").join(TRUSTED_KEYS_FILENAME))
     }
 
     /// Get the user-level config path.
     pub fn user_config_path() -> Result<PathBuf> {
         let base =
             dirs::data_dir().ok_or_else(|| Error::new("Cannot determine user data directory"))?;
-        Ok(base.join("ggen").join(TRUSTED_KEYS_FILENAME))
+        Ok(base.join("mcpp").join(TRUSTED_KEYS_FILENAME))
     }
 }
 
@@ -464,7 +464,7 @@ impl PkiManager {
         Ok(None)
     }
 
-    /// Save the current state to the project-local `.ggen/trusted-keys.toml`.
+    /// Save the current state to the project-local `.mcpp/trusted-keys.toml`.
     pub fn save_to_project(&self) -> Result<()> {
         let path = TrustedKeysConfig::project_config_path()?;
         self.config.save_to_path(&path)

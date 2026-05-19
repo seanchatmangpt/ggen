@@ -11,7 +11,7 @@
 //! # Example
 //!
 //! ```rust
-//! use ggen_core::lifecycle::state_machine::*;
+//! use mcpp_core::lifecycle::state_machine::*;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Start with initial state

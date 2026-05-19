@@ -30,7 +30,7 @@ All workflow commands tested exhibit a critical pattern:
 ### Critical Issues Identified (P1 Priority)
 
 1. **workflow init (L0 BLOCKER)**: Help documentation shows `--type` parameter, but command rejects it
-   - Help text example: `ggen workflow init --name "test" --type research`
+   - Help text example: `mcpp workflow init --name "test" --type research`
    - Actual behavior: `error: unexpected argument '--type' found`
    - Impact: Documentation-implementation mismatch confuses all agent avatars
 
@@ -134,7 +134,7 @@ This reduces estimated timeline from 20+ hours to ~10 hours total.
 
 ## Constitutional Alignment Check
 
-All Phase 3 work maintains alignment with ggen Constitution v1.0.0:
+All Phase 3 work maintains alignment with mcpp Constitution v1.0.0:
 
 ✅ **II. Deterministic RDF Projections**: Audit structure is deterministic and reproducible
 ✅ **III. Chicago TDD**: State-based evaluation verifying command behavior (exit codes, output, errors)

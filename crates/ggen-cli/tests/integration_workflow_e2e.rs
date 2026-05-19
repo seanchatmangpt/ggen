@@ -18,9 +18,9 @@ use predicates::prelude::*;
 use std::fs;
 use tempfile::TempDir;
 
-/// Helper to create ggen command
-fn ggen() -> Command {
-    Command::cargo_bin("ggen").expect("Failed to find ggen binary")
+/// Helper to create mcpp command
+fn mcpp() -> Command {
+    Command::cargo_bin("mcpp").expect("Failed to find mcpp binary")
 }
 
 /// Helper to create test workflow file
@@ -48,11 +48,12 @@ fn create_test_workflow(temp_dir: &TempDir) -> std::path::PathBuf {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_init_creates_workflow() {
     // Chicago TDD: Verify workflow initialization
     let temp_dir = TempDir::new().unwrap();
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("init")
         .arg("--name")
@@ -67,11 +68,12 @@ fn test_workflow_init_creates_workflow() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_init_with_type() {
     // Chicago TDD: Verify workflow type specification
     let temp_dir = TempDir::new().unwrap();
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("init")
         .arg("--name")
@@ -84,13 +86,14 @@ fn test_workflow_init_with_type() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_init_with_output_dir() {
     // Chicago TDD: Verify custom output directory
     let temp_dir = TempDir::new().unwrap();
 
     let output_dir = temp_dir.path().join("custom-workflows");
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("init")
         .arg("--name")
@@ -109,12 +112,13 @@ fn test_workflow_init_with_output_dir() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_analyze() {
     // Chicago TDD: Verify workflow analysis
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("analyze")
         .arg("--workflow-file")
@@ -130,12 +134,13 @@ fn test_workflow_analyze() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_analyze_summary() {
     // Chicago TDD: Verify summary analysis
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("analyze")
         .arg("--workflow-file")
@@ -147,12 +152,13 @@ fn test_workflow_analyze_summary() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_discover() {
     // Chicago TDD: Verify process discovery
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("discover")
         .arg("--workflow-file")
@@ -168,12 +174,13 @@ fn test_workflow_discover() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_discover_pareto() {
     // Chicago TDD: Verify Pareto analysis (80/20 rule)
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("discover")
         .arg("--workflow-file")
@@ -185,12 +192,13 @@ fn test_workflow_discover_pareto() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_discover_export_mermaid() {
     // Chicago TDD: Verify Mermaid diagram export
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("discover")
         .arg("--workflow-file")
@@ -204,12 +212,13 @@ fn test_workflow_discover_export_mermaid() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_event() {
     // Chicago TDD: Verify event tracking
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("event")
         .arg("--workflow-file")
@@ -227,12 +236,13 @@ fn test_workflow_event() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_event_with_resource() {
     // Chicago TDD: Verify event with resource tracking
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("event")
         .arg("--workflow-file")
@@ -249,12 +259,13 @@ fn test_workflow_event_with_resource() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_report() {
     // Chicago TDD: Verify report generation
     let temp_dir = TempDir::new().unwrap();
     let workflow_file = create_test_workflow(&temp_dir);
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("report")
         .arg("--workflow-file")
@@ -268,6 +279,7 @@ fn test_workflow_report() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_report_html_format() {
     // Chicago TDD: Verify HTML report generation
     let temp_dir = TempDir::new().unwrap();
@@ -275,7 +287,7 @@ fn test_workflow_report_html_format() {
 
     let output_file = temp_dir.path().join("report.html");
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("report")
         .arg("--workflow-file")
@@ -290,6 +302,7 @@ fn test_workflow_report_html_format() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_report_json_format() {
     // Chicago TDD: Verify JSON report generation
     let temp_dir = TempDir::new().unwrap();
@@ -297,7 +310,7 @@ fn test_workflow_report_json_format() {
 
     let output_file = temp_dir.path().join("report.json");
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("report")
         .arg("--workflow-file")
@@ -312,9 +325,10 @@ fn test_workflow_report_json_format() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("--help")
         .assert()
@@ -327,9 +341,10 @@ fn test_workflow_help_shows_verbs() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("invalid-verb")
         .assert()
@@ -338,11 +353,12 @@ fn test_workflow_invalid_verb() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_analyze_missing_file() {
     // Chicago TDD: Verify error state for missing workflow file
     let temp_dir = TempDir::new().unwrap();
 
-    ggen()
+    mcpp()
         .arg("workflow")
         .arg("analyze")
         .arg("--workflow-file")

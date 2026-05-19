@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_canonical::hash::compute_hash;
-use ggen_canonical::json::{canonicalize_json, canonicalize_json_str, JsonCanonicalizer};
-use ggen_canonical::Canonicalizer;
+use ggen_core::canonical::hash::compute_hash;
+use ggen_core::canonical::json::{canonicalize_json, canonicalize_json_str, JsonCanonicalizer};
+use ggen_core::canonical::Canonicalizer;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 

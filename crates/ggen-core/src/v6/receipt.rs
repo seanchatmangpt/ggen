@@ -8,7 +8,7 @@
 //!
 //! For A2A-RS code generation, the receipt provides:
 //! - Cryptographic proof that generated code matches ontology
-//! - Timestamped storage in `.ggen/receipts/<timestamp>.json`
+//! - Timestamped storage in `.mcpp/receipts/<timestamp>.json`
 //! - Verification that ontology_hash matches inputs
 //! - Complete file listing with SHA-256 hashes
 //!
@@ -21,8 +21,8 @@
 //! - Files generated per pack
 
 use crate::v6::{Epoch, PassExecution};
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use mcpp_marketplace::trust::TrustTier;
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -43,7 +43,7 @@ pub struct BuildReceipt {
     /// When the projection was performed (ISO 8601)
     pub timestamp: String,
 
-    /// ggen version used
+    /// mcpp version used
     pub toolchain_version: String,
 
     /// Passes that were executed
@@ -176,7 +176,7 @@ impl BuildReceipt {
     /// * `epoch` - The frozen input epoch
     /// * `passes` - Executed passes
     /// * `outputs` - Generated output files
-    /// * `toolchain_version` - ggen version
+    /// * `toolchain_version` - mcpp version
     pub fn new(
         epoch: &Epoch, passes: Vec<PassExecution>, outputs: Vec<OutputFile>,
         toolchain_version: &str,
@@ -255,7 +255,7 @@ impl BuildReceipt {
     /// # Arguments
     /// * `epoch` - The frozen input epoch containing ontology hashes
     /// * `output_dir` - Directory containing generated files
-    /// * `toolchain_version` - ggen version string
+    /// * `toolchain_version` - mcpp version string
     ///
     /// # Returns
     /// * `Ok(BuildReceipt)` - Receipt with all file hashes
@@ -440,7 +440,7 @@ impl BuildReceipt {
         })
     }
 
-    /// Save receipt to `.ggen/receipts/<timestamp>.json`
+    /// Save receipt to `.mcpp/receipts/<timestamp>.json`
     ///
     /// This is the standard μ₅ receipt saving function for A2A-RS integration.
     ///
@@ -451,8 +451,8 @@ impl BuildReceipt {
     /// * `Ok(PathBuf)` - Path where receipt was saved
     /// * `Err(Error)` - If receipt cannot be saved
     pub fn save(&self, project_root: &Path) -> Result<PathBuf> {
-        // Create .ggen/receipts directory
-        let receipts_dir = project_root.join(".ggen").join("receipts");
+        // Create .mcpp/receipts directory
+        let receipts_dir = project_root.join(".mcpp").join("receipts");
         fs::create_dir_all(&receipts_dir).map_err(|e| {
             Error::new(&format!(
                 "Failed to create receipts directory '{}': {}",
@@ -469,8 +469,8 @@ impl BuildReceipt {
         // Write receipt
         self.write_to_file(&receipt_path)?;
 
-        // Also write to .ggen/latest.json for convenience
-        let latest_path = project_root.join(".ggen").join("latest.json");
+        // Also write to .mcpp/latest.json for convenience
+        let latest_path = project_root.join(".mcpp").join("latest.json");
         self.write_to_file(&latest_path)?;
 
         Ok(receipt_path)
@@ -539,7 +539,7 @@ impl OutputFile {
 /// # Arguments
 /// * `epoch` - The frozen input epoch (O)
 /// * `output_dir` - Directory containing generated artifacts (A)
-/// * `ggen_version` - ggen version string
+/// * `mcpp_version` - mcpp version string
 ///
 /// # Returns
 /// * `Ok(BuildReceipt)` - Receipt binding A to O
@@ -547,9 +547,9 @@ impl OutputFile {
 ///
 /// # Example
 /// ```rust,no_run
-/// use ggen_core::v6::{epoch::Epoch, receipt::generate_receipt};
+/// use mcpp_core::v6::{epoch::Epoch, receipt::generate_receipt};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let epoch = Epoch::create(&std::path::Path::new("."), &vec![])?;
 /// let receipt = generate_receipt(&epoch, std::path::Path::new("."), "6.0.0")?;
 /// println!("Generated receipt: {}", receipt.id);
@@ -557,12 +557,12 @@ impl OutputFile {
 /// # }
 /// ```
 pub fn generate_receipt(
-    epoch: &Epoch, output_dir: &Path, ggen_version: &str,
+    epoch: &Epoch, output_dir: &Path, mcpp_version: &str,
 ) -> Result<BuildReceipt> {
-    BuildReceipt::generate(epoch, output_dir, ggen_version)
+    BuildReceipt::generate(epoch, output_dir, mcpp_version)
 }
 
-/// Save receipt to `.ggen/receipts/<timestamp>.json`
+/// Save receipt to `.mcpp/receipts/<timestamp>.json`
 ///
 /// Standalone function for A2A-RS integration that saves a receipt
 /// to the standard location.
@@ -577,9 +577,9 @@ pub fn generate_receipt(
 ///
 /// # Example
 /// ```rust,no_run
-/// use ggen_core::v6::receipt::{generate_receipt, save_receipt};
+/// use mcpp_core::v6::receipt::{generate_receipt, save_receipt};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// # let epoch = unimplemented!();
 /// let receipt = generate_receipt(&epoch, std::path::Path::new("."), "6.0.0")?;
 /// let path = save_receipt(&receipt, std::path::Path::new("."))?;
@@ -608,9 +608,9 @@ pub fn save_receipt(receipt: &BuildReceipt, project_root: &Path) -> Result<PathB
 ///
 /// # Example
 /// ```rust,no_run
-/// use ggen_core::v6::receipt::verify_receipt;
+/// use mcpp_core::v6::receipt::verify_receipt;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// # let receipt = unimplemented!();
 /// # let epoch = unimplemented!();
 /// let is_valid = verify_receipt(&receipt, std::path::Path::new("."), &epoch)?;
@@ -732,12 +732,12 @@ mod tests {
 
         let saved_path = save_receipt(&receipt, temp_dir.path()).unwrap();
 
-        // Verify receipt was saved to .ggen/receipts/
-        assert!(saved_path.starts_with(temp_dir.path().join(".ggen/receipts")));
+        // Verify receipt was saved to .mcpp/receipts/
+        assert!(saved_path.starts_with(temp_dir.path().join(".mcpp/receipts")));
         assert!(saved_path.exists());
 
-        // Verify .ggen/latest.json was created
-        let latest_path = temp_dir.path().join(".ggen/latest.json");
+        // Verify .mcpp/latest.json was created
+        let latest_path = temp_dir.path().join(".mcpp/latest.json");
         assert!(latest_path.exists());
     }
 

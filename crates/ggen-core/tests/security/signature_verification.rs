@@ -1,7 +1,7 @@
 //! Security tests for signature verification
 
 use anyhow::Result;
-use ggen_core::pqc::{calculate_sha256, PqcSigner, PqcVerifier};
+use mcpp_core::pqc::{calculate_sha256, PqcSigner, PqcVerifier};
 
 #[test]
 fn test_valid_signature_verification() -> Result<()> {

@@ -1,7 +1,7 @@
 //! Registry API integration tests
 
 use chicago_tdd_tools::prelude::*;
-use ggen_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
@@ -59,7 +59,7 @@ async_test_with_timeout!(test_get_popular_categories, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -135,7 +135,7 @@ async_test_with_timeout!(test_get_popular_keywords, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -199,7 +199,7 @@ async_test_with_timeout!(test_list_all_packages, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };

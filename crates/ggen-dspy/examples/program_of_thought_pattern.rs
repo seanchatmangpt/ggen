@@ -2,7 +2,7 @@
 //!
 //! Demonstrates code generation and execution for computational problems.
 
-use ggen_dspy::{CodeLanguage, Module, ProgramOfThought, ProgramOfThoughtConfig};
+use mcpp_dspy::{CodeLanguage, Module, ProgramOfThought, ProgramOfThoughtConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

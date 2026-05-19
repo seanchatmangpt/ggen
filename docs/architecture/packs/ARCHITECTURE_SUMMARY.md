@@ -46,7 +46,7 @@
 
 **Document**: Complete end-to-end architecture for package lifecycle management
 **Size**: 24 KB
-**Location**: `/Users/sac/ggen/docs/architecture/packs/PHASE_2_3_ARCHITECTURE.md`
+**Location**: `./docs/architecture/packs/PHASE_2_3_ARCHITECTURE.md`
 
 ---
 

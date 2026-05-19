@@ -14,14 +14,14 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::drift::{DriftDetector, DriftStatus};
+//! use mcpp_core::drift::{DriftDetector, DriftStatus};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
-//! let detector = DriftDetector::new(Path::new(".ggen"))?;
+//! # fn main() -> mcpp_utils::error::Result<()> {
+//! let detector = DriftDetector::new(Path::new(".mcpp"))?;
 //! let status = detector.check_drift(
 //!     Path::new("ontology.ttl"),
-//!     Path::new("ggen.toml"),
+//!     Path::new("mcpp.toml"),
 //! )?;
 //!
 //! match status {

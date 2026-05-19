@@ -15,7 +15,7 @@
 //! # Examples
 //!
 //! ```rust,no_run
-//! use ggen_ai::codegen::validation::{validate_rdf_uri, validate_property_name};
+//! use mcpp_ai::codegen::validation::{validate_rdf_uri, validate_property_name};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Valid URIs
@@ -60,7 +60,7 @@ const MAX_PROPERTY_NAME_LENGTH: usize = 256;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ai::codegen::validation::validate_rdf_uri;
+/// use mcpp_ai::codegen::validation::validate_rdf_uri;
 ///
 /// assert!(validate_rdf_uri("http://example.com/ontology#MyClass").is_ok());
 /// assert!(validate_rdf_uri("http://example.com/'; DROP TABLE--").is_err());
@@ -150,7 +150,7 @@ pub fn validate_rdf_uri(uri: &str) -> crate::Result<String> {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ai::codegen::validation::validate_property_name;
+/// use mcpp_ai::codegen::validation::validate_property_name;
 ///
 /// assert!(validate_property_name("rdfs:comment").is_ok());
 /// assert!(validate_property_name("http://example.com/prop").is_ok());
@@ -209,7 +209,7 @@ pub fn validate_property_name(property: &str) -> crate::Result<String> {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ai::codegen::validation::escape_sparql_property;
+/// use mcpp_ai::codegen::validation::escape_sparql_property;
 ///
 /// let escaped = escape_sparql_property("my:property");
 /// assert_eq!(escaped, "my\\:property");

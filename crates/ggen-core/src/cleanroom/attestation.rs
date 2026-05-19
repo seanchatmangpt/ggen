@@ -138,7 +138,7 @@ pub struct Provenance {
 /// Builder identity
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuilderIdentity {
-    /// Builder name (ggen-cleanroom, etc.)
+    /// Builder name (mcpp-cleanroom, etc.)
     pub name: String,
 
     /// Builder version

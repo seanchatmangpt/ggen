@@ -46,13 +46,13 @@ pub struct PostgresTestContainer {
 impl PostgresTestContainer {
     pub fn new(client: &Cli) -> Self {
         let image = PostgresImage::default()
-            .with_env_var("POSTGRES_DB", "ggen_test")
-            .with_env_var("POSTGRES_USER", "ggen")
-            .with_env_var("POSTGRES_PASSWORD", "ggen_password");
+            .with_env_var("POSTGRES_DB", "mcpp_test")
+            .with_env_var("POSTGRES_USER", "mcpp")
+            .with_env_var("POSTGRES_PASSWORD", "mcpp_password");
 
         let container = client.run(image);
         let port = container.get_host_port_ipv4(5432);
-        let connection_string = format!("postgresql://ggen:ggen_password@localhost:{}", port);
+        let connection_string = format!("postgresql://mcpp:mcpp_password@localhost:{}", port);
 
         Self {
             container,
@@ -128,7 +128,7 @@ async fn test_production_readiness_database_integration() {
     postgres.wait_for_ready().await;
 
     // Test database connectivity and schema validation
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "init",
@@ -147,7 +147,7 @@ async fn test_production_readiness_cache_integration() {
     redis.wait_for_ready().await;
 
     // Test Redis connectivity and caching
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "init",
@@ -166,7 +166,7 @@ async fn test_production_readiness_api_integration() {
     mock_api.wait_for_ready().await;
 
     // Test external API integration
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "ci",
         "github",
@@ -201,7 +201,7 @@ async fn test_production_readiness_concurrent_operations() {
         let redis_url = redis.connection_string.clone();
         
         let handle = tokio::spawn(async move {
-            let mut cmd = Command::cargo_bin("ggen").unwrap();
+            let mut cmd = Command::cargo_bin("mcpp").unwrap();
             cmd.args([
                 "lifecycle",
                 "run",
@@ -228,7 +228,7 @@ async fn test_production_readiness_error_handling() {
     let env = TestEnvironment::new();
     
     // Test with invalid database connection
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "init",
@@ -254,7 +254,7 @@ async fn test_production_readiness_performance_validation() {
         let postgres_url = postgres.connection_string.clone();
         
         let handle = tokio::spawn(async move {
-            let mut cmd = Command::cargo_bin("ggen").unwrap();
+            let mut cmd = Command::cargo_bin("mcpp").unwrap();
             cmd.args([
                 "lifecycle",
                 "run",
@@ -288,7 +288,7 @@ async fn test_production_readiness_security_validation() {
     // Test SQL injection protection
     let malicious_input = "'; DROP TABLE users; --";
     
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "template",
         "render",
@@ -309,7 +309,7 @@ async fn test_production_readiness_resource_cleanup() {
     postgres.wait_for_ready().await;
 
     // Test resource cleanup after operations
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -327,7 +327,7 @@ async fn test_production_readiness_monitoring_integration() {
     let env = TestEnvironment::new();
     
     // Test monitoring and observability features
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -350,7 +350,7 @@ async fn test_production_readiness_health_checks() {
     redis.wait_for_ready().await;
 
     // Test health check endpoints
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "health",
@@ -369,7 +369,7 @@ async fn test_production_readiness_backup_and_restore() {
     postgres.wait_for_ready().await;
 
     // Test backup functionality
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -384,7 +384,7 @@ async fn test_production_readiness_backup_and_restore() {
     assert.success().stdout(predicate::str::contains("Backup completed"));
 
     // Test restore functionality
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -406,7 +406,7 @@ async fn test_production_readiness_disaster_recovery() {
     postgres.wait_for_ready().await;
 
     // Simulate disaster recovery scenario
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -426,7 +426,7 @@ async fn test_production_readiness_load_balancing() {
     let env = TestEnvironment::new();
     
     // Test load balancing across multiple instances
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -446,7 +446,7 @@ async fn test_production_readiness_graceful_shutdown() {
     let env = TestEnvironment::new();
     
     // Test graceful shutdown handling
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -479,7 +479,7 @@ enabled = true
 metrics_port = 9090
 "#).unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "validate-config",
@@ -496,7 +496,7 @@ async fn test_production_readiness_secrets_management() {
     let env = TestEnvironment::new();
     
     // Test secrets management
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -516,7 +516,7 @@ async fn test_production_readiness_circuit_breaker() {
     let env = TestEnvironment::new();
     
     // Test circuit breaker pattern
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -536,7 +536,7 @@ async fn test_production_readiness_rate_limiting() {
     let env = TestEnvironment::new();
     
     // Test rate limiting
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -558,7 +558,7 @@ async fn test_production_readiness_data_consistency() {
     postgres.wait_for_ready().await;
 
     // Test data consistency across operations
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",
@@ -585,7 +585,7 @@ async fn test_production_readiness_comprehensive_validation() {
     mock_api.wait_for_ready().await;
 
     // Comprehensive production readiness validation
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "lifecycle",
         "run",

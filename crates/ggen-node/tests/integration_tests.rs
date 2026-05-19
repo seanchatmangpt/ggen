@@ -1,4 +1,4 @@
-//! Integration tests for ggen node bindings
+//! Integration tests for mcpp node bindings
 //!
 //! JTBD VALIDATION: These tests validate end-to-end functionality by actually running CLI commands
 //! and verifying the ACTUAL behavior matches expectations.
@@ -16,7 +16,7 @@ use chicago_tdd_tools::{assert_ok, async_test_with_timeout};
 #[cfg(test)]
 mod integration {
     use super::*;
-    use ggen_cli_lib::run_for_node;
+    use mcpp_cli_lib::run_for_node;
 
     /// Helper to run a command and validate success with content validation
     async fn run_and_expect_success(args: Vec<&str>) -> Result<String, String> {
@@ -334,7 +334,7 @@ mod integration {
 #[cfg(test)]
 mod error_recovery_tests {
     use super::*;
-    use ggen_cli_lib::run_for_node;
+    use mcpp_cli_lib::run_for_node;
 
     async_test_with_timeout!(test_recovers_from_invalid_utf8, 30, {
         // Arrange & Act
@@ -392,7 +392,7 @@ mod error_recovery_tests {
 #[cfg(test)]
 mod timeout_tests {
     use super::*;
-    use ggen_cli_lib::run_for_node;
+    use mcpp_cli_lib::run_for_node;
     use std::time::{Duration, Instant};
 
     async_test_with_timeout!(test_version_completes_quickly, 30, {

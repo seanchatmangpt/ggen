@@ -1,6 +1,6 @@
-//! AI commands - CLI layer delegating to ggen-ai LLM client
+//! AI commands - CLI layer delegating to mcpp-ai LLM client
 //!
-//! Uses ggen_ai::GenAiClient for real LLM calls with OTEL span verification.
+//! Uses mcpp_ai::GenAiClient for real LLM calls with OTEL span verification.
 
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
@@ -167,9 +167,9 @@ struct LlmResult {
 fn call_llm(
     prompt: &str, model: Option<String>, max_tokens: Option<i64>, temperature: Option<f64>,
 ) -> crate::Result<LlmResult> {
-    use ggen_ai::LlmClient;
+    use mcpp_ai::LlmClient;
 
-    let mut config = ggen_ai::LlmConfig::default();
+    let mut config = mcpp_ai::LlmConfig::default();
     if let Some(m) = model {
         config.model = m;
     }
@@ -180,7 +180,7 @@ fn call_llm(
         config.temperature = Some(t as f32);
     }
 
-    let client = ggen_ai::GenAiClient::new(config)
+    let client = mcpp_ai::GenAiClient::new(config)
         .map_err(|e| GgenError::ExternalServiceError(format!("Failed to create LLM client: {}", e)))?;
 
     let response = block_on(client.complete(prompt))
@@ -188,7 +188,7 @@ fn call_llm(
         .map_err(|e| GgenError::ExternalServiceError(format!("LLM request failed: {}", e)))?;
 
     let model_used = response.model.clone();
-    let usage = response.usage.unwrap_or(ggen_ai::UsageStats {
+    let usage = response.usage.unwrap_or(mcpp_ai::UsageStats {
         prompt_tokens: 0,
         completion_tokens: 0,
         total_tokens: 0,

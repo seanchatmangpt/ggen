@@ -4,7 +4,7 @@
 //! `causation_chain`) to `tracing` spans so that distributed traces
 //! crossing agent boundaries are automatically correlated.
 
-use a2a_generated::converged::message::ConvergedMessage;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 use tracing::Span;
 
 /// Create a tracing span linked to the A2A message's correlation context.
@@ -23,7 +23,7 @@ use tracing::Span;
 /// ```
 pub fn span_from_a2a_context(message: &ConvergedMessage) -> Span {
     let span = tracing::info_span!(
-        "ggen.a2a.message",
+        "mcpp.a2a.message",
         a2a.message_id = %message.message_id,
         a2a.correlation_id = ?message.envelope.correlation_id,
         a2a.source = %message.source,
@@ -56,7 +56,7 @@ pub fn correlation_id_or_fallback(message: &ConvergedMessage) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use a2a_generated::converged::message::ConvergedMessage;
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 
     /// Build a minimal message for testing.
     fn test_message() -> ConvergedMessage {

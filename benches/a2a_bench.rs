@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_a2a::{
+use ggen_core::a2a::{
     Artifact, ArtifactContent, ArtifactType, StateTransition, Task, TaskState, TaskStateMachine,
 };
 

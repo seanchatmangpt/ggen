@@ -1,4 +1,4 @@
-//! Shared test helpers for ggen-a2a-mcp integration tests.
+//! Shared test helpers for mcpp-a2a-mcp integration tests.
 //!
 //! Provides tracing initialization with optional OTLP export.
 //! When the `otel` feature is enabled and `OTEL_EXPORTER_OTLP_ENDPOINT` is set,
@@ -203,7 +203,7 @@ fn init_otlp(endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     let resource = Resource::builder_empty()
         .with_attributes([
-            KeyValue::new("service.name", "ggen-a2a-mcp-test"),
+            KeyValue::new("service.name", "mcpp-a2a-mcp-test"),
             KeyValue::new("test.session", "integration"),
         ])
         .build();
@@ -225,7 +225,7 @@ fn init_otlp(endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     opentelemetry::global::set_tracer_provider(provider.clone());
 
-    let tracer = opentelemetry::global::tracer("ggen-a2a-mcp-test");
+    let tracer = opentelemetry::global::tracer("mcpp-a2a-mcp-test");
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
     let subscriber = Registry::default()

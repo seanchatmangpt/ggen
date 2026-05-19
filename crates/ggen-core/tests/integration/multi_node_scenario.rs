@@ -3,7 +3,7 @@
 //! These tests simulate multiple registry nodes and client interactions
 
 use anyhow::Result;
-use ggen_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
@@ -51,7 +51,7 @@ async fn test_multiple_registry_instances() -> Result<()> {
         },
     );
 
-    let index1 = ggen_core::registry::RegistryIndex {
+    let index1 = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs: packs1,
     };
@@ -94,7 +94,7 @@ async fn test_multiple_registry_instances() -> Result<()> {
         },
     );
 
-    let index2 = ggen_core::registry::RegistryIndex {
+    let index2 = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs: packs2,
     };
@@ -175,7 +175,7 @@ async fn test_concurrent_registry_access() -> Result<()> {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -204,7 +204,7 @@ async fn test_concurrent_registry_access() -> Result<()> {
                     let packages = client.list_packages().await.unwrap();
                     packages
                         .into_iter()
-                        .map(|p| ggen_core::registry::SearchResult {
+                        .map(|p| mcpp_core::registry::SearchResult {
                             id: p.id,
                             name: p.name,
                             description: p.description,
@@ -228,7 +228,7 @@ async fn test_concurrent_registry_access() -> Result<()> {
                     index
                         .packs
                         .into_iter()
-                        .map(|(_, p)| ggen_core::registry::SearchResult {
+                        .map(|(_, p)| mcpp_core::registry::SearchResult {
                             id: p.id,
                             name: p.name,
                             description: p.description,
@@ -306,7 +306,7 @@ async fn test_registry_failover_simulation() -> Result<()> {
         },
     );
 
-    let primary_index = ggen_core::registry::RegistryIndex {
+    let primary_index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs: packs.clone(),
     };

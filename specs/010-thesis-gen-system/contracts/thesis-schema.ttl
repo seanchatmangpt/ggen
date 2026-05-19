@@ -1,4 +1,4 @@
-@prefix thesis: <https://ggen.io/ontology/thesis#> .
+@prefix thesis: <https://mcpp.io/ontology/thesis#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -7,7 +7,7 @@
 
 # =============================================================================
 # THESIS GENERATION ONTOLOGY SCHEMA
-# Reusable schema for generating PhD theses via ggen sync
+# Reusable schema for generating PhD theses via mcpp sync
 # Version: 1.0.0
 # =============================================================================
 
@@ -15,7 +15,7 @@
 # ONTOLOGY METADATA
 # -----------------------------------------------------------------------------
 
-<https://ggen.io/ontology/thesis> a owl:Ontology ;
+<https://mcpp.io/ontology/thesis> a owl:Ontology ;
     rdfs:label "Thesis Generation Ontology" ;
     rdfs:comment "Schema for ontology-driven PhD thesis generation with zero hardcoded content" ;
     owl:versionInfo "1.0.0" .

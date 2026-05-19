@@ -1,4 +1,4 @@
-command: "ggen utils doctor"
+command: "mcpp utils doctor"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -49,4 +49,4 @@ recommendations:
 jtbd: |
   When I need to diagnose system configuration issues, I need to verify
   all required tools (Rust, Cargo, Git) are installed correctly,
-  so that I can confidently run ggen without environment problems.
+  so that I can confidently run mcpp without environment problems.

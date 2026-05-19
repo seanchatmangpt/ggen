@@ -1,4 +1,4 @@
-# ggen v6.0.1
+# ggen v26.5.4
 
 [![CI](https://github.com/seanchatmangpt/ggen/workflows/CI/badge.svg)](https://github.com/seanchatmangpt/ggen/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0%20OR%20MIT-blue.svg)](LICENSE-APACHE)
@@ -13,7 +13,7 @@ ggen transforms domain ontologies (RDF/Turtle) into typed source code through a 
 ggen.toml  -->  RDF Ontology  -->  CONSTRUCT inference  -->  SELECT  -->  Tera Template  -->  Code
 ```
 
-**What's New in v6.0.1:**
+**What's New in v26.5.4:**
 - ✅ **MCP Server Integration** — 14 tools exposed via stdio/HTTP for Claude Desktop and AI assistants
 - ✅ **A2A Protocol Support** — Multi-agent task coordination with Byzantine fault tolerance
 - ✅ **OpenTelemetry Tracing** — Full observability for LLM calls, MCP tools, and pipeline stages
@@ -974,7 +974,7 @@ Generate type-safe A2A skill definitions across 5 languages from compact schema 
 
 ## Status & Performance
 
-**Version**: 6.0.1
+**Version**: 26.5.4
 **Stack**: Rust 1.94.0 | Tokio | Oxigraph | Tera | Clap | rmcp 1.3.0 | 30 crates
 **Testing**: Chicago TDD | 87% coverage | 347+ tests passing
 **Stability**: Production-ready

@@ -1,4 +1,4 @@
-//! Common test utilities and fixtures for ggen integration testing
+//! Common test utilities and fixtures for mcpp integration testing
 //! 
 //! This module provides:
 //! - Fixture loaders for test ontologies and configurations
@@ -33,7 +33,7 @@ impl TestEnv {
 
     /// Load a fixture file into test environment
     pub fn load_fixture(&self, fixture_name: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-        let fixture_path = PathBuf::from("crates/ggen-core/tests/fixtures")
+        let fixture_path = PathBuf::from("crates/mcpp-core/tests/fixtures")
             .join(fixture_name);
         Ok(fs::read(fixture_path)?)
     }

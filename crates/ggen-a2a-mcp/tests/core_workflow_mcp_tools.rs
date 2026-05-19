@@ -1,12 +1,12 @@
-//! Test core ggen workflow MCP tools
+//! Test core mcpp workflow MCP tools
 //!
-//! These tests verify the basic ggen workflow tools that users rely on:
+//! These tests verify the basic mcpp workflow tools that users rely on:
 //! - validate: Turtle syntax validation
 //! - query_ontology: SPARQL SELECT execution
 //! - validate_pipeline: 6 quality gates
 //! - fix_cycles: circular dependency detection
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use std::path::PathBuf;
 
 #[tokio::test]
@@ -22,7 +22,7 @@ ex:Subject a ex:Resource .
 "#;
 
     let result = server
-        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+        .validate(mcpp_a2a_mcp::mcpp_server::ValidateParams {
             ttl: valid_ttl.to_string(),
         })
         .await;
@@ -47,7 +47,7 @@ INVALID TURTLE SYNTAX!!!
 "#;
 
     let result = server
-        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+        .validate(mcpp_a2a_mcp::mcpp_server::ValidateParams {
             ttl: invalid_ttl.to_string(),
         })
         .await;
@@ -80,7 +80,7 @@ ex:Subject a ex:Resource .
     let sparql = "SELECT ?s WHERE { ?s a ex:name ?name }";
 
     let result = server
-        .query_ontology(ggen_a2a_mcp::ggen_server::QueryOntologyParams {
+        .query_ontology(mcpp_a2a_mcp::mcpp_server::QueryOntologyParams {
             ttl: ttl.to_string(),
             sparql: sparql.to_string(),
         })
@@ -98,12 +98,12 @@ ex:Subject a ex:Resource .
 
 #[tokio::test]
 async fn test_validate_pipeline_tool_checks_gates() {
-    let server = ggen_a2a_mcp::ggen_server::GgenMcpServer::new();
+    let server = mcpp_a2a_mcp::mcpp_server::GgenMcpServer::new();
 
-    // Use an actual ggen project with ggen.toml
+    // Use an actual mcpp project with mcpp.toml
     let result = server
-        .validate_pipeline(ggen_a2a_mcp::ggen_server::ValidatePipelineParams {
-            project_path: ".".to_string(), // Current project is a valid ggen project
+        .validate_pipeline(mcpp_a2a_mcp::mcpp_server::ValidatePipelineParams {
+            project_path: ".".to_string(), // Current project is a valid mcpp project
         })
         .await;
 

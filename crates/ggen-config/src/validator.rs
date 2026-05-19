@@ -1,6 +1,6 @@
 //! Configuration validation
 //!
-//! This module provides validation logic for ggen configuration.
+//! This module provides validation logic for mcpp configuration.
 
 use crate::{ConfigError, GgenConfig, Result};
 use std::collections::HashSet;
@@ -30,7 +30,7 @@ impl<'a> ConfigValidator<'a> {
     /// # Example
     ///
     /// ```
-    /// use ggen_config::{ConfigLoader, ConfigValidator};
+    /// use mcpp_config::{ConfigLoader, ConfigValidator};
     ///
     /// let toml = r#"
     ///     [project]

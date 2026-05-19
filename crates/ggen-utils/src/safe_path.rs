@@ -12,7 +12,7 @@
 //! ## Examples
 //!
 //! ```rust
-//! use ggen_utils::safe_path::SafePath;
+//! use mcpp_utils::safe_path::SafePath;
 //!
 //! // Valid paths
 //! let safe = SafePath::new("src/generated").unwrap();
@@ -55,7 +55,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// // Valid paths
     /// assert!(SafePath::new("src/generated").is_ok());
@@ -82,7 +82,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let base = SafePath::new("src").unwrap();
     /// let joined = base.join("generated").unwrap();
@@ -104,7 +104,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let safe = SafePath::new("src/generated").unwrap();
     /// assert_eq!(safe.as_path().to_str().unwrap(), "src/generated");
@@ -119,7 +119,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let safe = SafePath::new("src/generated").unwrap();
     /// let path_buf = safe.into_path_buf();
@@ -135,7 +135,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let safe = SafePath::new("src/generated").unwrap();
     /// let path_buf = safe.as_path_buf();
@@ -151,7 +151,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let safe = SafePath::new_absolute("/tmp/config.toml").unwrap();
     /// assert!(safe.as_path().is_absolute());
@@ -187,7 +187,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let cwd = SafePath::current_dir().unwrap();
     /// assert!(cwd.as_path().is_absolute());
@@ -203,7 +203,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let path = SafePath::new("src/generated").unwrap();
     /// let parent = path.parent().unwrap();
@@ -227,7 +227,7 @@ impl SafePath {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let cwd = SafePath::current_dir().unwrap();
     /// assert!(cwd.exists());

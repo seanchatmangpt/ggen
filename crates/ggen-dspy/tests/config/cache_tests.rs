@@ -1,6 +1,6 @@
 //! Tests for cache manager (memory and disk)
 
-use ggen_dspy::config::{CacheConfig, CacheManager};
+use mcpp_dspy::config::{CacheConfig, CacheManager};
 use tempfile::TempDir;
 
 async fn create_test_cache() -> (CacheManager, TempDir) {

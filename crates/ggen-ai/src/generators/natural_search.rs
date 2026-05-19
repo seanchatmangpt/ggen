@@ -109,7 +109,7 @@ impl NaturalSearchGenerator {
         } else {
             // Fallback: generate default result if LLM didn't provide packages
             vec![PackageResult {
-                id: "io.ggen.template.basic".to_string(),
+                id: "io.mcpp.template.basic".to_string(),
                 name: "Basic Project Template".to_string(),
                 description: "Starter template based on your query".to_string(),
                 category: Some("template".to_string()),
@@ -221,7 +221,7 @@ mod tests {
   "confidence": 0.9,
   "packages": [
     {
-      "id": "io.ggen.auth.user",
+      "id": "io.mcpp.auth.user",
       "name": "User Authentication System",
       "description": "Complete user authentication with JWT",
       "category": "security",

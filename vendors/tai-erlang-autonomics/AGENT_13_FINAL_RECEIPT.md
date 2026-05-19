@@ -47,7 +47,7 @@ All tests compile successfully and are ready for immediate execution.
 ## Deliverable Files
 
 ### 1. Integration Test Suite
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
+**File**: `./tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
 
 **Statistics**:
 - Lines of Code: 730
@@ -62,7 +62,7 @@ _build/test/lib/tai_autonomics/test/taiea_http_governor_integration_SUITE.beam
 ```
 
 ### 2. Test Matrix Documentation
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/INTEGRATION_TEST_MATRIX.md`
+**File**: `./tai-erlang-autonomics/INTEGRATION_TEST_MATRIX.md`
 
 **Contents**:
 - Detailed test case descriptions (12 cases)
@@ -74,7 +74,7 @@ _build/test/lib/tai_autonomics/test/taiea_http_governor_integration_SUITE.beam
 - Integration points verified
 
 ### 3. Quick Start Guide
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/INTEGRATION_TESTS_QUICK_START.md`
+**File**: `./tai-erlang-autonomics/INTEGRATION_TESTS_QUICK_START.md`
 
 **Contents**:
 - TL;DR: Run tests now command
@@ -85,7 +85,7 @@ _build/test/lib/tai_autonomics/test/taiea_http_governor_integration_SUITE.beam
 - Quick command reference
 
 ### 4. Delivery Summary
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/AGENT_13_DELIVERY_SUMMARY.md`
+**File**: `./tai-erlang-autonomics/AGENT_13_DELIVERY_SUMMARY.md`
 
 **Contents**:
 - Comprehensive overview
@@ -97,7 +97,7 @@ _build/test/lib/tai_autonomics/test/taiea_http_governor_integration_SUITE.beam
 - Next steps for Agent 14
 
 ### 5. Final Receipt (This Document)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/AGENT_13_FINAL_RECEIPT.md`
+**File**: `./tai-erlang-autonomics/AGENT_13_FINAL_RECEIPT.md`
 
 ---
 
@@ -301,7 +301,7 @@ All receipts verified to contain:
 
 ### Quickest Start
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_governor_integration_SUITE
 ```
 
@@ -568,7 +568,7 @@ The next agent (Agent 14/20) will extend integration testing to cover MCP server
 **Role**: Write end-to-end integration tests for HTTP + Governor flow
 **Delivery Date**: 2026-01-26
 **Status**: ✓ COMPLETE
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics`
+**Location**: `./tai-erlang-autonomics`
 
 **Files**:
 - Test Suite: `/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
@@ -576,7 +576,7 @@ The next agent (Agent 14/20) will extend integration testing to cover MCP server
 
 **Run Tests**:
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_governor_integration_SUITE
 ```
 

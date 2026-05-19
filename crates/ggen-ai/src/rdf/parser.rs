@@ -17,7 +17,7 @@
 //! ### Loading RDF Files
 //!
 //! ```rust,no_run
-//! use ggen_ai::rdf::RdfParser;
+//! use mcpp_ai::rdf::RdfParser;
 //! use std::path::Path;
 //!
 //! # fn main() -> anyhow::Result<()> {
@@ -28,7 +28,7 @@
 //! # }
 //! ```
 
-use ggen_utils::{bail, error::Result};
+use mcpp_utils::{bail, error::Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use std::fs::File;
@@ -40,7 +40,7 @@ use std::path::Path;
 /// # Example
 ///
 /// ```no_run
-/// use ggen_ai::rdf::RdfParser;
+/// use mcpp_ai::rdf::RdfParser;
 /// use std::path::Path;
 ///
 /// # fn main() -> anyhow::Result<()> {
@@ -80,7 +80,7 @@ impl RdfParser {
 
         self.store
             .load_from_reader(RdfFormat::Turtle, reader)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load RDF: {}", e)))?;
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to load RDF: {}", e)))?;
 
         Ok(())
     }

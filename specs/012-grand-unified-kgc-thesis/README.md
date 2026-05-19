@@ -1,8 +1,8 @@
 # Grand Unified KGC Thesis Generator
 
-**Ontology-driven academic thesis generation using ggen v5**
+**Ontology-driven academic thesis generation using mcpp v5**
 
-This project demonstrates ggen's capability to generate complete LaTeX thesis documents from RDF ontologies, showcasing:
+This project demonstrates mcpp's capability to generate complete LaTeX thesis documents from RDF ontologies, showcasing:
 - 15 coordinated generation rules
 - Type-safe RDF schema (17 entity classes)
 - Deterministic chapter/section/theorem/equation generation
@@ -14,8 +14,8 @@ This project demonstrates ggen's capability to generate complete LaTeX thesis do
 
 ### Prerequisites
 
-- Rust 1.75+ (existing ggen toolchain)
-- ggen CLI v5.0.0+
+- Rust 1.75+ (existing mcpp toolchain)
+- mcpp CLI v5.0.0+
 - LaTeX distribution (for compiling generated `.tex` files)
 
 ### Step 1: Populate Content Ontology
@@ -23,7 +23,7 @@ This project demonstrates ggen's capability to generate complete LaTeX thesis do
 Create `ontology/kgc-unified-content.ttl` with your thesis content:
 
 ```turtle
-@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix : <https://mcpp.io/thesis/kgc-unified/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 :thesis-001 a :Thesis ;
@@ -192,15 +192,15 @@ Create templates in `templates/` directory:
 ### Step 3: Validate Configuration
 
 ```bash
-cd /Users/sac/ggen/specs/012-grand-unified-kgc-thesis
-cargo make check  # Verify ggen.toml syntax
+cd ~/.ggen/mcpp/specs/012-grand-unified-kgc-thesis
+cargo make check  # Verify mcpp.toml syntax
 ```
 
 ### Step 4: Generate Thesis
 
 ```bash
 # Generate all components
-ggen sync
+mcpp sync
 
 # Output structure:
 # output/
@@ -237,7 +237,7 @@ pdflatex thesis-main.tex  # Second pass for cross-references
 
 ```
 012-grand-unified-kgc-thesis/
-├── ggen.toml                     # 15 generation rules
+├── mcpp.toml                     # 15 generation rules
 ├── ontology/
 │   ├── thesis-schema.ttl         # 17 entity classes (schema)
 │   └── kgc-unified-content.ttl   # Thesis content (RDF data)
@@ -278,7 +278,7 @@ The `thesis-schema.ttl` defines 17 RDF classes:
 
 ## Generation Rules
 
-The 15 rules in `ggen.toml` ensure:
+The 15 rules in `mcpp.toml` ensure:
 - **Deterministic output** - Same ontology → same LaTeX
 - **Type safety** - SPARQL queries enforce schema
 - **Modularity** - Each rule generates isolated components
@@ -298,7 +298,7 @@ Modify RDF triples and regenerate:
     :content "Our approach consists of..." .
 
 # Regenerate
-ggen sync  # Only chapter-3.tex is updated
+mcpp sync  # Only chapter-3.tex is updated
 ```
 
 ### Cross-References
@@ -324,8 +324,8 @@ Generate non-English theses:
 
 ## Navigation
 
-- **Project Root**: `/Users/sac/ggen`
-- **Spec Directory**: `/Users/sac/ggen/specs/012-grand-unified-kgc-thesis`
+- **Project Root**: `~/.ggen/mcpp`
+- **Spec Directory**: `~/.ggen/mcpp/specs/012-grand-unified-kgc-thesis`
 - **Schema**: `ontology/thesis-schema.ttl`
 - **Content**: `ontology/kgc-unified-content.ttl` (create this)
 - **Templates**: `templates/*.hbs` (create these)
@@ -333,8 +333,8 @@ Generate non-English theses:
 
 ## Troubleshotics
 
-**Issue**: `ggen sync` fails with "query error"
-- **Solution**: Validate SPARQL queries in `ggen.toml` against `thesis-schema.ttl`
+**Issue**: `mcpp sync` fails with "query error"
+- **Solution**: Validate SPARQL queries in `mcpp.toml` against `thesis-schema.ttl`
 
 **Issue**: Missing LaTeX packages
 - **Solution**: Install full TeX Live distribution: `sudo apt-get install texlive-full`
@@ -354,4 +354,4 @@ Generate non-English theses:
 
 ## License
 
-This example is part of the ggen project (MIT License).
+This example is part of the mcpp project (MIT License).

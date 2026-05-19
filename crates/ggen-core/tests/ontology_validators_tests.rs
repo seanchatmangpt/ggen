@@ -5,8 +5,8 @@
 //!
 //! AAA Pattern: Arrange (schemas) -> Act (validate) -> Assert (invariants held)
 
-use ggen_core::ontology::validators::*;
-use ggen_core::ontology::Invariant;
+use mcpp_core::ontology::validators::*;
+use mcpp_core::ontology::Invariant;
 
 // ============================================================================
 // TEST GROUP: Invariant Enum Behavior

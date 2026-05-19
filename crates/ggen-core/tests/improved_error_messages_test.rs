@@ -3,8 +3,8 @@
 //! This test verifies that the 6 improved error messages provide
 //! helpful context to users.
 
-use ggen_core::codegen::merge::merge_sections;
-use ggen_core::codegen::watch::FileWatcher;
+use mcpp_core::codegen::merge::merge_sections;
+use mcpp_core::codegen::watch::FileWatcher;
 use std::path::{Path, PathBuf};
 
 #[test]
@@ -59,7 +59,7 @@ fn test_directory_traversal_error_shows_helpful_context() {
 
 #[test]
 fn test_watch_path_not_found_error_shows_helpful_context() {
-    use ggen_core::codegen::watch::FileWatcher;
+    use mcpp_core::codegen::watch::FileWatcher;
 
     // Try to watch a non-existent path
     let nonexistent_path = PathBuf::from("/this/path/does/not/exist");

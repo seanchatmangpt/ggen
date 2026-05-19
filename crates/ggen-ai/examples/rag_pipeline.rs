@@ -16,7 +16,7 @@
 //! - Set appropriate API key
 
 use async_trait::async_trait;
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     field::{InputField, OutputField},
     module::{Module, ModuleError, ModuleResult},
     predictor::{ChainOfThought, Predictor},

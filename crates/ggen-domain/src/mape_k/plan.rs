@@ -164,7 +164,7 @@ impl PlanEngine {
             FindingKind::TickBudgetViolation => {
                 format!(
                     r#"# Break {} into smaller steps
-@prefix knhk: <http://ggen.ai/knhk#> .
+@prefix knhk: <http://mcpp.ai/knhk#> .
 
 knhk:Pattern_{} a knhk:Pattern ;
     knhk:id "{}" ;
@@ -177,7 +177,7 @@ knhk:Pattern_{} a knhk:Pattern ;
             FindingKind::GuardFailureRate => {
                 format!(
                     r#"# Relax {} guard threshold
-@prefix knhk: <http://ggen.ai/knhk#> .
+@prefix knhk: <http://mcpp.ai/knhk#> .
 
 knhk:Guard_{} a knhk:Guard ;
     knhk:id "{}" ;
@@ -195,7 +195,7 @@ knhk:Guard_{} a knhk:Guard ;
             FindingKind::DriftDetected => {
                 format!(
                     r#"# Add sampling/monitoring for {}
-@prefix knhk: <http://ggen.ai/knhk#> .
+@prefix knhk: <http://mcpp.ai/knhk#> .
 
 knhk:Monitor_{} a knhk:Monitor ;
     knhk:component "{}" ;
@@ -207,7 +207,7 @@ knhk:Monitor_{} a knhk:Monitor ;
             _ => {
                 format!(
                     r#"# Placeholder overlay for {}
-@prefix knhk: <http://ggen.ai/knhk#> .
+@prefix knhk: <http://mcpp.ai/knhk#> .
 
 knhk:Overlay a knhk:Overlay ;
     knhk:component "{}" .

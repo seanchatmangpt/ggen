@@ -183,7 +183,7 @@ impl ReadinessTracker {
     /// Create a new readiness tracker for a project
     pub fn new<P: AsRef<Path>>(project_root: P) -> Self {
         let project_root = project_root.as_ref().to_path_buf();
-        let config_path = project_root.join(".ggen").join("production.toml");
+        let config_path = project_root.join(".mcpp").join("production.toml");
 
         Self {
             project_root,
@@ -211,7 +211,7 @@ impl ReadinessTracker {
             requirements: self.requirements.clone(),
         };
 
-        // Ensure .ggen directory exists
+        // Ensure .mcpp directory exists
         let parent_dir = self.config_path.parent().ok_or_else(|| {
             ProductionError::ConfigLoad(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,

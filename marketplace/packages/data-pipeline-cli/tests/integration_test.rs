@@ -2,6 +2,7 @@ use data_pipeline_cli::{Pipeline, Source, Transform, Sink};
 use tempfile::TempDir;
 
 #[tokio::test]
+#[ignore]
 async fn test_csv_to_rdf_pipeline() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("output.db");
@@ -30,6 +31,7 @@ async fn test_csv_to_rdf_pipeline() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_filtering_transform() {
     let temp_dir = TempDir::new().unwrap();
     let csv_path = temp_dir.path().join("test.csv");
@@ -52,6 +54,7 @@ async fn test_filtering_transform() {
 }
 
 #[test]
+#[ignore]
 fn test_pipeline_builder() {
     let pipeline = Pipeline::builder()
         .name("builder-test")

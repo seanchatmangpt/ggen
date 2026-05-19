@@ -4,7 +4,7 @@
 //! policy overlays and trust requirements.
 //!
 //! Supports both built-in profiles and user-configurable profiles loaded
-//! from `.ggen/profiles.toml`.
+//! from `.mcpp/profiles.toml`.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -279,7 +279,7 @@ pub fn get_profile(id: &str) -> Result<Profile> {
 }
 
 // ---------------------------------------------------------------------------
-// User-configurable profiles (loaded from .ggen/profiles.toml)
+// User-configurable profiles (loaded from .mcpp/profiles.toml)
 // ---------------------------------------------------------------------------
 
 /// Runtime constraint entry for TOML deserialization.
@@ -396,24 +396,24 @@ impl CustomProfileEntry {
     }
 }
 
-/// Root structure for `.ggen/profiles.toml`.
+/// Root structure for `.mcpp/profiles.toml`.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProfileConfig {
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub profiles: HashMap<String, CustomProfileEntry>,
 }
 
-/// Loads user-configurable profiles from `.ggen/profiles.toml`.
+/// Loads user-configurable profiles from `.mcpp/profiles.toml`.
 pub struct ProfileLoader;
 
 impl ProfileLoader {
     /// Default path to the profiles configuration file.
     #[must_use]
     pub fn default_path(project_root: &Path) -> PathBuf {
-        project_root.join(".ggen").join("profiles.toml")
+        project_root.join(".mcpp").join("profiles.toml")
     }
 
-    /// Load profiles from the default path (`.ggen/profiles.toml`).
+    /// Load profiles from the default path (`.mcpp/profiles.toml`).
     /// Returns only the built-in profiles when the file does not exist.
     /// # Errors
     /// Returns an error if the file exists but cannot be read or parsed.
@@ -633,8 +633,8 @@ policies = ["require_signed_receipts", "forbid_template_defaults"]
     #[test]
     fn test_load_from_existing_file_adds_custom_profiles() {
         let dir = tempfile::tempdir().unwrap();
-        let ggen_dir = dir.path().join(".ggen");
-        std::fs::create_dir_all(&ggen_dir).unwrap();
+        let mcpp_dir = dir.path().join(".mcpp");
+        std::fs::create_dir_all(&mcpp_dir).unwrap();
         let toml = r#"
 [profiles.my-team]
 name = "My Team"
@@ -643,7 +643,7 @@ trust_tier = "community_reviewed"
 receipt_spec = "digest_only"
 policies = ["require_signed_receipts"]
 "#;
-        std::fs::write(ggen_dir.join("profiles.toml"), toml).unwrap();
+        std::fs::write(mcpp_dir.join("profiles.toml"), toml).unwrap();
         let profiles = ProfileLoader::load(dir.path()).unwrap();
         assert_eq!(profiles.len(), 4);
         let custom = profiles.iter().find(|p| p.id.as_str() == "my-team").unwrap();
@@ -654,14 +654,14 @@ policies = ["require_signed_receipts"]
     #[test]
     fn test_load_skips_collision_with_builtin_ids() {
         let dir = tempfile::tempdir().unwrap();
-        let ggen_dir = dir.path().join(".ggen");
-        std::fs::create_dir_all(&ggen_dir).unwrap();
+        let mcpp_dir = dir.path().join(".mcpp");
+        std::fs::create_dir_all(&mcpp_dir).unwrap();
         let toml = r#"
 [profiles.enterprise-strict]
 name = "Hacked"
 description = "Should be ignored"
 "#;
-        std::fs::write(ggen_dir.join("profiles.toml"), toml).unwrap();
+        std::fs::write(mcpp_dir.join("profiles.toml"), toml).unwrap();
         let profiles = ProfileLoader::load(dir.path()).unwrap();
         assert_eq!(profiles.len(), 3);
         let builtin = profiles.iter().find(|p| p.id.as_str() == "enterprise-strict").unwrap();
@@ -671,15 +671,15 @@ description = "Should be ignored"
     #[test]
     fn test_get_profile_finds_custom_then_builtin() {
         let dir = tempfile::tempdir().unwrap();
-        let ggen_dir = dir.path().join(".ggen");
-        std::fs::create_dir_all(&ggen_dir).unwrap();
+        let mcpp_dir = dir.path().join(".mcpp");
+        std::fs::create_dir_all(&mcpp_dir).unwrap();
         let toml = r#"
 [profiles.my-custom]
 name = "Custom"
 description = "Custom profile"
 trust_tier = "production_ready"
 "#;
-        std::fs::write(ggen_dir.join("profiles.toml"), toml).unwrap();
+        std::fs::write(mcpp_dir.join("profiles.toml"), toml).unwrap();
         let profile = ProfileLoader::get_profile(dir.path(), "my-custom").unwrap();
         assert_eq!(profile.trust_requirements, TrustTier::ProductionReady);
         let builtin = ProfileLoader::get_profile(dir.path(), "development").unwrap();
@@ -712,7 +712,7 @@ trust_tier = "production_ready"
     #[test]
     fn test_default_path_construction() {
         let path = ProfileLoader::default_path(Path::new("/projects/my-app"));
-        assert_eq!(path, PathBuf::from("/projects/my-app/.ggen/profiles.toml"));
+        assert_eq!(path, PathBuf::from("/projects/my-app/.mcpp/profiles.toml"));
     }
 
     #[test]

@@ -5,7 +5,7 @@
 
 use crate::error::A2aMcpResult;
 use crate::otel_attrs;
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
     MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     UnifiedContent,
@@ -78,12 +78,12 @@ impl YawlEventPublisher {
     /// Creates an Event message containing the task state transition.
     /// The `correlation_id` is set to `task_id` so task lifecycle events
     /// are traceable across the YAWL-A2A boundary.
-    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", skip(self), fields(
         workflow_id = %workflow_id,
         task_id = %task_id,
         yawl.state.from = %old_state,
         yawl.state.to = %new_state,
-        service.name = "ggen-a2a-mcp",
+        service.name = "mcpp-a2a-mcp",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     pub async fn publish_task_event(
@@ -152,7 +152,7 @@ impl YawlEventPublisher {
     }
 
     /// Publish a workflow lifecycle event
-    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", skip(self), fields(
         otel_operation_name = "publish_workflow_event",
         workflow_id = %workflow_id,
         event_type = ?event_type,
@@ -227,7 +227,7 @@ impl YawlEventPublisher {
     /// Publish a gateway activation event
     ///
     /// Notifies when a YAWL gateway (split/join) is activated during workflow execution.
-    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", skip(self), fields(
         otel_operation_name = "publish_gateway_event",
         workflow_id = %workflow_id,
         gateway_id = %gateway_id,
@@ -305,7 +305,7 @@ impl YawlEventPublisher {
     }
 
     /// Create a batch of events for multiple task state changes
-    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", skip(self), fields(
         otel_operation_name = "publish_task_events_batch",
         event_count = events.len(),
     ))]

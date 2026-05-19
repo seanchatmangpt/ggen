@@ -1,19 +1,19 @@
-//! Error types for ggen-dspy
+//! Error types for mcpp-dspy
 //!
 //! All errors in this crate use `Result<T, DspyError>` following CLAUDE.md conventions.
 //! No unwrap/expect in production code - all fallible operations return Result.
 
 use thiserror::Error;
 
-/// Result type alias for ggen-dspy operations
+/// Result type alias for mcpp-dspy operations
 pub type Result<T> = std::result::Result<T, DspyError>;
 
-/// Main error type for ggen-dspy operations
+/// Main error type for mcpp-dspy operations
 #[derive(Error, Debug)]
 pub enum DspyError {
-    /// LLM client error (from ggen-ai)
+    /// LLM client error (from mcpp-ai)
     #[error("LLM error: {0}")]
-    LlmError(#[from] ggen_ai::GgenAiError),
+    LlmError(#[from] mcpp_ai::GgenAiError),
 
     /// Module execution error
     #[error("Module error: {0}")]

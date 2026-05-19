@@ -1,10 +1,10 @@
-# ggen-dspy
+# mcpp-dspy
 
-DSPy-inspired programming framework for LLM agents in Rust, integrated with ggen-ai.
+DSPy-inspired programming framework for LLM agents in Rust, integrated with mcpp-ai.
 
 ## Overview
 
-ggen-dspy provides a type-safe, declarative framework for building self-optimizing LLM agent pipelines. It brings DSPy concepts to Rust with zero-cost abstractions, compile-time guarantees, and idiomatic error handling.
+mcpp-dspy provides a type-safe, declarative framework for building self-optimizing LLM agent pipelines. It brings DSPy concepts to Rust with zero-cost abstractions, compile-time guarantees, and idiomatic error handling.
 
 ## Core Concepts
 
@@ -12,13 +12,13 @@ ggen-dspy provides a type-safe, declarative framework for building self-optimizi
 - **Optimizers**: Self-improvement algorithms (BootstrapFewShot, MIPRO, etc.)
 - **Evaluation**: Metrics and scoring for optimization loops
 - **Assertions**: Runtime constraints and validation for LLM outputs
-- **Adapters**: Integration with ggen-ai and other LLM providers
+- **Adapters**: Integration with mcpp-ai and other LLM providers
 
 ## Quick Start
 
 ```rust
-use ggen_dspy::{Module, Predictor, Signature, InputField, OutputField};
-use ggen_ai::{GenAiClient, LlmConfig};
+use mcpp_dspy::{Module, Predictor, Signature, InputField, OutputField};
+use mcpp_ai::{GenAiClient, LlmConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -138,14 +138,14 @@ cargo test --features live-llm-tests
 cargo bench
 ```
 
-## Integration with ggen-ai
+## Integration with mcpp-ai
 
-ggen-dspy builds on top of ggen-ai for LLM interactions:
+mcpp-dspy builds on top of mcpp-ai for LLM interactions:
 
-- Supports all ggen-ai providers (OpenAI, Anthropic, Ollama, etc.)
-- Uses ggen-ai's caching layer for efficiency
-- Leverages ggen-ai's streaming support
-- Integrates with ggen-ai's tool registry
+- Supports all mcpp-ai providers (OpenAI, Anthropic, Ollama, etc.)
+- Uses mcpp-ai's caching layer for efficiency
+- Leverages mcpp-ai's streaming support
+- Integrates with mcpp-ai's tool registry
 
 ## Examples
 

@@ -1,6 +1,6 @@
 //! Tests for pattern composition
 
-use ggen_dspy::{InMemoryRetriever, Module, MultiHopQA, Retrieve, SimplifiedBaleen};
+use mcpp_dspy::{InMemoryRetriever, Module, MultiHopQA, Retrieve, SimplifiedBaleen};
 use std::sync::Arc;
 
 #[tokio::test]

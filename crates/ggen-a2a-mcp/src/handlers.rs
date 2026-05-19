@@ -1,11 +1,11 @@
-//! A2A Message Handlers for ggen integration
+//! A2A Message Handlers for mcpp integration
 //!
 //! This module provides handlers for processing A2A messages with support
 //! for all ConvergedMessage content types and proper error handling.
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::otel_attrs;
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, UnifiedContent, UnifiedFileContent,
 };
 use async_trait::async_trait;
@@ -19,7 +19,7 @@ use tracing::info;
 pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, HandlerStatus};
 
 pub mod handler {
-    use a2a_generated::converged::message::ConvergedMessage;
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 
     use chrono::Utc;
 
@@ -176,7 +176,7 @@ impl MessageHandler for TextContentHandler {
             UnifiedContent::Text { content, .. } => content,
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "validation",
                     error.message = "Expected text content",
                 );
@@ -256,7 +256,7 @@ impl FileContentHandler {
         if let Some(size) = file.size {
             if size > self.max_file_size as u64 {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "translation",
                     error.message = format!("File size {} exceeds maximum {}", size, self.max_file_size),
                 );
@@ -273,7 +273,7 @@ impl FileContentHandler {
             (Some(_), None) | (None, Some(_)) => Ok(()),
             (Some(_), Some(_)) => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "translation",
                     error.message = "File cannot have both bytes and URI",
                 );
@@ -319,7 +319,7 @@ impl MessageHandler for FileContentHandler {
             UnifiedContent::File { file, .. } => file,
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "validation",
                     error.message = "Expected file content",
                 );
@@ -427,7 +427,7 @@ impl MessageHandler for DataContentHandler {
             UnifiedContent::Data { data, schema } => (data, schema),
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "validation",
                     error.message = "Expected data content",
                 );
@@ -509,7 +509,7 @@ impl MultipartHandler {
         // Validate max parts limit
         if parts.len() > self.max_parts {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "translation",
                 error.message = format!("Multipart content has {} parts, exceeds maximum {}", parts.len(), self.max_parts),
             );
@@ -639,7 +639,7 @@ impl MessageHandler for MultipartHandler {
             UnifiedContent::Multipart { parts, boundary } => (parts, boundary),
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "validation",
                     error.message = "Expected multipart content",
                 );
@@ -718,7 +718,7 @@ impl StreamHandler {
     fn process_stream(&self, stream_id: &str, chunk_size: usize) -> A2aMcpResult<String> {
         if chunk_size > self.max_chunk_size {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "translation",
                 error.message = format!("Chunk size {} exceeds maximum {}", chunk_size, self.max_chunk_size),
             );
@@ -753,7 +753,7 @@ impl MessageHandler for StreamHandler {
             } => (stream_id, *chunk_size),
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "validation",
                     error.message = "Expected stream content",
                 );
@@ -929,7 +929,7 @@ impl MessageRouter {
         source = %message.source,
         target = ?message.target,
         correlation_id = ?message.envelope.correlation_id,
-        service.name = "ggen-a2a-mcp",
+        service.name = "mcpp-a2a-mcp",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     pub async fn route(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage> {
@@ -943,7 +943,7 @@ impl MessageRouter {
             .or_else(|| self.default_handler.clone())
             .ok_or_else(|| {
                 let _err_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     "error.type" = "no_handler_found",
                     message_type = ?message_type,
                 )
@@ -1051,7 +1051,7 @@ impl BatchProcessor {
 
         // Batch-level span groups all per-message child spans.
         let batch_span = tracing::info_span!(
-            "ggen.pipeline.operation",
+            "mcpp.pipeline.operation",
             batch.id = %batch_id,
             batch.size = batch_size,
         );
@@ -1073,7 +1073,7 @@ impl BatchProcessor {
 
                 // Per-message child span preserves correlation context.
                 let msg_span = tracing::info_span!(
-                    "ggen.pipeline.operation",
+                    "mcpp.pipeline.operation",
                     a2a.message_id = %message_id,
                     a2a.correlation_id = ?correlation_id,
                     batch.id = %batch_id,

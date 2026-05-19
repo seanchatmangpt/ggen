@@ -94,24 +94,24 @@ struct WatchOutput {
 ///
 /// Create a Rust CLI project:
 /// ```bash
-/// ggen project new my-cli --type rust-cli
+/// mcpp project new my-cli --type rust-cli
 /// ```
 ///
 /// Create a Next.js web project:
 /// ```bash
-/// ggen project new my-app --type nextjs --framework app-router
+/// mcpp project new my-app --type nextjs --framework app-router
 /// ```
 ///
 /// Create project with custom output directory:
 /// ```bash
-/// ggen project new my-project --type rust-web --output ./workspace
+/// mcpp project new my-project --type rust-web --output ./workspace
 /// ```
 #[verb]
 fn new(
     name: String, project_type: String, framework: Option<String>, output: PathBuf,
     skip_install: bool,
 ) -> Result<NewOutput> {
-    use ggen_domain::project;
+    use mcpp_domain::project;
 
     // Helper function to bridge sync/async and handle errors
     async fn new_impl(
@@ -158,25 +158,25 @@ fn new(
 ///
 /// Create plan from template:
 /// ```bash
-/// ggen project plan --template my-template.tmpl --output plan.json
+/// mcpp project plan --template my-template.tmpl --output plan.json
 /// ```
 ///
 /// With variables:
 /// ```bash
-/// ggen project plan --template app.tmpl --var name=myapp --var author=me --format yaml
+/// mcpp project plan --template app.tmpl --var name=myapp --var author=me --format yaml
 /// ```
 ///
 /// Generate and review:
 /// ```bash
-/// ggen project plan --template service.tmpl --var service=auth --format json
+/// mcpp project plan --template service.tmpl --var service=auth --format json
 /// cat plan.json  # Review before applying
-/// ggen project apply plan.json
+/// mcpp project apply plan.json
 /// ```
 #[verb]
 fn plan(
     template_ref: String, vars: Option<String>, output: Option<String>, format: Option<String>,
 ) -> Result<PlanOutput> {
-    use ggen_domain::project;
+    use mcpp_domain::project;
 
     // Validate and sanitize variables
     let vars: Vec<String> = vars
@@ -235,24 +235,24 @@ fn plan(
 ///
 /// Generate from template:
 /// ```bash
-/// ggen project gen --template my-template --var name=app
+/// mcpp project gen --template my-template --var name=app
 /// ```
 ///
 /// Dry run (preview without creating files):
 /// ```bash
-/// ggen project gen --template app.tmpl --var name=test --dry-run
+/// mcpp project gen --template app.tmpl --var name=test --dry-run
 /// ```
 ///
 /// Full generation with multiple variables:
 /// ```bash
-/// ggen project gen --template service.tmpl \
+/// mcpp project gen --template service.tmpl \
 ///   --var service=auth \
 ///   --var port=8080 \
 ///   --var db=postgres
 /// ```
 #[verb]
 fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenOutput> {
-    use ggen_domain::project;
+    use mcpp_domain::project;
 
     // Validate and sanitize variables
     let vars: Vec<String> = vars
@@ -328,21 +328,21 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
 ///
 /// Apply plan with confirmation:
 /// ```bash
-/// ggen project apply plan.json
+/// mcpp project apply plan.json
 /// ```
 ///
 /// Auto-confirm without prompting:
 /// ```bash
-/// ggen project apply plan.yaml --yes
+/// mcpp project apply plan.yaml --yes
 /// ```
 ///
 /// Dry run to preview changes:
 /// ```bash
-/// ggen project apply plan.toml --dry-run
+/// mcpp project apply plan.toml --dry-run
 /// ```
 #[verb]
 fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
-    use ggen_domain::project;
+    use mcpp_domain::project;
 
     // Helper function to bridge sync/async and handle errors
     async fn apply_impl(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
@@ -377,17 +377,17 @@ fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
 ///
 /// Initialize in current directory:
 /// ```bash
-/// ggen project init
+/// mcpp project init
 /// ```
 ///
 /// Initialize with name and preset:
 /// ```bash
-/// ggen project init --name my-project --preset clap-noun-verb
+/// mcpp project init --name my-project --preset clap-noun-verb
 /// ```
 ///
 /// Initialize in specific directory:
 /// ```bash
-/// ggen project init ./my-workspace --name workspace --preset custom
+/// mcpp project init ./my-workspace --name workspace --preset custom
 /// ```
 #[verb]
 fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<InitOutput> {
@@ -448,15 +448,15 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             ))
         })?;
 
-        // Create .ggen directory
-        let ggen_dir = canonical_path.join(".ggen");
-        fs::create_dir_all(&ggen_dir).map_err(|e| {
+        // Create .mcpp directory
+        let mcpp_dir = canonical_path.join(".mcpp");
+        fs::create_dir_all(&mcpp_dir).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to create .ggen directory: {}",
+                "Failed to create .mcpp directory: {}",
                 e
             ))
         })?;
-        directories_created.push(".ggen/".to_string());
+        directories_created.push(".mcpp/".to_string());
 
         // Apply preset if specified
         if let Some(preset_name) = &preset {
@@ -477,14 +477,14 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             })?;
 
             // Create RDF files
-            let rdf_dir = ggen_dir.join("rdf");
+            let rdf_dir = mcpp_dir.join("rdf");
             fs::create_dir_all(&rdf_dir).map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!(
                     "Failed to create RDF directory: {}",
                     e
                 ))
             })?;
-            directories_created.push(".ggen/rdf/".to_string());
+            directories_created.push(".mcpp/rdf/".to_string());
 
             for (rdf_path, content) in preset.rdf_files() {
                 let file_path = rdf_dir.join(rdf_path);
@@ -512,14 +512,14 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             }
 
             // Create templates
-            let templates_dir = ggen_dir.join("templates");
+            let templates_dir = mcpp_dir.join("templates");
             fs::create_dir_all(&templates_dir).map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!(
                     "Failed to create templates directory: {}",
                     e
                 ))
             })?;
-            directories_created.push(".ggen/templates/".to_string());
+            directories_created.push(".mcpp/templates/".to_string());
 
             for (tmpl_path, content) in preset.templates() {
                 let file_path = templates_dir.join(tmpl_path);
@@ -547,14 +547,14 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             }
 
             // Create conventions config
-            let config_path = ggen_dir.join("conventions.toml");
+            let config_path = mcpp_dir.join("conventions.toml");
             fs::write(&config_path, preset.config_content()).map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!(
                     "Failed to write config: {}",
                     e
                 ))
             })?;
-            files_created.push(".ggen/conventions.toml".to_string());
+            files_created.push(".mcpp/conventions.toml".to_string());
         } else {
             // Create basic structure without preset
             let dirs = ["domain", "templates", "queries"];
@@ -571,9 +571,9 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
         }
 
         let next_steps = vec![
-            "Add RDF files to .ggen/rdf/".to_string(),
-            "Add templates to .ggen/templates/".to_string(),
-            "Run: ggen project generate".to_string(),
+            "Add RDF files to .mcpp/rdf/".to_string(),
+            "Add templates to .mcpp/templates/".to_string(),
+            "Run: mcpp project generate".to_string(),
         ];
 
         Ok(InitOutput {
@@ -597,28 +597,28 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
 ///
 /// Generate all templates:
 /// ```bash
-/// ggen project generate
+/// mcpp project generate
 /// ```
 ///
 /// Generate specific template:
 /// ```bash
-/// ggen project generate my-template
+/// mcpp project generate my-template
 /// ```
 ///
 /// Generate with custom output:
 /// ```bash
-/// ggen project generate --output ./generated --force
+/// mcpp project generate --output ./generated --force
 /// ```
 ///
 /// Generate from specific project path:
 /// ```bash
-/// ggen project generate --path ./my-project my-template
+/// mcpp project generate --path ./my-project my-template
 /// ```
 #[verb]
 fn generate(
     template: Option<String>, path: PathBuf, output: Option<String>, force: bool,
 ) -> Result<GenerateOutput> {
-    use ggen_domain::template;
+    use mcpp_domain::template;
     use std::fs;
 
     // Helper function to bridge sync/async and handle errors
@@ -682,7 +682,7 @@ fn generate(
                 path.join(dir)
             } else {
                 // Try to infer from config or use default
-                let config_path = path.join("clnrm-v2-ggen.toml");
+                let config_path = path.join("clnrm-v2-mcpp.toml");
                 if config_path.exists() {
                     path.join("crates/clnrm-v2-generated")
                 } else {
@@ -736,12 +736,12 @@ fn generate(
 ///
 /// Watch current directory:
 /// ```bash
-/// ggen project watch
+/// mcpp project watch
 /// ```
 ///
 /// Watch specific directory with custom debounce:
 /// ```bash
-/// ggen project watch --path ./my-project --debounce 500
+/// mcpp project watch --path ./my-project --debounce 500
 /// ```
 #[verb]
 fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
@@ -772,7 +772,7 @@ fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
 // Helper Functions
 // ============================================================================
 
-// Use utility function from ggen_utils::cli instead of duplicating here
+// Use utility function from mcpp_utils::cli instead of duplicating here
 
 // ============================================================================
 // Usage Notes
@@ -780,7 +780,7 @@ fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
 
 // To use this in your CLI:
 // 1. Update main.rs to use: clap_noun_verb::run()
-// 2. Ensure ggen_domain::project modules exist with proper interfaces
+// 2. Ensure mcpp_domain::project modules exist with proper interfaces
 // 3. Test with: cargo run -- project --help
 // 4. Test verbs: cargo run -- project new my-app
 // 5. JSON output: cargo run -- project new my-app --output json

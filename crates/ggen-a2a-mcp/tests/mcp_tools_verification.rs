@@ -3,7 +3,7 @@
 //! Tests that generate_agents, generate_a2a_test, validate_fibo, and orchestrate_conversation
 //! tools work correctly and produce valid output.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use std::path::PathBuf;
 
 #[tokio::test]
@@ -12,7 +12,7 @@ async fn test_generate_a2a_test_tool_creates_valid_test_file() {
     let output_path = PathBuf::from("/tmp/test_mcp_a2a_test.rs");
 
     let result = server
-        .generate_a2a_test(ggen_a2a_mcp::ggen_server::GenerateA2aTestParams {
+        .generate_a2a_test(mcpp_a2a_mcp::mcpp_server::GenerateA2aTestParams {
             agent_count: 2,
             turn_count: 3,
             output_path: output_path.to_string_lossy().to_string(),
@@ -46,8 +46,8 @@ async fn test_validate_fibo_tool_analyzes_ontology() {
     let server = GgenMcpServer::new();
 
     let result = server
-        .validate_fibo(ggen_a2a_mcp::ggen_server::ValidateFiboParams {
-            ontology_path: "crates/ggen-core/queries".to_string(),
+        .validate_fibo(mcpp_a2a_mcp::mcpp_server::ValidateFiboParams {
+            ontology_path: "crates/mcpp-core/queries".to_string(),
             check_coverage: Some(true),
             min_coverage: Some(0),
         })
@@ -77,7 +77,7 @@ async fn test_orchestrate_conversation_tool_creates_orchestrator() {
     std::fs::write(&turns_config, r#"{"turns": [{"turn": 1}]}"#).unwrap();
 
     let result = server
-        .orchestrate_conversation(ggen_a2a_mcp::ggen_server::OrchestrateConversationParams {
+        .orchestrate_conversation(mcpp_a2a_mcp::mcpp_server::OrchestrateConversationParams {
             agents_config: agents_config.to_string_lossy().to_string(),
             turns_config: turns_config.to_string_lossy().to_string(),
             output_path: output_path.to_string_lossy().to_string(),

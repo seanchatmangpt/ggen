@@ -1,29 +1,29 @@
-# ggen Node.js Addon
+# mcpp Node.js Addon
 
-Production-grade Node.js N-API bindings for the ggen CLI.
+Production-grade Node.js N-API bindings for the mcpp CLI.
 
 ## Features
 
 - ✅ **Production Ready:** No `.expect()` or `.unwrap()` in production code
 - ✅ **Type Safe:** Full TypeScript definitions
 - ✅ **High Performance:** < 100ms for fast operations
-- ✅ **Comprehensive:** All ggen commands available
+- ✅ **Comprehensive:** All mcpp commands available
 - ✅ **Well Tested:** 71 tests with 100% critical path coverage
 
 ## Installation
 
 ```bash
-npm install @ggen/node
+npm install @mcpp/node
 ```
 
 ## Quick Start
 
 ```typescript
-import { version, marketSearch, lifecycleInit } from '@ggen/node';
+import { version, marketSearch, lifecycleInit } from '@mcpp/node';
 
 // Get version
 const ver = version();
-console.log('ggen:', ver);
+console.log('mcpp:', ver);
 
 // Search marketplace
 const result = await marketSearch('rust web service');
@@ -64,7 +64,7 @@ All operations meet strict performance targets:
 ## Requirements
 
 - Node.js 16+
-- ggen CLI installed
+- mcpp CLI installed
 
 ## Status
 

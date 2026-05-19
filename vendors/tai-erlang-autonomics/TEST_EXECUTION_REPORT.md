@@ -2,7 +2,7 @@
 
 **Generated**: 2026-01-25
 **Project**: TAI Erlang Autonomics
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/`
+**Location**: `./tai-erlang-autonomics/`
 **Test Execution Phase**: Complete
 
 ---
@@ -479,7 +479,7 @@ rm -rf _build/test/extras/test/perf_benchmarks/
 
 ```bash
 # Run EUnit tests (currently failing)
-cd /Users/sac/ggen/tai-erlang-autonomics/
+cd ./tai-erlang-autonomics/
 rebar3 eunit
 
 # Expected output: FAILED (16/22 tests)

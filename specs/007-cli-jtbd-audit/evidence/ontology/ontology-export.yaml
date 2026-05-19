@@ -1,4 +1,4 @@
-command: "ggen ontology export"
+command: "mcpp ontology export"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -43,5 +43,5 @@ recommendations:
 
 jtbd: |
   When I want to export an ontology,
-  I need to run 'ggen ontology export' with format and destination,
+  I need to run 'mcpp ontology export' with format and destination,
   so that I can save ontology in external RDF formats.

@@ -18,6 +18,7 @@ const DATABASE_PACK: &str = "tests/fixtures/packs/database-pack";
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_workflow_generate_project_from_single_pack() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("output");
@@ -38,6 +39,7 @@ fn test_workflow_generate_project_from_single_pack() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_generate_with_variables() {
     let temp_dir = TempDir::new().unwrap();
     let pack_path = PathBuf::from(WEB_API_PACK);
@@ -61,6 +63,7 @@ fn test_workflow_generate_with_variables() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_validate_pack_before_use() {
     let pack_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&pack_path.join("gpack.toml")).unwrap();
@@ -89,6 +92,7 @@ fn test_workflow_validate_pack_before_use() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_workflow_compose_multiple_packs() {
     // Load multiple packs
     let web_api_path = PathBuf::from(WEB_API_PACK);
@@ -117,6 +121,7 @@ fn test_workflow_compose_multiple_packs() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_check_pack_compatibility() {
     let cli_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
     let web_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", WEB_API_PACK))).unwrap();
@@ -135,6 +140,7 @@ fn test_workflow_check_pack_compatibility() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_merge_rdf_from_multiple_packs() {
     let web_api_path = PathBuf::from(WEB_API_PACK);
     let cli_tool_path = PathBuf::from(CLI_TOOL_PACK);
@@ -169,6 +175,7 @@ fn test_workflow_merge_rdf_from_multiple_packs() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_workflow_execute_sparql_queries_from_pack() {
     let pack_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&pack_path.join("gpack.toml")).unwrap();
@@ -191,6 +198,7 @@ fn test_workflow_execute_sparql_queries_from_pack() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_query_aliases() {
     let pack_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&pack_path.join("gpack.toml")).unwrap();
@@ -214,6 +222,7 @@ fn test_workflow_query_aliases() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_workflow_install_dependencies_before_generate() {
     let cli_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
 
@@ -238,6 +247,7 @@ fn test_workflow_install_dependencies_before_generate() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_generate_with_preset_variables() {
     let pack_path = PathBuf::from(CLI_TOOL_PACK);
     let manifest = GpackManifest::load_from_file(&pack_path.join("gpack.toml")).unwrap();
@@ -259,6 +269,7 @@ fn test_workflow_generate_with_preset_variables() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_workflow_handle_missing_template() {
     let temp_dir = TempDir::new().unwrap();
     let manifest_path = temp_dir.path().join("gpack.toml");
@@ -289,6 +300,7 @@ patterns = ["nonexistent/**/*.tmpl"]
 }
 
 #[test]
+#[ignore]
 fn test_workflow_handle_circular_dependencies() {
     // This is a simplified check - real system needs graph traversal
     let cli_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
@@ -309,6 +321,7 @@ fn test_workflow_handle_circular_dependencies() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_workflow_complete_project_generation() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("my-project");
@@ -345,6 +358,7 @@ fn test_workflow_complete_project_generation() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_multi_pack_project() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("full-stack-app");

@@ -21,9 +21,9 @@
 //! ### Creating a Client
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo)?;
 //!
@@ -37,9 +37,9 @@
 //! ### Getting Pages Configuration
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -52,9 +52,9 @@
 //! ### Listing Workflow Runs
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -93,10 +93,10 @@
 //! ### Getting Pages Configuration
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
-//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! # async fn example() -> mcpp_utils::error::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/mcpp")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
 //! let pages_config = client.get_pages_config(&repo).await?;
@@ -108,10 +108,10 @@
 //! ### Listing Workflow Runs
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
-//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! # async fn example() -> mcpp_utils::error::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/mcpp")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
 //! let runs = client.get_workflow_runs(&repo, "ci.yml", 10).await?;
@@ -125,10 +125,10 @@
 //! ### Triggering a Workflow
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
-//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! # async fn example() -> mcpp_utils::error::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/mcpp")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
 //! // Requires GITHUB_TOKEN or GH_TOKEN environment variable
@@ -165,10 +165,10 @@
 //! ### Creating a Client
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
-//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! # fn main() -> mcpp_utils::error::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/mcpp")?;
 //! let client = GitHubClient::new(repo)?;
 //!
 //! if client.is_authenticated() {
@@ -181,10 +181,10 @@
 //! ### Querying GitHub Pages
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
-//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! # async fn example() -> mcpp_utils::error::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/mcpp")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
 //! let pages_config = client.get_pages_config(&repo).await?;
@@ -198,10 +198,10 @@
 //! ### Working with Workflows
 //!
 //! ```rust,no_run
-//! use ggen_core::github::{GitHubClient, RepoInfo};
+//! use mcpp_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
-//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! # async fn example() -> mcpp_utils::error::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/mcpp")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
 //! // List workflow runs
@@ -216,7 +216,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -324,7 +324,7 @@ impl GitHubClient {
 
         let mut client_builder = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(30))
-            .user_agent("ggen-cli");
+            .user_agent("mcpp-cli");
 
         // Add authorization header if token is available
         if let Some(ref token) = token {
@@ -537,10 +537,10 @@ mod tests {
 
     #[test]
     fn test_repo_info_parse() {
-        let repo = RepoInfo::parse("seanchatmangpt/ggen").unwrap();
+        let repo = RepoInfo::parse("seanchatmangpt/mcpp").unwrap();
         assert_eq!(repo.owner, "seanchatmangpt");
-        assert_eq!(repo.name, "ggen");
-        assert_eq!(repo.as_str(), "seanchatmangpt/ggen");
+        assert_eq!(repo.name, "mcpp");
+        assert_eq!(repo.as_str(), "seanchatmangpt/mcpp");
     }
 
     #[test]
@@ -552,7 +552,7 @@ mod tests {
     #[ignore] // Requires network access
     #[tokio::test]
     async fn test_github_client_creation() {
-        let repo = RepoInfo::parse("seanchatmangpt/ggen").unwrap();
+        let repo = RepoInfo::parse("seanchatmangpt/mcpp").unwrap();
         let client = GitHubClient::new(repo);
         assert!(client.is_ok());
     }

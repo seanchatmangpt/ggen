@@ -1,4 +1,4 @@
-# ggen-prompt-mfg
+# mcpp-prompt-mfg
 
 Prompt manufacturing via CONSTRUCT - deterministic compilation from RDF ontologies.
 
@@ -42,7 +42,7 @@ RDF Ontology → CONSTRUCT Query → Prompt IR → Tera Templates → Determinis
 ## Usage
 
 ```rust
-use ggen_prompt_mfg::{PromptCompiler, Result};
+use mcpp_prompt_mfg::{PromptCompiler, Result};
 
 fn main() -> Result<()> {
     let compiler = PromptCompiler::new()?;

@@ -1,4 +1,4 @@
-command: "ggen marketplace list"
+command: "mcpp marketplace list"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to see all marketplace items,
-  I need to run 'ggen marketplace list',
+  I need to run 'mcpp marketplace list',
   so that I can browse available templates and packages.

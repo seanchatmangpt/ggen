@@ -3,7 +3,7 @@
 //! This module provides validation rules for template metadata using SHACL shapes.
 //! Refactored from v1 to use v2 error handling patterns.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -134,10 +134,10 @@ impl Validator {
         shapes.insert(
             "TemplateShape".to_string(),
             Shape {
-                target_class: "http://ggen.dev/ontology#Template".to_string(),
+                target_class: "http://mcpp.dev/ontology#Template".to_string(),
                 properties: vec![
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#templateName".to_string(),
+                        path: "http://mcpp.dev/ontology#templateName".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -145,7 +145,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#templateVersion".to_string(),
+                        path: "http://mcpp.dev/ontology#templateVersion".to_string(),
                         min_count: None,
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -153,7 +153,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#stability".to_string(),
+                        path: "http://mcpp.dev/ontology#stability".to_string(),
                         min_count: None,
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -168,10 +168,10 @@ impl Validator {
         shapes.insert(
             "VariableShape".to_string(),
             Shape {
-                target_class: "http://ggen.dev/ontology#Variable".to_string(),
+                target_class: "http://mcpp.dev/ontology#Variable".to_string(),
                 properties: vec![
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#variableName".to_string(),
+                        path: "http://mcpp.dev/ontology#variableName".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -179,7 +179,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#variableType".to_string(),
+                        path: "http://mcpp.dev/ontology#variableType".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -187,7 +187,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#isRequired".to_string(),
+                        path: "http://mcpp.dev/ontology#isRequired".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#boolean".to_string()),

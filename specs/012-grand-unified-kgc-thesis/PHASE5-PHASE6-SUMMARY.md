@@ -310,7 +310,7 @@ Total: 2 tasks, 4.5 hours
 ### Primary Files
 
 ```
-/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/
+~/.ggen/mcpp/specs/012-grand-unified-kgc-thesis/
 ├── ontology/
 │   ├── thesis-schema.ttl           # Updated by T051, T061
 │   └── kgc-unified-content.ttl     # Updated by T052-T060, T062-T075
@@ -367,7 +367,7 @@ Total: 2 tasks, 4.5 hours
 | **LaTeX cross-reference conflicts** | LOW | MEDIUM | Use consistent label prefixes (eq:, thm:, fig:) |
 | **Dimensional analysis errors** | LOW | HIGH | Double-check all equation dimensions in review |
 | **HD encoding example too abstract** | MEDIUM | MEDIUM | Use concrete RDF triple from TanStack case study |
-| **Fidelity measurements unavailable** | LOW | HIGH | Generate code with ggen first, measure after |
+| **Fidelity measurements unavailable** | LOW | HIGH | Generate code with mcpp first, measure after |
 
 ### Mitigation Strategies
 
@@ -420,7 +420,7 @@ Total: 2 tasks, 4.5 hours
 
 ### Implementation Start
 1. **Wave 1**: Execute T051, T052, T061, T062 in parallel (6.5 hours)
-2. **Validate**: Run `ggen sync` after Wave 1 to verify schema updates
+2. **Validate**: Run `mcpp sync` after Wave 1 to verify schema updates
 3. **Compile**: Attempt LaTeX compilation to catch early issues
 4. **Iterate**: Proceed to Wave 2 equations after validation
 

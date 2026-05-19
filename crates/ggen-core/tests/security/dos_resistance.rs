@@ -1,6 +1,6 @@
 //! DoS resistance tests
 
-use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
 use std::collections::HashMap;
 
 #[test]

@@ -141,9 +141,9 @@ impl DspySettings {
         Duration::from_secs(self.timeout_seconds)
     }
 
-    /// Get ggen-ai global LLM config
-    pub fn llm_config(&self) -> &'static ggen_ai::GlobalLlmConfig {
-        ggen_ai::get_global_config()
+    /// Get mcpp-ai global LLM config
+    pub fn llm_config(&self) -> &'static mcpp_ai::GlobalLlmConfig {
+        mcpp_ai::get_global_config()
     }
 }
 

@@ -1,4 +1,4 @@
-//! Security tests for ggen-marketplace
+//! Security tests for mcpp-marketplace
 //!
 //! These tests verify:
 //! - Signature verification

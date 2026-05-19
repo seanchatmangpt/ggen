@@ -1,4 +1,4 @@
-//! CLI integration for ggen-ai
+//! CLI integration for mcpp-ai
 
 use crate::client::LlmClient;
 use crate::config::{get_global_config, GlobalLlmConfig, LlmProvider};
@@ -6,7 +6,7 @@ use crate::error::Result;
 use clap::{Arg, ArgMatches, Command};
 use std::sync::Arc;
 
-/// CLI configuration builder for ggen-ai
+/// CLI configuration builder for mcpp-ai
 pub struct CliConfigBuilder {
     command: Command,
 }

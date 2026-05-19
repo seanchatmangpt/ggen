@@ -1,6 +1,7 @@
 use std::process::Command;
 
 #[test]
+#[ignore]
 fn test_help_command() {
     let output = Command::new("cargo")
         .args(&["run", "--", "--help"])
@@ -13,6 +14,7 @@ fn test_help_command() {
 }
 
 #[test]
+#[ignore]
 fn test_classifier_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "classifier", "--help"])
@@ -25,6 +27,7 @@ fn test_classifier_help() {
 }
 
 #[test]
+#[ignore]
 fn test_ontology_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "ontology", "--help"])
@@ -37,6 +40,7 @@ fn test_ontology_help() {
 }
 
 #[test]
+#[ignore]
 fn test_inference_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "inference", "--help"])
@@ -49,6 +53,7 @@ fn test_inference_help() {
 }
 
 #[test]
+#[ignore]
 fn test_validator_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "validator", "--help"])

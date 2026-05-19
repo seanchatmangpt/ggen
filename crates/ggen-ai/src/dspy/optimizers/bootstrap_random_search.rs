@@ -59,7 +59,7 @@ impl BootstrapFewShotWithRandomSearch {
     ///
     /// # Example
     /// ```ignore
-    /// use ggen_ai::dspy::optimizers::{BootstrapFewShotWithRandomSearch, ExactMatchMetric};
+    /// use mcpp_ai::dspy::optimizers::{BootstrapFewShotWithRandomSearch, ExactMatchMetric};
     /// use std::sync::Arc;
     ///
     /// let metric = Arc::new(ExactMatchMetric::new("answer"));

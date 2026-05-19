@@ -1,5 +1,5 @@
 # ============================================================================
-# ggen v6 - 3T Specification Generation Configuration
+# mcpp v6 - 3T Specification Generation Configuration
 # ============================================================================
 # Purpose: Generate human-readable specification from RDF ontology
 # Constitutional Equation: spec.md = μ(ontology)
@@ -9,7 +9,7 @@
 [project]
 name = "v6-3t-specification"
 version = "1.0.0"
-description = "Ontology-driven specification for ggen v6 3T implementation"
+description = "Ontology-driven specification for mcpp v6 3T implementation"
 
 # ----------------------------------------------------------------------------
 # v6 Pipeline Configuration
@@ -44,8 +44,8 @@ allowed = [
     "http://www.w3.org/2001/XMLSchema#",
     "http://www.w3.org/2002/07/owl#",
     "http://www.w3.org/ns/shacl#",
-    "http://ggen.dev/speckit#",
-    "http://ggen.dev/spec/v6/content#",
+    "http://mcpp.dev/speckit#",
+    "http://mcpp.dev/spec/v6/content#",
 ]
 
 # ============================================================================
@@ -59,7 +59,7 @@ allowed = [
 [[generation]]
 name = "spec-metadata"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?name ?featureBranch ?created ?status ?inputDescription
@@ -83,7 +83,7 @@ output = "spec-header.md"
 [[generation]]
 name = "user-stories"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?storyIndex ?title ?priority ?description ?rationale ?testStrategy
@@ -115,7 +115,7 @@ output = "user-stories.md"
 [[generation]]
 name = "requirements"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?requirementId ?description
 WHERE {
@@ -135,7 +135,7 @@ output = "requirements.md"
 [[generation]]
 name = "success-criteria"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?criterionId ?description
 WHERE {
@@ -155,7 +155,7 @@ output = "success-criteria.md"
 [[generation]]
 name = "entities"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?entityName ?definition
 WHERE {
@@ -175,7 +175,7 @@ output = "entities.md"
 [[generation]]
 name = "edge-cases"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?scenario ?expectedBehavior
 WHERE {
@@ -194,7 +194,7 @@ output = "edge-cases.md"
 [[generation]]
 name = "dependencies"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?dependencyId ?description
 WHERE {
@@ -214,7 +214,7 @@ output = "dependencies.md"
 [[generation]]
 name = "assumptions"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?assumptionId ?description
 WHERE {
@@ -234,7 +234,7 @@ output = "assumptions.md"
 [[generation]]
 name = "non-goals"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?nonGoalId ?description
 WHERE {
@@ -254,7 +254,7 @@ output = "non-goals.md"
 [[generation]]
 name = "risks"
 query = """
-PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX spec: <http://mcpp.dev/speckit#>
 
 SELECT ?riskId ?description ?mitigation
 WHERE {
@@ -277,7 +277,7 @@ output = "risks.md"
 # - Tera: Template transformations (templates/*.tera)
 # - Turtle: Semantic substrate (ontology/*.ttl)
 #
-# Running `ggen sync` executes μ₁-μ₅ pipeline:
+# Running `mcpp sync` executes μ₁-μ₅ pipeline:
 #   μ₁: Normalize ontology + SHACL validation
 #   μ₂: Extract RDF bindings via SPARQL SELECT
 #   μ₃: Emit markdown via Tera templates

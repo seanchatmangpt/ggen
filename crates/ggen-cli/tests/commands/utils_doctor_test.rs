@@ -6,8 +6,8 @@
 //! - Async domain logic
 //! - Error handling
 
-use ggen_cli_lib::commands::utils::doctor::{run, DoctorArgs};
-use ggen_cli_lib::domain::utils::doctor::{
+use mcpp_cli_lib::commands::utils::doctor::{run, DoctorArgs};
+use mcpp_cli_lib::domain::utils::doctor::{
     CheckStatus, DefaultSystemChecker, SystemChecker,
 };
 
@@ -145,8 +145,8 @@ async fn test_domain_environment_info() {
     assert!(!info.os.is_empty(), "OS should be detected");
     assert!(!info.arch.is_empty(), "Architecture should be detected");
     assert!(
-        !info.ggen_version.is_empty(),
-        "ggen version should be available"
+        !info.mcpp_version.is_empty(),
+        "mcpp version should be available"
     );
 }
 
@@ -161,7 +161,7 @@ fn test_check_status_as_str() {
 #[test]
 fn test_runtime_bridge_pattern() {
     // Test that the runtime bridge works correctly
-    use ggen_cli_lib::runtime::execute;
+    use mcpp_cli_lib::runtime::execute;
 
     let result = execute(async {
         // Simple async operation
@@ -173,10 +173,10 @@ fn test_runtime_bridge_pattern() {
 
 #[test]
 fn test_error_propagation() {
-    use ggen_cli_lib::runtime::execute;
+    use mcpp_cli_lib::runtime::execute;
 
     let result = execute(async {
-        Err(ggen_utils::error::Error::new("Test error"))
+        Err(mcpp_utils::error::Error::new("Test error"))
     });
 
     assert!(result.is_err(), "Errors should propagate");

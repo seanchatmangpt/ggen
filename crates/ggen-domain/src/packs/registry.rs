@@ -5,7 +5,7 @@
 use crate::packs::repository::PackRepository;
 use crate::packs::types::Pack;
 use async_trait::async_trait;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tracing::{info, warn};
@@ -121,7 +121,7 @@ impl PackRegistry for InMemoryRegistry {
         Ok(PublishReceipt {
             pack_id: pack.id.clone(),
             version: metadata.version,
-            registry_url: format!("https://registry.ggen.io/packs/{}", pack.id),
+            registry_url: format!("https://registry.mcpp.io/packs/{}", pack.id),
             published_at: chrono::Utc::now().to_rfc3339(),
         })
     }

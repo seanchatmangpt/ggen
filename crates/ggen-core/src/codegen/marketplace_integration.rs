@@ -1,5 +1,5 @@
 use crate::manifest::GgenManifest;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 pub struct PackageValidation {
     pub package_name: String,

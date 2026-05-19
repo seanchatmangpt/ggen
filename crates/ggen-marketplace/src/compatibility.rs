@@ -342,7 +342,7 @@ impl CompatibilityChecker {
     pub fn new() -> Result<Self> {
         let cache_dir = dirs::cache_dir()
             .unwrap_or_else(|| std::path::PathBuf::from(".cache"))
-            .join("ggen")
+            .join("mcpp")
             .join("packs");
 
         Ok(Self { cache_dir })
@@ -1769,7 +1769,7 @@ impl Default for CompatibilityChecker {
         Self::with_cache_dir(
             dirs::cache_dir()
                 .unwrap_or_else(|| std::path::PathBuf::from(".cache"))
-                .join("ggen")
+                .join("mcpp")
                 .join("packs"),
         )
     }

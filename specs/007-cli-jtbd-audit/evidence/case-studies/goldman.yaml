@@ -14,25 +14,25 @@ scale_requirements:
   latency_slo: "<1s for incremental changes"
 
 required_commands:
-  - command: "ggen ai analyze"
+  - command: "mcpp ai analyze"
     purpose: "AI analysis of regulatory impact"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen template regenerate"
+  - command: "mcpp template regenerate"
     purpose: "Regenerate trading entities on spec changes"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen project watch"
+  - command: "mcpp project watch"
     purpose: "Auto-regenerate on market data changes"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen ci workflow"
+  - command: "mcpp ci workflow"
     purpose: "CI/CD integration for automated deployment"
     criticality: P1
     current_support: pending
@@ -45,21 +45,21 @@ validator: claude-code
 test_scenarios:
   - scenario: "Incremental trading entity update"
     steps:
-      - "ggen template regenerate --template trading-entity.tmpl --incremental"
+      - "mcpp template regenerate --template trading-entity.tmpl --incremental"
       - "Measure regeneration latency"
     expected: "<1s regeneration for incremental changes"
     actual: pending
 
   - scenario: "Automated CI/CD pipeline"
     steps:
-      - "ggen ci workflow --name trading-pipeline"
+      - "mcpp ci workflow --name trading-pipeline"
       - "Verify generated GitHub Actions workflow"
     expected: "Complete CI/CD workflow with compliance gates"
     actual: pending
 
   - scenario: "AI regulatory impact analysis"
     steps:
-      - "ggen ai analyze --path ./trading-system --focus regulatory"
+      - "mcpp ai analyze --path ./trading-system --focus regulatory"
     expected: "AI-generated analysis of regulatory implications"
     actual: pending
 

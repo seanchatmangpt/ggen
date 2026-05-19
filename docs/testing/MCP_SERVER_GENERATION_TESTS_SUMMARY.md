@@ -11,7 +11,7 @@ Created two comprehensive test suites for MCP server generation following Chicag
 ## Files Created
 
 ### 1. Core E2E Tests
-**Location**: `/Users/sac/ggen/crates/ggen-core/tests/mcp_generation_e2e_test.rs`
+**Location**: `./crates/ggen-core/tests/mcp_generation_e2e_test.rs`
 **Size**: ~450 lines
 **Tests**: 10 comprehensive tests
 
@@ -28,7 +28,7 @@ Created two comprehensive test suites for MCP server generation following Chicag
 10. Generated code syntax validation
 
 ### 2. CLI Tests
-**Location**: `/Users/sac/ggen/crates/ggen-cli/tests/mcp_command_test.rs`
+**Location**: `./crates/ggen-cli/tests/mcp_command_test.rs`
 **Size**: ~400 lines
 **Tests**: 10 comprehensive tests
 
@@ -204,7 +204,7 @@ These tests follow patterns from existing test files:
 ## Documentation
 
 Full documentation available at:
-- `/Users/sac/ggen/docs/testing/MCP_SERVER_GENERATION_TESTS.md`
+- `./docs/testing/MCP_SERVER_GENERATION_TESTS.md`
 
 ## Conclusion
 

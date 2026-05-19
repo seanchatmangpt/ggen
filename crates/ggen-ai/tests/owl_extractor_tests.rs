@@ -11,8 +11,8 @@
 
 use std::path::Path;
 
-// Use actual implementation from ggen_ai::owl
-use ggen_ai::owl::{
+// Use actual implementation from mcpp_ai::owl
+use mcpp_ai::owl::{
     DatatypeFacet, OWLClass, OWLExtractor, OWLProperty, OWLRestriction, ValueRestrictionType,
 };
 

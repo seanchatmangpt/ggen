@@ -3,13 +3,13 @@
 //! This module provides format abstraction allowing lockfiles to be
 //! serialized in either TOML or JSON format.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::Path;
 
 use super::traits::{Lockfile, LockfileFormat};
 
-/// TOML serialization format (default for ggen.lock)
+/// TOML serialization format (default for mcpp.lock)
 #[derive(Debug, Clone, Copy, Default)]
 pub struct TomlFormat;
 
@@ -28,7 +28,7 @@ impl LockfileFormat for TomlFormat {
     }
 }
 
-/// JSON serialization format (for .ggen/packs.lock)
+/// JSON serialization format (for .mcpp/packs.lock)
 #[derive(Debug, Clone, Copy, Default)]
 pub struct JsonFormat;
 
@@ -102,10 +102,10 @@ impl FormatType {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::lockfile_unified::format::{detect_format, FormatType};
+/// use mcpp_core::lockfile_unified::format::{detect_format, FormatType};
 /// use std::path::Path;
 ///
-/// assert_eq!(detect_format(Path::new("ggen.lock")), FormatType::Toml);
+/// assert_eq!(detect_format(Path::new("mcpp.lock")), FormatType::Toml);
 /// assert_eq!(detect_format(Path::new("packs.json")), FormatType::Json);
 /// assert_eq!(detect_format(Path::new("Cargo.toml")), FormatType::Toml);
 /// ```
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     fn test_detect_format() {
-        assert_eq!(detect_format(Path::new("ggen.lock")), FormatType::Toml);
+        assert_eq!(detect_format(Path::new("mcpp.lock")), FormatType::Toml);
         assert_eq!(detect_format(Path::new("config.toml")), FormatType::Toml);
         assert_eq!(detect_format(Path::new("packs.json")), FormatType::Json);
         assert_eq!(detect_format(Path::new("unknown")), FormatType::Toml);

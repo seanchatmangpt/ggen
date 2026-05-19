@@ -99,8 +99,8 @@ init([]) ->
     ]),
 
     %% Load Jaeger configuration
-    JaegerHost = application:get_env(ggen, jaeger_host, "localhost"),
-    JaegerPort = application:get_env(ggen, jaeger_port, 6831),
+    JaegerHost = application:get_env(mcpp, jaeger_host, "localhost"),
+    JaegerPort = application:get_env(mcpp, jaeger_port, 6831),
 
     %% Schedule periodic export
     ExportRef = erlang:send_after(?EXPORT_TIMEOUT, self(), export_batch),

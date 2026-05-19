@@ -11,7 +11,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_core::cleanroom::{CleanroomCore, policy::{Locked, Permissive}};
+//! use mcpp_core::cleanroom::{CleanroomCore, policy::{Locked, Permissive}};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // This is locked down - cannot access network
@@ -72,7 +72,7 @@ pub trait Policy: Sized + Send + Sync + 'static {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_core::cleanroom::{CleanroomCore, policy::Locked};
+/// use mcpp_core::cleanroom::{CleanroomCore, policy::Locked};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let env = CleanroomCore::<Locked>::builder()
@@ -131,7 +131,7 @@ impl Policy for Locked {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_core::cleanroom::{CleanroomCore, policy::Permissive};
+/// use mcpp_core::cleanroom::{CleanroomCore, policy::Permissive};
 ///
 /// let env = CleanroomCore::<Permissive>::builder()
 ///     .build()?; // All surfaces default to real/permissive

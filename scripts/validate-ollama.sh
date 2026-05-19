@@ -40,7 +40,7 @@ fi
 
 # Run Ollama integration tests
 echo "🧪 Running Ollama integration tests..."
-cd /Users/sac/ggen
+cd .
 
 if cargo make test-ollama; then
     echo "✅ Ollama integration tests passed"

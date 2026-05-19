@@ -1,8 +1,8 @@
-# ggen v6 RDF-First Code Generation System (Pure 3T Specification)
+# mcpp v6 RDF-First Code Generation System (Pure 3T Specification)
 
 ## Overview
 
-This specification demonstrates **purity of implementation** using the **3T methodology** (TOML, Tera, Turtle). The specification about ggen v6's RDF-first architecture is itself generated FROM RDF ontology.
+This specification demonstrates **purity of implementation** using the **3T methodology** (TOML, Tera, Turtle). The specification about mcpp v6's RDF-first architecture is itself generated FROM RDF ontology.
 
 **Meta-Circular Property**: We use spec-kit to specify the tool that implements spec-kit.
 
@@ -23,9 +23,9 @@ Where:
 ## Directory Structure (3T Architecture)
 
 ```
-013-ggen-v6-rdf-system/
+013-mcpp-v6-rdf-system/
 ├── README.md                           # ← You are here (3T documentation)
-├── ggen.toml                           # TOML: Pipeline configuration
+├── mcpp.toml                           # TOML: Pipeline configuration
 ├── ontology/                           # TURTLE: Semantic substrate (source of truth)
 │   ├── feature-content.ttl             # System specification (270 triples)
 │   ├── mvp-80-20.ttl                   # 80/20 analysis (160 triples)
@@ -36,7 +36,7 @@ Where:
 │   ├── spec.md                         # Generated specification
 │   └── .receipt.json                   # Cryptographic provenance
 ├── scripts/                            # Helper scripts
-│   ├── sync.sh                         # Run ggen sync with validation
+│   ├── sync.sh                         # Run mcpp sync with validation
 │   └── validate-rdf-workflow.sh        # Validate 3T compliance
 ├── 80-20-PLAN.md                       # Implementation roadmap
 ├── 80-20-PRIORITIZATION.md             # Prioritization summary
@@ -48,7 +48,7 @@ Where:
 
 **3T** = **TOML + Tera + Turtle**
 
-1. **TOML** (`ggen.toml`): Configuration-as-code
+1. **TOML** (`mcpp.toml`): Configuration-as-code
    - SPARQL queries for extraction (μ₂)
    - Template mappings
    - Pipeline configuration
@@ -69,72 +69,72 @@ Where:
 
 ### Prerequisites
 
-- ggen v6 CLI (with v6 pipeline support)
+- mcpp v6 CLI (with v6 pipeline support)
 - RDF/SPARQL support (Oxigraph)
 - Tera template engine
 
-**Note**: ggen v6 is not yet implemented. This project SPECIFIES ggen v6.
+**Note**: mcpp v6 is not yet implemented. This project SPECIFIES mcpp v6.
 
 ### Generation Workflow
 
 ```bash
-cd /Users/sac/ggen/specs/013-ggen-v6-rdf-system
+cd ~/.ggen/mcpp/specs/013-mcpp-v6-rdf-system
 
 # Option 1: Use helper script (recommended)
 ./scripts/sync.sh
 
 # Option 2: Direct command (when v6 is available)
-ggen sync
+mcpp sync
 
 # Verify idempotence (no file changes on second run)
-ggen sync
+mcpp sync
 git status  # Should show "nothing to commit"
 
 # Verify cryptographic provenance
 cat generated/.receipt.json
 ```
 
-### What Happens During `ggen sync`
+### What Happens During `mcpp sync`
 
 The five-stage pipeline (μ₁ through μ₅) executes:
 
 #### 1. μ₁ - Normalization (SHACL Validation)
 - Validates RDF against `spec-kit-schema.ttl` SHACL shapes
 - Catches missing required fields, invalid priorities, wrong ID patterns
-- **Config**: `[v6.validation]` in ggen.toml
+- **Config**: `[v6.validation]` in mcpp.toml
 - Fails fast with actionable error messages
 
 #### 2. μ₂ - Extraction (SPARQL SELECT)
 - Executes SPARQL queries against RDF graph
 - Extracts user stories, requirements, success criteria
-- **Config**: `[[generation]].query` in ggen.toml
+- **Config**: `[[generation]].query` in mcpp.toml
 - Bindings passed to templates as variables
 
 #### 3. μ₃ - Emission (Tera Templates)
 - Templates transform RDF bindings into markdown/code
 - Complex grouping logic (nested scenarios, 80/20 markers)
-- **Config**: `[[generation]].template` in ggen.toml
+- **Config**: `[[generation]].template` in mcpp.toml
 - Output written to `generated/*.md`
 
 #### 4. μ₄ - Canonicalization (Deterministic Formatting)
 - Normalize line endings (LF)
 - Trim trailing whitespace
 - Ensure final newline
-- **Config**: `[v6.canonicalization]` in ggen.toml
+- **Config**: `[v6.canonicalization]` in mcpp.toml
 - Guarantees bit-for-bit reproducibility
 
 #### 5. μ₅ - Receipt Generation (Cryptographic Provenance)
 - SHA-256 hashes of input ontology files
 - SHA-256 hashes of output markdown files
 - Timestamp and pipeline configuration hash
-- **Config**: `[v6.receipt]` in ggen.toml
+- **Config**: `[v6.receipt]` in mcpp.toml
 - Proves: `hash(spec.md) = hash(μ(ontology))`
 
 ## Constitutional Invariants
 
-This specification enforces ggen v6's constitutional laws:
+This specification enforces mcpp v6's constitutional laws:
 
-1. **Idempotence** (μ∘μ = μ): Running `ggen sync` twice produces zero file changes
+1. **Idempotence** (μ∘μ = μ): Running `mcpp sync` twice produces zero file changes
 2. **Determinism**: Same ontology generates bit-for-bit identical output across platforms
 3. **Provenance**: Receipt cryptographically proves output derived from ontology
 4. **No-Edit Law**: Generated files in `generated/` are never hand-edited
@@ -161,19 +161,19 @@ This specification enforces ggen v6's constitutional laws:
    :us-006-as-001 a sk:AcceptanceScenario ;
        sk:scenarioIndex 1 ;
        sk:given "a TTL file with invalid priority value" ;
-       sk:when "developer runs ggen sync" ;
+       sk:when "developer runs mcpp sync" ;
        sk:then "SHACL validation fails with clear error message" .
    ```
 
 2. Link to feature:
    ```turtle
-   :ggen-v6-system
+   :mcpp-v6-system
        sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005, :us-006 .
    ```
 
 3. Regenerate:
    ```bash
-   ggen sync
+   mcpp sync
    ```
 
 4. Verify in `generated/spec.md`
@@ -190,7 +190,7 @@ This specification enforces ggen v6's constitutional laws:
 
 2. Regenerate and verify:
    ```bash
-   ggen sync
+   mcpp sync
    grep -A 5 "us-004" generated/spec.md
    ```
 
@@ -214,7 +214,7 @@ The specification uses SHACL shapes to enforce quality:
     sk:description "Short" .          # ✗ < 20 characters
 ```
 
-Running `ggen sync` on invalid ontology produces:
+Running `mcpp sync` on invalid ontology produces:
 ```
 Error during μ₁ (Normalization):
   File: ontology/feature-content.ttl:120
@@ -238,7 +238,7 @@ This specification uses the **80/20 principle** encoded in RDF:
 2. CAP-002: Execute SPARQL SELECT (2 days)
 3. CAP-003: Render Tera Template (1 day)
 4. CAP-004: Deterministic Output (1 day)
-5. CAP-005: ggen sync Command (2 days)
+5. CAP-005: mcpp sync Command (2 days)
 
 ### Deferred 80% (32+ developer-days, 20% value)
 ```turtle
@@ -266,7 +266,7 @@ See `80-20-PLAN.md` for complete analysis.
 
 ```bash
 # Run testcontainers e2e test (validates 3T workflow)
-cd /Users/sac/ggen/vendors/spec-kit
+cd ~/.ggen/mcpp/vendors/spec-kit
 pytest tests/integration/test_3t_e2e.py -v -s
 
 # Or run all tests
@@ -277,8 +277,8 @@ pytest tests/integration/ -v
 
 The e2e test validates the complete 3T workflow:
 
-1. **3T Files Present**: TOML (ggen.toml), Tera (templates/), Turtle (ontology/)
-2. **ggen sync Execution**: Command runs without errors
+1. **3T Files Present**: TOML (mcpp.toml), Tera (templates/), Turtle (ontology/)
+2. **mcpp sync Execution**: Command runs without errors
 3. **Idempotence** (μ∘μ = μ): Running twice produces zero file changes
 4. **Determinism**: Same input always produces identical output
 5. **Cryptographic Provenance**: Receipt proves spec.md = μ(ontology)
@@ -314,7 +314,7 @@ See `tests/integration/test_3t_e2e.py` for implementation.
 ## Files That Should Be Version-Controlled
 
 **Version Control (3T Files Only)**:
-- ✅ `ggen.toml` - TOML pipeline configuration
+- ✅ `mcpp.toml` - TOML pipeline configuration
 - ✅ `ontology/feature-content.ttl` - TURTLE semantic substrate
 - ✅ `ontology/mvp-80-20.ttl` - TURTLE 80/20 analysis
 - ✅ `templates/spec.tera` - TERA rendering templates
@@ -328,21 +328,21 @@ See `tests/integration/test_3t_e2e.py` for implementation.
 
 Add to `.gitignore`:
 ```gitignore
-# Generated artifacts (regenerated from ontology via ggen sync)
+# Generated artifacts (regenerated from ontology via mcpp sync)
 generated/
 ```
 
 ## Project Status
 
-**Current**: ggen v5 (does not have `sync` command)
-**Specifying**: ggen v6 (RDF-first code generation with 3T methodology)
+**Current**: mcpp v5 (does not have `sync` command)
+**Specifying**: mcpp v6 (RDF-first code generation with 3T methodology)
 
-This project is **eating its own dog food** - using spec-kit to specify ggen v6, which will implement the very methodology used to specify it.
+This project is **eating its own dog food** - using spec-kit to specify mcpp v6, which will implement the very methodology used to specify it.
 
 **Next Steps**:
-1. Implement ggen v6 MVP (8 days, 5 core capabilities)
-2. Run `ggen sync` to validate this specification
-3. Use ggen v6 to regenerate its own spec (self-hosting)
+1. Implement mcpp v6 MVP (8 days, 5 core capabilities)
+2. Run `mcpp sync` to validate this specification
+3. Use mcpp v6 to regenerate its own spec (self-hosting)
 4. Prove constitutional equation: code = μ(spec.ttl)
 
 ## Quick Reference
@@ -351,7 +351,7 @@ This project is **eating its own dog food** - using spec-kit to specify ggen v6,
 - **User Stories**: 5 (system-level)
 - **Core Capabilities**: 5 (20% effort, 80% value)
 - **Deferred Features**: 8 (80% effort, 20% value)
-- **Configuration**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/ggen.toml`
+- **Configuration**: `~/.ggen/mcpp/specs/013-mcpp-v6-rdf-system/mcpp.toml`
 - **Validation**: `./scripts/validate-rdf-workflow.sh`
 - **Sync**: `./scripts/sync.sh`
 
@@ -365,4 +365,4 @@ This project is **eating its own dog food** - using spec-kit to specify ggen v6,
 
 ---
 
-**Remember**: This is a **3T specification** (TOML + Tera + Turtle). Edit the ontology, run `ggen sync`, verify the output. Never edit generated files directly.
+**Remember**: This is a **3T specification** (TOML + Tera + Turtle). Edit the ontology, run `mcpp sync`, verify the output. Never edit generated files directly.

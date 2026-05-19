@@ -9,7 +9,7 @@ mod backward_compat_tests {
     use std::process::Command;
     use tempfile::TempDir;
 
-    /// Helper: Run ggen marketplace command
+    /// Helper: Run mcpp marketplace command
     fn run_marketplace_cmd(args: &[&str]) -> Result<String, String> {
         let output = Command::new("cargo")
             .args(&["run", "--features", "marketplace-v1", "--"])

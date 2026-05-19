@@ -8,7 +8,7 @@
 //! Each test is independent (creates its own graph) and verifies observable
 //! behavior via ASK/SELECT queries after materialization.
 
-use ggen_core::graph::{CachedResult, ConstructExecutor, Graph};
+use mcpp_core::graph::{CachedResult, ConstructExecutor, Graph};
 use std::collections::BTreeMap;
 
 /// Helper: run an ASK query and return the boolean result.

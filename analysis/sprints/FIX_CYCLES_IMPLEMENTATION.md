@@ -6,7 +6,7 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 ## What Was Implemented
 
 ### 1. Core Cycle Fixing Engine
-**File**: `/Users/sac/ggen/crates/ggen-core/src/graph/cycle_fixer.rs` (NEW, 700+ lines)
+**File**: `~/.ggen/mcpp/crates/mcpp-core/src/graph/cycle_fixer.rs` (NEW, 700+ lines)
 
 **Key Components**:
 - `CycleFixer` struct: Main engine for detecting and fixing cycles
@@ -24,21 +24,21 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 - ✅ Comprehensive error handling
 
 ### 2. Module Integration
-**File**: `/Users/sac/ggen/crates/ggen-core/src/graph/mod.rs` (MODIFIED)
+**File**: `~/.ggen/mcpp/crates/mcpp-core/src/graph/mod.rs` (MODIFIED)
 
 **Changes**:
 - Added `pub mod cycle_fixer;`
 - Exported `CycleFixer`, `FixReport`, `FixStrategy` types
 
 ### 3. Dependencies
-**File**: `/Users/sac/ggen/crates/ggen-core/Cargo.toml` (MODIFIED)
+**File**: `~/.ggen/mcpp/crates/mcpp-core/Cargo.toml` (MODIFIED)
 
 **Changes**:
 - Added `chrono = { workspace = true }` for timestamped backups
 - Added `tempfile = "3.14"` for test fixtures
 
 ### 4. MCP Tool Integration
-**File**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (MODIFIED)
+**File**: `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/mcpp_server.rs` (MODIFIED)
 
 **Changes**:
 - Added `FixCyclesParams` struct with ontology_path, strategy, dry_run fields
@@ -107,7 +107,7 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
   "cycles_found": 1,
   "fixes_applied": 1,
   "files_modified": ["C.ttl"],
-  "backup_path": "/path/to/.ggen/backups/cycle_fix_backup_20260330_141452",
+  "backup_path": "/path/to/.mcpp/backups/cycle_fix_backup_20260330_141452",
   "cycles": [
     {
       "files": ["A.ttl", "B.ttl", "C.ttl"],
@@ -195,16 +195,16 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 
 ## Files Modified
 
-1. **NEW**: `crates/ggen-core/src/graph/cycle_fixer.rs` (700+ lines)
-2. **MODIFIED**: `crates/ggen-core/src/graph/mod.rs` (added module + exports)
-3. **MODIFIED**: `crates/ggen-core/Cargo.toml` (added chrono, tempfile)
-4. **MODIFIED**: `crates/ggen-a2a-mcp/src/ggen_server.rs` (added params + tool)
+1. **NEW**: `crates/mcpp-core/src/graph/cycle_fixer.rs` (700+ lines)
+2. **MODIFIED**: `crates/mcpp-core/src/graph/mod.rs` (added module + exports)
+3. **MODIFIED**: `crates/mcpp-core/Cargo.toml` (added chrono, tempfile)
+4. **MODIFIED**: `crates/mcpp-a2a-mcp/src/mcpp_server.rs` (added params + tool)
 
 ## Next Steps
 
 1. Fix unrelated cache.rs compilation errors
 2. Run `cargo make test` to verify all tests pass
-3. Test with running MCP server: `ggen mcp start-server`
+3. Test with running MCP server: `mcpp mcp start-server`
 4. Create end-to-end integration test
 5. Update MCP tool documentation
 

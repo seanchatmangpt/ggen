@@ -14,7 +14,7 @@ use std::collections::{HashMap, HashSet};
 pub struct ParetoSelector {
     /// Minimum bug detection rate to maintain (default: 0.80)
     min_bug_detection_rate: f64,
-    /// Target test count (default: 200 for ggen's 1,178 tests)
+    /// Target test count (default: 200 for mcpp's 1,178 tests)
     target_test_count: usize,
 }
 

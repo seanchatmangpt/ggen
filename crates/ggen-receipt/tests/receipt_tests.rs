@@ -1,6 +1,6 @@
 //! Comprehensive tests for receipt signing and verification.
 
-use ggen_receipt::{generate_keypair, hash_data, Receipt};
+use mcpp_receipt::{generate_keypair, hash_data, Receipt};
 
 #[test]
 fn test_receipt_new() {

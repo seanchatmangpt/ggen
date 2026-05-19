@@ -1,6 +1,6 @@
-//! # ggen-config-clap
+//! # mcpp-config-clap
 //!
-//! Integration layer for loading ggen.toml configuration into clap applications.
+//! Integration layer for loading mcpp.toml configuration into clap applications.
 //!
 //! Provides traits and utilities for merging TOML configuration with CLI arguments.
 
@@ -10,5 +10,5 @@ pub mod loader;
 pub use error::ConfigClapError;
 pub use loader::LoadConfigFromGgenToml;
 
-/// Re-export ggen-config for convenience
-pub use ggen_config;
+/// Re-export mcpp-config for convenience
+pub use mcpp_config;

@@ -54,7 +54,7 @@ impl YawlBridge {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::YawlBridge;
+    /// use mcpp_process_mining::YawlBridge;
     ///
     /// let bridge = YawlBridge::new();
     /// let yawl_xml = std::fs::read_to_string("workflow.yawl")?;
@@ -82,7 +82,7 @@ impl YawlBridge {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::{YawlBridge, PetriNet};
+    /// use mcpp_process_mining::{YawlBridge, PetriNet};
     ///
     /// let bridge = YawlBridge::new();
     /// let net = PetriNet::from_activities(&["A", "B", "C"]);
@@ -524,7 +524,7 @@ fn escape_xml(s: &str) -> String {
 /// # Examples
 ///
 /// ```rust,ignore
-/// use ggen_process_mining::yawl_to_petri_net;
+/// use mcpp_process_mining::yawl_to_petri_net;
 ///
 /// let yawl = std::fs::read_to_string("workflow.yawl")?;
 /// let net = yawl_to_petri_net(&yawl)?;
@@ -538,7 +538,7 @@ pub fn yawl_to_petri_net(yawl_xml: &str) -> Result<PetriNet> {
 /// # Examples
 ///
 /// ```rust,ignore
-/// use ggen_process_mining::{petri_net_to_yawl, PetriNet};
+/// use mcpp_process_mining::{petri_net_to_yawl, PetriNet};
 ///
 /// let net = PetriNet::from_activities(&["A", "B", "C"]);
 /// let yawl = petri_net_to_yawl(&net)?;

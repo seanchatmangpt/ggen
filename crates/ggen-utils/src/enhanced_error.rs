@@ -27,7 +27,7 @@
 //! ### Creating an Enhanced Error
 //!
 //! ```rust,no_run
-//! use ggen_utils::enhanced_error::{EnhancedError, ErrorCategory, PlatformFix};
+//! use mcpp_utils::enhanced_error::{EnhancedError, ErrorCategory, PlatformFix};
 //!
 //! # fn main() -> anyhow::Result<()> {
 //! let fix = PlatformFix::new()
@@ -54,7 +54,7 @@ use std::fmt;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::enhanced_error::ErrorCategory;
+/// use mcpp_utils::enhanced_error::ErrorCategory;
 ///
 /// # fn main() {
 /// let category = ErrorCategory::FileNotFound;
@@ -298,9 +298,9 @@ pub mod common_errors {
             format!("Template '{}' not found", template_name),
         )
         .with_context("The specified template does not exist in the registry")
-        .with_fix("Run 'ggen list' to see available templates")
-        .with_fix("Use 'ggen search <query>' to find templates")
-        .with_docs("https://seanchatmangpt.github.io/ggen/templates");
+        .with_fix("Run 'mcpp list' to see available templates")
+        .with_fix("Use 'mcpp search <query>' to find templates")
+        .with_docs("https://seanchatmangpt.github.io/mcpp/templates");
 
         if !available.is_empty() {
             let suggestions = available
@@ -328,7 +328,7 @@ pub mod common_errors {
             format!("Unknown command: {}", command),
         )
         .with_context("The command you entered is not recognized")
-        .with_fix("Run 'ggen --help' to see all available commands")
+        .with_fix("Run 'mcpp --help' to see all available commands")
         .with_fix("Check for typos in the command name");
 
         // Find similar commands using simple string distance
@@ -360,7 +360,7 @@ pub mod common_errors {
         )
         .with_context("A required tool or library is not installed")
         .with_fix(format!("Install {} using: {}", dependency, install_cmd))
-        .with_fix("Run 'ggen doctor' to check your environment")
+        .with_fix("Run 'mcpp doctor' to check your environment")
         .with_platform_fix(
             PlatformFix::new()
                 .macos(format!("brew install {}", dependency))

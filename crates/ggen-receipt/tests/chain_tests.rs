@@ -1,6 +1,6 @@
 //! Comprehensive tests for receipt chain validation.
 
-use ggen_receipt::{generate_keypair, Receipt, ReceiptChain};
+use mcpp_receipt::{generate_keypair, Receipt, ReceiptChain};
 
 #[test]
 fn test_empty_chain() {

@@ -1,6 +1,6 @@
 //! Tests for Program of Thought pattern
 
-use ggen_dspy::{
+use mcpp_dspy::{
     CodeLanguage, Module, ProgramOfThought, ProgramOfThoughtBuilder, ProgramOfThoughtConfig,
 };
 

@@ -1,8 +1,8 @@
 groups:
-  - id: span.ggen.mcp.tool_call
+  - id: span.mcpp.mcp.tool_call
     type: span
     stability: development
-    brief: MCP tool invocation in ggen code generation pipeline.
+    brief: MCP tool invocation in mcpp code generation pipeline.
     span_kind: internal
     attributes:
       - ref: mcp.tool_name

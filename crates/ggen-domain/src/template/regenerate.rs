@@ -1,7 +1,7 @@
 //! Template regeneration domain logic
 
-use ggen_core::{MergeStrategy, RegionAwareMerger};
-use ggen_utils::error::Result;
+use mcpp_core::{MergeStrategy, RegionAwareMerger};
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -12,7 +12,7 @@ pub fn parse_merge_strategy(strategy: &str) -> Result<MergeStrategy> {
         "manual-wins" => Ok(MergeStrategy::ManualWins),
         "interactive" => Ok(MergeStrategy::Interactive),
         "fail-on-conflict" => Ok(MergeStrategy::FailOnConflict),
-        _ => Err(ggen_utils::error::Error::new(&format!(
+        _ => Err(mcpp_utils::error::Error::new(&format!(
             "Unknown merge strategy: {}",
             strategy
         ))),
@@ -26,13 +26,13 @@ pub fn regenerate_with_merge(
     if output_path.exists() {
         // File exists - need to merge
         let existing_content = fs::read_to_string(output_path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read existing file: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to read existing file: {}", e))
         })?;
 
         let merger = RegionAwareMerger::new(*strategy);
 
         // Create a dummy snapshot for merge
-        let dummy_snapshot = ggen_core::snapshot::FileSnapshot {
+        let dummy_snapshot = mcpp_core::snapshot::FileSnapshot {
             path: output_path.to_path_buf(),
             hash: String::new(),
             size: 0,
@@ -49,19 +49,19 @@ pub fn regenerate_with_merge(
                 &dummy_snapshot,
                 output_path,
             )
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Merge failed: {}", e)))?;
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("Merge failed: {}", e)))?;
 
         if merge_result.has_conflicts && matches!(strategy, MergeStrategy::FailOnConflict) {
-            return Err(ggen_utils::error::Error::new("Merge conflicts detected"));
+            return Err(mcpp_utils::error::Error::new("Merge conflicts detected"));
         }
 
         fs::write(output_path, &merge_result.content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write merged content: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to write merged content: {}", e))
         })?;
     } else {
         // New file - just write generated content
         fs::write(output_path, generated_content)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write file: {}", e)))?;
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to write file: {}", e)))?;
     }
 
     Ok(())
@@ -149,7 +149,7 @@ pub struct RegenerateInput {
 
 /// Execute regenerate with input (pure domain function)
 pub async fn execute_regenerate(input: RegenerateInput) -> Result<()> {
-    use ggen_core::{GenContext, Generator, Pipeline};
+    use mcpp_core::{GenContext, Generator, Pipeline};
     use std::collections::BTreeMap;
 
     // Parse merge strategy
@@ -165,7 +165,7 @@ pub async fn execute_regenerate(input: RegenerateInput) -> Result<()> {
 
     // Create pipeline and generator
     let pipeline = Pipeline::new()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
 
     let ctx = GenContext::new(
         input.template.clone(),
@@ -177,12 +177,12 @@ pub async fn execute_regenerate(input: RegenerateInput) -> Result<()> {
 
     // Generate template content
     let generated_path = generator.generate().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to generate template: {}", e))
+        mcpp_utils::error::Error::new(&format!("Failed to generate template: {}", e))
     })?;
 
     // Read generated content
     let generated_content = std::fs::read_to_string(&generated_path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read generated content: {}", e))
+        mcpp_utils::error::Error::new(&format!("Failed to read generated content: {}", e))
     })?;
 
     // Regenerate with merge

@@ -11,10 +11,10 @@
 //! - **Deterministic hashing**: Same input always produces same canonical hash
 
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
-use ggen_canonical::hash::compute_hash;
-use ggen_canonical::{json, rust, ttl};
-use ggen_receipt::{hash_data, Receipt};
-use ggen_utils::error::{Error, Result};
+use mcpp_canonical::hash::compute_hash;
+use mcpp_canonical::{json, rust, ttl};
+use mcpp_receipt::{hash_data, Receipt};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -267,7 +267,7 @@ impl CanonicalizationPass {
         }
     }
 
-    /// Format Rust code using rustfmt via ggen-canonical
+    /// Format Rust code using rustfmt via mcpp-canonical
     fn format_rust(&self, _path: &Path, content: &str) -> Result<String> {
         match rust::canonicalize_rust(content) {
             Ok(formatted) => Ok(formatted),
@@ -356,7 +356,7 @@ impl CanonicalizationPass {
         }
     }
 
-    /// Format JSON using ggen-canonical
+    /// Format JSON using mcpp-canonical
     fn format_json(&self, content: &str) -> Result<String> {
         match json::canonicalize_json_str(content) {
             Ok(canonical) => Ok(canonical + "\n"),
@@ -380,7 +380,7 @@ impl CanonicalizationPass {
         }
     }
 
-    /// Format TTL/RDF using ggen-canonical
+    /// Format TTL/RDF using mcpp-canonical
     fn format_ttl(&self, content: &str) -> Result<String> {
         match ttl::canonicalize_ttl(content) {
             Ok(canonical) => Ok(canonical + "\n"),

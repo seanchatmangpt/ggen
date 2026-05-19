@@ -2,7 +2,7 @@
 //!
 //! These tests exercise MULTIPLE A2A messages in a chain with correlation
 //! and validate that OTEL spans are emitted for each A2A message exchange.
-//! Each message produces a `ggen.a2a.message` span with semconv attributes:
+//! Each message produces a `mcpp.a2a.message` span with semconv attributes:
 //!   - a2a.message_id (required)
 //!   - a2a.operation_name (required)
 //!   - a2a.correlation_id (recommended)
@@ -19,10 +19,10 @@
 
 use std::sync::Arc;
 
-use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
-use ggen_a2a_mcp::message::A2aMessageConverter;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
+use mcpp_a2a_mcp::message::A2aMessageConverter;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ fn extract_text(content: &UnifiedContent) -> &str {
 
 #[tokio::test]
 async fn test_a2a_multi_agent_conversation() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -214,7 +214,7 @@ async fn test_a2a_multi_agent_conversation() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_causation_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -293,7 +293,7 @@ async fn test_a2a_causation_chain() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_concurrent_message_burst() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = Arc::new(SelfPlayBridge::new(examples_dir).await?);
 
     let result = (|| async {
@@ -367,7 +367,7 @@ async fn test_a2a_concurrent_message_burst() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_mcp_a2a_roundtrip() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -437,7 +437,7 @@ async fn test_a2a_mcp_a2a_roundtrip() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_error_recovery_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {

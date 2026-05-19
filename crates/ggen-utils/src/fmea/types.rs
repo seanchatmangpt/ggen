@@ -206,7 +206,7 @@ impl fmt::Display for RPN {
 
 /// Failure category based on 80/20 Pareto analysis.
 ///
-/// 8 categories account for 99% of failures in ggen CLI:
+/// 8 categories account for 99% of failures in mcpp CLI:
 /// - FileIO: 30% (non-atomic writes, ENOSPC, race conditions)
 /// - NetworkOps: 25% (timeouts, DNS failures, connection errors)
 /// - ConcurrencyRace: 15% (mutex poisoning, deadlocks, race conditions)

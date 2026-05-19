@@ -1,4 +1,4 @@
-command: "ggen ai chat"
+command: "mcpp ai chat"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I want to chat with AI for code insights,
-  I need to run 'ggen ai chat',
+  I need to run 'mcpp ai chat',
   so that I can get AI assistance interactively.

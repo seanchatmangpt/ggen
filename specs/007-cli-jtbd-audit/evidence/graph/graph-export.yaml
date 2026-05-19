@@ -1,4 +1,4 @@
-command: "ggen graph export"
+command: "mcpp graph export"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -47,5 +47,5 @@ recommendations:
 
 jtbd: |
   When I want to export an RDF graph to a file,
-  I need to run 'ggen graph export' with format and destination,
+  I need to run 'mcpp graph export' with format and destination,
   so that I can save graph data in external formats.

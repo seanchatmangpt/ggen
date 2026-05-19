@@ -9,7 +9,7 @@ Comprehensive unit test suite for TAI Erlang Autonomics HTTP server and applicat
 ## Files Created
 
 ### 1. HTTP Server Tests
-**Path**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_server_test.erl`
+**Path**: `./tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_server_test.erl`
 
 **Statistics**:
 - 694 lines of code
@@ -29,7 +29,7 @@ TOTAL:                  24 tests
 ```
 
 ### 2. Application Lifecycle Tests
-**Path**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_core_app_test.erl`
+**Path**: `./tai-erlang-autonomics/apps/tai_autonomics/test/taiea_core_app_test.erl`
 
 **Statistics**:
 - 555 lines of code
@@ -49,7 +49,7 @@ TOTAL:                21 tests
 ```
 
 ### 3. Documentation
-**Path**: `/Users/sac/ggen/tai-erlang-autonomics/UNIT_TESTS_REPORT.md`
+**Path**: `./tai-erlang-autonomics/UNIT_TESTS_REPORT.md`
 
 Comprehensive test report with:
 - Executive summary
@@ -272,7 +272,7 @@ end_per_testcase(TestName, _Config) ->
 
 **HTTP Server Tests Only**
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_server_test
 ```
 

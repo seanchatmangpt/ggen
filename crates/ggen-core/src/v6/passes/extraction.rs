@@ -28,15 +28,15 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_core::v6::passes::ExtractionPass;
-//! use ggen_core::v6::pass::{Pass, PassContext};
-//! use ggen_core::Graph;
+//! use mcpp_core::v6::passes::ExtractionPass;
+//! use mcpp_core::v6::pass::{Pass, PassContext};
+//! use mcpp_core::Graph;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
-//!     @prefix code: <http://ggen.dev/code#> .
+//!     @prefix code: <http://mcpp.dev/code#> .
 //!     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 //!
 //!     code:User a code:Struct ;
@@ -47,8 +47,8 @@
 //! pass.add_tensor_query(TensorQuery {
 //!     name: "extract-structs".to_string(),
 //!     construct: r#"
-//!         PREFIX code: <http://ggen.dev/code#>
-//!         PREFIX gen: <http://ggen.dev/gen#>
+//!         PREFIX code: <http://mcpp.dev/code#>
+//!         PREFIX gen: <http://mcpp.dev/gen#>
 //!
 //!         CONSTRUCT {
 //!             ?struct gen:codeType gen:Struct ;
@@ -59,7 +59,7 @@
 //!                     rdfs:label ?name .
 //!         }
 //!     "#.to_string(),
-//!     target_predicates: vec!["http://ggen.dev/gen#codeType".to_string()],
+//!     target_predicates: vec!["http://mcpp.dev/gen#codeType".to_string()],
 //!     order: 1,
 //!     description: Some("Extract struct definitions to IR".to_string()),
 //! });
@@ -74,7 +74,7 @@
 
 use crate::graph::ConstructExecutor;
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};
@@ -213,7 +213,7 @@ impl ExtractionPass {
                 )));
             }
             let pred = format!(
-                "http://ggen.dev/v6/pack-query#{}",
+                "http://mcpp.dev/v6/pack-query#{}",
                 sq.name.replace(['/', '\\', ' '], "_")
             );
             let order_offset = i32::try_from(i)
@@ -520,8 +520,8 @@ impl ExtractionPass {
         pass.add_tensor_query(TensorQuery {
             name: "extract-code-types".to_string(),
             construct: r#"
-                PREFIX code: <http://ggen.dev/code#>
-                PREFIX gen: <http://ggen.dev/gen#>
+                PREFIX code: <http://mcpp.dev/code#>
+                PREFIX gen: <http://mcpp.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                 CONSTRUCT {
@@ -541,7 +541,7 @@ impl ExtractionPass {
                 }
             "#
             .to_string(),
-            target_predicates: vec!["http://ggen.dev/gen#codeType".to_string()],
+            target_predicates: vec!["http://mcpp.dev/gen#codeType".to_string()],
             order: 1,
             description: Some("Extract code type definitions to IR".to_string()),
         });
@@ -550,8 +550,8 @@ impl ExtractionPass {
         pass.add_tensor_query(TensorQuery {
             name: "extract-fields".to_string(),
             construct: r#"
-                PREFIX code: <http://ggen.dev/code#>
-                PREFIX gen: <http://ggen.dev/gen#>
+                PREFIX code: <http://mcpp.dev/code#>
+                PREFIX gen: <http://mcpp.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                 CONSTRUCT {
@@ -569,7 +569,7 @@ impl ExtractionPass {
                 }
             "#
             .to_string(),
-            target_predicates: vec!["http://ggen.dev/gen#fieldOf".to_string()],
+            target_predicates: vec!["http://mcpp.dev/gen#fieldOf".to_string()],
             order: 1,
             description: Some("Extract field definitions to IR".to_string()),
         });
@@ -578,8 +578,8 @@ impl ExtractionPass {
         pass.add_tensor_query(TensorQuery {
             name: "extract-methods".to_string(),
             construct: r#"
-                PREFIX code: <http://ggen.dev/code#>
-                PREFIX gen: <http://ggen.dev/gen#>
+                PREFIX code: <http://mcpp.dev/code#>
+                PREFIX gen: <http://mcpp.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                 CONSTRUCT {
@@ -597,7 +597,7 @@ impl ExtractionPass {
                 }
             "#
             .to_string(),
-            target_predicates: vec!["http://ggen.dev/gen#methodOf".to_string()],
+            target_predicates: vec!["http://mcpp.dev/gen#methodOf".to_string()],
             order: 1,
             description: Some("Extract method definitions to IR".to_string()),
         });
@@ -630,7 +630,7 @@ mod tests {
         graph
             .insert_turtle(
                 r#"
-            @prefix code: <http://ggen.dev/code#> .
+            @prefix code: <http://mcpp.dev/code#> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
             code:User a code:Struct ;
@@ -643,8 +643,8 @@ mod tests {
         pass.add_tensor_query(TensorQuery {
             name: "extract-structs".to_string(),
             construct: r#"
-                PREFIX code: <http://ggen.dev/code#>
-                PREFIX gen: <http://ggen.dev/gen#>
+                PREFIX code: <http://mcpp.dev/code#>
+                PREFIX gen: <http://mcpp.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                 CONSTRUCT {
@@ -657,7 +657,7 @@ mod tests {
                 }
             "#
             .to_string(),
-            target_predicates: vec!["http://ggen.dev/gen#codeType".to_string()],
+            target_predicates: vec!["http://mcpp.dev/gen#codeType".to_string()],
             order: 1,
             description: None,
         });
@@ -765,7 +765,7 @@ mod tests {
         graph
             .insert_turtle(
                 r#"
-            @prefix code: <http://ggen.dev/code#> .
+            @prefix code: <http://mcpp.dev/code#> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
             code:User a code:Struct ;
@@ -783,8 +783,8 @@ mod tests {
         pass.add_tensor_query(TensorQuery {
             name: "extract-structs".to_string(),
             construct: r#"
-                PREFIX code: <http://ggen.dev/code#>
-                PREFIX gen: <http://ggen.dev/gen#>
+                PREFIX code: <http://mcpp.dev/code#>
+                PREFIX gen: <http://mcpp.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                 CONSTRUCT {
@@ -795,7 +795,7 @@ mod tests {
                 }
             "#
             .to_string(),
-            target_predicates: vec!["http://ggen.dev/gen#codeType".to_string()],
+            target_predicates: vec!["http://mcpp.dev/gen#codeType".to_string()],
             order: 1,
             description: None,
         });
@@ -803,8 +803,8 @@ mod tests {
         pass.add_tensor_query(TensorQuery {
             name: "extract-names".to_string(),
             construct: r#"
-                PREFIX code: <http://ggen.dev/code#>
-                PREFIX gen: <http://ggen.dev/gen#>
+                PREFIX code: <http://mcpp.dev/code#>
+                PREFIX gen: <http://mcpp.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
                 CONSTRUCT {
@@ -816,7 +816,7 @@ mod tests {
                 }
             "#
             .to_string(),
-            target_predicates: vec!["http://ggen.dev/gen#name".to_string()],
+            target_predicates: vec!["http://mcpp.dev/gen#name".to_string()],
             order: 1,
             description: None,
         });

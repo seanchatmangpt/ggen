@@ -2,7 +2,7 @@
 //!
 //! Demonstrates how to use adapters for formatting prompts and parsing responses.
 
-use ggen_dspy::adapters::{ChatAdapter, Demonstration, JSONAdapter, LlmAdapter};
+use mcpp_dspy::adapters::{ChatAdapter, Demonstration, JSONAdapter, LlmAdapter};
 use serde_json::Value;
 use std::collections::HashMap;
 

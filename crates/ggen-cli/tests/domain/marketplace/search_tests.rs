@@ -3,8 +3,8 @@
 //! These tests use REAL search operations with actual index data
 //! following the Chicago school of TDD (integration-focused testing).
 
-use ggen_cli_lib::domain::marketplace::{SearchFilters, SearchResult, search_packages};
-use ggen_utils::error::Result;
+use mcpp_cli_lib::domain::marketplace::{SearchFilters, SearchResult, search_packages};
+use mcpp_utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -12,7 +12,7 @@ use tempfile::TempDir;
 
 /// Test helper to create a package index with test data
 fn create_test_index(dir: &Path, packages: Vec<TestPackage>) -> Result<PathBuf> {
-    let index_dir = dir.join(".ggen").join("index");
+    let index_dir = dir.join(".mcpp").join("index");
     fs::create_dir_all(&index_dir)?;
 
     let index_file = index_dir.join("packages.json");

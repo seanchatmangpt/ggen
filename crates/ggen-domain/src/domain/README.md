@@ -59,7 +59,7 @@ Core domain entities:
 
 ### Creating an Agent
 ```rust
-use ggen_domain::domain::{Agent, AgentType, AgentStatus};
+use mcpp_domain::domain::{Agent, AgentType, AgentStatus};
 
 let mut agent = Agent::new("agent-001", "Task Executor", AgentType::TaskExecutor);
 agent.add_capability("data-processing");
@@ -69,7 +69,7 @@ agent.update_health_score(95.5);
 
 ### Creating a Task
 ```rust
-use ggen_domain::domain::{Task, TaskPriority};
+use mcpp_domain::domain::{Task, TaskPriority};
 
 let mut task = Task::new("task-001", "Data Processing", "data-processing");
 task.set_executor("agent-001");
@@ -79,7 +79,7 @@ task.add_dependency("task-002");
 
 ### Creating a Message
 ```rust
-use ggen_domain::domain::{Message, MessageType};
+use mcpp_domain::domain::{Message, MessageType};
 
 let mut message = Message::new(
     "msg-001",
@@ -94,7 +94,7 @@ message.add_header("priority", "high");
 
 ### Creating an Event
 ```rust
-use ggen_domain::domain::{Event, EventType};
+use mcpp_domain::domain::{Event, EventType};
 
 let mut event = Event::new("evt-001", EventType::TaskStarted, "agent-001");
 event.set_data(serde_json::json!({
@@ -105,7 +105,7 @@ event.set_data(serde_json::json!({
 
 ### Creating an Error
 ```rust
-use ggen_domain::domain::{Error, ErrorSeverity};
+use mcpp_domain::domain::{Error, ErrorSeverity};
 
 let error = Error::new(
     "error-001",
@@ -170,7 +170,7 @@ The domain configuration is generated from RDF specifications using Tera templat
 2. Extract domain classes, properties, and relationships
 3. Generate Rust code using Tera templates
 4. Validate generated code syntax and types
-5. Write generated files to `crates/ggen-domain/src/domain/`
+5. Write generated files to `crates/mcpp-domain/src/domain/`
 
 ## Quality Metrics
 

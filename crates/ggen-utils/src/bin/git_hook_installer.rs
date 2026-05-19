@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .arg("build")
         .arg("--release")
         .arg("--package")
-        .arg("ggen-utils")
+        .arg("mcpp-utils")
         .arg("--bin")
         .arg("git_hook_pre_commit")
         .arg("--bin")
@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("✅ Git hooks installed successfully");
     println!("   Hooks are located in: {}", hooks_dir.display());
-    println!("   Run hooks manually: cargo run --bin git_hook_pre_commit --package ggen-utils");
+    println!("   Run hooks manually: cargo run --bin git_hook_pre_commit --package mcpp-utils");
 
     Ok(())
 }
@@ -94,7 +94,7 @@ fn install_hook_binary(
     // Verify source binary exists
     if !source_binary.exists() {
         return Err(format!(
-            "Hook binary not found: {}. Build with: cargo build --package ggen-utils --bin {}",
+            "Hook binary not found: {}. Build with: cargo build --package mcpp-utils --bin {}",
             source_binary.display(),
             binary_name
         )

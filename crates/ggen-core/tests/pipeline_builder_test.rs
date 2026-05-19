@@ -1,6 +1,6 @@
 //! End-to-end tests for PipelineBuilder, Pipeline, and Plan APIs.
 //!
-//! These tests exercise the most critical code paths in ggen-core:
+//! These tests exercise the most critical code paths in mcpp-core:
 //!   - PipelineBuilder construction from TTL strings
 //!   - Pipeline rendering of templates with RDF/SPARQL data
 //!   - Plan::apply() for file generation and injection
@@ -15,8 +15,8 @@
 //! `is_dangerous_command()` and `inject_content()` are tested indirectly
 //! through the full pipeline.
 
-use ggen_core::inject::{EolNormalizer, SkipIfGenerator};
-use ggen_core::pipeline::{Pipeline, PipelineBuilder};
+use mcpp_core::inject::{EolNormalizer, SkipIfGenerator};
+use mcpp_core::pipeline::{Pipeline, PipelineBuilder};
 use std::collections::BTreeMap;
 use tempfile::TempDir;
 

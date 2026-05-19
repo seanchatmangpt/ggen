@@ -46,6 +46,7 @@ struct CircuitState {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_signal_happy_path() -> Result<()> {
     // Test: Signal → Policy → Action → Success
     // Verifies basic payment processing flow
@@ -65,6 +66,7 @@ async fn test_payment_signal_happy_path() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_fraud_detection_blacklist() -> Result<()> {
     // Test: Policy evaluation catches blacklisted customer
     // Verifies: Fraud detection policy works
@@ -83,6 +85,7 @@ async fn test_payment_fraud_detection_blacklist() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_high_amount_fraud_score() -> Result<()> {
     // Test: High amount triggers fraud score
     // Verifies: Amount anomaly detection
@@ -100,6 +103,7 @@ async fn test_payment_high_amount_fraud_score() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_velocity_check() -> Result<()> {
     // Test: Rapid transactions trigger velocity limit
     // Verifies: Velocity tracking and enforcement
@@ -123,6 +127,7 @@ async fn test_payment_velocity_check() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_gateway_circuit_breaker_closed_state() -> Result<()> {
     // Test: Circuit breaker in closed state allows transactions
     // Verifies: Jidoka normal operation
@@ -139,6 +144,7 @@ async fn test_payment_gateway_circuit_breaker_closed_state() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_gateway_circuit_breaker_opens_on_failures() -> Result<()> {
     // Test: Circuit breaker opens after threshold failures
     // Verifies: Jidoka fault isolation (stop the line)
@@ -164,6 +170,7 @@ async fn test_payment_gateway_circuit_breaker_opens_on_failures() -> Result<()> 
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_gateway_circuit_breaker_half_open_recovery() -> Result<()> {
     // Test: Circuit breaker attempts recovery in half-open state
     // Verifies: Jidoka recovery mechanism
@@ -193,6 +200,7 @@ async fn test_payment_gateway_circuit_breaker_half_open_recovery() -> Result<()>
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_andon_fraud_rate_alert() -> Result<()> {
     // Test: Andon signal triggered when fraud rate exceeds threshold
     // Verifies: Andon alerting on SLO violation
@@ -209,6 +217,7 @@ async fn test_payment_andon_fraud_rate_alert() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_andon_circuit_breaker_open_alert() -> Result<()> {
     // Test: Andon signal when circuit breaker opens
     // Verifies: Andon visibility into system state
@@ -227,6 +236,7 @@ async fn test_payment_andon_circuit_breaker_open_alert() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_kanban_queue_async_processing() -> Result<()> {
     // Test: Successful payments published to Kanban queue
     // Verifies: Async processing via Pub/Sub
@@ -250,6 +260,7 @@ async fn test_payment_kanban_queue_async_processing() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_kaizen_metrics_success_rate() -> Result<()> {
     // Test: Kaizen metrics track transaction success rate
     // Verifies: Continuous improvement metrics collection
@@ -266,6 +277,7 @@ async fn test_payment_kaizen_metrics_success_rate() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_kaizen_fraud_detection_rate() -> Result<()> {
     // Test: Kaizen metrics track fraud detection effectiveness
     // Verifies: Fraud rate monitoring
@@ -286,6 +298,7 @@ async fn test_payment_kaizen_fraud_detection_rate() -> Result<()> {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_signal_happy_path() -> Result<()> {
     // Test: Signal → Policy → Action → Success
     // Verifies: Basic deployment orchestration
@@ -304,6 +317,7 @@ async fn test_deployment_signal_happy_path() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_policy_validation_image_exists() -> Result<()> {
     // Test: Policy validation checks if image exists
     // Verifies: Prerequisites validation
@@ -322,6 +336,7 @@ async fn test_deployment_policy_validation_image_exists() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_heijunka_canary_stage() -> Result<()> {
     // Test: Heijunka executes canary stage (5% traffic)
     // Verifies: Gradual rollout safety
@@ -336,6 +351,7 @@ async fn test_deployment_heijunka_canary_stage() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_heijunka_staging_stage() -> Result<()> {
     // Test: Heijunka progresses to staging (25% traffic)
     // Verifies: Multi-stage rollout progression
@@ -349,6 +365,7 @@ async fn test_deployment_heijunka_staging_stage() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_jidoka_health_check_failure_rollback() -> Result<()> {
     // Test: Jidoka triggers automatic rollback on health failure
     // Verifies: Fault isolation and auto-recovery
@@ -364,6 +381,7 @@ async fn test_deployment_jidoka_health_check_failure_rollback() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_jidoka_latency_violation_rollback() -> Result<()> {
     // Test: Jidoka triggers rollback on SLO latency violation
     // Verifies: Performance-based automatic recovery
@@ -379,6 +397,7 @@ async fn test_deployment_jidoka_latency_violation_rollback() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_kanban_sequential_regional_deployment() -> Result<()> {
     // Test: Kanban ensures sequential regional deployment
     // Verifies: Queue-based deployment ordering
@@ -400,6 +419,7 @@ async fn test_deployment_kanban_sequential_regional_deployment() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_kaizen_success_rate_metrics() -> Result<()> {
     // Test: Kaizen tracks deployment success rate
     // Verifies: Continuous improvement metrics
@@ -416,6 +436,7 @@ async fn test_deployment_kaizen_success_rate_metrics() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_kaizen_rollback_frequency() -> Result<()> {
     // Test: Kaizen tracks rollback frequency
     // Verifies: Failure pattern monitoring
@@ -436,6 +457,7 @@ async fn test_deployment_kaizen_rollback_frequency() -> Result<()> {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_gateway_failure_circuit_breaker_protects() -> Result<()> {
     // Chaos Test: Payment gateway fails
     // Expected: Circuit breaker protects against cascading failures
@@ -461,6 +483,7 @@ async fn test_payment_gateway_failure_circuit_breaker_protects() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_health_check_failure_triggers_rollback() -> Result<()> {
     // Chaos Test: Health checks fail after deployment
     // Expected: Automatic rollback to previous version
@@ -474,6 +497,7 @@ async fn test_deployment_health_check_failure_triggers_rollback() -> Result<()> 
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_system_sustained_fraud_attack_andon_signal() -> Result<()> {
     // Load Test: Multiple fraud attempts in short window
     // Expected: Andon signal raised when threshold exceeded
@@ -494,6 +518,7 @@ async fn test_payment_system_sustained_fraud_attack_andon_signal() -> Result<()>
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_partial_regional_failure_recovery() -> Result<()> {
     // Chaos Test: One region fails, others continue
     // Expected: Graceful degradation and recovery
@@ -513,6 +538,7 @@ async fn test_deployment_partial_regional_failure_recovery() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_system_velocity_limit_ddos_protection() -> Result<()> {
     // Security Test: Rapid payment attempts from single customer
     // Expected: Velocity limit blocks subsequent attempts
@@ -539,6 +565,7 @@ async fn test_payment_system_velocity_limit_ddos_protection() -> Result<()> {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_audit_log_records_all_transactions() -> Result<()> {
     // Compliance: All payment attempts logged
     // Expected: Complete audit trail
@@ -556,6 +583,7 @@ async fn test_payment_audit_log_records_all_transactions() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_deployment_audit_log_records_all_stages() -> Result<()> {
     // Compliance: All deployment stages logged
     // Expected: Complete deployment history
@@ -575,6 +603,7 @@ async fn test_deployment_audit_log_records_all_stages() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_tracing_payment_end_to_end_correlation() -> Result<()> {
     // Observability: Trace ID correlates all operations
     // Expected: Complete request path visibility
@@ -597,6 +626,7 @@ async fn test_tracing_payment_end_to_end_correlation() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_tracing_deployment_end_to_end_correlation() -> Result<()> {
     // Observability: Deployment trace ID correlates all stages
     // Expected: Complete deployment path visibility

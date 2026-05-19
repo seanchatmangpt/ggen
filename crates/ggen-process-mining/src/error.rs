@@ -1,4 +1,4 @@
-//! Error types for ggen-process-mining.
+//! Error types for mcpp-process-mining.
 //!
 //! This module defines comprehensive error types for all process mining operations,
 //! following the Result<T, E> pattern with no unwrap/expect in production code.
@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 use thiserror::Error;
 
-/// Result type alias for ggen-process-mining operations.
+/// Result type alias for mcpp-process-mining operations.
 ///
 /// All fallible operations return `Result<T, Error>` to ensure proper error
 /// handling without unwrap/expect.
@@ -138,7 +138,7 @@ impl Error {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::Error;
+    /// use mcpp_process_mining::Error;
     ///
     /// let err = Error::xes_parse(42, "unexpected token");
     /// ```

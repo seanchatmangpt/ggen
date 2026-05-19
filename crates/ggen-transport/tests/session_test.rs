@@ -1,4 +1,4 @@
-use ggen_transport::session::{ResumeCursor, Session, SessionId, SessionManager};
+use mcpp_transport::session::{ResumeCursor, Session, SessionId, SessionManager};
 use std::collections::HashMap;
 
 #[tokio::test]

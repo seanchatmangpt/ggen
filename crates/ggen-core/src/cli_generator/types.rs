@@ -1,8 +1,8 @@
 //! Type definitions for CLI generation
 //!
-//! These types mirror ggen_ai::rdf::types but are defined here
+//! These types mirror mcpp_ai::rdf::types but are defined here
 //! to avoid circular dependencies. When integrated, they should
-//! match the types in ggen-ai::rdf::types.
+//! match the types in mcpp-ai::rdf::types.
 //!
 //! ## Features
 //!
@@ -16,9 +16,9 @@
 //! ### Creating a CLI Project
 //!
 //! ```rust,no_run
-//! use ggen_core::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType};
+//! use mcpp_core::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let project = CliProject {
 //!     name: "my-cli".to_string(),
 //!     version: "1.0.0".to_string(),
@@ -72,9 +72,9 @@
 //! ### Working with Nouns and Verbs
 //!
 //! ```rust,no_run
-//! use ggen_core::cli_generator::types::{Noun, Verb};
+//! use mcpp_core::cli_generator::types::{Noun, Verb};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let noun = Noun {
 //!     name: "project".to_string(),
 //!     description: "Project management".to_string(),

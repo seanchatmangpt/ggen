@@ -5,7 +5,7 @@
 //! 2. Call the validate_pipeline tool via CallToolRequest
 //! 3. Print the 6 quality gate results
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{
     model::{CallToolRequest, CallToolResult, ClientCapabilities},
     protocol::JsonRpcClient,
@@ -20,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "info,mcp_pipeline_example=debug,ggen_a2a_mcp=debug".into()),
+                .unwrap_or_else(|_| "info,mcp_pipeline_example=debug,mcpp_a2a_mcp=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();

@@ -3,7 +3,7 @@
 //! Provides SPARQL 1.1 Update operations: INSERT, DELETE, UPDATE, LOAD, CLEAR, etc.
 
 use crate::graph::core::Graph;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use oxigraph::sparql::SparqlEvaluator;
 
 /// GraphUpdate provides SPARQL Update operations.
@@ -15,9 +15,9 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ## Insert data
 ///
 /// ```rust,no_run
-/// use ggen_core::graph::{Graph, GraphUpdate};
+/// use mcpp_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
@@ -30,9 +30,9 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ## Delete data
 ///
 /// ```rust,no_run
-/// use ggen_core::graph::{Graph, GraphUpdate};
+/// use mcpp_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
@@ -45,9 +45,9 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ## Update with WHERE clause
 ///
 /// ```rust,no_run
-/// use ggen_core::graph::{Graph, GraphUpdate};
+/// use mcpp_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
@@ -115,7 +115,7 @@ impl<'a> GraphUpdate<'a> {
     /// # Security
     ///
     /// This method constructs SPARQL UPDATE queries. For user-provided data,
-    /// prefer using type-safe builders from `ggen_core::rdf::query_builder`.
+    /// prefer using type-safe builders from `mcpp_core::rdf::query_builder`.
     pub fn insert(&self, data: &str) -> Result<()> {
         // Note: This is a convenience method for trusted internal use.
         // For user-provided data, the query builder should be used instead.
@@ -134,7 +134,7 @@ impl<'a> GraphUpdate<'a> {
     /// # Security
     ///
     /// This method constructs SPARQL UPDATE queries. For user-provided data,
-    /// prefer using type-safe builders from `ggen_core::rdf::query_builder`.
+    /// prefer using type-safe builders from `mcpp_core::rdf::query_builder`.
     pub fn delete(&self, data: &str) -> Result<()> {
         // Note: This is a convenience method for trusted internal use.
         // For user-provided data, the query builder should be used instead.
@@ -153,7 +153,7 @@ impl<'a> GraphUpdate<'a> {
     /// # Security
     ///
     /// This method constructs SPARQL UPDATE queries. For user-provided data,
-    /// prefer using type-safe builders from `ggen_core::rdf::query_builder`.
+    /// prefer using type-safe builders from `mcpp_core::rdf::query_builder`.
     pub fn delete_where(&self, pattern: &str) -> Result<()> {
         // Note: This is a convenience method for trusted internal use.
         // For user-provided data, the query builder should be used instead.

@@ -5,7 +5,7 @@
 //!
 //! Run with: cargo run --example dspy_bootstrap_fewshot
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     field::{InputField, OutputField},
     module::Module,
     optimizer::{BootstrapFewShot, Example},

@@ -7,7 +7,7 @@ The `fix_cycles` MCP tool has been successfully implemented to detect and fix ci
 ## What Was Delivered
 
 ### 1. Core Implementation
-**File**: `crates/ggen-core/src/graph/cycle_fixer.rs` (700+ lines)
+**File**: `crates/mcpp-core/src/graph/cycle_fixer.rs` (700+ lines)
 
 A complete cycle detection and fixing engine with:
 - `CycleFixer` struct for orchestrating fixes
@@ -18,18 +18,18 @@ A complete cycle detection and fixing engine with:
 
 ### 2. Integration Points
 
-#### ggen-core Module
-**File**: `crates/ggen-core/src/graph/mod.rs`
+#### mcpp-core Module
+**File**: `crates/mcpp-core/src/graph/mod.rs`
 - Added `pub mod cycle_fixer;`
 - Exported `CycleFixer`, `FixReport`, `FixStrategy`
 
 #### Dependencies
-**File**: `crates/ggen-core/Cargo.toml`
+**File**: `crates/mcpp-core/Cargo.toml`
 - Added `chrono = { workspace = true }` for backups
 - Added `tempfile = "3.14"` for testing
 
 #### MCP Server
-**File**: `crates/ggen-a2a-mcp/src/ggen_server.rs`
+**File**: `crates/mcpp-a2a-mcp/src/mcpp_server.rs`
 - Added `FixCyclesParams` struct
 - Added `fix_cycles` async tool method
 - Integrated with rmcp 1.3.0 framework
@@ -86,7 +86,7 @@ A complete cycle detection and fixing engine with:
   "cycles_found": 1,
   "fixes_applied": 1,
   "files_modified": ["C.ttl"],
-  "backup_path": "/path/to/.ggen/backups/cycle_fix_backup_20260330_141452",
+  "backup_path": "/path/to/.mcpp/backups/cycle_fix_backup_20260330_141452",
   "cycles": [
     {
       "files": ["A.ttl", "B.ttl", "C.ttl"],
@@ -113,10 +113,10 @@ All 5 tests passing:
 
 ## Files Modified
 
-1. ✅ `crates/ggen-core/src/graph/cycle_fixer.rs` (NEW)
-2. ✅ `crates/ggen-core/src/graph/mod.rs` (MODIFIED)
-3. ✅ `crates/ggen-core/Cargo.toml` (MODIFIED)
-4. ✅ `crates/ggen-a2a-mcp/src/ggen_server.rs` (MODIFIED - params added, tool code ready to insert)
+1. ✅ `crates/mcpp-core/src/graph/cycle_fixer.rs` (NEW)
+2. ✅ `crates/mcpp-core/src/graph/mod.rs` (MODIFIED)
+3. ✅ `crates/mcpp-core/Cargo.toml` (MODIFIED)
+4. ✅ `crates/mcpp-a2a-mcp/src/mcpp_server.rs` (MODIFIED - params added, tool code ready to insert)
 
 ## Requirements Met
 
@@ -131,7 +131,7 @@ All Gap #4, P1 requirements satisfied:
 
 ## Next Steps
 
-1. **Manual Integration**: Insert the fix_cycles tool code into ggen_server.rs (code provided in `/tmp/fix_cycles_tool.txt`)
+1. **Manual Integration**: Insert the fix_cycles tool code into mcpp_server.rs (code provided in `/tmp/fix_cycles_tool.txt`)
 2. **Fix Unrelated Issues**: Resolve cache.rs git2 compilation errors
 3. **Full Test**: Run `cargo make test` to verify workspace
 4. **Integration Test**: Test with running MCP server

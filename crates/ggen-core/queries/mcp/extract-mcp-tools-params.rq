@@ -3,12 +3,12 @@
 # Returns one row per tool with all parameters aggregated as pipe-delimited strings.
 # Template parses the aggregated strings to reconstruct param arrays.
 #
-# ggen pipeline: renders template ONCE PER ROW. Each row = one tool with all its params.
+# mcpp pipeline: renders template ONCE PER ROW. Each row = one tool with all its params.
 # sparql_results contains ALL rows (all tools) for the server struct generation.
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> tool_handler.rs.tera
 
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT

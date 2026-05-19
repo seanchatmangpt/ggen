@@ -1,7 +1,7 @@
 //! Integration tests for search functionality
 
 use chicago_tdd_tools::prelude::*;
-use ggen_core::registry::{PackMetadata, RegistryClient, SearchParams, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryClient, SearchParams, VersionMetadata};
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
@@ -70,7 +70,7 @@ async_test_with_timeout!(test_basic_search_integration, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -139,7 +139,7 @@ async_test_with_timeout!(test_advanced_search_with_filters, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -250,7 +250,7 @@ async_test_with_timeout!(test_search_relevance_ranking, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -275,7 +275,7 @@ async_test_with_timeout!(test_empty_search_results, 30, async {
     let temp_dir = TempDir::new().unwrap();
     let index_path = temp_dir.path().join("index.json");
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs: HashMap::new(),
     };

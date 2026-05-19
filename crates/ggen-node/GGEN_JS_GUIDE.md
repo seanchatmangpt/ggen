@@ -1,8 +1,8 @@
-# ggen-js: Node.js + Browser Integration Guide
+# mcpp-js: Node.js + Browser Integration Guide
 
 ## Overview
 
-`@ggen/node` (ggen-js) provides production-grade Node.js and browser bindings to the ggen CLI using:
+`@mcpp/node` (mcpp-js) provides production-grade Node.js and browser bindings to the mcpp CLI using:
 - **N-API bindings** for Node.js with async/await support
 - **ES modules (.mjs)** for native browser compatibility
 - **JSDoc typing** for type safety without TypeScript
@@ -12,11 +12,11 @@
 ## Installation
 
 ```bash
-npm install @ggen/node
+npm install @mcpp/node
 # or
-yarn add @ggen/node
+yarn add @mcpp/node
 # or
-pnpm add @ggen/node
+pnpm add @mcpp/node
 ```
 
 ### Requirements
@@ -29,13 +29,13 @@ pnpm add @ggen/node
 
 ```javascript
 // ESM import
-import { version, run, help } from '@ggen/node';
+import { version, run, help } from '@mcpp/node';
 
 // or CommonJS require
-const { version, run, help } = require('@ggen/node');
+const { version, run, help } = require('@mcpp/node');
 
 // Use the library
-console.log('ggen version:', version());
+console.log('mcpp version:', version());
 const result = await run(['--help']);
 console.log(result.stdout);
 ```
@@ -48,9 +48,9 @@ console.log(result.stdout);
 <head>
     <script type="module">
         // Direct ES module import in browser
-        import { version, marketSearch } from '@ggen/node';
+        import { version, marketSearch } from '@mcpp/node';
 
-        console.log('ggen version:', version());
+        console.log('mcpp version:', version());
 
         // Use in your application
         marketSearch('rust-templates').then(result => {
@@ -59,7 +59,7 @@ console.log(result.stdout);
     </script>
 </head>
 <body>
-    <h1>ggen-js Browser Demo</h1>
+    <h1>mcpp-js Browser Demo</h1>
 </body>
 </html>
 ```
@@ -69,7 +69,7 @@ console.log(result.stdout);
 ### Core Functions
 
 #### `version(): string`
-Get the ggen version matching the CLI.
+Get the mcpp version matching the CLI.
 
 ```javascript
 const v = version();
@@ -188,7 +188,7 @@ const result = await projectWatch('./my-project');
 ```
 
 #### `projectInit(projectPath?: string): Promise<RunResult>`
-Initialize ggen configuration in project.
+Initialize mcpp configuration in project.
 
 ```javascript
 const result = await projectInit('./my-project');
@@ -390,7 +390,7 @@ npm run test:ui
 While using JSDoc for typing, full TypeScript support is available via types in `index.d.ts`:
 
 ```typescript
-import type { RunResult } from '@ggen/node';
+import type { RunResult } from '@mcpp/node';
 
 const result: RunResult = await run(['--help']);
 ```
@@ -408,10 +408,10 @@ If upgrading from a TypeScript version:
 
 ```javascript
 // Before (TypeScript)
-import { version, run } from '@ggen/node';
+import { version, run } from '@mcpp/node';
 
 // After (JSDoc - identical usage)
-import { version, run } from '@ggen/node';
+import { version, run } from '@mcpp/node';
 
 // Types are inferred from JSDoc
 const v: string = version(); // ✓ Type safe
@@ -422,7 +422,7 @@ const result = await run([]); // ✓ Type safe
 
 ### Complete CLI Application
 ```javascript
-import { help, run } from '@ggen/node';
+import { help, run } from '@mcpp/node';
 
 async function main() {
     const args = process.argv.slice(2);
@@ -444,7 +444,7 @@ main();
 
 ### Web UI for Code Generation
 ```javascript
-import { aiGenerate, projectNew, templateGenerate } from '@ggen/node';
+import { aiGenerate, projectNew, templateGenerate } from '@mcpp/node';
 
 async function generateCode(description, language) {
     try {
@@ -476,11 +476,11 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     optimizeDeps: {
-        include: ['@ggen/node']
+        include: ['@mcpp/node']
     },
     build: {
         rollupOptions: {
-            external: process.env.BROWSER ? [] : ['@ggen/node']
+            external: process.env.BROWSER ? [] : ['@mcpp/node']
         }
     }
 });
@@ -488,14 +488,14 @@ export default defineConfig({
 
 ## Troubleshooting
 
-### "Cannot find module '@ggen/node'"
-- Install: `npm install @ggen/node`
+### "Cannot find module '@mcpp/node'"
+- Install: `npm install @mcpp/node`
 - Check node_modules is in .gitignore if using git
 
-### "ggen: command not found" errors
-- Errors come from the underlying ggen CLI
-- Ensure ggen is installed: `brew install ggen` or `cargo install ggen`
-- Check PATH: `which ggen`
+### "mcpp: command not found" errors
+- Errors come from the underlying mcpp CLI
+- Ensure mcpp is installed: `brew install mcpp` or `cargo install mcpp`
+- Check PATH: `which mcpp`
 
 ### Browser import errors
 - Use a bundler (Vite, webpack 5+, esbuild) for ES modules
@@ -509,9 +509,9 @@ export default defineConfig({
 
 ## License
 
-MIT - Same as ggen CLI
+MIT - Same as mcpp CLI
 
 ## See Also
-- [ggen CLI Documentation](https://github.com/seanchatmangpt/ggen)
-- [ggen on crates.io](https://crates.io/crates/ggen)
-- [ggen on npm](https://www.npmjs.com/package/@ggen/node)
+- [mcpp CLI Documentation](https://github.com/seanchatmangpt/mcpp)
+- [mcpp on crates.io](https://crates.io/crates/mcpp)
+- [mcpp on npm](https://www.npmjs.com/package/@mcpp/node)

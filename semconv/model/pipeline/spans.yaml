@@ -1,8 +1,8 @@
 groups:
-  - id: span.ggen.pipeline.operation
+  - id: span.mcpp.pipeline.operation
     type: span
     stability: development
-    brief: ggen code generation pipeline operation.
+    brief: mcpp code generation pipeline operation.
     span_kind: internal
     attributes:
       - ref: pipeline.operation

@@ -10,8 +10,8 @@
 //! - Multiple conditions work correctly
 //! - Condition evaluation integrates with pipeline
 
-use ggen_core::codegen::pipeline::GenerationPipeline;
-use ggen_core::manifest::{
+use mcpp_core::codegen::pipeline::GenerationPipeline;
+use mcpp_core::manifest::{
     GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
     OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
 };
@@ -40,7 +40,7 @@ fn test_rule_executed_when_ask_true() {
         when: None,
     };
 
-    // Note: In ggen v5, conditions are part of the rule definition
+    // Note: In mcpp v5, conditions are part of the rule definition
     // This test validates the rule structure can be created
     assert_eq!(rule.name, "conditional_rule", "Rule name should match");
     assert_eq!(rule.mode, GenerationMode::Create, "Mode should be Create");
@@ -67,7 +67,7 @@ fn test_rule_skipped_when_ask_false() {
         when: None,
     };
 
-    // Note: In ggen v5, skip_empty controls whether generation runs on empty queries
+    // Note: In mcpp v5, skip_empty controls whether generation runs on empty queries
     // This test validates the skip_empty flag
     assert!(
         !rule.skip_empty,

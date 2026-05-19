@@ -8,7 +8,7 @@ use std::path::PathBuf;
 /// Get the path to the workspace root from CARGO_MANIFEST_DIR
 fn workspace_root() -> PathBuf {
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    // ggen-core is at crates/ggen-core/, so workspace root is ../../
+    // mcpp-core is at crates/mcpp-core/, so workspace root is ../../
     PathBuf::from(manifest_dir)
         .parent()
         .unwrap()
@@ -82,7 +82,7 @@ fn test_behavior_example_ttl_syntax() {
     // Verify we can query for specific predicates
     let query_str = "
         PREFIX a2a: <https://a2a.dev/ontology#>
-        PREFIX mcp: <https://ggen.io/ontology/mcp#>
+        PREFIX mcp: <https://mcpp.io/ontology/mcp#>
         SELECT ?skill WHERE {
             ?skill a2a:hasSystemPrompt ?prompt .
         }
@@ -202,7 +202,7 @@ fn test_mcp_auto_implementation_predicate_exists() {
 
     // Check that hasAutoImplementation predicate is defined
     let query_str = "
-        PREFIX mcp: <https://ggen.io/ontology/mcp#>
+        PREFIX mcp: <https://mcpp.io/ontology/mcp#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         ASK {
             mcp:hasAutoImplementation a rdf:Property .

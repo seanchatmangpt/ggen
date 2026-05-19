@@ -11,7 +11,7 @@
 //! # Example
 //!
 //! ```ignore
-//! use ggen_ai::dspy::evaluation::{Evaluate, metrics};
+//! use mcpp_ai::dspy::evaluation::{Evaluate, metrics};
 //!
 //! let evaluator = Evaluate::new(devset)
 //!     .with_metric(metrics::exact_match("answer"))

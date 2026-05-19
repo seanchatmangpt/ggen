@@ -12,10 +12,10 @@ use crate::adapter::{AgentToToolAdapter, ToolCall};
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::{A2aMessageConverter, LlmRequest, LlmResponse};
 use crate::otel_attrs;
-use a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
 use futures::StreamExt;
-use ggen_ai::client::{GenAiClient, LlmClient as _, LlmConfig};
-use ggen_ai::dspy::model_capabilities::Model;
+use mcpp_ai::client::{GenAiClient, LlmClient as _, LlmConfig};
+use mcpp_ai::dspy::model_capabilities::Model;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
@@ -129,7 +129,7 @@ pub struct StreamingChunk {
     pub usage: Option<crate::message::TokenUsage>,
 }
 
-/// Client that bridges A2A messages with ggen-ai LLM providers
+/// Client that bridges A2A messages with mcpp-ai LLM providers
 pub struct A2aLlmClient {
     /// LLM client for direct API calls (Clone + Send + Sync, no Mutex needed)
     llm_client: GenAiClient,
@@ -388,7 +388,7 @@ impl A2aLlmClient {
         target = ?message.target,
         correlation_id = ?message.envelope.correlation_id,
         causation_chain = ?message.envelope.causation_chain,
-        service.name = "ggen-a2a-mcp",
+        service.name = "mcpp-a2a-mcp",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     pub async fn process_message(
@@ -482,7 +482,7 @@ impl A2aLlmClient {
     /// Call an LLM tool with A2A agent integration
     pub async fn call_tool(&self, call: ToolCall) -> A2aMcpResult<ToolExecutionResult> {
         let span = tracing::info_span!(
-            "ggen.a2a.message",
+            "mcpp.a2a.message",
             "operation.name" = "a2a.call_tool",
             tool_method = %call.method,
         );
@@ -500,7 +500,7 @@ impl A2aLlmClient {
         // Verify the agent has the requested capability
         if !self.agent_has_capability(&agent, &tool_name).await {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "invalid_tool_method",
                 error.message = format!("Agent {} does not have capability {}", agent_id, tool_name),
             );
@@ -577,11 +577,11 @@ impl A2aLlmClient {
         &self, prompt: &str,
     ) -> A2aMcpResult<impl futures::Stream<Item = StreamingChunk>> {
         let span =
-            tracing::info_span!("ggen.a2a.message", "operation.name" = "a2a.stream_response");
+            tracing::info_span!("mcpp.a2a.message", "operation.name" = "a2a.stream_response");
         let _guard = span.enter();
         if !self.config.enable_streaming {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "translation",
                 error.message = "Streaming is not enabled",
             );
@@ -598,7 +598,7 @@ impl A2aLlmClient {
             .await
             .map_err(|e| {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "llm",
                     error.message = format!("Stream request failed: {}", e),
                 );
@@ -678,7 +678,7 @@ impl A2aLlmClient {
     /// Make the actual LLM call
     async fn call_llm(&self, request: &LlmRequest) -> A2aMcpResult<LlmResponse> {
         let span = tracing::info_span!(
-            "ggen.llm.generation",
+            "mcpp.llm.generation",
             "operation.name" = "a2a.call_llm",
             message_id = %request.message_id,
         );
@@ -702,9 +702,9 @@ impl A2aLlmClient {
         tracing::Span::current().record(otel_attrs::LLM_MODEL, model.as_str());
 
         // Make the API call using the GenAiClient
-        let ggen_response = self.llm_client.complete(&full_prompt).await.map_err(|e| {
+        let mcpp_response = self.llm_client.complete(&full_prompt).await.map_err(|e| {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "llm",
                 error.message = format!("LLM request failed: {}", e),
             );
@@ -712,28 +712,28 @@ impl A2aLlmClient {
             A2aMcpError::Llm(format!("LLM request failed: {}", e))
         })?;
 
-        let output_len = ggen_response.content.len();
-        let usage = &ggen_response.usage;
+        let output_len = mcpp_response.content.len();
+        let usage = &mcpp_response.usage;
 
         info!(
-            model = %ggen_response.model,
+            model = %mcpp_response.model,
             prompt_len,
             output_len,
             prompt_tokens = usage.as_ref().map(|u| u.prompt_tokens).unwrap_or(0),
             completion_tokens = usage.as_ref().map(|u| u.completion_tokens).unwrap_or(0),
             "A2A call_llm response"
         );
-        tracing::Span::current().record(otel_attrs::LLM_MODEL, ggen_response.model.as_str());
-        if let Some(usage) = &ggen_response.usage {
+        tracing::Span::current().record(otel_attrs::LLM_MODEL, mcpp_response.model.as_str());
+        if let Some(usage) = &mcpp_response.usage {
             tracing::Span::current().record(otel_attrs::LLM_PROMPT_TOKENS, usage.prompt_tokens);
             tracing::Span::current()
                 .record(otel_attrs::LLM_COMPLETION_TOKENS, usage.completion_tokens);
         }
 
         Ok(LlmResponse {
-            content: ggen_response.content,
-            model: ggen_response.model,
-            usage: ggen_response.usage.map(|u| crate::message::TokenUsage {
+            content: mcpp_response.content,
+            model: mcpp_response.model,
+            usage: mcpp_response.usage.map(|u| crate::message::TokenUsage {
                 prompt_tokens: u.prompt_tokens,
                 completion_tokens: u.completion_tokens,
                 total_tokens: u.total_tokens,
@@ -785,7 +785,7 @@ impl A2aLlmClient {
 
         Err(last_error.unwrap_or_else(|| {
             let _err_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 "error.type" = "llm_retry_exhausted",
                 total_attempts = total_attempts,
             )
@@ -839,7 +839,7 @@ impl A2aLlmClient {
     /// Get available tools as A2A capabilities
     pub async fn get_tools(&self) -> Vec<crate::adapter::Tool> {
         let adapter = self.adapter.lock().await;
-        let mut tools = adapter.generate_tools("ggen-llm", &["chat", "complete", "analyze"]);
+        let mut tools = adapter.generate_tools("mcpp-llm", &["chat", "complete", "analyze"]);
 
         // Add tools from registered agents
         let agents = self.agents.read().await;
@@ -1005,8 +1005,8 @@ mod tests {
         let model = Model::from_name("gpt-4");
         let client = A2aLlmClient::new(model).await.unwrap();
 
-        use a2a_generated::converged::agent::{AgentConfiguration, CommunicationQoS, StrategyType};
-        use a2a_generated::converged::{
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::agent::{AgentConfiguration, CommunicationQoS, StrategyType};
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::{
             AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle, ExecutionStrategy,
         };
 
@@ -1029,10 +1029,10 @@ mod tests {
                 constraints: None,
             },
             lifecycle: AgentLifecycle {
-                state: a2a_generated::converged::AgentState::Ready,
+                state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentState::Ready,
                 state_history: vec![],
-                health: a2a_generated::converged::AgentHealth {
-                    status: a2a_generated::converged::HealthStatus::Healthy,
+                health: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentHealth {
+                    status: ggen_core::ggen_core::ggen_core::a2a_generated::converged::HealthStatus::Healthy,
                     last_check: chrono::Utc::now(),
                     check_interval: std::time::Duration::from_secs(60),
                     metrics: None,
@@ -1056,15 +1056,15 @@ mod tests {
                 handlers: None,
                 security: None,
                 qos: CommunicationQoS {
-                    reliability: a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
+                    reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
                     latency: None,
                     throughput: None,
                     ordering: None,
                     flow_control: None,
                 },
             },
-            execution: a2a_generated::converged::AgentExecution {
-                mode: a2a_generated::converged::ExecutionMode::Synchronous,
+            execution: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentExecution {
+                mode: ggen_core::ggen_core::ggen_core::a2a_generated::converged::ExecutionMode::Synchronous,
                 parameters: std::collections::HashMap::new(),
                 context: None,
                 strategy: Some(ExecutionStrategy {
@@ -1076,31 +1076,31 @@ mod tests {
                 monitoring: None,
                 policies: None,
             },
-            security: a2a_generated::converged::AgentSecurity {
-                authentication: a2a_generated::converged::AuthenticationConfig {
+            security: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentSecurity {
+                authentication: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuthenticationConfig {
                     methods: vec![],
                     providers: None,
                     metadata: None,
                 },
-                authorization: a2a_generated::converged::AuthorizationConfig {
-                    model: a2a_generated::converged::AuthorizationModel::Rbac,
+                authorization: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuthorizationConfig {
+                    model: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuthorizationModel::Rbac,
                     roles: None,
                     policies: vec![],
                     metadata: None,
                 },
-                encryption: a2a_generated::converged::EncryptionConfig {
-                    algorithms: vec![a2a_generated::converged::EncryptionAlgorithm::Aes],
+                encryption: ggen_core::ggen_core::ggen_core::a2a_generated::converged::EncryptionConfig {
+                    algorithms: vec![ggen_core::ggen_core::ggen_core::a2a_generated::converged::EncryptionAlgorithm::Aes],
                     modes: vec![],
                     keys: vec![],
                     metadata: None,
                 },
                 compliance: None,
-                audit: a2a_generated::converged::AuditConfig {
-                    events: vec![a2a_generated::converged::AuditEvent::Authentication],
+                audit: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuditConfig {
+                    events: vec![ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuditEvent::Authentication],
                     destinations: Vec::new(),
-                    retention: a2a_generated::converged::agent::AuditRetention {
+                    retention: ggen_core::ggen_core::ggen_core::a2a_generated::converged::agent::AuditRetention {
                         period: std::time::Duration::from_secs(365 * 24 * 60 * 60),
-                        policy: a2a_generated::converged::RetentionPolicy::TimeBased,
+                        policy: ggen_core::ggen_core::ggen_core::a2a_generated::converged::RetentionPolicy::TimeBased,
                         metadata: None,
                     },
                     metadata: None,

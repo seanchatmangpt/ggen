@@ -2,7 +2,7 @@
 // Comprehensive benchmarks for search, maturity, export, comparison, and recommendation
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use ggen_marketplace::*;
+use ggen_core::marketplace::*;
 use serde_json::json;
 use std::time::Duration;
 use std::collections::HashMap;

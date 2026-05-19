@@ -7,7 +7,7 @@
 //! Only runs if GROQ_API_KEY is set.
 
 use futures::StreamExt;
-use ggen_ai::{client::GenAiClient, config::LlmConfig, LlmClient};
+use mcpp_ai::{client::GenAiClient, config::LlmConfig, LlmClient};
 use std::sync::OnceLock;
 
 /// Initialize tracing subscriber (once per process)
@@ -15,7 +15,7 @@ fn init_tracing() {
     static TRACING: OnceLock<()> = OnceLock::new();
     TRACING.get_or_init(|| {
         tracing_subscriber::fmt()
-            .with_env_filter("info,ggen_ai=trace")
+            .with_env_filter("info,mcpp_ai=trace")
             .with_test_writer()
             .init();
     });

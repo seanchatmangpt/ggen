@@ -1,6 +1,6 @@
 # Atomic Packs Reference
 
-**Version:** 6.0.1
+**Version:** 26.5.4
 **Last Updated:** 2026-03-31
 **Status:** Production
 

@@ -9,7 +9,7 @@ use std::path::PathBuf;
 fn test_self_play_demo_command() {
     // Test that the demo command runs without crashing
     // This is a basic smoke test to ensure the command is registered
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_ggen"))
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_mcpp"))
         .arg("self-play")
         .arg("demo")
         .output();
@@ -31,7 +31,7 @@ fn test_self_play_demo_command() {
         Err(e) => {
             // Binary not built or other OS-level error
             // This is acceptable for a smoke test
-            eprintln!("Warning: Could not run ggen binary: {}", e);
+            eprintln!("Warning: Could not run mcpp binary: {}", e);
         }
     }
 }
@@ -44,7 +44,7 @@ fn test_self_play_validate_command() {
 
     // Only run if ontology exists
     if ontology_path.exists() {
-        let output = std::process::Command::new(env!("CARGO_BIN_EXE_ggen"))
+        let output = std::process::Command::new(env!("CARGO_BIN_EXE_mcpp"))
             .arg("self-play")
             .arg("validate")
             .arg(ontology_path)
@@ -59,7 +59,7 @@ fn test_self_play_validate_command() {
                 );
             }
             Err(e) => {
-                eprintln!("Warning: Could not run ggen binary: {}", e);
+                eprintln!("Warning: Could not run mcpp binary: {}", e);
             }
         }
     }
@@ -68,11 +68,11 @@ fn test_self_play_validate_command() {
 #[test]
 fn test_self_play_module_exists() {
     // Verify the self_play module file exists
-    let module_path = PathBuf::from("crates/ggen-cli/src/cmds/self_play.rs");
+    let module_path = PathBuf::from("crates/mcpp-cli/src/cmds/self_play.rs");
     assert!(module_path.exists(), "self_play.rs module should exist");
 
     // Verify it's referenced in mod.rs
-    let mod_rs = std::fs::read_to_string("crates/ggen-cli/src/cmds/mod.rs")
+    let mod_rs = std::fs::read_to_string("crates/mcpp-cli/src/cmds/mod.rs")
         .expect("Should be able to read mod.rs");
     assert!(
         mod_rs.contains("pub mod self_play"),

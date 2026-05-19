@@ -139,7 +139,7 @@ impl BootstrapFewShot {
     /// # Example
     /// ```ignore
     /// use std::sync::Arc;
-    /// use ggen_ai::dspy::optimizer::{BootstrapFewShot, Example};
+    /// use mcpp_ai::dspy::optimizer::{BootstrapFewShot, Example};
     ///
     /// let metric = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
     ///     // Check if output matches expected

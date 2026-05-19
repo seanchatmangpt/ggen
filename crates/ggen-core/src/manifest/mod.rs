@@ -1,6 +1,6 @@
-//! ggen.toml manifest parsing and validation module
+//! mcpp.toml manifest parsing and validation module
 //!
-//! This module provides strongly-typed parsing of `ggen.toml` manifests for
+//! This module provides strongly-typed parsing of `mcpp.toml` manifests for
 //! semantic code generation pipelines. The manifest defines:
 //!
 //! - **Ontology sources**: RDF files containing domain models
@@ -8,7 +8,7 @@
 //! - **Generation rules**: SPARQL queries + Tera templates → code files
 //! - **Validation**: SHACL shapes and custom constraints
 //!
-//! ## Example ggen.toml
+//! ## Example mcpp.toml
 //!
 //! ```toml
 //! [project]

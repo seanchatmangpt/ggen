@@ -593,9 +593,9 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let insert_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <https://mcpp.io/marketplace/>
             INSERT DATA {{
-                <https://ggen.io/marketplace/{0}> a mp:Package ;
+                <https://mcpp.io/marketplace/{0}> a mp:Package ;
                     mp:id "{1}" ;
                     mp:name "{2}" ;
                     mp:description "{3}" ;
@@ -650,11 +650,11 @@ impl RdfControlPlane {
     ) -> Result<()> {
         // Build SPARQL INSERT for metadata via direct RDF operations
         let mut metadata_query = String::from(
-            r"PREFIX mp: <https://ggen.io/marketplace/>
+            r"PREFIX mp: <https://mcpp.io/marketplace/>
             INSERT DATA {",
         );
 
-        let pkg_uri = format!("<https://ggen.io/marketplace/{package_id}>");
+        let pkg_uri = format!("<https://mcpp.io/marketplace/{package_id}>");
 
         // Add authors
         #[allow(clippy::format_push_string)]
@@ -709,10 +709,10 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let update_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
-            DELETE {{ <https://ggen.io/marketplace/{}> mp:state "Draft" . }}
-            INSERT {{ <https://ggen.io/marketplace/{}> mp:state "Published" . }}
-            WHERE {{ <https://ggen.io/marketplace/{}> a mp:Package . }}
+            PREFIX mp: <https://mcpp.io/marketplace/>
+            DELETE {{ <https://mcpp.io/marketplace/{}> mp:state "Draft" . }}
+            INSERT {{ <https://mcpp.io/marketplace/{}> mp:state "Published" . }}
+            WHERE {{ <https://mcpp.io/marketplace/{}> a mp:Package . }}
             "#,
             package_id, package_id, package_id
         );
@@ -738,9 +738,9 @@ impl RdfControlPlane {
         // Direct SPARQL query
         #[allow(clippy::uninlined_format_args)]
         let query = format!(
-            r"PREFIX mp: <https://ggen.io/marketplace/>
+            r"PREFIX mp: <https://mcpp.io/marketplace/>
             SELECT ?state
-            WHERE {{ <https://ggen.io/marketplace/{}> mp:state ?state . }}",
+            WHERE {{ <https://mcpp.io/marketplace/{}> mp:state ?state . }}",
             package_id
         );
 

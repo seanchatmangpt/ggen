@@ -62,7 +62,7 @@
 **Rationale**: Characters `& % $ # _ { } ~ ^ \` must be escaped in LaTeX.
 
 **Implementation Options**:
-1. Custom Tera filter (preferred—ggen could add this)
+1. Custom Tera filter (preferred—mcpp could add this)
 2. Pre-escape in ontology content (simple but tedious)
 3. SPARQL REPLACE function (complex but RDF-native)
 

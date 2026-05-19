@@ -1,4 +1,4 @@
-use ggen_cli_lib::domain::project::*;
+use mcpp_cli_lib::domain::project::*;
 use tempfile::TempDir;
 
 #[tokio::test]

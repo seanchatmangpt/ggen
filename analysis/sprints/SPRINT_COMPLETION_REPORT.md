@@ -1,5 +1,5 @@
 # Sprint 1 & 2 Completion Report
-**ggen v6.0.0 - Specification-Driven Code Generation**
+**mcpp v6.0.0 - Specification-Driven Code Generation**
 
 **Period:** March 17-30, 2026 (2 weeks)
 **Status:** ✅ COMPLETE
@@ -51,10 +51,10 @@ Sprint 1 & 2 delivered a **complete LLM-assisted code generation platform** with
 **Impact**: All templates now render correctly from RDF ontologies
 
 ### Gap #2: CLI LLM Bridge - Details
-**Problem**: No connection between ggen CLI and LLM providers
+**Problem**: No connection between mcpp CLI and LLM providers
 **Solution**:
-- Implemented `GroqLlmBridge` in `crates/ggen-ai/src/`
-- Added 3 CLI commands: `ggen ai generate`, `ggen ai validate`, `ggen ai optimize`
+- Implemented `GroqLlmBridge` in `crates/mcpp-ai/src/`
+- Added 3 CLI commands: `mcpp ai generate`, `mcpp ai validate`, `mcpp ai optimize`
 - MCP server exposes LLM tools: `generate_from_ontology`, `validate_rdf`, `optimize_code`
 **Impact**: Users can now generate code via CLI or MCP protocol
 
@@ -62,7 +62,7 @@ Sprint 1 & 2 delivered a **complete LLM-assisted code generation platform** with
 **Problem**: Templates had hardcoded `// TODO: Implement this function` blocks
 **Solution**:
 - Implemented conditional blocks: `{% if llm_enabled %}...{% else %}...{% endif %}`
-- Added LLM detection in ggen.toml: `[llm.provider]` section
+- Added LLM detection in mcpp.toml: `[llm.provider]` section
 - Templates now generate real implementations when LLM is configured
 **Impact**: Zero-touch onboarding improved from 70% to 95%
 
@@ -98,7 +98,7 @@ Sprint 1 & 2 delivered a **complete LLM-assisted code generation platform** with
 | **Documentation Files** | 395 | 408 | +13 |
 | **Template Files** | 88 | 94 | +6 |
 
-### MCP Server (`crates/ggen-a2a-mcp/`)
+### MCP Server (`crates/mcpp-a2a-mcp/`)
 | Component | Metric |
 |-----------|--------|
 | **Source Files** | 10 files |
@@ -166,10 +166,10 @@ Sprint 1 & 2 delivered a **complete LLM-assisted code generation platform** with
 **Usage**:
 ```bash
 # CLI usage
-ggen ai generate --ontology my-schema.ttl --language rust
+mcpp ai generate --ontology my-schema.ttl --language rust
 
 # MCP usage
-ggen mcp start-server --transport stdio
+mcpp mcp start-server --transport stdio
 # Then call generate_from_ontology tool
 ```
 
@@ -185,7 +185,7 @@ ggen mcp start-server --transport stdio
 **Usage**:
 ```bash
 # Start MCP server
-ggen mcp start-server --transport stdio
+mcpp mcp start-server --transport stdio
 
 # Call tools from Claude Desktop or other MCP clients
 ```
@@ -259,11 +259,11 @@ ggen mcp start-server --transport stdio
 ### Test Execution Summary
 ```bash
 $ cargo make test
-   Compiling ggen-core v6.0.0
-   Compiling ggen-a2a-mcp v6.0.0
+   Compiling mcpp-core v6.0.0
+   Compiling mcpp-a2a-mcp v6.0.0
     Finished test [unoptimized + debuginfo] target(s) in 14.23s
 
-     Running unittests src/lib.rs (target/debug/deps/ggen_core-*)
+     Running unittests src/lib.rs (target/debug/deps/mcpp_core-*)
 
 running 310 tests
 test result: ok. 310 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
@@ -276,7 +276,7 @@ test result: ok. 52 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 running 108 tests
 test result: ok. 108 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 
-Doc tests ggen-core
+Doc tests mcpp-core
     Finished test [unoptimized + debuginfo] target(s) in 1.45s
 running 12 tests
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
@@ -337,8 +337,8 @@ test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 | **Main README** | ✅ Updated with MCP/A2A section |
 | **MCP Zero-to-Hero Guide** | ✅ Complete (24K words) |
 | **A2A Integration Guide** | ✅ Complete (28K words) |
-| **How to Build MCP Tool with ggen** | ✅ Complete (24K words) |
-| **Why MCP and ggen Work Together** | ✅ Complete (14K words) |
+| **How to Build MCP Tool with mcpp** | ✅ Complete (24K words) |
+| **Why MCP and mcpp Work Together** | ✅ Complete (14K words) |
 | **MCP/A2A Instant Codegen** | ✅ Complete (13K words) |
 | **LLM Generation Integration** | ✅ Complete (21K words) |
 

@@ -1,4 +1,4 @@
-//! Type-safe wrappers for ggen-ai
+//! Type-safe wrappers for mcpp-ai
 //!
 //! This module provides NewType wrappers for string-based identifiers to improve type safety
 //! and prevent common errors like passing the wrong ID type to a function.

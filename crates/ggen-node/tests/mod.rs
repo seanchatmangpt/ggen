@@ -1,4 +1,4 @@
-//! Test suite for ggen node bindings
+//! Test suite for mcpp node bindings
 //!
 //! This module organizes all tests for the N-API bindings.
 //! Tests are production-grade with proper error handling.

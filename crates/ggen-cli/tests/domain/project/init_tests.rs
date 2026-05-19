@@ -1,4 +1,4 @@
-use ggen_cli_lib::domain::project::*;
+use mcpp_cli_lib::domain::project::*;
 use std::path::PathBuf;
 use tempfile::TempDir;
 

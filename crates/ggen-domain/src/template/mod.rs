@@ -1,7 +1,7 @@
 //! Template domain layer - business logic for template operations
 //!
 //! This module provides the core business logic for template management,
-//! using the ggen-core TemplateEngine for REAL template processing.
+//! using the mcpp-core TemplateEngine for REAL template processing.
 //!
 //! ## v2 Architecture Features
 //! - RDF/SPARQL integration via `render_with_rdf` module
@@ -9,8 +9,8 @@
 //! - TTL file → Template generation support
 //! - Preprocessor integration for advanced template processing
 
-use ggen_core::{GenContext, Generator, Pipeline};
-use ggen_utils::error::Result;
+use mcpp_core::{GenContext, Generator, Pipeline};
+use mcpp_utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -62,7 +62,7 @@ impl TemplateService {
     pub fn ensure_templates_dir(&self) -> Result<()> {
         if !self.templates_dir.exists() {
             fs::create_dir_all(&self.templates_dir).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to create templates directory: {}",
                     e
                 ))
@@ -85,7 +85,7 @@ impl TemplateService {
     pub fn read_template(&self, name: &str) -> Result<String> {
         let path = self.template_path(name);
         fs::read_to_string(&path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to read template: {}", e)))
     }
 
     /// Write template content
@@ -94,7 +94,7 @@ impl TemplateService {
         let path = self.template_path(name);
 
         if path.exists() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Template '{}' already exists at {}",
                 name,
                 path.display()
@@ -102,13 +102,13 @@ impl TemplateService {
         }
 
         fs::write(&path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to write template: {}", e))
         })?;
 
         Ok(path)
     }
 
-    /// Render a template using the ggen-core engine
+    /// Render a template using the mcpp-core engine
     pub fn render_template(
         &self, template_path: &Path, output_dir: &Path, vars: BTreeMap<String, String>,
     ) -> Result<PathBuf> {
@@ -118,7 +118,7 @@ impl TemplateService {
 
         let mut generator = Generator::new(pipeline, ctx);
         generator.generate().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Template generation failed: {}", e))
+            mcpp_utils::error::Error::new(&format!("Template generation failed: {}", e))
         })
     }
 }

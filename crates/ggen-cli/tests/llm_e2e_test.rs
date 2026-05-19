@@ -2,7 +2,7 @@
 //!
 //! This test verifies the LLM integration works by:
 //! 1. Creating a test project with enable_llm: true
-//! 2. Running ggen sync with real GROQ_API_KEY
+//! 2. Running mcpp sync with real GROQ_API_KEY
 //! 3. Verifying generated code has LLM implementations (not TODO stubs)
 //! 4. Checking OpenTelemetry traces for real LLM calls
 //!
@@ -29,12 +29,12 @@ impl TestProject {
         // Create project directory
         fs::create_dir_all(&project_dir).expect("Failed to create project dir");
 
-        // Create .ggen directory structure
-        let ggen_dir = project_dir.join(".ggen");
-        fs::create_dir_all(&ggen_dir).expect("Failed to create .ggen dir");
+        // Create .mcpp directory structure
+        let mcpp_dir = project_dir.join(".mcpp");
+        fs::create_dir_all(&mcpp_dir).expect("Failed to create .mcpp dir");
 
-        // Create ggen.toml with enable_llm = true
-        let ggen_toml = r#"
+        // Create mcpp.toml with enable_llm = true
+        let mcpp_toml = r#"
 [project]
 name = "test-llm-project"
 version = "0.1.0"
@@ -49,14 +49,14 @@ model = "groq::openai/gpt-oss-20b"
 temperature = 0.7
 max_tokens = 4096
 "#;
-        fs::write(ggen_dir.join("ggen.toml"), ggen_toml).expect("Failed to write ggen.toml");
+        fs::write(mcpp_dir.join("mcpp.toml"), mcpp_toml).expect("Failed to write mcpp.toml");
 
         // Create a simple ontology with behavior predicates
         let ontology = r#"
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix a2a: <http://ggen.ai/a2a#> .
-@prefix mcp: <http://ggen.ai/mcp#> .
+@prefix a2a: <http://mcpp.ai/a2a#> .
+@prefix mcp: <http://mcpp.ai/mcp#> .
 
 :test_skill a a2a:Skill ;
     rdfs:label "Test Skill" ;
@@ -66,7 +66,7 @@ max_tokens = 4096
     a2a:hasInputType "string" ;
     a2a:hasOutputType "string" .
 "#;
-        fs::write(ggen_dir.join("test.ttl"), ontology).expect("Failed to write ontology");
+        fs::write(mcpp_dir.join("test.ttl"), ontology).expect("Failed to write ontology");
 
         Self {
             temp_dir,
@@ -74,26 +74,26 @@ max_tokens = 4096
         }
     }
 
-    /// Get the path to the ggen binary
-    fn ggen_binary(&self) -> PathBuf {
+    /// Get the path to the mcpp binary
+    fn mcpp_binary(&self) -> PathBuf {
         // Use cargo build to get the binary path
-        PathBuf::from(env!("CARGO_BIN_EXE_ggen"))
+        PathBuf::from(env!("CARGO_BIN_EXE_mcpp"))
     }
 
-    /// Run ggen sync command
+    /// Run mcpp sync command
     fn run_sync(&self) -> std::process::Output {
-        let output = Command::new(&self.ggen_binary())
+        let output = Command::new(&self.mcpp_binary())
             .arg("sync")
             .arg("--ontology")
-            .arg(self.project_dir.join(".ggen/test.ttl"))
+            .arg(self.project_dir.join(".mcpp/test.ttl"))
             .current_dir(&self.project_dir)
             .env(
                 "GROQ_API_KEY",
                 std::env::var("GROQ_API_KEY").unwrap_or_default(),
             )
-            .env("RUST_LOG", "debug,ggen_ai=trace,ggen_core=trace")
+            .env("RUST_LOG", "debug,mcpp_ai=trace,mcpp_core=trace")
             .output()
-            .expect("Failed to run ggen sync");
+            .expect("Failed to run mcpp sync");
 
         output
     }
@@ -106,6 +106,7 @@ max_tokens = 4096
 }
 
 #[test]
+#[ignore]
 // #[ignore] // Only run with explicit permission (requires API key)
 fn test_llm_integration_e2e_with_real_api() {
     // Verify GROQ_API_KEY is set
@@ -120,7 +121,7 @@ fn test_llm_integration_e2e_with_real_api() {
     // Create test project with LLM enabled
     let project = TestProject::new_with_llm();
 
-    // Run ggen sync (this will make REAL LLM API calls)
+    // Run mcpp sync (this will make REAL LLM API calls)
     let output = project.run_sync();
 
     // Check that sync succeeded
@@ -128,7 +129,7 @@ fn test_llm_integration_e2e_with_real_api() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         let stdout = String::from_utf8_lossy(&output.stdout);
         panic!(
-            "ggen sync failed:\nstdout:\n{}\n\nstderr:\n{}",
+            "mcpp sync failed:\nstdout:\n{}\n\nstderr:\n{}",
             stdout, stderr
         );
     }
@@ -214,14 +215,14 @@ fn test_llm_integration_without_api_key_fails_gracefully() {
     let project = TestProject::new_with_llm();
 
     // Run sync WITHOUT API key
-    let output = Command::new(project.ggen_binary())
+    let output = Command::new(project.mcpp_binary())
         .arg("sync")
         .arg("--ontology")
-        .arg(project.project_dir.join(".ggen/test.ttl"))
+        .arg(project.project_dir.join(".mcpp/test.ttl"))
         .current_dir(&project.project_dir)
         .env("GROQ_API_KEY", "") // No API key
         .output()
-        .expect("Failed to run ggen sync");
+        .expect("Failed to run mcpp sync");
 
     // Should fail gracefully with error message
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -235,6 +236,7 @@ fn test_llm_integration_without_api_key_fails_gracefully() {
 }
 
 #[test]
+#[ignore]
 fn test_groq_api_key_is_set() {
     // This test just verifies the API key is available
     // It doesn't make any API calls

@@ -1,6 +1,6 @@
 //! Tests for DSPy settings and global configuration
 
-use ggen_dspy::config::{get_dspy_config, init_dspy_config, DspySettings};
+use mcpp_dspy::config::{get_dspy_config, init_dspy_config, DspySettings};
 
 #[test]
 fn test_global_config_singleton() {
@@ -75,7 +75,7 @@ fn test_llm_config_integration() {
     init_dspy_config();
     let config = get_dspy_config();
 
-    // Should successfully get ggen-ai global config
+    // Should successfully get mcpp-ai global config
     let llm_config = config.llm_config();
     assert!(llm_config.provider_name().len() > 0);
 }

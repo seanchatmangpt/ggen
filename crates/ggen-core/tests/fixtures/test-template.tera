@@ -1,5 +1,5 @@
 // Generated file from test template
-// Template rendering test for ggen integration
+// Template rendering test for mcpp integration
 
 {% for row in sparql_results %}
 // Result: {{ row["className"] }}

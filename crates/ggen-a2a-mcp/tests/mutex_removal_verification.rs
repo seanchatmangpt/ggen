@@ -5,9 +5,9 @@
 //! 2. llm_client can be accessed without .lock().await
 //! 3. GenAiClient is Clone + Send + Sync (no Mutex needed)
 
-use ggen_a2a_mcp::client::A2aLlmClient;
-use ggen_ai::client::GenAiClient;
-use ggen_ai::dspy::model_capabilities::Model;
+use mcpp_a2a_mcp::client::A2aLlmClient;
+use mcpp_ai::client::GenAiClient;
+use mcpp_ai::dspy::model_capabilities::Model;
 
 #[tokio::test]
 async fn verify_genai_client_is_clone_send_sync() {
@@ -56,7 +56,7 @@ async fn verify_no_mutex_in_code() {
 #[tokio::test]
 async fn verify_semaphore_still_works() {
     // Verify that semaphore still limits concurrency even without Mutex on llm_client
-    use ggen_a2a_mcp::client::A2aClientConfig;
+    use mcpp_a2a_mcp::client::A2aClientConfig;
 
     let model = Model::from_name("gpt-4");
     let config = A2aClientConfig {
@@ -71,7 +71,7 @@ async fn verify_semaphore_still_works() {
     let health = client.health().await;
     assert_eq!(
         health.state,
-        ggen_a2a_mcp::client::ConnectionState::Connected
+        mcpp_a2a_mcp::client::ConnectionState::Connected
     );
 
     println!("✅ Semaphore configuration still works (max_concurrent_requests=5)");

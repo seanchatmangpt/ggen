@@ -2,7 +2,7 @@
 //!
 //! Demonstrates automatic adapter selection based on model capabilities.
 
-use ggen_dspy::adapters::{AdapterWithFallback, LlmAdapter};
+use mcpp_dspy::adapters::{AdapterWithFallback, LlmAdapter};
 use serde_json::Value;
 use std::collections::HashMap;
 

@@ -11,24 +11,25 @@
 //! ## Removed Commands
 //!
 //! The following commands were removed in v5.0:
-//! - `ggen generate` → Use `ggen sync`
-//! - `ggen validate` → Use `ggen sync --validate-only`
-//! - `ggen template *` → Use `ggen sync`
-//! - `ggen project *` → Add back in v5.1+
-//! - `ggen graph *` → Add back in v5.1+
-//! - `ggen ontology *` → Add back in v5.1+
-//! - `ggen marketplace *` → Add back in v5.1+
-//! - `ggen ai *` → Add back in v5.1+
-//! - `ggen test *` → Add back in v5.1+
-//! - `ggen utils *` → Add back in v5.1+
-//! - `ggen ci *` → Add back in v5.1+
-//! - `ggen workflow *` → Add back in v5.1+
+//! - `mcpp generate` → Use `mcpp sync`
+//! - `mcpp validate` → Use `mcpp sync --validate-only`
+//! - `mcpp template *` → Use `mcpp sync`
+//! - `mcpp project *` → Add back in v5.1+
+//! - `mcpp graph *` → Add back in v5.1+
+//! - `mcpp ontology *` → Add back in v5.1+
+//! - `mcpp marketplace *` → Add back in v5.1+
+//! - `mcpp ai *` → Add back in v5.1+
+//! - `mcpp test *` → Add back in v5.1+
+//! - `mcpp utils *` → Add back in v5.1+
+//! - `mcpp ci *` → Add back in v5.1+
+//! - `mcpp workflow *` → Add back in v5.1+
 
 // Shared helpers for command modules
 pub mod helpers;
 
-// Core commands: ggen sync & ggen init & ggen wizard
+// Core commands: mcpp sync & mcpp init & mcpp wizard
 pub mod capability;
+pub mod doctor;
 pub mod git_hooks;
 pub mod init;
 pub mod receipt;
@@ -46,6 +47,7 @@ pub mod packs;
 pub mod paper;
 pub mod policy;
 pub mod project;
+pub mod registry;
 pub mod self_play;
 pub mod template;
 pub mod utils;
@@ -59,7 +61,7 @@ pub fn run_cli() -> Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|arg| arg == "--version" || arg == "-V") {
-        log::info!("ggen {}", env!("CARGO_PKG_VERSION"));
+        log::info!("mcpp {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
 

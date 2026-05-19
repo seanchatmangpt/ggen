@@ -24,12 +24,12 @@
 //!   - Streaming code generation (200+ tokens):    10 s
 //!
 //! Run:
-//!   GROQ_API_KEY=gsk_xxx cargo test -p ggen-a2a-mcp --test groq_slo_timing -- --test-threads=1 --nocapture
+//!   GROQ_API_KEY=gsk_xxx cargo test -p mcpp-a2a-mcp --test groq_slo_timing -- --test-threads=1 --nocapture
 
 use std::time::Instant;
 
 use futures::StreamExt;
-use ggen_ai::{GenAiClient, LlmClient};
+use mcpp_ai::{GenAiClient, LlmClient};
 
 mod common;
 use common::init_tracing;
@@ -44,7 +44,7 @@ fn create_groq_client() -> GenAiClient {
     if std::env::var("GROQ_API_KEY").is_err() {
         panic!("GROQ_API_KEY must be set. These tests make real LLM calls.");
     }
-    let config = ggen_ai::providers::adapter::groq_default_config();
+    let config = mcpp_ai::providers::adapter::groq_default_config();
     GenAiClient::new(config).expect("GenAiClient creation should succeed with valid GROQ_API_KEY")
 }
 
@@ -305,9 +305,9 @@ async fn slo_groq_multi_turn_conversation() {
 #[tokio::test]
 async fn slo_groq_a2a_agent_task() {
     init_tracing();
-    use a2a_generated::converged::message::ConvergedMessage;
-    use ggen_a2a_mcp::client::A2aLlmClient;
-    use ggen_ai::dspy::model_capabilities::{Model, ModelProvider};
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
+    use mcpp_a2a_mcp::client::A2aLlmClient;
+    use mcpp_ai::dspy::model_capabilities::{Model, ModelProvider};
 
     let model = Model::new("groq::openai/gpt-oss-20b", ModelProvider::Custom);
     let a2a_client = A2aLlmClient::new(model)
@@ -345,7 +345,7 @@ Output a JSON object with these fields:
     let elapsed = start.elapsed();
 
     let text = match &response.payload.content {
-        a2a_generated::converged::UnifiedContent::Text { content, .. } => content.as_str(),
+        ggen_core::ggen_core::ggen_core::a2a_generated::converged::UnifiedContent::Text { content, .. } => content.as_str(),
         other => panic!("Expected Text content in A2A response, got: {other:?}"),
     };
 

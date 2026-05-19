@@ -1,14 +1,14 @@
 //! Lock file management for reproducible ontology builds
 //!
-//! Implements ggen.lock pattern for freezing ontology pack versions,
+//! Implements mcpp.lock pattern for freezing ontology pack versions,
 //! enabling reproducible code generation across environments.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
 
-/// Lock file structure (ggen.lock)
+/// Lock file structure (mcpp.lock)
 ///
 /// Freezes exact versions of ontology packs for reproducible builds.
 /// Similar to package-lock.json in npm or Cargo.lock in Rust.
@@ -111,11 +111,11 @@ impl LockfileManager {
     /// Load lockfile from disk
     pub fn load(path: &Path) -> Result<OntologyLockfile> {
         let content = std::fs::read_to_string(path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read lock file: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to read lock file: {}", e))
         })?;
 
         let lockfile: OntologyLockfile = toml::from_str(&content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to parse lock file: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to parse lock file: {}", e))
         })?;
 
         lockfile.validate()?;
@@ -126,7 +126,7 @@ impl LockfileManager {
     pub fn save(lockfile: &OntologyLockfile, path: &Path) -> Result<()> {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to create lock file directory: {}",
                     e
                 ))
@@ -134,11 +134,11 @@ impl LockfileManager {
         }
 
         let content = toml::to_string_pretty(lockfile).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to serialize lock file: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to serialize lock file: {}", e))
         })?;
 
         std::fs::write(path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write lock file: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to write lock file: {}", e))
         })?;
 
         Ok(())
@@ -152,13 +152,13 @@ impl LockfileManager {
             match computed_hashes.get(name) {
                 Some(actual_hash) if actual_hash == expected_hash => continue,
                 Some(actual_hash) => {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(mcpp_utils::error::Error::new(&format!(
                         "Lock file hash mismatch for '{}': expected {}, got {}",
                         name, expected_hash, actual_hash
                     )))
                 }
                 None => {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(mcpp_utils::error::Error::new(&format!(
                         "Package '{}' in hash list not found in lock file",
                         name
                     )))
@@ -227,14 +227,14 @@ impl OntologyLockfile {
     /// Validate lockfile structure
     pub fn validate(&self) -> Result<()> {
         if self.version != 1 {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Unsupported lock file version: {}",
                 self.version
             )));
         }
 
         if self.packages.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(mcpp_utils::error::Error::new(
                 "Lock file contains no packages",
             ));
         }
@@ -242,14 +242,14 @@ impl OntologyLockfile {
         // Validate each package
         for (name, package) in &self.packages {
             if package.version.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Package '{}' has no version",
                     name
                 )));
             }
 
             if package.integrity.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Package '{}' has no integrity hash",
                     name
                 )));
@@ -258,7 +258,7 @@ impl OntologyLockfile {
 
         // Validate composition metadata
         if self.composition.strategy.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(mcpp_utils::error::Error::new(
                 "Composition strategy not specified",
             ));
         }
@@ -312,9 +312,9 @@ mod tests {
             "schema-org".to_string(),
             LockedPackage {
                 version: "3.13.0".to_string(),
-                resolved: "registry://ggen-marketplace/schema-org@3.13.0".to_string(),
+                resolved: "registry://mcpp-marketplace/schema-org@3.13.0".to_string(),
                 integrity: "sha256-abc123def456".to_string(),
-                location: ".ggen/packages/schema-org/3.13.0".to_string(),
+                location: ".mcpp/packages/schema-org/3.13.0".to_string(),
                 namespace: Some("https://schema.org/".to_string()),
                 classes_count: 788,
                 properties_count: 2500,

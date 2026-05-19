@@ -1,7 +1,7 @@
 //! Tests for thread-local context management
 
-use ggen_dspy::config::{get_dspy_config, init_dspy_config, with_context};
-use ggen_dspy::config::context::{
+use mcpp_dspy::config::{get_dspy_config, init_dspy_config, with_context};
+use mcpp_dspy::config::context::{
     get_current_temperature, get_current_max_tokens, get_current_top_p,
     is_cache_enabled, is_tracking_enabled, is_streaming_enabled
 };

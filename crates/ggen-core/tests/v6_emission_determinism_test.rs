@@ -11,9 +11,9 @@
 //! - Join patterns (join, JOIN, INNER JOIN)
 //! - Idempotence verification (double-render check)
 
-use ggen_core::graph::Graph;
-use ggen_core::v6::pass::{Pass, PassContext};
-use ggen_core::v6::passes::{EmissionPass, EmissionRule};
+use mcpp_core::graph::Graph;
+use mcpp_core::v6::pass::{Pass, PassContext};
+use mcpp_core::v6::passes::{EmissionPass, EmissionRule};
 use std::path::PathBuf;
 use tempfile::TempDir;
 
@@ -25,7 +25,7 @@ fn create_test_pass(template_name: &str, template_content: &str) -> (TempDir, Em
     std::fs::write(template_dir.join(template_name), template_content).unwrap();
 
     let mut pass = EmissionPass::new();
-    pass = pass.with_guards(ggen_core::v6::guard::GuardSet::new()); // Disable guards for tests
+    pass = pass.with_guards(mcpp_core::v6::guard::GuardSet::new()); // Disable guards for tests
 
     pass.add_rule(EmissionRule {
         name: format!("test-{}", template_name),

@@ -2,7 +2,7 @@
 //!
 //! Uses real `MemoryStore` -- no mocks.
 
-use ggen_a2a_registry::{
+use mcpp_a2a_registry::{
     AgentEntry, AgentQuery, AgentRegistry, HealthConfig, HealthStatus, MemoryStore,
 };
 use std::sync::Arc;

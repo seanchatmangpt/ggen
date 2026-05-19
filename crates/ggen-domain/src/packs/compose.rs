@@ -2,7 +2,7 @@
 
 use crate::packs::metadata::load_pack_metadata;
 use crate::packs::types::{CompositionStrategy, Pack};
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -32,7 +32,7 @@ pub struct ComposePacksOutput {
 /// Compose multiple packs into a single project
 pub async fn compose_packs(input: &ComposePacksInput) -> Result<ComposePacksOutput> {
     if input.pack_ids.is_empty() {
-        return Err(ggen_utils::error::Error::new(
+        return Err(mcpp_utils::error::Error::new(
             "At least one pack ID must be specified for composition",
         ));
     }
@@ -55,7 +55,7 @@ pub async fn compose_packs(input: &ComposePacksInput) -> Result<ComposePacksOutp
         CompositionStrategy::Merge => merge_packs(&ordered_packs)?,
         CompositionStrategy::Layer => layer_packs(&ordered_packs)?,
         CompositionStrategy::Custom(_) => {
-            return Err(ggen_utils::error::Error::new(
+            return Err(mcpp_utils::error::Error::new(
                 "Custom composition strategy not yet implemented",
             ));
         }
@@ -108,7 +108,7 @@ fn dfs_cycle_check(
                 dfs_cycle_check(dep_pack, all_packs, visited, rec_stack)?;
             }
         } else if rec_stack.contains(&dep.pack_id) {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Circular dependency detected: {} -> {}",
                 pack.id, dep.pack_id
             )));
@@ -129,7 +129,7 @@ fn resolve_dependencies(packs: &[Pack]) -> Result<Vec<Pack>> {
 /// Merge packs by combining all packages and templates
 fn merge_packs(packs: &[Pack]) -> Result<Pack> {
     if packs.is_empty() {
-        return Err(ggen_utils::error::Error::new("No packs to merge"));
+        return Err(mcpp_utils::error::Error::new("No packs to merge"));
     }
 
     let first = &packs[0];

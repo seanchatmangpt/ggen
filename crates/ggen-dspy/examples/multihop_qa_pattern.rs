@@ -3,7 +3,7 @@
 //! Demonstrates iterative retrieval for complex questions requiring
 //! information from multiple sources.
 
-use ggen_dspy::{InMemoryRetriever, Module, MultiHopConfig, MultiHopQA};
+use mcpp_dspy::{InMemoryRetriever, Module, MultiHopConfig, MultiHopQA};
 use std::sync::Arc;
 
 #[tokio::main]

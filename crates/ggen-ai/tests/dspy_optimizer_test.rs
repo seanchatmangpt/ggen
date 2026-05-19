@@ -2,7 +2,7 @@
 //!
 //! Tests the optimizer API and basic functionality.
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     field::{InputField, OutputField},
     module::{Module, ModuleError},
     optimizer::{BootstrapFewShot, Demonstration, Example},

@@ -53,7 +53,7 @@ impl OcelParser {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::OcelParser;
+    /// use mcpp_process_mining::OcelParser;
     ///
     /// let parser = OcelParser::new();
     /// let log = parser.parse_file("log.jsonocel")?;
@@ -72,7 +72,7 @@ impl OcelParser {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::OcelParser;
+    /// use mcpp_process_mining::OcelParser;
     ///
     /// let parser = OcelParser::new();
     /// let log = parser.parse_str(jsonocel_string)?;
@@ -186,7 +186,7 @@ impl OcelLog {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::OcelLog;
+    /// use mcpp_process_mining::OcelLog;
     ///
     /// let log = OcelLog::from_file("log.jsonocel")?;
     /// let object_events = log.events_for_object("order-123");

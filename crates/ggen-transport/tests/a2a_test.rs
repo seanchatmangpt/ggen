@@ -1,7 +1,7 @@
-use ggen_transport::a2a::{
+use mcpp_transport::a2a::{
     A2aMessage, A2aMessageType, A2aStreamMessage, A2aStreamType, A2aTransport, EchoA2aHandler,
 };
-use ggen_transport::{OriginValidator, SessionManager};
+use mcpp_transport::{OriginValidator, SessionManager};
 use std::sync::Arc;
 
 #[tokio::test]

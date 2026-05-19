@@ -4,7 +4,7 @@
 
 use crate::packs::types::Pack;
 use async_trait::async_trait;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::time::Duration;
@@ -105,7 +105,7 @@ impl CloudDistribution for InMemoryCDN {
         }
 
         Ok(CacheInfo {
-            cdn_url: format!("https://cdn.ggen.io/packs/{}/{}", pack.id, pack.version),
+            cdn_url: format!("https://cdn.mcpp.io/packs/{}/{}", pack.id, pack.version),
             cache_key,
             ttl: Duration::from_secs(3600), // 1 hour
             hit_count: 0,

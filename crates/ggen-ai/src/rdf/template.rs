@@ -16,8 +16,8 @@
 //! ### Rendering a Project
 //!
 //! ```rust,no_run
-//! use ggen_ai::rdf::template::TemplateRenderer;
-//! use ggen_ai::rdf::types::CliProject;
+//! use mcpp_ai::rdf::template::TemplateRenderer;
+//! use mcpp_ai::rdf::types::CliProject;
 //! use std::path::Path;
 //!
 //! # fn main() -> anyhow::Result<()> {
@@ -32,7 +32,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
 

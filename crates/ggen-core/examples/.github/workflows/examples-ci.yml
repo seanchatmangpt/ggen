@@ -1,5 +1,5 @@
-# GitHub Actions CI/CD for ggen-core Examples Workspace
-# Demonstrates production-ready CI pipeline using ggen lifecycle automation
+# GitHub Actions CI/CD for mcpp-core Examples Workspace
+# Demonstrates production-ready CI pipeline using mcpp lifecycle automation
 
 name: Examples CI/CD
 

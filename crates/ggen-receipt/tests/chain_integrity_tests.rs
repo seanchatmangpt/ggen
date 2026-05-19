@@ -1,4 +1,4 @@
-//! Chain integrity verification tests for ggen-receipt.
+//! Chain integrity verification tests for mcpp-receipt.
 //!
 //! These tests validate the full cryptographic integrity of receipt chains:
 //! - Hash-link consistency between consecutive receipts
@@ -12,7 +12,7 @@
 //!
 //! Chicago TDD: Real Ed25519 signing, real SHA-256 hashing, no mocks.
 
-use ggen_receipt::{create_chained_receipt, generate_keypair, hash_data, Receipt, ReceiptChain};
+use mcpp_receipt::{create_chained_receipt, generate_keypair, hash_data, Receipt, ReceiptChain};
 use std::fs;
 use tempfile::TempDir;
 

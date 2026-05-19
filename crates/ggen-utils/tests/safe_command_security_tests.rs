@@ -7,8 +7,8 @@
 //! - Command length attacks
 //! - Whitelist bypass attempts
 
-use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
-use ggen_utils::safe_path::SafePath;
+use mcpp_utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use mcpp_utils::safe_path::SafePath;
 
 // ============================================================================
 // Command Injection Attack Tests

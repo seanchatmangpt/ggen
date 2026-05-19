@@ -25,11 +25,11 @@ use std::time::{Duration, Instant};
 ///
 /// # Example
 /// ```no_run
-/// # use ggen_ai::mcp::MCPToolServer;
+/// # use mcpp_ai::mcp::MCPToolServer;
 /// # use std::sync::Arc;
 /// # #[tokio::main]
 /// # async fn main() {
-/// use ggen_ai::mcp::traits::MCPToolServerImpl;
+/// use mcpp_ai::mcp::traits::MCPToolServerImpl;
 ///
 /// let server = MCPToolServerImpl::new();
 /// let tools = server.list_tools().await?;
@@ -200,7 +200,7 @@ impl MCPToolServerImpl {
     ///
     /// # Example
     /// ```no_run
-    /// # use ggen_ai::mcp::traits::MCPToolServerImpl;
+    /// # use mcpp_ai::mcp::traits::MCPToolServerImpl;
     /// let server = MCPToolServerImpl::new();
     /// ```
     pub fn new() -> Self {

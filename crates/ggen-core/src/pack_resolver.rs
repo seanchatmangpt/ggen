@@ -6,7 +6,7 @@
 //!
 //! ## μ₀ Stage Responsibilities
 //!
-//! 1. **Read lockfile** - Load requested packs/bundles from `.ggen/packs.lock`
+//! 1. **Read lockfile** - Load requested packs/bundles from `.mcpp/packs.lock`
 //! 2. **Expand bundles** - Convert bundle aliases to atomic pack IDs
 //! 3. **Resolve dependencies** - Transitively resolve all pack dependencies
 //! 4. **Check compatibility** - Multi-dimensional conflict detection
@@ -31,15 +31,15 @@
 
 use crate::graph::Graph;
 use crate::packs::lockfile::PackLockfile;
-use ggen_marketplace::atomic::{foundation_packs, AtomicPackId};
-use ggen_marketplace::bundle::Bundle;
-use ggen_marketplace::metadata::load_pack_metadata;
-use ggen_marketplace::ownership::{
+use mcpp_marketplace::atomic::{foundation_packs, AtomicPackId};
+use mcpp_marketplace::bundle::Bundle;
+use mcpp_marketplace::metadata::load_pack_metadata;
+use mcpp_marketplace::ownership::{
     MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
 };
-use ggen_marketplace::policy::{PackContext, PolicyEnforcer};
-use ggen_marketplace::profile::get_profile;
-use ggen_utils::{
+use mcpp_marketplace::policy::{PackContext, PolicyEnforcer};
+use mcpp_marketplace::profile::get_profile;
+use mcpp_utils::{
     bail,
     error::{Error, Result},
 };
@@ -94,7 +94,7 @@ pub struct ResolvedPacks {
     /// SPARQL queries loaded from packs (μ₂; CONSTRUCT-only — see `PACK_QUERY_CONTRACT.md`)
     pub queries: Vec<SparqlQuery>,
 
-    /// Tera templates loaded from packs (staged under `.ggen/pack-stage/` during sync)
+    /// Tera templates loaded from packs (staged under `.mcpp/pack-stage/` during sync)
     pub templates: Vec<TemplateDef>,
 
     /// Ed25519 signatures per pack (hex strings), loaded from pack metadata.
@@ -166,7 +166,7 @@ impl ResolvedPacks {
 /// Resolves packs from lockfile, expands bundles, checks compatibility,
 /// merges ontologies, and builds ownership maps.
 pub struct PackResolver {
-    /// Lockfile path (.ggen/packs.lock)
+    /// Lockfile path (.mcpp/packs.lock)
     #[allow(dead_code)]
     lockfile_path: PathBuf,
 
@@ -179,7 +179,7 @@ impl PackResolver {
     ///
     /// # Arguments
     ///
-    /// * `project_dir` - Path to project directory (contains `.ggen/`)
+    /// * `project_dir` - Path to project directory (contains `.mcpp/`)
     ///
     /// # Errors
     ///
@@ -189,10 +189,10 @@ impl PackResolver {
             .canonicalize()
             .map_err(|e| Error::new(&format!("Invalid project directory: {}", e)))?;
 
-        let lockfile_path = project_dir.join(".ggen").join("packs.lock");
+        let lockfile_path = project_dir.join(".mcpp").join("packs.lock");
         let cache_dir = std::env::var_os("GGEN_PACK_CACHE_DIR")
             .map(PathBuf::from)
-            .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
+            .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
             .ok_or_else(|| {
                 Error::new("Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR")
             })?;
@@ -293,11 +293,11 @@ impl PackResolver {
         })
     }
 
-    /// Read the lockfile from `.ggen/packs.lock`.
+    /// Read the lockfile from `.mcpp/packs.lock`.
     fn read_lockfile(&self) -> Result<PackLockfile> {
         if !self.lockfile_path.exists() {
             bail!(
-                "Lockfile not found at {}. Run 'ggen packs install' first.",
+                "Lockfile not found at {}. Run 'mcpp packs install' first.",
                 self.lockfile_path.display()
             );
         }
@@ -604,7 +604,7 @@ impl PackRegistry {
 
     /// Initialize common bundle definitions.
     fn initialize_bundles(&mut self) {
-        use ggen_marketplace::bundle::Bundles;
+        use mcpp_marketplace::bundle::Bundles;
 
         // Register common bundles
         self.bundles
@@ -908,7 +908,7 @@ impl PackRegistry {
         let mut queries = Vec::new();
 
         let entries = std::fs::read_dir(&queries_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            mcpp_utils::error::Error::new(&format!(
                 "Failed to read queries directory {}: {}",
                 queries_dir.display(),
                 e
@@ -917,7 +917,7 @@ impl PackRegistry {
 
         for entry in entries {
             let entry = entry.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
+                mcpp_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
             })?;
             let path = entry.path();
 
@@ -927,7 +927,7 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to read query file {}: {}",
                     path.display(),
                     e
@@ -965,7 +965,7 @@ impl PackRegistry {
         let mut templates = Vec::new();
 
         let entries = std::fs::read_dir(&templates_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            mcpp_utils::error::Error::new(&format!(
                 "Failed to read templates directory {}: {}",
                 templates_dir.display(),
                 e
@@ -974,7 +974,7 @@ impl PackRegistry {
 
         for entry in entries {
             let entry = entry.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
+                mcpp_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
             })?;
             let path = entry.path();
 
@@ -984,7 +984,7 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to read template file {}: {}",
                     path.display(),
                     e
@@ -993,7 +993,7 @@ impl PackRegistry {
 
             // Get relative path from templates_dir
             let relative_path = path.strip_prefix(&self.cache_dir).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to create relative path: {}", e))
+                mcpp_utils::error::Error::new(&format!("Failed to create relative path: {}", e))
             })?;
 
             templates.push(TemplateDef {

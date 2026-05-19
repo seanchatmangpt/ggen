@@ -1,11 +1,11 @@
 //! Composition receipts for governed pack operations.
 //!
-//! Extends ggen-receipt with pack-specific provenance tracking.
+//! Extends mcpp-receipt with pack-specific provenance tracking.
 //! Implements CISO requirement for full chain of evidence.
 
 use crate::error::Result;
 use crate::trust::TrustTier;
-use ggen_receipt::{Receipt, ReceiptChain};
+use mcpp_receipt::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -340,7 +340,7 @@ impl CompositionReceipt {
     /// Verify the receipt chain and validate composition integrity.
     ///
     /// Performs three levels of verification:
-    /// 1. Cryptographic chain verification using ggen-receipt's ReceiptChain
+    /// 1. Cryptographic chain verification using mcpp-receipt's ReceiptChain
     /// 2. Pack compatibility check (ensures all packs meet trust tier requirements)
     /// 3. Signature presence check (enterprise profiles require signatures)
     ///
@@ -355,7 +355,7 @@ impl CompositionReceipt {
         use crate::error::Error;
         use crate::trust::TrustTier;
 
-        // 1. Cryptographic chain verification via ggen-receipt
+        // 1. Cryptographic chain verification via mcpp-receipt
         let key_bytes =
             hex::decode(public_key).map_err(|e| Error::SignatureVerificationFailed {
                 reason: format!("Invalid public key hex: {}", e),

@@ -26,7 +26,7 @@
 use crate::validation::error::{Result, ValidationError};
 use std::collections::HashSet;
 
-/// Standard ontologies approved for use in ggen projects
+/// Standard ontologies approved for use in mcpp projects
 ///
 /// Using a standard ontology is non-negotiable in BIG BANG 80/20 mode.
 /// This enum enforces the discipline: no "custom" or "special" schemas.
@@ -60,7 +60,7 @@ pub enum StandardOntology {
     /// Big Five Personality Traits (OCEAN) - Behavioral modeling
     ///
     /// Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism
-    /// **Canonical source**: Custom namespace (ggen-approved)
+    /// **Canonical source**: Custom namespace (mcpp-approved)
     BigFive,
 }
 
@@ -72,7 +72,7 @@ impl StandardOntology {
             StandardOntology::Foaf => "http://xmlns.com/foaf/0.1/",
             StandardOntology::DublinCore => "http://purl.org/dc/elements/1.1/",
             StandardOntology::Skos => "http://www.w3.org/2004/02/skos/core#",
-            StandardOntology::BigFive => "https://ggen.io/ontologies/big-five#",
+            StandardOntology::BigFive => "https://mcpp.io/ontologies/big-five#",
         }
     }
 
@@ -105,7 +105,7 @@ impl StandardOntology {
             StandardOntology::Foaf => "http://xmlns.com/foaf/spec/",
             StandardOntology::DublinCore => "http://dublincore.org/documents/dces/",
             StandardOntology::Skos => "https://www.w3.org/2009/08/skos-reference/skos.html",
-            StandardOntology::BigFive => "https://ggen.io/docs/big-five",
+            StandardOntology::BigFive => "https://mcpp.io/docs/big-five",
         }
     }
 
@@ -134,7 +134,7 @@ impl StandardOntology {
                 Some(StandardOntology::DublinCore)
             }
             "http://www.w3.org/2004/02/skos/core#" => Some(StandardOntology::Skos),
-            "https://ggen.io/ontologies/big-five#" | "https://ggen.io/big-five#" => {
+            "https://mcpp.io/ontologies/big-five#" | "https://mcpp.io/big-five#" => {
                 Some(StandardOntology::BigFive)
             }
             _ => None,
@@ -219,7 +219,7 @@ impl StandardOntologyValidator {
         Ok(validated)
     }
 
-    /// Screening questions to determine if user is ready for ggen
+    /// Screening questions to determine if user is ready for mcpp
     ///
     /// These are the "litmus test" questions Sean asked Seth:
     /// - Can you find an existing ontology link?

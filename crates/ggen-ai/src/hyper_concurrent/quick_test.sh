@@ -3,7 +3,7 @@
 
 set -e
 
-cd /home/user/ggen/crates/ggen-ai
+cd /home/user/mcpp/crates/mcpp-ai
 
 echo "Running hyper_concurrent tests..."
 echo "=================================="

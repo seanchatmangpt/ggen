@@ -60,9 +60,9 @@ impl TemplatePromptBuilder {
         let mut prompt = String::new();
 
         // System prompt
-        prompt.push_str("You are an expert code generator that creates ggen templates. ");
-        prompt.push_str("ggen templates use YAML frontmatter followed by Tera template syntax. ");
-        prompt.push_str("Generate a complete, valid ggen template based on the requirements.\n\n");
+        prompt.push_str("You are an expert code generator that creates mcpp templates. ");
+        prompt.push_str("mcpp templates use YAML frontmatter followed by Tera template syntax. ");
+        prompt.push_str("Generate a complete, valid mcpp template based on the requirements.\n\n");
 
         // Requirements section
         prompt.push_str("## Requirements\n");
@@ -103,7 +103,7 @@ impl TemplatePromptBuilder {
 
         // Template format instructions
         prompt.push_str("## Template Format\n");
-        prompt.push_str("Generate a ggen template with the following structure:\n\n");
+        prompt.push_str("Generate a mcpp template with the following structure:\n\n");
         prompt.push_str("```yaml\n");
         prompt.push_str("---\n");
         prompt.push_str("to: \"path/to/output/file\"\n");
@@ -131,7 +131,7 @@ impl TemplatePromptBuilder {
         prompt.push_str("- Follows best practices for the target framework\n\n");
 
         // Output instructions
-        prompt.push_str("Generate the complete ggen template now:\n\n");
+        prompt.push_str("Generate the complete mcpp template now:\n\n");
 
         Ok(prompt)
     }

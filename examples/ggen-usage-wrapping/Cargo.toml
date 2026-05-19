@@ -1,5 +1,5 @@
 [package]
-name = "ggen-usage-wrapping"
+name = "mcpp-usage-wrapping"
 version = "1.0.0"
 edition = "2021"
 authors = ["ggen contributors"]
@@ -14,8 +14,8 @@ members = [
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../../ggen-core", version = "1.0.0" }
-ggen-ai = { path = "../../ggen-ai", version = "1.0.0" }
+mcpp-core = { path = "../../mcpp-core", version = "1.0.0" }
+mcpp-ai = { path = "../../mcpp-ai", version = "1.0.0" }
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }

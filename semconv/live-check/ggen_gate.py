@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""ggen Weaver live-check gate.
+"""mcpp Weaver live-check gate.
 
-Validates weaver registry live-check JSON output against ggen's semconv schema:
+Validates weaver registry live-check JSON output against mcpp's semconv schema:
   1. total_entities > 0
   2. All 6 span groups observed (completeness)
   3. Zero blocking violations (after filtering synthetic noise)
@@ -13,7 +13,7 @@ Exit codes:
   2  USAGE (bad arguments / missing files)
 
 Usage:
-  ggen_gate.py <report.json> <semconv_model_dir> [--ci] [--evidence-dir DIR]
+  mcpp_gate.py <report.json> <semconv_model_dir> [--ci] [--evidence-dir DIR]
 """
 
 import json
@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 # Constants
 # ---------------------------------------------------------------------------
 
-_SPAN_GROUP_RE = re.compile(r"^\s+-\s+id:\s+(span\.ggen\.\S+)")
+_SPAN_GROUP_RE = re.compile(r"^\s+-\s+id:\s+(span\.mcpp\.\S+)")
 
 _SYNTHETIC_SERVICE = "weaver"
 _SYNTHETIC_SPAN_PREFIX = "otel.weaver"
@@ -50,7 +50,7 @@ def _load_span_group_ids(model_dir: pathlib.Path) -> set[str]:
     """Extract span group IDs from model/**/spans.yaml via regex.
 
     Returns the IDs with the 'span.' prefix stripped so they match the
-    OTLP span names that weaver puts in the report (e.g., 'ggen.a2a.message').
+    OTLP span names that weaver puts in the report (e.g., 'mcpp.a2a.message').
     """
     ids: set[str] = set()
     for p in model_dir.rglob("spans.yaml"):
@@ -58,7 +58,7 @@ def _load_span_group_ids(model_dir: pathlib.Path) -> set[str]:
             m = _SPAN_GROUP_RE.match(line)
             if m:
                 raw = m.group(1)
-                # Strip 'span.' prefix: 'span.ggen.a2a.message' -> 'ggen.a2a.message'
+                # Strip 'span.' prefix: 'span.mcpp.a2a.message' -> 'mcpp.a2a.message'
                 if raw.startswith("span."):
                     raw = raw[5:]
                 ids.add(raw)
@@ -165,7 +165,7 @@ def _emit_evidence(results: dict, report: dict, evidence_dir: pathlib.Path, ci: 
     """Write board_evidence_package.json."""
     pkg = {
         "schema_version": "1.0",
-        "kind": "ggen.weaver_live_check.board_evidence",
+        "kind": "mcpp.weaver_live_check.board_evidence",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "results": results,
         "statistics": report.get("statistics", {}),
@@ -231,7 +231,7 @@ def main() -> None:
     missing = expected_groups - observed_groups
     # Groups that require external APIs (Groq) or error conditions are optional
     # in non-CI runs. In CI mode, all 6 must be present.
-    optional_groups = {"ggen.llm.generation", "ggen.error"} if not ci else set()
+    optional_groups = {"mcpp.llm.generation", "mcpp.error"} if not ci else set()
     blocking_missing = missing - optional_groups
     check2 = len(blocking_missing) == 0
     if not check2:

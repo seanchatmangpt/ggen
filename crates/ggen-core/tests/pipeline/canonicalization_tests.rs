@@ -8,9 +8,9 @@
 //! - Receipt generation
 //! - Multi-file canonicalization
 
-use ggen_core::graph::Graph;
-use ggen_core::v6::pass::{Pass, PassContext};
-use ggen_core::v6::passes::canonicalization::{CanonicalizationPass, CanonicalizationReceipt};
+use mcpp_core::graph::Graph;
+use mcpp_core::v6::pass::{Pass, PassContext};
+use mcpp_core::v6::passes::canonicalization::{CanonicalizationPass, CanonicalizationReceipt};
 use std::path::PathBuf;
 use tempfile::TempDir;
 

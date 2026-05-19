@@ -1,7 +1,7 @@
 //! Lean Six Sigma Quality Gates - DMAIC Phase Validation
 //!
 //! This module implements DMAIC (Define, Measure, Analyze, Improve, Control)
-//! quality gates for systematic process improvement in ggen's quality system.
+//! quality gates for systematic process improvement in mcpp's quality system.
 //!
 //! # DMAIC Phases
 //!
@@ -14,15 +14,15 @@
 //! # Usage
 //!
 //! ```ignore
-//! use ggen_core::lean_six_sigma::{LeanSixSigmaGate, DmaicPhase};
-//! use ggen_core::poka_yoke::QualityGate;
+//! use mcpp_core::lean_six_sigma::{LeanSixSigmaGate, DmaicPhase};
+//! use mcpp_core::poka_yoke::QualityGate;
 //!
 //! let define_gate = LeanSixSigmaGate::new(DmaicPhase::Define);
 //! define_gate.check(&manifest, base_path)?;
 //! ```
 
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::Path;
 
 /// DMAIC phases for Lean Six Sigma process improvement
@@ -432,7 +432,7 @@ impl LeanSixSigmaGate {
         match self.phase {
             DmaicPhase::Define => match criteria_name {
                 "Problem Statement" => vec![
-                    "Add project.name to ggen.toml".to_string(),
+                    "Add project.name to mcpp.toml".to_string(),
                     "Add project.description to explain the problem".to_string(),
                 ],
                 "Customer Requirements" => vec![
@@ -497,7 +497,7 @@ impl LeanSixSigmaGate {
             DmaicPhase::Control => match criteria_name {
                 "Control Plan" => vec![
                     "Specify output_dir for control checkpoints".to_string(),
-                    "Establish control plan in ggen.toml".to_string(),
+                    "Establish control plan in mcpp.toml".to_string(),
                 ],
                 "Monitoring Procedures" => vec![
                     "Add inference rules for monitoring".to_string(),
@@ -552,14 +552,14 @@ impl crate::poka_yoke::QualityGate for LeanSixSigmaGate {
         // Default suggestions based on phase
         vec![
             format!("Review {} phase requirements", self.phase.name()),
-            "Check ggen.toml configuration".to_string(),
-            "Run `ggen validate` for detailed analysis".to_string(),
+            "Check mcpp.toml configuration".to_string(),
+            "Run `mcpp validate` for detailed analysis".to_string(),
         ]
     }
 
     fn docs_link(&self) -> String {
         format!(
-            "https://ggen.dev/docs/lean-six-sigma/{}",
+            "https://mcpp.dev/docs/lean-six-sigma/{}",
             self.phase.name().to_lowercase()
         )
     }
@@ -748,7 +748,7 @@ mod tests {
         let gate = LeanSixSigmaGate::new(DmaicPhase::Define);
         assert_eq!(
             gate.docs_link(),
-            "https://ggen.dev/docs/lean-six-sigma/define"
+            "https://mcpp.dev/docs/lean-six-sigma/define"
         );
     }
 

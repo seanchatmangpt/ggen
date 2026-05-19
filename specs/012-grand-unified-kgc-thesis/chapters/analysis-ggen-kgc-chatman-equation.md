@@ -1,8 +1,8 @@
-# Analysis of the ggen Codebase: Knowledge Geometry Calculus in Practice
+# Analysis of the mcpp Codebase: Knowledge Geometry Calculus in Practice
 
 ## Introduction
 
-This report examines the ggen repository (a Rust-based template/code generator with RDF support) through the lens of Knowledge Geometry Calculus (KGC) and the Chatman Equation (A = μ(O)), situating its design within the RDF/semantic web ecosystem. We will dissect ggen's core architecture, domain-specific abstractions, and how concepts like Observations (O), Actions (A), the transformation μ, and operators like Λ and Π are realized in software. Additionally, we highlight how ggen enforces data integrity (invariants, constraints) and provenance, employs a graph-driven (and LLM-assisted) approach rather than human-coded logic, and illustrate these principles with the examples/openapi case.
+This report examines the mcpp repository (a Rust-based template/code generator with RDF support) through the lens of Knowledge Geometry Calculus (KGC) and the Chatman Equation (A = μ(O)), situating its design within the RDF/semantic web ecosystem. We will dissect mcpp's core architecture, domain-specific abstractions, and how concepts like Observations (O), Actions (A), the transformation μ, and operators like Λ and Π are realized in software. Additionally, we highlight how mcpp enforces data integrity (invariants, constraints) and provenance, employs a graph-driven (and LLM-assisted) approach rather than human-coded logic, and illustrate these principles with the examples/openapi case.
 
 ---
 
@@ -10,15 +10,15 @@ This report examines the ggen repository (a Rust-based template/code generator w
 
 ### Modular Domain-Driven Design
 
-The ggen codebase is organized into clear modular layers, separating concerns of CLI, core logic, and extensions. The primary library crate (called ggen_domain in recent versions) encapsulates all business logic – loading/processing RDF, template rendering, validation, etc. – independent of any CLI or UI. This means ggen's core can be invoked from a command-line tool, a web service, or even by an autonomous agent, reflecting a **non-human-centered design**.
+The mcpp codebase is organized into clear modular layers, separating concerns of CLI, core logic, and extensions. The primary library crate (called mcpp_domain in recent versions) encapsulates all business logic – loading/processing RDF, template rendering, validation, etc. – independent of any CLI or UI. This means mcpp's core can be invoked from a command-line tool, a web service, or even by an autonomous agent, reflecting a **non-human-centered design**.
 
-The ggen_domain crate uses additional internal crates like ggen-core, ggen-ai, and ggen-marketplace for specific operations, indicating a layered architecture:
+The mcpp_domain crate uses additional internal crates like mcpp-core, mcpp-ai, and mcpp-marketplace for specific operations, indicating a layered architecture:
 
-- **ggen-core**: Lower-level utilities for code generation (RDF handling, template management, deterministic output)
-- **ggen-ai**: AI integration components, enabling LLM-driven functionality (e.g. using rust-genai for intelligent template suggestions or SPARQL generation)
-- **ggen-marketplace**: Handles fetching or publishing template/ontology packages (so teams can share codegen patterns)
+- **mcpp-core**: Lower-level utilities for code generation (RDF handling, template management, deterministic output)
+- **mcpp-ai**: AI integration components, enabling LLM-driven functionality (e.g. using rust-genai for intelligent template suggestions or SPARQL generation)
+- **mcpp-marketplace**: Handles fetching or publishing template/ontology packages (so teams can share codegen patterns)
 
-At a high level, ggen "treats software artifacts as projections of RDF knowledge graphs". In other words, code is not written by hand but derived from a source-of-truth knowledge model.
+At a high level, mcpp "treats software artifacts as projections of RDF knowledge graphs". In other words, code is not written by hand but derived from a source-of-truth knowledge model.
 
 ### The Chatman Equation Pipeline
 
@@ -61,7 +61,7 @@ The domain logic is subdivided by function, each capturing a different aspect of
 
 ### Observations as Graphs
 
-At the heart of ggen is the RDF knowledge graph, representing what KGC terms the **Observations (O)** – the factual state or model of the domain. ggen expects the user's domain to be defined in one or more RDF/OWL files (commonly in Turtle format) which serve as the single source of truth for code generation.
+At the heart of mcpp is the RDF knowledge graph, representing what KGC terms the **Observations (O)** – the factual state or model of the domain. mcpp expects the user's domain to be defined in one or more RDF/OWL files (commonly in Turtle format) which serve as the single source of truth for code generation.
 
 ```turtle
 @prefix ex: <https://example.com/> .
@@ -83,7 +83,7 @@ ex:email a rdf:Property ;
 
 ### The Λ Operator: Loading and Merging Graphs
 
-The graph module uses Oxigraph to load triples into an in-memory store. ggen supports pointing to a directory of ontology files, and it will load all of them (performing a logical union of triples) into a single model. This corresponds to the **Λ (merge/union) operator** in KGC:
+The graph module uses Oxigraph to load triples into an in-memory store. mcpp supports pointing to a directory of ontology files, and it will load all of them (performing a logical union of triples) into a single model. This corresponds to the **Λ (merge/union) operator** in KGC:
 
 ```
 G = Λ(G₁, G₂, ..., Gₙ)
@@ -93,11 +93,11 @@ Where multiple knowledge sources are combined into one cohesive graph.
 
 ### Ontology Reasoning – Inference (Λ as Closure)
 
-Before generating code, ggen can perform ontology inference to materialize implicit knowledge. This corresponds to expanding O by applying logical rules – another aspect of Λ, seen as **closure or knowledge augmentation**. ggen specifically supports running SPARQL CONSTRUCT queries to infer additional triples.
+Before generating code, mcpp can perform ontology inference to materialize implicit knowledge. This corresponds to expanding O by applying logical rules – another aspect of Λ, seen as **closure or knowledge augmentation**. mcpp specifically supports running SPARQL CONSTRUCT queries to infer additional triples.
 
 ### The Π Operator: RDF Data Access – Projection
 
-To bridge the gap from the raw RDF graph to concrete code, ggen must project relevant information into a form the templates can use. This is done via SPARQL queries and data mapping. This is the **Π operation** in KGC: a projection of the high-dimensional knowledge graph onto a lower-dimensional structure.
+To bridge the gap from the raw RDF graph to concrete code, mcpp must project relevant information into a form the templates can use. This is done via SPARQL queries and data mapping. This is the **Π operation** in KGC: a projection of the high-dimensional knowledge graph onto a lower-dimensional structure.
 
 ```rust
 struct ClassDef {
@@ -117,12 +117,12 @@ struct PropertyDef {
 
 ## Transformation Engine (μ) and Code Generation Process
 
-The core operation of ggen – analogous to the function μ in the Chatman Equation – is the transformation of the RDF model into source code. This is implemented by combining the projection data with templating.
+The core operation of mcpp – analogous to the function μ in the Chatman Equation – is the transformation of the RDF model into source code. This is implemented by combining the projection data with templating.
 
 ### Template Definitions
 
 ```jinja2
-// Generated by ggen from {{ ontology }}
+// Generated by mcpp from {{ ontology }}
 {% for class in classes %}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct {{ class.name }} {
@@ -135,7 +135,7 @@ pub struct {{ class.name }} {
 
 ### Execution of μ (the sync command)
 
-1. **Load Config**: Parse ggen.toml for settings
+1. **Load Config**: Parse mcpp.toml for settings
 2. **Load Ontologies**: Use graph module to load all RDF files
 3. **Inference & Validation**: Run CONSTRUCT queries, enforce invariants
 4. **Template Rendering Loop**: For each template, query graph and render
@@ -144,7 +144,7 @@ pub struct {{ class.name }} {
 
 ### Deterministic Projections and Idempotence
 
-A fundamental "law" in ggen's implementation is **determinism**. Given the same input graph, μ will always produce the same A:
+A fundamental "law" in mcpp's implementation is **determinism**. Given the same input graph, μ will always produce the same A:
 
 ```
 ∀ O₁ = O₂ : μ(O₁) = μ(O₂)
@@ -161,14 +161,14 @@ This reflects the KGC principle that operations in the calculus should be functi
 | Layer | Implementation | Purpose |
 |-------|---------------|---------|
 | **OWL/Semantic** | Doctrine engine, SPARQL ASK queries | Domain logic violations |
-| **Executable** | Custom rules in ggen.toml | Business constraints |
+| **Executable** | Custom rules in mcpp.toml | Business constraints |
 | **Merge Guards** | Conflict detection on Λ | Consistency |
 | **Poka-Yoke** | Generation safety module | Error prevention |
 | **Provenance** | File headers, proof objects | Traceability |
 
 ### OWL/Semantic Constraints
 
-By supporting OWL and RDF Schema, ggen can leverage semantic constraints embedded in the ontology:
+By supporting OWL and RDF Schema, mcpp can leverage semantic constraints embedded in the ontology:
 
 ```turtle
 # constraints.ttl
@@ -202,7 +202,7 @@ ex:email rdfs:cardinality "1"^^xsd:nonNegativeInteger .
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-The inclusion of modules like `mape_k` and `temporal_fabric` indicates that ggen is envisioned as an **autonomic system**. An agent monitors the code and environment, plans changes, executes them, and regenerates code – all in a continuous loop.
+The inclusion of modules like `mape_k` and `temporal_fabric` indicates that mcpp is envisioned as an **autonomic system**. An agent monitors the code and environment, plans changes, executes them, and regenerates code – all in a continuous loop.
 
 ### AI Suggestion & Generation
 
@@ -214,7 +214,7 @@ The AI integration can:
 
 ### Non-Human-Centered Focus
 
-Using ggen means developers do not manually code their data models or API clients; they edit the ontology or provide examples to an AI and let the system derive the code. The human's primary artifact is the **knowledge** (which can be discussed in domain terms), and the machine handles implementation.
+Using mcpp means developers do not manually code their data models or API clients; they edit the ontology or provide examples to an AI and let the system derive the code. The human's primary artifact is the **knowledge** (which can be discussed in domain terms), and the machine handles implementation.
 
 ---
 
@@ -222,7 +222,7 @@ Using ggen means developers do not manually code their data models or API client
 
 ### OpenAPI to RDF Conversion
 
-The examples/openapi directory demonstrates ggen applying these principles to a real-world scenario:
+The examples/openapi directory demonstrates mcpp applying these principles to a real-world scenario:
 
 1. **OpenAPI YAML** → Parsed and converted to RDF triples
 2. **Concept Matching** → Align OpenAPI schemas with domain ontology
@@ -255,9 +255,9 @@ The examples/openapi directory demonstrates ggen applying these principles to a 
 
 ---
 
-## KGC Concepts and Their Implementation in ggen
+## KGC Concepts and Their Implementation in mcpp
 
-| KGC Concept | ggen Implementation |
+| KGC Concept | mcpp Implementation |
 |-------------|---------------------|
 | **Observations (O)** | RDF knowledge graph from .ttl/.rdf files |
 | **Action/Artifact (A)** | Generated code artifacts |
@@ -305,7 +305,7 @@ Where:
 
 ## Conclusions and Best-Practice Insights
 
-The ggen codebase provides a compelling real-world implementation of Knowledge Geometry Calculus principles and the Chatman Equation:
+The mcpp codebase provides a compelling real-world implementation of Knowledge Geometry Calculus principles and the Chatman Equation:
 
 1. **Software artifacts are projections of canonical knowledge graphs** – RDF ontologies as single source of truth
 2. **Architecture enforces formality and safety** – type-safe actions, OWL constraints, runtime guards
@@ -316,7 +316,7 @@ The ggen codebase provides a compelling real-world implementation of Knowledge G
 
 ### The Vision
 
-ggen stands as a sophisticated embodiment of Knowledge Geometry Calculus in software. Its use of RDF graphs as the center of gravity, combined with a rigorously structured transformation engine and AI integration, illustrates how the abstract principles of KGC and the Chatman Equation can be translated into a working system.
+mcpp stands as a sophisticated embodiment of Knowledge Geometry Calculus in software. Its use of RDF graphs as the center of gravity, combined with a rigorously structured transformation engine and AI integration, illustrates how the abstract principles of KGC and the Chatman Equation can be translated into a working system.
 
 The result is a tool that not only automates code creation but does so in a way that **knowledge is king** – maintaining integrity, adaptability, and transparency. This aligns perfectly with the vision for a PhD thesis exploring how formal knowledge frameworks and AI can revolutionize software engineering.
 
@@ -324,9 +324,9 @@ The result is a tool that not only automates code creation but does so in a way 
 
 ## References
 
-- ggen README – "Transform RDF ontologies into typed code through SPARQL queries and Tera templates."
-- ggen Tutorial – Example ontology and generated code for a Person model
-- ggen Use Cases – "API Development: Generate client libraries from OpenAPI specs converted to RDF"
-- ggen Configuration – Support for strict RDF validation and template caching
-- ggen Built-with Tech – Oxigraph (RDF store) and Tera template engine
-- ggen Domain Crate Docs – Module breakdown and architectural notes
+- mcpp README – "Transform RDF ontologies into typed code through SPARQL queries and Tera templates."
+- mcpp Tutorial – Example ontology and generated code for a Person model
+- mcpp Use Cases – "API Development: Generate client libraries from OpenAPI specs converted to RDF"
+- mcpp Configuration – Support for strict RDF validation and template caching
+- mcpp Built-with Tech – Oxigraph (RDF store) and Tera template engine
+- mcpp Domain Crate Docs – Module breakdown and architectural notes
