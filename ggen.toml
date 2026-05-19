@@ -2,7 +2,7 @@
 
 [project]
 name = "ggen"
-version = "26.5.4"
+version = "26.5.18"
 description = "Deterministic, language-agnostic code generation framework"
 authors = ["Sean Chatman <sean@ggen.ai>"]
 license = "MIT"

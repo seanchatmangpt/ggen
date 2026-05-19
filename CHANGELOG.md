@@ -5,6 +5,98 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.5.18] — Workspace consolidation & vendored-submodule removal (2026-05-18)
+
+Versions 26.5.6 through 26.5.17 were not released. This entry consolidates
+all work between v26.5.5 and v26.5.18.
+
+### Added
+
+- **`ggen-marketplace` crate** — marketplace logic (atomic, builders, bundle,
+  cache, install, metadata, metrics, migration, models, ontology, ownership,
+  PKI, policy, profile, rdf/, search, security, traits, trust, v3,
+  validation) extracted from `ggen-core` into a dedicated workspace crate.
+  39 file renames with 100% similarity preserved by git's rename detection.
+- **`ggen-a2a-mcp` crate** — A2A protocol modules + MCP server bridge
+  extracted from `ggen-core`. Adds rmcp 1.3.0 integration with 4 tools.
+- **`ggen-config` crate** — `ggen.toml` parser and validator extracted from
+  `ggen-core`. Adds a `receipt/` module (chain, envelope, error,
+  receipt_impl) for cryptographic receipt linkage and verification.
+- **Framework adapter generation** — LangChain Python adapter generation via
+  `ggen framework` command.
+- **`docs/preserved/`** — RECOVERY.md plus `craftplan-local-d2e4c18.bundle`,
+  a 78KB git bundle preserving the local-only commit from the removed
+  `vendors/craftplan` submodule (~6000 lines of Elixir agent integration).
+- **`archive/*` tags (77)** — annotated tags preserving every branch and
+  worktree deleted in this release. To resurrect:
+  `git checkout -b <name> refs/tags/archive/<name>-<date>`.
+- **A2A-RS feature ontology** (`ontology.ttl`) — formal user-story
+  specification for A2A-RS integration, addressing the
+  release-blocking sync-pipeline finding documented in
+  `docs/audits/AUDIT_REPORT_20260513_135106.md`.
+- **`speckit-lifecycle-manager` agent** for autonomous specification lifecycle.
+
+### Changed
+
+- **Workspace consolidated to 7 crates** (`ggen-a2a-mcp`, `ggen-cli`,
+  `ggen-config`, `ggen-core`, `ggen-marketplace`, `ggen-prompt-mfg`,
+  `prolog8`) plus the root `ggen` binary.
+- **Only the root `ggen` binary publishes to crates.io**; all 7 internal
+  crates set `publish = false`. The library is not intended for external
+  consumption.
+- `crates/prolog8/Cargo.toml`: version now inherits from
+  `[workspace.package]` via `version.workspace = true` (was hardcoded
+  `26.5.12`). prolog8 was the only crate not inheriting.
+- `crates/ggen-a2a-mcp/Cargo.toml`: declared
+  `all-adapters = ["http-adapter"]` feature to satisfy
+  `cargo clippy -- -D warnings` (cfg references existed without
+  feature declaration).
+- `ggen.toml`: disabled six A2A-RS Rust generation rules whose Tera
+  templates contained static Rust code that wasn't valid Tera syntax.
+  Elixir A2A rules remain active.
+- `.specify/AUDIT_REPORT_20260513_135106.md` → `docs/audits/`.
+
+### Removed
+
+- **All vendored git submodules:**
+  - `external/unrdf` (HEAD pin `1b104cc9` in upstream
+    `seanchatmangpt/unrdf` at `chore/ggen-parent-snapshot-2026-03-31`)
+  - `vendors/a2a-rs` (HEAD pin `d509b2ed` in upstream
+    `EmilLindfors/a2a-rs` at `origin/master`)
+  - `vendors/craftplan` (HEAD pin `d2e4c183`; **local-only commit**
+    preserved in `docs/preserved/craftplan-local-d2e4c18.bundle`)
+  - `vendors/cre` (HEAD pin `a5c8a9da` in upstream `seanchatmangpt/cre`
+    at `origin/master`)
+  - `vendors/gen_pnet` (HEAD pin `f7f9a26d` in upstream `joergen7/gen_pnet`
+    at `origin/master`)
+- `.gitmodules` deleted (was incomplete; only listed some of the actual
+  submodules).
+- Empty placeholder directories `vendors/gvisor`, `vendors/rust4pm`.
+- `VERSION` file (root `Cargo.toml` is the single source of truth).
+- Hardcoded version literal `"v26.5.4"` from
+  `crates/ggen-cli/src/cmds/telco.rs` default test payload.
+- 51 stale branches and 14 worktrees scattered across `/private/tmp/`,
+  `/Users/sac/.cursor/worktrees/`, `~/ggen-*/`, `.claude/worktrees/`, and
+  `.worktrees/`. Every deletion is recoverable via `archive/*` tags.
+
+### Fixed
+
+- `prolog8` no longer drifts from workspace version on release bumps.
+- `cargo clippy --workspace -- -D warnings` no longer fails on
+  `unexpected_cfgs` in `crates/ggen-a2a-mcp/src/a2a_generated/mod.rs`
+  lines 381, 479, 488 (pre-push hook gate 2 now passes).
+- Tracked-but-runtime artifact `state/extract_claims/manifest.json` no
+  longer pollutes git status (added to `.gitignore`).
+
+### Migration / recovery
+
+- To recover any pre-cleanup branch: `git tag --list 'archive/*'` then
+  `git checkout -b <name> refs/tags/archive/<name>-20260518`.
+- To recover the local-only craftplan commit: see
+  `docs/preserved/RECOVERY.md`.
+- Pre-removal submodule pin manifest is in the annotation body of
+  `archive/submodules-pre-removal-20260518` (`git show <tag>`).
+
 ## [26.5.5] — Claude Code Maximization & Development Infrastructure (2026-05-08)
 
 ### Added
