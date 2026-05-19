@@ -5,10 +5,10 @@
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
 use ggen_core::domain::utils::{execute_doctor, CheckStatus, DoctorInput};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
-use std::path::Path;
 use std::collections::BTreeMap;
+use std::path::Path;
 
 // ============================================================================
 // Output Types
@@ -710,9 +710,10 @@ fn load_manifest(name: &str) -> Result<ManifestData> {
     let path = Path::new(&state_path);
 
     if !path.exists() {
-        return Err(NounVerbError::execution_error(
-            format!("Manifest not found at {}", state_path)
-        ))?;
+        return Err(NounVerbError::execution_error(format!(
+            "Manifest not found at {}",
+            state_path
+        )))?;
     }
 
     let content = std::fs::read_to_string(path)
@@ -731,7 +732,12 @@ fn validate_jsonld_structure(manifest: &ManifestData) -> Result<Vec<ValidationCh
     let context_present = manifest.context.is_some();
     checks.push(ValidationCheck {
         test: "urn:mcpp:test:context_presence".to_string(),
-        outcome: if context_present { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        outcome: if context_present {
+            "earl:Passed"
+        } else {
+            "earl:Failed"
+        }
+        .to_string(),
         detail: if context_present {
             "@context field is present".to_string()
         } else {
@@ -743,7 +749,12 @@ fn validate_jsonld_structure(manifest: &ManifestData) -> Result<Vec<ValidationCh
     let type_present = manifest.type_field.is_some();
     checks.push(ValidationCheck {
         test: "urn:mcpp:test:type_presence".to_string(),
-        outcome: if type_present { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        outcome: if type_present {
+            "earl:Passed"
+        } else {
+            "earl:Failed"
+        }
+        .to_string(),
         detail: if type_present {
             "@type field is present".to_string()
         } else {
@@ -764,7 +775,12 @@ fn validate_jsonld_structure(manifest: &ManifestData) -> Result<Vec<ValidationCh
 
     checks.push(ValidationCheck {
         test: "urn:mcpp:test:public_vocab".to_string(),
-        outcome: if vocab_valid { "earl:Passed" } else { "earl:Failed" }.to_string(),
+        outcome: if vocab_valid {
+            "earl:Passed"
+        } else {
+            "earl:Failed"
+        }
+        .to_string(),
         detail: if vocab_valid {
             "@vocab is null or absent — public vocabulary only".to_string()
         } else {
@@ -786,11 +802,20 @@ fn validate_jsonld_structure(manifest: &ManifestData) -> Result<Vec<ValidationCh
 
     checks.push(ValidationCheck {
         test: "urn:mcpp:test:required_namespaces".to_string(),
-        outcome: if namespaces_present { "earl:Passed" } else { "earl:Failed" }.to_string(),
-        detail: if namespaces_present {
-            "All required namespaces (mcpp, prov, codemeta, dcterms, earl, schema) are defined".to_string()
+        outcome: if namespaces_present {
+            "earl:Passed"
         } else {
-            format!("Missing required namespaces. Required: {}", required_namespaces.join(", "))
+            "earl:Failed"
+        }
+        .to_string(),
+        detail: if namespaces_present {
+            "All required namespaces (mcpp, prov, codemeta, dcterms, earl, schema) are defined"
+                .to_string()
+        } else {
+            format!(
+                "Missing required namespaces. Required: {}",
+                required_namespaces.join(", ")
+            )
         },
     });
 
@@ -801,14 +826,16 @@ fn generate_earl_ttl(checks: &[ValidationCheck], _operation_id: &str) -> String 
     let mut ttl = String::new();
 
     // Turtle prefixes
-    ttl.push_str(r#"@prefix earl: <http://www.w3.org/ns/earl#> .
+    ttl.push_str(
+        r#"@prefix earl: <http://www.w3.org/ns/earl#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix mcpp: <urn:mcpp:> .
 
-"#);
+"#,
+    );
 
     // Generate EARL TestResult for each check
     for (idx, check) in checks.iter().enumerate() {
@@ -865,8 +892,5 @@ fn validate(manifest_name: String) -> Result<ShaclValidationResult> {
     println!("{}", earl_ttl);
 
     // Return validation result
-    Ok(ShaclValidationResult {
-        valid,
-        checks,
-    })
+    Ok(ShaclValidationResult { valid, checks })
 }

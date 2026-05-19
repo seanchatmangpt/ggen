@@ -106,7 +106,8 @@ fn bridge_langchain(name: String) -> NounVerbResult<BridgeLangChainOutput> {
         status: "generated".to_string(),
         message: format!(
             "LangChain adapter for '{}' generated successfully. Location: {}",
-            name, output_dir.display()
+            name,
+            output_dir.display()
         ),
         python_syntax_valid: syntax_valid,
     })
@@ -156,13 +157,12 @@ fn render_langchain_template(context: &TemplateContext) -> NounVerbResult<String
         ctx.insert("description", &context.description);
         ctx.insert("parameters", &context.parameters);
 
-        tera.render("langchain.tool.py.tera", &ctx)
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
-                    "Failed to render template: {}",
-                    e
-                ))
-            })
+        tera.render("langchain.tool.py.tera", &ctx).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to render template: {}",
+                e
+            ))
+        })
     } else {
         // Fallback: generate template inline
         generate_langchain_fallback(context)
