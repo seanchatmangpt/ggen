@@ -54,10 +54,32 @@ where
 /// ```
 pub fn block_on<F, T>(future: F) -> T
 where
-    F: Future<Output = T>,
+    F: Future<Output = T> + Send,
+    T: Send,
 {
-    let runtime = tokio::runtime::Runtime::new()
-        .expect("Failed to create Tokio runtime");
-
-    runtime.block_on(future)
+    // Check if we're already in a runtime
+    match tokio::runtime::Handle::try_current() {
+        Ok(_) => {
+            // Already in runtime - spawn new thread with new runtime to avoid nesting
+            std::thread::scope(|s| {
+                s.spawn(move || {
+                    let rt = tokio::runtime::Runtime::new()
+                        .unwrap_or_else(|e| {
+                            panic!("Failed to create Tokio runtime in nested context: {}", e);
+                        });
+                    rt.block_on(future)
+                }).unwrap_or_else(|e| {
+                    panic!("Runtime thread panicked: {:?}", e);
+                })
+            })
+        }
+        Err(_) => {
+            // Not in runtime - create one on current thread
+            let runtime = tokio::runtime::Runtime::new()
+                .unwrap_or_else(|e| {
+                    panic!("Failed to create Tokio runtime: {}", e);
+                });
+            runtime.block_on(future)
+        }
+    }
 }
