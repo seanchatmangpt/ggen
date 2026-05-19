@@ -11,6 +11,7 @@
 pub mod ai;
 pub mod graph;
 pub mod hook;
+pub mod lifecycle;
 pub mod marketplace;
 pub mod project;
 pub mod template;
@@ -43,6 +44,9 @@ pub enum Commands {
     /// Marketplace operations (search, install, list, publish, update)
     Marketplace(crate::cmds::marketplace::MarketplaceArgs),
 
+    /// Lifecycle operations (list, run, pipeline, show, state)
+    Lifecycle(crate::cmds::lifecycle::LifecycleArgs),
+
     /// Project operations (new, gen, apply, plan, init)
     Project(crate::cmds::project::ProjectArgs),
 
@@ -63,6 +67,7 @@ impl Cli {
             Commands::Ai(args) => args.execute(),
             Commands::Graph(args) => args.execute(),
             Commands::Marketplace(args) => args.execute(),
+            Commands::Lifecycle(args) => args.execute(),
             Commands::Project(args) => args.execute(),
             Commands::Hook(cmd) => cmd.execute(),
             Commands::Utils(cmd) => cmd.execute(),
