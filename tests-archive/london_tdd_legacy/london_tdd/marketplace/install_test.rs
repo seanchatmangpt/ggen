@@ -68,7 +68,7 @@ test!(test_add_fails_for_nonexistent_package, {
         .expect_download()
         .with(eq("io.ggen.nonexistent"))
         .times(1)
-        .returning(|_| Err(ggen_utils::error::Error::new("Package not found")));
+        .returning(|_| Err(ggen_core::utils::error::Error::new("Package not found")));
 
     // Act
     let result = run_add_command(&mock_marketplace, &mock_fs, "io.ggen.nonexistent");

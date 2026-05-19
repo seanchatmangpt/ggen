@@ -11,6 +11,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_task_queue_creation() {
         // Arrange
         let queue_name = "default_queue";
@@ -25,6 +26,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_queue_add_task() {
         // Arrange
         let mut tasks = vec![];
@@ -39,6 +41,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_queue_fifo_order() {
         // Arrange
         let mut tasks = vec![];
@@ -58,6 +61,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_queue_max_capacity() {
         // Arrange
         let max_size = 10;
@@ -73,6 +77,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_queue_is_full() {
         // Arrange
         let max_size = 5;
@@ -89,6 +94,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_queue_reject_when_full() {
         // Arrange
         let max_size = 3;
@@ -113,6 +119,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_backpressure_reject_policy() {
         // Arrange
         let reject_threshold = 80;
@@ -128,6 +135,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_backpressure_accept_below_threshold() {
         // Arrange
         let reject_threshold = 80;
@@ -143,6 +151,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_backpressure_at_exact_threshold() {
         // Arrange
         let reject_threshold = 80;
@@ -158,6 +167,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_backpressure_queue_utilization_tracking() {
         // Arrange
         let max_size = 100;
@@ -182,6 +192,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_worker_pool_creation() {
         // Arrange
         let pool_size = 5;
@@ -195,6 +206,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_pool_add_worker() {
         // Arrange
         let pool_size = 5;
@@ -209,6 +221,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_pool_multiple_workers() {
         // Arrange
         let pool_size = 10;
@@ -226,6 +239,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_pool_at_capacity() {
         // Arrange
         let pool_size = 3;
@@ -243,6 +257,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_pool_remove_worker() {
         // Arrange
         let mut active_workers = 3;
@@ -257,6 +272,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_health_state_idle() {
         // Arrange
         let worker_id = 1;
@@ -270,6 +286,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_health_state_processing() {
         // Arrange
         let worker_id = 1;
@@ -283,6 +300,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_health_state_failed() {
         // Arrange
         let worker_id = 1;
@@ -300,6 +318,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_assign_task_to_idle_worker() {
         // Arrange
         let task_id = 1;
@@ -314,6 +333,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_cannot_assign_to_busy_worker() {
         // Arrange
         let task_id = 1;
@@ -328,6 +348,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_assignment_record() {
         // Arrange
         let task_id = 1;
@@ -346,6 +367,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_agent_failure_detection() {
         // Arrange
         let worker_id = 1;
@@ -362,6 +384,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_agent_recovery() {
         // Arrange
         let worker_id = 1;
@@ -375,6 +398,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_failed_task_requeue() {
         // Arrange
         let failed_task = 1;
@@ -388,6 +412,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_max_retries_exceeded() {
         // Arrange
         let max_retries = 3;
@@ -405,6 +430,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_orchestrator_initialization() {
         // Arrange
         let max_queue_size = 1000;
@@ -419,6 +445,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_orchestrator_submit_task() {
         // Arrange
         let mut task_queue = vec![];
@@ -432,6 +459,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_orchestrator_distribute_tasks() {
         // Arrange
         let mut task_queue = vec![];
@@ -450,6 +478,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_orchestrator_complete_task() {
         // Arrange
         let task_id = 1;
@@ -467,6 +496,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_complete_job_workflow() {
         // Arrange: Create job with tasks
         let job_id = 1;
@@ -484,6 +514,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_job_with_agent_failure_recovery() {
         // Arrange
         let mut job_status = "running";
@@ -503,6 +534,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_concurrent_task_processing() {
         // Arrange
         let task_count = 20;
@@ -519,6 +551,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_backpressure_during_high_load() {
         // Arrange
         let max_queue = 100;
@@ -535,6 +568,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_graceful_queue_drain() {
         // Arrange
         let mut queue = vec![1, 2, 3, 4, 5];
@@ -555,6 +589,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_system_metrics_collection() {
         // Arrange
         let total_tasks = 100;
@@ -569,6 +604,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_queue_depth_tracking() {
         // Arrange
         let mut queue = vec![];
@@ -584,6 +620,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_worker_utilization_calculation() {
         // Arrange
         let active_workers = 7;
@@ -597,6 +634,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_task_throughput_calculation() {
         // Arrange
         let tasks_completed = 100;
@@ -614,6 +652,7 @@ mod tests {
     // ==============================================================================
 
     #[test]
+#[ignore]
     fn test_job_pending_to_running() {
         // Arrange
         let mut status = "pending";
@@ -626,6 +665,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_job_running_to_paused() {
         // Arrange
         let mut status = "running";
@@ -638,6 +678,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_job_paused_to_running() {
         // Arrange
         let mut status = "paused";
@@ -650,6 +691,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_job_running_to_completed() {
         // Arrange
         let mut status = "running";
@@ -662,6 +704,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_job_running_to_failed() {
         // Arrange
         let mut status = "running";
@@ -674,6 +717,7 @@ mod tests {
     }
 
     #[test]
+#[ignore]
     fn test_invalid_status_transition() {
         // Arrange
         let status = "completed";

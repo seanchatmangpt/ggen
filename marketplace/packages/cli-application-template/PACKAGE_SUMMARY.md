@@ -1,7 +1,7 @@
 # CLI Application Template - Package Summary
 
 **Status:** ✅ Complete
-**Location:** `/Users/sac/ggen/marketplace/packages/cli-application-template/`
+**Location:** `~/.ggen/mcpp/marketplace/packages/cli-application-template/`
 **Version:** 1.0.0
 
 ## Package Overview
@@ -216,7 +216,7 @@ All three major CLI ecosystems:
 ### 1. Define CLI in RDF
 
 ```turtle
-@prefix cli: <http://ggen.dev/ontology/cli#> .
+@prefix cli: <http://mcpp.dev/ontology/cli#> .
 
 :MyApp a cli:CLIApplication ;
     cli:commandName "myapp" ;
@@ -241,7 +241,7 @@ All three major CLI ecosystems:
 ### 2. Generate CLI
 
 ```bash
-ggen generate cli-application-template \
+mcpp generate cli-application-template \
   --input spec.ttl \
   --output myapp-rs \
   --language rust
@@ -279,12 +279,12 @@ cargo build --release
 ## Installation
 
 ```bash
-ggen marketplace install cli-application-template
+mcpp marketplace install cli-application-template
 ```
 
 ## Dependencies
 
-- **ggen-core:** >=0.4.0 (RDF and SPARQL processing)
+- **mcpp-core:** >=0.4.0 (RDF and SPARQL processing)
 
 ## License
 

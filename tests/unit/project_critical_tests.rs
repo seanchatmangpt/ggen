@@ -27,14 +27,14 @@ fn test_project_init_creates_basic_structure() {
 
     // Act: Create project structure
     fs::create_dir_all(&project_path).unwrap();
-    let ggen_file = project_path.join("ggen.yml");
-    fs::write(&ggen_file, "name: test-project\nversion: 1.0.0\n").unwrap();
+    let mcpp_file = project_path.join("mcpp.yml");
+    fs::write(&mcpp_file, "name: test-project\nversion: 1.0.0\n").unwrap();
 
     // Assert: Project structure created
     assert!(project_path.exists());
-    assert!(ggen_file.exists());
+    assert!(mcpp_file.exists());
 
-    let content = fs::read_to_string(&ggen_file).unwrap();
+    let content = fs::read_to_string(&mcpp_file).unwrap();
     assert!(content.contains("name: test-project"));
     assert!(content.contains("version: 1.0.0"));
 }
@@ -51,18 +51,18 @@ fn test_project_init_with_preset() {
 
     // Act: Create project with preset structure
     fs::create_dir_all(&project_path).unwrap();
-    let ggen_file = project_path.join("ggen.yml");
-    let ggen_content = r#"name: my-app
+    let mcpp_file = project_path.join("mcpp.yml");
+    let mcpp_content = r#"name: my-app
 version: 1.0.0
 preset: react-app
 dependencies:
   - react
   - react-dom
 "#;
-    fs::write(&ggen_file, ggen_content).unwrap();
+    fs::write(&mcpp_file, mcpp_content).unwrap();
 
     // Assert: Preset configuration applied
-    let content = fs::read_to_string(&ggen_file).unwrap();
+    let content = fs::read_to_string(&mcpp_file).unwrap();
     assert!(content.contains("preset: react-app"));
     assert!(content.contains("- react"));
     assert!(content.contains("- react-dom"));

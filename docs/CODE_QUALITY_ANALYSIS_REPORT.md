@@ -120,8 +120,8 @@ use oxigraph::io::RdfFormat;
 ```
 
 **Files Affected**:
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/tests/unit/sparql_operations_test.rs` (7 occurrences)
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/tests/unit/rdf_turtle_test.rs` (2 occurrences)
+- `./crates/ggen-marketplace-v2/tests/unit/sparql_operations_test.rs` (7 occurrences)
+- `./crates/ggen-marketplace-v2/tests/unit/rdf_turtle_test.rs` (2 occurrences)
 - All SPARQL/RDF integration tests
 
 ---
@@ -168,8 +168,8 @@ pub enum PackageState {
 ```
 
 **Files Affected**:
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/tests/unit/poka_yoke_types_test.rs`
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs`
+- `./crates/ggen-marketplace-v2/tests/unit/poka_yoke_types_test.rs`
+- `./crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs`
 
 ---
 
@@ -820,10 +820,10 @@ Week 3: Prevent Future Defects (DfLSS)
 
 ## 🔗 Related Documentation
 
-- `/Users/sac/ggen/docs/EVOLUTION_OLLAMA_TEST_SUITE.md` - Test suite evolution history
-- `/Users/sac/ggen/docs/PR73_VALIDATION_FMEA.md` - FMEA risk assessment for PR#73
-- `/Users/sac/ggen/Cargo.toml` - Workspace configuration and lints
-- `/Users/sac/ggen/Makefile.toml` - Build automation and SLOs
+- `./docs/EVOLUTION_OLLAMA_TEST_SUITE.md` - Test suite evolution history
+- `./docs/PR73_VALIDATION_FMEA.md` - FMEA risk assessment for PR#73
+- `./Cargo.toml` - Workspace configuration and lints
+- `./Makefile.toml` - Build automation and SLOs
 
 ---
 

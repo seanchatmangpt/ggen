@@ -109,7 +109,7 @@ Control Limits:
 
 ## 📄 Full Report
 
-`/Users/sac/ggen/specs/004-optimize-test-concurrency/dflss/STATISTICS_VARIATION_ANALYSIS.md`
+`./specs/004-optimize-test-concurrency/dflss/STATISTICS_VARIATION_ANALYSIS.md`
 
 ---
 

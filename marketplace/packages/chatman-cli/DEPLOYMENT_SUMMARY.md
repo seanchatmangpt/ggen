@@ -22,7 +22,7 @@ Created complete 30-second deployment automation from ontology to crates.io with
 **Features**:
 - ✓ 6-step deployment pipeline
 - ✓ Ontology version extraction
-- ✓ ggen template integration
+- ✓ mcpp template integration
 - ✓ Dry-run validation
 - ✓ Execution time tracking
 - ✓ Color-coded progress output
@@ -36,7 +36,7 @@ Created complete 30-second deployment automation from ontology to crates.io with
 **Pipeline Steps** (30s total target):
 1. Validation (5s) - Pre-deployment checks
 2. Ontology loading (2s) - Load from RDF
-3. Code generation (5s) - ggen templates
+3. Code generation (5s) - mcpp templates
 4. Build (10s) - Release binary
 5. Testing (5s) - Test suite
 6. Publish (3s) - crates.io upload

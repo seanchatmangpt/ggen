@@ -619,9 +619,9 @@ npx claude-flow@alpha hooks post-task \
 
 ## References
 
-- **Main Design**: `/Users/sac/ggen/docs/week2/ARCHITECTURE_DOMAIN_MODULES.md`
-- **Diagrams**: `/Users/sac/ggen/docs/week2/ARCHITECTURE_DIAGRAMS.puml`
-- **API Signatures**: `/Users/sac/ggen/docs/week2/ARCHITECTURE_API_SIGNATURES.md`
+- **Main Design**: `./docs/week2/ARCHITECTURE_DOMAIN_MODULES.md`
+- **Diagrams**: `./docs/week2/ARCHITECTURE_DIAGRAMS.puml`
+- **API Signatures**: `./docs/week2/ARCHITECTURE_API_SIGNATURES.md`
 - **Memory Keys**:
   - `swarm/architecture/domain-modules`
   - `swarm/architecture/api-signatures`

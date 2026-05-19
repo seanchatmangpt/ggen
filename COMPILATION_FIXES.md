@@ -121,13 +121,13 @@ cargo check --all
 
 ```bash
 # Verify ggen-dod compiles
-cd /Users/sac/ggen && cargo build --package ggen-dod
+cd . && cargo build --package ggen-dod
 
 # Verify release build
-cd /Users/sac/ggen && cargo build --release
+cd . && cargo build --release
 
 # Check all packages (production code)
-cd /Users/sac/ggen && cargo check --all
+cd . && cargo check --all
 ```
 
 ## Impact

@@ -15,7 +15,7 @@ use tokio::sync::RwLock;
 
 use ggen_ai::constants::{env_vars, models};
 use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
-use ggen_domain::mcp_config::{
+use ggen_core::domain::mcp_config::{
     load_config, stop_server, A2aConfig, McpServerConfig, PROJECT_A2A_CONFIG, PROJECT_MCP_CONFIG,
 };
 use serde_json::Value as JsonValue;
@@ -627,7 +627,7 @@ fn init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput
 
 /// Helper function to perform config initialization (reduces complexity)
 fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput> {
-    use ggen_domain::mcp_config::{
+    use ggen_core::domain::mcp_config::{
         init_a2a_config as domain_init_a2a, init_mcp_config as domain_init_mcp,
     };
 
@@ -718,7 +718,7 @@ fn validate_config(
 fn perform_validate_config(
     mcp_file: Option<String>, a2a_file: Option<String>,
 ) -> VerbResult<ConfigValidateOutput> {
-    use ggen_domain::mcp_config::validate_mcp_config as domain_validate_mcp;
+    use ggen_core::domain::mcp_config::validate_mcp_config as domain_validate_mcp;
     use std::path::PathBuf;
 
     let project_dir = std::env::current_dir().map_err(|e| {
@@ -833,7 +833,7 @@ fn start_server(server_name: String, background: bool) -> VerbResult<ServerStart
     let serve_result = block_on(async {
         ggen_a2a_mcp::server::serve_stdio()
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("{}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("{}", e)))
     });
     match serve_result {
         Ok(Ok(())) => {}
@@ -1213,13 +1213,13 @@ fn groq_stream(
 // ============================================================================
 
 /// Output for the `ggen mcp generate` command
-#[derive(Serialize)]
-struct McpGenerateOutput {
-    ontology_path: String,
-    output_dir: String,
-    skip_compile_gate: bool,
-    status: String,
-    message: String,
+#[derive(Serialize, Debug)]
+pub struct McpGenerateOutput {
+    pub ontology_path: String,
+    pub output_dir: String,
+    pub skip_compile_gate: bool,
+    pub status: String,
+    pub message: String,
 }
 
 /// Generate an MCP server from an ontology TTL file
@@ -1227,20 +1227,22 @@ struct McpGenerateOutput {
 /// This command runs the MCP generation pipeline, producing tool definitions
 /// and server scaffolding from RDF ontology specifications.
 ///
-/// # Pipeline Stages (planned)
+/// # Pipeline Stages
 ///
 /// 1. Load ontology from TTL file
-/// 2. Extract MCP tool definitions from ontology classes/properties
-/// 3. Generate Rust source code for MCP tools
+/// 2. Generate MCP JSON context via domain logic
+/// 3. Run ggen sync pipeline (μ₁-μ₅) for code generation
 /// 4. Optionally run compile gate
 /// 5. Emit generated files to output directory
 ///
-/// Currently prints the planned pipeline stages; actual generation
-/// is wired in a separate task.
+/// Uses domain logic for RDF-to-JSON conversion and sync pipeline for generation.
 #[verb]
-fn generate(
+pub fn generate(
     ontology: String, output: Option<String>, skip_compile_gate: bool,
 ) -> VerbResult<McpGenerateOutput> {
+    use ggen_core::sync::{self, SyncConfig, SyncLanguage};
+    use ggen_core::domain::mcp_generate;
+
     let ontology_path = std::path::PathBuf::from(&ontology);
 
     // Validate ontology file exists (Chicago TDD: real filesystem check)
@@ -1251,33 +1253,106 @@ fn generate(
         )));
     }
 
+    // Step 1: Generate MCP context from RDF via domain logic
+    let mcp_context = mcp_generate::generate_mcp_context(&ontology_path, None).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to generate MCP context: {}",
+            e
+        ))
+    })?;
+
+    // Step 2: Resolve output directory
     let output_dir = output.map(std::path::PathBuf::from).unwrap_or_else(|| {
         std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
     });
 
-    // Pipeline stages (planned — actual integration is a separate task)
-    let stages = vec![
-        "1. Load ontology from TTL file",
-        "2. Extract MCP tool definitions from ontology classes/properties",
-        "3. Generate Rust source code for MCP tools",
-        if skip_compile_gate {
-            "4. Compile gate: SKIPPED (--skip-compile-gate)"
-        } else {
-            "4. Run compile gate validation"
-        },
-        "5. Emit generated files to output directory",
-    ];
+    // Step 3: Resolve queries directory (defaults to "queries/" beside ontology)
+    let parent = ontology_path
+        .parent()
+        .unwrap_or_else(|| std::path::Path::new("."));
+    let queries_dir = parent.join("queries");
 
-    for stage in &stages {
-        println!("  {}", stage);
-    }
+    // Step 4: Run the sync pipeline on a blocking thread
+    let ontology_path_clone = ontology_path.clone();
+    let output_dir_clone = output_dir.clone();
+    let queries_dir_clone = queries_dir.clone();
+
+    let result = std::thread::spawn(move || {
+        let config = SyncConfig {
+            ontology_path: ontology_path_clone,
+            queries_dir: queries_dir_clone,
+            output_dir: output_dir_clone,
+            language: SyncLanguage::Auto,
+            validate: !skip_compile_gate,
+            dry_run: false,
+        };
+        sync::sync(config)
+    })
+    .join()
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Thread panic during generation: {:?}",
+            e
+        ))
+    })?
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Generation failed: {}",
+            e
+        ))
+    })?;
+
+    // Step 5: Format output with MCP context info
+    let files: Vec<String> = result
+        .files_generated
+        .iter()
+        .map(|p| p.display().to_string())
+        .collect();
+
+    let violations = if result.soundness_violations.is_empty() {
+        "none".to_string()
+    } else {
+        format!("{} violations", result.soundness_violations.len())
+    };
+
+    // Count MCP entities from context
+    let server_count = if mcp_context.contains_key("server") { 1 } else { 0 };
+    let tools_count = mcp_context
+        .get("tools")
+        .and_then(|v: &serde_json::Value| v.as_array())
+        .map(|arr| arr.len())
+        .unwrap_or(0);
+    let resources_count = mcp_context
+        .get("resources")
+        .and_then(|v: &serde_json::Value| v.as_array())
+        .map(|arr| arr.len())
+        .unwrap_or(0);
+    let prompts_count = mcp_context
+        .get("prompts")
+        .and_then(|v: &serde_json::Value| v.as_array())
+        .map(|arr| arr.len())
+        .unwrap_or(0);
 
     Ok(McpGenerateOutput {
-        ontology_path: ontology_path.display().to_string(),
+        ontology_path: ontology,
         output_dir: output_dir.display().to_string(),
         skip_compile_gate,
-        status: "planned".to_string(),
-        message: "MCP generation pipeline staged. Actual generation is wired in a separate task."
-            .to_string(),
+        status: "success".to_string(),
+        message: format!(
+            "Generated {} file(s) in {}ms\n\
+             MCP Context: {} server(s), {} tool(s), {} resource(s), {} prompt(s)\n\
+             Files: {}\n\
+             Soundness violations: {}\n\
+             Receipt: {}",
+            files.len(),
+            result.elapsed_ms,
+            server_count,
+            tools_count,
+            resources_count,
+            prompts_count,
+            files.join(", "),
+            violations,
+            result.receipt
+        ),
     })
 }

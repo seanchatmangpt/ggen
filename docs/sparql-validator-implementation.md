@@ -6,9 +6,9 @@ The `SPARQLValidatorAgent` is an autonomous A2A (Agent-to-Agent) component that 
 
 ## Location
 
-- **File**: `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/sparql_validator.rs`
+- **File**: `./crates/ggen-ai/src/swarm/agents/sparql_validator.rs`
 - **Module**: `ggen_ai::swarm::agents::sparql_validator`
-- **Tests**: `/Users/sac/ggen/crates/ggen-ai/tests/sparql_validator_agent_tests.rs`
+- **Tests**: `./crates/ggen-ai/tests/sparql_validator_agent_tests.rs`
 
 ## Architecture
 
@@ -341,4 +341,4 @@ The `SPARQLValidatorAgent` provides autonomous SPARQL validation and fixing capa
 **Implementation Date**: 2026-03-30
 **Status**: ✅ Complete and tested
 **Priority**: P1 (Gap #5)
-**File**: `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/sparql_validator.rs`
+**File**: `./crates/ggen-ai/src/swarm/agents/sparql_validator.rs`

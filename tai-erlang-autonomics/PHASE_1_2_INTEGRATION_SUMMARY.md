@@ -417,7 +417,7 @@ PHASE 3: Feb 24 - Apr 20 (8 weeks)
 - Formal security verification
 - Comprehensive documentation
 
-**All deliverables are in**: `/Users/sac/ggen/tai-erlang-autonomics/`
+**All deliverables are in**: `~/.ggen/mcpp/tai-erlang-autonomics/`
 
 ---
 

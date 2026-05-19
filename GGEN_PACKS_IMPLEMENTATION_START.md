@@ -12,7 +12,7 @@
 
 ### Module Structure Created
 ```
-crates/ggen-domain/src/marketplace/
+crates/mcpp-domain/src/marketplace/
 ├─ adapter.rs                    # MarketplaceRegistry trait (existing)
 ├─ packs/                         # GGEN PACKS commands
 │  ├─ mod.rs                     # Command module organization
@@ -63,19 +63,19 @@ let filter = DiscoveryFilter::new()
 **Usage Examples**:
 ```bash
 # List all packages
-ggen packs list
+mcpp packs list
 
 # List production-ready packages with quality >= 80
-ggen packs list --quality-score 80 --production-only
+mcpp packs list --quality-score 80 --production-only
 
 # List as JSON for scripting
-ggen packs list --format json
+mcpp packs list --format json
 
 # List packages by author, sorted by quality
-ggen packs list --author "React Core" --sort quality
+mcpp packs list --author "React Core" --sort quality
 
 # Limit to top 10 packages
-ggen packs list --sort quality --limit 10
+mcpp packs list --sort quality --limit 10
 ```
 
 **Output Formats Supported**:
@@ -193,11 +193,11 @@ pub async fn list_packages(
 ```
 ┌────────────────────────────────────────────┐
 │ CLI Commands (clap-noun-verb)              │
-│ future: automatically discovers ggen packs │
+│ future: automatically discovers mcpp packs │
 └────────────────┬─────────────────────────┘
                  │
 ┌────────────────▼─────────────────────────┐
-│ Domain Layer (ggen-domain/marketplace)   │
+│ Domain Layer (mcpp-domain/marketplace)   │
 │ ├─ PackageDiscoveryService (IMPLEMENTED) │
 │ ├─ DependencyResolver (planned)          │
 │ ├─ ManifestManager (planned)             │
@@ -322,13 +322,13 @@ println!("{}", output);
 ## Files Created/Modified
 
 **New Files** (600+ lines total):
-- `crates/ggen-domain/src/marketplace/packs/mod.rs` (30 lines)
-- `crates/ggen-domain/src/marketplace/packs/list.rs` (400+ lines)
-- `crates/ggen-domain/src/marketplace/packs_services/mod.rs` (20 lines)
-- `crates/ggen-domain/src/marketplace/packs_services/discovery.rs` (350+ lines)
+- `crates/mcpp-domain/src/marketplace/packs/mod.rs` (30 lines)
+- `crates/mcpp-domain/src/marketplace/packs/list.rs` (400+ lines)
+- `crates/mcpp-domain/src/marketplace/packs_services/mod.rs` (20 lines)
+- `crates/mcpp-domain/src/marketplace/packs_services/discovery.rs` (350+ lines)
 
 **Modified Files**:
-- `crates/ggen-domain/src/marketplace/mod.rs` - Added module declarations and exports
+- `crates/mcpp-domain/src/marketplace/mod.rs` - Added module declarations and exports
 
 **No Breaking Changes**:
 - ✅ Existing marketplace code untouched

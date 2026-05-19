@@ -15,10 +15,10 @@ Unable to run integration tests due to compilation failures in `ggen-cli-lib`. M
 - **Issue**: `commands/ai`, `commands/project`, `commands/utils` modules declared but files missing
 - **Fix Applied**: Created stub `mod.rs` files for backwards compatibility
 - **Files Created**:
-  - `/Users/sac/ggen/cli/src/commands/ai/mod.rs`
-  - `/Users/sac/ggen/cli/src/commands/project/mod.rs`
-  - `/Users/sac/ggen/cli/src/commands/utils/mod.rs`
-  - `/Users/sac/ggen/cli/src/commands/utils/doctor.rs`
+  - `./cli/src/commands/ai/mod.rs`
+  - `./cli/src/commands/project/mod.rs`
+  - `./cli/src/commands/utils/mod.rs`
+  - `./cli/src/commands/utils/doctor.rs`
 
 ### 2. Agent 5's Incorrect Error Type Usage (PARTIALLY FIXED ⚠️)
 - **Issue**: Agent 5 implemented marketplace functions using non-existent Error enum variants

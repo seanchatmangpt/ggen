@@ -435,7 +435,7 @@ assert_lockfile_valid(fixture.manager());
 ```
 $ cargo test --package ggen-core --test lockfile_tests
 
-   Compiling ggen-core v3.2.0 (/Users/sac/ggen/crates/ggen-core)
+   Compiling ggen-core v3.2.0 (./crates/ggen-core)
     ████████████████████████████████ [Slow: 25.66s]
     Finished `test` profile [unoptimized + debuginfo]
      Running tests/lockfile_tests.rs
@@ -451,7 +451,7 @@ Total time: 25.66s + 0.02s = 25.68s
 ```
 $ cargo test --package ggen-core --test lockfile_tests_lean
 
-   Compiling ggen-core v3.2.0 (/Users/sac/ggen/crates/ggen-core)
+   Compiling ggen-core v3.2.0 (./crates/ggen-core)
     ████████████████ [Fast: ~12s, -52%]
     Finished `test` profile [unoptimized + debuginfo]
      Running tests/lockfile_tests_lean.rs

@@ -84,7 +84,7 @@ All 3,939 tests passed with zero failures. The workspace demonstrates excellent 
 | `ggen-dod` | 15 | ✅ 15 passed | 0.00s |
 | `ggen-poka-yoke` | 15 | ✅ 15 passed | 0.00s |
 | `ggen-auth` | 14 | ✅ 14 passed | 0.01s |
-| `ggen-process-mining` | 14 | ✅ 14 passed | 0.00s |
+| `native pictl process mining` | 14 | ✅ 14 passed | 0.00s |
 | `ggen-e2e-tps` | 8 | ✅ 8 passed | 0.00s |
 | `ggen-consensus` | 8 | ✅ 8 passed | 0.00s |
 | `ggen-utils` | 6 | ✅ 6 passed | 0.00s |

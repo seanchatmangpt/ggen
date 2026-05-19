@@ -640,7 +640,7 @@ Audit logs exported monthly to tamper-proof storage:
 
 ```bash
 # Monthly export to immutable storage
-ggen audit export \
+mcpp audit export \
   --tenant-id=all \
   --month=2025-01 \
   --format=csv.gpg \

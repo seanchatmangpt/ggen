@@ -1,6 +1,6 @@
-# ggen Partnership Strategy: Executive Summary
+# mcpp Partnership Strategy: Executive Summary
 
-**Prepared for**: ggen Leadership & Board
+**Prepared for**: mcpp Leadership & Board
 **Date**: January 25, 2026
 **Prepared by**: Strategy & Partnerships Team
 **Classification**: Strategic Planning Document
@@ -9,7 +9,7 @@
 
 ## The Opportunity
 
-ggen represents a fundamental paradigm shift in code generation: **Code Precipitates from Specifications (A = μ(O))** rather than being manually crafted or iteratively refined.
+mcpp represents a fundamental paradigm shift in code generation: **Code Precipitates from Specifications (A = μ(O))** rather than being manually crafted or iteratively refined.
 
 This breakthrough creates a $850B+ addressable market opportunity across:
 - **Infrastructure-as-Code** ($2B annual market)
@@ -17,7 +17,7 @@ This breakthrough creates a $850B+ addressable market opportunity across:
 - **Compliance Automation** ($500M+ annual market for automation)
 - **Data Lineage & Governance** ($10B+ market for enterprise data management)
 
-**Key Insight**: By building strategic partnerships with cloud platforms, enterprise integrators, and compliance vendors, ggen can capture 25%+ market share with 10,000+ enterprise customers by 2027.
+**Key Insight**: By building strategic partnerships with cloud platforms, enterprise integrators, and compliance vendors, mcpp can capture 25%+ market share with 10,000+ enterprise customers by 2027.
 
 ---
 
@@ -25,10 +25,10 @@ This breakthrough creates a $850B+ addressable market opportunity across:
 
 ### The Model: Ecosystem-Driven Growth
 
-Instead of direct sales, ggen builds partnerships to reach customers:
+Instead of direct sales, mcpp builds partnerships to reach customers:
 
 ```
-ggen (Product)
+mcpp (Product)
   ↓
 Partners (Distribution)
   ↓
@@ -39,13 +39,13 @@ Enterprise Customers (10,000+)
 - **Lower CAC**: $2K per customer (vs $5K direct) = 2.5x efficiency
 - **Faster Growth**: Partners own relationships, move faster
 - **Better Market Coverage**: Partners have existing customer bases
-- **Reduced Burden**: Focus ggen on product, partners handle sales
+- **Reduced Burden**: Focus mcpp on product, partners handle sales
 
 ### Revenue Model: Win-Win Partnerships
 
 Each partnership tier operates on win-win economics:
 
-| Partner Category | ggen Share | Partner Share | Annual Potential |
+| Partner Category | mcpp Share | Partner Share | Annual Potential |
 |---|---|---|---|
 | Cloud Platforms | 25-30% (ARR) | 70-75% | $60M+ |
 | Systems Integrators | 10-15% (services) | 85-90% | $28M+ |
@@ -60,7 +60,7 @@ Each partnership tier operates on win-win economics:
 ## Three Comprehensive Deliverables
 
 ### 1. PARTNERSHIP_STRATEGY.md (24 KB)
-**What**: Complete strategic framework for building ggen ecosystem
+**What**: Complete strategic framework for building mcpp ecosystem
 
 **Covers**:
 - 10 partnership categories with detailed value propositions
@@ -70,7 +70,7 @@ Each partnership tier operates on win-win economics:
 - Financial projections through 2027
 - Governance and partnership management office structure
 
-**Key Takeaway**: ggen can reach $160M ARR by 2027 with 50%+ from partnerships.
+**Key Takeaway**: mcpp can reach $160M ARR by 2027 with 50%+ from partnerships.
 
 ### 2. PARTNERSHIP_ROADMAP.md (17 KB)
 **What**: Detailed quarterly execution plan (Q1 2026 - 2028)
@@ -104,7 +104,7 @@ Each partnership tier operates on win-win economics:
 
 ## Strategic Positioning
 
-### ggen's Unique Value
+### mcpp's Unique Value
 
 1. **Deterministic Code Generation**: Same spec → identical output (competitors iterate)
 2. **Manufacturing-Grade Quality**: Poka-Yoke error-proofing prevents defects early
@@ -183,7 +183,7 @@ Each partnership tier operates on win-win economics:
 ### Q4 2026: Scaling & Reference Customers
 - Cloud platforms: 1000+ customers across three clouds
 - Integrators: $3M+ revenue, 100+ trained consultants
-- Compliance: 5+ audit teams using ggen methodology
+- Compliance: 5+ audit teams using mcpp methodology
 - Target: 3000+ enterprise customers, $25M partner ARR
 
 ### 2027: Market Dominance
@@ -231,7 +231,7 @@ Each partnership tier operates on win-win economics:
 1. **Early VP of Partnerships hire** (critical for Q1 2026)
 2. **Dedicated integration teams** for cloud platforms
 3. **Clear partner agreements** (templates provided)
-4. **Executive sponsorship** from ggen leadership
+4. **Executive sponsorship** from mcpp leadership
 5. **Consistent execution** against quarterly roadmap
 
 ---
@@ -255,7 +255,7 @@ Each partnership tier operates on win-win economics:
 2. ✅ **Resource Allocation**: Dedicated budget and team
 3. ✅ **Clear Agreements**: Ready-to-use templates (provided)
 4. ✅ **Execution Rigor**: Weekly status tracking, quarterly business reviews
-5. ✅ **Product Excellence**: Maintain core ggen quality and innovation
+5. ✅ **Product Excellence**: Maintain core mcpp quality and innovation
 
 ---
 
@@ -317,13 +317,13 @@ Each partnership tier operates on win-win economics:
 - Limited to specific platforms (Salesforce, SAP, etc.)
 - Margins compressed by competition
 
-### ggen Partnership Strategy
+### mcpp Partnership Strategy
 - **Wider appeal**: Cloud platforms + enterprise + compliance + academic
 - **Faster sales**: 2-4 month cycles (partners handle sales)
 - **Platform agnostic**: Works with AWS, Azure, GCP, on-prem
 - **Higher margins**: Partnerships allow premium pricing
 
-**Result**: ggen can build a $190M+ business in 2 years vs 5-7 years for competitors.
+**Result**: mcpp can build a $190M+ business in 2 years vs 5-7 years for competitors.
 
 ---
 
@@ -347,7 +347,7 @@ Each partnership tier operates on win-win economics:
 - **Base Case**: $190M ARR by 2027 (consensus scenario)
 - **Downside**: $100M ARR by 2027 (if 1-2 major partnerships fail, still 5x growth)
 
-**Recommendation**: Partnership strategy de-risks ggen's growth and accelerates path to profitability and market leadership.
+**Recommendation**: Partnership strategy de-risks mcpp's growth and accelerates path to profitability and market leadership.
 
 ---
 
@@ -387,9 +387,9 @@ All detailed information is available in the partnership strategy documents:
 
 ## Conclusion
 
-**ggen's partnership strategy is a proven playbook for building a $190M+ enterprise software company in 2 years.**
+**mcpp's partnership strategy is a proven playbook for building a $190M+ enterprise software company in 2 years.**
 
-By aligning with cloud platforms (AWS, Azure, GCP), enterprise integrators (Accenture, Deloitte), and compliance vendors (Big Four audit firms), ggen can:
+By aligning with cloud platforms (AWS, Azure, GCP), enterprise integrators (Accenture, Deloitte), and compliance vendors (Big Four audit firms), mcpp can:
 
 - ✅ Reach 10,000+ enterprise customers by 2027
 - ✅ Generate $190M ARR (50%+ from partnerships)
@@ -403,11 +403,11 @@ By aligning with cloud platforms (AWS, Azure, GCP), enterprise integrators (Acce
 3. Allocate $1.4M FY2026 budget
 4. Execute first partnerships by Q3 2026
 
-**Expected outcome**: ggen as the specification-driven code generation standard, with 50%+ of Fortune 500 enterprises as customers by 2027.
+**Expected outcome**: mcpp as the specification-driven code generation standard, with 50%+ of Fortune 500 enterprises as customers by 2027.
 
 ---
 
-**Contact for Questions**: partnerships@ggen.dev
+**Contact for Questions**: partnerships@mcpp.dev
 
 **Document Version**: 1.0
 **Last Updated**: January 25, 2026

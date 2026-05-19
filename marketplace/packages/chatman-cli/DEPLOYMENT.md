@@ -17,7 +17,7 @@
 **Pipeline Steps:**
 1. Validate ontology & prerequisites (5s target)
 2. Load ontology from `rdf/ontology.ttl` (2s target)
-3. Generate CLI from ontology using ggen (5s target)
+3. Generate CLI from ontology using mcpp (5s target)
 4. Build release binary (10s target)
 5. Run test suite (5s target)
 6. Publish to crates.io (3s target)

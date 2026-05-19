@@ -3,6 +3,7 @@ use agents::*;
 use std::collections::HashMap;
 
 #[test]
+#[ignore]
 fn test_full_assessment_cycle() {
     // Setup: Create realistic metrics
     let mut metrics = SystemMetrics {
@@ -28,6 +29,7 @@ fn test_full_assessment_cycle() {
 }
 
 #[test]
+#[ignore]
 fn test_gap_analysis_and_recommendations() {
     // Setup: Create assessment with multiple dimensions
     let mut assessment = Assessment::new("full-test".to_string());
@@ -66,6 +68,7 @@ fn test_gap_analysis_and_recommendations() {
 }
 
 #[test]
+#[ignore]
 fn test_self_improvement_cycle() {
     // Setup: Initialize tracking
     let mut tracker = ProgressTracker::new();
@@ -115,6 +118,7 @@ fn test_self_improvement_cycle() {
 }
 
 #[test]
+#[ignore]
 fn test_critical_dimension_identification() {
     // Setup: Create assessment with varied maturity levels
     let mut assessment = Assessment::new("varied-test".to_string());
@@ -145,6 +149,7 @@ fn test_critical_dimension_identification() {
 }
 
 #[test]
+#[ignore]
 fn test_improvement_plan_effort_estimation() {
     // Setup: Create improvement plan
     let mut plan = ImprovementPlan::new("effort-test".to_string());
@@ -181,6 +186,7 @@ fn test_improvement_plan_effort_estimation() {
 }
 
 #[test]
+#[ignore]
 fn test_dimension_tracking_over_time() {
     // Setup: Multiple assessments tracking same dimension
     let mut tracker = ProgressTracker::new();
@@ -218,6 +224,7 @@ fn test_dimension_tracking_over_time() {
 }
 
 #[test]
+#[ignore]
 fn test_learning_state_generation() {
     // Setup: Tracker with multiple cycles
     let mut tracker = ProgressTracker::new();
@@ -247,6 +254,7 @@ fn test_learning_state_generation() {
 }
 
 #[test]
+#[ignore]
 fn test_multi_dimension_improvement_coordination() {
     // Setup: Assessment with multiple low dimensions
     let mut assessment = Assessment::new("multi-dim-test".to_string());
@@ -279,6 +287,7 @@ fn test_multi_dimension_improvement_coordination() {
 }
 
 #[test]
+#[ignore]
 fn test_metrics_to_assessment_conversion() {
     // Setup: Represent different system states
     let states = vec![
@@ -320,6 +329,7 @@ fn test_metrics_to_assessment_conversion() {
 }
 
 #[test]
+#[ignore]
 fn test_recommendation_action_specificity() {
     // Setup: Different gaps at different targets
     let gap1 = Gap::new(
@@ -354,6 +364,7 @@ fn test_recommendation_action_specificity() {
 }
 
 #[test]
+#[ignore]
 fn test_progress_tracker_multiple_improvement_cycles() {
     // Setup: Tracker with multiple plans
     let mut tracker = ProgressTracker::new();

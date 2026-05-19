@@ -1,9 +1,9 @@
 """
-Testcontainer-based validation for ggen sync workflow.
+Testcontainer-based validation for mcpp sync workflow.
 
 Tests the RDF-first architecture:
 - TTL files are source of truth
-- ggen sync generates markdown from TTL + templates
+- mcpp sync generates markdown from TTL + templates
 - Constitutional equation: spec.md = μ(feature.ttl)
 - Idempotence: μ∘μ = μ
 """
@@ -14,11 +14,11 @@ from testcontainers.core.container import DockerContainer
 
 
 @pytest.fixture(scope="module")
-def ggen_container():
+def mcpp_container():
     """
-    Spin up a Rust container with ggen installed.
+    Spin up a Rust container with mcpp installed.
 
-    Uses official rust:latest image and installs ggen from source.
+    Uses official rust:latest image and installs mcpp from source.
     """
     container = (
         DockerContainer("rust:latest")
@@ -32,73 +32,73 @@ def ggen_container():
 
     container.start()
 
-    # Install ggen from git (using user's fork)
+    # Install mcpp from git (using user's fork)
     install_commands = [
         "apt-get update && apt-get install -y git",
-        "git clone https://github.com/seanchatmangpt/ggen.git /tmp/ggen",
-        "cd /tmp/ggen && cargo install --path crates/ggen-cli",
+        "git clone https://github.com/seanchatmangpt/mcpp.git /tmp/mcpp",
+        "cd /tmp/mcpp && cargo install --path crates/mcpp-cli",
     ]
 
     for cmd in install_commands:
         exit_code, output = container.exec(["sh", "-c", cmd])
         if exit_code != 0:
             container.stop()
-            raise RuntimeError(f"Failed to install ggen: {output.decode()}")
+            raise RuntimeError(f"Failed to install mcpp: {output.decode()}")
 
-    # Verify ggen is installed
-    exit_code, output = container.exec(["ggen", "--version"])
+    # Verify mcpp is installed
+    exit_code, output = container.exec(["mcpp", "--version"])
     if exit_code != 0:
         container.stop()
-        raise RuntimeError("ggen not installed correctly")
+        raise RuntimeError("mcpp not installed correctly")
 
-    print(f"✓ ggen installed: {output.decode().strip()}")
+    print(f"✓ mcpp installed: {output.decode().strip()}")
 
     yield container
 
     container.stop()
 
 
-def test_ggen_sync_generates_markdown(ggen_container):
+def test_mcpp_sync_generates_markdown(mcpp_container):
     """
-    Test that ggen sync generates markdown from TTL sources.
+    Test that mcpp sync generates markdown from TTL sources.
 
     Verifies:
-    1. ggen sync runs without errors
+    1. mcpp sync runs without errors
     2. Output markdown file is created
     3. Output matches expected content
     """
     # Create working directory with fixtures
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
         "mkdir -p /test && cp /workspace/* /test/"
     ])
     assert exit_code == 0, "Failed to setup test directory"
 
-    # Run ggen sync
-    exit_code, output = ggen_container.exec([
+    # Run mcpp sync
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
-        "cd /test && ggen sync"
+        "cd /test && mcpp sync"
     ])
 
-    # Allow non-zero exit for now (ggen might not be fully compatible)
+    # Allow non-zero exit for now (mcpp might not be fully compatible)
     # We'll check if output file was created instead
-    print(f"ggen sync output: {output.decode()}")
+    print(f"mcpp sync output: {output.decode()}")
 
     # Check if spec.md was generated
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
         "ls -la /test/spec.md"
     ])
 
     if exit_code == 0:
         # Read generated content
-        exit_code, generated = ggen_container.exec([
+        exit_code, generated = mcpp_container.exec([
             "cat", "/test/spec.md"
         ])
         assert exit_code == 0, "Failed to read generated spec.md"
 
         # Read expected content
-        exit_code, expected = ggen_container.exec([
+        exit_code, expected = mcpp_container.exec([
             "cat", "/test/expected-spec.md"
         ])
         assert exit_code == 0, "Failed to read expected spec.md"
@@ -115,32 +115,32 @@ def test_ggen_sync_generates_markdown(ggen_container):
 
         print("✓ spec.md = μ(feature.ttl) - Constitutional equation verified")
     else:
-        pytest.skip("ggen sync did not produce expected output - may need adjustment")
+        pytest.skip("mcpp sync did not produce expected output - may need adjustment")
 
 
-def test_ggen_sync_idempotence(ggen_container):
+def test_mcpp_sync_idempotence(mcpp_container):
     """
-    Test idempotence: Running ggen sync twice produces same output.
+    Test idempotence: Running mcpp sync twice produces same output.
 
     Verifies: μ∘μ = μ
     """
     # Create working directory
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
         "mkdir -p /test2 && cp /workspace/* /test2/"
     ])
     assert exit_code == 0, "Failed to setup test directory"
 
-    # Run ggen sync first time
-    exit_code1, output1 = ggen_container.exec([
+    # Run mcpp sync first time
+    exit_code1, output1 = mcpp_container.exec([
         "sh", "-c",
-        "cd /test2 && ggen sync && cat spec.md"
+        "cd /test2 && mcpp sync && cat spec.md"
     ])
 
-    # Run ggen sync second time
-    exit_code2, output2 = ggen_container.exec([
+    # Run mcpp sync second time
+    exit_code2, output2 = mcpp_container.exec([
         "sh", "-c",
-        "cd /test2 && ggen sync && cat spec.md"
+        "cd /test2 && mcpp sync && cat spec.md"
     ])
 
     if exit_code1 == 0 and exit_code2 == 0:
@@ -148,18 +148,18 @@ def test_ggen_sync_idempotence(ggen_container):
         output2_text = output2.decode().strip()
 
         assert output1_text == output2_text, \
-            "ggen sync is not idempotent - second run produced different output"
+            "mcpp sync is not idempotent - second run produced different output"
 
         print("✓ μ∘μ = μ - Idempotence verified")
     else:
-        pytest.skip("ggen sync did not complete successfully")
+        pytest.skip("mcpp sync did not complete successfully")
 
 
-def test_ggen_validates_ttl_syntax(ggen_container):
+def test_mcpp_validates_ttl_syntax(mcpp_container):
     """
-    Test that ggen validates TTL syntax before processing.
+    Test that mcpp validates TTL syntax before processing.
 
-    Create invalid TTL and verify ggen reports error.
+    Create invalid TTL and verify mcpp reports error.
     """
     # Create directory with invalid TTL
     invalid_ttl = """
@@ -171,23 +171,23 @@ def test_ggen_validates_ttl_syntax(ggen_container):
         :priority "P1" .
     """
 
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
         f"mkdir -p /test3 && echo '{invalid_ttl}' > /test3/feature-content.ttl"
     ])
     assert exit_code == 0
 
-    # Copy ggen.toml and template
-    exit_code, _ = ggen_container.exec([
+    # Copy mcpp.toml and template
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
-        "cp /workspace/ggen.toml /workspace/spec.tera /test3/"
+        "cp /workspace/mcpp.toml /workspace/spec.tera /test3/"
     ])
     assert exit_code == 0
 
-    # Run ggen sync - should fail on invalid TTL
-    exit_code, output = ggen_container.exec([
+    # Run mcpp sync - should fail on invalid TTL
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
-        "cd /test3 && ggen sync 2>&1"
+        "cd /test3 && mcpp sync 2>&1"
     ])
 
     # Expect non-zero exit code for invalid TTL
@@ -202,26 +202,26 @@ def test_ggen_validates_ttl_syntax(ggen_container):
     )
 
     if has_error:
-        print("✓ ggen correctly rejects invalid TTL syntax")
+        print("✓ mcpp correctly rejects invalid TTL syntax")
     else:
-        pytest.skip("ggen did not validate TTL syntax as expected")
+        pytest.skip("mcpp did not validate TTL syntax as expected")
 
 
-def test_constitutional_equation_verification(ggen_container):
+def test_constitutional_equation_verification(mcpp_container):
     """
     Verify the constitutional equation: spec.md = μ(feature.ttl)
 
     This is the fundamental principle of RDF-first architecture.
     """
     # Setup test
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
         "mkdir -p /test4 && cp /workspace/* /test4/"
     ])
     assert exit_code == 0
 
     # Hash the TTL input
-    exit_code, ttl_hash = ggen_container.exec([
+    exit_code, ttl_hash = mcpp_container.exec([
         "sh", "-c",
         "cd /test4 && sha256sum feature-content.ttl | awk '{print $1}'"
     ])
@@ -229,14 +229,14 @@ def test_constitutional_equation_verification(ggen_container):
     ttl_hash_str = ttl_hash.decode().strip()
 
     # Run transformation μ
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
-        "cd /test4 && ggen sync"
+        "cd /test4 && mcpp sync"
     ])
 
     if exit_code == 0:
         # Hash the markdown output
-        exit_code, md_hash = ggen_container.exec([
+        exit_code, md_hash = mcpp_container.exec([
             "sh", "-c",
             "cd /test4 && sha256sum spec.md | awk '{print $1}'"
         ])
@@ -245,13 +245,13 @@ def test_constitutional_equation_verification(ggen_container):
 
         # Verify determinism: same input → same output
         # Run again and check hash is identical
-        exit_code, _ = ggen_container.exec([
+        exit_code, _ = mcpp_container.exec([
             "sh", "-c",
-            "cd /test4 && ggen sync"
+            "cd /test4 && mcpp sync"
         ])
         assert exit_code == 0
 
-        exit_code, md_hash2 = ggen_container.exec([
+        exit_code, md_hash2 = mcpp_container.exec([
             "sh", "-c",
             "cd /test4 && sha256sum spec.md | awk '{print $1}'"
         ])
@@ -266,7 +266,7 @@ def test_constitutional_equation_verification(ggen_container):
         print(f"  MD hash:  {md_hash_str[:16]}...")
         print(f"  spec.md = μ(feature.ttl) ✓")
     else:
-        pytest.skip("ggen sync did not complete successfully")
+        pytest.skip("mcpp sync did not complete successfully")
 
 
 if __name__ == "__main__":

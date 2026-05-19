@@ -13,9 +13,9 @@
 //!
 //! Test Count: 250+ tests
 
-use ggen_marketplace::ontology::*;
+use ggen_core::marketplace::ontology::*;
 #[allow(unused_imports)]
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::prelude::*;
 use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};
 use oxigraph::store::Store;
 

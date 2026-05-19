@@ -1,7 +1,7 @@
 # Craftplan Domain Analysis for RDF-Driven Code Generation
 
 **Generated**: 2026-02-04
-**Source**: `/Users/sac/ggen/vendors/craftplan/`
+**Source**: `./vendors/craftplan/`
 **Purpose**: Extract complete domain knowledge for ggen RDF specification generation
 
 ---

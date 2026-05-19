@@ -14,7 +14,7 @@
     - [Version Examples](#version-examples)
   - [Release Cycle](#release-cycle)
     - [Release Schedule](#release-schedule)
-    - [Monthly Patch Release (v6.0.0 → v6.0.1 → v6.0.2 ...)](#monthly-patch-release-v600-%E2%86%92-v601-%E2%86%92-v602-)
+    - [Monthly Patch Release (v6.0.0 → v26.5.4 → v6.0.2 ...)](#monthly-patch-release-v600-%E2%86%92-v601-%E2%86%92-v602-)
     - [Quarterly Feature Release (v6.0 → v6.1 → v6.2 → v6.3)](#quarterly-feature-release-v60-%E2%86%92-v61-%E2%86%92-v62-%E2%86%92-v63)
     - [Annual Major Release (v5 → v6 → v7)](#annual-major-release-v5-%E2%86%92-v6-%E2%86%92-v7)
   - [Branch Strategy](#branch-strategy)
@@ -149,7 +149,7 @@ v5.0.0 → v6.0.0 (MAJOR)
 
 **Example**:
 ```
-v6.0.0 → v6.1.0 (MINOR)
+v6.0.0 → v26.5.4 (MINOR)
 - Added support for AWS Marketplace (new feature)
 - Added new --profile CLI flag (new feature)
 - Added SPARQL query optimizer (internal improvement)
@@ -164,11 +164,11 @@ v6.0.0 → v6.1.0 (MINOR)
   - Apply security patch (dependency upgrade)
   - Fix documentation issue
 - **Migration**: None (drop-in upgrade, no risk)
-- **Frequency**: Monthly (v6.0.0 → v6.0.1 → v6.0.2, etc.)
+- **Frequency**: Monthly (v6.0.0 → v26.5.4 → v6.0.2, etc.)
 
 **Example**:
 ```
-v6.0.0 → v6.0.1 (PATCH)
+v6.0.0 → v26.5.4 (PATCH)
 - Fixed memory leak in catalog controller
 - Fixed race condition in Firestore writes
 - Upgraded cryptographic dependency (security)
@@ -186,8 +186,8 @@ v6.0.0 → v6.0.1 (PATCH)
 | v5.2.1 | PATCH | Security patch | Updated cryptography library |
 | v5.3.0 | MINOR | New CLI command | Added speckit validation |
 | v6.0.0 | MAJOR | Unified pipeline (μ) | Breaking: removed old generate commands |
-| v6.0.1 | PATCH | Hot-reload bug fix | Fixed policy hot-reload race condition |
-| v6.1.0 | MINOR | Azure support | New cloud provider support |
+| v26.5.4 | PATCH | Hot-reload bug fix | Fixed policy hot-reload race condition |
+| v26.5.4 | MINOR | Azure support | New cloud provider support |
 | v7.0.0 | MAJOR | (future) | TBD (plan for 2027) |
 
 ---
@@ -205,10 +205,10 @@ v6.0.0 → v6.0.1 (PATCH)
 │              ├─ v6.0.0-rc.1 (release candidate, Dec)        │
 │              └─ v6.0.0 (GA, Jan 18)                         │
 │                                                               │
-│ MARCH        v6.1.0 Feature Release (Q1 features)           │
+│ MARCH        v26.5.4 Feature Release (Q1 features)           │
 │              ├─ Feature freeze: Feb 28                       │
-│              ├─ v6.1.0-rc.1 (March 1)                       │
-│              └─ v6.1.0 GA (March 15)                        │
+│              ├─ v26.5.4-rc.1 (March 1)                       │
+│              └─ v26.5.4 GA (March 15)                        │
 │                                                               │
 │ JUNE         v6.2.0 Feature Release (Q2 features)           │
 │              ├─ Feature freeze: May 31                       │
@@ -229,7 +229,7 @@ v6.0.0 → v6.0.1 (PATCH)
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Monthly Patch Release (v6.0.0 → v6.0.1 → v6.0.2 ...)
+### Monthly Patch Release (v6.0.0 → v26.5.4 → v6.0.2 ...)
 
 **Timing**: Last Monday of each month at 03:00 UTC (low-traffic window)
 
@@ -262,8 +262,8 @@ v6.0.0 → v6.0.1 (PATCH)
 1. **Feature Planning** (6 weeks): Determine Q1/Q2/Q3/Q4 feature set
 2. **Feature Development** (8 weeks): Develop + test features
 3. **Feature Freeze** (2 weeks before release): No new features, bug fixes only
-4. **Release Candidate** (1 week): v6.1.0-rc.1 deployed to staging + early customers
-5. **GA Release** (1 day): v6.1.0 released publicly
+4. **Release Candidate** (1 week): v26.5.4-rc.1 deployed to staging + early customers
+5. **GA Release** (1 day): v26.5.4 released publicly
 6. **Monitoring** (2 weeks): Watch for regressions, fast-track patch if needed
 
 **Criteria for Feature Release**:
@@ -321,11 +321,11 @@ v6.0.0 → v6.0.1 (PATCH)
 main (production)
   ├─ release/v6.0  (release branch, patch releases)
   │   ├─ v6.0.0 (tag)
-  │   ├─ v6.0.1 (tag)
+  │   ├─ v26.5.4 (tag)
   │   └─ v6.0.2 (tag)
   │
   ├─ release/v6.1  (release branch, patch releases)
-  │   ├─ v6.1.0 (tag)
+  │   ├─ v26.5.4 (tag)
   │   └─ v6.1.1 (tag)
   │
   └─ develop (development branch)
@@ -399,7 +399,7 @@ v6.0.0-beta     (beta version)
 git tag -s v6.0.0 -m "ggen v6.0.0 GA release"
 
 # ✅ CORRECT: Tag from release branch (patch release)
-git tag -s v6.0.1 -m "ggen v6.0.1 patch release (bug fix)"
+git tag -s v26.5.4 -m "ggen v26.5.4 patch release (bug fix)"
 
 # ❌ WRONG: Tag from feature branch
 git checkout feature/aws-support
@@ -449,7 +449,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g., v6.0.1)"
+        description: "Release version (e.g., v26.5.4)"
         required: true
 
 jobs:
@@ -664,7 +664,7 @@ Each major version: 24 months of support (current + 2 prior)
 
 ### CVE-2026-0123: RDF Injection in Marketplace Processor
 **Severity**: HIGH
-**Affected Versions**: v6.0.0, v6.0.1, v5.3.x, v5.2.x, v5.1.x
+**Affected Versions**: v6.0.0, v26.5.4, v5.3.x, v5.2.x, v5.1.x
 **Fix**: v6.0.2, v5.3.2
 **Description**:
 Improper input validation in marketplace RDF processor allows
@@ -956,39 +956,39 @@ Before releasing a version, verify:
 
 1. **Create Release Branch** (if patch)
    ```bash
-   git checkout -b release/v6.0.1
+   git checkout -b release/v26.5.4
    ```
 
 2. **Update Version**
    ```bash
    # Update Cargo.toml
-   sed -i 's/version = "6.0.0"/version = "6.0.1"/' Cargo.toml
+   sed -i 's/version = "6.0.0"/version = "26.5.4"/' Cargo.toml
 
    # Update version in code
-   sed -i 's/const VERSION: &str = "6.0.0"/const VERSION: &str = "6.0.1"/' src/lib.rs
+   sed -i 's/const VERSION: &str = "6.0.0"/const VERSION: &str = "26.5.4"/' src/lib.rs
    ```
 
 3. **Update CHANGELOG**
    ```bash
-   # Add v6.0.1 section to CHANGELOG.md
+   # Add v26.5.4 section to CHANGELOG.md
    # Document all fixes + security patches
    ```
 
 4. **Commit Changes**
    ```bash
    git add Cargo.toml src/lib.rs CHANGELOG.md
-   git commit -m "chore: Bump version to v6.0.1"
+   git commit -m "chore: Bump version to v26.5.4"
    ```
 
 5. **Create Signed Tag**
    ```bash
-   git tag -s v6.0.1 -m "ggen v6.0.1 patch release"
+   git tag -s v26.5.4 -m "ggen v26.5.4 patch release"
    ```
 
 6. **Push to GitHub**
    ```bash
-   git push origin release/v6.0.1
-   git push origin v6.0.1  # Push tag
+   git push origin release/v26.5.4
+   git push origin v26.5.4  # Push tag
    ```
 
 7. **Build Release**

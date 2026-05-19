@@ -21,7 +21,7 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use a2a_generated::prelude::*;
+//! use ggen_core::ggen_core::ggen_core::a2a_generated::prelude::*;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -73,7 +73,7 @@ pub use task::{Task, TaskError, TaskExecutor, TaskPriority, TaskResult, TaskStat
 //   - task::TaskStatus (re-exported above): Pending, InProgress, Completed, Failed, Cancelled
 //   - converged::message::TaskStatus: Submitted, Working, InputRequired, Completed, Canceled, Failed, Rejected, AuthRequired, Unknown
 // The crate root re-exports only task::TaskStatus to avoid ambiguity. Use the full path
-// (e.g., a2a_generated::converged::message::TaskStatus) when the converged variant is needed.
+// (e.g., ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::TaskStatus) when the converged variant is needed.
 
 // Re-export unified error types
 pub use error::{A2AResult, AgentError as UnifiedAgentError};

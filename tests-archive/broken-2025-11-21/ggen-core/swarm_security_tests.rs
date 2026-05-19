@@ -282,7 +282,7 @@ fn test_validation_performance() {
 /// Test CommandError conversion
 #[test]
 fn test_command_error_conversion() {
-    use ggen_utils::error::Error;
+    use ggen_core::utils::error::Error;
 
     let cmd_err = CommandError::NotAllowed("test".to_string());
     let generic_err: Error = cmd_err.into();

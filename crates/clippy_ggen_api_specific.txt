@@ -1,4 +1,4 @@
-[1m[32m    Checking[0m ggen-core v0.2.0 (/Users/sac/ggen/crates/ggen-core)
+[1m[32m    Checking[0m ggen-core v0.2.0 (./crates/ggen-core)
 [0m[1m[38;5;9merror[E0412][0m[0m[1m: cannot find type `Path` in this scope[0m
 [0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-core/src/security/audit_trail.rs:229:40[0m
 [0m    [0m[0m[1m[38;5;12m|[0m

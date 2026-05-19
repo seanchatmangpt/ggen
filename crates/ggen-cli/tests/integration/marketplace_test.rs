@@ -16,7 +16,7 @@ use ggen_cli_lib::cmds::market::{
     search::{run_with_deps as search_run_with_deps, SearchArgs, MarketplaceClient, SearchFilters, SearchResult},
 };
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// Test database container for integration tests
 pub struct TestDatabase {
@@ -131,7 +131,7 @@ impl GpackInstaller for MockGpackInstaller {
                 already_installed: false,
             })
         } else {
-            Err(ggen_utils::error::Error::new("Mock installation failed"))
+            Err(ggen_core::utils::error::Error::new("Mock installation failed"))
         }
     }
 }

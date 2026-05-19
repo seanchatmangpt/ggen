@@ -6,7 +6,7 @@
 //! - Conflict detection
 
 use crate::packs::types::Pack;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Dependency graph for resolving pack installation order

@@ -1,8 +1,8 @@
 //! Integration tests for template linting
 //! Tests end-to-end linting workflows with real files
 
-use ggen_domain::template::lint::*;
-use ggen_utils::error::Result;
+use ggen_core::domain::template::lint::*;
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::io::Write;
 use tempfile::TempDir;

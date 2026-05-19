@@ -7,7 +7,7 @@
 
 Comprehensive end-to-end integration tests for MCP (Model Context Protocol) tool calls routed through the Governor state machine with receipt emission. All tests follow Chicago-style TDD with state-based verification and real object collaborators (no mocks for core systems).
 
-**Test File**: `/Users/sac/ggen/tai-erlang-autonomics/test/taiea_mcp_governor_integration_SUITE.erl`
+**Test File**: `~/.ggen/mcpp/tai-erlang-autonomics/test/taiea_mcp_governor_integration_SUITE.erl`
 **Test Count**: 21
 **Code Lines**: 796
 **Status**: All compilation warnings resolved, zero critical issues
@@ -453,7 +453,7 @@ Assertion count:  147+ assertions
 
 ### Run All Integration Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 ct --suite=taiea_mcp_governor_integration_SUITE
 ```
 
@@ -477,13 +477,13 @@ _build/test/logs/taiea_mcp_governor_integration_SUITE.{log,html}
 
 ## Files Delivered
 
-1. **`/Users/sac/ggen/tai-erlang-autonomics/test/taiea_mcp_governor_integration_SUITE.erl`**
+1. **`~/.ggen/mcpp/tai-erlang-autonomics/test/taiea_mcp_governor_integration_SUITE.erl`**
    - 21 comprehensive integration test cases
    - 796 lines of code
    - Zero compilation warnings
    - Chicago-style TDD (state-based, real collaborators)
 
-2. **`/Users/sac/ggen/tai-erlang-autonomics/test/MCP_GOVERNOR_INTEGRATION_MATRIX.md`**
+2. **`~/.ggen/mcpp/tai-erlang-autonomics/test/MCP_GOVERNOR_INTEGRATION_MATRIX.md`**
    - Test coverage matrix (6+4+6+5 breakdown)
    - Tool implementation status
    - Governor state machine verification
@@ -491,7 +491,7 @@ _build/test/logs/taiea_mcp_governor_integration_SUITE.{log,html}
    - Test data and fixtures
    - Critical assertions
 
-3. **`/Users/sac/ggen/tai-erlang-autonomics/INTEGRATION_TEST_REPORT.md`** (this file)
+3. **`~/.ggen/mcpp/tai-erlang-autonomics/INTEGRATION_TEST_REPORT.md`** (this file)
    - Executive summary
    - Complete test listing
    - Architecture integration points

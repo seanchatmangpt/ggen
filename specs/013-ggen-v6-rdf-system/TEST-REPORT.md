@@ -24,18 +24,18 @@ The testcontainers-based end-to-end test **validates the 3T methodology substrat
 
 ### Test Location
 ```
-/Users/sac/ggen/vendors/spec-kit/tests/integration/test_3t_e2e.py
+./vendors/spec-kit/tests/integration/test_3t_e2e.py
 ```
 
 ### Command
 ```bash
-cd /Users/sac/ggen/vendors/spec-kit
+cd ./vendors/spec-kit
 python3 -m pytest tests/integration/test_3t_e2e.py::test_3t_workflow_complete -v -s
 ```
 
 ### Docker Environment
 - **Container Image**: rust:latest
-- **Volume Mounted**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system` → `/workspace`
+- **Volume Mounted**: `./specs/013-ggen-v6-rdf-system` → `/workspace`
 - **Dependencies Installed**:
   - git
   - python3 + pip
@@ -294,7 +294,7 @@ This project is **production-ready for ggen v6 implementation**:
 
 ### Run This Test
 ```bash
-cd /Users/sac/ggen/vendors/spec-kit
+cd ./vendors/spec-kit
 pytest tests/integration/test_3t_e2e.py::test_3t_workflow_complete -v -s
 ```
 
@@ -312,8 +312,8 @@ pytest tests/integration/test_3t_e2e.py --cov=. --cov-report=html
 
 ## References
 
-- **Test File**: `/Users/sac/ggen/vendors/spec-kit/tests/integration/test_3t_e2e.py`
-- **Spec Directory**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/`
+- **Test File**: `./vendors/spec-kit/tests/integration/test_3t_e2e.py`
+- **Spec Directory**: `./specs/013-ggen-v6-rdf-system/`
 - **README**: `README.md` (3T documentation)
 - **80/20 Plan**: `80-20-PLAN.md` (8-day implementation roadmap)
 - **RDF Workflow**: `RDF-WORKFLOW.md` (complete workflow guide)

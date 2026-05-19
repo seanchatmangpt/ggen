@@ -1,4 +1,4 @@
-# ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
+# mcpp v6: Fully-Rendered Libraries via Ontology-First Compilation
 # Core Ontology Schema for Staged Projection Pipeline
 #
 # This ontology defines the complete type system for v6's constitutional law:
@@ -10,13 +10,13 @@
 # - Epoch: Frozen input state for reproducibility
 # - Guard: Forbidden output class constraints
 
-@prefix gv6: <http://ggen.dev/v6#> .
+@prefix gv6: <http://mcpp.dev/v6#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix shacl: <http://www.w3.org/ns/shacl#> .
-@prefix meta: <http://ggen.ai/ontology/meta#> .
+@prefix meta: <http://mcpp.ai/ontology/meta#> .
 
 # =============================================================================
 # 1. CORE CONSTITUTIONAL EQUATION: A = μ(O)
@@ -261,7 +261,7 @@ gv6:toolchainVersion
   rdfs:domain gv6:Receipt ;
   rdfs:range xsd:string ;
   rdfs:label "toolchain version"@en ;
-  rdfs:comment "ggen version used for projection"@en .
+  rdfs:comment "mcpp version used for projection"@en .
 
 # Pass execution record
 
@@ -712,13 +712,13 @@ gv6:Vocab_SchemaOrg
 
 gv6:Vocab_GgenV6
   a gv6:AllowedVocabulary ;
-  gv6:vocabularyNamespace <http://ggen.dev/v6#> ;
+  gv6:vocabularyNamespace <http://mcpp.dev/v6#> ;
   gv6:vocabularyPrefix "gv6" ;
   gv6:requiresProof false .
 
 gv6:Vocab_GgenMeta
   a gv6:AllowedVocabulary ;
-  gv6:vocabularyNamespace <http://ggen.ai/ontology/meta#> ;
+  gv6:vocabularyNamespace <http://mcpp.ai/ontology/meta#> ;
   gv6:vocabularyPrefix "meta" ;
   gv6:requiresProof false .
 

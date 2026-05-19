@@ -3,7 +3,7 @@
 
 set -e
 
-REPO_ROOT="/Users/sac/ggen/vendors/spec-kit"
+REPO_ROOT="~/.ggen/mcpp/vendors/spec-kit"
 cd "$REPO_ROOT"
 
 echo "🔍 Spec-Kit Promise Validation"
@@ -19,25 +19,25 @@ NC='\033[0m' # No Color
 ERRORS=0
 WARNINGS=0
 
-# Promise 1: No "ggen render" references should remain (excluding validation report)
-echo "📝 Promise 1: Checking for 'ggen render' references..."
-if grep -r "ggen render" --include="*.md" --include="*.py" --include="*.toml" \
+# Promise 1: No "mcpp render" references should remain (excluding validation report)
+echo "📝 Promise 1: Checking for 'mcpp render' references..."
+if grep -r "mcpp render" --include="*.md" --include="*.py" --include="*.toml" \
         --exclude="VALIDATION_REPORT.md" --exclude-dir=".git" . 2>/dev/null; then
-    echo -e "${RED}❌ FAILED: Found 'ggen render' references${NC}"
+    echo -e "${RED}❌ FAILED: Found 'mcpp render' references${NC}"
     ((ERRORS++))
 else
-    echo -e "${GREEN}✓ PASSED: No 'ggen render' references found (excluding validation report)${NC}"
+    echo -e "${GREEN}✓ PASSED: No 'mcpp render' references found (excluding validation report)${NC}"
 fi
 echo ""
 
-# Promise 2: All commands should reference "ggen sync"
-echo "📝 Promise 2: Verifying 'ggen sync' usage in commands..."
-SYNC_COUNT=$(grep -r "ggen sync" templates/commands/*.md 2>/dev/null | wc -l)
+# Promise 2: All commands should reference "mcpp sync"
+echo "📝 Promise 2: Verifying 'mcpp sync' usage in commands..."
+SYNC_COUNT=$(grep -r "mcpp sync" templates/commands/*.md 2>/dev/null | wc -l)
 if [ "$SYNC_COUNT" -lt 5 ]; then
-    echo -e "${YELLOW}⚠ WARNING: Only found $SYNC_COUNT 'ggen sync' references in commands${NC}"
+    echo -e "${YELLOW}⚠ WARNING: Only found $SYNC_COUNT 'mcpp sync' references in commands${NC}"
     ((WARNINGS++))
 else
-    echo -e "${GREEN}✓ PASSED: Found $SYNC_COUNT 'ggen sync' references in commands${NC}"
+    echo -e "${GREEN}✓ PASSED: Found $SYNC_COUNT 'mcpp sync' references in commands${NC}"
 fi
 echo ""
 
@@ -110,7 +110,7 @@ MISSING=0
 
 # Check test fixtures
 for file in "tests/integration/fixtures/feature-content.ttl" \
-            "tests/integration/fixtures/ggen.toml" \
+            "tests/integration/fixtures/mcpp.toml" \
             "tests/integration/fixtures/spec.tera" \
             "tests/integration/fixtures/expected-spec.md"; do
     if [ ! -f "$file" ]; then
@@ -150,25 +150,25 @@ else
 fi
 echo ""
 
-# Promise 7: ggen.toml fixture should be valid
-echo "📝 Promise 7: Validating ggen.toml fixture..."
-if [ -f "tests/integration/fixtures/ggen.toml" ]; then
-    if python3 -c "import tomli; tomli.load(open('tests/integration/fixtures/ggen.toml', 'rb'))" 2>/dev/null; then
-        echo -e "${GREEN}✓ PASSED: ggen.toml is valid TOML${NC}"
-    elif python3 -c "import tomllib; tomllib.load(open('tests/integration/fixtures/ggen.toml', 'rb'))" 2>/dev/null; then
-        echo -e "${GREEN}✓ PASSED: ggen.toml is valid TOML${NC}"
+# Promise 7: mcpp.toml fixture should be valid
+echo "📝 Promise 7: Validating mcpp.toml fixture..."
+if [ -f "tests/integration/fixtures/mcpp.toml" ]; then
+    if python3 -c "import tomli; tomli.load(open('tests/integration/fixtures/mcpp.toml', 'rb'))" 2>/dev/null; then
+        echo -e "${GREEN}✓ PASSED: mcpp.toml is valid TOML${NC}"
+    elif python3 -c "import tomllib; tomllib.load(open('tests/integration/fixtures/mcpp.toml', 'rb'))" 2>/dev/null; then
+        echo -e "${GREEN}✓ PASSED: mcpp.toml is valid TOML${NC}"
     else
         # Basic check
-        if grep -q "^\[project\]" tests/integration/fixtures/ggen.toml && \
-           grep -q "^\[\[generation\]\]" tests/integration/fixtures/ggen.toml; then
-            echo -e "${GREEN}✓ PASSED: ggen.toml appears valid${NC}"
+        if grep -q "^\[project\]" tests/integration/fixtures/mcpp.toml && \
+           grep -q "^\[\[generation\]\]" tests/integration/fixtures/mcpp.toml; then
+            echo -e "${GREEN}✓ PASSED: mcpp.toml appears valid${NC}"
         else
-            echo -e "${RED}❌ FAILED: ggen.toml validation failed${NC}"
+            echo -e "${RED}❌ FAILED: mcpp.toml validation failed${NC}"
             ((ERRORS++))
         fi
     fi
 else
-    echo -e "${RED}❌ FAILED: ggen.toml fixture not found${NC}"
+    echo -e "${RED}❌ FAILED: mcpp.toml fixture not found${NC}"
     ((ERRORS++))
 fi
 echo ""

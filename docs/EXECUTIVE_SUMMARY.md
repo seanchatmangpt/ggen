@@ -1,4 +1,4 @@
-# ggen v6.0.1 - Executive Summary
+# ggen v26.5.4 - Executive Summary
 
 **Status:** 98% Complete | **Critical Path:** Test & Lint Resolution (2-4 hours)
 
@@ -245,7 +245,7 @@ INFO pipeline.emit
 
 ## Conclusion
 
-**ggen v6.0.1 is 98% complete** with all major features operational and verified:
+**ggen v26.5.4 is 98% complete** with all major features operational and verified:
 
 ✅ **Complete:** Core pipeline, LLM integration, MCP tools, Chicago TDD migration, SPARQL validator, research documentation, performance SLOs
 
@@ -258,7 +258,7 @@ INFO pipeline.emit
 ---
 
 **Report Date:** 2026-03-31
-**Project Version:** v6.0.1
+**Project Version:** v26.5.4
 **Completion:** 98%
 **Critical Path:** 3-5 hours
 
@@ -266,9 +266,9 @@ INFO pipeline.emit
 
 ## Quick Links
 
-- **Full Report:** `/Users/sac/ggen/docs/PROJECT_COMPLETION_REPORT.md`
-- **Documentation Index:** `/Users/sac/ggen/docs/DOCUMENTATION_INDEX_WEEK_2026-03-31.md`
-- **Test Validation:** `/Users/sac/ggen/docs/FINAL_TEST_VALIDATION_REPORT.md`
-- **Chicago TDD:** `/Users/sac/ggen/docs/CHICAGO_TDD_MIGRATION_FINAL_REPORT.md`
-- **LLM Integration:** `/Users/sac/ggen/docs/LLM_INTEGRATION_VERIFICATION.md`
-- **MCP Server:** `/Users/sac/ggen/docs/mcp-server-reference.md`
+- **Full Report:** `./docs/PROJECT_COMPLETION_REPORT.md`
+- **Documentation Index:** `./docs/DOCUMENTATION_INDEX_WEEK_2026-03-31.md`
+- **Test Validation:** `./docs/FINAL_TEST_VALIDATION_REPORT.md`
+- **Chicago TDD:** `./docs/CHICAGO_TDD_MIGRATION_FINAL_REPORT.md`
+- **LLM Integration:** `./docs/LLM_INTEGRATION_VERIFICATION.md`
+- **MCP Server:** `./docs/mcp-server-reference.md`

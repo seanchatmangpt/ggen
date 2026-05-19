@@ -119,7 +119,7 @@ The **agent swarm didn't validate compilation** after each step, so errors accum
 Agent 7 successfully created a **production-ready benchmark suite** following Chicago TDD principles:
 
 #### 1. Core Benchmark Suite
-**File**: `/Users/sac/ggen/benches/v2_performance.rs` (593 lines)
+**File**: `./benches/v2_performance.rs` (593 lines)
 
 **Features**:
 - ✅ 5 benchmark groups
@@ -137,7 +137,7 @@ Agent 7 successfully created a **production-ready benchmark suite** following Ch
 5. **Concurrent Operations** (4 thread counts) - `parallel_templates_1/2/4/8`
 
 #### 2. Runtime Overhead Suite
-**File**: `/Users/sac/ggen/benches/runtime_overhead.rs` (exists from prior work)
+**File**: `./benches/runtime_overhead.rs` (exists from prior work)
 
 **Features**:
 - ✅ Hook overhead measurement

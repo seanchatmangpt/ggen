@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implemented 3 orchestration validation tools in `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`:
+Implemented 3 orchestration validation tools in `./crates/ggen-a2a-mcp/src/ggen_server.rs`:
 
 1. **validate_project** - Full project validation with dependency ordering
 2. **validate_incremental** - Validate only changed files (for dev workflow)

@@ -12,7 +12,7 @@
 ## Deliverables
 
 ### 1. Security Test Suite (32 Tests)
-**File**: `/Users/sac/ggen/tests/security/v2_security_audit.rs`
+**File**: `./tests/security/v2_security_audit.rs`
 
 **Coverage**:
 - ✅ Path Traversal Protection (7 tests)
@@ -55,7 +55,7 @@
   - Timing attack resistance
 
 ### 2. Security Audit Report
-**File**: `/Users/sac/ggen/.claude/refactor-v2/agent11-security.md` (178 KB)
+**File**: `./.claude/refactor-v2/agent11-security.md` (178 KB)
 
 **Key Findings**:
 1. **CRITICAL**: tokio-tar vulnerability (RUSTSEC-2025-0111) - File smuggling attack

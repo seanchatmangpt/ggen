@@ -1,4 +1,4 @@
-PREFIX java26: <http://ggen.io/java26#>
+PREFIX java26: <http://mcpp.io/java26#>
 
 SELECT ?className ?javaPackage
        (GROUP_CONCAT(CONCAT(?fieldName, "|", ?fieldType, "|", STR(COALESCE(?nullable, true))); separator=",") AS ?fields)

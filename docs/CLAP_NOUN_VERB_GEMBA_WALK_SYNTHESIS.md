@@ -294,7 +294,7 @@ src/autonomic/
 - Structured errors: 10 hours effort, 45x ROI
 - ggen integration: 4 weeks effort, 100x ROI
 
-**Deliverable**: `/Users/sac/clap-noun-verb/docs/ARCHITECTURE_GAP_ANALYSIS.md`
+**Deliverable**: `~/.ggen/clap-noun-verb/docs/ARCHITECTURE_GAP_ANALYSIS.md`
 
 ---
 
@@ -611,8 +611,8 @@ We **walked the actual place** (the codebase) instead of relying on documentatio
 
 ## 📁 ARTIFACTS GENERATED
 
-1. **This Report**: `/Users/sac/ggen/docs/CLAP_NOUN_VERB_GEMBA_WALK_SYNTHESIS.md`
-2. **Architecture Gap Analysis**: `/Users/sac/clap-noun-verb/docs/ARCHITECTURE_GAP_ANALYSIS.md` (by System Architect)
+1. **This Report**: `./docs/CLAP_NOUN_VERB_GEMBA_WALK_SYNTHESIS.md`
+2. **Architecture Gap Analysis**: `~/.ggen/clap-noun-verb/docs/ARCHITECTURE_GAP_ANALYSIS.md` (by System Architect)
 3. **Agent Findings**: Stored in swarm memory for coordination
 4. **Action Plan**: 5-phase roadmap with priorities and timelines
 

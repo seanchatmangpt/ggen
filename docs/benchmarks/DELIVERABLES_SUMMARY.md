@@ -362,7 +362,7 @@ All 5 SLOs designed to PASS:
 
 ```bash
 # Navigate to project root
-cd /Users/sac/ggen
+cd .
 
 # Run all benchmarks
 ./scripts/run_benchmarks.sh

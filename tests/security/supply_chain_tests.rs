@@ -3,7 +3,7 @@
 // Week 8: Dependency security and supply chain protection
 // Chicago TDD: State-based testing with real collaborators and behavior verification
 
-use ggen_utils::supply_chain::{
+use ggen_core::utils::supply_chain::{
     check_license_compliance, detect_typosquatting, levenshtein_distance,
     verify_checksum, Dependency, SupplyChainConfig,
 };

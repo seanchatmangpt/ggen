@@ -11,7 +11,7 @@ Created integration test that executes multiple MCP tools in sequence via A2A ag
 ## Test Implementation
 
 ### File Created
-- **Path:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/multi_mcp_chain.rs`
+- **Path:** `./crates/ggen-a2a-mcp/tests/multi_mcp_chain.rs`
 - **Lines:** 580+
 - **Tests:** 2 test functions
 
@@ -72,13 +72,13 @@ Total: ~1ms (max individual time, not sum)
 ```
 INFO ggen.pipeline.operation{a2a.message_id=msg-43b06f80-23d6-4076-acca-b32c2f9078b2 a2a.correlation_id=corr-multi-3baec766-f777-4264-88c6-078dd329310e a2a.source=multi-tool-agent operation.name="multi_mcp_tool_chain"}: Tool 1 started mcp.tool_name="validate_pipeline"
 
-INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{params=ValidatePipelineParams {...} project_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/test-project service.name="ggen-mcp-server" service.version="0.1.0"}: validate_pipeline tool called
+INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{params=ValidatePipelineParams {...} project_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/test-project service.name="ggen-mcp-server" service.version="0.1.0"}: validate_pipeline tool called
 
 INFO ggen.pipeline.operation{...}: Tool 1 completed mcp.tool_name="validate_pipeline" mcp.tool.duration_ms=2 mcp.tool.result="error"
 
 INFO ggen.pipeline.operation{...}: Tool 2 started mcp.tool_name="validate_sparql"
 
-INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{params=ValidateSparqlParams {...} query_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/query.rq service.name="ggen-mcp-server" service.version="0.1.0"}: validate_sparql tool called
+INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{params=ValidateSparqlParams {...} query_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/query.rq service.name="ggen-mcp-server" service.version="0.1.0"}: validate_sparql tool called
 
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{...}: validate_sparql tool complete status="valid"
 
@@ -86,7 +86,7 @@ INFO ggen.pipeline.operation{...}: Tool 2 completed mcp.tool_name="validate_spar
 
 INFO ggen.pipeline.operation{...}: Tool 3 started mcp.tool_name="validate_templates"
 
-INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{params=ValidateTemplatesParams {...} template_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/test.tera service.name="ggen-mcp-server" service.version="0.1.0"}: validate_templates tool called
+INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{params=ValidateTemplatesParams {...} template_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/test.tera service.name="ggen-mcp-server" service.version="0.1.0"}: validate_templates tool called
 
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{...}: validate_templates tool complete status="valid"
 

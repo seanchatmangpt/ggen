@@ -173,7 +173,7 @@ curl http://localhost:8080/health
 ## 📁 File Structure
 
 ```
-/Users/sac/ggen/templates/ultra/
+./templates/ultra/
 ├── README.md                    # Main documentation (5.3 KB)
 ├── EXAMPLES.md                  # Usage examples (~8 KB)
 ├── DELIVERABLES.md              # This file

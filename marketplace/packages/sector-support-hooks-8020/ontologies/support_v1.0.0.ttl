@@ -1,11 +1,11 @@
-@prefix : <http://ggen.io/ontology/support/v1.0.0#> .
+@prefix : <http://mcpp.io/ontology/support/v1.0.0#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
-<http://ggen.io/ontology/support/v1.0.0>
+<http://mcpp.io/ontology/support/v1.0.0>
     a owl:Ontology ;
     dcterms:title "Customer Support Case Management Ontology" ;
     dcterms:description "Ontology for describing customer support cases, routing, and SLA management" ;

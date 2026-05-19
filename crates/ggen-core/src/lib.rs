@@ -59,7 +59,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let mut vars = BTreeMap::new();
 //! vars.insert("name".to_string(), "MyApp".to_string());
@@ -81,7 +81,7 @@
 //! ```rust
 //! use ggen_core::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix ex: <http://example.org/> .
@@ -101,7 +101,7 @@
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-cli".to_string(),
 //!     project_type: ProjectType::RustCli,
@@ -137,6 +137,7 @@ pub mod lockfile;
 pub mod manifest;
 pub mod merge;
 pub mod metrics; // Quality metrics system (Code, Process, Six Sigma, TPS, Flow, OEE, Kaizen)
+pub mod mcp; // MCP (Model Context Protocol) code generation from RDF ontologies
 pub mod parallel_generator;
 pub mod schema;
 pub mod template;

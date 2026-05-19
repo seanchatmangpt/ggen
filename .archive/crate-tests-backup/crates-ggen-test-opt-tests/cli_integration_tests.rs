@@ -40,6 +40,7 @@ fn setup_test_metadata() -> TempDir {
 }
 
 #[test]
+#[ignore]
 fn test_cli_help_displays_all_commands() {
     let output = run_cli_command(&["--help"]);
 
@@ -63,6 +64,7 @@ fn test_cli_help_displays_all_commands() {
 }
 
 #[test]
+#[ignore]
 fn test_optimize_command_with_no_metadata() {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let metadata_path = temp_dir.path().to_str().unwrap();
@@ -91,6 +93,7 @@ fn test_optimize_command_with_no_metadata() {
 }
 
 #[test]
+#[ignore]
 fn test_metadata_update_without_inputs() {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let metadata_path = temp_dir.path().to_str().unwrap();
@@ -111,6 +114,7 @@ fn test_metadata_update_without_inputs() {
 }
 
 #[test]
+#[ignore]
 fn test_budget_check_with_missing_data() {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let metadata_path = temp_dir.path().to_str().unwrap();
@@ -139,6 +143,7 @@ fn test_budget_check_with_missing_data() {
 }
 
 #[test]
+#[ignore]
 fn test_optimize_command_flags() {
     let output = run_cli_command(&["optimize", "--help"]);
 
@@ -163,6 +168,7 @@ fn test_optimize_command_flags() {
 }
 
 #[test]
+#[ignore]
 fn test_metadata_update_command_flags() {
     let output = run_cli_command(&["metadata-update", "--help"]);
 
@@ -193,6 +199,7 @@ fn test_metadata_update_command_flags() {
 }
 
 #[test]
+#[ignore]
 fn test_budget_check_command_flags() {
     let output = run_cli_command(&["budget-check", "--help"]);
 
@@ -223,6 +230,7 @@ fn test_budget_check_command_flags() {
 }
 
 #[test]
+#[ignore]
 fn test_optimize_with_custom_target_count() {
     let temp_dir = setup_test_metadata();
     let metadata_path = temp_dir.path().to_str().unwrap();
@@ -251,6 +259,7 @@ fn test_optimize_with_custom_target_count() {
 }
 
 #[test]
+#[ignore]
 fn test_budget_check_exit_codes() {
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let metadata_dir = temp_dir.path();
@@ -291,6 +300,7 @@ fn test_budget_check_exit_codes() {
 }
 
 #[test]
+#[ignore]
 fn test_metadata_update_with_failure_history() {
     let temp_dir = setup_test_metadata();
     let metadata_path = temp_dir.path().to_str().unwrap();

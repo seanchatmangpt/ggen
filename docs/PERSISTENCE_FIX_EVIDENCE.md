@@ -11,9 +11,9 @@
     - [Test 4: Query Triple Data](#test-4-query-triple-data)
     - [Test 5: Full Test Suite Verification](#test-5-full-test-suite-verification)
   - [🔧 Code Changes](#-code-changes)
-    - [File 1: `/Users/sac/ggen/crates/ggen-domain/src/graph/load.rs`](#file-1-userssacggencratesggen-domainsrcgraphloadrs)
-    - [File 2: `/Users/sac/ggen/crates/ggen-domain/src/graph/query.rs`](#file-2-userssacggencratesggen-domainsrcgraphqueryrs)
-    - [File 3: `/Users/sac/ggen/crates/ggen-core/src/lib.rs`](#file-3-userssacggencratesggen-coresrclibrs)
+    - [File 1: `./crates/ggen-domain/src/graph/load.rs`](#file-1-userssacggencratesggen-domainsrcgraphloadrs)
+    - [File 2: `./crates/ggen-domain/src/graph/query.rs`](#file-2-userssacggencratesggen-domainsrcgraphqueryrs)
+    - [File 3: `./crates/ggen-core/src/lib.rs`](#file-3-userssacggencratesggen-coresrclibrs)
   - [🎯 What This Enables](#-what-this-enables)
     - [Incremental Development](#incremental-development)
     - [Query-Driven Development](#query-driven-development)
@@ -175,7 +175,7 @@ Build Done in 30.84 seconds.
 
 ## 🔧 Code Changes
 
-### File 1: `/Users/sac/ggen/crates/ggen-domain/src/graph/load.rs`
+### File 1: `./crates/ggen-domain/src/graph/load.rs`
 
 **Before (In-Memory Only):**
 ```rust
@@ -202,7 +202,7 @@ graph.insert_turtle(&ttl_content)?;
 
 ---
 
-### File 2: `/Users/sac/ggen/crates/ggen-domain/src/graph/query.rs`
+### File 2: `./crates/ggen-domain/src/graph/query.rs`
 
 **Before (In-Memory Only):**
 ```rust
@@ -231,7 +231,7 @@ let graph = if let Some(graph_file) = &options.graph_file {
 
 ---
 
-### File 3: `/Users/sac/ggen/crates/ggen-core/src/lib.rs`
+### File 3: `./crates/ggen-core/src/lib.rs`
 
 **Change:**
 ```rust

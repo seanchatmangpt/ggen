@@ -32,7 +32,7 @@
 //! 5. Property-Based Tests (fuzzing with proptest)
 
 use ggen_core::graph::{Graph, GraphQuery};
-use ggen_ontology_core::sparql_generator::SparqlGenerator;
+use crate::ontology_core::sparql_generator::SparqlGenerator;
 use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;

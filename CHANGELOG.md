@@ -5,7 +5,7 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.0.1] — Production Release (2026-03-31)
+## [26.5.4] — Production Release (2026-03-31)
 
 ### Added
 
@@ -68,19 +68,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Details
 
-- **Version**: 6.0.1 (patch release - focus on quality and completeness)
+- **Version**: 26.5.4 (patch release - focus on quality and completeness)
 - **Commits**: 34 commits since v5.1.0
-- **Files Modified**: 142 files with version 6.0.1
+- **Files Modified**: 142 files with version 26.5.4
 - **Test Status**: 66/66 tests passing (100% pass rate)
 - **Breaking Changes**: None
 - **Migration Required**: No
 
 ### Documentation
 
-- Release Notes: `/Users/sac/ggen/RELEASE_NOTES.md`
-- MCP Integration: `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
-- Elixir A2A: `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
-- rmcp 1.3.0: `/Users/sac/ggen/docs/RMCP_NOTES.md`
+- Release Notes: `./RELEASE_NOTES.md`
+- MCP Integration: `./crates/ggen-a2a-mcp/README.md`
+- Elixir A2A: `./docs/ELIXIR_A2A_NOTES.md`
+- rmcp 1.3.0: `./docs/RMCP_NOTES.md`
 
 ---
 

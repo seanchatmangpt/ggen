@@ -203,7 +203,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     run_before_hooks(ctx, phase_name)?;
 
     // Print phase start message for CLI output (after hooks)
-    ggen_utils::alert_info!(&format!("Running phase: {}", phase_name));
+    crate::utils::alert_info!(&format!("Running phase: {}", phase_name));
 
     // Get commands for this phase using new Phase::commands() method
     let cmds = phase.commands();

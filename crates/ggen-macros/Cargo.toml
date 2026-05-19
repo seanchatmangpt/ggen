@@ -1,5 +1,5 @@
 [package]
-name = "ggen-macros"
+name = "mcpp-macros"
 version = "0.2.0"
 edition = "2021"
 description = "Procedural macros for ggen"

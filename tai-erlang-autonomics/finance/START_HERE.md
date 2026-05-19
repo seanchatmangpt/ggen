@@ -323,7 +323,7 @@ A: Customer acquisition rate. Solution: Focus on SMB first (faster sales cycles)
 
 ## File Locations
 
-All files located in: `/Users/sac/ggen/tai-erlang-autonomics/finance/`
+All files located in: `~/.ggen/mcpp/tai-erlang-autonomics/finance/`
 
 ```
 finance/

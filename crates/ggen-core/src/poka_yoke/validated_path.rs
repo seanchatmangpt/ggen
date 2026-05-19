@@ -5,7 +5,7 @@
 use std::path::{Component, Path, PathBuf};
 use std::str::FromStr;
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 /// Validated path that has passed all security checks.
 ///

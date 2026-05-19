@@ -128,7 +128,7 @@ print_section "3. Lockfile Operations Performance"
 cat > /tmp/test_lockfile.sh << 'LOCKTEST'
 #!/bin/bash
 # Test lockfile operations
-cd /Users/sac/ggen
+cd .
 
 # Create test directory
 TEST_DIR=$(mktemp -d)
@@ -185,7 +185,7 @@ print_section "4. RDF Query Performance"
 cat > /tmp/test_rdf.sh << 'RDFTEST'
 #!/bin/bash
 # Test RDF query performance
-cd /Users/sac/ggen/crates/ggen-core
+cd ./crates/ggen-core
 
 # Count RDF query operations in codebase
 query_count=$(grep -r "SPARQL\|SELECT.*WHERE" src/ | wc -l | tr -d ' ')

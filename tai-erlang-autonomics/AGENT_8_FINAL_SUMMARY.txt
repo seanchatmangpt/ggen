@@ -12,7 +12,7 @@ DELIVERABLES CREATED
 ================================================================================
 
 1. DOCKER IMAGE BUILD SCRIPT
-   File: /Users/sac/ggen/tai-erlang-autonomics/tools/gcp-build-image.sh
+   File: /Users/sac/mcpp/tai-erlang-autonomics/tools/gcp-build-image.sh
    Size: 11 KB (400 lines)
    Status: Executable (-rwxr-xr-x)
    
@@ -33,7 +33,7 @@ DELIVERABLES CREATED
    PROJECT_ID=custom ./tools/gcp-build-image.sh  # Custom project
 
 2. DEPLOYMENT VERIFICATION SCRIPT
-   File: /Users/sac/ggen/tai-erlang-autonomics/tools/gcp-verify-deployment.sh
+   File: /Users/sac/mcpp/tai-erlang-autonomics/tools/gcp-verify-deployment.sh
    Size: 13 KB (500 lines)
    Status: Executable (-rwxr-xr-x)
    
@@ -54,7 +54,7 @@ DELIVERABLES CREATED
    PROJECT_ID=custom ./tools/gcp-verify-deployment.sh
 
 3. COMPREHENSIVE DEPLOYMENT GUIDE
-   File: /Users/sac/ggen/tai-erlang-autonomics/DEPLOYMENT_GUIDE.md
+   File: /Users/sac/mcpp/tai-erlang-autonomics/DEPLOYMENT_GUIDE.md
    Size: 14 KB (500 lines)
    Format: Markdown with complete documentation
    
@@ -73,7 +73,7 @@ DELIVERABLES CREATED
    Coverage: 9 major sections + references
 
 4. ENVIRONMENT CONFIGURATION TEMPLATE
-   File: /Users/sac/ggen/tai-erlang-autonomics/.env.example
+   File: /Users/sac/mcpp/tai-erlang-autonomics/.env.example
    Size: 6.5 KB (250 lines)
    
    Configuration Sections:
@@ -97,7 +97,7 @@ DELIVERABLES CREATED
    source .env
 
 5. GITHUB ACTIONS WORKFLOW
-   File: /Users/sac/ggen/tai-erlang-autonomics/.github/workflows/release-deploy.yml
+   File: /Users/sac/mcpp/tai-erlang-autonomics/.github/workflows/release-deploy.yml
    Size: 14 KB (300+ lines)
    
    Workflow Jobs (8 total):
@@ -457,11 +457,11 @@ All deliverables have been:
   ✓ Verified for security and reliability
 
 Files Created:
-  1. /Users/sac/ggen/tai-erlang-autonomics/tools/gcp-build-image.sh
-  2. /Users/sac/ggen/tai-erlang-autonomics/tools/gcp-verify-deployment.sh
-  3. /Users/sac/ggen/tai-erlang-autonomics/DEPLOYMENT_GUIDE.md
-  4. /Users/sac/ggen/tai-erlang-autonomics/.env.example
-  5. /Users/sac/ggen/tai-erlang-autonomics/.github/workflows/release-deploy.yml
+  1. /Users/sac/mcpp/tai-erlang-autonomics/tools/gcp-build-image.sh
+  2. /Users/sac/mcpp/tai-erlang-autonomics/tools/gcp-verify-deployment.sh
+  3. /Users/sac/mcpp/tai-erlang-autonomics/DEPLOYMENT_GUIDE.md
+  4. /Users/sac/mcpp/tai-erlang-autonomics/.env.example
+  5. /Users/sac/mcpp/tai-erlang-autonomics/.github/workflows/release-deploy.yml
 
 Total: 45 KB, 2,200+ lines of production-ready code/documentation
 

@@ -15,7 +15,7 @@ fn get_templates_dir() -> Result<PathBuf, String> {
     let possible_paths = [
         current_dir.join("templates").join("clap-noun-verb-360"),
         current_dir.parent().and_then(|p| Some(p.join("templates").join("clap-noun-verb-360"))).unwrap_or_default(),
-        PathBuf::from("/Users/sac/ggen/templates/clap-noun-verb-360"),
+        PathBuf::from("./templates/clap-noun-verb-360"),
     ];
 
     for path in &possible_paths {

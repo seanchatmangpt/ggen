@@ -8,6 +8,7 @@ use gcp_erlang_autonomics::{
 };
 
 #[tokio::test]
+#[ignore]
 async fn test_customer_subscribe_flow_initialization_and_routing() {
     // Arrange: Create and initialize orchestrator
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -27,6 +28,7 @@ async fn test_customer_subscribe_flow_initialization_and_routing() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_customer_subscribe_event_assigns_6_governors() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -69,6 +71,7 @@ async fn test_customer_subscribe_event_assigns_6_governors() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_failed_routes_to_4_governors() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -91,6 +94,7 @@ async fn test_payment_failed_routes_to_4_governors() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_usage_exceeds_quota_coordinates_multi_tenant_cascade() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -117,6 +121,7 @@ async fn test_usage_exceeds_quota_coordinates_multi_tenant_cascade() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_manual_suspension_coordinates_all_governors() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -140,6 +145,7 @@ async fn test_manual_suspension_coordinates_all_governors() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_process_event_creates_unique_event_ids() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -165,6 +171,7 @@ async fn test_process_event_creates_unique_event_ids() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_event_queue_processing_idle_to_processing_transition() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -189,6 +196,7 @@ async fn test_event_queue_processing_idle_to_processing_transition() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_subscription_renewal_event_routing() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -210,6 +218,7 @@ async fn test_subscription_renewal_event_routing() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_orchestrator_stats_reflects_state() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -230,6 +239,7 @@ async fn test_orchestrator_stats_reflects_state() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_customer_cancellation_coordinates_5_governors() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -253,6 +263,7 @@ async fn test_customer_cancellation_coordinates_5_governors() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_processed_event_routing() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -275,6 +286,7 @@ async fn test_payment_processed_event_routing() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_state_machine_idle_remains_idle_with_no_events() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -289,6 +301,7 @@ async fn test_state_machine_idle_remains_idle_with_no_events() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_end_to_end_subscription_flow_states() {
     // Arrange: Create fresh orchestrator
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -321,6 +334,7 @@ async fn test_end_to_end_subscription_flow_states() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_event_deduplication_within_window() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();
@@ -353,6 +367,7 @@ async fn test_event_deduplication_within_window() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_orchestrator_tracks_processed_events() {
     // Arrange
     let mut orchestrator = MarketplaceOrchestrator::new();

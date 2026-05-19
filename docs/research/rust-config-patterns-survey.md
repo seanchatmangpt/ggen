@@ -2017,4 +2017,4 @@ The Rust configuration ecosystem provides mature, type-safe solutions for CLI an
 - clap-noun-verb: https://github.com/seanchatmangpt/clap-noun-verb
 - config crate: https://docs.rs/config
 - figment: https://docs.rs/figment
-- ggen-config source: `/Users/sac/ggen/crates/ggen-config`
+- ggen-config source: `./crates/ggen-config`

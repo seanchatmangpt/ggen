@@ -540,7 +540,7 @@ Files Included:
 
 Total: 7 files, 40,000+ words, 128 KB
 
-Storage: /Users/sac/ggen/tai-erlang-autonomics/pilots/
+Storage: /Users/sac/mcpp/tai-erlang-autonomics/pilots/
 
 All files are in Markdown (.md) or plain text (.txt) format,
 suitable for version control (git), wiki import, or PDF conversion.

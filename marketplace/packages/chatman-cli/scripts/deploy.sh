@@ -75,14 +75,14 @@ fi
 VERSION=$(grep -m1 "owl:versionInfo" rdf/ontology.ttl | sed 's/.*"\(.*\)".*/\1/' || echo "0.1.0")
 success "Loaded ontology version: $VERSION"
 
-# Step 3: Generate CLI from ontology using ggen (5s target)
-log "Step 3/6: Generating CLI from ontology using ggen..."
-if command -v ggen &> /dev/null; then
-  # Use ggen to generate Rust CLI from ontology
-  ggen generate --input rdf/ontology.ttl --output src/generated --template rust-cli
+# Step 3: Generate CLI from ontology using mcpp (5s target)
+log "Step 3/6: Generating CLI from ontology using mcpp..."
+if command -v mcpp &> /dev/null; then
+  # Use mcpp to generate Rust CLI from ontology
+  mcpp generate --input rdf/ontology.ttl --output src/generated --template rust-cli
   success "Generated CLI code from ontology"
 else
-  warn "ggen not found in PATH, skipping ontology-driven generation"
+  warn "mcpp not found in PATH, skipping ontology-driven generation"
   warn "Using pre-generated code"
 fi
 

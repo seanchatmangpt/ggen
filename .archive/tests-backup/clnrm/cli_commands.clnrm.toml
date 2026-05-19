@@ -6,7 +6,7 @@ timeout = "120s"
 image = "rust:1.90"
 env = { RUST_BACKTRACE = "1" }
 volumes = [
-  { host = "/Users/sac/ggen", container = "/workspace", readonly = true },
+  { host = ".", container = "/workspace", readonly = true },
 ]
 workdir = "/workspace"
 

@@ -241,7 +241,7 @@ RDF Spec → Agent discovers → Gathers variables → MCP renders → Agent dep
 
 ### ai-code-generation
 ```bash
-cd /Users/sac/ggen/examples/ai-code-generation
+cd ./examples/ai-code-generation
 cargo build
 cargo test --lib  # 56 tests passing
 cargo run         # Demo output
@@ -249,7 +249,7 @@ cargo run         # Demo output
 
 ### ai-templates
 ```bash
-cd /Users/sac/ggen/examples/ai-templates
+cd ./examples/ai-templates
 cargo build
 cargo test --lib  # 40 tests passing
 cargo run         # Demo output

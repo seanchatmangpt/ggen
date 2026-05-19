@@ -117,9 +117,9 @@ All commands will follow the same clean sync→async pattern.
 
 ## Files Created
 
-1. `/Users/sac/ggen/cli/src/runtime_helper.rs` (225 lines)
-2. `/Users/sac/ggen/.claude/refactor-v2/sync-wrapper-pattern.md` (521 lines)
-3. `/Users/sac/ggen/.claude/refactor-v2/validate-runtime-helper.sh` (95 lines)
+1. `./cli/src/runtime_helper.rs` (225 lines)
+2. `./.claude/refactor-v2/sync-wrapper-pattern.md` (521 lines)
+3. `./.claude/refactor-v2/validate-runtime-helper.sh` (95 lines)
 
 ## Validation Results
 

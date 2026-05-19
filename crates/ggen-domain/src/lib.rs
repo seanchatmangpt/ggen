@@ -34,6 +34,7 @@ pub mod generation;
 pub mod graph;
 pub mod mape_k;
 pub mod mcp_config;
+pub mod mcp_generate;
 pub mod ontology;
 pub mod packs;
 pub mod project;
@@ -66,4 +67,4 @@ pub mod swarm_coordination;
 pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
 
 // Re-export commonly used types for convenience
-pub use ggen_utils::error::{Error, Result};
+pub use ggen_core::utils::error::{Context, Error, Result};

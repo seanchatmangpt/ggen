@@ -3,7 +3,7 @@
 ================================================================================
 
 Three comprehensive validation reports have been generated for the ggen self-play
-testing framework. All documents are located in /Users/sac/ggen/
+testing framework. All documents are located in ./
 
 ================================================================================
                             DOCUMENT INDEX
@@ -216,10 +216,10 @@ LONG-TERM:
 ================================================================================
 
 Main Reports:
-  /Users/sac/ggen/GGEN_SELF_PLAY_VALIDATION_REPORT.md
-  /Users/sac/ggen/VALIDATION_FRAMEWORK_INDEX.md
-  /Users/sac/ggen/SELF_PLAY_TEST_SUMMARY.txt
-  /Users/sac/ggen/REPORT_MANIFEST.txt (this file)
+  ./GGEN_SELF_PLAY_VALIDATION_REPORT.md
+  ./VALIDATION_FRAMEWORK_INDEX.md
+  ./SELF_PLAY_TEST_SUMMARY.txt
+  ./REPORT_MANIFEST.txt (this file)
 
 Test Files:
   crates/ggen-a2a-mcp/tests/groq_integration_test.rs

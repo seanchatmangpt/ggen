@@ -98,7 +98,7 @@ This document outlines the 80/20 fix strategy for the clap-noun-verb CLI framewo
 
 ### 2.2 Dead Code in Macros Crate
 
-**Location**: `/Users/sac/ggen/crates/ggen-macros/src/lib.rs`
+**Location**: `./crates/ggen-macros/src/lib.rs`
 
 **Dead Code**:
 - `include_ontology!()` macro (line 205-218)
@@ -135,8 +135,8 @@ This document outlines the 80/20 fix strategy for the clap-noun-verb CLI framewo
    - Use `new_with_parent()` for child spans
 
 **Template Files Affected** (60 async patterns + 60 middleware patterns = 120 files):
-- `/Users/sac/ggen/templates/clap-noun-verb-360/async-pattern-*.tmpl`
-- `/Users/sac/ggen/templates/clap-noun-verb-360/middleware-pattern-*.tmpl`
+- `./templates/clap-noun-verb-360/async-pattern-*.tmpl`
+- `./templates/clap-noun-verb-360/middleware-pattern-*.tmpl`
 
 **Migration Script**: Create `scripts/migrate-span-api.sh` to batch-update templates
 
@@ -156,7 +156,7 @@ This document outlines the 80/20 fix strategy for the clap-noun-verb CLI framewo
 2. Update tests to remove references to removed macros
 
 **Files Affected**:
-- `/Users/sac/ggen/crates/ggen-macros/src/lib.rs`
+- `./crates/ggen-macros/src/lib.rs`
 
 ### Tier 3: Lint Task Addition (10% of Value, 5% of Effort)
 

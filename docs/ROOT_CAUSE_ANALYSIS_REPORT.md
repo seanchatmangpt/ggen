@@ -339,7 +339,7 @@ pub struct V3OptimizedRegistry {
 
 ```rust
 // EVIDENCE 1: 335 templates exist
-// File count: /Users/sac/ggen/templates/clap-noun-verb-360/
+// File count: ./templates/clap-noun-verb-360/
 258 .tmpl files (confirmed via ls count)
 
 // EVIDENCE 2: Template list defaults to wrong directory

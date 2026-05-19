@@ -1,7 +1,7 @@
 # Troubleshooting Guide
 
 **Last Updated:** 2026-03-31
-**Version:** 6.0.1
+**Version:** 26.5.4
 **Coverage:** 20 most common issues based on error analysis and improved error messages
 
 ## Quick Reference
@@ -860,7 +860,7 @@ grep -r "struct Mock" tests/  # Should return nothing
 grep -r "expect_\|times(" tests/  # Should return nothing
 ```
 
-See [Testing Policy](/Users/sac/ggen/.claude/rules/rust/testing.md) for details.
+See [Testing Policy](./.claude/rules/rust/testing.md) for details.
 
 ---
 
@@ -901,7 +901,7 @@ grep -E "llm\.prompt_tokens|llm\.completion_tokens|llm\.total_tokens" otel_outpu
 
 **If OTEL spans are missing, the feature is NOT complete.**
 
-See [OTEL Validation Rules](/Users/sac/ggen/.claude/rules/otel-validation.md) for details.
+See [OTEL Validation Rules](./.claude/rules/otel-validation.md) for details.
 
 ---
 
@@ -1007,15 +1007,15 @@ git log --oneline -5
 
 ## 🔗 Related Documentation
 
-- [README.md](/Users/sac/ggen/README.md) - Project overview and quick start
-- [CLAUDE.md](/Users/sac/ggen/CLAUDE.md) - Constitutional rules and development philosophy
-- [Andon Signals](/Users/sac/ggen/.claude/rules/andon/signals.md) - Stop the line protocol
-- [Testing Policy](/Users/sac/ggen/.claude/rules/rust/testing.md) - Chicago TDD requirements
-- [OTEL Validation](/Users/sac/ggen/.claude/rules/otel-validation.md) - OpenTelemetry span verification
-- [Error Context Improvements](/Users/sac/ggen/docs/research/error-context-improvements-complete.md) - Implementation details
+- [README.md](./README.md) - Project overview and quick start
+- [CLAUDE.md](./CLAUDE.md) - Constitutional rules and development philosophy
+- [Andon Signals](./.claude/rules/andon/signals.md) - Stop the line protocol
+- [Testing Policy](./.claude/rules/rust/testing.md) - Chicago TDD requirements
+- [OTEL Validation](./.claude/rules/otel-validation.md) - OpenTelemetry span verification
+- [Error Context Improvements](./docs/research/error-context-improvements-complete.md) - Implementation details
 
 ---
 
-**Version:** 6.0.1
+**Version:** 26.5.4
 **Last Updated:** 2026-03-31
 **Maintainer:** ggen project contributors

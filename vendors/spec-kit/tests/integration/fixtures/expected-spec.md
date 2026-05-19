@@ -8,4 +8,4 @@
 
 
 ---
-*Generated via ggen sync*
+*Generated via mcpp sync*

@@ -1,6 +1,6 @@
 # A2A Agent Lifecycle - Chicago TDD Test Suite
 
-**Test File:** `/Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs`
+**Test File:** `./crates/ggen-cli/tests/a2a_agent_lifecycle.rs`
 **Test Count:** 38 comprehensive unit tests
 **File Size:** 1,199 lines
 **Status:** ✅ All 38 tests passing

@@ -187,7 +187,7 @@ ONE-TIME (Week 13):
 
 📚 DOCUMENT FILES
 
-Location: /Users/sac/ggen/tai-erlang-autonomics/execution/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/
 
 NEW:
   - PRODUCT_EXECUTION_LOG.md (22 KB) ← Most important

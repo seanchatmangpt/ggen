@@ -13,7 +13,7 @@
 //!
 //! Performance target: <1s total, <100ms per test
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 // ============================================================================
 // UNIT TESTS (20%) - Runtime Bridge & Utilities
@@ -40,7 +40,7 @@ fn test_runtime_execute_success() {
 #[test]
 fn test_runtime_execute_error_propagation() {
     let result =
-        ggen_cli_lib::runtime::execute(async { Err(ggen_utils::error::Error::new("Test error")) });
+        ggen_cli_lib::runtime::execute(async { Err(ggen_core::utils::error::Error::new("Test error")) });
 
     assert!(result.is_err(), "Expected error to propagate");
     assert!(
@@ -230,7 +230,7 @@ async fn simulate_domain_doctor_success() -> Result<()> {
 }
 
 async fn simulate_domain_doctor_failure() -> Result<()> {
-    Err(ggen_utils::error::Error::new("Some required checks failed"))
+    Err(ggen_core::utils::error::Error::new("Some required checks failed"))
 }
 
 async fn simulate_quick_check(_id: i32) -> Result<()> {
@@ -240,7 +240,7 @@ async fn simulate_quick_check(_id: i32) -> Result<()> {
 
 async fn simulate_nested_domain_error() -> Result<()> {
     async fn inner_error() -> Result<()> {
-        Err(ggen_utils::error::Error::new("Nested domain error"))
+        Err(ggen_core::utils::error::Error::new("Nested domain error"))
     }
 
     inner_error().await?;

@@ -956,6 +956,6 @@ fn complete_template_names() -> Vec<String> {
 ## References
 
 - clap-noun-verb repo: https://github.com/seanchatmangpt/clap-noun-verb
-- ggen CLI source: `/Users/sac/ggen/crates/ggen-cli`
+- ggen CLI source: `./crates/ggen-cli`
 - v4.0.0 changelog: Check repository CHANGELOG.md
 - FMEA analysis: docs/book/ in clap-noun-verb repo

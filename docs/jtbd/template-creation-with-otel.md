@@ -559,9 +559,9 @@ The `validate_template` MCP tool transforms template development from a slow, er
 **Next Steps:**
 1. Install MCP server: `ggen mcp start-server --transport stdio`
 2. Try validation: `ggen mcp call validate_template --help`
-3. Read more: `/Users/sac/ggen/docs/mcp-server-reference.md`
+3. Read more: `./docs/mcp-server-reference.md`
 
 **Related Documents:**
-- MCP Server Reference: `/Users/sac/ggen/docs/mcp-server-reference.md`
-- OTEL Validation Guide: `/Users/sac/ggen/docs/otel-verification-guide.md`
-- Template Development: `/Users/sac/ggen/docs/template-development-guide.md`
+- MCP Server Reference: `./docs/mcp-server-reference.md`
+- OTEL Validation Guide: `./docs/otel-verification-guide.md`
+- Template Development: `./docs/template-development-guide.md`

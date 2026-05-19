@@ -257,7 +257,7 @@ FOR PROJECT MANAGERS:
 FILE LOCATIONS
 ================================================================================
 
-All files in: /Users/sac/ggen/tai-erlang-autonomics/execution/week-5-6/
+All files in: /Users/sac/mcpp/tai-erlang-autonomics/execution/week-5-6/
 
 FINANCIAL CONTROLS (5 core documents):
   ✓ EXECUTIVE_SUMMARY.md

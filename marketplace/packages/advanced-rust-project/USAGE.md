@@ -1,39 +1,39 @@
 # Advanced Rust Project Usage Guide
 
-This comprehensive example demonstrates all advanced features of ggen including lifecycle management, AI-powered generation, SPARQL/RDF integration, and template processing.
+This comprehensive example demonstrates all advanced features of mcpp including lifecycle management, AI-powered generation, SPARQL/RDF integration, and template processing.
 
 ## Quick Start
 
 ### 1. Initialize Project
 ```bash
 cd examples/advanced-rust-project
-ggen lifecycle list
+mcpp lifecycle list
 ```
 
 ### 2. Generate Code
 ```bash
 # Generate complete Rust service
-ggen template generate templates/rust-service.tmpl \
+mcpp template generate templates/rust-service.tmpl \
     --var name="UserService" \
     --var description="User management service" \
     --var version="1.0.0" \
-    --var author="ggen-examples"
+    --var author="mcpp-examples"
 
 # Generate API endpoint
-ggen template generate templates/api-endpoint.tmpl \
+mcpp template generate templates/api-endpoint.tmpl \
     --var name="UserAPI" \
     --var method="GET" \
     --var path="/api/v1/users" \
     --var description="User API endpoint"
 
 # Generate database schema
-ggen template generate templates/database-schema.tmpl \
+mcpp template generate templates/database-schema.tmpl \
     --var name="UserSchema" \
     --var database="postgresql" \
     --var orm="sqlx"
 
 # Generate documentation
-ggen template generate templates/documentation.tmpl \
+mcpp template generate templates/documentation.tmpl \
     --var name="UserDocs" \
     --var format="markdown" \
     --var style="github"
@@ -42,28 +42,28 @@ ggen template generate templates/documentation.tmpl \
 ### 3. Run Lifecycle Phases
 ```bash
 # Run single phase
-ggen lifecycle run generate
+mcpp lifecycle run generate
 
 # Run pipeline
-ggen lifecycle pipeline setup generate build test
+mcpp lifecycle pipeline setup generate build test
 
 # Run with environment
-ggen lifecycle run deploy --env production
+mcpp lifecycle run deploy --env production
 ```
 
 ### 4. AI-Powered Generation
 ```bash
 # Generate templates using AI
-ggen ai generate --description "Rust microservice with REST API"
+mcpp ai generate --description "Rust microservice with REST API"
 
 # Generate SPARQL queries
-ggen ai sparql --description "Find all API endpoints"
+mcpp ai sparql --description "Find all API endpoints"
 
 # Generate RDF graphs
-ggen ai graph --description "E-commerce domain model"
+mcpp ai graph --description "E-commerce domain model"
 
 # Generate frontmatter
-ggen ai frontmatter --description "API documentation"
+mcpp ai frontmatter --description "API documentation"
 ```
 
 ## Advanced Features
@@ -79,7 +79,7 @@ commands = ["mkdir -p generated/{src,api,database,docs}"]
 
 [lifecycle.generate]
 description = "Generate code using AI and templates"
-commands = ["ggen template generate templates/rust-service.tmpl"]
+commands = ["mcpp template generate templates/rust-service.tmpl"]
 depends_on = ["setup"]
 
 [lifecycle.build]
@@ -102,16 +102,16 @@ Generate code using natural language descriptions:
 
 ```bash
 # Generate complete service
-ggen ai generate --description "Rust microservice with REST API, database integration, and authentication"
+mcpp ai generate --description "Rust microservice with REST API, database integration, and authentication"
 
 # Generate SPARQL queries
-ggen ai sparql --description "Find all users with orders greater than $100"
+mcpp ai sparql --description "Find all users with orders greater than $100"
 
 # Generate RDF graphs
-ggen ai graph --description "E-commerce domain model with products, users, and orders"
+mcpp ai graph --description "E-commerce domain model with products, users, and orders"
 
 # Generate frontmatter
-ggen ai frontmatter --description "Blog post about Rust async programming"
+mcpp ai frontmatter --description "Blog post about Rust async programming"
 ```
 
 **Key Features:**
@@ -204,14 +204,14 @@ if request.name.is_empty() {
 
 ## Configuration
 
-### ggen.toml
+### mcpp.toml
 Project-specific configuration:
 
 ```toml
 [project]
 name = "advanced-rust-project"
 version = "1.0.0"
-description = "Advanced Rust project demonstrating all ggen features"
+description = "Advanced Rust project demonstrating all mcpp features"
 
 [ai]
 provider = "openai"
@@ -241,7 +241,7 @@ commands = ["mkdir -p generated/{src,api,database,docs}"]
 
 [lifecycle.generate]
 description = "Generate code using AI and templates"
-commands = ["ggen template generate templates/rust-service.tmpl"]
+commands = ["mcpp template generate templates/rust-service.tmpl"]
 depends_on = ["setup"]
 
 [hooks.before_generate]
@@ -303,17 +303,17 @@ GGEN_ENV=staging ./scripts/deploy/deploy.sh
 ### Complete Service Generation
 ```bash
 # Generate complete Rust service
-ggen template generate templates/rust-service.tmpl \
+mcpp template generate templates/rust-service.tmpl \
     --var name="UserService" \
     --var description="User management service" \
     --var version="1.0.0" \
-    --var author="ggen-examples"
+    --var author="mcpp-examples"
 ```
 
 ### API Endpoint Generation
 ```bash
 # Generate API endpoint
-ggen template generate templates/api-endpoint.tmpl \
+mcpp template generate templates/api-endpoint.tmpl \
     --var name="UserAPI" \
     --var method="GET" \
     --var path="/api/v1/users" \
@@ -323,7 +323,7 @@ ggen template generate templates/api-endpoint.tmpl \
 ### Database Schema Generation
 ```bash
 # Generate database schema
-ggen template generate templates/database-schema.tmpl \
+mcpp template generate templates/database-schema.tmpl \
     --var name="UserSchema" \
     --var database="postgresql" \
     --var orm="sqlx"
@@ -332,7 +332,7 @@ ggen template generate templates/database-schema.tmpl \
 ### Documentation Generation
 ```bash
 # Generate documentation
-ggen template generate templates/documentation.tmpl \
+mcpp template generate templates/documentation.tmpl \
     --var name="UserDocs" \
     --var format="markdown" \
     --var style="github"
@@ -408,13 +408,13 @@ ggen template generate templates/documentation.tmpl \
 
 ```bash
 # Enable debug logging
-RUST_LOG=debug ggen template generate templates/rust-service.tmpl
+RUST_LOG=debug mcpp template generate templates/rust-service.tmpl
 
 # Enable trace logging
-RUST_LOG=trace ggen lifecycle run generate
+RUST_LOG=trace mcpp lifecycle run generate
 
 # Verbose output
-ggen template generate templates/rust-service.tmpl --verbose
+mcpp template generate templates/rust-service.tmpl --verbose
 ```
 
 ### Log Files
@@ -422,7 +422,7 @@ ggen template generate templates/rust-service.tmpl --verbose
 - **Build Logs**: `logs/build.log`
 - **Deployment Logs**: `logs/deployment.log`
 - **Test Logs**: `logs/test.log`
-- **Ggen Logs**: `.ggen/logs/ggen.log`
+- **Ggen Logs**: `.mcpp/logs/mcpp.log`
 
 ## Performance Optimization
 
@@ -505,4 +505,4 @@ For support and questions:
 
 ---
 
-*This example demonstrates the full power of ggen for advanced Rust project development.*
+*This example demonstrates the full power of mcpp for advanced Rust project development.*

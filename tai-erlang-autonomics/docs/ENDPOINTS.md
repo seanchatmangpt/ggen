@@ -598,5 +598,5 @@ Deprecated features will be announced with minimum 6-month notice.
 ## Support
 
 For API support:
-- Issues: github.com/seanchatmangpt/ggen/issues
-- Documentation: https://github.com/seanchatmangpt/ggen/tree/master/tai-erlang-autonomics
+- Issues: github.com/seanchatmangpt/mcpp/issues
+- Documentation: https://github.com/seanchatmangpt/mcpp/tree/master/tai-erlang-autonomics

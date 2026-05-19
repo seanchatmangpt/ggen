@@ -17,7 +17,7 @@ Generate production-ready command-line interface (CLI) applications with full su
 ## Installation
 
 ```bash
-ggen marketplace install cli-application-template
+mcpp marketplace install cli-application-template
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ ggen marketplace install cli-application-template
 ### 1. Create CLI Specification (RDF)
 
 ```turtle
-@prefix cli: <http://ggen.dev/ontology/cli#> .
+@prefix cli: <http://mcpp.dev/ontology/cli#> .
 
 :MyApp a cli:CLIApplication ;
     cli:commandName "myapp" ;
@@ -54,19 +54,19 @@ ggen marketplace install cli-application-template
 
 ```bash
 # Rust with clap
-ggen generate cli-application-template \
+mcpp generate cli-application-template \
   --input spec.ttl \
   --output myapp-rs \
   --language rust
 
 # TypeScript with Commander.js
-ggen generate cli-application-template \
+mcpp generate cli-application-template \
   --input spec.ttl \
   --output myapp-ts \
   --language typescript
 
 # Python with Click
-ggen generate cli-application-template \
+mcpp generate cli-application-template \
   --input spec.ttl \
   --output myapp-py \
   --language python

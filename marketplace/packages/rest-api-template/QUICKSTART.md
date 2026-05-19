@@ -27,8 +27,8 @@ pip --version
 ## Step 1: Install GGEN (30 seconds)
 
 ```bash
-cargo install ggen
-ggen --version
+cargo install mcpp
+mcpp --version
 ```
 
 ## Step 2: Create Your API (60 seconds)
@@ -36,8 +36,8 @@ ggen --version
 ### Option A: Rust (Axum)
 
 ```bash
-ggen marketplace install rest-api-template
-ggen project new my-rust-api --template rest-api-template --language rust
+mcpp marketplace install rest-api-template
+mcpp project new my-rust-api --template rest-api-template --language rust
 cd my-rust-api
 
 # Install dependencies
@@ -51,8 +51,8 @@ cargo run
 ### Option B: TypeScript (Express)
 
 ```bash
-ggen marketplace install rest-api-template
-ggen project new my-ts-api --template rest-api-template --language typescript
+mcpp marketplace install rest-api-template
+mcpp project new my-ts-api --template rest-api-template --language typescript
 cd my-ts-api
 
 # Install dependencies
@@ -66,8 +66,8 @@ npm run dev
 ### Option C: Python (FastAPI)
 
 ```bash
-ggen marketplace install rest-api-template
-ggen project new my-py-api --template rest-api-template --language python
+mcpp marketplace install rest-api-template
+mcpp project new my-py-api --template rest-api-template --language python
 cd my-py-api
 
 # Install dependencies
@@ -271,7 +271,7 @@ Edit `ontology/rest-api.ttl`:
 Regenerate code:
 
 ```bash
-ggen project regenerate
+mcpp project regenerate
 ```
 
 ### 3. Add More Endpoints
@@ -363,8 +363,8 @@ Make sure server is NOT running while tests execute (tests start their own serve
 - **Architecture Deep-Dive:** `docs/ARCHITECTURE.md`
 - **10+ Real-World Examples:** `docs/EXAMPLES.md`
 - **API Reference:** `docs/API.md`
-- **GitHub Issues:** https://github.com/ggen/marketplace/issues
-- **Discord Community:** https://discord.gg/ggen
+- **GitHub Issues:** https://github.com/mcpp/marketplace/issues
+- **Discord Community:** https://discord.gg/mcpp
 
 ## Congratulations! 🎉
 

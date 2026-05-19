@@ -14,14 +14,14 @@ NC='\033[0m' # No Color
 # Configuration
 CLNRM_BIN="${HOME}/dev/clnrm/target/release/cleanroom"
 OTEL_ENDPOINT="http://localhost:4318"
-REPORT_DIR="/Users/sac/ggen/target/clnrm-reports"
-GGEN_ROOT="/Users/sac/ggen"
+REPORT_DIR="~/.ggen/mcpp/target/clnrm-reports"
+GGEN_ROOT="~/.ggen/mcpp"
 
 # Create report directory
 mkdir -p "${REPORT_DIR}"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║         CLNRM Test Suite Runner for ggen                ║${NC}"
+echo -e "${BLUE}║         CLNRM Test Suite Runner for mcpp                ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -45,13 +45,13 @@ check_prerequisites() {
     fi
     echo -e "${GREEN}✅ OTEL collector is running${NC}"
 
-    # Check ggen binary
-    if [ ! -f "${GGEN_ROOT}/target/release/ggen" ]; then
-        echo -e "${YELLOW}⚠️  ggen binary not found, building...${NC}"
+    # Check mcpp binary
+    if [ ! -f "${GGEN_ROOT}/target/release/mcpp" ]; then
+        echo -e "${YELLOW}⚠️  mcpp binary not found, building...${NC}"
         cd "${GGEN_ROOT}"
         cargo build --release
     fi
-    echo -e "${GREEN}✅ ggen binary ready${NC}"
+    echo -e "${GREEN}✅ mcpp binary ready${NC}"
     echo ""
 }
 

@@ -17,7 +17,7 @@ use crate::error::RegistryError;
 use crate::store::AgentStore;
 use crate::types::HealthStatus;
 
-// Re-export so downstream consumers can use `ggen_a2a_registry::HealthConfig`.
+// Re-export so downstream consumers can use `ggen_core::a2a_registry::HealthConfig`.
 #[doc(hidden)]
 pub use crate::types::HealthConfig;
 

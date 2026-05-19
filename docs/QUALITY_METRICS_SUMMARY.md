@@ -271,11 +271,11 @@
 
 ## 📞 Quick Reference
 
-**Dashboard:** `/Users/sac/ggen/docs/INTEGRATION_TEST_METRICS_DASHBOARD.md`
-**Analysis:** `/Users/sac/ggen/docs/PHASE_6_TECHNICAL_ANALYSIS.md`
-**Summary:** `/Users/sac/ggen/docs/QUALITY_METRICS_SUMMARY.md`
+**Dashboard:** `./docs/INTEGRATION_TEST_METRICS_DASHBOARD.md`
+**Analysis:** `./docs/PHASE_6_TECHNICAL_ANALYSIS.md`
+**Summary:** `./docs/QUALITY_METRICS_SUMMARY.md`
 
-**Test Directory:** `/Users/sac/ggen/tests/integration/`
+**Test Directory:** `./tests/integration/`
 **Test Count:** 17 files, 8,061 LOC, ~65 tests
 
 **Status:** Phase 6 Complete, Ready for Phase 7

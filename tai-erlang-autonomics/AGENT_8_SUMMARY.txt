@@ -143,7 +143,7 @@ tools/
 ═══════════════════════════════════════════════════════════════════════════════
 
 1. START RELEASE LOCALLY
-   $ cd /Users/sac/ggen/tai-erlang-autonomics
+   $ cd /Users/sac/mcpp/tai-erlang-autonomics
    $ ./tools/run_release.sh 8080
 
 2. RUN SMOKE TESTS (separate terminal)

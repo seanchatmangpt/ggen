@@ -33,7 +33,7 @@ Supervisor (root)
 
 **Implementation in ggen:**
 
-Location: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/handlers.rs`
+Location: `./crates/ggen-a2a-mcp/src/handlers.rs`
 
 ```rust
 pub enum RecoveryStrategy {
@@ -116,7 +116,7 @@ HALF-OPEN (test single request)
 
 **Implementation in ggen:**
 
-Location: `/Users/sac/ggen/crates/ggen-backpressure/src/`
+Location: `./crates/ggen-backpressure/src/`
 
 ```rust
 pub enum CircuitState {
@@ -429,7 +429,7 @@ Primary sees 3 Prepare msgs (≥ 2f+1 = 3)
 
 **Implementation in ggen:**
 
-Location: `/Users/sac/ggen/crates/ggen-consensus/src/pbft.rs`
+Location: `./crates/ggen-consensus/src/pbft.rs`
 
 ---
 

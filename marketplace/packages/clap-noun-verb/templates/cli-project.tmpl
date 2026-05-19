@@ -3,18 +3,18 @@
 # Generates a complete Rust CLI project from RDF description
 #
 # Usage:
-#   ggen project gen \
+#   mcpp project gen \
 #     --template_ref marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
 #     --vars domain_rdf=my-cli.ttl
 #
 # Or with project generate (file-based routing):
 #   Copy this template and your .ttl file to your project, then:
-#   ggen project generate
+#   mcpp project generate
 
 to: "."
 rdf: "{{ domain_rdf }}"
 prefixes:
-  cnv: "https://ggen.dev/clap-noun-verb/"
+  cnv: "https://mcpp.dev/clap-noun-verb/"
   rdfs: "http://www.w3.org/2000/01/rdf-schema#"
   rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 

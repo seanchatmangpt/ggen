@@ -465,7 +465,7 @@ let predicate_iri = Iri::new(malicious)?;
 1. ⏳ **Wait for build to complete** - Let dependency compilation finish
 2. 🔴 **Run Andon Signal checks** - Verify no errors/warnings/failures
 3. ✅ **Mark task complete** - Once all signals are GREEN
-4. 📝 **Document in CHANGELOG** - Add to v6.1.0 release notes
+4. 📝 **Document in CHANGELOG** - Add to v26.5.4 release notes
 5. 🔒 **Security audit** - External review of injection prevention
 6. 📊 **Performance benchmark** - Verify zero-cost abstraction claim
 

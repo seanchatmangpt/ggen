@@ -1,6 +1,6 @@
 # ggen MCP Server Usage Guide
 
-**Version:** 6.0.1 | **Last Updated:** 2026-03-31
+**Version:** 26.5.4 | **Last Updated:** 2026-03-31
 
 ## Overview
 
@@ -670,7 +670,7 @@ async fn main() -> anyhow::Result<()> {
     let result = mcp_client
         .call_tool(CallToolRequestParams::new("validate_pipeline")
             .with_arguments(serde_json::json!({
-                "project_path": "/Users/sac/ggen"
+                "project_path": "."
             }).as_object().unwrap().clone()))
         .await?;
 
@@ -717,7 +717,7 @@ All MCP tool calls emit OpenTelemetry spans with these attributes:
 
 **Common Attributes:**
 - `service.name = "ggen-mcp-server"`
-- `service.version = "6.0.1"`
+- `service.version = "26.5.4"`
 - `mcp.tool_name = "<tool_name>"`
 
 **Tool-Specific Attributes:**
@@ -961,5 +961,5 @@ ggen mcp start-server --transport stdio
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 6.0.1 | 2026-03-31 | Initial documentation |
+| 26.5.4 | 2026-03-31 | Initial documentation |
 | 6.0.0 | 2026-03-30 | rmcp 1.3.0 migration |

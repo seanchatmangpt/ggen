@@ -79,7 +79,7 @@ All claimed files exist and are properly organized:
 
 **Compilation Check:** ⚠️ BLOCKED
 - ❌ `cargo check` blocked by parent workspace configuration
-- Issue: Parent workspace at `/Users/sac/ggen/Cargo.toml` references missing member `/Users/sac/ggen/cli`
+- Issue: Parent workspace at `~/.ggen/mcpp/Cargo.toml` references missing member `~/.ggen/mcpp/cli`
 - **Impact:** Cannot verify Rust compilation without resolving workspace issue
 - **Recommendation:** Either fix workspace configuration or use `--manifest-path` with isolated builds
 

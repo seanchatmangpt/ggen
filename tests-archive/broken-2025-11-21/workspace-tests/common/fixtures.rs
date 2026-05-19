@@ -3,7 +3,7 @@
 //! Provides standard test data, templates, and configurations used across the test suite.
 
 use ggen_core::lifecycle::{Context, Make, Phase, PhaseBuilder, Project};
-use ggen_marketplace::models::{Package, PackageId, Version};
+use ggen_core::marketplace::models::{Package, PackageId, Version};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -78,9 +78,9 @@ pub fn sample_context(temp_dir: &TempDir) -> Context {
 
 /// Creates a sample Package for marketplace testing
 pub fn sample_package() -> Package {
-    use ggen_marketplace::models::{ContentId, HashAlgorithm, PackageStats};
+    use ggen_core::marketplace::models::{ContentId, HashAlgorithm, PackageStats};
 
-    let mut metadata = ggen_marketplace::models::PackageMetadata::default();
+    let mut metadata = ggen_core::marketplace::models::PackageMetadata::default();
     metadata.title = "Test Package".to_string();
     metadata.description = "A test package for integration tests".to_string();
     metadata.license = "MIT".to_string();

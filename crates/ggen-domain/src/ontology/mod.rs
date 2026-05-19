@@ -4,7 +4,7 @@
 //! separating business logic from CLI concerns.
 
 use ggen_core::ontology::OntologySchema;
-use ggen_utils::error::Error;
+use ggen_core::utils::error::Error;
 use std::path::PathBuf;
 
 /// Extract schema from ontology file

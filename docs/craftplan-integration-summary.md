@@ -366,14 +366,14 @@ span.in_scope(|| {
 
 ### Architecture Documents
 ```
-/Users/sac/ggen/docs/
+./docs/
 ├── craftplan-architecture.md       # System design (this summary)
 └── craftplan-integration-guide.md  # Setup instructions
 ```
 
 ### Source Code
 ```
-/Users/sac/ggen/vendors/
+./vendors/
 ├── a2a-rs/
 │   ├── a2a-rs/          # Core framework
 │   ├── a2a-agents/      # Agent implementations
@@ -384,7 +384,7 @@ span.in_scope(|| {
 
 ### Configuration Files
 ```
-/Users/sac/ggen/
+./
 ├── docker-compose.yml              # Development deployment
 ├── docker-compose.integration.yml  # Integration tests
 └── vendors/

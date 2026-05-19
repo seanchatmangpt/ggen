@@ -164,7 +164,7 @@ ONTOLOGY_DIR='$feature_dir/ontology'
 GENERATED_DIR='$feature_dir/generated'
 TEMPLATES_DIR='$feature_dir/templates'
 SCHEMA_TTL='$feature_dir/ontology/spec-kit-schema.ttl'
-GGEN_CONFIG='$feature_dir/ggen.toml'
+GGEN_CONFIG='$feature_dir/mcpp.toml'
 EOF
 }
 

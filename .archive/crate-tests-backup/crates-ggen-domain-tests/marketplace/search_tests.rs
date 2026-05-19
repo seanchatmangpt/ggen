@@ -3,8 +3,8 @@
 //! These tests use REAL search operations with actual index data
 //! following the Chicago school of TDD (integration-focused testing).
 
-use ggen_domain::marketplace::search::{SearchFilters, SearchResult, search_packages};
-use ggen_utils::error::Result;
+use ggen_core::domain::marketplace::search::{SearchFilters, SearchResult, search_packages};
+use ggen_core::utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};

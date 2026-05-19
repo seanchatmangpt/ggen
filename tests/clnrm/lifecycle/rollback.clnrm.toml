@@ -9,20 +9,20 @@ version = "1.0.0"
 [otel]
 exporter = "otlp"
 endpoint = "http://localhost:4318"
-service_name = "ggen-lifecycle-rollback"
+service_name = "mcpp-lifecycle-rollback"
 enable_tracing = true
 enable_metrics = true
 
-[service.ggen]
+[service.mcpp]
 plugin = "generic_container"
 image = "rust:latest"
-volumes = ["/tmp/ggen-test:/workspace"]
+volumes = ["/tmp/mcpp-test:/workspace"]
 working_dir = "/workspace"
 
 # Test 1: Basic rollback after failed deployment
 [[scenario]]
 name = "rollback_after_failed_deployment"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/rollback-basic && cd /workspace/rollback-basic && \
 cat > make.toml << 'EOF'
@@ -39,36 +39,36 @@ commands = [
     "echo 'Verifying rollback successful'"
 ]
 EOF
-(ggen lifecycle run deploy || echo "Deploy failed") && \
-ggen lifecycle run rollback
+(mcpp lifecycle run deploy || echo "Deploy failed") && \
+mcpp lifecycle run rollback
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
 attributes = { "deployment.result" = "failed" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.rollback"
-must_follow = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.rollback"
+must_follow = ["mcpp.lifecycle.deploy"]
 attributes = { "rollback.trigger" = "deployment_failure" }
 
 [[scenario.expect.span]]
-name = "ggen.rollback.restore"
-parent = "ggen.lifecycle.rollback"
+name = "mcpp.rollback.restore"
+parent = "mcpp.lifecycle.rollback"
 attributes = { "restore.type" = "previous_version" }
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.deploy",
-  "ggen.lifecycle.rollback",
-  "ggen.rollback.restore"
+  "mcpp.lifecycle.deploy",
+  "mcpp.lifecycle.rollback",
+  "mcpp.rollback.restore"
 ]
 
 # Test 2: Automatic rollback on validation failure
 [[scenario]]
 name = "automatic_rollback_on_validation_failure"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/auto-rollback && cd /workspace/auto-rollback && \
 cat > make.toml << 'EOF'
@@ -92,27 +92,27 @@ commands = [
 [hooks]
 on_failure_deploy = ["auto-rollback"]
 EOF
-ggen lifecycle run deploy || ggen lifecycle run auto-rollback
+mcpp lifecycle run deploy || mcpp lifecycle run auto-rollback
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.auto-rollback"
-must_follow = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.auto-rollback"
+must_follow = ["mcpp.lifecycle.deploy"]
 attributes = { "rollback.type" = "automatic", "trigger" = "validation_failed" }
 
 [[scenario.expect.span]]
-name = "ggen.rollback.trigger"
-parent = "ggen.lifecycle.auto-rollback"
+name = "mcpp.rollback.trigger"
+parent = "mcpp.lifecycle.auto-rollback"
 attributes = { "trigger.automatic" = "true" }
 
 # Test 3: State recovery after interruption
 [[scenario]]
 name = "state_recovery_after_interruption"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/state-recovery && cd /workspace/state-recovery && \
 cat > make.toml << 'EOF'
@@ -125,29 +125,29 @@ command = "echo 'Building'"
 [lifecycle.test]
 command = "echo 'Testing'"
 EOF
-ggen lifecycle run build && \
-test -f .ggen/state.json && \
-ggen lifecycle run test && \
-grep -q '"last_phase":"test"' .ggen/state.json
+mcpp lifecycle run build && \
+test -f .mcpp/state.json && \
+mcpp lifecycle run test && \
+grep -q '"last_phase":"test"' .mcpp/state.json
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.build"
+name = "mcpp.lifecycle.build"
 attributes = { "phase.completed" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.state.save"
-parent = "ggen.lifecycle.build"
+name = "mcpp.lifecycle.state.save"
+parent = "mcpp.lifecycle.build"
 attributes = { "state.persisted" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.state.load"
-must_follow = ["ggen.lifecycle.state.save"]
-must_precede = ["ggen.lifecycle.test"]
+name = "mcpp.lifecycle.state.load"
+must_follow = ["mcpp.lifecycle.state.save"]
+must_precede = ["mcpp.lifecycle.test"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.test"
-must_follow = ["ggen.lifecycle.state.load"]
+name = "mcpp.lifecycle.test"
+must_follow = ["mcpp.lifecycle.state.load"]
 
 [scenario.expect.attestation]
 state_file_exists = true
@@ -156,7 +156,7 @@ state_integrity = true
 # Test 4: Rollback with database restore
 [[scenario]]
 name = "rollback_with_database_restore"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/db-rollback && cd /workspace/db-rollback && \
 cat > make.toml << 'EOF'
@@ -183,35 +183,35 @@ commands = [
 before_deploy = ["backup-database"]
 on_failure_deploy = ["restore-database"]
 EOF
-ggen lifecycle run deploy || ggen lifecycle run restore-database
+mcpp lifecycle run deploy || mcpp lifecycle run restore-database
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.backup-database"
-must_precede = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.backup-database"
+must_precede = ["mcpp.lifecycle.deploy"]
 attributes = { "backup.type" = "pre_deployment" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
-must_follow = ["ggen.lifecycle.backup-database"]
+must_follow = ["mcpp.lifecycle.backup-database"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.restore-database"
-must_follow = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.restore-database"
+must_follow = ["mcpp.lifecycle.deploy"]
 attributes = { "restore.type" = "database", "restore.from_backup" = "true" }
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.backup-database",
-  "ggen.lifecycle.deploy",
-  "ggen.lifecycle.restore-database"
+  "mcpp.lifecycle.backup-database",
+  "mcpp.lifecycle.deploy",
+  "mcpp.lifecycle.restore-database"
 ]
 
 # Test 5: Partial rollback with component isolation
 [[scenario]]
 name = "partial_rollback_component_isolation"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/partial-rollback && cd /workspace/partial-rollback && \
 cat > make.toml << 'EOF'
@@ -231,35 +231,35 @@ commands = [
     "echo 'Partial rollback complete'"
 ]
 EOF
-ggen lifecycle run deploy-frontend && \
-(ggen lifecycle run deploy-backend || ggen lifecycle run rollback-backend)
+mcpp lifecycle run deploy-frontend && \
+(mcpp lifecycle run deploy-backend || mcpp lifecycle run rollback-backend)
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-frontend"
+name = "mcpp.lifecycle.deploy-frontend"
 expect_error = false
 attributes = { "component" = "frontend", "status" = "success" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-backend"
+name = "mcpp.lifecycle.deploy-backend"
 expect_error = true
 attributes = { "component" = "backend", "status" = "failed" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.rollback-backend"
-must_follow = ["ggen.lifecycle.deploy-backend"]
+name = "mcpp.lifecycle.rollback-backend"
+must_follow = ["mcpp.lifecycle.deploy-backend"]
 attributes = { "rollback.scope" = "partial", "component" = "backend" }
 
 [scenario.expect.graph]
 must_not_include = [
-  ["ggen.lifecycle.rollback-backend", "ggen.lifecycle.deploy-frontend"]
+  ["mcpp.lifecycle.rollback-backend", "mcpp.lifecycle.deploy-frontend"]
 ]
 isolated = true
 
 # Test 6: Rollback with traffic shifting
 [[scenario]]
 name = "rollback_with_traffic_shifting"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/traffic-rollback && cd /workspace/traffic-rollback && \
 cat > make.toml << 'EOF'
@@ -284,32 +284,32 @@ commands = [
     "echo 'Rollback complete'"
 ]
 EOF
-ggen lifecycle run deploy-new-version && \
-(ggen lifecycle run shift-traffic || ggen lifecycle run rollback-traffic)
+mcpp lifecycle run deploy-new-version && \
+(mcpp lifecycle run shift-traffic || mcpp lifecycle run rollback-traffic)
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-new-version"
+name = "mcpp.lifecycle.deploy-new-version"
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.shift-traffic"
+name = "mcpp.lifecycle.shift-traffic"
 expect_error = true
 attributes = { "traffic.percentage" = "10" }
 
 [[scenario.expect.span]]
-name = "ggen.traffic.monitor"
-parent = "ggen.lifecycle.shift-traffic"
+name = "mcpp.traffic.monitor"
+parent = "mcpp.lifecycle.shift-traffic"
 attributes = { "error_rate.threshold_exceeded" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.rollback-traffic"
-must_follow = ["ggen.lifecycle.shift-traffic"]
+name = "mcpp.lifecycle.rollback-traffic"
+must_follow = ["mcpp.lifecycle.shift-traffic"]
 attributes = { "traffic.rollback" = "full", "traffic.target" = "old_version" }
 
 # Test 7: Rollback verification
 [[scenario]]
 name = "rollback_verification"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/rollback-verify && cd /workspace/rollback-verify && \
 cat > make.toml << 'EOF'
@@ -336,33 +336,33 @@ commands = [
 [hooks]
 after_rollback = ["verify-rollback"]
 EOF
-(ggen lifecycle run deploy || echo "Deploy failed") && \
-ggen lifecycle run rollback
+(mcpp lifecycle run deploy || echo "Deploy failed") && \
+mcpp lifecycle run rollback
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.rollback"
-must_follow = ["ggen.lifecycle.deploy"]
-must_precede = ["ggen.lifecycle.verify-rollback"]
+name = "mcpp.lifecycle.rollback"
+must_follow = ["mcpp.lifecycle.deploy"]
+must_precede = ["mcpp.lifecycle.verify-rollback"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.verify-rollback"
-must_follow = ["ggen.lifecycle.rollback"]
+name = "mcpp.lifecycle.verify-rollback"
+must_follow = ["mcpp.lifecycle.rollback"]
 attributes = { "verification.type" = "post_rollback" }
 
 [[scenario.expect.span]]
-name = "ggen.rollback.healthcheck"
-parent = "ggen.lifecycle.verify-rollback"
+name = "mcpp.rollback.healthcheck"
+parent = "mcpp.lifecycle.verify-rollback"
 attributes = { "health.status" = "healthy" }
 
 # Test 8: Cache invalidation on failure
 [[scenario]]
 name = "cache_invalidation_on_failure"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/cache-invalidate && cd /workspace/cache-invalidate && \
 cat > make.toml << 'EOF'
@@ -377,32 +377,32 @@ cache = true
 command = "exit 1"
 cache = true
 EOF
-ggen lifecycle run build && \
-(ggen lifecycle run test || echo "Test failed - cache invalidated")
+mcpp lifecycle run build && \
+(mcpp lifecycle run test || echo "Test failed - cache invalidated")
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.build"
+name = "mcpp.lifecycle.build"
 expect_error = false
 
 [[scenario.expect.span]]
-name = "ggen.cache.key.generate"
-parent = "ggen.lifecycle.build"
+name = "mcpp.cache.key.generate"
+parent = "mcpp.lifecycle.build"
 count = 1
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.test"
+name = "mcpp.lifecycle.test"
 expect_error = true
 
 [[scenario.expect.span]]
-name = "ggen.cache.invalidate"
-must_follow = ["ggen.lifecycle.test"]
+name = "mcpp.cache.invalidate"
+must_follow = ["mcpp.lifecycle.test"]
 attributes = { "reason" = "phase_failed", "phase" = "test" }
 
 # Test 9: Snapshot-based rollback
 [[scenario]]
 name = "snapshot_based_rollback"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/snapshot-rollback && cd /workspace/snapshot-rollback && \
 cat > make.toml << 'EOF'
@@ -432,28 +432,28 @@ commands = [
 before_deploy = ["create-snapshot"]
 on_failure_deploy = ["restore-from-snapshot"]
 EOF
-ggen lifecycle run deploy || ggen lifecycle run restore-from-snapshot
+mcpp lifecycle run deploy || mcpp lifecycle run restore-from-snapshot
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.create-snapshot"
-must_precede = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.create-snapshot"
+must_precede = ["mcpp.lifecycle.deploy"]
 attributes = { "snapshot.type" = "pre_deployment" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
-must_follow = ["ggen.lifecycle.create-snapshot"]
+must_follow = ["mcpp.lifecycle.create-snapshot"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.restore-from-snapshot"
-must_follow = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.restore-from-snapshot"
+must_follow = ["mcpp.lifecycle.deploy"]
 attributes = { "restore.type" = "snapshot", "snapshot.id" = "snap-12345" }
 
 # Test 10: Rollback with notification
 [[scenario]]
 name = "rollback_with_notification"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/rollback-notify && cd /workspace/rollback-notify && \
 cat > make.toml << 'EOF'
@@ -479,26 +479,26 @@ commands = [
 [hooks]
 after_rollback = ["notify-rollback"]
 EOF
-(ggen lifecycle run deploy || echo "Deploy failed") && \
-ggen lifecycle run rollback
+(mcpp lifecycle run deploy || echo "Deploy failed") && \
+mcpp lifecycle run rollback
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.rollback"
-must_follow = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.rollback"
+must_follow = ["mcpp.lifecycle.deploy"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.notify-rollback"
-must_follow = ["ggen.lifecycle.rollback"]
+name = "mcpp.lifecycle.notify-rollback"
+must_follow = ["mcpp.lifecycle.rollback"]
 attributes = { "notification.type" = "rollback_complete" }
 
 [[scenario.expect.span]]
-name = "ggen.notification.send"
-parent = "ggen.lifecycle.notify-rollback"
+name = "mcpp.notification.send"
+parent = "mcpp.lifecycle.notify-rollback"
 count_min = 2
 
 # Summary expectations

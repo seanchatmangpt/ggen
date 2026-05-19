@@ -15,8 +15,8 @@
 
 use anyhow::Result;
 use ggen_core::Graph;
-use ggen_domain::graph::{execute_query, QueryInput};
-use ggen_domain::template::render_with_rdf::{render_with_rdf, RenderWithRdfOptions};
+use ggen_core::domain::graph::{execute_query, QueryInput};
+use ggen_core::domain::template::render_with_rdf::{render_with_rdf, RenderWithRdfOptions};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;

@@ -6,7 +6,7 @@
 use anyhow::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
-use ggen_utils::project_config::GgenConfig;
+use ggen_core::utils::project_config::GgenConfig;
 
 fn fixture_path(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

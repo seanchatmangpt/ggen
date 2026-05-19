@@ -19,12 +19,12 @@ All 4 tools are **missing** from GgenMcpServer:
 ## Evidence
 
 ### Source Code Analysis
-- **File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`
+- **File:** `./crates/ggen-a2a-mcp/src/ggen_server.rs`
 - **Tool count:** 19 async functions (13 tools + 6 helper methods)
 - **Search result:** 0 matches for any of the 4 new tool names
 
 ### Test File Issues
-- **File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs`
+- **File:** `./crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs`
 - **Problem:** References non-existent methods
   - Line 14: `server.generate_a2a_test(...)`
   - Line 39: `server.validate_fibo(...)`
@@ -82,8 +82,8 @@ For each missing tool, you need:
 
 ### Files to Modify
 
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` - Add implementations
-2. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs` - Update after implementation
+1. `./crates/ggen-a2a-mcp/src/ggen_server.rs` - Add implementations
+2. `./crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs` - Update after implementation
 
 ## Verification Commands
 

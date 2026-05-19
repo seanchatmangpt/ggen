@@ -9,7 +9,7 @@
           "id": "T076",
           "parallel": false,
           "user_story": "US5",
-          "description": "Create Chapter 5 structure in /Users/sac/ggen/specs/008-n3-code-gen/evidence/chapter5.tex - LaTeX chapter with sections for case study overview, ontology description, generation pipeline, metrics analysis",
+          "description": "Create Chapter 5 structure in ./specs/008-n3-code-gen/evidence/chapter5.tex - LaTeX chapter with sections for case study overview, ontology description, generation pipeline, metrics analysis",
           "acceptance": "Chapter 5 file exists with \\chapter{Full-Stack Integration: TanStack Case Study}",
           "dependencies": []
         },
@@ -17,7 +17,7 @@
           "id": "T077",
           "parallel": true,
           "user_story": "US5",
-          "description": "Reference project management ontology from /Users/sac/dis/astro/packages/tanstack-db in Chapter 5 - Document Turtle structure, entity count, relationship types",
+          "description": "Reference project management ontology from ~/.ggen/dis/astro/packages/tanstack-db in Chapter 5 - Document Turtle structure, entity count, relationship types",
           "acceptance": "Section 5.1 includes code listing with project management ontology excerpt showing Task, Project, Milestone entities",
           "dependencies": ["T076"]
         },
@@ -41,7 +41,7 @@
           "id": "T080",
           "parallel": false,
           "user_story": "US5",
-          "description": "Measure 73% reduction claim in Chapter 5 Section 5.4 - Compare manual vs generated cross-module inconsistencies with evidence from /Users/sac/dis/astro/packages/tanstack-db/audit.json",
+          "description": "Measure 73% reduction claim in Chapter 5 Section 5.4 - Compare manual vs generated cross-module inconsistencies with evidence from ~/.ggen/dis/astro/packages/tanstack-db/audit.json",
           "acceptance": "Table 5.2 shows: Manual approach (127 inconsistencies), ggen approach (34 inconsistencies), 73.2% reduction",
           "dependencies": ["T079"]
         },
@@ -103,7 +103,7 @@
           "id": "T087",
           "parallel": false,
           "user_story": "US6",
-          "description": "Create Chapter 6 structure in /Users/sac/ggen/specs/008-n3-code-gen/evidence/chapter6.tex - LaTeX chapter for @unrdf/hooks documentation",
+          "description": "Create Chapter 6 structure in ./specs/008-n3-code-gen/evidence/chapter6.tex - LaTeX chapter for @unrdf/hooks documentation",
           "acceptance": "Chapter 6 file exists with \\chapter{@unrdf/hooks: Declarative Policy Framework}",
           "dependencies": []
         },
@@ -197,7 +197,7 @@
           "id": "T098",
           "parallel": true,
           "user_story": "Polish",
-          "description": "Create bibliography.bib in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Add 30+ references for RDF, SPARQL, SHACL, Rust, code generation, semantic web",
+          "description": "Create bibliography.bib in ./specs/008-n3-code-gen/evidence/ - Add 30+ references for RDF, SPARQL, SHACL, Rust, code generation, semantic web",
           "acceptance": "bibliography.bib contains 30+ BibTeX entries including Berners-Lee W3C specs, Rust book, TanStack docs, SHACL spec",
           "dependencies": []
         },
@@ -205,7 +205,7 @@
           "id": "T099",
           "parallel": true,
           "user_story": "Polish",
-          "description": "Create Appendix A in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-a.tex - Complete code ontology vocabulary reference (rdfs:Class, code:Struct, code:Field types)",
+          "description": "Create Appendix A in ./specs/008-n3-code-gen/evidence/appendix-a.tex - Complete code ontology vocabulary reference (rdfs:Class, code:Struct, code:Field types)",
           "acceptance": "Appendix A lists all code: ontology terms with RDF types, domains, ranges from code_ontology.ttl",
           "dependencies": []
         },
@@ -213,7 +213,7 @@
           "id": "T100",
           "parallel": true,
           "user_story": "Polish",
-          "description": "Create Appendix B in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-b.tex - ggen.toml manifest reference with all TOML sections documented",
+          "description": "Create Appendix B in ./specs/008-n3-code-gen/evidence/appendix-b.tex - ggen.toml manifest reference with all TOML sections documented",
           "acceptance": "Appendix B shows complete ggen.toml schema: [project], [ontology], [[inference.rules]], [[generation.rules]], [validation]",
           "dependencies": []
         },
@@ -221,7 +221,7 @@
           "id": "T101",
           "parallel": true,
           "user_story": "Polish",
-          "description": "Create Appendix C in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-c.tex - CLI command reference for ggen sync with all flags and exit codes",
+          "description": "Create Appendix C in ./specs/008-n3-code-gen/evidence/appendix-c.tex - CLI command reference for ggen sync with all flags and exit codes",
           "acceptance": "Appendix C documents ggen sync --help output with option descriptions and semantic exit codes 0-6",
           "dependencies": []
         },
@@ -229,7 +229,7 @@
           "id": "T102",
           "parallel": true,
           "user_story": "Polish",
-          "description": "Create Appendix D in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-d.tex - SPARQL query examples used throughout document",
+          "description": "Create Appendix D in ./specs/008-n3-code-gen/evidence/appendix-d.tex - SPARQL query examples used throughout document",
           "acceptance": "Appendix D contains labeled SPARQL CONSTRUCT and SELECT queries referenced in Chapters 2-6",
           "dependencies": []
         },
@@ -237,7 +237,7 @@
           "id": "T103",
           "parallel": false,
           "user_story": "Polish",
-          "description": "Create master.tex in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Main LaTeX document including all chapters and appendices with proper document class and packages",
+          "description": "Create master.tex in ./specs/008-n3-code-gen/evidence/ - Main LaTeX document including all chapters and appendices with proper document class and packages",
           "acceptance": "master.tex compiles with pdflatex, includes chapters 1-6, appendices A-D, bibliography, table of contents",
           "dependencies": ["T098", "T099", "T100", "T101", "T102"]
         },
@@ -245,7 +245,7 @@
           "id": "T104",
           "parallel": false,
           "user_story": "Polish",
-          "description": "Run pdflatex compilation in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Execute pdflatex master.tex && bibtex master && pdflatex master.tex && pdflatex master.tex",
+          "description": "Run pdflatex compilation in ./specs/008-n3-code-gen/evidence/ - Execute pdflatex master.tex && bibtex master && pdflatex master.tex && pdflatex master.tex",
           "acceptance": "master.pdf generated with 0 LaTeX errors, all citations resolved, all figures/tables numbered correctly",
           "dependencies": ["T103"]
         },
@@ -285,7 +285,7 @@
           "id": "T109",
           "parallel": false,
           "user_story": "Polish",
-          "description": "Create README.md in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Document how to compile the LaTeX documentation",
+          "description": "Create README.md in ./specs/008-n3-code-gen/evidence/ - Document how to compile the LaTeX documentation",
           "acceptance": "README.md includes: Required packages (texlive-full), compilation commands, troubleshooting section",
           "dependencies": ["T104"]
         },
@@ -294,7 +294,7 @@
           "parallel": false,
           "user_story": "Polish",
           "description": "Archive final deliverables - Create evidence.tar.gz with master.pdf, all .tex sources, bibliography.bib, figures/",
-          "acceptance": "evidence.tar.gz created in /Users/sac/ggen/specs/008-n3-code-gen/, size ~5MB, extractable",
+          "acceptance": "evidence.tar.gz created in ./specs/008-n3-code-gen/, size ~5MB, extractable",
           "dependencies": ["T106", "T109"]
         }
       ]

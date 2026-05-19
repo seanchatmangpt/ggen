@@ -8,7 +8,7 @@
 //! - Absolute path escapes
 //! - Depth limit violations
 
-use ggen_utils::path_validator::{PathValidator, SafePath};
+use ggen_core::utils::path_validator::{PathValidator, SafePath};
 use std::path::Path;
 use tempfile::tempdir;
 

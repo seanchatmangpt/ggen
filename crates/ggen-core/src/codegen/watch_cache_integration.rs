@@ -1,7 +1,7 @@
 use crate::codegen::IncrementalCache;
 use crate::graph::Graph;
 use crate::manifest::GgenManifest;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -17,7 +17,7 @@ impl WatchCacheIntegration {
 
         // Check what changed (use empty graph for inference state)
         let empty_graph =
-            Graph::new().map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?;
+            Graph::new().map_err(|e| crate::utils::error::Error::new(&e.to_string()))?;
         let invalidation = cache.check_invalidation(manifest, &ontology_content, &empty_graph);
 
         let mut affected_rules = vec![];

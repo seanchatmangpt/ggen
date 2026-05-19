@@ -79,7 +79,7 @@ path: "readiness.toml".into(),
 
 ### 2.2 Examples Workspace Configuration
 
-**File**: `/Users/sac/ggen/ggen-core/examples/Cargo.toml`
+**File**: `./ggen-core/examples/Cargo.toml`
 
 **Problem**: Workspace members don't match directory structure
 
@@ -106,7 +106,7 @@ wasm-deploy/
 **Error**:
 ```
 failed to load manifest for workspace member
-`/Users/sac/ggen/ggen-core/examples/advanced-cli-tool`
+`./ggen-core/examples/advanced-cli-tool`
 no targets specified in the manifest
 ```
 

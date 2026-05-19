@@ -1,4 +1,4 @@
-# ggen v6.0.1 Release Notes
+# ggen v26.5.4 Release Notes
 
 **Release Date:** 2026-03-31
 
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-ggen v6.0.1 is a **production-ready release** focused on quality, completeness, and protocol integration. This release delivers complete MCP server integration, Elixir A2A code generation, restored test suite, and comprehensive code quality improvements.
+ggen v26.5.4 is a **production-ready release** focused on quality, completeness, and protocol integration. This release delivers complete MCP server integration, Elixir A2A code generation, restored test suite, and comprehensive code quality improvements.
 
 **Key Achievement:** All 26 examples working, 66/66 tests passing, zero compiler warnings.
 
@@ -35,7 +35,7 @@ ggen v6.0.1 is a **production-ready release** focused on quality, completeness, 
 
 **Quality:** 15 Chicago TDD tests, real Oxigraph integration, no mocks
 
-**Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/`
+**Location:** `./crates/ggen-a2a-mcp/`
 
 ---
 
@@ -51,7 +51,7 @@ From a single RDF ontology, generate:
 
 **Quality:** 6 Chicago TDD tests, validates template rendering for all 3 templates
 
-**Documentation:** `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
+**Documentation:** `./docs/ELIXIR_A2A_NOTES.md`
 
 ---
 
@@ -119,7 +119,7 @@ From a single RDF ontology, generate:
 
 ### For Users
 
-No migration required. v6.0.1 is backward compatible with v6.0.0.
+No migration required. v26.5.4 is backward compatible with v6.0.0.
 
 **Optional Enhancements:**
 
@@ -169,11 +169,11 @@ cargo test --test ggen_server_test
 
 ### Version Information
 
-- **Release:** 6.0.1 (patch release)
-- **Previous:** 6.0.0 → 6.0.1
+- **Release:** 26.5.4 (patch release)
+- **Previous:** 6.0.0 → 26.5.4
 - **Date:** 2026-03-31
 - **Commits:** 34 commits since v5.1.0
-- **Files Modified:** 142 files updated to version 6.0.1
+- **Files Modified:** 142 files updated to version 26.5.4
 
 ### Test Coverage
 
@@ -194,22 +194,22 @@ cargo test --test ggen_server_test
 
 ### New Documentation
 
-- **MCP Integration:** `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
-- **Elixir A2A:** `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
-- **rmcp 1.3.0:** `/Users/sac/ggen/docs/RMCP_NOTES.md`
-- **Release Notes:** `/Users/sac/ggen/RELEASE_NOTES.md` (this file)
+- **MCP Integration:** `./crates/ggen-a2a-mcp/README.md`
+- **Elixir A2A:** `./docs/ELIXIR_A2A_NOTES.md`
+- **rmcp 1.3.0:** `./docs/RMCP_NOTES.md`
+- **Release Notes:** `./RELEASE_NOTES.md` (this file)
 
 ### Updated Documentation
 
 - **CHANGELOG.md:** Complete changelog with all changes since v5.1.0
-- **README.md:** Updated to v6.0.1 with feature highlights
+- **README.md:** Updated to v26.5.4 with feature highlights
 - **CLAUDE.md:** Project configuration and development rules
 
 ---
 
 ## What's Next
 
-### v6.1.0 Roadmap
+### v26.5.4 Roadmap
 
 - **Enhanced MCP Tools:** More advanced prompt templates and completions
 - **A2A Swarm Orchestration:** Multi-agent coordination from RDF
@@ -231,7 +231,7 @@ cargo test --test ggen_server_test
 
 ```bash
 # 1. Verify version
-cargo --version && grep "version.*6.0.1" Cargo.toml
+cargo --version && grep "version.*26.5.4" Cargo.toml
 
 # 2. Run all tests
 cargo make test
@@ -248,7 +248,7 @@ cargo make pre-commit
 
 ### Expected Results
 
-- ✅ Version 6.0.1 in Cargo.toml
+- ✅ Version 26.5.4 in Cargo.toml
 - ✅ 66/66 tests passing
 - ✅ MCP server tests passing
 - ✅ Examples generate successfully
@@ -261,8 +261,8 @@ cargo make pre-commit
 
 - **Repository:** https://github.com/seanchatmangpt/ggen
 - **Issues:** https://github.com/seanchatmangpt/ggen/issues
-- **Documentation:** `/Users/sac/ggen/docs/`
-- **Rules & Workflows:** `/Users/sac/ggen/.claude/rules/`
+- **Documentation:** `./docs/`
+- **Rules & Workflows:** `./.claude/rules/`
 
 ---
 
@@ -276,4 +276,4 @@ Special thanks to the **Chicago TDD methodology** for ensuring production-ready 
 
 ---
 
-**End of v6.0.1 Release Notes**
+**End of v26.5.4 Release Notes**

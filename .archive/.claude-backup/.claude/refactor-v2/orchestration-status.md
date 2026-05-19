@@ -48,7 +48,7 @@
 
 **✅ COMPLETED:**
 ```
-/Users/sac/ggen/cli/src/
+./cli/src/
 ├── commands/          ✅ Directory created (skeleton)
 │   ├── mod.rs         ✅ Module file exists
 │   ├── utils/         ✅ Utils namespace created
@@ -70,7 +70,7 @@
 
 **❌ MISSING (CRITICAL BLOCKERS):**
 ```
-/Users/sac/ggen/cli/src/
+./cli/src/
 ├── runtime.rs         ❌ NOT FOUND - CRITICAL BLOCKER #1
 ├── bridge.rs          ❌ NOT FOUND (optional if using runtime.rs)
 └── error.rs           ❌ NOT FOUND (error type hierarchy)
@@ -178,7 +178,7 @@ where
 
 **ggen-core tests**: ✅ **PASSING** (confirmed)
 ```
-/Users/sac/ggen/ggen-core/tests/
+./ggen-core/tests/
 ├── telemetry_tests.rs
 ├── template_comprehensive_test.rs
 ├── production_validation.rs
@@ -188,7 +188,7 @@ where
 ```
 
 **CLI tests**: ❌ **NOT RUNNING**
-- Root test file: `/Users/sac/ggen/test_ggen_cli.rs` ❌
+- Root test file: `./test_ggen_cli.rs` ❌
 - Missing: `jest` (npm test fails)
 - Issue: No test infrastructure for v2.0.0 commands
 
@@ -635,22 +635,22 @@ runtime.rs → POC migrations → Tests → Benchmarks → GO Decision → Phase
 ## Appendix: File Manifest
 
 **Planning Documents** (✅ Complete):
-- `/Users/sac/ggen/.claude/refactor-v2/01-production-validation.md` (21KB)
-- `/Users/sac/ggen/.claude/refactor-v2/02-architecture-analysis.md` (52KB)
-- `/Users/sac/ggen/.claude/refactor-v2/ARCHITECTURE_PHASE0_DESIGN.md` (34KB)
-- `/Users/sac/ggen/.claude/refactor-v2/ARCHITECTURE_DIAGRAMS.md` (19KB)
-- `/Users/sac/ggen/.claude/refactor-v2/05-orchestration-plan.md` (37KB)
-- `/Users/sac/ggen/.claude/refactor-v2/orchestration-status.md` (THIS FILE)
+- `./.claude/refactor-v2/01-production-validation.md` (21KB)
+- `./.claude/refactor-v2/02-architecture-analysis.md` (52KB)
+- `./.claude/refactor-v2/ARCHITECTURE_PHASE0_DESIGN.md` (34KB)
+- `./.claude/refactor-v2/ARCHITECTURE_DIAGRAMS.md` (19KB)
+- `./.claude/refactor-v2/05-orchestration-plan.md` (37KB)
+- `./.claude/refactor-v2/orchestration-status.md` (THIS FILE)
 
 **Implementation Files** (⚠️ Partial):
-- `/Users/sac/ggen/cli/src/commands/` (skeleton only)
-- `/Users/sac/ggen/cli/src/domain/` (skeleton only)
-- `/Users/sac/ggen/cli/src/commands/utils/doctor.rs` (partial - still async)
-- `/Users/sac/ggen/cli/src/domain/utils/doctor.rs` (domain logic)
+- `./cli/src/commands/` (skeleton only)
+- `./cli/src/domain/` (skeleton only)
+- `./cli/src/commands/utils/doctor.rs` (partial - still async)
+- `./cli/src/domain/utils/doctor.rs` (domain logic)
 
 **Missing Files** (❌ Critical):
-- `/Users/sac/ggen/cli/src/runtime.rs` ❌ **CRITICAL BLOCKER**
-- `/Users/sac/ggen/cli/src/error.rs` ❌
+- `./cli/src/runtime.rs` ❌ **CRITICAL BLOCKER**
+- `./cli/src/error.rs` ❌
 - POC command implementations (4/5 missing) ❌
 - Test files (560 tests missing) ❌
 - Performance benchmarks ❌

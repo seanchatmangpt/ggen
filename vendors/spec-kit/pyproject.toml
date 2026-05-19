@@ -1,7 +1,7 @@
 [project]
 name = "specify-cli"
 version = "0.0.23"
-description = "Specify CLI, part of GitHub Spec Kit with RDF-first architecture. A tool to bootstrap your projects for Spec-Driven Development (SDD) using ggen v6 ontology-driven transformations."
+description = "Specify CLI, part of GitHub Spec Kit with RDF-first architecture. A tool to bootstrap your projects for Spec-Driven Development (SDD) using mcpp v6 ontology-driven transformations."
 requires-python = ">=3.11"
 dependencies = [
     "typer",
@@ -13,9 +13,9 @@ dependencies = [
 ]
 
 # External system dependencies (must be installed separately):
-# - ggen v6: RDF-first code generation engine
-#   Install via: cargo install ggen
-#   Or from source: https://github.com/seanchatmangpt/ggen
+# - mcpp v6: RDF-first code generation engine
+#   Install via: cargo install mcpp
+#   Or from source: https://github.com/seanchatmangpt/mcpp
 
 [project.optional-dependencies]
 test = [

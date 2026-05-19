@@ -6,7 +6,7 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 ## What Was Implemented
 
 ### 1. Core Cycle Fixing Engine
-**File**: `/Users/sac/ggen/crates/ggen-core/src/graph/cycle_fixer.rs` (NEW, 700+ lines)
+**File**: `./crates/ggen-core/src/graph/cycle_fixer.rs` (NEW, 700+ lines)
 
 **Key Components**:
 - `CycleFixer` struct: Main engine for detecting and fixing cycles
@@ -24,21 +24,21 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 - ✅ Comprehensive error handling
 
 ### 2. Module Integration
-**File**: `/Users/sac/ggen/crates/ggen-core/src/graph/mod.rs` (MODIFIED)
+**File**: `./crates/ggen-core/src/graph/mod.rs` (MODIFIED)
 
 **Changes**:
 - Added `pub mod cycle_fixer;`
 - Exported `CycleFixer`, `FixReport`, `FixStrategy` types
 
 ### 3. Dependencies
-**File**: `/Users/sac/ggen/crates/ggen-core/Cargo.toml` (MODIFIED)
+**File**: `./crates/ggen-core/Cargo.toml` (MODIFIED)
 
 **Changes**:
 - Added `chrono = { workspace = true }` for timestamped backups
 - Added `tempfile = "3.14"` for test fixtures
 
 ### 4. MCP Tool Integration
-**File**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (MODIFIED)
+**File**: `./crates/ggen-a2a-mcp/src/ggen_server.rs` (MODIFIED)
 
 **Changes**:
 - Added `FixCyclesParams` struct with ontology_path, strategy, dry_run fields

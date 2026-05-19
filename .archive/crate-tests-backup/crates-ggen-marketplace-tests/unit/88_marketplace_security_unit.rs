@@ -5,10 +5,10 @@
 //!
 //! Test Count: 50+ tests covering cryptographic operations
 
-use ggen_marketplace::security::{
+use ggen_core::marketplace::security::{
     ChecksumCalculator, KeyPair, SignatureReceipt, SignatureVerifier,
 };
-use ggen_marketplace::traits::Signable;
+use ggen_core::marketplace::traits::Signable;
 
 // ============================================================================
 // SECTION 1: KeyPair Generation Tests (15 tests)

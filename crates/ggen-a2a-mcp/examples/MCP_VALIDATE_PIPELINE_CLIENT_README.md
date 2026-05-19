@@ -4,8 +4,8 @@ This example demonstrates how to call the `validate_pipeline` MCP tool via the r
 
 ## Location
 
-- **Source**: `/Users/sac/ggen/crates/ggen-a2a-mcp/examples/mcp_validate_pipeline_client.rs`
-- **Binary**: `/Users/sac/ggen/crates/ggen-a2a-mcp/examples/mcp_validate_pipeline_bin.rs`
+- **Source**: `./crates/ggen-a2a-mcp/examples/mcp_validate_pipeline_client.rs`
+- **Binary**: `./crates/ggen-a2a-mcp/examples/mcp_validate_pipeline_bin.rs`
 
 ## What It Does
 
@@ -81,7 +81,7 @@ The `validate_pipeline` tool runs 6 quality gates:
 ✅ Created GgenMcpServer instance
 ✅ Server info: ggen v0.1.0
 
-📂 Project path: /Users/sac/ggen
+📂 Project path: .
 
 🔨 Calling validate_pipeline tool...
 
@@ -115,7 +115,7 @@ Passed checks:
 ✅ Created GgenMcpServer instance
 ✅ Server info: ggen v0.1.0
 
-📂 Project path: /Users/sac/ggen
+📂 Project path: .
 
 🔨 Calling validate_pipeline tool...
 
@@ -138,14 +138,14 @@ Quality gate validation failed:
 ### Method 1: Run as Example (Recommended)
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo run -p ggen-a2a-mcp --example mcp_validate_pipeline_client
 ```
 
 ### Method 2: Run as Binary
 
 ```bash
-cd /Users/sac/ggen/crates/ggen-a2a-mcp
+cd ./crates/ggen-a2a-mcp
 cargo run --example mcp_validate_pipeline_bin
 ```
 

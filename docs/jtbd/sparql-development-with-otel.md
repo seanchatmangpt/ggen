@@ -677,10 +677,10 @@ The JTBD is complete when:
 
 ## References
 
-- **MCP Server:** `/Users/sac/ggen/crates/ggen-a2a-mcp/`
-- **Ontology specs:** `/Users/sac/ggen/.specify/ontologies/`
-- **OTEL validation rules:** `/Users/sac/ggen/.claude/rules/otel-validation.md`
-- **Chicago TDD rules:** `/Users/sac/ggen/.claude/rules/rust/testing.md`
+- **MCP Server:** `./crates/ggen-a2a-mcp/`
+- **Ontology specs:** `./.specify/ontologies/`
+- **OTEL validation rules:** `./.claude/rules/otel-validation.md`
+- **Chicago TDD rules:** `./.claude/rules/rust/testing.md`
 
 ---
 

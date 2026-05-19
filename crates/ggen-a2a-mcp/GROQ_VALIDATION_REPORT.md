@@ -453,7 +453,7 @@ Add Groq integration guide to:
 
 ## 9. Test File Reference
 
-**Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/groq_integration_test.rs`
+**Location:** `./crates/ggen-a2a-mcp/tests/groq_integration_test.rs`
 
 **Size:** ~352 lines
 

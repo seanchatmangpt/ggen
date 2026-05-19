@@ -24,10 +24,10 @@ This bundle provides intelligent support case routing and hook patterns that cov
 
 ```bash
 # Install the bundle
-ggen install sector-support-hooks-8020
+mcpp install sector-support-hooks-8020
 
 # Generate support routing system
-ggen generate support-system \
+mcpp generate support-system \
   --platform zendesk \
   --teams engineering,billing,sales \
   --bundle sector-support-hooks-8020
@@ -119,4 +119,4 @@ cd support-routing-system
 
 ---
 
-*Part of the ggen 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*
+*Part of the mcpp 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*

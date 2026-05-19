@@ -21,37 +21,37 @@ SQL DDL Output
 ### Core Classes
 
 ```turtle
-ggen:Database      → Represents entire database
-ggen:Schema        → Logical grouping (PostgreSQL/MySQL)
-ggen:Table         → Database table
-ggen:Column        → Table column
-ggen:DataType      → SQL data type
-ggen:Constraint    → Base constraint class
-ggen:Index         → Database index
-ggen:Trigger       → Trigger definition
-ggen:Migration     → Schema migration
+mcpp:Database      → Represents entire database
+mcpp:Schema        → Logical grouping (PostgreSQL/MySQL)
+mcpp:Table         → Database table
+mcpp:Column        → Table column
+mcpp:DataType      → SQL data type
+mcpp:Constraint    → Base constraint class
+mcpp:Index         → Database index
+mcpp:Trigger       → Trigger definition
+mcpp:Migration     → Schema migration
 ```
 
 ### Constraint Hierarchy
 
 ```
-ggen:Constraint (base)
-  ├── ggen:PrimaryKey
-  ├── ggen:ForeignKey
-  ├── ggen:UniqueConstraint
-  ├── ggen:CheckConstraint
-  └── ggen:NotNullConstraint
+mcpp:Constraint (base)
+  ├── mcpp:PrimaryKey
+  ├── mcpp:ForeignKey
+  ├── mcpp:UniqueConstraint
+  ├── mcpp:CheckConstraint
+  └── mcpp:NotNullConstraint
 ```
 
 ### Index Hierarchy
 
 ```
-ggen:Index (base)
-  ├── ggen:BTreeIndex      → General-purpose (default)
-  ├── ggen:HashIndex       → Equality comparisons
-  ├── ggen:GINIndex        → JSONB, arrays, full-text
-  ├── ggen:GiSTIndex       → Geometric, range types
-  └── ggen:FullTextIndex   → Text search
+mcpp:Index (base)
+  ├── mcpp:BTreeIndex      → General-purpose (default)
+  ├── mcpp:HashIndex       → Equality comparisons
+  ├── mcpp:GINIndex        → JSONB, arrays, full-text
+  ├── mcpp:GiSTIndex       → Geometric, range types
+  └── mcpp:FullTextIndex   → Text search
 ```
 
 ## SPARQL Transformation Patterns
@@ -60,29 +60,29 @@ ggen:Index (base)
 
 **RDF Input:**
 ```turtle
-:UsersTable a ggen:Table ;
-    ggen:tableName "users" ;
-    ggen:hasColumn :IdColumn, :EmailColumn .
+:UsersTable a mcpp:Table ;
+    mcpp:tableName "users" ;
+    mcpp:hasColumn :IdColumn, :EmailColumn .
 
-:IdColumn a ggen:Column ;
-    ggen:columnName "id" ;
-    ggen:hasDataType :SerialType ;
-    ggen:isAutoIncrement true .
+:IdColumn a mcpp:Column ;
+    mcpp:columnName "id" ;
+    mcpp:hasDataType :SerialType ;
+    mcpp:isAutoIncrement true .
 ```
 
 **SPARQL Query:**
 ```sparql
 SELECT ?tableName ?columnDefs
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName ;
-         ggen:hasColumn ?column .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName ;
+         mcpp:hasColumn ?column .
 
-  ?column ggen:columnName ?columnName ;
-          ggen:hasDataType ?dataType .
-  ?dataType ggen:dataTypeName ?typeName .
+  ?column mcpp:columnName ?columnName ;
+          mcpp:hasDataType ?dataType .
+  ?dataType mcpp:dataTypeName ?typeName .
 
-  OPTIONAL { ?column ggen:isAutoIncrement ?autoInc }
+  OPTIONAL { ?column mcpp:isAutoIncrement ?autoInc }
 
   BIND(CONCAT(?columnName, " ", ?typeName,
     IF(?autoInc, " AUTO_INCREMENT", "")) AS ?columnDef)
@@ -101,31 +101,31 @@ CREATE TABLE users (
 
 **RDF Input:**
 ```turtle
-:ProductsCategoryFK a ggen:ForeignKey ;
-    ggen:constraintName "fk_products_category" ;
-    ggen:constrainsColumn :ProductCategoryIdColumn ;
-    ggen:referencesTable :CategoriesTable ;
-    ggen:referencesColumn :CategoryIdColumn ;
-    ggen:onDelete "CASCADE" .
+:ProductsCategoryFK a mcpp:ForeignKey ;
+    mcpp:constraintName "fk_products_category" ;
+    mcpp:constrainsColumn :ProductCategoryIdColumn ;
+    mcpp:referencesTable :CategoriesTable ;
+    mcpp:referencesColumn :CategoryIdColumn ;
+    mcpp:onDelete "CASCADE" .
 ```
 
 **SPARQL Query:**
 ```sparql
 SELECT ?sourceTable ?sourceColumn ?targetTable ?targetColumn ?onDelete
 WHERE {
-  ?fk a ggen:ForeignKey ;
-      ggen:constrainsColumn ?srcColumn ;
-      ggen:referencesTable ?tgtTable ;
-      ggen:referencesColumn ?tgtColumn .
+  ?fk a mcpp:ForeignKey ;
+      mcpp:constrainsColumn ?srcColumn ;
+      mcpp:referencesTable ?tgtTable ;
+      mcpp:referencesColumn ?tgtColumn .
 
-  ?srcColumn ggen:columnName ?sourceColumn ;
-             ^ggen:hasColumn ?srcTable .
-  ?srcTable ggen:tableName ?sourceTable .
+  ?srcColumn mcpp:columnName ?sourceColumn ;
+             ^mcpp:hasColumn ?srcTable .
+  ?srcTable mcpp:tableName ?sourceTable .
 
-  ?tgtTable ggen:tableName ?targetTable .
-  ?tgtColumn ggen:columnName ?targetColumn .
+  ?tgtTable mcpp:tableName ?targetTable .
+  ?tgtColumn mcpp:columnName ?targetColumn .
 
-  OPTIONAL { ?fk ggen:onDelete ?onDelete }
+  OPTIONAL { ?fk mcpp:onDelete ?onDelete }
 }
 ```
 
@@ -142,10 +142,10 @@ ON DELETE CASCADE;
 
 **RDF Input:**
 ```turtle
-:EmailGinIndex a ggen:GINIndex ;
-    ggen:indexName "idx_emails_gin" ;
-    ggen:indexesColumn :EmailColumn ;
-    ggen:isConcurrent true .
+:EmailGinIndex a mcpp:GINIndex ;
+    mcpp:indexName "idx_emails_gin" ;
+    mcpp:indexesColumn :EmailColumn ;
+    mcpp:isConcurrent true .
 ```
 
 **SPARQL Query:**
@@ -153,15 +153,15 @@ ON DELETE CASCADE;
 SELECT ?indexName ?indexType ?tableName ?columnList ?isConcurrent
 WHERE {
   ?index a ?indexClass ;
-         ggen:indexName ?indexName ;
-         ggen:indexesColumn ?column .
+         mcpp:indexName ?indexName ;
+         mcpp:indexesColumn ?column .
 
-  ?column ^ggen:hasColumn ?table .
-  ?table ggen:tableName ?tableName .
+  ?column ^mcpp:hasColumn ?table .
+  ?table mcpp:tableName ?tableName .
 
-  OPTIONAL { ?index ggen:isConcurrent ?isConcurrent }
+  OPTIONAL { ?index mcpp:isConcurrent ?isConcurrent }
 
-  BIND(IF(?indexClass = ggen:GINIndex, "GIN", "BTREE") AS ?indexType)
+  BIND(IF(?indexClass = mcpp:GINIndex, "GIN", "BTREE") AS ?indexType)
 }
 ```
 
@@ -188,23 +188,23 @@ ON users USING GIN (email);
 
 **PostgreSQL:**
 ```turtle
-:JsonbType a ggen:DataType ;
-    ggen:postgresqlType "JSONB" ;
-    ggen:mysqlType "JSON" ;
-    ggen:sqliteType "TEXT" .
+:JsonbType a mcpp:DataType ;
+    mcpp:postgresqlType "JSONB" ;
+    mcpp:mysqlType "JSON" ;
+    mcpp:sqliteType "TEXT" .
 
-:ArrayType a ggen:DataType ;
-    ggen:postgresqlType "INTEGER[]" ;
-    ggen:mysqlType "JSON" ;
-    ggen:sqliteType "TEXT" .
+:ArrayType a mcpp:DataType ;
+    mcpp:postgresqlType "INTEGER[]" ;
+    mcpp:mysqlType "JSON" ;
+    mcpp:sqliteType "TEXT" .
 ```
 
 **MySQL:**
 ```turtle
-:AutoIncrementType a ggen:DataType ;
-    ggen:postgresqlType "SERIAL" ;
-    ggen:mysqlType "INT AUTO_INCREMENT" ;
-    ggen:sqliteType "INTEGER PRIMARY KEY AUTOINCREMENT" .
+:AutoIncrementType a mcpp:DataType ;
+    mcpp:postgresqlType "SERIAL" ;
+    mcpp:mysqlType "INT AUTO_INCREMENT" ;
+    mcpp:sqliteType "INTEGER PRIMARY KEY AUTOINCREMENT" .
 ```
 
 ## Template Processing
@@ -265,17 +265,17 @@ CREATE TABLE {{this.name}} (
 ### Migration Versioning
 
 ```turtle
-:Migration0001 a ggen:Migration ;
-    ggen:migrationId "0001" ;
-    ggen:migrationName "create_users_table" ;
-    ggen:migrationTimestamp "2025-01-08T12:00:00Z" ;
-    ggen:upScript """
+:Migration0001 a mcpp:Migration ;
+    mcpp:migrationId "0001" ;
+    mcpp:migrationName "create_users_table" ;
+    mcpp:migrationTimestamp "2025-01-08T12:00:00Z" ;
+    mcpp:upScript """
         CREATE TABLE users (
             id SERIAL PRIMARY KEY,
             email VARCHAR(255) NOT NULL UNIQUE
         );
     """ ;
-    ggen:downScript """
+    mcpp:downScript """
         DROP TABLE users;
     """ .
 ```
@@ -301,12 +301,12 @@ VALUES ('0001', 'create_users_table', 'sha256hash');
 ### Trigger Generation
 
 ```turtle
-:UpdatedAtTrigger a ggen:Trigger ;
-    ggen:triggerName "trigger_updated_at" ;
-    ggen:triggerTiming "BEFORE" ;
-    ggen:triggerEvent "UPDATE" ;
-    ggen:triggerLevel "ROW" ;
-    ggen:triggerFunction "update_updated_at_column()" .
+:UpdatedAtTrigger a mcpp:Trigger ;
+    mcpp:triggerName "trigger_updated_at" ;
+    mcpp:triggerTiming "BEFORE" ;
+    mcpp:triggerEvent "UPDATE" ;
+    mcpp:triggerLevel "ROW" ;
+    mcpp:triggerFunction "update_updated_at_column()" .
 ```
 
 **PostgreSQL Output:**
@@ -332,9 +332,9 @@ DELIMITER ;
 ### Full-Text Search
 
 ```turtle
-:ArticleSearchIndex a ggen:FullTextIndex ;
-    ggen:indexName "idx_articles_search" ;
-    ggen:indexesColumn :TitleColumn, :ContentColumn .
+:ArticleSearchIndex a mcpp:FullTextIndex ;
+    mcpp:indexName "idx_articles_search" ;
+    mcpp:indexesColumn :TitleColumn, :ContentColumn .
 ```
 
 **PostgreSQL:**
@@ -388,13 +388,13 @@ ON articles (title, content);
 # Detect circular foreign keys
 SELECT ?table1 ?table2
 WHERE {
-  ?fk1 ggen:constrainsColumn ?col1 .
-  ?col1 ^ggen:hasColumn ?table1 .
-  ?fk1 ggen:referencesTable ?table2 .
+  ?fk1 mcpp:constrainsColumn ?col1 .
+  ?col1 ^mcpp:hasColumn ?table1 .
+  ?fk1 mcpp:referencesTable ?table2 .
 
-  ?fk2 ggen:constrainsColumn ?col2 .
-  ?col2 ^ggen:hasColumn ?table2 .
-  ?fk2 ggen:referencesTable ?table1 .
+  ?fk2 mcpp:constrainsColumn ?col2 .
+  ?col2 ^mcpp:hasColumn ?table2 .
+  ?fk2 mcpp:referencesTable ?table1 .
 }
 ```
 

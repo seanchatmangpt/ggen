@@ -3,10 +3,10 @@
 //! Tests the full workflow: create → list → monitor → remove
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::hook::create::*;
-use ggen_domain::hook::list::*;
-use ggen_domain::hook::monitor::*;
-use ggen_domain::hook::remove::*;
+use ggen_core::domain::hook::create::*;
+use ggen_core::domain::hook::list::*;
+use ggen_core::domain::hook::monitor::*;
+use ggen_core::domain::hook::remove::*;
 use std::fs;
 use std::path::PathBuf;
 

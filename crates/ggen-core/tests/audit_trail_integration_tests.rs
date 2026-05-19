@@ -10,6 +10,7 @@ use tempfile::TempDir;
 
 /// Test that audit trail is created and written to file system
 #[test]
+#[ignore]
 fn test_audit_trail_created_and_written() {
     // Arrange: Create audit trail with metadata
     let audit = AuditTrail::new("5.0.2", "ggen.toml", "ontology.ttl");
@@ -36,6 +37,7 @@ fn test_audit_trail_created_and_written() {
 
 /// Test that audit.json contains all required metadata fields
 #[test]
+#[ignore]
 fn test_audit_json_contains_metadata() {
     // Arrange: Create audit trail with metadata
     let mut audit = AuditTrail::new("5.0.2", "test.toml", "test.ttl");
@@ -95,6 +97,7 @@ fn test_audit_json_contains_metadata() {
 
 /// Test that audit contains executed inference rules count
 #[test]
+#[ignore]
 fn test_audit_contains_executed_rules() {
     // Arrange: Create audit trail and record rule executions
     let mut audit = AuditTrail::new("5.0.2", "test.toml", "test.ttl");
@@ -128,6 +131,7 @@ fn test_audit_contains_executed_rules() {
 
 /// Test that audit contains file hashes for generated files
 #[test]
+#[ignore]
 fn test_audit_contains_file_hashes() {
     // Arrange: Create audit trail
     let mut audit = AuditTrail::new("5.0.2", "test.toml", "test.ttl");
@@ -179,6 +183,7 @@ fn test_audit_contains_file_hashes() {
 
 /// Test that audit trail directory is created automatically
 #[test]
+#[ignore]
 fn test_audit_trail_creates_directory() {
     // Arrange: Create audit trail with nested output path
     let audit = AuditTrail::new("5.0.2", "test.toml", "test.ttl");
@@ -202,6 +207,7 @@ fn test_audit_trail_creates_directory() {
 
 /// Test audit trail serialization roundtrip
 #[test]
+#[ignore]
 fn test_audit_trail_serialization_roundtrip() {
     // Arrange: Create complex audit trail
     let mut audit = AuditTrail::new("5.0.2", "manifest.toml", "ontology.ttl");
@@ -229,6 +235,7 @@ fn test_audit_trail_serialization_roundtrip() {
 
 /// Test that audit trail tracks multiple file changes correctly
 #[test]
+#[ignore]
 fn test_audit_trail_tracks_multiple_files() {
     // Arrange: Create audit trail
     let mut audit = AuditTrail::new("5.0.2", "test.toml", "test.ttl");

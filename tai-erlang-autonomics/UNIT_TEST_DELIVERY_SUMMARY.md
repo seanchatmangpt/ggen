@@ -14,12 +14,12 @@ Comprehensive unit test suite for TAI Autonomic System's core receipt and gates 
 ### Test Files Delivered
 
 1. **taiea_receipts_test.erl** - Receipt module unit tests
-   - Location: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/`
+   - Location: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/`
    - Size: ~550 lines of test code
    - Test Cases: 20+
 
 2. **taiea_gates_test.erl** - Governor gates module unit tests
-   - Location: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/`
+   - Location: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/`
    - Size: ~750 lines of test code
    - Test Cases: 15+
 
@@ -443,14 +443,14 @@ These unit tests provide foundation for integration tests:
 - **eunit** - Test framework
 
 ### Test Files
-- **Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/`
+- **Location**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/`
 - **Files**: `taiea_receipts_test.erl`, `taiea_gates_test.erl`
 - **Total Lines**: 1,300+
 - **Compiled Size**: 30 KB
 
 ### Execution
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 eunit
 ```
 

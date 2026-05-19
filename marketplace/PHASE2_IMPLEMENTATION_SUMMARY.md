@@ -14,7 +14,7 @@
 
 **Delivered**:
 
-1. **Receipt Emitter Module** (`crates/ggen-domain/src/marketplace/receipt_emitter.rs`)
+1. **Receipt Emitter Module** (`crates/mcpp-domain/src/marketplace/receipt_emitter.rs`)
    - `emit_receipts_for_marketplace()` — Validates all packages, emits JSON receipts
    - `emit_receipt_for_package()` — Single package validation with guard execution
    - `extract_version_from_package()` — Parses semver from package.toml
@@ -39,8 +39,8 @@
      - ISO 8601 timestamp
 
 4. **CLI Commands**
-   - `ggen marketplace emit-receipts [--report]` — Emit all receipts with summary
-   - `ggen marketplace report [--output FILE]` — Generate ecosystem health report
+   - `mcpp marketplace emit-receipts [--report]` — Emit all receipts with summary
+   - `mcpp marketplace report [--output FILE]` — Generate ecosystem health report
    - Shows score distribution, production-ready count, averages
 
 5. **Makefile Tasks**
@@ -58,7 +58,7 @@
 
 **Delivered**:
 
-1. **GuardChicagoCompliance** (`crates/ggen-domain/src/marketplace/guards.rs`)
+1. **GuardChicagoCompliance** (`crates/mcpp-domain/src/marketplace/guards.rs`)
    - Weight: 15 (highest weighted guard)
    - Severity: Critical
    - SLO: 10 seconds (AST analysis)
@@ -107,16 +107,16 @@
        - Includes: banking-core, payments, kyc-aml, crypto-exchange
        - Features: Banking, ISO 20022, KYC/AML, regulatory reporting
 
-2. **Bundle Domain Module** (`crates/ggen-domain/src/marketplace/bundles.rs`)
+2. **Bundle Domain Module** (`crates/mcpp-domain/src/marketplace/bundles.rs`)
    - `BundleRegistry` — Manages all bundle definitions
    - `SectorBundle` struct — Bundle metadata, packages, features
    - `BundleInstallManifest` — Installation tracking
    - `generate_bundle_docs()` — Creates markdown documentation
 
 3. **CLI Commands**
-   - `ggen marketplace list-bundles [--detailed]` — List all bundles
-   - `ggen marketplace bundle-info <bundle-id> [--docs]` — Show bundle details
-   - `ggen marketplace install-bundle <bundle-id> [--dry-run]` — Install bundle
+   - `mcpp marketplace list-bundles [--detailed]` — List all bundles
+   - `mcpp marketplace bundle-info <bundle-id> [--docs]` — Show bundle details
+   - `mcpp marketplace install-bundle <bundle-id> [--dry-run]` — Install bundle
 
 4. **Features**
    - Bundles discoverable via CLI
@@ -125,7 +125,7 @@
    - Bundle documentation auto-generation
    - Minimum score requirements per bundle
 
-**Result**: Marketplace now supports vertical stacks. Users can `ggen marketplace install-bundle sector-academic-papers` to get complete domain solutions.
+**Result**: Marketplace now supports vertical stacks. Users can `mcpp marketplace install-bundle sector-academic-papers` to get complete domain solutions.
 
 ---
 
@@ -162,7 +162,7 @@ O_market (ontology.ttl) — now includes:
 
 ↓ (via μ_market)
 
-μ_market (ggen validators) — now includes:
+μ_market (mcpp validators) — now includes:
 ├── Guard trait system (extensible)
 ├── Receipt emission (emit_receipts_for_marketplace)
 ├── Report generation (ValidationReport)
@@ -175,7 +175,7 @@ O_market (ontology.ttl) — now includes:
 A (Artifacts) — now includes:
 ├── marketplace/receipts/<pkg_id>/<version>.json (immutable audit trail)
 ├── Marketplace health report (score distributions)
-├── Bundle installation manifests (.ggen-bundle-*.json)
+├── Bundle installation manifests (.mcpp-bundle-*.json)
 └── Packages marked for Chatman certification
 ```
 
@@ -194,13 +194,13 @@ make marketplace-health            # View ecosystem health
 
 **Explore Bundles**:
 ```bash
-ggen marketplace list-bundles --detailed
-ggen marketplace bundle-info sector-academic-papers --docs
+mcpp marketplace list-bundles --detailed
+mcpp marketplace bundle-info sector-academic-papers --docs
 ```
 
 **Install Vertical Stacks**:
 ```bash
-ggen marketplace install-bundle sector-academic-papers
+mcpp marketplace install-bundle sector-academic-papers
 # Gets: academic-paper-lifecycle, bibliography-manager, peer-review-workflow
 # Plus: installation manifest + feature documentation
 ```
@@ -234,13 +234,13 @@ ggen marketplace install-bundle sector-academic-papers
 
 ### Track B: Artifact Generation (B1, B2)
 - **Prerequisite**: Track A ✅ (done)
-- **Next step**: Create ggen templates to generate `index.json` and `PACKAGES.md` from ontology
+- **Next step**: Create mcpp templates to generate `index.json` and `PACKAGES.md` from ontology
 - **Effort**: 4-6 hours
 - **Impact**: Zero hand-edits on registry files
 
 ### Track C: Quality Autopilot
 - **Prerequisite**: Track A ✅ (done)
-- **Next step**: `ggen market improve <package-id>` command to suggest/apply fixes
+- **Next step**: `mcpp market improve <package-id>` command to suggest/apply fixes
 - **Effort**: 4-5 hours
 - **Impact**: Automatic package score improvement
 
@@ -316,13 +316,13 @@ marketplace/
 ├── ontology.ttl (extended with 5 bundles)
 └── (ready for templates in Track B)
 
-crates/ggen-domain/src/marketplace/
+crates/mcpp-domain/src/marketplace/
 ├── guards.rs (+ GuardChicagoCompliance)
 ├── receipt_emitter.rs (new - 280 lines)
 ├── bundles.rs (new - 260 lines)
 └── mod.rs (updated exports)
 
-crates/ggen-cli/src/cmds/
+crates/mcpp-cli/src/cmds/
 └── marketplace.rs (added 5 CLI verbs):
     ├── emit-receipts
     ├── report

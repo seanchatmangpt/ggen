@@ -3,7 +3,7 @@
 # 15+ queries to transform RDF ontology into SQL DDL
 # ============================================================================
 
-PREFIX ggen: <http://ggen.io/ontology/database#>
+PREFIX mcpp: <http://mcpp.io/ontology/database#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -17,24 +17,24 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?tableName ?columnDefs ?constraints
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName .
 
   # Aggregate columns
   {
     SELECT ?table (GROUP_CONCAT(?columnDef; separator=",\n  ") AS ?columnDefs)
     WHERE {
-      ?table ggen:hasColumn ?column .
-      ?column ggen:columnName ?columnName ;
-              ggen:hasDataType ?dataType .
-      ?dataType ggen:dataTypeName ?typeName .
+      ?table mcpp:hasColumn ?column .
+      ?column mcpp:columnName ?columnName ;
+              mcpp:hasDataType ?dataType .
+      ?dataType mcpp:dataTypeName ?typeName .
 
-      OPTIONAL { ?column ggen:maxLength ?maxLength }
-      OPTIONAL { ?column ggen:precision ?precision }
-      OPTIONAL { ?column ggen:scale ?scale }
-      OPTIONAL { ?column ggen:isNullable ?nullable }
-      OPTIONAL { ?column ggen:defaultValue ?default }
-      OPTIONAL { ?column ggen:isAutoIncrement ?autoInc }
+      OPTIONAL { ?column mcpp:maxLength ?maxLength }
+      OPTIONAL { ?column mcpp:precision ?precision }
+      OPTIONAL { ?column mcpp:scale ?scale }
+      OPTIONAL { ?column mcpp:isNullable ?nullable }
+      OPTIONAL { ?column mcpp:defaultValue ?default }
+      OPTIONAL { ?column mcpp:isAutoIncrement ?autoInc }
 
       BIND(CONCAT(
         ?columnName, " ",
@@ -53,28 +53,28 @@ WHERE {
   OPTIONAL {
     SELECT ?table (GROUP_CONCAT(?constraintDef; separator=",\n  ") AS ?constraints)
     WHERE {
-      ?table ggen:hasConstraint ?constraint .
-      ?constraint ggen:constraintName ?constraintName .
+      ?table mcpp:hasConstraint ?constraint .
+      ?constraint mcpp:constraintName ?constraintName .
 
       # Primary Key
       OPTIONAL {
-        ?constraint a ggen:PrimaryKey ;
-                    ggen:constrainsColumn ?pkColumn .
-        ?pkColumn ggen:columnName ?pkColumnName .
+        ?constraint a mcpp:PrimaryKey ;
+                    mcpp:constrainsColumn ?pkColumn .
+        ?pkColumn mcpp:columnName ?pkColumnName .
         BIND(CONCAT("CONSTRAINT ", ?constraintName, " PRIMARY KEY (", ?pkColumnName, ")") AS ?pkDef)
       }
 
       # Foreign Key
       OPTIONAL {
-        ?constraint a ggen:ForeignKey ;
-                    ggen:constrainsColumn ?fkColumn ;
-                    ggen:referencesTable ?refTable ;
-                    ggen:referencesColumn ?refColumn .
-        ?fkColumn ggen:columnName ?fkColumnName .
-        ?refTable ggen:tableName ?refTableName .
-        ?refColumn ggen:columnName ?refColumnName .
-        OPTIONAL { ?constraint ggen:onDelete ?onDelete }
-        OPTIONAL { ?constraint ggen:onUpdate ?onUpdate }
+        ?constraint a mcpp:ForeignKey ;
+                    mcpp:constrainsColumn ?fkColumn ;
+                    mcpp:referencesTable ?refTable ;
+                    mcpp:referencesColumn ?refColumn .
+        ?fkColumn mcpp:columnName ?fkColumnName .
+        ?refTable mcpp:tableName ?refTableName .
+        ?refColumn mcpp:columnName ?refColumnName .
+        OPTIONAL { ?constraint mcpp:onDelete ?onDelete }
+        OPTIONAL { ?constraint mcpp:onUpdate ?onUpdate }
 
         BIND(CONCAT(
           "CONSTRAINT ", ?constraintName,
@@ -87,16 +87,16 @@ WHERE {
 
       # Unique Constraint
       OPTIONAL {
-        ?constraint a ggen:UniqueConstraint ;
-                    ggen:constrainsColumn ?uqColumn .
-        ?uqColumn ggen:columnName ?uqColumnName .
+        ?constraint a mcpp:UniqueConstraint ;
+                    mcpp:constrainsColumn ?uqColumn .
+        ?uqColumn mcpp:columnName ?uqColumnName .
         BIND(CONCAT("CONSTRAINT ", ?constraintName, " UNIQUE (", ?uqColumnName, ")") AS ?uqDef)
       }
 
       # Check Constraint
       OPTIONAL {
-        ?constraint a ggen:CheckConstraint ;
-                    ggen:checkExpression ?checkExpr .
+        ?constraint a mcpp:CheckConstraint ;
+                    mcpp:checkExpression ?checkExpr .
         BIND(CONCAT("CONSTRAINT ", ?constraintName, " CHECK (", ?checkExpr, ")") AS ?checkDef)
       }
 
@@ -116,23 +116,23 @@ ORDER BY ?tableName
 SELECT ?indexName ?indexType ?tableName ?columnList ?isUnique ?whereClause
 WHERE {
   ?index a ?indexClass ;
-         ggen:indexName ?indexName ;
-         ggen:indexesColumn ?column .
+         mcpp:indexName ?indexName ;
+         mcpp:indexesColumn ?column .
 
-  ?column ^ggen:hasColumn ?table .
-  ?table ggen:tableName ?tableName .
-  ?column ggen:columnName ?columnName .
+  ?column ^mcpp:hasColumn ?table .
+  ?table mcpp:tableName ?tableName .
+  ?column mcpp:columnName ?columnName .
 
-  OPTIONAL { ?index ggen:isUnique ?isUnique }
-  OPTIONAL { ?index ggen:whereClause ?whereClause }
-  OPTIONAL { ?index ggen:indexMethod ?method }
+  OPTIONAL { ?index mcpp:isUnique ?isUnique }
+  OPTIONAL { ?index mcpp:whereClause ?whereClause }
+  OPTIONAL { ?index mcpp:indexMethod ?method }
 
   # Determine index type
   BIND(
-    IF(?indexClass = ggen:BTreeIndex, "BTREE",
-    IF(?indexClass = ggen:HashIndex, "HASH",
-    IF(?indexClass = ggen:GINIndex, "GIN",
-    IF(?indexClass = ggen:GiSTIndex, "GIST",
+    IF(?indexClass = mcpp:BTreeIndex, "BTREE",
+    IF(?indexClass = mcpp:HashIndex, "HASH",
+    IF(?indexClass = mcpp:GINIndex, "GIN",
+    IF(?indexClass = mcpp:GiSTIndex, "GIST",
     COALESCE(?method, "BTREE"))))) AS ?indexType
   )
 
@@ -140,8 +140,8 @@ WHERE {
   {
     SELECT ?index (GROUP_CONCAT(?columnName; separator=", ") AS ?columnList)
     WHERE {
-      ?index ggen:indexesColumn ?col .
-      ?col ggen:columnName ?columnName .
+      ?index mcpp:indexesColumn ?col .
+      ?col mcpp:columnName ?columnName .
     }
     GROUP BY ?index
   }
@@ -156,9 +156,9 @@ ORDER BY ?tableName ?indexName
 
 SELECT ?migrationId ?tableName ?alterStatement
 WHERE {
-  ?migration a ggen:Migration ;
-             ggen:migrationId ?migrationId ;
-             ggen:upScript ?upScript .
+  ?migration a mcpp:Migration ;
+             mcpp:migrationId ?migrationId ;
+             mcpp:upScript ?upScript .
 
   # Extract ALTER TABLE statements from migration scripts
   FILTER(CONTAINS(?upScript, "ALTER TABLE"))
@@ -177,17 +177,17 @@ ORDER BY ?migrationId
 
 SELECT ?triggerName ?tableName ?timing ?event ?level ?function ?condition
 WHERE {
-  ?trigger a ggen:Trigger ;
-           ggen:triggerName ?triggerName ;
-           ggen:triggerTiming ?timing ;
-           ggen:triggerEvent ?event ;
-           ggen:triggerLevel ?level ;
-           ggen:triggerFunction ?function .
+  ?trigger a mcpp:Trigger ;
+           mcpp:triggerName ?triggerName ;
+           mcpp:triggerTiming ?timing ;
+           mcpp:triggerEvent ?event ;
+           mcpp:triggerLevel ?level ;
+           mcpp:triggerFunction ?function .
 
-  ?trigger ^ggen:hasTrigger ?table .
-  ?table ggen:tableName ?tableName .
+  ?trigger ^mcpp:hasTrigger ?table .
+  ?table mcpp:tableName ?tableName .
 
-  OPTIONAL { ?trigger ggen:triggerCondition ?condition }
+  OPTIONAL { ?trigger mcpp:triggerCondition ?condition }
 }
 ORDER BY ?tableName ?triggerName
 
@@ -199,20 +199,20 @@ ORDER BY ?tableName ?triggerName
 
 SELECT ?sourceTable ?sourceColumn ?targetTable ?targetColumn ?onDelete ?onUpdate
 WHERE {
-  ?fk a ggen:ForeignKey ;
-      ggen:constrainsColumn ?srcColumn ;
-      ggen:referencesTable ?tgtTable ;
-      ggen:referencesColumn ?tgtColumn .
+  ?fk a mcpp:ForeignKey ;
+      mcpp:constrainsColumn ?srcColumn ;
+      mcpp:referencesTable ?tgtTable ;
+      mcpp:referencesColumn ?tgtColumn .
 
-  ?srcColumn ^ggen:hasColumn ?srcTable ;
-             ggen:columnName ?sourceColumn .
-  ?srcTable ggen:tableName ?sourceTable .
+  ?srcColumn ^mcpp:hasColumn ?srcTable ;
+             mcpp:columnName ?sourceColumn .
+  ?srcTable mcpp:tableName ?sourceTable .
 
-  ?tgtTable ggen:tableName ?targetTable .
-  ?tgtColumn ggen:columnName ?targetColumn .
+  ?tgtTable mcpp:tableName ?targetTable .
+  ?tgtColumn mcpp:columnName ?targetColumn .
 
-  OPTIONAL { ?fk ggen:onDelete ?onDelete }
-  OPTIONAL { ?fk ggen:onUpdate ?onUpdate }
+  OPTIONAL { ?fk mcpp:onDelete ?onDelete }
+  OPTIONAL { ?fk mcpp:onUpdate ?onUpdate }
 }
 ORDER BY ?sourceTable ?sourceColumn
 
@@ -224,12 +224,12 @@ ORDER BY ?sourceTable ?sourceColumn
 
 SELECT ?tableName ?insertStatement
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName ;
-         ggen:hasColumn ?column .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName ;
+         mcpp:hasColumn ?column .
 
-  ?column ggen:columnName ?columnName ;
-          ggen:defaultValue ?defaultValue .
+  ?column mcpp:columnName ?columnName ;
+          mcpp:defaultValue ?defaultValue .
 
   # Aggregate columns and values
   {
@@ -237,9 +237,9 @@ WHERE {
            (GROUP_CONCAT(?columnName; separator=", ") AS ?columns)
            (GROUP_CONCAT(?defaultValue; separator=", ") AS ?values)
     WHERE {
-      ?table ggen:hasColumn ?col .
-      ?col ggen:columnName ?columnName ;
-           ggen:defaultValue ?defaultValue .
+      ?table mcpp:hasColumn ?col .
+      ?col mcpp:columnName ?columnName ;
+           mcpp:defaultValue ?defaultValue .
     }
     GROUP BY ?table
   }
@@ -256,12 +256,12 @@ ORDER BY ?tableName
 
 SELECT ?tableName ?comment (COUNT(DISTINCT ?column) AS ?columnCount) (COUNT(DISTINCT ?constraint) AS ?constraintCount)
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName .
 
-  OPTIONAL { ?table ggen:tableComment ?comment }
-  OPTIONAL { ?table ggen:hasColumn ?column }
-  OPTIONAL { ?table ggen:hasConstraint ?constraint }
+  OPTIONAL { ?table mcpp:tableComment ?comment }
+  OPTIONAL { ?table mcpp:hasColumn ?column }
+  OPTIONAL { ?table mcpp:hasConstraint ?constraint }
 }
 GROUP BY ?tableName ?comment
 ORDER BY ?tableName
@@ -274,13 +274,13 @@ ORDER BY ?tableName
 
 SELECT ?tableName ?dropStatement
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName .
 
   # Tables with no foreign keys referencing them should be dropped first
   OPTIONAL {
-    ?fk a ggen:ForeignKey ;
-        ggen:referencesTable ?table .
+    ?fk a mcpp:ForeignKey ;
+        mcpp:referencesTable ?table .
   }
 
   BIND(CONCAT("DROP TABLE IF EXISTS ", ?tableName, " CASCADE;") AS ?dropStatement)
@@ -295,17 +295,17 @@ ORDER BY DESC(?tableName)
 
 SELECT ?tableName ?columnName ?dataType ?nullable ?default ?comment
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName ;
-         ggen:hasColumn ?column .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName ;
+         mcpp:hasColumn ?column .
 
-  ?column ggen:columnName ?columnName ;
-          ggen:hasDataType ?dt .
-  ?dt ggen:dataTypeName ?dataType .
+  ?column mcpp:columnName ?columnName ;
+          mcpp:hasDataType ?dt .
+  ?dt mcpp:dataTypeName ?dataType .
 
-  OPTIONAL { ?column ggen:isNullable ?nullable }
-  OPTIONAL { ?column ggen:defaultValue ?default }
-  OPTIONAL { ?column ggen:columnComment ?comment }
+  OPTIONAL { ?column mcpp:isNullable ?nullable }
+  OPTIONAL { ?column mcpp:defaultValue ?default }
+  OPTIONAL { ?column mcpp:columnComment ?comment }
 }
 ORDER BY ?tableName ?columnName
 
@@ -317,13 +317,13 @@ ORDER BY ?tableName ?columnName
 
 SELECT ?tableName ?feature ?definition
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName ;
-         ggen:hasColumn ?column .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName ;
+         mcpp:hasColumn ?column .
 
-  ?column ggen:columnName ?columnName ;
-          ggen:hasDataType ?dt .
-  ?dt ggen:postgresqlType ?pgType .
+  ?column mcpp:columnName ?columnName ;
+          mcpp:hasDataType ?dt .
+  ?dt mcpp:postgresqlType ?pgType .
 
   # JSONB columns
   FILTER(?pgType = "JSONB" || ?pgType = "JSON" || CONTAINS(?pgType, "[]"))
@@ -366,18 +366,18 @@ CREATE INDEX idx_schema_migrations_applied_at ON schema_migrations(applied_at);
 
 SELECT ?tableName ?constraintName ?columns
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName ;
-         ggen:hasConstraint ?constraint .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName ;
+         mcpp:hasConstraint ?constraint .
 
-  ?constraint a ggen:UniqueConstraint ;
-              ggen:constraintName ?constraintName .
+  ?constraint a mcpp:UniqueConstraint ;
+              mcpp:constraintName ?constraintName .
 
   {
     SELECT ?constraint (GROUP_CONCAT(?columnName; separator=", ") AS ?columns)
     WHERE {
-      ?constraint ggen:constrainsColumn ?col .
-      ?col ggen:columnName ?columnName .
+      ?constraint mcpp:constrainsColumn ?col .
+      ?col mcpp:columnName ?columnName .
     }
     GROUP BY ?constraint
   }
@@ -392,13 +392,13 @@ ORDER BY ?tableName ?constraintName
 
 SELECT ?tableName ?constraintName ?expression
 WHERE {
-  ?table a ggen:Table ;
-         ggen:tableName ?tableName ;
-         ggen:hasConstraint ?constraint .
+  ?table a mcpp:Table ;
+         mcpp:tableName ?tableName ;
+         mcpp:hasConstraint ?constraint .
 
-  ?constraint a ggen:CheckConstraint ;
-              ggen:constraintName ?constraintName ;
-              ggen:checkExpression ?expression .
+  ?constraint a mcpp:CheckConstraint ;
+              mcpp:constraintName ?constraintName ;
+              mcpp:checkExpression ?expression .
 }
 ORDER BY ?tableName ?constraintName
 
@@ -410,17 +410,17 @@ ORDER BY ?tableName ?constraintName
 
 SELECT ?indexName ?tableName ?columns ?config
 WHERE {
-  ?index a ggen:FullTextIndex ;
-         ggen:indexName ?indexName .
+  ?index a mcpp:FullTextIndex ;
+         mcpp:indexName ?indexName .
 
-  ?index ^ggen:hasIndex ?table .
-  ?table ggen:tableName ?tableName .
+  ?index ^mcpp:hasIndex ?table .
+  ?table mcpp:tableName ?tableName .
 
   {
     SELECT ?index (GROUP_CONCAT(?columnName; separator=", ") AS ?columns)
     WHERE {
-      ?index ggen:indexesColumn ?col .
-      ?col ggen:columnName ?columnName .
+      ?index mcpp:indexesColumn ?col .
+      ?col mcpp:columnName ?columnName .
     }
     GROUP BY ?index
   }
@@ -437,18 +437,18 @@ ORDER BY ?tableName ?indexName
 
 SELECT ?indexName ?tableName ?columns (COUNT(?column) AS ?columnCount)
 WHERE {
-  ?index ggen:indexName ?indexName ;
-         ggen:indexesColumn ?column .
+  ?index mcpp:indexName ?indexName ;
+         mcpp:indexesColumn ?column .
 
-  ?column ^ggen:hasColumn ?table .
-  ?table ggen:tableName ?tableName .
-  ?column ggen:columnName ?columnName .
+  ?column ^mcpp:hasColumn ?table .
+  ?table mcpp:tableName ?tableName .
+  ?column mcpp:columnName ?columnName .
 
   {
     SELECT ?index (GROUP_CONCAT(?columnName; separator=", ") AS ?columns)
     WHERE {
-      ?index ggen:indexesColumn ?col .
-      ?col ggen:columnName ?columnName .
+      ?index mcpp:indexesColumn ?col .
+      ?col mcpp:columnName ?columnName .
     }
     GROUP BY ?index
   }
@@ -465,11 +465,11 @@ ORDER BY ?tableName ?indexName
 
 SELECT ?xsdType ?postgresqlType ?mysqlType ?sqliteType
 WHERE {
-  ?dataType a ggen:DataType ;
-            ggen:xsdType ?xsdType .
+  ?dataType a mcpp:DataType ;
+            mcpp:xsdType ?xsdType .
 
-  OPTIONAL { ?dataType ggen:postgresqlType ?postgresqlType }
-  OPTIONAL { ?dataType ggen:mysqlType ?mysqlType }
-  OPTIONAL { ?dataType ggen:sqliteType ?sqliteType }
+  OPTIONAL { ?dataType mcpp:postgresqlType ?postgresqlType }
+  OPTIONAL { ?dataType mcpp:mysqlType ?mysqlType }
+  OPTIONAL { ?dataType mcpp:sqliteType ?sqliteType }
 }
 ORDER BY ?xsdType

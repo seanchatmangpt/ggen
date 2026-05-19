@@ -101,7 +101,7 @@ cli/src/commands/
 
 ### Build Test
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo build --release
 ```
 
@@ -229,6 +229,6 @@ npx claude-flow@alpha hooks post-task --task-id "agent7-entry"
 - Binary interface unchanged
 
 ## References
-- Plan: `/Users/sac/ggen/.claude/refactor-v2/v2-migration-plan.md` (lines 463-495)
+- Plan: `./.claude/refactor-v2/v2-migration-plan.md` (lines 463-495)
 - clap-noun-verb: https://docs.rs/clap-noun-verb/3.0.0
-- Commands directory: `/Users/sac/ggen/cli/src/commands/`
+- Commands directory: `./cli/src/commands/`

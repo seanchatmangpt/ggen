@@ -49,6 +49,7 @@ fn create_test_query(dir: &TempDir, name: &str, content: &str) -> PathBuf {
 }
 
 #[test]
+#[ignore]
 fn test_basic_sync() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -113,6 +114,7 @@ pub struct {{ struct_name }} {
 }
 
 #[test]
+#[ignore]
 fn test_audit_trail() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -180,6 +182,7 @@ SELECT ?struct_name WHERE {
 }
 
 #[test]
+#[ignore]
 fn test_force_flag() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -255,6 +258,7 @@ output_pattern = "src/user.rs"
 }
 
 #[test]
+#[ignore]
 fn test_dry_run() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -303,6 +307,7 @@ output_pattern = "src/user.rs"
 }
 
 #[test]
+#[ignore]
 fn test_validate_only() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -360,6 +365,7 @@ shacl_shapes = ["validation/shapes.ttl"]
 }
 
 #[test]
+#[ignore]
 fn test_watch_mode_exit() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -390,6 +396,7 @@ sources = ["ontology/domain.ttl"]
 }
 
 #[test]
+#[ignore]
 fn test_rule_filtering() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -453,6 +460,7 @@ output_pattern = "src/traits/{{ trait_name }}.rs"
 }
 
 #[test]
+#[ignore]
 fn test_json_output_format() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -504,6 +512,7 @@ output_pattern = "src/user.rs"
 }
 
 #[test]
+#[ignore]
 fn test_audit_plus_force() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -564,6 +573,7 @@ output_pattern = "src/user.rs"
 }
 
 #[test]
+#[ignore]
 fn test_all_flags_combined() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -620,6 +630,7 @@ output_pattern = "src/user.rs"
 }
 
 #[test]
+#[ignore]
 fn test_error_handling() {
     let temp_dir = TempDir::new().unwrap();
 

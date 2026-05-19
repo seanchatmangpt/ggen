@@ -10,9 +10,9 @@
 
 #[allow(unused_imports)] // False positive - these are used in async_test! blocks
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::marketplace::install::{execute_install, InstallInput};
-use ggen_domain::marketplace::search::{search_packages, SearchFilters};
-use ggen_utils::error::Result;
+use ggen_core::domain::marketplace::install::{execute_install, InstallInput};
+use ggen_core::domain::marketplace::search::{search_packages, SearchFilters};
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::io::Write;
 use tempfile::TempDir;

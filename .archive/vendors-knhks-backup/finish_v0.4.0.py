@@ -77,7 +77,7 @@ def run_c_tests():
             ['make', target],
             capture_output=True,
             text=True,
-            cwd='/Users/sac/ggen/vendors/knhk'
+            cwd='./vendors/knhk'
         )
         
         success = result.returncode == 0
@@ -120,7 +120,7 @@ def main():
     print("KNHK v0.4.0 Completion Script")
     print("="*60)
     
-    os.chdir('/Users/sac/ggen/vendors/knhk')
+    os.chdir('./vendors/knhk')
     
     # 1. Fix performance test makefile
     print("\n1. Fixing performance test makefile...")
@@ -143,7 +143,7 @@ def main():
         ['python3', 'verify_dod.py'],
         capture_output=True,
         text=True,
-        cwd='/Users/sac/ggen/vendors/knhk'
+        cwd='./vendors/knhk'
     )
     
     print(dod_result.stdout)

@@ -27,7 +27,7 @@ The last 10 commits to `crates/ggen-core/` represent significant progress on the
 **Key Types/Functions:**
 - Re-exports 30+ submodules (audit, cache, codegen, graph, v6, etc.)
 - Public API surface via re-exports: `Graph`, `Pipeline`, `Generator`, `Template`, etc.
-- Version: `ggen v6.0.1` (from recent commits)
+- Version: `ggen v26.5.4` (from recent commits)
 
 **Dependencies:**
 - Internal: All workspace crates (codegen, graph, v6, ontology, etc.)
@@ -561,5 +561,5 @@ For each feature:
 
 **Generated:** 2026-03-31
 **Committer:** Claude (Anthropic)
-**Repository:** ggen v6.0.1
+**Repository:** ggen v26.5.4
 **Analysis Tool:** Read + Grep + Manual Review

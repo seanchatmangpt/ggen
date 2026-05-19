@@ -22,7 +22,7 @@
     - [Step 3: Add Configuration](#step-3-add-configuration)
   - [Recommended Actions](#recommended-actions)
     - [Immediate (Pre-v6.0.0 Release)](#immediate-pre-v600-release)
-    - [Next Release (v6.1.0)](#next-release-v610)
+    - [Next Release (v26.5.4)](#next-release-v610)
     - [Future (v6.2.0)](#future-v620)
   - [Production Deployment Checklist](#production-deployment-checklist)
 
@@ -109,7 +109,7 @@ let results = SparqlQuery::select(&store)
 1. Introduce `SparqlQueryBuilder` trait with type-safe APIs
 2. Deprecate all `format!()` usage in query construction
 3. Mark v6.0.0 as requiring migration (provide `ggen migrate sparql-safety` command)
-4. Remove unsafe APIs in v6.1.0
+4. Remove unsafe APIs in v26.5.4
 
 **Files Requiring Changes**:
 - `crates/ggen-core/src/rdf/query.rs` (line 193)
@@ -692,8 +692,8 @@ impl CircuitBreaker {
 | 3 | Rate limiting | HIGH | LOW | v6.0.0 |
 | 4 | Resource limits | HIGH | MEDIUM | v6.0.0 |
 | 5 | Timeout enforcement | HIGH | MEDIUM | v6.0.0 |
-| 6 | OpenTelemetry metrics | MEDIUM | LOW | v6.1.0 |
-| 7 | Rich error types | MEDIUM | MEDIUM | v6.1.0 |
+| 6 | OpenTelemetry metrics | MEDIUM | LOW | v26.5.4 |
+| 7 | Rich error types | MEDIUM | MEDIUM | v26.5.4 |
 | 8 | Circuit breakers | LOW | LOW | v6.2.0 |
 
 ---
@@ -755,7 +755,7 @@ export_format = "otlp"
 4. ✅ Implement rate limiting (#3)
 5. ✅ Add timeout enforcement (#5)
 
-### Next Release (v6.1.0)
+### Next Release (v26.5.4)
 6. ⏳ Add OpenTelemetry (#6)
 7. ⏳ Improve error messages (#7)
 

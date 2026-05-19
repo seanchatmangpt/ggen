@@ -16,7 +16,7 @@
 **Mission**: Add 300+ core system tests across graph, generator, ontology, templates
 **Timeline**: 5 days (Day 1-5)
 **Deliverables**: 300+ passing tests, 60%+ coverage
-**Mission Doc**: `/Users/sac/ggen/week3_coordination/AGENT_TEST_ENGINEER.md`
+**Mission Doc**: `./week3_coordination/AGENT_TEST_ENGINEER.md`
 
 **Phase Breakdown**:
 - **Day 1-2**: 50+ graph tests (core, query, store, export)
@@ -32,7 +32,7 @@
 **Mission**: Implement 3 medium-effort optimizations for 50-80% improvements
 **Timeline**: 3-4 days (Day 1-4)
 **Deliverables**: 3 optimizations, A+ performance grade
-**Mission Doc**: `/Users/sac/ggen/week3_coordination/AGENT_BACKEND_DEV.md`
+**Mission Doc**: `./week3_coordination/AGENT_BACKEND_DEV.md`
 
 **Optimization Targets**:
 1. **Lockfile Resolution** (Day 1-2): 60-70% improvement via HashMap optimization
@@ -48,7 +48,7 @@
 **Mission**: Track coverage and health metrics daily throughout Week 3
 **Timeline**: Continuous (Day 1-5)
 **Deliverables**: Daily reports, coverage 53% → 60%+, health 73% → 75%
-**Mission Doc**: `/Users/sac/ggen/week3_coordination/AGENT_CODE_ANALYZER.md`
+**Mission Doc**: `./week3_coordination/AGENT_CODE_ANALYZER.md`
 
 **Daily Responsibilities**:
 - Coverage tracking (overall + module-specific)
@@ -65,7 +65,7 @@
 **Mission**: Validate quick wins, benchmark optimizations, ensure A+ grade
 **Timeline**: Continuous (Day 1-5)
 **Deliverables**: All validations complete, A+ grade (95+/100)
-**Mission Doc**: `/Users/sac/ggen/week3_coordination/AGENT_PERFORMANCE_BENCHMARKER.md`
+**Mission Doc**: `./week3_coordination/AGENT_PERFORMANCE_BENCHMARKER.md`
 
 **Validation Responsibilities**:
 - Quick wins validation (3 items: parallel, lazy init, string optimization)
@@ -82,7 +82,7 @@
 **Mission**: Coordinate 4 parallel agents, manage dependencies, track milestones
 **Timeline**: Continuous (Day 1-5)
 **Deliverables**: Daily standups, blocker management, final dashboard
-**Mission Doc**: `/Users/sac/ggen/week3_coordination/AGENT_TASK_ORCHESTRATOR.md`
+**Mission Doc**: `./week3_coordination/AGENT_TASK_ORCHESTRATOR.md`
 
 **Coordination Responsibilities**:
 - Daily standup coordination (mock pattern for progress tracking)
@@ -97,7 +97,7 @@
 
 ### Directory Structure Created
 ```
-/Users/sac/ggen/week3_coordination/
+./week3_coordination/
 ├── README.md                           ✅ Quick start guide
 ├── WEEK3_STATUS_DASHBOARD.md          ✅ Real-time status tracking
 ├── DEPLOYMENT_SUMMARY.md              ✅ This document
@@ -121,7 +121,7 @@ All agents configured with Claude Flow hooks:
 - ✅ `session-end`: Daily summary and state persistence
 
 ### Swarm Memory Configured
-- Location: `/Users/sac/ggen/.swarm/memory.db`
+- Location: `./.swarm/memory.db`
 - Session ID: `swarm-week3`
 - Cross-agent coordination enabled
 - Daily progress persistence active

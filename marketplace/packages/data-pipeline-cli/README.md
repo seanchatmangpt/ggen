@@ -5,7 +5,7 @@
 [![Crates.io](https://img.shields.io/crates/v/data-pipeline-cli.svg)](https://crates.io/crates/data-pipeline-cli)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 [![Documentation](https://docs.rs/data-pipeline-cli/badge.svg)](https://docs.rs/data-pipeline-cli)
-[![CI](https://github.com/ggen-marketplace/data-pipeline-cli/workflows/CI/badge.svg)](https://github.com/ggen-marketplace/data-pipeline-cli/actions)
+[![CI](https://github.com/mcpp-marketplace/data-pipeline-cli/workflows/CI/badge.svg)](https://github.com/mcpp-marketplace/data-pipeline-cli/actions)
 
 ## 🚀 Overview
 
@@ -30,16 +30,16 @@ Data Pipeline CLI is a powerful ETL (Extract, Transform, Load) tool that enables
 cargo install data-pipeline-cli
 ```
 
-### From ggen Marketplace
+### From mcpp Marketplace
 
 ```bash
-ggen install data-pipeline-cli
+mcpp install data-pipeline-cli
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/ggen-marketplace/data-pipeline-cli
+git clone https://github.com/mcpp-marketplace/data-pipeline-cli
 cd data-pipeline-cli
 cargo install --path .
 ```
@@ -518,7 +518,7 @@ data-pipeline pipeline run \
 Data Pipeline CLI uses a complete RDF ontology to define pipelines semantically:
 
 ```turtle
-@prefix dpipe: <http://ggen.cli/ontology/data-pipeline#> .
+@prefix dpipe: <http://mcpp.cli/ontology/data-pipeline#> .
 
 # Pipeline definition in RDF
 :my-pipeline a dpipe:Pipeline ;
@@ -763,7 +763,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ```bash
 # Clone repository
-git clone https://github.com/ggen-marketplace/data-pipeline-cli
+git clone https://github.com/mcpp-marketplace/data-pipeline-cli
 cd data-pipeline-cli
 
 # Build
@@ -789,15 +789,15 @@ at your option.
 
 - Built with [clap-noun-verb](https://crates.io/crates/clap-noun-verb)
 - RDF support via [Oxigraph](https://github.com/oxigraph/oxigraph)
-- Powered by [ggen Marketplace](https://ggen.cli/marketplace)
+- Powered by [mcpp Marketplace](https://mcpp.cli/marketplace)
 
 ## 📞 Support
 
-- **Documentation**: https://ggen.cli/marketplace/data-pipeline-cli/docs
-- **Issues**: https://github.com/ggen-marketplace/data-pipeline-cli/issues
-- **Discussions**: https://github.com/ggen-marketplace/data-pipeline-cli/discussions
-- **Discord**: https://discord.gg/ggen
+- **Documentation**: https://mcpp.cli/marketplace/data-pipeline-cli/docs
+- **Issues**: https://github.com/mcpp-marketplace/data-pipeline-cli/issues
+- **Discussions**: https://github.com/mcpp-marketplace/data-pipeline-cli/discussions
+- **Discord**: https://discord.gg/mcpp
 
 ---
 
-**Built with ❤️ by the ggen Marketplace community**
+**Built with ❤️ by the mcpp Marketplace community**

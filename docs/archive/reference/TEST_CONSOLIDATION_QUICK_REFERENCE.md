@@ -147,8 +147,8 @@ cat docs/TEST_CONSOLIDATION_IMPLEMENTATION.md
 ### Phase 1: Setup (30 min)
 - [ ] Backup original tests
   ```bash
-  mkdir -p /Users/sac/ggen/tests-archive
-  cp -r crates/ggen-core/tests/* /Users/sac/ggen/tests-archive/
+  mkdir -p ./tests-archive
+  cp -r crates/ggen-core/tests/* ./tests-archive/
   ```
 - [ ] Create git commit
   ```bash
@@ -277,8 +277,8 @@ cat docs/TEST_CONSOLIDATION_IMPLEMENTATION.md
 
 ```bash
 # Backup tests
-mkdir -p /Users/sac/ggen/tests-archive
-cp -r crates/ggen-core/tests/* /Users/sac/ggen/tests-archive/
+mkdir -p ./tests-archive
+cp -r crates/ggen-core/tests/* ./tests-archive/
 
 # Run individual consolidated test suites
 cargo test --test consolidated_core_tests -- --nocapture
@@ -293,7 +293,7 @@ cargo make test
 cargo test --test consolidated_core_tests -- --test-threads=1
 
 # Archive old tests
-mv crates/ggen-core/tests/determinism_framework.rs /Users/sac/ggen/tests-archive/
+mv crates/ggen-core/tests/determinism_framework.rs ./tests-archive/
 
 # Commit consolidation
 git add -A

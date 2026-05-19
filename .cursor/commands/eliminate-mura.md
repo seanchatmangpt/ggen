@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents to eliminate unevenness (Mura) in ggen code quality, patterns, and style. Mura refers to variability or inconsistency. Experts maintain consistent quality and patterns across the codebase.
+This command guides agents to eliminate unevenness (Mura) in mcpp code quality, patterns, and style. Mura refers to variability or inconsistency. Experts maintain consistent quality and patterns across the codebase.
 
 ## Workflow Overview
 
@@ -14,7 +14,7 @@ Step 1: Identify Mura → Step 2: Measure Variability → Step 3: Standardize �
 
 ### Step 1: Identify Mura (Unevenness)
 
-**Action**: Find inconsistencies in ggen code quality, patterns, and style.
+**Action**: Find inconsistencies in mcpp code quality, patterns, and style.
 
 **Types of Mura to identify**:
 1. **Code style inconsistency** - Different formatting, naming conventions
@@ -28,17 +28,17 @@ Step 1: Identify Mura → Step 2: Measure Variability → Step 3: Standardize �
 ## Mura Inventory
 
 ### Code Style Inconsistency
-- [ ] `crates/ggen-core/src/rdf/parser.rs` uses `snake_case` for functions
-- [ ] `crates/ggen-core/src/templates/generator.rs` uses inconsistent formatting
+- [ ] `crates/mcpp-core/src/rdf/parser.rs` uses `snake_case` for functions
+- [ ] `crates/mcpp-core/src/templates/generator.rs` uses inconsistent formatting
 
 ### Pattern Inconsistency
-- [ ] `crates/ggen-core/src/rdf/processor.rs` uses `Result<T, RdfError>` for errors
-- [ ] `crates/ggen-core/src/templates/generator.rs` uses `Result<T, TemplateError>` for errors
+- [ ] `crates/mcpp-core/src/rdf/processor.rs` uses `Result<T, RdfError>` for errors
+- [ ] `crates/mcpp-core/src/templates/generator.rs` uses `Result<T, TemplateError>` for errors
 - [ ] Different error types for similar operations
 
 ### Quality Inconsistency
-- [ ] `crates/ggen-core/src/rdf/` has 90% test coverage
-- [ ] `crates/ggen-core/src/templates/` has 20% test coverage
+- [ ] `crates/mcpp-core/src/rdf/` has 90% test coverage
+- [ ] `crates/mcpp-core/src/templates/` has 20% test coverage
 - [ ] Uneven test coverage
 ```
 

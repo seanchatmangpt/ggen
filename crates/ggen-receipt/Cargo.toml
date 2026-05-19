@@ -1,5 +1,5 @@
 [package]
-name = "ggen-receipt"
+name = "mcpp-receipt"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Cryptographic receipt system for ggen operations"

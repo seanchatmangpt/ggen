@@ -24,10 +24,10 @@ This bundle provides production-ready Rust microservice scaffolding that covers 
 
 ```bash
 # Install the bundle
-ggen install sector-rust-microservice-8020
+mcpp install sector-rust-microservice-8020
 
 # Generate a new microservice
-ggen generate microservice \
+mcpp generate microservice \
   --name user-service \
   --port 8080 \
   --database postgres \
@@ -107,4 +107,4 @@ cargo run
 
 ---
 
-*Part of the ggen 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*
+*Part of the mcpp 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*

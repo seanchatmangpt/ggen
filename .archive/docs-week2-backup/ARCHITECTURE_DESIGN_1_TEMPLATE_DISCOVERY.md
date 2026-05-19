@@ -62,7 +62,7 @@
 
 ### Existing Implementation
 
-**File:** `/Users/sac/ggen/crates/ggen-domain/src/template/list.rs`
+**File:** `./crates/ggen-domain/src/template/list.rs`
 
 ```rust
 pub fn list_templates(templates_dir: &Path, filters: &ListFilters) -> Result<Vec<TemplateInfo>> {

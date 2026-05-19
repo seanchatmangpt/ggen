@@ -61,7 +61,7 @@ fn test_nextjs_setup_and_build() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -129,7 +129,7 @@ fn test_nextjs_package_installation() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -179,7 +179,7 @@ fn test_nextjs_initial_generation() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -232,7 +232,7 @@ fn test_nextjs_type_check_and_build() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -287,7 +287,7 @@ fn test_nextjs_ontology_modification() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -343,7 +343,7 @@ fn test_nextjs_regeneration_idempotency() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1175,7 +1175,7 @@ fn test_nextjs_error_invalid_package_name() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1284,7 +1284,7 @@ fn test_nextjs_error_installation_failure_recovery() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1394,7 +1394,7 @@ fn test_nextjs_boundary_empty_ontology() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1511,7 +1511,7 @@ fn test_nextjs_resource_cleanup_isolation() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     // Create multiple containers to test isolation
@@ -1618,7 +1618,7 @@ fn test_nextjs_error_package_name_validation_comprehensive() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1732,7 +1732,7 @@ fn test_nextjs_error_already_installed() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1828,7 +1828,7 @@ fn test_nextjs_boundary_large_ontology() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();
@@ -1949,7 +1949,7 @@ fn test_nextjs_concurrency_multiple_installs() {
     println!("{}", "=".repeat(70));
 
     require_docker();
-    let project_dir = Path::new("/Users/sac/ggen");
+    let project_dir = Path::new(".");
     let before_snapshot = capture_host_snapshot(project_dir);
 
     let client = ContainerClient::new();

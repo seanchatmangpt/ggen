@@ -14,7 +14,7 @@ The MCP server instrumentation is comprehensive and follows OpenTelemetry best p
 
 ## OTEL Attribute Constants Defined
 
-All OTEL attributes are defined in `/Users/sac/ggen/crates/ggen-a2a-mcp/src/lib.rs`:
+All OTEL attributes are defined in `./crates/ggen-a2a-mcp/src/lib.rs`:
 
 ```rust
 pub mod otel_attrs {
@@ -151,7 +151,7 @@ info!(project_path = %params.project_path, "validate_pipeline tool called");
 
 **Success Log:**
 ```
-INFO validate_pipeline tool called project_path="/Users/sac/ggen"
+INFO validate_pipeline tool called project_path="."
 INFO validate_pipeline tool complete: all gates passed
 ```
 
@@ -393,14 +393,14 @@ ERROR ggen_a2a_mcp::ggen_server: ggen.error error.type="parse_error" error.messa
 ### Successful `validate_pipeline` Tool Call
 
 ```
-INFO ggen_a2a_mcp::ggen_server: validate_pipeline tool called project_path="/Users/sac/ggen"
+INFO ggen_a2a_mcp::ggen_server: validate_pipeline tool called project_path="."
 INFO ggen_a2a_mcp::ggen_server: validate_pipeline tool complete: all gates passed
 ```
 
 **Spans:**
 - `ggen.mcp.tool_call` with:
   - `mcp.tool_name` = `"validate_pipeline"`
-  - `mcp.project_path` = `"/Users/sac/ggen"`
+  - `mcp.project_path` = `"."`
 
 ---
 
@@ -463,7 +463,7 @@ The instrumentation is production-ready and provides full observability for MCP 
 
 ## Files Referenced
 
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/lib.rs` - OTEL attribute definitions
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` - MCP tool implementations with spans
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/correlation.rs` - A2A correlation span linking
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/core_workflow_mcp_tools.rs` - Example test cases
+- `./crates/ggen-a2a-mcp/src/lib.rs` - OTEL attribute definitions
+- `./crates/ggen-a2a-mcp/src/ggen_server.rs` - MCP tool implementations with spans
+- `./crates/ggen-a2a-mcp/src/correlation.rs` - A2A correlation span linking
+- `./crates/ggen-a2a-mcp/tests/core_workflow_mcp_tools.rs` - Example test cases

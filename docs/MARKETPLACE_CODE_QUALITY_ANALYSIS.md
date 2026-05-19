@@ -64,7 +64,7 @@
 
 **Generated**: 2025-11-16
 **Analyzer**: Code Quality Analyzer
-**Location**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/marketplace.rs`
+**Location**: `./crates/ggen-cli/src/cmds/marketplace.rs`
 
 ---
 

@@ -13,7 +13,7 @@
   - [🟡 HIGH PRIORITY (Should fix for v6.0.0)](#-high-priority-should-fix-for-v600)
     - [6. OpenTelemetry Observability](#6-opentelemetry-observability)
     - [7. Rich Error Types](#7-rich-error-types)
-  - [🟢 MEDIUM PRIORITY (Can defer to v6.1.0)](#-medium-priority-can-defer-to-v610)
+  - [🟢 MEDIUM PRIORITY (Can defer to v26.5.4)](#-medium-priority-can-defer-to-v610)
     - [8. Circuit Breakers & Graceful Degradation](#8-circuit-breakers--graceful-degradation)
   - [Implementation Timeline](#implementation-timeline)
     - [Week 1 (Jan 27-31)](#week-1-jan-27-31)
@@ -258,7 +258,7 @@ total_pipeline_ms = 60000
 
 ---
 
-## 🟢 MEDIUM PRIORITY (Can defer to v6.1.0)
+## 🟢 MEDIUM PRIORITY (Can defer to v26.5.4)
 
 ### 8. Circuit Breakers & Graceful Degradation
 

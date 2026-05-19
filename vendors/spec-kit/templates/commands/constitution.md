@@ -87,10 +87,10 @@ Do not create a new template; always operate on the existing `/memory/constituti
 
 - Feature specifications, plans, and tasks use TTL sources (`.ttl` files in `ontology/` directories)
 - These TTL files are the source of truth
-- Markdown artifacts are generated via `ggen sync` which reads `ggen.toml` configuration
+- Markdown artifacts are generated via `mcpp sync` which reads `mcpp.toml` configuration
 - See `/docs/RDF_WORKFLOW_GUIDE.md` for complete RDF workflow details
 
-Future consideration: The constitution itself could be stored as TTL and rendered to markdown using the same ggen sync workflow, enabling:
+Future consideration: The constitution itself could be stored as TTL and rendered to markdown using the same mcpp sync workflow, enabling:
 - SHACL validation of constitutional constraints
 - SPARQL queries for principle extraction
 - Version-controlled ontology evolution

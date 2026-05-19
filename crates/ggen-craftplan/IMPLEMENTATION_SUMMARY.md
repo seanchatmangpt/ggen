@@ -173,7 +173,7 @@ Three production-ready Tera templates:
 ## Integration with ggen
 
 ### Workspace Integration
-- Added to `/Users/sac/ggen/Cargo.toml` workspace members
+- Added to `./Cargo.toml` workspace members
 - Uses workspace dependencies for consistency
 - Follows ggen naming conventions
 
@@ -224,30 +224,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Files Delivered
 
 ### Source Files
-- `/Users/sac/ggen/crates/ggen-craftplan/src/lib.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/error.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/models.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/normalize.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/extract.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/emit.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/canonicalize.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/receipt.rs`
-- `/Users/sac/ggen/crates/ggen-craftplan/src/pipeline.rs`
+- `./crates/ggen-craftplan/src/lib.rs`
+- `./crates/ggen-craftplan/src/error.rs`
+- `./crates/ggen-craftplan/src/models.rs`
+- `./crates/ggen-craftplan/src/normalize.rs`
+- `./crates/ggen-craftplan/src/extract.rs`
+- `./crates/ggen-craftplan/src/emit.rs`
+- `./crates/ggen-craftplan/src/canonicalize.rs`
+- `./crates/ggen-craftplan/src/receipt.rs`
+- `./crates/ggen-craftplan/src/pipeline.rs`
 
 ### Templates
-- `/Users/sac/ggen/crates/ggen-craftplan/templates/ash_resource.ex.tera`
-- `/Users/sac/ggen/crates/ggen-craftplan/templates/context_module.ex.tera`
-- `/Users/sac/ggen/crates/ggen-craftplan/templates/live_view.tera`
+- `./crates/ggen-craftplan/templates/ash_resource.ex.tera`
+- `./crates/ggen-craftplan/templates/context_module.ex.tera`
+- `./crates/ggen-craftplan/templates/live_view.tera`
 
 ### Tests
-- `/Users/sac/ggen/crates/ggen-craftplan/tests/integration_test.rs`
+- `./crates/ggen-craftplan/tests/integration_test.rs`
 
 ### Configuration
-- `/Users/sac/ggen/crates/ggen-craftplan/Cargo.toml`
-- `/Users/sac/ggen/crates/ggen-craftplan/README.md`
+- `./crates/ggen-craftplan/Cargo.toml`
+- `./crates/ggen-craftplan/README.md`
 
 ### Documentation
-- `/Users/sac/ggen/crates/ggen-craftplan/IMPLEMENTATION_SUMMARY.md` (this file)
+- `./crates/ggen-craftplan/IMPLEMENTATION_SUMMARY.md` (this file)
 
 ## Build Status
 

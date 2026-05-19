@@ -263,7 +263,7 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 
 ```bash
 # Run all MCP server tests
-cd /Users/sac/ggen/crates/ggen-a2a-mcp
+cd ./crates/ggen-a2a-mcp
 cargo test --test ggen_server_test --test mcp_stdio_smoke_test
 
 # Run individual test suites
@@ -289,11 +289,11 @@ The 80/20 implementation is complete. The remaining 20% (advanced orchestration 
 
 ## References
 
-- **Implementation**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (2176 lines)
-- **Tests**: `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/ggen_server_test.rs` (642 lines, 19 tests)
-- **Smoke Tests**: `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mcp_stdio_smoke_test.rs` (177 lines, 4 tests)
-- **CLI Commands**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/mcp.rs` (1210 lines)
-- **Server Entry**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/server.rs` (149 lines)
+- **Implementation**: `./crates/ggen-a2a-mcp/src/ggen_server.rs` (2176 lines)
+- **Tests**: `./crates/ggen-a2a-mcp/tests/ggen_server_test.rs` (642 lines, 19 tests)
+- **Smoke Tests**: `./crates/ggen-a2a-mcp/tests/mcp_stdio_smoke_test.rs` (177 lines, 4 tests)
+- **CLI Commands**: `./crates/ggen-cli/src/cmds/mcp.rs` (1210 lines)
+- **Server Entry**: `./crates/ggen-a2a-mcp/src/server.rs` (149 lines)
 
 ---
 

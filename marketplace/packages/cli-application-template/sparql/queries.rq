@@ -2,8 +2,8 @@
 
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX cli: <http://ggen.dev/ontology/cli#>
-PREFIX gen: <http://ggen.dev/ontology/generator#>
+PREFIX cli: <http://mcpp.dev/ontology/cli#>
+PREFIX gen: <http://mcpp.dev/ontology/generator#>
 
 # Query 1: Get Command Structure
 # Retrieves all commands and subcommands with their hierarchy

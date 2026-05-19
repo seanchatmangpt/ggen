@@ -3,7 +3,7 @@
 //!
 //! Tests error propagation, transformation, and formatting across the async/sync boundary.
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 
 #[test]
 fn test_error_creation() {
@@ -59,7 +59,7 @@ fn test_error_propagation_through_question_mark() {
 #[test]
 fn test_anyhow_compatibility() {
     // Test compatibility with anyhow-style error handling
-    // Using ggen_utils::error::Error instead of anyhow::Error
+    // Using ggen_core::utils::error::Error instead of anyhow::Error
     fn returns_ggen_error() -> Result<i32> {
         Ok(42)
     }

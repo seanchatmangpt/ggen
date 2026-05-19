@@ -512,7 +512,7 @@ mod component_tests {
     #[test]
     fn test_runtime_execute_error_handling() {
         use ggen_cli::runtime;
-        use ggen_utils::error::Error;
+        use ggen_core::utils::error::Error;
 
         let result = runtime::execute(async { Err(Error::new("Test error")) });
 

@@ -2,10 +2,10 @@
 
 ## Executive Summary
 
-The ggen marketplace CLI is a multi-layered system with 20 implemented commands across search, install, publish, validation, and advanced maturity assessment. It bridges between three layers:
-1. **CLI Layer** (`ggen-cli`): Command routing with clap-noun-verb v3.4.0 auto-discovery
-2. **Domain Layer** (`ggen-domain`): Marketplace business logic (12.4K LOC)
-3. **Legacy Layer** (`ggen-marketplace`): Maturity evaluation and assessment helpers
+The mcpp marketplace CLI is a multi-layered system with 20 implemented commands across search, install, publish, validation, and advanced maturity assessment. It bridges between three layers:
+1. **CLI Layer** (`mcpp-cli`): Command routing with clap-noun-verb v3.4.0 auto-discovery
+2. **Domain Layer** (`mcpp-domain`): Marketplace business logic (12.4K LOC)
+3. **Legacy Layer** (`mcpp-marketplace`): Maturity evaluation and assessment helpers
 
 The system is undergoing a generational transition toward v2/v3 with RDF/SPARQL backends.
 
@@ -14,14 +14,14 @@ The system is undergoing a generational transition toward v2/v3 with RDF/SPARQL 
 ## File Structure & Locations
 
 ### Primary CLI Command Implementation
-**File**: `/home/user/ggen/crates/ggen-cli/src/cmds/marketplace.rs`
+**File**: `/home/user/mcpp/crates/mcpp-cli/src/cmds/marketplace.rs`
 - **Size**: 1,746 lines
 - **Pattern**: clap-noun-verb `#[verb]` macro-based commands
 - **Architecture**: Sync verb functions → async domain functions via `execute_async_verb()`
 - **Entry Point**: Auto-discovered by clap-noun-verb::run()
 
 ### Domain Logic Layer
-**Directory**: `/home/user/ggen/crates/ggen-domain/src/marketplace/`
+**Directory**: `/home/user/mcpp/crates/mcpp-domain/src/marketplace/`
 - **Total Size**: 12.4K LOC across 22 modules
 - **Key Modules**:
   - `install.rs` (1,649 LOC) - Package installation logic
@@ -33,13 +33,13 @@ The system is undergoing a generational transition toward v2/v3 with RDF/SPARQL 
   - And 16 supporting modules
 
 ### Legacy Marketplace
-**Directory**: `/home/user/ggen/crates/ggen-marketplace/src/`
+**Directory**: `/home/user/mcpp/crates/mcpp-marketplace/src/`
 - **Purpose**: Maturity evaluation, assessment helpers, trait definitions
 - **Key Exports**: MaturityEvaluator, MaturityAssessment, assessment_helpers
 - **Status**: Being phased out in favor of v2/v3
 
 ### New Marketplace v2/v3
-**Directory**: `/home/user/ggen/crates/ggen-marketplace-v2/src/`
+**Directory**: `/home/user/mcpp/crates/mcpp-marketplace-v2/src/`
 - **Key Files**: 
   - `registry_rdf.rs` (12.3K LOC) - RDF/oxigraph backend
   - `v3.rs` (9.8K LOC) - V3 optimized implementation
@@ -52,7 +52,7 @@ The system is undergoing a generational transition toward v2/v3 with RDF/SPARQL 
 
 ### 1. Search Commands (5 commands)
 
-#### `ggen marketplace search`
+#### `mcpp marketplace search`
 ```
 fn search(query: String, limit: Option<usize>, category: Option<String>) -> Result<SearchOutput>
 ```
@@ -62,10 +62,10 @@ fn search(query: String, limit: Option<usize>, category: Option<String>) -> Resu
   - `limit` (optional): Result count (default 10)
   - `category` (optional): Category filter
 - **Flow**: SearchInput → execute_search() → SearchResult[]
-- **Domain Function**: `ggen_domain::marketplace::execute_search()`
+- **Domain Function**: `mcpp_domain::marketplace::execute_search()`
 - **Output Type**: SearchOutput { packages: Vec<PackageInfo>, total: usize }
 
-#### `ggen marketplace search-maturity`
+#### `mcpp marketplace search-maturity`
 ```
 fn search_maturity(
     min_level: Option<String>,
@@ -83,7 +83,7 @@ fn search_maturity(
 - **Implementation**: Generates assessments, applies dimension filters
 - **Output**: JSON with search criteria, results, total_matches
 
-#### `ggen marketplace compare`
+#### `mcpp marketplace compare`
 ```
 fn compare(
     package_a: String,
@@ -99,7 +99,7 @@ fn compare(
 
 ### 2. Installation Commands (2 commands)
 
-#### `ggen marketplace install`
+#### `mcpp marketplace install`
 ```
 fn install(
     package: String,
@@ -120,19 +120,19 @@ fn install(
 }
 - **Security**: Package name validated against injection attacks in domain layer
 
-#### `ggen marketplace install-bundle`
+#### `mcpp marketplace install-bundle`
 ```
 fn install_bundle(bundle_id: String, dry_run: bool) -> Result<serde_json::Value>
 ```
 - **Lines**: 1357-1416
 - **Purpose**: Install complete sector bundles (academic papers, microservices, etc.)
 - **Domain Function**: BundleRegistry::get_bundle()
-- **Creates**: `.ggen-bundle-{id}.json` manifest file
+- **Creates**: `.mcpp-bundle-{id}.json` manifest file
 - **Output**: Installation status and package list
 
 ### 3. Publishing Commands (1 command)
 
-#### `ggen marketplace publish`
+#### `mcpp marketplace publish`
 ```
 fn publish(
     path: PathBuf,
@@ -152,7 +152,7 @@ fn publish(
 
 ### 4. Package List Commands (1 command)
 
-#### `ggen marketplace list`
+#### `mcpp marketplace list`
 ```
 fn list(
     detailed: bool,
@@ -174,7 +174,7 @@ fn list(
 
 ### 5. Validation Commands (2 commands)
 
-#### `ggen marketplace validate`
+#### `mcpp marketplace validate`
 ```
 fn validate(
     package: Option<String>,
@@ -199,7 +199,7 @@ fn validate(
   - all_results: Option<Vec<PackageValidation>>
 }
 
-#### `ggen marketplace emit-receipts`
+#### `mcpp marketplace emit-receipts`
 ```
 fn emit_receipts(report: bool) -> Result<serde_json::Value>
 ```
@@ -211,7 +211,7 @@ fn emit_receipts(report: bool) -> Result<serde_json::Value>
 
 ### 6. Maturity Assessment Commands (3 commands)
 
-#### `ggen marketplace maturity`
+#### `mcpp marketplace maturity`
 ```
 fn maturity(
     package_id: String,
@@ -228,7 +228,7 @@ fn maturity(
   4. Performance
   5. Adoption
   6. Maintenance
-- **Domain Type**: Uses MaturityEvaluator from ggen-marketplace (legacy)
+- **Domain Type**: Uses MaturityEvaluator from mcpp-marketplace (legacy)
 - **Verification**: Can require minimum level (experimental/beta/production/enterprise)
 - **Output Type**: MaturityOutput {
   - total_score: u32
@@ -239,7 +239,7 @@ fn maturity(
   - next_steps: Vec<&'static str>
 }
 
-#### `ggen marketplace maturity-batch`
+#### `mcpp marketplace maturity-batch`
 ```
 fn maturity_batch(
     packages_dir: Option<PathBuf>,
@@ -251,7 +251,7 @@ fn maturity_batch(
 - **Purpose**: Assess multiple packages in batch
 - **Output**: DashboardOutput with statistics and assessments
 
-#### `ggen marketplace dashboard`
+#### `mcpp marketplace dashboard`
 ```
 fn dashboard(
     packages_dir: Option<PathBuf>,
@@ -268,7 +268,7 @@ fn dashboard(
 
 ### 7. Recommendation Commands (1 command)
 
-#### `ggen marketplace recommend`
+#### `mcpp marketplace recommend`
 ```
 fn recommend(
     use_case: String,
@@ -286,7 +286,7 @@ fn recommend(
 
 ### 8. Data Export Commands (1 command)
 
-#### `ggen marketplace export`
+#### `mcpp marketplace export`
 ```
 fn export(
     format: Option<String>,
@@ -297,22 +297,22 @@ fn export(
 ```
 - **Lines**: 1135-1225
 - **Formats**: CSV, JSON, HTML
-- **Domain Function**: Uses ggen_marketplace::prelude exports
+- **Domain Function**: Uses mcpp_marketplace::prelude exports
 - **Filtering**: By maturity level
 - **Output**: File written to disk + status JSON
 
 ### 9. Bundle Management Commands (2 commands)
 
-#### `ggen marketplace list-bundles`
+#### `mcpp marketplace list-bundles`
 ```
 fn list_bundles(detailed: bool) -> Result<serde_json::Value>
 ```
 - **Lines**: 1239-1280
 - **Purpose**: List all marketplace sector bundles
-- **Domain Type**: BundleRegistry from ggen-domain
+- **Domain Type**: BundleRegistry from mcpp-domain
 - **Output**: Bundle metadata (id, version, domain, package count, features)
 
-#### `ggen marketplace bundle-info`
+#### `mcpp marketplace bundle-info`
 ```
 fn bundle_info(bundle_id: String, docs: bool) -> Result<serde_json::Value>
 ```
@@ -323,7 +323,7 @@ fn bundle_info(bundle_id: String, docs: bool) -> Result<serde_json::Value>
 
 ### 10. Artifact Generation Commands (2 commands)
 
-#### `ggen marketplace generate-artifacts`
+#### `mcpp marketplace generate-artifacts`
 ```
 fn generate_artifacts(
     json_output: Option<PathBuf>,
@@ -341,7 +341,7 @@ fn generate_artifacts(
   - `write_registry_index()`
   - `write_packages_markdown()`
 
-#### `ggen marketplace report`
+#### `mcpp marketplace report`
 ```
 fn report(output: Option<PathBuf>) -> Result<serde_json::Value>
 ```
@@ -357,7 +357,7 @@ fn report(output: Option<PathBuf>) -> Result<serde_json::Value>
 
 ### 11. Improvement Planning Commands (1 command)
 
-#### `ggen marketplace improve`
+#### `mcpp marketplace improve`
 ```
 fn improve(
     package_id: String,
@@ -394,10 +394,10 @@ runtime_helper.rs execute_async_verb()
 
 ### Layer 3: Async Domain Functions (async)
 ```
-ggen-domain/marketplace/ async functions
+mcpp-domain/marketplace/ async functions
 ├─ Search, Install, Publish, Validate, List
 ├─ Accept domain input types (SearchInput, InstallInput, etc.)
-├─ Use legacy ggen-marketplace types for maturity (transitional)
+├─ Use legacy mcpp-marketplace types for maturity (transitional)
 └─ Return Result<DomainOutputType>
 ```
 
@@ -405,7 +405,7 @@ ggen-domain/marketplace/ async functions
 
 ## Input/Output Type Mapping
 
-### Core Input Types (ggen-domain)
+### Core Input Types (mcpp-domain)
 ```rust
 SearchInput {
     query: String,
@@ -506,28 +506,28 @@ DashboardOutput {
 
 **CLI Layer** uses imports from BOTH:
 
-1. **ggen-domain** (Primary, modern)
+1. **mcpp-domain** (Primary, modern)
    ```rust
-   use ggen_domain::marketplace::{
+   use mcpp_domain::marketplace::{
        execute_install, execute_list, execute_publish, execute_search,
        validate_all_packages, validate_package,
        InstallInput, ListInput, PublishInput, SearchInput, PackageValidation,
    };
    ```
-   - Located: `/home/user/ggen/crates/ggen-domain/src/marketplace/`
+   - Located: `/home/user/mcpp/crates/mcpp-domain/src/marketplace/`
    - Modules: search, install, publish, list, validate, registry, guards, bundles, etc.
 
-2. **ggen-marketplace** (Legacy, being phased out)
+2. **mcpp-marketplace** (Legacy, being phased out)
    ```rust
-   use ggen_marketplace::prelude::*;
+   use mcpp_marketplace::prelude::*;
    ```
    - Used for: MaturityEvaluator, MaturityAssessment, assessment_helpers
-   - Located: `/home/user/ggen/crates/ggen-marketplace/src/`
-   - Status: Providing maturity evaluation; core search/install/publish moved to ggen-domain
+   - Located: `/home/user/mcpp/crates/mcpp-marketplace/src/`
+   - Status: Providing maturity evaluation; core search/install/publish moved to mcpp-domain
 
 ### Legacy Marketplace Exports Used in CLI
 ```rust
-// From ggen-marketplace crate
+// From mcpp-marketplace crate
 MaturityEvaluator::evaluate(input: EvaluationInput)
 MaturityAssessment::new(id, name)
 MaturityDashboard::new(assessments)
@@ -543,7 +543,7 @@ export_as_json()
 ```
 
 ### New Marketplace v2/v3 (Not Yet Integrated)
-- Located: `/home/user/ggen/crates/ggen-marketplace-v2/src/`
+- Located: `/home/user/mcpp/crates/mcpp-marketplace-v2/src/`
 - Status: **Parallel implementation**
 - Key Components:
   - RDF registry with oxigraph
@@ -557,13 +557,13 @@ export_as_json()
 ## Key Integration Points
 
 ### 1. Cargo.toml Dependencies
-**File**: `/home/user/ggen/crates/ggen-cli/Cargo.toml`
+**File**: `/home/user/mcpp/crates/mcpp-cli/Cargo.toml`
 
 ```toml
 [dependencies]
 # Local crates
-ggen-domain = { path = "../ggen-domain", version = "3.0.0" }
-ggen-marketplace = { path = "../ggen-marketplace", version = "3.0.0" }
+mcpp-domain = { path = "../mcpp-domain", version = "3.0.0" }
+mcpp-marketplace = { path = "../mcpp-marketplace", version = "3.0.0" }
 
 # Command routing
 clap-noun-verb.workspace = true
@@ -581,14 +581,14 @@ toml.workspace = true
 
 ### 2. Command Routing Pipeline
 ```
-1. ggen binary (main.rs)
-   └─> ggen_cli_lib::cli_match()
+1. mcpp binary (main.rs)
+   └─> mcpp_cli_lib::cli_match()
        └─> cmds::run_cli()
            └─> clap_noun_verb::run() [auto-discovery]
                └─> Finds all #[verb] functions
                    └─> marketplace.rs verb functions
                        └─> execute_async_verb()
-                           └─> ggen-domain marketplace:: functions
+                           └─> mcpp-domain marketplace:: functions
 ```
 
 ### 3. Marketplace Command Auto-Discovery
@@ -605,7 +605,7 @@ toml.workspace = true
 ## Security & Error Handling
 
 ### Input Validation
-**Location**: `ggen-domain/src/marketplace/install.rs`
+**Location**: `mcpp-domain/src/marketplace/install.rs`
 ```rust
 fn validate_package_name(name: &str) -> Result<()> {
     // Checks:
@@ -617,7 +617,7 @@ fn validate_package_name(name: &str) -> Result<()> {
 ```
 
 ### Type-Level Security (Poka-Yoke)
-**File**: `ggen-domain/src/marketplace/types.rs`
+**File**: `mcpp-domain/src/marketplace/types.rs`
 ```rust
 pub struct ValidatedPackageName(String);
 // Validated at construction, impossible to create invalid state
@@ -629,7 +629,7 @@ Verb function error (clap_noun_verb::NounVerbError)
     ↓ (wrapped by execute_async_verb)
 Anyhow error (anyhow::Error)
     ↓ (propagated from domain function)
-Result<T> in domain layer (ggen_utils::error::Result)
+Result<T> in domain layer (mcpp_utils::error::Result)
 ```
 
 ---
@@ -642,13 +642,13 @@ Result<T> in domain layer (ggen_utils::error::Result)
 - [x] Publish functionality (630 LOC)
 - [x] List functionality (357 LOC)
 - [x] Validate functionality (1,106 LOC)
-- [x] Maturity assessment (from ggen-marketplace legacy)
+- [x] Maturity assessment (from mcpp-marketplace legacy)
 - [x] Bundle management (271 LOC)
 - [x] Artifact generation (294 LOC)
 - [x] CLI command routing (20 commands, 1,746 LOC total)
 
 ### What's In Progress (Parallel Implementation)
-- [ ] ggen-marketplace-v2 with RDF backend
+- [ ] mcpp-marketplace-v2 with RDF backend
   - registry_rdf.rs (12.3K)
   - ontology.rs (11K)
   - v3.rs (9.8K)
@@ -658,10 +658,10 @@ Result<T> in domain layer (ggen_utils::error::Result)
 ### Dependencies on Old Marketplace
 ```
 CLI (marketplace.rs)
-├─> ggen-domain (primary - 12.4K)
+├─> mcpp-domain (primary - 12.4K)
 │   ├─> search, install, publish, list, validate, registry
 │   └─> No external marketplace dependency
-└─> ggen-marketplace (legacy - for MaturityEvaluator only)
+└─> mcpp-marketplace (legacy - for MaturityEvaluator only)
     └─> maturity_evaluator, assessment_helpers
 ```
 
@@ -671,42 +671,42 @@ CLI (marketplace.rs)
 
 | File | Lines | Purpose | Entry Points |
 |------|-------|---------|--------------|
-| `ggen-cli/src/cmds/marketplace.rs` | 1,746 | 20 verb commands | search, install, list, publish, validate, maturity, dashboard, recommend, compare, search-maturity, export, list-bundles, bundle-info, install-bundle, emit-receipts, report, generate-artifacts, improve |
-| `ggen-domain/src/marketplace/mod.rs` | 92 | Module router | Re-exports |
-| `ggen-domain/src/marketplace/search.rs` | 1,335 | Search logic | execute_search() |
-| `ggen-domain/src/marketplace/install.rs` | 1,649 | Install logic | execute_install() |
-| `ggen-domain/src/marketplace/validate.rs` | 1,106 | Validation logic | validate_package(), validate_all_packages() |
-| `ggen-domain/src/marketplace/registry.rs` | 1,103 | Registry ops | Registry trait + impl |
-| `ggen-domain/src/marketplace/publish.rs` | 630 | Publish logic | execute_publish() |
-| `ggen-domain/src/marketplace/guards.rs` | 703 | Guard-based validation | Guard implementation |
-| `ggen-domain/src/marketplace/bundles.rs` | 271 | Bundle management | BundleRegistry |
-| `ggen-domain/src/marketplace/artifact_generator.rs` | 294 | Artifact generation | generate_registry_index(), generate_packages_markdown() |
-| `ggen-cli/src/runtime_helper.rs` | 198 | Async bridge | execute_async_verb() |
-| `ggen-marketplace-v2/src/registry_rdf.rs` | 12,297 | RDF backend (new) | RdfRegistry |
-| `ggen-marketplace-v2/src/v3.rs` | 9,876 | V3 optimization (new) | V3OptimizedRegistry |
+| `mcpp-cli/src/cmds/marketplace.rs` | 1,746 | 20 verb commands | search, install, list, publish, validate, maturity, dashboard, recommend, compare, search-maturity, export, list-bundles, bundle-info, install-bundle, emit-receipts, report, generate-artifacts, improve |
+| `mcpp-domain/src/marketplace/mod.rs` | 92 | Module router | Re-exports |
+| `mcpp-domain/src/marketplace/search.rs` | 1,335 | Search logic | execute_search() |
+| `mcpp-domain/src/marketplace/install.rs` | 1,649 | Install logic | execute_install() |
+| `mcpp-domain/src/marketplace/validate.rs` | 1,106 | Validation logic | validate_package(), validate_all_packages() |
+| `mcpp-domain/src/marketplace/registry.rs` | 1,103 | Registry ops | Registry trait + impl |
+| `mcpp-domain/src/marketplace/publish.rs` | 630 | Publish logic | execute_publish() |
+| `mcpp-domain/src/marketplace/guards.rs` | 703 | Guard-based validation | Guard implementation |
+| `mcpp-domain/src/marketplace/bundles.rs` | 271 | Bundle management | BundleRegistry |
+| `mcpp-domain/src/marketplace/artifact_generator.rs` | 294 | Artifact generation | generate_registry_index(), generate_packages_markdown() |
+| `mcpp-cli/src/runtime_helper.rs` | 198 | Async bridge | execute_async_verb() |
+| `mcpp-marketplace-v2/src/registry_rdf.rs` | 12,297 | RDF backend (new) | RdfRegistry |
+| `mcpp-marketplace-v2/src/v3.rs` | 9,876 | V3 optimization (new) | V3OptimizedRegistry |
 
 ---
 
 ## Testing Infrastructure
 
 **Test Files**:
-1. `ggen-cli/tests/marketplace_concurrent_test.rs`
+1. `mcpp-cli/tests/marketplace_concurrent_test.rs`
    - Concurrent read/write patterns
    - Race condition testing
    - Permutation testing
 
-2. `ggen-domain/src/marketplace/integration_tests.rs` (502 LOC)
+2. `mcpp-domain/src/marketplace/integration_tests.rs` (502 LOC)
    - End-to-end CLI flow tests
 
-3. `ggen-domain/src/marketplace/expert_tests.rs` (417 LOC)
+3. `mcpp-domain/src/marketplace/expert_tests.rs` (417 LOC)
    - Expert system validation
 
-4. `ggen-domain/src/marketplace/types_tests.rs` (596 LOC)
+4. `mcpp-domain/src/marketplace/types_tests.rs` (596 LOC)
    - Type validation tests
 
 **Benchmarks**:
-- `ggen-cli/benches/marketplace_benchmark.rs`
-- `ggen-cli/benches/marketplace_search_benchmark.rs`
+- `mcpp-cli/benches/marketplace_benchmark.rs`
+- `mcpp-cli/benches/marketplace_search_benchmark.rs`
 
 ---
 
@@ -714,37 +714,37 @@ CLI (marketplace.rs)
 
 ```bash
 # Search
-ggen marketplace search --query "rust web" --limit 10
+mcpp marketplace search --query "rust web" --limit 10
 
 # Install
-ggen marketplace install "my-package@1.0.0" --no-dependencies
+mcpp marketplace install "my-package@1.0.0" --no-dependencies
 
 # Publish
-ggen marketplace publish ./my-package --tag v1.0.0
+mcpp marketplace publish ./my-package --tag v1.0.0
 
 # List
-ggen marketplace list --min-maturity production
+mcpp marketplace list --min-maturity production
 
 # Validate
-ggen marketplace validate --package "my-package"
-ggen marketplace validate --update  # Validate all
+mcpp marketplace validate --package "my-package"
+mcpp marketplace validate --update  # Validate all
 
 # Maturity
-ggen marketplace maturity "io.ggen.rust.microservice" --detailed
+mcpp marketplace maturity "io.mcpp.rust.microservice" --detailed
 
 # Dashboard
-ggen marketplace dashboard --min-maturity production
+mcpp marketplace dashboard --min-maturity production
 
 # Recommend
-ggen marketplace recommend --use-case production --priority security
+mcpp marketplace recommend --use-case production --priority security
 
 # Bundle
-ggen marketplace install-bundle sector-academic-papers --dry-run
+mcpp marketplace install-bundle sector-academic-papers --dry-run
 
 # Export
-ggen marketplace export --format csv --output packages.csv
+mcpp marketplace export --format csv --output packages.csv
 
 # Improve
-ggen marketplace improve "my-package" --apply license-mit
+mcpp marketplace improve "my-package" --apply license-mit
 ```
 

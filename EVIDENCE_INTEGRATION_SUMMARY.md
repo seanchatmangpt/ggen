@@ -6,7 +6,7 @@ Successfully integrated Byzantine evidence tracking with multi-region replicatio
 
 ## Files Created
 
-### 1. `/Users/sac/ggen/crates/osiris-core/src/replication/evidence_tracker.rs` (598 lines)
+### 1. `./crates/osiris-core/src/replication/evidence_tracker.rs` (598 lines)
 
 **Core Components:**
 
@@ -51,7 +51,7 @@ pub struct EvidenceTrackerConfig {
 - `get_unresolved_conflicts()`: Get active conflicts
 - `resolve_conflict()`: Mark conflict as resolved
 
-### 2. Updated `/Users/sac/ggen/crates/osiris-core/src/replication/manager.rs`
+### 2. Updated `./crates/osiris-core/src/replication/manager.rs`
 
 **Integration Points:**
 
@@ -65,7 +65,7 @@ pub struct EvidenceTrackerConfig {
   - `get_regions_to_isolate()`: Get all regions to isolate
   - `update_region_health_from_evidence()`: Sync health from evidence
 
-### 3. Updated `/Users/sac/ggen/crates/osiris-core/src/replication/mod.rs`
+### 3. Updated `./crates/osiris-core/src/replication/mod.rs`
 
 - Added `evidence_tracker` module
 - Exported evidence tracker types
@@ -208,10 +208,10 @@ For full integration:
 
 ## Files Modified
 
-- ✅ `/Users/sac/ggen/crates/osiris-core/src/replication/evidence_tracker.rs` (created)
-- ✅ `/Users/sac/ggen/crates/osiris-core/src/replication/manager.rs` (updated)
-- ✅ `/Users/sac/ggen/crates/osiris-core/src/replication/mod.rs` (updated)
-- ✅ `/Users/sac/ggen/crates/osiris-core/src/replication/vector_clock.rs` (fixed test)
+- ✅ `./crates/osiris-core/src/replication/evidence_tracker.rs` (created)
+- ✅ `./crates/osiris-core/src/replication/manager.rs` (updated)
+- ✅ `./crates/osiris-core/src/replication/mod.rs` (updated)
+- ✅ `./crates/osiris-core/src/replication/vector_clock.rs` (fixed test)
 
 ## Summary
 

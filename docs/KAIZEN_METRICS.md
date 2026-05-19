@@ -378,7 +378,7 @@ The target state represents complete 76% waste reduction achievement:
 
 ```bash
 # Add to cron (Mon/Wed/Fri at 5pm)
-0 17 * * 1,3,5 cd /Users/sac/ggen && cargo make metrics-collect
+0 17 * * 1,3,5 cd . && cargo make metrics-collect
 ```
 
 ### CI/CD Integration

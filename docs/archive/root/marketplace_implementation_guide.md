@@ -58,7 +58,7 @@
 
 ```bash
 # Ensure you're in the ggen root
-cd /Users/sac/ggen
+cd .
 
 # Verify existing code compiles
 cargo build --release

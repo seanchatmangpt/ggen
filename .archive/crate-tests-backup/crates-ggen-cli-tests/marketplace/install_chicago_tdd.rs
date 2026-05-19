@@ -7,7 +7,7 @@
 //! - Real filesystem operations
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::marketplace::install::{install_package, InstallOptions};
+use ggen_core::domain::marketplace::install::{install_package, InstallOptions};
 use serde_json;
 use std::fs;
 use std::path::PathBuf;

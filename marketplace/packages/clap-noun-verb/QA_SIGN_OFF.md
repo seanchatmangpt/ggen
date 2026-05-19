@@ -39,7 +39,7 @@ The clap-noun-verb generator has successfully completed all quality assurance ch
 - ✅ Status: **COMPLETE** (6+ templates)
 
 **Criterion 3**: CLI generator compiles
-- ✅ Module: `crates/ggen-core/src/cli_generator/mod.rs`
+- ✅ Module: `crates/mcpp-core/src/cli_generator/mod.rs`
 - ✅ Verified: Code structure, exports, public API
 - ✅ Status: **COMPLETE** (Verified structure)
 

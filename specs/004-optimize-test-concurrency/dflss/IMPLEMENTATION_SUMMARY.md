@@ -11,7 +11,7 @@
 
 ### 1. Primary Deliverable: PROTOTYPE_PILOT_CONTROL.md
 
-**Location**: `/Users/sac/ggen/specs/004-optimize-test-concurrency/dflss/PROTOTYPE_PILOT_CONTROL.md`
+**Location**: `./specs/004-optimize-test-concurrency/dflss/PROTOTYPE_PILOT_CONTROL.md`
 
 **Size**: 68KB (comprehensive documentation)
 

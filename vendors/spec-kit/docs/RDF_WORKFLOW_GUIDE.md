@@ -27,12 +27,12 @@
 spec.md = μ(feature.ttl)
 ```
 
-All specifications in ggen are **deterministic transformations** from RDF/Turtle ontologies to markdown artifacts.
+All specifications in mcpp are **deterministic transformations** from RDF/Turtle ontologies to markdown artifacts.
 
 ### Key Principles
 
 1. **TTL files are the source of truth** - Edit these, never the markdown
-2. **Markdown files are generated artifacts** - Created via `ggen sync`, never manually edited
+2. **Markdown files are generated artifacts** - Created via `mcpp sync`, never manually edited
 3. **SHACL shapes enforce constraints** - Validation happens before generation
 4. **Idempotent transformations** - Running twice produces zero changes
 5. **Cryptographic provenance** - Receipts prove spec.md = μ(ontology)
@@ -60,11 +60,11 @@ specs/NNN-feature-name/
 │   └── tasks.tera               # Template for tasks.md generation
 ├── checklists/                  # QUALITY VALIDATION
 │   └── requirements.md          # Specification quality checklist
-├── ggen.toml                    # GGEN V6 CONFIGURATION
+├── mcpp.toml                    # GGEN V6 CONFIGURATION
 └── .gitignore                   # Git ignore rules
 ```
 
-### The Five-Stage Pipeline (ggen v6)
+### The Five-Stage Pipeline (mcpp v6)
 
 ```
 μ₁ (Normalization)   → Canonicalize RDF + SHACL validation
@@ -84,21 +84,21 @@ specs/NNN-feature-name/
 
 ### Required Tools
 
-- **ggen v6**: `cargo install ggen` (or from workspace)
+- **mcpp v6**: `cargo install mcpp` (or from workspace)
 - **Git**: For branch management
 - **Text editor**: With Turtle/RDF syntax support (VS Code + RDF extension recommended)
 
 ### Environment Setup
 
 ```bash
-# Ensure ggen is available
-which ggen  # Should show path to ggen binary
+# Ensure mcpp is available
+which mcpp  # Should show path to mcpp binary
 
-# Check ggen version
-ggen --version  # Should be v6.x.x or higher
+# Check mcpp version
+mcpp --version  # Should be v6.x.x or higher
 
-# Ensure you're in the ggen repository root
-cd /path/to/ggen
+# Ensure you're in the mcpp repository root
+cd /path/to/mcpp
 ```
 
 ---
@@ -111,7 +111,7 @@ cd /path/to/ggen
 
 ```bash
 # Run speckit.specify command (via Claude Code)
-/speckit.specify "Add TTL validation command to ggen CLI that validates RDF files against SHACL shapes"
+/speckit.specify "Add TTL validation command to mcpp CLI that validates RDF files against SHACL shapes"
 ```
 
 **What this does:**
@@ -119,7 +119,7 @@ cd /path/to/ggen
 - Creates branch `005-ttl-shacl-validation`
 - Sets up directory structure:
   - `specs/005-ttl-shacl-validation/ontology/feature-content.ttl`
-  - `specs/005-ttl-shacl-validation/ggen.toml`
+  - `specs/005-ttl-shacl-validation/mcpp.toml`
   - `specs/005-ttl-shacl-validation/templates/` (symlinks)
   - `specs/005-ttl-shacl-validation/generated/` (empty, for artifacts)
 
@@ -154,16 +154,16 @@ vim specs/005-ttl-shacl-validation/ontology/feature-content.ttl
     sk:storyIndex 1 ;
     sk:title "Developer validates single TTL file" ;
     sk:priority "P1" ;  # MUST be exactly "P1", "P2", or "P3" (SHACL validated)
-    sk:description "As a ggen developer, I want to validate..." ;
+    sk:description "As a mcpp developer, I want to validate..." ;
     sk:priorityRationale "Core MVP functionality..." ;
-    sk:independentTest "Run 'ggen validate <file>.ttl'..." ;
+    sk:independentTest "Run 'mcpp validate <file>.ttl'..." ;
     sk:hasAcceptanceScenario :us-001-as-001 .
 
 # Acceptance Scenario 1.1
 :us-001-as-001 a sk:AcceptanceScenario ;
     sk:scenarioIndex 1 ;
     sk:given "A TTL file with known SHACL violations" ;
-    sk:when "User runs ggen validate command" ;
+    sk:when "User runs mcpp validate command" ;
     sk:then "Violations are detected and reported with clear error messages" .
 
 # ... more user stories, requirements, criteria, entities, edge cases, assumptions
@@ -178,9 +178,9 @@ vim specs/005-ttl-shacl-validation/ontology/feature-content.ttl
 #### Step 1.3: Validate TTL Against SHACL Shapes
 
 ```bash
-# Run SHACL validation (automatic in ggen sync, or manual)
+# Run SHACL validation (automatic in mcpp sync, or manual)
 cd specs/005-ttl-shacl-validation
-ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
+mcpp validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
 ```
 
 **Expected output (if valid):**
@@ -202,26 +202,26 @@ ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
 #### Step 1.4: Generate Spec Markdown
 
 ```bash
-# Generate spec.md from feature-content.ttl using ggen sync
+# Generate spec.md from feature-content.ttl using mcpp sync
 cd specs/005-ttl-shacl-validation
-ggen sync
+mcpp sync
 ```
 
 **What this does:**
 1. **μ₁ (Normalization)**: Validates ontology/feature-content.ttl against SHACL shapes
-2. **μ₂ (Extraction)**: Executes SPARQL queries from ggen.toml to extract data
+2. **μ₂ (Extraction)**: Executes SPARQL queries from mcpp.toml to extract data
 3. **μ₃ (Emission)**: Applies Tera templates (spec.tera, plan.tera, tasks.tera) to SPARQL results
 4. **μ₄ (Canonicalization)**: Formats markdown (line endings, whitespace)
-5. **μ₅ (Receipt)**: Generates cryptographic hash (stored in .ggen/receipts/)
+5. **μ₅ (Receipt)**: Generates cryptographic hash (stored in .mcpp/receipts/)
 
-**Note:** `ggen sync` reads `ggen.toml` configuration to determine which templates to render and outputs to generate. All generation rules are defined in the `[[generation]]` sections of `ggen.toml`.
+**Note:** `mcpp sync` reads `mcpp.toml` configuration to determine which templates to render and outputs to generate. All generation rules are defined in the `[[generation]]` sections of `mcpp.toml`.
 
 **Generated file header:**
 ```markdown
 <!-- Generated from feature-content.ttl - DO NOT EDIT MANUALLY -->
-<!-- Regenerate with: ggen sync -->
+<!-- Regenerate with: mcpp sync -->
 
-# Feature Specification: Add TTL validation command to ggen CLI
+# Feature Specification: Add TTL validation command to mcpp CLI
 
 **Branch**: `005-ttl-shacl-validation`
 **Created**: 2025-12-19
@@ -234,7 +234,7 @@ ggen sync
 ```markdown
 ---
 
-**Generated with**: [ggen v6](https://github.com/seanchatmangpt/ggen) ontology-driven specification system
+**Generated with**: [mcpp v6](https://github.com/seanchatmangpt/mcpp) ontology-driven specification system
 **Constitutional Equation**: `spec.md = μ(feature-content.ttl)`
 ```
 
@@ -268,7 +268,7 @@ cat specs/005-ttl-shacl-validation/checklists/requirements.md
 ```
 
 **What this does:**
-- Detects RDF-first feature (checks for `ontology/` + `ggen.toml`)
+- Detects RDF-first feature (checks for `ontology/` + `mcpp.toml`)
 - Creates `ontology/plan.ttl` from template
 - Symlinks `templates/plan.tera` (if not exists)
 - Does NOT generate plan.md yet (manual step)
@@ -303,7 +303,7 @@ vim specs/005-ttl-shacl-validation/ontology/plan.ttl
 :tech-001 a sk:Technology ;
     sk:techName "Rust 1.75+" ;
     sk:techVersion "1.75+" ;
-    sk:techPurpose "Existing ggen CLI infrastructure, type safety" .
+    sk:techPurpose "Existing mcpp CLI infrastructure, type safety" .
 
 # Technology: Oxigraph
 :tech-002 a sk:Technology ;
@@ -313,7 +313,7 @@ vim specs/005-ttl-shacl-validation/ontology/plan.ttl
 
 # Project Structure
 :struct-001 a sk:ProjectStructure ;
-    sk:structurePath "crates/ggen-validation/src/" ;
+    sk:structurePath "crates/mcpp-validation/src/" ;
     sk:structurePurpose "New crate for TTL/SHACL validation logic" .
 
 # Phase: Setup
@@ -355,7 +355,7 @@ vim specs/005-ttl-shacl-validation/ontology/plan.ttl
 ```bash
 # Generate plan.md from plan.ttl
 cd specs/005-ttl-shacl-validation
-ggen sync
+mcpp sync
 ```
 
 **Generated output:**
@@ -375,11 +375,11 @@ ggen sync
 **Architecture Pattern**: CLI command with Oxigraph SHACL validator
 
 **Technology Stack**:
-- Rust 1.75+ - Existing ggen CLI infrastructure, type safety
+- Rust 1.75+ - Existing mcpp CLI infrastructure, type safety
 - Oxigraph (0.3) - RDF store with SHACL validation support
 
 **Project Structure**:
-- `crates/ggen-validation/src/` - New crate for TTL/SHACL validation logic
+- `crates/mcpp-validation/src/` - New crate for TTL/SHACL validation logic
 
 ---
 
@@ -443,8 +443,8 @@ vim specs/005-ttl-shacl-validation/ontology/tasks.ttl
 :task-001 a sk:Task ;
     sk:taskId "T001" ;
     sk:taskOrder 1 ;
-    sk:taskDescription "Create crates/ggen-validation directory structure" ;
-    sk:filePath "crates/ggen-validation/" ;
+    sk:taskDescription "Create crates/mcpp-validation directory structure" ;
+    sk:filePath "crates/mcpp-validation/" ;
     sk:parallelizable "false"^^xsd:boolean ;  # Must run first
     sk:belongsToPhase :phase-setup .
 
@@ -452,7 +452,7 @@ vim specs/005-ttl-shacl-validation/ontology/tasks.ttl
     sk:taskId "T002" ;
     sk:taskOrder 2 ;
     sk:taskDescription "Configure Cargo.toml with oxigraph dependency" ;
-    sk:filePath "crates/ggen-validation/Cargo.toml" ;
+    sk:filePath "crates/mcpp-validation/Cargo.toml" ;
     sk:parallelizable "false"^^xsd:boolean ;
     sk:belongsToPhase :phase-setup ;
     sk:dependencies "T001" .
@@ -465,7 +465,7 @@ vim specs/005-ttl-shacl-validation/ontology/tasks.ttl
 ```bash
 # Generate tasks.md from tasks.ttl
 cd specs/005-ttl-shacl-validation
-ggen sync
+mcpp sync
 ```
 
 **Generated output:**
@@ -483,8 +483,8 @@ ggen sync
 
 ## Phase 1: Setup
 
-- [ ] T001 Create crates/ggen-validation directory structure in crates/ggen-validation/
-- [ ] T002 Configure Cargo.toml with oxigraph dependency in crates/ggen-validation/Cargo.toml (depends on: T001)
+- [ ] T001 Create crates/mcpp-validation directory structure in crates/mcpp-validation/
+- [ ] T002 Configure Cargo.toml with oxigraph dependency in crates/mcpp-validation/Cargo.toml (depends on: T001)
 
 ...
 ```
@@ -507,15 +507,15 @@ sk:PriorityShape a sh:NodeShape ;
 
 ### Validation Workflow
 
-1. **Automatic validation during ggen sync:**
+1. **Automatic validation during mcpp sync:**
    ```bash
-   ggen sync
+   mcpp sync
    # ↑ Automatically validates against ontology/spec-kit-schema.ttl before rendering
    ```
 
 2. **Manual validation:**
    ```bash
-   ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
+   mcpp validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
    ```
 
 ### Common SHACL Violations
@@ -589,13 +589,13 @@ sk:PriorityShape a sh:NodeShape ;
 **Flow:**
 ```
 ontology/feature-content.ttl
-  ↓ (SPARQL query from ggen.toml)
+  ↓ (SPARQL query from mcpp.toml)
 SPARQL results (table of bindings)
   ↓ (Tera template from templates/spec.tera)
 generated/spec.md
 ```
 
-### SPARQL Query Example (from ggen.toml)
+### SPARQL Query Example (from mcpp.toml)
 
 ```sparql
 SELECT ?featureBranch ?featureName ?created
@@ -620,7 +620,7 @@ ORDER BY ?storyIndex
 **SPARQL results (table):**
 | featureBranch | featureName | created | storyIndex | title | priority | description |
 |---------------|-------------|---------|------------|-------|----------|-------------|
-| 005-ttl-shacl-validation | Add TTL validation... | 2025-12-19 | 1 | Developer validates... | P1 | As a ggen developer... |
+| 005-ttl-shacl-validation | Add TTL validation... | 2025-12-19 | 1 | Developer validates... | P1 | As a mcpp developer... |
 | 005-ttl-shacl-validation | Add TTL validation... | 2025-12-19 | 2 | CI validates... | P2 | As a CI pipeline... |
 
 ### Tera Template Example (spec.tera snippet)
@@ -652,7 +652,7 @@ ORDER BY ?storyIndex
 
 **Rendered markdown:**
 ```markdown
-# Feature Specification: Add TTL validation command to ggen CLI
+# Feature Specification: Add TTL validation command to mcpp CLI
 
 **Branch**: `005-ttl-shacl-validation`
 **Created**: 2025-12-19
@@ -663,7 +663,7 @@ ORDER BY ?storyIndex
 
 ### User Story 1 - Developer validates single TTL file (Priority: P1)
 
-As a ggen developer, I want to validate...
+As a mcpp developer, I want to validate...
 
 ### User Story 2 - CI validates all TTL files (Priority: P2)
 
@@ -679,10 +679,10 @@ As a CI pipeline, I want to...
 **Symptom:**
 ```bash
 $ .specify/scripts/bash/check-prerequisites.sh --json
-ERROR: plan.ttl not found in /Users/sac/ggen/specs/005-ttl-shacl-validation/ontology
+ERROR: plan.ttl not found in ~/.ggen/mcpp/specs/005-ttl-shacl-validation/ontology
 ```
 
-**Cause:** RDF-first feature detected (has `ontology/` and `ggen.toml`), but plan.ttl hasn't been created yet.
+**Cause:** RDF-first feature detected (has `ontology/` and `mcpp.toml`), but plan.ttl hasn't been created yet.
 
 **Fix:**
 ```bash
@@ -697,7 +697,7 @@ cp .specify/templates/rdf-helpers/plan.ttl.template specs/005-ttl-shacl-validati
 
 **Symptom:**
 ```bash
-$ ggen sync
+$ mcpp sync
 ✗ SHACL validation failed: :us-001 priority "HIGH" not in ("P1", "P2", "P3")
 ```
 
@@ -752,7 +752,7 @@ Generated markdown has blank fields:
 **Diagnosis:**
 ```bash
 # Check what variables the SPARQL query returns
-ggen query ontology/feature-content.ttl "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
+mcpp query ontology/feature-content.ttl "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
 
 # Check what variables the template expects
 grep "{{" templates/spec.tera | grep -o "feature_metadata\.[a-zA-Z]*" | sort -u
@@ -768,7 +768,7 @@ grep "{{" templates/spec.tera | grep -o "feature_metadata\.[a-zA-Z]*" | sort -u
 
 **Step 1: Create feature**
 ```bash
-/speckit.specify "Add user authentication to ggen CLI"
+/speckit.specify "Add user authentication to mcpp CLI"
 ```
 
 **Step 2: Edit feature.ttl**
@@ -778,7 +778,7 @@ grep "{{" templates/spec.tera | grep -o "feature_metadata\.[a-zA-Z]*" | sort -u
 
 :user-auth a sk:Feature ;
     sk:featureBranch "006-user-auth" ;
-    sk:featureName "Add user authentication to ggen CLI" ;
+    sk:featureName "Add user authentication to mcpp CLI" ;
     sk:created "2025-12-19"^^xsd:date ;
     sk:status "Draft" ;
     sk:hasUserStory :us-001 .
@@ -787,28 +787,28 @@ grep "{{" templates/spec.tera | grep -o "feature_metadata\.[a-zA-Z]*" | sort -u
     sk:storyIndex 1 ;
     sk:title "User logs in via CLI" ;
     sk:priority "P1" ;
-    sk:description "As a ggen user, I want to log in via the CLI..." ;
+    sk:description "As a mcpp user, I want to log in via the CLI..." ;
     sk:priorityRationale "Core security requirement" ;
-    sk:independentTest "Run 'ggen login' and verify authentication" ;
+    sk:independentTest "Run 'mcpp login' and verify authentication" ;
     sk:hasAcceptanceScenario :us-001-as-001 .
 
 :us-001-as-001 a sk:AcceptanceScenario ;
     sk:scenarioIndex 1 ;
     sk:given "User has valid credentials" ;
-    sk:when "User runs 'ggen login' command" ;
+    sk:when "User runs 'mcpp login' command" ;
     sk:then "User is authenticated and session token is stored" .
 ```
 
 **Step 3: Validate TTL**
 ```bash
 cd specs/006-user-auth
-ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
+mcpp validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
 # ✓ 0 violations found
 ```
 
 **Step 4: Generate spec.md**
 ```bash
-ggen sync
+mcpp sync
 ```
 
 **Step 5: Verify generated markdown**
@@ -833,7 +833,7 @@ cat generated/spec.md
 
 **Validation error:**
 ```bash
-$ ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
+$ mcpp validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
 ✗ 2 violations found:
   1. :us-001 priority "HIGH" not in ("P1", "P2", "P3")
   2. :us-001 missing required sk:hasAcceptanceScenario
@@ -857,7 +857,7 @@ $ ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.t
 
 **Re-validation:**
 ```bash
-$ ggen validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
+$ mcpp validate ontology/feature-content.ttl --shapes ontology/spec-kit-schema.ttl
 ✓ 0 violations found
 ```
 
@@ -874,5 +874,5 @@ After completing the RDF-first workflow for specifications:
 
 ---
 
-**Generated with**: [ggen v6](https://github.com/seanchatmangpt/ggen) RDF-first specification system
+**Generated with**: [mcpp v6](https://github.com/seanchatmangpt/mcpp) RDF-first specification system
 **Constitutional Equation**: `documentation.md = μ(workflow-knowledge)`

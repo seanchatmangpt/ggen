@@ -201,7 +201,7 @@ async fn generate_sparql(graph: &Graph, intent: &str) -> Result<String> {
 
 ```bash
 $ cargo check -p ggen-ai
-    Checking ggen-ai v0.2.0 (/Users/sac/ggen/crates/ggen-ai)
+    Checking ggen-ai v0.2.0 (./crates/ggen-ai)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.80s
 ```
 

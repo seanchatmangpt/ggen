@@ -196,8 +196,8 @@ impl RdfRegistry {
    **Impact**: All SPARQL queries use deprecated API.
 
 #### Files Affected:
-- `/Users/sac/ggen/crates/ggen-marketplace/src/registry_rdf.rs`: Lines 71, 99, 111, 123, 141, 154, 317
-- `/Users/sac/ggen/crates/ggen-marketplace/src/ontology.rs`: Lines 229-283 (SPARQL queries)
+- `./crates/ggen-marketplace/src/registry_rdf.rs`: Lines 71, 99, 111, 123, 141, 154, 317
+- `./crates/ggen-marketplace/src/ontology.rs`: Lines 229-283 (SPARQL queries)
 
 **Production Blocker**: ⛔ **This crate cannot be built or tested until these are fixed.**
 

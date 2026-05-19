@@ -18,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
     println!("Testing validate_pipeline MCP tool directly");
     println!("============================================\n");
 
-    // Get the current directory (should be /Users/sac/ggen)
+    // Get the current directory (should be .)
     let current_dir = std::env::current_dir().expect("Failed to get current directory");
 
     println!("Current directory: {}", current_dir.display());

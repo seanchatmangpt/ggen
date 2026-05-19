@@ -14,7 +14,7 @@
 //! Turtle, N-Triples, RDF/XML, TriG, and N-Quads.
 
 use crate::graph::core::Graph;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::io::{RdfFormat, RdfSerializer};
 use std::fs::File;
 use std::io::{BufWriter, Write};
@@ -40,7 +40,7 @@ use std::path::Path;
 /// use ggen_core::graph::{Graph, GraphExport};
 /// use oxigraph::io::RdfFormat;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// graph.insert_turtle(r#"
 ///     @prefix ex: <http://example.org/> .
@@ -59,7 +59,7 @@ use std::path::Path;
 /// use ggen_core::graph::{Graph, GraphExport};
 /// use oxigraph::io::RdfFormat;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let export = GraphExport::new(&graph);
 ///

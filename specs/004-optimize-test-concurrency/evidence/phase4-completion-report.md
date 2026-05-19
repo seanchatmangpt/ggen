@@ -154,7 +154,7 @@ ggen test budget-check --fail-on-violation --unit-budget-ms 2000
 # ✅ All tests within budget!
 ```
 
-**Standalone File**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/test_budget_standalone.rs` (146 lines)
+**Standalone File**: `./crates/ggen-cli/src/cmds/test_budget_standalone.rs` (146 lines)
 
 **Note**: Full integration into `test.rs` deferred due to linter repeatedly removing `budget_enforcer` module. Standalone demo file provides complete working implementation.
 
@@ -223,7 +223,7 @@ ggen test budget-check --fail-on-violation --unit-budget-ms 2000
 
 **Workaround Applied**:
 1. Created standalone CLI command file (`test_budget_standalone.rs`)
-2. BudgetEnforcer implementation exists at `/Users/sac/ggen/crates/ggen-test-opt/src/budget_enforcer.rs` (426 lines with 12 embedded tests)
+2. BudgetEnforcer implementation exists at `./crates/ggen-test-opt/src/budget_enforcer.rs` (426 lines with 12 embedded tests)
 3. Tests verified manually before file deletion
 4. Implementation validated via standalone command demonstration
 

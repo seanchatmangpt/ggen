@@ -75,7 +75,7 @@
 
 ## Span Names Emitted
 
-The following span names are now emitted by ggen marketplace:
+The following span names are now emitted by mcpp marketplace:
 
 ### Search Operations
 - `TantivySearchEngine::search` - Main search operation
@@ -111,7 +111,7 @@ The following span names are now emitted by ggen marketplace:
 
 ## Next Steps
 
-1. **Run with actual ggen services**: Once ggen Docker image is built, update test files to use `ggen:latest` image
+1. **Run with actual mcpp services**: Once mcpp Docker image is built, update test files to use `mcpp:latest` image
 2. **Add more span expectations**: Update TOML tests to validate specific span names and attributes
 3. **Test with real marketplace operations**: Run tests against actual search and P2P operations
 4. **Validate trace graphs**: Use `[expect.graph]` to validate parent-child relationships in traces
@@ -120,10 +120,10 @@ The following span names are now emitted by ggen marketplace:
 
 ## Usage
 
-To use OpenTelemetry in your ggen services:
+To use OpenTelemetry in your mcpp services:
 
 ```rust
-use ggen_marketplace::telemetry::{init_telemetry, TelemetryConfig};
+use mcpp_marketplace::telemetry::{init_telemetry, TelemetryConfig};
 
 // Initialize OTEL
 init_telemetry(TelemetryConfig::default())?;

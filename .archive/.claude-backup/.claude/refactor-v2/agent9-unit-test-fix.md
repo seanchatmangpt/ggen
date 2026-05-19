@@ -58,15 +58,15 @@ While marketplace was fixed, other domain modules may still have old Error enum 
 ## Files Modified
 
 ### Error Fixes
-- `/Users/sac/ggen/cli/src/domain/marketplace/install.rs`
-- `/Users/sac/ggen/cli/src/domain/marketplace/publish.rs`
-- `/Users/sac/ggen/cli/src/domain/marketplace/update.rs`
-- `/Users/sac/ggen/cli/src/domain/marketplace/list.rs`
-- `/Users/sac/ggen/cli/src/domain/marketplace/search.rs`
+- `./cli/src/domain/marketplace/install.rs`
+- `./cli/src/domain/marketplace/publish.rs`
+- `./cli/src/domain/marketplace/update.rs`
+- `./cli/src/domain/marketplace/list.rs`
+- `./cli/src/domain/marketplace/search.rs`
 
 ### Module Exports
-- `/Users/sac/ggen/cli/src/commands/mod.rs` - Added `graph` module
-- `/Users/sac/ggen/cli/src/domain/mod.rs` - Added `audit` and `graph` modules
+- `./cli/src/commands/mod.rs` - Added `graph` module
+- `./cli/src/domain/mod.rs` - Added `audit` and `graph` modules
 
 ### Automation Scripts
 - `.claude/refactor-v2/fix_errors.sh` - Bash script for Error fixes (partial success)

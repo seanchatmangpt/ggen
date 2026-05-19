@@ -633,8 +633,8 @@ cargo make slo-check      # Performance (ORANGE)
 - [Toyota Production System](https://en.wikipedia.org/wiki/Toyota_Production_System)
 
 ### Project Files:
-- Test failures: `/Users/sac/ggen/crates/ggen-dod/tests/integration_dod.rs`
-- Makefile: `/Users/sac/ggen/Makefile.toml`
+- Test failures: `./crates/ggen-dod/tests/integration_dod.rs`
+- Makefile: `./Makefile.toml`
 - Security audit: `cargo audit` output
 
 ---

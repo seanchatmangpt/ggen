@@ -453,10 +453,10 @@ DOCUMENT LOCATIONS
 ================================================================================
 
 All deliverables saved to:
-  /Users/sac/ggen/playground/docs/
-  /Users/sac/ggen/docs/
-  /Users/sac/ggen/scripts/
-  /Users/sac/ggen/crates/ggen-core/benches/
+  ./playground/docs/
+  ./docs/
+  ./scripts/
+  ./crates/ggen-core/benches/
 
 Key documents:
   - GGEN_V4_ROADMAP.md (strategic direction)

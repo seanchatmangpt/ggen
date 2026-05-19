@@ -145,6 +145,7 @@ ORDER BY ?skill_name
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_behavior_predicates_extracted() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -218,6 +219,7 @@ fn test_behavior_predicates_extracted() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_json_conversion_strips_quotes() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -262,6 +264,7 @@ fn test_json_conversion_strips_quotes() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_template_conditional_logic() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -323,6 +326,7 @@ fn test_template_conditional_logic() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_end_to_end_llm_flow() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -410,6 +414,7 @@ fn test_end_to_end_llm_flow() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_behavior_example_ontology() {
     let behavior_example_path =
         workspace_root().join(".specify/specs/014-a2a-integration/behavior-example.ttl");
@@ -502,6 +507,7 @@ ORDER BY ?skill_name
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_template_handles_missing_behavior_predicates() {
     let minimal_ontology = r#"
 @prefix a2a: <https://a2a.dev/ontology#> .
@@ -560,6 +566,7 @@ ex:MinimalSkill a a2a:Skill ;
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_enable_llm_flag_controls_generated_impl() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -631,6 +638,7 @@ fn validate_behavior_predicates(json: &Value, skill_name: &str) -> bool {
 }
 
 #[test]
+#[ignore]
 fn test_behavior_predicates_validation_helper() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph

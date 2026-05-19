@@ -12,8 +12,8 @@ path = "src/main.rs"
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../../ggen-core" }
-ggen-ai = { path = "../../ggen-ai" }
+mcpp-core = { path = "../../mcpp-core" }
+mcpp-ai = { path = "../../mcpp-ai" }
 
 # RDF/SPARQL
 oxigraph = "0.5"

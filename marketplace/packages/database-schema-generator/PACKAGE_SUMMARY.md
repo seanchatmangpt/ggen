@@ -266,10 +266,10 @@ TOTAL                             ~4,212     12
 
 ```bash
 # Install package
-ggen marketplace install database-schema-generator
+mcpp marketplace install database-schema-generator
 
 # Generate PostgreSQL schema from blog example
-ggen generate database-schema-generator \
+mcpp generate database-schema-generator \
   --input examples/blog_schema.ttl \
   --database postgresql \
   --output db/schema.sql
@@ -278,7 +278,7 @@ ggen generate database-schema-generator \
 cargo test --package database-schema-generator
 
 # Generate all databases
-ggen generate database-schema-generator --all
+mcpp generate database-schema-generator --all
 ```
 
 ## Summary

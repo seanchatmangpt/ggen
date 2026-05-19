@@ -9,8 +9,8 @@
 //! - Version resolution
 
 use crate::lib::*;
-use ggen_marketplace::models::Category;
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::models::Category;
+use ggen_core::marketplace::prelude::*;
 use mockall::predicate::*;
 
 #[tokio::test]
@@ -23,7 +23,7 @@ async fn test_registry_fetch_package_by_name() {
 
     // Add test package
     let package = create_test_package("rust-web-service", "1.0.0");
-    let pkg_ref = ggen_marketplace::models::PackageReference {
+    let pkg_ref = ggen_core::marketplace::models::PackageReference {
         id: package.metadata.id.clone(),
         version: package.latest_version.clone(),
     };
@@ -329,15 +329,15 @@ async fn create_test_registry(path: &std::path::Path) -> LocalRegistry {
     LocalRegistry::new(path.to_path_buf()).await.unwrap()
 }
 
-fn create_test_package(name: &str, version: &str) -> ggen_marketplace::models::Package {
-    use ggen_marketplace::models::{PackageId, PackageMetadata, PackageVersion, QualityScore};
+fn create_test_package(name: &str, version: &str) -> ggen_core::marketplace::models::Package {
+    use ggen_core::marketplace::models::{PackageId, PackageMetadata, PackageVersion, QualityScore};
 
-    ggen_marketplace::models::Package {
+    ggen_core::marketplace::models::Package {
         metadata: PackageMetadata {
             id: PackageId::new("test", name),
             name: name.to_string(),
             description: Some(format!("Test package for {}", name)),
-            license: Some(ggen_marketplace::models::LicenseId::mit()),
+            license: Some(ggen_core::marketplace::models::LicenseId::mit()),
             authors: vec![],
             keywords: vec![],
             categories: vec![],
@@ -357,7 +357,7 @@ fn create_test_package(name: &str, version: &str) -> ggen_marketplace::models::P
 
 async fn search_with_tracing(
     registry: &LocalRegistry, tracer: &otel::MockTracerProvider, query: &str,
-) -> std::result::Result<Vec<ggen_marketplace::models::Package>, anyhow::Error> {
+) -> std::result::Result<Vec<ggen_core::marketplace::models::Package>, anyhow::Error> {
     let result = registry.search(&Query::new(query)).await?;
 
     let span = otel::MockSpan {

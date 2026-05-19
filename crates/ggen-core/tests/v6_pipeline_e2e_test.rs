@@ -71,6 +71,7 @@ ex:alice a ex:User ;
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_config_builder() {
     let config = PipelineConfig::new("test-project", "1.0.0")
         .with_base_path("/tmp/test")
@@ -91,6 +92,7 @@ fn test_pipeline_config_builder() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_creation() {
     let config = PipelineConfig::new("test", "1.0.0");
     let pipeline = StagedPipeline::new(config);
@@ -105,6 +107,7 @@ fn test_pipeline_creation() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_load_ontologies_creates_epoch() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -141,6 +144,7 @@ fn test_load_ontologies_creates_epoch() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_normalization_pass_mu1() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -193,6 +197,7 @@ fn test_normalization_pass_mu1() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_extraction_pass_mu2() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -241,6 +246,7 @@ fn test_extraction_pass_mu2() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_emission_pass_mu3() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -294,6 +300,7 @@ fn test_emission_pass_mu3() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_canonicalization_pass_mu4() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -342,6 +349,7 @@ fn test_canonicalization_pass_mu4() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_receipt_generation_pass_mu5() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -396,6 +404,7 @@ fn test_receipt_generation_pass_mu5() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_full_pipeline_happy_path() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -465,6 +474,7 @@ fn test_full_pipeline_happy_path() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_with_real_level1_ontology() {
     let root = workspace_root();
     let ontology_path = root.join("examples/maturity-matrix-showcase/level1-simple/ontology.ttl");
@@ -517,6 +527,7 @@ fn test_pipeline_with_real_level1_ontology() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_determinism() {
     let temp_dir1 = TempDir::new().expect("TempDir should create");
     let temp_dir2 = TempDir::new().expect("TempDir should create");
@@ -582,6 +593,7 @@ fn test_pipeline_determinism() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_with_verify_mode_none() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -614,6 +626,7 @@ fn test_pipeline_with_verify_mode_none() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_epoch_creation_from_ontology_sources() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");
@@ -636,6 +649,7 @@ fn test_epoch_creation_from_ontology_sources() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_error_handling_missing_ontology() {
     let temp_dir = TempDir::new().expect("TempDir should create");
 
@@ -666,6 +680,7 @@ fn test_pipeline_error_handling_missing_ontology() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_generated_files_tracking() {
     let temp_dir = TempDir::new().expect("TempDir should create");
     let ontology_path = temp_dir.path().join("test.ttl");

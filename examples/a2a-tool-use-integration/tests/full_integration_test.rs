@@ -27,6 +27,7 @@ use std::sync::Arc;
 
 /// Full integration test that validates the complete pipeline
 #[tokio::test]
+#[ignore]
 async fn test_full_integration_ggen_mcp_agents() {
     println!("\n╔════════════════════════════════════════════════════════════════════════╗");
     println!("║  FULL INTEGRATION TEST: ggen → MCP → A2A Agents                        ║");

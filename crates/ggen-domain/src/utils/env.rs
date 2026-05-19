@@ -3,7 +3,7 @@
 //! Pure business logic for environment variable and directory management.
 
 // NOTE: clap::Parser removed - domain layer must be CLI-agnostic
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -129,47 +129,47 @@ pub fn run_env_old(args: &EnvInput) -> Result<()> {
     if args.list {
         let vars = manager.list_vars();
         if vars.is_empty() {
-            ggen_utils::alert_info!("No GGEN environment variables found");
+            ggen_core::utils::alert_info!("No GGEN environment variables found");
         } else {
-            ggen_utils::alert_info!("GGEN Environment Variables:");
+            ggen_core::utils::alert_info!("GGEN Environment Variables:");
             for (key, value) in vars {
-                ggen_utils::alert_info!("  {}={}", key, value);
+                ggen_core::utils::alert_info!("  {}={}", key, value);
             }
         }
     }
 
     if args.show_dirs {
         let env = manager.get_environment()?;
-        ggen_utils::alert_info!("GGEN Directories:");
-        ggen_utils::alert_info!("  Home: {}", env.home_dir.display());
-        ggen_utils::alert_info!("  Templates: {}", env.templates_dir.display());
-        ggen_utils::alert_info!("  Cache: {}", env.cache_dir.display());
-        ggen_utils::alert_info!("  Config: {}", env.config_dir.display());
+        ggen_core::utils::alert_info!("GGEN Directories:");
+        ggen_core::utils::alert_info!("  Home: {}", env.home_dir.display());
+        ggen_core::utils::alert_info!("  Templates: {}", env.templates_dir.display());
+        ggen_core::utils::alert_info!("  Cache: {}", env.cache_dir.display());
+        ggen_core::utils::alert_info!("  Config: {}", env.config_dir.display());
     }
 
     if args.ensure_dirs {
         manager.ensure_directories()?;
-        ggen_utils::alert_success!("All directories created");
+        ggen_core::utils::alert_success!("All directories created");
     }
 
     if args.clear_cache {
         let count = manager.clear_cache()?;
-        ggen_utils::alert_success!("Cleared {} cache files", count);
+        ggen_core::utils::alert_success!("Cleared {} cache files", count);
     }
 
     if let Some(key) = &args.get {
         match manager.get_var(key) {
-            Some(value) => ggen_utils::alert_info!("{}={}", key, value),
-            None => ggen_utils::alert_info!("Variable '{}' not found", key),
+            Some(value) => ggen_core::utils::alert_info!("{}={}", key, value),
+            None => ggen_core::utils::alert_info!("Variable '{}' not found", key),
         }
     }
 
     for set_arg in &args.set {
         if let Some((key, value)) = set_arg.split_once('=') {
             manager.set_var(key, value)?;
-            ggen_utils::alert_success!("Set {}={}", key, value);
+            ggen_core::utils::alert_success!("Set {}={}", key, value);
         } else {
-            ggen_utils::alert_warning!("Invalid format: {}. Use KEY=VALUE", set_arg);
+            ggen_core::utils::alert_warning!("Invalid format: {}. Use KEY=VALUE", set_arg);
         }
     }
 
@@ -177,11 +177,11 @@ pub fn run_env_old(args: &EnvInput) -> Result<()> {
     if !args.list && !args.show_dirs && !args.ensure_dirs && !args.clear_cache
         && args.get.is_none() && args.set.is_empty() {
         let env = manager.get_environment()?;
-        ggen_utils::alert_info!("GGEN Environment:");
-        ggen_utils::alert_info!("  Home: {}", env.home_dir.display());
-        ggen_utils::alert_info!("  Templates: {}", env.templates_dir.display());
-        ggen_utils::alert_info!("  Cache: {}", env.cache_dir.display());
-        ggen_utils::alert_info!("  Config: {}", env.config_dir.display());
+        ggen_core::utils::alert_info!("GGEN Environment:");
+        ggen_core::utils::alert_info!("  Home: {}", env.home_dir.display());
+        ggen_core::utils::alert_info!("  Templates: {}", env.templates_dir.display());
+        ggen_core::utils::alert_info!("  Cache: {}", env.cache_dir.display());
+        ggen_core::utils::alert_info!("  Config: {}", env.config_dir.display());
     }
 
     Ok(())

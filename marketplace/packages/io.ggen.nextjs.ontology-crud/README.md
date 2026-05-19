@@ -5,11 +5,11 @@
 ## 🚀 Quick Start
 
 ```bash
-# Install via ggen marketplace
-ggen marketplace install io.ggen.nextjs.ontology-crud
+# Install via mcpp marketplace
+mcpp marketplace install io.mcpp.nextjs.ontology-crud
 
 # Navigate to installed package
-cd ~/.ggen/marketplace/io.ggen.nextjs.ontology-crud
+cd ~/.mcpp/marketplace/io.mcpp.nextjs.ontology-crud
 
 # Install dependencies
 npm install
@@ -75,7 +75,7 @@ git commit -m "feat: add estimatedHours"
 ## 📁 What You Get
 
 ```
-io.ggen.nextjs.ontology-crud/
+io.mcpp.nextjs.ontology-crud/
 ├── app/                    # Next.js app
 │   ├── api/               # Generated API routes
 │   ├── tasks/             # Generated CRUD pages
@@ -125,7 +125,7 @@ npm run regenerate
 ### Install the Package
 
 ```bash
-ggen marketplace install io.ggen.nextjs.ontology-crud
+mcpp marketplace install io.mcpp.nextjs.ontology-crud
 ```
 
 ### What Gets Installed
@@ -215,7 +215,7 @@ Next.js Application (Type-safe CRUD)
 ## 🧪 Testing
 
 ```bash
-# Run integration tests (from ggen root)
+# Run integration tests (from mcpp root)
 cargo test --test nextjs_ontology_sync -- --nocapture
 ```
 
@@ -225,6 +225,6 @@ MIT
 
 ---
 
-**Built with ggen's ontology-driven development** 🚀
+**Built with mcpp's ontology-driven development** 🚀
 
-Install now: `ggen marketplace install io.ggen.nextjs.ontology-crud`
+Install now: `mcpp marketplace install io.mcpp.nextjs.ontology-crud`

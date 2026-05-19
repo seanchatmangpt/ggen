@@ -16,7 +16,7 @@
     - [Long-Term Investments (3-4 weeks each)](#long-term-investments-3-4-weeks-each)
   - [Recommended Prioritization](#recommended-prioritization)
     - [Immediate (Next Sprint)](#immediate-next-sprint)
-    - [Next Quarter (v6.1.0)](#next-quarter-v610)
+    - [Next Quarter (v26.5.4)](#next-quarter-v610)
     - [Future (v6.2.0)](#future-v620)
   - [Success Metrics](#success-metrics)
     - [Performance SLOs](#performance-slos)
@@ -192,7 +192,7 @@ sparql_query! {
 - **Risk**: Low (additive API)
 - **Effort**: Medium (11+ files)
 
-### Next Quarter (v6.1.0)
+### Next Quarter (v26.5.4)
 **Breaking Change #1**: Type-safe SPARQL builder
 - **Why**: Foundation for other improvements
 - **Risk**: Medium (extensive API surface)

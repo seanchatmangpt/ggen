@@ -13,10 +13,10 @@
 //! - Test REAL user workflows
 //! - Use REAL data from production registry
 
-use ggen_domain::marketplace::{
+use ggen_core::domain::marketplace::{
     execute_install, execute_search, InstallInput, InstallOptions, SearchInput,
 };
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -241,7 +241,7 @@ async fn test_production_install_workflow() -> Result<()> {
         .with_target(env.packages_path().to_path_buf())
         .dry_run(); // Use dry-run to avoid actual network download in tests
 
-    let install_input = ggen_domain::marketplace::InstallInput {
+    let install_input = ggen_core::domain::marketplace::InstallInput {
         package: format!("{}@latest", options.package_name),
         target: options.target_path.map(|p| p.to_string_lossy().to_string()),
         force: options.force,

@@ -5,7 +5,7 @@ Get automatic code regeneration from RDF ontologies in 5 minutes.
 ## Prerequisites
 
 - Git repository initialized
-- `ggen` installed (`cargo install --path .`)
+- `mcpp` installed (`cargo install --path .`)
 - Basic understanding of RDF/Turtle syntax
 
 ## Step 1: Install Hooks (30 seconds)
@@ -33,7 +33,7 @@ cd /path/to/your/project
 ✓ pre-commit hook installed
 ✓ post-merge hook installed
 ✓ Regeneration script ready
-✓ ggen available
+✓ mcpp available
 ✓ All critical tests passed
 ```
 
@@ -401,7 +401,7 @@ chmod +x .git/hooks/pre-commit
 
 ```bash
 # Validate manually
-ggen graph validate --file docs/examples/ontology/blog.ttl
+mcpp graph validate --file docs/examples/ontology/blog.ttl
 
 # Check syntax
 rapper -i turtle docs/examples/ontology/blog.ttl

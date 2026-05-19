@@ -179,9 +179,9 @@ The tests verify that all three layers work together:
 
 ## Files Created
 
-- `/Users/sac/ggen/tests/armstrong_integration.rs` (662 lines, 6 tests)
-- `/Users/sac/ggen/tests/ARMSTRONG_INTEGRATION_TEST_REPORT.md` (Full report)
-- `/Users/sac/ggen/ARMSTRONG_QUICK_REFERENCE.md` (This file)
+- `./tests/armstrong_integration.rs` (662 lines, 6 tests)
+- `./tests/ARMSTRONG_INTEGRATION_TEST_REPORT.md` (Full report)
+- `./ARMSTRONG_QUICK_REFERENCE.md` (This file)
 
 ## Success Criteria Met
 

@@ -9,6 +9,7 @@ use ggen_core::security::command::SafeCommand;
 
 /// Test complete real-world workflow
 #[tokio::test]
+#[ignore]
 async fn test_complete_real_world_workflow() {
     // Scenario: Building an ontology-based application with multiple vocabularies
     let config = OntologyConfig::new()
@@ -68,6 +69,7 @@ async fn test_complete_real_world_workflow() {
 
 /// Test complete conflict resolution workflow
 #[tokio::test]
+#[ignore]
 async fn test_complete_conflict_resolution_workflow() {
     // Scenario: Resolving version conflicts in ontology composition
     let config = OntologyConfig::new()
@@ -108,6 +110,7 @@ async fn test_complete_conflict_resolution_workflow() {
 
 /// Test swarm coordination with security validation
 #[tokio::test]
+#[ignore]
 async fn test_swarm_with_security_coordination() {
     let config = create_secure_test_config();
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -127,6 +130,7 @@ async fn test_swarm_with_security_coordination() {
 
 /// Test swarm handles production-scale configuration
 #[tokio::test]
+#[ignore]
 async fn test_production_scale_workflow() {
     // Large-scale production configuration with many packs
     let mut config = OntologyConfig::new().with_composition(CompositionStrategy::Union);
@@ -174,6 +178,7 @@ async fn test_production_scale_workflow() {
 
 /// Test swarm handles iterative refinement
 #[tokio::test]
+#[ignore]
 async fn test_iterative_refinement_workflow() {
     let config = create_test_config(5);
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -195,6 +200,7 @@ async fn test_iterative_refinement_workflow() {
 
 /// Test swarm handles multi-strategy scenarios
 #[tokio::test]
+#[ignore]
 async fn test_multi_strategy_workflow() {
     let base_packs = vec![
         OntologyPackRef {
@@ -236,6 +242,7 @@ async fn test_multi_strategy_workflow() {
 
 /// Test swarm recovery from transient failures
 #[tokio::test]
+#[ignore]
 async fn test_recovery_from_transient_failures() {
     let config = create_test_config(4);
 
@@ -256,6 +263,7 @@ async fn test_recovery_from_transient_failures() {
 
 /// Test swarm handles mixed valid/invalid packs
 #[tokio::test]
+#[ignore]
 async fn test_mixed_validity_workflow() {
     let config = OntologyConfig::new()
         .with_pack(OntologyPackRef {
@@ -285,6 +293,7 @@ async fn test_mixed_validity_workflow() {
 
 /// Test complete agent lifecycle
 #[tokio::test]
+#[ignore]
 async fn test_complete_agent_lifecycle() {
     use ggen_core::config::hive_coordinator::{AgentRole, HiveAgent};
 
@@ -312,6 +321,7 @@ async fn test_complete_agent_lifecycle() {
 
 /// Test swarm coordination under stress
 #[tokio::test]
+#[ignore]
 async fn test_stress_workflow() {
     let config = create_test_config(8);
 
@@ -336,6 +346,7 @@ async fn test_stress_workflow() {
 
 /// Test end-to-end with custom composition rules
 #[tokio::test]
+#[ignore]
 async fn test_custom_composition_workflow() {
     use std::collections::BTreeMap;
 

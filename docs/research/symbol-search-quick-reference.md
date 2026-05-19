@@ -1,6 +1,6 @@
 # Symbol Search Quick Reference
 
-**Workspace:** ggen v6.0.1 | **Date:** 2026-03-31
+**Workspace:** ggen v26.5.4 | **Date:** 2026-03-31
 
 ---
 
@@ -209,7 +209,7 @@ pub struct CoreConfig { }          // ggen-core's config
 
 ---
 
-## 🔗 Evidence from ggen v6.0.1
+## 🔗 Evidence from ggen v26.5.4
 
 | Metric | Count |
 |--------|-------|
@@ -227,8 +227,8 @@ pub struct CoreConfig { }          // ggen-core's config
 ## 📚 Quick Links
 
 - **Full Report:** [workspace-symbol-search-best-practices.md](./workspace-symbol-search-best-practices.md)
-- **Workspace:** /Users/sac/ggen
-- **Version:** ggen v6.0.1
+- **Workspace:** .
+- **Version:** ggen v26.5.4
 
 ---
 

@@ -3,7 +3,7 @@
 //! Chicago TDD: Pure business logic with REAL project creation
 
 use ggen_core::project_generator::{create_new_project, ProjectConfig, ProjectType};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// New project command input (pure domain type)
 #[derive(Debug, Clone, Default)]
@@ -47,7 +47,7 @@ pub fn create_project(args: &NewInput) -> Result<CreationResult> {
 
     // Create project synchronously
     let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Runtime error: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new_fmt(format_args!("Runtime error: {}", e)))?;
 
     runtime.block_on(async { create_new_project(&config).await })?;
 

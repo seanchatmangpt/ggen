@@ -76,7 +76,7 @@ Key Files:
 ### 1. First Build
 
 ```bash
-cd /Users/sac/ggen
+cd .
 
 # Check Rust version
 rustc --version

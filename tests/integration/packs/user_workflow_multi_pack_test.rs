@@ -5,7 +5,7 @@
 //! Workflow 3: Multi-pack composition (2 packs)
 //! Workflow 4: Multi-pack complex (3+ packs)
 
-use ggen_domain::packs::{
+use ggen_core::domain::packs::{
     compose_packs, list_packs, show_pack, ComposePacksInput, CompositionStrategy,
 };
 use std::path::PathBuf;

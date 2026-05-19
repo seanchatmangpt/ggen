@@ -7,8 +7,8 @@ full_name = "NeurIPS Conference Paper Template"
 version = "1.0.0"
 description = "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus"
 category = "academic-paper"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/neurips-paper-template"
 license = "MIT"
 production = true
@@ -56,27 +56,27 @@ keywords = { type = "array", default = [], description = "Keywords" }
 [examples]
 basic = """
 # Create NeurIPS paper
-ggen paper new "Deep Reinforcement Learning" --template neurips
+mcpp paper new "Deep Reinforcement Learning" --template neurips
 
 # Generate NeurIPS format
-ggen paper generate paper.rdf --style neurips --output paper.tex
+mcpp paper generate paper.rdf --style neurips --output paper.tex
 
 # Validate page limits
-ggen paper validate paper.rdf --strict
+mcpp paper validate paper.rdf --strict
 """
 
 submission = """
 # Create with anonymization
-ggen paper new my-paper --template neurips
+mcpp paper new my-paper --template neurips
 
 # Compile blind version
-ggen paper compile paper.tex
+mcpp paper compile paper.tex
 
 # Validate compliance
-ggen paper validate paper.rdf --check compliance,page-limit,citations
+mcpp paper validate paper.rdf --check compliance,page-limit,citations
 
 # Submit
-ggen paper submit paper.pdf --venue neurips-2025
+mcpp paper submit paper.pdf --venue neurips-2025
 """
 
 # Documentation

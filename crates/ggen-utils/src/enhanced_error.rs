@@ -27,7 +27,7 @@
 //! ### Creating an Enhanced Error
 //!
 //! ```rust,no_run
-//! use ggen_utils::enhanced_error::{EnhancedError, ErrorCategory, PlatformFix};
+//! use ggen_core::utils::enhanced_error::{EnhancedError, ErrorCategory, PlatformFix};
 //!
 //! # fn main() -> anyhow::Result<()> {
 //! let fix = PlatformFix::new()
@@ -54,7 +54,7 @@ use std::fmt;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::enhanced_error::ErrorCategory;
+/// use ggen_core::utils::enhanced_error::ErrorCategory;
 ///
 /// # fn main() {
 /// let category = ErrorCategory::FileNotFound;

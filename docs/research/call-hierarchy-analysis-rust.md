@@ -287,7 +287,7 @@ service.generate_skill_impl(...)?;  // ⚠️ Dynamic dispatch
 
 ### Example 1: Async Trait with Dynamic Dispatch
 
-**File:** `/Users/sac/ggen/crates/ggen-execution/src/convergence.rs:452`
+**File:** `./crates/ggen-execution/src/convergence.rs:452`
 
 ```rust
 pub async fn process_message(
@@ -325,7 +325,7 @@ pub async fn process_message(
 
 ### Example 2: MCP Server Tool Routing
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs:365`
+**File:** `./crates/ggen-a2a-mcp/src/ggen_server.rs:365`
 
 ```rust
 #[tool_router]
@@ -360,7 +360,7 @@ impl GgenMcpServer {
 
 ### Example 3: Pipeline LLM Service Injection
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/codegen/pipeline.rs:933`
+**File:** `./crates/ggen-core/src/codegen/pipeline.rs:933`
 
 ```rust
 pub fn generate_skill_impl(
@@ -562,10 +562,10 @@ Call hierarchy analysis in Rust is **inherently limited** by:
 ## References
 
 - **ggen codebase:**
-  - `/Users/sac/ggen/crates/ggen-execution/src/convergence.rs` - Async trait dispatch
-  - `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` - MCP tool routing
-  - `/Users/sac/ggen/crates/ggen-core/src/codegen/pipeline.rs` - LLM service injection
-  - `/Users/sac/ggen/crates/ggen-ai/src/hyper_concurrent/executor.rs` - Closure-heavy executor
+  - `./crates/ggen-execution/src/convergence.rs` - Async trait dispatch
+  - `./crates/ggen-a2a-mcp/src/ggen_server.rs` - MCP tool routing
+  - `./crates/ggen-core/src/codegen/pipeline.rs` - LLM service injection
+  - `./crates/ggen-ai/src/hyper_concurrent/executor.rs` - Closure-heavy executor
 
 - **Rust LSP specification:**
   - [LSP: Call Hierarchy](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_prepareCallHierarchy)

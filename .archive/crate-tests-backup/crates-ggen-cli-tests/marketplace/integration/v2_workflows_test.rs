@@ -7,8 +7,8 @@
 #[cfg(feature = "marketplace-v2")]
 mod v2_workflows_tests {
     use chrono::Utc;
-    use ggen_marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
-    use ggen_marketplace::prelude::*;
+    use ggen_core::marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
+    use ggen_core::marketplace::prelude::*;
 
     /// Helper: Create test package
     fn create_test_package(id: &str, name: &str, version: &str) -> Package {
@@ -219,7 +219,7 @@ mod v2_workflows_tests {
 
     #[tokio::test]
     async fn test_v2_ed25519_signature_generation() {
-        use ggen_marketplace::security::SignatureManager;
+        use ggen_core::marketplace::security::SignatureManager;
 
         let manager = SignatureManager::new();
 
@@ -232,7 +232,7 @@ mod v2_workflows_tests {
 
     #[tokio::test]
     async fn test_v2_ed25519_signature_verification() {
-        use ggen_marketplace::security::SignatureManager;
+        use ggen_core::marketplace::security::SignatureManager;
 
         let manager = SignatureManager::new();
         let (public_key, private_key) = manager.generate_keypair();
@@ -249,7 +249,7 @@ mod v2_workflows_tests {
 
     #[tokio::test]
     async fn test_v2_ed25519_tampered_detection() {
-        use ggen_marketplace::security::SignatureManager;
+        use ggen_core::marketplace::security::SignatureManager;
 
         let manager = SignatureManager::new();
         let (public_key, private_key) = manager.generate_keypair();

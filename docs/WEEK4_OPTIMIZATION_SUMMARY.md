@@ -99,7 +99,7 @@
 ## Deliverables Created
 
 ### 1. Week 4 Benchmark Suite ✅
-**File:** `/Users/sac/ggen/crates/ggen-core/benches/week4_optimization_benchmark.rs`
+**File:** `./crates/ggen-core/benches/week4_optimization_benchmark.rs`
 
 **Features:**
 - Lockfile dependency resolution benchmarks (1, 5, 10, 20 packs)
@@ -111,7 +111,7 @@
 **Note:** Benchmark requires compilation fixes in unrelated modules before running. This is not blocking for optimization implementation.
 
 ### 2. Performance Profiler Script ✅
-**File:** `/Users/sac/ggen/scripts/week4_performance_profiler.sh`
+**File:** `./scripts/week4_performance_profiler.sh`
 
 **Features:**
 - Automated performance profiling
@@ -124,10 +124,10 @@
 - Performance grade calculation
 - Markdown report generation
 
-**Output:** `/Users/sac/ggen/reports/week4/performance_report_20251118_221455.md`
+**Output:** `./reports/week4/performance_report_20251118_221455.md`
 
 ### 3. Comprehensive Implementation Plan ✅
-**File:** `/Users/sac/ggen/docs/week4_optimization_implementation_plan.md`
+**File:** `./docs/week4_optimization_implementation_plan.md`
 
 **Contents:**
 - Detailed optimization strategies for all 3 focus areas
@@ -323,24 +323,24 @@
 ## Files Modified
 
 ### Benchmarks (Created)
-- `/Users/sac/ggen/crates/ggen-core/benches/week4_optimization_benchmark.rs`
-- `/Users/sac/ggen/crates/ggen-core/Cargo.toml` (added benchmark target)
+- `./crates/ggen-core/benches/week4_optimization_benchmark.rs`
+- `./crates/ggen-core/Cargo.toml` (added benchmark target)
 
 ### Scripts (Created)
-- `/Users/sac/ggen/scripts/week4_performance_profiler.sh`
+- `./scripts/week4_performance_profiler.sh`
 
 ### Documentation (Created)
-- `/Users/sac/ggen/docs/week4_optimization_implementation_plan.md`
-- `/Users/sac/ggen/docs/WEEK4_OPTIMIZATION_SUMMARY.md`
-- `/Users/sac/ggen/reports/week4/performance_report_20251118_221455.md`
+- `./docs/week4_optimization_implementation_plan.md`
+- `./docs/WEEK4_OPTIMIZATION_SUMMARY.md`
+- `./reports/week4/performance_report_20251118_221455.md`
 
 ### Core Implementation (To Be Modified - Day 3-4)
-- `/Users/sac/ggen/crates/ggen-core/src/template_cache.rs` (Day 3)
-- `/Users/sac/ggen/crates/ggen-core/src/rdf/query.rs` (Day 4)
+- `./crates/ggen-core/src/template_cache.rs` (Day 3)
+- `./crates/ggen-core/src/rdf/query.rs` (Day 4)
 
 ### Compilation Fixes (Required Before Benchmarks Run)
-- `/Users/sac/ggen/crates/ggen-core/src/config/hive_coordinator.rs` ✅ Fixed (added `use async_trait::async_trait;`)
-- `/Users/sac/ggen/crates/ggen-core/src/config/lock_manager.rs` ✅ Fixed (lifetime + comparison issues)
+- `./crates/ggen-core/src/config/hive_coordinator.rs` ✅ Fixed (added `use async_trait::async_trait;`)
+- `./crates/ggen-core/src/config/lock_manager.rs` ✅ Fixed (lifetime + comparison issues)
 - Other unrelated modules with compilation errors (not blocking optimization work)
 
 ---

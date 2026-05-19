@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Pure business logic with REAL plan creation
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -36,7 +36,7 @@ pub struct GenerationPlan {
 /// Validate path to prevent directory traversal
 fn validate_path(path: &Path) -> Result<()> {
     if path.components().any(|c| matches!(c, Component::ParentDir)) {
-        return Err(ggen_utils::error::Error::new(
+        return Err(ggen_core::utils::error::Error::new(
             "Path traversal detected: paths containing '..' are not allowed",
         ));
     }
@@ -51,7 +51,7 @@ fn parse_variables(vars: &[String]) -> Result<HashMap<String, String>> {
         if let Some((key, value)) = var.split_once('=') {
             variables.insert(key.to_string(), value.to_string());
         } else {
-            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            return Err(ggen_core::utils::error::Error::new_fmt(format_args!(
                 "Invalid variable format: {}. Expected key=value",
                 var
             )));
@@ -65,7 +65,7 @@ fn parse_variables(vars: &[String]) -> Result<HashMap<String, String>> {
 pub fn create_plan(args: &PlanInput) -> Result<PlanResult> {
     // Validate template reference
     if args.template_ref.is_empty() {
-        return Err(ggen_utils::error::Error::new(
+        return Err(ggen_core::utils::error::Error::new(
             "Template reference cannot be empty",
         ));
     }
@@ -89,13 +89,13 @@ pub fn create_plan(args: &PlanInput) -> Result<PlanResult> {
 
     // Serialize plan
     let content = match args.format.as_str() {
-        "json" => serde_json::to_string_pretty(&plan).map_err(ggen_utils::error::Error::from)?,
-        "yaml" => serde_yaml::to_string(&plan).map_err(ggen_utils::error::Error::from)?,
+        "json" => serde_json::to_string_pretty(&plan).map_err(ggen_core::utils::error::Error::from)?,
+        "yaml" => serde_yaml::to_string(&plan).map_err(ggen_core::utils::error::Error::from)?,
         "toml" => toml::to_string_pretty(&plan).map_err(|e| {
-            ggen_utils::error::Error::new_fmt(format_args!("TOML serialization failed: {}", e))
+            ggen_core::utils::error::Error::new_fmt(format_args!("TOML serialization failed: {}", e))
         })?,
         _ => {
-            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            return Err(ggen_core::utils::error::Error::new_fmt(format_args!(
                 "Unsupported format: {}. Supported: json, yaml, toml",
                 args.format
             )))
@@ -104,7 +104,7 @@ pub fn create_plan(args: &PlanInput) -> Result<PlanResult> {
 
     // Validate and write plan file
     validate_path(&output_path)?;
-    fs::write(&output_path, content).map_err(ggen_utils::error::Error::from)?;
+    fs::write(&output_path, content).map_err(ggen_core::utils::error::Error::from)?;
 
     Ok(PlanResult {
         output_path: output_path.display().to_string(),

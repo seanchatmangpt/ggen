@@ -83,7 +83,7 @@ A comprehensive performance benchmarking suite has been designed and implemented
 ## 📁 File Locations
 
 ```
-/Users/sac/ggen/
+./
 ├── crates/ggen-marketplace-v2/
 │   ├── benches/
 │   │   ├── comprehensive_performance.rs  ✅ 550 LOC
@@ -144,7 +144,7 @@ All 5 SLOs designed to PASS:
 
 ```bash
 # Navigate to project
-cd /Users/sac/ggen
+cd .
 
 # Fix library compilation (if needed)
 cd crates/ggen-marketplace-v2

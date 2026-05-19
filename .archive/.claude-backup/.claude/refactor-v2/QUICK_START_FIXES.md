@@ -33,7 +33,7 @@ sudo reboot
 ### Step 2: Clear Temp Directories (2 minutes)
 ```bash
 # After reboot, run:
-cd /Users/sac/ggen
+cd .
 
 # Clear build artifacts
 cargo clean
@@ -106,7 +106,7 @@ sudo log show --predicate 'eventMessage contains "No such file"' --last 1h
 #### Option C: Disable Spotlight Indexing (2 minutes)
 ```bash
 # Disable on build directory
-sudo mdutil -i off /Users/sac/ggen
+sudo mdutil -i off .
 
 # Rebuild
 cargo build --release -j4
@@ -126,7 +126,7 @@ cargo build --release -j4
 ```bash
 # If all else fails, try building on external drive or different partition
 cd /Volumes/OtherDisk
-git clone /Users/sac/ggen ggen-build
+git clone . ggen-build
 cd ggen-build
 cargo build --release
 ```

@@ -76,7 +76,7 @@
 
 ## Test Results
 
-### Library Tests (from ggen-core)
+### Library Tests (from mcpp-core)
 ```
 running 24 tests
 ✅ All 24 tests PASSED
@@ -153,47 +153,47 @@ Breakdown:
 ## Issues Found and Resolved
 
 ### During Testing
-1. ✅ Fixed `ggen-ai/Cargo.toml` dependency (`futures-stream` → `futures`)
+1. ✅ Fixed `mcpp-ai/Cargo.toml` dependency (`futures-stream` → `futures`)
 2. ✅ Corrected error variant names in mock provider
 3. ✅ Aligned error types with actual implementation
 
 ## Files Modified/Created
 
 ### Created (8 new test files):
-1. `/ggen-core/tests/llm/mod.rs`
-2. `/ggen-core/tests/llm/mock_provider.rs`
-3. `/ggen-core/tests/llm/anthropic_tests.rs`
-4. `/ggen-core/tests/llm/openai_tests.rs`
-5. `/ggen-core/tests/llm/streaming_tests.rs`
-6. `/ggen-core/tests/llm/error_handling_tests.rs`
-7. `/ggen-core/tests/llm/config_tests.rs`
-8. `/ggen-core/tests/test_llm_integration.rs`
+1. `/mcpp-core/tests/llm/mod.rs`
+2. `/mcpp-core/tests/llm/mock_provider.rs`
+3. `/mcpp-core/tests/llm/anthropic_tests.rs`
+4. `/mcpp-core/tests/llm/openai_tests.rs`
+5. `/mcpp-core/tests/llm/streaming_tests.rs`
+6. `/mcpp-core/tests/llm/error_handling_tests.rs`
+7. `/mcpp-core/tests/llm/config_tests.rs`
+8. `/mcpp-core/tests/test_llm_integration.rs`
 
 ### Documentation:
-9. `/ggen/tests/LLM_TEST_COVERAGE_REPORT.md` (comprehensive report)
-10. `/ggen/tests/TEST_SUMMARY.md` (this file)
+9. `/mcpp/tests/LLM_TEST_COVERAGE_REPORT.md` (comprehensive report)
+10. `/mcpp/tests/TEST_SUMMARY.md` (this file)
 
 ### Fixed:
-11. `/ggen-ai/Cargo.toml` (dependency fix)
+11. `/mcpp-ai/Cargo.toml` (dependency fix)
 
 ## How to Run Tests
 
 ### All LLM tests:
 ```bash
-cargo test --package ggen-core --lib llm
-cargo test --package ggen-core --test test_llm_integration
+cargo test --package mcpp-core --lib llm
+cargo test --package mcpp-core --test test_llm_integration
 ```
 
 ### Specific test module:
 ```bash
-cargo test --package ggen-core anthropic
-cargo test --package ggen-core openai
-cargo test --package ggen-core mock_provider
+cargo test --package mcpp-core anthropic
+cargo test --package mcpp-core openai
+cargo test --package mcpp-core mock_provider
 ```
 
 ### With verbose output:
 ```bash
-cargo test --package ggen-core --lib llm -- --nocapture
+cargo test --package mcpp-core --lib llm -- --nocapture
 ```
 
 ## Coordination Hooks Used

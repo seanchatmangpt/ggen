@@ -18,7 +18,7 @@ This command:
 ### Load and Validate Graph
 ```bash
 # Load RDF graph
-cargo run --bin ggen -- graph load <rdf-file> --format <turtle|json-ld|rdf-xml>
+cargo run --bin mcpp -- graph load <rdf-file> --format <turtle|json-ld|rdf-xml>
 
 # Validate graph
 cargo make validate-rdf
@@ -60,7 +60,7 @@ SPARQL queries must:
 
 ### Validate Graph File
 ```rust
-use ggen_core::graph::Graph;
+use mcpp_core::graph::Graph;
 
 let graph = Graph::load("data.ttl")?;
 graph.validate()?; // Validates syntax and consistency
@@ -68,7 +68,7 @@ graph.validate()?; // Validates syntax and consistency
 
 ### Validate SPARQL Query
 ```rust
-use ggen_core::sparql::Query;
+use mcpp_core::sparql::Query;
 
 let query = Query::parse(&sparql_string)?;
 query.validate()?; // Validates syntax

@@ -1009,7 +1009,7 @@ The ggen codebase demonstrates **excellent performance characteristics** with:
 
 ## Appendix A: Benchmark Runner Script
 
-Location: `/Users/sac/ggen/scripts/performance_benchmark.sh`
+Location: `./scripts/performance_benchmark.sh`
 
 Run with:
 ```bash
@@ -1022,7 +1022,7 @@ Results saved to: `perf_results/benchmark_YYYYMMDD_HHMMSS.json`
 
 ## Appendix B: Criterion Benchmark Suite
 
-Location: `/Users/sac/ggen/crates/ggen-cli-lib/benches/performance_benchmark.rs`
+Location: `./crates/ggen-cli-lib/benches/performance_benchmark.rs`
 
 Run with:
 ```bash

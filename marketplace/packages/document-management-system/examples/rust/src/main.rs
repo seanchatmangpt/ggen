@@ -6,7 +6,7 @@ use oxigraph::sparql::QueryResults;
 use oxigraph::model::*;
 use std::error::Error;
 
-const DMS_NS: &str = "https://ggen.ai/ontology/document-management#";
+const DMS_NS: &str = "https://mcpp.ai/ontology/document-management#";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

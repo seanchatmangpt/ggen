@@ -1,7 +1,7 @@
 # ggen-a2a-mcp Analysis: Last 10 Commits
 
 **Analysis Date:** 2026-03-31
-**Repository:** ggen v6.0.1
+**Repository:** ggen v26.5.4
 **Commit Range:** 605a91b9..a211dd9ca (10 commits)
 **Analyzer:** LSP-driven code analysis
 

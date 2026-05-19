@@ -51,7 +51,7 @@ cargo check --all 2>&1 | grep "^error:" | wc -l
 ```
 
 ## Files Changed
-- ✅ `/Users/sac/ggen/crates/ggen-marketplace-v2/src/lib.rs` - 1 line
+- ✅ `./crates/ggen-marketplace-v2/src/lib.rs` - 1 line
 
 ## Packages Fixed
 - ggen-marketplace-v2 v3.0.0 (direct fix)

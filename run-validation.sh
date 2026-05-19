@@ -8,7 +8,7 @@ set -e
 REPORT_DIR="reports/data"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
-echo "=== ggen PaaS Validation Report Generation ==="
+echo "=== mcpp PaaS Validation Report Generation ==="
 echo "Starting at: $(date)"
 echo "Output directory: $REPORT_DIR"
 
@@ -18,7 +18,7 @@ echo ">>> Collecting RDF ontology statistics..."
 cat > "$REPORT_DIR/ontology-stats.json" << 'OSTATS'
 {
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "ontology_file": ".specify/ggen-paas-ontology.ttl",
+  "ontology_file": ".specify/mcpp-paas-ontology.ttl",
   "containers": 10,
   "data_stores": 7,
   "total_statements": 420,
@@ -39,9 +39,9 @@ cd "$OLDPWD"
 
 # 3. Generate infrastructure
 echo ""
-echo ">>> Running ggen sync pipeline..."
+echo ">>> Running mcpp sync pipeline..."
 START_TIME=$(date +%s%N)
-ggen sync -c ggen-paas.toml 2>&1 | tee "$REPORT_DIR/generation.log"
+mcpp sync -c mcpp-paas.toml 2>&1 | tee "$REPORT_DIR/generation.log"
 END_TIME=$(date +%s%N)
 DURATION=$(( (END_TIME - START_TIME) / 1000000 ))
 

@@ -25,14 +25,14 @@ This package provides a comprehensive solution for building multi-tenant SaaS ap
 ### 1. Generate Tenant Management Code
 
 ```bash
-ggen template render multi-tenant-saas/templates/rust/tenant_middleware.rs \
+mcpp template render multi-tenant-saas/templates/rust/tenant_middleware.rs \
   --output src/middleware/tenant.rs
 ```
 
 ### 2. Query Active Tenants
 
 ```bash
-ggen query execute multi-tenant-saas/sparql/queries.rq \
+mcpp query execute multi-tenant-saas/sparql/queries.rq \
   --graph tenants.ttl \
   --query "Extract All Active Tenants"
 ```

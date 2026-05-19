@@ -19,7 +19,7 @@
 
 use std::sync::Arc;
 
-use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
 use ggen_a2a_mcp::message::A2aMessageConverter;
@@ -153,7 +153,7 @@ fn extract_text(content: &UnifiedContent) -> &str {
 
 #[tokio::test]
 async fn test_a2a_multi_agent_conversation() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -219,7 +219,7 @@ async fn test_a2a_multi_agent_conversation() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_causation_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -298,7 +298,7 @@ async fn test_a2a_causation_chain() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_concurrent_message_burst() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = Arc::new(SelfPlayBridge::new(examples_dir).await?);
 
     let result = (|| async {
@@ -372,7 +372,7 @@ async fn test_a2a_concurrent_message_burst() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_mcp_a2a_roundtrip() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -442,7 +442,7 @@ async fn test_a2a_mcp_a2a_roundtrip() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_a2a_error_recovery_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {

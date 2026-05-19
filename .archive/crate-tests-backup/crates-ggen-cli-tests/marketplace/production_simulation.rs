@@ -13,10 +13,10 @@
 //! - Test REAL user workflows
 //! - Use REAL data from production registry
 
-use ggen_domain::marketplace::{
+use ggen_core::domain::marketplace::{
     execute_install, execute_search, InstallOptions, SearchInput,
 };
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};

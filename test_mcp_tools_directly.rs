@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✓ GgenMcpServer created\n");
 
     // Use a small test ontology
-    let ontology_path = "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl";
+    let ontology_path = "./examples/basic-template-generation/ontology/templates.ttl";
 
     // Verify the ontology file exists
     if !PathBuf::from(ontology_path).exists() {

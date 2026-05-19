@@ -293,8 +293,8 @@ npx claude-flow@alpha hooks post-task --task-id "agent4-graph"
 ```
 
 ### Files Modified:
-- `/Users/sac/ggen/cli/src/domain/graph/export.rs` - Fixed Debug trait, removed unused imports
-- `/Users/sac/ggen/.claude/refactor-v2/agent4-graph-impl.md` - This report
+- `./cli/src/domain/graph/export.rs` - Fixed Debug trait, removed unused imports
+- `./.claude/refactor-v2/agent4-graph-impl.md` - This report
 
 ### Dependencies Verified:
 - ✅ `ggen_core::Graph` (REAL Oxigraph wrapper)

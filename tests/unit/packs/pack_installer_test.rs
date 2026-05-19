@@ -6,7 +6,7 @@
 //! - Dry run mode
 //! - Force reinstall
 
-use ggen_domain::packs::{install_pack, InstallInput};
+use mcpp_domain::packs::{install_pack, InstallInput};
 use std::path::PathBuf;
 
 #[tokio::test]
@@ -73,7 +73,7 @@ async fn test_install_pack_default_location() {
 
     // Assert
     if let Ok(output) = result {
-        // Should use default .ggen/packages location or current dir
+        // Should use default .mcpp/packages location or current dir
         assert!(!output.install_path.as_os_str().is_empty());
     }
 }

@@ -86,7 +86,7 @@ cargo install cargo-mutants
 
 ### 1.2 Workspace Configuration
 
-**ggen workspace structure** (from `/Users/sac/ggen/Cargo.toml`):
+**ggen workspace structure** (from `./Cargo.toml`):
 ```toml
 [workspace]
 members = [
@@ -116,7 +116,7 @@ cargo mutants --test-workspace=true
 
 ### 1.3 Configuration File (.cargo/mutants.toml)
 
-Create `/Users/sac/ggen/.cargo/mutants.toml`:
+Create `./.cargo/mutants.toml`:
 
 ```toml
 # Exclude non-critical code from mutation testing
@@ -174,7 +174,7 @@ cargo-mutants automatically applies these mutation types:
 
 **Priority 1: ggen-config (TOML Parsing)**
 
-Location: `/Users/sac/ggen/crates/ggen-config/src/`
+Location: `./crates/ggen-config/src/`
 
 Critical files:
 - `parser.rs` - `ConfigLoader::from_str()`, `from_file()`, `find_and_load()`
@@ -205,7 +205,7 @@ pub fn from_str(content: &str) -> Result<GgenConfig> {
 
 **Priority 2: RDF Parsing**
 
-Location: `/Users/sac/ggen/crates/ggen-core/src/rdf/`
+Location: `./crates/ggen-core/src/rdf/`
 
 Critical files:
 - `query.rs` - SPARQL query execution
@@ -214,7 +214,7 @@ Critical files:
 
 **Priority 3: Graph Store**
 
-Location: `/Users/sac/ggen/crates/ggen-core/src/graph/`
+Location: `./crates/ggen-core/src/graph/`
 
 Critical files:
 - `store.rs` - Persistent RDF storage (oxigraph integration)
@@ -278,8 +278,8 @@ Mutation Score = (Killed Mutants / Total Mutants) × 100
 **Diagnosis**: **0% kill rate suspected** on config parsing tests
 
 **Evidence**:
-- Tests in `/Users/sac/ggen/tests/integration/config/config_integration_test.rs` pass
-- Tests in `/Users/sac/ggen/crates/ggen-config/src/parser.rs` (lines 267-337) pass
+- Tests in `./tests/integration/config/config_integration_test.rs` pass
+- Tests in `./crates/ggen-config/src/parser.rs` (lines 267-337) pass
 - But actual ggen.toml parsing is broken in production
 
 **Root Cause Hypothesis**:
@@ -558,7 +558,7 @@ git diff --name-only origin/master \
 
 ### 6.1 cargo make Integration
 
-**Add to `/Users/sac/ggen/Makefile.toml`**:
+**Add to `./Makefile.toml`**:
 
 ```toml
 # Mutation testing tasks

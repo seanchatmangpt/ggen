@@ -107,7 +107,7 @@ error[E0008]: Failed to read template file
 
 ## Additional 6 Improvements Documented
 
-The following improvements are documented in `/Users/sac/ggen/docs/research/error-context-improvements.md` but not yet implemented:
+The following improvements are documented in `./docs/research/error-context-improvements.md` but not yet implemented:
 
 5. Merge marker validation error (`merge.rs:104`)
 6. Condition query type error (`pipeline.rs:456`)
@@ -171,6 +171,6 @@ The codebase already had good error context. These improvements add **actionable
 
 ## References
 
-- Full analysis: `/Users/sac/ggen/docs/research/error-context-improvements.md`
-- Error infrastructure: `/Users/sac/ggen/crates/ggen-utils/src/error.rs`
+- Full analysis: `./docs/research/error-context-improvements.md`
+- Error infrastructure: `./crates/ggen-utils/src/error.rs`
 - HDOC framework: Error context is part of the ggen HDOC (High-DevOps-Copilot) quality framework

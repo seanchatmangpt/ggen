@@ -600,7 +600,7 @@ The codebase suffers from:
 Rust Version: rustc 1.90.0 (1159e78c4 2025-09-14)
 Cargo Version: cargo 1.90.0 (840b83a10 2025-07-30)
 Platform: Darwin 24.5.0 (macOS)
-Working Directory: /Users/sac/ggen
+Working Directory: .
 Git Status: On branch master, 2 modified files
 ```
 

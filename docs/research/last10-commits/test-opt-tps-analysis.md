@@ -309,7 +309,7 @@ pub struct AndonObserver {
 | `80d8490c` | 2026-03-31 | fix(clippy): resolve lint errors across workspace | 30+ files |
 | `8403067b` | 2026-03-31 | fix(clippy): resolve all remaining lint errors | 1 file (andon_logger.rs) |
 | `84f4f551` | 2026-03-30 | fix(tests): repair pre-existing test failures (80/20) | 3 test files |
-| `07574a28` | 2026-03-28 | chore(release): bump all crates to version 6.0.1 | 1 file |
+| `07574a28` | 2026-03-28 | chore(release): bump all crates to version 26.5.4 | 1 file |
 | `2828296f` | 2026-03-27 | fix(andon): Fix compilation errors in Andon system | 12 files |
 | `5647e948` | 2026-03-26 | feat(ggen-cli): add Groq MCP/A2A commands | 10 files |
 | `d1d951fe` | 2026-03-25 | fix(clippy): fix remaining clippy warnings | 2 files |

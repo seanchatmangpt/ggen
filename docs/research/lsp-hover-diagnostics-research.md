@@ -28,7 +28,7 @@ When hovering over any identifier, rust-analyzer reveals:
 - **Definition location** - Click to navigate to definition (go-to-definition)
 - **Type inference results** - What the compiler inferred for complex expressions
 
-**Example from `/Users/sac/ggen/crates/ggen-ai/src/types.rs`:**
+**Example from `./crates/ggen-ai/src/types.rs`:**
 
 ```rust
 pub struct PolicyId(String);
@@ -43,7 +43,7 @@ Hovering over `PolicyId` shows:
 
 Hover reveals complete generic signatures:
 
-**Example from `/Users/sac/ggen/crates/osiris-core/src/crdt/lww_register.rs`:**
+**Example from `./crates/osiris-core/src/crdt/lww_register.rs`:**
 
 ```rust
 pub fn set(&self, value: T, timestamp: u64) -> bool
@@ -84,7 +84,7 @@ This is essential for understanding:
 
 ### 2.1 Multi-Level Trait Bounds
 
-**Example from `/Users/sac/ggen/crates/ggen-execution/src/pipeline.rs`:**
+**Example from `./crates/ggen-execution/src/pipeline.rs`:**
 
 ```rust
 pub fn add_rule<F>(mut self, field: &str, rule: F) -> Self
@@ -100,7 +100,7 @@ Hover reveals:
 
 ### 2.2 Generic Struct Fields
 
-**Example from `/Users/sac/ggen/crates/osiris-core/src/crdt/lww_register.rs`:**
+**Example from `./crates/osiris-core/src/crdt/lww_register.rs`:**
 
 ```rust
 pub struct LWWRegister<T: Clone + PartialEq> {
@@ -115,7 +115,7 @@ Hover on `state` shows:
 
 ### 2.3 Complex Type Aliases
 
-**Example from `/Users/sac/ggen/tests/mcp_a2a/mock_mcp_server.rs`:**
+**Example from `./tests/mcp_a2a/mock_mcp_server.rs`:**
 
 ```rust
 pub type HandlerFn = Arc<dyn Fn(Value) -> HandlerFnFuture + Send + Sync>;
@@ -151,7 +151,7 @@ Hover reveals:
 
 ### 3.2 Boxed Pin Futures
 
-**Example from `/Users/sac/ggen/crates/ggen-core/src/ontology/delta_proposer.rs`:**
+**Example from `./crates/ggen-core/src/ontology/delta_proposer.rs`:**
 
 ```rust
 pub type ProposalStream = Pin<Box<dyn Stream<Item = DeltaSigmaProposal> + Send>>;
@@ -165,7 +165,7 @@ Hover reveals:
 
 ### 3.3 Complex Future Chaining
 
-**Pattern from `/Users/sac/ggen/crates/ggen-execution/src/pipeline.rs`:**
+**Pattern from `./crates/ggen-execution/src/pipeline.rs`:**
 
 ```rust
 let handle = tokio::spawn(async move {
@@ -362,7 +362,7 @@ Hover on `process` always shows `<T>`, not `process<String>` even if called with
 
 ### 7.1 Complex Generic Builder
 
-**File:** `/Users/sac/ggen/crates/ggen-execution/src/pipeline.rs`
+**File:** `./crates/ggen-execution/src/pipeline.rs`
 
 ```rust
 pub fn add_rule<F>(mut self, field: &str, rule: F) -> Self
@@ -383,7 +383,7 @@ where
 
 ### 7.2 Lock-Free CRDT with Atomics
 
-**File:** `/Users/sac/ggen/crates/osiris-core/src/crdt/lww_register.rs`
+**File:** `./crates/osiris-core/src/crdt/lww_register.rs`
 
 ```rust
 pub struct LWWRegister<T: Clone + PartialEq> {
@@ -399,7 +399,7 @@ pub struct LWWRegister<T: Clone + PartialEq> {
 
 ### 7.3 Async Stream Type Alias
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/ontology/delta_proposer.rs`
+**File:** `./crates/ggen-core/src/ontology/delta_proposer.rs`
 
 ```rust
 pub type ProposalStream = Pin<Box<dyn Stream<Item = DeltaSigmaProposal> + Send>>;
@@ -413,7 +413,7 @@ pub type ProposalStream = Pin<Box<dyn Stream<Item = DeltaSigmaProposal> + Send>>
 
 ### 7.4 Handler Function Type
 
-**File:** `/Users/sac/ggen/tests/mcp_a2a/mock_mcp_server.rs`
+**File:** `./tests/mcp_a2a/mock_mcp_server.rs`
 
 ```rust
 pub type HandlerFn = Arc<dyn Fn(Value) -> HandlerFnFuture + Send + Sync>;
@@ -517,12 +517,12 @@ rust-analyzer's LSP hover is **essential** for understanding complex Rust code:
 
 ### Files Analyzed
 
-1. `/Users/sac/ggen/crates/ggen-execution/src/pipeline.rs` - Complex generic builders, async pipeline execution
-2. `/Users/sac/ggen/crates/osiris-core/src/crdt/lww_register.rs` - Lock-free CRDT with atomic generics
-3. `/Users/sac/ggen/crates/ggen-ai/src/types.rs` - Newtype pattern for type safety
-4. `/Users/sac/ggen/crates/ggen-core/src/ontology/delta_proposer.rs` - Async stream type aliases
-5. `/Users/sac/ggen/tests/mcp_a2a/mock_mcp_server.rs` - Boxed future type aliases
-6. `/Users/sac/ggen/crates/ggen-api/src/middleware/validation.rs` - Trait object validation rules
+1. `./crates/ggen-execution/src/pipeline.rs` - Complex generic builders, async pipeline execution
+2. `./crates/osiris-core/src/crdt/lww_register.rs` - Lock-free CRDT with atomic generics
+3. `./crates/ggen-ai/src/types.rs` - Newtype pattern for type safety
+4. `./crates/ggen-core/src/ontology/delta_proposer.rs` - Async stream type aliases
+5. `./tests/mcp_a2a/mock_mcp_server.rs` - Boxed future type aliases
+6. `./crates/ggen-api/src/middleware/validation.rs` - Trait object validation rules
 
 ### Key Patterns Identified
 

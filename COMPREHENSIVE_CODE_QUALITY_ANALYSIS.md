@@ -16,13 +16,13 @@ This analysis reveals significant code quality issues across the ggen codebase a
 **Severity: HIGH**
 
 **Large Files (>1000 lines):**
-- `/Users/sac/ggen/crates/ggen-agent/target/debug/build/chrono-tz-ff391e352f9ff58a/out/timezones.rs` (76,079 lines) - Generated file
-- `/Users/sac/ggen/crates/ggen-domain/src/marketplace/install.rs` (1,649 lines) - **REFACTOR NEEDED**
-- `/Users/sac/ggen/crates/knhk-etl/src/lib.rs` (1,578 lines) - **REFACTOR NEEDED**
-- `/Users/sac/ggen/crates/ggen-core/src/lifecycle/production.rs` (1,385 lines) - **REFACTOR NEEDED**
+- `./crates/ggen-agent/target/debug/build/chrono-tz-ff391e352f9ff58a/out/timezones.rs` (76,079 lines) - Generated file
+- `./crates/ggen-domain/src/marketplace/install.rs` (1,649 lines) - **REFACTOR NEEDED**
+- `./crates/knhk-etl/src/lib.rs` (1,578 lines) - **REFACTOR NEEDED**
+- `./crates/ggen-core/src/lifecycle/production.rs` (1,385 lines) - **REFACTOR NEEDED**
 
 **Large Functions (>50 lines):**
-- Found in `/Users/sac/ggen/crates/ggen-cli/src/cmds/agent.rs` functions like `list`, `start`, `status`, `stop`, `capabilities`
+- Found in `./crates/ggen-cli/src/cmds/agent.rs` functions like `list`, `start`, `status`, `stop`, `capabilities`
 - Mock functions exceed business logic boundaries
 - Complex state management in agent management commands
 
@@ -30,17 +30,17 @@ This analysis reveals significant code quality issues across the ggen codebase a
 **Severity: CRITICAL**
 
 **unwrap()/expect() Usage (1687 occurrences):**
-- Files with violations: `/Users/sac/ggen/crates/ggen-cli/src/cmds/agent.rs`, `/Users/sac/ggen/crates/ggen-core/src/validation/input.rs`
+- Files with violations: `./crates/ggen-cli/src/cmds/agent.rs`, `./crates/ggen-core/src/validation/input.rs`
 - Test files contain excessive unwrap/expect patterns
 - Production code violates ggen's Result<T,E> only requirement
 
 **Panic Calls:**
-- `/Users/sac/ggen/crates/ggen-core/tests/triple_store_tests.rs` - Test assertions using panic
-- `/Users/sac/ggen/crates/ggen-domain/src/audit/security.rs` - Security audit functionality
+- `./crates/ggen-core/tests/triple_store_tests.rs` - Test assertions using panic
+- `./crates/ggen-domain/src/audit/security.rs` - Security audit functionality
 
 **Hardcoded Values:**
-- `/Users/sac/ggen/crates/ggen-domain/src/marketplace/search.rs` - Hardcoded filters
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/init.rs` - Hardcoded file contents
+- `./crates/ggen-domain/src/marketplace/search.rs` - Hardcoded filters
+- `./crates/ggen-cli/src/cmds/init.rs` - Hardcoded file contents
 
 ### 3. Architectural Consistency Issues
 **Severity: MEDIUM**
@@ -62,9 +62,9 @@ This analysis reveals significant code quality issues across the ggen codebase a
 
 **Unsafe Code Usage:**
 - Found in 10 files including:
-  - `/Users/sac/ggen/crates/ggen-core/src/validation/preflight.rs`
-  - `/Users/sac/ggen/crates/ggen-dspy/src/lib.rs`
-  - `/Users/sac/ggen/crates/tai-loadbalancer/src/lib.rs`
+  - `./crates/ggen-core/src/validation/preflight.rs`
+  - `./crates/ggen-dspy/src/lib.rs`
+  - `./crates/tai-loadbalancer/src/lib.rs`
 
 ### 5. Documentation Gaps
 **Severity: MEDIUM**
@@ -85,7 +85,7 @@ This analysis reveals significant code quality issues across the ggen codebase a
 - Input validation shows proper security hardening
 
 **Input Validation Quality:**
-- `/Users/sac/ggen/crates/ggen-core/src/validation/input.rs` - Comprehensive validation framework
+- `./crates/ggen-core/src/validation/input.rs` - Comprehensive validation framework
 - Path validation with SafePath integration
 
 ## Code Smells
@@ -129,7 +129,7 @@ This analysis reveals significant code quality issues across the ggen codebase a
 ## Positive Findings
 
 ### 1. Excellent Error Handling Framework
-- `/Users/sac/ggen/crates/ggen-utils/src/error.rs` provides comprehensive error handling
+- `./crates/ggen-utils/src/error.rs` provides comprehensive error handling
 - Result<T,E> pattern properly implemented in most production code
 - Context propagation via traits
 

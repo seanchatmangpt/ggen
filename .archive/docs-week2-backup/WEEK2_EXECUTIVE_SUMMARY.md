@@ -77,7 +77,7 @@
 - ✅ **Compile-time validation** (syntax errors caught at build)
 - ✅ **Zero runtime overhead** (const array vs runtime glob)
 
-**Effort:** 7 hours | **Priority:** CRITICAL | **File:** `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_1_TEMPLATE_DISCOVERY.md`
+**Effort:** 7 hours | **Priority:** CRITICAL | **File:** `./docs/week2/ARCHITECTURE_DESIGN_1_TEMPLATE_DISCOVERY.md`
 
 **Rollout:**
 1. Phase 1: Implement `build.rs` with template scanning
@@ -99,7 +99,7 @@
 - ✅ **100% reduction in type mismatch errors** (158 → 0)
 - ✅ **Clear migration paths** (CHANGELOG.md + migration guide)
 
-**Effort:** 7 hours | **Priority:** HIGH | **File:** `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_2_API_VERSIONING.md`
+**Effort:** 7 hours | **Priority:** HIGH | **File:** `./docs/week2/ARCHITECTURE_DESIGN_2_API_VERSIONING.md`
 
 **Rollout:**
 1. Phase 1: Add `#[deprecated]` attributes to changed APIs
@@ -121,7 +121,7 @@
 - ✅ **Better API observability** (public methods useful for users)
 - ✅ **Reduced test maintenance** (2h → 15min per refactoring)
 
-**Effort:** 9 hours | **Priority:** HIGH | **File:** `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_3_CHICAGO_TDD_REFACTORING.md`
+**Effort:** 9 hours | **Priority:** HIGH | **File:** `./docs/week2/ARCHITECTURE_DESIGN_3_CHICAGO_TDD_REFACTORING.md`
 
 **Rollout:**
 1. Phase 1: Audit tests for private field access (grep script)
@@ -143,7 +143,7 @@
 - ✅ **Automated rollback** (on gate failures)
 - ✅ **Clear error messages** (actionable feedback in PR comments)
 
-**Effort:** 10 hours | **Priority:** HIGH | **File:** `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_4_CI_CD_INTEGRATION_GATES.md`
+**Effort:** 10 hours | **Priority:** HIGH | **File:** `./docs/week2/ARCHITECTURE_DESIGN_4_CI_CD_INTEGRATION_GATES.md`
 
 **Rollout:**
 1. Phase 1: Implement Andon signal detection script
@@ -165,7 +165,7 @@
 - ✅ **SLO compliance visibility** (automated enforcement)
 - ✅ **Continuous improvement** (objective metrics guide priorities)
 
-**Effort:** 6 hours | **Priority:** MEDIUM | **File:** `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_5_LEAN_METRICS_DASHBOARD.md`
+**Effort:** 6 hours | **Priority:** MEDIUM | **File:** `./docs/week2/ARCHITECTURE_DESIGN_5_LEAN_METRICS_DASHBOARD.md`
 
 **Rollout:**
 1. Phase 1: Implement metrics collection script
@@ -352,12 +352,12 @@ All designs include comprehensive ADRs documenting:
 ## Deliverables Summary
 
 **Architecture Design Documents:**
-1. `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_1_TEMPLATE_DISCOVERY.md` (7,200 lines)
-2. `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_2_API_VERSIONING.md` (6,800 lines)
-3. `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_3_CHICAGO_TDD_REFACTORING.md` (7,500 lines)
-4. `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_4_CI_CD_INTEGRATION_GATES.md` (8,100 lines)
-5. `/Users/sac/ggen/docs/week2/ARCHITECTURE_DESIGN_5_LEAN_METRICS_DASHBOARD.md` (5,900 lines)
-6. `/Users/sac/ggen/docs/week2/WEEK2_EXECUTIVE_SUMMARY.md` (this document)
+1. `./docs/week2/ARCHITECTURE_DESIGN_1_TEMPLATE_DISCOVERY.md` (7,200 lines)
+2. `./docs/week2/ARCHITECTURE_DESIGN_2_API_VERSIONING.md` (6,800 lines)
+3. `./docs/week2/ARCHITECTURE_DESIGN_3_CHICAGO_TDD_REFACTORING.md` (7,500 lines)
+4. `./docs/week2/ARCHITECTURE_DESIGN_4_CI_CD_INTEGRATION_GATES.md` (8,100 lines)
+5. `./docs/week2/ARCHITECTURE_DESIGN_5_LEAN_METRICS_DASHBOARD.md` (5,900 lines)
+6. `./docs/week2/WEEK2_EXECUTIVE_SUMMARY.md` (this document)
 
 **Total Documentation:** 35,500 lines of comprehensive architecture designs
 

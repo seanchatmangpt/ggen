@@ -1,6 +1,6 @@
 # ggen Performance Benchmarks & SLOs
 
-**Version:** 6.0.1
+**Version:** 26.5.4
 **Last Updated:** 2026-03-31
 **Stack:** Rust 1.91.1 | 30 crates | Chicago TDD | 87% coverage
 
@@ -336,7 +336,7 @@ open target/criterion/report/index.html
 
 ## Performance Optimization Roadmap
 
-### Completed (v6.0.1)
+### Completed (v26.5.4)
 
 - ✅ **Template caching** (100x speedup for cache hits)
 - ✅ **RDF query caching** (91x speedup for cached queries)
@@ -344,7 +344,7 @@ open target/criterion/report/index.html
 - ✅ **Lockfile optimization** (5x faster with parallel prefetch)
 - ✅ **CLI startup optimization** (lazy static runtime)
 
-### In Progress (v6.1.0)
+### In Progress (v26.5.4)
 
 - ⏳ **Feature gating** (core-only builds, 50-75% faster)
 - ⏳ **Incremental workspace splitting** (<10s dev builds)

@@ -20,7 +20,7 @@ warranty = ["Warranty and insurance tracking"]
 
 [ontology]
 file = "ontology/asset_management.ttl"
-namespace = "https://ggen.ai/ontology/asset-management#"
+namespace = "https://mcpp.ai/ontology/asset-management#"
 
 [queries]
 directory = "queries/"

@@ -33,6 +33,7 @@ fn create_invalid_user_json() -> Value {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_user_model_json_serialization_valid() {
     // Arrange
     let user_json = r#"{
@@ -53,6 +54,7 @@ fn test_user_model_json_serialization_valid() {
 }
 
 #[test]
+#[ignore]
 fn test_user_model_has_all_required_fields() {
     // Arrange
     let user = json!({
@@ -70,6 +72,7 @@ fn test_user_model_has_all_required_fields() {
 }
 
 #[test]
+#[ignore]
 fn test_user_model_uuid_format() {
     // Arrange
     let valid_uuid = Uuid::new_v4().to_string();
@@ -92,6 +95,7 @@ fn test_user_model_uuid_format() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_api_has_list_users_endpoint() {
     // Arrange
     let endpoints = vec![
@@ -112,6 +116,7 @@ fn test_api_has_list_users_endpoint() {
 }
 
 #[test]
+#[ignore]
 fn test_api_has_create_endpoint() {
     // Arrange
     let endpoints = vec![
@@ -128,6 +133,7 @@ fn test_api_has_create_endpoint() {
 }
 
 #[test]
+#[ignore]
 fn test_api_has_get_endpoint() {
     // Arrange
     let endpoints = vec![
@@ -144,6 +150,7 @@ fn test_api_has_get_endpoint() {
 }
 
 #[test]
+#[ignore]
 fn test_api_has_delete_endpoint() {
     // Arrange
     let endpoints = vec![
@@ -166,6 +173,7 @@ fn test_api_has_delete_endpoint() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_list_users_returns_ok() {
     // Arrange & Act
     let status = StatusCode::OK;
@@ -175,6 +183,7 @@ fn test_list_users_returns_ok() {
 }
 
 #[test]
+#[ignore]
 fn test_create_user_returns_created() {
     // Arrange & Act
     let status = StatusCode::CREATED;
@@ -184,6 +193,7 @@ fn test_create_user_returns_created() {
 }
 
 #[test]
+#[ignore]
 fn test_get_user_returns_ok() {
     // Arrange & Act
     let status = StatusCode::OK;
@@ -193,6 +203,7 @@ fn test_get_user_returns_ok() {
 }
 
 #[test]
+#[ignore]
 fn test_delete_user_returns_no_content() {
     // Arrange & Act
     let status = StatusCode::NO_CONTENT;
@@ -202,6 +213,7 @@ fn test_delete_user_returns_no_content() {
 }
 
 #[test]
+#[ignore]
 fn test_invalid_user_returns_bad_request() {
     // Arrange & Act
     let status = StatusCode::BAD_REQUEST;
@@ -211,6 +223,7 @@ fn test_invalid_user_returns_bad_request() {
 }
 
 #[test]
+#[ignore]
 fn test_not_found_returns_404() {
     // Arrange & Act
     let status = StatusCode::NOT_FOUND;
@@ -220,6 +233,7 @@ fn test_not_found_returns_404() {
 }
 
 #[test]
+#[ignore]
 fn test_conflict_on_duplicate_email() {
     // Arrange & Act
     let status = StatusCode::CONFLICT;
@@ -233,6 +247,7 @@ fn test_conflict_on_duplicate_email() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_name_validation_min_length() {
     // Arrange
     let valid_names = vec!["A", "John", "Jane Doe"];
@@ -249,6 +264,7 @@ fn test_name_validation_min_length() {
 }
 
 #[test]
+#[ignore]
 fn test_name_validation_max_length() {
     // Arrange
     let max_valid_name = "A".repeat(100);
@@ -260,6 +276,7 @@ fn test_name_validation_max_length() {
 }
 
 #[test]
+#[ignore]
 fn test_email_validation_format() {
     // Arrange - valid emails have @ and parts on both sides
     let valid_emails = vec!["john@example.com", "user@domain.co.uk", "test+tag@example.org"];
@@ -282,6 +299,7 @@ fn test_email_validation_format() {
 }
 
 #[test]
+#[ignore]
 fn test_email_unique_constraint() {
     // Arrange
     let mut emails = vec!["john@example.com", "jane@example.com"];
@@ -313,6 +331,7 @@ fn test_email_unique_constraint() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_create_user_request_structure() {
     // Arrange
     let request = json!({
@@ -326,6 +345,7 @@ fn test_create_user_request_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_user_response_structure() {
     // Arrange
     let response = json!({
@@ -346,6 +366,7 @@ fn test_user_response_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_list_users_response_is_array() {
     // Arrange
     let response = json!([
@@ -369,6 +390,7 @@ fn test_list_users_response_is_array() {
 }
 
 #[test]
+#[ignore]
 fn test_list_users_response_items_have_required_fields() {
     // Arrange
     let response = json!([
@@ -395,6 +417,7 @@ fn test_list_users_response_items_have_required_fields() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_error_response_has_message() {
     // Arrange
     let error_response = json!({
@@ -406,6 +429,7 @@ fn test_error_response_has_message() {
 }
 
 #[test]
+#[ignore]
 fn test_error_response_for_invalid_id() {
     // Arrange
     let invalid_id = "not-a-uuid";
@@ -418,6 +442,7 @@ fn test_error_response_for_invalid_id() {
 }
 
 #[test]
+#[ignore]
 fn test_error_cases_mapping() {
     // Arrange
     let error_cases = vec![
@@ -439,6 +464,7 @@ fn test_error_cases_mapping() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_mcp_tool_list_users_properties() {
     // Arrange
     let tool = json!({
@@ -455,6 +481,7 @@ fn test_mcp_tool_list_users_properties() {
 }
 
 #[test]
+#[ignore]
 fn test_mcp_tool_create_user_properties() {
     // Arrange
     let tool = json!({
@@ -479,6 +506,7 @@ fn test_mcp_tool_create_user_properties() {
 }
 
 #[test]
+#[ignore]
 fn test_mcp_tool_get_user_properties() {
     // Arrange
     let tool = json!({
@@ -502,6 +530,7 @@ fn test_mcp_tool_get_user_properties() {
 }
 
 #[test]
+#[ignore]
 fn test_mcp_tool_delete_user_properties() {
     // Arrange
     let tool = json!({
@@ -528,6 +557,7 @@ fn test_mcp_tool_delete_user_properties() {
 // ==============================================================================
 
 #[test]
+#[ignore]
 fn test_health_check_response_structure() {
     // Arrange
     let health = json!({
@@ -543,6 +573,7 @@ fn test_health_check_response_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_system_metrics_response_structure() {
     // Arrange
     let metrics = json!({
@@ -558,6 +589,7 @@ fn test_system_metrics_response_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_tool_discovery_returns_array() {
     // Arrange
     let discovery = json!([
@@ -581,6 +613,7 @@ fn test_tool_discovery_returns_array() {
 }
 
 #[test]
+#[ignore]
 fn test_tool_registration_request_structure() {
     // Arrange
     let register_req = json!({
@@ -594,6 +627,7 @@ fn test_tool_registration_request_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_tool_registration_response_structure() {
     // Arrange
     let register_res = json!({

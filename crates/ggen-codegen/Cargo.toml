@@ -1,5 +1,5 @@
 [package]
-name = "ggen-codegen"
+name = "mcpp-codegen"
 version = "0.1.0"
 edition = "2021"
 description = "Generic code generation framework: trait-based, zero-cost abstractions"

@@ -7,11 +7,11 @@ use tempfile::TempDir;
 use tokio;
 
 // Import domain logic (not CLI)
-use ggen_marketplace::backend::LocalRegistry;
-use ggen_marketplace::models::{
+use ggen_core::marketplace::backend::LocalRegistry;
+use ggen_core::marketplace::models::{
     Category, ContentId, HashAlgorithm, Package, PackageId, PackageMetadata, PackageStats, Version,
 };
-use ggen_marketplace::traits::Registry;
+use ggen_core::marketplace::traits::Registry;
 
 /// Test 1: LocalRegistry creation and initialization
 #[tokio::test]
@@ -83,7 +83,7 @@ async fn test_package_add_and_retrieve() {
     );
 
     // AND: Package should be searchable
-    let query = ggen_marketplace::models::Query::new("Test Package");
+    let query = ggen_core::marketplace::models::Query::new("Test Package");
     let search_results = registry.search(&query).await;
     assert!(search_results.is_ok(), "Failed to search for package");
 
@@ -120,7 +120,7 @@ async fn test_search_by_name() {
         .expect("Failed to add package3");
 
     // WHEN: Searching for "web" packages
-    let query = ggen_marketplace::models::Query::new("web");
+    let query = ggen_core::marketplace::models::Query::new("web");
     let results = registry.search(&query).await.expect("Search failed");
 
     // THEN: Should find web-related packages

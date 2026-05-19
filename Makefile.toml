@@ -1,8 +1,8 @@
 # GitHub API configuration
 [env]
-GITHUB_REPO = "seanchatmangpt/ggen"
+GITHUB_REPO = "seanchatmangpt/mcpp"
 GITHUB_API = "https://api.github.com"
-GITHUB_PAGES_URL = "https://seanchatmangpt.github.io/ggen"
+GITHUB_PAGES_URL = "https://seanchatmangpt.github.io/mcpp"
 # Act configuration for local GitHub Actions testing
 ACT_CONTAINER_ARCH = "linux/amd64"
 ACT_PLATFORM = "ubuntu-latest=catthehacker/ubuntu:act-latest"
@@ -44,7 +44,7 @@ args = ["30s", "cargo", "check"]
 [tasks.build]
 description = "Build in debug mode"
 command = "timeout"
-args = ["10s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen"]
+args = ["10s", "cargo", "build", "-p", "mcpp-cli-lib", "--bin", "mcpp"]
 
 [tasks.build-release]
 description = "Build in release mode"
@@ -55,24 +55,24 @@ args = [
   "build",
   "--release",
   "-p",
-  "ggen-cli-lib",
+  "mcpp-cli-lib",
   "--bin",
-  "ggen",
+  "mcpp",
 ]
 run_task = { name = "verify-binary" }
 
 [tasks.verify-binary]
-description = "Verify ggen binary was built"
+description = "Verify mcpp binary was built"
 workspace = false
 script_runner = "@shell"
 script = '''
 #!/bin/bash
-if [ -f "target/release/ggen" ]; then
-    echo "✅ Binary found: target/release/ggen"
-    ls -lh target/release/ggen
-elif [ -f "target/debug/ggen" ]; then
-    echo "✅ Binary found: target/debug/ggen"
-    ls -lh target/debug/ggen
+if [ -f "target/release/mcpp" ]; then
+    echo "✅ Binary found: target/release/mcpp"
+    ls -lh target/release/mcpp
+elif [ -f "target/debug/mcpp" ]; then
+    echo "✅ Binary found: target/debug/mcpp"
+    ls -lh target/debug/mcpp
 else
     echo "❌ Binary not found in expected locations"
     exit 1
@@ -377,7 +377,7 @@ script = '''
 #!/bin/bash
 set -euo pipefail
 
-DOC_CMD=(cargo test --doc --workspace --exclude ggen-node)
+DOC_CMD=(cargo test --doc --workspace --exclude mcpp-node)
 
 if timeout 60s "${DOC_CMD[@]}"; then
   exit 0
@@ -441,7 +441,7 @@ echo ""
 
 # Run RDF validation tests
 echo "📋 Running RDF validation tests..."
-timeout 30s cargo test --package ggen-core --lib rdf::validation -- --nocapture || {
+timeout 30s cargo test --package mcpp-core --lib rdf::validation -- --nocapture || {
     echo "❌ RDF validation tests failed"
     exit 1
 }
@@ -449,7 +449,7 @@ timeout 30s cargo test --package ggen-core --lib rdf::validation -- --nocapture 
 # Run graph validation tests
 echo ""
 echo "📋 Running graph validation tests..."
-timeout 30s cargo test --package ggen-core --lib graph -- --nocapture || {
+timeout 30s cargo test --package mcpp-core --lib graph -- --nocapture || {
     echo "❌ Graph validation tests failed"
     exit 1
 }
@@ -486,7 +486,7 @@ echo "  ✓ Deterministic processing verification"
 [tasks.test-testcontainers]
 description = "Run testcontainers production readiness validation tests"
 command = "cargo"
-args = ["test", "--package", "ggen-cli-lib", "--test", "integration"]
+args = ["test", "--package", "mcpp-cli-lib", "--test", "integration"]
 env = { "RUST_LOG" = "info" }
 
 [tasks.test-cleanroom]
@@ -496,7 +496,7 @@ command = "cargo"
 args = [
   "test",
   "--package",
-  "ggen-cli-lib",
+  "mcpp-cli-lib",
   "--test",
   "integration_tests",
   "--",
@@ -577,7 +577,7 @@ args = [
   "--test",
   "ollama_integration",
   "-p",
-  "ggen-ai",
+  "mcpp-ai",
 ]
 
 [tasks.test-openai]
@@ -599,7 +599,7 @@ command = "cargo"
 args = [
   "test",
   "--package",
-  "ggen-ai",
+  "mcpp-ai",
   "--features",
   "ollama-integration",
   "--test",
@@ -613,7 +613,7 @@ command = "cargo"
 args = [
   "test",
   "--package",
-  "ggen-ai",
+  "mcpp-ai",
   "--features",
   "ollama-integration",
   "--test",
@@ -994,13 +994,13 @@ command = "timeout"
 args = ["30s", "mdbook", "build", "docs"]
 
 [tasks.docs-build-sync-patterns]
-description = "Build A Pattern Language for ggen sync book"
+description = "Build A Pattern Language for mcpp sync book"
 workspace = false
 command = "timeout"
 args = ["30s", "mdbook", "build", "docs/sync-patterns"]
 
 [tasks.docs-build-java26-patterns]
-description = "Build A Pattern Language for Java 26 with ggen book"
+description = "Build A Pattern Language for Java 26 with mcpp book"
 workspace = false
 command = "timeout"
 args = ["30s", "mdbook", "build", "docs/java26-patterns"]
@@ -1118,13 +1118,13 @@ command = "./marketplace/scripts/generate_validation_report.sh"
 description = "Emit validation receipts for all marketplace packages (Track A)"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "emit_receipts", "--marketplace_root", "."]
+args = ["run", "--release", "-p", "mcpp-cli-lib", "--bin", "mcpp", "--", "marketplace", "emit_receipts", "--marketplace_root", "."]
 
 [tasks.marketplace-health]
 description = "Generate marketplace health report from validation receipts"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "report", "--marketplace_root", "."]
+args = ["run", "--release", "-p", "mcpp-cli-lib", "--bin", "mcpp", "--", "marketplace", "report", "--marketplace_root", "."]
 
 [tasks.marketplace-validate-with-receipts]
 description = "Validate all packages and emit receipts (combined Track A)"
@@ -1135,7 +1135,7 @@ dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
 description = "Generate JSON registry and Markdown from receipts (Track B)"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "generate_artifacts", "--marketplace_root", "."]
+args = ["run", "--release", "-p", "mcpp-cli-lib", "--bin", "mcpp", "--", "marketplace", "generate_artifacts", "--marketplace_root", "."]
 
 [tasks.marketplace-full-pipeline]
 description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"
@@ -1331,7 +1331,7 @@ command = "cargo"
 args = [
   "run",
   "--bin",
-  "ggen",
+  "mcpp",
   "--",
   "shell",
   "completion",
@@ -1348,7 +1348,7 @@ command = "cargo"
 args = [
   "run",
   "--bin",
-  "ggen",
+  "mcpp",
   "--",
   "shell",
   "completion",
@@ -1361,7 +1361,7 @@ args = [
 [tasks.completions-list]
 description = "List supported shell completion types"
 command = "cargo"
-args = ["run", "--bin", "ggen", "--", "shell", "completion", "list"]
+args = ["run", "--bin", "mcpp", "--", "shell", "completion", "list"]
 
 # =============================================================================
 # Node.js N-API addon tasks
@@ -1465,7 +1465,7 @@ description = "Open latest metrics dashboard in browser"
 workspace = false
 script = '''
 #!/bin/bash
-DASHBOARD="/Users/sac/ggen/docs/metrics/latest.html"
+DASHBOARD="~/.ggen/mcpp/docs/metrics/latest.html"
 if [[ -f "$DASHBOARD" ]]; then
     open "$DASHBOARD" 2>/dev/null || xdg-open "$DASHBOARD" 2>/dev/null || echo "Dashboard: $DASHBOARD"
 else
@@ -1478,7 +1478,7 @@ description = "Show current Kaizen metrics status"
 workspace = false
 script = '''
 #!/bin/bash
-LATEST="/Users/sac/ggen/.metrics/latest.json"
+LATEST="~/.ggen/mcpp/.metrics/latest.json"
 if [[ ! -f "$LATEST" ]]; then
     echo "⚠️  No metrics collected yet. Run: cargo make metrics-collect"
     exit 1

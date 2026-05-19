@@ -5,8 +5,8 @@
 
 #[allow(unused_imports)] // Macros are used in async_test! blocks
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::marketplace::search::{search_packages, SearchFilters};
-use ggen_utils::error::Result;
+use ggen_core::domain::marketplace::search::{search_packages, SearchFilters};
+use ggen_core::utils::error::Result;
 use std::fs;
 use tempfile::TempDir;
 

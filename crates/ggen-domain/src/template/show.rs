@@ -1,6 +1,6 @@
 //! Template show domain logic
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -21,7 +21,7 @@ pub struct TemplateMetadata {
 pub fn show_template_metadata(template_ref: &str) -> Result<TemplateMetadata> {
     // Determine template path
     let template_path = if template_ref.starts_with("gpack:") {
-        return Err(ggen_utils::error::Error::new(
+        return Err(ggen_core::utils::error::Error::new(
             "gpack templates not yet supported",
         ));
     } else if template_ref.contains('/') {
@@ -33,7 +33,7 @@ pub fn show_template_metadata(template_ref: &str) -> Result<TemplateMetadata> {
     // Check if template exists
     let path = std::path::Path::new(&template_path);
     if !path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Template not found: {}",
             template_path
         )));
@@ -41,7 +41,7 @@ pub fn show_template_metadata(template_ref: &str) -> Result<TemplateMetadata> {
 
     // Read template content
     let content = fs::read_to_string(&template_path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
 
     // Parse template metadata
     parse_template_metadata(&content, &template_path)
@@ -242,40 +242,40 @@ pub fn execute_show(input: ShowInput) -> Result<ShowOutput> {
 pub fn run(args: &ShowInput) -> Result<()> {
     let output = execute_show(args.clone())?;
 
-    ggen_utils::alert_info!("📋 Template: {}", output.name);
-    ggen_utils::alert_info!("📍 Path: {}", output.path);
+    ggen_core::utils::alert_info!("📋 Template: {}", output.name);
+    ggen_core::utils::alert_info!("📍 Path: {}", output.path);
 
     if let Some(desc) = &output.description {
-        ggen_utils::alert_info!("📝 Description: {}", desc);
+        ggen_core::utils::alert_info!("📝 Description: {}", desc);
     }
 
     if let Some(output_path) = &output.output_path {
-        ggen_utils::alert_info!("📂 Output path: {}", output_path);
+        ggen_core::utils::alert_info!("📂 Output path: {}", output_path);
     }
 
     if !output.variables.is_empty() {
-        ggen_utils::alert_info!("\n🔧 Variables ({}):", output.variables.len());
+        ggen_core::utils::alert_info!("\n🔧 Variables ({}):", output.variables.len());
         for var in &output.variables {
-            ggen_utils::alert_info!("  • {}", var);
+            ggen_core::utils::alert_info!("  • {}", var);
         }
     }
 
     if !output.rdf_sources.is_empty() {
-        ggen_utils::alert_info!("\n🔗 RDF Sources ({}):", output.rdf_sources.len());
+        ggen_core::utils::alert_info!("\n🔗 RDF Sources ({}):", output.rdf_sources.len());
         for source in &output.rdf_sources {
-            ggen_utils::alert_info!("  • {}", source);
+            ggen_core::utils::alert_info!("  • {}", source);
         }
     }
 
     if !output.sparql_queries.is_empty() {
-        ggen_utils::alert_info!("\n🔍 SPARQL Queries ({}):", output.sparql_queries.len());
+        ggen_core::utils::alert_info!("\n🔍 SPARQL Queries ({}):", output.sparql_queries.len());
         for (name, query) in &output.sparql_queries {
-            ggen_utils::alert_info!("  • {}: {}", name, query);
+            ggen_core::utils::alert_info!("  • {}: {}", name, query);
         }
     }
 
     if let Some(seed) = output.determinism_seed {
-        ggen_utils::alert_info!("\n🎲 Determinism seed: {}", seed);
+        ggen_core::utils::alert_info!("\n🎲 Determinism seed: {}", seed);
     }
 
     Ok(())

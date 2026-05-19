@@ -1,6 +1,6 @@
 // Unit test modules
 // NOTE: All unit test modules archived to tests-archive/broken-2025-11-21/ggen-domain/unit
-// due to stale API references (ggen_domain::hook::*, project::*, rdf_validation::*)
+// due to stale API references (ggen_core::domain::hook::*, project::*, rdf_validation::*)
 //
 // Archived modules:
 // - template_lint_tests

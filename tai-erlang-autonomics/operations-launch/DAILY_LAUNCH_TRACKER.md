@@ -526,7 +526,7 @@ Top 3 risks to watch:
 ## File Storage & Sharing
 
 ```
-Location: /Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+Location: ~/.ggen/mcpp/tai-erlang-autonomics/operations-launch/
 
 Daily tracker LIVE copies:
 ☐ Print-out (laminated for Day 1)

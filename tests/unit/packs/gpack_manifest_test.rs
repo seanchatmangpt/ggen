@@ -6,7 +6,7 @@
 //! - Pattern matching
 //! - Default conventions
 
-use ggen_core::gpack::{GpackManifest, PackConventions};
+use mcpp_core::gpack::{GpackManifest, PackConventions};
 use std::collections::BTreeMap;
 use std::fs;
 use std::io::Write;
@@ -26,7 +26,7 @@ name = "Minimal Pack"
 version = "1.0.0"
 description = "Test pack"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -45,7 +45,7 @@ name = "Full Pack"
 version = "2.1.0"
 description = "Complete test pack"
 license = "MIT OR Apache-2.0"
-ggen_compat = ">=3.0.0 <4.0.0"
+mcpp_compat = ">=3.0.0 <4.0.0"
 
 [dependencies]
 "test.dep1" = "^1.0"
@@ -107,7 +107,7 @@ fn test_parse_manifest_missing_required_field() {
 id = "test.incomplete"
 name = "Incomplete"
 version = "1.0.0"
-# Missing description, license, ggen_compat
+# Missing description, license, mcpp_compat
 "#;
 
     let result: Result<GpackManifest, _> = toml::from_str(toml);
@@ -304,7 +304,7 @@ name = ""
 version = "1.0.0"
 description = ""
 license = ""
-ggen_compat = ""
+mcpp_compat = ""
 "#;
 
     // Should parse but may fail validation later
@@ -322,7 +322,7 @@ name = "Special™ Pack®"
 version = "1.0.0-beta.1+build.123"
 description = "Test with émojis 🚀 and símböls"
 license = "MIT OR Apache-2.0"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -341,7 +341,7 @@ name = "Long Pack"
 version = "1.0.0"
 description = "{}"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#,
         long_desc
     );
@@ -380,21 +380,21 @@ fn test_pack_conventions_defaults() {
 
 fn minimal_manifest() -> GpackManifest {
     GpackManifest {
-        metadata: ggen_core::gpack::GpackMetadata {
+        metadata: mcpp_core::gpack::GpackMetadata {
             id: "test.minimal".to_string(),
             name: "Test Pack".to_string(),
             version: "1.0.0".to_string(),
             description: "Test pack".to_string(),
             license: "MIT".to_string(),
-            ggen_compat: ">=3.0.0".to_string(),
+            mcpp_compat: ">=3.0.0".to_string(),
         },
         dependencies: BTreeMap::new(),
-        templates: ggen_core::gpack::TemplatesConfig::default(),
-        macros: ggen_core::gpack::MacrosConfig::default(),
-        rdf: ggen_core::gpack::RdfConfig::default(),
-        queries: ggen_core::gpack::QueriesConfig::default(),
-        shapes: ggen_core::gpack::ShapesConfig::default(),
-        preset: ggen_core::gpack::PresetConfig::default(),
+        templates: mcpp_core::gpack::TemplatesConfig::default(),
+        macros: mcpp_core::gpack::MacrosConfig::default(),
+        rdf: mcpp_core::gpack::RdfConfig::default(),
+        queries: mcpp_core::gpack::QueriesConfig::default(),
+        shapes: mcpp_core::gpack::ShapesConfig::default(),
+        preset: mcpp_core::gpack::PresetConfig::default(),
     }
 }
 

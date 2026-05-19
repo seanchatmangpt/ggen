@@ -261,9 +261,9 @@ pub struct GenerationPlan {
 ## Implementation Location
 
 Create implementation files at:
-- `/Users/sac/ggen/cli/src/conventions/resolver.rs`
-- `/Users/sac/ggen/cli/src/conventions/planner.rs`
-- `/Users/sac/ggen/cli/src/conventions/generator.rs`
+- `./cli/src/conventions/resolver.rs`
+- `./cli/src/conventions/planner.rs`
+- `./cli/src/conventions/generator.rs`
 
 ## Mock Filesystem Abstraction
 
@@ -326,8 +326,8 @@ cargo test --package ggen-cli-lib test_discover_rdf_files_alphabetical_order
 
 1. **Create module structure**:
    ```bash
-   mkdir -p /Users/sac/ggen/cli/src/conventions
-   touch /Users/sac/ggen/cli/src/conventions/{mod.rs,resolver.rs,planner.rs,generator.rs}
+   mkdir -p ./cli/src/conventions
+   touch ./cli/src/conventions/{mod.rs,resolver.rs,planner.rs,generator.rs}
    ```
 
 2. **Implement FileSystem trait** in `resolver.rs`

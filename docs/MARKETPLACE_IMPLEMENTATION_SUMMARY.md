@@ -41,7 +41,7 @@ All marketplace commands have been implemented with **REAL functionality**, not 
 
 ### Core Infrastructure
 
-**Location**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/marketplace.rs`
+**Location**: `./crates/ggen-cli/src/cmds/marketplace.rs`
 
 - **1,747 lines** of production code
 - **19 command verbs** using `#[verb]` macro
@@ -49,7 +49,7 @@ All marketplace commands have been implemented with **REAL functionality**, not 
 
 ### Test Data
 
-**Location**: `/Users/sac/ggen/crates/ggen-marketplace/src/assessment_helpers.rs`
+**Location**: `./crates/ggen-marketplace/src/assessment_helpers.rs`
 
 **5 realistic test packages**:
 1. **Research Compiler** - 94/100 (Enterprise)
@@ -70,7 +70,7 @@ Each package includes:
 
 ### Maturity Algorithm
 
-**Real Implementation** in `/Users/sac/ggen/crates/ggen-marketplace/src/maturity_evaluator.rs`:
+**Real Implementation** in `./crates/ggen-marketplace/src/maturity_evaluator.rs`:
 
 ```rust
 pub fn evaluate(input: EvaluationInput) -> MaturityAssessment {
@@ -319,17 +319,17 @@ All commands tested and verified:
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-cli/src/cmds/marketplace.rs` - All commands
-2. `/Users/sac/ggen/crates/ggen-domain/src/lib.rs` - Removed orphaned hook import
-3. `/Users/sac/ggen/crates/ggen-domain/src/marketplace/mod.rs` - Added hook module
-4. `/Users/sac/ggen/crates/ggen-domain/src/marketplace/hook/monitor.rs` - Fixed imports
-5. `/Users/sac/ggen/crates/ggen-cli/src/cmds/hook.rs` - Updated hook import path
+1. `./crates/ggen-cli/src/cmds/marketplace.rs` - All commands
+2. `./crates/ggen-domain/src/lib.rs` - Removed orphaned hook import
+3. `./crates/ggen-domain/src/marketplace/mod.rs` - Added hook module
+4. `./crates/ggen-domain/src/marketplace/hook/monitor.rs` - Fixed imports
+5. `./crates/ggen-cli/src/cmds/hook.rs` - Updated hook import path
 
 ## Documentation Created
 
-1. `/Users/sac/ggen/docs/MARKETPLACE_COMMANDS_COMPLETE.md` - Full implementation details
-2. `/Users/sac/ggen/docs/MARKETPLACE_QUICK_REFERENCE.md` - Command reference guide
-3. `/Users/sac/ggen/docs/MARKETPLACE_IMPLEMENTATION_SUMMARY.md` - This file
+1. `./docs/MARKETPLACE_COMMANDS_COMPLETE.md` - Full implementation details
+2. `./docs/MARKETPLACE_QUICK_REFERENCE.md` - Command reference guide
+3. `./docs/MARKETPLACE_IMPLEMENTATION_SUMMARY.md` - This file
 
 ## Conclusion
 

@@ -5,7 +5,7 @@
 //! package files (that's Phase 2-3) - it only tracks installation metadata.
 
 use crate::lockfile::LockfileManager;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -54,7 +54,7 @@ pub struct PackInstallResult {
 /// use ggen_core::packs::install_pack;
 /// use std::path::Path;
 ///
-/// # async fn example() -> ggen_utils::error::Result<()> {
+/// # async fn example() -> crate::utils::error::Result<()> {
 /// let result = install_pack(
 ///     "rust-cli",
 ///     Some("1.0.0"),

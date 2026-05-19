@@ -7,7 +7,7 @@
 ### What Exists (Already Implemented)
 
 #### 1. ✅ Domain Layer (`cli/src/domain/utils/doctor.rs`)
-- **Location**: `/Users/sac/ggen/cli/src/domain/utils/doctor.rs`
+- **Location**: `./cli/src/domain/utils/doctor.rs`
 - **Lines**: 553 LOC (comprehensive async business logic)
 - **Status**: COMPLETE
 
@@ -44,7 +44,7 @@ pub async fn run_doctor(
 ```
 
 #### 2. ✅ CLI Wrapper Layer (`cli/src/commands/utils/doctor.rs`)
-- **Location**: `/Users/sac/ggen/cli/src/commands/utils/doctor.rs`
+- **Location**: `./cli/src/commands/utils/doctor.rs`
 - **Lines**: 87 LOC (sync wrapper with runtime bridge)
 - **Status**: COMPLETE
 
@@ -73,7 +73,7 @@ pub fn run(args: &DoctorArgs) -> Result<()> {
 ```
 
 #### 3. ✅ Runtime Bridge (`cli/src/runtime.rs`)
-- **Location**: `/Users/sac/ggen/cli/src/runtime.rs`
+- **Location**: `./cli/src/runtime.rs`
 - **Lines**: 38 LOC
 - **Status**: COMPLETE (from Agent 2)
 

@@ -40,7 +40,7 @@ Successfully implemented comprehensive swarm intelligence capabilities for the H
 ## Files Created
 
 ### 1. `swarm_intelligence.rs` (589 LOC)
-**Location**: `/Users/sac/ggen/crates/ggen-core/src/config/swarm_intelligence.rs`
+**Location**: `./crates/ggen-core/src/config/swarm_intelligence.rs`
 
 #### Key Components:
 
@@ -73,7 +73,7 @@ Successfully implemented comprehensive swarm intelligence capabilities for the H
 - Deadlock detection and handling
 
 ### 2. `swarm_coordinator.rs` (514 LOC)
-**Location**: `/Users/sac/ggen/crates/ggen-core/src/config/swarm_coordinator.rs`
+**Location**: `./crates/ggen-core/src/config/swarm_coordinator.rs`
 
 #### Key Components:
 
@@ -133,7 +133,7 @@ Successfully implemented comprehensive swarm intelligence capabilities for the H
 
 ## Module Exports
 
-Updated `/Users/sac/ggen/crates/ggen-core/src/config/mod.rs`:
+Updated `./crates/ggen-core/src/config/mod.rs`:
 
 ```rust
 pub use swarm_intelligence::{

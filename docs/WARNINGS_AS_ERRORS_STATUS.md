@@ -39,7 +39,7 @@
 
 ### Workspace-Level Enforcement
 
-Located in `/Users/sac/ggen/Cargo.toml` at line 113:
+Located in `./Cargo.toml` at line 113:
 
 ```toml
 [workspace.lints.rust]

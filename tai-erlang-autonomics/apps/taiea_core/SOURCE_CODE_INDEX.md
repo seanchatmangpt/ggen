@@ -113,7 +113,7 @@
 ### Starting taiea_core in development
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/apps/taiea_core
+cd ~/.ggen/mcpp/tai-erlang-autonomics/apps/taiea_core
 
 # Compile
 rebar3 compile

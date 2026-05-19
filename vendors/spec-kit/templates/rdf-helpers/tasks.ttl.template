@@ -146,4 +146,4 @@
 # 8. Create tasks for Polish phase (docs, optimization, final tests)
 # 9. Set parallelizable based on dependencies (false if must run sequentially)
 # 10. Set dependencies using comma-separated task IDs (e.g., "T001, T002")
-# 11. Generate tasks.md: ggen render templates/tasks.tera ontology/tasks.ttl > generated/tasks.md
+# 11. Generate tasks.md: mcpp render templates/tasks.tera ontology/tasks.ttl > generated/tasks.md

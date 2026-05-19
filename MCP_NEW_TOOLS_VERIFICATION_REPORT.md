@@ -12,7 +12,7 @@ The 4 new MCP tools that were supposed to be tested **do not exist** in the Ggen
 
 ### Existing Tools (13 tools)
 
-The GgenMcpServer in `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` currently implements:
+The GgenMcpServer in `./crates/ggen-a2a-mcp/src/ggen_server.rs` currently implements:
 
 1. **generate** - Generate code from RDF ontology file (μ₁-μ₅ pipeline)
 2. **validate** - Validate Turtle (.ttl) ontology content string
@@ -43,7 +43,7 @@ The following tools are **NOT implemented**:
 
 ### 1. Source Code Analysis
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (1597 lines)
+**File:** `./crates/ggen-a2a-mcp/src/ggen_server.rs` (1597 lines)
 
 - Lines 342-1190: All tool implementations marked with `#[tool]` macro
 - Only 13 tools found (listed above)
@@ -59,7 +59,7 @@ $ grep -r "generate_agents\|generate_a2a_test\|validate_fibo\|orchestrate_conver
 
 ### 2. Test File References
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs`
+**File:** `./crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs`
 
 This test file references non-existent methods:
 
@@ -185,8 +185,8 @@ Based on the test file references, priority order:
 5. Run integration tests
 
 **Files to Modify:**
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` - Add tool implementations
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs` - Update once tools exist
+- `./crates/ggen-a2a-mcp/src/ggen_server.rs` - Add tool implementations
+- `./crates/ggen-a2a-mcp/tests/mcp_tools_verification.rs` - Update once tools exist
 
 **Test Command (after implementation):**
 ```bash

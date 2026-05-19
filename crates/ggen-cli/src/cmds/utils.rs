@@ -50,7 +50,7 @@ struct EnvSetOutput {
 #[verb]
 fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput> {
     let format = format.unwrap_or_else(|| "table".to_string());
-    use ggen_domain::utils::{execute_doctor, DoctorInput};
+    use ggen_core::domain::utils::{execute_doctor, DoctorInput};
 
     let input = DoctorInput {
         verbose: all,
@@ -60,11 +60,11 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 
     let result = crate::runtime::block_on(async move {
         execute_doctor(input).await.map_err(|e| {
-            ggen_utils::error::Error::new(&format!("System diagnostics failed: {}", e))
+            ggen_core::utils::error::Error::new(&format!("System diagnostics failed: {}", e))
         })
     })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
+    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 

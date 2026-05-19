@@ -101,7 +101,7 @@ fn e2e_cli_workflow() {
 - **Comprehensive integration tests**
 
 **✅ Chicago TDD Already Applied**:
-Looking at `/Users/sac/ggen/cli/tests/integration.rs`:
+Looking at `./cli/tests/integration.rs`:
 - Real command execution with `assert_cmd`
 - Actual file system operations with `TempDir`
 - End-to-end workflows (template → generate → verify)

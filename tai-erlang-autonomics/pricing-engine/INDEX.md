@@ -28,7 +28,7 @@ Start here based on what you need:
 ## File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/
+~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine/
 
 src/
 └── ac_eval_mode.erl (499 LOC - production module)
@@ -232,7 +232,7 @@ No locks, no blocking, no contention.
 
 Run all tests:
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+cd ~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine
 rebar3 eunit --module=ac_eval_mode_tests
 ```
 

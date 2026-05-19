@@ -1,4 +1,4 @@
-# ggen CLAUDE.md Refactor Strategy (RFC)
+# mcpp CLAUDE.md Refactor Strategy (RFC)
 ## Bleeding Edge Best Practices from qlever_poc
 
 **Date**: 2026-01-03
@@ -9,19 +9,19 @@
 
 ## Executive Summary
 
-This refactoring integrates **three paradigm shifts** from qlever_poc into ggen's constitution:
+This refactoring integrates **three paradigm shifts** from qlever_poc into mcpp's constitution:
 
 1. **Big Bang 80/20 Philosophy** - Single-pass construction in low-entropy domains; iteration signals incomplete specification
 2. **EPIC 9: Atomic Cognitive Cycle** - Mandatory multi-agent collaboration with collision detection and convergence (not consensus)
 3. **Deterministic Validation** - Receipts replace review; benchmarks replace narratives; guards replace trust
 
-**Impact**: Shifts ggen from sequential (plan→code→test→review) to **parallel-first, specification-driven, collision-aware** architecture.
+**Impact**: Shifts mcpp from sequential (plan→code→test→review) to **parallel-first, specification-driven, collision-aware** architecture.
 
 ---
 
 ## Part 1: Current State Analysis
 
-### ggen's Current Philosophy
+### mcpp's Current Philosophy
 
 | Aspect | Current |
 |--------|---------|
@@ -49,7 +49,7 @@ This refactoring integrates **three paradigm shifts** from qlever_poc into ggen'
 
 ### Shift 1: Big Bang 80/20 (Specification-First)
 
-**Current ggen approach:**
+**Current mcpp approach:**
 ```
 [Vague requirement] → Plan → Code → Test → [Iterate if broken]
 ```
@@ -59,7 +59,7 @@ This refactoring integrates **three paradigm shifts** from qlever_poc into ggen'
 [Specification closure verification] → [Single-pass construction] → [Validation receipts]
 ```
 
-**Application to ggen**:
+**Application to mcpp**:
 - Formal specification closure before any implementation (BEFORE agent dispatch)
 - Specification incompleteness is detected and reported (not iterated around)
 - Code generation is "compilation from compressed manifold" (specification → code, not discovery)
@@ -80,7 +80,7 @@ Specification closure means:
 If iteration occurs, specification was incomplete. This is NOT normal workflow; it is diagnostic.
 
 **Process**:
-1. Formalize requirements (RDF .ttl for ggen)
+1. Formalize requirements (RDF .ttl for mcpp)
 2. Run `/speckit-verify` (check closure)
 3. On incomplete signal: STOP, clarify, update .ttl
 4. Only after closure ✓: Proceed to implementation
@@ -90,7 +90,7 @@ If iteration occurs, specification was incomplete. This is NOT normal workflow; 
 
 ### Shift 2: EPIC 9 - Atomic Cognitive Cycle (Parallel-First)
 
-**Current ggen approach:**
+**Current mcpp approach:**
 ```
 Plan agent writes plan → Code agent reads plan → Test agent tests code → Reviewer reviews all
 ```
@@ -101,7 +101,7 @@ Plan agent writes plan → Code agent reads plan → Test agent tests code → R
 → [Convergence via selection pressure] → [Refactoring] → [Closure]
 ```
 
-**Application to ggen**:
+**Application to mcpp**:
 
 For non-trivial tasks (default):
 
@@ -139,7 +139,7 @@ For non-trivial tasks (default):
 ```markdown
 ### EPIC 9: Atomic Cognitive Cycle (Mandatory for Non-Trivial)
 
-[Same structure as qlever_poc, adapted for ggen crates/specs]
+[Same structure as qlever_poc, adapted for mcpp crates/specs]
 
 ### Agents-First Pattern (Recommended)
 
@@ -161,7 +161,7 @@ This achieves:
 
 ### Shift 3: Deterministic Validation (Evidence > Narrative)
 
-**Current ggen approach:**
+**Current mcpp approach:**
 ```
 Compiler ✓ → Tests ✓ → Clippy ✓ → [Human review] → Approved
 ```
@@ -171,7 +171,7 @@ Compiler ✓ → Tests ✓ → Clippy ✓ → [Human review] → Approved
 Benchmarks → Guards → Receipts (reproducible, no human narrative needed)
 ```
 
-**Application to ggen**:
+**Application to mcpp**:
 
 ```markdown
 ### Deterministic Validation (No Narratives)
@@ -235,7 +235,7 @@ ALWAYS: "[Receipt] cargo make lint passed with 0 warnings. [Receipt] All 347 tes
 
 ### Section B: Add EPIC 9 as First-Class Concept
 
-**New Section (Full Copy from qlever_poc, adapted for ggen)**:
+**New Section (Full Copy from qlever_poc, adapted for mcpp)**:
 
 ```markdown
 ## EPIC 9: Atomic Cognitive Cycle (Multi-Agent Construction Law)
@@ -384,7 +384,7 @@ Create `.claude/commands/` additions:
 
 ---
 
-## Part 5: Integration with Existing ggen Patterns
+## Part 5: Integration with Existing mcpp Patterns
 
 ### How EPIC 9 Plays with Cargo Make
 
@@ -444,7 +444,7 @@ HIGH CONFIDENCE. Proceed.
 ### Phase 3: Hardening (Ongoing)
 - Add hooks for specification closure checks
 - Implement convergence process as code (not manual)
-- Create collision detection CLI tool (ggen collision-detect)
+- Create collision detection CLI tool (mcpp collision-detect)
 
 ### Phase 4: Default Workflow (Long-term)
 - All non-trivial tasks use EPIC 9 by default
@@ -468,7 +468,7 @@ HIGH CONFIDENCE. Proceed.
 ### Q: Can we skip specification closure?
 **A**: No. If you do, you'll iterate. Iteration is the defect signal of incomplete spec.
 
-### Q: Does this break existing ggen patterns?
+### Q: Does this break existing mcpp patterns?
 **A**: No. Cargo Make, Chicago TDD, RDF-first, Andon Signals all still apply. EPIC 9 is an orchestration layer on top.
 
 ---
@@ -492,7 +492,7 @@ Refactoring is complete when:
 ## Appendix: File Structure Changes
 
 ```
-ggen/
+mcpp/
 ├── CLAUDE.md (REFACTORED: 🎯→🚨→EPIC 9→LAWS→TOOLS)
 ├── .refactor/
 │   ├── REFACTOR_STRATEGY.md (this file)

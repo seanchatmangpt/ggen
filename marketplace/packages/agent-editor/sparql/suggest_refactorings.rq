@@ -1,4 +1,4 @@
-PREFIX ed: <http://ggen.io/ontology/editor#>
+PREFIX ed: <http://mcpp.io/ontology/editor#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # Query: Get refactoring suggestions with confidence scores

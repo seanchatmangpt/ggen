@@ -3,8 +3,8 @@
 //! Using fuzzing and property testing to find edge cases.
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::rdf::metadata::{TemplateMetadata, TemplateVariable};
-use ggen_domain::rdf::validation::*;
+use ggen_core::domain::rdf::metadata::{TemplateMetadata, TemplateVariable};
+use ggen_core::domain::rdf::validation::*;
 
 // ============================================================================
 // Property Test Helpers

@@ -42,7 +42,7 @@ All marketplace commands are **fully implemented** with REAL functionality, test
 
 ## Test Data
 
-Located in `/Users/sac/ggen/crates/ggen-marketplace/src/assessment_helpers.rs`:
+Located in `./crates/ggen-marketplace/src/assessment_helpers.rs`:
 
 - **5 sample packages** with realistic maturity scores
 - Ranges from experimental (score 30) to enterprise (score 90+)

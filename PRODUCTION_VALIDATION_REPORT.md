@@ -2,7 +2,7 @@
 
 **Generated:** 2025-11-17
 **Focus:** Critical 20% Functionality Validation
-**Binary:** `/Users/sac/ggen/target/release/ggen` (22.5 MB)
+**Binary:** `~/.ggen/mcpp/target/release/mcpp` (22.5 MB)
 
 ---
 
@@ -27,7 +27,7 @@ All critical marketplace commands are functional, produce valid JSON output, and
 
 ### 1. `marketplace list` ✅ **WORKS**
 
-**Command:** `ggen marketplace list`
+**Command:** `mcpp marketplace list`
 
 **Output:** Valid JSON with 60 packages
 ```json
@@ -48,13 +48,13 @@ All critical marketplace commands are functional, produce valid JSON output, and
 
 ### 2. `marketplace search --query "rust"` ✅ **WORKS**
 
-**Command:** `ggen marketplace search --query "rust"`
+**Command:** `mcpp marketplace search --query "rust"`
 
 **Output:** Valid JSON with 4 matching packages
 ```json
 {
   "packages": [
-    {"name": "advanced-rust-project", "author": "ggen-team", ...},
+    {"name": "advanced-rust-project", "author": "mcpp-team", ...},
     {"name": "comprehensive-rust-showcase", ...},
     {"name": "microservices-architecture", ...},
     {"name": "hello-world", ...}
@@ -68,14 +68,14 @@ All critical marketplace commands are functional, produce valid JSON output, and
 
 ---
 
-### 3. `marketplace maturity --package_id io.ggen.research-compiler` ✅ **WORKS**
+### 3. `marketplace maturity --package_id io.mcpp.research-compiler` ✅ **WORKS**
 
-**Command:** `ggen marketplace maturity --package_id io.ggen.research-compiler`
+**Command:** `mcpp marketplace maturity --package_id io.mcpp.research-compiler`
 
 **Output:** Valid JSON with comprehensive maturity assessment
 ```json
 {
-  "package_id": "io.ggen.research-compiler",
+  "package_id": "io.mcpp.research-compiler",
   "maturity_level": "enterprise",
   "total_score": 90,
   "scores": {
@@ -104,13 +104,13 @@ All critical marketplace commands are functional, produce valid JSON output, and
 
 ---
 
-### 4. `marketplace validate --package io.ggen.research-compiler` ❌ **EXPECTED FAILURE**
+### 4. `marketplace validate --package io.mcpp.research-compiler` ❌ **EXPECTED FAILURE**
 
-**Command:** `ggen marketplace validate --package io.ggen.research-compiler`
+**Command:** `mcpp marketplace validate --package io.mcpp.research-compiler`
 
 **Output:** Error (expected - package path doesn't exist in local filesystem)
 ```
-Error: Package path does not exist: marketplace/packages/io.ggen.research-compiler
+Error: Package path does not exist: marketplace/packages/io.mcpp.research-compiler
 ```
 
 **Status:** ⚠️ **CONDITIONAL** - Command works, but requires local package directory structure
@@ -120,7 +120,7 @@ Error: Package path does not exist: marketplace/packages/io.ggen.research-compil
 
 ### 5. `marketplace bundles` ✅ **WORKS**
 
-**Command:** `ggen marketplace bundles`
+**Command:** `mcpp marketplace bundles`
 
 **Output:** Valid JSON + human-readable summary
 ```
@@ -156,14 +156,14 @@ Total: 5 bundles
 
 ### 6. `marketplace dashboard` ✅ **WORKS**
 
-**Command:** `ggen marketplace dashboard`
+**Command:** `mcpp marketplace dashboard`
 
 **Output:** Valid JSON with package assessments
 ```json
 {
   "assessments": [
     {
-      "package_id": "io.ggen.rust.microservice",
+      "package_id": "io.mcpp.rust.microservice",
       "maturity_level": "experimental",
       "total_score": 0,
       "scores": {...},
@@ -192,7 +192,7 @@ Total: 5 bundles
 
 ### 7. `marketplace report` ✅ **WORKS**
 
-**Command:** `ggen marketplace report`
+**Command:** `mcpp marketplace report`
 
 **Output:** Human-readable summary + JSON
 ```
@@ -253,9 +253,9 @@ Score Distribution:
 **Status:** ❌ **DOES NOT EXIST**
 
 Checked:
-- `ggen packs --help` → Not found
-- `ggen pack --help` → Not found
-- `ggen --help` → No packs/pack subcommand listed
+- `mcpp packs --help` → Not found
+- `mcpp pack --help` → Not found
+- `mcpp --help` → No packs/pack subcommand listed
 
 **Available Commands:**
 - `graph`, `marketplace`, `utils`, `ai`, `template`, `workflow`, `paper`, `hook`, `project`

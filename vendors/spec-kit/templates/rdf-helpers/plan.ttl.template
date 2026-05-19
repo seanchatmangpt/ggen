@@ -38,12 +38,12 @@
 
 # Project Structure
 :struct-001 a sk:ProjectStructure ;
-    sk:structurePath "PATH - e.g., 'crates/ggen-core/src/'" ;
+    sk:structurePath "PATH - e.g., 'crates/mcpp-core/src/'" ;
     sk:structurePurpose "PURPOSE - Core domain logic and types" ;
     sk:structureNotes "NOTES - Optional: Additional context about this directory" .
 
 :struct-002 a sk:ProjectStructure ;
-    sk:structurePath "PATH - e.g., 'crates/ggen-cli/src/'" ;
+    sk:structurePath "PATH - e.g., 'crates/mcpp-cli/src/'" ;
     sk:structurePurpose "PURPOSE - CLI interface and commands" .
 
 # Implementation Phases
@@ -130,4 +130,4 @@
 # 7. Document key decisions (architecture, tech choices)
 # 8. Identify risks and mitigation strategies
 # 9. List dependencies (external requirements)
-# 10. Generate plan.md: ggen render templates/plan.tera ontology/plan.ttl > generated/plan.md
+# 10. Generate plan.md: mcpp render templates/plan.tera ontology/plan.ttl > generated/plan.md

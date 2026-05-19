@@ -599,10 +599,10 @@ The benchmark suite is **ready for execution** once the runtime module is implem
 
 ## Appendix: Benchmark Code Locations
 
-- **Benchmark suite**: `/Users/sac/ggen/benches/runtime_overhead.rs`
-- **Cargo config**: `/Users/sac/ggen/Cargo.toml` (benchmark registered)
-- **Runtime module**: `/Users/sac/ggen/cli/src/runtime.rs` (⏳ to be implemented)
-- **This report**: `/Users/sac/ggen/.claude/refactor-v2/phase0-benchmarks.md`
+- **Benchmark suite**: `./benches/runtime_overhead.rs`
+- **Cargo config**: `./Cargo.toml` (benchmark registered)
+- **Runtime module**: `./cli/src/runtime.rs` (⏳ to be implemented)
+- **This report**: `./.claude/refactor-v2/phase0-benchmarks.md`
 
 ---
 

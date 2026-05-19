@@ -6,7 +6,7 @@ Eliminates generated/ folders — generated code IS the code.
 Usage:
     python3 scripts/migrate-generated-folders.py --dry-run
     python3 scripts/migrate-generated-folders.py
-    python3 scripts/migrate-generated-folders.py --path /Users/sac/ggen/examples/observable-agent
+    python3 scripts/migrate-generated-folders.py --path ./examples/observable-agent
 """
 
 import re
@@ -99,7 +99,7 @@ def main():
     parser.add_argument(
         "--path",
         type=Path,
-        default=Path("/Users/sac/ggen/examples"),
+        default=Path("./examples"),
         help="Root path to search for ggen.toml files",
     )
     args = parser.parse_args()

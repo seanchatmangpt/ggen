@@ -3,7 +3,7 @@
 ================================================================================
 
 CREATED: 2026-03-24
-LOCATION: /Users/sac/ggen/deploy/monitoring/
+LOCATION: ./deploy/monitoring/
 STATUS: Complete & Production Ready
 
 ================================================================================
@@ -272,7 +272,7 @@ Estimated Deployment Time: 30 minutes
 5. For Management: Review README.md
 
 Key Files Location:
-  /Users/sac/ggen/deploy/monitoring/
+  ./deploy/monitoring/
 
 Deploy to Production:
   docker-compose up -d

@@ -1,7 +1,7 @@
 %%====================================================================
 %% gen_yawl_receipts_tests - Cryptographic Receipt Tests
 %%
-%% @copyright 2025 ggen Project
+%% @copyright 2025 mcpp Project
 %% @license MIT
 %%====================================================================
 

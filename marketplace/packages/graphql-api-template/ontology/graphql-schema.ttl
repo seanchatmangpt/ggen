@@ -2,8 +2,8 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix gql: <http://ggen.io/ontology/graphql#> .
-@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix gql: <http://mcpp.io/ontology/graphql#> .
+@prefix mcpp: <http://mcpp.io/ontology/core#> .
 @prefix dc: <http://purl.org/dc/terms/> .
 
 # GraphQL API Template Ontology
@@ -12,7 +12,7 @@
 gql:GraphQLSchema a owl:Class ;
     rdfs:label "GraphQL Schema" ;
     rdfs:comment "Root container for GraphQL type definitions" ;
-    rdfs:subClassOf ggen:Template .
+    rdfs:subClassOf mcpp:Template .
 
 gql:ObjectType a owl:Class ;
     rdfs:label "GraphQL Object Type" ;

@@ -183,5 +183,5 @@
 
 ---
 
-**Generated with**: [ggen v6](https://github.com/seanchatmangpt/ggen) ontology-driven planning system
+**Generated with**: [mcpp v6](https://github.com/seanchatmangpt/mcpp) ontology-driven planning system
 **Constitutional Equation**: `plan.md = μ(plan.ttl)`

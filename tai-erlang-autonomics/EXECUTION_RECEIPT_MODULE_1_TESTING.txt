@@ -25,7 +25,7 @@ SCOPE COMPLETION: 100%
 DETAILED DELIVERABLES
 ================================================================================
 
-FILE 1: /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_receipts_test.erl
+FILE 1: /Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_receipts_test.erl
 --------
 Size: 828 lines
 Test Cases: 22
@@ -60,7 +60,7 @@ Code Quality Metrics:
 
 ================================================================================
 
-FILE 2: /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_gates_test.erl
+FILE 2: /Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_gates_test.erl
 --------
 Size: 844 lines
 Test Cases: 24
@@ -433,7 +433,7 @@ EXECUTION INSTRUCTIONS
 ================================================================================
 
 To run all tests:
-  cd /Users/sac/ggen/tai-erlang-autonomics
+  cd /Users/sac/mcpp/tai-erlang-autonomics
   rebar3 eunit
 
 To run receipts tests only:
@@ -484,10 +484,10 @@ Completion Time: 14:00:00 UTC
 Status: DELIVERED WITH ZERO DEFECTS
 
 Files Generated:
-  - /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_receipts_test.erl
-  - /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_gates_test.erl
-  - /Users/sac/ggen/tai-erlang-autonomics/UNIT_TEST_DELIVERY_SUMMARY.md
-  - /Users/sac/ggen/tai-erlang-autonomics/EXECUTION_RECEIPT_MODULE_1_TESTING.txt
+  - /Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_receipts_test.erl
+  - /Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_gates_test.erl
+  - /Users/sac/mcpp/tai-erlang-autonomics/UNIT_TEST_DELIVERY_SUMMARY.md
+  - /Users/sac/mcpp/tai-erlang-autonomics/EXECUTION_RECEIPT_MODULE_1_TESTING.txt
 
 Quality Assurance: PASSED
 Production Readiness: VERIFIED

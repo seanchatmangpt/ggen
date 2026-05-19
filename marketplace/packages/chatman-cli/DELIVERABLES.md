@@ -1,13 +1,13 @@
 # ChatMan CLI - Production Validation Deliverables
 
 ## Overview
-ChatMan CLI is now a **production-ready package** with 95% deployment readiness score, ready for ggen marketplace and crates.io.
+ChatMan CLI is now a **production-ready package** with 95% deployment readiness score, ready for mcpp marketplace and crates.io.
 
 ## Created Files (All 34 Files)
 
 ### Core Configuration (5 files)
 ✅ **Cargo.toml** - Complete crates.io metadata with workspace config
-✅ **package.toml** - ggen marketplace metadata (20 features, production-ready)
+✅ **package.toml** - mcpp marketplace metadata (20 features, production-ready)
 ✅ **README.md** - Comprehensive with badges, examples, installation (4.0 KB)
 ✅ **.gitignore** - Rust + Node.js patterns
 ✅ **Cargo.lock** - Dependency lock file
@@ -127,10 +127,10 @@ Test Coverage:        90% (integration tests 100%)
 
 ## Deployment Status
 
-### ggen Marketplace
+### mcpp Marketplace
 **Status**: ✅ **READY TO DEPLOY**
 ```bash
-ggen market publish marketplace/packages/chatman-cli
+mcpp market publish marketplace/packages/chatman-cli
 ```
 
 ### crates.io
@@ -204,7 +204,7 @@ All code is production-ready with real implementations:
 **APPROVED FOR IMMEDIATE DEPLOYMENT** ✅
 
 ChatMan CLI meets all production requirements and is ready for:
-1. ✅ ggen marketplace (100% ready)
+1. ✅ mcpp marketplace (100% ready)
 2. ✅ crates.io (95% ready, optional test fix)
 
 The package demonstrates:

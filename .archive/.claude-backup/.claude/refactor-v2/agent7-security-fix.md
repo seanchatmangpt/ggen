@@ -47,16 +47,16 @@ tokio-tar 0.3.1
 
 ## Files Modified
 
-### /Users/sac/ggen/Cargo.toml
+### ./Cargo.toml
 - Removed clnrm dev-dependency
 - Added security comment with vulnerability reference
 - Suggested alternative: tempfile-based testing
 
-### /Users/sac/ggen/ggen-core/Cargo.toml
+### ./ggen-core/Cargo.toml
 - Removed testcontainers dev-dependency
 - Added security comment with RUSTSEC reference
 
-### /Users/sac/ggen/ggen-ai/Cargo.toml
+### ./ggen-ai/Cargo.toml
 - Removed testcontainers dev-dependency
 - Added security comment with RUSTSEC reference
 

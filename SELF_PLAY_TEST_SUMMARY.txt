@@ -246,10 +246,10 @@ LONG-TERM:
 ================================================================================
 
 Main Report:
-  /Users/sac/ggen/GGEN_SELF_PLAY_VALIDATION_REPORT.md (953 lines, 39KB)
+  ./GGEN_SELF_PLAY_VALIDATION_REPORT.md (953 lines, 39KB)
 
 Quick Reference:
-  /Users/sac/ggen/VALIDATION_FRAMEWORK_INDEX.md (255 lines, 7.7KB)
+  ./VALIDATION_FRAMEWORK_INDEX.md (255 lines, 7.7KB)
 
 Test Files:
   crates/ggen-a2a-mcp/tests/groq_integration_test.rs (11 tests, 352 lines)

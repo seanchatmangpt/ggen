@@ -1,8 +1,8 @@
 ---
-description: RDF and template generation standards for ggen
+description: RDF and template generation standards for mcpp
 globs:
-  - "crates/ggen-core/**/*.rs"
-  - "crates/ggen-ai/**/*.rs"
+  - "crates/mcpp-core/**/*.rs"
+  - "crates/mcpp-ai/**/*.rs"
   - "templates/**/*.tmpl"
 alwaysApply: false
 ---
@@ -20,7 +20,7 @@ alwaysApply: false
 
 ### Graph Management
 
-- Load RDF graphs using `ggen-core` graph management
+- Load RDF graphs using `mcpp-core` graph management
 - Validate graphs before processing
 - Support multiple RDF formats: Turtle, JSON-LD, RDF/XML
 - Use `cargo make validate-rdf` to validate RDF graphs
@@ -126,7 +126,7 @@ pub fn main() {
 
 ### RDF Graph Loading
 ```rust
-use ggen_core::graph::Graph;
+use mcpp_core::graph::Graph;
 
 let graph = Graph::load("data.ttl")?;
 graph.validate()?;
@@ -135,7 +135,7 @@ let vars = graph.query_sparql(&sparql_query)?;
 
 ### Template Rendering
 ```rust
-use ggen_core::template::Template;
+use mcpp_core::template::Template;
 
 let template = Template::load("templates/main.rs.tmpl")?;
 let output = template.render(&vars)?;

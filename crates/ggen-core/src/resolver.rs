@@ -29,7 +29,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let lockfile = LockfileManager::new(Path::new("."));
 //! let resolver = TemplateResolver::new(cache, lockfile);
@@ -49,7 +49,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let lockfile = LockfileManager::new(Path::new("."));
 //! let resolver = TemplateResolver::new(cache, lockfile);
@@ -71,7 +71,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let lockfile = LockfileManager::new(Path::new("."));
 //! let resolver = TemplateResolver::new(cache, lockfile);
@@ -83,7 +83,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use glob::glob;
 use std::path::PathBuf;
 
@@ -126,7 +126,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -161,7 +161,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -181,7 +181,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -201,7 +201,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -237,7 +237,7 @@ impl TemplateResolver {
 
         // Verify template exists
         if !full_template_path.exists() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(crate::utils::error::Error::new(&format!(
                 "Template '{}' not found in pack '{}'",
                 template_path, pack_id
             )));
@@ -258,7 +258,7 @@ impl TemplateResolver {
         let parts: Vec<&str> = template_ref.split(':').collect();
 
         if parts.len() != 2 {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(crate::utils::error::Error::new(&format!(
                 "Invalid template reference format: '{}'. Expected 'pack_id:template_path'",
                 template_ref
             )));
@@ -268,14 +268,14 @@ impl TemplateResolver {
         let template_path = parts[1].to_string();
 
         if pack_id.is_empty() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(crate::utils::error::Error::new(&format!(
                 "Empty pack ID in template reference: '{}'",
                 template_ref
             )));
         }
 
         if template_path.is_empty() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(crate::utils::error::Error::new(&format!(
                 "Empty template path in template reference: '{}'",
                 template_ref
             )));
@@ -294,7 +294,7 @@ impl TemplateResolver {
         // Add template path components
         for component in template_path.split('/') {
             if component == ".." {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(crate::utils::error::Error::new(&format!(
                     "Template path cannot contain '..': {}",
                     template_path
                 )));
@@ -318,7 +318,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);

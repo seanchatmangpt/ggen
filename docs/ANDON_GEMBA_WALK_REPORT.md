@@ -396,12 +396,12 @@ fn compose(...) -> Result<ComposeOutput> {
 **Problem**: Creating new runtime inside existing async context
 
 **Files**:
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:519` (`compose`)
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:850` (`publish`)
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:896` (`unpublish`)
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:934` (`search_registry`)
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:978` (`versions`)
-- `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:1013` (`cache`)
+- `./crates/ggen-cli/src/cmds/packs.rs:519` (`compose`)
+- `./crates/ggen-cli/src/cmds/packs.rs:850` (`publish`)
+- `./crates/ggen-cli/src/cmds/packs.rs:896` (`unpublish`)
+- `./crates/ggen-cli/src/cmds/packs.rs:934` (`search_registry`)
+- `./crates/ggen-cli/src/cmds/packs.rs:978` (`versions`)
+- `./crates/ggen-cli/src/cmds/packs.rs:1013` (`cache`)
 
 **Fix**: Use `tokio::task::block_in_place` or make functions async
 
@@ -409,7 +409,7 @@ fn compose(...) -> Result<ComposeOutput> {
 
 **Problem**: Clap argument type mismatch between definition and access
 
-**File**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:338`
+**File**: `./crates/ggen-cli/src/cmds/packs.rs:338`
 
 **Error**:
 ```
@@ -423,7 +423,7 @@ need to downcast to TypeId(0x02e3154ab0a5c6bbf64f37772cdaf7e9)
 
 **Problem**: Install command only creates empty directory
 
-**File**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs:335-372`
+**File**: `./crates/ggen-cli/src/cmds/packs.rs:335-372`
 
 **Current Behavior**:
 ```rust

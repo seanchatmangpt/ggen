@@ -188,7 +188,7 @@ $ cargo build --release
 
 **CLI Works**: ✅ All commands respond correctly
 ```
-$ /Users/sac/ggen/target/debug/ggen marketplace --help
+$ ./target/debug/ggen marketplace --help
 # Shows all 18+ marketplace commands with descriptions
 ```
 

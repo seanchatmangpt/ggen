@@ -139,7 +139,7 @@
 
 1. **Verify tests pass:**
    ```bash
-   cd /Users/sac/ggen
+   cd .
    cargo test -p ggen-core --test elixir_a2a_e2e_test
    cargo test -p ggen-core --test mcp_rmcp_e2e_test
    ```

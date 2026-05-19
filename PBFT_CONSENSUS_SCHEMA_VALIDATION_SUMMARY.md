@@ -19,7 +19,7 @@ Successfully implemented and validated a comprehensive test suite demonstrating 
 ## What Was Built
 
 ### Test Suite: `schema_consensus_validation.rs`
-**Location**: `/Users/sac/ggen/crates/ggen-consensus/tests/schema_consensus_validation.rs`
+**Location**: `./crates/ggen-consensus/tests/schema_consensus_validation.rs`
 - **Lines of Code**: 580+
 - **Tests**: 9 comprehensive scenarios
 - **Status**: All passing (100%)
@@ -372,7 +372,7 @@ Our test replicates these rules in Rust validators.
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/crates/ggen-consensus
+cd ./crates/ggen-consensus
 cargo test --test schema_consensus_validation
 ```
 

@@ -5,7 +5,7 @@ CHAOS TESTING & OBSERVABILITY INFRASTRUCTURE - FINAL DELIVERY SUMMARY
 PROJECT COMPLETION: 100% ✅
 
 Date Delivered: 2026-03-24
-Location: /Users/sac/ggen/tests/chaos/
+Location: ./tests/chaos/
 Status: Production Ready
 
 ================================================================================
@@ -247,7 +247,7 @@ HOW TO USE
 ================================================================================
 
 1. Run All Chaos Tests:
-   cd /Users/sac/ggen
+   cd .
    cargo test --test chaos_integration -- --nocapture
 
 2. Run Specific Scenario:
@@ -271,20 +271,20 @@ FILE LOCATIONS
 ================================================================================
 
 Core Implementation:
-  /Users/sac/ggen/tests/chaos/mod.rs ...................... Module root
-  /Users/sac/ggen/tests/chaos/correlation.rs ............. Tracing system
-  /Users/sac/ggen/tests/chaos/event_store/mod.rs ......... Event sourcing
-  /Users/sac/ggen/tests/chaos/injection/mod.rs ........... Chaos engine
-  /Users/sac/ggen/tests/chaos/scenarios/mod.rs ........... Test scenarios
+  ./tests/chaos/mod.rs ...................... Module root
+  ./tests/chaos/correlation.rs ............. Tracing system
+  ./tests/chaos/event_store/mod.rs ......... Event sourcing
+  ./tests/chaos/injection/mod.rs ........... Chaos engine
+  ./tests/chaos/scenarios/mod.rs ........... Test scenarios
 
 Integration Tests:
-  /Users/sac/ggen/tests/chaos_integration.rs ............. Integration suite
+  ./tests/chaos_integration.rs ............. Integration suite
 
 Documentation:
-  /Users/sac/ggen/tests/chaos/README.md .................. Architecture guide
-  /Users/sac/ggen/tests/chaos/IMPLEMENTATION_SUMMARY.md .. Technical details
-  /Users/sac/ggen/tests/chaos/DELIVERY_REPORT.md ......... Complete delivery
-  /Users/sac/ggen/tests/chaos/FINAL_SUMMARY.txt .......... This file
+  ./tests/chaos/README.md .................. Architecture guide
+  ./tests/chaos/IMPLEMENTATION_SUMMARY.md .. Technical details
+  ./tests/chaos/DELIVERY_REPORT.md ......... Complete delivery
+  ./tests/chaos/FINAL_SUMMARY.txt .......... This file
 
 ================================================================================
 PROBLEM SOLVED
@@ -453,7 +453,7 @@ For questions about:
   - Integration: See DELIVERY_REPORT.md
   - Usage: See examples in README.md
 
-Location: /Users/sac/ggen/tests/chaos/
+Location: ./tests/chaos/
 
 ================================================================================
 FINAL STATUS
@@ -466,7 +466,7 @@ Documentation Status: ✅ COMPREHENSIVE
 Performance Status: ✅ SUB-MICROSECOND
 
 DELIVERY DATE: 2026-03-24
-DELIVERY LOCATION: /Users/sac/ggen/tests/chaos/
+DELIVERY LOCATION: ./tests/chaos/
 
 Total Lines Delivered: 3,637+
 Total Tests: 26

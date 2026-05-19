@@ -1,7 +1,7 @@
 # Craftplan Domain Analysis for ggen RDF-Driven Code Generation
 
 **Analysis Date**: 2026-02-04
-**Source Codebase**: `/Users/sac/ggen/vendors/craftplan/`
+**Source Codebase**: `./vendors/craftplan/`
 **Target System**: ggen (specification-driven code generator in Rust)
 
 ---
@@ -458,9 +458,9 @@ end
 ## Contact & Support
 
 - **Project**: ggen (specification-driven code generation)
-- **Source**: `/Users/sac/ggen/`
-- **Analysis Location**: `/Users/sac/ggen/docs/craftplan-analysis/`
-- **Craftplan Source**: `/Users/sac/ggen/vendors/craftplan/`
+- **Source**: `./`
+- **Analysis Location**: `./docs/craftplan-analysis/`
+- **Craftplan Source**: `./vendors/craftplan/`
 
 ---
 

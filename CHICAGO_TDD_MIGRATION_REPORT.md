@@ -64,7 +64,7 @@ Both files contain comments documenting the deleted London TDD tests, proving th
 - `test_rapid_file_changes_are_debounced` - Real debounce behavior (marked ignore until impl)
 - `test_generated_directory_is_ignored` - Real ignore pattern (marked ignore until impl)
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/tests/conventions/watch_tests.rs`
+**File:** `./crates/ggen-cli/tests/conventions/watch_tests.rs`
 
 ---
 
@@ -88,7 +88,7 @@ Both files contain comments documenting the deleted London TDD tests, proving th
 - `test_resolve_template_dependencies` - Real topological sort
 - Additional tests verify real planning behavior
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/tests/conventions/planner_tests.rs`
+**File:** `./crates/ggen-cli/tests/conventions/planner_tests.rs`
 
 ---
 
@@ -131,8 +131,8 @@ reqwest = { version = "0.12", features = ["json"] }
 httpmock = "0.7"
 ```
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/tests/packs/unit/installation/download_test.rs`
-**Summary:** `/Users/sac/ggen/crates/ggen-cli/tests/packs/unit/installation/CHICAGO_TDD_CONVERSION_SUMMARY.md`
+**File:** `./crates/ggen-cli/tests/packs/unit/installation/download_test.rs`
+**Summary:** `./crates/ggen-cli/tests/packs/unit/installation/CHICAGO_TDD_CONVERSION_SUMMARY.md`
 
 ---
 
@@ -183,8 +183,8 @@ Located in `src/conventions/resolver.rs` lines 357-591:
 - Test quality: Improved (no mocks, real file I/O)
 - Maintainability: Improved (tests co-located with implementation)
 
-**File:** `/Users/sac/ggen/crates/ggen-cli/tests/conventions/resolver_tests.rs` (kept as placeholder)
-**Summary:** `/Users/sac/ggen/crates/ggen-cli/tests/conventions/RESOLVER_TESTS_MIGRATION_SUMMARY.md`
+**File:** `./crates/ggen-cli/tests/conventions/resolver_tests.rs` (kept as placeholder)
+**Summary:** `./crates/ggen-cli/tests/conventions/RESOLVER_TESTS_MIGRATION_SUMMARY.md`
 
 ---
 
@@ -214,7 +214,7 @@ Provides reusable test utilities for LLM integrations. The `MockClient` here is:
 - No `MockHttpClient` - real GenAiClient is tested separately
 - State-based assertions: `assert!(result.is_ok())`, `assert!(ontology.contains("custom:Test"))`
 
-**File:** `/Users/sac/ggen/crates/ggen-ai/src/test_helpers.rs`
+**File:** `./crates/ggen-ai/src/test_helpers.rs`
 
 ---
 
@@ -240,7 +240,7 @@ Provides reusable test utilities for LLM integrations. The `MockClient` here is:
 - Property-based tests (10 tests)
 - End-to-end workflow tests (5 tests)
 
-**File:** `/Users/sac/ggen/crates/ggen-dspy/tests/genai_integration_tests.rs`
+**File:** `./crates/ggen-dspy/tests/genai_integration_tests.rs`
 
 ---
 

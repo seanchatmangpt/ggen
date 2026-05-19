@@ -3,7 +3,7 @@
 //! This module provides conversion from YAWL workflow specifications to
 //! A2A tasks with proper dependency mapping and priority handling.
 
-use a2a_generated::task::{Task, TaskPriority, TaskStatus};
+use ggen_core::ggen_core::ggen_core::a2a_generated::task::{Task, TaskPriority, TaskStatus};
 use crate::a2a::error::{A2AIntegrationError, IntegrationResult};
 use crate::a2a::gateway::SplitJoinBehavior;
 use crate::template::{FlowContext, TaskContext, TemplateContext};

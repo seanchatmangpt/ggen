@@ -4,7 +4,7 @@
 
 use crate::packs::types::Pack;
 use async_trait::async_trait;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::time::Duration;

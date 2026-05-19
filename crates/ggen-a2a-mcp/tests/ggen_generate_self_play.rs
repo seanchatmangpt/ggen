@@ -334,7 +334,7 @@ async fn test_generate_python_dataclass_from_ontology() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_scaffold_mcp_example_has_valid_project_structure() -> anyhow::Result<()> {
     // Arrange — point at examples dir
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 

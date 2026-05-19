@@ -77,7 +77,7 @@ biber --version
 
 **Step 1: Generate LaTeX from Ontology**
 ```bash
-cd /Users/sac/ggen/specs/012-grand-unified-kgc-thesis
+cd ./specs/012-grand-unified-kgc-thesis
 ggen sync --manifest ggen.toml
 ```
 

@@ -6,7 +6,7 @@
 
 ## 🎯 Overview
 
-This is the complete CLNRM test suite for ggen, providing **hermetic, deterministic testing** with **7-layer validation** to eliminate false positives.
+This is the complete CLNRM test suite for mcpp, providing **hermetic, deterministic testing** with **7-layer validation** to eliminate false positives.
 
 **Stats**:
 - **9 test files** with 78 scenarios
@@ -79,8 +79,8 @@ docker run -d --name otel-collector \
 cd ~/dev/clnrm
 cargo build --release --bin cleanroom
 
-# Build ggen
-cd /Users/sac/ggen
+# Build mcpp
+cd ~/.ggen/mcpp
 cargo build --release
 ```
 
@@ -217,7 +217,7 @@ jq '.traces' target/clnrm-reports/marketplace_search_traces.json
 
 ### Generated Reports
 
-After running tests, reports are generated in `/Users/sac/ggen/target/clnrm-reports/`:
+After running tests, reports are generated in `~/.ggen/mcpp/target/clnrm-reports/`:
 
 | Report Type | File Pattern | Purpose |
 |-------------|--------------|---------|
@@ -287,16 +287,16 @@ description = "Test description"
 [otel]
 exporter = "otlp"
 endpoint = "http://localhost:4318"
-service_name = "ggen-test-service"
+service_name = "mcpp-test-service"
 
-[service.ggen]
+[service.mcpp]
 plugin = "generic_container"
 image = "rust:latest"
 workdir = "/workspace"
 
 [[scenario]]
 name = "scenario_name"
-service = "ggen"
+service = "mcpp"
 run = """
 # Test commands
 """
@@ -331,7 +331,7 @@ Each test can customize:
 |---------|----------|
 | OTEL collector not responding | `docker restart otel-collector` |
 | CLNRM binary not found | Build: `cd ~/dev/clnrm && cargo build --release --bin cleanroom` |
-| ggen binary not found | Build: `cd /Users/sac/ggen && cargo build --release` |
+| mcpp binary not found | Build: `cd ~/.ggen/mcpp && cargo build --release` |
 | Test validation fails | Check: `jq '.validation' /tmp/report.json` |
 | Trace analysis fails | Verify: `jq empty /tmp/traces.json` |
 
@@ -380,7 +380,7 @@ Each test can customize:
 
 - **CLNRM Project**: https://github.com/sac/clnrm
 - **OpenTelemetry**: https://opentelemetry.io/
-- **ggen Repository**: https://github.com/seanchatmangpt/ggen
+- **mcpp Repository**: https://github.com/seanchatmangpt/mcpp
 - **OTEL Collector**: https://opentelemetry.io/docs/collector/
 
 ---
@@ -400,7 +400,7 @@ Before running tests, ensure:
 - [ ] Docker is running
 - [ ] OTEL collector is deployed (`docker ps | grep otel`)
 - [ ] CLNRM binary is built (`~/dev/clnrm/target/release/cleanroom --version`)
-- [ ] ggen binary is built (`./target/release/ggen --version`)
+- [ ] mcpp binary is built (`./target/release/mcpp --version`)
 - [ ] Test runner is executable (`chmod +x tests/clnrm/run-all-tests.sh`)
 
 ---
@@ -422,4 +422,4 @@ Tests are working correctly when:
 
 **Contributing?** See [CONTRIBUTING.md](../../CONTRIBUTING.md) for contribution guidelines.
 
-**Questions?** Open an issue at https://github.com/seanchatmangpt/ggen/issues
+**Questions?** Open an issue at https://github.com/seanchatmangpt/mcpp/issues

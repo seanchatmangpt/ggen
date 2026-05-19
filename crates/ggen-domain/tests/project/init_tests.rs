@@ -1,4 +1,4 @@
-use ggen_domain::project::*;
+use ggen_core::domain::project::*;
 use std::path::PathBuf;
 use tempfile::TempDir;
 

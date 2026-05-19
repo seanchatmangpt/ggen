@@ -10,7 +10,7 @@ VALIDATION EXECUTION
 ================================================================================
 
 Test Suite: mcp-tool-discovery.test.mjs
-Location: /Users/sac/ggen/examples/openapi/tests/mcp-tool-discovery.test.mjs
+Location: ./examples/openapi/tests/mcp-tool-discovery.test.mjs
 Runtime: Node.js v20.13.0
 Duration: <1 second
 Result: 100% Pass Rate (21/21 tests)
@@ -236,19 +236,19 @@ ARTIFACTS GENERATED
 ================================================================================
 
 Test File:
-  /Users/sac/ggen/examples/openapi/tests/mcp-tool-discovery.test.mjs
+  ./examples/openapi/tests/mcp-tool-discovery.test.mjs
   (Comprehensive test suite with 21 test cases)
 
 Documentation:
-  /Users/sac/ggen/examples/openapi/MCP_TOOL_DISCOVERY_REPORT.md
+  ./examples/openapi/MCP_TOOL_DISCOVERY_REPORT.md
   (Detailed validation report with examples)
 
 Integration Guide:
-  /Users/sac/ggen/examples/openapi/MCP_SERVER_INTEGRATION_EXAMPLE.md
+  ./examples/openapi/MCP_SERVER_INTEGRATION_EXAMPLE.md
   (Practical examples for MCP server implementation)
 
 Summary:
-  /Users/sac/ggen/examples/openapi/MCP_VALIDATION_SUMMARY.txt
+  ./examples/openapi/MCP_VALIDATION_SUMMARY.txt
   (This file)
 
 ================================================================================

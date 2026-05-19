@@ -26,7 +26,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::RegistryClient;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! # Ok(())
 //! # }
@@ -37,7 +37,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::RegistryClient;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let results = client.search("rust cli").await?;
 //!
@@ -53,7 +53,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::RegistryClient;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let resolved = client.resolve("io.ggen.rust.cli", Some("1.0.0")).await?;
 //!
@@ -69,7 +69,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::{RegistryClient, SearchParams};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let params = SearchParams {
 //!     query: "api",
@@ -86,7 +86,7 @@
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -537,7 +537,7 @@ impl RegistryClient {
         let index = self.fetch_index().await?;
 
         let pack = index.packs.get(pack_id).ok_or_else(|| {
-            ggen_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
+            crate::utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
         })?;
 
         let target_version = match version {
@@ -546,7 +546,7 @@ impl RegistryClient {
         };
 
         let version_meta = pack.versions.get(&target_version).ok_or_else(|| {
-            ggen_utils::error::Error::new(&format!(
+            crate::utils::error::Error::new(&format!(
                 "Version '{}' not found for pack '{}'",
                 target_version, pack_id
             ))
@@ -572,19 +572,19 @@ impl RegistryClient {
         let index = self.fetch_index().await?;
 
         let pack = index.packs.get(pack_id).ok_or_else(|| {
-            ggen_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
+            crate::utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
         })?;
 
         // Compare versions using semver
         let current = semver::Version::parse(current_version).map_err(|e| {
-            ggen_utils::error::Error::with_source(
+            crate::utils::error::Error::with_source(
                 &format!("Invalid current version: {}", current_version),
                 Box::new(e),
             )
         })?;
 
         let latest = semver::Version::parse(&pack.latest_version).map_err(|e| {
-            ggen_utils::error::Error::with_source(
+            crate::utils::error::Error::with_source(
                 &format!("Invalid latest version: {}", pack.latest_version),
                 Box::new(e),
             )

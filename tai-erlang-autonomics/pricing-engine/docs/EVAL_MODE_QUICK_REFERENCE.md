@@ -158,7 +158,7 @@ end.
 
 Run all tests:
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+cd ~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine
 rebar3 eunit --module=ac_eval_mode_tests
 ```
 

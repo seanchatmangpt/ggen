@@ -1,6 +1,6 @@
 # Advanced Rust Project Example
 
-This example demonstrates all advanced features of ggen including:
+This example demonstrates all advanced features of mcpp including:
 
 - **Lifecycle Management**: Complete make.toml workflow with phases, hooks, and environments
 - **AI-Powered Generation**: Templates generated using AI with RDF/SPARQL integration
@@ -15,7 +15,7 @@ This example demonstrates all advanced features of ggen including:
 advanced-rust-project/
 ├── README.md
 ├── make.toml                 # Lifecycle configuration
-├── ggen.toml                 # Project configuration
+├── mcpp.toml                 # Project configuration
 ├── templates/                # AI-generated templates
 │   ├── rust-service.tmpl     # Complete Rust service
 │   ├── api-endpoint.tmpl     # API endpoint generation
@@ -68,46 +68,46 @@ Complete workflow automation with:
 ### Initialize Project
 ```bash
 cd examples/advanced-rust-project
-ggen lifecycle list
+mcpp lifecycle list
 ```
 
 ### Generate Code
 ```bash
 # Generate complete Rust service
-ggen template generate templates/rust-service.tmpl
+mcpp template generate templates/rust-service.tmpl
 
 # Generate API endpoints
-ggen template generate templates/api-endpoint.tmpl
+mcpp template generate templates/api-endpoint.tmpl
 
 # Generate database schema
-ggen template generate templates/database-schema.tmpl
+mcpp template generate templates/database-schema.tmpl
 ```
 
 ### Run Lifecycle Phases
 ```bash
 # Run single phase
-ggen lifecycle run generate
+mcpp lifecycle run generate
 
 # Run pipeline
-ggen lifecycle pipeline setup generate build test
+mcpp lifecycle pipeline setup generate build test
 
 # Run with environment
-ggen lifecycle run deploy --env production
+mcpp lifecycle run deploy --env production
 ```
 
 ### AI-Powered Generation
 ```bash
 # Generate templates using AI
-ggen ai generate --description "Rust microservice with REST API"
+mcpp ai generate --description "Rust microservice with REST API"
 
 # Generate SPARQL queries
-ggen ai sparql --description "Find all API endpoints"
+mcpp ai sparql --description "Find all API endpoints"
 
 # Generate RDF graphs
-ggen ai graph --description "E-commerce domain model"
+mcpp ai graph --description "E-commerce domain model"
 
 # Generate frontmatter
-ggen ai frontmatter --description "API documentation"
+mcpp ai frontmatter --description "API documentation"
 ```
 
 ## Advanced Features
@@ -141,7 +141,7 @@ ggen ai frontmatter --description "API documentation"
 ### make.toml
 Complete lifecycle configuration with phases, hooks, and environments.
 
-### ggen.toml
+### mcpp.toml
 Project-specific configuration for templates, data sources, and output.
 
 ### Environment Variables
@@ -169,4 +169,4 @@ See individual template files for specific examples of:
 7. **Use version control** for generated code
 8. **Monitor execution** with state tracking
 
-This example serves as a comprehensive reference for advanced ggen usage patterns.
+This example serves as a comprehensive reference for advanced mcpp usage patterns.

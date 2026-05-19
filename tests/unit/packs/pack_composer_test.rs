@@ -6,7 +6,7 @@
 //! - Resolving dependencies
 //! - Conflict detection
 
-use ggen_domain::packs::{
+use mcpp_domain::packs::{
     compose_packs, ComposePacksInput, CompositionStrategy, Pack, PackDependency, PackMetadata,
 };
 use std::collections::HashMap;

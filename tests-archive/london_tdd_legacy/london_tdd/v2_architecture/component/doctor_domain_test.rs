@@ -1,7 +1,7 @@
 #![cfg(feature = "london_tdd")]
 //! London TDD component tests for doctor domain logic
 //!
-//! Tests the async business logic in `ggen_domain::utils::doctor` with mocked boundaries.
+//! Tests the async business logic in `ggen_core::domain::utils::doctor` with mocked boundaries.
 //!
 //! Coverage:
 //! - All system checks (Rust, Cargo, Git, GH, disk, network, permissions)
@@ -11,7 +11,7 @@
 //! - Environment info collection
 //! - Performance (<100ms per test)
 
-use ggen_domain::utils::doctor::{execute_doctor, CheckResult, CheckStatus, DoctorInput, DoctorResult};
+use ggen_core::domain::utils::doctor::{execute_doctor, CheckResult, CheckStatus, DoctorInput, DoctorResult};
 
 #[tokio::test]
 async fn test_check_status_variants() {

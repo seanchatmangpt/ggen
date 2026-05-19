@@ -49,7 +49,7 @@ struct VisualizeOutput {
 /// Load RDF data into graph
 #[verb]
 fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
-    use ggen_domain::graph::{execute_load, LoadInput};
+    use ggen_core::domain::graph::{execute_load, LoadInput};
 
     let input = LoadInput {
         file: PathBuf::from(file),
@@ -61,10 +61,10 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
     let result = crate::runtime::block_on(async move {
         execute_load(input)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Load failed: {}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Load failed: {}", e)))
     })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
+    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -81,7 +81,7 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
 fn query(
     sparql_query: String, graph_file: Option<String>, format: Option<String>,
 ) -> Result<QueryOutput> {
-    use ggen_domain::graph::{execute_query, QueryInput};
+    use ggen_core::domain::graph::{execute_query, QueryInput};
 
     let input = QueryInput {
         query: sparql_query,
@@ -92,10 +92,10 @@ fn query(
     let result = crate::runtime::block_on(async move {
         execute_query(input)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Query failed: {}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Query failed: {}", e)))
     })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
+    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -109,7 +109,7 @@ fn query(
 /// Export graph to file
 #[verb]
 fn export(input_file: String, output: String, format: String) -> Result<ExportOutput> {
-    use ggen_domain::graph::{execute_export, ExportInput};
+    use ggen_core::domain::graph::{execute_export, ExportInput};
 
     let input_data = ExportInput {
         input: PathBuf::from(input_file),
@@ -121,10 +121,10 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
     let result = crate::runtime::block_on(async move {
         execute_export(input_data)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Export failed: {}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Export failed: {}", e)))
     })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
+    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -139,7 +139,7 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
 /// Visualize graph structure
 #[verb]
 fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutput> {
-    use ggen_domain::graph::{execute_visualize, VisualizeInput};
+    use ggen_core::domain::graph::{execute_visualize, VisualizeInput};
 
     let input_data = VisualizeInput {
         input: PathBuf::from(input_file),
@@ -153,10 +153,10 @@ fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutp
     let result = crate::runtime::block_on(async move {
         execute_visualize(input_data)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Visualize failed: {}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Visualize failed: {}", e)))
     })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
+    .map_err(|e: ggen_core::utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_core::utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 

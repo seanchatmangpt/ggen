@@ -9,20 +9,20 @@ version = "1.0.0"
 [otel]
 exporter = "otlp"
 endpoint = "http://localhost:4318"
-service_name = "ggen-lifecycle-deploy"
+service_name = "mcpp-lifecycle-deploy"
 enable_tracing = true
 enable_metrics = true
 
-[service.ggen]
+[service.mcpp]
 plugin = "generic_container"
 image = "rust:latest"
-volumes = ["/tmp/ggen-test:/workspace"]
+volumes = ["/tmp/mcpp-test:/workspace"]
 working_dir = "/workspace"
 
 # Test 1: Staging deployment with validation
 [[scenario]]
 name = "deploy_to_staging_with_validation"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/staging-deploy && cd /workspace/staging-deploy && \
 cat > make.toml << 'EOF'
@@ -42,33 +42,33 @@ commands = [
 [hooks]
 before_deploy-staging = ["validate-staging"]
 EOF
-ggen lifecycle run deploy-staging
+mcpp lifecycle run deploy-staging
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.validate-staging"
-must_precede = ["ggen.lifecycle.deploy-staging"]
+name = "mcpp.lifecycle.validate-staging"
+must_precede = ["mcpp.lifecycle.deploy-staging"]
 attributes = { "environment" = "staging", "hook.type" = "before" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-staging"
-must_follow = ["ggen.lifecycle.validate-staging"]
+name = "mcpp.lifecycle.deploy-staging"
+must_follow = ["mcpp.lifecycle.validate-staging"]
 attributes = { "environment" = "staging", "deployment.type" = "standard" }
 
 [scenario.expect.window]
-parent = "ggen.lifecycle.deploy-staging"
-must_contain = ["ggen.deploy.build", "ggen.deploy.push", "ggen.deploy.verify"]
+parent = "mcpp.lifecycle.deploy-staging"
+must_contain = ["mcpp.deploy.build", "mcpp.deploy.push", "mcpp.deploy.verify"]
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.validate-staging",
-  "ggen.lifecycle.deploy-staging"
+  "mcpp.lifecycle.validate-staging",
+  "mcpp.lifecycle.deploy-staging"
 ]
 
 # Test 2: Production deployment with comprehensive checks
 [[scenario]]
 name = "deploy_to_production_with_checks"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/prod-deploy && cd /workspace/prod-deploy && \
 cat > make.toml << 'EOF'
@@ -97,41 +97,41 @@ command = "echo 'Setting up monitoring and alerts'"
 before_deploy-production = ["pre-deploy-checks"]
 after_deploy-production = ["post-deploy-monitoring"]
 EOF
-ggen lifecycle run deploy-production
+mcpp lifecycle run deploy-production
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.pre-deploy-checks"
-must_precede = ["ggen.lifecycle.deploy-production"]
+name = "mcpp.lifecycle.pre-deploy-checks"
+must_precede = ["mcpp.lifecycle.deploy-production"]
 attributes = { "environment" = "production", "check.type" = "pre_deployment" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-production"
-must_precede = ["ggen.lifecycle.post-deploy-monitoring"]
-must_follow = ["ggen.lifecycle.pre-deploy-checks"]
+name = "mcpp.lifecycle.deploy-production"
+must_precede = ["mcpp.lifecycle.post-deploy-monitoring"]
+must_follow = ["mcpp.lifecycle.pre-deploy-checks"]
 attributes = { "environment" = "production", "deployment.critical" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.post-deploy-monitoring"
-must_follow = ["ggen.lifecycle.deploy-production"]
+name = "mcpp.lifecycle.post-deploy-monitoring"
+must_follow = ["mcpp.lifecycle.deploy-production"]
 attributes = { "monitoring.enabled" = "true" }
 
 [scenario.expect.window]
-parent = "ggen.lifecycle.deploy-production"
-must_contain = ["ggen.deploy.build", "ggen.deploy.healthcheck", "ggen.deploy.verify"]
+parent = "mcpp.lifecycle.deploy-production"
+must_contain = ["mcpp.deploy.build", "mcpp.deploy.healthcheck", "mcpp.deploy.verify"]
 min_child_spans = 4
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.pre-deploy-checks",
-  "ggen.lifecycle.deploy-production",
-  "ggen.lifecycle.post-deploy-monitoring"
+  "mcpp.lifecycle.pre-deploy-checks",
+  "mcpp.lifecycle.deploy-production",
+  "mcpp.lifecycle.post-deploy-monitoring"
 ]
 
 # Test 3: Deployment validation failure prevents deploy
 [[scenario]]
 name = "validation_failure_prevents_deploy"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/validation-fail && cd /workspace/validation-fail && \
 cat > make.toml << 'EOF'
@@ -147,32 +147,32 @@ command = "echo 'Should not deploy'"
 [hooks]
 before_deploy = ["validate"]
 EOF
-ggen lifecycle run deploy || echo "Deploy prevented by validation"
+mcpp lifecycle run deploy || echo "Deploy prevented by validation"
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.validate"
+name = "mcpp.lifecycle.validate"
 expect_error = true
 attributes = { "validation.result" = "failed" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 should_not_exist = true
 
 [[scenario.expect.span]]
-name = "ggen.deploy.prevented"
-must_follow = ["ggen.lifecycle.validate"]
+name = "mcpp.deploy.prevented"
+must_follow = ["mcpp.lifecycle.validate"]
 attributes = { "reason" = "validation_failed" }
 
 [scenario.expect.graph]
 must_not_include = [
-  ["ggen.lifecycle.validate", "ggen.lifecycle.deploy"]
+  ["mcpp.lifecycle.validate", "mcpp.lifecycle.deploy"]
 ]
 
 # Test 4: Blue-green deployment
 [[scenario]]
 name = "blue_green_deployment"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/blue-green && cd /workspace/blue-green && \
 cat > make.toml << 'EOF'
@@ -194,36 +194,36 @@ commands = [
     "echo 'Decommissioning blue'"
 ]
 EOF
-ggen lifecycle run deploy-green && \
-ggen lifecycle run switch-traffic
+mcpp lifecycle run deploy-green && \
+mcpp lifecycle run switch-traffic
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-green"
-must_precede = ["ggen.lifecycle.switch-traffic"]
+name = "mcpp.lifecycle.deploy-green"
+must_precede = ["mcpp.lifecycle.switch-traffic"]
 attributes = { "deployment.strategy" = "blue_green", "target" = "green" }
 
 [[scenario.expect.span]]
-name = "ggen.deploy.healthcheck"
-parent = "ggen.lifecycle.deploy-green"
+name = "mcpp.deploy.healthcheck"
+parent = "mcpp.lifecycle.deploy-green"
 attributes = { "environment" = "green" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.switch-traffic"
-must_follow = ["ggen.lifecycle.deploy-green"]
+name = "mcpp.lifecycle.switch-traffic"
+must_follow = ["mcpp.lifecycle.deploy-green"]
 attributes = { "traffic.strategy" = "gradual" }
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.deploy-green",
-  "ggen.deploy.healthcheck",
-  "ggen.lifecycle.switch-traffic"
+  "mcpp.lifecycle.deploy-green",
+  "mcpp.deploy.healthcheck",
+  "mcpp.lifecycle.switch-traffic"
 ]
 
 # Test 5: Canary deployment
 [[scenario]]
 name = "canary_deployment"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/canary && cd /workspace/canary && \
 cat > make.toml << 'EOF'
@@ -244,29 +244,29 @@ commands = [
     "echo 'Deployment complete'"
 ]
 EOF
-ggen lifecycle run deploy-canary && \
-ggen lifecycle run promote-canary
+mcpp lifecycle run deploy-canary && \
+mcpp lifecycle run promote-canary
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-canary"
-must_precede = ["ggen.lifecycle.promote-canary"]
+name = "mcpp.lifecycle.deploy-canary"
+must_precede = ["mcpp.lifecycle.promote-canary"]
 attributes = { "deployment.strategy" = "canary", "traffic.percentage" = "5" }
 
 [[scenario.expect.span]]
-name = "ggen.deploy.monitor.canary"
-parent = "ggen.lifecycle.deploy-canary"
+name = "mcpp.deploy.monitor.canary"
+parent = "mcpp.lifecycle.deploy-canary"
 attributes = { "metrics.monitored" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.promote-canary"
-must_follow = ["ggen.lifecycle.deploy-canary"]
+name = "mcpp.lifecycle.promote-canary"
+must_follow = ["mcpp.lifecycle.deploy-canary"]
 attributes = { "promotion.result" = "success" }
 
 # Test 6: Multi-region deployment
 [[scenario]]
 name = "multi_region_deployment"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/multi-region && cd /workspace/multi-region && \
 cat > make.toml << 'EOF'
@@ -289,39 +289,39 @@ commands = [
     "echo 'Verifying ap-south-1'"
 ]
 EOF
-ggen lifecycle run deploy-us-east && \
-ggen lifecycle run deploy-eu-west && \
-ggen lifecycle run deploy-ap-south && \
-ggen lifecycle run verify-all-regions
+mcpp lifecycle run deploy-us-east && \
+mcpp lifecycle run deploy-eu-west && \
+mcpp lifecycle run deploy-ap-south && \
+mcpp lifecycle run verify-all-regions
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-us-east"
+name = "mcpp.lifecycle.deploy-us-east"
 attributes = { "region" = "us-east-1" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-eu-west"
+name = "mcpp.lifecycle.deploy-eu-west"
 attributes = { "region" = "eu-west-1" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-ap-south"
+name = "mcpp.lifecycle.deploy-ap-south"
 attributes = { "region" = "ap-south-1" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.verify-all-regions"
-must_follow = ["ggen.lifecycle.deploy-us-east", "ggen.lifecycle.deploy-eu-west", "ggen.lifecycle.deploy-ap-south"]
+name = "mcpp.lifecycle.verify-all-regions"
+must_follow = ["mcpp.lifecycle.deploy-us-east", "mcpp.lifecycle.deploy-eu-west", "mcpp.lifecycle.deploy-ap-south"]
 
 [scenario.expect.graph]
 must_include = [
-  ["ggen.lifecycle.deploy-us-east", "ggen.lifecycle.verify-all-regions"],
-  ["ggen.lifecycle.deploy-eu-west", "ggen.lifecycle.verify-all-regions"],
-  ["ggen.lifecycle.deploy-ap-south", "ggen.lifecycle.verify-all-regions"]
+  ["mcpp.lifecycle.deploy-us-east", "mcpp.lifecycle.verify-all-regions"],
+  ["mcpp.lifecycle.deploy-eu-west", "mcpp.lifecycle.verify-all-regions"],
+  ["mcpp.lifecycle.deploy-ap-south", "mcpp.lifecycle.verify-all-regions"]
 ]
 
 # Test 7: Deployment with artifact publishing
 [[scenario]]
 name = "deployment_with_artifacts"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/artifacts && cd /workspace/artifacts && \
 cat > make.toml << 'EOF'
@@ -349,45 +349,45 @@ commands = [
     "echo 'Deploying from artifacts'"
 ]
 EOF
-ggen lifecycle run build-artifacts && \
-ggen lifecycle run publish-artifacts && \
-ggen lifecycle run deploy-from-artifacts
+mcpp lifecycle run build-artifacts && \
+mcpp lifecycle run publish-artifacts && \
+mcpp lifecycle run deploy-from-artifacts
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.build-artifacts"
-must_precede = ["ggen.lifecycle.publish-artifacts"]
+name = "mcpp.lifecycle.build-artifacts"
+must_precede = ["mcpp.lifecycle.publish-artifacts"]
 
 [[scenario.expect.span]]
-name = "ggen.artifacts.generate"
-parent = "ggen.lifecycle.build-artifacts"
+name = "mcpp.artifacts.generate"
+parent = "mcpp.lifecycle.build-artifacts"
 attributes = { "artifact.type" = "release" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.publish-artifacts"
-must_precede = ["ggen.lifecycle.deploy-from-artifacts"]
-must_follow = ["ggen.lifecycle.build-artifacts"]
+name = "mcpp.lifecycle.publish-artifacts"
+must_precede = ["mcpp.lifecycle.deploy-from-artifacts"]
+must_follow = ["mcpp.lifecycle.build-artifacts"]
 
 [[scenario.expect.span]]
-name = "ggen.artifacts.publish"
-parent = "ggen.lifecycle.publish-artifacts"
+name = "mcpp.artifacts.publish"
+parent = "mcpp.lifecycle.publish-artifacts"
 attributes = { "registry.type" = "artifact_registry" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-from-artifacts"
-must_follow = ["ggen.lifecycle.publish-artifacts"]
+name = "mcpp.lifecycle.deploy-from-artifacts"
+must_follow = ["mcpp.lifecycle.publish-artifacts"]
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.build-artifacts",
-  "ggen.lifecycle.publish-artifacts",
-  "ggen.lifecycle.deploy-from-artifacts"
+  "mcpp.lifecycle.build-artifacts",
+  "mcpp.lifecycle.publish-artifacts",
+  "mcpp.lifecycle.deploy-from-artifacts"
 ]
 
 # Test 8: Deployment with database migrations
 [[scenario]]
 name = "deployment_with_migrations"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/migrations && cd /workspace/migrations && \
 cat > make.toml << 'EOF'
@@ -410,32 +410,32 @@ command = "echo 'Deploying application with new schema'"
 [hooks]
 before_deploy-application = ["backup-database", "run-migrations"]
 EOF
-ggen lifecycle run deploy-application
+mcpp lifecycle run deploy-application
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.backup-database"
-must_precede = ["ggen.lifecycle.run-migrations"]
+name = "mcpp.lifecycle.backup-database"
+must_precede = ["mcpp.lifecycle.run-migrations"]
 attributes = { "backup.type" = "pre_migration" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.run-migrations"
-must_precede = ["ggen.lifecycle.deploy-application"]
-must_follow = ["ggen.lifecycle.backup-database"]
+name = "mcpp.lifecycle.run-migrations"
+must_precede = ["mcpp.lifecycle.deploy-application"]
+must_follow = ["mcpp.lifecycle.backup-database"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-application"
-must_follow = ["ggen.lifecycle.run-migrations"]
+name = "mcpp.lifecycle.deploy-application"
+must_follow = ["mcpp.lifecycle.run-migrations"]
 
 [scenario.expect.window]
-parent = "ggen.lifecycle.deploy.orchestrate"
-must_contain = ["ggen.lifecycle.backup-database", "ggen.lifecycle.run-migrations", "ggen.lifecycle.deploy-application"]
+parent = "mcpp.lifecycle.deploy.orchestrate"
+must_contain = ["mcpp.lifecycle.backup-database", "mcpp.lifecycle.run-migrations", "mcpp.lifecycle.deploy-application"]
 temporal_order = true
 
 # Test 9: Zero-downtime deployment
 [[scenario]]
 name = "zero_downtime_deployment"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/zero-downtime && cd /workspace/zero-downtime && \
 cat > make.toml << 'EOF'
@@ -463,35 +463,35 @@ commands = [
     "echo 'Deployment complete - zero downtime'"
 ]
 EOF
-ggen lifecycle run deploy-new-version && \
-ggen lifecycle run switch-load-balancer && \
-ggen lifecycle run terminate-old-version
+mcpp lifecycle run deploy-new-version && \
+mcpp lifecycle run switch-load-balancer && \
+mcpp lifecycle run terminate-old-version
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-new-version"
-must_precede = ["ggen.lifecycle.switch-load-balancer"]
+name = "mcpp.lifecycle.deploy-new-version"
+must_precede = ["mcpp.lifecycle.switch-load-balancer"]
 attributes = { "deployment.strategy" = "zero_downtime" }
 
 [[scenario.expect.span]]
-name = "ggen.deploy.healthcheck"
-parent = "ggen.lifecycle.deploy-new-version"
+name = "mcpp.deploy.healthcheck"
+parent = "mcpp.lifecycle.deploy-new-version"
 attributes = { "check.passed" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.switch-load-balancer"
-must_precede = ["ggen.lifecycle.terminate-old-version"]
-must_follow = ["ggen.lifecycle.deploy-new-version"]
+name = "mcpp.lifecycle.switch-load-balancer"
+must_precede = ["mcpp.lifecycle.terminate-old-version"]
+must_follow = ["mcpp.lifecycle.deploy-new-version"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.terminate-old-version"
-must_follow = ["ggen.lifecycle.switch-load-balancer"]
+name = "mcpp.lifecycle.terminate-old-version"
+must_follow = ["mcpp.lifecycle.switch-load-balancer"]
 attributes = { "shutdown.graceful" = "true" }
 
 # Test 10: Deployment verification with smoke tests
 [[scenario]]
 name = "deployment_verification_smoke_tests"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/smoke-tests && cd /workspace/smoke-tests && \
 cat > make.toml << 'EOF'
@@ -512,21 +512,21 @@ commands = [
 [hooks]
 after_deploy = ["smoke-tests"]
 EOF
-ggen lifecycle run deploy
+mcpp lifecycle run deploy
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
-must_precede = ["ggen.lifecycle.smoke-tests"]
+name = "mcpp.lifecycle.deploy"
+must_precede = ["mcpp.lifecycle.smoke-tests"]
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.smoke-tests"
-must_follow = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.smoke-tests"
+must_follow = ["mcpp.lifecycle.deploy"]
 attributes = { "test.type" = "smoke", "hook.type" = "after" }
 
 [[scenario.expect.span]]
-name = "ggen.test.execute"
-parent = "ggen.lifecycle.smoke-tests"
+name = "mcpp.test.execute"
+parent = "mcpp.lifecycle.smoke-tests"
 count = 4
 attributes_pattern = { "test.name" = ".*" }
 

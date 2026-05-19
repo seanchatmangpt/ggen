@@ -30,18 +30,33 @@ fn write_output(filename: &str, content: &str) {
 }
 
 /// Render a template string with the given context, return rendered output.
-fn render_template_str(tera: &mut Tera, template: &str, ctx: &Context) -> Result<String, String> {
-    tera.render_str(template, ctx).map_err(|e| {
-        // Show full Tera error chain with source
-        let mut msg = format!("{e}");
-        // Walk the error chain for more details
-        let mut source = std::error::Error::source(&e);
-        while let Some(cause) = source {
-            msg = format!("{msg}\n  Caused by: {cause}");
-            source = std::error::Error::source(cause);
-        }
-        msg
-    })
+///
+/// Uses add_raw_template() to register the template string, then render() to execute it.
+/// This is the proper Tera pattern instead of the deprecated render_str().
+fn render_template_str(tera: &mut Tera, template_name: &str, template: &str, ctx: &Context) -> Result<String, String> {
+    // Register the template string with a unique name
+    tera.add_raw_template(template_name, template)
+        .map_err(|e| {
+            let mut msg = format!("Failed to register template '{template_name}': {e}");
+            let mut source = std::error::Error::source(&e);
+            while let Some(cause) = source {
+                msg = format!("{msg}\n  Caused by: {cause}");
+                source = std::error::Error::source(cause);
+            }
+            msg
+        })?;
+
+    // Render the registered template
+    tera.render(template_name, ctx)
+        .map_err(|e| {
+            let mut msg = format!("Failed to render template '{template_name}': {e}");
+            let mut source = std::error::Error::source(&e);
+            while let Some(cause) = source {
+                msg = format!("{msg}\n  Caused by: {cause}");
+                source = std::error::Error::source(cause);
+            }
+            msg
+        })
 }
 
 // ---------------------------------------------------------------------------
@@ -317,7 +332,7 @@ fn adapter_a2a_sparql_context() -> Context {
 /// Resolve the ggen workspace root directory.
 /// Tests run with CWD set by cargo, which may be the workspace root or the target dir.
 fn workspace_root() -> std::path::PathBuf {
-    // CARGO_MANIFEST_DIR = /Users/sac/ggen/crates/ggen-core
+    // CARGO_MANIFEST_DIR = ./crates/ggen-core
     // Workspace root = two levels up
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR must be set");
     let manifest = std::path::Path::new(&manifest_dir);
@@ -385,7 +400,7 @@ fn render_and_save(
     tera: &mut Tera, template_name: &'static str, output_file: &'static str, template_str: &str,
     ctx: &Context,
 ) -> RenderResult {
-    let rendered = render_template_str(tera, template_str, ctx)
+    let rendered = render_template_str(tera, template_name, template_str, ctx)
         .unwrap_or_else(|e| panic!("FAILED to render {template_name}: {e}"));
     assert!(
         !rendered.trim().is_empty(),

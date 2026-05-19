@@ -43,7 +43,7 @@ let risk_scores = analytics.calculate_risk_scores(&population)?;
 ### Quality Measures
 
 ```typescript
-import { QualityMeasures } from '@ggen/healthcare-analytics';
+import { QualityMeasures } from '@mcpp/healthcare-analytics';
 
 const measures = new QualityMeasures();
 

@@ -333,14 +333,14 @@ The implementation is ready for immediate use in the ggen CLI and provides a sol
 
 ## Files Delivered
 
-1. `/Users/sac/ggen/crates/ggen-domain/src/packs/repository.rs` (380 lines)
-2. `/Users/sac/ggen/crates/ggen-domain/src/packs/dependency_graph.rs` (400 lines)
-3. `/Users/sac/ggen/crates/ggen-domain/src/packs/installer.rs` (450 lines)
-4. `/Users/sac/ggen/crates/ggen-domain/src/packs/composer.rs` (450 lines)
-5. `/Users/sac/ggen/crates/ggen-domain/src/packs/install.rs` (80 lines)
-6. `/Users/sac/ggen/crates/ggen-domain/src/packs/mod.rs` (updated with new exports)
-7. `/Users/sac/ggen/crates/ggen-domain/Cargo.toml` (added async-trait dependency)
-8. `/Users/sac/ggen/docs/PACKS_DOMAIN_IMPLEMENTATION.md` (500+ lines)
-9. `/Users/sac/ggen/PACKS_DOMAIN_DELIVERY_SUMMARY.md` (this file)
+1. `./crates/ggen-domain/src/packs/repository.rs` (380 lines)
+2. `./crates/ggen-domain/src/packs/dependency_graph.rs` (400 lines)
+3. `./crates/ggen-domain/src/packs/installer.rs` (450 lines)
+4. `./crates/ggen-domain/src/packs/composer.rs` (450 lines)
+5. `./crates/ggen-domain/src/packs/install.rs` (80 lines)
+6. `./crates/ggen-domain/src/packs/mod.rs` (updated with new exports)
+7. `./crates/ggen-domain/Cargo.toml` (added async-trait dependency)
+8. `./docs/PACKS_DOMAIN_IMPLEMENTATION.md` (500+ lines)
+9. `./PACKS_DOMAIN_DELIVERY_SUMMARY.md` (this file)
 
 **Total**: 9 files, 2,800+ lines of production code, 500+ lines of documentation

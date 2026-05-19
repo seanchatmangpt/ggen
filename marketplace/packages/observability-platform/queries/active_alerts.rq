@@ -1,4 +1,4 @@
-PREFIX obs: <https://ggen.ai/ontology/observability#>
+PREFIX obs: <https://mcpp.ai/ontology/observability#>
 SELECT ?alert ?severity ?metric ?threshold WHERE {
   ?alert a obs:Alert ;
          obs:severity ?severity ;

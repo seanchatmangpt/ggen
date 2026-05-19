@@ -1,6 +1,6 @@
 //! Clap noun-verb convention preset
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::path::Path;
 

@@ -17,15 +17,15 @@
 - ✅ Updated `VERSION` file: `3.0.0` → `3.2.0`
 - ✅ Updated root `Cargo.toml`: `3.0.0` → `3.2.0`
 - ✅ Updated all crate `Cargo.toml` files (10 files):
-  - `crates/ggen-utils/Cargo.toml`
-  - `crates/ggen-cli/Cargo.toml`
-  - `crates/ggen-core/Cargo.toml`
-  - `crates/ggen-ai/Cargo.toml`
-  - `crates/ggen-marketplace/Cargo.toml`
-  - `crates/ggen-domain/Cargo.toml`
-  - `crates/ggen-macros/Cargo.toml`
-  - `crates/ggen-node/Cargo.toml`
-  - `crates/ggen-dod/Cargo.toml`
+  - `crates/mcpp-utils/Cargo.toml`
+  - `crates/mcpp-cli/Cargo.toml`
+  - `crates/mcpp-core/Cargo.toml`
+  - `crates/mcpp-ai/Cargo.toml`
+  - `crates/mcpp-marketplace/Cargo.toml`
+  - `crates/mcpp-domain/Cargo.toml`
+  - `crates/mcpp-macros/Cargo.toml`
+  - `crates/mcpp-node/Cargo.toml`
+  - `crates/mcpp-dod/Cargo.toml`
 - ✅ Updated all internal dependency version references
 
 ### 3. Verification
@@ -74,15 +74,15 @@
 
 ### Crate Cargo.toml Files (10 files)
 All updated from `3.0.0` to `3.2.0`:
-1. `crates/ggen-utils/Cargo.toml`
-2. `crates/ggen-cli/Cargo.toml`
-3. `crates/ggen-core/Cargo.toml`
-4. `crates/ggen-ai/Cargo.toml`
-5. `crates/ggen-marketplace/Cargo.toml`
-6. `crates/ggen-domain/Cargo.toml`
-7. `crates/ggen-macros/Cargo.toml`
-8. `crates/ggen-node/Cargo.toml`
-9. `crates/ggen-dod/Cargo.toml`
+1. `crates/mcpp-utils/Cargo.toml`
+2. `crates/mcpp-cli/Cargo.toml`
+3. `crates/mcpp-core/Cargo.toml`
+4. `crates/mcpp-ai/Cargo.toml`
+5. `crates/mcpp-marketplace/Cargo.toml`
+6. `crates/mcpp-domain/Cargo.toml`
+7. `crates/mcpp-macros/Cargo.toml`
+8. `crates/mcpp-node/Cargo.toml`
+9. `crates/mcpp-dod/Cargo.toml`
 10. Root `Cargo.toml`
 
 ### Documentation Files

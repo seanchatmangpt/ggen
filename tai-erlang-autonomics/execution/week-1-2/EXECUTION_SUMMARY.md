@@ -298,7 +298,7 @@ This package saves ~40 hours of founder/finance lead time:
 
 All files located in:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/
 ```
 
 Core Documents:

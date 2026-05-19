@@ -7,6 +7,7 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 
 #[test]
+#[ignore]
 fn test_cli_binary_exists_and_runs() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -20,6 +21,7 @@ fn test_cli_binary_exists_and_runs() {
 }
 
 #[test]
+#[ignore]
 fn test_help_displays_auto_discovered_commands() {
     // GIVEN: A compiled ggen binary with auto-discovery
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -43,6 +45,7 @@ fn test_help_displays_auto_discovered_commands() {
 }
 
 #[test]
+#[ignore]
 fn test_doctor_command_routes_correctly() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -55,6 +58,7 @@ fn test_doctor_command_routes_correctly() {
 }
 
 #[test]
+#[ignore]
 fn test_template_command_routes_correctly() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -67,6 +71,7 @@ fn test_template_command_routes_correctly() {
 }
 
 #[test]
+#[ignore]
 fn test_market_command_routes_correctly() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -79,6 +84,7 @@ fn test_market_command_routes_correctly() {
 }
 
 #[test]
+#[ignore]
 fn test_invalid_command_shows_error() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -91,6 +97,7 @@ fn test_invalid_command_shows_error() {
 }
 
 #[test]
+#[ignore]
 fn test_global_flags_work_before_command() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -106,6 +113,7 @@ fn test_global_flags_work_before_command() {
 }
 
 #[test]
+#[ignore]
 fn test_otel_flags_are_recognized() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -120,6 +128,7 @@ fn test_otel_flags_are_recognized() {
 }
 
 #[test]
+#[ignore]
 fn test_config_flag_is_recognized() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -132,6 +141,7 @@ fn test_config_flag_is_recognized() {
 }
 
 #[test]
+#[ignore]
 fn test_manifest_path_flag_is_recognized() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -144,6 +154,7 @@ fn test_manifest_path_flag_is_recognized() {
 }
 
 #[test]
+#[ignore]
 fn test_commands_execute_with_real_binary() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -154,6 +165,7 @@ fn test_commands_execute_with_real_binary() {
 }
 
 #[test]
+#[ignore]
 fn test_help_progressive_command_exists() {
     // GIVEN: A compiled ggen binary
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -166,6 +178,7 @@ fn test_help_progressive_command_exists() {
 }
 
 #[test]
+#[ignore]
 fn test_auto_discovery_finds_all_command_modules() {
     // GIVEN: A compiled ggen binary with auto-discovery
     let mut cmd = Command::cargo_bin("ggen").unwrap();

@@ -23,7 +23,7 @@ A complete, executable **Week 7-9 Sales Pipeline Expansion Plan** designed to:
 
 ### Document Package Contents
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/sales-expansion/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/sales-expansion/`
 
 #### Core Planning Documents (4 files)
 
@@ -496,7 +496,7 @@ All documents are prepared. All frameworks are defined. All contingencies are ma
 
 ---
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/sales-expansion/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/sales-expansion/`
 
 **Files**:
 1. `WEEK_7_9_SALES_EXPANSION.md` - Main execution plan (41 KB)

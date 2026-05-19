@@ -1,7 +1,7 @@
 //! Pack metadata loading and management
 
 use crate::packs::types::{Pack, PackFile};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
 
@@ -20,7 +20,7 @@ pub fn get_packs_dir() -> Result<PathBuf> {
         }
     }
 
-    Err(ggen_utils::error::Error::new(
+    Err(ggen_core::utils::error::Error::new(
         "Packs directory not found. Expected marketplace/packs/",
     ))
 }
@@ -31,7 +31,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     let pack_path = packs_dir.join(format!("{}.toml", pack_id));
 
     if !pack_path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Pack '{}' not found at {}",
             pack_id,
             pack_path.display()
@@ -40,7 +40,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
 
     let content = fs::read_to_string(&pack_path)?;
     let pack_file: PackFile = toml::from_str(&content).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to parse pack '{}': {}", pack_id, e))
+        ggen_core::utils::error::Error::new(&format!("Failed to parse pack '{}': {}", pack_id, e))
     })?;
 
     Ok(pack_file.pack)

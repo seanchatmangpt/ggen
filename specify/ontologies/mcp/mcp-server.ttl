@@ -31,6 +31,7 @@ ex:GgenMcpServer a mcp:McpServer ;
     mcp:hasTool ex:QueryOntologyTool ;
     mcp:hasResource ex:ConfigResource ;
     mcp:hasResource ex:OntologyResource ;
+    mcp:hasResourceTemplate ex:ExampleResourceTemplate ;
     mcp:hasPrompt ex:ExplainRdfSchemaPrompt ;
     mcp:hasPrompt ex:GenerateFromExamplePrompt ;
     mcp:hasCompletionProvider ex:SyncTargetCompletion ;

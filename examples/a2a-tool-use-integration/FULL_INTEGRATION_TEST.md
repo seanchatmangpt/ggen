@@ -123,7 +123,7 @@ All criteria met:
 
 ```bash
 # Run full integration test
-cd /Users/sac/ggen/examples/a2a-tool-use-integration
+cd ./examples/a2a-tool-use-integration
 cargo test --test full_integration_test
 
 # Run with output
@@ -242,7 +242,7 @@ OpenAPI Spec → Tool Discovery → Agent Planning → Execution → Validation
 
 ---
 
-**Test File**: `/Users/sac/ggen/examples/a2a-tool-use-integration/tests/full_integration_test.rs`
+**Test File**: `./examples/a2a-tool-use-integration/tests/full_integration_test.rs`
 
 **Status**: ✅ PASSING
 

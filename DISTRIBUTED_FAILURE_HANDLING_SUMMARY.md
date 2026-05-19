@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implemented comprehensive distributed failure handling for the A2A-MCP integration in `/Users/sac/ggen/crates/osiris-tps/src/distributed/`, addressing single-node assumptions and network partition risks.
+Implemented comprehensive distributed failure handling for the A2A-MCP integration in `./crates/osiris-tps/src/distributed/`, addressing single-node assumptions and network partition risks.
 
 ## Problem Statement
 
@@ -330,7 +330,7 @@ let client = ResilientA2AClient::new(config);
 
 ### Run all distributed tests
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo test -p osiris-tps --lib distributed
 ```
 

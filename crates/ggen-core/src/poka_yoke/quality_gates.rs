@@ -22,7 +22,7 @@
 use super::andon::AndonSignal;
 use crate::lean_six_sigma::{DmaicPhase, LeanSixSigmaGate};
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// A validation checkpoint that must pass

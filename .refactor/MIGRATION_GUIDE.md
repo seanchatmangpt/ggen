@@ -1,4 +1,4 @@
-# ggen CLAUDE.md Migration Guide
+# mcpp CLAUDE.md Migration Guide
 ## Bleeding-Edge Best Practices Adoption (2026)
 
 **Date**: 2026-01-03

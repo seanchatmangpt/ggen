@@ -1,5 +1,5 @@
 {# μ₃ Template: Renders Pass instances from ontology #}
-@prefix gv6: <http://ggen.dev/v6#> .
+@prefix gv6: <http://mcpp.dev/v6#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 

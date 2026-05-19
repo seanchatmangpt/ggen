@@ -1,4 +1,4 @@
-@prefix crypto: <http://ggen.dev/ontology/cryptocurrency-exchange#> .
+@prefix crypto: <http://mcpp.dev/ontology/cryptocurrency-exchange#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -9,7 +9,7 @@
 crypto:CryptocurrencyExchangeOntology a owl:Ontology ;
     dc:title "Cryptocurrency Exchange Ontology" ;
     dc:description "Comprehensive ontology for cryptocurrency exchange platforms" ;
-    dc:creator "ggen Marketplace" ;
+    dc:creator "mcpp Marketplace" ;
     dc:date "2025-11-08" ;
     owl:versionInfo "1.0.0" .
 

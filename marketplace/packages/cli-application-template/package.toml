@@ -2,7 +2,7 @@
 name = "cli-application-template"
 version = "1.0.0"
 description = "Generate production-ready CLI applications with commands, args, config, and help"
-author = "ggen-marketplace"
+author = "mcpp-marketplace"
 license = "MIT"
 
 [metadata]
@@ -24,7 +24,7 @@ shell_completion = true
 interactive_prompts = true
 
 [dependencies]
-ggen-core = ">=0.4.0"
+mcpp-core = ">=0.4.0"
 
 [testing]
 framework = "chicago-tdd"

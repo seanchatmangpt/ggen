@@ -175,7 +175,7 @@
   validation.rust.compatible = true
 
 [2026-03-31T12:34:56.795Z INFO  ggen_a2a_mcp::tools::init] Creating project structure
-  project.output_directory = /Users/sac/my-codegen
+  project.output_directory = ~/.ggen/my-codegen
   project.files_created = 8
   project.ggen_toml.created = true
   project.cargo_toml.created = true
@@ -484,10 +484,10 @@ ggen sync
 
 ### Documentation References
 
-- **Domain Modeling:** `/Users/sac/ggen/docs/jtbd/domain-modeling.md`
-- **Code Generation:** `/Users/sac/ggen/docs/jtbd/code-generation-workflow.md`
-- **RDF Syntax:** `/Users/sac/ggen/docs/specify/rdf-syntax-guide.md`
-- **Template Authoring:** `/Users/sac/ggen/docs/specify/template-authoring.md`
+- **Domain Modeling:** `./docs/jtbd/domain-modeling.md`
+- **Code Generation:** `./docs/jtbd/code-generation-workflow.md`
+- **RDF Syntax:** `./docs/specify/rdf-syntax-guide.md`
+- **Template Authoring:** `./docs/specify/template-authoring.md`
 
 ---
 

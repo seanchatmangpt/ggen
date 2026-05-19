@@ -4,7 +4,7 @@
 //! This module provides reusable mocks and utilities for testing
 //! ggen CLI capabilities using London School TDD principles.
 
-use ggen_utils::error::Error as GgenError;
+use ggen_core::utils::error::Error as GgenError;
 use mockall::predicate::*;
 use mockall::*;
 use std::path::PathBuf;

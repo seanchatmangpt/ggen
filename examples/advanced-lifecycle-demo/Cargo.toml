@@ -35,4 +35,4 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # GGEN dependencies - these would normally come from crates.io
 # For this example, we'll use path dependencies
-ggen-core = { path = "../../ggen-core" }
+mcpp-core = { path = "../../mcpp-core" }

@@ -5,9 +5,9 @@
 //!
 //! Test Count: 100+ tests covering models, error, validation, builders
 
-use ggen_marketplace::error::{Error, ErrorContext};
-use ggen_marketplace::models::*;
-use ggen_marketplace::validation::{
+use ggen_core::marketplace::error::{Error, ErrorContext};
+use ggen_core::marketplace::models::*;
+use ggen_core::marketplace::validation::{
     AuthorValidator, CheckSeverity, LicenseValidator, MetadataValidator, PackageValidator,
     ReadmeValidator, RepositoryValidator, ValidationCheck, ValidationResult, Validator,
 };

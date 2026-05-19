@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully created **3 comprehensive finance packages** for the ggen marketplace, each containing:
+Successfully created **3 comprehensive finance packages** for the mcpp marketplace, each containing:
 - RDF/OWL ontologies (900+ total lines)
 - SPARQL query templates (45+ queries)
 - Multi-language implementations (Rust, TypeScript, Python)
@@ -357,11 +357,11 @@ Each package includes:
 
 1. **Testing**: Run tests for each package
    ```bash
-   cd /Users/sac/ggen/marketplace/packages/iso-20022-payments
+   cd ~/.ggen/mcpp/marketplace/packages/iso-20022-payments
    cargo test  # Rust tests
    ```
 
-2. **Integration**: Import packages into ggen marketplace
+2. **Integration**: Import packages into mcpp marketplace
 
 3. **Validation**: Verify SPARQL queries against RDF data
 

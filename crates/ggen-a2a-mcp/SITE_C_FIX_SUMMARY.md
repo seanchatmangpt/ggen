@@ -1,7 +1,7 @@
 # Phase 1, Bug #1, Site C Fix Summary
 
 ## Issue
-Multipart data loss in `/Users/sac/ggen/crates/ggen-a2a-mcp/src/handlers.rs` (lines 476-510)
+Multipart data loss in `./crates/ggen-a2a-mcp/src/handlers.rs` (lines 476-510)
 
 ## Problem
 The original `process_multipart` function was replacing all content with metadata summaries instead of preserving actual content:
@@ -89,16 +89,16 @@ test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/handlers.rs`
+1. `./crates/ggen-a2a-mcp/src/handlers.rs`
    - Lines 476-566: Rewrote `process_multipart` function
    - Changed from private to public
 
-2. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/multipart_handler_test.rs`
+2. `./crates/ggen-a2a-mcp/tests/multipart_handler_test.rs`
    - Created new test file with 15 comprehensive tests
 
 ## Side Fixes
 
-Fixed compilation errors in `/Users/sac/ggen/crates/ggen-cli/src/cmds/self_play.rs`:
+Fixed compilation errors in `./crates/ggen-cli/src/cmds/self_play.rs`:
 - Line 151: Changed `#[verb(description = "...")]` to use string literal
 - Lines 25-28: Removed unused imports
 - Line 492: Added error conversion for `SyncError`

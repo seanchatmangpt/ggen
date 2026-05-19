@@ -815,7 +815,7 @@ Before launching any demo, verify:
 ## Files in This Package
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-3-4/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-3-4/
 
 ├── WEEK_3_4_DEMO_AND_POC.md (THIS FILE)
 ├── DEMO_SCRIPTS/

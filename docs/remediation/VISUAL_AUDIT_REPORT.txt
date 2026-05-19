@@ -96,7 +96,7 @@
 ║  3. WARNING_AUDIT_SUMMARY.md         11KB | Executive summary            ║
 ║     → Key findings, recommendations, coordination status                  ║
 ║                                                                            ║
-║  Location: /Users/sac/ggen/docs/remediation/                              ║
+║  Location: ./docs/remediation/                              ║
 ║                                                                            ║
 ╠════════════════════════════════════════════════════════════════════════════╣
 ║  ⚠️  RISK ASSESSMENT                                                       ║
@@ -152,7 +152,7 @@
 ║  When complete, you should see:                                           ║
 ║                                                                            ║
 ║  $ cargo clippy --all-targets --all-features                              ║
-║      Checking ggen-domain v3.3.0 (/Users/sac/ggen/crates/ggen-domain)    ║
+║      Checking ggen-domain v3.3.0 (./crates/ggen-domain)    ║
 ║      Finished dev [unoptimized + debuginfo] target(s) in 12.34s          ║
 ║                                                                            ║
 ║  No warnings or errors! ✅                                                 ║

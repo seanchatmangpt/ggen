@@ -1,12 +1,12 @@
 [package]
 name = "chatman-cli"
-full_name = "ggen/chatman-cli"
+full_name = "mcpp/chatman-cli"
 version = "0.1.0"
 description = "Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management"
 category = "ai-tools"
 author = "Sean Chatman <sean@chatmangpt.com>"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/chatman-cli"
 license = "MIT OR Apache-2.0"
 dependencies = []

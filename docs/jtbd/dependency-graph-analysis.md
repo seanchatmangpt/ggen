@@ -534,10 +534,10 @@ Week 10: Density = 0.20, Depth = 9 (architecture degrading)
 
 ## Related Documentation
 
-- **Architecture Overview:** `/Users/sac/ggen/docs/architecture/dependency-management.md`
-- **MCP Tools Reference:** `/Users/sac/ggen/docs/mcp-quality-tools.md`
-- **Chicago TDD:** `/Users/sac/ggen/.claude/rules/rust/testing.md`
-- **OTEL Validation:** `/Users/sac/ggen/.claude/rules/otel-validation.md`
+- **Architecture Overview:** `./docs/architecture/dependency-management.md`
+- **MCP Tools Reference:** `./docs/mcp-quality-tools.md`
+- **Chicago TDD:** `./.claude/rules/rust/testing.md`
+- **OTEL Validation:** `./.claude/rules/otel-validation.md`
 
 ---
 

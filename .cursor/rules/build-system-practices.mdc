@@ -1,5 +1,5 @@
 ---
-description: Build system and development workflow practices for ggen
+description: Build system and development workflow practices for mcpp
 globs:
   - "**/Makefile.toml"
   - "**/Cargo.toml"
@@ -48,14 +48,14 @@ alwaysApply: false
 
 ## Workspace Structure
 
-ggen uses a Cargo workspace with the following crates:
-- `crates/ggen-utils` - Shared utilities
-- `crates/ggen-cli` - CLI interface (binary: `ggen`)
-- `crates/ggen-domain` - Domain logic layer
-- `crates/ggen-core` - Core generation engine
-- `crates/ggen-ai` - AI/LLM integration
-- `crates/ggen-marketplace` - Package marketplace
-- `crates/ggen-node` - Node.js bindings
+mcpp uses a Cargo workspace with the following crates:
+- `crates/mcpp-utils` - Shared utilities
+- `crates/mcpp-cli` - CLI interface (binary: `mcpp`)
+- `crates/mcpp-domain` - Domain logic layer
+- `crates/mcpp-core` - Core generation engine
+- `crates/mcpp-ai` - AI/LLM integration
+- `crates/mcpp-marketplace` - Package marketplace
+- `crates/mcpp-node` - Node.js bindings
 
 ## Common Tasks
 

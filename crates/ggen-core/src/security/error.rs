@@ -5,7 +5,7 @@
 //! This module sanitizes error messages to prevent exposing sensitive information
 //! such as internal paths, stack traces, or system details to end users.
 
-use ggen_utils::error::Error;
+use crate::utils::error::Error;
 use std::path::Path;
 
 /// Sanitized error that hides internal details from users

@@ -43,7 +43,7 @@
 Run cargo clippy with auto-fix for safe mechanical changes:
 
 ```bash
-cd /Users/sac/ggen
+cd .
 
 # Auto-fix safe issues
 cargo clippy --fix --all-targets --all-features --allow-dirty
@@ -300,7 +300,7 @@ When complete, you should see:
 
 ```bash
 $ cargo clippy --all-targets --all-features
-    Checking ggen-domain v3.3.0 (/Users/sac/ggen/crates/ggen-domain)
+    Checking ggen-domain v3.3.0 (./crates/ggen-domain)
     Finished dev [unoptimized + debuginfo] target(s) in 12.34s
 ```
 
@@ -310,6 +310,6 @@ $ cargo clippy --all-targets --all-features
 
 ## Support Resources
 
-- Full analysis: `/Users/sac/ggen/docs/remediation/warning-elimination-plan.md`
+- Full analysis: `./docs/remediation/warning-elimination-plan.md`
 - Clippy docs: https://rust-lang.github.io/rust-clippy/
 - Swarm memory key: `hive/refactor/warning-audit`

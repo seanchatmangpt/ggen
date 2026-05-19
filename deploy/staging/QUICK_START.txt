@@ -9,7 +9,7 @@ REQUIREMENT: Docker & Docker Compose installed
 
 1. START THE CLUSTER (single command)
 
-   $ cd /Users/sac/ggen
+   $ cd .
    $ ./deploy/staging/start.sh
 
    Expected: "✓ STAGING DEPLOYMENT SUCCESSFUL" after ~60-90s

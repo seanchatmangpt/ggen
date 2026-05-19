@@ -66,7 +66,7 @@
 ### ✅ Modules with Complete Integration
 
 1. **mape_k** (9 phases)
-   - Has: `/Users/sac/ggen/crates/ggen-domain/src/mape_k/execute.rs`
+   - Has: `./crates/ggen-domain/src/mape_k/execute.rs`
    - Status: COMPLETE - Reference implementation
    - Pattern: ValidatorOrchestrator, ExecuteEngine, multi-stage validation
 
@@ -95,7 +95,7 @@
 
 #### 1. ai/execute.rs (6 functions)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/ai/execute.rs`
+**Path**: `./crates/ggen-domain/src/ai/execute.rs`
 
 ```rust
 //! AI Integration Layer - Async coordination for AI operations
@@ -209,7 +209,7 @@ pub struct ChatResult {
 
 #### 2. template/execute.rs (7 functions)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/template/execute.rs`
+**Path**: `./crates/ggen-domain/src/template/execute.rs`
 
 ```rust
 //! Template Integration Layer - Async coordination for template operations
@@ -386,7 +386,7 @@ pub struct GenerateResult {
 
 #### 3. ontology/execute.rs (4 functions)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/ontology/execute.rs`
+**Path**: `./crates/ggen-domain/src/ontology/execute.rs`
 
 ```rust
 //! Ontology Integration Layer - Async coordination for ontology operations
@@ -553,7 +553,7 @@ pub struct ValidateResult {
 
 #### 4. project/execute.rs (7 functions)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/project/execute.rs`
+**Path**: `./crates/ggen-domain/src/project/execute.rs`
 
 ```rust
 //! Project Integration Layer - Async coordination for project operations
@@ -721,7 +721,7 @@ pub struct ApplyResult {
 
 #### 5. paper/execute.rs (10 functions - STUB ONLY)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/paper/execute.rs`
+**Path**: `./crates/ggen-domain/src/paper/execute.rs`
 
 ```rust
 //! Paper Integration Layer - Async coordination for academic paper operations
@@ -773,7 +773,7 @@ pub struct NewResult {
 
 #### 6. ci/execute.rs (1 function - STUB ONLY)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/ci/execute.rs`
+**Path**: `./crates/ggen-domain/src/ci/execute.rs`
 
 ```rust
 //! CI Integration Layer - Async coordination for CI/CD operations
@@ -813,7 +813,7 @@ pub struct WorkflowResult {
 
 #### 7. workflow/execute.rs (5 functions - STUB ONLY)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/workflow/execute.rs`
+**Path**: `./crates/ggen-domain/src/workflow/execute.rs`
 
 ```rust
 //! Workflow Integration Layer - Async coordination for workflow analytics
@@ -854,7 +854,7 @@ pub struct InitResult {
 
 #### 8. fmea/execute.rs (5 functions)
 
-**Path**: `/Users/sac/ggen/crates/ggen-domain/src/fmea/execute.rs`
+**Path**: `./crates/ggen-domain/src/fmea/execute.rs`
 
 ```rust
 //! FMEA Integration Layer - Async coordination for failure mode analysis
@@ -996,16 +996,16 @@ async fn test_execute_generate_integration() {
 
 | Module | Execute.rs Path | Functions | Status |
 |--------|----------------|-----------|--------|
-| mape_k | `/Users/sac/ggen/crates/ggen-domain/src/mape_k/execute.rs` | 9 | ✅ COMPLETE |
+| mape_k | `./crates/ggen-domain/src/mape_k/execute.rs` | 9 | ✅ COMPLETE |
 | graph | Inline in load.rs, query.rs, export.rs, visualize.rs | 4 | ✅ COMPLETE |
-| ai | `/Users/sac/ggen/crates/ggen-domain/src/ai/execute.rs` | 6 | ❌ CREATE |
-| template | `/Users/sac/ggen/crates/ggen-domain/src/template/execute.rs` | 7 | ❌ CREATE |
-| ontology | `/Users/sac/ggen/crates/ggen-domain/src/ontology/execute.rs` | 4 | ❌ CREATE |
-| project | `/Users/sac/ggen/crates/ggen-domain/src/project/execute.rs` | 7 | ❌ CREATE |
-| paper | `/Users/sac/ggen/crates/ggen-domain/src/paper/execute.rs` | 10 | ❌ STUB (domain needed) |
-| ci | `/Users/sac/ggen/crates/ggen-domain/src/ci/execute.rs` | 1 | ❌ STUB (domain needed) |
-| workflow | `/Users/sac/ggen/crates/ggen-domain/src/workflow/execute.rs` | 5 | ❌ STUB (domain needed) |
-| fmea | `/Users/sac/ggen/crates/ggen-domain/src/fmea/execute.rs` | 5 | ❌ CREATE |
+| ai | `./crates/ggen-domain/src/ai/execute.rs` | 6 | ❌ CREATE |
+| template | `./crates/ggen-domain/src/template/execute.rs` | 7 | ❌ CREATE |
+| ontology | `./crates/ggen-domain/src/ontology/execute.rs` | 4 | ❌ CREATE |
+| project | `./crates/ggen-domain/src/project/execute.rs` | 7 | ❌ CREATE |
+| paper | `./crates/ggen-domain/src/paper/execute.rs` | 10 | ❌ STUB (domain needed) |
+| ci | `./crates/ggen-domain/src/ci/execute.rs` | 1 | ❌ STUB (domain needed) |
+| workflow | `./crates/ggen-domain/src/workflow/execute.rs` | 5 | ❌ STUB (domain needed) |
+| fmea | `./crates/ggen-domain/src/fmea/execute.rs` | 5 | ❌ CREATE |
 
 **Total**: 2 complete, 8 to create (5 full implementation, 3 stubs)
 **Total Execute Functions**: 58 (9 existing + 49 to create)

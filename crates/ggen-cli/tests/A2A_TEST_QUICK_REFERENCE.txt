@@ -2,7 +2,7 @@
 A2A AGENT LIFECYCLE - CHICAGO TDD TEST SUITE - QUICK REFERENCE
 ================================================================================
 
-FILE:           /Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs
+FILE:           ./crates/ggen-cli/tests/a2a_agent_lifecycle.rs
 TEST COUNT:     38 unit tests (all passing)
 LINE COUNT:     1,199 lines
 STATUS:         ✅ READY FOR PRODUCTION
@@ -203,10 +203,10 @@ Edge Cases:
 DOCUMENTATION
 ================================================================================
 
-Detailed Summary:  /Users/sac/ggen/crates/ggen-cli/tests/A2A_LIFECYCLE_TEST_SUMMARY.md
+Detailed Summary:  ./crates/ggen-cli/tests/A2A_LIFECYCLE_TEST_SUMMARY.md
                    (Complete test descriptions, patterns, design decisions)
 
-Test File:         /Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs
+Test File:         ./crates/ggen-cli/tests/a2a_agent_lifecycle.rs
                    (1,199 lines, 38 tests, ready for use)
 
 ================================================================================

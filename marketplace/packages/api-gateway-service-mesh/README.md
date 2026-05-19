@@ -50,8 +50,8 @@ Enterprise-grade API gateway with service mesh integration (Istio, Linkerd, Cons
 ### Installation
 
 ```bash
-# Add to ggen project
-ggen install api-gateway-service-mesh
+# Add to mcpp project
+mcpp install api-gateway-service-mesh
 
 # Or use with Cargo
 cargo add api-gateway-service-mesh
@@ -234,7 +234,7 @@ The package includes a comprehensive RDF ontology (350+ lines) defining:
 
 Query all routes with rate limiting:
 ```sparql
-PREFIX agw: <https://ggen.ai/ontology/api-gateway#>
+PREFIX agw: <https://mcpp.ai/ontology/api-gateway#>
 
 SELECT ?route ?path ?ratelimit
 WHERE {
@@ -247,7 +247,7 @@ WHERE {
 
 Find services requiring mTLS:
 ```sparql
-PREFIX agw: <https://ggen.ai/ontology/api-gateway#>
+PREFIX agw: <https://mcpp.ai/ontology/api-gateway#>
 
 SELECT ?service ?mtlsMode
 WHERE {
@@ -374,6 +374,6 @@ MIT
 
 ## Support
 
-- **Documentation**: https://ggen.ai/docs/api-gateway
-- **Issues**: https://github.com/ggen/marketplace/issues
+- **Documentation**: https://mcpp.ai/docs/api-gateway
+- **Issues**: https://github.com/mcpp/marketplace/issues
 - **Slack**: #api-gateway channel

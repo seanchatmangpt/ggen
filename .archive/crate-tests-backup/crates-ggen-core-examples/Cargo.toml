@@ -1,5 +1,5 @@
 # Root Workspace Manifest
-# Orchestrates all ggen-core examples demonstrating 80/20 lifecycle patterns
+# Orchestrates all mcpp-core examples demonstrating 80/20 lifecycle patterns
 
 [workspace]
 resolver = "2"
@@ -16,9 +16,9 @@ members = [
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
-authors = ["ggen-core contributors"]
+authors = ["mcpp-core contributors"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/your-org/ggen-core"
+repository = "https://github.com/your-org/mcpp-core"
 homepage = "https://ggen.dev"
 documentation = "https://docs.ggen.dev"
 

@@ -1,6 +1,6 @@
 # API Endpoint Templates
 
-Complete REST API endpoint templates with OpenAPI documentation for ggen.
+Complete REST API endpoint templates with OpenAPI documentation for mcpp.
 
 ## Features
 
@@ -14,27 +14,27 @@ Complete REST API endpoint templates with OpenAPI documentation for ggen.
 
 ```bash
 # Add to your project
-ggen market install api-endpoint-templates
+mcpp market install api-endpoint-templates
 
 # Generate API endpoints
-ggen template generate api-endpoint-templates --vars '{"name":"users","path":"/api/v1/users"}'
+mcpp template generate api-endpoint-templates --vars '{"name":"users","path":"/api/v1/users"}'
 ```
 
 ## Quick Start
 
 1. **Install the package:**
    ```bash
-   ggen market install api-endpoint-templates
+   mcpp market install api-endpoint-templates
    ```
 
 2. **Generate API endpoints:**
    ```bash
    # Generate user API endpoints
-   ggen template generate api-endpoint-templates \
+   mcpp template generate api-endpoint-templates \
      --vars '{"name":"users","description":"User management API","base_path":"/api/v1"}'
 
    # Generate product API endpoints
-   ggen template generate api-endpoint-templates \
+   mcpp template generate api-endpoint-templates \
      --vars '{"name":"products","description":"Product catalog API","base_path":"/api/v1"}'
    ```
 
@@ -206,14 +206,14 @@ cargo test api_performance
 
 ```bash
 # Install the package
-ggen market install api-endpoint-templates
+mcpp market install api-endpoint-templates
 
 # Generate users API
-ggen template generate api-endpoint-templates \
+mcpp template generate api-endpoint-templates \
   --vars '{"name":"users","description":"User management endpoints"}'
 
 # Generate products API
-ggen template generate api-endpoint-templates \
+mcpp template generate api-endpoint-templates \
   --vars '{"name":"products","description":"Product catalog endpoints"}'
 
 # Build and run
@@ -225,7 +225,7 @@ cargo run
 
 ```bash
 # Generate API with custom configuration
-ggen template generate api-endpoint-templates \
+mcpp template generate api-endpoint-templates \
   --vars '{
     "name":"orders",
     "description":"Order management API",
@@ -277,8 +277,8 @@ let app = Router::new()
 
 ## Support
 
-- **Issues**: https://github.com/seanchatmangpt/ggen/issues
-- **Documentation**: https://seanchatmangpt.github.io/ggen/
+- **Issues**: https://github.com/seanchatmangpt/mcpp/issues
+- **Documentation**: https://seanchatmangpt.github.io/mcpp/
 - **Examples**: See the generated code for complete examples
 
 ## License

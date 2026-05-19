@@ -5,7 +5,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::async_test;
-use ggen_domain::marketplace::list::{execute_list, ListInput, ListOutput};
+use ggen_core::domain::marketplace::list::{execute_list, ListInput, ListOutput};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::tempdir;

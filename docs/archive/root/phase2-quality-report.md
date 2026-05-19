@@ -376,12 +376,12 @@ Phase 2 validation uncovered **61 quality issues**, including **18 critical (P0)
 
 ## Appendices
 
-- **Appendix A**: [FMEA Analysis (25 Failure Modes)](/Users/sac/ggen/docs/lean-FMEA-analysis.md)
-- **Appendix B**: [Poka-Yoke Improvements (10 Prevention/Detection)](/Users/sac/ggen/docs/lean-poka-yoke-improvements.md)
-- **Appendix C**: [MURA Elimination (8 Variability Reductions)](/Users/sac/ggen/docs/lean-mura-elimination.md)
-- **Appendix D**: [MUDA Elimination (15 Waste Reductions)](/Users/sac/ggen/docs/lean-muda-elimination.md)
-- **Appendix E**: [Andon Dashboard (5 Quality Signals)](/Users/sac/ggen/docs/lean-andon-dashboard.md)
-- **Appendix F**: [Gemba Walk Observations (8 Reality Checks)](/Users/sac/ggen/docs/lean-gemba-walk.md)
+- **Appendix A**: [FMEA Analysis (25 Failure Modes)](./docs/lean-FMEA-analysis.md)
+- **Appendix B**: [Poka-Yoke Improvements (10 Prevention/Detection)](./docs/lean-poka-yoke-improvements.md)
+- **Appendix C**: [MURA Elimination (8 Variability Reductions)](./docs/lean-mura-elimination.md)
+- **Appendix D**: [MUDA Elimination (15 Waste Reductions)](./docs/lean-muda-elimination.md)
+- **Appendix E**: [Andon Dashboard (5 Quality Signals)](./docs/lean-andon-dashboard.md)
+- **Appendix F**: [Gemba Walk Observations (8 Reality Checks)](./docs/lean-gemba-walk.md)
 
 ---
 

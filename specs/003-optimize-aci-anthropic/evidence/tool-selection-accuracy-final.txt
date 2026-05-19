@@ -1,5 +1,5 @@
 [1m[33mwarning[0m[1m:[0m ggen@3.4.1: Discovered 335 templates
-[1m[32m   Compiling[0m ggen v3.4.1 (/Users/sac/ggen)
+[1m[32m   Compiling[0m ggen v3.4.1 (.)
 [0m[1m[33mwarning[0m[0m[1m: fields `name`, `command`, `args`, and `script` are never read[0m
 [0m  [0m[0m[1m[38;5;12m--> [0m[0mtests/aci/mod.rs:14:9[0m
 [0m   [0m[0m[1m[38;5;12m|[0m

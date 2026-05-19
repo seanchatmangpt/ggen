@@ -5,7 +5,7 @@
 //!
 //! See `.specify/naming-conventions-canonical.ttl` for authoritative naming rules.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use regex::Regex;
 use std::fmt;
 

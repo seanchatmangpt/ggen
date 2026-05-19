@@ -1,4 +1,4 @@
-# MCP Server Reference — ggen v6.0.1
+# MCP Server Reference — ggen v26.5.4
 
 Complete reference for the ggen MCP server (Model Context Protocol), exposing 16 tools, 3 prompts, and 4 resource types.
 

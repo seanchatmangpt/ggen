@@ -73,8 +73,8 @@ if $IS_RDF_FEATURE; then
         echo "Created symlink to plan.tera template"
     fi
 
-    # Note: plan.md generation would be done by ggen sync (not this script)
-    echo "Note: Run 'ggen sync' to generate plan.md from plan.ttl (configured in ggen.toml)"
+    # Note: plan.md generation would be done by mcpp sync (not this script)
+    echo "Note: Run 'mcpp sync' to generate plan.md from plan.ttl (configured in mcpp.toml)"
 else
     # Legacy Feature: Copy markdown template
     echo "Detected legacy feature, setting up MD-based plan..."

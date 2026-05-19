@@ -18,7 +18,7 @@ Both artifacts are ready to merge into the repository. Tests are written but NOT
 
 ## Artifact 1: Integration Test Suite
 
-**Path:** `/Users/sac/ggen/crates/ggen-core/tests/integration_ggen_sync.rs`  
+**Path:** `./crates/ggen-core/tests/integration_ggen_sync.rs`  
 **Lines:** 564  
 **Language:** Rust (cargo integration tests)
 
@@ -72,7 +72,7 @@ fn test_k8s_deployment_yaml_structure() {
 
 ## Artifact 2: Marketplace Package
 
-**Root Path:** `/Users/sac/ggen/marketplace/packages/chatman-businessos-platform/`  
+**Root Path:** `./marketplace/packages/chatman-businessos-platform/`  
 **Total Lines:** 1,203  
 **Total Files:** 7 (6 content + 1 symlink)
 
@@ -252,8 +252,8 @@ func (s *Service) Health(c *gin.Context) { ... }
 
 #### 7. ontology/businessos.ttl (symlink)
 
-**Path:** `/Users/sac/ggen/marketplace/packages/chatman-businessos-platform/ontology/businessos.ttl`  
-**Target:** `/Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl`  
+**Path:** `./marketplace/packages/chatman-businessos-platform/ontology/businessos.ttl`  
+**Target:** `~/.ggen/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl`  
 **Status:** ✅ Live symlink, verified working
 
 **Content:**
@@ -313,11 +313,11 @@ Generated Code:
 
 ```bash
 # Test integration test suite
-cd /Users/sac/ggen/crates/ggen-core
+cd ./crates/ggen-core
 cargo test integration_ggen_sync --lib --verbose
 
 # Verify marketplace package
-cd /Users/sac/ggen/marketplace/packages/chatman-businessos-platform
+cd ./marketplace/packages/chatman-businessos-platform
 ls -la ontology/businessos.ttl  # Verify symlink
 toml-cli validate ggen.toml      # Validate TOML (if available)
 
@@ -361,8 +361,8 @@ ls -la /tmp/test-generated/services/
 ### ✅ Ready to Merge
 
 **Files to commit:**
-1. `/Users/sac/ggen/crates/ggen-core/tests/integration_ggen_sync.rs`
-2. `/Users/sac/ggen/marketplace/packages/chatman-businessos-platform/` (entire directory)
+1. `./crates/ggen-core/tests/integration_ggen_sync.rs`
+2. `./marketplace/packages/chatman-businessos-platform/` (entire directory)
 
 **Commit message:**
 ```

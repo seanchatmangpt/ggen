@@ -29,7 +29,7 @@ Prove product-market fit with first 3-5 paying customers. Focus on simplicity: s
 
 ### Core Features to Ship
 
-#### 1.1 Pricing Engine Core (`ggen-pricing-core`)
+#### 1.1 Pricing Engine Core (`mcpp-pricing-core`)
 - **RDF Ontology Definition:** Value definition schema (margin, volume, demand signal)
 - **SPARQL Query Engine:** Dynamic pricing rule evaluation
 - **Tera Template System:** SQL code generation from ontology specs
@@ -43,7 +43,7 @@ Prove product-market fit with first 3-5 paying customers. Focus on simplicity: s
 
 **Estimated Effort:** 1,200 hours (3 FTE × 4 weeks)
 
-#### 1.2 Receipt Ledger (`ggen-ledger-core`)
+#### 1.2 Receipt Ledger (`mcpp-ledger-core`)
 - **Cryptographic Receipts:** SHA-256 hashing of all pricing decisions
 - **Audit Trail:** Immutable log of: timestamp, inputs, decision, margin impact
 - **Compliance Export:** SOX/HIPAA audit trail generation
@@ -193,7 +193,7 @@ Expand from e-commerce to healthcare + logistics. Add multi-warehouse orchestrat
 
 ### Core Features to Ship
 
-#### 2.1 Multi-Warehouse Orchestration (`ggen-warehouse-orchestration`)
+#### 2.1 Multi-Warehouse Orchestration (`mcpp-warehouse-orchestration`)
 - **Real-time Sync:** Pub/Sub event streaming across 3-10 warehouses
 - **Inventory Rebalancing:** Automatic SKU movement recommendations
 - **Demand Forecasting:** Time-series prediction (demand surge, seasonality)
@@ -219,7 +219,7 @@ Expand from e-commerce to healthcare + logistics. Add multi-warehouse orchestrat
 
 **Estimated Effort:** 1,000 hours (2 FTE × 5 weeks)
 
-#### 2.3 Partner Ontology Schema (`ggen-schema-extensibility`)
+#### 2.3 Partner Ontology Schema (`mcpp-schema-extensibility`)
 - **Custom Field Support:** Partners define domain-specific attributes
 - **Schema Versioning:** Backward-compatible ontology evolution
 - **Validation Rules:** SHACL shapes for data quality
@@ -348,7 +348,7 @@ Open platform for partners to build on TAI's ontology schema. Enable 30-40 custo
 
 **Estimated Effort:** 600 hours (1.5 FTE × 4 weeks)
 
-#### 3.4 Advanced Rule Engine (`ggen-rule-builder`)
+#### 3.4 Advanced Rule Engine (`mcpp-rule-builder`)
 - **Visual Rule Builder:** Drag-and-drop logic (no code required)
 - **A/B Testing:** Run 2 pricing strategies simultaneously
 - **Rule Versioning:** Test new rules without impacting production

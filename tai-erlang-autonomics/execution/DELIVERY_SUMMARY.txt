@@ -5,7 +5,7 @@ DELIVERY SUMMARY
 
 Date: January 25, 2026
 Status: ✓ COMPLETE & READY FOR EXECUTION
-Location: /Users/sac/ggen/tai-erlang-autonomics/execution/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/
 
 ================================================================================
 DELIVERABLES
@@ -160,7 +160,7 @@ MONTHLY:
 DOCUMENT LOCATIONS
 ================================================================================
 
-/Users/sac/ggen/tai-erlang-autonomics/execution/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/
 ├── INDEX.md                    [Document index & cross-reference]
 ├── README.md                   [START HERE - Navigation guide]
 ├── 90DAY_EXECUTION_PLAN.md    [Week-by-week roadmap]

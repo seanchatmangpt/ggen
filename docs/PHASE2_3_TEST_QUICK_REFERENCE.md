@@ -36,7 +36,7 @@
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/crates/ggen-cli
+cd ./crates/ggen-cli
 ./run_phase2_tests.sh
 ```
 
@@ -237,7 +237,7 @@ Add to GitHub Actions:
 ## Contact
 
 For questions or issues with the test suite:
-- Review `/Users/sac/ggen/docs/PHASE2_3_TEST_SUITE_SUMMARY.md`
+- Review `./docs/PHASE2_3_TEST_SUITE_SUMMARY.md`
 - Check test source files for inline documentation
 - Run with `--nocapture` for debug output
 

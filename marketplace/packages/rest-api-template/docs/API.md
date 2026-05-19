@@ -589,4 +589,4 @@ Accept: application/vnd.myapi.v1+json
 - **Documentation**: [README.md](./README.md)
 - **Architecture**: [ARCHITECTURE.md](./ARCHITECTURE.md)
 - **Examples**: [EXAMPLES.md](./EXAMPLES.md)
-- **Issues**: https://github.com/ggen/marketplace/issues
+- **Issues**: https://github.com/mcpp/marketplace/issues

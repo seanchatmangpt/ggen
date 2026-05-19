@@ -7,7 +7,7 @@ use crate::packs::dependency_graph::DependencyGraph;
 use crate::packs::installer::{InstallOptions, PackInstaller};
 use crate::packs::repository::{FileSystemRepository, PackRepository};
 use crate::packs::types::{CompositionStrategy, Pack};
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::time::Instant;

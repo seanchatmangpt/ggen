@@ -6,13 +6,13 @@
 **Passing Tests**: 10/17 shell tests (58.8%)  
 **Generation Time**: <1 second per CLI project  
 **Test Files**:
-- `/Users/sac/ggen/cli/tests/clap_noun_verb_integration.rs` (21 Rust tests)
-- `/Users/sac/ggen/tests/clap_noun_verb_validation.sh` (17 shell tests)
+- `~/.ggen/mcpp/cli/tests/clap_noun_verb_integration.rs` (21 Rust tests)
+- `~/.ggen/mcpp/tests/clap_noun_verb_validation.sh` (17 shell tests)
 
 ## Test Suite Breakdown
 
 ### Suite 1: CLI Auto-Discovery ✅ (7/7 passing)
-- ✅ `ggen --help` shows template noun
+- ✅ `mcpp --help` shows template noun
 - ✅ `template --help` shows all verbs (list, new, generate, lint, show, etc.)
 - ✅ `template list` command exists
 - ✅ `template lint --help` shows arguments
@@ -81,7 +81,7 @@ cli:ProjectNoun a cli:Noun ;
 
 ### Rust Tests
 ```bash
-cargo test --package ggen-cli-lib --test clap_noun_verb_integration
+cargo test --package mcpp-cli-lib --test clap_noun_verb_integration
 ```
 
 **Status**: Pending library compilation fixes (unrelated to tests)

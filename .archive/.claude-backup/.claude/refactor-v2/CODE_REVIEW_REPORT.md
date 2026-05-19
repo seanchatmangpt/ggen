@@ -24,7 +24,7 @@ The implementation shows strong architectural patterns and good separation of co
 
 ### ✅ PASSED: RDF Field Removal
 
-**Lines Reviewed**: 1-792 of `/Users/sac/ggen/ggen-core/src/template.rs`
+**Lines Reviewed**: 1-792 of `./ggen-core/src/template.rs`
 
 #### Strengths
 1. **Clean Separation**: RDF files now loaded via `render_with_rdf()` API (lines 252-284)

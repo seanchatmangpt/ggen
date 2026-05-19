@@ -1,18 +1,18 @@
 ---
-description: Deterministic output requirements for ggen
+description: Deterministic output requirements for mcpp
 globs:
   - "crates/**/*.rs"
   - "tests/**/*.rs"
 alwaysApply: false
 ---
 
-# Determinism Standards for ggen
+# Determinism Standards for mcpp
 
 ## Core Principle
 
 **Same inputs → identical outputs**
 
-ggen is a deterministic code generation framework. All operations must produce identical outputs given the same inputs and seed.
+mcpp is a deterministic code generation framework. All operations must produce identical outputs given the same inputs and seed.
 
 ## Requirements
 

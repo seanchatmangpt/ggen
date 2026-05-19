@@ -13,7 +13,7 @@
   },
   "inference_rules": {},
   "imports": {
-    "/Users/sac/ggen/specify/mcp-a2a/../mcp-a2a-protocol-example.ttl": {
+    "./specify/mcp-a2a/../mcp-a2a-protocol-example.ttl": {
       "hash": "4d8d2278e15d039bd03985b6385be94b8da500a257fa92228c567bf56b5b3716",
       "timestamp": "2026-03-30T03:12:11.973211+00:00",
       "size_bytes": 21819

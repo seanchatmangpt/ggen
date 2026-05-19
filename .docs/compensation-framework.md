@@ -1,5 +1,5 @@
 # Ops Engineer 2.0 Compensation Framework
-**ggen-disney Wave 1, Task 6: Compensation Strategy**
+**mcpp-disney Wave 1, Task 6: Compensation Strategy**
 
 **Document Date**: 2026-01-18
 **Intended Audience**: CEO, CFO, Chief Talent Officer, COO, Legal
@@ -326,7 +326,7 @@ Must demonstrate:
 **4. Cross-Functional Visibility**
 - Quarterly ops engineer showcases (present to C-suite)
 - Monthly "architecture review" where 2.0 engineers present designs
-- Annual ggen-disney summit (all ops engineers, keynote, breakouts)
+- Annual mcpp-disney summit (all ops engineers, keynote, breakouts)
 - **Effect**: Recognition + visibility = retention (especially for mid-career people)
 - **Cost**: ~$200K/year (travel, facilities)
 
@@ -718,7 +718,7 @@ A: High. If we keep ops at $85K while cloud vendors offer $105K + $15K sign bonu
 | **Version** | 1.0 |
 | **Date** | 2026-01-18 |
 | **Status** | Ready for Executive Review |
-| **Author** | ggen-disney Compensation Strategist (Wave 1, Task 6) |
+| **Author** | mcpp-disney Compensation Strategist (Wave 1, Task 6) |
 | **Next Review** | Post-Wave 1 exit gate (week 8) |
 | **Distribution** | CEO, CFO, Chief Talent Officer, COO, CISO, Legal, HR |
 

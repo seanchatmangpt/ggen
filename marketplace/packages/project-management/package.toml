@@ -20,7 +20,7 @@ milestones = ["Milestone and deliverable tracking"]
 
 [ontology]
 file = "ontology/project_management.ttl"
-namespace = "https://ggen.ai/ontology/project-management#"
+namespace = "https://mcpp.ai/ontology/project-management#"
 
 [queries]
 directory = "queries/"

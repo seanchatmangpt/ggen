@@ -2,7 +2,7 @@
 //!
 //! Ensures all pack metadata is valid and consistent
 
-use ggen_core::gpack::{GpackManifest, GpackMetadata};
+use mcpp_core::gpack::{GpackManifest, GpackMetadata};
 use std::collections::BTreeMap;
 use tempfile::TempDir;
 
@@ -54,7 +54,7 @@ fn test_validate_license_spdx() {
 }
 
 #[test]
-fn test_validate_ggen_compat_version_req() {
+fn test_validate_mcpp_compat_version_req() {
     let valid_reqs = vec![">=3.0.0", ">=3.0.0 <4.0.0", "^3.2.0", "~3.2.4", "*"];
 
     for req in valid_reqs {
@@ -74,7 +74,7 @@ fn test_validate_metadata_required_fields() {
         version: "1.0.0".to_string(),
         description: "A test pack".to_string(),
         license: "MIT".to_string(),
-        ggen_compat: ">=3.0.0".to_string(),
+        mcpp_compat: ">=3.0.0".to_string(),
     };
 
     // All required fields are non-empty
@@ -83,12 +83,12 @@ fn test_validate_metadata_required_fields() {
     assert!(!metadata.version.is_empty());
     assert!(!metadata.description.is_empty());
     assert!(!metadata.license.is_empty());
-    assert!(!metadata.ggen_compat.is_empty());
+    assert!(!metadata.mcpp_compat.is_empty());
 
     // Fields are valid
     assert!(is_valid_pack_id(&metadata.id));
     assert!(semver::Version::parse(&metadata.version).is_ok());
-    assert!(semver::VersionReq::parse(&metadata.ggen_compat).is_ok());
+    assert!(semver::VersionReq::parse(&metadata.mcpp_compat).is_ok());
 }
 
 // ============================================================================
@@ -104,7 +104,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "org.example.pack1" = "^1.0.0"
@@ -133,7 +133,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "other.pack" = "^1.0.0"
@@ -161,7 +161,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [rdf]
 base = "https://example.org/ontology/"
@@ -183,7 +183,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [rdf.prefixes]
 ex = "https://example.org/"
@@ -212,7 +212,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [rdf]
 inline = [
@@ -245,7 +245,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [templates]
 patterns = ["templates/**/*.tmpl", "custom/*.tera"]
@@ -288,7 +288,7 @@ name = "Test"
 version = "2.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "old.pack" = "^1.0.0"
@@ -320,7 +320,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [queries]
 patterns = ["queries/**/*.sparql"]
@@ -352,7 +352,7 @@ name = "Complete Pack"
 version = "1.2.3"
 description = "A complete, valid pack"
 license = "MIT"
-ggen_compat = ">=3.0.0 <4.0.0"
+mcpp_compat = ">=3.0.0 <4.0.0"
 
 [dependencies]
 "org.example.dep1" = "^1.0"
@@ -390,7 +390,7 @@ license = "MIT"
     // Validate all sections
     assert!(is_valid_pack_id(&manifest.metadata.id));
     assert!(semver::Version::parse(&manifest.metadata.version).is_ok());
-    assert!(semver::VersionReq::parse(&manifest.metadata.ggen_compat).is_ok());
+    assert!(semver::VersionReq::parse(&manifest.metadata.mcpp_compat).is_ok());
     assert!(!manifest.metadata.description.is_empty());
 
     // Validate dependencies
@@ -421,7 +421,7 @@ fn test_detect_invalid_pack_structure() {
 id = "test.incomplete"
 name = "Test"
 version = "1.0.0"
-# Missing description, license, ggen_compat
+# Missing description, license, mcpp_compat
 "#,
         // Invalid TOML
         "{ not valid toml }",

@@ -475,9 +475,9 @@
 [1m[32m   Compiling[0m git2 v0.20.2
 [1m[32m   Compiling[0m oxigraph v0.5.1
 [1m[32m   Compiling[0m sparql_service v0.1.118
-[1m[32m   Compiling[0m ggen-utils v4.0.0 (/Users/sac/ggen/crates/ggen-utils)
+[1m[32m   Compiling[0m ggen-utils v4.0.0 (./crates/ggen-utils)
 [1m[32m   Compiling[0m shacl_validation v0.1.118
-[1m[32m   Compiling[0m ggen-core v4.0.0 (/Users/sac/ggen/crates/ggen-core)
+[1m[32m   Compiling[0m ggen-core v4.0.0 (./crates/ggen-core)
 [1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1m 40s
 [1m[32m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_core-5074459a82dcae38)
 

@@ -59,7 +59,7 @@ The Hive Mind swarm has completed comprehensive analysis and foundation implemen
 
 ### 1. Production Validator ✅
 
-**Deliverable**: `/Users/sac/ggen/.claude/refactor-v2/01-production-validation.md`
+**Deliverable**: `./.claude/refactor-v2/01-production-validation.md`
 
 **Key Findings**:
 - 🔴 **Critical**: 280 async functions need sync wrappers
@@ -83,7 +83,7 @@ The Hive Mind swarm has completed comprehensive analysis and foundation implemen
 
 ### 2. Code Analyzer ✅
 
-**Deliverable**: `/Users/sac/ggen/.claude/refactor-v2/02-architecture-analysis.md`
+**Deliverable**: `./.claude/refactor-v2/02-architecture-analysis.md`
 
 **Key Findings**:
 - ✅ **Core Library**: ZERO changes needed (all 62 ggen-core files untouched)
@@ -110,9 +110,9 @@ The Hive Mind swarm has completed comprehensive analysis and foundation implemen
 ### 3. System Architect ✅
 
 **Deliverables**:
-- `/Users/sac/ggen/.claude/refactor-v2/03-v2-architecture-design.md` (41KB, 1,287 lines)
-- `/Users/sac/ggen/.claude/refactor-v2/ARCHITECTURE_DIAGRAMS.md` (19KB, 422 lines)
-- `/Users/sac/ggen/.claude/refactor-v2/ARCHITECT_SUMMARY.md` (7.2KB, 293 lines)
+- `./.claude/refactor-v2/03-v2-architecture-design.md` (41KB, 1,287 lines)
+- `./.claude/refactor-v2/ARCHITECTURE_DIAGRAMS.md` (19KB, 422 lines)
+- `./.claude/refactor-v2/ARCHITECT_SUMMARY.md` (7.2KB, 293 lines)
 
 **Architecture Design**: **Three-Layer Architecture**
 
@@ -152,7 +152,7 @@ The Hive Mind swarm has completed comprehensive analysis and foundation implemen
 
 ### 4. Backend Developer ✅
 
-**Deliverable**: `/Users/sac/ggen/.claude/refactor-v2/04-phase1-implementation.md`
+**Deliverable**: `./.claude/refactor-v2/04-phase1-implementation.md`
 
 **Implementation Complete**:
 
@@ -195,8 +195,8 @@ cargo check --package ggen-cli-lib
 ### 5. Task Orchestrator ✅
 
 **Deliverables**:
-- `/Users/sac/ggen/.claude/refactor-v2/05-orchestration-plan.md` (22-page plan)
-- `/Users/sac/ggen/.claude/refactor-v2/ORCHESTRATION_SUMMARY.md` (Quick reference)
+- `./.claude/refactor-v2/05-orchestration-plan.md` (22-page plan)
+- `./.claude/refactor-v2/ORCHESTRATION_SUMMARY.md` (Quick reference)
 
 **Timeline**: **22 days (4.4 weeks)** - REVISED TO **10 weeks** with Phase 0
 
@@ -224,7 +224,7 @@ Phase 0 (NEW) → Phase 1 → Phase 2 → (3,4,5 PARALLEL) → Phase 6 → (7,8 
 
 ### 6. Performance Benchmarker ✅
 
-**Deliverable**: `/Users/sac/ggen/.claude/refactor-v2/06-performance-baseline.md`
+**Deliverable**: `./.claude/refactor-v2/06-performance-baseline.md`
 
 **v1.2.0 Baseline Metrics**:
 
@@ -255,7 +255,7 @@ Phase 0 (NEW) → Phase 1 → Phase 2 → (3,4,5 PARALLEL) → Phase 6 → (7,8 
 
 ## 📁 All Deliverables
 
-**Created in `/Users/sac/ggen/.claude/refactor-v2/`:**
+**Created in `./.claude/refactor-v2/`:**
 
 1. `01-production-validation.md` - Production readiness assessment
 2. `02-architecture-analysis.md` - Current architecture deep-dive

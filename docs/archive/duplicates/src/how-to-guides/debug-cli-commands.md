@@ -78,7 +78,7 @@ ggen ontology --help
 ls -la *.ttl
 
 # ✅ Use absolute paths
-ggen ontology extract /Users/sac/ggen/schema.ttl
+ggen ontology extract ./schema.ttl
 
 # ✅ Or use relative paths from correct directory
 cd /path/to/files

@@ -55,7 +55,7 @@ echo ""
 echo -e "${BLUE}[1/10] Compilation & Type Safety${NC}"
 
 check_compilation() {
-    cd /Users/sac/ggen
+    cd .
     cargo make check > /dev/null 2>&1
 }
 
@@ -64,7 +64,7 @@ check_result "Compilation passes (cargo make check)" \
     "Zero compiler errors required"
 
 check_type_safety() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "unsafe {" crates/osiris-*/src --include="*.rs" | grep -v test | wc -l | xargs test 0 -eq
 }
 
@@ -79,7 +79,7 @@ echo ""
 echo -e "${BLUE}[2/10] Test Coverage${NC}"
 
 check_test_suite() {
-    cd /Users/sac/ggen
+    cd .
     cargo make test > /dev/null 2>&1
 }
 
@@ -88,7 +88,7 @@ check_result "All unit tests pass" \
     "80%+ coverage, all tests green"
 
 check_integration_tests() {
-    cd /Users/sac/ggen
+    cd .
     [ -f tests/integration_test.rs ] || [ -d tests/integration ] || [ -f crates/ggen-e2e/tests/*.rs ]
 }
 
@@ -103,7 +103,7 @@ echo ""
 echo -e "${BLUE}[3/10] Error Handling & Safety${NC}"
 
 check_unwraps() {
-    cd /Users/sac/ggen
+    cd .
     local unwrap_count=$(grep -r "\.unwrap()" crates/osiris-*/src --include="*.rs" \
         | grep -v "test" | grep -v "//" | wc -l)
     [ "$unwrap_count" -lt 10 ]
@@ -114,7 +114,7 @@ check_result "Unwrap elimination (production)" \
     "< 10 unwrap calls allowed"
 
 check_result_types() {
-    cd /Users/sac/ggen
+    cd .
     # Check for proper Result types in main crates
     grep -r "Result<" crates/osiris-core/src/lib.rs > /dev/null
     grep -r "Result<" crates/osiris-autonomic/src/lib.rs > /dev/null
@@ -131,7 +131,7 @@ echo ""
 echo -e "${BLUE}[4/10] Resilience Patterns${NC}"
 
 check_circuit_breaker() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "CircuitBreaker\|circuit_breaker" crates/osiris-tps/src --include="*.rs" > /dev/null
 }
 
@@ -140,7 +140,7 @@ check_result "Circuit breaker pattern" \
     "Circuit breakers implemented in TPS"
 
 check_timeout_guards() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "timeout\|Timeout\|Duration::from" crates/osiris-core/src --include="*.rs" > /dev/null
 }
 
@@ -149,7 +149,7 @@ check_result "Timeout guards" \
     "All async operations have timeout protection"
 
 check_async_safety() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "async fn\|#\[tokio::test\]" crates/osiris-autonomic/src --include="*.rs" > /dev/null
 }
 
@@ -164,7 +164,7 @@ echo ""
 echo -e "${BLUE}[5/10] Health & Monitoring${NC}"
 
 check_health_checks() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "health\|Health\|HealthStatus" crates/osiris-core/src --include="*.rs" > /dev/null
 }
 
@@ -173,7 +173,7 @@ check_result "Health check system" \
     "Health status tracking enabled"
 
 check_metrics() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "metrics\|Metrics\|Counter\|Gauge" crates/osiris-core/src --include="*.rs" > /dev/null
 }
 
@@ -188,7 +188,7 @@ echo ""
 echo -e "${BLUE}[6/10] Configuration & Deployment${NC}"
 
 check_env_config() {
-    cd /Users/sac/ggen
+    cd .
     [ -f .env.example ] && [ -f .cargo/config.toml ]
 }
 
@@ -197,7 +197,7 @@ check_result "Environment configuration" \
     ".env.example and cargo config present"
 
 check_dockerfile() {
-    cd /Users/sac/ggen
+    cd .
     [ -f Dockerfile ] || [ -f .dockerignore ]
 }
 
@@ -212,7 +212,7 @@ echo ""
 echo -e "${BLUE}[7/10] Documentation${NC}"
 
 check_readme() {
-    cd /Users/sac/ggen
+    cd .
     [ -f README.md ] && grep -q "Installation\|Usage\|Architecture" README.md
 }
 
@@ -221,7 +221,7 @@ check_result "README documentation" \
     "README covers install, usage, architecture"
 
 check_crate_docs() {
-    cd /Users/sac/ggen
+    cd .
     grep -r "///" crates/osiris-core/src/lib.rs | wc -l | xargs test 5 -lt
 }
 
@@ -236,7 +236,7 @@ echo ""
 echo -e "${BLUE}[8/10] Security${NC}"
 
 check_dependencies() {
-    cd /Users/sac/ggen
+    cd .
     # Check if cargo audit can run (may not have vulnerabilities)
     cargo audit --deny warnings > /dev/null 2>&1 || true
     return 0
@@ -247,7 +247,7 @@ check_result "Dependency audit" \
     "Cargo.lock present and audited"
 
 check_secrets() {
-    cd /Users/sac/ggen
+    cd .
     ! grep -r "password\|secret\|api_key" .env.example | grep -v "#" | grep -q "="
 }
 
@@ -262,7 +262,7 @@ echo ""
 echo -e "${BLUE}[9/10] Performance${NC}"
 
 check_performance_tests() {
-    cd /Users/sac/ggen
+    cd .
     [ -f benches/*.rs ] || [ -d benches ] && [ -f Cargo.toml ] && grep -q "benchmark" Cargo.toml
 }
 
@@ -271,7 +271,7 @@ check_result "Performance benchmarks" \
     "Benchmark suite configured"
 
 check_build_time() {
-    cd /Users/sac/ggen
+    cd .
     # Quick check that build completes reasonably
     timeout 60 cargo make check > /dev/null 2>&1
 }
@@ -287,7 +287,7 @@ echo ""
 echo -e "${BLUE}[10/10] Compliance & Quality Gates${NC}"
 
 check_clippy() {
-    cd /Users/sac/ggen
+    cd .
     cargo make lint > /dev/null 2>&1
 }
 
@@ -296,7 +296,7 @@ check_result "Linting (Clippy)" \
     "No clippy warnings or errors"
 
 check_formatting() {
-    cd /Users/sac/ggen
+    cd .
     cargo fmt --check > /dev/null 2>&1
 }
 

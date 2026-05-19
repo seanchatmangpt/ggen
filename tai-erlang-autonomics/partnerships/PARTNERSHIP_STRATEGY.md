@@ -1,14 +1,14 @@
-# ggen Partnership Strategy 2026
+# mcpp Partnership Strategy 2026
 
 **Mission**: Build an ecosystem of strategic partnerships that accelerate adoption of ontology-driven code generation across enterprise, cloud, and compliance sectors.
 
-**Vision**: Position ggen as the specification-first standard for deterministic code generation, with first-class integrations into cloud platforms, enterprise toolchains, and regulatory frameworks.
+**Vision**: Position mcpp as the specification-first standard for deterministic code generation, with first-class integrations into cloud platforms, enterprise toolchains, and regulatory frameworks.
 
 ---
 
 ## Executive Summary
 
-ggen represents a paradigm shift in code generation: **Code Precipitates from Specifications (A = μ(O))** rather than being manually crafted or iteratively refined. This transforms how enterprises approach software delivery, compliance, and infrastructure management.
+mcpp represents a paradigm shift in code generation: **Code Precipitates from Specifications (A = μ(O))** rather than being manually crafted or iteratively refined. This transforms how enterprises approach software delivery, compliance, and infrastructure management.
 
 ### Strategic Positioning
 - **Core Value**: 60-80% faster delivery through specification closure before coding
@@ -28,7 +28,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 ## 1. Cloud Platforms Partnership Strategy
 
 ### 1.1 AWS Partnership (Diamond Tier)
-**Mutual Value Proposition**: ggen accelerates infrastructure-as-code generation, dramatically reducing deployment complexity.
+**Mutual Value Proposition**: mcpp accelerates infrastructure-as-code generation, dramatically reducing deployment complexity.
 
 **AWS Opportunities**:
 1. **CloudFormation/CDK Integration**
@@ -38,13 +38,13 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - **Revenue Model**: 15% of $2B+ IaC market
 
 2. **AWS Marketplace**
-   - Premium tier: "ggen Enterprise" with AWS SaaS security
+   - Premium tier: "mcpp Enterprise" with AWS SaaS security
    - co-branded documentation, customer case studies
    - Joint GTM for Financial Services (compliance automation)
    - **Revenue Model**: 30% revenue share on marketplace subscriptions
 
 3. **AWS Competency Program**
-   - Certified "ggen for AWS Infrastructure"
+   - Certified "mcpp for AWS Infrastructure"
    - Co-marketing benefits (events, webinars, case studies)
    - Joint white papers on deterministic infrastructure
 
@@ -52,10 +52,10 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 - Joint steering committee (quarterly)
 - Co-develop CloudFormation best practices
 - AWS provides: pre-built templates, cost optimization rules
-- ggen provides: Infrastructure generation engine, compliance templates
+- mcpp provides: Infrastructure generation engine, compliance templates
 
 **KPIs**:
-- 500+ AWS customers using ggen by Q3 2026
+- 500+ AWS customers using mcpp by Q3 2026
 - $5M ARR from AWS marketplace by 2027
 - 100+ case studies in joint customer base
 
@@ -67,7 +67,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 **Azure Opportunities**:
 1. **Azure Resource Manager (ARM) Integration**
    - Generate ARM templates from domain ontologies
-   - Bicep → ggen integration (two-way binding)
+   - Bicep → mcpp integration (two-way binding)
    - AI-powered resource optimization (via Azure OpenAI)
    - **Revenue Model**: 15% of $1.5B+ Azure IaC market
 
@@ -78,15 +78,15 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - **Revenue Model**: 10% of $500M+ compliance automation market
 
 3. **Azure DevOps Integration**
-   - Native ggen CI/CD pipeline
+   - Native mcpp CI/CD pipeline
    - Automated specification validation, code generation, deployment
    - Release receipts integrated into Azure DevOps
 
 **Partnership Structure**:
 - Joint solution architecture team
-- Azure sponsors ggen compliance accelerators (HIPAA, PCI-DSS, SOC 2)
+- Azure sponsors mcpp compliance accelerators (HIPAA, PCI-DSS, SOC 2)
 - Monthly technical alignment
-- Dual certification: "Azure Verified ggen Partner"
+- Dual certification: "Azure Verified mcpp Partner"
 
 **KPIs**:
 - 300+ Azure customers by Q3 2026
@@ -106,25 +106,25 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - **Revenue Model**: 20% of $800M+ K8s infrastructure market
 
 2. **GCP Marketplace Integration**
-   - "ggen Premium for GCP" with billing integration
+   - "mcpp Premium for GCP" with billing integration
    - Co-branded solutions for microservices
-   - Dataflow → ggen → K8s pipeline automation
+   - Dataflow → mcpp → K8s pipeline automation
    - **Revenue Model**: 25% revenue share on marketplace sales
 
 3. **BigQuery + Dataflow Integration**
    - Generate Dataflow jobs from data ontologies
    - BigQuery schema → RDF bidirectional sync
-   - Automated data lineage (ggen + Data Catalog)
+   - Automated data lineage (mcpp + Data Catalog)
    - **Revenue Model**: 5% of ETL revenue (high-value enterprise)
 
 **Partnership Structure**:
-- Deep Kubernetes integration (K8s Operator for ggen)
+- Deep Kubernetes integration (K8s Operator for mcpp)
 - GCP co-invests in marketplace marketing
 - Joint technical standards committee
 - Monthly engineering sync
 
 **KPIs**:
-- 1000+ GCP customers using ggen by Q3 2026
+- 1000+ GCP customers using mcpp by Q3 2026
 - #1 ranked application on GCP Marketplace
 - $8M ARR from GCP by 2027
 - 10+ Kubernetes-native solutions
@@ -153,12 +153,12 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Regulatory compliance (FDA 21 CFR Part 11)
 
 **Revenue Sharing**:
-- 10% revenue share on ggen-enabled projects (estimated $20M+ annually)
-- Accenture delivers 40% of projects using ggen
+- 10% revenue share on mcpp-enabled projects (estimated $20M+ annually)
+- Accenture delivers 40% of projects using mcpp
 - Accenture staff training program (200+ consultants)
 
 **Joint Deliverables**:
-- "ggen for Enterprise Transformation" methodology
+- "mcpp for Enterprise Transformation" methodology
 - 10+ vertical accelerators (Finance, Healthcare, Manufacturing, Energy)
 - Accenture methodology integration (SAP, Oracle modernization)
 
@@ -185,7 +185,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Revenue Sharing**:
 - 8% revenue share on compliance projects
-- Deloitte estimates $30M+ annual ggen-enabled services
+- Deloitte estimates $30M+ annual mcpp-enabled services
 - Joint go-to-market (Deloitte risk/compliance clients)
 
 ---
@@ -201,17 +201,17 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 2. **Cloud Adoption**
    - Hybrid cloud deployment automation
-   - OpenShift → ggen integration
+   - OpenShift → mcpp integration
    - Red Hat ecosystem (Ansible, Operator Framework)
 
 3. **Enterprise Integration**
-   - IBM MQ, Message Queues → ggen
+   - IBM MQ, Message Queues → mcpp
    - Enterprise data governance
    - Master data management automation
 
 **Partnership Terms**:
 - 12% revenue share on integration projects
-- IBM to bundle ggen in cloud offerings
+- IBM to bundle mcpp in cloud offerings
 - Joint customer success team
 
 ---
@@ -223,7 +223,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **Digital Strategy Acceleration**
-   - ggen as delivery accelerator for McKinsey client transformations
+   - mcpp as delivery accelerator for McKinsey client transformations
    - Reduced delivery timeline = higher margin projects
    - McKinsey estimates 2000+ engaged projects/year
 
@@ -238,7 +238,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Regulatory reporting automation
 
 **Revenue Share**:
-- 5% of ggen adoption revenue from McKinsey-influenced deals
+- 5% of mcpp adoption revenue from McKinsey-influenced deals
 - McKinsey estimate: $10M+ annually
 
 ---
@@ -258,7 +258,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Cost transparency through deterministic specs
 
 **Revenue Model**:
-- 5% of ggen adoption in Bain client base
+- 5% of mcpp adoption in Bain client base
 - Estimated $5M+ annually
 
 ---
@@ -292,7 +292,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 - Combined market: $40M+
 
 **Deliverables**:
-- "ggen for Audit Effectiveness" methodology
+- "mcpp for Audit Effectiveness" methodology
 - Audit-ready compliance accelerators (10+)
 - Joint training and certification
 
@@ -303,7 +303,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **Standard Development**
-   - ggen as implementation standard for audit guidance
+   - mcpp as implementation standard for audit guidance
    - ISAE 3402 compliance automation
    - SOX compliance evidence framework
 
@@ -326,13 +326,13 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **Risk Quantification**
-   - Lower premiums for ggen-generated, deterministically verified code
+   - Lower premiums for mcpp-generated, deterministically verified code
    - Reduced audit costs = lower insurance exposure
    - Proof of compliance through receipts
 
 2. **Co-Branded Offerings**
-   - "ggen Certified" for code generation insurance
-   - Reduced premiums for using ggen + audit integration
+   - "mcpp Certified" for code generation insurance
+   - Reduced premiums for using mcpp + audit integration
    - Joint customer: Financial services, healthcare, manufacturing
 
 3. **Claims Reduction**
@@ -343,27 +343,27 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 **Revenue Sharing**:
 - 2-3% of premium reduction savings
 - Estimated $10M+ annually across major carriers
-- Create "ggen Certified Code" insurance product
+- Create "mcpp Certified Code" insurance product
 
 ---
 
 ### 5.2 Professional Indemnity Insurance (Platinum Tier)
-**Partners**: Lawyers, Accountants, Engineers using ggen
+**Partners**: Lawyers, Accountants, Engineers using mcpp
 
 **Opportunities**:
 1. **Risk Transfer**
    - Deterministic receipts reduce professional liability exposure
-   - Lower insurance costs for ggen users
+   - Lower insurance costs for mcpp users
    - Proof of compliance in legal disputes
 
 2. **Cyber Insurance**
-   - 20% premium reduction for ggen-generated code
+   - 20% premium reduction for mcpp-generated code
    - Automated security control verification
    - Continuous compliance monitoring
 
 **Revenue Model**:
 - Premium reductions drive adoption
-- Revenue from ggen Compliance Insurance product ($5M+ annually)
+- Revenue from mcpp Compliance Insurance product ($5M+ annually)
 
 ---
 
@@ -374,7 +374,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **Code Generation Standards**
-   - ggen as reference implementation for ISO/IEC standards
+   - mcpp as reference implementation for ISO/IEC standards
    - ISO/IEC 23894 (AI governance) integration
    - Specification-driven development methodology standardization
 
@@ -395,7 +395,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **Kubernetes Standardization**
-   - ggen as reference for K8s manifest generation
+   - mcpp as reference for K8s manifest generation
    - CNCF working group participation
    - Joint specifications (K8s CRDs, Operators, Helm)
 
@@ -423,9 +423,9 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Semantic web for software engineering
 
 2. **Educational Integration**
-   - ggen curriculum in CompSci programs
+   - mcpp curriculum in CompSci programs
    - Industry-recognized certification
-   - 100+ PhDs on ggen research
+   - 100+ PhDs on mcpp research
 
 3. **Summer Internship Program**
    - 20+ interns/year at top universities
@@ -470,7 +470,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 **Opportunities**:
 1. **AI-Powered Specification Generation**
    - Natural language → RDF ontology → code
-   - ggen-ai integration (already built)
+   - mcpp-ai integration (already built)
    - Multi-provider support
 
 2. **Prompt Optimization**
@@ -479,7 +479,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Financial data extraction
 
 **Revenue Sharing**:
-- API call commission from ggen-ai
+- API call commission from mcpp-ai
 - Estimated $2-5M annually across providers
 
 ---
@@ -489,7 +489,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **Template Standardization**
-   - ggen as reference implementation
+   - mcpp as reference implementation
    - Best practices documentation
    - Performance optimization
 
@@ -506,7 +506,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 **Opportunities**:
 1. **Data Pipeline Generation**
    - RDF ontology → DBT models
-   - Kafka streams → ggen code
+   - Kafka streams → mcpp code
    - Data lineage automation
 
 2. **Lakehouse Integration**
@@ -532,7 +532,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - API documentation automation
 
 2. **Integration Automation**
-   - ggen → MuleSoft connectors
+   - mcpp → MuleSoft connectors
    - No-code integration flows
    - Workflow automation
 
@@ -547,12 +547,12 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 **Opportunities**:
 1. **IDE Integration**
-   - ggen IntelliJ plugin
+   - mcpp IntelliJ plugin
    - VS Code extension for ontology editing
    - Real-time SPARQL validation
 
 2. **GitHub Integration**
-   - GitHub Actions for ggen pipeline
+   - GitHub Actions for mcpp pipeline
    - Automatic code generation on spec updates
    - Pull request automation
 
@@ -573,7 +573,7 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Continuous testing integration
 
 2. **Observability Integration**
-   - ggen + Datadog APM integration
+   - mcpp + Datadog APM integration
    - Automated instrumentation generation
    - SLO compliance verification
 
@@ -595,13 +595,13 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
    - Co-marketing support
 
 2. **Managed Service Providers (MSPs)**
-   - ggen-enabled service offerings
+   - mcpp-enabled service offerings
    - White-label support
    - Revenue share on services
 
 **Target Network**:
 - 500+ VARs globally by Q3 2026
-- Estimated $20M+ in annual ggen ARR through channel
+- Estimated $20M+ in annual mcpp ARR through channel
 
 ---
 
@@ -609,14 +609,14 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 **Partners**: Linux Academy, Coursera, Udemy, O'Reilly
 
 **Opportunities**:
-1. **ggen Certification Program**
+1. **mcpp Certification Program**
    - Official training curriculum
    - Certification exams (3 levels: Associate, Professional, Expert)
    - 10,000+ certified professionals by 2027
 
 2. **Online Courses**
    - Specification-driven development methodology
-   - Hands-on labs with ggen
+   - Hands-on labs with mcpp
    - Revenue share on course sales
 
 **Revenue Model**:
@@ -636,13 +636,13 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 - Joint reference architectures (10+)
 
 **Platinum Tier (Systems Integrators, Compliance Vendors)**:
-- 500+ enterprises using ggen through partners
+- 500+ enterprises using mcpp through partners
 - $30M+ ARR by 2027
 - 20+ vertical accelerators deployed
 - 200+ certified partner consultants
 
 **Gold Tier (Consultancies, Academic, Standards)**:
-- 1000+ projects using ggen methodology
+- 1000+ projects using mcpp methodology
 - $20M+ ARR from partner channels
 - 50+ research papers published
 - Industry standards adoption
@@ -755,9 +755,9 @@ ggen represents a paradigm shift in code generation: **Code Precipitates from Sp
 
 ## Conclusion
 
-ggen's partnership strategy positions the company as the foundation layer for deterministic, specification-driven code generation across enterprise, cloud, and compliance sectors. By focusing on mutual value creation—not extraction—and building deep integrations with strategic partners, ggen can achieve 10x growth through ecosystem leverage while maintaining core company focus on the measurement function μ.
+mcpp's partnership strategy positions the company as the foundation layer for deterministic, specification-driven code generation across enterprise, cloud, and compliance sectors. By focusing on mutual value creation—not extraction—and building deep integrations with strategic partners, mcpp can achieve 10x growth through ecosystem leverage while maintaining core company focus on the measurement function μ.
 
 The target is **$210M ARR by 2027**, with 50%+ coming from strategic partnerships and 10,000+ enterprise customers worldwide.
 
-**Core principle**: Partners succeed when ggen succeeds. Align incentives, build integrations, measure outcomes.
+**Core principle**: Partners succeed when mcpp succeeds. Align incentives, build integrations, measure outcomes.
 

@@ -1,6 +1,6 @@
 # Complete Package Directory
 
-Comprehensive documentation of all packages available in the ggen marketplace.
+Comprehensive documentation of all packages available in the mcpp marketplace.
 
 **Last Updated**: 2026-03-23
 **Total Packages**: 66
@@ -30,7 +30,7 @@ Comprehensive documentation of all packages available in the ggen marketplace.
 
 **Install**:
 ```bash
-ggen marketplace install "sector-paper-lifecycle-8020"
+mcpp marketplace install "sector-paper-lifecycle-8020"
 ```
 
 ---
@@ -40,7 +40,7 @@ ggen marketplace install "sector-paper-lifecycle-8020"
 
 **Install**:
 ```bash
-ggen marketplace install "arxiv-paper-template"
+mcpp marketplace install "arxiv-paper-template"
 ```
 
 ---
@@ -50,7 +50,7 @@ ggen marketplace install "arxiv-paper-template"
 
 **Install**:
 ```bash
-ggen marketplace install "neurips-paper-template"
+mcpp marketplace install "neurips-paper-template"
 ```
 
 ---
@@ -60,7 +60,7 @@ ggen marketplace install "neurips-paper-template"
 
 **Install**:
 ```bash
-ggen marketplace install "academic-bibliography-manager"
+mcpp marketplace install "academic-bibliography-manager"
 ```
 
 ---
@@ -70,7 +70,7 @@ ggen marketplace install "academic-bibliography-manager"
 
 **Install**:
 ```bash
-ggen marketplace install "ieee-paper-template"
+mcpp marketplace install "ieee-paper-template"
 ```
 
 ---
@@ -80,7 +80,7 @@ ggen marketplace install "ieee-paper-template"
 
 **Install**:
 ```bash
-ggen marketplace install "academic-peer-review-workflow"
+mcpp marketplace install "academic-peer-review-workflow"
 ```
 
 ---
@@ -92,7 +92,7 @@ ggen marketplace install "academic-peer-review-workflow"
 
 **Install**:
 ```bash
-ggen marketplace install "supply-chain-management"
+mcpp marketplace install "supply-chain-management"
 ```
 
 ---
@@ -102,7 +102,7 @@ ggen marketplace install "supply-chain-management"
 
 **Install**:
 ```bash
-ggen marketplace install "ai-code-generation"
+mcpp marketplace install "ai-code-generation"
 ```
 
 ---
@@ -114,7 +114,7 @@ ggen marketplace install "ai-code-generation"
 
 **Install**:
 ```bash
-ggen marketplace install "ai-microservice"
+mcpp marketplace install "ai-microservice"
 ```
 
 ---
@@ -124,7 +124,7 @@ ggen marketplace install "ai-microservice"
 
 **Install**:
 ```bash
-ggen marketplace install "microservices-architecture"
+mcpp marketplace install "microservices-architecture"
 ```
 
 ---
@@ -134,7 +134,7 @@ ggen marketplace install "microservices-architecture"
 
 **Install**:
 ```bash
-ggen marketplace install "microservices-architecture-template"
+mcpp marketplace install "microservices-architecture-template"
 ```
 
 ---
@@ -146,7 +146,7 @@ ggen marketplace install "microservices-architecture-template"
 
 **Install**:
 ```bash
-ggen marketplace install "database-schema-generator"
+mcpp marketplace install "database-schema-generator"
 ```
 
 ---
@@ -156,7 +156,7 @@ ggen marketplace install "database-schema-generator"
 
 **Install**:
 ```bash
-ggen marketplace install "data-pipeline-cli"
+mcpp marketplace install "data-pipeline-cli"
 ```
 
 ---
@@ -168,7 +168,7 @@ ggen marketplace install "data-pipeline-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "enterprise-erp-core"
+mcpp marketplace install "enterprise-erp-core"
 ```
 
 ---
@@ -178,7 +178,7 @@ ggen marketplace install "enterprise-erp-core"
 
 **Install**:
 ```bash
-ggen marketplace install "crm-customer-management"
+mcpp marketplace install "crm-customer-management"
 ```
 
 ---
@@ -188,7 +188,7 @@ ggen marketplace install "crm-customer-management"
 
 **Install**:
 ```bash
-ggen marketplace install "multi-tenant-saas"
+mcpp marketplace install "multi-tenant-saas"
 ```
 
 ---
@@ -200,7 +200,7 @@ ggen marketplace install "multi-tenant-saas"
 
 **Install**:
 ```bash
-ggen marketplace install "banking-core"
+mcpp marketplace install "banking-core"
 ```
 
 ---
@@ -210,7 +210,7 @@ ggen marketplace install "banking-core"
 
 **Install**:
 ```bash
-ggen marketplace install "iso-20022-payments"
+mcpp marketplace install "iso-20022-payments"
 ```
 
 ---
@@ -222,7 +222,7 @@ ggen marketplace install "iso-20022-payments"
 
 **Install**:
 ```bash
-ggen marketplace install "medical-billing"
+mcpp marketplace install "medical-billing"
 ```
 
 ---
@@ -232,7 +232,7 @@ ggen marketplace install "medical-billing"
 
 **Install**:
 ```bash
-ggen marketplace install "healthcare-analytics"
+mcpp marketplace install "healthcare-analytics"
 ```
 
 ---
@@ -242,7 +242,7 @@ ggen marketplace install "healthcare-analytics"
 
 **Install**:
 ```bash
-ggen marketplace install "ehr-integration"
+mcpp marketplace install "ehr-integration"
 ```
 
 ---
@@ -254,7 +254,7 @@ ggen marketplace install "ehr-integration"
 
 **Install**:
 ```bash
-ggen marketplace install "comprehensive-rust-showcase"
+mcpp marketplace install "comprehensive-rust-showcase"
 ```
 
 ---
@@ -264,7 +264,7 @@ ggen marketplace install "comprehensive-rust-showcase"
 
 **Install**:
 ```bash
-ggen marketplace install "advanced-rust-project"
+mcpp marketplace install "advanced-rust-project"
 ```
 
 ---
@@ -274,7 +274,7 @@ ggen marketplace install "advanced-rust-project"
 
 **Install**:
 ```bash
-ggen marketplace install "sector-rust-microservice-8020"
+mcpp marketplace install "sector-rust-microservice-8020"
 ```
 
 ---
@@ -286,7 +286,7 @@ ggen marketplace install "sector-rust-microservice-8020"
 
 **Install**:
 ```bash
-ggen marketplace install "graphql-api-template"
+mcpp marketplace install "graphql-api-template"
 ```
 
 ---
@@ -296,7 +296,7 @@ ggen marketplace install "graphql-api-template"
 
 **Install**:
 ```bash
-ggen marketplace install "rest-api-template"
+mcpp marketplace install "rest-api-template"
 ```
 
 ---
@@ -306,7 +306,7 @@ ggen marketplace install "rest-api-template"
 
 **Install**:
 ```bash
-ggen marketplace install "phd-thesis-template"
+mcpp marketplace install "phd-thesis-template"
 ```
 
 ---
@@ -316,7 +316,7 @@ ggen marketplace install "phd-thesis-template"
 
 **Install**:
 ```bash
-ggen marketplace install "cli-application-template"
+mcpp marketplace install "cli-application-template"
 ```
 
 ---
@@ -328,7 +328,7 @@ ggen marketplace install "cli-application-template"
 
 **Install**:
 ```bash
-ggen marketplace install "shacl-cli"
+mcpp marketplace install "shacl-cli"
 ```
 
 ---
@@ -338,7 +338,7 @@ ggen marketplace install "shacl-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "human-resources-management"
+mcpp marketplace install "human-resources-management"
 ```
 
 ---
@@ -348,7 +348,7 @@ ggen marketplace install "human-resources-management"
 
 **Install**:
 ```bash
-ggen marketplace install "schema-forge-cli"
+mcpp marketplace install "schema-forge-cli"
 ```
 
 ---
@@ -358,7 +358,7 @@ ggen marketplace install "schema-forge-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "customer-loyalty-rewards"
+mcpp marketplace install "customer-loyalty-rewards"
 ```
 
 ---
@@ -368,7 +368,7 @@ ggen marketplace install "customer-loyalty-rewards"
 
 **Install**:
 ```bash
-ggen marketplace install "product-recommendations"
+mcpp marketplace install "product-recommendations"
 ```
 
 ---
@@ -378,7 +378,7 @@ ggen marketplace install "product-recommendations"
 
 **Install**:
 ```bash
-ggen marketplace install "kyc-aml-compliance"
+mcpp marketplace install "kyc-aml-compliance"
 ```
 
 ---
@@ -388,7 +388,7 @@ ggen marketplace install "kyc-aml-compliance"
 
 **Install**:
 ```bash
-ggen marketplace install "laboratory-information-system"
+mcpp marketplace install "laboratory-information-system"
 ```
 
 ---
@@ -398,7 +398,7 @@ ggen marketplace install "laboratory-information-system"
 
 **Install**:
 ```bash
-ggen marketplace install "agent-cli-copilot"
+mcpp marketplace install "agent-cli-copilot"
 ```
 
 ---
@@ -408,7 +408,7 @@ ggen marketplace install "agent-cli-copilot"
 
 **Install**:
 ```bash
-ggen marketplace install "agent-memory-forge"
+mcpp marketplace install "agent-memory-forge"
 ```
 
 ---
@@ -418,7 +418,7 @@ ggen marketplace install "agent-memory-forge"
 
 **Install**:
 ```bash
-ggen marketplace install "reasoner-cli"
+mcpp marketplace install "reasoner-cli"
 ```
 
 ---
@@ -428,7 +428,7 @@ ggen marketplace install "reasoner-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "inventory-management"
+mcpp marketplace install "inventory-management"
 ```
 
 ---
@@ -438,7 +438,7 @@ ggen marketplace install "inventory-management"
 
 **Install**:
 ```bash
-ggen marketplace install "api-endpoint"
+mcpp marketplace install "api-endpoint"
 ```
 
 ---
@@ -448,7 +448,7 @@ ggen marketplace install "api-endpoint"
 
 **Install**:
 ```bash
-ggen marketplace install "clinical-trials-management"
+mcpp marketplace install "clinical-trials-management"
 ```
 
 ---
@@ -458,7 +458,7 @@ ggen marketplace install "clinical-trials-management"
 
 **Install**:
 ```bash
-ggen marketplace install "project-management"
+mcpp marketplace install "project-management"
 ```
 
 ---
@@ -468,7 +468,7 @@ ggen marketplace install "project-management"
 
 **Install**:
 ```bash
-ggen marketplace install "knowledge-graph-cli"
+mcpp marketplace install "knowledge-graph-cli"
 ```
 
 ---
@@ -478,7 +478,7 @@ ggen marketplace install "knowledge-graph-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "sector-observability-8020"
+mcpp marketplace install "sector-observability-8020"
 ```
 
 ---
@@ -488,7 +488,7 @@ ggen marketplace install "sector-observability-8020"
 
 **Install**:
 ```bash
-ggen marketplace install "risk-management"
+mcpp marketplace install "risk-management"
 ```
 
 ---
@@ -498,7 +498,7 @@ ggen marketplace install "risk-management"
 
 **Install**:
 ```bash
-ggen marketplace install "workflow-engine-cli"
+mcpp marketplace install "workflow-engine-cli"
 ```
 
 ---
@@ -508,7 +508,7 @@ ggen marketplace install "workflow-engine-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "agent-editor"
+mcpp marketplace install "agent-editor"
 ```
 
 ---
@@ -518,7 +518,7 @@ ggen marketplace install "agent-editor"
 
 **Install**:
 ```bash
-ggen marketplace install "hello-world"
+mcpp marketplace install "hello-world"
 ```
 
 ---
@@ -528,7 +528,7 @@ ggen marketplace install "hello-world"
 
 **Install**:
 ```bash
-ggen marketplace install "clap-noun-verb"
+mcpp marketplace install "clap-noun-verb"
 ```
 
 ---
@@ -538,7 +538,7 @@ ggen marketplace install "clap-noun-verb"
 
 **Install**:
 ```bash
-ggen marketplace install "document-management-system"
+mcpp marketplace install "document-management-system"
 ```
 
 ---
@@ -548,7 +548,7 @@ ggen marketplace install "document-management-system"
 
 **Install**:
 ```bash
-ggen marketplace install "chatman-cli"
+mcpp marketplace install "chatman-cli"
 ```
 
 ---
@@ -558,7 +558,7 @@ ggen marketplace install "chatman-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "cryptocurrency-exchange"
+mcpp marketplace install "cryptocurrency-exchange"
 ```
 
 ---
@@ -568,7 +568,7 @@ ggen marketplace install "cryptocurrency-exchange"
 
 **Install**:
 ```bash
-ggen marketplace install "robo-advisor"
+mcpp marketplace install "robo-advisor"
 ```
 
 ---
@@ -578,7 +578,7 @@ ggen marketplace install "robo-advisor"
 
 **Install**:
 ```bash
-ggen marketplace install "telemedicine-platform"
+mcpp marketplace install "telemedicine-platform"
 ```
 
 ---
@@ -588,7 +588,7 @@ ggen marketplace install "telemedicine-platform"
 
 **Install**:
 ```bash
-ggen marketplace install "asset-management"
+mcpp marketplace install "asset-management"
 ```
 
 ---
@@ -598,7 +598,7 @@ ggen marketplace install "asset-management"
 
 **Install**:
 ```bash
-ggen marketplace install "pharmacy-management"
+mcpp marketplace install "pharmacy-management"
 ```
 
 ---
@@ -608,7 +608,7 @@ ggen marketplace install "pharmacy-management"
 
 **Install**:
 ```bash
-ggen marketplace install "order-management-system"
+mcpp marketplace install "order-management-system"
 ```
 
 ---
@@ -618,7 +618,7 @@ ggen marketplace install "order-management-system"
 
 **Install**:
 ```bash
-ggen marketplace install "sparql-cli"
+mcpp marketplace install "sparql-cli"
 ```
 
 ---
@@ -628,7 +628,7 @@ ggen marketplace install "sparql-cli"
 
 **Install**:
 ```bash
-ggen marketplace install "sector-support-hooks-8020"
+mcpp marketplace install "sector-support-hooks-8020"
 ```
 
 ---
@@ -638,7 +638,7 @@ ggen marketplace install "sector-support-hooks-8020"
 
 **Install**:
 ```bash
-ggen marketplace install "sector-api-gateway-8020"
+mcpp marketplace install "sector-api-gateway-8020"
 ```
 
 ---
@@ -648,7 +648,7 @@ ggen marketplace install "sector-api-gateway-8020"
 
 **Install**:
 ```bash
-ggen marketplace install "trading-platform"
+mcpp marketplace install "trading-platform"
 ```
 
 ---
@@ -658,7 +658,7 @@ ggen marketplace install "trading-platform"
 
 **Install**:
 ```bash
-ggen marketplace install "agent-context-crafter"
+mcpp marketplace install "agent-context-crafter"
 ```
 
 ---
@@ -668,17 +668,17 @@ ggen marketplace install "agent-context-crafter"
 
 **Install**:
 ```bash
-ggen marketplace install "business-intelligence-reporting"
+mcpp marketplace install "business-intelligence-reporting"
 ```
 
 ---
 
-### io.ggen.nextjs.ontology-crud
+### io.mcpp.nextjs.ontology-crud
 **Score**: 66.7% | **Status**: 🔶 Experimental
 
 **Install**:
 ```bash
-ggen marketplace install "io.ggen.nextjs.ontology-crud"
+mcpp marketplace install "io.mcpp.nextjs.ontology-crud"
 ```
 
 ---
@@ -688,7 +688,7 @@ ggen marketplace install "io.ggen.nextjs.ontology-crud"
 
 **Install**:
 ```bash
-ggen marketplace install "agent-reasoning-mcp"
+mcpp marketplace install "agent-reasoning-mcp"
 ```
 
 ---
@@ -698,7 +698,7 @@ ggen marketplace install "agent-reasoning-mcp"
 
 **Install**:
 ```bash
-ggen marketplace install "semantic-cli"
+mcpp marketplace install "semantic-cli"
 ```
 
 ---

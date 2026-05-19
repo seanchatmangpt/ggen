@@ -459,7 +459,7 @@ Zero major issues found.
 
 **Recommendation**:
 ```bash
-cd /Users/sac/ggen/vendors/a2a-rs/craftplan-adapter
+cd ./vendors/a2a-rs/craftplan-adapter
 cargo fmt
 ```
 
@@ -853,7 +853,7 @@ end
 
 1. **Run `cargo fmt`** (5 minutes)
    ```bash
-   cd /Users/sac/ggen/vendors/a2a-rs/craftplan-adapter
+   cd ./vendors/a2a-rs/craftplan-adapter
    cargo fmt
    ```
 

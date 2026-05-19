@@ -4,7 +4,7 @@
 2026-03-30
 
 ## Original File
-`/Users/sac/ggen/crates/ggen-cli/tests/packs/unit/installation/download_test.rs`
+`./crates/ggen-cli/tests/packs/unit/installation/download_test.rs`
 
 ## Conversion Overview
 **Converted from London TDD to Chicago TDD**
@@ -144,8 +144,8 @@ cargo check -p ggen-cli-lib --tests
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-cli/tests/packs/unit/installation/download_test.rs` - Converted
-2. `/Users/sac/ggen/crates/ggen-cli/Cargo.toml` - Added dependencies
+1. `./crates/ggen-cli/tests/packs/unit/installation/download_test.rs` - Converted
+2. `./crates/ggen-cli/Cargo.toml` - Added dependencies
 
 ## Summary
 

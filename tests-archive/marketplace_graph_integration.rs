@@ -5,7 +5,7 @@
 
 use ggen_core::graph::{Graph, GraphExport, GraphQuery, GraphUpdate};
 use ggen_core::lifecycle::{run_phase, Context};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use oxigraph::io::RdfFormat;
 use std::path::PathBuf;
 use tempfile::TempDir;

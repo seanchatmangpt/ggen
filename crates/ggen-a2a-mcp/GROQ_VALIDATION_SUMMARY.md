@@ -70,7 +70,7 @@ A comprehensive validation framework has been created to verify that the `ggen-a
 
 ### Test File Location
 ```
-/Users/sac/ggen/crates/ggen-a2a-mcp/tests/groq_integration_test.rs
+./crates/ggen-a2a-mcp/tests/groq_integration_test.rs
 ```
 
 ---

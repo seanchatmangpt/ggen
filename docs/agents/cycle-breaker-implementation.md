@@ -10,8 +10,8 @@ The `CycleBreakerAgent` is an autonomous swarm agent that detects and fixes circ
 
 ## Files Created
 
-- `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/cycle_breaker.rs` (683 lines)
-- Updated `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/mod.rs` to export the agent
+- `./crates/ggen-ai/src/swarm/agents/cycle_breaker.rs` (683 lines)
+- Updated `./crates/ggen-ai/src/swarm/agents/mod.rs` to export the agent
 
 ## Key Features
 

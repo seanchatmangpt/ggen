@@ -68,7 +68,7 @@
 //! use ggen_core::packs::lockfile::PackLockfile;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let lockfile = PackLockfile::from_file(Path::new(".ggen/packs.lock"))?;
 //! println!("Loaded {} packs", lockfile.packs.len());
 //! # Ok(())
@@ -76,7 +76,7 @@
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
@@ -193,7 +193,7 @@ impl PackLockfile {
     /// use ggen_core::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let lockfile = PackLockfile::from_file(Path::new(".ggen/packs.lock"))?;
     /// println!("Loaded {} packs", lockfile.packs.len());
     /// # Ok(())
@@ -242,7 +242,7 @@ impl PackLockfile {
     /// use ggen_core::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let lockfile = PackLockfile::new("4.0.0");
     /// lockfile.save(Path::new(".ggen/packs.lock"))?;
     /// # Ok(())

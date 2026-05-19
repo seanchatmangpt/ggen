@@ -13,7 +13,7 @@
 use ggen_core::generator::{GenContext, Generator};
 use ggen_core::pipeline::Pipeline;
 use ggen_core::streaming_generator::{GenerationResult, StreamingGenerator};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;

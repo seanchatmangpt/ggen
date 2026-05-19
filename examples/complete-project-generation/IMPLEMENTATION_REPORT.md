@@ -321,7 +321,7 @@ The example is **production-ready** and can be:
 
 ### In This Example
 ```
-/Users/sac/ggen/examples/complete-project-generation/
+./examples/complete-project-generation/
 ├── README.md                    (7.4 KB)
 ├── QUICKSTART.md                (3.4 KB)
 ├── TEMPLATE_REFERENCE.md        (9.0 KB)
@@ -336,7 +336,7 @@ The example is **production-ready** and can be:
 
 ### Generated Output
 ```
-/Users/sac/ggen/examples/complete-project-generation/output/my-web-service/
+./examples/complete-project-generation/output/my-web-service/
 ├── Cargo.toml
 ├── src/ (7 files)
 └── tests/ (1 file)
@@ -346,7 +346,7 @@ The example is **production-ready** and can be:
 
 1. **Run the example**:
    ```bash
-   cd /Users/sac/ggen/examples/complete-project-generation
+   cd ./examples/complete-project-generation
    ./generate-project.sh validate
    ./generate-project.sh generate
    cd output/my-web-service
@@ -368,4 +368,4 @@ The example is **production-ready** and can be:
 October 11, 2025
 
 ## Location
-`/Users/sac/ggen/examples/complete-project-generation/`
+`./examples/complete-project-generation/`

@@ -18,7 +18,7 @@ use crate::v6::passes::{
 };
 use crate::v6::receipt::{BuildReceipt, OutputFile, ReceiptPolicies};
 use crate::v6::vocabulary::VocabularyRegistry;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::Instant;

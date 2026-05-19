@@ -46,7 +46,7 @@ docker ps
 cargo make test-clnrm
 
 # Direct clnrm command
-clnrm run tests/clnrm/cli_commands.clnrm.toml --workspace /Users/sac/ggen
+clnrm run tests/clnrm/cli_commands.clnrm.toml --workspace .
 ```
 
 ### Validate Test File

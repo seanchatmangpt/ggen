@@ -13,8 +13,8 @@ Migrate marketplace commands from the old `cmds/market/` structure to the new cl
 ### Files Migrated (5 Critical Commands)
 
 #### 1. **search** - Package Discovery
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/marketplace/search.rs`
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/marketplace/search.rs`
+- **CLI Layer**: `./cli/src/commands/marketplace/search.rs`
+- **Domain Layer**: `./cli/src/domain/marketplace/search.rs`
 - **Key Changes**:
   - Added `search_and_display()` function for CLI-to-domain bridging
   - Supports JSON and detailed output modes
@@ -22,8 +22,8 @@ Migrate marketplace commands from the old `cmds/market/` structure to the new cl
   - Uses `runtime::execute()` for async/sync bridging
 
 #### 2. **install** (renamed from `add`)
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/marketplace/install.rs`
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/marketplace/install.rs`
+- **CLI Layer**: `./cli/src/commands/marketplace/install.rs`
+- **Domain Layer**: `./cli/src/domain/marketplace/install.rs`
 - **Key Changes**:
   - Added `install_and_report()` function
   - Parses package@version syntax
@@ -31,8 +31,8 @@ Migrate marketplace commands from the old `cmds/market/` structure to the new cl
   - Placeholder implementation for Phase 1
 
 #### 3. **list** - Installed Packages
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/marketplace/list.rs`
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/marketplace/list.rs`
+- **CLI Layer**: `./cli/src/commands/marketplace/list.rs`
+- **Domain Layer**: `./cli/src/domain/marketplace/list.rs`
 - **Key Changes**:
   - `list_and_display()` reads from ggen.lock
   - Supports detailed and JSON output
@@ -40,8 +40,8 @@ Migrate marketplace commands from the old `cmds/market/` structure to the new cl
   - Validates package directories
 
 #### 4. **update** - Package Updates
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/marketplace/update.rs`
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/marketplace/update.rs`
+- **CLI Layer**: `./cli/src/commands/marketplace/update.rs`
+- **Domain Layer**: `./cli/src/domain/marketplace/update.rs`
 - **Key Changes**:
   - `update_and_report()` checks registry for updates
   - Supports single package or --all flag
@@ -49,8 +49,8 @@ Migrate marketplace commands from the old `cmds/market/` structure to the new cl
   - Uses install function for actual updates
 
 #### 5. **publish** - Package Publishing
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/marketplace/publish.rs`
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/marketplace/publish.rs`
+- **CLI Layer**: `./cli/src/commands/marketplace/publish.rs`
+- **Domain Layer**: `./cli/src/domain/marketplace/publish.rs`
 - **Key Changes**:
   - `publish_and_report()` validates and publishes packages
   - Reads package.json manifest

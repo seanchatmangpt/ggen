@@ -163,7 +163,7 @@ assert!(fs::read_to_string(metadata_path)?.contains("Title"));
 ## Compilation Status
 
 ```bash
-cd /Users/sac/ggen/marketplace/packages/document-management-system/examples/rust
+cd ~/.ggen/mcpp/marketplace/packages/document-management-system/examples/rust
 cargo check
 ```
 
@@ -184,8 +184,8 @@ For actual Rust crates with full test infrastructure:
 5. ✅ **Test real concurrency** with threads, not mocks
 
 See working examples:
-- `crates/ggen-core/tests/` (Chicago TDD integration tests)
-- `crates/ggen-domain/tests/` (Chicago TDD with real database)
+- `crates/mcpp-core/tests/` (Chicago TDD integration tests)
+- `crates/mcpp-domain/tests/` (Chicago TDD with real database)
 
 ---
 

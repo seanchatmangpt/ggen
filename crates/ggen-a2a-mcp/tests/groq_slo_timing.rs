@@ -305,7 +305,7 @@ async fn slo_groq_multi_turn_conversation() {
 #[tokio::test]
 async fn slo_groq_a2a_agent_task() {
     init_tracing();
-    use a2a_generated::converged::message::ConvergedMessage;
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
     use ggen_a2a_mcp::client::A2aLlmClient;
     use ggen_ai::dspy::model_capabilities::{Model, ModelProvider};
 
@@ -345,7 +345,7 @@ Output a JSON object with these fields:
     let elapsed = start.elapsed();
 
     let text = match &response.payload.content {
-        a2a_generated::converged::UnifiedContent::Text { content, .. } => content.as_str(),
+        ggen_core::ggen_core::ggen_core::a2a_generated::converged::UnifiedContent::Text { content, .. } => content.as_str(),
         other => panic!("Expected Text content in A2A response, got: {other:?}"),
     };
 

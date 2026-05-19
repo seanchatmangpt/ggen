@@ -86,7 +86,7 @@ All 319 errors were of type: `error: missing documentation for <item>`
 
 ### Change Details
 
-**File:** `/Users/sac/ggen/crates/ggen-marketplace-v2/src/lib.rs`
+**File:** `./crates/ggen-marketplace-v2/src/lib.rs`
 
 **Line:** 2
 
@@ -208,7 +208,7 @@ Finished `dev` profile [unoptimized + debuginfo] target(s) in 22.41s
 ## Technical Details
 
 ### Files Modified
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/src/lib.rs` - 1 line changed
+- `./crates/ggen-marketplace-v2/src/lib.rs` - 1 line changed
 
 ### Diff
 ```diff

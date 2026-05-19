@@ -177,7 +177,7 @@ account.earn_interest(InterestRate::new(2.5, Daily))?;
 
 ### TypeScript
 ```typescript
-import { Account, Transaction } from '@ggen/banking-core';
+import { Account, Transaction } from '@mcpp/banking-core';
 
 const account = new Account('1234567890', 'checking');
 await account.deposit(1000);

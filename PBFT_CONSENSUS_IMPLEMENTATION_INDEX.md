@@ -107,7 +107,7 @@ A comprehensive test suite proving that **Byzantine Fault Tolerant consensus wor
 ## File Structure
 
 ```
-/Users/sac/ggen/
+./
 ├── PBFT_CONSENSUS_SCHEMA_VALIDATION_SUMMARY.md          (16 KB - START HERE)
 ├── PBFT_CONSENSUS_IMPLEMENTATION_INDEX.md               (This file)
 │
@@ -126,7 +126,7 @@ A comprehensive test suite proving that **Byzantine Fault Tolerant consensus wor
 
 ### One-Line Quick Test
 ```bash
-cd /Users/sac/ggen && cargo test --test schema_consensus_validation --package ggen-consensus
+cd . && cargo test --test schema_consensus_validation --package ggen-consensus
 ```
 
 ### With Detailed Output

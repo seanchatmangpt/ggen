@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents to design ggen code that prevents errors at compile time through type safety and invariants. Poka-yoke means "mistake-proofing" - making errors impossible through design. Experts use Rust's type system to prevent entire classes of errors in ggen.
+This command guides agents to design mcpp code that prevents errors at compile time through type safety and invariants. Poka-yoke means "mistake-proofing" - making errors impossible through design. Experts use Rust's type system to prevent entire classes of errors in mcpp.
 
 ## Workflow Overview
 
@@ -14,9 +14,9 @@ Step 1: Identify Error Modes → Step 2: Design Type-Level Prevention → Step 3
 
 ### Step 1: Identify Error Modes
 
-**Action**: List all ways ggen code can fail at runtime.
+**Action**: List all ways mcpp code can fail at runtime.
 
-**Error mode categories for ggen**:
+**Error mode categories for mcpp**:
 
 1. **Invalid state** - States that shouldn't exist
    - Example: Non-deterministic template processing, invalid RDF graph state
@@ -33,7 +33,7 @@ Step 1: Identify Error Modes → Step 2: Design Type-Level Prevention → Step 3
 5. **Logic errors** - Errors in program logic
    - Example: Index out of bounds, division by zero, overflow
 
-**Example error mode inventory for ggen**:
+**Example error mode inventory for mcpp**:
 ```markdown
 ## Error Modes Inventory
 
@@ -54,13 +54,13 @@ Step 1: Identify Error Modes → Step 2: Design Type-Level Prevention → Step 3
 
 ### Step 2: Design Type-Level Prevention
 
-**Action**: Use Rust's type system to make errors impossible in ggen.
+**Action**: Use Rust's type system to make errors impossible in mcpp.
 
 #### 2.1: Use Newtypes for Validation
 
 **Action**: Create newtypes that enforce invariants.
 
-**Example for ggen**:
+**Example for mcpp**:
 ```rust
 // ❌ BAD: Can have invalid state
 struct TemplateContext {
@@ -86,7 +86,7 @@ impl TemplateContext {
 
 **Action**: Use enums to represent valid states only.
 
-**Example for ggen**:
+**Example for mcpp**:
 ```rust
 // ❌ BAD: Can be in invalid state
 struct RdfProcessor {
@@ -113,7 +113,7 @@ struct RdfProcessor {
 
 **Action**: Use PhantomData to encode invariants in types.
 
-**Example for ggen**:
+**Example for mcpp**:
 ```rust
 use std::marker::PhantomData;
 
@@ -149,7 +149,7 @@ impl Template<Validated> {
 
 ### Step 3: Add Compile-Time Checks
 
-**Action**: Leverage Rust's compiler to catch errors in ggen.
+**Action**: Leverage Rust's compiler to catch errors in mcpp.
 
 #### 3.1: Use Type Bounds
 
@@ -186,7 +186,7 @@ fn process_triples<const N: usize>(triples: [Triple; N]) -> [Triple; N] {
 
 ### Step 4: Verify Prevention
 
-**Action**: Ensure type system prevents errors in ggen.
+**Action**: Ensure type system prevents errors in mcpp.
 
 #### 4.1: Attempt Invalid Operations
 
@@ -262,7 +262,7 @@ cargo make test
 
 ### Step 5: Document Invariants
 
-**Action**: Explain why design prevents errors in ggen.
+**Action**: Explain why design prevents errors in mcpp.
 
 #### 5.1: Document Type Invariants
 
@@ -336,7 +336,7 @@ struct TemplateContext {
 
 ## Expert Insights
 
-**Why this matters**: Runtime errors are expensive. Type-level prevention catches errors at compile time, before they reach production in ggen.
+**Why this matters**: Runtime errors are expensive. Type-level prevention catches errors at compile time, before they reach production in mcpp.
 
 **Key principle**: "Make invalid states unrepresentable" - Use types to make errors impossible.
 

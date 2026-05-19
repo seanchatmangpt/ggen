@@ -78,7 +78,7 @@ fn test_marketplace_search_basic() {
 
 ### 1. Marketplace Integration Tests (20 tests)
 
-**File**: `/Users/sac/ggen/cli/tests/integration_marketplace_e2e.rs`
+**File**: `./cli/tests/integration_marketplace_e2e.rs`
 **Lines**: 287
 **Coverage**: 20 critical marketplace workflows
 
@@ -156,7 +156,7 @@ fn test_marketplace_cache_clean() {
 
 ### 2. Template Integration Tests (21 tests)
 
-**File**: `/Users/sac/ggen/cli/tests/integration_template_e2e.rs`
+**File**: `./cli/tests/integration_template_e2e.rs`
 **Lines**: 418
 **Coverage**: 21 template management workflows
 
@@ -245,7 +245,7 @@ features:
 
 ### 3. RDF Graph Integration Tests (19 tests)
 
-**File**: `/Users/sac/ggen/cli/tests/integration_graph_e2e.rs`
+**File**: `./cli/tests/integration_graph_e2e.rs`
 **Lines**: 403
 **Coverage**: 19 RDF graph operations
 
@@ -351,7 +351,7 @@ fn test_graph_query_sparql_select() {
 
 ### 4. CLI UX Integration Tests (25 tests)
 
-**File**: `/Users/sac/ggen/cli/tests/integration_cli_ux_e2e.rs`
+**File**: `./cli/tests/integration_cli_ux_e2e.rs`
 **Lines**: 334
 **Coverage**: 25 CLI user experience workflows
 
@@ -894,11 +894,11 @@ fn test_resilient() {
 
 ### Files Created
 
-1. `/Users/sac/ggen/cli/tests/integration_marketplace_e2e.rs` (287 lines, 20 tests)
-2. `/Users/sac/ggen/cli/tests/integration_template_e2e.rs` (418 lines, 21 tests)
-3. `/Users/sac/ggen/cli/tests/integration_graph_e2e.rs` (403 lines, 19 tests)
-4. `/Users/sac/ggen/cli/tests/integration_cli_ux_e2e.rs` (334 lines, 25 tests)
-5. `/Users/sac/ggen/.claude/refactor-v2/agent6-integration-tests.md` (this file)
+1. `./cli/tests/integration_marketplace_e2e.rs` (287 lines, 20 tests)
+2. `./cli/tests/integration_template_e2e.rs` (418 lines, 21 tests)
+3. `./cli/tests/integration_graph_e2e.rs` (403 lines, 19 tests)
+4. `./cli/tests/integration_cli_ux_e2e.rs` (334 lines, 25 tests)
+5. `./.claude/refactor-v2/agent6-integration-tests.md` (this file)
 
 **Total**: 1,442 lines of test code + 1,200 lines of documentation
 

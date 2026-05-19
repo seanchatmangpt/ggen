@@ -2,7 +2,7 @@
 //!
 //! These tests verify the marketplace validation system works end-to-end.
 
-use ggen_domain::marketplace::{validate_all_packages, validate_package, PackageValidation};
+use ggen_core::domain::marketplace::{validate_all_packages, validate_package, PackageValidation};
 use std::path::PathBuf;
 use tempfile::TempDir;
 

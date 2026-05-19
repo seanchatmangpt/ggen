@@ -7,8 +7,8 @@ full_name = "PhD Thesis Template"
 version = "1.0.0"
 description = "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements"
 category = "academic-paper"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/phd-thesis-template"
 license = "MIT"
 production = true
@@ -58,10 +58,10 @@ year = { type = "integer", default = 2024, description = "Graduation year" }
 [examples]
 basic = """
 # Create PhD thesis
-ggen paper new "Advanced Code Generation Systems" --template phd
+mcpp paper new "Advanced Code Generation Systems" --template phd
 
 # Compile thesis
-ggen paper compile thesis.tex
+mcpp paper compile thesis.tex
 
 # Generate PDF
 pdflatex thesis.tex
@@ -71,16 +71,16 @@ pdflatex thesis.tex
 
 complete = """
 # Create thesis structure
-ggen paper new my-thesis --template phd
+mcpp paper new my-thesis --template phd
 
 # Edit chapters in sections/
-ggen paper edit my-thesis.rdf --section introduction
+mcpp paper edit my-thesis.rdf --section introduction
 
 # Initialize bibliography
-ggen paper init-bibliography my-thesis.rdf
+mcpp paper init-bibliography my-thesis.rdf
 
 # Compile with full processing
-ggen paper compile my-thesis.tex --engine xelatex --bibtex
+mcpp paper compile my-thesis.tex --engine xelatex --bibtex
 """
 
 # Documentation

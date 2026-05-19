@@ -38,7 +38,7 @@ Successfully verified that all sync operations in ggen v5.2.0 Phase 2 are record
 
 ### 1. Code Analysis
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/codegen/executor.rs`
+**File:** `./crates/ggen-core/src/codegen/executor.rs`
 
 **Integration Points Verified:**
 
@@ -60,7 +60,7 @@ Successfully verified that all sync operations in ggen v5.2.0 Phase 2 are record
 
 ### 2. AuditTrail Data Structure
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/audit/mod.rs`
+**File:** `./crates/ggen-core/src/audit/mod.rs`
 
 **Verified Fields:**
 ```rust
@@ -89,7 +89,7 @@ pub struct ExecutionMetadata {
 
 ### 3. AuditTrailWriter Integration
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/audit/writer.rs`
+**File:** `./crates/ggen-core/src/audit/writer.rs`
 
 **Verified Functionality:**
 - ✅ Creates parent directories automatically (`fs::create_dir_all`)
@@ -100,17 +100,17 @@ pub struct ExecutionMetadata {
 
 ### Unit Tests (7 passing)
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/audit/mod.rs`
+**File:** `./crates/ggen-core/src/audit/mod.rs`
 
 1. ✅ `test_audit_trail_creation` - Verifies constructor
 2. ✅ `test_record_rule_executed` - Verifies rule tracking
 3. ✅ `test_to_json_serialization` - Verifies JSON output
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/audit/writer.rs`
+**File:** `./crates/ggen-core/src/audit/writer.rs`
 
 4. ✅ `test_write_audit_trail` - Verifies file writing
 
-**File:** `/Users/sac/ggen/crates/ggen-core/src/codegen/audit.rs`
+**File:** `./crates/ggen-core/src/codegen/audit.rs`
 
 5. ✅ `test_audit_builder` - Verifies builder pattern
 6. ✅ `test_hash_string` - Verifies SHA256 hashing
@@ -118,7 +118,7 @@ pub struct ExecutionMetadata {
 
 ### Integration Tests (7 passing)
 
-**File:** `/Users/sac/ggen/crates/ggen-core/tests/audit_trail_integration_tests.rs`
+**File:** `./crates/ggen-core/tests/audit_trail_integration_tests.rs`
 
 1. ✅ `test_audit_trail_created_and_written` - Verifies file creation
 2. ✅ `test_audit_json_contains_metadata` - Verifies metadata fields
@@ -130,7 +130,7 @@ pub struct ExecutionMetadata {
 
 ### End-to-End Tests (3 passing)
 
-**File:** `/Users/sac/ggen/crates/ggen-core/tests/audit_trail_e2e_test.rs`
+**File:** `./crates/ggen-core/tests/audit_trail_e2e_test.rs`
 
 1. ✅ `test_basic_sync_creates_audit_trail`
    - Creates minimal ggen.toml with audit enabled
@@ -312,18 +312,18 @@ test result: ok. 3 passed; 0 failed; 0 ignored
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-core/src/codegen/pipeline.rs`
+1. `./crates/ggen-core/src/codegen/pipeline.rs`
    - Fixed unused variable warning (`_template_source_info`)
 
 ## Files Created
 
-1. `/Users/sac/ggen/crates/ggen-core/tests/audit_trail_e2e_test.rs`
+1. `./crates/ggen-core/tests/audit_trail_e2e_test.rs`
    - 3 comprehensive end-to-end integration tests
    - Tests basic sync, 10-rule sync, and JSON validity
    - Uses tempfile for isolation
    - Chicago School TDD (Arrange-Act-Assert pattern)
 
-2. `/Users/sac/ggen/docs/verification/audit-trail-integration-v5.2.0-phase2.md`
+2. `./docs/verification/audit-trail-integration-v5.2.0-phase2.md`
    - This verification document
 
 ## Conclusion

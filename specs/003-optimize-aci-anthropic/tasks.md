@@ -16,10 +16,10 @@
 ## Path Conventions
 
 - **Project type**: Single project (documentation and tooling enhancement)
-- **Makefile.toml**: `/Users/sac/ggen/Makefile.toml` (existing file to enhance)
-- **Test directory**: `/Users/sac/ggen/tests/aci/` (new directory for validation tests)
+- **Makefile.toml**: `./Makefile.toml` (existing file to enhance)
+- **Test directory**: `./tests/aci/` (new directory for validation tests)
 - **Skill directory**: `~/.claude/skills/ggen/` (user config directory)
-- **Evidence directory**: `/Users/sac/ggen/specs/003-optimize-aci-anthropic/evidence/` (success criteria validation)
+- **Evidence directory**: `./specs/003-optimize-aci-anthropic/evidence/` (success criteria validation)
 
 ---
 
@@ -27,8 +27,8 @@
 
 **Purpose**: Project initialization and test infrastructure setup
 
-- [X] T001 Create test directory structure: mkdir -p /Users/sac/ggen/tests/aci
-- [X] T002 Create evidence directory: mkdir -p /Users/sac/ggen/specs/003-optimize-aci-anthropic/evidence
+- [X] T001 Create test directory structure: mkdir -p ./tests/aci
+- [X] T002 Create evidence directory: mkdir -p ./specs/003-optimize-aci-anthropic/evidence
 - [X] T003 Create skill directory: mkdir -p ~/.claude/skills/ggen
 - [X] T004 [P] Install test dependencies (if needed): cargo check (verify Rust toolchain ready)
 - [X] T005 [P] Backup current Makefile.toml: cp Makefile.toml Makefile.toml.backup

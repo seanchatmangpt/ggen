@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 # Query 1: Extract Sales Pipeline by Stage
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?stageName ?opportunityCount (SUM(?amount) AS ?totalValue)
@@ -30,7 +30,7 @@ ORDER BY ?avgProbability DESC
 # ----------------------------------------------------------------------------
 # Query 2: Calculate Win Rates
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?salesRep
@@ -57,7 +57,7 @@ ORDER BY ?winRate DESC
 # ----------------------------------------------------------------------------
 # Query 3: Generate Sales Forecast
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?month ?stageName (SUM(?expectedRevenue) AS ?forecastedRevenue)
@@ -84,7 +84,7 @@ ORDER BY ?month, ?stageName
 # ----------------------------------------------------------------------------
 # Query 4: Lead Scoring and Qualification
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?leadName ?company ?leadSourceName ?scoreValue ?statusName
@@ -108,7 +108,7 @@ ORDER BY ?scoreValue DESC
 # ----------------------------------------------------------------------------
 # Query 5: Activity Timeline for Account
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?activityDate ?activityType ?subject ?salesRep ?completed
@@ -138,7 +138,7 @@ ORDER BY ?activityDate DESC
 # ----------------------------------------------------------------------------
 # Query 6: Campaign Performance Analysis
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?campaignName ?targetAudience ?responses ?responseRate
@@ -171,7 +171,7 @@ ORDER BY ?roi DESC
 # ----------------------------------------------------------------------------
 # Query 7: Customer Lifecycle Distribution
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 
 SELECT ?lifecycleStageName (COUNT(?account) AS ?accountCount)
        (SUM(?totalRevenue) AS ?stageRevenue)
@@ -200,7 +200,7 @@ ORDER BY ?accountCount DESC
 # ----------------------------------------------------------------------------
 # Query 8: Territory Performance Comparison
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?territoryName ?salesRep ?quotaAmount ?actualRevenue ?achievement
@@ -235,7 +235,7 @@ ORDER BY ?achievement DESC
 # ----------------------------------------------------------------------------
 # Query 9: Account Relationship Hierarchy
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 
 SELECT ?parentAccountName ?childAccountName ?relationshipType ?totalRevenue
 WHERE {
@@ -266,7 +266,7 @@ ORDER BY ?parentAccountName, ?totalRevenue DESC
 # ----------------------------------------------------------------------------
 # Query 10: Opportunity Age Analysis
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?opportunityName ?stageName ?amount ?createdDate
@@ -287,7 +287,7 @@ ORDER BY ?daysInStage DESC
 # ----------------------------------------------------------------------------
 # Query 11: Customer Engagement Score
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?accountName ?activityCount ?lastActivityDate ?engagementScore
@@ -320,7 +320,7 @@ ORDER BY ?engagementScore DESC, ?lastActivityDate DESC
 # ----------------------------------------------------------------------------
 # Query 12: Revenue Attribution by Source
 # ----------------------------------------------------------------------------
-PREFIX crm: <http://ggen.io/ontology/crm#>
+PREFIX crm: <http://mcpp.io/ontology/crm#>
 
 SELECT ?leadSourceName (COUNT(?opportunity) AS ?opportunityCount)
        (SUM(?amount) AS ?totalRevenue) (AVG(?amount) AS ?avgDealSize)

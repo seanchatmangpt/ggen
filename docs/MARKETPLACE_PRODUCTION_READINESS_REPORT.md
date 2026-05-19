@@ -117,7 +117,7 @@ fn validate_package_name(name: &str) -> Result<()> {
 - ✅ **Zero FIXME** comments in production code
 - ⚠️ **TODO comments only in domain layer** (future enhancements, not blockers)
 
-**Finding**: Grep found zero TODO/FIXME in `/Users/sac/ggen/crates/ggen-cli/src/cmds/marketplace.rs`
+**Finding**: Grep found zero TODO/FIXME in `./crates/ggen-cli/src/cmds/marketplace.rs`
 
 ---
 
@@ -504,7 +504,7 @@ verify_checksum(&bytes, expected)?; // Security + reproducibility
 
 ### Command Execution Test
 ```bash
-$ /Users/sac/ggen/target/debug/ggen marketplace --help
+$ ./target/debug/ggen marketplace --help
 Usage: ggen marketplace [COMMAND]
 
 Commands:

@@ -22,7 +22,7 @@
 //! ```
 
 use crate::graph::cycle_detection::detect_cycles;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fs;

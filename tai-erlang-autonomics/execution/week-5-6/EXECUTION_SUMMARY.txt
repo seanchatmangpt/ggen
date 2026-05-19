@@ -344,7 +344,7 @@ DOCUMENT SUITE METADATA
 Version: 1.0.0
 Created: 2026-01-26
 Status: READY FOR EXECUTION
-Location: /Users/sac/ggen/tai-erlang-autonomics/execution/week-5-6/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/week-5-6/
 Total Documents: 13 core + 7 supporting = 20 total
 Total Words: 72,281 words
 Estimated Read Time: 4-6 hours (overview), 10-15 hours (deep dive)

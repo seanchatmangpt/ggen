@@ -176,17 +176,17 @@ Not implemented (out of scope for this task):
 ## Files Modified
 
 ### Created Files
-1. `/Users/sac/ggen/node/tests/JTBD_AUDIT_REPORT.md` (47-page audit)
-2. `/Users/sac/ggen/node/tests/README.md` (comprehensive documentation)
-3. `/Users/sac/ggen/node/tests/IMPLEMENTATION_SUMMARY.md` (this file)
+1. `./node/tests/JTBD_AUDIT_REPORT.md` (47-page audit)
+2. `./node/tests/README.md` (comprehensive documentation)
+3. `./node/tests/IMPLEMENTATION_SUMMARY.md` (this file)
 
 ### Modified Files
-1. `/Users/sac/ggen/node/tests/unit_tests.rs` (complete rewrite, 595 lines)
-2. `/Users/sac/ggen/node/tests/integration_tests.rs` (enhanced validation, ~100 lines modified)
+1. `./node/tests/unit_tests.rs` (complete rewrite, 595 lines)
+2. `./node/tests/integration_tests.rs` (enhanced validation, ~100 lines modified)
 
 ### Untouched Files (Would Benefit from Similar Rewrite)
-1. `/Users/sac/ggen/node/tests/error_handling_tests.rs` - Currently too permissive
-2. `/Users/sac/ggen/node/tests/performance_tests.rs` - Needs correctness + timing validation
+1. `./node/tests/error_handling_tests.rs` - Currently too permissive
+2. `./node/tests/performance_tests.rs` - Needs correctness + timing validation
 
 ---
 
@@ -220,7 +220,7 @@ error[E0425]: cannot find function `execute_tokio_future` in module `napi::bindg
 
 2. **Run Tests** (after NIF fix)
    ```bash
-   cd /Users/sac/ggen/node
+   cd ./node
    cargo test --lib
    ```
 

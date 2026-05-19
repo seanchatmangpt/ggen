@@ -630,7 +630,7 @@ ANDON_LOG_FILE=target/andon_hooks.log
 
 ## File Paths (Absolute)
 
-- Library: `/Users/sac/ggen/scripts/lib/hooks-common.sh`
-- Pre-commit: `/Users/sac/ggen/scripts/hooks/pre-commit.sh`
-- Pre-push: `/Users/sac/ggen/scripts/hooks/pre-push.sh`
-- Installer: `/Users/sac/ggen/scripts/install-hooks.sh` (update existing)
+- Library: `./scripts/lib/hooks-common.sh`
+- Pre-commit: `./scripts/hooks/pre-commit.sh`
+- Pre-push: `./scripts/hooks/pre-push.sh`
+- Installer: `./scripts/install-hooks.sh` (update existing)

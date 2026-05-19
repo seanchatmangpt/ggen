@@ -92,7 +92,7 @@ grep "^version" Cargo.toml
 - Feature 2
 - Important fix
 
-**Download**: [crates.io](https://crates.io/crates/ggen)
+**Download**: [crates.io](https://crates.io/crates/mcpp)
 
 **Changelog**: [Full changelog](./CHANGELOG.md)
 ```
@@ -185,7 +185,7 @@ cargo package --allow-dirty
 cargo publish
 
 # Verify on crates.io
-# Visit: https://crates.io/crates/ggen/vX.Y.Z
+# Visit: https://crates.io/crates/mcpp/vX.Y.Z
 ```
 
 **Checklist**:

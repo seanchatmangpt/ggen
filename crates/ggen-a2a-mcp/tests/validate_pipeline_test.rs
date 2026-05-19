@@ -46,7 +46,7 @@ async fn test_validate_pipeline_example_manifest_exists() {
         } else if PathBuf::from("../../../examples/basic-template-generation/ggen.toml").exists() {
             PathBuf::from("../../../examples/basic-template-generation/ggen.toml")
         } else {
-            PathBuf::from("/Users/sac/ggen/examples/basic-template-generation/ggen.toml")
+            PathBuf::from("./examples/basic-template-generation/ggen.toml")
         };
 
     // Verify the test file exists

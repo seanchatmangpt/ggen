@@ -3,8 +3,8 @@
 //! These tests prevent type mismatch errors by verifying builder pattern usage
 //! and type conversions are correct.
 
-use ggen_domain::marketplace::publish::execute_publish;
-use ggen_domain::marketplace::PublishInput;
+use ggen_core::domain::marketplace::publish::execute_publish;
+use ggen_core::domain::marketplace::PublishInput;
 use std::path::PathBuf;
 use tempfile::TempDir;
 

@@ -3,7 +3,7 @@
 //! This module provides domain operations for working with packs,
 //! separating business logic from CLI concerns.
 
-use ggen_utils::error::Error;
+use ggen_core::utils::error::Error;
 use serde::Serialize;
 
 /// Check compatibility between packs

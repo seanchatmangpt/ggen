@@ -7,7 +7,7 @@
 //! - Validation operations (syntax checking, error detection)
 //! - SLO compliance verification
 
-use ggen_ontology_core::{
+use ggen_core::ontology_core::{
     entity_mapper::EntityMapper, sparql_generator::SparqlGenerator, triple_store::TripleStore,
     validators::validate_turtle,
 };

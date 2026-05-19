@@ -25,7 +25,7 @@
 
 ## Prerequisites Check
 ✅ Docker Desktop is running (green icon in menu bar)
-✅ You're in the ggen directory: `/Users/sac/ggen`
+✅ You're in the ggen directory: `.`
 ✅ Binary exists at: `target/release/ggen` (12MB)
 
 ## Step 1: Login to Docker Hub

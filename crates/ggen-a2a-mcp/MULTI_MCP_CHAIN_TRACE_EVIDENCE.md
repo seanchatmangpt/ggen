@@ -38,13 +38,13 @@ INFO ggen.pipeline.operation{
 ```
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{
   params=ValidatePipelineParams {
-    project_path: "/Users/sac/.cache/tmp/.tmpqJ7yiZ/test-project"
+    project_path: "~/.ggen/.cache/tmp/.tmpqJ7yiZ/test-project"
   }
-  project_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/test-project
+  project_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/test-project
   service.name="ggen-mcp-server"
   service.version="0.1.0"
 }: validate_pipeline tool called
-  project_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/test-project
+  project_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/test-project
 
 INFO ggen.pipeline.operation{...}: Tool 1 completed
   mcp.tool_name="validate_pipeline"
@@ -71,13 +71,13 @@ INFO ggen.pipeline.operation{...}: Tool 2 started
 
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{
   params=ValidateSparqlParams {
-    query_path: "/Users/sac/.cache/tmp/.tmpqJ7yiZ/query.rq"
+    query_path: "~/.ggen/.cache/tmp/.tmpqJ7yiZ/query.rq"
   }
-  query_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/query.rq
+  query_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/query.rq
   service.name="ggen-mcp-server"
   service.version="0.1.0"
 }: validate_sparql tool called
-  query_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/query.rq
+  query_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/query.rq
 
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{...}: validate_sparql tool complete
   status="valid"
@@ -106,13 +106,13 @@ INFO ggen.pipeline.operation{...}: Tool 3 started
 
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{
   params=ValidateTemplatesParams {
-    template_path: "/Users/sac/.cache/tmp/.tmpqJ7yiZ/test.tera"
+    template_path: "~/.ggen/.cache/tmp/.tmpqJ7yiZ/test.tera"
   }
-  template_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/test.tera
+  template_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/test.tera
   service.name="ggen-mcp-server"
   service.version="0.1.0"
 }: validate_templates tool called
-  template_path=/Users/sac/.cache/tmp/.tmpqJ7yiZ/test.tera
+  template_path=~/.ggen/.cache/tmp/.tmpqJ7yiZ/test.tera
 
 INFO ggen.pipeline.operation{...}: ggen.mcp.tool_call{...}: validate_templates tool complete
   status="valid"

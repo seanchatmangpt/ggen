@@ -125,7 +125,7 @@ Options:
 
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "template" "--help"`
+command=`"./target/debug/ggen" "template" "--help"`
 code=1
 stdout=""
 stderr=```
@@ -179,7 +179,7 @@ For more information, try \'--help\'.
 
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "help-me"`
+command=`"./target/debug/ggen" "help-me"`
 code=1
 stdout=""
 stderr=```
@@ -207,7 +207,7 @@ For more information, try \'--help\'.
 
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "doctor"`
+command=`"./target/debug/ggen" "doctor"`
 code=1
 stdout=""
 stderr=```
@@ -251,7 +251,7 @@ Options:
 
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "--help"`
+command=`"./target/debug/ggen" "--help"`
 code=1
 stdout=""
 stderr=```
@@ -299,7 +299,7 @@ For more information, try \'--help\'.
 
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "template" "generate" "/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml" "/Users/sac/.cache/tmp/.tmpnWHUay/output"`
+command=`"./target/debug/ggen" "template" "generate" "/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml" "/Users/sac/.cache/tmp/.tmpnWHUay/output"`
 code=1
 stdout=""
 stderr=```
@@ -329,7 +329,7 @@ Unexpected stdout, failed var.contains(1.2.0)
 ├── var: 
 └── var as str: 
 
-command=`"/Users/sac/ggen/target/debug/ggen" "--version"`
+command=`"./target/debug/ggen" "--version"`
 code=0
 stdout=""
 stderr=""
@@ -353,7 +353,7 @@ For more information, try \'--help\'.
 
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "marketplace" "search" "cli-template" "--limit" "1"`
+command=`"./target/debug/ggen" "marketplace" "search" "cli-template" "--limit" "1"`
 code=1
 stdout=""
 stderr=```

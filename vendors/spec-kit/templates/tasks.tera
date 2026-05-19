@@ -146,5 +146,5 @@ Each task follows this format:
 
 ---
 
-**Generated with**: [ggen v6](https://github.com/seanchatmangpt/ggen) ontology-driven task system
+**Generated with**: [mcpp v6](https://github.com/seanchatmangpt/mcpp) ontology-driven task system
 **Constitutional Equation**: `tasks.md = μ(tasks.ttl)`

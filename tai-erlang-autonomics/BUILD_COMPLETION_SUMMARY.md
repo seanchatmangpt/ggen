@@ -198,14 +198,14 @@ _build/
 
 ## Files Modified
 
-- `/Users/sac/ggen/tai-erlang-autonomics/test/perf_benchmarks/http_endpoint_bench_SUITE.erl`
+- `~/.ggen/mcpp/tai-erlang-autonomics/test/perf_benchmarks/http_endpoint_bench_SUITE.erl`
   - Removed undefined `?assert/2` macros
   - Fixed test compilation errors
   - Maintained test functionality
 
 ## Build Artifacts
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/_build/default/lib/tai_autonomics/ebin/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/_build/default/lib/tai_autonomics/ebin/`
 
 All 58 BEAM files successfully generated and ready for:
 - Release creation

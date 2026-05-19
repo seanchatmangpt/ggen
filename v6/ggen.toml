@@ -1,15 +1,15 @@
-# ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
+# mcpp v6: Fully-Rendered Libraries via Ontology-First Compilation
 # A = μ(O) - All artifacts are projections of ontology substrate
 
 [project]
-name = "ggen-v6"
+name = "mcpp-v6"
 version = "6.0.0"
 description = "Self-rendering ontology-first compilation system"
 
 # v6 only outputs .ttl and .tera files - no source code
 [v6]
 enabled = true
-ontology = "ontology/ggen-v6.ttl"
+ontology = "ontology/mcpp-v6.ttl"
 output_dir = "generated"
 
 # Staged compilation pipeline (μ₁...μ₅)
@@ -36,8 +36,8 @@ allowed = [
     "http://www.w3.org/2002/07/owl#",
     "http://www.w3.org/2001/XMLSchema#",
     "http://www.w3.org/ns/shacl#",
-    "http://ggen.dev/v6#",
-    "http://ggen.ai/ontology/meta#",
+    "http://mcpp.dev/v6#",
+    "http://mcpp.ai/ontology/meta#",
 ]
 
 # Guards (H) - forbidden output classes
@@ -51,6 +51,6 @@ directory = "templates"
 
 # RDF configuration
 [rdf]
-base_uri = "http://ggen.dev/v6#"
+base_uri = "http://mcpp.dev/v6#"
 default_format = "turtle"
-ontologies = ["ontology/ggen-v6.ttl"]
+ontologies = ["ontology/mcpp-v6.ttl"]

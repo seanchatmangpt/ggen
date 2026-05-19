@@ -4,7 +4,7 @@
 
 ```bash
 # 1. Run all benchmarks
-cd /Users/sac/ggen
+cd .
 ./.claude/refactor-v2/run-benchmarks.sh
 
 # 2. View HTML report
@@ -28,7 +28,7 @@ open target/criterion/report/index.html
 ## 📁 Files Created
 
 ```
-/Users/sac/ggen/
+./
 ├── benches/
 │   ├── v2_performance.rs              # Comprehensive benchmark suite
 │   └── runtime_overhead.rs            # Existing runtime benchmarks
@@ -141,7 +141,7 @@ cargo bench --bench v2_performance -- --sample-size 10
 ### Cannot Open HTML Report
 ```bash
 # Manual path
-file:///Users/sac/ggen/target/criterion/report/index.html
+file://./target/criterion/report/index.html
 
 # Or use Python
 cd target/criterion/report && python3 -m http.server 8000

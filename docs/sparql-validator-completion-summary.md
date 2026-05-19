@@ -8,19 +8,19 @@ Successfully implemented the `SPARQLValidatorAgent` as an autonomous A2A compone
 
 ### Files Created
 
-1. **Implementation**: `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/sparql_validator.rs` (621 lines)
+1. **Implementation**: `./crates/ggen-ai/src/swarm/agents/sparql_validator.rs` (621 lines)
    - Complete `SPARQLValidatorAgent` struct with validation and fixing capabilities
    - Implements `SwarmAgent` trait for integration with Ultrathink swarm
    - Comprehensive error handling and reporting
 
-2. **Tests**: `/Users/sac/ggen/crates/ggen-ai/tests/sparql_validator_agent_tests.rs` (15 tests)
+2. **Tests**: `./crates/ggen-ai/tests/sparql_validator_agent_tests.rs` (15 tests)
    - Unit tests for all major functionality
    - Integration tests for complex scenarios
    - Edge case coverage
 
 3. **Documentation**:
-   - `/Users/sac/ggen/docs/sparql-validator-implementation.md` (comprehensive guide)
-   - `/Users/sac/ggen/docs/sparql-validator-quick-reference.md` (quick reference card)
+   - `./docs/sparql-validator-implementation.md` (comprehensive guide)
+   - `./docs/sparql-validator-quick-reference.md` (quick reference card)
 
 ### Key Features Implemented
 
@@ -233,13 +233,13 @@ cargo test --manifest-path=crates/ggen-ai/Cargo.toml --test sparql_validator_age
 
 ## Documentation
 
-- **Implementation Guide**: `/Users/sac/ggen/docs/sparql-validator-implementation.md`
+- **Implementation Guide**: `./docs/sparql-validator-implementation.md`
   - Complete architecture overview
   - API reference
   - Usage examples
   - Test coverage details
 
-- **Quick Reference**: `/Users/sac/ggen/docs/sparql-validator-quick-reference.md`
+- **Quick Reference**: `./docs/sparql-validator-quick-reference.md`
   - Import statements
   - Common usage patterns
   - Fix examples

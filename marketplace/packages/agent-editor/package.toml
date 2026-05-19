@@ -1,12 +1,12 @@
 [package]
 name = "agent-editor"
-full_name = "ggen/agent-editor"
+full_name = "mcpp/agent-editor"
 version = "1.0.0"
 description = "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-editor"
 license = "MIT"
 dependencies = []

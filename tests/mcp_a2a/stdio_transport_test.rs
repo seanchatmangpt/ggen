@@ -23,7 +23,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::timeout;
 
-use a2a_generated::prelude::*;
+use ggen_core::ggen_core::ggen_core::a2a_generated::prelude::*;
 use serde_json::{json, Value};
 
 use crate::mcp_a2a::{

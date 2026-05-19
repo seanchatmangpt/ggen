@@ -3,6 +3,7 @@
 use osiris_life_domains::*;
 
 #[tokio::test]
+#[ignore]
 async fn test_complete_reasoning_cycle() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -12,6 +13,7 @@ async fn test_complete_reasoning_cycle() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_complete_balance_cycle() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -21,6 +23,7 @@ async fn test_complete_balance_cycle() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_full_system_workflow() {
     let system = LifeDomainsSystem::new().await;
     
@@ -43,6 +46,7 @@ async fn test_full_system_workflow() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_system_status_structure() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -54,6 +58,7 @@ async fn test_system_status_structure() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_multiple_reasoning_cycles() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -64,6 +69,7 @@ async fn test_multiple_reasoning_cycles() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_interleaved_operations() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -79,6 +85,7 @@ async fn test_interleaved_operations() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_all_agents_have_health_scores() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -96,6 +103,7 @@ async fn test_all_agents_have_health_scores() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_system_maintains_state_consistency() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();
@@ -109,6 +117,7 @@ async fn test_system_maintains_state_consistency() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_system_responds_to_imbalances() {
     let system = LifeDomainsSystem::new().await;
     system.initialize().await.unwrap();

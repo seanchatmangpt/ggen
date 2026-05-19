@@ -3,14 +3,14 @@
 ## Install
 ```bash
 # Dry-run
-ggen marketplace install --package academic-bibliography-manager --dry_run
+mcpp marketplace install --package academic-bibliography-manager --dry_run
 # Install to working directory
-ggen marketplace install --package academic-bibliography-manager
+mcpp marketplace install --package academic-bibliography-manager
 ```
 
 ## Generate BibTeX from RDF
 ```bash
-ggen generate \
+mcpp generate \
   --template marketplace/packages/academic-bibliography-manager/templates/bibtex-references.tmpl \
   --domain examples/paper.rdf \
   --output ./out/refs.bib \
@@ -19,10 +19,10 @@ ggen generate \
 
 ## Validate and Export
 ```bash
-ggen bibliography validate examples/references.bib
+mcpp bibliography validate examples/references.bib
 
-ggen bibliography export --input examples/references.bib --format csl-json
-ggen bibliography export --input examples/references.bib --format ris
+mcpp bibliography export --input examples/references.bib --format csl-json
+mcpp bibliography export --input examples/references.bib --format ris
 ```
 
 ## Config Options (config.toml)

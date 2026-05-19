@@ -1,11 +1,11 @@
 [package]
 name = "knowledge-graph-cli"
 version = "1.0.0"
-namespace = "io.ggen.cli.knowledge-graph"
+namespace = "io.mcpp.cli.knowledge-graph"
 description = "Knowledge graph operations CLI using clap-noun-verb pattern"
-authors = ["ggen-team"]
+authors = ["mcpp-team"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["knowledge-graph", "rdf", "graph", "cli", "clap-noun-verb"]
 categories = ["cli-tools", "semantic-web", "graph-databases"]
 
@@ -40,4 +40,4 @@ commands = "templates/commands.tmpl"
 
 [ontology]
 file = "rdf/ontology.ttl"
-namespace = "http://ggen.io/ontology/knowledge-graph-cli#"
+namespace = "http://mcpp.io/ontology/knowledge-graph-cli#"

@@ -16,7 +16,7 @@ Created comprehensive performance benchmark suite to validate the Global Runtime
 ## Deliverables
 
 ### 1. Benchmark Suite (396 lines)
-**File**: `/Users/sac/ggen/benches/runtime_overhead.rs`
+**File**: `./benches/runtime_overhead.rs`
 
 **7 Benchmark Groups**:
 1. **execute_baseline** - Baseline overhead measurement
@@ -33,7 +33,7 @@ Created comprehensive performance benchmark suite to validate the Global Runtime
 - ✅ `bench_vs_naive` - 1,788,235x speedup (proves claim)
 
 ### 2. Performance Report (610 lines)
-**File**: `/Users/sac/ggen/.claude/refactor-v2/phase0-benchmarks.md`
+**File**: `./.claude/refactor-v2/phase0-benchmarks.md`
 
 **Contents**:
 - Executive summary with SLOs
@@ -45,7 +45,7 @@ Created comprehensive performance benchmark suite to validate the Global Runtime
 - Regression testing plan
 
 ### 3. Cargo Configuration
-**File**: `/Users/sac/ggen/Cargo.toml`
+**File**: `./Cargo.toml`
 
 **Changes**:
 - Added benchmark entry: `[[bench]] name = "runtime_overhead"`

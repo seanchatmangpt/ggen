@@ -1,22 +1,22 @@
 # Template Marketplace: Discover, Share, Collaborate
 
-The template marketplace is ggen's community ecosystem for discovering, sharing, and improving templates.
+The template marketplace is mcpp's community ecosystem for discovering, sharing, and improving templates.
 
 ## Discovery and Search
 
 ### Finding Templates
 ```bash
 # Search by keyword
-ggen marketplace search "rust service"
+mcpp marketplace search "rust service"
 
 # Search by category
-ggen marketplace search --category "api" --category "rust"
+mcpp marketplace search --category "api" --category "rust"
 
 # Search by author
-ggen marketplace search --author "core-team"
+mcpp marketplace search --author "core-team"
 
 # Advanced search with filters
-ggen marketplace search "microservice" \
+mcpp marketplace search "microservice" \
     --language "rust" \
     --framework "axum" \
     --min-rating 4.0
@@ -25,22 +25,22 @@ ggen marketplace search "microservice" \
 ### Browse Categories
 ```bash
 # List all categories
-ggen marketplace categories
+mcpp marketplace categories
 
 # Browse specific category
-ggen marketplace browse --category "web-frameworks"
+mcpp marketplace browse --category "web-frameworks"
 
 # View trending templates
-ggen marketplace trending
+mcpp marketplace trending
 
 # View recently updated
-ggen marketplace recent
+mcpp marketplace recent
 ```
 
 ### Template Information
 ```bash
 # View template details
-ggen marketplace info rust-service-template
+mcpp marketplace info rust-service-template
 
 # Output includes:
 # - Description and features
@@ -56,25 +56,25 @@ ggen marketplace info rust-service-template
 ### Installing Templates
 ```bash
 # Install from marketplace
-ggen marketplace install rust-service-template
+mcpp marketplace install rust-service-template
 
 # Install specific version
-ggen marketplace install rust-service-template@v1.2.0
+mcpp marketplace install rust-service-template@v1.2.0
 
 # Install to custom location
-ggen marketplace install rust-service-template --path ./my-templates/
+mcpp marketplace install rust-service-template --path ./my-templates/
 
 # Update installed template
-ggen marketplace update rust-service-template
+mcpp marketplace update rust-service-template
 ```
 
 ### Using Installed Templates
 ```bash
 # List installed templates
-ggen template list
+mcpp template list
 
 # Generate from installed template
-ggen template generate rust-service-template \
+mcpp template generate rust-service-template \
     --var name="UserService" \
     --var description="User management service"
 ```
@@ -84,21 +84,21 @@ ggen template generate rust-service-template \
 ### Publishing Templates
 ```bash
 # Prepare template for publishing
-ggen marketplace prepare templates/my-service.tmpl
+mcpp marketplace prepare templates/my-service.tmpl
 
 # Validates template and creates metadata
 # Checks for security issues
 # Generates usage examples
 
 # Publish to marketplace
-ggen marketplace publish templates/my-service.tmpl \
+mcpp marketplace publish templates/my-service.tmpl \
     --name "rust-service-template" \
     --description "Complete Rust microservice template" \
     --category "rust" "microservice" "api" \
     --license "MIT"
 
 # Update existing template
-ggen marketplace update templates/my-service.tmpl --version 1.1.0
+mcpp marketplace update templates/my-service.tmpl --version 1.1.0
 ```
 
 ### Template Metadata
@@ -124,7 +124,7 @@ tags:
   - database
   - authentication
 requires:
-  - ggen >= 1.0.0
+  - mcpp >= 1.0.0
   - rust >= 1.70
 examples:
   - name: Basic Service
@@ -145,23 +145,23 @@ examples:
 ### Rating Templates
 ```bash
 # Rate a template (1-5 stars)
-ggen marketplace rate rust-service-template 5
+mcpp marketplace rate rust-service-template 5
 
 # Rate with comment
-ggen marketplace rate rust-service-template 4 \
+mcpp marketplace rate rust-service-template 4 \
     --comment "Great template but missing error handling examples"
 ```
 
 ### Writing Reviews
 ```bash
 # Write detailed review
-ggen marketplace review rust-service-template \
+mcpp marketplace review rust-service-template \
     --title "Excellent starting point" \
     --rating 5 \
     --content "This template saved me hours of boilerplate code. The generated service is production-ready and well-structured."
 
 # View reviews
-ggen marketplace reviews rust-service-template
+mcpp marketplace reviews rust-service-template
 
 # Output includes:
 # - Overall rating (4.2/5)
@@ -175,7 +175,7 @@ ggen marketplace reviews rust-service-template
 ### Contributing to Templates
 ```bash
 # Fork template for modification
-ggen marketplace fork rust-service-template
+mcpp marketplace fork rust-service-template
 
 # Create branch for changes
 git checkout -b feature/add-authentication
@@ -186,29 +186,29 @@ git checkout -b feature/add-authentication
 # Add examples
 
 # Submit pull request
-ggen marketplace pr create \
+mcpp marketplace pr create \
     --title "Add JWT authentication support" \
     --description "Added JWT authentication middleware and user session management"
 
 # Original author reviews and merges
-ggen marketplace pr merge 123
+mcpp marketplace pr merge 123
 ```
 
 ### Collaborative Editing
 ```bash
 # Multiple developers working on same template
-ggen marketplace collaborate rust-service-template
+mcpp marketplace collaborate rust-service-template
 
 # Shows active contributors
 # Provides conflict resolution tools
 # Tracks changes and discussions
 
 # Lock template for major changes
-ggen marketplace lock rust-service-template \
+mcpp marketplace lock rust-service-template \
     --reason "Major refactoring in progress"
 
 # Unlock when ready
-ggen marketplace unlock rust-service-template
+mcpp marketplace unlock rust-service-template
 ```
 
 ## Analytics and Insights
@@ -216,7 +216,7 @@ ggen marketplace unlock rust-service-template
 ### Template Analytics
 ```bash
 # View template usage statistics
-ggen marketplace analytics rust-service-template
+mcpp marketplace analytics rust-service-template
 
 # Output includes:
 # - Download count (1,234 downloads)
@@ -229,7 +229,7 @@ ggen marketplace analytics rust-service-template
 ### Community Insights
 ```bash
 # View community trends
-ggen marketplace insights
+mcpp marketplace insights
 
 # Output includes:
 # - Most popular categories this month
@@ -244,7 +244,7 @@ ggen marketplace insights
 ### Template Validation
 ```bash
 # Validate before publishing
-ggen marketplace validate templates/my-template.tmpl
+mcpp marketplace validate templates/my-template.tmpl
 
 # Checks:
 # - Template syntax validity
@@ -257,7 +257,7 @@ ggen marketplace validate templates/my-template.tmpl
 ### Automated Testing
 ```bash
 # Run marketplace tests
-ggen marketplace test rust-service-template
+mcpp marketplace test rust-service-template
 
 # Tests include:
 # - Template renders correctly
@@ -281,10 +281,10 @@ vars:
 examples:
   - name: "Basic Usage"
     description: "Simple example"
-    command: "ggen template generate {{ template_name }}"
+    command: "mcpp template generate {{ template_name }}"
   - name: "Advanced Usage"
     description: "With all options"
-    command: "ggen template generate {{ template_name }} --var option1=value1"
+    command: "mcpp template generate {{ template_name }} --var option1=value1"
 ---
 # {{ template_name | title }}
 
@@ -293,7 +293,7 @@ examples:
 ## Installation
 
 ```bash
-ggen marketplace install {{ template_name }}
+mcpp marketplace install {{ template_name }}
 ```
 
 ## Usage
@@ -321,7 +321,7 @@ generated/
 #### 2. Multiple Examples
 ```bash
 # Template should work in multiple scenarios
-ggen marketplace examples rust-service-template
+mcpp marketplace examples rust-service-template
 
 # Shows:
 # - Basic microservice
@@ -344,15 +344,15 @@ on_error: "echo 'Template failed - check logs'"
 #### 1. Local Testing
 ```bash
 # Test template thoroughly before publishing
-ggen template generate templates/my-service.tmpl --dry-run
-ggen template validate templates/my-service.tmpl
-ggen template test templates/my-service.tmpl
+mcpp template generate templates/my-service.tmpl --dry-run
+mcpp template validate templates/my-service.tmpl
+mcpp template test templates/my-service.tmpl
 ```
 
 #### 2. Community Preview
 ```bash
 # Share draft with community for feedback
-ggen marketplace preview templates/my-service.tmpl \
+mcpp marketplace preview templates/my-service.tmpl \
     --description "Draft template for review"
 
 # Community provides feedback
@@ -362,7 +362,7 @@ ggen marketplace preview templates/my-service.tmpl \
 #### 3. Official Release
 ```bash
 # Publish stable version
-ggen marketplace publish templates/my-service.tmpl \
+mcpp marketplace publish templates/my-service.tmpl \
     --version 1.0.0 \
     --changelog "Initial release with basic functionality"
 ```
@@ -381,14 +381,14 @@ dependencies:
     type: "template"
 
 # Auto-installs dependencies when template is installed
-ggen marketplace install my-service-template
+mcpp marketplace install my-service-template
 # Also installs: database-template@v1.2.0, auth-template@v2.1.0
 ```
 
 ### Template Composition
 ```bash
 # Combine multiple templates
-ggen marketplace compose \
+mcpp marketplace compose \
     --base rust-service-template \
     --add database-template \
     --add auth-template \
@@ -398,12 +398,12 @@ ggen marketplace compose \
 ### Template Versioning
 ```bash
 # Semantic versioning
-ggen marketplace version rust-service-template patch  # 1.0.0 → 1.0.1
-ggen marketplace version rust-service-template minor  # 1.0.1 → 1.1.0
-ggen marketplace version rust-service-template major  # 1.1.0 → 2.0.0
+mcpp marketplace version rust-service-template patch  # 1.0.0 → 1.0.1
+mcpp marketplace version rust-service-template minor  # 1.0.1 → 1.1.0
+mcpp marketplace version rust-service-template major  # 1.1.0 → 2.0.0
 
 # Version history
-ggen marketplace history rust-service-template
+mcpp marketplace history rust-service-template
 ```
 
 ## Community Guidelines
@@ -429,7 +429,7 @@ ggen marketplace history rust-service-template
 ### Review Process
 ```bash
 # Community reviews new templates
-ggen marketplace review rust-service-template
+mcpp marketplace review rust-service-template
 
 # Reviews check:
 # - Code quality and style
@@ -444,23 +444,23 @@ ggen marketplace review rust-service-template
 ### "Template not found in marketplace"
 **Solution**: Check template name and try searching
 ```bash
-ggen marketplace search "rust service"
-ggen marketplace info exact-template-name
+mcpp marketplace search "rust service"
+mcpp marketplace info exact-template-name
 ```
 
 ### "Installation failed"
 **Solution**: Check dependencies and permissions
 ```bash
-ggen marketplace validate my-template.tmpl
-ggen marketplace dependencies my-template.tmpl
+mcpp marketplace validate my-template.tmpl
+mcpp marketplace dependencies my-template.tmpl
 chmod +r templates/
 ```
 
 ### "Template generates errors"
 **Solution**: Report issues and check for updates
 ```bash
-ggen marketplace report rust-service-template "Template fails on Windows"
-ggen marketplace update rust-service-template
+mcpp marketplace report rust-service-template "Template fails on Windows"
+mcpp marketplace update rust-service-template
 ```
 
 ## Success Stories
@@ -480,4 +480,4 @@ ggen marketplace update rust-service-template
 - **Downloads**: 100,000+ template downloads per month
 - **Reviews**: 10,000+ community reviews and ratings
 
-The template marketplace transforms ggen from a tool into a community-driven ecosystem.
+The template marketplace transforms mcpp from a tool into a community-driven ecosystem.

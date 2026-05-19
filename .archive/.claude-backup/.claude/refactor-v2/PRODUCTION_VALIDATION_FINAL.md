@@ -293,7 +293,7 @@ Inodes: 1.4B free (0% used) ✓
 
 2. **If issue persists** (2-4 hours):
    - Check macOS system logs: `sudo log show --predicate 'process == "cargo"' --last 1h`
-   - Disable Spotlight indexing on /Users/sac/ggen
+   - Disable Spotlight indexing on .
    - Check disk permissions: `diskutil verifyVolume /`
    - Retry on different volume or clean macOS install
 
@@ -448,7 +448,7 @@ RUSTSEC-2025-0098: unic-ucd-version - unmaintained
    sudo log show --predicate 'process == "cargo"' --last 1h
 
    # Disable Spotlight on build dir
-   sudo mdutil -i off /Users/sac/ggen
+   sudo mdutil -i off .
    ```
 
 **Success Criteria**:
@@ -690,7 +690,7 @@ RUSTSEC-2025-0098: unic-ucd-version - unmaintained
 sudo reboot
 
 # After reboot:
-cd /Users/sac/ggen
+cd .
 cargo clean
 cargo build --release -j4
 
@@ -819,7 +819,7 @@ Warnings: 8 unmaintained deps (6 via tera, 1 via pqcrypto, 1 yanked)
 Rust Version: rustc 1.90.0 (1159e78c4 2025-09-14)
 Cargo Version: cargo 1.90.0 (840b83a10 2025-07-30)
 Platform: Darwin 24.5.0 (macOS)
-Working Directory: /Users/sac/ggen
+Working Directory: .
 Disk Space: 141GB free (9% used)
 Inodes: 1.4B free (0% used)
 ```

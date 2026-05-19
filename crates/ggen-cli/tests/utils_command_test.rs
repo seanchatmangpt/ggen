@@ -7,7 +7,7 @@
 //! 2. GREEN: Make test pass with REAL implementation
 //! 3. REFACTOR: Improve code while maintaining green
 //!
-//! NO MOCKS - Tests against REAL domain implementations from ggen_domain::utils
+//! NO MOCKS - Tests against REAL domain implementations from ggen_core::domain::utils
 
 use std::collections::HashMap;
 
@@ -15,7 +15,7 @@ use std::collections::HashMap;
 // Domain Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
-use ggen_domain::utils::{
+use ggen_core::domain::utils::{
     execute_doctor, CheckResult, CheckStatus, DoctorInput, DoctorResult, EnvironmentInfo,
 };
 

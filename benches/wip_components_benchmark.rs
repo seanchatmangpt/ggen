@@ -21,8 +21,8 @@ use std::time::Duration;
 // WIP Components imports
 use ggen_agent::{agent::AgentManager, bridge::EventBridge};
 use ggen_cli::{cmds::agent::*, cmds::mcp::*};
-use ggen_utils::path_validator::{PathValidator, SafePath};
-use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use ggen_core::utils::path_validator::{PathValidator, SafePath};
+use ggen_core::utils::safe_command::{CommandArg, CommandName, SafeCommand};
 use ggen_workflow::{
     patterns::{Parallel, Sequence, WorkflowContext},
     WorkflowContext as WorkflowCtx,

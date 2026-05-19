@@ -55,10 +55,10 @@
 **CLAIMED**: Marketplace, Template, Graph, AI, Utils all migrated
 **REALITY**:
 ```bash
-$ ls -la /Users/sac/ggen/ggen-cli-lib/src/commands/
+$ ls -la ./ggen-cli-lib/src/commands/
 ls: No such file or directory
 
-$ grep -r "#\[verb\]" /Users/sac/ggen/ggen-cli-lib/src/
+$ grep -r "#\[verb\]" ./ggen-cli-lib/src/
 0 matches
 ```
 

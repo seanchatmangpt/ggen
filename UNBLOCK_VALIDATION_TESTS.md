@@ -13,28 +13,28 @@ Two blockers prevent validation test execution:
 
 ```bash
 # Backup original
-cp /Users/sac/ggen/Cargo.toml /Users/sac/ggen/Cargo.toml.backup
+cp ./Cargo.toml ./Cargo.toml.backup
 
 # Extract and deduplicate clippy lints
-awk '/^\[workspace.lints.clippy\]/,0' /Users/sac/ggen/Cargo.toml | \
+awk '/^\[workspace.lints.clippy\]/,0' ./Cargo.toml | \
   sort -u > /tmp/clippy_lints.txt
 
 # Find line numbers of workspace.lints.clippy section
-grep -n "^\[workspace.lints.clippy\]" /Users/sac/ggen/Cargo.toml
+grep -n "^\[workspace.lints.clippy\]" ./Cargo.toml
 # Output: 302:[workspace.lints.clippy]
 
 # Find line numbers of next section
-grep -n "^\[features\]" /Users/sac/ggen/Cargo.toml
+grep -n "^\[features\]" ./Cargo.toml
 # Output: 406:[features]
 
 # Delete old clippy section (lines 302-405)
-sed -i.bak '302,405d' /Users/sac/ggen/Cargo.toml
+sed -i.bak '302,405d' ./Cargo.toml
 
 # Insert deduplicated section after line 301
-sed -i.tmp "301r /tmp/clippy_lints.txt" /Users/sac/ggen/Cargo.toml
+sed -i.tmp "301r /tmp/clippy_lints.txt" ./Cargo.toml
 
 # Verify no duplicates
-grep -o "^[a-z_]* = " /Users/sac/ggen/Cargo.toml | sort | uniq -d
+grep -o "^[a-z_]* = " ./Cargo.toml | sort | uniq -d
 # Should return empty if successful
 
 # Verify compilation
@@ -45,8 +45,8 @@ cargo check -p ggen-a2a-mcp
 
 ```bash
 # Backup test file
-cp /Users/sac/ggen/crates/ggen-a2a-mcp/tests/validation_e2e.rs \
-   /Users/sac/ggen/crates/ggen-a2a-mcp/tests/validation_e2e.rs.backup
+cp ./crates/ggen-a2a-mcp/tests/validation_e2e.rs \
+   ./crates/ggen-a2a-mcp/tests/validation_e2e.rs.backup
 
 # Use Perl to fix all call_tool invocations
 perl -i -pe '
@@ -57,10 +57,10 @@ perl -i -pe '
       \s*Some\(([^)]+)\),
       \s*None
     \)/call_tool(CallToolRequestParams::new("$1".to_string()).with_arguments($2))/gx
-' /Users/sac/ggen/crates/ggen-a2a-mcp/tests/validation_e2e.rs
+' ./crates/ggen-a2a-mcp/tests/validation_e2e.rs
 
 # Verify the changes
-grep -A 2 "call_tool" /Users/sac/ggen/crates/ggen-a2a-mcp/tests/validation_e2e.rs | head -20
+grep -A 2 "call_tool" ./crates/ggen-a2a-mcp/tests/validation_e2e.rs | head -20
 ```
 
 Expected output after fix:
@@ -121,7 +121,7 @@ grep -E "mcp\.tool\.(call|response)" /tmp/otel_test_output.txt
 
 ```bash
 # Find all duplicates
-grep -o "^[a-z_]* = " /Users/sac/ggen/Cargo.toml | sort | uniq -c | awk '$1 > 1'
+grep -o "^[a-z_]* = " ./Cargo.toml | sort | uniq -c | awk '$1 > 1'
 
 # Manual deduplication (if automated fails)
 # Edit Cargo.toml, search for each duplicate, keep first occurrence
@@ -138,7 +138,7 @@ cargo tree -p ggen-a2a-mcp | grep rmcp
 # rmcp = { version = "1.3.0", features = ["server", "client", "macros", "transport-io"] }
 
 # Check example working test
-grep -A 5 "call_tool" /Users/sac/ggen/crates/ggen-a2a-mcp/tests/multi_mcp_otel_self_play.rs
+grep -A 5 "call_tool" ./crates/ggen-a2a-mcp/tests/multi_mcp_otel_self_play.rs
 
 # Match the pattern in validation_e2e.rs
 ```
@@ -150,7 +150,7 @@ grep -A 5 "call_tool" /Users/sac/ggen/crates/ggen-a2a-mcp/tests/multi_mcp_otel_s
 RUST_LOG=trace cargo test -p ggen-a2a-mcp --test validation_e2e 2>&1 | grep "TRACE"
 
 # Check if tracing instrumentation is present
-grep -r "span!" /Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs
+grep -r "span!" ./crates/ggen-a2a-mcp/src/ggen_server.rs
 
 # Should find multiple span! macro calls
 ```
@@ -175,7 +175,7 @@ grep -r "span!" /Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs
 
 ## References
 
-- Full report: `/Users/sac/ggen/VALIDATION_MCP_TOOLS_COMPLETION_REPORT.md`
-- Test file: `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validation_e2e.rs`
-- MCP server: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`
-- OTEL rules: `/Users/sac/ggen/.claude/rules/otel-validation.md`
+- Full report: `./VALIDATION_MCP_TOOLS_COMPLETION_REPORT.md`
+- Test file: `./crates/ggen-a2a-mcp/tests/validation_e2e.rs`
+- MCP server: `./crates/ggen-a2a-mcp/src/ggen_server.rs`
+- OTEL rules: `./.claude/rules/otel-validation.md`

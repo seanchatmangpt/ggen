@@ -106,6 +106,6 @@ Status: ❌ FAIL - NOT PRODUCTION READY
 │                                                                               │
 └───────────────────────────────────────────────────────────────────────────────┘
 
-Full Report: /Users/sac/ggen/docs/MARKETPLACE_V2_PRODUCTION_VALIDATION.md
+Full Report: ./docs/MARKETPLACE_V2_PRODUCTION_VALIDATION.md
 
 Generated: 2025-11-18 by Production Validation Specialist

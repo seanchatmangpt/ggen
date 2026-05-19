@@ -54,7 +54,7 @@
   2. Build CLNRM:
      cd ~/dev/clnrm && cargo build --release --bin cleanroom
 
-  3. Build ggen:
+  3. Build mcpp:
      cargo build --release
 
   4. Run all tests:

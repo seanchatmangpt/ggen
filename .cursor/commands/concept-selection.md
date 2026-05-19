@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents through systematic concept selection methods (Pugh Matrix and AHP) to evaluate and select the best design concepts for ggen features. Concept selection ensures objective, data-driven decisions when choosing between multiple design alternatives. Experts use systematic methods to avoid bias and select concepts that best meet requirements.
+This command guides agents through systematic concept selection methods (Pugh Matrix and AHP) to evaluate and select the best design concepts for mcpp features. Concept selection ensures objective, data-driven decisions when choosing between multiple design alternatives. Experts use systematic methods to avoid bias and select concepts that best meet requirements.
 
 ## Workflow Overview
 
@@ -14,11 +14,11 @@ Step 1: Define Selection Criteria → Step 2: Generate Concepts → Step 3: Pugh
 
 ### Step 1: Define Selection Criteria
 
-**Action**: Define criteria for evaluating concepts based on ggen requirements.
+**Action**: Define criteria for evaluating concepts based on mcpp requirements.
 
 #### 1.1: Identify Criteria from Requirements
 
-**Action**: Extract criteria from ggen requirements and SLOs.
+**Action**: Extract criteria from mcpp requirements and SLOs.
 
 **Criteria sources**:
 - **SLOs**: Performance targets (first build ≤ 15s, incremental ≤ 2s, RDF processing ≤ 5s)
@@ -77,7 +77,7 @@ Step 1: Define Selection Criteria → Step 2: Generate Concepts → Step 3: Pugh
 
 ### Step 2: Generate Concepts
 
-**Action**: Generate multiple design concept alternatives for ggen features.
+**Action**: Generate multiple design concept alternatives for mcpp features.
 
 #### 2.1: Concept Generation Methods
 
@@ -278,7 +278,7 @@ Step 1: Define Selection Criteria → Step 2: Generate Concepts → Step 3: Pugh
 
 ## Expert Insights
 
-**Why this matters**: Systematic concept selection ensures objective, data-driven decisions. Avoids bias and selects concepts that best meet ggen requirements.
+**Why this matters**: Systematic concept selection ensures objective, data-driven decisions. Avoids bias and selects concepts that best meet mcpp requirements.
 
 **Key principle**: "Data over opinion" - Use systematic methods (Pugh Matrix, AHP) to make objective decisions, not subjective preferences.
 

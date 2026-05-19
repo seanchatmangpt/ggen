@@ -4,7 +4,7 @@
 //! from templates using the ggen-core TemplateEngine.
 
 use ggen_core::{GenContext, Generator, Pipeline};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -60,7 +60,7 @@ pub struct GenerateFileResult {
 pub fn generate_file(options: &GenerateFileOptions) -> Result<GenerateFileResult> {
     // Validate template exists
     if !options.template_path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Template not found: {}",
             options.template_path.display()
         )));
@@ -68,7 +68,7 @@ pub fn generate_file(options: &GenerateFileOptions) -> Result<GenerateFileResult
 
     // Check if output exists and we're not forcing
     if options.output_path.exists() && !options.force_overwrite {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Output file already exists: {}. Use --force to overwrite.",
             options.output_path.display()
         )));
@@ -77,7 +77,7 @@ pub fn generate_file(options: &GenerateFileOptions) -> Result<GenerateFileResult
     // Prepare output directory
     if let Some(parent) = options.output_path.parent() {
         std::fs::create_dir_all(parent).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create output directory: {}", e))
         })?;
     }
 
@@ -97,12 +97,12 @@ pub fn generate_file(options: &GenerateFileOptions) -> Result<GenerateFileResult
 
     // Generate the file
     let result_path = generator.generate().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Template generation failed: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Template generation failed: {}", e))
     })?;
 
     // Get file size
     let metadata = std::fs::metadata(&result_path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read output metadata: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to read output metadata: {}", e))
     })?;
 
     Ok(GenerateFileResult {
@@ -120,7 +120,7 @@ pub fn parse_variables(var_strings: &[String]) -> Result<BTreeMap<String, String
     for var in var_strings {
         let parts: Vec<&str> = var.splitn(2, '=').collect();
         if parts.len() != 2 {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(ggen_core::utils::error::Error::new(&format!(
                 "Invalid variable format: '{}'. Expected 'key=value'",
                 var
             )));

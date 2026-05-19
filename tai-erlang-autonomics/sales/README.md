@@ -396,7 +396,7 @@ Year 2 Target: $1.8M+ ARR (3x ACV growth from Tier 1)
 
 ## Document Locations
 
-All three core documents are in `/Users/sac/ggen/tai-erlang-autonomics/sales/`:
+All three core documents are in `~/.ggen/mcpp/tai-erlang-autonomics/sales/`:
 
 ```
 sales/

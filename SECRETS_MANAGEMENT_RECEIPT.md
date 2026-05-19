@@ -13,7 +13,7 @@ Comprehensive secrets management infrastructure created and documented for TAI A
 
 ### 1. Terraform Infrastructure ✓
 
-#### `/Users/sac/ggen/infra/gcp/secrets.tf` (227 lines)
+#### `./infra/gcp/secrets.tf` (227 lines)
 - **10 GCP Secret Manager resources** created
   - `github-token`: VCS authentication
   - `gcp-service-account-key`: IAM authentication
@@ -29,7 +29,7 @@ Comprehensive secrets management infrastructure created and documented for TAI A
 - **IAM bindings** granting Cloud Run service access to all secrets
 - **Proper labels** for categorization (service, category, environment)
 
-#### `/Users/sac/ggen/infra/gcp/secrets-variables.tf` (22 lines)
+#### `./infra/gcp/secrets-variables.tf` (22 lines)
 - Project ID validation
 - Region configuration with allowed values
 - Environment variable (development/staging/production)
@@ -193,7 +193,7 @@ Added comprehensive sections:
 
 ### Phase 1: Terraform Initialization (Operator)
 ```bash
-cd /Users/sac/ggen/infra/gcp
+cd ./infra/gcp
 terraform init
 terraform plan
 terraform apply

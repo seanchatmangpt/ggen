@@ -1,7 +1,7 @@
 [project]
 name = "chatman-businessos-platform"
 version = "1.0.0"
-description = "BusinessOS platform regeneration via ggen — ontology → SPARQL → code generation"
+description = "BusinessOS platform regeneration via mcpp — ontology → SPARQL → code generation"
 
 [ontology]
 source = "ontology/businessos.ttl"

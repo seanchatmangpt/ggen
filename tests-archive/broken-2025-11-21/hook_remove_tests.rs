@@ -3,8 +3,8 @@
 //! Tests the remove module with real objects and state-based assertions.
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::hook::create::*;
-use ggen_domain::hook::remove::*;
+use ggen_core::domain::hook::create::*;
+use ggen_core::domain::hook::remove::*;
 use std::fs;
 use std::path::PathBuf;
 

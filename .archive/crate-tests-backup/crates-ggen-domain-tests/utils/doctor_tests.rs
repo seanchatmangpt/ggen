@@ -1,4 +1,4 @@
-use ggen_domain::utils::*;
+use ggen_core::domain::utils::*;
 
 #[tokio::test]
 async fn test_run_diagnostics() {

@@ -16,10 +16,10 @@ cargo test --test armstrong_integration test_cascade_prevention -- --nocapture
 
 | File | Location | Size | Purpose |
 |------|----------|------|---------|
-| armstrong_integration.rs | `/Users/sac/ggen/tests/` | 23KB | Main test suite (662 lines, 6 tests) |
-| ARMSTRONG_INTEGRATION_TEST_REPORT.md | `/Users/sac/ggen/tests/` | 9.4KB | Detailed results & analysis |
-| ARMSTRONG_QUICK_REFERENCE.md | `/Users/sac/ggen/` | 6.4KB | Command guide & quick reference |
-| ARMSTRONG_TEST_INDEX.md | `/Users/sac/ggen/` | This file | Navigation & overview |
+| armstrong_integration.rs | `~/.ggen/mcpp/tests/` | 23KB | Main test suite (662 lines, 6 tests) |
+| ARMSTRONG_INTEGRATION_TEST_REPORT.md | `~/.ggen/mcpp/tests/` | 9.4KB | Detailed results & analysis |
+| ARMSTRONG_QUICK_REFERENCE.md | `~/.ggen/mcpp/` | 6.4KB | Command guide & quick reference |
+| ARMSTRONG_TEST_INDEX.md | `~/.ggen/mcpp/` | This file | Navigation & overview |
 
 ## Test Results Summary
 

@@ -40,7 +40,7 @@ pub type AuditTrail = ();
 
 ### Audit Module Status
 
-**File:** `/Users/sac/ggen/crates/ggen-ai/src/governance/audit.rs`
+**File:** `./crates/ggen-ai/src/governance/audit.rs`
 - ✅ **Fully implemented** (451 lines)
 - ✅ **Comprehensive features:**
   - 18 event types (DecisionReceived, PolicyViolation, EmergencyStop, etc.)
@@ -186,15 +186,15 @@ impl AuditTrail {
 
 ### For Option A (sqlx rewrite):
 
-1. **`/Users/sac/ggen/crates/ggen-ai/Cargo.toml`**
+1. **`./crates/ggen-ai/Cargo.toml`**
    - Add: `sqlx = { workspace = true }`
 
-2. **`/Users/sac/ggen/crates/ggen-ai/src/governance/audit.rs`**
+2. **`./crates/ggen-ai/src/governance/audit.rs`**
    - Rewrite to use `sqlx::SqlitePool` instead of `rusqlite::Connection`
    - Convert all sync operations to async
    - Update database initialization
 
-3. **`/Users/sac/ggen/crates/ggen-ai/src/governance/mod.rs`**
+3. **`./crates/ggen-ai/src/governance/mod.rs`**
    - Uncomment: `pub mod audit;`
    - Uncomment: `pub use audit::{AuditEvent, AuditQuery, AuditTrail, EventType};`
    - Remove stub type aliases: `pub type AuditEvent = ();`
@@ -266,7 +266,7 @@ The audit trail functionality is **ready to re-enable** but requires a deliberat
 **Report Generated:** 2026-03-31
 **Analysis By:** Claude Code Agent
 **Files Analyzed:**
-- `/Users/sac/ggen/crates/ggen-ai/src/governance/mod.rs`
-- `/Users/sac/ggen/crates/ggen-ai/src/governance/audit.rs`
-- `/Users/sac/ggen/crates/ggen-ai/Cargo.toml`
-- `/Users/sac/ggen/Cargo.toml` (workspace dependencies)
+- `./crates/ggen-ai/src/governance/mod.rs`
+- `./crates/ggen-ai/src/governance/audit.rs`
+- `./crates/ggen-ai/Cargo.toml`
+- `./Cargo.toml` (workspace dependencies)

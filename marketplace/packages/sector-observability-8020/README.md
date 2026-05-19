@@ -28,17 +28,17 @@ Complete observability stack covering 80% of real-world telemetry needs. This bu
 ## Quick Start
 
 ```bash
-ggen market install sector-observability-8020
+mcpp market install sector-observability-8020
 cd sector-observability-8020
 
 # Generate observability config for your service
-ggen template generate --from-ontology ontologies/observability_v1.0.0.ttl \
+mcpp template generate --from-ontology ontologies/observability_v1.0.0.ttl \
   --service-name myservice \
   --metrics-endpoint localhost:4317 \
   --output configs/
 
 # Validate observability completeness
-ggen validate --guard GuardTelemetryComplete
+mcpp validate --guard GuardTelemetryComplete
 
 # Run tests
 cargo test --test observability_integration
@@ -110,13 +110,13 @@ sector-observability-8020/
 
 ```bash
 # Check this bundle meets 8020 standards
-ggen market validate --8020 .
+mcpp market validate --8020 .
 
 # Run all observability tests
 cargo test -p sector-observability-8020
 
 # Check for observability gaps
-ggen validate --guard GuardTelemetryComplete
+mcpp validate --guard GuardTelemetryComplete
 ```
 
 ## Success Metrics
@@ -130,12 +130,12 @@ After installing this bundle, expect:
 
 ## Support
 
-- GitHub Issues: ggen/ggen#observability
-- Slack: #ggen-observability
-- Docs: https://docs.ggen.dev/sectors/observability
+- GitHub Issues: mcpp/mcpp#observability
+- Slack: #mcpp-observability
+- Docs: https://docs.mcpp.dev/sectors/observability
 
 ---
 
 **8020 Bundle Version**: 1.0.0
 **Last Updated**: 2025-11-16
-**Maintained By**: ggen Contributors
+**Maintained By**: mcpp Contributors

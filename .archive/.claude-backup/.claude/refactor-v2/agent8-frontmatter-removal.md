@@ -60,7 +60,7 @@ pub fn render_with_rdf(
 ### 3. Files Updated
 
 **Core template system:**
-- `/Users/sac/ggen/ggen-core/src/template.rs`
+- `./ggen-core/src/template.rs`
   - Removed `rdf` and `vars` from Frontmatter struct
   - Removed `deserialize_flexible_vars()` function
   - Removed RDF file loading from `process_graph()`
@@ -68,24 +68,24 @@ pub fn render_with_rdf(
   - Updated tests
 
 **Pipeline:**
-- `/Users/sac/ggen/ggen-core/src/pipeline.rs`
+- `./ggen-core/src/pipeline.rs`
   - Removed `template.front.vars` iteration
   - Updated `SimpleTracer::rdf_loading()` calls (pass empty Vec)
 
 **Legacy POC:**
-- `/Users/sac/ggen/ggen-core/src/poc.rs`
+- `./ggen-core/src/poc.rs`
   - Removed `vars` and `rdf` from `HygenFrontmatter`
   - Updated to use CLI vars only
   - Pass empty Vec to `load_rdf()`
 
 **Streaming generator:**
-- `/Users/sac/ggen/ggen-core/src/streaming_generator.rs`
+- `./ggen-core/src/streaming_generator.rs`
   - Removed `template.front.rdf` check in RDF processing condition
 
 **Tracing:**
-- `/Users/sac/ggen/ggen-core/src/simple_tracing.rs`
+- `./ggen-core/src/simple_tracing.rs`
   - Removed `vars.len()` from frontmatter logging
-- `/Users/sac/ggen/ggen-core/src/tracing.rs`
+- `./ggen-core/src/tracing.rs`
   - Removed `vars_count` and `rdf_files_count` from logging
 
 ### 4. Documentation Updates
@@ -164,8 +164,8 @@ ggen template.tmpl --rdf data.ttl --var name=value
 ## Compilation Status
 
 **Current blockers (pre-existing bugs):**
-- `/Users/sac/ggen/ggen-core/src/templates/frozen.rs:143` - Format string error
-- `/Users/sac/ggen/ggen-core/src/templates/frozen.rs:149` - Format string error
+- `./ggen-core/src/templates/frozen.rs:143` - Format string error
+- `./ggen-core/src/templates/frozen.rs:149` - Format string error
 
 **Agent 8 changes compile cleanly** when frozen.rs bugs are fixed.
 

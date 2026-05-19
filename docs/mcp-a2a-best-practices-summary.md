@@ -46,7 +46,7 @@ This document synthesizes comprehensive best practices for developing multi-agen
 - **Input:** agent_id, name, type, version, namespace, capabilities, tags
 - **Output:** agent_id, name, type, capabilities, status, registered_at
 - **Schema:** Follow existing patterns with `#[derive(Debug, Deserialize, schemars::JsonSchema)]`
-- **Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (after line 1191)
+- **Location:** `./crates/ggen-a2a-mcp/src/ggen_server.rs` (after line 1191)
 
 **Tool #2: `list_agents`**
 - **Purpose:** List all registered agents with filtering
@@ -81,7 +81,7 @@ pub struct GgenMcpServer {
 ```
 
 ### OTEL Instrumentation
-**New attributes (add to `/Users/sac/ggen/crates/ggen-a2a-mcp/src/lib.rs` after line 119):**
+**New attributes (add to `./crates/ggen-a2a-mcp/src/lib.rs` after line 119):**
 ```rust
 // Agent Lifecycle
 pub const AGENT_ID: &str = "agent.id";
@@ -698,26 +698,26 @@ impl SwarmCoordinatorBridge {
 ## Critical Files for Implementation
 
 ### MCP Tools
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` - Add 4 tools (lines 1191+)
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/lib.rs` - Add OTEL attributes (after line 119)
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/src/client.rs` - Reference A2aLlmClient methods
+- `./crates/ggen-a2a-mcp/src/ggen_server.rs` - Add 4 tools (lines 1191+)
+- `./crates/ggen-a2a-mcp/src/lib.rs` - Add OTEL attributes (after line 119)
+- `./crates/ggen-a2a-mcp/src/client.rs` - Reference A2aLlmClient methods
 
 ### A2A Templates
 - `templates/a2a-*.tera` - All 5 templates for multi-agent extension
-- `/Users/sac/ggen/crates/a2a-generated/src/converged/message.rs` - ConvergedMessage routing
+- `./crates/a2a-generated/src/converged/message.rs` - ConvergedMessage routing
 
 ### Orchestration
-- `/Users/sac/ggen/crates/ggen-ai/src/swarm/coordinator.rs` - SwarmCoordinator patterns
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/fibo_togaf_full_70_turn_e2e.rs` - 70-turn structure
+- `./crates/ggen-ai/src/swarm/coordinator.rs` - SwarmCoordinator patterns
+- `./crates/ggen-a2a-mcp/tests/fibo_togaf_full_70_turn_e2e.rs` - 70-turn structure
 
 ### Ontology
 - `.specify/specs/070-fibo-togaf-e2e/ontology/*.ttl` - Existing FIBO-TOGAF patterns
-- `/Users/sac/ggen/crates/ggen-core/queries/a2a/extract-a2a-full.rq` - SPARQL extraction
+- `./crates/ggen-core/queries/a2a/extract-a2a-full.rq` - SPARQL extraction
 
 ### Testing
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/common/mod.rs` - Shared test utilities
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/fibo_togaf_otel_validation.rs` - OTEL validation
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mcp_slo_timing.rs` - SLO validation
+- `./crates/ggen-a2a-mcp/tests/common/mod.rs` - Shared test utilities
+- `./crates/ggen-a2a-mcp/tests/fibo_togaf_otel_validation.rs` - OTEL validation
+- `./crates/ggen-a2a-mcp/tests/mcp_slo_timing.rs` - SLO validation
 
 ---
 

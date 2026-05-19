@@ -115,8 +115,8 @@ During testing, encountered OpenSSL build failures and corrupted artifact files.
 **Resolution Required:**
 ```bash
 # Clean build completely
-rm -rf /Users/sac/ggen/target
-cd /Users/sac/ggen/ggen-core
+rm -rf ./target
+cd ./ggen-core
 cargo build
 cargo test -- frozen
 cargo test -- business_logic
@@ -198,11 +198,11 @@ npx claude-flow@alpha hooks post-task --task-id "agent9-frozen"
 
 ## Files Created
 
-1. `/Users/sac/ggen/ggen-core/src/templates/frozen.rs` (305 lines)
-2. `/Users/sac/ggen/ggen-core/src/templates/business_logic.rs` (441 lines)
-3. Updated `/Users/sac/ggen/ggen-core/src/templates/mod.rs`
-4. Updated `/Users/sac/ggen/ggen-core/src/generator.rs`
-5. `/Users/sac/ggen/.claude/refactor-v2/agent9-frozen-sections.md` (this file)
+1. `./ggen-core/src/templates/frozen.rs` (305 lines)
+2. `./ggen-core/src/templates/business_logic.rs` (441 lines)
+3. Updated `./ggen-core/src/templates/mod.rs`
+4. Updated `./ggen-core/src/generator.rs`
+5. `./.claude/refactor-v2/agent9-frozen-sections.md` (this file)
 
 ## Next Steps for Integration
 

@@ -19,7 +19,7 @@ This security review identifies **3 CRITICAL** and **8 HIGH** priority vulnerabi
 ## 🔴 CRITICAL Vulnerabilities (Fix Immediately)
 
 ### 1. **Command Injection via Shell Execution**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:253-283`
+**File**: `./ggen-core/src/lifecycle/exec.rs:253-283`
 **Severity**: 🔴 **CRITICAL** (CVSS 9.8)
 **Impact**: Remote Code Execution (RCE)
 
@@ -70,7 +70,7 @@ ggen build  # Executes attacker's shell commands
 ---
 
 ### 2. **Path Traversal in Workspace Operations**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:136-180`
+**File**: `./ggen-core/src/lifecycle/exec.rs:136-180`
 **Severity**: 🔴 **CRITICAL** (CVSS 8.6)
 **Impact**: Arbitrary file read/write, privilege escalation
 
@@ -114,7 +114,7 @@ command = "cat passwd"  # Executed in /etc directory
 ---
 
 ### 3. **State File Injection (Persistent Backdoor)**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/state.rs:68-86`
+**File**: `./ggen-core/src/lifecycle/state.rs:68-86`
 **Severity**: 🔴 **CRITICAL** (CVSS 8.2)
 **Impact**: Persistent code execution, state tampering
 
@@ -152,7 +152,7 @@ ggen build  # Overwrites cron job!
 ## 🟠 HIGH Priority Issues (Fix Before Production)
 
 ### 4. **TOML Bomb / Resource Exhaustion**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/loader.rs:8-14`
+**File**: `./ggen-core/src/lifecycle/loader.rs:8-14`
 **Severity**: 🟠 **HIGH** (CVSS 7.5)
 **Impact**: Denial of Service
 
@@ -185,7 +185,7 @@ ggen build  # OOM crash
 ---
 
 ### 5. **Unbounded Parallel Execution**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:126-158`
+**File**: `./ggen-core/src/lifecycle/exec.rs:126-158`
 **Severity**: 🟠 **HIGH** (CVSS 7.3)
 **Impact**: Resource exhaustion, fork bomb
 
@@ -220,7 +220,7 @@ command = "echo 'spawn'"  # Spawns 10k processes
 ---
 
 ### 6. **Hook Recursion Stack Overflow**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:193-250`
+**File**: `./ggen-core/src/lifecycle/exec.rs:193-250`
 **Severity**: 🟠 **HIGH** (CVSS 7.1)
 **Impact**: Denial of Service, stack overflow
 
@@ -258,7 +258,7 @@ before_setup = ["init"]  # Loop: init -> setup -> init
 ---
 
 ### 7. **Error Message Information Disclosure**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/error.rs:37-52`
+**File**: `./ggen-core/src/lifecycle/error.rs:37-52`
 **Severity**: 🟠 **HIGH** (CVSS 6.8)
 **Impact**: Path disclosure, environment variable leakage
 
@@ -283,7 +283,7 @@ CommandFailed {
 ---
 
 ### 8. **Race Conditions in State Management**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/state.rs:68-86`
+**File**: `./ggen-core/src/lifecycle/state.rs:68-86`
 **Severity**: 🟠 **HIGH** (CVSS 6.5)
 **Impact**: State corruption, TOCTOU attacks
 
@@ -307,7 +307,7 @@ pub fn save_state<P: AsRef<Path>>(path: P, state: &LifecycleState) -> Result<()>
 ---
 
 ### 9. **Cache Poisoning**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/cache.rs:36-48`
+**File**: `./ggen-core/src/lifecycle/cache.rs:36-48`
 **Severity**: 🟠 **HIGH** (CVSS 6.3)
 **Impact**: Build integrity compromise
 
@@ -333,7 +333,7 @@ for input_path in inputs {
 ---
 
 ### 10. **Environment Variable Injection**
-**File**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:266-268`
+**File**: `./ggen-core/src/lifecycle/exec.rs:266-268`
 **Severity**: 🟠 **HIGH** (CVSS 6.2)
 **Impact**: Privilege escalation, PATH hijacking
 

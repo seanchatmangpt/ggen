@@ -33,7 +33,7 @@
 //! - E0029: Pre-flight check timeout
 
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 

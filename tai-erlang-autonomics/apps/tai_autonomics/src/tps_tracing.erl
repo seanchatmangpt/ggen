@@ -183,7 +183,7 @@ init([]) ->
     ExportRef = erlang:send_after(?BATCH_EXPORT_INTERVAL, self(), export_spans),
 
     %% Load sampling rate from config (default: 1.0 = 100%)
-    SamplingRate = application:get_env(ggen, tracing_sampling_rate, 1.0),
+    SamplingRate = application:get_env(mcpp, tracing_sampling_rate, 1.0),
 
     {ok, #state{
         traces_table = TracesTable,
@@ -513,9 +513,9 @@ send_to_jaeger_collector([]) ->
     ok;
 send_to_jaeger_collector(Spans) ->
     %% Get Jaeger configuration
-    JaegerHost = application:get_env(ggen, jaeger_host, "localhost"),
-    JaegerPort = application:get_env(ggen, jaeger_port, 6831),
-    JaegerEnabled = application:get_env(ggen, jaeger_enabled, false),
+    JaegerHost = application:get_env(mcpp, jaeger_host, "localhost"),
+    JaegerPort = application:get_env(mcpp, jaeger_port, 6831),
+    JaegerEnabled = application:get_env(mcpp, jaeger_enabled, false),
 
     case JaegerEnabled of
         true ->

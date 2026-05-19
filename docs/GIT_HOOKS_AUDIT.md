@@ -229,7 +229,7 @@ chmod +x "$HOOKS_DIR/pre-commit"
 ```
 .git/hooks/
 ├── pre-push → ../../scripts/pre-push-hook.sh ✅ ACTIVE
-├── pre-commit.bak → /Users/sac/ggen/scripts/pre-commit-hook.sh (NOT LINKED)
+├── pre-commit.bak → ./scripts/pre-commit-hook.sh (NOT LINKED)
 ├── [50+ .sample files] (default git hooks)
 └── [other sample hooks]
 ```

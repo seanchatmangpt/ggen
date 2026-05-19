@@ -108,13 +108,13 @@ assert.stdout_contains = "SUCCESS"
 If tests fail with "No such file or directory":
 - Ensure Docker has access to workspace directory
 - Use absolute paths for volume mounts
-- Check permissions: `ls -la /Users/sac/ggen`
+- Check permissions: `ls -la .`
 
 ### Build Failures
 
 If build step fails:
 - Check Rust image is available: `docker pull rust:1.90-slim`
-- Verify workspace is mounted: `docker run --rm -v /Users/sac/ggen:/workspace rust:1.90-slim ls /workspace`
+- Verify workspace is mounted: `docker run --rm -v .:/workspace rust:1.90-slim ls /workspace`
 
 ### Timeout Issues
 

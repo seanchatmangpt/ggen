@@ -118,7 +118,7 @@ This directory contains the comprehensive test suite for Phase 1 of the ggen v4.
 
 1. **Fix compilation errors** in the existing codebase:
    ```bash
-   cd /Users/sac/ggen/crates/ggen-core
+   cd ./crates/ggen-core
    cargo build
    ```
 

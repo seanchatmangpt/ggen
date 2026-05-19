@@ -457,9 +457,9 @@ The system is **production-ready for basic usage** but requires **dependency fix
 
 ### Clean Build (Release)
 ```
-   Compiling ggen-core v1.2.0 (/Users/sac/ggen/ggen-core)
-   Compiling ggen-cli-lib v1.2.0 (/Users/sac/ggen/cli)
-   Compiling ggen v1.2.0 (/Users/sac/ggen)
+   Compiling ggen-core v1.2.0 (./ggen-core)
+   Compiling ggen-cli-lib v1.2.0 (./cli)
+   Compiling ggen v1.2.0 (.)
     Finished `release` profile [optimized] target(s) in 26.81s
 
 warning: `ggen-core` (lib) generated 8 warnings
@@ -470,7 +470,7 @@ Total: 10 warnings, 0 errors
 
 ### Binary Details
 ```
-File: /Users/sac/ggen/target/release/ggen
+File: ./target/release/ggen
 Size: 24MB
 Permissions: -rwxr-xr-x@
 Version: ggen 1.2.0

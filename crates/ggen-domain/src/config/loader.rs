@@ -1,7 +1,7 @@
 //! Configuration loader for ggen.toml
 
 use super::validation::{ConfigValidator, ValidationResult};
-use ggen_utils::error::Error as DomainError;
+use ggen_core::utils::error::Error as DomainError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};

@@ -10,7 +10,7 @@ tags = ["erp", "accounting", "finance", "double-entry", "financial-statements"]
 [ontology]
 main = "ontology/erp.ttl"
 namespaces = [
-    { prefix = "erp", uri = "http://ggen.io/ontology/erp#" }
+    { prefix = "erp", uri = "http://mcpp.io/ontology/erp#" }
 ]
 
 [sparql]

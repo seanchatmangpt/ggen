@@ -1,6 +1,6 @@
 # ggen Self-Play Validation Framework - Quick Reference
 
-**Main Report:** `/Users/sac/ggen/GGEN_SELF_PLAY_VALIDATION_REPORT.md` (953 lines, 39KB)
+**Main Report:** `./GGEN_SELF_PLAY_VALIDATION_REPORT.md` (953 lines, 39KB)
 
 ---
 
@@ -244,7 +244,7 @@ cargo test -p ggen-core --test performance_regression
 
 **Test execution:**
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo test -p ggen-a2a-mcp --test groq_integration_test -- --nocapture
 ```
 

@@ -44,7 +44,7 @@
    - Unused import `thiserror::Error` in `crates/ggen-marketplace/src/error.rs` after switching to `#[derive(Error)]`.
 
 ## Evidence
-- Full build log (latest failure): `/Users/sac/.cursor/projects/Users-sac-ggen/agent-tools/50d056ce-1049-4907-8aa9-4ee4f5f52489.txt`
+- Full build log (latest failure): `~/.ggen/.cursor/projects/Users-sac-ggen/agent-tools/50d056ce-1049-4907-8aa9-4ee4f5f52489.txt`
 - Representative error: `the trait From<std::io::Error> is not implemented for AuditError` (multiple sites listed above).
 
 ## Proposed minimal fix for `ggen-test-audit`

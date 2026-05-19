@@ -74,7 +74,7 @@ brew install seanchatmangpt/ggen/ggen
 ==> Upgrading 1 outdated package:
 seanchatmangpt/ggen/ggen 4.0.0 -> 5.0.2
 ==> Downloading https://github.com/seanchatmangpt/ggen/releases/download/v5.0.2/ggen-5.0.2-aarch64-apple-darwin.tar.gz
-Already downloaded: /Users/sac/Library/Caches/Homebrew/downloads/...(SHA256)
+Already downloaded: ~/.ggen/Library/Caches/Homebrew/downloads/...(SHA256)
 🍺  /opt/homebrew/Cellar/ggen/5.0.2: 4 files, 12.5MB, built in 1 second
 ```
 
@@ -116,7 +116,7 @@ Already downloaded: /Users/sac/Library/Caches/Homebrew/downloads/...(SHA256)
 
 #### Option 1: Using Automated Script (Recommended)
 ```bash
-cd /Users/sac/ggen
+cd .
 ./scripts/deploy-docker.sh
 ```
 
@@ -202,7 +202,7 @@ f729c01a docs(thesis): Add generated PhD thesis PDF (43 pages)
 
 **When Docker daemon is available**, run:
 ```bash
-cd /Users/sac/ggen
+cd .
 ./scripts/deploy-docker.sh
 ```
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents through root cause analysis using the 5 Whys technique for ggen issues. Root cause analysis finds the underlying cause of problems, not just symptoms. Experts dig deeper to find root causes rather than fixing symptoms.
+This command guides agents through root cause analysis using the 5 Whys technique for mcpp issues. Root cause analysis finds the underlying cause of problems, not just symptoms. Experts dig deeper to find root causes rather than fixing symptoms.
 
 ## Workflow Overview
 
@@ -21,7 +21,7 @@ Step 1: Define the Problem (with Measurement) → Step 2: Ask Why #1 → Step 3:
 ## Problem Definition
 
 **What**: Template generation produces non-deterministic output
-**Where**: `crates/ggen-core/src/templates/generator.rs` - `generate()`
+**Where**: `crates/mcpp-core/src/templates/generator.rs` - `generate()`
 **When**: Approximately 10% of generations, more frequent with large templates
 **Impact**: Violates determinism requirement, breaks reproducibility
 ```
@@ -329,14 +329,14 @@ impl TemplateContext {
 ```markdown
 ## Problem Definition
 
-**What**: ggen meets quality targets but is inefficient, causing delays
+**What**: mcpp meets quality targets but is inefficient, causing delays
 **Where**: All code generation workflows
 **When**: Since initial design phase
 **Impact**: Wasted resources, delayed delivery, customer dissatisfaction
 
 ## 5 Whys Analysis
 
-**Why #1**: Why is ggen inefficient?
+**Why #1**: Why is mcpp inefficient?
 **Answer**: Waste was built into the design (unnecessary steps, redundant processes)
 
 **Why #2**: Why was waste built into the design?

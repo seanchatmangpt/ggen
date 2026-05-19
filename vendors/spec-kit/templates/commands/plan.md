@@ -92,12 +92,12 @@ You **MUST** consider the user input before proceeding (if not empty).
 ### Phase 2: Generate Markdown Artifacts from TTL Sources
 
 1. **Generate plan artifacts from TTL sources**:
-   - After creating TTL planning files (plan.ttl, plan-decision.ttl, assumption.ttl), run `ggen sync` to generate markdown:
+   - After creating TTL planning files (plan.ttl, plan-decision.ttl, assumption.ttl), run `mcpp sync` to generate markdown:
      ```bash
      cd FEATURE_DIR
-     ggen sync
+     mcpp sync
      ```
-   - This will read `ggen.toml` configuration and generate `generated/plan.md` from `ontology/plan.ttl` and related TTL files
+   - This will read `mcpp.toml` configuration and generate `generated/plan.md` from `ontology/plan.ttl` and related TTL files
    - Verify the generated markdown file exists and is properly formatted
 
 2. **Report completion with**:
@@ -107,7 +107,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Research findings and design artifacts
    - Readiness for next phase (`/speckit.tasks`)
 
-**NOTE:** The TTL files are the source of truth; markdown is generated via `ggen sync`.
+**NOTE:** The TTL files are the source of truth; markdown is generated via `mcpp sync`.
 
 ## Key rules
 

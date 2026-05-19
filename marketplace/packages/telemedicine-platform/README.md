@@ -15,13 +15,13 @@ Comprehensive telemedicine platform with video conferencing, appointment schedul
 
 ```bash
 # Rust
-cargo add ggen-telemedicine-platform
+cargo add mcpp-telemedicine-platform
 
 # TypeScript/Node.js
-npm install @ggen/telemedicine-platform
+npm install @mcpp/telemedicine-platform
 
 # Python
-pip install ggen-telemedicine-platform
+pip install mcpp-telemedicine-platform
 ```
 
 ## Quick Start
@@ -29,7 +29,7 @@ pip install ggen-telemedicine-platform
 ### Rust
 
 ```rust
-use ggen_telemedicine_platform::*;
+use mcpp_telemedicine_platform::*;
 
 let mut platform = TelemedicinePlatform::new();
 let consultation = platform.create_consultation(
@@ -45,7 +45,7 @@ platform.start_consultation("CONS-001")?;
 ### TypeScript
 
 ```typescript
-import { TelemedicinePlatform, ConsultationType } from '@ggen/telemedicine-platform';
+import { TelemedicinePlatform, ConsultationType } from '@mcpp/telemedicine-platform';
 
 const platform = new TelemedicinePlatform();
 const consultation = platform.createConsultation(
@@ -61,7 +61,7 @@ platform.startConsultation('CONS-001');
 ### Python
 
 ```python
-from ggen_telemedicine_platform import TelemedicinePlatform, ConsultationType
+from mcpp_telemedicine_platform import TelemedicinePlatform, ConsultationType
 
 platform = TelemedicinePlatform()
 consultation = platform.create_consultation(

@@ -165,9 +165,9 @@ dflss/
 
 ## 🔗 Related Documents
 
-- **Feature Spec**: `/Users/sac/ggen/specs/004-optimize-test-concurrency/spec.md`
-- **Plan**: `/Users/sac/ggen/specs/004-optimize-test-concurrency/plan.md`
-- **Tasks**: `/Users/sac/ggen/specs/004-optimize-test-concurrency/tasks.md`
+- **Feature Spec**: `./specs/004-optimize-test-concurrency/spec.md`
+- **Plan**: `./specs/004-optimize-test-concurrency/plan.md`
+- **Tasks**: `./specs/004-optimize-test-concurrency/tasks.md`
 
 ---
 

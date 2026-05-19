@@ -18,9 +18,9 @@ NC='\033[0m' # No Color
 # Quick Win 1: Lazy RDF Loading
 echo -e "${BLUE}Quick Win 1: Lazy RDF Loading${NC}"
 echo "Checking template.rs for early return optimization..."
-if grep -q "QUICK WIN 1: Early return if no RDF/SPARQL content" crates/ggen-core/src/template.rs; then
+if grep -q "QUICK WIN 1: Early return if no RDF/SPARQL content" crates/mcpp-core/src/template.rs; then
     echo -e "${GREEN}✅ Lazy RDF loading implemented${NC}"
-    grep -A 5 "QUICK WIN 1: Early return" crates/ggen-core/src/template.rs | head -7
+    grep -A 5 "QUICK WIN 1: Early return" crates/mcpp-core/src/template.rs | head -7
 else
     echo "❌ Lazy RDF loading NOT found"
     exit 1
@@ -30,11 +30,11 @@ echo ""
 # Quick Win 2: Parallel Template Generation
 echo -e "${BLUE}Quick Win 2: Parallel Template Generation${NC}"
 echo "Checking for parallel_generator.rs..."
-if [ -f "crates/ggen-core/src/parallel_generator.rs" ]; then
+if [ -f "crates/mcpp-core/src/parallel_generator.rs" ]; then
     echo -e "${GREEN}✅ Parallel generator module created${NC}"
-    echo "File size: $(wc -l < crates/ggen-core/src/parallel_generator.rs) lines"
+    echo "File size: $(wc -l < crates/mcpp-core/src/parallel_generator.rs) lines"
     echo "Checking for Rayon usage..."
-    if grep -q "use rayon::prelude::\*;" crates/ggen-core/src/parallel_generator.rs; then
+    if grep -q "use rayon::prelude::\*;" crates/mcpp-core/src/parallel_generator.rs; then
         echo -e "${GREEN}✅ Rayon parallel processing enabled${NC}"
     fi
 else
@@ -46,7 +46,7 @@ echo ""
 # Quick Win 3: Cache Improvements
 echo -e "${BLUE}Quick Win 3: Cache Improvements${NC}"
 echo "Checking cache capacity increase..."
-if grep -q "Self::new(5000)" crates/ggen-core/src/template_cache.rs; then
+if grep -q "Self::new(5000)" crates/mcpp-core/src/template_cache.rs; then
     echo -e "${GREEN}✅ Cache capacity increased to 5000 (was 100)${NC}"
 else
     echo "❌ Cache capacity NOT increased"
@@ -54,7 +54,7 @@ else
 fi
 
 echo "Checking hit/miss tracking..."
-if grep -q "hits: Arc<Mutex<u64>>" crates/ggen-core/src/template_cache.rs; then
+if grep -q "hits: Arc<Mutex<u64>>" crates/mcpp-core/src/template_cache.rs; then
     echo -e "${GREEN}✅ Hit/miss tracking implemented${NC}"
 else
     echo "❌ Hit/miss tracking NOT found"
@@ -62,7 +62,7 @@ else
 fi
 
 echo "Checking cache warming API..."
-if grep -q "pub fn warm" crates/ggen-core/src/template_cache.rs; then
+if grep -q "pub fn warm" crates/mcpp-core/src/template_cache.rs; then
     echo -e "${GREEN}✅ Cache warming API available${NC}"
 else
     echo "❌ Cache warming NOT found"
@@ -73,20 +73,20 @@ echo ""
 # Test Results
 echo -e "${BLUE}Running Tests${NC}"
 echo "Testing template module..."
-cargo test -p ggen-core --lib template --quiet 2>&1 | tail -1
+cargo test -p mcpp-core --lib template --quiet 2>&1 | tail -1
 
 echo "Testing template_cache module..."
-cargo test -p ggen-core --lib template_cache --quiet 2>&1 | tail -1
+cargo test -p mcpp-core --lib template_cache --quiet 2>&1 | tail -1
 
 echo "Testing parallel_generator module..."
-cargo test -p ggen-core --lib parallel_generator --quiet 2>&1 | tail -1
+cargo test -p mcpp-core --lib parallel_generator --quiet 2>&1 | tail -1
 echo ""
 
 # Benchmark Available
 echo -e "${BLUE}Benchmark Availability${NC}"
-if [ -f "crates/ggen-core/benches/quick_wins_benchmark.rs" ]; then
+if [ -f "crates/mcpp-core/benches/quick_wins_benchmark.rs" ]; then
     echo -e "${GREEN}✅ Performance benchmarks available${NC}"
-    echo "Run with: cargo bench -p ggen-core --bench quick_wins_benchmark"
+    echo "Run with: cargo bench -p mcpp-core --bench quick_wins_benchmark"
 else
     echo "❌ Benchmarks NOT found"
     exit 1

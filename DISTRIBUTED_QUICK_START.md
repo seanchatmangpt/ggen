@@ -2,7 +2,7 @@
 
 ## Files Created
 
-All files located in `/Users/sac/ggen/crates/osiris-tps/src/distributed/`:
+All files located in `./crates/osiris-tps/src/distributed/`:
 
 ### Core Modules
 - **circuit_breaker.rs** (340 lines) - Prevent cascading failures
@@ -164,7 +164,7 @@ test result: ok. 22 passed; 0 failed; 4 ignored
 
 Run tests:
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo test -p osiris-tps --lib distributed
 ```
 
@@ -272,7 +272,7 @@ println!("Queued messages: {}", status.queued_messages);
 
 ## Next Steps
 
-1. Read `/Users/sac/ggen/crates/osiris-tps/src/distributed/RESILIENCE.md` for comprehensive guide
+1. Read `./crates/osiris-tps/src/distributed/RESILIENCE.md` for comprehensive guide
 2. Run tests: `cargo test -p osiris-tps --lib distributed`
 3. Integrate with A2A-MCP client
 4. Monitor with `client.get_status()`

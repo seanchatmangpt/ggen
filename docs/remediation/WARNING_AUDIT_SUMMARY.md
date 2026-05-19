@@ -401,19 +401,19 @@ let vec = vec![item1, item2];
 ### Documentation Created
 
 1. **Full Analysis** (15KB)
-   - `/Users/sac/ggen/docs/remediation/warning-elimination-plan.md`
+   - `./docs/remediation/warning-elimination-plan.md`
    - Comprehensive file-by-file breakdown
    - Migration guides for each pattern
    - Timeline and risk assessment
 
 2. **Quick Fix Guide** (7KB)
-   - `/Users/sac/ggen/docs/remediation/QUICK_FIX_GUIDE.md`
+   - `./docs/remediation/QUICK_FIX_GUIDE.md`
    - Step-by-step remediation instructions
    - Code snippets for each fix
    - Troubleshooting guide
 
 3. **This Summary** (Current file)
-   - `/Users/sac/ggen/docs/remediation/WARNING_AUDIT_SUMMARY.md`
+   - `./docs/remediation/WARNING_AUDIT_SUMMARY.md`
    - Executive overview
    - Key findings and recommendations
 
@@ -507,7 +507,7 @@ let vec = vec![item1, item2];
 
 ### For Developer
 
-1. Review `/Users/sac/ggen/docs/remediation/QUICK_FIX_GUIDE.md`
+1. Review `./docs/remediation/QUICK_FIX_GUIDE.md`
 2. Execute auto-fix phase
 3. Manually fix remaining issues
 4. Verify all tests pass
@@ -580,13 +580,13 @@ Analysis complete and stored:
 
 ## Quick Reference
 
-**Start here:** `/Users/sac/ggen/docs/remediation/QUICK_FIX_GUIDE.md`
-**Full details:** `/Users/sac/ggen/docs/remediation/warning-elimination-plan.md`
-**This summary:** `/Users/sac/ggen/docs/remediation/WARNING_AUDIT_SUMMARY.md`
+**Start here:** `./docs/remediation/QUICK_FIX_GUIDE.md`
+**Full details:** `./docs/remediation/warning-elimination-plan.md`
+**This summary:** `./docs/remediation/WARNING_AUDIT_SUMMARY.md`
 
 **Command to begin:**
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo clippy --fix --all-targets --all-features --allow-dirty
 ```
 

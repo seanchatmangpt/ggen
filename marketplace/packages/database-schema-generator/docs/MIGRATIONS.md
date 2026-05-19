@@ -272,22 +272,22 @@ done
 
 ```bash
 # Generate migration from RDF changes
-ggen migrate generate \
+mcpp migrate generate \
   --from ontology/old_schema.ttl \
   --to ontology/new_schema.ttl \
   --output migrations/0007_schema_changes
 
 # Apply migrations
-ggen migrate up --database postgresql
+mcpp migrate up --database postgresql
 
 # Rollback last migration
-ggen migrate down --database postgresql --steps 1
+mcpp migrate down --database postgresql --steps 1
 
 # Rollback to specific version
-ggen migrate down --database postgresql --to 0003
+mcpp migrate down --database postgresql --to 0003
 
 # Check migration status
-ggen migrate status
+mcpp migrate status
 ```
 
 ## Best Practices

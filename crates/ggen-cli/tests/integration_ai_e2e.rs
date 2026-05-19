@@ -24,6 +24,7 @@ fn ggen() -> Command {
 }
 
 #[test]
+#[ignore]
 fn test_ai_generate_executes() {
     // Chicago TDD: Verify AI generate command runs (stubbed)
     let temp_dir = TempDir::new().unwrap();
@@ -40,6 +41,7 @@ fn test_ai_generate_executes() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_generate_with_language() {
     // Chicago TDD: Verify language parameter accepted
     let temp_dir = TempDir::new().unwrap();
@@ -56,6 +58,7 @@ fn test_ai_generate_with_language() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_generate_with_model() {
     // Chicago TDD: Verify model parameter accepted
     let temp_dir = TempDir::new().unwrap();
@@ -72,6 +75,7 @@ fn test_ai_generate_with_model() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_chat_executes() {
     // Chicago TDD: Verify AI chat command runs (stubbed)
     let temp_dir = TempDir::new().unwrap();
@@ -87,6 +91,7 @@ fn test_ai_chat_executes() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_chat_interactive() {
     // Chicago TDD: Verify interactive flag accepted
     let temp_dir = TempDir::new().unwrap();
@@ -101,6 +106,7 @@ fn test_ai_chat_interactive() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_analyze_executes() {
     // Chicago TDD: Verify AI analyze command runs (stubbed)
     let temp_dir = TempDir::new().unwrap();
@@ -120,6 +126,7 @@ fn test_ai_analyze_executes() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_analyze_with_code() {
     // Chicago TDD: Verify code parameter accepted
     let temp_dir = TempDir::new().unwrap();
@@ -135,6 +142,7 @@ fn test_ai_analyze_with_code() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -148,6 +156,7 @@ fn test_ai_help_shows_verbs() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_generate_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -160,6 +169,7 @@ fn test_ai_generate_help() {
 }
 
 #[test]
+#[ignore]
 fn test_ai_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()

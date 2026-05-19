@@ -20,7 +20,7 @@
          terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(TABLE_NAME, ggen_receipts).
+-define(TABLE_NAME, mcpp_receipts).
 -define(PERSISTENCE_DIR, "data/receipts").
 
 -record(state, {

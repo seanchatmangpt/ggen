@@ -1,6 +1,6 @@
 # Spec-Kit Testcontainer Validation
 
-This directory contains testcontainer-based integration tests that validate the ggen v6 RDF-first workflow.
+This directory contains testcontainer-based integration tests that validate the mcpp v6 RDF-first workflow.
 
 ## What is Tested
 
@@ -15,9 +15,9 @@ The tests verify the fundamental principle of RDF-first architecture:
 
 ### Test Coverage
 
-1. **test_ggen_sync_generates_markdown**: Verifies `ggen sync` produces expected markdown from TTL sources
-2. **test_ggen_sync_idempotence**: Verifies μ∘μ = μ (running twice produces identical output)
-3. **test_ggen_validates_ttl_syntax**: Verifies invalid TTL is rejected
+1. **test_mcpp_sync_generates_markdown**: Verifies `mcpp sync` produces expected markdown from TTL sources
+2. **test_mcpp_sync_idempotence**: Verifies μ∘μ = μ (running twice produces identical output)
+3. **test_mcpp_validates_ttl_syntax**: Verifies invalid TTL is rejected
 4. **test_constitutional_equation_verification**: Verifies deterministic transformation with hash verification
 
 ## Prerequisites
@@ -68,7 +68,7 @@ pytest tests/integration/ -v -s
 ### Run Specific Test
 
 ```bash
-pytest tests/integration/test_ggen_sync.py::test_ggen_sync_generates_markdown -v -s
+pytest tests/integration/test_mcpp_sync.py::test_mcpp_sync_generates_markdown -v -s
 ```
 
 ### Skip Slow Tests
@@ -83,18 +83,18 @@ pytest tests/ -m "not integration"
 
 1. **Container Spin-up**:
    - Uses official `rust:latest` Docker image
-   - Installs ggen from source (`https://github.com/seanchatmangpt/ggen.git`)
-   - Verifies installation with `ggen --version`
+   - Installs mcpp from source (`https://github.com/seanchatmangpt/mcpp.git`)
+   - Verifies installation with `mcpp --version`
 
 2. **Test Fixtures**:
    - `fixtures/feature-content.ttl` - Sample RDF feature specification
-   - `fixtures/ggen.toml` - ggen configuration with SPARQL query and template
+   - `fixtures/mcpp.toml` - mcpp configuration with SPARQL query and template
    - `fixtures/spec.tera` - Tera template for markdown generation
    - `fixtures/expected-spec.md` - Expected output for validation
 
 3. **Test Execution**:
    - Copies fixtures into container workspace
-   - Runs `ggen sync` inside container
+   - Runs `mcpp sync` inside container
    - Validates generated markdown matches expected output
    - Verifies idempotence and determinism
 
@@ -127,19 +127,19 @@ open -a Docker
 sudo systemctl start docker
 ```
 
-### ggen Installation Fails
+### mcpp Installation Fails
 
 ```
-Error: Failed to install ggen
+Error: Failed to install mcpp
 ```
 
-**Solution**: Check Rust/Cargo version in container, verify git access to ggen repo.
+**Solution**: Check Rust/Cargo version in container, verify git access to mcpp repo.
 
 ### Tests Take Too Long
 
-Integration tests pull Docker images and compile Rust code (ggen installation).
+Integration tests pull Docker images and compile Rust code (mcpp installation).
 
-**First run**: ~5-10 minutes (downloads Rust image, compiles ggen)
+**First run**: ~5-10 minutes (downloads Rust image, compiles mcpp)
 **Subsequent runs**: ~1-2 minutes (uses cached container layers)
 
 **Speed up**:
@@ -150,7 +150,7 @@ docker pull rust:latest
 
 ### Output Doesn't Match Expected
 
-The test compares generated markdown with `expected-spec.md`. If ggen output format changes:
+The test compares generated markdown with `expected-spec.md`. If mcpp output format changes:
 
 1. Review generated output in test logs
 2. Update `fixtures/expected-spec.md` to match new format
@@ -204,10 +204,10 @@ from testcontainers.core.container import DockerContainer
 
 @pytest.mark.integration
 @pytest.mark.requires_docker
-def test_new_ggen_feature(ggen_container):
+def test_new_mcpp_feature(mcpp_container):
     """Test description."""
-    # Use ggen_container fixture from conftest
-    exit_code, output = ggen_container.exec(["ggen", "your-command"])
+    # Use mcpp_container fixture from conftest
+    exit_code, output = mcpp_container.exec(["mcpp", "your-command"])
     assert exit_code == 0
 ```
 
@@ -215,7 +215,7 @@ def test_new_ggen_feature(ggen_container):
 
 1. Add TTL files to `tests/integration/fixtures/`
 2. Add corresponding templates and expected outputs
-3. Update `ggen.toml` if needed for new SPARQL queries
+3. Update `mcpp.toml` if needed for new SPARQL queries
 
 ## Coverage Goals
 
@@ -226,7 +226,7 @@ def test_new_ggen_feature(ggen_container):
 ## References
 
 - [Testcontainers Python Docs](https://testcontainers-python.readthedocs.io/)
-- [ggen Documentation](https://github.com/seanchatmangpt/ggen)
+- [mcpp Documentation](https://github.com/seanchatmangpt/mcpp)
 - [RDF Workflow Guide](../docs/RDF_WORKFLOW_GUIDE.md)
 - [SPARQL 1.1 Query Language](https://www.w3.org/TR/sparql11-query/)
 - [Tera Template Engine](https://keats.github.io/tera/)

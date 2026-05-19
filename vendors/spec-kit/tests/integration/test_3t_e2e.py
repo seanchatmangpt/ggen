@@ -1,15 +1,15 @@
 """
 Testcontainers E2E Test for 3T Workflow (TOML + Tera + Turtle)
 
-Tests the complete ggen v6 RDF-first code generation workflow as described in:
-/Users/sac/ggen/specs/013-ggen-v6-rdf-system/README.md
+Tests the complete mcpp v6 RDF-first code generation workflow as described in:
+~/./mcpp/specs/013-mcpp-v6-rdf-system/README.md
 
 Constitutional Equation: code = μ(spec.ttl)
 Idempotence: μ∘μ = μ (running twice produces zero changes)
 
 The test validates:
 1. 3T Files Present (TOML, Tera, Turtle)
-2. ggen sync Execution
+2. mcpp sync Execution
 3. Idempotence (μ∘μ = μ)
 4. Determinism (same input → same output)
 5. Cryptographic Provenance (SHA-256 receipts)
@@ -24,17 +24,17 @@ from testcontainers.core.container import DockerContainer
 
 
 @pytest.fixture(scope="module")
-def ggen_container():
+def mcpp_container():
     """
-    Spin up a Rust container with ggen v6 installed (when available).
+    Spin up a Rust container with mcpp v6 installed (when available).
 
     For now, this will verify the 3T structure and TTL parsing.
-    Once ggen v6 is implemented, it will test the full workflow.
+    Once mcpp v6 is implemented, it will test the full workflow.
     """
     # Calculate path to 013 spec directory
-    # Test file is in: /Users/sac/ggen/vendors/spec-kit/tests/integration/
-    # Need to go to: /Users/sac/ggen/specs/013-ggen-v6-rdf-system/
-    spec_dir = Path(__file__).parent.parent.parent.parent.parent / "specs/013-ggen-v6-rdf-system"
+    # Test file is in: ~/./mcpp/vendors/spec-kit/tests/integration/
+    # Need to go to: ~/./mcpp/specs/013-mcpp-v6-rdf-system/
+    spec_dir = Path(__file__).parent.parent.parent.parent.parent / "specs/013-mcpp-v6-rdf-system"
 
     if not spec_dir.exists():
         raise RuntimeError(f"Spec directory not found: {spec_dir}")
@@ -63,23 +63,23 @@ def ggen_container():
             container.stop()
             raise RuntimeError(f"Failed to install dependencies: {output.decode()}")
 
-    # Note: ggen v6 is not yet implemented. This test validates the 3T substrate.
-    # Once ggen v6 is implemented, the test will automatically expand to validate
-    # the full workflow (ggen sync, idempotence, determinism, provenance)
+    # Note: mcpp v6 is not yet implemented. This test validates the 3T substrate.
+    # Once mcpp v6 is implemented, the test will automatically expand to validate
+    # the full workflow (mcpp sync, idempotence, determinism, provenance)
 
     yield container
 
     container.stop()
 
 
-def test_3t_workflow_complete(ggen_container):
+def test_3t_workflow_complete(mcpp_container):
     """
     Test the complete 3T workflow as described in README.md
 
     Validates:
     1. 3T files present (TOML, Tera, Turtle)
     2. TTL syntax valid
-    3. ggen sync execution (if ggen v6 available)
+    3. mcpp sync execution (if mcpp v6 available)
     4. Idempotence (μ∘μ = μ)
     5. Determinism
     6. Cryptographic provenance
@@ -96,16 +96,16 @@ def test_3t_workflow_complete(ggen_container):
     print("="*80)
 
     # Check TOML (configuration)
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
-        "test -f /workspace/ggen.toml && echo 'TOML:FOUND' || echo 'TOML:MISSING'"
+        "test -f /workspace/mcpp.toml && echo 'TOML:FOUND' || echo 'TOML:MISSING'"
     ])
     assert exit_code == 0
-    assert b"TOML:FOUND" in output, "ggen.toml not found (TOML component missing)"
-    print("✓ TOML: ggen.toml found")
+    assert b"TOML:FOUND" in output, "mcpp.toml not found (TOML component missing)"
+    print("✓ TOML: mcpp.toml found")
 
     # Check Tera (templates)
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
         "test -d /workspace/templates && ls /workspace/templates/*.tera 2>&1"
     ])
@@ -113,7 +113,7 @@ def test_3t_workflow_complete(ggen_container):
     print(f"✓ Tera: templates found - {output.decode().strip()}")
 
     # Check Turtle (RDF ontology)
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
         "test -f /workspace/ontology/feature-content.ttl && test -f /workspace/ontology/mvp-80-20.ttl && echo 'TTL:FOUND' || echo 'TTL:MISSING'"
     ])
@@ -151,7 +151,7 @@ except Exception as e:
     sys.exit(1)
 """
 
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "python3", "-c", validate_ttl
     ])
 
@@ -163,24 +163,24 @@ except Exception as e:
     assert "triples" in output_text, "Could not count RDF triples"
 
     # ========================================================================
-    # STEP 3: Validate project readiness for ggen v6
+    # STEP 3: Validate project readiness for mcpp v6
     # ========================================================================
     print("\n" + "="*80)
-    print("STEP 3: Validating ggen v6 readiness")
+    print("STEP 3: Validating mcpp v6 readiness")
     print("="*80)
 
     print("✓ 3T substrate complete:")
-    print("  - TOML: ggen.toml with v6 configuration")
+    print("  - TOML: mcpp.toml with v6 configuration")
     print("  - Tera: templates/spec.tera")
     print("  - Turtle: 430 valid RDF triples")
     print("")
-    print("⚠ ggen v6 not yet implemented (THIS is what we're specifying)")
+    print("⚠ mcpp v6 not yet implemented (THIS is what we're specifying)")
     print("")
     print("Current status: 3T structure validated and ready")
     print("")
-    print("Once ggen v6 is implemented (8-day MVP from 80-20-PLAN.md),")
+    print("Once mcpp v6 is implemented (8-day MVP from 80-20-PLAN.md),")
     print("this test will automatically expand to validate:")
-    print("  1. ggen sync execution (μ₁→μ₂→μ₃→μ₄→μ₅)")
+    print("  1. mcpp sync execution (μ₁→μ₂→μ₃→μ₄→μ₅)")
     print("  2. Idempotence (μ∘μ = μ)")
     print("  3. Determinism (same input → same output)")
     print("  4. Cryptographic provenance (SHA-256 receipts)")
@@ -189,35 +189,35 @@ except Exception as e:
     # Test passes - 3T substrate validated
     return
 
-    # Check if ggen has sync command
-    exit_code, output = ggen_container.exec(["ggen", "help"])
+    # Check if mcpp has sync command
+    exit_code, output = mcpp_container.exec(["mcpp", "help"])
     has_sync = b"sync" in output
 
     if not has_sync:
-        print(f"⚠ ggen found but no 'sync' command (version: {output.decode()[:50]})")
+        print(f"⚠ mcpp found but no 'sync' command (version: {output.decode()[:50]})")
         print("✓ Test passes: 3T structure validated")
         return
 
-    print(f"✓ ggen v6 with sync command found: {output.decode().strip()}")
+    print(f"✓ mcpp v6 with sync command found: {output.decode().strip()}")
 
     # ========================================================================
-    # STEP 4: Run ggen sync (First Execution)
+    # STEP 4: Run mcpp sync (First Execution)
     # ========================================================================
     print("\n" + "="*80)
-    print("STEP 4: Running ggen sync (first execution)")
+    print("STEP 4: Running mcpp sync (first execution)")
     print("="*80)
 
     # Copy workspace to writable directory
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
         "mkdir -p /test && cp -r /workspace/* /test/"
     ])
     assert exit_code == 0, "Failed to setup test directory"
 
-    # Run ggen sync
-    exit_code, output = ggen_container.exec([
+    # Run mcpp sync
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
-        "cd /test && ggen sync 2>&1"
+        "cd /test && mcpp sync 2>&1"
     ])
 
     sync_output = output.decode()
@@ -226,13 +226,13 @@ except Exception as e:
     # Check if generation succeeded or if we need to skip remaining tests
     if exit_code != 0:
         if "not implemented" in sync_output.lower() or "unknown" in sync_output.lower():
-            print("⚠ ggen sync not fully implemented yet")
+            print("⚠ mcpp sync not fully implemented yet")
             print("✓ Test passes: 3T structure validated")
             return
         else:
-            pytest.fail(f"ggen sync failed: {sync_output}")
+            pytest.fail(f"mcpp sync failed: {sync_output}")
 
-    print("✓ ggen sync completed successfully")
+    print("✓ mcpp sync completed successfully")
 
     # ========================================================================
     # STEP 5: Verify Generated Files
@@ -242,18 +242,18 @@ except Exception as e:
     print("="*80)
 
     # Check if spec.md was generated
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
         "test -f /test/generated/spec.md && echo 'FOUND' || echo 'MISSING'"
     ])
 
     if b"MISSING" in output:
-        pytest.fail("generated/spec.md was not created by ggen sync")
+        pytest.fail("generated/spec.md was not created by mcpp sync")
 
     print("✓ generated/spec.md created")
 
     # Read generated spec
-    exit_code, spec_content = ggen_container.exec([
+    exit_code, spec_content = mcpp_container.exec([
         "cat", "/test/generated/spec.md"
     ])
     spec_md_1 = spec_content.decode()
@@ -269,17 +269,17 @@ except Exception as e:
     print("STEP 6: Testing Idempotence (μ∘μ = μ)")
     print("="*80)
 
-    # Run ggen sync again
-    exit_code, output = ggen_container.exec([
+    # Run mcpp sync again
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
-        "cd /test && ggen sync 2>&1"
+        "cd /test && mcpp sync 2>&1"
     ])
 
-    assert exit_code == 0, f"Second ggen sync failed: {output.decode()}"
-    print("✓ Second ggen sync completed")
+    assert exit_code == 0, f"Second mcpp sync failed: {output.decode()}"
+    print("✓ Second mcpp sync completed")
 
     # Read generated spec again
-    exit_code, spec_content_2 = ggen_container.exec([
+    exit_code, spec_content_2 = mcpp_container.exec([
         "cat", "/test/generated/spec.md"
     ])
     spec_md_2 = spec_content_2.decode()
@@ -295,7 +295,7 @@ except Exception as e:
     print("✅ Idempotence verified: μ∘μ = μ")
 
     # Check git status for changes (should be none)
-    exit_code, output = ggen_container.exec([
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
         "cd /test && git init && git add -A && git status --porcelain generated/ 2>&1 || true"
     ])
@@ -314,23 +314,23 @@ except Exception as e:
     print("="*80)
 
     # Create fresh test directory
-    exit_code, _ = ggen_container.exec([
+    exit_code, _ = mcpp_container.exec([
         "sh", "-c",
         "rm -rf /test2 && mkdir -p /test2 && cp -r /workspace/* /test2/"
     ])
     assert exit_code == 0, "Failed to setup second test directory"
 
-    # Run ggen sync in clean environment
-    exit_code, output = ggen_container.exec([
+    # Run mcpp sync in clean environment
+    exit_code, output = mcpp_container.exec([
         "sh", "-c",
-        "cd /test2 && ggen sync 2>&1"
+        "cd /test2 && mcpp sync 2>&1"
     ])
 
-    assert exit_code == 0, f"ggen sync in clean env failed: {output.decode()}"
-    print("✓ ggen sync in clean environment completed")
+    assert exit_code == 0, f"mcpp sync in clean env failed: {output.decode()}"
+    print("✓ mcpp sync in clean environment completed")
 
     # Read output
-    exit_code, spec_content_3 = ggen_container.exec([
+    exit_code, spec_content_3 = mcpp_container.exec([
         "cat", "/test2/generated/spec.md"
     ])
     spec_md_3 = spec_content_3.decode()
@@ -353,7 +353,7 @@ except Exception as e:
     print("="*80)
 
     # Check if receipt was generated
-    exit_code, receipt_content = ggen_container.exec([
+    exit_code, receipt_content = mcpp_container.exec([
         "sh", "-c",
         "test -f /test/generated/.receipt.json && cat /test/generated/.receipt.json || echo 'NO_RECEIPT'"
     ])
@@ -392,7 +392,7 @@ except Exception as e:
     # The constitutional equation is: code = μ(spec.ttl)
     # We've proven:
     # 1. TTL syntax is valid (STEP 2)
-    # 2. ggen sync produces output (STEP 4)
+    # 2. mcpp sync produces output (STEP 4)
     # 3. μ∘μ = μ (idempotence) (STEP 6)
     # 4. Same input → same output (determinism) (STEP 7)
     # 5. Cryptographic receipt proves provenance (STEP 8)
@@ -401,7 +401,7 @@ except Exception as e:
     print("")
     print("Proven:")
     print("  ✓ TTL files are valid semantic substrate")
-    print("  ✓ μ (ggen sync) produces deterministic output")
+    print("  ✓ μ (mcpp sync) produces deterministic output")
     print("  ✓ μ∘μ = μ (idempotence)")
     print("  ✓ hash(output) consistent across environments")
     print("  ✓ Cryptographic provenance links input to output")
@@ -418,7 +418,7 @@ except Exception as e:
     print("✅ All validations passed:")
     print("  1. ✓ 3T Files Present (TOML + Tera + Turtle)")
     print("  2. ✓ TTL Syntax Valid")
-    print("  3. ✓ ggen sync Execution")
+    print("  3. ✓ mcpp sync Execution")
     print("  4. ✓ Idempotence (μ∘μ = μ)")
     print("  5. ✓ Determinism")
     print("  6. ✓ Cryptographic Provenance")

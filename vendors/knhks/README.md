@@ -107,7 +107,7 @@ knhk pipeline run --connectors kafka-prod
 
 ### 📚 Full Documentation Book
 
-**Online**: [Read the full documentation book](https://seanchatmangpt.github.io/ggen/knhk/)  
+**Online**: [Read the full documentation book](https://seanchatmangpt.github.io/mcpp/knhk/)  
 **Local**: Build and serve locally with mdbook:
 
 ```bash

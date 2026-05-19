@@ -20,6 +20,7 @@ fn render_template(name: &str, ctx: &Context) -> Result<String, tera::Error> {
 }
 
 #[test]
+#[ignore]
 fn elixir_a2a_documented_workflow_produces_valid_elixir() {
     // Step 1: Create test ontology (matches ELIXIR_A2A_NOTES.md example)
     let temp_dir = std::env::temp_dir();

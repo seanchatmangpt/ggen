@@ -14,7 +14,7 @@
 use ggen_core::codegen::{SyncExecutor, SyncOptions};
 use std::path::PathBuf;
 
-fn main() -> ggen_utils::error::Result<()> {
+fn main() -> ggen_core::utils::error::Result<()> {
     // Build options for dogfooding generation
     let mut options = SyncOptions::new();
     options.manifest_path = PathBuf::from("ggen.toml");

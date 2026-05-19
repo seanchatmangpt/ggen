@@ -8,13 +8,13 @@
 
 ## Files Created
 
-1. **OTEL Proof Output:** `/Users/sac/ggen/docs/research/last10-commits/chatmangpt-otel-proof.txt`
+1. **OTEL Proof Output:** `./docs/research/last10-commits/chatmangpt-otel-proof.txt`
    - 144 lines
    - Complete OTEL span evidence
    - Test results
    - Network latency proof
 
-2. **Summary Document:** `/Users/sac/ggen/docs/research/last10-commits/chatmangpt-otel-summary.md`
+2. **Summary Document:** `./docs/research/last10-commits/chatmangpt-otel-summary.md`
    - 219 lines
    - Executive summary
    - Verification status
@@ -64,13 +64,13 @@
 
 ```bash
 # View OTEL proof
-cat /Users/sac/ggen/docs/research/last10-commits/chatmangpt-otel-proof.txt
+cat ./docs/research/last10-commits/chatmangpt-otel-proof.txt
 
 # View summary
-cat /Users/sac/ggen/docs/research/last10-commits/chatmangpt-otel-summary.md
+cat ./docs/research/last10-commits/chatmangpt-otel-summary.md
 
 # Check ontology
-grep -A 8 "cm:OtelSpan" /Users/sac/ggen/.specify/chatmangpt-sprint-ontology.ttl
+grep -A 8 "cm:OtelSpan" ./.specify/chatmangpt-sprint-ontology.ttl
 ```
 
 ---

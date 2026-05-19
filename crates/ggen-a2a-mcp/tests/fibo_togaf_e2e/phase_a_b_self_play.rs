@@ -11,7 +11,7 @@
 
 use std::collections::HashMap;
 
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessageLifecycle, MessagePriority,
     MessageRouting, MessageState, QoSRequirements, ReliabilityLevel, UnifiedContent,
 };
@@ -73,7 +73,7 @@ fn create_artifact_message(
             correlation_id: correlation_id.map(|s| s.to_string()),
             causation_chain: None,
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Data {
                 data,
                 schema: Some("TOGAFArtifact".to_string()),
@@ -123,7 +123,7 @@ fn create_fibo_mapping_message(
             correlation_id: correlation_id.map(|s| s.to_string()),
             causation_chain: None,
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Data {
                 data,
                 schema: Some("FIBOMapping".to_string()),

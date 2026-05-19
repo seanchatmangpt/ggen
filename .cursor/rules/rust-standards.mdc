@@ -1,11 +1,11 @@
 ---
-description: Rust-specific coding standards for ggen
+description: Rust-specific coding standards for mcpp
 globs:
   - "crates/**/*.rs"
 alwaysApply: false
 ---
 
-# Rust Coding Standards for ggen
+# Rust Coding Standards for mcpp
 
 ## Build System Usage
 
@@ -34,9 +34,9 @@ alwaysApply: false
 
 ## Error Handling
 
-- **Never use `unwrap()` or `expect()` in production code paths** - ggen strict rule
+- **Never use `unwrap()` or `expect()` in production code paths** - mcpp strict rule
 - Use `Result<T, E>` for all fallible operations
-- Libraries use typed errors via `ggen_utils::error::Result`
+- Libraries use typed errors via `mcpp_utils::error::Result`
 - Clear, actionable error messages. No swallowing.
 - `anyhow` only in binaries (CLI), not in libraries
 
@@ -120,7 +120,7 @@ impl ServicePlugin for MyPlugin {
 
 ## Performance
 
-- Maintain ggen SLOs:
+- Maintain mcpp SLOs:
   * First build ≤ 15s
   * Incremental ≤ 2s
   * RDF processing ≤ 5s for 1k+ triples

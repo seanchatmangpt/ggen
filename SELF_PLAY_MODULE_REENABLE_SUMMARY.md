@@ -6,7 +6,7 @@ The `self_play` module has been successfully re-enabled in the ggen CLI. This mo
 
 ## Changes Made
 
-### 1. Created `/Users/sac/ggen/crates/ggen-cli/src/cmds/self_play.rs`
+### 1. Created `./crates/ggen-cli/src/cmds/self_play.rs`
 
 A new module implementing three self-play commands:
 
@@ -14,14 +14,14 @@ A new module implementing three self-play commands:
 - **`validate`**: Validate the self-play ontology file
 - **`demo`**: Display information about the self-play demo
 
-### 2. Updated `/Users/sac/ggen/crates/ggen-cli/src/cmds/mod.rs`
+### 2. Updated `./crates/ggen-cli/src/cmds/mod.rs`
 
 Uncommented the module declaration:
 ```rust
 pub mod self_play;  // Previously: // pub mod self_play; // TODO: Implement self_play module
 ```
 
-### 3. Created `/Users/sac/ggen/crates/ggen-cli/tests/self_play_smoke_test.rs`
+### 3. Created `./crates/ggen-cli/tests/self_play_smoke_test.rs`
 
 Chicago TDD smoke tests to verify the module is properly integrated.
 
@@ -59,7 +59,7 @@ The `self_play` module was commented out in commit `169260f867f23f93a3d577b0ea52
 Self-play demonstrates ggen generating itself recursively:
 
 ```
-ggen v6.0.0 → Reads Ontology → Generates ggen v6.0.1 → Reads Ontology → Generates ggen v6.0.2 → ...
+ggen v6.0.0 → Reads Ontology → Generates ggen v26.5.4 → Reads Ontology → Generates ggen v6.0.2 → ...
 ```
 
 This showcases:
@@ -70,9 +70,9 @@ This showcases:
 
 ## Related Files
 
-- `/Users/sac/ggen/examples/self-play/` - Complete self-play demo with ontology, config, and scripts
-- `/Users/sac/ggen/examples/self-play/README.md` - Comprehensive documentation
-- `/Users/sac/ggen/examples/self-play/run-demo.sh` - Automated demo script
+- `./examples/self-play/` - Complete self-play demo with ontology, config, and scripts
+- `./examples/self-play/README.md` - Comprehensive documentation
+- `./examples/self-play/run-demo.sh` - Automated demo script
 
 ## Testing
 

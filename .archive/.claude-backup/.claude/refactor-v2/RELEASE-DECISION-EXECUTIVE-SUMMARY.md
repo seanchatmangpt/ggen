@@ -184,7 +184,7 @@ The bad news: Shipping now would be catastrophic.
 
 ---
 
-**Report**: `/Users/sac/ggen/.claude/refactor-v2/agent12-final-validation.md` (612 lines, 20KB)
+**Report**: `./.claude/refactor-v2/agent12-final-validation.md` (612 lines, 20KB)
 **Agent**: Hive Queen (Agent 12)
 **Methodology**: Chicago TDD + Production Readiness Audit
 **Decision Confidence**: 100% (Verified via real builds, not simulation)

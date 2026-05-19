@@ -2,8 +2,8 @@
 //! Tests individual lint rules and helper functions
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::template::lint::*;
-use ggen_utils::error::Result;
+use ggen_core::domain::template::lint::*;
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::path::Path;
 

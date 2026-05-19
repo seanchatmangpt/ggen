@@ -402,7 +402,7 @@ See implementation: `docs/how-to/generation/`
 ### Phase 1: Root-Level Docs (Week 1)
 ```bash
 # Create 6 root-level summary docs
-cd /Users/sac/ggen/docs
+cd ./docs
 touch ARCHITECTURE.md BEST_PRACTICES.md AUTOMATION.md PRD.md TESTING_STRATEGY.md PERFORMANCE.md
 ```
 

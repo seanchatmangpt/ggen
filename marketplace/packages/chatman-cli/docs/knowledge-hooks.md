@@ -55,7 +55,7 @@ ChatMan includes pre-built queries:
 #### Get Conversation Context
 
 ```sparql
-PREFIX chatman: <http://ggen.ai/ontology/chatman#>
+PREFIX chatman: <http://mcpp.ai/ontology/chatman#>
 
 SELECT ?message ?content ?role ?timestamp
 WHERE {
@@ -70,7 +70,7 @@ ORDER BY ?timestamp
 #### Find Related Topics
 
 ```sparql
-PREFIX chatman: <http://ggen.ai/ontology/chatman#>
+PREFIX chatman: <http://mcpp.ai/ontology/chatman#>
 
 SELECT DISTINCT ?topic ?message
 WHERE {
@@ -88,7 +88,7 @@ Create custom hooks for your domain:
 // Define custom ontology
 let ontology = r#"
 @prefix my: <http://example.com/ontology#> .
-@prefix chatman: <http://ggen.ai/ontology/chatman#> .
+@prefix chatman: <http://mcpp.ai/ontology/chatman#> .
 
 my:TechnicalQuestion a owl:Class ;
     rdfs:subClassOf chatman:Message .

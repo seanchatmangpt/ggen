@@ -88,7 +88,7 @@ vim .specify/specs/013-feature-name/feature.ttl
 **Example feature.ttl**:
 ```turtle
 @prefix sk: <http://github.com/github/spec-kit#> .
-@prefix : <http://github.com/ggen/specs/013-feature-name#> .
+@prefix : <http://github.com/mcpp/specs/013-feature-name#> .
 
 :feature a sk:Feature ;
     sk:featureName "Feature Name" ;
@@ -116,7 +116,7 @@ vim .specify/specs/013-feature-name/feature.ttl
 
 ```bash
 # Validate against SHACL shapes
-ggen validate .specify/specs/013-feature-name/feature.ttl
+mcpp validate .specify/specs/013-feature-name/feature.ttl
 
 # Expected output:
 # ✓ Priority values are valid ("P1", "P2", "P3")
@@ -129,8 +129,8 @@ ggen validate .specify/specs/013-feature-name/feature.ttl
 
 ```bash
 # Regenerate spec.md from feature.ttl
-ggen sync
-# Reads configuration from ggen.toml in feature directory
+mcpp sync
+# Reads configuration from mcpp.toml in feature directory
 # Outputs generated artifacts as configured
 
 # Or use cargo make target
@@ -162,8 +162,8 @@ vim .specify/specs/013-feature-name/spec.md  # NEVER DO THIS
 vim .specify/specs/013-feature-name/feature.ttl
 
 # 2. Regenerate markdown
-ggen sync
-# Reads configuration from ggen.toml in feature directory
+mcpp sync
+# Reads configuration from mcpp.toml in feature directory
 # Outputs generated artifacts as configured
 ```
 
@@ -253,16 +253,16 @@ The `spec-kit-schema.ttl` defines SHACL shapes that enforce:
 If you have existing `.md` specifications:
 
 ```bash
-# 1. Use ggen to parse markdown into RDF
-ggen parse-spec .specify/specs/NNN-feature/spec.md \
+# 1. Use mcpp to parse markdown into RDF
+mcpp parse-spec .specify/specs/NNN-feature/spec.md \
                > .specify/specs/NNN-feature/feature.ttl
 
 # 2. Validate the generated RDF
-ggen validate .specify/specs/NNN-feature/feature.ttl
+mcpp validate .specify/specs/NNN-feature/feature.ttl
 
-# 3. Set up ggen.toml and regenerate markdown to verify
+# 3. Set up mcpp.toml and regenerate markdown to verify
 cd .specify/specs/NNN-feature
-ggen sync
+mcpp sync
 
 # 4. Compare original vs regenerated
 diff spec.md generated/spec.md
@@ -292,28 +292,28 @@ diff spec.md generated/spec.md
 
 ---
 
-**Problem**: `ggen sync` command not found
+**Problem**: `mcpp sync` command not found
 
-**Solution**: Install ggen CLI:
+**Solution**: Install mcpp CLI:
 ```bash
 # Install from crates.io (when published)
-cargo install ggen
+cargo install mcpp
 
 # Or install from source
-git clone https://github.com/seanchatmangpt/ggen.git
-cd ggen
-cargo install --path crates/ggen-cli
+git clone https://github.com/seanchatmangpt/mcpp.git
+cd mcpp
+cargo install --path crates/mcpp-cli
 
 # Verify installation
-ggen --version
-ggen sync --help
+mcpp --version
+mcpp sync --help
 ```
 
 ## Further Reading
 
 - [Spec-Kit Schema](./ontology/spec-kit-schema.ttl) - Full vocabulary reference
 - [Constitution](./memory/constitution.ttl) - Architectural principles
-- [ggen CLAUDE.md](../CLAUDE.md) - Development guidelines
+- [mcpp CLAUDE.md](../CLAUDE.md) - Development guidelines
 - [Turtle Syntax](https://www.w3.org/TR/turtle/) - W3C specification
 - [SPARQL Query Language](https://www.w3.org/TR/sparql11-query/) - W3C specification
 - [SHACL Shapes](https://www.w3.org/TR/shacl/) - W3C specification

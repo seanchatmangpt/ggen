@@ -9,7 +9,7 @@
 ## 📦 Deliverables
 
 ### 1. Comprehensive Migration Guide
-**File**: `/Users/sac/ggen/.claude/refactor-v2/agent8-docs.md`
+**File**: `./.claude/refactor-v2/agent8-docs.md`
 **Lines**: 820
 **Coverage**:
 - ✅ Breaking changes analysis (CORRECTED: NO CLI changes)
@@ -21,14 +21,14 @@
 - ✅ Quick start guide (<2 minutes to first project)
 
 ### 2. README.md Updates
-**File**: `/Users/sac/ggen/README.md`
+**File**: `./README.md`
 **Changes**:
 - ✅ Fixed "What's New" section (removed incorrect "marketplace" rename)
 - ✅ Updated migration guide link
 - ✅ Clarified 100% CLI compatibility
 
 ### 3. MIGRATION_V1_TO_V2.md Corrections
-**File**: `/Users/sac/ggen/docs/MIGRATION_V1_TO_V2.md`
+**File**: `./docs/MIGRATION_V1_TO_V2.md`
 **Changes**:
 - ✅ CORRECTED breaking changes section
 - ✅ Removed incorrect command renames
@@ -114,7 +114,7 @@ v2.0.0 refactors internal structure but maintains CLI compatibility:
 ## 🚀 Usage Instructions
 
 ### For Users
-1. Read: `/Users/sac/ggen/.claude/refactor-v2/agent8-docs.md`
+1. Read: `./.claude/refactor-v2/agent8-docs.md`
 2. Install: `cargo install --path cli --force`
 3. Verify: `ggen --version` and `ggen doctor`
 4. Continue using existing workflows (no changes)

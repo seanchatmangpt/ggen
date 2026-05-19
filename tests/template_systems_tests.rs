@@ -12,7 +12,7 @@
 use ggen_core::pipeline::Pipeline;
 use ggen_core::template::Template;
 use ggen_core::templates::frozen::FrozenMerger;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use tera::Context;
 
 // =============================================================================

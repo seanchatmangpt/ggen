@@ -144,7 +144,7 @@ error[E0583]: file not found for module `install`
 ### ✅ Successfully Delivered
 
 1. **Global Runtime Module** (Agent 2)
-   - Location: `/Users/sac/ggen/cli/src/runtime.rs`
+   - Location: `./cli/src/runtime.rs`
    - Status: ✅ Compiles, 6/6 tests passing
    - Performance: <10μs overhead target met
 
@@ -164,7 +164,7 @@ error[E0583]: file not found for module `install`
    - Status: ✅ Comprehensive coverage
 
 5. **Benchmarks** (Agent 3)
-   - Location: `/Users/sac/ggen/benches/runtime_overhead.rs`
+   - Location: `./benches/runtime_overhead.rs`
    - Status: ✅ Created, ⏸️ Not executed
 
 ### ❌ Missing/Incomplete

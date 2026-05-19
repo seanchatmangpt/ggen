@@ -1,5 +1,5 @@
 use crate::manifest::GenerationRule;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use tokio::sync::RwLock;

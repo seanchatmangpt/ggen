@@ -300,4 +300,4 @@ The data-pipeline-cli package is production-ready and exceeds all minimum requir
 **Validated by:** Production Validator Agent
 **Date:** 2025-01-09
 **Package Version:** 1.0.0
-**Validation Framework:** ggen Marketplace Standards v1.0
+**Validation Framework:** mcpp Marketplace Standards v1.0

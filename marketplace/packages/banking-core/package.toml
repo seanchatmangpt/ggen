@@ -3,7 +3,7 @@ name = "banking-core"
 version = "1.0.0"
 description = "Core banking system with account management, transactions, interest calculation, and regulatory reporting"
 category = "finance"
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 tags = ["banking", "accounts", "transactions", "ledger", "compliance", "regulatory"]
 

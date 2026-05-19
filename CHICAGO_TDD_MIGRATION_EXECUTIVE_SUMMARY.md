@@ -116,8 +116,8 @@ All high-value London TDD tests in active crates have been converted or deleted.
 ---
 
 **Files Created:**
-- `/Users/sac/ggen/CHICAGO_TDD_MIGRATION_REPORT.md` - Detailed migration log
-- `/Users/sac/ggen/CHICAGO_TDD_MIGRATION_EXECUTIVE_SUMMARY.md` - This file
+- `./CHICAGO_TDD_MIGRATION_REPORT.md` - Detailed migration log
+- `./CHICAGO_TDD_MIGRATION_EXECUTIVE_SUMMARY.md` - This file
 
 **Tests Converted:** 18+
 **Tests Deleted:** 24+

@@ -3,7 +3,7 @@
 ## Test Configuration
 
 **Test:** `test_query_ontology_tool_executes_sparql`
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/core_workflow_mcp_tools.rs`
+**File:** `./crates/ggen-a2a-mcp/tests/core_workflow_mcp_tools.rs`
 
 ## Input Data
 
@@ -32,7 +32,7 @@ SELECT ?s WHERE { ?s a ex:Resource }
 
 ## Expected Output Format
 
-Based on the implementation in `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (lines 859-881), the `query_ontology` MCP tool returns:
+Based on the implementation in `./crates/ggen-a2a-mcp/src/ggen_server.rs` (lines 859-881), the `query_ontology` MCP tool returns:
 
 ```json
 {
@@ -53,7 +53,7 @@ Based on the implementation in `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_ser
 ```
 Error configuring OpenSSL build:
     'perl' reported failure with exit status: 2
-    Command failed: cd "/Users/sac/ggen/target/debug/build/openssl-sys-fc12fc1b78cd6e2a/out/openssl-build/build/src"
+    Command failed: cd "./target/debug/build/openssl-sys-fc12fc1b78cd6e2a/out/openssl-build/build/src"
     There are files missing
 ```
 
@@ -136,4 +136,4 @@ The test checks:
 
 **Generated:** 2026-03-31
 **Task:** #71 - Run query_ontology test and capture results
-**Working Directory:** /Users/sac/ggen
+**Working Directory:** .

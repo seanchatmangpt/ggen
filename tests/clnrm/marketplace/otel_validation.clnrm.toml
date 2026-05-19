@@ -5,7 +5,7 @@
 # Tests that OTEL spans are emitted for marketplace operations
 
 [test.metadata]
-name = "ggen_marketplace_otel_validation"
+name = "mcpp_marketplace_otel_validation"
 description = "Test OpenTelemetry instrumentation in GGEN marketplace"
 version = "1.0.0"
 timeout = "60s"
@@ -13,7 +13,7 @@ tags = ["otel", "validation", "instrumentation"]
 
 [otel]
 exporter = "otlp"
-resources = { "service.name" = "ggen-marketplace-test", "test.type" = "validation" }
+resources = { "service.name" = "mcpp-marketplace-test", "test.type" = "validation" }
 
 # Service: GGEN Marketplace API
 [services.marketplace_api]

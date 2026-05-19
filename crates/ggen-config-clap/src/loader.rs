@@ -3,7 +3,7 @@
 //! Provides trait for loading ggen.toml into clap applications
 
 use crate::error::{ConfigClapError, Result};
-use ggen_config::GgenConfig;
+use ggen_core::config_lib::GgenConfig;
 use std::path::Path;
 
 /// Trait for loading ggen.toml configuration into clap types

@@ -35,7 +35,7 @@ docker-compose --version  # Docker Compose 2.0+
 
 ### 2. Clone/Navigate to Project
 ```bash
-cd /Users/sac/ggen
+cd .
 ```
 
 ### 3. Start Deployment

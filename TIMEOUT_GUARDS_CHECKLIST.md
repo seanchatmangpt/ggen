@@ -193,16 +193,16 @@
 ## Files Delivered
 
 ### Source Code (2 files)
-1. `/Users/sac/ggen/crates/osiris-core/src/timed_lock.rs` (250 lines)
-2. `/Users/sac/ggen/crates/osiris-core/src/deadlock_detector.rs` (320 lines)
+1. `./crates/osiris-core/src/timed_lock.rs` (250 lines)
+2. `./crates/osiris-core/src/deadlock_detector.rs` (320 lines)
 
 ### Documentation (3 files)
-1. `/Users/sac/ggen/crates/osiris-core/TIMEOUT_GUARDS_IMPLEMENTATION.md`
-2. `/Users/sac/ggen/crates/osiris-core/MIGRATION_EXAMPLES.md`
-3. `/Users/sac/ggen/TIMEOUT_GUARDS_SUMMARY.md`
+1. `./crates/osiris-core/TIMEOUT_GUARDS_IMPLEMENTATION.md`
+2. `./crates/osiris-core/MIGRATION_EXAMPLES.md`
+3. `./TIMEOUT_GUARDS_SUMMARY.md`
 
 ### Configuration (1 file)
-1. `/Users/sac/ggen/crates/osiris-core/src/lib.rs` (updated)
+1. `./crates/osiris-core/src/lib.rs` (updated)
 
 ## Deployment Ready
 

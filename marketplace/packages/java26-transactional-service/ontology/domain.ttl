@@ -1,4 +1,4 @@
-@prefix java26: <http://ggen.io/java26#> .
+@prefix java26: <http://mcpp.io/java26#> .
 @prefix my:     <http://example.com/my-domain#> .
 @prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
 

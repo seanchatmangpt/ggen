@@ -225,9 +225,9 @@ cargo test packs -- --test-threads=1
 ## Test Fixtures
 
 Tests use these fixtures (if available):
-- `/Users/sac/ggen/marketplace/packs/startup-essentials.toml`
-- `/Users/sac/ggen/marketplace/packs/data-science-toolkit.toml`
-- `/Users/sac/ggen/marketplace/packs/enterprise-backend.toml`
+- `./marketplace/packs/startup-essentials.toml`
+- `./marketplace/packs/data-science-toolkit.toml`
+- `./marketplace/packs/enterprise-backend.toml`
 
 Tests gracefully handle missing fixtures.
 

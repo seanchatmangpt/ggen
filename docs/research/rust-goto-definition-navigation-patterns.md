@@ -1,7 +1,7 @@
 # Go-to-Definition Navigation Patterns in Rust
 
 **Research Date:** 2026-03-31
-**Context:** ggen v6.0.1 codebase - 30-crate Rust workspace
+**Context:** ggen v26.5.4 codebase - 30-crate Rust workspace
 **Focus:** LSP-based go-to-definition navigation patterns for complex Rust code
 
 ## Executive Summary
@@ -633,9 +633,9 @@ For precise go-to-definition navigation in complex Rust code:
 - **rust-analyzer:** https://rust-analyzer.github.io/
 - **ggen Codebase:** https://github.com/seanchatmangpt/ggen
 - **Research Files:**
-  - `/Users/sac/ggen/crates/ggen-core/src/lib.rs`
-  - `/Users/sac/ggen/crates/ggen-ai/src/lib.rs`
-  - `/Users/sac/ggen/crates/ggen-domain/src/lib.rs`
-  - `/Users/sac/ggen/crates/ggen-macros/src/lib.rs`
-  - `/Users/sac/ggen/crates/ggen-ai/src/mcp/traits.rs`
-  - `/Users/sac/ggen/crates/ggen-workflow/src/patterns.rs`
+  - `./crates/ggen-core/src/lib.rs`
+  - `./crates/ggen-ai/src/lib.rs`
+  - `./crates/ggen-domain/src/lib.rs`
+  - `./crates/ggen-macros/src/lib.rs`
+  - `./crates/ggen-ai/src/mcp/traits.rs`
+  - `./crates/ggen-workflow/src/patterns.rs`

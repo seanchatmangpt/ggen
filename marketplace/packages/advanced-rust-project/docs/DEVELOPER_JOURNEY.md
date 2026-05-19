@@ -11,14 +11,14 @@ This guide addresses the "dark matter" of developer experience—the cognitive l
 #### Level 1: "I just want to generate a file" (5 minutes)
 ```bash
 # Start here - no configuration needed
-ggen template generate templates/hello.tmpl
+mcpp template generate templates/hello.tmpl
 
 # What's in hello.tmpl?
 ---
 to: "src/hello.rs"
 ---
 fn main() {
-    println!("Hello, ggen!");
+    println!("Hello, mcpp!");
 }
 ```
 
@@ -27,10 +27,10 @@ fn main() {
 #### Level 2: "I want AI to help" (10 minutes)
 ```bash
 # Add AI generation - still simple
-ggen ai generate --description "Rust struct for a user"
+mcpp ai generate --description "Rust struct for a user"
 
 # See how it uses your existing templates
-ggen template generate templates/user-struct.tmpl \
+mcpp template generate templates/user-struct.tmpl \
     --var name="User" \
     --var fields="name:String,email:String"
 ```
@@ -40,7 +40,7 @@ ggen template generate templates/user-struct.tmpl \
 #### Level 3: "I want to use my data" (15 minutes)
 ```bash
 # Add RDF data - now we're cooking
-ggen template generate templates/database-schema.tmpl
+mcpp template generate templates/database-schema.tmpl
 
 # The template queries your domain.ttl automatically
 # See: sparql_results.entities, sparql_results.properties
@@ -50,9 +50,9 @@ ggen template generate templates/database-schema.tmpl
 
 ## Mental Model Mapping
 
-### ggen is like... but for...
+### mcpp is like... but for...
 
-| If you know... | ggen is like... | Key difference |
+| If you know... | mcpp is like... | Key difference |
 |----------------|----------------|----------------|
 | **Jinja2/Nunjucks** | Tera + YAML frontmatter | RDF/SPARQL integration |
 | **Hygen** | Hygen + AI generation | Universal lifecycle management |
@@ -62,29 +62,29 @@ ggen template generate templates/database-schema.tmpl
 
 ### Framework Comparisons
 
-#### Next.js Developer → ggen
+#### Next.js Developer → mcpp
 ```bash
 # What you know:
 npx create-next-app my-app
 npm run dev
 
-# What ggen provides:
-ggen lifecycle init  # Creates project structure
-ggen lifecycle dev   # Starts dev server + watches
-ggen ai generate --description "React component with API calls"
+# What mcpp provides:
+mcpp lifecycle init  # Creates project structure
+mcpp lifecycle dev   # Starts dev server + watches
+mcpp ai generate --description "React component with API calls"
 ```
 
-#### Rails Developer → ggen
+#### Rails Developer → mcpp
 ```bash
 # What you know:
 rails new my-app
 rails generate scaffold User name:string email:string
 rails server
 
-# What ggen provides:
-ggen template generate templates/rails-app.tmpl
-ggen template generate templates/rails-model.tmpl --var name="User"
-ggen lifecycle run dev  # Rails server + asset compilation
+# What mcpp provides:
+mcpp template generate templates/rails-app.tmpl
+mcpp template generate templates/rails-model.tmpl --var name="User"
+mcpp lifecycle run dev  # Rails server + asset compilation
 ```
 
 ## Failure Recovery: What To Do When It Breaks
@@ -93,39 +93,39 @@ ggen lifecycle run dev  # Rails server + asset compilation
 
 ```bash
 # 1. Check what's available
-ggen lifecycle list
-ggen template list
-ggen ai models
+mcpp lifecycle list
+mcpp template list
+mcpp ai models
 
 # 2. Validate your setup
-ggen validate setup  # Checks API keys, paths, etc.
+mcpp validate setup  # Checks API keys, paths, etc.
 
 # 3. Try with mock mode
-ggen ai generate --description "test" --mock
+mcpp ai generate --description "test" --mock
 
 # 4. Check logs
-tail -f .ggen/logs/ggen.log
+tail -f .mcpp/logs/mcpp.log
 
 # 5. Get help
-ggen ai generate --help
-ggen --help
+mcpp ai generate --help
+mcpp --help
 ```
 
 ### Common Failure Patterns & Solutions
 
 #### "Template not found"
 ```bash
-# Problem: ggen template generate my-template.tmpl
+# Problem: mcpp template generate my-template.tmpl
 # Solution: Check template directory exists
 ls templates/
-# Solution: Use full path or check ggen.toml
+# Solution: Use full path or check mcpp.toml
 ```
 
 #### "RDF query failed"
 ```bash
 # Problem: Template renders but SPARQL returns empty
 # Solution: Debug the query
-ggen ai sparql --description "Debug this query" --output debug.sparql
+mcpp ai sparql --description "Debug this query" --output debug.sparql
 # Solution: Check RDF data format
 cat data/domain.ttl | head -20
 ```
@@ -146,14 +146,14 @@ ls -la generated/
 ```typescript
 // .vscode/settings.json
 {
-  "ggen.templates.path": "./templates",
-  "ggen.ai.provider": "openai",
-  "ggen.lifecycle.autoWatch": true
+  "mcpp.templates.path": "./templates",
+  "mcpp.ai.provider": "openai",
+  "mcpp.lifecycle.autoWatch": true
 }
 
-// Command palette: "ggen: Generate from selection"
-// Command palette: "ggen: Debug template"
-// Command palette: "ggen: Show SPARQL results"
+// Command palette: "mcpp: Generate from selection"
+// Command palette: "mcpp: Debug template"
+// Command palette: "mcpp: Show SPARQL results"
 ```
 
 #### IntelliJ Plugin Features
@@ -173,9 +173,9 @@ ls -la generated/
 repos:
   - repo: local
     hooks:
-      - id: ggen-lifecycle
-        name: ggen lifecycle validation
-        entry: ggen lifecycle run validate
+      - id: mcpp-lifecycle
+        name: mcpp lifecycle validation
+        entry: mcpp lifecycle run validate
         language: system
         files: \.(toml|tmpl)$
 ```
@@ -184,7 +184,7 @@ repos:
 ```bash
 # Feature branch workflow
 git checkout -b feature/user-authentication
-ggen template generate templates/auth-system.tmpl
+mcpp template generate templates/auth-system.tmpl
 git add generated/
 git commit -m "feat: add user authentication system"
 
@@ -199,7 +199,7 @@ git commit -m "feat: add user authentication system"
 #### Step-by-Step Rendering Visualization
 ```bash
 # Debug template rendering
-ggen template debug templates/my-template.tmpl --verbose
+mcpp template debug templates/my-template.tmpl --verbose
 
 # Output shows:
 # 1. Frontmatter parsing
@@ -212,7 +212,7 @@ ggen template debug templates/my-template.tmpl --verbose
 #### SPARQL Query Debugging
 ```bash
 # Inspect SPARQL results
-ggen ai sparql --description "Show me all entities" --debug
+mcpp ai sparql --description "Show me all entities" --debug
 
 # Output shows:
 # - Query being executed
@@ -229,7 +229,7 @@ ggen ai sparql --description "Show me all entities" --debug
 Error: SPARQL query failed
 Context: Query "SELECT ?entity WHERE { ?entity a ex:Entity }" returned no results
 Suggestion: Check your RDF data files in data/ directory
-Hint: Try: ggen ai graph --description "Create domain model"
+Hint: Try: mcpp ai graph --description "Create domain model"
 
 # When template syntax is wrong
 Error: Template rendering failed
@@ -240,21 +240,21 @@ Suggestion: Available variables: name, description, version
 
 ## Migration Strategies
 
-### From Existing Tools to ggen
+### From Existing Tools to mcpp
 
-#### Cookiecutter → ggen Migration
+#### Cookiecutter → mcpp Migration
 ```bash
 # What you have:
 cookiecutter gh:some/template
 
 # What you do:
-1. Convert cookiecutter.json to ggen.toml
+1. Convert cookiecutter.json to mcpp.toml
 2. Convert {{cookiecutter.var}} to {{ var }}
 3. Add RDF data for complex logic
 4. Use lifecycle for multi-step generation
 ```
 
-#### Yeoman → ggen Migration
+#### Yeoman → mcpp Migration
 ```bash
 # What you have:
 yo generator-name
@@ -268,32 +268,32 @@ yo generator-name
 
 ### Partial Adoption Strategies
 
-#### Use ggen for One Thing
+#### Use mcpp for One Thing
 ```bash
 # Keep existing tools for most things
 npm run build
 npm test
 
-# Use ggen for specific patterns
-ggen template generate templates/api-endpoint.tmpl
-ggen ai generate --description "Add rate limiting to API"
+# Use mcpp for specific patterns
+mcpp template generate templates/api-endpoint.tmpl
+mcpp ai generate --description "Add rate limiting to API"
 
 # Gradually expand usage
-ggen lifecycle run lint  # Instead of npm run lint
-ggen lifecycle run deploy  # Instead of custom deploy script
+mcpp lifecycle run lint  # Instead of npm run lint
+mcpp lifecycle run deploy  # Instead of custom deploy script
 ```
 
 #### Rollback Strategies
 ```bash
-# Undo ggen changes
-ggen template rollback templates/my-template.tmpl
+# Undo mcpp changes
+mcpp template rollback templates/my-template.tmpl
 
 # Restore from backup
-cp .ggen/backups/$(date +%Y%m%d_%H%M%S)/src/ generated/src/
+cp .mcpp/backups/$(date +%Y%m%d_%H%M%S)/src/ generated/src/
 
 # Reset lifecycle state
-rm .ggen/state.json
-ggen lifecycle run setup  # Start fresh
+rm .mcpp/state.json
+mcpp lifecycle run setup  # Start fresh
 ```
 
 ## Community Amplification
@@ -303,23 +303,23 @@ ggen lifecycle run setup  # Start fresh
 #### Discovery and Sharing
 ```bash
 # Browse available templates
-ggen marketplace search "rust service"
+mcpp marketplace search "rust service"
 
 # Install community template
-ggen marketplace install rust-service-template
+mcpp marketplace install rust-service-template
 
 # Share your template
-ggen marketplace publish templates/my-service.tmpl
+mcpp marketplace publish templates/my-service.tmpl
 
 # Rate and review
-ggen marketplace rate rust-service-template 5
-ggen marketplace review rust-service-template "Excellent template!"
+mcpp marketplace rate rust-service-template 5
+mcpp marketplace review rust-service-template "Excellent template!"
 ```
 
 #### Pattern Recognition
 ```bash
 # System suggests templates based on your code
-ggen ai suggest --context "I'm building a REST API"
+mcpp ai suggest --context "I'm building a REST API"
 
 # Output:
 # Suggested templates:
@@ -333,7 +333,7 @@ ggen ai suggest --context "I'm building a REST API"
 #### Multiple Developers on Same Template
 ```bash
 # Lock template for editing
-ggen template lock templates/api-endpoint.tmpl
+mcpp template lock templates/api-endpoint.tmpl
 
 # Other developers see notification
 # "Template locked by alice@example.com"
@@ -343,7 +343,7 @@ git add templates/api-endpoint.tmpl
 git commit -m "feat: add authentication to API endpoint"
 
 # Unlock when done
-ggen template unlock templates/api-endpoint.tmpl
+mcpp template unlock templates/api-endpoint.tmpl
 ```
 
 ## Usage Analytics and Auto-Improvement
@@ -353,7 +353,7 @@ ggen template unlock templates/api-endpoint.tmpl
 #### What Gets Tracked
 ```bash
 # View usage statistics
-ggen analytics show
+mcpp analytics show
 
 # Output:
 # Most used templates:
@@ -375,7 +375,7 @@ ggen analytics show
 #### Auto-Improvement
 ```bash
 # System learns and suggests improvements
-ggen analytics insights
+mcpp analytics insights
 
 # Output:
 # Insights:
@@ -394,14 +394,14 @@ ggen analytics insights
 ### Rating and Review System
 ```bash
 # Rate templates
-ggen marketplace rate templates/api-endpoint.tmpl 4
+mcpp marketplace rate templates/api-endpoint.tmpl 4
 
 # Write reviews
-ggen marketplace review templates/api-endpoint.tmpl \
+mcpp marketplace review templates/api-endpoint.tmpl \
     "Great template but missing error handling examples"
 
 # View reviews
-ggen marketplace reviews templates/api-endpoint.tmpl
+mcpp marketplace reviews templates/api-endpoint.tmpl
 
 # Output:
 # Reviews:
@@ -433,7 +433,7 @@ ggen marketplace reviews templates/api-endpoint.tmpl
 - Share first template
 
 #### Month 3: Framework Integration
-- Adapt existing projects to use ggen
+- Adapt existing projects to use mcpp
 - Build organization-specific templates
 - Contribute to community templates
 - Optimize performance
@@ -464,7 +464,7 @@ ggen marketplace reviews templates/api-endpoint.tmpl
 **Solution**: Use the debugging tools. The --debug and --verbose flags show exactly what's happening.
 
 ### "My templates work but my team doesn't use them"
-**Solution**: Start with partial adoption. Let ggen prove its value on one use case, then expand.
+**Solution**: Start with partial adoption. Let mcpp prove its value on one use case, then expand.
 
 ### "I want to contribute but don't know where to start"
 **Solution**: Use the analytics insights. The system tells you exactly what needs improvement.
@@ -476,4 +476,4 @@ ggen marketplace reviews templates/api-endpoint.tmpl
 3. **Build your first template**: Start simple, add complexity gradually
 4. **Join the community**: Share templates, give feedback, contribute improvements
 
-Remember: ggen is a journey, not a destination. The features exist to support your workflow, not to replace it.
+Remember: mcpp is a journey, not a destination. The features exist to support your workflow, not to replace it.

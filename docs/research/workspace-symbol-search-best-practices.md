@@ -1,7 +1,7 @@
 # Workspace Symbol Search Best Practices for Large Rust Workspaces
 
 **Research Date:** 2026-03-31
-**Workspace:** ggen v6.0.1 (30 crates, 6,880 .rs files, ~777K LOC)
+**Workspace:** ggen v26.5.4 (30 crates, 6,880 .rs files, ~777K LOC)
 **Research Method:** Empirical analysis of actual codebase patterns
 
 ---
@@ -627,7 +627,7 @@ grep pattern: "impl LlmClient for"                      // Find implementations
 
 ## 10. References
 
-- **Workspace:** /Users/sac/ggen (ggen v6.0.1)
+- **Workspace:** . (ggen v26.5.4)
 - **Evidence:**
   - 6,880 .rs files
   - ~777K lines of code
@@ -642,4 +642,4 @@ grep pattern: "impl LlmClient for"                      // Find implementations
 
 **Document Version:** 1.0
 **Last Updated:** 2026-03-31
-**Author:** Research based on ggen v6.0.1 codebase analysis
+**Author:** Research based on ggen v26.5.4 codebase analysis

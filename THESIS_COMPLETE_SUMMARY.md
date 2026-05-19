@@ -55,7 +55,7 @@ A mathematical framework with three layers:
 - Enables: state reconstruction at any point in time
 - Formula: `state(t) = fold(δ, ∅, {e | e.t ≤ t})`
 
-**Layer 3: The Measurement Function (ggen)**
+**Layer 3: The Measurement Function (mcpp)**
 - Five-stage deterministic pipeline
 - Formula: `μ(O) = Receipt(Canon(Emit(Extract(Norm(O)))))`
 - Properties:
@@ -99,7 +99,7 @@ Status: ✅ ONTOLOGICAL CLOSURE ACHIEVED
 - This forces clarity; you cannot code your way out of ambiguity
 
 **Phase 2: Single-Pass Code Generation**
-- Run the measurement function: `ggen sync`
+- Run the measurement function: `mcpp sync`
 - Generates all artifacts deterministically (no iteration needed)
 - Stages:
   1. Normalize: Canonicalize RDF + SHACL validation
@@ -450,7 +450,7 @@ CREATE INDEX idx_users_email ON users(email);
 ```
 Metric: Code inconsistencies per 1000 LOC
   Traditional development: 3.2 inconsistencies
-  ggen-based: 0.87 inconsistencies
+  mcpp-based: 0.87 inconsistencies
   Reduction: 72.8%
 ```
 
@@ -458,7 +458,7 @@ Metric: Code inconsistencies per 1000 LOC
 ```
 Time to production-ready code:
   Traditional: 4-8 weeks
-  ggen (with closure): 3-5 days
+  mcpp (with closure): 3-5 days
   Improvement factor: 6-24×
 ```
 
@@ -487,7 +487,7 @@ Tests generated from spec:
 
 **Timeline**:
 - Manual approach: 6 weeks
-- ggen approach: 2 days
+- mcpp approach: 2 days
 - Speedup: 15×
 
 **Consistency Improvements**:
@@ -507,7 +507,7 @@ Tests generated from spec:
 - Monitoring dashboards
 
 **Results**:
-- 18-week manual effort → 3-week ggen approach
+- 18-week manual effort → 3-week mcpp approach
 - 8.7× faster development
 - 95% fewer runtime integration errors
 - Spec updates reflected across all services in <2 minutes
@@ -528,7 +528,7 @@ Tests generated from spec:
 
 ### vs. Traditional Code Generation (Template-Based)
 
-| Aspect | Traditional | ggen |
+| Aspect | Traditional | mcpp |
 |--------|-----------|------|
 | Specification | Ad-hoc (often missing) | Formal RDF (enforced) |
 | Determinism | No (template drift) | Yes (proven) |
@@ -538,7 +538,7 @@ Tests generated from spec:
 
 ### vs. API-First Development (Swagger/OpenAPI)
 
-| Aspect | OpenAPI | ggen |
+| Aspect | OpenAPI | mcpp |
 |--------|---------|------|
 | Generates | APIs only | APIs + Types + Tests + DB Schema |
 | Single Source of Truth | Spec file | RDF (semantic web) |
@@ -548,7 +548,7 @@ Tests generated from spec:
 
 ### vs. Domain-Driven Design (DDD)
 
-| Aspect | DDD | ggen |
+| Aspect | DDD | mcpp |
 |--------|-----|------|
 | Formalism | Narrative + code | Formal RDF spec |
 | Artifacts | Hand-coded | Generated |
@@ -621,7 +621,7 @@ Specification-driven generation scales linearly (or sub-linearly):
 
 ## Technical Stack
 
-The ggen framework is implemented in:
+The mcpp framework is implemented in:
 
 | Component | Technology |
 |-----------|-----------|
@@ -718,7 +718,7 @@ This thesis presents a paradigm shift in code generation: from iterative code-fi
 
 **Key achievements**:
 1. **Formal Framework**: KGC provides mathematical foundation grounded in information theory
-2. **Production Framework**: ggen implements the five-stage pipeline with proven determinism
+2. **Production Framework**: mcpp implements the five-stage pipeline with proven determinism
 3. **Empirical Validation**: 750+ tests show 100% determinism, 98-100% semantic fidelity, 6-24× productivity improvement
 4. **Practical Methodology**: Big Bang 80/20 + EPIC 9 + Andon signals provide usable workflows
 5. **Scalability**: Approach scales from simple APIs to complex microservices architectures
@@ -755,7 +755,7 @@ This eliminates entire classes of bugs (inconsistencies, type mismatches) that p
 The complete LaTeX thesis files are organized as:
 
 ```
-/home/user/ggen/
+/home/user/mcpp/
 ├── thesis/
 │   ├── main-complete.tex (this skeleton)
 │   ├── main.tex (main entry point)

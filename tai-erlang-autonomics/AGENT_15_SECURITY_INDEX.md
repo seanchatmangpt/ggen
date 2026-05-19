@@ -331,7 +331,7 @@ git push origin main
 
 ### Step 2: Configure GCP Infrastructure
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/gcp
+cd ~/.ggen/mcpp/tai-erlang-autonomics/gcp
 
 # Authenticate
 gcloud auth application-default login

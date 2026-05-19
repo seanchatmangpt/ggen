@@ -10,7 +10,7 @@ Integrated FileTransaction system into `init.rs` to provide **atomic initializat
 
 ### 1. Import FileTransaction
 ```rust
-use ggen_core::codegen::{FileTransaction, TransactionReceipt};
+use mcpp_core::codegen::{FileTransaction, TransactionReceipt};
 ```
 
 ### 2. Enhanced InitOutput
@@ -55,7 +55,7 @@ let mut tx = FileTransaction::new().map_err(|e| {
 
 // Write files atomically
 tx.write_file(&toml_path, GGEN_TOML).map_err(|e| {
-    format!("Failed to write ggen.toml: {}", e)
+    format!("Failed to write mcpp.toml: {}", e)
 })?;
 
 tx.write_file(&schema_path, DOMAIN_TTL).map_err(|e| {
@@ -83,7 +83,7 @@ let files_created: Vec<String> = receipt
 
 | File | Old Method | New Method | Status |
 |------|------------|------------|--------|
-| ggen.toml | fs::write | tx.write_file | ✓ |
+| mcpp.toml | fs::write | tx.write_file | ✓ |
 | schema/domain.ttl | fs::write | tx.write_file | ✓ |
 | Makefile | fs::write | tx.write_file | ✓ |
 | templates/example.txt.tera | fs::write | tx.write_file | ✓ |
@@ -209,7 +209,7 @@ tx.commit() // Point of no return
 
 ### ✓ Clear Error Messages
 ```rust
-.map_err(|e| format!("Failed to write ggen.toml: {}", e))?
+.map_err(|e| format!("Failed to write mcpp.toml: {}", e))?
 .map_err(|e| format!("Failed to create directory {}: {}", dir, e))?
 ```
 
@@ -232,7 +232,7 @@ pub struct TransactionInfo {
   "status": "success",
   "project_dir": "/tmp/my-project",
   "files_created": [
-    "ggen.toml",
+    "mcpp.toml",
     "schema/domain.ttl",
     "Makefile",
     "templates/example.txt.tera",
@@ -261,7 +261,7 @@ pub struct TransactionInfo {
   "status": "success",
   "files_created": [],
   "files_overwritten": [
-    "ggen.toml",
+    "mcpp.toml",
     "schema/domain.ttl",
     "Makefile",
     "templates/example.txt.tera",
@@ -301,25 +301,25 @@ pub struct TransactionInfo {
 ### 1. Code Inspection
 ```bash
 # Verify FileTransaction import
-grep "use ggen_core::codegen::FileTransaction" crates/ggen-cli/src/cmds/init.rs
+grep "use mcpp_core::codegen::FileTransaction" crates/mcpp-cli/src/cmds/init.rs
 
 # Verify all file writes use transaction
-grep "tx\.write_file" crates/ggen-cli/src/cmds/init.rs
+grep "tx\.write_file" crates/mcpp-cli/src/cmds/init.rs
 
 # Verify commit call
-grep "tx\.commit()" crates/ggen-cli/src/cmds/init.rs
+grep "tx\.commit()" crates/mcpp-cli/src/cmds/init.rs
 
 # Verify no unwrap/expect in production
-grep -n "unwrap\|expect" crates/ggen-cli/src/cmds/init.rs | grep -v "test\|#\[cfg(test)\]"
+grep -n "unwrap\|expect" crates/mcpp-cli/src/cmds/init.rs | grep -v "test\|#\[cfg(test)\]"
 ```
 
 ### 2. Build Verification
 ```bash
 # Check compilation
-cargo check -p ggen
+cargo check -p mcpp
 
 # Run tests
-cargo test -p ggen-cli-lib init::tests
+cargo test -p mcpp-cli-lib init::tests
 ```
 
 ### 3. Integration Testing
@@ -334,7 +334,7 @@ chmod +x verify_atomic_init.sh
 ## Files Modified
 
 ```
-/home/user/ggen/crates/ggen-cli/src/cmds/init.rs
+/home/user/mcpp/crates/mcpp-cli/src/cmds/init.rs
   - Added FileTransaction import (line 26)
   - Added TransactionInfo struct (lines 78-86)
   - Refactored perform_init (lines 452-790)

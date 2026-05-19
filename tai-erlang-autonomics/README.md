@@ -40,7 +40,7 @@ TAI Erlang Autonomics is a production-grade Erlang/OTP runtime implementing **au
 
 ```bash
 # Clone repository
-git clone https://github.com/seanchatmangpt/ggen.git
+git clone https://github.com/seanchatmangpt/mcpp.git
 cd tai-erlang-autonomics
 
 # Install dependencies

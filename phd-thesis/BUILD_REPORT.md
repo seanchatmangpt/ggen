@@ -9,7 +9,7 @@
 ## Build Summary
 
 ### PDF Generation
-- **File**: `/Users/sac/ggen/phd-thesis/thesis.pdf`
+- **File**: `./phd-thesis/thesis.pdf`
 - **Pages**: 109
 - **File Size**: 113KB (115,606 bytes)
 - **Build Time**: ~30 seconds
@@ -132,7 +132,7 @@ make check      # Verify references
 ## File Structure
 
 ```
-/Users/sac/ggen/phd-thesis/
+./phd-thesis/
 ├── thesis.pdf                    # ✅ Generated (109 pages)
 ├── thesis.tex                    # Master document
 ├── Makefile                      # Build automation

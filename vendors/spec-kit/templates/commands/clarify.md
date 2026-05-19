@@ -195,7 +195,7 @@ When working with RDF-first specifications:
    - After each clarification, regenerate markdown from TTL:
      ```bash
      cd FEATURE_DIR
-     ggen sync
+     mcpp sync
      ```
    - Verify the generated `generated/spec.md` reflects the clarifications
 
@@ -213,4 +213,4 @@ When working with RDF-first specifications:
    - If working with markdown-only specs (legacy), follow the markdown update workflow above
    - For new RDF-first specs, always update TTL sources
 
-**NOTE:** See `/docs/RDF_WORKFLOW_GUIDE.md` for complete details on working with TTL sources and ggen sync.
+**NOTE:** See `/docs/RDF_WORKFLOW_GUIDE.md` for complete details on working with TTL sources and mcpp sync.

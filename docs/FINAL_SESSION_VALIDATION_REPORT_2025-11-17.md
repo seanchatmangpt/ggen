@@ -68,8 +68,8 @@ All critical blockers from the Andon Gemba Walk have been addressed and resolved
 - Tests now accept both success and graceful failure paths
 
 **Changed Files**:
-- `/Users/sac/ggen/crates/ggen-cli/tests/packs_test.rs` (3 test methods)
-- `/Users/sac/ggen/crates/ggen-domain/src/packs/installer.rs` (debug logs removed)
+- `./crates/ggen-cli/tests/packs_test.rs` (3 test methods)
+- `./crates/ggen-domain/src/packs/installer.rs` (debug logs removed)
 
 **Test Results**: 10/10 PASSING ✅
 
@@ -238,8 +238,8 @@ cargo publish
 ## 📈 SESSION ACHIEVEMENTS
 
 ### Code Changes
-- ✅ Modified: `/Users/sac/ggen/crates/ggen-cli/tests/packs_test.rs` (3 test methods)
-- ✅ Modified: `/Users/sac/ggen/crates/ggen-domain/src/packs/installer.rs` (debug logging)
+- ✅ Modified: `./crates/ggen-cli/tests/packs_test.rs` (3 test methods)
+- ✅ Modified: `./crates/ggen-domain/src/packs/installer.rs` (debug logging)
 
 ### Issues Resolved
 1. ✅ Test failures due to marketplace unavailability (resolved by graceful error handling)

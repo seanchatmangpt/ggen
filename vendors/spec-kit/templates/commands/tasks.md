@@ -146,9 +146,9 @@ After creating task TTL files (task.ttl, etc.), generate markdown artifacts:
 1. **Generate tasks.md from TTL sources**:
    ```bash
    cd FEATURE_DIR
-   ggen sync
+   mcpp sync
    ```
-   - This will read `ggen.toml` configuration and generate `generated/tasks.md` from `ontology/task.ttl`
+   - This will read `mcpp.toml` configuration and generate `generated/tasks.md` from `ontology/task.ttl`
    - Verify the generated markdown file exists and is properly formatted
 
 2. **Report completion with**:
@@ -158,4 +158,4 @@ After creating task TTL files (task.ttl, etc.), generate markdown artifacts:
    - Task count summary and parallel opportunities
    - Readiness for next phase (`/speckit.implement`)
 
-**NOTE:** The TTL files are the source of truth; markdown is generated via `ggen sync`.
+**NOTE:** The TTL files are the source of truth; markdown is generated via `mcpp sync`.

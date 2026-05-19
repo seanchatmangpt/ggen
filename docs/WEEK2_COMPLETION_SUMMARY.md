@@ -12,8 +12,8 @@
       - [`pre-commit-hook` Task:](#pre-commit-hook-task)
       - [`ci-gate` Task:](#ci-gate-task)
     - [5. Metrics Dashboard ✅](#5-metrics-dashboard-)
-      - [Metrics Collection: `/Users/sac/ggen/scripts/collect-metrics.sh`](#metrics-collection-userssacggenscriptscollect-metricssh)
-      - [Dashboard Generation: `/Users/sac/ggen/scripts/generate-dashboard.sh`](#dashboard-generation-userssacggenscriptsgenerate-dashboardsh)
+      - [Metrics Collection: `./scripts/collect-metrics.sh`](#metrics-collection-userssacggenscriptscollect-metricssh)
+      - [Dashboard Generation: `./scripts/generate-dashboard.sh`](#dashboard-generation-userssacggenscriptsgenerate-dashboardsh)
   - [🚨 Andon Signals Cleared](#-andon-signals-cleared)
     - [✅ Compilation Check](#-compilation-check)
     - [✅ Format Check](#-format-check)
@@ -57,7 +57,7 @@ Implemented 5 critical efficiency improvements from architect designs, eliminati
 
 ### 1. Auto-Discovery Build Script ✅
 
-**Implementation**: `/Users/sac/ggen/build.rs`
+**Implementation**: `./build.rs`
 
 **Features Delivered**:
 - Glob pattern scanning of `/templates` directory
@@ -210,7 +210,7 @@ cargo make ci-gate
 
 **Scripts Created**:
 
-#### Metrics Collection: `/Users/sac/ggen/scripts/collect-metrics.sh`
+#### Metrics Collection: `./scripts/collect-metrics.sh`
 
 **Metrics Tracked**:
 - Build time (debug and release)
@@ -244,7 +244,7 @@ cargo make ci-gate
 }
 ```
 
-#### Dashboard Generation: `/Users/sac/ggen/scripts/generate-dashboard.sh`
+#### Dashboard Generation: `./scripts/generate-dashboard.sh`
 
 **Features**:
 - Interactive HTML dashboard
@@ -353,17 +353,17 @@ $ cargo test --test template_discovery_test
 ## 📝 Files Created/Modified
 
 ### New Files:
-- `/Users/sac/ggen/build.rs` - Template auto-discovery (187 lines)
-- `/Users/sac/ggen/scripts/collect-metrics.sh` - Metrics collection (155 lines)
-- `/Users/sac/ggen/tests/integration/template_discovery_test.rs` - Integration test (132 lines)
+- `./build.rs` - Template auto-discovery (187 lines)
+- `./scripts/collect-metrics.sh` - Metrics collection (155 lines)
+- `./tests/integration/template_discovery_test.rs` - Integration test (132 lines)
 
 ### Modified Files:
-- `/Users/sac/ggen/Makefile.toml` - Added `pre-commit-hook` and `ci-gate` tasks
-- `/Users/sac/ggen/crates/ggen-dod/src/observation.rs` - Fixed test imports
-- `/Users/sac/ggen/crates/ggen-dod/src/doctrine.rs` - Fixed unused mut
+- `./Makefile.toml` - Added `pre-commit-hook` and `ci-gate` tasks
+- `./crates/ggen-dod/src/observation.rs` - Fixed test imports
+- `./crates/ggen-dod/src/doctrine.rs` - Fixed unused mut
 
 ### Existing Files Enhanced:
-- `/Users/sac/ggen/scripts/generate-dashboard.sh` - Dashboard already existed
+- `./scripts/generate-dashboard.sh` - Dashboard already existed
 
 ---
 

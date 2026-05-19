@@ -18,7 +18,7 @@ Complete Tera template system for generating idiomatic Elixir code from RDF spec
 | `test.ex.tera` | 150+ | ExUnit test suites | ✅ Complete |
 | `module.ex.tera` | 100+ | Basic Elixir modules | ✅ Complete |
 
-**Location**: `/Users/sac/ggen/crates/ggen-craftplan/templates/elixir/`
+**Location**: `./crates/ggen-craftplan/templates/elixir/`
 
 ### 2. Documentation
 
@@ -27,7 +27,7 @@ Complete Tera template system for generating idiomatic Elixir code from RDF spec
 | `TEMPLATE_REFERENCE.md` | Complete template guide (550+ lines) | ✅ Complete |
 | `README.md` | Crate overview and quick start | ✅ Complete |
 
-**Location**: `/Users/sac/ggen/crates/ggen-craftplan/docs/`
+**Location**: `./crates/ggen-craftplan/docs/`
 
 ### 3. Examples
 
@@ -36,7 +36,7 @@ Complete Tera template system for generating idiomatic Elixir code from RDF spec
 | `product-catalog.ttl` | Example RDF ontology | ✅ Complete |
 | `GenerateExpectedOutput.sh` | Template usage demo | ✅ Complete |
 
-**Location**: `/Users/sac/ggen/crates/ggen-craftplan/examples/`
+**Location**: `./crates/ggen-craftplan/examples/`
 
 ### 4. Crate Integration
 
@@ -234,7 +234,7 @@ constraints min_length: 2, max_length: 100, match: ~r/^[\w\s\-\.]+$/
 ## File Structure
 
 ```
-/Users/sac/ggen/crates/ggen-craftplan/
+./crates/ggen-craftplan/
 ├── Cargo.toml                          # ✅ Crate manifest
 ├── README.md                           # ✅ Crate overview
 ├── src/
@@ -365,7 +365,7 @@ end
 
 ## References
 
-- **craftplan Patterns**: `/Users/sac/ggen/vendors/craftplan/lib/`
+- **craftplan Patterns**: `./vendors/craftplan/lib/`
 - **Ash Framework**: https://hexdocs.pm/ash/
 - **Ecto**: https://hexdocs.pm/ecto/
 - **SPARQL 1.1**: https://www.w3.org/TR/sparql11-overview/

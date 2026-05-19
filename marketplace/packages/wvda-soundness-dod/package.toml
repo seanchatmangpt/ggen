@@ -8,8 +8,8 @@ full_name = "wvda-soundness-definition-of-done"
 version = "1.0.0"
 description = "DoD focused on van der Aalst soundness: deadlock freedom, liveness guarantee, boundedness. For workflow engines, process mining, and coordination systems."
 category = "quality-gate"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/wvda-soundness-dod"
 license = "MIT"
 dependencies = []
@@ -40,7 +40,7 @@ source_path = "marketplace/packages/wvda-soundness-dod"
 # Variables for template substitution
 [variables]
 project_name = { type = "string", required = true, description = "Project name" }
-project_uri = { type = "string", default = "http://ggen.chatmangpt.com/project#", description = "Project URI prefix" }
+project_uri = { type = "string", default = "http://mcpp.chatmangpt.com/project#", description = "Project URI prefix" }
 project_version = { type = "string", default = "0.1.0", description = "Project version" }
 max_queue_size = { type = "integer", default = 1000, description = "Default max queue size" }
 default_timeout_ms = { type = "integer", default = 5000, description = "Default blocking operation timeout" }
@@ -50,10 +50,10 @@ max_recursion_depth = { type = "integer", default = 100, description = "Max recu
 [examples]
 basic = """
 # Install the package
-ggen market install wvda-soundness-dod
+mcpp market install wvda-soundness-dod
 
 # Generate WvdA DoD checklist
-ggen template generate wvda-soundness-dod/template.tera \\
+mcpp template generate wvda-soundness-dod/template.tera \\
   --vars '{"project_name":"workflow-engine"}'
 
 # Load ontology and extract
@@ -62,7 +62,7 @@ sparql --query dod-extract.rq --data ontology.ttl
 
 advanced = """
 # Generate with custom soundness parameters
-ggen template generate wvda-soundness-dod/template.tera \\
+mcpp template generate wvda-soundness-dod/template.tera \\
   --vars '{
     "project_name": "process-miner",
     "max_queue_size": 5000,

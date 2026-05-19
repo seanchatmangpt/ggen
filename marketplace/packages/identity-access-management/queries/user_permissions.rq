@@ -1,4 +1,4 @@
-PREFIX iam: <https://ggen.ai/ontology/iam#>
+PREFIX iam: <https://mcpp.ai/ontology/iam#>
 SELECT ?user ?role ?permission ?resource ?action WHERE {
   ?user iam:hasRole ?role .
   ?role iam:hasPermission ?permission .

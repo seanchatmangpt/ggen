@@ -38,7 +38,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! # Ok(())
 //! # }
@@ -50,7 +50,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert(
 //!     "io.ggen.rust.cli",
@@ -68,7 +68,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert_with_pqc(
 //!     "io.ggen.rust.cli",
@@ -83,7 +83,7 @@
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use lru::LruCache;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};

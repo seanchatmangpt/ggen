@@ -182,7 +182,7 @@ Once fixed, target metrics:
 #!/bin/bash
 # Run this to fix immediate blockers
 
-cd /Users/sac/ggen/ggen-core
+cd ./ggen-core
 
 # 1. Fix type error
 sed -i '' 's/path: "readiness.toml".to_string(),/path: "readiness.toml".into(),/' \

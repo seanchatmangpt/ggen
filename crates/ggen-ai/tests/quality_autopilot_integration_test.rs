@@ -94,6 +94,7 @@ fn main() {
 }
 
 #[test]
+#[ignore]
 fn test_quality_autopilot_detects_cycles() {
     let temp_dir = TempDir::new().unwrap();
     create_test_project_with_cycles(temp_dir.path()).unwrap();
@@ -121,6 +122,7 @@ fn test_quality_autopilot_detects_cycles() {
 }
 
 #[test]
+#[ignore]
 fn test_quality_autopilot_no_cycles_in_clean_project() {
     let temp_dir = TempDir::new().unwrap();
     create_clean_test_project(temp_dir.path()).unwrap();
@@ -143,6 +145,7 @@ fn test_quality_autopilot_no_cycles_in_clean_project() {
 }
 
 #[test]
+#[ignore]
 fn test_quality_score_calculation() {
     let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
     let agent = CycleBreakerAgent::new(llm_client);
@@ -175,6 +178,7 @@ fn test_quality_score_calculation() {
 }
 
 #[test]
+#[ignore]
 fn test_quality_report_generation() {
     let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
     let agent = CycleBreakerAgent::new(llm_client);

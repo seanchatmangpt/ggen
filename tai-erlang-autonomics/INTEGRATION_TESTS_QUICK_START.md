@@ -1,7 +1,7 @@
 # Integration Tests Quick Start Guide
 
 **Test Suite**: `taiea_http_governor_integration_SUITE`
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
 **Test Cases**: 13 (all passing/ready)
 
 ---
@@ -9,7 +9,7 @@
 ## TL;DR - Run Tests Now
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_governor_integration_SUITE
 ```
 

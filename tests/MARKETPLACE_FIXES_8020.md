@@ -19,7 +19,7 @@
 ## ✅ Gap #1: Lifecycle Init on Existing Packages (FIXED)
 
 ### Problem
-`ggen lifecycle run init` tried to run `cargo init` even when Cargo.toml already existed, causing marketplace packages to fail on initialization.
+`mcpp lifecycle run init` tried to run `cargo init` even when Cargo.toml already existed, causing marketplace packages to fail on initialization.
 
 **Error**:
 ```bash
@@ -66,13 +66,13 @@ test test_marketplace_project_lifecycle_init ... ok
 ## ✅ Gap #2: Path Dependencies in Marketplace Packages (FIXED)
 
 ### Problem
-The `advanced-rust-api-8020` package had path dependencies to `ggen-core` and `ggen-ai` which don't exist when the package is downloaded standalone from the marketplace.
+The `advanced-rust-api-8020` package had path dependencies to `mcpp-core` and `mcpp-ai` which don't exist when the package is downloaded standalone from the marketplace.
 
 **Error**:
 ```bash
-error: failed to load manifest for dependency `ggen-ai`
+error: failed to load manifest for dependency `mcpp-ai`
 Caused by:
-  failed to read `/path/to/ggen-ai/Cargo.toml`
+  failed to read `/path/to/mcpp-ai/Cargo.toml`
 Caused by:
   No such file or directory (os error 2)
 ```
@@ -87,17 +87,17 @@ Disabled AI generation features in the standalone marketplace version. The packa
 
 #### 1. Cargo.toml - Commented out path dependencies
 ```toml
-# ggen integration (optional - for AI-powered generation)
-# NOTE: These are only available when building from the ggen monorepo
+# mcpp integration (optional - for AI-powered generation)
+# NOTE: These are only available when building from the mcpp monorepo
 # Marketplace standalone version doesn't include AI generation features
-# ggen-core = { path = "../../ggen-core", optional = true }
-# ggen-ai = { path = "../../ggen-ai", optional = true }
+# mcpp-core = { path = "../../mcpp-core", optional = true }
+# mcpp-ai = { path = "../../mcpp-ai", optional = true }
 ```
 
 #### 2. Cargo.toml - Disabled ai-generator binary
 ```toml
 # AI generator binary disabled in standalone marketplace version
-# Requires ggen-core and ggen-ai dependencies
+# Requires mcpp-core and mcpp-ai dependencies
 # [[bin]]
 # name = "ai-generator"
 # path = "src/bin/ai_generator.rs"
@@ -108,11 +108,11 @@ Disabled AI generation features in the standalone marketplace version. The packa
 [lifecycle.generate]
 description = "AI-powered code generation from specifications"
 commands = [
-    "echo '🤖 AI generation requires ggen-core and ggen-ai dependencies'",
+    "echo '🤖 AI generation requires mcpp-core and mcpp-ai dependencies'",
     "echo '📝 For standalone marketplace version, implement endpoints manually'",
     "echo '✅ Skipping AI generation in standalone mode'",
     # AI generation disabled in standalone marketplace version
-    # Uncomment these when ggen-core and ggen-ai are available:
+    # Uncomment these when mcpp-core and mcpp-ai are available:
     # "cargo run --bin ai-generator -- --spec data/api-spec.ttl --output src/api",
 ]
 ```
@@ -198,17 +198,17 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 ## 📝 Changes Made (Files Modified)
 
-### 1. `/Users/sac/ggen/examples/advanced-rust-api-8020/make.toml`
+### 1. `~/.ggen/mcpp/examples/advanced-rust-api-8020/make.toml`
 **Line 18**: Added conditional cargo init
 ```bash
 "test -f Cargo.toml || cargo init --lib --name advanced_rust_api .",
 ```
 
-### 2. `/Users/sac/ggen/examples/advanced-rust-api-8020/Cargo.toml`
+### 2. `~/.ggen/mcpp/examples/advanced-rust-api-8020/Cargo.toml`
 **Lines 53-57**: Commented out path dependencies
 ```toml
-# ggen-core = { path = "../../ggen-core", optional = true }
-# ggen-ai = { path = "../../ggen-ai", optional = true }
+# mcpp-core = { path = "../../mcpp-core", optional = true }
+# mcpp-ai = { path = "../../mcpp-ai", optional = true }
 ```
 
 **Lines 19-23**: Disabled ai-generator binary
@@ -225,11 +225,11 @@ default = []
 # AI generation features disabled in standalone marketplace version
 ```
 
-### 3. `/Users/sac/ggen/examples/advanced-rust-api-8020/make.toml`
+### 3. `~/.ggen/mcpp/examples/advanced-rust-api-8020/make.toml`
 **Lines 49-58**: Updated generate phase
 ```toml
 commands = [
-    "echo '🤖 AI generation requires ggen-core and ggen-ai dependencies'",
+    "echo '🤖 AI generation requires mcpp-core and mcpp-ai dependencies'",
     "echo '📝 For standalone marketplace version, implement endpoints manually'",
     "echo '✅ Skipping AI generation in standalone mode'",
 ]
@@ -254,7 +254,7 @@ commands = [
 **Total Value**: Production-ready marketplace
 
 ### Ignored 80% (Low Value or High Effort)
-❌ Publishing ggen-core/ggen-ai to crates.io - High effort, not critical
+❌ Publishing mcpp-core/mcpp-ai to crates.io - High effort, not critical
 ❌ Implementing conditional compilation - Complex, not needed
 ❌ Creating separate marketplace branch - Maintenance overhead
 
@@ -277,17 +277,17 @@ commands = [
 **Developer Experience**:
 ```bash
 # User downloads advanced-rust-api-8020 from marketplace
-$ ggen market add "advanced-rust-api-8020"
+$ mcpp market add "advanced-rust-api-8020"
 ✅ Package downloaded
 
 $ cd advanced-rust-api-8020
-$ ggen lifecycle run init
+$ mcpp lifecycle run init
 ✅ Lifecycle init completed successfully  # <-- FIXED!
 
 $ cargo build
 ✅ Build succeeded  # <-- FIXED!
 
-$ ggen lifecycle readiness
+$ mcpp lifecycle readiness
 🚀 Production Readiness Report
 📊 Overall Score: 85.0%  # <-- WORKS!
 ```
@@ -322,16 +322,16 @@ $ ggen lifecycle readiness
 
 ## 🔮 Future Enhancements (Not Critical)
 
-When ggen-core and ggen-ai are published to crates.io:
+When mcpp-core and mcpp-ai are published to crates.io:
 
 1. **Re-enable AI Generation** (2 hours)
    ```toml
    [dependencies]
-   ggen-core = { version = "1.2", optional = true }
-   ggen-ai = { version = "1.2", optional = true }
+   mcpp-core = { version = "1.2", optional = true }
+   mcpp-ai = { version = "1.2", optional = true }
 
    [features]
-   ai-generation = ["ggen-core", "ggen-ai"]
+   ai-generation = ["mcpp-core", "mcpp-ai"]
    ```
 
 2. **Add Build Validation Test** (1 hour)
@@ -377,7 +377,7 @@ The marketplace is **production-ready** with:
 
 ---
 
-**Fixed by**: Claude (ggen development assistant)
+**Fixed by**: Claude (mcpp development assistant)
 **Date**: 2025-10-12
 **Test Suite**: `cli/tests/marketplace_cleanroom_e2e.rs`
 **Status**: ✅ ALL GAPS FIXED - PRODUCTION READY

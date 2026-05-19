@@ -230,7 +230,7 @@ else
         echo "RDF_INFRASTRUCTURE:"
         check_dir "$ONTOLOGY_DIR" "  ontology/"
         check_dir "$GENERATED_DIR" "  generated/"
-        check_file "$GGEN_CONFIG" "  ggen.toml"
+        check_file "$GGEN_CONFIG" "  mcpp.toml"
         check_file "$SCHEMA_TTL" "  ontology/spec-kit-schema.ttl (symlink)"
         echo ""
     else

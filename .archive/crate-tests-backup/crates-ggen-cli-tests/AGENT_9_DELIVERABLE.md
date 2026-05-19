@@ -11,7 +11,7 @@ Create comprehensive test suite for all migrated CLI commands validating the arc
 ## ✅ Deliverables
 
 ### 1. Integration Tests (`integration.rs`)
-**File**: `/Users/sac/ggen/cli/tests/integration.rs`
+**File**: `./cli/tests/integration.rs`
 **Size**: 14K (556 lines)
 **Tests**: 21 comprehensive test cases
 **Status**: ✅ 76% pass rate (16/21 passing)
@@ -55,7 +55,7 @@ Create comprehensive test suite for all migrated CLI commands validating the arc
    - ✅ Subcommand help
 
 ### 2. E2E Tests (`e2e.rs`)
-**File**: `/Users/sac/ggen/cli/tests/e2e.rs`
+**File**: `./cli/tests/e2e.rs`
 **Size**: 18K (719 lines)
 **Tests**: 18 end-to-end scenarios
 **Status**: ✅ Created, ready for execution
@@ -95,7 +95,7 @@ Create comprehensive test suite for all migrated CLI commands validating the arc
    - Large template generation
 
 ### 3. Performance Tests (`performance.rs`)
-**File**: `/Users/sac/ggen/cli/tests/performance.rs`
+**File**: `./cli/tests/performance.rs`
 **Size**: 16K (642 lines)
 **Tests**: 18 performance validation tests
 **Status**: ✅ Created, ready for execution

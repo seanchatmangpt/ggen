@@ -50,7 +50,7 @@
 //! }
 //! ```
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::path::Path;
 
 pub mod clap_noun_verb;

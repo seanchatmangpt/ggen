@@ -3,7 +3,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix hl7: <http://hl7.org/v2/> .
-@prefix hl7-ontology: <http://ggen.io/ontology/hl7-v2#> .
+@prefix hl7-ontology: <http://mcpp.io/ontology/hl7-v2#> .
 
 # HL7 v2 Integration Ontology
 # Implements HL7 v2.x message types, segments, and data types

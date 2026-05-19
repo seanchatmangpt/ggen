@@ -5,8 +5,8 @@
 //!
 //! Test Count: 50+ tests covering search operations
 
-use ggen_marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion, QualityScore};
-use ggen_marketplace::search::{SearchEngine, SearchQuery, SortBy};
+use ggen_core::marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion, QualityScore};
+use ggen_core::marketplace::search::{SearchEngine, SearchQuery, SortBy};
 
 // ============================================================================
 // SECTION 1: SearchQuery Builder Tests (20 tests)

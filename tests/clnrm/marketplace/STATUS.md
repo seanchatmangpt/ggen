@@ -27,7 +27,7 @@ These files use the `[[scenario]]` format which requires additional setup:
 5. **otel_validation.clnrm.toml** - OTEL validation with scenarios
 
 **Note**: These files may require:
-- Running actual ggen services in containers
+- Running actual mcpp services in containers
 - Setting up proper test infrastructure
 - More complex validation logic
 
@@ -35,7 +35,7 @@ These files use the `[[scenario]]` format which requires additional setup:
 
 ```bash
 # Validate the working test files
-cd /Users/sac/ggen/tests/clnrm/marketplace
+cd ~/.ggen/mcpp/tests/clnrm/marketplace
 clnrm validate search_test.clnrm.toml p2p_test.clnrm.toml
 
 # Run the tests

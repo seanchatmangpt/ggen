@@ -1,6 +1,6 @@
 # CLNRM Test Suite
 
-This directory contains `.clnrm.toml` test configurations that validate ggen functionality using hermetic, deterministic execution with comprehensive OpenTelemetry tracing.
+This directory contains `.clnrm.toml` test configurations that validate mcpp functionality using hermetic, deterministic execution with comprehensive OpenTelemetry tracing.
 
 ## Overview
 
@@ -48,10 +48,10 @@ docker run -d \
   otel/opentelemetry-collector:latest
 ```
 
-### 3. Build ggen
+### 3. Build mcpp
 
 ```bash
-cd /Users/sac/ggen
+cd ~/.ggen/mcpp
 cargo build --release
 ```
 
@@ -306,7 +306,7 @@ Expected performance for each test:
 ## Support
 
 - **CLNRM Issues**: https://github.com/sac/clnrm/issues
-- **Ggen Issues**: https://github.com/seanchatmangpt/ggen/issues
+- **Ggen Issues**: https://github.com/seanchatmangpt/mcpp/issues
 
 ---
 

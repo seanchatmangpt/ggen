@@ -27,7 +27,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 1. Core E2E Tests (ggen-core)
 
-**Location:** `/Users/sac/ggen/crates/ggen-core/tests/`
+**Location:** `./crates/ggen-core/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -44,7 +44,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 2. CLI E2E Tests (ggen-cli)
 
-**Location:** `/Users/sac/ggen/crates/ggen-cli/tests/`
+**Location:** `./crates/ggen-cli/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -68,7 +68,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 3. MCP/A2A E2E Tests (ggen-a2a-mcp)
 
-**Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/`
+**Location:** `./crates/ggen-a2a-mcp/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -79,7 +79,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 4. TPS E2E Tests (ggen-e2e-tps)
 
-**Location:** `/Users/sac/ggen/crates/ggen-e2e-tps/tests/`
+**Location:** `./crates/ggen-e2e-tps/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -93,7 +93,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 5. Platform E2E Tests (ggen-e2e)
 
-**Location:** `/Users/sac/ggen/crates/ggen-e2e/tests/`
+**Location:** `./crates/ggen-e2e/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -104,7 +104,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 6. AI E2E Tests (ggen-ai)
 
-**Location:** `/Users/sac/ggen/crates/ggen-ai/tests/`
+**Location:** `./crates/ggen-ai/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -114,7 +114,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### 7. YAWL E2E Tests (ggen-yawl)
 
-**Location:** `/Users/sac/ggen/crates/ggen-yawl/tests/`
+**Location:** `./crates/ggen-yawl/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -129,7 +129,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### Migration Status: 100% Complete
 
-**Reference:** `/Users/sac/ggen/docs/CHICAGO_TDD_MIGRATION_FINAL_REPORT.md`
+**Reference:** `./docs/CHICAGO_TDD_MIGRATION_FINAL_REPORT.md`
 
 | Metric | Before | After | Change |
 |--------|--------|-------|--------|
@@ -163,7 +163,7 @@ The ggen v6.0.0 codebase has completed comprehensive end-to-end (e2e) validation
 
 ### Required Spans Verified
 
-**Reference:** `/Users/sac/ggen/.claude/rules/otel-validation.md`
+**Reference:** `./.claude/rules/otel-validation.md`
 
 | Feature | Required Spans | Status |
 |---------|---------------|--------|
@@ -193,7 +193,7 @@ grep -E "llm\.complete|llm\.model|llm\.total_tokens" otel_output.txt
 
 ### Domain Integration Tests
 
-**Location:** `/Users/sac/ggen/crates/ggen-domain/tests/`
+**Location:** `./crates/ggen-domain/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -204,7 +204,7 @@ grep -E "llm\.complete|llm\.model|llm\.total_tokens" otel_output.txt
 
 ### Core Integration Tests
 
-**Location:** `/Users/sac/ggen/crates/ggen-core/tests/`
+**Location:** `./crates/ggen-core/tests/`
 
 | Test File | Purpose | Status |
 |-----------|---------|--------|
@@ -263,7 +263,7 @@ test result: ok. 3 passed; 0 failed
 ### Test Organization
 
 ```
-/Users/sac/ggen/
+./
 ├── crates/
 │   ├── ggen-core/tests/          (22 e2e/integration files)
 │   ├── ggen-cli/tests/           (28 e2e/integration files)

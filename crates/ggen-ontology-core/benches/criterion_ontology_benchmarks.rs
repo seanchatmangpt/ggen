@@ -10,7 +10,7 @@
 //! - Inference: Run reasoner to infer new triples
 //! - Validation: Validate ontology syntax and semantics
 //!
-//! Generated from: /Users/sac/chatmangpt/OSA/priv/ontologies/benchmark_schema.ttl
+//! Generated from: ~/.ggen/chatmangpt/OSA/priv/ontologies/benchmark_schema.ttl
 //! Date: 2026-03-29
 //!
 //! Run with:
@@ -19,7 +19,7 @@
 //! Requires Oxigraph running at localhost:7878
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_ontology_core::{
+use ggen_core::ontology_core::{
     entity_mapper::EntityMapper, sparql_generator::SparqlGenerator, triple_store::TripleStore,
     validators::validate_turtle,
 };

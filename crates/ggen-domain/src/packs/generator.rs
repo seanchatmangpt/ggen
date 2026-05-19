@@ -1,7 +1,7 @@
 //! Pack template generation logic
 
 use crate::packs::metadata::load_pack_metadata;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -55,12 +55,12 @@ pub async fn generate_from_pack(input: &GenerateInput) -> Result<GenerateOutput>
 
     if templates_to_use.is_empty() {
         if let Some(ref template_name) = input.template_name {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(ggen_core::utils::error::Error::new(&format!(
                 "Template '{}' not found in pack '{}'",
                 template_name, input.pack_id
             )));
         } else {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(ggen_core::utils::error::Error::new(&format!(
                 "No templates found in pack '{}'",
                 input.pack_id
             )));

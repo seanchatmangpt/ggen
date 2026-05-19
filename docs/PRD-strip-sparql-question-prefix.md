@@ -179,7 +179,7 @@ Any existing templates using `row["varname"]` will break. Search scope:
 
 ```bash
 # Find all templates using the old ?-prefix access pattern
-grep -rn 'row\["\?' /Users/sac/ggen --include="*.tera"
+grep -rn 'row\["\?' . --include="*.tera"
 ```
 
 Known affected templates (to update alongside the fix):

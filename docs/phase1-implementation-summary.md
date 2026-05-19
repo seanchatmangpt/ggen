@@ -35,7 +35,7 @@ Successfully implemented Phase 1 of the ggen v4.0 Pack Installation System roadm
 
 ### 1. Core Data Structures
 
-**File**: `/Users/sac/ggen/crates/ggen-core/src/packs/lockfile.rs` (501 lines)
+**File**: `./crates/ggen-core/src/packs/lockfile.rs` (501 lines)
 
 #### `PackLockfile`
 ```rust
@@ -128,7 +128,7 @@ Packs: 3
 
 ### 6. Comprehensive Test Suite
 
-**File**: `/Users/sac/ggen/crates/ggen-core/tests/lockfile_test.rs` (429 lines)
+**File**: `./crates/ggen-core/tests/lockfile_test.rs` (429 lines)
 
 **14 Tests Total** - All Passing ✅
 
@@ -149,8 +149,8 @@ Packs: 3
 
 ### 7. Module Integration
 
-- ✅ Created `/Users/sac/ggen/crates/ggen-core/src/packs/mod.rs`
-- ✅ Updated `/Users/sac/ggen/crates/ggen-core/src/lib.rs` with public exports
+- ✅ Created `./crates/ggen-core/src/packs/mod.rs`
+- ✅ Updated `./crates/ggen-core/src/lib.rs` with public exports
 - ✅ Re-exported types: `PackLockfile`, `LockedPack`, `PackSource`
 
 ## Test Results
@@ -193,7 +193,7 @@ test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ## File Structure
 
 ```
-/Users/sac/ggen/crates/ggen-core/
+./crates/ggen-core/
 ├── src/
 │   ├── packs/
 │   │   ├── mod.rs              (module exports)

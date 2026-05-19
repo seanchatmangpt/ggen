@@ -3,9 +3,9 @@
 //! Tests the full flow: plan → apply → gen
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::project::apply::{apply_plan, ApplyInput};
-use ggen_domain::project::gen::{execute_gen, GenInput};
-use ggen_domain::project::plan::{create_plan, PlanInput};
+use ggen_core::domain::project::apply::{apply_plan, ApplyInput};
+use ggen_core::domain::project::gen::{execute_gen, GenInput};
+use ggen_core::domain::project::plan::{create_plan, PlanInput};
 use std::fs;
 use tempfile::tempdir;
 

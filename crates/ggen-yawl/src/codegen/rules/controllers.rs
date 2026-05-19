@@ -4,8 +4,8 @@
 //! over HTTP REST APIs for YAWL entities.
 
 use crate::error::{Error, Result};
-use ggen_codegen::Result as CodegenResult;
-use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
+use ggen_core::codegen_lib::Result as CodegenResult;
+use ggen_core::codegen_lib::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};

@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-OUTPUT_DIR="/Users/sac/ggen/specs/004-optimize-test-concurrency/dflss/msa_data"
+OUTPUT_DIR="./specs/004-optimize-test-concurrency/dflss/msa_data"
 mkdir -p "$OUTPUT_DIR"
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)

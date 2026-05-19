@@ -7,7 +7,7 @@ Real-world examples of CLI applications you can generate with this template.
 Convert between different file formats.
 
 ```turtle
-@prefix cli: <http://ggen.dev/ontology/cli#> .
+@prefix cli: <http://mcpp.dev/ontology/cli#> .
 
 :Converter a cli:CLIApplication ;
     cli:commandName "convert" ;

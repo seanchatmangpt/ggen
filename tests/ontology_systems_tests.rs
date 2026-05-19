@@ -9,8 +9,8 @@
 //! - Pattern mining
 //! - Atomic promotion
 
-use ggen_core::ontology::*;
-use ggen_utils::error::Result;
+use mcpp_core::ontology::*;
+use mcpp_utils::error::Result;
 use std::collections::BTreeMap;
 
 // =============================================================================

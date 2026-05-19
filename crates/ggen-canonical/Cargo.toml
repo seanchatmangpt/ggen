@@ -1,5 +1,5 @@
 [package]
-name = "ggen-canonical"
+name = "mcpp-canonical"
 version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]

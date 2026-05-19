@@ -173,7 +173,7 @@ sparql-cli/
 ### README.md (875 lines)
 Comprehensive documentation covering:
 - Features overview
-- Installation (cargo, source, ggen)
+- Installation (cargo, source, mcpp)
 - Quick start guide
 - Detailed usage for all verbs
 - Query type examples (SELECT, ASK, CONSTRUCT, DESCRIBE)
@@ -328,9 +328,9 @@ sparql-cli endpoint benchmark \
    ./scripts/deploy.sh INSTALL=true
    ```
 
-3. **Via ggen**:
+3. **Via mcpp**:
    ```bash
-   ggen install sparql-cli
+   mcpp install sparql-cli
    ```
 
 ## Quality Metrics

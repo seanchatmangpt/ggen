@@ -6,7 +6,7 @@
 //! - Monotonicity: task state transitions preserve ordering
 //! - Resource safety: no leaks in task lifecycle
 
-use ggen_a2a::{
+use ggen_core::a2a::{
     Artifact, ArtifactContent, ArtifactType, StateTransition, Task, TaskState, TaskStateMachine,
 };
 use proptest::prelude::*;

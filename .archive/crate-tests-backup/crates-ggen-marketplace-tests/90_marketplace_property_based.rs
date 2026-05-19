@@ -9,7 +9,7 @@
 //! 3. Search Engine Properties (determinism, relevance)
 //! 4. Parser Properties (PackageId, Version validation)
 
-use ggen_marketplace::{
+use ggen_core::marketplace::{
     models::{Package, PackageId, PackageMetadata, PackageVersion, QualityScore},
     search::{SearchEngine, SearchQuery, SortBy},
     security::{ChecksumCalculator, KeyPair, SignatureVerifier},

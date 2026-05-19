@@ -7,7 +7,7 @@
 
 ### cargo make Target Descriptions (Before Enhancement)
 
-Analyzed `/Users/sac/ggen/Makefile.toml` for existing tool descriptions:
+Analyzed `./Makefile.toml` for existing tool descriptions:
 
 **Example: cargo make check (line 22)**:
 ```

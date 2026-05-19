@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents through systematic problem-solving using DMAIC methodology for ggen issues. DMAIC (Define, Measure, Analyze, Improve, Control) is a data-driven approach to solving problems. Experts use DMAIC to avoid jumping to solutions and ensure fixes address root causes.
+This command guides agents through systematic problem-solving using DMAIC methodology for mcpp issues. DMAIC (Define, Measure, Analyze, Improve, Control) is a data-driven approach to solving problems. Experts use DMAIC to avoid jumping to solutions and ensure fixes address root causes.
 
 ## Workflow Overview
 
@@ -25,7 +25,7 @@ Step 1: Define → Step 2: Measure → Step 3: Analyze → Step 4: Improve → S
 ## Problem Statement
 
 **What**: RDF processing exceeds SLO (8s vs ≤ 5s target)
-**Where**: `crates/ggen-core/src/rdf/processor.rs` - `process_rdf()`
+**Where**: `crates/mcpp-core/src/rdf/processor.rs` - `process_rdf()`
 **When**: Processing graphs with 1k+ triples
 **Impact**: Violates SLO, blocks fast iteration, degrades user experience
 **Who**: All users running RDF processing
@@ -350,7 +350,7 @@ chicago_test!(test_rdf_processing_meets_slo, {
 
 ## Expert Insights
 
-**Why this matters**: Jumping to solutions without analysis leads to fixing symptoms, not causes. DMAIC ensures systematic problem-solving for ggen issues.
+**Why this matters**: Jumping to solutions without analysis leads to fixing symptoms, not causes. DMAIC ensures systematic problem-solving for mcpp issues.
 
 **Key principle**: "Data over assumptions" - Use data to drive decisions, not guesses.
 

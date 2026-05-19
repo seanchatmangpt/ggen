@@ -113,9 +113,9 @@ Tests verify:
 - ✅ Chicago TDD verified (all tests pass)
 
 ## Files Modified
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/client.rs` - Main implementation
-2. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/mutex_removal_verification.rs` - New verification tests
-3. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/concurrent_llm_load_test.rs` - Load test (for future use)
+1. `./crates/ggen-a2a-mcp/src/client.rs` - Main implementation
+2. `./crates/ggen-a2a-mcp/tests/mutex_removal_verification.rs` - New verification tests
+3. `./crates/ggen-a2a-mcp/tests/concurrent_llm_load_test.rs` - Load test (for future use)
 
 ## Next Steps
 - Monitor performance in production to verify 10x improvement

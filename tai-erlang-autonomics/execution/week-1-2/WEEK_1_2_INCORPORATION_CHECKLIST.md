@@ -643,7 +643,7 @@ This checklist ensures TAI Autonomics, Inc. achieves **100% legal and operationa
 | 11 | First Board Meeting Minutes | `11_*.md` | ✅ Ready | Day 5 |
 | 12 | **THIS CHECKLIST** | `WEEK_1_2_*.md` | ✅ Ready | Week 2 |
 
-**All documents located**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/`
+**All documents located**: `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/`
 
 ---
 
@@ -823,7 +823,7 @@ This checklist ensures TAI Autonomics, Inc. achieves **100% legal and operationa
 ## DOCUMENT STORAGE STRUCTURE
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/
 
 ├── 01_DELAWARE_INCORPORATION_CHECKLIST.md
 ├── 02_EIN_APPLICATION_GUIDE.md

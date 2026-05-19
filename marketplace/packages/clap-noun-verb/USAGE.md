@@ -35,7 +35,7 @@ src/domain/       ← YOUR CODE (NEVER touched by generator)
 Create a `.ttl` file describing your CLI structure:
 
 ```turtle
-@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix cnv: <https://mcpp.dev/clap-noun-verb/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 # Project metadata
@@ -85,7 +85,7 @@ Create a `.ttl` file describing your CLI structure:
 ### 2. Generate Your CLI
 
 ```bash
-ggen generate \
+mcpp generate \
   --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
   --domain my-cli.ttl \
   --output ./my-cli/
@@ -394,7 +394,7 @@ ontology/
 ```bash
 # 1. Create verb definition (NEW FILE = no conflict)
 cat > ontology/user/verbs/suspend.ttl << 'EOF'
-@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix cnv: <https://mcpp.dev/clap-noun-verb/> .
 @prefix user: <https://example.com/cli/user/> .
 
 user:suspend a cnv:Verb ;
@@ -404,7 +404,7 @@ user:suspend a cnv:Verb ;
 EOF
 
 # 2. Regenerate (only src/generated/ changes - domain untouched)
-ggen generate \
+mcpp generate \
   --template clap-noun-verb/templates/generated-traits.tmpl \
   --domain ontology/cli.ttl \
   --output src/generated/ \

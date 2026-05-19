@@ -35,12 +35,12 @@ cli/src/
 **Command Migrated**: `utils/doctor`
 
 **Files Created**:
-- `/Users/sac/ggen/cli/src/commands/utils/doctor.rs` (17 lines)
-- `/Users/sac/ggen/cli/src/domain/utils/doctor.rs` (162 lines)
-- `/Users/sac/ggen/cli/src/commands/utils/mod.rs` (4 lines)
-- `/Users/sac/ggen/cli/src/commands/mod.rs` (4 lines)
-- `/Users/sac/ggen/cli/src/domain/utils/mod.rs` (2 lines)
-- `/Users/sac/ggen/cli/src/domain/mod.rs` (2 lines)
+- `./cli/src/commands/utils/doctor.rs` (17 lines)
+- `./cli/src/domain/utils/doctor.rs` (162 lines)
+- `./cli/src/commands/utils/mod.rs` (4 lines)
+- `./cli/src/commands/mod.rs` (4 lines)
+- `./cli/src/domain/utils/mod.rs` (2 lines)
+- `./cli/src/domain/mod.rs` (2 lines)
 
 **Architecture Pattern**:
 ```rust
@@ -104,7 +104,7 @@ domain/utils/doctor.rs (162 lines)   # Business logic
 
 ### File Structure
 ```
-/Users/sac/ggen/cli/src/
+./cli/src/
 ├── commands/          # NEW v2.0.0 structure
 │   ├── mod.rs        # Root command module
 │   └── utils/

@@ -1,7 +1,7 @@
 # validate_pipeline_test.rs - Test Report
 
 ## Test Overview
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`
+**File:** `./crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`
 **Purpose:** Chicago TDD tests for the `validate_pipeline` MCP tool
 **Status:** Test exists but cannot run due to compilation errors in other tests in the same crate
 
@@ -25,7 +25,7 @@ let params = serde_json::json!({});
 
 ### Test 3: `test_validate_pipeline_example_manifest_exists`
 **Purpose:** Verify test fixture exists
-**Path:** `/Users/sac/ggen/examples/basic-template-generation/ggen.toml`
+**Path:** `./examples/basic-template-generation/ggen.toml`
 **Expected:** Manifest file exists
 
 ### Test 4: `test_quality_gate_runner_can_be_created`
@@ -103,9 +103,9 @@ cargo test -p ggen-a2a-mcp validate_pipeline_test -- --nocapture
 ```
 
 ## Test File Location
-- **Test:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`
-- **Tool Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (line ~1000)
-- **Quality Gates:** `/Users/sac/ggen/crates/ggen-core/src/poka_yoke/quality_gates.rs`
+- **Test:** `./crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`
+- **Tool Implementation:** `./crates/ggen-a2a-mcp/src/ggen_server.rs` (line ~1000)
+- **Quality Gates:** `./crates/ggen-core/src/poka_yoke/quality_gates.rs`
 
 ## Summary
 

@@ -4,8 +4,8 @@
 [project]
 name = "advanced-rust-project"
 version = "1.0.0"
-description = "Advanced Rust project demonstrating all ggen features"
-author = "ggen-examples"
+description = "Advanced Rust project demonstrating all mcpp features"
+author = "mcpp-examples"
 
 # Lifecycle phases with comprehensive workflow
 [lifecycle.init]
@@ -34,10 +34,10 @@ cache = true
 [lifecycle.generate]
 description = "Generate code using AI and templates"
 commands = [
-  "../../../target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
-  "../../../target/release/ggen ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
-  "../../../target/release/ggen ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
-  "../../../target/release/ggen ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
+  "../../../target/release/mcpp ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
+  "../../../target/release/mcpp ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
+  "../../../target/release/mcpp ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
+  "../../../target/release/mcpp ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
   "echo 'Code generation completed'",
 ]
 depends_on = ["setup"]
@@ -102,20 +102,20 @@ retry_delay_seconds = 5
 # State management
 [state]
 persist_execution_state = true
-state_file = ".ggen/state.json"
+state_file = ".mcpp/state.json"
 backup_state = true
 
 # Caching configuration
 [cache]
 enable_caching = true
-cache_directory = ".ggen/cache"
+cache_directory = ".mcpp/cache"
 cache_ttl_seconds = 3600
 invalidate_on_change = true
 
 # Monitoring and observability
 [monitoring]
 enable_metrics = true
-metrics_file = ".ggen/metrics.json"
+metrics_file = ".mcpp/metrics.json"
 log_level = "info"
 trace_execution = true
 
@@ -124,4 +124,4 @@ trace_execution = true
 validate_commands = true
 block_dangerous_commands = true
 require_confirmation = false
-audit_log = ".ggen/audit.log"
+audit_log = ".mcpp/audit.log"

@@ -178,13 +178,13 @@ cm:integration_chain a cm:IntegrationChain ;
 
 ## Files Created
 
-1. **OTEL Proof Output:** `/Users/sac/ggen/docs/research/last10-commits/chatmangpt-otel-proof.txt`
+1. **OTEL Proof Output:** `./docs/research/last10-commits/chatmangpt-otel-proof.txt`
    - Complete OTEL span evidence
    - Test results
    - Network latency proof
    - Generated code examples
 
-2. **Summary Document:** `/Users/sac/ggen/docs/research/last10-commits/chatmangpt-otel-summary.md`
+2. **Summary Document:** `./docs/research/last10-commits/chatmangpt-otel-summary.md`
    - Executive summary
    - Verification status
    - Evidence sources

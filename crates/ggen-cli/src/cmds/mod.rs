@@ -49,7 +49,7 @@ pub mod utils;
 pub mod workflow;
 pub mod yawl;
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// Setup and run the command router using clap-noun-verb v3.4.0 auto-discovery
 pub fn run_cli() -> Result<()> {
@@ -62,6 +62,6 @@ pub fn run_cli() -> Result<()> {
 
     // Use clap-noun-verb's auto-discovery to find all [verb] functions
     clap_noun_verb::run()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }

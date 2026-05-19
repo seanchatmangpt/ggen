@@ -7,8 +7,8 @@ full_name = "IEEE Conference Paper Template"
 version = "1.0.0"
 description = "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support"
 category = "academic-paper"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/ieee-paper-template"
 license = "MIT"
 production = true
@@ -57,32 +57,32 @@ discipline = { type = "string", default = "Computer Science", description = "Aca
 [examples]
 basic = """
 # Create a new IEEE paper
-ggen paper new "Deep Learning for Code Generation" --template ieee
+mcpp paper new "Deep Learning for Code Generation" --template ieee
 
 # Edit the paper RDF ontology
-ggen paper edit paper.rdf --section abstract
+mcpp paper edit paper.rdf --section abstract
 
 # Generate LaTeX
-ggen paper generate paper.rdf --style ieee --output paper.tex
+mcpp paper generate paper.rdf --style ieee --output paper.tex
 
 # Compile to PDF
-ggen paper compile paper.tex
+mcpp paper compile paper.tex
 """
 
 advanced = """
 # Create with metadata
-ggen paper new "Research Paper" --template ieee --discipline computer-science
+mcpp paper new "Research Paper" --template ieee --discipline computer-science
 
 # Initialize bibliography
-ggen paper init-bibliography paper.rdf
+mcpp paper init-bibliography paper.rdf
 
 # Add citations from bibliography
-ggen paper validate paper.rdf --check citations
+mcpp paper validate paper.rdf --check citations
 
 # Export to multiple formats
-ggen paper export paper.rdf --format latex
-ggen paper export paper.rdf --format pdf
-ggen paper export paper.rdf --format json-ld
+mcpp paper export paper.rdf --format latex
+mcpp paper export paper.rdf --format pdf
+mcpp paper export paper.rdf --format json-ld
 """
 
 # Documentation

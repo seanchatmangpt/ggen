@@ -1,6 +1,6 @@
 use crate::codegen::{SwarmCoordinator, SwarmSummary};
 use crate::manifest::{GenerationRule, GgenManifest};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 pub struct SwarmExecutorBridge {
     coordinator: SwarmCoordinator,

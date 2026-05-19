@@ -1,4 +1,4 @@
-use ggen_domain::project::*;
+use ggen_core::domain::project::*;
 use tempfile::TempDir;
 
 #[tokio::test]

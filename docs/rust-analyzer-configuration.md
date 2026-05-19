@@ -1,4 +1,4 @@
-# rust-analyzer Configuration for ggen v6.0.1
+# rust-analyzer Configuration for ggen v26.5.4
 
 ## Overview
 
@@ -160,7 +160,7 @@ The workspace uses:
 
 ### Target Performance
 
-Based on research from `/Users/sac/ggen/docs/research/performance-optimization-2026.md`:
+Based on research from `./docs/research/performance-optimization-2026.md`:
 
 | Operation | Target | rust-analyzer Setting |
 |-----------|--------|----------------------|
@@ -225,12 +225,12 @@ Refer to the [rust-analyzer manual](https://rust-analyzer.github.io/manual.html)
 
 - [rust-analyzer Manual](https://rust-analyzer.github.io/manual.html)
 - [rust-analyzer GitHub](https://github.com/rust-analyzer/rust-analyzer)
-- [ggen Performance Research](/Users/sac/ggen/docs/research/performance-optimization-2026.md)
-- [Workspace Cargo.toml](/Users/sac/ggen/Cargo.toml)
+- [ggen Performance Research](./docs/research/performance-optimization-2026.md)
+- [Workspace Cargo.toml](./Cargo.toml)
 
 ## Version History
 
-- **v1.0** (2026-03-31): Initial configuration for ggen v6.0.1
+- **v1.0** (2026-03-31): Initial configuration for ggen v26.5.4
   - Optimized for 30-crate workspace
   - Enabled proc-macro support
   - Configured performance optimizations
@@ -246,6 +246,6 @@ When updating the workspace:
 
 ## Related Documentation
 
-- [CLAUDE.md](/Users/sac/ggen/CLAUDE.md) - Project configuration and rules
-- [Performance Optimization Research](/Users/sac/ggen/docs/research/performance-optimization-2026.md) - Detailed performance analysis
-- [Cargo.toml](/Users/sac/ggen/Cargo.toml) - Workspace configuration
+- [CLAUDE.md](./CLAUDE.md) - Project configuration and rules
+- [Performance Optimization Research](./docs/research/performance-optimization-2026.md) - Detailed performance analysis
+- [Cargo.toml](./Cargo.toml) - Workspace configuration

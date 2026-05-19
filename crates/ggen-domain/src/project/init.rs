@@ -14,7 +14,7 @@
 //! ### Initializing a New Project
 //!
 //! ```rust,no_run
-//! use ggen_domain::project::init::init_project;
+//! use ggen_core::domain::project::init::init_project;
 //! use std::path::Path;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -26,7 +26,7 @@
 //! ### Validating a Project
 //!
 //! ```rust,no_run
-//! use ggen_domain::project::init::is_project;
+//! use ggen_core::domain::project::init::is_project;
 //! use std::path::Path;
 //!
 //! if is_project(Path::new("my-project")) {
@@ -34,7 +34,7 @@
 //! }
 //! ```
 
-use ggen_utils::{bail, error::Result};
+use ggen_core::utils::{bail, error::Result};
 use std::path::Path;
 
 /// Initialize a new project

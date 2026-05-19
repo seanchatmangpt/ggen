@@ -3,7 +3,7 @@
 # Testing real-world workflows
 
 set -e
-TEST_DIR="/Users/sac/ggen/tests/integration-v2"
+TEST_DIR="./tests/integration-v2"
 RESULTS_FILE="$TEST_DIR/test_results.json"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 

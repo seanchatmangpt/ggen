@@ -26,7 +26,7 @@
 ### From Source
 
 ```bash
-git clone https://github.com/ggen-cli/marketplace.git
+git clone https://github.com/mcpp-cli/marketplace.git
 cd marketplace/packages/reasoner-cli
 cargo install --path .
 ```

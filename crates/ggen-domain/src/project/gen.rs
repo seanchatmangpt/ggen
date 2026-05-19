@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Pure business logic with REAL generation
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -35,7 +35,7 @@ fn parse_vars(vars: &[String]) -> Result<HashMap<String, String>> {
     for var in vars {
         let parts: Vec<&str> = var.splitn(2, '=').collect();
         if parts.len() != 2 {
-            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            return Err(ggen_core::utils::error::Error::new_fmt(format_args!(
                 "Invalid variable format: '{}'. Expected 'key=value'",
                 var
             )));
@@ -49,7 +49,7 @@ fn parse_vars(vars: &[String]) -> Result<HashMap<String, String>> {
 fn validate_input(template_ref: &str, vars: &[String]) -> Result<()> {
     // Validate template reference
     if template_ref.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
+        return Err(ggen_core::utils::error::Error::new(
             "Template reference cannot be empty",
         ));
     }
@@ -58,7 +58,7 @@ fn validate_input(template_ref: &str, vars: &[String]) -> Result<()> {
     const MAX_TEMPLATE_REF_LEN: usize = 500;
 
     if template_ref.len() > MAX_TEMPLATE_REF_LEN {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Template reference too long (max {} characters)",
             MAX_TEMPLATE_REF_LEN
         )));
@@ -67,7 +67,7 @@ fn validate_input(template_ref: &str, vars: &[String]) -> Result<()> {
     // Validate variables format
     for var in vars {
         if !var.contains('=') {
-            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            return Err(ggen_core::utils::error::Error::new_fmt(format_args!(
                 "Invalid variable format: '{}'. Expected format: key=value",
                 var
             )));
@@ -75,7 +75,7 @@ fn validate_input(template_ref: &str, vars: &[String]) -> Result<()> {
 
         let parts: Vec<&str> = var.splitn(2, '=').collect();
         if parts.len() != 2 || parts[0].trim().is_empty() {
-            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            return Err(ggen_core::utils::error::Error::new_fmt(format_args!(
                 "Invalid variable format: '{}'. Key cannot be empty",
                 var
             )));
@@ -116,20 +116,20 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
     // Step 3: Resolve template using ggen-core
     // Create managers with defaults
     let cache_manager = CacheManager::new().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to create cache manager: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to create cache manager: {}", e))
     })?;
     let lockfile_manager = LockfileManager::new(&input.output_dir);
 
     let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
     let template_source = resolver.resolve(&input.template_ref).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to resolve template: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to resolve template: {}", e))
     })?;
 
     let template_path = template_source.template_path;
 
     // Step 4: Generate using ggen-core Generator
     let pipeline = Pipeline::new()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
 
     // Convert HashMap to BTreeMap for Generator
     let vars_btree: BTreeMap<String, String> = vars.into_iter().collect();
@@ -141,7 +141,7 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
     let mut generator = Generator::new(pipeline, ctx);
 
     let _output_path = generator.generate().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to generate project: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to generate project: {}", e))
     })?;
 
     // Step 5: Collect operations from generated files
@@ -151,7 +151,7 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
         let files = collect_generated_files(&input.output_dir)?;
         for file_path in files {
             let content = std::fs::read_to_string(&file_path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read generated file: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to read generated file: {}", e))
             })?;
 
             let relative_path = file_path

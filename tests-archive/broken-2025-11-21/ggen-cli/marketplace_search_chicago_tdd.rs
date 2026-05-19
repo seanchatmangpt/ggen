@@ -4,8 +4,8 @@
 //! following the Chicago school of TDD (integration-focused testing).
 
 use chicago_tdd_tools::prelude::*;
-use ggen_domain::marketplace::{execute_search, SearchFilters, SearchInput, SearchResult};
-use ggen_utils::error::Result;
+use ggen_core::domain::marketplace::{execute_search, SearchFilters, SearchInput, SearchResult};
+use ggen_core::utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};

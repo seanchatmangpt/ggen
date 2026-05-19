@@ -516,7 +516,7 @@ V1.1_ROADMAP.md → Outputs from PRODUCT_EXECUTION_LOG.md customer feedback
 
 ## APPENDIX: DOCUMENT LOCATIONS
 
-All files in: `/Users/sac/ggen/tai-erlang-autonomics/execution/`
+All files in: `~/.ggen/mcpp/tai-erlang-autonomics/execution/`
 
 ```
 NEW DOCUMENTS (Created Jan 26, 2026):

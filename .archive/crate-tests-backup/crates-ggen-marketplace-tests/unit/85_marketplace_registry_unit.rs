@@ -5,9 +5,9 @@
 //!
 //! Test Count: 50+ tests covering registry operations
 
-use ggen_marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
-use ggen_marketplace::registry::{CacheStats, Registry};
-use ggen_marketplace::traits::AsyncRepository;
+use ggen_core::marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
+use ggen_core::marketplace::registry::{CacheStats, Registry};
+use ggen_core::marketplace::traits::AsyncRepository;
 
 // ============================================================================
 // SECTION 1: Registry Creation Tests (10 tests)

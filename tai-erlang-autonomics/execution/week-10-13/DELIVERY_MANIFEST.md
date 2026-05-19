@@ -287,7 +287,7 @@ These documents were created in prior weeks and are included for completeness:
 
 ## File Locations
 
-All files are in: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+All files are in: `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-10-13/`
 
 ```
 week-10-13/

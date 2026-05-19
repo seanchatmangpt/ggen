@@ -18,7 +18,7 @@
 inv:InventoryManagementOntology a owl:Ontology ;
     dc:title "Inventory Management Ontology" ;
     dc:description "RDF ontology for inventory and warehouse management systems" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     dc:version "1.0.0" ;
     rdfs:comment "Defines products, stock levels, locations, movements, and valuation" .
 

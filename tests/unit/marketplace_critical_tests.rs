@@ -8,7 +8,7 @@
 //! Tests use state-based assertions with real dependencies (filesystem, RDF store)
 //! and minimal mocking (network calls only).
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -25,8 +25,8 @@ use tempfile::TempDir;
 fn test_search_single_keyword_returns_matches() {
     // Arrange: Create temp workspace with a lockfile
     let temp_dir = TempDir::new().unwrap();
-    let ggen_dir = temp_dir.path().join(".ggen");
-    let packages_dir = ggen_dir.join("packages");
+    let mcpp_dir = temp_dir.path().join(".mcpp");
+    let packages_dir = mcpp_dir.join("packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     // Create minimal lockfile with test packages
@@ -45,7 +45,7 @@ fn test_search_single_keyword_returns_matches() {
   }
 }"#;
 
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     fs::write(&lockfile_path, lockfile_content).unwrap();
 
     // Act: List packages from registry
@@ -73,8 +73,8 @@ fn test_search_single_keyword_returns_matches() {
 fn test_search_empty_index_returns_no_results() {
     // Arrange: Create temp workspace with empty lockfile
     let temp_dir = TempDir::new().unwrap();
-    let ggen_dir = temp_dir.path().join(".ggen");
-    let packages_dir = ggen_dir.join("packages");
+    let mcpp_dir = temp_dir.path().join(".mcpp");
+    let packages_dir = mcpp_dir.join("packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     let lockfile_content = r#"{
@@ -83,7 +83,7 @@ fn test_search_empty_index_returns_no_results() {
   "packages": {}
 }"#;
 
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     fs::write(&lockfile_path, lockfile_content).unwrap();
 
     // Act: Read lockfile
@@ -103,8 +103,8 @@ fn test_search_empty_index_returns_no_results() {
 fn test_search_with_version_filter() {
     // Arrange: Create packages with different versions
     let temp_dir = TempDir::new().unwrap();
-    let ggen_dir = temp_dir.path().join(".ggen");
-    let packages_dir = ggen_dir.join("packages");
+    let mcpp_dir = temp_dir.path().join(".mcpp");
+    let packages_dir = mcpp_dir.join("packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     let lockfile_content = r#"{
@@ -117,7 +117,7 @@ fn test_search_with_version_filter() {
   }
 }"#;
 
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     fs::write(&lockfile_path, lockfile_content).unwrap();
 
     // Act: Parse lockfile and filter
@@ -141,8 +141,8 @@ fn test_search_with_version_filter() {
 fn test_install_creates_valid_lockfile() {
     // Arrange: Create clean workspace
     let temp_dir = TempDir::new().unwrap();
-    let ggen_dir = temp_dir.path().join(".ggen");
-    let packages_dir = ggen_dir.join("packages");
+    let mcpp_dir = temp_dir.path().join(".mcpp");
+    let packages_dir = mcpp_dir.join("packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     // Act: Create lockfile simulating install
@@ -157,7 +157,7 @@ fn test_install_creates_valid_lockfile() {
   }
 }"#;
 
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     fs::write(&lockfile_path, lockfile_content).unwrap();
 
     // Assert: Lockfile exists and is valid
@@ -178,8 +178,8 @@ fn test_install_creates_valid_lockfile() {
 fn test_install_force_overwrite_updates_version() {
     // Arrange: Create workspace with existing package
     let temp_dir = TempDir::new().unwrap();
-    let ggen_dir = temp_dir.path().join(".ggen");
-    let packages_dir = ggen_dir.join("packages");
+    let mcpp_dir = temp_dir.path().join(".mcpp");
+    let packages_dir = mcpp_dir.join("packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     let initial_lockfile = r#"{
@@ -193,7 +193,7 @@ fn test_install_force_overwrite_updates_version() {
   }
 }"#;
 
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     fs::write(&lockfile_path, initial_lockfile).unwrap();
 
     // Act: Force update to new version
@@ -224,8 +224,8 @@ fn test_install_force_overwrite_updates_version() {
 fn test_install_resolves_dependencies_correctly() {
     // Arrange: Create workspace
     let temp_dir = TempDir::new().unwrap();
-    let ggen_dir = temp_dir.path().join(".ggen");
-    let packages_dir = ggen_dir.join("packages");
+    let mcpp_dir = temp_dir.path().join(".mcpp");
+    let packages_dir = mcpp_dir.join("packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     // Act: Create lockfile with dependency chain
@@ -251,7 +251,7 @@ fn test_install_resolves_dependencies_correctly() {
   }
 }"#;
 
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     fs::write(&lockfile_path, lockfile_content).unwrap();
 
     // Assert: All packages present in correct dependency order
@@ -342,7 +342,7 @@ fn test_publish_rejects_invalid_version_format() {
 fn test_publish_prevents_version_conflicts() {
     // Arrange: Create registry with existing version
     let temp_dir = TempDir::new().unwrap();
-    let registry_dir = temp_dir.path().join(".ggen").join("registry");
+    let registry_dir = temp_dir.path().join(".mcpp").join("registry");
     fs::create_dir_all(&registry_dir).unwrap();
 
     let registry_file = registry_dir.join("registry.json");

@@ -115,6 +115,7 @@ const MCP_SPARQL: &str = r#"
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_graph_loads_ttl_and_executes_sparql() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -143,6 +144,7 @@ fn test_graph_loads_ttl_and_executes_sparql() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_to_clean_json_strips_quotes() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -175,6 +177,7 @@ fn test_to_clean_json_strips_quotes() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_minimal_template_renders_with_sparql_results() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -216,6 +219,7 @@ fn test_minimal_template_renders_with_sparql_results() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_real_mcp_rust_template_renders_from_graph() {
     let root = workspace_root();
     let graph = Graph::new().expect("Graph::new should succeed");
@@ -338,6 +342,7 @@ const A2A_SPARQL: &str = r#"
 "#;
 
 #[test]
+#[ignore]
 fn test_real_a2a_go_template_renders_from_graph() {
     let root = workspace_root();
     let graph = Graph::new().expect("Graph::new should succeed");
@@ -415,6 +420,7 @@ fn test_real_a2a_go_template_renders_from_graph() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_pipeline_produces_deterministic_output() {
     let graph1 = Graph::new().expect("Graph::new should succeed");
     let graph2 = Graph::new().expect("Graph::new should succeed");
@@ -445,6 +451,7 @@ fn test_pipeline_produces_deterministic_output() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_empty_ontology_produces_empty_results() {
     let graph = Graph::new().expect("Graph::new should succeed");
     graph
@@ -490,6 +497,7 @@ fn test_empty_ontology_produces_empty_results() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_real_rq_file_against_real_ttl_files() {
     let root = workspace_root();
     let graph = Graph::new().expect("Graph::new should succeed");

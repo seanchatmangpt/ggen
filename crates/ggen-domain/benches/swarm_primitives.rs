@@ -7,7 +7,7 @@
 //! 4. Conflict detection
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_domain::swarm_coordination::{
+use ggen_core::domain::swarm_coordination::{
     CommutativeProposal, ConditionalProposal, ConflictFree, LatencyTier, Priority,
     PriorityScheduler, ProposalAggregator, ResourceCost, ScheduledTask, SchedulingHint,
     SnapshotCell,

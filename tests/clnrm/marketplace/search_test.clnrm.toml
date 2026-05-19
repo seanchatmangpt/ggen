@@ -3,7 +3,7 @@
 # Tests marketplace search with OpenTelemetry span validation
 
 [test.metadata]
-name = "ggen_marketplace_search"
+name = "mcpp_marketplace_search"
 description = "Test marketplace search with OTEL validation"
 version = "1.0.0"
 timeout = "120s"
@@ -11,7 +11,7 @@ tags = ["marketplace", "search", "otel"]
 
 [otel]
 exporter = "otlp"
-resources = { "service.name" = "ggen-marketplace-search-test", "test.type" = "integration" }
+resources = { "service.name" = "mcpp-marketplace-search-test", "test.type" = "integration" }
 
 [services.marketplace_api]
 # Note: 'plugin' defaults to "generic_container", so only 'image' is required

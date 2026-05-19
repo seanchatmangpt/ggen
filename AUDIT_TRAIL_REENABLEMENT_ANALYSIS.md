@@ -16,7 +16,7 @@ The audit trail functionality in `ggen-ai/src/governance/mod.rs` is disabled due
 
 ### 1. Audit Module Exists and is Complete
 
-**File:** `/Users/sac/ggen/crates/ggen-ai/src/governance/audit.rs`
+**File:** `./crates/ggen-ai/src/governance/audit.rs`
 - **Status:** ✅ Fully implemented (451 lines)
 - **Dependencies:** Uses `rusqlite` for SQLite database operations
 - **Features:**
@@ -143,9 +143,9 @@ sqlx = { workspace = true }
 
 ## Files Requiring Changes
 
-1. `/Users/sac/ggen/crates/ggen-ai/Cargo.toml` - Add `sqlx` dependency
-2. `/Users/sac/ggen/crates/ggen-ai/src/governance/audit.rs` - Rewrite to use `sqlx`
-3. `/Users/sac/ggen/crates/ggen-ai/src/governance/mod.rs` - Re-enable audit module
+1. `./crates/ggen-ai/Cargo.toml` - Add `sqlx` dependency
+2. `./crates/ggen-ai/src/governance/audit.rs` - Rewrite to use `sqlx`
+3. `./crates/ggen-ai/src/governance/mod.rs` - Re-enable audit module
 
 ---
 

@@ -134,7 +134,7 @@ dbd1da9d docs(013-analysis): Complete gemba walk + JTBD + DfLSS + Kaizen analysi
 
 ```bash
 # Navigate to repository
-cd /Users/sac/ggen
+cd .
 
 # Create annotated tag using prepared template
 git tag -a v5.2.0 -F docs/RELEASE_TAG_v5.2.0.txt

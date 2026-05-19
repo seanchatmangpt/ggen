@@ -5,7 +5,7 @@
 Run all end-to-end tests:
 
 ```bash
-cd /Users/sac/ggen/crates/ggen-yawl
+cd ./crates/ggen-yawl
 cargo test --test e2e_complete_system_test
 ```
 

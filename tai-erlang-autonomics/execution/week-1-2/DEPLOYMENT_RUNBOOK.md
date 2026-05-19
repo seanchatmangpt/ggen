@@ -136,7 +136,7 @@ echo "✅ GCS bucket for Terraform state created: gs://${STATE_BUCKET}"
 #### 2.1 Build Docker Image Locally (for testing)
 ```bash
 # From repository root
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 
 # Build image (takes 15-20 minutes for Erlang compilation)
 docker build \
@@ -188,7 +188,7 @@ echo "Full image name: $FULL_IMAGE"
 
 #### 3.1 Prepare Terraform Configuration
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/terraform
+cd ~/.ggen/mcpp/tai-erlang-autonomics/terraform
 
 # Initialize Terraform (first time only)
 terraform init \
@@ -257,10 +257,10 @@ echo "✅ Infrastructure deployed successfully"
 #### 4.1 Run Firestore Schema Initialization
 ```bash
 # Make script executable
-chmod +x /Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/firestore-schema-init.sh
+chmod +x ~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/firestore-schema-init.sh
 
 # Run schema initialization
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/firestore-schema-init.sh \
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/firestore-schema-init.sh \
   $PROJECT_ID \
   "us-central1"
 
@@ -376,9 +376,9 @@ echo "✅ SSL/TLS certificate verified"
 
 #### 7.1 Create Monitoring Dashboards
 ```bash
-chmod +x /Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/monitoring-alerts-setup.sh
+chmod +x ~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/monitoring-alerts-setup.sh
 
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/monitoring-alerts-setup.sh \
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/monitoring-alerts-setup.sh \
   $PROJECT_ID \
   "us-central1" \
   "tai-autonomics"

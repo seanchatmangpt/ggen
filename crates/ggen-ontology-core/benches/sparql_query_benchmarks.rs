@@ -15,7 +15,7 @@
 //! Generation date: 2026-03-29
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_ontology_core::{sparql_generator::SparqlGenerator, triple_store::TripleStore};
+use ggen_core::ontology_core::{sparql_generator::SparqlGenerator, triple_store::TripleStore};
 use std::time::Duration;
 
 /// Helper function to get ontology path

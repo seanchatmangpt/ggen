@@ -5,13 +5,13 @@
 //!
 //! Test Count: 40+ tests covering installation operations
 
-use ggen_marketplace::install::{InstallationPlan, Installer, PackageInstallPlan};
-use ggen_marketplace::models::{
+use ggen_core::marketplace::install::{InstallationPlan, Installer, PackageInstallPlan};
+use ggen_core::marketplace::models::{
     InstallationManifest, Package, PackageDependency, PackageId, PackageMetadata, PackageVersion,
     ReleaseInfo,
 };
-use ggen_marketplace::registry::Registry;
-use ggen_marketplace::traits::Installable;
+use ggen_core::marketplace::registry::Registry;
+use ggen_core::marketplace::traits::Installable;
 
 // ============================================================================
 // SECTION 1: Installer Creation Tests (5 tests)

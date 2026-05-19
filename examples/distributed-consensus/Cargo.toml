@@ -26,7 +26,7 @@ rand = "0.8"
 
 # A2A dependencies
 a2a-generated = { path = "../../crates/a2a-generated" }
-ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
+mcpp-a2a-mcp = { path = "../../crates/mcpp-a2a-mcp" }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["async_tokio"] }

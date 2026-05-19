@@ -589,10 +589,10 @@ $ RUST_LOG=trace,ggen_mcp=trace \
 
 ## 📚 References
 
-- **MCP Tool Implementation**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/tools/validate_incremental.rs`
-- **Dependency Analysis**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/dependency_analysis.rs`
-- **OTEL Integration**: `/Users/sac/ggen/docs/otel-verification-guide.md`
-- **Testing Strategy**: `/Users/sac/ggen/.claude/rules/rust/testing.md` (Chicago TDD)
+- **MCP Tool Implementation**: `./crates/ggen-a2a-mcp/src/tools/validate_incremental.rs`
+- **Dependency Analysis**: `./crates/ggen-a2a-mcp/src/dependency_analysis.rs`
+- **OTEL Integration**: `./docs/otel-verification-guide.md`
+- **Testing Strategy**: `./.claude/rules/rust/testing.md` (Chicago TDD)
 
 ---
 

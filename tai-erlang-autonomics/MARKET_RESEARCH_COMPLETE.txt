@@ -37,7 +37,7 @@ DELIVERABLES LOCATION
 ================================================================================
 
 All market research documents are located in:
-/Users/sac/ggen/tai-erlang-autonomics/business/
+/Users/sac/mcpp/tai-erlang-autonomics/business/
 
 PRIMARY DOCUMENTS:
 
@@ -393,7 +393,7 @@ confidence in this market validation."
 STATUS: READY FOR FAMILY REVIEW & INVESTOR PRESENTATION
 ================================================================================
 
-Location: /Users/sac/ggen/tai-erlang-autonomics/business/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/business/
 Files: 9 comprehensive documents, 12,641 total words
 Confidence: HIGH
 Recommendation: PROCEED

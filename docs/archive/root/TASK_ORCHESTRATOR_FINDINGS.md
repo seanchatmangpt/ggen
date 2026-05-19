@@ -46,7 +46,7 @@ Based on initial task request: "systematic clap-noun-verb OTEL fixes coordinatio
 
 ### What Was Actually Found
 1. **No OTEL Integration in clap-noun-verb code**
-   - Zero references to `opentelemetry`, `tracing`, `span`, or `OTEL` in `/Users/sac/ggen/crates/ggen-cli/src/conventions/presets/clap_noun_verb.rs`
+   - Zero references to `opentelemetry`, `tracing`, `span`, or `OTEL` in `./crates/ggen-cli/src/conventions/presets/clap_noun_verb.rs`
    - No OTEL imports or usage patterns
 
 2. **Actual Problem: Missing Template Command**
@@ -68,10 +68,10 @@ Failed tests:
 ```
 
 ### Files Analyzed
-- `/Users/sac/ggen/crates/ggen-cli/src/conventions/presets/clap_noun_verb.rs` (54 lines, no OTEL)
-- `/Users/sac/ggen/crates/ggen-cli/tests/clap_noun_verb_integration.rs` (876 lines, comprehensive tests)
-- `/Users/sac/ggen/Cargo.toml` (workspace manifest with OTEL deps at workspace level)
-- `/Users/sac/ggen/templates/clap-noun-verb-360/*.tmpl` (335 template files found)
+- `./crates/ggen-cli/src/conventions/presets/clap_noun_verb.rs` (54 lines, no OTEL)
+- `./crates/ggen-cli/tests/clap_noun_verb_integration.rs` (876 lines, comprehensive tests)
+- `./Cargo.toml` (workspace manifest with OTEL deps at workspace level)
+- `./templates/clap-noun-verb-360/*.tmpl` (335 template files found)
 
 ## Critical Questions for User
 

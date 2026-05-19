@@ -1,14 +1,14 @@
 # Migration Guide: ggen v5 to v6
 
 **Last Updated:** 2026-03-31
-**Target Audience:** ggen users upgrading from v5.x to v6.0.1
+**Target Audience:** ggen users upgrading from v5.x to v26.5.4
 **Impact Level:** LOW-MEDIUM (Most changes are additive, minimal breaking changes)
 
 ---
 
 ## Executive Summary
 
-ggen v6.0.1 is a **production-ready release** focused on quality, completeness, and protocol integration. The good news: **there are ZERO breaking changes** from v5.1.0 to v6.0.1. This is a patch release that adds new features while maintaining full backward compatibility.
+ggen v26.5.4 is a **production-ready release** focused on quality, completeness, and protocol integration. The good news: **there are ZERO breaking changes** from v5.1.0 to v26.5.4. This is a patch release that adds new features while maintaining full backward compatibility.
 
 **Key Changes:**
 - ✅ **MCP Server Integration** (NEW) - 9 production-ready MCP tools
@@ -32,7 +32,7 @@ brew upgrade ggen
 
 # 2. Verify installation
 ggen --version
-# Expected output: ggen 6.0.1
+# Expected output: ggen 26.5.4
 
 # 3. Test your existing project
 cd your-ggen-project
@@ -108,7 +108,7 @@ path = "./examples"  # Override default examples directory
 - `generate-from-example` - Adapt example to new domain
 - `scaffold-project` - Design new ggen project from scratch
 
-**Documentation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
+**Documentation:** `./crates/ggen-a2a-mcp/README.md`
 
 ---
 
@@ -162,7 +162,7 @@ mode = "Overwrite"
     .
 ```
 
-**Documentation:** `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
+**Documentation:** `./docs/ELIXIR_A2A_NOTES.md`
 
 ---
 
@@ -330,7 +330,7 @@ ggen sync --audit
 # Works fine in v5
 ```
 
-**After (v6.0.1):**
+**After (v26.5.4):**
 
 ```bash
 ggen sync --audit
@@ -350,7 +350,7 @@ ggen init
 ggen wizard --yes
 ```
 
-**After (v6.0.1):**
+**After (v26.5.4):**
 
 ```bash
 # Same as before
@@ -372,7 +372,7 @@ cargo make test
 # Some tests may fail (integration tests not gated)
 ```
 
-**After (v6.0.1):**
+**After (v26.5.4):**
 
 ```bash
 # Fast unit tests (default)
@@ -392,7 +392,7 @@ git push origin main
 ### For Most Users (5 minutes)
 
 - [ ] Update ggen: `cargo install ggen-cli --force`
-- [ ] Verify version: `ggen --version` (should be 6.0.1)
+- [ ] Verify version: `ggen --version` (should be 26.5.4)
 - [ ] Test existing project: `ggen sync --dry-run`
 - [ ] Read about new MCP features (optional)
 
@@ -402,7 +402,7 @@ git push origin main
 - [ ] List available tools: `ggen mcp list`
 - [ ] Test a tool: `ggen mcp test validate`
 - [ ] Configure Claude Desktop (if using)
-- [ ] Read MCP docs: `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
+- [ ] Read MCP docs: `./crates/ggen-a2a-mcp/README.md`
 
 ### For Elixir A2A Users (10 minutes)
 
@@ -410,7 +410,7 @@ git push origin main
 - [ ] Create SPARQL query: `queries/elixir-a2a/extract-agents.rq`
 - [ ] Create Tera templates: `templates/elixir-a2a/*.tera`
 - [ ] Run generation: `ggen sync`
-- [ ] Read Elixir A2A docs: `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
+- [ ] Read Elixir A2A docs: `./docs/ELIXIR_A2A_NOTES.md`
 
 ### For Developers (5 minutes)
 
@@ -426,7 +426,7 @@ git push origin main
 
 **Symptoms:** CLI commands panic with nested runtime error.
 
-**Solution:** This is fixed in v6.0.1. Update to the latest version.
+**Solution:** This is fixed in v26.5.4. Update to the latest version.
 
 ```bash
 cargo install ggen-cli --force
@@ -454,7 +454,7 @@ cargo test --features integration
 
 **Symptoms:** Pre-push hook times out after 90s.
 
-**Solution:** This is fixed in v6.0.1 (timeout increased to 300s).
+**Solution:** This is fixed in v26.5.4 (timeout increased to 300s).
 
 ```bash
 # Update pre-push hook
@@ -498,9 +498,9 @@ ggen mcp list
 
 ## Performance Improvements
 
-**v6.0.1 Performance:**
+**v26.5.4 Performance:**
 
-| Metric | v5.1.0 | v6.0.1 | Improvement |
+| Metric | v5.1.0 | v26.5.4 | Improvement |
 |--------|--------|--------|-------------|
 | First build | ~20s | ≤15s | 25% faster |
 | Incremental build | ~5s | ≤2s | 60% faster |
@@ -511,13 +511,13 @@ ggen mcp list
 
 ## New Documentation
 
-**v6.0.1 Documentation:**
+**v26.5.4 Documentation:**
 
-- **MCP Integration:** `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
-- **Elixir A2A:** `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
-- **rmcp 1.3.0:** `/Users/sac/ggen/docs/RMCP_NOTES.md`
-- **Release Notes:** `/Users/sac/ggen/RELEASE_NOTES.md`
-- **This Guide:** `/Users/sac/ggen/docs/MIGRATION_V5_TO_V6.md`
+- **MCP Integration:** `./crates/ggen-a2a-mcp/README.md`
+- **Elixir A2A:** `./docs/ELIXIR_A2A_NOTES.md`
+- **rmcp 1.3.0:** `./docs/RMCP_NOTES.md`
+- **Release Notes:** `./RELEASE_NOTES.md`
+- **This Guide:** `./docs/MIGRATION_V5_TO_V6.md`
 
 ---
 
@@ -562,9 +562,9 @@ ggen --version
 
 ### Recommended: Read New Documentation
 
-- MCP Integration: `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
-- Elixir A2A: `/Users/sac/ggen/docs/ELIXIR_A2A_NOTES.md`
-- Release Notes: `/Users/sac/ggen/RELEASE_NOTES.md`
+- MCP Integration: `./crates/ggen-a2a-mcp/README.md`
+- Elixir A2A: `./docs/ELIXIR_A2A_NOTES.md`
+- Release Notes: `./RELEASE_NOTES.md`
 
 ---
 
@@ -590,7 +590,7 @@ ggen --version
 
 **Most users can simply upgrade and continue working without any changes.**
 
-**Enjoy ggen v6.0.1!** 🎉
+**Enjoy ggen v26.5.4!** 🎉
 
 ---
 

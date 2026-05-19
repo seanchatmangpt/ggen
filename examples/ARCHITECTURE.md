@@ -99,7 +99,7 @@ Receipt Generation (ggen-receipt)
 - Deterministic behavior
 - No feedback loops or recovery queuing
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a/src/state_machine.rs`
+**Implementation:** `./crates/ggen-a2a/src/state_machine.rs`
 
 ---
 
@@ -115,7 +115,7 @@ Receipt Generation (ggen-receipt)
 - Testing in isolation
 - Clear responsibility boundaries
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/adapter.rs`
+**Implementation:** `./crates/ggen-a2a-mcp/src/adapter.rs`
 
 ---
 
@@ -133,7 +133,7 @@ Receipt Generation (ggen-receipt)
 
 **Message Types:** TaskCreated, TaskAssigned, TaskRunning, TaskCompleted, TaskFailed
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a/src/transport.rs`
+**Implementation:** `./crates/ggen-a2a/src/transport.rs`
 
 ---
 
@@ -166,7 +166,7 @@ Receipt Generation (ggen-receipt)
 - `Escalate` (bubble to parent supervisor)
 - `Abandon` (terminal failure, alert)
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/handlers.rs`
+**Implementation:** `./crates/ggen-a2a-mcp/src/handlers.rs`
 
 ---
 
@@ -182,7 +182,7 @@ Receipt Generation (ggen-receipt)
 - Allows recovery time
 - Observable state transitions
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-backpressure/src/`
+**Implementation:** `./crates/ggen-backpressure/src/`
 
 ---
 
@@ -198,7 +198,7 @@ Receipt Generation (ggen-receipt)
 - Network rate limiting
 - Storage quotas
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-backpressure/src/`
+**Implementation:** `./crates/ggen-backpressure/src/`
 
 ---
 
@@ -224,7 +224,7 @@ Receipt Generation (ggen-receipt)
 - Deterministic finality (no ambiguity)
 - Audit trail in receipt
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-consensus/src/pbft.rs`
+**Implementation:** `./crates/ggen-consensus/src/pbft.rs`
 
 ---
 
@@ -257,7 +257,7 @@ Receipt Generation (ggen-receipt)
 - `update_domain_status` - Change domain state
 - `verify_receipt` - Consensus verification
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/registry.rs`
+**Implementation:** `./crates/ggen-a2a-mcp/src/registry.rs`
 
 ---
 
@@ -349,9 +349,9 @@ Response: Agent ID + MCP tools available
 ```
 
 **Implementation Path:**
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/handlers.rs` - Handler dispatch
-2. `/Users/sac/ggen/crates/ggen-a2a/src/state_machine.rs` - State transitions
-3. `/Users/sac/ggen/crates/ggen-consensus/src/pbft.rs` - Receipt verification
+1. `./crates/ggen-a2a-mcp/src/handlers.rs` - Handler dispatch
+2. `./crates/ggen-a2a/src/state_machine.rs` - State transitions
+3. `./crates/ggen-consensus/src/pbft.rs` - Receipt verification
 
 ---
 
@@ -383,7 +383,7 @@ Outgoing Message
 - StreamHandler - Continuous data
 - BatchProcessor - Multiple messages
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/handlers.rs`
+**Implementation:** `./crates/ggen-a2a-mcp/src/handlers.rs`
 
 ---
 
@@ -409,7 +409,7 @@ LLM: "I'll use create_task with these parameters"
 Adapter → A2A Task → Executor → Receipt → Response
 ```
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/registry.rs`
+**Implementation:** `./crates/ggen-a2a-mcp/src/registry.rs`
 
 ---
 
@@ -472,7 +472,7 @@ All replicas:
 Result: Task completion verified with Byzantine tolerance
 ```
 
-**Implementation:** `/Users/sac/ggen/crates/ggen-consensus/src/pbft.rs`
+**Implementation:** `./crates/ggen-consensus/src/pbft.rs`
 
 ---
 
@@ -557,19 +557,19 @@ Each domain has: Status (Active/Paused/Completed), Workflows, Metrics, Health In
 ## Key Files and Crates
 
 **Core Architecture:**
-- `/Users/sac/ggen/crates/ggen-a2a/` - Task state machine and A2A protocol
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/` - MCP integration and adapters
-- `/Users/sac/ggen/crates/ggen-consensus/` - Byzantine consensus (PBFT)
-- `/Users/sac/ggen/crates/osiris-core/` - Life domain framework
-- `/Users/sac/ggen/crates/osiris-domains/` - Domain registry and workflows
-- `/Users/sac/ggen/crates/ggen-core/` - Code generation pipeline (μ₁-μ₅)
+- `./crates/ggen-a2a/` - Task state machine and A2A protocol
+- `./crates/ggen-a2a-mcp/` - MCP integration and adapters
+- `./crates/ggen-consensus/` - Byzantine consensus (PBFT)
+- `./crates/osiris-core/` - Life domain framework
+- `./crates/osiris-domains/` - Domain registry and workflows
+- `./crates/ggen-core/` - Code generation pipeline (μ₁-μ₅)
 
 **Operational Excellence:**
-- `/Users/sac/ggen/crates/ggen-jidoka/` - Quality gates
-- `/Users/sac/ggen/crates/ggen-backpressure/` - Admission control
-- `/Users/sac/ggen/crates/ggen-receipt/` - Receipt generation
-- `/Users/sac/ggen/crates/ggen-tps-andon/` - Signal system
-- `/Users/sac/ggen/crates/ggen-metrics-tps/` - Metrics collection
+- `./crates/ggen-jidoka/` - Quality gates
+- `./crates/ggen-backpressure/` - Admission control
+- `./crates/ggen-receipt/` - Receipt generation
+- `./crates/ggen-tps-andon/` - Signal system
+- `./crates/ggen-metrics-tps/` - Metrics collection
 
 ---
 

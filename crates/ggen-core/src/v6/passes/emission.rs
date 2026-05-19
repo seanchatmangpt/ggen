@@ -11,7 +11,7 @@
 
 use crate::v6::guard::{GuardAction, GuardSet, GuardViolation};
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;

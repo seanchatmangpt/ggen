@@ -29,7 +29,7 @@ async fn tool_name(...) -> Result<CallToolResult, McpError> {
 
 ### Runtime Evidence (from test logs)
 ```
-INFO ggen.mcp.tool_call{...} validate_pipeline tool called project_path=/Users/sac/ggen
+INFO ggen.mcp.tool_call{...} validate_pipeline tool called project_path=.
 ```
 
 ## Conclusion

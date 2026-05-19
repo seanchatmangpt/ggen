@@ -6,35 +6,35 @@
 
 ## Executive Summary
 
-All integration promises for ggen v6 RDF-first architecture have been validated and verified. The spec-kit repository is fully integrated with ggen sync workflow, includes comprehensive testcontainer validation, and maintains consistency across all documentation and code.
+All integration promises for mcpp v6 RDF-first architecture have been validated and verified. The spec-kit repository is fully integrated with mcpp sync workflow, includes comprehensive testcontainer validation, and maintains consistency across all documentation and code.
 
 ## Validation Results
 
-### 📝 Promise 1: No 'ggen render' References
+### 📝 Promise 1: No 'mcpp render' References
 **Status**: ✅ PASSED
 
-All legacy `ggen render` references have been replaced with `ggen sync`. The codebase consistently uses the configuration-driven approach.
+All legacy `mcpp render` references have been replaced with `mcpp sync`. The codebase consistently uses the configuration-driven approach.
 
 **Files Updated**:
 - `docs/RDF_WORKFLOW_GUIDE.md` - 9 occurrences replaced
 - `docs/GGEN_RDF_README.md` - 5 occurrences replaced
-- `templates/commands/*.md` - All updated to use ggen sync
+- `templates/commands/*.md` - All updated to use mcpp sync
 
 **Validation Command**:
 ```bash
-grep -r "ggen render" --include="*.md" --include="*.py" --include="*.toml" .
+grep -r "mcpp render" --include="*.md" --include="*.py" --include="*.toml" .
 # Result: No matches found ✓
 ```
 
 ---
 
-### 📝 Promise 2: 'ggen sync' Usage in Commands
+### 📝 Promise 2: 'mcpp sync' Usage in Commands
 **Status**: ✅ PASSED (16 references)
 
-All slash commands properly reference `ggen sync` with correct usage patterns.
+All slash commands properly reference `mcpp sync` with correct usage patterns.
 
 **References Found**:
-- `/speckit.specify` - Added step 7 for ggen sync
+- `/speckit.specify` - Added step 7 for mcpp sync
 - `/speckit.plan` - Added Phase 2 for markdown generation
 - `/speckit.tasks` - Added section on generating from TTL
 - `/speckit.clarify` - Added RDF-first workflow integration
@@ -75,9 +75,9 @@ g.parse("tests/integration/fixtures/feature-content.ttl", format="turtle")
 Pytest successfully collects all integration tests without errors.
 
 **Tests Collected**:
-1. `test_ggen_sync_generates_markdown` - Validates markdown generation
-2. `test_ggen_sync_idempotence` - Validates μ∘μ = μ
-3. `test_ggen_validates_ttl_syntax` - Validates error handling
+1. `test_mcpp_sync_generates_markdown` - Validates markdown generation
+2. `test_mcpp_sync_idempotence` - Validates μ∘μ = μ
+3. `test_mcpp_validates_ttl_syntax` - Validates error handling
 4. `test_constitutional_equation_verification` - Validates determinism
 
 **Markers**:
@@ -115,7 +115,7 @@ All files referenced in documentation and tests exist.
 
 **Test Fixtures Verified**:
 - ✓ `tests/integration/fixtures/feature-content.ttl`
-- ✓ `tests/integration/fixtures/ggen.toml`
+- ✓ `tests/integration/fixtures/mcpp.toml`
 - ✓ `tests/integration/fixtures/spec.tera`
 - ✓ `tests/integration/fixtures/expected-spec.md`
 
@@ -135,10 +135,10 @@ All files referenced in documentation and tests exist.
 
 ---
 
-### 📝 Promise 7: ggen.toml Fixture Validation
+### 📝 Promise 7: mcpp.toml Fixture Validation
 **Status**: ✅ PASSED
 
-Test fixture `ggen.toml` is valid TOML with correct ggen configuration structure.
+Test fixture `mcpp.toml` is valid TOML with correct mcpp configuration structure.
 
 **Verified Sections**:
 - `[project]` with name and version
@@ -178,7 +178,7 @@ Version is consistently set across the project.
 **Location**: `pyproject.toml`
 
 **Changelog**:
-- v0.0.22 → v0.0.23: Added ggen v6 integration and test dependencies
+- v0.0.22 → v0.0.23: Added mcpp v6 integration and test dependencies
 
 ---
 
@@ -190,7 +190,7 @@ The constitutional equation `spec.md = μ(feature.ttl)` is properly documented t
 **References Found**:
 1. README.md - Testing & Validation section
 2. tests/README.md - Multiple references
-3. tests/integration/test_ggen_sync.py - Test docstrings
+3. tests/integration/test_mcpp_sync.py - Test docstrings
 4. docs/RDF_WORKFLOW_GUIDE.md - Architecture section
 5. docs/GGEN_RDF_README.md - Constitutional equation header
 6. pyproject.toml - Package description
@@ -206,15 +206,15 @@ The constitutional equation `spec.md = μ(feature.ttl)` is properly documented t
 
 ### Testcontainer Architecture
 - **Container**: `rust:latest` Docker image
-- **ggen Installation**: Cloned from `https://github.com/seanchatmangpt/ggen.git`
+- **mcpp Installation**: Cloned from `https://github.com/seanchatmangpt/mcpp.git`
 - **Volume Mapping**: Fixtures mounted read-only to `/workspace`
-- **Verification**: `ggen --version` checked on startup
+- **Verification**: `mcpp --version` checked on startup
 
 ### Test Execution Flow
 1. Spin up Rust container
-2. Install ggen from source via cargo
+2. Install mcpp from source via cargo
 3. Copy test fixtures to container workspace
-4. Run `ggen sync` command
+4. Run `mcpp sync` command
 5. Validate generated markdown output
 6. Compare with expected results
 7. Verify hash consistency (determinism)
@@ -252,15 +252,15 @@ bash scripts/validate-promises.sh
 ## Git History
 
 ### Commit 1: `fd10bde`
-**Message**: feat(ggen-integration): Update all commands to use ggen sync with RDF-first workflow
+**Message**: feat(mcpp-integration): Update all commands to use mcpp sync with RDF-first workflow
 
 **Changes**:
 - Updated 9 files
 - 185 insertions, 19 deletions
-- All commands migrated to ggen sync
+- All commands migrated to mcpp sync
 
 ### Commit 2: `8eb58b8`
-**Message**: test(validation): Add testcontainer-based validation for ggen sync workflow
+**Message**: test(validation): Add testcontainer-based validation for mcpp sync workflow
 
 **Changes**:
 - Added 12 files
@@ -268,7 +268,7 @@ bash scripts/validate-promises.sh
 - Complete test infrastructure
 
 ### Commit 3: `[current]`
-**Message**: docs(validation): Fix remaining ggen render references and add validation report
+**Message**: docs(validation): Fix remaining mcpp render references and add validation report
 
 **Changes** (pending):
 - Fixed docs/GGEN_RDF_README.md
@@ -303,9 +303,9 @@ test = [
 ```
 
 ### External Dependencies
-- **ggen v6**: RDF-first code generation engine
-  - Install: `cargo install ggen`
-  - Or from source: https://github.com/seanchatmangpt/ggen
+- **mcpp v6**: RDF-first code generation engine
+  - Install: `cargo install mcpp`
+  - Or from source: https://github.com/seanchatmangpt/mcpp
 
 ---
 
@@ -322,8 +322,8 @@ uv --version
 # Docker (for tests)
 docker --version
 
-# ggen v6
-ggen --version
+# mcpp v6
+mcpp --version
 ```
 
 ### Installation Steps
@@ -331,15 +331,15 @@ ggen --version
 # 1. Install spec-kit
 uv tool install specify-cli --from git+https://github.com/seanchatmangpt/spec-kit.git
 
-# 2. Install ggen
-cargo install ggen
+# 2. Install mcpp
+cargo install mcpp
 
 # 3. Install test dependencies (optional)
 uv pip install -e ".[test]"
 
 # 4. Verify installation
 specify check
-ggen --version
+mcpp --version
 pytest --version
 ```
 
@@ -378,8 +378,8 @@ jobs:
 
 ✅ **All 10 promises validated and verified**
 
-The spec-kit repository successfully integrates ggen v6 RDF-first architecture with:
-- Complete migration from `ggen render` to `ggen sync`
+The spec-kit repository successfully integrates mcpp v6 RDF-first architecture with:
+- Complete migration from `mcpp render` to `mcpp sync`
 - Comprehensive testcontainer-based validation
 - Valid RDF fixtures and TOML configurations
 - Consistent documentation and references

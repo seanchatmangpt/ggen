@@ -28,7 +28,7 @@ ggen template generate-tree spec.yaml
 
 **Why this matters**: The migration guide in docs/MIGRATION_V1_TO_V2.md is **INCORRECT**. It claims `market` → `marketplace`, but the actual code uses `market` in both versions.
 
-**Verified from source**: `/Users/sac/ggen/cli/src/cmds/mod.rs:53`
+**Verified from source**: `./cli/src/cmds/mod.rs:53`
 ```rust
 #[command(name = "market", about = "Marketplace operations for gpacks")]
 Market(market::MarketCmd),
@@ -813,7 +813,7 @@ codegen-units = 16
 - ✅ Essential workflows (installation, first project, marketplace)
 - ⏭️ Skipped advanced topics (internals, edge cases)
 
-**Documentation Location**: `/Users/sac/ggen/.claude/refactor-v2/agent8-docs.md`
+**Documentation Location**: `./.claude/refactor-v2/agent8-docs.md`
 
 ---
 

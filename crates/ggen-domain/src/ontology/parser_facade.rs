@@ -4,7 +4,7 @@
 //! at runtime based on feature flags and configuration.
 
 use super::parser_trait::{Class, OntologyParser, ParseStats, Triple};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::future::Future;
 use std::path::Path;
 use std::pin::Pin;

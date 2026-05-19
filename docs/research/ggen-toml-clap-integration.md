@@ -1059,4 +1059,4 @@ fn load_merged_config(cli: &Cli) -> Result<GgenConfig> {
 - clap docs: https://docs.rs/clap
 - config crate: https://docs.rs/config
 - serde docs: https://serde.rs
-- ggen-config source: `/Users/sac/ggen/crates/ggen-config`
+- ggen-config source: `./crates/ggen-config`

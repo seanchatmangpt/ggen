@@ -63,8 +63,8 @@ let report = tokio::task::block_in_place(|| {
 - ✅ Force reinstall option
 
 **Code Changes**:
-- Modified: `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs` (install command)
-- Uses: `/Users/sac/ggen/crates/ggen-domain/src/packs/installer.rs` (production-ready)
+- Modified: `./crates/ggen-cli/src/cmds/packs.rs` (install command)
+- Uses: `./crates/ggen-domain/src/packs/installer.rs` (production-ready)
 
 **Test Results**:
 ```
@@ -196,7 +196,7 @@ fn rollback(installation_id: String) -> Result<serde_json::Value> {
 ### Compilation
 ```
 ✅ cargo check --manifest-path crates/ggen-cli/Cargo.toml
-   Checking ggen-cli-lib v3.2.0 (/Users/sac/ggen/crates/ggen-cli)
+   Checking ggen-cli-lib v3.2.0 (./crates/ggen-cli)
    Finished `dev` profile [unoptimized + debuginfo] in 1.60s
 ```
 
@@ -420,14 +420,14 @@ If issues arise:
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-cli/src/cmds/packs.rs`
+1. `./crates/ggen-cli/src/cmds/packs.rs`
    - Fixed 6 async commands (compose, publish, unpublish, search_registry, versions, cache)
    - Enhanced install command with real installation
    - Fixed target_dir type from String to PathBuf
    - Added SPARQL validation
    - Added resume/rollback stubs
 
-2. `/Users/sac/ggen/crates/ggen-domain/src/packs/installer.rs`
+2. `./crates/ggen-domain/src/packs/installer.rs`
    - No changes (already production-ready)
    - Used as-is for real package installation
 

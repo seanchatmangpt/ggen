@@ -19,7 +19,7 @@ fn bench_path_validator_memory(c: &mut Criterion) {
     group.bench_function("validator_creation", |b| {
         b.iter(|| {
             black_box(
-                ggen_utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
+                ggen_core::utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
                     .with_max_depth(10)
                     .with_allowed_extensions(vec!["rs", "toml", "md"]),
             )
@@ -28,7 +28,7 @@ fn bench_path_validator_memory(c: &mut Criterion) {
 
     group.bench_function("validation_calls", |b| {
         let validator =
-            ggen_utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
+            ggen_core::utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
                 .with_max_depth(10)
                 .with_allowed_extensions(vec!["rs", "toml", "md"]);
 
@@ -58,11 +58,11 @@ fn bench_safe_command_memory(c: &mut Criterion) {
     let mut group = c.benchmark_group("memory_safe_command");
 
     group.bench_function("command_creation", |b| {
-        b.iter(|| black_box(ggen_utils::safe_command::SafeCommand::new("cargo").unwrap()));
+        b.iter(|| black_box(ggen_core::utils::safe_command::SafeCommand::new("cargo").unwrap()));
     });
 
     group.bench_function("command_building", |b| {
-        let mut cmd = ggen_utils::safe_command::SafeCommand::new("cargo").unwrap();
+        let mut cmd = ggen_core::utils::safe_command::SafeCommand::new("cargo").unwrap();
 
         b.iter(|| {
             for i in 0..20 {

@@ -8,8 +8,8 @@ full_name = "armstrong-compliance-definition-of-done"
 version = "1.0.0"
 description = "DoD focused on Armstrong fault tolerance: supervision trees, no shared state, let-it-crash, budget constraints. For Erlang/OTP, Elixir, and fault-tolerant systems."
 category = "quality-gate"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/armstrong-compliance-dod"
 license = "MIT"
 dependencies = []
@@ -40,7 +40,7 @@ source_path = "marketplace/packages/armstrong-compliance-dod"
 # Variables for template substitution
 [variables]
 project_name = { type = "string", required = true, description = "Project name" }
-project_uri = { type = "string", default = "http://ggen.chatmangpt.com/project#", description = "Project URI prefix" }
+project_uri = { type = "string", default = "http://mcpp.chatmangpt.com/project#", description = "Project URI prefix" }
 project_version = { type = "string", default = "0.1.0", description = "Project version" }
 max_restarts = { type = "integer", default = 5, description = "Maximum supervisor restarts per 60s" }
 max_restart_seconds = { type = "integer", default = 60, description = "Restart window in seconds" }
@@ -50,10 +50,10 @@ default_timeout_ms = { type = "integer", default = 5000, description = "Default 
 [examples]
 basic = """
 # Install the package
-ggen market install armstrong-compliance-dod
+mcpp market install armstrong-compliance-dod
 
 # Generate Armstrong DoD checklist
-ggen template generate armstrong-compliance-dod/template.tera \\
+mcpp template generate armstrong-compliance-dod/template.tera \\
   --vars '{"project_name":"otp-service"}'
 
 # Load ontology and extract
@@ -62,7 +62,7 @@ sparql --query dod-extract.rq --data ontology.ttl
 
 advanced = """
 # Generate with custom supervisor settings
-ggen template generate armstrong-compliance-dod/template.tera \\
+mcpp template generate armstrong-compliance-dod/template.tera \\
   --vars '{
     "project_name": "payment-processor",
     "max_restarts": 10,

@@ -1,6 +1,6 @@
 //! Diataxis ggen.toml validation and resolution tests
 use anyhow::Result;
-use ggen_utils::project_config::{DiataxisQuadrant, GgenConfig};
+use ggen_core::utils::project_config::{DiataxisQuadrant, GgenConfig};
 use std::fs;
 use std::path::PathBuf;
 

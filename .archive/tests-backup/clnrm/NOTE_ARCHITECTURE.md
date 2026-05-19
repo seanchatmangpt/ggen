@@ -26,7 +26,7 @@ cargo build --release --target aarch64-unknown-linux-gnu
 
 # Mount the Linux binary in tests
 volumes = [
-    { host = "/Users/sac/ggen/target/aarch64-unknown-linux-gnu/release", container = "/target", readonly = true }
+    { host = "./target/aarch64-unknown-linux-gnu/release", container = "/target", readonly = true }
 ]
 ```
 

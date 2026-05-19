@@ -274,19 +274,19 @@ FILE LOCATIONS
 ================================================================================
 
 Core Module:
-/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl
+/Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl
 (169 lines - Main receipt module)
 
 Test Suite:
-/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl
+/Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl
 (450+ lines - Comprehensive test suite with 25+ test functions)
 
 Documentation:
-/Users/sac/ggen/tai-erlang-autonomics/docs/RECEIPT_ENGINE_PHASE_1.md
+/Users/sac/mcpp/tai-erlang-autonomics/docs/RECEIPT_ENGINE_PHASE_1.md
 (Complete reference documentation)
 
 Sample Output (this file):
-/Users/sac/ggen/tai-erlang-autonomics/examples/RECEIPT_SAMPLE_OUTPUT.txt
+/Users/sac/mcpp/tai-erlang-autonomics/examples/RECEIPT_SAMPLE_OUTPUT.txt
 
 
 ================================================================================
@@ -371,9 +371,9 @@ END OF RECEIPT SAMPLE OUTPUT
 ================================================================================
 
 For more information, see:
-- /Users/sac/ggen/tai-erlang-autonomics/docs/RECEIPT_ENGINE_PHASE_1.md
-- /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl
-- /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl
+- /Users/sac/mcpp/tai-erlang-autonomics/docs/RECEIPT_ENGINE_PHASE_1.md
+- /Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl
+- /Users/sac/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl
 
 Status: Phase 1 Complete - Ready for Phase 2 Firestore Integration
 Last Updated: 2026-01-26

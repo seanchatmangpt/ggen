@@ -5,7 +5,7 @@
 //! - Variable substitution
 //! - Project structure generation
 
-use ggen_domain::packs::{generate_from_pack, GenerateInput};
+use mcpp_domain::packs::{generate_from_pack, GenerateInput};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -243,7 +243,7 @@ fn test_generate_input_serialization() {
 #[test]
 fn test_generate_output_structure() {
     // Arrange
-    let output = ggen_domain::packs::GenerateOutput {
+    let output = mcpp_domain::packs::GenerateOutput {
         pack_id: "test-pack".to_string(),
         project_name: "test-project".to_string(),
         templates_generated: vec!["template1".to_string(), "template2".to_string()],
@@ -253,7 +253,7 @@ fn test_generate_output_structure() {
 
     // Act
     let json = serde_json::to_string(&output).expect("Should serialize");
-    let deserialized: ggen_domain::packs::GenerateOutput =
+    let deserialized: mcpp_domain::packs::GenerateOutput =
         serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert

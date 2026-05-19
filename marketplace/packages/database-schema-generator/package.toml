@@ -2,14 +2,14 @@
 name = "database-schema-generator"
 version = "1.0.0"
 description = "Multi-database schema generator from RDF ontology using SPARQL"
-author = "ggen.io"
+author = "mcpp.io"
 license = "MIT"
 category = "database"
 tags = ["database", "schema", "rdf", "sparql", "postgresql", "mysql", "sqlite", "ddl", "migrations"]
 
 [ontology]
 file = "ontology/database-schema.ttl"
-namespace = "http://ggen.io/ontology/database#"
+namespace = "http://mcpp.io/ontology/database#"
 
 [sparql]
 queries = "sparql/queries.rq"

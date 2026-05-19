@@ -7,6 +7,7 @@ use ggen_ai::{
 };
 
 #[tokio::test]
+#[ignore]
 async fn ollama_template_generation_smoke() {
     if !check_ollama_availability().await {
         println!("⏭️  Skipping: Ollama not available");

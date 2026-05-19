@@ -267,7 +267,7 @@ Action = tai_receipts:create_action_receipt(
 ## File Organization
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+~/.ggen/mcpp/tai-erlang-autonomics/
 ├── apps/tai_autonomics/
 │   ├── src/
 │   │   ├── tai_receipts.erl              (Core module - 15 KB)
@@ -301,7 +301,7 @@ Action = tai_receipts:create_action_receipt(
 
 ### Compilation
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 compile
 # Output: [0;32m===> Compiling tai_autonomics
 #         [0;32m===> Compiling taiea_core

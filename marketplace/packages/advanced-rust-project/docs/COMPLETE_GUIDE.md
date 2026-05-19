@@ -1,21 +1,21 @@
-# Complete ggen Guide: From Dark Matter to Production
+# Complete mcpp Guide: From Dark Matter to Production
 
-This comprehensive guide addresses the "dark matter" and "dark energy" gaps in developer experience and shows how ggen's features solve real-world problems.
+This comprehensive guide addresses the "dark matter" and "dark energy" gaps in developer experience and shows how mcpp's features solve real-world problems.
 
 ## The 80/20 We Actually Missed
 
 ### **80% of Developer Pain** (Dark Matter)
-1. **Context Switching**: Between ggen, IDE, git, framework (40% of time)
+1. **Context Switching**: Between mcpp, IDE, git, framework (40% of time)
 2. **Debugging Black Box**: Figuring out why templates failed (25% of time)
-3. **Learning Curve**: Understanding how ggen works (15% of time)
-4. **Integration Friction**: Making ggen work with existing tools (20% of time)
+3. **Learning Curve**: Understanding how mcpp works (15% of time)
+4. **Integration Friction**: Making mcpp work with existing tools (20% of time)
 
 ### **20% of System Power** (Dark Energy)
 1. **Community Amplification**: Shared templates and patterns (10% of power)
 2. **Feedback Loops**: System self-improvement (5% of power)
 3. **Incremental Adoption**: Gradual migration paths (5% of power)
 
-## How ggen Addresses Each Gap
+## How mcpp Addresses Each Gap
 
 ### 1. Context Switching Solutions ✅
 
@@ -46,7 +46,7 @@ commands = ["npm run dev"]
 watch = "**/*.{js,ts,jsx,tsx}"
 
 [lifecycle.generate]
-commands = ["ggen template generate templates/next-page.tmpl"]
+commands = ["mcpp template generate templates/next-page.tmpl"]
 ```
 
 ### 2. Debugging Black Box Solutions ✅
@@ -54,22 +54,22 @@ commands = ["ggen template generate templates/next-page.tmpl"]
 #### Template Debugging (Already Exists)
 ```bash
 # Step-by-step rendering visualization
-ggen template debug templates/my-service.tmpl --verbose
+mcpp template debug templates/my-service.tmpl --verbose
 
 # Interactive debugging mode
-ggen template debug templates/my-service.tmpl --interactive
+mcpp template debug templates/my-service.tmpl --interactive
 
 # Template validation
-ggen template validate templates/my-service.tmpl
+mcpp template validate templates/my-service.tmpl
 ```
 
 #### SPARQL Query Debugging (Already Exists)
 ```bash
 # Query execution inspection
-ggen ai sparql --description "Find all users" --debug
+mcpp ai sparql --description "Find all users" --debug
 
 # Performance analysis
-ggen sparql analyze --query "SELECT ?entity WHERE { ?entity a ex:Entity }"
+mcpp sparql analyze --query "SELECT ?entity WHERE { ?entity a ex:Entity }"
 ```
 
 #### Error Context (Already Exists)
@@ -87,19 +87,19 @@ Suggestion: Check variable names in template
 #### Progressive Disclosure (Documented)
 ```bash
 # Level 1: Simple file generation (5 minutes)
-ggen template generate templates/hello.tmpl
+mcpp template generate templates/hello.tmpl
 
 # Level 2: AI assistance (10 minutes)
-ggen ai generate --description "Rust struct for a user"
+mcpp ai generate --description "Rust struct for a user"
 
 # Level 3: Data integration (15 minutes)
-ggen template generate templates/database-schema.tmpl
+mcpp template generate templates/database-schema.tmpl
 ```
 
 #### Mental Model Mapping (Documented)
 ```bash
-# ggen is like... but for...
-| If you know... | ggen is like... | Key difference |
+# mcpp is like... but for...
+| If you know... | mcpp is like... | Key difference |
 |----------------|----------------|----------------|
 | **Jinja2** | Tera + YAML | RDF/SPARQL integration |
 | **Hygen** | Hygen + AI | Universal lifecycle |
@@ -111,21 +111,21 @@ ggen template generate templates/database-schema.tmpl
 #### Framework-Specific Workflows (Documented)
 ```bash
 # Next.js integration
-ggen lifecycle init  # Creates Next.js structure
-ggen lifecycle dev   # Next.js dev server
-ggen ai generate --description "React component"
+mcpp lifecycle init  # Creates Next.js structure
+mcpp lifecycle dev   # Next.js dev server
+mcpp ai generate --description "React component"
 
 # Rails integration
-ggen template generate templates/rails-model.tmpl
+mcpp template generate templates/rails-model.tmpl
 rails generate controller Users  # Still works alongside
 ```
 
 #### Migration Tools (Documented)
 ```bash
 # Migrate from existing tools
-ggen migrate analyze --from cookiecutter --project ./my-project
-ggen migrate convert cookiecutter.json --to ggen.toml
-ggen migrate test --dry-run
+mcpp migrate analyze --from cookiecutter --project ./my-project
+mcpp migrate convert cookiecutter.json --to mcpp.toml
+mcpp migrate test --dry-run
 ```
 
 ## The Complete Developer Journey
@@ -133,15 +133,15 @@ ggen migrate test --dry-run
 ### **Day 1: First Contact**
 ```bash
 # 1. Install and setup (2 minutes)
-curl -fsSL https://install.ggen.dev | sh
-ggen --version  # Verify installation
+curl -fsSL https://install.mcpp.dev | sh
+mcpp --version  # Verify installation
 
 # 2. Try simple generation (3 minutes)
-ggen template generate templates/hello.tmpl
+mcpp template generate templates/hello.tmpl
 cat generated/src/hello.rs  # See result
 
 # 3. Try AI generation (5 minutes)
-ggen ai generate --description "Hello world in Rust" --mock
+mcpp ai generate --description "Hello world in Rust" --mock
 ```
 
 **Time spent**: 10 minutes
@@ -154,14 +154,14 @@ cp data/domain.ttl.example data/domain.ttl
 # Edit with your entities, properties, relationships
 
 # 5. Generate real service (15 minutes)
-ggen template generate templates/rust-service.tmpl \
+mcpp template generate templates/rust-service.tmpl \
     --var name="UserService" \
     --var description="User management service"
 
 # 6. Run lifecycle (5 minutes)
-ggen lifecycle run setup
-ggen lifecycle run build
-ggen lifecycle run test
+mcpp lifecycle run setup
+mcpp lifecycle run build
+mcpp lifecycle run test
 ```
 
 **Time spent**: 30 minutes
@@ -170,14 +170,14 @@ ggen lifecycle run test
 ### **Month 1: Advanced Patterns**
 ```bash
 # 7. Use AI for complex generation (20 minutes)
-ggen ai generate --description "Complete user authentication system with JWT"
+mcpp ai generate --description "Complete user authentication system with JWT"
 
 # 8. Debug and optimize (15 minutes)
-ggen template debug templates/auth-system.tmpl
-ggen analytics performance
+mcpp template debug templates/auth-system.tmpl
+mcpp analytics performance
 
 # 9. Share with team (10 minutes)
-ggen marketplace publish templates/auth-system.tmpl
+mcpp marketplace publish templates/auth-system.tmpl
 ```
 
 **Time spent**: 45 minutes
@@ -185,7 +185,7 @@ ggen marketplace publish templates/auth-system.tmpl
 
 ## Real-World Impact
 
-### **Before ggen**: Typical Developer Day
+### **Before mcpp**: Typical Developer Day
 ```
 8:00 AM  - Write boilerplate API endpoint (45 minutes)
 9:00 AM  - Update tests for schema changes (30 minutes)
@@ -200,14 +200,14 @@ Total creative work: ~20% of day
 Total repetitive work: ~80% of day
 ```
 
-### **After ggen**: Same Developer Day
+### **After mcpp**: Same Developer Day
 ```
-8:00 AM  - ggen ai generate "API endpoint for user profiles" (5 minutes)
-8:30 AM  - ggen template generate templates/api-endpoint.tmpl (2 minutes)
+8:00 AM  - mcpp ai generate "API endpoint for user profiles" (5 minutes)
+8:30 AM  - mcpp template generate templates/api-endpoint.tmpl (2 minutes)
 9:00 AM  - Review and customize generated code (15 minutes)
-10:00 AM - ggen lifecycle run test (automated, 3 minutes)
-11:00 AM - ggen ai generate "Update documentation" (5 minutes)
-12:00 PM - ggen lifecycle run deploy (automated, 5 minutes)
+10:00 AM - mcpp lifecycle run test (automated, 3 minutes)
+11:00 AM - mcpp ai generate "Update documentation" (5 minutes)
+12:00 PM - mcpp lifecycle run deploy (automated, 5 minutes)
 1:00 PM  - Focus on business logic and creative work (4 hours)
 
 Total creative work: ~80% of day
@@ -229,12 +229,12 @@ Total repetitive work: ~20% of day
 
 ## Production Readiness
 
-### **What Makes ggen Production-Ready**
+### **What Makes mcpp Production-Ready**
 
 #### 1. **Reliability** ✅
 ```bash
 # Deterministic outputs
-ggen template generate templates/service.tmpl --seed 12345
+mcpp template generate templates/service.tmpl --seed 12345
 # Same result every time
 
 # Comprehensive error handling
@@ -276,7 +276,7 @@ ggen template generate templates/service.tmpl --seed 12345
 
 ## The Complete Solution
 
-### **ggen = Tool + Community + Ecosystem**
+### **mcpp = Tool + Community + Ecosystem**
 
 #### **The Tool** (Technical Excellence)
 - Template system with RDF/SPARQL integration
@@ -335,7 +335,7 @@ ggen template generate templates/service.tmpl --seed 12345
 
 ## The Vision Realized
 
-ggen transforms software development from a repetitive, error-prone craft into a creative, efficient discipline.
+mcpp transforms software development from a repetitive, error-prone craft into a creative, efficient discipline.
 
 **The 80/20 rule fulfilled:**
 - **80% of value** from eliminating repetitive work
@@ -351,4 +351,4 @@ ggen transforms software development from a repetitive, error-prone craft into a
 - Feedback loops through analytics and improvement
 - Incremental adoption through migration and rollback
 
-ggen isn't just a tool—it's a new way of developing software that puts creativity back at the center of the craft.
+mcpp isn't just a tool—it's a new way of developing software that puts creativity back at the center of the craft.

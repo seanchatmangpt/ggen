@@ -892,21 +892,21 @@ This comprehensive test framework proves that **ggen can generate code that is c
 ## Supporting Documentation
 
 ### Generated Test Files
-- **Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/groq_integration_test.rs` (352 lines, 11 tests)
-- **Location:** `/Users/sac/ggen/examples/distributed-consensus/tests/byzantine_tests.rs` (328 lines, 15 tests)
-- **Location:** `/Users/sac/ggen/examples/e2e-agent-workflow/tests/consensus_tests.rs` (200+ lines)
+- **Location:** `./crates/ggen-a2a-mcp/tests/groq_integration_test.rs` (352 lines, 11 tests)
+- **Location:** `./examples/distributed-consensus/tests/byzantine_tests.rs` (328 lines, 15 tests)
+- **Location:** `./examples/e2e-agent-workflow/tests/consensus_tests.rs` (200+ lines)
 
 ### Generated Reports
-- **Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/GROQ_VALIDATION_REPORT.md`
-- **Location:** `/Users/sac/ggen/crates/ggen-a2a-mcp/GROQ_VALIDATION_SUMMARY.md`
-- **Location:** `/Users/sac/ggen/examples/WAVE4_BENCHMARKS_REPORT.md`
-- **Location:** `/Users/sac/ggen/examples/WAVE5_SUMMARY.md`
+- **Location:** `./crates/ggen-a2a-mcp/GROQ_VALIDATION_REPORT.md`
+- **Location:** `./crates/ggen-a2a-mcp/GROQ_VALIDATION_SUMMARY.md`
+- **Location:** `./examples/WAVE4_BENCHMARKS_REPORT.md`
+- **Location:** `./examples/WAVE5_SUMMARY.md`
 
 ### Architecture Documentation
-- **MCP Integration:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/` (adapter, registry, protocol modules)
-- **Consensus System:** `/Users/sac/ggen/crates/ggen-consensus/` (PBFT implementation)
-- **A2A Framework:** `/Users/sac/ggen/vendors/a2a-rs/` (agent lifecycle, messaging)
-- **Generation Pipeline:** `/Users/sac/ggen/crates/ggen-core/src/generation/` (μ₁-μ₅ stages)
+- **MCP Integration:** `./crates/ggen-a2a-mcp/src/` (adapter, registry, protocol modules)
+- **Consensus System:** `./crates/ggen-consensus/` (PBFT implementation)
+- **A2A Framework:** `./vendors/a2a-rs/` (agent lifecycle, messaging)
+- **Generation Pipeline:** `./crates/ggen-core/src/generation/` (μ₁-μ₅ stages)
 
 ### How to Reproduce Results
 
@@ -915,7 +915,7 @@ This comprehensive test framework proves that **ggen can generate code that is c
 export GROQ_API_KEY="gsk_..."
 
 # 2. Run Groq integration tests
-cd /Users/sac/ggen
+cd .
 cargo test -p ggen-a2a-mcp --test groq_integration_test -- --nocapture
 
 # 3. Run Byzantine consensus tests

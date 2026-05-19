@@ -9,20 +9,20 @@ version = "1.0.0"
 [otel]
 exporter = "otlp"
 endpoint = "http://localhost:4318"
-service_name = "ggen-lifecycle-readiness"
+service_name = "mcpp-lifecycle-readiness"
 enable_tracing = true
 enable_metrics = true
 
-[service.ggen]
+[service.mcpp]
 plugin = "generic_container"
 image = "rust:latest"
-volumes = ["/tmp/ggen-test:/workspace"]
+volumes = ["/tmp/mcpp-test:/workspace"]
 working_dir = "/workspace"
 
 # Test 1: Basic readiness tracking
 [[scenario]]
 name = "basic_readiness_tracking"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/readiness-basic && cd /workspace/readiness-basic && \
 cat > make.toml << 'EOF'
@@ -44,33 +44,33 @@ category = "important"
 status = "complete"
 priority = 8
 EOF
-ggen lifecycle readiness
+mcpp lifecycle readiness
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.readiness.check"
+name = "mcpp.lifecycle.readiness.check"
 attributes = { "project.name" = "readiness-test" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.load"
-parent = "ggen.lifecycle.readiness.check"
+name = "mcpp.readiness.load"
+parent = "mcpp.lifecycle.readiness.check"
 attributes = { "config.source" = "make.toml" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.requirement.evaluate"
-parent = "ggen.lifecycle.readiness.check"
+name = "mcpp.readiness.requirement.evaluate"
+parent = "mcpp.lifecycle.readiness.check"
 count = 2
 attributes_pattern = { "requirement.id" = ".*" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.report.generate"
-must_follow = ["ggen.readiness.requirement.evaluate"]
+name = "mcpp.readiness.report.generate"
+must_follow = ["mcpp.readiness.requirement.evaluate"]
 attributes = { "report.format" = "summary" }
 
 # Test 2: Readiness requirement lifecycle
 [[scenario]]
 name = "readiness_requirement_lifecycle"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/req-lifecycle && cd /workspace/req-lifecycle && \
 cat > make.toml << 'EOF'
@@ -84,32 +84,32 @@ category = "critical"
 status = "placeholder"
 priority = 10
 EOF
-ggen lifecycle readiness && \
-ggen lifecycle readiness-update feature-x in_progress && \
-ggen lifecycle readiness-update feature-x complete && \
-ggen lifecycle readiness
+mcpp lifecycle readiness && \
+mcpp lifecycle readiness-update feature-x in_progress && \
+mcpp lifecycle readiness-update feature-x complete && \
+mcpp lifecycle readiness
 """
 
 [[scenario.expect.span]]
-name = "ggen.readiness.requirement.update"
+name = "mcpp.readiness.requirement.update"
 count = 2
 attributes_unique = ["status.new"]
 
 [[scenario.expect.span]]
-name = "ggen.readiness.status.transition"
-parent = "ggen.readiness.requirement.update"
+name = "mcpp.readiness.status.transition"
+parent = "mcpp.readiness.requirement.update"
 count = 2
 
 [scenario.expect.temporal]
 ordering = [
-  "ggen.readiness.requirement.update[status=placeholder->in_progress]",
-  "ggen.readiness.requirement.update[status=in_progress->complete]"
+  "mcpp.readiness.requirement.update[status=placeholder->in_progress]",
+  "mcpp.readiness.requirement.update[status=in_progress->complete]"
 ]
 
 # Test 3: Production readiness validation
 [[scenario]]
 name = "production_readiness_validation"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/prod-readiness && cd /workspace/prod-readiness && \
 cat > make.toml << 'EOF'
@@ -136,32 +136,32 @@ command = "echo 'Running production readiness checks'"
 EOF
 mkdir -p src && \
 echo 'fn main() { println!("Hello"); }' > src/main.rs && \
-ggen lifecycle validate --env production
+mcpp lifecycle validate --env production
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.validate"
+name = "mcpp.lifecycle.validate"
 attributes = { "environment" = "production", "validation.type" = "production_readiness" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.validate"
-parent = "ggen.lifecycle.validate"
+name = "mcpp.readiness.validate"
+parent = "mcpp.lifecycle.validate"
 
 [[scenario.expect.span]]
-name = "ggen.readiness.requirement.validate"
-parent = "ggen.readiness.validate"
+name = "mcpp.readiness.requirement.validate"
+parent = "mcpp.readiness.validate"
 count = 2
 attributes_pattern = { "requirement.category" = "critical" }
 
 [[scenario.expect.span]]
-name = "ggen.validation.code_scan"
-parent = "ggen.readiness.requirement.validate"
+name = "mcpp.validation.code_scan"
+parent = "mcpp.readiness.requirement.validate"
 attributes = { "scan.type" = "unwrap_detection" }
 
 # Test 4: Readiness report generation
 [[scenario]]
 name = "readiness_report_generation"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/readiness-report && cd /workspace/readiness-report && \
 cat > make.toml << 'EOF'
@@ -186,25 +186,25 @@ category = "nice_to_have"
 status = "missing"
 priority = 3
 EOF
-ggen lifecycle readiness --format json > /tmp/readiness-report.json
+mcpp lifecycle readiness --format json > /tmp/readiness-report.json
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.readiness.check"
+name = "mcpp.lifecycle.readiness.check"
 
 [[scenario.expect.span]]
-name = "ggen.readiness.report.generate"
-parent = "ggen.lifecycle.readiness.check"
+name = "mcpp.readiness.report.generate"
+parent = "mcpp.lifecycle.readiness.check"
 attributes = { "report.format" = "json" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.stats.calculate"
-parent = "ggen.readiness.report.generate"
+name = "mcpp.readiness.stats.calculate"
+parent = "mcpp.readiness.report.generate"
 attributes_exists = ["total_requirements", "completed", "completion_percentage"]
 
 [[scenario.expect.span]]
-name = "ggen.readiness.report.write"
-must_follow = ["ggen.readiness.report.generate"]
+name = "mcpp.readiness.report.write"
+must_follow = ["mcpp.readiness.report.generate"]
 attributes = { "output.path" = "/tmp/readiness-report.json" }
 
 [scenario.expect.attestation]
@@ -214,7 +214,7 @@ sha256 = true
 # Test 5: Critical requirement blocking deployment
 [[scenario]]
 name = "critical_requirement_blocks_deployment"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/blocking && cd /workspace/blocking && \
 cat > make.toml << 'EOF'
@@ -233,37 +233,37 @@ blocks_deployment = true
 command = "echo 'Attempting to deploy'"
 
 [lifecycle.validate-readiness]
-command = "ggen lifecycle readiness --strict"
+command = "mcpp lifecycle readiness --strict"
 
 [hooks]
 before_deploy = ["validate-readiness"]
 EOF
-ggen lifecycle run deploy || echo "Deployment blocked by critical requirement"
+mcpp lifecycle run deploy || echo "Deployment blocked by critical requirement"
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.validate-readiness"
-must_precede = ["ggen.lifecycle.deploy"]
+name = "mcpp.lifecycle.validate-readiness"
+must_precede = ["mcpp.lifecycle.deploy"]
 
 [[scenario.expect.span]]
-name = "ggen.readiness.validate.strict"
-parent = "ggen.lifecycle.validate-readiness"
+name = "mcpp.readiness.validate.strict"
+parent = "mcpp.lifecycle.validate-readiness"
 expect_error = true
 attributes = { "blocking.requirements" = "security-audit" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 should_not_exist = true
 
 [[scenario.expect.span]]
-name = "ggen.deploy.blocked"
-must_follow = ["ggen.readiness.validate.strict"]
+name = "mcpp.deploy.blocked"
+must_follow = ["mcpp.readiness.validate.strict"]
 attributes = { "reason" = "critical_requirement_incomplete" }
 
 # Test 6: Readiness dependency checking
 [[scenario]]
 name = "readiness_dependency_checking"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/dependencies && cd /workspace/dependencies && \
 cat > make.toml << 'EOF'
@@ -290,21 +290,21 @@ status = "placeholder"
 priority = 8
 dependencies = ["migrations"]
 EOF
-ggen lifecycle readiness --check-dependencies
+mcpp lifecycle readiness --check-dependencies
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.readiness.check"
+name = "mcpp.lifecycle.readiness.check"
 attributes = { "check.dependencies" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.dependency.validate"
-parent = "ggen.lifecycle.readiness.check"
+name = "mcpp.readiness.dependency.validate"
+parent = "mcpp.lifecycle.readiness.check"
 count_min = 2
 
 [[scenario.expect.span]]
-name = "ggen.readiness.dependency.check"
-parent = "ggen.readiness.dependency.validate"
+name = "mcpp.readiness.dependency.check"
+parent = "mcpp.readiness.dependency.validate"
 attributes_pattern = { "dependency.id" = ".*" }
 
 [scenario.expect.graph]
@@ -317,7 +317,7 @@ acyclic = true
 # Test 7: Readiness with effort estimation
 [[scenario]]
 name = "readiness_effort_estimation"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/effort && cd /workspace/effort && \
 cat > make.toml << 'EOF'
@@ -345,22 +345,22 @@ status = "placeholder"
 priority = 3
 effort_hours = 16
 EOF
-ggen lifecycle readiness --show-effort
+mcpp lifecycle readiness --show-effort
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.readiness.check"
+name = "mcpp.lifecycle.readiness.check"
 attributes = { "show.effort" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.effort.calculate"
-parent = "ggen.lifecycle.readiness.check"
+name = "mcpp.readiness.effort.calculate"
+parent = "mcpp.lifecycle.readiness.check"
 attributes_exists = ["total_effort_hours", "critical_effort_hours", "remaining_effort_hours"]
 
 # Test 8: Readiness validation with file scanning
 [[scenario]]
 name = "readiness_file_scanning"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/file-scan && cd /workspace/file-scan && \
 cat > make.toml << 'EOF'
@@ -377,32 +377,32 @@ priority = 9
 EOF
 mkdir -p src && \
 echo 'fn main() { let x = Some(5); x.unwrap(); }' > src/main.rs && \
-ggen lifecycle readiness-validate no-unwrap
+mcpp lifecycle readiness-validate no-unwrap
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.readiness.validate"
+name = "mcpp.lifecycle.readiness.validate"
 attributes = { "requirement.id" = "no-unwrap" }
 
 [[scenario.expect.span]]
-name = "ggen.validation.file_scan"
-parent = "ggen.lifecycle.readiness.validate"
+name = "mcpp.validation.file_scan"
+parent = "mcpp.lifecycle.readiness.validate"
 attributes = { "scan.pattern" = "src/**/*.rs" }
 
 [[scenario.expect.span]]
-name = "ggen.validation.pattern_match"
-parent = "ggen.validation.file_scan"
+name = "mcpp.validation.pattern_match"
+parent = "mcpp.validation.file_scan"
 attributes = { "pattern" = ".unwrap()", "matches.found" = "1" }
 
 [[scenario.expect.span]]
-name = "ggen.validation.result"
-must_follow = ["ggen.validation.pattern_match"]
+name = "mcpp.validation.result"
+must_follow = ["mcpp.validation.pattern_match"]
 attributes = { "validation.passed" = "false", "issues.count" = "1" }
 
 # Test 9: Readiness categories and prioritization
 [[scenario]]
 name = "readiness_categories_prioritization"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/categories && cd /workspace/categories && \
 cat > make.toml << 'EOF'
@@ -429,27 +429,27 @@ category = "nice_to_have"
 status = "missing"
 priority = 3
 EOF
-ggen lifecycle readiness --by-category
+mcpp lifecycle readiness --by-category
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.readiness.check"
+name = "mcpp.lifecycle.readiness.check"
 attributes = { "group.by" = "category" }
 
 [[scenario.expect.span]]
-name = "ggen.readiness.category.analyze"
-parent = "ggen.lifecycle.readiness.check"
+name = "mcpp.readiness.category.analyze"
+parent = "mcpp.lifecycle.readiness.check"
 count = 3
 attributes_unique = ["category"]
 
 [[scenario.expect.span]]
-name = "ggen.readiness.priority.sort"
-parent = "ggen.readiness.category.analyze"
+name = "mcpp.readiness.priority.sort"
+parent = "mcpp.readiness.category.analyze"
 
 # Test 10: Full production readiness workflow
 [[scenario]]
 name = "full_production_readiness_workflow"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/full-workflow && cd /workspace/full-workflow && \
 cat > make.toml << 'EOF'
@@ -487,7 +487,7 @@ status = "complete"
 priority = 7
 
 [lifecycle.pre-deploy-validation]
-command = "ggen lifecycle readiness --strict"
+command = "mcpp lifecycle readiness --strict"
 
 [lifecycle.deploy-production]
 command = "echo 'Deploying to production'"
@@ -497,39 +497,39 @@ before_deploy-production = ["pre-deploy-validation"]
 EOF
 mkdir -p src && \
 echo 'fn main() { println!("Ready for production"); }' > src/main.rs && \
-ggen lifecycle run deploy-production
+mcpp lifecycle run deploy-production
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.pre-deploy-validation"
-must_precede = ["ggen.lifecycle.deploy-production"]
+name = "mcpp.lifecycle.pre-deploy-validation"
+must_precede = ["mcpp.lifecycle.deploy-production"]
 
 [[scenario.expect.span]]
-name = "ggen.readiness.check.comprehensive"
-parent = "ggen.lifecycle.pre-deploy-validation"
+name = "mcpp.readiness.check.comprehensive"
+parent = "mcpp.lifecycle.pre-deploy-validation"
 
 [[scenario.expect.span]]
-name = "ggen.readiness.requirement.validate"
-parent = "ggen.readiness.check.comprehensive"
+name = "mcpp.readiness.requirement.validate"
+parent = "mcpp.readiness.check.comprehensive"
 count = 5
 
 [[scenario.expect.span]]
-name = "ggen.readiness.validation.result"
-must_follow = ["ggen.readiness.requirement.validate"]
+name = "mcpp.readiness.validation.result"
+must_follow = ["mcpp.readiness.requirement.validate"]
 attributes = { "all_critical_complete" = "true", "production_ready" = "true" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy-production"
-must_follow = ["ggen.lifecycle.pre-deploy-validation"]
+name = "mcpp.lifecycle.deploy-production"
+must_follow = ["mcpp.lifecycle.pre-deploy-validation"]
 attributes = { "readiness.validated" = "true" }
 
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.pre-deploy-validation",
-  "ggen.readiness.check.comprehensive",
-  "ggen.readiness.requirement.validate",
-  "ggen.readiness.validation.result",
-  "ggen.lifecycle.deploy-production"
+  "mcpp.lifecycle.pre-deploy-validation",
+  "mcpp.readiness.check.comprehensive",
+  "mcpp.readiness.requirement.validate",
+  "mcpp.readiness.validation.result",
+  "mcpp.lifecycle.deploy-production"
 ]
 
 [scenario.expect.attestation]

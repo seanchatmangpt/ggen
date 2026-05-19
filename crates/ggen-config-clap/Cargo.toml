@@ -1,5 +1,5 @@
 [package]
-name = "ggen-config-clap"
+name = "mcpp-config-clap"
 version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
@@ -7,7 +7,7 @@ license = "MIT"
 description = "Integration layer for loading ggen.toml into clap applications"
 
 [dependencies]
-ggen-config.workspace = true
+mcpp-config.workspace = true
 clap.workspace = true
 clap-noun-verb.workspace = true
 anyhow.workspace = true

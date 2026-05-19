@@ -78,7 +78,7 @@ Where:
 ### Generation Workflow
 
 ```bash
-cd /Users/sac/ggen/specs/013-ggen-v6-rdf-system
+cd ./specs/013-ggen-v6-rdf-system
 
 # Option 1: Use helper script (recommended)
 ./scripts/sync.sh
@@ -266,7 +266,7 @@ See `80-20-PLAN.md` for complete analysis.
 
 ```bash
 # Run testcontainers e2e test (validates 3T workflow)
-cd /Users/sac/ggen/vendors/spec-kit
+cd ./vendors/spec-kit
 pytest tests/integration/test_3t_e2e.py -v -s
 
 # Or run all tests
@@ -351,7 +351,7 @@ This project is **eating its own dog food** - using spec-kit to specify ggen v6,
 - **User Stories**: 5 (system-level)
 - **Core Capabilities**: 5 (20% effort, 80% value)
 - **Deferred Features**: 8 (80% effort, 20% value)
-- **Configuration**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/ggen.toml`
+- **Configuration**: `./specs/013-ggen-v6-rdf-system/ggen.toml`
 - **Validation**: `./scripts/validate-rdf-workflow.sh`
 - **Sync**: `./scripts/sync.sh`
 

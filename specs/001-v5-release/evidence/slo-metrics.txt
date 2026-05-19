@@ -5,7 +5,7 @@
 [cargo-make] INFO - Task: slo-check
 [cargo-make] INFO - Profile: development
 [cargo-make] INFO - Execute Command: "timeout" "180s" "cargo" "test" "-p" "ggen-core" "--" "--list"
-[1m[32m   Compiling[0m ggen-core v4.0.0 (/Users/sac/ggen/crates/ggen-core)
+[1m[32m   Compiling[0m ggen-core v4.0.0 (./crates/ggen-core)
 [1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 12.19s
 [1m[32m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_core-e5f95a78ec19cc2f)
 cache::tests::test_cache_manager_creation: test

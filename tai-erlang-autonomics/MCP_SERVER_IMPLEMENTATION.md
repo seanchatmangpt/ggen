@@ -17,7 +17,7 @@ Implemented a Model Context Protocol (MCP) server for TAI Autonomics with 4 tool
 ### File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/
+~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/
 ├── taiea_mcp_server.erl
 ├── taiea_tool_health.erl
 ├── taiea_tool_entitlement.erl
@@ -529,7 +529,7 @@ open_stdio_port() ->
 All modules compile successfully:
 
 ```bash
-$ cd /Users/sac/ggen/tai-erlang-autonomics
+$ cd ~/.ggen/mcpp/tai-erlang-autonomics
 $ rebar3 compile
 
 ===> Verifying dependencies...

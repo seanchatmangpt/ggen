@@ -2,7 +2,7 @@
 //!
 //! Tests unusual, malformed, and boundary conditions
 
-use ggen_core::gpack::{GpackManifest, GpackMetadata};
+use mcpp_core::gpack::{GpackManifest, GpackMetadata};
 use std::collections::BTreeMap;
 use std::fs;
 use std::io::Write;
@@ -22,7 +22,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     // Should parse (validation happens separately)
@@ -41,7 +41,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#,
         long_id
     );
@@ -59,7 +59,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -79,7 +79,7 @@ name = "Test"
 version = "1.0.0-alpha.1"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -96,7 +96,7 @@ name = "Test"
 version = "1.0.0+build.123"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -112,7 +112,7 @@ name = "Test"
 version = "not-a-version"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -132,7 +132,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "test.self-dep" = "^1.0"
@@ -157,7 +157,7 @@ name = "A"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "test.b" = "^1.0"
@@ -170,7 +170,7 @@ name = "B"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "test.c" = "^1.0"
@@ -183,7 +183,7 @@ name = "C"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "test.a" = "^1.0"
@@ -217,7 +217,7 @@ name = "Test"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [templates]
 patterns = ["templates/**/*.tmpl"]
@@ -307,7 +307,7 @@ name = "Pack 1"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [rdf.prefixes]
 ex = "https://example.org/pack1/"
@@ -320,7 +320,7 @@ name = "Pack 2"
 version = "1.0.0"
 description = "Test"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [rdf.prefixes]
 ex = "https://example.org/pack2/"
@@ -348,7 +348,7 @@ name = "Empty"
 version = "1.0.0"
 description = "Empty pack"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 "#;
 
     let manifest: GpackManifest = toml::from_str(toml).unwrap();
@@ -368,7 +368,7 @@ name = "Meta Pack"
 version = "1.0.0"
 description = "Only dependencies, no content"
 license = "MIT"
-ggen_compat = ">=3.0.0"
+mcpp_compat = ">=3.0.0"
 
 [dependencies]
 "test.pack1" = "^1.0"
@@ -464,7 +464,7 @@ fn test_very_large_manifest() {
             version: "1.0.0".to_string(),
             description: "Pack with many dependencies".to_string(),
             license: "MIT".to_string(),
-            ggen_compat: ">=3.0.0".to_string(),
+            mcpp_compat: ">=3.0.0".to_string(),
         },
         dependencies: deps,
         templates: Default::default(),
@@ -512,7 +512,7 @@ fn minimal_manifest() -> GpackManifest {
             version: "1.0.0".to_string(),
             description: "Test".to_string(),
             license: "MIT".to_string(),
-            ggen_compat: ">=3.0.0".to_string(),
+            mcpp_compat: ">=3.0.0".to_string(),
         },
         dependencies: BTreeMap::new(),
         templates: Default::default(),

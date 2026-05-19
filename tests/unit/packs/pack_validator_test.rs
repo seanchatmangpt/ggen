@@ -5,7 +5,7 @@
 //! - Checking completeness
 //! - Scoring packs
 
-use ggen_domain::packs::{score_pack, show_pack, validate_pack};
+use mcpp_domain::packs::{score_pack, show_pack, validate_pack};
 
 #[test]
 fn test_validate_pack_structure() {
@@ -188,7 +188,7 @@ fn test_validate_pack_with_dependencies() {
 
 #[test]
 fn test_validation_result_serialization() {
-    use ggen_domain::packs::ValidationResult;
+    use mcpp_domain::packs::ValidationResult;
 
     // Arrange
     let validation = ValidationResult {
@@ -197,7 +197,7 @@ fn test_validation_result_serialization() {
         score: 85.5,
         errors: vec![],
         warnings: vec!["Minor warning".to_string()],
-        checks: vec![ggen_domain::packs::validate::ValidationCheck {
+        checks: vec![mcpp_domain::packs::validate::ValidationCheck {
             name: "test_check".to_string(),
             passed: true,
             message: "Check passed".to_string(),
@@ -218,14 +218,14 @@ fn test_validation_result_serialization() {
 
 #[test]
 fn test_pack_score_serialization() {
-    use ggen_domain::packs::PackScore;
+    use mcpp_domain::packs::PackScore;
 
     // Arrange
     let score = PackScore {
         pack_id: "test-pack".to_string(),
         total_score: 75,
         maturity_level: "Beta".to_string(),
-        scores: ggen_domain::packs::score::DimensionScores {
+        scores: mcpp_domain::packs::score::DimensionScores {
             documentation: 20,
             completeness: 25,
             quality: 20,

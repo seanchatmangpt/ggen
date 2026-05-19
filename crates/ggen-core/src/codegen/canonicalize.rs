@@ -16,7 +16,7 @@
 //! 4. Ensures final newline
 //! 5. Injects generated code header with warning
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use regex::Regex;
 use std::collections::BTreeSet;
 use std::path::Path;

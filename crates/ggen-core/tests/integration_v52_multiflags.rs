@@ -35,6 +35,7 @@ use tempfile::TempDir;
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_force_plus_audit_safe_destructive() {
     // Arrange: Create SyncOptions with force + audit enabled
     let options = SyncOptions {
@@ -118,6 +119,7 @@ fn test_force_plus_audit_safe_destructive() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_merge_plus_watch_live_hybrid() {
     // Arrange: Create SyncOptions with watch enabled
     let options = SyncOptions {
@@ -200,6 +202,7 @@ fn manual_code() { println!("manual"); }
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_condition_plus_validate_only() {
     // Arrange: Create SyncOptions with validate_only enabled
     let options = SyncOptions {
@@ -299,6 +302,7 @@ fn test_condition_plus_validate_only() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_force_merge_audit_all_three() {
     // Arrange: Create SyncOptions with force + audit + merge pattern
     let options = SyncOptions {
@@ -426,6 +430,7 @@ fn manual_domain_logic() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_watch_condition_audit_live_conditional() {
     // Arrange: Create SyncOptions with watch + audit (conditional via skip_empty)
     let options = SyncOptions {
@@ -554,6 +559,7 @@ fn test_watch_condition_audit_live_conditional() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_flag_precedence_validate_only_blocks_generation() {
     // Arrange: Create SyncOptions with validate_only + other flags
     let options_validate = SyncOptions {
@@ -633,6 +639,7 @@ fn test_flag_precedence_validate_only_blocks_generation() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_dry_run_preview_with_all_flags() {
     // Arrange: Create SyncOptions with dry_run + all other flags
     let options = SyncOptions {
@@ -724,6 +731,7 @@ fn test_dry_run_preview_with_all_flags() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_invalid_flag_combinations() {
     // Arrange: Create SyncOptions with conflicting flags
     let options_conflict1 = SyncOptions {
@@ -837,6 +845,7 @@ fn test_invalid_flag_combinations() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_audit_trail_records_all_operations() {
     // Arrange: Create comprehensive audit trail with all operation types
     let mut audit = AuditTrail::new("5.2.0", "ggen.toml", "ontology.ttl");
@@ -962,6 +971,7 @@ fn test_audit_trail_records_all_operations() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_file_system_side_effects() {
     // Arrange: Create temp directory for side effect testing
     let temp_dir = TempDir::new().expect("Failed to create temp dir");

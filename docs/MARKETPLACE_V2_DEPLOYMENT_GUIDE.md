@@ -64,7 +64,7 @@
 
 - [ ] **Fix Clippy Warnings**
   ```bash
-  cd /Users/sac/ggen
+  cd .
   cargo fix --package ggen-marketplace-v2 --allow-dirty
   cargo clippy --package ggen-marketplace-v2 -- -D warnings
   ```

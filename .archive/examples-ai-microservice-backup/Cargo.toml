@@ -3,7 +3,7 @@ name = "ai-microservice"
 version = "0.1.0"
 edition = "2021"
 authors = ["ggen examples"]
-description = "Comprehensive AI-powered microservice showcasing all ggen-ai features"
+description = "Comprehensive AI-powered microservice showcasing all mcpp-ai features"
 license = "MIT"
 
 [[bin]]
@@ -12,8 +12,8 @@ path = "src/main.rs"
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../../ggen-core" }
-ggen-ai = { path = "../../ggen-ai" }
+mcpp-core = { path = "../../mcpp-core" }
+mcpp-ai = { path = "../../mcpp-ai" }
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }

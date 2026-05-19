@@ -75,7 +75,7 @@ Results by Crate:
 ├── ggen-dspy:         16 passed
 ├── ggen-payments:     15 passed
 ├── ggen-craftplan:    4 passed
-├── ggen-process-mining: 2 passed
+├── native pictl process mining: 2 passed
 └── ggen-dod:          0 tests
 
 TOTAL: 2,217 passed, 7 failed, 22 ignored
@@ -446,10 +446,10 @@ The ggen codebase has successfully completed the London TDD → Chicago TDD migr
 
 ## Appendix: Related Documentation
 
-- `/Users/sac/ggen/docs/CHICAGO_TDD_MIGRATION_FINAL_REPORT.md` - Detailed migration report
-- `/Users/sac/ggen/docs/CHICAGO_TDD_100_PERCENT_COMPLIANCE.md` - Compliance verification evidence
-- `/Users/sac/ggen/TEST_CATEGORIZATION_REPORT.md` - Test categorization analysis
-- `/Users/sac/ggen/LONDON_TDD_MASTER_SUMMARY.md` - Original assessment report
-- `/Users/sac/ggen/.claude/rules/rust/testing.md` - Chicago TDD requirements
-- `/Users/sac/ggen/.claude/rules/rust/testing-forbidden.md` - Forbidden London TDD patterns
-- `/Users/sac/ggen/.claude/rules/otel-validation.md` - OTEL verification requirements
+- `./docs/CHICAGO_TDD_MIGRATION_FINAL_REPORT.md` - Detailed migration report
+- `./docs/CHICAGO_TDD_100_PERCENT_COMPLIANCE.md` - Compliance verification evidence
+- `./TEST_CATEGORIZATION_REPORT.md` - Test categorization analysis
+- `./LONDON_TDD_MASTER_SUMMARY.md` - Original assessment report
+- `./.claude/rules/rust/testing.md` - Chicago TDD requirements
+- `./.claude/rules/rust/testing-forbidden.md` - Forbidden London TDD patterns
+- `./.claude/rules/otel-validation.md` - OTEL verification requirements

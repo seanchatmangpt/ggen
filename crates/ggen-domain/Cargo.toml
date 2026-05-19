@@ -1,5 +1,5 @@
 [package]
-name = "ggen-domain"
+name = "mcpp-domain"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Domain logic layer for ggen - pure business logic without CLI dependencies"
@@ -22,9 +22,9 @@ serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 
 # Local infrastructure dependencies (use workspace = true pattern)
-ggen-core.workspace = true
-ggen-ai.workspace = true
-ggen-utils.workspace = true
+mcpp-core.workspace = true
+mcpp-ai.workspace = true
+mcpp-utils.workspace = true
 # marketplace removed — migrated to separate project
 
 # Crate-specific dependencies

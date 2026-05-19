@@ -9,16 +9,16 @@
 
 All crates successfully published to crates.io:
 
-1. ✅ **ggen-utils v3.2.0** - Published successfully
-2. ✅ **ggen-core v3.2.0** - Published successfully
-3. ✅ **ggen-ai v3.2.0** - Published successfully
-4. ✅ **ggen-macros v3.2.0** - Already existed (skipped)
-5. ✅ **ggen-marketplace v3.2.0** - Published successfully
-6. ✅ **ggen-domain v3.2.0** - Published successfully
-7. ✅ **ggen-cli-lib v3.2.0** - Published successfully
-8. ✅ **ggen-node v3.2.0** - Published successfully
-9. ✅ **ggen-dod v3.2.0** - Published successfully (added license metadata)
-10. ✅ **ggen v3.2.0** - Already existed (skipped)
+1. ✅ **mcpp-utils v3.2.0** - Published successfully
+2. ✅ **mcpp-core v3.2.0** - Published successfully
+3. ✅ **mcpp-ai v3.2.0** - Published successfully
+4. ✅ **mcpp-macros v3.2.0** - Already existed (skipped)
+5. ✅ **mcpp-marketplace v3.2.0** - Published successfully
+6. ✅ **mcpp-domain v3.2.0** - Published successfully
+7. ✅ **mcpp-cli-lib v3.2.0** - Published successfully
+8. ✅ **mcpp-node v3.2.0** - Published successfully
+9. ✅ **mcpp-dod v3.2.0** - Published successfully (added license metadata)
+10. ✅ **mcpp v3.2.0** - Already existed (skipped)
 
 ---
 
@@ -26,16 +26,16 @@ All crates successfully published to crates.io:
 
 Crates were published in dependency order:
 
-1. **ggen-utils** (no ggen dependencies)
-2. **ggen-core** (depends on ggen-utils)
-3. **ggen-ai** (depends on ggen-core, ggen-utils)
-4. **ggen-macros** (already published)
-5. **ggen-marketplace** (depends on ggen-utils, ggen-macros)
-6. **ggen-domain** (depends on ggen-core, ggen-ai, ggen-marketplace, ggen-utils)
-7. **ggen-cli-lib** (depends on all above)
-8. **ggen-node** (depends on ggen-cli-lib)
-9. **ggen-dod** (depends on ggen-domain, ggen-core)
-10. **ggen** (root crate, already published)
+1. **mcpp-utils** (no mcpp dependencies)
+2. **mcpp-core** (depends on mcpp-utils)
+3. **mcpp-ai** (depends on mcpp-core, mcpp-utils)
+4. **mcpp-macros** (already published)
+5. **mcpp-marketplace** (depends on mcpp-utils, mcpp-macros)
+6. **mcpp-domain** (depends on mcpp-core, mcpp-ai, mcpp-marketplace, mcpp-utils)
+7. **mcpp-cli-lib** (depends on all above)
+8. **mcpp-node** (depends on mcpp-cli-lib)
+9. **mcpp-dod** (depends on mcpp-domain, mcpp-core)
+10. **mcpp** (root crate, already published)
 
 ---
 
@@ -47,8 +47,8 @@ Crates were published in dependency order:
 - **Status**: ✅ Resolved
 
 ### 2. Missing License Metadata
-- **Issue**: `ggen-dod` missing `license` field required by crates.io
-- **Solution**: Added `license = "MIT"` and `repository` to `ggen-dod/Cargo.toml`
+- **Issue**: `mcpp-dod` missing `license` field required by crates.io
+- **Solution**: Added `license = "MIT"` and `repository` to `mcpp-dod/Cargo.toml`
 - **Status**: ✅ Resolved
 
 ### 3. Uncommitted Changes
@@ -57,7 +57,7 @@ Crates were published in dependency order:
 - **Status**: ✅ Resolved
 
 ### 4. Already Published
-- **Issue**: `ggen-macros` and root `ggen` crate already published
+- **Issue**: `mcpp-macros` and root `mcpp` crate already published
 - **Solution**: Skipped (already at v3.2.0)
 - **Status**: ✅ Expected behavior
 
@@ -67,15 +67,15 @@ Crates were published in dependency order:
 
 All crates are now available on crates.io at version 3.2.0:
 
-- https://crates.io/crates/ggen-utils/3.2.0
-- https://crates.io/crates/ggen-core/3.2.0
-- https://crates.io/crates/ggen-ai/3.2.0
-- https://crates.io/crates/ggen-marketplace/3.2.0
-- https://crates.io/crates/ggen-domain/3.2.0
-- https://crates.io/crates/ggen-cli-lib/3.2.0
-- https://crates.io/crates/ggen-node/3.2.0
-- https://crates.io/crates/ggen-dod/3.2.0
-- https://crates.io/crates/ggen/3.2.0
+- https://crates.io/crates/mcpp-utils/3.2.0
+- https://crates.io/crates/mcpp-core/3.2.0
+- https://crates.io/crates/mcpp-ai/3.2.0
+- https://crates.io/crates/mcpp-marketplace/3.2.0
+- https://crates.io/crates/mcpp-domain/3.2.0
+- https://crates.io/crates/mcpp-cli-lib/3.2.0
+- https://crates.io/crates/mcpp-node/3.2.0
+- https://crates.io/crates/mcpp-dod/3.2.0
+- https://crates.io/crates/mcpp/3.2.0
 
 ---
 
@@ -83,8 +83,8 @@ All crates are now available on crates.io at version 3.2.0:
 
 - All crates published with `--no-verify` due to RocksDB C++ build issues during verification
 - Dry-run verification was successful for all packages before publishing
-- `ggen-dod` required license metadata addition before publishing
-- Root `ggen` crate was already published (version 3.2.0 already exists)
+- `mcpp-dod` required license metadata addition before publishing
+- Root `mcpp` crate was already published (version 3.2.0 already exists)
 
 ---
 

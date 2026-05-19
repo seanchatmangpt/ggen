@@ -17,18 +17,18 @@ Generate production-ready database schemas for PostgreSQL, MySQL, and SQLite fro
 
 ```bash
 # Install package
-ggen marketplace install database-schema-generator
+mcpp marketplace install database-schema-generator
 
 # Generate schema for PostgreSQL
-ggen generate database-schema-generator \
+mcpp generate database-schema-generator \
   --database postgresql \
   --output ./db/schema.sql
 
 # Generate for all databases
-ggen generate database-schema-generator --all
+mcpp generate database-schema-generator --all
 
 # Generate with migrations
-ggen generate database-schema-generator \
+mcpp generate database-schema-generator \
   --database postgresql \
   --migrations \
   --output ./db/migrations/
@@ -39,44 +39,44 @@ ggen generate database-schema-generator \
 ### 1. Define Your Schema in RDF
 
 ```turtle
-@prefix ggen: <http://ggen.io/ontology/database#> .
+@prefix mcpp: <http://mcpp.io/ontology/database#> .
 
 # Define database
-:MyDatabase a ggen:Database ;
-    ggen:databaseName "myapp_production" ;
-    ggen:databaseEngine "postgresql" ;
-    ggen:characterSet "UTF8" ;
-    ggen:hasTable :UsersTable .
+:MyDatabase a mcpp:Database ;
+    mcpp:databaseName "myapp_production" ;
+    mcpp:databaseEngine "postgresql" ;
+    mcpp:characterSet "UTF8" ;
+    mcpp:hasTable :UsersTable .
 
 # Define table
-:UsersTable a ggen:Table ;
-    ggen:tableName "users" ;
-    ggen:tableComment "Application users" ;
-    ggen:hasColumn :IdColumn, :EmailColumn, :CreatedAtColumn ;
-    ggen:hasConstraint :UsersPK, :EmailUnique ;
-    ggen:hasIndex :EmailIndex .
+:UsersTable a mcpp:Table ;
+    mcpp:tableName "users" ;
+    mcpp:tableComment "Application users" ;
+    mcpp:hasColumn :IdColumn, :EmailColumn, :CreatedAtColumn ;
+    mcpp:hasConstraint :UsersPK, :EmailUnique ;
+    mcpp:hasIndex :EmailIndex .
 
 # Define columns
-:IdColumn a ggen:Column ;
-    ggen:columnName "id" ;
-    ggen:hasDataType :SerialType ;
-    ggen:isAutoIncrement true ;
-    ggen:isNullable false .
+:IdColumn a mcpp:Column ;
+    mcpp:columnName "id" ;
+    mcpp:hasDataType :SerialType ;
+    mcpp:isAutoIncrement true ;
+    mcpp:isNullable false .
 
-:EmailColumn a ggen:Column ;
-    ggen:columnName "email" ;
-    ggen:hasDataType :VarcharType ;
-    ggen:maxLength 255 ;
-    ggen:isNullable false .
+:EmailColumn a mcpp:Column ;
+    mcpp:columnName "email" ;
+    mcpp:hasDataType :VarcharType ;
+    mcpp:maxLength 255 ;
+    mcpp:isNullable false .
 
 # Define constraints
-:UsersPK a ggen:PrimaryKey ;
-    ggen:constraintName "users_pkey" ;
-    ggen:constrainsColumn :IdColumn .
+:UsersPK a mcpp:PrimaryKey ;
+    mcpp:constraintName "users_pkey" ;
+    mcpp:constrainsColumn :IdColumn .
 
-:EmailUnique a ggen:UniqueConstraint ;
-    ggen:constraintName "users_email_unique" ;
-    ggen:constrainsColumn :EmailColumn .
+:EmailUnique a mcpp:UniqueConstraint ;
+    mcpp:constraintName "users_email_unique" ;
+    mcpp:constrainsColumn :EmailColumn .
 ```
 
 ### 2. Run SPARQL Queries
@@ -205,31 +205,31 @@ Tests cover:
 ### Custom Data Types
 
 ```turtle
-:JsonbType a ggen:DataType ;
-    ggen:dataTypeName "JSONB" ;
-    ggen:postgresqlType "JSONB" ;
-    ggen:mysqlType "JSON" ;
-    ggen:sqliteType "TEXT" .
+:JsonbType a mcpp:DataType ;
+    mcpp:dataTypeName "JSONB" ;
+    mcpp:postgresqlType "JSONB" ;
+    mcpp:mysqlType "JSON" ;
+    mcpp:sqliteType "TEXT" .
 ```
 
 ### Triggers
 
 ```turtle
-:UpdatedAtTrigger a ggen:Trigger ;
-    ggen:triggerName "trigger_updated_at" ;
-    ggen:triggerTiming "BEFORE" ;
-    ggen:triggerEvent "UPDATE" ;
-    ggen:triggerLevel "ROW" ;
-    ggen:triggerFunction "update_updated_at_column()" .
+:UpdatedAtTrigger a mcpp:Trigger ;
+    mcpp:triggerName "trigger_updated_at" ;
+    mcpp:triggerTiming "BEFORE" ;
+    mcpp:triggerEvent "UPDATE" ;
+    mcpp:triggerLevel "ROW" ;
+    mcpp:triggerFunction "update_updated_at_column()" .
 ```
 
 ### Indexes
 
 ```turtle
-:EmailGinIndex a ggen:GINIndex ;
-    ggen:indexName "idx_users_email_gin" ;
-    ggen:indexesColumn :EmailColumn ;
-    ggen:isConcurrent true .
+:EmailGinIndex a mcpp:GINIndex ;
+    mcpp:indexName "idx_users_email_gin" ;
+    mcpp:indexesColumn :EmailColumn ;
+    mcpp:isConcurrent true .
 ```
 
 ## Configuration

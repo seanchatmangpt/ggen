@@ -8,7 +8,7 @@ fn main() -> anyhow::Result<()> {
     println!("Running Quality Gates on ggen Project");
     println!("======================================\n");
 
-    let project_path = PathBuf::from("/Users/sac/ggen");
+    let project_path = PathBuf::from(".");
     let manifest_path = project_path.join("ggen.toml");
 
     if !manifest_path.exists() {

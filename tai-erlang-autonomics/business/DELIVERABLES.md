@@ -272,7 +272,7 @@
 ## File Locations & Sizes
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/business/
+~/.ggen/mcpp/tai-erlang-autonomics/business/
 
 1. MARKET_VALIDATION_REPORT.md (57 KB, 7,040 words, 12+ pages)
    - Main comprehensive research document

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Advanced Rust Project Test Script
-# Demonstrates comprehensive testing with ggen
+# Demonstrates comprehensive testing with mcpp
 
 set -euo pipefail
 
@@ -58,9 +58,9 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Check ggen
-    if ! command -v ggen &> /dev/null; then
-        log_error "ggen not found. Please install ggen CLI."
+    # Check mcpp
+    if ! command -v mcpp &> /dev/null; then
+        log_error "mcpp not found. Please install mcpp CLI."
         exit 1
     fi
     
@@ -243,7 +243,7 @@ run_template_tests() {
     
     # Test template generation
     log_info "Testing template generation..."
-    ggen template generate templates/rust-service.tmpl \
+    mcpp template generate templates/rust-service.tmpl \
         --var name="TestService" \
         --var description="Test service" \
         --var version="1.0.0" \
@@ -252,19 +252,19 @@ run_template_tests() {
     
     # Test AI generation
     log_info "Testing AI generation..."
-    ggen ai generate --description "Test template generation" --mock --output "$TEST_DIR/generated-ai-test.tmpl"
+    mcpp ai generate --description "Test template generation" --mock --output "$TEST_DIR/generated-ai-test.tmpl"
     
     # Test SPARQL generation
     log_info "Testing SPARQL generation..."
-    ggen ai sparql --description "Test SPARQL query" --output "$TEST_DIR/generated-test-query.sparql"
+    mcpp ai sparql --description "Test SPARQL query" --output "$TEST_DIR/generated-test-query.sparql"
     
     # Test frontmatter generation
     log_info "Testing frontmatter generation..."
-    ggen ai frontmatter --description "Test frontmatter" --output "$TEST_DIR/generated-test-frontmatter.md"
+    mcpp ai frontmatter --description "Test frontmatter" --output "$TEST_DIR/generated-test-frontmatter.md"
     
     # Test graph generation
     log_info "Testing graph generation..."
-    ggen ai graph --description "Test RDF graph" --output "$TEST_DIR/generated-test-graph.ttl"
+    mcpp ai graph --description "Test RDF graph" --output "$TEST_DIR/generated-test-graph.ttl"
     
     # Validate generated files
     log_info "Validating generated files..."
@@ -283,19 +283,19 @@ run_lifecycle_tests() {
     
     # Test lifecycle phases
     log_info "Testing lifecycle phases..."
-    ggen lifecycle list
+    mcpp lifecycle list
     
     # Test single phase execution
     log_info "Testing single phase execution..."
-    ggen lifecycle run init
+    mcpp lifecycle run init
     
     # Test pipeline execution
     log_info "Testing pipeline execution..."
-    ggen lifecycle pipeline setup generate
+    mcpp lifecycle pipeline setup generate
     
     # Test environment-specific execution
     log_info "Testing environment-specific execution..."
-    ggen lifecycle run deploy --env development
+    mcpp lifecycle run deploy --env development
     
     log_success "Lifecycle tests completed"
 }

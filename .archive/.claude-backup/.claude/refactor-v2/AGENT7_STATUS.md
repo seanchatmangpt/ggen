@@ -17,7 +17,7 @@ Agent 7 has successfully created a comprehensive performance benchmarking suite 
 
 ### 1. Core Benchmark Suite
 
-**File**: `/Users/sac/ggen/benches/v2_performance.rs` (593 lines)
+**File**: `./benches/v2_performance.rs` (593 lines)
 **Status**: ✅ Created and compiled successfully
 
 **Coverage**:
@@ -36,7 +36,7 @@ Agent 7 has successfully created a comprehensive performance benchmarking suite 
 
 ### 2. Comprehensive Documentation
 
-**File**: `/Users/sac/ggen/.claude/refactor-v2/agent7-benchmarks.md` (654 lines)
+**File**: `./.claude/refactor-v2/agent7-benchmarks.md` (654 lines)
 **Status**: ✅ Created
 
 **Contents**:
@@ -51,7 +51,7 @@ Agent 7 has successfully created a comprehensive performance benchmarking suite 
 
 ### 3. Quick Reference Guide
 
-**File**: `/Users/sac/ggen/.claude/refactor-v2/agent7-quick-reference.md` (252 lines)
+**File**: `./.claude/refactor-v2/agent7-quick-reference.md` (252 lines)
 **Status**: ✅ Created
 
 **Contents**:
@@ -64,7 +64,7 @@ Agent 7 has successfully created a comprehensive performance benchmarking suite 
 
 ### 4. Automated Benchmark Runner
 
-**File**: `/Users/sac/ggen/.claude/refactor-v2/run-benchmarks.sh` (339 lines)
+**File**: `./.claude/refactor-v2/run-benchmarks.sh` (339 lines)
 **Status**: ✅ Created and made executable
 
 **Features**:
@@ -94,7 +94,7 @@ Agent 7 has successfully created a comprehensive performance benchmarking suite 
 
 ### 5. Cargo.toml Integration
 
-**File**: `/Users/sac/ggen/Cargo.toml` (updated)
+**File**: `./Cargo.toml` (updated)
 **Status**: ✅ Updated
 
 **Changes**:
@@ -265,7 +265,7 @@ All data stored in `.swarm/memory.db`:
 ### Step 1: Run Benchmarks
 
 ```bash
-cd /Users/sac/ggen
+cd .
 ./.claude/refactor-v2/run-benchmarks.sh
 ```
 
@@ -420,9 +420,9 @@ jobs:
 6. Create final migration validation report
 
 **Critical Files**:
-- `/Users/sac/ggen/.claude/refactor-v2/run-benchmarks.sh` (runner)
-- `/Users/sac/ggen/.claude/refactor-v2/agent7-benchmarks.md` (documentation)
-- `/Users/sac/ggen/target/criterion/report/index.html` (results, after running)
+- `./.claude/refactor-v2/run-benchmarks.sh` (runner)
+- `./.claude/refactor-v2/agent7-benchmarks.md` (documentation)
+- `./target/criterion/report/index.html` (results, after running)
 
 ---
 

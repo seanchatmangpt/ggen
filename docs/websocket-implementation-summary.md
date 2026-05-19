@@ -209,11 +209,11 @@ Each template includes WebSocket handler integration with existing test infrastr
 
 ## Files Modified
 
-1. `/Users/sac/ggen/templates/a2a-rust.tera` - Added tokio-tungstenite WebSocket
-2. `/Users/sac/ggen/templates/a2a-go.tera` - Added gorilla/websocket
-3. `/Users/sac/ggen/templates/a2a-typescript.tera` - Added ws library
-4. `/Users/sac/ggen/templates/a2a-java.tera` - Added Java-WebSocket
-5. `/Users/sac/ggen/templates/a2a-elixir.tera` - Added Phoenix Channels
+1. `./templates/a2a-rust.tera` - Added tokio-tungstenite WebSocket
+2. `./templates/a2a-go.tera` - Added gorilla/websocket
+3. `./templates/a2a-typescript.tera` - Added ws library
+4. `./templates/a2a-java.tera` - Added Java-WebSocket
+5. `./templates/a2a-elixir.tera` - Added Phoenix Channels
 
 ## Status: COMPLETE
 

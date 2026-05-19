@@ -112,7 +112,7 @@ strategy_2_container_lifecycle() {
 
     # Run a simple cleanroom test
     log_info "Running cleanroom test to trigger container creation..."
-    cd /Users/sac/ggen/cleanroom
+    cd ./cleanroom
 
     if cargo test --test simple_testcontainer_test -- --nocapture 2>&1 | tee /tmp/test_output.log; then
         log_success "Test execution completed"
@@ -220,7 +220,7 @@ strategy_5_container_inspection() {
 
     # Run test
     log_info "Running cleanroom integration test..."
-    cd /Users/sac/ggen/cleanroom
+    cd ./cleanroom
     cargo test --test integration_tests -- --nocapture &> /tmp/integration_test.log || true
 
     sleep 3

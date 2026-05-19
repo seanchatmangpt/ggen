@@ -8,7 +8,7 @@ The `pricing_engine.erl` module has been integrated with eval-mode modules to en
 
 ### 1. State Record Enhancement
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/pricing_engine.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine/src/pricing_engine.erl`
 
 Added two new fields to `#state` record:
 
@@ -160,7 +160,7 @@ Already implemented with complete eval-mode enforcement:
 - Session management with cryptographic hashing
 - Session-scoped secrets for non-contractual guarantees
 
-Location: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_eval_mode.erl`
+Location: `~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine/src/ac_eval_mode.erl`
 
 ### ac_receipt_ledger_mcp.erl
 
@@ -173,12 +173,12 @@ Implements eval-mode receipt ledger as gen_statem:
 - In-memory storage (non-persistent for eval mode)
 - Epoch rotation support for chain management
 
-Location: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl`
+Location: `~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl`
 
 ## Integration Test Suite
 
 Created comprehensive integration test suite:
-- Location: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/pricing_engine_eval_mode_integration_SUITE.erl`
+- Location: `~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine/test/pricing_engine_eval_mode_integration_SUITE.erl`
 - Tests eval-mode initialization, decoration, ledger appending, session verification
 - Tests response decoration and disclaimer inclusion
 - Tests merkle chain and banner functionality

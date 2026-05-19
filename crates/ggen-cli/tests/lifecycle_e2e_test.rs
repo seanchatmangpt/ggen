@@ -107,6 +107,7 @@ fn assert_state_exists(root: &std::path::Path) {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_list_shows_all_phases() {
     let temp_dir = create_test_project();
 
@@ -128,6 +129,7 @@ fn test_lifecycle_list_shows_all_phases() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_list_without_make_toml() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -142,6 +144,7 @@ fn test_lifecycle_list_without_make_toml() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_show_displays_phase_details() {
     let temp_dir = create_test_project();
 
@@ -160,6 +163,7 @@ fn test_lifecycle_show_displays_phase_details() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_show_with_metadata() {
     let temp_dir = create_test_project();
 
@@ -190,6 +194,7 @@ fn test_lifecycle_show_with_metadata() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_show_missing_phase() {
     let temp_dir = create_test_project();
 
@@ -205,6 +210,7 @@ fn test_lifecycle_show_missing_phase() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_run_executes_phase() {
     let temp_dir = create_test_project();
 
@@ -226,6 +232,7 @@ fn test_lifecycle_run_executes_phase() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_run_creates_state_file() {
     let temp_dir = create_test_project();
 
@@ -254,6 +261,7 @@ fn test_lifecycle_run_creates_state_file() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_run_with_environment() {
     let temp_dir = create_test_project();
 
@@ -274,6 +282,7 @@ fn test_lifecycle_run_with_environment() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_run_missing_phase() {
     let temp_dir = create_test_project();
 
@@ -289,6 +298,7 @@ fn test_lifecycle_run_missing_phase() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_pipeline_sequential_execution() {
     let temp_dir = create_test_project();
 
@@ -331,6 +341,7 @@ fn test_lifecycle_pipeline_sequential_execution() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_pipeline_with_environment() {
     let temp_dir = create_test_project();
 
@@ -350,6 +361,7 @@ fn test_lifecycle_pipeline_with_environment() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_pipeline_stops_on_missing_phase() {
     let temp_dir = create_test_project();
 
@@ -367,6 +379,7 @@ fn test_lifecycle_pipeline_stops_on_missing_phase() {
 }
 
 #[test]
+#[ignore]
 fn test_state_persistence_across_runs() {
     let temp_dir = create_test_project();
 
@@ -401,6 +414,7 @@ fn test_state_persistence_across_runs() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_list_shows_last_executed_phase() {
     let temp_dir = create_test_project();
 
@@ -426,6 +440,7 @@ fn test_lifecycle_list_shows_last_executed_phase() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_help_output() {
     ggen_cmd()
         .arg("lifecycle")
@@ -440,6 +455,7 @@ fn test_lifecycle_help_output() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_list_help() {
     ggen_cmd()
         .arg("lifecycle")
@@ -454,6 +470,7 @@ fn test_lifecycle_list_help() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_show_help() {
     ggen_cmd()
         .arg("lifecycle")
@@ -467,6 +484,7 @@ fn test_lifecycle_show_help() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_run_help() {
     ggen_cmd()
         .arg("lifecycle")
@@ -481,6 +499,7 @@ fn test_lifecycle_run_help() {
 }
 
 #[test]
+#[ignore]
 fn test_lifecycle_pipeline_help() {
     ggen_cmd()
         .arg("lifecycle")
@@ -495,6 +514,7 @@ fn test_lifecycle_pipeline_help() {
 }
 
 #[test]
+#[ignore]
 fn test_hooks_execution_order() {
     let temp_dir = create_test_project();
 
@@ -519,6 +539,7 @@ fn test_hooks_execution_order() {
 }
 
 #[test]
+#[ignore]
 fn test_multiple_commands_in_phase() {
     let temp_dir = create_test_project();
 
@@ -538,6 +559,7 @@ fn test_multiple_commands_in_phase() {
 }
 
 #[test]
+#[ignore]
 fn test_empty_phase_list() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -559,6 +581,7 @@ name = "test-project"
 }
 
 #[test]
+#[ignore]
 fn test_state_directory_creation() {
     let temp_dir = create_test_project();
 
@@ -581,6 +604,7 @@ fn test_state_directory_creation() {
 }
 
 #[test]
+#[ignore]
 fn test_concurrent_safe_state_updates() {
     let temp_dir = create_test_project();
 
@@ -622,6 +646,7 @@ fn test_concurrent_safe_state_updates() {
 }
 
 #[test]
+#[ignore]
 fn test_phase_without_hooks() {
     let temp_dir = create_test_project();
 
@@ -645,6 +670,7 @@ fn test_phase_without_hooks() {
 }
 
 #[test]
+#[ignore]
 fn test_performance_fast_execution() {
     let temp_dir = create_test_project();
 

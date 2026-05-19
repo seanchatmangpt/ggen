@@ -5,7 +5,7 @@
 //!
 //! Chicago TDD: Tests verify observable state changes (files created, metrics reported)
 
-use ggen_domain::template::{render_with_rdf, RenderWithRdfOptions};
+use ggen_core::domain::template::{render_with_rdf, RenderWithRdfOptions};
 use std::fs;
 use tempfile::TempDir;
 

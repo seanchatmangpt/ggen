@@ -245,7 +245,7 @@ NEXT STEPS
 CONTACT & FOLLOW-UP
 ===================
 Review Documents Location:
-/Users/sac/ggen/tai-erlang-autonomics/
+/Users/sac/mcpp/tai-erlang-autonomics/
 
 Files:
 - CODE_QUALITY_ANALYSIS.md (12 KB) - Full analysis

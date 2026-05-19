@@ -1,4 +1,4 @@
-@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix cnv: <https://mcpp.dev/clap-noun-verb/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @base <http://example.com/calculator/> .
@@ -9,7 +9,7 @@
 # Example RDF description for generating a calculator CLI using clap-noun-verb.
 #
 # Usage:
-#   ggen generate \
+#   mcpp generate \
 #     --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
 #     --domain marketplace/packages/clap-noun-verb/examples/calculator.ttl \
 #     --output ./calculator-cli/

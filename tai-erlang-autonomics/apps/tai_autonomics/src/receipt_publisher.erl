@@ -229,7 +229,7 @@ receipt_to_json_str(Receipt) ->
 get_pubsub_topic() ->
     case application:get_env(tai_autonomics, pubsub_topic) of
         {ok, Topic} -> Topic;
-        undefined -> "projects/my-project/topics/ggen-receipts"
+        undefined -> "projects/my-project/topics/mcpp-receipts"
     end.
 
 %%%===================================================================

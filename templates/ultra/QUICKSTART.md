@@ -13,7 +13,7 @@ Get started with ultra-fast code generation in under 60 seconds!
 
 ```bash
 # CLI Tool (15 seconds total)
-ggen template generate /Users/sac/ggen/templates/ultra/rust-cli-minimal.tmpl --var project_name=myapp
+ggen template generate ./templates/ultra/rust-cli-minimal.tmpl --var project_name=myapp
 cd myapp
 cargo test && cargo build --release
 ./target/release/myapp help
@@ -33,7 +33,7 @@ Commands:
 
 ```bash
 # Library (12 seconds total)
-ggen template generate /Users/sac/ggen/templates/ultra/rust-lib-minimal.tmpl --var project_name=mylib
+ggen template generate ./templates/ultra/rust-lib-minimal.tmpl --var project_name=mylib
 cd mylib
 cargo test && cargo clippy
 ```
@@ -54,7 +54,7 @@ test result: ok. 6 passed; 0 failed
 
 ```bash
 # Web Service (20 seconds total)
-ggen template generate /Users/sac/ggen/templates/ultra/rust-web-minimal.tmpl \
+ggen template generate ./templates/ultra/rust-web-minimal.tmpl \
   --var project_name=api \
   --var port=8080
 cd api
@@ -69,7 +69,7 @@ curl http://localhost:8080/health
 
 ## Template Locations
 
-All templates are located in `/Users/sac/ggen/templates/ultra/`:
+All templates are located in `./templates/ultra/`:
 
 - `rust-cli-minimal.tmpl` - CLI applications
 - `rust-lib-minimal.tmpl` - Libraries
@@ -108,7 +108,7 @@ cargo fmt --check
 ### Template not found
 ```bash
 # Use absolute path
-ggen template generate /Users/sac/ggen/templates/ultra/rust-cli-minimal.tmpl \
+ggen template generate ./templates/ultra/rust-cli-minimal.tmpl \
   --var project_name=myapp
 ```
 

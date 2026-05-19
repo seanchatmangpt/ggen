@@ -1,4 +1,4 @@
-# ChatmanGPT BusinessOS Platform — ggen Package
+# ChatmanGPT BusinessOS Platform — mcpp Package
 
 **Fortune 500-grade code generation from ontology.**
 
@@ -8,10 +8,10 @@ Regenerate the entire BusinessOS platform (Go services, Docker images, Kubernete
 
 ```bash
 # 1. Clone the marketplace package
-ggen get chatman-businessos-platform
+mcpp get chatman-businessos-platform
 
 # 2. Run the sync pipeline
-ggen sync --spec ontology/businessos.ttl --output generated/
+mcpp sync --spec ontology/businessos.ttl --output generated/
 
 # 3. View generated code
 cat generated/services/OrderService.go
@@ -21,29 +21,29 @@ cat generated/k8s/OrderService-deployment.yaml
 
 ## Installation
 
-The package is distributed via ggen marketplace registry:
+The package is distributed via mcpp marketplace registry:
 
 ```bash
 # Install from registry
-ggen install chatman-businessos-platform
+mcpp install chatman-businessos-platform
 
 # Or clone directly from git
 git clone https://github.com/seanchatmangpt/chatmangpt.git
-cd ggen/marketplace/packages/chatman-businessos-platform
-ggen sync --spec ontology/businessos.ttl --output /tmp/generated-businessos/
+cd mcpp/marketplace/packages/chatman-businessos-platform
+mcpp sync --spec ontology/businessos.ttl --output /tmp/generated-businessos/
 ```
 
 ## What This Package Does
 
 ### Input
-- **Ontology:** `ontology/businessos.ttl` — Linked to `/Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl`
+- **Ontology:** `ontology/businessos.ttl` — Linked to `~/.ggen/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl`
   - Services (OrderService, InvoiceService, ComplianceEngine, WebhookHandler)
   - Entities (Order, Invoice, Compliance Rules, Webhooks)
   - Endpoints (REST APIs, gRPC, WebSocket)
   - Dependencies (PostgreSQL, Redis, compliance frameworks)
   - Metadata (port mappings, language, framework, async flags)
 
-### Process: The ggen Sync Pipeline
+### Process: The mcpp Sync Pipeline
 
 1. **Extraction (SPARQL)**
    - `queries/extract-services.rq` executes against the ontology
@@ -90,7 +90,7 @@ generated/
 ### Basic Sync (Regenerate Everything)
 
 ```bash
-ggen sync --spec ontology/businessos.ttl --output generated/
+mcpp sync --spec ontology/businessos.ttl --output generated/
 ```
 
 ### Sync with Rules (Filter Services)
@@ -98,7 +98,7 @@ ggen sync --spec ontology/businessos.ttl --output generated/
 Generate only Go services that are in production:
 
 ```bash
-ggen sync \
+mcpp sync \
   --spec ontology/businessos.ttl \
   --output generated/ \
   --rules production-services
@@ -107,7 +107,7 @@ ggen sync \
 ### Sync with Custom Output
 
 ```bash
-ggen sync \
+mcpp sync \
   --spec ontology/businessos.ttl \
   --output /tmp/businessos-generated/ \
   --verbose
@@ -118,7 +118,7 @@ ggen sync \
 Only generate Docker images (skip Go services and K8s manifests):
 
 ```bash
-ggen sync \
+mcpp sync \
   --spec ontology/businessos.ttl \
   --output generated/ \
   --templates dockerfile
@@ -275,7 +275,7 @@ Edit `ontology/businessos.ttl` to add/remove services:
 
 Then regenerate:
 ```bash
-ggen sync --spec ontology/businessos.ttl --output generated/
+mcpp sync --spec ontology/businessos.ttl --output generated/
 ```
 
 ### Customize Templates
@@ -288,8 +288,8 @@ Edit template files in `templates/`:
 ### Add New Templates
 
 1. Create `templates/my-template.tera`
-2. Update `ggen.toml` to reference it in `[[templates.patterns]]`
-3. Rerun `ggen sync`
+2. Update `mcpp.toml` to reference it in `[[templates.patterns]]`
+3. Rerun `mcpp sync`
 
 Example: Add GraphQL schema generator:
 
@@ -303,7 +303,7 @@ type {{ service_name | pascal_case }} {
 ```
 
 ```toml
-# ggen.toml
+# mcpp.toml
 [[templates.patterns]]
 name = "graphql-schema"
 template = "schema.graphql.tera"
@@ -312,7 +312,7 @@ output = "generated/graphql/{{service_name}}.graphql"
 
 ## Configuration
 
-See `ggen.toml`:
+See `mcpp.toml`:
 
 ```toml
 [project]
@@ -372,7 +372,7 @@ The ontology is symlinked to the actual BusinessOS ontology. Ensure the link is 
 
 ```bash
 ls -la ontology/businessos.ttl
-# Should show: ontology/businessos.ttl -> /Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl
+# Should show: ontology/businessos.ttl -> ~/.ggen/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl
 ```
 
 ### Error: SPARQL query returns no results
@@ -397,7 +397,7 @@ Check that template variables are populated:
 
 Run with `--verbose`:
 ```bash
-ggen sync --spec ontology/businessos.ttl --output generated/ --verbose
+mcpp sync --spec ontology/businessos.ttl --output generated/ --verbose
 ```
 
 ## Integration with CI/CD
@@ -414,8 +414,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install ggen
-      - run: ggen sync --spec ontology/businessos.ttl --output generated/
+      - run: cargo install mcpp
+      - run: mcpp sync --spec ontology/businessos.ttl --output generated/
       - run: go vet ./generated/services/
       - run: kubectl apply -f generated/k8s/ --dry-run=client
       - uses: git-commit-action@v1
@@ -428,7 +428,7 @@ jobs:
 
 1. Fork the marketplace package
 2. Modify ontology or templates
-3. Run `ggen sync` to test
+3. Run `mcpp sync` to test
 4. Submit PR to https://github.com/seanchatmangpt/chatmangpt
 
 ## License
@@ -443,5 +443,5 @@ MIT — See LICENSE file
 
 ---
 
-**Generated by ggen from BusinessOS ontology.**
+**Generated by mcpp from BusinessOS ontology.**
 **Last updated: 2026-03-26**

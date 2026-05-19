@@ -6,7 +6,7 @@ Implemented the GroqLlmBridge to integrate LLM-based code generation into the gg
 
 ## Implementation Details
 
-### 1. GroqLlmBridge Structure (`/Users/sac/ggen/crates/ggen-cli/src/llm_bridge.rs`)
+### 1. GroqLlmBridge Structure (`./crates/ggen-cli/src/llm_bridge.rs`)
 
 **Key Components:**
 
@@ -34,7 +34,7 @@ pub struct GroqLlmBridge {
 5. `generate_skill_impl()` - Trait method implementation
 6. `clone_box()` - Returns boxed clone for trait object
 
-### 2. CLI Integration (`/Users/sac/ggen/crates/ggen-cli/src/cmds/sync.rs`)
+### 2. CLI Integration (`./crates/ggen-cli/src/cmds/sync.rs`)
 
 **Integration Points:**
 
@@ -61,7 +61,7 @@ fn inject_llm_if_enabled(
 let executor = inject_llm_if_enabled(executor, &manifest_path, verbose.unwrap_or(false));
 ```
 
-### 3. Trait Updates (`/Users/sac/ggen/crates/ggen-core/src/codegen/pipeline.rs`)
+### 3. Trait Updates (`./crates/ggen-core/src/codegen/pipeline.rs`)
 
 **LlmService Trait Requirements:**
 
@@ -217,19 +217,19 @@ To verify the implementation works:
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-cli/src/llm_bridge.rs`
+1. `./crates/ggen-cli/src/llm_bridge.rs`
    - Added `Clone` trait to `GroqLlmBridge`
    - Implemented `clone_box()` method
 
-2. `/Users/sac/ggen/crates/ggen-cli/src/cmds/sync.rs`
+2. `./crates/ggen-cli/src/cmds/sync.rs`
    - Already had `inject_llm_if_enabled()` function
    - Already had integration with `GroqLlmBridge`
 
-3. `/Users/sac/ggen/crates/ggen-core/src/codegen/pipeline.rs`
+3. `./crates/ggen-core/src/codegen/pipeline.rs`
    - Added `#[derive(Clone)]` to `DefaultLlmService`
    - Implemented `clone_box()` method
 
-4. `/Users/sac/ggen/crates/ggen-cli/tests/test_llm_integration.rs`
+4. `./crates/ggen-cli/tests/test_llm_integration.rs`
    - Created new integration test file
 
 ## Next Steps

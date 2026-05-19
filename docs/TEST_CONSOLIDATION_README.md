@@ -360,7 +360,7 @@ If consolidation causes issues:
 
 ```bash
 # 1. Restore from backup
-cp -r /Users/sac/ggen/tests-archive/* crates/ggen-core/tests/
+cp -r ./tests-archive/* crates/ggen-core/tests/
 
 # 2. Revert git changes
 git revert <consolidation-commit-hash>

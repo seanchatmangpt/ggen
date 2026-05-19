@@ -6,7 +6,7 @@
 //! - Dry run mode
 //! - Force reinstall
 
-use ggen_domain::packs::{install_pack, InstallInput};
+use ggen_core::domain::packs::{install_pack, InstallInput};
 use std::path::PathBuf;
 
 #[tokio::test]

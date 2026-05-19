@@ -57,7 +57,7 @@ The 12-agent Hive Mind swarm has successfully completed the **Phase 0 foundation
 **Mission**: Write comprehensive tests for global runtime module BEFORE implementation.
 
 **Deliverables**:
-- Created `/Users/sac/ggen/cli/src/runtime.rs` with 6 comprehensive tests
+- Created `./cli/src/runtime.rs` with 6 comprehensive tests
 - Tests validate: singleton pattern, async execution, concurrency, errors, performance, type safety
 - **Status**: All 6 tests passing (100%)
 
@@ -92,7 +92,7 @@ The 12-agent Hive Mind swarm has successfully completed the **Phase 0 foundation
 **Mission**: Validate runtime performance meets SLOs.
 
 **Deliverables**:
-- Created `/Users/sac/ggen/benches/runtime_overhead.rs` (396 lines)
+- Created `./benches/runtime_overhead.rs` (396 lines)
 - 3 critical benchmarks:
   1. `bench_execute_simple` - Baseline overhead
   2. `bench_execute_concurrent` - Concurrent execution
@@ -117,11 +117,11 @@ The 12-agent Hive Mind swarm has successfully completed the **Phase 0 foundation
 **Mission**: Update dependencies and create directory structure.
 
 **Deliverables**:
-- Updated `/Users/sac/ggen/Cargo.toml`:
+- Updated `./Cargo.toml`:
   - Added `clap-noun-verb = "3.0.0"`
   - Added `clap-noun-verb-macros = "3.0.0"`
   - Added `once_cell = "1.19"`
-- Updated `/Users/sac/ggen/cli/Cargo.toml`:
+- Updated `./cli/Cargo.toml`:
   - Version set to `2.0.0-alpha.1` (later fixed to `1.2.0` by other agents)
   - Migrated to workspace dependencies
 - Created directory structure:
@@ -141,11 +141,11 @@ The 12-agent Hive Mind swarm has successfully completed the **Phase 0 foundation
 **Mission**: Migrate utils/doctor as POC using TDD + new architecture.
 
 **Deliverables**:
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/utils/doctor.rs` (254 lines)
+- **Domain Layer**: `./cli/src/domain/utils/doctor.rs` (254 lines)
   - Pure async business logic
   - Zero CLI dependencies
   - 12 comprehensive tests
-- **CLI Wrapper**: `/Users/sac/ggen/cli/src/commands/utils/doctor.rs` (142 lines)
+- **CLI Wrapper**: `./cli/src/commands/utils/doctor.rs` (142 lines)
   - Presentation layer only
   - Delegates to domain via `runtime::execute()`
   - 4 CLI-specific tests
@@ -165,7 +165,7 @@ CLI Layer (142 lines) → Runtime Bridge → Domain Layer (254 lines) → Infras
 **Mission**: Analyze template commands and provide code quality assessment.
 
 **Deliverables**:
-- Code quality analysis report: `/Users/sac/ggen/docs/code-quality-analysis-report.md`
+- Code quality analysis report: `./docs/code-quality-analysis-report.md`
 - **Overall Quality Score**: 7.5/10
 - **Critical Issues**:
   - 277 `.unwrap()` calls in ggen-core (high risk)
@@ -189,8 +189,8 @@ CLI Layer (142 lines) → Runtime Bridge → Domain Layer (254 lines) → Infras
 
 **Deliverables**:
 - **Domain Layer**:
-  - `/Users/sac/ggen/cli/src/domain/marketplace/search.rs` (314 lines, 12 tests)
-  - `/Users/sac/ggen/cli/src/domain/marketplace/install.rs` (350 lines, 14 tests)
+  - `./cli/src/domain/marketplace/search.rs` (314 lines, 12 tests)
+  - `./cli/src/domain/marketplace/install.rs` (350 lines, 14 tests)
   - Total: 668 lines, 26 tests
 - **Status**: All 26 tests passing (100%), compiles successfully
 
@@ -212,8 +212,8 @@ CLI Layer (142 lines) → Runtime Bridge → Domain Layer (254 lines) → Infras
 
 **Deliverables**:
 - Test suite for project commands:
-  - `/Users/sac/ggen/tests/cli/project/gen_test.rs` (161 lines, 6 tests)
-  - `/Users/sac/ggen/tests/cli/project/new_test.rs` (166 lines, 3 tests)
+  - `./tests/cli/project/gen_test.rs` (161 lines, 6 tests)
+  - `./tests/cli/project/new_test.rs` (166 lines, 3 tests)
   - Total: 333 lines, 9 tests
 - **Status**: All 9 tests passing (100%)
 
@@ -232,14 +232,14 @@ CLI Layer (142 lines) → Runtime Bridge → Domain Layer (254 lines) → Infras
 **Mission**: Create comprehensive test suite for all migrated commands.
 
 **Deliverables**:
-- **Integration Tests**: `/Users/sac/ggen/cli/tests/integration.rs` (556 lines, 21 tests)
+- **Integration Tests**: `./cli/tests/integration.rs` (556 lines, 21 tests)
   - 76% pass rate (16/21 passing)
   - Tests CLI → Domain → Core integration
   - Validates error propagation
-- **E2E Tests**: `/Users/sac/ggen/cli/tests/e2e.rs` (719 lines, 18 scenarios)
+- **E2E Tests**: `./cli/tests/e2e.rs` (719 lines, 18 scenarios)
   - Complete user workflows
   - Template generation, marketplace, lifecycle
-- **Performance Tests**: `/Users/sac/ggen/cli/tests/performance.rs` (642 lines, 18 tests)
+- **Performance Tests**: `./cli/tests/performance.rs` (642 lines, 18 tests)
   - CLI startup time ≤3s
   - Memory usage <120MB
   - Concurrent execution safety
@@ -520,9 +520,9 @@ CLI Layer (142 lines) → Runtime Bridge → Domain Layer (254 lines) → Infras
 
 ### Test Reports
 
-1. `/Users/sac/ggen/docs/testing/project-commands-test-report.md`
-2. `/Users/sac/ggen/docs/testing/project-commands-migration-summary.md`
-3. `/Users/sac/ggen/docs/code-quality-analysis-report.md`
+1. `./docs/testing/project-commands-test-report.md`
+2. `./docs/testing/project-commands-migration-summary.md`
+3. `./docs/code-quality-analysis-report.md`
 
 ---
 

@@ -41,8 +41,8 @@ git commit -m "feat: add ontology"
 ┌─────────────────────────────────────────────────────────────┐
 │                  Pre-Commit Hook                             │
 │  1. Detect .ttl/.rdf/.owl changes                           │
-│  2. Validate ontologies (ggen graph validate)               │
-│  3. Load into graph (ggen graph load)                       │
+│  2. Validate ontologies (mcpp graph validate)               │
+│  3. Load into graph (mcpp graph load)                       │
 │  4. Generate TypeScript types                               │
 │  5. Generate API routes                                     │
 │  6. Generate CRUD components                                │
@@ -325,7 +325,7 @@ export function {{name}}List() {
 # fi
 
 # Or use faster validation
-ggen graph validate --fast --file "$ONTOLOGY_FILE"
+mcpp graph validate --fast --file "$ONTOLOGY_FILE"
 ```
 
 **For more thorough checks:**
@@ -337,7 +337,7 @@ eslint "$OUTPUT_DIR" --fix
 prettier "$OUTPUT_DIR" --write
 
 # Add additional validation
-ggen graph validate --strict --file "$ONTOLOGY_FILE"
+mcpp graph validate --strict --file "$ONTOLOGY_FILE"
 ```
 
 ## Advanced Features
@@ -363,13 +363,13 @@ Generate multiple variants:
 # Add in regenerate-from-ontology.sh:
 
 # Generate React components
-ggen template generate-rdf \
+mcpp template generate-rdf \
   --ontology "$ONTOLOGY_FILE" \
   --template "$TEMPLATES_DIR/react-component.tsx.hbs" \
   --output "$OUTPUT_DIR/react/${BASENAME}.component.tsx"
 
 # Generate Vue components
-ggen template generate-rdf \
+mcpp template generate-rdf \
   --ontology "$ONTOLOGY_FILE" \
   --template "$TEMPLATES_DIR/vue-component.vue.hbs" \
   --output "$OUTPUT_DIR/vue/${BASENAME}.component.vue"
@@ -385,12 +385,12 @@ ENV="${NODE_ENV:-development}"
 
 if [ "$ENV" = "production" ]; then
   # Production: strict validation, optimized output
-  ggen graph validate --strict --file "$ONTOLOGY_FILE"
-  ggen template generate-rdf --minify --optimize ...
+  mcpp graph validate --strict --file "$ONTOLOGY_FILE"
+  mcpp template generate-rdf --minify --optimize ...
 else
   # Development: fast validation, readable output
-  ggen graph validate --fast --file "$ONTOLOGY_FILE"
-  ggen template generate-rdf --pretty ...
+  mcpp graph validate --fast --file "$ONTOLOGY_FILE"
+  mcpp template generate-rdf --pretty ...
 fi
 ```
 
@@ -407,9 +407,9 @@ ls -la .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
 
-**2. "ggen: command not found"**
+**2. "mcpp: command not found"**
 ```bash
-# Install ggen
+# Install mcpp
 cargo install --path .
 
 # Or add to PATH
@@ -451,7 +451,7 @@ bash -x .git/hooks/pre-commit
 ./docs/examples/scripts/regenerate-from-ontology.sh --verbose
 
 # Test with specific ontology
-ggen graph validate --verbose --file docs/examples/ontology/task-management.ttl
+mcpp graph validate --verbose --file docs/examples/ontology/task-management.ttl
 ```
 
 ## CI/CD Integration
@@ -479,7 +479,7 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install ggen
+      - name: Install mcpp
         run: cargo install --path .
 
       - name: Run regeneration
@@ -531,8 +531,8 @@ validate-ontology:
 ### Caching Strategies
 
 ```bash
-# Cache ggen graph loads
-GRAPH_CACHE_DIR="${HOME}/.cache/ggen/graphs"
+# Cache mcpp graph loads
+GRAPH_CACHE_DIR="${HOME}/.cache/mcpp/graphs"
 mkdir -p "$GRAPH_CACHE_DIR"
 
 # Check cache before loading
@@ -542,7 +542,7 @@ if [ -f "$GRAPH_CACHE_DIR/$CACHE_KEY" ]; then
   cp "$GRAPH_CACHE_DIR/$CACHE_KEY" /tmp/graph.db
 else
   # Load and cache
-  ggen graph load --graph "$GRAPH_NAME" --file "$ONTOLOGY_FILE"
+  mcpp graph load --graph "$GRAPH_NAME" --file "$ONTOLOGY_FILE"
   cp /tmp/graph.db "$GRAPH_CACHE_DIR/$CACHE_KEY"
 fi
 ```
@@ -567,8 +567,8 @@ wait
 ```bash
 # Before: Manual workflow
 vim ontology.ttl
-ggen graph validate --file ontology.ttl
-ggen template generate-rdf --ontology ontology.ttl --template types.ts.hbs
+mcpp graph validate --file ontology.ttl
+mcpp template generate-rdf --ontology ontology.ttl --template types.ts.hbs
 git add ontology.ttl generated/types.ts
 git commit
 
@@ -616,7 +616,7 @@ A: Configure paths per package in regeneration script.
 
 - [RDF Primer](https://www.w3.org/TR/rdf11-primer/)
 - [Turtle Syntax](https://www.w3.org/TR/turtle/)
-- [ggen Documentation](../../README.md)
+- [mcpp Documentation](../../README.md)
 - [Handlebars Templates](https://handlebarsjs.com/)
 - [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
 

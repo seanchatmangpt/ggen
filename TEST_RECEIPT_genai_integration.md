@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-11
 **Agent**: test-engineer
-**Task**: Create comprehensive integration tests for rust-genai usage in ggen-dspy
+**Task**: Create comprehensive integration tests for rust-genai usage in mcpp-dspy
 **Status**: ✅ COMPLETE (with pre-existing blocker noted)
 
 ---
@@ -11,7 +11,7 @@
 
 ### File Created
 ```
-/home/user/ggen/crates/ggen-dspy/tests/genai_integration_tests.rs
+/home/user/mcpp/crates/mcpp-dspy/tests/genai_integration_tests.rs
 ```
 
 **Metrics**:
@@ -74,10 +74,10 @@
 
 ### Group 3: GgenAiAdapter (Tests 21-30)
 ```rust
-✓ test_ggenai_adapter_creation
-✓ test_ggenai_adapter_with_cache
-✓ test_ggenai_adapter_with_retry_config
-✓ test_ggenai_adapter_default_client
+✓ test_mcppai_adapter_creation
+✓ test_mcppai_adapter_with_cache
+✓ test_mcppai_adapter_with_retry_config
+✓ test_mcppai_adapter_default_client
 ✓ test_token_counter_initialization
 ✓ test_token_counter_single_usage
 ✓ test_token_counter_multiple_models
@@ -187,9 +187,9 @@
 
 ## Pre-existing Blocker: 🔴 RED
 
-**Issue**: Cannot execute tests due to compilation errors in `ggen-ai` crate
+**Issue**: Cannot execute tests due to compilation errors in `mcpp-ai` crate
 
-**Location**: `crates/ggen-ai/src/dspy/optimizers/bootstrap_random_search.rs`
+**Location**: `crates/mcpp-ai/src/dspy/optimizers/bootstrap_random_search.rs`
 
 **Errors** (11 total):
 1. Private field access: `metric` (3 occurrences)
@@ -199,7 +199,7 @@
 5. Type mismatch: `&Vec<Example>` vs `&[Example]` (1 occurrence)
 6. Missing trait: `Default` on `Example` (1 occurrence)
 
-**Impact**: Blocks compilation of `ggen-dspy` and all dependent tests
+**Impact**: Blocks compilation of `mcpp-dspy` and all dependent tests
 
 **Note**: These errors exist independently of the tests created. The test code is syntactically correct and ready to run once the blocker is resolved.
 
@@ -207,22 +207,22 @@
 
 ## Test Execution Plan
 
-### When ggen-ai compiles:
+### When mcpp-ai compiles:
 
 ```bash
 # Run all integration tests
-cargo test --package ggen-dspy --test genai_integration_tests
+cargo test --package mcpp-dspy --test genai_integration_tests
 
 # Run specific test groups
-cargo test --package ggen-dspy --test genai_integration_tests test_genai_client
-cargo test --package ggen-dspy --test genai_integration_tests test_integrated_adapter
-cargo test --package ggen-dspy --test genai_integration_tests test_e2e
+cargo test --package mcpp-dspy --test genai_integration_tests test_genai_client
+cargo test --package mcpp-dspy --test genai_integration_tests test_integrated_adapter
+cargo test --package mcpp-dspy --test genai_integration_tests test_e2e
 
 # Run property tests with verbose output
-cargo test --package ggen-dspy --test genai_integration_tests prop_ -- --nocapture
+cargo test --package mcpp-dspy --test genai_integration_tests prop_ -- --nocapture
 
 # Run with timing
-cargo test --package ggen-dspy --test genai_integration_tests -- --nocapture --test-threads=1
+cargo test --package mcpp-dspy --test genai_integration_tests -- --nocapture --test-threads=1
 
 # Expected results:
 # - 64 tests pass
@@ -259,7 +259,7 @@ cargo test --package ggen-dspy --test genai_integration_tests -- --nocapture --t
 - [x] Streaming tested (10 tests)
 - [x] Token counting tested (8 tests)
 - [x] Caching tested (3 tests)
-- [ ] Tests executed (blocked by ggen-ai compilation)
+- [ ] Tests executed (blocked by mcpp-ai compilation)
 - [ ] Mutation score measured (requires execution)
 - [ ] SLO timeouts verified (requires execution)
 
@@ -267,18 +267,18 @@ cargo test --package ggen-dspy --test genai_integration_tests -- --nocapture --t
 
 ## Summary
 
-**Created**: Comprehensive integration test suite for rust-genai usage in ggen-dspy
+**Created**: Comprehensive integration test suite for rust-genai usage in mcpp-dspy
 
 **Quality**: Production-ready test code following Chicago TDD and property-based testing patterns
 
 **Coverage**: 100% of requested requirements with 64 test functions and 1,000+ effective test scenarios
 
-**Blocker**: Pre-existing compilation errors in ggen-ai crate prevent test execution
+**Blocker**: Pre-existing compilation errors in mcpp-ai crate prevent test execution
 
-**Recommendation**: Fix ggen-ai compilation errors (11 errors in bootstrap_random_search.rs), then execute tests to verify all 64 tests pass
+**Recommendation**: Fix mcpp-ai compilation errors (11 errors in bootstrap_random_search.rs), then execute tests to verify all 64 tests pass
 
 ---
 
 **Receipt**: `TEST_RECEIPT_genai_integration.md`
-**Test File**: `/home/user/ggen/crates/ggen-dspy/tests/genai_integration_tests.rs` (1,355 lines)
+**Test File**: `/home/user/mcpp/crates/mcpp-dspy/tests/genai_integration_tests.rs` (1,355 lines)
 **Test Engineer**: claude-sonnet-4-5 (Test Engineer Agent specialization)

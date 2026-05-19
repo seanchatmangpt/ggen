@@ -238,9 +238,9 @@ The `validate` MCP tool is **fully functional** and correctly:
 
 ## References
 
-- **Tool Implementation:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs:418-474`
+- **Tool Implementation:** `./crates/ggen-a2a-mcp/src/ggen_server.rs:418-474`
 - **Test Files:**
-  - `/Users/sac/ggen/crates/ggen-a2a-mcp/examples/test_validate_direct.rs`
-  - `/Users/sac/ggen/crates/ggen-a2a-mcp/examples/test_validate_direct_error.rs`
+  - `./crates/ggen-a2a-mcp/examples/test_validate_direct.rs`
+  - `./crates/ggen-a2a-mcp/examples/test_validate_direct_error.rs`
 - **MCP Protocol:** rmcp 1.3.0
 - **Parser:** oxigraph RdfParser (Turtle format)

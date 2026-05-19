@@ -25,14 +25,14 @@ Comprehensive inventory tracking solution with:
 ### 1. Track Stock Movement
 
 ```bash
-ggen template render inventory-management/templates/rust/inventory_engine.rs \
+mcpp template render inventory-management/templates/rust/inventory_engine.rs \
   --output src/inventory/engine.rs
 ```
 
 ### 2. Query Stock Levels
 
 ```bash
-ggen query execute inventory-management/sparql/queries.rq \
+mcpp query execute inventory-management/sparql/queries.rq \
   --graph inventory.ttl \
   --query "Extract Stock Levels by Location"
 ```

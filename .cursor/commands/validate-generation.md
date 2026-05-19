@@ -13,12 +13,12 @@ This command:
 - Validates template frontmatter (YAML)
 - Checks template syntax
 - Verifies template security (no arbitrary code execution)
-- Ensures templates follow ggen standards
+- Ensures templates follow mcpp standards
 
 ### Generate and Validate Output
 ```bash
 # Generate code from template
-cargo run --bin ggen -- template generate <template-path> --output <output-dir>
+cargo run --bin mcpp -- template generate <template-path> --output <output-dir>
 
 # Validate generated output
 cargo make validate-templates

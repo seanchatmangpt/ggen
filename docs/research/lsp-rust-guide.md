@@ -17,7 +17,7 @@ All LSP operations require these parameters:
 
 Example:
 ```
-filePath: /Users/sac/ggen/crates/ggen-cli/src/main.rs
+filePath: ./crates/ggen-cli/src/main.rs
 line: 8
 character: 1
 operation: goToDefinition
@@ -35,7 +35,7 @@ operation: goToDefinition
 **Example**:
 ```bash
 # Find all symbols in main.rs
-LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=1, character=1, operation=documentSymbol
+LSP: filePath=./crates/ggen-cli/src/main.rs, line=1, character=1, operation=documentSymbol
 ```
 
 **Returns**: Tree of symbols with kinds (Function, Struct, Trait, Module, etc.)
@@ -50,7 +50,7 @@ LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=1, character=1, 
 **Example**:
 ```bash
 # Find 'cli_match' function anywhere in workspace
-LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=1, character=1, operation=workspaceSymbol
+LSP: filePath=./crates/ggen-cli/src/main.rs, line=1, character=1, operation=workspaceSymbol
 ```
 
 **Returns**: List of symbol locations with file paths
@@ -65,7 +65,7 @@ LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=1, character=1, 
 **Example**:
 ```bash
 # Go to definition of 'ggen_cli_lib::cli_match' on line 8
-LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=8, character=8, operation=goToDefinition
+LSP: filePath=./crates/ggen-cli/src/main.rs, line=8, character=8, operation=goToDefinition
 ```
 
 **Returns**: Location of definition (file, line, character)
@@ -80,7 +80,7 @@ LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=8, character=8, 
 **Example**:
 ```bash
 # Find all calls to 'main' function
-LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=7, character=1, operation=findReferences
+LSP: filePath=./crates/ggen-cli/src/main.rs, line=7, character=1, operation=findReferences
 ```
 
 **Returns**: List of all reference locations
@@ -95,7 +95,7 @@ LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=7, character=1, 
 **Example**:
 ```bash
 # Get type information for 'ggen_cli_lib::cli_match'
-LSP: filePath=/Users/sac/ggen/crates/ggen-cli/src/main.rs, line=8, character=8, operation=hover
+LSP: filePath=./crates/ggen-cli/src/main.rs, line=8, character=8, operation=hover
 ```
 
 **Returns**: Type information, documentation, signature
@@ -196,7 +196,7 @@ rustup component list | grep rust-analyzer
 **Solution**:
 ```bash
 # Verify file exists
-ls -la /Users/sac/ggen/crates/ggen-cli/src/main.rs
+ls -la ./crates/ggen-cli/src/main.rs
 
 # Use absolute path, not relative
 ```
@@ -208,7 +208,7 @@ ls -la /Users/sac/ggen/crates/ggen-cli/src/main.rs
 **Solution**:
 ```bash
 # Use Read tool to find exact line/character
-Read: /Users/sac/ggen/crates/ggen-cli/src/main.rs
+Read: ./crates/ggen-cli/src/main.rs
 
 # Count line numbers (1-based)
 # Count character positions (1-based, from start of line)
@@ -278,7 +278,7 @@ LSP: operation=findReferences
 
 ### Cargo Workspace Layout
 ```
-/Users/sac/ggen/
+./
 ├── Cargo.toml           # Workspace root
 ├── crates/
 │   ├── ggen-cli/        # CLI crate

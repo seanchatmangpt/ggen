@@ -296,8 +296,8 @@ let output = engine.render(template, context)?;
 ## Test Artifacts
 
 ### Files Generated
-- `/Users/sac/ggen/tests/integration-v2/test_scenarios.sh` - Automated test runner
-- `/Users/sac/ggen/tests/integration-v2/test_results.json` - Machine-readable results
+- `./tests/integration-v2/test_scenarios.sh` - Automated test runner
+- `./tests/integration-v2/test_results.json` - Machine-readable results
 - RDF test files in `examples/demo-project/` and `examples/e2e-demo/`
 
 ### Test Commands Used

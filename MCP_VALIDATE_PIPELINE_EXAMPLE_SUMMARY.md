@@ -4,7 +4,7 @@
 
 Created a complete working example demonstrating how to call the `validate_pipeline` MCP tool via rmcp protocol at:
 
-**Location**: `/Users/sac/ggen/crates/ggen-a2a-mcp/examples/`
+**Location**: `./crates/ggen-a2a-mcp/examples/`
 
 ## Files Created
 
@@ -79,7 +79,7 @@ Complete documentation with:
 - Testing guide
 
 ### 4. Test Script
-**File**: `/Users/sac/ggen/test_mcp_validate_pipeline.sh`
+**File**: `./test_mcp_validate_pipeline.sh`
 
 Automated test script for building and running the example.
 
@@ -121,7 +121,7 @@ Automated test script for building and running the example.
 ✅ Created GgenMcpServer instance
 ✅ Server info: ggen v0.1.0
 
-📂 Project path: /Users/sac/ggen
+📂 Project path: .
 
 🔨 Calling validate_pipeline tool...
 
@@ -160,7 +160,7 @@ Quality gate validation failed:
 
 ### Quick Start
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo run -p ggen-a2a-mcp --example mcp_validate_pipeline_bin
 ```
 
@@ -229,9 +229,9 @@ path = "examples/mcp_validate_pipeline_bin.rs"
 
 ## Related Documentation
 
-- **GgenMcpServer**: `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`
-- **Quality Gates**: `/Users/sac/ggen/crates/ggen-core/src/poka_yoke/quality_gates.rs`
-- **MCP Tools**: `/Users/sac/ggen/crates/ggen-a2a-mcp/README.md`
+- **GgenMcpServer**: `./crates/ggen-a2a-mcp/src/ggen_server.rs`
+- **Quality Gates**: `./crates/ggen-core/src/poka_yoke/quality_gates.rs`
+- **MCP Tools**: `./crates/ggen-a2a-mcp/README.md`
 
 ## Status
 

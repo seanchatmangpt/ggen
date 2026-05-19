@@ -52,7 +52,7 @@ Watch mode integration for ggen v5.2.0 Phase 1 has been **verified complete**. T
 
 ### 1.1 Execute Watch Mode Implementation
 
-**File**: `/Users/sac/ggen/crates/ggen-core/src/codegen/executor.rs` (lines 443-528)
+**File**: `./crates/ggen-core/src/codegen/executor.rs` (lines 443-528)
 
 ```rust
 fn execute_watch_mode(&self, manifest_path: &Path) -> Result<SyncResult> {
@@ -115,7 +115,7 @@ fn execute_watch_mode(&self, manifest_path: &Path) -> Result<SyncResult> {
 
 ### 1.2 FileWatcher Integration
 
-**File**: `/Users/sac/ggen/crates/ggen-core/src/codegen/watch.rs`
+**File**: `./crates/ggen-core/src/codegen/watch.rs`
 
 ```rust
 pub struct FileWatcher {
@@ -155,7 +155,7 @@ impl FileWatcher {
 
 ### 1.3 Integration Flow
 
-**File**: `/Users/sac/ggen/crates/ggen-core/src/codegen/executor.rs` (lines 115-127)
+**File**: `./crates/ggen-core/src/codegen/executor.rs` (lines 115-127)
 
 ```rust
 pub fn execute(self) -> Result<SyncResult> {
@@ -200,7 +200,7 @@ match executor.execute() {
 
 ### 2.1 Unit Tests (9 tests)
 
-**File**: `/Users/sac/ggen/crates/ggen-core/tests/watch_mode_tests.rs`
+**File**: `./crates/ggen-core/tests/watch_mode_tests.rs`
 
 | Test ID | Test Name | Purpose | Status |
 |---------|-----------|---------|--------|
@@ -218,7 +218,7 @@ match executor.execute() {
 
 ### 2.2 Integration Tests (6 tests)
 
-**File**: `/Users/sac/ggen/crates/ggen-core/tests/watch_mode_integration_tests.rs`
+**File**: `./crates/ggen-core/tests/watch_mode_integration_tests.rs`
 
 | Test ID | Test Name | Purpose | Status |
 |---------|-----------|---------|--------|

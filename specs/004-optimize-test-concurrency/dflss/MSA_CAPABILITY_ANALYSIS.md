@@ -225,7 +225,7 @@ Interpretation:
 
 ### 5.1 Automated MSA Data Collection Script
 
-**Script**: `/Users/sac/ggen/scripts/msa_data_collection.sh`
+**Script**: `./scripts/msa_data_collection.sh`
 
 ```bash
 #!/bin/bash
@@ -234,7 +234,7 @@ Interpretation:
 
 set -euo pipefail
 
-OUTPUT_DIR="/Users/sac/ggen/specs/004-optimize-test-concurrency/dflss/msa_data"
+OUTPUT_DIR="./specs/004-optimize-test-concurrency/dflss/msa_data"
 mkdir -p "$OUTPUT_DIR"
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -322,7 +322,7 @@ echo "✅ MSA data collection complete: $DATA_FILE"
 
 ### 5.2 MSA Analysis Script
 
-**Script**: `/Users/sac/ggen/scripts/msa_analysis.py`
+**Script**: `./scripts/msa_analysis.py`
 
 ```python
 #!/usr/bin/env python3
@@ -632,8 +632,8 @@ cargo make test-timings 2>&1 | tee /tmp/test_baseline.log
 - ASQ Six Sigma Handbook: Process capability indices
 
 ### 10.2 Internal Documentation
-- `/Users/sac/ggen/Makefile.toml`: SLO definitions (lines 73-95, 458-502, 504-542)
-- `/Users/sac/ggen/CLAUDE.md`: Andon Signal Protocol, cargo make Protocol
+- `./Makefile.toml`: SLO definitions (lines 73-95, 458-502, 504-542)
+- `./CLAUDE.md`: Andon Signal Protocol, cargo make Protocol
 - `specs/003-optimize-aci-anthropic/`: Feature 003 evidence (lock contention data)
 
 ### 10.3 Tools
@@ -732,9 +732,9 @@ START
 
 **Status**: ✅ FRAMEWORK COMPLETE, READY FOR DATA COLLECTION
 **Scripts Created**:
-- ✅ `/Users/sac/ggen/scripts/msa_data_collection.sh` - Automated MSA data collection (90+ measurements)
-- ✅ `/Users/sac/ggen/scripts/msa_analysis.py` - Gage R&R and Cp/Cpk analysis
-- ✅ `/Users/sac/ggen/scripts/msa_quick_demo.sh` - Quick baseline demonstration
+- ✅ `./scripts/msa_data_collection.sh` - Automated MSA data collection (90+ measurements)
+- ✅ `./scripts/msa_analysis.py` - Gage R&R and Cp/Cpk analysis
+- ✅ `./scripts/msa_quick_demo.sh` - Quick baseline demonstration
 
 **Next Actions**:
 1. Execute full MSA data collection: `./scripts/msa_data_collection.sh` (2-3 hours)

@@ -7,7 +7,7 @@ Successfully implemented the **CycleBreakerAgent** as part of Phase 5, Gap #5 (p
 ## Implementation Details
 
 ### File Created
-- **Path**: `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/quality_autopilot.rs`
+- **Path**: `./crates/ggen-ai/src/swarm/agents/quality_autopilot.rs`
 - **Lines of Code**: ~700 lines
 - **Dependencies**: `ggen_ai::GenAiClient`, `regex`, `serde`, `async_trait`, `chrono`, `tempfile`
 
@@ -63,7 +63,7 @@ After applying fixes, runs language-specific build tools:
 
 ### Module Exports
 
-Updated `/Users/sac/ggen/crates/ggen-ai/src/lib.rs`:
+Updated `./crates/ggen-ai/src/lib.rs`:
 ```rust
 #[cfg(feature = "swarm")]
 pub use swarm::agents::quality_autopilot::{
@@ -74,7 +74,7 @@ pub use swarm::agents::quality_autopilot::{
 };
 ```
 
-Updated `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/mod.rs`:
+Updated `./crates/ggen-ai/src/swarm/agents/mod.rs`:
 ```rust
 pub mod quality_autopilot;
 pub use quality_autopilot::*;
@@ -83,7 +83,7 @@ pub use quality_autopilot::*;
 ### Testing
 
 #### Test File Created
-- **Path**: `/Users/sac/ggen/crates/ggen-ai/tests/quality_autopilot_integration_test.rs`
+- **Path**: `./crates/ggen-ai/tests/quality_autopilot_integration_test.rs`
 - **Test Count**: 9 tests
 
 #### Test Coverage
@@ -214,12 +214,12 @@ let output = agent.execute(&context, input).await?;
 ### Files Modified
 
 1. **Created**:
-   - `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/quality_autopilot.rs` (700 lines)
-   - `/Users/sac/ggen/crates/ggen-ai/tests/quality_autopilot_integration_test.rs` (230 lines)
+   - `./crates/ggen-ai/src/swarm/agents/quality_autopilot.rs` (700 lines)
+   - `./crates/ggen-ai/tests/quality_autopilot_integration_test.rs` (230 lines)
 
 2. **Modified**:
-   - `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/mod.rs` (added module exports)
-   - `/Users/sac/ggen/crates/ggen-ai/src/lib.rs` (added public re-exports)
+   - `./crates/ggen-ai/src/swarm/agents/mod.rs` (added module exports)
+   - `./crates/ggen-ai/src/lib.rs` (added public re-exports)
 
 ### Verification
 

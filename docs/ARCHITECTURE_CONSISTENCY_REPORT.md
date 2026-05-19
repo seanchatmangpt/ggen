@@ -70,8 +70,8 @@
 **Status**: ❌ **NOT IMPLEMENTED**
 
 **Evidence**:
-- No `pub mod packs;` in `/Users/sac/ggen/crates/ggen-cli/src/cmds/mod.rs`
-- No `packs.rs` file in `/Users/sac/ggen/crates/ggen-cli/src/cmds/`
+- No `pub mod packs;` in `./crates/ggen-cli/src/cmds/mod.rs`
+- No `packs.rs` file in `./crates/ggen-cli/src/cmds/`
 - Command `ggen packs --help` returns "unrecognized subcommand 'packs'"
 
 **Impact**: ✅ **NOT A BLOCKER**
@@ -104,7 +104,7 @@
 
 **Status**: ✅ **PROPER DELEGATION**
 
-**Marketplace Domain Exports** (from `/Users/sac/ggen/crates/ggen-domain/src/marketplace/mod.rs`):
+**Marketplace Domain Exports** (from `./crates/ggen-domain/src/marketplace/mod.rs`):
 ```rust
 ✅ execute_search, execute_install, execute_list, execute_publish
 ✅ validate_all_packages, generate_validation_report
@@ -114,7 +114,7 @@
 ✅ AutonomicMarketplace, ObservabilitySystem, ReadinessChecker
 ```
 
-**Hook Domain Exports** (from `/Users/sac/ggen/crates/ggen-domain/src/marketplace/hook/mod.rs`):
+**Hook Domain Exports** (from `./crates/ggen-domain/src/marketplace/hook/mod.rs`):
 ```rust
 ✅ execute_create, execute_list, execute_monitor, execute_remove
 ✅ CreateInput, HookInfo, MonitorResult, RemoveInput

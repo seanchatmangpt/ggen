@@ -145,18 +145,18 @@ When working with RDF-first specifications, ensure artifacts are up-to-date befo
    - Before loading tasks.md, plan.md, or other artifacts, verify they're generated from TTL sources:
      ```bash
      cd FEATURE_DIR
-     ggen sync
+     mcpp sync
      ```
    - This ensures markdown artifacts reflect the latest TTL source changes
 
 2. **Artifact Loading Order**:
    - TTL sources in `ontology/` are the source of truth
    - Generated markdown in `generated/` are derived artifacts
-   - Always load from `generated/` after running `ggen sync`
+   - Always load from `generated/` after running `mcpp sync`
 
 3. **Implementation Tracking**:
    - Task completion updates should ideally update TTL sources (task.ttl)
-   - After marking tasks complete, run `ggen sync` to regenerate tasks.md
+   - After marking tasks complete, run `mcpp sync` to regenerate tasks.md
    - This maintains consistency between RDF sources and markdown views
 
 4. **Validation**:
@@ -164,7 +164,7 @@ When working with RDF-first specifications, ensure artifacts are up-to-date befo
      - `generated/spec.md` - Feature specification
      - `generated/plan.md` - Implementation plan
      - `generated/tasks.md` - Task breakdown
-   - If any are missing or outdated, run `ggen sync` before proceeding
+   - If any are missing or outdated, run `mcpp sync` before proceeding
 
 5. **Evidence Collection**:
    - Implementation evidence (logs, test results, screenshots) should be stored in `evidence/`

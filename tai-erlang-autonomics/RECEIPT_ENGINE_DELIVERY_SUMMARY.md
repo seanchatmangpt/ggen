@@ -20,7 +20,7 @@
 - ✅ Hash chain construction and verification
 - ✅ Firestore persistence skeleton (Phase 2 ready)
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl`
 **Size**: 15 KB (expanded from original)
 **Lines**: 400+ (enhanced with Phase 1 features)
 
@@ -35,7 +35,7 @@
 - ✅ Phase 1 type tests (6 functions)
 - ✅ Fixture tests (1 function)
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl`
 **Size**: 26 KB
 **Lines**: 450+
 
@@ -65,7 +65,7 @@ All functions are production-ready, fully typed, and documented.
 
 ### 5. Documentation
 
-**Primary**: `/Users/sac/ggen/tai-erlang-autonomics/docs/RECEIPT_ENGINE_PHASE_1.md`
+**Primary**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/RECEIPT_ENGINE_PHASE_1.md`
 - Complete reference documentation
 - API reference with examples
 - 6 sample receipts (one for each Phase 1 type)
@@ -75,7 +75,7 @@ All functions are production-ready, fully typed, and documented.
 - Testing overview
 - File locations and dependencies
 
-**Secondary**: `/Users/sac/ggen/tai-erlang-autonomics/examples/RECEIPT_SAMPLE_OUTPUT.txt`
+**Secondary**: `~/.ggen/mcpp/tai-erlang-autonomics/examples/RECEIPT_SAMPLE_OUTPUT.txt`
 - Actual receipt JSON output
 - Deterministic hashing examples
 - Hash chain sequence visualization
@@ -308,7 +308,7 @@ The receipt engine is fully functional and ready for Phase 2 integration:
 
 ```bash
 # Compile
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 compile
 
 # Run tests (when fixed)

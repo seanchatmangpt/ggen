@@ -7,7 +7,7 @@ This document provides 10+ production-ready examples demonstrating how to use th
 ### RDF Definition
 
 ```turtle
-@prefix rest: <http://ggen.ai/ontology/rest-api#> .
+@prefix rest: <http://mcpp.ai/ontology/rest-api#> .
 @prefix ecom: <http://example.com/ecommerce#> .
 
 ecom:ProductsAPI a rest:RestAPI ;
@@ -993,7 +993,7 @@ All examples are generated from RDF ontology definitions and include:
 
 1. Choose an example that matches your use case
 2. Customize the RDF ontology for your domain
-3. Generate code with `ggen project new`
+3. Generate code with `mcpp project new`
 4. Run comprehensive Chicago TDD tests
 5. Deploy to production
 

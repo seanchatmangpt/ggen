@@ -88,10 +88,10 @@ Each iteration represents ggen generating a new version of itself from an ontolo
 
 ## Files
 
-- **Module**: `/Users/sac/ggen/crates/ggen-cli/src/cmds/self_play.rs`
-- **Tests**: `/Users/sac/ggen/crates/ggen-cli/tests/self_play_smoke_test.rs`
-- **Demo**: `/Users/sac/ggen/examples/self-play/`
-- **Summary**: `/Users/sac/ggen/SELF_PLAY_MODULE_REENABLE_SUMMARY.md`
+- **Module**: `./crates/ggen-cli/src/cmds/self_play.rs`
+- **Tests**: `./crates/ggen-cli/tests/self_play_smoke_test.rs`
+- **Demo**: `./examples/self-play/`
+- **Summary**: `./SELF_PLAY_MODULE_REENABLE_SUMMARY.md`
 
 ## Status
 

@@ -80,7 +80,7 @@ async fn validate_pipeline(&self, Parameters(params): Parameters<ValidatePipelin
 **OTEL Span Output (from actual test run):**
 
 ```
-[2m2026-03-31T03:31:20.757962Z[0m [32m INFO[0m [1mggen.mcp.tool_call[0m{[0m[3mparams[0m[2m=[0mValidatePipelineParams { project_path: "/Users/sac/ggen" } [3mproject_path[0m[2m=[0m/Users/sac/ggen [3mservice.name[0m[2m=[0m"ggen-mcp-server" [3mservice.version[0m[2m=[0m"0.1.0"[1m}[0m[2m:[0m [2mggen_a2a_mcp::ggen_server[0m[2m:[0m validate_pipeline tool called [3mproject_path[0m[2m=[0m/Users/sac/ggen
+[2m2026-03-31T03:31:20.757962Z[0m [32m INFO[0m [1mggen.mcp.tool_call[0m{[0m[3mparams[0m[2m=[0mValidatePipelineParams { project_path: "." } [3mproject_path[0m[2m=[0m. [3mservice.name[0m[2m=[0m"ggen-mcp-server" [3mservice.version[0m[2m=[0m"0.1.0"[1m}[0m[2m:[0m [2mggen_a2a_mcp::ggen_server[0m[2m:[0m validate_pipeline tool called [3mproject_path[0m[2m=[0m.
 ```
 
 ## OTEL Attribute Definitions
@@ -145,7 +145,7 @@ From `/tmp/llm_mcp_a2a_chain_output.txt`:
 
 ```
 === Step 2: MCP Tool Call - validate_pipeline (mcp.tool.call span) ===
-INFO ggen.mcp.tool_call{...} validate_pipeline tool called project_path=/Users/sac/ggen
+INFO ggen.mcp.tool_call{...} validate_pipeline tool called project_path=.
 ```
 
 ## Compliance with OTEL Validation Rules

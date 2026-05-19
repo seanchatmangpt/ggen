@@ -17,10 +17,10 @@ This directory contains comprehensive lifecycle test suites converted from Rust 
 - Concurrent initialization isolation
 
 **Key Validations:**
-- `ggen.lifecycle.init` span execution
-- `ggen.lifecycle.command.execute` for multi-step commands
-- `ggen.template.generate` for template operations
-- `ggen.lifecycle.state.save` for state persistence
+- `mcpp.lifecycle.init` span execution
+- `mcpp.lifecycle.command.execute` for multi-step commands
+- `mcpp.template.generate` for template operations
+- `mcpp.lifecycle.state.save` for state persistence
 - Error spans for failure scenarios
 - Concurrent execution isolation
 
@@ -40,10 +40,10 @@ This directory contains comprehensive lifecycle test suites converted from Rust 
 
 **Key Validations:**
 - `must_precede` / `must_follow` for phase ordering
-- `ggen.lifecycle.hooks.orchestrate` for hook management
-- `ggen.cache.key.generate`, `ggen.cache.hit`, `ggen.cache.miss`
-- `ggen.lifecycle.state.load` and `.save` for persistence
-- `ggen.workspace.build` for parallel execution
+- `mcpp.lifecycle.hooks.orchestrate` for hook management
+- `mcpp.cache.key.generate`, `mcpp.cache.hit`, `mcpp.cache.miss`
+- `mcpp.lifecycle.state.load` and `.save` for persistence
+- `mcpp.workspace.build` for parallel execution
 - `should_not_exist` for phases that must not run
 
 ### 3. `deploy.clnrm.toml` - Deployment Tests (550 lines)
@@ -61,12 +61,12 @@ This directory contains comprehensive lifecycle test suites converted from Rust 
 - Deployment verification with smoke tests
 
 **Key Validations:**
-- `ggen.lifecycle.deploy-*` for environment-specific deploys
-- `ggen.deploy.build`, `.healthcheck`, `.verify` spans
-- `ggen.deploy.prevented` when validation fails
-- `ggen.artifacts.generate` and `.publish` for artifacts
-- `ggen.deploy.monitor.canary` for canary monitoring
-- `ggen.test.execute` for smoke tests
+- `mcpp.lifecycle.deploy-*` for environment-specific deploys
+- `mcpp.deploy.build`, `.healthcheck`, `.verify` spans
+- `mcpp.deploy.prevented` when validation fails
+- `mcpp.artifacts.generate` and `.publish` for artifacts
+- `mcpp.deploy.monitor.canary` for canary monitoring
+- `mcpp.test.execute` for smoke tests
 
 ### 4. `rollback.clnrm.toml` - Rollback & Recovery Tests (521 lines)
 **Tests Converted: 10 scenarios**
@@ -83,13 +83,13 @@ This directory contains comprehensive lifecycle test suites converted from Rust 
 - Rollback with notification
 
 **Key Validations:**
-- `ggen.lifecycle.rollback` execution
-- `ggen.rollback.restore` for restoration operations
-- `ggen.rollback.trigger` for automatic triggers
-- `ggen.lifecycle.restore-database` for DB rollback
-- `ggen.traffic.monitor` for traffic management
-- `ggen.rollback.healthcheck` for verification
-- `ggen.notification.send` for alerting
+- `mcpp.lifecycle.rollback` execution
+- `mcpp.rollback.restore` for restoration operations
+- `mcpp.rollback.trigger` for automatic triggers
+- `mcpp.lifecycle.restore-database` for DB rollback
+- `mcpp.traffic.monitor` for traffic management
+- `mcpp.rollback.healthcheck` for verification
+- `mcpp.notification.send` for alerting
 
 ### 5. `readiness.clnrm.toml` - Production Readiness Tests (552 lines)
 **Tests Converted: 10 scenarios**
@@ -106,13 +106,13 @@ This directory contains comprehensive lifecycle test suites converted from Rust 
 - Full production readiness workflow
 
 **Key Validations:**
-- `ggen.lifecycle.readiness.check` for readiness evaluation
-- `ggen.readiness.requirement.evaluate` for requirement checking
-- `ggen.readiness.requirement.update` for status transitions
-- `ggen.validation.file_scan` for code quality checks
-- `ggen.validation.pattern_match` for anti-pattern detection
-- `ggen.deploy.blocked` when critical requirements missing
-- `ggen.readiness.dependency.validate` for dependency DAG
+- `mcpp.lifecycle.readiness.check` for readiness evaluation
+- `mcpp.readiness.requirement.evaluate` for requirement checking
+- `mcpp.readiness.requirement.update` for status transitions
+- `mcpp.validation.file_scan` for code quality checks
+- `mcpp.validation.pattern_match` for anti-pattern detection
+- `mcpp.deploy.blocked` when critical requirements missing
+- `mcpp.readiness.dependency.validate` for dependency DAG
 
 ## Total Test Coverage
 
@@ -131,7 +131,7 @@ This directory contains comprehensive lifecycle test suites converted from Rust 
 ### 1. Span Validation
 ```toml
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 attributes = { "lifecycle.phase" = "init", "project.name" = "test-project" }
 min_duration_ms = 1
 ```
@@ -140,19 +140,19 @@ min_duration_ms = 1
 ```toml
 [scenario.expect.temporal]
 strict_ordering = [
-  "ggen.lifecycle.init",
-  "ggen.lifecycle.setup",
-  "ggen.lifecycle.build",
-  "ggen.lifecycle.test",
-  "ggen.lifecycle.deploy"
+  "mcpp.lifecycle.init",
+  "mcpp.lifecycle.setup",
+  "mcpp.lifecycle.build",
+  "mcpp.lifecycle.test",
+  "mcpp.lifecycle.deploy"
 ]
 ```
 
 ### 3. Window Containment
 ```toml
 [scenario.expect.window]
-parent = "ggen.lifecycle.deploy-production"
-must_contain = ["ggen.deploy.build", "ggen.deploy.healthcheck", "ggen.deploy.verify"]
+parent = "mcpp.lifecycle.deploy-production"
+must_contain = ["mcpp.deploy.build", "mcpp.deploy.healthcheck", "mcpp.deploy.verify"]
 min_child_spans = 4
 ```
 
@@ -160,8 +160,8 @@ min_child_spans = 4
 ```toml
 [scenario.expect.graph]
 must_include = [
-  ["ggen.lifecycle.init", "ggen.lifecycle.build"],
-  ["ggen.lifecycle.build", "ggen.lifecycle.test"]
+  ["mcpp.lifecycle.init", "mcpp.lifecycle.build"],
+  ["mcpp.lifecycle.build", "mcpp.lifecycle.test"]
 ]
 acyclic = true
 dag_validated = true
@@ -170,12 +170,12 @@ dag_validated = true
 ### 5. Error Validation
 ```toml
 [[scenario.expect.span]]
-name = "ggen.lifecycle.deploy"
+name = "mcpp.lifecycle.deploy"
 expect_error = true
 attributes = { "error.type" = "validation_failed" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.test"
+name = "mcpp.lifecycle.test"
 should_not_exist = true  # Must not run after error
 ```
 
@@ -185,7 +185,7 @@ should_not_exist = true  # Must not run after error
 sha256 = true
 hermetic = true
 reproducible = true
-files_created = [".ggen/state.json"]
+files_created = [".mcpp/state.json"]
 
 [expect.determinism]
 require_same_traces_on_retry = true
@@ -195,69 +195,69 @@ retry_count = 2
 ## Key OTEL Spans Defined
 
 ### Lifecycle Phase Spans
-- `ggen.lifecycle.init`
-- `ggen.lifecycle.setup`
-- `ggen.lifecycle.build`
-- `ggen.lifecycle.test`
-- `ggen.lifecycle.deploy`
-- `ggen.lifecycle.rollback`
-- `ggen.lifecycle.validate`
-- `ggen.lifecycle.readiness`
+- `mcpp.lifecycle.init`
+- `mcpp.lifecycle.setup`
+- `mcpp.lifecycle.build`
+- `mcpp.lifecycle.test`
+- `mcpp.lifecycle.deploy`
+- `mcpp.lifecycle.rollback`
+- `mcpp.lifecycle.validate`
+- `mcpp.lifecycle.readiness`
 
 ### Command Execution Spans
-- `ggen.lifecycle.phase.execute`
-- `ggen.lifecycle.command.execute`
+- `mcpp.lifecycle.phase.execute`
+- `mcpp.lifecycle.command.execute`
 
 ### State Management Spans
-- `ggen.lifecycle.state.load`
-- `ggen.lifecycle.state.save`
-- `ggen.lifecycle.state.persist`
+- `mcpp.lifecycle.state.load`
+- `mcpp.lifecycle.state.save`
+- `mcpp.lifecycle.state.persist`
 
 ### Deployment Spans
-- `ggen.deploy.build`
-- `ggen.deploy.push`
-- `ggen.deploy.verify`
-- `ggen.deploy.healthcheck`
-- `ggen.deploy.monitor.canary`
-- `ggen.deploy.prevented`
+- `mcpp.deploy.build`
+- `mcpp.deploy.push`
+- `mcpp.deploy.verify`
+- `mcpp.deploy.healthcheck`
+- `mcpp.deploy.monitor.canary`
+- `mcpp.deploy.prevented`
 
 ### Rollback Spans
-- `ggen.rollback.restore`
-- `ggen.rollback.trigger`
-- `ggen.rollback.healthcheck`
+- `mcpp.rollback.restore`
+- `mcpp.rollback.trigger`
+- `mcpp.rollback.healthcheck`
 
 ### Readiness Spans
-- `ggen.readiness.requirement.evaluate`
-- `ggen.readiness.requirement.update`
-- `ggen.readiness.requirement.validate`
-- `ggen.readiness.report.generate`
-- `ggen.readiness.validation.result`
+- `mcpp.readiness.requirement.evaluate`
+- `mcpp.readiness.requirement.update`
+- `mcpp.readiness.requirement.validate`
+- `mcpp.readiness.report.generate`
+- `mcpp.readiness.validation.result`
 
 ### Cache Spans
-- `ggen.cache.key.generate`
-- `ggen.cache.hit`
-- `ggen.cache.miss`
-- `ggen.cache.invalidate`
+- `mcpp.cache.key.generate`
+- `mcpp.cache.hit`
+- `mcpp.cache.miss`
+- `mcpp.cache.invalidate`
 
 ### Error Handling Spans
-- `ggen.lifecycle.error.handle`
-- `ggen.lifecycle.error.capture`
+- `mcpp.lifecycle.error.handle`
+- `mcpp.lifecycle.error.capture`
 
 ### Marketplace Spans
-- `ggen.marketplace.search`
-- `ggen.marketplace.add`
+- `mcpp.marketplace.search`
+- `mcpp.marketplace.add`
 
 ### Artifact Spans
-- `ggen.artifacts.generate`
-- `ggen.artifacts.publish`
+- `mcpp.artifacts.generate`
+- `mcpp.artifacts.publish`
 
 ### Template Spans
-- `ggen.template.generate`
+- `mcpp.template.generate`
 
 ### Validation Spans
-- `ggen.validation.code_scan`
-- `ggen.validation.pattern_match`
-- `ggen.validation.file_scan`
+- `mcpp.validation.code_scan`
+- `mcpp.validation.pattern_match`
+- `mcpp.validation.file_scan`
 
 ## Running Tests
 
@@ -298,7 +298,7 @@ clnrm run tests/clnrm/lifecycle/*.clnrm.toml --report-format json --output /tmp/
 ```bash
 export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
 export RUST_LOG="info"
-export GGEN_HOME="/tmp/ggen-test/.ggen"
+export GGEN_HOME="/tmp/mcpp-test/.mcpp"
 ```
 
 ### Start OTEL Collector
@@ -397,8 +397,8 @@ docker run -d --name otel-collector \
 ### Delete Original Rust Tests
 Once CLNRM tests are validated:
 ```bash
-rm ggen-core/tests/integration/lifecycle_tests.rs
-rm ggen-core/tests/integration/lifecycle_clnrm_tests.rs
+rm mcpp-core/tests/integration/lifecycle_tests.rs
+rm mcpp-core/tests/integration/lifecycle_clnrm_tests.rs
 ```
 
 ### Update CI/CD
@@ -419,4 +419,4 @@ Update test documentation to reference CLNRM tests instead of Rust tests.
 - CLNRM Documentation: `docs/cleanroom/README.md`
 - OTEL Span Specification: `docs/cleanroom/OTEL_VALIDATION.md`
 - Lifecycle System: `docs/lifecycle.md`
-- Original Tests: `ggen-core/tests/integration/lifecycle_*.rs` (to be removed)
+- Original Tests: `mcpp-core/tests/integration/lifecycle_*.rs` (to be removed)

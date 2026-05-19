@@ -7,7 +7,7 @@
 //! - Score validation and overflow prevention
 //! - Tamper detection and cryptographic verification
 
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::prelude::*;
 
 // ============================================================================
 // ED25519 SIGNATURE TESTS (original ed25519_signature_test.rs)
@@ -15,7 +15,7 @@ use ggen_marketplace::prelude::*;
 
 #[cfg(feature = "marketplace-v2")]
 mod ed25519_security_tests {
-    use ggen_marketplace::security::SignatureManager;
+    use ggen_core::marketplace::security::SignatureManager;
 
     #[test]
     fn test_keypair_generation() {

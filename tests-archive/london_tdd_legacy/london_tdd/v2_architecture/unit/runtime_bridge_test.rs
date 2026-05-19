@@ -9,7 +9,7 @@
 //! - Tokio runtime creation
 //! - Performance (<10ms per execution)
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use ggen_cli_lib;
 
 /// Test successful async execution through runtime::execute
@@ -36,7 +36,7 @@ fn test_runtime_execute_success() {
 #[test]
 fn test_runtime_execute_error_propagation() {
     let result = ggen_cli_lib::runtime::execute(async {
-        Err(ggen_utils::error::Error::new("Test error"))
+        Err(ggen_core::utils::error::Error::new("Test error"))
     });
 
     assert!(result.is_err(), "Expected error to propagate");
@@ -171,7 +171,7 @@ async fn async_compute(value: i32) -> i32 {
 }
 
 async fn simulate_domain_error() -> Result<()> {
-    Err(ggen_utils::error::Error::new("Domain error: Operation failed"))
+    Err(ggen_core::utils::error::Error::new("Domain error: Operation failed"))
 }
 
 async fn fetch_data() -> Result<String> {

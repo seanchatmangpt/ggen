@@ -4,7 +4,7 @@
 
 use std::str::FromStr;
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 /// Input type for validation rules.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

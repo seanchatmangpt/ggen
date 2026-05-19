@@ -17,7 +17,7 @@ Created detailed, TESTED migration documentation for ggen v2.0.0 three-layer arc
 ## Deliverables
 
 ### 1. Migration Guide ✅
-**File**: `/Users/sac/ggen/docs/MIGRATION_V1_TO_V2.md`
+**File**: `./docs/MIGRATION_V1_TO_V2.md`
 **Status**: Updated and enhanced
 **Size**: 224 lines (comprehensive)
 
@@ -38,7 +38,7 @@ Created detailed, TESTED migration documentation for ggen v2.0.0 three-layer arc
 - ⚠️ **Configuration**: Auto-migration available via `ggen doctor --migrate-config`
 
 ### 2. CHANGELOG Update ✅
-**File**: `/Users/sac/ggen/CHANGELOG.md`
+**File**: `./CHANGELOG.md`
 **Status**: Already comprehensive (v2.0.0 section complete)
 **Size**: 168 lines for v2.0.0
 
@@ -298,10 +298,10 @@ use ggen_cli::commands::template::GenerateArgs;
 ## Support Resources
 
 ### Documentation Links
-- **Migration Guide**: `/Users/sac/ggen/docs/MIGRATION_V1_TO_V2.md`
-- **CHANGELOG**: `/Users/sac/ggen/CHANGELOG.md` (v2.0.0 section)
-- **Architecture Guide**: `/Users/sac/ggen/docs/ARCHITECTURE_V2.md`
-- **Deprecation Plan**: `/Users/sac/ggen/.claude/refactor-v2/deprecation-plan.md`
+- **Migration Guide**: `./docs/MIGRATION_V1_TO_V2.md`
+- **CHANGELOG**: `./CHANGELOG.md` (v2.0.0 section)
+- **Architecture Guide**: `./docs/ARCHITECTURE_V2.md`
+- **Deprecation Plan**: `./.claude/refactor-v2/deprecation-plan.md`
 
 ### Getting Help
 - **GitHub Issues**: https://github.com/seanchatmangpt/ggen/issues
@@ -346,7 +346,7 @@ use ggen_cli::commands::template::GenerateArgs;
 4. **Communication** - Remind library users about Feb 2026 deadline
 
 ### For v2.1.0 Planning
-1. Remove `/Users/sac/ggen/cli/src/commands/` directory
+1. Remove `./cli/src/commands/` directory
 2. Remove all deprecation warnings (code is gone)
 3. Update tests to use only new architecture
 4. Performance audit (should be faster without legacy code)

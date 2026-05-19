@@ -1,13 +1,13 @@
 # Debugging and Analytics: See Inside the Magic
 
-ggen provides comprehensive debugging and analytics tools to understand what's happening under the hood.
+mcpp provides comprehensive debugging and analytics tools to understand what's happening under the hood.
 
 ## Template Debugging
 
 ### Step-by-Step Rendering Visualization
 ```bash
 # Debug template execution
-ggen template debug templates/my-service.tmpl --verbose
+mcpp template debug templates/my-service.tmpl --verbose
 
 # Output shows each step:
 # 1. Frontmatter parsing
@@ -29,7 +29,7 @@ ggen template debug templates/my-service.tmpl --verbose
 ### Interactive Debugging
 ```bash
 # Interactive debug mode
-ggen template debug templates/my-service.tmpl --interactive
+mcpp template debug templates/my-service.tmpl --interactive
 
 # Prompts at each step:
 # [FRONTMATTER] ✓ Parsed successfully
@@ -49,7 +49,7 @@ ggen template debug templates/my-service.tmpl --interactive
 ### Template Validation
 ```bash
 # Validate template before using
-ggen template validate templates/my-service.tmpl
+mcpp template validate templates/my-service.tmpl
 
 # Checks:
 # - YAML frontmatter syntax
@@ -73,7 +73,7 @@ ggen template validate templates/my-service.tmpl
 ### Query Execution Inspection
 ```bash
 # Debug SPARQL queries
-ggen ai sparql --description "Find all users" --debug
+mcpp ai sparql --description "Find all users" --debug
 
 # Shows:
 # - Query being executed
@@ -96,7 +96,7 @@ ggen ai sparql --description "Find all users" --debug
 ### Query Performance Analysis
 ```bash
 # Analyze SPARQL query performance
-ggen sparql analyze --query "SELECT ?entity WHERE { ?entity a ex:Entity }"
+mcpp sparql analyze --query "SELECT ?entity WHERE { ?entity a ex:Entity }"
 
 # Output:
 # Query Performance Analysis:
@@ -114,7 +114,7 @@ ggen sparql analyze --query "SELECT ?entity WHERE { ?entity a ex:Entity }"
 ### Detailed Error Messages
 ```bash
 # When something goes wrong
-ggen template generate templates/broken.tmpl
+mcpp template generate templates/broken.tmpl
 
 # Detailed error with context:
 # Error: Template rendering failed
@@ -123,7 +123,7 @@ ggen template generate templates/broken.tmpl
 # Available variables: name, description, version, author
 # Suggestion: Check variable names in template
 # Template variables: name="UserService", description="...", version="1.0.0"
-# Debug: ggen template debug templates/broken.tmpl
+# Debug: mcpp template debug templates/broken.tmpl
 ```
 
 ### Common Error Patterns
@@ -132,7 +132,7 @@ ggen template generate templates/broken.tmpl
 # Error: SPARQL query returned no results
 # Context: Query "SELECT ?entity WHERE { ?entity a ex:Entity }" found nothing
 # Solution: Check RDF files in data/ directory
-# Suggestion: ggen ai graph --description "Create domain model"
+# Suggestion: mcpp ai graph --description "Create domain model"
 
 # "Permission denied"
 # Error: Cannot write to output directory
@@ -152,7 +152,7 @@ ggen template generate templates/broken.tmpl
 ### Template Usage Analytics
 ```bash
 # View template usage statistics
-ggen analytics templates
+mcpp analytics templates
 
 # Output:
 # Template Usage (Last 30 days):
@@ -170,17 +170,17 @@ ggen analytics templates
 ### Error Analytics
 ```bash
 # View error patterns
-ggen analytics errors
+mcpp analytics errors
 
 # Output:
 # Common Errors (Last 30 days):
 # 1. "Template not found" - 23 occurrences
 #    Most common cause: Typo in template name
-#    Solution: ggen template list
+#    Solution: mcpp template list
 
 # 2. "RDF query failed" - 15 occurrences
 #    Most common cause: Missing RDF data files
-#    Solution: ggen ai graph --description "Create domain model"
+#    Solution: mcpp ai graph --description "Create domain model"
 
 # 3. "Permission denied" - 8 occurrences
 #    Most common cause: Output directory not writable
@@ -190,7 +190,7 @@ ggen analytics errors
 ### Performance Analytics
 ```bash
 # View performance metrics
-ggen analytics performance
+mcpp analytics performance
 
 # Output:
 # Performance Metrics:
@@ -215,7 +215,7 @@ ggen analytics performance
 ### Phase Execution Analytics
 ```bash
 # View lifecycle performance
-ggen analytics lifecycle
+mcpp analytics lifecycle
 
 # Output:
 # Phase Performance:
@@ -236,7 +236,7 @@ ggen analytics lifecycle
 ### State Management Analytics
 ```bash
 # View state management metrics
-ggen analytics state
+mcpp analytics state
 
 # Output:
 # State Management:
@@ -258,7 +258,7 @@ ggen analytics state
 ### Template Marketplace Analytics
 ```bash
 # View marketplace metrics
-ggen analytics marketplace
+mcpp analytics marketplace
 
 # Output:
 # Marketplace Health:
@@ -282,7 +282,7 @@ ggen analytics marketplace
 ### User Behavior Analytics
 ```bash
 # View user behavior patterns
-ggen analytics behavior
+mcpp analytics behavior
 
 # Output:
 # User Behavior Patterns:
@@ -302,7 +302,7 @@ ggen analytics behavior
 ### Memory Profiling
 ```bash
 # Profile memory usage
-ggen debug memory --template templates/large-service.tmpl
+mcpp debug memory --template templates/large-service.tmpl
 
 # Output:
 # Memory Usage Profile:
@@ -321,7 +321,7 @@ ggen debug memory --template templates/large-service.tmpl
 ### Performance Profiling
 ```bash
 # Profile execution performance
-ggen debug performance --lifecycle generate
+mcpp debug performance --lifecycle generate
 
 # Output:
 # Performance Profile:
@@ -343,7 +343,7 @@ ggen debug performance --lifecycle generate
 ### IDE Integration Debugging
 ```bash
 # Debug VSCode extension
-ggen debug vscode --template templates/service.tmpl
+mcpp debug vscode --template templates/service.tmpl
 
 # Output shows:
 # - Extension loaded correctly
@@ -355,7 +355,7 @@ ggen debug vscode --template templates/service.tmpl
 ### CI/CD Integration Debugging
 ```bash
 # Debug CI/CD pipeline
-ggen debug ci --workflow .github/workflows/ci.yml
+mcpp debug ci --workflow .github/workflows/ci.yml
 
 # Output shows:
 # - Workflow syntax valid
@@ -371,28 +371,28 @@ ggen debug ci --workflow .github/workflows/ci.yml
 #### 1. Start Simple
 ```bash
 # Begin with basic validation
-ggen template validate my-template.tmpl
-ggen ai models  # Check AI provider
-ggen lifecycle list  # Check available phases
+mcpp template validate my-template.tmpl
+mcpp ai models  # Check AI provider
+mcpp lifecycle list  # Check available phases
 ```
 
 #### 2. Use Debug Mode
 ```bash
 # Enable detailed logging
-ggen template generate my-template.tmpl --debug --verbose
+mcpp template generate my-template.tmpl --debug --verbose
 ```
 
 #### 3. Check Analytics
 ```bash
 # See if others have similar issues
-ggen analytics errors --template my-template.tmpl
+mcpp analytics errors --template my-template.tmpl
 ```
 
 #### 4. Community Support
 ```bash
 # Ask for help with context
-ggen marketplace report my-template.tmpl "Template fails with large datasets"
-# Include: ggen version, error logs, system info
+mcpp marketplace report my-template.tmpl "Template fails with large datasets"
+# Include: mcpp version, error logs, system info
 ```
 
 ### Performance Optimization
@@ -400,7 +400,7 @@ ggen marketplace report my-template.tmpl "Template fails with large datasets"
 #### 1. Identify Bottlenecks
 ```bash
 # Profile your workflow
-ggen analytics performance --my-templates
+mcpp analytics performance --my-templates
 
 # Shows where time is spent
 # Guides optimization efforts
@@ -409,14 +409,14 @@ ggen analytics performance --my-templates
 #### 2. Enable Caching
 ```bash
 # Use appropriate caching
-ggen config set cache.enabled true
-ggen config set cache.ttl 3600
+mcpp config set cache.enabled true
+mcpp config set cache.ttl 3600
 ```
 
 #### 3. Optimize Queries
 ```bash
 # Analyze SPARQL performance
-ggen sparql analyze --all-queries
+mcpp sparql analyze --all-queries
 
 # Shows slow queries and optimization suggestions
 ```
@@ -426,7 +426,7 @@ ggen sparql analyze --all-queries
 ### Debugging a Complex Template
 ```bash
 # Complex multi-file template failing
-ggen template debug templates/microservice.tmpl --verbose
+mcpp template debug templates/microservice.tmpl --verbose
 
 # Step-by-step reveals:
 # 1. Frontmatter parsing: ✓
@@ -436,13 +436,13 @@ ggen template debug templates/microservice.tmpl --verbose
 # 5. Template rendering: ❌ (failed on step 4)
 
 # Fix: Second SPARQL query has syntax error
-# ggen ai sparql --description "Fix this query" --debug
+# mcpp ai sparql --description "Fix this query" --debug
 ```
 
 ### Performance Investigation
 ```bash
 # Generation taking too long
-ggen debug performance --template templates/large-service.tmpl
+mcpp debug performance --template templates/large-service.tmpl
 
 # Reveals:
 # - SPARQL query taking 2.3s (should be 50ms)
@@ -460,30 +460,30 @@ ggen debug performance --template templates/large-service.tmpl
 ### "Template renders but output is wrong"
 **Debug**: Use validation and step-by-step debugging
 ```bash
-ggen template validate my-template.tmpl
-ggen template debug my-template.tmpl --interactive
+mcpp template validate my-template.tmpl
+mcpp template debug my-template.tmpl --interactive
 ```
 
 ### "SPARQL query returns no results"
 **Debug**: Inspect query execution
 ```bash
-ggen ai sparql --description "Debug this query" --debug
+mcpp ai sparql --description "Debug this query" --debug
 # Check RDF data and query syntax
 ```
 
 ### "Performance degraded over time"
 **Debug**: Check analytics and caching
 ```bash
-ggen analytics performance
-ggen cache stats
-ggen cache clear  # If needed
+mcpp analytics performance
+mcpp cache stats
+mcpp cache clear  # If needed
 ```
 
 ### "Integration with IDE not working"
 **Debug**: Check extension and configuration
 ```bash
-ggen debug vscode
-ggen config show
+mcpp debug vscode
+mcpp config show
 ```
 
 ## Success Metrics
@@ -503,4 +503,4 @@ ggen config show
 - **User satisfaction**: 4.5/5 average rating for debugging tools
 - **Adoption rate**: 75% of users actively use debugging features
 
-The debugging and analytics tools transform ggen from a "black box" into a transparent, understandable system.
+The debugging and analytics tools transform mcpp from a "black box" into a transparent, understandable system.

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents to "go to the source" (Gemba) - work directly with actual code and data in ggen, not abstractions or assumptions. Gemba means the actual place where work happens. Experts always verify at the source.
+This command guides agents to "go to the source" (Gemba) - work directly with actual code and data in mcpp, not abstractions or assumptions. Gemba means the actual place where work happens. Experts always verify at the source.
 
 ## Workflow Overview
 
@@ -16,7 +16,7 @@ Step 1: Go to Gemba → Step 2: Observe Actual Behavior (with Measurement) → S
 
 **Action**: Read actual source code, not documentation or comments.
 
-**Gemba locations in ggen**:
+**Gemba locations in mcpp**:
 - **Source code** (`crates/**/src/**/*.rs`) - The actual implementation
 - **Test code** (`tests/**/*.rs`) - How code is actually used
 - **Example code** (`examples/**/*.rs`) - Real usage patterns
@@ -34,7 +34,7 @@ Step 1: Go to Gemba → Step 2: Observe Actual Behavior (with Measurement) → S
 
 ```bash
 # Read actual source code
-cat crates/ggen-core/src/rdf/processor.rs
+cat crates/mcpp-core/src/rdf/processor.rs
 
 # Read actual test code
 cat tests/integration/rdf_tests.rs
@@ -202,7 +202,7 @@ cargo make test
 
 **Documentation vs Code Fixes**:
 - [ ] Fix: `docs/API_REFERENCE.md` says `process_rdf` is deterministic, but code uses HashMap
-  - File: `crates/ggen-core/src/rdf/processor.rs:45`
+  - File: `crates/mcpp-core/src/rdf/processor.rs:45`
   - Actual behavior: Uses HashMap (non-deterministic iteration)
   - Decision: Code is wrong, fix code to use BTreeMap
   - Action: Replace HashMap with BTreeMap
@@ -210,7 +210,7 @@ cargo make test
 
 **Comments vs Behavior Fixes**:
 - [ ] Fix: Comment says "handles all errors" but code panics on invalid RDF
-  - File: `crates/ggen-core/src/rdf/parser.rs:123`
+  - File: `crates/mcpp-core/src/rdf/parser.rs:123`
   - Actual behavior: `unwrap()` on invalid RDF, panics
   - Decision: Code is wrong, fix code to handle errors
   - Action: Replace `unwrap()` with proper error handling
@@ -277,7 +277,7 @@ cargo make test
 
 ```bash
 # Fix code if needed
-# Edit crates/ggen-core/src/rdf/processor.rs
+# Edit crates/mcpp-core/src/rdf/processor.rs
 
 # Fix documentation if needed
 # Edit docs/API_REFERENCE.md

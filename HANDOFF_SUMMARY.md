@@ -1,7 +1,7 @@
 # TIER 2 MVP: HANDOFF TO NEXT 10-AGENT SWARM
 
 **Current Status**: Implementation complete, code committed, ready for validation
-**Branch**: `claude/implement-ggen-install-mVY1P`
+**Branch**: `claude/implement-mcpp-install-mVY1P`
 **Latest Commit**: `3e212edb` (Validation instructions committed)
 
 ---
@@ -26,9 +26,9 @@ validate, and certify this implementation as production-ready.
    - TIER2_VALIDATION_PLAN.md (comprehensive plan, 995 lines)
 
 2. Your 10-agent assignments:
-   - Agent 1: ggen integration validator (test-ggen-setup.sh)
+   - Agent 1: mcpp integration validator (test-mcpp-setup.sh)
    - Agent 2: Docker container validator (test-docker-runner.sh)
-   - Agent 3: Real ggen pipeline validator (test-real-pipeline.sh)
+   - Agent 3: Real mcpp pipeline validator (test-real-pipeline.sh)
    - Agent 4: Database persistence validator (persistence.test.sh)
    - Agent 5: MCP client connectivity validator (mcp-client-tests.sh)
    - Agent 6: MCP performance validator (test-mcp-performance.sh)
@@ -64,25 +64,25 @@ START IMMEDIATELY.
 
 ### Implementation (5,578 lines of production code)
 ```
-✅ Agent 1: ggen-setup.sh (290 lines)
+✅ Agent 1: mcpp-setup.sh (290 lines)
    - Binary detection and auto-installation
    - SessionStart hook integration
    - Exit codes 0/1/2
 
-✅ Agent 2: Real ggen pipeline in main.sh (+181 lines)
-   - run_ggen_real_pipeline() function
-   - map_ggen_output_to_receipt() function
+✅ Agent 2: Real mcpp pipeline in main.sh (+181 lines)
+   - run_mcpp_real_pipeline() function
+   - map_mcpp_output_to_receipt() function
    - generate_error_receipt() function
-   - Fallback to simulation if ggen unavailable
+   - Fallback to simulation if mcpp unavailable
 
 ✅ Agent 3: Dockerfile (70 lines)
    - Multi-stage build
-   - Non-root execution (ggen:1000)
+   - Non-root execution (mcpp:1000)
    - Layer caching for rebuilds
 
 ✅ Agent 4: docker-runner.sh (664 lines)
    - 20 exported functions for container lifecycle
-   - Isolated network (ggen-isolated bridge)
+   - Isolated network (mcpp-isolated bridge)
    - Resource limits: 512MB, 1 CPU, 256 PIDs
    - Retry logic: 3 attempts with exponential backoff
 
@@ -128,7 +128,7 @@ START IMMEDIATELY.
 
 ### Testing (150+ tests, 100% passing)
 ```
-✅ Agent 1: 15 ggen integration tests
+✅ Agent 1: 15 mcpp integration tests
 ✅ Agent 4: 36 database schema tests + 33 persistence tests = 69 total
 ✅ Agent 5: 15 MCP client tests
 ✅ Agent 6: Performance SLO validation (all passed)
@@ -146,7 +146,7 @@ START IMMEDIATELY.
 
 ### Architecture Integration
 ```
-✅ Real ggen execution with fallback simulation
+✅ Real mcpp execution with fallback simulation
 ✅ Docker container orchestration with isolated network
 ✅ SQLite persistent storage with atomicity
 ✅ 200+ MCP servers accessible via real client
@@ -160,9 +160,9 @@ START IMMEDIATELY.
 
 ### Test Suites (Run these to validate)
 ```bash
-cd /home/user/ggen/scripts/claude-code-web-simulator
+cd /home/user/mcpp/scripts/claude-code-web-simulator
 
-bash tests/test-ggen-setup.sh
+bash tests/test-mcpp-setup.sh
 bash tests/test-docker-runner.sh
 bash test-real-pipeline.sh
 bash database/persistence.test.sh
@@ -175,10 +175,10 @@ bash verify-implementation.sh
 
 ### New Commands Available
 ```bash
-./main.sh run-agent validation --real    # Real ggen validation
-./main.sh run-agent generation --real    # Real ggen generation
+./main.sh run-agent validation --real    # Real mcpp validation
+./main.sh run-agent generation --real    # Real mcpp generation
 ./main.sh db [subcommand]                # Database operations
-./main.sh ggen-diagnostics               # ggen troubleshooting
+./main.sh mcpp-diagnostics               # mcpp troubleshooting
 ./main.sh docker-spawn "agent-id" "cmd"  # Docker execution
 ```
 
@@ -272,7 +272,7 @@ When next swarm starts, they should:
 ## GIT BRANCH SETUP
 
 The next session should:
-1. Work on branch: `claude/implement-ggen-install-mVY1P`
+1. Work on branch: `claude/implement-mcpp-install-mVY1P`
 2. Start from commit: `3e212edb` (validation instructions)
 3. Create validation results commits as they complete
 4. Push validation results to same branch
@@ -311,7 +311,7 @@ The next session should:
 
 ## CRITICAL REMINDERS FOR NEXT SWARM
 
-1. ✅ **Start on correct branch**: `claude/implement-ggen-install-mVY1P`
+1. ✅ **Start on correct branch**: `claude/implement-mcpp-install-mVY1P`
 2. ✅ **Verify starting commit**: `3e212edb` (or later)
 3. ✅ **All agents run in parallel**: Don't wait between agents
 4. ✅ **Log all output**: To `/tmp/validation-results/`
@@ -328,7 +328,7 @@ When starting new Claude Code Web session, invoke the validation swarm like this
 ```bash
 # Copy entire swarm instruction to agent prompt:
 
-cd /home/user/ggen
+cd /home/user/mcpp
 cat NEXT_SWARM_INSTRUCTIONS.md
 
 # All 10 agents read BOTH:

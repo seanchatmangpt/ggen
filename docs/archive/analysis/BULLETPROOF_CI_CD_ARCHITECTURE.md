@@ -76,7 +76,7 @@
 chicago-tdd-tools = "1.2.0"  # Updated from hardcoded path to crates.io
 
 # PREVIOUS (BROKEN):
-# chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+# chicago-tdd-tools = { path = "~/.ggen/chicago-tdd-tools", version = "1.1.0" }
 ```
 
 **Impact**:

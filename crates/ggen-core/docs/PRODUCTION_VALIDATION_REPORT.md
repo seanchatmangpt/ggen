@@ -18,7 +18,7 @@ The ggen-core lifecycle system demonstrates **strong engineering fundamentals** 
 ## P0 - BLOCKER ISSUES (Must Fix Before Production)
 
 ### 🚨 P0-1: System Time Panic (CRITICAL)
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:289`
+**Location**: `./ggen-core/src/lifecycle/exec.rs:289`
 
 ```rust
 fn current_time_ms() -> u128 {
@@ -50,7 +50,7 @@ fn current_time_ms() -> Result<u128> {
 ---
 
 ### 🚨 P0-2: Silent Mutex Poisoning
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:52-57`
+**Location**: `./ggen-core/src/lifecycle/exec.rs:52-57`
 
 ```rust
 fn exit_phase(&self, phase: &str) {
@@ -85,7 +85,7 @@ fn exit_phase(&self, phase: &str) {
 ---
 
 ### 🚨 P0-3: Command Injection Vulnerability
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:253-283`
+**Location**: `./ggen-core/src/lifecycle/exec.rs:253-283`
 
 ```rust
 fn execute_command(cmd: &str, cwd: &Path, env: &[(String, String)]) -> Result<()> {
@@ -138,7 +138,7 @@ fn validate_command(cmd: &str) -> Result<()> {
 ---
 
 ### 🚨 P0-4: Uncontrolled Parallel Execution Resource Exhaustion
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:127-153`
+**Location**: `./ggen-core/src/lifecycle/exec.rs:127-153`
 
 ```rust
 if parallel {
@@ -177,7 +177,7 @@ pool.install(|| {
 ---
 
 ### 🚨 P0-5: State File Corruption Risk
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/state.rs:68-86`
+**Location**: `./ggen-core/src/lifecycle/state.rs:68-86`
 
 ```rust
 pub fn save_state<P: AsRef<Path>>(path: P, state: &LifecycleState) -> Result<()> {
@@ -299,7 +299,7 @@ pub fn run_phase(ctx: &Context, phase_name: &str) -> Result<()> {
 ---
 
 ### 🚨 P0-7: No Command Timeout
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs:270-273`
+**Location**: `./ggen-core/src/lifecycle/exec.rs:270-273`
 
 ```rust
 let output = command
@@ -357,7 +357,7 @@ fn execute_command(
 ## P1 - CRITICAL ISSUES (Should Fix for Production)
 
 ### ⚠️ P1-1: No Cache Size Limits
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/cache.rs:56-76`
+**Location**: `./ggen-core/src/lifecycle/cache.rs:56-76`
 
 **Impact**: Unbounded cache growth can fill disk
 ```rust
@@ -378,7 +378,7 @@ pub fn store_cache(cache_dir: &Path, phase: &str, key: &str) -> Result<()> {
 ---
 
 ### ⚠️ P1-2: Error Messages Leak Sensitive Paths
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/error.rs`
+**Location**: `./ggen-core/src/lifecycle/error.rs`
 
 ```rust
 #[error("Failed to load configuration from {path}: {source}")]
@@ -417,7 +417,7 @@ ConfigLoad {
 ---
 
 ### ⚠️ P1-5: No Input Validation on make.toml
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/loader.rs`
+**Location**: `./ggen-core/src/lifecycle/loader.rs`
 
 **Impact**:
 - No validation of phase names (could be empty, too long, have special chars)
@@ -485,7 +485,7 @@ ConfigLoad {
 ---
 
 ### ⚠️ P1-12: Memory Leak in Phase History
-**Location**: `/Users/sac/ggen/ggen-core/src/lifecycle/state.rs:90-100`
+**Location**: `./ggen-core/src/lifecycle/state.rs:90-100`
 
 ```rust
 pub fn record_run(&mut self, phase: String, started_ms: u128, duration_ms: u128, success: bool) {
@@ -684,10 +684,10 @@ The ggen-core lifecycle system has **excellent test coverage** and **clean archi
 ## Appendix: File Locations
 
 ### Critical Files
-- `/Users/sac/ggen/ggen-core/src/lifecycle/exec.rs` - Execution engine (P0-1, P0-2, P0-3, P0-4, P0-6, P0-7)
-- `/Users/sac/ggen/ggen-core/src/lifecycle/state.rs` - State management (P0-5, P1-12)
-- `/Users/sac/ggen/ggen-core/src/lifecycle/cache.rs` - Cache system (P1-1)
-- `/Users/sac/ggen/ggen-core/src/lifecycle/error.rs` - Error handling (P1-2)
+- `./ggen-core/src/lifecycle/exec.rs` - Execution engine (P0-1, P0-2, P0-3, P0-4, P0-6, P0-7)
+- `./ggen-core/src/lifecycle/state.rs` - State management (P0-5, P1-12)
+- `./ggen-core/src/lifecycle/cache.rs` - Cache system (P1-1)
+- `./ggen-core/src/lifecycle/error.rs` - Error handling (P1-2)
 
 ### Dependencies
 ```toml

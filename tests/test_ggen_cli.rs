@@ -1,6 +1,6 @@
 //! Simple GGen CLI Test
 //!
-//! This example demonstrates basic ggen CLI testing without the cleanroom framework
+//! This example demonstrates basic mcpp CLI testing without the cleanroom framework
 //! to avoid compilation issues.
 
 use std::path::PathBuf;
@@ -61,41 +61,41 @@ impl TestResult {
     }
 }
 
-/// Find ggen binary
-fn find_ggen_binary() -> PathBuf {
-    // Try to find ggen binary in the project
+/// Find mcpp binary
+fn find_mcpp_binary() -> PathBuf {
+    // Try to find mcpp binary in the project
     if let Ok(current_dir) = std::env::current_dir() {
-        // Look for ggen in target/debug/ggen relative to current directory
-        let debug_binary = current_dir.join("target").join("debug").join("ggen");
+        // Look for mcpp in target/debug/mcpp relative to current directory
+        let debug_binary = current_dir.join("target").join("debug").join("mcpp");
         if debug_binary.exists() {
             return debug_binary;
         }
 
-        // Look for ggen in target/release/ggen
-        let release_binary = current_dir.join("target").join("release").join("ggen");
+        // Look for mcpp in target/release/mcpp
+        let release_binary = current_dir.join("target").join("release").join("mcpp");
         if release_binary.exists() {
             return release_binary;
         }
     }
 
     // Fallback to PATH
-    PathBuf::from("ggen")
+    PathBuf::from("mcpp")
 }
 
-/// Run a ggen command
-fn run_ggen_command(args: &[&str]) -> TestResult {
+/// Run a mcpp command
+fn run_mcpp_command(args: &[&str]) -> TestResult {
     let start = Instant::now();
-    let ggen_binary = find_ggen_binary();
+    let mcpp_binary = find_mcpp_binary();
 
-    let mut cmd = Command::new(&ggen_binary);
+    let mut cmd = Command::new(&mcpp_binary);
     cmd.args(args);
 
-    let output = cmd.output().expect("Failed to execute ggen command");
+    let output = cmd.output().expect("Failed to execute mcpp command");
     let duration_ms = start.elapsed().as_millis();
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-    let command = format!("{} {}", ggen_binary.display(), args.join(" "));
+    let command = format!("{} {}", mcpp_binary.display(), args.join(" "));
 
     TestResult::new(
         output.status.code().unwrap_or(-1),
@@ -106,12 +106,12 @@ fn run_ggen_command(args: &[&str]) -> TestResult {
     )
 }
 
-/// Test basic ggen CLI functionality
+/// Test basic mcpp CLI functionality
 fn test_basic_commands() {
     println!("\n=== Basic GGen CLI Commands ===");
 
     // Test --help
-    let result = run_ggen_command(&["--help"]);
+    let result = run_mcpp_command(&["--help"]);
     result
         .assert_success()
         .assert_stdout_contains("Usage:")
@@ -121,21 +121,21 @@ fn test_basic_commands() {
     println!("✓ --help command works ({} ms)", result.duration_ms);
 
     // Test --version
-    let result = run_ggen_command(&["--version"]);
+    let result = run_mcpp_command(&["--version"]);
     result
         .assert_success()
-        .assert_stdout_contains("ggen")
+        .assert_stdout_contains("mcpp")
         .assert_duration_le(3000);
 
     println!("✓ --version command works ({} ms)", result.duration_ms);
 }
 
-/// Test ggen project commands
+/// Test mcpp project commands
 fn test_project_commands() {
     println!("\n=== GGen Project Commands ===");
 
     // Test project --help
-    let result = run_ggen_command(&["project", "--help"]);
+    let result = run_mcpp_command(&["project", "--help"]);
     result
         .assert_success()
         .assert_stdout_contains("project")
@@ -144,20 +144,20 @@ fn test_project_commands() {
     println!("✓ project --help works ({} ms)", result.duration_ms);
 
     // Test project init (dry run)
-    let result = run_ggen_command(&["project", "init", "test-project", "--dry-run"]);
-    // Note: This might fail if ggen requires specific setup, so we just check it doesn't panic
+    let result = run_mcpp_command(&["project", "init", "test-project", "--dry-run"]);
+    // Note: This might fail if mcpp requires specific setup, so we just check it doesn't panic
     println!(
         "✓ project init --dry-run completed (exit: {}, {} ms)",
         result.exit_code, result.duration_ms
     );
 }
 
-/// Test ggen template commands
+/// Test mcpp template commands
 fn test_template_commands() {
     println!("\n=== GGen Template Commands ===");
 
     // Test template --help
-    let result = run_ggen_command(&["template", "--help"]);
+    let result = run_mcpp_command(&["template", "--help"]);
     result
         .assert_success()
         .assert_stdout_contains("template")
@@ -166,7 +166,7 @@ fn test_template_commands() {
     println!("✓ template --help works ({} ms)", result.duration_ms);
 
     // Test template list
-    let result = run_ggen_command(&["template", "list"]);
+    let result = run_mcpp_command(&["template", "list"]);
     // This might return empty list, which is fine
     println!(
         "✓ template list completed (exit: {}, {} ms)",
@@ -174,12 +174,12 @@ fn test_template_commands() {
     );
 }
 
-/// Test ggen graph commands
+/// Test mcpp graph commands
 fn test_graph_commands() {
     println!("\n=== GGen Graph Commands ===");
 
     // Test graph --help
-    let result = run_ggen_command(&["graph", "--help"]);
+    let result = run_mcpp_command(&["graph", "--help"]);
     result
         .assert_success()
         .assert_stdout_contains("graph")
@@ -188,12 +188,12 @@ fn test_graph_commands() {
     println!("✓ graph --help works ({} ms)", result.duration_ms);
 }
 
-/// Test ggen market commands
+/// Test mcpp market commands
 fn test_market_commands() {
     println!("\n=== GGen Market Commands ===");
 
     // Test market --help
-    let result = run_ggen_command(&["market", "--help"]);
+    let result = run_mcpp_command(&["market", "--help"]);
     result
         .assert_success()
         .assert_stdout_contains("market")
@@ -202,12 +202,12 @@ fn test_market_commands() {
     println!("✓ market --help works ({} ms)", result.duration_ms);
 }
 
-/// Test ggen AI commands
+/// Test mcpp AI commands
 fn test_ai_commands() {
     println!("\n=== GGen AI Commands ===");
 
     // Test ai --help
-    let result = run_ggen_command(&["ai", "--help"]);
+    let result = run_mcpp_command(&["ai", "--help"]);
     result
         .assert_success()
         .assert_stdout_contains("ai")
@@ -216,8 +216,8 @@ fn test_ai_commands() {
     println!("✓ ai --help works ({} ms)", result.duration_ms);
 }
 
-/// Test ggen workflow scenario
-fn test_ggen_workflow() {
+/// Test mcpp workflow scenario
+fn test_mcpp_workflow() {
     println!("\n=== GGen Workflow Scenario ===");
 
     let commands = vec![
@@ -231,8 +231,8 @@ fn test_ggen_workflow() {
     ];
 
     for (label, args) in commands {
-        println!("→ [{}] ggen {}", label, args.join(" "));
-        let result = run_ggen_command(&args);
+        println!("→ [{}] mcpp {}", label, args.join(" "));
+        let result = run_mcpp_command(&args);
         println!(
             "✓ Workflow step '{}' completed: {} ms",
             label, result.duration_ms
@@ -240,18 +240,18 @@ fn test_ggen_workflow() {
     }
 }
 
-/// Test ggen binary detection
+/// Test mcpp binary detection
 fn test_binary_detection() {
     println!("\n=== GGen Binary Detection ===");
 
-    let ggen_binary = find_ggen_binary();
-    println!("Found ggen binary: {}", ggen_binary.display());
+    let mcpp_binary = find_mcpp_binary();
+    println!("Found mcpp binary: {}", mcpp_binary.display());
 
-    if ggen_binary.exists() {
+    if mcpp_binary.exists() {
         println!("✓ GGen binary exists and is accessible");
     } else {
-        println!("✗ GGen binary not found at {}", ggen_binary.display());
-        println!("  Make sure to build ggen first with: cargo build");
+        println!("✗ GGen binary not found at {}", mcpp_binary.display());
+        println!("  Make sure to build mcpp first with: cargo build");
     }
 }
 
@@ -281,10 +281,10 @@ fn main() {
     test_ai_commands();
 
     // Test workflow scenario
-    test_ggen_workflow();
+    test_mcpp_workflow();
 
     println!("\n=== Simple GGen Test Complete ===");
-    println!("All ggen CLI tests completed successfully!");
+    println!("All mcpp CLI tests completed successfully!");
 }
 
 #[cfg(test)]
@@ -292,22 +292,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_ggen_binary_detection() {
-        let binary = find_ggen_binary();
+    fn test_mcpp_binary_detection() {
+        let binary = find_mcpp_binary();
         assert!(!binary.to_string_lossy().is_empty());
     }
 
     #[test]
-    fn test_ggen_help_command() {
-        let result = run_ggen_command(&["--help"]);
+    fn test_mcpp_help_command() {
+        let result = run_mcpp_command(&["--help"]);
         assert_eq!(result.exit_code, 0);
         assert!(result.stdout.contains("Usage:"));
     }
 
     #[test]
-    fn test_ggen_version_command() {
-        let result = run_ggen_command(&["--version"]);
+    fn test_mcpp_version_command() {
+        let result = run_mcpp_command(&["--version"]);
         assert_eq!(result.exit_code, 0);
-        assert!(result.stdout.contains("ggen"));
+        assert!(result.stdout.contains("mcpp"));
     }
 }

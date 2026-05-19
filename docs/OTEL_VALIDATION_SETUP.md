@@ -5,7 +5,7 @@
 
 ## Files Updated
 
-### 1. `/Users/sac/ggen/CLAUDE.md`
+### 1. `./CLAUDE.md`
 - Added `OTEL Validation` to Agent Coordination Rules table
 - Updated Definition of Done to include OTEL trace verification
 - Added comprehensive OpenTelemetry Validation section with:
@@ -14,7 +14,7 @@
   - OTEL validation checklist
   - Interpretation guide for valid/invalid output
 
-### 2. `/Users/sac/ggen/.claude/rules/otel-validation.md` (NEW)
+### 2. `./.claude/rules/otel-validation.md` (NEW)
 - Complete OTEL validation rule documentation
 - Mandatory spans and attributes for each feature type
 - Step-by-step verification process
@@ -22,20 +22,20 @@
 - Definition of Done with OTEL requirements
 - Examples of valid vs invalid OTEL output
 
-### 3. `/Users/sac/ggen/.claude/rules/README.md`
+### 3. `./.claude/rules/README.md`
 - Added `otel-validation.md` to directory structure
 - Added OTEL Validation to Quick Reference section
 - Added OTEL reminder to Critical Reminders
 - Updated Definition of Done to include OTEL verification commands
 
-### 4. `/Users/sac/.claude/projects/-Users-sac-ggen/memory/otel-validation-requirement.md` (NEW)
+### 4. `~/.ggen/.claude/projects/-Users-sac-ggen/memory/otel-validation-requirement.md` (NEW)
 - Memory file documenting the OTEL validation requirement
 - Why OTEL validation is necessary
 - How to apply OTEL validation step-by-step
 - Required spans and attributes reference table
 - Valid vs invalid OTEL output examples
 
-### 5. `/Users/sac/.claude/projects/-Users-sac-ggen/memory/MEMORY.md`
+### 5. `~/.ggen/.claude/projects/-Users-sac-ggen/memory/MEMORY.md`
 - Added `otel-validation-requirement.md` to Active Memory Files index
 - Added OTEL Validation section to Quick Reference
 
@@ -136,6 +136,6 @@ When implementing LLM/external service features:
 
 ## References
 
-- Complete rules: `/Users/sac/ggen/.claude/rules/otel-validation.md`
-- Project docs: `/Users/sac/ggen/CLAUDE.md` (OpenTelemetry Validation section)
-- Memory: `/Users/sac/.claude/projects/-Users-sac-ggen/memory/otel-validation-requirement.md`
+- Complete rules: `./.claude/rules/otel-validation.md`
+- Project docs: `./CLAUDE.md` (OpenTelemetry Validation section)
+- Memory: `~/.ggen/.claude/projects/-Users-sac-ggen/memory/otel-validation-requirement.md`

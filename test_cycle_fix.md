@@ -5,7 +5,7 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 
 ## Files Modified
 
-### 1. `/Users/sac/ggen/crates/ggen-core/src/graph/cycle_fixer.rs` (NEW)
+### 1. `~/.ggen/mcpp/crates/mcpp-core/src/graph/cycle_fixer.rs` (NEW)
 - **Purpose**: Core cycle detection and fixing logic
 - **Key Features**:
   - `CycleFixer` struct for detecting and fixing cycles
@@ -14,15 +14,15 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
   - Dry-run mode for preview
   - Comprehensive unit tests
 
-### 2. `/Users/sac/ggen/crates/ggen-core/src/graph/mod.rs` (MODIFIED)
+### 2. `~/.ggen/mcpp/crates/mcpp-core/src/graph/mod.rs` (MODIFIED)
 - Added `pub mod cycle_fixer;`
 - Exported `CycleFixer`, `FixReport`, `FixStrategy` types
 
-### 3. `/Users/sac/ggen/crates/ggen-core/Cargo.toml` (MODIFIED)
+### 3. `~/.ggen/mcpp/crates/mcpp-core/Cargo.toml` (MODIFIED)
 - Added `chrono = { workspace = true }` dependency for timestamped backups
 - Added `tempfile = "3.14"` for test fixtures
 
-### 4. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs` (MODIFIED)
+### 4. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/mcpp_server.rs` (MODIFIED)
 - Added `FixCyclesParams` struct with:
   - `ontology_path`: Path to ontology directory
   - `strategy`: Fix strategy (remove_import, merge_files, create_interface)
@@ -59,7 +59,7 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 - Most sophisticated approach
 
 ### Backup System
-- Creates timestamped backups in `.ggen/backups/`
+- Creates timestamped backups in `.mcpp/backups/`
 - Preserves entire directory structure
 - Stores backup path in fix report
 
@@ -85,7 +85,7 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
   "cycles_found": 1,
   "fixes_applied": 1,
   "files_modified": ["C.ttl"],
-  "backup_path": "/path/to/.ggen/backups/cycle_fix_backup_20260330_123456",
+  "backup_path": "/path/to/.mcpp/backups/cycle_fix_backup_20260330_123456",
   "cycles": [
     {
       "files": ["A.ttl", "B.ttl", "C.ttl"],
@@ -150,9 +150,9 @@ Successfully implemented the `fix_cycles` MCP tool to detect and fix circular de
 
 ## Files Ready for Commit
 
-1. `crates/ggen-core/src/graph/cycle_fixer.rs` (NEW)
-2. `crates/ggen-core/src/graph/mod.rs` (MODIFIED)
-3. `crates/ggen-core/Cargo.toml` (MODIFIED)
-4. `crates/ggen-a2a-mcp/src/ggen_server.rs` (MODIFIED - needs manual insertion of tool code)
+1. `crates/mcpp-core/src/graph/cycle_fixer.rs` (NEW)
+2. `crates/mcpp-core/src/graph/mod.rs` (MODIFIED)
+3. `crates/mcpp-core/Cargo.toml` (MODIFIED)
+4. `crates/mcpp-a2a-mcp/src/mcpp_server.rs` (MODIFIED - needs manual insertion of tool code)
 
 All changes follow the project's coding standards and integrate seamlessly with existing infrastructure.

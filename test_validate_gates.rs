@@ -22,7 +22,7 @@ fn main() {
     println!("  6: Rule Validation");
 
     // Test 2: Verify example manifest exists
-    let manifest_path = PathBuf::from("/Users/sac/ggen/examples/basic-template-generation/ggen.toml");
+    let manifest_path = PathBuf::from("./examples/basic-template-generation/ggen.toml");
     println!("\nTest manifest path: {}", manifest_path.display());
     println!("Manifest exists: {}", manifest_path.exists());
 

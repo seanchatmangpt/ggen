@@ -1522,7 +1522,7 @@ let client = reqwest::Client::builder()
 ### Command Execution Test
 
 ```bash
-$ /Users/sac/ggen/target/debug/ggen marketplace --help
+$ ./target/debug/ggen marketplace --help
 
 Usage: ggen marketplace [COMMAND]
 

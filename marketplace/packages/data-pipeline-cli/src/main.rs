@@ -19,7 +19,7 @@ async fn main() -> Result<()> {
         .name("data-pipeline")
         .version(env!("CARGO_PKG_VERSION"))
         .about("ETL data pipelines, transformation, and integration")
-        .author("ggen Marketplace")
+        .author("mcpp Marketplace")
         .ontology_path("rdf/ontology.ttl");
 
     // Execute the command

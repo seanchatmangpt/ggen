@@ -11,7 +11,7 @@
 //! - Performance (<100ms per test)
 
 use ggen_cli_lib::runtime;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// Test runtime::execute integration with successful async domain logic
 #[tokio::test]
@@ -158,7 +158,7 @@ async fn simulate_domain_doctor_success() -> Result<()> {
 }
 
 async fn simulate_domain_doctor_failure() -> Result<()> {
-    Err(ggen_utils::error::Error::new("Some required checks failed"))
+    Err(ggen_core::utils::error::Error::new("Some required checks failed"))
 }
 
 async fn simulate_doctor_domain_logic(
@@ -178,7 +178,7 @@ async fn simulate_quick_check(_id: i32) -> Result<()> {
 
 async fn simulate_nested_domain_error() -> Result<()> {
     async fn inner_error() -> Result<()> {
-        Err(ggen_utils::error::Error::new("Nested domain error"))
+        Err(ggen_core::utils::error::Error::new("Nested domain error"))
     }
 
     inner_error().await?;

@@ -7,8 +7,8 @@
 //! - Cryptographic strength
 //! - Access control
 
-use ggen_utils::error::Result;
-use ggen_utils::secrets::{EncryptionProvider, SecretType, SecretsManager};
+use ggen_core::utils::error::Result;
+use ggen_core::utils::secrets::{EncryptionProvider, SecretType, SecretsManager};
 use std::time::Instant;
 
 // ============================================================================

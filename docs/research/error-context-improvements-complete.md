@@ -208,10 +208,10 @@ All improved errors follow this consistent pattern:
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-core/src/codegen/merge.rs` - Merge marker validation
-2. `/Users/sac/ggen/crates/ggen-core/src/codegen/pipeline.rs` - Condition query, file size, directory traversal
-3. `/Users/sac/ggen/crates/ggen-core/src/codegen/watch.rs` - Watch channel, watch path not found
-4. `/Users/sac/ggen/crates/ggen-core/tests/improved_error_messages_test.rs` - New test file
+1. `./crates/ggen-core/src/codegen/merge.rs` - Merge marker validation
+2. `./crates/ggen-core/src/codegen/pipeline.rs` - Condition query, file size, directory traversal
+3. `./crates/ggen-core/src/codegen/watch.rs` - Watch channel, watch path not found
+4. `./crates/ggen-core/tests/improved_error_messages_test.rs` - New test file
 
 ## Verification
 

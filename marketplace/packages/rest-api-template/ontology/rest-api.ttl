@@ -2,9 +2,9 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix rest: <http://ggen.ai/ontology/rest-api#> .
+@prefix rest: <http://mcpp.ai/ontology/rest-api#> .
 @prefix http: <http://www.w3.org/2011/http#> .
-@prefix sec: <http://ggen.ai/ontology/security#> .
+@prefix sec: <http://mcpp.ai/ontology/security#> .
 
 # ============================================================================
 # REST API Ontology - Comprehensive REST Service Definition

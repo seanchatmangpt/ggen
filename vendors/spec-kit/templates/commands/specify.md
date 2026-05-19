@@ -194,12 +194,12 @@ Given that feature description, do this:
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
 7. **Generate markdown artifacts from TTL sources**:
-   - After successfully creating the TTL specification, run `ggen sync` to generate markdown:
+   - After successfully creating the TTL specification, run `mcpp sync` to generate markdown:
      ```bash
      cd FEATURE_DIR
-     ggen sync
+     mcpp sync
      ```
-   - This will read `ggen.toml` configuration and generate `generated/spec.md` from `ontology/feature-content.ttl`
+   - This will read `mcpp.toml` configuration and generate `generated/spec.md` from `ontology/feature-content.ttl`
    - Verify the generated markdown file exists and is properly formatted
 
 8. Report completion with:
@@ -209,7 +209,7 @@ Given that feature description, do this:
    - Checklist results
    - Readiness for the next phase (`/speckit.clarify` or `/speckit.plan`)
 
-**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing. The TTL file is the source of truth; markdown is generated via `ggen sync`.
+**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing. The TTL file is the source of truth; markdown is generated via `mcpp sync`.
 
 ## General Guidelines
 

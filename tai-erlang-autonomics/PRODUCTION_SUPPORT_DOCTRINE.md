@@ -141,7 +141,7 @@ STANDARD REMEDIATION RECIPE
 │  1. ac_andon_mcp:investigate(IncidentId)
 │  2. ac_rootcause_mcp:analyze(Evidence)
 │  3. Generate spec delta (if pattern identified)
-│  4. Execute ggen sync --delta (regenerate artifacts)
+│  4. Execute mcpp sync --delta (regenerate artifacts)
 │  5. Deploy to staging (if applicable)
 │  6. Emit remediation receipt
 │
@@ -249,7 +249,7 @@ Properties:
    ac_kaizen_mcp:generate_delta(RootCause)
 
    % Step 3: Regenerate artifacts
-   ggen sync --delta --audit true
+   mcpp sync --delta --audit true
 
    % Step 4: Verify and emit receipt
    ac_receipt_ledger_mcp:append(remediation, Recipe, Meta)

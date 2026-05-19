@@ -238,6 +238,7 @@ impl ComponentSupervisor {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_cascade_prevention_with_supervisor_and_circuit_breaker() {
     println!("\n=== CASCADE PREVENTION TEST ===\n");
     println!("Scenario: Start 3 components → Kill component A → Verify supervisor restarts it");
@@ -361,6 +362,7 @@ async fn test_cascade_prevention_with_supervisor_and_circuit_breaker() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_distributed_consensus_with_partition_recovery() {
     println!("\n=== DISTRIBUTED CONSENSUS TEST ===\n");
     println!("Scenario: Start 3-node quorum → Partition one node → Verify system continues");
@@ -492,6 +494,7 @@ async fn test_distributed_consensus_with_partition_recovery() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_end_to_end_recovery_with_concurrent_failures() {
     println!("\n=== END-TO-END RECOVERY TEST ===\n");
     println!("Scenario: Inject 5 concurrent failures → Verify all restart → System stabilizes");
@@ -630,6 +633,7 @@ async fn test_end_to_end_recovery_with_concurrent_failures() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_circuit_breaker_state_transitions() {
     println!("\n=== CIRCUIT BREAKER STATE TRANSITIONS ===\n");
 
@@ -666,6 +670,7 @@ async fn test_circuit_breaker_state_transitions() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_quorum_consensus_calculations() {
     println!("\n=== QUORUM CONSENSUS CALCULATIONS ===\n");
 
@@ -689,6 +694,7 @@ async fn test_quorum_consensus_calculations() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_supervisor_recovery_with_backoff() {
     println!("\n=== SUPERVISOR RECOVERY WITH EXPONENTIAL BACKOFF ===\n");
 

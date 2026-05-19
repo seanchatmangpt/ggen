@@ -98,7 +98,7 @@ USAGE INSTRUCTIONS
 ================================================================================
 
 GENERATE PROJECT:
-  ggen project new my-microservices \
+  mcpp project new my-microservices \
     --template microservices-architecture \
     --output ./my-microservices
 

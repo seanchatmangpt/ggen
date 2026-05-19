@@ -833,4 +833,4 @@ This performance baseline establishes clear metrics and SLOs for the v1.2.0 → 
 
 **Performance Benchmarker Agent - Task Complete**
 **Memory Key**: `hive/benchmarker/baseline`
-**File**: `/Users/sac/ggen/.claude/refactor-v2/06-performance-baseline.md`
+**File**: `./.claude/refactor-v2/06-performance-baseline.md`

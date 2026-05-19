@@ -21,7 +21,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 
 ### 1.1 CLAUDE.md (Project Instructions)
 
-**Purpose:** Project constitution and development rules for ggen v6.0.1
+**Purpose:** Project constitution and development rules for ggen v26.5.4
 
 **Key Sections:**
 - **Evidence-First Principle:** Never fabricate examples, OTEL traces, or documentation
@@ -41,7 +41,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 - ✅ Agent verification protocol
 
 **What Needs Finishing:**
-- ⚠️ **London TDD Migration Guide** referenced but not created (`/Users/sac/ggen/docs/LONDON_TDD_MIGRATION_GUIDE.md` mentioned at line 176)
+- ⚠️ **London TDD Migration Guide** referenced but not created (`./docs/LONDON_TDD_MIGRATION_GUIDE.md` mentioned at line 176)
 - ⚠️ **TEST_CATEGORIZATION_REPORT.md** referenced (63% Chicago, 37% London) - needs verification
 
 **Status:** 95% complete - Missing migration guide for converting London TDD tests
@@ -71,7 +71,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 - ✅ Integration with ggen workflow examples
 
 **What Needs Finishing:**
-- ⚠️ **Version mismatch:** README says "Version: 5.0.2" but CLAUDE.md says "v6.0.1"
+- ⚠️ **Version mismatch:** README says "Version: 5.0.2" but CLAUDE.md says "v26.5.4"
 - ⚠️ **LLM-Construct tutorial** referenced but link may be broken (`docs/tutorials/LLM_CONSTRUCT_TUTORIAL.md`)
 - ⚠️ **Migration guide** referenced (`docs/MIGRATION_V1_TO_V2.md`) - needs update for v6
 
@@ -98,7 +98,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 
 **What Needs Finishing:**
 - ⚠️ **Unreleased entries need version numbers** - Currently all marked "[Unreleased]"
-- ⚠️ **No release date for v6.0.1** - Still in unreleased state
+- ⚠️ **No release date for v26.5.4** - Still in unreleased state
 - ⚠️ **Breaking changes section** empty for last 10 commits
 
 **Status:** 85% complete - Needs release tagging and version finalization
@@ -131,7 +131,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 - ✅ Marketplace configuration (registry_url, cache_packages)
 
 **What Needs Finishing:**
-- ⚠️ **Version mismatch:** ggen.toml says "version = 5.0.2" but should be "6.0.1"
+- ⚠️ **Version mismatch:** ggen.toml says "version = 5.0.2" but should be "26.5.4"
 - ⚠️ **AI model outdated:** "claude-3-opus-20240229" - should use newer model
 - ⚠️ **Lifecycle hooks** referenced but scripts may not exist (`scripts/validate-docs/validate-all.sh`)
 
@@ -145,7 +145,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 
 **Key Statistics:**
 - **Workspace members:** 79 crates (17 active, 62 temporarily excluded)
-- **Version:** 6.0.1 (matches CLAUDE.md)
+- **Version:** 26.5.4 (matches CLAUDE.md)
 - **Dependencies:** 80+ workspace dependencies unified
 - **Lint level:** Deny all warnings (Poka-Yoke design)
 - **Test targets:** 66 passing, 500+ gated behind `integration` feature
@@ -159,7 +159,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 
 **What Needs Finishing:**
 - ⚠️ **62 crates excluded** - Need to determine if this is intentional or temporary
-  - Examples: `tps-kaizen`, `ggen-process-mining`, `tai-*` crates
+  - Examples: `tps-kaizen`, `native pictl process mining`, `tai-*` crates
 - ⚠️ **Debian packaging** configured but may not be tested
 - ⚠️ **Feature flags** complex - `london_tdd`, `integration`, `otel` need documentation
 
@@ -191,7 +191,7 @@ The last 10 commits focused on **code quality improvements** (clippy fixes, lint
 - ✅ Definition of Done with cargo make commands
 
 **What Needs Finishing:**
-- ⚠️ **Version mismatch:** Says "v6.0.0" but should be "v6.0.1"
+- ⚠️ **Version mismatch:** Says "v6.0.0" but should be "v26.5.4"
 - ⚠️ **Last updated:** "2026-02-08" - Needs update to "2026-03-31"
 
 **Status:** 95% complete - Minor version/date updates needed
@@ -527,7 +527,7 @@ docs/mcp-a2a-enterprise/
    - **Blocking:** Code review and merge
 
 3. **London TDD Migration Guide**
-   - **File:** `/Users/sac/ggen/docs/LONDON_TDD_MIGRATION_GUIDE.md` (referenced but doesn't exist)
+   - **File:** `./docs/LONDON_TDD_MIGRATION_GUIDE.md` (referenced but doesn't exist)
    - **Task:** Create migration guide with before/after examples
    - **Sections:** Conversion patterns, deletion guidelines, archival process
    - **Effort:** 2 hours
@@ -539,14 +539,14 @@ docs/mcp-a2a-enterprise/
 
 4. **Version Consistency**
    - **Files:** `README.md`, `ggen.toml`, `.claude/rules/README.md`
-   - **Task:** Update all version references to 6.0.1
+   - **Task:** Update all version references to 26.5.4
    - **Current State:** README says 5.0.2, ggen.toml says 5.0.2, rules README says v6.0.0
    - **Effort:** 15 minutes
 
 5. **Test Suite Restoration**
    - **File:** `Cargo.toml`
    - **Task:** Restore or remove 62 excluded crates
-   - **Current State:** 62 crates temporarily excluded (tps-kaizen, ggen-process-mining, tai-*)
+   - **Current State:** 62 crates temporarily excluded (tps-kaizen, native pictl process mining, tai-*)
    - **Decision Required:** Keep excluded or restore?
    - **Effort:** 4 hours (if restoring), 30 minutes (if removing)
 
@@ -641,7 +641,7 @@ docs/mcp-a2a-enterprise/
 ### Immediate Actions (This Week)
 
 1. **Fix Version Inconsistency**
-   - Update README.md, ggen.toml, .claude/rules/README.md to v6.0.1
+   - Update README.md, ggen.toml, .claude/rules/README.md to v26.5.4
    - 15 minutes effort
 
 2. **Run Documentation Validation**
@@ -650,7 +650,7 @@ docs/mcp-a2a-enterprise/
    - 30 minutes effort
 
 3. **Create London TDD Migration Guide**
-   - Write /Users/sac/ggen/docs/LONDON_TDD_MIGRATION_GUIDE.md
+   - Write ./docs/LONDON_TDD_MIGRATION_GUIDE.md
    - Include conversion patterns, examples, archival process
    - 2 hours effort
 
@@ -707,7 +707,7 @@ The ggen documentation and configuration is **86% complete** with strong foundat
 - Active ontology development (ChatmanGPT sprint)
 
 **Key Gaps:**
-- Version inconsistencies across files (5.0.2 vs 6.0.1)
+- Version inconsistencies across files (5.0.2 vs 26.5.4)
 - Missing London TDD migration guide
 - 62 crates excluded from workspace (decision needed)
 - Synthetic examples instead of real OTEL traces

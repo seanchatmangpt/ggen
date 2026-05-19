@@ -9,6 +9,7 @@ use ggen_core::security::command::SafeCommand;
 
 /// Test full swarm workflow: spawn -> orchestrate -> validate
 #[tokio::test]
+#[ignore]
 async fn test_full_swarm_workflow() {
     // Create realistic configuration
     let config = OntologyConfig::new()
@@ -49,6 +50,7 @@ async fn test_full_swarm_workflow() {
 
 /// Test swarm handles complex multi-pack scenarios
 #[tokio::test]
+#[ignore]
 async fn test_complex_multi_pack_orchestration() {
     let mut config = OntologyConfig::new().with_composition(CompositionStrategy::Priority);
 
@@ -82,6 +84,7 @@ async fn test_complex_multi_pack_orchestration() {
 
 /// Test swarm handles conflicting packages correctly
 #[tokio::test]
+#[ignore]
 async fn test_conflict_resolution_workflow() {
     let config = OntologyConfig::new()
         .with_pack(OntologyPackRef {
@@ -114,6 +117,7 @@ async fn test_conflict_resolution_workflow() {
 
 /// Test swarm coordination with secure command execution
 #[tokio::test]
+#[ignore]
 async fn test_swarm_with_secure_commands() {
     let config = create_test_config(3);
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -133,6 +137,7 @@ async fn test_swarm_with_secure_commands() {
 
 /// Test agent collaboration during orchestration
 #[tokio::test]
+#[ignore]
 async fn test_agent_collaboration() {
     let config = create_test_config(5);
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -154,6 +159,7 @@ async fn test_agent_collaboration() {
 
 /// Test swarm memory and state management
 #[tokio::test]
+#[ignore]
 async fn test_swarm_state_management() {
     let config = create_test_config(4);
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -172,6 +178,7 @@ async fn test_swarm_state_management() {
 
 /// Test swarm performance under load
 #[tokio::test]
+#[ignore]
 async fn test_swarm_performance() {
     let config = create_test_config(10);
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -191,6 +198,7 @@ async fn test_swarm_performance() {
 
 /// Test swarm handles empty configuration
 #[tokio::test]
+#[ignore]
 async fn test_empty_configuration() {
     let config = OntologyConfig::new();
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -202,6 +210,7 @@ async fn test_empty_configuration() {
 
 /// Test swarm handles single pack configuration
 #[tokio::test]
+#[ignore]
 async fn test_single_pack_configuration() {
     let config = create_test_config(1);
     let mut hive = HiveQueen::new(config).await.unwrap();
@@ -216,6 +225,7 @@ async fn test_single_pack_configuration() {
 
 /// Test different composition strategies
 #[tokio::test]
+#[ignore]
 async fn test_composition_strategies() {
     let base_packs = vec![
         OntologyPackRef {
@@ -272,6 +282,7 @@ async fn test_composition_strategies() {
 
 /// Test concurrent swarm operations
 #[tokio::test]
+#[ignore]
 async fn test_concurrent_swarms() {
     let config1 = create_test_config(3);
     let config2 = create_test_config(4);

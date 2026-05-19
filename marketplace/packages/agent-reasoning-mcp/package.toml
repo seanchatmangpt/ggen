@@ -1,12 +1,12 @@
 [package]
 name = "agent-reasoning-mcp"
-full_name = "ggen/agent-reasoning-mcp"
+full_name = "mcpp/agent-reasoning-mcp"
 version = "1.0.0"
 description = "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-reasoning-mcp"
 license = "MIT"
 dependencies = ["agent-memory-forge", "agent-context-crafter"]

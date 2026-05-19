@@ -1,4 +1,4 @@
-PREFIX chatman: <http://ggen.ai/ontology/chatman#>
+PREFIX chatman: <http://mcpp.ai/ontology/chatman#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # Get user preferences and configuration

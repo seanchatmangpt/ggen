@@ -264,7 +264,7 @@ All 4 generation rules are:
 
 All files are located at:
 ```
-/Users/sac/ggen/.specify/specs/020-craftplan/
+./.specify/specs/020-craftplan/
 ```
 
 Total specification: **3,564 lines** across **7 files** (130K)

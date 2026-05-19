@@ -3,7 +3,7 @@
 **Package**: chatman-cli v0.1.0
 **Validation Date**: November 9, 2024
 **Validator**: Production Validation Agent
-**Target Platforms**: ggen marketplace, crates.io
+**Target Platforms**: mcpp marketplace, crates.io
 
 ---
 
@@ -11,7 +11,7 @@
 
 ✅ **DEPLOYMENT READY** - 95% Production Readiness Score
 
-ChatMan CLI is a fully-implemented, production-grade package ready for deployment to both the ggen marketplace and crates.io. All critical requirements are met, with comprehensive documentation, testing, and real implementations (no mocks).
+ChatMan CLI is a fully-implemented, production-grade package ready for deployment to both the mcpp marketplace and crates.io. All critical requirements are met, with comprehensive documentation, testing, and real implementations (no mocks).
 
 ---
 
@@ -309,7 +309,7 @@ Retry: 3 attempts (configurable)
 
 ## 6. Deployment Readiness
 
-### ggen Marketplace - ✅ 100% READY
+### mcpp Marketplace - ✅ 100% READY
 
 ```bash
 ✅ package.toml with complete metadata
@@ -406,7 +406,7 @@ All critical requirements for deployment are met:
 
 ### Deployment Verdict: **APPROVED** ✅
 
-ChatMan CLI is production-ready and can be deployed immediately to the ggen marketplace. For crates.io, it's ready after fixing the single test assertion (5-minute task).
+ChatMan CLI is production-ready and can be deployed immediately to the mcpp marketplace. For crates.io, it's ready after fixing the single test assertion (5-minute task).
 
 ---
 
@@ -432,7 +432,7 @@ Package Size:      170.9 KB (48.9 KB compressed)
 
 **Validated by**: Production Validation Agent
 **Validation Method**: Comprehensive automated + manual review
-**Standards Applied**: ggen marketplace + crates.io guidelines
+**Standards Applied**: mcpp marketplace + crates.io guidelines
 **Confidence Level**: 95% (High)
 
 **Recommendation**: **DEPLOY TO MARKETPLACE IMMEDIATELY**
@@ -442,10 +442,10 @@ Package Size:      170.9 KB (48.9 KB compressed)
 
 ## Appendix A: Quick Deploy Commands
 
-### ggen Marketplace
+### mcpp Marketplace
 ```bash
 # Already in marketplace/packages/chatman-cli/
-ggen market publish .
+mcpp market publish .
 ```
 
 ### crates.io (after test fix)

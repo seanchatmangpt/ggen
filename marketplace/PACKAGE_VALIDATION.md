@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-All 8 packages in the ggen marketplace have been validated and are now production-ready. Missing critical files have been created, and all packages meet the required standards for marketplace distribution.
+All 8 packages in the mcpp marketplace have been validated and are now production-ready. Missing critical files have been created, and all packages meet the required standards for marketplace distribution.
 
 ### Overall Health Score: **98/100** (Excellent)
 
@@ -28,7 +28,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Validation Checks
 - ✅ `package.toml` exists with all required fields
-- ✅ `ggen.toml` exists with proper configuration
+- ✅ `mcpp.toml` exists with proper configuration
 - ✅ `README.md` exists with comprehensive documentation
 - ✅ `make.toml` exists for lifecycle management
 - ⚠️ License file missing (MIT specified in metadata)
@@ -67,7 +67,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Validation Checks
 - ✅ `package.toml` exists with all required fields
-- ✅ `ggen.toml` exists with comprehensive configuration
+- ✅ `mcpp.toml` exists with comprehensive configuration
 - ✅ `README.md` exists with detailed documentation
 - ✅ `make.toml` exists for complete lifecycle
 - ⚠️ License file missing (MIT specified in metadata)
@@ -105,7 +105,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Validation Checks
 - ✅ `package.toml` exists with all required fields
-- ✅ `ggen.toml` exists with AI configuration
+- ✅ `mcpp.toml` exists with AI configuration
 - ✅ `README.md` exists with comprehensive examples
 - ⚠️ License file missing (MIT specified in metadata)
 - ✅ All referenced files exist
@@ -139,7 +139,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Validation Checks
 - ✅ `package.toml` exists with all required fields
-- ✅ `ggen.toml` exists with proper configuration
+- ✅ `mcpp.toml` exists with proper configuration
 - ✅ `README.md` exists (newly created - comprehensive)
 - ✅ `Cargo.toml` exists with correct metadata
 - ⚠️ License file missing (MIT specified in metadata)
@@ -178,7 +178,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Validation Checks
 - ✅ `package.toml` exists with all required fields
-- ✅ `ggen.toml` exists with marketplace configuration
+- ✅ `mcpp.toml` exists with marketplace configuration
 - ✅ `README.md` exists with architecture diagrams
 - ✅ `make.toml` exists for lifecycle management
 - ✅ `docker-compose.yml` for development
@@ -239,7 +239,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Issues Found
 - ⚠️ No LICENSE file (metadata specifies MIT)
-- ℹ️ No ggen.toml (not required for template-only packages)
+- ℹ️ No mcpp.toml (not required for template-only packages)
 
 #### Recommendation
 **Action:** Add LICENSE file
@@ -276,7 +276,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 #### Issues Found
 - ℹ️ No README.md (acceptable for hello-world starter)
 - ⚠️ No LICENSE file (metadata specifies MIT)
-- ℹ️ No ggen.toml (not required for simple starters)
+- ℹ️ No mcpp.toml (not required for simple starters)
 
 #### Recommendation
 **Action:** Consider adding simple README.md for beginners
@@ -314,7 +314,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 
 #### Issues Found
 - ⚠️ No LICENSE file (metadata specifies MIT)
-- ℹ️ No ggen.toml (not required for library packages)
+- ℹ️ No mcpp.toml (not required for library packages)
 
 #### Recommendation
 **Action:** Add LICENSE file
@@ -337,7 +337,7 @@ All 8 packages in the ggen marketplace have been validated and are now productio
 ```
 MIT License
 
-Copyright (c) 2024 ggen-team
+Copyright (c) 2024 mcpp-team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -363,7 +363,7 @@ furnished to do so, subject to the following conditions:
 
 ## Package Completeness Matrix
 
-| Package | package.toml | ggen.toml | README.md | LICENSE | Cargo.toml | Templates | Status |
+| Package | package.toml | mcpp.toml | README.md | LICENSE | Cargo.toml | Templates | Status |
 |---------|--------------|-----------|-----------|---------|------------|-----------|--------|
 | advanced-rust-project | ✅ | ✅ | ✅ | ⚠️ | N/A | ✅ | ✅ Ready |
 | comprehensive-rust-showcase | ✅ | ✅ | ✅ | ⚠️ | N/A | ✅ | ✅ Ready |
@@ -385,15 +385,15 @@ furnished to do so, subject to the following conditions:
 ## Files Created/Fixed During Validation
 
 ### New Files Created
-1. `/Users/sac/ggen/marketplace/packages/api-endpoint/package.toml` - Complete metadata
-2. `/Users/sac/ggen/marketplace/packages/hello-world/package.toml` - Complete metadata
-3. `/Users/sac/ggen/marketplace/packages/rig-mcp/package.toml` - Complete metadata
-4. `/Users/sac/ggen/marketplace/packages/ai-microservice/README.md` - Comprehensive documentation
+1. `~/.ggen/mcpp/marketplace/packages/api-endpoint/package.toml` - Complete metadata
+2. `~/.ggen/mcpp/marketplace/packages/hello-world/package.toml` - Complete metadata
+3. `~/.ggen/mcpp/marketplace/packages/rig-mcp/package.toml` - Complete metadata
+4. `~/.ggen/mcpp/marketplace/packages/ai-microservice/README.md` - Comprehensive documentation
 
 ### Files Validated
 - All package.toml files validated for required fields
 - All README.md files validated for completeness
-- All ggen.toml files validated for proper configuration
+- All mcpp.toml files validated for proper configuration
 - All template files validated for existence
 - All referenced paths validated
 
@@ -404,7 +404,7 @@ furnished to do so, subject to the following conditions:
 ### Critical Requirements (100% Met)
 - ✅ package.toml exists with required fields (name, version, description, category, author, license)
 - ✅ README.md exists with clear instructions (where applicable)
-- ✅ ggen.toml exists with proper configuration (where required)
+- ✅ mcpp.toml exists with proper configuration (where required)
 - ✅ All referenced files and paths exist
 - ✅ No broken links or references
 - ✅ No placeholder/TODO content in production files
@@ -439,7 +439,7 @@ furnished to do so, subject to the following conditions:
 - Use cases documented
 
 **Configuration Quality:** 100/100
-- ggen.toml present where needed
+- mcpp.toml present where needed
 - Proper AI provider configuration
 - Lifecycle management configured
 - Security settings included

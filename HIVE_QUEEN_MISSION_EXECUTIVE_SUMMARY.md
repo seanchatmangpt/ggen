@@ -90,7 +90,7 @@ cargo build --release
 ## 🔧 CHANGES MADE (80/20 MINIMAL)
 
 ### Single Critical Fix
-**File**: `/Users/sac/ggen/crates/ggen-domain/src/marketplace/search.rs`
+**File**: `./crates/ggen-domain/src/marketplace/search.rs`
 **Change**: Added registry caching using `once_cell::sync::Lazy`
 **Lines**: 7 lines (imports + cache + check)
 **Impact**: 47% latency reduction on cache hit

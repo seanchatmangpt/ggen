@@ -4,19 +4,19 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix spdx: <http://spdx.org/rdfterms#> .
-@prefix market: <https://ggen.io/marketplace/ontology/> .
+@prefix market: <https://mcpp.io/marketplace/ontology/> .
 
 # ==============================================================================
 # MARKETPLACE ONTOLOGY - O_market
 # Single source of truth for package metadata, validation, and ecosystem structure
 # ==============================================================================
 
-<https://ggen.io/marketplace/ontology/> a owl:Ontology ;
+<https://mcpp.io/marketplace/ontology/> a owl:Ontology ;
   rdfs:label "Ggen Marketplace Ontology"@en ;
-  rdfs:comment "Formal ontology for the ggen code generation marketplace, enabling audit-grade validation, scoring, and ecosystem management"@en ;
+  rdfs:comment "Formal ontology for the mcpp code generation marketplace, enabling audit-grade validation, scoring, and ecosystem management"@en ;
   owl:versionInfo "1.0.0"@en ;
   dct:created "2025-11-16"^^xsd:date ;
-  dct:creator "ggen-team" .
+  dct:creator "mcpp-team" .
 
 # ==============================================================================
 # CORE CLASSES
@@ -24,7 +24,7 @@
 
 market:Package a owl:Class ;
   rdfs:label "Package"@en ;
-  rdfs:comment "A deployable package in the ggen marketplace (template, CLI tool, library, etc.)"@en ;
+  rdfs:comment "A deployable package in the mcpp marketplace (template, CLI tool, library, etc.)"@en ;
   owl:equivalentClass [
     a owl:Restriction ;
     owl:onProperty market:id ;
@@ -357,7 +357,7 @@ market:validationTimestamp a owl:DatatypeProperty ;
   rdfs:domain market:ValidationReceipt ;
   rdfs:range xsd:dateTime .
 
-market:ggenVersion a owl:DatatypeProperty ;
+market:mcppVersion a owl:DatatypeProperty ;
   rdfs:label "Ggen Version"@en ;
   rdfs:domain market:ValidationReceipt ;
   rdfs:range xsd:string .
@@ -491,7 +491,7 @@ market:bonusMaximum a owl:DatatypeProperty ;
 # ==============================================================================
 
 # Academic Papers Bundle
-<https://ggen.io/marketplace/bundle/sector-academic-papers> a market:Bundle ;
+<https://mcpp.io/marketplace/bundle/sector-academic-papers> a market:Bundle ;
   market:bundleId "sector-academic-papers"@en ;
   market:bundleVersion "1.0.0"@en ;
   market:bundleDescription "Complete lifecycle for academic paper development, peer review, and publishing with ontological metadata"@en ;
@@ -501,7 +501,7 @@ market:bonusMaximum a owl:DatatypeProperty ;
   rdfs:comment "Packages for managing academic paper workflows from draft to publication" .
 
 # Enterprise SaaS Bundle
-<https://ggen.io/marketplace/bundle/sector-enterprise-saas> a market:Bundle ;
+<https://mcpp.io/marketplace/bundle/sector-enterprise-saas> a market:Bundle ;
   market:bundleId "sector-enterprise-saas"@en ;
   market:bundleVersion "1.0.0"@en ;
   market:bundleDescription "Multi-tenant SaaS architectures with CRM, ERP, and enterprise features"@en ;
@@ -511,7 +511,7 @@ market:bonusMaximum a owl:DatatypeProperty ;
   rdfs:comment "Complete SaaS stack for enterprise applications" .
 
 # Data Pipelines Bundle
-<https://ggen.io/marketplace/bundle/sector-data-pipelines> a market:Bundle ;
+<https://mcpp.io/marketplace/bundle/sector-data-pipelines> a market:Bundle ;
   market:bundleId "sector-data-pipelines"@en ;
   market:bundleVersion "1.0.0"@en ;
   market:bundleDescription "Data engineering stack for ETL, transformation, schema management, and analytics"@en ;
@@ -521,7 +521,7 @@ market:bonusMaximum a owl:DatatypeProperty ;
   rdfs:comment "Complete data engineering toolkit" .
 
 # Healthcare Systems Bundle
-<https://ggen.io/marketplace/bundle/sector-healthcare> a market:Bundle ;
+<https://mcpp.io/marketplace/bundle/sector-healthcare> a market:Bundle ;
   market:bundleId "sector-healthcare"@en ;
   market:bundleVersion "1.0.0"@en ;
   market:bundleDescription "Healthcare system architectures including EHR, laboratory management, and clinical data"@en ;
@@ -531,7 +531,7 @@ market:bonusMaximum a owl:DatatypeProperty ;
   rdfs:comment "Regulated healthcare system components" .
 
 # Financial Services Bundle
-<https://ggen.io/marketplace/bundle/sector-fintech> a market:Bundle ;
+<https://mcpp.io/marketplace/bundle/sector-fintech> a market:Bundle ;
   market:bundleId "sector-fintech"@en ;
   market:bundleVersion "1.0.0"@en ;
   market:bundleDescription "Financial services stack including banking, payments, KYC/AML, and trading systems"@en ;

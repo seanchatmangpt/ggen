@@ -9,40 +9,40 @@
 ## POC Commands Implemented
 
 ### 1. template/generate ✅
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/template/generate.rs`
+- **Domain Layer**: `./cli/src/domain/template/generate.rs`
   - 14 TDD tests (100% pass rate)
   - Business logic: template validation, file tree generation, overwrite protection
   - No CLI dependencies
   
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/template/generate.rs`
+- **CLI Layer**: `./cli/src/commands/template/generate.rs`
   - 3 presentation tests
   - Colored output with user feedback
   - Delegates to domain layer
 
 ### 2. marketplace/search ✅
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/marketplace/search.rs`
+- **Domain Layer**: `./cli/src/domain/marketplace/search.rs`
   - 10 TDD tests (100% pass rate)
   - Business logic: search validation, filters, registry integration
   - Mock data fallback for testing
   
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/marketplace/search.rs`
+- **CLI Layer**: `./cli/src/commands/marketplace/search.rs`
   - 4 presentation tests
   - Rich terminal output with colors and formatting
   - Delegates to domain layer
 
 ### 3. project/gen ✅
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/project/gen.rs`
+- **CLI Layer**: `./cli/src/commands/project/gen.rs`
   - 4 CLI parsing tests
   - Calls existing implementation (domain layer exists in cmds/)
   - Demonstrates wrapper pattern for existing code
 
 ### 4. ai/generate ✅
-- **Domain Layer**: `/Users/sac/ggen/cli/src/domain/ai/generate.rs`
+- **Domain Layer**: `./cli/src/domain/ai/generate.rs`
   - 12 TDD tests (100% pass rate)
   - Business logic: AI config validation, template generation, validation iterations
   - Temperature/token/iteration validation
   
-- **CLI Layer**: `/Users/sac/ggen/cli/src/commands/ai/generate.rs`
+- **CLI Layer**: `./cli/src/commands/ai/generate.rs`
   - 3 presentation tests
   - Progress indication for AI iterations
   - Delegates to domain layer

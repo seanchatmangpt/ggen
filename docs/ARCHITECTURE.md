@@ -38,7 +38,7 @@
 
 **Quick Reference**: 2-minute architecture overview
 **Last Updated**: 2026-03-31
-**Version**: 6.0.1
+**Version**: 26.5.4
 
 ---
 
@@ -573,7 +573,7 @@ This is a **quick reference**. For detailed documentation, see:
 
 ## Version History
 
-- **v6.0.1** (2026-03-31): MCP/A2A integration, TPS quality systems
+- **v26.5.4** (2026-03-31): MCP/A2A integration, TPS quality systems
 - **v6.0.0**: Production-ready CLI with auto-discovery, lifecycle hooks, marketplace
 - **v5.x**: Marketplace v2 migration, improved RDF engine
 - **v4.x**: AI integration, multi-provider support

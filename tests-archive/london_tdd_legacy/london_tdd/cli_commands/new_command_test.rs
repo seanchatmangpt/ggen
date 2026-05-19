@@ -1,7 +1,7 @@
 // London TDD - Test Suite for `ggen new` Command
 // Outside-in testing approach: Start with acceptance tests, then unit tests
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use mockall::predicate::*;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -445,7 +445,7 @@ anyhow = "1.0"
         );
 
         let main_rs = format!(
-            r#"use ggen_utils::error::{{Error, Result}};
+            r#"use ggen_core::utils::error::{{Error, Result}};
 use {}::*;
 
 #[tokio::main]

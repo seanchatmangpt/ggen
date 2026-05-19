@@ -2,8 +2,8 @@
 # Wil van der Aalst process verification as verifiable DoD checks
 # Three properties: Deadlock Freedom, Liveness, Boundedness
 
-@prefix dod: <http://ggen.chatmangpt.com/dod#> .
-@prefix wvda: <http://ggen.chatmangpt.com/wvda#> .
+@prefix dod: <http://mcpp.chatmangpt.com/dod#> .
+@prefix wvda: <http://mcpp.chatmangpt.com/wvda#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

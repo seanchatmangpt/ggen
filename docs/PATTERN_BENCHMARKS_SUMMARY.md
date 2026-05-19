@@ -93,7 +93,7 @@ Comprehensive performance benchmarking suite created for all TDD patterns with *
 
 #### Pattern Performance Benchmarks (`pattern_performance.rs`)
 
-**Location**: `/Users/sac/ggen/crates/ggen-core/benches/pattern_performance.rs`
+**Location**: `./crates/ggen-core/benches/pattern_performance.rs`
 
 **Contents**:
 - Error fix pattern benchmarks (E0277, E0308, E0283, E0599)
@@ -111,7 +111,7 @@ Comprehensive performance benchmarking suite created for all TDD patterns with *
 
 #### Memory Profiling Benchmarks (`memory_profiling.rs`)
 
-**Location**: `/Users/sac/ggen/crates/ggen-core/benches/memory_profiling.rs`
+**Location**: `./crates/ggen-core/benches/memory_profiling.rs`
 
 **Features**:
 - Custom `TrackingAllocator` for allocation monitoring
@@ -128,7 +128,7 @@ Comprehensive performance benchmarking suite created for all TDD patterns with *
 
 #### Regression Detection Benchmarks (`regression_detection.rs`)
 
-**Location**: `/Users/sac/ggen/crates/ggen-core/benches/regression_detection.rs`
+**Location**: `./crates/ggen-core/benches/regression_detection.rs`
 
 **Features**:
 - Automated performance target validation
@@ -154,7 +154,7 @@ const PRIORITY_RANKING_TARGET_MS: u128 = 1;
 
 #### Comprehensive Benchmark Runner (`run_pattern_benchmarks.sh`)
 
-**Location**: `/Users/sac/ggen/scripts/run_pattern_benchmarks.sh`
+**Location**: `./scripts/run_pattern_benchmarks.sh`
 
 **Features**:
 - Runs all three benchmark suites sequentially
@@ -177,7 +177,7 @@ const PRIORITY_RANKING_TARGET_MS: u128 = 1;
 
 #### Performance Target Validator (`validate_benchmark_targets.sh`)
 
-**Location**: `/Users/sac/ggen/scripts/validate_benchmark_targets.sh`
+**Location**: `./scripts/validate_benchmark_targets.sh`
 
 **Features**:
 - Parses Criterion output automatically
@@ -210,7 +210,7 @@ Failed: 0
 
 #### GitHub Actions Workflow (`pattern-benchmarks.yml`)
 
-**Location**: `/Users/sac/ggen/.github/workflows/pattern-benchmarks.yml`
+**Location**: `./.github/workflows/pattern-benchmarks.yml`
 
 **Triggers**:
 - Push to main/master/develop
@@ -241,7 +241,7 @@ Failed: 0
 
 #### Benchmark Specification (`PATTERN_BENCHMARK_SPECIFICATION.md`)
 
-**Location**: `/Users/sac/ggen/docs/PATTERN_BENCHMARK_SPECIFICATION.md`
+**Location**: `./docs/PATTERN_BENCHMARK_SPECIFICATION.md`
 
 **Contents**:
 - Comprehensive benchmark specification
@@ -264,7 +264,7 @@ Failed: 0
 
 #### Benchmark README (`benches/README.md`)
 
-**Location**: `/Users/sac/ggen/crates/ggen-core/benches/README.md`
+**Location**: `./crates/ggen-core/benches/README.md`
 
 **Contents**:
 - Quick start guide
@@ -287,7 +287,7 @@ Failed: 0
 
 #### Benchmark Results (`PATTERN_BENCHMARK_RESULTS.md`)
 
-**Location**: `/Users/sac/ggen/docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md`
+**Location**: `./docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md`
 
 **Contents**:
 - Executive summary with highlights
@@ -495,25 +495,25 @@ ls -la crates/ggen-core/target/criterion/*/base
 ## Files Created
 
 ### Benchmark Source Files
-1. `/Users/sac/ggen/crates/ggen-core/benches/pattern_performance.rs` (1,080 lines)
-2. `/Users/sac/ggen/crates/ggen-core/benches/memory_profiling.rs` (490 lines)
-3. `/Users/sac/ggen/crates/ggen-core/benches/regression_detection.rs` (850 lines)
+1. `./crates/ggen-core/benches/pattern_performance.rs` (1,080 lines)
+2. `./crates/ggen-core/benches/memory_profiling.rs` (490 lines)
+3. `./crates/ggen-core/benches/regression_detection.rs` (850 lines)
 
 ### Automation Scripts
-4. `/Users/sac/ggen/scripts/run_pattern_benchmarks.sh` (executable)
-5. `/Users/sac/ggen/scripts/validate_benchmark_targets.sh` (executable)
+4. `./scripts/run_pattern_benchmarks.sh` (executable)
+5. `./scripts/validate_benchmark_targets.sh` (executable)
 
 ### CI/CD Configuration
-6. `/Users/sac/ggen/.github/workflows/pattern-benchmarks.yml`
+6. `./.github/workflows/pattern-benchmarks.yml`
 
 ### Documentation
-7. `/Users/sac/ggen/docs/PATTERN_BENCHMARK_SPECIFICATION.md`
-8. `/Users/sac/ggen/crates/ggen-core/benches/README.md`
-9. `/Users/sac/ggen/docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md`
-10. `/Users/sac/ggen/docs/PATTERN_BENCHMARKS_SUMMARY.md` (this file)
+7. `./docs/PATTERN_BENCHMARK_SPECIFICATION.md`
+8. `./crates/ggen-core/benches/README.md`
+9. `./docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md`
+10. `./docs/PATTERN_BENCHMARKS_SUMMARY.md` (this file)
 
 ### Configuration Updates
-11. `/Users/sac/ggen/crates/ggen-core/Cargo.toml` (updated)
+11. `./crates/ggen-core/Cargo.toml` (updated)
 
 ## Key Achievements
 

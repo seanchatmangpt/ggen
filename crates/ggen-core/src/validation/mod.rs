@@ -66,7 +66,7 @@ mod tests;
 
 // Re-export public API
 pub use checks::{Check, CheckError, CompilationCheck, LintCheck, SecurityCheck, TestCheck};
-pub use compile_gate::{CompileGate, CompileResult};
+pub use compile_gate::{CompileError, CompileGate, CompileResult, CompileTarget};
 pub use error::{Result, ValidationError};
 pub use gate::{CheckResult, QualityGate, QualityGateResult};
 pub use preflight::{PreFlightResult, PreFlightValidator};

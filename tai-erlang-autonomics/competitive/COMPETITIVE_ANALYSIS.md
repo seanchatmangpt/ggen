@@ -345,7 +345,7 @@ The value-indexed infrastructure market is **genuinely undefended** by incumbent
 - Incentives are *aligned* (Riskified succeeds when fraud is prevented)
 - Pricing is *self-scaling* (bigger customer = bigger fraud prevention = more revenue)
 
-**Applicability to ggen**: Our model mirrors Riskified:
+**Applicability to mcpp**: Our model mirrors Riskified:
 - **Measurable outcomes**: Compliance pass/fail, incident prevention, deployment success
 - **Direct customer value**: Audit pass = budget justification, incident prevention = cost avoidance
 - **Aligned incentives**: We succeed when customer's infrastructure improves
@@ -365,7 +365,7 @@ The value-indexed infrastructure market is **genuinely undefended** by incumbent
 - Per-ticket outcome tier aligns with customer value (fewer tickets = lower cost)
 - Hybrid reduces customer acquisition friction (outcome pricing sounds risky; hybrid feels safe)
 
-**Applicability to ggen**: Hybrid model might be phase-2 strategy:
+**Applicability to mcpp**: Hybrid model might be phase-2 strategy:
 - Phase 1: Pure outcome (gain traction, prove model)
 - Phase 2: Hybrid (base + outcome) for larger customers
 
@@ -387,7 +387,7 @@ The value-indexed infrastructure market is **genuinely undefended** by incumbent
 
 ### 4.1 Table of "Necessary vs. Differentiating" Features
 
-| Feature | Okta | Datadog | Splunk | HashiCorp | PagerDuty | **Us (ggen)** | **Decision** |
+| Feature | Okta | Datadog | Splunk | HashiCorp | PagerDuty | **Us (mcpp)** | **Decision** |
 |---------|------|---------|--------|-----------|-----------|---------------|----------|
 | **Identity management** | ✓ | ✗ | ✗ | ✗ | ✗ | Integrate | Partner |
 | **Log aggregation** | ✗ | ✓ | ✓ | ✗ | ✗ | Integrate | Partner |

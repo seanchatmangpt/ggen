@@ -1,7 +1,7 @@
 //! Simple Template Validator Test (without swarm dependency)
 
-use ggen_ai::generators::validator::{TemplateValidator, ValidationResult, ValidationIssue, Severity, IssueType};
-use ggen_ai::generators::template::Template;
+use mcpp_ai::generators::validator::{TemplateValidator, ValidationResult, ValidationIssue, Severity, IssueType};
+use mcpp_ai::generators::template::Template;
 
 fn main() {
     println!("Running Simple Template Validator Test...\n");

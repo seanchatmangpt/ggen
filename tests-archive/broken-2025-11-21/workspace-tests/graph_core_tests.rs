@@ -13,7 +13,7 @@
 //! - Persistent storage operations
 
 use ggen_core::graph::{build_prolog, Graph, GraphStore};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use oxigraph::model::{GraphName, NamedNode, Quad};
 use std::collections::BTreeMap;
 use tempfile::TempDir;
@@ -66,7 +66,7 @@ fn test_graph_clone_shares_store() {
 //     use std::sync::Arc;
 //     use oxigraph::store::Store;
 //
-//     let store = Store::new().map_err(|e| ggen_utils::error::Error::new(&format!("{}", e)))?;
+//     let store = Store::new().map_err(|e| ggen_core::utils::error::Error::new(&format!("{}", e)))?;
 //     let arc_store = Arc::new(store);
 //     let graph = Graph::from_store(arc_store)?;
 //     assert!(graph.is_empty());

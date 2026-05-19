@@ -144,7 +144,7 @@ serde_json = "1"
 ### Step 2: Run Tests ⏳
 
 ```bash
-cd /Users/sac/ggen/crates/ggen-core
+cd ./crates/ggen-core
 
 # Verify compilation
 cargo build
@@ -245,15 +245,15 @@ cargo tarpaulin --test lockfile_tests --test install_tests --test pack_integrati
 
 All test files are located in:
 ```
-/Users/sac/ggen/crates/ggen-core/tests/
+./crates/ggen-core/tests/
 ```
 
 Specific files:
-- `/Users/sac/ggen/crates/ggen-core/tests/lockfile_tests.rs`
-- `/Users/sac/ggen/crates/ggen-core/tests/install_tests.rs`
-- `/Users/sac/ggen/crates/ggen-core/tests/pack_integration_tests.rs`
-- `/Users/sac/ggen/crates/ggen-core/tests/PACK_TESTS_README.md`
-- `/Users/sac/ggen/crates/ggen-core/tests/PHASE1_TEST_DELIVERABLES.md`
+- `./crates/ggen-core/tests/lockfile_tests.rs`
+- `./crates/ggen-core/tests/install_tests.rs`
+- `./crates/ggen-core/tests/pack_integration_tests.rs`
+- `./crates/ggen-core/tests/PACK_TESTS_README.md`
+- `./crates/ggen-core/tests/PHASE1_TEST_DELIVERABLES.md`
 
 ## Success Metrics
 

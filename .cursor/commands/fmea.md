@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents through Failure Mode and Effects Analysis (FMEA) for ggen processes and systems. FMEA prevents problems before they occur by identifying and addressing failure modes proactively.
+This command guides agents through Failure Mode and Effects Analysis (FMEA) for mcpp processes and systems. FMEA prevents problems before they occur by identifying and addressing failure modes proactively.
 
 ## Workflow Overview
 
@@ -16,7 +16,7 @@ Step 1: Define Scope → Step 2: Identify Failure Modes → Step 3: Assess Sever
 
 **Action**: Clearly define what process or system is being analyzed.
 
-**Example scope definition for ggen**:
+**Example scope definition for mcpp**:
 ```markdown
 ## FMEA Scope
 
@@ -34,7 +34,7 @@ Step 1: Define Scope → Step 2: Identify Failure Modes → Step 3: Assess Sever
 
 **Action**: Identify all potential ways the process/system can fail.
 
-**Example failure modes for ggen**:
+**Example failure modes for mcpp**:
 ```markdown
 ## Failure Modes
 

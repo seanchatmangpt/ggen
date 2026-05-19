@@ -9,54 +9,54 @@
 ### Test Files Created (11 files, 4,766 lines)
 
 #### Unit Tests (5 files, 1,165 lines)
-1. ✅ `/Users/sac/ggen/tests/unit/packs/pack_core_domain_test.rs` (195 lines)
+1. ✅ `./tests/unit/packs/pack_core_domain_test.rs` (195 lines)
    - Repository, metadata loading, type serialization
    - 12 tests for core domain operations
 
-2. ✅ `/Users/sac/ggen/tests/unit/packs/pack_composer_test.rs` (251 lines)
+2. ✅ `./tests/unit/packs/pack_composer_test.rs` (251 lines)
    - Multi-pack composition, circular dependencies
    - 10 tests for composition strategies
 
-3. ✅ `/Users/sac/ggen/tests/unit/packs/pack_installer_test.rs` (218 lines)
+3. ✅ `./tests/unit/packs/pack_installer_test.rs` (218 lines)
    - Pack installation, dry-run mode, error handling
    - 11 tests for installation workflows
 
-4. ✅ `/Users/sac/ggen/tests/unit/packs/pack_generator_test.rs` (266 lines)
+4. ✅ `./tests/unit/packs/pack_generator_test.rs` (266 lines)
    - Template generation, variable substitution
    - 13 tests for code generation
 
-5. ✅ `/Users/sac/ggen/tests/unit/packs/pack_validator_test.rs` (235 lines)
+5. ✅ `./tests/unit/packs/pack_validator_test.rs` (235 lines)
    - Pack validation, scoring, maturity levels
    - 9 tests for quality validation
 
 #### Integration Tests (3 files, 998 lines)
-6. ✅ `/Users/sac/ggen/tests/integration/packs/user_workflow_single_pack_test.rs` (283 lines)
+6. ✅ `./tests/integration/packs/user_workflow_single_pack_test.rs` (283 lines)
    - **Workflow 1**: Single-pack web API project
    - **Workflow 2**: Single-pack data science project
    - 5 end-to-end workflow tests
 
-7. ✅ `/Users/sac/ggen/tests/integration/packs/user_workflow_multi_pack_test.rs` (368 lines)
+7. ✅ `./tests/integration/packs/user_workflow_multi_pack_test.rs` (368 lines)
    - **Workflow 3**: Two-pack composition (startup + devops)
    - **Workflow 4**: Complex multi-pack (3+ packs)
    - 8 composition workflow tests
 
-8. ✅ `/Users/sac/ggen/tests/integration/packs/user_workflow_template_reuse_test.rs` (347 lines)
+8. ✅ `./tests/integration/packs/user_workflow_template_reuse_test.rs` (347 lines)
    - **Workflow 5**: Template reuse with variables
    - 9 template generation tests
 
 #### Performance Tests (1 file, 315 lines)
-9. ✅ `/Users/sac/ggen/tests/performance/packs_performance_test.rs` (315 lines)
+9. ✅ `./tests/performance/packs_performance_test.rs` (315 lines)
    - 10 performance benchmarks
    - All operations < 500ms SLA
 
 #### Module Files (2 files)
-10. ✅ `/Users/sac/ggen/tests/unit/packs/mod.rs` - Updated with new modules
-11. ✅ `/Users/sac/ggen/tests/integration/packs/mod.rs` - Updated with workflows
+10. ✅ `./tests/unit/packs/mod.rs` - Updated with new modules
+11. ✅ `./tests/integration/packs/mod.rs` - Updated with workflows
 
 #### Documentation (3 files)
-12. ✅ `/Users/sac/ggen/tests/docs/PACKS_TESTS_SUMMARY.md` - Comprehensive overview
-13. ✅ `/Users/sac/ggen/tests/docs/PACKS_TESTS_EXECUTION_GUIDE.md` - Execution guide
-14. ✅ `/Users/sac/ggen/PACKS_TESTS_DELIVERED.md` - This file
+12. ✅ `./tests/docs/PACKS_TESTS_SUMMARY.md` - Comprehensive overview
+13. ✅ `./tests/docs/PACKS_TESTS_EXECUTION_GUIDE.md` - Execution guide
+14. ✅ `./PACKS_TESTS_DELIVERED.md` - This file
 
 ## Test Coverage Statistics
 

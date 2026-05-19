@@ -2,7 +2,7 @@
 //!
 //! Tests for file operations to verify path traversal prevention
 
-use ggen_ontology_core::triple_store::TripleStore;
+use ggen_core::ontology_core::triple_store::TripleStore;
 use std::fs::File;
 use std::io::Write;
 use tempfile::tempdir;

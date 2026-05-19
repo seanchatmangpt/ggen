@@ -31,7 +31,7 @@
 //! use ggen_core::cli_generator::{WorkspaceGenerator, types::CliProject};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let generator = WorkspaceGenerator::new(Path::new("templates"))?;
 //!
 //! let project = CliProject {
@@ -52,7 +52,7 @@
 //! ```
 
 use crate::cli_generator::types::CliProject;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 use tera::{Context, Tera};
 
@@ -71,7 +71,7 @@ const WORKSPACE_CARGO_TEMPLATE: &str = "cli/workspace/Cargo.toml.tmpl";
 /// use ggen_core::cli_generator::workspace::WorkspaceGenerator;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let generator = WorkspaceGenerator::new(Path::new("templates"))?;
 /// # Ok(())
 /// # }
@@ -101,7 +101,7 @@ impl WorkspaceGenerator {
     /// use ggen_core::cli_generator::workspace::WorkspaceGenerator;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let generator = WorkspaceGenerator::new(Path::new("./templates"))?;
     /// # Ok(())
     /// # }
@@ -142,7 +142,7 @@ impl WorkspaceGenerator {
     /// use ggen_core::cli_generator::{workspace::WorkspaceGenerator, types::CliProject};
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let generator = WorkspaceGenerator::new(Path::new("templates"))?;
     ///
     /// let project = CliProject {

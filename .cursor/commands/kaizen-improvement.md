@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents to make small, incremental improvements to ggen code rather than big rewrites. Kaizen means "change for better" - continuous small improvements that compound over time. Experts make many small improvements rather than waiting for perfect solutions.
+This command guides agents to make small, incremental improvements to mcpp code rather than big rewrites. Kaizen means "change for better" - continuous small improvements that compound over time. Experts make many small improvements rather than waiting for perfect solutions.
 
 ## Workflow Overview
 
@@ -14,7 +14,7 @@ Step 1: Identify Opportunity → Step 2: Plan Change (with Success Criteria & Me
 
 ### Step 1: Identify Improvement Opportunity
 
-**Action**: Find a small, focused improvement opportunity in ggen.
+**Action**: Find a small, focused improvement opportunity in mcpp.
 
 **Opportunity criteria**:
 - **Small**: Can be done in minutes, not hours
@@ -22,7 +22,7 @@ Step 1: Identify Opportunity → Step 2: Plan Change (with Success Criteria & Me
 - **Safe**: Low risk of breaking things
 - **Value**: Adds value (clarity, performance, maintainability)
 
-**Types of opportunities for ggen**:
+**Types of opportunities for mcpp**:
 1. **Code clarity** - Make code more readable
 2. **Performance** - Small performance improvement
 3. **Maintainability** - Easier to maintain
@@ -101,11 +101,11 @@ Step 1: Identify Opportunity → Step 2: Plan Change (with Success Criteria & Me
 
 ```bash
 # Count magic numbers
-grep -r "\b1000\b" crates/ggen-core/src/rdf/ | wc -l
+grep -r "\b1000\b" crates/mcpp-core/src/rdf/ | wc -l
 # Output: 1 magic number found
 
 # Check if constant exists
-grep -r "MAX_TRIPLES_BATCH" crates/ggen-core/src/rdf/
+grep -r "MAX_TRIPLES_BATCH" crates/mcpp-core/src/rdf/
 # Output: No constant found
 ```
 
@@ -183,11 +183,11 @@ cargo make test
 
 ```bash
 # Re-count magic numbers after improvement
-grep -r "\b1000\b" crates/ggen-core/src/rdf/ | wc -l
+grep -r "\b1000\b" crates/mcpp-core/src/rdf/ | wc -l
 # Output: 0 magic numbers (down from 1)
 
 # Check if constant exists
-grep -r "MAX_TRIPLES_BATCH" crates/ggen-core/src/rdf/
+grep -r "MAX_TRIPLES_BATCH" crates/mcpp-core/src/rdf/
 # Output: const MAX_TRIPLES_BATCH_SIZE: usize = 1000; (constant added)
 
 # Calculate improvement

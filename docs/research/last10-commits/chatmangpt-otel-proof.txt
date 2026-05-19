@@ -9,7 +9,7 @@
 # Evidence of real Groq API client initialization
 
 [1m[92m    Blocking[0m waiting for file lock on artifact directory
-[1m[92m   Compiling[0m ggen-ai v0.2.0 (/Users/sac/ggen/crates/ggen-ai)
+[1m[92m   Compiling[0m ggen-ai v0.2.0 (./crates/ggen-ai)
 [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 15.05s
 [1m[92m     Running[0m tests/test_real_api_detection.rs (target/debug/deps/test_real_api_detection-871865c936b2259e)
 

@@ -379,7 +379,7 @@ Dual-licensed under MIT OR Apache-2.0
 ## Support
 
 - **Repository**: https://github.com/yourusername/workflow-engine-cli
-- **Documentation**: https://docs.ggen.ruv.io/workflow-engine-cli
+- **Documentation**: https://docs.mcpp.ruv.io/workflow-engine-cli
 - **Issues**: https://github.com/yourusername/workflow-engine-cli/issues
 
 ---

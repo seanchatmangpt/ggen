@@ -20,7 +20,7 @@ Two critical scaffold examples have been fully implemented, tested, and validate
 Demonstrates REST API generation with agent control endpoints and MCP tool registration, enabling AI agents to call REST endpoints as tools.
 
 ### Location
-`/Users/sac/ggen/examples/api-endpoint/`
+`./examples/api-endpoint/`
 
 ### Key Deliverables
 
@@ -122,7 +122,7 @@ The `/tools` endpoint returns discoverable tools that agents can invoke:
 Multi-crate orchestration example demonstrating task distribution, worker pools, backpressure, and agent lifecycle management.
 
 ### Location
-`/Users/sac/ggen/examples/advanced-lifecycle-demo/`
+`./examples/advanced-lifecycle-demo/`
 
 ### Key Deliverables
 
@@ -319,7 +319,7 @@ The scheduler provides task management APIs that can be exposed as tools:
 ## Workspace Configuration
 
 ### Root Cargo.toml Changes
-Updated `/Users/sac/ggen/Cargo.toml` to exclude both Wave 2 examples from main workspace:
+Updated `./Cargo.toml` to exclude both Wave 2 examples from main workspace:
 ```toml
 exclude = [
   "examples/api-endpoint",        # Wave 2: Standalone example
@@ -390,18 +390,18 @@ cd examples/advanced-lifecycle-demo && cargo make lifecycle
 ## Files Changed
 
 ### New/Modified Files
-1. `/Users/sac/ggen/Cargo.toml`
+1. `./Cargo.toml`
    - Added both examples to workspace.exclude
    - Allows them to have independent builds
 
-2. `/Users/sac/ggen/examples/api-endpoint/`
+2. `./examples/api-endpoint/`
    - Fixed src/error.rs: Added ApiError::Internal variant
    - Fixed src/main.rs: Refactored state management to AppState struct
    - Enhanced tests/integration_tests.rs: Fixed email validation test logic
    - Updated Cargo.toml dependencies
    - Added make.toml with build tasks
 
-3. `/Users/sac/ggen/examples/advanced-lifecycle-demo/`
+3. `./examples/advanced-lifecycle-demo/`
    - Fixed Cargo.toml: Changed workspace members from apps/ to crates/
    - Added missing workspace dependencies (uuid, chrono)
    - Verified tests compile and pass

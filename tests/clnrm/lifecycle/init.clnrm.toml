@@ -9,20 +9,20 @@ version = "1.0.0"
 [otel]
 exporter = "otlp"
 endpoint = "http://localhost:4318"
-service_name = "ggen-lifecycle-init"
+service_name = "mcpp-lifecycle-init"
 enable_tracing = true
 enable_metrics = true
 
-[service.ggen]
+[service.mcpp]
 plugin = "generic_container"
 image = "rust:latest"
-volumes = ["/tmp/ggen-test:/workspace"]
+volumes = ["/tmp/mcpp-test:/workspace"]
 working_dir = "/workspace"
 
 # Test 1: Basic initialization
 [[scenario]]
 name = "basic_lifecycle_init"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/test-project && cd /workspace/test-project && \
 cat > make.toml << 'EOF'
@@ -32,17 +32,17 @@ name = "test-project"
 [lifecycle.init]
 command = "echo 'Initializing project'"
 EOF
-ggen lifecycle run init
+mcpp lifecycle run init
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 attributes = { "lifecycle.phase" = "init", "project.name" = "test-project" }
 min_duration_ms = 1
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.phase.execute"
-parent = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.phase.execute"
+parent = "mcpp.lifecycle.init"
 attributes = { "command" = "echo 'Initializing project'" }
 
 [scenario.expect.attestation]
@@ -53,7 +53,7 @@ reproducible = true
 # Test 2: Multi-step initialization
 [[scenario]]
 name = "multi_step_initialization"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/multi-init && cd /workspace/multi-init && \
 cat > make.toml << 'EOF'
@@ -69,33 +69,33 @@ commands = [
     "echo 'Step 3: Create initial files'"
 ]
 EOF
-ggen lifecycle run init
+mcpp lifecycle run init
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 attributes = { "lifecycle.phase" = "init", "command_count" = "5" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.command.execute"
-parent = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.command.execute"
+parent = "mcpp.lifecycle.init"
 count = 5
 
 [scenario.expect.window]
-parent = "ggen.lifecycle.init"
-must_contain = ["ggen.lifecycle.command.execute"]
+parent = "mcpp.lifecycle.init"
+must_contain = ["mcpp.lifecycle.command.execute"]
 min_child_spans = 5
 
 [scenario.expect.graph]
 must_include = [
-  ["ggen.lifecycle.init", "ggen.lifecycle.command.execute"]
+  ["mcpp.lifecycle.init", "mcpp.lifecycle.command.execute"]
 ]
 acyclic = true
 
 # Test 3: Template generation in init phase
 [[scenario]]
 name = "template_generation_during_init"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/template-init && cd /workspace/template-init && \
 cat > make.toml << 'EOF'
@@ -105,33 +105,33 @@ name = "template-generation"
 [lifecycle.init]
 commands = [
     "echo 'Initializing project structure'",
-    "echo 'ggen template generate rust-service:api.tmpl'",
-    "echo 'ggen template generate rust-service:database.tmpl'"
+    "echo 'mcpp template generate rust-service:api.tmpl'",
+    "echo 'mcpp template generate rust-service:database.tmpl'"
 ]
 EOF
-ggen lifecycle run init
+mcpp lifecycle run init
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 attributes = { "lifecycle.phase" = "init" }
 
 [[scenario.expect.span]]
-name = "ggen.template.generate"
-parent = "ggen.lifecycle.init"
+name = "mcpp.template.generate"
+parent = "mcpp.lifecycle.init"
 count_min = 2
 attributes_pattern = { "template.name" = ".*\\.tmpl" }
 
 [scenario.expect.temporal]
 ordering = [
-  "ggen.lifecycle.init",
-  "ggen.template.generate"
+  "mcpp.lifecycle.init",
+  "mcpp.template.generate"
 ]
 
 # Test 4: Init with state persistence
 [[scenario]]
 name = "init_with_state_persistence"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/state-init && cd /workspace/state-init && \
 cat > make.toml << 'EOF'
@@ -141,32 +141,32 @@ name = "state-persistence-test"
 [lifecycle.init]
 command = "echo 'Initializing with state tracking'"
 EOF
-ggen lifecycle run init && \
-test -f .ggen/state.json && \
-grep -q '"last_phase":"init"' .ggen/state.json
+mcpp lifecycle run init && \
+test -f .mcpp/state.json && \
+grep -q '"last_phase":"init"' .mcpp/state.json
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.state.save"
-parent = "ggen.lifecycle.init"
-attributes = { "state.file" = ".ggen/state.json" }
+name = "mcpp.lifecycle.state.save"
+parent = "mcpp.lifecycle.init"
+attributes = { "state.file" = ".mcpp/state.json" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.state.persist"
-must_follow = ["ggen.lifecycle.init"]
+name = "mcpp.lifecycle.state.persist"
+must_follow = ["mcpp.lifecycle.init"]
 attributes = { "phase_recorded" = "init" }
 
 [scenario.expect.attestation]
-files_created = [".ggen/state.json"]
+files_created = [".mcpp/state.json"]
 sha256 = true
 
 # Test 5: Init failure handling
 [[scenario]]
 name = "init_failure_with_rollback"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/init-failure && cd /workspace/init-failure && \
 cat > make.toml << 'EOF'
@@ -180,29 +180,29 @@ commands = [
     "echo 'This should not run'"
 ]
 EOF
-ggen lifecycle run init || echo "Init failed as expected"
+mcpp lifecycle run init || echo "Init failed as expected"
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 expect_error = true
 attributes = { "error.type" = "command_execution_failed" }
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.error.handle"
-parent = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.error.handle"
+parent = "mcpp.lifecycle.init"
 attributes = { "error.phase" = "init", "error.fatal" = "true" }
 
 [scenario.expect.temporal]
 ordering = [
-  "ggen.lifecycle.init",
-  "ggen.lifecycle.error.handle"
+  "mcpp.lifecycle.init",
+  "mcpp.lifecycle.error.handle"
 ]
 
 # Test 6: Rust project initialization
 [[scenario]]
 name = "rust_project_init"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/rust-init && cd /workspace/rust-init && \
 cat > make.toml << 'EOF'
@@ -216,16 +216,16 @@ commands = [
     "echo 'Rust project initialized'"
 ]
 EOF
-ggen lifecycle run init
+mcpp lifecycle run init
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 attributes = { "project.type" = "rust" }
 
 [[scenario.expect.span]]
-name = "ggen.cargo.init"
-parent = "ggen.lifecycle.init"
+name = "mcpp.cargo.init"
+parent = "mcpp.lifecycle.init"
 attributes = { "cargo.command" = "init" }
 
 [scenario.expect.attestation]
@@ -236,7 +236,7 @@ hermetic = true
 # Test 7: Init with marketplace packages
 [[scenario]]
 name = "init_with_marketplace_packages"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/marketplace-init && cd /workspace/marketplace-init && \
 cat > make.toml << 'EOF'
@@ -246,37 +246,37 @@ name = "marketplace-integration"
 [lifecycle.init]
 commands = [
     "echo 'Initializing with marketplace'",
-    "echo 'ggen market search rust-web'",
-    "echo 'ggen market add rust-axum-service'"
+    "echo 'mcpp market search rust-web'",
+    "echo 'mcpp market add rust-axum-service'"
 ]
 EOF
-ggen lifecycle run init
+mcpp lifecycle run init
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 
 [[scenario.expect.span]]
-name = "ggen.marketplace.search"
-parent = "ggen.lifecycle.init"
+name = "mcpp.marketplace.search"
+parent = "mcpp.lifecycle.init"
 attributes = { "query" = "rust-web" }
 
 [[scenario.expect.span]]
-name = "ggen.marketplace.add"
-parent = "ggen.lifecycle.init"
+name = "mcpp.marketplace.add"
+parent = "mcpp.lifecycle.init"
 attributes = { "package" = "rust-axum-service" }
 
 [scenario.expect.temporal]
 ordering = [
-  "ggen.lifecycle.init",
-  "ggen.marketplace.search",
-  "ggen.marketplace.add"
+  "mcpp.lifecycle.init",
+  "mcpp.marketplace.search",
+  "mcpp.marketplace.add"
 ]
 
 # Test 8: Concurrent initialization validation
 [[scenario]]
 name = "concurrent_init_isolation"
-service = "ggen"
+service = "mcpp"
 run = """
 mkdir -p /workspace/concurrent-{1,2} && \
 (cd /workspace/concurrent-1 && \
@@ -287,7 +287,7 @@ name = "concurrent-1"
 [lifecycle.init]
 command = "echo 'Init concurrent-1'"
 EOF
-ggen lifecycle run init) & \
+mcpp lifecycle run init) & \
 (cd /workspace/concurrent-2 && \
 cat > make.toml << 'EOF'
 [project]
@@ -296,18 +296,18 @@ name = "concurrent-2"
 [lifecycle.init]
 command = "echo 'Init concurrent-2'"
 EOF
-ggen lifecycle run init) & \
+mcpp lifecycle run init) & \
 wait
 """
 
 [[scenario.expect.span]]
-name = "ggen.lifecycle.init"
+name = "mcpp.lifecycle.init"
 count = 2
 attributes_unique = ["project.name"]
 
 [scenario.expect.graph]
 must_not_include = [
-  ["ggen.lifecycle.init[project=concurrent-1]", "ggen.lifecycle.init[project=concurrent-2]"]
+  ["mcpp.lifecycle.init[project=concurrent-1]", "mcpp.lifecycle.init[project=concurrent-2]"]
 ]
 isolated = true
 

@@ -4,7 +4,7 @@
 //! with real RDF ontologies containing circular dependencies.
 
 use ggen_core::graph::{cycle_detection, cycle_fixer::CycleFixer, cycle_fixer::FixStrategy};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::fs;
 use tempfile::TempDir;
 

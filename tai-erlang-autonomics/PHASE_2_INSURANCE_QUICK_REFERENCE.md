@@ -1,7 +1,7 @@
 # TAI Autonomics Phase 2: Insurance & Contracts
 ## Quick Reference Guide
 
-**Full Document**: `/Users/sac/ggen/tai-erlang-autonomics/PHASE_2_INSURANCE_AND_CONTRACTS.md` (2,060 lines)
+**Full Document**: `~/.ggen/mcpp/tai-erlang-autonomics/PHASE_2_INSURANCE_AND_CONTRACTS.md` (2,060 lines)
 
 ---
 

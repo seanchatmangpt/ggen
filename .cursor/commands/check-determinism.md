@@ -1,6 +1,6 @@
 # Check Deterministic Outputs
 
-Verify that ggen produces deterministic outputs (same inputs → identical outputs).
+Verify that mcpp produces deterministic outputs (same inputs → identical outputs).
 
 ## Commands
 

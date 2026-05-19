@@ -7,7 +7,7 @@ use super::swarm_intelligence::{
     WorkerState,
 };
 use chrono::{DateTime, Duration, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use tokio::sync::mpsc;

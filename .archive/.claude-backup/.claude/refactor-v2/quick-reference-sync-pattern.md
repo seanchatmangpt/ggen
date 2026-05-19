@@ -155,7 +155,7 @@ fn utils_doctor() -> Result<Output> {  // ✅ Sync wrapper
 
 ## For More Details
 
-See `/Users/sac/ggen/.claude/refactor-v2/sync-wrapper-pattern.md` for:
+See `./.claude/refactor-v2/sync-wrapper-pattern.md` for:
 - Architecture diagrams
 - Advanced error handling
 - Performance considerations

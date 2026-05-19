@@ -163,7 +163,7 @@ async fn test_post_generation_hooks() {
 
 #[test]
 fn test_template_search_filters() {
-    use ggen_marketplace::template_search::TemplateSearchFilters;
+    use ggen_core::marketplace::template_search::TemplateSearchFilters;
 
     let filters = TemplateSearchFilters {
         category: Some("web-service".to_string()),
@@ -180,7 +180,7 @@ fn test_template_search_filters() {
 
 #[test]
 fn test_template_package_metadata() {
-    use ggen_marketplace::models::{TemplateInfo, TemplatePackage, TemplateType};
+    use ggen_core::marketplace::models::{TemplateInfo, TemplatePackage, TemplateType};
     use std::path::PathBuf;
 
     let mut package =

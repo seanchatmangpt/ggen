@@ -7,7 +7,7 @@ Created a comprehensive test suite for marketplace commands following **London S
 ## 🗂️ Test Organization
 
 ```
-/Users/sac/ggen/crates/ggen-cli/tests/marketplace/
+./crates/ggen-cli/tests/marketplace/
 ├── unit/                              # 80+ unit tests
 │   ├── maturity_scoring_test.rs      # 6-dimension maturity algorithm
 │   ├── search_ranking_test.rs        # Multi-factor search scoring

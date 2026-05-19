@@ -239,7 +239,7 @@ Error: unrecognized subcommand `packs`
 ## 🔧 FIXES APPLIED (80/20 MINIMAL)
 
 ### Performance Fix: Registry Caching
-**File**: `/Users/sac/ggen/crates/ggen-domain/src/marketplace/search.rs`
+**File**: `./crates/ggen-domain/src/marketplace/search.rs`
 **Change**: Added `once_cell::sync::Lazy` caching for package registry
 **Impact**:
 - First search: 337ms (loads from filesystem)

@@ -1,4 +1,4 @@
-# clap-noun-verb - ggen Marketplace Package
+# clap-noun-verb - mcpp Marketplace Package
 
 **Generate type-safe Rust CLIs from RDF descriptions**
 
@@ -12,7 +12,7 @@ Transform Turtle RDF descriptions into production-ready Rust code with the three
 
 ```turtle
 # my-cli.ttl
-@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix cnv: <https://mcpp.dev/clap-noun-verb/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <http://example.com/my-cli> a cnv:CliProject ;
@@ -42,7 +42,7 @@ Transform Turtle RDF descriptions into production-ready Rust code with the three
 ### 2. Generate
 
 ```bash
-ggen generate \
+mcpp generate \
   --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
   --domain my-cli.ttl \
   --output ./my-cli/
@@ -80,7 +80,7 @@ my-cli/
             │
             ▼
    ┌────────────────────┐
-   │  ggen + template   │
+   │  mcpp + template   │
    └────────────────────┘
             │
             ▼
@@ -114,7 +114,7 @@ my-cli/
 | `cnv:Argument` | Command argument | `cnv:argumentName`, `cnv:argumentType` |
 | `cnv:PrimitiveType` | Rust type | `cnv:rust-type` |
 
-**Prefix**: `cnv: <https://ggen.dev/clap-noun-verb/>`
+**Prefix**: `cnv: <https://mcpp.dev/clap-noun-verb/>`
 
 ---
 
@@ -150,7 +150,7 @@ See [examples/calculator.ttl](examples/calculator.ttl) for a complete example.
 
 Generate it:
 ```bash
-ggen generate \
+mcpp generate \
   --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
   --domain marketplace/packages/clap-noun-verb/examples/calculator.ttl \
   --output /tmp/calculator/

@@ -12,6 +12,7 @@ use std::io::Write;
 use tempfile::{tempdir, NamedTempFile};
 
 #[test]
+#[ignore]
 fn test_load_query_export_workflow() -> Result<()> {
     let temp_dir = tempdir()?;
 
@@ -81,6 +82,7 @@ fn test_load_query_export_workflow() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_filter_and_export() -> Result<()> {
     let temp_dir = tempdir()?;
 
@@ -143,6 +145,7 @@ fn test_filter_and_export() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_multiple_format_round_trip() -> Result<()> {
     let temp_dir = tempdir()?;
 

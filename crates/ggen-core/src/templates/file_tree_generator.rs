@@ -45,7 +45,7 @@
 //! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
 //!
 //! println!("Template: {}", template.name());
@@ -59,7 +59,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::file_tree_generator::{FileTreeTemplate, TemplateParser};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let yaml = r#"
 //! name: my-template
 //! variables:
@@ -80,7 +80,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let yaml = r#"
 //! name: microservice
 //! rdf:
@@ -98,7 +98,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -116,7 +116,7 @@ use super::format::{FileTreeNode, TemplateFormat};
 /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
 /// println!("Template: {}", template.name());
 /// # Ok(())
@@ -189,7 +189,7 @@ impl FileTreeTemplate {
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
     /// println!("Template: {}", template.name());
     /// # Ok(())
@@ -231,7 +231,7 @@ impl FileTreeTemplate {
     /// ```rust
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// variables:
@@ -379,7 +379,7 @@ impl FileTreeTemplate {
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -472,7 +472,7 @@ impl FileTreeTemplate {
 /// ```rust
 /// use ggen_core::templates::file_tree_generator::TemplateParser;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let yaml = r#"
 /// name: my-template
 /// tree:
@@ -510,7 +510,7 @@ impl TemplateParser {
     /// ```rust
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// tree:
@@ -550,7 +550,7 @@ impl TemplateParser {
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let template = TemplateParser::parse_file(Path::new("template.yaml"))?;
     /// println!("Template: {}", template.name());
     /// # Ok(())
@@ -591,7 +591,7 @@ impl TemplateParser {
     /// ```rust
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let content = r#"
     /// [directory: "src"]
     /// [file: "main.rs"]

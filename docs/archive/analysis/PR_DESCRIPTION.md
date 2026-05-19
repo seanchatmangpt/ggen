@@ -55,7 +55,7 @@ This PR transforms ggen from "mostly works" to "impossible to break production" 
 ### Problem
 ```toml
 # Cargo.toml:79 - PREVENTED ALL BUILDS
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+chicago-tdd-tools = { path = "~/.ggen/chicago-tdd-tools", version = "1.1.0" }
 ```
 
 **Impact**:

@@ -1,6 +1,6 @@
 # ggen Core API Reference
 
-**Version:** 6.0.1
+**Version:** 26.5.4
 **Last Updated:** 2026-03-31
 **Rust Version:** 1.91.1
 
@@ -24,7 +24,7 @@ Comprehensive reference for ggen's key public APIs, organized by crate and funct
 
 ## ggen-core
 
-**Path:** `/Users/sac/ggen/crates/ggen-core/`
+**Path:** `./crates/ggen-core/`
 **Purpose:** Core graph-aware code generation engine
 **Source:** [`lib.rs`](../crates/ggen-core/src/lib.rs)
 
@@ -485,7 +485,7 @@ Export to string.
 
 ## ggen-ai
 
-**Path:** `/Users/sac/ggen/crates/ggen-ai/`
+**Path:** `./crates/ggen-ai/`
 **Purpose:** LLM integration layer for ggen
 **Source:** [`lib.rs`](../crates/ggen-ai/src/lib.rs)
 
@@ -697,7 +697,7 @@ Generate ontology.
 
 ## ggen-a2a-mcp
 
-**Path:** `/Users/sac/ggen/crates/ggen-a2a-mcp/`
+**Path:** `./crates/ggen-a2a-mcp/`
 **Purpose:** Agent-to-Agent (A2A) protocol and MCP integration
 **Source:** [`lib.rs`](../crates/ggen-a2a-mcp/src/lib.rs)
 
@@ -853,7 +853,7 @@ Handles structured data content.
 
 ## ggen-domain
 
-**Path:** `/Users/sac/ggen/crates/ggen-domain/`
+**Path:** `./crates/ggen-domain/`
 **Purpose:** Domain logic layer - pure business logic functions
 **Source:** [`lib.rs`](../crates/ggen-domain/src/lib.rs)
 
@@ -1035,13 +1035,13 @@ Each crate exposes version information:
 
 ```rust
 // ggen-core
-ggen_core::VERSION // "6.0.1"
+ggen_core::VERSION // "26.5.4"
 
 // ggen-ai
-ggen_ai::VERSION // "6.0.1"
+ggen_ai::VERSION // "26.5.4"
 
 // ggen-a2a-mcp
-ggen_a2a_mcp::VERSION // "6.0.1"
+ggen_a2a_mcp::VERSION // "26.5.4"
 ```
 
 ---

@@ -144,14 +144,14 @@ FILE LOCATIONS
 ================================================================================
 
 Deliverables:
-  /Users/sac/ggen/tai-erlang-autonomics/tools/gcp-deploy.sh
-  /Users/sac/ggen/tai-erlang-autonomics/tools/Dockerfile
-  /Users/sac/ggen/tai-erlang-autonomics/AGENT_17_GCP_SIMULATOR_RECEIPT.md
-  /Users/sac/ggen/tai-erlang-autonomics/AGENT_17_DELIVERY_INDEX.md
-  /Users/sac/ggen/tai-erlang-autonomics/AGENT_17_SUMMARY.txt
+  /Users/sac/mcpp/tai-erlang-autonomics/tools/gcp-deploy.sh
+  /Users/sac/mcpp/tai-erlang-autonomics/tools/Dockerfile
+  /Users/sac/mcpp/tai-erlang-autonomics/AGENT_17_GCP_SIMULATOR_RECEIPT.md
+  /Users/sac/mcpp/tai-erlang-autonomics/AGENT_17_DELIVERY_INDEX.md
+  /Users/sac/mcpp/tai-erlang-autonomics/AGENT_17_SUMMARY.txt
 
 Updated:
-  /Users/sac/ggen/tai-erlang-autonomics/docs/GCP_DEPLOYMENT.md
+  /Users/sac/mcpp/tai-erlang-autonomics/docs/GCP_DEPLOYMENT.md
 
 ================================================================================
 TEST RESULTS
@@ -285,7 +285,7 @@ gcp-dry-run:
 Shell Script:
 ```bash
 #!/bin/bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd /Users/sac/mcpp/tai-erlang-autonomics
 ./tools/gcp-deploy.sh --dry-run > deployment-plan.txt
 ```
 

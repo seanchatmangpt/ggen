@@ -6,7 +6,7 @@
 
 #[allow(unused_imports)] // Macros are used in submodules
 use chicago_tdd_tools::prelude::*;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -62,7 +62,7 @@ keywords = ["rust", "cli", "template"]
 mod search_tests {
     use super::setup_test_env;
     use chicago_tdd_tools::prelude::*;
-    use ggen_domain::marketplace::search::{search_packages, SearchFilters};
+    use ggen_core::domain::marketplace::search::{search_packages, SearchFilters};
 
     async_test!(test_search_finds_exact_match, {
         // Arrange
@@ -113,7 +113,7 @@ mod search_tests {
 #[cfg(feature = "lockfile-tests-disabled")] // Disabled until Lockfile is implemented
 mod install_tests {
     use super::*;
-    use ggen_domain::marketplace::install::{
+    use ggen_core::domain::marketplace::install::{
         execute_install as install_package, InstallInput as InstallOptions,
     };
     // Lockfile functionality is not yet implemented

@@ -4,8 +4,8 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::hook::create::*;
-use ggen_domain::hook::list::*;
+use ggen_core::domain::hook::create::*;
+use ggen_core::domain::hook::list::*;
 use std::fs;
 use std::path::PathBuf;
 

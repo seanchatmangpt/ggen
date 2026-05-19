@@ -78,16 +78,16 @@ pub mod runtime;   // ✅ Runtime utilities
 
 ## Files Modified
 
-1. `/Users/sac/ggen/cli/src/domain/mod.rs` - Added 7 module declarations (ai, audit, ci, graph, project, shell, utils)
-2. `/Users/sac/ggen/cli/src/commands/mod.rs` - Added 2 module declarations (project, utils)
-3. `/Users/sac/ggen/cli/src/domain/graph/export.rs` - Manual Debug impl for ExportOptions
+1. `./cli/src/domain/mod.rs` - Added 7 module declarations (ai, audit, ci, graph, project, shell, utils)
+2. `./cli/src/commands/mod.rs` - Added 2 module declarations (project, utils)
+3. `./cli/src/domain/graph/export.rs` - Manual Debug impl for ExportOptions
 
 ## Files Verified (Already Correct)
 
-1. `/Users/sac/ggen/cli/src/commands/mod.rs` - Properly declares only existing modules
-2. `/Users/sac/ggen/cli/src/domain/ai/mod.rs` - Exists with proper content
-3. `/Users/sac/ggen/cli/src/commands/ai/mod.rs` - Exists with deprecation notice
-4. `/Users/sac/ggen/cli/src/lib.rs` - Proper module exports
+1. `./cli/src/commands/mod.rs` - Properly declares only existing modules
+2. `./cli/src/domain/ai/mod.rs` - Exists with proper content
+3. `./cli/src/commands/ai/mod.rs` - Exists with deprecation notice
+4. `./cli/src/lib.rs` - Proper module exports
 
 ## Compilation Status
 

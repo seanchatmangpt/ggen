@@ -21,7 +21,7 @@ This Measurement Systems Analysis (MSA) study ensures that our test execution me
 ## 📊 Deliverables Created
 
 ### 1. MSA Data Collection Framework
-**Script**: `/Users/sac/ggen/scripts/msa_data_collection.sh`
+**Script**: `./scripts/msa_data_collection.sh`
 
 **What it does**:
 - Measures 10 critical test suites (ACI, unit, integration, security)
@@ -32,7 +32,7 @@ This Measurement Systems Analysis (MSA) study ensures that our test execution me
 **Runtime**: 2-3 hours for full study, 5 minutes for quick demo
 
 ### 2. Statistical Analysis Framework
-**Script**: `/Users/sac/ggen/scripts/msa_analysis.py`
+**Script**: `./scripts/msa_analysis.py`
 
 **What it calculates**:
 - **Gage R&R**: Measurement system variation (target: <10% acceptable, <30% marginal)
@@ -43,7 +43,7 @@ This Measurement Systems Analysis (MSA) study ensures that our test execution me
 **Output**: JSON summary report + console analysis
 
 ### 3. Quick Baseline Demo
-**Script**: `/Users/sac/ggen/scripts/msa_quick_demo.sh`
+**Script**: `./scripts/msa_quick_demo.sh`
 
 **What it demonstrates**:
 - Single test suite (chicago_tdd_smoke_test)

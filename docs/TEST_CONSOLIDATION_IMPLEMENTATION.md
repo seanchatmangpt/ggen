@@ -59,8 +59,8 @@ This guide walks you through implementing the 80/20 test consolidation strategy 
 
 ```bash
 # Archive existing tests
-mkdir -p /Users/sac/ggen/tests-archive
-cp -r /Users/sac/ggen/crates/ggen-core/tests/* /Users/sac/ggen/tests-archive/
+mkdir -p ./tests-archive
+cp -r ./crates/ggen-core/tests/* ./tests-archive/
 
 # Create git commit for safety
 git add .
@@ -71,7 +71,7 @@ git commit -m "backup: archive original tests before consolidation"
 
 ```bash
 # Verify test directory
-ls -la /Users/sac/ggen/crates/ggen-core/tests/
+ls -la ./crates/ggen-core/tests/
 
 # Keep existing test file names for now
 # We'll refactor in phases
@@ -110,7 +110,7 @@ ls -la /Users/sac/ggen/crates/ggen-core/tests/
 
 ```bash
 # Create new consolidated module
-cat > /Users/sac/ggen/crates/ggen-core/tests/consolidated_core_tests.rs << 'EOF'
+cat > ./crates/ggen-core/tests/consolidated_core_tests.rs << 'EOF'
 //! Consolidated Core Tests - Package Validation & Marketplace Operations
 //!
 //! This module consolidates critical tests for:
@@ -288,7 +288,7 @@ cargo test --test consolidated_core_tests -- --nocapture
 ### Step 3.1: Create Template
 
 ```bash
-cat > /Users/sac/ggen/crates/ggen-core/tests/consolidated_lifecycle_tests.rs << 'EOF'
+cat > ./crates/ggen-core/tests/consolidated_lifecycle_tests.rs << 'EOF'
 //! Consolidated Lifecycle Tests - Package State Transitions
 //!
 //! This module consolidates critical lifecycle tests:
@@ -422,7 +422,7 @@ cargo test --test consolidated_lifecycle_tests -- --nocapture
 ### Step 4.1: Create Template
 
 ```bash
-cat > /Users/sac/ggen/crates/ggen-core/tests/consolidated_swarm_tests.rs << 'EOF'
+cat > ./crates/ggen-core/tests/consolidated_swarm_tests.rs << 'EOF'
 //! Consolidated Swarm Tests - Consensus & Failure Recovery
 //!
 //! This module consolidates critical swarm tests:
@@ -535,7 +535,7 @@ cargo test --test consolidated_swarm_tests -- --nocapture
 ### Step 5.1: Create Template
 
 ```bash
-cat > /Users/sac/ggen/crates/ggen-core/tests/consolidated_semantic_tests.rs << 'EOF'
+cat > ./crates/ggen-core/tests/consolidated_semantic_tests.rs << 'EOF'
 //! Consolidated Semantic Tests - RDF & Ontology
 //!
 //! This module consolidates semantic tests:
@@ -670,7 +670,7 @@ for file in determinism_framework.rs telemetry_tests.rs \
             rdf_rendering_e2e.rs swarm_performance_tests.rs \
             swarm_integration_tests.rs london_tdd_examples.rs \
             marketplace_graph_integration.rs; do
-    mv /Users/sac/ggen/crates/ggen-core/tests/$file /Users/sac/ggen/tests-archive/
+    mv ./crates/ggen-core/tests/$file ./tests-archive/
 done
 
 # Keep critical test files
@@ -686,7 +686,7 @@ done
 
 ```bash
 # Verify test configuration in Cargo.toml
-cat /Users/sac/ggen/crates/ggen-core/Cargo.toml | grep "\[\[test"
+cat ./crates/ggen-core/Cargo.toml | grep "\[\[test"
 
 # Should reference consolidated test files
 # Example:
@@ -794,7 +794,7 @@ If consolidation causes issues:
 
 ```bash
 # 1. Restore from backup
-cp -r /Users/sac/ggen/tests-archive/* /Users/sac/ggen/crates/ggen-core/tests/
+cp -r ./tests-archive/* ./crates/ggen-core/tests/
 
 # 2. Revert git changes
 git revert <commit-hash>

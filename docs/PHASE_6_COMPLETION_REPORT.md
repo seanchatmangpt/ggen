@@ -331,7 +331,7 @@ Expected Outcome: Production-ready CI/CD pipeline
 
 ### File Locations
 ```
-/Users/sac/ggen/docs/
+./docs/
 ├── INTEGRATION_TEST_METRICS_DASHBOARD.md  (~12KB)
 ├── PHASE_6_TECHNICAL_ANALYSIS.md          (~18KB)
 ├── QUALITY_METRICS_SUMMARY.md             (~4KB)

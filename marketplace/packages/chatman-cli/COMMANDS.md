@@ -266,7 +266,7 @@ cargo install chatman-cli --locked
 cargo install --path .
 
 # Install from git repository
-cargo install --git https://github.com/yourusername/ggen \
+cargo install --git https://github.com/yourusername/mcpp \
   --root chatman-cli
 
 # Uninstall

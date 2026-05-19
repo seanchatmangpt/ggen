@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This command guides agents through identifying and eliminating waste (Muda) in ggen code. Muda refers to any activity that consumes resources without adding value. Experts recognize waste early and eliminate it systematically.
+This command guides agents through identifying and eliminating waste (Muda) in mcpp code. Muda refers to any activity that consumes resources without adding value. Experts recognize waste early and eliminate it systematically.
 
 ## Workflow Overview
 
@@ -14,7 +14,7 @@ Step 1: Identify Muda → Step 2: Measure Waste Impact → Step 3: Eliminate Was
 
 ### Step 1: Identify Muda (Waste)
 
-**Action**: Scan ggen code for the seven types of waste.
+**Action**: Scan mcpp code for the seven types of waste.
 
 **Types of Muda to identify**:
 
@@ -53,30 +53,30 @@ Step 1: Identify Muda → Step 2: Measure Waste Impact → Step 3: Eliminate Was
    - Premature abstractions
    - Unused features
 
-**Example waste inventory for ggen**:
+**Example waste inventory for mcpp**:
 ```markdown
 ## Muda Inventory
 
 ### Over-processing
-- [ ] `crates/ggen-core/src/rdf/processor.rs:45` - Unnecessary abstraction layer
+- [ ] `crates/mcpp-core/src/rdf/processor.rs:45` - Unnecessary abstraction layer
 
 ### Waiting
-- [ ] `crates/ggen-cli/src/cmds/generate.rs:123` - Blocking I/O in request handler
+- [ ] `crates/mcpp-cli/src/cmds/generate.rs:123` - Blocking I/O in request handler
 
 ### Transportation
-- [ ] `crates/ggen-core/src/templates/generator.rs:67` - Unnecessary clone() calls
+- [ ] `crates/mcpp-core/src/templates/generator.rs:67` - Unnecessary clone() calls
 
 ### Inventory
-- [ ] `crates/ggen-core/src/old.rs` - Dead code file
+- [ ] `crates/mcpp-core/src/old.rs` - Dead code file
 
 ### Motion
-- [ ] `crates/ggen-core/src/utils.rs:12` - Duplicate validation logic
+- [ ] `crates/mcpp-core/src/utils.rs:12` - Duplicate validation logic
 
 ### Defects
-- [ ] `crates/ggen-core/src/error.rs:89` - Missing error handling
+- [ ] `crates/mcpp-core/src/error.rs:89` - Missing error handling
 
 ### Over-production
-- [ ] `crates/ggen-core/src/future.rs` - Unused feature module
+- [ ] `crates/mcpp-core/src/future.rs` - Unused feature module
 ```
 
 ---

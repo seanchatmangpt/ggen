@@ -1007,7 +1007,7 @@ where SE = sqrt(MSE × (1/n_factorial + 1/n_center))
 **Simulation Framework**:
 - **Rust**: 1.74+ (test execution simulation)
 - **cargo-nextest**: 0.9 (parallel test runner)
-- **Custom DOE harness**: `/Users/sac/ggen/scripts/doe_runner.rs`
+- **Custom DOE harness**: `./scripts/doe_runner.rs`
 
 ---
 

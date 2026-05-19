@@ -32,7 +32,7 @@ Agent 7 implements a deterministic finite state machine for the TAIEA Governor -
 ## File Structure
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+~/.ggen/mcpp/tai-erlang-autonomics/
 ├── apps/tai_autonomics/src/
 │   └── taiea_governor.erl               # Main state machine (460 lines)
 ├── apps/tai_autonomics/test/
@@ -244,7 +244,7 @@ Comprehensive test suite (`taiea_governor_SUITE.erl`) with 20 test cases:
 ### Run Tests
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 
 # Run all governor tests
 rebar3 ct --suite=taiea_governor_SUITE
@@ -485,7 +485,7 @@ entitlement_manager:update_entitlement(TenantId, NewState) ->
 ### Compile Module
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 
 # Compile with rebar3
 rebar3 compile
@@ -559,9 +559,9 @@ erl -pa ebin
 
 ## Related Documentation
 
-- `/Users/sac/ggen/tai-erlang-autonomics/docs/TAIEA_GOVERNOR_STATE_GRAPH.md` - Full state machine specification
-- Module source: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_governor.erl`
-- Test suite: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_governor_SUITE.erl`
+- `~/.ggen/mcpp/tai-erlang-autonomics/docs/TAIEA_GOVERNOR_STATE_GRAPH.md` - Full state machine specification
+- Module source: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_governor.erl`
+- Test suite: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_governor_SUITE.erl`
 
 ## Summary
 

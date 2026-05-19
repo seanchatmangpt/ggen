@@ -178,16 +178,16 @@ test result: ok. 29 passed; 0 failed
 ## Files Created
 
 1. **Core Implementation:**
-   - `/Users/sac/ggen/crates/osiris-core/src/timed_lock.rs` (250 lines)
-   - `/Users/sac/ggen/crates/osiris-core/src/deadlock_detector.rs` (320 lines)
+   - `./crates/osiris-core/src/timed_lock.rs` (250 lines)
+   - `./crates/osiris-core/src/deadlock_detector.rs` (320 lines)
 
 2. **Documentation:**
-   - `/Users/sac/ggen/crates/osiris-core/TIMEOUT_GUARDS_IMPLEMENTATION.md`
-   - `/Users/sac/ggen/crates/osiris-core/MIGRATION_EXAMPLES.md`
-   - `/Users/sac/ggen/TIMEOUT_GUARDS_SUMMARY.md` (this file)
+   - `./crates/osiris-core/TIMEOUT_GUARDS_IMPLEMENTATION.md`
+   - `./crates/osiris-core/MIGRATION_EXAMPLES.md`
+   - `./TIMEOUT_GUARDS_SUMMARY.md` (this file)
 
 3. **Module Exports:**
-   - Updated `/Users/sac/ggen/crates/osiris-core/src/lib.rs`
+   - Updated `./crates/osiris-core/src/lib.rs`
      - Added `pub mod timed_lock`
      - Added `pub mod deadlock_detector`
      - Exported `TimedLock`, `TimeoutConfig`, `LockError`, `DeadlockDetector`, `DeadlockAlert`

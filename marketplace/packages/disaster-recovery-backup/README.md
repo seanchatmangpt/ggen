@@ -56,13 +56,13 @@
 
 ```bash
 # Initialize DR system
-ggen marketplace install disaster-recovery-backup
+mcpp marketplace install disaster-recovery-backup
 
 # Configure backup strategy
-ggen dr configure --rpo=5min --rto=15min --strategy=incremental
+mcpp dr configure --rpo=5min --rto=15min --strategy=incremental
 
 # Run recovery test
-ggen dr test-recovery --scenario=region-failure
+mcpp dr test-recovery --scenario=region-failure
 ```
 
 **Status**: Production-ready for Fortune 5 deployments

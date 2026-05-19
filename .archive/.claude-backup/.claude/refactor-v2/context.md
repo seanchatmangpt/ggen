@@ -39,4 +39,4 @@ Refactor ggen from v1.x to v2.0.0 using clap-noun-verb v3.0.0 with complete arch
 
 ## Detailed Plan
 
-See /Users/sac/clap-noun-verb/docs/book/GGEN_V2_REFACTORING_PLAN.md for complete file-by-file instructions.
+See ~/.ggen/clap-noun-verb/docs/book/GGEN_V2_REFACTORING_PLAN.md for complete file-by-file instructions.

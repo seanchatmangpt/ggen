@@ -6,7 +6,7 @@ extern crate ggen_core as core;
 
 use ggen_core::graph::{cycle_detection, cycle_fixer, Graph};
 use ggen_core::pipeline::Pipeline;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;

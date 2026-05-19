@@ -46,8 +46,8 @@ Successfully consolidated 4 critical utility dependencies from 160 duplicate ver
 ## Dependencies Deduplicated
 
 ### 1. dashmap
-- **Before**: v5.5.3, v6.1.0 (2 versions)
-- **After**: v6.1.0 (1 version)
+- **Before**: v5.5.3, v26.5.4 (2 versions)
+- **After**: v26.5.4 (1 version)
 - **Impact**: Concurrent hash maps used in ggen-marketplace, ggen-dod
 - **Files Modified**:
   - `/home/user/ggen/Cargo.toml` (added workspace dependency)

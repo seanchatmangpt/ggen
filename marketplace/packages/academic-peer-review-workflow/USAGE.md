@@ -2,7 +2,7 @@
 
 ### 1) Install the package
 ```bash
-ggen marketplace install --package_id academic-peer-review-workflow --install_path ./peer-review-workflow
+mcpp marketplace install --package_id academic-peer-review-workflow --install_path ./peer-review-workflow
 ```
 
 ### 2) Provide required inputs
@@ -23,7 +23,7 @@ Edit `workflows/peer_review.workflow.json`:
 
 ### 5) Run analysis / tracking
 ```bash
-ggen workflow analyze --workflow ./peer-review-workflow/workflows/peer_review.workflow.json
+mcpp workflow analyze --workflow ./peer-review-workflow/workflows/peer_review.workflow.json
 ```
 Outputs deterministic JSON summary of cases, events, durations, and bottlenecks.
 
@@ -33,7 +33,7 @@ Outputs deterministic JSON summary of cases, events, durations, and bottlenecks.
 
 Example rendering:
 ```bash
-ggen template render \
+mcpp template render \
   --template ./peer-review-workflow/templates/response-template.md \
   --data ./peer-review-workflow/templates/reviewer-template.rdf \
   --out ./peer-review-workflow/output/author-response.md

@@ -599,7 +599,7 @@ From incumbent's perspective, attempting outcome-indexed pricing transition woul
 
 **Success metrics**:
 - Big Four formally approves outcome measurement methodology
-- CMS includes ggen in value-based care guidance (regulatory signal)
+- CMS includes mcpp in value-based care guidance (regulatory signal)
 - 5-10 healthcare system customers published as case studies
 - Industry recognition (HIMSS speaking, Healthcare IT News coverage)
 

@@ -2,7 +2,7 @@
 name = "graphql-api-template"
 version = "1.0.0"
 description = "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support"
-author = "ggen-marketplace"
+author = "mcpp-marketplace"
 license = "MIT"
 category = "api"
 tags = ["graphql", "api", "dataloader", "subscriptions", "apollo", "strawberry"]
@@ -10,7 +10,7 @@ tags = ["graphql", "api", "dataloader", "subscriptions", "apollo", "strawberry"]
 [metadata]
 rdf_ontology = "ontology/graphql-schema.ttl"
 sparql_queries = "sparql/queries.rq"
-min_ggen_version = "0.4.0"
+min_mcpp_version = "0.4.0"
 
 [features]
 languages = ["rust", "typescript", "python"]

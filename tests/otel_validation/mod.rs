@@ -4,7 +4,7 @@
 //! work correctly end-to-end using OpenTelemetry instrumentation.
 
 use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tracing::{info, instrument, warn};

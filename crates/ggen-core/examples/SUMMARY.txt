@@ -10,7 +10,7 @@ Status: ✅ Successfully Created
 WORKSPACE STRUCTURE
 ================================================================================
 
-Root Location: /Users/sac/ggen/ggen-core/examples/
+Root Location: ./ggen-core/examples/
 
 Files Created:
   ✅ Cargo.toml                      # Root workspace manifest

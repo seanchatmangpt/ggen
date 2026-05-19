@@ -165,23 +165,23 @@
 
 ```bash
 # Install completed packages
-ggen marketplace install notification-messaging-hub
-ggen marketplace install compliance-audit-system
+mcpp marketplace install notification-messaging-hub
+mcpp marketplace install compliance-audit-system
 
 # Configure for enterprise scale
-ggen config set --scale=fortune5 --ha=true --regions=us,eu,asia
+mcpp config set --scale=fortune5 --ha=true --regions=us,eu,asia
 ```
 
 ### Notification Hub
 
 ```bash
 # Configure channels
-ggen notify configure \
+mcpp notify configure \
   --channels=email,sms,push \
   --providers=sendgrid,twilio,fcm
 
 # Send notification
-ggen notify send \
+mcpp notify send \
   --channel=email \
   --template=welcome \
   --recipients=user-123 \
@@ -192,18 +192,18 @@ ggen notify send \
 
 ```bash
 # Configure frameworks
-ggen compliance configure \
+mcpp compliance configure \
   --frameworks=SOX,GDPR,HIPAA,SOC2
 
 # Log audit event
-ggen audit log \
+mcpp audit log \
   --type=data_access \
   --actor=user-123 \
   --resource=/api/customers \
   --outcome=success
 
 # Generate compliance report
-ggen compliance report \
+mcpp compliance report \
   --framework=GDPR \
   --period=Q4-2024
 ```

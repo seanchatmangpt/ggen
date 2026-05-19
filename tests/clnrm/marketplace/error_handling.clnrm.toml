@@ -10,18 +10,18 @@ description = "Comprehensive error handling tests with OTEL span validation"
 [otel]
 exporter = "otlp"
 endpoint = "http://localhost:4318"
-service_name = "ggen-marketplace-error-tests"
+service_name = "mcpp-marketplace-error-tests"
 
 [otel.resource]
-"service.namespace" = "ggen-marketplace"
+"service.namespace" = "mcpp-marketplace"
 "test.suite" = "error_handling"
 
-[service.ggen]
+[service.mcpp]
 plugin = "generic_container"
 image = "rust:1.75"
 workdir = "/app"
 volumes = [{ host_path = "./", container_path = "/app" }]
-env.RUST_LOG = "info,ggen=debug"
+env.RUST_LOG = "info,mcpp=debug"
 env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
 
 # ============================================================================
@@ -31,7 +31,7 @@ env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
 [[scenario]]
 name = "test_marketplace_nonexistent_package"
 description = "Test error handling for non-existent package"
-service = "ggen"
+service = "mcpp"
 run = """
 cargo test --test marketplace_tests_main \
   integration::marketplace_validation::test_marketplace_nonexistent_package \
@@ -39,14 +39,14 @@ cargo test --test marketplace_tests_main \
 """
 
 [[scenario.expect.span]]
-name = "ggen.registry.resolve"
+name = "mcpp.registry.resolve"
 attrs.all."package.id" = "nonexistent-package"
 attrs.all."error.type" = "PackageNotFound"
 attrs.all."error.message.contains" = "not found"
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "PackageNotFound",
   "error.handled" = "true",
@@ -58,13 +58,13 @@ test = "OK"  # Test passes because error is expected
 
 [scenario.expect.graph]
 must_have_parent = [
-  { child = "ggen.error.handle", parent = "ggen.registry.resolve" }
+  { child = "mcpp.error.handle", parent = "mcpp.registry.resolve" }
 ]
 
 [[scenario]]
 name = "test_marketplace_invalid_version"
 description = "Test error handling for invalid version"
-service = "ggen"
+service = "mcpp"
 run = """
 cargo test --test marketplace_tests_main \
   integration::marketplace_validation::test_marketplace_invalid_version \
@@ -72,7 +72,7 @@ cargo test --test marketplace_tests_main \
 """
 
 [[scenario.expect.span]]
-name = "ggen.registry.resolve"
+name = "mcpp.registry.resolve"
 attrs.all = {
   "package.id" = "version-test",
   "package.version" = "99.99.99",
@@ -82,7 +82,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "VersionNotFound",
   "error.handled" = "true"
@@ -98,7 +98,7 @@ test = "OK"
 [[scenario]]
 name = "test_marketplace_empty_registry"
 description = "Test operations on empty registry"
-service = "ggen"
+service = "mcpp"
 run = """
 cargo test --test marketplace_tests_main \
   integration::marketplace_validation::test_marketplace_empty_registry \
@@ -114,7 +114,7 @@ attrs.all = {
 }
 
 [[scenario.expect.span]]
-name = "ggen.market.search"
+name = "mcpp.market.search"
 attrs.all = {
   "query" = "anything",
   "results.count" = 0,
@@ -122,7 +122,7 @@ attrs.all = {
 }
 
 [[scenario.expect.span]]
-name = "ggen.registry.list_packages"
+name = "mcpp.registry.list_packages"
 attrs.all = {
   "packages.count" = 0,
   "registry.empty" = "true"
@@ -138,7 +138,7 @@ all = "OK"
 [[scenario]]
 name = "test_marketplace_malformed_index_handling"
 description = "Test error handling for malformed index"
-service = "ggen"
+service = "mcpp"
 run = """
 cargo test --test marketplace_tests_main \
   integration::marketplace_validation::test_marketplace_malformed_index_handling \
@@ -155,7 +155,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "ParseError",
   "error.handled" = "true",
@@ -167,7 +167,7 @@ test = "OK"
 
 [scenario.expect.graph]
 must_have_parent = [
-  { child = "ggen.error.handle", parent = "registry.fetch_index" }
+  { child = "mcpp.error.handle", parent = "registry.fetch_index" }
 ]
 
 # ============================================================================
@@ -177,7 +177,7 @@ must_have_parent = [
 [[scenario]]
 name = "test_marketplace_network_timeout"
 description = "Test network timeout error handling"
-service = "ggen"
+service = "mcpp"
 run = """
 # Simulate network timeout by using invalid endpoint
 GGEN_REGISTRY_URL=http://localhost:9999/timeout \
@@ -195,7 +195,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "NetworkTimeout",
   "error.handled" = "true",
@@ -208,7 +208,7 @@ test = "ERROR"  # Test expected to fail with network error
 [[scenario]]
 name = "test_marketplace_connection_refused"
 description = "Test connection refused error handling"
-service = "ggen"
+service = "mcpp"
 run = """
 # Simulate connection refused
 GGEN_REGISTRY_URL=http://localhost:0/refused \
@@ -226,7 +226,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "ConnectionRefused",
   "error.handled" = "true"
@@ -239,19 +239,19 @@ attrs.all = {
 [[scenario]]
 name = "test_marketplace_permission_denied"
 description = "Test permission denied error handling"
-service = "ggen"
+service = "mcpp"
 run = """
 # Simulate permission denied by writing to read-only filesystem
-chmod 000 /tmp/ggen-test-readonly || true
-GGEN_CACHE_DIR=/tmp/ggen-test-readonly \
+chmod 000 /tmp/mcpp-test-readonly || true
+GGEN_CACHE_DIR=/tmp/mcpp-test-readonly \
 cargo test --test marketplace_tests_main \
   integration::marketplace_validation::test_marketplace_basic_search \
   -- --nocapture || true
-chmod 755 /tmp/ggen-test-readonly || true
+chmod 755 /tmp/mcpp-test-readonly || true
 """
 
 [[scenario.expect.span]]
-name = "ggen.cache.write"
+name = "mcpp.cache.write"
 attrs.all = {
   "error.type" = "PermissionDenied",
   "error.message.contains" = "permission denied"
@@ -259,7 +259,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "PermissionDenied",
   "error.handled" = "true",
@@ -269,7 +269,7 @@ attrs.all = {
 [[scenario]]
 name = "test_marketplace_disk_full"
 description = "Test disk full error handling"
-service = "ggen"
+service = "mcpp"
 run = """
 # Simulate disk full (difficult to test, use mock)
 GGEN_SIMULATE_DISK_FULL=true \
@@ -279,7 +279,7 @@ cargo test --test marketplace_tests_main \
 """
 
 [[scenario.expect.span]]
-name = "ggen.cache.write"
+name = "mcpp.cache.write"
 attrs.all = {
   "error.type" = "DiskFull",
   "error.message.contains" = "no space left"
@@ -287,7 +287,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.error.handle"
+name = "mcpp.error.handle"
 attrs.all = {
   "error.type" = "DiskFull",
   "error.handled" = "true",
@@ -301,7 +301,7 @@ attrs.all = {
 [[scenario]]
 name = "test_marketplace_concurrent_errors"
 description = "Test concurrent error handling"
-service = "ggen"
+service = "mcpp"
 run = """
 # Run concurrent tests that may fail
 cargo test --test marketplace_tests_main \
@@ -311,7 +311,7 @@ cargo test --test marketplace_tests_main \
 
 [scenario.expect.counts]
 # May have multiple error handling spans if errors occur
-"ggen.error.handle" = { min = 0 }
+"mcpp.error.handle" = { min = 0 }
 
 [scenario.expect.status]
 test = "OK"  # Test may pass or fail, but should handle errors gracefully
@@ -323,7 +323,7 @@ test = "OK"  # Test may pass or fail, but should handle errors gracefully
 [[scenario]]
 name = "test_marketplace_error_recovery_retry"
 description = "Test error recovery with retry mechanism"
-service = "ggen"
+service = "mcpp"
 run = """
 cargo test --test marketplace_tests_main \
   integration::marketplace_validation::test_marketplace_basic_search \
@@ -331,7 +331,7 @@ cargo test --test marketplace_tests_main \
 """
 
 [[scenario.expect.span]]
-name = "ggen.retry.attempt"
+name = "mcpp.retry.attempt"
 attrs.all = {
   "operation" = "fetch_index",
   "attempt.number.gte" = 1,
@@ -349,7 +349,7 @@ all = "OK"
 [[scenario]]
 name = "test_marketplace_error_recovery_fallback"
 description = "Test error recovery with fallback mechanism"
-service = "ggen"
+service = "mcpp"
 run = """
 # Simulate primary source failure, use fallback
 GGEN_PRIMARY_REGISTRY=http://localhost:9999/fail \
@@ -368,7 +368,7 @@ attrs.all = {
 status = "ERROR"
 
 [[scenario.expect.span]]
-name = "ggen.fallback.activate"
+name = "mcpp.fallback.activate"
 attrs.all = {
   "source" = "fallback",
   "reason" = "primary_failed"
@@ -383,8 +383,8 @@ attrs.all = {
 
 [scenario.expect.temporal]
 must_follow = [
-  { later = "ggen.fallback.activate", earlier = "registry.fetch_index[source=primary]" },
-  { later = "registry.fetch_index[source=fallback]", earlier = "ggen.fallback.activate" }
+  { later = "mcpp.fallback.activate", earlier = "registry.fetch_index[source=primary]" },
+  { later = "registry.fetch_index[source=fallback]", earlier = "mcpp.fallback.activate" }
 ]
 
 # ============================================================================
@@ -394,13 +394,13 @@ must_follow = [
 [[scenario]]
 name = "test_marketplace_error_metrics_collection"
 description = "Test error metrics are properly collected"
-service = "ggen"
+service = "mcpp"
 run = """
 cargo test --test marketplace_tests_main -- --nocapture
 """
 
 [[scenario.expect.span]]
-name = "ggen.metrics.error_summary"
+name = "mcpp.metrics.error_summary"
 attrs.all = {
   "errors.total.gte" = 0,
   "errors.handled.gte" = 0,
@@ -428,10 +428,10 @@ digest_file = "tests/clnrm/reports/marketplace_error_handling_digest.txt"
 
 [report.metrics]
 total_errors = { path = "$.scenarios[*].spans[?(@.status=='ERROR')].length()" }
-errors_handled = { path = "$.scenarios[*].spans[?(@.name=='ggen.error.handle')].length()" }
+errors_handled = { path = "$.scenarios[*].spans[?(@.name=='mcpp.error.handle')].length()" }
 error_types = { path = "$.scenarios[*].spans[?(@.status=='ERROR')].attrs['error.type'].unique()" }
-retry_attempts = { path = "$.scenarios[*].spans[?(@.name=='ggen.retry.attempt')].length()" }
-fallback_activations = { path = "$.scenarios[*].spans[?(@.name=='ggen.fallback.activate')].length()" }
+retry_attempts = { path = "$.scenarios[*].spans[?(@.name=='mcpp.retry.attempt')].length()" }
+fallback_activations = { path = "$.scenarios[*].spans[?(@.name=='mcpp.fallback.activate')].length()" }
 recovery_success_rate = { path = "$.scenarios[*].spans[?(@.attrs['error.handled']=='true')].length() / $.scenarios[*].spans[?(@.status=='ERROR')].length()" }
 
 [report.error_summary]

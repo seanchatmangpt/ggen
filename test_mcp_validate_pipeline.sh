@@ -5,8 +5,8 @@ set -e
 
 echo "🔧 Building validate_pipeline MCP client example..."
 
-# Navigate to ggen-a2a-mcp crate
-cd /Users/sac/ggen/crates/ggen-a2a-mcp
+# Navigate to mcpp-a2a-mcp crate
+cd ~/.ggen/mcpp/crates/mcpp-a2a-mcp
 
 # Build the example
 cargo build --example mcp_validate_pipeline_bin 2>&1 | tail -20
