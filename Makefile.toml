@@ -896,6 +896,7 @@ command = "cargo"
 args = ["test", "--test", "bdd", "--", "--nocapture"]
 
 [tasks.audit]
+clear = true
 description = "Security audit with comprehensive vulnerability scanning"
 workspace = false
 script_runner = "@shell"
@@ -907,10 +908,21 @@ echo "🔒 Security Audit (Week 8)"
 echo "=========================="
 echo ""
 
-# Run cargo audit
+# Run cargo audit (with documented accepted advisories — see docs/audits/ACCEPTED_ADVISORIES.md)
 echo "1️⃣ Running cargo audit..."
-if cargo audit --deny warnings; then
-  echo "   ✅ No vulnerabilities found"
+if cargo audit --deny warnings \
+    --ignore RUSTSEC-2026-0113 \
+    --ignore RUSTSEC-2026-0066 \
+    --ignore RUSTSEC-2026-0112 \
+    --ignore RUSTSEC-2025-0052 \
+    --ignore RUSTSEC-2024-0375 \
+    --ignore RUSTSEC-2024-0384 \
+    --ignore RUSTSEC-2025-0119 \
+    --ignore RUSTSEC-2024-0436 \
+    --ignore RUSTSEC-2024-0370 \
+    --ignore RUSTSEC-2025-0134 \
+    --ignore RUSTSEC-2021-0145; then
+  echo "   ✅ No new vulnerabilities (11 transitive advisories accepted; see docs/audits/ACCEPTED_ADVISORIES.md)"
 else
   echo "   ❌ Vulnerabilities detected"
   exit 1

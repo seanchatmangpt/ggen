@@ -26,13 +26,18 @@ CURRENT_CHECKSUM=$(sha256sum "$LOCK_FILE" | awk '{print $1}')
 echo "Current SHA-256: $CURRENT_CHECKSUM"
 
 # Verify Cargo.lock is up to date with Cargo.toml
+# Recent cargo versions emit "Locking 0 packages to latest compatible versions"
+# when no updates are needed; older versions said "no package updates".
 echo ""
 echo "Verifying Cargo.lock is up to date..."
-if cargo update --workspace --locked --dry-run 2>&1 | grep -q "no package updates"; then
+update_output=$(cargo update --workspace --locked --dry-run --color never 2>&1)
+if echo "$update_output" | grep -qE "no package updates|Locking 0 packages"; then
     echo "✅ Cargo.lock is up to date with Cargo.toml"
 else
     echo "::error::Cargo.lock is out of sync with Cargo.toml"
     echo "::error::Run 'cargo update' to synchronize"
+    echo "::error::cargo output:"
+    echo "$update_output" | head -5
     exit 1
 fi
 
