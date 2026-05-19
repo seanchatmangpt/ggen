@@ -7,7 +7,7 @@ pub mod query;
 pub mod signature;
 pub mod template_package;
 
-pub use package::{ContentId, Package, PackageId, PackageMetadata};
+pub use package::{ContentId, HashAlgorithm, Package, PackageId, PackageMetadata};
 pub use query::{Query, SearchQuery, SearchResults};
 pub use signature::{PublicKey, Signature};
 pub use template_package::{TemplatePackage, TemplateInfo, TemplateType, TemplateVariable, TemplateExample};

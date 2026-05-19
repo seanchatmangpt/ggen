@@ -42,10 +42,40 @@ pub enum MarketplaceError {
         source: std::io::Error,
     },
 
+    /// Network error (HTTP, P2P, etc.)
+    NetworkError {
+        reason: String,
+        context: String,
+    },
+
     /// Serialization/deserialization error
     SerializationError {
         operation: String,
         source: Box<dyn std::error::Error + Send + Sync>,
+    },
+
+    /// Serialization error (convenience alias)
+    SerializeError {
+        operation: String,
+        reason: String,
+    },
+
+    /// Parse error (JSON, TOML, etc.)
+    ParseError {
+        reason: String,
+        context: String,
+    },
+
+    /// Resource already exists
+    AlreadyExists {
+        resource: String,
+        context: String,
+    },
+
+    /// Resource not found
+    NotFound {
+        resource: String,
+        context: String,
     },
 
     /// Registry operation failed
@@ -92,8 +122,23 @@ impl fmt::Display for MarketplaceError {
             Self::IoError { operation, source } => {
                 write!(f, "IO error during '{}': {}", operation, source)
             }
+            Self::NetworkError { reason, context } => {
+                write!(f, "Network error ({}): {}", context, reason)
+            }
             Self::SerializationError { operation, source } => {
                 write!(f, "Serialization error during '{}': {}", operation, source)
+            }
+            Self::SerializeError { operation, reason } => {
+                write!(f, "Serialize error during '{}': {}", operation, reason)
+            }
+            Self::ParseError { reason, context } => {
+                write!(f, "Parse error ({}): {}", context, reason)
+            }
+            Self::AlreadyExists { resource, context } => {
+                write!(f, "Resource '{}' already exists: {}", resource, context)
+            }
+            Self::NotFound { resource, context } => {
+                write!(f, "Resource '{}' not found: {}", resource, context)
             }
             Self::RegistryError { operation, reason } => {
                 write!(f, "Registry error during '{}': {}", operation, reason)
@@ -121,7 +166,12 @@ impl std::error::Error for MarketplaceError {
             Self::StorageError { source, .. } => Some(source.as_ref()),
             Self::SearchError { source, .. } => Some(source.as_ref()),
             Self::IoError { source, .. } => Some(source),
+            Self::NetworkError { .. } => None,
             Self::SerializationError { source, .. } => Some(source.as_ref()),
+            Self::SerializeError { .. } => None,
+            Self::ParseError { .. } => None,
+            Self::AlreadyExists { .. } => None,
+            Self::NotFound { .. } => None,
             _ => None,
         }
     }
@@ -174,6 +224,41 @@ impl MarketplaceError {
         Self::IoError {
             operation: operation.into(),
             source,
+        }
+    }
+
+    pub fn network_error(reason: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::NetworkError {
+            reason: reason.into(),
+            context: context.into(),
+        }
+    }
+
+    pub fn serialize_error(operation: impl Into<String>, reason: impl Into<String>) -> Self {
+        Self::SerializeError {
+            operation: operation.into(),
+            reason: reason.into(),
+        }
+    }
+
+    pub fn parse_error(reason: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::ParseError {
+            reason: reason.into(),
+            context: context.into(),
+        }
+    }
+
+    pub fn already_exists(resource: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::AlreadyExists {
+            resource: resource.into(),
+            context: context.into(),
+        }
+    }
+
+    pub fn not_found(resource: impl Into<String>, context: impl Into<String>) -> Self {
+        Self::NotFound {
+            resource: resource.into(),
+            context: context.into(),
         }
     }
 
