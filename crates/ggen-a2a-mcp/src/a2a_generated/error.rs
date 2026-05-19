@@ -583,10 +583,15 @@ mod tests {
     #[cfg(feature = "http-adapter")]
     #[tokio::test]
     async fn test_http_error_feature() {
-        // This test only compiles/runs when http-adapter feature is enabled
-        // In a real scenario, this would test reqwest error conversion
-        // For now, we just verify the variant exists
-        let error = AgentError::HttpError(reqwest::Error::from(reqwest::ErrorKind::Request));
+        // Verify HttpError variant exists and is retryable.
+        // reqwest::Error has no public constructor, so we construct one
+        // via a real failed request to a guaranteed-unresolvable host.
+        let err = reqwest::Client::new()
+            .get("http://invalid.invalid")
+            .send()
+            .await
+            .expect_err("expected DNS failure");
+        let error = AgentError::HttpError(err);
         assert!(matches!(error, AgentError::HttpError(_)));
         assert!(error.is_retryable());
     }
