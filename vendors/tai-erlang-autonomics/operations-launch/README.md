@@ -356,7 +356,7 @@ This directory contains **everything needed to launch a production system with z
 
 ## File Locations
 
-All files saved to: `/Users/sac/ggen/tai-erlang-autonomics/operations-launch/`
+All files saved to: `~/.ggen/mcpp/tai-erlang-autonomics/operations-launch/`
 
 ```
 operations-launch/
@@ -377,7 +377,7 @@ operations-launch/
 
 ### Step 1: Download & Print (10 minutes)
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+cd ~/.ggen/mcpp/tai-erlang-autonomics/operations-launch/
 
 # Option 1: Read on screen
 open README.md

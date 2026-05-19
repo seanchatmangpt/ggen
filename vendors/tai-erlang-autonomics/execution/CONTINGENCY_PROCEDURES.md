@@ -1443,7 +1443,7 @@ START: Customer #1 in week [X]
 **Last Updated:** January 26, 2026
 **Owner:** CEO + VP Sales + CTO + CFO
 **Review Frequency:** Monthly (or when contingency activated)
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/CONTINGENCY_PROCEDURES.md`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/CONTINGENCY_PROCEDURES.md`
 
 ---
 

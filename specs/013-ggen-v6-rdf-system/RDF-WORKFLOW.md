@@ -1,6 +1,6 @@
-# RDF-First Workflow Guide - ggen v6
+# RDF-First Workflow Guide - mcpp v6
 
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-mcpp-v6-rdf-system
 **Constitutional Equation**: `code = μ(spec.ttl)`
 
 ---
@@ -10,15 +10,15 @@
 This project uses **RDF-first architecture** where:
 - **Source of Truth**: Turtle/RDF files (`.ttl`) in `ontology/`
 - **Generated Artifacts**: Markdown files in `generated/` (NEVER edit manually)
-- **Transformation**: `ggen sync` reads RDF, executes SPARQL, renders templates
+- **Transformation**: `mcpp sync` reads RDF, executes SPARQL, renders templates
 
 ---
 
 ## Directory Structure
 
 ```
-013-ggen-v6-rdf-system/
-├── ggen.toml                      # Configuration (SPARQL queries, templates)
+013-mcpp-v6-rdf-system/
+├── mcpp.toml                      # Configuration (SPARQL queries, templates)
 ├── ontology/                      # SOURCE OF TRUTH (edit these)
 │   ├── feature-content.ttl        # System-level specification
 │   ├── mvp-80-20.ttl              # 80/20 analysis in RDF
@@ -29,7 +29,7 @@ This project uses **RDF-first architecture** where:
 │   ├── spec.md                    # Generated from feature-content.ttl
 │   └── .receipt.json              # Cryptographic provenance
 ├── scripts/                       # Helper scripts
-│   ├── sync.sh                    # Run ggen sync with validation
+│   ├── sync.sh                    # Run mcpp sync with validation
 │   └── validate-rdf-workflow.sh   # Validate RDF setup
 ├── 80-20-PLAN.md                  # Implementation plan (markdown)
 └── 80-20-PRIORITIZATION.md        # Prioritization summary
@@ -39,7 +39,7 @@ This project uses **RDF-first architecture** where:
 
 ## The Five-Stage Pipeline
 
-**ggen v6** implements a deterministic transformation pipeline:
+**mcpp v6** implements a deterministic transformation pipeline:
 
 ```
 μ₁ → μ₂ → μ₃ → μ₄ → μ₅
@@ -48,26 +48,26 @@ This project uses **RDF-first architecture** where:
 ### Stage μ₁: Normalization (SHACL Validation)
 - Validates RDF against SHACL shapes
 - Ensures spec integrity before processing
-- **Config**: `[v6.validation]` in ggen.toml
+- **Config**: `[v6.validation]` in mcpp.toml
 
 ### Stage μ₂: Extraction (SPARQL SELECT)
 - Executes SPARQL queries against RDF graph
 - Extracts structured data for templates
-- **Config**: `[[generation]].query` in ggen.toml
+- **Config**: `[[generation]].query` in mcpp.toml
 
 ### Stage μ₃: Emission (Tera Templates)
 - Renders templates with SPARQL results
 - Generates code/markdown output
-- **Config**: `[[generation]].template` in ggen.toml
+- **Config**: `[[generation]].template` in mcpp.toml
 
 ### Stage μ₄: Canonicalization (Format Normalization)
 - Ensures consistent formatting (line endings, whitespace)
-- **Config**: `[v6.canonicalization]` in ggen.toml
+- **Config**: `[v6.canonicalization]` in mcpp.toml
 
 ### Stage μ₅: Receipt (Cryptographic Provenance)
 - Generates SHA-256 hashes of inputs and outputs
 - Proves `output = μ(input)`
-- **Config**: `[v6.receipt]` in ggen.toml
+- **Config**: `[v6.receipt]` in mcpp.toml
 
 ---
 
@@ -91,11 +91,11 @@ vim ontology/feature-content.ttl
 # Option A: Use helper script (recommended)
 ./scripts/sync.sh
 
-# Option B: Direct ggen command (when v6 is available)
-ggen sync
+# Option B: Direct mcpp command (when v6 is available)
+mcpp sync
 
-# Option C: Manual workflow (current ggen v5)
-# ggen v5 doesn't have sync yet - this project SPECIFIES ggen v6
+# Option C: Manual workflow (current mcpp v5)
+# mcpp v5 doesn't have sync yet - this project SPECIFIES mcpp v6
 ```
 
 ### 3. Verify Output
@@ -115,10 +115,10 @@ cat generated/.receipt.json
 
 ```bash
 # Run twice, compare hashes
-ggen sync
+mcpp sync
 sha256sum generated/spec.md > /tmp/hash1.txt
 
-ggen sync
+mcpp sync
 sha256sum generated/spec.md > /tmp/hash2.txt
 
 diff /tmp/hash1.txt /tmp/hash2.txt
@@ -127,7 +127,7 @@ diff /tmp/hash1.txt /tmp/hash2.txt
 
 ---
 
-## Configuration (ggen.toml)
+## Configuration (mcpp.toml)
 
 ### Key Sections
 
@@ -219,11 +219,11 @@ WHERE {
 ```
 
 **Checks**:
-- ✓ ggen.toml configuration
+- ✓ mcpp.toml configuration
 - ✓ RDF ontology files exist
 - ✓ TTL syntax validation (if rdflib installed)
 - ✓ Tera templates exist
-- ✓ No "ggen render" references (legacy command)
+- ✓ No "mcpp render" references (legacy command)
 - ✓ Constitutional equation references
 - ✓ 80/20 markers in RDF
 
@@ -267,8 +267,8 @@ sk:workaround "How to work around..." ;
 ### Add SPARQL Query
 
 ```bash
-# Edit ggen.toml
-vim ggen.toml
+# Edit mcpp.toml
+vim mcpp.toml
 
 # Add new [[generation]] block
 [[generation]]
@@ -306,10 +306,10 @@ Priority: {{ item.priority }}
 
 ## Troubleshooting
 
-### "ggen sync" not found
-- **Cause**: ggen v6 not yet implemented
-- **Solution**: This project SPECIFIES ggen v6. Once v6 is built, it will work.
-- **Current**: ggen v5 doesn't have `sync` command
+### "mcpp sync" not found
+- **Cause**: mcpp v6 not yet implemented
+- **Solution**: This project SPECIFIES mcpp v6. Once v6 is built, it will work.
+- **Current**: mcpp v5 doesn't have `sync` command
 
 ### TTL Parse Errors
 ```bash
@@ -325,7 +325,7 @@ rapper -i turtle -c ontology/feature-content.ttl
 ### SHACL Validation Failures
 ```bash
 # Disable temporarily to debug
-vim ggen.toml
+vim mcpp.toml
 # Set: fail_on_violation = false
 
 # Common issues:
@@ -352,7 +352,7 @@ grep -r "random\|uuid" templates/
 ### 1. RDF is Source of Truth
 - ✅ **DO**: Edit `.ttl` files in `ontology/`
 - ❌ **DON'T**: Edit `.md` files in `generated/`
-- **Why**: Generated files are overwritten by `ggen sync`
+- **Why**: Generated files are overwritten by `mcpp sync`
 
 ### 2. Use 80/20 Markers
 ```turtle
@@ -384,18 +384,18 @@ git diff generated/  # Should show expected changes only
 echo ':test a sk:Feature ; sk:featureName "Test" .' >> ontology/feature-content.ttl
 
 # 2. Generate
-ggen sync
+mcpp sync
 
 # 3. Verify in git
 git diff generated/spec.md
 
 # 4. Verify determinism
-ggen sync
+mcpp sync
 git status  # Should show "nothing to commit" (idempotent)
 
 # 5. Revert and verify
 git checkout ontology/feature-content.ttl
-ggen sync
+mcpp sync
 git diff generated/spec.md  # Should show no changes
 ```
 
@@ -403,7 +403,7 @@ git diff generated/spec.md  # Should show no changes
 
 ## Reference
 
-- **ggen.toml**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/ggen.toml`
+- **mcpp.toml**: `~/.ggen/mcpp/specs/013-mcpp-v6-rdf-system/mcpp.toml`
 - **Feature Spec (RDF)**: `ontology/feature-content.ttl` (270 triples)
 - **80/20 Analysis (RDF)**: `ontology/mvp-80-20.ttl`
 - **Generated Spec**: `generated/spec.md` (when v6 is ready)
@@ -414,11 +414,11 @@ git diff generated/spec.md  # Should show no changes
 
 ## Next Steps
 
-1. **Implement ggen v6 MVP** (8 days, 5 capabilities)
-2. **Run** `ggen sync` **to test workflow**
-3. **Use ggen v6 to regenerate its own spec** (self-hosting)
+1. **Implement mcpp v6 MVP** (8 days, 5 capabilities)
+2. **Run** `mcpp sync` **to test workflow**
+3. **Use mcpp v6 to regenerate its own spec** (self-hosting)
 4. **Validate** constitutional equation: `spec.md = μ(feature.ttl)`
 
 ---
 
-**Remember**: This project uses RDF to SPECIFY ggen v6. Once v6 is implemented, you can use it to regenerate this very specification!
+**Remember**: This project uses RDF to SPECIFY mcpp v6. Once v6 is implemented, you can use it to regenerate this very specification!

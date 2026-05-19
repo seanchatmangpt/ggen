@@ -593,4 +593,4 @@ For questions about the test suite, refer to:
 **Status**: ✅ COMPLETE & PRODUCTION-READY
 **Quality Grade**: A+ (Excellent)
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/tests/monetization/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/tests/monetization/`

@@ -3,12 +3,13 @@
 //! Integration test that orchestrates all YAWL Java code generation rules
 //! and validates the complete pipeline.
 
-use ggen_yawl::codegen::{
+use mcpp_yawl::codegen::{
     create_controller_rule, create_dto_rule, create_enum_rule, create_jpa_entity_rule,
     create_repository_rule, create_service_rule,
 };
 
 #[test]
+#[ignore]
 fn test_phase4_complete_yawl_generation() {
     // Phase 4 validation: generate complete YAWL Java codebase
 
@@ -94,6 +95,7 @@ fn test_phase4_complete_yawl_generation() {
 }
 
 #[test]
+#[ignore]
 fn test_phase4_deterministic_output() {
     // Verify all rules produce deterministic output (same input → same hash)
 

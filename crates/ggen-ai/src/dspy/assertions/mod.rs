@@ -13,8 +13,8 @@
 //! # Example Usage
 //!
 //! ```ignore
-//! use ggen_ai::dspy::assertions::*;
-//! use ggen_ai::dspy::assertions::validator::*;
+//! use mcpp_ai::dspy::assertions::*;
+//! use mcpp_ai::dspy::assertions::validator::*;
 //!
 //! // Create validators
 //! let length_check = LengthValidator::between(10, 100);

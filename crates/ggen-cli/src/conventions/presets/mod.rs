@@ -20,10 +20,10 @@
 //! ### Using a Preset
 //!
 //! ```rust,no_run
-//! use ggen_cli::conventions::presets::{get_preset, ConventionPreset};
+//! use mcpp_cli_lib::conventions::presets::{get_preset, ConventionPreset};
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let preset = get_preset("clap-noun-verb")
 //!     .expect("Preset not found");
 //!
@@ -42,7 +42,7 @@
 //! ### Listing Available Presets
 //!
 //! ```rust,no_run
-//! use ggen_cli::conventions::presets::list_presets;
+//! use mcpp_cli_lib::conventions::presets::list_presets;
 //!
 //! let presets = list_presets();
 //! for preset_name in presets {
@@ -50,7 +50,7 @@
 //! }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::path::Path;
 
 pub mod clap_noun_verb;
@@ -63,10 +63,10 @@ pub trait ConventionPreset {
     /// Create the project structure in the given root directory
     fn create_structure(&self, root: &Path) -> Result<()>;
 
-    /// Get RDF files to create (path relative to .ggen/rdf, content)
+    /// Get RDF files to create (path relative to .mcpp/rdf, content)
     fn rdf_files(&self) -> Vec<(&str, &str)>;
 
-    /// Get template files to create (path relative to .ggen/templates, content)
+    /// Get template files to create (path relative to .mcpp/templates, content)
     fn templates(&self) -> Vec<(&str, &str)>;
 
     /// Get convention config content

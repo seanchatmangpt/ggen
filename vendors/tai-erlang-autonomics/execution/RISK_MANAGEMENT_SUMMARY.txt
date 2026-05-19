@@ -332,7 +332,7 @@ FILE LOCATIONS
 ================================================================================
 
 All documents located in:
-/Users/sac/ggen/tai-erlang-autonomics/execution/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/
 
 ├── RISK_MANAGEMENT.md (15K words)
 │   └─ Comprehensive analysis + mitigation strategies

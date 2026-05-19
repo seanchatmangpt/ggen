@@ -18,7 +18,7 @@ use std::path::PathBuf;
 
 /// PaaS submodule management command
 ///
-/// Manages ggen-spec-kit and clap-noun-verb submodules with semantic noun-verb interface.
+/// Manages mcpp-spec-kit and clap-noun-verb submodules with semantic noun-verb interface.
 #[derive(Debug, Args)]
 pub struct PaasCommand {
     /// Verbose output
@@ -42,7 +42,7 @@ pub struct PaasCommand {
 pub enum PaasAction {
     /// Initialize submodule
     Init {
-        /// Submodule name (ggen-spec-kit, clap-noun-verb)
+        /// Submodule name (mcpp-spec-kit, clap-noun-verb)
         #[arg(value_name = "NAME")]
         name: String,
 

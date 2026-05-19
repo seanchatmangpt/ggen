@@ -17,16 +17,16 @@
 //! ### Creating a Cache
 //!
 //! ```rust,no_run
-//! use ggen_ai::cache::{LlmCache, CacheConfig};
+//! use mcpp_ai::cache::{LlmCache, CacheConfig};
 //! use std::time::Duration;
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = CacheConfig {
 //!     max_capacity: 1000,
 //!     ttl: Duration::from_secs(3600),
 //!     tti: Some(Duration::from_secs(600)),
 //! };
-//! let cache = LlmCache::new(config);
+//! let cache = LlmCache::with_config(config);
 //! # Ok(())
 //! # }
 //! ```
@@ -34,25 +34,26 @@
 //! ### Caching and Retrieving Responses
 //!
 //! ```rust,no_run
-//! use ggen_ai::cache::LlmCache;
+//! use mcpp_ai::cache::LlmCache;
 //!
-//! # async fn example() -> anyhow::Result<()> {
-//! let cache = LlmCache::default();
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! let cache = LlmCache::new();
 //!
-//! // Cache a response
+//! // Generate with caching (avoids repeated API calls)
 //! let prompt = "What is Rust?";
-//! let response = "Rust is a systems programming language...".to_string();
-//! cache.put(prompt, response.clone(), "gpt-4", Some(100)).await;
+//! let response = cache.get_or_generate(prompt, "gpt-4", || async {
+//!     Ok("Rust is a systems programming language...".to_string())
+//! }).await?;
 //!
-//! // Retrieve from cache
-//! if let Some(cached) = cache.get(prompt).await {
-//!     println!("Cache hit! {}", cached.content);
-//! }
+//! // Second call returns cached result
+//! let cached = cache.get_or_generate(prompt, "gpt-4", || async {
+//!     Ok("This won't be called".to_string())
+//! }).await?;
 //! # Ok(())
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use moka::future::Cache;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;

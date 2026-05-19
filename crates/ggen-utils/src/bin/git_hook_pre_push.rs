@@ -173,7 +173,7 @@ fn check_todo_and_error_handling() -> Result<(), Box<dyn std::error::Error>> {
     // Check for expect() in production code
     let expect_count = count_expect_in_production()?;
     if expect_count > 0 {
-        return Err(format!("Found {} expect() calls in production code. Policy: Zero expect() unless documented with allow attribute. Note: CLI code (crates/ggen-cli) can use expect() for user-facing errors", expect_count).into());
+        return Err(format!("Found {} expect() calls in production code. Policy: Zero expect() unless documented with allow attribute. Note: CLI code (crates/mcpp-cli) can use expect() for user-facing errors", expect_count).into());
     }
 
     Ok(())
@@ -181,7 +181,7 @@ fn check_todo_and_error_handling() -> Result<(), Box<dyn std::error::Error>> {
 
 fn count_todos_in_production() -> Result<usize, Box<dyn std::error::Error>> {
     let output = Command::new("find")
-        .arg("crates/ggen-*/src")
+        .arg("crates/mcpp-*/src")
         .arg("-name")
         .arg("*.rs")
         .arg("-type")
@@ -225,7 +225,7 @@ fn count_todos_in_production() -> Result<usize, Box<dyn std::error::Error>> {
 
 fn count_unwrap_in_production() -> Result<usize, Box<dyn std::error::Error>> {
     let output = Command::new("find")
-        .arg("crates/ggen-*/src")
+        .arg("crates/mcpp-*/src")
         .arg("-name")
         .arg("*.rs")
         .arg("-type")
@@ -251,7 +251,7 @@ fn count_unwrap_in_production() -> Result<usize, Box<dyn std::error::Error>> {
     let mut count = 0;
     for file in files {
         // Skip CLI code
-        if file.to_string_lossy().contains("crates/ggen-cli/") {
+        if file.to_string_lossy().contains("crates/mcpp-cli/") {
             continue;
         }
 
@@ -279,7 +279,7 @@ fn count_unwrap_in_production() -> Result<usize, Box<dyn std::error::Error>> {
 
 fn count_expect_in_production() -> Result<usize, Box<dyn std::error::Error>> {
     let output = Command::new("find")
-        .arg("crates/ggen-*/src")
+        .arg("crates/mcpp-*/src")
         .arg("-name")
         .arg("*.rs")
         .arg("-type")
@@ -305,7 +305,7 @@ fn count_expect_in_production() -> Result<usize, Box<dyn std::error::Error>> {
     let mut count = 0;
     for file in files {
         // Skip CLI code (allowed to use expect for user errors)
-        if file.to_string_lossy().contains("crates/ggen-cli/") {
+        if file.to_string_lossy().contains("crates/mcpp-cli/") {
             continue;
         }
 

@@ -10,7 +10,7 @@
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
 
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT ?server_name ?server_version ?server_description ?transport_type

@@ -2,7 +2,7 @@
 //!
 //! This module provides functionality to extract service definitions from source code
 //! in multiple languages (Rust, Elixir, Go) and convert them into RDF format for
-//! integration with the ggen ontology system.
+//! integration with the mcpp ontology system.
 
 pub mod ast_extractor;
 

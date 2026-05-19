@@ -25,7 +25,7 @@ impl Place {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::Place;
+    /// use mcpp_process_mining::Place;
     ///
     /// let place = Place::new("p1").with_label("Start");
     /// ```
@@ -69,7 +69,7 @@ impl Transition {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::Transition;
+    /// use mcpp_process_mining::Transition;
     ///
     /// let transition = Transition::new("t1").with_label("Approve");
     /// ```
@@ -204,7 +204,7 @@ impl PetriNet {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::PetriNet;
+    /// use mcpp_process_mining::PetriNet;
     ///
     /// let net = PetriNet::new();
     /// ```
@@ -351,7 +351,7 @@ impl PetriNet {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::PetriNet;
+    /// use mcpp_process_mining::PetriNet;
     ///
     /// let net = PetriNet::from_activities(&["A", "B", "C"]);
     /// ```

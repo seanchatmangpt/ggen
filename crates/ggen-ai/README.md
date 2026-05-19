@@ -1,6 +1,6 @@
-# ggen-ai
+# mcpp-ai
 
-**AI-powered code generation capabilities for ggen** - Unified LLM integration using `rust-genai` for intelligent template generation, SPARQL queries, and RDF graph operations.
+**AI-powered code generation capabilities for mcpp** - Unified LLM integration using `rust-genai` for intelligent template generation, SPARQL queries, and RDF graph operations.
 
 ## 🚀 **NEW: v1.0.0 with rust-genai Integration**
 
@@ -9,7 +9,7 @@
 ## Features
 
 - **🔧 Multi-provider LLM support**: OpenAI, Anthropic, Ollama via rust-genai
-- **🤖 Intelligent template generation**: Natural language to ggen templates
+- **🤖 Intelligent template generation**: Natural language to mcpp templates
 - **🔍 SPARQL query generation**: Intent-based query construction from RDF graphs
 - **📊 Ontology generation**: Domain descriptions to RDF/OWL schemas
 - **🔄 Code refactoring**: AI-assisted code improvement suggestions
@@ -23,7 +23,7 @@
 ```bash
 # Add to your Cargo.toml
 [dependencies]
-ggen-ai = "1.0"
+mcpp-ai = "1.0"
 dotenvy = "0.15"  # For environment configuration
 tokio = { version = "1.0", features = ["full"] }
 ```
@@ -33,8 +33,8 @@ tokio = { version = "1.0", features = ["full"] }
 ### Basic Usage
 
 ```rust
-use ggen_ai::{LlmClient, TemplateGenerator, LlmConfig};
-use ggen_ai::client::GenAiClient;
+use mcpp_ai::{LlmClient, TemplateGenerator, LlmConfig};
+use mcpp_ai::client::GenAiClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -70,16 +70,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```bash
 # Generate template using AI
-ggen ai generate -d "Database model" --provider openai --model gpt-4o
+mcpp ai generate -d "Database model" --provider openai --model gpt-4o
 
 # Generate SPARQL query from graph
-ggen ai sparql -d "Find all users" -g schema.ttl --provider anthropic
+mcpp ai sparql -d "Find all users" -g schema.ttl --provider anthropic
 
 # Generate RDF ontology
-ggen ai graph -d "E-commerce ontology" -o products.ttl --provider ollama
+mcpp ai graph -d "E-commerce ontology" -o products.ttl --provider ollama
 
 # Start MCP server for AI tools
-ggen ai server --provider openai --model gpt-4o
+mcpp ai server --provider openai --model gpt-4o
 ```
 
 ## API Reference
@@ -87,8 +87,8 @@ ggen ai server --provider openai --model gpt-4o
 ### Core Types
 
 ```rust
-use ggen_ai::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
-use ggen_ai::client::GenAiClient;
+use mcpp_ai::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
+use mcpp_ai::client::GenAiClient;
 
 // Configuration for all LLM providers
 #[derive(Debug, Clone)]
@@ -133,7 +133,7 @@ pub struct UsageStats {
 ### Template Generation
 
 ```rust
-use ggen_ai::generators::TemplateGenerator;
+use mcpp_ai::generators::TemplateGenerator;
 
 // Create generator with LLM client
 let generator = TemplateGenerator::new(Box::new(client));
@@ -161,8 +161,8 @@ let template = generator.generate_template(
 ### SPARQL Query Generation
 
 ```rust
-use ggen_ai::generators::SparqlGenerator;
-use ggen_core::Graph;
+use mcpp_ai::generators::SparqlGenerator;
+use mcpp_core::Graph;
 
 // Create generator with LLM client
 let generator = SparqlGenerator::new(Box::new(client));
@@ -183,7 +183,7 @@ let query = generator.generate_query_with_intent(
 ### Ontology Generation
 
 ```rust
-use ggen_ai::generators::OntologyGenerator;
+use mcpp_ai::generators::OntologyGenerator;
 
 // Create generator with LLM client
 let generator = OntologyGenerator::new(Box::new(client));
@@ -205,7 +205,7 @@ let ontology = generator.generate_domain_ontology(
 ### Code Refactoring
 
 ```rust
-use ggen_ai::generators::RefactorAssistant;
+use mcpp_ai::generators::RefactorAssistant;
 
 // Create refactoring assistant with LLM client
 let assistant = RefactorAssistant::new(Box::new(client));
@@ -227,10 +227,10 @@ for suggestion in suggestions {
 
 ## MCP Tools
 
-The ggen-ai MCP server provides the following tools for AI assistant integration:
+The mcpp-ai MCP server provides the following tools for AI assistant integration:
 
 ### `ai_generate_template`
-Generate ggen templates from natural language descriptions.
+Generate mcpp templates from natural language descriptions.
 
 **Parameters:**
 - `description` (string, required): Natural language description
@@ -297,13 +297,13 @@ export OLLAMA_DEFAULT_MODEL="qwen3-coder:30b"
 
 # Global Configuration
 export AI_DEFAULT_PROVIDER="openai"
-export RUST_LOG="ggen_ai=info"
+export RUST_LOG="mcpp_ai=info"
 ```
 
 ### Programmatic Configuration
 
 ```rust
-use ggen_ai::{LlmConfig, GenAiClient};
+use mcpp_ai::{LlmConfig, GenAiClient};
 
 // Configure for OpenAI
 let config = LlmConfig {
@@ -325,7 +325,7 @@ let generator = TemplateGenerator::new(Box::new(client));
 ### Complete Template Generation Workflow
 
 ```rust
-use ggen_ai::{LlmClient, TemplateGenerator, LlmConfig, GenAiClient};
+use mcpp_ai::{LlmClient, TemplateGenerator, LlmConfig, GenAiClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -363,8 +363,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### SPARQL Query Generation
 
 ```rust
-use ggen_ai::generators::SparqlGenerator;
-use ggen_core::Graph;
+use mcpp_ai::generators::SparqlGenerator;
+use mcpp_core::Graph;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -407,7 +407,7 @@ cargo test
 cargo test --test integration
 
 # Run with debug logging
-RUST_LOG=ggen_ai=debug cargo test
+RUST_LOG=mcpp_ai=debug cargo test
 
 # Test specific provider
 OPENAI_API_KEY="test-key" cargo test test_openai_client
@@ -422,11 +422,11 @@ OPENAI_API_KEY="test-key" cargo test test_openai_client
 
 ## Migration from v0.x
 
-**Major Update:** ggen-ai v1.0.0 migrates from custom LLM clients to `rust-genai` for production-ready multi-provider support.
+**Major Update:** mcpp-ai v1.0.0 migrates from custom LLM clients to `rust-genai` for production-ready multi-provider support.
 
 - **Breaking Changes:** Provider initialization now uses configuration objects
 - **New Features:** Environment-based configuration, structured error handling
-- **Migration Guide:** See [docs/ggen-ai-migration-guide.md](../docs/ggen-ai-migration-guide.md)
+- **Migration Guide:** See [docs/mcpp-ai-migration-guide.md](../docs/mcpp-ai-migration-guide.md)
 
 ## License
 

@@ -1,4 +1,4 @@
-use ggen_transport::origin::{Origin, OriginValidator};
+use mcpp_transport::origin::{Origin, OriginValidator};
 
 #[test]
 fn test_origin_from_url_with_port() {

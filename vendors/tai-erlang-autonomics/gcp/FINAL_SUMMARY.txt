@@ -299,23 +299,23 @@ POST-DEPLOYMENT:
 📤 WHAT'S READY FOR AGENT 8 (Terraform Deployment & Validation):
 
 Configuration Files:
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/main.tf
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/cloud-run.tf
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/firestore.tf
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/iam.tf
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/monitoring.tf
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/variables.tf
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/outputs.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/main.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/cloud-run.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/firestore.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/iam.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/monitoring.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/variables.tf
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/outputs.tf
 
 Documentation:
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/TERRAFORM_GUIDE.md
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/DEPLOYMENT_CHECKLIST.md
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/RECEIPT.md
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/README.md
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/TERRAFORM_GUIDE.md
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/DEPLOYMENT_CHECKLIST.md
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/RECEIPT.md
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/README.md
 
 Templates:
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/terraform.tfvars.example
-  ✅ /Users/sac/ggen/tai-erlang-autonomics/gcp/.gitignore
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/terraform.tfvars.example
+  ✅ /Users/sac/mcpp/tai-erlang-autonomics/gcp/.gitignore
 
 🎯 AGENT 8 RESPONSIBILITIES:
   1. Execute: terraform init

@@ -22,7 +22,7 @@ vars:
     description: Target framework
     default: ""
 ---
-You are an expert code generator that creates ggen templates. ggen templates use YAML frontmatter followed by Tera template syntax. Generate a complete, valid ggen template based on the requirements.
+You are an expert code generator that creates mcpp templates. mcpp templates use YAML frontmatter followed by Tera template syntax. Generate a complete, valid mcpp template based on the requirements.
 
 ## Requirements
 {{ description }}
@@ -50,7 +50,7 @@ Target framework: {{ framework }}
 {% endif %}
 
 ## Template Format
-Generate a ggen template with the following structure:
+Generate a mcpp template with the following structure:
 
 ```yaml
 ---
@@ -78,4 +78,4 @@ Ensure the template:
 - Generates valid code for the target language
 - Follows best practices for the target framework
 
-Generate the complete ggen template now:
+Generate the complete mcpp template now:

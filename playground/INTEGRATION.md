@@ -1,6 +1,6 @@
 # HTF Playground Integration Guide
 
-This document demonstrates how the HTF (Hyper-Thesis Framework) playground integrates with the ggen packs and marketplace system.
+This document demonstrates how the HTF (Hyper-Thesis Framework) playground integrates with the mcpp packs and marketplace system.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ playground/
 
 ## Integration with Ggen Packs
 
-The HTF playground can be packaged and published as a ggen pack:
+The HTF playground can be packaged and published as a mcpp pack:
 
 ### 1. Creating an HTF Pack
 
@@ -56,8 +56,8 @@ None - fully self-contained Rust CLI
 ### 2. Publishing to Marketplace
 
 ```bash
-# From ggen root directory
-ggen packs publish \
+# From mcpp root directory
+mcpp packs publish \
   --path playground \
   --name "htf-thesis-framework" \
   --version "0.1.0" \
@@ -69,19 +69,19 @@ ggen packs publish \
 
 ```bash
 # Discover the pack
-ggen packs list
+mcpp packs list
 
 # Get details
-ggen packs show htf-thesis-framework
+mcpp packs show htf-thesis-framework
 
 # Install with dry-run
-ggen packs install \
+mcpp packs install \
   --pack "htf-thesis-framework" \
   --version "0.1.0" \
   --dry-run
 
 # Install (actual)
-ggen packs install \
+mcpp packs install \
   --pack "htf-thesis-framework" \
   --version "0.1.0"
 ```
@@ -91,16 +91,16 @@ ggen packs install \
 Once installed, use the pack:
 
 ```bash
-# Via ggen packs execute
-ggen packs execute \
+# Via mcpp packs execute
+mcpp packs execute \
   --pack "htf-thesis-framework" \
   --command "schedule --chapter-size 2000"
 
-ggen packs execute \
+mcpp packs execute \
   --pack "htf-thesis-framework" \
   --command "profile"
 
-ggen packs execute \
+mcpp packs execute \
   --pack "htf-thesis-framework" \
   --command "check"
 ```
@@ -142,14 +142,14 @@ A sophisticated RDF-backed thesis planning system implementing:
 
 ### Pack Installation Manifest
 
-The ggen marketplace will create an `InstallationManifest`:
+The mcpp marketplace will create an `InstallationManifest`:
 
 ```json
 {
   "pack_id": "htf-thesis-framework",
   "version": "0.1.0",
   "installed_at": "2024-11-17T22:00:00Z",
-  "installation_path": "~/.ggen/packs/htf-thesis-framework/0.1.0",
+  "installation_path": "~/.mcpp/packs/htf-thesis-framework/0.1.0",
   "binaries": [
     {
       "name": "htf",
@@ -165,11 +165,11 @@ The ggen marketplace will create an `InstallationManifest`:
 
 ## Dry-Run Phase-Gating
 
-The HTF pack uses the ggen marketplace's phase-gated dry-run system:
+The HTF pack uses the mcpp marketplace's phase-gated dry-run system:
 
 ### Phase 1: Validation
 ```bash
-ggen packs install htf-thesis-framework --phase validate --dry-run
+mcpp packs install htf-thesis-framework --phase validate --dry-run
 ```
 - Checks pack integrity
 - Verifies dependencies
@@ -177,7 +177,7 @@ ggen packs install htf-thesis-framework --phase validate --dry-run
 
 ### Phase 2: Resolution
 ```bash
-ggen packs install htf-thesis-framework --phase resolve --dry-run
+mcpp packs install htf-thesis-framework --phase resolve --dry-run
 ```
 - Resolves all dependencies
 - Checks for conflicts
@@ -185,7 +185,7 @@ ggen packs install htf-thesis-framework --phase resolve --dry-run
 
 ### Phase 3: Staging
 ```bash
-ggen packs install htf-thesis-framework --phase stage --dry-run
+mcpp packs install htf-thesis-framework --phase stage --dry-run
 ```
 - Stages files without committing
 - Tests write permissions
@@ -193,7 +193,7 @@ ggen packs install htf-thesis-framework --phase stage --dry-run
 
 ### Phase 4: Execution
 ```bash
-ggen packs install htf-thesis-framework --phase execute --dry-run
+mcpp packs install htf-thesis-framework --phase execute --dry-run
 ```
 - Full dry-run of installation
 - Shows all changes without applying
@@ -203,7 +203,7 @@ ggen packs install htf-thesis-framework --phase execute --dry-run
 ### 1. Build HTF Locally
 
 ```bash
-cd /Users/sac/ggen
+cd ~/.ggen/mcpp
 cargo build -p htf-cli
 ```
 
@@ -220,16 +220,16 @@ cargo run -p htf-cli -- check
 
 ```bash
 # List available packs
-ggen packs list
+mcpp packs list
 
 # Show HTF pack (if installed)
-ggen packs show htf-thesis-framework
+mcpp packs show htf-thesis-framework
 
 # Check installation manifest
-ggen packs manifest htf-thesis-framework
+mcpp packs manifest htf-thesis-framework
 
 # Verify binary works
-ggen packs execute --pack htf-thesis-framework --command "list"
+mcpp packs execute --pack htf-thesis-framework --command "list"
 ```
 
 ## Performance Characteristics
@@ -259,20 +259,20 @@ All dependencies are stable, well-maintained, and included in the Rust ecosystem
 ## Future Enhancements
 
 1. **RDF Store Persistence**: Save/load theses to oxigraph backend
-2. **Distributed Validation**: Use ggen's distributed checking
+2. **Distributed Validation**: Use mcpp's distributed checking
 3. **Collaborative Thesis Planning**: Multi-user editing via marketplace
 4. **Automated Migration**: Convert theses between formats
 5. **Template Packs**: Pre-configured thesis templates
 
 ## Summary
 
-The HTF playground demonstrates full integration with the ggen packs and marketplace system:
+The HTF playground demonstrates full integration with the mcpp packs and marketplace system:
 
-✅ **Package Design**: Self-contained CLI tool following ggen conventions
+✅ **Package Design**: Self-contained CLI tool following mcpp conventions
 ✅ **Marketplace Ready**: Can be published as a pack
-✅ **Phase-Gated Installation**: Uses ggen's dry-run system
+✅ **Phase-Gated Installation**: Uses mcpp's dry-run system
 ✅ **Dependency Management**: Handles all dependencies
-✅ **Command Execution**: Works with `ggen packs execute`
+✅ **Command Execution**: Works with `mcpp packs execute`
 ✅ **Installation Manifests**: Generates proper metadata
 
 The system is production-ready for thesis planning workflows.

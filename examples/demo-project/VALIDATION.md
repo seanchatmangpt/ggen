@@ -222,7 +222,7 @@ mod tests {
 
 ### Manual Test
 ```bash
-cd /Users/sac/ggen/examples/demo-project
+cd ./examples/demo-project
 ./test.sh
 ```
 

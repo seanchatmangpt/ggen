@@ -1,7 +1,7 @@
-//! ggen-bridge-nif - Rust NIF for gen_yawl to ggen RDF integration
+//! mcpp-bridge-nif - Rust NIF for gen_yawl to mcpp RDF integration
 //!
 //! This module provides a Native Implemented Function (NIF) bridge between
-//! Erlang/OTP's gen_yawl and ggen's Rust-based RDF processing infrastructure.
+//! Erlang/OTP's gen_yawl and mcpp's Rust-based RDF processing infrastructure.
 //!
 //! ## Features
 //!
@@ -13,7 +13,7 @@
 //! ## Architecture
 //!
 //! ```text
-//! Erlang (gen_yawl) <---> NIF (this module) <---> ggen Rust crates
+//! Erlang (gen_yawl) <---> NIF (this module) <---> mcpp Rust crates
 //!                         |
 //!                         v
 //!                      Oxigraph (RDF store)
@@ -213,7 +213,7 @@ fn nif_sparql_query<'a>(
     let query_str = query.to_utf8_lossy();
     
     // For now, use a simple in-memory executor
-    // In production, this would integrate with ggen's RDF store
+    // In production, this would integrate with mcpp's RDF store
     let executor = SparqlExecutor::new();
     let results = executor.execute(&query_str)
         .map_err(|e| Error::NewTerm(format!("query_error: {}", e)))?;

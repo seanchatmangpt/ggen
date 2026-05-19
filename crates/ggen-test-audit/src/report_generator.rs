@@ -22,7 +22,7 @@ impl ReportGenerator {
     /// Create a new report generator
     ///
     /// # Arguments
-    /// * `output_dir` - Directory to write reports (e.g., .ggen/test-metadata/)
+    /// * `output_dir` - Directory to write reports (e.g., .mcpp/test-metadata/)
     pub fn new(output_dir: impl Into<PathBuf>) -> AuditResult<Self> {
         let output_dir = output_dir.into();
         std::fs::create_dir_all(&output_dir)?;
@@ -98,9 +98,9 @@ impl ReportGenerator {
             },
             false_positives: FalsePositiveSummary {
                 total_false_positives: false_positive_report.execution_only_tests.len()
-                    + false_positive_report.ggen_toml_issues.len(),
+                    + false_positive_report.mcpp_toml_issues.len(),
                 execution_only_count: false_positive_report.execution_only_tests.len(),
-                ggen_toml_issues_count: false_positive_report.ggen_toml_issues.len(),
+                mcpp_toml_issues_count: false_positive_report.mcpp_toml_issues.len(),
                 critical_path_gaps_count: false_positive_report.critical_path_gaps.len(),
                 overall_severity: false_positive_report.overall_severity,
             },
@@ -155,12 +155,12 @@ impl ReportGenerator {
             });
         }
 
-        // ggen.toml critical fix
-        if !false_positive_report.ggen_toml_issues.is_empty() {
+        // mcpp.toml critical fix
+        if !false_positive_report.mcpp_toml_issues.is_empty() {
             recommendations.push(Recommendation {
                 priority: Priority::Critical,
                 category: "False Positives".to_string(),
-                issue: "ggen.toml tests pass but don't validate parsed values".to_string(),
+                issue: "mcpp.toml tests pass but don't validate parsed values".to_string(),
                 action: "Add assert_eq!(config.field, expected) assertions".to_string(),
             });
         }
@@ -266,8 +266,8 @@ impl ReportGenerator {
             report.false_positives.execution_only_count
         ));
         md.push_str(&format!(
-            "- **ggen.toml Issues**: {}\n",
-            report.false_positives.ggen_toml_issues_count
+            "- **mcpp.toml Issues**: {}\n",
+            report.false_positives.mcpp_toml_issues_count
         ));
         md.push_str(&format!(
             "- **Critical Path Gaps**: {}\n",
@@ -347,8 +347,8 @@ pub struct FalsePositiveSummary {
     pub total_false_positives: usize,
     /// Execution-only tests
     pub execution_only_count: usize,
-    /// ggen.toml specific issues
-    pub ggen_toml_issues_count: usize,
+    /// mcpp.toml specific issues
+    pub mcpp_toml_issues_count: usize,
     /// Critical path gaps
     pub critical_path_gaps_count: usize,
     /// Overall severity

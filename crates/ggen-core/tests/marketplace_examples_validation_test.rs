@@ -1,6 +1,6 @@
 //! Bulk validation of all marketplace package manifests and example project manifests.
 //!
-//! These tests walk the real filesystem to ensure every package.toml, ggen.toml,
+//! These tests walk the real filesystem to ensure every package.toml, mcpp.toml,
 //! and template file in the repository parses correctly. They serve as a
 //! regression fence: adding a malformed file to the marketplace or examples
 //! will break these tests.
@@ -14,12 +14,12 @@ use walkdir::WalkDir;
 // Helpers
 // ---------------------------------------------------------------------------
 
-/// Return the ggen workspace root (parent of `crates/`).
+/// Return the mcpp workspace root (parent of `crates/`).
 fn workspace_root() -> PathBuf {
     let mut root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    // crates/ggen-core  -> crates  -> ggen
+    // crates/mcpp-core  -> crates  -> mcpp
     root.pop(); // crates
-    root.pop(); // ggen
+    root.pop(); // mcpp
     root
 }
 
@@ -38,12 +38,12 @@ impl tera::Function for NowFunction {
     }
 }
 
-/// Build a Tera instance pre-loaded with ggen's custom filters and a stub
+/// Build a Tera instance pre-loaded with mcpp's custom filters and a stub
 /// `now()` function so that marketplace templates can be parsed without
 /// runtime context.
-fn ggen_tera() -> Tera {
+fn mcpp_tera() -> Tera {
     let mut tera = Tera::default();
-    ggen_core::register::register_all(&mut tera);
+    mcpp_core::register::register_all(&mut tera);
     tera.register_function("now", NowFunction);
     tera
 }
@@ -123,11 +123,11 @@ const SKIP_BROKEN_REFS: &[&str] = &[
 ];
 
 // ---------------------------------------------------------------------------
-// Test 1: All example ggen.toml manifests parse without error
+// Test 1: All example mcpp.toml manifests parse without error
 // ---------------------------------------------------------------------------
 
 #[test]
-fn all_example_ggen_toml_manifests_parse() {
+fn all_example_mcpp_toml_manifests_parse() {
     let root = workspace_root();
     let examples_dir = root.join("examples");
     if !examples_dir.exists() {
@@ -138,18 +138,18 @@ fn all_example_ggen_toml_manifests_parse() {
         return;
     }
 
-    let manifest_dirs = collect_dirs_with_file(&examples_dir, "ggen.toml");
+    let manifest_dirs = collect_dirs_with_file(&examples_dir, "mcpp.toml");
     assert!(
         !manifest_dirs.is_empty(),
-        "expected at least one example with ggen.toml"
+        "expected at least one example with mcpp.toml"
     );
 
     let mut parsed = 0;
     let mut failed: Vec<(PathBuf, String)> = Vec::new();
 
     for dir in &manifest_dirs {
-        let manifest_path = dir.join("ggen.toml");
-        match ggen_core::manifest::ManifestParser::parse(&manifest_path) {
+        let manifest_path = dir.join("mcpp.toml");
+        match mcpp_core::manifest::ManifestParser::parse(&manifest_path) {
             Ok(_manifest) => {
                 parsed += 1;
             }
@@ -161,7 +161,7 @@ fn all_example_ggen_toml_manifests_parse() {
 
     if !failed.is_empty() {
         let mut msg = format!(
-            "{} of {} example ggen.toml manifests failed to parse:\n",
+            "{} of {} example mcpp.toml manifests failed to parse:\n",
             failed.len(),
             manifest_dirs.len()
         );
@@ -174,7 +174,7 @@ fn all_example_ggen_toml_manifests_parse() {
     assert_eq!(
         parsed,
         manifest_dirs.len(),
-        "parsed {parsed} of {} example ggen.toml manifests",
+        "parsed {parsed} of {} example mcpp.toml manifests",
         manifest_dirs.len()
     );
 }
@@ -313,18 +313,18 @@ fn all_marketplace_template_files_parse() {
         let ext = tmpl_path.extension().unwrap().to_string_lossy().to_string();
 
         if ext == "tmpl" {
-            // .tmpl files use ggen's frontmatter + Tera body format.
+            // .tmpl files use mcpp's frontmatter + Tera body format.
             // Template::parse() extracts frontmatter and returns the body.
-            match ggen_core::Template::parse(&content) {
+            match mcpp_core::Template::parse(&content) {
                 Ok(_) => parsed += 1,
                 Err(e) => failed.push((tmpl_path.clone(), format!("Template::parse: {e}"))),
             }
         } else if ext == "tera" {
             // .tera files are plain Tera templates (no frontmatter).
-            // Register ggen's custom filters/functions so that references
+            // Register mcpp's custom filters/functions so that references
             // to `snake`, `pascal`, etc. resolve during parse validation.
             let name = tmpl_path.file_name().unwrap().to_string_lossy().to_string();
-            let mut tera = ggen_tera();
+            let mut tera = mcpp_tera();
             match tera.add_raw_template(&name, &content) {
                 Ok(_) => parsed += 1,
                 Err(e) => {
@@ -504,18 +504,18 @@ fn example_manifests_have_required_fields() {
         return;
     }
 
-    let manifest_dirs = collect_dirs_with_file(&examples_dir, "ggen.toml");
+    let manifest_dirs = collect_dirs_with_file(&examples_dir, "mcpp.toml");
     assert!(
         !manifest_dirs.is_empty(),
-        "expected at least one example with ggen.toml"
+        "expected at least one example with mcpp.toml"
     );
 
     let mut validated = 0;
     let mut missing: Vec<(PathBuf, String)> = Vec::new();
 
     for dir in &manifest_dirs {
-        let manifest_path = dir.join("ggen.toml");
-        let manifest = match ggen_core::manifest::ManifestParser::parse(&manifest_path) {
+        let manifest_path = dir.join("mcpp.toml");
+        let manifest = match mcpp_core::manifest::ManifestParser::parse(&manifest_path) {
             Ok(m) => m,
             Err(_) => continue, // parse failures covered by test 1
         };

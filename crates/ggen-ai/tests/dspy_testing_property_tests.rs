@@ -2,8 +2,8 @@
 //!
 //! Uses proptest to verify invariants hold across random inputs.
 
-use ggen_ai::dspy::testing::*;
-use ggen_ai::dspy::Module;
+use mcpp_ai::dspy::testing::*;
+use mcpp_ai::dspy::Module;
 use proptest::prelude::*;
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -42,9 +42,9 @@ fn field_map_strategy() -> impl Strategy<Value = HashMap<String, Value>> {
 }
 
 /// Strategy for generating Examples
-fn example_strategy() -> impl Strategy<Value = ggen_ai::dspy::optimizer::Example> {
+fn example_strategy() -> impl Strategy<Value = mcpp_ai::dspy::optimizer::Example> {
     (field_map_strategy(), field_map_strategy())
-        .prop_map(|(inputs, outputs)| ggen_ai::dspy::optimizer::Example::new(inputs, outputs))
+        .prop_map(|(inputs, outputs)| mcpp_ai::dspy::optimizer::Example::new(inputs, outputs))
 }
 
 // ============================================================================
@@ -321,7 +321,7 @@ proptest! {
         outputs in field_map_strategy(),
     ) {
         use tempfile::TempDir;
-        use ggen_ai::dspy::testing::GoldenTest;
+        use mcpp_ai::dspy::testing::GoldenTest;
 
         let temp_dir = TempDir::new().unwrap();
         let path = temp_dir.path().join("test.json");
@@ -340,7 +340,7 @@ proptest! {
     fn test_golden_comparison_reflexive(
         outputs in field_map_strategy(),
     ) {
-        use ggen_ai::dspy::testing::GoldenTest;
+        use mcpp_ai::dspy::testing::GoldenTest;
         use tempfile::TempDir;
 
         let temp_dir = TempDir::new().unwrap();
@@ -350,7 +350,7 @@ proptest! {
         test.save(&path).unwrap();
 
         // Comparing with itself should always match
-        use ggen_ai::dspy::testing::compare_with_golden;
+        use mcpp_ai::dspy::testing::compare_with_golden;
         let result = compare_with_golden(&path, &outputs).unwrap();
 
         prop_assert!(result.is_match());

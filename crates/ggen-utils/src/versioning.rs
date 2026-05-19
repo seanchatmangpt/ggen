@@ -5,7 +5,7 @@
 ///
 /// # Example
 /// ```
-/// use ggen_utils::deprecated_since;
+/// use mcpp_utils::deprecated_since;
 ///
 /// #[deprecated_since!("1.0.0", "Use new_api() instead. See migration guide at docs/MIGRATION.md")]
 /// pub fn old_api() -> Result<String, Error> {
@@ -24,7 +24,7 @@ macro_rules! deprecated_since {
 ///
 /// # Example
 /// ```
-/// use ggen_utils::experimental;
+/// use mcpp_utils::experimental;
 ///
 /// #[experimental!("1.0.0", "This API may change in future versions")]
 /// pub fn experimental_feature() -> Result<(), Error> {
@@ -43,7 +43,7 @@ macro_rules! experimental {
 ///
 /// # Example
 /// ```
-/// use ggen_utils::breaking_change;
+/// use mcpp_utils::breaking_change;
 ///
 /// #[breaking_change!("2.0.0", "Signature changed. Old: fn(i32) -> i32, New: fn(i64) -> Result<i64, Error>")]
 /// pub fn updated_api(value: i64) -> Result<i64, Error> {
@@ -65,7 +65,7 @@ impl VersionChecker {
     ///
     /// # Example
     /// ```
-    /// use ggen_utils::versioning::VersionChecker;
+    /// use mcpp_utils::versioning::VersionChecker;
     ///
     /// let compatible = VersionChecker::is_compatible("1.0.0", "1.2.0");
     /// assert!(compatible.unwrap());

@@ -459,7 +459,7 @@ cat << EOF
     - Shutdown → Resources cleaned automatically
 
   Lifecycle Management:
-    - Start: ggen sync --ccw-exec true
+    - Start: mcpp sync --ccw-exec true
     - Monitor: tail -f logs (from Claude Code)
     - Stop: Ctrl+C or timeout
     - Cleanup: Automatic (sandbox exit)

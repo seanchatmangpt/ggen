@@ -78,12 +78,12 @@ TOTAL:                     ✅ 10/112 (8.9%)
 **Status**: Ready to begin immediately
 
 **Day 1 Commands** (5-6):
-- [ ] T011: ggen workflow analyze
-- [ ] T012: ggen workflow init
-- [ ] T013: ggen workflow report
-- [ ] T014: ggen workflow event
-- [ ] T015: ggen workflow discover
-- [ ] T016: ggen utils
+- [ ] T011: mcpp workflow analyze
+- [ ] T012: mcpp workflow init
+- [ ] T013: mcpp workflow report
+- [ ] T014: mcpp workflow event
+- [ ] T015: mcpp workflow discover
+- [ ] T016: mcpp utils
 
 **Day 2 Commands** (8):
 - [ ] T017-T024: template subcommands (new, list, lint, generate, get, show, generate-tree, regenerate)
@@ -225,8 +225,8 @@ graph TD
 ## Known Issues & Resolutions
 
 ### Binary Availability
-**Issue**: ggen CLI binary not in PATH during Phase 2 test
-**Resolution**: Framework designed to work with direct ggen CLI invocation
+**Issue**: mcpp CLI binary not in PATH during Phase 2 test
+**Resolution**: Framework designed to work with direct mcpp CLI invocation
 **Status**: ✅ Resolved - Script uses `cargo run` as fallback
 
 ### Schema Examples

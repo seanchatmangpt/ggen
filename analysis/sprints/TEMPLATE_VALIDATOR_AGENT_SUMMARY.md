@@ -6,7 +6,7 @@ Successfully implemented the `TemplateValidatorAgent` (Gap #5, P1 priority) - an
 ## Implementation Details
 
 ### File Created
-- **Path**: `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/template_validator.rs`
+- **Path**: `~/.ggen/mcpp/crates/mcpp-ai/src/swarm/agents/template_validator.rs`
 - **Lines**: 720+ lines of production code
 - **Tests**: 10 comprehensive unit tests
 
@@ -149,14 +149,14 @@ for fix in &report.fixes {
 ## Integration
 
 ### Module Registration
-Added to `/Users/sac/ggen/crates/ggen-ai/src/swarm/agents/mod.rs`:
+Added to `~/.ggen/mcpp/crates/mcpp-ai/src/swarm/agents/mod.rs`:
 ```rust
 pub mod template_validator;
 pub use template_validator::*;
 ```
 
 ### Public API
-Added to `/Users/sac/ggen/crates/ggen-ai/src/lib.rs`:
+Added to `~/.ggen/mcpp/crates/mcpp-ai/src/lib.rs`:
 ```rust
 pub mod swarm;
 ```
@@ -164,12 +164,12 @@ pub mod swarm;
 ## Test Files
 
 ### Unit Tests
-- **File**: `/Users/sac/ggen/crates/ggen-ai/tests/template_validator_agent_test.rs`
+- **File**: `~/.ggen/mcpp/crates/mcpp-ai/tests/template_validator_agent_test.rs`
 - **Tests**: 10 comprehensive tests
 - **Coverage**: All major functionality
 
 ### Example/Demo
-- **File**: `/Users/sac/ggen/crates/ggen-ai/examples/template_validator_demo.rs`
+- **File**: `~/.ggen/mcpp/crates/mcpp-ai/examples/template_validator_demo.rs`
 - **Examples**: 5 different validation scenarios
 - **Features**: SPARQL cross-reference, filter validation, quality scoring
 
@@ -178,7 +178,7 @@ pub mod swarm;
 ### Code Quality
 - **Lines of Code**: 720+
 - **Test Coverage**: 10 unit tests
-- **Compilation**: ✅ Compiles successfully (ggen-ai crate)
+- **Compilation**: ✅ Compiles successfully (mcpp-ai crate)
 - **Type Safety**: Full Rust type checking
 - **Error Handling**: Comprehensive Result<T, E> usage
 

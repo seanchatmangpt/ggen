@@ -26,7 +26,7 @@
 //! defaults:
 //!   port: "8080"
 //! rdf:
-//!   type: "ggen:MicroserviceTemplate"
+//!   type: "mcpp:MicroserviceTemplate"
 //!   language: "rust"
 //! tree:
 //!   - type: directory
@@ -42,10 +42,10 @@
 //! ### Loading a Template from File
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+//! use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
 //!
 //! println!("Template: {}", template.name());
@@ -57,9 +57,9 @@
 //! ### Parsing from YAML String
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::file_tree_generator::{FileTreeTemplate, TemplateParser};
+//! use mcpp_core::templates::file_tree_generator::{FileTreeTemplate, TemplateParser};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let yaml = r#"
 //! name: my-template
 //! variables:
@@ -78,13 +78,13 @@
 //! ### Working with RDF Metadata
 //!
 //! ```rust,no_run
-//! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+//! use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let yaml = r#"
 //! name: microservice
 //! rdf:
-//!   type: "ggen:MicroserviceTemplate"
+//!   type: "mcpp:MicroserviceTemplate"
 //!   language: "rust"
 //! tree:
 //!   - type: directory
@@ -98,7 +98,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -113,10 +113,10 @@ use super::format::{FileTreeNode, TemplateFormat};
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+/// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
 /// println!("Template: {}", template.name());
 /// # Ok(())
@@ -149,8 +149,8 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::TemplateFormat;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::TemplateFormat;
     ///
     /// let format = TemplateFormat::new("my-template");
     /// let template = FileTreeTemplate::new(format);
@@ -186,10 +186,10 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
     /// println!("Template: {}", template.name());
     /// # Ok(())
@@ -229,9 +229,9 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// variables:
@@ -320,8 +320,8 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::TemplateFormat;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::TemplateFormat;
     ///
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_variable("service_name")
@@ -346,8 +346,8 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::TemplateFormat;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::TemplateFormat;
     ///
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_default("port", "8080");
@@ -376,10 +376,10 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -403,8 +403,8 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::TemplateFormat;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::TemplateFormat;
     ///
     /// let format = TemplateFormat::new("my-template");
     /// let template = FileTreeTemplate::new(format);
@@ -425,8 +425,8 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::TemplateFormat;
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::TemplateFormat;
     ///
     /// let format = TemplateFormat::new("my-template");
     /// let template = FileTreeTemplate::new(format);
@@ -447,8 +447,8 @@ impl FileTreeTemplate {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
-    /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+    /// use mcpp_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use mcpp_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
@@ -470,9 +470,9 @@ impl FileTreeTemplate {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::templates::file_tree_generator::TemplateParser;
+/// use mcpp_core::templates::file_tree_generator::TemplateParser;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let yaml = r#"
 /// name: my-template
 /// tree:
@@ -508,9 +508,9 @@ impl TemplateParser {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::TemplateParser;
+    /// use mcpp_core::templates::file_tree_generator::TemplateParser;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// tree:
@@ -547,10 +547,10 @@ impl TemplateParser {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::templates::file_tree_generator::TemplateParser;
+    /// use mcpp_core::templates::file_tree_generator::TemplateParser;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let template = TemplateParser::parse_file(Path::new("template.yaml"))?;
     /// println!("Template: {}", template.name());
     /// # Ok(())
@@ -589,9 +589,9 @@ impl TemplateParser {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::templates::file_tree_generator::TemplateParser;
+    /// use mcpp_core::templates::file_tree_generator::TemplateParser;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let content = r#"
     /// [directory: "src"]
     /// [file: "main.rs"]
@@ -708,7 +708,7 @@ tree:
         let yaml = r#"
 name: microservice-template
 rdf:
-  type: "ggen:MicroserviceTemplate"
+  type: "mcpp:MicroserviceTemplate"
   language: "rust"
 variables:
   - service_name

@@ -1,4 +1,4 @@
-//! Sync Executor - Domain logic for ggen sync command
+//! Sync Executor - Domain logic for mcpp sync command
 //!
 //! This module contains the business logic for the sync pipeline,
 //! extracted from the CLI layer to maintain separation of concerns.
@@ -28,7 +28,7 @@ use crate::drift::DriftDetector;
 use crate::manifest::{ManifestParser, ManifestValidator};
 use crate::poka_yoke::QualityGateRunner;
 use crate::validation::PreFlightValidator;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
@@ -94,7 +94,7 @@ pub struct SyncOptions {
 
     /// Optional LLM service for auto-generating skill implementations
     /// If None, uses default TODO stub generator
-    /// Note: Box<dyn LlmService> avoids cyclic dependency with ggen-ai
+    /// Note: Box<dyn LlmService> avoids cyclic dependency with mcpp-ai
     pub llm_service: Option<Box<dyn LlmService>>,
 
     /// Timeout for sync operations in milliseconds (None = no timeout)
@@ -104,7 +104,7 @@ pub struct SyncOptions {
 impl Default for SyncOptions {
     fn default() -> Self {
         Self {
-            manifest_path: PathBuf::from("ggen.toml"),
+            manifest_path: PathBuf::from("mcpp.toml"),
             output_dir: None,
             cache_dir: None,
             verbose: false,
@@ -297,7 +297,7 @@ impl SyncExecutor {
         // Validate manifest exists
         if !self.options.manifest_path.exists() {
             return Err(Error::new(&format!(
-                "error[E0001]: Manifest not found\n  --> {}\n  |\n  = help: Create a ggen.toml manifest file or specify path with --manifest",
+                "error[E0001]: Manifest not found\n  --> {}\n  |\n  = help: Create a mcpp.toml manifest file or specify path with --manifest",
                 self.options.manifest_path.display()
             )));
         }
@@ -313,7 +313,7 @@ impl SyncExecutor {
         // Parse manifest
         let manifest_data = ManifestParser::parse(&self.options.manifest_path).map_err(|e| {
             Error::new(&format!(
-                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check ggen.toml syntax and required fields",
+                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check mcpp.toml syntax and required fields",
                 self.options.manifest_path.display(),
                 e
             ))
@@ -353,7 +353,7 @@ impl SyncExecutor {
 
         if dep_validator.failed_checks > 0 {
             return Err(Error::new(&format!(
-                "error[E0002]: {} dependency validation checks failed\n  |\n  = help: Common issues:\n  =   1. Query file not found: Check ontology.source and ontology.imports paths\n  =   2. Template file not found: Check generation.rules[].template paths\n  =   3. Import cycle: Check if imported files reference each other\n  = help: Run 'ggen validate' for detailed dependency analysis",
+                "error[E0002]: {} dependency validation checks failed\n  |\n  = help: Common issues:\n  =   1. Query file not found: Check ontology.source and ontology.imports paths\n  =   2. Template file not found: Check generation.rules[].template paths\n  =   3. Import cycle: Check if imported files reference each other\n  = help: Run 'mcpp validate' for detailed dependency analysis",
                 dep_validator.failed_checks
             )));
         }
@@ -428,7 +428,7 @@ impl SyncExecutor {
         &self, manifest_data: &crate::manifest::GgenManifest, base_path: &Path,
     ) -> Result<SyncResult> {
         if self.options.verbose {
-            eprintln!("Validating ggen.toml...\n");
+            eprintln!("Validating mcpp.toml...\n");
         }
 
         let mut validations = Vec::new();
@@ -609,7 +609,7 @@ impl SyncExecutor {
                 .options
                 .cache_dir
                 .clone()
-                .unwrap_or_else(|| output_directory.join(".ggen/cache"));
+                .unwrap_or_else(|| output_directory.join(".mcpp/cache"));
             let mut c = IncrementalCache::new(cache_dir);
             let _ = c.load_cache_state(); // Ignore if first run
             Some(c)
@@ -890,7 +890,7 @@ impl SyncExecutor {
         // Parse manifest to get watch paths
         let manifest_data = ManifestParser::parse(manifest_path).map_err(|e| {
             Error::new(&format!(
-                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check ggen.toml syntax",
+                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check mcpp.toml syntax",
                 manifest_path.display(),
                 e
             ))
@@ -977,7 +977,7 @@ impl SyncExecutor {
             return;
         }
 
-        let state_dir = base_path.join(".ggen");
+        let state_dir = base_path.join(".mcpp");
         let detector = match DriftDetector::new(&state_dir) {
             Ok(d) => d,
             Err(_) => return, // Silently skip if detector creation fails
@@ -1014,7 +1014,7 @@ impl SyncExecutor {
         &self, base_path: &Path, manifest_data: &crate::manifest::GgenManifest,
         files_synced: usize, duration_ms: u64,
     ) {
-        let state_dir = base_path.join(".ggen");
+        let state_dir = base_path.join(".mcpp");
         let detector = match DriftDetector::new(&state_dir) {
             Ok(d) => d,
             Err(e) => {

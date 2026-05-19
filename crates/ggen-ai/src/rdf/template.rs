@@ -15,24 +15,21 @@
 //!
 //! ### Rendering a Project
 //!
-//! ```rust,no_run
-//! use ggen_ai::rdf::template::TemplateRenderer;
-//! use ggen_ai::rdf::types::CliProject;
+//! ```text
+//! use mcpp_ai::rdf::template::TemplateRenderer;
+//! use mcpp_ai::rdf::types::CliProject;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let template_dir = Path::new("templates");
 //! let renderer = TemplateRenderer::new(template_dir)?;
 //!
-//! let project = CliProject::default(); // Load from RDF
+//! let project = CliProject { /* fields from RDF */ };
 //! let output_dir = Path::new("output");
 //!
 //! renderer.render_all(&project, output_dir)?;
-//! # Ok(())
-//! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
 

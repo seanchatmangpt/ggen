@@ -13,7 +13,7 @@
 //! - Set GGEN_LLM_MODEL environment variable
 //! - Set appropriate API key
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     field::{InputField, OutputField},
     module::Module,
     optimizer::{BootstrapFewShot, Example},
@@ -28,7 +28,7 @@ use std::sync::Arc;
 async fn evaluate(
     module: &dyn Module, dataset: &[Example],
     metric: &Arc<
-        dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError>
+        dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, mcpp_ai::dspy::ModuleError>
             + Send
             + Sync,
     >,

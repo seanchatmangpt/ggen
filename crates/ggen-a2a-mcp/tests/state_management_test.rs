@@ -3,7 +3,7 @@
 //!
 //! Tests use real collaborators (no mocks) following Chicago TDD.
 
-use ggen_a2a_mcp::state::{
+use mcpp_a2a_mcp::state::{
     ApprovalCriterion, ApprovalDecision, ApprovalResponse, ApprovalStatus, ArbApprovalManager,
     ArbApprovalValidator, Artifact, ArtifactCompletenessValidator, ArtifactRegistry, ArtifactType,
     FiboConsistencyValidator, FiboValidationResult, HandoffPackage, HandoffProtocol, HandoffStatus,

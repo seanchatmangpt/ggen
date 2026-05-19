@@ -2,7 +2,7 @@
 //!
 //! Identifies tests that pass but don't properly validate behavior:
 //! - Execution-only tests (just check code runs, not correctness)
-//! - Missing critical path coverage (ggen.toml, RDF parsing, etc.)
+//! - Missing critical path coverage (mcpp.toml, RDF parsing, etc.)
 //! - Weak assertions that don't catch bugs
 
 use crate::assertion_analyzer::TestAssertion;
@@ -31,42 +31,42 @@ impl FalsePositiveDetector {
             critical_paths: Vec::new(),
         };
 
-        // Add ggen critical paths (Feature 004 requirement)
-        detector.add_ggen_critical_paths();
+        // Add mcpp critical paths (Feature 004 requirement)
+        detector.add_mcpp_critical_paths();
         detector
     }
 
-    /// Add ggen-specific critical paths
+    /// Add mcpp-specific critical paths
     ///
     /// These paths MUST have strong assertion coverage:
     /// - RDF parsing and validation
     /// - Ontology projection
     /// - Code generation
-    /// - Configuration (ggen.toml) handling
-    fn add_ggen_critical_paths(&mut self) {
+    /// - Configuration (mcpp.toml) handling
+    fn add_mcpp_critical_paths(&mut self) {
         self.critical_paths = vec![
             CriticalPath {
                 name: "RDF Parsing".to_string(),
-                code_paths: vec!["crates/ggen-rdf/src/parser.rs".into()],
+                code_paths: vec!["crates/mcpp-rdf/src/parser.rs".into()],
                 test_patterns: vec!["rdf_parser", "parse_triple", "parse_rdf"],
                 required_strength: AssertionStrength::Strong,
             },
             CriticalPath {
                 name: "Ontology Projection".to_string(),
-                code_paths: vec!["crates/ggen-ontology/src/projection.rs".into()],
+                code_paths: vec!["crates/mcpp-ontology/src/projection.rs".into()],
                 test_patterns: vec!["ontology", "project", "transform"],
                 required_strength: AssertionStrength::Strong,
             },
             CriticalPath {
                 name: "Code Generation".to_string(),
-                code_paths: vec!["crates/ggen-core/src/generator.rs".into()],
+                code_paths: vec!["crates/mcpp-core/src/generator.rs".into()],
                 test_patterns: vec!["generate", "codegen", "emit"],
                 required_strength: AssertionStrength::Strong,
             },
             CriticalPath {
-                name: "ggen.toml Configuration".to_string(),
-                code_paths: vec!["crates/ggen-config/src/toml.rs".into()],
-                test_patterns: vec!["ggen_toml", "config", "parse_toml"],
+                name: "mcpp.toml Configuration".to_string(),
+                code_paths: vec!["crates/mcpp-config/src/toml.rs".into()],
+                test_patterns: vec!["mcpp_toml", "config", "parse_toml"],
                 required_strength: AssertionStrength::Strong,
             },
         ];
@@ -96,13 +96,13 @@ impl FalsePositiveDetector {
             .collect()
     }
 
-    /// Analyze ggen.toml tests specifically
+    /// Analyze mcpp.toml tests specifically
     ///
-    /// The critical bug: ggen.toml is broken but tests pass. This finds why.
+    /// The critical bug: mcpp.toml is broken but tests pass. This finds why.
     ///
     /// # Errors
     /// Returns `AuditError::IoError` if test files cannot be read
-    pub fn analyze_ggen_toml_tests(&self) -> AuditResult<Vec<FalsePositive>> {
+    pub fn analyze_mcpp_toml_tests(&self) -> AuditResult<Vec<FalsePositive>> {
         let mut false_positives = Vec::new();
 
         for test_dir in &self.test_dirs {
@@ -113,15 +113,15 @@ impl FalsePositiveDetector {
             {
                 let content = std::fs::read_to_string(entry.path())?;
 
-                // Find ggen.toml related tests
-                if content.contains("ggen.toml")
+                // Find mcpp.toml related tests
+                if content.contains("mcpp.toml")
                     || content.contains("config")
                     || content.contains("toml")
                 {
                     // Check if tests validate TOML parsing or just execution
                     if self.has_only_execution_checks(&content) {
                         let test_id =
-                            TestId::new(format!("ggen_toml_test_{}", entry.path().display()))?;
+                            TestId::new(format!("mcpp_toml_test_{}", entry.path().display()))?;
 
                         false_positives.push(FalsePositive {
                             test_id,
@@ -206,13 +206,13 @@ impl FalsePositiveDetector {
         &self, assertions: &[TestAssertion],
     ) -> AuditResult<FalsePositiveReport> {
         let execution_only = self.detect_execution_only_tests(assertions);
-        let ggen_toml_issues = self.analyze_ggen_toml_tests()?;
+        let mcpp_toml_issues = self.analyze_mcpp_toml_tests()?;
         let critical_gaps = self.identify_critical_path_gaps(assertions);
 
         Ok(FalsePositiveReport {
             total_tests_analyzed: assertions.len(),
             execution_only_tests: execution_only,
-            ggen_toml_issues,
+            mcpp_toml_issues,
             critical_path_gaps: critical_gaps,
             overall_severity: self.calculate_overall_severity(assertions),
         })
@@ -270,7 +270,7 @@ pub struct FalsePositive {
 pub enum FalsePositiveReason {
     /// Test only checks execution (is_ok, is_some) without validating values
     ExecutionOnly,
-    /// ggen.toml test doesn't validate parsed TOML values
+    /// mcpp.toml test doesn't validate parsed TOML values
     GgenTomlNotValidated,
     /// Critical path lacks strong assertion coverage
     CriticalPathGap,
@@ -283,7 +283,7 @@ pub enum Severity {
     Warning,
     /// Medium impact
     Error,
-    /// High impact (e.g., ggen.toml broken but tests pass)
+    /// High impact (e.g., mcpp.toml broken but tests pass)
     Critical,
 }
 
@@ -309,8 +309,8 @@ pub struct FalsePositiveReport {
     pub total_tests_analyzed: usize,
     /// Execution-only tests (weak assertions)
     pub execution_only_tests: Vec<FalsePositive>,
-    /// ggen.toml specific issues
-    pub ggen_toml_issues: Vec<FalsePositive>,
+    /// mcpp.toml specific issues
+    pub mcpp_toml_issues: Vec<FalsePositive>,
     /// Critical path coverage gaps
     pub critical_path_gaps: Vec<CriticalPathGap>,
     /// Overall severity assessment

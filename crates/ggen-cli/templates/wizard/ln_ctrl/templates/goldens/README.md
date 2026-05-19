@@ -168,7 +168,7 @@ Used for divergence reports - focuses on semantic meaning rather than exact valu
 ### 1. Create Scenario
 ```bash
 # Define test scenario
-ggen wizard ln_ctrl scenario \
+mcpp wizard ln_ctrl scenario \
     --name "beta_reduction_test" \
     --expression "(λx.x+1) 5" \
     --output scenarios/beta_test.json
@@ -177,7 +177,7 @@ ggen wizard ln_ctrl scenario \
 ### 2. Generate Expected Receipts
 ```bash
 # Run execution and capture receipts
-ggen wizard ln_ctrl execute \
+mcpp wizard ln_ctrl execute \
     --scenario scenarios/beta_test.json \
     --output receipts/beta_test_receipts.json
 ```
@@ -185,14 +185,14 @@ ggen wizard ln_ctrl execute \
 ### 3. Generate Expected Verdict
 ```bash
 # Validate and generate verdict
-ggen wizard ln_ctrl validate \
+mcpp wizard ln_ctrl validate \
     --receipts receipts/beta_test_receipts.json \
     --output verdicts/beta_test_verdict.json
 ```
 
 ### 4. Compare with Golden
 ```rust
-use ggen_e2e::golden::GoldenFile;
+use mcpp_e2e::golden::GoldenFile;
 
 let golden = GoldenFile::load(golden_dir, Path::new("beta_test_receipts.json"))?;
 let actual = fs::read_to_string("actual_receipts.json")?;
@@ -228,13 +228,13 @@ All templates are designed to produce deterministic output:
 ## Examples
 
 See test fixtures in:
-- `/home/user/ggen/tests/e2e/golden/ln_ctrl/` - Golden files
-- `/home/user/ggen/tests/e2e/fixtures/ln_ctrl/` - Test scenarios
-- `/home/user/ggen/crates/ggen-cli/tests/ln_ctrl/` - Unit tests
+- `/home/user/mcpp/tests/e2e/golden/ln_ctrl/` - Golden files
+- `/home/user/mcpp/tests/e2e/fixtures/ln_ctrl/` - Test scenarios
+- `/home/user/mcpp/crates/mcpp-cli/tests/ln_ctrl/` - Unit tests
 
 ## References
 
 - [Receipt Contract Ontology](../../ontologies/ln_ctrl_receipts.ttl)
 - [Receipt Schema](../schemas/receipt.schema.json.tera)
-- [Golden Test Framework](../../../../../../crates/ggen-e2e/src/golden.rs)
+- [Golden Test Framework](../../../../../../crates/mcpp-e2e/src/golden.rs)
 - [E2E Testing Guide](../../../../../../tests/e2e/golden/README.md)

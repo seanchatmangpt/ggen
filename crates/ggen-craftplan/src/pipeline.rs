@@ -37,7 +37,7 @@ impl CodeGenerator {
     /// # Examples
     ///
     /// ```
-    /// use ggen_craftplan::pipeline::CodeGenerator;
+    /// use mcpp_craftplan::pipeline::CodeGenerator;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let generator = CodeGenerator::new("output")?;
@@ -71,7 +71,7 @@ impl CodeGenerator {
     /// # Examples
     ///
     /// ```no_run
-    /// use ggen_craftplan::pipeline::CodeGenerator;
+    /// use mcpp_craftplan::pipeline::CodeGenerator;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let generator = CodeGenerator::new("output")?;

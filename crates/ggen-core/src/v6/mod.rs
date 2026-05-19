@@ -1,4 +1,4 @@
-//! # ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
+//! # mcpp v6: Fully-Rendered Libraries via Ontology-First Compilation
 //!
 //! This module implements the v6 constitutional law: **A = μ(O)**
 //!
@@ -31,7 +31,7 @@
 //! ## Quick Start
 //!
 //! ```text
-//! use ggen_core::v6::{StagedPipeline, PipelineConfig, Epoch};
+//! use mcpp_core::v6::{StagedPipeline, PipelineConfig, Epoch};
 //!
 //! // Create pipeline configuration
 //! let config = PipelineConfig::new("project", "1.0.0")

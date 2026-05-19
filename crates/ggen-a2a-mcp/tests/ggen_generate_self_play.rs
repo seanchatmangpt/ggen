@@ -1,14 +1,14 @@
 //! MCP Self-Play Tests — generate tool success path
 //!
-//! 8 tests exercising ggen's `generate` tool end-to-end via rmcp 1.3.0
+//! 8 tests exercising mcpp's `generate` tool end-to-end via rmcp 1.3.0
 //! in-process duplex transport. Each test creates its own tempdir + server.
 //!
 //! Run with:
-//!   cargo test -p ggen-a2a-mcp --test ggen_generate_self_play -- --test-threads=1 --nocapture
+//!   cargo test -p mcpp-a2a-mcp --test mcpp_generate_self_play -- --test-threads=1 --nocapture
 
 use std::path::{Path, PathBuf};
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -334,7 +334,7 @@ async fn test_generate_python_dataclass_from_ontology() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_scaffold_mcp_example_has_valid_project_structure() -> anyhow::Result<()> {
     // Arrange — point at examples dir
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 
@@ -380,10 +380,10 @@ async fn test_scaffold_mcp_example_has_valid_project_structure() -> anyhow::Resu
         extract_text(&scaffold_result)
     );
 
-    // Assert — ggen.toml exists
+    // Assert — mcpp.toml exists
     assert!(
-        target_dir.join("ggen.toml").exists(),
-        "scaffolded dir must contain ggen.toml"
+        target_dir.join("mcpp.toml").exists(),
+        "scaffolded dir must contain mcpp.toml"
     );
 
     // Assert — .ttl files exist
@@ -393,7 +393,7 @@ async fn test_scaffold_mcp_example_has_valid_project_structure() -> anyhow::Resu
         "scaffolded dir must contain at least one .ttl file"
     );
 
-    // Assert — file count >= 2 (ggen.toml + at least one other)
+    // Assert — file count >= 2 (mcpp.toml + at least one other)
     let all_files: Vec<PathBuf> = walk_dir_all(&target_dir);
     assert!(
         all_files.len() >= 2,

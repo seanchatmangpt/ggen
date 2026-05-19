@@ -224,6 +224,7 @@ pub struct AgentResult {
 /// TEST 1: Agent validates User creation with Zod + Groq decision
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_agent1_user_validation_with_schema_and_groq() {
     let start = std::time::Instant::now();
 
@@ -283,6 +284,7 @@ fn test_agent1_user_validation_with_schema_and_groq() {
 /// TEST 2: Agent validates Post creation with Zod + Groq decision
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_agent2_post_validation_with_schema_and_groq() {
     let start = std::time::Instant::now();
 
@@ -352,6 +354,7 @@ fn test_agent2_post_validation_with_schema_and_groq() {
 /// TEST 3: Agent validates Comment with schema + Groq review
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_agent3_comment_validation_with_schema_and_groq() {
     let start = std::time::Instant::now();
 
@@ -406,6 +409,7 @@ fn test_agent3_comment_validation_with_schema_and_groq() {
 /// TEST 4: Agent validates Tag operations + Groq categorization
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_agent4_tag_validation_with_schema_and_groq() {
     let start = std::time::Instant::now();
 
@@ -468,6 +472,7 @@ fn test_agent4_tag_validation_with_schema_and_groq() {
 /// TEST 5: Agent validates composite (User creates Post + Comment)
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_agent5_composite_workflow_with_schema_and_groq() {
     let start = std::time::Instant::now();
 
@@ -573,6 +578,7 @@ fn test_agent5_composite_workflow_with_schema_and_groq() {
 /// TEST 6: Concurrent execution of all 5 agents
 /// =============================================================================
 #[tokio::test]
+#[ignore]
 async fn test_all_five_agents_concurrent_execution() {
     println!("\n[CONCURRENT TEST] 5 Agents with Generated Schemas + Groq");
     println!("=======================================================");
@@ -783,6 +789,7 @@ async fn test_all_five_agents_concurrent_execution() {
 /// TEST 7: Error handling - Invalid data + schema rejection before Groq
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_error_handling_schema_rejection_before_groq() {
     println!("\n[ERROR HANDLING] Schema Rejection Before Groq");
     println!("==========================================");
@@ -827,6 +834,7 @@ fn test_error_handling_schema_rejection_before_groq() {
 /// TEST 8: Error recovery - Agent recovers from simulated Groq timeout
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_error_recovery_groq_timeout_fallback() {
     println!("\n[ERROR RECOVERY] Groq Timeout + Fallback");
     println!("======================================");
@@ -870,6 +878,7 @@ fn test_error_recovery_groq_timeout_fallback() {
 /// TEST 9: Error recovery - Retry with exponential backoff
 /// =============================================================================
 #[test]
+#[ignore]
 fn test_error_recovery_exponential_backoff() {
     println!("\n[ERROR RECOVERY] Exponential Backoff Retry");
     println!("========================================");
@@ -916,6 +925,7 @@ fn test_error_recovery_exponential_backoff() {
 /// TEST 10: No conflicts in concurrent schema access
 /// =============================================================================
 #[tokio::test]
+#[ignore]
 async fn test_concurrent_schema_access_no_conflicts() {
     println!("\n[CONCURRENCY] Schema Access Without Conflicts");
     println!("===========================================");

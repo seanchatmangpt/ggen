@@ -4,8 +4,8 @@
 //! after CLI operations like pack installation.
 
 use ed25519_dalek::{SigningKey, VerifyingKey};
-use ggen_receipt::{hash_data, Receipt};
-use ggen_utils::Result;
+use mcpp_receipt::{hash_data, Receipt};
+use mcpp_utils::Result;
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -41,18 +41,18 @@ impl ReceiptManager {
     ///
     /// # Arguments
     ///
-    /// * `base_dir` - Base directory (usually .ggen/)
+    /// * `base_dir` - Base directory (usually .mcpp/)
     pub fn new(base_dir: PathBuf) -> Result<Self> {
         let receipts_dir = base_dir.join("receipts");
         let keys_dir = base_dir.join("keys");
 
         // Create directories if they don't exist
         fs::create_dir_all(&receipts_dir).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to create receipts directory: {}", e))
+            mcpp_utils::Error::new(&format!("Failed to create receipts directory: {}", e))
         })?;
 
         fs::create_dir_all(&keys_dir).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to create keys directory: {}", e))
+            mcpp_utils::Error::new(&format!("Failed to create keys directory: {}", e))
         })?;
 
         Ok(Self {
@@ -65,7 +65,7 @@ impl ReceiptManager {
 
     /// Load or generate Ed25519 keypair
     ///
-    /// Keys are stored in .ggen/keys/ directory:
+    /// Keys are stored in .mcpp/keys/ directory:
     /// - private.pem - Signing key (hex-encoded)
     /// - public.pem - Verifying key (hex-encoded)
     pub fn load_or_generate_keys(&mut self) -> Result<&VerifyingKey> {
@@ -77,33 +77,33 @@ impl ReceiptManager {
             info!("Loading existing keys from {:?}", self.keys_dir);
 
             let private_key_hex = fs::read_to_string(&private_key_path).map_err(|e| {
-                ggen_utils::Error::new(&format!("Failed to read private key: {}", e))
+                mcpp_utils::Error::new(&format!("Failed to read private key: {}", e))
             })?;
 
             let public_key_hex = fs::read_to_string(&public_key_path).map_err(|e| {
-                ggen_utils::Error::new(&format!("Failed to read public key: {}", e))
+                mcpp_utils::Error::new(&format!("Failed to read public key: {}", e))
             })?;
 
             // Decode hex keys
             let signing_key_bytes = hex::decode(private_key_hex.trim()).map_err(|e| {
-                ggen_utils::Error::new(&format!("Failed to decode private key: {}", e))
+                mcpp_utils::Error::new(&format!("Failed to decode private key: {}", e))
             })?;
 
             let verifying_key_bytes = hex::decode(public_key_hex.trim()).map_err(|e| {
-                ggen_utils::Error::new(&format!("Failed to decode public key: {}", e))
+                mcpp_utils::Error::new(&format!("Failed to decode public key: {}", e))
             })?;
 
             // Parse keys - convert slices to fixed arrays for ed25519-dalek 2.x
             let signing_key_array: [u8; 32] = signing_key_bytes[..32]
                 .try_into()
-                .map_err(|_| ggen_utils::Error::new("Invalid signing key length"))?;
+                .map_err(|_| mcpp_utils::Error::new("Invalid signing key length"))?;
             let verifying_key_array: [u8; 32] = verifying_key_bytes[..32]
                 .try_into()
-                .map_err(|_| ggen_utils::Error::new("Invalid verifying key length"))?;
+                .map_err(|_| mcpp_utils::Error::new("Invalid verifying key length"))?;
 
             let signing_key = SigningKey::from_bytes(&signing_key_array);
             let verifying_key = VerifyingKey::from_bytes(&verifying_key_array)
-                .map_err(|e| ggen_utils::Error::new(&format!("Invalid verifying key: {}", e)))?;
+                .map_err(|e| mcpp_utils::Error::new(&format!("Invalid verifying key: {}", e)))?;
 
             self.signing_key = Some(signing_key);
             self.verifying_key = Some(verifying_key);
@@ -113,17 +113,17 @@ impl ReceiptManager {
 
         // Generate new keys
         info!("Generating new Ed25519 keypair");
-        let (signing_key, verifying_key) = ggen_receipt::generate_keypair();
+        let (signing_key, verifying_key) = mcpp_receipt::generate_keypair();
 
         // Store keys
         let private_key_hex = hex::encode(signing_key.to_bytes());
         let public_key_hex = hex::encode(verifying_key.to_bytes());
 
         fs::write(&private_key_path, private_key_hex)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write private key: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to write private key: {}", e)))?;
 
         fs::write(&public_key_path, public_key_hex)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write public key: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to write public key: {}", e)))?;
 
         info!(
             "Generated new keypair: private={:?}, public={:?}",
@@ -177,17 +177,17 @@ impl ReceiptManager {
             None, // Genesis receipt (no previous)
         )
         .sign(self.signing_key.as_ref().unwrap())
-        .map_err(|e| ggen_utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
+        .map_err(|e| mcpp_utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
         let receipt_json = serde_json::to_string_pretty(&receipt)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
 
         fs::write(&receipt_path, receipt_json)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
 
         info!(
             "Generated receipt: {} ({} packages installed)",
@@ -214,11 +214,11 @@ impl ReceiptManager {
 
         // Read receipt file
         let receipt_content = fs::read_to_string(receipt_path)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to read receipt: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to read receipt: {}", e)))?;
 
         // Parse receipt
         let receipt: Receipt = serde_json::from_str(&receipt_content)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to parse receipt: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to parse receipt: {}", e)))?;
 
         // Verify signature
         let is_valid = receipt.verify(&verifying_key).is_ok();
@@ -250,16 +250,16 @@ impl ReceiptManager {
     /// Read verifying key from file
     fn read_verifying_key(&self, key_path: &PathBuf) -> Result<VerifyingKey> {
         let content = fs::read_to_string(key_path)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to read public key: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to read public key: {}", e)))?;
 
         let key_bytes = hex::decode(content.trim())
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to decode public key: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to decode public key: {}", e)))?;
 
         let key_array: [u8; 32] = key_bytes[..32]
             .try_into()
-            .map_err(|_| ggen_utils::Error::new("Invalid key length"))?;
+            .map_err(|_| mcpp_utils::Error::new("Invalid key length"))?;
         VerifyingKey::from_bytes(&key_array)
-            .map_err(|e| ggen_utils::Error::new(&format!("Invalid verifying key: {}", e)))
+            .map_err(|e| mcpp_utils::Error::new(&format!("Invalid verifying key: {}", e)))
     }
 
     /// Get path to receipts directory
@@ -311,17 +311,17 @@ impl ReceiptManager {
             None, // Genesis receipt (no previous)
         )
         .sign(self.signing_key.as_ref().unwrap())
-        .map_err(|e| ggen_utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
+        .map_err(|e| mcpp_utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
         let receipt_json = serde_json::to_string_pretty(&receipt)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
 
         fs::write(&receipt_path, receipt_json)
-            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
+            .map_err(|e| mcpp_utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
 
         info!(
             "Generated composition receipt: {} ({} packs composed)",
@@ -341,7 +341,7 @@ mod tests {
     #[test]
     fn test_receipt_manager_creation() {
         let temp_dir = TempDir::new().unwrap();
-        let base_dir = temp_dir.path().join(".ggen");
+        let base_dir = temp_dir.path().join(".mcpp");
 
         let manager = ReceiptManager::new(base_dir).unwrap();
 
@@ -352,7 +352,7 @@ mod tests {
     #[test]
     fn test_key_generation() {
         let temp_dir = TempDir::new().unwrap();
-        let base_dir = temp_dir.path().join(".ggen");
+        let base_dir = temp_dir.path().join(".mcpp");
 
         let mut manager = ReceiptManager::new(base_dir).unwrap();
         let _verifying_key = manager.load_or_generate_keys().unwrap();
@@ -365,7 +365,7 @@ mod tests {
     #[test]
     fn test_pack_install_receipt() {
         let temp_dir = TempDir::new().unwrap();
-        let base_dir = temp_dir.path().join(".ggen");
+        let base_dir = temp_dir.path().join(".mcpp");
 
         let mut manager = ReceiptManager::new(base_dir).unwrap();
         let receipt_path = manager
@@ -386,7 +386,7 @@ mod tests {
     #[test]
     fn test_receipt_verification() {
         let temp_dir = TempDir::new().unwrap();
-        let base_dir = temp_dir.path().join(".ggen");
+        let base_dir = temp_dir.path().join(".mcpp");
 
         let mut manager = ReceiptManager::new(base_dir).unwrap();
 

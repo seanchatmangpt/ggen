@@ -12,7 +12,7 @@ use crate::dspy::testing::ExampleBuilder;
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::qa_example;
+/// use mcpp_ai::dspy::testing::qa_example;
 ///
 /// let example = qa_example("What is Rust?", "A programming language");
 /// ```
@@ -28,7 +28,7 @@ pub fn qa_example(question: &str, answer: &str) -> Example {
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::classification_example;
+/// use mcpp_ai::dspy::testing::classification_example;
 ///
 /// let example = classification_example("Great product!", "positive");
 /// ```
@@ -64,7 +64,7 @@ pub fn translation_example(
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::create_qa_trainset;
+/// use mcpp_ai::dspy::testing::create_qa_trainset;
 ///
 /// let trainset = create_qa_trainset();
 /// assert!(trainset.len() >= 5);
@@ -76,7 +76,7 @@ pub fn create_qa_trainset() -> Vec<Example> {
             "What is DSPy?",
             "A framework for programming language models",
         ),
-        qa_example("What is ggen?", "An ontology-driven code generator"),
+        qa_example("What is mcpp?", "An ontology-driven code generator"),
         qa_example("What is 2+2?", "4"),
         qa_example("What is the capital of France?", "Paris"),
     ]
@@ -98,7 +98,7 @@ pub fn create_classification_trainset() -> Vec<Example> {
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::create_test_signature;
+/// use mcpp_ai::dspy::testing::create_test_signature;
 ///
 /// let sig = create_test_signature("QA", "Answer questions");
 /// assert_eq!(sig.name, "QA");

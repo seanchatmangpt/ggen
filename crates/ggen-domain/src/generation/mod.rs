@@ -1,6 +1,6 @@
 //! Generation safety module - Poka-Yoke controls for code generation
 //!
-//! This module implements the behavior for ggen.toml configuration sections:
+//! This module implements the behavior for mcpp.toml configuration sections:
 //! - `[generation].protected_paths` - paths that MUST NEVER be overwritten
 //! - `[generation].regenerate_paths` - paths safe to overwrite
 //! - `[generation.poka_yoke].warning_headers` - header injection in generated files

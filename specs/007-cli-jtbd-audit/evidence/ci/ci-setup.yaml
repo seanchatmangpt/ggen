@@ -1,4 +1,4 @@
-command: "ggen ci setup"
+command: "mcpp ci setup"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -51,6 +51,6 @@ recommendations:
     impact: medium
 
 jtbd: |
-  When I want to set up CI/CD for a ggen project,
-  I need to run 'ggen ci setup',
+  When I want to set up CI/CD for a mcpp project,
+  I need to run 'mcpp ci setup',
   so that I can configure automated testing and deployment.

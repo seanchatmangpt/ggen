@@ -69,7 +69,7 @@ error: extern location for rand_core does not exist: .../librand_core-xxx.rmeta
 
 **1. Disk Space Check**
 ```bash
-df -h /Users/sac/ggen
+df -h .
 # Result: 239GB available (74% used) - ✅ SUFFICIENT
 ```
 
@@ -84,7 +84,7 @@ ps aux | grep -E '(cargo|rust)'
 
 **3. Target Directory State**
 ```bash
-ls -la /Users/sac/ggen/target
+ls -la ./target
 # Result: No such file or directory
 # Conclusion: target/ was deleted but cargo processes still held file locks
 ```

@@ -1,8 +1,8 @@
 groups:
-  - id: span.ggen.yawl.task_execution
+  - id: span.mcpp.yawl.task_execution
     type: span
     stability: development
-    brief: YAWL workflow task execution in ggen.
+    brief: YAWL workflow task execution in mcpp.
     span_kind: internal
     attributes:
       - ref: yawl.workflow_id

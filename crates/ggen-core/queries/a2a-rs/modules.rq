@@ -1,6 +1,6 @@
 SELECT DISTINCT ?module ?module_name ?item
 WHERE {
-    ?module a ggen:Module .
-    ?module ggen:name ?module_name .
-    ?module ggen:hasItem ?item .
+    ?module a mcpp:Module .
+    ?module mcpp:name ?module_name .
+    ?module mcpp:hasItem ?item .
 } ORDER BY ?module_name ?item

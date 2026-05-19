@@ -4,9 +4,9 @@
 #
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> bridge template
 
-PREFIX bridge: <https://ggen.dev/ontology/bridge#>
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
-PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX bridge: <https://mcpp.dev/ontology/bridge#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a#>
 
 SELECT ?bridge_type ?tool_name ?skill_name ?conversion_note
 WHERE {

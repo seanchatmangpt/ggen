@@ -5,7 +5,7 @@
 //!
 //! Run with: cargo run --example assertions_basic
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     assertions::{
         AllValidator, AssertableModule, Assertion, BacktrackExecutor, BoxedValidator,
         ContainsValidator, LengthValidator, NotEmptyValidator,

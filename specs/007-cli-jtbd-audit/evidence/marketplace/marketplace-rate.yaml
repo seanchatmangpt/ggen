@@ -1,4 +1,4 @@
-command: "ggen marketplace rate"
+command: "mcpp marketplace rate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to rate a marketplace package,
-  I need to run 'ggen marketplace rate' with package name and rating,
+  I need to run 'mcpp marketplace rate' with package name and rating,
   so that I can provide feedback to the community.

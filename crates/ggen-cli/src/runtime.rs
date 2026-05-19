@@ -3,7 +3,7 @@
 //! This module provides utilities for executing async code in sync contexts,
 //! particularly for CLI commands that need to call async domain functions.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::future::Future;
 
 /// Execute an async function in a sync context
@@ -14,10 +14,10 @@ use std::future::Future;
 /// # Examples
 ///
 /// ```no_run
-/// use ggen_utils::error::Result;
+/// use mcpp_utils::error::Result;
 ///
 /// fn sync_command() -> Result<()> {
-///     crate::runtime::execute(async {
+///     mcpp_cli_lib::runtime::execute(async {
 ///         // Async domain logic here
 ///         Ok(())
 ///     })
@@ -32,7 +32,7 @@ where
         Err(e) => {
             let msg = format!("Failed to create Tokio runtime: {}", e);
             log::error!("{}", msg);
-            return Err(ggen_utils::error::Error::new(&msg));
+            return Err(mcpp_utils::error::Error::new(&msg));
         }
     };
 
@@ -47,11 +47,11 @@ where
 /// # Examples
 ///
 /// ```no_run
-/// use ggen_utils::error::Result;
+/// use mcpp_utils::error::Result;
 ///
 /// fn get_data() -> Result<String> {
-///     crate::runtime::block_on(async {
-///         Ok("data".to_string())
+///     mcpp_cli_lib::runtime::block_on(async {
+///         "data".to_string()
 ///     })
 /// }
 /// ```
@@ -71,13 +71,13 @@ where
                         Err(e) => {
                             let msg = format!("Failed to create Tokio runtime: {}", e);
                             log::error!("{}", msg);
-                            return Err(ggen_utils::error::Error::new(&msg));
+                            return Err(mcpp_utils::error::Error::new(&msg));
                         }
                     };
                     Ok(rt.block_on(async_op))
                 })
                 .join()
-                .map_err(|_| ggen_utils::error::Error::new("Runtime thread panicked"))?
+                .map_err(|_| mcpp_utils::error::Error::new("Runtime thread panicked"))?
             })
         }
         Err(_) => {
@@ -87,7 +87,7 @@ where
                 Err(e) => {
                     let msg = format!("Failed to create Tokio runtime: {}", e);
                     log::error!("{}", msg);
-                    Err(ggen_utils::error::Error::new(&msg))
+                    Err(mcpp_utils::error::Error::new(&msg))
                 }
             }
         }

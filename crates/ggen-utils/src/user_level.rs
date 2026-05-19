@@ -23,7 +23,7 @@
 //! ### Tracking User Activity
 //!
 //! ```rust,no_run
-//! use ggen_utils::user_level::{UserActivity, UserLevel};
+//! use mcpp_utils::user_level::{UserActivity, UserLevel};
 //!
 //! # fn main() -> anyhow::Result<()> {
 //! let mut activity = UserActivity::load_or_create()?;
@@ -47,7 +47,7 @@ use std::path::PathBuf;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::user_level::UserLevel;
+/// use mcpp_utils::user_level::UserLevel;
 ///
 /// # fn main() {
 /// let level = UserLevel::from_usage_count(10);
@@ -176,7 +176,7 @@ impl UserActivity {
     /// Get config file path
     fn config_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
         let home = dirs::home_dir().ok_or("Could not determine home directory")?;
-        Ok(home.join(".ggen").join("user_activity.toml"))
+        Ok(home.join(".mcpp").join("user_activity.toml"))
     }
 }
 
@@ -189,47 +189,47 @@ impl ProgressiveHelp {
         match (command, level) {
             // Generate command
             ("gen", UserLevel::Newcomer) => "Generate code from a template.\n\n\
-                 Quickstart: ggen gen templates/example.tmpl\n\n\
+                 Quickstart: mcpp gen templates/example.tmpl\n\n\
                  This will read the template and generate the output file.\n\
                  Templates use YAML frontmatter and Tera syntax.\n\n\
-                 💡 Tip: Try 'ggen list' to see available templates first!"
+                 💡 Tip: Try 'mcpp list' to see available templates first!"
                 .to_string(),
             ("gen", UserLevel::Intermediate) => "Generate code from templates with variables.\n\n\
-                 Usage: ggen gen <template> [--vars key=value]\n\n\
+                 Usage: mcpp gen <template> [--vars key=value]\n\n\
                  Examples:\n\
-                 • ggen gen rust-module.tmpl --vars name=auth\n\
-                 • ggen gen service.tmpl --vars name=user service=api\n\n\
+                 • mcpp gen rust-module.tmpl --vars name=auth\n\
+                 • mcpp gen service.tmpl --vars name=user service=api\n\n\
                  Variables are passed to the template engine for substitution."
                 .to_string(),
             ("gen", UserLevel::Advanced | UserLevel::Expert) => {
                 "Advanced template generation with RDF graphs and SPARQL.\n\n\
-                 Usage: ggen gen <template> [--vars] [--graph] [--inject]\n\n\
+                 Usage: mcpp gen <template> [--vars] [--graph] [--inject]\n\n\
                  Features:\n\
                  • Use --graph to load RDF knowledge graphs\n\
                  • SPARQL queries in templates for semantic data\n\
                  • Injection modes for idempotent updates\n\
                  • Deterministic generation with fixed seeds\n\n\
-                 See: https://seanchatmangpt.github.io/ggen/advanced-templates"
+                 See: https://seanchatmangpt.github.io/mcpp/advanced-templates"
                     .to_string()
             }
 
             // Doctor command
-            ("doctor", UserLevel::Newcomer) => "Check if your environment is ready for ggen.\n\n\
+            ("doctor", UserLevel::Newcomer) => "Check if your environment is ready for mcpp.\n\n\
                  This command verifies:\n\
                  • Rust and Cargo are installed\n\
                  • Git is available\n\
                  • Optional tools like Ollama and Docker\n\n\
-                 Run 'ggen doctor' whenever you encounter setup issues!"
+                 Run 'mcpp doctor' whenever you encounter setup issues!"
                 .to_string(),
             ("doctor", _) => "Environment health check and diagnostics.\n\n\
-                 Usage: ggen doctor [-v|--verbose]\n\n\
+                 Usage: mcpp doctor [-v|--verbose]\n\n\
                  Checks for required and optional dependencies.\n\
                  Use --verbose for detailed fix instructions."
                 .to_string(),
 
             // Default help
             _ => format!(
-                "Help for '{}' command\n\nRun 'ggen {} --help' for details.",
+                "Help for '{}' command\n\nRun 'mcpp {} --help' for details.",
                 command, command
             ),
         }
@@ -242,16 +242,16 @@ impl ProgressiveHelp {
 
         match level {
             UserLevel::Newcomer => {
-                tips.push("💡 Try 'ggen quickstart demo' for a quick tutorial".to_string());
-                tips.push("📚 Run 'ggen --help' to see all available commands".to_string());
-                tips.push("🔍 Use 'ggen search <query>' to find templates".to_string());
+                tips.push("💡 Try 'mcpp quickstart demo' for a quick tutorial".to_string());
+                tips.push("📚 Run 'mcpp --help' to see all available commands".to_string());
+                tips.push("🔍 Use 'mcpp search <query>' to find templates".to_string());
             }
             UserLevel::Intermediate => {
                 if !activity.has_used_command("ai") {
-                    tips.push("🤖 Try AI-powered generation with 'ggen ai generate'".to_string());
+                    tips.push("🤖 Try AI-powered generation with 'mcpp ai generate'".to_string());
                 }
                 if !activity.has_used_command("market") {
-                    tips.push("📦 Explore the marketplace with 'ggen market search'".to_string());
+                    tips.push("📦 Explore the marketplace with 'mcpp market search'".to_string());
                 }
             }
             UserLevel::Advanced => {
@@ -269,11 +269,11 @@ impl ProgressiveHelp {
     /// Get next suggested command based on current context
     pub fn suggest_next_command(last_command: Option<&str>, level: UserLevel) -> Option<String> {
         match (last_command, level) {
-            (Some("doctor"), UserLevel::Newcomer) => Some("Try: ggen quickstart demo".to_string()),
-            (Some("list"), _) => Some("Try: ggen gen <template-name>".to_string()),
-            (Some("search"), _) => Some("Try: ggen add <package-name>".to_string()),
+            (Some("doctor"), UserLevel::Newcomer) => Some("Try: mcpp quickstart demo".to_string()),
+            (Some("list"), _) => Some("Try: mcpp gen <template-name>".to_string()),
+            (Some("search"), _) => Some("Try: mcpp add <package-name>".to_string()),
             (Some("gen"), UserLevel::Newcomer) => {
-                Some("Next: ggen ai project \"your idea\"".to_string())
+                Some("Next: mcpp ai project \"your idea\"".to_string())
             }
             _ => None,
         }

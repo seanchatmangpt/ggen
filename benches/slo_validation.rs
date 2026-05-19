@@ -230,7 +230,7 @@ fn load_workspace_dependencies(count: usize) -> Vec<String> {
 
 fn initialize_workspace() -> HashMap<String, String> {
     let mut workspace = HashMap::new();
-    workspace.insert("root".to_string(), "/Users/sac/ggen".to_string());
+    workspace.insert("root".to_string(), ".".to_string());
     workspace.insert("members".to_string(), "30".to_string());
     workspace.insert("resolver".to_string(), "2".to_string());
     workspace
@@ -373,6 +373,7 @@ fn validate_rdf(_rdf: &str) -> ValidationResult {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct ProcessedRdf {
     triple_count: usize,
     normalized_size: usize,
@@ -381,12 +382,14 @@ struct ProcessedRdf {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct QueryResult {
     row_count: usize,
     execution_time_ms: u64,
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct ValidationResult {
     is_valid: bool,
     error_count: usize,
@@ -825,7 +828,7 @@ fn bench_registry_operations_slo(c: &mut Criterion) {
 
     // Benchmark: Concurrent package fetches
     group.bench_function("concurrent_fetches", |b| {
-        let packages = vec![
+        let packages = [
             ("package-1", "1.0.0"),
             ("package-2", "1.0.0"),
             ("package-3", "1.0.0"),
@@ -877,6 +880,7 @@ fn search_registry(query: &str) -> Vec<String> {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct FetchedPackage {
     name: String,
     version: String,
@@ -885,6 +889,7 @@ struct FetchedPackage {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct InstalledPack {
     name: String,
     files_installed: usize,

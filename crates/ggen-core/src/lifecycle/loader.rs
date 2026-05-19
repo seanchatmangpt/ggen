@@ -24,8 +24,8 @@
 //! ### Loading Configuration
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::loader::load_make;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::loader::load_make;
+//! use mcpp_core::lifecycle::Result;
 //!
 //! # fn main() -> Result<()> {
 //! let make = load_make("make.toml")?;
@@ -37,8 +37,8 @@
 //! ### Loading with Default Fallback
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::loader::load_make_or_default;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::loader::load_make_or_default;
+//! use mcpp_core::lifecycle::Result;
 //!
 //! # fn main() -> Result<()> {
 //! // Returns default config if make.toml doesn't exist

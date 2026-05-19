@@ -3,7 +3,7 @@
 //! This example demonstrates the 20 YAWL workflow patterns and how they
 //! are generated from FIBO ontology structures.
 
-use ggen_yawl::{
+use mcpp_yawl::{
     template::{FlowContext, TaskContext, TemplateContext, VariableContext},
     YawlXmlGenerator,
 };

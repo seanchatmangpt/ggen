@@ -1,11 +1,11 @@
-@prefix code: <http://ggen.dev/code#> .
+@prefix code: <http://mcpp.dev/code#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 # ============================================================================
-# ggen Code Ontology v5
+# mcpp Code Ontology v5
 #
 # This ontology defines RDF vocabulary for representing code structures.
 # CONSTRUCT queries transform domain models into instances of these classes.
@@ -18,8 +18,8 @@
 # - N3 rules infer code patterns
 # ============================================================================
 
-<http://ggen.dev/code> a owl:Ontology ;
-    rdfs:label "ggen Code Ontology" ;
+<http://mcpp.dev/code> a owl:Ontology ;
+    rdfs:label "mcpp Code Ontology" ;
     rdfs:comment "RDF vocabulary for representing Rust code structures for semantic code generation" ;
     owl:versionInfo "5.0.0" .
 

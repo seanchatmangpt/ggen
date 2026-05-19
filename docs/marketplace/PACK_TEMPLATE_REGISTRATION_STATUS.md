@@ -43,7 +43,7 @@ Pack templates are **fully implemented** but **commented out** in the production
 
 ### ❌ **Disabled in Production Pipeline**
 
-**Location:** `/Users/sac/ggen/crates/ggen-core/src/v6/pipeline.rs:396-402`
+**Location:** `./crates/ggen-core/src/v6/pipeline.rs:396-402`
 
 ```rust
 // Clone passes to avoid borrow issues
@@ -83,7 +83,7 @@ The TODO comment says: *"Re-enable pack integration when extend_with_pack_templa
 **Option 1: Uncomment the code**
 ```bash
 # Edit pipeline.rs
-vim /Users/sac/ggen/crates/ggen-core/src/v6/pipeline.rs
+vim ./crates/ggen-core/src/v6/pipeline.rs
 # Uncomment lines 397-401
 cargo make test
 ```

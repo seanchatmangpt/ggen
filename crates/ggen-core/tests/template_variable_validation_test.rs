@@ -9,8 +9,8 @@ use walkdir::WalkDir;
 
 fn workspace_root() -> std::path::PathBuf {
     let mut p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.pop(); // crates/ggen-core -> crates
-    p.pop(); // crates -> ggen root
+    p.pop(); // crates/mcpp-core -> crates
+    p.pop(); // crates -> mcpp root
     p
 }
 
@@ -83,13 +83,13 @@ fn extract_sparql_variables(content: &str) -> HashSet<String> {
 // Test 1: All .tera templates have valid variable references
 // ---------------------------------------------------------------------------
 
-/// Variables that are injected by the ggen pipeline (not from SPARQL).
+/// Variables that are injected by the mcpp pipeline (not from SPARQL).
 const PIPELINE_INJECTED_VARS: &[&str] = &[
     "sparql_results", // Always injected from SPARQL query results
     "name",           // Template naming convention
 ];
 
-/// Variables provided by the ggen.toml rule configuration (not from SPARQL).
+/// Variables provided by the mcpp.toml rule configuration (not from SPARQL).
 const RULE_CONFIG_VARS: &[&str] = &[
     "server_name",
     "server_version",
@@ -191,13 +191,13 @@ fn test_templates_reference_valid_variables() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 2: SPARQL queries used by ggen.toml rules return expected columns
+// Test 2: SPARQL queries used by mcpp.toml rules return expected columns
 // ---------------------------------------------------------------------------
 
-/// Map of query file -> expected output columns (from ggen.toml rules).
+/// Map of query file -> expected output columns (from mcpp.toml rules).
 const QUERY_EXPECTED_COLUMNS: &[(&str, &[&str])] = &[
     (
-        "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
+        "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
         &[
             "server_name",
             "server_version",
@@ -208,7 +208,7 @@ const QUERY_EXPECTED_COLUMNS: &[(&str, &[&str])] = &[
         ],
     ),
     (
-        "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
+        "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
         &[
             "agent_name",
             "agent_version",
@@ -266,37 +266,37 @@ fn test_sparql_queries_return_expected_columns() {
 // Test 3: Template variables match SPARQL query columns
 // ---------------------------------------------------------------------------
 
-/// Map of template -> SPARQL query it depends on (from ggen.toml rules).
+/// Map of template -> SPARQL query it depends on (from mcpp.toml rules).
 const TEMPLATE_QUERY_PAIRS: &[(&str, &str, &[&str])] = &[
     // (template, query, sparql_result row variables used by template)
     (
         "templates/mcp-rust.tera",
-        "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
+        "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
         &["tool_name", "tool_description"],
     ),
     (
         "templates/mcp-elixir.tera",
-        "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
+        "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
         &["tool_name", "tool_description"],
     ),
     (
         "templates/mcp-go.tera",
-        "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
+        "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
         &["tool_name", "tool_description"],
     ),
     (
         "templates/mcp-typescript.tera",
-        "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
+        "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
         &["tool_name", "tool_description"],
     ),
     (
         "templates/mcp-java.tera",
-        "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
+        "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
         &["tool_name", "tool_description"],
     ),
     (
         "templates/a2a-rust.tera",
-        "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
+        "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
         &[
             "skill_name",
             "skill_description",
@@ -307,7 +307,7 @@ const TEMPLATE_QUERY_PAIRS: &[(&str, &str, &[&str])] = &[
     ),
     (
         "templates/a2a-go.tera",
-        "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
+        "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
         &[
             "skill_name",
             "skill_description",
@@ -318,7 +318,7 @@ const TEMPLATE_QUERY_PAIRS: &[(&str, &str, &[&str])] = &[
     ),
     (
         "templates/a2a-typescript.tera",
-        "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
+        "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
         &[
             "skill_name",
             "skill_description",
@@ -329,7 +329,7 @@ const TEMPLATE_QUERY_PAIRS: &[(&str, &str, &[&str])] = &[
     ),
     (
         "templates/a2a-java.tera",
-        "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
+        "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
         &[
             "skill_name",
             "skill_description",
@@ -340,7 +340,7 @@ const TEMPLATE_QUERY_PAIRS: &[(&str, &str, &[&str])] = &[
     ),
     (
         "templates/a2a-elixir.tera",
-        "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
+        "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
         &[
             "skill_name",
             "skill_description",

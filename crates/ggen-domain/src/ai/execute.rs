@@ -3,8 +3,8 @@
 //! **Layer 2: Integration**
 //!
 //! This module provides async coordination, resource management, and error handling
-//! for AI domain functions. It sits between the CLI layer (ggen-cli) and the pure
-//! domain logic (ggen-domain/ai).
+//! for AI domain functions. It sits between the CLI layer (mcpp-cli) and the pure
+//! domain logic (mcpp-domain/ai).
 //!
 //! ## Architecture
 //!
@@ -23,8 +23,8 @@
 //! - FUTURE: `execute_refactor`, `execute_explain`, `execute_suggest`
 
 use crate::ai::{analyze, generate};
-use ggen_ai::{AiConfig, GenAiClient, LlmClient};
-use ggen_utils::error::Result;
+use mcpp_ai::{AiConfig, GenAiClient, LlmClient};
+use mcpp_utils::error::Result;
 use serde_json::json;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -77,7 +77,7 @@ fn log_debug(
     if let Ok(mut file) = OpenOptions::new()
         .create(true)
         .append(true)
-        .open("/Users/sac/ggen/.cursor/debug.log")
+        .open("~/.ggen/mcpp/.cursor/debug.log")
     {
         let timestamp = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -120,8 +120,8 @@ fn log_debug(
 /// # Examples
 ///
 /// ```rust,no_run
-/// # use ggen_domain::ai::execute;
-/// # async fn example() -> ggen_utils::error::Result<()> {
+/// # use mcpp_domain::ai::execute;
+/// # async fn example() -> mcpp_utils::error::Result<()> {
 /// let result = execute::execute_generate(
 ///     "write a hello world function",
 ///     None,
@@ -156,7 +156,7 @@ pub async fn execute_generate(
 
     // Layer 2: Input validation (additional validation beyond CLI)
     if prompt.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new("Prompt cannot be empty"));
+        return Err(mcpp_utils::error::Error::new("Prompt cannot be empty"));
     }
 
     // Layer 2: Build domain options with builder pattern
@@ -227,9 +227,9 @@ pub async fn execute_generate(
 /// # Examples
 ///
 /// ```rust,no_run
-/// # use ggen_domain::ai::execute;
+/// # use mcpp_domain::ai::execute;
 /// # use std::path::Path;
-/// # async fn example() -> ggen_utils::error::Result<()> {
+/// # async fn example() -> mcpp_utils::error::Result<()> {
 /// // Analyze code snippet
 /// let result = execute::execute_analyze(
 ///     Some("fn main() { println!(\"hello\"); }"),
@@ -265,7 +265,7 @@ pub async fn execute_analyze(
 
     // Layer 2: Input validation - Must have either code or file
     if code.is_none() && file.is_none() {
-        return Err(ggen_utils::error::Error::new(
+        return Err(mcpp_utils::error::Error::new(
             "Must provide either code or file to analyze",
         ));
     }
@@ -274,7 +274,7 @@ pub async fn execute_analyze(
     let analysis_text = if let Some(code_content) = code {
         // Analyze code snippet
         if code_content.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new("Code cannot be empty"));
+            return Err(mcpp_utils::error::Error::new("Code cannot be empty"));
         }
         // #region agent log
         log_debug(
@@ -293,7 +293,7 @@ pub async fn execute_analyze(
     } else if let Some(file_path) = file {
         // Layer 2: Validate file exists before calling domain
         if !file_path.exists() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Path does not exist: {}",
                 file_path.display()
             )));
@@ -364,8 +364,8 @@ pub async fn execute_analyze(
 /// # Examples
 ///
 /// ```rust,no_run
-/// # use ggen_domain::ai::execute;
-/// # async fn example() -> ggen_utils::error::Result<()> {
+/// # use mcpp_domain::ai::execute;
+/// # async fn example() -> mcpp_utils::error::Result<()> {
 /// let result = execute::execute_chat(
 ///     "explain what RDF is",
 ///     Some("gpt-4"),
@@ -393,7 +393,7 @@ pub async fn execute_chat(message: &str, model: Option<&str>) -> Result<ExecuteC
 
     // Layer 2: Input validation
     if message.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new("Message cannot be empty"));
+        return Err(mcpp_utils::error::Error::new("Message cannot be empty"));
     }
 
     let mut config = AiConfig::from_env().unwrap_or_else(|_| AiConfig::new()).llm;
@@ -408,7 +408,7 @@ pub async fn execute_chat(message: &str, model: Option<&str>) -> Result<ExecuteC
     }
 
     let client = GenAiClient::new(config)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create LLM client: {e}")))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to create LLM client: {e}")))?;
 
     let prompt = format!(
         "You are a concise Rust assistant. Respond helpfully to the user.
@@ -419,7 +419,7 @@ User: {}",
     let resp = client
         .complete(&prompt)
         .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Chat failed: {e}")))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Chat failed: {e}")))?;
 
     // #region agent log
     log_debug(

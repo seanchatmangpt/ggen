@@ -15,7 +15,7 @@
 //! - Observable outputs (rendered templates, error messages)
 //! - State verification (security violations detected)
 
-use ggen_core::security::{
+use mcpp_core::security::{
     ContextEscaper, SecureTeraEnvironment, TemplateSandbox, TemplateValidator, MAX_TEMPLATE_SIZE,
 };
 use tera::Context;
@@ -562,7 +562,7 @@ fn test_variable_validation_unicode_letters() {
 #[test]
 fn test_variable_validation_boundary_length() {
     // Arrange
-    use ggen_core::security::MAX_VARIABLE_NAME_LENGTH;
+    use mcpp_core::security::MAX_VARIABLE_NAME_LENGTH;
 
     // Just under limit
     let valid_length = "a".repeat(MAX_VARIABLE_NAME_LENGTH);

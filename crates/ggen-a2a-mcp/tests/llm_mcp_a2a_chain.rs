@@ -14,8 +14,8 @@ use serde_json::json;
 use std::sync::Arc;
 
 use anyhow::Result;
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_ai::client::{GenAiClient, LlmClient, LlmConfig};
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_ai::client::{GenAiClient, LlmClient, LlmConfig};
 use rmcp::{model::*, ClientHandler, ServiceExt};
 
 mod common;
@@ -146,7 +146,7 @@ Explain what validation steps you would perform.
     println!("\n=== Step 2: MCP Tool Call - validate_pipeline (mcp.tool.call span) ===");
 
     let validate_params = json!({
-        "project_path": "/Users/sac/ggen"
+        "project_path": "~/.ggen/mcpp"
     })
     .as_object()
     .unwrap()

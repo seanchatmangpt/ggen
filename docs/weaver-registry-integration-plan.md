@@ -958,10 +958,10 @@ INFO ggen-weaver-live-check: Span validated successfully
 
 ## References
 
-- **~/chatmangpt Pattern:** `/Users/sac/chatmangpt/docs/diataxis/how-to/run-weaver-live-check.md`
+- **~/chatmangpt Pattern:** `~/.ggen/chatmangpt/docs/diataxis/how-to/run-weaver-live-check.md`
 - **Weaver GitHub:** https://github.com/cheriot/weaver
 - **OTEL Semantic Conventions:** https://opentelemetry.io/docs/reference/specification/
-- **ggen Semconv:** `/Users/sac/ggen/semconv/model/`
+- **ggen Semconv:** `./semconv/model/`
 
 ---
 

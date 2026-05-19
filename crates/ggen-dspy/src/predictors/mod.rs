@@ -1,7 +1,7 @@
 //! A2A predictor module for DSPy integration
 //!
 //! This module provides predictors that bridge A2A (Agent-to-Agent) communication
-//! with DSPy-style LLM interactions, enabling agents to use ggen-ai's multi-provider
+//! with DSPy-style LLM interactions, enabling agents to use mcpp-ai's multi-provider
 //! LLM support through a unified DSPy interface.
 //!
 //! ## Key Components
@@ -13,8 +13,8 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_dspy::predictors::{A2aPredictor, A2aPredictorConfig};
-//! use a2a_generated::converged::message::ConvergedMessage;
+//! use mcpp_dspy::predictors::{A2aPredictor, A2aPredictorConfig};
+//! use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = A2aPredictorConfig::default();

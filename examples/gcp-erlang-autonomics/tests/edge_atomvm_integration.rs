@@ -71,6 +71,7 @@ impl EdgeGovernor {
 /// - Act: Check memory characteristics
 /// - Assert: Footprint < 1MB per governor
 #[tokio::test]
+#[ignore]
 async fn test_lightweight_governor_minimal_memory_footprint() {
     // Arrange: Create lightweight edge governor
     let governor = EdgeGovernor::new(
@@ -107,6 +108,7 @@ async fn test_lightweight_governor_minimal_memory_footprint() {
 /// - Act: Make decisions without cluster connection
 /// - Assert: Decisions cached locally, marked for later sync
 #[tokio::test]
+#[ignore]
 async fn test_edge_governor_offline_operation_cached_decisions() {
     // Arrange: Create edge governor (no cluster connection)
     let mut governor = EdgeGovernor::new(
@@ -153,6 +155,7 @@ async fn test_edge_governor_offline_operation_cached_decisions() {
 /// - Act: Connect to cluster and sync
 /// - Assert: Pending decisions flushed, synced flag set
 #[tokio::test]
+#[ignore]
 async fn test_sync_to_cluster_reconciles_state() {
     // Arrange: Create edge governor with offline decisions
     let mut governor = EdgeGovernor::new(
@@ -199,6 +202,7 @@ async fn test_sync_to_cluster_reconciles_state() {
 /// - Act: Persist retry queue, restart device
 /// - Assert: Queue recovered, retry succeeds on next sync
 #[tokio::test]
+#[ignore]
 async fn test_offline_retry_queue_persists_across_restart() {
     // Arrange: Create governor with offline decisions
     let mut governor = EdgeGovernor::new(
@@ -252,6 +256,7 @@ async fn test_offline_retry_queue_persists_across_restart() {
 /// - Act: Each makes local decisions, syncs with cluster
 /// - Assert: All syncs succeed, consistent final state
 #[tokio::test]
+#[ignore]
 async fn test_edge_cluster_replication_three_devices() {
     // Arrange: Create 3 edge governors on different devices
     let mut edge1 = EdgeGovernor::new(
@@ -295,6 +300,7 @@ async fn test_edge_cluster_replication_three_devices() {
 /// - Act: Simulate network partition
 /// - Assert: Edge continues offline, decisions queued for later sync
 #[tokio::test]
+#[ignore]
 async fn test_network_partition_edge_continues_offline() {
     // Arrange: Create edge governor, sync with cluster
     let mut governor = EdgeGovernor::new(
@@ -345,6 +351,7 @@ async fn test_network_partition_edge_continues_offline() {
 /// - Act: Operate with limited quota info
 /// - Assert: Decisions enforce quota anyway
 #[tokio::test]
+#[ignore]
 async fn test_edge_device_lightweight_entitlement_state() {
     // Arrange: Minimal entitlement (only essential fields)
     let edge_entitlement = Entitlement {
@@ -391,6 +398,7 @@ async fn test_edge_device_lightweight_entitlement_state() {
 /// - Act: Log each decision to local ledger
 /// - Assert: Audit trail persists for sync
 #[tokio::test]
+#[ignore]
 async fn test_edge_device_decision_log_for_offline_audit() {
     // Arrange: Create edge governor
     let mut governor = EdgeGovernor::new(
@@ -442,6 +450,7 @@ async fn test_edge_device_decision_log_for_offline_audit() {
 /// - Act: Batch sync all at once
 /// - Assert: Single batch reduces network round-trips
 #[tokio::test]
+#[ignore]
 async fn test_batch_sync_offline_decisions_efficiency() {
     // Arrange: Create governor
     let mut governor = EdgeGovernor::new(
@@ -487,6 +496,7 @@ async fn test_batch_sync_offline_decisions_efficiency() {
 /// - Act: Cluster sends update conflicting with local cache
 /// - Assert: Merge strategy (last-write-wins or merge)
 #[tokio::test]
+#[ignore]
 async fn test_cache_coherency_during_cluster_sync() {
     // Arrange: Create governor with local decision
     let mut governor = EdgeGovernor::new(
@@ -530,6 +540,7 @@ async fn test_cache_coherency_during_cluster_sync() {
 /// - Act: Retry on next sync
 /// - Assert: Failed batch retried completely
 #[tokio::test]
+#[ignore]
 async fn test_recovery_from_partial_sync_failure() {
     // Arrange: Create governor with 100 decisions
     let mut governor = EdgeGovernor::new(

@@ -4,7 +4,7 @@
 //! and inference rules after each sync operation.
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -53,7 +53,7 @@ pub struct SyncState {
     /// Main ontology file
     pub ontology: FileHashState,
 
-    /// Manifest file (ggen.toml)
+    /// Manifest file (mcpp.toml)
     pub manifest: FileHashState,
 
     /// Inference rules (tracked by rule name)

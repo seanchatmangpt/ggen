@@ -3,7 +3,7 @@
 //! This test verifies whether generate_agents, generate_a2a_test, validate_fibo,
 //! and orchestrate_conversation tools are implemented in the GgenMcpServer.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 
 #[tokio::test]
 async fn check_if_generate_agents_exists() {
@@ -62,13 +62,13 @@ async fn list_all_existing_tools() {
     // For now, we'll just verify the server was created
     println!("\n✓ Server info retrieved successfully");
 
-    // Based on the ggen_server.rs code, the existing tools are:
+    // Based on the mcpp_server.rs code, the existing tools are:
     println!("\n=== Existing Tools (from source code) ===");
     println!("1. generate - Generate code from RDF ontology");
     println!("2. validate - Validate Turtle (.ttl) content");
-    println!("3. sync - Run full ggen sync pipeline");
+    println!("3. sync - Run full mcpp sync pipeline");
     println!("4. list_generators - List available code generators");
-    println!("5. list_examples - List bundled ggen examples");
+    println!("5. list_examples - List bundled mcpp examples");
     println!("6. get_example - Get example details");
     println!("7. search - Search marketplace packages");
     println!("8. scaffold_from_example - Copy example as starting point");

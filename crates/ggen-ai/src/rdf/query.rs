@@ -3,7 +3,7 @@
 //! QueryExecutor extracts structured CLI project data from RDF graph via SPARQL queries.
 //! This implements Phase 3 of the RDF-to-CLI generator.
 
-use ggen_utils::{bail, error::Result};
+use mcpp_utils::{bail, error::Result};
 use oxigraph::sparql::{QueryResults, QuerySolution};
 use oxigraph::store::Store;
 
@@ -26,8 +26,8 @@ impl<'a> QueryExecutor<'a> {
     /// authors, edition, license, and workspace structure (2026 extension).
     pub fn extract_project(&self) -> Result<CliProject> {
         let query = r#"
-            PREFIX cli: <http://ggen.dev/schema/cli#>
-            PREFIX ex: <http://ggen.dev/projects/example-cli#>
+            PREFIX cli: <http://mcpp.dev/schema/cli#>
+            PREFIX ex: <http://mcpp.dev/projects/example-cli#>
 
             SELECT ?name ?version ?description ?authors ?edition ?license ?cliCrate ?domainCrate ?resolver
             WHERE {
@@ -83,9 +83,9 @@ impl<'a> QueryExecutor<'a> {
     /// For each Noun, extracts associated Verbs via extract_verbs_for_noun.
     pub fn extract_nouns(&self) -> Result<Vec<Noun>> {
         let query = r#"
-            PREFIX cli: <http://ggen.dev/schema/cli#>
-            PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
-            PREFIX ex: <http://ggen.dev/projects/example-cli#>
+            PREFIX cli: <http://mcpp.dev/schema/cli#>
+            PREFIX cnv: <http://mcpp.dev/schema/clap-noun-verb#>
+            PREFIX ex: <http://mcpp.dev/projects/example-cli#>
 
             SELECT ?noun ?nounName ?nounDescription ?modulePath
             WHERE {
@@ -124,7 +124,7 @@ impl<'a> QueryExecutor<'a> {
     fn extract_verbs_for_noun(&self, noun_uri: &str) -> Result<Vec<Verb>> {
         let query = format!(
             r#"
-            PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+            PREFIX cnv: <http://mcpp.dev/schema/clap-noun-verb#>
 
             SELECT ?verb ?verbName ?verbDescription ?alias ?executionLogic ?domainFunction ?domainModule
             WHERE {{
@@ -171,7 +171,7 @@ impl<'a> QueryExecutor<'a> {
     fn extract_arguments_for_verb(&self, verb_uri: &str) -> Result<Vec<Argument>> {
         let query = format!(
             r#"
-            PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+            PREFIX cnv: <http://mcpp.dev/schema/clap-noun-verb#>
 
             SELECT ?argName ?long ?short ?help ?required ?default ?valueName ?position ?typeName
             WHERE {{
@@ -229,7 +229,7 @@ impl<'a> QueryExecutor<'a> {
     fn extract_validations_for_verb(&self, verb_uri: &str) -> Result<Vec<Validation>> {
         let query = format!(
             r#"
-            PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+            PREFIX cnv: <http://mcpp.dev/schema/clap-noun-verb#>
 
             SELECT ?rule ?pattern ?message ?argName
             WHERE {{
@@ -266,9 +266,9 @@ impl<'a> QueryExecutor<'a> {
     /// Dependencies include crate name, version, features, and optional flag.
     pub fn extract_dependencies(&self) -> Result<Vec<Dependency>> {
         let query = r#"
-            PREFIX cli: <http://ggen.dev/schema/cli#>
-            PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
-            PREFIX ex: <http://ggen.dev/projects/example-cli#>
+            PREFIX cli: <http://mcpp.dev/schema/cli#>
+            PREFIX cnv: <http://mcpp.dev/schema/clap-noun-verb#>
+            PREFIX ex: <http://mcpp.dev/projects/example-cli#>
 
             SELECT ?depName ?version ?features ?optional
             WHERE {
@@ -316,7 +316,7 @@ fn get_string(solution: &QuerySolution, var: &str) -> Result<String> {
                 None
             }
         })
-        .ok_or_else(|| ggen_utils::error::Error::new(&format!("Missing variable: {}", var)))
+        .ok_or_else(|| mcpp_utils::error::Error::new(&format!("Missing variable: {}", var)))
 }
 
 /// Extract optional string value from SPARQL query solution
@@ -341,7 +341,7 @@ fn get_uri(solution: &QuerySolution, var: &str) -> Result<String> {
                 None
             }
         })
-        .ok_or_else(|| ggen_utils::error::Error::new(&format!("Missing URI: {}", var)))
+        .ok_or_else(|| mcpp_utils::error::Error::new(&format!("Missing URI: {}", var)))
 }
 
 /// Extract optional boolean value from SPARQL query solution

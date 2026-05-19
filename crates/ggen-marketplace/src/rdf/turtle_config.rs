@@ -131,26 +131,26 @@ impl TurtleConfigLoader {
                 continue;
             }
 
-            if line.contains("ggen:registryUrl") {
+            if line.contains("mcpp:registryUrl") {
                 if let Some(value) = Self::extract_string_value(line) {
                     config.registry_url = value;
                 }
-            } else if line.contains("ggen:cacheDir") {
+            } else if line.contains("mcpp:cacheDir") {
                 if let Some(value) = Self::extract_string_value(line) {
                     config.cache_dir = value;
                 }
-            } else if line.contains("ggen:maxDownloadSize") {
+            } else if line.contains("mcpp:maxDownloadSize") {
                 if let Some(value) = Self::extract_integer_value(line) {
                     // Config values are non-negative; reject negative values
                     #[allow(clippy::cast_sign_loss)]
                     let config_value = value as u64;
                     config.max_download_size = config_value;
                 }
-            } else if line.contains("ggen:validationEnabled") {
+            } else if line.contains("mcpp:validationEnabled") {
                 if let Some(value) = Self::extract_boolean_value(line) {
                     config.validation_enabled = value;
                 }
-            } else if line.contains("ggen:autoUpdateEnabled") {
+            } else if line.contains("mcpp:autoUpdateEnabled") {
                 if let Some(value) = Self::extract_boolean_value(line) {
                     config.auto_update_enabled = value;
                 }
@@ -223,13 +223,13 @@ impl TurtleConfigLoader {
         writeln!(
             ttl,
             r#"
-:marketplace a ggen:MarketplaceConfig ;
-    ggen:registryUrl "{registry_url}" ;
-    ggen:cacheDir "{cache_dir}" ;
-    ggen:maxDownloadSize "{max_download_size}"^^xsd:integer ;
-    ggen:validationEnabled "{validation_enabled}"^^xsd:boolean ;
-    ggen:autoUpdateEnabled "{auto_update_enabled}"^^xsd:boolean ;
-    ggen:telemetryEnabled "{telemetry_enabled}"^^xsd:boolean .
+:marketplace a mcpp:MarketplaceConfig ;
+    mcpp:registryUrl "{registry_url}" ;
+    mcpp:cacheDir "{cache_dir}" ;
+    mcpp:maxDownloadSize "{max_download_size}"^^xsd:integer ;
+    mcpp:validationEnabled "{validation_enabled}"^^xsd:boolean ;
+    mcpp:autoUpdateEnabled "{auto_update_enabled}"^^xsd:boolean ;
+    mcpp:telemetryEnabled "{telemetry_enabled}"^^xsd:boolean .
 
 "#,
             registry_url = config.registry_url,
@@ -246,14 +246,14 @@ impl TurtleConfigLoader {
             writeln!(
                 ttl,
                 r#"
-:registry{index} a ggen:RegistryConfig ;
-    ggen:name "{name}" ;
-    ggen:url "{url}" ;
-    ggen:priority "{priority}"^^xsd:integer ;
-    ggen:enabled "{enabled}"^^xsd:boolean ;
-    ggen:authRequired "{auth_required}"^^xsd:boolean .
+:registry{index} a mcpp:RegistryConfig ;
+    mcpp:name "{name}" ;
+    mcpp:url "{url}" ;
+    mcpp:priority "{priority}"^^xsd:integer ;
+    mcpp:enabled "{enabled}"^^xsd:boolean ;
+    mcpp:authRequired "{auth_required}"^^xsd:boolean .
 
-:marketplace ggen:hasRegistry :registry{index} .
+:marketplace mcpp:hasRegistry :registry{index} .
 
 "#,
                 index = i,
@@ -377,24 +377,24 @@ mod tests {
 
     #[test]
     fn test_extract_string_value() {
-        let line = r#"ggen:registryUrl "https://registry.ggen.dev" ;"#;
+        let line = r#"mcpp:registryUrl "https://registry.mcpp.dev" ;"#;
         assert_eq!(
             TurtleConfigLoader::extract_string_value(line),
-            Some("https://registry.ggen.dev".to_string())
+            Some("https://registry.mcpp.dev".to_string())
         );
     }
 
     #[test]
     fn test_extract_boolean_value() {
-        let line = r#"ggen:validationEnabled "true"^^xsd:boolean ;"#;
+        let line = r#"mcpp:validationEnabled "true"^^xsd:boolean ;"#;
         assert_eq!(TurtleConfigLoader::extract_boolean_value(line), Some(true));
     }
 
     #[test]
     fn test_generate_marketplace_turtle() {
         let config = MarketplaceConfig {
-            registry_url: "https://registry.ggen.dev".to_string(),
-            cache_dir: "/tmp/ggen".to_string(),
+            registry_url: "https://registry.mcpp.dev".to_string(),
+            cache_dir: "/tmp/mcpp".to_string(),
             max_download_size: 104857600,
             validation_enabled: true,
             auto_update_enabled: false,
@@ -405,8 +405,8 @@ mod tests {
 
         let turtle = TurtleConfigLoader::generate_marketplace_turtle(&config);
 
-        assert!(turtle.contains("@prefix ggen:"));
-        assert!(turtle.contains("https://registry.ggen.dev"));
-        assert!(turtle.contains("ggen:MarketplaceConfig"));
+        assert!(turtle.contains("@prefix mcpp:"));
+        assert!(turtle.contains("https://registry.mcpp.dev"));
+        assert!(turtle.contains("mcpp:MarketplaceConfig"));
     }
 }

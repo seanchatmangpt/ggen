@@ -39,7 +39,7 @@ pub struct Validated;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::prevention::state_machine::Registry;
+/// use mcpp_core::prevention::state_machine::Registry;
 /// use std::path::Path;
 ///
 /// // ✅ VALID: Proper state transitions
@@ -67,7 +67,7 @@ impl Registry<Uninitialized> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::prevention::state_machine::Registry;
+    /// use mcpp_core::prevention::state_machine::Registry;
     ///
     /// let registry = Registry::new();
     /// // Can only call initialize() at this point
@@ -95,7 +95,7 @@ impl Registry<Uninitialized> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::prevention::state_machine::Registry;
+    /// use mcpp_core::prevention::state_machine::Registry;
     /// use std::path::Path;
     ///
     /// let registry = Registry::new()
@@ -136,7 +136,7 @@ impl Registry<Initialized> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::prevention::state_machine::Registry;
+    /// use mcpp_core::prevention::state_machine::Registry;
     /// use std::path::Path;
     ///
     /// let registry = Registry::new()
@@ -173,7 +173,7 @@ impl Registry<Validated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::prevention::state_machine::Registry;
+    /// use mcpp_core::prevention::state_machine::Registry;
     /// use std::path::Path;
     ///
     /// let registry = Registry::new()
@@ -198,7 +198,7 @@ impl Registry<Validated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::prevention::state_machine::Registry;
+    /// use mcpp_core::prevention::state_machine::Registry;
     /// use std::path::Path;
     ///
     /// let registry = Registry::new()

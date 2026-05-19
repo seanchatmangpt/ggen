@@ -3,7 +3,7 @@
 //! Provides LRU caching for parsed templates and compiled RDF graphs
 //! to avoid redundant parsing and improve generation performance.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use lru::LruCache;
 use serde_yaml::Value as YamlValue;
 use std::collections::HashMap;
@@ -34,10 +34,10 @@ use crate::template_types::Template;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::template_cache::TemplateCache;
+/// use mcpp_core::template_cache::TemplateCache;
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// // Create cache with default capacity (5000 templates)
 /// let cache = TemplateCache::default();
 ///
@@ -75,7 +75,7 @@ impl TemplateCache {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::template_cache::TemplateCache;
+    /// use mcpp_core::template_cache::TemplateCache;
     ///
     /// # fn main() {
     /// // Create cache with capacity of 100 templates
@@ -115,10 +115,10 @@ impl TemplateCache {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::template_cache::TemplateCache;
+    /// use mcpp_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = TemplateCache::new(10);
     ///
     /// // First call - parses and caches
@@ -257,10 +257,10 @@ impl TemplateCache {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::template_cache::TemplateCache;
+    /// use mcpp_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = TemplateCache::new(10);
     /// cache.get_or_parse(Path::new("template.tmpl"))?;
     ///
@@ -305,10 +305,10 @@ impl TemplateCache {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::template_cache::TemplateCache;
+    /// use mcpp_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = TemplateCache::new(50);
     ///
     /// let stats = cache.stats()?;
@@ -371,9 +371,9 @@ impl Default for TemplateCache {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::template_cache::{TemplateCache, CacheStats};
+/// use mcpp_core::template_cache::{TemplateCache, CacheStats};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let cache = TemplateCache::new(5000);
 /// let stats = cache.stats()?;
 ///

@@ -1,4 +1,4 @@
-//! Unit tests for ggen node bindings
+//! Unit tests for mcpp node bindings
 //!
 //! JTBD VALIDATION: These tests verify that Node NIF functions actually work,
 //! not just that they compile or construct arguments correctly.
@@ -11,7 +11,7 @@
 
 use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
-use ggen_cli_lib::{run_for_node, RunResult};
+use mcpp_cli_lib::{run_for_node, RunResult};
 
 /// Helper to assert successful command execution with content validation
 fn assert_success_with_content(result: RunResult, expected_content: &str, test_name: &str) {
@@ -445,10 +445,10 @@ mod error_handling_tests {
 }
 
 #[cfg(test)]
-mod ggen_broken_detection_tests {
+mod mcpp_broken_detection_tests {
     use super::*;
 
-    /// JTBD: Detect when ggen returns 0 but stderr has unexpected errors
+    /// JTBD: Detect when mcpp returns 0 but stderr has unexpected errors
     async_test!(test_detects_false_success, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
@@ -468,7 +468,7 @@ mod ggen_broken_detection_tests {
         }
     });
 
-    /// JTBD: Detect when ggen returns 0 but output is empty
+    /// JTBD: Detect when mcpp returns 0 but output is empty
     async_test!(test_detects_silent_failure, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
@@ -482,7 +482,7 @@ mod ggen_broken_detection_tests {
         }
     });
 
-    /// JTBD: Detect when ggen returns 0 but output format is wrong
+    /// JTBD: Detect when mcpp returns 0 but output format is wrong
     async_test!(test_validates_version_format, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
@@ -501,7 +501,7 @@ mod ggen_broken_detection_tests {
         }
     });
 
-    /// JTBD: Detect when ggen returns error but no error message
+    /// JTBD: Detect when mcpp returns error but no error message
     async_test!(test_detects_silent_error, {
         let result = run_for_node(vec!["definitely-invalid-command-xyz".to_string()])
             .await
@@ -515,7 +515,7 @@ mod ggen_broken_detection_tests {
         }
     });
 
-    /// JTBD: Detect when ggen crashes vs returns error
+    /// JTBD: Detect when mcpp crashes vs returns error
     async_test!(test_distinguishes_crash_from_error, {
         // Invalid commands should error, not crash
         let result = run_for_node(vec!["invalid".to_string()])
@@ -542,8 +542,8 @@ mod data_structure_validation_tests {
             .expect("version should not panic");
 
         if result.code == 0 {
-            // Extract version number (remove "ggen " prefix if present)
-            let version_str = result.stdout.trim().replace("ggen ", "").trim().to_string();
+            // Extract version number (remove "mcpp " prefix if present)
+            let version_str = result.stdout.trim().replace("mcpp ", "").trim().to_string();
 
             // Should have 3 parts
             let parts: Vec<&str> = version_str.split('.').collect();

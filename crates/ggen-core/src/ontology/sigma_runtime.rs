@@ -1,4 +1,4 @@
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use oxigraph::model::{Dataset, GraphName, NamedNode, Quad};
 /// Σ (Sigma) Runtime: Autonomous ontology versioning and snapshot management
 ///

@@ -454,7 +454,7 @@ HTTP Request
 │                                                        │
 │ ┌──────────────────────────────────────────────────┐  │
 │ │ IDE (IntelliJ/VS Code)                           │  │
-│ │ └─ Maven build (ggen generated pom.xml)          │  │
+│ │ └─ Maven build (mcpp generated pom.xml)          │  │
 │ │    └─ Download dependencies                      │  │
 │ │       └─ Compile Java source                     │  │
 │ │          └─ Run unit tests                       │  │

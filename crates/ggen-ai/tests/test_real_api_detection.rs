@@ -1,6 +1,6 @@
-//! Test to detect real vs mock API calls in ggen-ai
+//! Test to detect real vs mock API calls in mcpp-ai
 
-use ggen_ai::config::GlobalLlmConfig;
+use mcpp_ai::config::GlobalLlmConfig;
 
 #[tokio::test]
 async fn test_real_api_call_detection() {

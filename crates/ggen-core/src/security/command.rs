@@ -5,7 +5,7 @@
 //! This module provides safe wrappers around `std::process::Command` to prevent
 //! command injection attacks by avoiding shell execution and validating inputs.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::Path;
 use std::process::{Command, Output};
 
@@ -49,7 +49,7 @@ impl From<CommandError> for Error {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::security::command::SafeCommand;
+/// use mcpp_core::security::command::SafeCommand;
 ///
 /// # fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// // Safe: Direct program execution

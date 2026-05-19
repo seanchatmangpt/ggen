@@ -1,6 +1,6 @@
 //! SHACL shape file loading and structure validation tests.
 //!
-//! These tests verify that ggen's `.shacl.ttl` files are valid Turtle, contain
+//! These tests verify that mcpp's `.shacl.ttl` files are valid Turtle, contain
 //! the expected SHACL constructs (NodeShape, targetClass, property constraints,
 //! datatype restrictions), and that SPARQL queries can detect violations.
 //!
@@ -8,15 +8,15 @@
 //! These tests bypass the stub by loading `.shacl.ttl` files directly into a
 //! `Graph` and querying with SPARQL.
 
-use ggen_core::graph::{CachedResult, Graph};
-use ggen_core::validation::shacl::ShapeLoader;
+use mcpp_core::graph::{CachedResult, Graph};
+use mcpp_core::validation::shacl::ShapeLoader;
 use walkdir::WalkDir;
 
-/// Return the ggen workspace root (two levels up from crates/ggen-core).
+/// Return the mcpp workspace root (two levels up from crates/mcpp-core).
 fn workspace_root() -> std::path::PathBuf {
     let mut p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.pop(); // crates/ggen-core -> crates
-    p.pop(); // crates -> ggen root
+    p.pop(); // crates/mcpp-core -> crates
+    p.pop(); // crates -> mcpp root
     p
 }
 

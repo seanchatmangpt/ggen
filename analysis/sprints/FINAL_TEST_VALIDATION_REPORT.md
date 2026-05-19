@@ -1,13 +1,13 @@
 # Final Test Suite Validation Report
 **Generated:** 2026-03-30
-**Workspace:** ggen v6.0.1
+**Workspace:** mcpp v26.5.4
 **Platform:** macOS (Darwin 25.2.0)
 
 ## Executive Summary
 
 ✅ **Library Tests: ALL PASS (3,939 tests)**
 ❌ **Integration Tests: COMPILATION ERRORS (property tests in 4 crates)**
-⚠️ **Examples: COMPILATION ERRORS (ggen-dspy examples)**
+⚠️ **Examples: COMPILATION ERRORS (mcpp-dspy examples)**
 
 ## Detailed Results
 
@@ -23,18 +23,18 @@
 
 | Crate | Tests | Status | Notes |
 |-------|-------|--------|-------|
-| ggen-core | 684 | ✅ | 0 failures |
-| ggen-cli-lib | 1,017 | ✅ | 7 ignored |
-| ggen-a2a-mcp | 119 | ✅ | 0 failures |
-| ggen-domain | 406 | ✅ | 0 failures |
-| ggen-ai | 93 | ✅ | 0 failures |
-| ggen-ontology-core | 134 | ✅ | 0 failures |
-| ggen-api | 84 | ✅ | 15 ignored |
-| ggen-cli | 22 | ✅ | 0 failures |
-| ggen-workflow | 65 | ✅ | 0 failures |
-| ggen-utils | 77 | ✅ | 0 failures |
-| ggen-backpressure | 60 | ✅ | 0 failures |
-| ggen-consensus | 1017 | ✅ | 0 failures |
+| mcpp-core | 684 | ✅ | 0 failures |
+| mcpp-cli-lib | 1,017 | ✅ | 7 ignored |
+| mcpp-a2a-mcp | 119 | ✅ | 0 failures |
+| mcpp-domain | 406 | ✅ | 0 failures |
+| mcpp-ai | 93 | ✅ | 0 failures |
+| mcpp-ontology-core | 134 | ✅ | 0 failures |
+| mcpp-api | 84 | ✅ | 15 ignored |
+| mcpp-cli | 22 | ✅ | 0 failures |
+| mcpp-workflow | 65 | ✅ | 0 failures |
+| mcpp-utils | 77 | ✅ | 0 failures |
+| mcpp-backpressure | 60 | ✅ | 0 failures |
+| mcpp-consensus | 1017 | ✅ | 0 failures |
 | Other crates (20+) | 311 | ✅ | 0 failures |
 
 **Total Time:** ~28 seconds (cold build)
@@ -47,10 +47,10 @@
 
 | Crate | Test File | Error Count | Issues |
 |-------|-----------|-------------|--------|
-| ggen-jidoka | property_tests.rs | 15 | Missing imports (GateResult, GateStatus, LineStatus, JidokaLine), Gate trait used as concrete type |
-| ggen-transport | mcp_test.rs | 2 | Missing `mcp` module in ggen_transport |
-| ggen-backpressure | property_tests.rs | 42 | Type mismatches, Stage::new missing, KanbanConfig field changes |
-| ggen-a2a | property_tests.rs | 6 | Type mismatches (u32 vs usize) |
+| mcpp-jidoka | property_tests.rs | 15 | Missing imports (GateResult, GateStatus, LineStatus, JidokaLine), Gate trait used as concrete type |
+| mcpp-transport | mcp_test.rs | 2 | Missing `mcp` module in mcpp_transport |
+| mcpp-backpressure | property_tests.rs | 42 | Type mismatches, Stage::new missing, KanbanConfig field changes |
+| mcpp-a2a | property_tests.rs | 6 | Type mismatches (u32 vs usize) |
 
 #### Passed Integration Tests
 
@@ -58,7 +58,7 @@ Most integration tests compiled and passed, but exact count unavailable due to c
 
 ### 3. Example Code
 
-**Status:** ❌ COMPILATION ERRORS (ggen-dspy)
+**Status:** ❌ COMPILATION ERRORS (mcpp-dspy)
 
 | Example | Errors | Issues |
 |---------|--------|--------|
@@ -98,7 +98,7 @@ Most integration tests compiled and passed, but exact count unavailable due to c
 **Total Warnings:** ~50 (mostly unused imports)
 
 ### Critical Warnings
-- Unused imports in ggen-api, ggen-cli, ggen-dspy
+- Unused imports in mcpp-api, mcpp-cli, mcpp-dspy
 - Unused variables in integration tests
 - Type inference issues in property tests
 
@@ -118,10 +118,10 @@ Run `cargo fix --allow-dirty` to auto-fix unused imports.
 ### 1. Property Test Compilation Failures (HIGH PRIORITY)
 
 **Affected Crates:**
-- ggen-jidoka: 15 errors
-- ggen-transport: 2 errors
-- ggen-backpressure: 42 errors
-- ggen-a2a: 6 errors
+- mcpp-jidoka: 15 errors
+- mcpp-transport: 2 errors
+- mcpp-backpressure: 42 errors
+- mcpp-a2a: 6 errors
 
 **Root Causes:**
 - API changes not reflected in tests
@@ -130,7 +130,7 @@ Run `cargo fix --allow-dirty` to auto-fix unused imports.
 
 **Impact:** 65 property tests cannot run
 
-### 2. ggen-dspy Examples (MEDIUM PRIORITY)
+### 2. mcpp-dspy Examples (MEDIUM PRIORITY)
 
 **Impact:** 5 example programs fail to compile
 **Severity:** Low (examples are not shipped code)
@@ -145,10 +145,10 @@ Run `cargo fix --allow-dirty` to auto-fix unused imports.
 ### Immediate Actions (Before Merge)
 
 1. **Fix Property Test Compilation**
-   - ggen-jidoka: Add missing imports, fix Gate trait usage
-   - ggen-transport: Restore mcp module or update test
-   - ggen-backpressure: Fix type mismatches, API calls
-   - ggen-a2a: Fix type conversions (u32 → usize)
+   - mcpp-jidoka: Add missing imports, fix Gate trait usage
+   - mcpp-transport: Restore mcp module or update test
+   - mcpp-backpressure: Fix type mismatches, API calls
+   - mcpp-a2a: Fix type conversions (u32 → usize)
 
 2. **Run Full Test Suite**
    ```bash

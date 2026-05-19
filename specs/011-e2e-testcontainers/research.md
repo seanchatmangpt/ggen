@@ -5,7 +5,7 @@
 
 ## Executive Summary
 
-This research covers testcontainers-rs patterns for CLI testing, GitHub Actions cross-platform matrix strategies, golden file testing practices, and Homebrew installation verification. Key findings inform the implementation plan for cross-platform E2E testing of `ggen sync`.
+This research covers testcontainers-rs patterns for CLI testing, GitHub Actions cross-platform matrix strategies, golden file testing practices, and Homebrew installation verification. Key findings inform the implementation plan for cross-platform E2E testing of `mcpp sync`.
 
 ## 1. Testcontainers-rs Patterns
 
@@ -20,7 +20,7 @@ This research covers testcontainers-rs patterns for CLI testing, GitHub Actions 
 ### 1.2 Container Lifecycle
 
 ```rust
-// Async pattern (recommended for ggen's tokio-based architecture)
+// Async pattern (recommended for mcpp's tokio-based architecture)
 use testcontainers::runners::AsyncRunner;
 use testcontainers::GenericImage;
 
@@ -35,9 +35,9 @@ let container = GenericImage::new("ubuntu", "22.04")
 
 ### 1.3 Custom Images for CLI Testing
 
-For testing `ggen sync`, we need a custom image with:
+For testing `mcpp sync`, we need a custom image with:
 - Rust toolchain (for cargo install)
-- OR pre-built ggen binary mounted
+- OR pre-built mcpp binary mounted
 - Sample ontology files
 
 **Recommended approach**: Use `GenericImage` with Ubuntu LTS base, mount test fixtures as volumes.
@@ -52,7 +52,7 @@ For testing `ggen sync`, we need a custom image with:
 
 ### 1.5 Key Dependencies
 
-From ggen's existing `Cargo.toml`:
+From mcpp's existing `Cargo.toml`:
 ```toml
 testcontainers = "0.25"
 testcontainers-modules = "0.13"
@@ -61,9 +61,9 @@ chicago-tdd-tools = { version = "1.4.0", features = ["testcontainers"] }
 
 ## 2. GitHub Actions Cross-Platform Matrix
 
-### 2.1 Current ggen CI Structure
+### 2.1 Current mcpp CI Structure
 
-ggen already has cross-platform builds in `ci.yml`:
+mcpp already has cross-platform builds in `ci.yml`:
 ```yaml
 build-matrix:
   strategy:
@@ -128,7 +128,7 @@ e2e-test:
 
 Golden file testing compares generated output against known-good "golden" files:
 
-1. **Generate**: Run `ggen sync` on test project
+1. **Generate**: Run `mcpp sync` on test project
 2. **Compare**: Diff output against golden files
 3. **Update**: `--update-golden` flag to refresh expected output
 
@@ -183,9 +183,9 @@ tests/e2e/golden/
 
 ### 4.1 Current Homebrew Setup
 
-ggen has existing Homebrew infrastructure:
+mcpp has existing Homebrew infrastructure:
 - Tap: `seanchatmangpt/homebrew-tap`
-- Formula: `ggen.rb`
+- Formula: `mcpp.rb`
 - Automated updates via `homebrew-release.yml`
 
 ### 4.2 Testing Approaches
@@ -196,7 +196,7 @@ ggen has existing Homebrew infrastructure:
 | Local formula | Faster | May miss tap issues |
 | Binary verification | Very fast | Doesn't test brew flow |
 
-**Recommended**: Test `brew install seanchatmangpt/tap/ggen` on release workflow only.
+**Recommended**: Test `brew install seanchatmangpt/tap/mcpp` on release workflow only.
 
 ### 4.3 Verification Script
 
@@ -205,19 +205,19 @@ ggen has existing Homebrew infrastructure:
 # e2e-homebrew-test.sh
 
 # Uninstall if present
-brew uninstall ggen 2>/dev/null || true
+brew uninstall mcpp 2>/dev/null || true
 
 # Install from tap
-brew install seanchatmangpt/tap/ggen
+brew install seanchatmangpt/tap/mcpp
 
 # Verify installation
-ggen --version
+mcpp --version
 
 # Run smoke test
 cd /tmp
-ggen init test-project
+mcpp init test-project
 cd test-project
-ggen sync
+mcpp sync
 
 # Verify output
 [ -f "generated/output.rs" ] && echo "✅ Homebrew installation verified"
@@ -243,7 +243,7 @@ ggen sync
 
 ### 5.3 Custom Dockerfile (Optional)
 
-For faster tests, pre-build a ggen test image:
+For faster tests, pre-build a mcpp test image:
 
 ```dockerfile
 FROM ubuntu:22.04
@@ -257,14 +257,14 @@ RUN apt-get update && apt-get install -y \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Pre-compile ggen dependencies (cache layer)
-WORKDIR /ggen
+# Pre-compile mcpp dependencies (cache layer)
+WORKDIR /mcpp
 COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
 RUN cargo build --release
 
 # Entry point
-ENTRYPOINT ["/ggen/target/release/ggen"]
+ENTRYPOINT ["/mcpp/target/release/mcpp"]
 ```
 
 ## 6. Test Scenarios
@@ -273,9 +273,9 @@ Based on spec requirements (FR-001 through FR-014):
 
 | ID | Scenario | Platform | Method |
 |----|----------|----------|--------|
-| E2E-001 | ggen sync on Linux | linux-x86_64 | testcontainer |
-| E2E-002 | ggen sync on macOS Intel | darwin-x86_64 | native |
-| E2E-003 | ggen sync on macOS ARM | darwin-arm64 | native |
+| E2E-001 | mcpp sync on Linux | linux-x86_64 | testcontainer |
+| E2E-002 | mcpp sync on macOS Intel | darwin-x86_64 | native |
+| E2E-003 | mcpp sync on macOS ARM | darwin-arm64 | native |
 | E2E-004 | Cross-platform output comparison | all | CI job |
 | E2E-005 | Homebrew install verification | darwin-* | CI job |
 | E2E-006 | thesis-gen example validation | all | golden files |
@@ -294,7 +294,7 @@ Based on spec requirements (FR-001 through FR-014):
 
 ## 8. Recommendations
 
-1. **Crate Structure**: Create `ggen-e2e` crate with clear module boundaries
+1. **Crate Structure**: Create `mcpp-e2e` crate with clear module boundaries
 2. **Test Isolation**: Use `#[ignore]` for Docker-dependent tests
 3. **CI Integration**: Separate workflows for Linux (testcontainers) and macOS (native)
 4. **Golden Files**: Store in `tests/e2e/golden/` with `.gitattributes` for LF

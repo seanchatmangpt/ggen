@@ -33,7 +33,7 @@ impl OntologyAnalyzer {
     /// - Being a concrete (non-abstract) class
     /// - Having rdfs:label defined
     pub fn extract_business_processes(
-        &self, graph: &ggen_core::Graph,
+        &self, graph: &mcpp_core::Graph,
     ) -> Result<Vec<ProcessClass>, crate::Error> {
         let query = r#"
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -61,7 +61,7 @@ impl OntologyAnalyzer {
 
         let processes = Vec::new();
         // Parse SPARQL results and extract process classes
-        // (Implementation depends on ggen_core Graph API)
+        // (Implementation depends on mcpp_core Graph API)
 
         Ok(processes)
     }

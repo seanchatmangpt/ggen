@@ -506,5 +506,5 @@ echo "  ✅ Verify state, not behavior"
 echo ""
 EOF
 
-    chmod +x "/Users/sac/ggen/scripts/generate-test-skeleton.sh"
+    chmod +x "./scripts/generate-test-skeleton.sh"
     echo "✅ Created test skeleton generator script"

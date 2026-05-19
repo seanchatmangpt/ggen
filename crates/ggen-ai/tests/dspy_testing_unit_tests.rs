@@ -2,8 +2,8 @@
 //!
 //! Comprehensive tests for DummyLM, ExampleBuilder, and testing utilities.
 
-use ggen_ai::dspy::testing::*;
-use ggen_ai::dspy::{Module, ModuleError};
+use mcpp_ai::dspy::testing::*;
+use mcpp_ai::dspy::{Module, ModuleError};
 use serde_json::json;
 use std::collections::HashMap;
 
@@ -360,7 +360,7 @@ fn test_assert_dataset_valid_empty() {
 // Integration Tests - DummyLM with Optimizer
 // ============================================================================
 
-use ggen_ai::dspy::optimizer::{BootstrapFewShot, Example};
+use mcpp_ai::dspy::optimizer::{BootstrapFewShot, Example};
 use std::sync::Arc;
 
 #[tokio::test]

@@ -56,7 +56,7 @@ pub enum DummyLMMode {
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::DummyLM;
+/// use mcpp_ai::dspy::testing::DummyLM;
 /// use serde_json::json;
 /// use std::collections::HashMap;
 ///

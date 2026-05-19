@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-Phase 0 research resolved all technical unknowns for generating a PhD thesis on "Grand Unified Theory of Full-Stack Knowledge Graph Completeness" from RDF ontology using ggen.
+Phase 0 research resolved all technical unknowns for generating a PhD thesis on "Grand Unified Theory of Full-Stack Knowledge Graph Completeness" from RDF ontology using mcpp.
 
 ---
 
@@ -298,7 +298,7 @@ Idempotency: Guaranteed for validations, best-effort for transforms
 
 ## 6. Architecture Design
 
-### Decision: 15-rule ggen.toml with layered ontology
+### Decision: 15-rule mcpp.toml with layered ontology
 
 ### Ontology Structure
 ```
@@ -308,10 +308,10 @@ Idempotency: Guaranteed for validations, best-effort for transforms
 │   └── kgc-unified-content.ttl # Thesis content instances
 ├── templates/                  # 14 Tera templates
 ├── output/                     # Generated LaTeX files
-└── ggen.toml                   # Generation manifest
+└── mcpp.toml                   # Generation manifest
 ```
 
-### Base IRI: `https://ggen.io/thesis/kgc-unified/`
+### Base IRI: `https://mcpp.io/thesis/kgc-unified/`
 
 ### Key Classes (17 total)
 Thesis, Chapter, Section, Subsection, Theorem, Lemma, Definition, Proposition, Corollary, Equation, Algorithm, Figure, Table, Reference, Appendix, CodeListing, TableRow
@@ -332,7 +332,7 @@ orderIndex, labelId, title, content, abstract, hasChapter, hasSection, hasTheore
 
 ### Scalability
 - **Ontology size**: 5000-10000 triples for comprehensive thesis
-- **Generation time**: Target <5s (ggen benchmark verified)
+- **Generation time**: Target <5s (mcpp benchmark verified)
 - **Document length**: 100-200 pages
 - **Memory**: <200MB based on 10K triple benchmark
 

@@ -11,7 +11,7 @@ DELIVERABLES
 ================================================================================
 
 4 comprehensive documents created in:
-  /Users/sac/ggen/tai-erlang-autonomics/compliance/
+  /Users/sac/mcpp/tai-erlang-autonomics/compliance/
 
 1. README.md (406 lines)
    - Index and navigation guide
@@ -206,7 +206,7 @@ FRIDAY:
 DOCUMENT LOCATIONS
 ================================================================================
 
-/Users/sac/ggen/tai-erlang-autonomics/compliance/
+/Users/sac/mcpp/tai-erlang-autonomics/compliance/
 
 - README.md
   Start here for navigation and overview

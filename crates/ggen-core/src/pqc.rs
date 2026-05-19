@@ -1,4 +1,4 @@
-//! Post-Quantum Cryptography (PQC) module for ggen
+//! Post-Quantum Cryptography (PQC) module for mcpp
 //!
 //! This module provides post-quantum cryptographic signatures using ML-DSA (Dilithium3),
 //! a NIST-approved post-quantum signature scheme. It enables quantum-resistant
@@ -25,7 +25,7 @@
 //! ### Generating a Key Pair
 //!
 //! ```rust
-//! use ggen_core::pqc::PqcSigner;
+//! use mcpp_core::pqc::PqcSigner;
 //!
 //! // Generate a new keypair (in-memory, no files needed)
 //! let signer = PqcSigner::new();
@@ -36,7 +36,7 @@
 //! ### Signing Content
 //!
 //! ```rust
-//! use ggen_core::pqc::{PqcSigner, PqcVerifier};
+//! use mcpp_core::pqc::{PqcSigner, PqcVerifier};
 //!
 //! let signer = PqcSigner::new();
 //! let content = b"package content";
@@ -50,7 +50,7 @@
 //! assert!(verifier.verify(content, &signature).unwrap());
 //! ```
 use base64::{engine::general_purpose, Engine as _};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use pqcrypto_mldsa::mldsa65;
 use pqcrypto_traits::sign::{PublicKey, SecretKey, SignedMessage};
 use sha2::{Digest, Sha256};
@@ -220,7 +220,7 @@ mod tests {
     #[test]
     fn test_pqc_pack_signature() {
         let signer = PqcSigner::new();
-        let pack_id = "io.ggen.test";
+        let pack_id = "io.mcpp.test";
         let version = "1.0.0";
         let sha256 = "abc123";
 

@@ -116,7 +116,7 @@ Day 4+ (Planning):    ROADMAP.md      ✓
 
 ## File Manifest
 
-Location: `/Users/sac/ggen/tai-erlang-autonomics/docs/`
+Location: `~/.ggen/mcpp/tai-erlang-autonomics/docs/`
 
 ```
 SUPPORT_MODEL.md  (343 lines, 10.8 KB)

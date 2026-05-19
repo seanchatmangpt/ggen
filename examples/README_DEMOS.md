@@ -7,7 +7,7 @@
 ### Quick Start
 
 ```bash
-cd /Users/sac/ggen/examples
+cd ./examples
 
 # Interactive demo (recommended for first time)
 ./ultra-deploy-demo.sh
@@ -158,9 +158,9 @@ This directory also contains:
 
 ## Related Documentation
 
-- **Ggen Docs:** `/Users/sac/ggen/docs/`
-- **Cleanroom:** `/Users/sac/ggen/cleanroom/`
-- **Templates:** `/Users/sac/ggen/docs/marketplace.md`
+- **Ggen Docs:** `./docs/`
+- **Cleanroom:** `./cleanroom/`
+- **Templates:** `./docs/marketplace.md`
 
 ## Support
 

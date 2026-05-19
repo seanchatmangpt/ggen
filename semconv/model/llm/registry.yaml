@@ -1,9 +1,9 @@
 groups:
-  - id: registry.ggen.llm
+  - id: registry.mcpp.llm
     type: attribute_group
     stability: development
     display_name: LLM Provider Attributes
-    brief: Attributes for LLM provider operations in ggen.
+    brief: Attributes for LLM provider operations in mcpp.
     attributes:
       - id: llm.model
         type: string

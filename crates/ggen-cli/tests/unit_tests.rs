@@ -42,7 +42,7 @@ fn create_fake_source_file(dir: &TempDir, name: &str, content: &str) -> String {
 // ============================================================================
 
 async_test!(test_validate_actually_parses_template, async {
-    use ggen_core::Template;
+    use mcpp_core::Template;
     use tera::{Context, Tera};
 
     let temp_dir = TempDir::new().unwrap();
@@ -81,7 +81,7 @@ async_test!(test_validate_actually_parses_template, async {
 });
 
 async_test!(test_validate_detects_invalid_template, async {
-    use ggen_core::Template;
+    use mcpp_core::Template;
     use tera::{Context, Tera};
 
     let temp_dir = TempDir::new().unwrap();
@@ -121,7 +121,7 @@ Body
 });
 
 async_test!(test_validate_checks_required_frontmatter_fields, async {
-    use ggen_core::Template;
+    use mcpp_core::Template;
 
     let temp_dir = TempDir::new().unwrap();
 
@@ -150,8 +150,8 @@ Template body
 // ============================================================================
 
 async_test!(test_generate_creates_valid_template_structure, async {
-    use ggen_ai::MockClient;
-    use ggen_ai::TemplateGenerator;
+    use mcpp_ai::MockClient;
+    use mcpp_ai::TemplateGenerator;
     use std::sync::Arc;
 
     // Create a mock response without template variables in frontmatter
@@ -195,7 +195,7 @@ pub fn example() {
 });
 
 async_test!(test_generate_with_mock_client_uses_fake_data, async {
-    use ggen_ai::{MockClient, TemplateGenerator};
+    use mcpp_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
     let mock_response: String = Faker.fake();
@@ -279,7 +279,7 @@ async_test!(test_from_source_extracts_variables_from_code, async {
 // ============================================================================
 
 async_test!(test_ultrathink_task_creates_actual_task_object, async {
-    // use ggen_ai::ultrathink::{create_task, TaskPriority, TaskType};
+    // use mcpp_ai::ultrathink::{create_task, TaskPriority, TaskType};
 
     // Test that create_task actually creates a task with proper fields
     // TODO: Implement ultrathink module
@@ -387,7 +387,7 @@ async_test!(
 );
 
 async_test!(test_autonomous_evolve_validates_provider, async {
-    use ggen_ai::LlmProvider;
+    use mcpp_ai::LlmProvider;
 
     // Test that provider validation works
     let valid_providers = vec![
@@ -406,7 +406,7 @@ async_test!(test_autonomous_evolve_validates_provider, async {
 // ============================================================================
 
 async_test!(test_template_with_liquid_syntax_is_valid, async {
-    use ggen_core::Template;
+    use mcpp_core::Template;
 
     let liquid_template = r#"---
 to: output/{{ name }}.txt
@@ -432,7 +432,7 @@ Hello {{ name }}!
 });
 
 async_test!(test_template_variables_are_accessible, async {
-    use ggen_core::Template;
+    use mcpp_core::Template;
     use tera::{Context, Tera};
 
     let template_with_vars = r#"---
@@ -526,7 +526,7 @@ async_test!(test_validate_handles_missing_file_gracefully, async {
 });
 
 async_test!(test_generate_handles_empty_description_gracefully, async {
-    use ggen_ai::{MockClient, TemplateGenerator};
+    use mcpp_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
     let mock_client = MockClient::with_response("fallback template");
@@ -547,7 +547,7 @@ async_test!(test_generate_handles_empty_description_gracefully, async {
 // ============================================================================
 
 async_test!(test_mock_client_returns_configured_response, async {
-    use ggen_ai::MockClient;
+    use mcpp_ai::MockClient;
 
     let expected_response = "This is a test response";
     let _mock_client = MockClient::with_response(expected_response);
@@ -562,7 +562,7 @@ async_test!(test_mock_client_returns_configured_response, async {
 });
 
 async_test!(test_mock_client_can_be_used_in_generator, async {
-    use ggen_ai::{MockClient, TemplateGenerator};
+    use mcpp_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
     let mock_response = "Generated template content";
@@ -580,7 +580,7 @@ async_test!(test_mock_client_can_be_used_in_generator, async {
 // ============================================================================
 
 async_test!(test_full_template_generation_workflow, async {
-    use ggen_ai::{MockClient, TemplateGenerator};
+    use mcpp_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
     // 1. Generate template using mock client (no template vars in frontmatter)
@@ -616,7 +616,7 @@ pub fn workflow_test() {}
 });
 
 async_test!(test_from_source_to_template_workflow, async {
-    use ggen_ai::{MockClient, TemplateGenerator};
+    use mcpp_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
     let temp_dir = TempDir::new().unwrap();

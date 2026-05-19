@@ -2,10 +2,10 @@
 //!
 //! Tests organized by adapter type and functionality
 
-use ggen_dspy::adapters::{
+use mcpp_dspy::adapters::{
     AdapterWithFallback, ChatAdapter, Demonstration, JSONAdapter, LlmAdapter,
 };
-use ggen_dspy::error::DspyError;
+use mcpp_dspy::error::DspyError;
 use serde_json::Value;
 use std::collections::HashMap;
 

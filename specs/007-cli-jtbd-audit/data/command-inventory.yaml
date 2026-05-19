@@ -1,4 +1,4 @@
-# ggen CLI Command Inventory
+# mcpp CLI Command Inventory
 # Generated: 2024-12-14
 # Version: 4.0.0
 # Total Commands: 47+
@@ -7,31 +7,31 @@ commands:
   # ============================================
   # WORKFLOW COMMANDS
   # ============================================
-  - name: ggen workflow analyze
+  - name: mcpp workflow analyze
     category: workflow
     description: Analyze workflow execution
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen workflow init
+  - name: mcpp workflow init
     category: workflow
     description: Initialize workflow configuration
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen workflow report
+  - name: mcpp workflow report
     category: workflow
     description: Generate workflow reports
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen workflow event
+  - name: mcpp workflow event
     category: workflow
     description: Workflow event management
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen workflow discover
+  - name: mcpp workflow discover
     category: workflow
     description: Discover available workflows
     maturity: TBD
@@ -40,53 +40,53 @@ commands:
   # ============================================
   # TEMPLATE COMMANDS
   # ============================================
-  - name: ggen template new
+  - name: mcpp template new
     category: template
     description: Create a new template
     maturity: TBD
     agent_score: TBD
     case_studies: [netflix, amazon]
 
-  - name: ggen template list
+  - name: mcpp template list
     category: template
     description: List available templates
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen template lint
+  - name: mcpp template lint
     category: template
     description: Lint template files for errors
     maturity: TBD
     agent_score: TBD
     case_studies: [netflix]
 
-  - name: ggen template generate
+  - name: mcpp template generate
     category: template
     description: Generate code from template
     maturity: TBD
     agent_score: TBD
     case_studies: [jpmorgan, amazon, pfizer, toyota, goldman]
 
-  - name: ggen template get
+  - name: mcpp template get
     category: template
     description: Get template from registry
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen template show
+  - name: mcpp template show
     category: template
     description: Display template details
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen template generate-tree
+  - name: mcpp template generate-tree
     category: template
     description: Generate directory tree from templates
     maturity: TBD
     agent_score: TBD
     case_studies: [pfizer, boeing]
 
-  - name: ggen template regenerate
+  - name: mcpp template regenerate
     category: template
     description: Regenerate existing outputs
     maturity: TBD
@@ -96,45 +96,45 @@ commands:
   # ============================================
   # PROJECT COMMANDS
   # ============================================
-  - name: ggen project new
+  - name: mcpp project new
     category: project
-    description: Create new ggen project
+    description: Create new mcpp project
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen project plan
+  - name: mcpp project plan
     category: project
     description: Generate project plan
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen project apply
+  - name: mcpp project apply
     category: project
     description: Apply project configuration
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen project generate
+  - name: mcpp project generate
     category: project
     description: Generate project from configuration
     maturity: TBD
     agent_score: TBD
     case_studies: [amazon, pfizer]
 
-  - name: ggen project init
+  - name: mcpp project init
     category: project
     description: Initialize project structure
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen project watch
+  - name: mcpp project watch
     category: project
     description: Watch for changes and regenerate
     maturity: TBD
     agent_score: TBD
     case_studies: [toyota, goldman]
 
-  - name: ggen project gen
+  - name: mcpp project gen
     category: project
     description: Quick generation command
     maturity: TBD
@@ -143,28 +143,28 @@ commands:
   # ============================================
   # GRAPH COMMANDS
   # ============================================
-  - name: ggen graph query
+  - name: mcpp graph query
     category: graph
     description: Execute SPARQL query on RDF graph
     maturity: TBD
     agent_score: TBD
     case_studies: [jpmorgan, pfizer]
 
-  - name: ggen graph load
+  - name: mcpp graph load
     category: graph
     description: Load RDF data into graph
     maturity: TBD
     agent_score: TBD
     case_studies: [pfizer]
 
-  - name: ggen graph visualize
+  - name: mcpp graph visualize
     category: graph
     description: Visualize RDF graph
     maturity: TBD
     agent_score: TBD
     case_studies: [boeing]
 
-  - name: ggen graph export
+  - name: mcpp graph export
     category: graph
     description: Export graph to various formats
     maturity: TBD
@@ -174,20 +174,20 @@ commands:
   # ============================================
   # AI COMMANDS
   # ============================================
-  - name: ggen ai generate
+  - name: mcpp ai generate
     category: ai
     description: AI-assisted code generation
     maturity: TBD
     agent_score: TBD
     case_studies: [amazon]
 
-  - name: ggen ai chat
+  - name: mcpp ai chat
     category: ai
     description: Interactive AI chat session
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen ai analyze
+  - name: mcpp ai analyze
     category: ai
     description: AI analysis of code/ontologies
     maturity: TBD
@@ -197,27 +197,27 @@ commands:
   # ============================================
   # ONTOLOGY COMMANDS
   # ============================================
-  - name: ggen ontology generate
+  - name: mcpp ontology generate
     category: ontology
     description: Generate code from ontology
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen ontology extract
+  - name: mcpp ontology extract
     category: ontology
     description: Extract ontology from sources
     maturity: TBD
     agent_score: TBD
     case_studies: [pfizer]
 
-  - name: ggen ontology validate
+  - name: mcpp ontology validate
     category: ontology
     description: Validate ontology correctness
     maturity: TBD
     agent_score: TBD
     case_studies: [jpmorgan, pfizer]
 
-  - name: ggen ontology init
+  - name: mcpp ontology init
     category: ontology
     description: Initialize ontology structure
     maturity: TBD
@@ -227,64 +227,64 @@ commands:
   # ============================================
   # MARKETPLACE COMMANDS
   # ============================================
-  - name: ggen marketplace sparql
+  - name: mcpp marketplace sparql
     category: marketplace
     description: Execute SPARQL on marketplace packages
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen marketplace install
+  - name: mcpp marketplace install
     category: marketplace
     description: Install marketplace package
     maturity: TBD
     agent_score: TBD
     case_studies: [amazon]
 
-  - name: ggen marketplace metrics
+  - name: mcpp marketplace metrics
     category: marketplace
     description: Show package metrics
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen marketplace validate
+  - name: mcpp marketplace validate
     category: marketplace
     description: Validate marketplace package
     maturity: TBD
     agent_score: TBD
     case_studies: [netflix]
 
-  - name: ggen marketplace info
+  - name: mcpp marketplace info
     category: marketplace
     description: Show package information
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen marketplace rdf_stats
+  - name: mcpp marketplace rdf_stats
     category: marketplace
     description: RDF statistics for packages
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen marketplace versions
+  - name: mcpp marketplace versions
     category: marketplace
     description: Show package versions
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen marketplace publish
+  - name: mcpp marketplace publish
     category: marketplace
     description: Publish package to marketplace
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen marketplace validate_fmea
+  - name: mcpp marketplace validate_fmea
     category: marketplace
     description: Validate FMEA configuration
     maturity: TBD
     agent_score: TBD
     case_studies: [boeing, toyota]
 
-  - name: ggen marketplace search
+  - name: mcpp marketplace search
     category: marketplace
     description: Search marketplace packages
     maturity: TBD
@@ -293,34 +293,34 @@ commands:
   # ============================================
   # FMEA COMMANDS
   # ============================================
-  - name: ggen fmea show
+  - name: mcpp fmea show
     category: fmea
     description: Show FMEA analysis
     maturity: TBD
     agent_score: TBD
     case_studies: [boeing, toyota]
 
-  - name: ggen fmea pareto
+  - name: mcpp fmea pareto
     category: fmea
     description: Generate Pareto chart of failure modes
     maturity: TBD
     agent_score: TBD
     case_studies: [toyota]
 
-  - name: ggen fmea report
+  - name: mcpp fmea report
     category: fmea
     description: Generate FMEA report
     maturity: TBD
     agent_score: TBD
     case_studies: [boeing]
 
-  - name: ggen fmea export
+  - name: mcpp fmea export
     category: fmea
     description: Export FMEA data
     maturity: TBD
     agent_score: TBD
 
-  - name: ggen fmea list
+  - name: mcpp fmea list
     category: fmea
     description: List failure modes
     maturity: TBD
@@ -329,7 +329,7 @@ commands:
   # ============================================
   # CI COMMANDS
   # ============================================
-  - name: ggen ci
+  - name: mcpp ci
     category: ci
     description: CI/CD integration commands
     maturity: TBD
@@ -339,7 +339,7 @@ commands:
   # ============================================
   # UTILS COMMANDS
   # ============================================
-  - name: ggen utils
+  - name: mcpp utils
     category: utils
     description: Utility commands
     maturity: TBD

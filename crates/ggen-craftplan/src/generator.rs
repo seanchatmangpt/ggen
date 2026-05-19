@@ -4,9 +4,9 @@
 //! RDF ontologies into idiomatic Elixir code.
 
 use crate::GenConfig;
-use ggen_core::graph::Graph;
-use ggen_core::template::TemplateContext;
-use ggen_utils::error::Result;
+use mcpp_core::graph::Graph;
+use mcpp_core::template::TemplateContext;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};

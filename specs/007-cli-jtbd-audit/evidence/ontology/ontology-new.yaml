@@ -1,4 +1,4 @@
-command: "ggen ontology new"
+command: "mcpp ontology new"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to create a new RDF ontology,
-  I need to run 'ggen ontology new' with ontology specification,
+  I need to run 'mcpp ontology new' with ontology specification,
   so that I can define domain models in RDF.

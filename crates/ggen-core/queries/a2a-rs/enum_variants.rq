@@ -1,8 +1,8 @@
 SELECT DISTINCT ?type ?variant_name ?variant_rename
 WHERE {
-    ?type a ggen:Type .
-    ?type ggen:isEnum true .
-    ?type ggen:hasVariant ?variant .
-    ?variant ggen:name ?variant_name .
-    OPTIONAL { ?variant ggen:rename ?variant_rename }
+    ?type a mcpp:Type .
+    ?type mcpp:isEnum true .
+    ?type mcpp:hasVariant ?variant .
+    ?variant mcpp:name ?variant_name .
+    OPTIONAL { ?variant mcpp:rename ?variant_rename }
 } ORDER BY ?type ?variant_name

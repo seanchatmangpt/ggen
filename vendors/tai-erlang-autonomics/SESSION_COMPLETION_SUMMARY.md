@@ -501,6 +501,6 @@ All Phase 1 code is production-ready. All Phase 2 planning is complete and actio
 
 ---
 
-**All deliverables are in**: `/Users/sac/ggen/tai-erlang-autonomics/`
+**All deliverables are in**: `~/.ggen/mcpp/tai-erlang-autonomics/`
 **Master navigation**: `INDEX_PHASE_1_PHASE_2.md`
 **Executive summary**: `PHASE_1_2_INTEGRATION_SUMMARY.md`

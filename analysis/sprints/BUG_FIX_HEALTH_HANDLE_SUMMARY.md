@@ -16,18 +16,18 @@ The health check task's `JoinHandle` was not being properly managed, leading to:
 ### Issue 1: Health Check State Logic
 The health check task only set the state to `Connected` if it was previously `Connecting`. Since the initial state was `Disconnected`, the health check never transitioned to `Connected`.
 
-**Location:** `crates/ggen-a2a-mcp/src/client.rs:276-314`
+**Location:** `crates/mcpp-a2a-mcp/src/client.rs:276-314`
 
 ### Issue 2: Incomplete Drop Implementation
 The Drop implementation only signaled cancellation but didn't try to abort the task handle. The comment claimed we couldn't lock the Mutex in Drop, but we can use `try_lock()`.
 
-**Location:** `crates/ggen-a2a-mcp/src/client.rs:866-874`
+**Location:** `crates/mcpp-a2a-mcp/src/client.rs:866-874`
 
 ## Changes Made
 
 ### 1. Fixed Health Check State Initialization (`start_health_check`)
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/client.rs`
+**File:** `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/client.rs`
 
 **Changes:**
 - Added initial state setting to `Connected` when health check starts
@@ -61,7 +61,7 @@ async fn start_health_check(&self) {
 
 ### 2. Improved Drop Implementation
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/client.rs`
+**File:** `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/client.rs`
 
 **Changes:**
 - Added `try_lock()` to attempt aborting the task in Drop
@@ -92,21 +92,21 @@ impl Drop for A2aLlmClient {
 
 ### 3. Fixed Missing Import
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/src/message.rs`
+**File:** `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/message.rs`
 
 **Change:**
 - Added `use tracing::warn;` to fix compilation errors
 
 ### 4. Fixed Test Compilation Error
 
-**File:** `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/concurrent_llm_load_test.rs`
+**File:** `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/concurrent_llm_load_test.rs`
 
 **Change:**
 - Fixed move error in concurrent test by creating a new client per request
 
 ## Tests Added
 
-Created comprehensive test suite in `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/health_handle_test.rs`:
+Created comprehensive test suite in `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/health_handle_test.rs`:
 
 1. **`test_health_handle_stored_after_creation`** - Verifies health handle contains JoinHandle
 2. **`test_health_check_runs_continuously`** - Verifies health check updates heartbeat over time
@@ -168,10 +168,10 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 46 filtered out
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/client.rs` - Health check logic and Drop impl
-2. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/message.rs` - Added missing import
-3. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/concurrent_llm_load_test.rs` - Fixed test compilation
-4. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/health_handle_test.rs` - New comprehensive test suite
+1. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/client.rs` - Health check logic and Drop impl
+2. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/message.rs` - Added missing import
+3. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/concurrent_llm_load_test.rs` - Fixed test compilation
+4. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/health_handle_test.rs` - New comprehensive test suite
 
 ## Related Issues
 

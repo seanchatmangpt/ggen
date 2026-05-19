@@ -4,7 +4,7 @@
 
 **Type**: Erlang gen_statem state machine
 **Behavior**: OTP compliant with handle_event_function callback mode
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl`
 
 ## API Surface
 

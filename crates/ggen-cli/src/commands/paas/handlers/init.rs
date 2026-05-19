@@ -13,9 +13,9 @@ pub async fn init_submodule(name: &str, recursive: bool, shallow: bool) -> Resul
 
     // Map friendly names to repo URLs
     let (url, path) = match name {
-        "ggen-spec-kit" | "spec-kit" => (
-            "https://github.com/seanchatmangpt/ggen-spec-kit.git",
-            "ggen-spec-kit",
+        "mcpp-spec-kit" | "spec-kit" => (
+            "https://github.com/seanchatmangpt/mcpp-spec-kit.git",
+            "mcpp-spec-kit",
         ),
         "clap-noun-verb" | "clap" => (
             "https://github.com/seanchatmangpt/clap-noun-verb.git",
@@ -25,7 +25,7 @@ pub async fn init_submodule(name: &str, recursive: bool, shallow: bool) -> Resul
             return Err(PaasError::InvalidCommand {
                 noun: "submodule".to_string(),
                 verb: "init".to_string(),
-                available_verbs: vec!["ggen-spec-kit".to_string(), "clap-noun-verb".to_string()],
+                available_verbs: vec!["mcpp-spec-kit".to_string(), "clap-noun-verb".to_string()],
             })
         }
     };

@@ -31,8 +31,8 @@
 //!
 //! 5. Property-Based Tests (fuzzing with proptest)
 
-use ggen_core::graph::{Graph, GraphQuery};
-use ggen_ontology_core::sparql_generator::SparqlGenerator;
+use mcpp_core::graph::{Graph, GraphQuery};
+use mcpp_ontology_core::sparql_generator::SparqlGenerator;
 use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
@@ -1363,8 +1363,8 @@ fn test_graphquery_cached_execution() {
     // Assert - Both should return same results
     match (result1, result2) {
         (
-            ggen_core::graph::types::CachedResult::Solutions(rows1),
-            ggen_core::graph::types::CachedResult::Solutions(rows2),
+            mcpp_core::graph::types::CachedResult::Solutions(rows1),
+            mcpp_core::graph::types::CachedResult::Solutions(rows2),
         ) => {
             assert_eq!(
                 rows1.len(),

@@ -45,7 +45,7 @@ impl SignatureValidator {
     /// # Example
     /// ```ignore
     /// use serde_json::json;
-    /// use ggen_ai::dspy::{Signature, InputField, SignatureValidator};
+    /// use mcpp_ai::dspy::{Signature, InputField, SignatureValidator};
     ///
     /// let sig = Signature::new("QA", "Question answering")
     ///     .with_input(InputField::new("question", "Question text", "String"));

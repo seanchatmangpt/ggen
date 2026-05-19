@@ -14,7 +14,7 @@ Complete guide for Tera templates that generate idiomatic Elixir code from RDF s
 
 ## Overview
 
-The ggen-craftplan template system transforms RDF ontologies into production-ready Elixir code using the Tera template engine. All templates follow the craftplan ERP patterns:
+The mcpp-craftplan template system transforms RDF ontologies into production-ready Elixir code using the Tera template engine. All templates follow the craftplan ERP patterns:
 
 - **Ash Framework**: Resources with attributes, relationships, actions, policies
 - **Ecto Schemas**: Database schemas with validations
@@ -225,7 +225,7 @@ end
 
 **Example Usage**:
 ```bash
-ggen generate ash_resource \
+mcpp generate ash_resource \
   --ontology product.ttl \
   --output lib/craftplan/catalog/product.ex
 ```
@@ -259,7 +259,7 @@ end
 
 **Example Usage**:
 ```bash
-ggen generate ecto_schema \
+mcpp generate ecto_schema \
   --ontology product.ttl \
   --output lib/craftplan/catalog/product.ex
 ```
@@ -299,7 +299,7 @@ end
 
 **Example Usage**:
 ```bash
-ggen generate agent \
+mcpp generate agent \
   --domain catalog \
   --capabilities product,bom,component \
   --output lib/craftplan/agents/catalog_agent.ex
@@ -333,7 +333,7 @@ end
 
 **Example Usage**:
 ```bash
-ggen generate test \
+mcpp generate test \
   --ontology product.ttl \
   --output test/craftplan/catalog/product_test.exs
 ```
@@ -382,7 +382,7 @@ end
 
 **Example Usage**:
 ```bash
-ggen generate module \
+mcpp generate module \
   --ontology product.ttl \
   --output lib/craftplan/catalog/products.ex
 ```
@@ -654,13 +654,13 @@ All templates generate deterministic output:
 
 ```bash
 # Generate code
-ggen generate ash_resource --ontology product.ttl --output product.ex
+mcpp generate ash_resource --ontology product.ttl --output product.ex
 
 # Verify format
 mix format product.ex
 
 # Verify reproducibility
-ggen verify --ontology product.ttl --generated product.ex
+mcpp verify --ontology product.ttl --generated product.ex
 ```
 
 ## Troubleshooting
@@ -687,7 +687,7 @@ Error: Relationship destination not found
 
 ## See Also
 
-- [ggen-core Documentation](../ggen-core/README.md)
+- [mcpp-core Documentation](../mcpp-core/README.md)
 - [RDF/SHACL Specification](https://www.w3.org/TR/shacl/)
 - [Ash Framework Guide](https://hexdocs.pm/ash/)
 - [Elixir Style Guide](https://github.com/nccstyle/dirac-elixir-style-guide)
@@ -696,4 +696,4 @@ Error: Relationship destination not found
 
 **Version**: 0.1.0
 **Last Updated**: 2026-02-04
-**Maintainer**: ggen Contributors
+**Maintainer**: mcpp Contributors

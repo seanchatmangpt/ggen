@@ -9,7 +9,7 @@
 ## Day 1: Marketplace Workspace Integration (P0-1)
 
 ### Goal
-Fix ggen-marketplace compilation and re-enable in workspace
+Fix mcpp-marketplace compilation and re-enable in workspace
 
 ### Tasks
 
@@ -20,7 +20,7 @@ Fix ggen-marketplace compilation and re-enable in workspace
 [workspace.dependencies]
 base64 = "0.22"  # Force single version
 
-# ggen-marketplace/Cargo.toml - Update dependencies
+# mcpp-marketplace/Cargo.toml - Update dependencies
 [dependencies]
 base64 = { workspace = true }
 reqwest = { version = "0.12", features = ["json"], default-features = false }
@@ -35,13 +35,13 @@ cargo tree -d
 cargo update -p base64
 
 # Verify
-cargo check --package ggen-marketplace
+cargo check --package mcpp-marketplace
 ```
 
 #### 1.2 Fix libp2p Feature Flags (1 hour)
 
 ```toml
-# ggen-marketplace/Cargo.toml
+# mcpp-marketplace/Cargo.toml
 [dependencies]
 libp2p = {
   version = "0.56",
@@ -55,7 +55,7 @@ libp2p = {
 
 ```toml
 # Cargo.toml:29 - DELETE THIS LINE
-# exclude = ["ggen-marketplace"]  # ← Remove this
+# exclude = ["mcpp-marketplace"]  # ← Remove this
 
 # Keep only examples exclusion
 exclude = [
@@ -72,14 +72,14 @@ cargo clean
 cargo check --workspace
 
 # Should succeed now
-cargo build --package ggen-marketplace
+cargo build --package mcpp-marketplace
 
 # Verify all features
-cargo check --package ggen-marketplace --all-features
+cargo check --package mcpp-marketplace --all-features
 ```
 
 ### Deliverable
-✅ `ggen-marketplace` compiles with workspace
+✅ `mcpp-marketplace` compiles with workspace
 ✅ No exclusion in Cargo.toml
 ✅ All dependency conflicts resolved
 
@@ -115,9 +115,9 @@ Expected categories:
 #### 2.2 Fix by Crate Priority (2.5 hours)
 
 **Priority Order:**
-1. ggen-core (blocking everything)
+1. mcpp-core (blocking everything)
 2. cli (user-facing)
-3. ggen-ai (AI features)
+3. mcpp-ai (AI features)
 4. utils (supporting)
 
 **Common fixes:**
@@ -193,7 +193,7 @@ Build in-memory mock marketplace registry
 #### 2.4 Create Mock Registry (2 hours)
 
 ```rust
-// ggen-marketplace/src/backend/mock.rs
+// mcpp-marketplace/src/backend/mock.rs
 
 use crate::error::Result;
 use crate::models::{Package, PackageId, Query};
@@ -311,7 +311,7 @@ Functional CLI commands with mock data
 #### 3.1 Implement Package Installation (2 hours)
 
 ```rust
-// ggen-marketplace/src/backend/mock.rs
+// mcpp-marketplace/src/backend/mock.rs
 
 impl MockRegistry {
     pub async fn install_package(&self, id: &PackageId) -> Result<InstalledPackage> {
@@ -327,7 +327,7 @@ impl MockRegistry {
         Ok(InstalledPackage {
             package,
             installed_at: chrono::Utc::now(),
-            location: PathBuf::from("~/.ggen/packages").join(&id.to_string()),
+            location: PathBuf::from("~/.mcpp/packages").join(&id.to_string()),
         })
     }
 }
@@ -338,8 +338,8 @@ impl MockRegistry {
 ```rust
 // cli/src/cmds/market/search.rs
 
-use ggen_marketplace::backend::MockRegistry;
-use ggen_marketplace::traits::Registry;
+use mcpp_marketplace::backend::MockRegistry;
+use mcpp_marketplace::traits::Registry;
 
 pub async fn search_command(query: String) -> anyhow::Result<()> {
     let registry = MockRegistry::new();
@@ -417,9 +417,9 @@ async fn test_end_to_end_workflow() {
 ```
 
 ### Deliverable
-✅ `ggen market search` works
-✅ `ggen market add` works
-✅ `ggen market list` works
+✅ `mcpp market search` works
+✅ `mcpp market add` works
+✅ `mcpp market list` works
 ✅ Integration tests pass
 
 **Impact:** +20% (60% total)
@@ -437,18 +437,18 @@ Production validation and v1.2.0 release
 
 ```bash
 # Test all lifecycle commands
-ggen lifecycle list
-ggen lifecycle run init
-ggen lifecycle run build
-ggen lifecycle run test
-ggen lifecycle run deploy
+mcpp lifecycle list
+mcpp lifecycle run init
+mcpp lifecycle run build
+mcpp lifecycle run test
+mcpp lifecycle run deploy
 
 # Verify make.toml parsing
 cd examples/rust-cli-lifecycle
-ggen lifecycle list  # Should show custom phases
+mcpp lifecycle list  # Should show custom phases
 
 # Test hooks
-ggen lifecycle run build --verbose  # Should show hook execution
+mcpp lifecycle run build --verbose  # Should show hook execution
 ```
 
 #### 4.2 End-to-End Testing (3 hours)
@@ -459,25 +459,25 @@ mkdir test-project
 cd test-project
 
 # 1. Initialize project
-ggen lifecycle run init
+mcpp lifecycle run init
 
 # 2. Search marketplace
-ggen market search "rust web"
+mcpp market search "rust web"
 
 # 3. Add packages
-ggen market add rust-axum-service
-ggen market add postgresql-database
+mcpp market add rust-axum-service
+mcpp market add postgresql-database
 
 # 4. Generate code
-ggen template generate rust-axum-service:api.tmpl
+mcpp template generate rust-axum-service:api.tmpl
 
 # 5. Build and test
-ggen lifecycle run build
-ggen lifecycle run test
+mcpp lifecycle run build
+mcpp lifecycle run test
 
 # 6. Production validation
-ggen lifecycle readiness
-ggen lifecycle validate --env production
+mcpp lifecycle readiness
+mcpp lifecycle validate --env production
 
 # All should work!
 ```
@@ -486,14 +486,14 @@ ggen lifecycle validate --env production
 
 ```bash
 # Run production validation suite
-cargo test --package ggen-core --test production_validation
+cargo test --package mcpp-core --test production_validation
 
 # Check readiness score
-ggen lifecycle readiness
+mcpp lifecycle readiness
 # Expected: 90%+ score
 
 # Verify deployment readiness
-ggen lifecycle validate --env production
+mcpp lifecycle validate --env production
 # Expected: ✅ DEPLOYMENT READY
 ```
 
@@ -520,7 +520,7 @@ ggen lifecycle validate --env production
 ## Success Criteria
 
 ### Must Have (v1.2.0)
-- [x] ggen-marketplace compiled and integrated
+- [x] mcpp-marketplace compiled and integrated
 - [x] Zero compilation errors
 - [x] Mock marketplace with 30+ packages
 - [x] CLI commands working (search, add, list)
@@ -641,7 +641,7 @@ Before cargo publish:
 - [ ] Version bumped to 1.2.0 (all Cargo.toml)
 - [ ] Git tag created (`git tag v1.2.0`)
 - [ ] Dry-run succeeds (`cargo publish --dry-run`)
-- [ ] Production validation passes (`ggen lifecycle readiness`)
+- [ ] Production validation passes (`mcpp lifecycle readiness`)
 
 ---
 

@@ -1,4 +1,4 @@
-//! Core module types and traits for ggen-dspy
+//! Core module types and traits for mcpp-dspy
 //!
 //! This module defines the Module trait and related types for building
 //! composable LLM agent pipelines.

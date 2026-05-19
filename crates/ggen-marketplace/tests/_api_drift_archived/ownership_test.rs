@@ -7,8 +7,8 @@
 //! - Test REAL conflict resolution
 //! - No mocks for critical paths
 
-use ggen_marketplace::prelude::*;
-use ggen_marketplace::{
+use mcpp_marketplace::prelude::*;
+use mcpp_marketplace::{
     MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
 };
 use std::fs;

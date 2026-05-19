@@ -3,7 +3,7 @@
 //! This test suite verifies that the validation module prevents SPARQL injection attacks
 //! by testing various attack patterns against the URI and property name validators.
 
-use ggen_ai::codegen::validation::{
+use mcpp_ai::codegen::validation::{
     validate_prefixed_iri, validate_property_name, validate_rdf_uri,
 };
 

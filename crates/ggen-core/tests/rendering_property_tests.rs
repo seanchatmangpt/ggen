@@ -2,8 +2,8 @@
 ///
 /// These tests verify invariants that must hold for ALL inputs, not just
 /// specific examples. Uses proptest for automated input generation.
-use ggen_core::graph::{CachedResult, Graph};
-use ggen_core::register::register_all;
+use mcpp_core::graph::{CachedResult, Graph};
+use mcpp_core::register::register_all;
 use proptest::prelude::*;
 use serde_json::{Map, Value};
 use tera::{Context, Tera};
@@ -36,9 +36,9 @@ fn to_clean_json(result: &CachedResult) -> Value {
 fn build_mcp_ontology(server_name: &str, tool_names: &[String]) -> String {
     let mut ttl = format!(
         r#"
-@prefix mcp: <https://ggen.dev/ontology/mcp#> .
+@prefix mcp: <https://mcpp.dev/ontology/mcp#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ex:   <https://ggen.dev/examples/e2e#> .
+@prefix ex:   <https://mcpp.dev/examples/e2e#> .
 
 ex:Transport a mcp:Transport ; rdfs:label "stdio" .
 ex:Server a mcp:McpsServer ;
@@ -61,7 +61,7 @@ ex:Server a mcp:McpsServer ;
 }
 
 const MCP_SPARQL: &str = r#"
-    PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+    PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?server_name ?server_version ?server_description ?transport_type
            ?tool_name ?tool_description

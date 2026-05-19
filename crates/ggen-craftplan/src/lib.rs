@@ -1,4 +1,4 @@
-//! # ggen-craftplan: RDF → Elixir Code Generation Pipeline
+//! # mcpp-craftplan: RDF → Elixir Code Generation Pipeline
 //!
 //! This crate implements a five-stage deterministic pipeline (μ) that transforms
 //! RDF ontology specifications into production-ready Elixir code for the Craftplan ERP system.
@@ -30,7 +30,7 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use ggen_craftplan::pipeline::CodeGenerator;
+//! use mcpp_craftplan::pipeline::CodeGenerator;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let generator = CodeGenerator::new()?;

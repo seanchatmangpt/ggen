@@ -10,9 +10,9 @@
 //! 4. Type mappings (bidirectional consistency)
 //! 5. Edge cases (empty, very large, Unicode, special characters)
 
-use ggen_ai::dspy::field::{FieldConstraints, InputField, OutputField};
-use ggen_ai::dspy::signature::Signature;
-use ggen_ai::dspy::SignatureValidator;
+use mcpp_ai::dspy::field::{FieldConstraints, InputField, OutputField};
+use mcpp_ai::dspy::signature::Signature;
+use mcpp_ai::dspy::SignatureValidator;
 use proptest::prelude::*;
 use serde_json::{json, Value};
 

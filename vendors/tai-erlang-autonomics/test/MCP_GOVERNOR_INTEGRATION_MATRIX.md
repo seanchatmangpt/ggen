@@ -218,7 +218,7 @@ Phase 1 tools are simulated:
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 ct --suite=taiea_mcp_governor_integration_SUITE
 ```
 

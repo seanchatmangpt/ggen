@@ -1,14 +1,14 @@
 //! MCP Self-Play Integration Tests
 //!
 //! Simulates an automated MCP client building a project end-to-end using the
-//! full ggen MCP tool surface: discover -> scaffold -> validate -> query -> sync.
+//! full mcpp MCP tool surface: discover -> scaffold -> validate -> query -> sync.
 //!
 //! Pattern: rmcp 1.3.0 in-process duplex transport (tokio::io::duplex).
 //! AAA: Arrange / Act / Assert
 //!
-//! Run with: cargo test -p ggen-a2a-mcp --test mcp_self_play -- --test-threads=1 --nocapture
+//! Run with: cargo test -p mcpp-a2a-mcp --test mcp_self_play -- --test-threads=1 --nocapture
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -64,7 +64,7 @@ fn args(json: serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
 #[tokio::test]
 async fn test_mcp_discover_and_scaffold() -> anyhow::Result<()> {
     // Arrange — point server at the real examples directory
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 
@@ -128,10 +128,10 @@ async fn test_mcp_discover_and_scaffold() -> anyhow::Result<()> {
         extract_text(&scaffold_result)
     );
 
-    // Assert — ggen.toml must exist in scaffolded output
+    // Assert — mcpp.toml must exist in scaffolded output
     assert!(
-        target_dir.join("ggen.toml").exists(),
-        "scaffolded dir must contain ggen.toml"
+        target_dir.join("mcpp.toml").exists(),
+        "scaffolded dir must contain mcpp.toml"
     );
 
     client.cancel().await?;
@@ -213,7 +213,7 @@ async fn test_mcp_validate_and_query() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_mcp_full_project_build() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
     let target_dir = tempdir.path().join("a2a-groq-agent-project");
@@ -300,7 +300,7 @@ async fn test_mcp_full_project_build() -> anyhow::Result<()> {
 
     // Act 5 — query for Skills in the ontology
     let sparql =
-        "PREFIX agent: <https://ggen.io/examples/a2a-groq#> SELECT ?s WHERE { ?s a agent:Skill }";
+        "PREFIX agent: <https://mcpp.io/examples/a2a-groq#> SELECT ?s WHERE { ?s a agent:Skill }";
     let query_result = client
         .call_tool(
             CallToolRequestParams::new("query_ontology").with_arguments(args(serde_json::json!({
@@ -360,7 +360,7 @@ async fn test_mcp_full_project_build() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
 
     // Act — list resources
@@ -373,7 +373,7 @@ async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
     // Act — read example summary
     let summary_result = client
         .read_resource(ReadResourceRequestParams::new(String::from(
-            "ggen://example/a2a-groq-agent",
+            "mcpp://example/a2a-groq-agent",
         )))
         .await?;
     let summary_text: String = summary_result
@@ -395,7 +395,7 @@ async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
     // Act — read TTL content
     let ttl_result = client
         .read_resource(ReadResourceRequestParams::new(String::from(
-            "ggen://example/a2a-groq-agent/ttl",
+            "mcpp://example/a2a-groq-agent/ttl",
         )))
         .await?;
     let ttl_text: String = ttl_result
@@ -417,7 +417,7 @@ async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
     // Act — read config content
     let config_result = client
         .read_resource(ReadResourceRequestParams::new(String::from(
-            "ggen://example/a2a-groq-agent/config",
+            "mcpp://example/a2a-groq-agent/config",
         )))
         .await?;
     let config_text: String = config_result
@@ -447,7 +447,7 @@ async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_mcp_prompt_assisted_generation() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
 
     // Act — list prompts

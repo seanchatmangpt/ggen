@@ -1,7 +1,7 @@
-//! Smoke test for chicago-tdd-tools integration in ggen-cli
+//! Smoke test for chicago-tdd-tools integration in mcpp-cli
 //!
 //! This test verifies that chicago-tdd-tools is properly configured and works
-//! with the ggen-cli crate. It tests basic functionality to ensure the
+//! with the mcpp-cli crate. It tests basic functionality to ensure the
 //! integration is stable.
 
 // Use prelude::* to import all common macros and types
@@ -44,7 +44,7 @@ async_test!(test_async_works, {
 #[test]
 fn test_cli_integration() {
     // Arrange
-    let cli_value = String::from("ggen-cli");
+    let cli_value = String::from("mcpp-cli");
 
     // Act
     let result = cli_value.to_uppercase();

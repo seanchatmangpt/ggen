@@ -11,7 +11,7 @@ use super::watch::{
 use super::watch_cache_integration::WatchCacheIntegration;
 use crate::manifest::ManifestParser;
 use colored::Colorize;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::Path;
 use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};
@@ -39,7 +39,7 @@ impl EnhancedWatchMode {
         // Parse manifest to get watch paths
         let manifest_data = ManifestParser::parse(manifest_path).map_err(|e| {
             Error::new(&format!(
-                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check ggen.toml syntax",
+                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check mcpp.toml syntax",
                 manifest_path.display(),
                 e
             ))
@@ -60,7 +60,7 @@ impl EnhancedWatchMode {
                 .options
                 .cache_dir
                 .clone()
-                .unwrap_or_else(|| base_path.join(".ggen/cache"));
+                .unwrap_or_else(|| base_path.join(".mcpp/cache"));
             Some(IncrementalCache::new(cache_dir))
         } else {
             None

@@ -20,10 +20,9 @@
 //! Uses Chicago TDD: AAA pattern, state-based verification, real collaborators
 
 use ggen_core::validation::input::{CharsetRule, FormatRule, StringValidator, UrlValidator};
-use ggen_utils::error::Error;
-use ggen_utils::safe_command::{CommandArg, SafeCommand};
-use ggen_utils::safe_path::SafePath;
-use std::path::PathBuf;
+use ggen_core::utils::error::Error;
+use ggen_core::utils::safe_command::{CommandArg, SafeCommand};
+use ggen_core::utils::safe_path::SafePath;
 
 // ============================================================================
 // TEST 1: Command Injection Prevention
@@ -262,7 +261,8 @@ fn test_path_traversal_tilde_expansion_is_blocked() {
     // Tilde without parent dir is accepted as literal path
     let result2 = SafePath::new(tilde_safe);
     assert!(result2.is_ok(), "Tilde without '..' is literal path");
-    let path_str = result2.unwrap().as_path().to_str().unwrap();
+    let binding = result2.unwrap();
+    let path_str = binding.as_path().to_str().unwrap();
     assert!(path_str.starts_with("~"), "Tilde should not be expanded");
 
     // Safe alternative: Explicit relative paths

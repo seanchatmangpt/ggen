@@ -10,7 +10,7 @@
 //! # Examples
 //!
 //! ```
-//! use ggen_testing::{TestHarness, TestResult};
+//! use mcpp_testing::{TestHarness, TestResult};
 //!
 //! #[tokio::test]
 //! async fn test_example() -> TestResult<()> {

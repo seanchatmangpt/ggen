@@ -1,6 +1,6 @@
 //! Template listing domain logic
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use glob::glob;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -43,10 +43,10 @@ pub fn list_templates(templates_dir: &Path, filters: &ListFilters) -> Result<Vec
 
     // Find template files
     for entry in glob(&pattern)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
     {
         let path = entry.map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Error reading directory entry: {}", e))
+            mcpp_utils::error::Error::new(&format!("Error reading directory entry: {}", e))
         })?;
 
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("tmpl") {
@@ -74,7 +74,7 @@ pub fn list_templates(templates_dir: &Path, filters: &ListFilters) -> Result<Vec
 /// Extract description from template frontmatter
 fn extract_template_description(path: &Path) -> Result<Option<String>> {
     let content = fs::read_to_string(path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
 
     // Look for YAML frontmatter
     if content.starts_with("---\n") {

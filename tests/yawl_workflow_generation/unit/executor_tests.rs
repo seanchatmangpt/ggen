@@ -384,7 +384,6 @@ mod topological_sort_tests {
 mod query_execution_tests {
     use super::*;
     use fixtures::*;
-    use oxigraph::sparql::QueryResults;
 
     /// Test: Execute single CONSTRUCT query produces new triples
     #[test]

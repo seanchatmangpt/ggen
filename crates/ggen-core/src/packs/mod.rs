@@ -1,4 +1,4 @@
-//! Pack Installation System for ggen v4.0
+//! Pack Installation System for mcpp v4.0
 //!
 //! This module implements Phase 1 of the Pack Installation System roadmap,
 //! providing core data structures and serialization for pack management.
@@ -13,13 +13,13 @@
 //!
 //! ## Modules
 //!
-//! - [`lockfile`] - Pack lockfile management (`.ggen/packs.lock`)
+//! - [`lockfile`] - Pack lockfile management (`.mcpp/packs.lock`)
 //! - [`install`] - Pack installation logic
 //!
 //! ## Quick Start
 //!
 //! ```rust
-//! use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
+//! use mcpp_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
 //! use chrono::Utc;
 //!
 //! // Create a new lockfile
@@ -29,14 +29,14 @@
 //! let pack = LockedPack {
 //!     version: "1.0.0".to_string(),
 //!     source: PackSource::Registry {
-//!         url: "https://registry.ggen.io".to_string()
+//!         url: "https://registry.mcpp.io".to_string()
 //!     },
 //!     integrity: Some("sha256-abc123".to_string()),
 //!     installed_at: Utc::now(),
 //!     dependencies: vec![],
 //! };
 //!
-//! lockfile.add_pack("io.ggen.rust.cli", pack);
+//! lockfile.add_pack("io.mcpp.rust.cli", pack);
 //! ```
 
 pub mod install;

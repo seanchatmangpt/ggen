@@ -4,9 +4,9 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::project::apply::{apply_plan, ApplyInput};
-use ggen_domain::project::gen::{execute_gen, GenInput};
-use ggen_domain::project::plan::{create_plan, PlanInput};
+use mcpp_domain::project::apply::{apply_plan, ApplyInput};
+use mcpp_domain::project::gen::{execute_gen, GenInput};
+use mcpp_domain::project::plan::{create_plan, PlanInput};
 use std::fs;
 use tempfile::tempdir;
 
@@ -19,7 +19,7 @@ async_test!(test_project_lifecycle_plan_apply_gen, {
 
     // Step 1: Create plan
     let plan_input = PlanInput {
-        template_ref: "io.ggen.test-template".to_string(),
+        template_ref: "io.mcpp.test-template".to_string(),
         vars: vec![
             "name=LifecycleTest".to_string(),
             "version=1.0.0".to_string(),
@@ -49,7 +49,7 @@ async_test!(test_project_lifecycle_plan_apply_gen, {
 
     // Step 3: Generate project (dry run)
     let gen_input = GenInput {
-        template_ref: "io.ggen.test-template".to_string(),
+        template_ref: "io.mcpp.test-template".to_string(),
         vars: vec![
             "name=LifecycleTest".to_string(),
             "version=1.0.0".to_string(),
@@ -84,7 +84,7 @@ async_test!(test_project_lifecycle_yaml_format, {
 
     // Step 1: Create YAML plan
     let plan_input = PlanInput {
-        template_ref: "io.ggen.yaml-test".to_string(),
+        template_ref: "io.mcpp.yaml-test".to_string(),
         vars: vec!["name=YamlProject".to_string()],
         output: Some(plan_path.to_string_lossy().to_string()),
         format: "yaml".to_string(),
@@ -112,7 +112,7 @@ async_test!(test_project_lifecycle_toml_format, {
 
     // Step 1: Create TOML plan
     let plan_input = PlanInput {
-        template_ref: "io.ggen.toml-test".to_string(),
+        template_ref: "io.mcpp.toml-test".to_string(),
         vars: vec!["name=TomlProject".to_string()],
         output: Some(plan_path.to_string_lossy().to_string()),
         format: "toml".to_string(),
@@ -162,7 +162,7 @@ async_test!(test_project_lifecycle_complex_variables, {
 
     // Step 1: Create plan with many variables
     let plan_input = PlanInput {
-        template_ref: "io.ggen.complex".to_string(),
+        template_ref: "io.mcpp.complex".to_string(),
         vars: vec![
             "name=ComplexProject".to_string(),
             "version=2.1.0".to_string(),
@@ -203,7 +203,7 @@ async_test!(test_project_lifecycle_no_variables, {
 
     // Step 1: Create plan with no variables
     let plan_input = PlanInput {
-        template_ref: "io.ggen.minimal".to_string(),
+        template_ref: "io.mcpp.minimal".to_string(),
         vars: vec![],
         output: Some(plan_path.to_string_lossy().to_string()),
         format: "json".to_string(),
@@ -237,7 +237,7 @@ async_test!(test_project_lifecycle_plan_modification, {
 
     // Step 1: Create initial plan
     let plan_input = PlanInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec!["name=Original".to_string()],
         output: Some(plan_path.to_string_lossy().to_string()),
         format: "json".to_string(),
@@ -282,7 +282,7 @@ async_test!(test_project_lifecycle_plan_reusability, {
 
     // Step 1: Create plan
     let plan_input = PlanInput {
-        template_ref: "io.ggen.reusable".to_string(),
+        template_ref: "io.mcpp.reusable".to_string(),
         vars: vec!["name=ReusableProject".to_string()],
         output: Some(plan_path.to_string_lossy().to_string()),
         format: "json".to_string(),

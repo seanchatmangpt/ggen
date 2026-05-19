@@ -3,7 +3,7 @@
   Generates Skill trait, SkillRegistry, and SkillMetadata for type-safe skill execution
 #}
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2026 ggen contributors
+// Copyright (c) 2026 mcpp contributors
 
 {% comment %}
   Requirements:

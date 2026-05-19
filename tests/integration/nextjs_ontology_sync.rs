@@ -22,7 +22,7 @@
 //! - Verifies actual type safety, not mocks
 
 use ggen_core::Graph;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::fs;
 use std::path::Path;
 use std::process::Command;

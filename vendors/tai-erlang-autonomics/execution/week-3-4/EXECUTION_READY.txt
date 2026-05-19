@@ -179,7 +179,7 @@ FILE ORGANIZATION
 ================================================================================
 
 All files located at:
-  /Users/sac/ggen/tai-erlang-autonomics/execution/week-3-4/
+  /Users/sac/mcpp/tai-erlang-autonomics/execution/week-3-4/
 
 Core Documents:
   ✓ README.md (21 KB) - Entry point

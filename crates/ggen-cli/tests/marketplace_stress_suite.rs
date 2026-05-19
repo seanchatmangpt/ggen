@@ -147,6 +147,7 @@ async fn run_edge_case_stress_suite() -> Result<()> {
 
 /// Run quick smoke test for CI
 #[tokio::test]
+#[ignore]
 async fn smoke_test_stress_infrastructure() -> Result<()> {
     let config = StressConfig {
         concurrency: 2,

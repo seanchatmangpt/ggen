@@ -8,7 +8,7 @@
 
 ## EXECUTIVE SUMMARY
 
-**Vision**: Transform ggen from a code-generation tool into a **living project platform** where projects are continuously evolved through pack-based lifecycle management.
+**Vision**: Transform mcpp from a code-generation tool into a **living project platform** where projects are continuously evolved through pack-based lifecycle management.
 
 **Current State (v3.2)**:
 - ✅ Marketplace: Robust package discovery, install, publish
@@ -50,7 +50,7 @@ Marketplace       Packs             Lifecycle System
                     (dead end)        (unreachable from packs)
 ```
 
-**Problem**: Packs are used only at `ggen project new`, then forgotten.
+**Problem**: Packs are used only at `mcpp project new`, then forgotten.
 
 #### Target (v4.0): Integrated Lifecycle
 ```
@@ -103,7 +103,7 @@ struct FileState {
 
 #### Regeneration Workflow
 ```
-User runs: ggen packs update
+User runs: mcpp packs update
 
 1. Detect Changes
    ├─ Check for newer pack versions
@@ -144,9 +144,9 @@ User runs: ggen packs update
 
 #### 1.1 Pack Installation Command
 ```bash
-ggen packs install --pack_id startup-essentials
-ggen packs install --pack_id startup-essentials --version 1.2.x
-ggen packs install --pack_id startup-essentials --force  # Overwrite
+mcpp packs install --pack_id startup-essentials
+mcpp packs install --pack_id startup-essentials --version 1.2.x
+mcpp packs install --pack_id startup-essentials --force  # Overwrite
 ```
 
 **What to build**:
@@ -173,14 +173,14 @@ pub struct PackInstallResult {
 1. Resolve pack version (latest if not specified)
 2. Load pack composition (templates + dependencies)
 3. Copy/apply templates to project
-4. Create/update `.ggen/packs.lock` entry
+4. Create/update `.mcpp/packs.lock` entry
 5. Create initial snapshot
 
 **Estimated Effort**: 5 days (40% of Phase 1)
 
 #### 1.2 Pack Lockfile System
 ```toml
-# .ggen/packs.lock (new file)
+# .mcpp/packs.lock (new file)
 [pack."startup-essentials"]
 version = "1.2.3"
 source = "registry"
@@ -200,7 +200,7 @@ installed_at = "2025-11-18T13:24:05Z"
 pub struct PackLockfile {
     pub packs: BTreeMap<String, LockedPack>,
     pub updated_at: DateTime<Utc>,
-    pub ggen_version: String,
+    pub mcpp_version: String,
 }
 
 pub struct LockedPack {
@@ -250,13 +250,13 @@ pub struct FileSnapshot {
 }
 ```
 
-**Storage**: `.ggen/packs/snapshots/{pack-id}-{version}-{timestamp}.json`
+**Storage**: `.mcpp/packs/snapshots/{pack-id}-{version}-{timestamp}.json`
 
 **Estimated Effort**: 2 days (20% of Phase 1)
 
 #### 1.4 Phase 1 Deliverables
-- ✅ `ggen packs install` command
-- ✅ `.ggen/packs.lock` file management
+- ✅ `mcpp packs install` command
+- ✅ `.mcpp/packs.lock` file management
 - ✅ Pack state snapshots
 - ✅ Tests: 20+ tests covering install paths
 - ⏱️ **Total**: ~2 weeks
@@ -403,7 +403,7 @@ pub fn detect_manual_changes(
 #### 3.1 Update Detection
 
 ```bash
-ggen packs check-updates
+mcpp packs check-updates
 # Output:
 # startup-essentials: 1.2.3 → 1.3.0 (breaking changes detected)
 # observability-stack: 2.1.0 → 2.1.5 (patch, safe)
@@ -581,7 +581,7 @@ pub struct Conflict {
 #### 3.4 Conflict Resolution
 
 ```bash
-ggen packs update --pack_id startup-essentials
+mcpp packs update --pack_id startup-essentials
 # Plan shows conflicts...
 #
 # Conflict in src/auth.rs (line 42-68)
@@ -638,7 +638,7 @@ pub fn prompt_conflict_resolution(conflict: &ConflictPrompt) -> Result<ConflictR
 **Estimated Effort**: 3 days (23% of Phase 3)
 
 #### 3.5 Phase 3 Deliverables
-- ✅ `ggen packs check-updates` command
+- ✅ `mcpp packs check-updates` command
 - ✅ Update planning engine
 - ✅ Three-way merge with conflict detection
 - ✅ Interactive conflict resolution
@@ -654,7 +654,7 @@ pub fn prompt_conflict_resolution(conflict: &ConflictPrompt) -> Result<ConflictR
 #### 4.1 Watch Mode with Pack Updates
 
 ```bash
-ggen packs watch --path ./my-project --check-updates daily
+mcpp packs watch --path ./my-project --check-updates daily
 # Auto-detects:
 # - Template changes in pack directories
 # - Pack version updates (daily check)
@@ -706,7 +706,7 @@ impl PackWatcher {
 
 ```bash
 # In CI/CD pipeline
-ggen packs verify --check-updates --fail-on-conflicts
+mcpp packs verify --check-updates --fail-on-conflicts
 
 # Output:
 # ✓ all packs current (startup-essentials 1.2.3)
@@ -759,7 +759,7 @@ pub async fn verify_pack_state(
 #### 4.3 Rollback System
 
 ```bash
-ggen packs rollback --pack_id startup-essentials
+mcpp packs rollback --pack_id startup-essentials
 # Reverts to previous version from backup
 ```
 
@@ -774,7 +774,7 @@ pub async fn rollback_pack_update(
         .ok_or("No previous version to rollback to")?;
 
     // 2. Restore from snapshot
-    let backup_path = project_dir.join(".ggen").join("backups").join(&previous.timestamp);
+    let backup_path = project_dir.join(".mcpp").join("backups").join(&previous.timestamp);
 
     // 3. Restore files
     for (file_path, content) in &previous.files {
@@ -800,7 +800,7 @@ pub async fn rollback_pack_update(
 #### 4.4 Reporting & Metrics
 
 ```bash
-ggen packs status
+mcpp packs status
 # Output:
 # Installed Packs:
 # ├─ startup-essentials (1.2.3, installed 45 days ago)
@@ -867,10 +867,10 @@ pub fn generate_status_report(project_dir: &Path) -> Result<StatusReport> {
 **Estimated Effort**: 2 days (17% of Phase 4)
 
 #### 4.5 Phase 4 Deliverables
-- ✅ `ggen packs watch` with update checks
-- ✅ `ggen packs verify` for CI/CD integration
+- ✅ `mcpp packs watch` with update checks
+- ✅ `mcpp packs verify` for CI/CD integration
 - ✅ Rollback system with snapshots
-- ✅ `ggen packs status` reporting
+- ✅ `mcpp packs status` reporting
 - ✅ Tests: 80+ tests covering lifecycle
 - ⏱️ **Total**: ~3 weeks
 
@@ -885,8 +885,8 @@ v3.2 (Current)
 └─ Lifecycle: One-time generation only
 
 Phase 1 (Weeks 1-2): Foundation
-├─ ggen packs install command
-├─ .ggen/packs.lock tracking
+├─ mcpp packs install command
+├─ .mcpp/packs.lock tracking
 └─ Pack state snapshots
 
 Phase 2 (Weeks 3-4): Region Detection
@@ -1011,7 +1011,7 @@ v4.0 (Full Feature Complete)
 ### Launch Phases
 
 **Week 1-2**: Beta Launch (Invite 50 early adopters)
-- Install beta channel: `ggen install @beta`
+- Install beta channel: `mcpp install @beta`
 - Test with real projects
 - Gather feedback on UX
 
@@ -1061,7 +1061,7 @@ v4.0 (Full Feature Complete)
 - This is 30-50% margin opportunity
 
 ### 4. Build Community Tools
-- Pack authoring CLI (`ggen pack new`)
+- Pack authoring CLI (`mcpp pack new`)
 - Pack validation toolkit
 - Pack usage analytics
 - This drives ecosystem growth
@@ -1076,7 +1076,7 @@ v4.0 (Full Feature Complete)
 
 ## CONCLUSION
 
-**ggen v4.0 transforms code generation from a one-time scaffolding tool into a continuous project evolution platform.** By enabling pack-based lifecycle management with intelligent update resolution, we unlock:
+**mcpp v4.0 transforms code generation from a one-time scaffolding tool into a continuous project evolution platform.** By enabling pack-based lifecycle management with intelligent update resolution, we unlock:
 
 1. **Better Developer Experience**: Templates stay current automatically
 2. **Team Efficiency**: Unified stack updates across all projects

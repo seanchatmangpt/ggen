@@ -92,7 +92,7 @@ impl COPRO {
     ///
     /// # Example
     /// ```ignore
-    /// use ggen_ai::dspy::optimizers::{COPRO, ExactMatchMetric};
+    /// use mcpp_ai::dspy::optimizers::{COPRO, ExactMatchMetric};
     /// use std::sync::Arc;
     ///
     /// let metric = Arc::new(ExactMatchMetric::new("answer"));

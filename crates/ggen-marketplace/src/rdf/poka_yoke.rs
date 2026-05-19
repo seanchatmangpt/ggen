@@ -662,7 +662,7 @@ mod tests {
     #[test]
     fn test_sparql_query_validation() {
         let query = SparqlQuery::new()
-            .prefix("ggen", namespaces::GGEN)
+            .prefix("mcpp", namespaces::GGEN)
             .select(&["?package", "?name"])
             .where_triple("?package", Property::PackageName, "?name")
             .limit(10)

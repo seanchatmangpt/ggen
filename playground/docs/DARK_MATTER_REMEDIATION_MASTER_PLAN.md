@@ -32,7 +32,7 @@ The "dark matter/energy" gaps - unmapped/broken code not covered in Phase 1's 80
 
 ### Status: 5/5 Critical Issues Fixed
 
-1. **ggen-dod Package Compilation** ✅
+1. **mcpp-dod Package Compilation** ✅
    - Fixed `KernelActionId` Display trait
    - Fixed `ObservationSchema` Hash issue
    - Fixed JSON validation in `observation.rs`
@@ -50,7 +50,7 @@ The "dark matter/energy" gaps - unmapped/broken code not covered in Phase 1's 80
    ```
 
 ### Remaining Test Compilation Issues (Non-blocking)
-- **146 errors** in ggen-core test code
+- **146 errors** in mcpp-core test code
 - Root cause: Missing async_test_with_timeout! macro
 - **Status:** Can be fixed separately (doesn't block production)
 
@@ -66,7 +66,7 @@ The "dark matter/energy" gaps - unmapped/broken code not covered in Phase 1's 80
 **Days 1-2: Fix Compilation Blocker** (4 hours)
 ```
 Priority: BLOCKING - Must fix before testing
-File: ggen-marketplace-v2/src/registry_rdf.rs
+File: mcpp-marketplace-v2/src/registry_rdf.rs
 Issue: Send trait violations (lines 165, 196)
 Fix: Replace Store::query() with SparqlEvaluator
 Impact: Unblocks all marketplace-v2 testing
@@ -172,8 +172,8 @@ TOTAL: 47% → 95% (+1,565 tests)
 **Impact:** Hard to understand, maintain, test
 **Solution:** Reorganize into logical modules
 - Template → separate crate or tightly organized
-- Pack → ggen-pack-manager
-- RDF → ggen-rdf
+- Pack → mcpp-pack-manager
+- RDF → mcpp-rdf
 **Effort:** 3 weeks
 **Timeline:** Phase 3 (future)
 

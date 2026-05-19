@@ -136,7 +136,7 @@ impl PaasError {
     pub fn recovery_suggestion(&self) -> &'static str {
         match self {
             Self::ClosureIncomplete { .. } => {
-                "Verify all .specify/*.ttl files exist and contain required definitions. Run 'ggen paas validate --spec .specify/'"
+                "Verify all .specify/*.ttl files exist and contain required definitions. Run 'mcpp paas validate --spec .specify/'"
             }
             Self::SubmoduleNotInitialized(_) => {
                 "Initialize submodules with: git submodule update --init --recursive"
@@ -160,7 +160,7 @@ impl PaasError {
                 "Check file permissions and disk space. Verify output directory is writable."
             }
             Self::ConfigError(_) => {
-                "Review ggen-paas.toml for syntax errors. All required sections must be defined."
+                "Review mcpp-paas.toml for syntax errors. All required sections must be defined."
             }
             Self::InvalidTarget(_) => {
                 "Use one of: development, staging, production"
@@ -172,7 +172,7 @@ impl PaasError {
                 "Provide the missing option. Use '--help' to see available options."
             }
             Self::InvalidCommand { .. } => {
-                "Check command syntax. Use 'ggen paas --help' for available commands."
+                "Check command syntax. Use 'mcpp paas --help' for available commands."
             }
         }
     }

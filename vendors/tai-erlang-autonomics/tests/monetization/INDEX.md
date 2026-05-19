@@ -1,6 +1,6 @@
 # Monetization Test Suite - Complete Index
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/tests/monetization/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/tests/monetization/`
 **Status**: ✅ PRODUCTION-READY
 **Generated**: 2026-01-25
 **Version**: 1.0.0

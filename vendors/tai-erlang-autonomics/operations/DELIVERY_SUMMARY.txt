@@ -453,5 +453,5 @@ Good luck building customer success that scales. You've got all the tools.
 Delivered: January 25, 2026
 Status: PRODUCTION READY for MVP Launch
 Version: 1.0.0
-Location: /Users/sac/ggen/tai-erlang-autonomics/operations/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/operations/
 ================================================================================

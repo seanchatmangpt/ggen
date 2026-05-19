@@ -7,7 +7,7 @@
 //! - Observable outcomes
 //! - Test real behavior
 
-use ggen_testing::{
+use mcpp_testing::{
     assertions::*, fixtures::*, property::*, snapshot::*, StateVerifier, TestHarness, TestResult,
 };
 use std::collections::BTreeMap;

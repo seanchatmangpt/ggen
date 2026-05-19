@@ -4,7 +4,7 @@
     that includes its summary, description, options, and examples.
 
     Expected variables:
-    - interface_name: string (e.g., "ggen")
+    - interface_name: string (e.g., "mcpp")
     - interface_summary: string (e.g., "Ontology-governed compiler interface")
     - commands: array of { name, summary, description, subcommands[], special, options[], examples[] }
       - subcommands[]: { name, summary, about, options[], positional_arguments[], examples[] }
@@ -17,8 +17,8 @@
 -#}
 //! Auto-generated help text for {{ interface_name }}
 //!
-//! DO NOT EDIT -- this file is generated from .specify/ontology/cli-ggen.ttl.
-//! Run `ggen sync` to regenerate.
+//! DO NOT EDIT -- this file is generated from .specify/ontology/cli-mcpp.ttl.
+//! Run `mcpp sync` to regenerate.
 
 // ============================================================================
 // Top-level help

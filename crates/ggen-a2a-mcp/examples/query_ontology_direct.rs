@@ -1,6 +1,6 @@
 //! Direct test of query_ontology MCP tool (not via cargo test)
 
-use ggen_a2a_mcp::ggen_server::{GgenMcpServer, QueryOntologyParams};
+use mcpp_a2a_mcp::mcpp_server::{GgenMcpServer, QueryOntologyParams};
 use rmcp::handler::server::wrapper::Parameters;
 
 #[tokio::main]

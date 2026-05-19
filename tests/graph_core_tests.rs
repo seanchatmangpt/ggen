@@ -13,7 +13,6 @@
 //! - Persistent storage operations
 
 use ggen_core::graph::{build_prolog, Graph, GraphStore};
-use ggen_utils::error::Result;
 use oxigraph::model::{GraphName, NamedNode, Quad};
 use std::collections::BTreeMap;
 use tempfile::TempDir;
@@ -66,7 +65,7 @@ fn test_graph_clone_shares_store() {
 //     use std::sync::Arc;
 //     use oxigraph::store::Store;
 //
-//     let store = Store::new().map_err(|e| ggen_utils::error::Error::new(&format!("{}", e)))?;
+//     let store = Store::new().map_err(|e| ggen_core::utils::error::Error::new(&format!("{}", e)))?;
 //     let arc_store = Arc::new(store);
 //     let graph = Graph::from_store(arc_store)?;
 //     assert!(graph.is_empty());
@@ -925,7 +924,7 @@ fn test_batch_operations() {
     let graph = Graph::new().unwrap();
     let quads: Vec<_> = (0..100)
         .map(|i| {
-            let s = NamedNode::new(&format!("http://example.org/person{}", i)).unwrap();
+            let s = NamedNode::new(format!("http://example.org/person{}", i)).unwrap();
             let p = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").unwrap();
             let o = NamedNode::new("http://example.org/Person").unwrap();
             Quad::new(s, p, o, GraphName::DefaultGraph)

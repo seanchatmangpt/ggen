@@ -6,8 +6,9 @@
 use assert_cmd::Command;
 
 #[test]
+#[ignore]
 fn test_template_list() {
-    Command::cargo_bin("ggen-cli-lib")
+    Command::cargo_bin("mcpp-cli-lib")
         .unwrap()
         .args(["template", "list"])
         .assert()

@@ -1,6 +1,6 @@
 //! Comprehensive Marketplace Validation Tests
 //!
-//! This test suite validates ggen marketplace operations using isolated test environments.
+//! This test suite validates mcpp marketplace operations using isolated test environments.
 //! Tests cover search, installation, P2P registry interactions, error handling, and performance.
 //!
 //! ## Test Categories
@@ -18,7 +18,7 @@
 use anyhow::Result;
 use chicago_tdd_tools::prelude::*;
 use chrono::Utc;
-use ggen_core::registry::{PackMetadata, RegistryClient, RegistryIndex, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryClient, RegistryIndex, VersionMetadata};
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;

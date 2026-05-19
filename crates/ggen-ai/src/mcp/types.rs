@@ -163,7 +163,7 @@ impl MCPResponse {
 
 /// MCP Error (JSON-RPC 2.0)
 ///
-/// Standard JSON-RPC 2.0 error format with extended ggen-specific data.
+/// Standard JSON-RPC 2.0 error format with extended mcpp-specific data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MCPError {
     /// Error code (see ErrorCode)
@@ -278,7 +278,7 @@ impl MCPError {
     }
 }
 
-/// Extended Error Data for ggen-specific information
+/// Extended Error Data for mcpp-specific information
 ///
 /// This structure is used in Phase 4 to provide detailed error information.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

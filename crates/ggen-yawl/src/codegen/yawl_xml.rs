@@ -6,8 +6,8 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use ggen_yawl::codegen::YawlXmlGenerator;
-//! use ggen_yawl::template::TemplateContext;
+//! use mcpp_yawl::codegen::YawlXmlGenerator;
+//! use mcpp_yawl::template::TemplateContext;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let context = TemplateContext::default();
@@ -26,8 +26,8 @@ use crate::{Error, Result};
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_yawl::codegen::YawlXmlGenerator;
-/// use ggen_yawl::template::TemplateContext;
+/// use mcpp_yawl::codegen::YawlXmlGenerator;
+/// use mcpp_yawl::template::TemplateContext;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let context = TemplateContext::default();
@@ -52,8 +52,8 @@ impl YawlXmlGenerator {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_yawl::codegen::YawlXmlGenerator;
-    /// use ggen_yawl::template::TemplateContext;
+    /// use mcpp_yawl::codegen::YawlXmlGenerator;
+    /// use mcpp_yawl::template::TemplateContext;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let context = TemplateContext::default();
@@ -146,7 +146,7 @@ impl YawlXmlGenerator {
 /// # Example
 ///
 /// ```rust
-/// use ggen_yawl::escape_xml;
+/// use mcpp_yawl::escape_xml;
 ///
 /// assert_eq!(escape_xml("hello & world"), "hello &amp; world");
 /// assert_eq!(escape_xml("a < b"), "a &lt; b");
@@ -208,7 +208,7 @@ pub fn canonicalize(xml: &str) -> Result<String> {
 /// # Example
 ///
 /// ```rust
-/// use ggen_yawl::codegen::validate;
+/// use mcpp_yawl::codegen::validate;
 ///
 /// // Valid XML
 /// let valid = r#"<?xml version="1.0"?><specification xmlns="http://www.yawlfoundation.org/yawlschema"></specification>"#;

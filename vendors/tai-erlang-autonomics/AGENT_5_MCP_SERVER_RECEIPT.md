@@ -236,14 +236,14 @@ Current modules use only standard Erlang:
 ## Key Files Created
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/
+~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/
 ├── taiea_mcp_server.erl                    (11K)
 ├── taiea_tool_health.erl                   (7.2K)
 ├── taiea_tool_entitlement.erl              (6.8K)
 ├── taiea_tool_receipts.erl                 (5.9K)
 └── taiea_tool_support.erl                  (10K)
 
-/Users/sac/ggen/tai-erlang-autonomics/
+~/.ggen/mcpp/tai-erlang-autonomics/
 ├── MCP_SERVER_IMPLEMENTATION.md            (Comprehensive docs)
 └── AGENT_5_MCP_SERVER_RECEIPT.md          (This file)
 ```

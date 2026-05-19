@@ -1,5 +1,5 @@
-@prefix : <https://ggen.io/thesis/kgc-unified/> .
-@prefix thesis: <https://ggen.io/ontology/thesis#> .
+@prefix : <https://mcpp.io/thesis/kgc-unified/> .
+@prefix thesis: <https://mcpp.io/ontology/thesis#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -24,14 +24,14 @@
 
 The theoretical framework is grounded in three foundational domains: Shannon information theory applied to ontology entropy, hyperdimensional computing for RDF triple embeddings, and temporal logic extended to 4-dimensional knowledge graphs. We introduce novel calculus for measuring semantic preservation across language-specific projections (Rust, TypeScript, Python), proving that under completeness assumptions, generated code maintains provable equivalence with source ontologies.
 
-Empirical validation through the ggen toolchain demonstrates 73% reduction in cross-module inconsistencies in a production full-stack application (TanStack DB, NextJS, Electric SQL, pnpm monorepo). Case studies show deterministic generation of Zod schemas, React hooks, Drizzle ORM models, and API routes from a unified project management ontology, with nanosecond-precision temporal semantics enabling audit trails and time-travel queries.
+Empirical validation through the mcpp toolchain demonstrates 73% reduction in cross-module inconsistencies in a production full-stack application (TanStack DB, NextJS, Electric SQL, pnpm monorepo). Case studies show deterministic generation of Zod schemas, React hooks, Drizzle ORM models, and API routes from a unified project management ontology, with nanosecond-precision temporal semantics enabling audit trails and time-travel queries.
 
 This work unifies disparate research threads in semantic web, code generation, event sourcing, and information theory, establishing knowledge graph completeness as the foundational principle for modern full-stack development. The thesis demonstrates that properly formalized ontologies eliminate an entire class of software defects arising from specification drift, providing formal guarantees previously unavailable in conventional development methodologies.
 
-Key contributions include: (1) Formal definition and proof of Knowledge Graph Completeness, (2) Zero-Drift Theorem with supporting lemmas, (3) 4D temporal semantics calculus for event sourcing, (4) Hyperdimensional information-theoretic projection bounds, (5) @unrdf/hooks declarative policy framework, (6) Empirical validation on production systems, and (7) Complete reference implementation in the ggen ecosystem.""" ;
+Key contributions include: (1) Formal definition and proof of Knowledge Graph Completeness, (2) Zero-Drift Theorem with supporting lemmas, (3) 4D temporal semantics calculus for event sourcing, (4) Hyperdimensional information-theoretic projection bounds, (5) @unrdf/hooks declarative policy framework, (6) Empirical validation on production systems, and (7) Complete reference implementation in the mcpp ecosystem.""" ;
     thesis:dedication """To all researchers pursuing formal foundations for software engineering,
 and to the communities building semantic web technologies.""" ;
-    thesis:acknowledgments """I gratefully acknowledge the foundational work of the semantic web community, particularly the W3C RDF and SPARQL working groups. This research builds upon decades of contributions to knowledge representation and reasoning. Special thanks to the open-source communities behind ggen, @unrdf, TanStack, Electric SQL, and the broader Rust and TypeScript ecosystems. The empirical validation would not have been possible without these robust, production-quality tools.""" ;
+    thesis:acknowledgments """I gratefully acknowledge the foundational work of the semantic web community, particularly the W3C RDF and SPARQL working groups. This research builds upon decades of contributions to knowledge representation and reasoning. Special thanks to the open-source communities behind mcpp, @unrdf, TanStack, Electric SQL, and the broader Rust and TypeScript ecosystems. The empirical validation would not have been possible without these robust, production-quality tools.""" ;
     thesis:hasChapter :ch-intro, :ch-foundations, :ch-info-theory, :ch-kgc-4d, :ch-case-study, :ch-unrdf, :ch-conclusions, :ch-construct-fibo-bpmn .
 
 ###############################################################################
@@ -65,7 +65,7 @@ The central research question is: Can we establish formal conditions under which
     thesis:labelId "sec:motivation" ;
     thesis:content """The semantic web vision, articulated by Berners-Lee nearly three decades ago, promised machine-readable knowledge representation enabling automated reasoning and data integration. While semantic technologies have achieved success in specific domains (biomedical ontologies, linked open data), they have not penetrated mainstream software development. We argue this is due to two key barriers: (1) lack of practical tooling connecting ontologies to implementation code, and (2) absence of formal guarantees about the quality of generated artifacts.
 
-This thesis addresses both barriers. First, we present the ggen toolchain, demonstrating that modern code generation techniques (template engines, AST manipulation, type system integration) can bridge the gap between RDF ontologies and production code. Second, and more importantly, we establish theoretical foundations proving that under completeness conditions, generated code is provably correct with respect to ontology specifications.
+This thesis addresses both barriers. First, we present the mcpp toolchain, demonstrating that modern code generation techniques (template engines, AST manipulation, type system integration) can bridge the gap between RDF ontologies and production code. Second, and more importantly, we establish theoretical foundations proving that under completeness conditions, generated code is provably correct with respect to ontology specifications.
 
 The motivation for this work stems from direct experience building production full-stack applications. In the TanStack DB project, we encountered 73% reduction in cross-module inconsistencies after migrating to ontology-driven generation. This empirical result prompted the question: Can we formalize what properties of the ontology enable such dramatic consistency improvements?
 
@@ -87,7 +87,7 @@ The answer requires integrating three research domains: (1) semantic web foundat
 
 **Practical Contributions:**
 
-4. **ggen Toolchain**: A complete reference implementation demonstrating deterministic code generation for Rust, TypeScript, and Python from unified RDF ontologies. The toolchain achieves sub-second incremental generation for 10,000+ triple ontologies.
+4. **mcpp Toolchain**: A complete reference implementation demonstrating deterministic code generation for Rust, TypeScript, and Python from unified RDF ontologies. The toolchain achieves sub-second incremental generation for 10,000+ triple ontologies.
 
 5. **@unrdf Ecosystem**: A production-quality implementation of 4D temporal knowledge graphs (kgc-4d) and declarative policy hooks (hooks), integrated with modern full-stack frameworks (TanStack, Electric SQL, NextJS).
 
@@ -237,7 +237,7 @@ Semantic fidelity captures intuitive notions of code quality: high fidelity mean
 
 We prove that semantic fidelity is subadditive for multi-target generation: adding more target languages cannot decrease overall fidelity. Formally, $\\Phi(O, C_1 \\cup C_2) \\geq \\max(\\Phi(O, C_1), \\Phi(O, C_2))$. This justifies multi-target generation strategies that leverage complementary strengths of different languages.
 
-Empirical measurements (Chapter \\ref{ch:case-study}) show ggen achieves $\\Phi > 0.92$ for Rust generation, $\\Phi > 0.88$ for TypeScript, and $\\Phi > 0.85$ for Python, demonstrating high semantic preservation across all targets. These values approach the theoretical upper bound $\\Phi = 1$ achievable only with complete ontologies (Theorem \\ref{thm:semantic-fidelity}).""" .
+Empirical measurements (Chapter \\ref{ch:case-study}) show mcpp achieves $\\Phi > 0.92$ for Rust generation, $\\Phi > 0.88$ for TypeScript, and $\\Phi > 0.85$ for Python, demonstrating high semantic preservation across all targets. These values approach the theoretical upper bound $\\Phi = 1$ achievable only with complete ontologies (Theorem \\ref{thm:semantic-fidelity}).""" .
 
 :sec-projection-bounds a thesis:Section ;
     thesis:orderIndex 4 ;
@@ -335,7 +335,7 @@ The architecture follows a three-tier pattern: (1) Frontend (NextJS + React) wit
 
 Prior to ontology-driven generation, the system was implemented manually with 15,372 lines of code across 47 modules. We identified 118 consistency issues over 6 months of development (type mismatches, validation discrepancies, schema drift).
 
-After migrating to ggen ontology-driven generation, the system reduced to 3,847 lines of hand-written code (ontology + templates) generating 14,956 lines of Rust, TypeScript, and SQL artifacts. The 73% reduction in consistency issues (32 issues over equivalent 6-month period) validates the Zero-Drift Theorem predictions.""" .
+After migrating to mcpp ontology-driven generation, the system reduced to 3,847 lines of hand-written code (ontology + templates) generating 14,956 lines of Rust, TypeScript, and SQL artifacts. The 73% reduction in consistency issues (32 issues over equivalent 6-month period) validates the Zero-Drift Theorem predictions.""" .
 
 :sec-ontology-design a thesis:Section ;
     thesis:orderIndex 2 ;
@@ -359,7 +359,7 @@ The ontology contains 347 triples (89 class definitions, 127 property definition
     thesis:orderIndex 3 ;
     thesis:title "Code Generation Pipeline and Templates" ;
     thesis:labelId "sec:generation-pipeline" ;
-    thesis:content """The ggen generation pipeline consists of three stages: (1) SPARQL querying, (2) template rendering, (3) artifact post-processing.
+    thesis:content """The mcpp generation pipeline consists of three stages: (1) SPARQL querying, (2) template rendering, (3) artifact post-processing.
 
 **Stage 1 (SPARQL Querying)**: For each artifact type (Zod schema, React hooks, Drizzle model), execute a SPARQL query extracting relevant ontology fragments. Queries are optimized using triple pattern indexes and result caching.
 
@@ -460,18 +460,18 @@ The integration demonstrates that ontology-driven policies compose naturally wit
     thesis:orderIndex 7 ;
     thesis:title "Cross-Domain Knowledge Graph Construction: CONSTRUCT, FIBO, and BPMN Integration" ;
     thesis:labelId "ch:construct-fibo-bpmn" ;
-    thesis:abstract """This chapter demonstrates the power of SPARQL CONSTRUCT queries to bridge heterogeneous knowledge domains. We integrate the Financial Industry Business Ontology (FIBO) with Business Process Model and Notation (BPMN) workflows, showcasing how ggen's inference engine enables automatic derivation of compliance requirements, risk assessments, and process optimizations across financial and operational domains.""" ;
+    thesis:abstract """This chapter demonstrates the power of SPARQL CONSTRUCT queries to bridge heterogeneous knowledge domains. We integrate the Financial Industry Business Ontology (FIBO) with Business Process Model and Notation (BPMN) workflows, showcasing how mcpp's inference engine enables automatic derivation of compliance requirements, risk assessments, and process optimizations across financial and operational domains.""" ;
     thesis:hasSection :sec-construct-exec, :sec-fibo-overview, :sec-bpmn-integration, :sec-bridge-ontology, :sec-trade-workflow-case, :sec-cross-domain-theorem .
 
 :sec-construct-exec a thesis:Section ;
     thesis:orderIndex 1 ;
     thesis:title "SPARQL CONSTRUCT and Sequential Materialization" ;
     thesis:labelId "sec:construct-exec" ;
-    thesis:content """SPARQL CONSTRUCT queries extend SELECT queries by generating new RDF triples instead of tabular results. The ggen CONSTRUCT executor implements a sequential materialization pattern where each inference rule's output is inserted back into the graph, enabling forward-chaining reasoning.
+    thesis:content """SPARQL CONSTRUCT queries extend SELECT queries by generating new RDF triples instead of tabular results. The mcpp CONSTRUCT executor implements a sequential materialization pattern where each inference rule's output is inserted back into the graph, enabling forward-chaining reasoning.
 
 This approach differs from traditional rule engines in three key ways: (1) Deterministic Execution with rules executing in strict order, (2) Incremental Materialization where each rule operates on previously inferred triples, and (3) Provenance Tracking with derivation metadata.
 
-The CONSTRUCT executor architecture in ggen-core/src/graph/construct.rs implements zero-cost abstractions for execution, materialization, and chaining of CONSTRUCT queries. This enables efficient inference at generation time.""" .
+The CONSTRUCT executor architecture in mcpp-core/src/graph/construct.rs implements zero-cost abstractions for execution, materialization, and chaining of CONSTRUCT queries. This enables efficient inference at generation time.""" .
 
 :sec-fibo-overview a thesis:Section ;
     thesis:orderIndex 2 ;
@@ -485,7 +485,7 @@ For this thesis demonstration, we import a subset focused on FBC/FinancialInstru
     thesis:orderIndex 3 ;
     thesis:title "BPMN Workflow Engine Integration" ;
     thesis:labelId "sec:bpmn-integration" ;
-    thesis:content """Business Process Model and Notation (BPMN) 2.0 provides standardized graphical notation for business processes. The ggen workflow-engine-cli package implements complete BPMN execution engine with RDF-backed state model.
+    thesis:content """Business Process Model and Notation (BPMN) 2.0 provides standardized graphical notation for business processes. The mcpp workflow-engine-cli package implements complete BPMN execution engine with RDF-backed state model.
 
 Key BPMN elements represented in RDF include Process containers (wfe:Process), work units (wfe:Task), decision points (wfe:Gateway), process triggers (wfe:Event), and transitions (wfe:SequenceFlow). This enables SPARQL queries over process execution traces for temporal analytics and compliance auditing.""" .
 
@@ -540,7 +540,7 @@ This theorem guarantees that FIBO-BPMN integration maintains semantic integrity:
 3. Temporal Consistency Theorem (Chapter \\ref{ch:kgc-4d}): 4D semantics enable provably correct event sourcing
 
 **Practical Contributions Recap:**
-1. ggen toolchain: Production-quality deterministic code generation
+1. mcpp toolchain: Production-quality deterministic code generation
 2. @unrdf ecosystem: 4D temporal graphs and declarative policy hooks
 3. Empirical validation: 73% reduction in cross-module inconsistencies
 
@@ -560,7 +560,7 @@ The unification insight is that these contributions form a coherent theory conne
 **Practical Limitations:**
 1. Case study limited to single application (generalizability unclear for other domains).
 2. Consistency defect counting relies on manual inspection (potential for undercounting).
-3. ggen toolchain requires Rust knowledge (barrier to adoption).
+3. mcpp toolchain requires Rust knowledge (barrier to adoption).
 4. Template complexity grows with target language diversity (maintenance burden).
 
 **Threats to Validity:**
@@ -601,7 +601,7 @@ The grand unification achieved here—semantic web + information theory + tempor
 and to the communities building semantic web technologies.""" .
 
 :acknowledgments a thesis:Acknowledgments ;
-    thesis:content """I gratefully acknowledge the foundational work of the semantic web community, particularly the W3C RDF and SPARQL working groups. This research builds upon decades of contributions to knowledge representation and reasoning. Special thanks to the open-source communities behind ggen, @unrdf, TanStack, Electric SQL, and the broader Rust and TypeScript ecosystems. The empirical validation would not have been possible without these robust, production-quality tools.""" .
+    thesis:content """I gratefully acknowledge the foundational work of the semantic web community, particularly the W3C RDF and SPARQL working groups. This research builds upon decades of contributions to knowledge representation and reasoning. Special thanks to the open-source communities behind mcpp, @unrdf, TanStack, Electric SQL, and the broader Rust and TypeScript ecosystems. The empirical validation would not have been possible without these robust, production-quality tools.""" .
 
 ###############################################################################
 # Summary (T031-T032: Cross-references and compile test preparation)

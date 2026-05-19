@@ -1,4 +1,4 @@
-command: "ggen marketplace update"
+command: "mcpp marketplace update"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to update marketplace packages,
-  I need to run 'ggen marketplace update',
+  I need to run 'mcpp marketplace update',
   so that I can get latest versions and improvements.

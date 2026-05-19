@@ -1,12 +1,12 @@
-//! Schema definitions for ggen.toml configuration
+//! Schema definitions for mcpp.toml configuration
 //!
-//! This module defines the complete structure of ggen.toml files
+//! This module defines the complete structure of mcpp.toml files
 //! using serde-compatible Rust structs.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Root configuration structure for ggen.toml
+/// Root configuration structure for mcpp.toml
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GgenConfig {
     /// Project metadata

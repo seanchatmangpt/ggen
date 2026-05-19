@@ -12,10 +12,10 @@
 //! ## Usage
 //!
 //! ```rust
-//! use ggen_utils::path_validator::{PathValidator, SafePath};
+//! use mcpp_utils::path_validator::{PathValidator, SafePath};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! // Create validator with workspace root
 //! let validator = PathValidator::new(Path::new("/workspace"))
 //!     .with_max_depth(10)
@@ -214,7 +214,7 @@ impl PathValidator {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_utils::path_validator::PathValidator;
+    /// use mcpp_utils::path_validator::PathValidator;
     /// use std::path::Path;
     ///
     /// let validator = PathValidator::new(Path::new("/workspace"));

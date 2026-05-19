@@ -4,8 +4,8 @@
 //! Run with: cargo run --example react_agent
 
 use async_trait::async_trait;
-use ggen_ai::dspy::{InputField, OutputField, Signature};
-use ggen_dspy::{ReAct, Result, Tool};
+use mcpp_ai::dspy::{InputField, OutputField, Signature};
+use mcpp_dspy::{ReAct, Result, Tool};
 
 // Example Calculator tool
 struct Calculator;
@@ -68,7 +68,7 @@ impl Tool for Search {
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize logging
-    ggen_dspy::init_logging();
+    mcpp_dspy::init_logging();
 
     // Define a signature for agent tasks
     let signature = Signature::new("AgentTask", "Solve problems using available tools")

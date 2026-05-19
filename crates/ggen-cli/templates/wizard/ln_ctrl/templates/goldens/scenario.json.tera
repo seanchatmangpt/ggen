@@ -54,7 +54,7 @@
   "metadata": {
     "created_at": "{{ created_at | default(value="2026-02-11T00:00:00Z") }}",
     "schema_version": "{{ schema_version | default(value="1.0.0") }}",
-    "author": "{{ author | default(value="ggen-wizard") }}",
+    "author": "{{ author | default(value="mcpp-wizard") }}",
     "tags": [
       {%- for tag in tags | default(value=["lambda-calculus", "beta-reduction", "golden-test"]) %}
       "{{ tag }}"{% if not loop.last %},{% endif %}

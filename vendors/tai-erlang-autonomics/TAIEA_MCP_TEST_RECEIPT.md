@@ -16,7 +16,7 @@ Successfully created comprehensive unit test suite for the TAI Autonomics MCP se
 
 ### 1. MCP Server Tests ✅
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_mcp_server_test.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_mcp_server_test.erl`
 **Lines**: 311
 **Test Cases**: 15
 
@@ -39,7 +39,7 @@ Successfully created comprehensive unit test suite for the TAI Autonomics MCP se
 
 ### 2. Health Tool Tests ✅
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_health_test.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_health_test.erl`
 **Lines**: 151
 **Test Cases**: 4
 
@@ -57,7 +57,7 @@ Successfully created comprehensive unit test suite for the TAI Autonomics MCP se
 
 ### 3. Entitlement Tool Tests ✅
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_entitlement_test.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_entitlement_test.erl`
 **Lines**: 199
 **Test Cases**: 6
 
@@ -78,7 +78,7 @@ Successfully created comprehensive unit test suite for the TAI Autonomics MCP se
 
 ### 4. Receipts Tool Tests ✅
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_receipts_test.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_receipts_test.erl`
 **Lines**: 164
 **Test Cases**: 5
 
@@ -98,7 +98,7 @@ Successfully created comprehensive unit test suite for the TAI Autonomics MCP se
 
 ### 5. Support Tool Tests ✅
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_support_test.erl`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_tool_support_test.erl`
 **Lines**: 120
 **Test Cases**: 3
 
@@ -334,7 +334,7 @@ When Agent 13 (Governor Integration) takes over, they will:
 ### Test Execution Commands
 ```bash
 # Compile tests
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 erlc -I apps/tai_autonomics/include -o apps/tai_autonomics/test \
   apps/tai_autonomics/test/taiea_mcp_server_test.erl \
   apps/tai_autonomics/test/taiea_tool_health_test.erl \

@@ -44,7 +44,7 @@ Phase 2 introduces `tai_autonomics_prod`, a production-grade OTP application tha
         │                              │
         ▼                              ▼
     ┌────────────────────────────────────────────┐
-    │  Shared Core Dependencies (ggen-core)      │
+    │  Shared Core Dependencies (mcpp-core)      │
     │  - RDF/SPARQL (Oxigraph)                   │
     │  - Tera templates                          │
     │  - Code generation pipeline (μ₁-μ₅)       │

@@ -18,8 +18,8 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use ggen_yawl::ConstructExecutor;
-//! use ggen_core::Graph;
+//! use mcpp_yawl::ConstructExecutor;
+//! use mcpp_core::Graph;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let graph = Graph::new()?;
@@ -32,7 +32,7 @@
 //! ```
 
 use crate::{Error, Result};
-use ggen_core::Graph;
+use mcpp_core::Graph;
 use oxigraph::sparql::QueryResults;
 use std::collections::HashMap;
 
@@ -50,7 +50,7 @@ use std::collections::HashMap;
 /// # Example
 ///
 /// ```rust
-/// use ggen_yawl::transform::Query;
+/// use mcpp_yawl::transform::Query;
 ///
 /// let query = Query::new(
 ///     "my_transform",
@@ -79,7 +79,7 @@ impl Query {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::transform::Query;
+    /// use mcpp_yawl::transform::Query;
     ///
     /// let query = Query::new(
     ///     "extract_classes",
@@ -105,7 +105,7 @@ impl Query {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::transform::Query;
+    /// use mcpp_yawl::transform::Query;
     ///
     /// let query = Query::new("extract_properties", "")
     ///     .with_dependency("extract_classes");
@@ -138,9 +138,9 @@ impl Query {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_yawl::ConstructExecutor;
-/// use ggen_yawl::transform::Query;
-/// use ggen_core::Graph;
+/// use mcpp_yawl::ConstructExecutor;
+/// use mcpp_yawl::transform::Query;
+/// use mcpp_core::Graph;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let graph = Graph::new()?;

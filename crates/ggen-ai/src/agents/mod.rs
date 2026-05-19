@@ -1,6 +1,6 @@
 //! Unified Agent Architecture - Core Team Best Practice
 //!
-//! Single source of truth for all ggen agents following 80/20 principle:
+//! Single source of truth for all mcpp agents following 80/20 principle:
 //! - Simple trait interface
 //! - Clear separation of concerns
 //! - Composable agent types

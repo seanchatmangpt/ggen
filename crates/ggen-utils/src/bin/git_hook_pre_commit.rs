@@ -141,7 +141,7 @@ fn main() -> ExitCode {
                     "   Replace with proper error handling or add #![allow(clippy::expect_used)]"
                 );
                 eprintln!(
-                    "   Note: CLI code (crates/ggen-cli) can use expect() for user-facing errors"
+                    "   Note: CLI code (crates/mcpp-cli) can use expect() for user-facing errors"
                 );
                 return ExitCode::FAILURE;
             }
@@ -279,7 +279,7 @@ fn is_test_file(file: &Path) -> bool {
 
 fn is_cli_file(file: &Path) -> bool {
     let path_str = file.to_string_lossy();
-    path_str.contains("crates/ggen-cli/") || path_str.starts_with("crates/ggen-cli/")
+    path_str.contains("crates/mcpp-cli/") || path_str.starts_with("crates/mcpp-cli/")
 }
 
 fn has_allow_attribute(file: &PathBuf, lint: &str) -> bool {
@@ -488,7 +488,7 @@ fn check_clippy(files: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
             let path_str = f.to_string_lossy();
             if let Some(stripped) = path_str.strip_prefix("crates/") {
                 if let Some(pkg) = stripped.split('/').next() {
-                    if pkg.starts_with("ggen-") {
+                    if pkg.starts_with("mcpp-") {
                         return Some(pkg.to_string());
                     }
                 }

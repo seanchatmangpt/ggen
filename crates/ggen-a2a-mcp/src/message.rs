@@ -1,7 +1,7 @@
 //! Message conversion between A2A and LLM formats
 
 use crate::error::{A2aMcpError, A2aMcpResult};
-use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
 use tracing::warn;
 
 /// Converts between A2A ConvergedMessage and LLM prompt/response formats
@@ -219,7 +219,7 @@ pub struct TokenUsage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use a2a_generated::converged::message::{
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
         ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle, MessagePriority,
         MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     };
@@ -365,7 +365,7 @@ mod tests {
     #[test]
     fn test_file_content_extraction() {
         let converter = A2aMessageConverter::new();
-        use a2a_generated::converged::message::UnifiedFileContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedFileContent;
 
         let message = ConvergedMessage {
             message_id: "file-msg".to_string(),
@@ -454,7 +454,7 @@ mod tests {
     #[test]
     fn test_multipart_with_file_and_stream() {
         let converter = A2aMessageConverter::new();
-        use a2a_generated::converged::message::UnifiedFileContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedFileContent;
 
         let message = ConvergedMessage {
             message_id: "multipart-mixed-msg".to_string(),
@@ -575,7 +575,7 @@ mod tests {
     #[test]
     fn test_deeply_nested_multipart_with_mixed_content() {
         let converter = A2aMessageConverter::new();
-        use a2a_generated::converged::message::UnifiedFileContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedFileContent;
 
         // Create deeply nested structure: Multipart -> Multipart -> Text/File/Stream
         let level_2_multipart = UnifiedContent::Multipart {
@@ -706,7 +706,7 @@ mod tests {
     #[test]
     fn test_no_wildcard_data_loss() {
         let converter = A2aMessageConverter::new();
-        use a2a_generated::converged::message::UnifiedFileContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedFileContent;
 
         // Test that all content types are handled, nothing falls through to wildcard
         let message = ConvergedMessage {

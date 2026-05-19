@@ -1,15 +1,15 @@
 //! Marketplace integration for pack installation
 //!
-//! NOTE: This module is currently stubbed out because ggen-marketplace
+//! NOTE: This module is currently stubbed out because mcpp-marketplace
 //! was migrated to a separate project. The marketplace functionality
-//! should be accessed through ggen-cli instead, which has ggen-marketplace
+//! should be accessed through mcpp-cli instead, which has mcpp-marketplace
 //! as a dependency.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 
 // Stub types to maintain API compatibility
-// These should be removed or migrated to use ggen-cli's marketplace integration
+// These should be removed or migrated to use mcpp-cli's marketplace integration
 
 /// Summary of a package for list display
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,44 +88,44 @@ pub struct InstallResult {
 /// List all available packages from the marketplace
 ///
 /// NOTE: This is a stub implementation. The real implementation should
-/// use ggen-cli's marketplace integration.
+/// use mcpp-cli's marketplace integration.
 pub fn list_all() -> Result<Vec<PackageSummary>> {
-    Err(ggen_utils::Error::new(
-        "Marketplace integration moved to ggen-cli. \
-         Please use ggen-cli's marketplace commands instead.",
+    Err(mcpp_utils::Error::new(
+        "Marketplace integration moved to mcpp-cli. \
+         Please use mcpp-cli's marketplace commands instead.",
     ))
 }
 
 /// Get detailed information about a specific package
 ///
 /// NOTE: This is a stub implementation. The real implementation should
-/// use ggen-cli's marketplace integration.
+/// use mcpp-cli's marketplace integration.
 pub fn get_package(_pack_id: &str) -> Result<PackageDetail> {
-    Err(ggen_utils::Error::new(
-        "Marketplace integration moved to ggen-cli. \
-         Please use ggen-cli's marketplace commands instead.",
+    Err(mcpp_utils::Error::new(
+        "Marketplace integration moved to mcpp-cli. \
+         Please use mcpp-cli's marketplace commands instead.",
     ))
 }
 
 /// Resolve dependencies for a package
 ///
 /// NOTE: This is a stub implementation. The real implementation should
-/// use ggen-cli's marketplace integration.
+/// use mcpp-cli's marketplace integration.
 pub fn resolve_dependencies(_pack_id: &str, _version: Option<&str>) -> Result<DependencyGraph> {
-    Err(ggen_utils::Error::new(
-        "Marketplace integration moved to ggen-cli. \
-         Please use ggen-cli's marketplace commands instead.",
+    Err(mcpp_utils::Error::new(
+        "Marketplace integration moved to mcpp-cli. \
+         Please use mcpp-cli's marketplace commands instead.",
     ))
 }
 
 /// Execute package installation
 ///
 /// NOTE: This is a stub implementation. The real implementation should
-/// use ggen-cli's marketplace integration.
+/// use mcpp-cli's marketplace integration.
 pub async fn execute_install(_input: InstallInput) -> Result<InstallResult> {
-    Err(ggen_utils::Error::new(
-        "Marketplace integration moved to ggen-cli. \
-         Please use 'ggen packs install' instead.",
+    Err(mcpp_utils::Error::new(
+        "Marketplace integration moved to mcpp-cli. \
+         Please use 'mcpp packs install' instead.",
     ))
 }
 
@@ -141,6 +141,6 @@ mod tests {
 
         let err = result.unwrap_err();
         let msg = format!("{}", err);
-        assert!(msg.contains("moved to ggen-cli"));
+        assert!(msg.contains("moved to mcpp-cli"));
     }
 }

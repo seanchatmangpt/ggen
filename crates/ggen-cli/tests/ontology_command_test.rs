@@ -18,7 +18,7 @@ use tempfile::TempDir;
 // Core Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
-use ggen_core::ontology::{
+use mcpp_core::ontology::{
     Cardinality, OntClass, OntProperty, OntRelationship, OntologySchema, OwlRestriction,
     PropertyRange, RelationshipType,
 };
@@ -71,7 +71,7 @@ mod command_integration_tests {
 
         fs::write(&ontology_file, ttl_content).unwrap();
 
-        let config_file = temp_dir.path().join("ggen.config.json");
+        let config_file = temp_dir.path().join("mcpp.config.json");
         let config_content = format!(
             r#"{{
   "project_name": "{}",
@@ -105,7 +105,7 @@ mod command_integration_tests {
     /// Test: validate command validates real Turtle files
     #[test]
     fn test_validate_command_valid_turtle() {
-        use ggen_ontology_core::validators;
+        use mcpp_ontology_core::validators;
 
         let temp_dir = TempDir::new().unwrap();
 
@@ -128,7 +128,7 @@ ex:subject ex:predicate ex:object .
     /// Test: validate command detects invalid Turtle syntax
     #[test]
     fn test_validate_command_invalid_turtle() {
-        use ggen_ontology_core::validators;
+        use mcpp_ontology_core::validators;
 
         let temp_dir = TempDir::new().unwrap();
 
@@ -147,8 +147,8 @@ ex:subject ex:predicate ex:object .
     /// Test: generate command generates real TypeScript from ontology
     #[test]
     fn test_generate_command_typescript() {
-        use ggen_core::codegen::TypeScriptGenerator;
-        use ggen_core::ontology::OntologySchema;
+        use mcpp_core::codegen::TypeScriptGenerator;
+        use mcpp_core::ontology::OntologySchema;
 
         // Create test schema
         let schema = OntologySchema {
@@ -676,7 +676,7 @@ mod cli_output_tests {
         let output = InitOutput {
             project_name: "my-ontology".to_string(),
             ontology_file: "ontologies/example.ttl".to_string(),
-            config_file: "ggen.config.json".to_string(),
+            config_file: "mcpp.config.json".to_string(),
             generated_files: vec!["package.json".to_string(), "README.md".to_string()],
         };
 

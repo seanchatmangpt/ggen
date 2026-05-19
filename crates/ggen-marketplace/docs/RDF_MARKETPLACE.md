@@ -2,7 +2,7 @@
 
 ## Overview
 
-The ggen marketplace v2.0 is a complete RDF/Turtle-based implementation with **zero JSON/YAML configuration**. All data, configuration, and queries use semantic web standards.
+The mcpp marketplace v2.0 is a complete RDF/Turtle-based implementation with **zero JSON/YAML configuration**. All data, configuration, and queries use semantic web standards.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ The ggen marketplace v2.0 is a complete RDF/Turtle-based implementation with **z
 1. **RDF Ontology** (`src/rdf/ontology.rs`)
    - Complete vocabulary definitions
    - Standard namespace integration (FOAF, Dublin Core, PROV-O, SHACL)
-   - Custom ggen ontology extensions
+   - Custom mcpp ontology extensions
    - **1,200+ lines of code**
 
 2. **POKA YOKE Type System** (`src/rdf/poka_yoke.rs`)
@@ -95,7 +95,7 @@ let invalid = Triple::builder()
 // ✅ CORRECT: Validated query
 let query = SparqlQuery::new()
     .select(&["name"])
-    .where_pattern("?pkg a ggen:Package")
+    .where_pattern("?pkg a mcpp:Package")
     .validate()?;  // Transitions to Validated state
 
 let result = control_plane.execute_query(query)?;  // Only accepts Validated
@@ -147,15 +147,15 @@ if !cycles.is_empty() {
 ### Search Packages
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX mcpp: <http://mcpp.dev/ontology#>
 PREFIX dc: <http://purl.org/dc/terms/>
 
 SELECT ?package ?name ?description ?rating
 WHERE {
-    ?package a ggen:Package ;
+    ?package a mcpp:Package ;
              dc:title ?name ;
              dc:description ?description .
-    OPTIONAL { ?package ggen:rating ?rating }
+    OPTIONAL { ?package mcpp:rating ?rating }
     FILTER regex(?name, "react", "i")
 }
 ORDER BY DESC(?rating)
@@ -165,30 +165,30 @@ LIMIT 10
 ### Get Dependencies
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX mcpp: <http://mcpp.dev/ontology#>
 
 SELECT ?dep ?depName ?depVersion ?optional
 WHERE {
-    <package-id> ggen:hasVersion ?ver .
-    ?ver ggen:versionNumber "1.0.0" ;
-         ggen:hasDependency ?dependency .
-    ?dependency ggen:dependsOn ?dep ;
-                ggen:dependencyVersion ?depVersion .
+    <package-id> mcpp:hasVersion ?ver .
+    ?ver mcpp:versionNumber "1.0.0" ;
+         mcpp:hasDependency ?dependency .
+    ?dependency mcpp:dependsOn ?dep ;
+                mcpp:dependencyVersion ?depVersion .
     ?dep dc:title ?depName .
-    OPTIONAL { ?dependency ggen:isOptional ?optional }
+    OPTIONAL { ?dependency mcpp:isOptional ?optional }
 }
 ```
 
 ### Detect Circular Dependencies
 
 ```sparql
-PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX mcpp: <http://mcpp.dev/ontology#>
 
 SELECT ?dep1 ?dep2 ?dep3
 WHERE {
-    <package-id> ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep1 .
-    ?dep1 ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep2 .
-    ?dep2 ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep3 .
+    <package-id> mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn ?dep1 .
+    ?dep1 mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn ?dep2 .
+    ?dep2 mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn ?dep3 .
     FILTER (?dep3 = <package-id>)
 }
 ```
@@ -225,7 +225,7 @@ Installed → Removing → (deleted)
 
 ```turtle
 :PackageNameShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
         sh:path dc:title ;
         sh:minCount 1 ;
@@ -242,12 +242,12 @@ Installed → Removing → (deleted)
 
 ```turtle
 :CircularDependencyShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:sparql [
         sh:select """
             SELECT $this
             WHERE {
-                $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn+ $this .
+                $this mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn+ $this .
             }
         """ ;
         sh:message "Package has circular dependency" ;
@@ -260,7 +260,7 @@ Installed → Removing → (deleted)
 ### Initialize Control Plane
 
 ```rust
-use ggen_marketplace_v2::rdf::RdfControlPlane;
+use mcpp_marketplace_v2::rdf::RdfControlPlane;
 
 let control_plane = RdfControlPlane::new("./config")?;
 ```
@@ -268,7 +268,7 @@ let control_plane = RdfControlPlane::new("./config")?;
 ### Search Packages
 
 ```rust
-use ggen_marketplace_v2::rdf::{SearchParams, MarketplaceQueries};
+use mcpp_marketplace_v2::rdf::{SearchParams, MarketplaceQueries};
 
 let params = SearchParams {
     query: Some("react".to_string()),
@@ -365,7 +365,7 @@ The RDF control plane integrates with existing marketplace components:
 
 ```rust
 // In your CLI commands
-use ggen_marketplace_v2::rdf::RdfControlPlane;
+use mcpp_marketplace_v2::rdf::RdfControlPlane;
 
 pub fn search_command(args: SearchArgs) -> Result<()> {
     let control_plane = RdfControlPlane::new("./config")?;
@@ -384,12 +384,12 @@ Comprehensive test suite with integration tests:
 
 ```bash
 # Run all RDF tests
-cargo test --package ggen-marketplace-v2 --lib rdf
+cargo test --package mcpp-marketplace-v2 --lib rdf
 
 # Run specific test modules
-cargo test --package ggen-marketplace-v2 poka_yoke::tests
-cargo test --package ggen-marketplace-v2 sparql_queries::tests
-cargo test --package ggen-marketplace-v2 fmea_mitigations::tests
+cargo test --package mcpp-marketplace-v2 poka_yoke::tests
+cargo test --package mcpp-marketplace-v2 sparql_queries::tests
+cargo test --package mcpp-marketplace-v2 fmea_mitigations::tests
 ```
 
 ## Migration from v1
@@ -397,8 +397,8 @@ cargo test --package ggen-marketplace-v2 fmea_mitigations::tests
 Migration script to convert existing packages to RDF:
 
 ```rust
-use ggen_marketplace_v2::rdf::RdfControlPlane;
-use ggen_marketplace_v2::legacy::LegacyPackageStore;
+use mcpp_marketplace_v2::rdf::RdfControlPlane;
+use mcpp_marketplace_v2::legacy::LegacyPackageStore;
 
 let legacy = LegacyPackageStore::load()?;
 let control_plane = RdfControlPlane::new("./config")?;

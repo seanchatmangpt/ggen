@@ -208,7 +208,7 @@ impl Phase {
 /// # Example
 ///
 /// ```rust
-/// use ggen_core::lifecycle::model::PhaseBuilder;
+/// use mcpp_core::lifecycle::model::PhaseBuilder;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let phase = PhaseBuilder::new("build")

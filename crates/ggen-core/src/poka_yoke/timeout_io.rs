@@ -4,7 +4,7 @@
 
 use std::time::Duration;
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// SLO-based timeout constants.
 pub mod timeouts {
@@ -37,10 +37,10 @@ impl TimeoutIO {
     /// # Example
     ///
     /// ```text
-    /// use ggen_core::poka_yoke::{TimeoutIO, timeouts};
+    /// use mcpp_core::poka_yoke::{TimeoutIO, timeouts};
     ///
     /// let client = TimeoutIO::http_client(timeouts::NETWORK)?;
-    /// # Ok::<(), ggen_core::error::Error>(())
+    /// # Ok::<(), mcpp_core::error::Error>(())
     /// ```
     pub fn http_client(timeout: Duration) -> Result<reqwest::Client> {
         reqwest::Client::builder()

@@ -16,10 +16,10 @@
 //! ### Detecting EOL Style
 //!
 //! ```rust,no_run
-//! use ggen_core::inject::EolNormalizer;
+//! use mcpp_core::inject::EolNormalizer;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let eol = EolNormalizer::detect_eol(Path::new("file.txt"))?;
 //! println!("File uses EOL: {:?}", eol);
 //! # Ok(())
@@ -29,10 +29,10 @@
 //! ### Normalizing Content to Match File
 //!
 //! ```rust,no_run
-//! use ggen_core::inject::EolNormalizer;
+//! use mcpp_core::inject::EolNormalizer;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let content = "line1\nline2\n";
 //! let normalized = EolNormalizer::normalize_to_match_file(
 //!     content,
@@ -46,7 +46,7 @@
 //! ### Generating Skip-if Patterns
 //!
 //! ```rust
-//! use ggen_core::inject::SkipIfGenerator;
+//! use mcpp_core::inject::SkipIfGenerator;
 //!
 //! # fn main() {
 //! let content = "function hello() { return 'world'; }";
@@ -55,7 +55,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -71,10 +71,10 @@ impl EolNormalizer {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::inject::EolNormalizer;
+    /// use mcpp_core::inject::EolNormalizer;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let eol = EolNormalizer::detect_eol(Path::new("file.txt"))?;
     /// println!("File uses EOL: {:?}", eol);
     /// # Ok(())
@@ -97,7 +97,7 @@ impl EolNormalizer {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::inject::EolNormalizer;
+    /// use mcpp_core::inject::EolNormalizer;
     ///
     /// let content = "line1\r\nline2\r\n";
     /// let eol = EolNormalizer::detect_eol_from_content(content).unwrap();
@@ -137,7 +137,7 @@ impl EolNormalizer {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::inject::EolNormalizer;
+    /// use mcpp_core::inject::EolNormalizer;
     ///
     /// let default = EolNormalizer::platform_default();
     /// // On Unix: "\n", on Windows: "\r\n"
@@ -163,7 +163,7 @@ impl EolNormalizer {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::inject::EolNormalizer;
+    /// use mcpp_core::inject::EolNormalizer;
     ///
     /// let content = "line1\r\nline2\nline3\r";
     /// let normalized = EolNormalizer::normalize_to_eol(content, "\n");
@@ -184,10 +184,10 @@ impl EolNormalizer {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::inject::EolNormalizer;
+    /// use mcpp_core::inject::EolNormalizer;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let content = "line1\nline2\n";
     /// let normalized = EolNormalizer::normalize_to_match_file(
     ///     content,
@@ -211,7 +211,7 @@ impl EolNormalizer {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::inject::SkipIfGenerator;
+/// use mcpp_core::inject::SkipIfGenerator;
 ///
 /// # fn main() {
 /// let content = "// Generated code\nfunction hello() {}";
@@ -239,7 +239,7 @@ impl SkipIfGenerator {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::inject::SkipIfGenerator;
+    /// use mcpp_core::inject::SkipIfGenerator;
     ///
     /// # fn main() {
     /// let content = "function hello() { return 'world'; }";
@@ -266,10 +266,10 @@ impl SkipIfGenerator {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::inject::SkipIfGenerator;
+    /// use mcpp_core::inject::SkipIfGenerator;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let content = "// Generated code";
     /// let exists = SkipIfGenerator::content_exists_in_file(
     ///     content,
@@ -294,7 +294,7 @@ impl SkipIfGenerator {
     /// Generate a default skip_if for idempotent injection
     ///
     /// Generates a pattern for detecting if content has already been injected.
-    /// This is more sophisticated than exact match and can detect ggen-specific
+    /// This is more sophisticated than exact match and can detect mcpp-specific
     /// markers or content signatures.
     ///
     /// # Arguments
@@ -304,7 +304,7 @@ impl SkipIfGenerator {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::inject::SkipIfGenerator;
+    /// use mcpp_core::inject::SkipIfGenerator;
     ///
     /// # fn main() {
     /// let content = "// GENERATED: DO NOT EDIT\nfunction hello() {}";
@@ -315,7 +315,7 @@ impl SkipIfGenerator {
     pub fn generate_idempotent_pattern(content: &str) -> String {
         // For now, use exact match
         // In the future, this could be enhanced to look for
-        // ggen-specific markers or content signatures
+        // mcpp-specific markers or content signatures
         Self::generate_exact_match(content)
     }
 }

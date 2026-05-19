@@ -6,7 +6,7 @@
 // Architecture: Make invalid states unrepresentable at compile time
 // ============================================================================
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::marker::PhantomData;

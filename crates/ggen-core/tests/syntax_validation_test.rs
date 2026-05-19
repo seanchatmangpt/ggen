@@ -11,8 +11,8 @@ use walkdir::WalkDir;
 
 fn workspace_root() -> std::path::PathBuf {
     let mut p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.pop(); // crates/ggen-core -> crates
-    p.pop(); // crates -> ggen root
+    p.pop(); // crates/mcpp-core -> crates
+    p.pop(); // crates -> mcpp root
     p
 }
 
@@ -21,9 +21,9 @@ fn workspace_root() -> std::path::PathBuf {
 // ---------------------------------------------------------------------------
 
 /// MCP/A2A templates that MUST parse without error.
-/// These are actively used in the ggen.toml pipeline.
+/// These are actively used in the mcpp.toml pipeline.
 const CRITICAL_TERA_TEMPLATES: &[&str] = &[
-    // Root templates (used by ggen.toml rules)
+    // Root templates (used by mcpp.toml rules)
     "templates/mcp-rust.tera",
     "templates/mcp-typescript.tera",
     "templates/mcp-go.tera",
@@ -34,18 +34,18 @@ const CRITICAL_TERA_TEMPLATES: &[&str] = &[
     "templates/a2a-go.tera",
     "templates/a2a-elixir.tera",
     "templates/a2a-java.tera",
-    // Adapter templates (used by ggen.toml rules)
+    // Adapter templates (used by mcpp.toml rules)
     // NOTE: templates using {% extends %} or {% import %} need parent templates
     // loaded first and are tested separately
-    "crates/ggen-core/templates/mcp/server.rs.tera",
-    "crates/ggen-core/templates/a2a/agent.ex.tera",
-    "crates/ggen-core/templates/bridge/bridges.rs.tera",
+    "crates/mcpp-core/templates/mcp/server.rs.tera",
+    "crates/mcpp-core/templates/a2a/agent.ex.tera",
+    "crates/mcpp-core/templates/bridge/bridges.rs.tera",
 ];
 
 #[test]
 fn test_critical_mcp_a2a_templates_parse() {
     let mut tera = Tera::default();
-    ggen_core::register::register_all(&mut tera);
+    mcpp_core::register::register_all(&mut tera);
 
     let root = workspace_root();
     let mut errors = Vec::new();
@@ -79,18 +79,18 @@ fn test_critical_mcp_a2a_templates_parse() {
 // 2. SPARQL query syntax validation
 // ---------------------------------------------------------------------------
 
-/// MCP/A2A SPARQL queries that MUST parse (used in ggen.toml pipeline).
+/// MCP/A2A SPARQL queries that MUST parse (used in mcpp.toml pipeline).
 const CRITICAL_RQ_FILES: &[&str] = &[
-    "crates/ggen-core/queries/mcp/extract-mcp-full.rq",
-    "crates/ggen-core/queries/mcp/extract-mcp-params.rq",
-    "crates/ggen-core/queries/mcp/extract-mcp-server.rq",
-    "crates/ggen-core/queries/mcp/extract-mcp-tools.rq",
-    "crates/ggen-core/queries/mcp/extract-mcp-tools-params.rq",
-    "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
-    "crates/ggen-core/queries/a2a/extract-a2a-agent.rq",
-    "crates/ggen-core/queries/a2a/extract-a2a-skills.rq",
-    "crates/ggen-core/queries/a2a/extract-agents-skills-params.rq",
-    "crates/ggen-core/queries/bridge/extract-bridges.rq",
+    "crates/mcpp-core/queries/mcp/extract-mcp-full.rq",
+    "crates/mcpp-core/queries/mcp/extract-mcp-params.rq",
+    "crates/mcpp-core/queries/mcp/extract-mcp-server.rq",
+    "crates/mcpp-core/queries/mcp/extract-mcp-tools.rq",
+    "crates/mcpp-core/queries/mcp/extract-mcp-tools-params.rq",
+    "crates/mcpp-core/queries/a2a/extract-a2a-full.rq",
+    "crates/mcpp-core/queries/a2a/extract-a2a-agent.rq",
+    "crates/mcpp-core/queries/a2a/extract-a2a-skills.rq",
+    "crates/mcpp-core/queries/a2a/extract-agents-skills-params.rq",
+    "crates/mcpp-core/queries/bridge/extract-bridges.rq",
 ];
 
 #[test]
@@ -124,7 +124,7 @@ fn test_critical_sparql_queries_parse() {
 fn test_all_rq_files_parse_without_error() {
     let root = workspace_root();
     let rq_dirs = [
-        root.join("crates/ggen-core/queries"),
+        root.join("crates/mcpp-core/queries"),
         root.join("specify/queries"),
     ];
 
@@ -154,7 +154,7 @@ fn test_all_rq_files_parse_without_error() {
             let store = oxigraph::store::Store::new().unwrap();
             if let Err(e) = store.query(&content) {
                 let path_str = entry.path().display().to_string();
-                // Check if this is a critical query (used in ggen.toml pipeline)
+                // Check if this is a critical query (used in mcpp.toml pipeline)
                 let is_critical = CRITICAL_RQ_FILES.iter().any(|f| path_str.ends_with(f));
 
                 if is_critical {
@@ -177,7 +177,7 @@ fn test_all_rq_files_parse_without_error() {
 
     assert!(
         count > 0,
-        "Should find .rq files in crates/ggen-core/queries/ or specify/queries/"
+        "Should find .rq files in crates/mcpp-core/queries/ or specify/queries/"
     );
 
     // Non-critical errors are reported but don't fail the test
@@ -200,7 +200,7 @@ fn test_all_rq_files_parse_without_error() {
 // 3. Turtle ontology syntax validation
 // ---------------------------------------------------------------------------
 
-/// MCP/A2A Turtle files that MUST parse (loaded by ggen.toml pipeline).
+/// MCP/A2A Turtle files that MUST parse (loaded by mcpp.toml pipeline).
 const CRITICAL_TTL_FILES: &[&str] = &[
     "specify/mcp-a2a-protocol.ttl",
     "specify/mcp-a2a-protocol-example.ttl",

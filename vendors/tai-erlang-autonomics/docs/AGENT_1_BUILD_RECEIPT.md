@@ -30,7 +30,7 @@ tai-erlang-autonomics/
 
 ### Rebar Configuration Analysis
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/rebar.config`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/rebar.config`
 
 #### Compiler Options
 ```erlang
@@ -68,7 +68,7 @@ tai-erlang-autonomics/
 
 ### 1. tai_autonomics (Production SKU)
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_autonomics.app.src`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/tai_autonomics.app.src`
 
 ```erlang
 {application, tai_autonomics,
@@ -104,7 +104,7 @@ tai-erlang-autonomics/
 
 ### 2. taiea_core (Bootstrap Application)
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/taiea_core/src/taiea_core.app.src`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/taiea_core/src/taiea_core.app.src`
 
 ```erlang
 {application, taiea_core,
@@ -148,7 +148,7 @@ tai-erlang-autonomics/
 
 ### Command Executed
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 clean
 rebar3 compile
 ```

@@ -21,11 +21,11 @@
 //! ### Generating a Next.js Project
 //!
 //! ```text
-//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
-//! use ggen_core::project_generator::nextjs::NextJsGenerator;
+//! use mcpp_core::project_generator::{ProjectConfig, ProjectType};
+//! use mcpp_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-app".to_string(),
 //!     project_type: ProjectType::NextJs,
@@ -42,11 +42,11 @@
 //! ### Generating a Nuxt Project
 //!
 //! ```text
-//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
-//! use ggen_core::project_generator::nextjs::NextJsGenerator;
+//! use mcpp_core::project_generator::{ProjectConfig, ProjectType};
+//! use mcpp_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-nuxt-app".to_string(),
 //!     project_type: ProjectType::Nuxt,
@@ -61,7 +61,7 @@
 //! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 pub struct NextJsGenerator;
 
@@ -277,7 +277,7 @@ next-env.d.ts
         format!(
             r#"# {}
 
-A {} project created with ggen.
+A {} project created with mcpp.
 
 ## Getting Started
 

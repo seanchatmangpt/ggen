@@ -1,6 +1,6 @@
 use crate::codegen::{SyncExecutor, SyncOptions};
 use crate::manifest::ManifestParser;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;

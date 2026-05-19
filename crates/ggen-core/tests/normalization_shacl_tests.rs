@@ -8,9 +8,9 @@
 //! - Generate normalize receipt
 //! - SHACL violation tests
 
-use ggen_core::graph::Graph;
-use ggen_core::v6::pass::{Pass, PassContext};
-use ggen_core::v6::passes::{NormalizationPass, NormalizationRule};
+use mcpp_core::graph::Graph;
+use mcpp_core::v6::pass::{Pass, PassContext};
+use mcpp_core::v6::passes::{NormalizationPass, NormalizationRule};
 use std::path::PathBuf;
 use tempfile::TempDir;
 

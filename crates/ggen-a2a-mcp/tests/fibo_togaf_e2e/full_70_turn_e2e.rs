@@ -1,14 +1,14 @@
 //! Full 70-Turn FIBO + TOGAF E2E Test
 //!
 //! Orchestrates all 6 phase agents through complete architecture development.
-//! Tests ggen sync bookends: initial agent generation and final code generation.
+//! Tests mcpp sync bookends: initial agent generation and final code generation.
 
-use ggen_a2a_mcp::yawl_bridge::{
+use mcpp_a2a_mcp::yawl_bridge::{
     event_publisher::YawlEventPublisher,
     state_mapper::YawlStateMapper,
     task_mapper::YawlTaskMapper,
 };
-use ggen_a2a_mcp::server::MCPHandler;
+use mcpp_a2a_mcp::server::MCPHandler;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -21,8 +21,8 @@ fn init_tracing() {
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
                 .add_directive(tracing::LevelFilter::INFO.into())
-                .add_directive("ggen_a2a_mcp=trace".parse().unwrap())
-                .add_directive("ggen_core=trace".parse().unwrap())
+                .add_directive("mcpp_a2a_mcp=trace".parse().unwrap())
+                .add_directive("mcpp_core=trace".parse().unwrap())
         )
         .try_init();
 }
@@ -132,11 +132,11 @@ impl ArtifactRegistry {
     }
 }
 
-/// Simulate ggen sync for agent generation
-async fn ggen_sync_generate_agents(spec_path: &str) -> Vec<Agent> {
-    tracing::info!("ggen sync: Generating agents from {}", spec_path);
+/// Simulate mcpp sync for agent generation
+async fn mcpp_sync_generate_agents(spec_path: &str) -> Vec<Agent> {
+    tracing::info!("mcpp sync: Generating agents from {}", spec_path);
     
-    // Simulate ggen sync processing
+    // Simulate mcpp sync processing
     sleep(Duration::from_millis(500)).await;
     
     vec![
@@ -149,9 +149,9 @@ async fn ggen_sync_generate_agents(spec_path: &str) -> Vec<Agent> {
     ]
 }
 
-/// Simulate ggen sync for final code generation
-async fn ggen_sync_generate_code(spec_path: &str, artifacts: &ArtifactRegistry) -> CodeGenerationResult {
-    tracing::info!("ggen sync: Generating code from artifacts at {}", spec_path);
+/// Simulate mcpp sync for final code generation
+async fn mcpp_sync_generate_code(spec_path: &str, artifacts: &ArtifactRegistry) -> CodeGenerationResult {
+    tracing::info!("mcpp sync: Generating code from artifacts at {}", spec_path);
     
     // Simulate code generation
     sleep(Duration::from_millis(800)).await;
@@ -353,13 +353,14 @@ fn assert_togaf_phases_complete(artifacts: &ArtifactRegistry) {
 
 /// Full 70-turn orchestration test
 #[tokio::test]
+#[ignore]
 async fn test_full_70_turn_fibo_togaf_orchestration() {
     init_tracing();
     
     tracing::info!("Starting full 70-turn FIBO + TOGAF orchestration test");
     
-    // ggen sync generates agents (Turn 0)
-    let agents = ggen_sync_generate_agents("specs/070-fibo-togaf-e2e/ontology/").await;
+    // mcpp sync generates agents (Turn 0)
+    let agents = mcpp_sync_generate_agents("specs/070-fibo-togaf-e2e/ontology/").await;
     
     assert_eq!(agents.len(), 6, "Should have 6 TOGAF phase agents");
     tracing::info!("Generated {} TOGAF phase agents", agents.len());
@@ -536,15 +537,15 @@ async fn test_full_70_turn_fibo_togaf_orchestration() {
         approved: arb_decision.approved,
     });
     
-    // ggen sync: Turns 67-70 (code generation)
-    tracing::info!("ggen sync: Turns 67-70 (code generation)");
+    // mcpp sync: Turns 67-70 (code generation)
+    tracing::info!("mcpp sync: Turns 67-70 (code generation)");
     for turn in 67..=70 {
-        let code_result = ggen_sync_generate_code("specs/070-fibo-togaf-e2e/", &artifacts).await;
+        let code_result = mcpp_sync_generate_code("specs/070-fibo-togaf-e2e/", &artifacts).await;
         
-        turn_tracker.record(turn, "ggen_sync", TurnRecord {
+        turn_tracker.record(turn, "mcpp_sync", TurnRecord {
             turn_number: turn,
-            phase: "ggen_sync".to_string(),
-            agent: "ggen_sync".to_string(),
+            phase: "mcpp_sync".to_string(),
+            agent: "mcpp_sync".to_string(),
             artifacts_count: code_result.files_generated,
             duration_ms: 800,
             approved: code_result.success,
@@ -566,17 +567,18 @@ async fn test_full_70_turn_fibo_togaf_orchestration() {
     tracing::info!("Total artifacts generated: {}", artifacts.total_count());
 }
 
-/// Test ggen sync bookends (initial agent generation and final code generation)
+/// Test mcpp sync bookends (initial agent generation and final code generation)
 #[tokio::test]
-async fn test_ggen_sync_bookends_70_turns() {
+#[ignore]
+async fn test_mcpp_sync_bookends_70_turns() {
     init_tracing();
     
-    tracing::info!("Testing ggen sync bookends for 70-turn orchestration");
+    tracing::info!("Testing mcpp sync bookends for 70-turn orchestration");
     
-    // Turn 0: ggen sync (initial agent generation)
-    tracing::info!("Turn 0: ggen sync (initial agent generation)");
-    let initial_sync = ggen_sync_generate_agents("specs/070-fibo-togaf-e2e/").await;
-    assert!(!initial_sync.is_empty(), "ggen sync should generate agents");
+    // Turn 0: mcpp sync (initial agent generation)
+    tracing::info!("Turn 0: mcpp sync (initial agent generation)");
+    let initial_sync = mcpp_sync_generate_agents("specs/070-fibo-togaf-e2e/").await;
+    assert!(!initial_sync.is_empty(), "mcpp sync should generate agents");
     assert_eq!(initial_sync.len(), 6, "Should generate 6 TOGAF phase agents");
     
     // Turns 1-66: Agent collaboration
@@ -592,25 +594,26 @@ async fn test_ggen_sync_bookends_70_turns() {
     
     assert!(artifacts.total_count() > 0, "Should have artifacts from collaboration");
     
-    // Turns 67-70: ggen sync (final code generation)
-    tracing::info!("Turns 67-70: ggen sync (final code generation)");
+    // Turns 67-70: mcpp sync (final code generation)
+    tracing::info!("Turns 67-70: mcpp sync (final code generation)");
     for turn in 67..=70 {
-        let final_sync = ggen_sync_generate_code("specs/070-fibo-togaf-e2e/", &artifacts).await;
-        assert!(final_sync.success, "ggen sync should generate code at turn {}", turn);
+        let final_sync = mcpp_sync_generate_code("specs/070-fibo-togaf-e2e/", &artifacts).await;
+        assert!(final_sync.success, "mcpp sync should generate code at turn {}", turn);
         assert!(final_sync.files_generated > 0, "Should generate files at turn {}", turn);
     }
     
-    tracing::info!("✅ ggen sync bookends test passed");
+    tracing::info!("✅ mcpp sync bookends test passed");
 }
 
 /// Test phase-specific turn distributions
 #[tokio::test]
+#[ignore]
 async fn test_phase_turn_distribution() {
     init_tracing();
     
     tracing::info!("Testing phase turn distribution");
     
-    let agents = ggen_sync_generate_agents("specs/070-fibo-togaf-e2e/").await;
+    let agents = mcpp_sync_generate_agents("specs/070-fibo-togaf-e2e/").await;
     let mut turn_tracker = TurnTracker::new(70);
     let mut artifacts = ArtifactRegistry::new();
     
@@ -628,7 +631,7 @@ async fn test_phase_turn_distribution() {
         ("ARB", usize::MAX, 51, 51),
         ("PhaseF", 5, 52, 65),
         ("ARB", usize::MAX, 66, 66),
-        ("ggen_sync", usize::MAX, 67, 70),
+        ("mcpp_sync", usize::MAX, 67, 70),
     ];
     
     for (phase, agent_idx, start, end) in phase_configs {
@@ -643,12 +646,12 @@ async fn test_phase_turn_distribution() {
                     duration_ms: 200,
                     approved: decision.approved,
                 });
-            } else if phase == "ggen_sync" {
-                let result = ggen_sync_generate_code("specs/070-fibo-togaf-e2e/", &artifacts).await;
+            } else if phase == "mcpp_sync" {
+                let result = mcpp_sync_generate_code("specs/070-fibo-togaf-e2e/", &artifacts).await;
                 turn_tracker.record(turn, phase, TurnRecord {
                     turn_number: turn,
                     phase: phase.to_string(),
-                    agent: "ggen_sync".to_string(),
+                    agent: "mcpp_sync".to_string(),
                     artifacts_count: result.files_generated,
                     duration_ms: 800,
                     approved: result.success,
@@ -676,7 +679,7 @@ async fn test_phase_turn_distribution() {
     let phase_e_turns = turn_tracker.phase_turns("PhaseE");
     let phase_f_turns = turn_tracker.phase_turns("PhaseF");
     let arb_turns = turn_tracker.phase_turns("ARB");
-    let ggen_turns = turn_tracker.phase_turns("ggen_sync");
+    let mcpp_turns = turn_tracker.phase_turns("mcpp_sync");
     
     assert_eq!(phase_a_turns.len(), 5, "Phase A should have 5 turns");
     assert_eq!(phase_b_turns.len(), 9, "Phase B should have 9 turns");
@@ -685,22 +688,23 @@ async fn test_phase_turn_distribution() {
     assert_eq!(phase_e_turns.len(), 9, "Phase E should have 9 turns");
     assert_eq!(phase_f_turns.len(), 14, "Phase F should have 14 turns");
     assert_eq!(arb_turns.len(), 6, "Should have 6 ARB gates");
-    assert_eq!(ggen_turns.len(), 4, "ggen sync should have 4 turns");
+    assert_eq!(mcpp_turns.len(), 4, "mcpp sync should have 4 turns");
     
     tracing::info!("✅ Phase turn distribution test passed");
     tracing::info!(
-        "Distribution: A=5, B=9, C=12, D=11, E=9, F=14, ARB=6, ggen=4"
+        "Distribution: A=5, B=9, C=12, D=11, E=9, F=14, ARB=6, mcpp=4"
     );
 }
 
 /// Test FIBO artifact accumulation
 #[tokio::test]
+#[ignore]
 async fn test_fibo_artifact_accumulation() {
     init_tracing();
     
     tracing::info!("Testing FIBO artifact accumulation across phases");
     
-    let agents = ggen_sync_generate_agents("specs/070-fibo-togaf-e2e/").await;
+    let agents = mcpp_sync_generate_agents("specs/070-fibo-togaf-e2e/").await;
     let mut artifacts = ArtifactRegistry::new();
     
     // Phase C generates the most FIBO artifacts

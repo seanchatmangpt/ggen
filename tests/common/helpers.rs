@@ -2,6 +2,9 @@
 //!
 //! Provides utility functions for test setup, assertions, and common operations.
 
+// Allow dead code - these are utility functions available for use in tests
+#![allow(dead_code)]
+
 use std::fs;
 use std::path::Path;
 use tempfile::TempDir;

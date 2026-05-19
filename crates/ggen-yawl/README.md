@@ -1,6 +1,6 @@
-# ggen-yawl: YAWL Workflow Generation from Industry Ontologies
+# mcpp-yawl: YAWL Workflow Generation from Industry Ontologies
 
-`ggen-yawl` is a Rust crate that generates YAWL (Yet Another Workflow Language) workflow specifications from industry ontologies (FIBO, HL7, ISO standards) using SPARQL CONSTRUCT queries and the ggen five-stage pipeline.
+`mcpp-yawl` is a Rust crate that generates YAWL (Yet Another Workflow Language) workflow specifications from industry ontologies (FIBO, HL7, ISO standards) using SPARQL CONSTRUCT queries and the mcpp five-stage pipeline.
 
 ## Overview
 
@@ -55,7 +55,7 @@ The crate implements the transformation equation `A = μ(O)` where code precipit
 - **6 Transformation Patterns**: Complete mapping from ontology constructs to YAWL workflow patterns
 - **FIBO Integration**: Specialized support for Financial Industry Business Ontology
 - **Template Rendering**: Tera-based code generation with custom filters
-- **CLI Integration**: Full-featured CLI commands via `ggen yawl`
+- **CLI Integration**: Full-featured CLI commands via `mcpp yawl`
 - **Validation**: XML and YAWL schema validation
 - **SLO Compliance**: Performance targets enforced (RDF processing <5s/1k triples)
 
@@ -65,7 +65,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ggen-yawl = "0.1.0"
+mcpp-yawl = "0.1.0"
 ```
 
 ## Quick Start
@@ -73,7 +73,7 @@ ggen-yawl = "0.1.0"
 ### Basic Usage
 
 ```rust
-use ggen_yawl::{YawlGenerator, OntologyLoader};
+use mcpp_yawl::{YawlGenerator, OntologyLoader};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load industry ontology
@@ -97,16 +97,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```bash
 # Generate YAWL workflow from ontology
-ggen yawl generate --ontology schema/domain.ttl --output-dir .ggen/yawl/
+mcpp yawl generate --ontology schema/domain.ttl --output-dir .mcpp/yawl/
 
 # Validate generated workflow
-ggen yawl validate --file .ggen/yawl/workflow.yawl.xml
+mcpp yawl validate --file .mcpp/yawl/workflow.yawl.xml
 
 # Deploy to gen_yawl engine
-ggen yawl deploy --workflow .ggen/yawl/workflow.yawl.xml --target vendors/gen_yawl/
+mcpp yawl deploy --workflow .mcpp/yawl/workflow.yawl.xml --target vendors/gen_yawl/
 
 # Watch mode for development
-ggen yawl watch --ontology schema/domain.ttl
+mcpp yawl watch --ontology schema/domain.ttl
 ```
 
 ## FIBO to YAWL Transformation
@@ -234,7 +234,7 @@ The crate supports all 20 YAWL workflow patterns:
 Main workflow generator orchestrating the full pipeline.
 
 ```rust
-use ggen_yawl::YawlGenerator;
+use mcpp_yawl::YawlGenerator;
 
 let generator = YawlGenerator::new()
     .with_validation(true);
@@ -253,8 +253,8 @@ let yawl_xml = generator.generate(ontology_content)?;
 Loader for industry ontologies with format auto-detection.
 
 ```rust
-use ggen_yawl::OntologyLoader;
-use ggen_yawl::OntologyFormat;
+use mcpp_yawl::OntologyLoader;
+use mcpp_yawl::OntologyFormat;
 
 let loader = OntologyLoader::new()
     .with_base_iri("http://example.org/".to_string())
@@ -279,7 +279,7 @@ let graph = loader.load_from_str(turtle_content, OntologyFormat::Turtle)?;
 Executes SPARQL CONSTRUCT queries in dependency order.
 
 ```rust
-use ggen_yawl::ConstructExecutor;
+use mcpp_yawl::ConstructExecutor;
 
 let executor = ConstructExecutor::new();
 
@@ -302,8 +302,8 @@ let result = executor.execute_query(&graph, &query)?;
 Renders YAWL XML and Erlang from template context.
 
 ```rust
-use ggen_yawl::TemplateRenderer;
-use ggen_yawl::template::TemplateContext;
+use mcpp_yawl::TemplateRenderer;
+use mcpp_yawl::template::TemplateContext;
 
 let renderer = TemplateRenderer::new();
 
@@ -330,7 +330,7 @@ let erlang = renderer.render_erlang_module(&context)?;
 Context structure for template rendering.
 
 ```rust
-use ggen_yawl::template::{TemplateContext, TaskContext, FlowContext};
+use mcpp_yawl::template::{TemplateContext, TaskContext, FlowContext};
 
 let context = TemplateContext {
     workflow_name: "LoanApproval".to_string(),
@@ -376,7 +376,7 @@ let context = TemplateContext {
 All operations return `Result<T, Error>`:
 
 ```rust
-use ggen_yawl::Error;
+use mcpp_yawl::Error;
 
 match result {
     Ok(xml) => println!("Generated: {}", xml),
@@ -390,17 +390,17 @@ match result {
 
 ## CLI Reference
 
-### ggen yawl generate
+### mcpp yawl generate
 
 Generate YAWL workflows from an ontology.
 
 ```
 USAGE:
-    ggen yawl generate [OPTIONS]
+    mcpp yawl generate [OPTIONS]
 
 OPTIONS:
     --ontology <PATH>        Ontology file path (default: schema/domain.ttl)
-    --output-dir <PATH>      Output directory (default: .ggen/yawl/)
+    --output-dir <PATH>      Output directory (default: .mcpp/yawl/)
     --format <FORMAT>        Output format: xml, erlang (default: xml)
     --verbose                Show detailed generation progress
     --validate               Validate output after generation
@@ -413,16 +413,16 @@ OPTIONS:
 - `1` - Ontology load error
 - `3` - Generation error
 
-### ggen yawl validate
+### mcpp yawl validate
 
 Validate YAWL XML workflow specifications.
 
 ```
 USAGE:
-    ggen yawl validate [OPTIONS]
+    mcpp yawl validate [OPTIONS]
 
 OPTIONS:
-    --file <PATH>            YAWL file to validate (default: .ggen/yawl/*.yawl.xml)
+    --file <PATH>            YAWL file to validate (default: .mcpp/yawl/*.yawl.xml)
     --strict                 Enable strict validation mode
     --verbose                Show detailed validation output
 ```
@@ -431,16 +431,16 @@ OPTIONS:
 - `0` - Valid
 - `2` - Validation error
 
-### ggen yawl deploy
+### mcpp yawl deploy
 
 Deploy YAWL workflows to the gen_yawl Erlang engine.
 
 ```
 USAGE:
-    ggen yawl deploy [OPTIONS]
+    mcpp yawl deploy [OPTIONS]
 
 OPTIONS:
-    --workflow <PATH>        Workflow file to deploy (default: .ggen/yawl/*.yawl.xml)
+    --workflow <PATH>        Workflow file to deploy (default: .mcpp/yawl/*.yawl.xml)
     --target <PATH>          gen_yawl installation path (default: vendors/gen_yawl/)
     --restart                Restart gen_yawl service after deployment
     --compile                Compile Erlang modules after deployment
@@ -451,17 +451,17 @@ OPTIONS:
 - `0` - Deployed
 - `4` - Deployment error
 
-### ggen yawl watch
+### mcpp yawl watch
 
 Watch ontology files for changes and auto-regenerate.
 
 ```
 USAGE:
-    ggen yawl watch [OPTIONS]
+    mcpp yawl watch [OPTIONS]
 
 OPTIONS:
     --ontology <PATH>        Ontology file to watch (default: schema/domain.ttl)
-    --output-dir <PATH>      Output directory (default: .ggen/yawl/)
+    --output-dir <PATH>      Output directory (default: .mcpp/yawl/)
     --debounce <MS>          Debounce delay in milliseconds (default: 500)
     --verbose                Show detailed regeneration output
 ```
@@ -475,7 +475,7 @@ OPTIONS:
 ### Example 1: Simple FIBO Loan Approval
 
 ```rust
-use ggen_yawl::{YawlGenerator, OntologyLoader};
+use mcpp_yawl::{YawlGenerator, OntologyLoader};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load FIBO loan ontology
@@ -498,7 +498,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     "#;
 
     let loader = OntologyLoader::new();
-    let graph = loader.load_from_str(ontology, ggen_yawl::OntologyFormat::Turtle)?;
+    let graph = loader.load_from_str(ontology, mcpp_yawl::OntologyFormat::Turtle)?;
 
     let generator = YawlGenerator::new();
     let yawl_xml = generator.generate_from_graph(&graph)?;
@@ -511,8 +511,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Example 2: Custom CONSTRUCT Query
 
 ```rust
-use ggen_yawl::transform::{Query, ConstructExecutor};
-use ggen_core::Graph;
+use mcpp_yawl::transform::{Query, ConstructExecutor};
+use mcpp_core::Graph;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let graph = Graph::new()?;
@@ -549,11 +549,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Example 3: Custom Template Rendering
 
 ```rust
-use ggen_yawl::template::{TemplateContext, ContextBuilder};
-use ggen_yawl::TemplateRenderer;
+use mcpp_yawl::template::{TemplateContext, ContextBuilder};
+use mcpp_yawl::TemplateRenderer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let graph = ggen_core::Graph::new()?;
+    let graph = mcpp_core::Graph::new()?;
 
     // Build context from graph
     let context = ContextBuilder::new(&graph)
@@ -594,16 +594,16 @@ Run the test suite:
 
 ```bash
 # Unit tests
-cargo test -p ggen-yawl
+cargo test -p mcpp-yawl
 
 # Integration tests
-cargo test -p ggen-yawl --test '*'
+cargo test -p mcpp-yawl --test '*'
 
 # With output
-cargo test -p ggen-yawl -- --nocapture
+cargo test -p mcpp-yawl -- --nocapture
 
 # Specific test
-cargo test -p ggen-yawl test_extract_tasks
+cargo test -p mcpp-yawl test_extract_tasks
 ```
 
 ## License
@@ -622,7 +622,7 @@ Contributions are welcome! Please ensure:
 
 ## See Also
 
-- [ggen-core](../ggen-core/README.md) - Core RDF and SPARQL functionality
-- [ggen-cli](../ggen-cli/README.md) - CLI tool with YAWL commands
+- [mcpp-core](../mcpp-core/README.md) - Core RDF and SPARQL functionality
+- [mcpp-cli](../mcpp-cli/README.md) - CLI tool with YAWL commands
 - [YAWL Specification](https://www.yawlfoundation.org/)
 - [FIBO Ontology](https://spec.edmcouncil.org/fibo/)

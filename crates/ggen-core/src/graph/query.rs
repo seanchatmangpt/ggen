@@ -3,7 +3,7 @@
 //! Provides advanced SPARQL query building and execution capabilities.
 
 use crate::graph::core::Graph;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use oxigraph::sparql::{QueryResults, SparqlEvaluator};
 use std::collections::BTreeMap;
 
@@ -17,7 +17,7 @@ use std::collections::BTreeMap;
 /// ## Query with prefixes
 ///
 /// ```text
-/// use ggen_core::graph::{Graph, GraphQuery};
+/// use mcpp_core::graph::{Graph, GraphQuery};
 ///
 /// let graph = Graph::new()?;
 /// let query = GraphQuery::new(&graph);
@@ -83,7 +83,7 @@ impl<'a> GraphQuery<'a> {
     /// # Example
     ///
     /// ```text
-    /// use ggen_core::graph::{Graph, GraphQuery};
+    /// use mcpp_core::graph::{Graph, GraphQuery};
     ///
     /// let graph = Graph::new()?;
     /// let query = GraphQuery::new(&graph);

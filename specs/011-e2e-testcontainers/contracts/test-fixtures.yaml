@@ -3,7 +3,7 @@
 # Version: 1.0.0
 
 # This schema defines the structure for E2E test fixtures.
-# Each fixture represents a ggen project with expected outputs.
+# Each fixture represents a mcpp project with expected outputs.
 
 ---
 # Root schema for a test fixture
@@ -15,7 +15,7 @@ fixture:
 
   # Project structure
   project:
-    ggen_toml: path      # Path to ggen.toml manifest
+    mcpp_toml: path      # Path to mcpp.toml manifest
     ontology:
       - path             # List of TTL/RDF ontology files
     templates:
@@ -52,9 +52,9 @@ fixture:
 fixtures:
   - name: minimal
     version: "1.0.0"
-    description: "Minimal ggen project for quick smoke tests"
+    description: "Minimal mcpp project for quick smoke tests"
     project:
-      ggen_toml: "fixtures/minimal/ggen.toml"
+      mcpp_toml: "fixtures/minimal/mcpp.toml"
       ontology:
         - "fixtures/minimal/ontology/schema.ttl"
       templates:
@@ -83,7 +83,7 @@ fixtures:
     version: "1.0.0"
     description: "PhD thesis generation example - comprehensive E2E test"
     project:
-      ggen_toml: "examples/thesis-gen/ggen.toml"
+      mcpp_toml: "examples/thesis-gen/mcpp.toml"
       ontology:
         - "examples/thesis-gen/ontology/thesis-schema.ttl"
         - "examples/thesis-gen/ontology/thesis-content.ttl"
@@ -158,7 +158,7 @@ containers:
         container: "/project"
         readonly: false
       - host: "${GGEN_BINARY}"
-        container: "/usr/local/bin/ggen"
+        container: "/usr/local/bin/mcpp"
         readonly: true
     startup:
       timeout_seconds: 120
@@ -236,5 +236,5 @@ ci:
     runner: macos-latest
     timeout_minutes: 10
     tap: "seanchatmangpt/homebrew-tap"
-    formula: "ggen"
+    formula: "mcpp"
     smoke_test: true

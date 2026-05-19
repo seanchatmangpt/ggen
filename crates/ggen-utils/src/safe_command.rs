@@ -22,7 +22,7 @@
 //! ## Examples
 //!
 //! ```rust
-//! use ggen_utils::safe_command::{SafeCommand, CommandName, CommandArg};
+//! use mcpp_utils::safe_command::{SafeCommand, CommandName, CommandArg};
 //!
 //! // Valid command
 //! let cmd = SafeCommand::new("cargo")
@@ -69,7 +69,7 @@ const ALLOWED_COMMANDS: &[&str] = &[
     "cmake",
     "sh",   // Only when explicitly needed with validated scripts
     "bash", // Only when explicitly needed with validated scripts
-    "ggen", // Our own CLI
+    "mcpp", // Our own CLI
 ];
 
 /// A validated command name from the whitelist
@@ -93,7 +93,7 @@ impl CommandName {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::CommandName;
+    /// use mcpp_utils::safe_command::CommandName;
     ///
     /// // Valid commands
     /// assert!(CommandName::new("cargo").is_ok());
@@ -187,7 +187,7 @@ impl CommandArg {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::CommandArg;
+    /// use mcpp_utils::safe_command::CommandArg;
     ///
     /// // Valid arguments
     /// assert!(CommandArg::new("build").is_ok());
@@ -224,8 +224,8 @@ impl CommandArg {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::CommandArg;
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_command::CommandArg;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let path = SafePath::new("src/generated").unwrap();
     /// let arg = CommandArg::from_path(&path);
@@ -296,7 +296,7 @@ pub struct Validated;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::safe_command::SafeCommand;
+/// use mcpp_utils::safe_command::SafeCommand;
 ///
 /// // Build and validate command
 /// let cmd = SafeCommand::new("cargo")
@@ -327,7 +327,7 @@ impl SafeCommand<Unvalidated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::SafeCommand;
+    /// use mcpp_utils::safe_command::SafeCommand;
     ///
     /// let cmd = SafeCommand::new("cargo").unwrap();
     /// assert!(SafeCommand::new("rm").is_err());
@@ -346,7 +346,7 @@ impl SafeCommand<Unvalidated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::SafeCommand;
+    /// use mcpp_utils::safe_command::SafeCommand;
     ///
     /// let cmd = SafeCommand::new("cargo")
     ///     .unwrap()
@@ -368,8 +368,8 @@ impl SafeCommand<Unvalidated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::SafeCommand;
-    /// use ggen_utils::safe_path::SafePath;
+    /// use mcpp_utils::safe_command::SafeCommand;
+    /// use mcpp_utils::safe_path::SafePath;
     ///
     /// let path = SafePath::new("src/generated").unwrap();
     /// let cmd = SafeCommand::new("cargo")
@@ -390,7 +390,7 @@ impl SafeCommand<Unvalidated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::SafeCommand;
+    /// use mcpp_utils::safe_command::SafeCommand;
     ///
     /// let cmd = SafeCommand::new("cargo")
     ///     .unwrap()
@@ -416,7 +416,7 @@ impl SafeCommand<Unvalidated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::SafeCommand;
+    /// use mcpp_utils::safe_command::SafeCommand;
     ///
     /// let cmd = SafeCommand::new("cargo")
     ///     .unwrap()
@@ -464,7 +464,7 @@ impl SafeCommand<Validated> {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_utils::safe_command::SafeCommand;
+    /// use mcpp_utils::safe_command::SafeCommand;
     ///
     /// let safe_cmd = SafeCommand::new("cargo")
     ///     .unwrap()

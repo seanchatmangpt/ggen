@@ -1,7 +1,7 @@
 //! Unit tests for search parameters and filtering
 
 use chicago_tdd_tools::prelude::*;
-use ggen_core::registry::SearchParams;
+use mcpp_core::registry::SearchParams;
 
 test!(test_search_params_creation, {
     // Arrange

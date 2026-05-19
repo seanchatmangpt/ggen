@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The ggen codebase uses **both Chicago and London TDD styles deliberately**, with clean separation:
+The mcpp codebase uses **both Chicago and London TDD styles deliberately**, with clean separation:
 
 | Metric | Count | Percentage |
 |--------|-------|------------|
@@ -42,7 +42,7 @@ This is **not accidental drift** - it's architectural intent.
 - `tests/chicago_tdd/marketplace/` - Real registry JSON files
 - `tests/chicago_tdd/expert_patterns/` - Real Graph operations
 - `tests/chicago_tdd/ontology_driven_e2e.rs` - Full E2E code generation
-- `crates/ggen-domain/tests/fixtures/` - 14 real fixture files
+- `crates/mcpp-domain/tests/fixtures/` - 14 real fixture files
 - `marketplace/packages/database-schema-generator/tests/chicago_tdd/` - Real PostgreSQL
 
 ### 3. London TDD is Feature-Gated (37%)
@@ -64,14 +64,14 @@ This is **not accidental drift** - it's architectural intent.
 |----------------|------------|---------------|
 | Hand-rolled mocks | ~400+ tests | `tests/lifecycle_tests/`, custom protocols |
 | `mockall::automock` | ~160+ tests | `tests/london_tdd/`, trait-based mocking |
-| `MockClient` (LLM) | ~55+ tests | `crates/ggen-ai/test_helpers.rs` |
+| `MockClient` (LLM) | ~55+ tests | `crates/mcpp-ai/test_helpers.rs` |
 | In-memory fakes | ~80+ tests | MCP/A2A protocol simulation |
 
 ### 5. Real Fixture Usage (Chicago)
 
 **Real fixture files:**
-- `crates/ggen-domain/tests/fixtures/` - 14 TOML + TTL files
-- `crates/ggen-ai/tests/fixtures/` - 13 RDF/TTL ontologies
+- `crates/mcpp-domain/tests/fixtures/` - 14 TOML + TTL files
+- `crates/mcpp-ai/tests/fixtures/` - 13 RDF/TTL ontologies
 - `tests/fixtures/` - Real configs, ontologies, SHACL shapes
 - `tests/yawl_workflow_generation/golden/` - Reference YAWL XML files
 
@@ -81,7 +81,7 @@ This is **not accidental drift** - it's architectural intent.
 
 **Issue:** `cfg!(test)` in `is_test_mode()` forces ALL `cargo test` runs to use **MockClient**, preventing real API calls even when `GROQ_API_KEY` is present.
 
-**Location:** `crates/ggen-ai/src/config/global.rs` (line 320)
+**Location:** `crates/mcpp-ai/src/config/global.rs` (line 320)
 
 **Impact:** Tests claim "real API integration" but actually use mocks. OTEL spans don't prove real calls.
 
@@ -109,9 +109,9 @@ This is **not accidental drift** - it's architectural intent.
 | `tests/mcp_a2a/mock_mcp_server.rs` | In-memory MCP server | Comments: "Following Chicago TDD patterns, state-based testing" |
 | `tests/unit/packs/pack_installer_test.rs` | Real function calls | `install_pack(&input).await; assert_eq!(output.pack_id)` |
 | `tests/a2a_integration_tests.rs` | In-memory A2A server | State verification on `simulate_agent_response` |
-| `crates/ggen-testing/tests/chicago_style_test.rs` | Framework demo | Comments: "Chicago TDD uses real collaborators, not mocks" |
-| `crates/ggen-domain/tests/fixtures/` | Real fixture files | 14 TOML/TTL files loaded via `fixture_path()` |
-| `crates/ggen-ai/tests/fixtures/` | Real RDF fixtures | 13 TTL ontology files (domain + shapes) |
+| `crates/mcpp-testing/tests/chicago_style_test.rs` | Framework demo | Comments: "Chicago TDD uses real collaborators, not mocks" |
+| `crates/mcpp-domain/tests/fixtures/` | Real fixture files | 14 TOML/TTL files loaded via `fixture_path()` |
+| `crates/mcpp-ai/tests/fixtures/` | Real RDF fixtures | 13 TTL ontology files (domain + shapes) |
 | `marketplace/database-schema-generator/tests/` | Real PostgreSQL | testcontainers with real DDL, real SQL |
 | `marketplace/microservices-architecture/tests/` | Real Docker stack | Postgres, MongoDB, RabbitMQ, Jaeger |
 
@@ -127,7 +127,7 @@ This is **not accidental drift** - it's architectural intent.
 | `tests/london_tdd/otel_validation/trace_validator.rs` | MockTracerProvider | Custom mock tracer, assertions on recorded spans |
 | `tests/lifecycle_tests/unit_tests.rs` | Hand-rolled mocks | `MockCommandExecutor`, `MockStateRepository`, etc. |
 | `tests/london_tdd/lib.rs` | Mock infrastructure | 5 `#[automock]` traits via mockall |
-| `crates/ggen-cli/tests/conventions/fixtures.rs` | MockFileSystem etc. | `mockall::mock!` for FileSystem, RdfLoader, etc. |
+| `crates/mcpp-cli/tests/conventions/fixtures.rs` | MockFileSystem etc. | `mockall::mock!` for FileSystem, RdfLoader, etc. |
 
 ---
 
@@ -202,7 +202,7 @@ mock_llm.expect_generate().returning(Ok("generated code".to_string()));
 ### High Priority
 
 1. ✅ **FIXED:** Remove `cfg!(test)` from `is_test_mode()` - allows real API calls in tests
-2. **Delete trivial smoke tests:** `crates/ggen-cli/tests/chicago_tdd_smoke_test.rs` (114 lines, zero value)
+2. **Delete trivial smoke tests:** `crates/mcpp-cli/tests/chicago_tdd_smoke_test.rs` (114 lines, zero value)
 3. **Add property-based tests:** Only 3% coverage, parsers need invariant verification
 4. **Fix 87 ignored tests:** Technical debt indicator
 
@@ -222,18 +222,18 @@ mock_llm.expect_generate().returning(Ok("generated code".to_string()));
 
 ## Files Modified (Real Groq Fix)
 
-1. `crates/ggen-ai/src/config/global.rs` - Removed `cfg!(test)` from `is_test_mode()`
-2. `crates/ggen-a2a-mcp/tests/llm_mcp_a2a_chain.rs` - Removed feature gate, added assertions
-3. `crates/ggen-a2a-mcp/tests/groq_slo_timing.rs` - Removed feature gate
-4. `crates/ggen-a2a-mcp/tests/a2a_groq_integration.rs` - Removed feature gate
-5. `crates/ggen-a2a-mcp/tests/a2a_self_play.rs` - Removed feature gate
-6. `semconv/live-check/run-ggen-live-check.sh` - Removed `--features live-groq`
+1. `crates/mcpp-ai/src/config/global.rs` - Removed `cfg!(test)` from `is_test_mode()`
+2. `crates/mcpp-a2a-mcp/tests/llm_mcp_a2a_chain.rs` - Removed feature gate, added assertions
+3. `crates/mcpp-a2a-mcp/tests/groq_slo_timing.rs` - Removed feature gate
+4. `crates/mcpp-a2a-mcp/tests/a2a_groq_integration.rs` - Removed feature gate
+5. `crates/mcpp-a2a-mcp/tests/a2a_self_play.rs` - Removed feature gate
+6. `semconv/live-check/run-mcpp-live-check.sh` - Removed `--features live-groq`
 
 ---
 
 ## Conclusion
 
-The ggen codebase **intentionally uses both Chicago and London TDD**:
+The mcpp codebase **intentionally uses both Chicago and London TDD**:
 
 - **Chicago TDD (63%)** is the **default** - tests use real collaborators, verify state changes
 - **London TDD (37%)** is **feature-gated** - tests use mocks, verify interactions, outside-in design
@@ -245,5 +245,5 @@ This dual approach is **architecturally sound** - Chicago for integration confid
 ---
 
 **Documentation:**
-- Full implementation: `/Users/sac/ggen/REAL_GROQ_IMPLEMENTATION_SUMMARY.md`
-- Testing philosophy: `/Users/sac/.claude/projects/-Users-sac-ggen/memory/testing-is-empirical-science.md`
+- Full implementation: `~/.ggen/mcpp/REAL_GROQ_IMPLEMENTATION_SUMMARY.md`
+- Testing philosophy: `~/.ggen/.claude/projects/-Users-sac-mcpp/memory/testing-is-empirical-science.md`

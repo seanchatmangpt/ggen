@@ -1,4 +1,4 @@
-command: "ggen marketplace featured"
+command: "mcpp marketplace featured"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to find curated featured packages,
-  I need to run 'ggen marketplace featured',
+  I need to run 'mcpp marketplace featured',
   so that I can discover recommended community templates.

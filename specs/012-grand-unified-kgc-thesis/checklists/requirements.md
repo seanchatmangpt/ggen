@@ -13,13 +13,13 @@
 - [x] **Edge cases are identified** - 6 edge cases documented (circular refs, incomplete specs, embedding limits, temporal resolution, empty SPARQL results, conflicting definitions)
 - [x] **Functional requirements are exhaustive** - 15 FRs covering LaTeX generation, math notation, cross-references, equations, theorems, bibliography, algorithms, figures, tables, incremental regen, ordering, escaping, appendices, chapters, preamble
 - [x] **Success criteria are measurable** - 10 SCs with specific metrics (100 pages, 20+ equations, 10+ theorems, 30+ references, <10s generation, byte-identical output)
-- [x] **Dependencies are documented** - 6 dependencies listed (ggen v5, @unrdf/hooks, @unrdf/kgc-4d, Oxigraph, Tera, LaTeX)
+- [x] **Dependencies are documented** - 6 dependencies listed (mcpp v5, @unrdf/hooks, @unrdf/kgc-4d, Oxigraph, Tera, LaTeX)
 
 ### 2. Clarity Checks
 
 - [x] **Requirements use unambiguous language** - MUST/SHALL terminology used consistently
 - [x] **Technical terms are defined or referenced** - Key entities section defines all 12 entities with their properties and relationships
-- [x] **Acceptance scenarios are testable** - Each scenario can be verified by running ggen sync and compiling LaTeX
+- [x] **Acceptance scenarios are testable** - Each scenario can be verified by running mcpp sync and compiling LaTeX
 - [x] **Priority levels are consistent** - P1 for core thesis, P2 for theoretical extensions, P3 for case studies and validation
 
 ### 3. Consistency Checks
@@ -31,7 +31,7 @@
 ### 4. Feasibility Checks
 
 - [x] **Technical requirements are achievable** - Builds on proven thesis-gen infrastructure with 1646-line ontology as template
-- [x] **Dependencies are available** - All packages at specified versions (ggen v5, @unrdf/* v5.0.1)
+- [x] **Dependencies are available** - All packages at specified versions (mcpp v5, @unrdf/* v5.0.1)
 - [x] **Success criteria thresholds are realistic** - Metrics based on existing thesis-gen output (100+ pages achievable)
 
 ### 5. Traceability Checks

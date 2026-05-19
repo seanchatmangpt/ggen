@@ -1,11 +1,11 @@
-//! Annotation-aware three-way merge for `ggen sync` regeneration cycles.
+//! Annotation-aware three-way merge for `mcpp sync` regeneration cycles.
 //!
-//! When `ggen sync` regenerates code from ontologies, it must not silently overwrite
+//! When `mcpp sync` regenerates code from ontologies, it must not silently overwrite
 //! hand-written business logic.  This module provides the merge primitive that makes
 //! that safe:
 //!
-//! * `@ggen:generated-start` / `@ggen:generated-end`  — safe to overwrite; "theirs" wins.
-//! * `@ggen:preserve-start` / `@ggen:preserve-end`   — NEVER overwrite; "ours" wins always.
+//! * `@mcpp:generated-start` / `@mcpp:generated-end`  — safe to overwrite; "theirs" wins.
+//! * `@mcpp:preserve-start` / `@mcpp:preserve-end`   — NEVER overwrite; "ours" wins always.
 //! * Unannotated content follows standard diff3 rules (ours if changed, theirs if not,
 //!   conflict markers if both changed).
 //!
@@ -26,23 +26,23 @@
 
 // ─── Annotation marker constants ────────────────────────────────────────────
 
-/// Marks the start of a region that `ggen sync` is allowed to overwrite.
-pub const GENERATED_START: &str = "// @ggen:generated-start";
+/// Marks the start of a region that `mcpp sync` is allowed to overwrite.
+pub const GENERATED_START: &str = "// @mcpp:generated-start";
 /// Marks the end of a generated region.
-pub const GENERATED_END: &str = "// @ggen:generated-end";
+pub const GENERATED_END: &str = "// @mcpp:generated-end";
 /// Marks the start of a hand-written region that must NEVER be overwritten.
-pub const PRESERVE_START: &str = "// @ggen:preserve-start";
+pub const PRESERVE_START: &str = "// @mcpp:preserve-start";
 /// Marks the end of a preserved region.
-pub const PRESERVE_END: &str = "// @ggen:preserve-end";
+pub const PRESERVE_END: &str = "// @mcpp:preserve-end";
 
 // ─── Public types ────────────────────────────────────────────────────────────
 
 /// Classifies one contiguous span within a file.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RegionType {
-    /// `@ggen:generated-start/end` — safe to overwrite on next `ggen sync`.
+    /// `@mcpp:generated-start/end` — safe to overwrite on next `mcpp sync`.
     Generated,
-    /// `@ggen:preserve-start/end` — hand-written, never overwritten.
+    /// `@mcpp:preserve-start/end` — hand-written, never overwritten.
     Custom,
     /// Both the hand-edit and the new generated content changed this span relative to
     /// the common base; human resolution required.
@@ -69,9 +69,9 @@ pub struct MergeResult {
     pub merged_content: String,
     /// Any unresolvable conflicts embedded as git-style markers.
     pub conflicts: Vec<MergeConflict>,
-    /// Number of `@ggen:preserve` regions that were kept intact.
+    /// Number of `@mcpp:preserve` regions that were kept intact.
     pub preserved_regions: usize,
-    /// Number of `@ggen:generated` regions overwritten with new output.
+    /// Number of `@mcpp:generated` regions overwritten with new output.
     pub regenerated_regions: usize,
 }
 
@@ -120,13 +120,13 @@ impl std::error::Error for MergeError {}
 /// Parse a file into annotated regions.
 ///
 /// Each region corresponds to one of:
-/// * An `@ggen:generated-start` … `@ggen:generated-end` block → [`RegionType::Generated`]
-/// * A `@ggen:preserve-start` … `@ggen:preserve-end` block   → [`RegionType::Custom`]
+/// * An `@mcpp:generated-start` … `@mcpp:generated-end` block → [`RegionType::Generated`]
+/// * A `@mcpp:preserve-start` … `@mcpp:preserve-end` block   → [`RegionType::Custom`]
 /// * Anything else (header, plain code) → a single region classified as
 ///   [`RegionType::Generated`] for unannotated content (unannotated content is subject to
 ///   standard diff3 resolution, not hard-coded preservation).
 ///
-/// Nested preserve blocks are not supported; a second `@ggen:preserve-start` inside an
+/// Nested preserve blocks are not supported; a second `@mcpp:preserve-start` inside an
 /// open preserve block is a parse error (Armstrong: fail fast).
 pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
     let lines: Vec<&str> = content.lines().collect();
@@ -198,7 +198,7 @@ pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
             State::InGenerated { start, buf } => {
                 if line.trim_start().starts_with(PRESERVE_START) {
                     return Err(MergeError::ParseError(format!(
-                        "line {}: nested @ggen:preserve-start inside a @ggen:generated block \
+                        "line {}: nested @mcpp:preserve-start inside a @mcpp:generated block \
                          (started at line {}); nested preserve regions are not supported",
                         line_no, start
                     )));
@@ -221,7 +221,7 @@ pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
             State::InPreserve { start, buf } => {
                 if line.trim_start().starts_with(PRESERVE_START) {
                     return Err(MergeError::ParseError(format!(
-                        "line {}: nested @ggen:preserve-start (outer started at line {}); \
+                        "line {}: nested @mcpp:preserve-start (outer started at line {}); \
                          nested preserve regions are not supported",
                         line_no, start
                     )));
@@ -257,13 +257,13 @@ pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
         }
         State::InGenerated { start, .. } => {
             return Err(MergeError::ParseError(format!(
-                "unterminated @ggen:generated-start at line {} — missing @ggen:generated-end",
+                "unterminated @mcpp:generated-start at line {} — missing @mcpp:generated-end",
                 start
             )));
         }
         State::InPreserve { start, .. } => {
             return Err(MergeError::ParseError(format!(
-                "unterminated @ggen:preserve-start at line {} — missing @ggen:preserve-end",
+                "unterminated @mcpp:preserve-start at line {} — missing @mcpp:preserve-end",
                 start
             )));
         }
@@ -286,8 +286,8 @@ pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
 ///
 /// | Region type          | Winner    | Rationale                               |
 /// |----------------------|-----------|-----------------------------------------|
-/// | `@ggen:generated`    | `theirs`  | Scaffold code; regeneration always wins |
-/// | `@ggen:preserve`     | `ours`    | Hand-written; engineer wins always      |
+/// | `@mcpp:generated`    | `theirs`  | Scaffold code; regeneration always wins |
+/// | `@mcpp:preserve`     | `ours`    | Hand-written; engineer wins always      |
 /// | Unannotated, ours==base | `theirs` | No hand-edit; take new generated output |
 /// | Unannotated, base==theirs | `ours` | Generated didn't change; keep hand-edit |
 /// | Unannotated, all differ | **Conflict** | Emit git-style conflict markers   |
@@ -426,13 +426,13 @@ fn merge_region_triple(
     regenerated_regions: &mut usize,
 ) {
     match &theirs.region_type {
-        // @ggen:generated — new generated content always wins.
+        // @mcpp:generated — new generated content always wins.
         RegionType::Generated => {
             merged.push_str(&theirs.content);
             *regenerated_regions += 1;
         }
 
-        // @ggen:preserve — hand-edit always wins; never overwrite.
+        // @mcpp:preserve — hand-edit always wins; never overwrite.
         RegionType::Custom => {
             // Armstrong invariant: panic rather than silently drop preserved content.
             // This branch is the explicit guard — the downstream `apply_generated`
@@ -518,9 +518,9 @@ fn region_label(r: &MergeRegion) -> String {
 // ─── apply_generated ─────────────────────────────────────────────────────────
 
 /// Apply freshly generated content to an existing file, preserving all
-/// `@ggen:preserve-start/end` regions.
+/// `@mcpp:preserve-start/end` regions.
 ///
-/// This is the primary entry point for `ggen sync`.  It treats:
+/// This is the primary entry point for `mcpp sync`.  It treats:
 /// * `existing_file` as "ours" (the on-disk file with hand-written edits)
 /// * `new_generated` as "theirs" (freshly regenerated from the ontology)
 /// * An implicit base formed from `theirs` itself for generated regions (no
@@ -528,7 +528,7 @@ fn region_label(r: &MergeRegion) -> String {
 ///
 /// ## Armstrong Invariant (Panic Guard)
 ///
-/// This function **panics** if it detects that a `@ggen:preserve` region in
+/// This function **panics** if it detects that a `@mcpp:preserve` region in
 /// `existing_file` would be lost.  Panic is intentional: prefer loud failure
 /// over silent data loss.  The supervisor must restart the process.
 pub fn apply_generated(
@@ -1027,7 +1027,7 @@ mod tests {
             result.preserved_regions, 2,
             "two preserve regions must be tracked"
         );
-        // 1 explicit @ggen:generated block + 1 unannotated trailing newline region.
+        // 1 explicit @mcpp:generated block + 1 unannotated trailing newline region.
         assert!(
             result.regenerated_regions >= 1,
             "at least the explicit generated block should be counted"

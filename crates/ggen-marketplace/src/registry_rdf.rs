@@ -22,8 +22,8 @@ use crate::models::{Package, PackageId, PackageVersion};
 use crate::rdf_mapper::RdfMapper;
 use crate::traits::AsyncRepository;
 
-/// RDF namespace for ggen marketplace
-const GGEN_NS: &str = "https://ggen.io/marketplace/";
+/// RDF namespace for mcpp marketplace
+const GGEN_NS: &str = "https://mcpp.io/marketplace/";
 const RDFS_NS: &str = "http://www.w3.org/2000/01/rdf-schema#";
 
 /// High-performance RDF-backed registry

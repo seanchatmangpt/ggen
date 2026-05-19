@@ -1,7 +1,7 @@
 //! Unit tests for error handling paths
 
 use chicago_tdd_tools::prelude::*;
-use ggen_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
 use std::collections::HashMap;
 use tempfile::TempDir;
 use url::Url;

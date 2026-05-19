@@ -1,9 +1,9 @@
 //! RED tests for elixir-a2a template rendering.
 //!
 //! Verifies that the three elixir-a2a templates render valid Elixir from a minimal context.
-//! Run: cargo test elixir_a2a_render -p ggen-core --test elixir_a2a_render_test
+//! Run: cargo test elixir_a2a_render -p mcpp-core --test elixir_a2a_render_test
 
-use ggen_core::register::register_all;
+use mcpp_core::register::register_all;
 use serde_json::json;
 use tera::{Context, Tera};
 

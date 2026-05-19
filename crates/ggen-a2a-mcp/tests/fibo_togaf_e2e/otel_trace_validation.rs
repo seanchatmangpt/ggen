@@ -3,11 +3,11 @@
 //! Validates that every turn produces required OTEL spans.
 //! Tests verify:
 //! - All 70 turns have proper span attributes
-//! - ggen sync operations (initial + final) are traced
+//! - mcpp sync operations (initial + final) are traced
 //! - FIBO concepts are traced in data architecture turns
 //! - TOGAF phases are properly annotated in spans
 
-use ggen_a2a_mcp::{
+use mcpp_a2a_mcp::{
     test_utils::{
         fibo_togaf_e2e::{run_70_turn_scenario, TurnExecution},
         init_tracing,
@@ -58,7 +58,7 @@ async fn test_all_70_turns_have_otel_spans() {
                     "turn.number",
                     "agent.id",
                     "agent.phase",
-                    "ggen.fibo.concepts_used",
+                    "mcpp.fibo.concepts_used",
                 ];
                 
                 let missing: Vec<_> = required.iter()
@@ -98,63 +98,63 @@ async fn test_all_70_turns_have_otel_spans() {
     println!("\n✅ All 70 turns have complete OTEL spans");
 }
 
-/// Test ggen sync operations produce proper spans
+/// Test mcpp sync operations produce proper spans
 #[tokio::test]
-async fn test_ggen_sync_otel_spans() {
+async fn test_mcpp_sync_otel_spans() {
     init_tracing();
     
-    let _guard = span!(Level::INFO, "test_ggen_sync_otel_spans").entered();
+    let _guard = span!(Level::INFO, "test_mcpp_sync_otel_spans").entered();
     
-    // Run scenario which includes ggen sync at start and end
+    // Run scenario which includes mcpp sync at start and end
     let execution = run_70_turn_scenario().await;
     
-    // Validate initial ggen sync span
-    let initial_sync = execution.spans.get("ggen.sync.initial")
-        .expect("Missing initial ggen.sync span");
+    // Validate initial mcpp sync span
+    let initial_sync = execution.spans.get("mcpp.sync.initial")
+        .expect("Missing initial mcpp.sync span");
     
     let required_initial = [
-        "ggen.phase",
-        "ggen.agents_generated",
-        "ggen.fibo_ontologies_loaded",
-        "ggen.sync.duration_ms",
+        "mcpp.phase",
+        "mcpp.agents_generated",
+        "mcpp.fibo_ontologies_loaded",
+        "mcpp.sync.duration_ms",
     ];
     
     for attr in &required_initial {
         assert!(initial_sync.attributes.contains_key(attr),
-            "Initial ggen.sync missing attribute: {}", attr);
+            "Initial mcpp.sync missing attribute: {}", attr);
     }
     
-    assert_eq!(initial_sync.attributes.get("ggen.phase"), Some(&"initial".to_string()),
+    assert_eq!(initial_sync.attributes.get("mcpp.phase"), Some(&"initial".to_string()),
         "Initial sync should have phase=initial");
     
-    // Validate final ggen sync span
-    let final_sync = execution.spans.get("ggen.sync.final")
-        .expect("Missing final ggen.sync span");
+    // Validate final mcpp sync span
+    let final_sync = execution.spans.get("mcpp.sync.final")
+        .expect("Missing final mcpp.sync span");
     
     let required_final = [
-        "ggen.phase",
-        "ggen.code_generated",
-        "ggen.files_written",
-        "ggen.sync.duration_ms",
+        "mcpp.phase",
+        "mcpp.code_generated",
+        "mcpp.files_written",
+        "mcpp.sync.duration_ms",
     ];
     
     for attr in &required_final {
         assert!(final_sync.attributes.contains_key(attr),
-            "Final ggen.sync missing attribute: {}", attr);
+            "Final mcpp.sync missing attribute: {}", attr);
     }
     
-    assert_eq!(final_sync.attributes.get("ggen.phase"), Some(&"final".to_string()),
+    assert_eq!(final_sync.attributes.get("mcpp.phase"), Some(&"final".to_string()),
         "Final sync should have phase=final");
     
-    println!("\n=== ggen sync OTEL Span Validation ===");
+    println!("\n=== mcpp sync OTEL Span Validation ===");
     println!("✅ Initial sync span present");
-    println!("  Phase: {}", initial_sync.attributes.get("ggen.phase").unwrap());
-    println!("  Duration: {}ms", initial_sync.attributes.get("ggen.sync.duration_ms").unwrap());
+    println!("  Phase: {}", initial_sync.attributes.get("mcpp.phase").unwrap());
+    println!("  Duration: {}ms", initial_sync.attributes.get("mcpp.sync.duration_ms").unwrap());
     
     println!("\n✅ Final sync span present");
-    println!("  Phase: {}", final_sync.attributes.get("ggen.phase").unwrap());
-    println!("  Duration: {}ms", final_sync.attributes.get("ggen.sync.duration_ms").unwrap());
-    println!("  Files written: {}", final_sync.attributes.get("ggen.files_written").unwrap());
+    println!("  Phase: {}", final_sync.attributes.get("mcpp.phase").unwrap());
+    println!("  Duration: {}ms", final_sync.attributes.get("mcpp.sync.duration_ms").unwrap());
+    println!("  Files written: {}", final_sync.attributes.get("mcpp.files_written").unwrap());
 }
 
 /// Test that FIBO concepts are traced in data architecture turns (Phase C: turns 17-28)

@@ -1,6 +1,6 @@
 # GenAI Integration Examples
 
-Three comprehensive examples demonstrating correct usage of rust-genai through ggen-ai.
+Three comprehensive examples demonstrating correct usage of rust-genai through mcpp-ai.
 
 ## Created Examples
 
@@ -166,20 +166,20 @@ fn example_basic() -> Result<(), Box<dyn std::error::Error>> {
 **Created**: ✓ All 3 examples written
 **Syntax**: ✓ All examples follow Rust best practices
 **CLAUDE.md**: ✓ All conventions followed
-**Compilation**: ⚠ Blocked by pre-existing ggen-dspy crate errors
+**Compilation**: ⚠ Blocked by pre-existing mcpp-dspy crate errors
 
 ### Pre-existing Issues to Fix
 
-The following pre-existing issues in ggen-dspy need resolution:
+The following pre-existing issues in mcpp-dspy need resolution:
 
 1. Missing imports in several modules
 2. Unused variable warnings (deny(warnings) is strict)
 3. Temporary value lifetime issue in adapters.rs:319
 4. Type resolution errors
 
-### Fixes Applied to ggen-ai
+### Fixes Applied to mcpp-ai
 
-I've already fixed several issues in ggen-ai:
+I've already fixed several issues in mcpp-ai:
 
 - ✓ Added `Default` derive to `Example` struct
 - ✓ Added `as_any()` method to `Module` trait
@@ -188,8 +188,8 @@ I've already fixed several issues in ggen-ai:
 
 ## Next Steps
 
-1. Fix remaining ggen-dspy compilation errors
-2. Run `cargo build --package ggen-dspy`
+1. Fix remaining mcpp-dspy compilation errors
+2. Run `cargo build --package mcpp-dspy`
 3. Run examples: `cargo run --example genai_integration`
 4. Verify output with both MockClient and real providers
 
@@ -221,8 +221,8 @@ Answer: Rust is a systems programming language...
 
 ## Files Created
 
-- `/home/user/ggen/crates/ggen-dspy/examples/genai_integration.rs` - 400+ lines
-- `/home/user/ggen/crates/ggen-dspy/examples/genai_providers.rs` - 650+ lines
-- `/home/user/ggen/crates/ggen-dspy/examples/genai_error_handling.rs` - 650+ lines
+- `/home/user/mcpp/crates/mcpp-dspy/examples/genai_integration.rs` - 400+ lines
+- `/home/user/mcpp/crates/mcpp-dspy/examples/genai_providers.rs` - 650+ lines
+- `/home/user/mcpp/crates/mcpp-dspy/examples/genai_error_handling.rs` - 650+ lines
 
 **Total**: ~1,700 lines of comprehensive, production-ready example code.

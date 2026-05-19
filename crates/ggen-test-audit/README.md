@@ -1,6 +1,6 @@
-# ggen-test-audit
+# mcpp-test-audit
 
-Test quality audit tooling for ggen - mutation testing, assertion analysis, false positive detection.
+Test quality audit tooling for mcpp - mutation testing, assertion analysis, false positive detection.
 
 ## Overview
 

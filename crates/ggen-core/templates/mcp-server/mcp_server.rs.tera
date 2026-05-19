@@ -1,4 +1,4 @@
-{# MCP server implementation template | Context: server_name, server_version, server_description, transport_type | ggen: extract-mcp-server.rq #}
+{# MCP server implementation template | Context: server_name, server_version, server_description, transport_type | mcpp: extract-mcp-server.rq #}
 {% extends "mcp-server/_head.tera" %}
 {# Extends the base header template #}
 
@@ -41,7 +41,7 @@ pub struct ServerConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {
-            name: "{{ server_name | default(value="ggen-mcp-server") }}".to_string(),
+            name: "{{ server_name | default(value="mcpp-mcp-server") }}".to_string(),
             version: "{{ server_version | default(value="0.0.0") }}".to_string(),
             max_concurrent_requests: 100,
             request_timeout_seconds: 30,

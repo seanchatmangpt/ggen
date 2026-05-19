@@ -10,7 +10,7 @@
 //! - Progress tracking
 //! - Export to CSV/JSON
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     evaluation::{exact_match, Evaluate},
     Example, InputField, Module, ModuleError, OutputField, Signature,
 };

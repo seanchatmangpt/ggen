@@ -5,8 +5,8 @@
 //!
 //! Test Count: 250+ tests
 
-use ggen_marketplace_v2::ontology::*;
-use ggen_marketplace_v2::prelude::*;
+use mcpp_marketplace_v2::ontology::*;
+use mcpp_marketplace_v2::prelude::*;
 use oxigraph::model::{NamedNode, Quad, Subject, Term};
 use oxigraph::store::Store;
 
@@ -49,10 +49,10 @@ fn test_turtle_parse_multiple_triples() {
 #[test]
 fn test_turtle_prefix_declaration() {
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-        ggen:Package rdf:type rdfs:Class .
+        mcpp:Package rdf:type rdfs:Class .
     "#;
 
     let store = Store::new().unwrap();
@@ -330,27 +330,27 @@ fn test_rdf_type_triple() {
 // ============================================================================
 
 #[test]
-fn test_namespace_ggen() {
-    assert_eq!(GGEN_NAMESPACE, "http://ggen.dev/ontology#");
+fn test_namespace_mcpp() {
+    assert_eq!(GGEN_NAMESPACE, "http://mcpp.dev/ontology#");
 }
 
 #[test]
 fn test_namespace_resolution() {
     let package_class = format!("{}Package", GGEN_NAMESPACE);
-    assert_eq!(package_class, "http://ggen.dev/ontology#Package");
+    assert_eq!(package_class, "http://mcpp.dev/ontology#Package");
 }
 
 #[test]
 fn test_ontology_template_class() {
     let uri = GgenOntology::template();
-    assert!(uri.starts_with("http://ggen.dev/ontology#"));
+    assert!(uri.starts_with("http://mcpp.dev/ontology#"));
     assert!(uri.ends_with("Template"));
 }
 
 #[test]
 fn test_ontology_package_class() {
     let uri = format!("{}Package", GGEN_NAMESPACE);
-    assert_eq!(uri, "http://ggen.dev/ontology#Package");
+    assert_eq!(uri, "http://mcpp.dev/ontology#Package");
 }
 
 #[test]
@@ -368,8 +368,8 @@ fn test_ontology_dependency_property() {
 #[test]
 fn test_prefix_expansion() {
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
-        ggen:Package a ggen:Class .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
+        mcpp:Package a mcpp:Class .
     "#;
 
     let store = Store::new().unwrap();
@@ -421,7 +421,7 @@ fn test_uri_invalid_relative() {
 }
 
 #[test]
-fn test_uri_ggen_namespace() {
+fn test_uri_mcpp_namespace() {
     let uri = NamedNode::new(&format!("{}Package", GGEN_NAMESPACE));
     assert!(uri.is_ok());
 }
@@ -616,13 +616,13 @@ fn test_marketplace_package_rdf() {
 
     let turtle = format!(
         r#"
-        @prefix ggen: <{}> .
+        @prefix mcpp: <{}> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-        <http://ggen.dev/packages/test-package> rdf:type ggen:Package ;
-            ggen:packageName "test-package" ;
-            ggen:packageVersion "1.0.0" ;
-            ggen:description "A test package" .
+        <http://mcpp.dev/packages/test-package> rdf:type mcpp:Package ;
+            mcpp:packageName "test-package" ;
+            mcpp:packageVersion "1.0.0" ;
+            mcpp:description "A test package" .
     "#,
         GGEN_NAMESPACE
     );
@@ -669,16 +669,16 @@ fn test_turtle_newline_in_literal() {
 fn test_rdf_ontology_schema() {
     let store = Store::new().unwrap();
 
-    // Load ggen ontology
+    // Load mcpp ontology
     let ontology = format!(
         r#"
-        @prefix ggen: <{}> .
+        @prefix mcpp: <{}> .
         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-        ggen:Package rdf:type rdfs:Class ;
+        mcpp:Package rdf:type rdfs:Class ;
             rdfs:label "Package" ;
-            rdfs:comment "A ggen package" .
+            rdfs:comment "A mcpp package" .
     "#,
         GGEN_NAMESPACE
     );

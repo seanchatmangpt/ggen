@@ -1,7 +1,7 @@
 //! Registry client for fetching gpack metadata
 //!
-//! This module provides a client for interacting with the ggen registry at
-//! `registry.ggen.dev` (or custom registry URLs). It handles fetching pack metadata,
+//! This module provides a client for interacting with the mcpp registry at
+//! `registry.mcpp.dev` (or custom registry URLs). It handles fetching pack metadata,
 //! searching for packs, resolving versions, and checking for updates.
 //!
 //! ## Features
@@ -17,16 +17,16 @@
 //! ## Configuration
 //!
 //! The registry URL can be configured via the `GGEN_REGISTRY_URL` environment variable.
-//! Defaults to `https://seanchatmangpt.github.io/ggen/registry/`.
+//! Defaults to `https://seanchatmangpt.github.io/mcpp/registry/`.
 //!
 //! ## Examples
 //!
 //! ### Creating a Registry Client
 //!
 //! ```rust,no_run
-//! use ggen_core::registry::RegistryClient;
+//! use mcpp_core::registry::RegistryClient;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! # Ok(())
 //! # }
@@ -35,9 +35,9 @@
 //! ### Searching for Packs
 //!
 //! ```rust,no_run
-//! use ggen_core::registry::RegistryClient;
+//! use mcpp_core::registry::RegistryClient;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let results = client.search("rust cli").await?;
 //!
@@ -51,11 +51,11 @@
 //! ### Resolving a Pack Version
 //!
 //! ```rust,no_run
-//! use ggen_core::registry::RegistryClient;
+//! use mcpp_core::registry::RegistryClient;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
-//! let resolved = client.resolve("io.ggen.rust.cli", Some("1.0.0")).await?;
+//! let resolved = client.resolve("io.mcpp.rust.cli", Some("1.0.0")).await?;
 //!
 //! println!("Git URL: {}", resolved.git_url);
 //! println!("Git Rev: {}", resolved.git_rev);
@@ -67,9 +67,9 @@
 //! ### Advanced Search with Filters
 //!
 //! ```rust,no_run
-//! use ggen_core::registry::{RegistryClient, SearchParams};
+//! use mcpp_core::registry::{RegistryClient, SearchParams};
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let params = SearchParams {
 //!     query: "api",
@@ -86,13 +86,13 @@
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
 
-/// Registry client for fetching gpack metadata from registry.ggen.dev
+/// Registry client for fetching gpack metadata from registry.mcpp.dev
 #[derive(Debug, Clone)]
 pub struct RegistryClient {
     base_url: Url,
@@ -182,7 +182,7 @@ impl RegistryClient {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::registry::RegistryClient;
+    /// use mcpp_core::registry::RegistryClient;
     ///
     /// # async fn example() -> anyhow::Result<()> {
     /// let client = RegistryClient::new()?;
@@ -195,7 +195,7 @@ impl RegistryClient {
     pub fn new() -> Result<Self> {
         // Check environment variable for registry URL
         let registry_url = std::env::var("GGEN_REGISTRY_URL")
-            .unwrap_or_else(|_| "https://seanchatmangpt.github.io/ggen/registry/".to_string());
+            .unwrap_or_else(|_| "https://seanchatmangpt.github.io/mcpp/registry/".to_string());
 
         let base_url = Url::parse(&registry_url)
             .map_err(|e| Error::with_context("Failed to parse registry URL", &e.to_string()))?;
@@ -225,7 +225,7 @@ impl RegistryClient {
     }
 
     /// Fetch the registry index with retry logic
-    #[tracing::instrument(name = "ggen.registry.fetch_index", skip(self), fields(url, attempt))]
+    #[tracing::instrument(name = "mcpp.registry.fetch_index", skip(self), fields(url, attempt))]
     pub async fn fetch_index(&self) -> Result<RegistryIndex> {
         let url = self
             .base_url
@@ -329,7 +329,7 @@ impl RegistryClient {
     }
 
     /// Search for gpacks matching the query
-    #[tracing::instrument(name = "ggen.market.search", skip(self), fields(query, result_count))]
+    #[tracing::instrument(name = "mcpp.market.search", skip(self), fields(query, result_count))]
     pub async fn search(&self, query: &str) -> Result<Vec<SearchResult>> {
         tracing::info!(query = query, "searching marketplace");
 
@@ -374,7 +374,7 @@ impl RegistryClient {
     }
 
     /// Advanced search with filtering options
-    #[tracing::instrument(name = "ggen.market.advanced_search", skip(self, params), fields(query = params.query, category, result_count))]
+    #[tracing::instrument(name = "mcpp.market.advanced_search", skip(self, params), fields(query = params.query, category, result_count))]
     pub async fn advanced_search(&self, params: &SearchParams<'_>) -> Result<Vec<SearchResult>> {
         tracing::info!(query = params.query, "advanced search");
 
@@ -527,7 +527,7 @@ impl RegistryClient {
 
     /// Resolve a pack ID to a specific version
     #[tracing::instrument(
-        name = "ggen.market.resolve",
+        name = "mcpp.market.resolve",
         skip(self),
         fields(pack_id, version, resolved_version)
     )]
@@ -537,7 +537,7 @@ impl RegistryClient {
         let index = self.fetch_index().await?;
 
         let pack = index.packs.get(pack_id).ok_or_else(|| {
-            ggen_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
+            mcpp_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
         })?;
 
         let target_version = match version {
@@ -546,7 +546,7 @@ impl RegistryClient {
         };
 
         let version_meta = pack.versions.get(&target_version).ok_or_else(|| {
-            ggen_utils::error::Error::new(&format!(
+            mcpp_utils::error::Error::new(&format!(
                 "Version '{}' not found for pack '{}'",
                 target_version, pack_id
             ))
@@ -572,19 +572,19 @@ impl RegistryClient {
         let index = self.fetch_index().await?;
 
         let pack = index.packs.get(pack_id).ok_or_else(|| {
-            ggen_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
+            mcpp_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
         })?;
 
         // Compare versions using semver
         let current = semver::Version::parse(current_version).map_err(|e| {
-            ggen_utils::error::Error::with_source(
+            mcpp_utils::error::Error::with_source(
                 &format!("Invalid current version: {}", current_version),
                 Box::new(e),
             )
         })?;
 
         let latest = semver::Version::parse(&pack.latest_version).map_err(|e| {
-            ggen_utils::error::Error::with_source(
+            mcpp_utils::error::Error::with_source(
                 &format!("Invalid latest version: {}", pack.latest_version),
                 Box::new(e),
             )
@@ -902,8 +902,8 @@ mod tests {
         let mock_index = r#"{
             "updated": "2024-01-01T00:00:00Z",
             "packs": {
-                "io.ggen.rust.cli-subcommand": {
-                    "id": "io.ggen.rust.cli-subcommand",
+                "io.mcpp.rust.cli-subcommand": {
+                    "id": "io.mcpp.rust.cli-subcommand",
                     "name": "Rust CLI subcommand",
                     "description": "Generate clap subcommands for Rust CLI applications",
                     "tags": ["rust", "cli", "clap", "subcommand"],
@@ -931,7 +931,7 @@ mod tests {
         // Test search
         let results = client.search("rust").await?;
         assert_eq!(results.len(), 1);
-        assert_eq!(results[0].id, "io.ggen.rust.cli-subcommand");
+        assert_eq!(results[0].id, "io.mcpp.rust.cli-subcommand");
         Ok(())
     }
 
@@ -945,8 +945,8 @@ mod tests {
         let mock_index = r#"{
             "updated": "2024-01-01T00:00:00Z",
             "packs": {
-                "io.ggen.rust.cli-subcommand": {
-                    "id": "io.ggen.rust.cli-subcommand",
+                "io.mcpp.rust.cli-subcommand": {
+                    "id": "io.mcpp.rust.cli-subcommand",
                     "name": "Rust CLI subcommand",
                     "description": "Generate clap subcommands",
                     "tags": ["rust", "cli"],
@@ -971,8 +971,8 @@ mod tests {
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve
-        let resolved = client.resolve("io.ggen.rust.cli-subcommand", None).await?;
-        assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
+        let resolved = client.resolve("io.mcpp.rust.cli-subcommand", None).await?;
+        assert_eq!(resolved.id, "io.mcpp.rust.cli-subcommand");
         assert_eq!(resolved.version, "0.2.1");
         assert_eq!(resolved.git_url, "https://github.com/example/gpack.git");
         Ok(())

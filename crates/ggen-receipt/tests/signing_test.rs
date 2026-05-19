@@ -8,7 +8,7 @@
 //! - Invalid signatures fail verification
 //! - Tampered receipts fail verification
 
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use mcpp_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 use tempfile::TempDir;
 
 /// Test Ed25519 key generation produces valid keypairs.

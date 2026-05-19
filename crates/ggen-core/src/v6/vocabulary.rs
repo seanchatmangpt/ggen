@@ -3,7 +3,7 @@
 //! Implements the vocabulary governance rule: "Existing ontology first".
 //! Custom terms are disallowed unless a proof-of-insufficiency exists.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -145,15 +145,15 @@ impl VocabularyRegistry {
                 .with_description("Friend of a Friend vocabulary"),
         );
 
-        // ggen vocabularies
+        // mcpp vocabularies
         registry.add_allowed(
-            AllowedVocabulary::new("http://ggen.dev/v6#", "gv6")
-                .with_description("ggen v6 ontology"),
+            AllowedVocabulary::new("http://mcpp.dev/v6#", "gv6")
+                .with_description("mcpp v6 ontology"),
         );
 
         registry.add_allowed(
-            AllowedVocabulary::new("http://ggen.ai/ontology/meta#", "meta")
-                .with_description("ggen meta-ontology"),
+            AllowedVocabulary::new("http://mcpp.ai/ontology/meta#", "meta")
+                .with_description("mcpp meta-ontology"),
         );
 
         registry
@@ -314,7 +314,7 @@ mod tests {
         assert!(registry.is_allowed("http://www.w3.org/2000/01/rdf-schema#Class"));
         assert!(registry.is_allowed("http://www.w3.org/2002/07/owl#Thing"));
         assert!(registry.is_allowed("https://schema.org/Person"));
-        assert!(registry.is_allowed("http://ggen.dev/v6#Pass"));
+        assert!(registry.is_allowed("http://mcpp.dev/v6#Pass"));
     }
 
     #[test]

@@ -1,4 +1,4 @@
-command: "ggen project get"
+command: "mcpp project get"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -44,5 +44,5 @@ recommendations:
 
 jtbd: |
   When I need to retrieve a project's configuration,
-  I need to run 'ggen project get <name>',
+  I need to run 'mcpp project get <name>',
   so that I can inspect project details.

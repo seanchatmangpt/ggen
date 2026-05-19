@@ -11,9 +11,9 @@
 
 | Config File | Section | Contains | When Applied |
 |-------------|---------|----------|--------------|
-| **ggen.toml** | `[marketplace]` | FMEA validation settings | `ggen marketplace install` |
-| **ggen.toml** | `[generation]` | Path protection, Poka-Yoke | `ggen generate` |
-| **ggen.toml** | `[codeowners]` | Team ownership aggregation | `ggen generate` |
+| **mcpp.toml** | `[marketplace]` | FMEA validation settings | `mcpp marketplace install` |
+| **mcpp.toml** | `[generation]` | Path protection, Poka-Yoke | `mcpp generate` |
+| **mcpp.toml** | `[codeowners]` | Team ownership aggregation | `mcpp generate` |
 | **package.toml** | `[fmea]` | Package failure mode documentation | Validated during install |
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -22,12 +22,12 @@
 - **[Story]**: Which user story this task belongs to (US1-US5)
 - Include exact file paths in descriptions
 
-## Path Conventions (ggen workspace)
+## Path Conventions (mcpp workspace)
 
-- **Config parsing**: `crates/ggen-config/src/` (schema.rs - DONE)
-- **Core types**: `crates/ggen-core/src/types/`
-- **Domain logic**: `crates/ggen-domain/src/`
-- **CLI commands**: `crates/ggen-cli/src/`
+- **Config parsing**: `crates/mcpp-config/src/` (schema.rs - DONE)
+- **Core types**: `crates/mcpp-core/src/types/`
+- **Domain logic**: `crates/mcpp-domain/src/`
+- **CLI commands**: `crates/mcpp-cli/src/`
 - **Integration tests**: `tests/integration/`
 - **Test fixtures**: `tests/fixtures/`
 
@@ -37,9 +37,9 @@
 
 **Purpose**: Project initialization and module structure
 
-- [ ] T001 Create validation module directory at crates/ggen-cli/src/validation/
-- [ ] T002 Create enterprise types module at crates/ggen-core/src/types/ (add enterprise.rs, fmea.rs)
-- [ ] T003 [P] Add globset dependency to crates/ggen-domain/Cargo.toml for path pattern matching
+- [ ] T001 Create validation module directory at crates/mcpp-cli/src/validation/
+- [ ] T002 Create enterprise types module at crates/mcpp-core/src/types/ (add enterprise.rs, fmea.rs)
+- [ ] T003 [P] Add globset dependency to crates/mcpp-domain/Cargo.toml for path pattern matching
 - [ ] T004 [P] Create test fixtures directory at tests/fixtures/ with valid_fmea_package/, missing_fmea_package/, protected_domain/
 
 ---
@@ -48,9 +48,9 @@
 
 **Purpose**: Core types and parsing that ALL user stories depend on
 
-**STATUS**: Partially complete - config parsing DONE in ggen-config/src/schema.rs
+**STATUS**: Partially complete - config parsing DONE in mcpp-config/src/schema.rs
 
-### Already Completed (ggen-config)
+### Already Completed (mcpp-config)
 - [x] T005-DONE MarketplaceConfig in schema.rs (fmea_validation, require_fmea, critical_threshold)
 - [x] T006-DONE GenerationSafetyConfig in schema.rs (protected_paths, regenerate_paths)
 - [x] T007-DONE PokaYokeSettings in schema.rs (warning_headers, gitignore, gitattributes)
@@ -58,11 +58,11 @@
 - [x] T009-DONE FmeaControl struct in schema.rs (for package.toml parsing)
 - [x] T010-DONE FmeaControl::rpn() and is_mitigated() methods
 
-### Remaining Tasks (ggen-core newtypes)
-- [ ] T011 [P] Implement ProtectedPath newtype with glob validation in crates/ggen-core/src/types/enterprise.rs
-- [ ] T012 [P] Implement RegeneratePath newtype with glob validation in crates/ggen-core/src/types/enterprise.rs
-- [ ] T013 [P] Implement RpnLevel enum (Critical, High, Medium) for display in crates/ggen-core/src/types/fmea.rs
-- [ ] T014 Add re-exports to crates/ggen-core/src/types/mod.rs
+### Remaining Tasks (mcpp-core newtypes)
+- [ ] T011 [P] Implement ProtectedPath newtype with glob validation in crates/mcpp-core/src/types/enterprise.rs
+- [ ] T012 [P] Implement RegeneratePath newtype with glob validation in crates/mcpp-core/src/types/enterprise.rs
+- [ ] T013 [P] Implement RpnLevel enum (Critical, High, Medium) for display in crates/mcpp-core/src/types/fmea.rs
+- [ ] T014 Add re-exports to crates/mcpp-core/src/types/mod.rs
 - [ ] T015 Run cargo make check to verify compilation
 
 **Checkpoint**: Foundation ready - config parsing done, core newtypes added
@@ -73,7 +73,7 @@
 
 **Goal**: Domain files NEVER overwritten during regeneration. protected_paths vs regenerate_paths configuration.
 
-**Independent Test**: Run `ggen generate --force` on a project with existing domain implementations and verify zero domain files are modified.
+**Independent Test**: Run `mcpp generate --force` on a project with existing domain implementations and verify zero domain files are modified.
 
 ### Tests for User Story 1
 
@@ -86,14 +86,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T027 [P] [US1] Implement PathMatcher struct using globset in crates/ggen-domain/src/generation/protection.rs
-- [ ] T028 [US1] Implement is_protected() method in crates/ggen-domain/src/generation/protection.rs
-- [ ] T029 [US1] Implement is_regeneratable() method in crates/ggen-domain/src/generation/protection.rs
-- [ ] T030 [US1] Implement validate_no_overlap() in crates/ggen-domain/src/generation/protection.rs
-- [ ] T031 [US1] Add check_protected_paths() call before file write in crates/ggen-domain/src/template.rs
-- [ ] T032 [US1] Implement first_generation_detection() in crates/ggen-domain/src/generation/protection.rs
-- [ ] T033 [US1] Implement generate_domain_stubs() for first generation in crates/ggen-domain/src/generation/protection.rs
-- [ ] T034 [US1] Add ProtectedPathError to error types in crates/ggen-core/src/error.rs
+- [ ] T027 [P] [US1] Implement PathMatcher struct using globset in crates/mcpp-domain/src/generation/protection.rs
+- [ ] T028 [US1] Implement is_protected() method in crates/mcpp-domain/src/generation/protection.rs
+- [ ] T029 [US1] Implement is_regeneratable() method in crates/mcpp-domain/src/generation/protection.rs
+- [ ] T030 [US1] Implement validate_no_overlap() in crates/mcpp-domain/src/generation/protection.rs
+- [ ] T031 [US1] Add check_protected_paths() call before file write in crates/mcpp-domain/src/template.rs
+- [ ] T032 [US1] Implement first_generation_detection() in crates/mcpp-domain/src/generation/protection.rs
+- [ ] T033 [US1] Implement generate_domain_stubs() for first generation in crates/mcpp-domain/src/generation/protection.rs
+- [ ] T034 [US1] Add ProtectedPathError to error types in crates/mcpp-core/src/error.rs
 - [ ] T035 [US1] Run cargo make test to verify all US1 tests pass
 
 **Checkpoint**: User Story 1 complete - domain protection fully functional
@@ -116,15 +116,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T041 [P] [US2] Implement HeaderInjector struct in crates/ggen-domain/src/generation/headers.rs
-- [ ] T042 [US2] Implement get_comment_syntax() for language detection in crates/ggen-domain/src/generation/headers.rs
-- [ ] T043 [US2] Implement format_header() with template variables in crates/ggen-domain/src/generation/headers.rs
-- [ ] T044 [US2] Implement inject_header() that prepends header to content in crates/ggen-domain/src/generation/headers.rs
-- [ ] T045 [P] [US2] Implement GitignoreGenerator in crates/ggen-domain/src/generation/headers.rs
-- [ ] T046 [US2] Implement update_gitignore() with section markers in crates/ggen-domain/src/generation/headers.rs
-- [ ] T047 [P] [US2] Implement GitattributesGenerator in crates/ggen-domain/src/generation/headers.rs
-- [ ] T048 [US2] Implement update_gitattributes() with linguist-generated in crates/ggen-domain/src/generation/headers.rs
-- [ ] T049 [US2] Integrate header injection into template render pipeline in crates/ggen-domain/src/template.rs
+- [ ] T041 [P] [US2] Implement HeaderInjector struct in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T042 [US2] Implement get_comment_syntax() for language detection in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T043 [US2] Implement format_header() with template variables in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T044 [US2] Implement inject_header() that prepends header to content in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T045 [P] [US2] Implement GitignoreGenerator in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T046 [US2] Implement update_gitignore() with section markers in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T047 [P] [US2] Implement GitattributesGenerator in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T048 [US2] Implement update_gitattributes() with linguist-generated in crates/mcpp-domain/src/generation/headers.rs
+- [ ] T049 [US2] Integrate header injection into template render pipeline in crates/mcpp-domain/src/template.rs
 - [ ] T050 [US2] Run cargo make test to verify all US2 tests pass
 
 **Checkpoint**: User Story 2 complete - Poka-Yoke controls fully functional
@@ -133,14 +133,14 @@
 
 ## Phase 5: User Story 3 - FMEA Validation Gate (Priority: P2)
 
-**Goal**: FMEA validation integrated into `ggen marketplace install` that blocks packages without proper failure mode documentation.
+**Goal**: FMEA validation integrated into `mcpp marketplace install` that blocks packages without proper failure mode documentation.
 
 **Key Architecture Decision**: FMEA validation is NOT a separate command. It's a quality gate during install.
 - `[marketplace].fmea_validation = true` → Enables validation
 - `[marketplace].require_fmea = true` → Requires [fmea] section in package.toml
 - `[marketplace].critical_threshold = 200` → Rejects unmitigated modes above threshold
 
-**Independent Test**: Run `ggen marketplace install` on packages with and without FMEA sections.
+**Independent Test**: Run `mcpp marketplace install` on packages with and without FMEA sections.
 
 ### Tests for User Story 3
 
@@ -154,8 +154,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T058 [P] [US3] Implement FmeaValidator struct in crates/ggen-domain/src/marketplace/fmea_validator.rs
-- [ ] T059 [US3] Implement validate_package_fmea() in crates/ggen-domain/src/marketplace/fmea_validator.rs
+- [ ] T058 [P] [US3] Implement FmeaValidator struct in crates/mcpp-domain/src/marketplace/fmea_validator.rs
+- [ ] T059 [US3] Implement validate_package_fmea() in crates/mcpp-domain/src/marketplace/fmea_validator.rs
 - [ ] T060 [US3] Implement check_rpn_thresholds() using FmeaControl::rpn() from schema.rs
 - [ ] T061 [US3] Implement check_required_fmea() for require_fmea config
 - [ ] T062 [US3] Implement check_unmitigated_critical() for critical_threshold config
@@ -184,12 +184,12 @@
 
 ### Implementation for User Story 4
 
-- [ ] T074 [P] [US4] Implement OwnersParser struct in crates/ggen-domain/src/owners.rs
-- [ ] T075 [US4] Implement parse_owners_file() in crates/ggen-domain/src/owners.rs
-- [ ] T076 [US4] Implement CodeownersGenerator struct in crates/ggen-domain/src/owners.rs
-- [ ] T077 [US4] Implement aggregate_codeowners() in crates/ggen-domain/src/owners.rs
-- [ ] T078 [US4] Implement generate_codeowners() output in crates/ggen-domain/src/owners.rs
-- [ ] T079 [US4] Add --codeowners flag to ggen generate in crates/ggen-cli/src/cmds/template.rs
+- [ ] T074 [P] [US4] Implement OwnersParser struct in crates/mcpp-domain/src/owners.rs
+- [ ] T075 [US4] Implement parse_owners_file() in crates/mcpp-domain/src/owners.rs
+- [ ] T076 [US4] Implement CodeownersGenerator struct in crates/mcpp-domain/src/owners.rs
+- [ ] T077 [US4] Implement aggregate_codeowners() in crates/mcpp-domain/src/owners.rs
+- [ ] T078 [US4] Implement generate_codeowners() output in crates/mcpp-domain/src/owners.rs
+- [ ] T079 [US4] Add --codeowners flag to mcpp generate in crates/mcpp-cli/src/cmds/template.rs
 - [ ] T080 [US4] Run cargo make test to verify all US4 tests pass
 
 **Checkpoint**: User Story 4 complete - Team ownership enforcement functional
@@ -210,11 +210,11 @@
 
 ### Implementation for User Story 5
 
-- [ ] T084 [US5] Implement VerbFileMapper in crates/ggen-domain/src/generation/verbs.rs
-- [ ] T085 [US5] Implement detect_new_verbs() in crates/ggen-domain/src/generation/verbs.rs
-- [ ] T086 [US5] Implement generate_verb_file() for individual verb output in crates/ggen-domain/src/generation/verbs.rs
-- [ ] T087 [US5] Implement create_domain_stub_for_verb() in crates/ggen-domain/src/generation/verbs.rs
-- [ ] T088 [US5] Integrate verb-per-file generation into template pipeline in crates/ggen-domain/src/template.rs
+- [ ] T084 [US5] Implement VerbFileMapper in crates/mcpp-domain/src/generation/verbs.rs
+- [ ] T085 [US5] Implement detect_new_verbs() in crates/mcpp-domain/src/generation/verbs.rs
+- [ ] T086 [US5] Implement generate_verb_file() for individual verb output in crates/mcpp-domain/src/generation/verbs.rs
+- [ ] T087 [US5] Implement create_domain_stub_for_verb() in crates/mcpp-domain/src/generation/verbs.rs
+- [ ] T088 [US5] Integrate verb-per-file generation into template pipeline in crates/mcpp-domain/src/template.rs
 - [ ] T089 [US5] Run cargo make test to verify all US5 tests pass
 
 **Checkpoint**: User Story 5 complete - Zero-conflict parallel development enabled
@@ -227,8 +227,8 @@
 
 - [ ] T090 [P] Update clap-noun-verb USAGE.md with enterprise sections in marketplace/packages/clap-noun-verb/USAGE.md
 - [ ] T091 [P] Update clap-noun-verb README.md with FMEA/Poka-Yoke overview in marketplace/packages/clap-noun-verb/README.md
-- [ ] T092 [P] Add FMEA validation to marketplace publish workflow in crates/ggen-cli/src/cmds/marketplace.rs
-- [ ] T093 Verify all modules have proper re-exports in crates/ggen-cli/src/validation/mod.rs
+- [ ] T092 [P] Add FMEA validation to marketplace publish workflow in crates/mcpp-cli/src/cmds/marketplace.rs
+- [ ] T093 Verify all modules have proper re-exports in crates/mcpp-cli/src/validation/mod.rs
 - [ ] T094 Run cargo make lint to ensure no warnings
 - [ ] T095 Run cargo make test to ensure all 1168+ tests pass
 - [ ] T096 Validate enterprise example package at marketplace/packages/clap-noun-verb/examples/enterprise-ops/

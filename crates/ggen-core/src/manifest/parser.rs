@@ -1,19 +1,19 @@
-//! ggen.toml manifest parser
+//! mcpp.toml manifest parser
 //!
 //! Parses TOML manifests into strongly-typed `GgenManifest` structures.
 
 use crate::manifest::types::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::Path;
 
-/// Parser for ggen.toml manifest files
+/// Parser for mcpp.toml manifest files
 pub struct ManifestParser;
 
 impl ManifestParser {
-    /// Parse a ggen.toml manifest from the given path
+    /// Parse a mcpp.toml manifest from the given path
     ///
     /// # Arguments
-    /// * `path` - Path to ggen.toml file
+    /// * `path` - Path to mcpp.toml file
     ///
     /// # Returns
     /// * `Ok(GgenManifest)` - Parsed manifest
@@ -21,12 +21,12 @@ impl ManifestParser {
     ///
     /// # Example
     /// ```rust,no_run
-    /// use ggen_core::manifest::ManifestParser;
+    /// use mcpp_core::manifest::ManifestParser;
     /// use std::path::Path;
     ///
-    /// let manifest = ManifestParser::parse(Path::new("ggen.toml"))?;
+    /// let manifest = ManifestParser::parse(Path::new("mcpp.toml"))?;
     /// println!("Project: {}", manifest.project.name);
-    /// # Ok::<(), ggen_utils::error::Error>(())
+    /// # Ok::<(), mcpp_utils::error::Error>(())
     /// ```
     pub fn parse(path: &Path) -> Result<GgenManifest> {
         // Read file contents
@@ -42,7 +42,7 @@ impl ManifestParser {
         Self::parse_str(&content)
     }
 
-    /// Parse a ggen.toml manifest from a string
+    /// Parse a mcpp.toml manifest from a string
     ///
     /// # Arguments
     /// * `content` - TOML content string
@@ -92,7 +92,7 @@ imports = ["domain/base.ttl"]
 base_iri = "http://example.org/"
 
 [ontology.prefixes]
-code = "http://ggen.dev/code#"
+code = "http://mcpp.dev/code#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 
 [[inference.rules]]

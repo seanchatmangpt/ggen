@@ -1,4 +1,4 @@
-//! RDF Ontology Definitions for ggen Marketplace
+//! RDF Ontology Definitions for mcpp Marketplace
 //!
 //! This module defines the complete RDF ontology for the marketplace,
 //! including all classes, properties, and relationships using standard
@@ -19,9 +19,9 @@ pub mod namespaces {
     pub const DOAP: &str = "http://usefulinc.com/ns/doap#";
     pub const SPDX: &str = "http://spdx.org/rdf/terms#";
 
-    // Custom ggen namespace
-    pub const GGEN: &str = "http://ggen.dev/ontology#";
-    pub const MARKETPLACE: &str = "http://ggen.dev/marketplace#";
+    // Custom mcpp namespace
+    pub const GGEN: &str = "http://mcpp.dev/ontology#";
+    pub const MARKETPLACE: &str = "http://mcpp.dev/marketplace#";
 }
 
 // Re-export commonly used namespaces
@@ -33,7 +33,7 @@ pub struct Ontology;
 impl Ontology {
     /// Get the GGEN namespace
     #[must_use]
-    pub fn ggen_ns() -> &'static str {
+    pub fn mcpp_ns() -> &'static str {
         namespaces::GGEN
     }
 
@@ -50,7 +50,7 @@ pub struct UriBuilder;
 impl UriBuilder {
     /// Build a GGEN namespace URI
     #[must_use]
-    pub fn ggen(resource: &str) -> String {
+    pub fn mcpp(resource: &str) -> String {
         format!("{}{}", namespaces::GGEN, resource)
     }
 
@@ -61,7 +61,7 @@ impl UriBuilder {
     }
 }
 
-/// RDF Classes in the ggen ontology
+/// RDF Classes in the mcpp ontology
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Class {
     // Core package types
@@ -142,7 +142,7 @@ impl fmt::Display for Class {
     }
 }
 
-/// RDF Properties in the ggen ontology
+/// RDF Properties in the mcpp ontology
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Property {
     // Package properties
@@ -237,7 +237,7 @@ impl Property {
             Self::Datatype => format!("{}datatype", namespaces::SHACL),
             Self::Pattern => format!("{}pattern", namespaces::SHACL),
 
-            // Custom ggen properties
+            // Custom mcpp properties
             _ => format!("{}{}", namespaces::GGEN, self.local_name()),
         }
     }
@@ -346,7 +346,7 @@ pub fn generate_prefixes() -> String {
 @prefix sh: <{}> .
 @prefix doap: <{}> .
 @prefix spdx: <{}> .
-@prefix ggen: <{}> .
+@prefix mcpp: <{}> .
 
 ",
         namespaces::RDF,
@@ -372,227 +372,227 @@ pub fn generate_ontology_definition() -> String {
     ttl.push_str(
         r#"
 # Ontology metadata
-ggen: a owl:Ontology ;
-    dc:title "ggen Marketplace Ontology" ;
-    dc:description "RDF ontology for the ggen template marketplace system" ;
+mcpp: a owl:Ontology ;
+    dc:title "mcpp Marketplace Ontology" ;
+    dc:description "RDF ontology for the mcpp template marketplace system" ;
     dc:created "2025-01-18"^^xsd:date ;
     owl:versionInfo "2.0.0" .
 
 # Class definitions
-ggen:Package a owl:Class ;
+mcpp:Package a owl:Class ;
     rdfs:label "Package" ;
     rdfs:comment "A reusable code template package" .
 
-ggen:PackageVersion a owl:Class ;
+mcpp:PackageVersion a owl:Class ;
     rdfs:label "Package Version" ;
     rdfs:comment "A specific version of a package" .
 
-ggen:Template a owl:Class ;
+mcpp:Template a owl:Class ;
     rdfs:label "Template" ;
     rdfs:comment "A code template within a package" .
 
-ggen:Component a owl:Class ;
+mcpp:Component a owl:Class ;
     rdfs:label "Component" ;
     rdfs:comment "A reusable component" .
 
-ggen:Dependency a owl:Class ;
+mcpp:Dependency a owl:Class ;
     rdfs:label "Dependency" ;
     rdfs:comment "A package dependency relationship" .
 
-ggen:Author a owl:Class ;
+mcpp:Author a owl:Class ;
     rdfs:subClassOf foaf:Person ;
     rdfs:label "Author" ;
     rdfs:comment "Package author or maintainer" .
 
-ggen:License a owl:Class ;
+mcpp:License a owl:Class ;
     rdfs:label "License" ;
     rdfs:comment "Software license information" .
 
-ggen:Category a owl:Class ;
+mcpp:Category a owl:Class ;
     rdfs:label "Category" ;
     rdfs:comment "Package category or classification" .
 
-ggen:Tag a owl:Class ;
+mcpp:Tag a owl:Class ;
     rdfs:label "Tag" ;
     rdfs:comment "Keyword tag for searchability" .
 
-ggen:InstallationState a owl:Class ;
+mcpp:InstallationState a owl:Class ;
     rdfs:label "Installation State" ;
     rdfs:comment "Current installation status of a package" .
 
-ggen:ValidationResult a owl:Class ;
+mcpp:ValidationResult a owl:Class ;
     rdfs:label "Validation Result" ;
     rdfs:comment "Result of package validation" .
 
-ggen:RegistryEntry a owl:Class ;
+mcpp:RegistryEntry a owl:Class ;
     rdfs:label "Registry Entry" ;
     rdfs:comment "Entry in the package registry" .
 
 # Event classes (PROV-O based)
-ggen:PublishEvent a owl:Class ;
+mcpp:PublishEvent a owl:Class ;
     rdfs:subClassOf prov:Activity ;
     rdfs:label "Publish Event" ;
     rdfs:comment "Package publication activity" .
 
-ggen:InstallEvent a owl:Class ;
+mcpp:InstallEvent a owl:Class ;
     rdfs:subClassOf prov:Activity ;
     rdfs:label "Install Event" ;
     rdfs:comment "Package installation activity" .
 
-ggen:UpdateEvent a owl:Class ;
+mcpp:UpdateEvent a owl:Class ;
     rdfs:subClassOf prov:Activity ;
     rdfs:label "Update Event" ;
     rdfs:comment "Package update activity" .
 
-ggen:ValidationEvent a owl:Class ;
+mcpp:ValidationEvent a owl:Class ;
     rdfs:subClassOf prov:Activity ;
     rdfs:label "Validation Event" ;
     rdfs:comment "Package validation activity" .
 
 # Configuration classes
-ggen:MarketplaceConfig a owl:Class ;
+mcpp:MarketplaceConfig a owl:Class ;
     rdfs:label "Marketplace Configuration" ;
     rdfs:comment "Marketplace system configuration" .
 
-ggen:RegistryConfig a owl:Class ;
+mcpp:RegistryConfig a owl:Class ;
     rdfs:label "Registry Configuration" ;
     rdfs:comment "Registry endpoint configuration" .
 
-ggen:ValidationRule a owl:Class ;
+mcpp:ValidationRule a owl:Class ;
     rdfs:subClassOf sh:NodeShape ;
     rdfs:label "Validation Rule" ;
     rdfs:comment "SHACL validation rule" .
 
-ggen:StateMachine a owl:Class ;
+mcpp:StateMachine a owl:Class ;
     rdfs:label "State Machine" ;
     rdfs:comment "Finite state machine definition" .
 
 # Security classes
-ggen:SecurityAttestation a owl:Class ;
+mcpp:SecurityAttestation a owl:Class ;
     rdfs:label "Security Attestation" ;
     rdfs:comment "Security attestation record" .
 
-ggen:SignatureRecord a owl:Class ;
+mcpp:SignatureRecord a owl:Class ;
     rdfs:label "Signature Record" ;
     rdfs:comment "Cryptographic signature record" .
 
-ggen:AuditRecord a owl:Class ;
+mcpp:AuditRecord a owl:Class ;
     rdfs:label "Audit Record" ;
     rdfs:comment "Audit trail record" .
 
 # Property definitions
-ggen:hasVersion a owl:ObjectProperty ;
-    rdfs:domain ggen:Package ;
-    rdfs:range ggen:PackageVersion ;
+mcpp:hasVersion a owl:ObjectProperty ;
+    rdfs:domain mcpp:Package ;
+    rdfs:range mcpp:PackageVersion ;
     rdfs:label "has version" .
 
-ggen:hasDependency a owl:ObjectProperty ;
-    rdfs:domain ggen:PackageVersion ;
-    rdfs:range ggen:Dependency ;
+mcpp:hasDependency a owl:ObjectProperty ;
+    rdfs:domain mcpp:PackageVersion ;
+    rdfs:range mcpp:Dependency ;
     rdfs:label "has dependency" .
 
-ggen:dependsOn a owl:ObjectProperty ;
-    rdfs:domain ggen:Dependency ;
-    rdfs:range ggen:Package ;
+mcpp:dependsOn a owl:ObjectProperty ;
+    rdfs:domain mcpp:Dependency ;
+    rdfs:range mcpp:Package ;
     rdfs:label "depends on" .
 
-ggen:hasTemplate a owl:ObjectProperty ;
-    rdfs:domain ggen:Package ;
-    rdfs:range ggen:Template ;
+mcpp:hasTemplate a owl:ObjectProperty ;
+    rdfs:domain mcpp:Package ;
+    rdfs:range mcpp:Template ;
     rdfs:label "has template" .
 
-ggen:hasComponent a owl:ObjectProperty ;
-    rdfs:domain ggen:Package ;
-    rdfs:range ggen:Component ;
+mcpp:hasComponent a owl:ObjectProperty ;
+    rdfs:domain mcpp:Package ;
+    rdfs:range mcpp:Component ;
     rdfs:label "has component" .
 
-ggen:hasCategory a owl:ObjectProperty ;
-    rdfs:domain ggen:Package ;
-    rdfs:range ggen:Category ;
+mcpp:hasCategory a owl:ObjectProperty ;
+    rdfs:domain mcpp:Package ;
+    rdfs:range mcpp:Category ;
     rdfs:label "has category" .
 
-ggen:hasTag a owl:ObjectProperty ;
-    rdfs:domain ggen:Package ;
-    rdfs:range ggen:Tag ;
+mcpp:hasTag a owl:ObjectProperty ;
+    rdfs:domain mcpp:Package ;
+    rdfs:range mcpp:Tag ;
     rdfs:label "has tag" .
 
-ggen:versionNumber a owl:DatatypeProperty ;
-    rdfs:domain ggen:PackageVersion ;
+mcpp:versionNumber a owl:DatatypeProperty ;
+    rdfs:domain mcpp:PackageVersion ;
     rdfs:range xsd:string ;
     rdfs:label "version number" .
 
-ggen:deprecated a owl:DatatypeProperty ;
-    rdfs:domain ggen:PackageVersion ;
+mcpp:deprecated a owl:DatatypeProperty ;
+    rdfs:domain mcpp:PackageVersion ;
     rdfs:range xsd:boolean ;
     rdfs:label "deprecated" .
 
-ggen:yanked a owl:DatatypeProperty ;
-    rdfs:domain ggen:PackageVersion ;
+mcpp:yanked a owl:DatatypeProperty ;
+    rdfs:domain mcpp:PackageVersion ;
     rdfs:range xsd:boolean ;
     rdfs:label "yanked" .
 
-ggen:installationStatus a owl:DatatypeProperty ;
-    rdfs:domain ggen:InstallationState ;
+mcpp:installationStatus a owl:DatatypeProperty ;
+    rdfs:domain mcpp:InstallationState ;
     rdfs:range xsd:string ;
     rdfs:label "installation status" .
 
-ggen:validationStatus a owl:DatatypeProperty ;
-    rdfs:domain ggen:ValidationResult ;
+mcpp:validationStatus a owl:DatatypeProperty ;
+    rdfs:domain mcpp:ValidationResult ;
     rdfs:range xsd:string ;
     rdfs:label "validation status" .
 
-ggen:downloadCount a owl:DatatypeProperty ;
-    rdfs:domain ggen:Package ;
+mcpp:downloadCount a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Package ;
     rdfs:range xsd:integer ;
     rdfs:label "download count" .
 
-ggen:rating a owl:DatatypeProperty ;
-    rdfs:domain ggen:Package ;
+mcpp:rating a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Package ;
     rdfs:range xsd:decimal ;
     rdfs:label "rating" .
 
-ggen:repository a owl:DatatypeProperty ;
-    rdfs:domain ggen:Package ;
+mcpp:repository a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Package ;
     rdfs:range xsd:anyURI ;
     rdfs:label "repository" .
 
-ggen:readme a owl:DatatypeProperty ;
-    rdfs:domain ggen:Package ;
+mcpp:readme a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Package ;
     rdfs:range xsd:string ;
     rdfs:label "readme" .
 
-ggen:dependencyVersion a owl:DatatypeProperty ;
-    rdfs:domain ggen:Dependency ;
+mcpp:dependencyVersion a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Dependency ;
     rdfs:range xsd:string ;
     rdfs:label "dependency version" .
 
-ggen:dependencyType a owl:DatatypeProperty ;
-    rdfs:domain ggen:Dependency ;
+mcpp:dependencyType a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Dependency ;
     rdfs:range xsd:string ;
     rdfs:label "dependency type" .
 
-ggen:isOptional a owl:DatatypeProperty ;
-    rdfs:domain ggen:Dependency ;
+mcpp:isOptional a owl:DatatypeProperty ;
+    rdfs:domain mcpp:Dependency ;
     rdfs:range xsd:boolean ;
     rdfs:label "is optional" .
 
-ggen:hasSignature a owl:ObjectProperty ;
-    rdfs:domain ggen:PackageVersion ;
-    rdfs:range ggen:SignatureRecord ;
+mcpp:hasSignature a owl:ObjectProperty ;
+    rdfs:domain mcpp:PackageVersion ;
+    rdfs:range mcpp:SignatureRecord ;
     rdfs:label "has signature" .
 
-ggen:hasAttestation a owl:ObjectProperty ;
-    rdfs:domain ggen:PackageVersion ;
-    rdfs:range ggen:SecurityAttestation ;
+mcpp:hasAttestation a owl:ObjectProperty ;
+    rdfs:domain mcpp:PackageVersion ;
+    rdfs:range mcpp:SecurityAttestation ;
     rdfs:label "has attestation" .
 
-ggen:signatureAlgorithm a owl:DatatypeProperty ;
-    rdfs:domain ggen:SignatureRecord ;
+mcpp:signatureAlgorithm a owl:DatatypeProperty ;
+    rdfs:domain mcpp:SignatureRecord ;
     rdfs:range xsd:string ;
     rdfs:label "signature algorithm" .
 
-ggen:publicKey a owl:DatatypeProperty ;
-    rdfs:domain ggen:SignatureRecord ;
+mcpp:publicKey a owl:DatatypeProperty ;
+    rdfs:domain mcpp:SignatureRecord ;
     rdfs:range xsd:string ;
     rdfs:label "public key" .
 
@@ -608,10 +608,10 @@ mod tests {
 
     #[test]
     fn test_class_uris() {
-        assert_eq!(Class::Package.uri(), "http://ggen.dev/ontology#Package");
+        assert_eq!(Class::Package.uri(), "http://mcpp.dev/ontology#Package");
         assert_eq!(
             Class::PackageVersion.uri(),
-            "http://ggen.dev/ontology#PackageVersion"
+            "http://mcpp.dev/ontology#PackageVersion"
         );
     }
 
@@ -623,7 +623,7 @@ mod tests {
         );
         assert_eq!(
             Property::HasVersion.uri(),
-            "http://ggen.dev/ontology#hasVersion"
+            "http://mcpp.dev/ontology#hasVersion"
         );
     }
 
@@ -642,8 +642,8 @@ mod tests {
     #[test]
     fn test_ontology_generation() {
         let ttl = generate_ontology_definition();
-        assert!(ttl.contains("@prefix ggen:"));
-        assert!(ttl.contains("ggen:Package a owl:Class"));
-        assert!(ttl.contains("ggen:hasVersion a owl:ObjectProperty"));
+        assert!(ttl.contains("@prefix mcpp:"));
+        assert!(ttl.contains("mcpp:Package a owl:Class"));
+        assert!(ttl.contains("mcpp:hasVersion a owl:ObjectProperty"));
     }
 }

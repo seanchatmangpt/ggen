@@ -4,7 +4,7 @@
 
 ### Quick Test
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 erlc -I apps/tai_autonomics/include -o apps/tai_autonomics/test \
   apps/tai_autonomics/test/taiea_mcp_server_test.erl \
   apps/tai_autonomics/test/taiea_tool_health_test.erl \
@@ -18,7 +18,7 @@ echo "All tests compiled successfully!"
 
 ### Run All Tests with rebar3
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 eunit apps=tai_autonomics
 ```
 
@@ -187,9 +187,9 @@ All tools generate receipts with:
 
 ## File Locations
 
-**Source Code**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/`
-**Tests**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/`
-**Docs**: `/Users/sac/ggen/tai-erlang-autonomics/`
+**Source Code**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/`
+**Tests**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/test/`
+**Docs**: `~/.ggen/mcpp/tai-erlang-autonomics/`
 
 ---
 

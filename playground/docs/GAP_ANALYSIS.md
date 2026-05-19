@@ -1,4 +1,4 @@
-# Comprehensive Gap Analysis - ggen Codebase
+# Comprehensive Gap Analysis - mcpp Codebase
 
 **Analysis Date**: 2025-11-18
 **Analyzed Files**: 649 Rust source files
@@ -38,10 +38,10 @@
 
 **Affected Files**:
 ```
-crates/ggen-node/tests/integration_tests.rs (16 uses)
-crates/ggen-core/tests/integration/search_integration.rs (4 uses)
-crates/ggen-core/tests/integration/marketplace_validation.rs (20+ uses)
-crates/ggen-core/tests/marketplace_graph_integration.rs (8 uses)
+crates/mcpp-node/tests/integration_tests.rs (16 uses)
+crates/mcpp-core/tests/integration/search_integration.rs (4 uses)
+crates/mcpp-core/tests/integration/marketplace_validation.rs (20+ uses)
+crates/mcpp-core/tests/marketplace_graph_integration.rs (8 uses)
 ```
 
 **Root Cause**: The macro `async_test_with_timeout!` is used extensively but never defined in the codebase.
@@ -49,7 +49,7 @@ crates/ggen-core/tests/marketplace_graph_integration.rs (8 uses)
 **Error Example**:
 ```
 error: cannot find macro `async_test_with_timeout` in this scope
-  --> crates/ggen-node/tests/integration_tests.rs:73:5
+  --> crates/mcpp-node/tests/integration_tests.rs:73:5
    |
 73 |     async_test_with_timeout!(test_version_command, 30, async {
    |     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,14 +57,14 @@ error: cannot find macro `async_test_with_timeout` in this scope
 
 **Fix Strategy**:
 1. Define macro in a common test utilities module
-2. Export from `ggen-utils` or `ggen-core/tests/common`
+2. Export from `mcpp-utils` or `mcpp-core/tests/common`
 3. Import in all test files using `#[macro_use]`
 
 **Estimated Fix Time**: 30 minutes
 
 **Recommended Implementation**:
 ```rust
-// crates/ggen-utils/src/test_macros.rs
+// crates/mcpp-utils/src/test_macros.rs
 #[macro_export]
 macro_rules! async_test_with_timeout {
     ($name:ident, $timeout_secs:expr, $body:expr) => {
@@ -82,16 +82,16 @@ macro_rules! async_test_with_timeout {
 
 ---
 
-### 1.2 Type Mismatch: `String: From<&&str>` (ggen-marketplace)
+### 1.2 Type Mismatch: `String: From<&&str>` (mcpp-marketplace)
 
 **Severity**: CRITICAL
 **Impact**: Property-based tests fail to compile
-**Location**: `crates/ggen-marketplace/tests/property_based_invariants.rs:214-216`
+**Location**: `crates/mcpp-marketplace/tests/property_based_invariants.rs:214-216`
 
 **Error Details**:
 ```rust
 error[E0277]: the trait bound `String: From<&&str>` is not satisfied
-  --> crates/ggen-marketplace/tests/property_based_invariants.rs:214:59
+  --> crates/mcpp-marketplace/tests/property_based_invariants.rs:214:59
    |
 214 |         let pkg = Package::builder(PackageId::new("test", name), Version::new(1, 0, 0))
    |                                                            ^^^^ the trait `From<&&str>` is not implemented
@@ -125,12 +125,12 @@ let pkg = Package::builder(PackageId::new("test", *name), Version::new(1, 0, 0))
 ### 1.3 Type Mismatch: `UnvalidatedPackage` vs `Package`
 
 **Severity**: CRITICAL
-**Location**: `crates/ggen-marketplace/tests/property_based_invariants.rs:381`
+**Location**: `crates/mcpp-marketplace/tests/property_based_invariants.rs:381`
 
 **Error**:
 ```rust
 error[E0308]: mismatched types
-  --> crates/ggen-marketplace/tests/property_based_invariants.rs:381:22
+  --> crates/mcpp-marketplace/tests/property_based_invariants.rs:381:22
    |
 381 |     registry.publish(pkg1).await.expect("first publish failed");
    |              ------- ^^^^ expected `Package`, found `UnvalidatedPackage`
@@ -157,12 +157,12 @@ registry.publish(pkg1).await?;
 ### 1.4 Error Conversion: `std::io::Error` to `MarketplaceError`
 
 **Severity**: CRITICAL
-**Location**: `crates/ggen-marketplace/tests/integration_critical_paths.rs:298`
+**Location**: `crates/mcpp-marketplace/tests/integration_critical_paths.rs:298`
 
 **Error**:
 ```rust
 error[E0277]: `?` couldn't convert the error to `MarketplaceError`
-  --> crates/ggen-marketplace/tests/integration_critical_paths.rs:298:39
+  --> crates/mcpp-marketplace/tests/integration_critical_paths.rs:298:39
    |
 298 |     let temp_dir = tempfile::tempdir()?;
    |                                       ^ the trait `From<std::io::Error>` is not implemented for `MarketplaceError`
@@ -191,7 +191,7 @@ let temp_dir = tempfile::tempdir().map_err(|e| MarketplaceError::Io(e.to_string(
 
 **Severity**: CRITICAL
 **Impact**: Multiple RDF-based tests fail
-**Location**: `crates/ggen-marketplace-v2/src/rdf_mapper.rs`
+**Location**: `crates/mcpp-marketplace-v2/src/rdf_mapper.rs`
 
 **Error**:
 ```rust
@@ -223,8 +223,8 @@ if let QueryResults::Solutions(solutions) = results {
 ```
 
 **Files Requiring Fix**:
-- `crates/ggen-marketplace-v2/src/rdf_mapper.rs:522-540`
-- `crates/ggen-core/tests/test_marketplace_local.rs`
+- `crates/mcpp-marketplace-v2/src/rdf_mapper.rs:522-540`
+- `crates/mcpp-core/tests/test_marketplace_local.rs`
 
 **Estimated Fix Time**: 45 minutes (multiple occurrences)
 
@@ -234,12 +234,12 @@ if let QueryResults::Solutions(solutions) = results {
 
 **Severity**: CRITICAL
 **Impact**: RDF async operations fail to compile
-**Location**: `crates/ggen-marketplace-v2/src/registry_rdf.rs:165, 196`
+**Location**: `crates/mcpp-marketplace-v2/src/registry_rdf.rs:165, 196`
 
 **Error**:
 ```rust
 error: future cannot be sent between threads safely
-  --> crates/ggen-marketplace-v2/src/registry_rdf.rs:165:5
+  --> crates/mcpp-marketplace-v2/src/registry_rdf.rs:165:5
    |
    = help: the trait `Send` is not implemented for `dyn Iterator<Item = ...>`
 ```
@@ -268,14 +268,14 @@ let dependencies = self.query_dependencies(&uri).await?;
 ### 1.7 Missing `SignatureAlgorithm` in Models
 
 **Severity**: HIGH
-**Location**: `crates/ggen-marketplace/tests/crypto_ed25519.rs:5`
+**Location**: `crates/mcpp-marketplace/tests/crypto_ed25519.rs:5`
 
 **Error**:
 ```rust
 error[E0433]: failed to resolve: could not find `SignatureAlgorithm` in `models`
-  --> crates/ggen-marketplace/tests/crypto_ed25519.rs:5:43
+  --> crates/mcpp-marketplace/tests/crypto_ed25519.rs:5:43
    |
-5  | use ggen_marketplace::models::signature::{PublicKey, Signature, SignatureAlgorithm};
+5  | use mcpp_marketplace::models::signature::{PublicKey, Signature, SignatureAlgorithm};
    |                                           ^^^^^^^^^^^^^^^^^^^^^ not found in `models::signature`
 ```
 
@@ -296,12 +296,12 @@ error[E0433]: failed to resolve: could not find `SignatureAlgorithm` in `models`
 
 | Test File | Errors | Status |
 |-----------|--------|--------|
-| `ggen-marketplace/tests/property_based_invariants.rs` | 4 | ❌ Won't compile |
-| `ggen-marketplace/tests/integration_critical_paths.rs` | 1 | ❌ Won't compile |
-| `ggen-core/tests/test_marketplace_local.rs` | 4 | ❌ Won't compile |
-| `ggen-core/tests/marketplace_graph_integration.rs` | 8 | ❌ Won't compile |
-| `ggen-node/tests/integration_tests.rs` | 16 macros | ❌ Won't compile |
-| `ggen-marketplace-v2` (lib test) | 4 | ❌ Won't compile |
+| `mcpp-marketplace/tests/property_based_invariants.rs` | 4 | ❌ Won't compile |
+| `mcpp-marketplace/tests/integration_critical_paths.rs` | 1 | ❌ Won't compile |
+| `mcpp-core/tests/test_marketplace_local.rs` | 4 | ❌ Won't compile |
+| `mcpp-core/tests/marketplace_graph_integration.rs` | 8 | ❌ Won't compile |
+| `mcpp-node/tests/integration_tests.rs` | 16 macros | ❌ Won't compile |
+| `mcpp-marketplace-v2` (lib test) | 4 | ❌ Won't compile |
 
 **Total Broken Tests**: 40+ (cannot get exact count until compilation succeeds)
 
@@ -309,7 +309,7 @@ error[E0433]: failed to resolve: could not find `SignatureAlgorithm` in `models`
 
 ### 2.2 Disabled Test Examples
 
-**Location**: `crates/ggen-marketplace/examples/`
+**Location**: `crates/mcpp-marketplace/examples/`
 
 **Issue**: Tests disabled via `#[cfg(never)]` due to API changes
 ```rust
@@ -337,30 +337,30 @@ fn example_custom_backend() { ... }
 **Critical Modules Without Tests**:
 
 ```
-crates/ggen-core/src/preprocessor.rs                      [HIGH PRIORITY]
-crates/ggen-core/src/cache.rs                            [HIGH PRIORITY]
-crates/ggen-core/src/e2e_tests.rs                        [IRONIC - test file untested]
-crates/ggen-core/src/registry.rs                         [CRITICAL PATH]
-crates/ggen-core/src/pqc.rs                              [SECURITY CRITICAL]
-crates/ggen-core/src/config/mod.rs                       [HIGH PRIORITY]
-crates/ggen-core/src/config/template_config.rs           [HIGH PRIORITY]
-crates/ggen-core/src/graph/core.rs                       [CRITICAL - 818 lines]
-crates/ggen-core/src/graph/export.rs                     [CRITICAL PATH]
-crates/ggen-core/src/graph/types.rs                      [CORE TYPE]
-crates/ggen-core/src/lifecycle/cache.rs                  [HIGH PRIORITY]
-crates/ggen-core/src/lifecycle/optimization.rs           [PERFORMANCE]
-crates/ggen-core/src/lifecycle/state_machine.rs          [CRITICAL LOGIC]
-crates/ggen-core/src/lifecycle/exec.rs                   [CRITICAL PATH]
-crates/ggen-core/src/lifecycle/dag.rs                    [CRITICAL LOGIC]
+crates/mcpp-core/src/preprocessor.rs                      [HIGH PRIORITY]
+crates/mcpp-core/src/cache.rs                            [HIGH PRIORITY]
+crates/mcpp-core/src/e2e_tests.rs                        [IRONIC - test file untested]
+crates/mcpp-core/src/registry.rs                         [CRITICAL PATH]
+crates/mcpp-core/src/pqc.rs                              [SECURITY CRITICAL]
+crates/mcpp-core/src/config/mod.rs                       [HIGH PRIORITY]
+crates/mcpp-core/src/config/template_config.rs           [HIGH PRIORITY]
+crates/mcpp-core/src/graph/core.rs                       [CRITICAL - 818 lines]
+crates/mcpp-core/src/graph/export.rs                     [CRITICAL PATH]
+crates/mcpp-core/src/graph/types.rs                      [CORE TYPE]
+crates/mcpp-core/src/lifecycle/cache.rs                  [HIGH PRIORITY]
+crates/mcpp-core/src/lifecycle/optimization.rs           [PERFORMANCE]
+crates/mcpp-core/src/lifecycle/state_machine.rs          [CRITICAL LOGIC]
+crates/mcpp-core/src/lifecycle/exec.rs                   [CRITICAL PATH]
+crates/mcpp-core/src/lifecycle/dag.rs                    [CRITICAL LOGIC]
 ```
 
 **Example Files** (untested, but less critical):
 ```
-crates/ggen-core/examples/async-web-service/src/**      [EXAMPLE CODE]
-crates/ggen-core/examples/perf-library/src/**           [EXAMPLE CODE]
-crates/ggen-core/examples/wasm-crypto/src/**            [EXAMPLE CODE]
-crates/ggen-core/examples/advanced-cli-tool/src/**      [EXAMPLE CODE]
-crates/ggen-core/examples/embedded-iot/src/**           [EXAMPLE CODE]
+crates/mcpp-core/examples/async-web-service/src/**      [EXAMPLE CODE]
+crates/mcpp-core/examples/perf-library/src/**           [EXAMPLE CODE]
+crates/mcpp-core/examples/wasm-crypto/src/**            [EXAMPLE CODE]
+crates/mcpp-core/examples/advanced-cli-tool/src/**      [EXAMPLE CODE]
+crates/mcpp-core/examples/embedded-iot/src/**           [EXAMPLE CODE]
 ```
 
 ---
@@ -369,15 +369,15 @@ crates/ggen-core/examples/embedded-iot/src/**           [EXAMPLE CODE]
 
 | Module | Est. Coverage | Priority | Notes |
 |--------|--------------|----------|-------|
-| `ggen-core/graph` | 40% | CRITICAL | Core graph logic, 818-line files |
-| `ggen-core/lifecycle` | 60% | CRITICAL | State machine untested |
-| `ggen-core/registry` | 30% | HIGH | No direct tests found |
-| `ggen-marketplace` | 70% | MEDIUM | Tests broken but exist |
-| `ggen-marketplace-v2` | 50% | HIGH | RDF mapper untested |
-| `ggen-ai` | 40% | MEDIUM | RDF query/parser gaps |
-| `ggen-cli` | 75% | MEDIUM | Good integration tests |
-| `ggen-utils` | 85% | LOW | Well tested |
-| `ggen-domain` | 60% | MEDIUM | Some gaps in marketplace |
+| `mcpp-core/graph` | 40% | CRITICAL | Core graph logic, 818-line files |
+| `mcpp-core/lifecycle` | 60% | CRITICAL | State machine untested |
+| `mcpp-core/registry` | 30% | HIGH | No direct tests found |
+| `mcpp-marketplace` | 70% | MEDIUM | Tests broken but exist |
+| `mcpp-marketplace-v2` | 50% | HIGH | RDF mapper untested |
+| `mcpp-ai` | 40% | MEDIUM | RDF query/parser gaps |
+| `mcpp-cli` | 75% | MEDIUM | Good integration tests |
+| `mcpp-utils` | 85% | LOW | Well tested |
+| `mcpp-domain` | 60% | MEDIUM | Some gaps in marketplace |
 
 ---
 
@@ -390,11 +390,11 @@ crates/ggen-core/examples/embedded-iot/src/**           [EXAMPLE CODE]
 **High-Impact Deprecated Code**:
 
 ```
-crates/ggen-core/src/poc.rs                              [ENTIRE FILE MARKED DEPRECATED]
-crates/ggen-ai/src/streaming.rs                          [DEPRECATED STREAMING IMPL]
-crates/ggen-core/src/lifecycle/state_validation.rs       [OLD VALIDATION LOGIC]
-crates/ggen-core/src/cleanroom/forensics.rs              [DEPRECATED FORENSICS]
-crates/ggen-domain/src/marketplace/adapter.rs            [V1 ADAPTER DEPRECATED]
+crates/mcpp-core/src/poc.rs                              [ENTIRE FILE MARKED DEPRECATED]
+crates/mcpp-ai/src/streaming.rs                          [DEPRECATED STREAMING IMPL]
+crates/mcpp-core/src/lifecycle/state_validation.rs       [OLD VALIDATION LOGIC]
+crates/mcpp-core/src/cleanroom/forensics.rs              [DEPRECATED FORENSICS]
+crates/mcpp-domain/src/marketplace/adapter.rs            [V1 ADAPTER DEPRECATED]
 ```
 
 **Impact**: Maintenance burden, confusion, potential bugs if deprecated code still called
@@ -410,16 +410,16 @@ crates/ggen-domain/src/marketplace/adapter.rs            [V1 ADAPTER DEPRECATED]
 **Workspace Version**: 3.2.0
 **Individual Crate Versions**: Mixed
 
-**Issue**: `ggen-marketplace-v2` declared as version `3.0.0` in some places, causing dependency issues.
+**Issue**: `mcpp-marketplace-v2` declared as version `3.0.0` in some places, causing dependency issues.
 
 **From git status**:
 ```
-M crates/ggen-marketplace-v2/src/registry_rdf.rs
+M crates/mcpp-marketplace-v2/src/registry_rdf.rs
 ```
 
 **Recent Commit**:
 ```
-689b666c fix: Update ggen-marketplace-v2 version constraint to 3.0.0
+689b666c fix: Update mcpp-marketplace-v2 version constraint to 3.0.0
 ```
 
 **Impact**: Version confusion, potential build cache issues
@@ -457,11 +457,11 @@ M crates/ggen-marketplace-v2/src/registry_rdf.rs
 **High-Risk Locations**:
 
 ```rust
-// crates/ggen-domain/src/temporal_fabric.rs:4
-// crates/ggen-domain/src/swarm_coordination.rs:4
-// crates/ggen-node/src/lib.rs:1
-// crates/ggen-domain/src/ahi_contract.rs:6
-// crates/ggen-ai/src/rdf/parser.rs:16
+// crates/mcpp-domain/src/temporal_fabric.rs:4
+// crates/mcpp-domain/src/swarm_coordination.rs:4
+// crates/mcpp-node/src/lib.rs:1
+// crates/mcpp-domain/src/ahi_contract.rs:6
+// crates/mcpp-ai/src/rdf/parser.rs:16
 // ... (133 more)
 ```
 
@@ -492,9 +492,9 @@ M crates/ggen-marketplace-v2/src/registry_rdf.rs
 
 **Recommended Security Audit Areas**:
 ```
-crates/ggen-marketplace/src/models/package.rs:54    [PackageId::new - no validation]
-crates/ggen-core/src/graph/types.rs                 [Graph node validation]
-crates/ggen-core/src/delta.rs                       [Delta operation safety]
+crates/mcpp-marketplace/src/models/package.rs:54    [PackageId::new - no validation]
+crates/mcpp-core/src/graph/types.rs                 [Graph node validation]
+crates/mcpp-core/src/delta.rs                       [Delta operation safety]
 ```
 
 **Estimated Fix Time**: 6 hours (comprehensive input validation)
@@ -519,7 +519,7 @@ match result {
 
 **Pattern 3: Panic in Library Code**
 ```rust
-// crates/ggen-core/src/template.rs:845
+// crates/mcpp-core/src/template.rs:845
 panic!("Template parsing is not idempotent");
 ```
 
@@ -540,15 +540,15 @@ panic!("Template parsing is not idempotent");
 
 | File | Lines | Code Smell Severity |
 |------|-------|---------------------|
-| `crates/ggen-cli/src/cmds/marketplace.rs` | 1748 | 🔴 CRITICAL |
-| `crates/ggen-domain/src/marketplace/install.rs` | 1649 | 🔴 CRITICAL |
-| `crates/ggen-domain/src/marketplace/search.rs` | 1370 | 🔴 CRITICAL |
-| `crates/ggen-cli/tests/marketplace_search_chicago_tdd.rs` | 1172 | 🟡 MEDIUM (test) |
-| `crates/ggen-cli/src/cmds/packs.rs` | 1158 | 🔴 CRITICAL |
-| `crates/ggen-domain/src/marketplace/registry.rs` | 1107 | 🔴 CRITICAL |
-| `crates/ggen-domain/src/marketplace/validate.rs` | 1106 | 🔴 CRITICAL |
-| `crates/ggen-core/src/lifecycle/production.rs` | 1089 | 🔴 CRITICAL |
-| `crates/ggen-core/tests/integration/lifecycle_tests.rs` | 1075 | 🟡 MEDIUM (test) |
+| `crates/mcpp-cli/src/cmds/marketplace.rs` | 1748 | 🔴 CRITICAL |
+| `crates/mcpp-domain/src/marketplace/install.rs` | 1649 | 🔴 CRITICAL |
+| `crates/mcpp-domain/src/marketplace/search.rs` | 1370 | 🔴 CRITICAL |
+| `crates/mcpp-cli/tests/marketplace_search_chicago_tdd.rs` | 1172 | 🟡 MEDIUM (test) |
+| `crates/mcpp-cli/src/cmds/packs.rs` | 1158 | 🔴 CRITICAL |
+| `crates/mcpp-domain/src/marketplace/registry.rs` | 1107 | 🔴 CRITICAL |
+| `crates/mcpp-domain/src/marketplace/validate.rs` | 1106 | 🔴 CRITICAL |
+| `crates/mcpp-core/src/lifecycle/production.rs` | 1089 | 🔴 CRITICAL |
+| `crates/mcpp-core/tests/integration/lifecycle_tests.rs` | 1075 | 🟡 MEDIUM (test) |
 
 **Recommended**: Split files into logical modules (target: <500 lines per file)
 
@@ -563,13 +563,13 @@ panic!("Template parsing is not idempotent");
 **High-Priority TODOs**:
 
 ```rust
-// crates/ggen-marketplace/docs/PRODUCTION_READINESS_ACTION_ITEMS.md
+// crates/mcpp-marketplace/docs/PRODUCTION_READINESS_ACTION_ITEMS.md
 // 7 production readiness action items
 
-// crates/ggen-marketplace/docs/PRODUCTION_VALIDATION_REPORT.md
+// crates/mcpp-marketplace/docs/PRODUCTION_VALIDATION_REPORT.md
 // 1 validation issue
 
-// crates/ggen-marketplace/docs/FINAL_VALIDATION_REPORT.md
+// crates/mcpp-marketplace/docs/FINAL_VALIDATION_REPORT.md
 // 13 final validation items
 ```
 
@@ -589,22 +589,22 @@ panic!("Template parsing is not idempotent");
 
 ```
 warning: unused imports: `PublicKey` and `Signature`
- --> crates/ggen-marketplace/tests/crypto_ed25519.rs:5:43
+ --> crates/mcpp-marketplace/tests/crypto_ed25519.rs:5:43
 
 warning: unused import: `tempfile::TempDir`
- --> crates/ggen-marketplace/tests/property_based_invariants.rs:7:5
+ --> crates/mcpp-marketplace/tests/property_based_invariants.rs:7:5
 
 warning: unused import: `Sha256`
- --> crates/ggen-marketplace/tests/property_based_invariants.rs:313:24
+ --> crates/mcpp-marketplace/tests/property_based_invariants.rs:313:24
 
 warning: unused import: `std::path::PathBuf`
- --> crates/ggen-marketplace/tests/integration_critical_paths.rs:9:5
+ --> crates/mcpp-marketplace/tests/integration_critical_paths.rs:9:5
 
 warning: unused imports: `PackageMetadata`, `PackageVersion`, and `Package`
- --> crates/ggen-marketplace-v2/src/install.rs:254:25
+ --> crates/mcpp-marketplace-v2/src/install.rs:254:25
 
 warning: unused import: `chrono::Utc`
- --> crates/ggen-marketplace-v2/src/registry.rs:254:9
+ --> crates/mcpp-marketplace-v2/src/registry.rs:254:9
 ```
 
 **Impact**: Low (but indicates dead code paths)
@@ -689,7 +689,7 @@ warning: unused import: `chrono::Utc`
 **Goal**: Make entire workspace compile cleanly
 
 **Tasks**:
-- [ ] Define `async_test_with_timeout!` macro in `ggen-utils`
+- [ ] Define `async_test_with_timeout!` macro in `mcpp-utils`
 - [ ] Fix all type mismatch errors (5 occurrences)
 - [ ] Fix RDF QueryResults iteration pattern
 - [ ] Fix async Send trait violations
@@ -820,7 +820,7 @@ warning: unused import: `chrono::Utc`
 
 ## Conclusion
 
-The ggen codebase is currently **not production-ready** due to critical compilation errors and test failures. However, the issues are well-understood and fixable with a structured approach.
+The mcpp codebase is currently **not production-ready** due to critical compilation errors and test failures. However, the issues are well-understood and fixable with a structured approach.
 
 ### Immediate Actions Required
 

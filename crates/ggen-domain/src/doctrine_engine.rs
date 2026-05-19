@@ -99,7 +99,7 @@ impl DoctrineRule {
     }
 }
 
-/// Doctrine Engine - Multi-constraint governor for ggen
+/// Doctrine Engine - Multi-constraint governor for mcpp
 #[derive(Debug, Clone)]
 pub struct DoctrineEngine {
     rules: HashMap<String, DoctrineRule>,

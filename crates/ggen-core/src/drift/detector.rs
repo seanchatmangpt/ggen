@@ -5,7 +5,7 @@
 use super::sync_state::{FileHashState, SyncState};
 use crate::pqc::calculate_sha256_file;
 use chrono::Utc;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -62,7 +62,7 @@ impl DriftChange {
     ) -> Self {
         let message = match &change_type {
             ChangeType::NoState => {
-                "No previous sync state found. Run 'ggen sync' to create baseline.".to_string()
+                "No previous sync state found. Run 'mcpp sync' to create baseline.".to_string()
             }
             ChangeType::Missing(path) => {
                 format!("File '{}' is missing", path)
@@ -121,7 +121,7 @@ impl DriftStatus {
                 days_since_sync,
             } => {
                 let mut msg = format!(
-                    "⚠️  Ontology changed since last sync ({} days ago). Run 'ggen sync' to update.\n",
+                    "⚠️  Ontology changed since last sync ({} days ago). Run 'mcpp sync' to update.\n",
                     days_since_sync
                 );
 
@@ -325,10 +325,10 @@ mod tests {
     fn create_test_file(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {
         let path = dir.join(name);
         let mut file = fs::File::create(&path).map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create test file: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create test file: {}", e))
         })?;
         file.write_all(content.as_bytes()).map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to write test file: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to write test file: {}", e))
         })?;
         Ok(path)
     }
@@ -336,14 +336,14 @@ mod tests {
     #[test]
     fn test_no_drift_when_clean() -> Result<()> {
         let temp_dir = TempDir::new().map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
         })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
-        let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
-        let state_dir = temp_dir.path().join(".ggen");
+        let manifest_path = create_test_file(temp_dir.path(), "mcpp.toml", "content2")?;
+        let state_dir = temp_dir.path().join(".mcpp");
         fs::create_dir(&state_dir).map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
         })?;
 
         let detector = DriftDetector::new(&state_dir)?;
@@ -361,14 +361,14 @@ mod tests {
     #[test]
     fn test_drift_when_ontology_changed() -> Result<()> {
         let temp_dir = TempDir::new().map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
         })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
-        let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
-        let state_dir = temp_dir.path().join(".ggen");
+        let manifest_path = create_test_file(temp_dir.path(), "mcpp.toml", "content2")?;
+        let state_dir = temp_dir.path().join(".mcpp");
         fs::create_dir(&state_dir).map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
         })?;
 
         let detector = DriftDetector::new(&state_dir)?;
@@ -378,7 +378,7 @@ mod tests {
 
         // Modify ontology
         fs::write(&ontology_path, "modified content").map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to write file: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to write file: {}", e))
         })?;
 
         // Check drift (should be drifted)
@@ -396,14 +396,14 @@ mod tests {
     #[test]
     fn test_drift_when_no_state() -> Result<()> {
         let temp_dir = TempDir::new().map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
         })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
-        let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
-        let state_dir = temp_dir.path().join(".ggen");
+        let manifest_path = create_test_file(temp_dir.path(), "mcpp.toml", "content2")?;
+        let state_dir = temp_dir.path().join(".mcpp");
         fs::create_dir(&state_dir).map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
         })?;
 
         let detector = DriftDetector::new(&state_dir)?;
@@ -423,15 +423,15 @@ mod tests {
     #[test]
     fn test_save_state_with_details() -> Result<()> {
         let temp_dir = TempDir::new().map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
         })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
-        let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
+        let manifest_path = create_test_file(temp_dir.path(), "mcpp.toml", "content2")?;
         let import_path = create_test_file(temp_dir.path(), "import.ttl", "import content")?;
-        let state_dir = temp_dir.path().join(".ggen");
+        let state_dir = temp_dir.path().join(".mcpp");
         fs::create_dir(&state_dir).map_err(|e| {
-            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+            mcpp_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
         })?;
 
         let detector = DriftDetector::new(&state_dir)?;

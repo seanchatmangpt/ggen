@@ -5,7 +5,7 @@
 //! - Coverage data from cargo-tarpaulin
 //! - Failure history from previous test runs
 //!
-//! Metadata is stored in `.ggen/test-metadata/` for persistent tracking.
+//! Metadata is stored in `.mcpp/test-metadata/` for persistent tracking.
 
 use crate::types::{OptResult, OptimizationError, TestId, TestType};
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 /// Test metadata collector for historical data gathering
 #[derive(Debug)]
 pub struct MetadataCollector {
-    /// Path to .ggen/test-metadata/ directory
+    /// Path to .mcpp/test-metadata/ directory
     metadata_dir: PathBuf,
 }
 
@@ -24,7 +24,7 @@ impl MetadataCollector {
     /// Create new metadata collector
     ///
     /// # Arguments
-    /// * `metadata_dir` - Path to metadata storage directory (default: `.ggen/test-metadata/`)
+    /// * `metadata_dir` - Path to metadata storage directory (default: `.mcpp/test-metadata/`)
     pub fn new<P: AsRef<Path>>(metadata_dir: P) -> Self {
         Self {
             metadata_dir: metadata_dir.as_ref().to_path_buf(),
@@ -33,7 +33,7 @@ impl MetadataCollector {
 
     /// Create collector with default metadata directory
     pub fn with_defaults() -> Self {
-        Self::new(".ggen/test-metadata")
+        Self::new(".mcpp/test-metadata")
     }
 
     /// Ensure metadata directory exists
@@ -117,7 +117,7 @@ impl MetadataCollector {
 
     /// Collect failure history from historical test runs
     ///
-    /// Reads `.ggen/test-metadata/failure_history.json` and returns
+    /// Reads `.mcpp/test-metadata/failure_history.json` and returns
     /// map of TestId → (failure_count, total_runs).
     ///
     /// # Returns
@@ -145,7 +145,7 @@ impl MetadataCollector {
 
     /// Update failure history with latest test results
     ///
-    /// Appends results from latest test run to `.ggen/test-metadata/failure_history.json`.
+    /// Appends results from latest test run to `.mcpp/test-metadata/failure_history.json`.
     ///
     /// # Arguments
     /// * `test_results` - Map of test_id → (passed: bool)
@@ -190,7 +190,7 @@ impl MetadataCollector {
     /// Infer test type from test name
     ///
     /// # Arguments
-    /// * `test_name` - Full test name (e.g., "ggen_core::parser::tests::test_parse_rdf")
+    /// * `test_name` - Full test name (e.g., "mcpp_core::parser::tests::test_parse_rdf")
     ///
     /// # Returns
     /// TestType::Unit or TestType::Integration based on naming convention
@@ -306,7 +306,7 @@ mod tests {
     #[test]
     fn test_infer_test_type_unit() {
         let (collector, _temp) = create_temp_collector();
-        let test_type = collector.infer_test_type("ggen_core::parser::tests::test_parse");
+        let test_type = collector.infer_test_type("mcpp_core::parser::tests::test_parse");
         assert!(matches!(test_type, TestType::Unit));
     }
 

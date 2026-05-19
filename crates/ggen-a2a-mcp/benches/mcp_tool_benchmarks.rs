@@ -13,7 +13,7 @@
 //! - complete (completion suggestions)
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 use std::hint::black_box;
 
@@ -241,7 +241,7 @@ fn bench_complete(c: &mut Criterion) {
 //     c.bench_function("read_resource", |b| {
 //         b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
 //             if let Ok(client) = start_bench_server().await {
-//                 let uri = format!("ggen://example/{}/ttl", BENCHMARK_EXAMPLE);
+//                 let uri = format!("mcpp://example/{}/ttl", BENCHMARK_EXAMPLE);
 //                 let _ = client.read_resource(None).await;
 //                 let _ = client.cancel().await;
 //             }
@@ -289,7 +289,7 @@ fn bench_read_resource(c: &mut Criterion) {
         b.to_async(tokio::runtime::Runtime::new().unwrap())
             .iter(|| async {
                 if let Ok(client) = start_bench_server().await {
-                    let uri = format!("ggen://example/{}/ttl", BENCHMARK_EXAMPLE);
+                    let uri = format!("mcpp://example/{}/ttl", BENCHMARK_EXAMPLE);
                     let params = ReadResourceRequestParams::new(uri);
                     let _ = client.read_resource(params).await;
                     let _ = client.cancel().await;

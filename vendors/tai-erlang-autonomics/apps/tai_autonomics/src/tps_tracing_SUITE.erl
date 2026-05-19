@@ -29,7 +29,7 @@ suite() ->
 
 init_per_suite(Config) ->
     %% Start application and dependencies
-    {ok, _} = application:ensure_all_started(ggen),
+    {ok, _} = application:ensure_all_started(mcpp),
     {ok, _TracerPid} = tps_tracing:start_link(),
     {ok, _ExporterPid} = tps_tracing_exporter:start_link(),
     {ok, _AnalyzerPid} = tps_tracing_analyzer:start_link(),
@@ -37,7 +37,7 @@ init_per_suite(Config) ->
     Config.
 
 end_per_suite(Config) ->
-    application:stop(ggen),
+    application:stop(mcpp),
     Config.
 
 init_per_testcase(_TestCase, Config) ->

@@ -1,7 +1,7 @@
 //! File tree generation domain logic
 
-use ggen_core::{FileTreeTemplate, GenerationResult, TemplateContext, TemplateParser};
-use ggen_utils::error::Result;
+use mcpp_core::{FileTreeTemplate, GenerationResult, TemplateContext, TemplateParser};
+use mcpp_utils::error::Result;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -11,7 +11,7 @@ pub fn generate_file_tree(
 ) -> Result<GenerationResult> {
     // Load and parse template
     let template = TemplateParser::parse_file(template_path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to parse template: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to parse template: {}", e)))?;
 
     // Create template context from variables
     let var_map: std::collections::BTreeMap<String, String> = variables
@@ -20,11 +20,11 @@ pub fn generate_file_tree(
         .collect();
 
     let context = TemplateContext::from_map(var_map)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create context: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to create context: {}", e)))?;
 
     // Validate required variables
     if let Err(e) = context.validate_required(template.required_variables()) {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(mcpp_utils::error::Error::new(&format!(
             "Validation failed: {}",
             e
         )));
@@ -32,14 +32,14 @@ pub fn generate_file_tree(
 
     // Check if files would be overwritten
     if !force && would_overwrite(&template, output_dir, &context)? {
-        return Err(ggen_utils::error::Error::new(
+        return Err(mcpp_utils::error::Error::new(
             "Files would be overwritten. Use --force to overwrite or choose different output directory",
         ));
     }
 
     // Generate files
-    let result = ggen_core::templates::generate_file_tree(template, context, output_dir)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Generation failed: {}", e)))?;
+    let result = mcpp_core::templates::generate_file_tree(template, context, output_dir)
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Generation failed: {}", e)))?;
 
     Ok(result)
 }
@@ -49,22 +49,22 @@ fn would_overwrite(
     template: &FileTreeTemplate, output: &Path, context: &TemplateContext,
 ) -> Result<bool> {
     fn check_nodes(
-        nodes: &[ggen_core::FileTreeNode], current_path: &Path, context: &TemplateContext,
+        nodes: &[mcpp_core::FileTreeNode], current_path: &Path, context: &TemplateContext,
     ) -> Result<bool> {
         for node in nodes {
             let rendered_name = context
                 .render_string(&node.name)
-                .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to render: {}", e)))?;
+                .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to render: {}", e)))?;
 
             let node_path = current_path.join(&rendered_name);
 
             match node.node_type {
-                ggen_core::NodeType::Directory => {
+                mcpp_core::NodeType::Directory => {
                     if check_nodes(&node.children, &node_path, context)? {
                         return Ok(true);
                     }
                 }
-                ggen_core::NodeType::File => {
+                mcpp_core::NodeType::File => {
                     if node_path.exists() {
                         return Ok(true);
                     }
@@ -159,7 +159,7 @@ pub async fn execute_generate_tree(input: GenerateTreeInput) -> Result<GenerateT
     for var_str in &input.var {
         let parts: Vec<&str> = var_str.splitn(2, '=').collect();
         if parts.len() != 2 {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Invalid variable format: '{}'. Expected 'key=value'",
                 var_str
             )));
@@ -182,14 +182,14 @@ pub async fn execute_generate_tree(input: GenerateTreeInput) -> Result<GenerateT
 pub fn run(args: &GenerateTreeInput) -> Result<()> {
     // Use tokio runtime for async execution
     let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
 
     let output = runtime.block_on(execute_generate_tree(args.clone()))?;
 
-    ggen_utils::alert_success!("Generated file tree from: {}", args.template.display());
-    ggen_utils::alert_info!("📁 Output directory: {}", output.output_path);
-    ggen_utils::alert_info!("📄 Files created: {}", output.files_generated);
-    ggen_utils::alert_info!("📂 Directories created: {}", output.directories_created);
+    mcpp_utils::alert_success!("Generated file tree from: {}", args.template.display());
+    mcpp_utils::alert_info!("📁 Output directory: {}", output.output_path);
+    mcpp_utils::alert_info!("📄 Files created: {}", output.files_generated);
+    mcpp_utils::alert_info!("📂 Directories created: {}", output.directories_created);
 
     Ok(())
 }

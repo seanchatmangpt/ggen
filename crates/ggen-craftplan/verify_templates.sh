@@ -5,7 +5,7 @@
 set -e
 
 echo "=========================================="
-echo "ggen-craftplan Template Verification"
+echo "mcpp-craftplan Template Verification"
 echo "=========================================="
 echo ""
 
@@ -93,5 +93,5 @@ else
     echo "  1. Review templates in templates/elixir/"
     echo "  2. Read docs/TEMPLATE_REFERENCE.md"
     echo "  3. Run examples/GenerateExpectedOutput.sh"
-    echo "  4. Integrate with ggen-core pipeline"
+    echo "  4. Integrate with mcpp-core pipeline"
 fi

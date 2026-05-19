@@ -1,4 +1,4 @@
-//! Comprehensive Chicago TDD tests for ggen sync command
+//! Comprehensive Chicago TDD tests for mcpp sync command
 //!
 //! Test Philosophy: Chicago TDD (state-based testing with real objects)
 //! - Arrange: Set up real RDF graphs, manifests, and templates
@@ -16,7 +16,7 @@
 //! - All assertions verify observable state
 //! - unwrap() is allowed in tests only
 
-use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
+use mcpp_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -42,7 +42,7 @@ rules = []
 "#,
         ontology_file
     );
-    let manifest_path = temp_path.join("ggen.toml");
+    let manifest_path = temp_path.join("mcpp.toml");
     fs::write(&manifest_path, manifest_content).unwrap();
     manifest_path
 }
@@ -85,7 +85,7 @@ mode = "Overwrite"
 "#,
         ontology_file
     );
-    let manifest_path = temp_path.join("ggen.toml");
+    let manifest_path = temp_path.join("mcpp.toml");
     fs::write(&manifest_path, manifest_content).unwrap();
     manifest_path
 }
@@ -127,7 +127,7 @@ mode = "Overwrite"
 "#,
         ontology_file
     );
-    let manifest_path = temp_path.join("ggen.toml");
+    let manifest_path = temp_path.join("mcpp.toml");
     fs::write(&manifest_path, manifest_content).unwrap();
     manifest_path
 }
@@ -552,7 +552,7 @@ fn test_sync_error_invalid_manifest_syntax() {
 name = "broken"  # Missing closing bracket
 version = "0.1.0"
 "#;
-    let manifest_path = temp_path.join("ggen.toml");
+    let manifest_path = temp_path.join("mcpp.toml");
     fs::write(&manifest_path, invalid_manifest).unwrap();
 
     let options = SyncOptions {
@@ -1004,7 +1004,7 @@ fn test_sync_options_default_values() {
     let options = SyncOptions::default();
 
     // Assert: Verify defaults
-    assert_eq!(options.manifest_path, PathBuf::from("ggen.toml"));
+    assert_eq!(options.manifest_path, PathBuf::from("mcpp.toml"));
     assert_eq!(options.output_dir, None);
     assert!(!options.dry_run, "dry_run should default to false");
     assert!(!options.force, "force should default to false");
@@ -1024,12 +1024,12 @@ fn test_sync_options_default_values() {
 #[test]
 fn test_sync_options_from_manifest() {
     // Arrange & Act: Create options from manifest path
-    let options = SyncOptions::from_manifest("/custom/path/ggen.toml");
+    let options = SyncOptions::from_manifest("/custom/path/mcpp.toml");
 
     // Assert: Verify manifest path set
     assert_eq!(
         options.manifest_path,
-        PathBuf::from("/custom/path/ggen.toml")
+        PathBuf::from("/custom/path/mcpp.toml")
     );
 
     // Other options should be defaults

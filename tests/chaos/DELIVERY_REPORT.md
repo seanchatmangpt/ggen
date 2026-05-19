@@ -24,7 +24,7 @@ Delivered a comprehensive chaos engineering framework enabling:
 ## Deliverables
 
 ### 1. Event Sourcing System ✅
-**File**: `/Users/sac/ggen/tests/chaos/event_store/mod.rs` (270 lines)
+**File**: `./tests/chaos/event_store/mod.rs` (270 lines)
 
 ```
 FailureEvent enum (8 event types):
@@ -58,7 +58,7 @@ InMemoryEventStore (concrete implementation):
 ---
 
 ### 2. Chaos Injection Engine ✅
-**File**: `/Users/sac/ggen/tests/chaos/injection/mod.rs` (367 lines)
+**File**: `./tests/chaos/injection/mod.rs` (367 lines)
 
 ```
 ChaosEngine struct:
@@ -98,7 +98,7 @@ PanicInjection builder:
 ---
 
 ### 3. Correlation ID System ✅
-**File**: `/Users/sac/ggen/tests/chaos/correlation.rs` (266 lines)
+**File**: `./tests/chaos/correlation.rs` (266 lines)
 
 ```
 CorrelationId:
@@ -142,7 +142,7 @@ SpanGuard (RAII):
 ---
 
 ### 4. Test Scenarios (5 Complete) ✅
-**File**: `/Users/sac/ggen/tests/chaos/scenarios/mod.rs` (706 lines)
+**File**: `./tests/chaos/scenarios/mod.rs` (706 lines)
 
 #### Scenario 1: Panic Injection
 ```rust
@@ -250,7 +250,7 @@ pub trait ChaosScenario: Send + Sync {
 ---
 
 ### 5. Integration Tests ✅
-**File**: `/Users/sac/ggen/tests/chaos_integration.rs` (290 lines)
+**File**: `./tests/chaos_integration.rs` (290 lines)
 
 ```
 8 Integration Tests:
@@ -291,7 +291,7 @@ pub trait ChaosScenario: Send + Sync {
 ### 6. Documentation ✅
 
 #### README (413 lines)
-**File**: `/Users/sac/ggen/tests/chaos/README.md`
+**File**: `./tests/chaos/README.md`
 
 Contents:
 - Architecture overview with diagrams
@@ -303,7 +303,7 @@ Contents:
 - Future extensions
 
 #### Implementation Summary (537 lines)
-**File**: `/Users/sac/ggen/tests/chaos/IMPLEMENTATION_SUMMARY.md`
+**File**: `./tests/chaos/IMPLEMENTATION_SUMMARY.md`
 
 Contents:
 - Problem statement
@@ -317,14 +317,14 @@ Contents:
 - Success criteria checklist
 
 #### This Delivery Report
-**File**: `/Users/sac/ggen/tests/chaos/DELIVERY_REPORT.md` (this file)
+**File**: `./tests/chaos/DELIVERY_REPORT.md` (this file)
 
 ---
 
 ## Project Structure
 
 ```
-/Users/sac/ggen/tests/
+./tests/
 ├── chaos/
 │   ├── mod.rs                          (33 lines)   - Module re-exports
 │   ├── correlation.rs                  (266 lines)  - Correlation IDs
@@ -683,7 +683,7 @@ datadog::metrics::gauge(
 
 ### 1. Run All Chaos Tests
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo test --test chaos_integration -- --nocapture
 ```
 

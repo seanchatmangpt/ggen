@@ -3,7 +3,7 @@
 //! Validates that `Graph` (Arc<Store> + Arc<Mutex<LruCache>> + Arc<AtomicU64>)
 //! is safe for concurrent reads and writes across multiple threads.
 
-use ggen_core::graph::{CachedResult, Graph};
+use mcpp_core::graph::{CachedResult, Graph};
 use std::sync::{Arc, Barrier};
 use std::thread;
 

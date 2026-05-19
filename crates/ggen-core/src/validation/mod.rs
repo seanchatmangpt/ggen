@@ -1,6 +1,6 @@
-//! SHACL validation module for ggen sync poka-yoke
+//! SHACL validation module for mcpp sync poka-yoke
 //!
-//! This module provides SPARQL-based SHACL validation integrated into the ggen sync pipeline.
+//! This module provides SPARQL-based SHACL validation integrated into the mcpp sync pipeline.
 //! It prevents defective TTL ontologies from entering the code generation pipeline by validating
 //! them against SHACL shapes at the ontology loading stage.
 //!
@@ -12,7 +12,7 @@
 //!
 //! ## Constitution Compliance
 //!
-//! - ✓ Principle I: Modular structure within ggen-core (not separate crate)
+//! - ✓ Principle I: Modular structure within mcpp-core (not separate crate)
 //! - ✓ Principle V: Type-first thinking with strong enums
 //! - ✓ Principle VII: Result<T,E> error handling (NO unwrap in production)
 //! - ✓ Principle IX: Lean Six Sigma poka-yoke design
@@ -25,8 +25,8 @@
 //! ## Example Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::validation::{SparqlValidator, ValidationResult};
-//! use ggen_core::graph::Graph;
+//! use mcpp_core::validation::{SparqlValidator, ValidationResult};
+//! use mcpp_core::graph::Graph;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load ontology and shapes

@@ -1,5 +1,5 @@
 # Advanced CLI Tool - Complete Lifecycle Configuration
-# Demonstrates all ggen lifecycle phases with production-ready tasks
+# Demonstrates all mcpp lifecycle phases with production-ready tasks
 
 [env]
 RUST_BACKTRACE = "1"

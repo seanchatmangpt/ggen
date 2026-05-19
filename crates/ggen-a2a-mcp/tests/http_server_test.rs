@@ -12,7 +12,7 @@ async fn test_http_server_starts() {
 
     // Spawn server in background
     let server_handle =
-        tokio::spawn(async move { ggen_a2a_mcp::server::serve_http(host, port).await });
+        tokio::spawn(async move { mcpp_a2a_mcp::server::serve_http(host, port).await });
 
     // Give server time to start
     sleep(Duration::from_millis(100)).await;
@@ -43,7 +43,7 @@ async fn test_post_valid_jsonrpc() {
     let host = "127.0.0.1";
 
     // Start server
-    tokio::spawn(async move { ggen_a2a_mcp::server::serve_http(host, port).await });
+    tokio::spawn(async move { mcpp_a2a_mcp::server::serve_http(host, port).await });
 
     sleep(Duration::from_millis(100)).await;
 
@@ -89,7 +89,7 @@ async fn test_invalid_content_type() {
     let host = "127.0.0.1";
 
     // Start server
-    tokio::spawn(async move { ggen_a2a_mcp::server::serve_http(host, port).await });
+    tokio::spawn(async move { mcpp_a2a_mcp::server::serve_http(host, port).await });
 
     sleep(Duration::from_millis(100)).await;
 
@@ -122,7 +122,7 @@ async fn test_cors_headers() {
     let host = "127.0.0.1";
 
     // Start server
-    tokio::spawn(async move { ggen_a2a_mcp::server::serve_http(host, port).await });
+    tokio::spawn(async move { mcpp_a2a_mcp::server::serve_http(host, port).await });
 
     sleep(Duration::from_millis(100)).await;
 
@@ -157,7 +157,7 @@ async fn test_malformed_json() {
     let host = "127.0.0.1";
 
     // Start server
-    tokio::spawn(async move { ggen_a2a_mcp::server::serve_http(host, port).await });
+    tokio::spawn(async move { mcpp_a2a_mcp::server::serve_http(host, port).await });
 
     sleep(Duration::from_millis(100)).await;
 
@@ -185,7 +185,7 @@ async fn test_list_tools_response() {
     let host = "127.0.0.1";
 
     // Start server
-    tokio::spawn(async move { ggen_a2a_mcp::server::serve_http(host, port).await });
+    tokio::spawn(async move { mcpp_a2a_mcp::server::serve_http(host, port).await });
 
     sleep(Duration::from_millis(100)).await;
 

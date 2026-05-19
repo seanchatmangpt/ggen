@@ -20,12 +20,12 @@ required:
 properties:
   command:
     type: string
-    description: Full command path (e.g., "ggen template generate")
-    pattern: "^ggen [a-z_]+( [a-z_]+)?$"
+    description: Full command path (e.g., "mcpp template generate")
+    pattern: "^mcpp [a-z_]+( [a-z_]+)?$"
 
   version_tested:
     type: string
-    description: ggen version tested
+    description: mcpp version tested
     pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     example: "4.0.0"
 
@@ -185,7 +185,7 @@ properties:
 # 4. maturity_level = min(floor(agent_score/20), blocker_cap)
 
 examples:
-  - command: "ggen template generate"
+  - command: "mcpp template generate"
     version_tested: "4.0.0"
     date: "2024-12-14"
     tester: "claude-code"

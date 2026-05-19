@@ -28,7 +28,7 @@ async fn main() -> Result<()> {
     info!("Starting MCP sync example");
 
     // Path to test ontology (using a small test ontology)
-    let ontology_path = "/Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl";
+    let ontology_path = "./.specify/specs/016-self-play/ggen-meta.ttl";
     let output_dir = "/tmp/mcp_sync_test_output";
     let dry_run = false; // Set to true for preview mode
 
@@ -112,13 +112,13 @@ async fn main() -> Result<()> {
     // Demonstrate how to call the tool using rmcp client
     println!("\n=== To Run with Actual MCP Server ===");
     println!("1. Start ggen MCP server in one terminal:");
-    println!("   cd /Users/sac/ggen && cargo run -p ggen-a2a-mcp -- mcp start-server --transport stdio");
+    println!("   cd . && cargo run -p ggen-a2a-mcp -- mcp start-server --transport stdio");
     println!("\n2. In another terminal, run this example with stdio transport:");
     println!("   (Modify this example to use stdio transport instead of JSON-RPC format)");
 
     println!("\n=== Alternative: Direct ggen CLI ===");
     println!("You can also use the ggen CLI directly:");
-    println!("   cd /Users/sac/ggen && cargo run --bin ggen -- sync --ontology {} --output {}{}", ontology_path, output_dir, if dry_run { " --dry-run" } else { "" });
+    println!("   cd . && cargo run --bin ggen -- sync --ontology {} --output {}{}", ontology_path, output_dir, if dry_run { " --dry-run" } else { "" });
 
     println!("\n=== Key Differences: generate vs sync ===");
     println!("generate:");

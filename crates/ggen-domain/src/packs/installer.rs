@@ -1,15 +1,15 @@
 //! Production-grade pack installer with marketplace integration
 //!
 //! This module provides real package installation by integrating with
-//! the marketplace domain layer and ggen-core infrastructure.
+//! the marketplace domain layer and mcpp-core infrastructure.
 
-// NOTE: Marketplace integration moved to ggen-cli
+// NOTE: Marketplace integration moved to mcpp-cli
 // This installer now only manages filesystem repository and lockfile
 use crate::packs::dependency_graph::DependencyGraph;
 use crate::packs::repository::{FileSystemRepository, PackRepository};
 use crate::packs::types::Pack;
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
-use ggen_utils::error::{Error, Result};
+use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use mcpp_utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Instant;
@@ -114,7 +114,7 @@ impl PackInstaller {
         let install_path = options.target_dir.clone().unwrap_or_else(|| {
             dirs::home_dir()
                 .unwrap_or_else(|| PathBuf::from("."))
-                .join(".ggen")
+                .join(".mcpp")
                 .join("packs")
         });
 
@@ -193,9 +193,9 @@ impl PackInstaller {
 
     /// Update lockfile with installed packs
     ///
-    /// Creates or updates `.ggen/packs.lock` with the installed packs.
+    /// Creates or updates `.mcpp/packs.lock` with the installed packs.
     fn update_lockfile(&self, packs: &[Pack], install_path: &PathBuf) -> Result<()> {
-        let lockfile_path = PathBuf::from(".ggen/packs.lock");
+        let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
         // Load existing lockfile or create new one
         let mut lockfile = if lockfile_path.exists() {
@@ -295,7 +295,7 @@ impl PackInstaller {
         conflicts
     }
 
-    /// Install a single package using repository (marketplace removed from ggen-domain)
+    /// Install a single package using repository (marketplace removed from mcpp-domain)
     async fn install_package(
         &self, _package_name: &str, target_dir: &PathBuf, _options: &InstallOptions,
     ) -> Result<()> {
@@ -315,8 +315,8 @@ impl PackInstaller {
             name
         };
 
-        // NOTE: Marketplace integration moved to ggen-cli
-        // Package installation is handled through ggen-cli's marketplace commands
+        // NOTE: Marketplace integration moved to mcpp-cli
+        // Package installation is handled through mcpp-cli's marketplace commands
         // This installer now only manages the filesystem repository and lockfile
 
         Ok(())

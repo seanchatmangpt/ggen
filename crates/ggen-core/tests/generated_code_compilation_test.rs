@@ -7,8 +7,8 @@
 //! Pipeline: ontology (.ttl) -> SPARQL SELECT (.rq) -> Tera (.tera) -> code artifact
 //! A = mu(O)
 
-use ggen_core::graph::{CachedResult, Graph};
-use ggen_core::register::register_all;
+use mcpp_core::graph::{CachedResult, Graph};
+use mcpp_core::register::register_all;
 use serde_json::{Map, Value};
 use tera::{Context, Tera};
 
@@ -18,8 +18,8 @@ use tera::{Context, Tera};
 
 fn workspace_root() -> std::path::PathBuf {
     let mut p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.pop(); // crates/ggen-core -> crates
-    p.pop(); // crates -> ggen root
+    p.pop(); // crates/mcpp-core -> crates
+    p.pop(); // crates -> mcpp root
     p
 }
 
@@ -195,9 +195,9 @@ fn render_template_with_graph(
 // ---------------------------------------------------------------------------
 
 const MINIMAL_MCP_ONTOLOGY: &str = r#"
-@prefix mcp: <https://ggen.dev/ontology/mcp#> .
+@prefix mcp: <https://mcpp.dev/ontology/mcp#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ex:   <https://ggen.dev/examples/e2e#> .
+@prefix ex:   <https://mcpp.dev/examples/e2e#> .
 
 ex:StdioTransport a mcp:Transport ; rdfs:label "stdio" .
 ex:TestServer a mcp:McpsServer ;
@@ -214,7 +214,7 @@ ex:GetTime a mcp:Tool ;
 "#;
 
 const MCP_SPARQL: &str = r#"
-    PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+    PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?server_name ?server_version ?server_description ?transport_type
            ?tool_name ?tool_description
@@ -229,15 +229,15 @@ const MCP_SPARQL: &str = r#"
 "#;
 
 const MINIMAL_A2A_ONTOLOGY: &str = r#"
-@prefix a2a: <https://ggen.dev/ontology/a2a#> .
-@prefix ex:   <https://ggen.dev/examples/e2e#> .
+@prefix a2a: <https://mcpp.dev/ontology/a2a#> .
+@prefix ex:   <https://mcpp.dev/examples/e2e#> .
 ex:ReviewAgent a a2a:Agent ;
     a2a:agentName "code_reviewer" ;
     a2a:agentVersion "1.0.0" ;
     a2a:agentDescription "Reviews code for quality issues" ;
     a2a:agentUrl "http://localhost:8090" ;
-    a2a:providerName "ggen" ;
-    a2a:providerUrl "https://ggen.dev" .
+    a2a:providerName "mcpp" ;
+    a2a:providerUrl "https://mcpp.dev" .
 ex:ReviewCode a a2a:Skill ;
     a2a:skillName "review_code" ;
     a2a:skillDescription "Reviews a code snippet for bugs" ;
@@ -251,7 +251,7 @@ ex:SuggestFixes a a2a:Skill ;
 "#;
 
 const A2A_SPARQL: &str = r#"
-    PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+    PREFIX a2a: <https://mcpp.dev/ontology/a2a#>
     SELECT ?agent_name ?agent_version ?agent_description ?agent_url
            ?provider_name ?provider_url ?skill_name ?skill_description
            ?skill_tags ?streaming ?timeout_ms ?retry_policy
@@ -603,8 +603,8 @@ fn test_no_tera_artifacts_in_any_rendered_output() {
         ("agent_version", "1.0.0"),
         ("agent_description", "Reviews code for quality issues"),
         ("agent_url", "http://localhost:8090"),
-        ("provider_name", "ggen"),
-        ("provider_url", "https://ggen.dev"),
+        ("provider_name", "mcpp"),
+        ("provider_url", "https://mcpp.dev"),
     ];
 
     for template in &a2a_templates {
@@ -762,8 +762,8 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("agent_version", "1.0.0"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
-            ("provider_name", "ggen"),
-            ("provider_url", "https://ggen.dev"),
+            ("provider_name", "mcpp"),
+            ("provider_url", "https://mcpp.dev"),
         ],
     );
     assert!(
@@ -789,8 +789,8 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("agent_version", "1.0.0"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
-            ("provider_name", "ggen"),
-            ("provider_url", "https://ggen.dev"),
+            ("provider_name", "mcpp"),
+            ("provider_url", "https://mcpp.dev"),
         ],
     );
     assert!(
@@ -816,8 +816,8 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("agent_version", "1.0.0"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
-            ("provider_name", "ggen"),
-            ("provider_url", "https://ggen.dev"),
+            ("provider_name", "mcpp"),
+            ("provider_url", "https://mcpp.dev"),
         ],
     );
     assert!(
@@ -843,8 +843,8 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("agent_version", "1.0.0"),
             ("agent_description", "Reviews code for quality issues"),
             ("agent_url", "http://localhost:8090"),
-            ("provider_name", "ggen"),
-            ("provider_url", "https://ggen.dev"),
+            ("provider_name", "mcpp"),
+            ("provider_url", "https://mcpp.dev"),
         ],
     );
     assert!(
@@ -919,8 +919,8 @@ fn render_a2a_elixir_with_skills() -> String {
     ctx.insert("agent_version", "1.0.0");
     ctx.insert("agent_description", "Reviews code for quality issues");
     ctx.insert("agent_url", "http://localhost:8090");
-    ctx.insert("provider_name", "ggen");
-    ctx.insert("provider_url", "https://ggen.dev");
+    ctx.insert("provider_name", "mcpp");
+    ctx.insert("provider_url", "https://mcpp.dev");
 
     tera.render("a2a_elixir", &ctx)
         .unwrap_or_else(|e| panic!("Render failed for a2a-elixir.tera: {}", e))

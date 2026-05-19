@@ -1,4 +1,4 @@
-# ggen Partner Agreements & Terms
+# mcpp Partner Agreements & Terms
 
 Master templates for strategic partnership agreements across multiple partner categories.
 
@@ -29,10 +29,10 @@ Master templates for strategic partnership agreements across multiple partner ca
 
 ### 1. PARTNERSHIP OVERVIEW
 
-**Purpose**: Strategic partnership to integrate ggen code generation capabilities into [CLOUD PLATFORM] ecosystem, delivering mutual customer value through specification-driven infrastructure automation.
+**Purpose**: Strategic partnership to integrate mcpp code generation capabilities into [CLOUD PLATFORM] ecosystem, delivering mutual customer value through specification-driven infrastructure automation.
 
 **Scope**:
-- Integration of ggen with [Cloud Platform] Infrastructure-as-Code services (CloudFormation/ARM/K8s)
+- Integration of mcpp with [Cloud Platform] Infrastructure-as-Code services (CloudFormation/ARM/K8s)
 - Joint go-to-market for enterprise customers
 - Ecosystem development and marketplace integration
 - Technical collaboration on standards and best practices
@@ -45,20 +45,20 @@ Master templates for strategic partnership agreements across multiple partner ca
 #### 2.1 Revenue Sharing Model
 
 **Marketplace Revenue Share**:
-- ggen maintains [25-30]% of gross revenue from [Cloud Platform] Marketplace sales
+- mcpp maintains [25-30]% of gross revenue from [Cloud Platform] Marketplace sales
 - [Cloud Platform] receives [70-75]% gross revenue share
 - Revenue calculated monthly, paid quarterly in arrears
-- Minimum guaranteed revenue: $[X]M annual commitment by ggen
+- Minimum guaranteed revenue: $[X]M annual commitment by mcpp
 
 **Joint Opportunity Revenue Share**:
-- For co-sold deals (joint sales efforts): ggen receives [15-20]% revenue share
+- For co-sold deals (joint sales efforts): mcpp receives [15-20]% revenue share
 - [Cloud Platform] receives partner referral commission [5-10]%
 - Both parties may pursue separate sales in their territories
 - Territory allocation: [Define geographic or vertical splits if applicable]
 
 **Platform Integration Revenue**:
 - [Cloud Platform] provides free API access and marketplace integration
-- ggen compensates [Cloud Platform] at [5-10]% of annual partnership revenue for platform development/maintenance
+- mcpp compensates [Cloud Platform] at [5-10]% of annual partnership revenue for platform development/maintenance
 - Annual: $[Amount] (minimum) paid in Q1
 
 #### 2.2 Marketing Development Fund (MDF)
@@ -71,8 +71,8 @@ Master templates for strategic partnership agreements across multiple partner ca
 
 #### 2.3 Pricing & Discounts
 
-- ggen maintains primary pricing autonomy for base product
-- [Cloud Platform] receives [15-25]% partner discount on ggen enterprise subscriptions
+- mcpp maintains primary pricing autonomy for base product
+- [Cloud Platform] receives [15-25]% partner discount on mcpp enterprise subscriptions
 - Joint customers receive tiered discounts:
   - Standard: [5%]
   - Enterprise: [10-15%]
@@ -85,7 +85,7 @@ Master templates for strategic partnership agreements across multiple partner ca
 #### 3.1 Integration Scope
 
 **Year 1 Deliverables**:
-- [ ] Native integration: ggen → [CloudFormation/ARM/K8s] manifest generation
+- [ ] Native integration: mcpp → [CloudFormation/ARM/K8s] manifest generation
 - [ ] Solution templates: [10-15] reference architectures
 - [ ] API integration: Full REST API access and documentation
 - [ ] Security: SSO/OAuth2 integration, audit logging
@@ -113,14 +113,14 @@ Master templates for strategic partnership agreements across multiple partner ca
 - Dedicated technical integration team from both parties
 - Bi-weekly technical alignment calls
 - Quarterly technical reviews and roadmap alignment
-- ggen provides: API documentation, sample integrations, support
+- mcpp provides: API documentation, sample integrations, support
 - [Cloud Platform] provides: API stability guarantees, advance notice of changes
 
 #### 3.3 Intellectual Property
 
 - Each party retains IP rights to pre-existing technology
 - Joint developments: Owned jointly, free license granted to each party
-- ggen ontologies: ggen retains ownership, [Cloud Platform] granted perpetual license
+- mcpp ontologies: mcpp retains ownership, [Cloud Platform] granted perpetual license
 - [Cloud Platform] integration: Jointly owned, both parties may commercialize
 - Trademarks: Each party maintains ownership of brand assets
 
@@ -138,7 +138,7 @@ Master templates for strategic partnership agreements across multiple partner ca
 - Content marketing: Blog posts, whitepapers, solution briefs
 
 **Marketing Budget**:
-- ggen: $[500K-1M] annually
+- mcpp: $[500K-1M] annually
 - [Cloud Platform]: $[500K-1M] in co-marketing support
 
 **Assets & Materials**:
@@ -158,7 +158,7 @@ Master templates for strategic partnership agreements across multiple partner ca
 - ROI calculators and value propositions
 
 **Sales Support**:
-- Dedicated solution architects (ggen + [Cloud Platform])
+- Dedicated solution architects (mcpp + [Cloud Platform])
 - Joint proof-of-concept support
 - Customer reference program (10+ reference accounts)
 - Deal registration process for joint opportunities
@@ -181,13 +181,13 @@ Master templates for strategic partnership agreements across multiple partner ca
 
 #### 5.1 Customer Support Model
 
-**Tier 1 Support** (ggen responsibility):
+**Tier 1 Support** (mcpp responsibility):
 - Product documentation and getting started guides
 - Community forum support (24-48 hour response)
 - Knowledge base articles
 - Self-service training materials
 
-**Tier 2 Support** (ggen responsibility):
+**Tier 2 Support** (mcpp responsibility):
 - Technical support tickets (4-hour response for critical)
 - Integration debugging and troubleshooting
 - Custom configuration assistance
@@ -224,7 +224,7 @@ Master templates for strategic partnership agreements across multiple partner ca
 #### 6.1 Partner Certification Program
 
 **Bronze Tier** (Free):
-- ggen fundamentals training
+- mcpp fundamentals training
 - Certification exam (basic competency)
 - Sales enablement materials
 - Marketplace listing eligibility
@@ -246,7 +246,7 @@ Master templates for strategic partnership agreements across multiple partner ca
 #### 6.2 Training Program
 
 **Initial Training** (30 days post-launch):
-- 2 days: ggen product deep dive
+- 2 days: mcpp product deep dive
 - 2 days: Integration architecture and APIs
 - 1 day: Sales pitch and customer scenarios
 - 1 day: Case study development
@@ -270,12 +270,12 @@ Master templates for strategic partnership agreements across multiple partner ca
 | Monthly active users | 2,000+ | Both |
 | Net revenue retention | 110%+ | Both |
 | Customer NPS | 60+ | Both |
-| Solution templates | 10+ | ggen |
+| Solution templates | 10+ | mcpp |
 | Reference customers | 3-5 | Both |
 
 #### 7.2 Financial Targets
 
-| Year | ggen Revenue | [Platform] Revenue Share | Total Partnership ARR |
+| Year | mcpp Revenue | [Platform] Revenue Share | Total Partnership ARR |
 |------|------|-----|------|
 | 2026 (Year 1) | $[X]M | $[Y]M | $[Z]M |
 | 2027 (Year 2) | $[2X]M | $[2Y]M | $[2Z]M |
@@ -354,8 +354,8 @@ Master templates for strategic partnership agreements across multiple partner ca
 - Commercial use outside partnership: requires joint approval
 
 **Licensed IP**:
-- [Cloud Platform] provides limited license for ggen to use platform APIs/SDKs
-- ggen provides limited license for [Cloud Platform] to use ggen for customer benefit
+- [Cloud Platform] provides limited license for mcpp to use platform APIs/SDKs
+- mcpp provides limited license for [Cloud Platform] to use mcpp for customer benefit
 
 #### 9.2 Confidentiality
 
@@ -437,8 +437,8 @@ This agreement, including exhibits and schedules, constitutes the entire agreeme
 
 All notices must be sent to the authorized representatives:
 
-**For ggen**:
-- [CEO/VP Partnerships], ggen, [address]
+**For mcpp**:
+- [CEO/VP Partnerships], mcpp, [address]
 - Email: [email]
 - Phone: [phone]
 
@@ -461,12 +461,12 @@ All notices must be sent to the authorized representatives:
 
 ### 1. PARTNERSHIP OVERVIEW
 
-**Parties**: ggen and [Systems Integrator] (e.g., Accenture, Deloitte, IBM Services)
+**Parties**: mcpp and [Systems Integrator] (e.g., Accenture, Deloitte, IBM Services)
 
-**Purpose**: Deliver ggen-based transformation services to enterprise customers in [vertical markets: Finance, Healthcare, Manufacturing, etc.]
+**Purpose**: Deliver mcpp-based transformation services to enterprise customers in [vertical markets: Finance, Healthcare, Manufacturing, etc.]
 
 **Scope**:
-- Implementation services using ggen methodologies
+- Implementation services using mcpp methodologies
 - Customer training and enablement
 - Vertical solution development
 - Sales & marketing collaboration
@@ -480,11 +480,11 @@ All notices must be sent to the authorized representatives:
 
 **Service Revenue Share**:
 - [Systems Integrator] retains [85-90]% of service fees
-- ggen receives [10-15]% of implementation service revenue
-- ggen retains 100% of software license revenue
+- mcpp receives [10-15]% of implementation service revenue
+- mcpp retains 100% of software license revenue
 
 **Pass-through Licensing**:
-- [Systems Integrator] purchases ggen licenses at [30-40]% discount
+- [Systems Integrator] purchases mcpp licenses at [30-40]% discount
 - Resells to customers at standard pricing
 - [Systems Integrator] margin: [50-70]%
 - Monthly volume discounts apply for 100+ concurrent users
@@ -496,14 +496,14 @@ All notices must be sent to the authorized representatives:
 
 #### 2.2 Marketing Development Fund (MDF)
 
-- Annual allocation: [5-10]% of prior year ggen software revenue
+- Annual allocation: [5-10]% of prior year mcpp software revenue
 - Joint marketing campaigns, customer events, materials development
 - Quarterly planning and approval
 - Monthly reimbursement with documentation
 
 #### 2.3 Partner Discounts
 
-- [Systems Integrator] receives [35-40]% discount on ggen Enterprise licenses
+- [Systems Integrator] receives [35-40]% discount on mcpp Enterprise licenses
 - Joint customers receive [15-20]% discount on 3-year commitments
 - Educational/training discounts: [50%] off for internal training
 
@@ -552,7 +552,7 @@ All notices must be sent to the authorized representatives:
 - Cost: $[Y]-[Z] per project (typically $200-500K)
 
 **3. Training & Enablement** (20-60 hours)
-- Staff training on ggen methodologies
+- Staff training on mcpp methodologies
 - Knowledge transfer
 - Certification preparation
 - Cost: $[X] per person
@@ -572,7 +572,7 @@ All notices must be sent to the authorized representatives:
 **[Systems Integrator] Accounts**:
 - Accounts [Systems Integrator] controls and maintains customer relationship
 - [Systems Integrator] is primary contact for all business matters
-- ggen provides support directly to [Systems Integrator] only
+- mcpp provides support directly to [Systems Integrator] only
 - Customer data: [Systems Integrator] owns customer data
 
 **Joint Accounts**:
@@ -583,13 +583,13 @@ All notices must be sent to the authorized representatives:
 
 **Territory Allocation** (if applicable):
 - [Systems Integrator]: [Geographic regions or verticals]
-- ggen: Remaining territories (for direct sales)
+- mcpp: Remaining territories (for direct sales)
 - Conflict resolution: Steering committee determines assignment
 
 #### 4.2 Channel Conflict Management
 
 **Non-Exclusive Arrangement**:
-- ggen may sell to other integrators and customers directly
+- mcpp may sell to other integrators and customers directly
 - [Systems Integrator] may use competing code generation tools
 - Conflict resolution process for disputed accounts:
   1. 15-day negotiation period
@@ -681,7 +681,7 @@ All notices must be sent to the authorized representatives:
 - Blog posts and thought leadership
 
 **Lead Generation**:
-- ggen provides: Marketing-qualified leads (estimated [X] per month)
+- mcpp provides: Marketing-qualified leads (estimated [X] per month)
 - [Systems Integrator] provides: Industry vertical leads
 - Lead routing: Established process with SLAs
 - Lead follow-up: Assigned within 24 hours
@@ -697,7 +697,7 @@ All notices must be sent to the authorized representatives:
 
 - Target: 10+ reference customers by end of Year 1
 - [Systems Integrator] owns customer relationship
-- ggen provides: Marketing support and success team
+- mcpp provides: Marketing support and success team
 - Activities: Case studies, customer testimonials, reference calls
 - Incentive: [Bonus] for each reference account generated
 
@@ -737,9 +737,9 @@ All notices must be sent to the authorized representatives:
 
 ### 1. PARTNERSHIP OVERVIEW
 
-**Parties**: ggen and [Compliance Partner] (e.g., PwC, EY, KPMG, Deloitte)
+**Parties**: mcpp and [Compliance Partner] (e.g., PwC, EY, KPMG, Deloitte)
 
-**Purpose**: Deliver compliance automation and regulatory reporting solutions leveraging ggen code generation capabilities.
+**Purpose**: Deliver compliance automation and regulatory reporting solutions leveraging mcpp code generation capabilities.
 
 **Key Verticals**:
 - Financial services (SOX 404, AML/KYC)
@@ -756,11 +756,11 @@ All notices must be sent to the authorized representatives:
 
 **Compliance Service Revenue**:
 - [Compliance Partner] retains [80-85]% of service fees
-- ggen receives [15-20]% of compliance automation revenue
-- ggen retains 100% of software license revenue
+- mcpp receives [15-20]% of compliance automation revenue
+- mcpp retains 100% of software license revenue
 
 **Software Licensing**:
-- [Compliance Partner] purchases ggen Enterprise licenses at [40-50]% discount
+- [Compliance Partner] purchases mcpp Enterprise licenses at [40-50]% discount
 - Passes through to customers at standard pricing
 - [Compliance Partner] margin: [50-70]%
 - Volume discounts: 100+ users = [60-70]% discount
@@ -841,12 +841,12 @@ All notices must be sent to the authorized representatives:
 
 **Level 1: Compliance Automation Fundamentals**
 - Online training: 20 hours
-- ggen for compliance automation overview
+- mcpp for compliance automation overview
 - Cost: Free for [Compliance Partner] staff
 
 **Level 2: SOX 404 Compliance Automation**
 - In-person training: 3 days
-- SOX control mapping with ggen
+- SOX control mapping with mcpp
 - Hands-on lab projects
 - Certification exam
 - Cost: $3,000 per auditor
@@ -950,7 +950,7 @@ All notices must be sent to the authorized representatives:
 
 **Structure**:
 - Partner executive sponsor (VP Partner Services)
-- ggen VP of Partnerships
+- mcpp VP of Partnerships
 - Compliance solutions lead (each party)
 - Quarterly steering meetings
 
@@ -984,20 +984,20 @@ All notices must be sent to the authorized representatives:
 
 **Compliance Ontologies**:
 - [Compliance Partner] develops (e.g., SOX 404 control mapping)
-- ggen develops generalized framework
+- mcpp develops generalized framework
 - Joint ownership for widely-applicable ontologies
 - Each party may use for their respective business
 
 **Audit Methodologies**:
 - [Compliance Partner] retains ownership of audit methodology
-- ggen retains ownership of code generation methodology
+- mcpp retains ownership of code generation methodology
 - Both parties collaborate on integrated methodology
 
 **Customer Work Product**:
 - [Compliance Partner] owns customer engagement IP
-- ggen owns code generation IP
+- mcpp owns code generation IP
 - Customer owns generated code and specifications
-- ggen may use for reference/case studies (with permission)
+- mcpp may use for reference/case studies (with permission)
 
 ---
 
@@ -1018,10 +1018,10 @@ All notices must be sent to the authorized representatives:
 ### Consultancy Partnership (McKinsey, Bain, BCG)
 
 **Key Elements**:
-- 5-8% revenue share on ggen-influenced transformations
+- 5-8% revenue share on mcpp-influenced transformations
 - Co-branded research on specification-driven development
 - Quarterly executive briefings
-- Priority access to ggen product roadmap
+- Priority access to mcpp product roadmap
 - Annual strategic partnership review
 - MDF: [5-10]% of prior year partnership revenue
 
@@ -1034,7 +1034,7 @@ All notices must be sent to the authorized representatives:
 - IP sharing: Academic use free, commercial use requires licensing
 - Student engagement: Internship program, PhD fellowships
 - Publication rights: Joint publications with proper attribution
-- Technology licensing: University may license ggen for research
+- Technology licensing: University may license mcpp for research
 - Industry advisory board participation
 
 ---

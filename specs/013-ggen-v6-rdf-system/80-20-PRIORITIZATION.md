@@ -1,7 +1,7 @@
-# ggen v6 - 80/20 Prioritization Summary
+# mcpp v6 - 80/20 Prioritization Summary
 
 **Date**: 2025-12-20
-**Feature**: 013-ggen-v6-rdf-system
+**Feature**: 013-mcpp-v6-rdf-system
 **Goal**: Identify the 20% of features that deliver 80% of value
 
 ---
@@ -100,12 +100,12 @@ fn test_determinism() {
 
 ---
 
-#### CAP-005: ggen sync Command (2 days)
+#### CAP-005: mcpp sync Command (2 days)
 **Why Essential**: User-facing CLI. Makes it usable.
 
 ```rust
 fn sync() -> Result<()> {
-    let config: GgenConfig = toml::from_str(&fs::read_to_string("ggen.toml")?)?;
+    let config: GgenConfig = toml::from_str(&fs::read_to_string("mcpp.toml")?)?;
     for gen in config.generation {
         let store = load_ttl(&gen.source)?;
         let results = execute_sparql(&store, &gen.query)?;
@@ -116,7 +116,7 @@ fn sync() -> Result<()> {
 }
 ```
 
-**Minimal ggen.toml**:
+**Minimal mcpp.toml**:
 ```toml
 [[generation]]
 source = "ontology/feature-content.ttl"
@@ -159,11 +159,11 @@ output = "generated/spec.md"
 **Can you**:
 1. ✅ Write `feature-content.ttl` (RDF spec)
 2. ✅ Write `spec.tera` (Tera template)
-3. ✅ Define SPARQL query in `ggen.toml`
-4. ✅ Run `ggen sync`
+3. ✅ Define SPARQL query in `mcpp.toml`
+4. ✅ Run `mcpp sync`
 5. ✅ Get `spec.md` generated from TTL
-6. ✅ Run `ggen sync` again → Same output (deterministic)
-7. ✅ Change TTL → Run `ggen sync` → Updated spec.md
+6. ✅ Run `mcpp sync` again → Same output (deterministic)
+7. ✅ Change TTL → Run `mcpp sync` → Updated spec.md
 
 **If YES to all → MVP is complete!**
 
@@ -173,16 +173,16 @@ output = "generated/spec.md"
 
 ### Phase 1: Testcontainers (Current)
 - ✅ **RDF Fixtures**: `tests/integration/fixtures/feature-content.ttl` (35 triples)
-- ✅ **Python Tests**: `test_ggen_sync.py` validates end-to-end workflow
+- ✅ **Python Tests**: `test_mcpp_sync.py` validates end-to-end workflow
 - ✅ **Constitutional Equation**: Tests verify `spec.md = μ(feature.ttl)`
 - ✅ **Idempotence**: Tests verify `μ∘μ = μ`
 - ✅ **Determinism**: SHA256 hash comparison across runs
 
 ### Phase 2: MVP Implementation (Next)
 Once the 5 core capabilities are implemented:
-1. Replace fixtures with real ggen v6 execution
+1. Replace fixtures with real mcpp v6 execution
 2. Validate all MVP success criteria pass
-3. Use ggen v6 to regenerate its own specification (self-hosting)
+3. Use mcpp v6 to regenerate its own specification (self-hosting)
 
 ---
 
@@ -233,10 +233,10 @@ All user stories in `ontology/feature-content.ttl` are now marked with:
 
 ## Next Steps After MVP
 
-1. **Dogfood**: Use ggen v6 to regenerate its own specs
+1. **Dogfood**: Use mcpp v6 to regenerate its own specs
 2. **Showcase**: Demo to 5 developers, get feedback
 3. **Iterate**: Add most-requested deferred feature
-4. **Scale**: Apply to larger project (ggen marketplace)
+4. **Scale**: Apply to larger project (mcpp marketplace)
 5. **Refine**: Based on real usage, optimize bottlenecks
 
 ---

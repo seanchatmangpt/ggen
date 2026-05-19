@@ -1,6 +1,6 @@
 //! FMEA (Failure Mode and Effects Analysis) framework for systematic failure tracking.
 //!
-//! This module provides infrastructure for tracking and analyzing failures in the ggen CLI
+//! This module provides infrastructure for tracking and analyzing failures in the mcpp CLI
 //! following DfLSS (Design for Lean Six Sigma) principles with Pareto (80/20) analysis.
 //!
 //! # Core Components

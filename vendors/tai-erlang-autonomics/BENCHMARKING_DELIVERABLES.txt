@@ -210,7 +210,7 @@ HOW TO USE
 ===============================================================================
 
 Quick Start (Run All Benchmarks):
-  $ cd /Users/sac/ggen/tai-erlang-autonomics
+  $ cd /Users/sac/mcpp/tai-erlang-autonomics
   $ ./scripts/run_performance_benchmarks.sh all
 
 Run Specific Component:

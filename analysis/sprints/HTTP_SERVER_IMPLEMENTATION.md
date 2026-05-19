@@ -1,8 +1,8 @@
-# HTTP Server Implementation for ggen MCP Server
+# HTTP Server Implementation for mcpp MCP Server
 
 ## Summary
 
-Successfully implemented real HTTP server functionality for the ggen MCP server, replacing the stub that always returned an error. The implementation uses **axum 0.7** and **tower-http 0.5** to provide a production-ready HTTP transport layer for JSON-RPC MCP requests.
+Successfully implemented real HTTP server functionality for the mcpp MCP server, replacing the stub that always returned an error. The implementation uses **axum 0.7** and **tower-http 0.5** to provide a production-ready HTTP transport layer for JSON-RPC MCP requests.
 
 ## Changes Made
 
@@ -107,7 +107,7 @@ HTTP 200 + CORS headers
 
 ```rust
 // Start HTTP server
-ggen_a2a_mcp::server::serve_http("127.0.0.1", 8080).await?;
+mcpp_a2a_mcp::server::serve_http("127.0.0.1", 8080).await?;
 
 // Client sends POST request:
 POST http://127.0.0.1:8080/
@@ -123,7 +123,7 @@ Content-Type: application/json
 {
   "jsonrpc": "2.0",
   "result": {
-    "status": "ggen MCP HTTP server is running",
+    "status": "mcpp MCP HTTP server is running",
     "tools": ["generate", "validate", "sync", ...]
   },
   "id": 1
@@ -136,9 +136,9 @@ The current implementation returns a simple status response listing available to
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/Cargo.toml` - Added axum, tower-http, rand, reqwest
-2. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/server.rs` - Implemented real HTTP server
-3. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/http_server_test.rs` - Created comprehensive test suite
+1. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/Cargo.toml` - Added axum, tower-http, rand, reqwest
+2. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/server.rs` - Implemented real HTTP server
+3. `~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/http_server_test.rs` - Created comprehensive test suite
 
 ## Next Steps
 

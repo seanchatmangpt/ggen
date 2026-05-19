@@ -6,8 +6,8 @@
 #[cfg(test)]
 mod rdf_mapping_tests {
     use chrono::Utc;
-    use ggen_marketplace_v2::models::{Package, PackageId, PackageMetadata, PackageVersion};
-    use ggen_marketplace_v2::ontology::MARKETPLACE_ONTOLOGY;
+    use mcpp_marketplace_v2::models::{Package, PackageId, PackageMetadata, PackageVersion};
+    use mcpp_marketplace_v2::ontology::MARKETPLACE_ONTOLOGY;
 
     /// Helper: Create test package
     fn create_test_package(id: &str, name: &str, version: &str) -> Package {
@@ -29,37 +29,37 @@ mod rdf_mapping_tests {
 
     /// Helper: Convert package to RDF triples (simulated)
     fn package_to_rdf_triples(pkg: &Package) -> Vec<(String, String, String)> {
-        let base_uri = format!("http://ggen.dev/marketplace/{}", pkg.metadata.id);
+        let base_uri = format!("http://mcpp.dev/marketplace/{}", pkg.metadata.id);
 
         vec![
             (
                 base_uri.clone(),
                 "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".to_string(),
-                "http://ggen.dev/ontology#Package".to_string(),
+                "http://mcpp.dev/ontology#Package".to_string(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#name".to_string(),
+                "http://mcpp.dev/ontology#name".to_string(),
                 pkg.metadata.name.clone(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#version".to_string(),
+                "http://mcpp.dev/ontology#version".to_string(),
                 pkg.metadata.version.to_string(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#description".to_string(),
+                "http://mcpp.dev/ontology#description".to_string(),
                 pkg.metadata.description.clone(),
             ),
             (
                 base_uri.clone(),
-                "http://ggen.dev/ontology#author".to_string(),
+                "http://mcpp.dev/ontology#author".to_string(),
                 pkg.metadata.author.clone(),
             ),
             (
                 base_uri,
-                "http://ggen.dev/ontology#license".to_string(),
+                "http://mcpp.dev/ontology#license".to_string(),
                 pkg.metadata.license.clone(),
             ),
         ]
@@ -87,7 +87,7 @@ mod rdf_mapping_tests {
 
         let name_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#name");
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#name");
 
         assert!(name_triple.is_some());
         let (_, _, obj) = name_triple.unwrap();
@@ -101,7 +101,7 @@ mod rdf_mapping_tests {
 
         let version_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#version");
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#version");
 
         assert!(version_triple.is_some());
         let (_, _, obj) = version_triple.unwrap();
@@ -115,7 +115,7 @@ mod rdf_mapping_tests {
 
         let name_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#name");
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#name");
 
         assert!(name_triple.is_some());
         let (_, _, obj) = name_triple.unwrap();
@@ -128,7 +128,7 @@ mod rdf_mapping_tests {
         let triples = package_to_rdf_triples(&pkg);
 
         // All triples should use the same subject URI
-        let subject_uri = format!("http://ggen.dev/marketplace/{}", pkg.metadata.id);
+        let subject_uri = format!("http://mcpp.dev/marketplace/{}", pkg.metadata.id);
 
         for (subj, _, _) in &triples {
             assert_eq!(subj, &subject_uri);
@@ -155,7 +155,7 @@ mod rdf_mapping_tests {
 
         let desc_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#description");
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#description");
 
         assert!(desc_triple.is_some());
         // Should preserve special characters (escaping handled by RDF library)
@@ -174,7 +174,7 @@ mod rdf_mapping_tests {
         // Optional fields should not generate triples if None
         let repo_triple = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#repositoryUrl");
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#repositoryUrl");
 
         assert!(repo_triple.is_none());
     }
@@ -212,13 +212,13 @@ mod rdf_mapping_tests {
         // Simulate parsing triples back to package (simplified)
         let reconstructed_name = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#name")
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#name")
             .map(|(_, _, o)| o.clone())
             .unwrap();
 
         let reconstructed_version = triples
             .iter()
-            .find(|(_, p, _)| p == "http://ggen.dev/ontology#version")
+            .find(|(_, p, _)| p == "http://mcpp.dev/ontology#version")
             .map(|(_, _, o)| o.clone())
             .unwrap();
 

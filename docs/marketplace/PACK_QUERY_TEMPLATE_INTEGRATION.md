@@ -260,7 +260,7 @@ test-pack-integration/
       "version": "0.1.0",
       "source": {
         "type": "Local",
-        "path": "/Users/sac/.ggen/packs/test-pack-integration"
+        "path": "~/.ggen/packs/test-pack-integration"
       },
       "installed_at": "2026-04-01T06:00:00.000000Z",
       "dependencies": []

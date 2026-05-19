@@ -9,8 +9,8 @@
 //! - Rapid changes are debounced
 //! - Event ordering and deduplication
 
-use ggen_core::codegen::watch::{collect_watch_paths, FileWatcher, WatchEvent};
-use ggen_core::manifest::{
+use mcpp_core::codegen::watch::{collect_watch_paths, FileWatcher, WatchEvent};
+use mcpp_core::manifest::{
     GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
     OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
 };
@@ -246,7 +246,7 @@ fn test_collect_watch_paths() {
         validation: ValidationConfig::default(),
     };
 
-    let manifest_path = Path::new("ggen.toml");
+    let manifest_path = Path::new("mcpp.toml");
     let base_path = Path::new(".");
 
     // Act: Collect watch paths
@@ -254,7 +254,7 @@ fn test_collect_watch_paths() {
 
     // Assert: All expected paths are present
     assert!(
-        paths.contains(&PathBuf::from("ggen.toml")),
+        paths.contains(&PathBuf::from("mcpp.toml")),
         "Should watch manifest file"
     );
     // Ontology path might be joined with base_path, check if any path ends with ontology.ttl
@@ -296,7 +296,7 @@ fn test_collect_watch_paths() {
     );
 
     // Assert: Total count is correct
-    // ggen.toml + ontology.ttl + 2 imports + query1.sparql + template1.tera = 6
+    // mcpp.toml + ontology.ttl + 2 imports + query1.sparql + template1.tera = 6
     assert_eq!(paths.len(), 6, "Should have exactly 6 watch paths");
 }
 

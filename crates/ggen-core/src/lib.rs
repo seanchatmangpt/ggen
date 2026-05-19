@@ -1,11 +1,11 @@
-//! # ggen-core - Core graph-aware code generation engine
+//! # mcpp-core - Core graph-aware code generation engine
 //!
 //! This crate provides the core functionality for RDF-based code generation,
 //! including template processing, RDF handling, and deterministic output generation.
 //!
 //! ## Overview
 //!
-//! `ggen-core` is the foundational crate for the ggen code generation system. It provides:
+//! `mcpp-core` is the foundational crate for the mcpp code generation system. It provides:
 //!
 //! - **Template Processing**: Parse, render, and generate code from templates with RDF integration
 //! - **RDF Graph Management**: Load, query, and manipulate RDF data using SPARQL
@@ -54,12 +54,12 @@
 //!
 //! ### Basic Template Generation
 //!
-//! ```rust,no_run
-//! use ggen_core::{Generator, GenContext, Pipeline};
+//! ```text
+//! use mcpp_core::{Generator, GenContext, Pipeline};
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let mut vars = BTreeMap::new();
 //! vars.insert("name".to_string(), "MyApp".to_string());
@@ -78,10 +78,10 @@
 //!
 //! ### Using RDF Graph
 //!
-//! ```rust
-//! use ggen_core::Graph;
+//! ```text
+//! use mcpp_core::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix ex: <http://example.org/> .
@@ -97,11 +97,11 @@
 //!
 //! ### Creating a New Project
 //!
-//! ```rust,no_run
-//! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
+//! ```text
+//! use mcpp_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-cli".to_string(),
 //!     project_type: ProjectType::RustCli,

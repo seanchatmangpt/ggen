@@ -2,7 +2,7 @@
 auto_load: false
 category: reference
 priority: low
-version: 6.0.1
+version: 26.5.4
 ---
 
 # Architecture Reference
@@ -42,7 +42,7 @@ Pure reference. No doctrine. No rules. Data only.
 | ggen-receipt | Cryptographic receipts | Receipt, ReceiptChain, sign(), verify() |
 | ggen-yawl | YAWL workflow gen | YawlGenerator |
 | ggen-craftplan | RDF to Elixir codegen | CodeGenerator |
-| ggen-process-mining | Process mining | ProcessMiner, AlphaPlusPlus, PetriNet |
+| native pictl process mining | Process mining | ProcessMiner, AlphaPlusPlus, PetriNet |
 
 ### TPS (Toyota Production System)
 

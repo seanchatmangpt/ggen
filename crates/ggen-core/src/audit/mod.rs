@@ -1,4 +1,4 @@
-//! Audit trail module for tracking ggen sync execution
+//! Audit trail module for tracking mcpp sync execution
 //!
 //! Provides deterministic execution logging with timestamps, rule tracking,
 //! file metadata, and SHA256-based content hashing for reproducibility.
@@ -7,7 +7,7 @@ use chrono::Local;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Audit trail for a single ggen sync execution
+/// Audit trail for a single mcpp sync execution
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditTrail {
     /// ISO 8601 timestamp of sync execution
@@ -25,8 +25,8 @@ pub struct AuditTrail {
 /// Execution metadata for reproducibility and provenance
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExecutionMetadata {
-    /// ggen version
-    pub ggen_version: String,
+    /// mcpp version
+    pub mcpp_version: String,
     /// Manifest file path
     pub manifest_path: String,
     /// Ontology file path
@@ -39,7 +39,7 @@ pub struct ExecutionMetadata {
 
 impl AuditTrail {
     /// Create a new audit trail with current timestamp
-    pub fn new(ggen_version: &str, manifest_path: &str, ontology_path: &str) -> Self {
+    pub fn new(mcpp_version: &str, manifest_path: &str, ontology_path: &str) -> Self {
         let timestamp = Local::now().to_rfc3339();
 
         AuditTrail {
@@ -48,7 +48,7 @@ impl AuditTrail {
             files_changed: 0,
             file_hashes: HashMap::new(),
             metadata: ExecutionMetadata {
-                ggen_version: ggen_version.to_string(),
+                mcpp_version: mcpp_version.to_string(),
                 manifest_path: manifest_path.to_string(),
                 ontology_path: ontology_path.to_string(),
                 spec_hash: String::new(),

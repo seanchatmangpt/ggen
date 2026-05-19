@@ -1,4 +1,4 @@
-//! Comprehensive test suite for ggen packs Phase 2-3
+//! Comprehensive test suite for mcpp packs Phase 2-3
 //!
 //! This module contains 100+ tests covering:
 //! - Installation system (download, extraction, verification, rollback)

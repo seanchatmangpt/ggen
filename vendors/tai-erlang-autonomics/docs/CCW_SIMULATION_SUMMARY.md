@@ -260,7 +260,7 @@ Sandbox prep          Live integration    Customer pilot       Production
 ## File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+~/.ggen/mcpp/tai-erlang-autonomics/
 
 ├── tools/
 │   └── ccw-sandbox-run.sh              (executable simulation - 420 lines)

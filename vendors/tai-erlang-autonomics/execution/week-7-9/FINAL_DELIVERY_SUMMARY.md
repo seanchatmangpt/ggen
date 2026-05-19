@@ -29,7 +29,7 @@ A **complete, comprehensive, and immediately executable** Week 7-9 Sales Pipelin
 
 ### Primary Location
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/
 ```
 
 ### Core Files (5 documents, 120+ KB)
@@ -107,7 +107,7 @@ A **complete, comprehensive, and immediately executable** Week 7-9 Sales Pipelin
 
 ### Duplicate Set (for Convenience)
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
   ├─ WEEK_7_9_SALES_EXPANSION.md
   ├─ UPDATED_PIPELINE_TRACKER.csv
   ├─ SALES_EXPANSION_INDEX.md
@@ -423,7 +423,7 @@ Your team is ready. Your prospects are identified. Your process is defined.
 
 **Main Folder**:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/
 ```
 
 **Key Files**:
@@ -437,7 +437,7 @@ Your team is ready. Your prospects are identified. Your process is defined.
 
 **Subfolder**:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
 ```
 (contains copies of core files for convenience)
 

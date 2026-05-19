@@ -23,8 +23,8 @@
 //! ### Detecting Graph Changes
 //!
 //! ```text
-//! use ggen_core::delta::{GraphDelta, ImpactAnalyzer};
-//! use ggen_core::graph::Graph;
+//! use mcpp_core::delta::{GraphDelta, ImpactAnalyzer};
+//! use mcpp_core::graph::Graph;
 //!
 //! let old_graph = Graph::new()?;
 //! let new_graph = Graph::new()?;
@@ -36,8 +36,8 @@
 //! ### Analyzing Template Impact
 //!
 //! ```text
-//! use ggen_core::delta::ImpactAnalyzer;
-//! use ggen_core::graph::Graph;
+//! use mcpp_core::delta::ImpactAnalyzer;
+//! use mcpp_core::graph::Graph;
 //!
 //! let analyzer = ImpactAnalyzer::new();
 //! let old_graph = Graph::new()?;
@@ -50,7 +50,7 @@
 //! ```
 
 use ahash::AHasher;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use oxigraph::model::Quad;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -69,7 +69,7 @@ use crate::graph::Graph;
 /// # Examples
 ///
 /// ```text
-/// use ggen_core::delta::DeltaType;
+/// use mcpp_core::delta::DeltaType;
 ///
 /// // Addition example
 /// let addition = DeltaType::Addition {
@@ -107,10 +107,10 @@ use crate::graph::Graph;
 /// ```
 ///
 /// ```rust,no_run
-/// use ggen_core::delta::DeltaType;
+/// use mcpp_core::delta::DeltaType;
 /// use oxigraph::model::{NamedNode, Literal, Quad};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// // Create an addition delta
 /// let addition = DeltaType::Addition {
 ///     subject: "http://example.org/alice".to_string(),
@@ -126,9 +126,9 @@ use crate::graph::Graph;
 /// ```
 ///
 /// ```rust,no_run
-/// use ggen_core::delta::DeltaType;
+/// use mcpp_core::delta::DeltaType;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// // Create a modification delta
 /// let modification = DeltaType::Modification {
 ///     subject: "http://example.org/alice".to_string(),
@@ -174,10 +174,10 @@ impl DeltaType {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::delta::DeltaType;
+    /// use mcpp_core::delta::DeltaType;
     /// use oxigraph::model::{NamedNode, Literal, Quad, Subject, Term};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let old_quad = Quad::new(
     ///     Subject::NamedNode(NamedNode::new("http://example.org/alice")?),
     ///     NamedNode::new("http://example.org/name")?,
@@ -236,9 +236,9 @@ impl DeltaType {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::delta::DeltaType;
+    /// use mcpp_core::delta::DeltaType;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let delta = DeltaType::Addition {
     ///     subject: "http://example.org/alice".to_string(),
     ///     predicate: "http://example.org/name".to_string(),
@@ -319,10 +319,10 @@ impl fmt::Display for DeltaType {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::delta::GraphDelta;
-/// use ggen_core::graph::Graph;
+/// use mcpp_core::delta::GraphDelta;
+/// use mcpp_core::graph::Graph;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let baseline = Graph::new()?;
 /// baseline.insert_turtle(r#"
 ///     @prefix ex: <http://example.org/> .
@@ -362,10 +362,10 @@ impl GraphDelta {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::delta::GraphDelta;
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::delta::GraphDelta;
+    /// use mcpp_core::graph::Graph;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let baseline = Graph::new()?;
     /// let current = Graph::new()?;
     /// current.insert_turtle(r#"
@@ -467,10 +467,10 @@ impl GraphDelta {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::delta::GraphDelta;
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::delta::GraphDelta;
+    /// use mcpp_core::graph::Graph;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let baseline = Graph::new()?;
     /// let current = Graph::new()?;
     /// current.insert_turtle(r#"
@@ -514,10 +514,10 @@ impl GraphDelta {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::delta::GraphDelta;
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::delta::GraphDelta;
+    /// use mcpp_core::graph::Graph;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let baseline = Graph::new()?;
     /// let current = Graph::new()?;
     /// current.insert_turtle(r#"

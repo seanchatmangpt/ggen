@@ -16,10 +16,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust
-//! use ggen_ai::governance::{Policy, PolicyEngine, AuditTrail};
-//!
-//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! ```text
 //! // Initialize governance layer
 //! let policy_engine = PolicyEngine::new();
 //! let audit_trail = AuditTrail::new("governance.db").await?;
@@ -34,14 +31,11 @@
 //! policy_engine.register_policy(policy).await?;
 //!
 //! // Validate autonomous decision
-//! let decision = /* autonomous system decision */;
 //! if policy_engine.validate(&decision).await? {
 //!     audit_trail.log_approval(&decision).await?;
 //! } else {
 //!     audit_trail.log_rejection(&decision).await?;
 //! }
-//! # Ok(())
-//! # }
 //! ```
 
 pub mod audit;

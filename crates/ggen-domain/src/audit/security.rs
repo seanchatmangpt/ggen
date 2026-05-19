@@ -3,7 +3,7 @@
 //! Pure business logic for security vulnerability scanning, dependency checking,
 //! and configuration auditing.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::path::{Path, PathBuf};
 
 /// Security scan result
@@ -151,7 +151,7 @@ impl SecurityScanner for CargoAuditSecurityScanner {
             // cargo-audit returns non-zero when vulnerabilities are found
             // We still want to parse the output
             if !stderr.contains("Fetching advisory database") {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Security scan failed: {}",
                     stderr
                 )));
@@ -229,7 +229,7 @@ impl ConfigAuditor for FileSystemConfigAuditor {
 
         // Check if file exists
         if !config_file.exists() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Configuration file not found: {}",
                 config_file.display()
             )));

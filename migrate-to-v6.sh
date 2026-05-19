@@ -1,11 +1,11 @@
 #!/bin/bash
-# ggen v5.1.0 → v6.0.0 Automated Migration Script
+# mcpp v5.1.0 → v6.0.0 Automated Migration Script
 # This script updates import paths for library users
 
 set -e  # Exit on error
 
 echo "========================================="
-echo "ggen v6.0.0 Migration Script"
+echo "mcpp v6.0.0 Migration Script"
 echo "========================================="
 echo ""
 
@@ -56,11 +56,11 @@ echo -e "${GREEN}  ✓ Backed up $backup_count Rust files (.bak)${NC}"
 
 # Step 2: Update Cargo.toml versions
 echo "Step 2/4: Updating Cargo.toml..."
-if grep -q 'ggen.*=.*"5\.1' Cargo.toml; then
-    sed -i.bak 's/ggen\([-_][a-z]*\)\? = "5\.1/ggen\1 = "6.0/g' Cargo.toml
-    echo -e "${GREEN}  ✓ Updated ggen crate versions to 6.0${NC}"
+if grep -q 'mcpp.*=.*"5\.1' Cargo.toml; then
+    sed -i.bak 's/mcpp\([-_][a-z]*\)\? = "5\.1/mcpp\1 = "6.0/g' Cargo.toml
+    echo -e "${GREEN}  ✓ Updated mcpp crate versions to 6.0${NC}"
 else
-    echo -e "${YELLOW}  ⚠️  No v5.1 ggen dependencies found in Cargo.toml${NC}"
+    echo -e "${YELLOW}  ⚠️  No v5.1 mcpp dependencies found in Cargo.toml${NC}"
 fi
 
 # Step 3: Apply import path transformations
@@ -75,14 +75,14 @@ while IFS= read -r file; do
     fi
 
     # Apply transformations
-    if grep -q "ggen_core::types::" "$file" || \
-       grep -q "ggen_core::validation::" "$file" || \
-       grep -q "ggen_domain::marketplace::" "$file"; then
+    if grep -q "mcpp_core::types::" "$file" || \
+       grep -q "mcpp_core::validation::" "$file" || \
+       grep -q "mcpp_domain::marketplace::" "$file"; then
 
         sed -i \
-            -e 's/ggen_core::types::/ggen_core::protection::/g' \
-            -e 's/ggen_core::validation::/ggen_core::validation::rules::/g' \
-            -e 's/ggen_domain::marketplace::/ggen_domain::marketplace::client::/g' \
+            -e 's/mcpp_core::types::/mcpp_core::protection::/g' \
+            -e 's/mcpp_core::validation::/mcpp_core::validation::rules::/g' \
+            -e 's/mcpp_domain::marketplace::/mcpp_domain::marketplace::client::/g' \
             "$file"
 
         ((transformation_count++))
@@ -109,7 +109,7 @@ if command -v cargo &> /dev/null; then
         echo "🎯 Next steps:"
         echo "  1. cargo test          # Run your test suite"
         echo "  2. Review changes:     # git diff"
-        echo "  3. Commit changes:     # git add -A && git commit -m 'chore: Migrate to ggen v6.0.0'"
+        echo "  3. Commit changes:     # git add -A && git commit -m 'chore: Migrate to mcpp v6.0.0'"
         echo "  4. Clean backups:      # find . -name '*.bak' -delete"
         echo ""
         echo "📚 Documentation: See UPGRADING_TO_V6.md for details"
@@ -149,11 +149,11 @@ fi
 # Create rollback script
 cat > rollback-v6-migration.sh << 'EOF'
 #!/bin/bash
-# Rollback ggen v6.0.0 migration
+# Rollback mcpp v6.0.0 migration
 
 set -e
 
-echo "🔄 Rolling back ggen v6.0.0 migration..."
+echo "🔄 Rolling back mcpp v6.0.0 migration..."
 echo ""
 
 rollback_count=0

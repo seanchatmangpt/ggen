@@ -1,8 +1,8 @@
 groups:
-  - id: span.ggen.a2a.message
+  - id: span.mcpp.a2a.message
     type: span
     stability: development
-    brief: A2A agent-to-agent message exchange in ggen.
+    brief: A2A agent-to-agent message exchange in mcpp.
     span_kind: internal
     attributes:
       - ref: a2a.message_id

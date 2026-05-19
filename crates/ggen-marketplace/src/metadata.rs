@@ -3,7 +3,7 @@
 //! This module provides functionality to load pack metadata (signatures, trust tiers, checksums)
 //! from cached pack directories. Packs can store metadata in either:
 //! - `package.toml` - TOML format with [package] and [security] sections
-//! - `metadata.json` - JSON format with signature, trust_tier, checksum fields
+//! - `metadata.json` - JSON format with `signature`, `trust_tier`, `checksum` fields
 //!
 //! Both formats are supported with fallback logic for backwards compatibility.
 
@@ -79,7 +79,7 @@ struct MetadataJson {
 ///
 /// # Arguments
 ///
-/// * `cache_dir` - The pack cache directory (e.g., `~/.cache/ggen/packs/{pack_id}/{version}/`)
+/// * `cache_dir` - The pack cache directory (e.g., `~/.cache/mcpp/packs/{pack_id}/{version}/`)
 ///
 /// # Errors
 ///
@@ -89,9 +89,9 @@ struct MetadataJson {
 /// # Examples
 ///
 /// ```ignore
-/// use ggen_marketplace::metadata::load_pack_metadata;
+/// use mcpp_marketplace::metadata::load_pack_metadata;
 ///
-/// let metadata = load_pack_metadata("/home/user/.cache/ggen/packs/surface-mcp/1.0.0/")?;
+/// let metadata = load_pack_metadata("/home/user/.cache/mcpp/packs/surface-mcp/1.0.0/")?;
 /// if let Some(signature) = metadata.signature {
 ///     println!("Pack signature: {}", signature);
 /// }
@@ -120,7 +120,7 @@ pub fn load_pack_metadata(cache_dir: &Path) -> Result<PackMetadata> {
 
 /// Load metadata from package.toml
 fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
-    let content = fs::read_to_string(toml_path).map_err(|e| Error::IoError(e))?;
+    let content = fs::read_to_string(toml_path).map_err(Error::IoError)?;
 
     let package_toml: PackageToml = toml::from_str(&content).map_err(Error::TomlError)?;
 
@@ -157,10 +157,10 @@ fn load_from_toml(toml_path: &Path) -> Result<PackMetadata> {
 
 /// Load metadata from metadata.json
 fn load_from_json(json_path: &Path) -> Result<PackMetadata> {
-    let content = fs::read_to_string(json_path).map_err(|e| Error::IoError(e))?;
+    let content = fs::read_to_string(json_path).map_err(Error::IoError)?;
 
     let metadata_json: MetadataJson =
-        serde_json::from_str(&content).map_err(|e| Error::SerializationError(e.into()))?;
+        serde_json::from_str(&content).map_err(Error::SerializationError)?;
 
     let signature = metadata_json.signature;
     let trust_tier = metadata_json
@@ -215,7 +215,7 @@ pub fn parse_trust_tier(s: &str) -> Option<TrustTier> {
 pub fn get_pack_cache_dir(package_id: &PackageId, version: &str) -> PathBuf {
     dirs::cache_dir()
         .unwrap_or_else(|| PathBuf::from(".cache"))
-        .join("ggen")
+        .join("mcpp")
         .join("packs")
         .join(package_id.as_str())
         .join(version)
@@ -351,7 +351,7 @@ trust_tier = "EnterpriseCertified"
 
         let cache_dir = get_pack_cache_dir(&package_id, version);
 
-        assert!(cache_dir.ends_with("ggen/packs/test-package/1.0.0"));
+        assert!(cache_dir.ends_with("mcpp/packs/test-package/1.0.0"));
     }
 
     #[test]

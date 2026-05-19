@@ -1,4 +1,4 @@
-//! End-to-end tests for the ggen core functionality
+//! End-to-end tests for the mcpp core functionality
 //!
 //! This module provides comprehensive end-to-end tests that verify the complete
 //! pipeline from template parsing to code generation. These tests exercise the
@@ -119,7 +119,7 @@ ex:Product a ex:Class ;
         // Create template that uses RDF data with absolute path (simplified)
         let rdf_path_str = rdf_path
             .to_str()
-            .ok_or_else(|| ggen_utils::error::Error::new("Invalid UTF-8 in RDF path"))?;
+            .ok_or_else(|| mcpp_utils::error::Error::new("Invalid UTF-8 in RDF path"))?;
         let template_content = format!(
             r#"---
 to: "models.rs"

@@ -1,4 +1,4 @@
-//! RDF Ontology for ggen marketplace
+//! RDF Ontology for mcpp marketplace
 //!
 //! Defines the semantic model for packages, versions, dependencies, and metadata
 //! in RDF format. All marketplace data is stored as RDF triples in oxigraph.
@@ -10,8 +10,8 @@
 pub struct Namespaces;
 
 impl Namespaces {
-    /// ggen marketplace namespace
-    pub const GGEN: &'static str = "https://ggen.io/marketplace/";
+    /// mcpp marketplace namespace
+    pub const GGEN: &'static str = "https://mcpp.io/marketplace/";
 
     /// RDF namespace
     pub const RDF: &'static str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";

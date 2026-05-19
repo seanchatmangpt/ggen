@@ -2,7 +2,7 @@
 //!
 //! Demonstrates multi-hop reasoning with retrieval refinement.
 
-use ggen_dspy::{BaleenConfig, InMemoryRetriever, Module, SimplifiedBaleen};
+use mcpp_dspy::{BaleenConfig, InMemoryRetriever, Module, SimplifiedBaleen};
 use std::sync::Arc;
 
 #[tokio::main]

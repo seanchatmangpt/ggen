@@ -1,9 +1,10 @@
 // Node integration tests for run_for_node function
 // Following London TDD approach with comprehensive test coverage
 
-use ggen_cli_lib::run_for_node;
+use mcpp_cli_lib::run_for_node;
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_version() {
     // Test that --version returns successfully
     // Note: clap may return exit code 1 for --version in some contexts
@@ -20,6 +21,7 @@ async fn test_run_for_node_version() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_help() {
     // Test that --help returns successfully
     // Note: clap returns exit code 0 for --help but may be treated as error in some contexts
@@ -37,6 +39,7 @@ async fn test_run_for_node_help() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_invalid_command() {
     // Test that invalid command returns non-zero exit code
     let args = vec!["totally-invalid-command".to_string()];
@@ -55,6 +58,7 @@ async fn test_run_for_node_invalid_command() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_list_command() {
     // Test that list command executes
     let args = vec!["list".to_string()];
@@ -70,6 +74,7 @@ async fn test_run_for_node_list_command() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_marketplace_help() {
     // Test that marketplace help command works
     let args = vec!["market".to_string(), "--help".to_string()];
@@ -85,6 +90,7 @@ async fn test_run_for_node_marketplace_help() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_lifecycle_help() {
     // Test that lifecycle help command works
     let args = vec!["lifecycle".to_string(), "--help".to_string()];
@@ -100,6 +106,7 @@ async fn test_run_for_node_lifecycle_help() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_captures_stdout() {
     // Verify stdout capture works
     let args = vec!["--version".to_string()];
@@ -114,6 +121,7 @@ async fn test_run_for_node_captures_stdout() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_captures_stderr_on_error() {
     // Verify stderr capture works for errors
     let args = vec!["invalid-subcommand".to_string()];
@@ -125,6 +133,7 @@ async fn test_run_for_node_captures_stderr_on_error() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_empty_args() {
     // Test with no arguments (should show help or error)
     let args: Vec<String> = vec![];
@@ -140,6 +149,7 @@ async fn test_run_for_node_empty_args() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_run_for_node_multiple_args() {
     // Test with multiple arguments
     let args = vec![

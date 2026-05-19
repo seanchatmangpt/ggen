@@ -1,18 +1,18 @@
 [package]
-name = "ggen-dspy"
+name = "mcpp-dspy"
 version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "DSPy-inspired programming framework for LLM agents in Rust"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
+homepage = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["llm", "dspy", "agents", "code-generation", "optimization"]
 categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
-# Core ggen dependencies (use workspace = true pattern)
-ggen-ai = { workspace = true }
+# Core mcpp dependencies (use workspace = true pattern)
+mcpp-ai = { workspace = true }
 
 # LLM client
 genai = { workspace = true }
@@ -92,7 +92,7 @@ default = []
 live-llm-tests = []
 
 [lib]
-name = "ggen_dspy"
+name = "mcpp_dspy"
 path = "src/lib.rs"
 
 [[bench]]

@@ -2,8 +2,8 @@
 //!
 //! Chicago TDD: AAA pattern, real collaborators, state-based verification
 
-use ggen_craftplan::emit::{Emitter, GenerationConfig};
-use ggen_craftplan::extract::{Attribute, Entity};
+use mcpp_craftplan::emit::{Emitter, GenerationConfig};
+use mcpp_craftplan::extract::{Attribute, Entity};
 use chicago_tdd_tools::prelude::*;
 
 test!(test_emitter_creation, {

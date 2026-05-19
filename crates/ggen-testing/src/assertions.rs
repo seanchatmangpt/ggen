@@ -6,7 +6,7 @@
 //! # Examples
 //!
 //! ```
-//! use ggen_testing::assertions::*;
+//! use mcpp_testing::assertions::*;
 //!
 //! // Assert state changed
 //! let before = vec![1, 2, 3];

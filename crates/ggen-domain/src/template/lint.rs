@@ -1,6 +1,6 @@
 //! Template linting domain logic
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -47,7 +47,7 @@ pub fn lint_template(template_ref: &str, options: &LintOptions) -> Result<LintRe
 
     // Determine template path
     let template_path = if template_ref.starts_with("gpack:") {
-        return Err(ggen_utils::error::Error::new(
+        return Err(mcpp_utils::error::Error::new(
             "gpack templates not yet supported",
         ));
     } else if template_ref.contains('/') {
@@ -68,7 +68,7 @@ pub fn lint_template(template_ref: &str, options: &LintOptions) -> Result<LintRe
 
     // Read template content
     let content = fs::read_to_string(path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
 
     // Check for YAML frontmatter
     if !content.starts_with("---\n") {
@@ -327,43 +327,43 @@ pub async fn execute_lint(input: LintInput) -> Result<LintOutput> {
 pub fn run(args: &LintInput) -> Result<()> {
     // Use tokio runtime for async execution
     let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
 
     let output = runtime.block_on(execute_lint(args.clone()))?;
 
-    ggen_utils::alert_info!("📋 Linting template: {}", output.template_path);
+    mcpp_utils::alert_info!("📋 Linting template: {}", output.template_path);
 
     if output.errors_found > 0 {
         let msg = format!("\nErrors found: {}", output.errors_found);
-        ggen_utils::alert_critical!(&msg);
+        mcpp_utils::alert_critical!(&msg);
         for error in &output.report.errors {
             if let Some(line) = error.line {
-                ggen_utils::alert_info!("  Line {}: {}", line, error.message);
+                mcpp_utils::alert_info!("  Line {}: {}", line, error.message);
             } else {
-                ggen_utils::alert_info!("  {}", error.message);
+                mcpp_utils::alert_info!("  {}", error.message);
             }
         }
     }
 
     if output.warnings_found > 0 {
         let msg = format!("\nWarnings found: {}", output.warnings_found);
-        ggen_utils::alert_warning!(&msg);
+        mcpp_utils::alert_warning!(&msg);
         for warning in &output.report.warnings {
             if let Some(line) = warning.line {
-                ggen_utils::alert_info!("  Line {}: {}", line, warning.message);
+                mcpp_utils::alert_info!("  Line {}: {}", line, warning.message);
             } else {
-                ggen_utils::alert_info!("  {}", warning.message);
+                mcpp_utils::alert_info!("  {}", warning.message);
             }
         }
     }
 
     if output.errors_found == 0 && output.warnings_found == 0 {
-        ggen_utils::alert_success!("No issues found. Template is valid!");
+        mcpp_utils::alert_success!("No issues found. Template is valid!");
     }
 
     // Return error if errors were found
     if output.errors_found > 0 {
-        return Err(ggen_utils::error::Error::new("Template validation failed"));
+        return Err(mcpp_utils::error::Error::new("Template validation failed"));
     }
 
     Ok(())

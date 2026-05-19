@@ -38,8 +38,8 @@
 //! ### Usage Example
 //!
 //! ```rust,no_run
-//! use ggen_core::security::logging::SecurityLogger;
-//! use ggen_core::security::events::{SecurityEvent, SecuritySeverity, EventCategory};
+//! use mcpp_core::security::logging::SecurityLogger;
+//! use mcpp_core::security::events::{SecurityEvent, SecuritySeverity, EventCategory};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let mut logger = SecurityLogger::new()?;

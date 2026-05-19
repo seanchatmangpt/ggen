@@ -1,11 +1,11 @@
 //! Stress tests for Elixir A2A generation with many agents.
 //!
-//! Validates that ggen can handle realistic workloads:
+//! Validates that mcpp can handle realistic workloads:
 //! - 100 agents: should complete in < 5 seconds
 //! - 1000 agents: should complete in < 30 seconds
 //! - Memory usage should be bounded (no leaks)
 
-use ggen_core::register::register_all;
+use mcpp_core::register::register_all;
 use serde_json::json;
 use tera::Context;
 

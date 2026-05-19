@@ -1,10 +1,10 @@
-//! MCP server entry points for ggen.
+//! MCP server entry points for mcpp.
 //!
-//! Exposes ggen code generation capabilities as an MCP server
+//! Exposes mcpp code generation capabilities as an MCP server
 //! over stdio (for Claude Desktop / MCP clients) or HTTP.
 
 use crate::error::A2aMcpError;
-use crate::ggen_server::GgenMcpServer;
+use crate::mcpp_server::GgenMcpServer;
 use axum::{
     body::Body,
     extract::{Request, State},
@@ -18,7 +18,7 @@ use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing::info;
 
-/// Run ggen as an MCP server over stdio transport.
+/// Run mcpp as an MCP server over stdio transport.
 ///
 /// This is the standard entry point for MCP clients like Claude Desktop.
 /// Reads JSON-RPC messages from stdin, writes responses to stdout.
@@ -26,7 +26,7 @@ pub async fn serve_stdio() -> Result<(), A2aMcpError> {
     let server = GgenMcpServer::new();
     server.serve(rmcp::transport::stdio()).await.map_err(|e| {
         let error_span = tracing::error_span!(
-            "ggen.error",
+            "mcpp.error",
             error.type = "server",
             error.message = format!("stdio serve error: {}", e),
         );
@@ -35,7 +35,7 @@ pub async fn serve_stdio() -> Result<(), A2aMcpError> {
     })
 }
 
-/// Run ggen as an MCP server over HTTP transport.
+/// Run mcpp as an MCP server over HTTP transport.
 ///
 /// Starts an axum HTTP server that accepts JSON-RPC requests via POST.
 pub async fn serve_http(host: &str, port: u16) -> Result<(), A2aMcpError> {
@@ -56,7 +56,7 @@ pub async fn serve_http(host: &str, port: u16) -> Result<(), A2aMcpError> {
     let addr = format!("{}:{}", host, port);
     let listener = tokio::net::TcpListener::bind(&addr).await.map_err(|e| {
         let error_span = tracing::error_span!(
-            "ggen.error",
+            "mcpp.error",
             error.type = "server",
             error.message = format!("Failed to bind to {}: {}", addr, e),
         );
@@ -64,11 +64,11 @@ pub async fn serve_http(host: &str, port: u16) -> Result<(), A2aMcpError> {
         A2aMcpError::Server(format!("Failed to bind to {}: {}", addr, e))
     })?;
 
-    info!("ggen MCP HTTP server listening on {}", addr);
+    info!("mcpp MCP HTTP server listening on {}", addr);
 
     axum::serve(listener, app).await.map_err(|e| {
         let error_span = tracing::error_span!(
-            "ggen.error",
+            "mcpp.error",
             error.type = "server",
             error.message = format!("HTTP server error: {}", e),
         );
@@ -123,7 +123,7 @@ async fn handle_mcp_request(
     let response = serde_json::json!({
         "jsonrpc": "2.0",
         "result": {
-            "status": "ggen MCP HTTP server is running",
+            "status": "mcpp MCP HTTP server is running",
             "tools": [
                 "generate",
                 "validate",

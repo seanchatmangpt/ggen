@@ -3,7 +3,7 @@
 //! This example demonstrates how to transform FIBO (Financial Industry Business Ontology)
 //! concepts into YAWL workflow specifications.
 
-use ggen_yawl::{
+use mcpp_yawl::{
     template::{FlowContext, TaskContext, TemplateContext, VariableContext},
     YawlXmlGenerator,
 };

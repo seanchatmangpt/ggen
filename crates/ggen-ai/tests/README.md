@@ -1,6 +1,6 @@
 # Ollama Integration Tests
 
-This directory contains integration tests for Ollama LLM functionality in ggen-ai.
+This directory contains integration tests for Ollama LLM functionality in mcpp-ai.
 
 ## Prerequisites
 

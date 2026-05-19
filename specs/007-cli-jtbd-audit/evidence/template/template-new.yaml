@@ -1,4 +1,4 @@
-command: "ggen template new"
+command: "mcpp template new"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -53,5 +53,5 @@ recommendations:
 
 jtbd: |
   When I want to create a new code generation template,
-  I need to run 'ggen template new' with template metadata,
+  I need to run 'mcpp template new' with template metadata,
   so that I can define reusable code generation patterns.

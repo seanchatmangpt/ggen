@@ -5,7 +5,7 @@
 //!
 //! Test Count: 100+ performance tests
 
-use ggen_marketplace_v2::prelude::*;
+use mcpp_marketplace_v2::prelude::*;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -162,9 +162,9 @@ async fn test_query_optimization_sparql_filter() {
 
     let query = format!(
         r#"
-        PREFIX ggen: <{}>
+        PREFIX mcpp: <{}>
         SELECT ?pkg WHERE {{
-            ?pkg ggen:qualityScore ?score .
+            ?pkg mcpp:qualityScore ?score .
             FILTER(?score > 80)
         }}
     "#,

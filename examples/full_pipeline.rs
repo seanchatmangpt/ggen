@@ -7,14 +7,14 @@
 //! - A2A Tasks (state machine)
 //! - Receipt Chain (cryptographic audit trail)
 
-use ggen_a2a::{
+use ggen_core::a2a::{
     state_machine::{StateTransition, TaskStateMachine},
     Artifact, ArtifactType, Task, TaskState,
 };
 use ggen_backpressure::{KanbanBoard, KanbanConfig, Stage};
 use ggen_firewall::{AdmissionResponse, Firewall, IngressChannel, IngressRequest};
 use ggen_jidoka::{AndonSignal, Gate, ProductionLine, Result as JidokaResult};
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 

@@ -4,8 +4,8 @@
 //! Pattern: Unit tests for multipart processing logic.
 //! AAA: Arrange / Act / Assert
 
-use a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
-use ggen_a2a_mcp::handlers::MultipartHandler;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
+use mcpp_a2a_mcp::handlers::MultipartHandler;
 use serde_json::Map;
 
 // ---------------------------------------------------------------------------

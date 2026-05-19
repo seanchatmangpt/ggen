@@ -11,7 +11,7 @@ use std::collections::HashMap;
 /// # Example
 ///
 /// ```
-/// use ggen_ai::dspy::testing::ExampleBuilder;
+/// use mcpp_ai::dspy::testing::ExampleBuilder;
 ///
 /// let example = ExampleBuilder::new()
 ///     .input("question", "What is Rust?")

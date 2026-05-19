@@ -1,11 +1,11 @@
 [package]
-name = "ggen-e2e"
+name = "mcpp-e2e"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
-description = "End-to-end testing framework for ggen with testcontainers and cross-platform validation"
+description = "End-to-end testing framework for mcpp with testcontainers and cross-platform validation"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["e2e", "testing", "testcontainers", "cross-platform"]
 categories = ["development-tools", "development-tools::testing"]
 

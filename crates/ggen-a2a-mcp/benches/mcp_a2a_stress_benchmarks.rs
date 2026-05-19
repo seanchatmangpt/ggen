@@ -1,4 +1,4 @@
-//! Stress and load benchmarks for ggen's MCP and A2A layers
+//! Stress and load benchmarks for mcpp's MCP and A2A layers
 //!
 //! Measures throughput and latency under concurrent and high-volume conditions:
 //! - Concurrent MCP tool calls (10, 50, 100 parallel)
@@ -9,9 +9,9 @@
 //! - A2A-to-LLM and LLM-to-A2A message conversion (1000 conversions each)
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{MessageHandler, MessageRouter, TextContentHandler};
-use ggen_a2a_mcp::message::{A2aMessageConverter, LlmResponse};
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{MessageHandler, MessageRouter, TextContentHandler};
+use mcpp_a2a_mcp::message::{A2aMessageConverter, LlmResponse};
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 use std::sync::Arc;
 use tokio::task::JoinSet;
@@ -341,7 +341,7 @@ fn bench_message_handler_dispatch_text(c: &mut Criterion) {
                 let handler = TextContentHandler::new();
 
                 for i in 0..1000 {
-                    let msg = a2a_generated::converged::message::ConvergedMessage::text(
+                    let msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                         format!("dispatch-msg-{}", i),
                         "bench-agent".to_string(),
                         format!("Benchmark message payload number {}", i),
@@ -370,7 +370,7 @@ fn bench_message_conversion_a2a_to_llm(c: &mut Criterion) {
                 let converter = A2aMessageConverter::new();
 
                 for i in 0..1000 {
-                    let msg = a2a_generated::converged::message::ConvergedMessage::text(
+                    let msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                         format!("convert-msg-{}", i),
                         "bench-agent".to_string(),
                         format!("Conversion test content {}", i),
@@ -397,7 +397,7 @@ fn bench_message_conversion_llm_to_a2a(c: &mut Criterion) {
                 let converter = A2aMessageConverter::new();
 
                 // Pre-build a template message so conversion only measures the transform.
-                let template_msg = a2a_generated::converged::message::ConvergedMessage::text(
+                let template_msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                     "template-msg".to_string(),
                     "bench-agent".to_string(),
                     "Original content".to_string(),

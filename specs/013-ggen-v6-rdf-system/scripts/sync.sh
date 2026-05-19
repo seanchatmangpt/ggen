@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# ggen sync Helper Script for 013-ggen-v6-rdf-system
+# mcpp sync Helper Script for 013-mcpp-v6-rdf-system
 # ============================================================================
-# Purpose: Run ggen sync with proper configuration and validation
+# Purpose: Run mcpp sync with proper configuration and validation
 # Constitutional Equation: spec.md = μ(feature.ttl)
 # ============================================================================
 
@@ -19,7 +19,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}============================================================================${NC}"
-echo -e "${BLUE}ggen v6 Sync - RDF-First Code Generation${NC}"
+echo -e "${BLUE}mcpp v6 Sync - RDF-First Code Generation${NC}"
 echo -e "${BLUE}============================================================================${NC}"
 echo ""
 
@@ -29,11 +29,11 @@ cd "$PROJECT_DIR"
 # Pre-flight checks
 echo -e "${BLUE}🔍 Pre-flight checks...${NC}"
 
-if [[ ! -f "ggen.toml" ]]; then
-    echo -e "${RED}❌ ERROR: ggen.toml not found in $PROJECT_DIR${NC}"
+if [[ ! -f "mcpp.toml" ]]; then
+    echo -e "${RED}❌ ERROR: mcpp.toml not found in $PROJECT_DIR${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ ggen.toml found${NC}"
+echo -e "${GREEN}✓ mcpp.toml found${NC}"
 
 if [[ ! -d "ontology" ]]; then
     echo -e "${RED}❌ ERROR: ontology/ directory not found${NC}"
@@ -80,45 +80,45 @@ fi
 
 echo ""
 
-# Check if ggen is installed
-if ! command -v ggen &>/dev/null; then
-    echo -e "${RED}❌ ERROR: ggen command not found${NC}"
+# Check if mcpp is installed
+if ! command -v mcpp &>/dev/null; then
+    echo -e "${RED}❌ ERROR: mcpp command not found${NC}"
     echo ""
-    echo "ggen v6 is not yet implemented. This project specifies ggen v6."
-    echo "Current ggen version is v5 (does not have 'sync' command yet)."
+    echo "mcpp v6 is not yet implemented. This project specifies mcpp v6."
+    echo "Current mcpp version is v5 (does not have 'sync' command yet)."
     echo ""
-    echo "This is expected - we're using RDF to SPECIFY ggen v6."
-    echo "Once v6 is implemented, you'll be able to run 'ggen sync' here."
+    echo "This is expected - we're using RDF to SPECIFY mcpp v6."
+    echo "Once v6 is implemented, you'll be able to run 'mcpp sync' here."
     echo ""
     exit 1
 fi
 
-# Get ggen version
-GGEN_VERSION=$(ggen --version 2>&1 | head -1)
+# Get mcpp version
+GGEN_VERSION=$(mcpp --version 2>&1 | head -1)
 echo -e "${BLUE}📦 Using: $GGEN_VERSION${NC}"
 
-# Check if ggen has sync command
-if ! ggen help 2>&1 | grep -q "sync"; then
-    echo -e "${YELLOW}⚠ WARNING: ggen sync command not available in this version${NC}"
-    echo "This project requires ggen v6 with 'sync' command."
+# Check if mcpp has sync command
+if ! mcpp help 2>&1 | grep -q "sync"; then
+    echo -e "${YELLOW}⚠ WARNING: mcpp sync command not available in this version${NC}"
+    echo "This project requires mcpp v6 with 'sync' command."
     echo "Current version: $GGEN_VERSION"
     echo ""
     echo -e "${BLUE}Expected workflow (when v6 is ready):${NC}"
     echo "  1. Parse: ontology/feature-content.ttl + ontology/mvp-80-20.ttl"
-    echo "  2. Query: Execute SPARQL from ggen.toml"
+    echo "  2. Query: Execute SPARQL from mcpp.toml"
     echo "  3. Render: Apply templates/*.tera templates"
     echo "  4. Output: generated/*.md files"
     echo ""
     exit 1
 fi
 
-# Run ggen sync
-echo -e "${BLUE}🚀 Running ggen sync...${NC}"
+# Run mcpp sync
+echo -e "${BLUE}🚀 Running mcpp sync...${NC}"
 echo ""
 
-ggen sync || {
+mcpp sync || {
     echo ""
-    echo -e "${RED}❌ ggen sync failed${NC}"
+    echo -e "${RED}❌ mcpp sync failed${NC}"
     exit 1
 }
 
@@ -137,7 +137,7 @@ fi
 echo -e "${BLUE}🔒 Verifying determinism...${NC}"
 if [[ -f "generated/spec.md" ]]; then
     HASH1=$(sha256sum generated/spec.md | awk '{print $1}')
-    ggen sync >/dev/null 2>&1
+    mcpp sync >/dev/null 2>&1
     HASH2=$(sha256sum generated/spec.md | awk '{print $1}')
 
     if [[ "$HASH1" == "$HASH2" ]]; then

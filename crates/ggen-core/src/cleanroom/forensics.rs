@@ -19,7 +19,7 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use ggen_core::cleanroom::forensics::ForensicsPack;
+//! use mcpp_core::cleanroom::forensics::ForensicsPack;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let mut pack = ForensicsPack::new("/tmp/test");

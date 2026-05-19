@@ -18,7 +18,7 @@ error[E0433]: failed to resolve: could not find `autonomic` in `clap_noun_verb`
 ```
 
 **Total Errors**: 88 compilation errors
-**Error Location**: `crates/ggen-cli/src/cmds/workflow.rs` and `crates/ggen-cli/src/cmds/yawl.rs`
+**Error Location**: `crates/mcpp-cli/src/cmds/workflow.rs` and `crates/mcpp-cli/src/cmds/yawl.rs`
 
 ### Root Cause
 
@@ -203,13 +203,13 @@ Once build succeeds, test each command systematically:
 
 ```bash
 # Create test environment
-mkdir -p /tmp/test-ggen-cli
-cd /tmp/test-ggen-cli
+mkdir -p /tmp/test-mcpp-cli
+cd /tmp/test-mcpp-cli
 
 # Test each command group
-ggen sync --dry-run
-ggen init /tmp/test-project --force
-ggen wizard --profile receipts-first --output-dir /tmp/test-wizard --yes --no-sync
+mcpp sync --dry-run
+mcpp init /tmp/test-project --force
+mcpp wizard --profile receipts-first --output-dir /tmp/test-wizard --yes --no-sync
 # ... etc for all 25 commands
 ```
 
@@ -221,10 +221,10 @@ ggen wizard --profile receipts-first --output-dir /tmp/test-wizard --yes --no-sy
 - [ ] Fix 14 broken `#[verb]` macros in workflow.rs
 - [ ] Fix 9 broken `#[verb]` macros in yawl.rs
 - [ ] Verify clean build with `cargo make build`
-- [ ] Verify binary exists at `target/debug/ggen`
+- [ ] Verify binary exists at `target/debug/mcpp`
 
 ### Phase 2: Prepare Test Environment
-- [ ] Create test directory `/tmp/test-ggen-cli`
+- [ ] Create test directory `/tmp/test-mcpp-cli`
 - [ ] Create sample TTL file for graph commands
 - [ ] Create sample project for init commands
 - [ ] Set up clean state for each test
@@ -288,4 +288,4 @@ ggen wizard --profile receipts-first --output-dir /tmp/test-wizard --yes --no-sy
 
 **Report Generated**: 2026-04-01
 **Investigated By**: Claude Code Agent
-**Plan File**: `/Users/sac/.claude/plans/clever-skipping-axolotl-agent-a1ce9c05630c0a644.md`
+**Plan File**: `~/.ggen/.claude/plans/clever-skipping-axolotl-agent-a1ce9c05630c0a644.md`

@@ -1,4 +1,4 @@
-command: "ggen project regenerate"
+command: "mcpp project regenerate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to regenerate a project with updated configuration,
-  I need to run 'ggen project regenerate',
+  I need to run 'mcpp project regenerate',
   so that I can refresh project outputs.

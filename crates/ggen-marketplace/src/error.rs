@@ -163,29 +163,26 @@ pub enum Error {
     Other(String),
 }
 
-// Implement From<ggen_receipt::ReceiptError> for compatibility
-impl From<ggen_receipt::ReceiptError> for Error {
-    fn from(err: ggen_receipt::ReceiptError) -> Self {
+// Implement From<mcpp_receipt::ReceiptError> for compatibility
+impl From<mcpp_receipt::ReceiptError> for Error {
+    fn from(err: mcpp_receipt::ReceiptError) -> Self {
         match err {
-            ggen_receipt::ReceiptError::InvalidSignature => Error::SignatureVerificationFailed {
+            mcpp_receipt::ReceiptError::InvalidSignature => Error::SignatureVerificationFailed {
                 reason: "Invalid signature".to_string(),
             },
-            ggen_receipt::ReceiptError::InvalidChain(msg) => {
-                Error::CryptoError(format!("Invalid receipt chain: {}", msg))
+            mcpp_receipt::ReceiptError::InvalidChain(msg) => {
+                Error::CryptoError(format!("Invalid receipt chain: {msg}"))
             }
-            ggen_receipt::ReceiptError::Serialization(err) => Error::SerializationError(err),
-            ggen_receipt::ReceiptError::InvalidReceipt(msg) => Error::ValidationFailed {
-                reason: format!("Invalid receipt: {}", msg),
+            mcpp_receipt::ReceiptError::Serialization(err) => Error::SerializationError(err),
+            mcpp_receipt::ReceiptError::InvalidReceipt(msg) => Error::ValidationFailed {
+                reason: format!("Invalid receipt: {msg}"),
             },
-            ggen_receipt::ReceiptError::Crypto(msg) => {
-                Error::CryptoError(format!("Receipt crypto error: {}", msg))
+            mcpp_receipt::ReceiptError::Crypto(msg) => {
+                Error::CryptoError(format!("Receipt crypto error: {msg}"))
             }
-            ggen_receipt::ReceiptError::HashMismatch { expected, actual } => {
-                Error::CryptoError(format!(
-                    "Receipt hash mismatch: expected {}, got {}",
-                    expected, actual
-                ))
-            }
+            mcpp_receipt::ReceiptError::HashMismatch { expected, actual } => Error::CryptoError(
+                format!("Receipt hash mismatch: expected {expected}, got {actual}"),
+            ),
         }
     }
 }

@@ -12,7 +12,7 @@
   - 8 required properties defined
   - Agent breakdown with 7 weighted criteria (0-100 scale)
   - Maturity levels: L0, L0-DEP, L1, L2, L3, L4, L5
-  - Example command: `ggen template generate` (L4 maturity, score 82)
+  - Example command: `mcpp template generate` (L4 maturity, score 82)
   - Validation rules enforced:
     - agent_score = sum of agent_breakdown
     - maturity_level = floor(agent_score/20) capped by blockers
@@ -56,11 +56,11 @@
 - **Findings**:
   - Ggen CLI binary not immediately available in workspace (requires full build)
   - Audit framework designed to work with `cargo run --` invocation
-  - Alternative: Direct CLI invocation once ggen is installed
+  - Alternative: Direct CLI invocation once mcpp is installed
 - **Resolution**: 
   - Framework is complete and functional
-  - Commands can be tested directly with `ggen <command> --help`
-  - Audit scripts will use direct ggen invocation path
+  - Commands can be tested directly with `mcpp <command> --help`
+  - Audit scripts will use direct mcpp invocation path
 
 ## Directory Structure Created
 

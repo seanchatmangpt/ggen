@@ -1,7 +1,7 @@
-//! Smoke test for chicago-tdd-tools integration in ggen-domain
+//! Smoke test for chicago-tdd-tools integration in mcpp-domain
 //!
 //! This test verifies that chicago-tdd-tools is properly configured and works
-//! with the ggen-domain crate. It tests basic functionality to ensure the
+//! with the mcpp-domain crate. It tests basic functionality to ensure the
 //! integration is stable.
 
 // Use prelude::* to import all common macros and types
@@ -42,7 +42,7 @@ async_test!(test_async_works, {
 // Test domain-specific functionality
 test!(test_domain_integration, {
     // Arrange
-    let domain_value = String::from("ggen-domain");
+    let domain_value = String::from("mcpp-domain");
 
     // Act
     let result = domain_value.to_uppercase();

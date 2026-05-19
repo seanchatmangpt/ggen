@@ -5,8 +5,8 @@
 //!
 //! Test Count: 300+ tests covering all type-level guarantees
 
-use ggen_marketplace_v2::error::Error;
-use ggen_marketplace_v2::models::*;
+use mcpp_marketplace_v2::error::Error;
+use mcpp_marketplace_v2::models::*;
 
 // ============================================================================
 // SECTION 1: PackageId NewType Validation (50 tests)

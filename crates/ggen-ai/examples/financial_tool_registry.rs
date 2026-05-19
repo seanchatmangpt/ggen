@@ -7,7 +7,7 @@
 //! 4. Export tools for agent use (OpenAPI, MCP)
 //! 5. Validate inputs against tool schemas
 
-use ggen_ai::{
+use mcpp_ai::{
     dspy::{field::InputField, field::OutputField, Signature},
     tool::{AuthScope, Tool, ToolSlo, ToolTag},
     tool_registry::REGISTRY,

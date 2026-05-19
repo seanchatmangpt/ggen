@@ -22,7 +22,7 @@ This document explains the poka-yoke (mistake-proofing) design applied to the ma
 **Solution**: Type-level state machine using PhantomData markers
 
 ```rust
-use ggen_core::lifecycle::state_machine::*;
+use mcpp_core::lifecycle::state_machine::*;
 
 // Start with initial state
 let lifecycle = LifecycleStateMachine::<Initial>::new();
@@ -50,7 +50,7 @@ let lifecycle = lifecycle.deploy()?;
 **Solution**: Newtype wrappers for validated vs unvalidated packages
 
 ```rust
-use ggen_marketplace::models::{PackageBuilder, UnvalidatedPackage, ValidatedPackage};
+use mcpp_marketplace::models::{PackageBuilder, UnvalidatedPackage, ValidatedPackage};
 
 // Build unvalidated package
 let unvalidated = PackageBuilder::new(id, version)
@@ -78,7 +78,7 @@ install_package(validated)?; // Type system prevents installing unvalidated
 **Solution**: Builder pattern that requires at least one command
 
 ```rust
-use ggen_core::lifecycle::model::PhaseBuilder;
+use mcpp_core::lifecycle::model::PhaseBuilder;
 
 // Valid phase - has commands
 let phase = PhaseBuilder::new("build")
@@ -103,7 +103,7 @@ let phase = PhaseBuilder::new("empty")
 **Solution**: Validated state wrapper that ensures state passes validation
 
 ```rust
-use ggen_core::lifecycle::{load_state, ValidatedLifecycleState};
+use mcpp_core::lifecycle::{load_state, ValidatedLifecycleState};
 
 // Load and validate state
 let validated_state = ValidatedLifecycleState::new(load_state(path)?)?;
@@ -124,7 +124,7 @@ use_validated_state(validated_state)?; // Type prevents using unvalidated state
 **Solution**: Validation that checks for cycles and invalid references
 
 ```rust
-use ggen_core::lifecycle::{validate_hooks, Make};
+use mcpp_core::lifecycle::{validate_hooks, Make};
 
 let make = load_make("make.toml")?;
 
@@ -177,7 +177,7 @@ Types make invalid states unrepresentable:
 ### Example 1: Complete Lifecycle Flow
 
 ```rust
-use ggen_core::lifecycle::state_machine::*;
+use mcpp_core::lifecycle::state_machine::*;
 
 fn run_lifecycle() -> Result<()> {
     let lifecycle = LifecycleStateMachine::<Initial>::new();
@@ -196,7 +196,7 @@ fn run_lifecycle() -> Result<()> {
 ### Example 2: Validated Package Installation
 
 ```rust
-use ggen_marketplace::models::{PackageBuilder, ValidatedPackage};
+use mcpp_marketplace::models::{PackageBuilder, ValidatedPackage};
 
 fn install_package_safely(id: PackageId, version: Version) -> Result<()> {
     // Build and validate package
@@ -217,7 +217,7 @@ fn install_package_safely(id: PackageId, version: Version) -> Result<()> {
 ### Example 3: Phase Construction
 
 ```rust
-use ggen_core::lifecycle::model::PhaseBuilder;
+use mcpp_core::lifecycle::model::PhaseBuilder;
 
 fn create_build_phase() -> Result<ValidatedPhase> {
     // Builder ensures phase has commands

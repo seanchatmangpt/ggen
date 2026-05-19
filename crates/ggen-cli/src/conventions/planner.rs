@@ -1,6 +1,6 @@
 //! Generation planner for creating task execution plans
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -45,10 +45,10 @@ impl TemplateMetadata {
 
         Ok(TemplateMetadata {
             output: output
-                .ok_or_else(|| ggen_utils::error::Error::new("Missing 'output' directive"))?,
+                .ok_or_else(|| mcpp_utils::error::Error::new("Missing 'output' directive"))?,
             when,
             query: query
-                .ok_or_else(|| ggen_utils::error::Error::new("Missing 'query' directive"))?,
+                .ok_or_else(|| mcpp_utils::error::Error::new("Missing 'query' directive"))?,
             foreach,
         })
     }
@@ -147,7 +147,7 @@ impl GenerationPlanner {
             let mut rec_stack = HashSet::new();
 
             if self.has_cycle(task, graph, &mut visited, &mut rec_stack) {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Circular dependency detected involving task: {}",
                     task
                 )));
@@ -237,7 +237,7 @@ impl GenerationPlanner {
 
         // If there are remaining tasks, there's a cycle
         if !tasks.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(mcpp_utils::error::Error::new(
                 "Circular dependency detected during topological sort",
             ));
         }

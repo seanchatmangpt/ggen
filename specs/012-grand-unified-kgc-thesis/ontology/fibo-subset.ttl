@@ -1,4 +1,4 @@
-@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix : <https://mcpp.io/thesis/kgc-unified/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -14,7 +14,7 @@
 # Financial Industry Business Ontology - Core Classes
 # =============================================================================
 
-<https://ggen.io/thesis/kgc-unified/fibo-subset>
+<https://mcpp.io/thesis/kgc-unified/fibo-subset>
     a owl:Ontology ;
     dcterms:title "FIBO Subset for KGC Thesis" ;
     dcterms:description "Selective import of FIBO classes for financial workflow integration demonstration" ;

@@ -3,7 +3,7 @@
 //! Processes templates one at a time instead of loading entire file tree
 //! into memory, enabling constant memory usage regardless of project size.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use tera::Context;
 use walkdir::WalkDir;
@@ -27,7 +27,7 @@ use crate::template_cache::TemplateCache;
 /// # Examples
 ///
 /// ```text
-/// use ggen_core::streaming_generator::StreamingGenerator;
+/// use mcpp_core::streaming_generator::StreamingGenerator;
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
@@ -62,7 +62,7 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
     /// let generator = StreamingGenerator::new(
@@ -92,7 +92,7 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
     /// // Create generator with larger cache for many templates
@@ -131,7 +131,7 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use tera::Context;
     /// use std::path::PathBuf;
     ///
@@ -264,7 +264,7 @@ impl StreamingGenerator {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use mcpp_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
     /// let generator = StreamingGenerator::new(
@@ -288,7 +288,7 @@ impl StreamingGenerator {
 /// # Examples
 ///
 /// ```text
-/// use ggen_core::streaming_generator::{StreamingGenerator, GenerationResult};
+/// use mcpp_core::streaming_generator::{StreamingGenerator, GenerationResult};
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
@@ -318,7 +318,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use mcpp_core::streaming_generator::GenerationResult;
     ///
     /// let mut result = GenerationResult::default();
     /// result.success_count = 8;
@@ -338,7 +338,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use mcpp_core::streaming_generator::GenerationResult;
     ///
     /// let mut result = GenerationResult::default();
     /// result.success_count = 9;
@@ -361,7 +361,7 @@ impl GenerationResult {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use mcpp_core::streaming_generator::GenerationResult;
     /// use std::time::Duration;
     ///
     /// let mut result = GenerationResult::default();

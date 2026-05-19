@@ -5,7 +5,7 @@
 **Status**: ✅ COMPLETE - 7 comprehensive documents, production-ready
 
 **Date**: 2026-01-25
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/sales/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/sales/`
 
 ---
 
@@ -301,7 +301,7 @@ MONTH 6-11: Growth
 
 ## Files Location
 
-All files in: `/Users/sac/ggen/tai-erlang-autonomics/sales/`
+All files in: `~/.ggen/mcpp/tai-erlang-autonomics/sales/`
 
 ```
 sales/

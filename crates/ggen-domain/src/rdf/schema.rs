@@ -3,10 +3,10 @@
 //! This module provides programmatic access to the Ggen ontology.
 //! Refactored from v1 to use v2 error handling patterns.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 /// Ggen ontology namespace
-pub const GGEN_NAMESPACE: &str = "http://ggen.dev/ontology#";
+pub const GGEN_NAMESPACE: &str = "http://mcpp.dev/ontology#";
 
 /// Standard RDF namespaces
 pub const RDF_NAMESPACE: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -189,15 +189,15 @@ mod tests {
     fn test_ontology_uris() {
         assert_eq!(
             GgenOntology::template(),
-            "http://ggen.dev/ontology#Template"
+            "http://mcpp.dev/ontology#Template"
         );
         assert_eq!(
             GgenOntology::generates_file(),
-            "http://ggen.dev/ontology#generatesFile"
+            "http://mcpp.dev/ontology#generatesFile"
         );
         assert_eq!(
             GgenOntology::template_name(),
-            "http://ggen.dev/ontology#templateName"
+            "http://mcpp.dev/ontology#templateName"
         );
         assert_eq!(
             GgenOntology::rdf_type(),
@@ -208,14 +208,14 @@ mod tests {
     #[test]
     fn test_load_schema() {
         let schema = load_schema().expect("Failed to load schema");
-        assert!(schema.contains("@prefix ggen:"));
-        assert!(schema.contains("ggen:Template a rdfs:Class"));
-        assert!(schema.contains("ggen:generatesFile a rdf:Property"));
+        assert!(schema.contains("@prefix mcpp:"));
+        assert!(schema.contains("mcpp:Template a rdfs:Class"));
+        assert!(schema.contains("mcpp:generatesFile a rdf:Property"));
     }
 
     #[test]
     fn test_namespace_constants() {
-        assert_eq!(GGEN_NAMESPACE, "http://ggen.dev/ontology#");
+        assert_eq!(GGEN_NAMESPACE, "http://mcpp.dev/ontology#");
         assert_eq!(RDF_NAMESPACE, "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         assert_eq!(RDFS_NAMESPACE, "http://www.w3.org/2000/01/rdf-schema#");
     }

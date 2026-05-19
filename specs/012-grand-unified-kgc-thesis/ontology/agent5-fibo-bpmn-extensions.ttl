@@ -1,9 +1,9 @@
-@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix : <https://mcpp.io/thesis/kgc-unified/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix wfe: <http://ggen.ruv.io/workflow-engine#> .
+@prefix wfe: <http://mcpp.ruv.io/workflow-engine#> .
 @prefix fibo-fbc-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
@@ -12,14 +12,14 @@
 # PhD Innovation: Multi-Dimensional Cross-Domain Unification
 # =============================================================================
 
-<https://ggen.io/thesis/kgc-unified/fibo-bpmn-extensions>
+<https://mcpp.io/thesis/kgc-unified/fibo-bpmn-extensions>
     a owl:Ontology ;
     dcterms:title "FIBO-BPMN Extended Bridge Ontology (Agent 5)" ;
     dcterms:description "Novel bridge properties and CONSTRUCT patterns for heterogeneous domain unification" ;
     dcterms:created "2026-01-05"^^xsd:date ;
     owl:versionInfo "2.0.0" ;
-    owl:imports <https://ggen.io/thesis/kgc-unified/workflow-finance-bridge> ,
-                <https://ggen.io/thesis/kgc-unified/fibo-subset> ;
+    owl:imports <https://mcpp.io/thesis/kgc-unified/workflow-finance-bridge> ,
+                <https://mcpp.io/thesis/kgc-unified/fibo-subset> ;
     rdfs:comment "Extends FIBO-BPMN bridge with temporal constraints, capital requirements, counterparty risk, and market event integration" .
 
 # =============================================================================
@@ -423,7 +423,7 @@
       # Create collateral requirement if exposure exceeds threshold
       FILTER(?totalExposure > 10000000)
 
-      BIND(URI(CONCAT('https://ggen.io/collateral/',
+      BIND(URI(CONCAT('https://mcpp.io/collateral/',
                      ENCODE_FOR_URI(?counterparty),
                      '-', STR(?totalExposure))) AS ?collateralReq)
     }
@@ -467,7 +467,7 @@
       }
 
       # Generate unique audit event IRI
-      BIND(URI(CONCAT('https://ggen.io/audit/',
+      BIND(URI(CONCAT('https://mcpp.io/audit/',
                      ENCODE_FOR_URI(?task),
                      '-', STR(NOW()))) AS ?auditEvent)
     }
@@ -541,7 +541,7 @@
     """ ;
     :phd-contribution "First proof that arbitrary domain ontologies can be unified with polynomial complexity" ;
     :implications """
-    \\textbf{Implications for ggen}:
+    \\textbf{Implications for mcpp}:
     \\begin{itemize}
     \\item Full-stack applications span $n \\geq 3$ domains (database schema, API contracts, UI components, business logic)
     \\item Each domain pair requires bridge ontology ($O(n^2)$ bridge definitions)

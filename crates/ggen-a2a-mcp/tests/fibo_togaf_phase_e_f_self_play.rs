@@ -18,13 +18,13 @@
 
 use std::collections::HashMap;
 
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
     MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     UnifiedContent,
 };
 use chrono::Utc;
-use ggen_a2a_mcp::{A2aMessageConverter, MessageRouter};
+use mcpp_a2a_mcp::{A2aMessageConverter, MessageRouter};
 
 mod common;
 use common::init_tracing;

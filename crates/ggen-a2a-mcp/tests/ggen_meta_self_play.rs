@@ -1,6 +1,6 @@
 //! Meta / Recursive Generation Self-Play Tests
 //!
-//! Tests ggen generating its own MCP + A2A code: scaffold examples, write custom
+//! Tests mcpp generating its own MCP + A2A code: scaffold examples, write custom
 //! ontologies, run the full validate -> query -> generate pipeline, and perform
 //! round-trip verification where generated artifacts feed back into ontologies.
 //!
@@ -8,11 +8,11 @@
 //! All tests run without API keys.
 //!
 //! Run with:
-//!   cargo test -p ggen-a2a-mcp --test ggen_meta_self_play -- --test-threads=1 --nocapture
+//!   cargo test -p mcpp-a2a-mcp --test mcpp_meta_self_play -- --test-threads=1 --nocapture
 
 use std::path::Path;
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ fn write_ontology_project(
 #[tokio::test]
 async fn test_meta_scaffold_mcp_example_has_valid_structure() -> anyhow::Result<()> {
     // Arrange — point server at real examples directory
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 
@@ -167,8 +167,8 @@ async fn test_meta_scaffold_mcp_example_has_valid_structure() -> anyhow::Result<
 
     // Assert — structural integrity
     assert!(
-        target_dir.join("ggen.toml").exists(),
-        "scaffolded dir must contain ggen.toml"
+        target_dir.join("mcpp.toml").exists(),
+        "scaffolded dir must contain mcpp.toml"
     );
     assert!(
         target_dir.join("README.md").exists(),
@@ -218,7 +218,7 @@ async fn test_meta_scaffold_mcp_example_has_valid_structure() -> anyhow::Result<
 
     // Query for mcp:Tool instances (prefix from the actual ontology)
     let sparql =
-        "PREFIX mcp: <https://ggen.io/examples/mcp#> SELECT ?tool WHERE { ?tool a mcp:Tool }";
+        "PREFIX mcp: <https://mcpp.io/examples/mcp#> SELECT ?tool WHERE { ?tool a mcp:Tool }";
     let query_result = client
         .call_tool(
             CallToolRequestParams::new("query_ontology").with_arguments(args(serde_json::json!({
@@ -452,7 +452,7 @@ async fn test_meta_full_pipeline_validate_query_generate() -> anyhow::Result<()>
 #[tokio::test]
 async fn test_meta_scaffold_a2a_example_has_agent_definitions() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "~/.ggen/mcpp/examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 
@@ -521,7 +521,7 @@ async fn test_meta_scaffold_a2a_example_has_agent_definitions() -> anyhow::Resul
 
     // Query for Skills (prefix: agent:)
     let sparql_skills =
-        "PREFIX agent: <https://ggen.io/examples/a2a#> SELECT ?skill WHERE { ?skill a agent:Skill }";
+        "PREFIX agent: <https://mcpp.io/examples/a2a#> SELECT ?skill WHERE { ?skill a agent:Skill }";
     let query_result = client
         .call_tool(
             CallToolRequestParams::new("query_ontology").with_arguments(args(serde_json::json!({
@@ -547,15 +547,15 @@ async fn test_meta_scaffold_a2a_example_has_agent_definitions() -> anyhow::Resul
         );
     }
 
-    // ggen.toml must contain [project] and [[generation.rules]]
-    let ggen_toml = std::fs::read_to_string(target_dir.join("ggen.toml"))?;
+    // mcpp.toml must contain [project] and [[generation.rules]]
+    let mcpp_toml = std::fs::read_to_string(target_dir.join("mcpp.toml"))?;
     assert!(
-        ggen_toml.contains("[project]"),
-        "ggen.toml must contain [project]"
+        mcpp_toml.contains("[project]"),
+        "mcpp.toml must contain [project]"
     );
     assert!(
-        ggen_toml.contains("[[generation.rules]]"),
-        "ggen.toml must contain [[generation.rules]]"
+        mcpp_toml.contains("[[generation.rules]]"),
+        "mcpp.toml must contain [[generation.rules]]"
     );
 
     client.cancel().await?;

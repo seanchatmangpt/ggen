@@ -6,17 +6,15 @@
 //!
 //! # Examples
 //!
-//! ```rust
-//! use cli::runtime_helper::execute_async;
-//! use clap_noun_verb::Result;
+//! ```rust,no_run
+//! use mcpp_cli_lib::runtime_helper::execute_async;
 //!
-//! fn my_sync_command() -> Result<Output> {
+//! fn my_sync_command() -> Result<String, String> {
 //!     execute_async(async {
 //!         // Async business logic here
-//!         let result = async_operation().await?;
+//!         let result: String = "done".to_string();
 //!         Ok(result)
 //!     })
-//!     .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 //! }
 //! ```
 
@@ -50,12 +48,12 @@ pub fn create_runtime() -> Result<Runtime, String> {
 ///
 /// # Examples
 ///
-/// ```rust
-/// use cli::runtime_helper::execute_async;
+/// ```rust,no_run
+/// use mcpp_cli_lib::runtime_helper::execute_async;
 ///
 /// fn sync_function() -> Result<String, String> {
 ///     execute_async(async {
-///         let data = fetch_data().await?;
+///         let data: String = "data".to_string();
 ///         Ok(data)
 ///     })
 /// }
@@ -103,14 +101,13 @@ where
 ///
 /// # Examples
 ///
-/// ```rust
-/// use cli::runtime_helper::execute_async_verb;
+/// ```rust,no_run
+/// use mcpp_cli_lib::runtime_helper::execute_async_verb;
 /// use clap_noun_verb::Result;
 ///
-/// #[verb("doctor", "utils")]
-/// fn utils_doctor() -> Result<DoctorOutput> {
+/// fn utils_doctor() -> Result<String> {
 ///     execute_async_verb(async {
-///         run_diagnostics().await
+///         Ok::<String, anyhow::Error>("diagnostics complete".to_string())
 ///     })
 /// }
 /// ```

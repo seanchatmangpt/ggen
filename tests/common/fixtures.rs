@@ -85,11 +85,13 @@ pub fn sample_package() -> String {
 }
 
 /// Creates a temporary directory for test isolation
+#[allow(dead_code)]
 pub fn create_temp_dir() -> TempDir {
     TempDir::new().expect("Failed to create temp directory")
 }
 
 /// Creates sample template variables
+#[allow(dead_code)]
 pub fn sample_template_vars() -> BTreeMap<String, String> {
     let mut vars = BTreeMap::new();
     vars.insert("project_name".to_string(), "TestProject".to_string());
@@ -99,6 +101,7 @@ pub fn sample_template_vars() -> BTreeMap<String, String> {
 }
 
 /// Creates a simple template content string
+#[allow(dead_code)]
 pub fn sample_template_content() -> String {
     r#"# {{ project_name }}
 
@@ -111,6 +114,7 @@ This is a test template.
 }
 
 /// Creates a sample make.toml content
+#[allow(dead_code)]
 pub fn sample_make_toml() -> String {
     r#"[project]
 name = "test-project"
@@ -133,6 +137,7 @@ commands = ["echo Testing"]
 }
 
 /// Creates a sample Gpack manifest content
+#[allow(dead_code)]
 pub fn sample_gpack_manifest() -> String {
     r#"{
   "name": "test-gpack",
@@ -153,6 +158,7 @@ pub fn sample_gpack_manifest() -> String {
 }
 
 /// Helper to create a test cache directory path
+#[allow(dead_code)]
 pub fn test_cache_path() -> PathBuf {
     let temp = create_temp_dir();
     temp.path().join(".cache")

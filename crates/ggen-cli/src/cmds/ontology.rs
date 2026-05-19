@@ -70,7 +70,7 @@ fn init(project_name: String, _template: Option<String>) -> VerbResult<InitOutpu
     Ok(InitOutput {
         project_name,
         ontology_file: "ontologies/example.ttl".to_string(),
-        config_file: "ggen.config.json".to_string(),
+        config_file: "mcpp.config.json".to_string(),
         generated_files: vec!["package.json".to_string(), "README.md".to_string()],
     })
 }

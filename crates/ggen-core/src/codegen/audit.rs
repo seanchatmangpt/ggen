@@ -3,7 +3,7 @@
 //! Creates comprehensive audit records of generation pipeline execution,
 //! enabling verification that the same inputs produce identical outputs.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -16,8 +16,8 @@ pub struct AuditTrail {
     /// Generation timestamp (ISO 8601)
     pub generated_at: String,
 
-    /// ggen version
-    pub ggen_version: String,
+    /// mcpp version
+    pub mcpp_version: String,
 
     /// Input hashes for determinism verification
     pub inputs: AuditInputs,
@@ -38,7 +38,7 @@ pub struct AuditTrail {
 /// Hashes of all input files
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditInputs {
-    /// SHA256 of ggen.toml
+    /// SHA256 of mcpp.toml
     pub manifest_hash: String,
 
     /// SHA256 of each ontology file (BTreeMap for determinism)
@@ -93,8 +93,8 @@ pub struct AuditOutput {
 
 /// Builder for constructing audit trails
 pub struct AuditTrailBuilder {
-    /// Current ggen version
-    ggen_version: String,
+    /// Current mcpp version
+    mcpp_version: String,
 
     /// Input file hashes
     inputs: AuditInputs,
@@ -113,7 +113,7 @@ impl AuditTrailBuilder {
     /// Create a new audit trail builder
     pub fn new() -> Self {
         Self {
-            ggen_version: env!("CARGO_PKG_VERSION").to_string(),
+            mcpp_version: env!("CARGO_PKG_VERSION").to_string(),
             inputs: AuditInputs {
                 manifest_hash: String::new(),
                 ontology_hashes: BTreeMap::new(),
@@ -129,7 +129,7 @@ impl AuditTrailBuilder {
     /// Record input file hashes
     ///
     /// # Arguments
-    /// * `manifest` - Path to ggen.toml
+    /// * `manifest` - Path to mcpp.toml
     /// * `ontologies` - Paths to ontology files
     /// * `templates` - Paths to template files
     pub fn record_inputs(
@@ -218,7 +218,7 @@ impl AuditTrailBuilder {
 
         AuditTrail {
             generated_at: chrono::Utc::now().to_rfc3339(),
-            ggen_version: self.ggen_version.clone(),
+            mcpp_version: self.mcpp_version.clone(),
             inputs: self.inputs.clone(),
             pipeline: self.pipeline.clone(),
             outputs: self.outputs.clone(),

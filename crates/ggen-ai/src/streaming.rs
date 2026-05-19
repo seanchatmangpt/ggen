@@ -8,7 +8,7 @@
 //! For streaming responses, use `LlmClient::complete_stream()` which returns a stream of `LlmChunk`:
 //!
 //! ```rust,no_run
-//! use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
+//! use mcpp_ai::{GenAiClient, LlmClient, LlmConfig};
 //! use futures::StreamExt;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {

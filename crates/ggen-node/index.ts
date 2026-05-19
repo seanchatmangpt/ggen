@@ -1,7 +1,7 @@
 /**
- * Production-grade Node.js N-API bindings for ggen CLI
+ * Production-grade Node.js N-API bindings for mcpp CLI
  *
- * This module provides high-performance, type-safe bindings to the ggen CLI
+ * This module provides high-performance, type-safe bindings to the mcpp CLI
  * for use in Node.js applications.
  *
  * @packageDocumentation
@@ -21,12 +21,12 @@ export interface RunResult {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
- * Get the ggen version (matches crate version)
+ * Get the mcpp version (matches crate version)
  *
  * @example
  * ```typescript
- * import { version } from '@ggen/node';
- * console.log('ggen version:', version());
+ * import { version } from '@mcpp/node';
+ * console.log('mcpp version:', version());
  * ```
  */
 export function version(): string {
@@ -37,7 +37,7 @@ export function version(): string {
  * Low-level entrypoint to invoke the CLI.
  * Prefer higher-level wrapper functions for better ergonomics.
  *
- * @param args - Command-line arguments (without the 'ggen' binary name)
+ * @param args - Command-line arguments (without the 'mcpp' binary name)
  * @returns RunResult containing exit code and captured stdout/stderr
  *
  * @example
@@ -72,11 +72,11 @@ export async function marketSearch(query: string): Promise<RunResult> {
 /**
  * Add a marketplace package to the current project
  *
- * @param packageId - Package identifier (e.g., "io.ggen.rust.axum-service")
+ * @param packageId - Package identifier (e.g., "io.mcpp.rust.axum-service")
  *
  * @example
  * ```typescript
- * await marketAdd('io.ggen.rust.axum-service');
+ * await marketAdd('io.mcpp.rust.axum-service');
  * ```
  */
 export async function marketAdd(packageId: string): Promise<RunResult> {
@@ -116,7 +116,7 @@ export async function marketCategories(): Promise<RunResult> {
  *
  * @example
  * ```typescript
- * await marketRemove('io.ggen.rust.axum-service');
+ * await marketRemove('io.mcpp.rust.axum-service');
  * ```
  */
 export async function marketRemove(packageId: string): Promise<RunResult> {
@@ -128,7 +128,7 @@ export async function marketRemove(packageId: string): Promise<RunResult> {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
- * Initialize a new ggen project
+ * Initialize a new mcpp project
  *
  * @example
  * ```typescript
@@ -250,7 +250,7 @@ export async function lifecycleList(): Promise<RunResult> {
  *
  * @param templatePath - Path to template file
  * @param vars - Optional variable map for template rendering
- * @param manifestPath - Optional path to ggen.toml manifest
+ * @param manifestPath - Optional path to mcpp.toml manifest
  *
  * @example
  * ```typescript

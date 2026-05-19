@@ -1,4 +1,4 @@
-# Generated artifacts (regenerated from ontology via ggen sync)
+# Generated artifacts (regenerated from ontology via mcpp sync)
 # These are derived from 3T files (TOML + Tera + Turtle) and should NOT be version-controlled
 # Constitutional equation: code = μ(spec.ttl)
 generated/

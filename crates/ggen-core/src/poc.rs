@@ -35,11 +35,11 @@
 //! ### Basic Template with RDF
 //!
 //! ```rust,no_run
-//! use ggen_core::poc::poc_hygen;
+//! use mcpp_core::poc::poc_hygen;
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let template_path = Path::new("template.tmpl");
 //! let output_dir = Path::new("output");
 //! let mut vars = BTreeMap::new();
@@ -82,7 +82,7 @@ use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HygenFrontmatter {
@@ -117,7 +117,7 @@ impl TeraFunction for SparqlFn {
             format!("{}\n{}", self.prolog, q)
         };
         if self.trace {
-            log::debug!("[ggen.sparql] {}", final_q.replace('\n', " "))
+            log::debug!("[mcpp.sparql] {}", final_q.replace('\n', " "))
         }
 
         #[allow(deprecated)]

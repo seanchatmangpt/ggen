@@ -1,7 +1,7 @@
 //! Template context structures for YAWL rendering.
 
 use crate::{Error, Result};
-use ggen_core::Graph;
+use mcpp_core::Graph;
 use serde::{Deserialize, Serialize};
 
 /// Context for YAWL workflow template rendering.
@@ -120,8 +120,8 @@ mod yawl_ns {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_yawl::template::context::ContextBuilder;
-/// use ggen_core::Graph;
+/// use mcpp_yawl::template::context::ContextBuilder;
+/// use mcpp_core::Graph;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let graph = Graph::new()?;
@@ -239,7 +239,7 @@ impl<'a> ContextBuilder<'a> {
         "#;
 
         match self.graph.query_cached(QUERY) {
-            Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) => rows
+            Ok(mcpp_core::graph::types::CachedResult::Solutions(rows)) => rows
                 .first()
                 .and_then(|row| row.get("name"))
                 .map(|s| Self::strip_literal_quotes(s))
@@ -263,7 +263,7 @@ impl<'a> ContextBuilder<'a> {
         "#;
 
         match self.graph.query_cached(QUERY) {
-            Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) => rows
+            Ok(mcpp_core::graph::types::CachedResult::Solutions(rows)) => rows
                 .first()
                 .and_then(|row| row.get("comment"))
                 .map(|s| Self::strip_literal_quotes(s))
@@ -326,7 +326,7 @@ impl<'a> ContextBuilder<'a> {
             .query_cached(QUERY)
             .map_err(|e| Error::sparql(format!("Failed to extract tasks: {}", e)))?;
 
-        if let ggen_core::graph::types::CachedResult::Solutions(rows) = result {
+        if let mcpp_core::graph::types::CachedResult::Solutions(rows) = result {
             for row in rows {
                 let task_iri = row.get("task").cloned().unwrap_or_default();
                 let task_id = row
@@ -391,7 +391,7 @@ impl<'a> ContextBuilder<'a> {
             .query_cached(QUERY)
             .map_err(|e| Error::sparql(format!("Failed to extract flows: {}", e)))?;
 
-        if let ggen_core::graph::types::CachedResult::Solutions(rows) = result {
+        if let mcpp_core::graph::types::CachedResult::Solutions(rows) = result {
             for row in rows {
                 let source = row.get("sourceTask").cloned().unwrap_or_default();
                 let target = row.get("targetTask").cloned().unwrap_or_default();
@@ -442,7 +442,7 @@ impl<'a> ContextBuilder<'a> {
             .query_cached(QUERY)
             .map_err(|e| Error::sparql(format!("Failed to extract input condition: {}", e)))?;
 
-        if let ggen_core::graph::types::CachedResult::Solutions(rows) = result {
+        if let mcpp_core::graph::types::CachedResult::Solutions(rows) = result {
             if let Some(row) = rows.first() {
                 let id = row
                     .get("condition")
@@ -491,7 +491,7 @@ impl<'a> ContextBuilder<'a> {
             .query_cached(QUERY)
             .map_err(|e| Error::sparql(format!("Failed to extract output condition: {}", e)))?;
 
-        if let ggen_core::graph::types::CachedResult::Solutions(rows) = result {
+        if let mcpp_core::graph::types::CachedResult::Solutions(rows) = result {
             if let Some(row) = rows.first() {
                 let id = row
                     .get("condition")
@@ -543,7 +543,7 @@ impl<'a> ContextBuilder<'a> {
             .query_cached(QUERY)
             .map_err(|e| Error::sparql(format!("Failed to extract variables: {}", e)))?;
 
-        if let ggen_core::graph::types::CachedResult::Solutions(rows) = result {
+        if let mcpp_core::graph::types::CachedResult::Solutions(rows) = result {
             for row in rows {
                 let name = row.get("varName").cloned().unwrap_or_default();
                 let var_type = row

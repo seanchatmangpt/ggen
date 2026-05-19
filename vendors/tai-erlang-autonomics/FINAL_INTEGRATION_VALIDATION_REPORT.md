@@ -34,7 +34,7 @@ Verify all source code compiles cleanly without errors and produces valid releas
 
 **Verification Commands:**
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 compile           # SUCCESS
 rebar3 release          # SUCCESS
 test -x _build/default/rel/tai_autonomics/bin/tai_autonomics  # EXISTS
@@ -531,7 +531,7 @@ Verify complete workflow from build to deployment readiness.
 
 ### Build Validation
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 rebar3 compile
 rebar3 release
 ls -la _build/default/rel/tai_autonomics/bin/tai_autonomics

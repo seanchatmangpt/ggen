@@ -3,8 +3,8 @@
 //! This module validates that benchmark scenarios execute correctly
 //! and establishes baseline performance metrics for CI/CD.
 
-use ggen_core::lifecycle::{Context, Make, Phase, Project};
-use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
+use mcpp_core::lifecycle::{Context, Make, Phase, Project};
+use mcpp_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use std::time::Instant;
@@ -194,12 +194,12 @@ fn test_lifecycle_phase_execution_performance() {
     let ctx = Context::new(
         root.clone(),
         Arc::new(make),
-        root.join(".ggen/state.json"),
+        root.join(".mcpp/state.json"),
         vec![],
     );
 
     let start = Instant::now();
-    ggen_core::lifecycle::run_phase(&ctx, "test").expect("Failed to run phase");
+    mcpp_core::lifecycle::run_phase(&ctx, "test").expect("Failed to run phase");
     let duration = start.elapsed();
 
     println!("Executed phase in {:?}", duration);

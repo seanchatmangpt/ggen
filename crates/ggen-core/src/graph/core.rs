@@ -10,7 +10,7 @@
 
 use crate::graph::types::CachedResult;
 use ahash::AHasher;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use lru::LruCache;
 use oxigraph::io::RdfFormat;
 use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};
@@ -71,9 +71,9 @@ const EPOCH_INCREMENT: u64 = 1;
 /// ## Basic usage
 ///
 /// ```rust,no_run
-/// use ggen_core::graph::Graph;
+/// use mcpp_core::graph::Graph;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// // Create a new graph
 /// let graph = Graph::new()?;
 ///
@@ -102,7 +102,7 @@ impl Graph {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::graph::Graph;
     ///
     /// let graph = Graph::new().unwrap();
     /// assert!(graph.is_empty());
@@ -178,7 +178,7 @@ impl Graph {
     ///
     /// **Root Cause Fix**: Uses explicit `.map_err()` for error conversion instead of `?`
     /// operator, because Oxigraph solution iterator errors don't implement `From` for
-    /// `ggen_utils::error::Error`. Pattern: Always use `.map_err()` for external library
+    /// `mcpp_utils::error::Error`. Pattern: Always use `.map_err()` for external library
     /// errors that don't have `From` implementations.
     fn materialize_results(&self, results: QueryResults) -> Result<CachedResult> {
         match results {
@@ -676,7 +676,7 @@ impl Clone for Graph {
 /// ## With prefixes only
 ///
 /// ```rust
-/// use ggen_core::graph::build_prolog;
+/// use mcpp_core::graph::build_prolog;
 /// use std::collections::BTreeMap;
 ///
 /// let mut prefixes = BTreeMap::new();
@@ -691,7 +691,7 @@ impl Clone for Graph {
 /// ## With base IRI
 ///
 /// ```rust
-/// use ggen_core::graph::build_prolog;
+/// use mcpp_core::graph::build_prolog;
 /// use std::collections::BTreeMap;
 ///
 /// let prefixes = BTreeMap::new();
@@ -702,7 +702,7 @@ impl Clone for Graph {
 /// ## Combined
 ///
 /// ```rust
-/// use ggen_core::graph::build_prolog;
+/// use mcpp_core::graph::build_prolog;
 /// use std::collections::BTreeMap;
 ///
 /// let mut prefixes = BTreeMap::new();

@@ -546,7 +546,7 @@ rebar3 ct
 
 ### Local Development
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+cd ~/.ggen/mcpp/tai-erlang-autonomics/pricing-engine
 rebar3 compile
 rebar3 eunit
 rebar3 ct

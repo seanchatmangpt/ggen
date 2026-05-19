@@ -5,7 +5,7 @@
 //!
 //! AAA Pattern: Arrange (create types) -> Act (call methods) -> Assert (verify state/behavior)
 
-use ggen_core::ontology::{
+use mcpp_core::ontology::{
     Cardinality, OntClass, OntProperty, OntRelationship, OntologySchema, OwlRestriction,
     PropertyRange, RelationshipType,
 };

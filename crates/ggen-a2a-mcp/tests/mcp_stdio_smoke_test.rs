@@ -2,7 +2,7 @@
 //!
 //! Verifies that GgenMcpServer works correctly over stdio transport.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -48,8 +48,8 @@ async fn mcp_stdio_server_starts_and_responds_to_initialize() {
 
     // Assert: Server name is correct
     assert_eq!(
-        info.server_info.name, "ggen",
-        "Server name should be 'ggen', got '{}'",
+        info.server_info.name, "mcpp",
+        "Server name should be 'mcpp', got '{}'",
         info.server_info.name
     );
 
@@ -95,7 +95,7 @@ async fn mcp_stdio_server_responds_to_list_tools() -> anyhow::Result<()> {
     let tools = tools_result.unwrap();
     assert!(!tools.tools.is_empty(), "Should return at least one tool");
 
-    // Assert: Core ggen tools are present
+    // Assert: Core mcpp tools are present
     let tool_names: Vec<&str> = tools.tools.iter().map(|t| t.name.as_ref()).collect();
     let required_tools = ["generate", "validate", "sync", "list_generators"];
     for tool_name in required_tools {

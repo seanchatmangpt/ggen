@@ -679,7 +679,7 @@ class FinancialModelBuilder:
 
 # Scenario parameters
 def main():
-    builder = FinancialModelBuilder("/Users/sac/ggen/tai-erlang-autonomics/finance/FINANCIAL_MODEL.xlsx")
+    builder = FinancialModelBuilder("~/./mcpp/tai-erlang-autonomics/finance/FINANCIAL_MODEL.xlsx")
 
     # Create summary sheet
     builder.create_summary_sheet()

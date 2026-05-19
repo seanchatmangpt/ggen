@@ -7,9 +7,9 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-// Re-export TestId from ggen-test-audit for consistency
-pub type TestId = ggen_test_audit::TestId;
-pub type TestType = ggen_test_audit::TestType;
+// Re-export TestId from mcpp-test-audit for consistency
+pub type TestId = mcpp_test_audit::TestId;
+pub type TestType = mcpp_test_audit::TestType;
 
 // =============================================================================
 // TestValueScore (T021) - Composite scoring for test selection
@@ -248,9 +248,9 @@ pub enum OptimizationError {
     #[error("JSON error: {0}")]
     JsonError(#[from] serde_json::Error),
 
-    /// Propagated audit error from ggen-test-audit
+    /// Propagated audit error from mcpp-test-audit
     #[error("Audit error: {0}")]
-    AuditError(#[from] ggen_test_audit::AuditError),
+    AuditError(#[from] mcpp_test_audit::AuditError),
 }
 
 /// Type alias for optimization results (T029)

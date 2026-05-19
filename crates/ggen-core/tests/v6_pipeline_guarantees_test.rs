@@ -7,12 +7,12 @@
 //! - μ₄: Formatter gate
 //! - μ₅: Receipt generation
 
-use ggen_core::graph::Graph;
-use ggen_core::v6::passes::{
+use mcpp_core::graph::Graph;
+use mcpp_core::v6::passes::{
     CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
 };
-use ggen_core::v6::receipt::BuildReceipt;
-use ggen_core::v6::{Epoch, PipelineConfig, StagedPipeline};
+use mcpp_core::v6::receipt::BuildReceipt;
+use mcpp_core::v6::{Epoch, PipelineConfig, StagedPipeline};
 use std::path::PathBuf;
 use tempfile::TempDir;
 
@@ -51,8 +51,8 @@ fn test_mu1_normalization_with_shacl_validation() {
 #[test]
 fn test_mu2_extraction_rejects_construct_queries() {
     // Test that μ₂ rejects CONSTRUCT queries
-    use ggen_core::v6::pass::{Pass, PassContext};
-    use ggen_core::v6::passes::ExtractionPass;
+    use mcpp_core::v6::pass::{Pass, PassContext};
+    use mcpp_core::v6::passes::ExtractionPass;
 
     let graph = Graph::new().unwrap();
     graph
@@ -69,7 +69,7 @@ fn test_mu2_extraction_rejects_construct_queries() {
     let mut pass = ExtractionPass::new();
 
     // Add a CONSTRUCT query (should be rejected)
-    use ggen_core::v6::passes::ExtractionRule;
+    use mcpp_core::v6::passes::ExtractionRule;
     pass.add_rule(ExtractionRule {
         name: "bad-construct".to_string(),
         query: r#"
@@ -98,13 +98,13 @@ fn test_mu2_extraction_rejects_construct_queries() {
 #[test]
 fn test_mu2_extraction_rejects_update_queries() {
     // Test that μ₂ rejects INSERT/DELETE queries
-    use ggen_core::v6::pass::{Pass, PassContext};
-    use ggen_core::v6::passes::ExtractionPass;
+    use mcpp_core::v6::pass::{Pass, PassContext};
+    use mcpp_core::v6::passes::ExtractionPass;
 
     let graph = Graph::new().unwrap();
     let mut pass = ExtractionPass::new();
 
-    use ggen_core::v6::passes::ExtractionRule;
+    use mcpp_core::v6::passes::ExtractionRule;
     pass.add_rule(ExtractionRule {
         name: "bad-insert".to_string(),
         query: r#"
@@ -129,8 +129,8 @@ fn test_mu2_extraction_rejects_update_queries() {
 #[test]
 fn test_mu3_emission_detects_nondeterministic_patterns() {
     // Test that μ₃ detects non-deterministic patterns in generated code
-    use ggen_core::v6::pass::{Pass, PassContext};
-    use ggen_core::v6::passes::{EmissionPass, EmissionRule};
+    use mcpp_core::v6::pass::{Pass, PassContext};
+    use mcpp_core::v6::passes::{EmissionPass, EmissionRule};
 
     let temp_dir = TempDir::new().unwrap();
     let template_dir = temp_dir.path().join("templates");
@@ -152,7 +152,7 @@ fn test_mu3_emission_detects_nondeterministic_patterns() {
 
     let graph = Graph::new().unwrap();
     let mut pass = EmissionPass::new();
-    pass = pass.with_guards(ggen_core::v6::guard::GuardSet::new()); // Disable path guards for test
+    pass = pass.with_guards(mcpp_core::v6::guard::GuardSet::new()); // Disable path guards for test
 
     pass.add_rule(EmissionRule {
         name: "bad-template".to_string(),
@@ -178,8 +178,8 @@ fn test_mu3_emission_detects_nondeterministic_patterns() {
 #[test]
 fn test_mu4_canonicalization_strict_mode_rejects_invalid_json() {
     // Test that μ₄ in strict mode rejects invalid JSON
-    use ggen_core::v6::pass::{Pass, PassContext};
-    use ggen_core::v6::passes::CanonicalizationPass;
+    use mcpp_core::v6::pass::{Pass, PassContext};
+    use mcpp_core::v6::passes::CanonicalizationPass;
 
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("output");
@@ -209,7 +209,7 @@ fn test_mu4_canonicalization_strict_mode_rejects_invalid_json() {
 #[test]
 fn test_mu5_receipt_generation_creates_valid_receipt() {
     // Test that μ₅ generates a valid receipt with hashes
-    use ggen_core::v6::pass::{Pass, PassContext};
+    use mcpp_core::v6::pass::{Pass, PassContext};
 
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("output");
@@ -318,7 +318,7 @@ fn test_pipeline_stops_on_first_failure() {
 
     // Add extraction pass with bad CONSTRUCT query
     let mut extract_pass = ExtractionPass::new();
-    use ggen_core::v6::passes::ExtractionRule;
+    use mcpp_core::v6::passes::ExtractionRule;
     extract_pass.add_rule(ExtractionRule {
         name: "bad".to_string(),
         query: "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }".to_string(),

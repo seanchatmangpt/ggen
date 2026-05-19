@@ -334,7 +334,7 @@ TRIGGER → CONTINGENCY:
 
 **Printed Version:** [If printed, keep at desk for reference during crises]
 
-**Digital Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/RISK_CONTINGENCY_QUICK_REFERENCE.md`
+**Digital Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/RISK_CONTINGENCY_QUICK_REFERENCE.md`
 
 **Last Updated:** January 26, 2026
 

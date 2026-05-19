@@ -67,16 +67,16 @@ pub enum OwnershipTarget {
 }
 
 impl OwnershipTarget {
-    /// Get a string key for this ownership target (for HashMap indexing).
+    /// Get a string key for this ownership target (for `HashMap` indexing).
     #[must_use]
     pub fn key(&self) -> String {
         match self {
             Self::FilePath(p) => format!("file:{}", p.display()),
-            Self::RdfNamespace(ns) => format!("namespace:{}", ns),
-            Self::ProtocolField(f) => format!("field:{}", f),
-            Self::TemplateVariable(v) => format!("template:{}", v),
-            Self::DependencyPackage(p) => format!("dep:{}", p),
-            Self::FeatureFlag(f) => format!("feature:{}", f),
+            Self::RdfNamespace(ns) => format!("namespace:{ns}"),
+            Self::ProtocolField(f) => format!("field:{f}"),
+            Self::TemplateVariable(v) => format!("template:{v}"),
+            Self::DependencyPackage(p) => format!("dep:{p}"),
+            Self::FeatureFlag(f) => format!("feature:{f}"),
         }
     }
 }
@@ -165,7 +165,7 @@ impl OwnershipDeclaration {
 
     /// Check if this target conflicts with another declaration.
     ///
-    /// Returns Some(conflict_description) if there's a conflict, None if compatible.
+    /// Returns `Some(conflict_description)` if there's a conflict, `None` if compatible.
     #[must_use]
     pub fn conflicts_with(&self, other: &Self) -> Option<String> {
         // Different targets don't conflict
@@ -239,6 +239,11 @@ impl OwnershipMap {
     ///
     /// Note: This method tracks conflicts but doesn't prevent adding.
     /// Use `check_conflicts()` to validate the map.
+    ///
+    /// # Errors
+    ///
+    /// Always returns `Ok(())`. The `Result` return type is retained for
+    /// future conflict-prevention enforcement.
     pub fn add(&mut self, declaration: OwnershipDeclaration) -> Result<(), String> {
         let key = declaration.target.key();
         self.declarations.entry(key).or_default().push(declaration);
@@ -254,7 +259,7 @@ impl OwnershipMap {
     /// Get all declarations for a target.
     #[must_use]
     pub fn get_declarations(&self, target: &OwnershipTarget) -> Option<&[OwnershipDeclaration]> {
-        self.declarations.get(&target.key()).map(|v| v.as_slice())
+        self.declarations.get(&target.key()).map(Vec::as_slice)
     }
 
     /// Check all declarations for conflicts.
@@ -264,7 +269,7 @@ impl OwnershipMap {
     pub fn check_conflicts(&self) -> Vec<String> {
         let mut conflicts = Vec::new();
 
-        for (_key, declarations) in &self.declarations {
+        for declarations in self.declarations.values() {
             for (i, decl1) in declarations.iter().enumerate() {
                 for decl2 in declarations.iter().skip(i + 1) {
                     if let Some(conflict) = decl1.conflicts_with(decl2) {

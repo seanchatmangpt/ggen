@@ -1,9 +1,9 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix ggen: <http://ggen.dev/ontology#> .
-@prefix sm: <http://ggen.dev/statemachine#> .
-@prefix : <http://ggen.dev/sm-instances#> .
+@prefix mcpp: <http://mcpp.dev/ontology#> .
+@prefix sm: <http://mcpp.dev/statemachine#> .
+@prefix : <http://mcpp.dev/sm-instances#> .
 
 # State Machine Ontology Extension
 sm:StateMachine a owl:Class ;

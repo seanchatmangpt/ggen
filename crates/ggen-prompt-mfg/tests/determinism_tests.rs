@@ -2,7 +2,7 @@
 //!
 //! Validates that same input → same output across all compilation stages.
 
-use ggen_prompt_mfg::{
+use mcpp_prompt_mfg::{
     emitter::PromptEmitter,
     hash::compute_prompt_hash,
     ir::{BlockType, ContentBlock, PromptIR, PromptMetadata, Section, SectionType},

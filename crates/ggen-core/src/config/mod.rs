@@ -1,6 +1,6 @@
-//! Configuration management for ggen
+//! Configuration management for mcpp
 //!
-//! This module provides configuration structures and utilities for various ggen
+//! This module provides configuration structures and utilities for various mcpp
 //! subsystems, including template generation options, marketplace settings, and
 //! system-wide defaults.
 //!
@@ -15,17 +15,17 @@
 //! ### Loading Template Configuration
 //!
 //! ```rust,no_run
-//! use ggen_core::config::TemplateConfig;
+//! use mcpp_core::config::TemplateConfig;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let config = TemplateConfig {
 //!     search_paths: vec![PathBuf::from("templates")],
 //!     default_variables: std::collections::HashMap::new(),
-//!     metadata_store: PathBuf::from(".ggen/metadata"),
-//!     cache_dir: Some(PathBuf::from(".ggen/cache")),
-//!     generation: ggen_core::config::GenerationOptions::default(),
-//!     marketplace: ggen_core::config::MarketplaceSettings::default(),
+//!     metadata_store: PathBuf::from(".mcpp/metadata"),
+//!     cache_dir: Some(PathBuf::from(".mcpp/cache")),
+//!     generation: mcpp_core::config::GenerationOptions::default(),
+//!     marketplace: mcpp_core::config::MarketplaceSettings::default(),
 //! };
 //! # Ok(())
 //! # }

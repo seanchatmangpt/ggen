@@ -85,23 +85,23 @@ htf check
 
 ✅ **Fully Compatible**:
 - Added to workspace members in root `Cargo.toml`
-- Can be published as ggen pack
-- Compatible with `ggen packs list`, `show`, `install`, `execute`
-- Uses ggen marketplace phase-gated installation
+- Can be published as mcpp pack
+- Compatible with `mcpp packs list`, `show`, `install`, `execute`
+- Uses mcpp marketplace phase-gated installation
 
 **Commands**:
 ```bash
 # Discover
-ggen packs list
+mcpp packs list
 
 # Get details
-ggen packs show htf-thesis-framework
+mcpp packs show htf-thesis-framework
 
 # Install with dry-run
-ggen packs install htf-thesis-framework --version 0.1.0 --dry-run
+mcpp packs install htf-thesis-framework --version 0.1.0 --dry-run
 
 # Execute
-ggen packs execute --pack htf-thesis-framework --command "schedule"
+mcpp packs execute --pack htf-thesis-framework --command "schedule"
 ```
 
 ## Test Results
@@ -245,7 +245,7 @@ The HTF playground is a **production-ready** thesis planning framework that:
 
 ✅ Implements all three required components (Λ, Π, Γ)
 ✅ Provides comprehensive CLI interface
-✅ Integrates seamlessly with ggen packs/marketplace
+✅ Integrates seamlessly with mcpp packs/marketplace
 ✅ Includes extensive documentation and examples
 ✅ Passes all tests and validation checks
 ✅ Ready for real-world thesis planning workflows

@@ -16,17 +16,17 @@
 //! ### Running a Phase
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::exec::Context;
-//! use ggen_core::lifecycle::exec::run_phase;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::exec::Context;
+//! use mcpp_core::lifecycle::exec::run_phase;
+//! use mcpp_core::lifecycle::Result;
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
 //! # fn main() -> Result<()> {
 //! // Create execution context
 //! let root = PathBuf::from(".");
-//! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
-//! let state_path = root.join(".ggen/state.json");
+//! let make = Arc::new(mcpp_core::lifecycle::loader::load_make("make.toml")?);
+//! let state_path = root.join(".mcpp/state.json");
 //! let ctx = Context::new(root, make, state_path, vec![]);
 //!
 //! // Run a phase
@@ -38,17 +38,17 @@
 //! ### Running Multiple Phases
 //!
 //! ```rust,no_run
-//! use ggen_core::lifecycle::exec::run_pipeline;
-//! use ggen_core::lifecycle::Result;
+//! use mcpp_core::lifecycle::exec::run_pipeline;
+//! use mcpp_core::lifecycle::Result;
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
 //! # fn main() -> Result<()> {
 //! // Create context (same as above)
 //! let root = PathBuf::from(".");
-//! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
-//! let state_path = root.join(".ggen/state.json");
-//! let ctx = ggen_core::lifecycle::exec::Context::new(root, make, state_path, vec![]);
+//! let make = Arc::new(mcpp_core::lifecycle::loader::load_make("make.toml")?);
+//! let state_path = root.join(".mcpp/state.json");
+//! let ctx = mcpp_core::lifecycle::exec::Context::new(root, make, state_path, vec![]);
 //!
 //! // Run multiple phases in sequence
 //! run_pipeline(&ctx, &vec!["test".to_string(), "lint".to_string(), "build".to_string()])?;
@@ -165,7 +165,7 @@ impl Context {
 }
 
 /// Run a single lifecycle phase with hooks
-#[tracing::instrument(name = "ggen.lifecycle.phase", skip(ctx), fields(phase = phase_name, duration_ms, status))]
+#[tracing::instrument(name = "mcpp.lifecycle.phase", skip(ctx), fields(phase = phase_name, duration_ms, status))]
 pub fn run_phase(ctx: &Context, phase_name: &str) -> Result<()> {
     tracing::info!(phase = phase_name, "lifecycle phase starting");
 
@@ -203,7 +203,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     run_before_hooks(ctx, phase_name)?;
 
     // Print phase start message for CLI output (after hooks)
-    ggen_utils::alert_info!(&format!("Running phase: {}", phase_name));
+    mcpp_utils::alert_info!(&format!("Running phase: {}", phase_name));
 
     // Get commands for this phase using new Phase::commands() method
     let cmds = phase.commands();
@@ -255,7 +255,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
 }
 
 /// Run a pipeline of phases sequentially
-#[tracing::instrument(name = "ggen.lifecycle.pipeline", skip(ctx), fields(phases = ?phases, phase_count = phases.len()))]
+#[tracing::instrument(name = "mcpp.lifecycle.pipeline", skip(ctx), fields(phases = ?phases, phase_count = phases.len()))]
 pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
     tracing::info!(phases = ?phases, "starting lifecycle pipeline");
     if let Some(workspaces) = &ctx.make.workspace {
@@ -361,7 +361,7 @@ fn create_workspace_context(
         Arc::clone(root_make)
     };
 
-    let ws_state_path = canonical_ws.join(".ggen/state.json");
+    let ws_state_path = canonical_ws.join(".mcpp/state.json");
 
     Ok(Context::new(
         canonical_ws,

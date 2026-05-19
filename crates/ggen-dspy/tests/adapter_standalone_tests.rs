@@ -2,7 +2,7 @@
 //!
 //! These tests verify adapter functionality independently
 
-use ggen_dspy::adapters::{
+use mcpp_dspy::adapters::{
     AdapterWithFallback, ChatAdapter, CompletionAdapter, Demonstration, JSONAdapter, LlmAdapter,
     RetryConfig, TokenCounter,
 };

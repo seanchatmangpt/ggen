@@ -1,6 +1,6 @@
 # Ggen-Marketplace Test Suite
 
-Comprehensive test coverage for the ggen-marketplace registry and search functionality.
+Comprehensive test coverage for the mcpp-marketplace registry and search functionality.
 
 ## Test Structure
 

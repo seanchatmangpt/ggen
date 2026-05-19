@@ -1,6 +1,6 @@
-//! Common type definitions for ggen
+//! Common type definitions for mcpp
 //!
-//! This module provides shared type definitions used across the ggen codebase,
+//! This module provides shared type definitions used across the mcpp codebase,
 //! including log levels, configuration types, and other common enums and structs.
 //!
 //! ## Types
@@ -13,7 +13,7 @@
 //! ### Using LogLevel
 //!
 //! ```rust
-//! use ggen_utils::types::LogLevel;
+//! use mcpp_utils::types::LogLevel;
 //! use std::str::FromStr;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {

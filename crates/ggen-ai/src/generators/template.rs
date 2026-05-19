@@ -3,14 +3,14 @@
 //! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
 //!
 //! ## PURPOSE
-//! This module should bridge the gap between natural language descriptions and valid ggen templates,
+//! This module should bridge the gap between natural language descriptions and valid mcpp templates,
 //! transforming user intent into working template code through LLM interaction. It should handle
 //! varied LLM output formats and ensure all generated templates are valid and usable.
 //!
 //! ## RESPONSIBILITIES
 //! 1. **Prompt Engineering**: Should craft effective prompts that elicit valid template output
 //! 2. **Multi-Format Parsing**: Should extract templates from markdown code blocks, plain text, etc.
-//! 3. **Template Validation**: Should ensure generated content is parseable by ggen-core
+//! 3. **Template Validation**: Should ensure generated content is parseable by mcpp-core
 //! 4. **Streaming Support**: Should enable real-time template generation for better UX
 //! 5. **Domain-Specific Generation**: Should provide specialized methods (REST controllers, data models, etc.)
 //! 6. **Error Recovery**: Should auto-wrap incomplete LLM output in valid template structure
@@ -20,14 +20,14 @@
 //! - Must support multiple LLM providers (provider-agnostic via LlmClient trait)
 //! - Must handle both streaming and batch generation modes
 //! - Must extract templates from varied response formats (markdown, code blocks, plain text)
-//! - Must always return valid Template instances (compatible with ggen-core)
+//! - Must always return valid Template instances (compatible with mcpp-core)
 //! - Must render frontmatter after parsing to populate Template.front
 //! - Must never return partially-initialized templates
 //!
 //! ## DEPENDENCIES
 //! - `LlmClient`: Should be provider-agnostic for multi-LLM support
 //! - `TemplatePromptBuilder`: Should generate effective prompts
-//! - `Template`: Internal type compatible with ggen-core::Template API
+//! - `Template`: Internal type compatible with mcpp-core::Template API
 //! - `TemplateValidator`: Should optionally validate generated templates
 //!
 //! ## INVARIANTS
@@ -38,10 +38,10 @@
 //! - Prompt building must never fail silently
 //!
 //! ## NOTE: TEMPLATE TYPE
-//! This module uses a local `Template` type that is API-compatible with `ggen_core::Template`.
-//! The actual `ggen_core::Template` cannot be used directly due to cyclic dependency constraints
-//! (ggen-core → ggen-ai → ggen-core). The solution is to use string-based template content here
-//! and convert to `ggen_core::Template` in the calling code (e.g., ggen-cli).
+//! This module uses a local `Template` type that is API-compatible with `mcpp_core::Template`.
+//! The actual `mcpp_core::Template` cannot be used directly due to cyclic dependency constraints
+//! (mcpp-core → mcpp-ai → mcpp-core). The solution is to use string-based template content here
+//! and convert to `mcpp_core::Template` in the calling code (e.g., mcpp-cli).
 //!
 //! ## DATA FLOW
 //! ```text
@@ -64,7 +64,7 @@
 //!   ↓
 //! Return Template (string-based)
 //!   ↓
-//! Convert to ggen_core::Template in calling code
+//! Convert to mcpp_core::Template in calling code
 //!   ```
 //!
 //! ## ERROR HANDLING STRATEGY
@@ -178,7 +178,7 @@
 //! 6. **Idempotency**: Same prompt should produce consistent results
 //!
 //! ## INTEGRATION NOTES
-//! - **ggen-core Integration**: Template string can be parsed by ggen_core::Template::parse()
+//! - **mcpp-core Integration**: Template string can be parsed by mcpp_core::Template::parse()
 //! - **LLM Provider Integration**: Uses LlmClient trait for provider abstraction
 //! - **Validation Integration**: Uses TemplateValidator for optional validation
 //! - **Prompt Engineering**: Uses TemplatePromptBuilder for consistent prompts
@@ -191,30 +191,30 @@
 //!
 //! ## ARCHITECTURE NOTE: TEMPLATE TYPE
 //!
-//! This module uses a local `Template` type instead of `ggen_core::Template` to avoid
+//! This module uses a local `Template` type instead of `mcpp_core::Template` to avoid
 //! cyclic dependency issues:
 //!
 //! ```text
-//! ggen-core → ggen-ai → ggen-core  (CYCLE!)
+//! mcpp-core → mcpp-ai → mcpp-core  (CYCLE!)
 //! ```
 //!
-//! The solution is to use string-based templates here and convert to `ggen_core::Template`
-//! in the calling code (e.g., ggen-cli):
+//! The solution is to use string-based templates here and convert to `mcpp_core::Template`
+//! in the calling code (e.g., mcpp-cli):
 //!
-//! ```rust
-//! // In ggen-ai (this crate):
+//! ```text
+//! // In mcpp-ai (this crate):
 //! let template = generator.generate_template(...).await?;
 //!
-//! // In ggen-cli (calling code):
+//! // In mcpp-cli (calling code):
 //! let template_str = template.to_string();
-//! let full_template = ggen_core::Template::parse(&template_str)?;
+//! let full_template = mcpp_core::Template::parse(&template_str)?;
 //! ```
 //!
 //! This keeps the dependency graph acyclic:
 //!
 //! ```text
-//! ggen-cli → ggen-ai (generates template strings)
-//! ggen-cli → ggen-core (parses templates)
+//! mcpp-cli → mcpp-ai (generates template strings)
+//! mcpp-cli → mcpp-core (parses templates)
 //! ```
 
 use crate::client::{LlmClient, LlmConfig};
@@ -224,15 +224,15 @@ use crate::prompts::TemplatePromptBuilder;
 use futures::StreamExt;
 use std::sync::Arc;
 
-/// Template type compatible with ggen_core::Template API.
+/// Template type compatible with mcpp_core::Template API.
 ///
 /// This is a simplified version that stores the full template content (frontmatter + body)
-/// as a string. The actual ggen_core::Template type cannot be used due to cyclic dependency
-/// constraints (ggen-core → ggen-ai → ggen-core).
+/// as a string. The actual mcpp_core::Template type cannot be used due to cyclic dependency
+/// constraints (mcpp-core → mcpp-ai → mcpp-core).
 ///
-/// Conversion to ggen_core::Template should happen in the calling code:
+/// Conversion to mcpp_core::Template should happen in the calling code:
 /// ```text
-/// ggen_ai::Template (string) → ggen_core::Template::parse() → full Template
+/// mcpp_ai::Template (string) → mcpp_core::Template::parse() → full Template
 /// ```
 #[derive(Debug, Clone)]
 pub struct Template {
@@ -247,7 +247,7 @@ impl Template {
     ///
     /// This is a simplified version that just stores the content.
     /// The actual parsing of YAML frontmatter happens when this is
-    /// converted to ggen_core::Template in the calling code.
+    /// converted to mcpp_core::Template in the calling code.
     pub fn parse(content: &str) -> Result<Self> {
         Ok(Template {
             content: content.to_string(),
@@ -258,7 +258,7 @@ impl Template {
     /// Render template with Tera context (simplified version).
     ///
     /// This just returns the content as-is. Full rendering happens
-    /// when converted to ggen_core::Template in the calling code.
+    /// when converted to mcpp_core::Template in the calling code.
     pub fn render(&self, _tera: &mut tera::Tera, _context: &tera::Context) -> Result<String> {
         Ok(self.content.clone())
     }
@@ -268,7 +268,7 @@ impl Template {
         &self.content
     }
 
-    /// Convert to string for use with ggen_core::Template::parse()
+    /// Convert to string for use with mcpp_core::Template::parse()
     #[deprecated(note = "Use Display trait or content().to_string() instead")]
     pub fn to_string_legacy(&self) -> String {
         self.content.clone()
@@ -284,7 +284,7 @@ impl std::fmt::Display for Template {
 /// AI-powered template generator
 ///
 /// Generates template strings from natural language descriptions using LLMs.
-/// The generated templates are compatible with ggen_core::Template::parse().
+/// The generated templates are compatible with mcpp_core::Template::parse().
 #[derive(Debug)]
 pub struct TemplateGenerator {
     client: Arc<dyn LlmClient>,
@@ -309,9 +309,9 @@ impl TemplateGenerator {
     /// Generate a template from natural language description.
     ///
     /// Returns a Template struct containing the generated template string.
-    /// The template can be converted to ggen_core::Template by calling:
+    /// The template can be converted to mcpp_core::Template by calling:
     /// ```text
-    /// ggen_core::Template::parse(&template.to_string())?
+    /// mcpp_core::Template::parse(&template.to_string())?
     /// ```
     pub async fn generate_template(
         &self, description: &str, examples: Vec<&str>,

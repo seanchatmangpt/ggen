@@ -1,7 +1,7 @@
-//! Test quality audit tooling for ggen
+//! Test quality audit tooling for mcpp
 //!
 //! This crate provides mutation testing, assertion analysis, and false positive detection
-//! for the ggen test suite. Part of Feature 004: Test Quality Audit and Performance Optimization.
+//! for the mcpp test suite. Part of Feature 004: Test Quality Audit and Performance Optimization.
 //!
 //! # Overview
 //!
@@ -13,7 +13,7 @@
 //! # Usage
 //!
 //! ```rust,no_run
-//! use ggen_test_audit::AuditResult;
+//! use mcpp_test_audit::AuditResult;
 //!
 //! // Coming soon: Actual implementation
 //! ```

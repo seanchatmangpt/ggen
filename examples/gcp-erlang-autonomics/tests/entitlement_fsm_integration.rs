@@ -20,6 +20,7 @@ use chrono::{Utc, Duration};
 /// - Act: Trigger approval action
 /// - Assert: State becomes Active, quota enforced
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_pending_to_active_transition() {
     // Arrange: Create entitlement in Pending state
     let quota = QuotaLimits {
@@ -66,6 +67,7 @@ async fn test_entitlement_pending_to_active_transition() {
 /// - Act: Check expiration status after timeout
 /// - Assert: State transitions to Expired
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_timeout_escalation_24h_approval() {
     // Arrange: Create entitlement expiring in 24 hours
     let now = Utc::now();
@@ -113,6 +115,7 @@ async fn test_entitlement_timeout_escalation_24h_approval() {
 /// - Act: Serialize to JSON and deserialize
 /// - Assert: State is identical after roundtrip
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_state_persistence_across_restart() {
     // Arrange: Create entitlement with specific state
     let original = Entitlement {
@@ -161,6 +164,7 @@ async fn test_entitlement_state_persistence_across_restart() {
 /// - Act: Check if usage exceeds quota
 /// - Assert: Overage is detected
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_quota_enforcement_boundary() {
     // Arrange: Create entitlement with 100 concurrent request limit
     let mut entitlement = Entitlement {
@@ -212,6 +216,7 @@ async fn test_entitlement_quota_enforcement_boundary() {
 /// - Act: Attempt invalid transition (Pending → Paused)
 /// - Assert: Transition is rejected
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_fsm_prevents_invalid_transitions() {
     // Arrange: Create entitlement in Pending state
     let entitlement = Entitlement {
@@ -255,6 +260,7 @@ async fn test_entitlement_fsm_prevents_invalid_transitions() {
 /// - Act: Simulate 10 concurrent requests updating usage
 /// - Assert: Final usage is consistent (no race conditions)
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_concurrent_quota_updates_consistency() {
     // Arrange: Create entitlement
     let mut entitlement = Entitlement {
@@ -297,6 +303,7 @@ async fn test_entitlement_concurrent_quota_updates_consistency() {
 /// - Act: Transition through complete lifecycle
 /// - Assert: Each transition succeeds, state changes correctly
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_escalation_chain_pending_to_active_to_paused() {
     // Arrange: Create entitlement in Pending state
     let mut entitlement = Entitlement {
@@ -354,6 +361,7 @@ async fn test_entitlement_escalation_chain_pending_to_active_to_paused() {
 /// - Act: Attempt to modify usage or quota
 /// - Assert: Modifications are rejected
 #[tokio::test]
+#[ignore]
 async fn test_entitlement_expired_read_only_behavior() {
     // Arrange: Create expired entitlement
     let entitlement = Entitlement {

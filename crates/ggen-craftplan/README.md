@@ -1,10 +1,10 @@
-# ggen-craftplan: RDF → Elixir Code Generation
+# mcpp-craftplan: RDF → Elixir Code Generation
 
 Deterministic, type-safe code generation pipeline for Craftplan ERP.
 
 ## Overview
 
-ggen-craftplan implements a five-stage transformation pipeline (μ) that converts RDF ontology specifications into production-ready Elixir code for the Craftplan ERP system.
+mcpp-craftplan implements a five-stage transformation pipeline (μ) that converts RDF ontology specifications into production-ready Elixir code for the Craftplan ERP system.
 
 **Transformation Equation**: A = μ(O)
 
@@ -24,7 +24,7 @@ Where:
 ## Usage
 
 ```rust
-use ggen_craftplan::pipeline::CodeGenerator;
+use mcpp_craftplan::pipeline::CodeGenerator;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let generator = CodeGenerator::new("output")?;

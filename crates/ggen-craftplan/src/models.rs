@@ -375,7 +375,7 @@ pub struct ReceiptMetadata {
     /// Timestamp of generation (ISO 8601)
     pub timestamp: String,
 
-    /// ggen-craftplan version
+    /// mcpp-craftplan version
     pub generator_version: String,
 
     /// Number of entities processed

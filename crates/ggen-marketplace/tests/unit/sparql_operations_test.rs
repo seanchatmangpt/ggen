@@ -5,7 +5,7 @@
 //!
 //! Test Count: 300+ tests
 
-use ggen_marketplace_v2::prelude::*;
+use mcpp_marketplace_v2::prelude::*;
 use oxigraph::store::Store;
 
 // ============================================================================
@@ -440,9 +440,9 @@ async fn test_search_by_name() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
-        <http://ggen.dev/packages/pkg1> ggen:packageName "test-package" .
-        <http://ggen.dev/packages/pkg2> ggen:packageName "another-package" .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
+        <http://mcpp.dev/packages/pkg1> mcpp:packageName "test-package" .
+        <http://mcpp.dev/packages/pkg2> mcpp:packageName "another-package" .
     "#;
 
     store
@@ -450,9 +450,9 @@ async fn test_search_by_name() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX mcpp: <http://mcpp.dev/ontology#>
         SELECT ?pkg WHERE {
-            ?pkg ggen:packageName ?name .
+            ?pkg mcpp:packageName ?name .
             FILTER(CONTAINS(?name, "test"))
         }
     "#;
@@ -469,9 +469,9 @@ async fn test_search_by_tag() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
-        <http://ggen.dev/packages/pkg1> ggen:tag "rust" .
-        <http://ggen.dev/packages/pkg2> ggen:tag "javascript" .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
+        <http://mcpp.dev/packages/pkg1> mcpp:tag "rust" .
+        <http://mcpp.dev/packages/pkg2> mcpp:tag "javascript" .
     "#;
 
     store
@@ -479,9 +479,9 @@ async fn test_search_by_tag() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX mcpp: <http://mcpp.dev/ontology#>
         SELECT ?pkg WHERE {
-            ?pkg ggen:tag "rust" .
+            ?pkg mcpp:tag "rust" .
         }
     "#;
 
@@ -497,10 +497,10 @@ async fn test_search_by_quality_score() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
-        <http://ggen.dev/packages/pkg1> ggen:qualityScore 85 .
-        <http://ggen.dev/packages/pkg2> ggen:qualityScore 65 .
-        <http://ggen.dev/packages/pkg3> ggen:qualityScore 95 .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
+        <http://mcpp.dev/packages/pkg1> mcpp:qualityScore 85 .
+        <http://mcpp.dev/packages/pkg2> mcpp:qualityScore 65 .
+        <http://mcpp.dev/packages/pkg3> mcpp:qualityScore 95 .
     "#;
 
     store
@@ -508,9 +508,9 @@ async fn test_search_by_quality_score() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX mcpp: <http://mcpp.dev/ontology#>
         SELECT ?pkg ?score WHERE {
-            ?pkg ggen:qualityScore ?score .
+            ?pkg mcpp:qualityScore ?score .
             FILTER(?score >= 80)
         }
         ORDER BY DESC(?score)
@@ -532,9 +532,9 @@ async fn test_query_direct_dependencies() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
-        <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
-        <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg3> .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
+        <http://mcpp.dev/packages/pkg1> mcpp:dependsOn <http://mcpp.dev/packages/pkg2> .
+        <http://mcpp.dev/packages/pkg1> mcpp:dependsOn <http://mcpp.dev/packages/pkg3> .
     "#;
 
     store
@@ -542,9 +542,9 @@ async fn test_query_direct_dependencies() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX mcpp: <http://mcpp.dev/ontology#>
         SELECT ?dep WHERE {
-            <http://ggen.dev/packages/pkg1> ggen:dependsOn ?dep .
+            <http://mcpp.dev/packages/pkg1> mcpp:dependsOn ?dep .
         }
     "#;
 
@@ -560,9 +560,9 @@ async fn test_query_reverse_dependencies() {
     let store = Store::new().unwrap();
 
     let turtle = r#"
-        @prefix ggen: <http://ggen.dev/ontology#> .
-        <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
-        <http://ggen.dev/packages/pkg3> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
+        @prefix mcpp: <http://mcpp.dev/ontology#> .
+        <http://mcpp.dev/packages/pkg1> mcpp:dependsOn <http://mcpp.dev/packages/pkg2> .
+        <http://mcpp.dev/packages/pkg3> mcpp:dependsOn <http://mcpp.dev/packages/pkg2> .
     "#;
 
     store
@@ -570,9 +570,9 @@ async fn test_query_reverse_dependencies() {
         .unwrap();
 
     let query = r#"
-        PREFIX ggen: <http://ggen.dev/ontology#>
+        PREFIX mcpp: <http://mcpp.dev/ontology#>
         SELECT ?pkg WHERE {
-            ?pkg ggen:dependsOn <http://ggen.dev/packages/pkg2> .
+            ?pkg mcpp:dependsOn <http://mcpp.dev/packages/pkg2> .
         }
     "#;
 

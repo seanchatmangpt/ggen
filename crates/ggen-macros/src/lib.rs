@@ -1,4 +1,4 @@
-//! ggen-macros: Procedural macros for advanced guard and bundle definition
+//! mcpp-macros: Procedural macros for advanced guard and bundle definition
 //!
 //! This crate provides compile-time code generation for:
 //! - Guard definitions (#[derive(Guard)])

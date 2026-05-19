@@ -6,6 +6,7 @@
 use crate::atomic::AtomicPackId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::fmt::Write as _;
 
 /// Bundle ID (e.g., "mcp-rust", "a2a-rust-axum").
 pub type BundleId = String;
@@ -101,15 +102,16 @@ impl Bundle {
         for pack in &self.atomic_packs {
             if !seen.insert(pack) {
                 return Some(format!(
-                    "Bundle {} contains duplicate atomic pack: {:?}",
-                    self.id, pack
+                    "Bundle {id} contains duplicate atomic pack: {pack:?}",
+                    id = self.id,
                 ));
             }
         }
 
         // Check that bundle has at least one atomic pack
         if self.atomic_packs.is_empty() {
-            return Some(format!("Bundle {} has no atomic packs", self.id));
+            let id = &self.id;
+            return Some(format!("Bundle {id} has no atomic packs"));
         }
 
         None
@@ -128,10 +130,10 @@ impl Bundle {
     pub fn expansion_text(&self) -> String {
         let mut text = format!("{} expands to:\n", self.id);
         for pack in &self.atomic_packs {
-            text.push_str(&format!("  - {}\n", pack));
+            let _ = writeln!(text, "  - {pack}");
         }
         if let Some(runtime) = &self.explicit_runtime {
-            text.push_str(&format!("Runtime: {}\n", runtime));
+            let _ = writeln!(text, "Runtime: {runtime}");
         }
         text
     }
@@ -241,9 +243,9 @@ impl Bundles {
         )
     }
 
-    /// openapi-rust: OpenAPI contract with Rust projection.
+    /// `openapi-rust`: `OpenAPI` contract with Rust projection.
     ///
-    /// Note: CISO decided OpenAPI is a contract surface, not language feature.
+    /// Note: CISO decided `OpenAPI` is a contract surface, not language feature.
     /// This is a convenience alias only.
     #[must_use]
     pub fn openapi_rust() -> Bundle {

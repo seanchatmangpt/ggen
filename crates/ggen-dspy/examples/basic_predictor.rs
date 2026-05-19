@@ -3,13 +3,13 @@
 //! Demonstrates the most basic DSPy module - the Predictor.
 //! Run with: cargo run --example basic_predictor
 
-use ggen_ai::dspy::{InputField, OutputField, Signature};
-use ggen_dspy::{Predictor, Result};
+use mcpp_ai::dspy::{InputField, OutputField, Signature};
+use mcpp_dspy::{Predictor, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize logging
-    ggen_dspy::init_logging();
+    mcpp_dspy::init_logging();
 
     // Define a simple QA signature
     let signature = Signature::new("QuestionAnswering", "Answer questions accurately")

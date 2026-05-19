@@ -66,7 +66,7 @@ This audit validates the following 13 critical success criteria:
 - [x] Board meeting cadence (monthly)
 - [x] Founder vesting schedule (4-year, 1-year cliff)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/`
 **Key Files:**
 - LEGAL_SETUP_WEEK_1_2.md
 - INCORPORATION_CHECKLIST.md
@@ -99,7 +99,7 @@ This audit validates the following 13 critical success criteria:
 **Cost Estimate:** $40-85K investment (Q1 2026)
 **ROI:** 10-20x (enables $1M+ customer contracts)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-10-13/`
 **Key Files:**
 - WEEK_10_13_COMPLIANCE_CHECKPOINT.md (78KB)
 - COMPLIANCE_EXECUTIVE_SUMMARY.md (9.8KB)
@@ -139,7 +139,7 @@ This audit validates the following 13 critical success criteria:
 - Year 3 revenue target: $5.5M+ (21 customers)
 - Exit scenario: $100M+ (5-year, 9-11x return)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/`
 **Key Files:**
 - FINANCIAL_POSITION.md (detailed weekly tracking)
 - FINANCIAL_MODEL.md (3-year projections)
@@ -179,7 +179,7 @@ This audit validates the following 13 critical success criteria:
 - Week 11: All 3 customers live
 - Week 13: $600K+ pipeline qualified
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/`
 **Key Files:**
 - PRODUCT_EXECUTION_LOG.md (quality metrics, customer feedback tracking)
 - README.md (product roadmap overview)
@@ -228,7 +228,7 @@ This audit validates the following 13 critical success criteria:
 - Customer 3: Food & beverage ($235K savings, 85%→93% accuracy)
 - Average impact: $704K savings, +10% accuracy, 41-day payback
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/`
 **Key Files:**
 - SALES_PLAYBOOK.md (complete discovery-to-close process)
 - 3_CASE_STUDIES.md (customer proof points)
@@ -299,7 +299,7 @@ This audit validates the following 13 critical success criteria:
    - End-of-year team structure (16 FTE)
    - Compensation benchmarks (market rate)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-10-13/`
 **Key Files:**
 - WEEK_10_13_SERIES_A_PREP.md (18KB comprehensive preparation)
 - INVESTOR_DECK_OUTLINE.md (13-slide speaker notes)
@@ -342,7 +342,7 @@ This audit validates the following 13 critical success criteria:
 - Post-implementation review
 - NPS survey cadence (quarterly)
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-10-13/`
 **Key Files:**
 - HIRING_PLAN_UPDATED.md (detailed role descriptions, recruiting timeline)
 - OPERATIONS_RUNBOOKS.md (CSM, sales, engineering playbooks)
@@ -384,7 +384,7 @@ This audit validates the following 13 critical success criteria:
 - Lead capture funnels
 - Email nurture sequences
 
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+**Location:** `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-10-13/`
 **Key Files:**
 - WEBSITE_STRUCTURE.md (45+ page architecture)
 - BLOG_CALENDAR.md (6-month content plan)
@@ -917,7 +917,7 @@ TAI Erlang Autonomics has completed comprehensive planning for 13-week execution
 
 ## APPENDIX: DOCUMENT LOCATIONS
 
-All planning documents stored in: `/Users/sac/ggen/tai-erlang-autonomics/execution/`
+All planning documents stored in: `~/.ggen/mcpp/tai-erlang-autonomics/execution/`
 
 **Critical Files (Read These First):**
 1. `KPI_DASHBOARD.md` - Weekly metrics tracking

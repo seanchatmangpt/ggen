@@ -1,6 +1,6 @@
 # Master Lifecycle Orchestrator
 # Production-ready workspace automation following 80/20 principles
-# Demonstrates ggen-core's lifecycle management capabilities
+# Demonstrates mcpp-core's lifecycle management capabilities
 
 [config]
 default_to_workspace = true

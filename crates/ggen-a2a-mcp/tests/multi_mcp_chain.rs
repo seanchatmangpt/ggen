@@ -8,21 +8,21 @@
 //!   - All required semconv attributes present
 //!
 //! Run with:
-//!   RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp \
+//!   RUST_LOG=trace,mcpp_a2a_mcp=trace cargo test -p mcpp-a2a-mcp \
 //!     --test multi_mcp_chain -- --test-threads=1 --nocapture 2>&1 | \
 //!     tee multi_mcp_chain_trace.log
 //!
 //! Expected trace output:
-//!   INFO ggen_a2a_mcp: ggen.pipeline.operation (a2a.message parent)
-//!     INFO ggen_a2a_mcp: mcp.tool.call (validate_pipeline)
-//!     INFO ggen_a2a_mcp: mcp.tool.call (validate_sparql)
-//!     INFO ggen_a2a_mcp: mcp.tool.call (validate_templates)
+//!   INFO mcpp_a2a_mcp: mcpp.pipeline.operation (a2a.message parent)
+//!     INFO mcpp_a2a_mcp: mcp.tool.call (validate_pipeline)
+//!     INFO mcpp_a2a_mcp: mcp.tool.call (validate_sparql)
+//!     INFO mcpp_a2a_mcp: mcp.tool.call (validate_templates)
 
 use std::time::Duration;
 
-use a2a_generated::converged::message::ConvergedMessage;
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 mod common;
@@ -82,18 +82,18 @@ fn args(json: serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
 #[tokio::test]
 async fn test_multi_mcp_tool_chain_with_otel_traces() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
         // Create temp directory with test files
         let tempdir = tempfile::tempdir()?;
 
-        // Create a minimal ggen.toml for validate_pipeline
+        // Create a minimal mcpp.toml for validate_pipeline
         let project_dir = tempdir.path().join("test-project");
         std::fs::create_dir_all(&project_dir)?;
         std::fs::write(
-            project_dir.join("ggen.toml"),
+            project_dir.join("mcpp.toml"),
             r#"
 [package]
 name = "test-pipeline"
@@ -145,7 +145,7 @@ Hello {{ name }}!
 
         // Parent span for the entire operation
         let _parent_span = tracing::info_span!(
-            "ggen.pipeline.operation",
+            "mcpp.pipeline.operation",
             a2a.message_id = %msg.message_id,
             a2a.correlation_id = %correlation_id,
             a2a.source = %msg.source,
@@ -308,7 +308,7 @@ Hello {{ name }}!
 
         // Log summary for manual trace verification
         tracing::info!(
-            parent_span_id = "ggen.pipeline.operation",
+            parent_span_id = "mcpp.pipeline.operation",
             parent_duration_ms = parent_duration.as_millis() as u64,
             correlation_id = %correlation_id,
             tools_executed = 3,
@@ -340,7 +340,7 @@ Hello {{ name }}!
 #[tokio::test]
 async fn test_concurrent_mcp_tool_execution_pattern() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
@@ -377,7 +377,7 @@ Hello {{ name }}!
         let project_dir = tempdir.path().join("test-project");
         std::fs::create_dir_all(&project_dir)?;
         std::fs::write(
-            project_dir.join("ggen.toml"),
+            project_dir.join("mcpp.toml"),
             r#"[package]
 name = "test"
 version = "0.1.0"
@@ -394,7 +394,7 @@ version = "0.1.0"
         let tool1_handle = tokio::spawn(async move {
             let start = std::time::Instant::now();
             tracing::info_span!(
-                "ggen.mcp.tool_call",
+                "mcpp.mcp.tool_call",
                 mcp.tool_name = "validate_pipeline",
                 a2a.correlation_id = %correlation_id_clone1,
             );
@@ -426,7 +426,7 @@ version = "0.1.0"
         let tool2_handle = tokio::spawn(async move {
             let start = std::time::Instant::now();
             tracing::info_span!(
-                "ggen.mcp.tool_call",
+                "mcpp.mcp.tool_call",
                 mcp.tool_name = "validate_sparql",
                 a2a.correlation_id = %correlation_id_clone2,
             );
@@ -458,7 +458,7 @@ version = "0.1.0"
         let tool3_handle = tokio::spawn(async move {
             let start = std::time::Instant::now();
             tracing::info_span!(
-                "ggen.mcp.tool_call",
+                "mcpp.mcp.tool_call",
                 mcp.tool_name = "validate_templates",
                 a2a.correlation_id = %correlation_id_clone3,
             );

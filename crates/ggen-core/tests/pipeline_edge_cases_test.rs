@@ -9,8 +9,8 @@
 //! - Template rendering errors
 //! - File system errors
 
-use ggen_core::codegen::pipeline::{GenerationPipeline, LlmService};
-use ggen_core::manifest::{
+use mcpp_core::codegen::pipeline::{GenerationPipeline, LlmService};
+use mcpp_core::manifest::{
     GenerationMode, GenerationRule, GgenManifest, InferenceRule, OntologyConfig, QuerySource,
     TemplateSource,
 };
@@ -29,7 +29,7 @@ fn create_minimal_manifest() -> GgenManifest {
     use std::collections::BTreeMap;
 
     GgenManifest {
-        project: ggen_core::manifest::ProjectConfig {
+        project: mcpp_core::manifest::ProjectConfig {
             name: "test-project".to_string(),
             version: "1.0.0".to_string(),
             description: None,
@@ -40,11 +40,11 @@ fn create_minimal_manifest() -> GgenManifest {
             base_iri: None,
             prefixes: BTreeMap::new(),
         },
-        inference: ggen_core::manifest::InferenceConfig {
+        inference: mcpp_core::manifest::InferenceConfig {
             rules: Vec::new(),
             max_reasoning_timeout_ms: 60000,
         },
-        generation: ggen_core::manifest::GenerationConfig {
+        generation: mcpp_core::manifest::GenerationConfig {
             output_dir: PathBuf::from("output"),
             enable_llm: false,
             rules: Vec::new(),
@@ -54,7 +54,7 @@ fn create_minimal_manifest() -> GgenManifest {
             llm_provider: None,
             llm_model: None,
         },
-        validation: ggen_core::manifest::ValidationConfig::default(),
+        validation: mcpp_core::manifest::ValidationConfig::default(),
     }
 }
 

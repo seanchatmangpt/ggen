@@ -1,6 +1,6 @@
 //! Security tests for input validation
 
-use ggen_core::registry::SearchParams;
+use mcpp_core::registry::SearchParams;
 
 #[test]
 fn test_xss_prevention_in_search() {

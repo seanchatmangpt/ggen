@@ -7,7 +7,7 @@
 //!
 //! **Error Handling Pattern**: Always use explicit `.map_err()` for oxigraph error conversion
 //! instead of the `?` operator, because oxigraph errors don't implement `From` for
-//! `ggen_utils::error::Error`. This pattern ensures proper error context and prevents
+//! `mcpp_utils::error::Error`. This pattern ensures proper error context and prevents
 //! compilation errors.
 //!
 //! ```text
@@ -46,7 +46,7 @@
 //! ## Quick Start
 //!
 //! ```text
-//! use ggen_core::graph::{Graph, GraphUpdate, GraphExport};
+//! use mcpp_core::graph::{Graph, GraphUpdate, GraphExport};
 //!
 //! // Create in-memory graph
 //! let graph = Graph::new()?;

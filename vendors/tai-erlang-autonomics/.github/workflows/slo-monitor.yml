@@ -232,7 +232,7 @@ jobs:
             **Severity**: High
             **Action Required**: Investigate and remediate immediately
 
-            See runbooks: https://github.com/seanchatmangpt/ggen/wiki/SLO-Breach-Runbook`,
+            See runbooks: https://github.com/seanchatmangpt/mcpp/wiki/SLO-Breach-Runbook`,
               labels: ['incident', 'slo-breach', 'priority-high']
             });
 

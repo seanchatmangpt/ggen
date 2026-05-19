@@ -5,7 +5,7 @@
 //!
 //! ## Cache Invalidation Strategy
 //!
-//! This module follows ggen-core's proven pattern:
+//! This module follows mcpp-core's proven pattern:
 //! - **Epoch-based invalidation**: `Arc<AtomicU64>` incremented on each update
 //! - **Dual-level caching**: Plan cache and result cache with epoch keys
 //! - **Thread-safe access**: `Arc<Mutex<LruCache>>` for concurrent queries
@@ -27,7 +27,7 @@ use super::sparql::SparqlExecutor;
 use super::state_machine::StateMachineExecutor;
 use super::turtle_config::TurtleConfigLoader;
 
-/// Cache sizes matching ggen-core patterns
+/// Cache sizes matching mcpp-core patterns
 const DEFAULT_PLAN_CACHE_SIZE: usize = 100;
 const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
 const INITIAL_EPOCH: u64 = 1;
@@ -38,7 +38,7 @@ type ResultCache = Arc<Mutex<LruCache<(u64, u64), Vec<String>>>>;
 
 /// RDF Control Plane - Central coordinator for all RDF operations
 ///
-/// Uses epoch-based cache invalidation pattern from ggen-core for:
+/// Uses epoch-based cache invalidation pattern from mcpp-core for:
 /// - Query plan caching (parsed SPARQL)
 /// - Result caching (query results)
 /// - Automatic invalidation on mutations
@@ -212,9 +212,9 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let insert_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <https://mcpp.io/marketplace/>
             INSERT DATA {{
-                <https://ggen.io/marketplace/{0}> a mp:Package ;
+                <https://mcpp.io/marketplace/{0}> a mp:Package ;
                     mp:id "{1}" ;
                     mp:name "{2}" ;
                     mp:description "{3}" ;
@@ -257,11 +257,11 @@ impl RdfControlPlane {
     ) -> Result<()> {
         // Build SPARQL INSERT for metadata via direct RDF operations
         let mut metadata_query = String::from(
-            r"PREFIX mp: <https://ggen.io/marketplace/>
+            r"PREFIX mp: <https://mcpp.io/marketplace/>
             INSERT DATA {",
         );
 
-        let pkg_uri = format!("<https://ggen.io/marketplace/{package_id}>");
+        let pkg_uri = format!("<https://mcpp.io/marketplace/{package_id}>");
 
         // Add authors
         #[allow(clippy::format_push_string)]
@@ -316,10 +316,10 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let update_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
-            DELETE {{ <https://ggen.io/marketplace/{}> mp:state "Draft" . }}
-            INSERT {{ <https://ggen.io/marketplace/{}> mp:state "Published" . }}
-            WHERE {{ <https://ggen.io/marketplace/{}> a mp:Package . }}
+            PREFIX mp: <https://mcpp.io/marketplace/>
+            DELETE {{ <https://mcpp.io/marketplace/{}> mp:state "Draft" . }}
+            INSERT {{ <https://mcpp.io/marketplace/{}> mp:state "Published" . }}
+            WHERE {{ <https://mcpp.io/marketplace/{}> a mp:Package . }}
             "#,
             package_id, package_id, package_id
         );
@@ -345,9 +345,9 @@ impl RdfControlPlane {
         // Direct SPARQL query
         #[allow(clippy::uninlined_format_args)]
         let query = format!(
-            r"PREFIX mp: <https://ggen.io/marketplace/>
+            r"PREFIX mp: <https://mcpp.io/marketplace/>
             SELECT ?state
-            WHERE {{ <https://ggen.io/marketplace/{}> mp:state ?state . }}",
+            WHERE {{ <https://mcpp.io/marketplace/{}> mp:state ?state . }}",
             package_id
         );
 

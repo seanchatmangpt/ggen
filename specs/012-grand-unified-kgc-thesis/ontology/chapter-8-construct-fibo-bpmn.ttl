@@ -1,4 +1,4 @@
-@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix : <https://mcpp.io/thesis/kgc-unified/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -11,7 +11,7 @@
 :chapter8 a :Chapter ;
     :chapterNumber 8 ;
     :title "Cross-Domain Knowledge Graph Construction: CONSTRUCT, FIBO, and BPMN Integration" ;
-    :content """This chapter demonstrates the power of SPARQL CONSTRUCT queries to bridge heterogeneous knowledge domains. We integrate the Financial Industry Business Ontology (FIBO) with Business Process Model and Notation (BPMN) workflows, showcasing how ggen's inference engine enables automatic derivation of compliance requirements, risk assessments, and process optimizations across financial and operational domains.
+    :content """This chapter demonstrates the power of SPARQL CONSTRUCT queries to bridge heterogeneous knowledge domains. We integrate the Financial Industry Business Ontology (FIBO) with Business Process Model and Notation (BPMN) workflows, showcasing how mcpp's inference engine enables automatic derivation of compliance requirements, risk assessments, and process optimizations across financial and operational domains.
 
 The integration exemplifies the Grand Unified Theory's core principle: that complete, semantically rich knowledge graphs enable deterministic code generation while preserving cross-domain consistency. By materializing inferred triples through CONSTRUCT queries, we transform implicit knowledge (regulatory requirements embedded in FIBO) into explicit workflow constraints (BPMN compliance checkpoints).""" .
 
@@ -23,7 +23,7 @@ The integration exemplifies the Grand Unified Theory's core principle: that comp
     :belongsToChapter :chapter8 ;
     :sectionNumber 1 ;
     :title "SPARQL CONSTRUCT and Sequential Materialization" ;
-    :content """SPARQL CONSTRUCT queries extend SELECT queries by generating new RDF triples instead of tabular results. The ggen CONSTRUCT executor implements a sequential materialization pattern where each inference rule's output is inserted back into the graph, enabling forward-chaining reasoning.
+    :content """SPARQL CONSTRUCT queries extend SELECT queries by generating new RDF triples instead of tabular results. The mcpp CONSTRUCT executor implements a sequential materialization pattern where each inference rule's output is inserted back into the graph, enabling forward-chaining reasoning.
 
 This approach differs from traditional rule engines in three key ways:
 \\begin{enumerate}
@@ -32,13 +32,13 @@ This approach differs from traditional rule engines in three key ways:
 \\item \\textbf{Provenance Tracking}: Generated triples can be annotated with derivation metadata, supporting audit trails.
 \\end{enumerate}
 
-The CONSTRUCT executor architecture in ggen-core implements this with zero-cost abstractions:""" .
+The CONSTRUCT executor architecture in mcpp-core implements this with zero-cost abstractions:""" .
 
 :code-listing-8-1 a :CodeListing ;
     :belongsToChapter :chapter8 ;
     :listingNumber 1 ;
     :language "rust" ;
-    :caption "CONSTRUCT Executor Implementation (ggen-core/src/graph/construct.rs)" ;
+    :caption "CONSTRUCT Executor Implementation (mcpp-core/src/graph/construct.rs)" ;
     :source """pub struct ConstructExecutor<'a> {
     graph: &'a Graph,
 }
@@ -133,7 +133,7 @@ For this thesis demonstration, we import a subset focused on \\texttt{FBC/Financ
     :belongsToChapter :chapter8 ;
     :sectionNumber 3 ;
     :title "BPMN Workflow Engine Integration" ;
-    :content """Business Process Model and Notation (BPMN) 2.0 provides a standardized graphical notation for business processes. The ggen workflow-engine-cli package implements a complete BPMN execution engine with an RDF-backed state model.
+    :content """Business Process Model and Notation (BPMN) 2.0 provides a standardized graphical notation for business processes. The mcpp workflow-engine-cli package implements a complete BPMN execution engine with an RDF-backed state model.
 
 Key BPMN elements represented in RDF:
 \\begin{itemize}
@@ -257,8 +257,8 @@ Initial RDF facts (before inference):""" .
     :listingNumber 2 ;
     :language "turtle" ;
     :caption "Initial Trade Execution Workflow Definition" ;
-    :source """@prefix : <https://ggen.io/thesis/kgc-unified/> .
-@prefix wfe: <http://ggen.ruv.io/workflow-engine#> .
+    :source """@prefix : <https://mcpp.io/thesis/kgc-unified/> .
+@prefix wfe: <http://mcpp.ruv.io/workflow-engine#> .
 @prefix fibo-fbc-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
 
 # Financial Instrument
@@ -351,15 +351,15 @@ Initial RDF facts (before inference):""" .
     :belongsToChapter :chapter8 ;
     :sectionNumber 7 ;
     :title "Code Generation from Materialized Knowledge" ;
-    :content """The materialized compliance and risk triples enable deterministic code generation for workflow validation hooks. Using ggen's generation rules in \\texttt{ggen.toml}, we generate TypeScript validation logic:""" .
+    :content """The materialized compliance and risk triples enable deterministic code generation for workflow validation hooks. Using mcpp's generation rules in \\texttt{mcpp.toml}, we generate TypeScript validation logic:""" .
 
 :code-listing-8-4 a :CodeListing ;
     :belongsToChapter :chapter8 ;
     :listingNumber 4 ;
     :language "typescript" ;
     :caption "Generated Workflow Compliance Hook" ;
-    :source """// Auto-generated from RDF ontology by ggen
-// DO NOT EDIT - regenerate with: ggen sync
+    :source """// Auto-generated from RDF ontology by mcpp
+// DO NOT EDIT - regenerate with: mcpp sync
 
 import { defineHook } from '@unrdf/hooks';
 import { WorkflowInstance } from './types';
@@ -462,7 +462,7 @@ This approach scales to full-stack applications where database schemas (Electric
     :belongsToChapter :chapter8 ;
     :sectionNumber 9 ;
     :title "Performance Characteristics and Scalability" ;
-    :content """The CONSTRUCT executor in ggen exhibits linear time complexity with respect to graph size for acyclic inference rules:""" .
+    :content """The CONSTRUCT executor in mcpp exhibits linear time complexity with respect to graph size for acyclic inference rules:""" .
 
 :equation-8-2 a :Equation ;
     :belongsToChapter :chapter8 ;

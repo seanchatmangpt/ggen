@@ -46,7 +46,7 @@ impl ConfigValidator {
         }
     }
 
-    pub fn validate_ggen_config(&self, config: &GgenConfig) -> ValidationResult {
+    pub fn validate_mcpp_config(&self, config: &GgenConfig) -> ValidationResult {
         let mut errors = Vec::new();
         let mut warnings = Vec::new();
 
@@ -500,7 +500,7 @@ mod tests {
     fn test_valid_config() {
         let validator = ConfigValidator::new();
         let config = create_test_config();
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(result.is_valid);
         assert!(result.errors.is_empty());
     }
@@ -511,7 +511,7 @@ mod tests {
         let mut config = create_test_config();
         config.project.name = String::new();
 
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(!result.is_valid);
         assert!(result.errors.iter().any(|e| e.field == "project.name"));
     }
@@ -522,7 +522,7 @@ mod tests {
         let mut config = create_test_config();
         config.ai.temperature = 3.0;
 
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(!result.is_valid);
         assert!(result.errors.iter().any(|e| e.field == "ai.temperature"));
     }
@@ -533,7 +533,7 @@ mod tests {
         let mut config = create_test_config();
         config.logging.level = "invalid".to_string();
 
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(!result.is_valid);
         assert!(result.errors.iter().any(|e| e.field == "logging.level"));
     }
@@ -544,7 +544,7 @@ mod tests {
         let mut config = create_test_config();
         config.ai.provider = "unknown-provider".to_string();
 
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(result.is_valid); // Warnings don't make it invalid
         assert!(result.warnings.iter().any(|w| w
             .field
@@ -559,7 +559,7 @@ mod tests {
         let mut config = create_test_config();
         config.project.version = "1.0".to_string(); // Missing patch
 
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(result.is_valid);
         assert!(result.warnings.iter().any(|w| w
             .field
@@ -574,7 +574,7 @@ mod tests {
         let mut config = create_test_config();
         config.sparql.timeout = 0;
 
-        let result = validator.validate_ggen_config(&config);
+        let result = validator.validate_mcpp_config(&config);
         assert!(!result.is_valid);
         assert!(result.errors.iter().any(|e| e.field == "sparql.timeout"));
     }

@@ -5,8 +5,8 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
-//! use ggen_core::ontology_pack::{OntologyPackMetadata, OntologyConfig, OntologyDefinition};
+//! ```text
+//! use mcpp_core::ontology_pack::{OntologyPackMetadata, OntologyConfig, OntologyDefinition};
 //!
 //! let pack_metadata = OntologyPackMetadata {
 //!     base: Default::default(),

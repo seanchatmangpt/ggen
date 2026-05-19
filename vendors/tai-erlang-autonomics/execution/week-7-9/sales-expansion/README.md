@@ -461,7 +461,7 @@ Yes. The plan is complete. Documents are prepared. Team assignments are clear. S
 
 All documents are located in:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
 ```
 
 **Core Files**:

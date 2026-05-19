@@ -81,7 +81,7 @@ mod infrastructure_tests {
     fn test_timeout_check_task_exists() {
         // Arrange & Act
         let output = Command::new("cargo")
-            .args(&["make", "--list-all-steps"])
+            .args(["make", "--list-all-steps"])
             .output()
             .expect("Failed to run cargo make");
 
@@ -98,7 +98,7 @@ mod infrastructure_tests {
     fn test_ci_gate_task_exists() {
         // Arrange & Act
         let output = Command::new("cargo")
-            .args(&["make", "--list-all-steps"])
+            .args(["make", "--list-all-steps"])
             .output()
             .expect("Failed to run cargo make");
 
@@ -115,7 +115,7 @@ mod infrastructure_tests {
     fn test_pre_commit_hook_task_exists() {
         // Arrange & Act
         let output = Command::new("cargo")
-            .args(&["make", "--list-all-steps"])
+            .args(["make", "--list-all-steps"])
             .output()
             .expect("Failed to run cargo make");
 

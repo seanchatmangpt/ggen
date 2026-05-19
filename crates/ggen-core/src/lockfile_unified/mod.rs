@@ -1,4 +1,4 @@
-//! Unified Lockfile Trait System for ggen v4.0
+//! Unified Lockfile Trait System for mcpp v4.0
 //!
 //! This module provides zero-cost abstractions for lockfile operations,
 //! unifying the three existing lockfile implementations into a coherent
@@ -33,7 +33,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use ggen_core::lockfile_unified::prelude::*;
+//! use mcpp_core::lockfile_unified::prelude::*;
 //!
 //! // Use unified manager for any lockfile type
 //! let manager = UnifiedLockfileManager::new(Path::new("."));

@@ -3,7 +3,7 @@
 //! Provides integrity verification, circular dependency detection,
 //! and schema validation for lockfiles.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::traits::{LockEntry, Lockfile};

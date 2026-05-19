@@ -1,4 +1,4 @@
-//! Quality Metrics System for ggen
+//! Quality Metrics System for mcpp
 //!
 //! Comprehensive metrics collection and analysis covering:
 //! - Code metrics (lines, complexity, coverage)

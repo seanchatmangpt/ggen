@@ -9,7 +9,7 @@
 //! - **CodePromptBuilder**: Prompts for code generation and refactoring
 //! - **OntologyPromptBuilder**: Prompts for RDF/OWL ontology generation
 //! - **SparqlPromptBuilder**: Prompts for SPARQL query generation
-//! - **TemplatePromptBuilder**: Prompts for ggen template generation
+//! - **TemplatePromptBuilder**: Prompts for mcpp template generation
 //!
 //! ## Features
 //!

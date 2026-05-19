@@ -1,7 +1,7 @@
-//! Smoke test for chicago-tdd-tools integration in ggen-core
+//! Smoke test for chicago-tdd-tools integration in mcpp-core
 //!
 //! This test verifies that chicago-tdd-tools is properly configured and works
-//! with the ggen-core crate. It tests basic functionality to ensure the
+//! with the mcpp-core crate. It tests basic functionality to ensure the
 //! integration is stable.
 
 // Use prelude::* to import all common macros and types
@@ -41,7 +41,7 @@ async_test!(test_async_works, {
 // Test core-specific functionality
 test!(test_core_integration, {
     // Arrange
-    let core_value = String::from("ggen-core");
+    let core_value = String::from("mcpp-core");
 
     // Act
     let result = core_value.to_uppercase();

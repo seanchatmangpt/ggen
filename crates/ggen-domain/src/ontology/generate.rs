@@ -7,8 +7,8 @@
 //! - Formatting output
 //! - Validation of generated code
 
-use ggen_core::ontology_pack::OntologySchema;
-use ggen_utils::error::{Error, Result};
+use mcpp_core::ontology_pack::OntologySchema;
+use mcpp_utils::error::{Error, Result};
 use std::path::PathBuf;
 
 /// Input for code generation
@@ -64,8 +64,8 @@ pub struct GenerationStats {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_domain::ontology::generate::{execute_generate, GenerateInput};
-/// use ggen_core::ontology_pack::OntologySchema;
+/// use mcpp_domain::ontology::generate::{execute_generate, GenerateInput};
+/// use mcpp_core::ontology_pack::OntologySchema;
 /// use std::path::PathBuf;
 ///
 /// #[tokio::main]
@@ -147,7 +147,7 @@ pub async fn execute_generate(input: &GenerateInput) -> Result<GenerateOutput> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_core::ontology_pack::OntologySchema;
+    use mcpp_core::ontology_pack::OntologySchema;
 
     #[tokio::test]
     async fn test_generate_creates_output_dir() {

@@ -4,7 +4,7 @@
     "version": "1.2.0",
     "methodology": "80/20 Pareto Analysis",
     "analyzer": "Hive Mind - Pareto Analyzer",
-    "scope": ["ggen-core", "ggen-cli", "node-nif", "documentation", "deployment"]
+    "scope": ["mcpp-core", "mcpp-cli", "node-nif", "documentation", "deployment"]
   },
 
   "executive_summary": {
@@ -26,9 +26,9 @@
         "effort": "2 hours",
         "title": "Implement run_for_node() in CLI library",
         "status": "MISSING",
-        "current_state": "Node NIF calls ggen_cli_lib::run_for_node() but function doesn't exist",
+        "current_state": "Node NIF calls mcpp_cli_lib::run_for_node() but function doesn't exist",
         "required_state": "Function implemented with proper async execution and result capture",
-        "location": "/Users/sac/ggen/cli/src/lib.rs",
+        "location": "~/.ggen/mcpp/cli/src/lib.rs",
         "dependencies": ["Existing cli_match() function", "Result types"],
         "blockers": ["Node addon cannot compile or run"],
         "implementation_notes": [
@@ -53,13 +53,13 @@
         "status": "INCOMPLETE",
         "current_state": "Node addon structure exists, no tests run, no validation",
         "required_state": "Comprehensive test suite passing, documented usage patterns",
-        "location": "/Users/sac/ggen/node/",
+        "location": "~/.ggen/mcpp/node/",
         "dependencies": ["run_for_node() implementation"],
         "blockers": ["Cannot validate Node integration works"],
         "implementation_notes": [
           "Implement __tests__/addon.test.ts with vitest",
           "Test version() function",
-          "Test run() with various ggen commands",
+          "Test run() with various mcpp commands",
           "Test error handling and edge cases",
           "Add usage examples to NODE_ADDON_USAGE.md"
         ],
@@ -79,7 +79,7 @@
         "status": "MISSING",
         "current_state": "Node addon not built or tested in CI",
         "required_state": "Makefile.toml tasks for node build, test, publish",
-        "location": "/Users/sac/ggen/Makefile.toml",
+        "location": "~/.ggen/mcpp/Makefile.toml",
         "dependencies": ["Node NIF tests passing"],
         "blockers": ["No automated validation of Node integration"],
         "implementation_notes": [
@@ -126,11 +126,11 @@
         "priority": "P1-HIGH",
         "impact": "40%",
         "effort": "3 hours",
-        "title": "Complete ggen-marketplace module integration",
+        "title": "Complete mcpp-marketplace module integration",
         "status": "EXCLUDED",
         "current_state": "Excluded from workspace due to compilation errors (Cargo.toml line 23)",
         "required_state": "Module compiles, integrated, or officially deprecated",
-        "location": "/Users/sac/ggen/ggen-marketplace/",
+        "location": "~/.ggen/mcpp/mcpp-marketplace/",
         "dependencies": [],
         "blockers": ["Feature incomplete, may cause confusion"],
         "implementation_notes": [
@@ -184,7 +184,7 @@
         "category": "Distribution",
         "priority": "P2-MEDIUM",
         "items": [
-          "Setup npm organization (@ggen/node)",
+          "Setup npm organization (@mcpp/node)",
           "Configure prebuild for multiple platforms",
           "Add release automation",
           "Create GitHub releases for npm packages"
@@ -206,7 +206,7 @@
   "technical_debt_analysis": {
     "high_impact_debt": [
       {
-        "item": "ggen-marketplace excluded from workspace",
+        "item": "mcpp-marketplace excluded from workspace",
         "impact": "Confusion about marketplace status",
         "effort": "4-8 hours to fix or deprecate properly",
         "recommendation": "Officially deprecate for v1.3.0 or remove"
@@ -284,7 +284,7 @@
         "Create release notes"
       ],
       "success_criteria": [
-        "Users can npm install @ggen/node",
+        "Users can npm install @mcpp/node",
         "Examples work out of box",
         "Release ready"
       ]

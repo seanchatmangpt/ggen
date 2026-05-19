@@ -15,8 +15,8 @@
 //! - Concurrent access safety
 
 use chrono;
-use ggen_cli_lib::domain::marketplace::registry::*;
-use ggen_utils::error::Result;
+use mcpp_cli_lib::domain::marketplace::registry::*;
+use mcpp_utils::error::Result;
 use std::collections::HashMap;
 use std::path::Path;
 use tempfile::TempDir;

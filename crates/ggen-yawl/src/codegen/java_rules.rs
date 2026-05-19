@@ -1,12 +1,12 @@
-//! Re-exports of generic framework types from ggen-codegen
+//! Re-exports of generic framework types from mcpp-codegen
 //!
 //! For backward compatibility, this module re-exports the generic code generation
-//! framework types that are now defined in the standalone ggen-codegen crate.
+//! framework types that are now defined in the standalone mcpp-codegen crate.
 //! All domain-specific implementations (JpaEntityQuery, RepositoryQuery, etc.)
 //! remain in this crate.
 
-// Re-export framework types from ggen-codegen
-pub use ggen_codegen::{GeneratedFile, GenerationMode, Queryable, Renderable, Result, Rule};
+// Re-export framework types from mcpp-codegen
+pub use mcpp_codegen::{GeneratedFile, GenerationMode, Queryable, Renderable, Result, Rule};
 
 /// Execution record for a rule
 #[derive(Debug, Clone)]

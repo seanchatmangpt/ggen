@@ -8,7 +8,7 @@
 //! - Latency percentiles (p50, p95, p99)
 //! - Concurrent operation performance
 
-use ggen_marketplace::prelude::*;
+use mcpp_marketplace::prelude::*;
 use std::time::{Duration, Instant};
 
 const PERFORMANCE_THRESHOLD_MS: u128 = 1000; // 1 second for most operations

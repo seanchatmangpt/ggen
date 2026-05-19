@@ -13,10 +13,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-DEMO_DIR="/Users/sac/ggen/examples/self-play"
+DEMO_DIR="./examples/self-play"
 REPORT_DIR="/tmp/self-play-reports"
 ITERATIONS=3
-GGEN_BINARY="/Users/sac/ggen/target/release/ggen"
+GGEN_BINARY="./target/release/ggen"
 
 # Functions
 log_info() {
@@ -55,7 +55,7 @@ check_prerequisites() {
     if [ ! -f "$GGEN_BINARY" ]; then
         log_error "ggen binary not found at $GGEN_BINARY"
         log_info "Building ggen in release mode..."
-        cd /Users/sac/ggen
+        cd .
         cargo build --release
         log_success "ggen built successfully"
     else

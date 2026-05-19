@@ -4,7 +4,7 @@
 
 use std::fs;
 use tempfile::TempDir;
-use ggen_craftplan::normalize::Normalizer;
+use mcpp_craftplan::normalize::Normalizer;
 use chicago_tdd_tools::prelude::*;
 
 test!(test_normalize_creates_empty_store, {

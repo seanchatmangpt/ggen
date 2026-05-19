@@ -3,23 +3,23 @@
 **Feature Branch**: `012-grand-unified-kgc-thesis`
 **Created**: 2025-12-16
 **Status**: Draft
-**Input**: User description: "Grand Unified Theory of Full-Stack KGC - PhD thesis integrating ggen, @unrdf/hooks, @unrdf/kgc-4d, NextJS, TanStack, Electric SQL, pnpm monorepo architecture with hyperdimensional information theory calculus. Extends v5 thesis-gen ontology to prove: (1) Knowledge Graph Completeness guarantees full-stack consistency, (2) 4D temporal semantics enable event sourcing calculus, (3) Information-theoretic projection bounds for multi-target code generation, (4) Hyperdimensional vector spaces for ontology embeddings."
+**Input**: User description: "Grand Unified Theory of Full-Stack KGC - PhD thesis integrating mcpp, @unrdf/hooks, @unrdf/kgc-4d, NextJS, TanStack, Electric SQL, pnpm monorepo architecture with hyperdimensional information theory calculus. Extends v5 thesis-gen ontology to prove: (1) Knowledge Graph Completeness guarantees full-stack consistency, (2) 4D temporal semantics enable event sourcing calculus, (3) Information-theoretic projection bounds for multi-target code generation, (4) Hyperdimensional vector spaces for ontology embeddings."
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Generate Complete PhD Thesis Document (Priority: P1)
 
-A researcher uses ggen to generate a complete, publication-ready PhD thesis in LaTeX format from an RDF ontology. The thesis presents the Grand Unified Theory of Full-Stack Knowledge Graph Completeness, proving that deterministic code generation from semantic ontologies eliminates specification-implementation drift across the entire technology stack.
+A researcher uses mcpp to generate a complete, publication-ready PhD thesis in LaTeX format from an RDF ontology. The thesis presents the Grand Unified Theory of Full-Stack Knowledge Graph Completeness, proving that deterministic code generation from semantic ontologies eliminates specification-implementation drift across the entire technology stack.
 
 **Why this priority**: The primary deliverable is a complete, coherent PhD thesis document that can be compiled to PDF. Without this, there is no thesis to present or defend.
 
-**Independent Test**: Can be fully tested by running `ggen sync` on the thesis ontology and compiling the resulting LaTeX to PDF. Delivers a 100+ page academic thesis with proper structure, theorems, proofs, figures, and bibliography.
+**Independent Test**: Can be fully tested by running `mcpp sync` on the thesis ontology and compiling the resulting LaTeX to PDF. Delivers a 100+ page academic thesis with proper structure, theorems, proofs, figures, and bibliography.
 
 **Acceptance Scenarios**:
 
-1. **Given** a complete thesis ontology with 7+ chapters, 10+ theorems, 20+ equations, and 30+ references, **When** `ggen sync` is executed, **Then** all LaTeX files are generated deterministically with consistent cross-references
+1. **Given** a complete thesis ontology with 7+ chapters, 10+ theorems, 20+ equations, and 30+ references, **When** `mcpp sync` is executed, **Then** all LaTeX files are generated deterministically with consistent cross-references
 2. **Given** the generated LaTeX files, **When** compiled with pdflatex/bibtex, **Then** a properly formatted PhD thesis PDF is produced with table of contents, list of figures, and bibliography
-3. **Given** any modification to the thesis ontology, **When** `ggen sync` is re-executed, **Then** only the affected sections change while maintaining document integrity
+3. **Given** any modification to the thesis ontology, **When** `mcpp sync` is re-executed, **Then** only the affected sections change while maintaining document integrity
 
 ---
 
@@ -73,7 +73,7 @@ A reader understands how ontologies can be embedded in hyperdimensional vector s
 
 ### User Story 5 - Validate Full-Stack Integration Case Study (Priority: P3)
 
-A reader sees a complete case study showing ggen generating a full-stack application (TanStack DB + NextJS + Electric SQL) from a single project management ontology. The case study demonstrates 73% reduction in cross-module inconsistencies.
+A reader sees a complete case study showing mcpp generating a full-stack application (TanStack DB + NextJS + Electric SQL) from a single project management ontology. The case study demonstrates 73% reduction in cross-module inconsistencies.
 
 **Why this priority**: Empirical validation strengthens the theoretical claims and demonstrates practical applicability to production systems.
 
@@ -81,7 +81,7 @@ A reader sees a complete case study showing ggen generating a full-stack applica
 
 **Acceptance Scenarios**:
 
-1. **Given** the project management ontology from /Users/sac/dis/astro/packages/tanstack-db, **When** referenced in the thesis, **Then** the generated artifacts (schemas, hooks, mutations) are documented with line counts
+1. **Given** the project management ontology from ~/.ggen/dis/astro/packages/tanstack-db, **When** referenced in the thesis, **Then** the generated artifacts (schemas, hooks, mutations) are documented with line counts
 2. **Given** the consistency metrics comparison, **When** presented in tables, **Then** the 73% reduction claim is supported by specific measurements
 3. **Given** the pnpm monorepo structure, **When** documented, **Then** the package organization follows the actual implementation
 
@@ -159,7 +159,7 @@ A reader understands how @unrdf/hooks enables declarative policy definition and 
 - **SC-006**: Zero specification-implementation drift between ontology content and generated LaTeX (verified by diff analysis)
 - **SC-007**: Regeneration from same ontology produces byte-identical output (deterministic generation guarantee)
 - **SC-008**: Full thesis generation completes in under 10 seconds for ontology with 2000+ triples
-- **SC-009**: Case study metrics are reproducible: reader can run ggen on provided ontology and verify line counts match thesis claims
+- **SC-009**: Case study metrics are reproducible: reader can run mcpp on provided ontology and verify line counts match thesis claims
 - **SC-010**: All LaTeX cross-references resolve correctly (no "??" or undefined reference warnings)
 
 ## Assumptions
@@ -167,13 +167,13 @@ A reader understands how @unrdf/hooks enables declarative policy definition and 
 - The thesis uses standard academic LaTeX document class (report or similar)
 - All figures are provided as PDF/PNG files or generated as TikZ diagrams from ontology
 - The @unrdf/hooks and @unrdf/kgc-4d packages are stable at version 5.0.1
-- The existing thesis-gen templates from ggen examples can be extended for this thesis
+- The existing thesis-gen templates from mcpp examples can be extended for this thesis
 - Readers have graduate-level background in computer science and mathematics
-- The TanStack DB case study ontology at /Users/sac/dis/astro/packages/tanstack-db is complete and valid
+- The TanStack DB case study ontology at ~/.ggen/dis/astro/packages/tanstack-db is complete and valid
 
 ## Dependencies
 
-- ggen v5 thesis generation infrastructure (existing in examples/thesis-gen)
+- mcpp v5 thesis generation infrastructure (existing in examples/thesis-gen)
 - @unrdf/hooks v5.0.1 for Knowledge Hooks integration patterns
 - @unrdf/kgc-4d v5.0.1 for 4D temporal event sourcing patterns
 - Oxigraph RDF processing engine

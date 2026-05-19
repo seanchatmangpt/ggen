@@ -1,4 +1,4 @@
-//! Pre-flight validation for ggen sync and init commands
+//! Pre-flight validation for mcpp sync and init commands
 //!
 //! This module implements comprehensive pre-flight checks to fail early with clear,
 //! actionable error messages before beginning expensive operations.
@@ -15,7 +15,7 @@
 //! 1. **Disk Space** - Ensure sufficient space for generation (at least 100MB free)
 //! 2. **Permissions** - Verify write permissions to output directory
 //! 3. **LLM Provider** - Check if Ollama/configured LLM is running and reachable
-//! 4. **Manifest Validity** - Parse and validate ggen.toml syntax before execution
+//! 4. **Manifest Validity** - Parse and validate mcpp.toml syntax before execution
 //! 5. **Template Syntax** - Quick validate Tera templates before rendering
 //! 6. **Dependencies** - Check for required tools (git, etc.)
 //!
@@ -33,7 +33,7 @@
 //! - E0029: Pre-flight check timeout
 
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -54,7 +54,7 @@ const PREFLIGHT_TIMEOUT_SECS: u64 = 30;
 // Pre-flight Validator
 // ============================================================================
 
-/// Pre-flight validator for ggen operations
+/// Pre-flight validator for mcpp operations
 ///
 /// Performs comprehensive checks before beginning sync or init operations
 /// to ensure the environment is ready and all prerequisites are met.
@@ -221,7 +221,7 @@ impl PreFlightValidator {
     /// Check 2: Verify write permissions to output directory
     fn check_permissions(&self) -> Result<()> {
         // Try to create a test file in the base path
-        let test_file = self.base_path.join(".ggen_preflight_test");
+        let test_file = self.base_path.join(".mcpp_preflight_test");
 
         std::fs::write(&test_file, b"test").map_err(|e| {
             Error::new(&format!(
@@ -308,7 +308,7 @@ impl PreFlightValidator {
         // Check project name is not empty
         if manifest.project.name.trim().is_empty() {
             return Err(Error::new(
-                "error[E0023]: Invalid manifest: project.name cannot be empty\n  |\n  = help: Set a valid project name in ggen.toml"
+                "error[E0023]: Invalid manifest: project.name cannot be empty\n  |\n  = help: Set a valid project name in mcpp.toml"
             ));
         }
 
@@ -316,7 +316,7 @@ impl PreFlightValidator {
         let ontology_path = self.base_path.join(&manifest.ontology.source);
         if !ontology_path.exists() {
             return Err(Error::new(&format!(
-                "error[E0023]: Ontology file not found\n  --> {}\n  |\n  = Specified in manifest: ontology.source\n  = help: Create the ontology file or update the path in ggen.toml",
+                "error[E0023]: Ontology file not found\n  --> {}\n  |\n  = Specified in manifest: ontology.source\n  = help: Create the ontology file or update the path in mcpp.toml",
                 ontology_path.display()
             )));
         }
@@ -324,7 +324,7 @@ impl PreFlightValidator {
         // Check generation rules exist
         if manifest.generation.rules.is_empty() {
             return Err(Error::new(
-                "error[E0023]: No generation rules defined\n  |\n  = At least one generation rule is required\n  = help: Add a [[generation.rules]] section to ggen.toml"
+                "error[E0023]: No generation rules defined\n  |\n  = At least one generation rule is required\n  = help: Add a [[generation.rules]] section to mcpp.toml"
             ));
         }
 
@@ -346,7 +346,7 @@ impl PreFlightValidator {
                 // Check if template file exists
                 if !template_path.exists() {
                     return Err(Error::new(&format!(
-                        "error[E0024]: Template file not found\n  --> {}\n  |\n  = Rule: {}\n  = help: Create the template file or update the path in ggen.toml",
+                        "error[E0024]: Template file not found\n  --> {}\n  |\n  = Rule: {}\n  = help: Create the template file or update the path in mcpp.toml",
                         template_path.display(),
                         rule.name
                     )));

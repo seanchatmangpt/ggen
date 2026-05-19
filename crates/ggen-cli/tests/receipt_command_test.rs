@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Tests verify actual receipt verification behavior
 
-use ggen_receipt::{generate_keypair, Receipt};
+use mcpp_receipt::{generate_keypair, Receipt};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -47,7 +47,7 @@ fn test_receipt_verify_with_valid_signature() {
     let key_path = create_public_key_file(temp_dir.path(), &verifying_key_hex);
 
     // Run the receipt verify command via CLI
-    let output = assert_cmd::Command::cargo_bin("ggen")
+    let output = assert_cmd::Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "receipt",
@@ -79,7 +79,7 @@ fn test_receipt_verify_with_wrong_key() {
     let key_path = create_public_key_file(temp_dir.path(), &wrong_key_hex);
 
     // Run the receipt verify command via CLI
-    let output = assert_cmd::Command::cargo_bin("ggen")
+    let output = assert_cmd::Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "receipt",
@@ -106,7 +106,7 @@ fn test_receipt_info_displays_receipt_details() {
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
     // Run the receipt info command via CLI
-    let output = assert_cmd::Command::cargo_bin("ggen")
+    let output = assert_cmd::Command::cargo_bin("mcpp")
         .unwrap()
         .args(["receipt", "info", &receipt_path])
         .output()
@@ -127,7 +127,7 @@ fn test_receipt_verify_without_key_returns_error() {
     let (receipt_path, _) = create_test_receipt(temp_dir.path());
 
     // Run without --public-key flag
-    let output = assert_cmd::Command::cargo_bin("ggen")
+    let output = assert_cmd::Command::cargo_bin("mcpp")
         .unwrap()
         .args(["receipt", "verify", &receipt_path])
         .output()
@@ -148,7 +148,7 @@ fn test_receipt_verify_nonexistent_file() {
     let fake_path_str = fake_path.to_string_lossy().to_string();
 
     // Run with nonexistent file
-    let output = assert_cmd::Command::cargo_bin("ggen")
+    let output = assert_cmd::Command::cargo_bin("mcpp")
         .unwrap()
         .args(["receipt", "verify", &fake_path_str])
         .output()

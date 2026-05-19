@@ -691,13 +691,13 @@ mod tests {
     }
 
     #[test]
-    fn test_validation_error_to_ggen_ai_error() {
+    fn test_validation_error_to_mcpp_ai_error() {
         let err = ValidationError::CircularReference {
             start: "http://example.com/list1".to_string(),
             cycle_node: "http://example.com/list2".to_string(),
         };
-        let ggen_err: GgenAiError = err.into();
-        let msg = ggen_err.to_string();
+        let mcpp_err: GgenAiError = err.into();
+        let msg = mcpp_err.to_string();
         assert!(msg.contains("Circular reference"));
     }
 

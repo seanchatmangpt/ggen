@@ -2,7 +2,7 @@
 auto_load: false
 category: rust
 priority: critical
-version: 6.0.1
+version: 26.5.4
 ---
 
 # Chicago TDD

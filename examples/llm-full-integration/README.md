@@ -45,7 +45,7 @@ Compilation Verification (cargo check)
 
 ### Step 1: Run Code Generation
 ```bash
-cd /Users/sac/ggen/examples/llm-full-integration
+cd ./examples/llm-full-integration
 ggen sync --ontology
 ```
 

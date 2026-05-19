@@ -14,10 +14,10 @@
 //! ## Examples
 //!
 //! ```text
-//! use ggen_core::rdf::query::QueryCache;
-//! use ggen_core::graph::Graph;
+//! use mcpp_core::rdf::query::QueryCache;
+//! use mcpp_core::graph::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let mut cache = QueryCache::new(1000);
 //! let graph = Graph::new()?;
 //!
@@ -28,7 +28,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use lru::LruCache;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
@@ -70,7 +70,7 @@ impl QueryCache {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::rdf::query::QueryCache;
+    /// use mcpp_core::rdf::query::QueryCache;
     ///
     /// let cache = QueryCache::new(1000);
     /// ```

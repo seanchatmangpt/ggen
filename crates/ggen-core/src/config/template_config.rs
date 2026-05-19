@@ -69,10 +69,10 @@ pub struct MarketplaceSettings {
 impl Default for TemplateConfig {
     fn default() -> Self {
         Self {
-            search_paths: vec![PathBuf::from("templates"), PathBuf::from(".ggen/templates")],
+            search_paths: vec![PathBuf::from("templates"), PathBuf::from(".mcpp/templates")],
             default_variables: HashMap::new(),
-            metadata_store: PathBuf::from(".ggen/metadata.ttl"),
-            cache_dir: Some(PathBuf::from(".ggen/template-cache")),
+            metadata_store: PathBuf::from(".mcpp/metadata.ttl"),
+            cache_dir: Some(PathBuf::from(".mcpp/template-cache")),
             generation: GenerationOptions::default(),
             marketplace: MarketplaceSettings::default(),
         }
@@ -96,10 +96,10 @@ impl Default for MarketplaceSettings {
     fn default() -> Self {
         Self {
             enabled: true,
-            package_cache: PathBuf::from(".ggen/packages"),
+            package_cache: PathBuf::from(".mcpp/packages"),
             auto_update: false,
             trusted_sources: vec![
-                "ggen-official".to_string(),
+                "mcpp-official".to_string(),
                 "community-verified".to_string(),
             ],
         }
@@ -108,16 +108,16 @@ impl Default for MarketplaceSettings {
 
 impl TemplateConfig {
     /// Load configuration from file
-    pub fn load(path: &PathBuf) -> ggen_utils::error::Result<Self> {
+    pub fn load(path: &PathBuf) -> mcpp_utils::error::Result<Self> {
         let content = std::fs::read_to_string(path)?;
         let config: Self = toml::from_str(&content)?;
         Ok(config)
     }
 
     /// Save configuration to file
-    pub fn save(&self, path: &PathBuf) -> ggen_utils::error::Result<()> {
+    pub fn save(&self, path: &PathBuf) -> mcpp_utils::error::Result<()> {
         let content = toml::to_string_pretty(self).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to serialize config: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to serialize config: {}", e))
         })?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;

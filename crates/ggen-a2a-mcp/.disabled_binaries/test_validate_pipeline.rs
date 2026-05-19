@@ -10,29 +10,29 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("ggen_a2a_mcp=info".parse()?)
-                .add_directive("ggen_core=info".parse()?),
+                .add_directive("mcpp_a2a_mcp=info".parse()?)
+                .add_directive("mcpp_core=info".parse()?),
         )
         .init();
 
     println!("Testing validate_pipeline MCP tool directly");
     println!("============================================\n");
 
-    // Get the current directory (should be /Users/sac/ggen)
+    // Get the current directory (should be ~/.ggen/mcpp)
     let current_dir = std::env::current_dir().expect("Failed to get current directory");
 
     println!("Current directory: {}", current_dir.display());
 
-    // Navigate to ggen root if we're in the bin directory
-    let project_path = if current_dir.ends_with("crates/ggen-a2a-mcp/src/bin")
-        || current_dir.ends_with("crates/ggen-a2a-mcp")
+    // Navigate to mcpp root if we're in the bin directory
+    let project_path = if current_dir.ends_with("crates/mcpp-a2a-mcp/src/bin")
+        || current_dir.ends_with("crates/mcpp-a2a-mcp")
     {
         current_dir
             .ancestors()
-            .nth(2) // Go up from crates/ggen-a2a-mcp to ggen root
+            .nth(2) // Go up from crates/mcpp-a2a-mcp to mcpp root
             .unwrap_or_else(|| PathBuf::from("."))
             .to_path_buf()
-    } else if current_dir.ends_with("ggen") {
+    } else if current_dir.ends_with("mcpp") {
         current_dir.clone()
     } else {
         PathBuf::from("..")
@@ -40,18 +40,18 @@ async fn main() -> anyhow::Result<()> {
 
     println!("Project path: {}\n", project_path.display());
 
-    // Check if ggen.toml exists
-    let manifest_path = project_path.join("ggen.toml");
+    // Check if mcpp.toml exists
+    let manifest_path = project_path.join("mcpp.toml");
     if !manifest_path.exists() {
         println!(
-            "❌ ERROR: ggen.toml not found at {}",
+            "❌ ERROR: mcpp.toml not found at {}",
             manifest_path.display()
         );
-        println!("This test requires being run from the ggen root directory");
-        anyhow::bail!("ggen.toml not found");
+        println!("This test requires being run from the mcpp root directory");
+        anyhow::bail!("mcpp.toml not found");
     }
 
-    println!("✓ Found ggen.toml at {}", manifest_path.display());
+    println!("✓ Found mcpp.toml at {}", manifest_path.display());
     println!("✓ Calling validate_pipeline tool...\n");
 
     // Call the validate_pipeline tool
@@ -63,7 +63,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn test_validate_pipeline(project_path: &PathBuf) -> anyhow::Result<String> {
-    use ggen_a2a_mcp::ggen_server::{GgenMcpServer, ValidatePipelineParams};
+    use mcpp_a2a_mcp::mcpp_server::{GgenMcpServer, ValidatePipelineParams};
     use rmcp::handler::server::wrapper::Parameters;
 
     // Create the MCP server instance

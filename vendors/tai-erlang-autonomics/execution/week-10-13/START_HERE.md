@@ -193,7 +193,7 @@ INVESTOR NARRATIVE:
 
 All files are in:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/
+~/.ggen/mcpp/tai-erlang-autonomics/execution/week-10-13/
 
 - README.md                          ← START HERE
 - WEEK_10_13_SCALE_AND_CASE_STUDIES.md    ← Daily execution

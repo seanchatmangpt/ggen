@@ -5,7 +5,7 @@ TAI ERLANG AUTONOMICS - SALES MOTION COMPLETE
 PROJECT: Design exact sales motion to acquire first 3 customers, then 10, then 100
 DATE: 2026-01-25
 STATUS: ✅ COMPLETE & PRODUCTION READY
-LOCATION: /Users/sac/ggen/tai-erlang-autonomics/sales/
+LOCATION: /Users/sac/mcpp/tai-erlang-autonomics/sales/
 
 ================================================================================
 DELIVERABLES (7 Documents, 120 KB, 3,200+ Lines)
@@ -263,7 +263,7 @@ WEEK 2+:
 FILES & LOCATIONS
 ================================================================================
 
-All files in: /Users/sac/ggen/tai-erlang-autonomics/sales/
+All files in: /Users/sac/mcpp/tai-erlang-autonomics/sales/
 
 INDEX.md                   (13 KB) - Navigation guide, use cases by role
 README.md                  (14 KB) - Quick start + overview

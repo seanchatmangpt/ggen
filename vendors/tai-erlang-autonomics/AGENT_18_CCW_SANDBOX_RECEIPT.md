@@ -26,7 +26,7 @@ Agent 18 successfully completed the simulation of TAIEA execution in Claude Code
 
 ### 1. CCW Sandbox Simulation Script
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/tools/ccw-sandbox-run.sh`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/tools/ccw-sandbox-run.sh`
 **Status**: ✅ COMPLETE
 **Executable**: Yes (755 permissions)
 **Lines**: 420
@@ -54,7 +54,7 @@ Agent 18 successfully completed the simulation of TAIEA execution in Claude Code
 
 ### 2. CCW Execution Guide (Core Documentation)
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/docs/CCW_EXECUTION.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/CCW_EXECUTION.md`
 **Status**: ✅ COMPLETE
 **Pages**: 45 (comprehensive)
 **Structure**:
@@ -135,7 +135,7 @@ Agent 18 successfully completed the simulation of TAIEA execution in Claude Code
 
 ### 3. Runtime Constraints & Optimization Guide
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/docs/RUNTIME_CONSTRAINTS.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/RUNTIME_CONSTRAINTS.md`
 **Status**: ✅ COMPLETE
 **Pages**: 28 (detailed operational guide)
 **Structure**:
@@ -191,7 +191,7 @@ Agent 18 successfully completed the simulation of TAIEA execution in Claude Code
 
 ### 4. Example Execution Log (Real-World Scenario)
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/docs/EXAMPLE_CCW_EXECUTION_LOG.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/EXAMPLE_CCW_EXECUTION_LOG.md`
 **Status**: ✅ COMPLETE
 **Pages**: 25 (detailed execution timeline)
 **Content**:
@@ -491,7 +491,7 @@ Load test (150 requests @ 10 req/sec):
 
 ### Tools Directory
 ```
-/Users/sac/ggen/tai-erlang-autonomics/tools/
+~/.ggen/mcpp/tai-erlang-autonomics/tools/
 ├── ccw-sandbox-run.sh          NEW (420 lines, executable)
 ├── run_release.sh              (existing, 135 lines)
 ├── smoke.sh                    (existing, 183 lines)
@@ -500,7 +500,7 @@ Load test (150 requests @ 10 req/sec):
 
 ### Documentation Directory
 ```
-/Users/sac/ggen/tai-erlang-autonomics/docs/
+~/.ggen/mcpp/tai-erlang-autonomics/docs/
 ├── CCW_EXECUTION.md            NEW (45 pages, 6,200 lines)
 ├── RUNTIME_CONSTRAINTS.md      NEW (28 pages, 3,800 lines)
 ├── EXAMPLE_CCW_EXECUTION_LOG.md NEW (25 pages, 2,900 lines)
@@ -509,7 +509,7 @@ Load test (150 requests @ 10 req/sec):
 
 ### Receipt Document
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+~/.ggen/mcpp/tai-erlang-autonomics/
 └── AGENT_18_CCW_SANDBOX_RECEIPT.md (this file)
 ```
 

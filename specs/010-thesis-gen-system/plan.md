@@ -5,18 +5,18 @@
 
 ## Summary
 
-Build a reusable thesis generation system where `ggen sync` transforms RDF ontologies into complete 50+ page PhD theses. ALL text content (title, chapters, theorems, equations, figures, tables, bibliography) comes from SPARQL queries—templates contain ONLY structural LaTeX markup and Tera variable placeholders with zero hardcoded strings.
+Build a reusable thesis generation system where `mcpp sync` transforms RDF ontologies into complete 50+ page PhD theses. ALL text content (title, chapters, theorems, equations, figures, tables, bibliography) comes from SPARQL queries—templates contain ONLY structural LaTeX markup and Tera variable placeholders with zero hardcoded strings.
 
-The system leverages ggen's existing RDF processing pipeline (Oxigraph), SPARQL execution, and Tera template rendering to produce LaTeX output that compiles to publication-ready PDFs.
+The system leverages mcpp's existing RDF processing pipeline (Oxigraph), SPARQL execution, and Tera template rendering to produce LaTeX output that compiles to publication-ready PDFs.
 
 ## Technical Context
 
-**Language/Version**: Rust 1.75+ (ggen existing codebase) + LaTeX (pdflatex for output)
-**Primary Dependencies**: Oxigraph (RDF), Tera (templates), existing ggen-core/ggen-domain crates
+**Language/Version**: Rust 1.75+ (mcpp existing codebase) + LaTeX (pdflatex for output)
+**Primary Dependencies**: Oxigraph (RDF), Tera (templates), existing mcpp-core/mcpp-domain crates
 **Storage**: File system (TTL ontology files, Tera templates, generated LaTeX output)
 **Testing**: Chicago TDD with `cargo make test`, LaTeX compilation validation
 **Target Platform**: CLI (macOS/Linux), LaTeX compilation to PDF
-**Project Type**: Single project (ggen workspace extension + thesis example)
+**Project Type**: Single project (mcpp workspace extension + thesis example)
 **Performance Goals**: <5s generation for 50-page thesis ontology, <100MB memory
 **Constraints**: Zero hardcoded strings in templates, deterministic output, reusable across topics
 **Scale/Scope**: 7+ chapters, 30+ sections, 50+ pages, 30+ references per thesis
@@ -25,16 +25,16 @@ The system leverages ggen's existing RDF processing pipeline (Oxigraph), SPARQL 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.md`):
+Verify compliance with mcpp Constitution v1.0.0 (`.specify/memory/constitution.md`):
 
-- [x] **I. Crate-First Architecture**: Feature is an example/template project using existing ggen crates (no new crate needed—uses ggen-core, ggen-domain). Self-contained thesis example directory.
-- [x] **II. Deterministic RDF Projections**: ggen sync already guarantees determinism. Same ontology + templates → identical LaTeX output. Checksums verifiable.
+- [x] **I. Crate-First Architecture**: Feature is an example/template project using existing mcpp crates (no new crate needed—uses mcpp-core, mcpp-domain). Self-contained thesis example directory.
+- [x] **II. Deterministic RDF Projections**: mcpp sync already guarantees determinism. Same ontology + templates → identical LaTeX output. Checksums verifiable.
 - [x] **III. Chicago TDD**: Tests will verify: (1) SPARQL queries return expected data, (2) templates render without hardcoded strings, (3) LaTeX compiles successfully, (4) PDF page count meets target.
 - [x] **IV. cargo make Protocol**: All validation uses `cargo make` targets. LaTeX compilation scripted in Makefile.toml.
 - [x] **V. Type-First Thinking**: Ontology schema defines types. SPARQL queries are typed. Template variables have default handling.
-- [x] **VI. Andon Signal Protocol**: ggen sync errors = RED, LaTeX warnings = YELLOW, successful PDF = GREEN.
-- [x] **VII. Error Handling**: ggen sync uses Result<T,E> throughout. Template missing variables handled gracefully with defaults.
-- [x] **VIII. Concurrent Execution**: All file generation batched in single ggen sync. Templates/ontology organized in proper directories.
+- [x] **VI. Andon Signal Protocol**: mcpp sync errors = RED, LaTeX warnings = YELLOW, successful PDF = GREEN.
+- [x] **VII. Error Handling**: mcpp sync uses Result<T,E> throughout. Template missing variables handled gracefully with defaults.
+- [x] **VIII. Concurrent Execution**: All file generation batched in single mcpp sync. Templates/ontology organized in proper directories.
 - [x] **IX. Lean Six Sigma Quality**: Pre-commit hooks, template validation, schema conformance checks.
 
 **Quality Gates Pass?**: [x] YES / [ ] NO
@@ -48,7 +48,7 @@ specs/010-thesis-gen-system/
 ├── plan.md              # This file
 ├── research.md          # Phase 0: Template patterns, LaTeX best practices
 ├── data-model.md        # Phase 1: Ontology schema for thesis entities
-├── quickstart.md        # Phase 1: How to create a thesis with ggen
+├── quickstart.md        # Phase 1: How to create a thesis with mcpp
 ├── contracts/           # Phase 1: Ontology schema (SHACL shapes)
 │   └── thesis-schema.ttl
 └── tasks.md             # Phase 2 output (/speckit.tasks)
@@ -58,7 +58,7 @@ specs/010-thesis-gen-system/
 
 ```text
 examples/thesis-gen/
-├── ggen.toml                    # Manifest with 15+ generation rules
+├── mcpp.toml                    # Manifest with 15+ generation rules
 ├── ontology/
 │   ├── thesis-schema.ttl        # Class/property definitions (reusable)
 │   └── thesis-content.ttl       # Instance data (topic-specific)
@@ -88,11 +88,11 @@ tests/thesis-gen/
 └── test_page_count.rs           # 50+ pages verification
 ```
 
-**Structure Decision**: Example project in `examples/thesis-gen/` demonstrating ggen's thesis generation capability. Uses existing ggen crates—no new workspace crates needed. Tests in `tests/thesis-gen/` for integration testing.
+**Structure Decision**: Example project in `examples/thesis-gen/` demonstrating mcpp's thesis generation capability. Uses existing mcpp crates—no new workspace crates needed. Tests in `tests/thesis-gen/` for integration testing.
 
 ## Complexity Tracking
 
-> No violations—feature uses existing ggen architecture without modifications.
+> No violations—feature uses existing mcpp architecture without modifications.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
@@ -137,8 +137,8 @@ Run `/speckit.tasks` to generate actionable task breakdown.
 - [x] **IV. cargo make**: Makefile.toml integration planned ✓
 - [x] **V. Type-First**: Ontology schema is type system ✓
 - [x] **VI. Andon Signals**: Error handling documented ✓
-- [x] **VII. Error Handling**: ggen sync uses Result<T,E> ✓
-- [x] **VIII. Concurrent**: Single ggen sync batches all generation ✓
+- [x] **VII. Error Handling**: mcpp sync uses Result<T,E> ✓
+- [x] **VIII. Concurrent**: Single mcpp sync batches all generation ✓
 - [x] **IX. Quality**: Schema validation + template checks ✓
 
 **Quality Gates Pass?**: [x] YES - Ready for `/speckit.tasks`

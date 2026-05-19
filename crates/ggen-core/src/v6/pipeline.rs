@@ -22,20 +22,20 @@ use crate::v6::receipt::{
     BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies,
 };
 use crate::v6::vocabulary::VocabularyRegistry;
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use mcpp_marketplace::trust::TrustTier;
+use mcpp_utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-/// Stage pack templates into `<project>/.ggen/pack-stage/` for μ₃ rules or inspection.
+/// Stage pack templates into `<project>/.mcpp/pack-stage/` for μ₃ rules or inspection.
 #[allow(dead_code)]
 fn stage_pack_templates(
     base_path: &Path, templates: &[crate::pack_resolver::TemplateDef],
 ) -> Result<Vec<String>> {
-    let stage = base_path.join(".ggen").join("pack-stage");
+    let stage = base_path.join(".mcpp").join("pack-stage");
     let mut names = Vec::new();
     for t in templates {
         let dest = stage.join(&t.path);
@@ -91,7 +91,7 @@ pub struct PipelineConfig {
     /// Previous receipt for verification
     pub previous_receipt: Option<PathBuf>,
 
-    /// ggen version
+    /// mcpp version
     pub toolchain_version: String,
 
     /// Enable μ₀ pack resolution stage
@@ -108,7 +108,7 @@ impl PipelineConfig {
             base_path: PathBuf::from("."),
             ontology_sources: Vec::new(),
             output_dir: PathBuf::from("."),
-            receipt_path: Some(PathBuf::from(".ggen/receipt.json")),
+            receipt_path: Some(PathBuf::from(".mcpp/receipt.json")),
             verify_mode: VerifyMode::None,
             previous_receipt: None,
             toolchain_version: env!("CARGO_PKG_VERSION").to_string(),
@@ -466,7 +466,7 @@ impl StagedPipeline {
         );
         drop(_guard);
 
-        // Stage pack templates under .ggen/pack-stage/ (μ₃ rules may reference these paths)
+        // Stage pack templates under .mcpp/pack-stage/ (μ₃ rules may reference these paths)
         if let Some(ref rp) = self.resolved_packs {
             let _staged = stage_pack_templates(&self.config.base_path, &rp.templates)?;
         }

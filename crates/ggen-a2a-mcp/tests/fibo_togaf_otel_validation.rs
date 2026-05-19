@@ -1,7 +1,7 @@
 //! OTEL Trace Validation for 70-Turn FIBO + TOGAF E2E
 //!
 //! Validates that every turn produces required OTEL spans with proper attributes.
-//! Ensures observability for full A2A collaboration with FIBO concepts and ggen sync.
+//! Ensures observability for full A2A collaboration with FIBO concepts and mcpp sync.
 //!
 //! # Required OTEL Spans
 //!
@@ -13,13 +13,13 @@
 //!   - `agent.phase`: TOGAF phase (A-H)
 //!   - `agent.role`: Agent role (Enterprise Architect, Data Architect, etc.)
 //!
-//! ## ggen Sync Spans
-//! - **Span Name**: `ggen.sync`
+//! ## mcpp Sync Spans
+//! - **Span Name**: `mcpp.sync`
 //! - **Required Attributes**:
-//!   - `ggen.phase`: "initial" or "final"
-//!   - `ggen.agents_generated`: Number of agents generated
-//!   - `ggen.code_generated`: Amount of code generated
-//!   - `ggen.fibo_ontologies_loaded`: FIBO ontologies processed
+//!   - `mcpp.phase`: "initial" or "final"
+//!   - `mcpp.agents_generated`: Number of agents generated
+//!   - `mcpp.code_generated`: Amount of code generated
+//!   - `mcpp.fibo_ontologies_loaded`: FIBO ontologies processed
 //!
 //! ## FIBO Concept Spans (Phase C: Data Architecture)
 //! - **Turns**: 17-28 (Data Architecture phase)
@@ -32,10 +32,10 @@
 //!
 //! ```bash
 //! # Run with trace logging
-//! RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp fibo_togaf_otel -- --nocapture
+//! RUST_LOG=trace,mcpp_a2a_mcp=trace cargo test -p mcpp-a2a-mcp fibo_togaf_otel -- --nocapture
 //!
 //! # Verify spans captured
-//! RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp fibo_togaf_otel 2>&1 | grep -E "turn_[0-9]+|ggen.sync|fibo.entities"
+//! RUST_LOG=trace,mcpp_a2a_mcp=trace cargo test -p mcpp-a2a-mcp fibo_togaf_otel 2>&1 | grep -E "turn_[0-9]+|mcpp.sync|fibo.entities"
 //! ```
 
 use common::init_tracing;
@@ -76,29 +76,29 @@ async fn simulate_turn_with_otel(turn_number: u32, phase: &str, agent_role: &str
         );
     }
 
-    // ggen sync at turn 1 (initial) and turn 70 (final)
+    // mcpp sync at turn 1 (initial) and turn 70 (final)
     if turn_number == 1 {
         let sync_span = span!(
             Level::INFO,
-            "ggen.sync",
-            ggen.phase = "initial",
-            ggen.agents_generated = 5,
-            ggen.fibo_ontologies_loaded = 12,
+            "mcpp.sync",
+            mcpp.phase = "initial",
+            mcpp.agents_generated = 5,
+            mcpp.fibo_ontologies_loaded = 12,
         );
         let _enter = sync_span.enter();
-        tracing::info!("Initial ggen sync - loading ontologies");
+        tracing::info!("Initial mcpp sync - loading ontologies");
     }
 
     if turn_number == 70 {
         let sync_span = span!(
             Level::INFO,
-            "ggen.sync",
-            ggen.phase = "final",
-            ggen.code_generated = 15000,
-            ggen.files_written = 42,
+            "mcpp.sync",
+            mcpp.phase = "final",
+            mcpp.code_generated = 15000,
+            mcpp.files_written = 42,
         );
         let _enter = sync_span.enter();
-        tracing::info!("Final ggen sync - emitting code");
+        tracing::info!("Final mcpp sync - emitting code");
     }
 }
 
@@ -163,36 +163,36 @@ mod tests {
         assert!(true, "All 70 turns have OTEL spans");
     }
 
-    /// Test that ggen sync operations have proper OTEL spans
+    /// Test that mcpp sync operations have proper OTEL spans
     #[tokio::test]
-    async fn test_ggen_sync_otel_spans() {
+    async fn test_mcpp_sync_otel_spans() {
         common::init_tracing();
 
-        // Initial ggen sync (turn 1)
+        // Initial mcpp sync (turn 1)
         simulate_turn_with_otel(1, "Preliminary", "EnterpriseArchitect").await;
 
-        // Final ggen sync (turn 70)
+        // Final mcpp sync (turn 70)
         simulate_turn_with_otel(70, "G-Implementation", "SolutionsArchitect").await;
 
-        tracing::info!("✓ ggen sync spans validated for initial and final phases");
+        tracing::info!("✓ mcpp sync spans validated for initial and final phases");
 
         // Validate initial sync span
         tracing::info!(
-            ggen.phase = "initial",
-            ggen.agents_generated = 5,
-            ggen.fibo_ontologies_loaded = 12,
-            "✓ Initial ggen sync has required attributes"
+            mcpp.phase = "initial",
+            mcpp.agents_generated = 5,
+            mcpp.fibo_ontologies_loaded = 12,
+            "✓ Initial mcpp sync has required attributes"
         );
 
         // Validate final sync span
         tracing::info!(
-            ggen.phase = "final",
-            ggen.code_generated = 15000,
-            ggen.files_written = 42,
-            "✓ Final ggen sync has required attributes"
+            mcpp.phase = "final",
+            mcpp.code_generated = 15000,
+            mcpp.files_written = 42,
+            "✓ Final mcpp sync has required attributes"
         );
 
-        assert!(true, "ggen sync OTEL spans validated");
+        assert!(true, "mcpp sync OTEL spans validated");
     }
 
     /// Test that FIBO concepts are traced in Phase C (Data Architecture) turns
@@ -239,7 +239,7 @@ mod tests {
 
         let mut total_spans = 0;
         let mut fibo_concept_turns = 0;
-        let mut ggen_sync_count = 0;
+        let mut mcpp_sync_count = 0;
 
         // Execute full 70-turn scenario
         for turn in 1..=70 {
@@ -254,9 +254,9 @@ mod tests {
                 fibo_concept_turns += 1;
             }
 
-            // Track ggen sync operations
+            // Track mcpp sync operations
             if turn == 1 || turn == 70 {
-                ggen_sync_count += 1;
+                mcpp_sync_count += 1;
             }
         }
 
@@ -265,7 +265,7 @@ mod tests {
             total_turns = 70,
             total_spans = total_spans,
             fibo_concept_turns = fibo_concept_turns,
-            ggen_sync_count = ggen_sync_count,
+            mcpp_sync_count = mcpp_sync_count,
             "✓ Full 70-turn scenario OTEL coverage validated"
         );
 
@@ -275,8 +275,8 @@ mod tests {
             "Should have 12 FIBO concept turns (17-28)"
         );
         assert_eq!(
-            ggen_sync_count, 2,
-            "Should have 2 ggen sync operations (initial + final)"
+            mcpp_sync_count, 2,
+            "Should have 2 mcpp sync operations (initial + final)"
         );
     }
 
@@ -385,9 +385,9 @@ mod tests {
 // 1. Turn Coverage: All 70 turns have proper OTEL spans
 // 2. Attribute Completeness: Required attributes present in all spans
 // 3. FIBO Concept Tracing: Phase C turns trace FIBO entities and concepts
-// 4. ggen Sync Validation: Initial and final sync operations properly traced
+// 4. mcpp Sync Validation: Initial and final sync operations properly traced
 // 5. Performance: OTEL overhead is acceptable (< 1ms per turn)
 // 6. Sequence Integrity: No gaps in turn sequence
 //
 // Usage:
-//   RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp fibo_togaf_otel -- --nocapture
+//   RUST_LOG=trace,mcpp_a2a_mcp=trace cargo test -p mcpp-a2a-mcp fibo_togaf_otel -- --nocapture

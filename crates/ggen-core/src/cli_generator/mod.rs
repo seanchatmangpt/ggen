@@ -35,10 +35,10 @@
 //! ### Generating a CLI Project
 //!
 //! ```rust,no_run
-//! use ggen_core::cli_generator::{OntologyParser, CliLayerGenerator, DomainLayerGenerator, WorkspaceGenerator};
+//! use mcpp_core::cli_generator::{OntologyParser, CliLayerGenerator, DomainLayerGenerator, WorkspaceGenerator};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! // Parse RDF ontology
 //! let project = OntologyParser::parse(Path::new("cli-schema.ttl"))?;
 //!

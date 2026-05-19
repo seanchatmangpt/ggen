@@ -5,9 +5,9 @@
 //! 2. Required OTEL attributes are present (llm.model, llm.prompt_tokens, etc.)
 //! 3. Spans are properly recorded and can be captured in logs
 //!
-//! Run with: RUST_LOG=trace,ggen_ai=trace cargo test -p ggen-cli-lib --test otel_verification_test
+//! Run with: RUST_LOG=trace,mcpp_ai=trace cargo test -p mcpp-cli-lib --test otel_verification_test
 
-use ggen_ai::client::{GenAiClient, LlmClient, LlmConfig};
+use mcpp_ai::client::{GenAiClient, LlmClient, LlmConfig};
 use std::env;
 
 #[tokio::test]
@@ -73,7 +73,7 @@ async fn test_otel_spans_are_created() {
 #[test]
 fn test_otel_constants_are_defined() {
     // Verify OTEL attribute constants are defined
-    use ggen_ai::otel_attrs;
+    use mcpp_ai::otel_attrs;
 
     assert_eq!(otel_attrs::SERVICE_NAME, "service.name");
     assert_eq!(otel_attrs::SERVICE_VERSION, "service.version");

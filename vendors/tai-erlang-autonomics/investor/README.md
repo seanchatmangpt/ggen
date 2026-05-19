@@ -12,7 +12,7 @@ This folder contains comprehensive investor materials for TAI Autonomics seed ro
 3. Deep dive: **FINANCIAL_MODEL.md** (45 min read)
 
 **For Due Diligence Teams**:
-1. Tech deep dive: `/Users/sac/ggen/tai-erlang-autonomics/docs/ARCHITECTURE.md`
+1. Tech deep dive: `~/.ggen/mcpp/tai-erlang-autonomics/docs/ARCHITECTURE.md`
 2. Risk analysis: **RISK_ASSESSMENT.md**
 3. Competitive moat: **COMPETITIVE_MOAT.md**
 4. Cap table: **CAP_TABLE_DILUTION.md**
@@ -371,10 +371,10 @@ See: FINANCIAL_MODEL.md (Funding Requirements) + ONE_PAGER.md
 
 ## Archive & Support
 
-All investor materials maintained in `/Users/sac/ggen/tai-erlang-autonomics/investor/`
+All investor materials maintained in `~/.ggen/mcpp/tai-erlang-autonomics/investor/`
 
 For technical support or questions:
-- Architecture questions: See `/Users/sac/ggen/tai-erlang-autonomics/docs/`
+- Architecture questions: See `~/.ggen/mcpp/tai-erlang-autonomics/docs/`
 - Code repository: GitHub (private, shared under NDA)
 - Demo access: Available upon request
 

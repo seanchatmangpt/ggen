@@ -1,4 +1,4 @@
-//! Tracing utilities for the ggen pipeline
+//! Tracing utilities for the mcpp pipeline
 //!
 //! This module provides structured tracing capabilities using the `tracing` crate
 //! for observability and debugging. It initializes tracing based on environment
@@ -28,9 +28,9 @@
 //! ### Initializing Tracing
 //!
 //! ```rust,no_run
-//! use ggen_core::tracing::init_tracing;
+//! use mcpp_core::tracing::init_tracing;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! init_tracing()?;
 //! # Ok(())
 //! # }
@@ -39,7 +39,7 @@
 //! ### Creating Spans
 //!
 //! ```rust,no_run
-//! use ggen_core::tracing::PipelineTracer;
+//! use mcpp_core::tracing::PipelineTracer;
 //! use std::path::Path;
 //!
 //! let span = PipelineTracer::template_span(Path::new("template.tmpl"));
@@ -50,7 +50,7 @@
 //! ### Performance Timing
 //!
 //! ```rust,no_run
-//! use ggen_core::tracing::PerformanceTimer;
+//! use mcpp_core::tracing::PerformanceTimer;
 //!
 //! let timer = PerformanceTimer::start("template_processing");
 //! // ... do work ...
@@ -60,7 +60,7 @@
 //! ### Using Macros
 //!
 //! ```rust,no_run
-//! use ggen_core::{time_operation, trace_span};
+//! use mcpp_core::{time_operation, trace_span};
 //!
 //! let result = time_operation!("expensive_operation", {
 //!     // ... operation code ...
@@ -82,16 +82,16 @@ use tracing::{debug, error, info, warn};
 ///
 /// Returns an error if tracing subscriber initialization fails (e.g., if
 /// already initialized).
-pub fn init_tracing() -> ggen_utils::error::Result<()> {
+pub fn init_tracing() -> mcpp_utils::error::Result<()> {
     use tracing_subscriber::EnvFilter;
 
     let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("ggen=info"));
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("mcpp=info"));
 
     tracing_subscriber::fmt()
         .with_env_filter(env_filter)
         .try_init()
-        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize tracing", e))?;
+        .map_err(|e| mcpp_utils::error::Error::with_source("Failed to initialize tracing", e))?;
 
     Ok(())
 }
@@ -230,7 +230,7 @@ impl PipelineTracer {
     }
 
     /// Log error with context
-    pub fn error_with_context(error: &ggen_utils::error::Error, context: &str) {
+    pub fn error_with_context(error: &mcpp_utils::error::Error, context: &str) {
         error!(
             error = %error,
             context = context,
@@ -373,7 +373,7 @@ mod tests {
 
         PipelineTracer::performance_metric("test_op", 50);
 
-        let error = ggen_utils::error::Error::new("Test error");
+        let error = mcpp_utils::error::Error::new("Test error");
         PipelineTracer::error_with_context(&error, "test context");
 
         PipelineTracer::warning("Test warning", Some("test context"));

@@ -3,7 +3,7 @@
 use super::mock_impls::{create_mock_pack, create_mock_registry_index};
 use chicago_tdd_tools::prelude::*;
 use chrono::Utc;
-use ggen_core::registry::RegistryIndex;
+use mcpp_core::registry::RegistryIndex;
 use std::collections::HashMap;
 
 test!(test_registry_index_creation, {

@@ -26,8 +26,8 @@
 //! ### Creating a Snapshot
 //!
 //! ```text
-//! use ggen_core::snapshot::{Snapshot, SnapshotManager};
-//! use ggen_core::graph::Graph;
+//! use mcpp_core::snapshot::{Snapshot, SnapshotManager};
+//! use mcpp_core::graph::Graph;
 //! use std::path::PathBuf;
 //!
 //! let graph = Graph::new()?;
@@ -40,17 +40,17 @@
 //! ### Managing Snapshots
 //!
 //! ```text
-//! use ggen_core::snapshot::SnapshotManager;
+//! use mcpp_core::snapshot::SnapshotManager;
 //! use std::path::Path;
 //!
-//! let manager = SnapshotManager::new(Path::new(".ggen/snapshots"));
+//! let manager = SnapshotManager::new(Path::new(".mcpp/snapshots"));
 //! manager.save(&snapshot)?;
 //!
 //! let loaded = manager.load("baseline")?;
 //! ```
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::{self, File};
@@ -72,8 +72,8 @@ use crate::graph::Graph;
 /// # Examples
 ///
 /// ```text
-/// use ggen_core::snapshot::Snapshot;
-/// use ggen_core::graph::Graph;
+/// use mcpp_core::snapshot::Snapshot;
+/// use mcpp_core::graph::Graph;
 /// use std::path::PathBuf;
 ///
 /// let graph = Graph::new()?;
@@ -124,8 +124,8 @@ impl Snapshot {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::snapshot::Snapshot;
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::snapshot::Snapshot;
+    /// use mcpp_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
     /// let graph = Graph::new()?;
@@ -171,8 +171,8 @@ impl Snapshot {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::snapshot::Snapshot;
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::snapshot::Snapshot;
+    /// use mcpp_core::graph::Graph;
     ///
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
@@ -246,7 +246,7 @@ impl GraphSnapshot {
 /// # Examples
 ///
 /// ```text
-/// use ggen_core::snapshot::FileSnapshot;
+/// use mcpp_core::snapshot::FileSnapshot;
 /// use std::path::PathBuf;
 ///
 /// let path = PathBuf::from("output.rs");
@@ -314,7 +314,7 @@ impl FileSnapshot {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::snapshot::FileSnapshot;
+    /// use mcpp_core::snapshot::FileSnapshot;
     /// use std::path::PathBuf;
     ///
     /// let snapshot = FileSnapshot::new(
@@ -390,7 +390,7 @@ pub struct Region {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::snapshot::RegionType;
+/// use mcpp_core::snapshot::RegionType;
 ///
 /// # fn main() {
 /// let region_type = RegionType::Generated;
@@ -416,11 +416,11 @@ pub enum RegionType {
 /// # Examples
 ///
 /// ```text
-/// use ggen_core::snapshot::{SnapshotManager, Snapshot};
-/// use ggen_core::graph::Graph;
+/// use mcpp_core::snapshot::{SnapshotManager, Snapshot};
+/// use mcpp_core::graph::Graph;
 /// use std::path::PathBuf;
 ///
-/// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+/// let manager = SnapshotManager::new(PathBuf::from(".mcpp/snapshots"))?;
 ///
 /// let graph = Graph::new()?;
 /// let snapshot = Snapshot::new("baseline".to_string(), &graph, vec![], vec![])?;
@@ -453,10 +453,10 @@ impl SnapshotManager {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::snapshot::SnapshotManager;
+    /// use mcpp_core::snapshot::SnapshotManager;
     /// use std::path::PathBuf;
     ///
-    /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+    /// let manager = SnapshotManager::new(PathBuf::from(".mcpp/snapshots"))?;
     /// // Directory is created automatically
     /// ```
     pub fn new(snapshot_dir: PathBuf) -> Result<Self> {
@@ -472,11 +472,11 @@ impl SnapshotManager {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::snapshot::{SnapshotManager, Snapshot};
+    /// use mcpp_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+    /// let manager = SnapshotManager::new(PathBuf::from(".mcpp/snapshots"))?;
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("my-snapshot".to_string(), &graph, vec![], vec![])?;
     ///
@@ -506,11 +506,11 @@ impl SnapshotManager {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
-    /// use ggen_core::graph::Graph;
+    /// use mcpp_core::snapshot::{SnapshotManager, Snapshot};
+    /// use mcpp_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+    /// let manager = SnapshotManager::new(PathBuf::from(".mcpp/snapshots"))?;
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
     /// manager.save(&snapshot)?;

@@ -1,5 +1,5 @@
-{# SPARQL Optimization Benchmark Test Template - Generated via ggen from RDF ontology -#}
-{# Do not edit manually - Regenerate with: ggen sync -#}
+{# SPARQL Optimization Benchmark Test Template - Generated via mcpp from RDF ontology -#}
+{# Do not edit manually - Regenerate with: mcpp sync -#}
 
 {% include "benchmark_components/benchmark_setup.tera" %}
 {% include "benchmark_components/benchmark_metrics.tera" %}

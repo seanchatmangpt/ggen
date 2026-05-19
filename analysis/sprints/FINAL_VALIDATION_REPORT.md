@@ -1,5 +1,5 @@
 # FINAL VALIDATION REPORT
-**ggen v6.0.0 - Full Workspace Test Suite**
+**mcpp v6.0.0 - Full Workspace Test Suite**
 
 **Generated:** 2026-03-30
 **Test Command:** `cargo test --workspace --lib --bins`
@@ -30,74 +30,74 @@ All 3,939 tests passed with zero failures. The workspace demonstrates excellent 
 ### 1. Core Crates (1,000+ tests each)
 | Crate | Tests | Status | Time |
 |-------|-------|--------|------|
-| `ggen-dspy` | 1,024 | ✅ 1,017 passed, 7 ignored | 0.84s |
-| `ggen-core` | 684 | ✅ 684 passed | 2.13s |
+| `mcpp-dspy` | 1,024 | ✅ 1,017 passed, 7 ignored | 0.84s |
+| `mcpp-core` | 684 | ✅ 684 passed | 2.13s |
 
 ### 2. Large Test Suites (100-500 tests)
 | Crate | Tests | Status | Time |
 |-------|-------|--------|------|
-| `ggen-testing` | 406 | ✅ 406 passed | 2.87s |
-| `ggen-domain` | 134 | ✅ 134 passed | 0.00s |
-| `ggen-cli-validation` | 119 | ✅ 119 passed | 2.75s |
-| `ggen-config-clap` | 99 | ✅ 84 passed, 15 ignored | 1.41s |
-| `ggen-cli-tps` | 93 | ✅ 93 passed | 0.21s |
-| `ggen-codegen` | 82 | ✅ 82 passed | 6.62s |
-| `ggen-tps-andon` | 77 | ✅ 77 passed | 0.02s |
-| `ggen-a2a-mcp` | 68 | ✅ 68 passed | 0.01s |
-| `ggen-marketplace-tps` | 66 | ✅ 66 passed | 0.00s |
-| `ggen-integration` | 65 | ✅ 65 passed | 0.00s |
-| `ggen-cli-lib` | 63 | ✅ 63 passed | 0.54s |
-| `ggen-saas` | 60 | ✅ 60 passed | 0.11s |
+| `mcpp-testing` | 406 | ✅ 406 passed | 2.87s |
+| `mcpp-domain` | 134 | ✅ 134 passed | 0.00s |
+| `mcpp-cli-validation` | 119 | ✅ 119 passed | 2.75s |
+| `mcpp-config-clap` | 99 | ✅ 84 passed, 15 ignored | 1.41s |
+| `mcpp-cli-tps` | 93 | ✅ 93 passed | 0.21s |
+| `mcpp-codegen` | 82 | ✅ 82 passed | 6.62s |
+| `mcpp-tps-andon` | 77 | ✅ 77 passed | 0.02s |
+| `mcpp-a2a-mcp` | 68 | ✅ 68 passed | 0.01s |
+| `mcpp-marketplace-tps` | 66 | ✅ 66 passed | 0.00s |
+| `mcpp-integration` | 65 | ✅ 65 passed | 0.00s |
+| `mcpp-cli-lib` | 63 | ✅ 63 passed | 0.54s |
+| `mcpp-saas` | 60 | ✅ 60 passed | 0.11s |
 
 ### 3. Medium Test Suites (20-99 tests)
 | Crate | Tests | Status | Time |
 |-------|-------|--------|------|
-| `ggen-core` | 53 | ✅ 53 passed | 2.78s |
-| `ggen-e2e` | 50 | ✅ 50 passed | 0.00s |
-| `ggen-workflow-43` | 49 | ✅ 49 passed | 0.01s |
-| `ggen-node` | 45 | ✅ 45 passed, 4 ignored | 0.00s |
-| `ggen-transport` | 42 | ✅ 42 passed | 6.11s |
-| `ggen-firewall` | 41 | ✅ 41 passed | 0.02s |
-| `ggen-jidoka` | 39 | ✅ 39 passed | 0.01s |
-| `ggen-folk-strategy` | 35 | ✅ 35 passed | 0.00s |
-| `ggen-yawl` | 34 | ✅ 34 passed | 5.49s |
-| `ggen-execution` | 34 | ✅ 34 passed | 0.01s |
-| `ggen-craftplan` | 32 | ✅ 32 passed | 0.00s |
-| `ggen-payments` | 30 | ✅ 30 passed | 0.00s |
-| `ggen-api` | 28 | ✅ 28 passed | 0.00s |
-| `ggen-marketplace` | 24 | ✅ 24 passed | 0.01s |
-| `ggen-metrics-tps` | 22 | ✅ 22 passed | 0.01s |
-| `ggen-backpressure` | 22 | ✅ 22 passed | 0.06s |
-| `ggen-canonical` | 22 | ✅ 22 passed | 0.11s |
-| `ggen-packet` | 21 | ✅ 21 passed | 0.64s |
-| `ggen-config` | 20 | ✅ 20 passed | 0.00s |
+| `mcpp-core` | 53 | ✅ 53 passed | 2.78s |
+| `mcpp-e2e` | 50 | ✅ 50 passed | 0.00s |
+| `mcpp-workflow-43` | 49 | ✅ 49 passed | 0.01s |
+| `mcpp-node` | 45 | ✅ 45 passed, 4 ignored | 0.00s |
+| `mcpp-transport` | 42 | ✅ 42 passed | 6.11s |
+| `mcpp-firewall` | 41 | ✅ 41 passed | 0.02s |
+| `mcpp-jidoka` | 39 | ✅ 39 passed | 0.01s |
+| `mcpp-folk-strategy` | 35 | ✅ 35 passed | 0.00s |
+| `mcpp-yawl` | 34 | ✅ 34 passed | 5.49s |
+| `mcpp-execution` | 34 | ✅ 34 passed | 0.01s |
+| `mcpp-craftplan` | 32 | ✅ 32 passed | 0.00s |
+| `mcpp-payments` | 30 | ✅ 30 passed | 0.00s |
+| `mcpp-api` | 28 | ✅ 28 passed | 0.00s |
+| `mcpp-marketplace` | 24 | ✅ 24 passed | 0.01s |
+| `mcpp-metrics-tps` | 22 | ✅ 22 passed | 0.01s |
+| `mcpp-backpressure` | 22 | ✅ 22 passed | 0.06s |
+| `mcpp-canonical` | 22 | ✅ 22 passed | 0.11s |
+| `mcpp-packet` | 21 | ✅ 21 passed | 0.64s |
+| `mcpp-config` | 20 | ✅ 20 passed | 0.00s |
 
 ### 4. Small Test Suites (1-19 tests)
 | Crate | Tests | Status | Time |
 |-------|-------|--------|------|
-| `ggen-receipt` | 19 | ✅ 19 passed | 0.00s |
-| `ggen-prompt-mfg` | 18 | ✅ 18 passed | 0.51s |
-| `ggen-ontology-core` | 18 | ✅ 18 passed | 0.01s |
-| `ggen-a2a` | 17 | ✅ 17 passed | 0.00s |
-| `ggen-kaizen` | 16 | ✅ 16 passed | 0.00s |
-| `ggen-heijunka` | 15 | ✅ 15 passed | 0.00s |
-| `ggen-dod` | 15 | ✅ 15 passed | 0.00s |
-| `ggen-poka-yoke` | 15 | ✅ 15 passed | 0.00s |
-| `ggen-auth` | 14 | ✅ 14 passed | 0.01s |
-| `ggen-process-mining` | 14 | ✅ 14 passed | 0.00s |
-| `ggen-e2e-tps` | 8 | ✅ 8 passed | 0.00s |
-| `ggen-consensus` | 8 | ✅ 8 passed | 0.00s |
-| `ggen-utils` | 6 | ✅ 6 passed | 0.00s |
-| `ggen-macros` | 4 | ✅ 4 passed | 0.00s |
-| `ggen-ai` | 3 | ✅ 3 passed | 0.01s |
-| `ggen-test-audit` | 3 | ✅ 3 passed | 0.00s |
-| `ggen-test-opt` | 2 | ✅ 2 passed | 0.00s |
+| `mcpp-receipt` | 19 | ✅ 19 passed | 0.00s |
+| `mcpp-prompt-mfg` | 18 | ✅ 18 passed | 0.51s |
+| `mcpp-ontology-core` | 18 | ✅ 18 passed | 0.01s |
+| `mcpp-a2a` | 17 | ✅ 17 passed | 0.00s |
+| `mcpp-kaizen` | 16 | ✅ 16 passed | 0.00s |
+| `mcpp-heijunka` | 15 | ✅ 15 passed | 0.00s |
+| `mcpp-dod` | 15 | ✅ 15 passed | 0.00s |
+| `mcpp-poka-yoke` | 15 | ✅ 15 passed | 0.00s |
+| `mcpp-auth` | 14 | ✅ 14 passed | 0.01s |
+| `mcpp-process-mining` | 14 | ✅ 14 passed | 0.00s |
+| `mcpp-e2e-tps` | 8 | ✅ 8 passed | 0.00s |
+| `mcpp-consensus` | 8 | ✅ 8 passed | 0.00s |
+| `mcpp-utils` | 6 | ✅ 6 passed | 0.00s |
+| `mcpp-macros` | 4 | ✅ 4 passed | 0.00s |
+| `mcpp-ai` | 3 | ✅ 3 passed | 0.01s |
+| `mcpp-test-audit` | 3 | ✅ 3 passed | 0.00s |
+| `mcpp-test-opt` | 2 | ✅ 2 passed | 0.00s |
 
 ### 5. Crates with No Tests
 | Crate | Status | Note |
 |-------|--------|------|
-| `ggen-cli-validation` | ⚠️ | Integration tests only |
-| `ggen-cli-tps` | ℹ️ | TPS measurement tool |
+| `mcpp-cli-validation` | ⚠️ | Integration tests only |
+| `mcpp-cli-tps` | ℹ️ | TPS measurement tool |
 
 ---
 
@@ -137,9 +137,9 @@ All 3,939 tests passed with zero failures. The workspace demonstrates excellent 
 ### Breakdown by Crate
 | Crate | Ignored | Reason |
 |-------|---------|--------|
-| `ggen-dspy` | 7 | Legacy tests pending review |
-| `ggen-config-clap` | 15 | Feature flag tests |
-| `ggen-node` | 4 | Integration tests (require network) |
+| `mcpp-dspy` | 7 | Legacy tests pending review |
+| `mcpp-config-clap` | 15 | Feature flag tests |
+| `mcpp-node` | 4 | Integration tests (require network) |
 
 **Assessment:** Ignored tests are documented and appropriate. None indicate failures or broken functionality.
 
@@ -152,7 +152,7 @@ All 3,939 tests passed with zero failures. The workspace demonstrates excellent 
 |--------|--------|--------|--------|
 | **Total Execution Time** | 29.56s | ≤60s | ✅ |
 | **Average per Crate** | 0.44s | ≤2s | ✅ |
-| **Slowest Crate** | 6.62s (ggen-codegen) | ≤15s | ✅ |
+| **Slowest Crate** | 6.62s (mcpp-codegen) | ≤15s | ✅ |
 | **Fastest Crate** | 0.00s (multiple) | - | ✅ |
 
 ### Performance SLO Compliance
@@ -183,10 +183,10 @@ All 3,939 tests passed with zero failures. The workspace demonstrates excellent 
 ### End-to-End Test Suites
 | Test Suite | Tests | Status |
 |------------|-------|--------|
-| `ggen-e2e` | 50 | ✅ All passed |
-| `ggen-integration` | 65 | ✅ All passed |
-| `ggen-cli-validation` | 119 | ✅ All passed |
-| `ggen-e2e-tps` | 8 | ✅ All passed |
+| `mcpp-e2e` | 50 | ✅ All passed |
+| `mcpp-integration` | 65 | ✅ All passed |
+| `mcpp-cli-validation` | 119 | ✅ All passed |
+| `mcpp-e2e-tps` | 8 | ✅ All passed |
 
 ### Domain-Specific Integration Tests
 | Domain | Tests | Status |
@@ -211,8 +211,8 @@ All 3,939 tests passed with zero failures. The workspace demonstrates excellent 
 
 **Action Required:** Run OTEL validation for external service features:
 ```bash
-RUST_LOG=trace,ggen_ai=trace,ggen_core=trace \
-cargo test -p ggen-cli-lib --test llm_e2e_test -- --nocapture 2>&1 | \
+RUST_LOG=trace,mcpp_ai=trace,mcpp_core=trace \
+cargo test -p mcpp-cli-lib --test llm_e2e_test -- --nocapture 2>&1 | \
 grep -E "llm\.complete|mcp\.tool"
 ```
 

@@ -4,7 +4,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ConfigClapError {
-    #[error("Failed to load ggen.toml: {0}")]
+    #[error("Failed to load mcpp.toml: {0}")]
     LoadError(String),
 
     #[error("Failed to parse configuration: {0}")]

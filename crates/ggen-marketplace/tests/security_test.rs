@@ -1,4 +1,4 @@
-//! Comprehensive security tests for ggen-marketplace cryptographic operations.
+//! Comprehensive security tests for mcpp-marketplace cryptographic operations.
 //!
 //! Chicago TDD: Real cryptographic operations, no mocks.
 //! Tests cover:
@@ -9,10 +9,10 @@
 //! - Public key loading and validation
 //! - Checksum calculation and verification
 
-use ggen_marketplace::security::{
+use mcpp_marketplace::security::{
     generate_marketplace_keypair, ChecksumCalculator, MarketplaceSignature, MarketplaceVerifier,
 };
-use ggen_marketplace::traits::Signable;
+use mcpp_marketplace::traits::Signable;
 use std::fs;
 use tempfile::TempDir;
 
@@ -52,18 +52,18 @@ fn test_marketplace_signature_creation() {
 }
 
 #[test]
-fn test_marketplace_signature_checksum_matches_ggen_receipt() {
+fn test_marketplace_signature_checksum_matches_mcpp_receipt() {
     let (signing_key, _) = generate_marketplace_keypair();
 
     let data = b"test pack data";
     let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
-    // Checksum should match ggen_receipt::hash_data
-    let expected_checksum = ggen_receipt::hash_data(data);
+    // Checksum should match mcpp_receipt::hash_data
+    let expected_checksum = mcpp_receipt::hash_data(data);
     assert_eq!(
         signature.checksum(),
         expected_checksum,
-        "Checksum must match ggen_receipt"
+        "Checksum must match mcpp_receipt"
     );
 }
 
@@ -323,7 +323,7 @@ fn test_signature_includes_checksum() {
     let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Checksum should match direct calculation
-    let expected_checksum = ggen_receipt::hash_data(data);
+    let expected_checksum = mcpp_receipt::hash_data(data);
     assert_eq!(signature.checksum, expected_checksum);
 
     // Accessor methods should work

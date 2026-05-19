@@ -6,8 +6,8 @@
 **Passing Tests**: 10/17 shell tests (58.8%)  
 **Generation Time**: <1 second per CLI project  
 **Test Files**:
-- `/Users/sac/ggen/cli/tests/clap_noun_verb_integration.rs` (21 Rust tests)
-- `/Users/sac/ggen/tests/clap_noun_verb_validation.sh` (17 shell tests)
+- `./cli/tests/clap_noun_verb_integration.rs` (21 Rust tests)
+- `./tests/clap_noun_verb_validation.sh` (17 shell tests)
 
 ## Test Suite Breakdown
 

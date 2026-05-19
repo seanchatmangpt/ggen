@@ -1,5 +1,5 @@
 # Fortune 500 Case Studies
-# 7 Enterprise Scenarios for ggen CLI Validation
+# 7 Enterprise Scenarios for mcpp CLI Validation
 # Generated: 2024-12-14
 
 case_studies:
@@ -28,17 +28,17 @@ case_studies:
       continuous compliance and avoid regulatory fines.
 
     required_commands:
-      - command: ggen ontology validate
+      - command: mcpp ontology validate
         purpose: Validate regulatory ontology before code generation
         criticality: P1
         current_support: TBD
 
-      - command: ggen template generate
+      - command: mcpp template generate
         purpose: Generate compliant entity structures
         criticality: P1
         current_support: TBD
 
-      - command: ggen graph query
+      - command: mcpp graph query
         purpose: Query for affected entities when regulations change
         criticality: P2
         current_support: TBD
@@ -67,7 +67,7 @@ case_studies:
       description: >
         Amazon maintains APIs for AWS services and retail platform.
         When API specs change, SDKs in 8+ languages must be regenerated
-        consistently. Currently uses internal tools; evaluating ggen for
+        consistently. Currently uses internal tools; evaluating mcpp for
         unified ontology-driven generation.
       scale:
         api_endpoints: 1000000+
@@ -81,22 +81,22 @@ case_studies:
       synchronized SDK versions.
 
     required_commands:
-      - command: ggen project generate
+      - command: mcpp project generate
         purpose: Generate multi-language SDK projects
         criticality: P1
         current_support: TBD
 
-      - command: ggen ai generate
+      - command: mcpp ai generate
         purpose: AI-assisted SDK code generation
         criticality: P2
         current_support: TBD
 
-      - command: ggen marketplace install
+      - command: mcpp marketplace install
         purpose: Install language-specific templates
         criticality: P2
         current_support: TBD
 
-      - command: ggen template new
+      - command: mcpp template new
         purpose: Create new language SDK templates
         criticality: P3
         current_support: TBD
@@ -139,22 +139,22 @@ case_studies:
       submissions and reduce compliance risk.
 
     required_commands:
-      - command: ggen ontology extract
+      - command: mcpp ontology extract
         purpose: Extract entities from CDISC ontologies
         criticality: P1
         current_support: TBD
 
-      - command: ggen graph load
+      - command: mcpp graph load
         purpose: Load CDISC standards into graph
         criticality: P1
         current_support: TBD
 
-      - command: ggen template generate-tree
+      - command: mcpp template generate-tree
         purpose: Generate complete trial data structure
         criticality: P1
         current_support: TBD
 
-      - command: ggen ontology validate
+      - command: mcpp ontology validate
         purpose: Validate CDISC compliance
         criticality: P1
         current_support: TBD
@@ -197,22 +197,22 @@ case_studies:
       airworthiness approval.
 
     required_commands:
-      - command: ggen fmea report
+      - command: mcpp fmea report
         purpose: Generate FMEA analysis for safety certification
         criticality: P1
         current_support: TBD
 
-      - command: ggen workflow analyze
+      - command: mcpp workflow analyze
         purpose: Analyze requirement-to-code traceability
         criticality: P1
         current_support: TBD
 
-      - command: ggen graph visualize
+      - command: mcpp graph visualize
         purpose: Visualize system architecture and dependencies
         criticality: P2
         current_support: TBD
 
-      - command: ggen fmea show
+      - command: mcpp fmea show
         purpose: Display failure mode analysis
         criticality: P2
         current_support: TBD
@@ -254,22 +254,22 @@ case_studies:
       accessible while new features are supported.
 
     required_commands:
-      - command: ggen ontology init
+      - command: mcpp ontology init
         purpose: Initialize content ontology structure
         criticality: P2
         current_support: TBD
 
-      - command: ggen marketplace validate
+      - command: mcpp marketplace validate
         purpose: Validate schema evolution rules
         criticality: P1
         current_support: TBD
 
-      - command: ggen template lint
+      - command: mcpp template lint
         purpose: Lint templates for backward compatibility
         criticality: P1
         current_support: TBD
 
-      - command: ggen template new
+      - command: mcpp template new
         purpose: Create new content type templates
         criticality: P2
         current_support: TBD
@@ -312,22 +312,22 @@ case_studies:
       start without delay.
 
     required_commands:
-      - command: ggen fmea pareto
+      - command: mcpp fmea pareto
         purpose: Prioritize failure modes for quality focus
         criticality: P1
         current_support: TBD
 
-      - command: ggen project watch
+      - command: mcpp project watch
         purpose: Auto-regenerate on configuration changes
         criticality: P1
         current_support: TBD
 
-      - command: ggen graph export
+      - command: mcpp graph export
         purpose: Export configuration to manufacturing systems
         criticality: P2
         current_support: TBD
 
-      - command: ggen fmea show
+      - command: mcpp fmea show
         purpose: Display safety analysis for review
         criticality: P2
         current_support: TBD
@@ -370,22 +370,22 @@ case_studies:
       instruments without regulatory delays.
 
     required_commands:
-      - command: ggen ai analyze
+      - command: mcpp ai analyze
         purpose: AI analysis of regulatory impact
         criticality: P2
         current_support: TBD
 
-      - command: ggen template regenerate
+      - command: mcpp template regenerate
         purpose: Regenerate trading entities on spec changes
         criticality: P1
         current_support: TBD
 
-      - command: ggen project watch
+      - command: mcpp project watch
         purpose: Auto-regenerate on market data changes
         criticality: P2
         current_support: TBD
 
-      - command: ggen ci
+      - command: mcpp ci
         purpose: CI/CD integration for automated deployment
         criticality: P1
         current_support: TBD
@@ -405,25 +405,25 @@ case_studies:
 # Summary by Command Usage
 command_usage_summary:
   high_demand:  # Used by 4+ case studies
-    - ggen template generate: [jpmorgan, amazon, pfizer, toyota, goldman]
-    - ggen project watch: [toyota, goldman]
-    - ggen ontology validate: [jpmorgan, pfizer]
-    - ggen fmea show: [boeing, toyota]
+    - mcpp template generate: [jpmorgan, amazon, pfizer, toyota, goldman]
+    - mcpp project watch: [toyota, goldman]
+    - mcpp ontology validate: [jpmorgan, pfizer]
+    - mcpp fmea show: [boeing, toyota]
 
   medium_demand:  # Used by 2-3 case studies
-    - ggen fmea report: [boeing]
-    - ggen fmea pareto: [toyota]
-    - ggen graph query: [jpmorgan, pfizer]
-    - ggen ai analyze: [goldman]
-    - ggen marketplace validate: [netflix]
-    - ggen marketplace validate_fmea: [boeing, toyota]
+    - mcpp fmea report: [boeing]
+    - mcpp fmea pareto: [toyota]
+    - mcpp graph query: [jpmorgan, pfizer]
+    - mcpp ai analyze: [goldman]
+    - mcpp marketplace validate: [netflix]
+    - mcpp marketplace validate_fmea: [boeing, toyota]
 
   industry_specific:
-    finance: [ggen ci, ggen ai analyze, ggen template regenerate]
-    healthcare: [ggen ontology extract, ggen graph load]
-    aerospace: [ggen fmea report, ggen workflow analyze]
-    manufacturing: [ggen fmea pareto, ggen graph export]
-    technology: [ggen project generate, ggen marketplace install]
+    finance: [mcpp ci, mcpp ai analyze, mcpp template regenerate]
+    healthcare: [mcpp ontology extract, mcpp graph load]
+    aerospace: [mcpp fmea report, mcpp workflow analyze]
+    manufacturing: [mcpp fmea pareto, mcpp graph export]
+    technology: [mcpp project generate, mcpp marketplace install]
 
 # Cross-Industry Patterns
 patterns:

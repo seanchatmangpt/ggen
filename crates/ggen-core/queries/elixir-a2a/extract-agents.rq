@@ -11,7 +11,7 @@
 #   a2a:urlPath         (string, optional — URL path segment, defaults to agentName)
 #   a2a:hasSkill/a2a:name  (per skill, optional)
 
-PREFIX a2a:  <https://ggen.dev/a2a#>
+PREFIX a2a:  <https://mcpp.dev/a2a#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 

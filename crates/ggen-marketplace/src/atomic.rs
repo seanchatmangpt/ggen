@@ -26,7 +26,7 @@ pub enum AtomicPackClass {
     SurfaceA2a,
 
     // ===== CONTRACTS (external API contracts) =====
-    /// OpenAPI contract surface
+    /// `OpenAPI` contract surface
     #[serde(rename = "contract-openapi")]
     ContractOpenapi,
 
@@ -224,9 +224,9 @@ impl AtomicPackId {
 
     /// Create from string (e.g., "surface-mcp").
     ///
-    /// Returns None if the string is not a valid atomic pack ID.
+    /// Returns `None` if the string is not a valid atomic pack ID.
     #[must_use]
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         let (class_str, name) = s.split_once('-')?;
         let class = match class_str {
             "surface" => match name {
@@ -326,7 +326,7 @@ impl AtomicPackId {
             AtomicPackClass::CoreValidation => "core-validation",
             AtomicPackClass::CorePolicy => "core-policy",
         };
-        format!("{}-{}", class_str, self.name)
+        format!("{class_str}-{}", self.name)
     }
 }
 
@@ -340,7 +340,7 @@ impl FromStr for AtomicPackId {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from_str(s).ok_or_else(|| format!("Invalid atomic pack ID: {}", s))
+        Self::parse(s).ok_or_else(|| format!("Invalid atomic pack ID: {s}"))
     }
 }
 
@@ -348,6 +348,7 @@ impl FromStr for AtomicPackId {
 ///
 /// CISO requirement: Shared ontology must be owned by foundation packs,
 /// not duplicated across feature packs.
+#[must_use]
 pub fn foundation_packs() -> Vec<AtomicPackId> {
     vec![
         AtomicPackId::new(AtomicPackClass::CoreOntology, "ontology".to_string()),
@@ -365,15 +366,15 @@ mod tests {
 
     #[test]
     fn test_atomic_pack_id_from_str() {
-        let mcp_surface = AtomicPackId::from_str("surface-mcp").unwrap();
+        let mcp_surface = AtomicPackId::parse("surface-mcp").unwrap();
         assert_eq!(mcp_surface.class, AtomicPackClass::SurfaceMcp);
         assert_eq!(mcp_surface.name, "mcp");
 
-        let rust_projection = AtomicPackId::from_str("projection-rust").unwrap();
+        let rust_projection = AtomicPackId::parse("projection-rust").unwrap();
         assert_eq!(rust_projection.class, AtomicPackClass::ProjectionRust);
         assert_eq!(rust_projection.name, "rust");
 
-        let axum_runtime = AtomicPackId::from_str("runtime-axum").unwrap();
+        let axum_runtime = AtomicPackId::parse("runtime-axum").unwrap();
         assert_eq!(axum_runtime.class, AtomicPackClass::RuntimeAxum);
         assert_eq!(axum_runtime.name, "axum");
     }
@@ -413,8 +414,8 @@ mod tests {
 
     #[test]
     fn test_invalid_pack_id() {
-        assert!(AtomicPackId::from_str("invalid-pack").is_none());
-        assert!(AtomicPackId::from_str("surface-invalid").is_none());
-        assert!(AtomicPackId::from_str("projection-elixir").is_none()); // elixir not supported
+        assert!(AtomicPackId::parse("invalid-pack").is_none());
+        assert!(AtomicPackId::parse("surface-invalid").is_none());
+        assert!(AtomicPackId::parse("projection-elixir").is_none()); // elixir not supported
     }
 }

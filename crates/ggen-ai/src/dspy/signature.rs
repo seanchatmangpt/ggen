@@ -95,7 +95,7 @@ impl Signature {
     /// # Example
     /// ```ignore
     /// use serde_json::json;
-    /// use ggen_ai::dspy::{Signature, InputField};
+    /// use mcpp_ai::dspy::{Signature, InputField};
     ///
     /// let sig = Signature::new("QA", "Question answering")
     ///     .with_input(InputField::new("question", "Question", "String"));

@@ -1,9 +1,9 @@
 groups:
-  - id: registry.ggen.error
+  - id: registry.mcpp.error
     type: attribute_group
     stability: development
     display_name: Error Classification Attributes
-    brief: Error classification attributes for ggen operations.
+    brief: Error classification attributes for mcpp operations.
     attributes:
       - id: error
         type: boolean

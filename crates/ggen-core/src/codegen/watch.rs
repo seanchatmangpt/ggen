@@ -8,7 +8,7 @@
 //! - Cross-platform file watching using notify crate
 //! - 500ms debounce to avoid duplicate events
 //! - Graceful shutdown on SIGINT (Ctrl+C)
-//! - Monitors: ggen.toml, *.ttl ontology files, *.sparql queries, *.tera templates
+//! - Monitors: mcpp.toml, *.ttl ontology files, *.sparql queries, *.tera templates
 //! - Real-time regeneration on file changes
 //!
 //! ## Architecture
@@ -19,7 +19,7 @@
 //!   SIGINT → Graceful Shutdown
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use notify::event::{ModifyKind, RenameMode};
 use notify::{Event, EventKind, RecursiveMode};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult};
@@ -104,7 +104,7 @@ impl FileWatcher {
         for path in &self.watch_paths {
             if !path.exists() {
                 return Err(Error::new(&format!(
-                    "error[E0009]: Watch path does not exist\n  --> path: '{}'\n  |\n  = help: Create the directory or update ggen.toml to remove from watch list\n  = help: Watch paths are collected from: ontology.source, ontology.imports, and generation.rules[].query",
+                    "error[E0009]: Watch path does not exist\n  --> path: '{}'\n  |\n  = help: Create the directory or update mcpp.toml to remove from watch list\n  = help: Watch paths are collected from: ontology.source, ontology.imports, and generation.rules[].query",
                     path.display()
                 )));
             }
@@ -212,7 +212,7 @@ impl FileWatcher {
             Err(std::sync::mpsc::RecvTimeoutError::Timeout) => Ok(None),
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
                 Err(Error::new(
-                    "error[E0007]: Watch system stopped unexpectedly\n  |\n  = help: This usually indicates a crash in the watch thread\n  = help: Check logs above for panic or error messages\n  = help: Try restarting: ggen sync --watch\n  = help: If issue persists, run without --watch to debug",
+                    "error[E0007]: Watch system stopped unexpectedly\n  |\n  = help: This usually indicates a crash in the watch thread\n  = help: Check logs above for panic or error messages\n  = help: Try restarting: mcpp sync --watch\n  = help: If issue persists, run without --watch to debug",
                 ))
             }
         }
@@ -222,7 +222,7 @@ impl FileWatcher {
 /// Collect watch paths from manifest
 ///
 /// Returns all paths that should be monitored for changes:
-/// - ggen.toml (manifest)
+/// - mcpp.toml (manifest)
 /// - ontology.source (main ontology file)
 /// - ontology.imports (imported ontology files)
 /// - generation.rules[].query files
@@ -349,13 +349,13 @@ mod tests {
             validation: ValidationConfig::default(),
         };
 
-        let manifest_path = Path::new("ggen.toml");
+        let manifest_path = Path::new("mcpp.toml");
         let base_path = Path::new(".");
         let paths = collect_watch_paths(manifest_path, &manifest, base_path);
 
         // Should have at least manifest and ontology source
         assert!(paths.len() >= 2);
-        assert!(paths.contains(&PathBuf::from("ggen.toml")));
+        assert!(paths.contains(&PathBuf::from("mcpp.toml")));
         // Ontology path might be joined with base_path, check if any path ends with ontology.ttl
         assert!(
             paths

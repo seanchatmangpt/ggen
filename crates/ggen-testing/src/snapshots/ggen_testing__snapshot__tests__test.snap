@@ -1,5 +1,5 @@
 ---
-source: crates/ggen-testing/src/snapshot.rs
+source: crates/mcpp-testing/src/snapshot.rs
 assertion_line: 218
 expression: "\"content\""
 ---

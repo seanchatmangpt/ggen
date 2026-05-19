@@ -15,15 +15,15 @@
 
 ## 1. Marketplace Lifecycle Analysis
 
-### 1.1 Installation Workflow (`ggen-marketplace-v2/src/install.rs`)
+### 1.1 Installation Workflow (`mcpp-marketplace-v2/src/install.rs`)
 
 **What It Has:**
 ```rust
 - Dependency resolution (transitive, cycle detection)
 - Atomic installation with rollback
 - Package verification (checksums, signatures)
-- Lockfile management (ggen.lock)
-- Cache management (.ggen/cache)
+- Lockfile management (mcpp.lock)
+- Cache management (.mcpp/cache)
 - Concurrent write protection (file locking)
 - Corruption recovery (backup/restore)
 ```
@@ -32,9 +32,9 @@
 1. **Download & Verify**
    - Downloads from registry with retry logic
    - SHA256 checksum validation
-   - Extracts to `~/.ggen/packages/{package_name}`
+   - Extracts to `~/.mcpp/packages/{package_name}`
 
-2. **Lockfile Tracking** (`ggen-domain/src/marketplace/install.rs`)
+2. **Lockfile Tracking** (`mcpp-domain/src/marketplace/install.rs`)
    ```rust
    pub struct LockfileEntry {
        pub name: String,
@@ -50,7 +50,7 @@
    - Backup before save
    - Corruption detection and recovery
 
-### 1.2 Update Mechanisms (`ggen-domain/src/marketplace/update.rs`)
+### 1.2 Update Mechanisms (`mcpp-domain/src/marketplace/update.rs`)
 
 **What It Has:**
 ```rust
@@ -86,7 +86,7 @@
 
 ## 2. Current Packs Capabilities
 
-### 2.1 What Packs Support (`ggen-domain/src/marketplace/packs/`)
+### 2.1 What Packs Support (`mcpp-domain/src/marketplace/packs/`)
 
 **Current Operations:**
 ```rust
@@ -107,14 +107,14 @@ pub mod list;  // Only command implemented
 3. ❌ **No version tracking** - Can't tell which pack version was used
 4. ❌ **No update capability** - Can't upgrade packs in existing projects
 5. ❌ **No regeneration** - Can't reapply packs when they change
-6. ❌ **No lockfile integration** - No connection to ggen.lock
+6. ❌ **No lockfile integration** - No connection to mcpp.lock
 7. ❌ **No dependency resolution** - Can't handle pack dependencies
 
 ---
 
 ## 3. Project Regeneration System
 
-### 3.1 Lifecycle System (`ggen-core/src/lifecycle/`)
+### 3.1 Lifecycle System (`mcpp-core/src/lifecycle/`)
 
 **What It Provides:**
 ```rust
@@ -150,7 +150,7 @@ pub struct GeneratedFile {
 - **No three-way merge** - Can't merge pack updates with manual edits
 - **No pack versioning** - Doesn't track which pack version generated what
 
-### 3.2 Snapshot System (`ggen-core/src/snapshot.rs`)
+### 3.2 Snapshot System (`mcpp-core/src/snapshot.rs`)
 
 **What It Provides:**
 ```rust
@@ -235,7 +235,7 @@ pub struct TemplateSnapshot {
 - ❌ No variable/context tracking
 - ❌ Region detection not implemented
 
-### 4.2 Lockfile System (`ggen-core/src/lockfile.rs`)
+### 4.2 Lockfile System (`mcpp-core/src/lockfile.rs`)
 
 **What It Tracks:**
 ```rust
@@ -268,8 +268,8 @@ pub struct LockEntry {
 
 **Current Flow:**
 ```
-marketplace install → downloads to ~/.ggen/packages/{pack}
-                    → updates ggen.lock
+marketplace install → downloads to ~/.mcpp/packages/{pack}
+                    → updates mcpp.lock
                     → NO integration with project generation
 ```
 
@@ -295,8 +295,8 @@ The lifecycle system (`make.toml` phases) and packs are completely separate:
 
 **Needed Flow:**
 ```
-ggen lifecycle run template →
-  1. Check if pack versions changed (ggen.lock)
+mcpp lifecycle run template →
+  1. Check if pack versions changed (mcpp.lock)
   2. Load snapshot of last generation
   3. Detect manual edits (diff current vs snapshot)
   4. Regenerate from updated packs
@@ -384,7 +384,7 @@ ggen lifecycle run template →
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. INITIAL PROJECT CREATION                                 │
 │                                                              │
-│ ggen new my-project --pack rust-web                         │
+│ mcpp new my-project --pack rust-web                         │
 │   ├─ Download pack (if needed)                              │
 │   ├─ Load pack manifest (gpack.toml)                        │
 │   ├─ Execute project generator                              │
@@ -393,7 +393,7 @@ ggen lifecycle run template →
 │   │   ├─ File hashes                                        │
 │   │   ├─ Pack version (NEW)                                 │
 │   │   └─ Variables used                                     │
-│   ├─ Update ggen.lock                                       │
+│   ├─ Update mcpp.lock                                       │
 │   │   └─ Track pack@version → files mapping (NEW)          │
 │   └─ Run lifecycle phase: init                              │
 └─────────────────────────────────────────────────────────────┘
@@ -404,13 +404,13 @@ ggen lifecycle run template →
 │ Developer edits files, adds features                         │
 │   ├─ Manual edits tracked by git                            │
 │   ├─ Snapshot remains from initial generation               │
-│   └─ ggen.lock remains unchanged                            │
+│   └─ mcpp.lock remains unchanged                            │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
 │ 3. PACK UPDATE AVAILABLE                                     │
 │                                                              │
-│ ggen packs update rust-web                                   │
+│ mcpp packs update rust-web                                   │
 │   ├─ Check registry for new version                         │
 │   ├─ Detect changes: 1.0.0 → 1.1.0                          │
 │   ├─ Load current snapshot                                  │
@@ -422,15 +422,15 @@ ggen lifecycle run template →
 │   │   ├─ Mark conflicts for review                          │
 │   │   └─ Preserve manual edits in safe regions              │
 │   ├─ Create new snapshot (post-merge state)                 │
-│   ├─ Update ggen.lock (new pack version)                    │
+│   ├─ Update mcpp.lock (new pack version)                    │
 │   └─ Report: files updated, conflicts, manual review needed │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
 │ 4. MANUAL REGENERATION                                       │
 │                                                              │
-│ ggen lifecycle run template                                  │
-│   ├─ Check ggen.lock for pack versions                      │
+│ mcpp lifecycle run template                                  │
+│   ├─ Check mcpp.lock for pack versions                      │
 │   ├─ Compare with current files                             │
 │   ├─ Detect if manual edits exist                           │
 │   ├─ Regenerate with three-way merge                        │
@@ -440,8 +440,8 @@ ggen lifecycle run template →
 ┌─────────────────────────────────────────────────────────────┐
 │ 5. WATCH MODE (Future)                                       │
 │                                                              │
-│ ggen watch                                                   │
-│   ├─ Monitor ggen.lock for pack version changes             │
+│ mcpp watch                                                   │
+│   ├─ Monitor mcpp.lock for pack version changes             │
 │   ├─ Monitor registry for pack updates                      │
 │   ├─ Trigger regeneration on changes                        │
 │   └─ Auto-merge or prompt for conflicts                     │
@@ -507,9 +507,9 @@ pub struct PackFileMapping {
 pub fn detect_regions(content: &str, language: &str) -> Vec<Region> {
     // Parse comments for region markers
     // Support:
-    // - // @ggen:generated-start / @ggen:generated-end
-    // - /* @ggen:manual-edit */
-    // - # @ggen:protected
+    // - // @mcpp:generated-start / @mcpp:generated-end
+    // - /* @mcpp:manual-edit */
+    // - # @mcpp:protected
 
     // Use tree-sitter for language-aware parsing
     // Return actual regions, not Vec::new()
@@ -521,38 +521,38 @@ pub fn detect_regions(content: &str, language: &str) -> Vec<Region> {
 **Pack Management:**
 ```bash
 # Install pack to existing project
-ggen packs install <pack-name>[@version] [--path <target>]
+mcpp packs install <pack-name>[@version] [--path <target>]
 
 # Update pack in project
-ggen packs update <pack-name> [--merge-strategy <auto|manual|preserve>]
+mcpp packs update <pack-name> [--merge-strategy <auto|manual|preserve>]
 
 # Update all packs
-ggen packs update --all
+mcpp packs update --all
 
 # Check for pack updates
-ggen packs outdated
+mcpp packs outdated
 
 # Show what would regenerate
-ggen packs check --dry-run
+mcpp packs check --dry-run
 
 # Regenerate from current pack versions
-ggen packs regenerate [--pack <name>]
+mcpp packs regenerate [--pack <name>]
 ```
 
 **Lifecycle Integration:**
 ```bash
 # Run template phase (regeneration)
-ggen lifecycle run template
+mcpp lifecycle run template
 
 # Watch for changes and auto-regenerate
-ggen watch [--packs]
+mcpp watch [--packs]
 ```
 
 ### 7.4 Implementation Phases
 
 **Phase 1: Basic Pack Installation (MVP)**
 - [ ] Add `packs install` command
-- [ ] Track pack versions in ggen.lock
+- [ ] Track pack versions in mcpp.lock
 - [ ] Create initial snapshots on install
 - [ ] Map files → packs in lockfile
 
@@ -587,26 +587,26 @@ ggen watch [--packs]
 
 **Option A: Comment-based** (Recommended)
 ```rust
-// @ggen:generated-start pack=rust-web version=1.0.0
+// @mcpp:generated-start pack=rust-web version=1.0.0
 pub struct User {
     pub id: Uuid,
     pub name: String,
 }
-// @ggen:generated-end
+// @mcpp:generated-end
 
-// @ggen:manual-edit
+// @mcpp:manual-edit
 impl User {
     pub fn custom_method(&self) -> String {
         // User's custom code
     }
 }
-// @ggen:manual-edit-end
+// @mcpp:manual-edit-end
 ```
 
 **Pros**: Language-agnostic, visible, easy to parse
 **Cons**: Clutters code, can be deleted
 
-**Option B: Metadata file** (.ggen/regions.json)
+**Option B: Metadata file** (.mcpp/regions.json)
 ```json
 {
   "src/models/user.rs": {
@@ -641,11 +641,11 @@ impl User {
 
 ### 8.3 Snapshot Storage
 
-**Option A**: Single file `.ggen/snapshot.json`
+**Option A**: Single file `.mcpp/snapshot.json`
 - Simple, easy to manage
 - Can grow large
 
-**Option B**: Directory `.ggen/snapshots/`
+**Option B**: Directory `.mcpp/snapshots/`
 - One file per pack
 - Scales better
 - More complex
@@ -664,7 +664,7 @@ impl User {
    - **Test**: Extensive merge scenario testing
 
 2. **Lockfile Corruption** (High)
-   - Concurrent writes could corrupt ggen.lock
+   - Concurrent writes could corrupt mcpp.lock
    - **Mitigation**: File locking (already implemented in marketplace)
    - **Test**: Parallel operation stress tests
 
@@ -750,7 +750,7 @@ impl User {
 6. **Lifecycle integration**
    - Add `template` phase
    - Hook into make.toml
-   - Enable `ggen lifecycle run template`
+   - Enable `mcpp lifecycle run template`
 
 7. **Testing & Safety**
    - Comprehensive merge tests

@@ -3,7 +3,7 @@
 //! Provides bidirectional mapping between YAWL workflow task states
 //! and A2A protocol task/message states.
 
-use a2a_generated::converged::message::MessageState;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState;
 // NOTE: Two distinct status enums are used here for different purposes:
 //   - task::TaskStatus: Pending, Ready, Running, Completed, Failed, Cancelled
 //     (used for A2A task lifecycle mapping)
@@ -21,7 +21,7 @@ use a2a_generated::converged::message::MessageState;
 //
 // No TaskStatus equivalent exists for MessageState::Delivered or MessageState::Expired.
 use crate::otel_attrs;
-use a2a_generated::task::TaskStatus;
+use ggen_core::ggen_core::ggen_core::a2a_generated::task::TaskStatus;
 use tracing::error;
 use tracing::info;
 
@@ -41,7 +41,7 @@ impl YawlStateMapper {
     ///   - inputwaiting, outputwaiting -> Pending
     ///
     /// A2A states: Pending, Ready, Running, Completed, Failed, Cancelled
-    #[tracing::instrument(name = "ggen.yawl.task_execution", fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", fields(
         otel_operation_name = "state_mapper.to_a2a_task_status",
         yawl_state_from = %yawl_state,
     ))]
@@ -109,7 +109,7 @@ impl YawlStateMapper {
     /// - NotStarted -> Ready -> Executing -> Completed
     /// - Any state -> Failed (on error)
     /// - Any non-terminal state -> Cancelled
-    #[tracing::instrument(name = "ggen.yawl.task_execution", fields(
+    #[tracing::instrument(name = "mcpp.yawl.task_execution", fields(
         otel_operation_name = "state_mapper.is_valid_transition",
         yawl_state_from = from,
         yawl_state_to = to,

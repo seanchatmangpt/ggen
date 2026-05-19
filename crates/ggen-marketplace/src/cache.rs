@@ -69,7 +69,9 @@ impl CachedPack {
     /// Get the cache key for this pack
     #[must_use]
     pub fn cache_key(&self) -> String {
-        format!("{}@{}", self.package_id, self.version)
+        let id = &self.package_id;
+        let ver = &self.version;
+        format!("{id}@{ver}")
     }
 }
 
@@ -93,7 +95,7 @@ impl Default for CacheConfig {
             max_packs: 100,
             cache_dir: dirs::cache_dir()
                 .unwrap_or_else(|| PathBuf::from(".cache"))
-                .join("ggen")
+                .join("mcpp")
                 .join("packs"),
             persistent: true,
         }
@@ -152,8 +154,12 @@ impl PackCache {
     /// # Errors
     ///
     /// Returns error if cache lock is poisoned.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
     pub fn get(&self, package_id: &PackageId, version: &PackageVersion) -> Option<CachedPack> {
-        let cache_key = format!("{}@{}", package_id, version);
+        let cache_key = format!("{package_id}@{version}");
 
         let mut packs = self.packs.write().unwrap();
         if let Some(mut pack) = packs.remove(&cache_key) {
@@ -176,6 +182,10 @@ impl PackCache {
     /// # Errors
     ///
     /// Returns error if cache lock is poisoned or eviction fails.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
     pub fn insert(&self, pack: CachedPack) -> Result<()> {
         let cache_key = pack.cache_key();
 
@@ -267,7 +277,7 @@ impl PackCache {
             // Delete cached files
             if pack.cache_path.exists() {
                 fs::remove_dir_all(&pack.cache_path).map_err(|e| Error::InstallationFailed {
-                    reason: format!("Failed to remove cached pack directory: {}", e),
+                    reason: format!("Failed to remove cached pack directory: {e}"),
                 })?;
             }
 
@@ -287,8 +297,12 @@ impl PackCache {
     /// # Errors
     ///
     /// Returns error if cache lock is poisoned or file deletion fails.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
     pub fn remove(&self, package_id: &PackageId, version: &PackageVersion) -> Result<bool> {
-        let cache_key = format!("{}@{}", package_id, version);
+        let cache_key = format!("{package_id}@{version}");
 
         let mut packs = self.packs.write().unwrap();
         let mut current_size = self.current_size.write().unwrap();
@@ -299,7 +313,7 @@ impl PackCache {
             // Delete cached files
             if pack.cache_path.exists() {
                 fs::remove_dir_all(&pack.cache_path).map_err(|e| Error::InstallationFailed {
-                    reason: format!("Failed to remove cached pack directory: {}", e),
+                    reason: format!("Failed to remove cached pack directory: {e}"),
                 })?;
             }
 
@@ -323,6 +337,10 @@ impl PackCache {
     /// # Errors
     ///
     /// Returns error if file operations fail.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
     pub fn clear(&self) -> Result<()> {
         let mut packs = self.packs.write().unwrap();
         let mut current_size = self.current_size.write().unwrap();
@@ -331,7 +349,7 @@ impl PackCache {
         for pack in packs.values() {
             if pack.cache_path.exists() {
                 fs::remove_dir_all(&pack.cache_path).map_err(|e| Error::InstallationFailed {
-                    reason: format!("Failed to remove cached pack directory: {}", e),
+                    reason: format!("Failed to remove cached pack directory: {e}"),
                 })?;
             }
         }
@@ -356,6 +374,11 @@ impl PackCache {
     /// # Errors
     ///
     /// Returns error if cache lock is poisoned.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
+    #[must_use]
     pub fn stats(&self) -> CacheStats {
         let packs = self.packs.read().unwrap();
         let current_size = *self.current_size.read().unwrap();
@@ -366,7 +389,10 @@ impl PackCache {
             max_size_bytes: self.config.max_size_bytes,
             max_packs: self.config.max_packs,
             utilization_percent: if self.config.max_size_bytes > 0 {
-                (current_size as f64 / self.config.max_size_bytes as f64) * 100.0
+                let mb_current = u32::try_from(current_size / (1024 * 1024)).unwrap_or(u32::MAX);
+                let mb_max =
+                    u32::try_from(self.config.max_size_bytes / (1024 * 1024)).unwrap_or(u32::MAX);
+                f64::from(mb_current) / f64::from(mb_max) * 100.0
             } else {
                 0.0
             },
@@ -382,9 +408,9 @@ impl PackCache {
         let metadata_path = self.config.cache_dir.join("cache_metadata.json");
         let packs = self.packs.read().unwrap();
 
-        let file = fs::File::create(&metadata_path).map_err(|e| Error::IoError(e))?;
+        let file = fs::File::create(&metadata_path).map_err(Error::IoError)?;
         let writer = BufWriter::new(file);
-        serde_json::to_writer(writer, &*packs).map_err(|e| Error::SerializationError(e))?;
+        serde_json::to_writer(writer, &*packs).map_err(Error::SerializationError)?;
 
         debug!("Saved cache metadata to {:?}", metadata_path);
         Ok(())
@@ -403,10 +429,10 @@ impl PackCache {
             return Ok(());
         }
 
-        let file = fs::File::open(&metadata_path).map_err(|e| Error::IoError(e))?;
+        let file = fs::File::open(&metadata_path).map_err(Error::IoError)?;
         let reader = BufReader::new(file);
         let loaded_packs: HashMap<String, CachedPack> =
-            serde_json::from_reader(reader).map_err(|e| Error::SerializationError(e))?;
+            serde_json::from_reader(reader).map_err(Error::SerializationError)?;
 
         let mut packs = self.packs.write().unwrap();
         let mut current_size = self.current_size.write().unwrap();
@@ -431,9 +457,13 @@ impl PackCache {
     /// # Returns
     ///
     /// `true` if the pack exists in cache, `false` otherwise
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
     #[must_use]
     pub fn is_cached(&self, package_id: &PackageId, version: &PackageVersion) -> bool {
-        let cache_key = format!("{}@{}", package_id, version);
+        let cache_key = format!("{package_id}@{version}");
         let packs = self.packs.read().unwrap();
         packs.contains_key(&cache_key)
     }
@@ -443,6 +473,10 @@ impl PackCache {
     /// # Returns
     ///
     /// Vector of cache keys for all cached packs
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal cache lock is poisoned.
     #[must_use]
     pub fn cached_packs(&self) -> Vec<String> {
         let packs = self.packs.read().unwrap();
@@ -464,7 +498,7 @@ impl PackCache {
         if pack.cache_path.exists() {
             for entry in walkdir::WalkDir::new(&pack.cache_path)
                 .into_iter()
-                .filter_map(|e| e.ok())
+                .filter_map(Result::ok)
             {
                 if entry.file_type().is_file() {
                     if let Ok(contents) = fs::read(entry.path()) {

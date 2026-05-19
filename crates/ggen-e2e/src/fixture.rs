@@ -1,6 +1,6 @@
 //! Test fixture management
 //!
-//! Handles loading ggen project fixtures (ontologies, templates, manifests)
+//! Handles loading mcpp project fixtures (ontologies, templates, manifests)
 //! and discovering fixtures in the test suite.
 
 use crate::error::{FixtureError, Result};
@@ -9,7 +9,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
-/// A test fixture representing a complete ggen project
+/// A test fixture representing a complete mcpp project
 #[derive(Debug, Clone)]
 pub struct TestFixture {
     /// Unique fixture identifier (e.g., "thesis-gen", "minimal")
@@ -20,8 +20,8 @@ pub struct TestFixture {
     pub ontology_files: Vec<PathBuf>,
     /// Tera template files
     pub template_files: Vec<PathBuf>,
-    /// Path to ggen.toml manifest
-    pub ggen_toml: PathBuf,
+    /// Path to mcpp.toml manifest
+    pub mcpp_toml: PathBuf,
     /// Directory containing expected output (golden files)
     pub golden_dir: PathBuf,
 }
@@ -35,9 +35,9 @@ impl TestFixture {
             return Err(FixtureError::NotFound(path).into());
         }
 
-        let ggen_toml = path.join("ggen.toml");
-        if !ggen_toml.exists() {
-            return Err(FixtureError::MissingFile(ggen_toml).into());
+        let mcpp_toml = path.join("mcpp.toml");
+        if !mcpp_toml.exists() {
+            return Err(FixtureError::MissingFile(mcpp_toml).into());
         }
 
         let ontology_dir = path.join("ontology");
@@ -63,7 +63,7 @@ impl TestFixture {
             path,
             ontology_files,
             template_files,
-            ggen_toml,
+            mcpp_toml,
             golden_dir,
         })
     }
@@ -92,8 +92,8 @@ impl TestFixture {
 
     /// Check if fixture has required files
     pub fn validate(&self) -> Result<()> {
-        if !self.ggen_toml.exists() {
-            return Err(FixtureError::MissingFile(self.ggen_toml.clone()).into());
+        if !self.mcpp_toml.exists() {
+            return Err(FixtureError::MissingFile(self.mcpp_toml.clone()).into());
         }
 
         if self.ontology_files.is_empty() {
@@ -115,9 +115,9 @@ impl TestFixture {
         Ok(())
     }
 
-    /// Get the fixture's ggen.toml content
+    /// Get the fixture's mcpp.toml content
     pub fn manifest_content(&self) -> Result<String> {
-        fs::read_to_string(&self.ggen_toml).map_err(|e| FixtureError::Io(e).into())
+        fs::read_to_string(&self.mcpp_toml).map_err(|e| FixtureError::Io(e).into())
     }
 }
 
@@ -259,14 +259,14 @@ mod tests {
         fs::create_dir(&fixture_dir).unwrap();
         fs::create_dir(fixture_dir.join("ontology")).unwrap();
         fs::create_dir(fixture_dir.join("templates")).unwrap();
-        fs::write(fixture_dir.join("ggen.toml"), "[package]").unwrap();
+        fs::write(fixture_dir.join("mcpp.toml"), "[package]").unwrap();
         fs::write(fixture_dir.join("ontology/schema.ttl"), "").unwrap();
         fs::write(fixture_dir.join("templates/main.tera"), "").unwrap();
 
         let fixture = TestFixture::load(&fixture_dir, "test").unwrap();
         let copy = fixture.copy_to_temp().unwrap();
 
-        assert!(copy.path().join("ggen.toml").exists());
+        assert!(copy.path().join("mcpp.toml").exists());
         assert!(copy.path().join("ontology/schema.ttl").exists());
     }
 }

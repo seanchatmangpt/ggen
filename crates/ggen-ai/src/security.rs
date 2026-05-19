@@ -19,7 +19,7 @@ use std::fmt;
 ///
 /// # Example
 /// ```
-/// use ggen_ai::security::SecretString;
+/// use mcpp_ai::security::SecretString;
 ///
 /// let api_key = SecretString::new("sk-1234567890abcdef".to_string());
 /// println!("{}", api_key); // Prints: "sk-1..."

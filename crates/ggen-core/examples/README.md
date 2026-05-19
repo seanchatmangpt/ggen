@@ -1,6 +1,6 @@
-# ggen-core Examples - Production-Ready Rust Lifecycle Management
+# mcpp-core Examples - Production-Ready Rust Lifecycle Management
 
-This workspace demonstrates **ggen-core's** lifecycle orchestration capabilities through five production-quality examples, each showcasing the **80/20 principle** applied to different Rust project types.
+This workspace demonstrates **mcpp-core's** lifecycle orchestration capabilities through five production-quality examples, each showcasing the **80/20 principle** applied to different Rust project types.
 
 ## 🎯 Quick Start
 
@@ -9,15 +9,15 @@ This workspace demonstrates **ggen-core's** lifecycle orchestration capabilities
 cd examples/
 
 # Run complete lifecycle for all projects
-ggen run deploy-all
+mcpp run deploy-all
 
 # Or use cargo-make directly
 cargo make deploy-all
 
 # Run specific example
-ggen run build-cli
-ggen run test-web
-ggen run bench-lib
+mcpp run build-cli
+mcpp run test-web
+mcpp run bench-lib
 ```
 
 ## 📦 Workspace Members
@@ -34,7 +34,7 @@ ggen run bench-lib
 **Demonstrates**: CLI lifecycle, testing strategies, distribution packaging
 
 ```bash
-ggen run build-cli
+mcpp run build-cli
 ./dist/cli/advanced-cli-tool --help
 ```
 
@@ -50,7 +50,7 @@ ggen run build-cli
 **Demonstrates**: Library design, benchmark automation, documentation
 
 ```bash
-ggen run bench-lib
+mcpp run bench-lib
 open target/criterion/report/index.html
 ```
 
@@ -66,7 +66,7 @@ open target/criterion/report/index.html
 **Demonstrates**: Service lifecycle, integration testing, deployment
 
 ```bash
-ggen run build-web
+mcpp run build-web
 ./dist/web/async-web-service
 curl http://localhost:3000/health
 ```
@@ -83,7 +83,7 @@ curl http://localhost:3000/health
 **Demonstrates**: WASM build pipeline, cross-platform testing
 
 ```bash
-ggen run build-wasm
+mcpp run build-wasm
 ls -lh dist/wasm/wasm_crypto.wasm
 ```
 
@@ -99,14 +99,14 @@ ls -lh dist/wasm/wasm_crypto.wasm
 **Demonstrates**: Embedded lifecycle, cross-compilation, testing strategies
 
 ```bash
-ggen run build-embedded
+mcpp run build-embedded
 ```
 
 ## 🚀 Lifecycle Phases
 
 ### 1. **VALIDATE** - Pre-flight Checks
 ```bash
-ggen run validate-all
+mcpp run validate-all
 ```
 - Code formatting (`cargo fmt`)
 - Linting (`cargo clippy`)
@@ -117,7 +117,7 @@ ggen run validate-all
 
 ### 2. **BUILD** - Compilation
 ```bash
-ggen run build-all
+mcpp run build-all
 ```
 - Optimized release builds
 - Cross-platform compilation
@@ -128,7 +128,7 @@ ggen run build-all
 
 ### 3. **TEST** - Quality Assurance
 ```bash
-ggen run test-all
+mcpp run test-all
 ```
 - Unit tests (80% coverage target)
 - Integration tests
@@ -139,7 +139,7 @@ ggen run test-all
 
 ### 4. **BENCHMARK** - Performance Validation
 ```bash
-ggen run bench-all
+mcpp run bench-all
 ```
 - Criterion.rs microbenchmarks
 - Regression detection
@@ -150,7 +150,7 @@ ggen run bench-all
 
 ### 5. **PACKAGE** - Distribution Preparation
 ```bash
-ggen run package-all
+mcpp run package-all
 ```
 - Binary stripping and optimization
 - WASM post-processing
@@ -161,7 +161,7 @@ ggen run package-all
 
 ### 6. **DEPLOY** - Production Release
 ```bash
-ggen run deploy-all
+mcpp run deploy-all
 ```
 - Artifact verification
 - Version tagging
@@ -174,19 +174,19 @@ ggen run deploy-all
 
 ### Quick Iteration (Dev Mode)
 ```bash
-ggen run dev
+mcpp run dev
 ```
 Runs: Format check → Build → Unit tests (~30 seconds)
 
 ### Pre-Commit Hook
 ```bash
-ggen run pre-commit
+mcpp run pre-commit
 ```
 Runs: Format → Clippy → Unit tests (~45 seconds)
 
 ### Full CI Pipeline
 ```bash
-ggen run ci
+mcpp run ci
 ```
 Runs: Validate → Build → Test → Benchmark (~5 minutes)
 
@@ -197,31 +197,31 @@ Each example demonstrates AI-enhanced development:
 ### CLI Tool
 ```bash
 # AI-assisted argument parsing
-ggen ai "Add subcommand for JSON validation"
+mcpp ai "Add subcommand for JSON validation"
 ```
 
 ### Performance Library
 ```bash
 # AI-generated benchmarks
-ggen ai "Create benchmark comparing HashMap vs BTreeMap"
+mcpp ai "Create benchmark comparing HashMap vs BTreeMap"
 ```
 
 ### Web Service
 ```bash
 # AI endpoint generation
-ggen ai "Add POST /users endpoint with validation"
+mcpp ai "Add POST /users endpoint with validation"
 ```
 
 ### WASM Module
 ```bash
 # AI FFI bindings
-ggen ai "Generate TypeScript bindings for WASM exports"
+mcpp ai "Generate TypeScript bindings for WASM exports"
 ```
 
 ### Embedded Firmware
 ```bash
 # AI hardware abstraction
-ggen ai "Create HAL trait for I2C temperature sensor"
+mcpp ai "Create HAL trait for I2C temperature sensor"
 ```
 
 ## 📊 Performance Benchmarks
@@ -249,7 +249,7 @@ All examples demonstrate:
 
 Generate all documentation:
 ```bash
-ggen run docs
+mcpp run docs
 ```
 
 Key documentation:
@@ -267,7 +267,7 @@ Key documentation:
 # Solution: Ensure toolchain is up-to-date
 rustup update
 cargo clean
-ggen run build-all
+mcpp run build-all
 ```
 
 **Issue**: WASM target not found
@@ -319,7 +319,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cd examples && ggen run ci
+      - run: cd examples && mcpp run ci
 ```
 
 ### GitLab CI
@@ -328,7 +328,7 @@ jobs:
 examples:
   script:
     - cd examples
-    - ggen run deploy-all
+    - mcpp run deploy-all
   artifacts:
     paths:
       - examples/dist/
@@ -339,7 +339,7 @@ examples:
 Track lifecycle performance:
 ```bash
 # Generate performance report
-ggen run report
+mcpp run report
 
 # Monitor build times
 cargo build --timings
@@ -363,7 +363,7 @@ example-name/
 
 ## 📚 Additional Resources
 
-- [ggen-core Documentation](https://docs.ggen.dev)
+- [mcpp-core Documentation](https://docs.mcpp.dev)
 - [Rust Performance Book](https://nnethercote.github.io/perf-book/)
 - [Cargo Make Guide](https://sagiegurari.github.io/cargo-make/)
 - [80/20 Rust Patterns](https://www.lurklurk.org/effective-rust/)
@@ -374,6 +374,6 @@ All examples are dual-licensed under MIT OR Apache-2.0, consistent with the Rust
 
 ---
 
-**Built with ❤️ using ggen-core's lifecycle orchestration**
+**Built with ❤️ using mcpp-core's lifecycle orchestration**
 
 *"Focus on the 20% that matters, automate the rest"*

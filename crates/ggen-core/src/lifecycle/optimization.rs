@@ -615,7 +615,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_dependency_cache_is_cached() {
-        let temp_dir = std::env::temp_dir().join("ggen_test_cache");
+        let temp_dir = std::env::temp_dir().join("mcpp_test_cache");
         std::fs::create_dir_all(&temp_dir).ok();
 
         let cache = DependencyCache::new(temp_dir.clone());

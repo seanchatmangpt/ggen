@@ -1,6 +1,6 @@
-# ggen-core
+# mcpp-core
 
-Core graph-aware code generation engine for ggen, providing RDF processing, template management, and code generation capabilities.
+Core graph-aware code generation engine for mcpp, providing RDF processing, template management, and code generation capabilities.
 
 ## Features
 
@@ -12,4 +12,4 @@ Core graph-aware code generation engine for ggen, providing RDF processing, temp
 
 ## Usage
 
-This crate is primarily used internally by the main ggen binary. See the main ggen documentation for usage examples.
+This crate is primarily used internally by the main mcpp binary. See the main mcpp documentation for usage examples.

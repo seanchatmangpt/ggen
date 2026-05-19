@@ -3,8 +3,8 @@
 //! Uses REAL in-memory RDF graphs and ACTUAL SPARQL queries
 
 use anyhow::Result;
-use ggen_domain::graph::{execute_sparql, QueryOptions};
-use ggen_core::Graph;
+use mcpp_domain::graph::{execute_sparql, QueryOptions};
+use mcpp_core::Graph;
 use std::io::Write;
 use tempfile::NamedTempFile;
 

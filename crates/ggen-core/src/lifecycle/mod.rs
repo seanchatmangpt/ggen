@@ -1,4 +1,4 @@
-//! Universal lifecycle system for ggen (80/20 Implementation)
+//! Universal lifecycle system for mcpp (80/20 Implementation)
 //!
 //! This module implements the lifecycle orchestration system that enables
 //! cross-language project management through make.toml
@@ -38,7 +38,7 @@ pub mod validation;
 pub mod optimization;
 
 // Template generation phase integration
-// TEMPORARILY DISABLED: needs ggen_template crate which doesn't exist yet
+// TEMPORARILY DISABLED: needs mcpp_template crate which doesn't exist yet
 // pub mod template_phase;
 
 // Future enhancements (available but not in public API):
@@ -83,7 +83,7 @@ pub use optimization::{
 };
 
 // Template phase exports
-// TEMPORARILY DISABLED: needs ggen_template crate which doesn't exist yet
+// TEMPORARILY DISABLED: needs mcpp_template crate which doesn't exist yet
 // pub use template_phase::{
 //     execute_template_phase, register_template_phase, TemplatePhaseConfig,
 // };

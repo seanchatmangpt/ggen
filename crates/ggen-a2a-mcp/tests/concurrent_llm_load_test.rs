@@ -6,8 +6,8 @@
 //!
 //! Expected improvement: 10x throughput with 10 concurrent requests
 
-use ggen_a2a_mcp::client::{A2aClientConfig, A2aLlmClient};
-use ggen_ai::dspy::model_capabilities::Model;
+use mcpp_a2a_mcp::client::{A2aClientConfig, A2aLlmClient};
+use mcpp_ai::dspy::model_capabilities::Model;
 use std::time::{Duration, Instant};
 use tokio::time::timeout;
 
@@ -21,7 +21,7 @@ async fn make_mock_llm_request(client: &A2aLlmClient, id: usize) -> Result<Durat
     let start = Instant::now();
 
     // Create a simple A2A message
-    let message = a2a_generated::converged::message::ConvergedMessage::text(
+    let message = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
         format!("test-msg-{}", id),
         "load-test".to_string(),
         format!("Test prompt {}", id),
@@ -54,7 +54,7 @@ async fn concurrent_llm_requests_no_mutex_blocking() {
     // Initialize logging
     let _ = tracing_subscriber::fmt()
         .with_test_writer()
-        .with_env_filter("ggen_a2a_mcp=debug,ggen_ai=info")
+        .with_env_filter("mcpp_a2a_mcp=debug,mcpp_ai=info")
         .try_init();
 
     // Create client with default config (10 concurrent requests)
@@ -166,7 +166,7 @@ async fn semaphore_still_limits_concurrency() {
     let health = client.health().await;
     assert_eq!(
         health.state,
-        ggen_a2a_mcp::client::ConnectionState::Connected
+        mcpp_a2a_mcp::client::ConnectionState::Connected
     );
 
     println!("✅ Semaphore configuration still works");

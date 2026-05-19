@@ -3,7 +3,7 @@
 //! Uses REAL file I/O and REAL graph state verification
 
 use anyhow::Result;
-use ggen_domain::graph::{load_rdf, LoadOptions, RdfFormat};
+use mcpp_domain::graph::{load_rdf, LoadOptions, RdfFormat};
 use std::io::Write;
 use tempfile::NamedTempFile;
 

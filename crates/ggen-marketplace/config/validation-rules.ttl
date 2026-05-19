@@ -2,14 +2,14 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ggen: <http://ggen.dev/ontology#> .
-@prefix : <http://ggen.dev/validation#> .
+@prefix mcpp: <http://mcpp.dev/ontology#> .
+@prefix : <http://mcpp.dev/validation#> .
 
 # Package Validation Rules using SHACL
 
 # Rule 1: Package must have a name
 :PackageNameShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
         sh:path dc:title ;
         sh:minCount 1 ;
@@ -24,7 +24,7 @@
 
 # Rule 2: Package must have a description
 :PackageDescriptionShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
         sh:path dc:description ;
         sh:minCount 1 ;
@@ -37,18 +37,18 @@
 
 # Rule 3: Package must have at least one version
 :PackageVersionShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
-        sh:path ggen:hasVersion ;
+        sh:path mcpp:hasVersion ;
         sh:minCount 1 ;
-        sh:class ggen:PackageVersion ;
+        sh:class mcpp:PackageVersion ;
         sh:message "Package must have at least one version" ;
     ] ;
     sh:severity sh:Violation .
 
 # Rule 4: Package must have a license
 :PackageLicenseShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
         sh:path dc:license ;
         sh:minCount 1 ;
@@ -58,20 +58,20 @@
 
 # Rule 5: Package must have at least one author
 :PackageAuthorShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
         sh:path foaf:maker ;
         sh:minCount 1 ;
-        sh:class ggen:Author ;
+        sh:class mcpp:Author ;
         sh:message "Package must have at least one author" ;
     ] ;
     sh:severity sh:Warning .
 
 # Rule 6: Package must have a repository URL
 :PackageRepositoryShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
-        sh:path ggen:repository ;
+        sh:path mcpp:repository ;
         sh:minCount 1 ;
         sh:datatype xsd:anyURI ;
         sh:pattern "^https?://" ;
@@ -81,9 +81,9 @@
 
 # Rule 7: Version number must be valid semver
 :VersionNumberShape a sh:NodeShape ;
-    sh:targetClass ggen:PackageVersion ;
+    sh:targetClass mcpp:PackageVersion ;
     sh:property [
-        sh:path ggen:versionNumber ;
+        sh:path mcpp:versionNumber ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
@@ -94,7 +94,7 @@
 
 # Rule 8: Version must have publication date
 :VersionPublicationShape a sh:NodeShape ;
-    sh:targetClass ggen:PackageVersion ;
+    sh:targetClass mcpp:PackageVersion ;
     sh:property [
         sh:path dc:created ;
         sh:minCount 1 ;
@@ -106,35 +106,35 @@
 
 # Rule 9: Deprecated and yanked must be boolean
 :VersionDeprecatedShape a sh:NodeShape ;
-    sh:targetClass ggen:PackageVersion ;
+    sh:targetClass mcpp:PackageVersion ;
     sh:property [
-        sh:path ggen:deprecated ;
+        sh:path mcpp:deprecated ;
         sh:maxCount 1 ;
         sh:datatype xsd:boolean ;
     ] ;
     sh:property [
-        sh:path ggen:yanked ;
+        sh:path mcpp:yanked ;
         sh:maxCount 1 ;
         sh:datatype xsd:boolean ;
     ] .
 
 # Rule 10: Dependency must reference a valid package
 :DependencyPackageShape a sh:NodeShape ;
-    sh:targetClass ggen:Dependency ;
+    sh:targetClass mcpp:Dependency ;
     sh:property [
-        sh:path ggen:dependsOn ;
+        sh:path mcpp:dependsOn ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:class ggen:Package ;
+        sh:class mcpp:Package ;
         sh:message "Dependency must reference a valid package" ;
     ] ;
     sh:severity sh:Violation .
 
 # Rule 11: Dependency must have version constraint
 :DependencyVersionShape a sh:NodeShape ;
-    sh:targetClass ggen:Dependency ;
+    sh:targetClass mcpp:Dependency ;
     sh:property [
-        sh:path ggen:dependencyVersion ;
+        sh:path mcpp:dependencyVersion ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:pattern "^[~^]?\\d+\\.\\d+\\.\\d+|\\*|>=?\\d+\\.\\d+\\.\\d+$" ;
@@ -144,9 +144,9 @@
 
 # Rule 12: Dependency type must be valid
 :DependencyTypeShape a sh:NodeShape ;
-    sh:targetClass ggen:Dependency ;
+    sh:targetClass mcpp:Dependency ;
     sh:property [
-        sh:path ggen:dependencyType ;
+        sh:path mcpp:dependencyType ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:in ( "runtime" "dev" "peer" "optional" "build" ) ;
@@ -156,7 +156,7 @@
 
 # Rule 13: Author must have a name
 :AuthorNameShape a sh:NodeShape ;
-    sh:targetClass ggen:Author ;
+    sh:targetClass mcpp:Author ;
     sh:property [
         sh:path foaf:name ;
         sh:minCount 1 ;
@@ -168,7 +168,7 @@
 
 # Rule 14: Author email must be valid
 :AuthorEmailShape a sh:NodeShape ;
-    sh:targetClass ggen:Author ;
+    sh:targetClass mcpp:Author ;
     sh:property [
         sh:path foaf:mbox ;
         sh:maxCount 1 ;
@@ -179,9 +179,9 @@
 
 # Rule 15: Installation status must be valid
 :InstallationStatusShape a sh:NodeShape ;
-    sh:targetClass ggen:InstallationState ;
+    sh:targetClass mcpp:InstallationState ;
     sh:property [
-        sh:path ggen:installationStatus ;
+        sh:path mcpp:installationStatus ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:in ( "installed" "installing" "failed" "removed" "updating" ) ;
@@ -191,9 +191,9 @@
 
 # Rule 16: Validation status must be valid
 :ValidationStatusShape a sh:NodeShape ;
-    sh:targetClass ggen:ValidationResult ;
+    sh:targetClass mcpp:ValidationResult ;
     sh:property [
-        sh:path ggen:validationStatus ;
+        sh:path mcpp:validationStatus ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:in ( "valid" "invalid" "warning" "pending" ) ;
@@ -203,9 +203,9 @@
 
 # Rule 17: Download count must be non-negative
 :DownloadCountShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
-        sh:path ggen:downloadCount ;
+        sh:path mcpp:downloadCount ;
         sh:maxCount 1 ;
         sh:datatype xsd:integer ;
         sh:minInclusive 0 ;
@@ -214,9 +214,9 @@
 
 # Rule 18: Rating must be between 0 and 5
 :RatingShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:property [
-        sh:path ggen:rating ;
+        sh:path mcpp:rating ;
         sh:maxCount 1 ;
         sh:datatype xsd:decimal ;
         sh:minInclusive 0.0 ;
@@ -226,9 +226,9 @@
 
 # Rule 19: Signature must have algorithm
 :SignatureAlgorithmShape a sh:NodeShape ;
-    sh:targetClass ggen:SignatureRecord ;
+    sh:targetClass mcpp:SignatureRecord ;
     sh:property [
-        sh:path ggen:signatureAlgorithm ;
+        sh:path mcpp:signatureAlgorithm ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:in ( "Ed25519" "RSA-SHA256" "ECDSA-SHA256" ) ;
@@ -238,9 +238,9 @@
 
 # Rule 20: Signature must have public key
 :SignaturePublicKeyShape a sh:NodeShape ;
-    sh:targetClass ggen:SignatureRecord ;
+    sh:targetClass mcpp:SignatureRecord ;
     sh:property [
-        sh:path ggen:publicKey ;
+        sh:path mcpp:publicKey ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:minLength 32 ;
@@ -250,13 +250,13 @@
 
 # Rule 21: No circular dependencies
 :CircularDependencyShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT $this
             WHERE {
-                $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn+ $this .
+                $this mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn+ $this .
             }
         """ ;
         sh:message "Package has circular dependency" ;
@@ -265,9 +265,9 @@
 
 # Rule 22: Template must have content
 :TemplateContentShape a sh:NodeShape ;
-    sh:targetClass ggen:Template ;
+    sh:targetClass mcpp:Template ;
     sh:property [
-        sh:path ggen:templateContent ;
+        sh:path mcpp:templateContent ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
         sh:minLength 1 ;
@@ -277,7 +277,7 @@
 
 # Rule 23: Category must have label
 :CategoryLabelShape a sh:NodeShape ;
-    sh:targetClass ggen:Category ;
+    sh:targetClass mcpp:Category ;
     sh:property [
         sh:path rdfs:label ;
         sh:minCount 1 ;
@@ -288,7 +288,7 @@
 
 # Rule 24: Tag must have value
 :TagValueShape a sh:NodeShape ;
-    sh:targetClass ggen:Tag ;
+    sh:targetClass mcpp:Tag ;
     sh:property [
         sh:path rdfs:label ;
         sh:minCount 1 ;
@@ -304,15 +304,15 @@
 
 # Rule 25: Package name uniqueness (business rule)
 :UniquePackageNameShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:sparql [
         sh:select """
             PREFIX dc: <http://purl.org/dc/terms/>
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT $this (COUNT(?other) AS ?count)
             WHERE {
                 $this dc:title ?name .
-                ?other a ggen:Package ;
+                ?other a mcpp:Package ;
                        dc:title ?name .
                 FILTER($this != ?other)
             }
@@ -324,15 +324,15 @@
 
 # Rule 26: Version uniqueness per package
 :UniqueVersionShape a sh:NodeShape ;
-    sh:targetClass ggen:PackageVersion ;
+    sh:targetClass mcpp:PackageVersion ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT $this (COUNT(?other) AS ?count)
             WHERE {
-                ?pkg ggen:hasVersion $this, ?other .
-                $this ggen:versionNumber ?ver .
-                ?other ggen:versionNumber ?ver .
+                ?pkg mcpp:hasVersion $this, ?other .
+                $this mcpp:versionNumber ?ver .
+                ?other mcpp:versionNumber ?ver .
                 FILTER($this != ?other)
             }
             HAVING (?count > 0)
@@ -343,18 +343,18 @@
 
 # Rule 27: Yanked versions cannot be installed
 :YankedVersionShape a sh:NodeShape ;
-    sh:targetClass ggen:InstallationState ;
+    sh:targetClass mcpp:InstallationState ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             SELECT $this
             WHERE {
-                $this ggen:forPackage ?pkg ;
-                      ggen:versionNumber ?ver .
-                ?pkg ggen:hasVersion ?versionNode .
-                ?versionNode ggen:versionNumber ?ver ;
-                             ggen:yanked "true"^^xsd:boolean .
+                $this mcpp:forPackage ?pkg ;
+                      mcpp:versionNumber ?ver .
+                ?pkg mcpp:hasVersion ?versionNode .
+                ?versionNode mcpp:versionNumber ?ver ;
+                             mcpp:yanked "true"^^xsd:boolean .
             }
         """ ;
         sh:message "Cannot install yanked version" ;
@@ -363,17 +363,17 @@
 
 # Rule 28: Max dependency depth
 :DependencyDepthShape a sh:NodeShape ;
-    sh:targetClass ggen:Package ;
+    sh:targetClass mcpp:Package ;
     sh:sparql [
         sh:select """
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT $this
             WHERE {
-                $this ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
-                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
-                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
-                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn/
-                      ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep .
+                $this mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn/
+                      mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn/
+                      mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn/
+                      mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn/
+                      mcpp:hasVersion/mcpp:hasDependency/mcpp:dependsOn ?dep .
             }
         """ ;
         sh:message "Dependency depth exceeds maximum of 5 levels" ;

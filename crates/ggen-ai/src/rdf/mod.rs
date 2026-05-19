@@ -16,21 +16,18 @@
 //!
 //! # Complete Example (Phase 5)
 //!
-//! ```no_run
-//! use ggen_ai::rdf::CliGenerator;
+//! ```text
+//! use mcpp_ai::rdf::CliGenerator;
 //! use std::path::{Path, PathBuf};
 //!
-//! # fn example() -> anyhow::Result<()> {
 //! let generator = CliGenerator::new(PathBuf::from("templates"));
 //! generator.generate_from_ttl(
 //!     Path::new("sample-cli.ttl"),
 //!     Path::new("output")
 //! )?;
-//! # Ok(())
-//! # }
 //! ```
 
-// TEMPORARY: Disabled due to cyclic dependency with ggen-core
+// TEMPORARY: Disabled due to cyclic dependency with mcpp-core
 // pub mod generator;
 pub mod parser;
 pub mod query;
@@ -39,7 +36,7 @@ pub mod template;
 pub mod types;
 
 // Re-export main types for convenience
-// pub use generator::CliGenerator;  // Disabled - depends on ggen-core
+// pub use generator::CliGenerator;  // Disabled - depends on mcpp-core
 pub use parser::RdfParser;
 pub use query::QueryExecutor;
 pub use renderer::TemplateRenderer;

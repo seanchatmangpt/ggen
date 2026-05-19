@@ -62,7 +62,7 @@ pub struct LLMConstruct {
 /// ## Example
 ///
 /// ```rust,no_run
-/// use ggen_ai::llm_construct::{LLMConstructBuilder, LLMConstructSpec};
+/// use mcpp_ai::llm_construct::{LLMConstructBuilder, LLMConstructSpec};
 /// use oxigraph::store::Store;
 ///
 /// # fn example() -> Result<(), Box<dyn std::error::Error>> {

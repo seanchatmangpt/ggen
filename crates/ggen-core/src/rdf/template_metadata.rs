@@ -5,7 +5,7 @@
 //! and provides SPARQL-based querying capabilities.
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ use crate::graph::Graph;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::template_metadata::TemplateVariable;
+/// use mcpp_core::rdf::template_metadata::TemplateVariable;
 ///
 /// # fn main() {
 /// let variable = TemplateVariable {
@@ -77,7 +77,7 @@ impl TemplateMetadata {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::template_metadata::TemplateMetadata;
+    /// use mcpp_core::rdf::template_metadata::TemplateMetadata;
     ///
     /// # fn main() {
     /// let metadata = TemplateMetadata::new(
@@ -113,92 +113,92 @@ impl TemplateMetadata {
     /// Generate Turtle RDF representation
     pub fn to_turtle(&self) -> Result<String> {
         let mut turtle = String::new();
-        turtle.push_str("@prefix ggen: <http://ggen.dev/ontology#> .\n");
+        turtle.push_str("@prefix mcpp: <http://mcpp.dev/ontology#> .\n");
         turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
         turtle.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n");
 
         // Template declaration
-        turtle.push_str(&format!("<{}> a ggen:Template ;\n", self.id));
+        turtle.push_str(&format!("<{}> a mcpp:Template ;\n", self.id));
         turtle.push_str(&format!(
-            "  ggen:templateName \"{}\" ;\n",
+            "  mcpp:templateName \"{}\" ;\n",
             escape_literal(&self.name)
         ));
 
         // Optional metadata
         if let Some(version) = &self.version {
             turtle.push_str(&format!(
-                "  ggen:templateVersion \"{}\" ;\n",
+                "  mcpp:templateVersion \"{}\" ;\n",
                 escape_literal(version)
             ));
         }
         if let Some(desc) = &self.description {
             turtle.push_str(&format!(
-                "  ggen:templateDescription \"{}\" ;\n",
+                "  mcpp:templateDescription \"{}\" ;\n",
                 escape_literal(desc)
             ));
         }
         if let Some(author) = &self.author {
             turtle.push_str(&format!(
-                "  ggen:templateAuthor \"{}\" ;\n",
+                "  mcpp:templateAuthor \"{}\" ;\n",
                 escape_literal(author)
             ));
         }
         if let Some(created) = &self.created_at {
             turtle.push_str(&format!(
-                "  ggen:createdAt \"{}\"^^xsd:dateTime ;\n",
+                "  mcpp:createdAt \"{}\"^^xsd:dateTime ;\n",
                 created.to_rfc3339()
             ));
         }
         if let Some(updated) = &self.updated_at {
             turtle.push_str(&format!(
-                "  ggen:updatedAt \"{}\"^^xsd:dateTime ;\n",
+                "  mcpp:updatedAt \"{}\"^^xsd:dateTime ;\n",
                 updated.to_rfc3339()
             ));
         }
         if let Some(category) = &self.category {
             turtle.push_str(&format!(
-                "  ggen:category \"{}\" ;\n",
+                "  mcpp:category \"{}\" ;\n",
                 escape_literal(category)
             ));
         }
         if let Some(stability) = &self.stability {
             turtle.push_str(&format!(
-                "  ggen:stability \"{}\" ;\n",
+                "  mcpp:stability \"{}\" ;\n",
                 escape_literal(stability)
             ));
         }
         if let Some(coverage) = self.test_coverage {
             turtle.push_str(&format!(
-                "  ggen:testCoverage \"{}\"^^xsd:decimal ;\n",
+                "  mcpp:testCoverage \"{}\"^^xsd:decimal ;\n",
                 coverage
             ));
         }
         if let Some(usage) = self.usage_count {
-            turtle.push_str(&format!("  ggen:usageCount \"{}\"^^xsd:integer ;\n", usage));
+            turtle.push_str(&format!("  mcpp:usageCount \"{}\"^^xsd:integer ;\n", usage));
         }
 
         // Tags
         for tag in &self.tags {
-            turtle.push_str(&format!("  ggen:tag \"{}\" ;\n", escape_literal(tag)));
+            turtle.push_str(&format!("  mcpp:tag \"{}\" ;\n", escape_literal(tag)));
         }
 
         // Variables
         for (i, _var) in self.variables.iter().enumerate() {
             let var_id = format!("{}#var_{}", self.id, i);
-            turtle.push_str(&format!("  ggen:hasVariable <{}> ;\n", var_id));
+            turtle.push_str(&format!("  mcpp:hasVariable <{}> ;\n", var_id));
         }
 
         // Generated files
         for file in &self.generated_files {
             turtle.push_str(&format!(
-                "  ggen:generatesFile \"{}\" ;\n",
+                "  mcpp:generatesFile \"{}\" ;\n",
                 escape_literal(file)
             ));
         }
 
         // Dependencies
         for dep in &self.dependencies {
-            turtle.push_str(&format!("  ggen:dependsOn <{}> ;\n", dep));
+            turtle.push_str(&format!("  mcpp:dependsOn <{}> ;\n", dep));
         }
 
         // Remove trailing semicolon and add period
@@ -210,29 +210,29 @@ impl TemplateMetadata {
         // Variable definitions
         for (i, var) in self.variables.iter().enumerate() {
             let var_id = format!("{}#var_{}", self.id, i);
-            turtle.push_str(&format!("<{}> a ggen:Variable ;\n", var_id));
+            turtle.push_str(&format!("<{}> a mcpp:Variable ;\n", var_id));
             turtle.push_str(&format!(
-                "  ggen:variableName \"{}\" ;\n",
+                "  mcpp:variableName \"{}\" ;\n",
                 escape_literal(&var.name)
             ));
             turtle.push_str(&format!(
-                "  ggen:variableType \"{}\" ;\n",
+                "  mcpp:variableType \"{}\" ;\n",
                 escape_literal(&var.var_type)
             ));
             turtle.push_str(&format!(
-                "  ggen:isRequired \"{}\"^^xsd:boolean",
+                "  mcpp:isRequired \"{}\"^^xsd:boolean",
                 var.required
             ));
 
             if let Some(default) = &var.default_value {
                 turtle.push_str(&format!(
-                    " ;\n  ggen:variableDefault \"{}\"",
+                    " ;\n  mcpp:variableDefault \"{}\"",
                     escape_literal(default)
                 ));
             }
             if let Some(desc) = &var.description {
                 turtle.push_str(&format!(
-                    " ;\n  ggen:variableDescription \"{}\"",
+                    " ;\n  mcpp:variableDescription \"{}\"",
                     escape_literal(desc)
                 ));
             }
@@ -250,20 +250,20 @@ impl TemplateMetadata {
         // Query for template metadata
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?name ?version ?description ?author ?created ?updated ?category ?stability ?coverage ?usage
             WHERE {{
-                <{template_id}> a ggen:Template ;
-                    ggen:templateName ?name .
-                OPTIONAL {{ <{template_id}> ggen:templateVersion ?version }}
-                OPTIONAL {{ <{template_id}> ggen:templateDescription ?description }}
-                OPTIONAL {{ <{template_id}> ggen:templateAuthor ?author }}
-                OPTIONAL {{ <{template_id}> ggen:createdAt ?created }}
-                OPTIONAL {{ <{template_id}> ggen:updatedAt ?updated }}
-                OPTIONAL {{ <{template_id}> ggen:category ?category }}
-                OPTIONAL {{ <{template_id}> ggen:stability ?stability }}
-                OPTIONAL {{ <{template_id}> ggen:testCoverage ?coverage }}
-                OPTIONAL {{ <{template_id}> ggen:usageCount ?usage }}
+                <{template_id}> a mcpp:Template ;
+                    mcpp:templateName ?name .
+                OPTIONAL {{ <{template_id}> mcpp:templateVersion ?version }}
+                OPTIONAL {{ <{template_id}> mcpp:templateDescription ?description }}
+                OPTIONAL {{ <{template_id}> mcpp:templateAuthor ?author }}
+                OPTIONAL {{ <{template_id}> mcpp:createdAt ?created }}
+                OPTIONAL {{ <{template_id}> mcpp:updatedAt ?updated }}
+                OPTIONAL {{ <{template_id}> mcpp:category ?category }}
+                OPTIONAL {{ <{template_id}> mcpp:stability ?stability }}
+                OPTIONAL {{ <{template_id}> mcpp:testCoverage ?coverage }}
+                OPTIONAL {{ <{template_id}> mcpp:usageCount ?usage }}
             }}
             "#,
             template_id = template_id
@@ -310,7 +310,7 @@ impl TemplateMetadata {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::template_metadata::TemplateRelationship;
+/// use mcpp_core::rdf::template_metadata::TemplateRelationship;
 ///
 /// # fn main() {
 /// let relationship = TemplateRelationship::DependsOn;
@@ -405,11 +405,11 @@ impl TemplateMetadataStore {
         // Query from store
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?name
             WHERE {{
-                <{template_id}> a ggen:Template ;
-                    ggen:templateName ?name .
+                <{template_id}> a mcpp:Template ;
+                    mcpp:templateName ?name .
             }}
             "#,
             template_id = template_id
@@ -467,12 +467,12 @@ impl TemplateMetadataStore {
     pub fn find_by_category(&self, category: &str) -> Result<Vec<String>> {
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?template ?name
             WHERE {{
-                ?template a ggen:Template ;
-                    ggen:category "{}" ;
-                    ggen:templateName ?name .
+                ?template a mcpp:Template ;
+                    mcpp:category "{}" ;
+                    mcpp:templateName ?name .
             }}
             "#,
             escape_literal(category)
@@ -492,11 +492,11 @@ impl TemplateMetadataStore {
     pub fn find_by_tag(&self, tag: &str) -> Result<Vec<String>> {
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?template
             WHERE {{
-                ?template a ggen:Template ;
-                    ggen:tag "{}" .
+                ?template a mcpp:Template ;
+                    mcpp:tag "{}" .
             }}
             "#,
             escape_literal(tag)
@@ -516,10 +516,10 @@ impl TemplateMetadataStore {
     pub fn get_dependencies(&self, template_id: &str) -> Result<Vec<String>> {
         let query = format!(
             r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT ?dependency
             WHERE {{
-                <{template_id}> ggen:dependsOn ?dependency .
+                <{template_id}> mcpp:dependsOn ?dependency .
             }}
             "#,
             template_id = template_id
@@ -539,10 +539,10 @@ impl TemplateMetadataStore {
     pub fn export_turtle(&self) -> Result<String> {
         // Query all templates and reconstruct Turtle
         let query = r#"
-            PREFIX ggen: <http://ggen.dev/ontology#>
+            PREFIX mcpp: <http://mcpp.dev/ontology#>
             SELECT DISTINCT ?template
             WHERE {
-                ?template a ggen:Template .
+                ?template a mcpp:Template .
             }
         "#;
 
@@ -550,7 +550,7 @@ impl TemplateMetadataStore {
         let mut turtle = String::new();
 
         // Add prefixes
-        turtle.push_str("@prefix ggen: <http://ggen.dev/ontology#> .\n");
+        turtle.push_str("@prefix mcpp: <http://mcpp.dev/ontology#> .\n");
         turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
         turtle.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n");
 
@@ -647,11 +647,11 @@ mod tests {
 
         let turtle = metadata.to_turtle().unwrap();
 
-        assert!(turtle.contains("@prefix ggen:"));
-        assert!(turtle.contains("ggen:Template"));
-        assert!(turtle.contains("ggen:templateName \"Test Template\""));
-        assert!(turtle.contains("ggen:templateDescription \"A test template\""));
-        assert!(turtle.contains("ggen:category \"testing\""));
+        assert!(turtle.contains("@prefix mcpp:"));
+        assert!(turtle.contains("mcpp:Template"));
+        assert!(turtle.contains("mcpp:templateName \"Test Template\""));
+        assert!(turtle.contains("mcpp:templateDescription \"A test template\""));
+        assert!(turtle.contains("mcpp:category \"testing\""));
     }
 
     #[test]
@@ -724,10 +724,10 @@ mod tests {
         });
 
         let turtle = metadata.to_turtle()?;
-        assert!(turtle.contains("ggen:Variable"));
-        assert!(turtle.contains("ggen:variableName \"project_name\""));
-        assert!(turtle.contains("ggen:variableType \"string\""));
-        assert!(turtle.contains("ggen:isRequired \"true\""));
+        assert!(turtle.contains("mcpp:Variable"));
+        assert!(turtle.contains("mcpp:variableName \"project_name\""));
+        assert!(turtle.contains("mcpp:variableType \"string\""));
+        assert!(turtle.contains("mcpp:isRequired \"true\""));
 
         Ok(())
     }

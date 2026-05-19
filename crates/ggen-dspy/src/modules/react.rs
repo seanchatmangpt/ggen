@@ -6,7 +6,7 @@
 
 use crate::{Module, ModuleOutput, Predictor, Result};
 use async_trait::async_trait;
-use ggen_ai::dspy::{InputField, OutputField, Signature};
+use mcpp_ai::dspy::{InputField, OutputField, Signature};
 use tracing::{debug, warn};
 
 /// Tool trait for ReAct actions
@@ -35,8 +35,8 @@ pub trait Tool: Send + Sync {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_dspy::{ReAct, Tool, Result};
-/// use ggen_ai::dspy::{Signature, InputField, OutputField};
+/// use mcpp_dspy::{ReAct, Tool, Result};
+/// use mcpp_ai::dspy::{Signature, InputField, OutputField};
 /// use async_trait::async_trait;
 ///
 /// // Define a simple tool

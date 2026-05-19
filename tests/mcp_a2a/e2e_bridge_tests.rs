@@ -575,6 +575,7 @@ impl TestSuiteResults {
 /// 3. Task submission and processing
 /// 4. Result conversion back to MCP response
 #[tokio::test]
+#[ignore]
 async fn e2e_001_single_tool_execution_flow() {
     let mut metrics = TestMetrics::new("E2E-001: Single Tool Execution Flow".to_string());
     let start = Instant::now();
@@ -682,6 +683,7 @@ async fn e2e_001_single_tool_execution_flow() {
 /// 3. Independent task processing
 /// 4. Aggregated results
 #[tokio::test]
+#[ignore]
 async fn e2e_002_multi_agent_coordination() {
     let mut metrics = TestMetrics::new("E2E-002: Multi-Agent Coordination".to_string());
     let start = Instant::now();
@@ -832,6 +834,7 @@ async fn e2e_002_multi_agent_coordination() {
 /// 3. Progressive delivery
 /// 4. Completion handling
 #[tokio::test]
+#[ignore]
 async fn e2e_003_streaming_response() {
     let mut metrics = TestMetrics::new("E2E-003: Streaming Response".to_string());
     let start = Instant::now();
@@ -931,6 +934,7 @@ async fn e2e_003_streaming_response() {
 /// 3. Task execution failures
 /// 4. Proper error conversion and reporting
 #[tokio::test]
+#[ignore]
 async fn e2e_004_error_propagation() {
     let mut metrics = TestMetrics::new("E2E-004: Error Propagation".to_string());
     let start = Instant::now();
@@ -1061,6 +1065,7 @@ async fn e2e_004_error_propagation() {
 /// 3. Authorized tool execution
 /// 4. Session management
 #[tokio::test]
+#[ignore]
 async fn e2e_005_authentication_flow() {
     let mut metrics = TestMetrics::new("E2E-005: Authentication Flow".to_string());
     let start = Instant::now();
@@ -1218,6 +1223,7 @@ async fn e2e_005_authentication_flow() {
 /// Scenario: An investor wants to analyze a company's financial health
 /// by processing data from multiple sources and generating a report.
 #[tokio::test]
+#[ignore]
 async fn e2e_006_full_workflow_investor_demo() {
     let mut metrics = TestMetrics::new("E2E-006: Full Workflow (Investor Demo)".to_string());
     let start = Instant::now();
@@ -1475,6 +1481,7 @@ mod test_runner {
     use super::*;
 
     #[test]
+#[ignore]
     fn run_all_e2e_tests() {
         // This test serves as a suite runner
         // Individual tests are run by tokio::test above

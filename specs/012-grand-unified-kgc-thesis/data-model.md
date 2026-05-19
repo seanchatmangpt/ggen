@@ -2,8 +2,8 @@
 
 **Feature Branch**: `012-grand-unified-kgc-thesis`
 **Generated**: 2025-12-16
-**Base IRI**: `https://ggen.io/thesis/kgc-unified/`
-**Schema IRI**: `https://ggen.io/ontology/thesis#`
+**Base IRI**: `https://mcpp.io/thesis/kgc-unified/`
+**Schema IRI**: `https://mcpp.io/ontology/thesis#`
 
 ## Entity Overview
 
@@ -244,7 +244,7 @@ Thesis (1)
 - width should be LaTeX dimension
 
 **Key Figures for GUT Thesis**:
-1. ggen Architecture Diagram
+1. mcpp Architecture Diagram
 2. RDF-to-Code Generation Pipeline
 3. 4D Temporal Coordinate System
 4. KGC-4D Event Sourcing Flow
@@ -343,7 +343,7 @@ Thesis (1)
 
 **Key Appendices for GUT Thesis**:
 - A: Extended Mathematical Proofs
-- B: ggen Configuration Reference
+- B: mcpp Configuration Reference
 - C: Generated Code Examples
 - D: Ontology Schema Definitions
 

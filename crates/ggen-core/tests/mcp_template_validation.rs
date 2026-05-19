@@ -3,7 +3,7 @@
 //! Validates that all MCP server templates are parseable by Tera
 //! and can generate valid Rust code.
 
-use ggen_core::register::register_all;
+use mcpp_core::register::register_all;
 use std::collections::HashMap;
 use tera::{Context, Tera};
 

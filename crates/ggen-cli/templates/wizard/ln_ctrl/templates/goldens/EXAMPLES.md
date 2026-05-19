@@ -271,7 +271,7 @@ let verdict = tera.render("expected_verdict.json.tera", &context).unwrap();
 ## Example 5: Test Harness Integration
 
 ```rust
-use ggen_e2e::golden::GoldenFile;
+use mcpp_e2e::golden::GoldenFile;
 use std::path::Path;
 
 /// Complete test workflow

@@ -3,7 +3,7 @@ name = "advanced-cli-tool"
 version = "0.1.0"
 edition = "2021"
 authors = ["GGEN Team"]
-description = "Production-ready CLI tool demonstrating advanced Rust patterns with ggen lifecycle"
+description = "Production-ready CLI tool demonstrating advanced Rust patterns with mcpp lifecycle"
 license = "MIT"
 readme = "README.md"
 

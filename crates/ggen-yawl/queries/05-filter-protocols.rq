@@ -1,5 +1,5 @@
 # PATTERN 5: Protocol Filtering
-PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a>
 
 CONSTRUCT {
   ?filteredAgent a a2a:ProtocolCompatibleAgent ;

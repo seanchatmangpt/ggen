@@ -6,7 +6,7 @@
 //! **Performance Target**: Skip ~70-80% of files when spec unchanged
 //! **SLO**: <60s for 10+ specs with incremental generation
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::fs;

@@ -1,7 +1,7 @@
-//! Test optimization and selection tooling for ggen
+//! Test optimization and selection tooling for mcpp
 //!
 //! This crate provides test value scoring, 80/20 Pareto selection, parallel execution,
-//! and budget enforcement for the ggen test suite. Part of Feature 004: Test Quality Audit
+//! and budget enforcement for the mcpp test suite. Part of Feature 004: Test Quality Audit
 //! and Performance Optimization.
 //!
 //! # Overview
@@ -14,7 +14,7 @@
 //! # Usage
 //!
 //! ```rust,no_run
-//! use ggen_test_opt::OptResult;
+//! use mcpp_test_opt::OptResult;
 //!
 //! // Coming soon: Actual implementation
 //! ```

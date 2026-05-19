@@ -9,7 +9,7 @@
 //! - Severity Error blocks generation
 //! - Severity Warning continues with log
 
-use ggen_core::codegen::pipeline::{ValidationResult, ValidationSeverity};
+use mcpp_core::codegen::pipeline::{ValidationResult, ValidationSeverity};
 
 // ============================================================================
 // T026.1: test_validation_pass_allows_sync

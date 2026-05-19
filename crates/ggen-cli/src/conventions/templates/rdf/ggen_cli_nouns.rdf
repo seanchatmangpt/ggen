@@ -1,140 +1,140 @@
-@prefix ggen: <http://ggen.dev/cli/> .
+@prefix mcpp: <http://mcpp.dev/cli/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix cli: <http://ggen.dev/cli/schema/> .
+@prefix cli: <http://mcpp.dev/cli/schema/> .
 
 # ============================================================================
-# ggen CLI Noun-Verb Ontology
+# mcpp CLI Noun-Verb Ontology
 # Enterprise Operating Language for Governed Text Compilation
 # ============================================================================
 
 # --- Noun Definitions ---
 
-ggen:capability a cli:Noun ;
+mcpp:capability a cli:Noun ;
     rdfs:label "capability" ;
     cli:about "Enable and inspect governed capability surfaces" ;
     cli:modName "capability" ;
-    cli:hasVerb ggen:capability_enable ,
-               ggen:capability_disable ,
-               ggen:capability_list ,
-               ggen:capability_show ,
-               ggen:capability_graph ,
-               ggen:capability_validate .
+    cli:hasVerb mcpp:capability_enable ,
+               mcpp:capability_disable ,
+               mcpp:capability_list ,
+               mcpp:capability_show ,
+               mcpp:capability_graph ,
+               mcpp:capability_validate .
 
-ggen:pack a cli:Noun ;
+mcpp:pack a cli:Noun ;
     rdfs:label "pack" ;
     cli:about "Install and manage atomic packs and bundle aliases" ;
     cli:modName "pack" ;
-    cli:hasVerb ggen:pack_add ,
-               ggen:pack_remove ,
-               ggen:pack_list ,
-               ggen:pack_show ,
-               ggen:pack_inspect ,
-               ggen:pack_graph ,
-               ggen:pack_verify ,
-               ggen:pack_search ,
-               ggen:pack_lock .
+    cli:hasVerb mcpp:pack_add ,
+               mcpp:pack_remove ,
+               mcpp:pack_list ,
+               mcpp:pack_show ,
+               mcpp:pack_inspect ,
+               mcpp:pack_graph ,
+               mcpp:pack_verify ,
+               mcpp:pack_search ,
+               mcpp:pack_lock .
 
-ggen:policy a cli:Noun ;
+mcpp:policy a cli:Noun ;
     rdfs:label "policy" ;
     cli:about "View and validate policy profiles" ;
     cli:modName "policy" ;
-    cli:hasVerb ggen:policy_list ,
-               ggen:policy_show ,
-               ggen:policy_validate .
+    cli:hasVerb mcpp:policy_list ,
+               mcpp:policy_show ,
+               mcpp:policy_validate .
 
-ggen:receipt a cli:Noun ;
+mcpp:receipt a cli:Noun ;
     rdfs:label "receipt" ;
     cli:about "Verify, inspect, and chain-check proof objects" ;
     cli:modName "receipt" ;
-    cli:hasVerb ggen:receipt_verify ,
-               ggen:receipt_info ,
-               ggen:receipt_chain_verify ,
-               ggen:receipt_show .
+    cli:hasVerb mcpp:receipt_verify ,
+               mcpp:receipt_info ,
+               mcpp:receipt_chain_verify ,
+               mcpp:receipt_show .
 
-ggen:sync a cli:Noun ;
+mcpp:sync a cli:Noun ;
     rdfs:label "sync" ;
     cli:about "Compile ontology into governed artifacts" ;
     cli:modName "sync_cmd" ;
-    cli:hasVerb ggen:sync_run .
+    cli:hasVerb mcpp:sync_run .
 
-ggen:graph a cli:Noun ;
+mcpp:graph a cli:Noun ;
     rdfs:label "graph" ;
     cli:about "Inspect loaded ontology, dependencies, and composition" ;
     cli:modName "graph" ;
-    cli:hasVerb ggen:graph_ontology ,
-               ggen:graph_pack ,
-               ggen:graph_capability ,
-               ggen:graph_ownership ,
-               ggen:graph_runtime .
+    cli:hasVerb mcpp:graph_ontology ,
+               mcpp:graph_pack ,
+               mcpp:graph_capability ,
+               mcpp:graph_ownership ,
+               mcpp:graph_runtime .
 
-ggen:template a cli:Noun ;
+mcpp:template a cli:Noun ;
     rdfs:label "template" ;
     cli:about "Inspect resolved templates and rendering sources" ;
     cli:modName "template_cmd" ;
-    cli:hasVerb ggen:template_list ,
-               ggen:template_show ,
-               ggen:template_render .
+    cli:hasVerb mcpp:template_list ,
+               mcpp:template_show ,
+               mcpp:template_render .
 
-ggen:query a cli:Noun ;
+mcpp:query a cli:Noun ;
     rdfs:label "query" ;
     cli:about "Inspect and run SPARQL extraction queries" ;
     cli:modName "query_cmd" ;
-    cli:hasVerb ggen:query_list ,
-               ggen:query_run ,
-               ggen:query_explain .
+    cli:hasVerb mcpp:query_list ,
+               mcpp:query_run ,
+               mcpp:query_explain .
 
-ggen:profile a cli:Noun ;
+mcpp:profile a cli:Noun ;
     rdfs:label "profile" ;
     cli:about "Apply enterprise operating profiles" ;
     cli:modName "profile_cmd" ;
-    cli:hasVerb ggen:profile_list ,
-               ggen:profile_show ,
-               ggen:profile_apply ,
-               ggen:profile_validate .
+    cli:hasVerb mcpp:profile_list ,
+               mcpp:profile_show ,
+               mcpp:profile_apply ,
+               mcpp:profile_validate .
 
-ggen:runtime a cli:Noun ;
+mcpp:runtime a cli:Noun ;
     rdfs:label "runtime" ;
     cli:about "Select or inspect execution runtime bindings" ;
     cli:modName "runtime_cmd" ;
-    cli:hasVerb ggen:runtime_list ,
-               ggen:runtime_show ,
-               ggen:runtime_select .
+    cli:hasVerb mcpp:runtime_list ,
+               mcpp:runtime_show ,
+               mcpp:runtime_select .
 
-ggen:registry a cli:Noun ;
+mcpp:registry a cli:Noun ;
     rdfs:label "registry" ;
     cli:about "Search and inspect available packs from configured registries" ;
     cli:modName "registry_cmd" ;
-    cli:hasVerb ggen:registry_list ,
-               ggen:registry_search ,
-               ggen:registry_show ,
-               ggen:registry_sync ,
-               ggen:registry_trust .
+    cli:hasVerb mcpp:registry_list ,
+               mcpp:registry_search ,
+               mcpp:registry_show ,
+               mcpp:registry_sync ,
+               mcpp:registry_trust .
 
-ggen:doctor a cli:Noun ;
+mcpp:doctor a cli:Noun ;
     rdfs:label "doctor" ;
     cli:about "Diagnose configuration, composition, and trust issues" ;
     cli:modName "doctor" ;
-    cli:hasVerb ggen:doctor_run .
+    cli:hasVerb mcpp:doctor_run .
 
-ggen:new a cli:Noun ;
+mcpp:new a cli:Noun ;
     rdfs:label "new" ;
     cli:about "Create a new governed workspace or project" ;
     cli:modName "new_cmd" ;
-    cli:hasVerb ggen:new_workspace ,
-               ggen:new_pack .
+    cli:hasVerb mcpp:new_workspace ,
+               mcpp:new_pack .
 
-ggen:init a cli:Noun ;
+mcpp:init a cli:Noun ;
     rdfs:label "init" ;
-    cli:about "Initialize ggen in an existing repository" ;
+    cli:about "Initialize mcpp in an existing repository" ;
     cli:modName "init_cmd" ;
-    cli:hasVerb ggen:init_run .
+    cli:hasVerb mcpp:init_run .
 
 # ============================================================================
 # Verb Definitions — capability
 # ============================================================================
 
-ggen:capability_enable a cli:Verb ;
+mcpp:capability_enable a cli:Verb ;
     rdfs:label "enable" ;
     cli:about "Enable a capability surface in the workspace" ;
     cli:fnName "enable_capability" ;
@@ -176,7 +176,7 @@ ggen:capability_enable a cli:Verb ;
         cli:comment "Require lockfile-consistent resolution"
     ] .
 
-ggen:capability_disable a cli:Verb ;
+mcpp:capability_disable a cli:Verb ;
     rdfs:label "disable" ;
     cli:about "Disable a capability surface" ;
     cli:fnName "disable_capability" ;
@@ -188,13 +188,13 @@ ggen:capability_disable a cli:Verb ;
         cli:comment "Capability surface to disable"
     ] .
 
-ggen:capability_list a cli:Verb ;
+mcpp:capability_list a cli:Verb ;
     rdfs:label "list" ;
     cli:about "List enabled capabilities" ;
     cli:fnName "list_capabilities" ;
     cli:returnType "CapabilityList" .
 
-ggen:capability_show a cli:Verb ;
+mcpp:capability_show a cli:Verb ;
     rdfs:label "show" ;
     cli:about "Show resolved capability details" ;
     cli:fnName "show_capability" ;
@@ -206,13 +206,13 @@ ggen:capability_show a cli:Verb ;
         cli:comment "Capability surface to inspect"
     ] .
 
-ggen:capability_graph a cli:Verb ;
+mcpp:capability_graph a cli:Verb ;
     rdfs:label "graph" ;
     cli:about "Show capability-to-pack composition graph" ;
     cli:fnName "graph_capabilities" ;
     cli:returnType "CompositionGraph" .
 
-ggen:capability_validate a cli:Verb ;
+mcpp:capability_validate a cli:Verb ;
     rdfs:label "validate" ;
     cli:about "Validate capability composition before sync" ;
     cli:fnName "validate_capability" ;
@@ -228,7 +228,7 @@ ggen:capability_validate a cli:Verb ;
 # Verb Definitions — pack
 # ============================================================================
 
-ggen:pack_add a cli:Verb ;
+mcpp:pack_add a cli:Verb ;
     rdfs:label "add" ;
     cli:about "Add a pack or bundle alias to the workspace" ;
     cli:fnName "add_pack" ;
@@ -270,7 +270,7 @@ ggen:pack_add a cli:Verb ;
         cli:comment "Disable registry access"
     ] .
 
-ggen:pack_remove a cli:Verb ;
+mcpp:pack_remove a cli:Verb ;
     rdfs:label "remove" ;
     cli:about "Remove a pack or bundle alias" ;
     cli:fnName "remove_pack" ;
@@ -282,13 +282,13 @@ ggen:pack_remove a cli:Verb ;
         cli:comment "Pack ID to remove"
     ] .
 
-ggen:pack_list a cli:Verb ;
+mcpp:pack_list a cli:Verb ;
     rdfs:label "list" ;
     cli:about "List installed and enabled packs" ;
     cli:fnName "list_packs" ;
     cli:returnType "PackList" .
 
-ggen:pack_show a cli:Verb ;
+mcpp:pack_show a cli:Verb ;
     rdfs:label "show" ;
     cli:about "Show pack metadata and trust status" ;
     cli:fnName "show_pack" ;
@@ -300,7 +300,7 @@ ggen:pack_show a cli:Verb ;
         cli:comment "Pack ID to inspect"
     ] .
 
-ggen:pack_inspect a cli:Verb ;
+mcpp:pack_inspect a cli:Verb ;
     rdfs:label "inspect" ;
     cli:about "Show resolved ontology, queries, templates, validators" ;
     cli:fnName "inspect_pack" ;
@@ -312,19 +312,19 @@ ggen:pack_inspect a cli:Verb ;
         cli:comment "Pack ID to inspect"
     ] .
 
-ggen:pack_graph a cli:Verb ;
+mcpp:pack_graph a cli:Verb ;
     rdfs:label "graph" ;
     cli:about "Show dependency and composition graph" ;
     cli:fnName "graph_packs" ;
     cli:returnType "CompositionGraph" .
 
-ggen:pack_verify a cli:Verb ;
+mcpp:pack_verify a cli:Verb ;
     rdfs:label "verify" ;
     cli:about "Verify signatures, checksums, and trust policy" ;
     cli:fnName "verify_packs" ;
     cli:returnType "VerificationResult" .
 
-ggen:pack_search a cli:Verb ;
+mcpp:pack_search a cli:Verb ;
     rdfs:label "search" ;
     cli:about "Search configured registries" ;
     cli:fnName "search_packs" ;
@@ -336,7 +336,7 @@ ggen:pack_search a cli:Verb ;
         cli:comment "Search query"
     ] .
 
-ggen:pack_lock a cli:Verb ;
+mcpp:pack_lock a cli:Verb ;
     rdfs:label "lock" ;
     cli:about "Write or update pack lock state" ;
     cli:fnName "lock_packs" ;
@@ -346,13 +346,13 @@ ggen:pack_lock a cli:Verb ;
 # Verb Definitions — policy
 # ============================================================================
 
-ggen:policy_list a cli:Verb ;
+mcpp:policy_list a cli:Verb ;
     rdfs:label "list" ;
     cli:about "List available policy profiles" ;
     cli:fnName "list_policies" ;
     cli:returnType "PolicyList" .
 
-ggen:policy_show a cli:Verb ;
+mcpp:policy_show a cli:Verb ;
     rdfs:label "show" ;
     cli:about "Show policy profile details" ;
     cli:fnName "show_policy" ;
@@ -364,7 +364,7 @@ ggen:policy_show a cli:Verb ;
         cli:comment "Profile name to show"
     ] .
 
-ggen:policy_validate a cli:Verb ;
+mcpp:policy_validate a cli:Verb ;
     rdfs:label "validate" ;
     cli:about "Validate current workspace against a profile" ;
     cli:fnName "validate_policy" ;
@@ -380,7 +380,7 @@ ggen:policy_validate a cli:Verb ;
 # Verb Definitions — receipt
 # ============================================================================
 
-ggen:receipt_verify a cli:Verb ;
+mcpp:receipt_verify a cli:Verb ;
     rdfs:label "verify" ;
     cli:about "Verify a receipt signature and content hash" ;
     cli:fnName "verify_receipt" ;
@@ -392,7 +392,7 @@ ggen:receipt_verify a cli:Verb ;
         cli:comment "Path to receipt file"
     ] .
 
-ggen:receipt_info a cli:Verb ;
+mcpp:receipt_info a cli:Verb ;
     rdfs:label "info" ;
     cli:about "Show receipt metadata and composition details" ;
     cli:fnName "info_receipt" ;
@@ -404,7 +404,7 @@ ggen:receipt_info a cli:Verb ;
         cli:comment "Path to receipt file"
     ] .
 
-ggen:receipt_chain_verify a cli:Verb ;
+mcpp:receipt_chain_verify a cli:Verb ;
     rdfs:label "chain-verify" ;
     cli:about "Verify a chain of receipts across generations" ;
     cli:fnName "chain_verify_receipt" ;
@@ -416,7 +416,7 @@ ggen:receipt_chain_verify a cli:Verb ;
         cli:comment "Path to receipt file"
     ] .
 
-ggen:receipt_show a cli:Verb ;
+mcpp:receipt_show a cli:Verb ;
     rdfs:label "show" ;
     cli:about "Render a receipt in human-readable form" ;
     cli:fnName "show_receipt" ;
@@ -432,7 +432,7 @@ ggen:receipt_show a cli:Verb ;
 # Verb Definitions — sync (sacred compiler action)
 # ============================================================================
 
-ggen:sync_run a cli:Verb ;
+mcpp:sync_run a cli:Verb ;
     rdfs:label "run" ;
     cli:about "Compile ontology into governed artifacts (authoritative pipeline)" ;
     cli:fnName "run_sync" ;
@@ -468,31 +468,31 @@ ggen:sync_run a cli:Verb ;
 # Verb Definitions — graph
 # ============================================================================
 
-ggen:graph_ontologies a cli:Verb ;
+mcpp:graph_ontologies a cli:Verb ;
     rdfs:label "ontology" ;
     cli:about "Show loaded ontology graph" ;
     cli:fnName "graph_ontologies" ;
     cli:returnType "GraphData" .
 
-ggen:graph_pack a cli:Verb ;
+mcpp:graph_pack a cli:Verb ;
     rdfs:label "pack" ;
     cli:about "Show pack dependency and expansion graph" ;
     cli:fnName "graph_packs" ;
     cli:returnType "GraphData" .
 
-ggen:graph_capability a cli:Verb ;
+mcpp:graph_capability a cli:Verb ;
     rdfs:label "capability" ;
     cli:about "Show capability-to-pack graph" ;
     cli:fnName "graph_capabilities" ;
     cli:returnType "GraphData" .
 
-ggen:graph_ownership a cli:Verb ;
+mcpp:graph_ownership a cli:Verb ;
     rdfs:label "ownership" ;
     cli:about "Show artifact and field ownership graph" ;
     cli:fnName "graph_ownership" ;
     cli:returnType "GraphData" .
 
-ggen:graph_runtime a cli:Verb ;
+mcpp:graph_runtime a cli:Verb ;
     rdfs:label "runtime" ;
     cli:about "Show runtime binding graph" ;
     cli:fnName "graph_runtime" ;
@@ -502,7 +502,7 @@ ggen:graph_runtime a cli:Verb ;
 # Verb Definitions — doctor
 # ============================================================================
 
-ggen:doctor_run a cli:Verb ;
+mcpp:doctor_run a cli:Verb ;
     rdfs:label "run" ;
     cli:about "Diagnose workspace and configuration issues" ;
     cli:fnName "run_doctor" ;

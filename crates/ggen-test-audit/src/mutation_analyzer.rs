@@ -30,7 +30,7 @@ impl MutationAnalyzer {
     ///
     /// # Arguments
     /// * `workspace_root` - Workspace root directory containing crates
-    /// * `output_dir` - Directory to store mutation reports (typically .ggen/mutation-reports/)
+    /// * `output_dir` - Directory to store mutation reports (typically .mcpp/mutation-reports/)
     ///
     /// # Errors
     /// Returns `AuditError::IoError` if workspace_root does not exist
@@ -59,24 +59,24 @@ impl MutationAnalyzer {
     /// Add a crate path for mutation testing
     ///
     /// # Arguments
-    /// * `crate_path` - Relative path from workspace root (e.g., "crates/ggen-core")
+    /// * `crate_path` - Relative path from workspace root (e.g., "crates/mcpp-core")
     pub fn add_crate(&mut self, crate_path: impl Into<PathBuf>) {
         self.crate_paths.push(crate_path.into());
     }
 
     /// Add multiple critical paths for mutation testing
     ///
-    /// Critical paths for ggen (Feature 004 requirement):
-    /// - RDF parsing (ggen-rdf)
-    /// - Ontology projection (ggen-ontology)
-    /// - Code generation (ggen-core)
-    /// - Configuration (ggen.toml handling)
+    /// Critical paths for mcpp (Feature 004 requirement):
+    /// - RDF parsing (mcpp-rdf)
+    /// - Ontology projection (mcpp-ontology)
+    /// - Code generation (mcpp-core)
+    /// - Configuration (mcpp.toml handling)
     pub fn add_critical_paths(&mut self) {
         let critical_crates = vec![
-            "crates/ggen-core",
-            "crates/ggen-rdf",
-            "crates/ggen-ontology",
-            "crates/ggen-config",
+            "crates/mcpp-core",
+            "crates/mcpp-rdf",
+            "crates/mcpp-ontology",
+            "crates/mcpp-config",
         ];
 
         for crate_path in critical_crates {
@@ -146,7 +146,7 @@ impl MutationAnalyzer {
 
     /// Parse mutation results from cargo-mutants JSON output
     ///
-    /// Converts cargo-mutants output format to ggen's MutationResult type.
+    /// Converts cargo-mutants output format to mcpp's MutationResult type.
     ///
     /// # Errors
     /// Returns `AuditError::JsonError` if JSON parsing fails
@@ -172,7 +172,7 @@ impl MutationAnalyzer {
         Ok(results)
     }
 
-    /// Convert cargo-mutants result to ggen MutationResult
+    /// Convert cargo-mutants result to mcpp MutationResult
     fn convert_mutant_to_result(
         &self, mutant: CargoMutantsResult, _crate_path: &Path,
     ) -> AuditResult<MutationResult> {

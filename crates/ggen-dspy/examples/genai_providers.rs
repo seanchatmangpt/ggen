@@ -46,7 +46,7 @@
 //! cargo run --example genai_providers
 //! ```
 
-use ggen_ai::{GenAiClient, LlmClient, LlmConfig, MockClient};
+use mcpp_ai::{GenAiClient, LlmClient, LlmConfig, MockClient};
 use std::collections::HashMap;
 
 /// Main entry point demonstrating provider configurations

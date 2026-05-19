@@ -247,17 +247,17 @@ ggen template generate cleanroom/benchmark-suite.tmpl --var project_name=my-app
 
 ## 📚 Additional Resources
 
-- **Cleanroom Framework**: `/Users/sac/ggen/cleanroom/`
-- **Example Code**: `/Users/sac/ggen/cleanroom/examples/`
-- **Integration Tests**: `/Users/sac/ggen/cleanroom/tests/`
-- **Documentation**: `/Users/sac/ggen/cleanroom/docs/`
+- **Cleanroom Framework**: `./cleanroom/`
+- **Example Code**: `./cleanroom/examples/`
+- **Integration Tests**: `./cleanroom/tests/`
+- **Documentation**: `./cleanroom/docs/`
 
 ## 🔍 Verification
 
 Run verification script:
 
 ```bash
-cd /Users/sac/ggen/templates/cleanroom
+cd ./templates/cleanroom
 ./verify.sh
 ```
 

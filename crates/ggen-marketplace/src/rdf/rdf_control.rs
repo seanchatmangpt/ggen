@@ -163,7 +163,7 @@ impl RdfControlPlane {
         info!("Adding new package: {name}");
 
         // Create package resource ID
-        let package_id = ResourceId::new(format!("http://ggen.dev/packages/{name}"))
+        let package_id = ResourceId::new(format!("http://mcpp.dev/packages/{name}"))
             .map_err(ControlPlaneError::InvalidResource)?;
 
         // Build triples
@@ -383,19 +383,19 @@ mod tests {
     use std::fs;
 
     fn setup_test_config() -> String {
-        let test_dir = env::temp_dir().join("ggen-test-config");
+        let test_dir = env::temp_dir().join("mcpp-test-config");
         fs::create_dir_all(&test_dir).unwrap();
 
         let config_content = r#"
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix mcpp: <http://mcpp.dev/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-:marketplace a ggen:MarketplaceConfig ;
-    ggen:registryUrl "https://test.registry.dev" ;
-    ggen:cacheDir "/tmp/test-cache" ;
-    ggen:maxDownloadSize "1000000"^^xsd:integer ;
-    ggen:validationEnabled "true"^^xsd:boolean ;
-    ggen:autoUpdateEnabled "false"^^xsd:boolean .
+:marketplace a mcpp:MarketplaceConfig ;
+    mcpp:registryUrl "https://test.registry.dev" ;
+    mcpp:cacheDir "/tmp/test-cache" ;
+    mcpp:maxDownloadSize "1000000"^^xsd:integer ;
+    mcpp:validationEnabled "true"^^xsd:boolean ;
+    mcpp:autoUpdateEnabled "false"^^xsd:boolean .
 "#;
 
         let config_path = test_dir.join("marketplace.ttl");

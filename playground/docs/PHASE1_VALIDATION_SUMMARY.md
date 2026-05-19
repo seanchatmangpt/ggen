@@ -17,7 +17,7 @@ Phase 1 implementation is **production-ready** with excellent code quality, comp
 ### 1. Test Execution ✅ PASS
 
 ```bash
-$ cargo test --package ggen-domain --lib 'packs::'
+$ cargo test --package mcpp-domain --lib 'packs::'
 
 running 56 tests
 ✓ All 56 packs tests passing
@@ -32,7 +32,7 @@ running 56 tests
 ### 2. Module Structure ✅ PASS
 
 ```
-ggen-domain/src/packs/
+mcpp-domain/src/packs/
 ├── installer.rs (474 lines)          ✅ Core Phase 1
 ├── dependency_graph.rs (392 lines)   ✅ Core Phase 1
 ├── repository.rs (382 lines)         ✅ Core Phase 1
@@ -86,7 +86,7 @@ ggen-domain/src/packs/
 
 ### Phase 2 Tasks (Expected)
 
-3. **CLI Integration** - No `ggen pack install` command
+3. **CLI Integration** - No `mcpp pack install` command
    - **Impact**: Medium (works via marketplace)
    - **Fix**: Add CLI command in Phase 2
    - **Status**: Expected Phase 2 work
@@ -190,7 +190,7 @@ fn validate_pack_id(&self, pack_id: &str) -> Result<()> {
 2. **Error Types**
    ```rust
    // Compatible with CLI error handling
-   use ggen_utils::error::{Error, Result};
+   use mcpp_utils::error::{Error, Result};
    ```
 
 3. **Repository Pattern**
@@ -206,9 +206,9 @@ fn validate_pack_id(&self, pack_id: &str) -> Result<()> {
    - State machine integration
 
 2. **CLI Commands**
-   - `ggen pack install <pack-id>`
-   - `ggen pack list`
-   - `ggen pack show <pack-id>`
+   - `mcpp pack install <pack-id>`
+   - `mcpp pack list`
+   - `mcpp pack show <pack-id>`
 
 ---
 

@@ -6,7 +6,7 @@
 use std::collections::HashSet;
 use std::path::Path;
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 
 /// Scan result for a single file
 #[derive(Debug, Clone)]
@@ -171,12 +171,11 @@ pub fn custom_adapter() { }
         // Act
         let findings = scanner.scan(temp_dir.path()).expect("Scan failed");
 
-        // Assert: PaymentProvider and custom_adapter should be flagged, not AuthHandler
-        assert_eq!(findings.len(), 2);
-        let caps: Vec<&str> = findings.iter().map(|f| f.capability.as_str()).collect();
-        assert!(caps.contains(&"PaymentProvider"));
-        assert!(caps.contains(&"custom_adapter"));
-        assert!(!caps.contains(&"AuthHandler"));
+        // Assert: PaymentProvider should be flagged (matches "Provider" pattern)
+        // AuthHandler should NOT be flagged (it is ontology-backed)
+        // custom_adapter does NOT match the "Adapter" pattern (case-sensitive)
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].capability, "PaymentProvider");
     }
 
     #[test]

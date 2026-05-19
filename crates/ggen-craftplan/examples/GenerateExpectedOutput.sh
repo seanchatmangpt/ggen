@@ -1,10 +1,10 @@
 #!/bin/bash
-# Example script demonstrating how to use ggen-craftplan templates
+# Example script demonstrating how to use mcpp-craftplan templates
 
 set -e
 
 echo "=========================================="
-echo "ggen-craftplan Template Generation Demo"
+echo "mcpp-craftplan Template Generation Demo"
 echo "=========================================="
 echo ""
 

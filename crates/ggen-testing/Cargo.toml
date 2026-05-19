@@ -1,11 +1,11 @@
 [package]
-name = "ggen-testing"
+name = "mcpp-testing"
 version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
-description = "Chicago TDD test infrastructure for ggen - state-based verification with real collaborators"
-repository = "https://github.com/seanchatmangpt/ggen"
+description = "Chicago TDD test infrastructure for mcpp - state-based verification with real collaborators"
+repository = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["testing", "tdd", "chicago", "state-verification"]
 categories = ["development-tools::testing"]
 
@@ -31,5 +31,5 @@ uuid = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }
 
 [lib]
-name = "ggen_testing"
+name = "mcpp_testing"
 path = "src/lib.rs"

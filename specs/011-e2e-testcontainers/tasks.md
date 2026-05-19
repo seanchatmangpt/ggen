@@ -11,7 +11,7 @@
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: US1-US5 maps to spec.md user stories
-- Paths based on plan.md: `crates/ggen-e2e/src/`, `tests/e2e/`
+- Paths based on plan.md: `crates/mcpp-e2e/src/`, `tests/e2e/`
 
 ## Summary
 
@@ -31,12 +31,12 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Create ggen-e2e crate and basic project structure
+**Purpose**: Create mcpp-e2e crate and basic project structure
 
-- [ ] T001 Create crates/ggen-e2e/ directory structure per plan.md
-- [ ] T002 Create Cargo.toml for ggen-e2e crate in crates/ggen-e2e/Cargo.toml
-- [ ] T003 Add ggen-e2e to workspace members in root Cargo.toml
-- [ ] T004 [P] Create crates/ggen-e2e/src/lib.rs with module declarations
+- [ ] T001 Create crates/mcpp-e2e/ directory structure per plan.md
+- [ ] T002 Create Cargo.toml for mcpp-e2e crate in crates/mcpp-e2e/Cargo.toml
+- [ ] T003 Add mcpp-e2e to workspace members in root Cargo.toml
+- [ ] T004 [P] Create crates/mcpp-e2e/src/lib.rs with module declarations
 - [ ] T005 [P] Create tests/e2e/ directory structure (golden/, fixtures/)
 - [ ] T006 [P] Create tests/e2e/golden/README.md with golden file maintenance guide
 
@@ -48,42 +48,42 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Implement error types (E2EError, PlatformError, FixtureError, GoldenError, ContainerError, RunnerError) in crates/ggen-e2e/src/error.rs
-- [ ] T008 [P] Implement Platform, Os, Arch types with detection in crates/ggen-e2e/src/platform.rs
-- [ ] T009 [P] Implement GoldenFile and GoldenMismatch types in crates/ggen-e2e/src/golden.rs
-- [ ] T010 [P] Implement TestFixture type in crates/ggen-e2e/src/fixture.rs
-- [ ] T011 [P] Implement ContainerConfig and VolumeMount types in crates/ggen-e2e/src/container.rs
-- [ ] T012 Implement TestResult and TestStatus types in crates/ggen-e2e/src/result.rs
-- [ ] T013 Implement TestRunner and TestExecution types in crates/ggen-e2e/src/runner.rs
+- [ ] T007 [P] Implement error types (E2EError, PlatformError, FixtureError, GoldenError, ContainerError, RunnerError) in crates/mcpp-e2e/src/error.rs
+- [ ] T008 [P] Implement Platform, Os, Arch types with detection in crates/mcpp-e2e/src/platform.rs
+- [ ] T009 [P] Implement GoldenFile and GoldenMismatch types in crates/mcpp-e2e/src/golden.rs
+- [ ] T010 [P] Implement TestFixture type in crates/mcpp-e2e/src/fixture.rs
+- [ ] T011 [P] Implement ContainerConfig and VolumeMount types in crates/mcpp-e2e/src/container.rs
+- [ ] T012 Implement TestResult and TestStatus types in crates/mcpp-e2e/src/result.rs
+- [ ] T013 Implement TestRunner and TestExecution types in crates/mcpp-e2e/src/runner.rs
 - [ ] T014 Add cargo make targets (test-e2e, test-e2e-linux, test-e2e-macos) in Makefile.toml
 
 **Checkpoint**: Foundation ready - all core types implemented. User story implementation can begin.
 
 ---
 
-## Phase 3: User Story 1 - Cross-Platform ggen sync Validation (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Cross-Platform mcpp sync Validation (Priority: P1) 🎯 MVP
 
-**Goal**: Verify `ggen sync` works correctly on both macOS and Linux with identical output
+**Goal**: Verify `mcpp sync` works correctly on both macOS and Linux with identical output
 
 **Independent Test**: Run `cargo make test-e2e` to execute tests on current platform, verify golden file comparison works
 
 **Acceptance Criteria (from spec.md)**:
-1. Linux container executes `ggen sync` and produces expected output
+1. Linux container executes `mcpp sync` and produces expected output
 2. macOS native execution produces byte-for-byte identical output
 3. Results identical regardless of installation method
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement GgenExecutor trait in crates/ggen-e2e/src/runner.rs
-- [ ] T016 [P] [US1] Implement NativeExecutor (macOS) in crates/ggen-e2e/src/runner.rs
-- [ ] T017 [P] [US1] Implement ContainerExecutor (Linux) using testcontainers in crates/ggen-e2e/src/runner.rs
-- [ ] T018 [US1] Implement TestRunner.run() orchestration in crates/ggen-e2e/src/runner.rs
-- [ ] T019 [US1] Implement golden file comparison logic (normalize line endings) in crates/ggen-e2e/src/golden.rs
+- [ ] T015 [US1] Implement GgenExecutor trait in crates/mcpp-e2e/src/runner.rs
+- [ ] T016 [P] [US1] Implement NativeExecutor (macOS) in crates/mcpp-e2e/src/runner.rs
+- [ ] T017 [P] [US1] Implement ContainerExecutor (Linux) using testcontainers in crates/mcpp-e2e/src/runner.rs
+- [ ] T018 [US1] Implement TestRunner.run() orchestration in crates/mcpp-e2e/src/runner.rs
+- [ ] T019 [US1] Implement golden file comparison logic (normalize line endings) in crates/mcpp-e2e/src/golden.rs
 - [ ] T020 [P] [US1] Create minimal test fixture in tests/e2e/fixtures/minimal-project/
 - [ ] T021 [P] [US1] Generate golden files for minimal fixture in tests/e2e/golden/minimal/
-- [ ] T022 [US1] Implement CrossPlatformComparison entity in crates/ggen-e2e/src/comparison.rs
-- [ ] T023 [US1] Create e2e_linux.rs test file in crates/ggen-e2e/tests/e2e_linux.rs
-- [ ] T024 [US1] Create e2e_macos.rs test file in crates/ggen-e2e/tests/e2e_macos.rs
+- [ ] T022 [US1] Implement CrossPlatformComparison entity in crates/mcpp-e2e/src/comparison.rs
+- [ ] T023 [US1] Create e2e_linux.rs test file in crates/mcpp-e2e/tests/e2e_linux.rs
+- [ ] T024 [US1] Create e2e_macos.rs test file in crates/mcpp-e2e/tests/e2e_macos.rs
 
 **Checkpoint**: US1 complete - cross-platform sync validation working. Can run `cargo make test-e2e` on any platform.
 
@@ -102,14 +102,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement container startup with retry and backoff in crates/ggen-e2e/src/container.rs
-- [ ] T026 [US2] Implement container cleanup (Drop trait) with log capture in crates/ggen-e2e/src/container.rs
-- [ ] T027 [P] [US2] Implement Docker availability check in crates/ggen-e2e/src/platform.rs
-- [ ] T028 [US2] Implement volume mounting for fixtures in crates/ggen-e2e/src/container.rs
-- [ ] T029 [US2] Implement ggen binary injection into containers in crates/ggen-e2e/src/container.rs
-- [ ] T030 [US2] Implement test timeout handling (configurable, default 5 min) in crates/ggen-e2e/src/runner.rs
-- [ ] T031 [US2] Create e2e_cross_platform.rs test comparing outputs in crates/ggen-e2e/tests/e2e_cross_platform.rs
-- [ ] T032 [US2] Add container log capture and display on test failure in crates/ggen-e2e/src/result.rs
+- [ ] T025 [US2] Implement container startup with retry and backoff in crates/mcpp-e2e/src/container.rs
+- [ ] T026 [US2] Implement container cleanup (Drop trait) with log capture in crates/mcpp-e2e/src/container.rs
+- [ ] T027 [P] [US2] Implement Docker availability check in crates/mcpp-e2e/src/platform.rs
+- [ ] T028 [US2] Implement volume mounting for fixtures in crates/mcpp-e2e/src/container.rs
+- [ ] T029 [US2] Implement mcpp binary injection into containers in crates/mcpp-e2e/src/container.rs
+- [ ] T030 [US2] Implement test timeout handling (configurable, default 5 min) in crates/mcpp-e2e/src/runner.rs
+- [ ] T031 [US2] Create e2e_cross_platform.rs test comparing outputs in crates/mcpp-e2e/tests/e2e_cross_platform.rs
+- [ ] T032 [US2] Add container log capture and display on test failure in crates/mcpp-e2e/src/result.rs
 
 **Checkpoint**: US2 complete - testcontainers fully working with cleanup. Docker-only environments supported.
 
@@ -117,22 +117,22 @@
 
 ## Phase 5: User Story 3 - Homebrew Installation Verification (Priority: P2)
 
-**Goal**: Verify ggen installed via Homebrew works correctly
+**Goal**: Verify mcpp installed via Homebrew works correctly
 
-**Independent Test**: On macOS, run `brew install seanchatmangpt/tap/ggen`, then `ggen sync` on sample project
+**Independent Test**: On macOS, run `brew install seanchatmangpt/tap/mcpp`, then `mcpp sync` on sample project
 
 **Acceptance Criteria (from spec.md)**:
-1. `brew install ggen` succeeds and ggen available in PATH
-2. Homebrew-installed ggen produces output identical to cargo-installed
-3. `brew upgrade ggen` works correctly
+1. `brew install mcpp` succeeds and mcpp available in PATH
+2. Homebrew-installed mcpp produces output identical to cargo-installed
+3. `brew upgrade mcpp` works correctly
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Create Homebrew test helper module in crates/ggen-e2e/src/homebrew.rs
-- [ ] T034 [US3] Implement brew install/uninstall wrapper in crates/ggen-e2e/src/homebrew.rs
-- [ ] T035 [US3] Implement brew version verification in crates/ggen-e2e/src/homebrew.rs
-- [ ] T036 [US3] Create e2e_homebrew.rs test file (#[ignore] for CI) in crates/ggen-e2e/tests/e2e_homebrew.rs
-- [ ] T037 [US3] Implement smoke test comparing homebrew ggen vs cargo ggen in crates/ggen-e2e/tests/e2e_homebrew.rs
+- [ ] T033 [P] [US3] Create Homebrew test helper module in crates/mcpp-e2e/src/homebrew.rs
+- [ ] T034 [US3] Implement brew install/uninstall wrapper in crates/mcpp-e2e/src/homebrew.rs
+- [ ] T035 [US3] Implement brew version verification in crates/mcpp-e2e/src/homebrew.rs
+- [ ] T036 [US3] Create e2e_homebrew.rs test file (#[ignore] for CI) in crates/mcpp-e2e/tests/e2e_homebrew.rs
+- [ ] T037 [US3] Implement smoke test comparing homebrew mcpp vs cargo mcpp in crates/mcpp-e2e/tests/e2e_homebrew.rs
 - [ ] T038 [US3] Add homebrew-specific cargo make target in Makefile.toml (test-e2e-homebrew)
 
 **Checkpoint**: US3 complete - Homebrew installation path verified. macOS users can trust brew distribution.
@@ -147,17 +147,17 @@
 
 **Acceptance Criteria (from spec.md)**:
 1. thesis-gen example produces LaTeX matching golden output
-2. Any example with ggen.toml completes without errors
+2. Any example with mcpp.toml completes without errors
 3. Golden files can be updated when examples change
 
 ### Implementation for User Story 4
 
 - [ ] T039 [P] [US4] Create thesis-gen-sample fixture (subset of thesis-gen) in tests/e2e/fixtures/thesis-gen-sample/
 - [ ] T040 [P] [US4] Generate golden files for thesis-gen in tests/e2e/golden/thesis-gen/
-- [ ] T041 [US4] Implement UPDATE_GOLDEN env var support in crates/ggen-e2e/src/golden.rs
-- [ ] T042 [US4] Implement fixture discovery (scan tests/e2e/fixtures/) in crates/ggen-e2e/src/fixture.rs
-- [ ] T043 [US4] Create e2e_examples.rs test iterating all fixtures in crates/ggen-e2e/tests/e2e_examples.rs
-- [ ] T044 [US4] Implement checksum validation for golden files in crates/ggen-e2e/src/golden.rs
+- [ ] T041 [US4] Implement UPDATE_GOLDEN env var support in crates/mcpp-e2e/src/golden.rs
+- [ ] T042 [US4] Implement fixture discovery (scan tests/e2e/fixtures/) in crates/mcpp-e2e/src/fixture.rs
+- [ ] T043 [US4] Create e2e_examples.rs test iterating all fixtures in crates/mcpp-e2e/tests/e2e_examples.rs
+- [ ] T044 [US4] Implement checksum validation for golden files in crates/mcpp-e2e/src/golden.rs
 - [ ] T045 [P] [US4] Add .gitattributes for LF line endings in tests/e2e/ in tests/e2e/.gitattributes
 - [ ] T046 [US4] Add cargo make target test-e2e-examples in Makefile.toml
 
@@ -185,7 +185,7 @@
 - [ ] T051 [US5] Add artifact upload for test logs on failure in workflows
 - [ ] T052 [US5] Configure matrix strategy for platform coverage in workflows
 - [ ] T053 [US5] Add status check requirement to branch protection (document in README)
-- [ ] T054 [US5] Implement JUnit XML output for CI reporting in crates/ggen-e2e/src/result.rs
+- [ ] T054 [US5] Implement JUnit XML output for CI reporting in crates/mcpp-e2e/src/result.rs
 
 **Checkpoint**: US5 complete - CI fully integrated. PRs cannot merge without E2E pass.
 
@@ -195,11 +195,11 @@
 
 **Purpose**: Final improvements affecting multiple user stories
 
-- [ ] T055 [P] Add comprehensive rustdoc comments to all public APIs in crates/ggen-e2e/src/
+- [ ] T055 [P] Add comprehensive rustdoc comments to all public APIs in crates/mcpp-e2e/src/
 - [ ] T056 [P] Update quickstart.md with actual commands and outputs in specs/011-e2e-testcontainers/quickstart.md
-- [ ] T057 Run `cargo make test` to verify ggen-e2e integrates with existing test suite
-- [ ] T058 Run `cargo make clippy` and fix any lints in ggen-e2e crate
-- [ ] T059 [P] Add README.md for ggen-e2e crate in crates/ggen-e2e/README.md
+- [ ] T057 Run `cargo make test` to verify mcpp-e2e integrates with existing test suite
+- [ ] T058 Run `cargo make clippy` and fix any lints in mcpp-e2e crate
+- [ ] T059 [P] Add README.md for mcpp-e2e crate in crates/mcpp-e2e/README.md
 - [ ] T060 Validate quickstart.md instructions work end-to-end
 
 ---
@@ -313,14 +313,14 @@ T049 [P] e2e-cross-platform.yml
 **Minimum Viable Product = Phase 1 + Phase 2 + Phase 3 (US1)**
 
 This delivers:
-- ✅ ggen-e2e crate with core types
+- ✅ mcpp-e2e crate with core types
 - ✅ Platform detection (Linux/macOS)
 - ✅ Golden file comparison
 - ✅ NativeExecutor for macOS
 - ✅ ContainerExecutor for Linux
 - ✅ Basic E2E tests
 
-**Value**: Developers can run `cargo make test-e2e` to validate ggen sync works.
+**Value**: Developers can run `cargo make test-e2e` to validate mcpp sync works.
 
 ---
 

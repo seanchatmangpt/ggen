@@ -3,7 +3,7 @@
 //! This demonstrates proper OTEL span creation for LLM calls.
 //! Run with: GROQ_API_KEY=xxx cargo run --example otel_test
 
-use ggen_ai::{client::GenAiClient, config::LlmConfig, LlmClient};
+use mcpp_ai::{client::GenAiClient, config::LlmConfig, LlmClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

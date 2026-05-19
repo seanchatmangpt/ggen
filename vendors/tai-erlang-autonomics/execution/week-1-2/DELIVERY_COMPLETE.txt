@@ -126,7 +126,7 @@ DELIVERABLES SUMMARY:
 HOW TO GET STARTED:
 
 1. IMMEDIATE (5 minutes)
-   → Read: /Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/00_START_HERE.md
+   → Read: /Users/sac/mcpp/tai-erlang-autonomics/execution/week-1-2/00_START_HERE.md
 
 2. THIS WEEK (1 hour)
    → Read: QUICK_START_GUIDE.md
@@ -250,7 +250,7 @@ Breakdown:
 
 FILE LOCATION:
 
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-1-2/
 
 Directory Contents:
 ├── 00_START_HERE.md                      ← Read this FIRST (5 min)
@@ -361,6 +361,6 @@ Cost: ~$300-500 (testing), ~$3,600/month (production)
 ✅ Ready for Deployment
 ✅ Target: Week 3 Customer Demo
 
-Begin with: /Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/00_START_HERE.md
+Begin with: /Users/sac/mcpp/tai-erlang-autonomics/execution/week-1-2/00_START_HERE.md
 
 ================================================================================

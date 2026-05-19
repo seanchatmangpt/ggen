@@ -1,6 +1,6 @@
-//! # ggen-cli-validation
+//! # mcpp-cli-validation
 //!
-//! IO validation and security for ggen CLI operations.
+//! IO validation and security for mcpp CLI operations.
 //!
 //! Provides validation for:
 //! - File read/write operations

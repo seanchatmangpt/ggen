@@ -280,7 +280,7 @@ Total: 21 tests, 0 failures
 
 ## 🔗 Related Documentation
 
-- **ggen Documentation**: `/Users/sac/ggen/docs/`
+- **ggen Documentation**: `./docs/`
 - **OpenAPI Spec**: `lib/openapi/`
 - **Generated Schemas**: `lib/schemas/`
 - **Type Definitions**: `lib/types/`

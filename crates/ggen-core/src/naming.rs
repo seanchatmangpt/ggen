@@ -1,11 +1,11 @@
 //! # Naming Convention Validator (Phase 3)
 //!
-//! This module provides validation for canonical naming conventions used throughout ggen.
+//! This module provides validation for canonical naming conventions used throughout mcpp.
 //! Enforces rules for types, functions, CLI commands, handlers, and error types.
 //!
 //! See `.specify/naming-conventions-canonical.ttl` for authoritative naming rules.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use regex::Regex;
 use std::fmt;
 

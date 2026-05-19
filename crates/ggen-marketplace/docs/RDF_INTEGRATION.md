@@ -45,54 +45,54 @@ Complete implementation of RDF-backed package storage using oxigraph triplestore
 All v1 Package fields mapped to semantic RDF triples:
 
 ```turtle
-@prefix ggen: <https://ggen.io/marketplace/> .
+@prefix mcpp: <https://mcpp.io/marketplace/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ggen:packages/my-package
-    rdf:type ggen:classes/Package ;
-    ggen:properties/packageId "my-package" ;
-    ggen:properties/name "My Package" ;
-    ggen:properties/description "A great package" ;
-    ggen:properties/license "MIT" ;
-    ggen:properties/qualityScore "95"^^xsd:integer ;
-    ggen:properties/downloads "1000"^^xsd:integer ;
-    ggen:properties/createdAt "2025-01-15T10:00:00Z"^^xsd:dateTime ;
-    ggen:properties/updatedAt "2025-01-18T15:30:00Z"^^xsd:dateTime ;
-    ggen:properties/latestVersion "1.2.0" ;
-    ggen:properties/hasAuthor ggen:packages/my-package/authors/0 ;
-    ggen:properties/keywords "rust" ;
-    ggen:properties/keywords "marketplace" ;
-    ggen:properties/hasVersion ggen:packages/my-package/versions/1.0.0 ;
-    ggen:properties/hasVersion ggen:packages/my-package/versions/1.2.0 .
+mcpp:packages/my-package
+    rdf:type mcpp:classes/Package ;
+    mcpp:properties/packageId "my-package" ;
+    mcpp:properties/name "My Package" ;
+    mcpp:properties/description "A great package" ;
+    mcpp:properties/license "MIT" ;
+    mcpp:properties/qualityScore "95"^^xsd:integer ;
+    mcpp:properties/downloads "1000"^^xsd:integer ;
+    mcpp:properties/createdAt "2025-01-15T10:00:00Z"^^xsd:dateTime ;
+    mcpp:properties/updatedAt "2025-01-18T15:30:00Z"^^xsd:dateTime ;
+    mcpp:properties/latestVersion "1.2.0" ;
+    mcpp:properties/hasAuthor mcpp:packages/my-package/authors/0 ;
+    mcpp:properties/keywords "rust" ;
+    mcpp:properties/keywords "marketplace" ;
+    mcpp:properties/hasVersion mcpp:packages/my-package/versions/1.0.0 ;
+    mcpp:properties/hasVersion mcpp:packages/my-package/versions/1.2.0 .
 
-ggen:packages/my-package/authors/0
+mcpp:packages/my-package/authors/0
     foaf:name "Alice Developer" .
 
-ggen:packages/my-package/versions/1.2.0
-    rdf:type ggen:classes/PackageVersion ;
-    ggen:properties/version "1.2.0" ;
-    ggen:releasedAt "2025-01-18T15:00:00Z"^^xsd:dateTime ;
-    ggen:changelog "Added new features" ;
-    ggen:properties/checksum "sha256:abc123..." ;
-    ggen:downloadUrl "https://pkg.ggen.io/my-package-1.2.0.tar.gz" ;
-    ggen:properties/hasDependency ggen:packages/my-package/versions/1.2.0/dependencies/0 .
+mcpp:packages/my-package/versions/1.2.0
+    rdf:type mcpp:classes/PackageVersion ;
+    mcpp:properties/version "1.2.0" ;
+    mcpp:releasedAt "2025-01-18T15:00:00Z"^^xsd:dateTime ;
+    mcpp:changelog "Added new features" ;
+    mcpp:properties/checksum "sha256:abc123..." ;
+    mcpp:downloadUrl "https://pkg.mcpp.io/my-package-1.2.0.tar.gz" ;
+    mcpp:properties/hasDependency mcpp:packages/my-package/versions/1.2.0/dependencies/0 .
 
-ggen:packages/my-package/versions/1.2.0/dependencies/0
-    rdf:type ggen:classes/Dependency ;
-    ggen:properties/packageId "dep-package" ;
-    ggen:versionReq "^2.0.0" ;
-    ggen:optional "false"^^xsd:boolean .
+mcpp:packages/my-package/versions/1.2.0/dependencies/0
+    rdf:type mcpp:classes/Dependency ;
+    mcpp:properties/packageId "dep-package" ;
+    mcpp:versionReq "^2.0.0" ;
+    mcpp:optional "false"^^xsd:boolean .
 ```
 
 ### Ontology Classes
 
-- `ggen:Package` - Main package entity
-- `ggen:PackageVersion` - Specific version
-- `ggen:Author` - Package author
-- `ggen:Dependency` - Package dependency
-- `ggen:License` - License information
+- `mcpp:Package` - Main package entity
+- `mcpp:PackageVersion` - Specific version
+- `mcpp:Author` - Package author
+- `mcpp:Dependency` - Package dependency
+- `mcpp:License` - License information
 
 ### RDF Predicates
 
@@ -100,19 +100,19 @@ All Package fields mapped:
 
 | Field | RDF Predicate | Type |
 |-------|---------------|------|
-| id | `ggen:packageId` | Literal |
-| name | `ggen:name` | Literal |
-| description | `ggen:description` | Literal |
-| authors | `ggen:hasAuthor` → `foaf:name` | Relationship + Literal |
-| license | `ggen:license` | Literal |
-| repository | `ggen:repositoryUrl` | Literal |
-| homepage | `ggen:homepageUrl` | Literal |
-| keywords | `ggen:keywords` | Multiple Literals |
-| quality_score | `ggen:qualityScore` | xsd:integer |
-| downloads | `ggen:downloads` | xsd:integer |
-| created_at | `ggen:createdAt` | xsd:dateTime |
-| updated_at | `ggen:updatedAt` | xsd:dateTime |
-| versions | `ggen:hasVersion` | Relationship |
+| id | `mcpp:packageId` | Literal |
+| name | `mcpp:name` | Literal |
+| description | `mcpp:description` | Literal |
+| authors | `mcpp:hasAuthor` → `foaf:name` | Relationship + Literal |
+| license | `mcpp:license` | Literal |
+| repository | `mcpp:repositoryUrl` | Literal |
+| homepage | `mcpp:homepageUrl` | Literal |
+| keywords | `mcpp:keywords` | Multiple Literals |
+| quality_score | `mcpp:qualityScore` | xsd:integer |
+| downloads | `mcpp:downloads` | xsd:integer |
+| created_at | `mcpp:createdAt` | xsd:dateTime |
+| updated_at | `mcpp:updatedAt` | xsd:dateTime |
+| versions | `mcpp:hasVersion` | Relationship |
 
 ## Part 2: Storage Integration
 
@@ -264,7 +264,7 @@ package_exists          time:   [12.3 μs 12.8 μs 13.3 μs]
 ### Basic Package Storage
 
 ```rust
-use ggen_marketplace_v2::{
+use mcpp_marketplace_v2::{
     RdfRegistry, PackageMetadata, Package, PackageId, PackageVersion,
     traits::AsyncRepository,
 };
@@ -292,7 +292,7 @@ assert_eq!(retrieved.metadata.name, "My Package");
 ### Migration from v1
 
 ```rust
-use ggen_marketplace_v2::migration::MigrationCoordinator;
+use mcpp_marketplace_v2::migration::MigrationCoordinator;
 
 let v1_packages = vec![/* v1 packages */];
 let rdf_registry = Arc::new(RdfRegistry::new());
@@ -310,7 +310,7 @@ assert!(verification.is_valid());
 ### SPARQL Queries
 
 ```rust
-use ggen_marketplace_v2::ontology::Queries;
+use mcpp_marketplace_v2::ontology::Queries;
 
 let registry = RdfRegistry::new();
 

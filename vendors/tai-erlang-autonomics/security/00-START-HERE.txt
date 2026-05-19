@@ -261,7 +261,7 @@ FILE LOCATIONS
 ================================================================================
 
 All files located in:
-/Users/sac/ggen/tai-erlang-autonomics/security/
+/Users/sac/mcpp/tai-erlang-autonomics/security/
 
 Documents:
 ├─ 00-START-HERE.txt (this file)

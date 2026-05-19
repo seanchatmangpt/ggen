@@ -1,5 +1,5 @@
 # Thesis Generation Contract
-# OpenAPI-style specification for ggen thesis generation
+# OpenAPI-style specification for mcpp thesis generation
 
 openapi: 3.0.0
 info:
@@ -7,14 +7,14 @@ info:
   version: 1.0.0
   description: |
     Contract specification for generating PhD thesis from RDF ontology
-    using ggen code generation framework.
+    using mcpp code generation framework.
 
 paths:
   /sync:
     post:
       summary: Generate LaTeX from ontology
       description: |
-        Executes all generation rules defined in ggen.toml manifest,
+        Executes all generation rules defined in mcpp.toml manifest,
         producing LaTeX files from RDF ontology content.
       requestBody:
         required: true
@@ -117,7 +117,7 @@ components:
           example: "ontology/kgc-unified-content.ttl"
         base_iri:
           type: string
-          example: "https://ggen.io/thesis/kgc-unified/"
+          example: "https://mcpp.io/thesis/kgc-unified/"
         schema:
           type: string
           description: Path to schema ontology

@@ -1,5 +1,5 @@
 use chicago_tdd_tools::prelude::*;
-use ggen_core::RegistryClient;
+use mcpp_core::RegistryClient;
 use std::env;
 use std::path::PathBuf;
 
@@ -19,7 +19,7 @@ async_test_with_timeout!(test_local_registry_index, 30, async {
 
     // Assert
     assert!(!index.packs.is_empty());
-    assert!(index.packs.contains_key("io.ggen.rust.cli-subcommand"));
+    assert!(index.packs.contains_key("io.mcpp.rust.cli-subcommand"));
 });
 
 async_test_with_timeout!(test_resolve_from_local_registry, 30, async {
@@ -35,12 +35,12 @@ async_test_with_timeout!(test_resolve_from_local_registry, 30, async {
 
     // Act
     let resolved = client
-        .resolve("io.ggen.rust.cli-subcommand", None)
+        .resolve("io.mcpp.rust.cli-subcommand", None)
         .await
         .unwrap();
 
     // Assert
-    assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
+    assert_eq!(resolved.id, "io.mcpp.rust.cli-subcommand");
     assert_eq!(resolved.version, "1.2.0");
 });
 
@@ -62,7 +62,7 @@ async_test_with_timeout!(test_search_from_local_registry, 30, async {
     assert!(!results.is_empty());
     assert!(results
         .iter()
-        .any(|r| r.id == "io.ggen.rust.cli-subcommand"));
+        .any(|r| r.id == "io.mcpp.rust.cli-subcommand"));
 });
 
 async_test_with_timeout!(test_advanced_search_from_local_registry, 30, async {
@@ -75,7 +75,7 @@ async_test_with_timeout!(test_advanced_search_from_local_registry, 30, async {
     );
     env::set_var("GGEN_REGISTRY_URL", &file_url);
     let client = RegistryClient::new().unwrap();
-    let search_params = ggen_core::registry::SearchParams {
+    let search_params = mcpp_core::registry::SearchParams {
         query: "rust",
         category: Some("rust"),
         keyword: None,
@@ -91,5 +91,5 @@ async_test_with_timeout!(test_advanced_search_from_local_registry, 30, async {
     assert!(!results.is_empty());
     assert!(results
         .iter()
-        .any(|r| r.id == "io.ggen.rust.cli-subcommand"));
+        .any(|r| r.id == "io.mcpp.rust.cli-subcommand"));
 });

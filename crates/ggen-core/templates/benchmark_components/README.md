@@ -15,7 +15,7 @@
 
 ## Component Library
 
-Created at: `~/ggen/crates/ggen-core/templates/benchmark_components/`
+Created at: `~/mcpp/crates/mcpp-core/templates/benchmark_components/`
 
 ### 1. benchmark_setup.tera (61 lines)
 **Purpose:** Common initialization patterns
@@ -313,7 +313,7 @@ end
 
 1. **Refactor remaining templates:**
    - OSA/templates/sparql_benchmark_test.exs.tera (279 lines)
-   - ggen/templates/elixir-benchmark/benchmark_test.ex.tera (63 lines)
+   - mcpp/templates/elixir-benchmark/benchmark_test.ex.tera (63 lines)
 
 2. **Create language-specific components:**
    - Rust benchmark components (criterion-based)
@@ -325,7 +325,7 @@ end
    - Measure compilation time difference
 
 4. **Document component usage:**
-   - Add examples to ~/ggen/docs/benchmark-components.md
+   - Add examples to ~/mcpp/docs/benchmark-components.md
    - Create tutorial: "Writing Benchmarks with Components"
 
 5. **Automate component selection:**
@@ -357,4 +357,4 @@ end
 ---
 
 *Generated: 2026-03-29*
-*Component Library: ~/ggen/crates/ggen-core/templates/benchmark_components/*
+*Component Library: ~/mcpp/crates/mcpp-core/templates/benchmark_components/*

@@ -183,7 +183,7 @@ Migration is complete when:
 
 1. **Start with Phase 1-2** (already documented):
    ```bash
-   cd /Users/sac/ggen
+   cd .
    cargo build -p ggen-marketplace 2>&1 | head -50
    # Review errors
    ```
@@ -218,7 +218,7 @@ Migration is complete when:
 ## File Locations
 
 ```
-/Users/sac/ggen/scripts/diagrams/marketplace-v2-migration/
+./scripts/diagrams/marketplace-v2-migration/
 
 📊 Diagrams:
 ├── c4-context.puml                 (System context)

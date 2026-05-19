@@ -8,7 +8,7 @@
 //! - Publish operation: ≤1s for metadata validation and storage
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_marketplace_v2::{
+use ggen_core::marketplace::{
     config::MarketplaceConfig,
     models::{Package, PackageManifest, PackageMetadata, PackageVersion},
     registry::MarketplaceRegistry,

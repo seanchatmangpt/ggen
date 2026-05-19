@@ -49,7 +49,7 @@ impl ConformanceChecker {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::{ConformanceChecker, PetriNet, EventLog};
+    /// use mcpp_process_mining::{ConformanceChecker, PetriNet, EventLog};
     ///
     /// let checker = ConformanceChecker::new();
     /// let net = PetriNet::from_activities(&["A", "B", "C"]);
@@ -367,7 +367,7 @@ pub enum AlignmentStep {
 /// # Examples
 ///
 /// ```rust,ignore
-/// use ggen_process_mining::{check_conformance, PetriNet, EventLog};
+/// use mcpp_process_mining::{check_conformance, PetriNet, EventLog};
 ///
 /// let net = PetriNet::from_activities(&["A", "B", "C"]);
 /// let log = EventLog::from_xes_file("log.xes")?;

@@ -3,7 +3,7 @@
 //! **QUICK WIN 2: PARALLEL TEMPLATE GENERATION**
 //! Provides 2-4x speedup for bulk template processing using Rayon.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
 use tera::Context;
@@ -27,11 +27,11 @@ use crate::template_types::Template;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::parallel_generator::ParallelGenerator;
+/// use mcpp_core::parallel_generator::ParallelGenerator;
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let template_dir = PathBuf::from("templates");
 /// let output_dir = PathBuf::from("output");
 /// let vars = Context::new();

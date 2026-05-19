@@ -15,7 +15,7 @@ pub struct PackageManifest {
     pub name: String,
     pub version: String,
     pub files: HashMap<String, String>, // filename -> checksum
-    pub ggen_compat: String,
+    pub mcpp_compat: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -34,7 +34,7 @@ impl std::fmt::Display for VerificationError {
             Self::ChecksumMismatch(file) => write!(f, "Checksum mismatch for file: {}", file),
             Self::MissingFile(file) => write!(f, "Missing file: {}", file),
             Self::InvalidManifest => write!(f, "Invalid manifest format"),
-            Self::IncompatibleVersion => write!(f, "Incompatible ggen version"),
+            Self::IncompatibleVersion => write!(f, "Incompatible mcpp version"),
         }
     }
 }
@@ -109,7 +109,7 @@ impl PackageVerifier {
         &self, manifest: &PackageManifest, current_version: &str,
     ) -> Result<(), VerificationError> {
         // Simplified version check
-        if manifest.ggen_compat.contains(current_version) || manifest.ggen_compat == "*" {
+        if manifest.mcpp_compat.contains(current_version) || manifest.mcpp_compat == "*" {
             Ok(())
         } else {
             Err(VerificationError::IncompatibleVersion)
@@ -229,7 +229,7 @@ fn test_manifest_verification_success() {
         name: "test-package".to_string(),
         version: "1.0.0".to_string(),
         files: manifest_files,
-        ggen_compat: "*".to_string(),
+        mcpp_compat: "*".to_string(),
     };
 
     let mut actual_files = HashMap::new();
@@ -252,7 +252,7 @@ fn test_manifest_verification_missing_file() {
         name: "test-package".to_string(),
         version: "1.0.0".to_string(),
         files: manifest_files,
-        ggen_compat: "*".to_string(),
+        mcpp_compat: "*".to_string(),
     };
 
     let mut actual_files = HashMap::new();
@@ -278,7 +278,7 @@ fn test_manifest_verification_checksum_mismatch() {
         name: "test-package".to_string(),
         version: "1.0.0".to_string(),
         files: manifest_files,
-        ggen_compat: "*".to_string(),
+        mcpp_compat: "*".to_string(),
     };
 
     let mut actual_files = HashMap::new();
@@ -304,7 +304,7 @@ fn test_version_compatibility_match() {
         name: "test".to_string(),
         version: "1.0.0".to_string(),
         files: HashMap::new(),
-        ggen_compat: "0.1.0".to_string(),
+        mcpp_compat: "0.1.0".to_string(),
     };
 
     let result = verifier.verify_version_compatibility(&manifest, "0.1.0");
@@ -319,7 +319,7 @@ fn test_version_compatibility_wildcard() {
         name: "test".to_string(),
         version: "1.0.0".to_string(),
         files: HashMap::new(),
-        ggen_compat: "*".to_string(),
+        mcpp_compat: "*".to_string(),
     };
 
     let result = verifier.verify_version_compatibility(&manifest, "99.99.99");
@@ -334,7 +334,7 @@ fn test_version_compatibility_mismatch() {
         name: "test".to_string(),
         version: "1.0.0".to_string(),
         files: HashMap::new(),
-        ggen_compat: "0.1.0".to_string(),
+        mcpp_compat: "0.1.0".to_string(),
     };
 
     let result = verifier.verify_version_compatibility(&manifest, "0.2.0");
@@ -362,7 +362,7 @@ fn test_verify_all_success() {
         name: "test-package".to_string(),
         version: "1.0.0".to_string(),
         files: manifest_files,
-        ggen_compat: "0.1.0".to_string(),
+        mcpp_compat: "0.1.0".to_string(),
     };
 
     let mut files = HashMap::new();
@@ -380,7 +380,7 @@ fn test_verify_all_version_mismatch() {
         name: "test".to_string(),
         version: "1.0.0".to_string(),
         files: HashMap::new(),
-        ggen_compat: "0.1.0".to_string(),
+        mcpp_compat: "0.1.0".to_string(),
     };
 
     let files = HashMap::new();
@@ -431,7 +431,7 @@ fn test_fmea_incomplete_package_detection() {
         name: "test".to_string(),
         version: "1.0.0".to_string(),
         files: manifest_files,
-        ggen_compat: "*".to_string(),
+        mcpp_compat: "*".to_string(),
     };
 
     let mut files = HashMap::new();
@@ -450,7 +450,7 @@ fn test_fmea_incomplete_package_detection() {
 #[test]
 fn test_fmea_version_incompatibility_detection() {
     // FMEA Failure Mode: Version incompatibility (RPN 48)
-    // Mitigation: ggen version compatibility check
+    // Mitigation: mcpp version compatibility check
 
     let verifier = PackageVerifier::new();
 
@@ -458,7 +458,7 @@ fn test_fmea_version_incompatibility_detection() {
         name: "modern-package".to_string(),
         version: "2.0.0".to_string(),
         files: HashMap::new(),
-        ggen_compat: ">=2.0.0".to_string(),
+        mcpp_compat: ">=2.0.0".to_string(),
     };
 
     // Old version should be rejected

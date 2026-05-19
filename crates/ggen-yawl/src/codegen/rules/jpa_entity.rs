@@ -4,8 +4,8 @@
 //! using SPARQL queries to extract class definitions and properties from the ontology.
 
 use crate::error::{Error, Result};
-use ggen_codegen::Result as CodegenResult;
-use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
+use mcpp_codegen::Result as CodegenResult;
+use mcpp_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};

@@ -70,16 +70,18 @@ impl<R: AsyncRepository> Installer<R> {
     }
 
     /// Get persistent cache path for a pack
-    fn persistent_cache_path(&self, package_id: &PackageId, version: &PackageVersion) -> PathBuf {
+    fn persistent_cache_path(package_id: &PackageId, version: &PackageVersion) -> PathBuf {
         std::env::var("GGEN_PACK_CACHE_DIR")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                dirs::home_dir()
-                    .unwrap_or_else(|| std::env::temp_dir())
-                    .join(".cache")
-                    .join("ggen")
-                    .join("packs")
-            })
+            .map_or_else(
+                |_| {
+                    dirs::home_dir()
+                        .unwrap_or_else(std::env::temp_dir)
+                        .join(".cache")
+                        .join("mcpp")
+                        .join("packs")
+                },
+                PathBuf::from,
+            )
             .join(package_id.as_str())
             .join(version.as_str())
     }
@@ -152,7 +154,7 @@ impl<R: AsyncRepository> Installer<R> {
             "Resolved {} dependencies for {}@{}",
             resolved.len(),
             root_id,
-            root_version
+            root_version,
         );
 
         // Record OTEL span attributes
@@ -356,7 +358,7 @@ impl<R: AsyncRepository> Installer<R> {
         let release = package
             .releases
             .get(version)
-            .ok_or_else(|| Error::package_not_found(format!("{}@{}", package_id, version)))?;
+            .ok_or_else(|| Error::package_not_found(format!("{package_id}@{version}")))?;
 
         // Download pack data
         let pack_data = self.download_pack(&release.download_url).await?;
@@ -370,8 +372,7 @@ impl<R: AsyncRepository> Installer<R> {
             None => {
                 return Err(Error::SignatureVerificationFailed {
                     reason: format!(
-                        "Pack {}@{} has no signature. Signature verification is mandatory for all pack installations.",
-                        package_id, version
+                        "Pack {package_id}@{version} has no signature. Signature verification is mandatory for all pack installations.",
                     ),
                 });
             }
@@ -383,10 +384,10 @@ impl<R: AsyncRepository> Installer<R> {
             .await?;
 
         // Verify SHA-256 digest
-        self.verify_pack_digest(&pack_data, &release.checksum)?;
+        Self::verify_pack_digest(&pack_data, &release.checksum)?;
 
         // Extract pack to cache directory
-        let cache_path = self.extract_pack(&pack_data, package_id, version)?;
+        let cache_path = Self::extract_pack(&pack_data, package_id, version)?;
 
         // Calculate final digest
         let digest = ChecksumCalculator::calculate(&pack_data);
@@ -443,16 +444,15 @@ impl<R: AsyncRepository> Installer<R> {
             .send()
             .await
             .map_err(|e| Error::InstallationFailed {
-                reason: format!("HTTP download failed from {}: {}", url, e),
+                reason: format!("HTTP download failed from {url}: {e}"),
             })?;
 
         if !response.status().is_success() {
             return Err(Error::InstallationFailed {
                 reason: format!(
-                    "HTTP error {}: {} from {}",
+                    "HTTP error {}: {} from {url}",
                     response.status(),
                     response.status().canonical_reason().unwrap_or("unknown"),
-                    url
                 ),
             });
         }
@@ -461,7 +461,7 @@ impl<R: AsyncRepository> Installer<R> {
             .bytes()
             .await
             .map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to read response body from {}: {}", url, e),
+                reason: format!("Failed to read response body from {url}: {e}"),
             })?
             .to_vec();
 
@@ -492,14 +492,14 @@ impl<R: AsyncRepository> Installer<R> {
         let start = std::time::Instant::now();
         debug!("Verifying pack signature");
 
-        // SECURITY: Real signature verification using ggen-receipt
+        // SECURITY: Real signature verification using mcpp-receipt
         // 1. Get marketplace public key from trusted source
         // 2. Create MarketplaceSignature from hex
         // 3. Verify using Ed25519
         use crate::security::{MarketplaceSignature, MarketplaceVerifier};
 
         // Get trusted marketplace public key
-        let public_key_hex = self.get_marketplace_public_key().await?;
+        let public_key_hex = Self::get_marketplace_public_key()?;
 
         // Create verifier
         let verifier = MarketplaceVerifier::from_public_key_hex(&public_key_hex)?;
@@ -508,7 +508,7 @@ impl<R: AsyncRepository> Installer<R> {
         let signature = MarketplaceSignature {
             signature: signature_hex.to_string(),
             public_key: public_key_hex,
-            checksum: ggen_receipt::hash_data(data),
+            checksum: mcpp_receipt::hash_data(data),
         };
 
         // Verify signature
@@ -532,7 +532,7 @@ impl<R: AsyncRepository> Installer<R> {
     ///
     /// This method retrieves the trusted marketplace public key.
     /// In production, this should be loaded from a secure config or well-known location.
-    async fn get_marketplace_public_key(&self) -> Result<String> {
+    fn get_marketplace_public_key() -> Result<String> {
         if let Ok(k) = std::env::var("GGEN_MARKETPLACE_PUBLIC_KEY") {
             let trimmed = k.trim();
             if !trimmed.is_empty() {
@@ -581,8 +581,7 @@ impl<R: AsyncRepository> Installer<R> {
             span::Span::current().record("duration_ms", duration.as_millis());
 
             return Err(Error::trust_tier_check_failed(format!(
-                "Pack {}@{:?} is marked as Blocked and cannot be installed",
-                package_id, version
+                "Pack {package_id}@{version:?} is marked as Blocked and cannot be installed",
             )));
         }
 
@@ -612,9 +611,8 @@ impl<R: AsyncRepository> Installer<R> {
             };
 
             return Err(Error::trust_tier_check_failed(format!(
-                "Pack {}@{:?} has trust tier {:?}, but {} requires {:?}. \
+                "Pack {package_id}@{version:?} has trust tier {pack_trust_tier:?}, but {profile_info} requires {required_tier:?}. \
                  Installation blocked by Fortune 5 CISO policy.",
-                package_id, version, pack_trust_tier, profile_info, required_tier
             )));
         }
 
@@ -637,7 +635,6 @@ impl<R: AsyncRepository> Installer<R> {
     /// * [`Error::ValidationFailed`] - When digest verification fails
     #[instrument(
         name = "marketplace.verify_pack_digest",
-        skip(self),
         fields(
             operation.name = "verify_pack_digest",
             operation.type = "marketplace",
@@ -645,7 +642,7 @@ impl<R: AsyncRepository> Installer<R> {
             duration_ms
         )
     )]
-    fn verify_pack_digest(&self, data: &[u8], expected_checksum: &str) -> Result<()> {
+    fn verify_pack_digest(data: &[u8], expected_checksum: &str) -> Result<()> {
         let start = std::time::Instant::now();
         debug!("Verifying pack digest");
 
@@ -654,8 +651,7 @@ impl<R: AsyncRepository> Installer<R> {
         if calculated_checksum != expected_checksum {
             return Err(Error::ValidationFailed {
                 reason: format!(
-                    "Digest mismatch: expected {}, got {}",
-                    expected_checksum, calculated_checksum
+                    "Digest mismatch: expected {expected_checksum}, got {calculated_checksum}",
                 ),
             });
         }
@@ -674,7 +670,6 @@ impl<R: AsyncRepository> Installer<R> {
     /// * [`Error::InstallationFailed`] - When extraction fails
     #[instrument(
         name = "marketplace.extract_pack",
-        skip(self),
         fields(
             operation.name = "extract_pack",
             operation.type = "marketplace",
@@ -686,28 +681,28 @@ impl<R: AsyncRepository> Installer<R> {
         )
     )]
     fn extract_pack(
-        &self, data: &[u8], package_id: &PackageId, version: &PackageVersion,
+        data: &[u8], package_id: &PackageId, version: &PackageVersion,
     ) -> Result<PathBuf> {
         let start = std::time::Instant::now();
         debug!("Extracting pack {}@{}", package_id, version);
 
         // Create cache directory for this pack
-        let cache_path = self.persistent_cache_path(package_id, version);
+        let cache_path = Self::persistent_cache_path(package_id, version);
 
         fs::create_dir_all(&cache_path).map_err(|e| Error::InstallationFailed {
-            reason: format!("Failed to create cache directory: {}", e),
+            reason: format!("Failed to create cache directory: {e}"),
         })?;
 
         // Detect format and extract
         if is_tar_gz(data) {
-            self.extract_tar_gz(data, &cache_path)?;
+            Self::extract_tar_gz(data, &cache_path)?;
         } else if is_zip(data) {
-            self.extract_zip(data, &cache_path)?;
+            Self::extract_zip(data, &cache_path)?;
         } else {
             // Unknown format, just write as-is
             let output_path = cache_path.join("pack.dat");
             fs::write(&output_path, data).map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to write pack data: {}", e),
+                reason: format!("Failed to write pack data: {e}"),
             })?;
         }
 
@@ -724,7 +719,7 @@ impl<R: AsyncRepository> Installer<R> {
     /// # Errors
     ///
     /// * [`Error::InstallationFailed`] - When extraction fails
-    fn extract_tar_gz(&self, data: &[u8], dest: &Path) -> Result<()> {
+    fn extract_tar_gz(data: &[u8], dest: &Path) -> Result<()> {
         use tar::Archive;
 
         let decoder = GzDecoder::new(data);
@@ -733,7 +728,7 @@ impl<R: AsyncRepository> Installer<R> {
         archive
             .unpack(dest)
             .map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to extract tar.gz: {}", e),
+                reason: format!("Failed to extract tar.gz: {e}"),
             })?;
 
         Ok(())
@@ -744,18 +739,18 @@ impl<R: AsyncRepository> Installer<R> {
     /// # Errors
     ///
     /// * [`Error::InstallationFailed`] - When extraction fails
-    fn extract_zip(&self, data: &[u8], dest: &Path) -> Result<()> {
+    fn extract_zip(data: &[u8], dest: &Path) -> Result<()> {
         use zip::ZipArchive;
 
         let cursor = std::io::Cursor::new(data);
         let mut archive = ZipArchive::new(cursor).map_err(|e| Error::InstallationFailed {
-            reason: format!("Failed to open ZIP archive: {}", e),
+            reason: format!("Failed to open ZIP archive: {e}"),
         })?;
 
         archive
             .extract(dest)
             .map_err(|e| Error::InstallationFailed {
-                reason: format!("Failed to extract ZIP: {}", e),
+                reason: format!("Failed to extract ZIP: {e}"),
             })?;
 
         Ok(())
@@ -767,15 +762,14 @@ impl<R: AsyncRepository> Installer<R> {
     ///
     /// * [`Error::IoError`] - When lockfile operations fail
     pub fn update_lockfile(&self, manifest: &InstallationManifest) -> Result<()> {
-        let lockfile_path = PathBuf::from(&manifest.install_path).join("ggen.lock");
+        let lockfile_path = PathBuf::from(&manifest.install_path).join("mcpp.lock");
 
         let lockfile = Lockfile::from_manifest(manifest);
 
-        let file = File::create(&lockfile_path).map_err(|e| Error::IoError(e))?;
+        let file = File::create(&lockfile_path).map_err(Error::IoError)?;
         let writer = BufWriter::new(file);
 
-        serde_json::to_writer_pretty(writer, &lockfile)
-            .map_err(|e| Error::SerializationError(e))?;
+        serde_json::to_writer_pretty(writer, &lockfile).map_err(Error::SerializationError)?;
 
         info!("Updated lockfile at {:?}", lockfile_path);
 
@@ -1008,12 +1002,12 @@ mod tests {
         };
         let cache = PackCache::new(cache_config).unwrap();
         let registry = Registry::new(100);
-        let installer = Installer::new(registry, cache);
+        let _installer = Installer::new(registry, cache);
 
         // Create a simple tar.gz archive
         let data = b"\x1f\x8b\x08\x00"; // GZIP magic bytes
 
-        let result = installer.extract_tar_gz(data, &temp_dir.path().join("extract"));
+        let result = Installer::<Registry>::extract_tar_gz(data, &temp_dir.path().join("extract"));
         // This will fail because it's not a valid archive, but we test that the function is called
         assert!(result.is_err() || result.is_ok());
     }

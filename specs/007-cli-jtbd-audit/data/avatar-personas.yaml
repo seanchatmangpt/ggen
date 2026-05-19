@@ -32,10 +32,10 @@ avatars:
       - Does JSON output enable programmatic verification?
 
     optimal_commands:
-      - ggen project generate
-      - ggen template generate-tree
-      - ggen workflow analyze
-      - ggen ontology validate
+      - mcpp project generate
+      - mcpp template generate-tree
+      - mcpp workflow analyze
+      - mcpp ontology validate
 
   - id: cursor_ai
     name: Cursor AI (Tab Completion)
@@ -66,10 +66,10 @@ avatars:
       - Are common operations completable in one command?
 
     optimal_commands:
-      - ggen template new
-      - ggen template list
-      - ggen ontology init
-      - ggen marketplace search
+      - mcpp template new
+      - mcpp template list
+      - mcpp ontology init
+      - mcpp marketplace search
 
   - id: github_copilot
     name: GitHub Copilot
@@ -96,12 +96,12 @@ avatars:
       - Can command patterns be learned from examples?
       - Is config file format predictable for completion?
       - Are common invocations documentable in code comments?
-      - Does completion of ggen commands add value?
+      - Does completion of mcpp commands add value?
 
     optimal_commands:
-      - ggen template lint
-      - ggen ontology validate
-      - ggen marketplace info
+      - mcpp template lint
+      - mcpp ontology validate
+      - mcpp marketplace info
 
   - id: aider
     name: Aider (CLI Agent)
@@ -132,10 +132,10 @@ avatars:
       - Can command chain with && for workflows?
 
     optimal_commands:
-      - ggen project generate
-      - ggen template regenerate
-      - ggen graph export
-      - ggen fmea report
+      - mcpp project generate
+      - mcpp template regenerate
+      - mcpp graph export
+      - mcpp fmea report
 
   - id: devin
     name: Devin (Autonomous Agent)
@@ -166,10 +166,10 @@ avatars:
       - Can command verify its own success?
 
     optimal_commands:
-      - ggen project new
-      - ggen workflow init
-      - ggen ci
-      - ggen marketplace install
+      - mcpp project new
+      - mcpp workflow init
+      - mcpp ci
+      - mcpp marketplace install
 
   - id: openhands
     name: OpenHands (Open Source)
@@ -200,10 +200,10 @@ avatars:
       - Can command integrate with custom tooling?
 
     optimal_commands:
-      - ggen ontology extract
-      - ggen ontology generate
-      - ggen graph query
-      - ggen template new
+      - mcpp ontology extract
+      - mcpp ontology generate
+      - mcpp graph query
+      - mcpp template new
 
   - id: windsurf
     name: Windsurf (IDE-Integrated)
@@ -233,10 +233,10 @@ avatars:
       - Can cascade mode orchestrate command sequences?
 
     optimal_commands:
-      - ggen template show
-      - ggen template lint
-      - ggen graph visualize
-      - ggen marketplace info
+      - mcpp template show
+      - mcpp template lint
+      - mcpp graph visualize
+      - mcpp marketplace info
 
 # Evaluation Matrix Template
 evaluation_matrix:

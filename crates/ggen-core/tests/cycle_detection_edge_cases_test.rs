@@ -10,7 +10,7 @@
 //! - Complex multi-cycle graphs
 //! - Graphs with disconnected components
 
-use ggen_core::graph::cycle_detection::{detect_cycles, validate_acyclic};
+use mcpp_core::graph::cycle_detection::{detect_cycles, validate_acyclic};
 use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------

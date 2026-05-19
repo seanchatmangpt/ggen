@@ -4,7 +4,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::project::gen::{execute_gen, GenInput};
+use mcpp_domain::project::gen::{execute_gen, GenInput};
 use std::path::PathBuf;
 use tempfile::tempdir;
 
@@ -36,7 +36,7 @@ test!(test_gen_input_validation_invalid_variable_format, {
     let temp_dir = tempdir().unwrap();
 
     let input = GenInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec!["invalid_no_equals".to_string()],
         output_dir: temp_dir.path().to_path_buf(),
         dry_run: true,
@@ -59,7 +59,7 @@ test!(test_gen_input_validation_empty_variable_key, {
     let temp_dir = tempdir().unwrap();
 
     let input = GenInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec!["=value".to_string()],
         output_dir: temp_dir.path().to_path_buf(),
         dry_run: true,
@@ -107,7 +107,7 @@ test!(test_gen_dry_run_creates_no_files, {
     let output_dir = temp_dir.path().join("output");
 
     let input = GenInput {
-        template_ref: "io.ggen.test-template".to_string(),
+        template_ref: "io.mcpp.test-template".to_string(),
         vars: vec!["name=TestProject".to_string()],
         output_dir: output_dir.clone(),
         dry_run: true,
@@ -142,7 +142,7 @@ test!(test_gen_multiple_variables_parsing, {
     let temp_dir = tempdir().unwrap();
 
     let input = GenInput {
-        template_ref: "io.ggen.multi-var".to_string(),
+        template_ref: "io.mcpp.multi-var".to_string(),
         vars: vec![
             "name=MyProject".to_string(),
             "version=1.0.0".to_string(),
@@ -176,7 +176,7 @@ test!(test_gen_variable_with_special_characters, {
     let temp_dir = tempdir().unwrap();
 
     let input = GenInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec![
             "url=https://example.com?foo=bar&baz=qux".to_string(),
             "path=/usr/local/bin".to_string(),
@@ -209,7 +209,7 @@ test!(test_gen_output_dir_creation, {
     let nested_output = temp_dir.path().join("nested").join("output").join("dir");
 
     let input = GenInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec![],
         output_dir: nested_output.clone(),
         dry_run: false,
@@ -225,7 +225,7 @@ test!(test_gen_output_dir_creation, {
 test!(test_gen_input_serialization, {
     // Arrange
     let input = GenInput {
-        template_ref: "io.ggen.test".to_string(),
+        template_ref: "io.mcpp.test".to_string(),
         vars: vec!["key=value".to_string()],
         output_dir: PathBuf::from("/tmp/output"),
         dry_run: true,

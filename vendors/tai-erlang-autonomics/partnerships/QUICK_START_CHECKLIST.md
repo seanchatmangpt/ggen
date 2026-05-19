@@ -1,4 +1,4 @@
-# ggen Partnership Execution Checklist
+# mcpp Partnership Execution Checklist
 
 **Quick-start guide for implementing the partnership strategy**
 
@@ -217,7 +217,7 @@
 - [ ] **Joint press releases** drafted and approved
 - [ ] **Customer case studies** 3-5 per cloud platform
 - [ ] **Video testimonials** recorded
-- [ ] **Blog posts** written (ggen + partner channels)
+- [ ] **Blog posts** written (mcpp + partner channels)
 - [ ] **Webinar series** scheduled (monthly launch announcements)
 - [ ] **Industry events** participation planned (4-6 events)
 
@@ -476,7 +476,7 @@ For detailed information on any partnership, refer to:
 ## Support & Contact
 
 For questions about the partnership strategy:
-- **Strategic questions**: partnerships@ggen.dev
+- **Strategic questions**: partnerships@mcpp.dev
 - **Technical integration**: [engineering team contact]
 - **Legal/Agreements**: [legal team contact]
 - **Partner enablement**: [operations team contact]

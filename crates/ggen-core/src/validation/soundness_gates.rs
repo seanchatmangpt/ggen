@@ -19,7 +19,7 @@
 //!
 //! ## Constitution Compliance
 //!
-//! - ✓ Principle I: Modular structure within ggen-core
+//! - ✓ Principle I: Modular structure within mcpp-core
 //! - ✓ Principle V: Type-first thinking with strong enums
 //! - ✓ Principle VII: Result<T,E> error handling (NO unwrap in production)
 //!

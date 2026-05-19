@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-25  
 **Status**: ✓ COMPLETE - ALL SYSTEMS GO  
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/`
 
 ---
 

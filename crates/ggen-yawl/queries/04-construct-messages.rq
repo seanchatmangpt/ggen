@@ -1,6 +1,6 @@
 # PATTERN 4: Message Construction
-PREFIX a2a: <https://ggen.dev/ontology/a2a>
-PREFIX msg: <https://ggen.dev/ontology/message>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a>
+PREFIX msg: <https://mcpp.dev/ontology/message>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 CONSTRUCT {

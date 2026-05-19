@@ -1,7 +1,7 @@
 //! Pack maturity scoring (similar to marketplace scoring)
 
 use crate::packs::types::Pack;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 
 /// Pack maturity score

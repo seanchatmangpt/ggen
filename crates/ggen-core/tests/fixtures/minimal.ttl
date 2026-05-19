@@ -4,7 +4,7 @@
 
 :TestClass a owl:Class ;
   rdfs:label "Test Class" ;
-  rdfs:comment "A minimal test class for ggen testing" .
+  rdfs:comment "A minimal test class for mcpp testing" .
 
 :TestProperty a owl:ObjectProperty ;
   rdfs:domain :TestClass ;

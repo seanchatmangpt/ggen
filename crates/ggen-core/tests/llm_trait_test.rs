@@ -2,7 +2,7 @@
 //!
 //! These tests verify the LlmService trait works correctly for dependency injection.
 
-use ggen_core::codegen::pipeline::LlmService;
+use mcpp_core::codegen::pipeline::LlmService;
 use std::error::Error;
 
 // Mock LLM service for testing

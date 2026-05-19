@@ -3,7 +3,7 @@
 //! This module provides functionality for discovering and resolving project conventions
 //! from the file system. It automatically detects RDF files, templates, SPARQL queries,
 //! and output directories based on common patterns, with support for custom overrides
-//! via `.ggen/conventions.toml`.
+//! via `.mcpp/conventions.toml`.
 //!
 //! ## Features
 //!
@@ -25,18 +25,19 @@
 //! ### Resolving Conventions
 //!
 //! ```rust,no_run
-//! use ggen_cli::conventions::resolver::resolve_conventions;
+//! use mcpp_cli_lib::conventions::resolver::ConventionResolver;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
-//! let conventions = resolve_conventions(Path::new("."), "clap-noun-verb")?;
+//! # fn main() -> mcpp_utils::error::Result<()> {
+//! let resolver = ConventionResolver::new(Path::new("."));
+//! let conventions = resolver.discover()?;
 //! println!("Found {} RDF files", conventions.rdf_files.len());
 //! println!("Found {} templates", conventions.templates.len());
 //! # Ok(())
 //! # }
 //! ```
 
-use ggen_utils::error::{Context, Result};
+use mcpp_utils::error::{Context, Result};
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -61,7 +62,7 @@ pub struct ProjectConventions {
     pub preset: String,
 }
 
-/// Convention overrides from .ggen/conventions.toml
+/// Convention overrides from .mcpp/conventions.toml
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 struct ConventionOverrides {
     #[serde(default)]
@@ -139,17 +140,17 @@ impl ConventionResolver {
         })
     }
 
-    /// Load convention overrides from .ggen/conventions.toml if it exists
+    /// Load convention overrides from .mcpp/conventions.toml if it exists
     fn load_overrides(&self) -> Result<ConventionOverrides> {
-        let override_path = self.project_root.join(".ggen").join("conventions.toml");
+        let override_path = self.project_root.join(".mcpp").join("conventions.toml");
 
         if override_path.exists() {
             let content = std::fs::read_to_string(&override_path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
+                mcpp_utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
             })?;
             let overrides: ConventionOverrides = Context::context(
                 toml::from_str(&content).map_err(|e| {
-                    ggen_utils::error::Error::new(&format!(
+                    mcpp_utils::error::Error::new(&format!(
                         "Failed to parse conventions.toml: {}",
                         e
                     ))
@@ -174,14 +175,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 files.push(entry.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    mcpp_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
                 })?);
             }
         }
@@ -208,14 +209,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    mcpp_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
                 })?;
 
                 // Convert nested path to template name
@@ -257,20 +258,20 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                mcpp_utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    mcpp_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
                 })?;
 
                 // Read query content
                 let content = Context::with_context(
                     std::fs::read_to_string(&path).map_err(|e| {
-                        ggen_utils::error::Error::new(&format!(
+                        mcpp_utils::error::Error::new(&format!(
                             "Failed to read query file {:?}: {}",
                             path, e
                         ))
@@ -428,10 +429,10 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let root = temp_dir.path();
 
-        // Create .ggen directory and conventions.toml
-        fs::create_dir_all(root.join(".ggen")).unwrap();
+        // Create .mcpp directory and conventions.toml
+        fs::create_dir_all(root.join(".mcpp")).unwrap();
         fs::write(
-            root.join(".ggen/conventions.toml"),
+            root.join(".mcpp/conventions.toml"),
             r#"
 [output]
 dir = "build/generated"
@@ -459,9 +460,9 @@ dir = "build/generated"
         .unwrap();
 
         // Create override config
-        fs::create_dir_all(root.join(".ggen")).unwrap();
+        fs::create_dir_all(root.join(".mcpp")).unwrap();
         fs::write(
-            root.join(".ggen/conventions.toml"),
+            root.join(".mcpp/conventions.toml"),
             r#"
 [rdf]
 patterns = ["ontology/**/*.ttl"]
@@ -486,9 +487,9 @@ patterns = ["ontology/**/*.ttl"]
         fs::write(root.join("views/page.tmpl"), "Page template").unwrap();
 
         // Create override config
-        fs::create_dir_all(root.join(".ggen")).unwrap();
+        fs::create_dir_all(root.join(".mcpp")).unwrap();
         fs::write(
-            root.join(".ggen/conventions.toml"),
+            root.join(".mcpp/conventions.toml"),
             r#"
 [templates]
 patterns = ["views/**/*.tmpl"]
@@ -521,9 +522,9 @@ patterns = ["views/**/*.tmpl"]
         .unwrap();
 
         // Create override config
-        fs::create_dir_all(root.join(".ggen")).unwrap();
+        fs::create_dir_all(root.join(".mcpp")).unwrap();
         fs::write(
-            root.join(".ggen/conventions.toml"),
+            root.join(".mcpp/conventions.toml"),
             r#"
 [queries]
 patterns = ["sparql/**/*.sparql"]
@@ -576,9 +577,9 @@ patterns = ["sparql/**/*.sparql"]
         let root = temp_dir.path();
 
         // Create invalid TOML
-        fs::create_dir_all(root.join(".ggen")).unwrap();
+        fs::create_dir_all(root.join(".mcpp")).unwrap();
         fs::write(
-            root.join(".ggen/conventions.toml"),
+            root.join(".mcpp/conventions.toml"),
             "invalid toml content [[[",
         )
         .unwrap();

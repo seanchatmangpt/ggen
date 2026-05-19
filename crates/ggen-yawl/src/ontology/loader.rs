@@ -15,7 +15,7 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use ggen_yawl::OntologyLoader;
+//! use mcpp_yawl::OntologyLoader;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load from file with auto-detected format
@@ -27,13 +27,13 @@
 //!     @prefix ex: <http://example.org/> .
 //!     ex:Class a owl:Class .
 //! "#;
-//! let graph = loader.load_from_str(turtle, ggen_yawl::OntologyFormat::Turtle)?;
+//! let graph = loader.load_from_str(turtle, mcpp_yawl::OntologyFormat::Turtle)?;
 //! # Ok(())
 //! # }
 //! ```
 
 use crate::{Error, Result};
-use ggen_core::Graph;
+use mcpp_core::Graph;
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use std::path::Path;
@@ -93,7 +93,7 @@ impl OntologyFormat {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::OntologyFormat;
+    /// use mcpp_yawl::OntologyFormat;
     ///
     /// assert_eq!(OntologyFormat::from_extension("ttl"), Some(OntologyFormat::Turtle));
     /// assert_eq!(OntologyFormat::from_extension("owl"), Some(OntologyFormat::RdfXml));
@@ -111,7 +111,7 @@ impl OntologyFormat {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::OntologyFormat;
+    /// use mcpp_yawl::OntologyFormat;
     ///
     /// let format = OntologyFormat::Turtle;
     /// let oxigraph_format = format.to_rdf_format();
@@ -135,7 +135,7 @@ impl OntologyFormat {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::OntologyFormat;
+    /// use mcpp_yawl::OntologyFormat;
     ///
     /// assert_eq!(OntologyFormat::Turtle.content_type(), "text/turtle");
     /// assert_eq!(OntologyFormat::RdfXml.content_type(), "application/rdf+xml");
@@ -165,7 +165,7 @@ impl OntologyFormat {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_yawl::OntologyLoader;
+/// use mcpp_yawl::OntologyLoader;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// // Create loader with custom settings
@@ -203,7 +203,7 @@ impl OntologyLoader {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::OntologyLoader;
+    /// use mcpp_yawl::OntologyLoader;
     ///
     /// let loader = OntologyLoader::new();
     /// assert!(loader.flatten_imports);
@@ -222,7 +222,7 @@ impl OntologyLoader {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::OntologyLoader;
+    /// use mcpp_yawl::OntologyLoader;
     ///
     /// let loader = OntologyLoader::new()
     ///     .with_base_iri("http://example.org/".to_string());
@@ -244,7 +244,7 @@ impl OntologyLoader {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::OntologyLoader;
+    /// use mcpp_yawl::OntologyLoader;
     ///
     /// let loader = OntologyLoader::new()
     ///     .with_flatten_imports(false);
@@ -274,7 +274,7 @@ impl OntologyLoader {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_yawl::OntologyLoader;
+    /// use mcpp_yawl::OntologyLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let loader = OntologyLoader::new();
@@ -314,7 +314,7 @@ impl OntologyLoader {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::{OntologyLoader, OntologyFormat};
+    /// use mcpp_yawl::{OntologyLoader, OntologyFormat};
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let turtle = r#"
@@ -392,7 +392,7 @@ impl OntologyLoader {
 /// # Example
 ///
 /// ```rust
-/// use ggen_yawl::load_ontology;
+/// use mcpp_yawl::load_ontology;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let turtle = r#"

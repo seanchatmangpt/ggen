@@ -259,7 +259,7 @@ LAUNCH DAY TIMELINE (6 AM PT - 10 PM PT)
 FILES LOCATION
 ================================================================================
 
-Directory: /Users/sac/ggen/tai-erlang-autonomics/marketing/
+Directory: /Users/sac/mcpp/tai-erlang-autonomics/marketing/
 
 Files:
 1. GTM_STRATEGY.md           (44 KB)  - Main strategy document

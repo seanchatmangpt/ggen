@@ -6,7 +6,7 @@
 //! - Resource pagination stress
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, RoleClient, ServiceExt};
 
 mod bench_helper;

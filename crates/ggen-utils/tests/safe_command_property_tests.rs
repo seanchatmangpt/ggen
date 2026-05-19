@@ -3,7 +3,7 @@
 //! These tests use property-based testing to fuzz the validation logic
 //! and ensure it handles arbitrary inputs correctly.
 
-use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use mcpp_utils::safe_command::{CommandArg, CommandName, SafeCommand};
 use proptest::prelude::*;
 
 // ============================================================================
@@ -60,7 +60,7 @@ proptest! {
 proptest! {
     /// Test that whitelisted commands are always accepted
     fn prop_command_name_accepts_whitelisted(cmd_idx in 0usize..8) {
-        let whitelisted = ["cargo", "git", "npm", "rustc", "rustfmt", "timeout", "make", "ggen"];
+        let whitelisted = ["cargo", "git", "npm", "rustc", "rustfmt", "timeout", "make", "mcpp"];
         let cmd = whitelisted[cmd_idx % whitelisted.len()];
         let result = CommandName::new(cmd);
         prop_assert!(result.is_ok(), "Whitelisted command should be accepted: {}", cmd);
@@ -72,7 +72,7 @@ proptest! {
         s in "[a-z]{1,10}",
     ) {
         // Filter out actual whitelisted commands
-        let whitelisted = ["cargo", "git", "npm", "rustc", "rustfmt", "timeout", "make", "ggen", "sh", "bash", "cmake"];
+        let whitelisted = ["cargo", "git", "npm", "rustc", "rustfmt", "timeout", "make", "mcpp", "sh", "bash", "cmake"];
         if !whitelisted.contains(&s.as_str()) {
             let result = CommandName::new(&s);
             prop_assert!(result.is_err(), "Non-whitelisted command should be rejected: {}", s);

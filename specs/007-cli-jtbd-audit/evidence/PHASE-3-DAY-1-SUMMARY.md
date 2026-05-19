@@ -97,10 +97,10 @@ Actual behavior:  error: unexpected argument '--type' found
 **Recommended Fix** (P1):
 ```bash
 # Current (broken for agents):
-ggen workflow analyze --workflow_file workflow.json
+mcpp workflow analyze --workflow_file workflow.json
 
 # Proposed (agent-friendly):
-cat workflow.json | ggen workflow analyze --workflow-json
+cat workflow.json | mcpp workflow analyze --workflow-json
 ```
 
 ---
@@ -253,7 +253,7 @@ Goal: 80%+ at L3+ (agent-usable maturity)
 
 ### Constitutional Alignment
 
-All Day 1 audits maintain ggen Constitution v1.0.0 compliance:
+All Day 1 audits maintain mcpp Constitution v1.0.0 compliance:
 - ✅ II. Deterministic RDF Projections (YAML structure reproducible)
 - ✅ III. Chicago TDD (State-based behavior verification)
 - ✅ V. Type-First Thinking (YAML schemas enforce types)

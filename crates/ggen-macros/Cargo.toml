@@ -1,10 +1,10 @@
 [package]
-name = "ggen-macros"
+name = "mcpp-macros"
 version = "0.2.0"
 edition = "2021"
-description = "Procedural macros for ggen"
+description = "Procedural macros for mcpp"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 
 [lib]

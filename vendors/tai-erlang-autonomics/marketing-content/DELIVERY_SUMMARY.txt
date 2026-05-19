@@ -3,7 +3,7 @@ THOUGHT LEADERSHIP AUTHORITY STRATEGY - DELIVERY SUMMARY
 ================================================================================
 
 Date Delivered: 2026-01-25
-Location: /Users/sac/ggen/tai-erlang-autonomics/marketing-content/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/marketing-content/
 Total Content: 19,001 words across 5 strategic documents
 Status: Complete and ready for immediate execution
 
@@ -363,7 +363,7 @@ All files created and verified:
 
 TOTAL DELIVERED: 19,001 words of strategic and tactical guidance
 
-Location: /Users/sac/ggen/tai-erlang-autonomics/marketing-content/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/marketing-content/
 Status: Complete, reviewed, ready for execution
 Date: 2026-01-25
 
@@ -428,6 +428,6 @@ END OF DELIVERY SUMMARY
 
 Created: 2026-01-25
 Status: Complete and ready for execution
-Location: /Users/sac/ggen/tai-erlang-autonomics/marketing-content/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/marketing-content/
 
 Contact for questions: [marketing leadership team]

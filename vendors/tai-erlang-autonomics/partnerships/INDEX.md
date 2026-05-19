@@ -1,6 +1,6 @@
-# ggen Partnership Strategy: Complete Index
+# mcpp Partnership Strategy: Complete Index
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/partnerships/`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/partnerships/`
 **Status**: Ready for Implementation
 **Date**: January 25, 2026
 **Total Documents**: 6 files, 3,767 lines, 128 KB
@@ -48,7 +48,7 @@
 - Board-level considerations
 - Executive recommendations
 
-**Key Takeaway**: ggen can build $190M+ business in 2 years through partnerships (vs 5-7 years direct)
+**Key Takeaway**: mcpp can build $190M+ business in 2 years through partnerships (vs 5-7 years direct)
 
 **Who Should Read**: CEO, Board, CFO, CRO
 
@@ -149,19 +149,19 @@
 
 1. **Cloud Platform Partnership** (AWS/Azure/GCP)
    - Duration: 3 years with annual renewal
-   - Revenue share: 25-30% ggen
+   - Revenue share: 25-30% mcpp
    - Sections: Overview, Commercial Terms, Technical Integration, GTM, Governance, IP, Dispute Resolution
    - Estimated customization time: 4-6 weeks with legal
 
 2. **Systems Integrator Partnership** (Accenture/Deloitte/IBM)
    - Duration: 3 years with annual renewal
-   - Revenue share: 10-15% ggen (services)
+   - Revenue share: 10-15% mcpp (services)
    - Sections: Commercial terms, Vertical solutions, Delivery standards, Certification, Quality metrics
    - Estimated customization time: 3-4 weeks
 
 3. **Compliance & Audit Partnership** (Big Four)
    - Duration: 3 years with annual renewal
-   - Revenue share: 15-20% ggen (compliance services)
+   - Revenue share: 15-20% mcpp (compliance services)
    - Sections: Compliance solutions, Auditor enablement, Receipt framework, Governance
    - Estimated customization time: 4-6 weeks
 
@@ -428,7 +428,7 @@ Total: ~3,800 lines covering strategy, execution, and legal
 ## Key Contacts & Support
 
 ### For Partnership Strategy Questions
-- Email: partnerships@ggen.dev
+- Email: partnerships@mcpp.dev
 - Document: PARTNERSHIP_STRATEGY.md
 
 ### For Execution/Timeline Questions
@@ -470,7 +470,7 @@ Total: ~3,800 lines covering strategy, execution, and legal
 
 ---
 
-**Document Set**: ggen Partnership Strategy 2026-2028
+**Document Set**: mcpp Partnership Strategy 2026-2028
 **Prepared**: January 25, 2026
 **Status**: Complete and ready for implementation
 **Approval Required**: CEO, Board, CFO

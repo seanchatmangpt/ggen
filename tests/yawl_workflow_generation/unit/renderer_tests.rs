@@ -7,7 +7,6 @@ use ggen_yawl::template::{
     renderer::TemplateRenderer, ConditionContext, FlowContext, TaskContext, TemplateContext,
     VariableContext,
 };
-use std::path::Path;
 
 /// Helper module for test fixtures and utilities.
 pub mod fixtures {

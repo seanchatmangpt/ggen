@@ -3,23 +3,23 @@
 **Feature Branch**: `011-e2e-testcontainers`
 **Created**: 2025-12-16
 **Status**: Draft
-**Input**: User description: "end to end testing. use testcontainers and brew to ensure that ggen sync works on osx and linux no matter what"
+**Input**: User description: "end to end testing. use testcontainers and brew to ensure that mcpp sync works on osx and linux no matter what"
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Cross-Platform ggen sync Validation (Priority: P1)
+### User Story 1 - Cross-Platform mcpp sync Validation (Priority: P1)
 
-As a developer, I want automated end-to-end tests that verify `ggen sync` works correctly on both macOS and Linux, so I can confidently release ggen knowing it will work for all users regardless of their operating system.
+As a developer, I want automated end-to-end tests that verify `mcpp sync` works correctly on both macOS and Linux, so I can confidently release mcpp knowing it will work for all users regardless of their operating system.
 
-**Why this priority**: This is the core value proposition - ensuring ggen's primary command (`sync`) works reliably across all supported platforms. Without this, users on different platforms may experience silent failures or inconsistent behavior.
+**Why this priority**: This is the core value proposition - ensuring mcpp's primary command (`sync`) works reliably across all supported platforms. Without this, users on different platforms may experience silent failures or inconsistent behavior.
 
-**Independent Test**: Run the E2E test suite which spins up platform-specific containers, executes `ggen sync` with sample ontologies, and validates the generated output matches expected results.
+**Independent Test**: Run the E2E test suite which spins up platform-specific containers, executes `mcpp sync` with sample ontologies, and validates the generated output matches expected results.
 
 **Acceptance Scenarios**:
 
-1. **Given** a fresh Linux container with ggen installed, **When** I run `ggen sync` on a sample thesis-gen project, **Then** all expected output files are generated with correct content
-2. **Given** a fresh macOS environment (native or via runner), **When** I run `ggen sync` on the same sample project, **Then** the output is byte-for-byte identical to the Linux output
-3. **Given** ggen is installed via different methods (cargo install, pre-built binary), **When** I run `ggen sync`, **Then** the results are identical regardless of installation method
+1. **Given** a fresh Linux container with mcpp installed, **When** I run `mcpp sync` on a sample thesis-gen project, **Then** all expected output files are generated with correct content
+2. **Given** a fresh macOS environment (native or via runner), **When** I run `mcpp sync` on the same sample project, **Then** the output is byte-for-byte identical to the Linux output
+3. **Given** mcpp is installed via different methods (cargo install, pre-built binary), **When** I run `mcpp sync`, **Then** the results are identical regardless of installation method
 
 ---
 
@@ -29,11 +29,11 @@ As a CI/CD pipeline maintainer, I want E2E tests to run in isolated containers w
 
 **Why this priority**: Flaky tests due to environmental differences waste developer time and erode confidence in the test suite. Testcontainers ensure a clean, reproducible environment every time.
 
-**Independent Test**: Run the testcontainer-based test suite on a machine with no ggen dependencies pre-installed and verify it successfully sets up the environment, runs tests, and tears down cleanly.
+**Independent Test**: Run the testcontainer-based test suite on a machine with no mcpp dependencies pre-installed and verify it successfully sets up the environment, runs tests, and tears down cleanly.
 
 **Acceptance Scenarios**:
 
-1. **Given** a CI runner with only Docker installed, **When** the E2E test suite runs, **Then** all required dependencies (Rust toolchain, ggen binary, sample projects) are provisioned automatically inside containers
+1. **Given** a CI runner with only Docker installed, **When** the E2E test suite runs, **Then** all required dependencies (Rust toolchain, mcpp binary, sample projects) are provisioned automatically inside containers
 2. **Given** multiple test runs on the same machine, **When** each run completes, **Then** no state leaks between runs (containers are fully cleaned up)
 3. **Given** a test failure occurs, **When** the test suite exits, **Then** containers are still cleaned up and logs are captured for debugging
 
@@ -41,32 +41,32 @@ As a CI/CD pipeline maintainer, I want E2E tests to run in isolated containers w
 
 ### User Story 3 - Homebrew Installation Verification (Priority: P2)
 
-As a macOS user, I want E2E tests that verify ggen can be installed via Homebrew and works correctly after installation, so I can trust the Homebrew distribution channel.
+As a macOS user, I want E2E tests that verify mcpp can be installed via Homebrew and works correctly after installation, so I can trust the Homebrew distribution channel.
 
 **Why this priority**: Homebrew is the primary distribution method for macOS users. Verifying this installation path works end-to-end prevents broken releases from reaching users.
 
-**Independent Test**: Run a test that installs ggen via `brew install` (from a tap or formula), then executes `ggen sync` and validates output.
+**Independent Test**: Run a test that installs mcpp via `brew install` (from a tap or formula), then executes `mcpp sync` and validates output.
 
 **Acceptance Scenarios**:
 
-1. **Given** a clean macOS environment with Homebrew installed, **When** I run `brew install ggen` (or from tap), **Then** ggen is installed and available in PATH
-2. **Given** ggen is installed via Homebrew, **When** I run `ggen sync` on a sample project, **Then** the output is identical to cargo-installed ggen
-3. **Given** a new ggen version is released, **When** I run `brew upgrade ggen`, **Then** the upgrade completes successfully and the new version works correctly
+1. **Given** a clean macOS environment with Homebrew installed, **When** I run `brew install mcpp` (or from tap), **Then** mcpp is installed and available in PATH
+2. **Given** mcpp is installed via Homebrew, **When** I run `mcpp sync` on a sample project, **Then** the output is identical to cargo-installed mcpp
+3. **Given** a new mcpp version is released, **When** I run `brew upgrade mcpp`, **Then** the upgrade completes successfully and the new version works correctly
 
 ---
 
 ### User Story 4 - Sample Project Validation Suite (Priority: P2)
 
-As a ggen maintainer, I want E2E tests to validate all example projects in the repository work correctly, so I catch regressions that affect real-world use cases.
+As a mcpp maintainer, I want E2E tests to validate all example projects in the repository work correctly, so I catch regressions that affect real-world use cases.
 
 **Why this priority**: Example projects serve as both documentation and regression tests. If examples break, users lose trust and documentation becomes misleading.
 
-**Independent Test**: Run `ggen sync` on each example project (thesis-gen, etc.) and validate outputs against golden files.
+**Independent Test**: Run `mcpp sync` on each example project (thesis-gen, etc.) and validate outputs against golden files.
 
 **Acceptance Scenarios**:
 
-1. **Given** the thesis-gen example project, **When** I run `ggen sync`, **Then** all LaTeX files are generated matching the golden output
-2. **Given** any example project with a `ggen.toml`, **When** I run `ggen sync`, **Then** the command completes without errors and generates expected files
+1. **Given** the thesis-gen example project, **When** I run `mcpp sync`, **Then** all LaTeX files are generated matching the golden output
+2. **Given** any example project with a `mcpp.toml`, **When** I run `mcpp sync`, **Then** the command completes without errors and generates expected files
 3. **Given** an example project is modified, **When** golden files are updated, **Then** subsequent test runs pass with the new expected output
 
 ---
@@ -93,17 +93,17 @@ As a repository maintainer, I want E2E tests integrated into the GitHub Actions 
 - How does the test handle network failures when pulling container images? (Retry with exponential backoff, fail after 3 attempts)
 - What happens when a container takes longer than expected to start? (Configurable timeout with sensible default of 2 minutes)
 - How does the test handle disk space constraints? (Pre-check available space, fail early with helpful message)
-- What happens when ggen sync produces warnings but not errors? (Capture warnings in test output, optionally fail on warnings via flag)
+- What happens when mcpp sync produces warnings but not errors? (Capture warnings in test output, optionally fail on warnings via flag)
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST run `ggen sync` inside Linux containers (Ubuntu-based) and validate output
-- **FR-002**: System MUST run `ggen sync` on macOS (native runner or environment) and validate output
+- **FR-001**: System MUST run `mcpp sync` inside Linux containers (Ubuntu-based) and validate output
+- **FR-002**: System MUST run `mcpp sync` on macOS (native runner or environment) and validate output
 - **FR-003**: System MUST compare outputs between platforms to ensure deterministic generation
 - **FR-004**: System MUST use testcontainers-rs (or equivalent) for container lifecycle management
-- **FR-005**: System MUST automatically provision all ggen dependencies inside test containers
+- **FR-005**: System MUST automatically provision all mcpp dependencies inside test containers
 - **FR-006**: System MUST clean up all containers and resources after test completion (success or failure)
 - **FR-007**: System MUST capture and expose container logs when tests fail
 - **FR-008**: System MUST support running tests locally with Docker and in CI environments
@@ -116,8 +116,8 @@ As a repository maintainer, I want E2E tests integrated into the GitHub Actions 
 
 ### Key Entities
 
-- **TestContainer**: Isolated Docker container running a specific OS with ggen installed
-- **TestProject**: A sample ggen project (ontology + templates + ggen.toml) used for validation
+- **TestContainer**: Isolated Docker container running a specific OS with mcpp installed
+- **TestProject**: A sample mcpp project (ontology + templates + mcpp.toml) used for validation
 - **GoldenOutput**: Expected output files for comparison against actual generated output
 - **TestResult**: Outcome of a test run including pass/fail status, logs, and timing
 - **Platform**: Target OS/architecture combination (linux-x86_64, darwin-x86_64, darwin-arm64)
@@ -139,7 +139,7 @@ As a repository maintainer, I want E2E tests integrated into the GitHub Actions 
 
 - Docker is available on all CI runners and developer machines for testcontainer execution
 - macOS testing uses GitHub Actions macOS runners (native execution, not containerized)
-- Homebrew formula/tap for ggen exists or will be created as part of this feature
+- Homebrew formula/tap for mcpp exists or will be created as part of this feature
 - Example projects (thesis-gen) have stable, expected outputs that can serve as golden files
 - Test containers use publicly available base images (Ubuntu LTS, etc.)
 - Network access is available for pulling container images during test setup
@@ -149,5 +149,5 @@ As a repository maintainer, I want E2E tests integrated into the GitHub Actions 
 - Windows platform testing (can be added in future iteration)
 - Performance benchmarking (separate from functional E2E validation)
 - Load testing or stress testing
-- Testing ggen subcommands other than `sync` (focus on primary use case first)
+- Testing mcpp subcommands other than `sync` (focus on primary use case first)
 - Creating the Homebrew formula itself (only testing the installation path)

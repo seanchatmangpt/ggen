@@ -51,7 +51,7 @@ nodes:
 
     // Act: Execute CLI → Template Domain → Core Template Engine
     // v2.0: Simpler syntax without --var flags (RDF provides data)
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "template",
         "generate",
@@ -70,7 +70,7 @@ nodes:
 test!(test_marketplace_search_integration, {
     // Arrange & Act: Test CLI → Market Domain → Core Registry
     // v2.0: "marketplace" command replaces "market"
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     let output = cmd
         .args(["marketplace", "search", "rust", "--limit", "5"])
         .output()
@@ -87,7 +87,7 @@ test!(test_project_gen_integration, {
     let project_dir = temp.child("my-project");
 
     // Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     let output = cmd
         .args([
             "project",
@@ -133,7 +133,7 @@ commands = ["echo 'Building...'"]
         .unwrap();
 
     // Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     let output = cmd
         .args([
             "lifecycle",
@@ -162,7 +162,7 @@ test!(test_error_propagation_invalid_template, {
         .unwrap();
 
     // Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "template",
         "generate",
@@ -175,7 +175,7 @@ test!(test_error_propagation_invalid_template, {
 
 test!(test_error_propagation_missing_file, {
     // Arrange & Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "template",
         "generate",
@@ -188,7 +188,7 @@ test!(test_error_propagation_missing_file, {
 
 test!(test_error_propagation_invalid_command, {
     // Arrange & Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args(["invalid-command"])
         .assert()
         .failure()
@@ -216,7 +216,7 @@ nodes:
         .unwrap();
 
     // Act & Assert
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args([
         "template",
         "generate",
@@ -233,7 +233,7 @@ nodes:
 
 test!(test_json_output_marketplace_search, {
     // Arrange & Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     let output = cmd
         .args(["marketplace", "search", "rust", "--json", "--limit", "1"])
         .output()
@@ -266,7 +266,7 @@ version = "1.0.0"
         .unwrap();
 
     // Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     let output = cmd
         .args([
             "project",
@@ -324,7 +324,7 @@ nodes:
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
+    let result = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -339,7 +339,7 @@ nodes:
     if result.status.success() {
         let make_file = output_dir.child("test-project/make.toml");
         if make_file.path().exists() {
-            Command::cargo_bin("ggen")
+            Command::cargo_bin("mcpp")
                 .unwrap()
                 .args([
                     "lifecycle",
@@ -356,7 +356,7 @@ nodes:
 
 test!(test_workflow_marketplace_to_project, {
     // Arrange & Act
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.args(["marketplace", "search", "cli-template", "--limit", "1"])
         .assert()
         .success();
@@ -382,7 +382,7 @@ ex:project1 a ex:Project ;
         .unwrap();
 
     // Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "graph",
@@ -404,7 +404,7 @@ ex:project1 a ex:Project ;
 
 test!(test_doctor_before_operations, {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["doctor"])
         .assert()
@@ -415,10 +415,10 @@ test!(test_doctor_before_operations, {
 #[ignore = "shell completion command not implemented"]
 test!(test_shell_completion_generation, {
     let temp = TempDir::new().unwrap();
-    let completion_file = temp.child("ggen.bash");
+    let completion_file = temp.child("mcpp.bash");
 
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "shell",
@@ -459,7 +459,7 @@ enabled = true
         .unwrap();
 
     // Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--config", config_file.path().to_str().unwrap(), "doctor"])
         .output()
@@ -484,7 +484,7 @@ version = "1.0.0"
         .unwrap();
 
     // Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "--manifest-path",
@@ -505,7 +505,7 @@ version = "1.0.0"
 
 test!(test_help_command, {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--help"])
         .assert()
@@ -515,7 +515,7 @@ test!(test_help_command, {
 
 test!(test_version_command, {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--version"])
         .assert()
@@ -525,7 +525,7 @@ test!(test_version_command, {
 
 test!(test_progressive_help, {
     // Arrange & Act & Assert
-    Command::cargo_bin("ggen")
+    Command::cargo_bin("mcpp")
         .unwrap()
         .args(["help-me"])
         .assert()
@@ -535,7 +535,7 @@ test!(test_progressive_help, {
 test!(test_subcommand_help, {
     // Arrange & Act & Assert
     for subcommand in &["template", "marketplace", "project", "lifecycle", "graph"] {
-        Command::cargo_bin("ggen")
+        Command::cargo_bin("mcpp")
             .unwrap()
             .args([*subcommand, "--help"])
             .assert()
@@ -550,7 +550,7 @@ test!(test_subcommand_help, {
 
 test!(test_v2_auto_discovery, {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args(["--help"])
         .output()
@@ -567,7 +567,7 @@ test!(test_v2_auto_discovery, {
 
 test!(test_v2_sync_wrapper_execution, {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args(["doctor"])
         .output()
@@ -579,7 +579,7 @@ test!(test_v2_sync_wrapper_execution, {
 
 test!(test_v2_help_me_command, {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args(["help-me"])
         .output()
@@ -642,7 +642,7 @@ nodes:
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
+    let result = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -693,7 +693,7 @@ nodes:
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
+    let result = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",
@@ -714,7 +714,7 @@ nodes:
 
 test!(test_v2_marketplace_search_with_rdf, {
     // Arrange & Act
-    let output = Command::cargo_bin("ggen")
+    let output = Command::cargo_bin("mcpp")
         .unwrap()
         .args(["marketplace", "search", "rust", "--limit", "3"])
         .output()
@@ -762,7 +762,7 @@ impl {{name}} {
         .unwrap();
 
     // Act
-    let result = Command::cargo_bin("ggen")
+    let result = Command::cargo_bin("mcpp")
         .unwrap()
         .args([
             "template",

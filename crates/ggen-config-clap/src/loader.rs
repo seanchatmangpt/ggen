@@ -1,33 +1,33 @@
 //! Configuration loader for clap integration
 //!
-//! Provides trait for loading ggen.toml into clap applications
+//! Provides trait for loading mcpp.toml into clap applications
 
 use crate::error::{ConfigClapError, Result};
-use ggen_config::GgenConfig;
+use mcpp_config::GgenConfig;
 use std::path::Path;
 
-/// Trait for loading ggen.toml configuration into clap types
+/// Trait for loading mcpp.toml configuration into clap types
 pub trait LoadConfigFromGgenToml: Sized {
-    /// Load configuration from ggen.toml
+    /// Load configuration from mcpp.toml
     ///
     /// # Errors
     /// Returns error if file cannot be read or parsed
-    fn from_ggen_toml<P: AsRef<Path>>(path: P) -> Result<Self>;
+    fn from_mcpp_toml<P: AsRef<Path>>(path: P) -> Result<Self>;
 
     /// Merge with CLI arguments (CLI takes precedence)
     fn merge_with_cli(self, cli_args: Self) -> Self;
 }
 
-/// Load ggen.toml configuration
+/// Load mcpp.toml configuration
 ///
 /// # Errors
 /// Returns error if file cannot be read or parsed
-pub fn load_ggen_config<P: AsRef<Path>>(path: P) -> Result<GgenConfig> {
+pub fn load_mcpp_config<P: AsRef<Path>>(path: P) -> Result<GgenConfig> {
     let config_str = std::fs::read_to_string(path.as_ref())
-        .map_err(|e| ConfigClapError::LoadError(format!("Failed to read ggen.toml: {e}")))?;
+        .map_err(|e| ConfigClapError::LoadError(format!("Failed to read mcpp.toml: {e}")))?;
 
     let config: GgenConfig = toml::from_str(&config_str)
-        .map_err(|e| ConfigClapError::ParseError(format!("Failed to parse ggen.toml: {e}")))?;
+        .map_err(|e| ConfigClapError::ParseError(format!("Failed to parse mcpp.toml: {e}")))?;
 
     Ok(config)
 }
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_load_missing_config() {
-        let result = load_ggen_config("/nonexistent/ggen.toml");
+        let result = load_mcpp_config("/nonexistent/mcpp.toml");
         assert!(result.is_err());
         assert!(matches!(result, Err(ConfigClapError::LoadError(_))));
     }

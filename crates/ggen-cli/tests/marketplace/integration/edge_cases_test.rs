@@ -16,7 +16,7 @@ use std::thread;
 
 #[test]
 fn test_empty_query_validation() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -31,7 +31,7 @@ fn test_empty_query_validation() {
 
 #[test]
 fn test_whitespace_only_query() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -46,7 +46,7 @@ fn test_whitespace_only_query() {
 
 #[test]
 fn test_special_characters_in_query() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Test various special characters
     let special_queries = vec![
@@ -76,7 +76,7 @@ fn test_special_characters_in_query() {
 
 #[test]
 fn test_unicode_in_query() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -91,7 +91,7 @@ fn test_unicode_in_query() {
 
 #[test]
 fn test_very_long_query() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let long_query = "a".repeat(1000);
 
@@ -108,7 +108,7 @@ fn test_very_long_query() {
 
 #[test]
 fn test_invalid_package_name() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -122,7 +122,7 @@ fn test_invalid_package_name() {
 
 #[test]
 fn test_nonexistent_package() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -136,7 +136,7 @@ fn test_nonexistent_package() {
 
 #[test]
 fn test_zero_limit() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -153,7 +153,7 @@ fn test_zero_limit() {
 
 #[test]
 fn test_negative_limit() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -170,7 +170,7 @@ fn test_negative_limit() {
 
 #[test]
 fn test_huge_limit() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -187,7 +187,7 @@ fn test_huge_limit() {
 
 #[test]
 fn test_invalid_maturity_level() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -202,7 +202,7 @@ fn test_invalid_maturity_level() {
 
 #[test]
 fn test_invalid_export_format() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -219,15 +219,15 @@ fn test_invalid_export_format() {
 
 #[test]
 fn test_compare_same_package() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
         .arg("compare")
         .arg("--package-a")
-        .arg("io.ggen.compiler")
+        .arg("io.mcpp.compiler")
         .arg("--package-b")
-        .arg("io.ggen.compiler")
+        .arg("io.mcpp.compiler")
         .assert();
 
     // Should handle comparing package to itself
@@ -236,7 +236,7 @@ fn test_compare_same_package() {
 
 #[test]
 fn test_compare_nonexistent_packages() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -253,7 +253,7 @@ fn test_compare_nonexistent_packages() {
 
 #[test]
 fn test_invalid_use_case() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -275,7 +275,7 @@ fn test_concurrent_search_requests() {
         .map(|query| {
             let q = query.to_string();
             thread::spawn(move || {
-                let mut cmd = Command::cargo_bin("ggen").unwrap();
+                let mut cmd = Command::cargo_bin("mcpp").unwrap();
                 cmd.arg("marketplace")
                     .arg("search")
                     .arg("--query")
@@ -295,9 +295,9 @@ fn test_concurrent_search_requests() {
 #[test]
 fn test_concurrent_maturity_assessments() {
     let packages = vec![
-        "io.ggen.rust.microservice",
-        "io.ggen.typescript.sdk",
-        "io.ggen.python.pydantic",
+        "io.mcpp.rust.microservice",
+        "io.mcpp.typescript.sdk",
+        "io.mcpp.python.pydantic",
     ];
 
     let handles: Vec<_> = packages
@@ -305,7 +305,7 @@ fn test_concurrent_maturity_assessments() {
         .map(|pkg| {
             let p = pkg.to_string();
             thread::spawn(move || {
-                let mut cmd = Command::cargo_bin("ggen").unwrap();
+                let mut cmd = Command::cargo_bin("mcpp").unwrap();
                 cmd.arg("marketplace")
                     .arg("maturity")
                     .arg(&p)
@@ -330,7 +330,7 @@ fn test_sql_injection_attempts() {
     ];
 
     for attempt in injection_attempts {
-        let mut cmd = Command::cargo_bin("ggen").unwrap();
+        let mut cmd = Command::cargo_bin("mcpp").unwrap();
         let assert = cmd
             .arg("marketplace")
             .arg("search")
@@ -352,7 +352,7 @@ fn test_path_traversal_attempts() {
     ];
 
     for attempt in traversal_attempts {
-        let mut cmd = Command::cargo_bin("ggen").unwrap();
+        let mut cmd = Command::cargo_bin("mcpp").unwrap();
         let assert = cmd
             .arg("marketplace")
             .arg("search")
@@ -367,7 +367,7 @@ fn test_path_traversal_attempts() {
 
 #[test]
 fn test_null_bytes_in_input() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let query_with_null = format!("test{}package", '\0');
 
@@ -385,7 +385,7 @@ fn test_null_bytes_in_input() {
 #[test]
 fn test_extremely_nested_json_output() {
     // Generate deeply nested query that might cause stack overflow
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -400,7 +400,7 @@ fn test_extremely_nested_json_output() {
 
 #[test]
 fn test_invalid_score_threshold() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")
@@ -417,7 +417,7 @@ fn test_invalid_score_threshold() {
 
 #[test]
 fn test_negative_score_threshold() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     let assert = cmd
         .arg("marketplace")

@@ -1,5 +1,5 @@
 /// Test validate_sparql MCP tool
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::model::{ClientCapabilities, ClientInfo};
 use std::path::PathBuf;
 
@@ -9,8 +9,8 @@ async fn test_validate_sparql_with_valid_query() {
 
     // Test with a valid SPARQL query
     let valid_query = r#"
-PREFIX a2a: <https://ggen.dev/ontology/a2a#>
-PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a#>
+PREFIX mcp: <https://mcpp.dev/ontology/mcp#>
 
 SELECT ?skill_name ?skill_description
 WHERE {
@@ -34,7 +34,7 @@ LIMIT 10
 async fn test_validate_sparql_with_invalid_query() {
     // Test with an invalid SPARQL query (missing closing brace)
     let invalid_query = r#"
-PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a#>
 
 SELECT ?skill_name
 WHERE {
@@ -51,7 +51,7 @@ WHERE {
 
 #[tokio::test]
 async fn test_validate_sparql_with_file_path() {
-    let test_query_path = "../ggen-core/queries/a2a/extract-a2a-skills.rq";
+    let test_query_path = "../mcpp-core/queries/a2a/extract-a2a-skills.rq";
 
     // Verify the test file exists
     assert!(PathBuf::from(test_query_path).exists());

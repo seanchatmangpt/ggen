@@ -10,7 +10,7 @@
 ## Deliverables Summary
 
 ### 1. ARCHITECTURE.md (Completed ✓)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ARCHITECTURE.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/ARCHITECTURE.md`
 **Size**: ~16.5 KB (935 lines)
 **Status**: Production-ready
 
@@ -44,7 +44,7 @@
 ---
 
 ### 2. DEVELOPER_GUIDE.md (Completed ✓)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/docs/DEVELOPER_GUIDE.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/DEVELOPER_GUIDE.md`
 **Size**: ~22.8 KB (1,107 lines)
 **Status**: Production-ready
 
@@ -77,7 +77,7 @@
 ---
 
 ### 3. OPERATIONAL_GUIDE.md (Completed ✓)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/docs/OPERATIONAL_GUIDE.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/OPERATIONAL_GUIDE.md`
 **Size**: ~17.2 KB (849 lines)
 **Status**: Production-ready
 
@@ -109,7 +109,7 @@
 ---
 
 ### 4. README.md (Updated ✓)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/README.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/README.md`
 **Size**: ~12.9 KB (501 lines)
 **Status**: Production-ready
 
@@ -141,7 +141,7 @@
 ---
 
 ### 5. CONTRIBUTING.md (Completed ✓)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/CONTRIBUTING.md`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/CONTRIBUTING.md`
 **Size**: ~9.4 KB (517 lines)
 **Status**: Production-ready
 
@@ -171,7 +171,7 @@
 ---
 
 ### 6. .gitignore (Updated ✓)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/.gitignore`
+**File**: `~/.ggen/mcpp/tai-erlang-autonomics/.gitignore`
 **Status**: Enhanced (already existed, preserved)
 
 **Contents**:

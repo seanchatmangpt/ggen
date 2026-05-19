@@ -5,7 +5,7 @@
 use std::time::Instant;
 
 fn main() {
-    println!("=== ggen Template Hot Path Profiling ===\n");
+    println!("=== mcpp Template Hot Path Profiling ===\n");
 
     // Benchmark 1: String allocation strategies
     println!("1. String Allocation Strategies");

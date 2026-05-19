@@ -520,7 +520,7 @@ Remember:
 **Timeline Questions**: Refer to WEEK_1_2_ACTION_PLAN.md
 **Template Questions**: Refer to INSURANCE_BROKER_OUTREACH_TEMPLATES.md
 
-**All documents are in**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/`
+**All documents are in**: `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-1-2/`
 
 ---
 

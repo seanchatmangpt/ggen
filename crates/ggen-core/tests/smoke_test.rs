@@ -6,7 +6,7 @@
 //! These tests use the public `generate_service` API only; no internal implementation
 //! details are tested (WvdA: no coupling to internals).
 
-use ggen_core::codegen::{generate_service, GeneratorLanguage};
+use mcpp_core::codegen::{generate_service, GeneratorLanguage};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Go generator

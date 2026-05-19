@@ -1,32 +1,32 @@
-//! GgenMcpServer — official rmcp 1.3.0 MCP server for ggen tooling.
+//! GgenMcpServer — official rmcp 1.3.0 MCP server for mcpp tooling.
 //!
-//! Exposes ggen capabilities as first-class MCP primitives:
+//! Exposes mcpp capabilities as first-class MCP primitives:
 //!
 //! **Tools** (actions):
 //!   - `generate`            — generate code from a RDF ontology file (μ₁-μ₅ pipeline)
 //!   - `validate`            — validate Turtle (.ttl) content with oxigraph
-//!   - `sync`                — run the full ggen sync pipeline
+//!   - `sync`                — run the full mcpp sync pipeline
 //!   - `list_generators`     — list available code generators
-//!   - `list_examples`       — list bundled ggen example projects
-//!   - `get_example`         — retrieve example details (ggen.toml, TTL, README)
+//!   - `list_examples`       — list bundled mcpp example projects
+//!   - `get_example`         — retrieve example details (mcpp.toml, TTL, README)
 //!   - `search`              — search marketplace packages by keyword/category
 //!   - `scaffold_from_example` — copy an example as a starting point
 //!   - `query_ontology`      — run a SPARQL SELECT against an inline TTL
-//!   - `validate_pipeline`   — run all 6 quality gates on a ggen project
+//!   - `validate_pipeline`   — run all 6 quality gates on a mcpp project
 //!   - `validate_sparql`     — validate SPARQL query syntax
 //!   - `validate_templates`  — validate template syntax
 //!   - `fix_cycles`          — detect and fix circular dependencies
 //!
 //! **Resources** (browsable data):
-//!   - `ggen://example/{name}`        — example summary
-//!   - `ggen://example/{name}/ttl`    — raw ontology TTL
-//!   - `ggen://example/{name}/readme` — README content
-//!   - `ggen://example/{name}/config` — raw ggen.toml
+//!   - `mcpp://example/{name}`        — example summary
+//!   - `mcpp://example/{name}/ttl`    — raw ontology TTL
+//!   - `mcpp://example/{name}/readme` — README content
+//!   - `mcpp://example/{name}/config` — raw mcpp.toml
 //!
 //! **Prompts** (reusable LLM templates):
 //!   - `explain-rdf-schema`    — explain a TTL ontology in plain English
 //!   - `generate-from-example` — adapt an example to a new domain
-//!   - `scaffold-project`      — design a new ggen project from scratch
+//!   - `scaffold-project`      — design a new mcpp project from scratch
 //!
 //! **Completions** (argument autocomplete):
 //!   - `example_name` argument — lists discovered example names
@@ -108,7 +108,7 @@ pub struct SyncParams {
 /// Parameters for the `list_examples` tool.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ListExamplesParams {
-    /// Filter by category (optional substring match on category field in ggen.toml)
+    /// Filter by category (optional substring match on category field in mcpp.toml)
     #[serde(default)]
     pub category: Option<String>,
     /// Maximum number of results (default: 50)
@@ -183,16 +183,16 @@ pub struct FixCyclesParams {
 /// Parameters for the `validate_pipeline` tool.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ValidatePipelineParams {
-    /// Path to the project directory containing ggen.toml
+    /// Path to the project directory containing mcpp.toml
     pub project_path: String,
 }
 
 /// Parameters for the `validate_project` tool.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ValidateProjectParams {
-    /// Root directory of the ggen project
+    /// Root directory of the mcpp project
     pub project_root: String,
-    /// Optional path to ggen.toml (defaults to project_root/ggen.toml)
+    /// Optional path to mcpp.toml (defaults to project_root/mcpp.toml)
     #[serde(default)]
     pub manifest_path: Option<String>,
     /// Validation level: "syntax", "semantics", "security", "all" (default: "all")
@@ -203,7 +203,7 @@ pub struct ValidateProjectParams {
 /// Parameters for the `validate_incremental` tool.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ValidateIncrementalParams {
-    /// Root directory of the ggen project
+    /// Root directory of the mcpp project
     pub project_root: String,
     /// Explicit list of changed files to validate (optional)
     #[serde(default)]
@@ -216,9 +216,9 @@ pub struct ValidateIncrementalParams {
 /// Parameters for the `validate_dependency_graph` tool.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct ValidateDependencyGraphParams {
-    /// Root directory of the ggen project
+    /// Root directory of the mcpp project
     pub project_root: String,
-    /// Optional path to ggen.toml (defaults to project_root/ggen.toml)
+    /// Optional path to mcpp.toml (defaults to project_root/mcpp.toml)
     #[serde(default)]
     pub manifest_path: Option<String>,
 }
@@ -227,7 +227,7 @@ pub struct ValidateDependencyGraphParams {
 // Server struct
 // ---------------------------------------------------------------------------
 
-/// MCP server that exposes ggen code-generation capabilities as MCP primitives.
+/// MCP server that exposes mcpp code-generation capabilities as MCP primitives.
 #[derive(Clone)]
 pub struct GgenMcpServer {
     tool_router: ToolRouter<GgenMcpServer>,
@@ -239,7 +239,7 @@ pub struct GgenMcpServer {
 // Helper functions
 // ---------------------------------------------------------------------------
 
-/// Scan the examples directory for valid ggen example projects.
+/// Scan the examples directory for valid mcpp example projects.
 /// Returns (name, description, category) for each discovered example.
 fn scan_examples(examples_dir: &Path) -> Vec<(String, String, String)> {
     if !examples_dir.is_dir() {
@@ -255,7 +255,7 @@ fn scan_examples(examples_dir: &Path) -> Vec<(String, String, String)> {
         if !path.is_dir() {
             continue;
         }
-        let config_path = path.join("ggen.toml");
+        let config_path = path.join("mcpp.toml");
         if !config_path.exists() {
             continue;
         }
@@ -264,15 +264,15 @@ fn scan_examples(examples_dir: &Path) -> Vec<(String, String, String)> {
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
-        let (description, category) = read_ggen_toml_meta(&config_path);
+        let (description, category) = read_mcpp_toml_meta(&config_path);
         results.push((name, description, category));
     }
     results.sort_by(|a, b| a.0.cmp(&b.0));
     results
 }
 
-/// Extract description and category from a ggen.toml file.
-fn read_ggen_toml_meta(config_path: &Path) -> (String, String) {
+/// Extract description and category from a mcpp.toml file.
+fn read_mcpp_toml_meta(config_path: &Path) -> (String, String) {
     let content = match std::fs::read_to_string(config_path) {
         Ok(c) => c,
         Err(_) => return ("No description".to_string(), "unknown".to_string()),
@@ -337,15 +337,15 @@ fn resolve_sync_paths(
     (ontology, queries, output)
 }
 
-/// Run the ggen sync pipeline on a blocking thread.
+/// Run the mcpp sync pipeline on a blocking thread.
 fn run_sync_blocking(
     ontology_path: PathBuf, queries_dir: PathBuf, output_dir: PathBuf, language: String,
     dry_run: bool, validate: bool,
-) -> Result<ggen_core::sync::SyncResult, ggen_core::sync::SyncError> {
-    use ggen_core::sync::{sync, SyncConfig};
+) -> Result<mcpp_core::sync::SyncResult, mcpp_core::sync::SyncError> {
+    use mcpp_core::sync::{sync, SyncConfig};
     let lang = language
         .parse()
-        .unwrap_or(ggen_core::sync::SyncLanguage::Auto);
+        .unwrap_or(mcpp_core::sync::SyncLanguage::Auto);
     let config = SyncConfig {
         ontology_path,
         queries_dir,
@@ -376,14 +376,14 @@ impl GgenMcpServer {
     // ------------------------------------------------------------------
 
     /// Generate code from a RDF ontology file via the μ₁-μ₅ pipeline.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         ontology = %params.ontology_path,
         lang = ?params.language,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
-        description = "Generate code from a RDF ontology file via the ggen μ₁-μ₅ pipeline. Requires ontology_path (.ttl) and optionally queries_dir (.rq files), output_dir, language (go/rust/python/typescript/elixir/auto)."
+        description = "Generate code from a RDF ontology file via the mcpp μ₁-μ₅ pipeline. Requires ontology_path (.ttl) and optionally queries_dir (.rq files), output_dir, language (go/rust/python/typescript/elixir/auto)."
     )]
     async fn generate(
         &self, Parameters(params): Parameters<GenerateParams>,
@@ -437,7 +437,7 @@ impl GgenMcpServer {
             Err(e) => {
                 warn!(error = %e, "generate tool failed");
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "pipeline_failure",
                     error.message = %e,
                 );
@@ -459,7 +459,7 @@ impl GgenMcpServer {
     ) -> Result<CallToolResult, McpError> {
         use oxigraph::io::{RdfFormat, RdfParser};
         let span = tracing::info_span!(
-            "ggen.mcp.tool_call",
+            "mcpp.mcp.tool_call",
             "operation.name" = "mcp.validate",
             ttl_len = params.ttl.len(),
         );
@@ -491,7 +491,7 @@ impl GgenMcpServer {
                 .collect::<Vec<_>>()
                 .join("; ");
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "validation_failure",
                 error.message = %msg,
             );
@@ -509,15 +509,15 @@ impl GgenMcpServer {
         }
     }
 
-    /// Run the full ggen μ₁-μ₅ sync pipeline from an ontology file.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    /// Run the full mcpp μ₁-μ₅ sync pipeline from an ontology file.
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         ontology = %params.ontology_path,
         dry_run = params.dry_run,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
-        description = "Run the full ggen sync pipeline (μ₁-μ₅: Load→Extract→Generate→Validate→Write) from a .ttl ontology. Requires ontology_path; optionally queries_dir, output_dir, language, dry_run."
+        description = "Run the full mcpp sync pipeline (μ₁-μ₅: Load→Extract→Generate→Validate→Write) from a .ttl ontology. Requires ontology_path; optionally queries_dir, output_dir, language, dry_run."
     )]
     async fn sync(
         &self, Parameters(params): Parameters<SyncParams>,
@@ -577,7 +577,7 @@ impl GgenMcpServer {
             Err(e) => {
                 warn!(error = %e, "sync tool failed");
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "pipeline_failure",
                     error.message = %e,
                 );
@@ -592,11 +592,11 @@ impl GgenMcpServer {
 
     /// List available code generators.
     #[tool(
-        description = "List available code generators supported by ggen (go, rust, python, typescript, elixir, terraform, docker-kubernetes)."
+        description = "List available code generators supported by mcpp (go, rust, python, typescript, elixir, terraform, docker-kubernetes)."
     )]
     async fn list_generators(&self) -> Result<CallToolResult, McpError> {
         let span = tracing::info_span!(
-            "ggen.mcp.tool_call",
+            "mcpp.mcp.tool_call",
             "operation.name" = "mcp.list_generators"
         );
         let _guard = span.enter();
@@ -616,15 +616,15 @@ impl GgenMcpServer {
     // Examples tools
     // ------------------------------------------------------------------
 
-    /// List bundled ggen example projects with optional category filter.
+    /// List bundled mcpp example projects with optional category filter.
     #[tool(
-        description = "List bundled ggen example projects. Optionally filter by category. Returns name, description, and category for each example."
+        description = "List bundled mcpp example projects. Optionally filter by category. Returns name, description, and category for each example."
     )]
     async fn list_examples(
         &self, Parameters(params): Parameters<ListExamplesParams>,
     ) -> Result<CallToolResult, McpError> {
         let span =
-            tracing::info_span!("ggen.mcp.tool_call", "operation.name" = "mcp.list_examples");
+            tracing::info_span!("mcpp.mcp.tool_call", "operation.name" = "mcp.list_examples");
         let _guard = span.enter();
         tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "list_examples");
         info!(category = ?params.category, "list_examples tool called");
@@ -656,15 +656,15 @@ impl GgenMcpServer {
         )]))
     }
 
-    /// Get details of a specific ggen example project.
+    /// Get details of a specific mcpp example project.
     #[tool(
-        description = "Get details of a specific ggen example: ggen.toml config, ontology TTL content, README, and template file list."
+        description = "Get details of a specific mcpp example: mcpp.toml config, ontology TTL content, README, and template file list."
     )]
     async fn get_example(
         &self, Parameters(params): Parameters<GetExampleParams>,
     ) -> Result<CallToolResult, McpError> {
         let span = tracing::info_span!(
-            "ggen.mcp.tool_call",
+            "mcpp.mcp.tool_call",
             "operation.name" = "mcp.get_example",
             example_name = %params.name,
         );
@@ -679,8 +679,8 @@ impl GgenMcpServer {
             ))]));
         }
 
-        let config_content = std::fs::read_to_string(example_dir.join("ggen.toml"))
-            .unwrap_or_else(|_| "(no ggen.toml)".to_string());
+        let config_content = std::fs::read_to_string(example_dir.join("mcpp.toml"))
+            .unwrap_or_else(|_| "(no mcpp.toml)".to_string());
 
         // Find TTL file(s)
         let ttl_content = find_ttl_content(&example_dir);
@@ -696,7 +696,7 @@ impl GgenMcpServer {
 
         let result = serde_json::json!({
             "name": params.name,
-            "ggen_toml": config_content,
+            "mcpp_toml": config_content,
             "ttl": ttl_content,
             "readme": readme,
             "templates": templates
@@ -724,13 +724,13 @@ impl GgenMcpServer {
 
     /// Scaffold a new project by copying a bundled example to a target directory.
     #[tool(
-        description = "Scaffold a new ggen project from a bundled example. Copies the example directory to target_dir as a starting point."
+        description = "Scaffold a new mcpp project from a bundled example. Copies the example directory to target_dir as a starting point."
     )]
     async fn scaffold_from_example(
         &self, Parameters(params): Parameters<ScaffoldParams>,
     ) -> Result<CallToolResult, McpError> {
         let span = tracing::info_span!(
-            "ggen.mcp.tool_call",
+            "mcpp.mcp.tool_call",
             "operation.name" = "mcp.scaffold_from_example",
             example_name = %params.example_name,
             target_dir = %params.target_dir,
@@ -773,10 +773,10 @@ impl GgenMcpServer {
     }
 
     /// Run a SPARQL SELECT query against an inline TTL string.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         sparql_len = params.sparql.len(),
         ttl_len = params.ttl.len(),
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
@@ -801,7 +801,7 @@ impl GgenMcpServer {
         // Load TTL into in-memory store
         let store = Store::new().map_err(|e| {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "internal_error",
                 error.message = format!("Store creation failed: {}", e),
             );
@@ -812,7 +812,7 @@ impl GgenMcpServer {
             .load_from_reader(RdfFormat::Turtle, params.ttl.as_bytes())
             .map_err(|e| {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "invalid_params",
                     error.message = format!("Invalid TTL: {}", e),
                 );
@@ -825,7 +825,7 @@ impl GgenMcpServer {
             .parse_query(&params.sparql)
             .map_err(|e| {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "invalid_params",
                     error.message = format!("SPARQL parse error: {}", e),
                 );
@@ -836,7 +836,7 @@ impl GgenMcpServer {
             .execute()
             .map_err(|e| {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "internal_error",
                     error.message = format!("SPARQL execution error: {}", e),
                 );
@@ -870,7 +870,7 @@ impl GgenMcpServer {
             }
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "query_failure",
                     error.message = "Only SELECT queries are supported",
                 );
@@ -882,20 +882,20 @@ impl GgenMcpServer {
         }
     }
 
-    /// Run all 6 quality gates on a ggen project.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    /// Run all 6 quality gates on a mcpp project.
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         project_path = %params.project_path,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
-        description = "Run all 6 quality gates on a ggen project. Validates manifest schema, ontology dependencies, SPARQL queries, templates, file permissions, and generation rules. Requires project_path (directory containing ggen.toml)."
+        description = "Run all 6 quality gates on a mcpp project. Validates manifest schema, ontology dependencies, SPARQL queries, templates, file permissions, and generation rules. Requires project_path (directory containing mcpp.toml)."
     )]
     async fn validate_pipeline(
         &self, Parameters(params): Parameters<ValidatePipelineParams>,
     ) -> Result<CallToolResult, McpError> {
-        use ggen_core::manifest::ManifestParser;
-        use ggen_core::poka_yoke::quality_gates::QualityGateRunner;
+        use mcpp_core::manifest::ManifestParser;
+        use mcpp_core::poka_yoke::quality_gates::QualityGateRunner;
 
         tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "validate_pipeline");
         tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.project_path);
@@ -911,11 +911,11 @@ impl GgenMcpServer {
             ))]));
         }
 
-        // Check if ggen.toml exists
-        let manifest_path = project_path.join("ggen.toml");
+        // Check if mcpp.toml exists
+        let manifest_path = project_path.join("mcpp.toml");
         if !manifest_path.exists() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
-                "ggen.toml not found in: {}",
+                "mcpp.toml not found in: {}",
                 params.project_path
             ))]));
         }
@@ -930,13 +930,13 @@ impl GgenMcpServer {
                 Err(e) => {
                     warn!(error = %e, "validate_pipeline: failed to parse manifest");
                     let error_span = tracing::error_span!(
-                        "ggen.error",
+                        "mcpp.error",
                         error.type = "manifest_parse_failure",
                         error.message = %e,
                     );
                     let _guard = error_span.enter();
                     return Ok(CallToolResult::error(vec![Content::text(format!(
-                        "Failed to parse ggen.toml: {}",
+                        "Failed to parse mcpp.toml: {}",
                         e
                     ))]));
                 }
@@ -970,7 +970,7 @@ impl GgenMcpServer {
             Err(e) => {
                 warn!(error = %e, "validate_pipeline tool failed");
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "quality_gate_failure",
                     error.message = %e,
                 );
@@ -988,9 +988,9 @@ impl GgenMcpServer {
     // ------------------------------------------------------------------
 
     /// Validate a SPARQL query file for syntax correctness.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         query_path = %params.query_path,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
@@ -1007,7 +1007,7 @@ impl GgenMcpServer {
         // Read query file
         let query_content = std::fs::read_to_string(&params.query_path).map_err(|e| {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "invalid_params",
                 error.message = format!("Failed to read query file: {}", e),
             );
@@ -1026,7 +1026,7 @@ impl GgenMcpServer {
             Err(e) => {
                 warn!(error = %e, "validate_sparql tool failed");
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "sparql_syntax_error",
                     error.message = %e,
                 );
@@ -1040,9 +1040,9 @@ impl GgenMcpServer {
     }
 
     /// Validate a template file for syntax correctness.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         template_path = %params.template_path,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
@@ -1058,7 +1058,7 @@ impl GgenMcpServer {
         // Read template file
         let template_content = std::fs::read_to_string(&params.template_path).map_err(|e| {
             let error_span = tracing::error_span!(
-                "ggen.error",
+                "mcpp.error",
                 error.type = "invalid_params",
                 error.message = format!("Failed to read template file: {}", e),
             );
@@ -1067,7 +1067,7 @@ impl GgenMcpServer {
         })?;
 
         // Validate template syntax
-        match ggen_core::template::validate_template(&template_content) {
+        match mcpp_core::template::validate_template(&template_content) {
             Ok(result) => {
                 if result.is_valid {
                     info!(status = "valid", "validate_templates tool complete");
@@ -1082,7 +1082,7 @@ impl GgenMcpServer {
                         "validate_templates tool found issues"
                     );
                     let error_span = tracing::error_span!(
-                        "ggen.error",
+                        "mcpp.error",
                         error.type = "template_syntax_error",
                         error.message = format!("Template validation failed: {}", issues.join(", ")),
                     );
@@ -1096,7 +1096,7 @@ impl GgenMcpServer {
             Err(e) => {
                 warn!(error = %e, "validate_templates tool failed");
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "template_validation_error",
                     error.message = %e,
                 );
@@ -1110,11 +1110,11 @@ impl GgenMcpServer {
     }
 
     /// Detect and fix circular dependencies in ontology imports.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         project_path = %params.project_path,
         strategy = %params.strategy,
         dry_run = params.dry_run,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
@@ -1123,7 +1123,7 @@ impl GgenMcpServer {
     async fn fix_cycles(
         &self, Parameters(params): Parameters<FixCyclesParams>,
     ) -> Result<CallToolResult, McpError> {
-        use ggen_core::graph::cycle_fixer::{CycleFixer, FixStrategy};
+        use mcpp_core::graph::cycle_fixer::{CycleFixer, FixStrategy};
         use std::str::FromStr;
         tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "fix_cycles");
         tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.project_path);
@@ -1183,14 +1183,14 @@ impl GgenMcpServer {
     // ------------------------------------------------------------------
 
     /// Full project validation with dependency ordering.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         project_root = %params.project_root,
         validation_level = ?params.validation_level,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
-        description = "Full project validation with dependency ordering. Orchestrates all validation tools in correct order: manifest parse/dependencies/quality gates, TTL syntax, SPARQL syntax, template syntax. Early exits on critical errors. Requires project_root (directory containing ggen.toml). Optional: validation_level (syntax/semantics/security/all)."
+        description = "Full project validation with dependency ordering. Orchestrates all validation tools in correct order: manifest parse/dependencies/quality gates, TTL syntax, SPARQL syntax, template syntax. Early exits on critical errors. Requires project_root (directory containing mcpp.toml). Optional: validation_level (syntax/semantics/security/all)."
     )]
     async fn validate_project(
         &self, Parameters(params): Parameters<ValidateProjectParams>,
@@ -1209,7 +1209,7 @@ impl GgenMcpServer {
             .manifest_path
             .as_ref()
             .map(PathBuf::from)
-            .unwrap_or_else(|| project_path.join("ggen.toml"));
+            .unwrap_or_else(|| project_path.join("mcpp.toml"));
 
         let start = Instant::now();
         let mut validations_run = vec![];
@@ -1234,7 +1234,7 @@ impl GgenMcpServer {
                             "duration_ms": parse_start.elapsed().as_millis()
                         }));
                     } else {
-                        critical_errors.push("Missing required fields in ggen.toml".to_string());
+                        critical_errors.push("Missing required fields in mcpp.toml".to_string());
                         validations_run.push(serde_json::json!({
                             "tool": "validate_manifest_parse",
                             "status": "fail",
@@ -1244,7 +1244,7 @@ impl GgenMcpServer {
                     }
                 }
                 Err(e) => {
-                    critical_errors.push(format!("Failed to read ggen.toml: {}", e));
+                    critical_errors.push(format!("Failed to read mcpp.toml: {}", e));
                     validations_run.push(serde_json::json!({
                         "tool": "validate_manifest_parse",
                         "status": "fail",
@@ -1355,9 +1355,9 @@ impl GgenMcpServer {
     }
 
     /// Validate only changed files (for dev workflow).
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         project_root = %params.project_root,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
@@ -1450,13 +1450,13 @@ impl GgenMcpServer {
     }
 
     /// Cross-input dependency analysis.
-    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+    #[tracing::instrument(name = "mcpp.mcp.tool_call", skip(self), fields(
         project_root = %params.project_root,
-        service.name = "ggen-mcp-server",
+        service.name = "mcpp-mcp-server",
         service.version = env!("CARGO_PKG_VERSION"),
     ))]
     #[tool(
-        description = "Cross-input dependency analysis. Parses ggen.toml for file references (ontology, queries_dir, templates), Turtle for @prefix and imports, SPARQL for FROM/USING clauses, Tera for extends/include. Builds directed graph and detects cycles via DFS. Finds critical path (longest path). Requires project_root."
+        description = "Cross-input dependency analysis. Parses mcpp.toml for file references (ontology, queries_dir, templates), Turtle for @prefix and imports, SPARQL for FROM/USING clauses, Tera for extends/include. Builds directed graph and detects cycles via DFS. Finds critical path (longest path). Requires project_root."
     )]
     async fn validate_dependency_graph(
         &self, Parameters(params): Parameters<ValidateDependencyGraphParams>,
@@ -1472,12 +1472,12 @@ impl GgenMcpServer {
             .manifest_path
             .as_ref()
             .map(PathBuf::from)
-            .unwrap_or_else(|| project_path.join("ggen.toml"));
+            .unwrap_or_else(|| project_path.join("mcpp.toml"));
 
         let mut dependency_graph: HashMap<String, Vec<String>> = HashMap::new();
         let mut all_nodes: HashSet<String> = HashSet::new();
 
-        // Parse ggen.toml for file references
+        // Parse mcpp.toml for file references
         if let Ok(content) = std::fs::read_to_string(&manifest_path) {
             let mut deps = vec![];
 
@@ -1491,8 +1491,8 @@ impl GgenMcpServer {
                 deps.push(templates);
             }
 
-            dependency_graph.insert("ggen.toml".to_string(), deps);
-            all_nodes.insert("ggen.toml".to_string());
+            dependency_graph.insert("mcpp.toml".to_string(), deps);
+            all_nodes.insert("mcpp.toml".to_string());
         }
 
         // Parse Turtle files for imports
@@ -1772,7 +1772,7 @@ const EXCLUDED_DIRS: &[&str] = &[
     "build",
     "cache",
     ".cache",
-    ".ggen/cache", // Exclude ggen's internal cache
+    ".mcpp/cache", // Exclude mcpp's internal cache
 ];
 
 fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<Vec<String>> {
@@ -1824,7 +1824,7 @@ impl GgenMcpServer {
             .enable_completions()
             .build();
         InitializeResult::new(capabilities)
-            .with_server_info(Implementation::new("ggen", env!("CARGO_PKG_VERSION")))
+            .with_server_info(Implementation::new("mcpp", env!("CARGO_PKG_VERSION")))
     }
 
     /// Serve the MCP protocol over `transport`, running until the transport closes.
@@ -1850,7 +1850,7 @@ impl GgenMcpServer {
         scan_examples(&self.examples_dir)
             .into_iter()
             .map(|(name, description, _category)| {
-                RawResource::new(format!("ggen://example/{}", name), name.clone())
+                RawResource::new(format!("mcpp://example/{}", name), name.clone())
                     .with_description(description)
                     .with_mime_type("application/json")
                     .no_annotation()
@@ -1859,8 +1859,8 @@ impl GgenMcpServer {
     }
 
     fn read_example_resource(&self, uri: &str) -> Option<ReadResourceResult> {
-        // Parse URI: ggen://example/{name} or ggen://example/{name}/{sub}
-        let path = uri.strip_prefix("ggen://example/")?;
+        // Parse URI: mcpp://example/{name} or mcpp://example/{name}/{sub}
+        let path = uri.strip_prefix("mcpp://example/")?;
         let (name, sub) = if let Some(slash) = path.find('/') {
             (&path[..slash], Some(&path[slash + 1..]))
         } else {
@@ -1874,10 +1874,10 @@ impl GgenMcpServer {
 
         let content = match sub {
             None => {
-                // Summary: return ggen.toml content as JSON summary
-                let (desc, cat) = read_ggen_toml_meta(&example_dir.join("ggen.toml"));
+                // Summary: return mcpp.toml content as JSON summary
+                let (desc, cat) = read_mcpp_toml_meta(&example_dir.join("mcpp.toml"));
                 let config_raw =
-                    std::fs::read_to_string(example_dir.join("ggen.toml")).unwrap_or_default();
+                    std::fs::read_to_string(example_dir.join("mcpp.toml")).unwrap_or_default();
                 serde_json::to_string_pretty(&serde_json::json!({
                     "name": name,
                     "description": desc,
@@ -1891,8 +1891,8 @@ impl GgenMcpServer {
                 .iter()
                 .find_map(|f| std::fs::read_to_string(example_dir.join(f)).ok())
                 .unwrap_or_else(|| "(no README)".to_string()),
-            Some("config") => std::fs::read_to_string(example_dir.join("ggen.toml"))
-                .unwrap_or_else(|_| "(no ggen.toml)".to_string()),
+            Some("config") => std::fs::read_to_string(example_dir.join("mcpp.toml"))
+                .unwrap_or_else(|_| "(no mcpp.toml)".to_string()),
             _ => return None,
         };
 
@@ -1918,7 +1918,7 @@ impl GgenMcpServer {
             ),
             Prompt::new(
                 "generate-from-example",
-                Some("Adapt a ggen example project to a new domain"),
+                Some("Adapt a mcpp example project to a new domain"),
                 Some(vec![
                     PromptArgument::new("example_name")
                         .with_description("The name of the source example (use list_examples)")
@@ -1930,7 +1930,7 @@ impl GgenMcpServer {
             ),
             Prompt::new(
                 "scaffold-project",
-                Some("Design a new ggen project from scratch"),
+                Some("Design a new mcpp project from scratch"),
                 Some(vec![
                     PromptArgument::new("domain")
                         .with_description("The business domain for the project")
@@ -1972,8 +1972,8 @@ impl GgenMcpServer {
                     "(example not found — use list_examples to find valid names)".to_string()
                 };
                 let config = if example_dir.is_dir() {
-                    std::fs::read_to_string(example_dir.join("ggen.toml"))
-                        .unwrap_or_else(|_| "(no ggen.toml)".to_string())
+                    std::fs::read_to_string(example_dir.join("mcpp.toml"))
+                        .unwrap_or_else(|_| "(no mcpp.toml)".to_string())
                 } else {
                     "(example not found)".to_string()
                 };
@@ -1982,7 +1982,7 @@ impl GgenMcpServer {
                         PromptMessage::new_text(
                             PromptMessageRole::User,
                             format!(
-                                "I want to create a ggen project similar to the '{example_name}' example but for the '{target_domain}' domain.\n\nHere is the example's ontology (Turtle):\n\n```turtle\n{ttl}\n```\n\nHere is the example's ggen.toml:\n\n```toml\n{config}\n```\n\nPlease adapt both the TTL ontology and ggen.toml for my '{target_domain}' domain. Maintain the same structure but replace the domain-specific concepts."
+                                "I want to create a mcpp project similar to the '{example_name}' example but for the '{target_domain}' domain.\n\nHere is the example's ontology (Turtle):\n\n```turtle\n{ttl}\n```\n\nHere is the example's mcpp.toml:\n\n```toml\n{config}\n```\n\nPlease adapt both the TTL ontology and mcpp.toml for my '{target_domain}' domain. Maintain the same structure but replace the domain-specific concepts."
                             ),
                         ),
                     ])
@@ -2000,11 +2000,11 @@ impl GgenMcpServer {
                         PromptMessage::new_text(
                             PromptMessageRole::User,
                             format!(
-                                "Create a complete ggen project for the '{domain}' domain targeting '{language}' code generation.\n\nProvide:\n1. A `ggen.toml` with `[project]`, `[ontology]`, and at least 2 `[[generation.rules]]` entries\n2. A starter Turtle (.ttl) ontology with at least 3 classes and 3 properties\n3. A brief explanation of the design choices\n\nThe ggen.toml generation rules should use inline SPARQL SELECT queries and reference Tera template files."
+                                "Create a complete mcpp project for the '{domain}' domain targeting '{language}' code generation.\n\nProvide:\n1. A `mcpp.toml` with `[project]`, `[ontology]`, and at least 2 `[[generation.rules]]` entries\n2. A starter Turtle (.ttl) ontology with at least 3 classes and 3 properties\n3. A brief explanation of the design choices\n\nThe mcpp.toml generation rules should use inline SPARQL SELECT queries and reference Tera template files."
                             ),
                         ),
                     ])
-                    .with_description(format!("Scaffold a new ggen project for '{domain}' in {language}")),
+                    .with_description(format!("Scaffold a new mcpp project for '{domain}' in {language}")),
                 )
             }
             _ => None,

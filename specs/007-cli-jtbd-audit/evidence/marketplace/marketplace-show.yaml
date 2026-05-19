@@ -1,4 +1,4 @@
-command: "ggen marketplace show"
+command: "mcpp marketplace show"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to see details about a marketplace package,
-  I need to run 'ggen marketplace show' with package name,
+  I need to run 'mcpp marketplace show' with package name,
   so that I can inspect package metadata and reviews.

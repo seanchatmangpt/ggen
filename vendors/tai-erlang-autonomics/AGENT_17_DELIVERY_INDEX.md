@@ -327,7 +327,7 @@ GCP_PROJECT=my-project ./tools/gcp-deploy.sh --dry-run > deployment-commands.txt
 ### Step 1: Navigate to Project
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 ```
 
 ### Step 2: Run Simulator
@@ -471,7 +471,7 @@ GCP_PROJECT=my-project ./tools/gcp-deploy.sh
 
 ### Running locally
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ~/.ggen/mcpp/tai-erlang-autonomics
 ./tools/gcp-deploy.sh --help
 ```
 

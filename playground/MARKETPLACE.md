@@ -3,8 +3,8 @@
 [TAGS] thesis, research, planning, academic, framework, rdf
 [LICENSE] MIT
 [AUTHOR] Sean Chatman <sean@chatmangpt.com>
-[REPOSITORY] https://github.com/seanchatmangpt/ggen
-[HOMEPAGE] https://github.com/seanchatmangpt/ggen/tree/master/playground
+[REPOSITORY] https://github.com/seanchatmangpt/mcpp
+[HOMEPAGE] https://github.com/seanchatmangpt/mcpp/tree/master/playground
 
 # Hyper-Thesis Framework (HTF)
 
@@ -175,27 +175,27 @@ htf check  # Validates DSR structure
 
 ## Installation
 
-Install from ggen marketplace:
+Install from mcpp marketplace:
 
 ```bash
 # Discover the pack
-ggen packs list | grep htf
+mcpp packs list | grep htf
 
 # Get details
-ggen packs show htf-thesis-framework
+mcpp packs show htf-thesis-framework
 
 # Install with dry-run verification
-ggen packs install htf-thesis-framework --version 0.1.0 --dry-run
+mcpp packs install htf-thesis-framework --version 0.1.0 --dry-run
 
 # Install
-ggen packs install htf-thesis-framework --version 0.1.0
+mcpp packs install htf-thesis-framework --version 0.1.0
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/seanchatmangpt/ggen.git
-cd ggen/playground
+git clone https://github.com/seanchatmangpt/mcpp.git
+cd mcpp/playground
 cargo build --release
 ./target/release/htf --help
 ```
@@ -290,38 +290,38 @@ $ htf check
 
 ## Integration with Ggen Packs
 
-HTF is fully integrated with the ggen marketplace and packs system:
+HTF is fully integrated with the mcpp marketplace and packs system:
 
 ### Discover and Install
 ```bash
-ggen packs list                    # Find HTF
-ggen packs show htf-thesis-framework  # View details
-ggen packs install htf-thesis-framework  # Install
+mcpp packs list                    # Find HTF
+mcpp packs show htf-thesis-framework  # View details
+mcpp packs install htf-thesis-framework  # Install
 ```
 
 ### Execute via Ggen
 ```bash
-ggen packs execute --pack htf-thesis-framework --command "schedule"
-ggen packs execute --pack htf-thesis-framework --command "profile"
-ggen packs execute --pack htf-thesis-framework --command "check"
+mcpp packs execute --pack htf-thesis-framework --command "schedule"
+mcpp packs execute --pack htf-thesis-framework --command "profile"
+mcpp packs execute --pack htf-thesis-framework --command "check"
 ```
 
 ### Phase-Gated Installation
 ```bash
 # Validate pack
-ggen packs install htf --phase validate --dry-run
+mcpp packs install htf --phase validate --dry-run
 
 # Resolve dependencies
-ggen packs install htf --phase resolve --dry-run
+mcpp packs install htf --phase resolve --dry-run
 
 # Stage files
-ggen packs install htf --phase stage --dry-run
+mcpp packs install htf --phase stage --dry-run
 
 # Full dry-run
-ggen packs install htf --phase execute --dry-run
+mcpp packs install htf --phase execute --dry-run
 
 # Install for real
-ggen packs install htf
+mcpp packs install htf
 ```
 
 ## Performance
@@ -390,7 +390,7 @@ let result = checker::check_thesis(shards)?;
 
 - **README.md**: Feature overview and framework explanation
 - **USAGE_EXAMPLE.md**: Practical step-by-step examples
-- **INTEGRATION.md**: Marketplace and ggen pack integration
+- **INTEGRATION.md**: Marketplace and mcpp pack integration
 - **SUMMARY.md**: Complete implementation details
 - **GitHub Issues**: Report bugs or request features
 - **Email**: sean@chatmangpt.com
@@ -404,7 +404,7 @@ A: Yes! Import your shards as JSON and HTF will analyze and plan them.
 A: Use `htf export --format json` or `--format yaml`
 
 **Q: Can I collaborate with others?**
-A: Yes, via ggen marketplace's collaboration features.
+A: Yes, via mcpp marketplace's collaboration features.
 
 **Q: What if my research doesn't fit the 26 families?**
 A: HTF is designed to be flexible. Map your research to closest families and extend as needed.
@@ -418,7 +418,7 @@ MIT License - See LICENSE file for details
 
 ## Contributing
 
-Contributions welcome! Please submit issues and pull requests to the ggen repository.
+Contributions welcome! Please submit issues and pull requests to the mcpp repository.
 
 ## Changelog
 
@@ -426,12 +426,12 @@ Contributions welcome! Please submit issues and pull requests to the ggen reposi
 - Initial release with Λ-scheduler, Π-profiler, Γ-checker
 - 26 canonical research families
 - 5 core invariants for validation
-- Full ggen marketplace integration
+- Full mcpp marketplace integration
 - Comprehensive documentation
 
 ## Related Projects
 
-- **ggen**: Code generation framework using RDF knowledge graphs
+- **mcpp**: Code generation framework using RDF knowledge graphs
 - **clap-noun-verb**: Structured command-line interface framework
 - **oxigraph**: RDF triple store (future backend)
 

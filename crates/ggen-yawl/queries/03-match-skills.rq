@@ -1,5 +1,5 @@
 # PATTERN 3: Skill Matching
-PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 CONSTRUCT {

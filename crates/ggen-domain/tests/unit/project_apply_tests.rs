@@ -4,7 +4,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::project::apply::{apply_plan, ApplyInput};
+use mcpp_domain::project::apply::{apply_plan, ApplyInput};
 use std::fs;
 use tempfile::tempdir;
 
@@ -14,7 +14,7 @@ test!(test_apply_plan_dry_run_success, {
     let plan_path = temp_dir.path().join("test-plan.json");
 
     let plan = serde_json::json!({
-        "template_ref": "io.ggen.test-template",
+        "template_ref": "io.mcpp.test-template",
         "variables": {
             "name": "TestProject",
             "version": "1.0.0"
@@ -47,7 +47,7 @@ test!(test_apply_plan_yaml_format, {
     let plan_path = temp_dir.path().join("test-plan.yaml");
 
     let plan_yaml = r#"
-template_ref: io.ggen.yaml-template
+template_ref: io.mcpp.yaml-template
 variables:
   name: YamlProject
   author: TestUser
@@ -78,7 +78,7 @@ test!(test_apply_plan_toml_format, {
     let plan_path = temp_dir.path().join("test-plan.toml");
 
     let plan_toml = r#"
-template_ref = "io.ggen.toml-template"
+template_ref = "io.mcpp.toml-template"
 format = "toml"
 timestamp = "2024-11-13T00:00:00Z"
 
@@ -195,7 +195,7 @@ test!(test_apply_plan_no_auto_confirm_cancellation, {
     let plan_path = temp_dir.path().join("test-plan.json");
 
     let plan = serde_json::json!({
-        "template_ref": "io.ggen.test",
+        "template_ref": "io.mcpp.test",
         "variables": {},
         "timestamp": "2024-11-13T00:00:00Z",
         "format": "json"
@@ -221,7 +221,7 @@ test!(test_apply_plan_with_empty_variables, {
     let plan_path = temp_dir.path().join("empty-vars.json");
 
     let plan = serde_json::json!({
-        "template_ref": "io.ggen.minimal",
+        "template_ref": "io.mcpp.minimal",
         "variables": {},
         "timestamp": "2024-11-13T00:00:00Z",
         "format": "json"
@@ -258,7 +258,7 @@ test!(test_apply_plan_with_many_variables, {
     }
 
     let plan = serde_json::json!({
-        "template_ref": "io.ggen.complex",
+        "template_ref": "io.mcpp.complex",
         "variables": variables,
         "timestamp": "2024-11-13T00:00:00Z",
         "format": "json"

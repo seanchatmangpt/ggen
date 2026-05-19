@@ -2,7 +2,7 @@
 //!
 //! These tests use the fast_syntax_check function to avoid LLM dependencies.
 
-use ggen_ai::sparql_validator::{validate_sparql, SparqlIssueType};
+use mcpp_ai::sparql_validator::{validate_sparql, SparqlIssueType};
 
 #[tokio::test]
 async fn test_validate_valid_query_fast_path() {

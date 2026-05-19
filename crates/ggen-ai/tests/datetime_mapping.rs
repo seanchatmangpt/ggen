@@ -11,7 +11,7 @@
 //! Chicago TDD Pattern (AAA: Arrange/Act/Assert)
 
 use chrono::{Datelike, Timelike};
-use ggen_ai::codegen::{
+use mcpp_ai::codegen::{
     datetime::*, map_xsd_to_rust_type, parse_date, parse_datetime, parse_duration, parse_time,
     validate_gday, validate_gmonth, validate_gmonth_day, validate_gyear, validate_gyear_month,
 };

@@ -45,7 +45,7 @@ impl LabeledFewShot {
     ///
     /// # Example
     /// ```ignore
-    /// use ggen_ai::dspy::optimizers::LabeledFewShot;
+    /// use mcpp_ai::dspy::optimizers::LabeledFewShot;
     ///
     /// let optimizer = LabeledFewShot::new(8);
     /// ```

@@ -37,7 +37,7 @@ pub fn f1_score(precision: f64, recall: f64) -> f64 {
 ///
 /// # Example
 /// ```ignore
-/// use ggen_ai::dspy::evaluation::metrics::exact_match;
+/// use mcpp_ai::dspy::evaluation::metrics::exact_match;
 ///
 /// let metric = exact_match("answer");
 /// ```

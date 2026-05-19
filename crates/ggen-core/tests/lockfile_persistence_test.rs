@@ -3,7 +3,7 @@
 //! This test verifies that PackLockfile::save() and PackLockfile::from_file()
 //! work correctly for pack installation tracking.
 
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 use std::path::PathBuf;
 use tempfile::TempDir;
 
@@ -38,7 +38,7 @@ fn test_lockfile_save_and_load() {
     let loaded = PackLockfile::from_file(&lock_path).expect("Failed to load lockfile");
 
     // Verify content
-    assert_eq!(loaded.ggen_version, "4.0.0");
+    assert_eq!(loaded.mcpp_version, "4.0.0");
     assert_eq!(loaded.packs.len(), 1);
     assert!(loaded.packs.contains_key("test-pack"));
 
@@ -78,7 +78,7 @@ fn test_lockfile_format_correctness() {
         LockedPack {
             version: "2.0.0".to_string(),
             source: PackSource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             integrity: None,
             installed_at: chrono::Utc::now(),
@@ -91,7 +91,7 @@ fn test_lockfile_format_correctness() {
         LockedPack {
             version: "3.0.0".to_string(),
             source: PackSource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             integrity: None,
             installed_at: chrono::Utc::now(),
@@ -106,7 +106,7 @@ fn test_lockfile_format_correctness() {
     let json: serde_json::Value = serde_json::from_str(&content).expect("Failed to parse JSON");
 
     // Verify top-level fields
-    assert!(json.get("ggen_version").is_some());
+    assert!(json.get("mcpp_version").is_some());
     assert!(json.get("updated_at").is_some());
     assert!(json.get("packs").is_some());
 
@@ -136,7 +136,7 @@ fn test_lockfile_validation_detects_missing_dependencies() {
     let pack = LockedPack {
         version: "1.0.0".to_string(),
         source: PackSource::Registry {
-            url: "https://registry.ggen.io".to_string(),
+            url: "https://registry.mcpp.io".to_string(),
         },
         integrity: None,
         installed_at: chrono::Utc::now(),

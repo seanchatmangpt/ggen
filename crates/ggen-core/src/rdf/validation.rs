@@ -15,10 +15,10 @@
 //! ### Validating Template Metadata
 //!
 //! ```text
-//! use ggen_core::rdf::validation::Validator;
-//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//! use mcpp_core::rdf::validation::Validator;
+//! use mcpp_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -37,10 +37,10 @@
 //! ### Getting Validation Report
 //!
 //! ```text
-//! use ggen_core::rdf::validation::Validator;
-//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//! use mcpp_core::rdf::validation::Validator;
+//! use mcpp_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -52,7 +52,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -65,7 +65,7 @@ use super::template_metadata::TemplateMetadata;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::validation::{ValidationResult, ValidationError, Severity};
+/// use mcpp_core::rdf::validation::{ValidationResult, ValidationError, Severity};
 ///
 /// # fn main() {
 /// // Valid result
@@ -111,7 +111,7 @@ pub struct ValidationError {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::rdf::validation::Severity;
+/// use mcpp_core::rdf::validation::Severity;
 ///
 /// # fn main() {
 /// let error = Severity::Error;
@@ -149,7 +149,7 @@ impl ValidationReport {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::validation::ValidationReport;
+    /// use mcpp_core::rdf::validation::ValidationReport;
     ///
     /// # fn main() {
     /// let report = ValidationReport::new("template://example/test".to_string());
@@ -200,7 +200,7 @@ impl ValidationReport {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::validation::ValidationReport;
+    /// use mcpp_core::rdf::validation::ValidationReport;
     ///
     /// # fn main() {
     /// let mut report = ValidationReport::new("template://test".to_string());
@@ -219,7 +219,7 @@ impl ValidationReport {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::rdf::validation::ValidationReport;
+    /// use mcpp_core::rdf::validation::ValidationReport;
     ///
     /// # fn main() {
     /// let mut report = ValidationReport::new("template://test".to_string());
@@ -278,10 +278,10 @@ impl Validator {
         shapes.insert(
             "TemplateShape".to_string(),
             Shape {
-                target_class: "http://ggen.dev/ontology#Template".to_string(),
+                target_class: "http://mcpp.dev/ontology#Template".to_string(),
                 properties: vec![
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#templateName".to_string(),
+                        path: "http://mcpp.dev/ontology#templateName".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -289,7 +289,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#templateVersion".to_string(),
+                        path: "http://mcpp.dev/ontology#templateVersion".to_string(),
                         min_count: None,
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -297,7 +297,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#stability".to_string(),
+                        path: "http://mcpp.dev/ontology#stability".to_string(),
                         min_count: None,
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -312,10 +312,10 @@ impl Validator {
         shapes.insert(
             "VariableShape".to_string(),
             Shape {
-                target_class: "http://ggen.dev/ontology#Variable".to_string(),
+                target_class: "http://mcpp.dev/ontology#Variable".to_string(),
                 properties: vec![
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#variableName".to_string(),
+                        path: "http://mcpp.dev/ontology#variableName".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -323,7 +323,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#variableType".to_string(),
+                        path: "http://mcpp.dev/ontology#variableType".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#string".to_string()),
@@ -331,7 +331,7 @@ impl Validator {
                         node_kind: Some(NodeKind::Literal),
                     },
                     PropertyConstraint {
-                        path: "http://ggen.dev/ontology#isRequired".to_string(),
+                        path: "http://mcpp.dev/ontology#isRequired".to_string(),
                         min_count: Some(1),
                         max_count: Some(1),
                         datatype: Some("http://www.w3.org/2001/XMLSchema#boolean".to_string()),

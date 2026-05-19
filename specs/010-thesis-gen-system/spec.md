@@ -10,16 +10,16 @@
 
 ### User Story 1 - Generate Complete Thesis from Ontology (Priority: P1)
 
-As a researcher, I want to generate a complete 50+ page PhD thesis PDF by running a single `ggen sync` command, where ALL content (title, abstract, chapters, sections, theorems, equations, figures, tables, references) comes from the RDF ontology with zero hardcoded text in templates.
+As a researcher, I want to generate a complete 50+ page PhD thesis PDF by running a single `mcpp sync` command, where ALL content (title, abstract, chapters, sections, theorems, equations, figures, tables, references) comes from the RDF ontology with zero hardcoded text in templates.
 
 **Why this priority**: This is the core value proposition - deterministic, reproducible thesis generation from a single source of truth.
 
-**Independent Test**: Run `ggen sync` followed by `pdflatex` compilation and verify the resulting PDF has 50+ pages with all content sourced from ontology.
+**Independent Test**: Run `mcpp sync` followed by `pdflatex` compilation and verify the resulting PDF has 50+ pages with all content sourced from ontology.
 
 **Acceptance Scenarios**:
 
-1. **Given** a thesis ontology with 7+ chapters defined, **When** I run `ggen sync`, **Then** the system generates all LaTeX files with content extracted from RDF triples
-2. **Given** templates with only variable placeholders (no hardcoded strings), **When** I run `ggen sync`, **Then** every piece of text in the output comes from ontology queries
+1. **Given** a thesis ontology with 7+ chapters defined, **When** I run `mcpp sync`, **Then** the system generates all LaTeX files with content extracted from RDF triples
+2. **Given** templates with only variable placeholders (no hardcoded strings), **When** I run `mcpp sync`, **Then** every piece of text in the output comes from ontology queries
 3. **Given** generated LaTeX files, **When** I compile with `pdflatex`, **Then** the resulting PDF is 50+ pages with proper academic formatting
 
 ---
@@ -30,12 +30,12 @@ As a researcher, I want to reuse the same template set for different thesis topi
 
 **Why this priority**: Reusability is the defining characteristic that separates this from a one-off solution.
 
-**Independent Test**: Create a second thesis ontology with different topic/content, run `ggen sync`, verify templates work without modification.
+**Independent Test**: Create a second thesis ontology with different topic/content, run `mcpp sync`, verify templates work without modification.
 
 **Acceptance Scenarios**:
 
 1. **Given** a template set designed for thesis generation, **When** I swap the ontology to a different research topic, **Then** the system generates a valid thesis with the new content
-2. **Given** any thesis ontology conforming to the schema, **When** I run `ggen sync`, **Then** all templates render successfully without errors
+2. **Given** any thesis ontology conforming to the schema, **When** I run `mcpp sync`, **Then** all templates render successfully without errors
 
 ---
 
@@ -45,14 +45,14 @@ As a researcher, I want to define theorems, lemmas, proofs, equations, algorithm
 
 **Why this priority**: Academic documents require specialized environments; without them, the output is not suitable for publication.
 
-**Independent Test**: Define each document element type in ontology, run `ggen sync`, verify LaTeX output uses appropriate environments (theorem, algorithm, figure, table).
+**Independent Test**: Define each document element type in ontology, run `mcpp sync`, verify LaTeX output uses appropriate environments (theorem, algorithm, figure, table).
 
 **Acceptance Scenarios**:
 
-1. **Given** a theorem with statement and proof in ontology, **When** I run `ggen sync`, **Then** the output contains `\begin{theorem}...\end{theorem}` and `\begin{proof}...\end{proof}` environments
-2. **Given** an algorithm with pseudocode steps, **When** I run `ggen sync`, **Then** the output contains `\begin{algorithm}...\end{algorithm}` with algorithmic environment
-3. **Given** figures with captions and labels, **When** I run `ggen sync`, **Then** proper figure environments with `\includegraphics` are generated
-4. **Given** tables with data rows, **When** I run `ggen sync`, **Then** proper table environments with booktabs formatting are generated
+1. **Given** a theorem with statement and proof in ontology, **When** I run `mcpp sync`, **Then** the output contains `\begin{theorem}...\end{theorem}` and `\begin{proof}...\end{proof}` environments
+2. **Given** an algorithm with pseudocode steps, **When** I run `mcpp sync`, **Then** the output contains `\begin{algorithm}...\end{algorithm}` with algorithmic environment
+3. **Given** figures with captions and labels, **When** I run `mcpp sync`, **Then** proper figure environments with `\includegraphics` are generated
+4. **Given** tables with data rows, **When** I run `mcpp sync`, **Then** proper table environments with booktabs formatting are generated
 
 ---
 
@@ -62,11 +62,11 @@ As a researcher, I want to define all references in the ontology and have BibTeX
 
 **Why this priority**: Academic theses require proper citation management; manual BibTeX defeats the single-source-of-truth principle.
 
-**Independent Test**: Define 10+ references in ontology, run `ggen sync`, verify generated `.bib` file compiles with bibtex.
+**Independent Test**: Define 10+ references in ontology, run `mcpp sync`, verify generated `.bib` file compiles with bibtex.
 
 **Acceptance Scenarios**:
 
-1. **Given** references defined with author, title, year, journal/conference, **When** I run `ggen sync`, **Then** a valid BibTeX file is generated
+1. **Given** references defined with author, title, year, journal/conference, **When** I run `mcpp sync`, **Then** a valid BibTeX file is generated
 2. **Given** citations embedded in chapter content, **When** I compile the thesis, **Then** all citations resolve correctly
 
 ---
@@ -81,7 +81,7 @@ As a researcher, I want to include appendices with code listings, data tables, a
 
 **Acceptance Scenarios**:
 
-1. **Given** appendix sections in ontology, **When** I run `ggen sync`, **Then** appendices appear after main content with proper numbering (A, B, C)
+1. **Given** appendix sections in ontology, **When** I run `mcpp sync`, **Then** appendices appear after main content with proper numbering (A, B, C)
 2. **Given** code listings in appendix, **When** compiled, **Then** code is syntax-highlighted with lstlistings
 
 ---
@@ -91,7 +91,7 @@ As a researcher, I want to include appendices with code listings, data tables, a
 - What happens when an ontology has no chapters defined? System generates a minimal thesis structure with error warnings.
 - What happens when a required property (like chapter title) is missing? Template fails gracefully with specific error message identifying the missing property.
 - What happens when SPARQL query returns empty results? Template generates empty section with TODO marker or skips section entirely based on configuration.
-- What happens when a figure references an image file that doesn't exist? LaTeX compilation fails but ggen sync succeeds with warning.
+- What happens when a figure references an image file that doesn't exist? LaTeX compilation fails but mcpp sync succeeds with warning.
 - What happens when special characters appear in ontology content? LaTeX escaping is handled automatically by templates.
 
 ## Requirements *(mandatory)*
@@ -142,7 +142,7 @@ As a researcher, I want to include appendices with code listings, data tables, a
 - **SC-004**: LaTeX compilation succeeds with zero errors and fewer than 5 warnings on first run
 - **SC-005**: All cross-references (citations, figure refs, theorem refs) resolve correctly
 - **SC-006**: Generation time is under 5 seconds for a 50-page thesis ontology
-- **SC-007**: Ontology modification requires only `ggen sync` to regenerate (no template changes)
+- **SC-007**: Ontology modification requires only `mcpp sync` to regenerate (no template changes)
 - **SC-008**: Generated thesis includes minimum: 7 chapters, 30 sections, 10 theorems, 20 equations, 10 figures, 5 tables, 30 references
 - **SC-009**: Bibliography renders correctly with author-year citation style
 - **SC-010**: Table of contents accurately reflects all chapters and sections with page numbers
@@ -162,7 +162,7 @@ As a researcher, I want to include appendices with code listings, data tables, a
 - Interactive PDF features (hyperlinks within document are in scope, but forms/multimedia are not)
 - Multiple output formats (only LaTeX/PDF; HTML, EPUB, Word are not included)
 - Real-time collaborative editing of ontology
-- Version control integration beyond what ggen already provides
+- Version control integration beyond what mcpp already provides
 - Citation management UI (ontology editing is done directly in TTL files)
 - Automatic image generation or diagram creation (images must be pre-created)
 
@@ -181,7 +181,7 @@ As a researcher, I want to include appendices with code listings, data tables, a
 - Exception: LaTeX structural commands that are NOT content (e.g., `\centering`, `\hline`) are allowed ONLY when they cannot vary by thesis topic
 
 ### Phase 2: LLM Scanner (Planned)
-- **Tool**: Ollama via ggen-ai crate (GenAiClient with `qwen3:8b` model)
+- **Tool**: Ollama via mcpp-ai crate (GenAiClient with `qwen3:8b` model)
 - **Input**: Each `.tera` template file content
 - **Output**: JSON scoring object with structure:
   ```json
@@ -200,4 +200,4 @@ As a researcher, I want to include appendices with code listings, data tables, a
   }
   ```
 - **Threshold**: Score >= 0.95 required for compliance (allows minor structural LaTeX)
-- **Integration**: `ggen validate --templates` command or pre-commit hook
+- **Integration**: `mcpp validate --templates` command or pre-commit hook

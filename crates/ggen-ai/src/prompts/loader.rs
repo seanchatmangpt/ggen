@@ -1,6 +1,6 @@
 //! Prompt template loader - "Eating our own dogfood"
 //!
-//! This module uses ggen's own template system to load and render AI prompts.
+//! This module uses mcpp's own template system to load and render AI prompts.
 //! Instead of hardcoded strings, we use `.tmpl` files with YAML frontmatter.
 
 use crate::error::{GgenAiError, Result};
@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::Tera;
 
-/// Prompt template loader using ggen's template system
+/// Prompt template loader using mcpp's template system
 #[derive(Debug)]
 pub struct PromptTemplateLoader {
     templates_dir: PathBuf,
@@ -38,7 +38,7 @@ impl PromptTemplateLoader {
             // Relative to cargo workspace
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("templates/prompts"),
             // Relative to current directory
-            PathBuf::from("ggen-ai/templates/prompts"),
+            PathBuf::from("mcpp-ai/templates/prompts"),
             PathBuf::from("templates/prompts"),
         ];
 
@@ -49,7 +49,7 @@ impl PromptTemplateLoader {
         }
 
         Err(GgenAiError::configuration(
-            "Could not find prompt templates directory. Expected at ggen-ai/templates/prompts",
+            "Could not find prompt templates directory. Expected at mcpp-ai/templates/prompts",
         ))
     }
 

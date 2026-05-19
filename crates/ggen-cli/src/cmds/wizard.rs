@@ -1,12 +1,12 @@
 //! Wizard Command - Interactive project bootstrap with deterministic factory scaffold
 //!
-//! `ggen wizard` creates a closed, deterministic factory scaffold with:
+//! `mcpp wizard` creates a closed, deterministic factory scaffold with:
 //! - RDF-first specification layout
 //! - Deterministic generation pipeline
 //! - Receipts/proofs contracts
 //! - World manifest + verifier
 //! - Initial SPARQL + Tera stubs
-//! - Runnable ggen sync from minute zero
+//! - Runnable mcpp sync from minute zero
 //!
 //! ## Profiles
 //!
@@ -20,19 +20,19 @@
 //!
 //! ```bash
 //! # Interactive mode
-//! ggen wizard
+//! mcpp wizard
 //!
 //! # Non-interactive with profile
-//! ggen wizard --profile receipts-first --yes
+//! mcpp wizard --profile receipts-first --yes
 //!
 //! # Custom output directory
-//! ggen wizard --output-dir ./my-project
+//! mcpp wizard --output-dir ./my-project
 //! ```
 
 #![allow(clippy::unused_unit)]
 
 use clap_noun_verb_macros::verb;
-use ggen_core::codegen::FileTransaction;
+use mcpp_core::codegen::FileTransaction;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{self, Write};
@@ -132,11 +132,11 @@ pub struct ProjectMetadata {
 impl Default for ProjectMetadata {
     fn default() -> Self {
         Self {
-            name: "my-ggen-project".to_string(),
+            name: "my-mcpp-project".to_string(),
             version: "0.1.0".to_string(),
-            description: "A ggen project initialized with wizard".to_string(),
+            description: "A mcpp project initialized with wizard".to_string(),
             license: "MIT".to_string(),
-            authors: vec!["ggen wizard".to_string()],
+            authors: vec!["mcpp wizard".to_string()],
         }
     }
 }
@@ -198,7 +198,7 @@ pub struct WizardOutput {
 // Verb Command
 // ============================================================================
 
-/// Initialize a new ggen project with interactive wizard
+/// Initialize a new mcpp project with interactive wizard
 ///
 /// The wizard guides you through project setup with profiles for common use cases.
 ///
@@ -206,19 +206,19 @@ pub struct WizardOutput {
 ///
 /// ```bash
 /// # Interactive mode
-/// ggen wizard
+/// mcpp wizard
 ///
 /// # Non-interactive with defaults
-/// ggen wizard --yes
+/// mcpp wizard --yes
 ///
 /// # Specific profile
-/// ggen wizard --profile c4-diagrams
+/// mcpp wizard --profile c4-diagrams
 ///
 /// # Custom output directory
-/// ggen wizard --output-dir ./my-project
+/// mcpp wizard --output-dir ./my-project
 ///
 /// # Skip initial sync
-/// ggen wizard --no-sync
+/// mcpp wizard --no-sync
 /// ```
 #[verb("wizard", "root")]
 pub fn wizard(
@@ -260,7 +260,7 @@ pub fn wizard(
 // ============================================================================
 
 fn select_profile_interactive() -> clap_noun_verb::Result<WizardProfile> {
-    println!("\n🧙 ggen wizard - Bootstrap your project");
+    println!("\n🧙 mcpp wizard - Bootstrap your project");
     println!("\nWizard creates a deterministic factory; outputs are disposable projections.\n");
     println!("Select a profile:\n");
     println!(
@@ -422,11 +422,11 @@ fn perform_wizard(
     })?;
 
     // Run initial sync if not skipped
-    let mut next_steps = vec!["Run 'ggen sync' to generate initial outputs".to_string()];
+    let mut next_steps = vec!["Run 'mcpp sync' to generate initial outputs".to_string()];
 
     if !skip_sync {
         println!("\n⚙️  Running initial sync...");
-        // In a real implementation, we would call ggen sync here
+        // In a real implementation, we would call mcpp sync here
         // For now, just add a next step
         next_steps.insert(0, "Initial sync completed".to_string());
     }
@@ -450,13 +450,13 @@ fn generate_scaffold(
     base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
-    // Generate ggen.toml
-    let ggen_toml = generate_ggen_toml(config);
-    let toml_path = base_path.join("ggen.toml");
-    tx.write_file(&toml_path, &ggen_toml).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write ggen.toml: {}", e))
+    // Generate mcpp.toml
+    let mcpp_toml = generate_mcpp_toml(config);
+    let toml_path = base_path.join("mcpp.toml");
+    tx.write_file(&toml_path, &mcpp_toml).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write mcpp.toml: {}", e))
     })?;
-    files_created.push("ggen.toml".to_string());
+    files_created.push("mcpp.toml".to_string());
 
     // Generate project.ttl
     let project_ttl = generate_project_ttl(config);
@@ -507,7 +507,7 @@ fn generate_scaffold(
 // Content Generators
 // ============================================================================
 
-fn generate_ggen_toml(config: &WizardConfig) -> String {
+fn generate_mcpp_toml(config: &WizardConfig) -> String {
     let base_config = format!(
         r#"[project]
 name = "{}"
@@ -561,7 +561,7 @@ mode = "Overwrite"
             .metadata
             .authors
             .first()
-            .unwrap_or(&"ggen wizard".to_string()),
+            .unwrap_or(&"mcpp wizard".to_string()),
         config.metadata.license,
         config.ontologies_dir,
         config.output_dir,
@@ -664,13 +664,13 @@ fn generate_project_ttl(config: &WizardConfig) -> String {
     format!(
         r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ggen: <https://ggen.io/ontology#> .
+@prefix mcpp: <https://mcpp.io/ontology#> .
 
-ggen:Project a rdfs:Class ;
+mcpp:Project a rdfs:Class ;
     rdfs:label "{}" ;
     rdfs:comment "{}" ;
-    ggen:version "{}" ;
-    ggen:profile "{}" .
+    mcpp:version "{}" ;
+    mcpp:profile "{}" .
 "#,
         config.metadata.name,
         config.metadata.description,
@@ -861,7 +861,7 @@ fn generate_ln_ctrl_sparql(
     // Generate receipt_trace.sparql
     let receipt_trace_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX ln_ctrl: <https://mcpp.io/ontology/ln_ctrl#>
 
 SELECT ?receipt ?timestamp ?operation ?workflow_id ?step_index
        ?causal_parent ?hash_chain ?redex_type ?redex_expression
@@ -906,7 +906,7 @@ ORDER BY ?workflow_id ?step_index
     // Generate golden_tests.sparql
     let golden_tests_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX ln_ctrl: <https://mcpp.io/ontology/ln_ctrl#>
 
 SELECT ?workflow_id ?receipts_count ?total_steps ?final_frontier_hash
 WHERE {
@@ -941,7 +941,7 @@ ORDER BY ?workflow_id
     // Generate docs.sparql
     let docs_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX ln_ctrl: <https://mcpp.io/ontology/ln_ctrl#>
 
 SELECT ?class ?label ?comment ?property ?property_label ?property_comment
 WHERE {
@@ -949,14 +949,14 @@ WHERE {
     ?class a rdfs:Class ;
            rdfs:label ?label ;
            rdfs:comment ?comment .
-    FILTER(STRSTARTS(STR(?class), "https://ggen.io/ontology/ln_ctrl#"))
+    FILTER(STRSTARTS(STR(?class), "https://mcpp.io/ontology/ln_ctrl#"))
   }
   UNION
   {
     ?property a rdf:Property ;
               rdfs:label ?property_label ;
               rdfs:comment ?property_comment .
-    FILTER(STRSTARTS(STR(?property), "https://ggen.io/ontology/ln_ctrl#"))
+    FILTER(STRSTARTS(STR(?property), "https://mcpp.io/ontology/ln_ctrl#"))
   }
 }
 ORDER BY ?class ?property
@@ -973,7 +973,7 @@ ORDER BY ?class ?property
     // Generate kernel_ir.sparql
     let kernel_ir_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX ln_ctrl: <https://mcpp.io/ontology/ln_ctrl#>
 
 SELECT ?receipt ?timestamp ?operation ?redex_type ?redex_expression
        ?frontier_terms ?effects ?budget_steps
@@ -1244,15 +1244,15 @@ fn generate_mcp_a2a_configs(
     let mcp_json = format!(
         r#"{{
   "mcpServers": {{
-    "ggen": {{
-      "command": "ggen",
+    "mcpp": {{
+      "command": "mcpp",
       "args": ["mcp", "start-server", "--transport", "stdio"],
       "env": {{
         "GGEN_LOG_LEVEL": "info"
       }}
     }}
   }},
-  "description": "MCP servers for ggen project",
+  "description": "MCP servers for mcpp project",
   "version": "1.0.0",
   "metadata": {{
     "project": "{}",
@@ -1308,13 +1308,13 @@ fn generate_readme(config: &WizardConfig) -> String {
 
 {}
 
-Generated by `ggen wizard` with profile: **{}**
+Generated by `mcpp wizard` with profile: **{}**
 
 ## Quick Start
 
 ```bash
 # Generate all outputs
-ggen sync
+mcpp sync
 
 # Validate outputs
 node world.verify.mjs
@@ -1327,7 +1327,7 @@ cat world.manifest.json
 
 ```
 .
-├── ggen.toml                           # ggen configuration
+├── mcpp.toml                           # mcpp configuration
 ├── README.md                            # This file
 ├── {}/                    # RDF specifications
 │   └── project.ttl                     # Project metadata
@@ -1358,16 +1358,16 @@ cat world.manifest.json
 
 ```bash
 # Generate code from ontology
-ggen sync
+mcpp sync
 
 # Dry-run: preview changes without writing
-ggen sync --dry-run
+mcpp sync --dry-run
 
 # Watch mode: regenerate on file changes
-ggen sync --watch
+mcpp sync --watch
 
 # Validate without generating
-ggen sync --validate-only
+mcpp sync --validate-only
 ```
 
 ## Determinism
@@ -1382,7 +1382,7 @@ This project is configured for deterministic output:
 
 ## Learn More
 
-- [ggen Documentation](https://docs.ggen.io)
+- [mcpp Documentation](https://docs.mcpp.io)
 - [RDF/Turtle Syntax](https://www.w3.org/TR/turtle/)
 - [SPARQL Query Language](https://www.w3.org/TR/sparql11-query/)
 - [Tera Template Language](https://keats.github.io/tera/)
@@ -1457,18 +1457,18 @@ mod tests {
 
         // Verify files exist
         let base = temp_dir.path();
-        assert!(base.join("ggen.toml").exists());
+        assert!(base.join("mcpp.toml").exists());
         assert!(base.join("README.md").exists());
         assert!(base.join(".specify/specs/project.ttl").exists());
     }
 
     #[test]
-    fn test_generate_ggen_toml() {
+    fn test_generate_mcpp_toml() {
         let config = WizardConfig::default();
-        let toml = generate_ggen_toml(&config);
+        let toml = generate_mcpp_toml(&config);
 
         assert!(toml.contains("[project]"));
-        assert!(toml.contains("name = \"my-ggen-project\""));
+        assert!(toml.contains("name = \"my-mcpp-project\""));
         assert!(toml.contains("world-manifest"));
         assert!(toml.contains("receipt-schema"));
     }
@@ -1478,8 +1478,8 @@ mod tests {
         let config = WizardConfig::default();
         let ttl = generate_project_ttl(&config);
 
-        assert!(ttl.contains("@prefix ggen:"));
-        assert!(ttl.contains("ggen:Project"));
+        assert!(ttl.contains("@prefix mcpp:"));
+        assert!(ttl.contains("mcpp:Project"));
         assert!(ttl.contains("receipts-first"));
     }
 
@@ -1489,10 +1489,10 @@ mod tests {
             status: "success".to_string(),
             project_dir: "/tmp/test".to_string(),
             profile: "receipts-first".to_string(),
-            files_created: vec!["ggen.toml".to_string()],
+            files_created: vec!["mcpp.toml".to_string()],
             directories_created: vec![".specify".to_string()],
             error: None,
-            next_steps: vec!["Run ggen sync".to_string()],
+            next_steps: vec!["Run mcpp sync".to_string()],
         };
 
         let json = serde_json::to_string(&output).expect("Should serialize");
@@ -1528,19 +1528,19 @@ mod tests {
 
         // Verify ln_ctrl-specific files exist
         let base = temp_dir.path();
-        assert!(base.join("ggen.toml").exists());
+        assert!(base.join("mcpp.toml").exists());
         assert!(base
             .join(".specify/ontologies/ln_ctrl_receipts.ttl")
             .exists());
     }
 
     #[test]
-    fn test_ln_ctrl_ggen_toml_generation() {
+    fn test_ln_ctrl_mcpp_toml_generation() {
         let config = WizardConfig {
             profile: WizardProfile::LnCtrl,
             ..Default::default()
         };
-        let toml = generate_ggen_toml(&config);
+        let toml = generate_mcpp_toml(&config);
 
         assert!(toml.contains("[project]"));
         assert!(toml.contains("ln-ctrl-receipt-schema"));

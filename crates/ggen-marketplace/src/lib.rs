@@ -8,9 +8,9 @@
 )]
 #![warn(clippy::all, clippy::pedantic)]
 
-//! # ggen-marketplace-v2: Hyper-Advanced Marketplace System
+//! # mcpp-marketplace-v2: Hyper-Advanced Marketplace System
 //!
-//! A ground-up rewrite of the ggen marketplace using cutting-edge Rust patterns:
+//! A ground-up rewrite of the mcpp marketplace using cutting-edge Rust patterns:
 //!
 //! - **RDF-Backed Data Store** using oxigraph as semantic foundation
 //! - **SPARQL Queries** for intelligent package discovery and search

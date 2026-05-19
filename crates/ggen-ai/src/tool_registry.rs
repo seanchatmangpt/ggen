@@ -16,8 +16,8 @@
 //! # Example
 //!
 //! ```ignore
-//! use ggen_ai::tool_registry::{REGISTRY, Tool, ToolTag, Signature};
-//! use ggen_ai::dspy::field::{InputField, OutputField};
+//! use mcpp_ai::tool_registry::{REGISTRY, Tool, ToolTag, Signature};
+//! use mcpp_ai::dspy::field::{InputField, OutputField};
 //!
 //! // Register a tool at startup
 //! let sig = Signature::new("MyTool", "Does something")

@@ -2,7 +2,7 @@
 //!
 //! Tests the validate_pipeline tool which runs all 6 quality gates.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use std::path::PathBuf;
 
 // ---------------------------------------------------------------------------
@@ -15,7 +15,7 @@ async fn test_validate_pipeline_params_with_manifest_path() {
 
     // Test with manifest_path parameter
     let params = serde_json::json!({
-        "manifest_path": "../examples/basic-template-generation/ggen.toml"
+        "manifest_path": "../examples/basic-template-generation/mcpp.toml"
     });
 
     assert!(params.is_object());
@@ -26,7 +26,7 @@ async fn test_validate_pipeline_params_with_manifest_path() {
 async fn test_validate_pipeline_params_without_manifest_path() {
     let _server = GgenMcpServer::new();
 
-    // Test without manifest_path (should default to ./ggen.toml)
+    // Test without manifest_path (should default to ./mcpp.toml)
     let params = serde_json::json!({});
 
     assert!(params.is_object());
@@ -41,12 +41,12 @@ async fn test_validate_pipeline_params_without_manifest_path() {
 async fn test_validate_pipeline_example_manifest_exists() {
     // Use absolute path from workspace root
     let manifest_path =
-        if PathBuf::from("../../examples/basic-template-generation/ggen.toml").exists() {
-            PathBuf::from("../../examples/basic-template-generation/ggen.toml")
-        } else if PathBuf::from("../../../examples/basic-template-generation/ggen.toml").exists() {
-            PathBuf::from("../../../examples/basic-template-generation/ggen.toml")
+        if PathBuf::from("../../examples/basic-template-generation/mcpp.toml").exists() {
+            PathBuf::from("../../examples/basic-template-generation/mcpp.toml")
+        } else if PathBuf::from("../../../examples/basic-template-generation/mcpp.toml").exists() {
+            PathBuf::from("../../../examples/basic-template-generation/mcpp.toml")
         } else {
-            PathBuf::from("/Users/sac/ggen/examples/basic-template-generation/ggen.toml")
+            PathBuf::from("~/.ggen/mcpp/examples/basic-template-generation/mcpp.toml")
         };
 
     // Verify the test file exists
@@ -63,7 +63,7 @@ async fn test_validate_pipeline_example_manifest_exists() {
 
 #[tokio::test]
 async fn test_quality_gate_runner_can_be_created() {
-    use ggen_core::poka_yoke::quality_gates::QualityGateRunner;
+    use mcpp_core::poka_yoke::quality_gates::QualityGateRunner;
 
     let runner = QualityGateRunner::new();
     let checkpoints = runner.checkpoints();

@@ -1,4 +1,4 @@
-//! Test helpers for ggen-ai integration and unit tests
+//! Test helpers for mcpp-ai integration and unit tests
 //!
 //! # Test Helpers for LLM Integration Testing
 //!
@@ -78,7 +78,7 @@ pub async fn check_ollama_availability() -> bool {
 #[macro_export]
 macro_rules! skip_if_ollama_unavailable {
     () => {
-        if !ggen_ai::test_helpers::check_ollama_availability().await {
+        if !mcpp_ai::test_helpers::check_ollama_availability().await {
             println!("⏭️  Skipping test: Ollama not available");
             return;
         }
@@ -130,7 +130,7 @@ pub fn create_test_llm_config() -> LlmConfig {
 ///
 /// # Example
 /// ```rust
-/// use ggen_ai::test_helpers::create_ontology_test_generator;
+/// use mcpp_ai::test_helpers::create_ontology_test_generator;
 ///
 /// #[tokio::test]
 /// async fn test_my_feature() {
@@ -160,7 +160,7 @@ ex:Person a rdf:Class .
 ///
 /// # Example
 /// ```rust
-/// use ggen_ai::test_helpers::create_sparql_test_generator;
+/// use mcpp_ai::test_helpers::create_sparql_test_generator;
 ///
 /// #[tokio::test]
 /// async fn test_query_generation() {
@@ -173,8 +173,8 @@ ex:Person a rdf:Class .
 ///
 /// # Note on Graph Usage
 ///
-/// The `Graph` type in this example is the **test stub** from `ggen_ai::generators::sparql`,
-/// which implements the `GraphSchema` trait. Real applications should use `ggen_core::Graph`
+/// The `Graph` type in this example is the **test stub** from `mcpp_ai::generators::sparql`,
+/// which implements the `GraphSchema` trait. Real applications should use `mcpp_core::Graph`
 /// which also implements `GraphSchema` and provides full RDF store functionality.
 pub fn create_sparql_test_generator() -> SparqlGenerator {
     let response = "```sparql\nSELECT ?name WHERE {\n  ?person foaf:name ?name .\n}\n```";
@@ -188,13 +188,13 @@ pub fn create_sparql_test_generator() -> SparqlGenerator {
 /// This function expresses: "I need a template generator for testing"
 ///
 /// # Standard Response Format
-/// Returns a generator that produces valid ggen templates with:
+/// Returns a generator that produces valid mcpp templates with:
 /// - YAML frontmatter (to, vars)
 /// - Template body with Tera syntax
 ///
 /// # Example
 /// ```rust
-/// use ggen_ai::test_helpers::create_template_test_generator;
+/// use mcpp_ai::test_helpers::create_template_test_generator;
 ///
 /// #[tokio::test]
 /// async fn test_template_creation() {
@@ -219,12 +219,12 @@ pub fn create_template_test_generator() -> TemplateGenerator {
 ///
 /// # Example
 /// ```rust
-/// use ggen_ai::test_helpers::create_refactor_test_assistant;
+/// use mcpp_ai::test_helpers::create_refactor_test_assistant;
 ///
 /// #[tokio::test]
 /// async fn test_refactoring() {
 ///     let assistant = create_refactor_test_assistant();
-///     let context = ggen_ai::generators::refactor::RefactoringContext::new("rust".to_string());
+///     let context = mcpp_ai::generators::refactor::RefactoringContext::new("rust".to_string());
 ///     let suggestions = assistant.suggest_refactoring("fn test() {}", &context).await;
 ///     assert!(suggestions.is_ok());
 /// }
@@ -257,8 +257,8 @@ pub fn create_refactor_test_assistant() -> RefactorAssistant {
 ///
 /// # Example
 /// ```rust
-/// use ggen_ai::test_helpers::create_mock_generator;
-/// use ggen_ai::generators::OntologyGenerator;
+/// use mcpp_ai::test_helpers::create_mock_generator;
+/// use mcpp_ai::generators::OntologyGenerator;
 ///
 /// #[tokio::test]
 /// async fn test_custom_response() {
@@ -316,7 +316,7 @@ pub fn create_refactor_assistant_with_response(response: &str) -> RefactorAssist
 ///
 /// # Example
 /// ```rust
-/// use ggen_ai::test_helpers::create_natural_search_test_generator;
+/// use mcpp_ai::test_helpers::create_natural_search_test_generator;
 ///
 /// #[tokio::test]
 /// async fn test_package_search() {
@@ -334,7 +334,7 @@ pub fn create_natural_search_test_generator() -> NaturalSearchGenerator {
   "confidence": 0.9,
   "packages": [
     {
-      "id": "io.ggen.test",
+      "id": "io.mcpp.test",
       "name": "Test Package",
       "description": "A test package",
       "category": "testing",

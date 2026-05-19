@@ -17,7 +17,7 @@ use std::path::Path;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ontology_core::triple_store::TripleStore;
+/// use mcpp_ontology_core::triple_store::TripleStore;
 ///
 /// let store = TripleStore::new()?;
 /// store.load_turtle("ontology.ttl")?;

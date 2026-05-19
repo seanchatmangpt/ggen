@@ -2,7 +2,7 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::A2aMessageConverter;
-use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -89,7 +89,7 @@ impl AgentToToolAdapter {
             }
             _ => {
                 let error_span = tracing::error_span!(
-                    "ggen.error",
+                    "mcpp.error",
                     error.type = "translation",
                     error.message = "Unsupported content type for tool response",
                 );

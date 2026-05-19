@@ -5,7 +5,7 @@
 //! - list_examples handles arbitrary category/limit combinations
 //! - search handles various query strings
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use proptest::prelude::*;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 

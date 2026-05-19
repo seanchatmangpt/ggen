@@ -20,7 +20,7 @@ use super::ontology::namespaces;
 
 /// Generate standard SPARQL prefixes for marketplace ontology
 fn generate_prefixes() -> String {
-    r"PREFIX mp: <https://ggen.io/marketplace/>
+    r"PREFIX mp: <https://mcpp.io/marketplace/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -258,11 +258,11 @@ impl SparqlQuery {
         let keyword_lc = keyword.to_lowercase();
         SparqlQueryBuilder::new()
             .select(&["?package", "?name", "?description", "?quality"])
-            .where_triple("?package", "rdf:type", "ggen:Package")
-            .where_triple("?package", "ggen:hasName", "?name")
-            .where_triple("?package", "ggen:hasDescription", "?description")
-            .where_clause("OPTIONAL { ?package ggen:hasKeyword ?keyword }")
-            .where_clause("OPTIONAL { ?package ggen:hasQualityScore ?quality }")
+            .where_triple("?package", "rdf:type", "mcpp:Package")
+            .where_triple("?package", "mcpp:hasName", "?name")
+            .where_triple("?package", "mcpp:hasDescription", "?description")
+            .where_clause("OPTIONAL { ?package mcpp:hasKeyword ?keyword }")
+            .where_clause("OPTIONAL { ?package mcpp:hasQualityScore ?quality }")
             .filter(format!(
                 "CONTAINS(LCASE(?name), \"{keyword_lc}\") || CONTAINS(LCASE(?description), \"{keyword_lc}\") || CONTAINS(LCASE(?keyword), \"{keyword_lc}\")"
             ))
@@ -285,18 +285,18 @@ impl SparqlQuery {
                 "?created",
                 "?updated",
             ])
-            .where_triple(&pkg_uri, "ggen:hasName", "?name")
-            .where_triple(&pkg_uri, "ggen:hasDescription", "?description")
-            .where_triple(&pkg_uri, "ggen:hasVersion", "?version")
-            .where_triple(&pkg_uri, "ggen:hasLicense", "?license")
+            .where_triple(&pkg_uri, "mcpp:hasName", "?name")
+            .where_triple(&pkg_uri, "mcpp:hasDescription", "?description")
+            .where_triple(&pkg_uri, "mcpp:hasVersion", "?version")
+            .where_triple(&pkg_uri, "mcpp:hasLicense", "?license")
             .where_clause(format!(
-                "OPTIONAL {{ {pkg_uri} ggen:hasQualityScore ?quality }}"
+                "OPTIONAL {{ {pkg_uri} mcpp:hasQualityScore ?quality }}"
             ))
             .where_clause(format!(
-                "OPTIONAL {{ {pkg_uri} ggen:hasCreatedAt ?created }}"
+                "OPTIONAL {{ {pkg_uri} mcpp:hasCreatedAt ?created }}"
             ))
             .where_clause(format!(
-                "OPTIONAL {{ {pkg_uri} ggen:hasUpdatedAt ?updated }}"
+                "OPTIONAL {{ {pkg_uri} mcpp:hasUpdatedAt ?updated }}"
             ))
             .build()
     }
@@ -308,13 +308,13 @@ impl SparqlQuery {
     ) -> String {
         let mut builder = SparqlQueryBuilder::new()
             .select(&["?package", "?name", "?version", "?quality"])
-            .where_triple("?package", "rdf:type", "ggen:Package")
-            .where_triple("?package", "ggen:hasName", "?name")
-            .where_triple("?package", "ggen:hasVersion", "?version")
-            .where_clause("OPTIONAL { ?package ggen:hasQualityScore ?quality }");
+            .where_triple("?package", "rdf:type", "mcpp:Package")
+            .where_triple("?package", "mcpp:hasName", "?name")
+            .where_triple("?package", "mcpp:hasVersion", "?version")
+            .where_clause("OPTIONAL { ?package mcpp:hasQualityScore ?quality }");
 
         if let Some(cat) = category {
-            builder = builder.where_triple("?package", "ggen:hasCategory", &format!("\"{cat}\""));
+            builder = builder.where_triple("?package", "mcpp:hasCategory", &format!("\"{cat}\""));
         }
 
         if let Some(min_q) = min_quality {
@@ -334,10 +334,10 @@ impl SparqlQuery {
         let ver_uri = format!("<{}>", version_uri(package_id.as_str(), version.as_str()));
         SparqlQueryBuilder::new()
             .select(&["?depId", "?depVersion", "?isOptional"])
-            .where_triple(&ver_uri, "ggen:hasDependency", "?dep")
-            .where_triple("?dep", "ggen:dependsOn", "?depId")
-            .where_triple("?dep", "ggen:versionRequirement", "?depVersion")
-            .where_clause("OPTIONAL { ?dep ggen:isOptional ?isOptional }")
+            .where_triple(&ver_uri, "mcpp:hasDependency", "?dep")
+            .where_triple("?dep", "mcpp:dependsOn", "?depId")
+            .where_triple("?dep", "mcpp:versionRequirement", "?depVersion")
+            .where_clause("OPTIONAL { ?dep mcpp:isOptional ?isOptional }")
             .build()
     }
 
@@ -347,7 +347,7 @@ impl SparqlQuery {
         let pkg_uri = format!("<{}>", package_uri(package_id.as_str()));
         SparqlQueryBuilder::new()
             .select(&["?state"])
-            .where_triple(&pkg_uri, "ggen:hasState", "?state")
+            .where_triple(&pkg_uri, "mcpp:hasState", "?state")
             .build()
     }
 
@@ -363,13 +363,13 @@ impl SparqlQuery {
                 "?lastUpdate",
                 "?testCoverage",
             ])
-            .where_clause(format!("{pkg_uri} ggen:hasQualityScore ?quality"))
-            .where_clause(format!("{pkg_uri} ggen:hasDownloadCount ?downloads"))
+            .where_clause(format!("{pkg_uri} mcpp:hasQualityScore ?quality"))
+            .where_clause(format!("{pkg_uri} mcpp:hasDownloadCount ?downloads"))
             .where_clause(format!(
-                "{{ SELECT (COUNT(?v) as ?versions) WHERE {{ ?v ggen:belongsToPackage {pkg_uri} }} }}"
+                "{{ SELECT (COUNT(?v) as ?versions) WHERE {{ ?v mcpp:belongsToPackage {pkg_uri} }} }}"
             ))
-            .where_clause(format!("OPTIONAL {{ {pkg_uri} ggen:hasUpdatedAt ?lastUpdate }}"))
-            .where_clause(format!("OPTIONAL {{ {pkg_uri} ggen:hasTestCoverage ?testCoverage }}"))
+            .where_clause(format!("OPTIONAL {{ {pkg_uri} mcpp:hasUpdatedAt ?lastUpdate }}"))
+            .where_clause(format!("OPTIONAL {{ {pkg_uri} mcpp:hasTestCoverage ?testCoverage }}"))
             .build()
     }
 
@@ -380,16 +380,16 @@ impl SparqlQuery {
         SparqlQueryBuilder::new()
             .select(&["?hasName", "?hasVersion", "?hasLicense", "?hasAuthor"])
             .where_clause(format!(
-                "BIND(EXISTS {{ {pkg_uri} ggen:hasName ?name }} as ?hasName)"
+                "BIND(EXISTS {{ {pkg_uri} mcpp:hasName ?name }} as ?hasName)"
             ))
             .where_clause(format!(
-                "BIND(EXISTS {{ {pkg_uri} ggen:hasVersion ?version }} as ?hasVersion)"
+                "BIND(EXISTS {{ {pkg_uri} mcpp:hasVersion ?version }} as ?hasVersion)"
             ))
             .where_clause(format!(
-                "BIND(EXISTS {{ {pkg_uri} ggen:hasLicense ?license }} as ?hasLicense)"
+                "BIND(EXISTS {{ {pkg_uri} mcpp:hasLicense ?license }} as ?hasLicense)"
             ))
             .where_clause(format!(
-                "BIND(EXISTS {{ {pkg_uri} ggen:hasAuthor ?author }} as ?hasAuthor)"
+                "BIND(EXISTS {{ {pkg_uri} mcpp:hasAuthor ?author }} as ?hasAuthor)"
             ))
             .build()
     }
@@ -406,15 +406,15 @@ impl SparqlQuery {
         format!(
             r#"{}
 INSERT DATA {{
-  <{pkg_uri}> rdf:type ggen:Package ;
-    ggen:hasId "{}" ;
-    ggen:hasName "{}" ;
-    ggen:hasDescription "{}" ;
-    ggen:hasVersion "{}" ;
-    ggen:hasLicense "{}" ;
-    ggen:hasState ggen:Draft ;
-    ggen:hasCreatedAt "{}"^^xsd:dateTime ;
-    ggen:hasUpdatedAt "{}"^^xsd:dateTime .
+  <{pkg_uri}> rdf:type mcpp:Package ;
+    mcpp:hasId "{}" ;
+    mcpp:hasName "{}" ;
+    mcpp:hasDescription "{}" ;
+    mcpp:hasVersion "{}" ;
+    mcpp:hasLicense "{}" ;
+    mcpp:hasState mcpp:Draft ;
+    mcpp:hasCreatedAt "{}"^^xsd:dateTime ;
+    mcpp:hasUpdatedAt "{}"^^xsd:dateTime .
 }}
 "#,
             generate_prefixes(),
@@ -437,14 +437,14 @@ INSERT DATA {{
         format!(
             r#"{}
 DELETE {{
-  <{pkg_uri}> ggen:hasState ?oldState .
+  <{pkg_uri}> mcpp:hasState ?oldState .
 }}
 INSERT {{
-  <{pkg_uri}> ggen:hasState ggen:{new_state} ;
-    ggen:hasUpdatedAt "{now}"^^xsd:dateTime .
+  <{pkg_uri}> mcpp:hasState mcpp:{new_state} ;
+    mcpp:hasUpdatedAt "{now}"^^xsd:dateTime .
 }}
 WHERE {{
-  <{pkg_uri}> ggen:hasState ?oldState .
+  <{pkg_uri}> mcpp:hasState ?oldState .
 }}
 "#,
             generate_prefixes(),
@@ -462,21 +462,21 @@ WHERE {{
         for author in authors {
             let author_uri = author_uri(author.as_str());
             triples.push(format!(
-                "  <{pkg_uri}> ggen:hasAuthor <{author_uri}> .\n  <{author_uri}> ggen:hasEmail \"{}\" .",
+                "  <{pkg_uri}> mcpp:hasAuthor <{author_uri}> .\n  <{author_uri}> mcpp:hasEmail \"{}\" .",
                 author.replace('"', "\\\"")
             ));
         }
 
         for keyword in keywords {
             triples.push(format!(
-                "  <{pkg_uri}> ggen:hasKeyword \"{}\" .",
+                "  <{pkg_uri}> mcpp:hasKeyword \"{}\" .",
                 keyword.replace('"', "\\\"")
             ));
         }
 
         for category in categories {
             triples.push(format!(
-                "  <{pkg_uri}> ggen:hasCategory \"{}\" .",
+                "  <{pkg_uri}> mcpp:hasCategory \"{}\" .",
                 category.replace('"', "\\\"")
             ));
         }
@@ -501,9 +501,9 @@ INSERT DATA {{
                 "(AVG(?quality) as ?avgQuality)",
                 "(SUM(?downloads) as ?totalDownloads)",
             ])
-            .where_triple("?package", "rdf:type", "ggen:Package")
-            .where_clause("OPTIONAL { ?package ggen:hasQualityScore ?quality }")
-            .where_clause("OPTIONAL { ?package ggen:hasDownloadCount ?downloads }")
+            .where_triple("?package", "rdf:type", "mcpp:Package")
+            .where_clause("OPTIONAL { ?package mcpp:hasQualityScore ?quality }")
+            .where_clause("OPTIONAL { ?package mcpp:hasDownloadCount ?downloads }")
             .build()
     }
 }

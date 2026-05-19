@@ -6,11 +6,11 @@
 //! - Tera filter integration
 //! - Edge cases and error handling
 
-use ggen_core::register::register_all;
-use ggen_core::schema::generators::{
+use mcpp_core::register::register_all;
+use mcpp_core::schema::generators::{
     ElixirGenerator, GoGenerator, JavaGenerator, RustGenerator, TypeScriptGenerator,
 };
-use ggen_core::schema::{Field, Schema, SchemaParser, SchemaType};
+use mcpp_core::schema::{Field, Schema, SchemaParser, SchemaType};
 use proptest::prelude::*;
 use tera::{Context, Tera};
 

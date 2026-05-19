@@ -1,4 +1,4 @@
-//! Main test entry point for ggen-marketplace comprehensive test suite
+//! Main test entry point for mcpp-marketplace comprehensive test suite
 //!
 //! This file integrates all test modules:
 //! - Unit tests

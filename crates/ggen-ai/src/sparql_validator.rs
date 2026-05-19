@@ -13,7 +13,7 @@
 //! # Usage
 //!
 //! ```ignore
-//! use ggen_ai::sparql_validator::validate_sparql;
+//! use mcpp_ai::sparql_validator::validate_sparql;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let query = r#"
@@ -106,7 +106,7 @@ pub enum SparqlIssueType {
 /// # Examples
 ///
 /// ```ignore
-/// use ggen_ai::sparql_validator::validate_sparql;
+/// use mcpp_ai::sparql_validator::validate_sparql;
 ///
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let query = "SELECT ?s WHERE { ?s ?p ?o }";

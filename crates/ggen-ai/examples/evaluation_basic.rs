@@ -8,7 +8,7 @@
 //! - Set GGEN_LLM_MODEL environment variable (e.g., "gpt-4")
 //! - Set appropriate API key (OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.)
 
-use ggen_ai::dspy::{
+use mcpp_ai::dspy::{
     evaluation::{exact_match, Evaluate},
     Example, InputField, Module, ModuleError, OutputField, Predictor, Signature,
 };

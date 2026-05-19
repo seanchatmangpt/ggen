@@ -1,22 +1,22 @@
-@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix mcpp: <http://mcpp.dev/ontology#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://example.org/template1> a ggen:Template ;
-  ggen:templateName "Template with Variables" ;
-  ggen:templateVersion "1.0.0" ;
-  ggen:stability "stable" ;
-  ggen:hasVariable [
-    a ggen:Variable ;
-    ggen:variableName "project_name" ;
-    ggen:variableType "string" ;
-    ggen:isRequired "true"^^xsd:boolean ;
-    ggen:variableDescription "Name of the project"
+<http://example.org/template1> a mcpp:Template ;
+  mcpp:templateName "Template with Variables" ;
+  mcpp:templateVersion "1.0.0" ;
+  mcpp:stability "stable" ;
+  mcpp:hasVariable [
+    a mcpp:Variable ;
+    mcpp:variableName "project_name" ;
+    mcpp:variableType "string" ;
+    mcpp:isRequired "true"^^xsd:boolean ;
+    mcpp:variableDescription "Name of the project"
   ] ,
   [
-    a ggen:Variable ;
-    ggen:variableName "port_number" ;
-    ggen:variableType "number" ;
-    ggen:isRequired "false"^^xsd:boolean ;
-    ggen:defaultValue "8080"
+    a mcpp:Variable ;
+    mcpp:variableName "port_number" ;
+    mcpp:variableType "number" ;
+    mcpp:isRequired "false"^^xsd:boolean ;
+    mcpp:defaultValue "8080"
   ] .

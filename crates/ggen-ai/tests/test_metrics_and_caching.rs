@@ -1,6 +1,6 @@
 //! Integration tests for metrics and caching in codegen module
 
-use ggen_ai::codegen::{ProcessMetrics, TTLToSignatureTranspiler, Timer};
+use mcpp_ai::codegen::{ProcessMetrics, TTLToSignatureTranspiler, Timer};
 
 #[test]
 fn test_metrics_creation() {

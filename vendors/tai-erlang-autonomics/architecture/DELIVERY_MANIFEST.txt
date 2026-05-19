@@ -434,7 +434,7 @@ Approved For Implementation:
 REFERENCE INFORMATION
 ================================================================================
 
-Location: /Users/sac/ggen/tai-erlang-autonomics/architecture/
+Location: /Users/sac/mcpp/tai-erlang-autonomics/architecture/
 
 Files:
   1. INDEX.md (START HERE)

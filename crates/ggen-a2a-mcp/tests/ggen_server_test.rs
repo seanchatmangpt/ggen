@@ -4,7 +4,7 @@
 //! Pattern: rmcp 1.3.0 in-process duplex transport (tokio::io::duplex).
 //! AAA: Arrange / Act / Assert
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
@@ -50,8 +50,8 @@ async fn test_server_creates_successfully_and_has_correct_name() {
 
     // Assert
     assert_eq!(
-        info.server_info.name, "ggen",
-        "server_info.name should be 'ggen', got '{}'",
+        info.server_info.name, "mcpp",
+        "server_info.name should be 'mcpp', got '{}'",
         info.server_info.name
     );
 }
@@ -88,11 +88,11 @@ async fn test_server_advertises_tools_resources_prompts_completions() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 3: list_tools returns at least 9 ggen tools
+// Test 3: list_tools returns at least 9 mcpp tools
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
-async fn test_list_tools_returns_ggen_tools() -> anyhow::Result<()> {
+async fn test_list_tools_returns_mcpp_tools() -> anyhow::Result<()> {
     // Arrange
     let client = start_server().await?;
 
@@ -100,7 +100,7 @@ async fn test_list_tools_returns_ggen_tools() -> anyhow::Result<()> {
     let result = client.list_tools(None).await?;
     let tool_names: Vec<&str> = result.tools.iter().map(|t| t.name.as_ref()).collect();
 
-    // Assert — all canonical ggen tools must be present
+    // Assert — all canonical mcpp tools must be present
     let required = [
         "generate",
         "validate",
@@ -522,15 +522,15 @@ async fn test_call_validate_pipeline_with_nonexistent_directory_returns_error() 
 }
 
 // ---------------------------------------------------------------------------
-// Test 17: validate_pipeline with directory missing ggen.toml returns error
+// Test 17: validate_pipeline with directory missing mcpp.toml returns error
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
-async fn test_call_validate_pipeline_with_missing_ggen_toml_returns_error() -> anyhow::Result<()> {
+async fn test_call_validate_pipeline_with_missing_mcpp_toml_returns_error() -> anyhow::Result<()> {
     // Arrange
     let client = start_server().await?;
 
-    // Create a temporary directory without ggen.toml
+    // Create a temporary directory without mcpp.toml
     let temp_dir = tempfile::tempdir()?;
     let args = serde_json::json!({
         "project_path": temp_dir.path().to_str().unwrap()
@@ -548,7 +548,7 @@ async fn test_call_validate_pipeline_with_missing_ggen_toml_returns_error() -> a
     assert_eq!(
         result.is_error,
         Some(true),
-        "validate_pipeline without ggen.toml should return is_error=true"
+        "validate_pipeline without mcpp.toml should return is_error=true"
     );
 
     client.cancel().await?;

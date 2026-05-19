@@ -21,7 +21,7 @@
 
 - [X] T001 Create evidence subdirectories in `specs/007-cli-jtbd-audit/evidence/{workflow,template,project,ontology,graph,marketplace,fmea,ai,case-studies}`
 - [X] T002 Create reports directory in `specs/007-cli-jtbd-audit/reports/`
-- [X] T003 [P] Verify ggen CLI v4.0.0 is installed and accessible via `ggen --version`
+- [X] T003 [P] Verify mcpp CLI v4.0.0 is installed and accessible via `mcpp --version`
 - [X] T004 [P] Verify cargo-make is available via `cargo make --version`
 - [X] T005 [P] Create audit execution script template in `specs/007-cli-jtbd-audit/scripts/audit-command.sh`
 
@@ -36,7 +36,7 @@
 - [X] T006 Validate YAML schema in `specs/007-cli-jtbd-audit/contracts/audit-result.schema.yaml` against sample data
 - [X] T007 Validate case study schema in `specs/007-cli-jtbd-audit/contracts/case-study-validation.schema.yaml` against sample data
 - [X] T008 Create blank audit YAML template file in `specs/007-cli-jtbd-audit/evidence/_template.yaml`
-- [X] T009 Test audit workflow with single command (`ggen --help`) as dry run
+- [X] T009 Test audit workflow with single command (`mcpp --help`) as dry run
 - [X] T010 Document scoring rubric reference card in `specs/007-cli-jtbd-audit/evidence/scoring-guide.md`
 
 **Checkpoint**: Foundation ready - command audits can now begin in parallel by category
@@ -45,72 +45,72 @@
 
 ## Phase 3: User Story 1 - Command Functionality Audit (Priority: P1) 🎯 MVP
 
-**Goal**: Verify every ggen CLI command executes correctly with expected inputs and produces predictable outputs
+**Goal**: Verify every mcpp CLI command executes correctly with expected inputs and produces predictable outputs
 
 **Independent Test**: Run each command with valid inputs, verify exit codes, output format, and error handling. All 47+ commands have functional_correctness fields completed.
 
 ### Day 1: Workflow + Utils Commands (5-6 commands)
 
-- [ ] T011 [P] [US1] Audit `ggen workflow analyze` → `evidence/workflow/workflow-analyze.yaml`
-- [ ] T012 [P] [US1] Audit `ggen workflow init` → `evidence/workflow/workflow-init.yaml`
-- [ ] T013 [P] [US1] Audit `ggen workflow report` → `evidence/workflow/workflow-report.yaml`
-- [ ] T014 [P] [US1] Audit `ggen workflow event` → `evidence/workflow/workflow-event.yaml`
-- [ ] T015 [P] [US1] Audit `ggen workflow discover` → `evidence/workflow/workflow-discover.yaml`
-- [ ] T016 [P] [US1] Audit `ggen utils` (all subcommands) → `evidence/utils/utils.yaml`
+- [ ] T011 [P] [US1] Audit `mcpp workflow analyze` → `evidence/workflow/workflow-analyze.yaml`
+- [ ] T012 [P] [US1] Audit `mcpp workflow init` → `evidence/workflow/workflow-init.yaml`
+- [ ] T013 [P] [US1] Audit `mcpp workflow report` → `evidence/workflow/workflow-report.yaml`
+- [ ] T014 [P] [US1] Audit `mcpp workflow event` → `evidence/workflow/workflow-event.yaml`
+- [ ] T015 [P] [US1] Audit `mcpp workflow discover` → `evidence/workflow/workflow-discover.yaml`
+- [ ] T016 [P] [US1] Audit `mcpp utils` (all subcommands) → `evidence/utils/utils.yaml`
 
 ### Day 2: Template Commands (8 commands)
 
-- [ ] T017 [P] [US1] Audit `ggen template new` → `evidence/template/template-new.yaml`
-- [ ] T018 [P] [US1] Audit `ggen template list` → `evidence/template/template-list.yaml`
-- [ ] T019 [P] [US1] Audit `ggen template lint` → `evidence/template/template-lint.yaml`
-- [ ] T020 [P] [US1] Audit `ggen template generate` → `evidence/template/template-generate.yaml`
-- [ ] T021 [P] [US1] Audit `ggen template get` → `evidence/template/template-get.yaml`
-- [ ] T022 [P] [US1] Audit `ggen template show` → `evidence/template/template-show.yaml`
-- [ ] T023 [P] [US1] Audit `ggen template generate-tree` → `evidence/template/template-generate-tree.yaml`
-- [ ] T024 [P] [US1] Audit `ggen template regenerate` → `evidence/template/template-regenerate.yaml`
+- [ ] T017 [P] [US1] Audit `mcpp template new` → `evidence/template/template-new.yaml`
+- [ ] T018 [P] [US1] Audit `mcpp template list` → `evidence/template/template-list.yaml`
+- [ ] T019 [P] [US1] Audit `mcpp template lint` → `evidence/template/template-lint.yaml`
+- [ ] T020 [P] [US1] Audit `mcpp template generate` → `evidence/template/template-generate.yaml`
+- [ ] T021 [P] [US1] Audit `mcpp template get` → `evidence/template/template-get.yaml`
+- [ ] T022 [P] [US1] Audit `mcpp template show` → `evidence/template/template-show.yaml`
+- [ ] T023 [P] [US1] Audit `mcpp template generate-tree` → `evidence/template/template-generate-tree.yaml`
+- [ ] T024 [P] [US1] Audit `mcpp template regenerate` → `evidence/template/template-regenerate.yaml`
 
 ### Day 3: Project + Graph Commands (11 commands)
 
-- [ ] T025 [P] [US1] Audit `ggen project new` → `evidence/project/project-new.yaml`
-- [ ] T026 [P] [US1] Audit `ggen project plan` → `evidence/project/project-plan.yaml`
-- [ ] T027 [P] [US1] Audit `ggen project apply` → `evidence/project/project-apply.yaml`
-- [ ] T028 [P] [US1] Audit `ggen project generate` → `evidence/project/project-generate.yaml`
-- [ ] T029 [P] [US1] Audit `ggen project init` → `evidence/project/project-init.yaml`
-- [ ] T030 [P] [US1] Audit `ggen project watch` → `evidence/project/project-watch.yaml`
-- [ ] T031 [P] [US1] Audit `ggen project gen` → `evidence/project/project-gen.yaml`
-- [ ] T032 [P] [US1] Audit `ggen graph query` → `evidence/graph/graph-query.yaml`
-- [ ] T033 [P] [US1] Audit `ggen graph load` → `evidence/graph/graph-load.yaml`
-- [ ] T034 [P] [US1] Audit `ggen graph visualize` → `evidence/graph/graph-visualize.yaml`
-- [ ] T035 [P] [US1] Audit `ggen graph export` → `evidence/graph/graph-export.yaml`
+- [ ] T025 [P] [US1] Audit `mcpp project new` → `evidence/project/project-new.yaml`
+- [ ] T026 [P] [US1] Audit `mcpp project plan` → `evidence/project/project-plan.yaml`
+- [ ] T027 [P] [US1] Audit `mcpp project apply` → `evidence/project/project-apply.yaml`
+- [ ] T028 [P] [US1] Audit `mcpp project generate` → `evidence/project/project-generate.yaml`
+- [ ] T029 [P] [US1] Audit `mcpp project init` → `evidence/project/project-init.yaml`
+- [ ] T030 [P] [US1] Audit `mcpp project watch` → `evidence/project/project-watch.yaml`
+- [ ] T031 [P] [US1] Audit `mcpp project gen` → `evidence/project/project-gen.yaml`
+- [ ] T032 [P] [US1] Audit `mcpp graph query` → `evidence/graph/graph-query.yaml`
+- [ ] T033 [P] [US1] Audit `mcpp graph load` → `evidence/graph/graph-load.yaml`
+- [ ] T034 [P] [US1] Audit `mcpp graph visualize` → `evidence/graph/graph-visualize.yaml`
+- [ ] T035 [P] [US1] Audit `mcpp graph export` → `evidence/graph/graph-export.yaml`
 
 ### Day 4: Ontology + AI Commands (7 commands)
 
-- [ ] T036 [P] [US1] Audit `ggen ontology generate` → `evidence/ontology/ontology-generate.yaml`
-- [ ] T037 [P] [US1] Audit `ggen ontology extract` → `evidence/ontology/ontology-extract.yaml`
-- [ ] T038 [P] [US1] Audit `ggen ontology validate` → `evidence/ontology/ontology-validate.yaml`
-- [ ] T039 [P] [US1] Audit `ggen ontology init` → `evidence/ontology/ontology-init.yaml`
-- [ ] T040 [P] [US1] Audit `ggen ai generate` → `evidence/ai/ai-generate.yaml`
-- [ ] T041 [P] [US1] Audit `ggen ai chat` → `evidence/ai/ai-chat.yaml`
-- [ ] T042 [P] [US1] Audit `ggen ai analyze` → `evidence/ai/ai-analyze.yaml`
+- [ ] T036 [P] [US1] Audit `mcpp ontology generate` → `evidence/ontology/ontology-generate.yaml`
+- [ ] T037 [P] [US1] Audit `mcpp ontology extract` → `evidence/ontology/ontology-extract.yaml`
+- [ ] T038 [P] [US1] Audit `mcpp ontology validate` → `evidence/ontology/ontology-validate.yaml`
+- [ ] T039 [P] [US1] Audit `mcpp ontology init` → `evidence/ontology/ontology-init.yaml`
+- [ ] T040 [P] [US1] Audit `mcpp ai generate` → `evidence/ai/ai-generate.yaml`
+- [ ] T041 [P] [US1] Audit `mcpp ai chat` → `evidence/ai/ai-chat.yaml`
+- [ ] T042 [P] [US1] Audit `mcpp ai analyze` → `evidence/ai/ai-analyze.yaml`
 
 ### Day 5: Marketplace + FMEA Commands (16 commands)
 
-- [ ] T043 [P] [US1] Audit `ggen marketplace sparql` → `evidence/marketplace/marketplace-sparql.yaml`
-- [ ] T044 [P] [US1] Audit `ggen marketplace install` → `evidence/marketplace/marketplace-install.yaml`
-- [ ] T045 [P] [US1] Audit `ggen marketplace metrics` → `evidence/marketplace/marketplace-metrics.yaml`
-- [ ] T046 [P] [US1] Audit `ggen marketplace validate` → `evidence/marketplace/marketplace-validate.yaml`
-- [ ] T047 [P] [US1] Audit `ggen marketplace info` → `evidence/marketplace/marketplace-info.yaml`
-- [ ] T048 [P] [US1] Audit `ggen marketplace rdf_stats` → `evidence/marketplace/marketplace-rdf_stats.yaml`
-- [ ] T049 [P] [US1] Audit `ggen marketplace versions` → `evidence/marketplace/marketplace-versions.yaml`
-- [ ] T050 [P] [US1] Audit `ggen marketplace publish` → `evidence/marketplace/marketplace-publish.yaml`
-- [ ] T051 [P] [US1] Audit `ggen marketplace validate_fmea` → `evidence/marketplace/marketplace-validate_fmea.yaml`
-- [ ] T052 [P] [US1] Audit `ggen marketplace search` → `evidence/marketplace/marketplace-search.yaml`
-- [ ] T053 [P] [US1] Audit `ggen fmea show` → `evidence/fmea/fmea-show.yaml`
-- [ ] T054 [P] [US1] Audit `ggen fmea pareto` → `evidence/fmea/fmea-pareto.yaml`
-- [ ] T055 [P] [US1] Audit `ggen fmea report` → `evidence/fmea/fmea-report.yaml`
-- [ ] T056 [P] [US1] Audit `ggen fmea export` → `evidence/fmea/fmea-export.yaml`
-- [ ] T057 [P] [US1] Audit `ggen fmea list` → `evidence/fmea/fmea-list.yaml`
-- [ ] T058 [P] [US1] Audit `ggen ci` → `evidence/ci/ci.yaml`
+- [ ] T043 [P] [US1] Audit `mcpp marketplace sparql` → `evidence/marketplace/marketplace-sparql.yaml`
+- [ ] T044 [P] [US1] Audit `mcpp marketplace install` → `evidence/marketplace/marketplace-install.yaml`
+- [ ] T045 [P] [US1] Audit `mcpp marketplace metrics` → `evidence/marketplace/marketplace-metrics.yaml`
+- [ ] T046 [P] [US1] Audit `mcpp marketplace validate` → `evidence/marketplace/marketplace-validate.yaml`
+- [ ] T047 [P] [US1] Audit `mcpp marketplace info` → `evidence/marketplace/marketplace-info.yaml`
+- [ ] T048 [P] [US1] Audit `mcpp marketplace rdf_stats` → `evidence/marketplace/marketplace-rdf_stats.yaml`
+- [ ] T049 [P] [US1] Audit `mcpp marketplace versions` → `evidence/marketplace/marketplace-versions.yaml`
+- [ ] T050 [P] [US1] Audit `mcpp marketplace publish` → `evidence/marketplace/marketplace-publish.yaml`
+- [ ] T051 [P] [US1] Audit `mcpp marketplace validate_fmea` → `evidence/marketplace/marketplace-validate_fmea.yaml`
+- [ ] T052 [P] [US1] Audit `mcpp marketplace search` → `evidence/marketplace/marketplace-search.yaml`
+- [ ] T053 [P] [US1] Audit `mcpp fmea show` → `evidence/fmea/fmea-show.yaml`
+- [ ] T054 [P] [US1] Audit `mcpp fmea pareto` → `evidence/fmea/fmea-pareto.yaml`
+- [ ] T055 [P] [US1] Audit `mcpp fmea report` → `evidence/fmea/fmea-report.yaml`
+- [ ] T056 [P] [US1] Audit `mcpp fmea export` → `evidence/fmea/fmea-export.yaml`
+- [ ] T057 [P] [US1] Audit `mcpp fmea list` → `evidence/fmea/fmea-list.yaml`
+- [ ] T058 [P] [US1] Audit `mcpp ci` → `evidence/ci/ci.yaml`
 
 **Checkpoint**: All 47+ commands have functional_correctness fields populated. US1 complete.
 
@@ -304,14 +304,14 @@ Phase 3: US1 (P1) ──► Phase 4: US2 (P1) ──► Phase 5: US3 (P2)
 
 ```bash
 # Launch all template command audits in parallel:
-Task: "Audit ggen template new"
-Task: "Audit ggen template list"
-Task: "Audit ggen template lint"
-Task: "Audit ggen template generate"
-Task: "Audit ggen template get"
-Task: "Audit ggen template show"
-Task: "Audit ggen template generate-tree"
-Task: "Audit ggen template regenerate"
+Task: "Audit mcpp template new"
+Task: "Audit mcpp template list"
+Task: "Audit mcpp template lint"
+Task: "Audit mcpp template generate"
+Task: "Audit mcpp template get"
+Task: "Audit mcpp template show"
+Task: "Audit mcpp template generate-tree"
+Task: "Audit mcpp template regenerate"
 ```
 
 ---

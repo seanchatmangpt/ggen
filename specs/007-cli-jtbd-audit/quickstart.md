@@ -6,8 +6,8 @@
 ## Prerequisites
 
 ```bash
-# Verify ggen is installed
-ggen --version  # Should show 4.0.0
+# Verify mcpp is installed
+mcpp --version  # Should show 4.0.0
 
 # Verify cargo-make
 cargo make --version
@@ -29,28 +29,28 @@ mkdir -p reports
 ### Step 1: Audit a Single Command
 
 ```bash
-# Example: Audit "ggen template generate"
+# Example: Audit "mcpp template generate"
 COMMAND="template generate"
 CATEGORY="template"
 CMD_SLUG="template-generate"
 
 # 1. Test execution
-ggen $COMMAND --help > evidence/$CATEGORY/$CMD_SLUG-help.log 2>&1
+mcpp $COMMAND --help > evidence/$CATEGORY/$CMD_SLUG-help.log 2>&1
 echo "Exit code: $?" >> evidence/$CATEGORY/$CMD_SLUG-help.log
 
 # 2. Test happy path (with sample inputs)
-ggen $COMMAND --template examples/simple.tmpl --output /tmp/test 2>&1 | \
+mcpp $COMMAND --template examples/simple.tmpl --output /tmp/test 2>&1 | \
   tee evidence/$CATEGORY/$CMD_SLUG-happy-path.log
 echo "Exit code: $?" >> evidence/$CATEGORY/$CMD_SLUG-happy-path.log
 
 # 3. Test error handling (invalid inputs)
-ggen $COMMAND --template nonexistent.tmpl 2>&1 | \
+mcpp $COMMAND --template nonexistent.tmpl 2>&1 | \
   tee evidence/$CATEGORY/$CMD_SLUG-error.log
 echo "Exit code: $?" >> evidence/$CATEGORY/$CMD_SLUG-error.log
 
 # 4. Create audit result YAML
 cat > evidence/$CATEGORY/$CMD_SLUG.yaml << 'EOF'
-command: ggen template generate
+command: mcpp template generate
 version_tested: 4.0.0
 date: 2024-12-14
 tester: claude-code
@@ -143,9 +143,9 @@ avatar_notes:
 # For each case study, execute required command sequence
 # Example: JPMorgan compliance workflow
 
-ggen ontology validate examples/compliance.ttl
-ggen template generate --template compliance.tmpl --output /tmp/compliance
-ggen graph query --query "SELECT ?entity WHERE { ?entity a :ComplianceRule }"
+mcpp ontology validate examples/compliance.ttl
+mcpp template generate --template compliance.tmpl --output /tmp/compliance
+mcpp graph query --query "SELECT ?entity WHERE { ?entity a :ComplianceRule }"
 
 # Record in evidence/case-studies/jpmorgan.yaml
 ```
@@ -200,8 +200,8 @@ Before marking audit complete:
 
 **Command not found:**
 ```bash
-# Verify ggen binary is in PATH
-which ggen
+# Verify mcpp binary is in PATH
+which mcpp
 # Rebuild if needed
 cargo make build
 ```

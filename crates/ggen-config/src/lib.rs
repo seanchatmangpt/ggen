@@ -1,9 +1,9 @@
-//! # ggen-config
+//! # mcpp-config
 //!
-//! Configuration parser and validator for ggen.toml files.
+//! Configuration parser and validator for mcpp.toml files.
 //!
 //! This crate provides a type-safe interface for loading, parsing, and validating
-//! ggen.toml configuration files that define project settings, AI providers,
+//! mcpp.toml configuration files that define project settings, AI providers,
 //! templates, RDF/SPARQL settings, and more.
 //!
 //! ## Features
@@ -17,11 +17,11 @@
 //! ## Example
 //!
 //! ```no_run
-//! use ggen_config::{GgenConfig, ConfigLoader};
+//! use mcpp_config::{GgenConfig, ConfigLoader};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load configuration from file
-//! let config = ConfigLoader::from_file("ggen.toml")?;
+//! let config = ConfigLoader::from_file("mcpp.toml")?;
 //!
 //! // Access configuration
 //! println!("Project: {}", config.project.name);

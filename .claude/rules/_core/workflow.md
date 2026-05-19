@@ -1,7 +1,7 @@
 ---
 auto_load: true
 priority: high
-version: 6.0.1
+version: 26.5.4
 ---
 
 # Development Workflow

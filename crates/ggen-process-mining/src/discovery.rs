@@ -80,7 +80,7 @@ impl ProcessMiner {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::{ProcessMiner, EventLog};
+    /// use mcpp_process_mining::{ProcessMiner, EventLog};
     ///
     /// let log = EventLog::from_xes_file("log.xes")?;
     /// let miner = ProcessMiner::new();
@@ -133,7 +133,7 @@ impl ProcessMiner {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// use ggen_process_mining::ProcessMiner;
+    /// use mcpp_process_mining::ProcessMiner;
     ///
     /// let miner = ProcessMiner::new();
     /// let net = miner.discover_alpha_plusplus(&log)?;

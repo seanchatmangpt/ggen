@@ -1,4 +1,4 @@
-command: "ggen marketplace search"
+command: "mcpp marketplace search"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to find marketplace templates and packages,
-  I need to run 'ggen marketplace search' with keywords,
+  I need to run 'mcpp marketplace search' with keywords,
   so that I can discover available community-contributed content.

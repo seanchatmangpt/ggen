@@ -12,7 +12,7 @@ CREATED: January 26, 2026
 DELIVERY PACKAGE CONTENTS
 ================================================================================
 
-📍 Location: /Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+📍 Location: /Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/
 
 Core Planning Documents:
 ├── WEEK_7_9_SALES_EXPANSION.md (41 KB)
@@ -377,27 +377,27 @@ DOCUMENT LOCATIONS
 ================================================================================
 
 Main Plan:
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/
   └─ WEEK_7_9_SALES_EXPANSION.md (41 KB)
 
 Pipeline Tracking:
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/
   └─ UPDATED_PIPELINE_TRACKER.csv (17 KB)
 
 Navigation:
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/
   └─ SALES_EXPANSION_INDEX.md (18 KB)
 
 Executive Summary:
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/
   └─ README.md (20 KB)
 
 Delivery Summary:
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/
   └─ SALES_EXPANSION_DELIVERY.md (25 KB)
 
 Duplicates (for convenience):
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
+/Users/sac/mcpp/tai-erlang-autonomics/execution/week-7-9/sales-expansion/
   ├─ WEEK_7_9_SALES_EXPANSION.md
   ├─ UPDATED_PIPELINE_TRACKER.csv
   ├─ SALES_EXPANSION_INDEX.md

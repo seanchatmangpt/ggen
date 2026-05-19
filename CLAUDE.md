@@ -1,4 +1,4 @@
-# ggen v6.0.1 -- Operating Constitution
+# ggen v26.5.4 -- Operating Constitution
 
 A = mu(O). Code precipitates from RDF via five-stage pipeline (mu_1-mu_5).
 Rust 1.91.1 | Tokio | Oxigraph | Tera | Clap | 30 crates | 87% coverage
@@ -186,5 +186,5 @@ agent prompt.
 ## Support
 
 - Repository: https://github.com/seanchatmangpt/ggen
-- Documentation: `/Users/sac/ggen/docs/`
-- Rules: `/Users/sac/ggen/.claude/rules/`
+- Documentation: `./docs/`
+- Rules: `./.claude/rules/`

@@ -80,7 +80,7 @@ cd ~/dev/clnrm
 cargo build --release --bin cleanroom
 
 # Build ggen
-cd /Users/sac/ggen
+cd .
 cargo build --release
 ```
 
@@ -217,7 +217,7 @@ jq '.traces' target/clnrm-reports/marketplace_search_traces.json
 
 ### Generated Reports
 
-After running tests, reports are generated in `/Users/sac/ggen/target/clnrm-reports/`:
+After running tests, reports are generated in `./target/clnrm-reports/`:
 
 | Report Type | File Pattern | Purpose |
 |-------------|--------------|---------|
@@ -331,7 +331,7 @@ Each test can customize:
 |---------|----------|
 | OTEL collector not responding | `docker restart otel-collector` |
 | CLNRM binary not found | Build: `cd ~/dev/clnrm && cargo build --release --bin cleanroom` |
-| ggen binary not found | Build: `cd /Users/sac/ggen && cargo build --release` |
+| ggen binary not found | Build: `cd . && cargo build --release` |
 | Test validation fails | Check: `jq '.validation' /tmp/report.json` |
 | Trace analysis fails | Verify: `jq empty /tmp/traces.json` |
 

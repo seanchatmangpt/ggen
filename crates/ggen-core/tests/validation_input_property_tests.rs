@@ -4,7 +4,7 @@
 //!
 //! Test coverage: 10+ property tests
 
-use ggen_core::validation::input::*;
+use mcpp_core::validation::input::*;
 use proptest::prelude::*;
 
 // =============================================================================

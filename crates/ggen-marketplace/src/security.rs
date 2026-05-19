@@ -1,21 +1,21 @@
-//! Marketplace cryptographic security using ggen-receipt.
+//! Marketplace cryptographic security using mcpp-receipt.
 //!
 //! This module provides marketplace-specific wrappers around the canonical
-//! ggen-receipt implementation for pack signing and verification.
+//! mcpp-receipt implementation for pack signing and verification.
 
 use crate::error::Result;
 use crate::traits::Signable;
 use chrono::{DateTime, Utc};
-use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
-use ggen_receipt::hash_data;
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+use mcpp_receipt::hash_data;
 use tracing::{debug, instrument};
 
-/// Re-export the canonical keypair generation from ggen-receipt.
-pub use ggen_receipt::generate_keypair as generate_marketplace_keypair;
+/// Re-export the canonical keypair generation from mcpp-receipt.
+pub use mcpp_receipt::generate_keypair as generate_marketplace_keypair;
 
 /// Marketplace-specific signature wrapper.
 ///
-/// Wraps ggen-receipt's signing functionality for pack operations.
+/// Wraps mcpp-receipt's signing functionality for pack operations.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MarketplaceSignature {
     /// Ed25519 signature as hex string
@@ -56,7 +56,7 @@ impl MarketplaceSignature {
         );
 
         let duration = start.elapsed();
-        tracing::Span::current().record("checksum", &checksum.as_str());
+        tracing::Span::current().record("checksum", checksum.as_str());
         tracing::Span::current().record("duration_ms", duration.as_millis());
 
         Ok(Self {
@@ -85,7 +85,7 @@ impl MarketplaceSignature {
     }
 }
 
-/// Marketplace verifier using ggen-receipt.
+/// Marketplace verifier using mcpp-receipt.
 ///
 /// Provides verification functionality for pack signatures.
 #[derive(Debug, Clone)]
@@ -108,7 +108,7 @@ impl MarketplaceVerifier {
     /// Returns error if the public key hex is invalid.
     pub fn from_public_key_hex(public_key_hex: &str) -> Result<Self> {
         let key_bytes = hex::decode(public_key_hex).map_err(|e| {
-            crate::error::Error::CryptoError(format!("Invalid public key hex: {}", e))
+            crate::error::Error::CryptoError(format!("Invalid public key hex: {e}"))
         })?;
 
         if key_bytes.len() != 32 {
@@ -120,9 +120,8 @@ impl MarketplaceVerifier {
         let mut key_array = [0u8; 32];
         key_array.copy_from_slice(&key_bytes);
 
-        let verifying_key = VerifyingKey::from_bytes(&key_array).map_err(|e| {
-            crate::error::Error::CryptoError(format!("Invalid verifying key: {}", e))
-        })?;
+        let verifying_key = VerifyingKey::from_bytes(&key_array)
+            .map_err(|e| crate::error::Error::CryptoError(format!("Invalid verifying key: {e}")))?;
 
         Ok(Self { verifying_key })
     }
@@ -150,11 +149,10 @@ impl MarketplaceVerifier {
         // First verify the signature
         let sig_bytes = hex::decode(&signature.signature).map_err(|e| {
             crate::error::Error::SignatureVerificationFailed {
-                reason: format!("Invalid signature hex: {}", e),
+                reason: format!("Invalid signature hex: {e}"),
             }
         })?;
 
-        use ed25519_dalek::Signature;
         let ed_sig = Signature::from_slice(&sig_bytes).map_err(|_| {
             crate::error::Error::SignatureVerificationFailed {
                 reason: "Invalid signature format".to_string(),
@@ -202,11 +200,10 @@ impl Signable for MarketplaceVerifier {
     fn verify(&self, data: &[u8], signature: &str) -> Result<bool> {
         let sig_bytes = hex::decode(signature).map_err(|e| {
             crate::error::Error::SignatureVerificationFailed {
-                reason: format!("Invalid signature hex: {}", e),
+                reason: format!("Invalid signature hex: {e}"),
             }
         })?;
 
-        use ed25519_dalek::Signature;
         let ed_sig = Signature::from_slice(&sig_bytes).map_err(|_| {
             crate::error::Error::SignatureVerificationFailed {
                 reason: "Invalid signature format".to_string(),
@@ -223,7 +220,7 @@ impl Signable for MarketplaceVerifier {
 
 /// Checksum calculator (SHA-256).
 ///
-/// Kept for backward compatibility. Consider using ggen_receipt::hash_data directly.
+/// Kept for backward compatibility. Consider using `mcpp_receipt::hash_data` directly.
 pub struct ChecksumCalculator;
 
 impl ChecksumCalculator {
@@ -250,7 +247,6 @@ impl ChecksumCalculator {
             duration_ms
         )
     )]
-    #[must_use]
     pub fn verify(data: &[u8], expected: &str) -> Result<bool> {
         let start = std::time::Instant::now();
         let calculated = Self::calculate(data);
@@ -324,7 +320,7 @@ mod tests {
         let data = b"test pack data";
         let signature = MarketplaceSignature::sign(&signing_key, data).unwrap();
 
-        // Checksum should match ggen_receipt::hash_data
+        // Checksum should match mcpp_receipt::hash_data
         let expected_checksum = hash_data(data);
         assert_eq!(signature.checksum(), expected_checksum);
     }

@@ -1,7 +1,7 @@
 //! Direct integration test of validate_pipeline MCP tool
 //! Tests the tool without going through the full MCP protocol
 
-use ggen_a2a_mcp::ggen_server::{GgenMcpServer, ValidatePipelineParams};
+use mcpp_a2a_mcp::mcpp_server::{GgenMcpServer, ValidatePipelineParams};
 
 #[tokio::test]
 async fn test_validate_pipeline_on_current_project() {
@@ -14,7 +14,7 @@ async fn test_validate_pipeline_on_current_project() {
     // Create server instance
     let server = GgenMcpServer::new();
 
-    // Test on current ggen project
+    // Test on current mcpp project
     let project_path = std::env::var("CARGO_MANIFEST_DIR")
         .map(|p| {
             std::path::PathBuf::from(p)

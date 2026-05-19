@@ -13,7 +13,7 @@
 use ggen_core::generator::{GenContext, Generator};
 use ggen_core::pipeline::Pipeline;
 use ggen_core::streaming_generator::{GenerationResult, StreamingGenerator};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
@@ -784,36 +784,44 @@ fn test_streaming_generator_empty_directory() -> Result<()> {
 
 #[test]
 fn test_generation_result_success_rate() {
-    let mut result = GenerationResult::default();
-    result.success_count = 9;
-    result.error_count = 1;
+    let result = GenerationResult {
+        success_count: 9,
+        error_count: 1,
+        ..Default::default()
+    };
 
     assert_eq!(result.success_rate(), 90.0);
 }
 
 #[test]
 fn test_generation_result_throughput() {
-    let mut result = GenerationResult::default();
-    result.success_count = 10;
-    result.duration = std::time::Duration::from_secs(2);
+    let result = GenerationResult {
+        success_count: 10,
+        duration: std::time::Duration::from_secs(2),
+        ..Default::default()
+    };
 
     assert_eq!(result.throughput(), 5.0);
 }
 
 #[test]
 fn test_generation_result_total_count() {
-    let mut result = GenerationResult::default();
-    result.success_count = 7;
-    result.error_count = 3;
+    let result = GenerationResult {
+        success_count: 7,
+        error_count: 3,
+        ..Default::default()
+    };
 
     assert_eq!(result.total_count(), 10);
 }
 
 #[test]
 fn test_generation_result_zero_duration() {
-    let mut result = GenerationResult::default();
-    result.success_count = 10;
-    result.duration = std::time::Duration::from_secs(0);
+    let result = GenerationResult {
+        success_count: 10,
+        duration: std::time::Duration::from_secs(0),
+        ..Default::default()
+    };
 
     assert_eq!(result.throughput(), 0.0);
 }
@@ -1483,9 +1491,11 @@ to: "output.rs"
 
 #[test]
 fn test_streaming_throughput_calculation() {
-    let mut result = GenerationResult::default();
-    result.success_count = 100;
-    result.duration = std::time::Duration::from_millis(500);
+    let result = GenerationResult {
+        success_count: 100,
+        duration: std::time::Duration::from_millis(500),
+        ..Default::default()
+    };
 
     let throughput = result.throughput();
     assert!(throughput > 100.0); // 100 files in 0.5 seconds = 200 files/sec

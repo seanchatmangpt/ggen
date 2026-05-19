@@ -48,7 +48,7 @@ The application demonstrates solid architectural foundations but requires immedi
 
 ### 1.1 Endpoint Overview
 
-**File:** `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_http.erl`
+**File:** `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/tai_http.erl`
 
 The application exposes three HTTP endpoints via Cowboy web server:
 
@@ -983,7 +983,7 @@ is_valid_jwt_audience(Audience) ->
 **Issue:** Example shows hardcoded GCP Project ID
 
 ```erlang
-{gcp_project_id, "ggen-autonomics"},
+{gcp_project_id, "mcpp-autonomics"},
 {tls_cert_file, "/etc/secrets/tls.crt"},
 {tls_key_file, "/etc/secrets/tls.key"},
 ```

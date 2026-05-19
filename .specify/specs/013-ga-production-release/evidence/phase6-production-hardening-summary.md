@@ -277,32 +277,32 @@ No new dependencies added. Uses existing crates:
 ## Files Summary
 
 ### Created
-1. `/Users/sac/ggen/crates/ggen-core/src/validation/sparql_rules.rs` (198 lines)
+1. `./crates/ggen-core/src/validation/sparql_rules.rs` (198 lines)
    - RuleSeverity enum
    - ValidationRule struct
    - RuleExecutor with execute(), execute_ask_rule(), execute_select_rule()
 
-2. `/Users/sac/ggen/benches/ggen_benchmarks.rs` (417 lines)
+2. `./benches/ggen_benchmarks.rs` (417 lines)
    - 6 benchmark groups
    - 10+ individual benchmarks
    - SLO verification infrastructure
 
 ### Modified
-1. `/Users/sac/ggen/crates/ggen-core/src/validation/mod.rs`
+1. `./crates/ggen-core/src/validation/mod.rs`
    - Added `pub mod sparql_rules;`
    - Added re-exports for public API
 
-2. `/Users/sac/ggen/crates/ggen-core/src/validation/error.rs`
+2. `./crates/ggen-core/src/validation/error.rs`
    - Added `timeout()`, `invalid_query()`, `query_execution()` helpers
 
-3. `/Users/sac/ggen/Cargo.toml`
+3. `./Cargo.toml`
    - Added `[[bench]] name = "ggen_benchmarks"`
 
-4. `/Users/sac/ggen/.specify/specs/013-ga-production-release/tasks.md`
+4. `./.specify/specs/013-ga-production-release/tasks.md`
    - Marked T029-T032 as complete with evidence
 
 ### Verified Existing
-1. `/Users/sac/ggen/crates/ggen-core/src/validation/shacl.rs`
+1. `./crates/ggen-core/src/validation/shacl.rs`
    - SHACL infrastructure from feature 005
    - ShaclShape, PropertyConstraint, ShapeLoader
 

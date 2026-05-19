@@ -1,8 +1,8 @@
 //! Performance benchmarks for template linting
 //! Ensures linting meets performance SLAs (<100ms)
 
-use ggen_domain::template::lint::*;
-use ggen_utils::error::Result;
+use mcpp_domain::template::lint::*;
+use mcpp_utils::error::Result;
 use std::time::Instant;
 
 /// Helper to create test fixture path

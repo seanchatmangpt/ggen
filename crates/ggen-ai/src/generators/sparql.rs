@@ -10,7 +10,7 @@ use std::sync::Arc;
 /// Trait for types that can provide schema information for SPARQL generation
 ///
 /// This trait allows `SparqlGenerator` to work with different graph implementations
-/// without creating a cyclic dependency on `ggen_core::Graph`.
+/// without creating a cyclic dependency on `mcpp_core::Graph`.
 pub trait GraphSchema {
     /// Get the size of the graph (for context in prompt generation)
     fn len(&self) -> usize;
@@ -33,9 +33,9 @@ pub trait GraphSchema {
 /// Test-only stub Graph implementation for SPARQL generator tests
 ///
 /// **NOTE**: This is a minimal stub for testing purposes only. Real applications
-/// should use `ggen_core::Graph` which implements the `GraphSchema` trait.
+/// should use `mcpp_core::Graph` which implements the `GraphSchema` trait.
 ///
-/// The stub exists to avoid cyclic dependency: ggen-ai → ggen-core → ggen-ai.
+/// The stub exists to avoid cyclic dependency: mcpp-ai → mcpp-core → mcpp-ai.
 #[derive(Debug, Clone)]
 pub struct Graph;
 
@@ -81,7 +81,7 @@ impl SparqlGenerator {
     /// Generate a SPARQL query from a natural language description
     ///
     /// The `graph` parameter provides schema context for query generation.
-    /// It can be any type implementing `GraphSchema`, including `ggen_core::Graph`.
+    /// It can be any type implementing `GraphSchema`, including `mcpp_core::Graph`.
     pub async fn generate_query<G: GraphSchema>(&self, graph: &G, intent: &str) -> Result<String> {
         // Build prompt with graph schema and intent
         let prompt = SparqlPromptBuilder::new(intent.to_string())
@@ -98,7 +98,7 @@ impl SparqlGenerator {
     /// Stream SPARQL query generation from a natural language description
     ///
     /// The `graph` parameter provides schema context for query generation.
-    /// It can be any type implementing `GraphSchema`, including `ggen_core::Graph`.
+    /// It can be any type implementing `GraphSchema`, including `mcpp_core::Graph`.
     pub async fn stream_sparql<G: GraphSchema>(
         &self, graph: &G, intent: &str, prefixes: &[(&str, &str)],
     ) -> Result<futures::stream::BoxStream<'static, Result<String>>> {

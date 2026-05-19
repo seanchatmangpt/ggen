@@ -59,18 +59,18 @@ test test_workflow_graph_operations ... ok
 
 #### 1. test_template_generate_integration
 ```
-thread 'test_template_generate_integration' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_template_generate_integration' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected failure.
 code=1
 stderr=``````
-Error: CLI error: CLI execution failed: Argument parsing failed: error: unexpected argument '/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml' found
+Error: CLI error: CLI execution failed: Argument parsing failed: error: unexpected argument '~/.ggen/.cache/tmp/.tmpnWHUay/template.yaml' found
 
 Usage: ggen template generate [OPTIONS]
 
 For more information, try '--help'.
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "template" "generate" "/Users/sac/.cache/tmp/.tmpnWHUay/template.yaml" "/Users/sac/.cache/tmp/.tmpnWHUay/output"`
+command=`"./target/debug/ggen" "template" "generate" "~/.ggen/.cache/tmp/.tmpnWHUay/template.yaml" "~/.ggen/.cache/tmp/.tmpnWHUay/output"`
 ```
 
 ---
@@ -101,7 +101,7 @@ assertion failed: output.status.success()
 
 #### 5. test_help_command
 ```
-thread 'test_help_command' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_help_command' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected failure.
 code=1
 stderr=``````
@@ -123,7 +123,7 @@ Options:
   -h, --help  Print help
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "--help"`
+command=`"./target/debug/ggen" "--help"`
 code=1
 ```
 
@@ -131,12 +131,12 @@ code=1
 
 #### 6. test_version_command
 ```
-thread 'test_version_command' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_version_command' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected stdout, failed var.contains(1.2.0)
 ├── var: 
 └── var as str: 
 
-command=`"/Users/sac/ggen/target/debug/ggen" "--version"`
+command=`"./target/debug/ggen" "--version"`
 code=0
 stdout=""
 stderr=""
@@ -146,7 +146,7 @@ stderr=""
 
 #### 7. test_progressive_help
 ```
-thread 'test_progressive_help' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_progressive_help' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected failure.
 code=1
 stderr=``````
@@ -159,7 +159,7 @@ Usage: ggen [COMMAND]
 For more information, try '--help'.
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "help-me"`
+command=`"./target/debug/ggen" "help-me"`
 code=1
 ```
 
@@ -167,7 +167,7 @@ code=1
 
 #### 8. test_subcommand_help
 ```
-thread 'test_subcommand_help' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_subcommand_help' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected failure.
 code=1
 stderr=``````
@@ -190,7 +190,7 @@ Options:
   -h, --help  Print help
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "template" "--help"`
+command=`"./target/debug/ggen" "template" "--help"`
 code=1
 ```
 
@@ -238,7 +238,7 @@ assertion failed: output.status.success()
 
 #### 14. test_doctor_before_operations
 ```
-thread 'test_doctor_before_operations' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_doctor_before_operations' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected failure.
 code=1
 stderr=``````
@@ -249,7 +249,7 @@ Usage: ggen [COMMAND]
 For more information, try '--help'.
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "doctor"`
+command=`"./target/debug/ggen" "doctor"`
 code=1
 ```
 
@@ -257,7 +257,7 @@ code=1
 
 #### 15. test_workflow_marketplace_to_project
 ```
-thread 'test_workflow_marketplace_to_project' panicked at /Users/sac/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
+thread 'test_workflow_marketplace_to_project' panicked at ~/.ggen/.asdf/installs/rust/1.86.0/toolchains/1.90.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:253:5:
 Unexpected failure.
 code=1
 stderr=``````
@@ -268,7 +268,7 @@ Usage: ggen marketplace search [OPTIONS] --query <QUERY>
 For more information, try '--help'.
 ```
 ```
-command=`"/Users/sac/ggen/target/debug/ggen" "marketplace" "search" "cli-template" "--limit" "1"`
+command=`"./target/debug/ggen" "marketplace" "search" "cli-template" "--limit" "1"`
 code=1
 ```
 
@@ -388,13 +388,13 @@ warning: unused import: `chicago_tdd_tools::prelude::*`
 ## File Locations
 
 ### Test Files
-- **Source:** `/Users/sac/ggen/crates/ggen-cli/tests/integration.rs`
-- **Output:** `/Users/sac/ggen/tests/test_results.txt`
-- **Reports:** `/Users/sac/ggen/tests/PHASE_5_*.md`
+- **Source:** `./crates/ggen-cli/tests/integration.rs`
+- **Output:** `./tests/test_results.txt`
+- **Reports:** `./tests/PHASE_5_*.md`
 
 ### Binary
-- **Test Binary:** `/Users/sac/ggen/target/debug/deps/integration-0581b3f5324bc097`
-- **CLI Binary:** `/Users/sac/ggen/target/debug/ggen`
+- **Test Binary:** `./target/debug/deps/integration-0581b3f5324bc097`
+- **CLI Binary:** `./target/debug/ggen`
 
 ---
 

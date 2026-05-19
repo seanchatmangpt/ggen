@@ -1,4 +1,4 @@
-command: "ggen template get"
+command: "mcpp template get"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -53,5 +53,5 @@ recommendations:
 
 jtbd: |
   When I need to retrieve a specific template,
-  I need to run 'ggen template get <name>',
+  I need to run 'mcpp template get <name>',
   so that I can examine and use template details.

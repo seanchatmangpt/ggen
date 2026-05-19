@@ -3,7 +3,7 @@
 //! These tests follow the AAA (Arrange-Act-Assert) pattern and verify
 //! observable behavior with real collaborators (no mocks).
 
-use ggen_core::rdf::query_builder::{Iri, Literal, SparqlQueryBuilder, Variable};
+use mcpp_core::rdf::query_builder::{Iri, Literal, SparqlQueryBuilder, Variable};
 
 #[test]
 fn test_injection_prevention_in_iri() {

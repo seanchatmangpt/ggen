@@ -1,9 +1,9 @@
 groups:
-  - id: registry.ggen.mcp
+  - id: registry.mcpp.mcp
     type: attribute_group
     stability: development
     display_name: MCP Tool Attributes
-    brief: Attributes for MCP (Model Context Protocol) server tool operations in ggen.
+    brief: Attributes for MCP (Model Context Protocol) server tool operations in mcpp.
     attributes:
       - id: mcp.tool_name
         type: string
@@ -15,7 +15,7 @@ groups:
         type: string
         stability: development
         brief: Path to the RDF ontology file.
-        examples: ["/ontologies/ggen.ttl", "file:///data/schema.rdf"]
+        examples: ["/ontologies/mcpp.ttl", "file:///data/schema.rdf"]
         requirement_level: recommended
       - id: mcp.sparql_query_length
         type: int
@@ -56,8 +56,8 @@ groups:
       - id: mcp.project_path
         type: string
         stability: development
-        brief: Path to the ggen project being operated on.
-        examples: ["/home/user/my-ggen-project", "/data/templates/project"]
+        brief: Path to the mcpp project being operated on.
+        examples: ["/home/user/my-mcpp-project", "/data/templates/project"]
         requirement_level: recommended
       - id: mcp.query_path
         type: string

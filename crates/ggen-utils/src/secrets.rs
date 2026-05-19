@@ -21,8 +21,8 @@
 //! ### Local encrypted secrets
 //!
 //! ```rust,no_run
-//! use ggen_utils::secrets::{SecretsManager, SecretType, EncryptionProvider};
-//! use ggen_utils::error::Result;
+//! use mcpp_utils::secrets::{SecretsManager, SecretType, EncryptionProvider};
+//! use mcpp_utils::error::Result;
 //!
 //! # async fn example() -> Result<()> {
 //! // Create manager with encryption provider
@@ -45,8 +45,8 @@
 //! ### Vault integration
 //!
 //! ```rust,no_run
-//! use ggen_utils::secrets::{SecretsManager, VaultConfig, SecretType};
-//! use ggen_utils::error::Result;
+//! use mcpp_utils::secrets::{SecretsManager, VaultConfig, SecretType};
+//! use mcpp_utils::error::Result;
 //!
 //! # async fn example() -> Result<()> {
 //! // Connect to Vault
@@ -703,8 +703,8 @@ impl SecretsManager {
     /// Returns error if encryption provider creation fails
     pub fn with_encryption(key: &[u8]) -> Result<Self> {
         let encryption = EncryptionProvider::new(key)?;
-        let storage_path = PathBuf::from(".ggen/secrets");
-        let audit_log_path = PathBuf::from(".ggen/audit/secrets.log");
+        let storage_path = PathBuf::from(".mcpp/secrets");
+        let audit_log_path = PathBuf::from(".mcpp/audit/secrets.log");
 
         Ok(Self {
             backend: StorageBackend::Local {
@@ -723,7 +723,7 @@ impl SecretsManager {
     /// Returns error if Vault connection fails
     pub async fn with_vault(config: VaultConfig) -> Result<Self> {
         let backend = VaultBackend::new(config);
-        let audit_log_path = PathBuf::from(".ggen/audit/secrets.log");
+        let audit_log_path = PathBuf::from(".mcpp/audit/secrets.log");
 
         Ok(Self {
             backend: StorageBackend::Vault { backend },

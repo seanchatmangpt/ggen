@@ -13,10 +13,10 @@ mod receipt_tests {
         // and that the necessary directories are set up.
 
         let temp_dir = tempfile::TempDir::new().unwrap();
-        let ggen_dir = temp_dir.path().join(".ggen");
+        let mcpp_dir = temp_dir.path().join(".mcpp");
 
         // The ReceiptManager should create this
-        assert!(!ggen_dir.exists());
+        assert!(!mcpp_dir.exists());
 
         // In actual usage, ReceiptManager::new() would be called here
         // For now, we just verify the module compiles

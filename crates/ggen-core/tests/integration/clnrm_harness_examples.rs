@@ -55,7 +55,7 @@ async fn example_package_updates() -> Result<()> {
     let initial_count = initial_packages.len();
 
     // Add a new package
-    let new_package = ggen_core::registry::PackMetadata {
+    let new_package = mcpp_core::registry::PackMetadata {
         id: "new-test-package".to_string(),
         name: "New Test Package".to_string(),
         description: "A newly added test package".to_string(),
@@ -68,7 +68,7 @@ async fn example_package_updates() -> Result<()> {
             let mut versions = HashMap::new();
             versions.insert(
                 "1.0.0".to_string(),
-                ggen_core::registry::VersionMetadata {
+                mcpp_core::registry::VersionMetadata {
                     version: "1.0.0".to_string(),
                     git_url: "https://github.com/test/new-package.git".to_string(),
                     git_rev: "v1.0.0".to_string(),

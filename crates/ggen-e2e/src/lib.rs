@@ -1,6 +1,6 @@
-//! # ggen-e2e: End-to-End Testing Framework
+//! # mcpp-e2e: End-to-End Testing Framework
 //!
-//! Cross-platform E2E testing for `ggen sync` using testcontainers-rs for Linux
+//! Cross-platform E2E testing for `mcpp sync` using testcontainers-rs for Linux
 //! container testing and native execution for macOS. Tests verify byte-for-byte
 //! identical output across platforms.
 //!

@@ -17,15 +17,15 @@
 //! ### Creating a Cache Manager
 //!
 //! ```rust,no_run
-//! use ggen_core::cache::CacheManager;
+//! use mcpp_core::cache::CacheManager;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
-//! // Use default cache directory (~/.cache/ggen/gpacks)
+//! # fn main() -> mcpp_utils::error::Result<()> {
+//! // Use default cache directory (~/.cache/mcpp/gpacks)
 //! let cache = CacheManager::new()?;
 //!
 //! // Or use a custom directory (useful for testing)
 //! use std::path::PathBuf;
-//! let cache = CacheManager::with_dir(PathBuf::from("/tmp/ggen-cache"))?;
+//! let cache = CacheManager::with_dir(PathBuf::from("/tmp/mcpp-cache"))?;
 //! # Ok(())
 //! # }
 //! ```
@@ -33,13 +33,13 @@
 //! ### Ensuring a Pack is Cached
 //!
 //! ```rust,no_run
-//! use ggen_core::cache::CacheManager;
-//! use ggen_core::registry::ResolvedPack;
+//! use mcpp_core::cache::CacheManager;
+//! use mcpp_core::registry::ResolvedPack;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let resolved_pack = ResolvedPack {
-//!     id: "io.ggen.example".to_string(),
+//!     id: "io.mcpp.example".to_string(),
 //!     version: "1.0.0".to_string(),
 //!     git_url: "https://github.com/example/pack.git".to_string(),
 //!     git_rev: "v1.0.0".to_string(),
@@ -56,9 +56,9 @@
 //! ### Listing Cached Packs
 //!
 //! ```rust,no_run
-//! use ggen_core::cache::CacheManager;
+//! use mcpp_core::cache::CacheManager;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let cached_packs = cache.list_cached()?;
 //!
@@ -69,7 +69,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use git2::{FetchOptions, RemoteCallbacks, Repository};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -97,14 +97,14 @@ pub struct CachedPack {
 impl CacheManager {
     /// Create a new cache manager
     ///
-    /// Uses the default cache directory (`~/.cache/ggen/gpacks` on Unix systems).
+    /// Uses the default cache directory (`~/.cache/mcpp/gpacks` on Unix systems).
     ///
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// println!("Cache directory: {:?}", cache.cache_dir());
     /// # Ok(())
@@ -113,7 +113,7 @@ impl CacheManager {
     pub fn new() -> Result<Self> {
         let cache_dir = dirs::cache_dir()
             .ok_or_else(|| Error::new("Failed to find cache directory"))?
-            .join("ggen")
+            .join("mcpp")
             .join("gpacks");
 
         fs::create_dir_all(&cache_dir)
@@ -127,11 +127,11 @@ impl CacheManager {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
-    /// let cache = CacheManager::with_dir(PathBuf::from("/tmp/ggen-cache"))?;
+    /// # fn main() -> mcpp_utils::error::Result<()> {
+    /// let cache = CacheManager::with_dir(PathBuf::from("/tmp/mcpp-cache"))?;
     /// println!("Cache directory: {:?}", cache.cache_dir());
     /// # Ok(())
     /// # }
@@ -148,9 +148,9 @@ impl CacheManager {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let cache_path = cache.cache_dir();
     /// println!("Cache is at: {:?}", cache_path);
@@ -196,13 +196,13 @@ impl CacheManager {
     /// ## Success case
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
-    /// use ggen_core::registry::ResolvedPack;
+    /// use mcpp_core::cache::CacheManager;
+    /// use mcpp_core::registry::ResolvedPack;
     ///
     /// # async fn example() -> anyhow::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let pack = ResolvedPack {
-    ///     id: "io.ggen.example".to_string(),
+    ///     id: "io.mcpp.example".to_string(),
     ///     version: "1.0.0".to_string(),
     ///     git_url: "https://github.com/example/pack.git".to_string(),
     ///     git_rev: "v1.0.0".to_string(),
@@ -218,13 +218,13 @@ impl CacheManager {
     /// ## Error case - Invalid git URL
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
-    /// use ggen_core::registry::ResolvedPack;
+    /// use mcpp_core::cache::CacheManager;
+    /// use mcpp_core::registry::ResolvedPack;
     ///
     /// # async fn example() -> anyhow::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let pack = ResolvedPack {
-    ///     id: "io.ggen.example".to_string(),
+    ///     id: "io.mcpp.example".to_string(),
     ///     version: "1.0.0".to_string(),
     ///     git_url: "https://invalid-url-that-does-not-exist.git".to_string(),
     ///     git_rev: "v1.0.0".to_string(),
@@ -332,12 +332,12 @@ impl CacheManager {
     /// ## Success case
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Assuming pack is already cached
-    /// let cached = cache.load_cached("io.ggen.example", "1.0.0")?;
+    /// let cached = cache.load_cached("io.mcpp.example", "1.0.0")?;
     /// println!("Pack path: {:?}", cached.path);
     /// println!("Pack SHA256: {}", cached.sha256);
     /// # Ok(())
@@ -347,9 +347,9 @@ impl CacheManager {
     /// ## Error case - Pack not found
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This will fail because the pack is not cached
     /// let result = cache.load_cached("nonexistent.pack", "1.0.0");
@@ -418,9 +418,9 @@ impl CacheManager {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let cached_packs = cache.list_cached()?;
     ///
@@ -483,12 +483,12 @@ impl CacheManager {
     /// ## Success case
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Remove a specific version of a pack
-    /// cache.remove("io.ggen.example", "1.0.0")?;
+    /// cache.remove("io.mcpp.example", "1.0.0")?;
     /// # Ok(())
     /// # }
     /// ```
@@ -496,12 +496,12 @@ impl CacheManager {
     /// ## Error case - Permission denied
     ///
     /// ```rust,no_run
-    /// use ggen_core::cache::CacheManager;
+    /// use mcpp_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This may fail if we don't have permission to remove the pack
-    /// let result = cache.remove("io.ggen.example", "1.0.0");
+    /// let result = cache.remove("io.mcpp.example", "1.0.0");
     /// // Handle error appropriately
     /// if let Err(e) = result {
     ///     eprintln!("Failed to remove pack: {}", e);

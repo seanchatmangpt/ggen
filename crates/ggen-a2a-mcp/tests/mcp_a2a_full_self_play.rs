@@ -9,14 +9,14 @@
 
 use std::sync::Arc;
 
-use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
-use ggen_a2a_mcp::message::A2aMessageConverter;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
+use mcpp_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
+use mcpp_a2a_mcp::message::A2aMessageConverter;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
-// Minimal no-op client handler (same pattern as ggen_server_test.rs)
+// Minimal no-op client handler (same pattern as mcpp_server_test.rs)
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Default)]
@@ -128,7 +128,7 @@ fn extract_text(content: &UnifiedContent) -> &str {
 
 #[tokio::test]
 async fn test_full_pipeline_scaffold_and_generate() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = async {
@@ -237,7 +237,7 @@ async fn test_full_pipeline_scaffold_and_generate() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_full_pipeline_custom_ontology() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = async {
@@ -321,7 +321,7 @@ ex:Course a ex:Work ;
 
 #[tokio::test]
 async fn test_full_pipeline_multi_agent() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = async {
@@ -331,7 +331,7 @@ async fn test_full_pipeline_multi_agent() -> anyhow::Result<()> {
         // Phase 1: Architect -- list available examples
         let architect_msg = make_text_message(
             "architect",
-            "Surveying available ggen examples for the project",
+            "Surveying available mcpp examples for the project",
         );
         let architect_response = bridge.route_message(architect_msg).await?;
         let text = extract_text(&architect_response.payload.content);
@@ -414,7 +414,7 @@ async fn test_full_pipeline_multi_agent() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_full_pipeline_error_recovery() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = async {
@@ -497,7 +497,7 @@ async fn test_full_pipeline_error_recovery() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_full_pipeline_concurrent_generation() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "~/.ggen/mcpp/examples";
     let bridge = Arc::new(SelfPlayBridge::new(examples_dir).await?);
 
     let result = async {

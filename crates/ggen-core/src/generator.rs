@@ -20,12 +20,12 @@
 //! ### Basic Generation
 //!
 //! ```rust,no_run
-//! use ggen_core::generator::{Generator, GenContext};
-//! use ggen_core::pipeline::Pipeline;
+//! use mcpp_core::generator::{Generator, GenContext};
+//! use mcpp_core::pipeline::Pipeline;
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let ctx = GenContext::new(
 //!     PathBuf::from("template.tmpl"),
@@ -46,11 +46,11 @@
 //! ### Dry Run
 //!
 //! ```rust,no_run
-//! use ggen_core::generator::{Generator, GenContext};
-//! use ggen_core::pipeline::Pipeline;
+//! use mcpp_core::generator::{Generator, GenContext};
+//! use mcpp_core::pipeline::Pipeline;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let ctx = GenContext::new(
 //!     PathBuf::from("template.tmpl"),
@@ -64,7 +64,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
@@ -91,7 +91,7 @@ impl GenContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::generator::GenContext;
+    /// use mcpp_core::generator::GenContext;
     /// use std::path::PathBuf;
     ///
     /// let ctx = GenContext::new(
@@ -118,7 +118,7 @@ impl GenContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::generator::GenContext;
+    /// use mcpp_core::generator::GenContext;
     /// use std::collections::BTreeMap;
     /// use std::path::PathBuf;
     ///
@@ -143,7 +143,7 @@ impl GenContext {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_core::generator::GenContext;
+    /// use mcpp_core::generator::GenContext;
     /// use std::collections::BTreeMap;
     /// use std::path::PathBuf;
     ///
@@ -172,7 +172,7 @@ impl GenContext {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_core::generator::GenContext;
+    /// use mcpp_core::generator::GenContext;
     /// use std::path::PathBuf;
     ///
     /// let ctx = GenContext::new(
@@ -200,11 +200,11 @@ impl Generator {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_core::generator::{Generator, GenContext};
-    /// use ggen_core::pipeline::Pipeline;
+    /// use mcpp_core::generator::{Generator, GenContext};
+    /// use mcpp_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let ctx = GenContext::new(
     ///     PathBuf::from("template.tmpl"),
@@ -261,12 +261,12 @@ impl Generator {
     /// ## Success case
     ///
     /// ```rust,no_run
-    /// use ggen_core::generator::{Generator, GenContext};
-    /// use ggen_core::pipeline::Pipeline;
+    /// use mcpp_core::generator::{Generator, GenContext};
+    /// use mcpp_core::pipeline::Pipeline;
     /// use std::collections::BTreeMap;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let mut vars = BTreeMap::new();
     /// vars.insert("name".to_string(), "MyApp".to_string());
@@ -286,11 +286,11 @@ impl Generator {
     /// ## Error case - Template file not found
     ///
     /// ```rust,no_run
-    /// use ggen_core::generator::{Generator, GenContext};
-    /// use ggen_core::pipeline::Pipeline;
+    /// use mcpp_core::generator::{Generator, GenContext};
+    /// use mcpp_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let ctx = GenContext::new(
     ///     PathBuf::from("nonexistent.tmpl"), // File doesn't exist
@@ -362,7 +362,7 @@ impl Generator {
 
             // Check that normalized path starts with output_root components
             if normalized.len() < output_root_components.len() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Output path '{}' would escape output root '{}'",
                     rendered_to,
                     self.ctx.output_root.display()
@@ -371,7 +371,7 @@ impl Generator {
 
             for (i, component) in output_root_components.iter().enumerate() {
                 if normalized.get(i) != Some(component) {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(mcpp_utils::error::Error::new(&format!(
                         "Output path '{}' would escape output root '{}'",
                         rendered_to,
                         self.ctx.output_root.display()
@@ -387,7 +387,7 @@ impl Generator {
                 .template_path
                 .file_stem()
                 .ok_or_else(|| {
-                    ggen_utils::error::Error::new(&format!(
+                    mcpp_utils::error::Error::new(&format!(
                         "Template path has no file stem: {}",
                         self.ctx.template_path.display()
                     ))
@@ -529,7 +529,7 @@ mod tests {
             r#"---
 to: "output/{{ name | lower }}.rs"
 ---
-// Generated by ggen
+// Generated by mcpp
 // Name: {{ name }}
 // Description: {{ description }}
 "#,
@@ -555,7 +555,7 @@ to: "output/{{ name | lower }}.rs"
 
         // Verify file was created and has correct content
         let content = fs::read_to_string(&output_path).expect("Failed to read output file");
-        assert!(content.contains("// Generated by ggen"));
+        assert!(content.contains("// Generated by mcpp"));
         assert!(content.contains("// Name: MyApp"));
         assert!(content.contains("// Description: A test application"));
     }

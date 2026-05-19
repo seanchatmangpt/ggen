@@ -1,10 +1,10 @@
-//! Negative tests for ggen.toml manifest parsing and validation.
+//! Negative tests for mcpp.toml manifest parsing and validation.
 //!
 //! These tests verify that ManifestParser and ManifestValidator correctly
 //! reject malformed, missing, or semantically invalid manifests. Each test
 //! targets a specific failure mode and asserts on the error message content.
 
-use ggen_core::manifest::{ManifestParser, ManifestValidator};
+use mcpp_core::manifest::{ManifestParser, ManifestValidator};
 use std::fs;
 use std::path::Path;
 
@@ -177,7 +177,7 @@ name = "test"  <-- missing closing bracket
 
 #[test]
 fn parse_nonexistent_file_returns_error() {
-    let result = ManifestParser::parse(Path::new("/tmp/ggen_test_nonexistent_file_918273.toml"));
+    let result = ManifestParser::parse(Path::new("/tmp/mcpp_test_nonexistent_file_918273.toml"));
     assert!(
         result.is_err(),
         "Parsing a nonexistent file should return an error"
@@ -196,8 +196,8 @@ fn parse_nonexistent_file_returns_error() {
 /// Helper: write a TOML string to a temp file and return (TempDir, file path).
 fn write_toml_to_tempdir(content: &str) -> (tempfile::TempDir, std::path::PathBuf) {
     let dir = tempfile::tempdir().expect("Failed to create temp dir");
-    let file_path = dir.path().join("ggen.toml");
-    fs::write(&file_path, content).expect("Failed to write ggen.toml");
+    let file_path = dir.path().join("mcpp.toml");
+    fs::write(&file_path, content).expect("Failed to write mcpp.toml");
     (dir, file_path)
 }
 

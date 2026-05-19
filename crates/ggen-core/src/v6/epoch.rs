@@ -3,7 +3,7 @@
 //! An epoch represents a frozen point-in-time snapshot of all input ontologies.
 //! This is the "O" in A = μ(O) - the immutable input substrate.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -85,7 +85,7 @@ impl Epoch {
     pub fn from_pack_merged_substrate(content_digest: String, triple_count: usize) -> Self {
         let timestamp = chrono::Utc::now().to_rfc3339();
         let mut inputs = BTreeMap::new();
-        let pseudo = PathBuf::from(".ggen/pack-merged-substrate.ttl");
+        let pseudo = PathBuf::from(".mcpp/pack-merged-substrate.ttl");
         inputs.insert(
             pseudo.clone(),
             OntologyInput {

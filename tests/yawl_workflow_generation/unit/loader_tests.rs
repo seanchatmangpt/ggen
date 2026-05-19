@@ -3,7 +3,6 @@
 //! Tests follow AAA pattern (Arrange/Act/Assert) with real collaborators.
 //! State-based verification over interaction verification.
 
-use ggen_core::Graph;
 use ggen_yawl::ontology::loader::{OntologyFormat, OntologyLoader};
 use std::io::Write;
 use std::str::FromStr;
@@ -11,7 +10,6 @@ use tempfile::NamedTempFile;
 
 /// Helper module for test fixtures and utilities.
 pub mod fixtures {
-    use super::*;
 
     /// Valid Turtle ontology fixture for testing.
     pub const VALID_TURTLE: &str = r#"
@@ -133,7 +131,6 @@ pub mod fixtures {
 #[cfg(test)]
 mod ontology_format_tests {
     use super::*;
-    use fixtures::*;
 
     /// Test: OntologyFormat::from_str parses valid format strings correctly
     #[test]
@@ -529,7 +526,7 @@ mod integration_tests {
         assert!(result.is_ok());
         if let Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) = result {
             assert_eq!(rows.len(), 2, "Should find 2 tasks");
-            assert!(rows[0].get("label").is_some());
+            assert!(rows[0].contains_key("label"));
         } else {
             panic!("Expected solutions from task query");
         }
@@ -589,7 +586,6 @@ mod integration_tests {
 mod property_based_tests {
     use super::*;
     use fixtures::*;
-    use proptest::prelude::*;
 
     /// Property: Empty ontology produces empty graph
     #[test]

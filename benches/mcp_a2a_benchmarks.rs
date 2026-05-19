@@ -206,7 +206,7 @@ fn bench_tool_discovery(c: &mut Criterion) {
     // Benchmark: Tool pattern matching
     group.bench_function("pattern_matching", |b| {
         let tools = generate_mock_tools(100);
-        let query = "tool_*";
+        let _query = "tool_*";
 
         b.iter(|| {
             let matches: Vec<_> = tools
@@ -299,7 +299,7 @@ fn bench_message_translation(c: &mut Criterion) {
                 .iter()
                 .map(|msg| convert_a2a_to_mcp(msg, &small_payload()))
                 .collect();
-            black_box(converted.len())
+            black_box(converted)
         });
     });
 
@@ -418,7 +418,7 @@ fn parse_parameters(params: &serde_json::Value) -> HashMap<String, serde_json::V
 }
 
 /// Mock response generation function
-fn generate_response(id: &str, success: bool, result: Option<&serde_json::Value>) -> String {
+fn generate_response(id: &str, _success: bool, result: Option<&serde_json::Value>) -> String {
     format!(
         r#"{{"jsonrpc":"2.0","id":"{}","result":{}}}"#,
         id,
@@ -455,15 +455,11 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             BenchmarkId::new("concurrent_messages", concurrency),
             concurrency,
             |b, &concurrency| {
-                let messages: Vec<_> = (0..concurrency)
-                    .map(|i| generate_mock_a2a_message(i))
-                    .collect();
+                let messages: Vec<_> = (0..concurrency).map(generate_mock_a2a_message).collect();
 
                 b.iter(|| {
-                    let results: Vec<_> = messages
-                        .iter()
-                        .map(|msg| process_message_concurrently(msg))
-                        .collect();
+                    let results: Vec<_> =
+                        messages.iter().map(process_message_concurrently).collect();
                     black_box(results)
                 });
             },
@@ -495,9 +491,7 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             BenchmarkId::new("concurrent_translation", concurrency),
             concurrency,
             |b, &concurrency| {
-                let messages: Vec<_> = (0..concurrency)
-                    .map(|i| generate_mock_a2a_message(i))
-                    .collect();
+                let messages: Vec<_> = (0..concurrency).map(generate_mock_a2a_message).collect();
 
                 b.iter(|| {
                     let results: Vec<_> = messages
@@ -550,7 +544,7 @@ fn bench_memory_usage(c: &mut Criterion) {
     // Benchmark: Per-connection memory
     group.bench_function("connection_state", |b| {
         b.iter_batched(
-            || MockConnectionState::new(),
+            MockConnectionState::new,
             |state| black_box(state.size_bytes()),
             BatchSize::SmallInput,
         );

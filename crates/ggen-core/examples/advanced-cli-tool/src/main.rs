@@ -1,4 +1,4 @@
-//! Advanced CLI Tool - Production-ready example with ggen lifecycle
+//! Advanced CLI Tool - Production-ready example with mcpp lifecycle
 //!
 //! Demonstrates:
 //! - Async I/O with tokio

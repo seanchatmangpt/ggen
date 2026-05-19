@@ -4,8 +4,8 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::hook::create::*;
-use ggen_domain::hook::remove::*;
+use mcpp_domain::hook::create::*;
+use mcpp_domain::hook::remove::*;
 use std::fs;
 use std::path::PathBuf;
 
@@ -13,7 +13,7 @@ use std::path::PathBuf;
 fn test_hooks_dir() -> PathBuf {
     dirs::home_dir()
         .expect("Home directory should exist")
-        .join(".ggen")
+        .join(".mcpp")
         .join("hooks")
 }
 

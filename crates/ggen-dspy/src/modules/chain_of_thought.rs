@@ -5,7 +5,7 @@
 
 use crate::{Module, ModuleOutput, Predictor, Result};
 use async_trait::async_trait;
-use ggen_ai::dspy::{OutputField, Signature};
+use mcpp_ai::dspy::{OutputField, Signature};
 use tracing::debug;
 
 /// Chain of Thought module
@@ -17,8 +17,8 @@ use tracing::debug;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_dspy::{ChainOfThought, Result};
-/// use ggen_ai::dspy::{Signature, InputField, OutputField};
+/// use mcpp_dspy::{ChainOfThought, Result};
+/// use mcpp_ai::dspy::{Signature, InputField, OutputField};
 ///
 /// # async fn example() -> Result<()> {
 /// let signature = Signature::new("MathSolver", "Solve math problems")
@@ -126,7 +126,7 @@ impl Module for ChainOfThought {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_ai::dspy::InputField;
+    use mcpp_ai::dspy::InputField;
 
     #[test]
     fn test_cot_creation() {

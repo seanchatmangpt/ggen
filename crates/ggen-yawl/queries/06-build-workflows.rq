@@ -1,6 +1,6 @@
 # PATTERN 6: Workflow Construction
-PREFIX a2a: <https://ggen.dev/ontology/a2a>
-PREFIX wf: <https://ggen.dev/ontology/workflow>
+PREFIX a2a: <https://mcpp.dev/ontology/a2a>
+PREFIX wf: <https://mcpp.dev/ontology/workflow>
 PREFIX yawl: <http://unrdf.org/yawl#>
 
 CONSTRUCT {

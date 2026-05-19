@@ -1,7 +1,7 @@
 //! Capability-first CLI for governed pack composition
 //!
 //! Canonical form:
-//!   ggen capability enable mcp --projection rust --runtime axum --profile enterprise-strict
+//!   mcpp capability enable mcp --projection rust --runtime axum --profile enterprise-strict
 //!
 //! Underlying model: expands to atomic packs, creates composition receipt
 
@@ -11,10 +11,10 @@ use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::runtime::block_on;
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 
 // ============================================================================
 // Output Types
@@ -110,10 +110,10 @@ struct ConflictInfo {
 // ============================================================================
 
 /// Update lockfile with resolved atomic packs
-fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(), String> {
+fn update_lockfile(lockfile_path: &Path, atomic_packs: &[String]) -> Result<(), String> {
     let mut lockfile = if lockfile_path.exists() {
         PackLockfile::from_file(lockfile_path)
-            .map_err(|e| format!("Failed to load lockfile: {}", e))?
+            .map_err(|e| format!("Failed to load lockfile: {e}"))?
     } else {
         PackLockfile::new(env!("CARGO_PKG_VERSION"))
     };
@@ -123,7 +123,7 @@ fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(
         let locked_pack = LockedPack {
             version: "1.0.0".to_string(),
             source: PackSource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             integrity: None,
             installed_at: chrono::Utc::now(),
@@ -134,7 +134,7 @@ fn update_lockfile(lockfile_path: &PathBuf, atomic_packs: &[String]) -> Result<(
 
     lockfile
         .save(lockfile_path)
-        .map_err(|e| format!("Failed to save lockfile: {}", e))?;
+        .map_err(|e| format!("Failed to save lockfile: {e}"))?;
     Ok(())
 }
 
@@ -160,38 +160,34 @@ fn run_capability_enable(
     let atomic_packs_result = block_on(resolve_capability(&surface, &projection, &runtime))
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to resolve capability: {}",
-                e
+                "Failed to resolve capability: {e}"
             ))
         })?;
 
     let atomic_packs = atomic_packs_result.map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to resolve capability: {}",
-            e
-        ))
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {e}"))
     })?;
 
     let selected_profile = profile.unwrap_or_else(|| "default".to_string());
 
     // Display resolved packs
-    println!("Capability: {}", surface);
+    println!("Capability: {surface}");
     if let Some(ref proj) = projection {
-        println!("Projection: {}", proj);
+        println!("Projection: {proj}");
     }
     if let Some(ref rt) = runtime {
-        println!("Runtime: {}", rt);
+        println!("Runtime: {rt}");
     }
-    println!("Profile: {}", selected_profile);
+    println!("Profile: {selected_profile}");
     println!("\nResolved atomic packs:");
     for pack in &atomic_packs {
-        println!("  - {}", pack);
+        println!("  - {pack}");
     }
 
     // Persist to lockfile
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
-    update_lockfile(&lockfile_path, &atomic_packs).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to update lockfile: {}", e))
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
+    update_lockfile(lockfile_path.as_path(), &atomic_packs).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to update lockfile: {e}"))
     })?;
 
     println!("\n✓ Lockfile updated: {}", lockfile_path.display());
@@ -199,15 +195,13 @@ fn run_capability_enable(
     // Generate cryptographic receipt for composition
     let project_root = std::env::current_dir().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
-            "Cannot resolve project directory: {}",
-            e
+            "Cannot resolve project directory: {e}"
         ))
     })?;
-    let ggen_dir = project_root.join(".ggen");
-    let mut receipt_manager = ReceiptManager::new(ggen_dir).map_err(|e| {
+    let mcpp_dir = project_root.join(".mcpp");
+    let mut receipt_manager = ReceiptManager::new(mcpp_dir).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to create receipt manager: {}",
-            e
+            "Failed to create receipt manager: {e}"
         ))
     })?;
 
@@ -220,8 +214,7 @@ fn run_capability_enable(
         )
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to generate receipt: {}",
-                e
+                "Failed to generate receipt: {e}"
             ))
         })?;
 
@@ -249,7 +242,7 @@ fn run_capability_enable(
 /// Disable a capability and remove its atomic packs
 #[verb]
 fn disable(capability: String) -> VerbResult<serde_json::Value> {
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     if !lockfile_path.exists() {
         return Ok(serde_json::json!({
@@ -260,36 +253,32 @@ fn disable(capability: String) -> VerbResult<serde_json::Value> {
     }
 
     let mut lockfile = PackLockfile::from_file(&lockfile_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {e}"))
     })?;
 
     // Resolve capability to atomic packs to know which to remove
     let atomic_packs_result =
         block_on(resolve_capability(&capability, &None, &None)).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to resolve capability: {}",
-                e
+                "Failed to resolve capability: {e}"
             ))
         })?;
 
     let atomic_packs = atomic_packs_result.map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to resolve capability: {}",
-            e
-        ))
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to resolve capability: {e}"))
     })?;
 
     let mut removed_count = 0;
     for pack_id in &atomic_packs {
         if lockfile.remove_pack(pack_id) {
             removed_count += 1;
-            println!("  ✓ Removed {}", pack_id);
+            println!("  ✓ Removed {pack_id}");
         }
     }
 
     // Save updated lockfile
     lockfile.save(&lockfile_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to save lockfile: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to save lockfile: {e}"))
     })?;
 
     println!("\n✓ Lockfile updated: {}", lockfile_path.display());
@@ -307,20 +296,18 @@ fn disable(capability: String) -> VerbResult<serde_json::Value> {
 fn inspect(capability: String) -> VerbResult<CapabilityInspectOutput> {
     use crate::runtime::block_on;
 
-    println!("Inspecting capability: {}", capability);
+    println!("Inspecting capability: {capability}");
 
     // Resolve capability to atomic packs
     let atomic_packs = block_on(resolve_capability(&capability, &None, &None))
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to resolve capability: {}",
-                e
+                "Failed to resolve capability: {e}"
             ))
         })?
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to resolve capability: {}",
-                e
+                "Failed to resolve capability: {e}"
             ))
         })?;
 
@@ -330,19 +317,19 @@ fn inspect(capability: String) -> VerbResult<CapabilityInspectOutput> {
     // Print summary
     println!("\nAtomic Packs: {}", atomic_packs.len());
     for pack in &atomic_packs {
-        println!("  - {}", pack);
+        println!("  - {pack}");
     }
     println!("\nDependencies: {}", dependencies.len());
     for dep in &dependencies {
-        println!("  - {}", dep);
+        println!("  - {dep}");
     }
     println!("\nTemplates: {}", templates.len());
     for tmpl in &templates {
-        println!("  - {}", tmpl);
+        println!("  - {tmpl}");
     }
     println!("\nQueries: {}", queries.len());
     for query in &queries {
-        println!("  - {}", query);
+        println!("  - {query}");
     }
 
     Ok(CapabilityInspectOutput {
@@ -360,7 +347,7 @@ fn inspect_pack_details(
 ) -> VerbResult<(Vec<String>, Vec<String>, Vec<String>)> {
     use std::fs;
 
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
     let mut dependencies = vec![];
     let mut templates = vec![];
     let mut queries = vec![];
@@ -370,14 +357,14 @@ fn inspect_pack_details(
     }
 
     let lockfile = PackLockfile::from_file(&lockfile_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {e}"))
     })?;
 
     let cache_base = std::env::var("GGEN_PACK_CACHE_DIR")
         .ok()
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     for pack_id in atomic_packs {
         if let Some(locked_pack) = lockfile.get_pack(pack_id) {
@@ -389,7 +376,7 @@ fn inspect_pack_details(
             let templates_dir = cache_dir.join("templates");
             if templates_dir.exists() {
                 if let Ok(entries) = fs::read_dir(&templates_dir) {
-                    for entry in entries.filter_map(|e| e.ok()) {
+                    for entry in entries.flatten() {
                         if let Ok(name) = entry.file_name().into_string() {
                             if name.ends_with(".tera") {
                                 templates.push(format!("{}:{}", pack_id, name));
@@ -403,7 +390,7 @@ fn inspect_pack_details(
             let queries_dir = cache_dir.join("queries");
             if queries_dir.exists() {
                 if let Ok(entries) = fs::read_dir(&queries_dir) {
-                    for entry in entries.filter_map(|e| e.ok()) {
+                    for entry in entries.flatten() {
                         if let Ok(name) = entry.file_name().into_string() {
                             if name.ends_with(".rq") {
                                 queries.push(format!("{}:{}", pack_id, name));
@@ -538,7 +525,7 @@ fn trust(verbose: bool) -> VerbResult<CapabilityTrustOutput> {
 fn conflicts(verbose: bool) -> VerbResult<CapabilityConflictsOutput> {
     println!("Checking for conflicts across all capabilities...");
 
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     if !lockfile_path.exists() {
         println!("No lockfile found - no packs to check for conflicts");
@@ -546,7 +533,7 @@ fn conflicts(verbose: bool) -> VerbResult<CapabilityConflictsOutput> {
     }
 
     let lockfile = PackLockfile::from_file(&lockfile_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to load lockfile: {e}"))
     })?;
 
     let pack_ids: Vec<String> = lockfile.packs.keys().cloned().collect();
@@ -608,17 +595,17 @@ fn detect_all_conflicts(
     let cache_dir = std::env::var("GGEN_PACK_CACHE_DIR")
         .ok()
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     // Dimension 1: File path conflicts
-    all_conflicts.extend(detect_file_conflicts(pack_ids, &cache_dir)?);
+    all_conflicts.extend(detect_file_conflicts(pack_ids, cache_dir.as_path())?);
 
     // Dimension 2: Template name conflicts
-    all_conflicts.extend(detect_template_conflicts(pack_ids, &cache_dir)?);
+    all_conflicts.extend(detect_template_conflicts(pack_ids, cache_dir.as_path())?);
 
     // Dimension 3: Query name conflicts
-    all_conflicts.extend(detect_query_conflicts(pack_ids, &cache_dir)?);
+    all_conflicts.extend(detect_query_conflicts(pack_ids, cache_dir.as_path())?);
 
     // Dimension 4: Dependency cycles
     all_conflicts.extend(detect_dependency_cycles(pack_ids, lockfile)?);
@@ -627,9 +614,7 @@ fn detect_all_conflicts(
 }
 
 /// Helper: Detect file path conflicts
-fn detect_file_conflicts(
-    pack_ids: &[String], cache_dir: &PathBuf,
-) -> VerbResult<Vec<ConflictInfo>> {
+fn detect_file_conflicts(pack_ids: &[String], cache_dir: &Path) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
     let mut conflicts = vec![];
@@ -645,7 +630,7 @@ fn detect_file_conflicts(
                             let output_file = name.replace(".tera", "");
                             file_owners
                                 .entry(output_file)
-                                .or_insert_with(Vec::new)
+                                .or_default()
                                 .push(pack_id.clone());
                         }
                     }
@@ -660,10 +645,7 @@ fn detect_file_conflicts(
                 dimension: "emitted_file_path".to_string(),
                 pack_a: owners[0].clone(),
                 pack_b: owners[1].clone(),
-                description: format!(
-                    "Multiple packs would write to the same output file: {}",
-                    file
-                ),
+                description: format!("Multiple packs would write to the same output file: {file}"),
                 severity: "error".to_string(),
                 resolution: Some(
                     "Remove one of the conflicting packs or specify different output paths"
@@ -678,7 +660,7 @@ fn detect_file_conflicts(
 
 /// Helper: Detect template name conflicts
 fn detect_template_conflicts(
-    pack_ids: &[String], cache_dir: &PathBuf,
+    pack_ids: &[String], cache_dir: &Path,
 ) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
@@ -694,7 +676,7 @@ fn detect_template_conflicts(
                         let template_name = name.replace(".tera", "");
                         template_names
                             .entry(template_name)
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(pack_id.clone());
                     }
                 }
@@ -709,8 +691,7 @@ fn detect_template_conflicts(
                 pack_a: owners[0].clone(),
                 pack_b: owners[1].clone(),
                 description: format!(
-                    "Multiple packs provide templates with the same name: {}",
-                    template_name
+                    "Multiple packs provide templates with the same name: {template_name}"
                 ),
                 severity: "warning".to_string(),
                 resolution: Some("Templates will be namespaced by pack ID".to_string()),
@@ -722,9 +703,7 @@ fn detect_template_conflicts(
 }
 
 /// Helper: Detect query name conflicts
-fn detect_query_conflicts(
-    pack_ids: &[String], cache_dir: &PathBuf,
-) -> VerbResult<Vec<ConflictInfo>> {
+fn detect_query_conflicts(pack_ids: &[String], cache_dir: &Path) -> VerbResult<Vec<ConflictInfo>> {
     use std::fs;
 
     let mut conflicts = vec![];
@@ -739,7 +718,7 @@ fn detect_query_conflicts(
                         let query_name = name.replace(".rq", "");
                         query_names
                             .entry(query_name)
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(pack_id.clone());
                     }
                 }
@@ -754,8 +733,7 @@ fn detect_query_conflicts(
                 pack_a: owners[0].clone(),
                 pack_b: owners[1].clone(),
                 description: format!(
-                    "Multiple packs provide queries with the same name: {}",
-                    query_name
+                    "Multiple packs provide queries with the same name: {query_name}"
                 ),
                 severity: "error".to_string(),
                 resolution: Some("Queries must have unique names across all packs".to_string()),
@@ -791,10 +769,7 @@ fn detect_dependency_cycles(
                         .first()
                         .unwrap_or(&"unknown".to_string())
                         .clone(),
-                    description: format!(
-                        "Circular dependency detected involving pack: {}",
-                        pack_id
-                    ),
+                    description: format!("Circular dependency detected involving pack: {pack_id}"),
                     severity: "error".to_string(),
                     resolution: Some(
                         "Remove circular dependency by refactoring pack structure".to_string(),

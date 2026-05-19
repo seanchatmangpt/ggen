@@ -1,7 +1,7 @@
-# CLI Contract: ggen marketplace validate
+# CLI Contract: mcpp marketplace validate
 # Validates marketplace package FMEA and Poka-Yoke compliance
 
-command: ggen marketplace validate
+command: mcpp marketplace validate
 
 description: |
   Validates a marketplace package for enterprise readiness, checking FMEA
@@ -43,16 +43,16 @@ options:
 
 examples:
   - description: Validate current directory
-    command: ggen marketplace validate
+    command: mcpp marketplace validate
 
   - description: Validate specific package with strict mode
-    command: ggen marketplace validate ./my-package --strict
+    command: mcpp marketplace validate ./my-package --strict
 
   - description: Generate FMEA report as JSON
-    command: ggen marketplace validate --fmea-report fmea.json --format json
+    command: mcpp marketplace validate --fmea-report fmea.json --format json
 
   - description: Validate in CI pipeline (strict, quiet)
-    command: ggen marketplace validate --strict --quiet
+    command: mcpp marketplace validate --strict --quiet
 
 exit_codes:
   0: Validation passed (GREEN)

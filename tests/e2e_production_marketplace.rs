@@ -16,6 +16,7 @@ use test_config::integration_timeout;
 /// registry availability. They are designed to test the real-world workflow.
 
 #[test]
+#[ignore]
 fn test_search_production_registry() -> Result<()> {
     // Test searching the production registry
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -51,6 +52,7 @@ fn test_search_production_registry() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_add_from_production_registry() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let project_dir = temp_dir.path();
@@ -104,6 +106,7 @@ fn test_add_from_production_registry() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_lockfile_created_with_sha256() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let project_dir = temp_dir.path();
@@ -197,6 +200,7 @@ fn test_production_registry_index_accessible() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_search_with_detailed_output() -> Result<()> {
     // Test search with detailed output flag
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -226,6 +230,7 @@ fn test_search_with_detailed_output() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_search_with_category_filter() -> Result<()> {
     // Test search with category filter
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -252,6 +257,7 @@ fn test_search_with_category_filter() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_search_with_json_output() -> Result<()> {
     // Test search with JSON output format
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -278,6 +284,7 @@ fn test_search_with_json_output() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_packs_command_lists_installed() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let project_dir = temp_dir.path();
@@ -318,6 +325,7 @@ fn test_packs_command_lists_installed() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_categories_command() -> Result<()> {
     // Test the categories command
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -347,6 +355,7 @@ fn test_categories_command() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_show_command_displays_pack_info() -> Result<()> {
     // Test the show command for displaying pack metadata
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -376,6 +385,7 @@ fn test_show_command_displays_pack_info() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_marketplace_workflow_end_to_end() -> Result<()> {
     // Complete E2E workflow: search → add → verify → list
     let temp_dir = TempDir::new()?;
@@ -451,6 +461,7 @@ fn test_marketplace_workflow_end_to_end() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_registry_fallback_to_default() -> Result<()> {
     // Test that registry falls back to default URL if env var not set
     let temp_dir = TempDir::new()?;

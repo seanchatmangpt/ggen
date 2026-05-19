@@ -1,6 +1,6 @@
 //! Clap noun-verb convention preset
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -17,8 +17,8 @@ impl ConventionPreset for ClapNounVerbPreset {
     fn create_structure(&self, root: &Path) -> Result<()> {
         // Create directory structure
         let dirs = [
-            ".ggen/rdf",
-            ".ggen/templates/clap-noun-verb",
+            ".mcpp/rdf",
+            ".mcpp/templates/clap-noun-verb",
             "src/cmds",
             "src/domain",
         ];
@@ -28,16 +28,16 @@ impl ConventionPreset for ClapNounVerbPreset {
         }
 
         // Write convention config
-        fs::write(root.join(".ggen/convention.toml"), self.config_content())?;
+        fs::write(root.join(".mcpp/convention.toml"), self.config_content())?;
 
         // Write RDF files
         for (path, content) in self.rdf_files() {
-            fs::write(root.join(".ggen/rdf").join(path), content)?;
+            fs::write(root.join(".mcpp/rdf").join(path), content)?;
         }
 
         // Write template files
         for (path, content) in self.templates() {
-            fs::write(root.join(".ggen/templates").join(path), content)?;
+            fs::write(root.join(".mcpp/templates").join(path), content)?;
         }
 
         Ok(())
@@ -78,9 +78,9 @@ mod tests {
         preset.create_structure(root).unwrap();
 
         // Verify structure
-        assert!(root.join(".ggen/rdf").exists());
-        assert!(root.join(".ggen/templates/clap-noun-verb").exists());
-        assert!(root.join(".ggen/convention.toml").exists());
+        assert!(root.join(".mcpp/rdf").exists());
+        assert!(root.join(".mcpp/templates/clap-noun-verb").exists());
+        assert!(root.join(".mcpp/convention.toml").exists());
         assert!(root.join("src/cmds").exists());
         assert!(root.join("src/domain").exists());
     }

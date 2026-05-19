@@ -27,7 +27,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create feature directory structure (ontology/, templates/, output/, evidence/)
-- [ ] T002 Create ggen.toml manifest with 15 generation rules in specs/012-grand-unified-kgc-thesis/ggen.toml
+- [ ] T002 Create mcpp.toml manifest with 15 generation rules in specs/012-grand-unified-kgc-thesis/mcpp.toml
 - [ ] T003 Create thesis-schema.ttl with 17 entity classes (Thesis, Chapter, Section, Theorem, Equation, Algorithm, Figure, Table, Reference, Appendix, etc.) in ontology/thesis-schema.ttl
 - [ ] T004 [P] Create preamble.tera template with LaTeX package loading order (memoir → amsmath → amsthm → algorithm2e → biblatex → hyperref → cleveref) in templates/preamble.tera
 - [ ] T005 [P] Create output/.gitkeep to ensure output directory exists
@@ -61,7 +61,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 ### Base Ontology
 
 - [ ] T019 Create kgc-unified-content.ttl with thesis root entity (title, author, institution, date, abstract) in ontology/kgc-unified-content.ttl
-- [ ] T020 Verify ggen sync runs without errors on base ontology
+- [ ] T020 Verify mcpp sync runs without errors on base ontology
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +71,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 
 **Goal**: Generate publication-ready PhD thesis in LaTeX format from RDF ontology
 
-**Independent Test**: Run `ggen sync` on thesis ontology and compile resulting LaTeX to PDF
+**Independent Test**: Run `mcpp sync` on thesis ontology and compile resulting LaTeX to PDF
 
 ### Implementation for User Story 1
 
@@ -84,7 +84,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 - [ ] T027 [P] [US1] Create Chapter 6 entity (@unrdf Integration) with orderIndex=6, labelId="ch:unrdf" in ontology/kgc-unified-content.ttl
 - [ ] T028 [P] [US1] Create Chapter 7 entity (Conclusions and Future Work) with orderIndex=7, labelId="ch:conclusions" in ontology/kgc-unified-content.ttl
 - [ ] T029 [US1] Add Section entities for Chapter 1 (Motivation, Research Questions, Contributions, Thesis Organization) in ontology/kgc-unified-content.ttl
-- [ ] T030 [US1] Run ggen sync to generate initial LaTeX files in output/
+- [ ] T030 [US1] Run mcpp sync to generate initial LaTeX files in output/
 - [ ] T031 [US1] Compile generated LaTeX with pdflatex to verify structure in output/thesis.tex
 - [ ] T032 [US1] Verify table of contents, list of figures, list of tables generate correctly
 
@@ -110,7 +110,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 - [ ] T040 [P] [US2] Create Equation entity for drift measure formula (eq:drift) in ontology/kgc-unified-content.ttl
 - [ ] T041 [US2] Add Section entities for Chapter 2 (KGC Definition, Semantic Preservation, Type Consistency, Zero-Drift Theorem) in ontology/kgc-unified-content.ttl
 - [ ] T042 [US2] Add labelId properties to all definitions, lemmas, theorems for cross-referencing in ontology/kgc-unified-content.ttl
-- [ ] T043 [US2] Run ggen sync and verify theorems render with proofs in output/theorems.tex
+- [ ] T043 [US2] Run mcpp sync and verify theorems render with proofs in output/theorems.tex
 - [ ] T044 [US2] Compile LaTeX and verify cross-references resolve (no "??" warnings)
 
 **Checkpoint**: User Story 2 complete - formal proofs compile with cross-references
@@ -137,7 +137,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 - [ ] T054 [P] [US3] Create Theorem entity for Temporal Monotonicity with proof in ontology/kgc-unified-content.ttl
 - [ ] T055 [US3] Create Equation entity for state transition function delta in ontology/kgc-unified-content.ttl
 - [ ] T056 [US3] Create Equation entity for state reconstruction function rho in ontology/kgc-unified-content.ttl
-- [ ] T057 [US3] Run ggen sync and verify algorithms render in output/algorithms.tex
+- [ ] T057 [US3] Run mcpp sync and verify algorithms render in output/algorithms.tex
 - [ ] T058 [US3] Compile LaTeX and verify algorithm pseudocode formatting
 
 **Checkpoint**: User Story 3 complete - temporal semantics documented with algorithms
@@ -163,7 +163,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 - [ ] T067 [US4] Create Theorem entity for Semantic Fidelity Bound with proof in ontology/kgc-unified-content.ttl
 - [ ] T068 [US4] Create Theorem entity for Multi-Target Superadditivity with proof in ontology/kgc-unified-content.ttl
 - [ ] T069 [US4] Create Lemma entity for Information Preservation during generation in ontology/kgc-unified-content.ttl
-- [ ] T070 [US4] Run ggen sync and verify equations render in output/equations.tex
+- [ ] T070 [US4] Run mcpp sync and verify equations render in output/equations.tex
 - [ ] T071 [US4] Compile LaTeX and verify mathematical notation renders correctly
 
 **Checkpoint**: User Story 4 complete - information theory with 15+ equations
@@ -179,12 +179,12 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 ### Implementation for User Story 5
 
 - [ ] T072 [US5] Add Section entities for Chapter 5 (Architecture, Generated Artifacts, Metrics, Lessons Learned) in ontology/kgc-unified-content.ttl
-- [ ] T073 [US5] Create Figure entity for ggen architecture diagram in ontology/kgc-unified-content.ttl
+- [ ] T073 [US5] Create Figure entity for mcpp architecture diagram in ontology/kgc-unified-content.ttl
 - [ ] T074 [US5] Create Figure entity for pnpm monorepo structure in ontology/kgc-unified-content.ttl
 - [ ] T075 [US5] Create Table entity for generated artifacts line counts (schemas.js, hooks.js, mutations.js, etc.) in ontology/kgc-unified-content.ttl
 - [ ] T076 [US5] Create Table entity for consistency metrics comparison (73% reduction) in ontology/kgc-unified-content.ttl
 - [ ] T077 [US5] Add prose content describing TanStack DB integration in Chapter 5 sections in ontology/kgc-unified-content.ttl
-- [ ] T078 [US5] Run ggen sync and verify figures/tables render in output/figures.tex and output/tables.tex
+- [ ] T078 [US5] Run mcpp sync and verify figures/tables render in output/figures.tex and output/tables.tex
 - [ ] T079 [US5] Compile LaTeX and verify case study chapter renders correctly
 
 **Checkpoint**: User Story 5 complete - case study with metrics validated
@@ -206,7 +206,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 - [ ] T084 [P] [US6] Create CodeListing entity for KnowledgeHookManager example in ontology/kgc-unified-content.ttl
 - [ ] T085 [US6] Create Figure entity for hook execution pipeline diagram in ontology/kgc-unified-content.ttl
 - [ ] T086 [US6] Add prose content describing pre/post hooks for CRUD operations in ontology/kgc-unified-content.ttl
-- [ ] T087 [US6] Run ggen sync and verify code listings render in output/code-listings.tex
+- [ ] T087 [US6] Run mcpp sync and verify code listings render in output/code-listings.tex
 - [ ] T088 [US6] Compile LaTeX and verify Chapter 6 renders correctly
 
 **Checkpoint**: User Story 6 complete - @unrdf/hooks documented with examples
@@ -229,19 +229,19 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 ### Appendices
 
 - [ ] T095 [P] Create Appendix A entity with extended mathematical proofs in ontology/kgc-unified-content.ttl
-- [ ] T096 [P] Create Appendix B entity with ggen configuration reference in ontology/kgc-unified-content.ttl
+- [ ] T096 [P] Create Appendix B entity with mcpp configuration reference in ontology/kgc-unified-content.ttl
 - [ ] T097 [P] Create Appendix C entity with generated code examples from case study in ontology/kgc-unified-content.ttl
 - [ ] T098 [P] Create Appendix D entity with ontology schema definitions in ontology/kgc-unified-content.ttl
 
 ### Final Validation
 
-- [ ] T099 Run ggen sync to generate complete thesis in output/
+- [ ] T099 Run mcpp sync to generate complete thesis in output/
 - [ ] T100 Run pdflatex thesis.tex (pass 1) in output/
 - [ ] T101 Run biber thesis to process bibliography in output/
 - [ ] T102 Run pdflatex thesis.tex (pass 2 and 3) to resolve cross-references in output/
 - [ ] T103 Verify PDF has 100+ pages, all cross-references resolve
 - [ ] T104 Verify bibliography has 30+ entries rendered correctly
-- [ ] T105 Run ggen sync again and verify byte-identical output (determinism test)
+- [ ] T105 Run mcpp sync again and verify byte-identical output (determinism test)
 - [ ] T106 Create evidence/completion.md documenting all success criteria met
 
 ---
@@ -273,7 +273,7 @@ All paths relative to `specs/012-grand-unified-kgc-thesis/`:
 
 - Sections before theorems/equations
 - Theorems before proofs
-- All content before ggen sync verification
+- All content before mcpp sync verification
 - Generation before LaTeX compilation
 
 ### Parallel Opportunities

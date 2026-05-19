@@ -6,7 +6,7 @@
 //! - All documented prompts exist with correct arguments
 //! - Tool descriptions match documented behavior
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+use mcpp_a2a_mcp::mcpp_server::GgenMcpServer;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 #[derive(Debug, Clone, Default)]

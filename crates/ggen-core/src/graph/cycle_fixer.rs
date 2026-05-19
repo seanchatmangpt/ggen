@@ -12,7 +12,7 @@
 //! # Examples
 //!
 //! ```ignore
-//! use ggen_core::graph::cycle_fixer::{CycleFixer, FixStrategy, FixReport};
+//! use mcpp_core::graph::cycle_fixer::{CycleFixer, FixStrategy, FixReport};
 //!
 //! let fixer = CycleFixer::new("/path/to/ontology");
 //! let report = fixer.detect_and_fix(FixStrategy::RemoveImport, false)?;
@@ -22,7 +22,7 @@
 //! ```
 
 use crate::graph::cycle_detection::detect_cycles;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -100,7 +100,7 @@ impl CycleFixer {
     /// Create a new cycle fixer
     pub fn new(base_dir: impl AsRef<Path>) -> Self {
         let base_dir = base_dir.as_ref();
-        let backup_dir = base_dir.join(".ggen").join("backups");
+        let backup_dir = base_dir.join(".mcpp").join("backups");
 
         Self {
             base_dir: base_dir.to_path_buf(),

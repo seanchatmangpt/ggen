@@ -18,7 +18,7 @@
 //! 4. **Escaping**: Context-aware output escaping (HTML, SQL, Shell)
 //! 5. **Path Security**: No path traversal in includes
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
 use tera::{Context, Tera, Value};
 
@@ -282,7 +282,7 @@ impl TemplateValidator {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::security::template_secure::TemplateValidator;
+    /// use mcpp_core::security::template_secure::TemplateValidator;
     ///
     /// # fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// // Valid variable names
@@ -367,7 +367,7 @@ impl ContextEscaper {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::security::template_secure::ContextEscaper;
+    /// use mcpp_core::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_html("<script>alert('xss')</script>");
     /// assert_eq!(escaped, "&lt;script&gt;alert(&#x27;xss&#x27;)&lt;&#x2F;script&gt;");
@@ -391,7 +391,7 @@ impl ContextEscaper {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::security::template_secure::ContextEscaper;
+    /// use mcpp_core::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_sql("'; DROP TABLE users; --");
     /// assert_eq!(escaped, "'''; DROP TABLE users; --");
@@ -410,7 +410,7 @@ impl ContextEscaper {
     /// # Examples
     ///
     /// ```text
-    /// use ggen_core::security::template_secure::ContextEscaper;
+    /// use mcpp_core::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_shell("file.txt; rm -rf /");
     /// assert_eq!(escaped, "file.txt\\; rm -rf /");

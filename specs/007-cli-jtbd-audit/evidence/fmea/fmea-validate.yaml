@@ -1,4 +1,4 @@
-command: "ggen fmea validate"
+command: "mcpp fmea validate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -47,5 +47,5 @@ recommendations:
 
 jtbd: |
   When I have an FMEA to validate,
-  I need to run 'ggen fmea validate',
+  I need to run 'mcpp fmea validate',
   so that I can ensure FMEA completeness and correctness.

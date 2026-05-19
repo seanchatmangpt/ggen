@@ -414,7 +414,7 @@ TOTAL............................. 360 hours ($72,000)
 
 ## File Locations
 
-All files located in: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-5-6/`
+All files located in: `~/.ggen/mcpp/tai-erlang-autonomics/execution/week-5-6/`
 
 ### Core Deliverables
 - `WEEK_5_6_CUSTOMER_SUCCESS.md` - 105 KB, 3,195 lines

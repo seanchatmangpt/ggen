@@ -1,5 +1,5 @@
-use ggen_transport::mcp::{EchoHandler, McpError, McpHandler, McpRequest, McpTransport};
-use ggen_transport::{OriginValidator, SessionManager};
+use mcpp_transport::mcp::{EchoHandler, McpError, McpHandler, McpRequest, McpTransport};
+use mcpp_transport::{OriginValidator, SessionManager};
 use std::sync::Arc;
 
 #[tokio::test]

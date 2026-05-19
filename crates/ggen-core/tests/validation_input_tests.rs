@@ -8,7 +8,7 @@
 //!
 //! Test coverage: 120+ tests across all validator types
 
-use ggen_core::validation::input::*;
+use mcpp_core::validation::input::*;
 use std::path::Path;
 
 // =============================================================================

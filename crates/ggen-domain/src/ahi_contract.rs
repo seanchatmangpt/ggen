@@ -1,4 +1,4 @@
-//! AHI Contract - Formal Interface for Autonomic Hyper-Intelligence in ggen
+//! AHI Contract - Formal Interface for Autonomic Hyper-Intelligence in mcpp
 //!
 //! Defines the closed-world governance model where AHI operates on Σ (ontologies),
 //! Π (projections), Q (invariants), ΔΣ (overlays), Λ (priorities), and Γ (observations)

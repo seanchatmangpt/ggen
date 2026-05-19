@@ -11,8 +11,8 @@
 //! 5. Complex scenarios (multiple fields, mixed types, enum domains)
 //! 6. Edge cases (empty signature, escaping, long descriptions)
 
-use ggen_ai::dspy::field::{FieldConstraints, InputField, OutputField};
-use ggen_ai::dspy::signature::Signature;
+use mcpp_ai::dspy::field::{FieldConstraints, InputField, OutputField};
+use mcpp_ai::dspy::signature::Signature;
 use serde_json::json;
 
 // ============================================================================

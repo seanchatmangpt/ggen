@@ -1,4 +1,4 @@
-//! ggen Microframework - Maximum 10-Agent Parallel Execution
+//! mcpp Microframework - Maximum 10-Agent Parallel Execution
 //!
 //! A lightweight, high-performance microframework for orchestrating up to 10
 //! concurrent agents for code generation, testing, review, and more.
@@ -7,7 +7,7 @@
 //!
 //! ```text
 //! ┌─────────────────────────────────────────────────────────────────────────┐
-//! │                        ggen Microframework                               │
+//! │                        mcpp Microframework                               │
 //! │                                                                          │
 //! │  ┌──────────────────────────────────────────────────────────────────┐  │
 //! │  │                     AgentOrchestrator                             │  │
@@ -34,7 +34,7 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use ggen_ai::microframework::prelude::*;
+//! use mcpp_ai::microframework::prelude::*;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Create orchestrator with max concurrency

@@ -1,15 +1,15 @@
 // NOTE: These benchmarks require GROQ_API_KEY env var and make real API calls.
-// Run with: GROQ_API_KEY=sk-xxx cargo bench -p ggen-a2a-mcp --bench groq_integration_benchmarks
+// Run with: GROQ_API_KEY=sk-xxx cargo bench -p mcpp-a2a-mcp --bench groq_integration_benchmarks
 //
-// Benchmarks measure real Groq API latency and throughput through ggen's ggen-ai crate.
-// Call chain: ggen_ai::GenAiClient -> genai::Client -> Groq API
+// Benchmarks measure real Groq API latency and throughput through mcpp's mcpp-ai crate.
+// Call chain: mcpp_ai::GenAiClient -> genai::Client -> Groq API
 
 use criterion::{criterion_group, criterion_main, Criterion};
 use futures::StreamExt;
-use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
+use mcpp_ai::{GenAiClient, LlmClient, LlmConfig};
 use std::hint::black_box;
 
-/// Create a Groq client using ggen-ai wrapper.
+/// Create a Groq client using mcpp-ai wrapper.
 /// Requires GROQ_API_KEY env var (auto-detected by LlmConfig::default()).
 fn create_groq_client() -> GenAiClient {
     GenAiClient::new(LlmConfig::default()).expect("GROQ_API_KEY must be set in environment")

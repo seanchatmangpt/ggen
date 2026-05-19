@@ -1,4 +1,4 @@
-//! Error types for the ggen-craftplan pipeline
+//! Error types for the mcpp-craftplan pipeline
 //!
 //! All pipeline stages return `Result<T, CraftplanError>` for comprehensive error handling.
 

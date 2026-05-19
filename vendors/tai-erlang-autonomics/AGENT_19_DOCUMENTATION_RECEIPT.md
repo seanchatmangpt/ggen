@@ -17,7 +17,7 @@ Created 4 production-ready customer-facing documentation files for TAI Autonomic
 
 ### 1. SUPPORT_MODEL.md (11 KB)
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/SUPPORT_MODEL.md`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/SUPPORT_MODEL.md`
 
 **Contents**:
 - Clear statement: "MCP-only support; no human support channel"
@@ -58,7 +58,7 @@ Created 4 production-ready customer-facing documentation files for TAI Autonomic
 
 ### 2. INSTALL.md (10 KB)
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/INSTALL.md`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/INSTALL.md`
 
 **Contents**:
 - Prerequisites:
@@ -97,7 +97,7 @@ Created 4 production-ready customer-facing documentation files for TAI Autonomic
 
 ### 3. API.md (15 KB)
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/API.md`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/API.md`
 
 **Contents**:
 - Overview: HTTP endpoints + MCP tools
@@ -133,7 +133,7 @@ Created 4 production-ready customer-facing documentation files for TAI Autonomic
 
 ### 4. ROADMAP.md (13 KB)
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/docs/ROADMAP.md`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/docs/ROADMAP.md`
 
 **Contents**:
 - Vision: Evolution from evaluation to insurance-backed production platform
@@ -301,7 +301,7 @@ All 4 documents enforce:
 
 ## Artifacts & File Paths
 
-All files in `/Users/sac/ggen/tai-erlang-autonomics/docs/`:
+All files in `~/.ggen/mcpp/tai-erlang-autonomics/docs/`:
 
 ```
 docs/

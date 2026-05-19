@@ -1,4 +1,4 @@
-command: "ggen fmea analyze"
+command: "mcpp fmea analyze"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to analyze failure modes,
-  I need to run 'ggen fmea analyze' with FMEA file,
+  I need to run 'mcpp fmea analyze' with FMEA file,
   so that I can identify and score potential failures.

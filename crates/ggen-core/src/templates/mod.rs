@@ -28,10 +28,10 @@
 //! ### Generating a File Tree
 //!
 //! ```text
-//! use ggen_core::templates::{generate_file_tree, TemplateContext};
+//! use mcpp_core::templates::{generate_file_tree, TemplateContext};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let template_path = Path::new("project.tree.toml");
 //! let output_dir = Path::new("output");
 //! let mut ctx = TemplateContext::new();
@@ -46,10 +46,10 @@
 //! ### Using Template Parser
 //!
 //! ```text
-//! use ggen_core::templates::{TemplateParser, TemplateFormat};
+//! use mcpp_core::templates::{TemplateParser, TemplateFormat};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> mcpp_utils::error::Result<()> {
 //! let parser = TemplateParser::new();
 //! let template = parser.parse_file(Path::new("project.tree.toml"), TemplateFormat::Toml)?;
 //!

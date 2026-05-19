@@ -3,7 +3,7 @@
 //! These tests demonstrate the SPARQL validator's ability to
 //! validate SPARQL syntax using LLM-assisted validation.
 
-use ggen_ai::sparql_validator::{validate_sparql, SparqlIssueType};
+use mcpp_ai::sparql_validator::{validate_sparql, SparqlIssueType};
 
 #[tokio::test]
 async fn test_validate_valid_query() {

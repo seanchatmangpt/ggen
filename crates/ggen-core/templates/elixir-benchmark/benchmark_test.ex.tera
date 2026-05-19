@@ -8,7 +8,7 @@ defmodule {{ module_prefix }}.{{ suite.name | replace(from=" ", to="") | camel_c
   @moduledoc """
   {{ suite.description }}
 
-  Generated from RDF specification by ggen.
+  Generated from RDF specification by mcpp.
   Source ontology: {{ ontology_uri | default(value="ontology.ttl") }}
   """
 

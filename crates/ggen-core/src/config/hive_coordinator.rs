@@ -5,7 +5,7 @@
 //! resolution, and conflict resolution using swarm intelligence principles.
 
 #![allow(dead_code)]
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -348,7 +348,7 @@ impl HiveQueen {
         // Check if all conflicts are resolved
         for conflict in &state.conflicts {
             if conflict.resolutions_tried.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(mcpp_utils::error::Error::new(&format!(
                     "Unresolved conflict: {} vs {}",
                     conflict.package_a, conflict.package_b
                 )));

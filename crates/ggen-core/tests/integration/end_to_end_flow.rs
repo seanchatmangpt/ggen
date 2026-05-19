@@ -1,7 +1,7 @@
 //! End-to-end integration tests for package lifecycle
 
 use chicago_tdd_tools::prelude::*;
-use ggen_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
+use mcpp_core::registry::{PackMetadata, RegistryClient, VersionMetadata};
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
@@ -46,7 +46,7 @@ async_test_with_timeout!(test_complete_package_lifecycle, 30, async {
         },
     );
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -123,7 +123,7 @@ async_test_with_timeout!(test_package_update_flow, 30, async {
         },
     );
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -195,7 +195,7 @@ async_test_with_timeout!(test_multi_package_search, 30, async {
         );
     }
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs,
     };
@@ -223,7 +223,7 @@ async_test_with_timeout!(test_error_handling_flow, 30, async {
     let temp_dir = TempDir::new().unwrap();
     let index_path = temp_dir.path().join("index.json");
 
-    let index = ggen_core::registry::RegistryIndex {
+    let index = mcpp_core::registry::RegistryIndex {
         updated: chrono::Utc::now(),
         packs: HashMap::new(),
     };

@@ -1,7 +1,7 @@
-//! # ggen-dspy - DSPy-inspired programming framework for LLM agents in Rust
+//! # mcpp-dspy - DSPy-inspired programming framework for LLM agents in Rust
 //!
 //! This crate provides a Rust implementation of DSPy concepts for building
-//! self-optimizing LLM agent pipelines. It integrates with ggen-ai for LLM
+//! self-optimizing LLM agent pipelines. It integrates with mcpp-ai for LLM
 //! interactions and provides a type-safe, declarative API for agent composition.
 //!
 //! ## Core Concepts
@@ -10,7 +10,7 @@
 //! - **Optimizers**: Self-improvement algorithms (BootstrapFewShot, MIPRO, etc.)
 //! - **Evaluation**: Metrics and scoring for optimization loops
 //! - **Assertions**: Runtime constraints and validation for LLM outputs
-//! - **Adapters**: Integration with ggen-ai LLM clients
+//! - **Adapters**: Integration with mcpp-ai LLM clients
 //!
 //! ## Design Principles
 //!
@@ -24,8 +24,8 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use ggen_dspy::{Module, Predictor, Signature, InputField, OutputField};
-//! use ggen_ai::{GenAiClient, LlmConfig};
+//! use mcpp_dspy::{Module, Predictor, Signature, InputField, OutputField};
+//! use mcpp_ai::{GenAiClient, LlmConfig};
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Define a signature (input/output schema)
@@ -53,7 +53,7 @@
 //! - `evaluation/` - Metrics and scoring for optimization
 //! - `assertions/` - Runtime constraints and validation
 //! - `config/` - Configuration types for modules and optimizers
-//! - `adapters/` - Integration with ggen-ai and other LLM clients
+//! - `adapters/` - Integration with mcpp-ai and other LLM clients
 //! - `patterns/` - Reusable agent patterns and templates
 //! - `testing/` - Test utilities and fixtures
 //!
@@ -149,12 +149,12 @@ pub use predictors::ModuleOutput as A2aModuleOutput;
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Initialize logging for the ggen-dspy crate
+/// Initialize logging for the mcpp-dspy crate
 pub fn init_logging() {
     use tracing_subscriber::{fmt, EnvFilter};
 
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "ggen_dspy=info");
+        std::env::set_var("RUST_LOG", "mcpp_dspy=info");
     }
 
     let _ = fmt()

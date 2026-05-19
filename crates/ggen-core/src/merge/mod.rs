@@ -7,9 +7,9 @@
 //!
 //! ## Submodules
 //!
-//! - [`three_way_merge`] — Annotation-aware `@ggen:preserve-start/end` merge logic
-//!   for `ggen sync` regeneration cycles. Preserves hand-written logic and safely
-//!   overwrites `@ggen:generated-start/end` regions.
+//! - [`three_way_merge`] — Annotation-aware `@mcpp:preserve-start/end` merge logic
+//!   for `mcpp sync` regeneration cycles. Preserves hand-written logic and safely
+//!   overwrites `@mcpp:generated-start/end` regions.
 //!
 //! ## Features
 //!
@@ -25,7 +25,7 @@ pub use three_way_merge::{
     MergeError, MergeResult as SyncMergeResult,
 };
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -40,10 +40,10 @@ use crate::snapshot::{FileSnapshot, Region, RegionType};
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::merge::{MergeConflict, ConflictType};
+/// use mcpp_core::merge::{MergeConflict, ConflictType};
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let conflict = MergeConflict::new(
 ///     PathBuf::from("file.rs"),
 ///     ConflictType::OverlappingEdit,
@@ -97,9 +97,9 @@ impl MergeConflict {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::merge::ConflictType;
+/// use mcpp_core::merge::ConflictType;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let conflict_type = ConflictType::OverlappingEdit;
 /// println!("Conflict type: {}", conflict_type);
 /// # Ok(())
@@ -113,7 +113,7 @@ impl MergeConflict {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::merge::ConflictType;
+/// use mcpp_core::merge::ConflictType;
 ///
 /// # fn main() {
 /// let conflict = ConflictType::OverlappingEdit;
@@ -152,9 +152,9 @@ impl fmt::Display for ConflictType {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::merge::{MergeResult, MergeStrategy};
+/// use mcpp_core::merge::{MergeResult, MergeStrategy};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// // Successful merge
 /// let result = MergeResult::success(
 ///     "merged content".to_string(),
@@ -199,9 +199,9 @@ impl MergeResult {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::merge::{MergeResult, MergeStrategy};
+    /// use mcpp_core::merge::{MergeResult, MergeStrategy};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let result = MergeResult::success(
     ///     "merged file content".to_string(),
     ///     MergeStrategy::GeneratedWins
@@ -242,9 +242,9 @@ impl MergeResult {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+/// use mcpp_core::merge::{ThreeWayMerger, MergeStrategy};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// // Prefer generated content
 /// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
 ///
@@ -263,7 +263,7 @@ impl MergeResult {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_core::merge::MergeStrategy;
+/// use mcpp_core::merge::MergeStrategy;
 ///
 /// # fn main() {
 /// let strategy = MergeStrategy::GeneratedWins;
@@ -306,10 +306,10 @@ impl fmt::Display for MergeStrategy {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+/// use mcpp_core::merge::{ThreeWayMerger, MergeStrategy};
 /// use std::path::Path;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
 ///
 /// let result = merger.merge(
@@ -344,9 +344,9 @@ impl ThreeWayMerger {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+    /// use mcpp_core::merge::{ThreeWayMerger, MergeStrategy};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
     /// // Use merger to merge content
     /// # Ok(())
@@ -376,10 +376,10 @@ impl ThreeWayMerger {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+    /// use mcpp_core::merge::{ThreeWayMerger, MergeStrategy};
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> mcpp_utils::error::Result<()> {
     /// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
     ///
     /// let result = merger.merge(
@@ -455,11 +455,11 @@ impl ThreeWayMerger {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_core::merge::{RegionAwareMerger, MergeStrategy};
-/// use ggen_core::snapshot::FileSnapshot;
+/// use mcpp_core::merge::{RegionAwareMerger, MergeStrategy};
+/// use mcpp_core::snapshot::FileSnapshot;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> mcpp_utils::error::Result<()> {
 /// let merger = RegionAwareMerger::new(MergeStrategy::ManualWins);
 /// let baseline = FileSnapshot::new(
 ///     PathBuf::from("file.rs"),

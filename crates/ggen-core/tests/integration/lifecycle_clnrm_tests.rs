@@ -7,7 +7,7 @@
 //! - Verification of lifecycle behavior in production-like environments
 
 use anyhow::{Context, Result};
-use ggen_core::lifecycle::*;
+use mcpp_core::lifecycle::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -79,7 +79,7 @@ impl ClnrmContainer {
 
     /// Execute a lifecycle phase in the container
     fn run_lifecycle_phase(&self, phase: &str) -> Result<()> {
-        let output = self.exec("ggen", &["lifecycle", "run", phase])?;
+        let output = self.exec("mcpp", &["lifecycle", "run", phase])?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -91,7 +91,7 @@ impl ClnrmContainer {
 
     /// Get path to state file
     fn state_path(&self) -> PathBuf {
-        self.project_path.join(".ggen/state.json")
+        self.project_path.join(".mcpp/state.json")
     }
 
     /// Load lifecycle state from container
@@ -458,7 +458,7 @@ command = "echo 'Testing'"
 "#,
     )?;
 
-    // Create .ggen directory structure
+    // Create .mcpp directory structure
     fs::create_dir_all(container.state_path().parent().unwrap())?;
 
     // Write initial state
@@ -794,10 +794,10 @@ let production = ClnrmContainer::new("production")?;
 
 ## Integration with Lifecycle
 
-These tests demonstrate how ggen's lifecycle system works with
+These tests demonstrate how mcpp's lifecycle system works with
 containerized environments. Key integration points:
 
-1. **State Persistence**: Each container maintains its own .ggen/state.json
+1. **State Persistence**: Each container maintains its own .mcpp/state.json
 2. **Phase Execution**: Phases run with full isolation
 3. **Hook Execution**: Before/after hooks work across container boundaries
 4. **Caching**: Cache keys are container-specific

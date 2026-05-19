@@ -13,8 +13,8 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use ggen_yawl::TemplateRenderer;
-//! use ggen_yawl::template::TemplateContext;
+//! use mcpp_yawl::TemplateRenderer;
+//! use mcpp_yawl::template::TemplateContext;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let renderer = TemplateRenderer::new();
@@ -31,7 +31,7 @@
 //! ```
 
 use crate::{Error, Result};
-use ggen_core::Graph;
+use mcpp_core::Graph;
 use std::path::Path;
 use tera::{Context as TeraContext, Tera};
 
@@ -291,7 +291,7 @@ fn extract_flows(graph: &Graph, query: &str) -> Result<Vec<crate::template::Flow
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_yawl::TemplateRenderer;
+/// use mcpp_yawl::TemplateRenderer;
 ///
 /// let renderer = TemplateRenderer::new();
 /// // Access underlying Tera instance for customization
@@ -322,7 +322,7 @@ impl TemplateRenderer {
     /// # Example
     ///
     /// ```rust
-    /// use ggen_yawl::TemplateRenderer;
+    /// use mcpp_yawl::TemplateRenderer;
     ///
     /// let renderer = TemplateRenderer::new();
     /// assert!(renderer.tera().get_template_names().count() > 0);
@@ -358,7 +358,7 @@ impl TemplateRenderer {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use ggen_yawl::TemplateRenderer;
+    /// use mcpp_yawl::TemplateRenderer;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let renderer = TemplateRenderer::with_template_dir("./my_templates")?;

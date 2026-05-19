@@ -6,7 +6,7 @@ Successfully implemented gate checking and bounded action execution primitives f
 ## Deliverables
 
 ### 1. Core Module: `taiea_gates.erl`
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_gates.erl`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_gates.erl`
 
 #### Three Sequential Gates Implementation
 
@@ -49,7 +49,7 @@ check_all_gates(TenantId, Action, Context) -> {accept, Metadata} | {refuse, Reas
 - Returns complete context for action execution
 
 ### 2. Bounded Action Execution
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_gates.erl`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_gates.erl`
 
 #### Main API
 ```erlang
@@ -78,7 +78,7 @@ execute_bounded_action(Handler, TimeoutMs, MaxMemoryMb, Options)
 7. On error: return {error, Reason}
 
 ### 3. Comprehensive Test Suite
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/test/perf_benchmarks/taiea_gates_SUITE.erl`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/test/perf_benchmarks/taiea_gates_SUITE.erl`
 
 #### Test Coverage: 25 Test Cases
 
@@ -116,7 +116,7 @@ execute_bounded_action(Handler, TimeoutMs, MaxMemoryMb, Options)
 - `integration_multiple_concurrent_gates` - Concurrent gate evaluations
 
 ### 4. Validation Test (Manual)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/test_gates.erl`
+**Location**: `~/.ggen/mcpp/tai-erlang-autonomics/test_gates.erl`
 
 Manual validation script demonstrates all core functionality:
 
@@ -247,10 +247,10 @@ Code coverage: Comprehensive (all gates, all actions, all error paths)
 - **Error Paths**: 5 explicit (refuse + accept variants)
 
 ## Files Modified/Created
-1. ✓ `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_gates.erl` (NEW)
-2. ✓ `/Users/sac/ggen/tai-erlang-autonomics/test/perf_benchmarks/taiea_gates_SUITE.erl` (NEW)
-3. ✓ `/Users/sac/ggen/tai-erlang-autonomics/test_gates.erl` (NEW - manual validation)
-4. ✓ `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_tool_health.erl` (FIXED - compilation errors)
+1. ✓ `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_gates.erl` (NEW)
+2. ✓ `~/.ggen/mcpp/tai-erlang-autonomics/test/perf_benchmarks/taiea_gates_SUITE.erl` (NEW)
+3. ✓ `~/.ggen/mcpp/tai-erlang-autonomics/test_gates.erl` (NEW - manual validation)
+4. ✓ `~/.ggen/mcpp/tai-erlang-autonomics/apps/tai_autonomics/src/taiea_tool_health.erl` (FIXED - compilation errors)
 
 ## Receipt Signature
 ```
