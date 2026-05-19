@@ -1002,3 +1002,6 @@ state/
 
 # Claude Code scheduler lock file
 .claude/scheduled_tasks.lock
+
+# Hook-updated runtime evidence log (auto-modified on every Bash call)
+.claude/.claude/
