@@ -40,6 +40,10 @@
 
 # Configuration Quick Reference
 
+Quick reference cheat sheet for ggen configuration. For comprehensive documentation, see [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md).
+
+**Configuration Priority:** CLI Args > Env Vars > Project Config > User Config > System Config > Defaults
+
 ## Environment Variables Cheat Sheet
 
 ### LLM Providers
@@ -155,29 +159,48 @@ export GGEN_LOG_LEVEL=warn
 
 ---
 
-## Configuration Files (Coming in Phase 2)
-
-### User Config: `~/.config/ggen/config.toml`
-
-```toml
-[llm]
-provider = "ollama"
-
-[llm.providers.ollama]
-base_url = "http://localhost:11434"
-model = "qwen3-coder:30b"
-```
+## Configuration Files
 
 ### Project Config: `./ggen.toml`
 
 ```toml
-[generation]
-temperature = 0.9
-max_tokens = 8000
+[project]
+name = "my-project"
+version = "1.0.0"
+
+[ai]
+provider = "ollama"
+model = "qwen3-coder:30b"
+
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+
+[rdf]
+base_iri = "http://example.org/my-project/"
+default_format = "turtle"
+```
+
+### User Config: `~/.config/ggen/config.toml`
+
+```toml
+[ai]
+provider = "ollama"
+
+[ai.providers.ollama]
+base_url = "http://localhost:11434"
+model = "qwen3-coder:30b"
 
 [logging]
-level = "debug"
+level = "info"
+format = "pretty"
 ```
+
+### System Config: `/etc/ggen/config.toml` (Linux) or `/Library/Application Support/ggen/config.toml` (macOS)
+
+System-wide defaults (requires root/admin access).
+
+See [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) for complete file structure.
 
 ---
 
@@ -324,12 +347,21 @@ alias ggen-test='GGEN_TEST_MODE=1 ggen'
 
 ## Reference Documents
 
-- **Full Analysis:** `/Users/sac/ggen/docs/hardcoded_config_analysis.md`
-- **Migration Plan:** `/Users/sac/ggen/docs/config_migration_plan.md`
-- **Default Config:** `/Users/sac/ggen/config/defaults.toml`
-- **WIP Integration:** `/Users/sac/ggen/config/wip_integration.toml`
+- **[CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md)** - Comprehensive configuration guide
+  - Complete `ggen.toml` reference
+  - All configuration options
+  - Examples and best practices
+  - Troubleshooting guide
+
+- **[config.md](config.md)** - Configuration overview and quick start
+
+- **[config_migration_plan.md](config_migration_plan.md)** - Migration from v1.x to v2.0+
+
+- **[config/defaults.toml](../config/defaults.toml)** - Default configuration values
+
+- **[lifecycle.md](lifecycle.md)** - Lifecycle configuration (`make.toml`)
 
 ---
 
-**Last Updated:** 2025-10-10
-**Version:** 1.0
+**Last Updated:** 2025-01-XX  
+**Version:** 2.0.0

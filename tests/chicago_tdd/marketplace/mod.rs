@@ -7,3 +7,4 @@
 //! - Minimal mocking - only external APIs
 
 mod integration_tests;
+mod search_tests;

@@ -3,380 +3,192 @@
 **Table of Contents**
 
 - [Configuration](#configuration)
-  - [Environment Variables](#environment-variables)
-    - [GGEN_REGISTRY_URL](#ggen_registry_url)
-  - [Project Configuration](#project-configuration)
-    - [ggen.toml](#ggentoml)
-    - [.ggenrc.yaml (Legacy)](#ggenrcyaml-legacy)
-  - [Marketplace Configuration](#marketplace-configuration)
-    - [Registry Settings](#registry-settings)
-    - [Gpack Management](#gpack-management)
-    - [Update Policies](#update-policies)
-  - [Environment Variables](#environment-variables-1)
-    - [Global Settings](#global-settings)
-    - [Marketplace Settings](#marketplace-settings)
-  - [Variable Precedence](#variable-precedence)
-  - [Configuration Examples](#configuration-examples)
-    - [Basic Project](#basic-project)
-    - [Multi-Language Project](#multi-language-project)
-    - [Enterprise Configuration](#enterprise-configuration)
-  - [Configuration Validation](#configuration-validation)
-    - [Validate Configuration](#validate-configuration)
-    - [Configuration Errors](#configuration-errors)
-  - [Best Practices](#best-practices)
-    - [Project Configuration](#project-configuration-1)
-    - [Marketplace Configuration](#marketplace-configuration-1)
-    - [Team Configuration](#team-configuration)
+  - [Quick Reference](#quick-reference)
+  - [Configuration Overview](#configuration-overview)
+  - [Quick Start](#quick-start)
+    - [Project Configuration (`ggen.toml`)](#project-configuration-ggentoml)
+    - [Environment Variables](#environment-variables)
+    - [Lifecycle Configuration (`make.toml`)](#lifecycle-configuration-maketoml)
+  - [Configuration Sources & Precedence](#configuration-sources--precedence)
+  - [Common Configuration Patterns](#common-configuration-patterns)
+  - [Related Documentation](#related-documentation)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Configuration
 
-ggen supports configuration through project files and environment variables, following core team best practices with typed configuration management.
+ggen supports configuration through project files, environment variables, and system/user configuration files. This document provides a quick reference - see [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) for comprehensive documentation.
 
-## Core Team Configuration Pattern
+## Quick Reference
 
-**AppConfig Pattern** (Required for all applications):
-```rust
-use ggen_utils::app_config::AppConfig;
+**Configuration Priority (highest to lowest):**
+1. CLI arguments
+2. Environment variables
+3. Project config (`./ggen.toml`)
+4. User config (`~/.config/ggen/config.toml`)
+5. System config (`/etc/ggen/config.toml`)
+6. Defaults (embedded)
 
-// ✅ GOOD: Typed configuration with validation
-pub struct Database {
-    pub url: String,
-    pub pool_size: usize,
-}
+## Configuration Overview
 
-pub struct AppConfig {
-    pub debug: bool,
-    pub log_level: LogLevel,
-    pub database: Database,
-    pub ai_providers: Vec<AiProvider>,
-}
+ggen uses a hierarchical configuration system that merges settings from multiple sources in a clear precedence order. Configuration can be set via:
 
-impl AppConfig {
-    /// Initialize configuration with validation
-    pub fn init() -> Result<Self> {
-        // Load from file, env vars, and defaults
-        let config = Self::load_from_sources()?;
-        Self::validate(&config)?;
-        Ok(config)
-    }
+- **Project files** (`ggen.toml` in project root)
+- **Lifecycle files** (`make.toml` for lifecycle management)
+- **Environment variables** (for sensitive data and overrides)
+- **System/user config files** (for defaults)
 
-    fn validate(config: &Self) -> Result<()> {
-        if config.database.url.is_empty() {
-            return Err(GgenError::Validation(
-                "Database URL cannot be empty".into()
-            ));
-        }
-        Ok(())
-    }
-}
-```
+## Quick Start
 
-**Environment Variable Integration**:
-```rust
-use ggen_utils::app_config::AppConfig;
+### Project Configuration (`ggen.toml`)
 
-// ✅ GOOD: Structured env var integration
-impl AppConfig {
-    fn load_from_sources() -> Result<Self> {
-        let mut builder = Config::builder();
-
-        // Load default config file
-        builder = builder.add_source(
-            config::File::from_str(include_str!("../config/default.toml"),
-            config::FileFormat::Toml)
-        );
-
-        // Override with env vars (APP_ prefix)
-        builder = builder.add_source(
-            Environment::with_prefix("APP")
-                .prefix_separator("_")
-                .separator("_")
-        );
-
-        let config: Self = builder.build()?.try_deserialize()?;
-        Ok(config)
-    }
-}
-```
-
-## Environment Variables
-
-### GGEN_REGISTRY_URL
-
-Controls the marketplace registry URL used for searching and installing gpacks.
-
-**Default**: [seanchatmangpt.github.io/ggen/registry](https://seanchatmangpt.github.io/ggen/registry/) (GitHub Pages)
-
-**Examples**:
-```bash
-# Use production marketplace (default)
-export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/registry/"
-
-# Use local registry for development/testing
-export GGEN_REGISTRY_URL="file:///path/to/local/registry/"
-
-# Use custom registry
-export GGEN_REGISTRY_URL="https://your-registry.com/"
-
-# Use GitHub raw URLs (legacy)
-export GGEN_REGISTRY_URL="https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/"
-```
-
-**Local Development Setup**:
-```bash
-# Clone the repository
-git clone https://github.com/seanchatmangpt/ggen.git
-cd ggen
-
-# Use local registry
-export GGEN_REGISTRY_URL="file://$(pwd)/docs/registry/"
-
-# Test marketplace functionality
-ggen search rust
-ggen add io.ggen.rust.cli-subcommand
-```
-
-## Project Configuration
-
-### ggen.toml
+Create a `ggen.toml` file in your project root:
 
 ```toml
 [project]
 name = "my-project"
-version = "0.1.0"
-description = "My ggen project"
+version = "1.0.0"
 
-[vars]
-# Default variables available to all templates
-author = "John Doe"
-license = "MIT"
-year = "2024"
+[templates]
+source_dir = "templates"
+output_dir = "generated"
 
-[graph]
-# RDF graph configuration
-allow_remote = false  # Require explicit opt-in for remote RDF
-base = "http://example.org/"
-prefixes.ex = "http://example.org/"
+[ai]
+provider = "ollama"
+model = "qwen3-coder:30b"
 
-[paths]
-# Override default folder paths
-templates = "templates/"
-output = "generated/"
-cache = ".ggen/"
-
-[determinism]
-# Determinism configuration
-sort = "name"  # Default matrix sort key
-seed = "project"  # Default seed for reproducibility
+[rdf]
+base_iri = "http://example.org/my-project/"
+default_format = "turtle"
 ```
 
-### .ggenrc.yaml (Legacy)
+### Environment Variables
 
-```yaml
-vars:
-  author: "John Doe"
-  license: "MIT"
-  year: "2024"
-
-graph:
-  allow_remote: false
-  base: "http://example.org/"
-  prefixes:
-    ex: "http://example.org/"
-
-paths:
-  templates: "templates/"
-  output: "generated/"
-  cache: ".ggen/"
-
-determinism:
-  sort: "name"
-  seed: "project"
-```
-
-## Marketplace Configuration
-
-### Registry Settings
-
-```toml
-[registry]
-# Registry URL (default: https://registry.ggen.io)
-url = "https://registry.ggen.io"
-
-# Authentication token for private registries
-token = "your-token-here"
-
-# Cache settings
-cache_dir = ".ggen/cache"
-cache_ttl = "1h"
-```
-
-### Gpack Management
-
-```toml
-[gpacks]
-# Default gpack installation directory
-install_dir = ".ggen/gpacks/"
-
-# Update policy
-update_policy = "compatible"  # compatible, latest, pinned
-
-# Dependency resolution
-resolve_deps = true
-lock_versions = true
-```
-
-### Update Policies
-
-- **compatible**: Update to latest compatible versions (^)
-- **latest**: Update to latest versions regardless of compatibility
-- **pinned**: Never update automatically, require manual updates
-
-## Environment Variables
-
-### Global Settings
+Set sensitive values via environment variables:
 
 ```bash
-# Override configuration file location
-export GGEN_CONFIG_FILE="custom.toml"
+# LLM Provider (Ollama)
+export OLLAMA_BASE_URL=http://localhost:11434
+export OLLAMA_MODEL=qwen3-coder:30b
 
-# Override cache directory
-export GGEN_CACHE_DIR="/tmp/ggen-cache"
+# LLM Provider (OpenAI)
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4
 
-# Enable debug output
-export GGEN_DEBUG=1
+# Registry
+export GGEN_REGISTRY_URL=https://seanchatmangpt.github.io/ggen/registry/
 
-# Enable trace output
-export GGEN_TRACE=1
+# Logging
+export GGEN_LOG_LEVEL=info
 ```
 
-### Marketplace Settings
+### Lifecycle Configuration (`make.toml`)
 
-```bash
-# Registry authentication
-export GGEN_REGISTRY_TOKEN="your-token"
+Configure lifecycle phases in `make.toml`:
 
-# Custom registry URL
-export GGEN_REGISTRY_URL="https://custom-registry.com"
+```toml
+[lifecycle]
+name = "my-project"
+version = "1.0.0"
 
-# Disable automatic updates
-export GGEN_NO_UPDATE=1
+[phases.build]
+description = "Build release"
+commands = ["cargo build --release --all-features"]
+
+[phases.test]
+description = "Run tests"
+commands = ["cargo test --all-features"]
 ```
 
-## Variable Precedence
+## Configuration Sources & Precedence
 
-Variables are resolved in this order (later values override earlier):
+Configuration is loaded in this order (later sources override earlier):
 
-1. **Environment variables** (from `.env` files)
-2. **System environment** (`$HOME`, `$USER`, etc.)
-3. **Project configuration** (`ggen.toml` `[vars]` section)
-4. **Gpack variables** (from gpack `ggen.toml`)
-5. **Template frontmatter** (`vars:` section)
-6. **CLI arguments** (`--var key=value`)
+1. **System defaults** (embedded in binary)
+2. **System config** (`/etc/ggen/config.toml` on Linux, `/Library/Application Support/ggen/config.toml` on macOS)
+3. **User config** (`~/.config/ggen/config.toml`)
+4. **Project config** (`./ggen.toml`)
+5. **Environment variables** (e.g., `GGEN_LLM_PROVIDER`, `OLLAMA_MODEL`)
+6. **CLI arguments** (highest precedence)
 
-## Configuration Examples
+## Common Configuration Patterns
 
 ### Basic Project
 
 ```toml
-# ggen.toml
 [project]
 name = "my-cli-tool"
 version = "0.1.0"
 
-[vars]
-author = "Jane Smith"
-license = "MIT"
-description = "A CLI tool generated with ggen"
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+```
+
+### AI-Powered Project
+
+```toml
+[project]
+name = "ai-service"
+
+[ai]
+provider = "ollama"
+model = "qwen3-coder:30b"
+temperature = 0.7
 ```
 
 ### Multi-Language Project
 
 ```toml
-# ggen.toml
 [project]
 name = "multi-lang-api"
-version = "0.1.0"
 
-[vars]
-author = "Team Name"
-license = "Apache-2.0"
-description = "Multi-language API"
+[templates]
+source_dir = "templates"
+output_dir = "generated"
 
-[graph]
-base = "http://api.example.org/"
-prefixes.api = "http://api.example.org/"
+[templates.rust]
+variables = { language = "rust", framework = "axum" }
 
-[gpacks]
-update_policy = "compatible"
+[templates.typescript]
+variables = { language = "typescript", framework = "express" }
 ```
 
 ### Enterprise Configuration
 
 ```toml
-# ggen.toml
 [project]
 name = "enterprise-tool"
-version = "1.0.0"
 
 [registry]
 url = "https://internal-registry.company.com"
-token = "${GGEN_REGISTRY_TOKEN}"
+# Token via GGEN_REGISTRY_TOKEN env var
 
-[gpacks]
-update_policy = "pinned"
-resolve_deps = true
-lock_versions = true
-
-[graph]
-allow_remote = false  # Security: no remote RDF
+[security]
+validate_paths = true
+block_shell_injection = true
+audit_operations = true
 ```
 
-## Configuration Validation
+See [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) for complete examples and detailed documentation.
 
-### Validate Configuration
+## Related Documentation
 
-```bash
-# Validate project configuration
-ggen config validate
+- **[CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md)** - Comprehensive configuration documentation
+  - Complete `ggen.toml` reference
+  - All environment variables
+  - `make.toml` lifecycle configuration
+  - Security best practices
+  - Troubleshooting guide
 
-# Check configuration syntax
-ggen config check
+- **[config_quick_reference.md](config_quick_reference.md)** - Quick reference cheat sheet
 
-# Show effective configuration
-ggen config show
-```
+- **[config_migration_plan.md](config_migration_plan.md)** - Migration guide from v1.x to v2.0+
 
-### Configuration Errors
+- **[lifecycle.md](lifecycle.md)** - Lifecycle configuration (`make.toml`)
 
-Common configuration issues:
+- **[templates.md](templates.md)** - Template configuration
 
-- **Invalid TOML syntax**: Check brackets and quotes
-- **Missing required fields**: Ensure project name and version
-- **Invalid registry URL**: Verify registry accessibility
-- **Permission issues**: Check file and directory permissions
+- **[ai-guide.md](ai-guide.md)** - AI provider setup and configuration
 
-## Best Practices
-
-### Project Configuration
-
-1. **Use semantic versioning**: Follow semver for project versions
-2. **Document variables**: Include descriptions for custom variables
-3. **Version control**: Commit configuration files to version control
-4. **Environment separation**: Use different configs for dev/prod
-
-### Marketplace Configuration
-
-1. **Pin versions**: Use specific versions for production
-2. **Update policies**: Choose appropriate update strategy
-3. **Security**: Use tokens for private registries
-4. **Caching**: Configure appropriate cache settings
-
-### Team Configuration
-
-1. **Shared configs**: Use team-wide configuration templates
-2. **Documentation**: Document custom configuration options
-3. **Validation**: Validate configuration in CI/CD
-4. **Consistency**: Ensure consistent configuration across environments
+- **[marketplace.md](marketplace.md)** - Marketplace and registry configuration
