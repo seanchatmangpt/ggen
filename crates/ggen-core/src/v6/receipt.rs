@@ -21,8 +21,8 @@
 //! - Files generated per pack
 
 use crate::v6::{Epoch, PassExecution};
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use crate::marketplace::trust::TrustTier;
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -549,7 +549,7 @@ impl OutputFile {
 /// ```rust,no_run
 /// use ggen_core::v6::{epoch::Epoch, receipt::generate_receipt};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let epoch = Epoch::create(&std::path::Path::new("."), &vec![])?;
 /// let receipt = generate_receipt(&epoch, std::path::Path::new("."), "6.0.0")?;
 /// println!("Generated receipt: {}", receipt.id);
@@ -579,7 +579,7 @@ pub fn generate_receipt(
 /// ```rust,no_run
 /// use ggen_core::v6::receipt::{generate_receipt, save_receipt};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// # let epoch = unimplemented!();
 /// let receipt = generate_receipt(&epoch, std::path::Path::new("."), "6.0.0")?;
 /// let path = save_receipt(&receipt, std::path::Path::new("."))?;
@@ -610,7 +610,7 @@ pub fn save_receipt(receipt: &BuildReceipt, project_root: &Path) -> Result<PathB
 /// ```rust,no_run
 /// use ggen_core::v6::receipt::verify_receipt;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// # let receipt = unimplemented!();
 /// # let epoch = unimplemented!();
 /// let is_valid = verify_receipt(&receipt, std::path::Path::new("."), &epoch)?;

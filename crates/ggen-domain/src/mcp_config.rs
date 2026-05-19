@@ -9,7 +9,7 @@
 //! - Configuration validation with helpful error messages
 //! - Environment variable support (GGEN_MCP_*, GGEN_A2A_*)
 
-use ggen_utils::error::Error as GgenError;
+use ggen_core::utils::error::Error as GgenError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;

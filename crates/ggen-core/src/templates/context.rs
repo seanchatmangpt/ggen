@@ -48,7 +48,7 @@
 //! assert!(project.is_object());
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use tera::Context;
@@ -116,7 +116,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut vars = BTreeMap::new();
     /// vars.insert("service_name".to_string(), "my-service".to_string());
     /// vars.insert("port".to_string(), "8080".to_string());
@@ -158,7 +158,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     ///
     /// // Set string value
@@ -198,7 +198,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -233,7 +233,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -270,7 +270,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -298,7 +298,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx1 = TemplateContext::new();
     /// ctx1.set("name", json!("App1"))?;
     ///
@@ -338,7 +338,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -379,7 +379,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -423,7 +423,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -440,7 +440,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -458,7 +458,7 @@ impl TemplateContext {
             .collect();
 
         if !missing.is_empty() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(crate::utils::error::Error::new(&format!(
                 "Missing required template variables: {}",
                 missing
                     .iter()
@@ -487,7 +487,7 @@ impl TemplateContext {
     /// use serde_json::json;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?; // Existing value
     ///
@@ -539,7 +539,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("World"))?;
     /// ctx.set("count", json!(42))?;

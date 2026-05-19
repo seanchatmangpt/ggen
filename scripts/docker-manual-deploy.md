@@ -43,7 +43,7 @@ docker login
 
 ### Step 2: Build the Image
 ```bash
-cd /Users/sac/ggen
+cd .
 
 # Using prebuilt binary (fast - ~30 seconds)
 docker build \

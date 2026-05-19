@@ -18,7 +18,7 @@ This directory contains a comprehensive demonstration of the **<60 second concep
 
 ### 1. Interactive Demo (Recommended)
 ```bash
-cd /Users/sac/ggen/examples
+cd ./examples
 ./ultra-deploy-demo.sh
 ```
 
@@ -373,10 +373,10 @@ chmod +x *.sh
 
 ## Related Documentation
 
-- **Ggen CLI:** `/Users/sac/ggen/docs/cli.md`
-- **Cleanroom Testing:** `/Users/sac/ggen/cleanroom/README.md`
-- **Template System:** `/Users/sac/ggen/docs/marketplace.md`
-- **Development Workflow:** `/Users/sac/ggen/docs/development-workflow.md`
+- **Ggen CLI:** `./docs/cli.md`
+- **Cleanroom Testing:** `./cleanroom/README.md`
+- **Template System:** `./docs/marketplace.md`
+- **Development Workflow:** `./docs/development-workflow.md`
 - **Detailed Demo Docs:** `ULTRA_DEPLOY_DEMO.md`
 
 ## Support

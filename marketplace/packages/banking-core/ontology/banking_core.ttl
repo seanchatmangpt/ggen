@@ -1,4 +1,4 @@
-@prefix bank: <http://ggen.dev/ontology/banking-core#> .
+@prefix bank: <http://mcpp.dev/ontology/banking-core#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -9,7 +9,7 @@
 bank:BankingCoreOntology a owl:Ontology ;
     dc:title "Banking Core System Ontology" ;
     dc:description "Comprehensive ontology for core banking systems" ;
-    dc:creator "ggen Marketplace" ;
+    dc:creator "mcpp Marketplace" ;
     dc:date "2025-11-08" ;
     owl:versionInfo "1.0.0" .
 

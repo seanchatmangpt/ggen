@@ -1,6 +1,6 @@
 //! Template creation domain logic
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -104,12 +104,12 @@ pub fn execute_new(input: NewInput) -> Result<NewOutput> {
 
     // Create output directory if it doesn't exist
     std::fs::create_dir_all(&input.output_dir).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to create output directory: {}", e))
     })?;
 
     // Write template file
     std::fs::write(&output_path, content)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
 
     // Return output
     Ok(NewOutput {
@@ -123,12 +123,12 @@ pub fn execute_new(input: NewInput) -> Result<NewOutput> {
 pub fn run(args: &NewInput) -> Result<()> {
     let output = execute_new(args.clone())?;
 
-    ggen_utils::alert_success!(
+    ggen_core::utils::alert_success!(
         "Created new {} template: {}",
         output.template_type,
         output.template_path
     );
-    ggen_utils::alert_info!("📝 Template name: {}", output.template_name);
+    ggen_core::utils::alert_info!("📝 Template name: {}", output.template_name);
 
     Ok(())
 }

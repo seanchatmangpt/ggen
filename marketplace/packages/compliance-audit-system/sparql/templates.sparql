@@ -1,7 +1,7 @@
 # SPARQL Templates for Compliance & Audit System
 # 15+ essential queries for compliance operations
 
-PREFIX cas: <http://ggen.ai/ontology/compliance-audit-system#>
+PREFIX cas: <http://mcpp.ai/ontology/compliance-audit-system#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -133,7 +133,7 @@ WHERE {
         ?evidence cas:partOfChain ?chain .
     }
 
-    FILTER(?event = <http://ggen.ai/audit/{{EVENT_ID}}>)
+    FILTER(?event = <http://mcpp.ai/audit/{{EVENT_ID}}>)
 }
 ORDER BY ?collectedAt
 

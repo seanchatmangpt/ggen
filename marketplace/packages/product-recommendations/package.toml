@@ -1,12 +1,12 @@
 [package]
 name = "product-recommendations"
-full_name = "ggen/product-recommendations"
+full_name = "mcpp/product-recommendations"
 version = "1.0.0"
 description = "AI-powered product recommendation engine with collaborative filtering, content-based filtering, A/B testing, real-time personalization, and ML model training"
 category = "ecommerce"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/product-recommendations"
 license = "MIT"
 dependencies = []

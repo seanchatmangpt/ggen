@@ -230,7 +230,7 @@ Trigger: Completion of prior phase
 
 ## File Locations
 
-All files stored in: `/Users/sac/ggen/tai-erlang-autonomics/execution/`
+All files stored in: `./tai-erlang-autonomics/execution/`
 
 ```
 /execution/

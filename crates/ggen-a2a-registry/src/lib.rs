@@ -7,7 +7,7 @@
 //! # Quick start
 //!
 //! ```no_run
-//! use ggen_a2a_registry::{AgentRegistry, MemoryStore, AgentEntry, HealthStatus};
+//! use ggen_core::a2a_registry::{AgentRegistry, MemoryStore, AgentEntry, HealthStatus};
 //! use std::sync::Arc;
 //!
 //! #[tokio::main]

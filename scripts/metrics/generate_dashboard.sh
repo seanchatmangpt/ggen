@@ -5,7 +5,7 @@
 set -euo pipefail
 
 METRICS_FILE="${1:-}"
-OUTPUT_DIR="/Users/sac/ggen/docs/metrics"
+OUTPUT_DIR="./docs/metrics"
 DATE=$(date +%Y-%m-%d)
 OUTPUT_FILE="$OUTPUT_DIR/dashboard-$DATE.html"
 

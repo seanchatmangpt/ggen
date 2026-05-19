@@ -3,7 +3,7 @@
 //! This module defines zero-cost abstractions for lockfile operations,
 //! using Rust's type system to encode invariants at compile time.
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::Path;
 

@@ -3,7 +3,7 @@
 //! This module defines error types specific to the domain layer,
 //! including A2A-RS integration errors and other domain-specific failures.
 
-use ggen_utils::error::Error;
+use ggen_core::utils::error::Error;
 use thiserror::Error;
 
 /// A2A-RS integration errors

@@ -1,5 +1,5 @@
 [package]
-name = "ggen-ontology-core"
+name = "mcpp-ontology-core"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core ontology handling layer with RDF/TTL support, SPARQL querying, and entity mapping"
@@ -15,7 +15,7 @@ multiple_crate_versions = "allow"
 
 [dependencies]
 # Workspace dependencies
-ggen-utils.workspace = true
+mcpp-utils.workspace = true
 tokio.workspace = true
 serde = { workspace = true }
 serde_json.workspace = true

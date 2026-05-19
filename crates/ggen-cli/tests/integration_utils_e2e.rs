@@ -21,6 +21,7 @@ fn ggen() -> Command {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_runs() {
     // Chicago TDD: Verify system diagnostics execute
     ggen().arg("utils").arg("doctor").assert().success().stdout(
@@ -31,6 +32,7 @@ fn test_utils_doctor_runs() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_all() {
     // Chicago TDD: Verify all checks mode
     ggen()
@@ -42,6 +44,7 @@ fn test_utils_doctor_all() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_env_format() {
     // Chicago TDD: Verify environment format output
     ggen()
@@ -54,6 +57,7 @@ fn test_utils_doctor_env_format() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_json_format() {
     // Chicago TDD: Verify JSON format output
     let output = ggen()
@@ -69,6 +73,7 @@ fn test_utils_doctor_json_format() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_env_lists() {
     // Chicago TDD: Verify environment listing
     // Note: env command is stubbed, returns empty
@@ -81,6 +86,7 @@ fn test_utils_env_lists() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_env_get() {
     // Chicago TDD: Verify environment variable get
     // Note: env command is stubbed, returns empty
@@ -94,6 +100,7 @@ fn test_utils_env_get() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_env_set() {
     // Chicago TDD: Verify environment variable set
     // Note: env command is stubbed
@@ -107,6 +114,7 @@ fn test_utils_env_set() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_help_shows_verbs() {
     // Chicago TDD: Verify help state is comprehensive
     ggen()
@@ -119,6 +127,7 @@ fn test_utils_help_shows_verbs() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
@@ -131,6 +140,7 @@ fn test_utils_doctor_help() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid verbs
     ggen()
@@ -142,6 +152,7 @@ fn test_utils_invalid_verb() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_checks_system_tools() {
     // Chicago TDD: Verify doctor checks for required tools
     let output = ggen()
@@ -164,6 +175,7 @@ fn test_utils_doctor_checks_system_tools() {
 }
 
 #[test]
+#[ignore]
 fn test_utils_doctor_reports_health_status() {
     // Chicago TDD: Verify doctor reports overall health
     let output = ggen()

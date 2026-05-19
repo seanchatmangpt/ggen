@@ -17,7 +17,7 @@ use std::path::Path;
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ontology_core::validators::validate_rdf_xml;
+/// use ggen_core::ontology_core::validators::validate_rdf_xml;
 ///
 /// let report = validate_rdf_xml("ontology.rdf")?;
 /// if report.is_valid {
@@ -46,7 +46,7 @@ pub fn validate_rdf_xml<P: AsRef<Path>>(path: P) -> Result<ValidationReport> {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ontology_core::validators::validate_turtle;
+/// use ggen_core::ontology_core::validators::validate_turtle;
 ///
 /// let report = validate_turtle("ontology.ttl")?;
 /// if !report.is_valid {
@@ -74,7 +74,7 @@ pub fn validate_turtle<P: AsRef<Path>>(path: P) -> Result<ValidationReport> {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ontology_core::validators::validate_sparql_query;
+/// use ggen_core::ontology_core::validators::validate_sparql_query;
 ///
 /// let query = "SELECT ?s WHERE { ?s ?p ?o }";
 /// validate_sparql_query(query)?;
@@ -117,7 +117,7 @@ pub fn validate_sparql_query(query: &str) -> Result<()> {
 /// # Examples
 ///
 /// ```rust,no_run
-/// use ggen_ontology_core::validators::validate_ontology;
+/// use ggen_core::ontology_core::validators::validate_ontology;
 ///
 /// let report = validate_ontology("ontology.ttl", "ttl")?;
 /// if report.is_valid {

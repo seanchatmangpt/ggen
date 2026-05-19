@@ -1,6 +1,6 @@
 # Cryptocurrency Exchange SPARQL Templates
 
-PREFIX crypto: <http://ggen.dev/ontology/cryptocurrency-exchange#>
+PREFIX crypto: <http://mcpp.dev/ontology/cryptocurrency-exchange#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>

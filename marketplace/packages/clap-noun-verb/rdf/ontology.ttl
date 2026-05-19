@@ -1,4 +1,4 @@
-@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix cnv: <https://mcpp.dev/clap-noun-verb/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -9,7 +9,7 @@
 # =============================================================================
 # Complete RDF vocabulary for defining CLI projects using noun-verb patterns.
 #
-# Namespace: https://ggen.dev/clap-noun-verb/
+# Namespace: https://mcpp.dev/clap-noun-verb/
 #
 # This ontology enables specification of command-line interfaces where:
 # - Nouns represent domain resources (task, file, user, etc.)
@@ -291,14 +291,14 @@ cnv:generation-skip a owl:AnnotationProperty ;
 # ONTOLOGY METADATA
 # =============================================================================
 
-<https://ggen.dev/clap-noun-verb/> a owl:Ontology ;
+<https://mcpp.dev/clap-noun-verb/> a owl:Ontology ;
     owl:versionInfo "1.0.0" ;
     dcterms:title "Clap Noun-Verb CLI Generator Ontology" ;
     dcterms:description "RDF vocabulary for specifying command-line interfaces with noun-verb command patterns" ;
-    dcterms:creator "ggen project" ;
+    dcterms:creator "mcpp project" ;
     dcterms:created "2025-01-06"^^xsd:date ;
     dcterms:license "MIT" ;
-    rdfs:seeAlso <https://github.com/seanchatmangpt/ggen> .
+    rdfs:seeAlso <https://github.com/seanchatmangpt/mcpp> .
 
 # =============================================================================
 # EXAMPLES AND DOCUMENTATION

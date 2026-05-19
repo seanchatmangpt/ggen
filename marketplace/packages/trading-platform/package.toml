@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Trading Platform - RDF ontology for order books, matching engine, and market data"
 category = "finance"
 tags = ["trading", "orderbook", "fix-protocol", "market-data", "rdf", "sparql"]
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 
 [ontology]

@@ -1,11 +1,11 @@
 # Advanced Rust Project Configuration
-# Demonstrates all ggen configuration features
+# Demonstrates all mcpp configuration features
 
 [project]
 name = "advanced-rust-project"
 version = "1.0.0"
-description = "Advanced Rust project demonstrating all ggen features"
-author = "ggen-examples"
+description = "Advanced Rust project demonstrating all mcpp features"
+author = "mcpp-examples"
 license = "MIT"
 repository = "https://github.com/example/advanced-rust-project"
 
@@ -60,14 +60,14 @@ backup_before_write = true
 level = "info"
 format = "json"
 output = "file"
-file_path = ".ggen/logs/ggen.log"
+file_path = ".mcpp/logs/mcpp.log"
 max_file_size = "10MB"
 max_files = 5
 
 # Performance configuration
 [performance]
 enable_profiling = false
-profile_output = ".ggen/profiles/"
+profile_output = ".mcpp/profiles/"
 memory_limit_mb = 512
 cpu_limit_percent = 80
 

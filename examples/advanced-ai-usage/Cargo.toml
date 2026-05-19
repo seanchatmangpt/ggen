@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 # Main ggen dependencies
-ggen-ai = { path = "../../ggen-ai" }
-ggen-core = { path = "../../ggen-core" }
+mcpp-ai = { path = "../../mcpp-ai" }
+mcpp-core = { path = "../../mcpp-core" }
 
 # Async runtime
 tokio = { version = "1", features = ["full"] }

@@ -5,7 +5,7 @@
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix schema: <http://schema.org/> .
-@prefix lr: <http://ggen.io/ontology/loyalty-rewards#> .
+@prefix lr: <http://mcpp.io/ontology/loyalty-rewards#> .
 
 # ============================================================================
 # Customer Loyalty & Rewards Ontology

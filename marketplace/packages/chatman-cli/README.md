@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/chatman-cli.svg)](https://crates.io/crates/chatman-cli)
 [![Documentation](https://docs.rs/chatman-cli/badge.svg)](https://docs.rs/chatman-cli)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/seanchatmangpt/ggen/ci.yml?branch=master)](https://github.com/seanchatmangpt/ggen/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/seanchatmangpt/mcpp/ci.yml?branch=master)](https://github.com/seanchatmangpt/mcpp/actions)
 
 > **Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management.**
 
@@ -49,17 +49,17 @@ ChatMan CLI brings AI-powered conversational interfaces to your command-line app
 cargo install chatman-cli
 ```
 
-### From ggen marketplace
+### From mcpp marketplace
 
 ```bash
-ggen market install chatman-cli
+mcpp market install chatman-cli
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/seanchatmangpt/ggen
-cd ggen/marketplace/packages/chatman-cli
+git clone https://github.com/seanchatmangpt/mcpp
+cd mcpp/marketplace/packages/chatman-cli
 cargo install --path .
 ```
 
@@ -166,4 +166,4 @@ at your option.
 
 ## Acknowledgments
 
-Built on the [ggen](https://github.com/seanchatmangpt/ggen) framework.
+Built on the [mcpp](https://github.com/seanchatmangpt/mcpp) framework.

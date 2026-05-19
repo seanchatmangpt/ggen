@@ -192,7 +192,7 @@ Create templates in `templates/` directory:
 ### Step 3: Validate Configuration
 
 ```bash
-cd /Users/sac/ggen/specs/012-grand-unified-kgc-thesis
+cd ./specs/012-grand-unified-kgc-thesis
 cargo make check  # Verify ggen.toml syntax
 ```
 
@@ -324,8 +324,8 @@ Generate non-English theses:
 
 ## Navigation
 
-- **Project Root**: `/Users/sac/ggen`
-- **Spec Directory**: `/Users/sac/ggen/specs/012-grand-unified-kgc-thesis`
+- **Project Root**: `.`
+- **Spec Directory**: `./specs/012-grand-unified-kgc-thesis`
 - **Schema**: `ontology/thesis-schema.ttl`
 - **Content**: `ontology/kgc-unified-content.ttl` (create this)
 - **Templates**: `templates/*.hbs` (create these)

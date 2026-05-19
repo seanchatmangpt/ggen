@@ -1,4 +1,4 @@
-PREFIX iam: <https://ggen.ai/ontology/iam#>
+PREFIX iam: <https://mcpp.ai/ontology/iam#>
 SELECT ?user ?sessionId ?expiresAt WHERE {
   ?user iam:hasSession ?session .
   ?session iam:sessionId ?sessionId ;

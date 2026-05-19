@@ -1,4 +1,4 @@
-PREFIX dwh: <https://ggen.ai/ontology/data-warehouse#>
+PREFIX dwh: <https://mcpp.ai/ontology/data-warehouse#>
 SELECT ?table ?completeness ?accuracy WHERE {
   ?table dwh:hasQualityRule ?rule .
   ?metric a dwh:QualityMetric ;

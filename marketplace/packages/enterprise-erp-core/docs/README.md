@@ -20,19 +20,19 @@ Comprehensive accounting and financial management system with double-entry bookk
 ### 1. Install Package
 
 ```bash
-ggen marketplace install enterprise-erp-core
+mcpp marketplace install enterprise-erp-core
 ```
 
 ### 2. Generate Project
 
 ```bash
-ggen new my-erp --template enterprise-erp-core
+mcpp new my-erp --template enterprise-erp-core
 ```
 
 ### 3. Load RDF Ontology
 
 ```rust
-use ggen::rdf::load_ontology;
+use mcpp::rdf::load_ontology;
 
 let ontology = load_ontology("ontology/erp.ttl")?;
 ```

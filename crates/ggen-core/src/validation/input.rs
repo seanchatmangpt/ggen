@@ -38,7 +38,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result as GgenResult};
+use crate::utils::error::{Error, Result as GgenResult};
 use regex::Regex;
 use std::fmt;
 use std::path::{Path, PathBuf};

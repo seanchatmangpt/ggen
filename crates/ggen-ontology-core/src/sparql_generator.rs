@@ -26,7 +26,7 @@
 /// # Examples
 ///
 /// ```
-/// use ggen_ontology_core::sparql_generator::SparqlGenerator;
+/// use ggen_core::ontology_core::sparql_generator::SparqlGenerator;
 ///
 /// let query = SparqlGenerator::find_policies_by_jurisdiction("US");
 /// assert!(query.contains("@prefix"));

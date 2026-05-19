@@ -20,7 +20,7 @@ search = ["Full-text search capabilities"]
 
 [ontology]
 file = "ontology/document_management.ttl"
-namespace = "https://ggen.ai/ontology/document-management#"
+namespace = "https://mcpp.ai/ontology/document-management#"
 
 [queries]
 directory = "queries/"

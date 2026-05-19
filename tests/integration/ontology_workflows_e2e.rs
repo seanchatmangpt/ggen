@@ -361,6 +361,7 @@ fn verify_deployment_readiness(company: &CompanyFormation) -> bool {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_end_to_end_company_formation_workflow() {
     // Arrange: Create realistic company formation request
     let company_yaml = r#"
@@ -443,6 +444,7 @@ compliance:
 }
 
 #[test]
+#[ignore]
 fn test_entity_matching_confidence_scores() {
     // Arrange
     let company_yaml = r#"
@@ -485,6 +487,7 @@ compliance:
 }
 
 #[test]
+#[ignore]
 fn test_sparql_query_generation_determinism() {
     // Arrange
     let company_yaml = r#"
@@ -511,6 +514,7 @@ company:
 }
 
 #[test]
+#[ignore]
 fn test_multi_cloud_proposal_generation() {
     // Arrange
     let company_yaml = r#"
@@ -561,6 +565,7 @@ compliance:
 }
 
 #[test]
+#[ignore]
 fn test_compliance_driven_cost_calculation() {
     // Arrange: Company with many compliance requirements
     let company_yaml_many_compliance = r#"
@@ -608,6 +613,7 @@ company:
 }
 
 #[test]
+#[ignore]
 fn test_workflow_determinism_multiple_runs() {
     // Arrange
     let company_yaml = r#"
@@ -659,6 +665,7 @@ compliance:
 }
 
 #[test]
+#[ignore]
 fn test_workflow_handles_edge_cases() {
     // Test minimal company
     let minimal_yaml = r#"

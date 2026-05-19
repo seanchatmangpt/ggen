@@ -40,7 +40,7 @@ if interactions.is_empty() {
 ### Submit Insurance Claim
 
 ```typescript
-import { PharmacySystem } from '@ggen/pharmacy-management';
+import { PharmacySystem } from '@mcpp/pharmacy-management';
 
 const pharmacy = new PharmacySystem();
 const claim = pharmacy.submitClaim({

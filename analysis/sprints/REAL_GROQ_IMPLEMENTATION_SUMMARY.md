@@ -90,7 +90,7 @@ llm.complete{operation.name="llm.complete" operation.type="llm" llm.model=groq::
   completion_tokens=1024
   total_tokens=1145
 
-ggen.mcp.tool_call{...}: validate_pipeline tool called project_path=/Users/sac/ggen
+ggen.mcp.tool_call{...}: validate_pipeline tool called project_path=.
 ggen.mcp.tool_call{...}: list_generators tool called
 
 ✓ LLM called successfully (real API call, 1145 tokens total)

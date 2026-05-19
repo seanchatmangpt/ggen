@@ -2,14 +2,14 @@
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
-@prefix java26: <http://ggen.io/java26#> .
-@prefix pl:     <https://ggen.dev/pattern-language#> .
-@prefix j26:    <https://ggen.dev/java26-patterns#> .
+@prefix java26: <http://mcpp.io/java26#> .
+@prefix pl:     <https://mcpp.dev/pattern-language#> .
+@prefix j26:    <https://mcpp.dev/java26-patterns#> .
 
 # =============================================================================
 # JAVA 26 PATTERN LANGUAGE VOCABULARY
 # =============================================================================
-# OWL vocabulary for ggen Java 26 code generation patterns.
+# OWL vocabulary for mcpp Java 26 code generation patterns.
 # Formula: A = μ(O) — Java 26 code precipitates from RDF ontology instances.
 #
 # Covers: sealed interfaces/records, virtual threads (Project Loom),
@@ -17,16 +17,16 @@
 #         structured task scopes, aggregate roots, value objects.
 # =============================================================================
 
-<http://ggen.io/java26#> a owl:Ontology ;
+<http://mcpp.io/java26#> a owl:Ontology ;
     owl:versionInfo "1.0.0" ;
     rdfs:label "Java 26 Pattern Language Vocabulary" ;
-    rdfs:comment "OWL vocabulary for ggen Java 26 code generation patterns" .
+    rdfs:comment "OWL vocabulary for mcpp Java 26 code generation patterns" .
 
 # =============================================================================
 # SECTION 1: CORE JAVA TYPE CLASSES
 # =============================================================================
 # Each class below corresponds to a named Java 26 construction target.
-# Instances of these classes in a user's .ttl spec drive ggen sync to emit
+# Instances of these classes in a user's .ttl spec drive mcpp sync to emit
 # the correct Java source files, annotations, and structural idioms.
 # =============================================================================
 
@@ -130,7 +130,7 @@ java26:implements a rdf:Property ;
 
 java26:permits a rdf:Property ;
     rdfs:label "permits" ;
-    rdfs:comment "Explicitly enumerates the permitted subtypes of a SealedInterface. Generates the 'permits TypeA, TypeB' clause. If omitted, ggen derives it by inverting java26:implements." ;
+    rdfs:comment "Explicitly enumerates the permitted subtypes of a SealedInterface. Generates the 'permits TypeA, TypeB' clause. If omitted, mcpp derives it by inverting java26:implements." ;
     rdfs:domain java26:SealedInterface ;
     rdfs:range java26:SealedRecord .
 
@@ -138,7 +138,7 @@ java26:permits a rdf:Property ;
 
 java26:dataAccess a rdf:Property ;
     rdfs:label "dataAccess" ;
-    rdfs:comment "Selects the data access strategy for an AggregateRoot: java26:VirtualThreadDAO (Project Loom JDBC) or java26:SpringDataJPA (JpaRepository). Controls which infrastructure layer ggen generates." ;
+    rdfs:comment "Selects the data access strategy for an AggregateRoot: java26:VirtualThreadDAO (Project Loom JDBC) or java26:SpringDataJPA (JpaRepository). Controls which infrastructure layer mcpp generates." ;
     rdfs:domain java26:AggregateRoot ;
     rdfs:range java26:DataAccess .
 
@@ -180,8 +180,8 @@ java26:column a rdf:Property ;
 # SECTION 5: PATTERN BOOK EXTENSION PROPERTIES (j26: namespace)
 # =============================================================================
 # These properties extend pl:Pattern instances from the pattern-language
-# ontology with Java 26-specific metadata used by the ggen book renderer
-# and the ggen sync pipeline for generating recipe documentation.
+# ontology with Java 26-specific metadata used by the mcpp book renderer
+# and the mcpp sync pipeline for generating recipe documentation.
 # =============================================================================
 
 j26:hasTtlSnippet a rdf:Property ;
@@ -192,19 +192,19 @@ j26:hasTtlSnippet a rdf:Property ;
 
 j26:hasGgenTomlRule a rdf:Property ;
     rdfs:label "hasGgenTomlRule" ;
-    rdfs:comment "A complete ggen.toml [[generation.rules]] block for activating this pattern in a project's generation manifest. Enables copy-paste onboarding." ;
+    rdfs:comment "A complete mcpp.toml [[generation.rules]] block for activating this pattern in a project's generation manifest. Enables copy-paste onboarding." ;
     rdfs:domain pl:Pattern ;
     rdfs:range xsd:string .
 
 j26:hasGgenSyncInvocation a rdf:Property ;
     rdfs:label "hasGgenSyncInvocation" ;
-    rdfs:comment "An example 'ggen sync' command invocation (with relevant flags) that exercises this pattern. Used in pattern book quick-start sections." ;
+    rdfs:comment "An example 'mcpp sync' command invocation (with relevant flags) that exercises this pattern. Used in pattern book quick-start sections." ;
     rdfs:domain pl:Pattern ;
     rdfs:range xsd:string .
 
 j26:hasJavaPreview a rdf:Property ;
     rdfs:label "hasJavaPreview" ;
-    rdfs:comment "A 40-80 line preview of the Java 26 source code that ggen generates when this pattern is applied. Helps authors verify pattern output without running the full pipeline." ;
+    rdfs:comment "A 40-80 line preview of the Java 26 source code that mcpp generates when this pattern is applied. Helps authors verify pattern output without running the full pipeline." ;
     rdfs:domain pl:Pattern ;
     rdfs:range xsd:string .
 
@@ -222,7 +222,7 @@ j26:javaVersion a rdf:Property ;
 
 j26:springBootVersion a rdf:Property ;
     rdfs:label "springBootVersion" ;
-    rdfs:comment "Minimum Spring Boot version required by this pattern: '3.x' (requires Jakarta EE 10, Java 17+ baseline). Used for compatibility gating in the ggen marketplace." ;
+    rdfs:comment "Minimum Spring Boot version required by this pattern: '3.x' (requires Jakarta EE 10, Java 17+ baseline). Used for compatibility gating in the mcpp marketplace." ;
     rdfs:domain pl:Pattern ;
     rdfs:range xsd:string .
 
@@ -244,12 +244,12 @@ java26:SpringDataJPA a java26:DataAccess ;
 
 java26:ScaleSuper a java26:ScaleLevel ;
     rdfs:label "super" ;
-    rdfs:comment "Super-scale pattern: architectural, system-wide decisions. Equivalent to Alexander's largest-scale patterns (city, town, region). In ggen: multi-service topologies." .
+    rdfs:comment "Super-scale pattern: architectural, system-wide decisions. Equivalent to Alexander's largest-scale patterns (city, town, region). In mcpp: multi-service topologies." .
 
 java26:ScaleMid a java26:ScaleLevel ;
     rdfs:label "mid" ;
-    rdfs:comment "Mid-scale pattern: component or service-level design. Equivalent to Alexander's building-scale patterns. In ggen: single-service structure (aggregate + repo + controller)." .
+    rdfs:comment "Mid-scale pattern: component or service-level design. Equivalent to Alexander's building-scale patterns. In mcpp: single-service structure (aggregate + repo + controller)." .
 
 java26:ScaleLeaf a java26:ScaleLevel ;
     rdfs:label "leaf" ;
-    rdfs:comment "Leaf-scale pattern: implementation detail. Equivalent to Alexander's room or ornament-scale patterns. In ggen: individual class construction (sealed record, value object, enum)." .
+    rdfs:comment "Leaf-scale pattern: implementation detail. Equivalent to Alexander's room or ornament-scale patterns. In mcpp: individual class construction (sealed record, value object, enum)." .

@@ -664,7 +664,7 @@ By successfully completing Week 7-9 billing, we've proven:
 
 ## DOCUMENT REFERENCES
 
-All supporting documents located in `/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/`:
+All supporting documents located in `./tai-erlang-autonomics/execution/week-7-9/`:
 
 1. **INVOICE_001.md** - Customer #1 invoice (detailed)
 2. **RECEIPT_SYSTEM.md** - Cryptographic receipt implementation

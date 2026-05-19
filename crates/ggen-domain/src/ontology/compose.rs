@@ -8,7 +8,7 @@
 //! - Generating unified code
 
 use ggen_core::ontology_pack::OntologySchema;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::path::PathBuf;
 
 /// Input for ontology composition

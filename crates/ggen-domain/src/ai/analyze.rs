@@ -15,7 +15,7 @@
 //! ### Analyzing Code
 //!
 //! ```rust,no_run
-//! use ggen_domain::ai::analyze::analyze_code;
+//! use ggen_core::domain::ai::analyze::analyze_code;
 //!
 //! # async fn example() -> anyhow::Result<()> {
 //! let code = r#"
@@ -32,7 +32,7 @@
 //! ### Analyzing a Project
 //!
 //! ```rust,no_run
-//! use ggen_domain::ai::analyze::analyze_project;
+//! use ggen_core::domain::ai::analyze::analyze_project;
 //! use std::path::Path;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -42,7 +42,7 @@
 //! # }
 //! ```
 
-use ggen_utils::{bail, error::Result};
+use ggen_core::utils::{bail, error::Result};
 
 /// Analyze code and provide insights
 pub async fn analyze_code(code: &str) -> Result<String> {

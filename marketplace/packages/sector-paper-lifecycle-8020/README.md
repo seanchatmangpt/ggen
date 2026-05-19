@@ -24,10 +24,10 @@ This bundle provides comprehensive academic paper lifecycle management, covering
 
 ```bash
 # Install the bundle
-ggen install sector-paper-lifecycle-8020
+mcpp install sector-paper-lifecycle-8020
 
 # Generate a new paper for NeurIPS
-ggen generate paper \
+mcpp generate paper \
   --conference neurips \
   --title "Efficient Transformers for Long Documents" \
   --bundle sector-paper-lifecycle-8020
@@ -114,4 +114,4 @@ make submission
 
 ---
 
-*Part of the ggen 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*
+*Part of the mcpp 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*

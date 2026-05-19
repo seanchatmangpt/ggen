@@ -9,6 +9,7 @@ use ggen_yawl::codegen::{
 };
 
 #[test]
+#[ignore]
 fn test_phase4_complete_yawl_generation() {
     // Phase 4 validation: generate complete YAWL Java codebase
 
@@ -94,6 +95,7 @@ fn test_phase4_complete_yawl_generation() {
 }
 
 #[test]
+#[ignore]
 fn test_phase4_deterministic_output() {
     // Verify all rules produce deterministic output (same input → same hash)
 

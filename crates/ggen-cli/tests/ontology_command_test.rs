@@ -105,7 +105,7 @@ mod command_integration_tests {
     /// Test: validate command validates real Turtle files
     #[test]
     fn test_validate_command_valid_turtle() {
-        use ggen_ontology_core::validators;
+        use ggen_core::ontology_core::validators;
 
         let temp_dir = TempDir::new().unwrap();
 
@@ -128,7 +128,7 @@ ex:subject ex:predicate ex:object .
     /// Test: validate command detects invalid Turtle syntax
     #[test]
     fn test_validate_command_invalid_turtle() {
-        use ggen_ontology_core::validators;
+        use ggen_core::ontology_core::validators;
 
         let temp_dir = TempDir::new().unwrap();
 

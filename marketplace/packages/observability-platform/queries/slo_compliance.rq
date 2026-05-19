@@ -1,4 +1,4 @@
-PREFIX obs: <https://ggen.ai/ontology/observability#>
+PREFIX obs: <https://mcpp.ai/ontology/observability#>
 SELECT ?slo ?target ?errorBudgetRemaining ?timeWindow WHERE {
   ?slo a obs:ServiceLevelObjective ;
        obs:targetPercentage ?target ;

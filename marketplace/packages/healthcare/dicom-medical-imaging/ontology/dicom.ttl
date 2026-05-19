@@ -3,7 +3,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dicom: <http://dicom.nema.org/> .
-@prefix dicom-ontology: <http://ggen.io/ontology/dicom#> .
+@prefix dicom-ontology: <http://mcpp.io/ontology/dicom#> .
 
 # DICOM Medical Imaging Ontology
 # Implements DICOM standard for medical imaging metadata

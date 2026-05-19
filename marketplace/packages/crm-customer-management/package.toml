@@ -10,7 +10,7 @@ tags = ["crm", "sales", "pipeline", "customers", "opportunities"]
 [ontology]
 main = "ontology/crm.ttl"
 namespaces = [
-    { prefix = "crm", uri = "http://ggen.io/ontology/crm#" }
+    { prefix = "crm", uri = "http://mcpp.io/ontology/crm#" }
 ]
 
 [sparql]

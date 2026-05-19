@@ -3,7 +3,7 @@
 //! Validates parsed manifests for semantic correctness beyond TOML parsing.
 
 use crate::manifest::types::{GgenManifest, QuerySource, TemplateSource};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// Validator for ggen.toml manifests

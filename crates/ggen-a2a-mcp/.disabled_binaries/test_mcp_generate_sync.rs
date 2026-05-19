@@ -17,11 +17,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test 1: generate tool
     println!("Test 1: Calling generate() tool...");
-    println!("Ontology: /Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl");
+    println!("Ontology: ./examples/basic-template-generation/ontology/templates.ttl");
     println!();
 
     let generate_params = ggen_a2a_mcp::ggen_server::GenerateParams {
-        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl"
+        ontology_path: "./examples/basic-template-generation/ontology/templates.ttl"
             .to_string(),
         queries_dir: None,
         output_dir: Some("/tmp/mcp_test_generate".to_string()),
@@ -49,11 +49,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test 2: sync tool (dry-run)
     println!("Test 2: Calling sync() tool (dry-run)...");
-    println!("Ontology: /Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl");
+    println!("Ontology: ./examples/basic-template-generation/ontology/templates.ttl");
     println!();
 
     let sync_params = ggen_a2a_mcp::ggen_server::SyncParams {
-        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl"
+        ontology_path: "./examples/basic-template-generation/ontology/templates.ttl"
             .to_string(),
         queries_dir: None,
         output_dir: Some("/tmp/mcp_test_sync".to_string()),
@@ -82,11 +82,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test 3: sync tool (full run)
     println!("Test 3: Calling sync() tool (full run)...");
-    println!("Ontology: /Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl");
+    println!("Ontology: ./examples/basic-template-generation/ontology/templates.ttl");
     println!();
 
     let sync_params_full = ggen_a2a_mcp::ggen_server::SyncParams {
-        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl"
+        ontology_path: "./examples/basic-template-generation/ontology/templates.ttl"
             .to_string(),
         queries_dir: None,
         output_dir: Some("/tmp/mcp_test_sync_full".to_string()),

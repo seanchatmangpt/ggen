@@ -772,7 +772,7 @@ workflow-engine instance trace \
 ### Query Workflows
 
 ```sparql
-PREFIX wfe: <http://ggen.ruv.io/workflow-engine#>
+PREFIX wfe: <http://mcpp.ruv.io/workflow-engine#>
 
 SELECT ?workflow ?name ?version
 WHERE {
@@ -786,7 +786,7 @@ WHERE {
 ### Query Process Instances
 
 ```sparql
-PREFIX wfe: <http://ggen.ruv.io/workflow-engine#>
+PREFIX wfe: <http://mcpp.ruv.io/workflow-engine#>
 
 SELECT ?instance ?state ?startTime
 WHERE {
@@ -835,7 +835,7 @@ This project is dual-licensed under MIT OR Apache-2.0. See [LICENSE-MIT](LICENSE
 
 ## Support
 
-- **Documentation**: https://docs.ggen.ruv.io/workflow-engine-cli
+- **Documentation**: https://docs.mcpp.ruv.io/workflow-engine-cli
 - **Issues**: https://github.com/yourusername/workflow-engine-cli/issues
 - **Discord**: https://discord.gg/workflow-engine
 

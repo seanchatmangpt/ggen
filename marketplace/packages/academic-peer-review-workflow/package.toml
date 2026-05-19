@@ -7,8 +7,8 @@ full_name = "Academic Peer Review Workflow"
 version = "1.0.0"
 description = "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management"
 category = "academic-workflow"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/academic-peer-review-workflow"
 license = "MIT"
 production = true
@@ -74,33 +74,33 @@ stages = [
 [examples]
 basic = """
 # Initialize peer review workflow
-ggen paper submit paper.pdf --venue conference --with-review
+mcpp paper submit paper.pdf --venue conference --with-review
 
 # Track reviews
-ggen paper track paper.rdf
+mcpp paper track paper.rdf
 
 # View reviewer comments
-ggen paper show-reviews paper.rdf
+mcpp paper show-reviews paper.rdf
 
 # Generate author response
-ggen paper generate-response paper.rdf --reviewer 1
+mcpp paper generate-response paper.rdf --reviewer 1
 """
 
 advanced = """
 # Set up multi-reviewer process
-ggen paper submit paper.pdf --num-reviewers 3 --deadline 2025-01-15
+mcpp paper submit paper.pdf --num-reviewers 3 --deadline 2025-01-15
 
 # Track review progress
-ggen paper track paper.rdf --watch
+mcpp paper track paper.rdf --watch
 
 # Compile review feedback
-ggen paper compile-reviews paper.rdf
+mcpp paper compile-reviews paper.rdf
 
 # Generate revision summary
-ggen paper revision-notes paper.rdf
+mcpp paper revision-notes paper.rdf
 
 # Compare versions
-ggen paper diff paper-v1.rdf paper-v2.rdf
+mcpp paper diff paper-v1.rdf paper-v2.rdf
 """
 
 # Documentation

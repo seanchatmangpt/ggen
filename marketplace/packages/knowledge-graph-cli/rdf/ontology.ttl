@@ -3,14 +3,14 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix kg: <http://ggen.io/ontology/knowledge-graph-cli#> .
-@prefix clap: <http://ggen.io/ontology/clap-noun-verb#> .
+@prefix kg: <http://mcpp.io/ontology/knowledge-graph-cli#> .
+@prefix clap: <http://mcpp.io/ontology/clap-noun-verb#> .
 
 # Ontology definition
 kg:KnowledgeGraphCLIOntology a owl:Ontology ;
     rdfs:label "Knowledge Graph CLI Ontology" ;
     dc:description "RDF ontology for knowledge-graph-cli tool using clap-noun-verb pattern" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     owl:versionInfo "1.0.0" .
 
 # ===== Noun Classes =====

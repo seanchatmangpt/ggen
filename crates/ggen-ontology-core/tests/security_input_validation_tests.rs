@@ -3,7 +3,7 @@
 //! Tests for entity mapper input validation with edge cases,
 //! special characters, and unicode handling
 
-use ggen_ontology_core::entity_mapper::EntityMapper;
+use ggen_core::ontology_core::entity_mapper::EntityMapper;
 
 #[test]
 fn test_entity_mapper_empty_string() {

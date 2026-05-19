@@ -28,7 +28,7 @@ echo ""
 
 echo "🔒 Lockfile Entry:"
 echo "-----------------"
-cat /Users/sac/ggen/.ggen/packs.lock | jq '.packs."test-pack-integration"'
+cat ./.ggen/packs.lock | jq '.packs."test-pack-integration"'
 echo ""
 
 echo "✅ Integration Summary:"

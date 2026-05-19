@@ -9,7 +9,7 @@ use tempfile::TempDir;
 
 #[test]
 fn test_cli_help_output() {
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
     cmd.arg("--help");
     cmd.assert()
         .success()

@@ -16,7 +16,7 @@
 
 use chrono;
 use ggen_cli_lib::domain::marketplace::registry::*;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::HashMap;
 use std::path::Path;
 use tempfile::TempDir;

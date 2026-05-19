@@ -3,13 +3,13 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix ctx: <http://ggen.io/ontology/context#> .
+@prefix ctx: <http://mcpp.io/ontology/context#> .
 
 # Ontology definition
 ctx:ContextOntology a owl:Ontology ;
     rdfs:label "Context Crafter Ontology" ;
     dc:description "RDF ontology for AI agent context and state management" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     owl:versionInfo "1.0.0" .
 
 # Core Classes

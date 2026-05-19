@@ -158,7 +158,7 @@ ggen market search "rust"
 Run this to verify everything is ready:
 
 ```bash
-cd /Users/sac/ggen
+cd .
 
 # Check workflows exist
 ls -la .github/workflows/*pages*.yml .github/workflows/marketplace.yml

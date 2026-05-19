@@ -2,14 +2,14 @@
 name = "order-management-system"
 version = "1.0.0"
 description = "Production-ready order processing and fulfillment system with comprehensive RDF ontology"
-authors = ["ggen Marketplace"]
+authors = ["mcpp Marketplace"]
 license = "MIT"
 keywords = ["e-commerce", "order-management", "fulfillment", "rdf", "sparql"]
 categories = ["e-commerce", "order-processing", "fulfillment"]
 
 [ontology]
 file = "ontology/order-management.ttl"
-namespace = "http://ggen.io/ontology/order-management#"
+namespace = "http://mcpp.io/ontology/order-management#"
 prefix = "om"
 lines = 290
 

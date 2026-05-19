@@ -3,7 +3,7 @@
 //! This module provides bidirectional state mapping and synchronization
 //! between YAWL workflow states and A2A task states.
 
-use a2a_generated::task::{Task, TaskPriority, TaskStatus};
+use ggen_core::ggen_core::ggen_core::a2a_generated::task::{Task, TaskPriority, TaskStatus};
 use crate::a2a::error::{A2AIntegrationError, IntegrationResult};
 use crate::template::TemplateContext;
 use serde::{Deserialize, Serialize};

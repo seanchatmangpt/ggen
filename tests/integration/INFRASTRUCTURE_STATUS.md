@@ -45,7 +45,7 @@ $(date)
 ### 4. Weaver ✅
 - **Status**: Installed and functional
 - **Version**: weaver 0.16.1
-- **Location**: `/Users/sac/.cargo/bin/weaver`
+- **Location**: `~/.ggen/.cargo/bin/weaver`
 - **CLI**: Functional (`weaver --help` works)
 - **Integration**:
   - Documentation: `vendors/knhks/docs/weaver-integration.md`

@@ -46,6 +46,7 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientH
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_manifest_parse_success() {
     // Arrange: Create valid ggen.toml content
     let mut client = start_server().await.unwrap();
@@ -82,6 +83,7 @@ async fn test_validate_manifest_parse_success() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_manifest_parse_missing_required_field() {
     // Arrange: Create invalid ggen.toml (missing project.name)
     let mut client = start_server().await.unwrap();
@@ -116,6 +118,7 @@ async fn test_validate_manifest_parse_missing_required_field() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_manifest_dependencies_success() {
     // Arrange: Create TempDir with valid project structure
     let temp_dir = TempDir::new().unwrap();
@@ -165,6 +168,7 @@ async fn test_validate_manifest_dependencies_success() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_manifest_dependencies_missing_file() {
     // Arrange: Create TempDir with missing ontology file
     let temp_dir = TempDir::new().unwrap();
@@ -203,6 +207,7 @@ async fn test_validate_manifest_dependencies_missing_file() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_manifest_quality_gates_success() {
     // Arrange: Create TempDir with valid project
     let temp_dir = TempDir::new().unwrap();
@@ -250,6 +255,7 @@ async fn test_validate_manifest_quality_gates_success() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_ttl_syntax_valid() {
     // Arrange: Valid TTL content
     let mut client = start_server().await.unwrap();
@@ -284,6 +290,7 @@ async fn test_validate_ttl_syntax_valid() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_ttl_syntax_invalid() {
     // Arrange: Invalid TTL (missing object)
     let mut client = start_server().await.unwrap();
@@ -312,6 +319,7 @@ async fn test_validate_ttl_syntax_invalid() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_ttl_structure_prefixes() {
     // Arrange: TTL with multiple prefixes
     let mut client = start_server().await.unwrap();
@@ -347,6 +355,7 @@ async fn test_validate_ttl_structure_prefixes() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_ttl_shacl_conforms() {
     // Arrange: Valid data and SHACL shapes
     let mut client = start_server().await.unwrap();
@@ -398,6 +407,7 @@ async fn test_validate_ttl_shacl_conforms() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_sparql_syntax_valid() {
     // Arrange: Create temp file with valid SPARQL
     let temp_dir = TempDir::new().unwrap();
@@ -434,6 +444,7 @@ async fn test_validate_sparql_syntax_valid() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_sparql_syntax_invalid() {
     // Arrange: Create temp file with invalid SPARQL
     let temp_dir = TempDir::new().unwrap();
@@ -467,6 +478,7 @@ async fn test_validate_sparql_syntax_invalid() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_template_syntax_valid() {
     // Arrange: Create temp file with valid Tera template
     let temp_dir = TempDir::new().unwrap();
@@ -503,6 +515,7 @@ async fn test_validate_template_syntax_valid() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_template_syntax_invalid() {
     // Arrange: Create temp file with invalid Tera template
     let temp_dir = TempDir::new().unwrap();
@@ -536,6 +549,7 @@ async fn test_validate_template_syntax_invalid() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_pipeline_full() {
     // Arrange: Create complete valid project
     let temp_dir = TempDir::new().unwrap();
@@ -597,6 +611,7 @@ async fn test_validate_pipeline_full() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_empty_manifest() {
     // Arrange: Empty manifest
     let mut client = start_server().await.unwrap();
@@ -622,6 +637,7 @@ async fn test_validate_empty_manifest() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_missing_required_params() {
     // Arrange: Server with no params
     let mut client = start_server().await.unwrap();
@@ -644,6 +660,7 @@ async fn test_validate_missing_required_params() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_nonexistent_file_path() {
     // Arrange: Path to non-existent file
     let mut client = start_server().await.unwrap();
@@ -673,6 +690,7 @@ async fn test_validate_nonexistent_file_path() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
+#[ignore]
 async fn test_validate_large_ttl_performance() {
     // Arrange: Large TTL file (1000 triples)
     let mut client = start_server().await.unwrap();

@@ -1,6 +1,6 @@
 # Microservices Architecture Example
 
-This example demonstrates a complete microservices architecture built with Rust, showcasing all ggen features:
+This example demonstrates a complete microservices architecture built with Rust, showcasing all mcpp features:
 
 - **Lifecycle Management**: Complete make.toml workflow
 - **AI Code Generation**: Template-based service generation
@@ -64,33 +64,33 @@ This example demonstrates a complete microservices architecture built with Rust,
 ### 1. **Search Marketplace** for existing microservices patterns
 ```bash
 # Search for microservices and web service packages
-ggen market search "microservices"
-ggen market search "rust web service"
-ggen market search "docker compose"
-ggen market search "postgresql"
+mcpp market search "microservices"
+mcpp market search "rust web service"
+mcpp market search "docker compose"
+mcpp market search "postgresql"
 
 # Browse available categories
-ggen market categories
+mcpp market categories
 ```
 
 ### 2. **Install Required Packages** from marketplace
 ```bash
 # Install core packages for microservices architecture
-ggen market install "microservices-architecture"    # Base microservices patterns
-ggen market install "rust-axum-service"             # Axum web framework
-ggen market install "rust-actix-service"            # Actix web framework
-ggen market install "rust-warp-service"             # Warp web framework
-ggen market install "rust-tonic-service"            # gRPC services
-ggen market install "postgresql-database"           # Database integration
-ggen market install "redis-cache"                   # Caching layer
-ggen market install "docker-compose"                # Container orchestration
-ggen market install "kubernetes-deployment"         # K8s manifests
+mcpp market install "microservices-architecture"    # Base microservices patterns
+mcpp market install "rust-axum-service"             # Axum web framework
+mcpp market install "rust-actix-service"            # Actix web framework
+mcpp market install "rust-warp-service"             # Warp web framework
+mcpp market install "rust-tonic-service"            # gRPC services
+mcpp market install "postgresql-database"           # Database integration
+mcpp market install "redis-cache"                   # Caching layer
+mcpp market install "docker-compose"                # Container orchestration
+mcpp market install "kubernetes-deployment"         # K8s manifests
 ```
 
 ### 3. **Initialize Project** using lifecycle management
 ```bash
 # Initialize project structure with marketplace packages
-ggen lifecycle run init
+mcpp lifecycle run init
 
 # The init phase automatically:
 # - Sets up project structure
@@ -102,58 +102,58 @@ ggen lifecycle run init
 ### 4. **Generate Services** using marketplace templates
 ```bash
 # Generate API gateway using marketplace template
-ggen template generate microservices-architecture:api-gateway.tmpl
+mcpp template generate microservices-architecture:api-gateway.tmpl
 
 # Generate user service
-ggen template generate rust-axum-service:user-service.tmpl
+mcpp template generate rust-axum-service:user-service.tmpl
 
 # Generate product service
-ggen template generate rust-warp-service:product-service.tmpl
+mcpp template generate rust-warp-service:product-service.tmpl
 
 # Generate auth service (gRPC)
-ggen template generate rust-tonic-service:auth-service.tmpl
+mcpp template generate rust-tonic-service:auth-service.tmpl
 
 # Generate order service
-ggen template generate rust-axum-service:order-service.tmpl
+mcpp template generate rust-axum-service:order-service.tmpl
 
 # Generate payment service
-ggen template generate rust-actix-service:payment-service.tmpl
+mcpp template generate rust-actix-service:payment-service.tmpl
 ```
 
 ### 5. **Generate Infrastructure** using marketplace packages
 ```bash
 # Generate database schema
-ggen template generate postgresql-database:schema.tmpl
+mcpp template generate postgresql-database:schema.tmpl
 
 # Generate Docker Compose configuration
-ggen template generate docker-compose:development.tmpl
+mcpp template generate docker-compose:development.tmpl
 
 # Generate Kubernetes manifests
-ggen template generate kubernetes-deployment:k8s-manifests.tmpl
+mcpp template generate kubernetes-deployment:k8s-manifests.tmpl
 
 # Generate Redis configuration
-ggen template generate redis-cache:config.tmpl
+mcpp template generate redis-cache:config.tmpl
 ```
 
 ### 6. **Build, Test & Deploy** using lifecycle management
 ```bash
 # Build all services
-ggen lifecycle run build
+mcpp lifecycle run build
 
 # Run comprehensive tests
-ggen lifecycle run test
+mcpp lifecycle run test
 
 # Start development environment
-ggen lifecycle run dev
+mcpp lifecycle run dev
 
 # Deploy to production
-ggen lifecycle run deploy --env production
+mcpp lifecycle run deploy --env production
 ```
 
 ### Alternative: Complete Pipeline
 ```bash
 # Run all phases in sequence
-ggen lifecycle pipeline "init setup generate build test deploy"
+mcpp lifecycle pipeline "init setup generate build test deploy"
 ```
 
 ## Project Structure
@@ -161,7 +161,7 @@ ggen lifecycle pipeline "init setup generate build test deploy"
 ```
 microservices-architecture/
 ├── make.toml                 # Lifecycle configuration
-├── ggen.toml                 # ggen project configuration
+├── mcpp.toml                 # mcpp project configuration
 ├── docker-compose.yml        # Development environment
 ├── k8s/                      # Kubernetes manifests
 ├── services/
@@ -175,7 +175,7 @@ microservices-architecture/
 │   ├── models/               # Shared data models
 │   ├── proto/                # gRPC definitions
 │   └── utils/                # Common utilities
-├── templates/                # ggen templates
+├── templates/                # mcpp templates
 ├── data/                     # RDF domain models
 └── docs/                     # Generated documentation
 ```
@@ -185,10 +185,10 @@ microservices-architecture/
 ### 1. **Design Phase** - Define domain model in RDF/Turtle
 ```bash
 # Create domain model using marketplace patterns
-ggen market install "domain-modeling"
+mcpp market install "domain-modeling"
 
 # Generate domain model template
-ggen template generate domain-modeling:ecommerce-domain.tmpl
+mcpp template generate domain-modeling:ecommerce-domain.tmpl
 
 # Edit data/domain.ttl with your specific business requirements
 ```
@@ -196,44 +196,44 @@ ggen template generate domain-modeling:ecommerce-domain.tmpl
 ### 2. **Package Discovery** - Find and install required components
 ```bash
 # Search for all required packages
-ggen market search "rust web framework"
-ggen market search "database"
-ggen market search "authentication"
-ggen market search "docker"
+mcpp market search "rust web framework"
+mcpp market search "database"
+mcpp market search "authentication"
+mcpp market search "docker"
 
 # Install packages based on search results
-ggen market install "rust-axum-service"
-ggen market install "postgresql-database"
-ggen market install "jwt-authentication"
-ggen market install "docker-compose"
+mcpp market install "rust-axum-service"
+mcpp market install "postgresql-database"
+mcpp market install "jwt-authentication"
+mcpp market install "docker-compose"
 ```
 
 ### 3. **Service Generation** - Generate services using marketplace templates
 ```bash
 # Generate each microservice using marketplace templates
-ggen template generate rust-axum-service:user-service.tmpl
-ggen template generate rust-actix-service:product-service.tmpl
-ggen template generate rust-tonic-service:auth-service.tmpl
-ggen template generate rust-axum-service:order-service.tmpl
-ggen template generate rust-actix-service:payment-service.tmpl
+mcpp template generate rust-axum-service:user-service.tmpl
+mcpp template generate rust-actix-service:product-service.tmpl
+mcpp template generate rust-tonic-service:auth-service.tmpl
+mcpp template generate rust-axum-service:order-service.tmpl
+mcpp template generate rust-actix-service:payment-service.tmpl
 
 # Generate API gateway
-ggen template generate microservices-architecture:api-gateway.tmpl
+mcpp template generate microservices-architecture:api-gateway.tmpl
 ```
 
 ### 4. **Infrastructure Generation** - Set up deployment and operations
 ```bash
 # Generate database schema and migrations
-ggen template generate postgresql-database:schema.tmpl
+mcpp template generate postgresql-database:schema.tmpl
 
 # Generate Docker configuration
-ggen template generate docker-compose:development.tmpl
+mcpp template generate docker-compose:development.tmpl
 
 # Generate Kubernetes deployment
-ggen template generate kubernetes-deployment:k8s-manifests.tmpl
+mcpp template generate kubernetes-deployment:k8s-manifests.tmpl
 
 # Generate monitoring and logging
-ggen template generate monitoring-stack:prometheus-grafana.tmpl
+mcpp template generate monitoring-stack:prometheus-grafana.tmpl
 ```
 
 ### 5. **Customization** - Add business logic to generated code
@@ -248,7 +248,7 @@ ggen template generate monitoring-stack:prometheus-grafana.tmpl
 ### 6. **Testing** - Comprehensive test execution
 ```bash
 # Run all tests using lifecycle management
-ggen lifecycle run test
+mcpp lifecycle run test
 
 # This runs:
 # - Unit tests for each service
@@ -261,13 +261,13 @@ ggen lifecycle run test
 ### 7. **Deployment** - Multi-environment deployment
 ```bash
 # Deploy to development environment
-ggen lifecycle run deploy --env development
+mcpp lifecycle run deploy --env development
 
 # Deploy to staging for testing
-ggen lifecycle run deploy --env staging
+mcpp lifecycle run deploy --env staging
 
 # Deploy to production
-ggen lifecycle run deploy --env production
+mcpp lifecycle run deploy --env production
 ```
 
 ## Benefits of Marketplace-First Approach
@@ -292,4 +292,4 @@ ggen lifecycle run deploy --env production
 - Consistent patterns across all services
 - Automated testing and deployment
 
-This example demonstrates how to build production-ready microservices using ggen's marketplace and lifecycle features, rather than starting from scratch.
+This example demonstrates how to build production-ready microservices using mcpp's marketplace and lifecycle features, rather than starting from scratch.

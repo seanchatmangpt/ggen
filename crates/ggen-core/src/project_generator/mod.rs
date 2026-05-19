@@ -62,7 +62,7 @@ pub mod common;
 pub mod nextjs;
 pub mod rust;
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -230,7 +230,7 @@ impl DependencyInstaller {
         // SECURITY FIX (Week 4): Use SafeCommand instead of raw std::process::Command
         use crate::security::command::SafeCommand;
 
-        ggen_utils::alert_info!("Installing Cargo dependencies...");
+        crate::utils::alert_info!("Installing Cargo dependencies...");
 
         let output = SafeCommand::new("cargo")?
             .arg("fetch")?
@@ -244,7 +244,7 @@ impl DependencyInstaller {
                 "cargo fetch failed: {}",
                 String::from_utf8_lossy(&output.stderr)
             );
-            ggen_utils::alert_warning!(&error_msg);
+            crate::utils::alert_warning!(&error_msg);
         }
 
         Ok(())
@@ -254,7 +254,7 @@ impl DependencyInstaller {
         // SECURITY FIX (Week 4): Use SafeCommand instead of raw std::process::Command
         use crate::security::command::SafeCommand;
 
-        ggen_utils::alert_info!("Installing npm dependencies...");
+        crate::utils::alert_info!("Installing npm dependencies...");
 
         let output = SafeCommand::new("npm")?
             .arg("install")?
@@ -322,9 +322,9 @@ pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
     let deps = DependencyInstaller::new();
     deps.install(&project_path, &config.project_type)?;
 
-    ggen_utils::alert_success!(&format!("Successfully created project: {}", config.name));
-    ggen_utils::alert_info!(&format!("   Type: {}", config.project_type));
-    ggen_utils::alert_info!(&format!("   Path: {}", project_path.display()));
+    crate::utils::alert_success!(&format!("Successfully created project: {}", config.name));
+    crate::utils::alert_info!(&format!("   Type: {}", config.project_type));
+    crate::utils::alert_info!(&format!("   Path: {}", project_path.display()));
 
     Ok(())
 }

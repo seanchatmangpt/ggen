@@ -8,7 +8,7 @@
 //! NOTE: This module is a placeholder that will use ggen-ai RDF parser
 //! when integrated. For now, it provides the interface.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// Enhanced ontology parser for 2026 CLI generation

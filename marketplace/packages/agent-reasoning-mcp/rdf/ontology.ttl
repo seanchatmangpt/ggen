@@ -3,13 +3,13 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix reason: <http://ggen.io/ontology/reasoning#> .
+@prefix reason: <http://mcpp.io/ontology/reasoning#> .
 
 # Ontology definition
 reason:ReasoningOntology a owl:Ontology ;
     rdfs:label "Reasoning MCP Ontology" ;
     dc:description "RDF ontology for AI agent reasoning and inference" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     owl:versionInfo "1.0.0" .
 
 # Core Classes

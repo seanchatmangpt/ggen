@@ -357,7 +357,7 @@
 
 **Primary Directory:**
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-3-4/
+./tai-erlang-autonomics/execution/week-3-4/
 ```
 
 **Files in Directory:**

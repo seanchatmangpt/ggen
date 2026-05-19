@@ -269,10 +269,10 @@ Adjust sleep values if demo runs too fast/slow for your terminal emulator.
 
 ## Related Documentation
 
-- **Ggen CLI:** `/Users/sac/ggen/docs/cli.md`
-- **Cleanroom:** `/Users/sac/ggen/cleanroom/README.md`
-- **Templates:** `/Users/sac/ggen/docs/marketplace.md`
-- **Workflow:** `/Users/sac/ggen/docs/development-workflow.md`
+- **Ggen CLI:** `./docs/cli.md`
+- **Cleanroom:** `./cleanroom/README.md`
+- **Templates:** `./docs/marketplace.md`
+- **Workflow:** `./docs/development-workflow.md`
 
 ## Demo Script
 

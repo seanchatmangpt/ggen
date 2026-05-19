@@ -3,7 +3,7 @@ name = "risk-management"
 version = "1.0.0"
 description = "Comprehensive risk management system with VaR calculation, stress testing, credit risk, and market risk analysis"
 category = "finance"
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 tags = ["risk", "var", "stress-testing", "credit-risk", "market-risk", "compliance"]
 

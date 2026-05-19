@@ -2,10 +2,10 @@
 name = "sector-rust-microservice-8020"
 version = "1.0.0"
 edition = "2021"
-authors = ["ggen Contributors"]
+authors = ["mcpp Contributors"]
 description = "8020 Bundle: Production-ready Rust microservice scaffolding covering 80% of service architecture needs"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 
 # 8020 Innovation: Critical fields for bundle curation
 is_8020 = true

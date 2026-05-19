@@ -1,6 +1,6 @@
 # Weaver Registry Integration - Architecture Diagrams
 
-## Current State (ggen v6.0.1)
+## Current State (ggen v26.5.4)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

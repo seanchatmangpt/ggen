@@ -250,10 +250,10 @@ INFO ggen-weaver-live-check: Span validated successfully
 
 ## References
 
-- **Full Design:** `/Users/sac/ggen/docs/weaver-registry-integration-plan.md`
-- **~/chatmangpt Pattern:** `/Users/sac/chatmangpt/docs/diataxis/how-to/run-weaver-live-check.md`
+- **Full Design:** `./docs/weaver-registry-integration-plan.md`
+- **~/chatmangpt Pattern:** `~/.ggen/chatmangpt/docs/diataxis/how-to/run-weaver-live-check.md`
 - **Weaver GitHub:** https://github.com/cheriot/weaver
-- **ggen Semconv:** `/Users/sac/ggen/semconv/model/`
+- **ggen Semconv:** `./semconv/model/`
 
 ---
 

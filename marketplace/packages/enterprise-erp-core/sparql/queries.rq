@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 # Query 1: Generate Trial Balance
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?accountNumber ?accountName ?debitTotal ?creditTotal (?debitTotal - ?creditTotal AS ?balance)
@@ -49,7 +49,7 @@ ORDER BY ?accountNumber
 # ----------------------------------------------------------------------------
 # Query 2: Extract Accounts Payable Aging
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?vendorName ?invoiceNumber ?invoiceDate ?dueDate ?amountDue
@@ -73,7 +73,7 @@ ORDER BY ?daysPastDue DESC, ?vendorName
 # ----------------------------------------------------------------------------
 # Query 3: Extract Accounts Receivable Aging
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?customerName ?invoiceNumber ?invoiceDate ?dueDate ?amountDue
@@ -103,7 +103,7 @@ ORDER BY ?daysPastDue DESC, ?customerName
 # ----------------------------------------------------------------------------
 # Query 4: Calculate Depreciation Schedules
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?assetTag ?assetName ?acquisitionCost ?salvageValue ?usefulLife
@@ -128,7 +128,7 @@ ORDER BY ?assetTag
 # ----------------------------------------------------------------------------
 # Query 5: Generate Income Statement
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?accountType ?accountNumber ?accountName (SUM(?amount) AS ?total)
@@ -168,7 +168,7 @@ ORDER BY ?accountType, ?accountNumber
 # ----------------------------------------------------------------------------
 # Query 6: Generate Balance Sheet
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?accountType ?accountNumber ?accountName (SUM(?balance) AS ?total)
@@ -208,7 +208,7 @@ ORDER BY ?accountType, ?accountNumber
 # ----------------------------------------------------------------------------
 # Query 7: Cost Allocation by Department
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?department ?expenseAccount (SUM(?amount) AS ?totalCost)
@@ -232,7 +232,7 @@ ORDER BY ?department, ?totalCost DESC
 # ----------------------------------------------------------------------------
 # Query 8: Multi-Currency Transaction Summary
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?currency ?transactionCount (SUM(?amount) AS ?totalAmount)
@@ -263,7 +263,7 @@ GROUP BY ?currency
 # ----------------------------------------------------------------------------
 # Query 9: Audit Trail for Account
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?date ?entryNumber ?description ?debit ?credit ?runningBalance ?user
@@ -291,7 +291,7 @@ ORDER BY ?date, ?entryNumber
 # ----------------------------------------------------------------------------
 # Query 10: Purchase Order Status
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?poNumber ?vendorName ?poDate ?totalAmount ?receivedAmount
@@ -335,7 +335,7 @@ ORDER BY ?poDate DESC
 # ----------------------------------------------------------------------------
 # Query 11: Sales Order Fulfillment Pipeline
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?soNumber ?customerName ?orderDate ?totalAmount ?fulfilledAmount
@@ -379,7 +379,7 @@ ORDER BY ?orderDate
 # ----------------------------------------------------------------------------
 # Query 12: Inventory Valuation
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?itemCode ?itemName ?location ?quantityOnHand ?unitCost
@@ -414,7 +414,7 @@ ORDER BY ?totalValue DESC
 # ----------------------------------------------------------------------------
 # Query 13: Period Close Checklist
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?checkpointName ?isComplete ?completedBy ?completedDate ?notes
@@ -437,7 +437,7 @@ ORDER BY ?checkpointName
 # ----------------------------------------------------------------------------
 # Query 14: Cash Flow Statement
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?cashFlowCategory ?accountName (SUM(?amount) AS ?totalCashFlow)
@@ -474,7 +474,7 @@ ORDER BY ?cashFlowCategory, ?totalCashFlow DESC
 # ----------------------------------------------------------------------------
 # Query 15: Compliance Control Points
 # ----------------------------------------------------------------------------
-PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX erp: <http://mcpp.io/ontology/erp#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?controlName ?ruleDescription ?lastChecked ?status ?exceptions

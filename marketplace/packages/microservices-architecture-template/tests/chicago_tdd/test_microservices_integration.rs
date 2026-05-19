@@ -107,6 +107,7 @@ impl<'a> MicroservicesStack<'a> {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_all_services_start_successfully() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -123,6 +124,7 @@ async fn test_all_services_start_successfully() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_health_checks_all_services() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -142,6 +144,7 @@ async fn test_health_checks_all_services() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_metrics_endpoints_available() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -159,6 +162,7 @@ async fn test_metrics_endpoints_available() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_create_user_via_gateway() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -180,6 +184,7 @@ async fn test_create_user_via_gateway() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_get_users_via_gateway() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -200,6 +205,7 @@ async fn test_get_users_via_gateway() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_create_product_via_gateway() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -222,6 +228,7 @@ async fn test_create_product_via_gateway() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_get_product_by_id_via_gateway() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -243,6 +250,7 @@ async fn test_get_product_by_id_via_gateway() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_product_not_found_returns_404() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -255,6 +263,7 @@ async fn test_product_not_found_returns_404() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_create_order_via_gateway() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -289,6 +298,7 @@ async fn test_create_order_via_gateway() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_circuit_breaker_opens_after_failures() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -309,6 +319,7 @@ async fn test_circuit_breaker_opens_after_failures() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_circuit_breaker_half_open_after_timeout() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -330,6 +341,7 @@ async fn test_circuit_breaker_half_open_after_timeout() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_circuit_breaker_closes_after_success() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -353,6 +365,7 @@ async fn test_circuit_breaker_closes_after_success() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_traces_propagate_across_services() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -378,6 +391,7 @@ async fn test_traces_propagate_across_services() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_trace_spans_include_service_names() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -403,6 +417,7 @@ async fn test_trace_spans_include_service_names() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_trace_context_propagation() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -426,6 +441,7 @@ async fn test_trace_context_propagation() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_round_robin_load_balancing() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -444,6 +460,7 @@ async fn test_round_robin_load_balancing() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_load_balancer_handles_service_failure() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -463,6 +480,7 @@ async fn test_load_balancer_handles_service_failure() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_services_discover_each_other() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -490,6 +508,7 @@ async fn test_services_discover_each_other() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_environment_configuration_loaded() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -506,6 +525,7 @@ async fn test_environment_configuration_loaded() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_order_events_published_to_rabbitmq() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;
@@ -539,6 +559,7 @@ async fn test_order_events_published_to_rabbitmq() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_complete_microservices_workflow() {
     let docker = Cli::default();
     let stack = MicroservicesStack::new(&docker).await;

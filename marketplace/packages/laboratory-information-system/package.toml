@@ -5,7 +5,7 @@ description = "Laboratory information system with test ordering, specimen tracki
 category = "healthcare"
 tags = ["laboratory", "lab-tests", "specimen-tracking", "results", "pathology"]
 license = "MIT"
-author = "ggen Healthcare Team"
+author = "mcpp Healthcare Team"
 
 [dependencies]
 healthcare-core = "1.0.0"

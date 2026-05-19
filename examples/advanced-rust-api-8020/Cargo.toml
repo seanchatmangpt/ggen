@@ -17,7 +17,7 @@ name = "server"
 path = "src/bin/server.rs"
 
 # AI generator binary disabled in standalone marketplace version
-# Requires ggen-core and ggen-ai dependencies
+# Requires mcpp-core and mcpp-ai dependencies
 # [[bin]]
 # name = "ai-generator"
 # path = "src/bin/ai_generator.rs"
@@ -55,8 +55,8 @@ dotenvy = "0.15"
 # ggen integration (optional - for AI-powered generation)
 # NOTE: These are only available when building from the ggen monorepo
 # Marketplace standalone version doesn't include AI generation features
-# ggen-core = { path = "../../ggen-core", optional = true }
-# ggen-ai = { path = "../../ggen-ai", optional = true }
+# mcpp-core = { path = "../../mcpp-core", optional = true }
+# mcpp-ai = { path = "../../mcpp-ai", optional = true }
 
 [dev-dependencies]
 mockall = "0.12"
@@ -66,8 +66,8 @@ tempfile = "3.0"
 [features]
 default = []
 # AI generation features disabled in standalone marketplace version
-# When ggen-core and ggen-ai are published to crates.io, this can be re-enabled:
-# ai-generation = ["ggen-core", "ggen-ai"]
+# When mcpp-core and mcpp-ai are published to crates.io, this can be re-enabled:
+# ai-generation = ["mcpp-core", "mcpp-ai"]
 
 [profile.release]
 opt-level = 3

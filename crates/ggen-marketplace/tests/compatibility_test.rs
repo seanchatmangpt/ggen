@@ -7,7 +7,7 @@
 //! - Test REAL conflict detection
 //! - No mocks for critical paths
 
-use ggen_marketplace::models::PackageVersion;
+use ggen_core::marketplace::models::PackageVersion;
 use semver::{Version, VersionReq};
 
 fn semver_req_matches(req: &VersionReq, pv: &PackageVersion) -> bool {

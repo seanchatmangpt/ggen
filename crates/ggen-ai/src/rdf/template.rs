@@ -32,7 +32,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
 

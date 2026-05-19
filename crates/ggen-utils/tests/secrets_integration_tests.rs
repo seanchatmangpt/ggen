@@ -6,8 +6,8 @@
 //! Note: These tests require a running Vault instance.
 //! Run with: `docker run -p 8200:8200 -e VAULT_DEV_ROOT_TOKEN_ID=root vault`
 
-use ggen_utils::error::Result;
-use ggen_utils::secrets::{SecretType, SecretsManager, VaultConfig};
+use ggen_core::utils::error::Result;
+use ggen_core::utils::secrets::{SecretType, SecretsManager, VaultConfig};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -39,6 +39,7 @@ fn create_test_vault_config() -> VaultConfig {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_store_and_retrieve_secret() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -67,6 +68,7 @@ async fn test_vault_store_and_retrieve_secret() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_store_database_credentials() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -102,6 +104,7 @@ async fn test_vault_store_database_credentials() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_rotate_secret() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -132,6 +135,7 @@ async fn test_vault_rotate_secret() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_delete_secret() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -157,6 +161,7 @@ async fn test_vault_delete_secret() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_get_nonexistent_secret() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -178,6 +183,7 @@ async fn test_vault_get_nonexistent_secret() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_multiple_secrets() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -217,6 +223,7 @@ async fn test_vault_multiple_secrets() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_secret_versioning() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -249,6 +256,7 @@ async fn test_vault_secret_versioning() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_audit_logging() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -278,6 +286,7 @@ async fn test_vault_audit_logging() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_concurrent_access() -> Result<()> {
     // Arrange
     if !is_vault_available().await {
@@ -316,6 +325,7 @@ async fn test_vault_concurrent_access() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_vault_unicode_secrets() -> Result<()> {
     // Arrange
     if !is_vault_available().await {

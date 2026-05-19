@@ -8,8 +8,8 @@
 //! - Cache operations under load
 //! - Thread-safe statistics
 
-use ggen_marketplace::cache::{CacheConfig, CachedPack, PackCache};
-use ggen_marketplace::models::{PackageId, PackageVersion};
+use ggen_core::marketplace::cache::{CacheConfig, CachedPack, PackCache};
+use ggen_core::marketplace::models::{PackageId, PackageVersion};
 use std::sync::{Arc, Barrier};
 use std::time::Duration;
 use tempfile::TempDir;

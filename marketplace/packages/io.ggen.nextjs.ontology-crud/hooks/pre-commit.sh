@@ -34,7 +34,7 @@ VALIDATION_FAILED=0
 for FILE in $ONTOLOGY_FILES; do
     if [ -f "$PROJECT_ROOT/$FILE" ]; then
         echo -e "${GREEN}[pre-commit]${NC}   Validating $FILE..."
-        if ! ggen graph validate --file "$PROJECT_ROOT/$FILE" 2>&1 | grep -q "valid"; then
+        if ! mcpp graph validate --file "$PROJECT_ROOT/$FILE" 2>&1 | grep -q "valid"; then
             echo -e "${RED}[pre-commit]${NC}   ✗ Validation failed for $FILE"
             VALIDATION_FAILED=1
         else

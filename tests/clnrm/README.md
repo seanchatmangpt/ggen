@@ -51,7 +51,7 @@ docker run -d \
 ### 3. Build ggen
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo build --release
 ```
 

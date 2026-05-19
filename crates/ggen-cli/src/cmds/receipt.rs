@@ -124,7 +124,7 @@ fn invalid_format_output(receipt_file: &str) -> VerifyOutput {
 }
 
 fn verify_single_receipt(
-    receipt_file: String, receipt: &ggen_receipt::Receipt, key: &Option<VerifyingKey>,
+    receipt_file: String, receipt: &ggen_core::receipt::Receipt, key: &Option<VerifyingKey>,
 ) -> VerbResult<VerifyOutput> {
     let verifying_key = match key {
         Some(k) => k,
@@ -170,7 +170,7 @@ fn verify_single_receipt(
 }
 
 fn verify_receipt_chain(
-    receipt_file: String, chain: &ggen_receipt::ReceiptChain, key: &Option<VerifyingKey>,
+    receipt_file: String, chain: &ggen_core::receipt::ReceiptChain, key: &Option<VerifyingKey>,
 ) -> VerbResult<VerifyOutput> {
     let verifying_key = match key {
         Some(k) => k,
@@ -212,7 +212,7 @@ fn verify_receipt_chain(
 fn verify_receipt_content(
     receipt_file: &str, file_content: &str, key: &Option<VerifyingKey>,
 ) -> VerbResult<VerifyOutput> {
-    use ggen_receipt::{Receipt, ReceiptChain};
+    use ggen_core::receipt::{Receipt, ReceiptChain};
 
     if let Ok(receipt) = serde_json::from_str::<Receipt>(file_content) {
         return verify_single_receipt(receipt_file.to_string(), &receipt, key);
@@ -250,7 +250,7 @@ fn verify(receipt_file: String, public_key: Option<String>) -> VerbResult<Verify
 /// Show detailed receipt information
 #[verb]
 fn info(receipt_file: String) -> VerbResult<InfoOutput> {
-    use ggen_receipt::{Receipt, ReceiptChain};
+    use ggen_core::receipt::{Receipt, ReceiptChain};
 
     let receipt_path = PathBuf::from(&receipt_file);
 
@@ -314,7 +314,7 @@ fn info(receipt_file: String) -> VerbResult<InfoOutput> {
 /// Verify a receipt chain
 #[verb]
 fn chain_verify(chain_file: String, public_key: String) -> VerbResult<ChainVerifyOutput> {
-    use ggen_receipt::ReceiptChain;
+    use ggen_core::receipt::ReceiptChain;
 
     let chain_path = PathBuf::from(&chain_file);
 

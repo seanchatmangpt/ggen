@@ -17,7 +17,7 @@ All shell scripts, configuration files, and documentation have been audited and 
 ## 1. Project Configuration ✅
 
 ### ggen.toml
-**Location**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/ggen.toml`
+**Location**: `./specs/013-ggen-v6-rdf-system/ggen.toml`
 
 **Configuration Status**:
 - ✅ `[v6]` section enabled
@@ -176,7 +176,7 @@ output = "generated/spec.md"
 ## 6. Python Test Infrastructure ✅
 
 ### RDF-Based Tests
-**Location**: `/Users/sac/ggen/vendors/spec-kit/tests/integration/test_ggen_sync.py`
+**Location**: `./vendors/spec-kit/tests/integration/test_ggen_sync.py`
 
 **Test Coverage**:
 1. `test_ggen_sync_generates_markdown` - End-to-end workflow
@@ -203,8 +203,8 @@ Uses Python rdflib to parse TTL and count triples.
 **Audit Results**:
 ```bash
 $ grep -r "ggen render" --include="*.sh" --include="*.md" --include="*.toml" \
-    /Users/sac/ggen/specs/013-ggen-v6-rdf-system/ \
-    /Users/sac/ggen/vendors/spec-kit/scripts/
+    ./specs/013-ggen-v6-rdf-system/ \
+    ./vendors/spec-kit/scripts/
 ```
 
 **Findings**: ✅ ZERO references (excluding validation report documentation)
@@ -285,7 +285,7 @@ code = μ(spec.ttl)
 
 **When Ready**:
 ```bash
-cd /Users/sac/ggen/specs/013-ggen-v6-rdf-system
+cd ./specs/013-ggen-v6-rdf-system
 ggen sync
 # Generates: generated/spec.md from ontology/feature-content.ttl
 ```

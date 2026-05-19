@@ -1,6 +1,6 @@
 #!/bin/bash
 # Advanced Rust Project Deployment Script
-# Demonstrates comprehensive deployment automation with ggen
+# Demonstrates comprehensive deployment automation with mcpp
 
 set -euo pipefail
 
@@ -70,8 +70,8 @@ check_prerequisites() {
     fi
     
     # Check configuration files
-    if [ ! -f "ggen.toml" ]; then
-        log_warning "ggen.toml not found. Using default configuration."
+    if [ ! -f "mcpp.toml" ]; then
+        log_warning "mcpp.toml not found. Using default configuration."
     fi
     
     if [ ! -f "make.toml" ]; then
@@ -156,8 +156,8 @@ deploy_application() {
     
     # Deploy configuration
     log_info "Deploying configuration..."
-    if [ -f "ggen.toml" ]; then
-        scp "ggen.toml" "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/config/"
+    if [ -f "mcpp.toml" ]; then
+        scp "mcpp.toml" "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/config/"
     fi
     
     if [ -f "make.toml" ]; then

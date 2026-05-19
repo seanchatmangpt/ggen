@@ -37,7 +37,7 @@
     - [Detective Controls](#detective-controls)
     - [Corrective Controls](#corrective-controls)
   - [Security Roadmap](#security-roadmap)
-    - [v6.1.0 (Q1 2026)](#v610-q1-2026)
+    - [v26.5.4 (Q1 2026)](#v610-q1-2026)
     - [v6.2.0 (Q2 2026)](#v620-q2-2026)
     - [v7.0.0 (Q3 2026)](#v700-q3-2026)
   - [References](#references)
@@ -389,7 +389,7 @@ log::error!("{}", sanitized.internal_message());  // Full details for logs
 
 **Current Status (v6.0.0)**: CLI-based, single-user model
 
-**Future Enhancements (v6.1.0+)**:
+**Future Enhancements (v26.5.4+)**:
 - API key authentication
 - Role-based access control (RBAC)
 - OAuth2 integration
@@ -620,7 +620,7 @@ All logs include:
 
 ## Security Roadmap
 
-### v6.1.0 (Q1 2026)
+### v26.5.4 (Q1 2026)
 - [ ] API authentication (API keys)
 - [ ] Multi-tenant isolation
 - [ ] Enhanced audit logging

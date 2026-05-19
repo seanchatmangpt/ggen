@@ -3,7 +3,7 @@
 //! Uses insta for snapshot testing of serialized configs
 //! Chicago TDD: Snapshots verify config structure remains stable
 
-use ggen_utils::project_config::GgenConfig;
+use ggen_core::utils::project_config::GgenConfig;
 use std::fs;
 use std::path::PathBuf;
 

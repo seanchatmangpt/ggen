@@ -5,15 +5,15 @@ description = "BPMN workflow execution and orchestration using clap-noun-verb"
 authors = ["Generated Ontology System"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/yourusername/workflow-engine-cli"
-homepage = "https://ggen.ruv.io/packages/workflow-engine-cli"
-documentation = "https://docs.ggen.ruv.io/workflow-engine-cli"
+homepage = "https://mcpp.ruv.io/packages/workflow-engine-cli"
+documentation = "https://docs.mcpp.ruv.io/workflow-engine-cli"
 readme = "README.md"
 keywords = ["bpmn", "workflow", "orchestration", "process", "automation", "clap-noun-verb"]
 categories = ["cli-tools", "workflow-automation", "business-process"]
 edition = "2021"
 
 [package.metadata]
-ontology_uri = "http://ggen.ruv.io/workflow-engine"
+ontology_uri = "http://mcpp.ruv.io/workflow-engine"
 ontology_version = "1.0.0"
 sparql_endpoint = "http://localhost:3030/workflow-engine"
 

@@ -1,11 +1,11 @@
 [package]
 name = "semantic-cli"
 version = "1.0.0"
-namespace = "io.ggen.cli.semantic"
+namespace = "io.mcpp.cli.semantic"
 description = "RDF/OWL ontology management CLI using clap-noun-verb pattern"
-authors = ["ggen-team"]
+authors = ["mcpp-team"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["rdf", "owl", "sparql", "ontology", "cli", "clap-noun-verb"]
 categories = ["cli-tools", "semantic-web", "development-tools"]
 
@@ -42,4 +42,4 @@ commands = "templates/commands.tmpl"
 
 [ontology]
 file = "rdf/ontology.ttl"
-namespace = "http://ggen.io/ontology/semantic-cli#"
+namespace = "http://mcpp.io/ontology/semantic-cli#"

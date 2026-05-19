@@ -37,4 +37,4 @@ am.schedule_maintenance(&asset.id, MaintenanceType::Preventive)?;
 - SPARQL Queries: 10 templates
 - Chicago TDD Tests: 530+ lines
 
-See full documentation at https://docs.ggen.ai/packages/asset-management
+See full documentation at https://docs.mcpp.ai/packages/asset-management

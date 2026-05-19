@@ -5,13 +5,13 @@
 
 #[cfg(test)]
 mod adapter_conversion_tests {
-    use ggen_marketplace::Package as V1Package;
+    use ggen_core::marketplace::Package as V1Package;
     use ggen_marketplace_v2::models::{Package as V2Package, PackageId, PackageVersion};
 
     /// Helper: Create V1 test package
     fn create_v1_package(id: &str, name: &str, version: &str) -> V1Package {
         use chrono::Utc;
-        use ggen_marketplace::{MaturityLevel, PackageMetadata};
+        use ggen_core::marketplace::{MaturityLevel, PackageMetadata};
 
         V1Package {
             metadata: PackageMetadata {
@@ -53,7 +53,7 @@ mod adapter_conversion_tests {
 
     /// Helper: Convert V2→V1 (adapter logic placeholder)
     fn v2_to_v1(v2: &V2Package) -> V1Package {
-        use ggen_marketplace::{MaturityLevel, PackageMetadata};
+        use ggen_core::marketplace::{MaturityLevel, PackageMetadata};
 
         V1Package {
             metadata: PackageMetadata {

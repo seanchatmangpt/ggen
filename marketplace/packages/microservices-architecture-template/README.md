@@ -73,7 +73,7 @@ All services report to Jaeger for distributed tracing
 ### Generate Project
 
 ```bash
-ggen project new my-microservices \
+mcpp project new my-microservices \
   --template microservices-architecture \
   --output ./my-microservices
 
@@ -331,25 +331,25 @@ curl http://localhost:8000/health/ready
 
 ```turtle
 ms:PaymentService a ms:BusinessService ;
-    ggen:name "payment-service" ;
-    ggen:language "Go" ;
-    ggen:framework "Gin" ;
-    ggen:port "8004"^^xsd:integer .
+    mcpp:name "payment-service" ;
+    mcpp:language "Go" ;
+    mcpp:framework "Gin" ;
+    mcpp:port "8004"^^xsd:integer .
 ```
 
 2. Add service dependency:
 
 ```turtle
 ms:OrderToPayment a ms:ServiceDependency ;
-    ggen:from ms:OrderService ;
-    ggen:to ms:PaymentService ;
-    ggen:pattern ms:gRPCCommunication .
+    mcpp:from ms:OrderService ;
+    mcpp:to ms:PaymentService ;
+    mcpp:pattern ms:gRPCCommunication .
 ```
 
 3. Generate code:
 
 ```bash
-ggen project gen --service payment-service
+mcpp project gen --service payment-service
 ```
 
 ### Modifying Communication Patterns
@@ -357,13 +357,13 @@ ggen project gen --service payment-service
 Switch from REST to gRPC:
 
 ```turtle
-ms:UserService ggen:hasCommunication ms:gRPCCommunication .
+ms:UserService mcpp:hasCommunication ms:gRPCCommunication .
 ```
 
 Add message queue:
 
 ```turtle
-ms:UserService ggen:hasMessaging ms:KafkaCommunication .
+ms:UserService mcpp:hasMessaging ms:KafkaCommunication .
 ```
 
 ## Production Deployment
@@ -438,6 +438,6 @@ MIT License - See LICENSE file for details
 
 ## Support
 
-- Documentation: https://ggen.tech/docs/templates/microservices
-- Issues: https://github.com/ggen/marketplace/issues
-- Community: https://discord.gg/ggen
+- Documentation: https://mcpp.tech/docs/templates/microservices
+- Issues: https://github.com/mcpp/marketplace/issues
+- Community: https://discord.gg/mcpp

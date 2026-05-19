@@ -7,7 +7,7 @@
 //! - Score validation and overflow prevention
 //! - Tamper detection and cryptographic verification
 
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::prelude::*;
 
 // ============================================================================
 // ED25519 SIGNATURE TESTS (original ed25519_signature_test.rs)

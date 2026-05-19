@@ -11,10 +11,10 @@
 //! - **Deterministic hashing**: Same input always produces same canonical hash
 
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
-use ggen_canonical::hash::compute_hash;
-use ggen_canonical::{json, rust, ttl};
-use ggen_receipt::{hash_data, Receipt};
-use ggen_utils::error::{Error, Result};
+use crate::canonical::hash::compute_hash;
+use crate::canonical::{json, rust, ttl};
+use crate::receipt::{hash_data, Receipt};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};

@@ -299,7 +299,7 @@ Track these to measure progress:
 
 ## 📝 Full Report
 
-**Detailed JSON Report:** `/Users/sac/ggen/analysis/false-positives.json`
+**Detailed JSON Report:** `./analysis/false-positives.json`
 
 Contains:
 - Complete list of all 85 findings
@@ -340,6 +340,6 @@ A: They crash the test instead of returning errors. So error paths never get val
 ---
 
 **Analysis completed. Report stored in:**
-- `/Users/sac/ggen/analysis/false-positives.json` (full details)
-- `/Users/sac/ggen/analysis/FALSE_POSITIVE_EXECUTIVE_SUMMARY.md` (this file)
+- `./analysis/false-positives.json` (full details)
+- `./analysis/FALSE_POSITIVE_EXECUTIVE_SUMMARY.md` (this file)
 - `hive/researcher/false-positives` (Claude-Flow memory)

@@ -1,6 +1,6 @@
 //! Property-based tests for receipt system.
 
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 use proptest::prelude::*;
 
 proptest! {

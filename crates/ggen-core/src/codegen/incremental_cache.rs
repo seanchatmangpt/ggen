@@ -1,6 +1,6 @@
 use crate::graph::Graph;
 use crate::manifest::{GenerationRule, GgenManifest};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::fs;

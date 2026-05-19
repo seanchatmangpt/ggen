@@ -1,7 +1,7 @@
 //! Pack installation logic
 
 use crate::packs::metadata::load_pack_metadata;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 

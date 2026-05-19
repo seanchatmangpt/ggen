@@ -1,12 +1,12 @@
 [package]
 name = "multi-tenant-saas"
-full_name = "ggen/multi-tenant-saas"
+full_name = "mcpp/multi-tenant-saas"
 version = "1.0.0"
 description = "Multi-tenant SaaS architecture with tenant isolation, provisioning, subscription tiers, usage metering, and billing engine"
 category = "ecommerce"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/multi-tenant-saas"
 license = "MIT"
 dependencies = []

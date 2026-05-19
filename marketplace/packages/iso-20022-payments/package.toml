@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "ISO 20022 Payment Messages - RDF ontology, SPARQL templates, and multi-language implementation"
 category = "finance"
 tags = ["iso20022", "payments", "sepa", "banking", "fintech", "rdf", "sparql"]
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 
 [ontology]

@@ -3,7 +3,7 @@
 //! This module provides validation rules for template metadata using SHACL shapes.
 //! Refactored from v1 to use v2 error handling patterns.
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

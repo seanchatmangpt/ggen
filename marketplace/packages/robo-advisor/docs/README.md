@@ -161,7 +161,7 @@ portfolio.rebalance(RebalanceMethod::TaxAware)?;
 
 ### TypeScript
 ```typescript
-import { Client, Portfolio } from '@ggen/robo-advisor';
+import { Client, Portfolio } from '@mcpp/robo-advisor';
 
 const client = new Client('Jane Smith', 45);
 await client.assessRisk();

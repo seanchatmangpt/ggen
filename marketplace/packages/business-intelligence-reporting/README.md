@@ -14,7 +14,7 @@ Advanced BI platform with OLAP, dashboards, KPIs, and dimensional modeling.
 ## Quick Start
 
 ```typescript
-import { BusinessIntelligence } from '@ggen/bi-reporting';
+import { BusinessIntelligence } from '@mcpp/bi-reporting';
 
 const bi = new BusinessIntelligence();
 
@@ -49,4 +49,4 @@ await bi.createAlert({
 - SPARQL Queries: 15 templates
 - Chicago TDD Tests: 650+ lines
 
-See full documentation at https://docs.ggen.ai/packages/bi-reporting
+See full documentation at https://docs.mcpp.ai/packages/bi-reporting

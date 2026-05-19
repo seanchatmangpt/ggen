@@ -19,7 +19,7 @@
 rec:ProductRecommendationsOntology a owl:Ontology ;
     dc:title "Product Recommendations Ontology" ;
     dc:description "RDF ontology for recommendation engines and personalization" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     dc:version "1.0.0" ;
     rdfs:comment "Defines user behavior, algorithms, ML models, and personalization rules" .
 

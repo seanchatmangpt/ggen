@@ -41,7 +41,7 @@ impl ClientHandler for TestClientHandler {
 // ---------------------------------------------------------------------------
 
 async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientHandler>> {
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let (server_transport, client_transport) = tokio::io::duplex(65536);
 
     let server = GgenMcpServer::new();

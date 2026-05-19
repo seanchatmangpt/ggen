@@ -1,9 +1,9 @@
 ---
-version: 6.0.1
+version: 26.5.4
 last_updated: 2026-04-01
 ---
 
-# Claude Code Rules - ggen v6.0.1
+# Claude Code Rules - ggen v26.5.4
 
 Modular, auto-loading rules for specification-driven Rust code generation.
 

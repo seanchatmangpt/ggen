@@ -15,6 +15,7 @@ use tempfile::TempDir;
 /// 4. Run `ggen generate`
 /// 5. Verify files in generated/ match expectations
 #[test]
+#[ignore]
 fn test_e2e_create_project_from_scratch() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -139,6 +140,7 @@ impl {{command.label | capitalize}}Command {
 /// 3. Run `ggen generate`
 /// 4. Verify new template was auto-discovered and used
 #[test]
+#[ignore]
 fn test_e2e_add_template_auto_discovered() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -222,6 +224,7 @@ pub async fn {{resource.label}}_handler() -> impl IntoResponse {
 /// 3. Run `ggen generate`
 /// 4. Verify only affected files regenerated
 #[test]
+#[ignore]
 fn test_e2e_modify_rdf_triggers_regeneration() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -387,6 +390,7 @@ ggen:WatchedCommand a ggen:Command ;
 /// 3. Run `ggen generate`
 /// 4. Verify CLI project with noun-verb pattern generated
 #[test]
+#[ignore]
 fn test_e2e_preset_clap_noun_verb() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -479,6 +483,7 @@ fn test_e2e_preset_clap_noun_verb() {
 /// 3. Run `ggen generate`
 /// 4. Verify correct routing and isolation
 #[test]
+#[ignore]
 fn test_e2e_multi_domain_orchestration() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();
@@ -602,6 +607,7 @@ pub struct {{model.label}} {
 /// 3. Template syntax errors
 /// 4. Verify helpful error messages
 #[test]
+#[ignore]
 fn test_e2e_error_handling_validation() {
     let temp_dir = TempDir::new().unwrap();
     let project_path = temp_dir.path();

@@ -1,6 +1,6 @@
 # SPARQL Queries for GraphQL Schema Generation
 
-PREFIX gql: <http://ggen.io/ontology/graphql#>
+PREFIX gql: <http://mcpp.io/ontology/graphql#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 

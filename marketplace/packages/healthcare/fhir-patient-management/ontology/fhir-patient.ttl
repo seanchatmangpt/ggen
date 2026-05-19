@@ -3,7 +3,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix fhir: <http://hl7.org/fhir/> .
-@prefix fhir-ontology: <http://ggen.io/ontology/fhir#> .
+@prefix fhir-ontology: <http://mcpp.io/ontology/fhir#> .
 
 # FHIR Patient Management Ontology
 # Implements FHIR R4 Patient, Observation, Medication, Condition, Encounter resources

@@ -2,15 +2,15 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix chatman: <http://ggen.ai/ontology/chatman#> .
-@prefix ggen: <http://ggen.ai/ontology/core#> .
+@prefix chatman: <http://mcpp.ai/ontology/chatman#> .
+@prefix mcpp: <http://mcpp.ai/ontology/core#> .
 
 # Ontology Definition
 chatman:Ontology a owl:Ontology ;
     rdfs:label "ChatMan CLI Ontology" ;
     rdfs:comment "Semantic model for chat automation and conversation management" ;
     owl:versionInfo "1.0.0" ;
-    ggen:generatedBy "ggen/chatman-cli" .
+    mcpp:generatedBy "mcpp/chatman-cli" .
 
 # Core Classes
 chatman:Conversation a owl:Class ;

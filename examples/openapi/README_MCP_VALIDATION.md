@@ -200,7 +200,7 @@ Type Support:
 
 ### 1. View Test Results (< 1 min)
 ```bash
-cd /Users/sac/ggen/examples/openapi
+cd ./examples/openapi
 node tests/mcp-tool-discovery.test.mjs
 ```
 
@@ -218,7 +218,7 @@ node tests/mcp-tool-discovery.test.mjs
 
 ## File Locations
 
-All files in: `/Users/sac/ggen/examples/openapi/`
+All files in: `./examples/openapi/`
 
 ```
 Documentation:

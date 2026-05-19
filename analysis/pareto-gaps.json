@@ -28,7 +28,7 @@
         "status": "MISSING",
         "current_state": "Node NIF calls ggen_cli_lib::run_for_node() but function doesn't exist",
         "required_state": "Function implemented with proper async execution and result capture",
-        "location": "/Users/sac/ggen/cli/src/lib.rs",
+        "location": "./cli/src/lib.rs",
         "dependencies": ["Existing cli_match() function", "Result types"],
         "blockers": ["Node addon cannot compile or run"],
         "implementation_notes": [
@@ -53,7 +53,7 @@
         "status": "INCOMPLETE",
         "current_state": "Node addon structure exists, no tests run, no validation",
         "required_state": "Comprehensive test suite passing, documented usage patterns",
-        "location": "/Users/sac/ggen/node/",
+        "location": "./node/",
         "dependencies": ["run_for_node() implementation"],
         "blockers": ["Cannot validate Node integration works"],
         "implementation_notes": [
@@ -79,7 +79,7 @@
         "status": "MISSING",
         "current_state": "Node addon not built or tested in CI",
         "required_state": "Makefile.toml tasks for node build, test, publish",
-        "location": "/Users/sac/ggen/Makefile.toml",
+        "location": "./Makefile.toml",
         "dependencies": ["Node NIF tests passing"],
         "blockers": ["No automated validation of Node integration"],
         "implementation_notes": [
@@ -130,7 +130,7 @@
         "status": "EXCLUDED",
         "current_state": "Excluded from workspace due to compilation errors (Cargo.toml line 23)",
         "required_state": "Module compiles, integrated, or officially deprecated",
-        "location": "/Users/sac/ggen/ggen-marketplace/",
+        "location": "./ggen-marketplace/",
         "dependencies": [],
         "blockers": ["Feature incomplete, may cause confusion"],
         "implementation_notes": [

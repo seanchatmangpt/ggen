@@ -19,7 +19,7 @@
 mt:MultiTenantSaasOntology a owl:Ontology ;
     dc:title "Multi-Tenant SaaS Ontology" ;
     dc:description "RDF ontology for multi-tenant SaaS architecture patterns" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     dc:version "1.0.0" ;
     rdfs:comment "Defines tenant isolation strategies, provisioning, billing, and security" .
 

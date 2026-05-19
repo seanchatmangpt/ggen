@@ -40,7 +40,7 @@
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! println!("Pack: {} v{}", manifest.metadata.name, manifest.metadata.version);
 //! # Ok(())
@@ -53,7 +53,7 @@
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! let templates = manifest.discover_templates(Path::new("."))?;
 //!
@@ -70,7 +70,7 @@
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&Path::new("gpack.toml").to_path_buf())?;
 //!
 //! // Discover templates using manifest patterns or conventions
@@ -85,7 +85,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -216,10 +216,10 @@ fn discover_files(base_path: &Path, patterns: &[&str]) -> Result<Vec<PathBuf>> {
     for pattern in patterns {
         let full_pattern = base_path.join(pattern);
         for entry in glob(&full_pattern.to_string_lossy())
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
         {
             files.push(
-                entry.map_err(|e| ggen_utils::error::Error::new(&format!("Glob error: {}", e)))?,
+                entry.map_err(|e| crate::utils::error::Error::new(&format!("Glob error: {}", e)))?,
             );
         }
     }

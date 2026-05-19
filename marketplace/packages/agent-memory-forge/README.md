@@ -1,6 +1,6 @@
 # agent-memory-forge
 
-Production-ready AI agent package for ggen marketplace.
+Production-ready AI agent package for mcpp marketplace.
 
 ## Features
 
@@ -9,7 +9,7 @@ See `package.toml` for complete feature list.
 ## Installation
 
 ```bash
-ggen market install agent-memory-forge
+mcpp market install agent-memory-forge
 ```
 
 ## Usage

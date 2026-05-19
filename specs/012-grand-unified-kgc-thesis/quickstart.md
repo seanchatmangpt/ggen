@@ -14,7 +14,7 @@
 ### 1. Navigate to Feature Directory
 
 ```bash
-cd /Users/sac/ggen/specs/012-grand-unified-kgc-thesis
+cd ./specs/012-grand-unified-kgc-thesis
 ```
 
 ### 2. Generate LaTeX from Ontology

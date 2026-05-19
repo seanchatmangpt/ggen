@@ -3,7 +3,7 @@
 //! This module contains business logic extracted from CLI functions
 //! to maintain separation of concerns and keep CLI complexity low.
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::path::PathBuf;
 
 /// Result type for schema validation

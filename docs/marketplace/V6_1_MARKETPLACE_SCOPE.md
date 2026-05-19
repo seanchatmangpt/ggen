@@ -1,11 +1,11 @@
-# ggen v6.1.0 — Marketplace and packs scope
+# ggen v26.5.4 — Marketplace and packs scope
 
 **Status:** Engineering track (product slice)  
 **Last updated:** 2026-04-01
 
-This document defines the **marketplace / governed packs** slice targeted for the **v6.1.0** minor release. It complements (does not replace) security-focused items listed for v6.1.0 in [docs/security/V6_MIGRATION.md](../security/V6_MIGRATION.md) (API authentication, multi-tenant isolation, enhanced audit logging).
+This document defines the **marketplace / governed packs** slice targeted for the **v26.5.4** minor release. It complements (does not replace) security-focused items listed for v26.5.4 in [docs/security/V6_MIGRATION.md](../security/V6_MIGRATION.md) (API authentication, multi-tenant isolation, enhanced audit logging).
 
-## Minimum shippable (v6.1.0 packs)
+## Minimum shippable (v26.5.4 packs)
 
 1. **Lockfile authoring** — `ggen packs install` updates `.ggen/packs.lock` in the current project when installation succeeds.
 2. **Pack cache alignment** — `PackResolver` reads packs from `~/.ggen/packs` by default, overridable with `GGEN_PACK_CACHE_DIR` (tests and CI).

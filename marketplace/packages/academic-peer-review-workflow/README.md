@@ -1,6 +1,6 @@
 ## Academic Peer Review Workflow
 
-Purpose: end-to-end peer review lifecycle with reviewer coordination, author responses, revisions, and decision tracking. Aligned with the registry manifest and ready for installation via `ggen marketplace install`.
+Purpose: end-to-end peer review lifecycle with reviewer coordination, author responses, revisions, and decision tracking. Aligned with the registry manifest and ready for installation via `mcpp marketplace install`.
 
 ### What you get
 - Workflow definition (`workflows/peer_review.workflow.json`) with staged lifecycle and required variables.
@@ -11,7 +11,7 @@ Purpose: end-to-end peer review lifecycle with reviewer coordination, author res
 
 ### Install
 ```bash
-ggen marketplace install --package_id academic-peer-review-workflow --install_path ./peer-review-workflow
+mcpp marketplace install --package_id academic-peer-review-workflow --install_path ./peer-review-workflow
 ```
 
 ### Configure required variables
@@ -24,10 +24,10 @@ Edit `workflows/peer_review.workflow.json` to set (sample values already present
 ### Run the workflow (example)
 ```bash
 # Track review file generated from your submission pipeline
-ggen workflow analyze --workflow ./peer-review-workflow/workflows/peer_review.workflow.json
+mcpp workflow analyze --workflow ./peer-review-workflow/workflows/peer_review.workflow.json
 
 # Generate author response template from reviewer RDF
-ggen template render \
+mcpp template render \
   --template ./peer-review-workflow/templates/response-template.md \
   --data ./peer-review-workflow/templates/reviewer-template.rdf \
   --out ./peer-review-workflow/output/author-response.md

@@ -1,8 +1,8 @@
 //! CI commands - clap-noun-verb auto-discovery
 use clap::Subcommand;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
-use ggen_domain::ci;
+use ggen_core::domain::ci;
 
 #[derive(Debug, Subcommand)]
 pub enum CiCmd {

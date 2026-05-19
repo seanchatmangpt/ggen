@@ -3,7 +3,7 @@ name = "cryptocurrency-exchange"
 version = "1.0.0"
 description = "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols"
 category = "finance"
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 tags = ["crypto", "exchange", "blockchain", "defi", "wallet", "trading"]
 

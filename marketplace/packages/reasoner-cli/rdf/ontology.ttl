@@ -5,17 +5,17 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix reasoner: <http://ggen.ruv.io/ontology/reasoner#> .
-@prefix cnv: <http://ggen.ruv.io/ontology/clap-noun-verb#> .
+@prefix reasoner: <http://mcpp.ruv.io/ontology/reasoner#> .
+@prefix cnv: <http://mcpp.ruv.io/ontology/clap-noun-verb#> .
 
 # ============================================================================
 # OWL Ontology for reasoner-cli - OWL Inference Engine and Classification
 # ============================================================================
 
-<http://ggen.ruv.io/ontology/reasoner> a owl:Ontology ;
+<http://mcpp.ruv.io/ontology/reasoner> a owl:Ontology ;
     dcterms:title "Reasoner CLI Ontology" ;
     dcterms:description "OWL inference engine and ontology classification using clap-noun-verb" ;
-    dcterms:creator "ggen marketplace" ;
+    dcterms:creator "mcpp marketplace" ;
     dcterms:created "2025-01-09"^^xsd:date ;
     owl:versionInfo "1.0.0" .
 

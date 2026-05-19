@@ -3,7 +3,7 @@
 **Date:** 2026-03-31
 **Task:** Add μ₀ pack resolution stage to the generation pipeline
 **Status:** ✅ Complete
-**Files:** `/Users/sac/ggen/crates/ggen-core/src/pack_resolver.rs` (NEW)
+**Files:** `./crates/ggen-core/src/pack_resolver.rs` (NEW)
 
 ---
 
@@ -221,11 +221,11 @@ for expansion in &resolved.bundle_expansions {
 ## Files Modified/Created
 
 ### Created
-- `/Users/sac/ggen/crates/ggen-core/src/pack_resolver.rs` (540 lines)
+- `./crates/ggen-core/src/pack_resolver.rs` (540 lines)
 
 ### Modified
-- `/Users/sac/ggen/crates/ggen-core/src/lib.rs` - Added `pub mod pack_resolver;`
-- `/Users/sac/ggen/crates/ggen-core/Cargo.toml` - Added `ggen-marketplace.workspace = true`
+- `./crates/ggen-core/src/lib.rs` - Added `pub mod pack_resolver;`
+- `./crates/ggen-core/Cargo.toml` - Added `ggen-marketplace.workspace = true`
 
 ---
 
@@ -301,7 +301,7 @@ All bundle expansions are tracked for receipt generation (μ₅).
 
 ## Alignment with Plan
 
-From `/Users/sac/.claude/plans/clever-skipping-axolotl.md` Phase 3.1:
+From `~/.ggen/.claude/plans/clever-skipping-axolotl.md` Phase 3.1:
 
 ### ✅ Completed
 

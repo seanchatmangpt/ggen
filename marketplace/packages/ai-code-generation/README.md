@@ -1,6 +1,6 @@
 # AI-Powered Code Generation Example
 
-This example demonstrates advanced AI-powered code generation using ggen's AI capabilities:
+This example demonstrates advanced AI-powered code generation using mcpp's AI capabilities:
 
 - **Template Generation**: AI creates templates from natural language descriptions
 - **Code Generation**: AI generates Rust code with proper error handling and testing
@@ -39,16 +39,16 @@ This example demonstrates advanced AI-powered code generation using ggen's AI ca
 
 ```bash
 # Generate a complete Rust web service
-ggen ai generate -d "Create a REST API for managing books with CRUD operations, authentication, and search functionality" --validate
+mcpp ai generate -d "Create a REST API for managing books with CRUD operations, authentication, and search functionality" --validate
 
 # Generate SPARQL queries for domain analysis
-ggen ai sparql -d "Find all entities and their relationships in the domain model" -g data/domain.ttl
+mcpp ai sparql -d "Find all entities and their relationships in the domain model" -g data/domain.ttl
 
 # Generate documentation
-ggen ai generate -d "Create comprehensive API documentation with examples and usage guides" --validate
+mcpp ai generate -d "Create comprehensive API documentation with examples and usage guides" --validate
 
 # Generate test cases
-ggen ai generate -d "Generate comprehensive test cases for the book management API" --validate
+mcpp ai generate -d "Generate comprehensive test cases for the book management API" --validate
 ```
 
 ## Project Structure
@@ -56,7 +56,7 @@ ggen ai generate -d "Generate comprehensive test cases for the book management A
 ```
 ai-code-generation/
 ├── README.md                 # This file
-├── ggen.toml                 # ggen configuration
+├── mcpp.toml                 # mcpp configuration
 ├── make.toml                 # Lifecycle configuration
 ├── templates/                # AI-generated templates
 │   ├── rust-service.tmpl     # Rust service template
@@ -83,30 +83,30 @@ ai-code-generation/
 ### 1. **Search Marketplace** for existing AI patterns
 ```bash
 # Search for AI and web service packages
-ggen market search "ai service"
-ggen market search "rust web service"
-ggen market search "crud templates"
-ggen market search "database integration"
+mcpp market search "ai service"
+mcpp market search "rust web service"
+mcpp market search "crud templates"
+mcpp market search "database integration"
 ```
 
 ### 2. **Install Required Packages**
 ```bash
 # Install AI and template packages
-ggen market install "ai-service-templates"         # AI-powered service generation
-ggen market install "rust-axum-service"             # Axum web framework
-ggen market install "crud-operations"               # CRUD operation templates
-ggen market install "postgresql-database"           # Database integration
-ggen market install "redis-cache"                   # Caching layer
-ggen market install "openapi-documentation"         # API documentation
+mcpp market install "ai-service-templates"         # AI-powered service generation
+mcpp market install "rust-axum-service"             # Axum web framework
+mcpp market install "crud-operations"               # CRUD operation templates
+mcpp market install "postgresql-database"           # Database integration
+mcpp market install "redis-cache"                   # Caching layer
+mcpp market install "openapi-documentation"         # API documentation
 ```
 
 ### 3. **Service Generation** using marketplace templates + AI
 ```bash
 # Generate book management service using marketplace template
-ggen template generate ai-service-templates:book-service.tmpl
+mcpp template generate ai-service-templates:book-service.tmpl
 
 # Enhance with AI for custom requirements
-ggen ai generate -d "
+mcpp ai generate -d "
 Enhance the generated book service with these additional features:
 - Advanced search with multiple filters
 - Book recommendations based on reading history
@@ -119,7 +119,7 @@ Enhance the generated book service with these additional features:
 ### 2. SPARQL Query Generation
 ```bash
 # Generate SPARQL queries for domain analysis
-ggen ai sparql -d "
+mcpp ai sparql -d "
 Analyze the book domain model and generate queries for:
 - Finding all books by a specific author
 - Listing books in a category with their details
@@ -133,7 +133,7 @@ Analyze the book domain model and generate queries for:
 ### 3. Documentation Generation
 ```bash
 # Generate comprehensive documentation
-ggen ai generate -d "
+mcpp ai generate -d "
 Create comprehensive documentation for the book management API including:
 - API overview and architecture
 - Endpoint documentation with examples
@@ -149,7 +149,7 @@ Create comprehensive documentation for the book management API including:
 ### 4. Test Generation
 ```bash
 # Generate comprehensive test suite
-ggen ai generate -d "
+mcpp ai generate -d "
 Generate a comprehensive test suite for the book management API including:
 - Unit tests for all service methods
 - Integration tests for API endpoints
@@ -164,7 +164,7 @@ Generate a comprehensive test suite for the book management API including:
 
 ## Configuration
 
-### ggen.toml
+### mcpp.toml
 ```toml
 [ai]
 provider = "ollama"
@@ -201,7 +201,7 @@ The AI system can iteratively improve generated code based on validation feedbac
 
 ```bash
 # Generate with iterative improvement
-ggen ai generate -d "Create a user authentication service" --validate --max-iterations 5
+mcpp ai generate -d "Create a user authentication service" --validate --max-iterations 5
 ```
 
 ### Quality Validation
@@ -217,7 +217,7 @@ Templates can be customized for specific frameworks and patterns:
 
 ```bash
 # Generate with specific framework
-ggen ai generate -d "Create a microservice" --template rust-service.tmpl --vars framework=axum
+mcpp ai generate -d "Create a microservice" --template rust-service.tmpl --vars framework=axum
 ```
 
 ## Best Practices
@@ -277,20 +277,20 @@ Generate comprehensive documentation:
 ### 1. **Start with Marketplace Search**
 ```bash
 # Always search first - someone may have already solved your problem
-ggen market search "your specific requirement"
-ggen market categories  # See what's available
+mcpp market search "your specific requirement"
+mcpp market categories  # See what's available
 ```
 
 ### 2. **Use Marketplace Templates as Foundation**
 ```bash
 # Install proven patterns
-ggen market install "your-required-package"
+mcpp market install "your-required-package"
 
 # Generate from marketplace template
-ggen template generate package-name:template.tmpl
+mcpp template generate package-name:template.tmpl
 
 # Then enhance with AI for custom needs
-ggen ai generate "Add my specific business requirements"
+mcpp ai generate "Add my specific business requirements"
 ```
 
 ### 3. **Leverage AI for Complex Logic**
@@ -310,15 +310,15 @@ ggen ai generate "Add my specific business requirements"
 ### 4. **Validate Everything**
 ```bash
 # Always validate generated code
-ggen lifecycle run test
-ggen graph validate data/domain.ttl
-ggen template validate templates/*.tmpl
+mcpp lifecycle run test
+mcpp graph validate data/domain.ttl
+mcpp template validate templates/*.tmpl
 ```
 
 ### 5. **Contribute Back to Marketplace**
 ```bash
 # After successful customization, consider publishing improvements
-ggen market publish "my-enhanced-pattern"
+mcpp market publish "my-enhanced-pattern"
 ```
 
-This example demonstrates how to combine ggen's marketplace (human expertise) with AI generation (adaptability) for optimal development speed and quality.
+This example demonstrates how to combine mcpp's marketplace (human expertise) with AI generation (adaptability) for optimal development speed and quality.

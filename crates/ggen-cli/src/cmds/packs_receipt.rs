@@ -30,7 +30,7 @@ pub fn generate_pack_install_receipt(
     pack_id: &str,
     status: &str,
 ) -> Result<PathBuf> {
-    use ggen_receipt::{hash_data, Receipt};
+    use ggen_core::receipt::{hash_data, Receipt};
 
     // Create .ggen/receipts and .ggen/keys directories
     let receipts_dir = PathBuf::from(".ggen/receipts");
@@ -52,7 +52,7 @@ pub fn generate_pack_install_receipt(
         load_or_generate_keypair(&private_key_path, &public_key_path)?
     } else {
         // Generate new keypair
-        let (signing_key, verifying_key) = ggen_receipt::generate_keypair();
+        let (signing_key, verifying_key) = ggen_core::receipt::generate_keypair();
 
         // Save keys
         save_keypair(&signing_key, &verifying_key, &private_key_path, &public_key_path)?;

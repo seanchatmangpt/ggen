@@ -3,7 +3,7 @@
 
 set -e
 
-DOCS_DIR="/Users/sac/ggen/marketplace"
+DOCS_DIR="./marketplace"
 cd "$DOCS_DIR"
 
 echo "=== Marketplace Documentation Validation ==="

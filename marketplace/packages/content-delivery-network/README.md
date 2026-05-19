@@ -55,13 +55,13 @@
 
 ```bash
 # Deploy CDN configuration
-ggen marketplace install content-delivery-network
+mcpp marketplace install content-delivery-network
 
 # Configure edge locations
-ggen cdn configure --regions=us,eu,asia --ssl=auto
+mcpp cdn configure --regions=us,eu,asia --ssl=auto
 
 # Purge cache
-ggen cdn purge --pattern=/assets/*
+mcpp cdn purge --pattern=/assets/*
 ```
 
 **Status**: Production-ready

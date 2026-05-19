@@ -18,7 +18,7 @@ Enterprise-grade document management with versioning, workflow automation, OCR, 
 
 ```bash
 # Add to your project
-ggen marketplace install document-management-system
+mcpp marketplace install document-management-system
 ```
 
 ### Basic Usage
@@ -48,7 +48,7 @@ let results = dms.search("quarterly revenue")?;
 #### TypeScript
 
 ```typescript
-import { DocumentManagement } from '@ggen/document-management';
+import { DocumentManagement } from '@mcpp/document-management';
 
 const dms = new DocumentManagement();
 
@@ -72,7 +72,7 @@ const results = await dms.search({
 #### Python
 
 ```python
-from ggen.document_management import DocumentManagement
+from mcpp.document_management import DocumentManagement
 
 dms = DocumentManagement()
 
@@ -272,12 +272,12 @@ Test categories:
 
 ```typescript
 // Integrate with workflow automation
-import { WorkflowEngine } from '@ggen/workflow-automation';
+import { WorkflowEngine } from '@mcpp/workflow-automation';
 const workflow = new WorkflowEngine();
 workflow.registerDocumentApproval(dms);
 
 // Integrate with AI services
-import { AIAnalyzer } from '@ggen/ai-services';
+import { AIAnalyzer } from '@mcpp/ai-services';
 const ai = new AIAnalyzer();
 const classification = await ai.classifyDocument(doc.content);
 await dms.setCategory(doc.id, classification.category);
@@ -312,6 +312,6 @@ MIT License - See LICENSE file for details
 
 ## Support
 
-- Documentation: https://docs.ggen.ai/packages/document-management
-- Issues: https://github.com/ggen/marketplace/issues
-- Community: https://community.ggen.ai
+- Documentation: https://docs.mcpp.ai/packages/document-management
+- Issues: https://github.com/mcpp/marketplace/issues
+- Community: https://community.mcpp.ai

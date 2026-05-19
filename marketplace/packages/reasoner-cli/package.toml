@@ -2,10 +2,10 @@
 name = "reasoner-cli"
 version = "1.0.0"
 description = "OWL inference engine and ontology classification using clap-noun-verb"
-authors = ["ggen marketplace"]
+authors = ["mcpp marketplace"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ggen-cli/marketplace"
-homepage = "https://ggen.ruv.io/packages/reasoner-cli"
+repository = "https://github.com/mcpp-cli/marketplace"
+homepage = "https://mcpp.ruv.io/packages/reasoner-cli"
 keywords = ["owl", "inference", "classification", "ontology", "semantic-web", "clap-noun-verb"]
 categories = ["cli-tools", "semantic-web", "inference-engines"]
 readme = "README.md"

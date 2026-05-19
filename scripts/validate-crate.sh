@@ -9,7 +9,7 @@ set -euo pipefail
 # ============================================================================
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly CLEANROOM_BIN="/Users/sac/ggen/cleanroom/examples/cleanroom/target/release/cleanroom"
+readonly CLEANROOM_BIN="./cleanroom/examples/cleanroom/target/release/cleanroom"
 
 # Colors
 readonly RED='\033[0;31m'

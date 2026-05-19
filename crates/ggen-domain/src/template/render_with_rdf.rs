@@ -4,7 +4,7 @@
 //! maintaining backward compatibility with v1 template rendering.
 
 use ggen_core::{Graph, Template};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -109,7 +109,7 @@ pub struct RenderWithRdfResult {
 pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfResult> {
     // Validate template exists
     if !options.template_path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Template not found: {}",
             options.template_path.display()
         )));
@@ -119,7 +119,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     // For multi-file output, we check the base directory, not the specific file
     // (File marker detection happens after rendering, so we can't check individual files yet)
     if options.output_path.exists() && !options.force_overwrite {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Output file already exists: {}. Use force_overwrite to overwrite.",
             options.output_path.display()
         )));
@@ -128,13 +128,13 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     // Prepare output directory
     if let Some(parent) = options.output_path.parent() {
         std::fs::create_dir_all(parent).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create output directory: {}", e))
         })?;
     }
 
     // Read template content
     let template_content = std::fs::read_to_string(&options.template_path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
 
     // Parse template with or without preprocessor
     let output_dir = options
@@ -145,17 +145,17 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     let mut template = if options.use_preprocessor {
         Template::parse_with_preprocessor(&template_content, &options.template_path, output_dir)
             .map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to parse template: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to parse template: {}", e))
             })?
     } else {
         Template::parse(&template_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to parse template: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to parse template: {}", e))
         })?
     };
 
     // Create Tera instance with filters
     let mut tera = ggen_core::tera_env::build_tera_minimal().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to create Tera instance: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to create Tera instance: {}", e))
     })?;
 
     // Build context from variables
@@ -169,14 +169,14 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
 
     // Create RDF graph
     let mut graph = Graph::new().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to create RDF graph: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to create RDF graph: {}", e))
     })?;
 
     // Render frontmatter first
     template
         .render_frontmatter(&mut tera, &context)
         .map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to render frontmatter: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to render frontmatter: {}", e))
         })?;
 
     // Render using v2 RDF integration
@@ -193,7 +193,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
                 &options.template_path,
             )
             .map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Template rendering failed: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Template rendering failed: {}", e))
             })?
     } else if !template.front.rdf.is_empty() {
         // Use frontmatter rdf: field (filesystem-routed)
@@ -201,23 +201,23 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
         template
             .process_graph(&mut graph, &mut tera, &context, &options.template_path)
             .map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to process graph: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to process graph: {}", e))
             })?;
 
         // Render body with SPARQL results available
         template.render(&mut tera, &context).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Template rendering failed: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Template rendering failed: {}", e))
         })?
     } else {
         // No RDF files - backward compatible v1 API
         template
             .process_graph(&mut graph, &mut tera, &context, &options.template_path)
             .map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to process graph: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to process graph: {}", e))
             })?;
 
         template.render(&mut tera, &context).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Template rendering failed: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Template rendering failed: {}", e))
         })?
     };
 
@@ -246,7 +246,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
         for (file_path, content) in &files {
             if let Some(parent) = file_path.parent() {
                 std::fs::create_dir_all(parent).map_err(|e| {
-                    ggen_utils::error::Error::new(&format!(
+                    ggen_core::utils::error::Error::new(&format!(
                         "Failed to create output directory for {}: {}",
                         file_path.display(),
                         e
@@ -255,7 +255,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
             }
 
             std::fs::write(file_path, content).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to write file {}: {}",
                     file_path.display(),
                     e
@@ -268,7 +268,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     } else {
         // Single file output (existing behavior)
         std::fs::write(&options.output_path, &rendered_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write output: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to write output: {}", e))
         })?;
 
         (1, rendered_content.len(), options.output_path.clone())
@@ -306,13 +306,13 @@ pub fn generate_from_rdf(
 ) -> Result<PathBuf> {
     // Create RDF graph
     let graph = Graph::new().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to create RDF graph: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to create RDF graph: {}", e))
     })?;
 
     // Load RDF files
     for rdf_file in &rdf_files {
         let ttl_content = std::fs::read_to_string(rdf_file).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            ggen_core::utils::error::Error::new(&format!(
                 "Failed to read RDF file '{}': {}",
                 rdf_file.display(),
                 e
@@ -321,7 +321,7 @@ pub fn generate_from_rdf(
 
         graph
             .insert_turtle(&ttl_content)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to parse RDF: {}", e)))?;
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to parse RDF: {}", e)))?;
     }
 
     // Query for template metadata
@@ -339,7 +339,7 @@ pub fn generate_from_rdf(
 
     let results = graph
         .query_cached(query)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("SPARQL query failed: {}", e)))?;
 
     // Extract template metadata
     let (name, description, to) = match results {
@@ -356,7 +356,7 @@ pub fn generate_from_rdf(
             (name, description, to)
         }
         _ => {
-            return Err(ggen_utils::error::Error::new(
+            return Err(ggen_core::utils::error::Error::new(
                 "No template metadata found in RDF files",
             ))
         }
@@ -381,7 +381,7 @@ pub fn generate_from_rdf(
 
     // Write template file
     std::fs::write(&output_template_path, template_content)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
 
     Ok(output_template_path)
 }
@@ -581,7 +581,7 @@ Content for file 2
 /// (file_path, content) tuples. Content before the first marker is discarded.
 fn split_file_markers(content: &str, base_dir: &Path) -> Result<Vec<(PathBuf, String)>> {
     let file_marker_re = Regex::new(r"\{#\s*FILE:\s*([^\s#]+)\s*#\}").map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to compile file marker regex: {}", e))
+        ggen_core::utils::error::Error::new(&format!("Failed to compile file marker regex: {}", e))
     })?;
 
     let mut files = Vec::new();

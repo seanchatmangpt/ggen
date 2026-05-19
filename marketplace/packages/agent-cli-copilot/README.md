@@ -1,6 +1,6 @@
 # agent-cli-copilot
 
-Production-ready AI agent package for ggen marketplace.
+Production-ready AI agent package for mcpp marketplace.
 
 ## Features
 
@@ -9,7 +9,7 @@ See `package.toml` for complete feature list.
 ## Installation
 
 ```bash
-ggen market install agent-cli-copilot
+mcpp market install agent-cli-copilot
 ```
 
 ## Usage

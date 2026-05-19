@@ -21,7 +21,7 @@ async fn make_mock_llm_request(client: &A2aLlmClient, id: usize) -> Result<Durat
     let start = Instant::now();
 
     // Create a simple A2A message
-    let message = a2a_generated::converged::message::ConvergedMessage::text(
+    let message = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
         format!("test-msg-{}", id),
         "load-test".to_string(),
         format!("Test prompt {}", id),

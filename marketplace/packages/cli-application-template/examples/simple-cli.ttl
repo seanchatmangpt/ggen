@@ -1,5 +1,5 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix cli: <http://ggen.dev/ontology/cli#> .
+@prefix cli: <http://mcpp.dev/ontology/cli#> .
 
 # Simple CLI Example: Task Manager
 <#TaskCLI> a cli:CLIApplication ;

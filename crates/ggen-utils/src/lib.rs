@@ -15,8 +15,8 @@
 //! ### Error Handling
 //!
 //! ```rust,no_run
-//! use ggen_utils::error::Result;
-//! use ggen_utils::error::Error;
+//! use ggen_core::utils::error::Result;
+//! use ggen_core::utils::error::Error;
 //!
 //! fn process_data() -> Result<()> {
 //!     // Operations that may fail
@@ -32,7 +32,7 @@
 //! ### Configuration
 //!
 //! ```rust,no_run
-//! use ggen_utils::app_config::AppConfig;
+//! use ggen_core::utils::app_config::AppConfig;
 //!
 //! let config = AppConfig::load()?;
 //! println!("Config loaded: {:?}", config);
@@ -64,7 +64,7 @@ pub mod versioning;
 
 // Re-export error handling utilities
 // Note: bail! and ensure! macros are exported via #[macro_export] in error.rs
-// They are available as ggen_utils::bail! and ggen_utils::ensure!
+// They are available as ggen_core::utils::bail! and ggen_core::utils::ensure!
 pub use error::{Context, Error, Result};
 
 // Re-export SafePath for easy migration from PathBuf

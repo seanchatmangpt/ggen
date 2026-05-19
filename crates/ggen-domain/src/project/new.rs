@@ -3,7 +3,7 @@
 //! Chicago TDD: Pure business logic with REAL project creation
 
 use ggen_core::project_generator::{create_new_project, ProjectConfig, ProjectType};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// New project command input (pure domain type)
 #[derive(Debug, Clone, Default)]

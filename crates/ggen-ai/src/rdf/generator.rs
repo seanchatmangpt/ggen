@@ -39,7 +39,7 @@
 //! # }
 //! ```
 
-use ggen_utils::{
+use ggen_core::utils::{
     bail,
     error::{Context, Result},
 };
@@ -82,19 +82,19 @@ impl CliGenerator {
             ErrorContext, ErrorEnhancer, ProgressiveDisclosure, TemplatePreview,
         };
 
-        ggen_utils::alert_info!(
+        ggen_core::utils::alert_info!(
             "🚀 Generating CLI project from {} (2026 best practices + Hyper DX)",
             ttl_path.display()
         );
 
         // Step 1: Parse RDF
-        ggen_utils::alert_info!("  [1/6] Parsing RDF...");
+        ggen_core::utils::alert_info!("  [1/6] Parsing RDF...");
         let mut parser = RdfParser::new()?;
         parser.load_schema()?;
         parser.load_ttl(ttl_path)?;
 
         // Step 2: Execute SPARQL queries
-        ggen_utils::alert_info!("  [2/6] Extracting project structure...");
+        ggen_core::utils::alert_info!("  [2/6] Extracting project structure...");
         let executor = QueryExecutor::new(parser.get_store());
         let mut project = executor.extract_project()?;
         project.nouns = executor.extract_nouns()?;
@@ -109,61 +109,61 @@ impl CliGenerator {
         }
 
         // Step 3: Validate project
-        ggen_utils::alert_info!("  [3/7] Validating project...");
+        ggen_core::utils::alert_info!("  [3/7] Validating project...");
         if let Err(e) = validate_project(&project) {
             let enhanced = ErrorEnhancer::enhance_error(&e, &ErrorContext::WorkspaceStructure);
-            ggen_utils::alert_critical!("{}", &enhanced);
+            ggen_core::utils::alert_critical!("{}", &enhanced);
             return Err(e);
         }
 
         // Step 3.5: Show live preview (Hyper DX)
-        ggen_utils::alert_info!("  [4/7] 📋 Live Preview...");
+        ggen_core::utils::alert_info!("  [4/7] 📋 Live Preview...");
         let cli_project = convert_project(&project)?;
-        ggen_utils::alert_info!(
+        ggen_core::utils::alert_info!(
             "{}",
             TemplatePreview::preview_workspace_structure(&cli_project)
         );
 
         // Show beginner-friendly info
-        ggen_utils::alert_info!("\n{}", ProgressiveDisclosure::beginner_info(&cli_project));
+        ggen_core::utils::alert_info!("\n{}", ProgressiveDisclosure::beginner_info(&cli_project));
 
         // Step 4: Convert to ggen-core types and generate workspace
-        ggen_utils::alert_info!("\n  [5/7] Generating workspace structure...");
+        ggen_core::utils::alert_info!("\n  [5/7] Generating workspace structure...");
         std::fs::create_dir_all(output_dir)?;
         if let Err(e) = self.generate_workspace(&project, output_dir) {
             let enhanced = ErrorEnhancer::enhance_error(&e, &ErrorContext::TemplateGeneration);
-            ggen_utils::alert_critical!("{}", &enhanced);
+            ggen_core::utils::alert_critical!("{}", &enhanced);
             return Err(e);
         }
 
         // Step 5: Post-generation
-        ggen_utils::alert_info!("  [6/7] Running post-generation hooks...");
+        ggen_core::utils::alert_info!("  [6/7] Running post-generation hooks...");
         run_post_generation(output_dir)?;
 
         // Step 6: Show completion summary with advanced info
-        ggen_utils::alert_info!("  [7/7] ✅ Generation Complete!\n");
-        ggen_utils::alert_success!("CLI project generated at {}", output_dir.display());
+        ggen_core::utils::alert_info!("  [7/7] ✅ Generation Complete!\n");
+        ggen_core::utils::alert_success!("CLI project generated at {}", output_dir.display());
         let cli_crate = project.cli_crate.as_ref().ok_or_else(|| {
-            ggen_utils::error::Error::new("CLI crate name is required but was not provided")
+            ggen_core::utils::error::Error::new("CLI crate name is required but was not provided")
         })?;
         let domain_crate = project.domain_crate.as_ref().ok_or_else(|| {
-            ggen_utils::error::Error::new("Domain crate name is required but was not provided")
+            ggen_core::utils::error::Error::new("Domain crate name is required but was not provided")
         })?;
-        ggen_utils::alert_info!(
+        ggen_core::utils::alert_info!(
             "📁 Workspace: crates/{}, crates/{}",
             cli_crate,
             domain_crate
         );
 
         // Show advanced info for power users
-        ggen_utils::alert_info!("\n{}", ProgressiveDisclosure::advanced_info(&cli_project));
+        ggen_core::utils::alert_info!("\n{}", ProgressiveDisclosure::advanced_info(&cli_project));
 
         // Show next steps
-        ggen_utils::alert_info!("\n🎯 Next Steps:");
-        ggen_utils::alert_info!("  1. cd {}", project.name);
-        ggen_utils::alert_info!("  2. cargo build");
-        ggen_utils::alert_info!("  3. cargo run -- --help");
-        ggen_utils::alert_info!(
+        ggen_core::utils::alert_info!("\n🎯 Next Steps:");
+        ggen_core::utils::alert_info!("  1. cd {}", project.name);
+        ggen_core::utils::alert_info!("  2. cargo build");
+        ggen_core::utils::alert_info!("  3. cargo run -- --help");
+        ggen_core::utils::alert_info!(
             "  4. cargo run -- {} --help",
             project
                 .nouns

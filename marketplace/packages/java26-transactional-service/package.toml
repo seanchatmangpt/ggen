@@ -2,7 +2,7 @@
 name = "java26-transactional-service"
 version = "1.0.0"
 description = "TRANSACTIONAL SERVICE — Generate @Service classes with @Transactional, command records, and read/write separation"
-authors = ["ggen marketplace"]
+authors = ["mcpp marketplace"]
 license = "MIT"
 keywords = ["java26", "service", "transactional", "spring-boot", "command-pattern"]
 categories = ["java", "spring-boot", "patterns"]

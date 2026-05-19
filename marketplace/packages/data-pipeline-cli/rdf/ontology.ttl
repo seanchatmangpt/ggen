@@ -5,8 +5,8 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix schema: <http://schema.org/> .
-@prefix dpipe: <http://ggen.cli/ontology/data-pipeline#> .
-@prefix clap: <http://ggen.cli/ontology/clap-noun-verb#> .
+@prefix dpipe: <http://mcpp.cli/ontology/data-pipeline#> .
+@prefix clap: <http://mcpp.cli/ontology/clap-noun-verb#> .
 
 # ============================================================================
 # Data Pipeline CLI Ontology
@@ -19,7 +19,7 @@ dpipe:DataPipelineOntology a owl:Ontology ;
     dcterms:title "Data Pipeline CLI Ontology" ;
     dcterms:description "ETL data pipelines, transformation, and integration using clap-noun-verb pattern" ;
     dcterms:created "2025-01-09"^^xsd:date ;
-    dcterms:creator "ggen Marketplace" ;
+    dcterms:creator "mcpp Marketplace" ;
     owl:versionInfo "1.0.0" ;
     rdfs:label "Data Pipeline CLI Ontology" .
 

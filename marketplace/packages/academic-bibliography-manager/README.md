@@ -1,6 +1,6 @@
 # Academic Bibliography Manager
 
-Production-ready bibliography management package with BibTeX parsing/generation, citation validation, duplicate detection, and multi-format export (BibTeX, CSL-JSON, RIS). Ships as a ggen marketplace tool for academic workflows.
+Production-ready bibliography management package with BibTeX parsing/generation, citation validation, duplicate detection, and multi-format export (BibTeX, CSL-JSON, RIS). Ships as a mcpp marketplace tool for academic workflows.
 
 ## Contents
 - Templates: `templates/bibtex-references.tmpl` (RDF → BibTeX generator)
@@ -12,9 +12,9 @@ Production-ready bibliography management package with BibTeX parsing/generation,
 1) Install (dry-run first):
 ```bash
 # Preview
-ggen marketplace install --package academic-bibliography-manager --dry_run
+mcpp marketplace install --package academic-bibliography-manager --dry_run
 # Install to current dir
-ggen marketplace install --package academic-bibliography-manager
+mcpp marketplace install --package academic-bibliography-manager
 ```
 
 2) Generate BibTeX from an RDF paper graph:
@@ -26,7 +26,7 @@ include_dois = true
 include_urls = true
 EOF
 
-ggen generate \
+mcpp generate \
   --template marketplace/packages/academic-bibliography-manager/templates/bibtex-references.tmpl \
   --domain examples/paper.rdf \
   --output ./out/refs.bib \
@@ -35,9 +35,9 @@ ggen generate \
 
 3) Validate and export:
 ```bash
-ggen bibliography validate examples/references.bib
-ggen bibliography export --input examples/references.bib --format csl-json
-ggen bibliography export --input examples/references.bib --format ris
+mcpp bibliography validate examples/references.bib
+mcpp bibliography export --input examples/references.bib --format csl-json
+mcpp bibliography export --input examples/references.bib --format ris
 ```
 
 ## Features (80/20)

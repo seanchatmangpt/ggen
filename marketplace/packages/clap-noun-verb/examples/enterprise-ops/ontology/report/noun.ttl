@@ -1,4 +1,4 @@
-@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix cnv: <https://mcpp.dev/clap-noun-verb/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix report: <https://example.com/enterprise-ops/report/> .
 

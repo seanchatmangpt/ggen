@@ -1,4 +1,4 @@
-PREFIX wf: <https://ggen.ai/ontology/workflow#>
+PREFIX wf: <https://mcpp.ai/ontology/workflow#>
 SELECT ?task ?assignee ?priority ?dueDate WHERE {
   ?task a wf:HumanTask ;
         wf:assignedTo ?assignee ;

@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/schema-forge-cli)](https://crates.io/crates/schema-forge-cli)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
-[![ggen Marketplace](https://img.shields.io/badge/ggen-marketplace-success)](https://github.com/seanchatmangpt/ggen)
+[![mcpp Marketplace](https://img.shields.io/badge/mcpp-marketplace-success)](https://github.com/seanchatmangpt/mcpp)
 
 Data modeling and schema generation CLI built with `clap-noun-verb` pattern. Design models with ontological validation and generate code for multiple targets.
 
@@ -16,10 +16,10 @@ Data modeling and schema generation CLI built with `clap-noun-verb` pattern. Des
 
 ## Installation
 
-### From ggen Marketplace
+### From mcpp Marketplace
 ```bash
-ggen market install schema-forge-cli
-ggen template generate schema-forge-cli:cli.tmpl
+mcpp market install schema-forge-cli
+mcpp template generate schema-forge-cli:cli.tmpl
 cargo build --release
 ```
 
@@ -281,19 +281,19 @@ impl Product {
 }
 ```
 
-## ggen Integration
+## mcpp Integration
 
 ### Generate from Ontology
 ```bash
-ggen graph load marketplace/packages/schema-forge-cli/rdf/ontology.ttl
+mcpp graph load marketplace/packages/schema-forge-cli/rdf/ontology.ttl
 
-ggen graph query --sparql "
+mcpp graph query --sparql "
   SELECT ?model ?field WHERE {
-    ?field a <http://ggen.io/ontology/clap-noun-verb#Field> .
+    ?field a <http://mcpp.io/ontology/clap-noun-verb#Field> .
   }
 "
 
-ggen template generate schema-forge-cli:cli.tmpl
+mcpp template generate schema-forge-cli:cli.tmpl
 ```
 
 ### Extend with Custom Generators
@@ -308,7 +308,7 @@ sf:typescript a clap:Verb ;
 
 Regenerate:
 ```bash
-ggen template generate schema-forge-cli:cli.tmpl
+mcpp template generate schema-forge-cli:cli.tmpl
 # New command: sf-cli generate typescript Product --output models.ts
 ```
 

@@ -168,7 +168,7 @@ Claude should auto-activate:
 
 ## References
 
-- **Base Skills**: `/Users/sac/ggen-spec-kit/CLAUDE.md` (lines 90-109)
+- **Base Skills**: `.-spec-kit/CLAUDE.md` (lines 90-109)
 - **Customization Guide**: `CLAUDE.md` (ggen project, lines 90-109)
 - **Feature Plan**: `.specify/specs/013-ga-production-release/plan.ttl`
 - **Skills Framework**: `.specify/SKILLS.md`

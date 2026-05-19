@@ -29,9 +29,9 @@
 //! ### Initializing Configuration
 //!
 //! ```rust,no_run
-//! use ggen_utils::app_config::AppConfig;
+//! use ggen_core::utils::app_config::AppConfig;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! // Initialize with default config
 //! AppConfig::init(Some(include_str!("../resources/default_config.toml")))?;
 //!
@@ -45,7 +45,7 @@
 //! ### Merging CLI Arguments
 //!
 //! ```rust,no_run
-//! use ggen_utils::app_config::AppConfig;
+//! use ggen_core::utils::app_config::AppConfig;
 //! use clap::Parser;
 //!
 //! # #[derive(Parser)]
@@ -53,7 +53,7 @@
 //! #     #[arg(long)]
 //! #     debug: bool,
 //! # }
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! let args = Args::parse();
 //! AppConfig::merge_args(&args)?;
 //! # Ok(())
@@ -63,9 +63,9 @@
 //! ### Accessing Configuration Values
 //!
 //! ```rust,no_run
-//! use ggen_utils::app_config::AppConfig;
+//! use ggen_core::utils::app_config::AppConfig;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! // Get a single value
 //! let debug: bool = AppConfig::get("debug")?;
 //!

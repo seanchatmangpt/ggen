@@ -150,6 +150,6 @@ throughput_rps = 5000
 memory_usage_mb = 50
 
 [support]
-documentation_url = "https://ggen.ai/docs/templates/rest-api"
-examples_url = "https://github.com/ggen/examples/rest-api"
-community_discord = "https://discord.gg/ggen"
+documentation_url = "https://mcpp.ai/docs/templates/rest-api"
+examples_url = "https://github.com/mcpp/examples/rest-api"
+community_discord = "https://discord.gg/mcpp"

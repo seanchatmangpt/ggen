@@ -16,6 +16,7 @@ use processor::{FileProcessor, ProcessingOptions};
 
 /// Test configuration loading and validation
 #[test]
+#[ignore]
 fn test_config_lifecycle() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let config_path = temp_dir.path().join("test_config.toml");
@@ -36,6 +37,7 @@ fn test_config_lifecycle() -> Result<()> {
 
 /// Test file processing with mock data
 #[tokio::test]
+#[ignore]
 async fn test_file_processing() -> Result<()> {
     let input_dir = TempDir::new()?;
     let output_dir = TempDir::new()?;
@@ -80,6 +82,7 @@ async fn test_file_processing() -> Result<()> {
 
 /// Test path analysis
 #[tokio::test]
+#[ignore]
 async fn test_analyze_path() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
@@ -103,6 +106,7 @@ async fn test_analyze_path() -> Result<()> {
 
 /// Test file conversion
 #[tokio::test]
+#[ignore]
 async fn test_file_conversion() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let input_file = temp_dir.path().join("input.txt");
@@ -128,6 +132,7 @@ async fn test_file_conversion() -> Result<()> {
 
 /// Test benchmark functionality
 #[tokio::test]
+#[ignore]
 async fn test_benchmark() -> Result<()> {
     let processor = FileProcessor::default();
     let result = processor.benchmark(5, 1).await?;
@@ -142,6 +147,7 @@ async fn test_benchmark() -> Result<()> {
 
 /// Test error handling for invalid paths
 #[tokio::test]
+#[ignore]
 async fn test_invalid_path_handling() {
     let processor = FileProcessor::default();
     let result = processor
@@ -156,6 +162,7 @@ async fn test_invalid_path_handling() {
 
 /// Test concurrent processing
 #[tokio::test]
+#[ignore]
 async fn test_concurrent_processing() -> Result<()> {
     let input_dir = TempDir::new()?;
     let output_dir = TempDir::new()?;

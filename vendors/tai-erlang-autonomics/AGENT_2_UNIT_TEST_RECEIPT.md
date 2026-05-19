@@ -1,6 +1,6 @@
 # Agent 2: Unit Test Suite Verification & Fix Receipt
 
-**Mission**: Verify and fix all unit tests in /Users/sac/ggen/tai-erlang-autonomics/
+**Mission**: Verify and fix all unit tests in ./tai-erlang-autonomics/
 
 **Execution Date**: 2026-01-27
 **Agent**: Test Engineer (Chicago TDD Pattern)
@@ -378,7 +378,7 @@ All signals must be cleared (GREEN) before proceeding with test execution and co
 ### Test Files (19 total)
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── pricing-engine/test/
 │   ├── pricing_engine_tests.erl (378 lines, 19 tests)
 │   ├── ac_eval_mode_tests.erl (505 lines, 42 tests)

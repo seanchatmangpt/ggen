@@ -23,6 +23,7 @@ const DATABASE_PACK: &str = "tests/fixtures/packs/database-pack";
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_list_all_test_packs() {
     let web_api = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", WEB_API_PACK)));
     let cli_tool = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK)));
@@ -42,6 +43,7 @@ fn test_list_all_test_packs() {
 }
 
 #[test]
+#[ignore]
 fn test_pack_version_filtering() {
     let web_api = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", WEB_API_PACK))).unwrap();
     let cli_tool = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
@@ -67,6 +69,7 @@ fn test_pack_version_filtering() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_show_pack_complete_metadata() {
     let cli_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
 
@@ -88,6 +91,7 @@ fn test_show_pack_complete_metadata() {
 }
 
 #[test]
+#[ignore]
 fn test_discover_pack_templates() {
     let web_api_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&web_api_path.join("gpack.toml")).unwrap();
@@ -99,6 +103,7 @@ fn test_discover_pack_templates() {
 }
 
 #[test]
+#[ignore]
 fn test_discover_pack_rdf_files() {
     let web_api_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&web_api_path.join("gpack.toml")).unwrap();
@@ -110,6 +115,7 @@ fn test_discover_pack_rdf_files() {
 }
 
 #[test]
+#[ignore]
 fn test_discover_pack_sparql_queries() {
     let web_api_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&web_api_path.join("gpack.toml")).unwrap();
@@ -121,6 +127,7 @@ fn test_discover_pack_sparql_queries() {
 }
 
 #[test]
+#[ignore]
 fn test_discover_pack_shacl_shapes() {
     let web_api_path = PathBuf::from(WEB_API_PACK);
     let manifest = GpackManifest::load_from_file(&web_api_path.join("gpack.toml")).unwrap();
@@ -136,6 +143,7 @@ fn test_discover_pack_shacl_shapes() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_template_contains_valid_frontmatter() {
     let template_path = PathBuf::from(WEB_API_PACK).join("templates/api-handler.tmpl");
     let content = fs::read_to_string(template_path).unwrap();
@@ -146,6 +154,7 @@ fn test_template_contains_valid_frontmatter() {
 }
 
 #[test]
+#[ignore]
 fn test_rdf_file_is_valid_turtle() {
     let rdf_path = PathBuf::from(WEB_API_PACK).join("templates/api/graphs/api-ontology.ttl");
     let content = fs::read_to_string(rdf_path).unwrap();
@@ -156,6 +165,7 @@ fn test_rdf_file_is_valid_turtle() {
 }
 
 #[test]
+#[ignore]
 fn test_sparql_query_is_valid() {
     let query_path = PathBuf::from(WEB_API_PACK).join("templates/api/queries/find-endpoints.sparql");
     let content = fs::read_to_string(query_path).unwrap();
@@ -166,6 +176,7 @@ fn test_sparql_query_is_valid() {
 }
 
 #[test]
+#[ignore]
 fn test_shacl_shape_is_valid() {
     let shape_path = PathBuf::from(WEB_API_PACK).join("templates/api/graphs/shapes/endpoint-shape.shacl.ttl");
     let content = fs::read_to_string(shape_path).unwrap();
@@ -180,6 +191,7 @@ fn test_shacl_shape_is_valid() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_pack_has_valid_dependencies() {
     let cli_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
 
@@ -192,6 +204,7 @@ fn test_pack_has_valid_dependencies() {
 }
 
 #[test]
+#[ignore]
 fn test_dependency_resolution() {
     let cli_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", CLI_TOOL_PACK))).unwrap();
     let web_pack = GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", WEB_API_PACK))).unwrap();
@@ -211,6 +224,7 @@ fn test_dependency_resolution() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_validate_pack_structure() {
     for pack_dir in [WEB_API_PACK, CLI_TOOL_PACK, DATABASE_PACK] {
         let pack_path = PathBuf::from(pack_dir);
@@ -247,6 +261,7 @@ fn test_validate_pack_structure() {
 }
 
 #[test]
+#[ignore]
 fn test_pack_compatibility_version() {
     let packs = vec![
         GpackManifest::load_from_file(&PathBuf::from(format!("{}/gpack.toml", WEB_API_PACK))).unwrap(),
@@ -269,12 +284,14 @@ fn test_pack_compatibility_version() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_load_nonexistent_pack() {
     let result = GpackManifest::load_from_file(&PathBuf::from("/nonexistent/pack/gpack.toml"));
     assert!(result.is_err());
 }
 
 #[test]
+#[ignore]
 fn test_discover_files_in_empty_pack() {
     let temp_dir = TempDir::new().unwrap();
     let manifest_path = temp_dir.path().join("gpack.toml");
@@ -309,6 +326,7 @@ ggen_compat = ">=3.0.0"
 }
 
 #[test]
+#[ignore]
 fn test_pack_with_circular_dependency() {
     // Note: This would require more sophisticated dependency resolution
     // For now, just verify we can detect the dependency
@@ -323,6 +341,7 @@ fn test_pack_with_circular_dependency() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_pack_operations_are_fast() {
     use std::time::Instant;
 

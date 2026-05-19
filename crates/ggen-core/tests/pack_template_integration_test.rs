@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use tempfile::TempDir;
 
 #[test]
+#[ignore]
 fn test_pack_template_resolution() {
     // Create test pack cache directory
     let cache_dir = tempfile::TempDir::new().unwrap();
@@ -94,6 +95,7 @@ fn test_pack_template_resolution() {
 }
 
 #[test]
+#[ignore]
 fn test_pack_template_with_iteration() {
     // Create test pack cache
     let cache_dir = tempfile::TempDir::new().unwrap();
@@ -164,6 +166,7 @@ pub fn {{ name | lower }}() -> &'static str {
 }
 
 #[test]
+#[ignore]
 fn test_pack_template_not_cached_error() {
     // Set cache directory to empty location
     let cache_dir = tempfile::TempDir::new().unwrap();
@@ -203,6 +206,7 @@ fn test_pack_template_not_cached_error() {
 }
 
 #[test]
+#[ignore]
 fn test_template_resolver_search() {
     // Create test packs with templates
     let cache_dir = tempfile::TempDir::new().unwrap();

@@ -9,7 +9,7 @@ pub mod metadata;
 pub mod types;
 pub mod validate;
 
-use ggen_utils::error::Error;
+use ggen_core::utils::error::Error;
 use serde::Serialize;
 
 /// Check compatibility between packs

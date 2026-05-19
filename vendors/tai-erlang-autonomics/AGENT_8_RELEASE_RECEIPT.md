@@ -15,7 +15,7 @@ Successfully verified production release artifacts, tarball generation, and depl
 ### 1.1 Build Command Execution
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 as prod release
 ```
 

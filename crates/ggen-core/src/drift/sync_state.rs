@@ -4,7 +4,7 @@
 //! and inference rules after each sync operation.
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

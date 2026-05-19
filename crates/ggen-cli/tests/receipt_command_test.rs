@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Tests verify actual receipt verification behavior
 
-use ggen_receipt::{generate_keypair, Receipt};
+use ggen_core::receipt::{generate_keypair, Receipt};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;

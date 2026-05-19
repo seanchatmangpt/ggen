@@ -4,9 +4,9 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix ggen: <http://ggen.ruv.io/ontology#> .
+@prefix mcpp: <http://mcpp.ruv.io/ontology#> .
 @prefix bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL#> .
-@prefix wfe: <http://ggen.ruv.io/workflow-engine#> .
+@prefix wfe: <http://mcpp.ruv.io/workflow-engine#> .
 
 # ============================================================================
 # Workflow Engine CLI Ontology
@@ -14,7 +14,7 @@
 # BPMN 2.0 workflow execution and orchestration using clap-noun-verb pattern
 # Supports: Process orchestration, task management, event handling, state persistence
 
-<http://ggen.ruv.io/workflow-engine>
+<http://mcpp.ruv.io/workflow-engine>
     a owl:Ontology ;
     dcterms:title "Workflow Engine CLI Ontology" ;
     dcterms:description "BPMN 2.0 workflow execution and orchestration CLI using clap-noun-verb" ;
@@ -32,7 +32,7 @@ wfe:Workflow
     a owl:Class ;
     rdfs:label "Workflow" ;
     rdfs:comment "BPMN 2.0 workflow definition with processes, tasks, gateways, and events" ;
-    rdfs:subClassOf ggen:Noun ;
+    rdfs:subClassOf mcpp:Noun ;
     skos:definition "A complete BPMN workflow definition including process flow, task definitions, gateway logic, and event handlers" ;
     skos:example "A customer onboarding workflow with parallel approval tasks and event-driven notifications" .
 
@@ -78,40 +78,40 @@ wfe:create
     a owl:Class ;
     rdfs:label "create" ;
     rdfs:comment "Create a new BPMN workflow definition from XML or JSON" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Workflow ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Workflow ;
     skos:example "workflow create --file approval-process.bpmn --name 'Approval Workflow' --version 1.0.0" .
 
 wfe:deploy
     a owl:Class ;
     rdfs:label "deploy" ;
     rdfs:comment "Deploy a workflow to the execution engine" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Workflow ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Workflow ;
     skos:example "workflow deploy --workflow-id wf-123 --environment production --validate" .
 
 wfe:list
     a owl:Class ;
     rdfs:label "list" ;
     rdfs:comment "List all deployed workflows with filtering and pagination" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Workflow ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Workflow ;
     skos:example "workflow list --status active --filter 'name contains approval' --limit 20" .
 
 wfe:validate
     a owl:Class ;
     rdfs:label "validate" ;
     rdfs:comment "Validate BPMN workflow definition against BPMN 2.0 schema" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Workflow ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Workflow ;
     skos:example "workflow validate --file process.bpmn --strict --check-references" .
 
 wfe:version
     a owl:Class ;
     rdfs:label "version" ;
     rdfs:comment "Create a new version of an existing workflow" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Workflow ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Workflow ;
     skos:example "workflow version --workflow-id wf-123 --new-version 2.0.0 --changes 'Added parallel gateway'" .
 
 # ============================================================================
@@ -122,7 +122,7 @@ wfe:Process
     a owl:Class ;
     rdfs:label "Process" ;
     rdfs:comment "Executable BPMN process within a workflow" ;
-    rdfs:subClassOf ggen:Noun ;
+    rdfs:subClassOf mcpp:Noun ;
     skos:definition "A BPMN process definition that can be instantiated and executed" ;
     skos:example "An approval process with sequential user tasks and parallel review branches" .
 
@@ -161,40 +161,40 @@ wfe:start
     a owl:Class ;
     rdfs:label "start" ;
     rdfs:comment "Start a new process instance with input variables" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Process ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Process ;
     skos:example "process start --workflow-id wf-123 --variables '{\"customer_id\": \"C001\", \"amount\": 1000}'" .
 
 wfe:pause
     a owl:Class ;
     rdfs:label "pause" ;
     rdfs:comment "Pause a running process instance" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Process ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Process ;
     skos:example "process pause --instance-id inst-456 --reason 'Pending review'" .
 
 wfe:resume
     a owl:Class ;
     rdfs:label "resume" ;
     rdfs:comment "Resume a paused process instance" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Process ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Process ;
     skos:example "process resume --instance-id inst-456 --update-variables '{\"approved\": true}'" .
 
 wfe:abort
     a owl:Class ;
     rdfs:label "abort" ;
     rdfs:comment "Abort a process instance and cleanup resources" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Process ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Process ;
     skos:example "process abort --instance-id inst-456 --reason 'Customer requested cancellation'" .
 
 wfe:status
     a owl:Class ;
     rdfs:label "status" ;
     rdfs:comment "Get detailed status of a process instance" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Process ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Process ;
     skos:example "process status --instance-id inst-456 --include-tasks --include-variables" .
 
 # ============================================================================
@@ -205,7 +205,7 @@ wfe:Task
     a owl:Class ;
     rdfs:label "Task" ;
     rdfs:comment "BPMN task or activity within a process" ;
-    rdfs:subClassOf ggen:Noun ;
+    rdfs:subClassOf mcpp:Noun ;
     skos:definition "A unit of work in a BPMN process: user task, service task, script task, etc." ;
     skos:example "A user task requiring manual approval or a service task invoking an external API" .
 
@@ -258,40 +258,40 @@ wfe:assign
     a owl:Class ;
     rdfs:label "assign" ;
     rdfs:comment "Assign a task to a user or group" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Task ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Task ;
     skos:example "task assign --task-id task-789 --assignee user@example.com --priority 80 --due-date 2025-01-15" .
 
 wfe:complete
     a owl:Class ;
     rdfs:label "complete" ;
     rdfs:comment "Mark a task as completed and provide output variables" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Task ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Task ;
     skos:example "task complete --task-id task-789 --variables '{\"approved\": true, \"comments\": \"Looks good\"}'" .
 
 wfe:delegate
     a owl:Class ;
     rdfs:label "delegate" ;
     rdfs:comment "Delegate a task to another user" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Task ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Task ;
     skos:example "task delegate --task-id task-789 --from user1@example.com --to user2@example.com --reason 'Subject matter expert'" .
 
 wfe:escalate
     a owl:Class ;
     rdfs:label "escalate" ;
     rdfs:comment "Escalate an overdue or blocked task" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Task ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Task ;
     skos:example "task escalate --task-id task-789 --to manager@example.com --reason 'Overdue by 2 days'" .
 
 wfe:retry
     a owl:Class ;
     rdfs:label "retry" ;
     rdfs:comment "Retry a failed service or script task" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Task ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Task ;
     skos:example "task retry --task-id task-789 --max-attempts 3 --backoff exponential" .
 
 # ============================================================================
@@ -302,7 +302,7 @@ wfe:Instance
     a owl:Class ;
     rdfs:label "Instance" ;
     rdfs:comment "A running or completed instance of a workflow process" ;
-    rdfs:subClassOf ggen:Noun ;
+    rdfs:subClassOf mcpp:Noun ;
     skos:definition "An execution instance of a BPMN process with state, variables, and history" ;
     skos:example "A specific customer onboarding process running for customer C001" .
 
@@ -355,40 +355,40 @@ wfe:listInstances
     a owl:Class ;
     rdfs:label "list" ;
     rdfs:comment "List process instances with filtering and pagination" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Instance ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Instance ;
     skos:example "instance list --workflow-id wf-123 --state running --limit 50 --sort start-time" .
 
 wfe:show
     a owl:Class ;
     rdfs:label "show" ;
     rdfs:comment "Show detailed information about a process instance" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Instance ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Instance ;
     skos:example "instance show --instance-id inst-456 --include-tasks --include-variables --include-events" .
 
 wfe:trace
     a owl:Class ;
     rdfs:label "trace" ;
     rdfs:comment "Show execution trace of a process instance" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Instance ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Instance ;
     skos:example "instance trace --instance-id inst-456 --format tree --include-timestamps" .
 
 wfe:history
     a owl:Class ;
     rdfs:label "history" ;
     rdfs:comment "Show complete execution history and audit trail" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Instance ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Instance ;
     skos:example "instance history --instance-id inst-456 --include-state-changes --include-variable-changes" .
 
 wfe:metrics
     a owl:Class ;
     rdfs:label "metrics" ;
     rdfs:comment "Show performance metrics for a process instance" ;
-    rdfs:subClassOf ggen:Verb ;
-    ggen:operatesOn wfe:Instance ;
+    rdfs:subClassOf mcpp:Verb ;
+    mcpp:operatesOn wfe:Instance ;
     skos:example "instance metrics --instance-id inst-456 --include-task-durations --include-bottlenecks" .
 
 # ============================================================================

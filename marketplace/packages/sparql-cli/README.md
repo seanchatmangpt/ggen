@@ -38,10 +38,10 @@ cd sparql-cli
 cargo build --release
 ```
 
-### Using ggen
+### Using mcpp
 
 ```bash
-ggen install sparql-cli
+mcpp install sparql-cli
 ```
 
 ## Quick Start

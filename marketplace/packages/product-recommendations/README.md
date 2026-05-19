@@ -25,14 +25,14 @@ Comprehensive recommendation system with:
 ### 1. Generate Recommendation Engine
 
 ```bash
-ggen template render product-recommendations/templates/rust/recommendation_engine.rs \
+mcpp template render product-recommendations/templates/rust/recommendation_engine.rs \
   --output src/recommendations/engine.rs
 ```
 
 ### 2. Query User Preferences
 
 ```bash
-ggen query execute product-recommendations/sparql/queries.rq \
+mcpp query execute product-recommendations/sparql/queries.rq \
   --graph behaviors.ttl \
   --query "Extract User Behavior Preferences"
 ```

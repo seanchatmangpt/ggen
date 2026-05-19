@@ -7,21 +7,21 @@ Generate production-ready REST APIs in Rust, TypeScript, or Python from RDF onto
 ### 1. Install GGEN
 
 ```bash
-cargo install ggen
+cargo install mcpp
 ```
 
 ### 2. Generate Your First API
 
 ```bash
 # Generate Rust API with Axum
-ggen marketplace install rest-api-template
-ggen project new my-api --template rest-api-template --language rust
+mcpp marketplace install rest-api-template
+mcpp project new my-api --template rest-api-template --language rust
 
 # Generate TypeScript API with Express
-ggen project new my-api --template rest-api-template --language typescript
+mcpp project new my-api --template rest-api-template --language typescript
 
 # Generate Python API with FastAPI
-ggen project new my-api --template rest-api-template --language python
+mcpp project new my-api --template rest-api-template --language python
 ```
 
 ### 3. Run the Generated API
@@ -256,7 +256,7 @@ Edit `ontology/rest-api.ttl`:
 Regenerate:
 
 ```bash
-ggen project regenerate
+mcpp project regenerate
 ```
 
 ### Add Authentication
@@ -417,8 +417,8 @@ See [EXAMPLES.md](./EXAMPLES.md) for 10+ real-world use cases:
 
 - **Documentation**: [ARCHITECTURE.md](./ARCHITECTURE.md)
 - **API Reference**: [API.md](./API.md)
-- **Issues**: https://github.com/ggen/marketplace/issues
-- **Discord**: https://discord.gg/ggen
+- **Issues**: https://github.com/mcpp/marketplace/issues
+- **Discord**: https://discord.gg/mcpp
 
 ## License
 

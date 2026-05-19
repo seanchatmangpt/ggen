@@ -317,7 +317,7 @@ fn adapter_a2a_sparql_context() -> Context {
 /// Resolve the ggen workspace root directory.
 /// Tests run with CWD set by cargo, which may be the workspace root or the target dir.
 fn workspace_root() -> std::path::PathBuf {
-    // CARGO_MANIFEST_DIR = /Users/sac/ggen/crates/ggen-core
+    // CARGO_MANIFEST_DIR = ./crates/ggen-core
     // Workspace root = two levels up
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR must be set");
     let manifest = std::path::Path::new(&manifest_dir);

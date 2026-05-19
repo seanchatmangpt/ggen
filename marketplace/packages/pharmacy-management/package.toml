@@ -5,7 +5,7 @@ description = "Pharmacy management with medication dispensing, drug interactions
 category = "healthcare"
 tags = ["pharmacy", "medication", "drug-interactions", "insurance-claims", "dispensing"]
 license = "MIT"
-author = "ggen Healthcare Team"
+author = "mcpp Healthcare Team"
 
 [dependencies]
 healthcare-core = "1.0.0"

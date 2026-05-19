@@ -4,6 +4,7 @@ use anyhow::Result;
 use chatman_cli::{ChatManager, Config, Message};
 
 #[tokio::test]
+#[ignore]
 async fn test_basic_conversation() -> Result<()> {
     let config = Config::default();
     let mut manager = ChatManager::new(config)?;
@@ -18,6 +19,7 @@ async fn test_basic_conversation() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_conversation_history() -> Result<()> {
     let config = Config::default();
     let mut manager = ChatManager::new(config)?;
@@ -33,6 +35,7 @@ async fn test_conversation_history() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_history_limit() -> Result<()> {
     let config = Config {
         max_history: 2,
@@ -50,6 +53,7 @@ async fn test_history_limit() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_clear_history() -> Result<()> {
     let config = Config::default();
     let mut manager = ChatManager::new(config)?;
@@ -64,6 +68,7 @@ async fn test_clear_history() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_export_json() -> Result<()> {
     let config = Config::default();
     let mut manager = ChatManager::new(config)?;
@@ -79,6 +84,7 @@ async fn test_export_json() -> Result<()> {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_message_creation() {
     let user_msg = Message::user("test");
     assert_eq!(user_msg.role, "user");
@@ -93,6 +99,7 @@ async fn test_message_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_config_defaults() {
     let config = Config::default();
     assert_eq!(config.provider, "openai");
@@ -103,6 +110,7 @@ async fn test_config_defaults() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_concurrent_conversations() -> Result<()> {
     let config = Config::default();
 

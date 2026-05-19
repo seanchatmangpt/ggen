@@ -36,7 +36,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Context, Result};
+use ggen_core::utils::error::{Context, Result};
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -145,11 +145,11 @@ impl ConventionResolver {
 
         if override_path.exists() {
             let content = std::fs::read_to_string(&override_path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
             })?;
             let overrides: ConventionOverrides = Context::context(
                 toml::from_str(&content).map_err(|e| {
-                    ggen_utils::error::Error::new(&format!(
+                    ggen_core::utils::error::Error::new(&format!(
                         "Failed to parse conventions.toml: {}",
                         e
                     ))
@@ -174,14 +174,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 files.push(entry.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    ggen_core::utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
                 })?);
             }
         }
@@ -208,14 +208,14 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    ggen_core::utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
                 })?;
 
                 // Convert nested path to template name
@@ -257,20 +257,20 @@ impl ConventionResolver {
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
             for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to glob pattern {}: {}",
                     full_pattern.display(),
                     e
                 ))
             })? {
                 let path = entry.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                    ggen_core::utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
                 })?;
 
                 // Read query content
                 let content = Context::with_context(
                     std::fs::read_to_string(&path).map_err(|e| {
-                        ggen_utils::error::Error::new(&format!(
+                        ggen_core::utils::error::Error::new(&format!(
                             "Failed to read query file {:?}: {}",
                             path, e
                         ))

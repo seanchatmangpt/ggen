@@ -19,7 +19,7 @@
 //! }
 //! ```
 
-use ggen_utils::error::Error as GgenError;
+use ggen_core::utils::error::Error as GgenError;
 use thiserror::Error;
 
 /// Result type for ggen-yawl operations.

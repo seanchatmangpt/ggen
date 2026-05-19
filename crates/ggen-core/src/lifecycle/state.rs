@@ -49,7 +49,7 @@
 //! use std::time::{SystemTime, UNIX_EPOCH};
 //! let started_ms = SystemTime::now()
 //!     .duration_since(UNIX_EPOCH)
-//!     .map_err(|_| ggen_utils::error::Error::new("Time went backwards"))?
+//!     .map_err(|_| crate::utils::error::Error::new("Time went backwards"))?
 //!     .as_millis();
 //! state.phase_history.push(RunRecord {
 //!     phase: "test".to_string(),

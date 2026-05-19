@@ -1,11 +1,11 @@
 [package]
 name = "schema-forge-cli"
 version = "1.0.0"
-namespace = "io.ggen.cli.schema-forge"
+namespace = "io.mcpp.cli.schema-forge"
 description = "Data modeling and schema generation CLI using clap-noun-verb pattern"
-authors = ["ggen-team"]
+authors = ["mcpp-team"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["schema", "modeling", "validation", "cli", "clap-noun-verb"]
 categories = ["cli-tools", "data-modeling", "code-generation"]
 
@@ -40,4 +40,4 @@ commands = "templates/commands.tmpl"
 
 [ontology]
 file = "rdf/ontology.ttl"
-namespace = "http://ggen.io/ontology/schema-forge-cli#"
+namespace = "http://mcpp.io/ontology/schema-forge-cli#"

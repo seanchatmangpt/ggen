@@ -106,6 +106,7 @@ max_tokens = 4096
 }
 
 #[test]
+#[ignore]
 // #[ignore] // Only run with explicit permission (requires API key)
 fn test_llm_integration_e2e_with_real_api() {
     // Verify GROQ_API_KEY is set
@@ -235,6 +236,7 @@ fn test_llm_integration_without_api_key_fails_gracefully() {
 }
 
 #[test]
+#[ignore]
 fn test_groq_api_key_is_set() {
     // This test just verifies the API key is available
     // It doesn't make any API calls

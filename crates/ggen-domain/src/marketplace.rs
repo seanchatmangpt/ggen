@@ -5,7 +5,7 @@
 //! should be accessed through ggen-cli instead, which has ggen-marketplace
 //! as a dependency.
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 
 // Stub types to maintain API compatibility
@@ -90,7 +90,7 @@ pub struct InstallResult {
 /// NOTE: This is a stub implementation. The real implementation should
 /// use ggen-cli's marketplace integration.
 pub fn list_all() -> Result<Vec<PackageSummary>> {
-    Err(ggen_utils::Error::new(
+    Err(ggen_core::utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
          Please use ggen-cli's marketplace commands instead.",
     ))
@@ -101,7 +101,7 @@ pub fn list_all() -> Result<Vec<PackageSummary>> {
 /// NOTE: This is a stub implementation. The real implementation should
 /// use ggen-cli's marketplace integration.
 pub fn get_package(_pack_id: &str) -> Result<PackageDetail> {
-    Err(ggen_utils::Error::new(
+    Err(ggen_core::utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
          Please use ggen-cli's marketplace commands instead.",
     ))
@@ -112,7 +112,7 @@ pub fn get_package(_pack_id: &str) -> Result<PackageDetail> {
 /// NOTE: This is a stub implementation. The real implementation should
 /// use ggen-cli's marketplace integration.
 pub fn resolve_dependencies(_pack_id: &str, _version: Option<&str>) -> Result<DependencyGraph> {
-    Err(ggen_utils::Error::new(
+    Err(ggen_core::utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
          Please use ggen-cli's marketplace commands instead.",
     ))
@@ -123,7 +123,7 @@ pub fn resolve_dependencies(_pack_id: &str, _version: Option<&str>) -> Result<De
 /// NOTE: This is a stub implementation. The real implementation should
 /// use ggen-cli's marketplace integration.
 pub async fn execute_install(_input: InstallInput) -> Result<InstallResult> {
-    Err(ggen_utils::Error::new(
+    Err(ggen_core::utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
          Please use 'ggen packs install' instead.",
     ))

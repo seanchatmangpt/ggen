@@ -196,7 +196,7 @@ A: No. Most people read 1-2 deeply and reference others as needed
 A: Each document has a Table of Contents. Use Ctrl+F to search
 
 **Q: These docs reference examples. Where are they?**
-A: Examples are in `/Users/sac/ggen/examples/` (75+ working examples)
+A: Examples are in `./examples/` (75+ working examples)
 
 **Q: Can I update these docs?**
 A: Yes! They're in the git repo. Submit PRs to improve

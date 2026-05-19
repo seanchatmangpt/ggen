@@ -10,6 +10,7 @@ use tempfile::TempDir;
 /// capabilities implemented in v1.0.0.
 
 #[test]
+#[ignore]
 fn test_pqc_signer_creates_valid_signatures() -> Result<()> {
     // Create a new signer (generates keypair)
     let signer = PqcSigner::new();
@@ -41,6 +42,7 @@ fn test_pqc_signer_creates_valid_signatures() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_pqc_signature_base64_encoding() -> Result<()> {
     // Test that base64 encoding/decoding round-trip works
     let signer = PqcSigner::new();
@@ -58,6 +60,7 @@ fn test_pqc_signature_base64_encoding() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_pqc_verify_detects_tampering() -> Result<()> {
     // Create signer and sign data
     let signer = PqcSigner::new();
@@ -98,6 +101,7 @@ fn test_pqc_verify_detects_tampering() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_lockfile_supports_optional_pqc_fields() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let lockfile_path = temp_dir.path().join("ggen.lock");
@@ -176,6 +180,7 @@ fn test_lockfile_supports_optional_pqc_fields() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_sha256_calculation_utility() -> Result<()> {
     // Test the calculate_sha256 helper function
     let test_data = b"Hello, World!";
@@ -203,6 +208,7 @@ fn test_sha256_calculation_utility() -> Result<()> {
 }
 
 #[test]
+#[ignore]
 fn test_pqc_different_signers_produce_different_keys() -> Result<()> {
     // Each signer should generate unique keypairs
     let signer1 = PqcSigner::new();

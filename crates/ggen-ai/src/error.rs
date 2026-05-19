@@ -129,7 +129,7 @@ pub enum GgenAiError {
 
     /// Generic errors from ggen-core and ggen-utils
     #[error("Generic error: {0}")]
-    Generic(#[from] ggen_utils::error::Error),
+    Generic(#[from] ggen_core::utils::error::Error),
 
     /// Tera template errors
     #[error("Template error: {0}")]

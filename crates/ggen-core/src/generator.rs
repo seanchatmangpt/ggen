@@ -25,7 +25,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let ctx = GenContext::new(
 //!     PathBuf::from("template.tmpl"),
@@ -50,7 +50,7 @@
 //! use ggen_core::pipeline::Pipeline;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let ctx = GenContext::new(
 //!     PathBuf::from("template.tmpl"),
@@ -64,7 +64,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
@@ -204,7 +204,7 @@ impl Generator {
     /// use ggen_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let ctx = GenContext::new(
     ///     PathBuf::from("template.tmpl"),
@@ -266,7 +266,7 @@ impl Generator {
     /// use std::collections::BTreeMap;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let mut vars = BTreeMap::new();
     /// vars.insert("name".to_string(), "MyApp".to_string());
@@ -290,7 +290,7 @@ impl Generator {
     /// use ggen_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let ctx = GenContext::new(
     ///     PathBuf::from("nonexistent.tmpl"), // File doesn't exist
@@ -362,7 +362,7 @@ impl Generator {
 
             // Check that normalized path starts with output_root components
             if normalized.len() < output_root_components.len() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(crate::utils::error::Error::new(&format!(
                     "Output path '{}' would escape output root '{}'",
                     rendered_to,
                     self.ctx.output_root.display()
@@ -371,7 +371,7 @@ impl Generator {
 
             for (i, component) in output_root_components.iter().enumerate() {
                 if normalized.get(i) != Some(component) {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(crate::utils::error::Error::new(&format!(
                         "Output path '{}' would escape output root '{}'",
                         rendered_to,
                         self.ctx.output_root.display()
@@ -387,7 +387,7 @@ impl Generator {
                 .template_path
                 .file_stem()
                 .ok_or_else(|| {
-                    ggen_utils::error::Error::new(&format!(
+                    crate::utils::error::Error::new(&format!(
                         "Template path has no file stem: {}",
                         self.ctx.template_path.display()
                     ))

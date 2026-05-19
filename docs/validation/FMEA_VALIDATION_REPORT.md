@@ -77,14 +77,14 @@
 
 **Risk Analysis by Existing FMEA Documentation**:
 
-From `/Users/sac/ggen/docs/MARKETPLACE_FINAL_FMEA_REPORT.md`:
+From `./docs/MARKETPLACE_FINAL_FMEA_REPORT.md`:
 - ✅ 18 marketplace commands analyzed
 - ✅ 16/18 commands (89%) are REAL implementations
 - ✅ 2/18 commands (11%) have partial implementations
 - ✅ Zero blocking security vulnerabilities
 - ✅ Production-grade error handling throughout
 
-From `/Users/sac/ggen/docs/FMEA_PACKS_SYSTEM_FINAL.md`:
+From `./docs/FMEA_PACKS_SYSTEM_FINAL.md`:
 - ✅ 6/6 user workflows completable
 - ✅ Health score: 96/100
 - ✅ 7/7 commands operational

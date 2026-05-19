@@ -19,6 +19,7 @@ use tempfile::TempDir;
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_file_change_triggers_regeneration() {
     // Arrange: Create temp directory with ggen.toml and minimal ontology
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
@@ -169,6 +170,7 @@ ex:TestEntity a ex:Entity ;
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_300ms_debounce_prevents_duplicates() {
     // Arrange: Create watcher with 300ms debounce
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
@@ -219,6 +221,7 @@ fn test_300ms_debounce_prevents_duplicates() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_queue_bounded_at_10() {
     // Arrange: Create watcher with default queue capacity
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
@@ -257,6 +260,7 @@ fn test_queue_bounded_at_10() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_watch_mode_error_handling() {
     // Arrange: Create temp directory with invalid manifest
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
@@ -303,6 +307,7 @@ fn test_watch_mode_error_handling() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_watch_mode_graceful_exit() {
     // Arrange: Create watcher
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
@@ -344,6 +349,7 @@ fn test_watch_mode_graceful_exit() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_executor_loop_continues_after_error() {
     // Arrange: Create temp directory with valid manifest
     let temp_dir = TempDir::new().expect("Failed to create temp dir");

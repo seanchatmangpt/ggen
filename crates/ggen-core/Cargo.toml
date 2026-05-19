@@ -1,5 +1,5 @@
 [package]
-name = "ggen-core"
+name = "mcpp-core"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
@@ -15,10 +15,10 @@ multiple_crate_versions = "allow"
 
 [dependencies]
 # Use workspace = true pattern for workspace-local crates
-ggen-utils.workspace = true
-ggen-canonical.workspace = true
-ggen-receipt.workspace = true
-ggen-marketplace.workspace = true
+mcpp-utils.workspace = true
+mcpp-canonical.workspace = true
+mcpp-receipt.workspace = true
+mcpp-marketplace.workspace = true
 tera = "1.20"
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -71,8 +71,8 @@ hex = "0.4"
 async-trait = "0.1"
 futures = "0.3"
 bytes = "1.10"
-# Note: ggen-ai dependency removed to avoid cyclic dependency
-# ggen-core is a foundational crate and should not depend on ggen-ai
+# Note: mcpp-ai dependency removed to avoid cyclic dependency
+# mcpp-core is a foundational crate and should not depend on mcpp-ai
 # If AI functionality is needed, it should be injected from above
 petgraph = "0.8.3"
 uuid = { version = "1.18", features = ["v4", "serde"] }

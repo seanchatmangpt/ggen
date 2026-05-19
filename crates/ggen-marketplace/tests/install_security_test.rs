@@ -8,11 +8,11 @@
 //! - Profile requirement enforcement
 //! - Signature verification happens before trust tier check
 
-use ggen_marketplace::cache::{CacheConfig, CachedPack, PackCache};
-use ggen_marketplace::install::Installer;
-use ggen_marketplace::models::{PackageId, PackageVersion};
-use ggen_marketplace::registry::Registry;
-use ggen_marketplace::trust::TrustTier;
+use ggen_core::marketplace::cache::{CacheConfig, CachedPack, PackCache};
+use ggen_core::marketplace::install::Installer;
+use ggen_core::marketplace::models::{PackageId, PackageVersion};
+use ggen_core::marketplace::registry::Registry;
+use ggen_core::marketplace::trust::TrustTier;
 use tempfile::TempDir;
 
 /// Create a test installer with cache
@@ -72,7 +72,7 @@ fn test_installer_rejects_blocked_trust_tier() {
 
         // Simulate the check (would normally be async)
         if matches!(blocked_tier, TrustTier::Blocked) {
-            Err::<(), _>(ggen_marketplace::error::Error::trust_tier_check_failed(
+            Err::<(), _>(ggen_core::marketplace::error::Error::trust_tier_check_failed(
                 "Pack is marked as Blocked".to_string(),
             ))
         } else {

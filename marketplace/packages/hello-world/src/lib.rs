@@ -1,6 +1,6 @@
 //! Hello World Utilities
 //!
-//! Simple utility package demonstrating ggen marketplace functionality.
+//! Simple utility package demonstrating mcpp marketplace functionality.
 //! This package provides basic utilities that can be installed and used
 //! to demonstrate the marketplace system.
 

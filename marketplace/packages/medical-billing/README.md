@@ -48,7 +48,7 @@ billing.submit_claim(&claim).await?;
 ### Process ERA/EOB
 
 ```typescript
-import { BillingSystem } from '@ggen/medical-billing';
+import { BillingSystem } from '@mcpp/medical-billing';
 
 const billing = new BillingSystem();
 

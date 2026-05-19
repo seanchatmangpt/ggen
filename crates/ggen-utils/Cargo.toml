@@ -1,5 +1,5 @@
 [package]
-name = "ggen-utils"
+name = "mcpp-utils"
 version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Shared utilities for ggen"

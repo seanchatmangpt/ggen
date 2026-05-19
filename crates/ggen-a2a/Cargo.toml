@@ -1,6 +1,6 @@
 [package]
-name = "ggen-a2a"
-version = "6.0.1"
+name = "mcpp-a2a"
+version = "26.5.4"
 edition = "2021"
 authors = ["ggen contributors"]
 description = "Agent-to-Agent task state machine protocol for ggen"

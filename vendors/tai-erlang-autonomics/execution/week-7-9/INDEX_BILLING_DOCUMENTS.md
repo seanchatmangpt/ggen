@@ -3,7 +3,7 @@
 **Period**: Week 7-9 (January 26 - February 25, 2026)
 **Status**: ✅ COMPLETE - 10 COMPREHENSIVE DOCUMENTS CREATED
 **Total**: 234+ KB of production-ready billing documentation
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/`
+**Location**: `./tai-erlang-autonomics/execution/week-7-9/`
 
 ---
 
@@ -281,7 +281,7 @@ Month-End Close ──→ MONTHLY_FINANCIAL_REPORT.md (final numbers)
 ## FILES & LOCATIONS
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-7-9/
+./tai-erlang-autonomics/execution/week-7-9/
 
 BILLING DOCUMENTS (10 files):
 ├── WEEK_7_9_FIRST_BILLING.md (25 KB) - MASTER

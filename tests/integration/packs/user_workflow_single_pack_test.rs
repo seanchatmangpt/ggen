@@ -6,7 +6,7 @@
 //! Workflow 1: Single-pack web API project
 //! Workflow 2: Single-pack data science project
 
-use ggen_domain::packs::{
+use ggen_core::domain::packs::{
     generate_from_pack, install_pack, list_packs, show_pack, GenerateInput, InstallInput,
 };
 use std::collections::BTreeMap;

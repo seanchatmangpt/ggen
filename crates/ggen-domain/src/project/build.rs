@@ -14,7 +14,7 @@
 //! ### Building a Project
 //!
 //! ```rust,no_run
-//! use ggen_domain::project::build::build_project;
+//! use ggen_core::domain::project::build::build_project;
 //! use std::path::Path;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -26,7 +26,7 @@
 //! ### Cleaning Build Artifacts
 //!
 //! ```rust,no_run
-//! use ggen_domain::project::build::clean_project;
+//! use ggen_core::domain::project::build::clean_project;
 //! use std::path::Path;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -35,7 +35,7 @@
 //! # }
 //! ```
 
-use ggen_utils::{bail, error::Result};
+use ggen_core::utils::{bail, error::Result};
 use std::path::Path;
 
 /// Build a project

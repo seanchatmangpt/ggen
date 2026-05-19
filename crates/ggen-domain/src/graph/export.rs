@@ -3,7 +3,7 @@
 //! Chicago TDD: Uses REAL graph export and file writing via Oxigraph's
 //! RdfSerializer API following core team best practices.
 
-use ggen_utils::error::{Context, Result};
+use ggen_core::utils::error::{Context, Result};
 
 use ggen_core::graph::{Graph, GraphExport};
 use oxigraph::io::{RdfFormat, RdfSerializer};
@@ -24,7 +24,7 @@ pub enum ExportFormat {
 }
 
 impl FromStr for ExportFormat {
-    type Err = ggen_utils::error::Error;
+    type Err = ggen_core::utils::error::Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -33,7 +33,7 @@ impl FromStr for ExportFormat {
             "rdfxml" | "rdf" | "xml" => Ok(ExportFormat::RdfXml),
             "jsonld" | "json" => Ok(ExportFormat::JsonLd),
             "n3" => Ok(ExportFormat::N3),
-            _ => Err(ggen_utils::error::Error::new(&format!(
+            _ => Err(ggen_core::utils::error::Error::new(&format!(
                 "Unsupported export format: {}",
                 s
             ))),
@@ -123,13 +123,13 @@ pub fn export_graph(options: ExportOptions) -> Result<String> {
         ExportFormat::RdfXml => RdfFormat::RdfXml,
         ExportFormat::JsonLd => {
             // JSON-LD is not directly supported by Oxigraph's RdfFormat
-            return Err(ggen_utils::error::Error::new(
+            return Err(ggen_core::utils::error::Error::new(
                 "JSON-LD format not yet supported via Oxigraph RdfSerializer",
             ));
         }
         ExportFormat::N3 => {
             // N3 is not directly supported by Oxigraph's RdfFormat
-            return Err(ggen_utils::error::Error::new(
+            return Err(ggen_core::utils::error::Error::new(
                 "N3 format not yet supported via Oxigraph RdfSerializer",
             ));
         }
@@ -153,7 +153,7 @@ pub fn export_graph(options: ExportOptions) -> Result<String> {
         // For single-graph formats, manually serialize only the default graph
         // This prevents "dataset format expected" errors
         let file = fs::File::create(&options.output_path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            ggen_core::utils::error::Error::new(&format!(
                 "Failed to create export file {}: {}",
                 options.output_path, e
             ))
@@ -178,25 +178,25 @@ pub fn export_graph(options: ExportOptions) -> Result<String> {
         // The serializer will format according to the RDF format specification
         for quad in default_graph_quads {
             serializer.serialize_quad(&quad).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to serialize quad: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to serialize quad: {}", e))
             })?;
         }
 
         // Finish serialization
         serializer.finish().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to finish RDF serialization: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to finish RDF serialization: {}", e))
         })?;
 
         // Flush the writer
         writer.flush().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to flush export file: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to flush export file: {}", e))
         })?;
     }
 
     // Read back the content to return it
     let content = fs::read_to_string(&options.output_path)
         .map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            ggen_core::utils::error::Error::new(&format!(
                 "Failed to read exported file {}: {}",
                 options.output_path, e
             ))
@@ -503,19 +503,19 @@ pub fn run(args: &ExportInput) -> Result<()> {
     // Use tokio runtime to execute async function
     let rt = tokio::runtime::Runtime::new()
         .map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create tokio runtime: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create tokio runtime: {}", e))
         })
         .context("Failed to create tokio runtime")?;
 
     let output = rt.block_on(execute_export(args.clone()))?;
 
-    ggen_utils::alert_success!(
+    ggen_core::utils::alert_success!(
         "Exported {} triples to {} ({})",
         output.triples_exported,
         output.output_path,
         output.format
     );
-    ggen_utils::alert_info!("   File size: {} bytes", output.file_size_bytes);
+    ggen_core::utils::alert_info!("   File size: {} bytes", output.file_size_bytes);
 
     Ok(())
 }

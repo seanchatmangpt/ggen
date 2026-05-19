@@ -6,7 +6,7 @@
 use std::collections::HashSet;
 use std::path::Path;
 
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 
 /// Scan result for a single file
 #[derive(Debug, Clone)]

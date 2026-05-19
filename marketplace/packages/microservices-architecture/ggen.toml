@@ -1,11 +1,11 @@
-# ggen Configuration for Microservices Architecture
-# Demonstrates comprehensive ggen features
+# mcpp Configuration for Microservices Architecture
+# Demonstrates comprehensive mcpp features
 
 [project]
 name = "microservices-architecture"
 version = "1.0.0"
 description = "E-commerce microservices with Rust"
-authors = ["ggen-example"]
+authors = ["mcpp-example"]
 
 [ai]
 provider = "ollama"
@@ -53,8 +53,8 @@ cache_enabled = true
 [lifecycle]
 enabled = true
 config_file = "make.toml"
-cache_directory = ".ggen/cache"
-state_file = ".ggen/state.json"
+cache_directory = ".mcpp/cache"
+state_file = ".mcpp/state.json"
 
 [lifecycle.phases]
 default = ["init", "setup", "build", "test"]
@@ -74,7 +74,7 @@ cache_size = "1GB"
 [logging]
 level = "info"
 format = "json"
-file = "logs/ggen.log"
+file = "logs/mcpp.log"
 rotation = "daily"
 
 [features]

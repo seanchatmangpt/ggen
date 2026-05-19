@@ -216,25 +216,25 @@ async fn test_lifecycle_integration() {
 #[tokio::test]
 async fn test_configuration_files() {
     // Test that configuration files are valid
-    let ggen_content = include_str!("../../ggen.toml");
+    let mcpp_content = include_str!("../../mcpp.toml");
     
     // Check for project configuration
-    assert!(ggen_content.contains("[project]"));
-    assert!(ggen_content.contains("name = \"advanced-rust-project\""));
-    assert!(ggen_content.contains("version = \"1.0.0\""));
+    assert!(mcpp_content.contains("[project]"));
+    assert!(mcpp_content.contains("name = \"advanced-rust-project\""));
+    assert!(mcpp_content.contains("version = \"1.0.0\""));
     
     // Check for AI configuration
-    assert!(ggen_content.contains("[ai]"));
-    assert!(ggen_content.contains("provider = \"openai\""));
-    assert!(ggen_content.contains("model = \"gpt-4\""));
+    assert!(mcpp_content.contains("[ai]"));
+    assert!(mcpp_content.contains("provider = \"openai\""));
+    assert!(mcpp_content.contains("model = \"gpt-4\""));
     
     // Check for RDF configuration
-    assert!(ggen_content.contains("[rdf]"));
-    assert!(ggen_content.contains("base_iri"));
-    assert!(ggen_content.contains("default_format = \"turtle\""));
+    assert!(mcpp_content.contains("[rdf]"));
+    assert!(mcpp_content.contains("base_iri"));
+    assert!(mcpp_content.contains("default_format = \"turtle\""));
     
     // Check for security configuration
-    assert!(ggen_content.contains("[security]"));
-    assert!(ggen_content.contains("validate_paths = true"));
-    assert!(ggen_content.contains("block_shell_injection = true"));
+    assert!(mcpp_content.contains("[security]"));
+    assert!(mcpp_content.contains("validate_paths = true"));
+    assert!(mcpp_content.contains("block_shell_injection = true"));
 }

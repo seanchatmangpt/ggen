@@ -7,7 +7,7 @@
 //! - Listing installed packs
 //! - Pack recommendations
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// Input for pack discovery
 #[derive(Debug, Clone)]
@@ -94,7 +94,7 @@ pub struct OntologyPackSummary {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_domain::ontology::discover::{execute_discover, DiscoverInput};
+/// use ggen_core::domain::ontology::discover::{execute_discover, DiscoverInput};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {

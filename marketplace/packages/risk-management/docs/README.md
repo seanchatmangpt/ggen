@@ -170,7 +170,7 @@ println!("10-day 99% VaR: ${:.2}", var);
 
 ### TypeScript
 ```typescript
-import { Portfolio, VaRCalculator } from '@ggen/risk-management';
+import { Portfolio, VaRCalculator } from '@mcpp/risk-management';
 
 const portfolio = await Portfolio.load('portfolio-1');
 const var = await VaRCalculator.calculate({

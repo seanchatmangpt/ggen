@@ -38,7 +38,7 @@ let patient = connector.get_patient("12345").await?;
 ### SMART on FHIR Launch
 
 ```typescript
-import { SMARTLauncher } from '@ggen/ehr-integration';
+import { SMARTLauncher } from '@mcpp/ehr-integration';
 
 const launcher = new SMARTLauncher({
   clientId: 'your-client-id',

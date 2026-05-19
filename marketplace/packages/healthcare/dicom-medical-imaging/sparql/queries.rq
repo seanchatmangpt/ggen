@@ -2,7 +2,7 @@
 # Queries for DICOM metadata extraction, PACS integration, WADO-RS
 
 PREFIX dicom: <http://dicom.nema.org/>
-PREFIX dicom-ontology: <http://ggen.io/ontology/dicom#>
+PREFIX dicom-ontology: <http://mcpp.io/ontology/dicom#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 

@@ -25,7 +25,7 @@
 //! ### Creating Errors
 //!
 //! ```rust
-//! use ggen_utils::error::Error;
+//! use ggen_core::utils::error::Error;
 //!
 //! # fn main() {
 //! // Simple error
@@ -46,7 +46,7 @@
 //! ### Using Result Type
 //!
 //! ```rust,no_run
-//! use ggen_utils::error::{Error, Result};
+//! use ggen_core::utils::error::{Error, Result};
 //!
 //! fn read_config() -> Result<String> {
 //!     std::fs::read_to_string("config.toml")
@@ -62,7 +62,7 @@
 //! ### Helper Methods
 //!
 //! ```rust
-//! use ggen_utils::error::Error;
+//! use ggen_core::utils::error::Error;
 //! use std::path::PathBuf;
 //!
 //! # fn main() {
@@ -321,7 +321,7 @@ impl<T> Context<T> for Result<T> {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::error::{Result, bail};
+/// use ggen_core::utils::error::{Result, bail};
 ///
 /// fn validate_positive(n: i32) -> Result<()> {
 ///     if n < 0 {
@@ -348,7 +348,7 @@ macro_rules! bail {
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::error::{Result, ensure};
+/// use ggen_core::utils::error::{Result, ensure};
 ///
 /// fn divide(a: i32, b: i32) -> Result<i32> {
 ///     ensure!(b != 0, "Division by zero");

@@ -7,8 +7,8 @@ full_name = "api-endpoint-templates"
 version = "1.0.0"
 description = "Complete REST API endpoint templates with OpenAPI documentation, validation, and security"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/api-endpoint"
 license = "MIT"
 dependencies = []
@@ -46,14 +46,14 @@ base_path = { type = "string", default = "/api/v1", description = "API base path
 [examples]
 basic = """
 # Install the package
-ggen market install api-endpoint-templates
+mcpp market install api-endpoint-templates
 
 # Generate user API endpoints
-ggen template generate api-endpoint-templates \\
+mcpp template generate api-endpoint-templates \\
   --vars '{"name":"users","description":"User management API","base_path":"/api/v1"}'
 
 # Generate product API endpoints
-ggen template generate api-endpoint-templates \\
+mcpp template generate api-endpoint-templates \\
   --vars '{"name":"products","description":"Product catalog API","base_path":"/api/v1"}'
 """
 

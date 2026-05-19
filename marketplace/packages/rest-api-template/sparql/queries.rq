@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 # Query 1: Extract All Endpoints with Full Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?endpoint ?path ?method ?handler ?auth ?ratelimit ?cache
@@ -28,7 +28,7 @@ ORDER BY ?path ?method
 # ----------------------------------------------------------------------------
 # Query 2: Generate Route Handlers by HTTP Method
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?method ?path ?handler ?requestSchema ?responseSchema ?statusCode
 WHERE {
@@ -56,7 +56,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 3: Extract Validation Rules for Request Schemas
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?fieldName ?validationType ?constraint ?required
 WHERE {
@@ -76,7 +76,7 @@ ORDER BY ?endpoint ?fieldName
 # ----------------------------------------------------------------------------
 # Query 4: Middleware Composition Chain
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?middleware ?order ?type
 WHERE {
@@ -92,7 +92,7 @@ ORDER BY ?endpoint ?order
 # ----------------------------------------------------------------------------
 # Query 5: Generate OpenAPI Specification Components
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?path ?method ?summary ?description ?requestBody ?response ?security
@@ -126,8 +126,8 @@ ORDER BY ?path ?method
 # ----------------------------------------------------------------------------
 # Query 6: Authentication and Authorization Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
-PREFIX sec: <http://ggen.ai/ontology/security#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
+PREFIX sec: <http://mcpp.ai/ontology/security#>
 
 SELECT ?endpoint ?authScheme ?authType ?roles ?permissions
 WHERE {
@@ -145,7 +145,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 7: Rate Limiting Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?algorithm ?maxRequests ?window ?keyBy
 WHERE {
@@ -161,7 +161,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 8: Caching Strategy Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?method ?cacheControl ?maxAge ?varyBy ?etag
 WHERE {
@@ -181,7 +181,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 9: Error Handling Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?errorType ?statusCode ?handler ?logLevel
 WHERE {
@@ -197,7 +197,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 10: CRUD Operations with Database Mapping
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?operation ?httpMethod ?path ?dbTable ?dbOperation ?successStatus
 WHERE {
@@ -218,7 +218,7 @@ ORDER BY ?dbTable ?operation
 # ----------------------------------------------------------------------------
 # Query 11: Path Parameters and Query Strings
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?path ?pathParam ?queryParam ?paramType ?required
 WHERE {
@@ -242,7 +242,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 12: Content Negotiation and Media Types
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?method ?accepts ?produces ?defaultType
 WHERE {
@@ -257,7 +257,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 13: Generate Complete Router Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?path ?method ?handler ?middleware ?auth ?validate ?ratelimit
@@ -293,7 +293,7 @@ ORDER BY ?path ?method
 # ----------------------------------------------------------------------------
 # Query 14: API Versioning Configuration
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?api ?version ?basePath ?deprecationDate ?successor
 WHERE {
@@ -308,7 +308,7 @@ WHERE {
 # ----------------------------------------------------------------------------
 # Query 15: Generate Integration Tests
 # ----------------------------------------------------------------------------
-PREFIX rest: <http://ggen.ai/ontology/rest-api#>
+PREFIX rest: <http://mcpp.ai/ontology/rest-api#>
 
 SELECT ?endpoint ?method ?path ?requestExample ?expectedStatus ?expectedBody
 WHERE {

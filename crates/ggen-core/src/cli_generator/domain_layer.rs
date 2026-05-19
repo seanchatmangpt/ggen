@@ -4,7 +4,7 @@
 //! that the CLI layer can reference.
 
 use crate::cli_generator::types::{CliProject, Noun, Verb};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 use tera::{Context, Tera};
 

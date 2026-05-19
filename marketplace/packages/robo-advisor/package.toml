@@ -3,7 +3,7 @@ name = "robo-advisor"
 version = "1.0.0"
 description = "Automated investment advisor with portfolio allocation, rebalancing, tax-loss harvesting, and risk tolerance assessment"
 category = "finance"
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 tags = ["robo-advisor", "portfolio", "rebalancing", "tax-optimization", "asset-allocation"]
 

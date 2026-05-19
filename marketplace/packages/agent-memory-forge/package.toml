@@ -1,12 +1,12 @@
 [package]
 name = "agent-memory-forge"
-full_name = "ggen/agent-memory-forge"
+full_name = "mcpp/agent-memory-forge"
 version = "1.0.0"
 description = "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-memory-forge"
 license = "MIT"
 dependencies = []

@@ -61,16 +61,16 @@
 
 ```bash
 # Install search platform
-ggen marketplace install search-indexing-platform
+mcpp marketplace install search-indexing-platform
 
 # Create search index
-ggen search create-index --name=products --shards=5 --replicas=2
+mcpp search create-index --name=products --shards=5 --replicas=2
 
 # Index documents
-ggen search index --source=./data.json --index=products
+mcpp search index --source=./data.json --index=products
 
 # Search with facets
-ggen search query "laptop" --facets=brand,price --language=en
+mcpp search query "laptop" --facets=brand,price --language=en
 ```
 
 **Status**: Production-ready for Fortune 5

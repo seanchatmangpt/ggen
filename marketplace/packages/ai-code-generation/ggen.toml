@@ -1,11 +1,11 @@
 # AI-Powered Code Generation Configuration
-# Demonstrates advanced AI capabilities with ggen
+# Demonstrates advanced AI capabilities with mcpp
 
 [project]
 name = "ai-code-generation"
 version = "1.0.0"
 description = "AI-powered code generation with comprehensive validation"
-authors = ["ggen-example"]
+authors = ["mcpp-example"]
 
 [ai]
 provider = "ollama"
@@ -79,8 +79,8 @@ cache_enabled = true
 [lifecycle]
 enabled = true
 config_file = "make.toml"
-cache_directory = ".ggen/cache"
-state_file = ".ggen/state.json"
+cache_directory = ".mcpp/cache"
+state_file = ".mcpp/state.json"
 
 [lifecycle.phases]
 default = ["init", "setup", "generate", "validate", "test"]
@@ -100,7 +100,7 @@ cache_size = "1GB"
 [logging]
 level = "info"
 format = "json"
-file = "logs/ggen.log"
+file = "logs/mcpp.log"
 rotation = "daily"
 
 [features]

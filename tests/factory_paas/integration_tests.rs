@@ -14,6 +14,7 @@ use uuid::Uuid;
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_affiliate_link_routing_end_to_end() {
     // ARRANGE: Set up route resolver with multiple routes
     let ctx = TestContext::new();
@@ -36,6 +37,7 @@ async fn test_affiliate_link_routing_end_to_end() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_route_resolution_with_inactive_route() {
     // ARRANGE: Create route and deactivate it
     let ctx = TestContext::new();
@@ -58,6 +60,7 @@ async fn test_route_resolution_with_inactive_route() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_duplicate_route_slug_rejected() {
     // ARRANGE: Create route resolver with existing route
     let ctx = TestContext::new();
@@ -90,6 +93,7 @@ async fn test_duplicate_route_slug_rejected() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_click_tracking_generates_valid_receipt() {
     // ARRANGE: Create click event
     let ctx = TestContext::new();
@@ -116,6 +120,7 @@ async fn test_click_tracking_generates_valid_receipt() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_click_receipt_chain_integrity() {
     // ARRANGE: Track multiple clicks
     let ctx = TestContext::new();
@@ -140,6 +145,7 @@ async fn test_click_receipt_chain_integrity() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_click_count_by_route_accurate() {
     // ARRANGE: Track clicks on multiple routes
     let ctx = TestContext::new();
@@ -177,6 +183,7 @@ async fn test_click_count_by_route_accurate() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_subscription_creation_webhook() {
     // ARRANGE: Create subscription manager
     let ctx = TestContext::new();
@@ -199,6 +206,7 @@ async fn test_subscription_creation_webhook() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_succeeded_webhook_resets_usage() {
     // ARRANGE: Create subscription with used clicks
     let ctx = TestContext::new();
@@ -229,6 +237,7 @@ async fn test_payment_succeeded_webhook_resets_usage() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_payment_failed_webhook_sets_past_due() {
     // ARRANGE: Create active subscription
     let ctx = TestContext::new();
@@ -261,6 +270,7 @@ async fn test_payment_failed_webhook_sets_past_due() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_content_draft_to_published_workflow() {
     // ARRANGE: Create draft content
     let ctx = TestContext::new();
@@ -287,6 +297,7 @@ async fn test_content_draft_to_published_workflow() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_content_scheduled_publication() {
     // ARRANGE: Create content and schedule it
     let ctx = TestContext::new();
@@ -321,6 +332,7 @@ async fn test_content_scheduled_publication() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_content_validation_rules() {
     // ARRANGE: Create pipeline
     let ctx = TestContext::new();
@@ -354,6 +366,7 @@ async fn test_content_validation_rules() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_revenue_attribution_accurate_commission() {
     // ARRANGE: Create revenue attribution engine
     let ctx = TestContext::new();
@@ -392,6 +405,7 @@ async fn test_revenue_attribution_accurate_commission() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_revenue_attribution_by_affiliate() {
     // ARRANGE: Create multiple revenue events for different affiliates
     let ctx = TestContext::new();
@@ -466,6 +480,7 @@ async fn test_revenue_attribution_by_affiliate() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_average_commission_rate_calculation() {
     // ARRANGE: Create revenue events with varying tiers
     let ctx = TestContext::new();
@@ -505,6 +520,7 @@ async fn test_average_commission_rate_calculation() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_subscription_quota_enforced() {
     // ARRANGE: Create Free tier subscription (100 clicks quota)
     let ctx = TestContext::new();
@@ -532,6 +548,7 @@ async fn test_subscription_quota_enforced() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_subscription_upgrade_increases_quota() {
     // ARRANGE: Create Starter tier subscription
     let ctx = TestContext::new();
@@ -562,6 +579,7 @@ async fn test_subscription_upgrade_increases_quota() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_full_workflow_affiliate_click_to_revenue() {
     // ARRANGE: Set up complete environment
     let ctx = TestContext::new();

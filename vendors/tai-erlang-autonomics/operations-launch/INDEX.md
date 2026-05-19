@@ -133,7 +133,7 @@ This directory contains the complete production-grade launch validation package 
 ### Step 1: Distribute Documents (10 minutes)
 ```bash
 # All files are in:
-/Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+./tai-erlang-autonomics/operations-launch/
 
 # Print or save to team:
 - README.md (everyone reads)
@@ -420,7 +420,7 @@ But we recommend the first path.
 
 All files located in:
 ```
-/Users/sac/ggen/tai-erlang-autonomics/operations-launch/
+./tai-erlang-autonomics/operations-launch/
 ```
 
 Files:

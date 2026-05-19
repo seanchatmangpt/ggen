@@ -2,10 +2,10 @@
 name = "sector-api-gateway-8020"
 version = "1.0.0"
 edition = "2021"
-authors = ["ggen Contributors"]
+authors = ["mcpp Contributors"]
 description = "8020 Bundle: Production-ready API gateway configuration covering 80% of gateway infrastructure needs"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 
 # 8020 Innovation: Critical fields for bundle curation
 is_8020 = true

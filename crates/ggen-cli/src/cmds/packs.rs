@@ -114,7 +114,7 @@ struct CheckCompatibilityOutput {
 /// List all available packs
 #[verb]
 fn list(verbose: bool) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+    let packages = ggen_core::domain::marketplace::list_all().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
@@ -153,7 +153,7 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::marketplace::get_package(&pack_id).map_err(|e| {
+    let detail = ggen_core::domain::marketplace::get_package(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to get pack '{}': {}",
             pack_id, e
@@ -463,7 +463,7 @@ fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput>
 }
 
 fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
-    use ggen_domain::packs::generator::{generate_from_pack, GenerateInput};
+    use ggen_core::domain::packs::generator::{generate_from_pack, GenerateInput};
     use std::collections::BTreeMap;
 
     let input = GenerateInput {
@@ -506,7 +506,7 @@ fn validate(pack_id: String) -> VerbResult<ValidateOutput> {
 }
 
 fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
-    let result = ggen_domain::packs::validate::validate_pack(&pack_id).map_err(|e| {
+    let result = ggen_core::domain::packs::validate::validate_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to validate pack '{}': {}",
             pack_id, e
@@ -557,14 +557,14 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
         ));
     }
 
-    let input = ggen_domain::packs::compose::ComposePacksInput {
+    let input = ggen_core::domain::packs::compose::ComposePacksInput {
         pack_ids: pack_id_list.clone(),
         project_name: "composed-project".to_string(),
         output_dir: None,
-        strategy: ggen_domain::packs::types::CompositionStrategy::Merge,
+        strategy: ggen_core::domain::packs::types::CompositionStrategy::Merge,
     };
 
-    let result = crate::runtime::block_on(ggen_domain::packs::compose::compose_packs(&input))
+    let result = crate::runtime::block_on(ggen_core::domain::packs::compose::compose_packs(&input))
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
         })?
@@ -594,7 +594,7 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 /// Show pack dependencies
 #[verb]
 fn dependencies(pack_id: String, version: Option<String>) -> VerbResult<DependenciesOutput> {
-    let graph = ggen_domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
+    let graph = ggen_core::domain::marketplace::resolve_dependencies(&pack_id, version.as_deref())
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!(
                 "Failed to resolve dependencies: {}",
@@ -625,7 +625,7 @@ fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
 }
 
 fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    let packages = ggen_domain::marketplace::list_all().map_err(|e| {
+    let packages = ggen_core::domain::marketplace::list_all().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packages: {}", e))
     })?;
 
@@ -690,7 +690,7 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
     }
 
     let result =
-        crate::runtime::block_on(ggen_domain::packs::check_packs_compatibility(&pack_id_list))
+        crate::runtime::block_on(ggen_core::domain::packs::check_packs_compatibility(&pack_id_list))
             .map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
             })?

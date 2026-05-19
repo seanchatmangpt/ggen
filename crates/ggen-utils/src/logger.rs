@@ -24,9 +24,9 @@
 //! ### Setting Up Logging
 //!
 //! ```rust,no_run
-//! use ggen_utils::logger::setup_logging;
+//! use ggen_core::utils::logger::setup_logging;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! // Setup logging (returns guard that must be kept alive)
 //! let _guard = setup_logging()?;
 //!

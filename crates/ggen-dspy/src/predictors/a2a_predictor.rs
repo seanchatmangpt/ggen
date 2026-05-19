@@ -21,7 +21,7 @@
 //!
 //! ```rust,no_run
 //! use ggen_dspy::predictors::{A2aPredictor, A2aPredictorConfig};
-//! use a2a_generated::converged::message::ConvergedMessage;
+//! use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = A2aPredictorConfig::builder()
@@ -41,7 +41,7 @@
 //! ```
 
 use crate::{DspyError, Result};
-use a2a_generated::converged::message::ConvergedMessage;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 use async_trait::async_trait;
 use futures::stream::Stream;
 use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
@@ -253,7 +253,7 @@ impl A2aConfigBuilder {
 /// - Multipart: Concatenated parts
 /// - Stream: Stream ID reference
 fn extract_content_from_message(message: &ConvergedMessage) -> Result<String> {
-    use a2a_generated::converged::message::UnifiedContent;
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
 
     match &message.payload.content {
         UnifiedContent::Text { content, .. } => Ok(content.clone()),
@@ -406,7 +406,7 @@ impl TokenUsage {
 ///
 /// ```rust,no_run
 /// use ggen_dspy::predictors::{A2aPredictor, A2aPredictorConfig};
-/// use a2a_generated::converged::message::ConvergedMessage;
+/// use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 ///
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let config = A2aPredictorConfig::default();
@@ -732,7 +732,7 @@ pub struct StreamingChunk {
 ///
 /// ```rust,no_run
 /// use ggen_dspy::predictors::{StreamingA2aPredictor, A2aPredictorConfig};
-/// use a2a_generated::converged::message::ConvergedMessage;
+/// use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 /// use futures::stream::StreamExt;
 ///
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
@@ -911,7 +911,7 @@ impl ModuleOutput {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use a2a_generated::converged::message::{
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
         ConvergedMessageType, MessageEnvelope, MessageLifecycle, MessagePriority, MessageRouting,
         MessageState, QoSRequirements, ReliabilityLevel,
     };
@@ -1066,7 +1066,7 @@ mod tests {
     // Test multipart content extraction
     #[test]
     fn test_extract_multipart_content() {
-        use a2a_generated::converged::message::UnifiedContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
 
         // Create a multipart message
         let parts = vec![
@@ -1093,7 +1093,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Multipart {
                     parts,
                     boundary: None,
@@ -1127,7 +1127,7 @@ mod tests {
     // Test Data content extraction (Bug #1 fix - Data was previously discarded)
     #[test]
     fn test_extract_data_content() {
-        use a2a_generated::converged::message::UnifiedContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
         use serde_json::json;
 
         let mut data_map = serde_json::Map::new();
@@ -1148,7 +1148,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Data {
                     data: data_map.clone(),
                     schema: None,
@@ -1183,7 +1183,7 @@ mod tests {
     // Test File content extraction
     #[test]
     fn test_extract_file_content() {
-        use a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
 
         let message = ConvergedMessage {
             message_id: "test-file".to_string(),
@@ -1198,7 +1198,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::File {
                     file: UnifiedFileContent {
                         uri: Some("file:///path/to/file.txt".to_string()),
@@ -1239,7 +1239,7 @@ mod tests {
     // Test Stream content extraction
     #[test]
     fn test_extract_stream_content() {
-        use a2a_generated::converged::message::UnifiedContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
 
         let message = ConvergedMessage {
             message_id: "test-stream".to_string(),
@@ -1254,7 +1254,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Stream {
                     stream_id: "stream-123".to_string(),
                     chunk_size: 1024,
@@ -1289,7 +1289,7 @@ mod tests {
     // Test multipart with Data parts (critical - Data was discarded before)
     #[test]
     fn test_extract_multipart_with_data() {
-        use a2a_generated::converged::message::UnifiedContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
         use serde_json::json;
 
         let mut data_map = serde_json::Map::new();
@@ -1319,7 +1319,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Multipart {
                     parts,
                     boundary: None,
@@ -1354,7 +1354,7 @@ mod tests {
     // Test multipart with File parts
     #[test]
     fn test_extract_multipart_with_file() {
-        use a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
 
         let parts = vec![
             UnifiedContent::Text {
@@ -1387,7 +1387,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Multipart {
                     parts,
                     boundary: None,
@@ -1422,7 +1422,7 @@ mod tests {
     // Test nested multipart handling
     #[test]
     fn test_extract_nested_multipart() {
-        use a2a_generated::converged::message::UnifiedContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
 
         let nested_parts = vec![
             UnifiedContent::Text {
@@ -1459,7 +1459,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Multipart {
                     parts,
                     boundary: None,
@@ -1494,7 +1494,7 @@ mod tests {
     // Test multipart with Stream parts
     #[test]
     fn test_extract_multipart_with_stream() {
-        use a2a_generated::converged::message::UnifiedContent;
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::UnifiedContent;
 
         let parts = vec![
             UnifiedContent::Text {
@@ -1521,7 +1521,7 @@ mod tests {
                 correlation_id: None,
                 causation_chain: None,
             },
-            payload: a2a_generated::converged::message::ConvergedPayload {
+            payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
                 content: UnifiedContent::Multipart {
                     parts,
                     boundary: None,

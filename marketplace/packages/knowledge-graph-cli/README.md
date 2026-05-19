@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/knowledge-graph-cli)](https://crates.io/crates/knowledge-graph-cli)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
-[![ggen Marketplace](https://img.shields.io/badge/ggen-marketplace-success)](https://github.com/seanchatmangpt/ggen)
+[![mcpp Marketplace](https://img.shields.io/badge/mcpp-marketplace-success)](https://github.com/seanchatmangpt/mcpp)
 
 Knowledge graph operations CLI built with `clap-noun-verb` pattern. Manage entities, relations, and inference rules with ontology-driven commands.
 
@@ -17,10 +17,10 @@ Knowledge graph operations CLI built with `clap-noun-verb` pattern. Manage entit
 
 ## Installation
 
-### From ggen Marketplace
+### From mcpp Marketplace
 ```bash
-ggen market install knowledge-graph-cli
-ggen template generate knowledge-graph-cli:cli.tmpl
+mcpp market install knowledge-graph-cli
+mcpp template generate knowledge-graph-cli:cli.tmpl
 cargo build --release
 ```
 
@@ -160,7 +160,7 @@ kg-cli graph export knowledge.ttl --format turtle
 
 # Load into other tools
 semantic-cli ontology parse knowledge.ttl
-ggen graph load knowledge.ttl
+mcpp graph load knowledge.ttl
 ```
 
 ## Inference Rules
@@ -174,23 +174,23 @@ Built-in rule sets:
 - **social**: Social network patterns
 - **organizational**: Organizational structure
 
-## ggen Integration
+## mcpp Integration
 
 ### Generate from Ontology
 ```bash
 # The CLI structure is defined in RDF
-ggen graph load marketplace/packages/knowledge-graph-cli/rdf/ontology.ttl
+mcpp graph load marketplace/packages/knowledge-graph-cli/rdf/ontology.ttl
 
 # Query available commands
-ggen graph query --sparql "
+mcpp graph query --sparql "
   SELECT ?noun ?verb WHERE {
-    ?verb a <http://ggen.io/ontology/clap-noun-verb#Verb> ;
-          <http://ggen.io/ontology/clap-noun-verb#belongsToNoun> ?noun
+    ?verb a <http://mcpp.io/ontology/clap-noun-verb#Verb> ;
+          <http://mcpp.io/ontology/clap-noun-verb#belongsToNoun> ?noun
   }
 "
 
 # Regenerate CLI
-ggen template generate knowledge-graph-cli:cli.tmpl
+mcpp template generate knowledge-graph-cli:cli.tmpl
 ```
 
 ### Extend with Custom Verbs
@@ -205,7 +205,7 @@ kg:import a clap:Verb ;
 
 Regenerate:
 ```bash
-ggen template generate knowledge-graph-cli:cli.tmpl
+mcpp template generate knowledge-graph-cli:cli.tmpl
 # New command: kg-cli entity import data.csv --format csv
 ```
 
@@ -221,7 +221,7 @@ ggen template generate knowledge-graph-cli:cli.tmpl
 
 ```bash
 # Install from marketplace
-ggen market install knowledge-graph-cli
+mcpp market install knowledge-graph-cli
 
 # Build
 cargo build

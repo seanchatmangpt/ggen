@@ -3,7 +3,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix cas: <http://ggen.ai/ontology/compliance-audit-system#> .
+@prefix cas: <http://mcpp.ai/ontology/compliance-audit-system#> .
 
 # Compliance & Audit System Ontology
 # Enterprise compliance and audit trail management

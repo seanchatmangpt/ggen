@@ -13,7 +13,7 @@
 //! # Examples
 //!
 //! ```no_run
-//! use ggen_prompt_mfg::{PromptCompiler, Result};
+//! use ggen_core::prompt_mfg::{PromptCompiler, Result};
 //!
 //! # fn example() -> Result<()> {
 //! let compiler = PromptCompiler::new()?;

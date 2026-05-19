@@ -7,8 +7,8 @@ full_name = "arXiv Preprint Template"
 version = "1.0.0"
 description = "arXiv-compatible preprint format with automatic metadata extraction and submission support"
 category = "academic-paper"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 path = "marketplace/packages/arxiv-paper-template"
 license = "MIT"
 production = true
@@ -58,25 +58,25 @@ subjects = { type = "array", default = [], description = "Subject areas" }
 [examples]
 basic = """
 # Create arXiv paper
-ggen paper new "Semantic Code Projections" --template arxiv
+mcpp paper new "Semantic Code Projections" --template arxiv
 
 # Generate from RDF
-ggen paper generate paper.rdf --style arxiv --output paper.tex
+mcpp paper generate paper.rdf --style arxiv --output paper.tex
 
 # Submit to arXiv
-ggen paper submit paper.pdf --venue arxiv --category cs.AI
+mcpp paper submit paper.pdf --venue arxiv --category cs.AI
 """
 
 workflow = """
 # Create and validate
-ggen paper new research --template arxiv
-ggen paper validate research.rdf
+mcpp paper new research --template arxiv
+mcpp paper validate research.rdf
 
 # Compile to PDF
-ggen paper compile research.tex
+mcpp paper compile research.tex
 
 # Track submission
-ggen paper track research.rdf --venue arxiv
+mcpp paper track research.rdf --venue arxiv
 """
 
 # Documentation

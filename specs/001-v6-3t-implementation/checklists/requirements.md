@@ -185,7 +185,7 @@ shacl:property [
 ### Generation Workflow
 
 ```bash
-cd /Users/sac/ggen/specs/001-v6-3t-implementation
+cd ./specs/001-v6-3t-implementation
 
 # Generate specification from ontology
 ggen sync

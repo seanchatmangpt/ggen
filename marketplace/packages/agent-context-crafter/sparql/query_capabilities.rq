@@ -1,4 +1,4 @@
-PREFIX pkg: <http://ggen.io/ontology/package#>
+PREFIX pkg: <http://mcpp.io/ontology/package#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?capability ?description

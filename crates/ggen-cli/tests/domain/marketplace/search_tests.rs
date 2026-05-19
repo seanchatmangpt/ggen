@@ -4,7 +4,7 @@
 //! following the Chicago school of TDD (integration-focused testing).
 
 use ggen_cli_lib::domain::marketplace::{SearchFilters, SearchResult, search_packages};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};

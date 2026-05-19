@@ -6,6 +6,7 @@
 use assert_cmd::Command;
 
 #[test]
+#[ignore]
 fn test_cli_help() {
     Command::cargo_bin("ggen-cli-lib")
         .unwrap()

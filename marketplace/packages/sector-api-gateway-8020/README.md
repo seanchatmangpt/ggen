@@ -26,10 +26,10 @@ This bundle provides production-ready API gateway configuration that covers 80% 
 
 ```bash
 # Install the bundle
-ggen install sector-api-gateway-8020
+mcpp install sector-api-gateway-8020
 
 # Generate API gateway for microservices
-ggen generate api-gateway \
+mcpp generate api-gateway \
   --platform kong \
   --services user-service,order-service,payment-service \
   --auth jwt \
@@ -129,4 +129,4 @@ terraform apply
 
 ---
 
-*Part of the ggen 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*
+*Part of the mcpp 8020 Marketplace - Focusing on the 20% of features that solve 80% of problems*

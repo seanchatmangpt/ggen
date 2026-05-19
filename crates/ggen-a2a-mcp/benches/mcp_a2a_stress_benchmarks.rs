@@ -341,7 +341,7 @@ fn bench_message_handler_dispatch_text(c: &mut Criterion) {
                 let handler = TextContentHandler::new();
 
                 for i in 0..1000 {
-                    let msg = a2a_generated::converged::message::ConvergedMessage::text(
+                    let msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                         format!("dispatch-msg-{}", i),
                         "bench-agent".to_string(),
                         format!("Benchmark message payload number {}", i),
@@ -370,7 +370,7 @@ fn bench_message_conversion_a2a_to_llm(c: &mut Criterion) {
                 let converter = A2aMessageConverter::new();
 
                 for i in 0..1000 {
-                    let msg = a2a_generated::converged::message::ConvergedMessage::text(
+                    let msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                         format!("convert-msg-{}", i),
                         "bench-agent".to_string(),
                         format!("Conversion test content {}", i),
@@ -397,7 +397,7 @@ fn bench_message_conversion_llm_to_a2a(c: &mut Criterion) {
                 let converter = A2aMessageConverter::new();
 
                 // Pre-build a template message so conversion only measures the transform.
-                let template_msg = a2a_generated::converged::message::ConvergedMessage::text(
+                let template_msg = ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage::text(
                     "template-msg".to_string(),
                     "bench-agent".to_string(),
                     "Original content".to_string(),

@@ -1,5 +1,5 @@
 [package]
-name = "ggen-craftplan"
+name = "mcpp-craftplan"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "RDF to Elixir code generation pipeline for Craftplan ERP"
@@ -12,8 +12,8 @@ categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 # Workspace dependencies
-ggen-utils.workspace = true
-ggen-core.workspace = true
+mcpp-utils.workspace = true
+mcpp-core.workspace = true
 tera.workspace = true
 oxigraph.workspace = true
 serde.workspace = true

@@ -14,7 +14,7 @@ Comprehensive project management with Gantt charts, sprints, resource allocation
 ## Quick Start
 
 ```typescript
-import { ProjectManagement } from '@ggen/project-management';
+import { ProjectManagement } from '@mcpp/project-management';
 
 const pm = new ProjectManagement();
 
@@ -43,4 +43,4 @@ const status = await pm.getProjectStatus(project.id);
 - SPARQL Queries: 12 templates
 - Chicago TDD Tests: 600+ lines
 
-See full documentation at https://docs.ggen.ai/packages/project-management
+See full documentation at https://docs.mcpp.ai/packages/project-management

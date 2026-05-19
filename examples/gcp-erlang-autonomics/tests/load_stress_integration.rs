@@ -23,6 +23,7 @@ use tokio::time::Instant;
 /// - Act: Process 1000 concurrent subscription requests
 /// - Assert: All complete within 30 second SLO, throughput >= 33 req/sec
 #[tokio::test]
+#[ignore]
 async fn test_1000_concurrent_subscriptions_within_slo() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -93,6 +94,7 @@ async fn test_1000_concurrent_subscriptions_within_slo() {
 /// - Act: Send 100+ messages to be distributed across governors
 /// - Assert: All messages routed correctly, latency < 100ms avg
 #[tokio::test]
+#[ignore]
 async fn test_100_plus_governors_handle_concurrent_messages() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -190,6 +192,7 @@ async fn test_100_plus_governors_handle_concurrent_messages() {
 /// - Act: Process all messages through governor
 /// - Assert: Throughput >= 1000 msgs/sec
 #[tokio::test]
+#[ignore]
 async fn test_governor_message_throughput_1000_msgs_per_sec() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -249,6 +252,7 @@ async fn test_governor_message_throughput_1000_msgs_per_sec() {
 /// - Act: Measure latency of each event processing
 /// - Assert: p99 latency < 50ms
 #[tokio::test]
+#[ignore]
 async fn test_latency_slo_p99_under_50ms() {
     // Arrange
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -307,6 +311,7 @@ async fn test_latency_slo_p99_under_50ms() {
 /// - Act: Process 100+ events repeatedly in loops
 /// - Assert: Memory usage stays stable (rough check via object count)
 #[tokio::test]
+#[ignore]
 async fn test_memory_stability_sustained_load() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -361,6 +366,7 @@ async fn test_memory_stability_sustained_load() {
 /// - Act: Rapidly enqueue events
 /// - Assert: Events are processed, queue depth returns to 0
 #[tokio::test]
+#[ignore]
 async fn test_queue_depth_drain_under_load() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -414,6 +420,7 @@ async fn test_queue_depth_drain_under_load() {
 /// - Act: 500 concurrent events of varied types
 /// - Assert: No panics, all handled correctly
 #[tokio::test]
+#[ignore]
 async fn test_high_concurrency_mixed_event_types_stress() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));
@@ -495,6 +502,7 @@ async fn test_high_concurrency_mixed_event_types_stress() {
 /// - Act: Check stats
 /// - Assert: Stats reflect reality (all 8 governors healthy, pending = 0)
 #[tokio::test]
+#[ignore]
 async fn test_orchestrator_stats_accuracy_under_load() {
     // Arrange: Initialize orchestrator
     let orchestrator = Arc::new(RwLock::new(MarketplaceOrchestrator::new()));

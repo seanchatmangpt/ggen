@@ -1,12 +1,12 @@
 [package]
 name = "inventory-management"
-full_name = "ggen/inventory-management"
+full_name = "mcpp/inventory-management"
 version = "1.0.0"
 description = "Comprehensive inventory and warehouse management with stock tracking, FIFO/LIFO valuation, lot tracing, reorder automation, and multi-channel allocation"
 category = "ecommerce"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/inventory-management"
 license = "MIT"
 dependencies = []

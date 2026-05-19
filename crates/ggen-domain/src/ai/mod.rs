@@ -8,7 +8,7 @@
 //!
 //! - **No CLI dependencies**: Pure domain logic with no clap or clap-noun-verb dependencies
 //! - **Async by default**: All operations are async for non-blocking execution
-//! - **Error handling**: Uses `ggen_utils::error::Result` for consistent error handling
+//! - **Error handling**: Uses `ggen_core::utils::error::Result` for consistent error handling
 //!
 //! ## Module Organization
 //!

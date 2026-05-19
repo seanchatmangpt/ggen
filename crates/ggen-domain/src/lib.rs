@@ -70,4 +70,4 @@ pub mod proof_types; // Phase 4: Proof-carrying decisions
 pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
 
 // Re-export commonly used types for convenience
-pub use ggen_utils::error::{Error, Result};
+pub use ggen_core::utils::error::{Error, Result};

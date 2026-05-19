@@ -5,10 +5,10 @@
 name = "data-pipeline-cli"
 version = "1.0.0"
 description = "ETL data pipelines, transformation, and integration using clap-noun-verb"
-authors = ["ggen Marketplace <marketplace@ggen.cli>"]
+authors = ["mcpp Marketplace <marketplace@mcpp.cli>"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ggen-marketplace/data-pipeline-cli"
-homepage = "https://ggen.cli/marketplace/data-pipeline-cli"
+repository = "https://github.com/mcpp-marketplace/data-pipeline-cli"
+homepage = "https://mcpp.cli/marketplace/data-pipeline-cli"
 documentation = "https://docs.rs/data-pipeline-cli"
 readme = "README.md"
 keywords = ["etl", "pipeline", "data-integration", "transformation", "ingestion", "clap-noun-verb"]

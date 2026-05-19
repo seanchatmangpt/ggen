@@ -10,7 +10,7 @@ Get up and running with ggen MCP in 5 minutes.
 ## Step 1: Build ggen
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo make build
 ```
 
@@ -22,7 +22,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "ggen": {
-      "command": "/Users/sac/ggen/target/release/ggen",
+      "command": "./target/release/ggen",
       "args": ["mcp", "start-server", "--transport", "stdio"]
     }
   }
@@ -70,7 +70,7 @@ Check logs in `~/Library/Logs/Claude/` for errors.
 Ensure the binary has execute permissions:
 
 ```bash
-chmod +x /Users/sac/ggen/target/release/ggen
+chmod +x ./target/release/ggen
 ```
 
 ## Next Steps

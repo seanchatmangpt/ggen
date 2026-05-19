@@ -40,7 +40,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 /// Ggen ontology namespace
 pub const GGEN_NAMESPACE: &str = "http://ggen.dev/ontology#";
@@ -669,7 +669,7 @@ impl GgenOntology {
 /// ```rust
 /// use ggen_core::rdf::schema::load_schema;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let schema = load_schema()?;
 /// assert!(schema.contains("@prefix ggen:"));
 /// assert!(schema.contains("ggen:Template"));

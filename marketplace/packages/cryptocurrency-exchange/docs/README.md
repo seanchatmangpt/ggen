@@ -143,7 +143,7 @@ manager.deposit(&wallet.address, "BTC", 1.0)?;
 
 ### TypeScript
 ```typescript
-import { WalletManager } from '@ggen/crypto-exchange';
+import { WalletManager } from '@mcpp/crypto-exchange';
 
 const manager = new WalletManager();
 const wallet = manager.createWallet('hot');

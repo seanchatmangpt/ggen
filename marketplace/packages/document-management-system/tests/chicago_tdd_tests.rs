@@ -768,5 +768,5 @@ mod tests {
 // Marketplace packages don't have full test infrastructure.
 //
 // For real Rust crates, see:
-// - crates/ggen-core/tests/ (Chicago TDD integration tests)
-// - crates/ggen-domain/tests/ (Chicago TDD with real database)
+// - crates/mcpp-core/tests/ (Chicago TDD integration tests)
+// - crates/mcpp-domain/tests/ (Chicago TDD with real database)

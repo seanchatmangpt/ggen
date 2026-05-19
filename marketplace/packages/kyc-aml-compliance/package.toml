@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "KYC/AML Compliance - Identity verification, risk scoring, sanctions screening, and transaction monitoring"
 category = "finance"
 tags = ["kyc", "aml", "compliance", "sanctions", "risk-assessment", "rdf", "sparql"]
-author = "ggen Marketplace"
+author = "mcpp Marketplace"
 license = "MIT"
 
 [ontology]

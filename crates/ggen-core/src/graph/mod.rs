@@ -7,7 +7,7 @@
 //!
 //! **Error Handling Pattern**: Always use explicit `.map_err()` for oxigraph error conversion
 //! instead of the `?` operator, because oxigraph errors don't implement `From` for
-//! `ggen_utils::error::Error`. This pattern ensures proper error context and prevents
+//! `crate::utils::error::Error`. This pattern ensures proper error context and prevents
 //! compilation errors.
 //!
 //! ```rust,no_run
@@ -48,7 +48,7 @@
 //! ```rust,no_run
 //! use ggen_core::graph::{Graph, GraphUpdate, GraphExport};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! // Create in-memory graph
 //! let graph = Graph::new()?;
 //!

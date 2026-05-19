@@ -33,7 +33,7 @@
     - [New: Security Configuration](#new-security-configuration)
   - [Timeline and Deprecation Schedule](#timeline-and-deprecation-schedule)
     - [v6.0.0 (January 2026) - Current](#v600-january-2026---current)
-    - [v6.1.0 (Q1 2026) - Planned](#v610-q1-2026---planned)
+    - [v26.5.4 (Q1 2026) - Planned](#v610-q1-2026---planned)
     - [v7.0.0 (Q3 2026) - Future](#v700-q3-2026---future)
   - [Migration Checklist](#migration-checklist)
     - [Pre-Migration](#pre-migration)
@@ -619,7 +619,7 @@ receipt_storage_path = ".ggen/receipts"
 **Deprecation Warnings**:
 - None (breaking changes are immediate)
 
-### v6.1.0 (Q1 2026) - Planned
+### v26.5.4 (Q1 2026) - Planned
 
 **New Features**:
 - API authentication

@@ -1,11 +1,11 @@
 # Microservices Architecture Lifecycle Configuration
-# Demonstrates comprehensive lifecycle management with ggen
+# Demonstrates comprehensive lifecycle management with mcpp
 
 [project]
 name = "microservices-architecture"
 version = "1.0.0"
 description = "E-commerce microservices with Rust"
-authors = ["ggen-example"]
+authors = ["mcpp-example"]
 
 [env.development]
 RUST_LOG = "debug"
@@ -86,7 +86,7 @@ commands = [
 description = "Generate documentation"
 commands = [
   "cargo doc --workspace --no-deps",
-  "ggen ai generate -d 'Generate comprehensive API documentation' --validate",
+  "mcpp ai generate -d 'Generate comprehensive API documentation' --validate",
 ]
 
 [lifecycle.docker]
@@ -119,23 +119,23 @@ commands = ["cargo clean", "docker system prune -f", "rm -rf target/ .cargo/"]
 [lifecycle.ai-generate]
 description = "Generate code using AI"
 commands = [
-  "ggen ai generate -d 'Generate user service with CRUD operations' --validate",
-  "ggen ai generate -d 'Generate product catalog with search functionality' --validate",
-  "ggen ai generate -d 'Generate order processing with state machine' --validate",
+  "mcpp ai generate -d 'Generate user service with CRUD operations' --validate",
+  "mcpp ai generate -d 'Generate product catalog with search functionality' --validate",
+  "mcpp ai generate -d 'Generate order processing with state machine' --validate",
 ]
 
 [lifecycle.sparql-query]
 description = "Run SPARQL queries on domain model"
 commands = [
-  "ggen ai sparql -d 'Find all entities and their relationships' -g data/domain.ttl",
-  "ggen ai sparql -d 'Query service dependencies' -g data/services.ttl",
+  "mcpp ai sparql -d 'Find all entities and their relationships' -g data/domain.ttl",
+  "mcpp ai sparql -d 'Query service dependencies' -g data/services.ttl",
 ]
 
 [lifecycle.graph-analysis]
 description = "Analyze domain model graph"
 commands = [
-  "ggen ai graph -d 'E-commerce domain model' -o data/domain.ttl --verify",
-  "ggen ai graph -d 'Service architecture model' -o data/services.ttl --verify",
+  "mcpp ai graph -d 'E-commerce domain model' -o data/domain.ttl --verify",
+  "mcpp ai graph -d 'Service architecture model' -o data/services.ttl --verify",
 ]
 
 # Hooks for cross-cutting concerns
@@ -172,7 +172,7 @@ commands = [
 # Production readiness phases
 [lifecycle.readiness-check]
 description = "Check production readiness status"
-commands = ["ggen lifecycle readiness --detailed"]
+commands = ["mcpp lifecycle readiness --detailed"]
 
 [lifecycle.readiness-update]
 description = "Update production readiness for a requirement"

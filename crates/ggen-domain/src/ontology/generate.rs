@@ -8,7 +8,7 @@
 //! - Validation of generated code
 
 use ggen_core::ontology_pack::OntologySchema;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::path::PathBuf;
 
 /// Input for code generation
@@ -64,7 +64,7 @@ pub struct GenerationStats {
 /// # Example
 ///
 /// ```rust,no_run
-/// use ggen_domain::ontology::generate::{execute_generate, GenerateInput};
+/// use ggen_core::domain::ontology::generate::{execute_generate, GenerateInput};
 /// use ggen_core::ontology_pack::OntologySchema;
 /// use std::path::PathBuf;
 ///
