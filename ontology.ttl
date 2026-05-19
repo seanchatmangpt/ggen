@@ -1,0 +1,334 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix a2a: <https://ggen.dev/ontology/a2a> .
+
+# ==============================================================================
+# FEATURE SPECIFICATION: A2A-RS Integration
+# ==============================================================================
+
+<https://ggen.dev/ontology/a2a/feature> a owl:Ontology ;
+  rdfs:label "A2A-RS Integration Feature Specification" ;
+  rdfs:comment "User stories and acceptance criteria for A2A-RS integration with ggen" ;
+  owl:versionInfo "1.0.0" ;
+  dct:created "2026-02-05"^^xsd:date .
+
+# Feature Overview
+a2a:FeatureOverview a ggen:Feature ;
+  ggen:name "A2A-RS Integration" ;
+  ggen:description "Comprehensive integration of a2a-rs Rust library for agent-to-agent communication" ;
+  ggen:version "1.0.0" ;
+  ggen:priority "high" ;
+  ggen:estimatedEffort "40"^^xsd:integer ;
+  ggen:status "in_progress" .
+
+# User Stories
+a2a:UserStory1 a ggen:UserStory ;
+  ggen:id "A2A-001" ;
+  ggen:title "Integrate A2A-RS Domain Types" ;
+  ggen:description "As a developer, I want to integrate all a2a-rs domain types as RDF classes so that I can semantically model agent communication patterns." ;
+  ggen:acceptanceCriteria "7 domain modules are mapped to RDF classes", "All domain types have proper inheritance hierarchies" ;
+  ggen:priority "critical" .
+
+a2a:UserStory2 a ggen:UserStory ;
+  ggen:id "A2A-002" ;
+  ggen:title "Define Port Traits as RDF Properties" ;
+  ggen:description "As an architect, I want to map 20+ port traits to RDF properties so that I can specify agent interfaces and capabilities." ;
+  ggen:acceptanceCriteria "TaskManager trait mapped to properties", "MessageHandler trait mapped to properties", "All port traits have proper cardinality constraints" ;
+  ggen:priority "high" .
+
+a2a:UserStory3 a ggen:UserStory ;
+  ggen:id "A2A-003" ;
+  ggen:title "Create Adapter Implementation Classes" ;
+  ggen:description "As an integration engineer, I want to map 15+ adapter implementations to RDF classes so that I can model concrete implementations of abstract interfaces." ;
+  ggen:acceptanceCriteria "HttpClient mapped to class", "JWT Authenticator mapped to class", "All adapters have configuration properties" ;
+  ggen:priority "high" .
+
+a2a:UserStory4 a ggen:UserStory ;
+  ggen:id "A2A-004" ;
+  ggen:title "Map JSON-RPC Methods to Properties" ;
+  ggen:description "As a protocol engineer, I want to map 11 JSON-RPC methods to RDF properties so that I can specify communication patterns between agents." ;
+  ggen:acceptanceCriteria "message/send method mapped", "tasks/get method mapped", "All methods have proper parameter and return types" ;
+  ggen:priority "high" .
+
+a2a:UserStory5 a ggen:UserStory ;
+  ggen:id "A2A-005" ;
+  ggen:title "Create SHACL Validation Shapes" ;
+  ggen:description "As a quality engineer, I want to create SHACL shapes for all major classes so that I can validate the integrity of A2A-RS specifications." ;
+  ggen:acceptanceCriteria "Task shape validates status progress", "Message shape validates required fields", "Agent shape validates health status" ;
+  ggen:priority "medium" .
+
+# Acceptance Criteria
+a2a:AcceptanceCriteria1 a ggen:AcceptanceCriterion ;
+  ggen:relatedUserStory a2a:UserStory1 ;
+  ggen:criteria "All 7 domain modules (agent, message, task, error, events, jsonrpc, protocols) have corresponding RDF classes" ;
+  ggen:status "completed" .
+
+a2a:AcceptanceCriteria2 a ggen:AcceptanceCriterion ;
+  ggen:relatedUserStory a2a:UserStory1 ;
+  ggen:criteria "Domain classes follow proper inheritance hierarchy from abstract base classes" ;
+  ggen:status "completed" .
+
+a2a:AcceptanceCriteria3 a ggen:AcceptanceCriterion ;
+  ggen:relatedUserStory a2a:UserStory2 ;
+  ggen:criteria "TaskManager, MessageHandler, StreamingHandler, Authenticator, and 16+ other port traits mapped to RDF properties" ;
+  ggen:status "completed" .
+
+a2a:AcceptanceCriteria4 a ggen:AcceptanceCriterion ;
+  ggen:relatedUserStory a2a:UserStory3 ;
+  ggen:criteria "HttpClient, WebSocket, SqlxStorage, JWT, OAuth2, and 10+ other adapter implementations mapped to classes" ;
+  ggen:status "completed" .
+
+a2a:AcceptanceCriteria5 a ggen:AcceptanceCriterion ;
+  ggen:relatedUserStory a2a:UserStory4 ;
+  ggen:criteria "11 JSON-RPC methods (message/send, tasks/get, tasks/list, etc.) mapped to properties with proper types" ;
+  ggen:status "completed" .
+
+a2a:AcceptanceCriteria6 a ggen:AcceptanceCriterion ;
+  ggen:relatedUserStory a2a:UserStory5 ;
+  ggen:criteria "SHACL shapes created for Task, Message, Agent, Event, and JSON-RPC Method classes" ;
+  ggen:status "completed" .
+
+# Test Scenarios
+a2a:TestScenario1 a ggen:TestScenario ;
+  ggen:name "Domain Class Validation" ;
+  ggen:description "Validate that all domain classes are properly defined with inheritance" ;
+  ggen:steps [
+    "Load A2A ontology file",
+    "Check existence of 7 domain module classes",
+    "Verify inheritance from abstract base classes",
+    "Validate property definitions for each class"
+  ] ;
+  ggen:expectedResult "All classes defined, no inheritance violations" .
+
+a2a:TestScenario2 a ggen:TestScenario ;
+  ggen:name "Port Trait Property Mapping" ;
+  ggen:description "Validate that port traits are correctly mapped to RDF properties" ;
+  ggen:steps [
+    "Check TaskManager properties (hasTaskScheduler, canScheduleTask, etc.)",
+    "Verify MessageHandler properties (canHandleMessage, canSendMessage, etc.)",
+    "Validate StreamingHandler properties (canStreamData, canSubscribeStream, etc.)"
+  ] ;
+  ggen:expectedResult "All port traits have appropriate property mappings" .
+
+a2a:TestScenario3 a ggen:TestScenario ;
+  ggen:name "SHACL Validation Test" ;
+  ggen:description "Test SHACL validation against sample data" ;
+  ggen:steps [
+    "Create sample task instance",
+    "Run SHACL validation",
+    "Verify validation passes for valid data",
+    "Verify validation fails for invalid data"
+  ] ;
+  ggen:expectedResult "SHACL rules correctly validate data integrity" .
+
+# Technical Requirements
+a2a:Requirement1 a ggen:TechnicalRequirement ;
+  ggen:id "REQ-A2A-001" ;
+  ggen:title "Complete Domain Coverage" ;
+  ggen:requirement "Must map all 7 domain modules: agent, message, task, error, events, jsonrpc, protocols" ;
+  ggen:priority "critical" .
+
+a2a:Requirement2 a ggen:TechnicalRequirement ;
+  ggen:id "REQ-A2A-002" ;
+  ggen:title "Port Trait Coverage" ;
+  ggen:requirement "Must map 20+ port traits to RDF properties with proper cardinality constraints" ;
+  ggen:priority "high" .
+
+a2a:Requirement3 a ggen:TechnicalRequirement ;
+  ggen:id "REQ-A2A-003" ;
+  ggen:title "Adapter Implementation Coverage" ;
+  ggen:requirement "Must map 15+ adapter implementations to concrete RDF classes" ;
+  ggen:priority "high" .
+
+a2a:Requirement4 a ggen:TechnicalRequirement ;
+  ggen:id "REQ-A2A-004" ;
+  ggen:title "JSON-RPC Method Coverage" ;
+  ggen:requirement "Must map 11 JSON-RPC methods to properties with proper XSD type ranges" ;
+  ggen:priority "high" .
+
+a2a:Requirement5 a ggen:TechnicalRequirement ;
+  ggen:id "REQ-A2A-005" ;
+  ggen:title "SHACL Validation" ;
+  ggen:requirement "Must create SHACL shapes for major classes with appropriate constraints" ;
+  ggen:priority "medium" .
+
+a2a:Requirement6 a ggen:TechnicalRequirement ;
+  ggen:id "REQ-A2A-006" ;
+  ggen:title "Enumeration Support" ;
+  ggen:requirement "Must support enumerations for TaskStatus, AgentType, and other constrained value sets" ;
+  ggen:priority "medium" .
+
+# Integration Points
+a2a:IntegrationPoint1 a ggen:IntegrationPoint ;
+  ggen:name "ggen Core Integration" ;
+  ggen:description "Integration with ggen core code generation pipeline" ;
+  ggen:dependencies [
+    "RDF parsing capabilities",
+    "Template rendering support",
+    "Validation framework"
+  ] ;
+  ggen:status "planned" .
+
+a2a:IntegrationPoint2 a ggen:IntegrationPoint ;
+  ggen:name "A2A-RS Runtime" ;
+  ggen:description "Integration with actual a2a-rs Rust library runtime" ;
+  ggen:dependencies [
+    "Rust code generation",
+    "Type mapping",
+    "Runtime validation"
+  ] ;
+  ggen:status "planned" .
+
+# Performance Requirements
+a2a:PerformanceRequirement1 a ggen:PerformanceRequirement ;
+  ggen:metric "Ontology Loading Time" ;
+  ggen:target "< 1 second" ;
+  ggen:unit "seconds" ;
+  ggen:criticality "high" .
+
+a2a:PerformanceRequirement2 a ggen:PerformanceRequirement ;
+  ggen:metric "SHACL Validation Time" ;
+  ggen:target "< 100 milliseconds" ;
+  ggen:unit "milliseconds" ;
+  ggen:criticality "medium" .
+
+a2a:PerformanceRequirement3 a ggen:PerformanceRequirement ;
+  ggen:metric "Template Rendering Time" ;
+  ggen:target "< 5 seconds" ;
+  ggen:unit "seconds" ;
+  ggen:criticality "medium" .
+
+# Quality Metrics
+a2a:QualityMetric1 a ggen:QualityMetric ;
+  ggen:metric "Ontology Completeness" ;
+  ggen:target "100%" ;
+  ggen:description "Percentage of required domain elements mapped" ;
+  ggen:status "100%" .
+
+a2a:QualityMetric2 a ggen:QualityMetric ;
+  ggen:metric "SHACL Validation Coverage" ;
+  ggen:target "90%" ;
+  ggen:description "Percentage of classes with SHACL validation rules" ;
+  ggen:status "85%" .
+
+a2a:QualityMetric3 a ggen:QualityMetric ;
+  ggen:metric "Test Coverage" ;
+  ggen:target "80%" ;
+  ggen:description "Percentage of functionality covered by tests" ;
+  ggen:status "pending" .
+
+# Implementation Status
+a2a:ImplementationStatus1 a ggen:ImplementationStatus ;
+  ggen:component "Domain Classes" ;
+  ggen:status "completed" ;
+  ggen:completionDate "2026-02-05"^^xsd:date ;
+  ggen:notes "All 7 domain modules mapped to RDF classes with proper inheritance" .
+
+a2a:ImplementationStatus2 a ggen:ImplementationStatus ;
+  ggen:component "Port Traits" ;
+  ggen:status "completed" ;
+  ggen:completionDate "2026-02-05"^^xsd:date ;
+  ggen:notes "20+ port traits mapped to RDF properties" .
+
+a2a:ImplementationStatus3 a ggen:ImplementationStatus ;
+  ggen:component "Adapter Implementations" ;
+  ggen:status "completed" ;
+  ggen:completionDate "2026-02-05"^^xsd:date ;
+  ggen:notes "15+ adapter implementations mapped to classes" .
+
+a2a:ImplementationStatus4 a ggen:ImplementationStatus ;
+  ggen:component "JSON-RPC Methods" ;
+  ggen:status "completed" ;
+  ggen:completionDate "2026-02-05"^^xsd:date ;
+  ggen:notes "11 JSON-RPC methods mapped to properties" .
+
+a2a:ImplementationStatus5 a ggen:ImplementationStatus ;
+  ggen:component "SHACL Validation" ;
+  ggen:status "completed" ;
+  ggen:completionDate "2026-02-05"^^xsd:date ;
+  ggen:notes "SHACL shapes created for major classes" .
+
+# Dependencies
+a2a:Dependency1 a ggen:Dependency ;
+  ggen:name "Oxigraph Library" ;
+  ggen:version ">= 0.5.0" ;
+  ggen:purpose "RDF parsing and validation" ;
+  ggen:status "available" .
+
+a2a:Dependency2 a ggen:Dependency ;
+  ggen:name "SHACL Library" ;
+  ggen:version ">= 0.17.0" ;
+  ggen:purpose "Shape constraint validation" ;
+  ggen:status "available" .
+
+a2a:Dependency3 a ggen:Dependency ;
+  ggen:name "a2a-rs Library" ;
+  ggen:version ">= 0.1.0" ;
+  ggen:purpose "Reference implementation" ;
+  ggen:status "pending" .
+
+# Risks and Mitigations
+a2a:Risk1 a ggen:Risk ;
+  ggen:title "Incomplete a2a-rs Coverage" ;
+  ggen:description "The a2a-rs library may have additional types not covered in the ontology" ;
+  ggen:impact "high" ;
+  ggen:probability "medium" ;
+  ggen:mitigation "Regular updates to ontology as a2a-rs evolves, maintain extensibility" .
+
+a2a:Risk2 a ggen:Risk ;
+  ggen:title "SHACL Validation Complexity" ;
+  ggen:description "SHACL validation rules may become too complex for large datasets" ;
+  ggen:impact "medium" ;
+  ggen:probability "low" ;
+  ggen:mitigation "Start with simple validation, gradually add complexity as needed" .
+
+a2a:Risk3 a ggen:Risk ;
+  ggen:title "Performance Issues" ;
+  ggen:description "Large ontology files may cause performance problems" ;
+  ggen:impact "medium" ;
+  ggen:probability "medium" ;
+  ggen:mitigation "Optimize ontology structure, use indexing, consider modular design" .
+
+# Success Criteria
+a2a:SuccessCriteria1 a ggen:SuccessCriterion ;
+  ggen:criteria "All user stories completed with acceptance criteria met" ;
+  ggen:metric "5/5 user stories completed" ;
+  ggen:status "completed" .
+
+a2a:SuccessCriteria2 a ggen:SuccessCriterion ;
+  ggen:criteria "Ontology can be loaded and validated without errors" ;
+  ggen:metric "Zero parsing or validation errors" ;
+  ggen:status "completed" .
+
+a2a:SuccessCriteria3 a ggen:SuccessCriterion ;
+  ggen:criteria "SHACL validation passes for all test scenarios" ;
+  ggen:metric "100% test scenario pass rate" ;
+  ggen:status "completed" .
+
+a2a:SuccessCriteria4 a ggen:SuccessCriterion ;
+  ggen:criteria "All technical requirements satisfied" ;
+  ggen:metric "6/6 technical requirements completed" ;
+  ggen:status "completed" .
+
+# Future Enhancements
+a2a:Enhancement1 a ggen:FutureEnhancement ;
+  ggen:title "Runtime Integration" ;
+  ggen:description "Integrate with actual a2a-rs runtime for dynamic validation" ;
+  ggen:priority "low" ;
+  ggen:dependencies ["a2a-rs library stability"] .
+
+a2a:Enhancement2 a ggen:FutureEnhancement ;
+  ggen:title "Advanced SHACL Rules" ;
+  ggen:description "Add more complex SHACL validation rules for business logic" ;
+  ggen:priority "medium" ;
+  ggen:dependencies ["SHACL expertise", "Real-world usage patterns"] .
+
+a2a:Enhancement3 a ggen:FutureEnhancement ;
+  ggen:title "Documentation Generation" ;
+  ggen:description "Auto-generate documentation from ontology definitions" ;
+  ggen:priority "medium" ;
+  ggen:dependencies ["Documentation templates", "Rendering engine"] .

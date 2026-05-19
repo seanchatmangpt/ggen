@@ -1,40 +1,44 @@
 <!--
 ═══════════════════════════════════════════════════════════════════════════════
-SYNC IMPACT REPORT - ggen Constitution Update
+SYNC IMPACT REPORT - ggen Constitution v1.1.0 (Sprint Learnings Integration)
 ═══════════════════════════════════════════════════════════════════════════════
 
-Version Change: TEMPLATE → 1.0.0 (Initial ratification)
+Version Change: 1.0.0 → 1.1.0 (MINOR: new principles + guidance sections)
+
+Version Bump Rationale (MINOR):
+- Added new principle II (Infrastructure-Domain Separation) from Sprint 4 learning
+- Added new section: Crate Extraction & Consolidation Patterns
+- Enhanced principle I with circular dependency anti-pattern guidance
+- All existing principles remain compatible (backward compatible)
 
 Modified Principles:
-- All principles newly defined from template
-- PRINCIPLE_1: Library-First Design → I. Crate-First Architecture
-- PRINCIPLE_2: CLI Interface → II. Deterministic RDF Projections
-- PRINCIPLE_3: Test-First → III. Chicago TDD (Zero Tolerance)
-- PRINCIPLE_4: Integration Testing → IV. cargo make Protocol
-- PRINCIPLE_5: Multiple principles → V. Type-First Thinking
-                                   VI. Andon Signal Protocol
-                                   VII. Error Handling Standards
-                                   VIII. Concurrent Execution
-                                   IX. Lean Six Sigma Quality
+- I. Crate-First Architecture: Enhanced with consolidation-ready design + circular dependency anti-pattern
+- II. Infrastructure-Domain Separation: NEW principle (Sprint 4 blocker learning)
+- III-X: Renumbered (Deterministic RDF Projections through Lean Six Sigma)
 
 Added Sections:
-- Core Principles (I-IX): Complete principle definitions
-- Build & Quality Standards: cargo make, timeouts, SLOs
-- Development Workflow: Speckit integration, TDD cycle, file organization
-- Governance: Amendment procedure, versioning policy, compliance
+- Crate Extraction & Consolidation Patterns: Guidelines based on ggen-receipt/ggen-config/ggen-a2a-mcp successes and ggen-domain blocker
 
 Removed Sections:
-- None (template fully populated)
+- None (no breaking changes)
+
+Sprint Learnings Incorporated:
+- ✅ ggen-receipt → ggen-config consolidation (successful micro-crate merge)
+- ✅ ggen-config extraction (6.5k LOC, clean, stable, reusable)
+- ✅ ggen-a2a-mcp extraction (10k LOC, isolated, no infrastructure deps)
+- ⚠ ggen-domain blocker (21.5k LOC, blocked by pack_resolver circular dependency)
+- 🔄 Marketplace feature-gating pattern (optional crate documentation)
 
 Templates Requiring Updates:
-- ✅ .specify/templates/plan-template.md: Updated Constitution Check section
-- ✅ .specify/templates/spec-template.md: Aligned with principles (no changes needed)
-- ✅ .specify/templates/tasks-template.md: Aligned with principles (no changes needed)
-- ⚠ README.md: Consider adding constitution reference link (manual follow-up)
-- ⚠ CLAUDE.md: Constitution supersedes where overlapping (manual review)
+- ✅ .specify/templates/plan-template.md: Already aligned
+- ✅ .specify/templates/spec-template.md: Already aligned
+- ✅ .specify/templates/tasks-template.md: Already aligned
+- ⚠ CLAUDE.md: Update crate count (now 6 crates: cli, config, core, a2a-mcp, marketplace, prolog8)
+- ⚠ README.md: Link to constitution and clarify current architecture
 
 Follow-up TODOs:
-- None (all placeholders filled with concrete values)
+- Update project README.md to reference 6-crate architecture
+- Document in architecture guide why ggen-domain extraction is blocked (circular dependency with pack_resolver)
 
 ═══════════════════════════════════════════════════════════════════════════════
 -->
@@ -46,14 +50,45 @@ Follow-up TODOs:
 ### I. Crate-First Architecture
 
 Every feature MUST start as a standalone crate within the workspace. Crates MUST be:
-- **Self-contained**: No circular dependencies between workspace crates
+- **Self-contained**: No circular dependencies between workspace crates (verified at compile time)
 - **Independently testable**: Each crate has its own test suite achieving 80%+ coverage
 - **Clearly scoped**: Single responsibility principle—domain logic separated from CLI, core separated from utilities
 - **Documented**: Public APIs MUST have rustdoc comments with examples
+- **Consolidation-ready**: Design for future consolidation (e.g., ggen-receipt merged into ggen-config successfully)
 
-**Rationale**: Workspace structure enforces modularity, prevents tight coupling, and enables parallel development. The 12-crate architecture (ggen-cli, ggen-domain, ggen-core, etc.) demonstrates this principle in practice.
+**Circular Dependency Anti-Pattern**: If extracting a new crate creates a cycle (e.g., new-crate depends on ggen-core which depends on new-crate), DO NOT extract. Instead:
+1. Identify shared types/traits causing the cycle
+2. Extract shared types to separate `ggen-types` crate (if justified by 80/20 analysis)
+3. Or accept the module staying in ggen-core with clear documentation of scope
 
-### II. Deterministic RDF Projections
+**Rationale**: Workspace structure enforces modularity, prevents tight coupling, and enables parallel development. The 6-crate architecture (ggen-cli, ggen-config, ggen-core, ggen-a2a-mcp, ggen-marketplace, prolog8) demonstrates this principle. Circular dependencies block compilation; they are unresolvable architectural problems, not fixable by refactoring.
+
+### II. Infrastructure-Domain Separation
+
+Code in ggen-core MUST maintain clear boundaries between **infrastructure** and **domain**:
+
+**Infrastructure** (lives in ggen-core, reusable across crates):
+- RDF graph management (`graph/`, `rdf/`)
+- Pipeline execution framework (`pipeline/`, `parallel_generator/`)
+- Template resolution and rendering (`templates/`, `template/`)
+- Code generation traits (`codegen/`, `codegen_lib/`)
+- Utilities and error handling (`utils/`, reusable types)
+
+**Domain** (business logic, can be extracted to separate crates):
+- Pack management and validation (`packs/`, `pack_resolver/`)
+- Capability registry and resolution (`domain/packs/capability_registry.rs`)
+- Validation rules and policies (`domain/validation/`)
+- Marketplace package management (`marketplace/` — optional feature)
+
+**Extraction Rule**: Domain modules MAY be extracted to separate crates IF they don't create circular dependencies. If infrastructure code depends on the domain logic, the extraction is blocked.
+
+**Example (Sprint 4 blocker)**: `ggen-domain` extraction blocked because `pack_resolver.rs` (infrastructure in ggen-core) depends on `packs/` module. Attempted extraction created: `ggen-domain` → `ggen-core` → `ggen-domain` cycle.
+
+**Lesson**: Before extracting a domain module, verify NO infrastructure code depends on it. If infrastructure depends on domain, accept the module staying in ggen-core.
+
+**Rationale**: Clear boundaries prevent architectural tangles. Infrastructure must be stable and reusable; domain logic can evolve and be reorganized independently—IF it doesn't create cycles.
+
+### III. Deterministic RDF Projections
 
 Code generation MUST be deterministic and reproducible:
 - **Same input → same output**: Identical RDF ontology + template MUST produce identical code across runs
@@ -63,7 +98,7 @@ Code generation MUST be deterministic and reproducible:
 
 **Rationale**: ggen's core value proposition is deterministic code generation from knowledge graphs. Non-determinism breaks trust and makes debugging impossible.
 
-### III. Chicago TDD (Zero Tolerance)
+### IV. Chicago TDD (Zero Tolerance)
 
 Test-Driven Development using Chicago School methodology is MANDATORY:
 - **State-based testing**: Tests verify observable outputs, return values, and side effects (not mocks or internal calls)
@@ -76,7 +111,7 @@ Test-Driven Development using Chicago School methodology is MANDATORY:
 
 **Exemption**: Test code (`#[cfg(test)]`, `#[test]`, `tests/`, `benches/`) MAY use `unwrap()` and `expect()` to fail fast on setup issues.
 
-### IV. cargo make Protocol
+### V. cargo make Protocol
 
 Direct `cargo` commands are PROHIBITED in development and CI. Use `cargo make` targets exclusively:
 - **Fast feedback**: `cargo make check` (<5s compilation check)
@@ -87,7 +122,7 @@ Direct `cargo` commands are PROHIBITED in development and CI. Use `cargo make` t
 
 **Rationale**: `cargo make` provides consistent timeouts, prevents hanging builds, enforces SLOs, and integrates with Claude-Flow hooks. Direct cargo can hang indefinitely on certain errors.
 
-### V. Type-First Thinking
+### VI. Type-First Thinking
 
 Leverage Rust's type system for compile-time guarantees:
 - **Express invariants in types**: Use newtypes, enums, and type states to make invalid states unrepresentable
@@ -97,7 +132,7 @@ Leverage Rust's type system for compile-time guarantees:
 
 **Rationale**: Type-first thinking shifts errors from runtime to compile-time, reducing defects. If it compiles, invariants are enforced.
 
-### VI. Andon Signal Protocol
+### VII. Andon Signal Protocol
 
 Stop the line immediately when quality signals appear:
 - **RED (Compilation error, test failure)**: STOP all work. Fix immediately before proceeding.
@@ -112,7 +147,7 @@ Stop the line immediately when quality signals appear:
 
 **Rationale**: Andon signals (from Toyota Production System) prevent defects from propagating downstream. Fixing at source is 10x cheaper than fixing in production.
 
-### VII. Error Handling Standards
+### VIII. Error Handling Standards
 
 Production code MUST use `Result<T, E>` error handling:
 - **NO `unwrap()` in production**: Causes panic, violates fail-safe principle
@@ -124,7 +159,7 @@ Production code MUST use `Result<T, E>` error handling:
 
 **Rationale**: Production systems MUST handle errors gracefully. Panics crash the process and lose work. Test code SHOULD fail fast to surface issues immediately.
 
-### VIII. Concurrent Execution
+### IX. Concurrent Execution
 
 All operations MUST be batched in single messages:
 - **"1 MESSAGE = ALL RELATED OPERATIONS"**: TodoWrite (10+ todos), Task tool (all agents), file operations, bash commands
@@ -134,7 +169,7 @@ All operations MUST be batched in single messages:
 
 **Rationale**: Concurrent execution provides 2.8-4.4x speed improvement and prevents coordination failures. Sequential operations waste time and risk inconsistency.
 
-### IX. Lean Six Sigma Quality
+### X. Lean Six Sigma Quality
 
 Enforce manufacturing-grade quality standards (99.99966% defect-free):
 - **Poka-Yoke**: Compiler warnings treated as errors (`#![deny(warnings)]`) prevent defects at compile time
@@ -144,6 +179,57 @@ Enforce manufacturing-grade quality standards (99.99966% defect-free):
 - **Mandatory pre-commit**: Git hooks run format check + cargo check automatically—CANNOT skip
 
 **Rationale**: Design for Lean Six Sigma (DfLSS) prevents defects AND waste from the start. Prevention is cheaper than detection, which is cheaper than correction.
+
+## Crate Extraction & Consolidation Patterns
+
+### When to Extract a Crate
+
+Extraction is justified when a module satisfies ALL of these (80/20 Pareto analysis):
+
+1. **Size**: ≥5k LOC (small extractions create maintenance burden without benefit)
+2. **Stability**: Module API is stable (major API changes indicate uncertain scope)
+3. **Independence**: Zero infrastructure dependencies (or clear boundary in ggen-core infra layer)
+4. **Reusability**: Module is used by ≥2 other crates or is a standalone library
+5. **No circular deps**: Verify extraction doesn't create ggen-core ↔ new-crate cycle
+
+**Historical Examples**:
+- ✅ **ggen-config** (6.5k LOC): Stable, reusable, no infrastructure deps → Successfully extracted
+- ✅ **ggen-a2a-mcp** (10k LOC): Isolated MCP protocol, no infra deps → Successfully extracted
+- ✅ **ggen-receipt consolidated** (2.5k LOC): Small + simple, merged into ggen-config → Successful consolidation
+- ❌ **ggen-domain** (21.5k LOC): Blocked—pack_resolver.rs (infra) depends on packs/ module → Circular dependency, extraction blocked
+
+### When to Consolidate Crates
+
+Consolidation is justified when a crate satisfies ANY of these:
+
+1. **Micro-crate**: <2k LOC with few dependents (maintenance overhead > value)
+2. **Tight coupling**: >90% of functionality depends on another crate (merge into dependent)
+3. **Shared types only**: Exists primarily to share types with parent crate (merge or extract types to `ggen-types`)
+4. **Stable and small**: <5k LOC, stable API, well-tested → Can consolidate without risk
+
+**Recent consolidation**: ggen-receipt (2.5k LOC) → ggen-config (maintains re-exports for backward compatibility)
+
+### Feature-Gating Optional Crates
+
+Optional functionality (e.g., ggen-marketplace) MUST be feature-gated:
+
+```toml
+[dependencies.ggen-marketplace]
+path = "../ggen-marketplace"
+optional = true
+
+[features]
+default = ["marketplace"]
+marketplace = ["ggen-marketplace"]
+```
+
+**Benefits**:
+- Reduces default build time and binary size
+- Allows marketplace to evolve independently
+- Users can disable if not needed (embedded systems, minimal builds)
+- Clear dependency boundary (no marketplace code in critical paths)
+
+**Marketplace Status**: Currently feature-gated and optional. Enabled by default but can be disabled.
 
 ## Build & Quality Standards
 
@@ -298,4 +384,4 @@ This constitution supersedes CLAUDE.md where principles overlap. CLAUDE.md provi
 2. CLAUDE.md (project root) - Development workflow and tool usage
 3. README.md - User-facing documentation
 
-**Version**: 1.0.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2025-12-11
+**Version**: 1.1.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2026-05-13
