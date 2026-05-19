@@ -1,4 +1,4 @@
-use ggen_domain::utils::*;
+use mcpp_domain::utils::*;
 
 #[tokio::test]
 async fn test_run_diagnostics() {

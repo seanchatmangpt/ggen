@@ -3,7 +3,7 @@
 //! Pure business logic for managing GitHub Actions workflows, checking status,
 //! viewing logs, and canceling runs.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::str::FromStr;
 
 /// Workflow status
@@ -139,7 +139,7 @@ impl WorkflowManager for GhWorkflowManager {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Failed to list workflows: {}",
                 stderr
             )));
@@ -162,7 +162,7 @@ impl WorkflowManager for GhWorkflowManager {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Failed to cancel workflow {}: {}",
                 workflow_id, stderr
             )));
@@ -207,7 +207,7 @@ impl WorkflowStatusChecker for GhWorkflowStatusChecker {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Failed to get workflow status: {}",
                 stderr
             )));
@@ -249,7 +249,7 @@ impl WorkflowLogViewer for GhWorkflowLogViewer {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Failed to get workflow logs: {}",
                 stderr
             )));
@@ -271,7 +271,7 @@ impl WorkflowLogViewer for GhWorkflowLogViewer {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(mcpp_utils::error::Error::new(&format!(
                 "Failed to stream logs: {}",
                 stderr
             )));

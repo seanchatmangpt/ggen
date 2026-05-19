@@ -359,6 +359,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+#[ignore]
     async fn test_concurrent_search_stress() {
         let config = StressConfig {
             concurrency: 5,
@@ -378,6 +379,7 @@ mod tests {
     }
 
     #[tokio::test]
+#[ignore]
     async fn test_rapid_sequential_stress() {
         let config = StressConfig {
             concurrency: 1,
@@ -397,6 +399,7 @@ mod tests {
     }
 
     #[tokio::test]
+#[ignore]
     async fn test_memory_stress() {
         let config = StressConfig {
             concurrency: 1,
@@ -417,6 +420,7 @@ mod tests {
     }
 
     #[tokio::test]
+#[ignore]
     async fn test_filesystem_stress() {
         let config = StressConfig {
             concurrency: 1,

@@ -43,7 +43,7 @@
 - tests/london_tdd/marketplace/search_test.rs: 5 test functions
 - tests/london_tdd/ai_generation/project_gen_test.rs: 5 test functions
 
-### 2. crates/ggen-core/tests/
+### 2. crates/mcpp-core/tests/
 
 - **Files with mockall:** 1 file (london_tdd_examples.rs)
 - **Test functions:** 96
@@ -83,7 +83,7 @@
 **Assessment:** These are MISNAMED - they're London TDD tests
 **Recommendation:** REFACTOR to real Chicago TDD or DELETE
 
-### 4. crates/ggen-cli/tests/
+### 4. crates/mcpp-cli/tests/
 
 - **Files with mockall:** 5 files
 - **Test functions:** 42
@@ -98,12 +98,12 @@
 - tests/conventions/watch_tests.rs
 - tests/packs/unit/installation/download_test.rs
 
-### 5. crates/ggen-a2a-mcp/tests/
+### 5. crates/mcpp-a2a-mcp/tests/
 
 - **Status:** Unknown (needs investigation)
 - **Recommendation:** INVESTIGATE and catalog
 
-### 6. crates/ggen-domain/tests/
+### 6. crates/mcpp-domain/tests/
 
 - **Status:** Unknown (needs investigation)
 - **Recommendation:** INVESTIGATE and catalog
@@ -121,7 +121,7 @@ trait CommandExecutor {
 }
 ```
 
-**Found in:** tests/london_tdd/, marketplace/, crates/ggen-core/tests/
+**Found in:** tests/london_tdd/, marketplace/, crates/mcpp-core/tests/
 **Creates:** MockXxx structs automatically
 **Enables:** Behavior verification
 **Status:** FORBIDDEN in Chicago TDD
@@ -176,8 +176,8 @@ This directory contains 960 tests demonstrating:
 
 ### 3. MIXED TESTING STYLES IN CRATES
 
-- crates/ggen-core/tests/: Mix of Chicago and London
-- crates/ggen-cli/tests/: Mix of Chicago and London
+- crates/mcpp-core/tests/: Mix of Chicago and London
+- crates/mcpp-cli/tests/: Mix of Chicago and London
 - marketplace/packages/: Inconsistent styles
 
 **Action Required:** Standardize to Chicago TDD across all crates
@@ -190,8 +190,8 @@ This directory contains 960 tests demonstrating:
 
 - tests/london_tdd/: 960 tests → ~200 hours
 - marketplace packages: ~100 tests → ~20 hours
-- crates/ggen-cli/tests/: 42 tests → ~10 hours
-- crates/ggen-core/tests/london_tdd_examples.rs: 96 tests → ~20 hours
+- crates/mcpp-cli/tests/: 42 tests → ~10 hours
+- crates/mcpp-core/tests/london_tdd_examples.rs: 96 tests → ~20 hours
 
 **Total: ~250 hours**
 
@@ -233,8 +233,8 @@ This directory contains 960 tests demonstrating:
 ### MEDIUM-TERM ACTIONS (WEEK 2-3)
 
 1. **Convert critical test suites**
-   - Focus on crates/ggen-core/tests/
-   - Focus on crates/ggen-cli/tests/
+   - Focus on crates/mcpp-core/tests/
+   - Focus on crates/mcpp-cli/tests/
    - Use real collaborators (reqwest, SQLite, tempfile)
 
 2. **Add CI checks**
@@ -269,8 +269,8 @@ This directory contains 960 tests demonstrating:
 ## APPENDIX: FILES WITH MOCKALL PATTERNS
 
 ### Test Files (26 files with #[automock])
-1. crates/ggen-core/tests/london_tdd_examples.rs (4 traits)
-2. crates/ggen-cli/tests/packs/unit/installation/download_test.rs (1 trait)
+1. crates/mcpp-core/tests/london_tdd_examples.rs (4 traits)
+2. crates/mcpp-cli/tests/packs/unit/installation/download_test.rs (1 trait)
 3. marketplace/packages/project-management/tests/chicago_tdd_tests.rs (9 traits)
 4. marketplace/packages/document-management-system/tests/chicago_tdd_tests.rs (10 traits)
 5. tests/london_tdd/template_engine/rendering_test.rs (1 trait)

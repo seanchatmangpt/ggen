@@ -11,7 +11,7 @@ All three quickstart examples have been created and tested successfully.
 
 ## 1. MCP Tool Example
 
-**Location:** `/Users/sac/ggen/examples/quickstart/mcp-tool/`
+**Location:** `./examples/quickstart/mcp-tool/`
 
 **Test Command:**
 ```bash
@@ -41,12 +41,12 @@ cargo run --bin mcp_tool_example
   Parameters: ["project_path"]
 
 🔨 Executing tool...
-📂 Path: /Users/sac/ggen/examples
+📂 Path: ./examples
 
-🔍 Validating project: /Users/sac/ggen/examples
+🔍 Validating project: ./examples
 
 Project Validation Results:
-Path: /Users/sac/ggen/examples
+Path: ./examples
 Status: FAIL ✗
 Checks: 1/3
 Details:
@@ -59,7 +59,7 @@ Details:
 
 ## 2. A2A Agent Example
 
-**Location:** `/Users/sac/ggen/examples/quickstart/a2a-agent/`
+**Location:** `./examples/quickstart/a2a-agent/`
 
 **Test Command:**
 ```bash
@@ -112,7 +112,7 @@ Agent B: Agent-B (READY)
 
 ## 3. Template Generation Example
 
-**Location:** `/Users/sac/ggen/examples/quickstart/template-generation/`
+**Location:** `./examples/quickstart/template-generation/`
 
 **Test Command:**
 ```bash
@@ -172,7 +172,7 @@ use axum::{
 };
 // ... (full Rust service code)
 
-📁 Writing files to: /Users/sac/ggen/examples/quickstart/template-generation/target/quickstart-output
+📁 Writing files to: ./examples/quickstart/template-generation/target/quickstart-output
 
   ✓ Cargo.toml
   ✓ src/main.rs

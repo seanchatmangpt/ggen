@@ -3,7 +3,7 @@
 //! Uses REAL file writing and format serialization
 
 use anyhow::Result;
-use ggen_domain::graph::{export_graph, ExportFormat, ExportOptions};
+use mcpp_domain::graph::{export_graph, ExportFormat, ExportOptions};
 use std::fs;
 use tempfile::tempdir;
 

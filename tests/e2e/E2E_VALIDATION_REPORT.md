@@ -355,7 +355,7 @@ File: cli/src/cmds/template.rs
 
 **Build Status**: ✅ Compiled successfully
 ```
-Compiling ggen v2.2.0 (/Users/sac/ggen)
+Compiling ggen v2.2.0 (.)
 Finished `release` profile [optimized] target(s) in 2m 50s
 ```
 

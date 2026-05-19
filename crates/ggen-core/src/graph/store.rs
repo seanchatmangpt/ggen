@@ -4,7 +4,7 @@
 //! using Oxigraph's RocksDB backend.
 
 use crate::graph::core::Graph;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use oxigraph::store::Store;
 use std::path::Path;
 use std::sync::Arc;
@@ -19,7 +19,7 @@ use std::sync::Arc;
 /// ```rust,no_run
 /// use ggen_core::graph::{Graph, GraphStore};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// // Open or create a persistent store
 /// let store = GraphStore::open("./data/store")?;
 ///
@@ -59,7 +59,7 @@ impl GraphStore {
         // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         // Pattern: Always use `.map_err()` for external library errors that don't implement `From`
         let store = Store::open(path.as_ref())
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to open store: {}", e)))?;
+            .map_err(|e| crate::utils::error::Error::new(&format!("Failed to open store: {}", e)))?;
         Ok(Self {
             store: Arc::new(store),
         })
@@ -74,7 +74,7 @@ impl GraphStore {
         // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         // Pattern: Always use `.map_err()` for external library errors that don't implement `From`
         let store = Store::new().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create store: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to create store: {}", e))
         })?;
         Ok(Self {
             store: Arc::new(store),

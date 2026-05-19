@@ -2,8 +2,8 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix ggen: <https://ggen.io/ontology#> .
-@prefix ln_ctrl: <https://ggen.io/ontology/ln_ctrl#> .
+@prefix mcpp: <https://mcpp.io/ontology#> .
+@prefix ln_ctrl: <https://mcpp.io/ontology/ln_ctrl#> .
 
 # ln_ctrl Replay Pack Ontology
 # Deterministic re-execution support for λn scenarios

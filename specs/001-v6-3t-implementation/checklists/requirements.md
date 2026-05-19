@@ -1,4 +1,4 @@
-# Specification Quality Checklist: ggen v6 - 3T Implementation
+# Specification Quality Checklist: mcpp v6 - 3T Implementation
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2025-12-19
@@ -89,7 +89,7 @@ The specification has been transformed from traditional markdown to an ontology-
 
 **After (Pure 3T)**:
 - Format: RDF triples in `ontology/*.ttl` (1,372 lines total)
-- Editing: Edit ontology, regenerate with `ggen sync`
+- Editing: Edit ontology, regenerate with `mcpp sync`
 - Validation: SHACL shapes enforce structure at compile-time (μ₁ pass)
 - Consistency: Templates guarantee uniform formatting
 - Provenance: Cryptographic receipt proves `spec.md = μ(ontology)`
@@ -128,7 +128,7 @@ The specification has been transformed from traditional markdown to an ontology-
   - `risks.tera` - Risks with mitigations
 
 **Configuration Layer (Orchestration)**:
-- `ggen.toml` (247 lines) - Pipeline configuration
+- `mcpp.toml` (247 lines) - Pipeline configuration
   - Project metadata
   - v6 pipeline passes configuration (μ₁ through μ₅)
   - Constitutional invariants enforcement (idempotence, determinism, provenance, no-edit, substrate-only)
@@ -149,7 +149,7 @@ The specification has been transformed from traditional markdown to an ontology-
 
 ### Constitutional Invariants Enforced
 
-1. **Idempotence** (μ∘μ = μ): Running `ggen sync` twice produces zero file changes
+1. **Idempotence** (μ∘μ = μ): Running `mcpp sync` twice produces zero file changes
 2. **Determinism**: Same ontology generates bit-for-bit identical markdown across all platforms
 3. **Provenance**: `generated/.receipt.json` cryptographically proves `hash(spec.md) = hash(μ(ontology))`
 4. **No-Edit Law**: Generated files in `generated/` are never hand-edited (gitignored)
@@ -185,16 +185,16 @@ shacl:property [
 ### Generation Workflow
 
 ```bash
-cd /Users/sac/ggen/specs/001-v6-3t-implementation
+cd ~/.ggen/mcpp/specs/001-v6-3t-implementation
 
 # Generate specification from ontology
-ggen sync
+mcpp sync
 
 # Verify idempotence (should produce no changes)
-ggen sync
+mcpp sync
 
 # Verify cryptographic provenance
-ggen verify
+mcpp verify
 ```
 
 **Pipeline Execution (μ₁ through μ₅)**:
@@ -238,7 +238,7 @@ This creates a **proof-by-construction**: if the specification can be generated 
 - ✅ All SPARQL queries use `ORDER BY` for determinism
 
 **Configuration Validity**:
-- ✅ ggen.toml parses successfully
+- ✅ mcpp.toml parses successfully
 - ✅ All 10 generation rules map correctly (query → template → output)
 - ✅ Constitutional invariants configured
 - ✅ Vocabulary governance enabled
@@ -246,7 +246,7 @@ This creates a **proof-by-construction**: if the specification can be generated 
 ### Next Steps
 
 1. ✅ **COMPLETE**: Specification rewritten using pure 3T
-2. **PENDING**: Test generation with `ggen sync` (requires v6 CLI implementation)
+2. **PENDING**: Test generation with `mcpp sync` (requires v6 CLI implementation)
 3. **PENDING**: Verify idempotence and determinism
 4. **PENDING**: Validate cryptographic receipts
 5. **PENDING**: Use as template for converting other specifications

@@ -26,15 +26,15 @@
 - [X] **FR-011**: Package.toml supports `[fmea]` section
 - [X] **FR-012**: FMEA entries include: id, mode, severity, occurrence, detection, RPN, control
 - [X] **FR-013**: RPN threshold validation (>200 = CRITICAL, 100-200 = HIGH, <100 = MEDIUM)
-- [X] **FR-014**: `ggen marketplace validate` fails for unmitigated critical failure modes
-- [X] **FR-015**: FMEA report generated during `ggen marketplace publish`
+- [X] **FR-014**: `mcpp marketplace validate` fails for unmitigated critical failure modes
+- [X] **FR-015**: FMEA report generated during `mcpp marketplace publish`
 
 ## Team Ownership
 
 - [X] **FR-016**: OWNERS files supported per noun directory (CODEOWNERS format)
 - [X] **FR-017**: Repository-level CODEOWNERS aggregated from noun OWNERS
 - [ ] **FR-018**: `*.breaking.ttl` pattern requires platform team approval - Future enhancement
-- [ ] **FR-019**: `ggen generate` respects OWNERS for PR reviewer suggestions - Future enhancement
+- [ ] **FR-019**: `mcpp generate` respects OWNERS for PR reviewer suggestions - Future enhancement
 
 ## Success Criteria
 
@@ -49,7 +49,7 @@
 ## User Story Acceptance
 
 ### US1 - Protected Domain Logic (P1) - COMPLETE
-- [X] Domain files untouched during `ggen generate --force`
+- [X] Domain files untouched during `mcpp generate --force`
 - [X] Protected path violations produce explicit errors
 - [ ] First-time generation creates stubs with `unimplemented!()` - Template-level (deferred)
 
@@ -79,30 +79,30 @@
 
 ### Core Infrastructure Completed
 
-1. **Path Protection Module** (`crates/ggen-domain/src/generation/protection.rs`)
+1. **Path Protection Module** (`crates/mcpp-domain/src/generation/protection.rs`)
    - `PathProtectionValidator` with glob pattern matching
    - `validate_generation_write()` function
    - `GenerationWriteResult` enum with Allow/Block variants
    - 5 unit tests passing
 
-2. **Header Injection Module** (`crates/ggen-domain/src/generation/headers.rs`)
+2. **Header Injection Module** (`crates/mcpp-domain/src/generation/headers.rs`)
    - `HeaderInjectionConfig` with customizable header text
    - `format_header_for_extension()` for language-specific comments
    - `inject_warning_header()` with shebang preservation
    - 9 unit tests passing
 
-3. **CODEOWNERS Generator** (`crates/ggen-domain/src/generation/codeowners.rs`)
+3. **CODEOWNERS Generator** (`crates/mcpp-domain/src/generation/codeowners.rs`)
    - `CodeownersConfig` for [codeowners] section
    - `generate_codeowners()` and `generate_codeowners_default()`
-   - Integration with ggen-core's `CodeownersGenerator`
+   - Integration with mcpp-core's `CodeownersGenerator`
    - 6 unit tests passing
 
-4. **FMEA Validator** (`crates/ggen-domain/src/marketplace/fmea_validator.rs`)
+4. **FMEA Validator** (`crates/mcpp-domain/src/marketplace/fmea_validator.rs`)
    - Integrated with marketplace install flow
    - RPN threshold validation
    - Critical/High/Medium risk classification
 
-5. **CLI Integration** (`crates/ggen-cli/src/cmds/marketplace.rs`)
+5. **CLI Integration** (`crates/mcpp-cli/src/cmds/marketplace.rs`)
    - `validate-fmea` verb with full validation output
    - Integration with marketplace commands
 

@@ -58,7 +58,7 @@ Server Status: Running
   Address: 127.0.0.1:3000
 
 Configuration: Valid
-  Config file: /Users/sac/ggen/.mcp.json
+  Config file: ./.mcp.json
   Version: 1.0
 
 Connectivity: OK

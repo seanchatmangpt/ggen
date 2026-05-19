@@ -1,7 +1,7 @@
 //! Pack metadata loading and management
 
 use crate::packs::types::{Pack, PackFile};
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
 
@@ -10,7 +10,7 @@ use std::path::PathBuf;
 /// Resolution order (first match wins):
 /// 1. `GGEN_PACKS_DIR` environment variable (highest priority)
 /// 2. Relative paths (for development / source checkout)
-/// 3. `~/.ggen/packs` (conventional home location for installed binaries)
+/// 3. `~/.mcpp/packs` (conventional home location for installed binaries)
 pub fn get_packs_dir() -> Result<PathBuf> {
     // 1. GGEN_PACKS_DIR env var override — highest priority
     if let Ok(env_dir) = std::env::var("GGEN_PACKS_DIR") {
@@ -33,16 +33,16 @@ pub fn get_packs_dir() -> Result<PathBuf> {
         }
     }
 
-    // 3. ~/.ggen/packs (conventional home location for cargo-installed binaries)
+    // 3. ~/.mcpp/packs (conventional home location for cargo-installed binaries)
     if let Some(home) = dirs::home_dir() {
-        let p = home.join(".ggen").join("packs");
+        let p = home.join(".mcpp").join("packs");
         if p.exists() && p.is_dir() {
             return Ok(p);
         }
     }
 
-    Err(ggen_utils::error::Error::new(
-        "Packs directory not found. Set GGEN_PACKS_DIR or create ~/.ggen/packs/",
+    Err(mcpp_utils::error::Error::new(
+        "Packs directory not found. Set GGEN_PACKS_DIR or create ~/.mcpp/packs/",
     ))
 }
 
@@ -52,7 +52,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
     let pack_path = packs_dir.join(format!("{}.toml", pack_id));
 
     if !pack_path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(mcpp_utils::error::Error::new(&format!(
             "Pack '{}' not found at {}",
             pack_id,
             pack_path.display()
@@ -61,7 +61,7 @@ pub fn load_pack_metadata(pack_id: &str) -> Result<Pack> {
 
     let content = fs::read_to_string(&pack_path)?;
     let pack_file: PackFile = toml::from_str(&content).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to parse pack '{}': {}", pack_id, e))
+        mcpp_utils::error::Error::new(&format!("Failed to parse pack '{}': {}", pack_id, e))
     })?;
 
     Ok(pack_file.pack)
@@ -115,7 +115,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_ggen_packs_dir_env_var() {
+    fn test_mcpp_packs_dir_env_var() {
         let temp = tempfile::TempDir::new().unwrap();
         std::env::set_var("GGEN_PACKS_DIR", temp.path().to_str().unwrap());
         let result = get_packs_dir();
@@ -128,7 +128,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ggen_packs_dir_env_var_missing_dir_skipped() {
+    fn test_mcpp_packs_dir_env_var_missing_dir_skipped() {
         // Points to a path that does not exist — should NOT succeed via env var,
         // must fall through to other lookups (which also fail in CI) → Err
         std::env::set_var("GGEN_PACKS_DIR", "/nonexistent/path/that/cannot/exist");
@@ -149,7 +149,7 @@ mod tests {
             || PathBuf::from("../marketplace/packs").exists()
             || PathBuf::from("../../marketplace/packs").exists();
         let home_exists = dirs::home_dir()
-            .map(|h| h.join(".ggen").join("packs").exists())
+            .map(|h| h.join(".mcpp").join("packs").exists())
             .unwrap_or(false);
         if !relative_exists && !home_exists {
             let result = get_packs_dir();

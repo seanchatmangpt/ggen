@@ -7,8 +7,8 @@
 //! - Validating composition compatibility
 //! - Generating unified code
 
-use ggen_core::ontology_pack::OntologySchema;
-use ggen_utils::error::Result;
+use mcpp_core::ontology_pack::OntologySchema;
+use mcpp_utils::error::Result;
 use std::path::PathBuf;
 
 /// Input for ontology composition

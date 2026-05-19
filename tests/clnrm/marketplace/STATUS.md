@@ -35,7 +35,7 @@ These files use the `[[scenario]]` format which requires additional setup:
 
 ```bash
 # Validate the working test files
-cd /Users/sac/ggen/tests/clnrm/marketplace
+cd ./tests/clnrm/marketplace
 clnrm validate search_test.clnrm.toml p2p_test.clnrm.toml
 
 # Run the tests

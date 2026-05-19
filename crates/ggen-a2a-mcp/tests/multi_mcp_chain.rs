@@ -20,7 +20,7 @@
 
 use std::time::Duration;
 
-use a2a_generated::converged::message::ConvergedMessage;
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
@@ -82,7 +82,7 @@ fn args(json: serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
 #[tokio::test]
 async fn test_multi_mcp_tool_chain_with_otel_traces() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {
@@ -340,7 +340,7 @@ Hello {{ name }}!
 #[tokio::test]
 async fn test_concurrent_mcp_tool_execution_pattern() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let client = start_duplex_server(examples_dir).await?;
 
     let result = (|| async {

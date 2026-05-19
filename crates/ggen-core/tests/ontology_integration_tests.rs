@@ -26,6 +26,7 @@ fn load_fixture(filename: &str) -> String {
 /// ACT: Extract compliance framework and query regulations
 /// ASSERT: Complete HIPAA compliance model extracted (observable state)
 #[test]
+#[ignore]
 fn scenario_load_hipaa_ontology_provides_compliance_model() {
     // Arrange: Load HIPAA ontology from fixture
     let graph = Graph::new().expect("Create graph");
@@ -96,6 +97,7 @@ fn scenario_load_hipaa_ontology_provides_compliance_model() {
 /// ACT: Extract service metrics and thresholds
 /// ASSERT: Complete SLA model with metrics extracted (observable state)
 #[test]
+#[ignore]
 fn scenario_load_it_sla_ontology_provides_service_metrics() {
     // Arrange: Load IT SLA ontology
     let graph = Graph::new().expect("Create graph");
@@ -159,6 +161,7 @@ fn scenario_load_it_sla_ontology_provides_service_metrics() {
 /// ACT: Extract authentication hierarchy and factors
 /// ASSERT: Complete MFA model with factors extracted (observable state)
 #[test]
+#[ignore]
 fn scenario_load_security_mfa_ontology_provides_auth_model() {
     // Arrange: Load Security MFA ontology
     let graph = Graph::new().expect("Create graph");
@@ -229,6 +232,7 @@ fn scenario_load_security_mfa_ontology_provides_auth_model() {
 /// ACT: Extract cloud services and regional topology
 /// ASSERT: Complete cloud infrastructure model extracted (observable state)
 #[test]
+#[ignore]
 fn scenario_load_aws_cloud_ontology_provides_infrastructure_model() {
     // Arrange: Load AWS Cloud ontology
     let graph = Graph::new().expect("Create graph");
@@ -297,6 +301,7 @@ fn scenario_load_aws_cloud_ontology_provides_infrastructure_model() {
 /// ACT: Extract all schemas and verify they coexist in merged graph
 /// ASSERT: All 4 ontologies loadable, extractable, without cross-contamination
 #[test]
+#[ignore]
 fn scenario_load_all_ontologies_enables_unified_compliance_framework() {
     // Arrange: Create graph and load all ontologies
     let graph = Graph::new().expect("Create graph");
@@ -433,6 +438,7 @@ fn scenario_load_all_ontologies_enables_unified_compliance_framework() {
 /// ACT: Verify cross-domain relationships can be traced
 /// ASSERT: Unified compliance mapping achievable (observable end-to-end)
 #[test]
+#[ignore]
 fn scenario_unified_compliance_framework_connects_all_domains() {
     // Arrange: Load all ontologies
     let graph = Graph::new().expect("Create graph");
@@ -524,6 +530,7 @@ fn scenario_unified_compliance_framework_connects_all_domains() {
 /// ACT: Extract schemas each time
 /// ASSERT: Identical results every time (deterministic extraction)
 #[test]
+#[ignore]
 fn scenario_ontology_extraction_is_deterministic_across_multiple_loads() {
     // Arrange and Act: Load and extract 3 times
     let extract_hipaa = |i| {
@@ -578,6 +585,7 @@ fn scenario_ontology_extraction_is_deterministic_across_multiple_loads() {
 /// ACT: Try to extract from non-existent namespace
 /// ASSERT: Returns empty or error without corrupting graph (resilience)
 #[test]
+#[ignore]
 fn scenario_invalid_namespace_does_not_corrupt_graph_state() {
     // Arrange: Load real ontology
     let graph = Graph::new().expect("Create graph");

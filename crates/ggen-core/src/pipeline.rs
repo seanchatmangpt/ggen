@@ -30,7 +30,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! // Create a new pipeline
 //! let mut pipeline = Pipeline::new()?;
 //!
@@ -53,7 +53,7 @@
 //! use ggen_core::pipeline::PipelineBuilder;
 //! use std::collections::BTreeMap;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let mut prefixes = BTreeMap::new();
 //! prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 //!
@@ -70,7 +70,7 @@ use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::template_types::Frontmatter;
 use crate::tracing::PipelineTracer;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -258,7 +258,7 @@ impl PipelineBuilder {
     /// use ggen_core::pipeline::PipelineBuilder;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut prefixes = BTreeMap::new();
     /// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
     ///

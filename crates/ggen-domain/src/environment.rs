@@ -1,4 +1,4 @@
-//! Environment configuration for ggen-domain
+//! Environment configuration for mcpp-domain
 //!
 //! This module provides environment configuration and context management
 //! for the domain layer.
@@ -77,10 +77,10 @@ impl EnvironmentConfig {
         // Get base directories
         let home_dir = dirs::home_dir().ok_or("Could not determine home directory")?;
 
-        let data_dir = home_dir.join(".ggen").join("data");
-        let config_dir = home_dir.join(".ggen").join("config");
-        let cache_dir = home_dir.join(".ggen").join("cache");
-        let log_dir = home_dir.join(".ggen").join("logs");
+        let data_dir = home_dir.join(".mcpp").join("data");
+        let config_dir = home_dir.join(".mcpp").join("config");
+        let cache_dir = home_dir.join(".mcpp").join("cache");
+        let log_dir = home_dir.join(".mcpp").join("logs");
 
         // Create directories if they don't exist
         for dir in [&data_dir, &config_dir, &cache_dir, &log_dir] {
@@ -164,10 +164,10 @@ impl EnvironmentConfig {
     pub fn production() -> Self {
         Self {
             environment: "production".to_string(),
-            data_dir: PathBuf::from("/var/lib/ggen"),
-            config_dir: PathBuf::from("/etc/ggen"),
-            cache_dir: PathBuf::from("/var/cache/ggen"),
-            log_dir: PathBuf::from("/var/log/ggen"),
+            data_dir: PathBuf::from("/var/lib/mcpp"),
+            config_dir: PathBuf::from("/etc/mcpp"),
+            cache_dir: PathBuf::from("/var/cache/mcpp"),
+            log_dir: PathBuf::from("/var/log/mcpp"),
             secrets: HashMap::new(),
             features: {
                 let mut features = HashMap::new();

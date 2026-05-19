@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** January 26, 2026
 **Status:** ✓ COMPLETE & READY FOR EXECUTION
-**Location:** `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+**Location:** `./tai-erlang-autonomics/execution/week-10-13/`
 
 ---
 
@@ -156,7 +156,7 @@ TOTAL:      $125K ARR by end of Week 13 ✓
 ## 📁 File Structure
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/
+./tai-erlang-autonomics/execution/week-10-13/
 ├── README.md                          [START HERE - Navigation]
 ├── WEEK_10_13_SCALE_AND_CASE_STUDIES.md [Detailed execution plan]
 ├── 3_CASE_STUDIES.md                  [Sales & investor proof]

@@ -73,7 +73,7 @@ pub fn resolve_capability_to_packs(
             }
             Err(e) => {
                 // Pack not found locally — still include it so the CLI can
-                // emit `ggen packs add <pack_id>` install commands.
+                // emit `mcpp packs add <pack_id>` install commands.
                 tracing::warn!(
                     pack_id = pack_id,
                     error = %e,

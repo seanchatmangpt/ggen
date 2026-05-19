@@ -1,6 +1,6 @@
 //! Self-Play Commands - clap-noun-verb v3.4.0
 //!
-//! This module implements self-play commands demonstrating ggen's
+//! This module implements self-play commands demonstrating mcpp's
 //! ability to generate itself recursively.
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
@@ -173,7 +173,7 @@ fn demo() -> Result<DemoOutput> {
     let demo_path_buf = PathBuf::from(demo_path);
 
     let has_ontology = demo_path_buf.join("ontology.ttl").exists();
-    let has_config = demo_path_buf.join("ggen.toml").exists();
+    let has_config = demo_path_buf.join("mcpp.toml").exists();
     let has_script = demo_path_buf.join("run-demo.sh").exists();
 
     let instructions = format!(
@@ -187,8 +187,8 @@ fn demo() -> Result<DemoOutput> {
             ./run-demo.sh\n\
          \n\
          3. Or run manually:\n\
-            ggen validate ontology.ttl\n\
-            ggen sync --ontology ontology.ttl --output-dir /tmp/self-play-iteration-1 --audit true\n\
+            mcpp validate ontology.ttl\n\
+            mcpp sync --ontology ontology.ttl --output-dir /tmp/self-play-iteration-1 --audit true\n\
          \n\
          4. Check generated code:\n\
             cd /tmp/self-play-iteration-1\n\

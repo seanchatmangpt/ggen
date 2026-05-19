@@ -5,7 +5,7 @@
 ### 1. Start Erlang Shell
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 shell
 ```
 

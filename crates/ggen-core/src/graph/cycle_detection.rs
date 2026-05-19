@@ -17,7 +17,7 @@
 //! - Time: O(V + E) where V = vertices (files), E = edges (imports)
 //! - Space: O(V) for recursion stack and visited sets
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
 
 /// Detect cycles in a directed graph represented as adjacency lists

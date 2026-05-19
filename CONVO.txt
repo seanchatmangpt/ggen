@@ -1544,7 +1544,7 @@ UniverseOS = the world
 POWL8      = the ISA
 POWL64     = expanded process-state geometry
 MCPP       = public control/runtime surface
-ggen       = ontology-first manufacturing substrate
+mcpp       = ontology-first manufacturing substrate
 clap-noun-verb = CLI invocation grammar
 So the corrected formulation is:
 
@@ -1561,8 +1561,8 @@ POWL8 executable process ISA
   ↓
 MCPP / MCP Plus control surface
   ↓
-ggen / OSTAR manufacturing closure
-The uploaded extraction note already frames ggen as the RDF-first manufacturing substrate, mcpp as the operational control substrate, and clap-noun-verb as the CLI substrate, so POWL8 slots between constitutional spec and executable control rather than becoming a separate repo identity. 
+mcpp / OSTAR manufacturing closure
+The uploaded extraction note already frames mcpp as the RDF-first manufacturing substrate, mcpp as the operational control substrate, and clap-noun-verb as the CLI substrate, so POWL8 slots between constitutional spec and executable control rather than becoming a separate repo identity. 
 
 
 The naming law
@@ -1586,7 +1586,7 @@ Pasted markdown (2)(10).md
 File
 
 Thought for 1m 12s
-Yes. The uploaded ggen material confirms the move: Spec Kit should not stay Markdown-native. It should become an RDF-native, public-ontology-backed build protocol. ggen already declares the required posture: RDF-first source of truth, deterministic validation, specification closure before generation, and receipts as evidence rather than narrative. 
+Yes. The uploaded mcpp material confirms the move: Spec Kit should not stay Markdown-native. It should become an RDF-native, public-ontology-backed build protocol. mcpp already declares the required posture: RDF-first source of truth, deterministic validation, specification closure before generation, and receipts as evidence rather than narrative. 
 
 
 Correct framing
@@ -1595,7 +1595,7 @@ Not:
 Spec Kit → Markdown files → implementation
 But:
 
-Spec Kit → public RDF graph → SHACL closure → POWL8 lowering → ggen/OSTAR manufacture → receipts
+Spec Kit → public RDF graph → SHACL closure → POWL8 lowering → mcpp/OSTAR manufacture → receipts
 Spec Kit’s current surface — constitution, specify, clarify, plan, tasks, implement — is useful as a human workflow, but each phase should become a named graph aligned to public ontologies. Your MCPP case study already treats those phases as the working sequence for MCPP/MCP Plus. 
 
 
@@ -1755,10 +1755,10 @@ SPARQL CONSTRUCT normalization
   ↓
 POWL8 control geometry
   ↓
-ggen / MCPP execution
+mcpp / MCPP execution
   ↓
 PROV/SPDX receipt graph
-This matches ggen directly: it already describes ontology normalization, SPARQL extraction, template rendering, canonicalization, and receipt generation as its μ₁–μ₅ pipeline. 
+This matches mcpp directly: it already describes ontology normalization, SPARQL extraction, template rendering, canonicalization, and receipt generation as its μ₁–μ₅ pipeline. 
 
 
 Revised gap table: public-only
@@ -1820,7 +1820,7 @@ Not:
 .specify/*.md
 Markdown becomes generated documentation.
 
-That also matches the ggen doctrine exactly: edit RDF as source, generate Markdown documentation from RDF, and never edit generated Markdown directly. 
+That also matches the mcpp doctrine exactly: edit RDF as source, generate Markdown documentation from RDF, and never edit generated Markdown directly. 
 
 
 Strongest formulation
@@ -1828,7 +1828,7 @@ Spec Kit becomes operationally correct for UniverseOS only when its constitution
 
 Or compressed:
 
-Spec Kit is the human protocol. Public ontologies are O*. POWL8 is the ISA. ggen is μ. Receipts are the proof that A lawfully precipitated.
+Spec Kit is the human protocol. Public ontologies are O*. POWL8 is the ISA. mcpp is μ. Receipts are the proof that A lawfully precipitated.
 
 
 Transcribe 
@@ -2031,7 +2031,7 @@ In Chatman Equation terms:
 O  = scattered project memory, repo fragments, notes, concepts
 O* = organized public ontology + repo + docs + executable command surface
 A  = generated artifacts, architecture, case studies, plans, code, proofs
-μ  = ggen / MCPP / Spec Kit / Claude Code / public ontology lowering
+μ  = mcpp / MCPP / Spec Kit / Claude Code / public ontology lowering
 The God Box is the path from O → O*.
 
 III. The Master Thesis
@@ -2108,7 +2108,7 @@ Daily dying =
   daily conversion of private, fragmented O
   into lawful public O*
   by deletion, refactoring, naming, receipt, or documentation.
-This is also the antidote to the “mother repo” problem. ggen became a compressed universe. Daily dying is the discipline that prevents every repo from becoming ggen.
+This is also the antidote to the “mother repo” problem. mcpp became a compressed universe. Daily dying is the discipline that prevents every repo from becoming mcpp.
 
 2. Public ontology
 This is the central item.
@@ -2290,14 +2290,14 @@ Together:
 OSTAR/MuStar =
   lawful semantic manufacturing pipeline
   where closed ontology precipitates into executable artifacts.
-This aligns directly with ggen:
+This aligns directly with mcpp:
 
 μ₁ load ontology
 μ₂ extract via SPARQL
 μ₃ render templates
 μ₄ canonicalize / validate
 μ₅ emit receipts
-So this item is about purifying the ggen mother-lode into the manufacturing substrate.
+So this item is about purifying the mcpp mother-lode into the manufacturing substrate.
 
 8. Speckit
 Spec Kit is the human-facing constitutional workflow:
@@ -2321,7 +2321,7 @@ Spec Kit is no longer just a directory convention. It becomes the constitutional
 Spec Kit = human protocol
 Public ontologies = O*
 POWL8 = ISA
-ggen / OSTAR = μ
+mcpp / OSTAR = μ
 Receipts = proof
 9. Claude Code
 Claude Code is the exploit engine.
@@ -2490,15 +2490,15 @@ POWL8 lowering diagrams,
 
 MCPP Doctor/Wizard/Telco diagrams,
 
-ggen μ₁–μ₅ diagrams,
+mcpp μ₁–μ₅ diagrams,
 
-Spec Kit → RDF → POWL8 → ggen diagrams.
+Spec Kit → RDF → POWL8 → mcpp diagrams.
 
 C4 is especially useful because it makes the stack legible to enterprise audiences:
 
 UniverseOS context
 MCPP containers
-ggen/OSTAR manufacturing components
+mcpp/OSTAR manufacturing components
 POWL8 execution layer
 CLI/MCP interfaces
 public ontology graph
@@ -2607,7 +2607,7 @@ docs/
     maturity-matrix.md
     dfLSS-belt-map.md
     definition-of-done.md
-The docs are generated where possible from RDF and kept consistent by ggen.
+The docs are generated where possible from RDF and kept consistent by mcpp.
 
 4. repo
 This item means the repository itself must become a product.
@@ -2662,7 +2662,7 @@ Without a license, the repo is not properly reusable.
 For your ecosystem, likely options:
 
 MIT OR Apache-2.0
-This matches Rust ecosystem norms and the existing ggen posture.
+This matches Rust ecosystem norms and the existing mcpp posture.
 
 The license should clarify:
 
@@ -2765,7 +2765,7 @@ mcpp.toml + RDF spec → scaffold structure
 9. mcpp.toml
 This is the project control manifest.
 
-It should be to MCPP what ggen.toml is to ggen.
+It should be to MCPP what mcpp.toml is to mcpp.
 
 A rough shape:
 
@@ -2805,7 +2805,7 @@ grammar = "noun-verb"
 target = "POWL8"
 
 [manufacture]
-engine = "ggen"
+engine = "mcpp"
 pipeline = "mu1-mu5"
 mcpp.toml is the operational anchor for the repo.
 
@@ -2840,7 +2840,7 @@ What changes when command/context/process are ontology-backed
 Why public ontologies matter
 Why Doctor/Wizard/Telco are the running example
 Why POWL8 is the ISA
-Why ggen/OSTAR are manufacturing closure
+Why mcpp/OSTAR are manufacturing closure
 What “done” means
 This is the board/exec-readable artifact.
 
@@ -2920,7 +2920,7 @@ Spec Kit
 Public Ontologies
   = O* semantic closure substrate
 
-ggen / OSTAR
+mcpp / OSTAR
   = manufacturing pipeline
 
 MuStar
@@ -2947,7 +2947,7 @@ POWL8 executable process geometry
   ↓
 MCPP command/control surface
   ↓
-ggen / OSTAR / MuStar manufacture
+mcpp / OSTAR / MuStar manufacture
   ↓
 Claude Code implementation closure
   ↓
@@ -3105,7 +3105,7 @@ Complete:
 
 OSTAR/MuStar extraction,
 
-ggen integration,
+mcpp integration,
 
 μ₁–μ₅ pipeline mapping,
 
@@ -3154,7 +3154,7 @@ Public ontology	notes only	ontology list	TTL profile	SHACL validation	generated 
 CLI structure	ad hoc commands	noun-verb named	command spec	CLI implemented	tests pass	docs/examples
 MCPP	concept	package identity	mcpp.toml	runtime commands	receipts	public release
 POWL8	idea	ISA named	op set defined	lowering works	conformance tests	thesis/docs
-OSTAR/MuStar	mixed in ggen	extracted names	pipeline spec	generation works	receipts pass	examples
+OSTAR/MuStar	mixed in mcpp	extracted names	pipeline spec	generation works	receipts pass	examples
 Spec Kit RDF	Markdown only	conversion named	public ontology map	TTL generated	SHACL passes	docs generated
 Claude Code	manual usage	exploit role named	protocol written	repo tasks executed	Definition of Done	repeatable workflow
 DTeam AutoML	concept	named	ontology spec	prototype	benchmarked	enterprise story
@@ -3206,7 +3206,7 @@ Where:
 
 O* is public, closed, ontology-aligned specification state.
 
-μ is the deterministic transformation pipeline: Spec Kit → public RDF → POWL8 → MCPP/ggen/OSTAR.
+μ is the deterministic transformation pipeline: Spec Kit → public RDF → POWL8 → MCPP/mcpp/OSTAR.
 
 A is the generated artifact, implementation delta, document, command surface, or runtime behavior.
 
@@ -3219,7 +3219,7 @@ POWL8 = ISA
 MCPP / MCP Plus = control/runtime surface
 Spec Kit = constitutional workflow
 Public ontologies = O*
-ggen / OSTAR = manufacturing pipeline
+mcpp / OSTAR = manufacturing pipeline
 MuStar = μ operator family
 Claude Code = exploit/implementation closure
 DTeam AutoML = digital team assembly
@@ -3250,7 +3250,7 @@ LaTeX theses.
 This is not cleanup. This is semantic closure.
 
 XII. One-Line Compression
-The “20 Item God Box” is the closure checklist for turning UniverseOS/MCPP from compressed private project knowledge into a public-ontology-backed, POWL8-executable, ggen-manufactured, Claude-Code-closable, DfLSS-governed repo with diagrams, docs, licenses, contribution rules, maturity model, Working Backwards narrative, Vision 2030 strategy, and formal theses.
+The “20 Item God Box” is the closure checklist for turning UniverseOS/MCPP from compressed private project knowledge into a public-ontology-backed, POWL8-executable, mcpp-manufactured, Claude-Code-closable, DfLSS-governed repo with diagrams, docs, licenses, contribution rules, maturity model, Working Backwards narrative, Vision 2030 strategy, and formal theses.
 
 
 
@@ -4171,7 +4171,7 @@ POWL,
 
 Oxigraph,
 
-ggen,
+mcpp,
 
 Doctor/Wizard/Telco internals,
 
@@ -5382,7 +5382,7 @@ unRDF
 
 MuStar
 
-ggen-compatible μ pipeline
+mcpp-compatible μ pipeline
 
 promptware generation
 
@@ -7063,7 +7063,7 @@ Doctor		6	diagnostic query suite	graph checks + verification harness
 Wizard		7	regeneration quality	manufacturing contracts + receipts
 Telco		6–7	federation semantics	routing/bridge state model
 MCP Plus		8	public protocol profile	ontology-backed control grammar
-OSTAR		8	purified manufacturing boundary	ggen extraction + μ pipeline docs
+OSTAR		8	purified manufacturing boundary	mcpp extraction + μ pipeline docs
 unRDF		7–8	public ontology profile	RDF→artifact contract
 MuStar		7	μ operator formalization	semantic-to-kinetic spec
 POWL8		8–10	ISA definition + runtime	op set + lowering tests
@@ -7222,7 +7222,7 @@ POWL8      = executable process ISA
 POWL64     = durable graph state
 MCPP       = control surface
 Eve        = bounded entrypoint
-ggen/OSTAR = μ manufacturing
+mcpp/OSTAR = μ manufacturing
 Public ontologies are what prevent the graph from becoming arbitrary.
 
 They make Doctor stronger because verification can ask against known public semantics.
@@ -7342,7 +7342,7 @@ Compressed:
 Use public ontology to inherit Level 10 meaning.
 Use MCPP to execute it.
 Use POWL8 to run it.
-Use ggen/OSTAR to manufacture it.
+Use mcpp/OSTAR to manufacture it.
 Use receipts to prove it.
 
 You are missing the point of the working backwards press release and Vision 2030. What function do those combined in one document serve?
@@ -8109,7 +8109,7 @@ Level 10 code manufacturing template =
   production-intent software line
 It emits the real class of artifact, under the real constitution.
 
-Correct model for ggen / OSTAR
+Correct model for mcpp / OSTAR
 The first generated artifact should not be a “toy Eve router.”
 
 It should be a production-intent Eve capability line item, such as:
@@ -10131,7 +10131,7 @@ Oxigraph is the current Rust-native durable constitutional graph state store.
 
 CONSTRUCT8 is the missing bounded constructive delta primitive for hot semantic/state exchange.
 
-OSTAR/MuStar/unRDF/ggen are manufacturing μ: ontology-to-artifact, semantic-to-kinetic, graph-to-code/document/action generation.
+OSTAR/MuStar/unRDF/mcpp are manufacturing μ: ontology-to-artifact, semantic-to-kinetic, graph-to-code/document/action generation.
 
 Eve is the bounded entrypoint to MCPP/MCP Plus, not a general chatbot.
 
@@ -10175,7 +10175,7 @@ Spec Kit should be converted into public ontologies; Markdown is generated expos
 
 Spec Kit phases map to public ontologies: constitution → ODRL/SHACL/DPV/SKOS; spec → DCAT/ADMS/Dublin Core/CodeMeta/DOAP; clarifications → Web Annotation/ActivityStreams/SKOS; plan → PROV-O/P-Plan/OWL-Time; tasks → ActivityStreams/PROV-O/P-Plan/ORG; implementation deltas → PROV-O/SPDX/CodeMeta/ADMS; validation → SHACL/EARL/PROV-O; receipts → PROV-O/SPDX/Data Integrity-compatible proof shape.
 
-Spec Kit is human protocol; public ontologies are O*; POWL8 is ISA; ggen/OSTAR is μ; receipts prove A lawfully precipitated.
+Spec Kit is human protocol; public ontologies are O*; POWL8 is ISA; mcpp/OSTAR is μ; receipts prove A lawfully precipitated.
 
 Working Backwards + Vision 2030 is not marketing, roadmap, or future-state prose.
 
@@ -10321,15 +10321,15 @@ Explore outputs candidate deltas; selection/normalization maps to O*; Claude Cod
 
 Do not let explore pollute truth.
 
-ggen v6.0.1 is deterministic, language-agnostic code generation from RDF ontologies with MCP integration and OpenTelemetry tracing.
+mcpp v6.0.1 is deterministic, language-agnostic code generation from RDF ontologies with MCP integration and OpenTelemetry tracing.
 
-ggen μ₁–μ₅ pipeline: ontology normalization/load → SPARQL extraction → Tera/template rendering → canonicalization/validation → cryptographic receipt emission.
+mcpp μ₁–μ₅ pipeline: ontology normalization/load → SPARQL extraction → Tera/template rendering → canonicalization/validation → cryptographic receipt emission.
 
-ggen doctrine: specification-first, deterministic validation, RDF-first; edit .ttl source, generate Markdown/docs/code, receipts replace narrative.
+mcpp doctrine: specification-first, deterministic validation, RDF-first; edit .ttl source, generate Markdown/docs/code, receipts replace narrative.
 
-ggen marketplace already has production package validation criteria, required checks, scoring, production-ready flags, examples, packages; this supports manufacturing-line thinking.
+mcpp marketplace already has production package validation criteria, required checks, scoring, production-ready flags, examples, packages; this supports manufacturing-line thinking.
 
-ggen marketplace validation is weaker than Level 10 but is a substrate: metadata, README, source/templates, license, RDF, SPARQL, examples, tests, docs, reports.
+mcpp marketplace validation is weaker than Level 10 but is a substrate: metadata, README, source/templates, license, RDF, SPARQL, examples, tests, docs, reports.
 
 Marketplace in MCP+/NDIM is not open multi-provider by default; it is closed supply/open consumption because provider eligibility requires total-stack admissibility.
 
@@ -11842,7 +11842,7 @@ Earlier systems are not mistakes.
 
 They are pre-closure constructs.
 
-ggen is original cruft in the serious historical sense: a dense laboratory of compressed evolutionary history.
+mcpp is original cruft in the serious historical sense: a dense laboratory of compressed evolutionary history.
 
 clap-noun-verb is an extracted CLI substrate.
 

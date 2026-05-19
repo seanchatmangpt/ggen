@@ -1,4 +1,4 @@
-command: "ggen project new"
+command: "mcpp project new"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -47,6 +47,6 @@ recommendations:
     impact: medium
 
 jtbd: |
-  When I want to create a new ggen project,
-  I need to run 'ggen project new' with project configuration,
+  When I want to create a new mcpp project,
+  I need to run 'mcpp project new' with project configuration,
   so that I can set up a reproducible project structure.

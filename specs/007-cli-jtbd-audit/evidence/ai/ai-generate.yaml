@@ -1,4 +1,4 @@
-command: "ggen ai generate"
+command: "mcpp ai generate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I want AI to generate code,
-  I need to run 'ggen ai generate' with prompt/specification,
+  I need to run 'mcpp ai generate' with prompt/specification,
   so that I can get AI-assisted code generation.

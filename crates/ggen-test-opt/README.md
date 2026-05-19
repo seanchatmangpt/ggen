@@ -1,6 +1,6 @@
-# ggen-test-opt
+# mcpp-test-opt
 
-Test optimization and selection tooling for ggen - value scoring, Pareto selection, parallel execution.
+Test optimization and selection tooling for mcpp - value scoring, Pareto selection, parallel execution.
 
 ## Overview
 

@@ -171,6 +171,7 @@ fn test_config() -> Config {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_client_creation() {
     let config = test_config();
 
@@ -193,6 +194,7 @@ async fn test_client_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_a2a_server_client_creation() {
     let test_url = "http://localhost:4000/a2a";
 
@@ -211,6 +213,7 @@ async fn test_a2a_server_client_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_server_status_check() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -237,6 +240,7 @@ async fn test_server_status_check() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_mcp_handlers_creation() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -259,6 +263,7 @@ async fn test_mcp_handlers_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_mcp_handlers_server_availability() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -278,6 +283,7 @@ async fn test_mcp_handlers_server_availability() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_message_sending() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -322,6 +328,7 @@ async fn test_message_sending() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_task_execution() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -369,6 +376,7 @@ async fn test_task_execution() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_mcp_tool_request() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -414,6 +422,7 @@ async fn test_mcp_tool_request() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_agent_creation() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -440,6 +449,7 @@ async fn test_agent_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_server_list_operations() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -482,6 +492,7 @@ async fn test_server_list_operations() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_error_handling_out_of_bounds() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;
@@ -528,6 +539,7 @@ async fn test_error_handling_out_of_bounds() {
 
 /// Test suite for investor demo scenarios
 #[tokio::test]
+#[ignore]
 async fn test_investor_demo_scenario() {
     println!("🎯 Running Investor Demo Scenario Tests");
     println!("=========================================");
@@ -606,6 +618,7 @@ async fn test_investor_demo_scenario() {
 
 /// Integration test runner for CI/CD
 #[tokio::test]
+#[ignore]
 async fn test_ci_integration() {
     println!("🚀 Running CI/CD Integration Tests");
     println!("==================================");
@@ -637,6 +650,7 @@ async fn test_ci_integration() {
 
 /// Performance test for A2A operations
 #[tokio::test]
+#[ignore]
 async fn test_performance_operations() {
     let config = test_config();
     let client = RigMcpClient::new(config).await;

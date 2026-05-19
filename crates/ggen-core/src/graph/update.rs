@@ -3,7 +3,7 @@
 //! Provides SPARQL 1.1 Update operations: INSERT, DELETE, UPDATE, LOAD, CLEAR, etc.
 
 use crate::graph::core::Graph;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::sparql::SparqlEvaluator;
 
 /// GraphUpdate provides SPARQL Update operations.
@@ -17,7 +17,7 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ```rust,no_run
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
@@ -32,7 +32,7 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ```rust,no_run
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
@@ -47,7 +47,7 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ```rust,no_run
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///

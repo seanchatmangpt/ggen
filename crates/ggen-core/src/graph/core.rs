@@ -10,7 +10,7 @@
 
 use crate::graph::types::CachedResult;
 use ahash::AHasher;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use lru::LruCache;
 use oxigraph::io::RdfFormat;
 use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};
@@ -73,7 +73,7 @@ const EPOCH_INCREMENT: u64 = 1;
 /// ```rust,no_run
 /// use ggen_core::graph::Graph;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// // Create a new graph
 /// let graph = Graph::new()?;
 ///
@@ -189,7 +189,7 @@ impl Graph {
     ///
     /// **Root Cause Fix**: Uses explicit `.map_err()` for error conversion instead of `?`
     /// operator, because Oxigraph solution iterator errors don't implement `From` for
-    /// `ggen_utils::error::Error`. Pattern: Always use `.map_err()` for external library
+    /// `crate::utils::error::Error`. Pattern: Always use `.map_err()` for external library
     /// errors that don't have `From` implementations.
     fn materialize_results(&self, results: QueryResults) -> Result<CachedResult> {
         match results {

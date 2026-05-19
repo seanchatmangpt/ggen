@@ -1,4 +1,4 @@
-use ggen_domain::ai::*;
+use mcpp_domain::ai::*;
 
 #[tokio::test]
 async fn test_analyze_code_success() {

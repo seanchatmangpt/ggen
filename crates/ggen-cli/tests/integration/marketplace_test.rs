@@ -10,13 +10,13 @@ use testcontainers::{clients, Container, RunnableImage};
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::redis::Redis;
 
-use ggen_cli_lib::cmds::market::{
+use mcpp_cli_lib::cmds::market::{
     add::{run_with_deps, AddArgs, GpackInstaller, InstallResult, RegistryGpackInstaller},
     list::{run_with_deps as list_run_with_deps, ListArgs, GpackLister},
     search::{run_with_deps as search_run_with_deps, SearchArgs, MarketplaceClient, SearchFilters, SearchResult},
 };
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 /// Test database container for integration tests
 pub struct TestDatabase {
@@ -131,7 +131,7 @@ impl GpackInstaller for MockGpackInstaller {
                 already_installed: false,
             })
         } else {
-            Err(ggen_utils::error::Error::new("Mock installation failed"))
+            Err(mcpp_utils::error::Error::new("Mock installation failed"))
         }
     }
 }
@@ -295,14 +295,14 @@ async fn test_marketplace_with_postgres_container() {
 #[tokio::test]
 async fn test_marketplace_package_validation() {
     // Test that package validation works correctly
-    use ggen_cli_lib::cmds::market::add::validate_gpack_input;
+    use mcpp_cli_lib::cmds::market::add::validate_gpack_input;
 
     // Valid package ID
-    let result = validate_gpack_input("io.ggen.rust.cli");
+    let result = validate_gpack_input("io.mcpp.rust.cli");
     assert!(result.is_ok());
 
     // Valid package ID with version
-    let result = validate_gpack_input("io.ggen.rust.cli@1.0.0");
+    let result = validate_gpack_input("io.mcpp.rust.cli@1.0.0");
     assert!(result.is_ok());
 
     // Invalid empty package ID

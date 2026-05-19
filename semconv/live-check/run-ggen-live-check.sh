@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# ggen Weaver Live-Check Orchestration
+# mcpp Weaver Live-Check Orchestration
 #
-# Starts weaver live-check receiver, runs ggen tests with OTLP export,
-# emits synthetic spans, stops weaver, and validates coverage via ggen_gate.py.
+# Starts weaver live-check receiver, runs mcpp tests with OTLP export,
+# emits synthetic spans, stops weaver, and validates coverage via mcpp_gate.py.
 #
 # Usage:
-#   ./run-ggen-live-check.sh [--ci]
+#   ./run-mcpp-live-check.sh [--ci]
 #
 # Exit codes:
 #   0  PASS — tests passed and gate passed
@@ -20,14 +20,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SEMCONV_MODEL="$REPO_ROOT/semconv/model"
-POLICY_FILE="$REPO_ROOT/semconv/policies/ggen.rego"
+POLICY_FILE="$REPO_ROOT/semconv/policies/mcpp.rego"
 
 WEAVER_PORT="${WEAVER_PORT:-4317}"
 WEAVER_ADMIN_PORT="${WEAVER_ADMIN_PORT:-4320}"
 WEAVER_TIMEOUT="${WEAVER_TIMEOUT:-60}"
-REPORT_DIR="${REPORT_DIR:-/tmp/ggen-weaver-live-check}"
-GGEN_LIB_TEST_CMD="${GGEN_LIB_TEST_CMD:-cargo test -p ggen-a2a-mcp --features otel --lib --test otel_trace_capture --test a2a_mcp_generate_e2e --test a2a_mcp_yawl_e2e -- --test-threads=1}"
-GGEN_GROQ_TEST_CMD="${GGEN_GROQ_TEST_CMD:-cargo test -p ggen-a2a-mcp --features otel --test groq_slo_timing --test a2a_groq_integration -- --test-threads=1}"
+REPORT_DIR="${REPORT_DIR:-/tmp/mcpp-weaver-live-check}"
+GGEN_LIB_TEST_CMD="${GGEN_LIB_TEST_CMD:-cargo test -p mcpp-a2a-mcp --features otel --lib --test otel_trace_capture --test a2a_mcp_generate_e2e --test a2a_mcp_yawl_e2e -- --test-threads=1}"
+GGEN_GROQ_TEST_CMD="${GGEN_GROQ_TEST_CMD:-cargo test -p mcpp-a2a-mcp --features otel --test groq_slo_timing --test a2a_groq_integration -- --test-threads=1}"
 
 WEAVER_ENDPOINT="http://localhost:${WEAVER_PORT}"
 PID_FILE="$REPORT_DIR/weaver.pid"
@@ -63,7 +63,7 @@ trap cleanup EXIT INT TERM
 # Preflight
 # ---------------------------------------------------------------------------
 
-echo "=== ggen Weaver Live-Check ==="
+echo "=== mcpp Weaver Live-Check ==="
 echo ""
 
 if ! command -v weaver &>/dev/null; then
@@ -214,9 +214,9 @@ echo "  Report: $REPORT_FILE"
 # ---------------------------------------------------------------------------
 
 echo ""
-echo "Step 6: Running ggen_gate.py..."
+echo "Step 6: Running mcpp_gate.py..."
 GATE_EXIT=0
-python3 "$SCRIPT_DIR/ggen_gate.py" \
+python3 "$SCRIPT_DIR/mcpp_gate.py" \
   "$REPORT_FILE" "$SEMCONV_MODEL" \
   $CI_FLAG \
   --evidence-dir "$REPORT_DIR" \

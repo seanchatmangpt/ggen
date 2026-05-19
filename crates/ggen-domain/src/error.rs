@@ -1,9 +1,9 @@
-//! Domain-specific error types for ggen
+//! Domain-specific error types for mcpp
 //!
 //! This module defines error types specific to the domain layer,
 //! including A2A-RS integration errors and other domain-specific failures.
 
-use ggen_utils::error::Error;
+use mcpp_utils::error::Error;
 use thiserror::Error;
 
 /// A2A-RS integration errors

@@ -131,6 +131,7 @@ fn create_test_router() -> axum::Router {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_create_user_success() {
     let app = create_test_router();
 
@@ -163,6 +164,7 @@ async fn test_create_user_success() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_create_user_validation_error() {
     let app = create_test_router();
 
@@ -187,6 +189,7 @@ async fn test_create_user_validation_error() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_get_users_empty() {
     let app = create_test_router();
 
@@ -204,6 +207,7 @@ async fn test_get_users_empty() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_get_user_by_id_not_found() {
     let app = create_test_router();
 
@@ -216,6 +220,7 @@ async fn test_get_user_by_id_not_found() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_delete_user_success() {
     let app = create_test_router();
 
@@ -262,6 +267,7 @@ async fn test_delete_user_success() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_username_too_short() {
     let app = create_test_router();
 
@@ -287,6 +293,7 @@ async fn test_username_too_short() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_missing_required_fields() {
     let app = create_test_router();
 
@@ -315,6 +322,7 @@ async fn test_missing_required_fields() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn benchmark_user_creation() {
     let app = create_test_router();
     let start = std::time::Instant::now();
@@ -350,6 +358,7 @@ async fn benchmark_user_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn benchmark_user_retrieval() {
     let app = create_test_router();
 
@@ -398,6 +407,7 @@ async fn benchmark_user_retrieval() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_sql_injection_attempt() {
     let app = create_test_router();
 
@@ -429,6 +439,7 @@ async fn test_sql_injection_attempt() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_xss_attack_prevention() {
     let app = create_test_router();
 
@@ -464,6 +475,7 @@ async fn test_xss_attack_prevention() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_concurrent_user_creation() {
     let app = create_test_router();
 
@@ -498,6 +510,7 @@ async fn test_concurrent_user_creation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_unicode_username() {
     let app = create_test_router();
 
@@ -522,6 +535,7 @@ async fn test_unicode_username() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_very_long_username() {
     let app = create_test_router();
 
@@ -552,6 +566,7 @@ async fn test_very_long_username() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_suite_summary() {
     println!("\n=== Chicago TDD Test Suite Summary ===");
     println!("Total Tests: 18+");

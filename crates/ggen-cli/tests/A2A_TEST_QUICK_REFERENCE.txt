@@ -2,7 +2,7 @@
 A2A AGENT LIFECYCLE - CHICAGO TDD TEST SUITE - QUICK REFERENCE
 ================================================================================
 
-FILE:           /Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs
+FILE:           /Users/sac/mcpp/crates/mcpp-cli/tests/a2a_agent_lifecycle.rs
 TEST COUNT:     38 unit tests (all passing)
 LINE COUNT:     1,199 lines
 STATUS:         ✅ READY FOR PRODUCTION
@@ -131,16 +131,16 @@ RUNNING TESTS
 ================================================================================
 
 Run all tests:
-  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle
+  $ cargo test --package mcpp-cli-lib --test a2a_agent_lifecycle
 
 Run with output:
-  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle -- --nocapture
+  $ cargo test --package mcpp-cli-lib --test a2a_agent_lifecycle -- --nocapture
 
 List all tests:
-  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle -- --list
+  $ cargo test --package mcpp-cli-lib --test a2a_agent_lifecycle -- --list
 
 Run specific test:
-  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle test_agent_initialization_transition
+  $ cargo test --package mcpp-cli-lib --test a2a_agent_lifecycle test_agent_initialization_transition
 
 Performance:
   • All 38 tests complete in <100ms (event-based, no sleeps)
@@ -203,10 +203,10 @@ Edge Cases:
 DOCUMENTATION
 ================================================================================
 
-Detailed Summary:  /Users/sac/ggen/crates/ggen-cli/tests/A2A_LIFECYCLE_TEST_SUMMARY.md
+Detailed Summary:  /Users/sac/mcpp/crates/mcpp-cli/tests/A2A_LIFECYCLE_TEST_SUMMARY.md
                    (Complete test descriptions, patterns, design decisions)
 
-Test File:         /Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs
+Test File:         /Users/sac/mcpp/crates/mcpp-cli/tests/a2a_agent_lifecycle.rs
                    (1,199 lines, 38 tests, ready for use)
 
 ================================================================================

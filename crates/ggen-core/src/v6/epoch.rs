@@ -3,7 +3,7 @@
 //! An epoch represents a frozen point-in-time snapshot of all input ontologies.
 //! This is the "O" in A = μ(O) - the immutable input substrate.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;

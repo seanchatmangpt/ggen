@@ -18,7 +18,7 @@ Successfully created a complete, validated example demonstrating ggen's **zero-t
 
 ### 1. Complete Working Example ✅
 
-**Location:** `/Users/sac/ggen/examples/mcp-a2a-self-hosting/`
+**Location:** `./examples/mcp-a2a-self-hosting/`
 
 **Structure:**
 ```

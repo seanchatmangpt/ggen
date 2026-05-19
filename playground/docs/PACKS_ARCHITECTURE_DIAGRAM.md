@@ -10,7 +10,7 @@
 
 ┌─────────────────────┐         ┌─────────────────────┐
 │   MARKETPLACE       │         │   PACKS             │
-│   (ggen-marketplace)│         │   (ggen-domain)     │
+│   (mcpp-marketplace)│         │   (mcpp-domain)     │
 ├─────────────────────┤         ├─────────────────────┤
 │ ✅ Install          │         │ ✅ List             │
 │ ✅ Update           │         │ ❌ Install          │
@@ -24,7 +24,7 @@
          │                                 ▼
          │                          ┌──────────────────┐
          │                          │ Project Generator│
-         │                          │ (ggen-core)      │
+         │                          │ (mcpp-core)      │
          │                          ├──────────────────┤
          │                          │ ✅ Scaffolding   │
          │                          │ ❌ Regeneration  │
@@ -35,10 +35,10 @@
          │                          ┌──────────────────┐
          ▼                          │ User Project     │
 ┌─────────────────────┐            ├──────────────────┤
-│ ~/.ggen/packages    │            │ src/             │
+│ ~/.mcpp/packages    │            │ src/             │
 ├─────────────────────┤            │ tests/           │
 │ Downloaded packs    │◀── NO ──▶ │ Cargo.toml       │
-│ Not used for        │   LINK    │ .ggen/           │
+│ Not used for        │   LINK    │ .mcpp/           │
 │ project generation  │            │   snapshot.json? │
 └─────────────────────┘            └──────────────────┘
                                           │
@@ -46,7 +46,7 @@
                                           ▼
                                    ┌──────────────────┐
                                    │ Lifecycle System │
-                                   │ (ggen-core)      │
+                                   │ (mcpp-core)      │
                                    ├──────────────────┤
                                    │ ✅ Phase exec    │
                                    │ ✅ State track   │
@@ -67,7 +67,7 @@
 
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                          PACK REGISTRY                                      │
-│                    (GitHub / ggen-marketplace-v2)                          │
+│                    (GitHub / mcpp-marketplace-v2)                          │
 ├────────────────────────────────────────────────────────────────────────────┤
 │  📦 rust-web@1.0.0    │  📦 react-app@2.1.0  │  📦 fastapi@0.5.0        │
 │  ├─ gpack.toml        │  ├─ gpack.toml        │  ├─ gpack.toml           │
@@ -80,9 +80,9 @@
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                    PACK CACHE & LOCKFILE                                    │
-│                      (~/.ggen/packages)                                     │
+│                      (~/.mcpp/packages)                                     │
 ├────────────────────────────────────────────────────────────────────────────┤
-│  ~/.ggen/packages/                  ggen.lock (Project)                    │
+│  ~/.mcpp/packages/                  mcpp.lock (Project)                    │
 │    ├─ rust-web@1.0.0/          {                                           │
 │    ├─ rust-web@1.1.0/            "packs": [                                │
 │    └─ react-app@2.1.0/             {                                       │
@@ -102,15 +102,15 @@
                          ▼                     ▼
 ┌─────────────────────────────┐    ┌─────────────────────────────┐
 │   INITIAL GENERATION        │    │   REGENERATION              │
-│   (ggen new my-app)         │    │   (ggen packs update)       │
+│   (mcpp new my-app)         │    │   (mcpp packs update)       │
 ├─────────────────────────────┤    ├─────────────────────────────┤
 │ 1. Select pack(s)           │    │ 1. Detect pack update       │
 │ 2. Download from cache      │    │ 2. Load baseline snapshot   │
 │ 3. Render templates         │    │ 3. Detect manual edits      │
 │ 4. Create files             │    │ 4. Regenerate with new pack │
 │ 5. Create baseline snapshot │    │ 5. Three-way merge          │
-│ 6. Update ggen.lock         │    │ 6. Update snapshot          │
-│ 7. Run lifecycle init       │    │ 7. Update ggen.lock         │
+│ 6. Update mcpp.lock         │    │ 6. Update snapshot          │
+│ 7. Run lifecycle init       │    │ 7. Update mcpp.lock         │
 └─────────────────────────────┘    └─────────────────────────────┘
                  │                                 │
                  │ Creates                         │ Updates
@@ -125,7 +125,7 @@
 │    │   └─ custom.rs        ◀───── Manual edit (preserved)           │
 │    ├─ tests/               ◀───── Generated + manual                │
 │    ├─ Cargo.toml           ◀───── Generated (merged)                │
-│    ├─ .ggen/                                                         │
+│    ├─ .mcpp/                                                         │
 │    │   ├─ snapshot.json    ◀───── Baseline for three-way merge      │
 │    │   │   {                                                         │
 │    │   │     "packs": [{                                             │
@@ -144,7 +144,7 @@
 │    │   │   }                                                         │
 │    │   ├─ state.json       ◀───── Lifecycle state                   │
 │    │   └─ make.toml        ◀───── Lifecycle config                  │
-│    └─ ggen.lock            ◀───── Pack versions + file mappings     │
+│    └─ mcpp.lock            ◀───── Pack versions + file mappings     │
 └──────────────────────────────────────────────────────────────────────┘
                  │
                  │ Triggers
@@ -178,7 +178,7 @@
 
 Step 1: Check for Updates
 ─────────────────────────
-$ ggen packs update rust-web
+$ mcpp packs update rust-web
 
   Registry Check: rust-web@1.1.0 available (current: 1.0.0)
   Changelog:
@@ -188,7 +188,7 @@ $ ggen packs update rust-web
 
 Step 2: Load Baseline Snapshot
 ───────────────────────────────
-  Read: .ggen/snapshot.json
+  Read: .mcpp/snapshot.json
   ┌─────────────────────────────────────────┐
   │ Baseline (rust-web@1.0.0)              │
   ├─────────────────────────────────────────┤
@@ -267,7 +267,7 @@ Step 6: Apply Changes
 
 Step 7: Update Snapshot
 ────────────────────────
-  Write: .ggen/snapshot.json
+  Write: .mcpp/snapshot.json
   {
     "packs": [{
       "pack_id": "rust-web",
@@ -301,7 +301,7 @@ Step 7: Update Snapshot
 
 Step 8: Update Lockfile
 ────────────────────────
-  Write: ggen.lock
+  Write: mcpp.lock
   {
     "packs": [{
       "id": "rust-web",
@@ -429,11 +429,11 @@ Option 3: Preserve Strategy (Conservative)
   │ Actions:                                │
   │   1. Keep user version as-is           │
   │   2. Save pack version to:             │
-  │      src/main.rs.ggen-new              │
+  │      src/main.rs.mcpp-new              │
   │   3. Notify user:                      │
   │      "src/main.rs updated by pack"     │
-  │      "Review: src/main.rs.ggen-new"    │
-  │      "Apply: mv src/main.rs.ggen-new"  │
+  │      "Review: src/main.rs.mcpp-new"    │
+  │      "Apply: mv src/main.rs.mcpp-new"  │
   │                  "  src/main.rs"       │
   └─────────────────────────────────────────┘
 ```
@@ -449,7 +449,7 @@ Option 3: Preserve Strategy (Conservative)
 
 Generated Rust file (src/main.rs):
 
-1  // @ggen:generated-start pack=rust-web version=1.1.0
+1  // @mcpp:generated-start pack=rust-web version=1.1.0
 2  use actix_web::{web, App, HttpServer};
 3  use tracing_subscriber;
 4
@@ -465,20 +465,20 @@ Generated Rust file (src/main.rs):
 14     .run()
 15     .await
 16 }
-17 // @ggen:generated-end
+17 // @mcpp:generated-end
 18
-19 // @ggen:manual-edit-start
+19 // @mcpp:manual-edit-start
 20 /// Custom user function
 21 fn custom_handler() -> &'static str {
 22     "Hello from custom code!"
 23 }
-24 // @ggen:manual-edit-end
+24 // @mcpp:manual-edit-end
 25
-26 // @ggen:generated-start pack=rust-web version=1.1.0
+26 // @mcpp:generated-start pack=rust-web version=1.1.0
 27 async fn index() -> &'static str {
 28     "Hello, world!"
 29 }
-30 // @ggen:generated-end
+30 // @mcpp:generated-end
 
 Parsed into regions:
 {
@@ -520,7 +520,7 @@ During update:
 │ Watch Mode: Continuous Pack Monitoring                           │
 └──────────────────────────────────────────────────────────────────┘
 
-$ ggen watch --packs
+$ mcpp watch --packs
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                        WATCH LOOP                                │
@@ -536,7 +536,7 @@ $ ggen watch --packs
          │
          ▼ Updates found
     ┌────────────────────┐
-    │ Check ggen.lock    │
+    │ Check mcpp.lock    │
     │ rust-web: 1.0.0    │
     │ Registry: 1.1.0    │
     └────────────────────┘
@@ -580,7 +580,7 @@ $ ggen watch --packs
                     │
                     ▼
                ┌────────────────────┐
-               │ Monitor filesystem │ ← Detect ggen.lock changes
+               │ Monitor filesystem │ ← Detect mcpp.lock changes
                │ for external       │   from git pull, manual edits
                │ changes            │
                └────────────────────┘

@@ -5,7 +5,7 @@
 //! 2. Same input always produces same hash
 //! 3. Canonical forms are stable across runs
 
-use ggen_canonical::{hash, json, rust, ttl, Canonicalizer};
+use mcpp_canonical::{hash, json, rust, ttl, Canonicalizer};
 use serde_json::json;
 
 #[test]
@@ -198,7 +198,7 @@ fn test_ttl_order_independence() {
 fn test_comprehensive_workflow() {
     // Test a complete workflow: canonicalize → hash → verify
     let json_input = json!({
-        "project": "ggen",
+        "project": "mcpp",
         "version": "6.0.0",
         "features": ["canonical", "deterministic"]
     });

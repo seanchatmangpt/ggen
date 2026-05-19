@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// Health status of a registered agent.
 ///
 /// This is the registry's own view of agent health, kept simple for
-/// fast lookups.  The richer `a2a_generated::converged::HealthStatus`
+/// fast lookups.  The richer `ggen_core::ggen_core::ggen_core::a2a_generated::converged::HealthStatus`
 /// is used at the protocol level; this type maps to/from it where needed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HealthStatus {

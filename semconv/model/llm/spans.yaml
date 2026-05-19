@@ -1,8 +1,8 @@
 groups:
-  - id: span.ggen.llm.generation
+  - id: span.mcpp.llm.generation
     type: span
     stability: development
-    brief: LLM generation operation in ggen code generation pipeline.
+    brief: LLM generation operation in mcpp code generation pipeline.
     span_kind: client
     attributes:
       - ref: llm.model

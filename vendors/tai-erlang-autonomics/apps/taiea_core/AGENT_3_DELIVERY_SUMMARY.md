@@ -339,7 +339,7 @@ Agent 3 Bootstraps TAIEA Core
 
 ```bash
 # Compile application
-cd /Users/sac/ggen/tai-erlang-autonomics/apps/taiea_core
+cd ./tai-erlang-autonomics/apps/taiea_core
 rebar3 compile
 
 # Run tests

@@ -36,9 +36,9 @@ use predicates::prelude::*;
 use std::fs;
 use tempfile::TempDir;
 
-/// Helper to create a ggen Command
-fn ggen() -> Command {
-    Command::cargo_bin("ggen").expect("Failed to find ggen binary")
+/// Helper to create a mcpp Command
+fn mcpp() -> Command {
+    Command::cargo_bin("mcpp").expect("Failed to find mcpp binary")
 }
 
 // =============================================================================
@@ -62,7 +62,7 @@ fn test_generate_from_ttl() {
     // Phase 1: Generate CLI from TTL
     println!("Phase 1: Generating CLI from sample-cli.ttl...");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -248,7 +248,7 @@ fn test_generated_commands_match_ttl_spec() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("spec-cli");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -300,7 +300,7 @@ fn test_generated_execution_logic() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("logic-cli");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -338,7 +338,7 @@ fn test_invalid_ttl_file() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("missing-cli");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("nonexistent-file.ttl")
@@ -373,8 +373,8 @@ fn test_invalid_rdf_syntax() {
     fs::write(
         &invalid_ttl,
         r#"
-        @prefix cli: <http://ggen.dev/schema/cli#> .
-        @prefix ex: <http://ggen.dev/projects/test#> .
+        @prefix cli: <http://mcpp.dev/schema/cli#> .
+        @prefix ex: <http://mcpp.dev/projects/test#> .
 
         # Invalid syntax: missing semicolon and closing period
         ex:MyProject a cli:CliProject
@@ -385,7 +385,7 @@ fn test_invalid_rdf_syntax() {
     )
     .expect("Failed to write invalid TTL");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg(&invalid_ttl)
@@ -422,8 +422,8 @@ fn test_missing_required_fields() {
         &incomplete_ttl,
         r#"
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-        @prefix cli: <http://ggen.dev/schema/cli#> .
-        @prefix ex: <http://ggen.dev/projects/incomplete#> .
+        @prefix cli: <http://mcpp.dev/schema/cli#> .
+        @prefix ex: <http://mcpp.dev/projects/incomplete#> .
 
         # Project missing required fields: hasName, hasVersion
         ex:MyProject a cli:CliProject ;
@@ -434,7 +434,7 @@ fn test_missing_required_fields() {
     )
     .expect("Failed to write incomplete TTL");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg(&incomplete_ttl)
@@ -464,9 +464,9 @@ fn test_missing_dependencies() {
         &no_deps_ttl,
         r#"
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-        @prefix cli: <http://ggen.dev/schema/cli#> .
-        @prefix cnv: <http://ggen.dev/schema/clap-noun-verb#> .
-        @prefix ex: <http://ggen.dev/projects/nodeps#> .
+        @prefix cli: <http://mcpp.dev/schema/cli#> .
+        @prefix cnv: <http://mcpp.dev/schema/clap-noun-verb#> .
+        @prefix ex: <http://mcpp.dev/projects/nodeps#> .
 
         ex:MyProject a cli:CliProject ;
             cli:hasName "nodeps-cli" ;
@@ -488,7 +488,7 @@ fn test_missing_dependencies() {
 
     // This might succeed but generate a Cargo.toml with minimal dependencies
     // or it might warn - either is acceptable
-    let result = ggen()
+    let result = mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg(&no_deps_ttl)
@@ -520,7 +520,7 @@ fn test_output_directory_defaults() {
     let temp_dir = TempDir::new().unwrap();
 
     // Run without --output flag (should fail or use current dir)
-    let result = ggen()
+    let result = mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -550,7 +550,7 @@ fn test_force_overwrite() {
     let output_dir = temp_dir.path().join("force-cli");
 
     // First generation
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -560,7 +560,7 @@ fn test_force_overwrite() {
         .success();
 
     // Second generation without --force should fail
-    let result = ggen()
+    let result = mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -577,7 +577,7 @@ fn test_force_overwrite() {
         );
 
         // Third generation with --force should succeed
-        ggen()
+        mcpp()
             .arg("template")
             .arg("generate-rdf")
             .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -599,7 +599,7 @@ fn test_generated_module_structure() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("module-cli");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -628,7 +628,7 @@ fn test_generated_tests() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("tests-cli");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -659,7 +659,7 @@ fn test_generated_readme() {
     let temp_dir = TempDir::new().unwrap();
     let output_dir = temp_dir.path().join("readme-cli");
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -696,7 +696,7 @@ fn test_generation_performance() {
 
     let start = std::time::Instant::now();
 
-    ggen()
+    mcpp()
         .arg("template")
         .arg("generate-rdf")
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
@@ -746,13 +746,13 @@ fn test_sample_ttl_file_exists() {
 }
 
 #[test]
-fn test_ggen_binary_available() {
-    ggen().arg("--version").assert().success();
+fn test_mcpp_binary_available() {
+    mcpp().arg("--version").assert().success();
 }
 
 #[test]
 fn test_template_command_available() {
-    ggen()
+    mcpp()
         .arg("template")
         .arg("--help")
         .assert()

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================================
-# RDF Workflow Validation for ggen v6 (013-ggen-v6-rdf-system)
+# RDF Workflow Validation for mcpp v6 (013-mcpp-v6-rdf-system)
 # ============================================================================
 # Purpose: Validate that all RDF-first architecture components are in place
-# and configured correctly for the ggen v6 specification project.
+# and configured correctly for the mcpp v6 specification project.
 #
 # Constitutional Equation: spec.md = μ(feature.ttl)
 # ============================================================================
@@ -25,7 +25,7 @@ WARNINGS=0
 PASSED=0
 
 echo -e "${BLUE}============================================================================${NC}"
-echo -e "${BLUE}ggen v6 RDF Workflow Validation${NC}"
+echo -e "${BLUE}mcpp v6 RDF Workflow Validation${NC}"
 echo -e "${BLUE}============================================================================${NC}"
 echo ""
 echo "Project: $(basename "$PROJECT_DIR")"
@@ -33,16 +33,16 @@ echo "Date: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
 
 # ============================================================================
-# Test 1: ggen.toml Configuration
+# Test 1: mcpp.toml Configuration
 # ============================================================================
-echo -e "${BLUE}📝 Test 1: Validating ggen.toml configuration...${NC}"
+echo -e "${BLUE}📝 Test 1: Validating mcpp.toml configuration...${NC}"
 
-if [[ ! -f "$PROJECT_DIR/ggen.toml" ]]; then
-    echo -e "${RED}❌ FAILED: ggen.toml not found${NC}"
+if [[ ! -f "$PROJECT_DIR/mcpp.toml" ]]; then
+    echo -e "${RED}❌ FAILED: mcpp.toml not found${NC}"
     ((ERRORS++))
 else
     # Check v6 section
-    if grep -q "^\[v6\]" "$PROJECT_DIR/ggen.toml"; then
+    if grep -q "^\[v6\]" "$PROJECT_DIR/mcpp.toml"; then
         echo -e "${GREEN}✓ PASSED: [v6] section exists${NC}"
         ((PASSED++))
     else
@@ -51,7 +51,7 @@ else
     fi
 
     # Check ontology sources
-    if grep -q "ontology.*=.*feature-content.ttl" "$PROJECT_DIR/ggen.toml"; then
+    if grep -q "ontology.*=.*feature-content.ttl" "$PROJECT_DIR/mcpp.toml"; then
         echo -e "${GREEN}✓ PASSED: Ontology sources configured${NC}"
         ((PASSED++))
     else
@@ -60,8 +60,8 @@ else
     fi
 
     # Check generation rules
-    if grep -q "^\[\[generation\]\]" "$PROJECT_DIR/ggen.toml"; then
-        GENERATION_COUNT=$(grep -c "^\[\[generation\]\]" "$PROJECT_DIR/ggen.toml")
+    if grep -q "^\[\[generation\]\]" "$PROJECT_DIR/mcpp.toml"; then
+        GENERATION_COUNT=$(grep -c "^\[\[generation\]\]" "$PROJECT_DIR/mcpp.toml")
         echo -e "${GREEN}✓ PASSED: Found $GENERATION_COUNT generation rule(s)${NC}"
         ((PASSED++))
     else
@@ -70,7 +70,7 @@ else
     fi
 
     # Verify SPARQL query present
-    if grep -q "query.*=.*\"\"\"" "$PROJECT_DIR/ggen.toml"; then
+    if grep -q "query.*=.*\"\"\"" "$PROJECT_DIR/mcpp.toml"; then
         echo -e "${GREEN}✓ PASSED: SPARQL query configured${NC}"
         ((PASSED++))
     else
@@ -79,7 +79,7 @@ else
     fi
 
     # Check template configuration
-    if grep -q "template.*=.*\.tera" "$PROJECT_DIR/ggen.toml"; then
+    if grep -q "template.*=.*\.tera" "$PROJECT_DIR/mcpp.toml"; then
         echo -e "${GREEN}✓ PASSED: Tera template configured${NC}"
         ((PASSED++))
     else
@@ -191,7 +191,7 @@ echo -e "${BLUE}📝 Test 4: Checking generated artifacts...${NC}"
 GENERATED_DIR="$PROJECT_DIR/generated"
 
 if [[ ! -d "$GENERATED_DIR" ]]; then
-    echo -e "${YELLOW}⚠ WARNING: generated/ directory not found (run 'ggen sync' to create)${NC}"
+    echo -e "${YELLOW}⚠ WARNING: generated/ directory not found (run 'mcpp sync' to create)${NC}"
     ((WARNINGS++))
 else
     if [[ -f "$GENERATED_DIR/spec.md" ]]; then
@@ -207,28 +207,28 @@ else
             ((WARNINGS++))
         fi
     else
-        echo -e "${YELLOW}⚠ WARNING: spec.md not generated yet (run 'ggen sync')${NC}"
+        echo -e "${YELLOW}⚠ WARNING: spec.md not generated yet (run 'mcpp sync')${NC}"
         ((WARNINGS++))
     fi
 fi
 echo ""
 
 # ============================================================================
-# Test 5: No "ggen render" References
+# Test 5: No "mcpp render" References
 # ============================================================================
-echo -e "${BLUE}📝 Test 5: Checking for legacy 'ggen render' references...${NC}"
+echo -e "${BLUE}📝 Test 5: Checking for legacy 'mcpp render' references...${NC}"
 
-RENDER_REFS=$(grep -r "ggen render" --include="*.md" --include="*.sh" --include="*.toml" \
+RENDER_REFS=$(grep -r "mcpp render" --include="*.md" --include="*.sh" --include="*.toml" \
     --exclude-dir="generated" --exclude="VALIDATION_REPORT.md" \
     "$PROJECT_DIR" 2>/dev/null | wc -l)
 
 if [[ $RENDER_REFS -eq 0 ]]; then
-    echo -e "${GREEN}✓ PASSED: No 'ggen render' references found${NC}"
+    echo -e "${GREEN}✓ PASSED: No 'mcpp render' references found${NC}"
     ((PASSED++))
 else
-    echo -e "${RED}❌ FAILED: Found $RENDER_REFS 'ggen render' reference(s)${NC}"
-    echo "  (Should use 'ggen sync' instead)"
-    grep -rn "ggen render" --include="*.md" --include="*.sh" --include="*.toml" \
+    echo -e "${RED}❌ FAILED: Found $RENDER_REFS 'mcpp render' reference(s)${NC}"
+    echo "  (Should use 'mcpp sync' instead)"
+    grep -rn "mcpp render" --include="*.md" --include="*.sh" --include="*.toml" \
         --exclude-dir="generated" --exclude="VALIDATION_REPORT.md" \
         "$PROJECT_DIR" 2>/dev/null | head -5
     ((ERRORS++))

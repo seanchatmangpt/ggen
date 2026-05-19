@@ -16,7 +16,7 @@
 ## Run the Tests
 
 ```bash
-cd /Users/sac/ggen/examples/a2a-agent-lifecycle
+cd ./examples/a2a-agent-lifecycle
 
 # All tests
 cargo test --test groq_schema_agent_integration
@@ -272,7 +272,7 @@ cat tests/GROQ_SCHEMA_AGENT_TEST_GUIDE.md
 ### Issue: Tests don't run
 **Solution**: Ensure you're in the right directory
 ```bash
-cd /Users/sac/ggen/examples/a2a-agent-lifecycle
+cd ./examples/a2a-agent-lifecycle
 cargo test --test groq_schema_agent_integration
 ```
 

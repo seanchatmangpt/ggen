@@ -126,5 +126,5 @@
 
 ---
 
-**Generated with**: [ggen v6](https://github.com/yourusername/ggen) ontology-driven specification system
+**Generated with**: [mcpp v6](https://github.com/yourusername/mcpp) ontology-driven specification system
 **Constitutional Equation**: `spec.md = μ(ontology)`

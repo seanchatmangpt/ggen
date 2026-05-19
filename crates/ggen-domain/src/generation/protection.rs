@@ -1,11 +1,11 @@
 //! Path protection validation for generation operations
 //!
 //! Implements `[generation].protected_paths` and `[generation].regenerate_paths`
-//! behavior from ggen.toml to prevent accidental overwrites of domain logic.
+//! behavior from mcpp.toml to prevent accidental overwrites of domain logic.
 
 use super::headers::GenerationSafetyConfig;
-use ggen_core::types::PathProtectionConfig;
-use ggen_utils::error::Result;
+use mcpp_core::types::PathProtectionConfig;
+use mcpp_utils::error::Result;
 use std::path::Path;
 
 /// Result of path protection validation
@@ -33,7 +33,7 @@ impl PathProtectionValidator {
         let regenerate: Vec<&str> = config.regenerate_paths.iter().map(|s| s.as_str()).collect();
 
         let path_config = PathProtectionConfig::new(&protected, &regenerate).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Invalid path protection config: {}", e))
+            mcpp_utils::error::Error::new(&format!("Invalid path protection config: {}", e))
         })?;
 
         Ok(Self {
@@ -114,18 +114,18 @@ pub fn validate_generation_write(
         GenerationWriteResult::AllowWrite => Ok(()),
         GenerationWriteResult::AllowRegenerate { .. } => Ok(()),
         GenerationWriteResult::BlockedProtected { path, pattern } => {
-            Err(ggen_utils::error::Error::new(&format!(
+            Err(mcpp_utils::error::Error::new(&format!(
                 "Cannot write to protected path '{}' (matches pattern '{}'). \
                  Protected paths cannot be overwritten by generation. \
-                 If this is intentional, add the path to [generation].regenerate_paths in ggen.toml.",
+                 If this is intentional, add the path to [generation].regenerate_paths in mcpp.toml.",
                 path, pattern
             )))
         }
         GenerationWriteResult::BlockedImplicit { path } => {
-            Err(ggen_utils::error::Error::new(&format!(
+            Err(mcpp_utils::error::Error::new(&format!(
                 "Cannot overwrite existing file '{}' (not in regenerate_paths). \
                  Files not in [generation].regenerate_paths are implicitly protected. \
-                 To allow overwriting, add the pattern to regenerate_paths in ggen.toml, \
+                 To allow overwriting, add the pattern to regenerate_paths in mcpp.toml, \
                  or use --force to override.",
                 path
             )))

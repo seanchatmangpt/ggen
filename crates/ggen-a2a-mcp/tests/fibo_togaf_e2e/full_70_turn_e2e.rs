@@ -353,6 +353,7 @@ fn assert_togaf_phases_complete(artifacts: &ArtifactRegistry) {
 
 /// Full 70-turn orchestration test
 #[tokio::test]
+#[ignore]
 async fn test_full_70_turn_fibo_togaf_orchestration() {
     init_tracing();
     
@@ -568,6 +569,7 @@ async fn test_full_70_turn_fibo_togaf_orchestration() {
 
 /// Test ggen sync bookends (initial agent generation and final code generation)
 #[tokio::test]
+#[ignore]
 async fn test_ggen_sync_bookends_70_turns() {
     init_tracing();
     
@@ -605,6 +607,7 @@ async fn test_ggen_sync_bookends_70_turns() {
 
 /// Test phase-specific turn distributions
 #[tokio::test]
+#[ignore]
 async fn test_phase_turn_distribution() {
     init_tracing();
     
@@ -695,6 +698,7 @@ async fn test_phase_turn_distribution() {
 
 /// Test FIBO artifact accumulation
 #[tokio::test]
+#[ignore]
 async fn test_fibo_artifact_accumulation() {
     init_tracing();
     

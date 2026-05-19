@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 
 fn bench_keypair_generation(c: &mut Criterion) {
     c.bench_function("keypair_generation", |b| {

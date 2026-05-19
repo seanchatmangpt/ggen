@@ -2,8 +2,8 @@
 //!
 //! Chicago TDD: Uses REAL RDF file loading and graph state verification
 
-use ggen_core::Graph;
-use ggen_utils::{
+use mcpp_core::Graph;
+use mcpp_utils::{
     bail,
     error::{Context, Result},
 };
@@ -309,20 +309,20 @@ pub fn run(args: &LoadInput) -> Result<()> {
     // Use tokio runtime to execute async function
     let rt = tokio::runtime::Runtime::new()
         .map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create tokio runtime: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to create tokio runtime: {}", e))
         })
         .context("Failed to create tokio runtime")?;
 
     let output = rt.block_on(execute_load(args.clone()))?;
 
-    ggen_utils::alert_success!(
+    mcpp_utils::alert_success!(
         "Loaded {} triples from {} ({})",
         output.triples_loaded,
         output.file_path,
         output.format
     );
     if args.merge {
-        ggen_utils::alert_info!("   Total triples in graph: {}", output.total_triples);
+        mcpp_utils::alert_info!("   Total triples in graph: {}", output.total_triples);
     }
 
     Ok(())

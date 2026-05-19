@@ -1,4 +1,4 @@
-command: "ggen template generate"
+command: "mcpp template generate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -51,5 +51,5 @@ recommendations:
 
 jtbd: |
   When I want to generate code from a template,
-  I need to run 'ggen template generate' with template and variables,
+  I need to run 'mcpp template generate' with template and variables,
   so that I can produce project structure automatically.

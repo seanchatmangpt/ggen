@@ -4,7 +4,7 @@
 //! to create isolated test environments that mirror production conditions.
 
 use assert_fs::prelude::*;
-use ggen_cli_lib::cmds::market::{lockfile::*, registry::*};
+use mcpp_cli_lib::cmds::market::{lockfile::*, registry::*};
 use std::fs;
 use tempfile::TempDir;
 
@@ -19,8 +19,8 @@ fn create_test_registry() -> Registry {
                 version: "0.1.0".to_string(),
                 description: "Rig LLM framework with MCP protocol integration".to_string(),
                 category: "ai".to_string(),
-                author: "ggen-team".to_string(),
-                repository: "https://github.com/ggen/rig-mcp".to_string(),
+                author: "mcpp-team".to_string(),
+                repository: "https://github.com/mcpp/rig-mcp".to_string(),
                 path: "marketplace/packages/rig-mcp".to_string(),
                 license: "MIT".to_string(),
                 dependencies: vec![],
@@ -37,8 +37,8 @@ fn create_test_registry() -> Registry {
                 version: "1.0.0".to_string(),
                 description: "REST API endpoint templates with OpenAPI".to_string(),
                 category: "templates".to_string(),
-                author: "ggen-team".to_string(),
-                repository: "https://github.com/ggen/api-endpoint".to_string(),
+                author: "mcpp-team".to_string(),
+                repository: "https://github.com/mcpp/api-endpoint".to_string(),
                 path: "marketplace/packages/api-endpoint".to_string(),
                 license: "MIT".to_string(),
                 dependencies: vec![],
@@ -92,7 +92,7 @@ fn test_lockfile_crud_operations() {
         version: "0.1.0".to_string(),
         checksum: "abc123def456".to_string(),
         source: "registry".to_string(),
-        path: ".ggen/packages/rig-mcp".to_string(),
+        path: ".mcpp/packages/rig-mcp".to_string(),
         installed_at: chrono::Utc::now().to_rfc3339(),
         dependencies: vec![],
     };
@@ -123,7 +123,7 @@ fn test_lockfile_crud_operations() {
         version: "1.0.0".to_string(),
         checksum: "xyz789".to_string(),
         source: "registry".to_string(),
-        path: ".ggen/packages/api-endpoint".to_string(),
+        path: ".mcpp/packages/api-endpoint".to_string(),
         installed_at: chrono::Utc::now().to_rfc3339(),
         dependencies: vec![],
     };
@@ -178,7 +178,7 @@ fn test_marketplace_workflow_end_to_end() {
         version: package.version.clone(),
         checksum: "production-checksum".to_string(),
         source: "registry".to_string(),
-        path: format!(".ggen/packages/{}", package.name),
+        path: format!(".mcpp/packages/{}", package.name),
         installed_at: chrono::Utc::now().to_rfc3339(),
         dependencies: package.dependencies.clone(),
     };
@@ -227,7 +227,7 @@ fn test_lockfile_concurrent_access() {
         version: "1.0.0".to_string(),
         checksum: "check1".to_string(),
         source: "registry".to_string(),
-        path: ".ggen/packages/pkg1".to_string(),
+        path: ".mcpp/packages/pkg1".to_string(),
         installed_at: chrono::Utc::now().to_rfc3339(),
         dependencies: vec![],
     };
@@ -238,7 +238,7 @@ fn test_lockfile_concurrent_access() {
         version: "2.0.0".to_string(),
         checksum: "check2".to_string(),
         source: "registry".to_string(),
-        path: ".ggen/packages/pkg2".to_string(),
+        path: ".mcpp/packages/pkg2".to_string(),
         installed_at: chrono::Utc::now().to_rfc3339(),
         dependencies: vec![],
     };
@@ -290,7 +290,7 @@ fn test_lockfile_persistence_format() {
         version: "1.0.0".to_string(),
         checksum: "abc123".to_string(),
         source: "registry".to_string(),
-        path: ".ggen/packages/test-pkg".to_string(),
+        path: ".mcpp/packages/test-pkg".to_string(),
         installed_at: "2025-10-12T00:00:00Z".to_string(),
         dependencies: vec!["dep1".to_string(), "dep2".to_string()],
     };
@@ -365,7 +365,7 @@ mod production_readiness_tests {
             version: "1.0.0".to_string(),
             checksum: "sha256:abc123def456".to_string(),
             source: "registry".to_string(),
-            path: ".ggen/packages/prod-pkg".to_string(),
+            path: ".mcpp/packages/prod-pkg".to_string(),
             installed_at: chrono::Utc::now().to_rfc3339(),
             dependencies: vec![],
         };
@@ -396,7 +396,7 @@ mod production_readiness_tests {
                 version: "1.0.0".to_string(),
                 checksum: format!("checksum-{}", i),
                 source: "registry".to_string(),
-                path: format!(".ggen/packages/pkg-{}", i),
+                path: format!(".mcpp/packages/pkg-{}", i),
                 installed_at: chrono::Utc::now().to_rfc3339(),
                 dependencies: vec![],
             };

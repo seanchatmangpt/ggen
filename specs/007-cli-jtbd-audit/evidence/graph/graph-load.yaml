@@ -1,4 +1,4 @@
-command: "ggen graph load"
+command: "mcpp graph load"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to load RDF data into a graph,
-  I need to run 'ggen graph load' with RDF file path,
+  I need to run 'mcpp graph load' with RDF file path,
   so that I can populate the graph with data.

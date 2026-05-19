@@ -1,14 +1,14 @@
 # Implementation Plan Template - Copy this pattern for complete implementation plans
-# Replace 013-ggen-v6-rdf-system with actual feature name (e.g., 001-feature-name)
+# Replace 013-mcpp-v6-rdf-system with actual feature name (e.g., 001-feature-name)
 # Replace PLACEHOLDERS with actual content
 
 @prefix sk: <http://github.com/github/spec-kit#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-mcpp-v6-rdf-system#> .
 
 # Plan Instance
 :plan a sk:Plan ;
-    sk:featureBranch "013-ggen-v6-rdf-system" ;
+    sk:featureBranch "013-mcpp-v6-rdf-system" ;
     sk:featureName "FEATURE NAME - Full description of what this feature does" ;
     sk:planCreated "YYYY-MM-DD"^^xsd:date ;
     sk:planStatus "Draft" ;  # Draft, In Progress, Approved, Complete
@@ -38,12 +38,12 @@
 
 # Project Structure
 :struct-001 a sk:ProjectStructure ;
-    sk:structurePath "PATH - e.g., 'crates/ggen-core/src/'" ;
+    sk:structurePath "PATH - e.g., 'crates/mcpp-core/src/'" ;
     sk:structurePurpose "PURPOSE - Core domain logic and types" ;
     sk:structureNotes "NOTES - Optional: Additional context about this directory" .
 
 :struct-002 a sk:ProjectStructure ;
-    sk:structurePath "PATH - e.g., 'crates/ggen-cli/src/'" ;
+    sk:structurePath "PATH - e.g., 'crates/mcpp-cli/src/'" ;
     sk:structurePurpose "PURPOSE - CLI interface and commands" .
 
 # Implementation Phases
@@ -122,7 +122,7 @@
 
 # WORKFLOW:
 # 1. Copy this template to ontology/plan.ttl
-# 2. Replace 013-ggen-v6-rdf-system prefix throughout
+# 2. Replace 013-mcpp-v6-rdf-system prefix throughout
 # 3. Fill in plan metadata (branch, name, date, status)
 # 4. Define technology stack (what you'll use)
 # 5. Define project structure (directories and files)
@@ -130,4 +130,4 @@
 # 7. Document key decisions (architecture, tech choices)
 # 8. Identify risks and mitigation strategies
 # 9. List dependencies (external requirements)
-# 10. Generate plan.md: ggen render templates/plan.tera ontology/plan.ttl > generated/plan.md
+# 10. Generate plan.md: mcpp render templates/plan.tera ontology/plan.ttl > generated/plan.md

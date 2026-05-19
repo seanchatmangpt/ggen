@@ -6,8 +6,8 @@
 //! - JSON export for web-based visualization
 //! - Interactive graph exploration
 
-use ggen_core::Graph;
-use ggen_utils::error::Result;
+use mcpp_core::Graph;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -26,7 +26,7 @@ pub enum VisualizeFormat {
 }
 
 impl FromStr for VisualizeFormat {
-    type Err = ggen_utils::error::Error;
+    type Err = mcpp_utils::error::Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -34,7 +34,7 @@ impl FromStr for VisualizeFormat {
             "svg" => Ok(Self::Svg),
             "png" => Ok(Self::Png),
             "json" => Ok(Self::Json),
-            _ => Err(ggen_utils::error::Error::new(&format!(
+            _ => Err(mcpp_utils::error::Error::new(&format!(
                 "Unsupported format: {}. Use dot, svg, png, or json",
                 s
             ))),
@@ -147,7 +147,7 @@ pub struct VisualizeInput {
 
 /// Visualize an RDF graph
 ///
-/// Real implementation using ggen-core Graph APIs
+/// Real implementation using mcpp-core Graph APIs
 pub async fn visualize_graph(
     graph_path: &Path, options: &VisualizeOptions,
 ) -> Result<VisualizeStats> {
@@ -156,9 +156,9 @@ pub async fn visualize_graph(
     // Load graph from file
     let graph = if graph_path.exists() {
         Graph::load_from_file(graph_path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
+            .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
     } else {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(mcpp_utils::error::Error::new(&format!(
             "Graph file not found: {}",
             graph_path.display()
         )));
@@ -192,7 +192,7 @@ pub async fn visualize_graph(
     // Write output file
     if let Some(ref path) = output_path {
         fs::write(path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write visualization: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to write visualization: {}", e))
         })?;
     }
 
@@ -223,12 +223,12 @@ fn extract_nodes(graph: &Graph, options: &VisualizeOptions) -> Result<Vec<(Strin
 
     let results = graph
         .query(&query)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
 
     if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
         for solution in solutions {
             let solution = solution.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+                mcpp_utils::error::Error::new(&format!("Query solution error: {}", e))
             })?;
             if let Some(term) = solution.get("s") {
                 let node_id = term.to_string();
@@ -265,12 +265,12 @@ fn extract_edges(
 
     let results = graph
         .query(&query)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
 
     if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
         for solution in solutions {
             let solution = solution.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+                mcpp_utils::error::Error::new(&format!("Query solution error: {}", e))
             })?;
             if let (Some(s), Some(p), Some(o)) =
                 (solution.get("s"), solution.get("p"), solution.get("o"))
@@ -292,12 +292,12 @@ fn extract_label(graph: &Graph, node_id: &str) -> Result<String> {
 
     let results = graph
         .query(&query)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query label: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to query label: {}", e)))?;
 
     if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
         for solution in solutions {
             let solution = solution.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+                mcpp_utils::error::Error::new(&format!("Query solution error: {}", e))
             })?;
             if let Some(label) = solution.get("label") {
                 return Ok(label.to_string());
@@ -374,7 +374,7 @@ pub fn generate_json(
     });
 
     serde_json::to_string_pretty(&graph)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e)))
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("JSON serialization failed: {}", e)))
 }
 
 #[cfg(test)]
@@ -531,13 +531,13 @@ pub async fn execute_visualize(input: VisualizeInput) -> Result<VisualizeOutput>
 pub async fn run(args: &VisualizeInput) -> Result<()> {
     let output = execute_visualize(args.clone()).await?;
 
-    ggen_utils::alert_success!(
+    mcpp_utils::alert_success!(
         "Visualized {} nodes and {} edges to {}",
         output.nodes_rendered,
         output.edges_rendered,
         output.output_path
     );
-    ggen_utils::alert_info!("   Format: {}", output.format);
+    mcpp_utils::alert_info!("   Format: {}", output.format);
 
     Ok(())
 }

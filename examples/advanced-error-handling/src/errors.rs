@@ -159,7 +159,7 @@ pub enum AppError {
     // === Integration Errors ===
     /// ggen-core error
     #[error("ggen-core error: {0}")]
-    GgenCore(#[from] ggen_utils::error::Error),
+    GgenCore(#[from] ggen_core::utils::error::Error),
 
     /// ggen-ai error
     #[error("AI generation error: {0}")]

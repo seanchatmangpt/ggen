@@ -5,7 +5,7 @@
 //! - Pack metadata loading and validation
 //! - Type conversions and serialization
 
-use ggen_domain::packs::{
+use ggen_core::domain::packs::{
     list_packs, load_pack_metadata, show_pack, Pack, PackDependency, PackTemplate,
 };
 use std::collections::HashMap;
@@ -227,7 +227,7 @@ fn test_list_packs_empty_category() {
 
 #[test]
 fn test_pack_metadata_defaults() {
-    use ggen_domain::packs::types::PackMetadata;
+    use ggen_core::domain::packs::types::PackMetadata;
 
     // Arrange
     let metadata = PackMetadata::default();

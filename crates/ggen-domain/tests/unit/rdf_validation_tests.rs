@@ -4,8 +4,8 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::rdf::metadata::{TemplateMetadata, TemplateVariable};
-use ggen_domain::rdf::validation::*;
+use mcpp_domain::rdf::metadata::{TemplateMetadata, TemplateVariable};
+use mcpp_domain::rdf::validation::*;
 
 // ============================================================================
 // Validator Construction Tests

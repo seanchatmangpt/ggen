@@ -1,6 +1,6 @@
 [package]
-name = "ggen-config"
-version = "6.1.0"
+name = "mcpp-config"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 license = "MIT"
@@ -16,19 +16,19 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 toml = { workspace = true }
 anyhow = { workspace = true }
-ggen-utils = { workspace = true }
+mcpp-utils = { workspace = true }
 
 # Optional dependencies for advanced features
-ggen-core = { workspace = true, optional = true }
-ggen-domain = { workspace = true, optional = true }
+mcpp-core = { workspace = true, optional = true }
+mcpp-domain = { workspace = true, optional = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
 
 [features]
 default = []
-graph = ["ggen-core"]
-ontology = ["ggen-domain"]
+graph = ["mcpp-core"]
+ontology = ["mcpp-domain"]
 full = ["graph", "ontology"]
 
 [lints]

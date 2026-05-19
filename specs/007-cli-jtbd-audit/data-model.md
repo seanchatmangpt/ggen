@@ -23,22 +23,22 @@
 
 ### Command
 
-Represents a ggen CLI command or subcommand being audited.
+Represents a mcpp CLI command or subcommand being audited.
 
 ```yaml
 Command:
   # Identity
   id: string           # Unique identifier (e.g., "template-generate")
-  name: string         # Full command path (e.g., "ggen template generate")
+  name: string         # Full command path (e.g., "mcpp template generate")
   category: enum       # workflow | template | project | ontology | graph | marketplace | fmea | ai | ci | utils
 
   # Metadata
   description: string  # Brief description from --help
-  version: string      # ggen version (e.g., "4.0.0")
+  version: string      # mcpp version (e.g., "4.0.0")
   deprecated: boolean  # Is command deprecated?
 
   # Structure
-  parent: string?      # Parent command if subcommand (e.g., "ggen template")
+  parent: string?      # Parent command if subcommand (e.g., "mcpp template")
   subcommands: string[]  # Child subcommands if any
   arguments: Argument[]  # Required/optional arguments
   options: Option[]      # Flags and options

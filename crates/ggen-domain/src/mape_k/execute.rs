@@ -530,7 +530,7 @@ mod tests {
             overlay: OntologyOverlay {
                 id: "overlay-001".to_string(),
                 base_snapshot_id: "snapshot-0".to_string(),
-                rdf_patch: r#"@prefix knhk: <http://ggen.ai/knhk#> .
+                rdf_patch: r#"@prefix knhk: <http://mcpp.ai/knhk#> .
 knhk:Test a knhk:Test ;"#
                     .to_string(),
                 overlay_kind: OverlayKind::Modification,

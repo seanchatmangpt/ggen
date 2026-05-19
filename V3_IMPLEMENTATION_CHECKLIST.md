@@ -333,7 +333,7 @@
 
 ### 1. Build & Test
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo test -p ggen-marketplace v3_registry_test -- --nocapture
 cargo test -p ggen-marketplace v3_registry_test
 ```

@@ -56,7 +56,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! # Ok(())
 //! # }
@@ -68,7 +68,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert(
 //!     "io.ggen.rust.cli",
@@ -86,7 +86,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert_with_pqc(
 //!     "io.ggen.rust.cli",
@@ -100,8 +100,8 @@
 //! # }
 //! ```
 
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use crate::marketplace::trust::TrustTier;
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::fs;

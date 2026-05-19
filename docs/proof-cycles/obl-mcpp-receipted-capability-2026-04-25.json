@@ -12,7 +12,7 @@
         "exit_code": 0,
         "packages_synced": 0,
         "packages_updated": 0,
-        "cache_location": "/Users/sac/Library/Caches/ggen/packs",
+        "cache_location": "~/.ggen/Library/Caches/ggen/packs",
         "duration_ms": 2,
         "registry_url": "https://marketplace.ggen.dev/registry"
       },

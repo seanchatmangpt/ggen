@@ -4,7 +4,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::rdf::validation::*;
+use mcpp_domain::rdf::validation::*;
 use std::fs;
 
 // ============================================================================
@@ -162,7 +162,7 @@ test!(test_validate_turtle_invalid_variable_name, {
 test!(test_validate_turtle_malformed_unicode, {
     // Arrange
     let turtle =
-        "@prefix ggen: <http://ggen.dev/ontology#> .\n<test> ggen:name \"Invalid \\uZZZZ\" .";
+        "@prefix mcpp: <http://mcpp.dev/ontology#> .\n<test> mcpp:name \"Invalid \\uZZZZ\" .";
     let validator = Validator::new();
 
     // Act
@@ -176,9 +176,9 @@ test!(test_validate_turtle_very_long_name, {
     // Arrange
     let long_name = "A".repeat(10000);
     let turtle = format!(
-        "@prefix ggen: <http://ggen.dev/ontology#> .\n\
-         <http://example.org/test> a ggen:Template ;\n\
-         ggen:templateName \"{}\" .",
+        "@prefix mcpp: <http://mcpp.dev/ontology#> .\n\
+         <http://example.org/test> a mcpp:Template ;\n\
+         mcpp:templateName \"{}\" .",
         long_name
     );
     let validator = Validator::new();
@@ -192,10 +192,10 @@ test!(test_validate_turtle_very_long_name, {
 
 test!(test_validate_turtle_special_characters, {
     // Arrange
-    let turtle = r#"@prefix ggen: <http://ggen.dev/ontology#> .
-<http://example.org/test> a ggen:Template ;
-  ggen:templateName "Template with \"quotes\" and 'apostrophes'" ;
-  ggen:templateDescription "Description with\nnewlines\tand\ttabs" ."#;
+    let turtle = r#"@prefix mcpp: <http://mcpp.dev/ontology#> .
+<http://example.org/test> a mcpp:Template ;
+  mcpp:templateName "Template with \"quotes\" and 'apostrophes'" ;
+  mcpp:templateDescription "Description with\nnewlines\tand\ttabs" ."#;
     let validator = Validator::new();
 
     // Act
@@ -207,13 +207,13 @@ test!(test_validate_turtle_special_characters, {
 
 test!(test_validate_turtle_multiple_templates, {
     // Arrange - RDF can have multiple resources
-    let turtle = r#"@prefix ggen: <http://ggen.dev/ontology#> .
+    let turtle = r#"@prefix mcpp: <http://mcpp.dev/ontology#> .
 
-<http://example.org/template1> a ggen:Template ;
-  ggen:templateName "Template 1" .
+<http://example.org/template1> a mcpp:Template ;
+  mcpp:templateName "Template 1" .
 
-<http://example.org/template2> a ggen:Template ;
-  ggen:templateName "Template 2" ."#;
+<http://example.org/template2> a mcpp:Template ;
+  mcpp:templateName "Template 2" ."#;
     let validator = Validator::new();
 
     // Act - validate first template
@@ -230,26 +230,26 @@ test!(test_validate_turtle_multiple_templates, {
 test!(test_validate_turtle_large_file, {
     // Arrange - create RDF with many variables
     let mut turtle = String::from(
-        "@prefix ggen: <http://ggen.dev/ontology#> .\n\
+        "@prefix mcpp: <http://mcpp.dev/ontology#> .\n\
          @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n\
-         <http://example.org/large> a ggen:Template ;\n\
-         ggen:templateName \"Large Template\" ;\n",
+         <http://example.org/large> a mcpp:Template ;\n\
+         mcpp:templateName \"Large Template\" ;\n",
     );
 
     // Add 100 variables
     for i in 0..100 {
         turtle.push_str(&format!(
-            "  ggen:hasVariable [\n\
-             a ggen:Variable ;\n\
-             ggen:variableName \"var_{}\" ;\n\
-             ggen:variableType \"string\" ;\n\
-             ggen:isRequired \"false\"^^xsd:boolean\n\
+            "  mcpp:hasVariable [\n\
+             a mcpp:Variable ;\n\
+             mcpp:variableName \"var_{}\" ;\n\
+             mcpp:variableType \"string\" ;\n\
+             mcpp:isRequired \"false\"^^xsd:boolean\n\
              ] ;\n",
             i
         ));
     }
 
-    turtle.push_str("  ggen:stability \"stable\" .");
+    turtle.push_str("  mcpp:stability \"stable\" .");
 
     let validator = Validator::new();
 

@@ -9,7 +9,7 @@ use std::fs;
 use std::path::PathBuf;
 
 // Import lockfile types
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 
 // ============================================================================
 // Output Types
@@ -119,7 +119,7 @@ struct CheckCompatibilityOutput {
 /// List all available packs
 #[verb]
 fn list(verbose: bool) -> VerbResult<ListOutput> {
-    // TODO: Wire to ggen_domain::packs::Registry::all_packs()
+    // TODO: Wire to mcpp_domain::packs::Registry::all_packs()
     let packs = vec![
         PackSummary {
             id: "surface-mcp".to_string(),
@@ -163,7 +163,7 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    // TODO: Wire to ggen_domain::packs::Registry::get_package()
+    // TODO: Wire to mcpp_domain::packs::Registry::get_package()
     Ok(ShowOutput {
         pack_id: pack_id.clone(),
         name: format!("Pack {}", pack_id),
@@ -181,7 +181,7 @@ fn install(pack_id: String, force: bool, profile: Option<String>) -> VerbResult<
     // If profile specified, enforce policy before installation
     if let Some(profile_id) = profile {
         // Validate profile exists
-        let profile_obj = ggen_marketplace::profile::get_profile(&profile_id)
+        let profile_obj = mcpp_marketplace::profile::get_profile(&profile_id)
             .map_err(|e| clap_noun_verb::NounVerbError::argument_error(&format!("Invalid profile: {}", e)))?;
 
         println!("Installing pack '{}' with profile '{}'", pack_id, profile_id);
@@ -193,15 +193,15 @@ fn install(pack_id: String, force: bool, profile: Option<String>) -> VerbResult<
         println!("  Policy enforcement: Enabled");
     }
 
-    // Get lockfile path: .ggen/packs.lock
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    // Get lockfile path: .mcpp/packs.lock
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     // Load existing lockfile or create new one
     let mut lockfile = if lockfile_path.exists() {
         PackLockfile::from_file(&lockfile_path)
             .map_err(|e| clap_noun_verb::NounVerbError::runtime_error(&format!("Failed to load lockfile: {}", e)))?
     } else {
-        println!("No existing lockfile found. Creating new lockfile at .ggen/packs.lock");
+        println!("No existing lockfile found. Creating new lockfile at .mcpp/packs.lock");
         PackLockfile::new(env!("CARGO_PKG_VERSION"))
     };
 
@@ -219,7 +219,7 @@ fn install(pack_id: String, force: bool, profile: Option<String>) -> VerbResult<
     }
 
     // Create real pack installation directory
-    let pack_dir = PathBuf::from(format!(".ggen/packs/{}", pack_id));
+    let pack_dir = PathBuf::from(format!(".mcpp/packs/{}", pack_id));
 
     // Create directory structure
     fs::create_dir_all(&pack_dir)
@@ -231,7 +231,7 @@ fn install(pack_id: String, force: bool, profile: Option<String>) -> VerbResult<
         "pack_id": pack_id,
         "version": "1.0.0",
         "installed_at": chrono::Utc::now().to_rfc3339(),
-        "installed_by": "ggen-cli",
+        "installed_by": "mcpp-cli",
         "force": force
     });
 
@@ -288,7 +288,7 @@ fn install(pack_id: String, force: bool, profile: Option<String>) -> VerbResult<
 /// Generate project from pack
 #[verb]
 fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
-    // TODO: Wire to ggen_domain::packs::Generator::generate()
+    // TODO: Wire to mcpp_domain::packs::Generator::generate()
     Ok(GenerateOutput {
         pack_id,
         project_path,
@@ -300,7 +300,7 @@ fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput>
 /// Validate a pack
 #[verb]
 fn validate(pack_id: String) -> VerbResult<ValidateOutput> {
-    // TODO: Wire to ggen_domain::packs::validate_pack()
+    // TODO: Wire to mcpp_domain::packs::validate_pack()
     Ok(ValidateOutput {
         pack_id,
         is_valid: true,
@@ -318,7 +318,7 @@ fn compose(pack_ids: String) -> VerbResult<ComposeOutput> {
         .filter(|s| !s.is_empty())
         .collect();
 
-    // TODO: Wire to ggen_domain::packs::Composer::compose()
+    // TODO: Wire to mcpp_domain::packs::Composer::compose()
     Ok(ComposeOutput {
         pack_ids: pack_id_list.clone(),
         atomic_packs: pack_id_list,
@@ -330,7 +330,7 @@ fn compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 /// Show pack dependencies
 #[verb]
 fn dependencies(pack_id: String) -> VerbResult<DependenciesOutput> {
-    // TODO: Wire to ggen_domain::packs::DependencyGraph::get_tree()
+    // TODO: Wire to mcpp_domain::packs::DependencyGraph::get_tree()
     Ok(DependenciesOutput {
         pack_id: pack_id.clone(),
         dependencies: vec![],
@@ -340,7 +340,7 @@ fn dependencies(pack_id: String) -> VerbResult<DependenciesOutput> {
 /// Search for packs
 #[verb]
 fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    // TODO: Wire to ggen_domain::packs::AsyncRepository::search()
+    // TODO: Wire to mcpp_domain::packs::AsyncRepository::search()
     let _limit = limit; // TODO: use limit for search results
     Ok(SearchOutput {
         query,
@@ -364,7 +364,7 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
         ));
     }
 
-    // TODO: Wire to ggen_domain::packs::check_packs_compatibility()
+    // TODO: Wire to mcpp_domain::packs::check_packs_compatibility()
     Ok(CheckCompatibilityOutput {
         compatible: true,
         pack_ids: pack_id_list,

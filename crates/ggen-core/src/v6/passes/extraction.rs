@@ -33,7 +33,7 @@
 //! use ggen_core::Graph;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix code: <http://ggen.dev/code#> .
@@ -74,7 +74,7 @@
 
 use crate::graph::ConstructExecutor;
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};

@@ -124,7 +124,7 @@ fn invalid_format_output(receipt_file: &str) -> VerifyOutput {
 }
 
 fn verify_single_receipt(
-    receipt_file: String, receipt: &ggen_receipt::Receipt, key: &Option<VerifyingKey>,
+    receipt_file: String, receipt: &mcpp_receipt::Receipt, key: &Option<VerifyingKey>,
 ) -> VerbResult<VerifyOutput> {
     let verifying_key = match key {
         Some(k) => k,
@@ -133,7 +133,7 @@ fn verify_single_receipt(
                 receipt_file,
                 is_valid: false,
                 message:
-                    "No public key provided and no local key found at .ggen/keys/verifying.key. Use --public-key <path> or run ggen sync first to generate local keys."
+                    "No public key provided and no local key found at .mcpp/keys/verifying.key. Use --public-key <path> or run mcpp sync first to generate local keys."
                         .to_string(),
                 operation_id: Some(receipt.operation_id.clone()),
                 timestamp: Some(format_timestamp(&receipt.timestamp)),
@@ -170,7 +170,7 @@ fn verify_single_receipt(
 }
 
 fn verify_receipt_chain(
-    receipt_file: String, chain: &ggen_receipt::ReceiptChain, key: &Option<VerifyingKey>,
+    receipt_file: String, chain: &mcpp_receipt::ReceiptChain, key: &Option<VerifyingKey>,
 ) -> VerbResult<VerifyOutput> {
     let verifying_key = match key {
         Some(k) => k,
@@ -178,7 +178,7 @@ fn verify_receipt_chain(
             return Ok(VerifyOutput {
                 receipt_file,
                 is_valid: false,
-                message: "No public key provided and no local key found at .ggen/keys/verifying.key. Use --public-key <path> or run ggen sync first to generate local keys."
+                message: "No public key provided and no local key found at .mcpp/keys/verifying.key. Use --public-key <path> or run mcpp sync first to generate local keys."
                     .to_string(),
                 operation_id: None,
                 timestamp: None,
@@ -212,7 +212,7 @@ fn verify_receipt_chain(
 fn verify_receipt_content(
     receipt_file: &str, file_content: &str, key: &Option<VerifyingKey>,
 ) -> VerbResult<VerifyOutput> {
-    use ggen_receipt::{Receipt, ReceiptChain};
+    use mcpp_receipt::{Receipt, ReceiptChain};
 
     if let Ok(receipt) = serde_json::from_str::<Receipt>(file_content) {
         return verify_single_receipt(receipt_file.to_string(), &receipt, key);
@@ -240,11 +240,11 @@ fn verify(receipt_file: String, public_key: Option<String>) -> VerbResult<Verify
         clap_noun_verb::NounVerbError::argument_error(format!("Failed to read receipt file: {}", e))
     })?;
 
-    // Auto-discover local key from .ggen/keys/verifying.key if no --public-key provided
+    // Auto-discover local key from .mcpp/keys/verifying.key if no --public-key provided
     let resolved_key_path = if public_key.is_some() {
         public_key.clone()
     } else {
-        let local_key = std::path::Path::new(".ggen/keys/verifying.key");
+        let local_key = std::path::Path::new(".mcpp/keys/verifying.key");
         if local_key.exists() {
             Some(local_key.to_string_lossy().to_string())
         } else {
@@ -258,7 +258,7 @@ fn verify(receipt_file: String, public_key: Option<String>) -> VerbResult<Verify
 /// Show detailed receipt information
 #[verb]
 fn info(receipt_file: String) -> VerbResult<InfoOutput> {
-    use ggen_receipt::{Receipt, ReceiptChain};
+    use mcpp_receipt::{Receipt, ReceiptChain};
 
     let receipt_path = PathBuf::from(&receipt_file);
 
@@ -319,7 +319,7 @@ fn info(receipt_file: String) -> VerbResult<InfoOutput> {
 /// Verify a receipt chain
 #[verb]
 fn chain_verify(chain_file: String, public_key: String) -> VerbResult<ChainVerifyOutput> {
-    use ggen_receipt::ReceiptChain;
+    use mcpp_receipt::ReceiptChain;
 
     let chain_path = PathBuf::from(&chain_file);
 

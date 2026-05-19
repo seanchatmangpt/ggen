@@ -2,8 +2,8 @@
 
 #![allow(dead_code)]
 
-use ggen_marketplace::models::PackageId;
-use ggen_marketplace::v3::{V3MetricsSnapshot, V3OptimizedRegistry};
+use ggen_core::marketplace::models::PackageId;
+use ggen_core::marketplace::v3::{V3MetricsSnapshot, V3OptimizedRegistry};
 use oxigraph::store::Store;
 use std::sync::Arc;
 

@@ -1,6 +1,6 @@
 # HTF Production Scenario: PhD Thesis Development
 
-This document demonstrates a real-world production use case: developing a PhD thesis using HTF integrated with the ggen marketplace system.
+This document demonstrates a real-world production use case: developing a PhD thesis using HTF integrated with the mcpp marketplace system.
 
 ## Scenario: AI Safety PhD Thesis Development
 
@@ -15,7 +15,7 @@ This document demonstrates a real-world production use case: developing a PhD th
 
 ```bash
 # Alex wants to organize her PhD thesis systematically
-$ ggen packs list | grep -i thesis
+$ mcpp packs list | grep -i thesis
 
 {
   "packs": [
@@ -34,7 +34,7 @@ $ ggen packs list | grep -i thesis
 
 ```bash
 # Get detailed information
-$ ggen packs show htf-thesis-framework
+$ mcpp packs show htf-thesis-framework
 
 {
   "name": "HTF - Hyper-Thesis Framework",
@@ -56,30 +56,30 @@ $ ggen packs show htf-thesis-framework
 
 ```bash
 # Phase 1: Validate pack integrity
-$ ggen packs install htf-thesis-framework --phase validate --dry-run
+$ mcpp packs install htf-thesis-framework --phase validate --dry-run
 ✅ Pack signature verified
 ✅ Manifest valid
 ✅ No conflicts detected
 
 # Phase 2: Resolve dependencies
-$ ggen packs install htf-thesis-framework --phase resolve --dry-run
+$ mcpp packs install htf-thesis-framework --phase resolve --dry-run
 ✅ No external dependencies
 ✅ Compatible with current environment
 
 # Phase 3: Stage for installation
-$ ggen packs install htf-thesis-framework --phase stage --dry-run
+$ mcpp packs install htf-thesis-framework --phase stage --dry-run
 ✅ Would install 1 binary (htf)
 ✅ Would create config directory
 ✅ 0 conflicts with existing files
 
 # Phase 4: Full dry-run
-$ ggen packs install htf-thesis-framework --phase execute --dry-run
+$ mcpp packs install htf-thesis-framework --phase execute --dry-run
 ✅ Ready to install
-✅ Installation path: ~/.ggen/packs/htf-thesis-framework/0.1.0
-✅ Binary would be at: ~/.ggen/packs/htf-thesis-framework/0.1.0/bin/htf
+✅ Installation path: ~/.mcpp/packs/htf-thesis-framework/0.1.0
+✅ Binary would be at: ~/.mcpp/packs/htf-thesis-framework/0.1.0/bin/htf
 
 # Install for real
-$ ggen packs install htf-thesis-framework --version 0.1.0
+$ mcpp packs install htf-thesis-framework --version 0.1.0
 ✅ Installation successful
 ✅ Binary available at: htf
 ```
@@ -88,13 +88,13 @@ $ ggen packs install htf-thesis-framework --version 0.1.0
 
 ```bash
 # Check manifest
-$ ggen packs manifest htf-thesis-framework
+$ mcpp packs manifest htf-thesis-framework
 
 {
   "pack_id": "htf-thesis-framework",
   "version": "0.1.0",
   "installed_at": "2024-11-17T09:30:00Z",
-  "installation_path": "~/.ggen/packs/htf-thesis-framework/0.1.0",
+  "installation_path": "~/.mcpp/packs/htf-thesis-framework/0.1.0",
   "binaries": [
     {
       "name": "htf",
@@ -116,19 +116,19 @@ Alex begins by outlining her research areas:
 
 ```bash
 # Create initial research structure
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Problem AI_Safety_Definition Problem'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Problem AI_Safety_Definition Problem'
 ✅ Shard created: problem-001 (Problem family)
 
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Research_Gap Formal_Methods_Gaps Gap'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Research_Gap Formal_Methods_Gaps Gap'
 ✅ Shard created: gap-001 (Gap family)
 
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Main_Hypothesis Unified_Framework Claim'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Main_Hypothesis Unified_Framework Claim'
 ✅ Shard created: claim-001 (Claim family)
 
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Introduction_Context Context'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Introduction_Context Context'
 ✅ Shard created: context-001 (Context family)
 
-$ ggen packs execute --pack htf-thesis-framework --command "list"
+$ mcpp packs execute --pack htf-thesis-framework --command "list"
 
 {
   "shards": [
@@ -144,7 +144,7 @@ $ ggen packs execute --pack htf-thesis-framework --command "list"
 ### Step 2.2: Check Initial Coverage
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "profile"
+$ mcpp packs execute --pack htf-thesis-framework --command "profile"
 
 === HTF Coverage Report ===
 
@@ -181,11 +181,11 @@ Next Steps:
 As Alex completes her literature review:
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'AI_Safety_Literature Canon'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Formal_Methods_Canon Canon'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Research_Trends Pattern'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'AI_Safety_Literature Canon'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Formal_Methods_Canon Canon'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Research_Trends Pattern'
 
-$ ggen packs execute --pack htf-thesis-framework --command "profile"
+$ mcpp packs execute --pack htf-thesis-framework --command "profile"
 
 === HTF Coverage Report ===
 
@@ -214,11 +214,11 @@ Recommendation: Begin methodology section next
 ### Step 4.1: Add Methodology and Design Shards
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Formal_Methods_Approach Method'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Verification_Framework_Design Artifact'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Implementation_Details Artifact'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Formal_Methods_Approach Method'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Verification_Framework_Design Artifact'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Implementation_Details Artifact'
 
-$ ggen packs execute --pack htf-thesis-framework --command "check"
+$ mcpp packs execute --pack htf-thesis-framework --command "check"
 
 {
   "is_valid": false,
@@ -244,7 +244,7 @@ $ ggen packs execute --pack htf-thesis-framework --command "check"
 # Fix ordering by adding proper dependencies
 # (In real implementation, would update via file or API)
 
-$ ggen packs execute --pack htf-thesis-framework --command "check"
+$ mcpp packs execute --pack htf-thesis-framework --command "check"
 
 {
   "is_valid": false,
@@ -268,11 +268,11 @@ $ ggen packs execute --pack htf-thesis-framework --command "check"
 ### Step 5.1: Add Results and Evaluation
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Formal_Verification_Results Result'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Performance_Evaluation Evaluation'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Proof_of_Soundness Proof'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Formal_Verification_Results Result'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Performance_Evaluation Evaluation'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Proof_of_Soundness Proof'
 
-$ ggen packs execute --pack htf-thesis-framework --command "profile"
+$ mcpp packs execute --pack htf-thesis-framework --command "profile"
 
 === HTF Coverage Report ===
 
@@ -299,7 +299,7 @@ Uncovered Families:
 Alex begins planning her dissertation structure:
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "schedule" --args '--chapter-size 5000'
+$ mcpp packs execute --pack htf-thesis-framework --command "schedule" --args '--chapter-size 5000'
 
 {
   "thesis_id": "phd-2024-ai-safety-001",
@@ -374,11 +374,11 @@ $ ggen packs execute --pack htf-thesis-framework --command "schedule" --args '--
 ### Step 6.1: Add Theoretical and Impact Sections
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Unification_Theory Theory'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Broader_Impact Impact'
-$ ggen packs execute --pack htf-thesis-framework --command "add" --args 'Discussion_and_Interpretation Discussion'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Unification_Theory Theory'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Broader_Impact Impact'
+$ mcpp packs execute --pack htf-thesis-framework --command "add" --args 'Discussion_and_Interpretation Discussion'
 
-$ ggen packs execute --pack htf-thesis-framework --command "check"
+$ mcpp packs execute --pack htf-thesis-framework --command "check"
 
 {
   "is_valid": true,
@@ -400,7 +400,7 @@ $ ggen packs execute --pack htf-thesis-framework --command "check"
 ### Step 6.2: Final Coverage Analysis
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "profile"
+$ mcpp packs execute --pack htf-thesis-framework --command "profile"
 
 === HTF Coverage Report ===
 
@@ -426,7 +426,7 @@ Quality Score: 8.7/10
 
 ```bash
 # Export thesis structure for advisor review
-$ ggen packs execute --pack htf-thesis-framework --command "export" --args '--format json' > thesis-structure.json
+$ mcpp packs execute --pack htf-thesis-framework --command "export" --args '--format json' > thesis-structure.json
 
 # Advisor can review:
 # - Chapter organization
@@ -441,7 +441,7 @@ Advisor provides feedback → Alex updates shards:
 
 ```bash
 # Advisor suggests restructuring chapters
-$ ggen packs execute --pack htf-thesis-framework --command "schedule" --args '--chapter-size 4500'
+$ mcpp packs execute --pack htf-thesis-framework --command "schedule" --args '--chapter-size 4500'
 
 # New chapter plan generated with advisor feedback integrated
 # 9 chapters instead of 8, better balanced
@@ -454,7 +454,7 @@ $ ggen packs execute --pack htf-thesis-framework --command "schedule" --args '--
 Before submission, one final check:
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "check"
+$ mcpp packs execute --pack htf-thesis-framework --command "check"
 
 {
   "is_valid": true,
@@ -475,7 +475,7 @@ $ ggen packs execute --pack htf-thesis-framework --command "check"
 ### Step 8.2: Generate Final Report
 
 ```bash
-$ ggen packs execute --pack htf-thesis-framework --command "profile" > thesis-final-report.md
+$ mcpp packs execute --pack htf-thesis-framework --command "profile" > thesis-final-report.md
 
 # Report shows:
 # - 26/26 families covered

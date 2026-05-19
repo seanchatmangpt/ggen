@@ -70,7 +70,7 @@ my_api/
 cargo install ggen
 
 # Or from source
-cd /Users/sac/ggen
+cd .
 cargo build --release
 ```
 
@@ -78,7 +78,7 @@ cargo build --release
 
 ```bash
 # Navigate to example directory
-cd /Users/sac/ggen/examples/fastapi-from-rdf
+cd ./examples/fastapi-from-rdf
 
 # Generate the complete FastAPI project
 ggen template generate api-stack.tmpl --var project_name=my_api
@@ -400,8 +400,8 @@ After running this example, you'll understand:
 ## 📞 Support
 
 - **Issues**: GitHub Issues for ggen project
-- **Docs**: See `/Users/sac/ggen/docs/templates.md`
-- **Examples**: More examples in `/Users/sac/ggen/examples/`
+- **Docs**: See `./docs/templates.md`
+- **Examples**: More examples in `./examples/`
 
 ---
 

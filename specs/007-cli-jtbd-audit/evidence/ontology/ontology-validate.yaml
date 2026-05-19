@@ -1,4 +1,4 @@
-command: "ggen ontology validate"
+command: "mcpp ontology validate"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I have an ontology to validate,
-  I need to run 'ggen ontology validate',
+  I need to run 'mcpp ontology validate',
   so that I can ensure ontology correctness.

@@ -3,7 +3,7 @@
 //! Implements ggen.lock pattern for freezing ontology pack versions,
 //! enabling reproducible code generation across environments.
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -111,11 +111,11 @@ impl LockfileManager {
     /// Load lockfile from disk
     pub fn load(path: &Path) -> Result<OntologyLockfile> {
         let content = std::fs::read_to_string(path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read lock file: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to read lock file: {}", e))
         })?;
 
         let lockfile: OntologyLockfile = toml::from_str(&content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to parse lock file: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to parse lock file: {}", e))
         })?;
 
         lockfile.validate()?;
@@ -126,7 +126,7 @@ impl LockfileManager {
     pub fn save(lockfile: &OntologyLockfile, path: &Path) -> Result<()> {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to create lock file directory: {}",
                     e
                 ))
@@ -134,11 +134,11 @@ impl LockfileManager {
         }
 
         let content = toml::to_string_pretty(lockfile).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to serialize lock file: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to serialize lock file: {}", e))
         })?;
 
         std::fs::write(path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write lock file: {}", e))
+            crate::utils::error::Error::new(&format!("Failed to write lock file: {}", e))
         })?;
 
         Ok(())
@@ -152,13 +152,13 @@ impl LockfileManager {
             match computed_hashes.get(name) {
                 Some(actual_hash) if actual_hash == expected_hash => continue,
                 Some(actual_hash) => {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(crate::utils::error::Error::new(&format!(
                         "Lock file hash mismatch for '{}': expected {}, got {}",
                         name, expected_hash, actual_hash
                     )))
                 }
                 None => {
-                    return Err(ggen_utils::error::Error::new(&format!(
+                    return Err(crate::utils::error::Error::new(&format!(
                         "Package '{}' in hash list not found in lock file",
                         name
                     )))
@@ -227,14 +227,14 @@ impl OntologyLockfile {
     /// Validate lockfile structure
     pub fn validate(&self) -> Result<()> {
         if self.version != 1 {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(crate::utils::error::Error::new(&format!(
                 "Unsupported lock file version: {}",
                 self.version
             )));
         }
 
         if self.packages.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(crate::utils::error::Error::new(
                 "Lock file contains no packages",
             ));
         }
@@ -242,14 +242,14 @@ impl OntologyLockfile {
         // Validate each package
         for (name, package) in &self.packages {
             if package.version.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(crate::utils::error::Error::new(&format!(
                     "Package '{}' has no version",
                     name
                 )));
             }
 
             if package.integrity.is_empty() {
-                return Err(ggen_utils::error::Error::new(&format!(
+                return Err(crate::utils::error::Error::new(&format!(
                     "Package '{}' has no integrity hash",
                     name
                 )));
@@ -258,7 +258,7 @@ impl OntologyLockfile {
 
         // Validate composition metadata
         if self.composition.strategy.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(crate::utils::error::Error::new(
                 "Composition strategy not specified",
             ));
         }

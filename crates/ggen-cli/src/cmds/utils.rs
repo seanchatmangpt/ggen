@@ -50,7 +50,7 @@ struct EnvSetOutput {
 #[verb]
 fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput> {
     let format = format.unwrap_or_else(|| "table".to_string());
-    use ggen_domain::utils::{execute_doctor, DoctorInput};
+    use mcpp_domain::utils::{execute_doctor, DoctorInput};
 
     let input = DoctorInput {
         verbose: all,
@@ -60,11 +60,11 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 
     let result = crate::runtime::block_on(async move {
         execute_doctor(input).await.map_err(|e| {
-            ggen_utils::error::Error::new(&format!("System diagnostics failed: {}", e))
+            mcpp_utils::error::Error::new(&format!("System diagnostics failed: {}", e))
         })
     })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
+    .map_err(|e: mcpp_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: mcpp_utils::Error| {
         clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
@@ -120,13 +120,13 @@ fn run_env(list: bool, get: &Option<String>, set: &Option<String>) -> HashMap<St
     }
 
     if list || (get.is_none() && set.is_none()) {
-        collect_ggen_env_vars(&mut variables);
+        collect_mcpp_env_vars(&mut variables);
     }
 
     variables
 }
 
-fn collect_ggen_env_vars(vars: &mut HashMap<String, String>) {
+fn collect_mcpp_env_vars(vars: &mut HashMap<String, String>) {
     for (key, value) in std::env::vars() {
         if key.starts_with("GGEN_") || key.starts_with("RUST_") || key == "HOME" || key == "PATH" {
             vars.insert(key, value);

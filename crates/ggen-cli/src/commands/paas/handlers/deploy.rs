@@ -40,7 +40,7 @@ pub async fn deploy_artifacts(
         println!("🔍 Dry-run complete. No deployment performed.");
         println!();
         println!("To deploy for real, run:");
-        println!("  ggen paas deploy --environment {}", environment);
+        println!("  mcpp paas deploy --environment {}", environment);
         return Ok(());
     }
 
@@ -52,7 +52,7 @@ pub async fn deploy_artifacts(
     println!("Next steps:");
     println!("  1. Configure PaaS provider in paas.toml");
     println!("  2. Set up authentication");
-    println!("  3. Run: ggen paas deploy --environment {} --target <provider>", environment);
+    println!("  3. Run: mcpp paas deploy --environment {} --target <provider>", environment);
 
     Ok(())
 }

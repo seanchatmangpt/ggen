@@ -1,19 +1,19 @@
-# ggen Documentation Project Configuration
+# mcpp Documentation Project Configuration
 
 [project]
-name = "ggen"
-version = "6.0.1"
+name = "mcpp"
+version = "26.5.4"
 description = "Deterministic, language-agnostic code generation framework"
-authors = ["Sean Chatman <sean@ggen.ai>"]
+authors = ["Sean Chatman <sean@mcpp.ai>"]
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 
-# Ontology configuration (required for ggen sync)
+# Ontology configuration (required for mcpp sync)
 [ontology]
 # Path to main ontology file
 source = "ontology.ttl"
 # Base URI for the ontology
-base_uri = "https://ggen.dev/"
+base_uri = "https://mcpp.dev/"
 # Ontology format (turtle, rdf/xml, jsonld)
 format = "turtle"
 
@@ -33,13 +33,13 @@ idempotent = true
 
 # RDF configuration for ontology-driven development
 [rdf]
-base_uri = "https://ggen.dev/"
+base_uri = "https://mcpp.dev/"
 default_format = "turtle"
 cache_queries = true
-store_path = ".ggen/rdf-store"
+store_path = ".mcpp/rdf-store"
 
 [rdf.prefixes]
-ggen = "https://ggen.dev/"
+mcpp = "https://mcpp.dev/"
 schema = "https://schema.org/"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 owl = "http://www.w3.org/2002/07/owl#"
@@ -55,9 +55,9 @@ cache_ttl = 7200
 # Lifecycle hooks for documentation validation
 [lifecycle]
 enabled = true
-config_file = ".ggen/lifecycle.toml"
-cache_directory = ".ggen/cache"
-state_file = ".ggen/state.json"
+config_file = ".mcpp/lifecycle.toml"
+cache_directory = ".mcpp/cache"
+state_file = ".mcpp/state.json"
 
 # Pre-generation: validate documentation structure
 [lifecycle.phases.pre_generate]
@@ -76,7 +76,7 @@ scripts = [
 allowed_domains = [
     "schema.org",
     "w3.org",
-    "ggen.dev",
+    "mcpp.dev",
     "github.com"
 ]
 max_file_size = 104857600  # 100MB
@@ -168,11 +168,11 @@ output = "stderr"
 
 # ============================================================================
 # Marketplace Configuration
-# Controls behavior when interacting with the ggen marketplace
+# Controls behavior when interacting with the mcpp marketplace
 # ============================================================================
 [marketplace]
 # Registry URL for package discovery
-registry_url = "https://marketplace.ggen.dev"
+registry_url = "https://marketplace.mcpp.dev"
 
 # Cache downloaded packages locally
 cache_packages = true
@@ -192,18 +192,18 @@ enabled = true
 rules = [
     # A2A-RS Pipeline (μ₁-μ₅): Agent-to-Agent code generation from RDF ontology
     # Each rule follows the pattern: query → template → output_file
-    { name = "a2a-agents", query = "crates/ggen-core/queries/a2a/construct-agents.rq", template = "crates/ggen-core/templates/a2a/agent.rs.tera", output_file = "crates/a2a-generated/src/agent.rs", mode = "Overwrite" },
-    { name = "a2a-messages", query = "crates/ggen-core/queries/a2a/extract-messages.rq", template = "crates/ggen-core/templates/a2a/message.rs.tera", output_file = "crates/a2a-generated/src/message.rs", mode = "Overwrite" },
-    { name = "a2a-tasks", query = "crates/ggen-core/queries/a2a/extract-tasks.rq", template = "crates/ggen-core/templates/a2a/task.rs.tera", output_file = "crates/a2a-generated/src/task.rs", mode = "Overwrite" },
-    { name = "a2a-transports", query = "crates/ggen-core/queries/a2a/extract-transports.rq", template = "crates/ggen-core/templates/a2a/transport.rs.tera", output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
-    { name = "a2a-skills", query = "crates/ggen-core/queries/a2a/extract-skills.rq", template = "crates/ggen-core/templates/a2a/skill.rs.tera", output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
-    { name = "a2a-lib", query = "", template = "crates/ggen-core/templates/a2a/lib.rs.tera", output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
+    { name = "a2a-agents", query = "crates/mcpp-core/queries/a2a/construct-agents.rq", template = "crates/mcpp-core/templates/a2a/agent.rs.tera", output_file = "crates/a2a-generated/src/agent.rs", mode = "Overwrite" },
+    { name = "a2a-messages", query = "crates/mcpp-core/queries/a2a/extract-messages.rq", template = "crates/mcpp-core/templates/a2a/message.rs.tera", output_file = "crates/a2a-generated/src/message.rs", mode = "Overwrite" },
+    { name = "a2a-tasks", query = "crates/mcpp-core/queries/a2a/extract-tasks.rq", template = "crates/mcpp-core/templates/a2a/task.rs.tera", output_file = "crates/a2a-generated/src/task.rs", mode = "Overwrite" },
+    { name = "a2a-transports", query = "crates/mcpp-core/queries/a2a/extract-transports.rq", template = "crates/mcpp-core/templates/a2a/transport.rs.tera", output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
+    { name = "a2a-skills", query = "crates/mcpp-core/queries/a2a/extract-skills.rq", template = "crates/mcpp-core/templates/a2a/skill.rs.tera", output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
+    { name = "a2a-lib", query = "", template = "crates/mcpp-core/templates/a2a/lib.rs.tera", output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
     # ── Elixir A2A ──────────────────────────────────────────────────────────────
     # Generates idiomatic Elixir boilerplate using the a2a ~> 0.2 hex package.
-    # Define agents in RDF with a2a:Agent nodes, then run: ggen sync
-    { name = "elixir-a2a-agents",     query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/agents.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_agents.ex",     mode = "Overwrite" },
-    { name = "elixir-a2a-router",     query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/router.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_router.ex",     mode = "Overwrite" },
-    { name = "elixir-a2a-supervisor", query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera", output_file = "crates/elixir-a2a-generated/lib/a2a_supervisor.ex", mode = "Overwrite" }
+    # Define agents in RDF with a2a:Agent nodes, then run: mcpp sync
+    { name = "elixir-a2a-agents",     query = "crates/mcpp-core/queries/elixir-a2a/extract-agents.rq", template = "crates/mcpp-core/templates/elixir-a2a/agents.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_agents.ex",     mode = "Overwrite" },
+    { name = "elixir-a2a-router",     query = "crates/mcpp-core/queries/elixir-a2a/extract-agents.rq", template = "crates/mcpp-core/templates/elixir-a2a/router.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_router.ex",     mode = "Overwrite" },
+    { name = "elixir-a2a-supervisor", query = "crates/mcpp-core/queries/elixir-a2a/extract-agents.rq", template = "crates/mcpp-core/templates/elixir-a2a/supervisor.ex.tera", output_file = "crates/elixir-a2a-generated/lib/a2a_supervisor.ex", mode = "Overwrite" }
 ]
 
 # Protected paths (glob patterns) - NEVER overwrite
@@ -226,10 +226,10 @@ generated_header = """
 // ============================================================
 // DO NOT EDIT THIS FILE
 //
-// This file is auto-generated by ggen from RDF ontology.
+// This file is auto-generated by mcpp from RDF ontology.
 // Any manual changes will be OVERWRITTEN on regeneration.
 //
-// Regenerate with: ggen generate
+// Regenerate with: mcpp generate
 // ============================================================
 """
 

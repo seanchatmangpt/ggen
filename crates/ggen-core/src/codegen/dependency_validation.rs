@@ -1,5 +1,5 @@
 use crate::manifest::GgenManifest;
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;

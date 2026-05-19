@@ -146,7 +146,7 @@ Explain what validation steps you would perform.
     println!("\n=== Step 2: MCP Tool Call - validate_pipeline (mcp.tool.call span) ===");
 
     let validate_params = json!({
-        "project_path": "/Users/sac/ggen"
+        "project_path": "."
     })
     .as_object()
     .unwrap()

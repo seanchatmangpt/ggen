@@ -1,9 +1,9 @@
-# Audit Result: ggen workflow analyze
-# Command: ggen workflow analyze
+# Audit Result: mcpp workflow analyze
+# Command: mcpp workflow analyze
 # Category: workflow
 # Date: 2024-12-14
 
-command: "ggen workflow analyze"
+command: "mcpp workflow analyze"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"

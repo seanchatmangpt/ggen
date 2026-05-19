@@ -7,7 +7,7 @@
 //! - Multiple resolution strategies
 
 use crate::packs::types::Pack;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use tracing::{info, warn};

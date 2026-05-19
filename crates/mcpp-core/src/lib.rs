@@ -1,8 +1,8 @@
 //! MCPP core — canonical types promoted from `chatmangpt-mcpp-v2-cell`.
 //!
-//! Closes `portfolio-obl-0002-promote-v2-constraints-into-canonical-ggen-mcpp`
+//! Closes `portfolio-obl-0002-promote-v2-constraints-into-canonical-mcpp-mcpp`
 //! by absorbing the v2 receipt/protocol surfaces into the canonical
-//! ggen MCPP implementation.
+//! mcpp MCPP implementation.
 
 pub mod autonomics;
 pub mod blake3_hash;

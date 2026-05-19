@@ -46,7 +46,7 @@ properties:
       properties:
         command:
           type: string
-          pattern: "^ggen [a-z_]+( [a-z_]+)?$"
+          pattern: "^mcpp [a-z_]+( [a-z_]+)?$"
         purpose:
           type: string
         criticality:
@@ -111,17 +111,17 @@ examples:
     industry: Banking/Finance
     jtbd: "When regulatory requirements change, I need to regenerate compliant code across all services"
     required_commands:
-      - command: "ggen ontology validate"
+      - command: "mcpp ontology validate"
         purpose: "Validate regulatory ontology"
         criticality: P1
         current_support: full
         gaps: []
-      - command: "ggen template generate"
+      - command: "mcpp template generate"
         purpose: "Generate compliant entities"
         criticality: P1
         current_support: full
         gaps: []
-      - command: "ggen graph query"
+      - command: "mcpp graph query"
         purpose: "Query affected entities"
         criticality: P2
         current_support: partial
@@ -132,7 +132,7 @@ examples:
       latency_slo: "<60s for 1000 entities"
     validation_status: partial
     gaps:
-      - command: "ggen graph query"
+      - command: "mcpp graph query"
         issue: "No JSON output option"
         severity: P2
         workaround: "Parse text output manually"

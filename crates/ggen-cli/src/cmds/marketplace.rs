@@ -4,7 +4,7 @@
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
-use ggen_marketplace::prelude::*;
+use mcpp_marketplace::prelude::*;
 use serde::Serialize;
 
 // ============================================================================
@@ -150,26 +150,26 @@ struct SyncOutput {
 ///
 /// Features:
 /// - Checksum-based change detection (cache-aware)
-/// - Automatic cache location resolution (~/.cache/ggen/packs/)
+/// - Automatic cache location resolution (~/.cache/mcpp/packs/)
 /// - Support for custom registry URLs (--source)
 /// - Dry-run mode for preview (--dry-run)
 /// - Progress reporting
 ///
 /// Examples:
 ///   # Refresh with cache (only changed packages)
-///   ggen marketplace sync
+///   mcpp marketplace sync
 ///
 ///   # Force full refresh (skip cache)
-///   ggen marketplace sync --force
+///   mcpp marketplace sync --force
 ///
 ///   # Preview changes without writing
-///   ggen marketplace sync --dry-run
+///   mcpp marketplace sync --dry-run
 ///
 ///   # Sync from custom registry
-///   ggen marketplace sync --source https://custom-registry.example.com
+///   mcpp marketplace sync --source https://custom-registry.example.com
 ///
 ///   # Verbose progress reporting
-///   ggen marketplace sync --verbose
+///   mcpp marketplace sync --verbose
 #[verb]
 fn sync(
     force: Option<bool>, dry_run: Option<bool>, source: Option<String>, verbose: Option<bool>,
@@ -206,7 +206,7 @@ fn perform_marketplace_sync(
     }
 
     let registry_url =
-        source.unwrap_or_else(|| "https://marketplace.ggen.dev/registry".to_string());
+        source.unwrap_or_else(|| "https://marketplace.mcpp.dev/registry".to_string());
     if verbose {
         eprintln!("Marketplace registry: {}", registry_url);
     }
@@ -305,12 +305,12 @@ fn resolve_cache_directory() -> VerbResult<std::path::PathBuf> {
 
     // Use XDG standard cache directory
     if let Some(cache_dir) = dirs::cache_dir() {
-        return Ok(cache_dir.join("ggen").join("packs"));
+        return Ok(cache_dir.join("mcpp").join("packs"));
     }
 
-    // Fall back to ~/.cache/ggen/packs
+    // Fall back to ~/.cache/mcpp/packs
     if let Some(home) = dirs::home_dir() {
-        return Ok(home.join(".cache").join("ggen").join("packs"));
+        return Ok(home.join(".cache").join("mcpp").join("packs"));
     }
 
     Err(clap_noun_verb::NounVerbError::execution_error(

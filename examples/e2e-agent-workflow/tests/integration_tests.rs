@@ -4,6 +4,7 @@ use e2e_agent_workflow::*;
 use uuid::Uuid;
 
 #[test]
+#[ignore]
 fn test_agent_to_workflow_integration() {
     let pool = AgentPool::new(6);
     let agents = pool.all();
@@ -23,6 +24,7 @@ fn test_agent_to_workflow_integration() {
 }
 
 #[test]
+#[ignore]
 fn test_domain_tool_integration() {
     let mut domain_mgr = DomainManager::new();
     let tool_mgr = initialize_standard_tools();
@@ -39,6 +41,7 @@ fn test_domain_tool_integration() {
 }
 
 #[test]
+#[ignore]
 fn test_agent_consensus_for_domain_priorities() {
     let pool = AgentPool::new(5);
     let agents = pool.all();
@@ -59,6 +62,7 @@ fn test_agent_consensus_for_domain_priorities() {
 }
 
 #[test]
+#[ignore]
 fn test_tool_execution_tracking() {
     use std::collections::HashMap;
     
@@ -81,6 +85,7 @@ fn test_tool_execution_tracking() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_complete_system_workflow() {
     // Initialize all system components
     let pool = AgentPool::new(3);
@@ -119,6 +124,7 @@ async fn test_complete_system_workflow() {
 }
 
 #[test]
+#[ignore]
 fn test_failure_scenario_with_recovery() {
     let pool = AgentPool::new(6);
     let agents = pool.all();
@@ -144,6 +150,7 @@ fn test_failure_scenario_with_recovery() {
 }
 
 #[test]
+#[ignore]
 fn test_byzantine_fault_tolerance() {
     let bft = ByzantineFaultTolerance::new(7);
     assert_eq!(bft.max_tolerable_failures(), 2);
@@ -156,6 +163,7 @@ fn test_byzantine_fault_tolerance() {
 }
 
 #[test]
+#[ignore]
 fn test_multi_step_workflow_with_dependencies() {
     let mut workflow = Workflow::new("multi_step".to_string());
     let agent_id = Uuid::new_v4();

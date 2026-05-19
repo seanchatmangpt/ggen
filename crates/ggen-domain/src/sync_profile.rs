@@ -1,4 +1,4 @@
-//! Sync profile enforcement for `ggen sync --profile` and `--locked`.
+//! Sync profile enforcement for `mcpp sync --profile` and `--locked`.
 //!
 //! Known enforcement profiles control pre-flight checks before the sync
 //! pipeline runs.  The lockfile check is a real `Path::exists()` call —
@@ -6,7 +6,7 @@
 
 use std::str::FromStr;
 
-/// Known enforcement profiles for `ggen sync --profile <name>`.
+/// Known enforcement profiles for `mcpp sync --profile <name>`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SyncProfile {
     /// Strict enterprise governance: lockfile required, no unsigned packs.
@@ -43,7 +43,7 @@ impl SyncProfile {
         }
     }
 
-    /// Returns `true` when this profile requires a `.ggen/packs.lock` file to
+    /// Returns `true` when this profile requires a `.mcpp/packs.lock` file to
     /// exist before sync may proceed.
     pub fn requires_lockfile(&self) -> bool {
         matches!(self, Self::EnterpriseStrict)
@@ -55,7 +55,7 @@ impl SyncProfile {
     }
 }
 
-/// Pre-flight check executed before `ggen sync` runs.
+/// Pre-flight check executed before `mcpp sync` runs.
 ///
 /// Returns `Ok(())` when all profile requirements are satisfied, or an
 /// `Err(String)` with a human-readable explanation when they are not.
@@ -63,7 +63,7 @@ impl SyncProfile {
 /// # Arguments
 /// * `profile`        – Optional profile name from `--profile <name>`.
 /// * `locked`         – Whether `--locked` was passed on the CLI.
-/// * `workspace_root` – The working directory used to resolve `.ggen/packs.lock`.
+/// * `workspace_root` – The working directory used to resolve `.mcpp/packs.lock`.
 pub fn validate_sync_preconditions(
     profile: Option<&str>, locked: bool, workspace_root: &std::path::Path,
 ) -> Result<(), String> {
@@ -72,11 +72,11 @@ pub fn validate_sync_preconditions(
         None => {
             // No profile — only enforce --locked if it was explicitly requested.
             if locked {
-                let lockfile = workspace_root.join(".ggen").join("packs.lock");
+                let lockfile = workspace_root.join(".mcpp").join("packs.lock");
                 if !lockfile.exists() {
                     return Err(
-                        "Lockfile required (--locked) but .ggen/packs.lock not found. \
-                         Run `ggen packs add <pack>` first."
+                        "Lockfile required (--locked) but .mcpp/packs.lock not found. \
+                         Run `mcpp packs add <pack>` first."
                             .to_string(),
                     );
                 }
@@ -87,11 +87,11 @@ pub fn validate_sync_preconditions(
 
     // --locked or profile.requires_lockfile() both mandate the lockfile.
     if locked || profile.requires_lockfile() {
-        let lockfile = workspace_root.join(".ggen").join("packs.lock");
+        let lockfile = workspace_root.join(".mcpp").join("packs.lock");
         if !lockfile.exists() {
             return Err(format!(
-                "Lockfile required (profile='{}', --locked={}) but .ggen/packs.lock not found. \
-                 Run `ggen packs add <pack>` first.",
+                "Lockfile required (profile='{}', --locked={}) but .mcpp/packs.lock not found. \
+                 Run `mcpp packs add <pack>` first.",
                 profile.as_str(),
                 locked
             ));
@@ -183,9 +183,9 @@ mod tests {
     #[test]
     fn locked_flag_with_lockfile_passes() {
         let dir = TempDir::new().unwrap();
-        let ggen_dir = dir.path().join(".ggen");
-        fs::create_dir_all(&ggen_dir).unwrap();
-        fs::write(ggen_dir.join("packs.lock"), "{}").unwrap();
+        let mcpp_dir = dir.path().join(".mcpp");
+        fs::create_dir_all(&mcpp_dir).unwrap();
+        fs::write(mcpp_dir.join("packs.lock"), "{}").unwrap();
 
         assert!(validate_sync_preconditions(None, true, dir.path()).is_ok());
     }
@@ -202,9 +202,9 @@ mod tests {
     #[test]
     fn enterprise_strict_with_lockfile_passes() {
         let dir = TempDir::new().unwrap();
-        let ggen_dir = dir.path().join(".ggen");
-        fs::create_dir_all(&ggen_dir).unwrap();
-        fs::write(ggen_dir.join("packs.lock"), "{}").unwrap();
+        let mcpp_dir = dir.path().join(".mcpp");
+        fs::create_dir_all(&mcpp_dir).unwrap();
+        fs::write(mcpp_dir.join("packs.lock"), "{}").unwrap();
 
         assert!(validate_sync_preconditions(Some("enterprise-strict"), false, dir.path()).is_ok());
     }

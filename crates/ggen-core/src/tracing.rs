@@ -30,7 +30,7 @@
 //! ```rust,no_run
 //! use ggen_core::tracing::init_tracing;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! init_tracing()?;
 //! # Ok(())
 //! # }
@@ -82,7 +82,7 @@ use tracing::{debug, error, info, warn};
 ///
 /// Returns an error if tracing subscriber initialization fails (e.g., if
 /// already initialized).
-pub fn init_tracing() -> ggen_utils::error::Result<()> {
+pub fn init_tracing() -> crate::utils::error::Result<()> {
     use tracing_subscriber::EnvFilter;
 
     let env_filter =
@@ -91,7 +91,7 @@ pub fn init_tracing() -> ggen_utils::error::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(env_filter)
         .try_init()
-        .map_err(|e| ggen_utils::error::Error::with_source("Failed to initialize tracing", e))?;
+        .map_err(|e| crate::utils::error::Error::with_source("Failed to initialize tracing", e))?;
 
     Ok(())
 }
@@ -230,7 +230,7 @@ impl PipelineTracer {
     }
 
     /// Log error with context
-    pub fn error_with_context(error: &ggen_utils::error::Error, context: &str) {
+    pub fn error_with_context(error: &crate::utils::error::Error, context: &str) {
         error!(
             error = %error,
             context = context,
@@ -373,7 +373,7 @@ mod tests {
 
         PipelineTracer::performance_metric("test_op", 50);
 
-        let error = ggen_utils::error::Error::new("Test error");
+        let error = crate::utils::error::Error::new("Test error");
         PipelineTracer::error_with_context(&error, "test context");
 
         PipelineTracer::warning("Test warning", Some("test context"));

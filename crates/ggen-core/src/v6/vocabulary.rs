@@ -3,7 +3,7 @@
 //! Implements the vocabulary governance rule: "Existing ontology first".
 //! Custom terms are disallowed unless a proof-of-insufficiency exists.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 

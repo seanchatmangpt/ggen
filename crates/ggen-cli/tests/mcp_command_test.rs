@@ -12,7 +12,7 @@
 //! 5. Error handling scenarios
 //!
 //! **Note**: These tests validate the MCP generation infrastructure.
-//! Actual CLI command tests would require the `ggen mcp generate` command
+//! Actual CLI command tests would require the `mcpp mcp generate` command
 //! to be implemented in the CLI layer.
 
 use std::fs;
@@ -24,10 +24,10 @@ use tera::{Context, Tera};
 // Test Utilities
 // =========================================================================
 
-/// Create a minimal Tera instance with all ggen templates registered
+/// Create a minimal Tera instance with all mcpp templates registered
 fn create_tera() -> Tera {
     let mut tera_instance = Tera::default();
-    ggen_core::register::register_all(&mut tera_instance);
+    mcpp_core::register::register_all(&mut tera_instance);
     tera_instance
 }
 
@@ -51,7 +51,7 @@ fn write_file(
 /// Create a minimal MCP server ontology for testing
 fn create_minimal_ontology(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     let ontology = r#"
-@prefix mcp:  <https://ggen.io/examples/mcp#> .
+@prefix mcp:  <https://mcpp.io/examples/mcp#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .

@@ -16,7 +16,7 @@
 //! ```rust,no_run
 //! use ggen_core::project_generator::common::validate_project_name;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! // Valid names
 //! validate_project_name("my-project")?;
 //! validate_project_name("my_project")?;
@@ -38,7 +38,7 @@
 //! let prettierrc = generate_prettierrc();
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// Validates project name

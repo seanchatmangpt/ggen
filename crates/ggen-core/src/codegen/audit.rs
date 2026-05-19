@@ -3,7 +3,7 @@
 //! Creates comprehensive audit records of generation pipeline execution,
 //! enabling verification that the same inputs produce identical outputs.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;

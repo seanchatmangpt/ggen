@@ -7,7 +7,7 @@
 // cryptographic verification, caching, and pack extraction support.
 // This module only provides type definitions for compatibility.
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -34,6 +34,6 @@ pub async fn install_pack(
     _pack_id: &str, _version: Option<&str>, _project_dir: &std::path::Path, _force: bool,
 ) -> Result<PackInstallResult> {
     // This is a stub. The real installer is in ggen-marketplace.
-    // Use `ggen_marketplace::install::Installer` instead.
-    ggen_utils::bail!("install_pack is a stub. Use ggen_marketplace::install::Installer instead.")
+    // Use `crate::marketplace::install::Installer` instead.
+    crate::utils::bail!("install_pack is a stub. Use crate::marketplace::install::Installer instead.")
 }

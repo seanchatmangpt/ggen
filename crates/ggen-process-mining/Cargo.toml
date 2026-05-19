@@ -1,12 +1,12 @@
 [package]
-name = "ggen-process-mining"
-version = "6.1.0"
+name = "mcpp-process-mining"
+version = "26.5.4"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
 description = "Process mining integration with rust4pm for workflow analytics and conformance checking"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
+homepage = "https://github.com/seanchatmangpt/mcpp"
 keywords = ["process-mining", "yawl", "petri-net", "xes", "ocel"]
 categories = ["development-tools", "science"]
 
@@ -15,10 +15,10 @@ multiple_crate_versions = "allow"
 
 [dependencies]
 # Workspace dependencies
-ggen-utils = { path = "../ggen-utils", version = "6.1.0" }
-ggen-core = { path = "../ggen-core", version = "6.1.0" }
-ggen-yawl = { path = "../ggen-yawl", version = "6.1.0" }
-ggen-domain = { path = "../ggen-domain", version = "6.1.0" }
+mcpp-utils = { path = "../mcpp-utils", version = "26.5.4" }
+mcpp-core = { path = "../mcpp-core", version = "26.5.4" }
+mcpp-yawl = { path = "../mcpp-yawl", version = "26.5.4" }
+mcpp-domain = { path = "../mcpp-domain", version = "26.5.4" }
 
 tokio = { workspace = true, features = ["sync", "rt"] }
 serde = { workspace = true, features = ["derive"] }

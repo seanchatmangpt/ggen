@@ -1,7 +1,7 @@
 //! Capability-first CLI for governed pack composition
 //!
 //! Canonical form:
-//!   ggen capability enable mcp --projection rust --runtime axum --profile enterprise-strict
+//!   mcpp capability enable mcp --projection rust --runtime axum --profile enterprise-strict
 //!
 //! Underlying model: expands to atomic packs, creates composition receipt
 
@@ -14,7 +14,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use crate::runtime::block_on;
-use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 
 // ============================================================================
 // Output Types
@@ -27,7 +27,7 @@ struct CapabilityEnableOutput {
     runtime: Option<String>,
     profile: Option<String>,
     atomic_packs: Vec<String>,
-    /// `ggen packs add <pack_id>` commands for each resolved pack
+    /// `mcpp packs add <pack_id>` commands for each resolved pack
     install_commands: Vec<String>,
     status: String,
     message: String,
@@ -125,7 +125,7 @@ fn update_lockfile(lockfile_path: &std::path::Path, atomic_packs: &[String]) -> 
         let locked_pack = LockedPack {
             version: "1.0.0".to_string(),
             source: PackSource::Registry {
-                url: "https://registry.ggen.io".to_string(),
+                url: "https://registry.mcpp.io".to_string(),
             },
             integrity: None,
             installed_at: chrono::Utc::now(),
@@ -191,7 +191,7 @@ fn run_capability_enable(
     }
 
     // Persist to lockfile
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
     update_lockfile(&lockfile_path, &atomic_packs).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to update lockfile: {}", e))
     })?;
@@ -205,8 +205,8 @@ fn run_capability_enable(
             e
         ))
     })?;
-    let ggen_dir = project_root.join(".ggen");
-    let mut receipt_manager = ReceiptManager::new(ggen_dir).map_err(|e| {
+    let mcpp_dir = project_root.join(".mcpp");
+    let mut receipt_manager = ReceiptManager::new(mcpp_dir).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
             "Failed to create receipt manager: {}",
             e
@@ -235,7 +235,7 @@ fn run_capability_enable(
     // Build install commands so callers know exactly how to materialise each pack
     let install_commands: Vec<String> = atomic_packs
         .iter()
-        .map(|pack_id| format!("ggen packs add {}", pack_id))
+        .map(|pack_id| format!("mcpp packs add {}", pack_id))
         .collect();
 
     Ok(CapabilityEnableOutput {
@@ -258,7 +258,7 @@ fn run_capability_enable(
 /// Disable a capability and remove its atomic packs
 #[verb]
 fn disable(capability: String) -> VerbResult<serde_json::Value> {
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     if !lockfile_path.exists() {
         return Ok(serde_json::json!({
@@ -369,7 +369,7 @@ fn inspect_pack_details(
 ) -> VerbResult<(Vec<String>, Vec<String>, Vec<String>)> {
     use std::fs;
 
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
     let mut dependencies = vec![];
     let mut templates = vec![];
     let mut queries = vec![];
@@ -385,8 +385,8 @@ fn inspect_pack_details(
     let cache_base = std::env::var("GGEN_PACK_CACHE_DIR")
         .ok()
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     for pack_id in atomic_packs {
         if let Some(locked_pack) = lockfile.get_pack(pack_id) {
@@ -547,7 +547,7 @@ fn trust(verbose: bool) -> VerbResult<CapabilityTrustOutput> {
 fn conflicts(verbose: bool) -> VerbResult<CapabilityConflictsOutput> {
     println!("Checking for conflicts across all capabilities...");
 
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
 
     if !lockfile_path.exists() {
         println!("No lockfile found - no packs to check for conflicts");
@@ -617,8 +617,8 @@ fn detect_all_conflicts(
     let cache_dir = std::env::var("GGEN_PACK_CACHE_DIR")
         .ok()
         .map(PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     // Dimension 1: File path conflicts
     all_conflicts.extend(detect_file_conflicts(pack_ids, &cache_dir)?);
@@ -856,13 +856,13 @@ fn has_cycle(
 
 /// Resolve capability to atomic packs using the domain capability registry.
 ///
-/// Delegates to `ggen_domain::packs::capability_registry::resolve_capability_to_packs`
+/// Delegates to `mcpp_domain::packs::capability_registry::resolve_capability_to_packs`
 /// which maps (surface, projection, runtime) to real marketplace pack IDs and
 /// validates their existence against the local pack metadata store.
 async fn resolve_capability(
     surface: &str, projection: &Option<String>, runtime: &Option<String>,
 ) -> Result<Vec<String>, String> {
-    ggen_domain::packs::capability_registry::resolve_capability_to_packs(
+    mcpp_domain::packs::capability_registry::resolve_capability_to_packs(
         surface,
         projection.as_deref(),
         runtime.as_deref(),

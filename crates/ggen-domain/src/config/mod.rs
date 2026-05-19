@@ -1,7 +1,7 @@
-//! Configuration module for ggen.toml
+//! Configuration module for mcpp.toml
 //!
 //! This module provides configuration loading and validation for the main
-//! ggen.toml configuration file with environment override support.
+//! mcpp.toml configuration file with environment override support.
 
 pub mod loader;
 pub mod validation;

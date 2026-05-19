@@ -22,7 +22,7 @@
 //! ```
 
 use crate::manifest::GgenManifest;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::Path;
 
 /// DMAIC phases for Lean Six Sigma process improvement

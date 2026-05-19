@@ -238,7 +238,7 @@ compare_bytes(<<A:8, RestA/binary>>, <<B:8, RestB/binary>>, Diff) ->
 
 Run all tests:
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+cd ./tai-erlang-autonomics/pricing-engine
 rebar3 eunit --module=ac_eval_mode_tests
 ```
 
@@ -263,7 +263,7 @@ No locks or contention (process dictionary is thread-local).
 ## File Manifest
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/
+./tai-erlang-autonomics/pricing-engine/
 
 src/
 └── ac_eval_mode.erl                    (380 LOC - production module)

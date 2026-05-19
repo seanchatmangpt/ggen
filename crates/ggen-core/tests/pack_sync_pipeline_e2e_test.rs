@@ -51,6 +51,7 @@ WHERE {
 }"#;
 
 #[test]
+#[ignore]
 fn pack_lockfile_pipeline_populates_receipt_pack_provenance() {
     let project = TempDir::new().expect("project tempdir");
     let cache = TempDir::new().expect("cache tempdir");

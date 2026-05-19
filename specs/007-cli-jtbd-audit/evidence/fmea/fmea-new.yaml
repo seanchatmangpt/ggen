@@ -1,4 +1,4 @@
-command: "ggen fmea new"
+command: "mcpp fmea new"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to create a Failure Mode Effects Analysis,
-  I need to run 'ggen fmea new' with system specification,
+  I need to run 'mcpp fmea new' with system specification,
   so that I can analyze potential failure modes.

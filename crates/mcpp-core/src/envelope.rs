@@ -1,6 +1,6 @@
 //! `chatmangpt.sr.result.v1` JSON envelope — promoted from
 //! `chatmangpt-mcpp-v2-cell::speckit-ralph::Envelope` per
-//! `portfolio-obl-0002-promote-v2-constraints-into-canonical-ggen-mcpp`.
+//! `portfolio-obl-0002-promote-v2-constraints-into-canonical-mcpp-mcpp`.
 //!
 //! Every MCPP CLI command emits one of these to stdout. JSON is the
 //! authoritative output; pretty-printed forms are non-authoritative.
@@ -79,14 +79,14 @@ mod tests {
 
     #[test]
     fn envelope_default_status_is_pass() {
-        let e = Envelope::new("mcpp.smoke", "ggen-mcpp");
+        let e = Envelope::new("mcpp.smoke", "mcpp-mcpp");
         assert_eq!(e.schema, SR_RESULT_SCHEMA);
         assert_eq!(e.status, status::PASS);
     }
 
     #[test]
     fn envelope_serializes_to_json_with_required_fields() {
-        let e = Envelope::new("mcpp.smoke", "ggen-mcpp");
+        let e = Envelope::new("mcpp.smoke", "mcpp-mcpp");
         let line = e.to_json_line();
         let parsed: Value = serde_json::from_str(&line).expect("parse json");
         for k in [
@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn fail_records_error_and_failure_class() {
-        let e = Envelope::new("mcpp.smoke", "ggen-mcpp").fail("boom", "RECEIPT_DEFECT");
+        let e = Envelope::new("mcpp.smoke", "mcpp-mcpp").fail("boom", "RECEIPT_DEFECT");
         assert_eq!(e.status, status::FAIL);
         assert_eq!(e.errors.len(), 1);
         assert_eq!(e.errors[0]["failure_class"], json!("RECEIPT_DEFECT"));

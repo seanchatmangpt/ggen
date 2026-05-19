@@ -59,7 +59,7 @@ fn test_pipeline_tracer_spans() {
 
     PipelineTracer::performance_metric("test_op", 50);
 
-    let error = ggen_utils::error::Error::new("Test error");
+    let error = crate::utils::error::Error::new("Test error");
     PipelineTracer::error_with_context(&error, "test context");
 
     PipelineTracer::warning("Test warning", Some("test context"));

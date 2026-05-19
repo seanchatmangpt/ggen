@@ -5,7 +5,7 @@
 
 use crate::packs::types::Pack;
 use async_trait::async_trait;
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::PathBuf;
 
 /// Repository trait for pack storage operations
@@ -62,7 +62,7 @@ impl FileSystemRepository {
             PathBuf::from("../../marketplace/packs"),
             dirs::home_dir()
                 .unwrap_or_else(|| PathBuf::from("."))
-                .join(".ggen/packs"),
+                .join(".mcpp/packs"),
         ];
 
         for path in possible_paths {
@@ -73,7 +73,7 @@ impl FileSystemRepository {
         }
 
         Err(Error::new(
-            "Packs directory not found. Expected marketplace/packs/ or ~/.ggen/packs/",
+            "Packs directory not found. Expected marketplace/packs/ or ~/.mcpp/packs/",
         ))
     }
 

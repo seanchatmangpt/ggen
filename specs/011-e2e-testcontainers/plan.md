@@ -5,16 +5,16 @@
 
 ## Summary
 
-Implement cross-platform E2E testing for `ggen sync` using testcontainers-rs for Linux container testing and native execution for macOS. Tests verify byte-for-byte identical output across platforms, validate Homebrew installation path, and ensure all example projects (thesis-gen) work correctly with golden file comparison.
+Implement cross-platform E2E testing for `mcpp sync` using testcontainers-rs for Linux container testing and native execution for macOS. Tests verify byte-for-byte identical output across platforms, validate Homebrew installation path, and ensure all example projects (thesis-gen) work correctly with golden file comparison.
 
 ## Technical Context
 
-**Language/Version**: Rust 1.75+ (edition 2021) - existing ggen v4.0.0 workspace
+**Language/Version**: Rust 1.75+ (edition 2021) - existing mcpp v4.0.0 workspace
 **Primary Dependencies**: testcontainers 0.25 (already in dev-deps), testcontainers-modules 0.13, assert_cmd 2.0, clnrm 0.1.0
 **Storage**: File system (golden files, test fixtures, generated output)
 **Testing**: cargo make test with #[ignore] for E2E tests requiring Docker
 **Target Platform**: linux-x86_64, darwin-x86_64, darwin-arm64
-**Project Type**: New crate `ggen-e2e` in workspace + GitHub Actions workflows
+**Project Type**: New crate `mcpp-e2e` in workspace + GitHub Actions workflows
 **Performance Goals**: <10 min full E2E suite, <2 min per test case
 **Constraints**: Docker required for Linux testing, GitHub Actions macOS runners for darwin testing
 **Scale/Scope**: 5+ test scenarios, 3 platforms, 2+ example projects validated
@@ -23,9 +23,9 @@ Implement cross-platform E2E testing for `ggen sync` using testcontainers-rs for
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.md`):
+Verify compliance with mcpp Constitution v1.0.0 (`.specify/memory/constitution.md`):
 
-- [x] **I. Crate-First Architecture**: New `ggen-e2e` crate with clear scope (E2E testing only). Self-contained, independently runnable.
+- [x] **I. Crate-First Architecture**: New `mcpp-e2e` crate with clear scope (E2E testing only). Self-contained, independently runnable.
 - [x] **II. Deterministic RDF Projections**: Tests VERIFY determinism by comparing outputs across platforms. Same ontology → same output is the core assertion.
 - [x] **III. Chicago TDD**: State-based testing - verify generated files match golden files. Real Docker containers, real file systems.
 - [x] **IV. cargo make Protocol**: New targets `cargo make test-e2e`, `cargo make test-e2e-linux`, `cargo make test-e2e-macos` with timeouts.
@@ -55,7 +55,7 @@ specs/011-e2e-testcontainers/
 ### Source Code (repository root)
 
 ```text
-crates/ggen-e2e/
+crates/mcpp-e2e/
 ├── Cargo.toml                    # Crate manifest
 ├── src/
 │   ├── lib.rs                    # Public API
@@ -76,7 +76,7 @@ tests/e2e/
 │   ├── thesis-gen/               # Expected thesis-gen output
 │   └── README.md                 # Golden file maintenance guide
 └── fixtures/
-    ├── minimal-project/          # Minimal ggen project for quick tests
+    ├── minimal-project/          # Minimal mcpp project for quick tests
     └── thesis-gen-sample/        # Subset of thesis-gen for E2E
 
 .github/workflows/
@@ -85,7 +85,7 @@ tests/e2e/
 └── e2e-cross-platform.yml        # Cross-platform comparison on release
 ```
 
-**Structure Decision**: New `crates/ggen-e2e/` crate following crate-first architecture. E2E tests isolated from unit tests. Golden files in `tests/e2e/golden/` for version control. GitHub Actions workflows for CI integration.
+**Structure Decision**: New `crates/mcpp-e2e/` crate following crate-first architecture. E2E tests isolated from unit tests. Golden files in `tests/e2e/golden/` for version control. GitHub Actions workflows for CI integration.
 
 ## Complexity Tracking
 
@@ -127,7 +127,7 @@ Run `/speckit.tasks` to generate actionable task breakdown.
 
 *Re-verified after Phase 1 design completion:*
 
-- [x] **I. Crate-First**: New `ggen-e2e` crate with clear module boundaries ✓
+- [x] **I. Crate-First**: New `mcpp-e2e` crate with clear module boundaries ✓
 - [x] **II. Deterministic**: CrossPlatformComparison entity enforces byte-for-byte match ✓
 - [x] **III. Chicago TDD**: State-based testing via golden files, real containers ✓
 - [x] **IV. cargo make**: New targets defined (test-e2e, test-e2e-linux, test-e2e-macos) ✓

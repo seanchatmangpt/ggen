@@ -19,7 +19,7 @@
 
 // Note: Replacing custom test!() macro with standard #[test] attribute
 // use chicago_tdd_tools::test;
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::prelude::*;
 
 // Import common test utilities
 #[path = "../common/mod.rs"]

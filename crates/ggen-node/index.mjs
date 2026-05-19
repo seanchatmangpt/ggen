@@ -1,7 +1,7 @@
 /**
- * Production-grade Node.js N-API bindings for ggen CLI
+ * Production-grade Node.js N-API bindings for mcpp CLI
  *
- * This module provides high-performance, type-safe bindings to the ggen CLI
+ * This module provides high-performance, type-safe bindings to the mcpp CLI
  * for use in Node.js and browser environments via WASM.
  *
  * @packageDocumentation
@@ -18,14 +18,14 @@ const addon = require('./index.node');
  */
 
 /**
- * Get the ggen version (matches crate version)
+ * Get the mcpp version (matches crate version)
  *
  * @returns {string} Semantic version string (e.g., "3.4.0")
  *
  * @example
  * ```javascript
- * import { version } from '@ggen/node';
- * console.log('ggen version:', version());
+ * import { version } from '@mcpp/node';
+ * console.log('mcpp version:', version());
  * ```
  */
 export function version() {
@@ -36,7 +36,7 @@ export function version() {
  * Low-level entrypoint to invoke the CLI.
  * Prefer higher-level wrapper functions for better ergonomics.
  *
- * @param {string[]} args - Command-line arguments (without the 'ggen' binary name)
+ * @param {string[]} args - Command-line arguments (without the 'mcpp' binary name)
  * @returns {Promise<RunResult>} Result containing exit code and captured stdout/stderr
  *
  * @example
@@ -278,7 +278,7 @@ export async function projectWatch(projectPath) {
 }
 
 /**
- * Initialize project with ggen configuration
+ * Initialize project with mcpp configuration
  *
  * @param {string} [projectPath] - Path to project (defaults to current directory)
  * @returns {Promise<RunResult>} Initialization result

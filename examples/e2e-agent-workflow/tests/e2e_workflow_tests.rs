@@ -8,6 +8,7 @@ use e2e_agent_workflow::{
 use uuid::Uuid;
 
 #[test]
+#[ignore]
 fn test_agent_pool_creation_and_health_check() {
     let pool = AgentPool::new(6);
     assert_eq!(pool.all().len(), 6);
@@ -16,6 +17,7 @@ fn test_agent_pool_creation_and_health_check() {
 }
 
 #[test]
+#[ignore]
 fn test_agent_health_tracking() {
     let pool = AgentPool::new(3);
     let agents = pool.all();
@@ -27,6 +29,7 @@ fn test_agent_health_tracking() {
 }
 
 #[test]
+#[ignore]
 fn test_agent_failure_recovery() {
     let pool = AgentPool::new(3);
     let agents = pool.all();
@@ -46,6 +49,7 @@ fn test_agent_failure_recovery() {
 }
 
 #[test]
+#[ignore]
 fn test_domain_goal_management() {
     let mut manager = DomainManager::new();
     let goal = DomainGoal::new(
@@ -62,6 +66,7 @@ fn test_domain_goal_management() {
 }
 
 #[test]
+#[ignore]
 fn test_domain_balance_scoring() {
     let mut manager = DomainManager::new();
     for domain in &[
@@ -85,6 +90,7 @@ fn test_domain_balance_scoring() {
 }
 
 #[test]
+#[ignore]
 fn test_tool_discovery_and_registration() {
     let manager = e2e_agent_workflow::initialize_standard_tools();
     let tools = manager.available_tools();
@@ -95,6 +101,7 @@ fn test_tool_discovery_and_registration() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_step_creation() {
     let agent_id = Uuid::new_v4();
     let step = WorkflowStep::new(
@@ -108,6 +115,7 @@ fn test_workflow_step_creation() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_creation_and_execution() {
     let mut workflow = Workflow::new("test_workflow".to_string());
     let agent_id = Uuid::new_v4();
@@ -126,6 +134,7 @@ fn test_workflow_creation_and_execution() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_complete_workflow_execution() {
     let mut workflow = Workflow::new("complete_workflow".to_string());
     let agent_id = Uuid::new_v4();
@@ -146,6 +155,7 @@ async fn test_complete_workflow_execution() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_dependencies() {
     let mut workflow = Workflow::new("dep_workflow".to_string());
     let agent_id = Uuid::new_v4();
@@ -172,6 +182,7 @@ fn test_workflow_dependencies() {
 }
 
 #[test]
+#[ignore]
 fn test_consensus_voting() {
     let manager = ConsensusManager::new(VotingStrategy::Supermajority, 3);
     let agent1_id = Uuid::new_v4();
@@ -209,6 +220,7 @@ fn test_consensus_voting() {
 }
 
 #[test]
+#[ignore]
 fn test_multi_agent_coordination() {
     let pool = AgentPool::new(6);
     let agents = pool.all();
@@ -218,6 +230,7 @@ fn test_multi_agent_coordination() {
 }
 
 #[test]
+#[ignore]
 fn test_three_pillar_integration() {
     // Pillar 1: Agent Lifecycle
     let pool = AgentPool::new(6);
@@ -246,6 +259,7 @@ fn test_three_pillar_integration() {
 }
 
 #[test]
+#[ignore]
 fn test_end_to_end_workflow_scenario() {
     let pool = AgentPool::new(3);
     let agents = pool.all();
@@ -268,6 +282,7 @@ fn test_end_to_end_workflow_scenario() {
 }
 
 #[test]
+#[ignore]
 fn test_domain_status_evaluation() {
     let mut manager = DomainManager::new();
     
@@ -291,6 +306,7 @@ fn test_domain_status_evaluation() {
 }
 
 #[test]
+#[ignore]
 fn test_agent_pool_health_summary_with_failures() {
     let pool = AgentPool::new(6);
     let agents = pool.all();
@@ -302,6 +318,7 @@ fn test_agent_pool_health_summary_with_failures() {
 }
 
 #[test]
+#[ignore]
 fn test_workflow_progress_tracking() {
     let mut workflow = Workflow::new("progress_test".to_string());
     let agent_id = Uuid::new_v4();

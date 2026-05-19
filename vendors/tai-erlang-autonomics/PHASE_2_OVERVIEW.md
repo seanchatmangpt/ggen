@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-26
 **Status**: READY FOR EXECUTION
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/PHASE_2_PROJECT_PLAN.md` (2,213 lines)
+**Location**: `./tai-erlang-autonomics/PHASE_2_PROJECT_PLAN.md` (2,213 lines)
 
 ---
 
@@ -279,9 +279,9 @@ Phase 3: 3-customer production scaling (Weeks 6-13)
 
 ## File Location
 
-**Full Plan**: `/Users/sac/ggen/tai-erlang-autonomics/PHASE_2_PROJECT_PLAN.md` (2,213 lines)
+**Full Plan**: `./tai-erlang-autonomics/PHASE_2_PROJECT_PLAN.md` (2,213 lines)
 
-**Quick Reference** (this file): `/Users/sac/ggen/tai-erlang-autonomics/PHASE_2_OVERVIEW.md`
+**Quick Reference** (this file): `./tai-erlang-autonomics/PHASE_2_OVERVIEW.md`
 
 ---
 

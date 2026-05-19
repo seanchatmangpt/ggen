@@ -21,7 +21,7 @@ pub async fn validate_closure(spec_dir: &str, min_percentage: f32) -> Result<()>
     }
 
     // Check for required TTL files
-    let required_files = vec!["cli-schema.ttl", "cli-commands.ttl", "ggen-paas-ontology.ttl"];
+    let required_files = vec!["cli-schema.ttl", "cli-commands.ttl", "mcpp-paas-ontology.ttl"];
 
     let mut found = 0;
     for file in &required_files {

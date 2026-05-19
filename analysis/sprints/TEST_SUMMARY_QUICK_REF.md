@@ -17,16 +17,16 @@
 
 ## Top 10 Crates by Test Count
 
-1. **ggen-dspy** - 1,024 tests ✅
-2. **ggen-core** - 684 tests ✅
-3. **ggen-testing** - 406 tests ✅
-4. **ggen-domain** - 134 tests ✅
-5. **ggen-cli-validation** - 119 tests ✅
-6. **ggen-config-clap** - 99 tests ✅
-7. **ggen-cli-tps** - 93 tests ✅
-8. **ggen-codegen** - 82 tests ✅
-9. **ggen-tps-andon** - 77 tests ✅
-10. **ggen-a2a-mcp** - 68 tests ✅
+1. **mcpp-dspy** - 1,024 tests ✅
+2. **mcpp-core** - 684 tests ✅
+3. **mcpp-testing** - 406 tests ✅
+4. **mcpp-domain** - 134 tests ✅
+5. **mcpp-cli-validation** - 119 tests ✅
+6. **mcpp-config-clap** - 99 tests ✅
+7. **mcpp-cli-tps** - 93 tests ✅
+8. **mcpp-codegen** - 82 tests ✅
+9. **mcpp-tps-andon** - 77 tests ✅
+10. **mcpp-a2a-mcp** - 68 tests ✅
 
 ## Chicago TDD Compliance
 
@@ -43,17 +43,17 @@
 | Slowest Crate | 6.62s | ≤15s | ✅ |
 
 **Slowest Crates:**
-1. ggen-codegen - 6.62s
-2. ggen-transport - 6.11s
-3. ggen-yawl - 5.49s
+1. mcpp-codegen - 6.62s
+2. mcpp-transport - 6.11s
+3. mcpp-yawl - 5.49s
 
 ## Integration Test Coverage
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
-| ggen-e2e | 50 | ✅ |
-| ggen-integration | 65 | ✅ |
-| ggen-cli-validation | 119 | ✅ |
+| mcpp-e2e | 50 | ✅ |
+| mcpp-integration | 65 | ✅ |
+| mcpp-cli-validation | 119 | ✅ |
 | MCP/A2A Integration | 68 | ✅ |
 | Marketplace | 24 | ✅ |
 | TPS Andon | 77 | ✅ |
@@ -81,5 +81,5 @@ All critical success factors met:
 
 ---
 
-**Full Report:** `/Users/sac/ggen/FINAL_VALIDATION_REPORT.md`
+**Full Report:** `~/.ggen/mcpp/FINAL_VALIDATION_REPORT.md`
 **Test Output:** `/tmp/full_test_output.txt` (279KB)

@@ -3,7 +3,7 @@
 //! This module contains business logic extracted from CLI functions
 //! to maintain separation of concerns and keep CLI complexity low.
 
-use ggen_utils::error::{Error, Result};
+use mcpp_utils::error::{Error, Result};
 use std::path::PathBuf;
 
 /// Result type for schema validation
@@ -26,13 +26,13 @@ pub struct ProjectCreationResult {
 pub async fn generate_language_output(
     schema_path: &PathBuf, language: &str, output: Option<&str>, zod: bool, utilities: bool,
 ) -> Result<(usize, String, String)> {
-    use ggen_core::codegen::TypeScriptGenerator;
+    use mcpp_core::codegen::TypeScriptGenerator;
 
     // Read schema
     let schema_content = std::fs::read_to_string(schema_path)
         .map_err(|e| Error::new(&format!("Failed to read schema: {}", e)))?;
 
-    let schema: ggen_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
+    let schema: mcpp_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
         .map_err(|e| Error::new(&format!("Invalid schema JSON: {}", e)))?;
 
     // Create output directory
@@ -91,7 +91,7 @@ pub async fn validate_schema_quality(
     let schema_content = std::fs::read_to_string(schema_path)
         .map_err(|e| Error::new(&format!("Failed to read schema: {}", e)))?;
 
-    let schema: ggen_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
+    let schema: mcpp_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
         .map_err(|e| Error::new(&format!("Invalid schema JSON: {}", e)))?;
 
     let mut warnings = Vec::new();
@@ -114,7 +114,7 @@ pub async fn validate_schema_quality(
     // Check for circular references in strict mode
     if strict {
         for prop in &schema.properties {
-            if let ggen_core::ontology::PropertyRange::Reference(ref_class) = &prop.range {
+            if let mcpp_core::ontology::PropertyRange::Reference(ref_class) = &prop.range {
                 // Check if reference exists
                 if !schema.classes.iter().any(|c| &c.uri == ref_class) {
                     errors.push(format!(
@@ -158,7 +158,7 @@ pub async fn create_ontology_project(
 
     // Create package.json
     let package_json = format!(
-        r#"{{\n  "name": "{}",\n  "version": "1.0.0",\n  "description": "Ontology-driven code generation project",\n  "type": "module",\n  "scripts": {{\n    "extract": "ggen ontology extract ontologies/schema.ttl --output schema.json",\n    "generate": "ggen ontology generate schema.json --language typescript --zod --utilities",\n    "validate": "ggen ontology validate schema.json --strict"\n  }},\n  "dependencies": {{\n    "zod": "^3.0.0"\n  }},\n  "devDependencies": {{\n    "typescript": "^5.0.0"\n  }}\n}}\n"#,
+        r#"{{\n  "name": "{}",\n  "version": "1.0.0",\n  "description": "Ontology-driven code generation project",\n  "type": "module",\n  "scripts": {{\n    "extract": "mcpp ontology extract ontologies/schema.ttl --output schema.json",\n    "generate": "mcpp ontology generate schema.json --language typescript --zod --utilities",\n    "validate": "mcpp ontology validate schema.json --strict"\n  }},\n  "dependencies": {{\n    "zod": "^3.0.0"\n  }},\n  "devDependencies": {{\n    "typescript": "^5.0.0"\n  }}\n}}\n"#,
         proj_name
     );
     let pkg_path = proj_dir.join("package.json");
@@ -166,7 +166,7 @@ pub async fn create_ontology_project(
         .map_err(|e| Error::new(&format!("Failed to write package.json: {}", e)))?;
     generated_files.push("package.json".to_string());
 
-    // Create ggen.config.json
+    // Create mcpp.config.json
     let config = r#"{
   "ontologies": [
     "ontologies/schema.ttl"
@@ -181,10 +181,10 @@ pub async fn create_ontology_project(
   }
 }
 "#;
-    let config_path = proj_dir.join("ggen.config.json");
+    let config_path = proj_dir.join("mcpp.config.json");
     std::fs::write(&config_path, config)
         .map_err(|e| Error::new(&format!("Failed to write config: {}", e)))?;
-    generated_files.push("ggen.config.json".to_string());
+    generated_files.push("mcpp.config.json".to_string());
 
     // Create example ontology based on template
     let ontology_file = match template {
@@ -204,7 +204,7 @@ pub async fn create_ontology_project(
     let readme = format!(
         r#"# {} - Ontology Project
 
-Auto-generated ontology project using ggen.
+Auto-generated ontology project using mcpp.
 
 ## Quick Start
 
@@ -224,23 +224,23 @@ npm run validate
 - `ontologies/` - RDF/OWL ontology files (Turtle, RDF/XML, etc.)
 - `src/` - Source code and generated types
 - `generated/` - Generated artifacts (TypeScript, GraphQL, SQL, etc.)
-- `ggen.config.json` - Configuration for code generation
+- `mcpp.config.json` - Configuration for code generation
 
 ## Available Commands
 
 ### Extract Schema
 ```bash
-ggen ontology extract ontologies/schema.ttl [--namespace <uri>] [--output <file>]
+mcpp ontology extract ontologies/schema.ttl [--namespace <uri>] [--output <file>]
 ```
 
 ### Generate Code
 ```bash
-ggen ontology generate schema.json [--language typescript] [--zod] [--utilities]
+mcpp ontology generate schema.json [--language typescript] [--zod] [--utilities]
 ```
 
 ### Validate Quality
 ```bash
-ggen ontology validate schema.json [--strict]
+mcpp ontology validate schema.json [--strict]
 ```
 
 ## Supported Ontology Formats
@@ -275,7 +275,7 @@ This project includes example ontologies:
     generated_files.push("README.md".to_string());
 
     let ontology_file_path = proj_dir.join("ontologies").join(ontology_file);
-    let config_file_path = proj_dir.join("ggen.config.json");
+    let config_file_path = proj_dir.join("mcpp.config.json");
 
     Ok(ProjectCreationResult {
         ontology_file: ontology_file_path.to_string_lossy().to_string(),

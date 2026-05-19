@@ -223,7 +223,7 @@ Before starting, verify you have:
 
 ```bash
 # 1. Navigate to deployment directory
-cd /Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+cd ./tai-erlang-autonomics/execution/week-1-2/
 
 # 2. Read quick start guide (30 minutes)
 cat QUICK_START_GUIDE.md

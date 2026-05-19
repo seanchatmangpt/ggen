@@ -1,8 +1,8 @@
 [package]
-name = "ggen-a2a-mcp"
-version = "6.1.0"
+name = "mcpp-a2a-mcp"
+version = "26.5.4"
 edition = "2021"
-authors = ["ggen-team"]
+authors = ["mcpp-team"]
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 description = "Integration between A2A protocol and RMCP for ggen"
@@ -11,14 +11,14 @@ description = "Integration between A2A protocol and RMCP for ggen"
 # A2A generated types from our ontology
 a2a-generated = { path = "../a2a-generated" }
 
-# ggen-ai for LLM provider integration
-ggen-ai = { path = "../ggen-ai" }
+# mcpp-ai for LLM provider integration
+mcpp-ai = { path = "../mcpp-ai" }
 
-# ggen-core for code-generation pipeline
-ggen-core.workspace = true
+# mcpp-core for code-generation pipeline
+mcpp-core.workspace = true
 
-# ggen-domain for marketplace search
-ggen-domain.workspace = true
+# mcpp-domain for marketplace search
+mcpp-domain.workspace = true
 
 # Core dependencies
 tokio = { workspace = true }

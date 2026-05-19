@@ -58,7 +58,7 @@ where
 /// Uses consistent session/run IDs for all operations.
 pub fn log_operation(location: &str, message: &str, data: Value) {
     debug!(
-        target: "ggen::cli",
+        target: "mcpp::cli",
         "location={location} message={message} payload={}",
         data
     );

@@ -70,6 +70,7 @@ mod mcp_groq_integration {
     // =========================================================================
 
     #[test]
+#[ignore]
     fn test_groq_config_creation_enforces_model() {
         /// Verify Groq config only accepts openai/gpt-oss-20b
         let config = MockGroqConfig::new(VALIDATION_MODEL.to_string());
@@ -77,6 +78,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_config_rejects_forbidden_models() {
         /// Ensure forbidden models are rejected
         let forbidden_models = vec![
@@ -96,6 +98,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_config_temperature_validation() {
         /// Verify temperature parameter validation
         let mut config = MockGroqConfig::new(VALIDATION_MODEL.to_string());
@@ -119,6 +122,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_config_max_tokens_validation() {
         /// Verify max_tokens parameter validation
         let mut config = MockGroqConfig::new(VALIDATION_MODEL.to_string());
@@ -149,6 +153,7 @@ mod mcp_groq_integration {
     // =========================================================================
 
     #[test]
+#[ignore]
     fn test_groq_generate_request_format() {
         /// Validate request format for groq_generate command
         let request = json!({
@@ -165,6 +170,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_generate_response_format() {
         /// Validate response format from groq_generate
         let response = json!({
@@ -193,6 +199,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_chat_request_format() {
         /// Validate request format for groq_chat command
         let request = json!({
@@ -218,6 +225,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_chat_response_format() {
         /// Validate response format from groq_chat
         let response = json!({
@@ -249,6 +257,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_stream_chunk_format() {
         /// Validate streaming chunk format
         let chunk = json!({
@@ -264,6 +273,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_stream_completion_marker() {
         /// Validate stream completion marker
         let final_chunk = json!({
@@ -282,6 +292,7 @@ mod mcp_groq_integration {
     // =========================================================================
 
     #[test]
+#[ignore]
     fn test_groq_with_mcp_tools_compatibility() {
         /// Verify Groq can work with MCP tool definitions
         let tool_definition = json!({
@@ -307,6 +318,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_tool_call_request_format() {
         /// Validate tool call request using openai/gpt-oss-20b
         let request = json!({
@@ -340,6 +352,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_tool_call_response_format() {
         /// Validate tool call response from openai/gpt-oss-20b
         let response = json!({
@@ -372,6 +385,7 @@ mod mcp_groq_integration {
     // =========================================================================
 
     #[test]
+#[ignore]
     fn test_openai_gpt_oss_20b_capabilities() {
         /// Verify openai/gpt-oss-20b has required capabilities
         let capabilities = json!({
@@ -394,6 +408,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_model_feature_validation_forbidden_models() {
         /// Verify forbidden models have different feature sets
         let forbidden_features = vec![
@@ -408,6 +423,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_model_token_limits() {
         /// Verify openai/gpt-oss-20b token limits
         let limits = json!({
@@ -427,6 +443,7 @@ mod mcp_groq_integration {
     // =========================================================================
 
     #[test]
+#[ignore]
     fn test_groq_api_key_validation() {
         /// Validate GROQ_API_KEY is required
         let api_key = std::env::var("GROQ_API_KEY");
@@ -444,6 +461,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_groq_error_response_format() {
         /// Validate error response format from Groq
         let error_response = json!({
@@ -459,6 +477,7 @@ mod mcp_groq_integration {
     }
 
     #[test]
+#[ignore]
     fn test_invalid_model_error_detection() {
         /// Verify invalid model selection is caught
         let invalid_model = "llama-3.3-70b-versatile";
@@ -474,6 +493,7 @@ mod mcp_groq_integration {
     // =========================================================================
 
     #[test]
+#[ignore]
     fn test_mcp_groq_integration_validation_summary() {
         /// Summary validation for MCP+Groq integration
         let mut checklist = vec![

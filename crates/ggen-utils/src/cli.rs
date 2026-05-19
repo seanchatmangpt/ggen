@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 /// # Example
 ///
 /// ```
-/// # use ggen_utils::cli::parse_variables;
+/// # use ggen_core::utils::cli::parse_variables;
 /// let vars = vec!["name=value".to_string(), "count=42".to_string()];
 /// let result = parse_variables(&vars);
 /// assert!(result.is_ok());

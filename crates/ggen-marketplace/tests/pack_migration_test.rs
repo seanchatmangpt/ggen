@@ -5,8 +5,8 @@
 
 #![allow(missing_docs)]
 
-use ggen_marketplace::migration::{Migrator, UpgradeEdge};
-use ggen_marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
+use ggen_core::marketplace::migration::{Migrator, UpgradeEdge};
+use ggen_core::marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
 
 /// Helper to create a test package with specified version
 fn create_test_package(id: &str, version: &str) -> Package {

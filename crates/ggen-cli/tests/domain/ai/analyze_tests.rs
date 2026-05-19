@@ -1,4 +1,4 @@
-use ggen_cli_lib::domain::ai::*;
+use mcpp_cli_lib::domain::ai::*;
 
 #[tokio::test]
 async fn test_analyze_code_success() {

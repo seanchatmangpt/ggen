@@ -21,7 +21,7 @@ The audit framework infrastructure is now complete and ready for Phase 3 command
 
 ### Next Steps: Phase 3 (US1 - Command Functionality)
 
-**Goal**: Audit all 47+ ggen CLI commands for functional correctness
+**Goal**: Audit all 47+ mcpp CLI commands for functional correctness
 
 **Duration**: ~5 days (~10 commands/day)
 
@@ -40,9 +40,9 @@ The audit framework infrastructure is now complete and ready for Phase 3 command
 
 ```bash
 # For each command, create evidence/CATEGORY/COMMAND.yaml following this pattern:
-# 1. Run command help: ggen <cmd> --help
-# 2. Run happy path: ggen <cmd> <valid-args>
-# 3. Run error case: ggen <cmd> <invalid-args>
+# 1. Run command help: mcpp <cmd> --help
+# 2. Run happy path: mcpp <cmd> <valid-args>
+# 3. Run error case: mcpp <cmd> <invalid-args>
 # 4. Record results in YAML
 # 5. Score agent accessibility (0-100)
 # 6. Assign maturity level (L0-L5)
@@ -58,15 +58,15 @@ CATEGORY="template"
 SLUG="template-generate"
 
 # Test 1: Help works
-ggen $COMMAND --help > evidence/$CATEGORY/$SLUG-help.log 2>&1
+mcpp $COMMAND --help > evidence/$CATEGORY/$SLUG-help.log 2>&1
 HELP_EXIT=$?
 
 # Test 2: Happy path (requires sample template)
-ggen $COMMAND --template examples/simple.tmpl --output /tmp/test > evidence/$CATEGORY/$SLUG-happy.log 2>&1
+mcpp $COMMAND --template examples/simple.tmpl --output /tmp/test > evidence/$CATEGORY/$SLUG-happy.log 2>&1
 HAPPY_EXIT=$?
 
 # Test 3: Error handling (invalid input)
-ggen $COMMAND --template nonexistent.tmpl > evidence/$CATEGORY/$SLUG-error.log 2>&1
+mcpp $COMMAND --template nonexistent.tmpl > evidence/$CATEGORY/$SLUG-error.log 2>&1
 ERROR_EXIT=$?
 ```
 
@@ -170,7 +170,7 @@ recommendations:
 Use this template for each command audit:
 
 ```yaml
-command: "ggen CATEGORY SUBCOMMAND"
+command: "mcpp CATEGORY SUBCOMMAND"
 version_tested: "4.0.0"
 date: "YYYY-MM-DD"
 tester: "claude-code"
@@ -221,12 +221,12 @@ jtbd: |
 ## Phase 3 Checklist: Day 1 (Workflow + Utils)
 
 Commands to audit:
-- [ ] ggen workflow analyze
-- [ ] ggen workflow init
-- [ ] ggen workflow report
-- [ ] ggen workflow event
-- [ ] ggen workflow discover
-- [ ] ggen utils (all subcommands)
+- [ ] mcpp workflow analyze
+- [ ] mcpp workflow init
+- [ ] mcpp workflow report
+- [ ] mcpp workflow event
+- [ ] mcpp workflow discover
+- [ ] mcpp utils (all subcommands)
 
 **Target**: 6 audit YAML files in `evidence/workflow/` and `evidence/utils/`
 
@@ -246,7 +246,7 @@ Commands can be audited in parallel if they're in different categories:
 ```bash
 # Day 2: Audit all template commands in parallel
 for cmd in new list lint generate get show generate-tree regenerate; do
-  ggen template $cmd --help > evidence/template/template-$cmd-help.log 2>&1 &
+  mcpp template $cmd --help > evidence/template/template-$cmd-help.log 2>&1 &
 done
 wait
 ```
@@ -294,7 +294,7 @@ Use these as templates for consistency.
 
 ## Constitutional Alignment
 
-This audit maintains alignment with ggen Constitution principles:
+This audit maintains alignment with mcpp Constitution principles:
 
 - ✅ **II. Deterministic RDF Projections**: Audit structure is fixed and reproducible
 - ✅ **III. Chicago TDD**: State-based evaluation (command behavior verification)

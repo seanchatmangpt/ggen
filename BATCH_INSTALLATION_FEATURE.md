@@ -166,7 +166,7 @@ cargo test -p ggen-marketplace --test batch_install_test
 ## Files Modified/Created
 
 ### Modified
-- `/Users/sac/ggen/crates/ggen-marketplace/src/install.rs`
+- `./crates/ggen-marketplace/src/install.rs`
   - Added `ProgressCallback` type
   - Added `TransactionSnapshot` struct
   - Added `batch_resolve_dependencies()` method
@@ -176,7 +176,7 @@ cargo test -p ggen-marketplace --test batch_install_test
   - Added 6 unit tests
 
 ### Created
-- `/Users/sac/ggen/crates/ggen-marketplace/tests/batch_install_test.rs`
+- `./crates/ggen-marketplace/tests/batch_install_test.rs`
   - 9 comprehensive integration tests covering all batch operations
 
 ## Compliance Notes

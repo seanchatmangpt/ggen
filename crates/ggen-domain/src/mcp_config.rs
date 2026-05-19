@@ -9,7 +9,7 @@
 //! - Configuration validation with helpful error messages
 //! - Environment variable support (GGEN_MCP_*, GGEN_A2A_*)
 
-use ggen_utils::error::Error as GgenError;
+use mcpp_utils::error::Error as GgenError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
@@ -25,28 +25,28 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub const PROJECT_MCP_CONFIG: &str = ".mcp.json";
 
 /// Default user-level MCP configuration directory
-pub const USER_MCP_CONFIG_DIR: &str = ".ggen/mcp";
+pub const USER_MCP_CONFIG_DIR: &str = ".mcpp/mcp";
 
 /// Default user-level MCP configuration file
-pub const USER_MCP_CONFIG: &str = ".ggen/mcp/config.json";
+pub const USER_MCP_CONFIG: &str = ".mcpp/mcp/config.json";
 
 /// Default system-level MCP configuration file
-pub const SYSTEM_MCP_CONFIG: &str = "/etc/ggen/mcp.json";
+pub const SYSTEM_MCP_CONFIG: &str = "/etc/mcpp/mcp.json";
 
 /// Default project-level A2A configuration file
 pub const PROJECT_A2A_CONFIG: &str = "a2a.toml";
 
 /// Default user-level A2A configuration file
-pub const USER_A2A_CONFIG: &str = ".ggen/a2a.toml";
+pub const USER_A2A_CONFIG: &str = ".mcpp/a2a.toml";
 
 /// Default system-level A2A configuration file
-pub const SYSTEM_A2A_CONFIG: &str = "/etc/ggen/a2a.toml";
+pub const SYSTEM_A2A_CONFIG: &str = "/etc/mcpp/a2a.toml";
 
 /// PID file for running MCP server
-pub const MCP_SERVER_PID_FILE: &str = ".ggen/mcp/server.pid";
+pub const MCP_SERVER_PID_FILE: &str = ".mcpp/mcp/server.pid";
 
 /// Lock file for MCP server operations
-pub const MCP_SERVER_LOCK_FILE: &str = ".ggen/mcp/server.lock";
+pub const MCP_SERVER_LOCK_FILE: &str = ".mcpp/mcp/server.lock";
 
 // ============================================================================
 // MCP Server Configuration Types

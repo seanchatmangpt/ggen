@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Phase 1 of ggen v4.0 has been successfully implemented by a specialized team of 5 AI agents working in parallel. The Pack Installation System provides the foundational layer for managing pack lifecycle, version tracking, and lockfile management.
+Phase 1 of mcpp v4.0 has been successfully implemented by a specialized team of 5 AI agents working in parallel. The Pack Installation System provides the foundational layer for managing pack lifecycle, version tracking, and lockfile management.
 
 **Key Achievement:** Transformed packs from one-time scaffolding into a living, versioned system capable of tracking and updating project state.
 
@@ -22,7 +22,7 @@ Phase 1 of ggen v4.0 has been successfully implemented by a specialized team of 
 **Completed By:** System Architect Agent
 
 **Deliverables:**
-- Complete module structure for `ggen-core/src/packs/`
+- Complete module structure for `mcpp-core/src/packs/`
 - Integration points with existing systems (lifecycle, marketplace, CLI)
 - Data structure specifications with field documentation
 - API signatures and usage examples
@@ -37,9 +37,9 @@ Phase 1 of ggen v4.0 has been successfully implemented by a specialized team of 
 
 ### 2. Data Structures Implementation ✅
 **Files:** 
-- `crates/ggen-core/src/packs/lockfile.rs` (501 lines)
-- `crates/ggen-core/src/packs/types.rs` (implemented)
-- `crates/ggen-core/src/packs/mod.rs` (exports)
+- `crates/mcpp-core/src/packs/lockfile.rs` (501 lines)
+- `crates/mcpp-core/src/packs/types.rs` (implemented)
+- `crates/mcpp-core/src/packs/mod.rs` (exports)
 
 **Completed By:** Backend Developer Agent
 
@@ -48,7 +48,7 @@ Phase 1 of ggen v4.0 has been successfully implemented by a specialized team of 
 pub struct PackLockfile {
     pub packs: BTreeMap<String, LockedPack>,
     pub updated_at: DateTime<Utc>,
-    pub ggen_version: String,
+    pub mcpp_version: String,
 }
 
 pub struct LockedPack {
@@ -69,7 +69,7 @@ pub enum PackSource {
 **Features:**
 - ✅ Full serialization/deserialization (JSON format)
 - ✅ Atomic file I/O with rollback on failure
-- ✅ Automatic `.ggen/` directory creation
+- ✅ Automatic `.mcpp/` directory creation
 - ✅ Dependency tracking and circular detection
 - ✅ Timestamps for reproducibility
 - ✅ Checksum verification ready for Phase 2
@@ -80,7 +80,7 @@ pub enum PackSource {
 ---
 
 ### 3. Installation Function ✅
-**File:** `crates/ggen-core/src/packs/install.rs` (178 lines)
+**File:** `crates/mcpp-core/src/packs/install.rs` (178 lines)
 
 **Completed By:** Coder Agent
 
@@ -95,7 +95,7 @@ pub async fn install_pack(
 ```
 
 **Capabilities:**
-- Creates/updates `.ggen/packs.lock` lockfile
+- Creates/updates `.mcpp/packs.lock` lockfile
 - Tracks pack versions and metadata
 - Prevents duplicate installations (unless force=true)
 - Version conflict detection
@@ -117,9 +117,9 @@ pub async fn install_pack(
 
 ### 4. Comprehensive Test Suite ✅
 **Files:**
-- `crates/ggen-cli/tests/packs_test.rs` (existing, all passing)
-- `crates/ggen-core/tests/lockfile_test.rs` (429 lines, 14 tests)
-- `crates/ggen-core/tests/install_test.rs` (263 lines, 11 tests)
+- `crates/mcpp-cli/tests/packs_test.rs` (existing, all passing)
+- `crates/mcpp-core/tests/lockfile_test.rs` (429 lines, 14 tests)
+- `crates/mcpp-core/tests/install_test.rs` (263 lines, 11 tests)
 - Documentation (pack_tests_README.md, phase1_test_deliverables.md)
 
 **Completed By:** Test Engineer Agent
@@ -133,7 +133,7 @@ pub async fn install_pack(
 
 **Execution Results:**
 ```
-running 10 tests (ggen-cli integration tests)
+running 10 tests (mcpp-cli integration tests)
 test result: ok. 10 passed; 0 failed; 0 ignored; finished in 35.58s
 
 running 14 tests (lockfile unit tests)
@@ -180,7 +180,7 @@ test result: ok. 11 passed; 0 failed; 0 ignored
 
 ### Module Structure
 ```
-ggen-core/src/packs/
+mcpp-core/src/packs/
 ├── mod.rs                  # Module exports
 ├── lockfile.rs            # Lockfile I/O operations
 ├── types.rs               # Core data structures
@@ -190,16 +190,16 @@ ggen-core/src/packs/
 
 ### Integration Points
 ```
-CLI Layer (ggen-cli)
+CLI Layer (mcpp-cli)
     ↓
-Pack Commands (ggen pack install)
+Pack Commands (mcpp pack install)
     ↓
-Core Pack Module (ggen-core/src/packs/)
+Core Pack Module (mcpp-core/src/packs/)
     ├→ Lockfile Management
     ├→ Installation Logic
     └→ Lifecycle Integration
     ↓
-Marketplace Domain (ggen-domain)
+Marketplace Domain (mcpp-domain)
     ├→ Pack Discovery
     ├→ Pack Validation
     └→ Registry Integration
@@ -215,7 +215,7 @@ Marketplace Domain (ggen-domain)
 - Standard serialization support
 - Alternative: TOML (would be equally valid)
 
-### 2. Module Location: ggen-core
+### 2. Module Location: mcpp-core
 - Core domain functionality
 - Tight lifecycle integration
 - Follows existing patterns
@@ -232,7 +232,7 @@ Marketplace Domain (ggen-domain)
 
 ### 5. Error Handling Strategy
 - thiserror for ergonomic error types
-- From trait for ggen_utils integration
+- From trait for mcpp_utils integration
 - Non-fatal warnings preserved
 - Fatal errors abort installation with rollback
 
@@ -259,7 +259,7 @@ Marketplace Domain (ggen-domain)
 - [ ] Region detection (language-specific code sections)
 - [ ] Three-way merge for updates
 - [ ] Pack dependencies resolution
-- [ ] CLI command: `ggen pack install`
+- [ ] CLI command: `mcpp pack install`
 - [ ] Watch/regeneration system
 - [ ] Pack signing and security
 
@@ -298,26 +298,26 @@ Marketplace Domain (ggen-domain)
 
 ### Core Implementation
 ```
-crates/ggen-core/src/packs/
+crates/mcpp-core/src/packs/
 ├── mod.rs                    (NEW - exports)
 ├── lockfile.rs              (NEW - 501 lines)
 ├── types.rs                 (NEW - data structures)
 ├── install.rs               (NEW - 178 lines)
 └── error.rs                 (NEW - error types)
 
-crates/ggen-core/src/lib.rs
+crates/mcpp-core/src/lib.rs
 └── [MODIFIED] Added pub mod packs
 
-crates/ggen-core/Cargo.toml
+crates/mcpp-core/Cargo.toml
 └── [MODIFIED] Added dependencies (serde, chrono, etc.)
 ```
 
 ### Tests
 ```
-crates/ggen-cli/tests/packs_test.rs
+crates/mcpp-cli/tests/packs_test.rs
 └── [EXISTING] 10 tests passing
 
-crates/ggen-core/tests/
+crates/mcpp-core/tests/
 ├── lockfile_test.rs         (NEW - 429 lines, 14 tests)
 ├── install_test.rs          (NEW - 263 lines, 11 tests)
 └── Common fixtures and utilities
@@ -434,7 +434,7 @@ pub enum Region {
 **Phase 1 is complete and production-ready.** The foundation established in this phase enables:
 
 1. ✅ **Version Tracking:** Know exactly which pack versions are installed
-2. ✅ **Lifecycle Integration:** Connect packs to ggen's lifecycle system
+2. ✅ **Lifecycle Integration:** Connect packs to mcpp's lifecycle system
 3. ✅ **Error Recovery:** Atomic operations prevent data loss
 4. ✅ **Type Safety:** Rust's type system prevents invalid states
 5. ✅ **Extensibility:** Clean APIs ready for Phase 2 features

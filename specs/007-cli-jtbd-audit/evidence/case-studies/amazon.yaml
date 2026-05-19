@@ -14,25 +14,25 @@ scale_requirements:
   latency_slo: "<5min for all 8 SDKs"
 
 required_commands:
-  - command: "ggen project generate"
+  - command: "mcpp project generate"
     purpose: "Generate multi-language SDK projects"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen ai generate"
+  - command: "mcpp ai generate"
     purpose: "AI-assisted SDK code generation"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen marketplace install"
+  - command: "mcpp marketplace install"
     purpose: "Install language-specific templates"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen template new"
+  - command: "mcpp template new"
     purpose: "Create new language SDK templates"
     criticality: P3
     current_support: pending
@@ -45,14 +45,14 @@ validator: claude-code
 test_scenarios:
   - scenario: "Multi-language SDK generation"
     steps:
-      - "ggen marketplace install --package_id sdk-generator"
-      - "ggen project generate --template sdk --var languages=java,python,go,rust,js,ts,ruby,php"
+      - "mcpp marketplace install --package_id sdk-generator"
+      - "mcpp project generate --template sdk --var languages=java,python,go,rust,js,ts,ruby,php"
     expected: "All 8 SDKs generated consistently within 5 minutes"
     actual: pending
 
   - scenario: "API spec change propagation"
     steps:
-      - "ggen template generate --template sdk.tmpl --domain api-v2.ttl"
+      - "mcpp template generate --template sdk.tmpl --domain api-v2.ttl"
       - "Verify all SDK files updated atomically"
     expected: "Byte-for-byte reproducible outputs across all languages"
     actual: pending

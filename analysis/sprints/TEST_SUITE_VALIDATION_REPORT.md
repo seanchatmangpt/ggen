@@ -15,18 +15,18 @@
 
 ## Compilation Errors
 
-### 1. `ggen-core` (test "llm_generation_test") - FAILED
+### 1. `mcpp-core` (test "llm_generation_test") - FAILED
 
 **Error Code:** E0063
 **Error Type:** Missing struct fields in initializer
 
 **Error Message:**
 ```
-error[E0063]: missing fields `enable_llm`, `llm_model` and `llm_provider` in initializer of `ggen_core::manifest::GenerationConfig`
-  --> crates/ggen-core/tests/llm_generation_test.rs:24:21
+error[E0063]: missing fields `enable_llm`, `llm_model` and `llm_provider` in initializer of `mcpp_core::manifest::GenerationConfig`
+  --> crates/mcpp-core/tests/llm_generation_test.rs:24:21
 ```
 
-**Location:** `crates/ggen-core/tests/llm_generation_test.rs:24`
+**Location:** `crates/mcpp-core/tests/llm_generation_test.rs:24`
 
 **Root Cause:** The `GenerationConfig` struct was updated to include LLM-related fields (`enable_llm`, `llm_model`, `llm_provider`), but the test code was not updated to initialize these new fields.
 
@@ -45,7 +45,7 @@ generation: GenerationConfig {
 
 ---
 
-### 2. `ggen-core` (test "telemetry_tests") - FAILED
+### 2. `mcpp-core` (test "telemetry_tests") - FAILED
 
 **Error Codes:** E0560 (5 occurrences), E0609 (1 occurrence)
 **Error Type:** Unknown field name
@@ -53,17 +53,17 @@ generation: GenerationConfig {
 **Error Messages:**
 ```
 error[E0560]: struct `TelemetryConfig` has no field named `sample_ratio`
-  --> crates/ggen-core/tests/telemetry_tests.rs:14:9
-  --> crates/ggen-core/tests/telemetry_tests.rs:32:9
-  --> crates/ggen-core/tests/telemetry_tests.rs:55:9
-  --> crates/ggen-core/tests/telemetry_tests.rs:74:9
-  --> crates/ggen-core/tests/telemetry_tests.rs:112:9
+  --> crates/mcpp-core/tests/telemetry_tests.rs:14:9
+  --> crates/mcpp-core/tests/telemetry_tests.rs:32:9
+  --> crates/mcpp-core/tests/telemetry_tests.rs:55:9
+  --> crates/mcpp-core/tests/telemetry_tests.rs:74:9
+  --> crates/mcpp-core/tests/telemetry_tests.rs:112:9
 
 error[E0609]: no field `sample_ratio` on type `TelemetryConfig`
-  --> crates/ggen-core/tests/telemetry_tests.rs:116:23
+  --> crates/mcpp-core/tests/telemetry_tests.rs:116:23
 ```
 
-**Location:** `crates/ggen-core/tests/telemetry_tests.rs` (lines 14, 32, 55, 74, 112, 116)
+**Location:** `crates/mcpp-core/tests/telemetry_tests.rs` (lines 14, 32, 55, 74, 112, 116)
 
 **Root Cause:** The `TelemetryConfig` struct no longer has a `sample_ratio` field. This field was likely removed or renamed in a refactoring.
 
@@ -78,7 +78,7 @@ error[E0609]: no field `sample_ratio` on type `TelemetryConfig`
 
 ---
 
-### 3. `ggen-core` (test "llm_trait_test") - FAILED
+### 3. `mcpp-core` (test "llm_trait_test") - FAILED
 
 **Error Code:** E0046 (2 occurrences)
 **Error Type:** Missing trait implementation
@@ -86,13 +86,13 @@ error[E0609]: no field `sample_ratio` on type `TelemetryConfig`
 **Error Messages:**
 ```
 error[E0046]: not all trait items implemented, missing: `clone_box`
-  --> crates/ggen-core/tests/llm_trait_test.rs:21:1
+  --> crates/mcpp-core/tests/llm_trait_test.rs:21:1
 
 error[E0046]: not all trait items implemented, missing: `clone_box`
-  --> crates/ggen-core/tests/llm_trait_test.rs:62:5
+  --> crates/mcpp-core/tests/llm_trait_test.rs:62:5
 ```
 
-**Location:** `crates/ggen-core/tests/llm_trait_test.rs` (lines 21, 62)
+**Location:** `crates/mcpp-core/tests/llm_trait_test.rs` (lines 21, 62)
 
 **Root Cause:** The `LlmService` trait was updated to include a new required method `clone_box()`, but test implementations (`TestLlmService` and `FailingLlmService`) were not updated.
 
@@ -118,14 +118,14 @@ While warnings do not block compilation, they indicate code quality issues that 
 2. **Unused Variables:** ~30 occurrences
 3. **Deprecated Method Usage:** 8 occurrences (use of deprecated `oxigraph::store::Store::query`)
 4. **Dead Code:** ~15 occurrences (unused structs, fields, functions)
-5. **Private Interface Warnings:** 3 occurrences in `ggen-craftplan`
+5. **Private Interface Warnings:** 3 occurrences in `mcpp-craftplan`
 
 ### Files with Most Warnings
 
-- `crates/ggen-core/tests/integration_ggen_sync.rs`: 6 warnings
-- `crates/ggen-core/tests/template_security_tests.rs`: 4 warnings
-- `crates/ggen-core/tests/behavior_predicates_validation_test.rs`: 6 warnings (deprecated)
-- `crates/ggen-craftplan/src/lib test`: 7 warnings
+- `crates/mcpp-core/tests/integration_mcpp_sync.rs`: 6 warnings
+- `crates/mcpp-core/tests/template_security_tests.rs`: 4 warnings
+- `crates/mcpp-core/tests/behavior_predicates_validation_test.rs`: 6 warnings (deprecated)
+- `crates/mcpp-craftplan/src/lib test`: 7 warnings
 
 ---
 
@@ -156,7 +156,7 @@ These are NOT caused by Chicago TDD conversion efforts, but rather by insufficie
 
 1. **Fix `llm_generation_test.rs`:**
    ```rust
-   // File: crates/ggen-core/tests/llm_generation_test.rs:24
+   // File: crates/mcpp-core/tests/llm_generation_test.rs:24
    generation: GenerationConfig {
        // ... existing fields ...
        enable_llm: false,
@@ -181,7 +181,7 @@ These are NOT caused by Chicago TDD conversion efforts, but rather by insufficie
 ### Follow-up Actions (Code Quality)
 
 1. **Clean up warnings:**
-   - Run `cargo fix --lib -p ggen-core --tests` to auto-fix unused imports
+   - Run `cargo fix --lib -p mcpp-core --tests` to auto-fix unused imports
    - Remove unused variables or prefix with `_`
    - Update deprecated `oxigraph::store::Store::query` calls to use `SparqlEvaluator`
 
@@ -216,7 +216,7 @@ These are NOT caused by Chicago TDD conversion efforts, but rather by insufficie
 
 **TEST SUITE STATUS: ❌ COMPILATION FAILED**
 
-The full test suite cannot run due to 3 compilation errors in `ggen-core` test targets. These are pre-existing issues caused by struct/trait refactoring without corresponding test updates.
+The full test suite cannot run due to 3 compilation errors in `mcpp-core` test targets. These are pre-existing issues caused by struct/trait refactoring without corresponding test updates.
 
 **Estimated Fix Time:** 15-30 minutes (3 straightforward structural fixes)
 

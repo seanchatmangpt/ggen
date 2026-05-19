@@ -1,4 +1,4 @@
-//! Error handling tests for ggen node bindings
+//! Error handling tests for mcpp node bindings
 //!
 //! These tests validate that all error paths are handled correctly
 //! without panicking or using production anti-patterns.
@@ -6,7 +6,7 @@
 
 use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
-use ggen_cli_lib::run_for_node;
+use mcpp_cli_lib::run_for_node;
 
 async_test!(test_empty_args_handled, {
     // Arrange: No arguments

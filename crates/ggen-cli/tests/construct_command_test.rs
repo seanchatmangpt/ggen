@@ -1,4 +1,4 @@
-//! Integration tests for `ggen construct` commands
+//! Integration tests for `mcpp construct` commands
 //!
 //! Tests the CLI interface for LLM-Construct pattern operations.
 //! Uses Chicago TDD pattern with real command execution.
@@ -11,7 +11,7 @@ use serde_json::Value;
 #[test]
 fn test_construct_create_with_nonexistent_file() {
     // Arrange: Use a path that doesn't exist
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct create with nonexistent spec file
     cmd.arg("construct")
@@ -34,7 +34,7 @@ fn test_construct_create_with_non_ttl_file() {
         .write_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .")
         .unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct create with non-TTL file
     cmd.arg("construct").arg("create").arg(spec_file.path());
@@ -68,7 +68,7 @@ fibo:Bond a owl:Class ;
         )
         .unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct create with valid TTL file
     cmd.arg("construct").arg("create").arg(spec_file.path());
@@ -95,7 +95,7 @@ fn test_construct_create_json_output_structure() {
         )
         .unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct create
     cmd.arg("construct").arg("create").arg(spec_file.path());
@@ -119,7 +119,7 @@ fn test_construct_create_json_output_structure() {
 #[test]
 fn test_construct_validate_returns_not_implemented() {
     // Arrange: Prepare command
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct validate
     cmd.arg("construct").arg("validate").arg("bond_extractor");
@@ -133,7 +133,7 @@ fn test_construct_validate_returns_not_implemented() {
 #[test]
 fn test_construct_validate_json_output_structure() {
     // Arrange: Prepare command
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct validate
     cmd.arg("construct").arg("validate").arg("test_module");
@@ -165,7 +165,7 @@ fn test_construct_create_with_custom_output_dir() {
         )
         .unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct create with custom output directory
     cmd.arg("construct")
@@ -198,7 +198,7 @@ fn test_to_snake_case_conversion() {
         )
         .unwrap();
 
-    let mut cmd = Command::cargo_bin("ggen").unwrap();
+    let mut cmd = Command::cargo_bin("mcpp").unwrap();
 
     // Act: Run construct create
     cmd.arg("construct").arg("create").arg(spec_file.path());

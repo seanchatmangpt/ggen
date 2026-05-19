@@ -25,7 +25,7 @@
 //! use ggen_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-app".to_string(),
 //!     project_type: ProjectType::NextJs,
@@ -46,7 +46,7 @@
 //! use ggen_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-nuxt-app".to_string(),
 //!     project_type: ProjectType::Nuxt,
@@ -61,7 +61,7 @@
 //! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 pub struct NextJsGenerator;
 

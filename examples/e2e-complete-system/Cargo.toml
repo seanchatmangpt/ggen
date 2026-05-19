@@ -31,11 +31,11 @@ itertools = "0.12"
 
 # Project dependencies (optional - for real integration)
 # osiris-domains = { path = "../../crates/osiris-domains", optional = true }
-# ggen-receipt = { path = "../../crates/ggen-receipt", optional = true }
-# ggen-consensus = { path = "../../crates/ggen-consensus", optional = true }
-# ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp", optional = true }
-# ggen-transport = { path = "../../crates/ggen-transport", optional = true }
-# ggen-metrics-tps = { path = "../../crates/ggen-metrics-tps", optional = true }
+# mcpp-receipt = { path = "../../crates/mcpp-receipt", optional = true }
+# mcpp-consensus = { path = "../../crates/mcpp-consensus", optional = true }
+# mcpp-a2a-mcp = { path = "../../crates/mcpp-a2a-mcp", optional = true }
+# mcpp-transport = { path = "../../crates/mcpp-transport", optional = true }
+# mcpp-metrics-tps = { path = "../../crates/mcpp-metrics-tps", optional = true }
 
 [dev-dependencies]
 proptest = "1"

@@ -1,6 +1,6 @@
-# OpenTelemetry Collector Configuration for ggen
+# OpenTelemetry Collector Configuration for mcpp
 #
-# Receives OTEL traces from ggen components, validates against weaver semconv,
+# Receives OTEL traces from mcpp components, validates against weaver semconv,
 # and exports to console (development) or Jaeger/Tempo (production).
 #
 # Usage:
@@ -10,7 +10,7 @@
 # See: docs/weaver-registry-integration-plan.md
 
 receivers:
-  # OTLP receiver (ggen components send traces here)
+  # OTLP receiver (mcpp components send traces here)
   otlp:
     protocols:
       grpc:

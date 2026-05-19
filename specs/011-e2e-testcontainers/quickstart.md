@@ -2,7 +2,7 @@
 
 **Feature**: 011-e2e-testcontainers | **Date**: 2025-12-16
 
-Run end-to-end tests to verify `ggen sync` works correctly across Linux and macOS.
+Run end-to-end tests to verify `mcpp sync` works correctly across Linux and macOS.
 
 ## Prerequisites
 
@@ -33,7 +33,7 @@ cargo make test-e2e-macos
 
 ```bash
 # Test thesis-gen example only
-cargo test --package ggen-e2e -- thesis_gen --nocapture
+cargo test --package mcpp-e2e -- thesis_gen --nocapture
 ```
 
 ## Test Categories
@@ -53,18 +53,18 @@ cargo test --package ggen-e2e -- thesis_gen --nocapture
 | `UPDATE_GOLDEN` | unset | Set to update golden files |
 | `GGEN_E2E_TIMEOUT` | 300 | Test timeout in seconds |
 | `TESTCONTAINERS_COMMAND` | drop | Set to `keep` to debug containers |
-| `GGEN_LOG` | info | Log level for ggen sync |
+| `GGEN_LOG` | info | Log level for mcpp sync |
 
 ## Updating Golden Files
 
-When `ggen sync` output changes intentionally:
+When `mcpp sync` output changes intentionally:
 
 ```bash
 # Update all golden files
 UPDATE_GOLDEN=1 cargo make test-e2e
 
 # Update specific fixture
-UPDATE_GOLDEN=1 cargo test --package ggen-e2e -- thesis_gen
+UPDATE_GOLDEN=1 cargo test --package mcpp-e2e -- thesis_gen
 
 # Review changes
 git diff tests/e2e/golden/
@@ -79,7 +79,7 @@ git diff tests/e2e/golden/
 TESTCONTAINERS_COMMAND=keep cargo make test-e2e-linux
 
 # Find container ID
-docker ps -a | grep ggen
+docker ps -a | grep mcpp
 
 # View logs
 docker logs <container_id>
@@ -91,7 +91,7 @@ docker rm -f <container_id>
 ### 2. Run with verbose output
 
 ```bash
-RUST_BACKTRACE=1 GGEN_LOG=debug cargo test --package ggen-e2e -- --nocapture
+RUST_BACKTRACE=1 GGEN_LOG=debug cargo test --package mcpp-e2e -- --nocapture
 ```
 
 ### 3. Inspect golden file diff
@@ -115,16 +115,16 @@ Add `[skip e2e]` to commit message to skip E2E tests in CI (use sparingly).
 
 ## Fixture Structure
 
-Each test fixture is a complete ggen project:
+Each test fixture is a complete mcpp project:
 
 ```
 tests/e2e/fixtures/
 ├── minimal/                    # Fast smoke test
-│   ├── ggen.toml
+│   ├── mcpp.toml
 │   ├── ontology/schema.ttl
 │   └── templates/main.tera
 └── thesis-gen-sample/          # Subset of thesis-gen
-    ├── ggen.toml
+    ├── mcpp.toml
     ├── ontology/
     └── templates/
 
@@ -140,16 +140,16 @@ tests/e2e/golden/
    mkdir -p tests/e2e/fixtures/my-fixture/{ontology,templates}
    ```
 
-2. Add ggen project files:
+2. Add mcpp project files:
    ```bash
-   cp templates/ggen.toml.example tests/e2e/fixtures/my-fixture/ggen.toml
-   # Edit ggen.toml, add ontology, templates
+   cp templates/mcpp.toml.example tests/e2e/fixtures/my-fixture/mcpp.toml
+   # Edit mcpp.toml, add ontology, templates
    ```
 
 3. Generate initial golden files:
    ```bash
    cd tests/e2e/fixtures/my-fixture
-   ggen sync
+   mcpp sync
    cp -r output ../../golden/my-fixture/
    ```
 
@@ -212,7 +212,7 @@ Error: Platform difference detected between linux-x86_64 and darwin-arm64
 
 **Root causes**:
 1. **Line endings**: Ensure `.gitattributes` enforces LF
-2. **Timestamps**: ggen sync should not embed timestamps
+2. **Timestamps**: mcpp sync should not embed timestamps
 3. **Path separators**: Use `/` consistently in output
 
 **Fix**: Check diff for platform-specific content and fix in templates.
@@ -221,12 +221,12 @@ Error: Platform difference detected between linux-x86_64 and darwin-arm64
 
 1. **Use minimal fixture** for quick feedback:
    ```bash
-   cargo test --package ggen-e2e -- minimal --nocapture
+   cargo test --package mcpp-e2e -- minimal --nocapture
    ```
 
 2. **Run tests in parallel** (safe due to container isolation):
    ```bash
-   cargo test --package ggen-e2e -- --test-threads=4
+   cargo test --package mcpp-e2e -- --test-threads=4
    ```
 
 3. **Cache Docker images**:

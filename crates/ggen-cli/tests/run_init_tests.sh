@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Run tests
 echo "Running init_tests..."
-if cargo test --package ggen-cli-lib --test init_tests -- --nocapture; then
+if cargo test --package mcpp-cli-lib --test init_tests -- --nocapture; then
     echo -e "${GREEN}✅ All tests passed${NC}"
 else
     echo -e "${RED}❌ Some tests failed${NC}"
@@ -30,7 +30,7 @@ echo "Test Summary"
 echo "=================================="
 
 # Count tests
-total_tests=$(cargo test --package ggen-cli-lib --test init_tests -- --list 2>/dev/null | grep -c "test " || echo "22")
+total_tests=$(cargo test --package mcpp-cli-lib --test init_tests -- --list 2>/dev/null | grep -c "test " || echo "22")
 echo "Total tests: $total_tests"
 echo ""
 
@@ -54,7 +54,7 @@ if command -v cargo-tarpaulin &> /dev/null; then
     echo "=================================="
 
     cargo tarpaulin \
-        --package ggen-cli-lib \
+        --package mcpp-cli-lib \
         --test init_tests \
         --out Html \
         --out Json \
@@ -85,8 +85,8 @@ receipt=$(cat <<EOF
 {
   "type": "TestExecutionReceipt",
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "command": "ggen init",
-  "test_file": "crates/ggen-cli/tests/init_tests.rs",
+  "command": "mcpp init",
+  "test_file": "crates/mcpp-cli/tests/init_tests.rs",
   "test_count": $total_tests,
   "pattern": "Chicago TDD (AAA)",
   "framework": "chicago-tdd-tools 1.4.0",
@@ -105,10 +105,10 @@ EOF
 echo "$receipt" | jq '.'
 
 # Save receipt
-mkdir -p target/ggen/receipts
-echo "$receipt" > target/ggen/receipts/init-tests-$(date +%Y%m%d-%H%M%S).json
+mkdir -p target/mcpp/receipts
+echo "$receipt" > target/mcpp/receipts/init-tests-$(date +%Y%m%d-%H%M%S).json
 echo ""
-echo "Receipt saved: target/ggen/receipts/init-tests-$(date +%Y%m%d-%H%M%S).json"
+echo "Receipt saved: target/mcpp/receipts/init-tests-$(date +%Y%m%d-%H%M%S).json"
 
 echo ""
 echo -e "${GREEN}✅ Init test suite completed successfully${NC}"

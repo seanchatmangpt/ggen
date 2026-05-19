@@ -6,7 +6,7 @@
 //! ## Architecture
 //!
 //! ```text
-//! CLI (yawl.rs) -> ggen-yawl library -> gen_yawl Erlang engine
+//! CLI (yawl.rs) -> mcpp-yawl library -> gen_yawl Erlang engine
 //!                     |
 //!                     v
 //!              Ontology (RDF) -> YAWL XML -> Erlang specs
@@ -38,7 +38,7 @@ use std::time::Instant;
 // Output Types
 // ============================================================================
 
-/// Output for the `ggen yawl generate` command
+/// Output for the `mcpp yawl generate` command
 #[derive(Debug, Clone, Serialize)]
 pub struct GenerateOutput {
     /// Overall status: "success" or "error"
@@ -65,7 +65,7 @@ pub struct GenerateOutput {
     pub warning: Option<String>,
 }
 
-/// Output for the `ggen yawl validate` command
+/// Output for the `mcpp yawl validate` command
 #[derive(Debug, Clone, Serialize)]
 pub struct ValidateOutput {
     /// Overall status: "valid", "invalid", or "error"
@@ -112,7 +112,7 @@ pub struct ValidationWarning {
     pub line: Option<usize>,
 }
 
-/// Output for the `ggen yawl watch` command
+/// Output for the `mcpp yawl watch` command
 #[derive(Debug, Clone, Serialize)]
 pub struct WatchOutput {
     /// Overall status: "watching", "stopped", or "error"
@@ -131,7 +131,7 @@ pub struct WatchOutput {
     pub error: Option<String>,
 }
 
-/// Output for the `ggen yawl deploy` command
+/// Output for the `mcpp yawl deploy` command
 #[derive(Debug, Clone, Serialize)]
 pub struct DeployOutput {
     /// Overall status: "deployed", "partial", or "error"
@@ -196,7 +196,7 @@ struct DeployConfig {
 /// ## Flags
 ///
 /// --ontology PATH           Ontology file path (default: schema/domain.ttl)
-/// --output-dir PATH         Output directory (default: .ggen/yawl/)
+/// --output-dir PATH         Output directory (default: .mcpp/yawl/)
 /// --format FORMAT           Output format: xml, erlang (default: xml)
 /// --verbose                 Show detailed generation progress
 /// --validate                Validate output after generation
@@ -210,7 +210,7 @@ pub fn generate(
 ) -> VerbResult<GenerateOutput> {
     let config = GenerateConfig {
         ontology_file: ontology.unwrap_or_else(|| "schema/domain.ttl".to_string()),
-        output_dir: output_dir.unwrap_or_else(|| ".ggen/yawl/".to_string()),
+        output_dir: output_dir.unwrap_or_else(|| ".mcpp/yawl/".to_string()),
         output_format: format.unwrap_or_else(|| "xml".to_string()),
         verbose: verbose.unwrap_or(false),
         do_validate: validate.unwrap_or(false),
@@ -225,7 +225,7 @@ pub fn generate(
 ///
 /// ## Flags
 ///
-/// --file PATH               YAWL file to validate (default: .ggen/yawl/*.yawl.xml)
+/// --file PATH               YAWL file to validate (default: .mcpp/yawl/*.yawl.xml)
 /// --strict                  Enable strict validation mode
 /// --verbose                 Show detailed validation output
 #[verb("validate", "yawl")]
@@ -234,7 +234,7 @@ pub fn validate(
 ) -> VerbResult<ValidateOutput> {
     let config = ValidateConfig {
         file_path: file.unwrap_or_else(|| {
-            find_default_yawl_file().unwrap_or_else(|| ".ggen/yawl/workflow.yawl.xml".to_string())
+            find_default_yawl_file().unwrap_or_else(|| ".mcpp/yawl/workflow.yawl.xml".to_string())
         }),
         strict_mode: strict.unwrap_or(false),
         verbose: verbose.unwrap_or(false),
@@ -248,7 +248,7 @@ pub fn validate(
 /// ## Flags
 ///
 /// --ontology PATH           Ontology file to watch (default: schema/domain.ttl)
-/// --output-dir PATH         Output directory (default: .ggen/yawl/)
+/// --output-dir PATH         Output directory (default: .mcpp/yawl/)
 /// --debounce MS             Debounce delay in milliseconds (default: 500)
 /// --verbose                 Show detailed regeneration output
 #[allow(clippy::unused_unit)]
@@ -258,7 +258,7 @@ pub fn watch(
     verbose: Option<bool>,
 ) -> VerbResult<WatchOutput> {
     let _ontology_file = ontology.unwrap_or_else(|| "schema/domain.ttl".to_string());
-    let _output_dir = output_dir.unwrap_or_else(|| ".ggen/yawl/".to_string());
+    let _output_dir = output_dir.unwrap_or_else(|| ".mcpp/yawl/".to_string());
     let _debounce_ms = debounce.unwrap_or(500);
     let _verbose = verbose.unwrap_or(false);
 
@@ -279,7 +279,7 @@ pub fn watch(
 ///
 /// ## Flags
 ///
-/// --workflow PATH           Workflow file to deploy (default: .ggen/yawl/*.yawl.xml)
+/// --workflow PATH           Workflow file to deploy (default: .mcpp/yawl/*.yawl.xml)
 /// --target PATH             gen_yawl installation path (default: vendors/gen_yawl/)
 /// --restart                 Restart gen_yawl service after deployment
 /// --compile                 Compile Erlang modules after deployment
@@ -291,7 +291,7 @@ pub fn deploy(
 ) -> VerbResult<DeployOutput> {
     let config = DeployConfig {
         workflow_file: workflow.unwrap_or_else(|| {
-            find_default_yawl_file().unwrap_or_else(|| ".ggen/yawl/workflow.yawl.xml".to_string())
+            find_default_yawl_file().unwrap_or_else(|| ".mcpp/yawl/workflow.yawl.xml".to_string())
         }),
         install_path: target.unwrap_or_else(|| "vendors/gen_yawl/".to_string()),
         do_restart: restart.unwrap_or(false),
@@ -524,9 +524,9 @@ fn perform_generation(
         pb.set_message("Loading ontology...");
     }
 
-    // Step 2: Load ontology using ggen-core
+    // Step 2: Load ontology using mcpp-core
     let load_result = crate::runtime::block_on(async {
-        ggen_core::Graph::load_from_file(&config.ontology_file).map_err(|e| e.to_string())
+        mcpp_core::Graph::load_from_file(&config.ontology_file).map_err(|e| e.to_string())
     });
 
     if let Err(e) = load_result {
@@ -749,9 +749,9 @@ fn perform_deployment(
 // Helper Functions
 // ============================================================================
 
-/// Find the default YAWL file in the .ggen/yawl directory
+/// Find the default YAWL file in the .mcpp/yawl directory
 fn find_default_yawl_file() -> Option<String> {
-    let default_dir = PathBuf::from(".ggen/yawl/");
+    let default_dir = PathBuf::from(".mcpp/yawl/");
     if !default_dir.exists() {
         return None;
     }
@@ -854,9 +854,9 @@ mod tests {
         let output = GenerateOutput {
             status: "success".to_string(),
             ontology_file: "test.ttl".to_string(),
-            output_dir: ".ggen/yawl/".to_string(),
+            output_dir: ".mcpp/yawl/".to_string(),
             files_generated: 1,
-            generated_files: vec![".ggen/yawl/test.yawl.xml".to_string()],
+            generated_files: vec![".mcpp/yawl/test.yawl.xml".to_string()],
             tasks_extracted: 3,
             flows_extracted: 5,
             duration_ms: 250,

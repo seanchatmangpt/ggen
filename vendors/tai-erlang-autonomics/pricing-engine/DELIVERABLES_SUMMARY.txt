@@ -3,7 +3,7 @@ AC EVAL MODE - COMPLETE DELIVERABLES SUMMARY
 ================================================================================
 
 PROJECT: ac_eval_mode.erl - Global eval-only enforcement guardrail
-LOCATION: /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/
+LOCATION: ./tai-erlang-autonomics/pricing-engine/
 DATE: 2026-01-26
 
 ================================================================================
@@ -281,7 +281,7 @@ COMPILATION & TESTING
 ================================================================================
 
 Compile Module:
-  cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+  cd ./tai-erlang-autonomics/pricing-engine
   erlc -o ebin src/ac_eval_mode.erl
 
 Compile Tests:
@@ -302,22 +302,22 @@ FILE MANIFEST
 ================================================================================
 
 Production Files:
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_eval_mode.erl
+  ./tai-erlang-autonomics/pricing-engine/src/ac_eval_mode.erl
 
 Test Files:
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/ac_eval_mode_tests.erl
+  ./tai-erlang-autonomics/pricing-engine/test/ac_eval_mode_tests.erl
 
 Documentation:
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/docs/AC_EVAL_MODE.md
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/docs/EVAL_MODE_QUICK_REFERENCE.md
+  ./tai-erlang-autonomics/pricing-engine/docs/AC_EVAL_MODE.md
+  ./tai-erlang-autonomics/pricing-engine/docs/EVAL_MODE_QUICK_REFERENCE.md
 
 Examples:
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/examples/eval_mode_integration_example.erl
+  ./tai-erlang-autonomics/pricing-engine/examples/eval_mode_integration_example.erl
 
 Summaries:
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/EVAL_MODE_IMPLEMENTATION.md
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/README_EVAL_MODE.md
-  /Users/sac/ggen/tai-erlang-autonomics/pricing-engine/DELIVERABLES_SUMMARY.txt
+  ./tai-erlang-autonomics/pricing-engine/EVAL_MODE_IMPLEMENTATION.md
+  ./tai-erlang-autonomics/pricing-engine/README_EVAL_MODE.md
+  ./tai-erlang-autonomics/pricing-engine/DELIVERABLES_SUMMARY.txt
 
 ================================================================================
 USAGE PATTERN

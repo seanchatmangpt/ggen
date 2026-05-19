@@ -1,7 +1,7 @@
-# Audit Result: ggen workflow event
+# Audit Result: mcpp workflow event
 # Schema: ../../contracts/audit-result.schema.yaml
 
-command: "ggen workflow event"
+command: "mcpp workflow event"
 version_tested: "5.3.2"
 date: "2024-12-14"
 tester: "claude-code"

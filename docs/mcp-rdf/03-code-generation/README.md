@@ -279,7 +279,7 @@ The JSON context passed to templates:
 {
   "server": {
     "name": "ggen-mcp",
-    "version": "6.0.1",
+    "version": "26.5.4",
     "description": "ggen MCP server",
     "protocol_version": "2025-11-25"
   },

@@ -2,28 +2,28 @@
 
 ## Summary
 
-Successfully implemented the `validate_pipeline` MCP tool that exposes ggen's 6 quality gates as a Model Context Protocol tool.
+Successfully implemented the `validate_pipeline` MCP tool that exposes mcpp's 6 quality gates as a Model Context Protocol tool.
 
 ## Implementation Details
 
 ### Files Modified
 
-1. **`/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`**
+1. **`~/.ggen/mcpp/crates/mcpp-a2a-mcp/src/mcpp_server.rs`**
    - Added `ValidatePipelineParams` struct (lines 154-162)
    - Added `validate_pipeline` tool implementation (lines 947-1075)
 
-2. **`/Users/sac/ggen/crates/ggen-core/src/graph/cycle_fixer.rs`**
+2. **`~/.ggen/mcpp/crates/mcpp-core/src/graph/cycle_fixer.rs`**
    - Fixed lifetime issue in merge_ttl_files method (line 377)
    - Changed from `for line in content.lines()` to `for line in content.lines().map(|l| l.to_string()).collect::<Vec<_>>()`
 
-3. **`/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`**
+3. **`~/.ggen/mcpp/crates/mcpp-a2a-mcp/tests/validate_pipeline_test.rs`**
    - Created comprehensive test suite with 4 tests
 
 ### Tool Specification
 
 **Name:** `validate_pipeline`
 
-**Description:** Run all 6 quality gates against a ggen project: manifest schema, ontology dependencies, SPARQL validation, template validation, file permissions, and rule validation. Returns detailed pass/fail status with errors, warnings, and duration.
+**Description:** Run all 6 quality gates against a mcpp project: manifest schema, ontology dependencies, SPARQL validation, template validation, file permissions, and rule validation. Returns detailed pass/fail status with errors, warnings, and duration.
 
 **Input Schema:**
 ```json
@@ -32,7 +32,7 @@ Successfully implemented the `validate_pipeline` MCP tool that exposes ggen's 6 
   "properties": {
     "manifest_path": {
       "type": "string",
-      "description": "Path to ggen.toml manifest file (defaults to ./ggen.toml)"
+      "description": "Path to mcpp.toml manifest file (defaults to ./mcpp.toml)"
     }
   }
 }
@@ -58,7 +58,7 @@ Successfully implemented the `validate_pipeline` MCP tool that exposes ggen's 6 
 
 The tool runs all 6 quality gates in sequence:
 
-1. **Manifest Schema** - Validates ggen.toml structure
+1. **Manifest Schema** - Validates mcpp.toml structure
 2. **Ontology Dependencies** - Checks .ttl files exist and no circular imports
 3. **SPARQL Validation** - Validates SPARQL query syntax
 4. **Template Validation** - Validates Tera template syntax
@@ -90,7 +90,7 @@ test test_validate_pipeline_params_with_manifest_path ... ok
 ```javascript
 // Call the tool
 const result = await mcpClient.callTool("validate_pipeline", {
-  manifest_path: "/path/to/ggen.toml"
+  manifest_path: "/path/to/mcpp.toml"
 });
 
 // Result format
@@ -113,22 +113,22 @@ const result = await mcpClient.callTool("validate_pipeline", {
 ### Via CLI (Future)
 
 ```bash
-ggen mcp test validate_pipeline --manifest-path /path/to/ggen.toml
+mcpp mcp test validate_pipeline --manifest-path /path/to/mcpp.toml
 ```
 
 ## Integration
 
 The tool is automatically registered with the MCP server through the `#[tool]` proc macro and is available via:
 
-1. **stdio transport:** `ggen mcp start-server --transport stdio`
-2. **http transport:** `ggen mcp start-server --transport http`
+1. **stdio transport:** `mcpp mcp start-server --transport stdio`
+2. **http transport:** `mcpp mcp start-server --transport http`
 
 ## Compilation Status
 
 ✅ **MCP Server Compiles Successfully**
 ```
-cargo check -p ggen-a2a-mcp
-    Checking ggen-a2a-mcp v0.1.0
+cargo check -p mcpp-a2a-mcp
+    Checking mcpp-a2a-mcp v0.1.0
     Finished `dev` profile in 25.78s
 ```
 
@@ -137,7 +137,7 @@ cargo check -p ggen-a2a-mcp
 1. ✅ Tool implementation complete
 2. ✅ Tests passing
 3. ⏭️ Integration testing with real MCP clients
-4. ⏭️ CLI command integration (`ggen mcp test validate_pipeline`)
+4. ⏭️ CLI command integration (`mcpp mcp test validate_pipeline`)
 5. ⏭️ Documentation updates
 
 ## Technical Notes

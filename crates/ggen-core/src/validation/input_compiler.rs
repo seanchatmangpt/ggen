@@ -30,7 +30,7 @@
 //! ```
 
 use super::input::{CharsetRule, FormatRule, InputValidationError, StringValidator};
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::collections::HashMap;
 
 /// Rule definition for declarative validation

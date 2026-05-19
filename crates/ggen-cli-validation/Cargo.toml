@@ -1,10 +1,10 @@
 [package]
-name = "ggen-cli-validation"
-version = "6.1.0"
+name = "mcpp-cli-validation"
+version = "26.5.4"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
-description = "IO validation and security for ggen CLI operations"
+description = "IO validation and security for mcpp CLI operations"
 
 [dependencies]
 thiserror.workspace = true

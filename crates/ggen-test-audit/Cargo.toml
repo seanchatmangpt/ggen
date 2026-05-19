@@ -1,11 +1,11 @@
 [package]
-name = "ggen-test-audit"
-version = "6.1.0"
+name = "mcpp-test-audit"
+version = "26.5.4"
 edition = "2021"
 authors = ["ggen contributors"]
 description = "Test quality audit tooling for ggen - mutation testing, assertion analysis, false positive detection"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ggen-project/ggen"
+repository = "https://github.com/mcpp-project/ggen"
 readme = "README.md"
 
 [dependencies]

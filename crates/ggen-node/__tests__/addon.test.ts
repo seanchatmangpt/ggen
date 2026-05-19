@@ -1,5 +1,5 @@
 /**
- * Comprehensive test suite for @ggen/node N-API bindings
+ * Comprehensive test suite for @mcpp/node N-API bindings
  *
  * Tests are organized by function category:
  * - Core Functions
@@ -49,7 +49,7 @@ describe('Core Functions', () => {
   it('run() executes CLI with --help', async () => {
     const res = await run(['--help']);
     expect(res.code).toBe(0);
-    expect(res.stdout).toContain('ggen');
+    expect(res.stdout).toContain('mcpp');
     expect(typeof res.stderr).toBe('string');
   });
 
@@ -143,7 +143,7 @@ describe('Utility Commands', () => {
   it('help() returns help text', async () => {
     const res = await help();
     expect(res.code).toBe(0);
-    expect(res.stdout).toContain('ggen');
+    expect(res.stdout).toContain('mcpp');
   });
 
   it('help(command) returns command-specific help', async () => {

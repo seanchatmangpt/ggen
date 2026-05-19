@@ -1,4 +1,4 @@
-command: "ggen fmea report"
+command: "mcpp fmea report"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to generate an FMEA report,
-  I need to run 'ggen fmea report',
+  I need to run 'mcpp fmea report',
   so that I can document failure analysis for stakeholders.

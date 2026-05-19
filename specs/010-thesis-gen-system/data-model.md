@@ -246,8 +246,8 @@ Not applicable—thesis is a static document model.
 ## Ontology Prefix Definitions
 
 ```turtle
-@prefix thesis: <https://ggen.io/ontology/thesis#> .
-@prefix content: <https://ggen.io/thesis/content#> .
+@prefix thesis: <https://mcpp.io/ontology/thesis#> .
+@prefix content: <https://mcpp.io/thesis/content#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -261,7 +261,7 @@ content:MainThesis a thesis:Thesis ;
     thesis:title "Ontology-Driven Code Generation" ;
     thesis:subtitle "A Unified Framework via RDF Knowledge Graphs" ;
     thesis:author "Sean Chatman" ;
-    thesis:institution "ggen.io Research" ;
+    thesis:institution "mcpp.io Research" ;
     thesis:date "December 2025" ;
     thesis:hasChapter content:Chapter1, content:Chapter2 ;
     thesis:hasReference content:RefBernersLee2001 .

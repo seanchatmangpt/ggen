@@ -8,7 +8,7 @@ A complete **production-ready CLI generator** that creates noun-verb pattern com
 
 ### 1. Template System (8 Templates)
 
-**Location:** `/Users/sac/ggen/templates/cli/`
+**Location:** `./templates/cli/`
 
 ```
 templates/cli/
@@ -31,7 +31,7 @@ templates/cli/
 
 ### 2. Generation Script
 
-**Location:** `/Users/sac/ggen/scripts/generate-noun-verb-cli.sh`
+**Location:** `./scripts/generate-noun-verb-cli.sh`
 
 **Features:**
 - ✅ Automatic project scaffolding
@@ -49,7 +49,7 @@ templates/cli/
 
 ### 3. Documentation
 
-**Location:** `/Users/sac/ggen/docs/CLI_GENERATOR_GUIDE.md`
+**Location:** `./docs/CLI_GENERATOR_GUIDE.md`
 
 **Contents:**
 - Complete usage guide

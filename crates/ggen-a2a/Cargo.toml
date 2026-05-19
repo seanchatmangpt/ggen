@@ -1,11 +1,11 @@
 [package]
-name = "ggen-a2a"
-version = "6.1.0"
+name = "mcpp-a2a"
+version = "26.5.4"
 edition = "2021"
-authors = ["ggen contributors"]
-description = "Agent-to-Agent task state machine protocol for ggen"
+authors = ["mcpp contributors"]
+description = "Agent-to-Agent task state machine protocol for mcpp"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
+repository = "https://github.com/seanchatmangpt/mcpp"
 
 [dependencies]
 tokio = { version = "1.41", features = ["full"] }

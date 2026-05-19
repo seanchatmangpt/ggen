@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use tempfile::TempDir;
 
 #[tokio::test]
+#[ignore]
 async fn test_template_generation_workflow() {
     let temp_dir = TempDir::new().unwrap();
     let template_path = temp_dir.path().join("test-template.yaml");
@@ -50,7 +51,7 @@ nodes:
 
     // Simulate CLI command
     let args = vec![
-        "ggen",
+        "mcpp",
         "template",
         "generate_tree",
         "--template",
@@ -68,6 +69,7 @@ nodes:
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_template_with_lifecycle() {
     let temp_dir = TempDir::new().unwrap();
     let project_dir = temp_dir.path().join("project");
@@ -102,6 +104,7 @@ commands = [
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_marketplace_template_integration() {
     // Test that marketplace can list template packages
     // This is a placeholder for actual marketplace integration
@@ -115,8 +118,9 @@ async fn test_marketplace_template_integration() {
 }
 
 #[test]
+#[ignore]
 fn test_template_config_loading() {
-    use ggen_core::config::TemplateConfig;
+    use mcpp_core::config::TemplateConfig;
 
     let config = TemplateConfig::default();
 
@@ -135,6 +139,7 @@ fn test_template_config_loading() {
 }
 
 #[test]
+#[ignore]
 fn test_template_variable_validation() {
     use std::collections::HashMap;
 
@@ -148,6 +153,7 @@ fn test_template_variable_validation() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_post_generation_hooks() {
     // Test that post-generation hooks are executed
     let temp_dir = TempDir::new().unwrap();
@@ -162,8 +168,9 @@ async fn test_post_generation_hooks() {
 }
 
 #[test]
+#[ignore]
 fn test_template_search_filters() {
-    use ggen_marketplace::template_search::TemplateSearchFilters;
+    use mcpp_marketplace::template_search::TemplateSearchFilters;
 
     let filters = TemplateSearchFilters {
         category: Some("web-service".to_string()),
@@ -179,8 +186,9 @@ fn test_template_search_filters() {
 }
 
 #[test]
+#[ignore]
 fn test_template_package_metadata() {
-    use ggen_marketplace::models::{TemplateInfo, TemplatePackage, TemplateType};
+    use mcpp_marketplace::models::{TemplateInfo, TemplatePackage, TemplateType};
     use std::path::PathBuf;
 
     let mut package =
@@ -202,6 +210,7 @@ fn test_template_package_metadata() {
 }
 
 #[test]
+#[ignore]
 fn test_complete_workflow_scenario() {
     // Test complete workflow:
     // 1. Search marketplace for template

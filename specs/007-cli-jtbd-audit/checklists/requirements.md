@@ -63,24 +63,24 @@
 
 | Scenario | Status | Evidence |
 |----------|--------|----------|
-| `ggen --help` shows all subcommands | [ ] Pending | |
-| `ggen ontology validate ./test.ttl` succeeds with valid file | [ ] Pending | |
-| `ggen ontology validate ./invalid.ttl` fails with helpful message | [ ] Pending | |
-| `ggen template generate` (no args) shows usage instructions | [ ] Pending | |
+| `mcpp --help` shows all subcommands | [ ] Pending | |
+| `mcpp ontology validate ./test.ttl` succeeds with valid file | [ ] Pending | |
+| `mcpp ontology validate ./invalid.ttl` fails with helpful message | [ ] Pending | |
+| `mcpp template generate` (no args) shows usage instructions | [ ] Pending | |
 
 ### US-2: Agent Accessibility Evaluation (P1)
 
 | Scenario | Status | Evidence |
 |----------|--------|----------|
-| Claude Code can orchestrate `ggen project generate` | [ ] Pending | |
-| Cursor AI can use `ggen template new` within 8K tokens | [ ] Pending | |
+| Claude Code can orchestrate `mcpp project generate` | [ ] Pending | |
+| Cursor AI can use `mcpp template new` within 8K tokens | [ ] Pending | |
 | Error output is parseable by all avatars | [ ] Pending | |
 
 ### US-3: Maturity Classification (P2)
 
 | Scenario | Status | Evidence |
 |----------|--------|----------|
-| `ggen template generate` assigned maturity level | [ ] Pending | |
+| `mcpp template generate` assigned maturity level | [ ] Pending | |
 | Maturity distribution report generated | [ ] Pending | |
 | L2 commands have clear L3 upgrade path | [ ] Pending | |
 
@@ -89,7 +89,7 @@
 | Scenario | Status | Evidence |
 |----------|--------|----------|
 | JPMorgan compliance workflow executes | [ ] Pending | |
-| Toyota `ggen project watch` meets SLO | [ ] Pending | |
+| Toyota `mcpp project watch` meets SLO | [ ] Pending | |
 | Gaps documented for incomplete scenarios | [ ] Pending | |
 
 ### US-5: JTBD Documentation (P3)
@@ -155,7 +155,7 @@
 
 ## Notes
 
-- Command inventory derived from `ggen --help` and subcommand exploration
+- Command inventory derived from `mcpp --help` and subcommand exploration
 - Avatar personas based on current AI coding assistant landscape (Dec 2024)
 - Fortune 500 case studies are hypothetical but realistic scenarios
 - Maturity levels aligned with CMMI-style assessment

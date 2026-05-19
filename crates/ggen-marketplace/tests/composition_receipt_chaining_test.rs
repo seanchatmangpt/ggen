@@ -6,10 +6,10 @@
 //! - Detecting anomalies (cycles, broken links)
 //! - Storage and retrieval
 
-use ggen_marketplace::composition_receipt::{
+use ggen_core::marketplace::composition_receipt::{
     AtomicPackRef, BundleExpansion, CompositionReceipt, RuntimeProfile,
 };
-use ggen_marketplace::trust::TrustTier;
+use ggen_core::marketplace::trust::TrustTier;
 
 #[test]
 fn test_simple_parent_child_chain() {
@@ -183,11 +183,11 @@ fn test_validate_chain_succeeds_for_valid_chain() {
 
     // Create a resolver that can find the root
     let root_clone = root.clone();
-    let resolver = move |id: &str| -> Result<CompositionReceipt, ggen_marketplace::Error> {
+    let resolver = move |id: &str| -> Result<CompositionReceipt, ggen_core::marketplace::Error> {
         if id == root_clone.receipt_id.as_ref().unwrap() {
             Ok(root_clone.clone())
         } else {
-            Err(ggen_marketplace::Error::ValidationFailed {
+            Err(ggen_core::marketplace::Error::ValidationFailed {
                 reason: format!("Unknown receipt ID: {}", id),
             })
         }
@@ -230,13 +230,13 @@ fn test_get_full_chain_returns_correct_sequence() {
     let mid_c = mid.clone();
     let mid_id_ref = mid_id.clone();
     let root_id_ref = root_id.clone();
-    let resolver = move |id: &str| -> Result<CompositionReceipt, ggen_marketplace::Error> {
+    let resolver = move |id: &str| -> Result<CompositionReceipt, ggen_core::marketplace::Error> {
         if id == mid_id_ref {
             Ok(mid_c.clone())
         } else if id == root_id_ref {
             Ok(root_c.clone())
         } else {
-            Err(ggen_marketplace::Error::ValidationFailed {
+            Err(ggen_core::marketplace::Error::ValidationFailed {
                 reason: format!("Unknown ID: {}", id),
             })
         }

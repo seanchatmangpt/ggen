@@ -1,7 +1,7 @@
-//! Sync Command - The ONLY command in ggen v5
+//! Sync Command - The ONLY command in mcpp v5
 //!
-//! `ggen sync` is the unified code synchronization pipeline that replaces ALL
-//! previous ggen commands. It transforms domain ontologies through inference
+//! `mcpp sync` is the unified code synchronization pipeline that replaces ALL
+//! previous mcpp commands. It transforms domain ontologies through inference
 //! rules into typed code via Tera templates.
 //!
 //! ## A2A-RS μ Pipeline
@@ -15,9 +15,9 @@
 //! - **μ₅ (Receipt)**: Generate cryptographic receipt for verification
 //!
 //! Usage:
-//!   ggen sync --audit              # Full A2A pipeline with receipt
-//!   ggen sync --dry-run            # Preview without writing
-//!   ggen sync --output crates/     # Custom output directory
+//!   mcpp sync --audit              # Full A2A pipeline with receipt
+//!   mcpp sync --dry-run            # Preview without writing
+//!   mcpp sync --output crates/     # Custom output directory
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 //!
@@ -25,7 +25,7 @@
 //!
 //! - **Layer 3 (CLI)**: Input validation, output formatting, thin routing
 //! - **Layer 2 (Integration)**: Async execution, error handling
-//! - **Layer 1 (Domain)**: Pure generation logic from ggen_core::codegen
+//! - **Layer 1 (Domain)**: Pure generation logic from mcpp_core::codegen
 //!
 //! ## Exit Codes
 //!
@@ -42,9 +42,9 @@
 use chrono::Utc;
 use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
-use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
-use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
-use ggen_receipt::{generate_keypair, hash_data, Receipt};
+use mcpp_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
+use mcpp_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
+use mcpp_receipt::{generate_keypair, hash_data, Receipt};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -56,7 +56,7 @@ use crate::llm_bridge::GroqLlmBridge;
 // Output Types (re-exported for CLI compatibility)
 // ============================================================================
 
-/// Output for the `ggen sync` command
+/// Output for the `mcpp sync` command
 #[derive(Debug, Clone, Serialize)]
 pub struct SyncOutput {
     /// Overall status: "success" or "error"
@@ -128,13 +128,13 @@ impl From<SyncResult> for SyncOutput {
 }
 
 // ============================================================================
-// The ONLY Command: ggen sync
+// The ONLY Command: mcpp sync
 // ============================================================================
 
-/// Execute the complete code synchronization pipeline from a ggen.toml manifest.
+/// Execute the complete code synchronization pipeline from a mcpp.toml manifest.
 ///
-/// This is THE ONLY command in ggen v5. It replaces all previous commands
-/// (`ggen generate`, `ggen validate`, `ggen template`, etc.) with a single
+/// This is THE ONLY command in mcpp v5. It replaces all previous commands
+/// (`mcpp generate`, `mcpp validate`, `mcpp template`, etc.) with a single
 /// unified pipeline.
 ///
 /// ## A2A-RS μ Pipeline (μ₁ through μ₅)
@@ -144,11 +144,11 @@ impl From<SyncResult> for SyncOutput {
 /// ```text
 /// μ₁ CONSTRUCT: Normalize RDF ontology
 ///    Input: .specify/specs/014-a2a-integration/a2a-ontology.ttl
-///    Query: crates/ggen-core/queries/a2a/construct-agents.rq
+///    Query: crates/mcpp-core/queries/a2a/construct-agents.rq
 ///    Output: Normalized A2A RDF with a2a: prefix
 ///
 /// μ₂ SELECT: Extract bindings for each module
-///    Queries: crates/ggen-core/queries/a2a/extract-*.rq
+///    Queries: crates/mcpp-core/queries/a2a/extract-*.rq
 ///      - extract-agents.rq → agent bindings
 ///      - extract-messages.rq → message bindings
 ///      - extract-tasks.rq → task bindings
@@ -157,7 +157,7 @@ impl From<SyncResult> for SyncOutput {
 ///    Output: SPARQL result bindings
 ///
 /// μ₃ Tera: Generate Rust code
-///    Templates: crates/ggen-core/templates/a2a/*.tera
+///    Templates: crates/mcpp-core/templates/a2a/*.tera
 ///      - agent.rs.tera → crates/a2a-generated/src/agent.rs
 ///      - message.rs.tera → crates/a2a-generated/src/message.rs
 ///      - task.rs.tera → crates/a2a-generated/src/task.rs
@@ -171,23 +171,23 @@ impl From<SyncResult> for SyncOutput {
 ///    Output: Formatted, ready-to-compile code
 ///
 /// μ₅ Receipt: Generate cryptographic verification
-///    Output: .ggen/receipts/a2a-{timestamp}.json
+///    Output: .mcpp/receipts/a2a-{timestamp}.json
 ///    Contains: SHA256 hashes, input ontology hash, timestamp
 /// ```
 ///
 /// ## Pipeline Flow
 ///
 /// ```text
-/// ggen.toml → ontology → CONSTRUCT inference → SELECT → Template → Code
+/// mcpp.toml → ontology → CONSTRUCT inference → SELECT → Template → Code
 /// ```
 ///
 /// ## Flags
 ///
-/// --manifest PATH         Path to ggen.toml (default: ./ggen.toml)
+/// --manifest PATH         Path to mcpp.toml (default: ./mcpp.toml)
 /// --output-dir PATH       Override output directory from manifest
 /// --dry-run               Preview changes without writing files
 /// --force                 Overwrite existing files (DESTRUCTIVE - use with --audit)
-/// --audit                 Create detailed audit trail in .ggen/audit/
+/// --audit                 Create detailed audit trail in .mcpp/audit/
 /// --rule NAME             Execute only specific generation rule
 /// --verbose               Show detailed execution logs
 /// --watch                 Continuous file monitoring and auto-regeneration
@@ -200,22 +200,22 @@ impl From<SyncResult> for SyncOutput {
 /// ## Flag Combinations
 ///
 /// Safe workflows:
-///   ggen sync --dry-run --audit         Preview with audit
-///   ggen sync --force --audit           Destructive overwrite with tracking
-///   ggen sync --watch --validate-only   Continuous validation
+///   mcpp sync --dry-run --audit         Preview with audit
+///   mcpp sync --force --audit           Destructive overwrite with tracking
+///   mcpp sync --watch --validate-only   Continuous validation
 ///
 /// A2A-specific workflows:
-///   ggen sync --audit                   Full A2A μ₁-μ₅ pipeline with receipt
-///   ggen sync --stage μ₃                Only run template generation
-///   ggen sync --ontology .specify/specs/014-a2a-integration/a2a-ontology.ttl
+///   mcpp sync --audit                   Full A2A μ₁-μ₅ pipeline with receipt
+///   mcpp sync --stage μ₃                Only run template generation
+///   mcpp sync --ontology .specify/specs/014-a2a-integration/a2a-ontology.ttl
 ///
 /// CI/CD workflows:
-///   ggen sync --format json             Machine-readable output
-///   ggen sync --validate-only           Pre-flight checks
+///   mcpp sync --format json             Machine-readable output
+///   mcpp sync --validate-only           Pre-flight checks
 ///
 /// Development workflows:
-///   ggen sync --watch --verbose         Live feedback
-///   ggen sync --rule structs            Focused iteration
+///   mcpp sync --watch --verbose         Live feedback
+///   mcpp sync --rule structs            Focused iteration
 ///
 /// ## Progress Reporting (A2A Pipeline)
 ///
@@ -242,7 +242,7 @@ impl From<SyncResult> for SyncOutput {
 ///        Running rustfmt...
 ///        Verifying compilation...
 /// [μ₅/5] Receipt: Generating verification...
-///        Receipt: .ggen/receipts/a2a-20250208-143022.json
+///        Receipt: .mcpp/receipts/a2a-20250208-143022.json
 ///        Ontology hash: a3f2e1b4...
 ///        Total: 6 files, 15.8 KB, 2.34s
 /// ```
@@ -264,37 +264,37 @@ impl From<SyncResult> for SyncOutput {
 ///
 /// ```bash
 /// # Basic sync (the primary workflow)
-/// ggen sync
+/// mcpp sync
 ///
 /// # Sync from specific manifest
-/// ggen sync --manifest project/ggen.toml
+/// mcpp sync --manifest project/mcpp.toml
 ///
 /// # Dry-run to preview changes
-/// ggen sync --dry-run
+/// mcpp sync --dry-run
 ///
 /// # Sync specific rule only
-/// ggen sync --rule structs
+/// mcpp sync --rule structs
 ///
 /// # Force overwrite with audit trail (RECOMMENDED)
-/// ggen sync --force --audit
+/// mcpp sync --force --audit
 ///
 /// # Watch mode for development
-/// ggen sync --watch --verbose
+/// mcpp sync --watch --verbose
 ///
 /// # Validate without generating
-/// ggen sync --validate-only
+/// mcpp sync --validate-only
 ///
 /// # JSON output for CI/CD
-/// ggen sync --format json
+/// mcpp sync --format json
 ///
 /// # A2A generation with custom ontology
-/// ggen sync --ontology .specify/specs/014-a2a-integration/a2a-ontology.ttl --audit
+/// mcpp sync --ontology .specify/specs/014-a2a-integration/a2a-ontology.ttl --audit
 ///
 /// # Run specific μ stage only
-/// ggen sync --stage μ₃
+/// mcpp sync --stage μ₃
 ///
 /// # Complex: Watch, audit, verbose
-/// ggen sync --watch --audit --verbose --rule api_endpoints
+/// mcpp sync --watch --audit --verbose --rule api_endpoints
 /// ```
 ///
 /// ## Documentation
@@ -323,7 +323,7 @@ pub fn sync(
     timeout: Option<u64>,
     stage: Option<String>,
     ontology: Option<String>,
-    queries: Option<String>, // dir of .rq files — activates ontology-first pipeline (no ggen.toml needed)
+    queries: Option<String>, // dir of .rq files — activates ontology-first pipeline (no mcpp.toml needed)
     language: Option<String>, // go, elixir, rust, typescript, python, auto
     profile: Option<String>, // enforcement profile (e.g. enterprise-strict, permissive)
     locked: bool,            // require exact lock-file match (no implicit upgrades)
@@ -363,13 +363,13 @@ fn check_profile_preconditions(profile: Option<&str>, locked: bool) -> VerbResul
     if profile.is_some() || locked {
         let workspace =
             std::env::current_dir().map_err(|e| NounVerbError::execution_error(e.to_string()))?;
-        ggen_domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
+        mcpp_domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
             .map_err(NounVerbError::execution_error)?;
     }
     Ok(())
 }
 
-/// Execute the manifest-driven (ggen.toml) sync pipeline and emit a signed receipt.
+/// Execute the manifest-driven (mcpp.toml) sync pipeline and emit a signed receipt.
 #[allow(clippy::too_many_arguments)]
 fn run_manifest_pipeline(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
@@ -377,9 +377,9 @@ fn run_manifest_pipeline(
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
     stage: Option<String>, ontology: Option<String>,
 ) -> VerbResult<SyncOutput> {
-    let installed_packs = read_installed_packs(".ggen/packs.lock");
+    let installed_packs = read_installed_packs(".mcpp/packs.lock");
 
-    let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
+    let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "mcpp.toml".to_string()));
     let options = build_sync_options(
         manifest,
         output_dir,
@@ -404,7 +404,7 @@ fn run_manifest_pipeline(
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     // Emit a signed sync receipt (best-effort — never fails the sync).
-    // This makes `ggen receipt verify --receipt-file .ggen/receipts/latest.json` work.
+    // This makes `mcpp receipt verify --receipt-file .mcpp/receipts/latest.json` work.
     let receipt_path = emit_sync_receipt_best_effort(&result, &installed_packs);
 
     let mut output = SyncOutput::from(result);
@@ -454,19 +454,19 @@ fn read_installed_packs(lock_path: &str) -> Vec<String> {
         .unwrap_or_default()
 }
 
-/// Emit a cryptographically signed sync receipt to `.ggen/receipts/`.
+/// Emit a cryptographically signed sync receipt to `.mcpp/receipts/`.
 ///
 /// Writes two files on success:
-///   `.ggen/receipts/sync-<YYYYMMDD-HHMMSS>.json` — timestamped archive copy
-///   `.ggen/receipts/latest.json`                  — always points at the latest receipt
+///   `.mcpp/receipts/sync-<YYYYMMDD-HHMMSS>.json` — timestamped archive copy
+///   `.mcpp/receipts/latest.json`                  — always points at the latest receipt
 ///
 /// The receipt captures:
-///   - SHA-256 hash of `ggen.toml` as an input hash
+///   - SHA-256 hash of `mcpp.toml` as an input hash
 ///   - One entry per installed pack (`pack:<id>@<version>`) as input hashes
 ///   - SHA-256 hash of each generated file as output hashes
 ///   - Ed25519 signature over the entire payload
 ///
-/// Signing key is persisted at `.ggen/keys/signing.key` (hex).
+/// Signing key is persisted at `.mcpp/keys/signing.key` (hex).
 /// A new keypair is generated only when no key file exists; existing keys are
 /// never overwritten.
 ///
@@ -477,8 +477,8 @@ fn emit_sync_receipt(
 ) -> std::result::Result<String, String> {
     use std::fs;
 
-    // 1. Ensure .ggen/keys/ directory exists.
-    let keys_dir = std::path::Path::new(".ggen/keys");
+    // 1. Ensure .mcpp/keys/ directory exists.
+    let keys_dir = std::path::Path::new(".mcpp/keys");
     fs::create_dir_all(keys_dir).map_err(|e| e.to_string())?;
 
     // 2. Load or generate signing keypair — never overwrite an existing key.
@@ -499,11 +499,11 @@ fn emit_sync_receipt(
         sk
     };
 
-    // 3. Build input hashes: ggen.toml + installed packs.
+    // 3. Build input hashes: mcpp.toml + installed packs.
     let mut input_hashes: Vec<String> = Vec::new();
-    if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
+    if let Ok(manifest_content) = std::fs::read_to_string("mcpp.toml") {
         input_hashes.push(format!(
-            "ggen.toml:{}",
+            "mcpp.toml:{}",
             hash_data(manifest_content.as_bytes())
         ));
     }
@@ -524,12 +524,12 @@ fn emit_sync_receipt(
         .collect();
 
     // 5. Create and sign the receipt.
-    let receipt = Receipt::new("ggen-sync".to_string(), input_hashes, output_hashes, None)
+    let receipt = Receipt::new("mcpp-sync".to_string(), input_hashes, output_hashes, None)
         .sign(&signing_key)
         .map_err(|e| e.to_string())?;
 
     // 6. Write timestamped archive copy.
-    let receipts_dir = std::path::Path::new(".ggen/receipts");
+    let receipts_dir = std::path::Path::new(".mcpp/receipts");
     fs::create_dir_all(receipts_dir).map_err(|e| e.to_string())?;
     let timestamp = Utc::now().format("%Y%m%d-%H%M%S");
     let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| e.to_string())?;
@@ -543,13 +543,13 @@ fn emit_sync_receipt(
     Ok(latest_path.to_string_lossy().into_owned())
 }
 
-/// Invoke the low-level `ggen_core::sync::sync()` pipeline directly.
+/// Invoke the low-level `mcpp_core::sync::sync()` pipeline directly.
 ///
-/// Activated when the user supplies `--queries`.  Bypasses `ggen.toml` entirely.
+/// Activated when the user supplies `--queries`.  Bypasses `mcpp.toml` entirely.
 ///
 /// Usage:
 /// ```bash
-/// ggen sync --ontology ./businessos.ttl --queries ./queries/businessos/ --output ./generated/ --language go
+/// mcpp sync --ontology ./businessos.ttl --queries ./queries/businessos/ --output ./generated/ --language go
 /// ```
 fn run_low_level_pipeline(
     ontology: Option<String>, queries_dir: String, output_dir: Option<String>,
@@ -561,7 +561,7 @@ fn run_low_level_pipeline(
 
     let lang: SyncLanguage =
         language.as_deref().unwrap_or("auto").parse().map_err(
-            |e: ggen_core::sync::SyncError| NounVerbError::execution_error(e.to_string()),
+            |e: mcpp_core::sync::SyncError| NounVerbError::execution_error(e.to_string()),
         )?;
 
     let config = SyncConfig {
@@ -629,7 +629,7 @@ fn run_low_level_pipeline(
 ///
 /// # Arguments
 /// * `executor` - The SyncExecutor to inject the service into
-/// * `manifest_path` - Path to the ggen.toml manifest file
+/// * `manifest_path` - Path to the mcpp.toml manifest file
 /// * `verbose` - Whether to print verbose output
 ///
 /// # Returns
@@ -642,7 +642,7 @@ fn inject_llm_if_enabled(
     }
 
     // Parse manifest to check enable_llm flag
-    let manifest_data = match ggen_core::manifest::ManifestParser::parse(manifest_path) {
+    let manifest_data = match mcpp_core::manifest::ManifestParser::parse(manifest_path) {
         Ok(data) => data,
         Err(_) => return executor, // If parsing fails, return executor as-is
     };
@@ -686,7 +686,7 @@ fn build_sync_options(
     let mut options = SyncOptions::new();
 
     // Set manifest path
-    options.manifest_path = PathBuf::from(manifest.unwrap_or_else(|| "ggen.toml".to_string()));
+    options.manifest_path = PathBuf::from(manifest.unwrap_or_else(|| "mcpp.toml".to_string()));
 
     // Set optional output directory
     if let Some(dir) = output_dir {

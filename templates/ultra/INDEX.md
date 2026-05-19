@@ -3,7 +3,7 @@
 ## 📁 File Organization
 
 ```
-/Users/sac/ggen/templates/ultra/
+./templates/ultra/
 ├── 📄 INDEX.md                  (This file)
 ├── 📘 README.md                 (5.3 KB) - Main documentation
 ├── 📗 QUICKSTART.md             (2.7 KB) - 1-minute getting started

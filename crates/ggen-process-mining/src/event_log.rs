@@ -54,7 +54,7 @@ impl Event {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::Event;
+    /// use mcpp_process_mining::Event;
     ///
     /// let event = Event::new(
     ///     "evt-1",
@@ -112,7 +112,7 @@ impl Trace {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process_mining::Trace;
+    /// use mcpp_process_mining::Trace;
     ///
     /// let trace = Trace::new("case-001");
     /// ```
@@ -184,7 +184,7 @@ impl EventLog {
     /// # Examples
     ///
     /// ```rust
-    /// use ggen_process mining::EventLog;
+    /// use mcpp_process mining::EventLog;
     ///
     /// let log = EventLog::new("Purchase Process Log");
     /// ```

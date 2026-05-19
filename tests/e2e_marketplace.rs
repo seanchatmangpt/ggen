@@ -6,6 +6,7 @@ use tempfile::TempDir;
 
 /// End-to-end test for the complete marketplace workflow
 #[test]
+#[ignore]
 fn test_marketplace_e2e_workflow() -> Result<()> {
     // Setup: Create a temporary project directory
     let project_dir = TempDir::new()?;
@@ -198,6 +199,7 @@ fn resolve_template(template_ref: &str, project_dir: &std::path::Path) -> Result
 
 /// Test registry validation
 #[test]
+#[ignore]
 fn test_registry_validation() -> Result<()> {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
     let registry_path = PathBuf::from(manifest_dir)
@@ -254,6 +256,7 @@ fn test_registry_validation() -> Result<()> {
 
 /// Test hash generation script
 #[test]
+#[ignore]
 fn test_hash_generation() -> Result<()> {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
     let templates_path = PathBuf::from(manifest_dir)

@@ -14,31 +14,31 @@ scale_requirements:
   latency_slo: "<5s from change to regeneration"
 
 required_commands:
-  - command: "ggen fmea pareto"
+  - command: "mcpp fmea pareto"
     purpose: "Prioritize failure modes for quality focus"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen project watch"
+  - command: "mcpp project watch"
     purpose: "Auto-regenerate on configuration changes"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen graph export"
+  - command: "mcpp graph export"
     purpose: "Export configuration to manufacturing systems"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen fmea show"
+  - command: "mcpp fmea show"
     purpose: "Display safety analysis for review"
     criticality: P2
     current_support: pending
     gaps: []
 
-  - command: "ggen marketplace validate_fmea"
+  - command: "mcpp marketplace validate_fmea"
     purpose: "Validate automotive FMEA for ISO 26262"
     criticality: P1
     current_support: pending
@@ -51,7 +51,7 @@ validator: claude-code
 test_scenarios:
   - scenario: "Just-in-time code regeneration"
     steps:
-      - "ggen project watch --path ./vehicle-config --debounce 1000"
+      - "mcpp project watch --path ./vehicle-config --debounce 1000"
       - "Modify configuration file"
       - "Verify regeneration within 5s"
     expected: "Watch mode triggers regeneration within SLO"
@@ -59,14 +59,14 @@ test_scenarios:
 
   - scenario: "Pareto-prioritized quality analysis"
     steps:
-      - "ggen fmea pareto --input vehicle-fmea.json --threshold 80"
-      - "ggen fmea show --top 10"
+      - "mcpp fmea pareto --input vehicle-fmea.json --threshold 80"
+      - "mcpp fmea show --top 10"
     expected: "80/20 prioritization of failure modes for quality focus"
     actual: pending
 
   - scenario: "ISO 26262 compliant FMEA"
     steps:
-      - "ggen marketplace validate_fmea --package_path ./brake-system --strict"
+      - "mcpp marketplace validate_fmea --package_path ./brake-system --strict"
     expected: "FMEA validation supporting automotive safety standard"
     actual: pending
 

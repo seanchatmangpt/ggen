@@ -2,12 +2,12 @@
 
 ## Executive Summary
 
-This document defines the comprehensive release strategy for the HTF (Hyper-Thesis Framework) playground, which serves as a reference implementation for clap-noun-verb. The strategy leverages the mature ggen infrastructure while establishing playground-specific processes.
+This document defines the comprehensive release strategy for the HTF (Hyper-Thesis Framework) playground, which serves as a reference implementation for clap-noun-verb. The strategy leverages the mature mcpp infrastructure while establishing playground-specific processes.
 
 **Current State:**
 - Published crate: `clap-noun-verb` 5.1.0 on crates.io
 - Playground version: `htf-cli` 0.1.0 (workspace member)
-- Parent workspace: ggen 3.3.0
+- Parent workspace: mcpp 3.3.0
 
 ---
 
@@ -49,7 +49,7 @@ Examples:
 ### 1.4 Version Synchronization Strategy
 
 ```
-Playground (htf-cli)    clap-noun-verb    ggen Workspace
+Playground (htf-cli)    clap-noun-verb    mcpp Workspace
 -----------------       --------------    --------------
 Independent             Independent       Independent
 1.x.x                   5.x.x             3.x.x
@@ -204,7 +204,7 @@ body = """
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
 {% for commit in commits %}
-- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/seanchatmangpt/ggen/commit/{{ commit.id }}))
+- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/seanchatmangpt/mcpp/commit/{{ commit.id }}))
 {% endfor %}
 {% endfor %}
 """
@@ -326,8 +326,8 @@ edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Hyper-Thesis Framework: RDF-backed thesis planning with scheduling, profiling, and checking"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen/tree/master/playground"
+repository = "https://github.com/seanchatmangpt/mcpp"
+homepage = "https://github.com/seanchatmangpt/mcpp/tree/master/playground"
 documentation = "https://docs.rs/htf-cli"
 readme = "README.md"
 keywords = ["thesis", "planning", "rdf", "cli", "scheduling"]
@@ -365,26 +365,26 @@ htf-v1.0.0/
 # Formula/htf.rb
 class Htf < Formula
   desc "Hyper-Thesis Framework: RDF-backed thesis planning CLI"
-  homepage "https://github.com/seanchatmangpt/ggen/tree/master/playground"
+  homepage "https://github.com/seanchatmangpt/mcpp/tree/master/playground"
   license "MIT"
   version "1.0.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/seanchatmangpt/ggen/releases/download/htf-v1.0.0/htf-aarch64-apple-darwin.tar.gz"
+      url "https://github.com/seanchatmangpt/mcpp/releases/download/htf-v1.0.0/htf-aarch64-apple-darwin.tar.gz"
       sha256 "PLACEHOLDER_SHA256"
     else
-      url "https://github.com/seanchatmangpt/ggen/releases/download/htf-v1.0.0/htf-x86_64-apple-darwin.tar.gz"
+      url "https://github.com/seanchatmangpt/mcpp/releases/download/htf-v1.0.0/htf-x86_64-apple-darwin.tar.gz"
       sha256 "PLACEHOLDER_SHA256"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/seanchatmangpt/ggen/releases/download/htf-v1.0.0/htf-aarch64-unknown-linux-gnu.tar.gz"
+      url "https://github.com/seanchatmangpt/mcpp/releases/download/htf-v1.0.0/htf-aarch64-unknown-linux-gnu.tar.gz"
       sha256 "PLACEHOLDER_SHA256"
     else
-      url "https://github.com/seanchatmangpt/ggen/releases/download/htf-v1.0.0/htf-x86_64-unknown-linux-gnu.tar.gz"
+      url "https://github.com/seanchatmangpt/mcpp/releases/download/htf-v1.0.0/htf-x86_64-unknown-linux-gnu.tar.gz"
       sha256 "PLACEHOLDER_SHA256"
     end
   end
@@ -1034,8 +1034,8 @@ cargo install htf-cli
 brew install seanchatmangpt/tap/htf
 
 # From source
-git clone https://github.com/seanchatmangpt/ggen
-cd ggen/playground
+git clone https://github.com/seanchatmangpt/mcpp
+cd mcpp/playground
 cargo install --path .
 ```
 

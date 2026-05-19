@@ -1,17 +1,17 @@
-# ggen v5 Thesis Generation Manifest
+# mcpp v5 Thesis Generation Manifest
 # Generates LaTeX PhD thesis from RDF ontology
 
 [project]
-name = "ggen-thesis-phd"
+name = "mcpp-thesis-phd"
 version = "1.0.0"
-description = "PhD Thesis: ggen sync as Hyperdimensional Information Theory Calculus"
+description = "PhD Thesis: mcpp sync as Hyperdimensional Information Theory Calculus"
 
 [ontology]
 source = "thesis-ontology.ttl"
-base_iri = "https://ggen.io/thesis/"
+base_iri = "https://mcpp.io/thesis/"
 
 [ontology.prefixes]
-thesis = "https://ggen.io/thesis/"
+thesis = "https://mcpp.io/thesis/"
 rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 xsd = "http://www.w3.org/2001/XMLSchema#"
@@ -27,7 +27,7 @@ require_audit_trail = true
 [[generation.rules]]
 name = "thesis-main"
 query = { inline = """
-PREFIX : <https://ggen.io/thesis/>
+PREFIX : <https://mcpp.io/thesis/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?thesisLabel
@@ -44,7 +44,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "chapters"
 query = { inline = """
-PREFIX : <https://ggen.io/thesis/>
+PREFIX : <https://mcpp.io/thesis/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?chapterNum ?chapterTitle ?chapterUri
@@ -64,7 +64,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "sections"
 query = { inline = """
-PREFIX : <https://ggen.io/thesis/>
+PREFIX : <https://mcpp.io/thesis/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?chapterNum ?chapterTitle ?sectionTitle ?content ?sectionUri
@@ -87,7 +87,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "equations"
 query = { inline = """
-PREFIX : <https://ggen.io/thesis/>
+PREFIX : <https://mcpp.io/thesis/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?sectionTitle ?latex ?eqUri
@@ -107,7 +107,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "theorems"
 query = { inline = """
-PREFIX : <https://ggen.io/thesis/>
+PREFIX : <https://mcpp.io/thesis/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?sectionTitle ?theoremStatement ?proofSteps ?thmUri

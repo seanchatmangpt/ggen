@@ -110,17 +110,17 @@ struct SubmissionInfo {
 ///
 /// Create IEEE conference paper:
 /// ```bash
-/// ggen paper new "Deep Learning for Code Generation" --template ieee --discipline computer-science
+/// mcpp paper new "Deep Learning for Code Generation" --template ieee --discipline computer-science
 /// ```
 ///
 /// Create arXiv preprint:
 /// ```bash
-/// ggen paper new "Semantic Code Projections" --template arxiv --output ./papers
+/// mcpp paper new "Semantic Code Projections" --template arxiv --output ./papers
 /// ```
 ///
 /// Create with custom directory:
 /// ```bash
-/// ggen paper new my-paper --template neurips --output /workspace/papers
+/// mcpp paper new my-paper --template neurips --output /workspace/papers
 /// ```
 #[verb]
 fn new(
@@ -138,7 +138,7 @@ fn new(
             format!("Edit {}.rdf with paper metadata", name),
             "Create sections in sections/ directory".to_string(),
             "Add bibliography entries to bibliography.bib".to_string(),
-            format!("Compile: ggen paper compile {} --style {}", name, template),
+            format!("Compile: mcpp paper compile {} --style {}", name, template),
         ],
     })
 }
@@ -149,17 +149,17 @@ fn new(
 ///
 /// Generate IEEE conference format:
 /// ```bash
-/// ggen paper generate my-paper.rdf --style ieee --output my-paper.tex
+/// mcpp paper generate my-paper.rdf --style ieee --output my-paper.tex
 /// ```
 ///
 /// Generate with custom template:
 /// ```bash
-/// ggen paper generate research.rdf --template ./custom-template.tmpl
+/// mcpp paper generate research.rdf --template ./custom-template.tmpl
 /// ```
 ///
 /// Generate multiple formats:
 /// ```bash
-/// ggen paper generate thesis.rdf --style phd --output thesis.tex
+/// mcpp paper generate thesis.rdf --style phd --output thesis.tex
 /// ```
 #[verb]
 fn generate(
@@ -191,17 +191,17 @@ fn generate(
 ///
 /// Validate paper:
 /// ```bash
-/// ggen paper validate my-paper.rdf
+/// mcpp paper validate my-paper.rdf
 /// ```
 ///
 /// Validate with specific checks:
 /// ```bash
-/// ggen paper validate research.rdf --check formatting,citations,metadata
+/// mcpp paper validate research.rdf --check formatting,citations,metadata
 /// ```
 ///
 /// Strict validation:
 /// ```bash
-/// ggen paper validate thesis.rdf --strict
+/// mcpp paper validate thesis.rdf --strict
 /// ```
 #[verb]
 fn validate(paper_file: String, _check: Option<String>, strict: bool) -> Result<ValidateOutput> {
@@ -235,17 +235,17 @@ fn validate(paper_file: String, _check: Option<String>, strict: bool) -> Result<
 ///
 /// Export to PDF:
 /// ```bash
-/// ggen paper export my-paper.rdf --format pdf
+/// mcpp paper export my-paper.rdf --format pdf
 /// ```
 ///
 /// Export to HTML:
 /// ```bash
-/// ggen paper export research.rdf --format html --output ./public
+/// mcpp paper export research.rdf --format html --output ./public
 /// ```
 ///
 /// Export to JSON-LD:
 /// ```bash
-/// ggen paper export paper.rdf --format json-ld
+/// mcpp paper export paper.rdf --format json-ld
 /// ```
 #[verb]
 fn export(paper_file: String, format: String, output: Option<String>) -> Result<ExportOutput> {
@@ -274,12 +274,12 @@ fn export(paper_file: String, format: String, output: Option<String>) -> Result<
 ///
 /// List all templates:
 /// ```bash
-/// ggen paper list-templates
+/// mcpp paper list-templates
 /// ```
 ///
 /// List conference templates:
 /// ```bash
-/// ggen paper list-templates --filter conference
+/// mcpp paper list-templates --filter conference
 /// ```
 #[verb]
 fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
@@ -328,17 +328,17 @@ fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
 ///
 /// Compile with default settings:
 /// ```bash
-/// ggen paper compile my-paper.tex
+/// mcpp paper compile my-paper.tex
 /// ```
 ///
 /// Compile with xelatex (for Unicode):
 /// ```bash
-/// ggen paper compile thesis.tex --engine xelatex
+/// mcpp paper compile thesis.tex --engine xelatex
 /// ```
 ///
 /// Compile with bibliography:
 /// ```bash
-/// ggen paper compile research.tex --bibtex
+/// mcpp paper compile research.tex --bibtex
 /// ```
 #[verb]
 fn compile(tex_file: String, engine: Option<String>, bibtex: bool) -> Result<CompileOutput> {
@@ -369,12 +369,12 @@ fn compile(tex_file: String, engine: Option<String>, bibtex: bool) -> Result<Com
 ///
 /// Initialize bibliography:
 /// ```bash
-/// ggen paper init-bibliography my-paper.rdf
+/// mcpp paper init-bibliography my-paper.rdf
 /// ```
 ///
 /// With custom BibTeX file:
 /// ```bash
-/// ggen paper init-bibliography paper.rdf --output refs.bib
+/// mcpp paper init-bibliography paper.rdf --output refs.bib
 /// ```
 #[verb]
 fn init_bibliography(paper_file: String, output: Option<String>) -> Result<InitBibliographyOutput> {
@@ -401,17 +401,17 @@ fn init_bibliography(paper_file: String, output: Option<String>) -> Result<InitB
 ///
 /// Submit to arXiv:
 /// ```bash
-/// ggen paper submit my-paper.pdf --venue arxiv --category cs.AI
+/// mcpp paper submit my-paper.pdf --venue arxiv --category cs.AI
 /// ```
 ///
 /// Submit to conference:
 /// ```bash
-/// ggen paper submit research.pdf --venue neurips-2024
+/// mcpp paper submit research.pdf --venue neurips-2024
 /// ```
 ///
 /// Submit with metadata:
 /// ```bash
-/// ggen paper submit paper.pdf --venue journal --metadata paper.rdf
+/// mcpp paper submit paper.pdf --venue journal --metadata paper.rdf
 /// ```
 #[verb]
 fn submit(paper_file: String, venue: String, _metadata: Option<String>) -> Result<SubmitOutput> {
@@ -431,12 +431,12 @@ fn submit(paper_file: String, venue: String, _metadata: Option<String>) -> Resul
 ///
 /// Track paper status:
 /// ```bash
-/// ggen paper track my-paper.rdf
+/// mcpp paper track my-paper.rdf
 /// ```
 ///
 /// Track specific venue:
 /// ```bash
-/// ggen paper track research.rdf --venue neurips-2024
+/// mcpp paper track research.rdf --venue neurips-2024
 /// ```
 #[verb]
 fn track(paper_file: String, _venue: Option<String>) -> Result<TrackOutput> {

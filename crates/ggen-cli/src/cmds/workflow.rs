@@ -50,13 +50,13 @@ struct WorkflowDiscoveryOutput {
 ///
 /// ```bash
 /// # Create university research workflow
-/// ggen workflow init --name "university-research" --type research
+/// mcpp workflow init --name "university-research" --type research
 ///
 /// # Create package maturity workflow
-/// ggen workflow init --name "package-maturity" --type maturity
+/// mcpp workflow init --name "package-maturity" --type maturity
 ///
 /// # Create RevOps workflow
-/// ggen workflow init --name "revops-pipeline" --type revops
+/// mcpp workflow init --name "revops-pipeline" --type revops
 /// ```
 #[verb]
 fn init(
@@ -78,10 +78,10 @@ fn init(
 ///
 /// ```bash
 /// # Analyze workflow
-/// ggen workflow analyze --workflow-file workflow.json
+/// mcpp workflow analyze --workflow-file workflow.json
 ///
 /// # Show summary
-/// ggen workflow analyze --workflow-file workflow.json --summary
+/// mcpp workflow analyze --workflow-file workflow.json --summary
 /// ```
 #[verb]
 fn analyze(workflow_file: String, summary: bool) -> Result<WorkflowAnalysisOutput> {
@@ -109,13 +109,13 @@ fn analyze(workflow_file: String, summary: bool) -> Result<WorkflowAnalysisOutpu
 ///
 /// ```bash
 /// # Discover process patterns
-/// ggen workflow discover --workflow-file workflow.json
+/// mcpp workflow discover --workflow-file workflow.json
 ///
 /// # Export as Mermaid diagram
-/// ggen workflow discover --workflow-file workflow.json --export mermaid
+/// mcpp workflow discover --workflow-file workflow.json --export mermaid
 ///
 /// # Show 80/20 critical path
-/// ggen workflow discover --workflow-file workflow.json --pareto
+/// mcpp workflow discover --workflow-file workflow.json --pareto
 /// ```
 #[verb]
 fn discover(
@@ -165,7 +165,7 @@ fn discover(
 ///
 /// ```bash
 /// # Record event
-/// ggen workflow event --workflow-file workflow.json \
+/// mcpp workflow event --workflow-file workflow.json \
 ///   --case-id paper-123 \
 ///   --activity "CodeGenerated" \
 ///   --resource "researcher-1"
@@ -191,10 +191,10 @@ fn event(
 ///
 /// ```bash
 /// # Generate HTML report
-/// ggen workflow report --workflow-file workflow.json --format html --output report.html
+/// mcpp workflow report --workflow-file workflow.json --format html --output report.html
 ///
 /// # Generate JSON report
-/// ggen workflow report --workflow-file workflow.json --format json --output report.json
+/// mcpp workflow report --workflow-file workflow.json --format json --output report.json
 /// ```
 #[verb]
 fn report(

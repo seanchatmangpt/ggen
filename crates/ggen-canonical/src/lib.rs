@@ -1,4 +1,4 @@
-//! Deterministic canonicalization system for ggen
+//! Deterministic canonicalization system for mcpp
 //!
 //! This crate provides deterministic canonicalization for multiple formats:
 //! - Rust code (via rustfmt)

@@ -10,10 +10,10 @@
 
 #![cfg(feature = "integration")]
 
-use ggen_marketplace::cache::{CacheConfig, PackCache};
-use ggen_marketplace::install::{BatchInstallationResult, Installer};
-use ggen_marketplace::models::{InstallationManifest, PackageId, PackageVersion};
-use ggen_marketplace::registry::Registry;
+use ggen_core::marketplace::cache::{CacheConfig, PackCache};
+use ggen_core::marketplace::install::{BatchInstallationResult, Installer};
+use ggen_core::marketplace::models::{InstallationManifest, PackageId, PackageVersion};
+use ggen_core::marketplace::registry::Registry;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use tempfile::TempDir;

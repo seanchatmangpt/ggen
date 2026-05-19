@@ -7,7 +7,7 @@
 //! 2. GREEN: Make test pass with REAL implementation
 //! 3. REFACTOR: Improve code while maintaining green
 //!
-//! NO MOCKS - Tests against REAL domain implementations from ggen_domain::utils
+//! NO MOCKS - Tests against REAL domain implementations from mcpp_domain::utils
 
 use std::collections::HashMap;
 
@@ -15,7 +15,7 @@ use std::collections::HashMap;
 // Domain Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
-use ggen_domain::utils::{
+use mcpp_domain::utils::{
     execute_doctor, CheckResult, CheckStatus, DoctorInput, DoctorResult, EnvironmentInfo,
 };
 
@@ -606,7 +606,7 @@ mod integration_tests {
         variables.insert("PATH".to_string(), "/usr/bin:/bin".to_string());
         variables.insert("HOME".to_string(), "/Users/user".to_string());
         variables.insert("RUSTUP_HOME".to_string(), "/Users/user/.rustup".to_string());
-        variables.insert("GGEN_DIR".to_string(), "/opt/ggen".to_string());
+        variables.insert("GGEN_DIR".to_string(), "/opt/mcpp".to_string());
 
         // Verify HashMap contains expected entries
         assert_eq!(variables.len(), 4);

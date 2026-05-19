@@ -33,7 +33,7 @@ Minor style fixes needed (cosmetic), no critical issues.
 ## Module Map
 
 ```
-ggen-domain/src/packs/
+mcpp-domain/src/packs/
 ├── installer.rs          ⭐ Production installer with deps
 ├── dependency_graph.rs   ⭐ DFS + Kahn's algorithm
 ├── repository.rs         ⭐ Filesystem + extensible trait
@@ -63,7 +63,7 @@ ggen-domain/src/packs/
 - [ ] `cargo clippy --fix` (~30 warnings)
 
 **Phase 2 Tasks**:
-- [ ] Add `ggen pack install` CLI command
+- [ ] Add `mcpp pack install` CLI command
 - [ ] Test lifecycle integration
 - [ ] Implement `RemoteRepository`
 
@@ -72,7 +72,7 @@ ggen-domain/src/packs/
 ## Quick Usage
 
 ```rust
-use ggen_domain::packs::{PackInstaller, InstallOptions};
+use mcpp_domain::packs::{PackInstaller, InstallOptions};
 
 // Install a pack
 let installer = PackInstaller::with_default_repo()?;
@@ -88,7 +88,7 @@ println!("{}", report.detailed_report());
 
 ```bash
 # Run all packs tests
-cargo test --package ggen-domain --lib 'packs::'
+cargo test --package mcpp-domain --lib 'packs::'
 
 # Expected: 56 tests passing (0.00s)
 ```
@@ -141,9 +141,9 @@ struct RemoteRepository {
 async fn detect_region() -> Result<String>
 
 # 3. CLI commands
-ggen pack install <pack-id>
-ggen pack list
-ggen pack show <pack-id>
+mcpp pack install <pack-id>
+mcpp pack list
+mcpp pack show <pack-id>
 
 # 4. Test lifecycle integration
 test_pack_lockfile_with_snapshots()

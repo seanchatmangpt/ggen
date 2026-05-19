@@ -22,7 +22,7 @@
 //! ```rust
 //! use ggen_core::rdf::query_builder::{SparqlQueryBuilder, Variable, Iri};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let query = SparqlQueryBuilder::select()
 //!     .prefix("ex", Iri::new("https://example.com/")?)
 //!     .var(Variable::new("subject")?)
@@ -43,7 +43,7 @@
 //! ```rust
 //! use ggen_core::rdf::query_builder::{SparqlQueryBuilder, Iri};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let query = SparqlQueryBuilder::construct()
 //!     .prefix("ex", Iri::new("https://example.com/")?)
 //!     .construct_pattern("?s <http://example.com/new> ?o")
@@ -55,7 +55,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::marker::PhantomData;
 
 /// Type-safe IRI wrapper with automatic validation and escaping
@@ -80,7 +80,7 @@ impl Iri {
     /// ```rust
     /// use ggen_core::rdf::query_builder::Iri;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let iri = Iri::new("https://example.com/resource")?;
     /// # Ok(())
     /// # }
@@ -129,7 +129,7 @@ impl Variable {
     /// ```rust
     /// use ggen_core::rdf::query_builder::Variable;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let var = Variable::new("subject")?;
     /// # Ok(())
     /// # }

@@ -1,4 +1,4 @@
-command: "ggen template generate-tree"
+command: "mcpp template generate-tree"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I want to generate a directory tree from templates,
-  I need to run 'ggen template generate-tree',
+  I need to run 'mcpp template generate-tree',
   so that I can create complex project structures automatically.

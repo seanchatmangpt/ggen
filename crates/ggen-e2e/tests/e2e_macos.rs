@@ -5,6 +5,7 @@
 
 #[ignore]
 #[tokio::test]
+#[ignore]
 async fn test_ggen_sync_native_macos() {
     // T024: macOS native execution test
     // Executes ggen sync natively on the current macOS platform
@@ -13,6 +14,7 @@ async fn test_ggen_sync_native_macos() {
 
 #[ignore]
 #[tokio::test]
+#[ignore]
 async fn test_minimal_fixture_macos() {
     // Test the minimal fixture natively on macOS
     println!("Minimal fixture macOS test");

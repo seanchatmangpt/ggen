@@ -1,4 +1,4 @@
-command: "ggen project sync"
+command: "mcpp project sync"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to synchronize project changes,
-  I need to run 'ggen project sync',
+  I need to run 'mcpp project sync',
   so that I can keep projects updated with latest configuration.

@@ -1,4 +1,4 @@
-command: "ggen template lint"
+command: "mcpp template lint"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,5 +52,5 @@ recommendations:
 
 jtbd: |
   When I have template files to validate,
-  I need to run 'ggen template lint',
+  I need to run 'mcpp template lint',
   so that I can catch template errors before generation.

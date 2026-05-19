@@ -4,8 +4,8 @@
 //! against baseline operations.
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use ggen_marketplace::models::PackageId;
-use ggen_marketplace::v3::V3OptimizedRegistry;
+use ggen_core::marketplace::models::PackageId;
+use ggen_core::marketplace::v3::V3OptimizedRegistry;
 use oxigraph::store::Store;
 use std::sync::Arc;
 

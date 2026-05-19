@@ -5,7 +5,7 @@
 //! - Multi-pack composition (3 packs) < 500ms
 //! - Large packs < 2s
 
-use ggen_domain::packs::{
+use ggen_core::domain::packs::{
     compose_packs, generate_from_pack, install_pack, list_packs, show_pack, ComposePacksInput,
     CompositionStrategy, GenerateInput, InstallInput,
 };
@@ -289,7 +289,7 @@ async fn test_full_workflow_performance() {
 #[test]
 fn test_pack_serialization_performance() {
     // Test that pack serialization is fast
-    use ggen_domain::packs::{Pack, PackTemplate};
+    use ggen_core::domain::packs::{Pack, PackTemplate};
     use std::collections::HashMap;
 
     let pack = Pack {

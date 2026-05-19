@@ -36,7 +36,7 @@ pub async fn describe_resource(name: &str, detailed: bool, format: &str) -> Resu
     } else {
         // Try to describe as a known resource type
         match name {
-            "paas.toml" | "ggen-paas.toml" => {
+            "paas.toml" | "mcpp-paas.toml" => {
                 println!("Type: Configuration File");
                 println!("Description: PaaS deployment configuration");
                 println!();
@@ -46,9 +46,9 @@ pub async fn describe_resource(name: &str, detailed: bool, format: &str) -> Resu
                 println!("  - Resource limits");
                 println!("  - Environment variables");
             }
-            "ggen-spec-kit" => {
+            "mcpp-spec-kit" => {
                 println!("Type: Git Submodule");
-                println!("Description: ggen specification kit templates");
+                println!("Description: mcpp specification kit templates");
                 println!();
                 println!("Contains:");
                 println!("  - RDF ontology templates");
@@ -71,7 +71,7 @@ pub async fn describe_resource(name: &str, detailed: bool, format: &str) -> Resu
                 println!();
                 println!("Available resources:");
                 println!("  - paas.toml (configuration)");
-                println!("  - ggen-spec-kit (submodule)");
+                println!("  - mcpp-spec-kit (submodule)");
                 println!("  - clap-noun-verb (submodule)");
                 println!("  - .specify/ (specifications)");
             }
@@ -105,7 +105,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_describe_submodule() {
-        let result = describe_resource("ggen-spec-kit", true, "table").await;
+        let result = describe_resource("mcpp-spec-kit", true, "table").await;
         assert!(result.is_ok());
     }
 }

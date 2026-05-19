@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Real filesystem, real cache operations, no mocks.
 //!
-//! GATED: references ggen_marketplace crate which is not a dep of ggen-cli-lib.
+//! GATED: references mcpp_marketplace crate which is not a dep of mcpp-cli-lib.
 
 #![cfg(feature = "integration")]
 
@@ -17,14 +17,14 @@ fn test_pack_cache_integration() {
     let cache_dir = temp_dir.path().join("packs");
 
     // Initialize cache
-    let config = ggen_marketplace::cache::CacheConfig {
+    let config = mcpp_marketplace::cache::CacheConfig {
         cache_dir: cache_dir.clone(),
         max_size_bytes: 1_000_000_000, // 1GB
         max_packs: 50,
         persistent: false, // Don't persist metadata in tests
     };
     let cache =
-        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
+        mcpp_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     // Test cache stats initially empty
     let stats = cache.stats();
@@ -40,14 +40,14 @@ fn test_pack_cache_lru_eviction() {
     let cache_dir = temp_dir.path().join("packs");
 
     // Small cache to test eviction
-    let config = ggen_marketplace::cache::CacheConfig {
+    let config = mcpp_marketplace::cache::CacheConfig {
         cache_dir: cache_dir.clone(),
         max_size_bytes: 3000, // Only fits 3 packs
         max_packs: 10,
         persistent: false,
     };
     let cache =
-        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
+        mcpp_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     // Create and insert 3 packs
     for i in 1..=3 {
@@ -56,12 +56,12 @@ fn test_pack_cache_lru_eviction() {
         fs::write(pack_dir.join("test.txt"), format!("content{}", i))
             .expect("Failed to write pack file");
 
-        let package_id = ggen_marketplace::models::PackageId::new(&format!("test-pkg-{}", i))
+        let package_id = mcpp_marketplace::models::PackageId::new(&format!("test-pkg-{}", i))
             .expect("Invalid package ID");
         let version =
-            ggen_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
+            mcpp_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
 
-        let cached_pack = ggen_marketplace::cache::CachedPack::new(
+        let cached_pack = mcpp_marketplace::cache::CachedPack::new(
             package_id,
             version,
             format!("digest{}", i),
@@ -84,14 +84,14 @@ fn test_pack_cache_digest_verification() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let cache_dir = temp_dir.path().join("packs");
 
-    let config = ggen_marketplace::cache::CacheConfig {
+    let config = mcpp_marketplace::cache::CacheConfig {
         cache_dir: cache_dir.clone(),
         max_size_bytes: 1_000_000_000,
         max_packs: 100,
         persistent: false,
     };
     let cache =
-        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
+        mcpp_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     // Create a pack with known content
     let pack_dir = temp_dir.path().join("test-pack");
@@ -105,10 +105,10 @@ fn test_pack_cache_digest_verification() {
     let expected_digest = hex::encode(hasher.finalize());
 
     let package_id =
-        ggen_marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
-    let version = ggen_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
+        mcpp_marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
+    let version = mcpp_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
 
-    let cached_pack = ggen_marketplace::cache::CachedPack::new(
+    let cached_pack = mcpp_marketplace::cache::CachedPack::new(
         package_id,
         version,
         expected_digest.clone(),
@@ -131,7 +131,7 @@ fn test_pack_cache_persistence() {
     let cache_dir = temp_dir.path().join("packs");
 
     // Create cache with persistence enabled
-    let config = ggen_marketplace::cache::CacheConfig {
+    let config = mcpp_marketplace::cache::CacheConfig {
         cache_dir: cache_dir.clone(),
         max_size_bytes: 1_000_000_000,
         max_packs: 100,
@@ -139,7 +139,7 @@ fn test_pack_cache_persistence() {
     };
 
     {
-        let cache1 = ggen_marketplace::cache::PackCache::new(config.clone())
+        let cache1 = mcpp_marketplace::cache::PackCache::new(config.clone())
             .expect("Failed to initialize cache");
 
         // Create and insert a pack
@@ -148,11 +148,11 @@ fn test_pack_cache_persistence() {
         fs::write(pack_dir.join("test.txt"), "content").expect("Failed to write pack file");
 
         let package_id =
-            ggen_marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
+            mcpp_marketplace::models::PackageId::new("test-pkg").expect("Invalid package ID");
         let version =
-            ggen_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
+            mcpp_marketplace::models::PackageVersion::new("1.0.0").expect("Invalid version");
 
-        let cached_pack = ggen_marketplace::cache::CachedPack::new(
+        let cached_pack = mcpp_marketplace::cache::CachedPack::new(
             package_id,
             version,
             "digest123".to_string(),
@@ -165,7 +165,7 @@ fn test_pack_cache_persistence() {
 
     // Load cache again
     let cache2 =
-        ggen_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
+        mcpp_marketplace::cache::PackCache::new(config).expect("Failed to initialize cache");
 
     let stats = cache2.stats();
     assert_eq!(stats.total_packs, 1);

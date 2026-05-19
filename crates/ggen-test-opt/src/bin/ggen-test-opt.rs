@@ -1,17 +1,17 @@
-// ggen-test-opt CLI - Test optimization and selection tooling
+// mcpp-test-opt CLI - Test optimization and selection tooling
 //
 // Command-line interface for test value scoring, Pareto selection,
 // metadata collection, and performance budget enforcement.
 
 use clap::{Parser, Subcommand};
-use ggen_test_opt::{MetadataCollector, OptResult, ParetoSelector, TestValueScorer};
+use mcpp_test_opt::{MetadataCollector, OptResult, ParetoSelector, TestValueScorer};
 use std::path::PathBuf;
 
-/// ggen-test-opt - Test optimization and selection tooling
+/// mcpp-test-opt - Test optimization and selection tooling
 #[derive(Debug, Parser)]
-#[command(name = "ggen-test-opt")]
+#[command(name = "mcpp-test-opt")]
 #[command(version = "0.1.0")]
-#[command(about = "Test optimization and selection for ggen")]
+#[command(about = "Test optimization and selection for mcpp")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -30,12 +30,12 @@ enum Commands {
         #[arg(long, default_value = "0.80")]
         min_detection_rate: f64,
 
-        /// Path to test metadata directory (default: .ggen/test-metadata)
-        #[arg(long, default_value = ".ggen/test-metadata")]
+        /// Path to test metadata directory (default: .mcpp/test-metadata)
+        #[arg(long, default_value = ".mcpp/test-metadata")]
         metadata_dir: PathBuf,
 
         /// Path to output optimized suite manifest
-        #[arg(long, default_value = ".ggen/test-metadata/optimized-suite.json")]
+        #[arg(long, default_value = ".mcpp/test-metadata/optimized-suite.json")]
         output: PathBuf,
     },
 
@@ -49,8 +49,8 @@ enum Commands {
         #[arg(long)]
         tarpaulin_json: Option<PathBuf>,
 
-        /// Path to metadata storage directory (default: .ggen/test-metadata)
-        #[arg(long, default_value = ".ggen/test-metadata")]
+        /// Path to metadata storage directory (default: .mcpp/test-metadata)
+        #[arg(long, default_value = ".mcpp/test-metadata")]
         metadata_dir: PathBuf,
 
         /// Test results to update failure history (JSON format)
@@ -68,8 +68,8 @@ enum Commands {
         #[arg(long, default_value = "10000")]
         integration_budget: u64,
 
-        /// Path to test metadata directory (default: .ggen/test-metadata)
-        #[arg(long, default_value = ".ggen/test-metadata")]
+        /// Path to test metadata directory (default: .mcpp/test-metadata)
+        #[arg(long, default_value = ".mcpp/test-metadata")]
         metadata_dir: PathBuf,
 
         /// Path to cargo-nextest JSON report with execution times
@@ -169,8 +169,8 @@ fn execute_optimize(
         let budget_penalty = scorer.calculate_budget_penalty(
             *exec_time,
             match test_type {
-                ggen_test_opt::TestType::Unit => 1000,
-                ggen_test_opt::TestType::Integration => 10000,
+                mcpp_test_opt::TestType::Unit => 1000,
+                mcpp_test_opt::TestType::Integration => 10000,
             },
         );
 
@@ -304,8 +304,8 @@ fn execute_budget_check(
 
     for (_test_id, (test_type, exec_time)) in execution_times.iter() {
         match test_type {
-            ggen_test_opt::TestType::Unit => unit_total += exec_time,
-            ggen_test_opt::TestType::Integration => integration_total += exec_time,
+            mcpp_test_opt::TestType::Unit => unit_total += exec_time,
+            mcpp_test_opt::TestType::Integration => integration_total += exec_time,
         }
     }
 

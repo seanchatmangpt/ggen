@@ -1,11 +1,11 @@
-//! Performance tests for ggen node bindings
+//! Performance tests for mcpp node bindings
 //!
 //! These tests validate that operations complete within acceptable timeframes
 //! and that the binding maintains good performance characteristics.
 
 #[cfg(test)]
 mod performance {
-    use ggen_cli_lib::run_for_node;
+    use mcpp_cli_lib::run_for_node;
     use std::time::{Duration, Instant};
 
     const FAST_OPERATION_MS: u64 = 100; // Operations should complete under 100ms
@@ -246,7 +246,7 @@ mod performance {
 
 #[cfg(test)]
 mod throughput_tests {
-    use ggen_cli_lib::run_for_node;
+    use mcpp_cli_lib::run_for_node;
     use std::time::Instant;
 
     #[tokio::test]
@@ -296,7 +296,7 @@ mod throughput_tests {
 
 #[cfg(test)]
 mod latency_tests {
-    use ggen_cli_lib::run_for_node;
+    use mcpp_cli_lib::run_for_node;
     use std::time::{Duration, Instant};
 
     #[tokio::test]

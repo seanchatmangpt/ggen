@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-v6-3t-implementation/`
 **Prerequisites**: plan.md ✅, spec.md ✅, README.md ✅
 
-**Tests**: NOT REQUESTED - This is a specification transformation project, not runtime code. Validation is through `ggen sync` execution and idempotence testing (pending v6 CLI implementation).
+**Tests**: NOT REQUESTED - This is a specification transformation project, not runtime code. Validation is through `mcpp sync` execution and idempotence testing (pending v6 CLI implementation).
 
 **Organization**: Tasks organized by implementation phase. All artifacts have been created; remaining work is validation and v6 CLI integration.
 
@@ -16,10 +16,10 @@
 
 ## Path Conventions
 
-**Current Project**: Specification system at `/Users/sac/ggen/specs/001-v6-3t-implementation/`
+**Current Project**: Specification system at `~/.ggen/mcpp/specs/001-v6-3t-implementation/`
 - Ontology files: `ontology/*.ttl`
 - Templates: `templates/*.tera`
-- Configuration: `ggen.toml`
+- Configuration: `mcpp.toml`
 - Documentation: `README.md`, `plan.md`, `.gitignore`
 
 ---
@@ -85,7 +85,7 @@
 
 **Purpose**: Configure μ₁-μ₅ pipeline with SPARQL queries and generation rules
 
-- [x] T016 Create pipeline configuration in ggen.toml (247 lines)
+- [x] T016 Create pipeline configuration in mcpp.toml (247 lines)
   - Project metadata and v6 settings
   - Five-pass pipeline configuration (μ₁ through μ₅)
   - Constitutional invariants (idempotence, determinism, provenance, no-edit, substrate-only)
@@ -143,15 +143,15 @@
 
 ## Phase 6: Validation & Testing ⏳ PENDING v6 CLI
 
-**Purpose**: Validate 3T specification system through ggen v6 pipeline
+**Purpose**: Validate 3T specification system through mcpp v6 pipeline
 
 **⚠️ BLOCKED**: Requires v6 CLI implementation with μ₁-μ₅ pipeline support
 
 ### Prerequisites for Validation
 
 Before starting this phase, verify:
-- [ ] ggen v6 CLI is installed with `ggen sync` command
-- [ ] ggen v6 supports μ₁-μ₅ pipeline execution
+- [ ] mcpp v6 CLI is installed with `mcpp sync` command
+- [ ] mcpp v6 supports μ₁-μ₅ pipeline execution
 - [ ] Oxigraph RDF store is available
 - [ ] Tera template engine is integrated
 - [ ] SHACL validation is implemented
@@ -159,27 +159,27 @@ Before starting this phase, verify:
 ### Validation Tasks
 
 - [ ] T021 Run SHACL validation against ontology files
-  - Command: `ggen sync --validate-only` (or equivalent)
+  - Command: `mcpp sync --validate-only` (or equivalent)
   - Expected: All 10 SHACL shapes pass validation
   - Expected: Vocabulary governance passes (all namespaces in allowed list)
   - Expected: No constraint violations in v6-spec-content.ttl
   - Files: ontology/spec-schema.ttl, ontology/v6-spec-content.ttl
 
-- [ ] T022 Execute first ggen sync to generate specification
-  - Command: `cd /Users/sac/ggen/specs/001-v6-3t-implementation && ggen sync`
+- [ ] T022 Execute first mcpp sync to generate specification
+  - Command: `cd ~/.ggen/mcpp/specs/001-v6-3t-implementation && mcpp sync`
   - Expected: 10 markdown files created in generated/
   - Expected: .receipt.json created with SHA-256 hashes
   - Expected: No errors during μ₁ (normalization), μ₂ (extraction), μ₃ (emission), μ₄ (canonicalization), μ₅ (receipt)
   - Verify: generated/spec-header.md, generated/user-stories.md, generated/requirements.md, generated/success-criteria.md, generated/entities.md, generated/edge-cases.md, generated/dependencies.md, generated/assumptions.md, generated/non-goals.md, generated/risks.md
 
-- [ ] T023 Verify idempotence by running ggen sync twice
-  - Command: `ggen sync` (second execution)
+- [ ] T023 Verify idempotence by running mcpp sync twice
+  - Command: `mcpp sync` (second execution)
   - Expected: Zero file modifications (verify with `git diff generated/`)
   - Expected: Validates constitutional invariant: μ∘μ = μ (idempotence)
   - Evidence: `git status` shows no changes in generated/
 
-- [ ] T024 Verify cryptographic provenance with ggen verify
-  - Command: `ggen verify`
+- [ ] T024 Verify cryptographic provenance with mcpp verify
+  - Command: `mcpp verify`
   - Expected: All SHA-256 hashes in .receipt.json match current files
   - Expected: Proves constitutional equation: hash(spec.md) = hash(μ(ontology))
   - Files: generated/.receipt.json
@@ -200,7 +200,7 @@ Before starting this phase, verify:
 ### Cross-Platform Determinism Testing (Optional)
 
 - [ ] T026 Test determinism across Linux, macOS, Windows
-  - Run `ggen sync` on each platform
+  - Run `mcpp sync` on each platform
   - Compute SHA-256 hashes of all generated files
   - Expected: Bit-for-bit identical output across all platforms
   - Evidence: Hash comparison showing 100% match
@@ -222,10 +222,10 @@ Before starting this phase, verify:
 - [ ] T028 Create conversion script for traditional specs → 3T
   - File: scripts/convert-spec-to-3t.sh
   - Input: Traditional spec.md
-  - Output: ontology/*.ttl, templates/*.tera, ggen.toml
+  - Output: ontology/*.ttl, templates/*.tera, mcpp.toml
 
 - [ ] T029 Convert another specification to 3T format (proof of template reusability)
-  - Target: Select another feature spec from /Users/sac/ggen/specs/
+  - Target: Select another feature spec from ~/.ggen/mcpp/specs/
   - Apply: Use this system as template
   - Validate: Successfully generates from ontology
 
@@ -376,7 +376,7 @@ For Phase 6 validation (when v6 CLI available):
 ## Notes
 
 - **Meta-Circular Achievement**: The specification ABOUT ontology-first software construction IS ITSELF ontology-first
-- **Constitutional Compliance**: All 9 ggen constitution principles validated (see plan.md)
+- **Constitutional Compliance**: All 9 mcpp constitution principles validated (see plan.md)
 - **Purity of Implementation**: 100% 3T - only TOML, Tera, Turtle files are authored; markdown is generated
 - **Self-Demonstrating**: Proves feasibility of ontology-driven specifications through execution
 - [P] tasks = different files, can run in parallel
@@ -384,4 +384,4 @@ For Phase 6 validation (when v6 CLI available):
 - ⏳ = Pending tasks (blocked or future work)
 - Commit message for completed work: "feat(spec): Implement pure 3T specification system for v6"
 
-**Ready for validation** once v6 CLI with `ggen sync` command is implemented.
+**Ready for validation** once v6 CLI with `mcpp sync` command is implemented.

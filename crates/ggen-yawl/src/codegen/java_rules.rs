@@ -6,7 +6,7 @@
 //! remain in this crate.
 
 // Re-export framework types from ggen-codegen
-pub use ggen_codegen::{GeneratedFile, GenerationMode, Queryable, Renderable, Result, Rule};
+pub use ggen_core::codegen_lib::{GeneratedFile, GenerationMode, Queryable, Renderable, Result, Rule};
 
 /// Execution record for a rule
 #[derive(Debug, Clone)]

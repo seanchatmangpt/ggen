@@ -3,7 +3,7 @@
 //! Provides bulletproof file operations with automatic cleanup on failure.
 //! Constitutional Rule: No partial state - either all changes succeed or all are rolled back.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};

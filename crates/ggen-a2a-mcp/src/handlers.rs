@@ -5,7 +5,7 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::otel_attrs;
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, UnifiedContent, UnifiedFileContent,
 };
 use async_trait::async_trait;
@@ -19,7 +19,7 @@ use tracing::info;
 pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, HandlerStatus};
 
 pub mod handler {
-    use a2a_generated::converged::message::ConvergedMessage;
+    use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 
     use chrono::Utc;
 

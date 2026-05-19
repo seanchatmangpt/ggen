@@ -22,7 +22,7 @@ Where:
 ```
 specs/001-v6-3t-implementation/
 ├── README.md                           # ← You are here
-├── ggen.toml                           # Pipeline configuration
+├── mcpp.toml                           # Pipeline configuration
 ├── ontology/
 │   ├── spec-schema.ttl                 # Vocabulary definition (485 lines)
 │   └── v6-spec-content.ttl             # All content as RDF (887 lines)
@@ -55,26 +55,26 @@ specs/001-v6-3t-implementation/
 
 ### Prerequisites
 
-- ggen v6 CLI (with v6 pipeline support)
+- mcpp v6 CLI (with v6 pipeline support)
 - RDF/SPARQL support (Oxigraph)
 - Tera template engine
 
 ### Generation Workflow
 
 ```bash
-cd /Users/sac/ggen/specs/001-v6-3t-implementation
+cd ~/.ggen/mcpp/specs/001-v6-3t-implementation
 
 # Generate specification from ontology
-ggen sync
+mcpp sync
 
 # Verify idempotence (no file changes on second run)
-ggen sync
+mcpp sync
 
 # Verify cryptographic provenance
-ggen verify
+mcpp verify
 ```
 
-### What Happens During `ggen sync`
+### What Happens During `mcpp sync`
 
 The five-stage pipeline (μ₁ through μ₅) executes:
 
@@ -109,7 +109,7 @@ The five-stage pipeline (μ₁ through μ₅) executes:
 
 This specification enforces v6's constitutional laws:
 
-1. **Idempotence** (μ∘μ = μ): Running `ggen sync` twice produces zero file changes
+1. **Idempotence** (μ∘μ = μ): Running `mcpp sync` twice produces zero file changes
 2. **Determinism**: Same ontology generates bit-for-bit identical markdown across platforms
 3. **Provenance**: Receipt cryptographically proves spec.md derived from ontology
 4. **No-Edit Law**: Generated files in `generated/` are never hand-edited
@@ -137,7 +137,7 @@ This specification enforces v6's constitutional laws:
 
 3. Regenerate:
    ```bash
-   ggen sync
+   mcpp sync
    ```
 
 4. Verify in `generated/requirements.md`
@@ -146,7 +146,7 @@ This specification enforces v6's constitutional laws:
 
 1. Add story and scenarios in `ontology/v6-spec-content.ttl`
 2. Update `spec:hasUserStory` relationship
-3. Run `ggen sync`
+3. Run `mcpp sync`
 4. New story appears in `generated/user-stories.md`
 
 ## SHACL Validation Examples
@@ -167,7 +167,7 @@ The specification uses SHACL shapes to enforce quality:
     spec:description "Short" .             # ✗ < 10 characters
 ```
 
-Running `ggen sync` on invalid ontology produces:
+Running `mcpp sync` on invalid ontology produces:
 ```
 Error during μ₁ (Normalization):
   File: ontology/v6-spec-content.ttl:450
@@ -210,7 +210,7 @@ The specification becomes a **proof-of-concept** for the paradigm it proposes.
 ## Files That Should Be Version-Controlled
 
 **Version Control (3T Files Only)**:
-- ✅ `ggen.toml` - Pipeline configuration
+- ✅ `mcpp.toml` - Pipeline configuration
 - ✅ `ontology/spec-schema.ttl` - Vocabulary definition
 - ✅ `ontology/v6-spec-content.ttl` - Content as RDF
 - ✅ `templates/*.tera` - Rendering templates
@@ -229,13 +229,13 @@ generated/
 
 ## Troubleshooting
 
-### Problem: `ggen sync` fails with SHACL violation
+### Problem: `mcpp sync` fails with SHACL violation
 **Solution**: Check the error message for file/line number, fix the ontology triple
 
 ### Problem: Generated spec.md is missing content
 **Solution**: Verify SPARQL query returns results (test queries manually), check template logic
 
-### Problem: File changes detected on second `ggen sync`
+### Problem: File changes detected on second `mcpp sync`
 **Solution**: Idempotence violation - check μ₄ canonicalization, ensure no timestamps in templates
 
 ### Problem: Want to add new section to specification
@@ -243,21 +243,21 @@ generated/
 1. Add new class to `spec-schema.ttl` (e.g., `spec:TestPlan`)
 2. Add instances to `v6-spec-content.ttl`
 3. Create new template `templates/test-plan.tera`
-4. Add new `[[generation]]` rule to `ggen.toml`
-5. Run `ggen sync`
+4. Add new `[[generation]]` rule to `mcpp.toml`
+5. Run `mcpp sync`
 
 ## Next Steps
 
 1. Review generated specification in `generated/*.md`
 2. Validate against original requirements
-3. Test idempotence (run `ggen sync` twice, verify no changes)
-4. Verify cryptographic receipt with `ggen verify`
+3. Test idempotence (run `mcpp sync` twice, verify no changes)
+4. Verify cryptographic receipt with `mcpp verify`
 5. Use this as template for future ontology-driven specifications
 
 ## References
 
-- v6 Thesis Generation System: `/Users/sac/ggen/docs/ggen-v6-thesis/`
-- v6 Ontology Schema: `/Users/sac/ggen/v6/ontology/ggen-v6.ttl`
+- v6 Thesis Generation System: `~/.ggen/mcpp/docs/mcpp-v6-thesis/`
+- v6 Ontology Schema: `~/.ggen/mcpp/v6/ontology/mcpp-v6.ttl`
 - Original Specification: `spec.md` (deprecated, kept for reference)
 
 ---

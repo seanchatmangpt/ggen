@@ -3,7 +3,7 @@
 //! Demonstrates building a cryptographic receipt chain with Ed25519 signatures.
 //! Each receipt is linked to the previous one via hash chaining.
 
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Receipt Chain Example ===\n");

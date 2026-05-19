@@ -1,4 +1,4 @@
-command: "ggen utils env"
+command: "mcpp utils env"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -52,6 +52,6 @@ recommendations:
     impact: "medium"
 
 jtbd: |
-  When I need to manage environment configuration for ggen operations, I need to
-  get, set, and list environment variables, so that I can configure ggen behavior
+  When I need to manage environment configuration for mcpp operations, I need to
+  get, set, and list environment variables, so that I can configure mcpp behavior
   without manual file editing.

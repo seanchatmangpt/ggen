@@ -1,8 +1,8 @@
-//! # ggen-cli - Command-line interface for ggen code generation
+//! # mcpp-cli - Command-line interface for mcpp code generation
 //!
-//! This crate provides the command-line interface for ggen, using clap-noun-verb
+//! This crate provides the command-line interface for mcpp, using clap-noun-verb
 //! for automatic command discovery and routing. It bridges between user commands
-//! and the domain logic layer (ggen-domain).
+//! and the domain logic layer (mcpp-domain).
 //!
 //! ## Architecture
 //!
@@ -26,9 +26,9 @@
 //! ### Basic CLI Execution
 //!
 //! ```rust,no_run
-//! use ggen_cli::cli_match;
+//! use mcpp_cli::cli_match;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! // Execute CLI with auto-discovered commands
 //! cli_match().await?;
 //! # Ok(())
@@ -38,9 +38,9 @@
 //! ### Programmatic Execution
 //!
 //! ```rust,ignore
-//! use ggen_cli::run_for_node;
+//! use mcpp_cli::run_for_node;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> mcpp_utils::error::Result<()> {
 //! let args = vec!["template".to_string(), "generate".to_string()];
 //! let result = run_for_node(args).await?;
 //! println!("Exit code: {}", result.code);
@@ -71,17 +71,17 @@ pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Co
 pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
 // Re-export Result type for use in cmds
-pub use ggen_utils::error::Result;
+pub use mcpp_utils::error::Result;
 
 /// Main entry point using clap-noun-verb v4.0.2 auto-discovery
 ///
 /// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
-pub async fn cli_match() -> ggen_utils::error::Result<()> {
+pub async fn cli_match() -> mcpp_utils::error::Result<()> {
     // Use clap-noun-verb auto-discovery (handles --version automatically)
     clap_noun_verb::run()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }
 
@@ -95,12 +95,12 @@ pub struct RunResult {
 
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
-pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunResult> {
+pub async fn run_for_node(args: Vec<String>) -> mcpp_utils::error::Result<RunResult> {
     use std::sync::Arc;
     use std::sync::Mutex;
 
     // Prefix with a binary name to satisfy clap-noun-verb semantics
-    let _argv: Vec<String> = std::iter::once("ggen".to_string())
+    let _argv: Vec<String> = std::iter::once("mcpp".to_string())
         .chain(args.into_iter())
         .collect();
 
@@ -129,7 +129,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
         code
     })
     .await
-    .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
+    .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
 
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {

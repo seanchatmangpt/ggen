@@ -7,8 +7,8 @@
 //! - Test REAL signature verification
 //! - No mocks for critical paths
 
-use ggen_marketplace::prelude::*;
-use ggen_marketplace::{AtomicPackCategory, AtomicPackClass, AtomicPackId};
+use ggen_core::marketplace::prelude::*;
+use ggen_core::marketplace::{AtomicPackCategory, AtomicPackClass, AtomicPackId};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -131,7 +131,7 @@ async fn test_install_policy_no_defaults_pack() -> Result<(), Box<dyn std::error
 
 #[tokio::test]
 async fn test_verify_pack_signature() -> Result<(), Box<dyn std::error::Error>> {
-    use ggen_marketplace::security::{generate_marketplace_keypair, MarketplaceSignature, MarketplaceVerifier};
+    use ggen_core::marketplace::security::{generate_marketplace_keypair, MarketplaceSignature, MarketplaceVerifier};
 
     // Generate signing keypair
     let (signing_key, verifying_key) = generate_marketplace_keypair();
@@ -158,7 +158,7 @@ async fn test_verify_pack_signature() -> Result<(), Box<dyn std::error::Error>> 
 
 #[tokio::test]
 async fn test_verify_pack_checksum() -> Result<(), Box<dyn std::error::Error>> {
-    use ggen_marketplace::security::ChecksumCalculator;
+    use ggen_core::marketplace::security::ChecksumCalculator;
 
     // Create test pack data
     let pack_data = b"test pack content for checksum";
@@ -180,7 +180,7 @@ async fn test_verify_pack_checksum() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_pack_signature_receipt() -> Result<(), Box<dyn std::error::Error>> {
-    use ggen_marketplace::security::{generate_marketplace_keypair, MarketplaceSignature, SignatureReceipt};
+    use ggen_core::marketplace::security::{generate_marketplace_keypair, MarketplaceSignature, SignatureReceipt};
     use chrono::Utc;
 
     // Generate signing keypair

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document presents a comprehensive improved architecture for the clap-noun-verb playground (HTF - Hyper-Thesis Framework). The design leverages proven patterns from the ggen workspace while introducing modular layering, semantic RDF storage, and extensible plugin architecture.
+This document presents a comprehensive improved architecture for the clap-noun-verb playground (HTF - Hyper-Thesis Framework). The design leverages proven patterns from the mcpp workspace while introducing modular layering, semantic RDF storage, and extensible plugin architecture.
 
 ---
 

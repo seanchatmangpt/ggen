@@ -14,7 +14,7 @@
 //! Run with:
 //!   RUST_LOG=trace,ggen_a2a_mcp=trace cargo test -p ggen-a2a-mcp --test multi_a2a_chain -- --test-threads=1 --nocapture
 
-use a2a_generated::converged::message::{ConvergedMessage, ConvergedMessageType, UnifiedContent};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{ConvergedMessage, ConvergedMessageType, UnifiedContent};
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use ggen_a2a_mcp::handlers::{MessageRouter, TextContentHandler};
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
@@ -189,7 +189,7 @@ async fn agent_c_quality_autopilot(
 #[tokio::test]
 async fn test_multi_a2a_agent_chain_with_otel_traces() -> anyhow::Result<()> {
     init_tracing();
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
 
     // Start duplex MCP server
     let client = start_duplex_server(examples_dir).await?;
@@ -249,16 +249,16 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
         message_id: format!("msg-a-{}", uuid::Uuid::new_v4()),
         source: "template_validator_agent".to_string(),
         target: Some("sparql_validator_agent".to_string()),
-        envelope: a2a_generated::converged::message::MessageEnvelope {
+        envelope: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageEnvelope {
             message_type: ConvergedMessageType::Task,
-            priority: a2a_generated::converged::message::MessagePriority::Normal,
+            priority: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessagePriority::Normal,
             timestamp: chrono::Utc::now(),
             schema_version: "1.0".to_string(),
             content_type: "application/json".to_string(),
             correlation_id: Some(correlation_id.clone()),
             causation_chain: Some(vec!["root-workflow".to_string()]),
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Text {
                 content: "Validate template syntax".to_string(),
                 metadata: None,
@@ -267,20 +267,20 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
             hints: None,
             integrity: None,
         },
-        routing: a2a_generated::converged::message::MessageRouting {
+        routing: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageRouting {
             path: vec![
                 "template_validator_agent".to_string(),
                 "sparql_validator_agent".to_string(),
             ],
             metadata: None,
-            qos: a2a_generated::converged::message::QoSRequirements {
-                reliability: a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
+            qos: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::QoSRequirements {
+                reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
                 latency: None,
                 throughput: None,
             },
         },
-        lifecycle: a2a_generated::converged::message::MessageLifecycle {
-            state: a2a_generated::converged::message::MessageState::Created,
+        lifecycle: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageLifecycle {
+            state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState::Created,
             history: vec![],
             timeout: None,
         },
@@ -291,16 +291,16 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
         message_id: format!("msg-b-{}", uuid::Uuid::new_v4()),
         source: "sparql_validator_agent".to_string(),
         target: Some("quality_autopilot_agent".to_string()),
-        envelope: a2a_generated::converged::message::MessageEnvelope {
+        envelope: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageEnvelope {
             message_type: ConvergedMessageType::Task,
-            priority: a2a_generated::converged::message::MessagePriority::Normal,
+            priority: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessagePriority::Normal,
             timestamp: chrono::Utc::now(),
             schema_version: "1.0".to_string(),
             content_type: "application/json".to_string(),
             correlation_id: Some(correlation_id.clone()),
             causation_chain: Some(vec!["root-workflow".to_string(), msg_a.message_id.clone()]),
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Text {
                 content: "Validate SPARQL query".to_string(),
                 metadata: None,
@@ -309,20 +309,20 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
             hints: None,
             integrity: None,
         },
-        routing: a2a_generated::converged::message::MessageRouting {
+        routing: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageRouting {
             path: vec![
                 "sparql_validator_agent".to_string(),
                 "quality_autopilot_agent".to_string(),
             ],
             metadata: None,
-            qos: a2a_generated::converged::message::QoSRequirements {
-                reliability: a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
+            qos: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::QoSRequirements {
+                reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
                 latency: None,
                 throughput: None,
             },
         },
-        lifecycle: a2a_generated::converged::message::MessageLifecycle {
-            state: a2a_generated::converged::message::MessageState::Created,
+        lifecycle: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageLifecycle {
+            state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState::Created,
             history: vec![],
             timeout: None,
         },
@@ -333,9 +333,9 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
         message_id: format!("msg-c-{}", uuid::Uuid::new_v4()),
         source: "quality_autopilot_agent".to_string(),
         target: Some("orchestrator".to_string()),
-        envelope: a2a_generated::converged::message::MessageEnvelope {
+        envelope: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageEnvelope {
             message_type: ConvergedMessageType::Task,
-            priority: a2a_generated::converged::message::MessagePriority::Normal,
+            priority: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessagePriority::Normal,
             timestamp: chrono::Utc::now(),
             schema_version: "1.0".to_string(),
             content_type: "application/json".to_string(),
@@ -346,7 +346,7 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
                 msg_b.message_id.clone(),
             ]),
         },
-        payload: a2a_generated::converged::message::ConvergedPayload {
+        payload: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedPayload {
             content: UnifiedContent::Text {
                 content: "Quality gate validation complete".to_string(),
                 metadata: None,
@@ -355,20 +355,20 @@ async fn test_multi_a2a_chain_with_converged_messages() -> anyhow::Result<()> {
             hints: None,
             integrity: None,
         },
-        routing: a2a_generated::converged::message::MessageRouting {
+        routing: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageRouting {
             path: vec![
                 "quality_autopilot_agent".to_string(),
                 "orchestrator".to_string(),
             ],
             metadata: None,
-            qos: a2a_generated::converged::message::QoSRequirements {
-                reliability: a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
+            qos: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::QoSRequirements {
+                reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ReliabilityLevel::AtLeastOnce,
                 latency: None,
                 throughput: None,
             },
         },
-        lifecycle: a2a_generated::converged::message::MessageLifecycle {
-            state: a2a_generated::converged::message::MessageState::Created,
+        lifecycle: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageLifecycle {
+            state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::MessageState::Created,
             history: vec![],
             timeout: None,
         },

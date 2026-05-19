@@ -7,7 +7,7 @@ use std::io::Write;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 /// Minimum free disk space required (10 MB).
 const MIN_FREE_SPACE: u64 = 10 * 1024 * 1024;

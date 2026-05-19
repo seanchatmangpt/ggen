@@ -2,15 +2,15 @@
 
 ## Implementation Complete ✅
 
-Phase 2 LLM generation integration has been successfully implemented for the ggen MCP/A2A self-hosting architecture.
+Phase 2 LLM generation integration has been successfully implemented for the mcpp MCP/A2A self-hosting architecture.
 
 ## What Was Implemented
 
 ### Core Changes
 
-1. **`LlmService` Trait** (`crates/ggen-core/src/codegen/pipeline.rs`)
+1. **`LlmService` Trait** (`crates/mcpp-core/src/codegen/pipeline.rs`)
    - Trait-based dependency injection for LLM functionality
-   - Avoids cyclic dependency between ggen-core and ggen-ai
+   - Avoids cyclic dependency between mcpp-core and mcpp-ai
    - Clean separation of concerns
 
 2. **`DefaultLlmService` Implementation**
@@ -33,7 +33,7 @@ Phase 2 LLM generation integration has been successfully implemented for the gge
 
 ### Files Modified
 
-**`crates/ggen-core/src/codegen/pipeline.rs`** (+215 lines, -9 lines)
+**`crates/mcpp-core/src/codegen/pipeline.rs`** (+215 lines, -9 lines)
 - Lines 26-88: Added `LlmService` trait and `DefaultLlmService`
 - Line 142: Added `llm_service` field to struct
 - Lines 244-246: Added `set_llm_service()` method
@@ -42,7 +42,7 @@ Phase 2 LLM generation integration has been successfully implemented for the gge
 
 ### Files Created
 
-1. **`crates/ggen-core/tests/llm_trait_test.rs`**
+1. **`crates/mcpp-core/tests/llm_trait_test.rs`**
    - Unit tests for `LlmService` trait
    - Mock implementations for testing
    - 3 test cases covering:
@@ -58,7 +58,7 @@ Phase 2 LLM generation integration has been successfully implemented for the gge
    - Troubleshooting section
 
 3. **Example Files** (`examples/llm-skill-generation/`)
-   - `ggen.toml` - Example manifest with LLM enabled
+   - `mcpp.toml` - Example manifest with LLM enabled
    - `skills.ttl` - Sample ontology with skill definitions
    - `extract-rust-skills.rq` - SPARQL query for extracting skills
    - `rust-skill.tera` - Template with LLM integration
@@ -67,7 +67,7 @@ Phase 2 LLM generation integration has been successfully implemented for the gge
 
 ### Enable LLM Generation
 
-Add to `ggen.toml`:
+Add to `mcpp.toml`:
 
 ```toml
 [generation]
@@ -86,7 +86,7 @@ export GROQ_API_KEY=your_api_key_here
 
 ### Phase 3: CLI Integration (Not Yet Implemented)
 
-The CLI integration with actual Groq client needs to be implemented in `crates/ggen-cli/src/cmds/sync.rs`.
+The CLI integration with actual Groq client needs to be implemented in `crates/mcpp-cli/src/cmds/sync.rs`.
 
 See `docs/llm-generation-integration.md` for complete implementation guide.
 

@@ -74,14 +74,14 @@ Quality Checklist:
 FILE LOCATIONS
 ================================================================================
 
-/Users/sac/ggen/tai-erlang-autonomics/docs/
+./tai-erlang-autonomics/docs/
 ├── SUPPORT_MODEL.md (343 lines)
 ├── INSTALL.md (514 lines)
 ├── API.md (712 lines)
 └── ROADMAP.md (458 lines)
 
 Plus delivery receipt:
-/Users/sac/ggen/tai-erlang-autonomics/AGENT_19_DOCUMENTATION_DELIVERY.md
+./tai-erlang-autonomics/AGENT_19_DOCUMENTATION_DELIVERY.md
 
 ================================================================================
 CUSTOMER JOURNEY

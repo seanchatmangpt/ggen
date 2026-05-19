@@ -14,7 +14,7 @@ pub mod repository;
 pub mod types;
 pub mod validate;
 
-use ggen_utils::error::Error;
+use mcpp_utils::error::Error;
 use serde::Serialize;
 
 /// Check compatibility between packs

@@ -1,4 +1,4 @@
-command: "ggen marketplace uninstall"
+command: "mcpp marketplace uninstall"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -48,5 +48,5 @@ recommendations:
 
 jtbd: |
   When I want to remove a marketplace package,
-  I need to run 'ggen marketplace uninstall' with package name,
+  I need to run 'mcpp marketplace uninstall' with package name,
   so that I can clean up unused content.

@@ -1,7 +1,7 @@
 //! Pack validation logic
 
 use crate::packs::metadata::load_pack_metadata;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 
 /// Validation result

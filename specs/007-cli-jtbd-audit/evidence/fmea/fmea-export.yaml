@@ -1,4 +1,4 @@
-command: "ggen fmea export"
+command: "mcpp fmea export"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
@@ -42,5 +42,5 @@ recommendations:
 
 jtbd: |
   When I want to export FMEA data,
-  I need to run 'ggen fmea export' with format and destination,
+  I need to run 'mcpp fmea export' with format and destination,
   so that I can share FMEA results in different formats.

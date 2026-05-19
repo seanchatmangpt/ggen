@@ -1,6 +1,6 @@
 [package]
 name = "mcpp-domain"
-version = "6.1.0"
+version = "26.5.4"
 edition = "2021"
 
 [dependencies]
@@ -12,7 +12,7 @@ toml = { workspace = true }
 thiserror = { workspace = true }
 dirs = "5.0"
 chrono = { workspace = true }
-ggen-utils = { workspace = true }
+mcpp-utils = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

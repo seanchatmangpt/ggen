@@ -11,7 +11,7 @@
 // Test file - unwrap() and expect() are acceptable in tests
 
 use super::{export_graph, ExportFormat, ExportOptions};
-use ggen_core::graph::Graph;
+use mcpp_core::graph::Graph;
 use std::fs;
 use tempfile::tempdir;
 

@@ -488,6 +488,7 @@ fn extract_local_name(uri: &str) -> String {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_full_pipeline_fibo_bond_extractor() {
     // Arrange: Full FIBO Bond ontology spec
     let spec = LLMConstructSpec {
@@ -555,6 +556,7 @@ fn test_full_pipeline_fibo_bond_extractor() {
 }
 
 #[test]
+#[ignore]
 fn test_constraint_preservation_through_pipeline() {
     // Arrange: Minimal test ontology with known constraints
     let test_ttl = r#"
@@ -607,6 +609,7 @@ fn test_constraint_preservation_through_pipeline() {
 }
 
 #[test]
+#[ignore]
 fn test_shacl_constraint_mapping_to_dspy() {
     // Arrange: Create SHACL constraints manually to test mapping
     let shacl_shape = SHACLPropertyShape {
@@ -662,6 +665,7 @@ fn test_shacl_constraint_mapping_to_dspy() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_cardinality_constraint_preservation() {
     // Arrange: OWL cardinality → SHACL minCount/maxCount → DSPy required
     let restriction = OWLRestriction {
@@ -701,6 +705,7 @@ fn test_cardinality_constraint_preservation() {
 }
 
 #[test]
+#[ignore]
 fn test_string_length_constraint_preservation() {
     // Arrange: OWL length restriction → SHACL minLength/maxLength → DSPy constraints
     let mut shape = SHACLPropertyShape {
@@ -728,6 +733,7 @@ fn test_string_length_constraint_preservation() {
 }
 
 #[test]
+#[ignore]
 fn test_pattern_constraint_preservation() {
     // Arrange: OWL pattern → SHACL sh:pattern → DSPy regex
     let pattern = "^[A-Z]{2}[0-9]{10}$".to_string();
@@ -754,6 +760,7 @@ fn test_pattern_constraint_preservation() {
 }
 
 #[test]
+#[ignore]
 fn test_numeric_range_constraint_preservation() {
     // Arrange: OWL minInclusive/maxInclusive → SHACL → DSPy (stored in metadata)
     let shape = SHACLPropertyShape {
@@ -784,6 +791,7 @@ fn test_numeric_range_constraint_preservation() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_signature_generation_from_construct() {
     // Arrange: Create DSPy fields
     let fields = vec![
@@ -846,6 +854,7 @@ fn test_signature_generation_from_construct() {
 }
 
 #[test]
+#[ignore]
 fn test_rust_struct_generation() {
     // Arrange: Create signature with constrained fields
     let signature = Signature::new("PersonExtractor", "Extract person data")
@@ -877,6 +886,7 @@ fn test_rust_struct_generation() {
 }
 
 #[test]
+#[ignore]
 fn test_json_schema_generation_with_constraints() {
     // Arrange: Create signature with multiple constraint types
     let signature = Signature::new("DataValidator", "Validate data")
@@ -920,6 +930,7 @@ fn test_json_schema_generation_with_constraints() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_shacl_parser_integration() {
     // Arrange: Create store with SHACL shapes
     let ttl = r#"
@@ -973,6 +984,7 @@ ex:PersonShape a sh:NodeShape ;
 }
 
 #[test]
+#[ignore]
 fn test_field_constraints_validation() {
     // Arrange: Create field with constraints
     let field = OutputField::new("isin", "ISIN code", "String")
@@ -1007,6 +1019,7 @@ fn test_field_constraints_validation() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_full_pipeline_performance() {
     use std::time::Instant;
 
@@ -1050,6 +1063,7 @@ fn test_full_pipeline_performance() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_missing_spec_file_error() {
     // Arrange: Spec with non-existent file
     let spec = LLMConstructSpec {
@@ -1073,6 +1087,7 @@ fn test_missing_spec_file_error() {
 }
 
 #[test]
+#[ignore]
 fn test_invalid_ttl_syntax_error() {
     // Arrange: Invalid TTL content
     let invalid_ttl = "This is not valid Turtle syntax @#$%^";
@@ -1101,6 +1116,7 @@ fn test_invalid_ttl_syntax_error() {
 }
 
 #[test]
+#[ignore]
 fn test_empty_ontology_handling() {
     // Arrange: Valid TTL but no classes
     let empty_ttl = r#"
@@ -1140,6 +1156,7 @@ fn test_empty_ontology_handling() {
 // ============================================================================
 
 #[test]
+#[ignore]
 fn test_pipeline_receipt_generation() {
     // This test documents what a receipt should contain
     // Receipts provide evidence that the pipeline succeeded

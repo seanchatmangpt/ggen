@@ -2,13 +2,13 @@
 
 ## Summary
 
-Successfully implemented Phase 1 of the ggen v4.0 Pack Installation System, providing core lockfile management and installation tracking functionality.
+Successfully implemented Phase 1 of the mcpp v4.0 Pack Installation System, providing core lockfile management and installation tracking functionality.
 
 ## Implementation Details
 
 ### Core Function: `install_pack()`
 
-**Location:** `crates/ggen-core/src/packs/install.rs`
+**Location:** `crates/mcpp-core/src/packs/install.rs`
 
 **Signature:**
 ```rust
@@ -23,9 +23,9 @@ pub async fn install_pack(
 ### Key Features Implemented
 
 1. **Lockfile Management**
-   - Creates `.ggen/packs.lock` if missing
+   - Creates `.mcpp/packs.lock` if missing
    - Updates existing lockfile with new pack entries
-   - Uses existing `LockfileManager` from `ggen_core::lockfile`
+   - Uses existing `LockfileManager` from `mcpp_core::lockfile`
 
 2. **Version Resolution**
    - Accepts optional version parameter
@@ -61,7 +61,7 @@ pub async fn install_pack(
 - ✅ Version tracking
 - ✅ Conflict detection
 - ✅ Basic pack metadata (package count estimation)
-- ✅ Directory creation (.ggen/)
+- ✅ Directory creation (.mcpp/)
 - ✅ Comprehensive test coverage (11 tests)
 
 **What Phase 1 Does NOT Include (Phase 2-3):**
@@ -81,7 +81,7 @@ pub async fn install_pack(
 
 1. **Basic Installation**
    - `test_install_pack_creates_lockfile` - Verifies lockfile creation
-   - `test_install_pack_creates_ggen_directory` - Verifies .ggen directory creation
+   - `test_install_pack_creates_mcpp_directory` - Verifies .mcpp directory creation
    - `test_install_pack_result_structure` - Validates result structure
 
 2. **Version Handling**
@@ -103,7 +103,7 @@ pub async fn install_pack(
 ### File Structure
 
 ```
-crates/ggen-core/
+crates/mcpp-core/
 ├── src/
 │   ├── lib.rs                    # Added packs module export
 │   └── packs/
@@ -117,25 +117,25 @@ crates/ggen-core/
 ### Integration Points
 
 1. **Lockfile System**
-   - Uses `ggen_core::lockfile::LockfileManager`
-   - Compatible with existing `ggen.lock` format
+   - Uses `mcpp_core::lockfile::LockfileManager`
+   - Compatible with existing `mcpp.lock` format
    - Supports PQC signatures (future use)
 
 2. **Error Handling**
-   - Uses `ggen_utils::error::{Error, Result}`
+   - Uses `mcpp_utils::error::{Error, Result}`
    - Consistent error messages
    - Context-aware error reporting
 
 3. **Module Exports**
-   - `ggen_core::packs::install_pack`
-   - `ggen_core::packs::PackInstallResult`
-   - Re-exported from `ggen_core::install_pack`
+   - `mcpp_core::packs::install_pack`
+   - `mcpp_core::packs::PackInstallResult`
+   - Re-exported from `mcpp_core::install_pack`
 
 ## Success Criteria Met
 
 - [x] Function compiles with no warnings
-- [x] Creates .ggen/packs.lock if missing
-- [x] Updates existing .ggen/packs.lock correctly
+- [x] Creates .mcpp/packs.lock if missing
+- [x] Updates existing .mcpp/packs.lock correctly
 - [x] Prevents duplicate installations (without --force)
 - [x] Returns accurate PackInstallResult
 - [x] All 11 tests pass (100%)
@@ -152,7 +152,7 @@ crates/ggen-core/
 ## Next Steps (Phase 2-3)
 
 1. **Marketplace Integration**
-   - Integrate with `ggen-domain::packs::load_pack_metadata`
+   - Integrate with `mcpp-domain::packs::load_pack_metadata`
    - Query marketplace for pack availability
    - Validate pack versions
 
@@ -174,7 +174,7 @@ crates/ggen-core/
 ## Usage Example
 
 ```rust
-use ggen_core::packs::install_pack;
+use mcpp_core::packs::install_pack;
 use std::path::Path;
 
 #[tokio::main]
@@ -197,10 +197,10 @@ async fn main() -> Result<()> {
 
 ## Deliverables
 
-1. ✅ `crates/ggen-core/src/packs/install.rs` (178 lines)
-2. ✅ `crates/ggen-core/src/packs/mod.rs` (updated)
-3. ✅ `crates/ggen-core/tests/install_test.rs` (263 lines, 11 tests)
-4. ✅ `crates/ggen-core/src/lib.rs` (updated exports)
+1. ✅ `crates/mcpp-core/src/packs/install.rs` (178 lines)
+2. ✅ `crates/mcpp-core/src/packs/mod.rs` (updated)
+3. ✅ `crates/mcpp-core/tests/install_test.rs` (263 lines, 11 tests)
+4. ✅ `crates/mcpp-core/src/lib.rs` (updated exports)
 5. ✅ 100% test pass rate
 6. ✅ Zero compilation warnings
 
@@ -208,12 +208,12 @@ async fn main() -> Result<()> {
 
 ### Avoiding Circular Dependencies
 
-Originally attempted to use `ggen-domain::packs::load_pack_metadata`, but this created a circular dependency:
+Originally attempted to use `mcpp-domain::packs::load_pack_metadata`, but this created a circular dependency:
 ```
-ggen-core -> ggen-domain -> ggen-ai -> ggen-core
+mcpp-core -> mcpp-domain -> mcpp-ai -> mcpp-core
 ```
 
-**Solution:** Created minimal `PackInfo` struct in `install.rs` with placeholder data. Phase 2-3 will integrate proper marketplace queries via CLI layer (which has access to ggen-domain).
+**Solution:** Created minimal `PackInfo` struct in `install.rs` with placeholder data. Phase 2-3 will integrate proper marketplace queries via CLI layer (which has access to mcpp-domain).
 
 ### Phase 1 Design Philosophy
 

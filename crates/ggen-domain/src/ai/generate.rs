@@ -3,7 +3,7 @@
 //! This module contains the core business logic for AI-powered code generation,
 //! separated from CLI concerns for better testability and reusability.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 
 /// AI generation options

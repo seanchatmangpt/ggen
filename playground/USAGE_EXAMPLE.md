@@ -7,7 +7,7 @@ This document shows practical examples of using the Hyper-Thesis Framework (HTF)
 ### 1. Build HTF
 
 ```bash
-cd /Users/sac/ggen
+cd ~/.ggen/mcpp
 cargo build -p htf-cli
 ```
 
@@ -377,14 +377,14 @@ Your thesis should touch all 26 to be "complete" according to HTF framework.
 Once ready, publish your HTF-planned thesis as a pack:
 
 ```bash
-# From ggen root
-ggen packs publish \
+# From mcpp root
+mcpp packs publish \
   --path my-thesis \
   --name "my-research-thesis" \
   --version "1.0.0"
 
 # Others can then install:
-ggen packs install my-research-thesis --version 1.0.0
+mcpp packs install my-research-thesis --version 1.0.0
 ```
 
 The HTF playground itself can be published as a reusable tool pack!

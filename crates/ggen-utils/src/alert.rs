@@ -7,9 +7,9 @@
 //! ## Usage
 //!
 //! ```rust
-//! use ggen_utils::alert_critical;
-//! use ggen_utils::alert_warning;
-//! use ggen_utils::alert_info;
+//! use ggen_core::utils::alert_critical;
+//! use ggen_core::utils::alert_warning;
+//! use ggen_core::utils::alert_info;
 //!
 //! // Critical alert - must stop immediately
 //! alert_critical!("Docker daemon is not running", "Start Docker Desktop");
@@ -49,7 +49,7 @@ use std::io::{self, Write};
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert_critical;
+/// use ggen_core::utils::alert_critical;
 ///
 /// alert_critical!("Docker daemon is not running", "Start Docker Desktop");
 /// ```
@@ -89,7 +89,7 @@ macro_rules! alert_critical {
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert_warning;
+/// use ggen_core::utils::alert_warning;
 ///
 /// alert_warning!("Container operation failed", "Check container state");
 /// ```
@@ -121,7 +121,7 @@ macro_rules! alert_warning {
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert_info;
+/// use ggen_core::utils::alert_info;
 ///
 /// alert_info!("Container started successfully");
 /// ```
@@ -150,7 +150,7 @@ macro_rules! alert_info {
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert_success;
+/// use ggen_core::utils::alert_success;
 ///
 /// alert_success!("Container started successfully");
 /// ```
@@ -179,7 +179,7 @@ macro_rules! alert_success {
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert_debug;
+/// use ggen_core::utils::alert_debug;
 ///
 /// alert_debug!("Container state: {:?}", container_state);
 /// ```
@@ -210,7 +210,7 @@ macro_rules! alert_debug {
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert;
+/// use ggen_core::utils::alert;
 ///
 /// alert!("🚨", "Custom critical error", "STOP: Cannot proceed", "FIX: Resolve issue");
 /// ```
@@ -370,7 +370,7 @@ fn _try_slog_debug(msg: &str) {
 /// # Example
 ///
 /// ```rust
-/// use ggen_utils::alert::write_alert;
+/// use ggen_core::utils::alert::write_alert;
 /// use std::io::BufWriter;
 /// use std::fs::File;
 ///

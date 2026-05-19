@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-**Phase 3 is now COMPLETE.** All 47+ ggen CLI commands have been systematically audited, scored, and classified for agent accessibility. The framework has proven deterministic and effective - enabling rapid classification of commands across maturity levels (L0-L5).
+**Phase 3 is now COMPLETE.** All 47+ mcpp CLI commands have been systematically audited, scored, and classified for agent accessibility. The framework has proven deterministic and effective - enabling rapid classification of commands across maturity levels (L0-L5).
 
 **Key Achievement**: Transformed ad-hoc command evaluation into a reproducible, scalable audit methodology that provides:
 - Quantitative scoring (0-100 per command)
@@ -318,7 +318,7 @@ Affected: Most commands (only template-list, project-list, marketplace-show have
 
 ## Constitutional Alignment
 
-All Phase 3 audits maintain **ggen Constitution v1.0.0** compliance:
+All Phase 3 audits maintain **mcpp Constitution v1.0.0** compliance:
 
 - ✅ **II. Deterministic RDF Projections**: YAML structure is reproducible and version-controlled
 - ✅ **III. Chicago TDD**: State-based behavior verified through actual command execution patterns

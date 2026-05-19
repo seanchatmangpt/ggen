@@ -269,7 +269,7 @@ TAI Erlang Autonomics v1.0.0 final integration and delivery phase is complete. T
 
 ### Application
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── apps/tai_autonomics/      # Application source
 ├── config/                    # Configuration
 ├── rel/                       # Release config
@@ -280,7 +280,7 @@ TAI Erlang Autonomics v1.0.0 final integration and delivery phase is complete. T
 
 ### Documentation
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── README.md                  # Quick start
 ├── RELEASE_NOTES.md          # Features & roadmap
 ├── PRODUCTION_DEPLOYMENT_CHECKLIST.md

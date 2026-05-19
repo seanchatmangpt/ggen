@@ -1,6 +1,6 @@
 //! Project build operations
 //!
-//! This module provides functionality for building and cleaning ggen projects.
+//! This module provides functionality for building and cleaning mcpp projects.
 //! It handles build orchestration and cleanup of build artifacts.
 //!
 //! ## Features
@@ -14,7 +14,7 @@
 //! ### Building a Project
 //!
 //! ```rust,no_run
-//! use ggen_domain::project::build::build_project;
+//! use mcpp_domain::project::build::build_project;
 //! use std::path::Path;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -26,7 +26,7 @@
 //! ### Cleaning Build Artifacts
 //!
 //! ```rust,no_run
-//! use ggen_domain::project::build::clean_project;
+//! use mcpp_domain::project::build::clean_project;
 //! use std::path::Path;
 //!
 //! # async fn example() -> anyhow::Result<()> {
@@ -35,7 +35,7 @@
 //! # }
 //! ```
 
-use ggen_utils::{bail, error::Result};
+use mcpp_utils::{bail, error::Result};
 use std::path::Path;
 
 /// Build a project

@@ -48,7 +48,7 @@ Production-grade value calculation and billing system for outcome-based pricing 
 
 ### Build
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+cd ./tai-erlang-autonomics/pricing-engine
 rebar3 compile
 ```
 

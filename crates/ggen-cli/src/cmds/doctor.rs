@@ -1,10 +1,10 @@
 //! Doctor Commands
 //!
-//! This module provides health-check and diagnostic commands for the ggen workspace.
+//! This module provides health-check and diagnostic commands for the mcpp workspace.
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
-use ggen_domain::utils::{execute_doctor, CheckStatus, DoctorInput};
+use mcpp_domain::utils::{execute_doctor, CheckStatus, DoctorInput};
 use serde::Serialize;
 use std::path::Path;
 
@@ -16,7 +16,7 @@ use std::path::Path;
 struct RunOutput {
     healthy: bool,
     binary_version: String,
-    ggen_toml_found: bool,
+    mcpp_toml_found: bool,
     workspace_root: String,
     checks: Vec<CheckItem>,
     message: String,
@@ -32,7 +32,7 @@ struct CheckItem {
 #[derive(Serialize)]
 struct CheckOutput {
     passed: bool,
-    ggen_toml_found: bool,
+    mcpp_toml_found: bool,
     workspace_root: String,
     message: String,
 }
@@ -44,10 +44,10 @@ struct CheckOutput {
 fn workspace_checks() -> Vec<CheckItem> {
     vec![
         path_check(
-            "ggen.toml",
-            "ggen.toml",
-            "Found ggen.toml in current directory",
-            "ggen.toml not found in current directory",
+            "mcpp.toml",
+            "mcpp.toml",
+            "Found mcpp.toml in current directory",
+            "mcpp.toml not found in current directory",
         ),
         path_check(
             "Cargo.toml",
@@ -105,20 +105,20 @@ fn is_healthy(checks: &[CheckItem]) -> bool {
             .map(|c| c.passed)
             .unwrap_or(false)
     };
-    tool_ok("ggen.toml") && tool_ok("Rust") && tool_ok("Cargo")
+    tool_ok("mcpp.toml") && tool_ok("Rust") && tool_ok("Cargo")
 }
 
 // ============================================================================
 // Verb Functions
 // ============================================================================
 
-/// Run a full health check: ggen.toml presence, binary version, workspace state, and toolchain
+/// Run a full health check: mcpp.toml presence, binary version, workspace state, and toolchain
 #[verb]
 fn run() -> Result<RunOutput> {
     let cwd = std::env::current_dir()
         .map(|p| p.display().to_string())
         .unwrap_or_else(|_| "<unknown>".to_string());
-    let ggen_toml_found = Path::new("ggen.toml").exists();
+    let mcpp_toml_found = Path::new("mcpp.toml").exists();
     let binary_version = env!("CARGO_PKG_VERSION").to_string();
 
     let mut checks = workspace_checks();
@@ -134,31 +134,31 @@ fn run() -> Result<RunOutput> {
     Ok(RunOutput {
         healthy,
         binary_version,
-        ggen_toml_found,
+        mcpp_toml_found,
         workspace_root: cwd,
         checks,
         message,
     })
 }
 
-/// Quick validation: verifies the workspace can be found and ggen.toml is present
+/// Quick validation: verifies the workspace can be found and mcpp.toml is present
 #[verb]
 fn check() -> Result<CheckOutput> {
     let cwd = std::env::current_dir()
         .map(|p| p.display().to_string())
         .unwrap_or_else(|_| "<unknown>".to_string());
-    let ggen_toml_found = Path::new("ggen.toml").exists();
-    let (passed, message) = if ggen_toml_found {
-        (true, "Quick check passed — ggen.toml found".to_string())
+    let mcpp_toml_found = Path::new("mcpp.toml").exists();
+    let (passed, message) = if mcpp_toml_found {
+        (true, "Quick check passed — mcpp.toml found".to_string())
     } else {
         (
             false,
-            "Quick check failed — ggen.toml not found in current directory".to_string(),
+            "Quick check failed — mcpp.toml not found in current directory".to_string(),
         )
     };
     Ok(CheckOutput {
         passed,
-        ggen_toml_found,
+        mcpp_toml_found,
         workspace_root: cwd,
         message,
     })

@@ -6,7 +6,7 @@
 
 /// PaaS Submodule Management Commands
 ///
-/// Implements semantic noun-verb CLI for managing ggen-spec-kit and clap-noun-verb
+/// Implements semantic noun-verb CLI for managing mcpp-spec-kit and clap-noun-verb
 /// submodules. Includes operations for initialization, validation, synchronization,
 /// and deployment.
 ///

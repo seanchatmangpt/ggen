@@ -3,7 +3,7 @@
 **Feature Branch**: `007-cli-jtbd-audit`
 **Created**: 2024-12-14
 **Status**: Draft
-**Input**: User description: "Jobs to be done audit of every single command line interface command. One to evaluate if it works. Two to evaluate if it helps coding agents to use the CLI. Seven coding agent avatars. Seven Fortune 500 project case studies. ggen maturity matrix"
+**Input**: User description: "Jobs to be done audit of every single command line interface command. One to evaluate if it works. Two to evaluate if it helps coding agents to use the CLI. Seven coding agent avatars. Seven Fortune 500 project case studies. mcpp maturity matrix"
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Executive Summary
 
-This specification defines a comprehensive Jobs-to-be-Done (JTBD) audit framework for all 47+ ggen CLI commands. The audit evaluates each command from two perspectives:
+This specification defines a comprehensive Jobs-to-be-Done (JTBD) audit framework for all 47+ mcpp CLI commands. The audit evaluates each command from two perspectives:
 1. **Functional Correctness**: Does the command work as intended?
 2. **Agent Accessibility**: Can AI coding agents effectively use this command?
 
@@ -31,7 +31,7 @@ The framework includes 7 coding agent avatars representing different AI assistan
 
 ## Coding Agent Avatars (7 Personas)
 
-These avatars represent the spectrum of AI coding agents that may interact with ggen:
+These avatars represent the spectrum of AI coding agents that may interact with mcpp:
 
 ### Avatar 1: Claude Code (Anthropic)
 - **Context Window**: 200K tokens
@@ -81,56 +81,56 @@ These avatars represent the spectrum of AI coding agents that may interact with 
 
 ### Case Study 1: JPMorgan Chase - Financial Services
 - **Industry**: Banking/Finance
-- **ggen Use Case**: Regulatory compliance code generation from RDF ontologies
+- **mcpp Use Case**: Regulatory compliance code generation from RDF ontologies
 - **Key Commands**: `ontology validate`, `template generate`, `graph query`
 - **Scale**: 50K+ Java entities, 200+ microservices
 - **JTBD**: "When regulatory requirements change, I need to regenerate compliant code across all services without manual intervention"
 
 ### Case Study 2: Amazon - E-commerce/Cloud
 - **Industry**: Technology/Retail
-- **ggen Use Case**: API client SDK generation from OpenAPI → RDF transformation
+- **mcpp Use Case**: API client SDK generation from OpenAPI → RDF transformation
 - **Key Commands**: `project generate`, `ai generate`, `marketplace install`
 - **Scale**: 1M+ API endpoints, multi-language SDKs
 - **JTBD**: "When I update an API spec, I need consistent SDK updates across 8 languages within the same commit"
 
 ### Case Study 3: Pfizer - Pharmaceutical
 - **Industry**: Healthcare/Biotech
-- **ggen Use Case**: Clinical trial data models from CDISC ontologies
+- **mcpp Use Case**: Clinical trial data models from CDISC ontologies
 - **Key Commands**: `ontology extract`, `graph load`, `template generate-tree`
 - **Scale**: 500+ clinical studies, FDA submission compliance
 - **JTBD**: "When I design a new trial, I need data models that automatically comply with FDA CDISC requirements"
 
 ### Case Study 4: Boeing - Aerospace
 - **Industry**: Manufacturing/Defense
-- **ggen Use Case**: Systems engineering model code generation (SysML → RDF → Code)
+- **mcpp Use Case**: Systems engineering model code generation (SysML → RDF → Code)
 - **Key Commands**: `fmea report`, `workflow analyze`, `graph visualize`
 - **Scale**: 10M+ parts, safety-critical systems
 - **JTBD**: "When I modify a system model, I need to trace code changes back to requirements for certification"
 
 ### Case Study 5: Netflix - Media/Streaming
 - **Industry**: Entertainment/Technology
-- **ggen Use Case**: Content metadata schema generation and validation
+- **mcpp Use Case**: Content metadata schema generation and validation
 - **Key Commands**: `ontology init`, `marketplace validate`, `template lint`
 - **Scale**: 100M+ content items, real-time recommendations
 - **JTBD**: "When content taxonomy evolves, I need backward-compatible schema migrations across all services"
 
 ### Case Study 6: Toyota - Automotive
 - **Industry**: Manufacturing/Automotive
-- **ggen Use Case**: Vehicle configuration code generation from product ontologies
+- **mcpp Use Case**: Vehicle configuration code generation from product ontologies
 - **Key Commands**: `fmea pareto`, `project watch`, `graph export`
 - **Scale**: 1000+ vehicle configurations, just-in-time manufacturing
 - **JTBD**: "When a new vehicle variant is defined, I need manufacturing system code generated within hours, not weeks"
 
 ### Case Study 7: Goldman Sachs - Investment Banking
 - **Industry**: Finance/Trading
-- **ggen Use Case**: Trading system entity generation from market data ontologies
+- **mcpp Use Case**: Trading system entity generation from market data ontologies
 - **Key Commands**: `ai analyze`, `template regenerate`, `ci` integration
 - **Scale**: $500B daily trading volume, microsecond latency requirements
 - **JTBD**: "When market structure changes, I need type-safe trading code that passes compliance review automatically"
 
 ---
 
-## ggen CLI Maturity Matrix
+## mcpp CLI Maturity Matrix
 
 | Level | Name | Description | Commands Ready | Agent-Friendly |
 |-------|------|-------------|----------------|----------------|
@@ -172,7 +172,7 @@ These avatars represent the spectrum of AI coding agents that may interact with 
 
 ### User Story 1 - Command Functionality Audit (Priority: P1)
 
-As a **QA engineer**, I need to verify that every ggen CLI command executes correctly with expected inputs and produces predictable outputs, so that I can ensure the CLI is production-ready.
+As a **QA engineer**, I need to verify that every mcpp CLI command executes correctly with expected inputs and produces predictable outputs, so that I can ensure the CLI is production-ready.
 
 **Why this priority**: Foundation for all other audit activities. Cannot evaluate agent-friendliness if commands don't work.
 
@@ -180,16 +180,16 @@ As a **QA engineer**, I need to verify that every ggen CLI command executes corr
 
 **Acceptance Scenarios**:
 
-1. **Given** a fresh ggen installation, **When** I run `ggen --help`, **Then** I see all available subcommands listed with descriptions
-2. **Given** a valid ontology file, **When** I run `ggen ontology validate ./test.ttl`, **Then** exit code is 0 and output confirms validity
-3. **Given** an invalid ontology file, **When** I run `ggen ontology validate ./invalid.ttl`, **Then** exit code is non-zero and error message indicates the problem
-4. **Given** no arguments, **When** I run `ggen template generate`, **Then** I receive helpful usage instructions (not a stack trace)
+1. **Given** a fresh mcpp installation, **When** I run `mcpp --help`, **Then** I see all available subcommands listed with descriptions
+2. **Given** a valid ontology file, **When** I run `mcpp ontology validate ./test.ttl`, **Then** exit code is 0 and output confirms validity
+3. **Given** an invalid ontology file, **When** I run `mcpp ontology validate ./invalid.ttl`, **Then** exit code is non-zero and error message indicates the problem
+4. **Given** no arguments, **When** I run `mcpp template generate`, **Then** I receive helpful usage instructions (not a stack trace)
 
 ---
 
 ### User Story 2 - Agent Accessibility Evaluation (Priority: P1)
 
-As a **coding agent developer**, I need to evaluate each ggen command for AI agent usability, so that I can determine which commands agents can reliably orchestrate.
+As a **coding agent developer**, I need to evaluate each mcpp command for AI agent usability, so that I can determine which commands agents can reliably orchestrate.
 
 **Why this priority**: Core deliverable of the JTBD audit. Enables agent ecosystem growth.
 
@@ -197,8 +197,8 @@ As a **coding agent developer**, I need to evaluate each ggen command for AI age
 
 **Acceptance Scenarios**:
 
-1. **Given** Claude Code avatar context, **When** evaluating `ggen project generate`, **Then** I can determine if the command provides sufficient feedback for multi-step orchestration
-2. **Given** Cursor AI avatar context (8K tokens), **When** evaluating `ggen template new`, **Then** I can determine if the command fits within context limits
+1. **Given** Claude Code avatar context, **When** evaluating `mcpp project generate`, **Then** I can determine if the command provides sufficient feedback for multi-step orchestration
+2. **Given** Cursor AI avatar context (8K tokens), **When** evaluating `mcpp template new`, **Then** I can determine if the command fits within context limits
 3. **Given** any avatar, **When** a command fails, **Then** the error output is parseable and actionable without human interpretation
 
 ---
@@ -213,7 +213,7 @@ As a **product manager**, I need each CLI command classified by maturity level (
 
 **Acceptance Scenarios**:
 
-1. **Given** the maturity criteria checklist, **When** I evaluate `ggen template generate`, **Then** I can assign a level (L0-L5) with evidence
+1. **Given** the maturity criteria checklist, **When** I evaluate `mcpp template generate`, **Then** I can assign a level (L0-L5) with evidence
 2. **Given** all commands evaluated, **When** I generate a report, **Then** I see distribution across maturity levels
 3. **Given** a command at L2, **When** I review the checklist, **Then** I see specific items needed to reach L3
 
@@ -221,7 +221,7 @@ As a **product manager**, I need each CLI command classified by maturity level (
 
 ### User Story 4 - Fortune 500 Scenario Validation (Priority: P2)
 
-As an **enterprise architect**, I need to validate that ggen CLI commands support Fortune 500 scale use cases, so that I can recommend ggen for enterprise adoption.
+As an **enterprise architect**, I need to validate that mcpp CLI commands support Fortune 500 scale use cases, so that I can recommend mcpp for enterprise adoption.
 
 **Why this priority**: Validates real-world applicability beyond toy examples.
 
@@ -230,7 +230,7 @@ As an **enterprise architect**, I need to validate that ggen CLI commands suppor
 **Acceptance Scenarios**:
 
 1. **Given** JPMorgan compliance case study, **When** I execute the required command sequence, **Then** all commands complete successfully at scale
-2. **Given** Toyota manufacturing case study, **When** I run `ggen project watch`, **Then** file changes trigger regeneration within SLO (5s for 1k triples)
+2. **Given** Toyota manufacturing case study, **When** I run `mcpp project watch`, **Then** file changes trigger regeneration within SLO (5s for 1k triples)
 3. **Given** any case study, **When** a command lacks required capability, **Then** the gap is documented with workaround or enhancement request
 
 ---
@@ -300,40 +300,40 @@ As a **technical writer**, I need each command documented with its Jobs-to-be-Do
 ### Core Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen workflow` | analyze, init, report, event, discover |
-| `ggen utils` | (various utilities) |
-| `ggen ai` | generate, chat, analyze |
-| `ggen ci` | (CI/CD integration) |
+| `mcpp workflow` | analyze, init, report, event, discover |
+| `mcpp utils` | (various utilities) |
+| `mcpp ai` | generate, chat, analyze |
+| `mcpp ci` | (CI/CD integration) |
 
 ### Marketplace Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen marketplace` | sparql, install, metrics, validate, info, rdf_stats, versions, publish, validate_fmea, search |
+| `mcpp marketplace` | sparql, install, metrics, validate, info, rdf_stats, versions, publish, validate_fmea, search |
 
 ### Template Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen template` | new, list, lint, generate, get, show, generate-tree, regenerate |
+| `mcpp template` | new, list, lint, generate, get, show, generate-tree, regenerate |
 
 ### Ontology Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen ontology` | generate, extract, validate, init |
+| `mcpp ontology` | generate, extract, validate, init |
 
 ### Graph Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen graph` | query, load, visualize, export |
+| `mcpp graph` | query, load, visualize, export |
 
 ### Project Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen project` | new, plan, apply, generate, init, watch, gen |
+| `mcpp project` | new, plan, apply, generate, init, watch, gen |
 
 ### FMEA Commands
 | Command | Subcommands |
 |---------|-------------|
-| `ggen fmea` | show, pareto, report, export, list |
+| `mcpp fmea` | show, pareto, report, export, list |
 
 ---
 
@@ -388,7 +388,7 @@ Maturity Level = floor(Agent Score / 20)  // L0-L5
 
 ### Command Audit Template
 ```yaml
-command: ggen <subcommand>
+command: mcpp <subcommand>
 version_tested: 4.0.0
 date: YYYY-MM-DD
 tester: <name>
@@ -424,7 +424,7 @@ industry: <industry>
 jtbd: "<job statement>"
 
 required_commands:
-  - command: ggen <subcommand>
+  - command: mcpp <subcommand>
     purpose: ""
     current_support: full/partial/none
     gaps: []

@@ -1,8 +1,8 @@
 groups:
-  - id: span.ggen.error
+  - id: span.mcpp.error
     type: span
     stability: development
-    brief: Error span for ggen operation failures.
+    brief: Error span for mcpp operation failures.
     span_kind: internal
     attributes:
       - ref: error

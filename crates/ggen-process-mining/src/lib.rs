@@ -1,6 +1,6 @@
-//! # ggen-process-mining: Process Mining Integration for ggen
+//! # mcpp-process-mining: Process Mining Integration for mcpp
 //!
-//! This crate integrates process mining capabilities with ggen's workflow generation
+//! This crate integrates process mining capabilities with mcpp's workflow generation
 //! system, enabling:
 //!
 //! - **Process Discovery**: Extract process models from event logs using Alpha++ algorithm
@@ -14,7 +14,7 @@
 //! Event Logs (XES/OCEL)          YAWL Workflows
 //!         ↓                              ↓
 //! ┌─────────────────────────────────────────────┐
-//! │         ggen-process-mining                 │
+//! │         mcpp-process-mining                 │
 //! │  ┌──────────────┐      ┌──────────────┐    │
 //! │  │  Alpha++     │      │   YAWL →     │    │
 //! │  │  Discovery   │      │  PetriNet    │    │
@@ -33,7 +33,7 @@
 //! ### Process Discovery from Event Logs
 //!
 //! ```rust,no_run
-//! use ggen_process_mining::{ProcessMiner, EventLog};
+//! use mcpp_process_mining::{ProcessMiner, EventLog};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load XES event log
@@ -52,7 +52,7 @@
 //! ### Conformance Checking
 //!
 //! ```rust,no_run
-//! use ggen_process_mining::{ProcessMiner, EventLog, YawlModel};
+//! use mcpp_process_mining::{ProcessMiner, EventLog, YawlModel};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load YAWL workflow specification
@@ -103,7 +103,7 @@ pub use petri_net::{Marking, PetriNet, Place, Transition};
 pub use xes::{XesParser, XesWriter};
 pub use yawl_bridge::{PetriNetToYawl, YawlBridge, YawlToPetriNet};
 
-/// Current version of ggen-process-mining.
+/// Current version of mcpp-process-mining.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Create a new process miner with default configuration.
@@ -113,7 +113,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// # Example
 ///
 /// ```rust
-/// use ggen_process_mining::process_miner;
+/// use mcpp_process_mining::process_miner;
 ///
 /// let miner = process_miner();
 /// ```

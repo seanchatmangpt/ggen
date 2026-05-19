@@ -31,7 +31,7 @@ let env = CleanroomEnv::new().expect("Failed to create env");
 
 **Files Affected:**
 - `cli/tests/cleanroom_production.rs` - 15+ instances
-- `ggen-core/tests/integration/lifecycle_clnrm_tests.rs` - 10+ instances
+- `mcpp-core/tests/integration/lifecycle_clnrm_tests.rs` - 10+ instances
 - `tests/london_tdd/**/*.rs` - 200+ instances
 - `tests/ultra_deploy_test.rs` - 20+ instances
 
@@ -55,7 +55,7 @@ assert!(result.is_ok()); // ⚠️ Doesn't check what's inside!
 - `tests/london_tdd/ai_generation/template_gen_test.rs` - 6 instances
 - `tests/london_tdd/marketplace/install_test.rs` - 4 instances
 - `cli/tests/integration/marketplace_test.rs` - 12 instances
-- `ggen-core/tests/integration/marketplace_p2p_tests.rs` - 8 instances
+- `mcpp-core/tests/integration/marketplace_p2p_tests.rs` - 8 instances
 
 **Impact:** Functions can return `Ok(wrong_data)` and all tests pass. No validation of actual values.
 
@@ -95,8 +95,8 @@ fn test_something() {
 ```
 
 **Files Affected:**
-- `ggen-marketplace/tests/innovations_integration_test.rs:85`
-- `ggen-core/tests/marketplace_tests_main.rs:28`
+- `mcpp-marketplace/tests/innovations_integration_test.rs:85`
+- `mcpp-core/tests/marketplace_tests_main.rs:28`
 
 **Impact:** Dead code masquerading as tests. **Remove immediately.**
 
@@ -170,7 +170,7 @@ if !is_clnrm_available() {
 
 ### Immediate (Day 1)
 1. **Remove `assert!(true)` tests** (5 minutes)
-   - Files: `ggen-marketplace/tests/innovations_integration_test.rs:85`, `ggen-core/tests/marketplace_tests_main.rs:28`
+   - Files: `mcpp-marketplace/tests/innovations_integration_test.rs:85`, `mcpp-core/tests/marketplace_tests_main.rs:28`
 
 2. **Fix exit code predicates** (1 hour)
    - Pattern: `.code(predicate::function(|code| *code == 0 || *code != 0))`
@@ -299,7 +299,7 @@ Track these to measure progress:
 
 ## 📝 Full Report
 
-**Detailed JSON Report:** `/Users/sac/ggen/analysis/false-positives.json`
+**Detailed JSON Report:** `~/.ggen/mcpp/analysis/false-positives.json`
 
 Contains:
 - Complete list of all 85 findings
@@ -340,6 +340,6 @@ A: They crash the test instead of returning errors. So error paths never get val
 ---
 
 **Analysis completed. Report stored in:**
-- `/Users/sac/ggen/analysis/false-positives.json` (full details)
-- `/Users/sac/ggen/analysis/FALSE_POSITIVE_EXECUTIVE_SUMMARY.md` (this file)
+- `~/.ggen/mcpp/analysis/false-positives.json` (full details)
+- `~/.ggen/mcpp/analysis/FALSE_POSITIVE_EXECUTIVE_SUMMARY.md` (this file)
 - `hive/researcher/false-positives` (Claude-Flow memory)

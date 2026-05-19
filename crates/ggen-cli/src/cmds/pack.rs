@@ -1,14 +1,14 @@
 //! Pack Commands (singular alias for `packs`)
 //!
-//! This module provides the `ggen pack` noun as an alias for `ggen packs`,
-//! supporting the golden-path form: `ggen pack add <name>`.
+//! This module provides the `mcpp pack` noun as an alias for `mcpp packs`,
+//! supporting the golden-path form: `mcpp pack add <name>`.
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 
-use ggen_domain::packs::install::{install_pack, InstallInput};
-use ggen_domain::packs::metadata::load_pack_metadata;
+use mcpp_domain::packs::install::{install_pack, InstallInput};
+use mcpp_domain::packs::metadata::load_pack_metadata;
 
 #[derive(Serialize)]
 struct AddOutput {
@@ -64,7 +64,7 @@ fn add(pack_name: String) -> Result<AddOutput> {
         pack_name: output.pack_id.clone(),
         status: "installed".to_string(),
         message: format!(
-            "Pack '{}' ({}) installed successfully. {} package(s) recorded, {} template(s) available. Lockfile: .ggen/packs.lock",
+            "Pack '{}' ({}) installed successfully. {} package(s) recorded, {} template(s) available. Lockfile: .mcpp/packs.lock",
             output.pack_name,
             output.pack_id,
             output.packages_installed.len(),
@@ -99,7 +99,7 @@ fn remove(pack_name: String) -> Result<RemoveOutput> {
         status: "removed".to_string(),
         message: format!(
             "Pack '{}' removed successfully. \
-             Run `ggen packs list` to see remaining installed packs.",
+             Run `mcpp packs list` to see remaining installed packs.",
             pack_name
         ),
     })

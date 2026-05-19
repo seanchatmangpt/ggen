@@ -119,7 +119,7 @@ struct CheckCompatibilityOutput {
 /// List all available packs
 #[verb]
 fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
-    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
+    let packages = mcpp_domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packs: {}", e))
     })?;
 
@@ -164,7 +164,7 @@ fn list(verbose: bool, category: Option<String>) -> VerbResult<ListOutput> {
 /// Show detailed pack information
 #[verb]
 fn show(pack_id: String) -> VerbResult<ShowOutput> {
-    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
+    let detail = mcpp_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to get pack '{}': {}",
             pack_id, e
@@ -202,7 +202,7 @@ fn show(pack_id: String) -> VerbResult<ShowOutput> {
 /// - Installation planning and preview
 ///
 /// CISO fail-closed flags (set via environment variables):
-/// * `GGEN_LOCKED=true` — require pack exists in `.ggen/packs.lock`
+/// * `GGEN_LOCKED=true` — require pack exists in `.mcpp/packs.lock`
 /// * `GGEN_OFFLINE=true` — require pack exists in local cache (no network fetch)
 #[verb]
 fn install(pack_id: String, force: bool, dry_run: bool) -> VerbResult<InstallOutput> {
@@ -213,7 +213,7 @@ fn install(pack_id: String, force: bool, dry_run: bool) -> VerbResult<InstallOut
     }
 
     // Get pack name from metadata
-    let pack_name = ggen_domain::packs::metadata::show_pack(&pack_id)
+    let pack_name = mcpp_domain::packs::metadata::show_pack(&pack_id)
         .map(|p| p.name)
         .unwrap_or_else(|_| pack_id.clone());
 
@@ -246,7 +246,7 @@ struct InstallResult {
 
 /// Improved pack installation implementation with better UX and performance
 fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult> {
-    use ggen_core::packs::lockfile::PackLockfile;
+    use mcpp_core::packs::lockfile::PackLockfile;
 
     // GGEN_LOCKED: verify pack exists in lockfile before proceeding
     let locked = std::env::var_os("GGEN_LOCKED").map_or(false, |v| v == "true" || v == "1");
@@ -257,11 +257,11 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
                 e
             ))
         })?;
-        let lock_path = project_root.join(".ggen").join("packs.lock");
+        let lock_path = project_root.join(".mcpp").join("packs.lock");
 
         if !lock_path.exists() {
             return Err(clap_noun_verb::NounVerbError::execution_error(
-                "GGEN_LOCKED requires a .ggen/packs.lock file; none found",
+                "GGEN_LOCKED requires a .mcpp/packs.lock file; none found",
             ));
         }
 
@@ -334,7 +334,7 @@ fn install_pack_improved(pack_id: &str, force: bool) -> VerbResult<InstallResult
 fn resolve_cache_dir() -> VerbResult<std::path::PathBuf> {
     std::env::var_os("GGEN_PACK_CACHE_DIR")
         .map(std::path::PathBuf::from)
-        .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
+        .or_else(|| dirs::home_dir().map(|h| h.join(".mcpp").join("packs")))
         .ok_or_else(|| {
             clap_noun_verb::NounVerbError::execution_error(
                 "Cannot resolve pack cache: set HOME or GGEN_PACK_CACHE_DIR",
@@ -369,7 +369,7 @@ fn create_pack_structure(pack_dir: &std::path::Path, pack_id: &str) -> VerbResul
     let ontology_ttl = r#"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ex: <http://example.org/pack#> .
 ex:PackRoot a rdfs:Resource ;
-    rdfs:label "ggen pack substrate" .
+    rdfs:label "mcpp pack substrate" .
 "#;
     fs::write(pack_dir.join("ontology").join("pack.ttl"), ontology_ttl).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
@@ -380,7 +380,7 @@ ex:PackRoot a rdfs:Resource ;
 
     // Write query
     let pack_construct = r#"PREFIX ex: <http://example.org/pack#>
-PREFIX gen: <http://ggen.dev/gen#>
+PREFIX gen: <http://mcpp.dev/gen#>
 CONSTRUCT {
   ex:PackRoot gen:annotatedBy gen:PackQuery .
 }
@@ -421,7 +421,7 @@ installed_at = "{}"
 }
 
 fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std::path::PathBuf> {
-    use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
+    use mcpp_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
     use std::fs;
 
     let project_root = std::env::current_dir().map_err(|e| {
@@ -430,12 +430,12 @@ fn update_lockfile(pack_id: &str, cache_dir: &std::path::Path) -> VerbResult<std
             e
         ))
     })?;
-    let lock_path = project_root.join(".ggen").join("packs.lock");
+    let lock_path = project_root.join(".mcpp").join("packs.lock");
 
     fs::create_dir_all(lock_path.parent().unwrap_or_else(|| project_root.as_path())).map_err(
         |e| {
             clap_noun_verb::NounVerbError::execution_error(&format!(
-                "Failed to create .ggen: {}",
+                "Failed to create .mcpp: {}",
                 e
             ))
         },
@@ -501,7 +501,7 @@ fn generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput>
 }
 
 fn run_generate(pack_id: String, project_path: String) -> VerbResult<GenerateOutput> {
-    use ggen_domain::packs::generator::{generate_from_pack, GenerateInput};
+    use mcpp_domain::packs::generator::{generate_from_pack, GenerateInput};
     use std::collections::BTreeMap;
 
     let input = GenerateInput {
@@ -545,7 +545,7 @@ fn validate(pack_id: String) -> VerbResult<ValidateOutput> {
 
 fn run_validate(pack_id: String) -> VerbResult<ValidateOutput> {
     // Try to validate the pack; if it doesn't exist, return with valid: false
-    match ggen_domain::packs::validate::validate_pack(&pack_id) {
+    match mcpp_domain::packs::validate::validate_pack(&pack_id) {
         Ok(result) => {
             let message = if result.valid {
                 format!(
@@ -611,14 +611,14 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
         ));
     }
 
-    let input = ggen_domain::packs::compose::ComposePacksInput {
+    let input = mcpp_domain::packs::compose::ComposePacksInput {
         pack_ids: pack_id_list.clone(),
         project_name: "composed-project".to_string(),
         output_dir: None,
-        strategy: ggen_domain::packs::types::CompositionStrategy::Merge,
+        strategy: mcpp_domain::packs::types::CompositionStrategy::Merge,
     };
 
-    let result = crate::runtime::block_on(ggen_domain::packs::compose::compose_packs(&input))
+    let result = crate::runtime::block_on(mcpp_domain::packs::compose::compose_packs(&input))
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
         })?
@@ -648,7 +648,7 @@ fn run_compose(pack_ids: String) -> VerbResult<ComposeOutput> {
 /// Show pack dependencies
 #[verb]
 fn dependencies(pack_id: String, _version: Option<String>) -> VerbResult<DependenciesOutput> {
-    let detail = ggen_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
+    let detail = mcpp_domain::packs::metadata::show_pack(&pack_id).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!(
             "Failed to resolve dependencies for '{}': {}",
             pack_id, e
@@ -678,7 +678,7 @@ fn search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
 }
 
 fn run_search(query: String, limit: Option<usize>) -> VerbResult<SearchOutput> {
-    let packages = ggen_domain::packs::metadata::list_packs(None).map_err(|e| {
+    let packages = mcpp_domain::packs::metadata::list_packs(None).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to list packages: {}", e))
     })?;
 
@@ -743,7 +743,7 @@ fn check_compatibility(pack_ids: String) -> VerbResult<CheckCompatibilityOutput>
     }
 
     let result =
-        crate::runtime::block_on(ggen_domain::packs::check_packs_compatibility(&pack_id_list))
+        crate::runtime::block_on(mcpp_domain::packs::check_packs_compatibility(&pack_id_list))
             .map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(&format!("Runtime error: {}", e))
             })?
@@ -788,7 +788,7 @@ fn stage_pack_for_sync(pack_dir: &std::path::Path, pack_id: &str) -> VerbResult<
         .map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(&format!("Cannot get cwd: {}", e))
         })?
-        .join(".ggen")
+        .join(".mcpp")
         .join("pack-stage");
 
     // Stage queries

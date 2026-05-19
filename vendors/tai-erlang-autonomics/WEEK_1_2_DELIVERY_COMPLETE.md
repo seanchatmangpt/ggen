@@ -3,7 +3,7 @@
 
 **Status**: COMPLETE & READY FOR EXECUTION
 **Date**: January 26, 2026
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/`
+**Location**: `./tai-erlang-autonomics/execution/week-1-2/`
 
 ---
 
@@ -218,7 +218,7 @@ All research validated against:
 ## FILE ORGANIZATION
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+./tai-erlang-autonomics/execution/week-1-2/
 
 CUSTOMER DISCOVERY (Primary - NEW Jan 26):
 ├── WEEK_1_2_CUSTOMER_RESEARCH.md (1,251 lines - comprehensive)
@@ -297,7 +297,7 @@ With Week 1-2 complete:
 
 **READY FOR EXECUTION. LET'S GO! 🚀**
 
-All materials are in `/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/`
+All materials are in `./tai-erlang-autonomics/execution/week-1-2/`
 
 Start with: `QUICK_START.txt` or `CUSTOMER_DISCOVERY_LAUNCH_SUMMARY.md`
 

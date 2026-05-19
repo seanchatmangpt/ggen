@@ -30,7 +30,7 @@ impl<'a> ConfigValidator<'a> {
     /// # Example
     ///
     /// ```
-    /// use ggen_config::{ConfigLoader, ConfigValidator};
+    /// use ggen_core::config_lib::{ConfigLoader, ConfigValidator};
     ///
     /// let toml = r#"
     ///     [project]

@@ -24,9 +24,9 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 
 # Core ggen dependencies (for realistic examples)
-ggen-core = { path = "../../ggen-core" }
-ggen-ai = { path = "../../ggen-ai" }
-ggen-utils = { path = "../../utils" }
+mcpp-core = { path = "../../mcpp-core" }
+mcpp-ai = { path = "../../mcpp-ai" }
+mcpp-utils = { path = "../../utils" }
 
 [dev-dependencies]
 tempfile = "3.14"

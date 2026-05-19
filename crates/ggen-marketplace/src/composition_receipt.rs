@@ -11,7 +11,7 @@
 
 use crate::error::Result;
 use crate::trust::TrustTier;
-use ggen_receipt::{Receipt, ReceiptChain};
+use ggen_core::receipt::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 

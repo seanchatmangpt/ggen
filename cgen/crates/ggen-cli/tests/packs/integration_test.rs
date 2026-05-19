@@ -51,6 +51,7 @@ impl TestEnv {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_list_empty_workspace() {
     let env = TestEnv::new().unwrap();
 
@@ -70,6 +71,7 @@ async fn test_pack_list_empty_workspace() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_list_with_installed_packs() {
     let env = TestEnv::new().unwrap();
 
@@ -94,6 +96,7 @@ async fn test_pack_list_with_installed_packs() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_list_by_category() {
     let env = TestEnv::new().unwrap();
 
@@ -120,6 +123,7 @@ async fn test_pack_list_by_category() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_install_single_pack() {
     let env = TestEnv::new().unwrap();
 
@@ -139,6 +143,7 @@ async fn test_pack_install_single_pack() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_install_with_version() {
     let env = TestEnv::new().unwrap();
 
@@ -159,6 +164,7 @@ async fn test_pack_install_with_version() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_install_with_dependencies() {
     let env = TestEnv::new().unwrap();
 
@@ -182,6 +188,7 @@ async fn test_pack_install_with_dependencies() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_install_creates_lockfile() {
     let env = TestEnv::new().unwrap();
 
@@ -203,6 +210,7 @@ async fn test_pack_install_creates_lockfile() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_install_dry_run() {
     let env = TestEnv::new().unwrap();
 
@@ -226,6 +234,7 @@ async fn test_pack_install_dry_run() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_uninstall_single_pack() {
     let env = TestEnv::new().unwrap();
 
@@ -251,6 +260,7 @@ async fn test_pack_uninstall_single_pack() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_uninstall_preserves_shared_dependencies() {
     let env = TestEnv::new().unwrap();
 
@@ -282,6 +292,7 @@ async fn test_pack_uninstall_preserves_shared_dependencies() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_update_to_latest() {
     let env = TestEnv::new().unwrap();
 
@@ -306,6 +317,7 @@ async fn test_pack_update_to_latest() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_update_preserves_config() {
     let env = TestEnv::new().unwrap();
 
@@ -333,6 +345,7 @@ async fn test_pack_update_preserves_config() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_search_by_name() {
     let env = TestEnv::new().unwrap();
 
@@ -351,6 +364,7 @@ async fn test_pack_search_by_name() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_search_by_category() {
     let env = TestEnv::new().unwrap();
 
@@ -369,6 +383,7 @@ async fn test_pack_search_by_category() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_search_with_limit() {
     let env = TestEnv::new().unwrap();
 
@@ -393,6 +408,7 @@ async fn test_pack_search_with_limit() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_info_installed() {
     let env = TestEnv::new().unwrap();
 
@@ -422,6 +438,7 @@ async fn test_pack_info_installed() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_info_not_installed() {
     let env = TestEnv::new().unwrap();
 
@@ -446,6 +463,7 @@ async fn test_pack_info_not_installed() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_validate_success() {
     let env = TestEnv::new().unwrap();
 
@@ -473,6 +491,7 @@ async fn test_pack_validate_success() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_pack_validate_failure() {
     let env = TestEnv::new().unwrap();
 

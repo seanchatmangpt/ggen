@@ -234,7 +234,7 @@ For Modeling Updates:
 FILE LOCATIONS
 ==============
 
-All deliverables: /Users/sac/ggen/tai-erlang-autonomics/finance/
+All deliverables: ./tai-erlang-autonomics/finance/
 
 Files:
 - FINANCIAL_MODEL.xlsx

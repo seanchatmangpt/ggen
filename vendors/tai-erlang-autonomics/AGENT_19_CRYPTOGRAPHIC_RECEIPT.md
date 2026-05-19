@@ -16,7 +16,7 @@ MISSION: Marketplace Documentation Delivery
 STATUS: COMPLETE
 DATE: 2026-01-26
 TIME: 14:48:00Z
-ENVIRONMENT: /Users/sac/ggen/tai-erlang-autonomics/
+ENVIRONMENT: ./tai-erlang-autonomics/
 ```
 
 ---
@@ -25,7 +25,7 @@ ENVIRONMENT: /Users/sac/ggen/tai-erlang-autonomics/
 
 ### Document 1: SUPPORT_MODEL.md
 ```
-FILE: /Users/sac/ggen/tai-erlang-autonomics/docs/SUPPORT_MODEL.md
+FILE: ./tai-erlang-autonomics/docs/SUPPORT_MODEL.md
 LINES: 343
 SIZE: 10,829 bytes
 HASH_SHA256: fb4177994ef46df88ba5d88a8491a458bec22a62984a3f5f74c860260726ef4b
@@ -53,7 +53,7 @@ CONTENT SECTIONS:
 
 ### Document 2: INSTALL.md
 ```
-FILE: /Users/sac/ggen/tai-erlang-autonomics/docs/INSTALL.md
+FILE: ./tai-erlang-autonomics/docs/INSTALL.md
 LINES: 514
 SIZE: 10,345 bytes
 HASH_SHA256: f5b141002e8a4118399ea825cb87dccae38f5aa24bf2d02132a8d90a5175483a
@@ -81,7 +81,7 @@ CONTENT SECTIONS:
 
 ### Document 3: API.md
 ```
-FILE: /Users/sac/ggen/tai-erlang-autonomics/docs/API.md
+FILE: ./tai-erlang-autonomics/docs/API.md
 LINES: 712
 SIZE: 15,345 bytes
 HASH_SHA256: 5d936ebd6556e4776a13e247eeaf47e20c7e60a6c1ba2cb022b1b7b6faa0dd6c
@@ -113,7 +113,7 @@ CONTENT SECTIONS:
 
 ### Document 4: ROADMAP.md
 ```
-FILE: /Users/sac/ggen/tai-erlang-autonomics/docs/ROADMAP.md
+FILE: ./tai-erlang-autonomics/docs/ROADMAP.md
 LINES: 458
 SIZE: 13,072 bytes
 HASH_SHA256: b79ed2edf71762cc71e69caeabe2b906513ecdfdc6cba1b4df8e4efb8c553b2bc
@@ -147,7 +147,7 @@ CONTENT SECTIONS:
 TOTAL_DOCUMENTS: 4
 TOTAL_LINES: 2,027
 TOTAL_SIZE: 49,641 bytes
-LOCATION: /Users/sac/ggen/tai-erlang-autonomics/docs/
+LOCATION: ./tai-erlang-autonomics/docs/
 
 Bundle Hash (sorted by filename):
   - API.md: 5d936ebd6556e4776a13e247eeaf47e20c7e60a6c1ba2cb022b1b7b6faa0dd6c
@@ -369,7 +369,7 @@ All files are stored in the repository with checksums for verification.
 
 Files can be verified using:
 ```bash
-sha256sum /Users/sac/ggen/tai-erlang-autonomics/docs/*.md
+sha256sum ./tai-erlang-autonomics/docs/*.md
 ```
 
 Expected output should match hashes listed in this receipt.

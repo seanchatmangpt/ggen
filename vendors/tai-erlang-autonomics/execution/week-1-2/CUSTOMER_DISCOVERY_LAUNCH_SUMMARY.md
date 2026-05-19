@@ -326,7 +326,7 @@
 ## DOCUMENT LOCATIONS
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/
+./tai-erlang-autonomics/execution/week-1-2/
 
 CUSTOMER DISCOVERY PACKAGE:
 ├── README.md (this file - package overview)
@@ -359,13 +359,13 @@ SUPPORTING DOCUMENTS (from prior execution):
 
 This Week 1-2 Customer Discovery Package integrates with existing TAI materials:
 
-**Sales Materials** (in `/Users/sac/ggen/tai-erlang-autonomics/sales/`):
+**Sales Materials** (in `./tai-erlang-autonomics/sales/`):
 - IDEAL_CUSTOMER_PROFILE.md (use as reference for ICP details)
 - SALES_PLAYBOOK.md (use for discovery call structure)
 - DISCOVERY_CHECKLIST.md (use for discovery call questions)
 - README.md, IMPLEMENTATION_GUIDE.md (use for sales motion overview)
 
-**Business Materials** (in `/Users/sac/ggen/tai-erlang-autonomics/business/`):
+**Business Materials** (in `./tai-erlang-autonomics/business/`):
 - MARKET_VALIDATION_REPORT.md (use for market context)
 - GO_TO_MARKET_STRATEGY.md (use for GTM overview)
 - PRICING_AND_PACKAGING.md (use for deal structure)
@@ -491,4 +491,4 @@ Good luck! 🚀
 
 ---
 
-*This document is part of the TAI Erlang Autonomics Week 1-2 Execution Package. All supporting materials are in `/Users/sac/ggen/tai-erlang-autonomics/execution/week-1-2/`*
+*This document is part of the TAI Erlang Autonomics Week 1-2 Execution Package. All supporting materials are in `./tai-erlang-autonomics/execution/week-1-2/`*

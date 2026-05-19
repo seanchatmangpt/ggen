@@ -1,12 +1,12 @@
 [workspace.package]
-version = "6.1.0"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
 license = "MIT"
 
 [package]
-name = "ggen"
+name = "mcpp"
 version.workspace = true
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
@@ -22,34 +22,34 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 
 [workspace]
 members = [
-  "crates/ggen-utils",
-  "crates/ggen-cli",
-  "crates/ggen-domain",
-  "crates/ggen-core",
-  "crates/ggen-ai",
-  "crates/ggen-dspy",
-  "crates/ggen-config",
-  "crates/ggen-cli-validation",
-  "crates/ggen-config-clap",
-  "crates/ggen-test-audit",
-  "crates/ggen-test-opt",
-  "crates/ggen-e2e",
+  "crates/mcpp-utils",
+  "crates/mcpp-cli",
+  "crates/mcpp-domain",
+  "crates/mcpp-core",
+  "crates/mcpp-ai",
+  "crates/mcpp-dspy",
+  "crates/mcpp-config",
+  "crates/mcpp-cli-validation",
+  "crates/mcpp-config-clap",
+  "crates/mcpp-test-audit",
+  "crates/mcpp-test-opt",
+  "crates/mcpp-e2e",
   "crates/mcpp-cli",
   "crates/mcpp-core",
   "crates/mcpp-domain",
   "crates/mcpp-telco",
-  "crates/ggen-marketplace",
-  "crates/ggen-ontology-core",
-  "crates/ggen-codegen",
-  "crates/ggen-yawl",
-  "crates/ggen-process-mining",
+  "crates/mcpp-marketplace",
+  "crates/mcpp-ontology-core",
+  "crates/mcpp-codegen",
+  "crates/mcpp-yawl",
+  "crates/mcpp-process-mining",
   "crates/a2a-generated",
-  "crates/ggen-a2a-mcp",
-  "crates/ggen-a2a-registry",
-  "crates/ggen-canonical",
-  "crates/ggen-prompt-mfg",
-  "crates/ggen-receipt",
-  "crates/ggen-transport",
+  "crates/mcpp-a2a-mcp",
+  "crates/mcpp-a2a-registry",
+  "crates/mcpp-canonical",
+  "crates/mcpp-prompt-mfg",
+  "crates/mcpp-receipt",
+  "crates/mcpp-transport",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
@@ -61,10 +61,10 @@ exclude = [
   "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
   "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
   "marketplace/packages/workflow-engine-cli",
-  "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
-  "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
+  "crates/mcpp-workflow",     # Requires Erlang NIF runtime - standalone build only
+  "crates/mcpp-workflow/native",  # Native NIF crate - standalone build only
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
-  "crates/ggen-process-mining", # Temporarily excluded - has missing benchmark files
+  "crates/mcpp-process-mining", # Temporarily excluded - has missing benchmark files
   "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
   "crates/tai-security",  # Temporarily excluded - has dependency issues
   "crates/tai-resilience",  # Temporarily excluded - has dependency issues
@@ -121,50 +121,50 @@ predicates = "3.1"
 rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-# NOTE: v6.1.0 unified release
-ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "6.1.0" }
-ggen-config = { path = "crates/ggen-config", version = "6.1.0" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "6.1.0" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "6.1.0" }
-ggen-domain = { path = "crates/ggen-domain", version = "6.1.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "6.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
-ggen-node = { path = "crates/ggen-node", version = "6.1.0" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "6.1.0" }
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "6.1.0" }
-ggen-e2e = { path = "crates/ggen-e2e", version = "6.1.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "6.1.0" }
-ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "6.1.0" }
-ggen-canonical = { path = "crates/ggen-canonical", version = "6.1.0" }
-ggen-receipt = { path = "crates/ggen-receipt", version = "6.1.0" }
-ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "6.1.0" }
+# NOTE: v26.5.4 unified release
+mcpp-utils = { path = "crates/mcpp-utils", version = "26.5.4" }
+mcpp-core = { path = "crates/mcpp-core", version = "26.5.4" }
+mcpp-config = { path = "crates/mcpp-config", version = "26.5.4" }
+mcpp-cli-validation = { path = "crates/mcpp-cli-validation", version = "26.5.4" }
+mcpp-config-clap = { path = "crates/mcpp-config-clap", version = "26.5.4" }
+mcpp-domain = { path = "crates/mcpp-domain", version = "26.5.4" }
+mcpp-marketplace = { path = "crates/mcpp-marketplace", version = "26.5.4" }
+mcpp-cli-lib = { path = "crates/mcpp-cli", version = "26.5.4" }
+mcpp-node = { path = "crates/mcpp-node", version = "26.5.4" }
+mcpp-test-audit = { path = "crates/mcpp-test-audit", version = "26.5.4" }
+mcpp-test-opt = { path = "crates/mcpp-test-opt", version = "26.5.4" }
+mcpp-e2e = { path = "crates/mcpp-e2e", version = "26.5.4" }
+mcpp-ai = { path = "crates/mcpp-ai", version = "26.5.4" }
+mcpp-ontology-core = { path = "crates/mcpp-ontology-core", version = "26.5.4" }
+mcpp-canonical = { path = "crates/mcpp-canonical", version = "26.5.4" }
+mcpp-receipt = { path = "crates/mcpp-receipt", version = "26.5.4" }
+mcpp-prompt-mfg = { path = "crates/mcpp-prompt-mfg", version = "26.5.4" }
 
-mcpp-cli = { path = "crates/mcpp-cli", version = "6.1.0" }
-mcpp-core = { path = "crates/mcpp-core", version = "6.1.0" }
-mcpp-domain = { path = "crates/mcpp-domain", version = "6.1.0" }
-mcpp-telco = { path = "crates/mcpp-telco", version = "6.1.0" }
+mcpp-cli = { path = "crates/mcpp-cli", version = "26.5.4" }
+mcpp-core = { path = "crates/mcpp-core", version = "26.5.4" }
+mcpp-domain = { path = "crates/mcpp-domain", version = "26.5.4" }
+mcpp-telco = { path = "crates/mcpp-telco", version = "26.5.4" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
-a2a-generated = { path = "crates/a2a-generated", version = "6.1.0" }
+a2a-generated = { path = "crates/a2a-generated", version = "26.5.4" }
 
 # A2A-MCP Integration for ggen
-ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "6.1.0" }
+mcpp-a2a-mcp = { path = "crates/mcpp-a2a-mcp", version = "26.5.4" }
 
 # A2A Registry: Multi-agent orchestration registry
-ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "6.1.0" }
+mcpp-a2a-registry = { path = "crates/mcpp-a2a-registry", version = "26.5.4" }
 
-ggen-transport = { path = "crates/ggen-transport", version = "6.1.0" }
+mcpp-transport = { path = "crates/mcpp-transport", version = "26.5.4" }
 
-# ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
-ggen-codegen = { path = "crates/ggen-codegen", version = "6.1.0" }
+# mcpp-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
+mcpp-codegen = { path = "crates/mcpp-codegen", version = "26.5.4" }
 
-# ggen-yawl: YAWL workflow generation from industry ontologies
-ggen-yawl = { path = "crates/ggen-yawl", version = "6.1.0" }
+# mcpp-yawl: YAWL workflow generation from industry ontologies
+mcpp-yawl = { path = "crates/mcpp-yawl", version = "26.5.4" }
 
-# ggen-process-mining: Process mining integration with rust4pm (Alpha++, XES/OCEL)
-ggen-process-mining = { path = "crates/ggen-process-mining", version = "6.1.0" }
+# mcpp-process-mining: Process mining integration with rust4pm (Alpha++, XES/OCEL)
+mcpp-process-mining = { path = "crates/mcpp-process-mining", version = "26.5.4" }
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
 opentelemetry = { version = "0.31" }
@@ -220,7 +220,7 @@ bitflags = "2.10"
 config = { version = "0.15", default-features = false }
 convert_case = "0.10"
 
-# SQLite version patch - resolve conflict between a2a-rs (0.8) and ggen-api (0.7)
+# SQLite version patch - resolve conflict between a2a-rs (0.8) and mcpp-api (0.7)
 sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls", "chrono", "uuid"] }
 
 # Maximized linting configuration (Rust 1.78+)
@@ -521,26 +521,26 @@ explicit_iter_loop = "allow"
 # ===================================================================
 [features]
 default = []
-nightly = ["ggen-utils/nightly"]
-termlog = ["ggen-utils/termlog"]
-journald = ["ggen-utils/journald"]
-syslog = ["ggen-utils/syslog"]
+nightly = ["mcpp-utils/nightly"]
+termlog = ["mcpp-utils/termlog"]
+journald = ["mcpp-utils/journald"]
+syslog = ["mcpp-utils/syslog"]
 london_tdd = []
 integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
-# Only forward to ggen-core, which handles its own otel dependencies
+# Only forward to mcpp-core, which handles its own otel dependencies
 otel = [
-  "ggen-core/otel",
+  "mcpp-core/otel",
 ]
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "6.1.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "6.1.0" }
-mcpp-core = { path = "crates/mcpp-core", version = "6.1.0" }
-mcpp-domain = { path = "crates/mcpp-domain", version = "6.1.0" }
-ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "6.1.0", optional = true }
+mcpp-utils = { path = "crates/mcpp-utils", version = "26.5.4" }
+mcpp-cli-lib = { path = "crates/mcpp-cli", version = "26.5.4" }
+mcpp-core = { path = "crates/mcpp-core", version = "26.5.4" }
+mcpp-ai = { path = "crates/mcpp-ai", version = "26.5.4" }
+mcpp-core = { path = "crates/mcpp-core", version = "26.5.4" }
+mcpp-domain = { path = "crates/mcpp-domain", version = "26.5.4" }
+mcpp-a2a-mcp = { path = "crates/mcpp-a2a-mcp", version = "26.5.4", optional = true }
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
@@ -556,9 +556,9 @@ serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.18", features = ["v4"] }
 genai = { workspace = true }
 tracing-subscriber = "0.3"
-# Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
+# Note: OpenTelemetry dependencies are optional at the crate level (mcpp-core, etc.)
 # The root package doesn't directly use OTEL, so these are not included here.
-# Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
+# Enable OTEL via: cargo build --features otel (which forwards to mcpp-core/otel)
 # Example definitions removed - examples now discovered automatically by Cargo
 [dev-dependencies]
 assert_cmd = "2.0.17"
@@ -566,8 +566,8 @@ predicates = "3.1.3"
 serde_json = "1.0"
 tempfile = "3.23"
 anyhow = "1.0"
-ggen-domain = { path = "crates/ggen-domain", version = "6.1.0" }
-ggen-yawl = { path = "crates/ggen-yawl", version = "6.1.0" }
+mcpp-domain = { path = "crates/mcpp-domain", version = "26.5.4" }
+mcpp-yawl = { path = "crates/mcpp-yawl", version = "26.5.4" }
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.20"
@@ -602,12 +602,12 @@ lazy_static = "1.4"
 fastrand = "2.3"
 # Process Mining for workflow analytics
 process_mining = "0.2"
-ggen-process-mining = { path = "crates/ggen-process-mining", version = "6.1.0" }
+mcpp-process-mining = { path = "crates/mcpp-process-mining", version = "26.5.4" }
 # Cryptographic hashing for receipt tests
 sha2 = "0.10"
 # A2A/TPS System Benchmarks
-ggen-receipt.workspace = true
-ggen-canonical.workspace = true
+mcpp-receipt.workspace = true
+mcpp-canonical.workspace = true
 regex = "1.12"
 validator = "0.19"
 ed25519-dalek = "2.1"
@@ -887,6 +887,6 @@ changelog = "debian/changelog"
 systemd-units = []
 conffiles = []
 [package.metadata.deb.variants.amd64]
-package = "ggen-amd64"
+package = "mcpp-amd64"
 [package.metadata.deb.lintian-overrides]
 unused-shlibs = []

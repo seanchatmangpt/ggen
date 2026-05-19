@@ -6,7 +6,7 @@
 use crate::v6::pass::{Pass, PassContext, PassExecution, PassResult, PassType};
 use crate::v6::receipt::{BuildReceipt, OutputFile, ReceiptPolicies};
 use crate::v6::Epoch;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 use std::time::Instant;

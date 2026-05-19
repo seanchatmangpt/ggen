@@ -36,7 +36,7 @@
 
 **Test**: `domain::graph::load::tests::test_load_verifies_graph_state`
 ```
-Error: Failed to load RDF file: /Users/sac/.cache/tmp/.tmpt8vofi
+Error: Failed to load RDF file: ~/.ggen/.cache/tmp/.tmpt8vofi
 
 Caused by:
     unsupported RDF format:
@@ -44,7 +44,7 @@ Caused by:
 
 **Test**: `domain::graph::load::tests::test_load_turtle_file`
 ```
-Error: Failed to load RDF file: /Users/sac/.cache/tmp/.tmpAj0qty
+Error: Failed to load RDF file: ~/.ggen/.cache/tmp/.tmpAj0qty
 
 Caused by:
     unsupported RDF format:
@@ -58,7 +58,7 @@ Caused by:
 
 **Test**: `domain::graph::query::tests::test_execute_ask_query_with_real_graph`
 ```
-Error: Failed to load graph from file: /Users/sac/.cache/tmp/.tmpgqlbAp
+Error: Failed to load graph from file: ~/.ggen/.cache/tmp/.tmpgqlbAp
 
 Caused by:
     unsupported RDF format:
@@ -66,7 +66,7 @@ Caused by:
 
 **Test**: `domain::graph::query::tests::test_execute_sparql_with_real_graph`
 ```
-Error: Failed to load graph from file: /Users/sac/.cache/tmp/.tmp2ZHq5i
+Error: Failed to load graph from file: ~/.ggen/.cache/tmp/.tmp2ZHq5i
 
 Caused by:
     unsupported RDF format:
@@ -74,7 +74,7 @@ Caused by:
 
 **Test**: `domain::graph::query::tests::test_execute_sparql_with_filter`
 ```
-Error: Failed to load graph from file: /Users/sac/.cache/tmp/.tmp3YQ0rZ
+Error: Failed to load graph from file: ~/.ggen/.cache/tmp/.tmp3YQ0rZ
 
 Caused by:
     unsupported RDF format:

@@ -55,7 +55,7 @@ cargo tree --duplicates | grep -E "^[a-z]" | wc -l
 #### Utilities
 - **base64**: 2 versions (v0.21.7, v0.22.1) - Already noted in Cargo.toml:L146
 - **bitflags**: 3 versions (v1.3.2, v2.10.0, v2.10.0)
-- **dashmap**: 2 versions (v5.5.3, v6.1.0)
+- **dashmap**: 2 versions (v5.5.3, v26.5.4)
 - **derive_more**: 3 versions (v0.99.20, v1.0.0, v2.1.1)
 
 #### Proc-Macro Heavy

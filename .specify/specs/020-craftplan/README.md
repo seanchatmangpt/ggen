@@ -586,7 +586,7 @@ end
 - **Ash Framework Documentation:** https://ash-hq.org/
 - **RDF/Turtle Specification:** https://www.w3.org/TR/turtle/
 - **SHACL Specification:** https://www.w3.org/TR/shacl/
-- **ggen Documentation:** `/Users/sac/ggen/CLAUDE.md`
+- **ggen Documentation:** `./CLAUDE.md`
 
 ## Changelog
 

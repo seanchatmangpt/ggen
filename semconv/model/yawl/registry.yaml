@@ -1,9 +1,9 @@
 groups:
-  - id: registry.ggen.yawl
+  - id: registry.mcpp.yawl
     type: attribute_group
     stability: development
     display_name: YAWL Workflow Attributes
-    brief: Attributes for YAWL workflow engine operations in ggen.
+    brief: Attributes for YAWL workflow engine operations in mcpp.
     attributes:
       - id: yawl.workflow_id
         type: string

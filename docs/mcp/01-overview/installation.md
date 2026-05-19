@@ -50,7 +50,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "command": "/usr/local/bin/ggen",
       "args": ["mcp", "start-server", "--transport", "stdio"],
       "env": {
-        "GGEN_EXAMPLES_DIR": "/Users/sac/ggen/examples"
+        "GGEN_EXAMPLES_DIR": "./examples"
       }
     }
   }

@@ -1,14 +1,14 @@
 //! AI domain layer - Pure business logic for AI operations
 //!
 //! This module provides domain logic for AI-powered code generation and analysis,
-//! completely separated from CLI concerns. It uses the ggen-ai crate for LLM
+//! completely separated from CLI concerns. It uses the mcpp-ai crate for LLM
 //! integration and provides high-level business logic functions.
 //!
 //! ## Architecture
 //!
 //! - **No CLI dependencies**: Pure domain logic with no clap or clap-noun-verb dependencies
 //! - **Async by default**: All operations are async for non-blocking execution
-//! - **Error handling**: Uses `ggen_utils::error::Result` for consistent error handling
+//! - **Error handling**: Uses `mcpp_utils::error::Result` for consistent error handling
 //!
 //! ## Module Organization
 //!

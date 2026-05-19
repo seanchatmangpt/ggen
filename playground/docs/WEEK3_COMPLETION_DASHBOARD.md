@@ -80,7 +80,7 @@
 **Delivered:** Complete implementation + benchmarking
 
 #### Optimization 1: Lockfile Dependency Resolution
-- **File:** `crates/ggen-core/src/packs/lockfile.rs`
+- **File:** `crates/mcpp-core/src/packs/lockfile.rs`
 - **Implementation:**
   - Parallel manifest loading with Rayon (2-4x speedup)
   - Dependency memoization with LRU cache (30-50% improvement)
@@ -89,7 +89,7 @@
 - **Expected Impact:** 20-50ms → <10ms
 
 #### Optimization 2: RDF Query Optimization
-- **File:** `crates/ggen-core/src/rdf/query.rs` (NEW)
+- **File:** `crates/mcpp-core/src/rdf/query.rs` (NEW)
 - **Implementation:**
   - Query result caching with version tracking (50-100% speedup)
   - Predicate indexing for pattern matching (20-30% improvement)
@@ -98,7 +98,7 @@
 - **Expected Impact:** 10-20ms → 1-2ms (for cached queries)
 
 #### Optimization 3: Template Processing Pipeline
-- **File:** `crates/ggen-core/src/templates/generator.rs`
+- **File:** `crates/mcpp-core/src/templates/generator.rs`
 - **Implementation:**
   - Frontmatter caching (30-50% improvement)
   - Tera template caching (20-40% improvement)
@@ -107,7 +107,7 @@
 - **Expected Impact:** 20-30% faster for bulk operations
 
 #### Benchmark Suite
-- **File:** `crates/ggen-core/benches/medium_optimizations_benchmark.rs` (300 lines)
+- **File:** `crates/mcpp-core/benches/medium_optimizations_benchmark.rs` (300 lines)
 - **Benchmarks:** Lockfile, RDF queries, template processing
 - **Combined Test:** All optimizations working together
 
@@ -195,7 +195,7 @@ Single template render  | 2ms     | <5ms   | ⏳ In progress
 - **Quick Start Guide:** README for team access
 
 #### Infrastructure
-- **Swarm Memory:** `/Users/sac/ggen/.swarm/memory.db`
+- **Swarm Memory:** `~/.ggen/mcpp/.swarm/memory.db`
 - **Hooks Integration:** Pre/post-task coordination
 - **Milestone Tracking:** 12 critical milestones
 - **Blocker Management:** Immediate escalation protocol
@@ -323,7 +323,7 @@ Single template render  | 2ms     | <5ms   | ⏳ In progress
 - Plus 21 additional test file variations
 
 ### New Benchmark Files
-- `crates/ggen-core/benches/medium_optimizations_benchmark.rs` (300 lines)
+- `crates/mcpp-core/benches/medium_optimizations_benchmark.rs` (300 lines)
 
 ### New Optimization Code
 - Enhanced `packs/lockfile.rs` with parallel + caching

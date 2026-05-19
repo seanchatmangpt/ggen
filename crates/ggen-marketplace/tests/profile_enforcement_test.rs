@@ -15,7 +15,7 @@
 
 #![cfg(feature = "integration")]
 
-use ggen_marketplace::{
+use ggen_core::marketplace::{
     development_profile, enterprise_strict_profile, regulated_finance_profile, PackContext,
     ProfileLoader, ReceiptSpec, TrustTier,
 };

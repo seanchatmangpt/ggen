@@ -34,7 +34,7 @@
 //! ### Loading Configuration
 //!
 //! ```rust,no_run
-//! use ggen_utils::project_config::GgenConfig;
+//! use ggen_core::utils::project_config::GgenConfig;
 //! use std::fs;
 //!
 //! # fn main() -> anyhow::Result<()> {
@@ -49,7 +49,7 @@
 //! ### Workspace Configuration
 //!
 //! ```rust,no_run
-//! use ggen_utils::project_config::{GgenConfig, Workspace};
+//! use ggen_core::utils::project_config::{GgenConfig, Workspace};
 //! use std::collections::BTreeMap;
 //!
 //! let workspace = Workspace {

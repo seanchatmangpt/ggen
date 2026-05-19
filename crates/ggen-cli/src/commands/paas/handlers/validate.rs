@@ -21,7 +21,7 @@ pub async fn validate_specs(
     }
 
     // Check for required TTL files
-    let required_files = vec!["cli-schema.ttl", "cli-commands.ttl", "ggen-paas-ontology.ttl"];
+    let required_files = vec!["cli-schema.ttl", "cli-commands.ttl", "mcpp-paas-ontology.ttl"];
 
     let mut missing = Vec::new();
     for file in &required_files {

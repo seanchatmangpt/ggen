@@ -2,7 +2,7 @@
 
 use crate::packs::metadata::load_pack_metadata;
 use chrono::Utc;
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -58,23 +58,23 @@ pub async fn install_pack(input: &InstallInput) -> Result<InstallOutput> {
     let install_path = input
         .target_dir
         .clone()
-        .unwrap_or_else(|| PathBuf::from(".ggen/packs"));
+        .unwrap_or_else(|| PathBuf::from(".mcpp/packs"));
 
     // Create the install directory
     std::fs::create_dir_all(&install_path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!(
+        mcpp_utils::error::Error::new(&format!(
             "Failed to create install directory '{}': {}",
             install_path.display(),
             e
         ))
     })?;
 
-    // Write lockfile entry to .ggen/packs.lock
-    let lockfile_path = PathBuf::from(".ggen/packs.lock");
+    // Write lockfile entry to .mcpp/packs.lock
+    let lockfile_path = PathBuf::from(".mcpp/packs.lock");
     // Load existing lockfile or start fresh
     let mut lock_root: serde_json::Value = if lockfile_path.exists() {
         let raw = std::fs::read_to_string(&lockfile_path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read lockfile: {}", e))
+            mcpp_utils::error::Error::new(&format!("Failed to read lockfile: {}", e))
         })?;
         serde_json::from_str(&raw).unwrap_or_else(|_| serde_json::json!({ "installed": [] }))
     } else {
@@ -100,10 +100,10 @@ pub async fn install_pack(input: &InstallInput) -> Result<InstallOutput> {
     }
 
     let lock_json = serde_json::to_string_pretty(&lock_root).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to serialize lockfile: {}", e))
+        mcpp_utils::error::Error::new(&format!("Failed to serialize lockfile: {}", e))
     })?;
     std::fs::write(&lockfile_path, lock_json)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write lockfile: {}", e)))?;
+        .map_err(|e| mcpp_utils::error::Error::new(&format!("Failed to write lockfile: {}", e)))?;
 
     tracing::info!(
         "Lockfile updated at '{}' with pack '{}'",

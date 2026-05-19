@@ -1,13 +1,13 @@
 //! Sync Command Integration Tests - Chicago TDD
 //!
-//! Tests for sync operation: the core ggen pipeline command
+//! Tests for sync operation: the core mcpp pipeline command
 //!
 //! Chicago TDD Cycle:
 //! 1. RED: Write failing test
 //! 2. GREEN: Make test pass with REAL implementation
 //! 3. REFACTOR: Improve code while maintaining green
 //!
-//! NO MOCKS - Tests against REAL ggen_core::codegen implementations
+//! NO MOCKS - Tests against REAL mcpp_core::codegen implementations
 
 use std::path::PathBuf;
 
@@ -15,7 +15,7 @@ use std::path::PathBuf;
 // Core Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
-use ggen_core::codegen::{
+use mcpp_core::codegen::{
     OutputFormat, SyncExecutor, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck,
 };
 
@@ -32,7 +32,7 @@ mod sync_options_tests {
     fn test_sync_options_default() {
         let options = SyncOptions::default();
 
-        assert_eq!(options.manifest_path, PathBuf::from("ggen.toml"));
+        assert_eq!(options.manifest_path, PathBuf::from("mcpp.toml"));
         assert!(options.output_dir.is_none());
         assert!(options.cache_dir.is_none());
         assert!(!options.verbose);
@@ -63,10 +63,10 @@ mod sync_options_tests {
     #[test]
     fn test_sync_options_custom_manifest() {
         let mut options = SyncOptions::new();
-        options.manifest_path = PathBuf::from("custom/ggen.toml");
+        options.manifest_path = PathBuf::from("custom/mcpp.toml");
 
-        assert_eq!(options.manifest_path, PathBuf::from("custom/ggen.toml"));
-        assert_eq!(options.manifest_path.to_str().unwrap(), "custom/ggen.toml");
+        assert_eq!(options.manifest_path, PathBuf::from("custom/mcpp.toml"));
+        assert_eq!(options.manifest_path.to_str().unwrap(), "custom/mcpp.toml");
     }
 
     /// Test: SyncOptions with output directory
@@ -82,9 +82,9 @@ mod sync_options_tests {
     #[test]
     fn test_sync_options_with_cache_dir() {
         let mut options = SyncOptions::new();
-        options.cache_dir = Some(PathBuf::from(".ggen/cache"));
+        options.cache_dir = Some(PathBuf::from(".mcpp/cache"));
 
-        assert_eq!(options.cache_dir, Some(PathBuf::from(".ggen/cache")));
+        assert_eq!(options.cache_dir, Some(PathBuf::from(".mcpp/cache")));
     }
 
     /// Test: SyncOptions with verbose enabled
@@ -447,13 +447,13 @@ mod sync_result_tests {
             files: vec![],
             inference_rules_executed: 5,
             generation_rules_executed: 2,
-            audit_trail: Some(".ggen/audit/sync-20250208-120000.json".to_string()),
+            audit_trail: Some(".mcpp/audit/sync-20250208-120000.json".to_string()),
             error: None,
         };
 
         assert_eq!(
             result.audit_trail,
-            Some(".ggen/audit/sync-20250208-120000.json".to_string())
+            Some(".mcpp/audit/sync-20250208-120000.json".to_string())
         );
     }
 
@@ -535,7 +535,7 @@ mod sync_executor_tests {
     #[test]
     fn test_sync_executor_custom_options() {
         let mut options = SyncOptions::new();
-        options.manifest_path = PathBuf::from("test/ggen.toml");
+        options.manifest_path = PathBuf::from("test/mcpp.toml");
         options.verbose = true;
         options.audit = true;
 
@@ -590,9 +590,9 @@ mod integration_tests {
     #[test]
     fn test_integration_full_sync_options() {
         let options = SyncOptions {
-            manifest_path: PathBuf::from("project/ggen.toml"),
+            manifest_path: PathBuf::from("project/mcpp.toml"),
             output_dir: Some(PathBuf::from(".")),
-            cache_dir: Some(PathBuf::from(".ggen/cache")),
+            cache_dir: Some(PathBuf::from(".mcpp/cache")),
             verbose: true,
             output_format: OutputFormat::Json,
             validate_only: false,
@@ -609,7 +609,7 @@ mod integration_tests {
             llm_service: None,
         };
 
-        assert_eq!(options.manifest_path, PathBuf::from("project/ggen.toml"));
+        assert_eq!(options.manifest_path, PathBuf::from("project/mcpp.toml"));
         assert!(options.verbose);
         assert!(options.audit);
         assert_eq!(options.a2a_stage, Some("μ₅".to_string()));
@@ -619,7 +619,7 @@ mod integration_tests {
     #[test]
     fn test_integration_a2a_sync_config() {
         let options = SyncOptions {
-            manifest_path: PathBuf::from("ggen.toml"),
+            manifest_path: PathBuf::from("mcpp.toml"),
             output_dir: Some(PathBuf::from("crates/a2a-generated/src")),
             cache_dir: None,
             verbose: true,
@@ -651,7 +651,7 @@ mod integration_tests {
     #[test]
     fn test_integration_validate_only_workflow() {
         let options = SyncOptions {
-            manifest_path: PathBuf::from("ggen.toml"),
+            manifest_path: PathBuf::from("mcpp.toml"),
             output_dir: None,
             cache_dir: None,
             verbose: false,
@@ -675,7 +675,7 @@ mod integration_tests {
     #[test]
     fn test_integration_dry_run_workflow() {
         let options = SyncOptions {
-            manifest_path: PathBuf::from("ggen.toml"),
+            manifest_path: PathBuf::from("mcpp.toml"),
             output_dir: Some(PathBuf::from("output")),
             cache_dir: None,
             verbose: true,
@@ -700,7 +700,7 @@ mod integration_tests {
     #[test]
     fn test_integration_watch_mode() {
         let options = SyncOptions {
-            manifest_path: PathBuf::from("ggen.toml"),
+            manifest_path: PathBuf::from("mcpp.toml"),
             output_dir: None,
             cache_dir: None,
             verbose: true,
@@ -725,7 +725,7 @@ mod integration_tests {
     #[test]
     fn test_integration_cicd_workflow() {
         let options = SyncOptions {
-            manifest_path: PathBuf::from("ggen.toml"),
+            manifest_path: PathBuf::from("mcpp.toml"),
             output_dir: None,
             cache_dir: None,
             verbose: false,
@@ -751,7 +751,7 @@ mod integration_tests {
     fn test_integration_single_stage_execution() {
         for stage in &["μ₁", "μ₂", "μ₃", "μ₄", "μ₅"] {
             let options = SyncOptions {
-                manifest_path: PathBuf::from("ggen.toml"),
+                manifest_path: PathBuf::from("mcpp.toml"),
                 output_dir: None,
                 cache_dir: None,
                 verbose: true,
@@ -815,7 +815,7 @@ mod integration_tests {
             ],
             inference_rules_executed: 124,
             generation_rules_executed: 62,
-            audit_trail: Some(".ggen/receipts/a2a-20250208-143022.json".to_string()),
+            audit_trail: Some(".mcpp/receipts/a2a-20250208-143022.json".to_string()),
             error: None,
         };
 
@@ -844,7 +844,7 @@ mod integration_tests {
 
         for rules in rule_sets {
             let options = SyncOptions {
-                manifest_path: PathBuf::from("ggen.toml"),
+                manifest_path: PathBuf::from("mcpp.toml"),
                 output_dir: None,
                 cache_dir: None,
                 verbose: false,

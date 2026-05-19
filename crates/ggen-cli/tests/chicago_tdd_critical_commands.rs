@@ -20,7 +20,7 @@ use tempfile::TempDir;
 #[test]
 fn test_marketplace_lockfile_valid_json() {
     let temp_dir = TempDir::new().unwrap();
-    let lockfile_path = temp_dir.path().join("ggen.lock");
+    let lockfile_path = temp_dir.path().join("mcpp.lock");
 
     let lockfile_content = r#"{
   "version": "1.0.0",
@@ -110,7 +110,7 @@ fn test_project_init_creates_config() {
 version: 1.0.0
 preset: standard"#;
 
-    let config_path = project_dir.join("ggen.yml");
+    let config_path = project_dir.join("mcpp.yml");
     fs::write(&config_path, config).unwrap();
 
     assert!(config_path.exists());
@@ -260,7 +260,7 @@ fn test_e2e_project_scaffold_and_generate() {
 
     // Step 1: Create project structure
     fs::create_dir_all(&project_dir).unwrap();
-    let config_path = project_dir.join("ggen.yml");
+    let config_path = project_dir.join("mcpp.yml");
     fs::write(&config_path, "name: test-project\nversion: 1.0.0").unwrap();
 
     // Step 2: Create template
@@ -284,11 +284,11 @@ fn test_e2e_project_scaffold_and_generate() {
 #[test]
 fn test_e2e_install_and_list() {
     let temp_dir = TempDir::new().unwrap();
-    let packages_dir = temp_dir.path().join(".ggen/packages");
+    let packages_dir = temp_dir.path().join(".mcpp/packages");
     fs::create_dir_all(&packages_dir).unwrap();
 
     // Create lockfile
-    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile_path = packages_dir.join("mcpp.lock");
     let lockfile = r#"{
   "version": "1.0.0",
   "packages": {

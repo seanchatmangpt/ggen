@@ -2,17 +2,17 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sk: <http://github.com/github/spec-kit#> .
-@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-mcpp-v6-rdf-system#> .
 
 # ============================================================================
-# ggen v6 MVP - 80/20 Analysis
+# mcpp v6 MVP - 80/20 Analysis
 # ============================================================================
 # Purpose: Define the 20% of features that deliver 80% of value
 # Focus: Prove RDF-first methodology works with minimal viable implementation
 # ============================================================================
 
 :mvp-80-20 a sk:ImplementationStrategy ;
-    sk:strategyName "ggen v6 MVP - 80/20 Principle" ;
+    sk:strategyName "mcpp v6 MVP - 80/20 Principle" ;
     sk:goal "Prove constitutional equation code = μ(spec.ttl) with minimal implementation" ;
     sk:targetDeliveryTime "1 week for solo developer" ;
     sk:valueDelivered "80%" ;
@@ -39,7 +39,7 @@
     sk:valueRationale "Without this, nothing works. Foundation of entire system." ;
     sk:acceptance "Load feature-content.ttl, count triples, verify > 0" ;
     sk:implementation """
-    Use oxigraph crate (already in ggen dependencies):
+    Use oxigraph crate (already in mcpp dependencies):
     - Create in-memory RDF store
     - Parse Turtle file
     - Return graph for querying
@@ -116,18 +116,18 @@
     - Assert equality
     """ .
 
-# Capability 5: ggen sync Command (User Interface)
+# Capability 5: mcpp sync Command (User Interface)
 :cap-005 a sk:CoreCapability ;
     sk:capabilityId "CAP-005" ;
-    sk:name "CLI Command 'ggen sync' Reading ggen.toml" ;
+    sk:name "CLI Command 'mcpp sync' Reading mcpp.toml" ;
     sk:priority "P1" ;
     sk:effortEstimate "2 days" ;
     sk:valueRationale "User-facing entry point. Makes it usable." ;
-    sk:acceptance "Run 'ggen sync', spec.md generated from feature-content.ttl" ;
+    sk:acceptance "Run 'mcpp sync', spec.md generated from feature-content.ttl" ;
     sk:implementation """
     Use clap crate for CLI:
-    - Add 'sync' subcommand to ggen
-    - Read ggen.toml from current directory
+    - Add 'sync' subcommand to mcpp
+    - Read mcpp.toml from current directory
     - Parse [[generation]] entries
     - For each entry:
       1. Load source TTL
@@ -135,7 +135,7 @@
       3. Render Tera template
       4. Write output file
 
-    Minimal ggen.toml support:
+    Minimal mcpp.toml support:
     - [[generation]] array only
     - Fields: query, template, output
     - No validation beyond required fields
@@ -236,11 +236,11 @@
 # ============================================================================
 
 :mvp-workflow a sk:Workflow ;
-    sk:workflowName "ggen v6 MVP End-to-End Workflow" ;
+    sk:workflowName "mcpp v6 MVP End-to-End Workflow" ;
     sk:step1 "Developer writes feature-content.ttl (RDF specification)" ;
     sk:step2 "Developer creates spec.tera (Tera template)" ;
-    sk:step3 "Developer writes SPARQL query in ggen.toml" ;
-    sk:step4 "Developer runs 'ggen sync'" ;
+    sk:step3 "Developer writes SPARQL query in mcpp.toml" ;
+    sk:step4 "Developer runs 'mcpp sync'" ;
     sk:step5 "System generates spec.md from TTL + template" ;
     sk:step6 "Developer verifies output matches expected" ;
     sk:step7 "Developer commits TTL (source of truth) + generated MD to git" ;
@@ -255,7 +255,7 @@
     sk:week1-day3-4 "CAP-002: SPARQL SELECT execution" ;
     sk:week1-day5 "CAP-003: Tera template rendering" ;
     sk:week2-day1 "CAP-004: Determinism tests (hash comparison)" ;
-    sk:week2-day2-3 "CAP-005: 'ggen sync' command + ggen.toml parsing" ;
+    sk:week2-day2-3 "CAP-005: 'mcpp sync' command + mcpp.toml parsing" ;
     sk:week2-day4 "Integration test: Full pipeline end-to-end" ;
     sk:week2-day5 "Documentation: README with usage example" .
 

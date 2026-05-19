@@ -554,7 +554,7 @@ A: Common. Respond: "Budget closed? Let's target Q2 planning. I'll check in Octo
 ## Files Created (5 total)
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/sales/
+./tai-erlang-autonomics/sales/
 ├── README.md (this file)
 ├── IDEAL_CUSTOMER_PROFILE.md (who to target)
 ├── DISCOVERY_CHECKLIST.md (20 questions)

@@ -9,7 +9,7 @@
 ## Thesis Overview
 
 **Title**: Grand Unified Theory of Full-Stack Knowledge Graph Completeness
-**Author**: Generated via ggen ontology-driven synthesis
+**Author**: Generated via mcpp ontology-driven synthesis
 **Institution**: Stanford University (example)
 **Date**: 2025-12-16
 
@@ -77,11 +77,11 @@ biber --version
 
 **Step 1: Generate LaTeX from Ontology**
 ```bash
-cd /Users/sac/ggen/specs/012-grand-unified-kgc-thesis
-ggen sync --manifest ggen.toml
+cd ~/.ggen/mcpp/specs/012-grand-unified-kgc-thesis
+mcpp sync --manifest mcpp.toml
 ```
 
-Note: Current ggen.toml format needs adjustment for ggen v5 sync compatibility.
+Note: Current mcpp.toml format needs adjustment for mcpp v5 sync compatibility.
 Alternative: Manual template processing or use existing thesis-gen patterns.
 
 **Step 2: Compile PDF (3-pass for cross-refs)**
@@ -97,10 +97,10 @@ pdflatex thesis.tex          # Third pass (finalize cross-refs)
 
 ### Current Status
 
-**Generation Tool**: ggen sync requires manifest format update (see ggen.toml)
+**Generation Tool**: mcpp sync requires manifest format update (see mcpp.toml)
 **Templates**: ✅ All 14 templates ready (Tera syntax, zero-hardcoding)
 **Ontology**: ✅ Complete content ontology (562 lines, 37 entities)
-**LaTeX Readiness**: ⚠️ Manual template processing required until ggen.toml fixed
+**LaTeX Readiness**: ⚠️ Manual template processing required until mcpp.toml fixed
 
 ---
 
@@ -124,12 +124,12 @@ pdflatex thesis.tex          # Third pass (finalize cross-refs)
 
 ### Created for Evidence
 - `THESIS_EXPORT_SUMMARY.md` (this file)
-- Ready for PDF compilation after ggen sync
+- Ready for PDF compilation after mcpp sync
 - All source files committed to branch `012-grand-unified-kgc-thesis`
 
 ### Next Actions
-1. Fix ggen.toml format for ggen v5 compatibility
-2. Run `ggen sync` to generate LaTeX
+1. Fix mcpp.toml format for mcpp v5 compatibility
+2. Run `mcpp sync` to generate LaTeX
 3. Compile PDF with pdflatex + biber
 4. Verify 100+ pages, all cross-references resolved
 5. Archive PDF in evidence/ directory

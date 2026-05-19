@@ -13,10 +13,10 @@ Transform the v6 feature specification from traditional markdown to pure 3T (TOM
 
 ## Technical Context
 
-**Language/Version**: Rust 1.75+ (existing ggen v6 implementation) + RDF/SPARQL (Oxigraph) + Tera templates
+**Language/Version**: Rust 1.75+ (existing mcpp v6 implementation) + RDF/SPARQL (Oxigraph) + Tera templates
 **Primary Dependencies**: Oxigraph (RDF store), Tera (template engine), SHACL validation, SHA-256 (receipts)
 **Storage**: Turtle (.ttl) ontology files in filesystem, generated artifacts in `generated/` directory
-**Testing**: ggen v6 pipeline validation (μ₁-μ₅), SHACL shape validation, idempotence testing via `ggen sync`
+**Testing**: mcpp v6 pipeline validation (μ₁-μ₅), SHACL shape validation, idempotence testing via `mcpp sync`
 **Target Platform**: Cross-platform (Linux, macOS, Windows) with deterministic output
 **Project Type**: Ontology-driven specification system (meta-circular demonstration)
 **Performance Goals**: <5s compilation for 10K+ triples, <2s SHACL validation, bit-for-bit reproducibility
@@ -27,12 +27,12 @@ Transform the v6 feature specification from traditional markdown to pure 3T (TOM
 
 *GATE: Completed post-implementation. All principles validated.*
 
-Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.md`):
+Verify compliance with mcpp Constitution v1.0.0 (`.specify/memory/constitution.md`):
 
-- [x] **I. Crate-First Architecture**: Feature uses existing `ggen-core` crate for v6 pipeline. Specification system is standalone and self-contained.
+- [x] **I. Crate-First Architecture**: Feature uses existing `mcpp-core` crate for v6 pipeline. Specification system is standalone and self-contained.
 - [x] **II. Deterministic RDF Projections**: ✅ **CORE FEATURE** - Specification demonstrates determinism: `spec.md = μ(ontology)`. SHACL validation + ORDER BY queries + μ₄ canonicalization guarantee reproducibility.
 - [x] **III. Chicago TDD**: Specification content includes acceptance scenarios for state-based testing. v6 implementation has 42 passing tests for μ₁-μ₅ pipeline.
-- [x] **IV. cargo make Protocol**: Specification references `cargo make` workflow. `ggen sync` command will integrate with cargo make targets.
+- [x] **IV. cargo make Protocol**: Specification references `cargo make` workflow. `mcpp sync` command will integrate with cargo make targets.
 - [x] **V. Type-First Thinking**: RDF vocabulary uses SHACL shapes to express invariants at "compile-time" (μ₁ validation). Invalid specifications caught before generation.
 - [x] **VI. Andon Signal Protocol**: SHACL validation failures are RED signals (μ₁ fails fast). Template errors are YELLOW signals. Clean generation is GREEN.
 - [x] **VII. Error Handling**: Specification defines error handling requirements (FR-015: fail fast with actionable messages). Edge cases documented for all failure modes.
@@ -55,7 +55,7 @@ specs/001-v6-3t-implementation/
 ├── data-model.md           # Phase 1 - Data model = ontology schema (spec-schema.ttl)
 ├── README.md               # 3T specification guide (228 lines)
 ├── .gitignore              # Ignore generated artifacts
-├── ggen.toml               # Pipeline configuration (247 lines)
+├── mcpp.toml               # Pipeline configuration (247 lines)
 ├── ontology/
 │   ├── spec-schema.ttl     # Vocabulary definition (485 lines)
 │   └── v6-spec-content.ttl # Content as RDF triples (887 lines)
@@ -71,7 +71,7 @@ specs/001-v6-3t-implementation/
 │   ├── non-goals.tera
 │   └── risks.tera
 ├── generated/              # Generated artifacts (gitignored)
-│   └── (created by ggen sync)
+│   └── (created by mcpp sync)
 └── checklists/
     └── requirements.md     # Quality checklist (updated with 3T validation)
 ```
@@ -80,7 +80,7 @@ specs/001-v6-3t-implementation/
 
 **Existing v6 Implementation** (used by this specification):
 ```text
-crates/ggen-core/src/v6/
+crates/mcpp-core/src/v6/
 ├── pipeline.rs             # Staged pipeline orchestrator (μ₁-μ₅)
 ├── passes/
 │   ├── normalization.rs    # μ₁: CONSTRUCT + SHACL validation
@@ -93,25 +93,25 @@ crates/ggen-core/src/v6/
 ├── guard.rs                # Security guards (secret detection)
 └── vocabulary.rs           # Vocabulary governance (namespace validation)
 
-crates/ggen-cli/src/
+crates/mcpp-cli/src/
 ├── cmds/
-│   ├── sync.rs             # `ggen sync` command
-│   └── verify.rs           # `ggen verify` command (receipt validation)
+│   ├── sync.rs             # `mcpp sync` command
+│   └── verify.rs           # `mcpp verify` command (receipt validation)
 └── main.rs
 ```
 
-**Structure Decision**: This feature uses the existing v6 crate infrastructure (`ggen-core` v6 module, `ggen-cli` sync command). The specification is a *consumer* of the v6 pipeline, not a new crate. It demonstrates v6 capabilities through meta-circular generation.
+**Structure Decision**: This feature uses the existing v6 crate infrastructure (`mcpp-core` v6 module, `mcpp-cli` sync command). The specification is a *consumer* of the v6 pipeline, not a new crate. It demonstrates v6 capabilities through meta-circular generation.
 
 ## Complexity Tracking
 
-**No violations** - All constitution principles satisfied. The specification system aligns perfectly with ggen's architecture:
+**No violations** - All constitution principles satisfied. The specification system aligns perfectly with mcpp's architecture:
 
 | Aspect | Constitution Requirement | Implementation |
 |--------|-------------------------|----------------|
-| Crate-First | Feature as standalone crate | Uses existing `ggen-core/v6` crate (spec is consumer, not new feature code) |
+| Crate-First | Feature as standalone crate | Uses existing `mcpp-core/v6` crate (spec is consumer, not new feature code) |
 | Determinism | Same input → same output | ✅ Enforced via μ₄ canonicalization + SPARQL ORDER BY + SHACL shapes |
 | TDD | Chicago School state-based | ✅ v6 pipeline has 42 passing tests; spec defines acceptance scenarios |
-| cargo make | All commands via cargo make | ✅ `ggen sync` integrates with cargo make targets |
+| cargo make | All commands via cargo make | ✅ `mcpp sync` integrates with cargo make targets |
 | Type-First | Invariants in types | ✅ SHACL shapes = "type system" for RDF (compile-time validation) |
 | Error Handling | Result<T, E> in production | ✅ v6 implementation uses Result; spec defines error edge cases |
 
@@ -126,12 +126,12 @@ crates/ggen-cli/src/
 **Research conducted through parallel exploration agents:**
 
 1. **Thesis 3T System Analysis** (Reference Pattern)
-   - Explored `/Users/sac/ggen/docs/ggen-v6-thesis/` thesis generation system
+   - Explored `~/.ggen/mcpp/docs/mcpp-v6-thesis/` thesis generation system
    - Key findings: 5-pass pipeline (μ₁-μ₅), SHACL validation, SPARQL ORDER BY for determinism
    - Pattern: Schema ontology + content ontology + templates + configuration = generated documentation
 
 2. **v6 Ontology Vocabulary Patterns** (RDF Best Practices)
-   - Explored `/Users/sac/ggen/v6/ontology/ggen-v6.ttl` and related schemas
+   - Explored `~/.ggen/mcpp/v6/ontology/mcpp-v6.ttl` and related schemas
    - Key findings: Class hierarchies, datatype vs object properties, SHACL shape patterns
    - Pattern: Use `rdfs:domain`/`rdfs:range` for properties, SHACL shapes for validation
 
@@ -146,8 +146,8 @@ crates/ggen-cli/src/
 |----------|-----------|------------------------|
 | **Turtle format for ontology** | Human-readable, standard, tool support | N-Triples (too verbose), JSON-LD (complex) |
 | **SHACL for validation** | Standard, expressive, validates at μ₁ | Custom validation (reinvents wheel), JSON Schema (not RDF-native) |
-| **Tera templates** | Existing ggen dependency, Jinja2-like syntax | Handlebars (less powerful), custom (reinvents) |
-| **Inline SPARQL in ggen.toml** | Tight query-template coupling, easy to understand | Separate .sparql files (extra indirection), hardcoded queries (inflexible) |
+| **Tera templates** | Existing mcpp dependency, Jinja2-like syntax | Handlebars (less powerful), custom (reinvents) |
+| **Inline SPARQL in mcpp.toml** | Tight query-template coupling, easy to understand | Separate .sparql files (extra indirection), hardcoded queries (inflexible) |
 | **10 separate templates** | Modular, testable, mirrors thesis-gen pattern | Monolithic template (hard to maintain), no templates (less flexible) |
 | **Stateful grouping (`set_global`)** | Handles nested scenarios in user-stories.tera | Multiple queries (inefficient), client-side grouping (breaks μ₃) |
 
@@ -229,16 +229,16 @@ shacl:pattern "^(FR|NFR)-[0-9]{3}$"  # Enforces: FR-001, FR-002, etc.
 
 **Generation Workflow**:
 ```bash
-cd /Users/sac/ggen/specs/001-v6-3t-implementation
+cd ~/.ggen/mcpp/specs/001-v6-3t-implementation
 
 # Generate specification from ontology
-ggen sync
+mcpp sync
 
 # Verify idempotence
-ggen sync  # Should produce no changes
+mcpp sync  # Should produce no changes
 
 # Verify cryptographic provenance
-ggen verify
+mcpp verify
 ```
 
 **Pipeline Execution (μ₁-μ₅)**:
@@ -283,7 +283,7 @@ Where:
 - Conditional rendering for optional fields (e.g., `{% if row.venue %}`)
 
 **Configuration Layer** (247 lines):
-- `ggen.toml` with project metadata, v6 pipeline configuration, 10 generation rules
+- `mcpp.toml` with project metadata, v6 pipeline configuration, 10 generation rules
 - Constitutional invariants enforcement (idempotence, determinism, provenance, no-edit, substrate-only)
 - Vocabulary governance (7 allowed RDF namespaces)
 
@@ -321,7 +321,7 @@ This creates the ultimate validation: the paradigm proves itself through its own
 - ✅ All SPARQL queries use `ORDER BY` for determinism
 
 **Configuration Validity**:
-- ✅ ggen.toml parses successfully (valid TOML syntax)
+- ✅ mcpp.toml parses successfully (valid TOML syntax)
 - ✅ All 10 generation rules map correctly (query → template → output)
 - ✅ Constitutional invariants configured (idempotence, determinism, provenance enforcement)
 
@@ -333,9 +333,9 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 **Automated Validation** (when v6 CLI is implemented):
 1. **SHACL Validation**: Run during μ₁ pass to catch schema violations before generation
-2. **Idempotence Test**: `ggen sync && ggen sync` produces no file changes (verify with `git diff`)
+2. **Idempotence Test**: `mcpp sync && mcpp sync` produces no file changes (verify with `git diff`)
 3. **Determinism Test**: Run on different platforms (Linux, macOS, Windows), compare SHA-256 hashes
-4. **Receipt Verification**: `ggen verify` validates cryptographic provenance chain
+4. **Receipt Verification**: `mcpp verify` validates cryptographic provenance chain
 
 **Manual Validation** (current):
 1. **Content Completeness**: Verify all 6 stories, 20 requirements, 10 criteria present in ontology
@@ -374,12 +374,12 @@ This creates the ultimate validation: the paradigm proves itself through its own
 - Documentation guides future transformations
 
 **Phase 2: v6 CLI Implementation** (PENDING)
-- Implement `ggen sync` command with μ₁-μ₅ pipeline
-- Implement `ggen verify` command for receipt validation
+- Implement `mcpp sync` command with μ₁-μ₅ pipeline
+- Implement `mcpp verify` command for receipt validation
 - Test against this specification system (first consumer)
 
 **Phase 3: Validation & Testing** (PENDING)
-- Run `ggen sync` to generate specification from ontology
+- Run `mcpp sync` to generate specification from ontology
 - Verify idempotence (second run produces no changes)
 - Verify determinism (same output across platforms)
 - Validate cryptographic receipts
@@ -404,9 +404,9 @@ This creates the ultimate validation: the paradigm proves itself through its own
 - ✅ All ontology files parse without errors (Turtle syntax valid)
 - ✅ All SHACL shapes validate successfully (constraints enforced)
 - ✅ All templates render without errors (Tera syntax valid)
-- ✅ Configuration parses successfully (ggen.toml valid)
-- PENDING: `ggen sync` generates spec.md identical to original content
-- PENDING: `ggen sync` twice produces zero file changes (idempotence)
+- ✅ Configuration parses successfully (mcpp.toml valid)
+- PENDING: `mcpp sync` generates spec.md identical to original content
+- PENDING: `mcpp sync` twice produces zero file changes (idempotence)
 - PENDING: Receipt proves cryptographic provenance
 
 **Metrics to Track**:
@@ -436,11 +436,11 @@ This creates the ultimate validation: the paradigm proves itself through its own
 1. ✅ Ontology schema (`spec-schema.ttl`) defines complete vocabulary with SHACL validation
 2. ✅ Content ontology (`v6-spec-content.ttl`) represents all specification content as RDF triples
 3. ✅ Templates (`templates/*.tera`) transform SPARQL results into readable markdown
-4. ✅ Configuration (`ggen.toml`) orchestrates μ₁-μ₅ pipeline with 10 generation rules
+4. ✅ Configuration (`mcpp.toml`) orchestrates μ₁-μ₅ pipeline with 10 generation rules
 5. ✅ Documentation (`README.md`) explains 3T approach and generation workflow
 6. ✅ Quality checklist (`checklists/requirements.md`) updated with 3T validation notes
-7. PENDING: `ggen sync` generates specification from ontology (requires v6 CLI)
-8. PENDING: Idempotence verified (`ggen sync` twice produces no changes)
+7. PENDING: `mcpp sync` generates specification from ontology (requires v6 CLI)
+8. PENDING: Idempotence verified (`mcpp sync` twice produces no changes)
 9. PENDING: Cryptographic receipt proves `hash(spec.md) = hash(μ(ontology))`
 
 **Acceptance Criteria**:
@@ -477,7 +477,7 @@ This creates the ultimate validation: the paradigm proves itself through its own
 - `templates/risks.tera` (5 lines)
 
 **Configuration**:
-- `ggen.toml` (247 lines) - Pipeline orchestration
+- `mcpp.toml` (247 lines) - Pipeline orchestration
 
 **Documentation**:
 - `README.md` (228 lines) - 3T specification guide
@@ -497,4 +497,4 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 **Meta-Circular Achievement**: The specification ABOUT ontology-first software construction IS ITSELF ontology-first.
 
-**Next Steps**: Implement v6 CLI (`ggen sync`, `ggen verify`), test against this specification system, validate idempotence and determinism, verify cryptographic provenance.
+**Next Steps**: Implement v6 CLI (`mcpp sync`, `mcpp verify`), test against this specification system, validate idempotence and determinism, verify cryptographic provenance.

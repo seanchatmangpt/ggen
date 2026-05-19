@@ -3,7 +3,7 @@
 //! Provides CLI commands for the LLM-Construct pattern: generating constraint-aware
 //! DSPy modules from OWL ontologies.
 
-use ggen_utils::error::Result;
+use mcpp_utils::error::Result;
 
 /// LLM-Construct command structure.
 #[derive(Debug, Clone)]

@@ -30,7 +30,7 @@ pub async fn show_status(environment: Option<&str>, detailed: bool) -> Result<()
             }
         }
     } else {
-        println!("⚠️  Configuration: paas.toml not found (run 'ggen paas init' first)");
+        println!("⚠️  Configuration: paas.toml not found (run 'mcpp paas init' first)");
     }
 
     // Check for .specify directory

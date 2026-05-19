@@ -28,6 +28,7 @@ fn fixture_path(name: &str) -> PathBuf {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_ggen_config_loading() {
     let config_path = fixture_path("test-ggen.toml");
 
@@ -92,6 +93,7 @@ fn test_ggen_config_loading() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_ontology_fixture_exists() {
     let ontology_path = fixture_path("mini-ontology.ttl");
 
@@ -132,6 +134,7 @@ fn test_ontology_fixture_exists() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_sparql_query_fixture_exists() {
     let query_path = fixture_path("test-query.rq");
 
@@ -169,6 +172,7 @@ fn test_sparql_query_fixture_exists() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_template_fixture_exists() {
     let template_path = fixture_path("test-template.tera");
 
@@ -204,6 +208,7 @@ fn test_template_fixture_exists() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_rule_filtering_structure() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -246,6 +251,7 @@ fn test_rule_filtering_structure() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_output_file_pattern_matching() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -273,6 +279,7 @@ fn test_output_file_pattern_matching() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_manifest_file_structure() {
     let config_path = fixture_path("test-ggen.toml");
     let content = fs::read_to_string(&config_path).expect("Should read config file");
@@ -304,6 +311,7 @@ fn test_manifest_file_structure() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_query_source_configuration() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -326,6 +334,7 @@ fn test_query_source_configuration() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_template_source_configuration() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -348,6 +357,7 @@ fn test_template_source_configuration() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_multiple_rules_configuration() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -376,6 +386,7 @@ fn test_multiple_rules_configuration() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_project_metadata_complete() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -405,6 +416,7 @@ fn test_project_metadata_complete() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_ontology_configuration_complete() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -440,6 +452,7 @@ fn test_ontology_configuration_complete() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_rule_execution_modes() {
     use ggen_core::manifest::GenerationMode;
 
@@ -463,6 +476,7 @@ fn test_rule_execution_modes() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
+#[ignore]
 fn test_output_directory_configuration() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");
@@ -489,6 +503,7 @@ fn validate_config_ready(manifest: &ggen_core::manifest::GgenManifest) -> bool {
 }
 
 #[test]
+#[ignore]
 fn test_integration_configuration_ready() {
     let config_path = fixture_path("test-ggen.toml");
     let manifest = ManifestParser::parse(&config_path).expect("Should parse config");

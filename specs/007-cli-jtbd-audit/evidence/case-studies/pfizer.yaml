@@ -14,25 +14,25 @@ scale_requirements:
   latency_slo: "<10min for complete trial structure"
 
 required_commands:
-  - command: "ggen ontology extract"
+  - command: "mcpp ontology extract"
     purpose: "Extract entities from CDISC ontologies"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen graph load"
+  - command: "mcpp graph load"
     purpose: "Load CDISC standards into graph"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen template generate-tree"
+  - command: "mcpp template generate-tree"
     purpose: "Generate complete trial data structure"
     criticality: P1
     current_support: pending
     gaps: []
 
-  - command: "ggen ontology validate"
+  - command: "mcpp ontology validate"
     purpose: "Validate CDISC compliance"
     criticality: P1
     current_support: pending
@@ -45,17 +45,17 @@ validator: claude-code
 test_scenarios:
   - scenario: "CDISC-compliant trial structure"
     steps:
-      - "ggen graph load cdisc-sdtm.ttl"
-      - "ggen ontology extract --namespace http://cdisc.org/sdtm#"
-      - "ggen template generate-tree --template trial-structure.tmpl"
-      - "ggen ontology validate schema.json --strict"
+      - "mcpp graph load cdisc-sdtm.ttl"
+      - "mcpp ontology extract --namespace http://cdisc.org/sdtm#"
+      - "mcpp template generate-tree --template trial-structure.tmpl"
+      - "mcpp ontology validate schema.json --strict"
     expected: "Complete trial structure passing FDA validation"
     actual: pending
 
   - scenario: "Study-specific extension handling"
     steps:
-      - "ggen ontology extract cdisc-base.ttl"
-      - "ggen template generate --template extension.tmpl --var study=PHASE3-001"
+      - "mcpp ontology extract cdisc-base.ttl"
+      - "mcpp template generate --template extension.tmpl --var study=PHASE3-001"
     expected: "Extensions cleanly separated from base CDISC"
     actual: pending
 

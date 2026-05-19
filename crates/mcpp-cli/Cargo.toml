@@ -1,12 +1,12 @@
 [package]
 name = "mcpp-cli"
-version = "6.1.0"
+version = "26.5.4"
 edition = "2021"
 
 [dependencies]
-mcpp-domain = { path = "../mcpp-domain", version = "6.1.0" }
-mcpp-core = { path = "../mcpp-core", version = "6.1.0" }
-mcpp-telco = { path = "../mcpp-telco", version = "6.1.0" }
+mcpp-domain = { path = "../mcpp-domain", version = "26.5.4" }
+mcpp-core = { path = "../mcpp-core", version = "26.5.4" }
+mcpp-telco = { path = "../mcpp-telco", version = "26.5.4" }
 clap = { workspace = true }
 clap-noun-verb = { workspace = true }
 clap-noun-verb-macros = { workspace = true }
@@ -14,5 +14,5 @@ tokio = { workspace = true }
 anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-ggen-utils = { workspace = true }
-ggen-ai = { workspace = true }
+mcpp-utils = { workspace = true }
+mcpp-ai = { workspace = true }

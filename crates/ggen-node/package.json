@@ -1,19 +1,19 @@
 {
-  "name": "@ggen/node",
+  "name": "@mcpp/node",
   "version": "1.2.0",
-  "description": "Production-grade Node.js N-API bindings for ggen CLI - marketplace, lifecycle, templates, and AI code generation",
+  "description": "Production-grade Node.js N-API bindings for mcpp CLI - marketplace, lifecycle, templates, and AI code generation",
   "main": "index.js",
   "types": "index.d.ts",
   "author": "Sean Chatman <sean@chatmangpt.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/seanchatmangpt/ggen.git",
+    "url": "https://github.com/seanchatmangpt/mcpp.git",
     "directory": "node"
   },
-  "homepage": "https://github.com/seanchatmangpt/ggen",
+  "homepage": "https://github.com/seanchatmangpt/mcpp",
   "keywords": [
-    "ggen",
+    "mcpp",
     "code-generation",
     "cli",
     "napi",
@@ -53,7 +53,7 @@
     "vitest": "^1.6.0"
   },
   "napi": {
-    "name": "ggen-node",
+    "name": "mcpp-node",
     "triples": {
       "defaults": true,
       "additional": [

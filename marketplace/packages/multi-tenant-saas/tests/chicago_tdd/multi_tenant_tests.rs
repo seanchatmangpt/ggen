@@ -5,7 +5,7 @@
 
 use anyhow::Result;
 use ggen_core::Graph;
-use ggen_domain::graph::{execute_query, QueryInput};
+use ggen_core::domain::graph::{execute_query, QueryInput};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;

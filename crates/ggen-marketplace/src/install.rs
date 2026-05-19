@@ -526,7 +526,7 @@ impl<R: AsyncRepository> Installer<R> {
         let signature = MarketplaceSignature {
             signature: signature_hex.to_string(),
             public_key: public_key_hex,
-            checksum: ggen_receipt::hash_data(data),
+            checksum: ggen_core::receipt::hash_data(data),
         };
 
         // Verify signature

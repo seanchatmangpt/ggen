@@ -1,7 +1,7 @@
-# Audit Result: ggen workflow init
+# Audit Result: mcpp workflow init
 # Schema: ../../contracts/audit-result.schema.yaml
 
-command: "ggen workflow init"
+command: "mcpp workflow init"
 version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"

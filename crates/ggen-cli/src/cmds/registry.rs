@@ -1,11 +1,11 @@
 //! Registry Commands - clap-noun-verb auto-discovery
 //!
-//! This module provides CLI commands for interacting with the ggen pack registry.
+//! This module provides CLI commands for interacting with the mcpp pack registry.
 //! The registry exposes pack metadata from the marketplace/packs directory.
 
 use clap_noun_verb::{NounVerbError, Result};
 use clap_noun_verb_macros::verb;
-use ggen_domain::packs::metadata::{list_packs, load_pack_metadata};
+use mcpp_domain::packs::metadata::{list_packs, load_pack_metadata};
 use serde::Serialize;
 
 // ============================================================================

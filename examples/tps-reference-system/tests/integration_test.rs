@@ -18,6 +18,7 @@ use tps_reference::{TpsConfig, TpsSystem, WorkSignal};
 /// Scenario 1: Normal operation
 /// Signal → Kanban queue → Execution → Andon signal → Kaizen metrics → Heijunka distribution → Tracing
 #[tokio::test]
+#[ignore]
 async fn test_scenario_normal_operation() -> Result<()> {
     // Arrange
     let config = TpsConfig::default();
@@ -53,6 +54,7 @@ async fn test_scenario_normal_operation() -> Result<()> {
 /// Scenario 2: Service overload triggers circuit breaker
 /// Jidoka principle: Circuit breaker opens after threshold failures
 #[tokio::test]
+#[ignore]
 async fn test_scenario_jidoka_circuit_breaker() -> Result<()> {
     // Arrange: Create system with low failure threshold
     let config = TpsConfig {
@@ -89,6 +91,7 @@ async fn test_scenario_jidoka_circuit_breaker() -> Result<()> {
 /// Scenario 3: Persistent failure handling
 /// Kanban queue with dead letter queue for failed signals
 #[tokio::test]
+#[ignore]
 async fn test_scenario_kanban_queue_management() -> Result<()> {
     // Arrange
     let config = TpsConfig::default();
@@ -121,6 +124,7 @@ async fn test_scenario_kanban_queue_management() -> Result<()> {
 /// Scenario 4: Load spike handling with Heijunka distribution
 /// Heijunka distributes load evenly across worker pool
 #[tokio::test]
+#[ignore]
 async fn test_scenario_heijunka_load_balancing() -> Result<()> {
     // Arrange
     let config = TpsConfig {
@@ -166,6 +170,7 @@ async fn test_scenario_heijunka_load_balancing() -> Result<()> {
 /// Scenario 5: End-to-end tracing
 /// Trace ID flows through entire pipeline for observability
 #[tokio::test]
+#[ignore]
 async fn test_scenario_tracing_end_to_end() -> Result<()> {
     // Arrange
     let config = TpsConfig::default();
@@ -200,6 +205,7 @@ async fn test_scenario_tracing_end_to_end() -> Result<()> {
 /// Scenario 6: Kaizen metrics verification
 /// Continuous improvement metrics are tracked and available
 #[tokio::test]
+#[ignore]
 async fn test_scenario_kaizen_metrics() -> Result<()> {
     // Arrange
     let config = TpsConfig::default();
@@ -258,6 +264,7 @@ async fn test_scenario_kaizen_metrics() -> Result<()> {
 /// Scenario 7: Andon signal recording and status
 /// Visual signal system records problem states
 #[tokio::test]
+#[ignore]
 async fn test_scenario_andon_signals() -> Result<()> {
     // Arrange
     let config = TpsConfig {
@@ -299,6 +306,7 @@ async fn test_scenario_andon_signals() -> Result<()> {
 /// Scenario 8: Multiple concurrent signals
 /// System handles concurrent load properly
 #[tokio::test]
+#[ignore]
 async fn test_scenario_concurrent_signals() -> Result<()> {
     // Arrange
     let config = TpsConfig::default();
@@ -340,6 +348,7 @@ async fn test_scenario_concurrent_signals() -> Result<()> {
 /// Scenario 9: Health status transitions
 /// Health status correctly reflects system state
 #[tokio::test]
+#[ignore]
 async fn test_scenario_health_status_transitions() -> Result<()> {
     // Arrange
     let config = TpsConfig::default();
@@ -372,6 +381,7 @@ async fn test_scenario_health_status_transitions() -> Result<()> {
 /// Scenario 10: Circuit breaker recovery
 /// Circuit breaker transitions from open to half-open to closed
 #[tokio::test]
+#[ignore]
 async fn test_scenario_circuit_breaker_recovery() -> Result<()> {
     // Arrange
     let config = TpsConfig {

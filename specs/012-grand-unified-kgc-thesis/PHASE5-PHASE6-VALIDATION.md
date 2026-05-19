@@ -11,7 +11,7 @@
 
 ### ✅ I. Crate-First Architecture
 - **Status**: PASS
-- **Evidence**: All tasks operate on existing ggen-core infrastructure
+- **Evidence**: All tasks operate on existing mcpp-core infrastructure
 - **Files Modified**: Only `thesis-schema.ttl` and `kgc-unified-content.ttl` (content, not code)
 - **No New Crates**: Tasks extend content ontology, not Rust codebase
 
@@ -34,7 +34,7 @@
 ### ✅ IV. cargo make Protocol
 - **Status**: PASS
 - **Evidence**:
-  - Tasks use `ggen sync` (not direct cargo commands)
+  - Tasks use `mcpp sync` (not direct cargo commands)
   - Validation via `cargo make test` for generation rules
   - Compilation SLO: <5s for generation
   - No direct pdflatex in automation - manual verification step
@@ -290,4 +290,4 @@ Total Time (Optimal Parallel): ~30 hours ✅
 
 **Validation Status**: ✅ PASSED
 **Approval Date**: 2025-12-16
-**Validator**: Strategic Planning Agent (ggen Constitution v1.0.0 compliant)
+**Validator**: Strategic Planning Agent (mcpp Constitution v1.0.0 compliant)

@@ -31,7 +31,7 @@ Research findings for implementing the CLI JTBD audit framework. All technical c
 **Implementation Pattern**:
 ```bash
 # Audit execution pattern
-ggen <command> <args> 2>&1 | tee evidence/<category>/<command>.log
+mcpp <command> <args> 2>&1 | tee evidence/<category>/<command>.log
 echo "Exit code: $?" >> evidence/<category>/<command>.log
 ```
 
@@ -108,7 +108,7 @@ echo "Exit code: $?" >> evidence/<category>/<command>.log
 **Evidence Structure**:
 ```yaml
 # evidence/<category>/<command>.yaml
-command: ggen <subcommand>
+command: mcpp <subcommand>
 version_tested: 4.0.0
 date: 2024-12-14
 tester: claude-code
@@ -159,12 +159,12 @@ evidence_files:
 # evidence/case-studies/<company>.yaml
 case_study: jpmorgan
 commands_required:
-  - ggen ontology validate: PASS
-  - ggen template generate: PASS
-  - ggen graph query: PARTIAL (missing --output-format json)
+  - mcpp ontology validate: PASS
+  - mcpp template generate: PASS
+  - mcpp graph query: PARTIAL (missing --output-format json)
 
 gaps:
-  - command: ggen graph query
+  - command: mcpp graph query
     issue: No JSON output option
     severity: P2
     workaround: Parse text output manually
@@ -239,7 +239,7 @@ wait
 ## Dependencies & Prerequisites
 
 ### Required Tools
-- ggen CLI v4.0.0 (installed)
+- mcpp CLI v4.0.0 (installed)
 - cargo-make (installed)
 - jq (for JSON processing)
 - yq (for YAML processing) - optional

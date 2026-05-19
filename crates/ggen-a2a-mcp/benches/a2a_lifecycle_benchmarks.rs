@@ -15,7 +15,7 @@ use std::collections::HashMap;
 use std::hint::black_box;
 use std::sync::Arc;
 
-use a2a_generated::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::{
     message::{Message, MessageType},
     task::{Task, TaskPriority, TaskStatus},
 };
@@ -149,7 +149,7 @@ impl InMemoryTaskStore {
 // Helper: create domain values (from a2a_generated)
 // ---------------------------------------------------------------------------
 
-/// Create a domain Task value (from a2a_generated::task).
+/// Create a domain Task value (from ggen_core::ggen_core::ggen_core::a2a_generated::task).
 fn make_task(id: &str) -> Task {
     Task::new(
         id.to_string(),
@@ -159,7 +159,7 @@ fn make_task(id: &str) -> Task {
     )
 }
 
-/// Create a domain Message value (from a2a_generated::message).
+/// Create a domain Message value (from ggen_core::ggen_core::ggen_core::a2a_generated::message).
 fn make_message(id: &str, task_id: &str) -> Message {
     Message::new(
         id.to_string(),
@@ -385,7 +385,7 @@ fn bench_task_history_length_bounds(c: &mut Criterion) {
 // Domain-type-only benchmarks (pure struct construction, no async)
 // ---------------------------------------------------------------------------
 
-/// Benchmark a2a_generated::task::Task construction (sync, no async overhead)
+/// Benchmark ggen_core::ggen_core::ggen_core::a2a_generated::task::Task construction (sync, no async overhead)
 fn bench_domain_task_construction(c: &mut Criterion) {
     c.bench_function("a2a_lifecycle/domain_task_construction", |b| {
         b.iter(|| {
@@ -395,7 +395,7 @@ fn bench_domain_task_construction(c: &mut Criterion) {
     });
 }
 
-/// Benchmark a2a_generated::message::Message construction (sync, no async overhead)
+/// Benchmark ggen_core::ggen_core::ggen_core::a2a_generated::message::Message construction (sync, no async overhead)
 fn bench_domain_message_construction(c: &mut Criterion) {
     c.bench_function("a2a_lifecycle/domain_message_construction", |b| {
         b.iter(|| {

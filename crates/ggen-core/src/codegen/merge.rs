@@ -21,7 +21,7 @@
 //! 4. Preserve manual sections unchanged
 //! 5. Write merged result
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 /// Merge marker detection result
 #[derive(Debug, Clone)]

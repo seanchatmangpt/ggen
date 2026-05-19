@@ -1,8 +1,8 @@
-# ggen: Ontology-Driven Code Generation
+# mcpp: Ontology-Driven Code Generation
 
 **A Comprehensive Technical Reference**
 
-*Sean Chatman — sean@ggen.ai*
+*Sean Chatman — sean@mcpp.ai*
 *Version 6.0 — 2026*
 
 ---
@@ -31,9 +31,9 @@
 
 ## Chapter 1: Introduction
 
-### What is ggen?
+### What is mcpp?
 
-ggen is a language-agnostic, deterministic code generation framework that transforms RDF ontologies into reproducible code through SPARQL queries and Tera templates. It is the reference implementation of the **Chatman Equation**:
+mcpp is a language-agnostic, deterministic code generation framework that transforms RDF ontologies into reproducible code through SPARQL queries and Tera templates. It is the reference implementation of the **Chatman Equation**:
 
 ```
 A = μ(O)
@@ -46,7 +46,7 @@ Where:
 
 ### Why RDF Ontologies?
 
-Traditional code generators work from schemas (JSON, YAML, Protobuf). ggen works from **ontologies** — formal knowledge representations that capture not just structure but *semantics*. An ontology specifies what things *mean*, not just what they look like. This enables:
+Traditional code generators work from schemas (JSON, YAML, Protobuf). mcpp works from **ontologies** — formal knowledge representations that capture not just structure but *semantics*. An ontology specifies what things *mean*, not just what they look like. This enables:
 
 - **Deterministic generation**: Same ontology always produces identical code (SHA256 verified)
 - **Multi-target output**: One ontology generates Rust, Go, Elixir, Python, Terraform, Docker, K8s manifests
@@ -84,7 +84,7 @@ Traditional code generators work from schemas (JSON, YAML, Protobuf). ggen works
 
 ### Core Axioms
 
-ggen is built on three mathematical properties that guarantee deterministic, reproducible code generation:
+mcpp is built on three mathematical properties that guarantee deterministic, reproducible code generation:
 
 **Axiom 1: Idempotence** — `μ ∘ μ = μ`
 Running the pipeline twice produces identical output. A closed ontology always generates the same artifact.
@@ -97,17 +97,17 @@ The ontology satisfies the specification Σ (all constraints are met). Code gene
 
 ### The Holographic Principle
 
-ggen's architecture follows the **holographic principle**: the RDF ontology is the "film" (a high-dimensional interference pattern), the pipeline μ is the "laser" (deterministic measurement function), and the generated code is the "hologram" (a 2D projection of the high-dimensional pattern).
+mcpp's architecture follows the **holographic principle**: the RDF ontology is the "film" (a high-dimensional interference pattern), the pipeline μ is the "laser" (deterministic measurement function), and the generated code is the "hologram" (a 2D projection of the high-dimensional pattern).
 
 Different templates (different laser angles) produce different but equally valid projections of the same ontology. All preserve semantic fidelity (Φ = 1.0) when the ontology is closed.
 
 ### Specification Entropy
 
-ggen tracks **specification entropy** `H(O) = log₂(n)` where n is the number of possible instantiations. The target is `H(O) ≤ 20 bits` (~1 million possible configurations). When entropy exceeds this threshold, the specification is too open-ended and generation is blocked until constraints are added.
+mcpp tracks **specification entropy** `H(O) = log₂(n)` where n is the number of possible instantiations. The target is `H(O) ≤ 20 bits` (~1 million possible configurations). When entropy exceeds this threshold, the specification is too open-ended and generation is blocked until constraints are added.
 
 ### Specification Closure
 
-Before any code generation, ggen verifies four closure criteria:
+Before any code generation, mcpp verifies four closure criteria:
 
 1. **Entropy Bound**: H(O) ≤ 20 bits
 2. **Domain Coverage**: 100% of domain concepts have RDF representations
@@ -121,61 +121,61 @@ Before any code generation, ggen verifies four closure criteria:
 ### Workspace Structure
 
 ```
-ggen/
+mcpp/
 ├── crates/                    # 83 Rust crates (workspace members)
-│   ├── ggen-core/             # Core pipeline + codegen engine
-│   ├── ggen-cli/              # CLI binary (noun-verb pattern)
-│   ├── ggen-codegen/          # Code generation orchestrator
-│   ├── ggen-ontology-core/    # RDF/TTL loading, SPARQL, Oxigraph
-│   ├── ggen-workflow/         # 5-stage workflow engine with NIF bindings
-│   ├── ggen-workflow-43/      # van der Aalst 43 workflow patterns
-│   ├── ggen-yawl/             # YAWL process definitions
-│   ├── ggen-ai/               # AI-native generation (GPT-4, Claude)
-│   ├── ggen-dspy/             # DSPy-inspired LLM constructs
-│   ├── ggen-receipt/          # Ed25519 cryptographic receipts
-│   ├── ggen-consensus/        # Byzantine PBFT consensus
-│   ├── ggen-marketplace/      # Package registry + validation
-│   ├── ggen-process-mining/   # Process discovery + conformance
-│   ├── ggen-config/           # Configuration management
-│   ├── ggen-config-clap/      # Clap integration for config
-│   ├── ggen-canonical/        # Deterministic formatting + hashing
-│   ├── ggen-spec-validator/   # Specification validation
-│   ├── ggen-poka-yoke/        # Manufacturing error-proofing
-│   ├── ggen-jidoka/           # Automation with human intelligence
-│   ├── ggen-kaizen/           # Continuous improvement tracking
-│   ├── ggen-heijunka/         # Production leveling
-│   ├── ggen-backpressure/     # Flow control
-│   ├── ggen-transport/        # Network transport layer
-│   ├── ggen-a2a/              # Agent-to-agent protocol
-│   ├── ggen-a2a-mcp/          # A2A + MCP bridge
-│   ├── ggen-testing/          # Test utilities
-│   ├── ggen-test-audit/       # Test result auditing
-│   ├── ggen-test-opt/         # Test optimization
-│   ├── ggen-utils/            # Shared utilities
-│   ├── ggen-macros/           # Procedural macros
-│   ├── ggen-execution/        # Runtime execution engine
-│   ├── ggen-dod/              # Definition of Done enforcement
-│   ├── ggen-firewall/         # Security boundary enforcement
-│   ├── ggen-folk-strategy/    # Folk strategy patterns
-│   ├── ggen-craftplan/        # Craft planning
-│   ├── ggen-domain/           # Domain model abstractions
-│   ├── ggen-api/              # API framework
-│   ├── ggen-auth/             # Authentication/authorization
-│   ├── ggen-saas/             # Multi-tenant SaaS scaffolding
-│   ├── ggen-node/             # Node.js bindings
-│   ├── ggen-payments/         # Payment processing
-│   ├── ggen-supplier/         # Supplier management
-│   ├── ggen-prompt-mfg/       # Prompt manufacturing
-│   ├── ggen-e2e/              # End-to-end testing
-│   ├── ggen-e2e-tps/          # TPS end-to-end tests
-│   ├── ggen-integration/      # Integration test framework
-│   ├── ggen-cli-tps/          # TPS CLI integration
-│   ├── ggen-cli-validation/   # CLI input validation
-│   ├── ggen-metrics-tps/      # TPS metrics collection
-│   ├── ggen-marketplace-tps/  # TPS marketplace tests
-│   ├── ggen-tps-andon/        # Andon alert system
-│   ├── ggen-packet/           # Network packet handling
-│   ├── ggen-osiris/           # Osiris autonomic computing
+│   ├── mcpp-core/             # Core pipeline + codegen engine
+│   ├── mcpp-cli/              # CLI binary (noun-verb pattern)
+│   ├── mcpp-codegen/          # Code generation orchestrator
+│   ├── mcpp-ontology-core/    # RDF/TTL loading, SPARQL, Oxigraph
+│   ├── mcpp-workflow/         # 5-stage workflow engine with NIF bindings
+│   ├── mcpp-workflow-43/      # van der Aalst 43 workflow patterns
+│   ├── mcpp-yawl/             # YAWL process definitions
+│   ├── mcpp-ai/               # AI-native generation (GPT-4, Claude)
+│   ├── mcpp-dspy/             # DSPy-inspired LLM constructs
+│   ├── mcpp-receipt/          # Ed25519 cryptographic receipts
+│   ├── mcpp-consensus/        # Byzantine PBFT consensus
+│   ├── mcpp-marketplace/      # Package registry + validation
+│   ├── mcpp-process-mining/   # Process discovery + conformance
+│   ├── mcpp-config/           # Configuration management
+│   ├── mcpp-config-clap/      # Clap integration for config
+│   ├── mcpp-canonical/        # Deterministic formatting + hashing
+│   ├── mcpp-spec-validator/   # Specification validation
+│   ├── mcpp-poka-yoke/        # Manufacturing error-proofing
+│   ├── mcpp-jidoka/           # Automation with human intelligence
+│   ├── mcpp-kaizen/           # Continuous improvement tracking
+│   ├── mcpp-heijunka/         # Production leveling
+│   ├── mcpp-backpressure/     # Flow control
+│   ├── mcpp-transport/        # Network transport layer
+│   ├── mcpp-a2a/              # Agent-to-agent protocol
+│   ├── mcpp-a2a-mcp/          # A2A + MCP bridge
+│   ├── mcpp-testing/          # Test utilities
+│   ├── mcpp-test-audit/       # Test result auditing
+│   ├── mcpp-test-opt/         # Test optimization
+│   ├── mcpp-utils/            # Shared utilities
+│   ├── mcpp-macros/           # Procedural macros
+│   ├── mcpp-execution/        # Runtime execution engine
+│   ├── mcpp-dod/              # Definition of Done enforcement
+│   ├── mcpp-firewall/         # Security boundary enforcement
+│   ├── mcpp-folk-strategy/    # Folk strategy patterns
+│   ├── mcpp-craftplan/        # Craft planning
+│   ├── mcpp-domain/           # Domain model abstractions
+│   ├── mcpp-api/              # API framework
+│   ├── mcpp-auth/             # Authentication/authorization
+│   ├── mcpp-saas/             # Multi-tenant SaaS scaffolding
+│   ├── mcpp-node/             # Node.js bindings
+│   ├── mcpp-payments/         # Payment processing
+│   ├── mcpp-supplier/         # Supplier management
+│   ├── mcpp-prompt-mfg/       # Prompt manufacturing
+│   ├── mcpp-e2e/              # End-to-end testing
+│   ├── mcpp-e2e-tps/          # TPS end-to-end tests
+│   ├── mcpp-integration/      # Integration test framework
+│   ├── mcpp-cli-tps/          # TPS CLI integration
+│   ├── mcpp-cli-validation/   # CLI input validation
+│   ├── mcpp-metrics-tps/      # TPS metrics collection
+│   ├── mcpp-marketplace-tps/  # TPS marketplace tests
+│   ├── mcpp-tps-andon/        # Andon alert system
+│   ├── mcpp-packet/           # Network packet handling
+│   ├── mcpp-osiris/           # Osiris autonomic computing
 │   ├── osiris-*/              # Osiris subsystems (core, autonomic, domains, sensors, tps)
 │   ├── tai-*/                 # TAI platform (cache, gateway, gcp, grpc, k8s, lb, obs, resilience, security, state, testing, validation)
 │   ├── tps-*/                 # TPS utilities (jidoka, kaizen, reference)
@@ -196,8 +196,8 @@ ggen/
 │   └── book/                  # Published HTML book
 ├── registry/                  # Package registry (index.json with 66 packages)
 ├── evidence/                  # Evidence plane artifacts
-├── ggen.toml                  # Project configuration (274 lines)
-├── ggen-paas.toml             # PaaS configuration (348 lines)
+├── mcpp.toml                  # Project configuration (274 lines)
+├── mcpp-paas.toml             # PaaS configuration (348 lines)
 ├── Makefile.toml              # Build system (1,625 lines, cargo-make)
 └── Cargo.toml                 # Workspace manifest (749 lines)
 ```
@@ -206,12 +206,12 @@ ggen/
 
 ```
                     ┌─────────────────┐
-                    │  ggen.toml      │  ← Project config
+                    │  mcpp.toml      │  ← Project config
                     │  ontology.ttl   │  ← Source of truth
                     └────────┬────────┘
                              │
                     ┌────────▼────────┐
-                    │  ggen-core      │  ← Pipeline orchestration
+                    │  mcpp-core      │  ← Pipeline orchestration
                     │  ┌───────────┐  │
                     │  │ codegen/  │  │  ← 5-stage transformation
                     │  │ pipeline  │  │
@@ -221,7 +221,7 @@ ggen/
               ┌──────────────┼──────────────┐
               │              │              │
     ┌─────────▼──────┐ ┌────▼────────┐ ┌───▼───────────┐
-    │ ggen-ontology  │ │ ggen-config │ │ ggen-canonical│
+    │ mcpp-ontology  │ │ mcpp-config │ │ mcpp-canonical│
     │    -core       │ │   -clap     │ │               │
     │ (RDF/SPARQL)   │ │ (CLI args)  │ │ (SHA256 hash) │
     └─────────┬──────┘ └────┬────────┘ └───┬───────────┘
@@ -229,14 +229,14 @@ ggen/
               └──────────────┼──────────────┘
                              │
                     ┌────────▼────────┐
-                    │ ggen-codegen    │  ← Template rendering
+                    │ mcpp-codegen    │  ← Template rendering
                     │ (Tera engine)   │
                     └────────┬────────┘
                              │
               ┌──────────────┼──────────────┐
               │              │              │
     ┌─────────▼──────┐ ┌────▼────────┐ ┌───▼───────────┐
-    │ ggen-workflow  │ │ ggen-receipt │ │ ggen-consensus│
+    │ mcpp-workflow  │ │ mcpp-receipt │ │ mcpp-consensus│
     │  + workflow-43 │ │ (Ed25519)    │ │ (PBFT)        │
     └────────────────┘ └─────────────┘ └───────────────┘
 ```
@@ -245,7 +245,7 @@ ggen/
 
 ## Chapter 4: The Five-Stage Pipeline
 
-Every ggen generation passes through five deterministic stages, implemented in `ggen-core/src/codegen/pipeline.rs`:
+Every mcpp generation passes through five deterministic stages, implemented in `mcpp-core/src/codegen/pipeline.rs`:
 
 ### Stage 1: Normalize (μ₁)
 
@@ -320,15 +320,15 @@ pub struct PipelineState {
 
 Each `ExecutedRule` records the rule name, type (Inference or Generation), triples added, execution duration, and query hash — providing a complete audit trail.
 
-> **See Also:** [Pattern 11 — SPARQL PROJECTION](../docs/java26-patterns/src/patterns/11-sparql-projection.md) in *A Pattern Language for Java 26 with ggen* shows how SELECT queries become template context in the generation pipeline.
+> **See Also:** [Pattern 11 — SPARQL PROJECTION](../docs/java26-patterns/src/patterns/11-sparql-projection.md) in *A Pattern Language for Java 26 with mcpp* shows how SELECT queries become template context in the generation pipeline.
 
 ---
 
 ## Chapter 5: Ontology Layer
 
-### ggen-ontology-core
+### mcpp-ontology-core
 
-The ontology layer (`crates/ggen-ontology-core`) provides the foundational RDF processing:
+The ontology layer (`crates/mcpp-ontology-core`) provides the foundational RDF processing:
 
 ```rust
 // Module organization
@@ -350,7 +350,7 @@ pub mod validators;       // Syntax + semantic validation
 The triple store wraps Oxigraph for in-memory RDF operations:
 
 ```rust
-use ggen_ontology_core::triple_store::TripleStore;
+use mcpp_ontology_core::triple_store::TripleStore;
 
 let store = TripleStore::new()?;
 store.load_turtle("ontology.ttl")?;
@@ -362,7 +362,7 @@ let results = store.query_sparql(&query)?;
 Deterministic query construction prevents subtle bugs from hand-written SPARQL:
 
 ```rust
-use ggen_ontology_core::sparql_generator::SparqlGenerator;
+use mcpp_ontology_core::sparql_generator::SparqlGenerator;
 
 let query = SparqlGenerator::find_policies_by_jurisdiction("US");
 let results = store.query_sparql(&query)?;
@@ -373,7 +373,7 @@ let results = store.query_sparql(&query)?;
 Maps domain terms to ontology classes with confidence scoring:
 
 ```rust
-use ggen_ontology_core::entity_mapper::EntityMapper;
+use mcpp_ontology_core::entity_mapper::EntityMapper;
 
 let matches = EntityMapper::match_policy("Privacy Policy")?;
 // Returns: [{label: "DataPrivacyPolicy", class: "legal:Policy", score: 0.95}, ...]
@@ -402,14 +402,14 @@ Each specification follows a 3-level hierarchy:
 
 ### Template Formats
 
-ggen supports two template formats:
+mcpp supports two template formats:
 
 **`.tmpl` files** — Combined SPARQL + Tera templates with frontmatter:
 ```yaml
 ---
 sparql:
   project_info: |
-    PREFIX cli: <http://ggen.dev/schema/cli#>
+    PREFIX cli: <http://mcpp.dev/schema/cli#>
     SELECT ?name ?version ?description
     WHERE {
       ?project a cli:CliProject ;
@@ -449,7 +449,7 @@ pub struct {{ class.name }} {
 | **erlang** | erlang-adapter | Erlang/OTP adapter generation |
 | **mcp-server** | mcp-server/* | MCP (Model Context Protocol) servers |
 | **llm_construct** | signature.rs.tera | DSPy-style LLM construct generation |
-| **ggen** | rust-struct.tera | ggen's own code generation |
+| **mcpp** | rust-struct.tera | mcpp's own code generation |
 | **papers** | papers/* | Academic paper templates |
 | **chicago-tdd** | chicago-tdd-suite.tera | Test suite generation |
 | **python** | python.tmpl | Python code generation |
@@ -487,15 +487,15 @@ Generates DSPy-inspired LLM constructs with typed input/output fields, constrain
 
 Generates complete container specs with health checks, resource limits, security context, and observability configuration.
 
-> **See Also:** [Pattern 12 — TEMPLATE RULE](../docs/java26-patterns/src/patterns/12-template-rule.md) in *A Pattern Language for Java 26 with ggen* describes the three-part rule composition: SPARQL query + Tera template + output path.
+> **See Also:** [Pattern 12 — TEMPLATE RULE](../docs/java26-patterns/src/patterns/12-template-rule.md) in *A Pattern Language for Java 26 with mcpp* describes the three-part rule composition: SPARQL query + Tera template + output path.
 
 ---
 
 ## Chapter 7: Workflow Engine
 
-### ggen-workflow
+### mcpp-workflow
 
-The workflow engine (`crates/ggen-workflow`) provides a five-stage transformation pipeline with pattern orchestration and cryptographic receipt generation. It implements the Chatman Equation as an executable pipeline:
+The workflow engine (`crates/mcpp-workflow`) provides a five-stage transformation pipeline with pattern orchestration and cryptographic receipt generation. It implements the Chatman Equation as an executable pipeline:
 
 ```
 μ₁ (Normalize) → μ₂ (Extract) → μ₃ (Emit) → μ₄ (Canonicalize) → μ₅ (Receipt)
@@ -523,7 +523,7 @@ pub struct Constants {
 }
 ```
 
-### ggen-workflow-43
+### mcpp-workflow-43
 
 Complete implementation of van der Aalst's 43 workflow control-flow patterns:
 
@@ -556,7 +556,7 @@ Complete implementation of van der Aalst's 43 workflow control-flow patterns:
 
 ## Chapter 8: AI & DSPy Integration
 
-### ggen-ai
+### mcpp-ai
 
 AI-native code generation with multi-provider LLM support (GPT-4, Claude, Ollama):
 
@@ -565,13 +565,13 @@ AI-native code generation with multi-provider LLM support (GPT-4, Claude, Ollama
 - Semantic validation of generated code against ontology
 - Multi-provider support with fallback chains
 
-### ggen-dspy (DSPy-Inspired)
+### mcpp-dspy (DSPy-Inspired)
 
 Implements the DSPy methodology for structured LLM interactions:
 
 **Signatures** — Typed input/output specifications:
 ```rust
-use ggen_ai::dspy::{Signature, InputField, OutputField};
+use mcpp_ai::dspy::{Signature, InputField, OutputField};
 
 let sig = Signature::new("classify_intent", "Classify user intent")
     .with_input(InputField::new("query", "User query text", "String"))
@@ -587,9 +587,9 @@ let sig = Signature::new("classify_intent", "Classify user intent")
 
 ### AI Template Creation
 
-ggen can generate its own templates using AI:
+mcpp can generate its own templates using AI:
 ```bash
-ggen template create --ai --description "REST API for user management"
+mcpp template create --ai --description "REST API for user management"
 ```
 
 The AI generates both the `.ttl` specification and the `.tera` template, ensuring the generated code conforms to the ontology.
@@ -598,12 +598,12 @@ The AI generates both the `.ttl` specification and the `.tera` template, ensurin
 
 ## Chapter 9: Cryptographic Proofs
 
-### ggen-receipt
+### mcpp-receipt
 
 Production-ready cryptographic receipt system using Ed25519 digital signatures:
 
 ```rust
-use ggen_receipt::{Receipt, ReceiptChain, generate_keypair};
+use mcpp_receipt::{Receipt, ReceiptChain, generate_keypair};
 
 let (signing_key, verifying_key) = generate_keypair();
 
@@ -631,7 +631,7 @@ chain.verify(&verifying_key)?; // Verifies entire chain integrity
 - SHA-256 hashing — Content integrity verification
 - Chain linking — Tamper-evident audit trail
 
-### ggen-consensus
+### mcpp-consensus
 
 Byzantine fault-tolerant consensus (PBFT) for multi-agent receipt verification:
 
@@ -712,7 +712,7 @@ The TPS subsystem implements lean manufacturing principles:
 
 ### Package Registry
 
-ggen includes a built-in package registry at `registry/index.json` (1,741 lines) with 66 packages across 10 categories:
+mcpp includes a built-in package registry at `registry/index.json` (1,741 lines) with 66 packages across 10 categories:
 
 | Category | Count | Examples |
 |----------|-------|---------|
@@ -762,7 +762,7 @@ Manufacturing-grade quality gates that prevent defects before they happen:
 
 ### Jidoka (Automation with Human Intelligence)
 
-The `ggen-jidoka` crate implements stop-and-fix automation:
+The `mcpp-jidoka` crate implements stop-and-fix automation:
 
 - Detect anomalies during generation
 - Stop the pipeline when quality thresholds are breached
@@ -771,7 +771,7 @@ The `ggen-jidoka` crate implements stop-and-fix automation:
 
 ### Kaizen (Continuous Improvement)
 
-The `ggen-kaizen` crate tracks improvement metrics over time:
+The `mcpp-kaizen` crate tracks improvement metrics over time:
 
 - Weekly metric reviews (test pass rate, generation time, validation score)
 - Trend analysis and anomaly detection
@@ -779,7 +779,7 @@ The `ggen-kaizen` crate tracks improvement metrics over time:
 
 ### Heijunka (Production Leveling)
 
-The `ggen-heijunka` crate levels generation workloads:
+The `mcpp-heijunka` crate levels generation workloads:
 
 - Batch similar generation tasks
 - Prevent burst overload
@@ -787,7 +787,7 @@ The `ggen-heijunka` crate levels generation workloads:
 
 ### Chicago TDD
 
-ggen generates Chicago School TDD test suites (behavior verification, no mocks):
+mcpp generates Chicago School TDD test suites (behavior verification, no mocks):
 
 ```
 ARRANGE → ACT → ASSERT
@@ -798,7 +798,7 @@ ARRANGE → ACT → ASSERT
 
 ### Andon System
 
-The `ggen-tps-andon` crate implements manufacturing andon (call-for-help) signals:
+The `mcpp-tps-andon` crate implements manufacturing andon (call-for-help) signals:
 
 - Real-time quality dashboards
 - Threshold-based alerting
@@ -808,19 +808,19 @@ The `ggen-tps-andon` crate implements manufacturing andon (call-for-help) signal
 
 ## Chapter 13: Configuration & Build System
 
-### ggen.toml
+### mcpp.toml
 
 Project configuration (274 lines):
 
 ```toml
 [project]
-name = "ggen"
+name = "mcpp"
 version = "5.0.2"
 description = "Deterministic, language-agnostic code generation framework"
 
 [ontology]
 source = "ontology.ttl"
-base_uri = "https://ggen.dev/"
+base_uri = "https://mcpp.dev/"
 format = "turtle"
 
 [ai]
@@ -842,7 +842,7 @@ cache_enabled = true
 cache_ttl = 7200
 
 [security]
-allowed_domains = ["schema.org", "w3.org", "ggen.dev", "github.com"]
+allowed_domains = ["schema.org", "w3.org", "mcpp.dev", "github.com"]
 ```
 
 ### Makefile.toml
@@ -856,7 +856,7 @@ Build system (1,625 lines) powered by cargo-make:
 - `cargo make release` — Production build with optimizations
 - `cargo make deb` — Build Debian package (cargo-deb)
 
-### ggen-paas.toml
+### mcpp-paas.toml
 
 PaaS infrastructure configuration (348 lines) for generating cloud infrastructure from ontology.
 
@@ -877,19 +877,19 @@ The workspace Cargo.toml (749 lines) defines:
 
 ```bash
 # Install
-cargo install ggen
+cargo install mcpp
 
 # Check environment
-ggen doctor
+mcpp doctor
 
 # Get personalized help
-ggen help-me
+mcpp help-me
 
 # List templates
-ggen template list
+mcpp template list
 
 # Generate from ontology
-ggen sync -r ontology.ttl -t templates/rust.tmpl -o output/
+mcpp sync -r ontology.ttl -t templates/rust.tmpl -o output/
 ```
 
 ### Example Projects (143 total)
@@ -919,7 +919,7 @@ ggen sync -r ontology.ttl -t templates/rust.tmpl -o output/
 
 ### Semconv Synchronization
 
-ggen integrates with ChatmanGPT's OpenTelemetry semantic convention system:
+mcpp integrates with ChatmanGPT's OpenTelemetry semantic convention system:
 
 - Weaver registry templates in `templates/clnrm/weaver-registry.tmpl`
 - Generates span definitions and attribute schemas from ontology
@@ -927,9 +927,9 @@ ggen integrates with ChatmanGPT's OpenTelemetry semantic convention system:
 
 ### Cross-Project Sync
 
-The `GGEN_SYNC_INTEGRATION_MANIFEST.md` defines the synchronization protocol between ggen and ChatmanGPT's 5 subprojects:
+The `GGEN_SYNC_INTEGRATION_MANIFEST.md` defines the synchronization protocol between mcpp and ChatmanGPT's 5 subprojects:
 
-| ChatmanGPT Project | ggen Integration |
+| ChatmanGPT Project | mcpp Integration |
 |-------------------|-----------------|
 | **pm4py-rust** | Process mining engine, YAWL conformance |
 | **BusinessOS** | PaaS infrastructure, Go backend generation |
@@ -939,7 +939,7 @@ The `GGEN_SYNC_INTEGRATION_MANIFEST.md` defines the synchronization protocol bet
 
 ### Board Intelligence
 
-ggen templates generate the board intelligence pipeline:
+mcpp templates generate the board intelligence pipeline:
 - L0→L1→L2→L3 SPARQL inference chain
 - Conway's Law vs Little's Law routing
 - Encrypted board briefings (X25519+AES-256-GCM)
@@ -948,37 +948,37 @@ ggen templates generate the board intelligence pipeline:
 
 ## Chapter 16: Java 26 Code Generation
 
-The `ggen-yawl` crate implements six Java generation rules that produce complete Spring Boot 3 / Jakarta EE applications from YAWL RDF ontologies:
+The `mcpp-yawl` crate implements six Java generation rules that produce complete Spring Boot 3 / Jakarta EE applications from YAWL RDF ontologies:
 
 | Rule | Generated Artifact | Source File |
 |------|--------------------|-------------|
-| JPA Entity Mapping | `@Entity` classes with Jakarta Persistence 3.2 | `crates/ggen-yawl/src/codegen/rules/jpa_entity.rs` |
-| Spring Data Repository | `JpaRepository<T, UUID>` interfaces | `crates/ggen-yawl/src/codegen/rules/repositories.rs` |
-| DTO Projection | `@Data @Builder` transfer objects | `crates/ggen-yawl/src/codegen/rules/dtos.rs` |
-| REST Controller | `@RestController` CRUD endpoints | `crates/ggen-yawl/src/codegen/rules/controllers.rs` |
-| Service Layer | `@Service @Transactional` classes | `crates/ggen-yawl/src/codegen/rules/services.rs` |
-| Java Enum | Domain enumerations with `getValue()`/`fromValue()` | `crates/ggen-yawl/src/codegen/rules/enums.rs` |
+| JPA Entity Mapping | `@Entity` classes with Jakarta Persistence 3.2 | `crates/mcpp-yawl/src/codegen/rules/jpa_entity.rs` |
+| Spring Data Repository | `JpaRepository<T, UUID>` interfaces | `crates/mcpp-yawl/src/codegen/rules/repositories.rs` |
+| DTO Projection | `@Data @Builder` transfer objects | `crates/mcpp-yawl/src/codegen/rules/dtos.rs` |
+| REST Controller | `@RestController` CRUD endpoints | `crates/mcpp-yawl/src/codegen/rules/controllers.rs` |
+| Service Layer | `@Service @Transactional` classes | `crates/mcpp-yawl/src/codegen/rules/services.rs` |
+| Java Enum | Domain enumerations with `getValue()`/`fromValue()` | `crates/mcpp-yawl/src/codegen/rules/enums.rs` |
 
-The complete pattern language for these generation rules is documented in [A Pattern Language for Java 26 with ggen](../docs/java26-patterns/src/README.md), which maps each rule to an Alexander-style pattern with copy-paste TTL snippets and executable examples.
+The complete pattern language for these generation rules is documented in [A Pattern Language for Java 26 with mcpp](../docs/java26-patterns/src/README.md), which maps each rule to an Alexander-style pattern with copy-paste TTL snippets and executable examples.
 
 ### E2E Test Coverage
 
-The YAWL Java generation achieves 95.1% test coverage (77/81 checks passing) across the complete generation pipeline. See `crates/ggen-yawl/tests/E2E_TEST_REPORT.md` for the full report.
+The YAWL Java generation achieves 95.1% test coverage (77/81 checks passing) across the complete generation pipeline. See `crates/mcpp-yawl/tests/E2E_TEST_REPORT.md` for the full report.
 
 ## Chapter 17: A2A Protocol Integration
 
-The `ggen-a2a` crate generates Agent-to-Agent (A2A) protocol implementations from ontology definitions in `.specify/specs/014-a2a-integration/`. The generated code includes:
+The `mcpp-a2a` crate generates Agent-to-Agent (A2A) protocol implementations from ontology definitions in `.specify/specs/014-a2a-integration/`. The generated code includes:
 
 - Task state machine (submitted → working → completed/failed/cancelled)
 - Agent card endpoints
-- A2A MCP bridge (`ggen-a2a-mcp`)
+- A2A MCP bridge (`mcpp-a2a-mcp`)
 - Artifact type definitions
 
-The pipeline follows the same μ₁-μ₅ stages as all ggen sync operations, using `a2a-ontology.ttl` as the source of truth.
+The pipeline follows the same μ₁-μ₅ stages as all mcpp sync operations, using `a2a-ontology.ttl` as the source of truth.
 
-## Chapter 18: ggen-sync Platform Vectors
+## Chapter 18: mcpp-sync Platform Vectors
 
-The ChatmanGPT integration (Chapter 15) uses five platform vectors, each driven by `ggen sync`:
+The ChatmanGPT integration (Chapter 15) uses five platform vectors, each driven by `mcpp sync`:
 
 | Vector | Technology | Ontology |
 |--------|-----------|----------|
@@ -988,7 +988,7 @@ The ChatmanGPT integration (Chapter 15) uses five platform vectors, each driven 
 | **OSA** | Python agent framework | `osa.ttl` |
 | **semconv** | Semantic conventions (Weaver) | `semconv.ttl` |
 
-Each vector is regenerated by running `ggen sync` from the corresponding directory. The Weaver registry integration ensures semantic convention compliance across all vectors.
+Each vector is regenerated by running `mcpp sync` from the corresponding directory. The Weaver registry integration ensures semantic convention compliance across all vectors.
 
 ---
 
@@ -998,51 +998,51 @@ Each vector is regenerated by running `ggen sync` from the corresponding directo
 
 | Crate | Version | Description |
 |-------|---------|-------------|
-| ggen-core | — | Pipeline orchestration, codegen engine, graph operations |
-| ggen-cli | — | CLI binary (noun-verb pattern with clap) |
-| ggen-codegen | — | Code generation orchestrator |
-| ggen-config | — | Configuration management |
-| ggen-utils | — | Shared utilities |
+| mcpp-core | — | Pipeline orchestration, codegen engine, graph operations |
+| mcpp-cli | — | CLI binary (noun-verb pattern with clap) |
+| mcpp-codegen | — | Code generation orchestrator |
+| mcpp-config | — | Configuration management |
+| mcpp-utils | — | Shared utilities |
 
 ### Domain Crates
 
 | Crate | Version | Description |
 |-------|---------|-------------|
-| ggen-ontology-core | 0.2.0 | RDF/TTL, SPARQL, Oxigraph triple store |
-| ggen-workflow | — | 5-stage workflow engine with NIF bindings |
-| ggen-workflow-43 | 0.1.0 | Complete van der Aalst 43 patterns |
-| ggen-yawl | — | YAWL process definition support |
-| ggen-ai | — | AI-native code generation (multi-provider) |
-| ggen-dspy | — | DSPy-inspired LLM constructs |
-| ggen-process-mining | — | Process discovery and conformance checking |
-| ggen-receipt | 0.2.0 | Ed25519 cryptographic receipts |
-| ggen-consensus | 6.0.0 | Byzantine PBFT consensus |
+| mcpp-ontology-core | 0.2.0 | RDF/TTL, SPARQL, Oxigraph triple store |
+| mcpp-workflow | — | 5-stage workflow engine with NIF bindings |
+| mcpp-workflow-43 | 0.1.0 | Complete van der Aalst 43 patterns |
+| mcpp-yawl | — | YAWL process definition support |
+| mcpp-ai | — | AI-native code generation (multi-provider) |
+| mcpp-dspy | — | DSPy-inspired LLM constructs |
+| mcpp-process-mining | — | Process discovery and conformance checking |
+| mcpp-receipt | 0.2.0 | Ed25519 cryptographic receipts |
+| mcpp-consensus | 6.0.0 | Byzantine PBFT consensus |
 
 ### Infrastructure Crates
 
 | Crate | Version | Description |
 |-------|---------|-------------|
-| ggen-transport | — | Network transport layer |
-| ggen-node | — | Node.js bindings |
-| ggen-api | — | API framework |
-| ggen-auth | — | Authentication/authorization |
-| ggen-saas | — | Multi-tenant SaaS scaffolding |
-| ggen-payments | — | Payment processing |
-| ggen-supplier | — | Supplier management |
+| mcpp-transport | — | Network transport layer |
+| mcpp-node | — | Node.js bindings |
+| mcpp-api | — | API framework |
+| mcpp-auth | — | Authentication/authorization |
+| mcpp-saas | — | Multi-tenant SaaS scaffolding |
+| mcpp-payments | — | Payment processing |
+| mcpp-supplier | — | Supplier management |
 
 ### Quality Crates
 
 | Crate | Version | Description |
 |-------|---------|-------------|
-| ggen-poka-yoke | — | Manufacturing error-proofing |
-| ggen-jidoka | — | Automation with human intelligence |
-| ggen-kaizen | — | Continuous improvement tracking |
-| ggen-heijunka | — | Production leveling |
-| ggen-backpressure | — | Flow control |
-| ggen-dod | — | Definition of Done enforcement |
-| ggen-firewall | — | Security boundary enforcement |
-| ggen-canonical | — | Deterministic formatting and hashing |
-| ggen-spec-validator | — | Specification validation |
+| mcpp-poka-yoke | — | Manufacturing error-proofing |
+| mcpp-jidoka | — | Automation with human intelligence |
+| mcpp-kaizen | — | Continuous improvement tracking |
+| mcpp-heijunka | — | Production leveling |
+| mcpp-backpressure | — | Flow control |
+| mcpp-dod | — | Definition of Done enforcement |
+| mcpp-firewall | — | Security boundary enforcement |
+| mcpp-canonical | — | Deterministic formatting and hashing |
+| mcpp-spec-validator | — | Specification validation |
 
 ### Observability Crates
 
@@ -1082,27 +1082,27 @@ Each vector is regenerated by running `ggen sync` from the corresponding directo
 ### Core Commands
 
 ```bash
-ggen sync               # Full pipeline: ontology → code
-ggen template list      # List available templates
-ggen template create    # Create new template
-ggen doctor             # Environment health check
-ggen help-me            # Personalized help
+mcpp sync               # Full pipeline: ontology → code
+mcpp template list      # List available templates
+mcpp template create    # Create new template
+mcpp doctor             # Environment health check
+mcpp help-me            # Personalized help
 ```
 
 ### Generation Commands
 
 ```bash
-ggen sync -r ontology.ttl -t templates/rust.tmpl -o output/
-ggen template generate -t templates/api-routes.tera -r spec.ttl -o src/
-ggen template create --ai --description "REST API for user management"
+mcpp sync -r ontology.ttl -t templates/rust.tmpl -o output/
+mcpp template generate -t templates/api-routes.tera -r spec.ttl -o src/
+mcpp template create --ai --description "REST API for user management"
 ```
 
 ### Configuration Commands
 
 ```bash
-ggen config show        # Display current configuration
-ggen config validate    # Validate configuration files
-ggen config set key=value  # Set configuration value
+mcpp config show        # Display current configuration
+mcpp config validate    # Validate configuration files
+mcpp config set key=value  # Set configuration value
 ```
 
 ### Quality Commands
@@ -1118,6 +1118,6 @@ cargo make deb          # Build Debian package
 ---
 
 *Generated: 2026-03-28*
-*Source: ggen repository analysis — 81 crates, 456 templates, 974 ontologies, 1,294 tests*
-*Author: Sean Chatman <sean@ggen.ai>*
-*Repository: https://github.com/seanchatmangpt/ggen*
+*Source: mcpp repository analysis — 81 crates, 456 templates, 974 ontologies, 1,294 tests*
+*Author: Sean Chatman <sean@mcpp.ai>*
+*Repository: https://github.com/seanchatmangpt/mcpp*

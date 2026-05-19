@@ -1,12 +1,12 @@
 //! Construct Command - LLM-Construct pattern operations
 //!
-//! `ggen construct` provides commands for creating and validating LLM-Constructs
+//! `mcpp construct` provides commands for creating and validating LLM-Constructs
 //! from OWL ontology specifications.
 //!
 //! ## Commands
 //!
-//! - `ggen construct create <spec-path>` - Create LLM-Construct from specification
-//! - `ggen construct validate <module-name>` - Validate generated construct module
+//! - `mcpp construct create <spec-path>` - Create LLM-Construct from specification
+//! - `mcpp construct validate <module-name>` - Validate generated construct module
 //!
 //! ## LLM-Construct Pipeline
 //!
@@ -19,10 +19,10 @@
 //!
 //! ```bash
 //! # Create construct from FIBO Bond specification
-//! ggen construct create .specify/fibo_bond.ttl --output-dir crates/ggen-ai/src/constructs
+//! mcpp construct create .specify/fibo_bond.ttl --output-dir crates/mcpp-ai/src/constructs
 //!
 //! # Validate generated module
-//! ggen construct validate bond_extractor
+//! mcpp construct validate bond_extractor
 //! ```
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
@@ -35,7 +35,7 @@ use std::path::Path;
 // Output Types
 // ============================================================================
 
-/// Output for the `ggen construct create` command
+/// Output for the `mcpp construct create` command
 #[derive(Debug, Clone, Serialize)]
 pub struct ConstructCreateOutput {
     /// Overall status: "success", "error", or "not_implemented"
@@ -99,7 +99,7 @@ pub struct DSPyMappingStats {
     pub output_fields_count: usize,
 }
 
-/// Output for the `ggen construct validate` command
+/// Output for the `mcpp construct validate` command
 #[derive(Debug, Clone, Serialize)]
 pub struct ConstructValidateOutput {
     /// Overall status: "success", "error", or "not_implemented"
@@ -153,10 +153,10 @@ pub struct ValidationResult {
 ///
 /// ```bash
 /// # Create construct from specification
-/// ggen construct create .specify/fibo_bond.ttl
+/// mcpp construct create .specify/fibo_bond.ttl
 ///
 /// # Specify custom output directory
-/// ggen construct create .specify/fibo_bond.ttl --output-dir src/constructs
+/// mcpp construct create .specify/fibo_bond.ttl --output-dir src/constructs
 /// ```
 ///
 /// ## Pipeline
@@ -182,7 +182,7 @@ pub fn create(
         return Ok(ConstructCreateOutput {
             status: "error".to_string(),
             spec_path: spec_path.clone(),
-            output_dir: output_dir.unwrap_or_else(|| "crates/ggen-ai/src/constructs".to_string()),
+            output_dir: output_dir.unwrap_or_else(|| "crates/mcpp-ai/src/constructs".to_string()),
             module_name: None,
             generated_file: None,
             owl_stats: None,
@@ -201,7 +201,7 @@ pub fn create(
         return Ok(ConstructCreateOutput {
             status: "error".to_string(),
             spec_path: spec_path.clone(),
-            output_dir: output_dir.unwrap_or_else(|| "crates/ggen-ai/src/constructs".to_string()),
+            output_dir: output_dir.unwrap_or_else(|| "crates/mcpp-ai/src/constructs".to_string()),
             module_name: None,
             generated_file: None,
             owl_stats: None,
@@ -216,7 +216,7 @@ pub fn create(
     }
 
     let output_directory =
-        output_dir.unwrap_or_else(|| "crates/ggen-ai/src/constructs".to_string());
+        output_dir.unwrap_or_else(|| "crates/mcpp-ai/src/constructs".to_string());
 
     // Delegate to implementation
     perform_create(&spec_path, &output_directory)
@@ -233,7 +233,7 @@ pub fn create(
 ///
 /// ```bash
 /// # Validate construct module
-/// ggen construct validate bond_extractor
+/// mcpp construct validate bond_extractor
 /// ```
 ///
 /// ## Quality Gates
@@ -269,10 +269,10 @@ pub fn validate(module_name: String) -> clap_noun_verb::Result<ConstructValidate
 fn perform_create(
     spec_path: &str, output_dir: &str,
 ) -> clap_noun_verb::Result<ConstructCreateOutput> {
-    // NOTE: Implementation blocked — ggen_ai::llm_construct module is
-    // temporarily disabled in ggen-ai/src/lib.rs (depends on dspy module).
+    // NOTE: Implementation blocked — mcpp_ai::llm_construct module is
+    // temporarily disabled in mcpp-ai/src/lib.rs (depends on dspy module).
     // The builder, codegen, and SHACL pipeline code exist at
-    // crates/ggen-ai/src/llm_construct/ but cannot be imported until
+    // crates/mcpp-ai/src/llm_construct/ but cannot be imported until
     // the module is re-enabled.
 
     let module_name = Some(to_snake_case(
@@ -293,14 +293,14 @@ fn perform_create(
         dspy_stats: None,
         error: Some(
             "LLM-Construct pipeline is temporarily disabled. \
-            The ggen_ai::llm_construct module (builder, codegen, SHACL generator) \
-            exists but is commented out in ggen-ai/src/lib.rs due to a dspy \
+            The mcpp_ai::llm_construct module (builder, codegen, SHACL generator) \
+            exists but is commented out in mcpp-ai/src/lib.rs due to a dspy \
             dependency. Re-enable the module and update this function to call \
             LLMConstructBuilder::build() + LLMConstructCodeGen::generate_rust_module()."
                 .to_string(),
         ),
         next_steps: vec![
-            "Re-enable ggen_ai::llm_construct in ggen-ai/src/lib.rs".to_string(),
+            "Re-enable mcpp_ai::llm_construct in mcpp-ai/src/lib.rs".to_string(),
             "Resolve dspy module dependency".to_string(),
             "Wire LLMConstructBuilder::build() into this function".to_string(),
             "Wire LLMConstructCodeGen::generate_rust_module() for code emission".to_string(),
@@ -336,7 +336,7 @@ fn perform_validate(module_name: &str) -> clap_noun_verb::Result<ConstructValida
                 .to_string(),
         ),
         next_steps: vec![
-            "Implement construct creation first (ggen construct create)".to_string(),
+            "Implement construct creation first (mcpp construct create)".to_string(),
             "Use std::process::Command to run cargo make check/lint/test".to_string(),
             "Parse command output into ValidationResult with duration_ms".to_string(),
             "Enforce SLOs: check <5s, lint pass, test <30s".to_string(),

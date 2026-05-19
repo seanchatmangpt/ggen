@@ -1,8 +1,8 @@
-# Marketplace Current State Report — ggen v6.0.1
+# Marketplace Current State Report — ggen v26.5.4
 
 *Generated: 2026-03-31*
 
-**Document status:** Strategic charter and WIP gates live in [FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md](FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md) and [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md). **v6.1.0 packs slice:** [V6_1_MARKETPLACE_SCOPE.md](V6_1_MARKETPLACE_SCOPE.md).
+**Document status:** Strategic charter and WIP gates live in [FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md](FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md) and [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md). **v26.5.4 packs slice:** [V6_1_MARKETPLACE_SCOPE.md](V6_1_MARKETPLACE_SCOPE.md).
 
 ---
 

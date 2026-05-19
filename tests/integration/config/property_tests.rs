@@ -4,7 +4,7 @@
 //! Chicago TDD: Property tests verify behavior holds across random inputs
 
 use proptest::prelude::*;
-use ggen_utils::project_config::GgenConfig;
+use ggen_core::utils::project_config::GgenConfig;
 use std::collections::BTreeMap;
 
 proptest! {

@@ -1,7 +1,7 @@
 # Fortune 5 CISO Production Readiness Report
 
 **Generated:** 2026-03-31
-**Project:** ggen v6.0.1 - Governed Capability Packs Platform
+**Project:** ggen v26.5.4 - Governed Capability Packs Platform
 **Standard:** Fortune 5 CISO Enterprise Safety Requirements
 
 ---

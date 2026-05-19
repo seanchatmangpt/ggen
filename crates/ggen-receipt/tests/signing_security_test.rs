@@ -10,7 +10,7 @@
 //! - Tampered receipt detection
 //! - Edge cases and error paths
 
-use ggen_receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt, ReceiptChain};
 use std::fs;
 use tempfile::TempDir;
 
