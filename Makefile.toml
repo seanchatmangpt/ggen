@@ -46,8 +46,8 @@ description = "Build in debug mode"
 command = "timeout"
 args = ["10s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen"]
 
-[tasks.build-release]
-description = "Build in release mode"
+[tasks.do-build-release]
+description = "Inner: cargo build --release"
 command = "timeout"
 args = [
   "600s",
@@ -59,7 +59,10 @@ args = [
   "--bin",
   "ggen",
 ]
-run_task = { name = "verify-binary" }
+
+[tasks.build-release]
+description = "Build in release mode and verify the binary exists"
+dependencies = ["do-build-release", "verify-binary"]
 
 [tasks.verify-binary]
 description = "Verify ggen binary was built"
