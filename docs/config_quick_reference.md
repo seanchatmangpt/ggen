@@ -155,7 +155,7 @@ export GGEN_LOG_LEVEL=warn
 
 ---
 
-## Configuration Files (Coming in Phase 2)
+## Configuration Files
 
 ### User Config: `~/.config/ggen/config.toml`
 
@@ -171,13 +171,21 @@ model = "qwen3-coder:30b"
 ### Project Config: `./ggen.toml`
 
 ```toml
-[generation]
+[project]
+name = "my-project"
+version = "0.1.0"
+
+[ai]
+provider = "openai"
+model = "gpt-4"
 temperature = 0.9
 max_tokens = 8000
 
 [logging]
 level = "debug"
 ```
+
+See [config.md](./config.md) for complete `ggen.toml` reference documentation.
 
 ---
 
@@ -197,11 +205,14 @@ level = "debug"
 ### Check Your Configuration
 
 ```bash
-# Show effective configuration (future)
+# Show effective configuration (merged from all sources)
 ggen config show
 
-# Validate configuration (future)
+# Validate configuration
 ggen config validate
+
+# Check configuration syntax
+ggen config check
 
 # Test connection
 ggen ai generate "test" --verbose
@@ -324,12 +335,11 @@ alias ggen-test='GGEN_TEST_MODE=1 ggen'
 
 ## Reference Documents
 
-- **Full Analysis:** `/Users/sac/ggen/docs/hardcoded_config_analysis.md`
-- **Migration Plan:** `/Users/sac/ggen/docs/config_migration_plan.md`
-- **Default Config:** `/Users/sac/ggen/config/defaults.toml`
-- **WIP Integration:** `/Users/sac/ggen/config/wip_integration.toml`
+- **[Complete Configuration Guide](./config.md)** - Full `ggen.toml` reference with all sections
+- **[Default Config](../config/defaults.toml)** - Default configuration values and examples
+- **[Configuration Migration Guide](./config_migration_plan.md)** - Migration from legacy formats
 
 ---
 
-**Last Updated:** 2025-10-10
-**Version:** 1.0
+**Last Updated:** 2025-01-XX
+**Version:** 2.0

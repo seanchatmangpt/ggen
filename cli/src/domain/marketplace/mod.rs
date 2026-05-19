@@ -5,6 +5,7 @@
 pub mod install;
 pub mod list;
 pub mod publish;
+pub mod registry;
 pub mod search;
 pub mod update;
 
@@ -14,8 +15,11 @@ pub use install::{InstallArgs, InstallOptions, InstallResult, install_package, i
 pub use list::{ListArgs, list_and_display};
 pub use update::{UpdateArgs, update_and_report};
 pub use publish::{PublishArgs, publish_and_report};
+pub use registry::{
+    Registry, CacheManager, PackageMetadata, VersionMetadata, Dependency, RegistryIndex
+};
 
-// Placeholder types for phase 1 (to be implemented in phase 2)
+// Legacy types for backwards compatibility
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -30,9 +34,3 @@ pub struct SearchOptions {
     pub query: String,
     pub category: Option<String>,
 }
-
-#[derive(Debug, Clone)]
-pub struct Registry;
-
-#[derive(Debug, Clone)]
-pub struct CacheManager;
