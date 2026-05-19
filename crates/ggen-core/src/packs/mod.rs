@@ -41,7 +41,9 @@
 
 pub mod install;
 pub mod lockfile;
+pub mod pack_merge;
 
 // Re-export commonly used types
 pub use install::{install_pack, PackInstallResult};
 pub use lockfile::{LockedPack, PackLockfile, PackSource};
+pub use pack_merge::{merge_pack_contributions, PackContributions, PackInstallInfo};

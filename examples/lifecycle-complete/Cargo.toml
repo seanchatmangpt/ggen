@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../../ggen-core" }
+mcpp-core = { path = "../../mcpp-core" }
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }

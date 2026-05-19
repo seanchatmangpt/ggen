@@ -64,7 +64,7 @@ fn args(json: serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
 #[tokio::test]
 async fn test_mcp_discover_and_scaffold() -> anyhow::Result<()> {
     // Arrange — point server at the real examples directory
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 
@@ -213,7 +213,7 @@ async fn test_mcp_validate_and_query() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_mcp_full_project_build() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
     let target_dir = tempdir.path().join("a2a-groq-agent-project");
@@ -360,7 +360,7 @@ async fn test_mcp_full_project_build() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
 
     // Act — list resources
@@ -447,7 +447,7 @@ async fn test_mcp_resource_browsing() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_mcp_prompt_assisted_generation() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
 
     // Act — list prompts

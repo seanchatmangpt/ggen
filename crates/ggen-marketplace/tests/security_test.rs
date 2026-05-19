@@ -9,14 +9,14 @@
 //! - Public key loading and validation
 //! - Checksum calculation and verification
 //!
-//! GATED: ggen_marketplace::security and traits modules not exported.
+//! GATED: ggen_core::marketplace::security and traits modules not exported.
 
 #![cfg(feature = "integration")]
 
-use ggen_marketplace::security::{
+use ggen_core::marketplace::security::{
     generate_marketplace_keypair, ChecksumCalculator, MarketplaceSignature, MarketplaceVerifier,
 };
-use ggen_marketplace::traits::Signable;
+use ggen_core::marketplace::traits::Signable;
 use std::fs;
 use tempfile::TempDir;
 
@@ -62,8 +62,8 @@ fn test_marketplace_signature_checksum_matches_ggen_receipt() {
     let data = b"test pack data";
     let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
-    // Checksum should match ggen_receipt::hash_data
-    let expected_checksum = ggen_receipt::hash_data(data);
+    // Checksum should match ggen_core::receipt::hash_data
+    let expected_checksum = ggen_core::receipt::hash_data(data);
     assert_eq!(
         signature.checksum(),
         expected_checksum,
@@ -327,7 +327,7 @@ fn test_signature_includes_checksum() {
     let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Checksum should match direct calculation
-    let expected_checksum = ggen_receipt::hash_data(data);
+    let expected_checksum = ggen_core::receipt::hash_data(data);
     assert_eq!(signature.checksum, expected_checksum);
 
     // Accessor methods should work

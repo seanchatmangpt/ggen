@@ -150,7 +150,7 @@ scripts/
 ### Quick Start
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 
 # Run all benchmarks
 ./scripts/run_performance_benchmarks.sh all
@@ -232,20 +232,20 @@ tail -100 _build/test/logs/ct_run.latest/make_data.json
 
 ## File Locations
 
-**Test Modules**: `/Users/sac/ggen/tai-erlang-autonomics/test/perf_benchmarks/`
+**Test Modules**: `./tai-erlang-autonomics/test/perf_benchmarks/`
 - http_endpoint_bench_SUITE.erl
 - governor_perf_bench_SUITE.erl
 - receipt_ledger_bench_SUITE.erl
 - action_executor_bench_SUITE.erl
 - system_stress_bench_SUITE.erl
 
-**Documentation**: `/Users/sac/ggen/tai-erlang-autonomics/test/perf_benchmarks/`
+**Documentation**: `./tai-erlang-autonomics/test/perf_benchmarks/`
 - PERFORMANCE_REPORT.md
 - README.md
 - BENCHMARKING_GUIDE.md
 - IMPLEMENTATION_SUMMARY.md
 
-**Scripts**: `/Users/sac/ggen/tai-erlang-autonomics/scripts/`
+**Scripts**: `./tai-erlang-autonomics/scripts/`
 - run_performance_benchmarks.sh
 
 ---

@@ -8,15 +8,15 @@ Successfully implemented the `validate_pipeline` MCP tool that exposes ggen's 6 
 
 ### Files Modified
 
-1. **`/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`**
+1. **`./crates/ggen-a2a-mcp/src/ggen_server.rs`**
    - Added `ValidatePipelineParams` struct (lines 154-162)
    - Added `validate_pipeline` tool implementation (lines 947-1075)
 
-2. **`/Users/sac/ggen/crates/ggen-core/src/graph/cycle_fixer.rs`**
+2. **`./crates/ggen-core/src/graph/cycle_fixer.rs`**
    - Fixed lifetime issue in merge_ttl_files method (line 377)
    - Changed from `for line in content.lines()` to `for line in content.lines().map(|l| l.to_string()).collect::<Vec<_>>()`
 
-3. **`/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`**
+3. **`./crates/ggen-a2a-mcp/tests/validate_pipeline_test.rs`**
    - Created comprehensive test suite with 4 tests
 
 ### Tool Specification

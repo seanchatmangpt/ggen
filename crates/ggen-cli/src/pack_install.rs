@@ -244,7 +244,7 @@ impl PackInstaller {
     /// Calculate total installation size
     async fn calculate_total_size(
         &self,
-        package: &ggen_marketplace::Package,
+        package: &ggen_core::marketplace::Package,
         dependencies: &[PackageId],
     ) -> Result<f64, GgenError> {
         let mut total_size = 0.0;
@@ -263,7 +263,7 @@ impl PackInstaller {
     /// Create installation steps plan
     fn create_installation_steps(
         &self,
-        package: &ggen_marketplace::Package,
+        package: &ggen_core::marketplace::Package,
         dependencies: &[PackageId],
         total_size_mb: f64,
     ) -> Vec<PlanStep> {
@@ -441,7 +441,7 @@ impl PackInstaller {
         &self,
         package_id: &PackageId,
         step_name: &str,
-    ) -> Result<ggen_marketplace::CachedPack, GgenError> {
+    ) -> Result<ggen_core::marketplace::CachedPack, GgenError> {
         let progress = self.progress.clone();
         progress.update_step_progress(0.0, &format!("Checking cache for {}", package_id));
 
@@ -524,8 +524,8 @@ impl PackInstaller {
         &self,
         package_id: &PackageId,
         version: &PackageVersion,
-        package: ggen_marketplace::Package,
-    ) -> Result<ggen_marketplace::CachedPack, GgenError> {
+        package: ggen_core::marketplace::Package,
+    ) -> Result<ggen_core::marketplace::CachedPack, GgenError> {
         // Mock caching
         Err(GgenError::ValidationError("Mock implementation - needs real caching".to_string()))
     }
@@ -551,16 +551,16 @@ struct TestRepository {}
 
 #[async_trait::async_trait]
 impl AsyncRepository for TestRepository {
-    async fn get_package(&self, package_id: &PackageId) -> Result<ggen_marketplace::Package, MarketplaceError> {
-        Ok(ggen_marketplace::Package::mock(package_id))
+    async fn get_package(&self, package_id: &PackageId) -> Result<ggen_core::marketplace::Package, MarketplaceError> {
+        Ok(ggen_core::marketplace::Package::mock(package_id))
     }
 
     async fn get_package_version(
         &self,
         package_id: &PackageId,
         version: &PackageVersion,
-    ) -> Result<ggen_marketplace::Package, MarketplaceError> {
-        Ok(ggen_marketplace::Package::mock(package_id))
+    ) -> Result<ggen_core::marketplace::Package, MarketplaceError> {
+        Ok(ggen_core::marketplace::Package::mock(package_id))
     }
 }
 

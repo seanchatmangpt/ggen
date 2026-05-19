@@ -7,11 +7,11 @@ use crate::error::Result;
 use crate::traits::Signable;
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
-use ggen_receipt::hash_data;
+use ggen_core::receipt::hash_data;
 use tracing::{debug, instrument};
 
 /// Re-export the canonical keypair generation from ggen-receipt.
-pub use ggen_receipt::generate_keypair as generate_marketplace_keypair;
+pub use ggen_core::receipt::generate_keypair as generate_marketplace_keypair;
 
 /// Marketplace-specific signature wrapper.
 ///
@@ -223,7 +223,7 @@ impl Signable for MarketplaceVerifier {
 
 /// Checksum calculator (SHA-256).
 ///
-/// Kept for backward compatibility. Consider using ggen_receipt::hash_data directly.
+/// Kept for backward compatibility. Consider using ggen_core::receipt::hash_data directly.
 pub struct ChecksumCalculator;
 
 impl ChecksumCalculator {
@@ -324,7 +324,7 @@ mod tests {
         let data = b"test pack data";
         let signature = MarketplaceSignature::sign(&signing_key, data).unwrap();
 
-        // Checksum should match ggen_receipt::hash_data
+        // Checksum should match ggen_core::receipt::hash_data
         let expected_checksum = hash_data(data);
         assert_eq!(signature.checksum(), expected_checksum);
     }

@@ -48,7 +48,7 @@ test!(test_simple_template_rendering, {
 
     // Assert
     assert_eq!(rendered, "Hello, World!");
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_template_with_multiple_variables, {
@@ -68,7 +68,7 @@ Version: {{ version }}"#;
     assert!(rendered.contains("TestProject"));
     assert!(rendered.contains("Test Author"));
     assert!(rendered.contains("1.0.0"));
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_template_with_conditionals, {
@@ -91,7 +91,7 @@ struct {{ name }} {}
 
     // Assert
     assert!(rendered.contains("pub struct MyStruct"));
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_template_with_loops, {
@@ -112,7 +112,7 @@ test!(test_template_with_loops, {
     assert!(rendered.contains("- one"));
     assert!(rendered.contains("- two"));
     assert!(rendered.contains("- three"));
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 // ============================================================================
@@ -142,7 +142,7 @@ test!(test_generator_basic_workflow, {
 
     let content = fs::read_to_string(&output_path)?;
     assert!(content.contains("TestProject"));
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_generator_with_custom_frontmatter, {
@@ -167,7 +167,7 @@ Project: {{ project_name }}"#;
     // Assert
     assert_eq!(output_path.file_name().expect("No filename"), "README.md");
     assert!(output_path.exists());
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_generator_preserves_directory_structure, {
@@ -193,7 +193,7 @@ test!(test_generator_preserves_directory_structure, {
     // Assert
     assert!(output_path.exists());
     assert!(output_path.to_string_lossy().contains("output"));
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 // ============================================================================
@@ -248,7 +248,7 @@ test!(test_template_load_from_file, {
     // Assert
     assert!(!template.body.is_empty());
     assert!(template.body.contains("project_name"));
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_template_render_with_context, {
@@ -272,7 +272,7 @@ test!(test_template_render_with_context, {
 
     // Assert
     assert_eq!(rendered, "Hello, Alice!");
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 // ============================================================================
@@ -294,7 +294,7 @@ test!(test_template_missing_variable_error, {
         result.is_err(),
         "Should error when required variable is missing"
     );
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 test!(test_template_syntax_error, {
@@ -309,7 +309,7 @@ test!(test_template_syntax_error, {
 
     // Assert
     assert!(result.is_err(), "Should error on template syntax error");
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 // ============================================================================
@@ -340,7 +340,7 @@ Item {{ i }}
         "Template rendering should be fast (< 100ms), took {:?}",
         duration
     );
-    Ok::<(), ggen_utils::error::Error>(())
+    Ok::<(), ggen_core::utils::error::Error>(())
 });
 
 // test!(test_large_file_tree_generation_performance, {

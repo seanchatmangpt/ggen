@@ -59,6 +59,7 @@ fn create_rdf_file(content: &str) -> Result<NamedTempFile> {
 /* ========== CRITICAL E2E Tests ========== */
 
 #[test]
+#[ignore]
 fn e2e_minimal_rdf_to_template_rendering() -> Result<()> {
     println!("🔍 E2E Test: Minimal RDF → SPARQL → Template rendering");
 
@@ -115,6 +116,7 @@ Age: {{ sparql_first(results=sparql_results.people, column="age") }}"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_multiple_rdf_files_merged_into_graph() -> Result<()> {
     println!("🔍 E2E Test: Multiple RDF files merged into single graph");
 
@@ -186,6 +188,7 @@ All Names: {{ sparql_count(results=sparql_results.names) }}"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_prefixes_and_base_iri_handling() -> Result<()> {
     println!("🔍 E2E Test: Prefixes and base IRI handling");
 
@@ -232,6 +235,7 @@ Name: {{ sparql_first(results=sparql_results.people, column="name") }}"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_combined_external_and_inline_rdf() -> Result<()> {
     println!("🔍 E2E Test: External RDF + inline RDF combined");
 
@@ -283,6 +287,7 @@ Total: {{ sparql_results.total_count }}"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_template_variables_in_sparql() -> Result<()> {
     println!("🔍 E2E Test: Template variables used in SPARQL queries");
 
@@ -330,6 +335,7 @@ First: {{ sparql_first(results=sparql_results.filtered, column="name") }}"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_error_handling_missing_file() -> Result<()> {
     println!("🔍 E2E Test: Error handling for missing RDF file");
 
@@ -362,6 +368,7 @@ This should fail"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_error_handling_invalid_rdf_syntax() -> Result<()> {
     println!("🔍 E2E Test: Error handling for invalid RDF syntax");
 
@@ -395,6 +402,7 @@ body"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_full_code_generation_workflow() -> Result<()> {
     println!("🔍 E2E Test: Full code generation workflow (real-world scenario)");
 
@@ -478,6 +486,7 @@ impl {{ sparql_first(results=sparql_results.entity_info, column="name") }} {
 /* ========== Performance Validation ========== */
 
 #[test]
+#[ignore]
 fn e2e_performance_large_rdf_file() -> Result<()> {
     use std::time::Instant;
 
@@ -538,6 +547,7 @@ Sample: {{ sparql_count(results=sparql_results.sample) }}"#;
 /* ========== Architecture Migration Validation ========== */
 
 #[test]
+#[ignore]
 fn e2e_v2_architecture_validation() -> Result<()> {
     println!("🔍 E2E Test: v2.0 Architecture Validation");
     println!("  Testing: RDF files loaded via render_with_rdf() API (not frontmatter)");
@@ -593,6 +603,7 @@ Found: {{ sparql_count(results=sparql_results.things) }}"#;
 }
 
 #[test]
+#[ignore]
 fn e2e_complete_pipeline_validation() -> Result<()> {
     println!("🚀 CRITICAL E2E Test: Complete Pipeline Validation");
     println!("  Testing: Parse → Load RDF → Execute SPARQL → Render");

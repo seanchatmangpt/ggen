@@ -45,7 +45,7 @@ ggen mcp config init --examples
 ```bash
 $ ggen mcp config init
 
-Initializing MCP configuration at: /Users/sac/ggen/.mcp.json
+Initializing MCP configuration at: ./.mcp.json
 
 MCP configuration initialized successfully
   Version: 1.0
@@ -285,7 +285,7 @@ ggen mcp config validate --verbose
 ```bash
 $ ggen mcp config validate
 
-Validating MCP configuration: /Users/sac/ggen/.mcp.json
+Validating MCP configuration: ./.mcp.json
 
 Validation Results:
   Config version: 1.0

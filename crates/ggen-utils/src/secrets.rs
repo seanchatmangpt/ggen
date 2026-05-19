@@ -21,8 +21,8 @@
 //! ### Local encrypted secrets
 //!
 //! ```rust,no_run
-//! use ggen_utils::secrets::{SecretsManager, SecretType, EncryptionProvider};
-//! use ggen_utils::error::Result;
+//! use ggen_core::utils::secrets::{SecretsManager, SecretType, EncryptionProvider};
+//! use ggen_core::utils::error::Result;
 //!
 //! # async fn example() -> Result<()> {
 //! // Create manager with encryption provider
@@ -45,8 +45,8 @@
 //! ### Vault integration
 //!
 //! ```rust,no_run
-//! use ggen_utils::secrets::{SecretsManager, VaultConfig, SecretType};
-//! use ggen_utils::error::Result;
+//! use ggen_core::utils::secrets::{SecretsManager, VaultConfig, SecretType};
+//! use ggen_core::utils::error::Result;
 //!
 //! # async fn example() -> Result<()> {
 //! // Connect to Vault

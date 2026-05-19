@@ -16,7 +16,7 @@
 
 use std::sync::Arc;
 
-use a2a_generated::converged::message::{
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
     MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     UnifiedContent,

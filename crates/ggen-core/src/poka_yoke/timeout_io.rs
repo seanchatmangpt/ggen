@@ -4,7 +4,7 @@
 
 use std::time::Duration;
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 /// SLO-based timeout constants.
 pub mod timeouts {

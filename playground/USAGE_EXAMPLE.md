@@ -7,7 +7,7 @@ This document shows practical examples of using the Hyper-Thesis Framework (HTF)
 ### 1. Build HTF
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo build -p htf-cli
 ```
 

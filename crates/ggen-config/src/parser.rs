@@ -3,7 +3,7 @@
 //! This module provides functionality for loading and parsing ggen.toml files.
 
 use crate::{ConfigError, GgenConfig, Result};
-use ggen_utils::SafePath;
+use ggen_core::utils::SafePath;
 use std::fs;
 use std::path::Path;
 
@@ -45,7 +45,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```no_run
-    /// use ggen_config::ConfigLoader;
+    /// use ggen_core::config_lib::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let config = ConfigLoader::from_file("ggen.toml")?;
@@ -71,7 +71,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```
-    /// use ggen_config::ConfigLoader;
+    /// use ggen_core::config_lib::ConfigLoader;
     ///
     /// let toml = r#"
     ///     [project]
@@ -109,7 +109,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```no_run
-    /// use ggen_config::ConfigLoader;
+    /// use ggen_core::config_lib::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// // Searches current directory and parents for ggen.toml
@@ -142,7 +142,7 @@ impl ConfigLoader {
             }
 
             // Try parent directory
-            current = current.parent().map_err(|_e: ggen_utils::error::Error| {
+            current = current.parent().map_err(|_e: ggen_core::utils::error::Error| {
                 ConfigError::FileNotFound(std::path::PathBuf::from(
                     "ggen.toml (searched all parent directories)",
                 ))
@@ -185,7 +185,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```
-    /// use ggen_config::ConfigLoader;
+    /// use ggen_core::config_lib::ConfigLoader;
     /// use serde_json::json;
     ///
     /// let toml = r#"

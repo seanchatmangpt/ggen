@@ -195,7 +195,7 @@ Single template render  | 2ms     | <5ms   | ⏳ In progress
 - **Quick Start Guide:** README for team access
 
 #### Infrastructure
-- **Swarm Memory:** `/Users/sac/ggen/.swarm/memory.db`
+- **Swarm Memory:** `./.swarm/memory.db`
 - **Hooks Integration:** Pre/post-task coordination
 - **Milestone Tracking:** 12 critical milestones
 - **Blocker Management:** Immediate escalation protocol

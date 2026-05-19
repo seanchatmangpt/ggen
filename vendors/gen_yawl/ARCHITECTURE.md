@@ -2003,8 +2003,8 @@ receipts_to_turtle(Receipts) ->
 2. **YAWL Specification**: http://www.yawlfoundation.org/
 3. **Van der Aalst Patterns**: https://www.workflowpatterns.com/
 4. **CRE (Common Runtime Environment)**: https://github.com/joergen7/cre
-5. **ggen Architecture**: /Users/sac/ggen/docs/architecture.md
-6. **UNRDF YAWL Package**: /Users/sac/ggen/external/unrdf/packages/yawl/
+5. **ggen Architecture**: ./docs/architecture.md
+6. **UNRDF YAWL Package**: ./external/unrdf/packages/yawl/
 
 ---
 

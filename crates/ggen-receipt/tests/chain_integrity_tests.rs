@@ -12,7 +12,7 @@
 //!
 //! Chicago TDD: Real Ed25519 signing, real SHA-256 hashing, no mocks.
 
-use ggen_receipt::{create_chained_receipt, generate_keypair, hash_data, Receipt, ReceiptChain};
+use ggen_core::receipt::{create_chained_receipt, generate_keypair, hash_data, Receipt, ReceiptChain};
 use std::fs;
 use tempfile::TempDir;
 

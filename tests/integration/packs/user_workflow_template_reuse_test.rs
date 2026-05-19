@@ -2,7 +2,7 @@
 //!
 //! Workflow 5: Template reuse with variables
 
-use ggen_domain::packs::{generate_from_pack, list_packs, show_pack, GenerateInput};
+use ggen_core::domain::packs::{generate_from_pack, list_packs, show_pack, GenerateInput};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 

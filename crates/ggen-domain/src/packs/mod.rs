@@ -3,14 +3,17 @@
 //! This module provides domain operations for working with packs,
 //! separating business logic from CLI concerns.
 
+pub mod capability_resolve;
 pub mod capability_registry;
 pub mod dependency_graph;
 pub mod install;
+pub mod loader;
+pub mod lockfile;
 pub mod metadata;
 pub mod types;
 pub mod validate;
 
-use ggen_utils::error::Error;
+use ggen_core::utils::error::Error;
 use serde::Serialize;
 
 /// Check compatibility between packs

@@ -10,7 +10,7 @@
 use crate::codegen::transaction::FileTransaction;
 use crate::graph::{ConstructExecutor, Graph};
 use crate::manifest::{GenerationRule, GgenManifest, InferenceRule};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};

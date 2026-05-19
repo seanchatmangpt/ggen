@@ -146,7 +146,7 @@ Change `check-compatibility` to `compatibility` in documentation/tests.
 
 ## Test Evidence
 
-All commands were executed from `/Users/sac/ggen` using:
+All commands were executed from `.` using:
 ```bash
 ./target/release/ggen <command> <subcommand> [args]
 ```

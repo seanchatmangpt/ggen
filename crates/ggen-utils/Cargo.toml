@@ -1,6 +1,6 @@
 [package]
-name = "ggen-utils"
-version = "6.1.0"
+name = "mcpp-utils"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Shared utilities for ggen"
 edition = "2021"

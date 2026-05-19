@@ -31,7 +31,7 @@ This guide provides a systematic 8-phase migration plan to:
 ### Step 1.1: Compile and Capture Errors
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo build -p ggen-marketplace 2>&1 | tee /tmp/errors.log
 ```
 
@@ -226,13 +226,13 @@ File: `crates/ggen-marketplace/Cargo.toml` (lines 14-75)
 
 Verify all dependencies are in workspace `Cargo.toml`:
 ```bash
-grep -A 3 "\[workspace.dependencies\]" /Users/sac/ggen/Cargo.toml | grep -E "(tokio|async-trait|oxigraph)"
+grep -A 3 "\[workspace.dependencies\]" ./Cargo.toml | grep -E "(tokio|async-trait|oxigraph)"
 ```
 
 ### Step 3.5: Iterative Compilation
 
 ```bash
-cd /Users/sac/ggen
+cd .
 
 # Quick check (should improve error count)
 cargo check -p ggen-marketplace 2>&1 | head -30
@@ -257,7 +257,7 @@ cargo build -p ggen-marketplace 2>&1 | grep "^error" | wc -l
 ### Step 4.1: Run Test Suite
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo make test -p ggen-marketplace 2>&1 | tail -50
 ```
 
@@ -424,7 +424,7 @@ pub async fn marketplace_install(name: String) -> Result<()> {
 ### Step 6.1: Test CLI Command Discovery
 
 ```bash
-cd /Users/sac/ggen
+cd .
 
 # Full build
 cargo build --quiet 2>&1

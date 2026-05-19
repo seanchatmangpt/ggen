@@ -9,7 +9,7 @@ use crate::packs::dependency_graph::DependencyGraph;
 use crate::packs::repository::{FileSystemRepository, PackRepository};
 use crate::packs::types::Pack;
 use ggen_core::packs::lockfile::{LockedPack, PackLockfile, PackSource};
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Instant;

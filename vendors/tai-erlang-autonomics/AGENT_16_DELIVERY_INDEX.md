@@ -17,7 +17,7 @@ Agent 16 successfully created production-ready smoke test and CLI tools for TAIE
 
 ### 1. CLI Tool: Release Execution Script
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/tools/run_release.sh`
+**File**: `./tai-erlang-autonomics/tools/run_release.sh`
 
 **Metrics**:
 - Size: 4.0 KB
@@ -60,7 +60,7 @@ docker run -p 8080:8080 taiea:latest ./tools/run_release.sh
 
 ### 2. CLI Tool: Smoke Test Suite
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/tools/smoke.sh`
+**File**: `./tai-erlang-autonomics/tools/smoke.sh`
 
 **Metrics**:
 - Size: 8.0 KB
@@ -128,7 +128,7 @@ docker run -p 8080:8080 taiea:latest ./tools/run_release.sh
 
 ### 3. Documentation: Receipt & Delivery Summary
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/AGENT_16_SMOKE_TEST_RECEIPT.md`
+**File**: `./tai-erlang-autonomics/AGENT_16_SMOKE_TEST_RECEIPT.md`
 
 **Metrics**:
 - Size: 16 KB
@@ -154,7 +154,7 @@ docker run -p 8080:8080 taiea:latest ./tools/run_release.sh
 
 ### 4. Documentation: Smoke Test Scenarios
 
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/SMOKE_TEST_SCENARIOS.md`
+**File**: `./tai-erlang-autonomics/SMOKE_TEST_SCENARIOS.md`
 
 **Metrics**:
 - Size: 8.0 KB

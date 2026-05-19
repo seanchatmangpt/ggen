@@ -20,7 +20,7 @@ use tokio::net::TcpListener;
 use tokio::time::timeout;
 
 // Re-export A2A message types
-use a2a_generated::prelude::*;
+use ggen_core::ggen_core::ggen_core::a2a_generated::prelude::*;
 
 // ============================================================================
 // Mock Server Implementations

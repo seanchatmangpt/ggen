@@ -11,7 +11,7 @@
 //! - `auto_regenerate` - Regenerate on noun changes
 
 use ggen_core::types::codeowners::CodeownersGenerator;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -56,7 +56,7 @@ pub fn generate_codeowners(
     config: &CodeownersConfig, project_root: &Path,
 ) -> Result<CodeownersResult> {
     if !config.enabled {
-        return Err(ggen_utils::error::Error::new(
+        return Err(ggen_core::utils::error::Error::new(
             "CODEOWNERS generation is disabled in ggen.toml. Set [codeowners].enabled = true",
         ));
     }
@@ -80,7 +80,7 @@ pub fn generate_codeowners(
         let dir_path = project_root.join(source_dir);
         if dir_path.exists() {
             generator.scan_owners_files(&dir_path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to scan OWNERS files in {}: {}",
                     source_dir, e
                 ))
@@ -94,7 +94,7 @@ pub fn generate_codeowners(
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+                ggen_core::utils::error::Error::new(&format!("Failed to create output directory: {}", e))
             })?;
         }
         let content = generator.generate();
@@ -104,12 +104,12 @@ pub fn generate_codeowners(
             .count();
 
         std::fs::write(&path, &content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write CODEOWNERS: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to write CODEOWNERS: {}", e))
         })?;
         (path, entries)
     } else {
         let path = generator.write_to_github(project_root).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write CODEOWNERS: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to write CODEOWNERS: {}", e))
         })?;
 
         // Count entries from generated content

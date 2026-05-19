@@ -80,7 +80,7 @@ struct GenerateTreeOutput {
 /// Show template metadata
 #[verb]
 fn show(template: String) -> NounVerbResult<ShowOutput> {
-    use ggen_domain::template::show;
+    use ggen_core::domain::template::show;
 
     let metadata = show::show_template_metadata(&template).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to show template: {}", e))
@@ -107,8 +107,8 @@ fn get(template: String) -> NounVerbResult<ShowOutput> {
 /// Create new template
 #[verb]
 fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput> {
-    use ggen_domain::template::new as template_new;
-    use ggen_domain::template::TemplateService;
+    use ggen_core::domain::template::new as template_new;
+    use ggen_core::domain::template::TemplateService;
 
     let template_type_str = template_type.as_deref().unwrap_or("generic");
 
@@ -135,7 +135,7 @@ fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput>
 /// List templates
 #[verb]
 fn list(directory: Option<PathBuf>) -> NounVerbResult<ListOutput> {
-    use ggen_domain::template::list;
+    use ggen_core::domain::template::list;
 
     let default_dir = PathBuf::from("templates");
     let templates_dir = directory.as_ref().unwrap_or(&default_dir);
@@ -175,7 +175,7 @@ fn list(directory: Option<PathBuf>) -> NounVerbResult<ListOutput> {
 /// Lint a template
 #[verb]
 fn lint(template: String) -> NounVerbResult<LintOutput> {
-    use ggen_domain::template::lint;
+    use ggen_core::domain::template::lint;
 
     let options = lint::LintOptions {
         check_sparql: false,
@@ -220,7 +220,7 @@ fn lint(template: String) -> NounVerbResult<LintOutput> {
 fn generate(
     template: Option<String>, output: Option<String>, force: bool,
 ) -> NounVerbResult<GenerateOutput> {
-    use ggen_domain::template;
+    use ggen_core::domain::template;
     use std::collections::BTreeMap;
 
     let options = template::GenerateFileOptions {
@@ -252,7 +252,7 @@ fn generate(
 fn generate_tree(
     template: Option<String>, output: Option<String>,
 ) -> NounVerbResult<GenerateTreeOutput> {
-    use ggen_domain::template::generate_tree;
+    use ggen_core::domain::template::generate_tree;
     use std::collections::HashMap;
 
     let template_path = template.ok_or_else(|| {
@@ -309,4 +309,4 @@ fn regenerate(template: Option<String>) -> NounVerbResult<GenerateTreeOutput> {
 // Helper Functions
 // ============================================================================
 
-// Use utility function from ggen_utils::cli instead of duplicating here
+// Use utility function from ggen_core::utils::cli instead of duplicating here

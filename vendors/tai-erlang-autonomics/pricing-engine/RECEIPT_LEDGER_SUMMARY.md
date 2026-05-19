@@ -16,22 +16,22 @@ The `ac_receipt_ledger_mcp` module is a **production-grade, session-scoped recei
 
 | File | Size | Purpose |
 |------|------|---------|
-| `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl` | 625 lines | Main module - gen_statem state machine |
-| `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/docs/AC_RECEIPT_LEDGER_MCP.md` | 450+ lines | Comprehensive documentation |
-| `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/RECEIPT_LEDGER_SUMMARY.md` | This file | Implementation summary |
+| `./tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl` | 625 lines | Main module - gen_statem state machine |
+| `./tai-erlang-autonomics/pricing-engine/docs/AC_RECEIPT_LEDGER_MCP.md` | 450+ lines | Comprehensive documentation |
+| `./tai-erlang-autonomics/pricing-engine/RECEIPT_LEDGER_SUMMARY.md` | This file | Implementation summary |
 
 ### Tests (Chicago School TDD)
 
 | File | Tests | Purpose |
 |------|-------|---------|
-| `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_tests.erl` | 18+ | Unit tests (state-based, AAA pattern) |
-| `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_integration_SUITE.erl` | 8 | Integration tests (full workflows) |
+| `./tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_tests.erl` | 18+ | Unit tests (state-based, AAA pattern) |
+| `./tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_integration_SUITE.erl` | 8 | Integration tests (full workflows) |
 
 ### Examples
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/examples/receipt_ledger_example.erl` | 540 | Real-world usage examples |
+| `./tai-erlang-autonomics/pricing-engine/examples/receipt_ledger_example.erl` | 540 | Real-world usage examples |
 
 ## Key Features Implemented
 
@@ -315,7 +315,7 @@ AuditTrail = #{
 
 ### Multi-Epoch Workflow
 
-See `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/examples/receipt_ledger_example.erl` for:
+See `./tai-erlang-autonomics/pricing-engine/examples/receipt_ledger_example.erl` for:
 - Single customer pricing workflow
 - Monthly billing cycle with rotation
 - Detailed epoch rotation example
@@ -410,14 +410,14 @@ ok = verify_signature(Receipt, HmacKey).
 ## Files Checklist
 
 ### Module Implementation
-- [x] `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl`
+- [x] `./tai-erlang-autonomics/pricing-engine/src/ac_receipt_ledger_mcp.erl`
   - 625 lines of production code
   - gen_statem implementation
   - All error handling with Result<T,E>
   - Comprehensive documentation
 
 ### Documentation
-- [x] `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/docs/AC_RECEIPT_LEDGER_MCP.md`
+- [x] `./tai-erlang-autonomics/pricing-engine/docs/AC_RECEIPT_LEDGER_MCP.md`
   - 450+ lines covering:
     - Architecture and concepts
     - Complete API reference
@@ -426,20 +426,20 @@ ok = verify_signature(Receipt, HmacKey).
     - Troubleshooting
 
 ### Testing
-- [x] `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_tests.erl`
+- [x] `./tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_tests.erl`
   - 18 unit tests (Chicago TDD)
   - State-based testing
   - AAA pattern (Arrange/Act/Assert)
   - Real collaborators (no mocks)
 
-- [x] `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_integration_SUITE.erl`
+- [x] `./tai-erlang-autonomics/pricing-engine/test/ac_receipt_ledger_mcp_integration_SUITE.erl`
   - 8 integration test cases
   - Multi-epoch workflows
   - Concurrent append testing
   - Audit trail generation
 
 ### Examples
-- [x] `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/examples/receipt_ledger_example.erl`
+- [x] `./tai-erlang-autonomics/pricing-engine/examples/receipt_ledger_example.erl`
   - 4 complete workflow examples
   - 540 lines of documented code
   - Single customer workflow

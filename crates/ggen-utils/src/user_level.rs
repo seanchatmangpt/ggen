@@ -23,7 +23,7 @@
 //! ### Tracking User Activity
 //!
 //! ```rust,no_run
-//! use ggen_utils::user_level::{UserActivity, UserLevel};
+//! use ggen_core::utils::user_level::{UserActivity, UserLevel};
 //!
 //! # fn main() -> anyhow::Result<()> {
 //! let mut activity = UserActivity::load_or_create()?;
@@ -47,7 +47,7 @@ use std::path::PathBuf;
 /// # Examples
 ///
 /// ```rust
-/// use ggen_utils::user_level::UserLevel;
+/// use ggen_core::utils::user_level::UserLevel;
 ///
 /// # fn main() {
 /// let level = UserLevel::from_usage_count(10);

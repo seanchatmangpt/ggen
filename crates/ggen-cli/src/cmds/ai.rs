@@ -39,7 +39,7 @@ fn generate(
     _prompt: String, _code: Option<String>, _model: Option<String>, _api_key: Option<String>,
     _suggestions: bool, _language: Option<String>, _max_tokens: i64, _temperature: f64,
 ) -> Result<GenerateOutput> {
-    // FUTURE: Connect to ggen_domain::ai::generate_code or appropriate domain function
+    // FUTURE: Connect to ggen_core::domain::ai::generate_code or appropriate domain function
     // This stub allows library compilation while domain refactoring is completed
     Ok(GenerateOutput { success: false })
 }
@@ -70,7 +70,7 @@ fn analyze(
             "Either --file or --code must be specified".to_string(),
         ));
     }
-    // FUTURE: Connect to ggen_domain::ai::analyze or appropriate domain function
+    // FUTURE: Connect to ggen_core::domain::ai::analyze or appropriate domain function
     // This stub allows library compilation while domain refactoring is completed
     Ok(AnalyzeOutput { success: false })
 }

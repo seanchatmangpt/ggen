@@ -3,7 +3,7 @@
 //! Processes templates one at a time instead of loading entire file tree
 //! into memory, enabling constant memory usage regardless of project size.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use tera::Context;
 use walkdir::WalkDir;
@@ -31,7 +31,7 @@ use crate::template_cache::TemplateCache;
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -68,7 +68,7 @@ impl StreamingGenerator {
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -101,7 +101,7 @@ impl StreamingGenerator {
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// // Create generator with larger cache for many templates
     /// let generator = StreamingGenerator::with_cache_capacity(
     ///     PathBuf::from("templates"),
@@ -144,7 +144,7 @@ impl StreamingGenerator {
     /// use tera::Context;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -279,7 +279,7 @@ impl StreamingGenerator {
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -307,7 +307,7 @@ impl StreamingGenerator {
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
+/// # fn main() -> crate::utils::error::Result<()> {
 /// let mut generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")

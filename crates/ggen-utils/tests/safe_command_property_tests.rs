@@ -3,7 +3,7 @@
 //! These tests use property-based testing to fuzz the validation logic
 //! and ensure it handles arbitrary inputs correctly.
 
-use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use ggen_core::utils::safe_command::{CommandArg, CommandName, SafeCommand};
 use proptest::prelude::*;
 
 // ============================================================================

@@ -484,7 +484,7 @@ investor-ready compliance.
 
 ---
 
-**All files located in**: `/Users/sac/ggen/tai-erlang-autonomics/`
+**All files located in**: `./tai-erlang-autonomics/`
 **Master navigation**: `INDEX_PHASE_1_PHASE_2.md`
 **Next actions**: See "NEXT IMMEDIATE ACTIONS" section above
 

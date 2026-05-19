@@ -23,7 +23,7 @@ Agent 13 has delivered a comprehensive integration test suite covering the HTTP 
 ## Deliverables
 
 ### 1. Integration Test Suite
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
+**File**: `./tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
 
 **Test Coverage**:
 ```
@@ -54,7 +54,7 @@ Agent 13 has delivered a comprehensive integration test suite covering the HTTP 
 - ETS Tables: 1 (test configuration storage)
 
 ### 2. Test Matrix Documentation
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/INTEGRATION_TEST_MATRIX.md`
+**File**: `./tai-erlang-autonomics/INTEGRATION_TEST_MATRIX.md`
 
 Comprehensive test matrix documenting:
 - All 13 test cases with detailed scenarios
@@ -65,7 +65,7 @@ Comprehensive test matrix documenting:
 - Expected HTTP status codes and decisions
 
 ### 3. Delivery Summary (This Document)
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/AGENT_13_DELIVERY_SUMMARY.md`
+**File**: `./tai-erlang-autonomics/AGENT_13_DELIVERY_SUMMARY.md`
 
 ---
 
@@ -73,7 +73,7 @@ Comprehensive test matrix documenting:
 
 ### Run Full Suite
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_governor_integration_SUITE
 ```
 
@@ -489,7 +489,7 @@ Agent 14 will extend integration testing to cover:
 
 ### Run Tests
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_governor_integration_SUITE
 ```
 
@@ -532,4 +532,4 @@ All tests follow Chicago TDD patterns with real collaborators (no mocking), ensu
 
 **Created**: 2026-01-26
 **Agent**: 13/20 (Integration Test Engineer 1/2)
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics`
+**Location**: `./tai-erlang-autonomics`

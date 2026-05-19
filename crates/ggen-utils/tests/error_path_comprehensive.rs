@@ -16,9 +16,9 @@
 //! - Path traversal prevention (5+ variants)
 //! - Input validation (5+ variants)
 
-use ggen_utils::error::{Context, Error, Result};
-use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
-use ggen_utils::safe_path::SafePath;
+use ggen_core::utils::error::{Context, Error, Result};
+use ggen_core::utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use ggen_core::utils::safe_path::SafePath;
 use std::error::Error as StdError;
 use std::io;
 use std::path::PathBuf;

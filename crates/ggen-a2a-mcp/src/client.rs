@@ -12,7 +12,7 @@ use crate::adapter::{AgentToToolAdapter, ToolCall};
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::{A2aMessageConverter, LlmRequest, LlmResponse};
 use crate::otel_attrs;
-use a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
+use ggen_core::ggen_core::ggen_core::a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
 use futures::StreamExt;
 use ggen_ai::client::{GenAiClient, LlmClient as _, LlmConfig};
 use ggen_ai::dspy::model_capabilities::Model;
@@ -1005,8 +1005,8 @@ mod tests {
         let model = Model::from_name("gpt-4");
         let client = A2aLlmClient::new(model).await.unwrap();
 
-        use a2a_generated::converged::agent::{AgentConfiguration, CommunicationQoS, StrategyType};
-        use a2a_generated::converged::{
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::agent::{AgentConfiguration, CommunicationQoS, StrategyType};
+        use ggen_core::ggen_core::ggen_core::a2a_generated::converged::{
             AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle, ExecutionStrategy,
         };
 
@@ -1029,10 +1029,10 @@ mod tests {
                 constraints: None,
             },
             lifecycle: AgentLifecycle {
-                state: a2a_generated::converged::AgentState::Ready,
+                state: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentState::Ready,
                 state_history: vec![],
-                health: a2a_generated::converged::AgentHealth {
-                    status: a2a_generated::converged::HealthStatus::Healthy,
+                health: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentHealth {
+                    status: ggen_core::ggen_core::ggen_core::a2a_generated::converged::HealthStatus::Healthy,
                     last_check: chrono::Utc::now(),
                     check_interval: std::time::Duration::from_secs(60),
                     metrics: None,
@@ -1056,15 +1056,15 @@ mod tests {
                 handlers: None,
                 security: None,
                 qos: CommunicationQoS {
-                    reliability: a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
+                    reliability: ggen_core::ggen_core::ggen_core::a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
                     latency: None,
                     throughput: None,
                     ordering: None,
                     flow_control: None,
                 },
             },
-            execution: a2a_generated::converged::AgentExecution {
-                mode: a2a_generated::converged::ExecutionMode::Synchronous,
+            execution: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentExecution {
+                mode: ggen_core::ggen_core::ggen_core::a2a_generated::converged::ExecutionMode::Synchronous,
                 parameters: std::collections::HashMap::new(),
                 context: None,
                 strategy: Some(ExecutionStrategy {
@@ -1076,31 +1076,31 @@ mod tests {
                 monitoring: None,
                 policies: None,
             },
-            security: a2a_generated::converged::AgentSecurity {
-                authentication: a2a_generated::converged::AuthenticationConfig {
+            security: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AgentSecurity {
+                authentication: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuthenticationConfig {
                     methods: vec![],
                     providers: None,
                     metadata: None,
                 },
-                authorization: a2a_generated::converged::AuthorizationConfig {
-                    model: a2a_generated::converged::AuthorizationModel::Rbac,
+                authorization: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuthorizationConfig {
+                    model: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuthorizationModel::Rbac,
                     roles: None,
                     policies: vec![],
                     metadata: None,
                 },
-                encryption: a2a_generated::converged::EncryptionConfig {
-                    algorithms: vec![a2a_generated::converged::EncryptionAlgorithm::Aes],
+                encryption: ggen_core::ggen_core::ggen_core::a2a_generated::converged::EncryptionConfig {
+                    algorithms: vec![ggen_core::ggen_core::ggen_core::a2a_generated::converged::EncryptionAlgorithm::Aes],
                     modes: vec![],
                     keys: vec![],
                     metadata: None,
                 },
                 compliance: None,
-                audit: a2a_generated::converged::AuditConfig {
-                    events: vec![a2a_generated::converged::AuditEvent::Authentication],
+                audit: ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuditConfig {
+                    events: vec![ggen_core::ggen_core::ggen_core::a2a_generated::converged::AuditEvent::Authentication],
                     destinations: Vec::new(),
-                    retention: a2a_generated::converged::agent::AuditRetention {
+                    retention: ggen_core::ggen_core::ggen_core::a2a_generated::converged::agent::AuditRetention {
                         period: std::time::Duration::from_secs(365 * 24 * 60 * 60),
-                        policy: a2a_generated::converged::RetentionPolicy::TimeBased,
+                        policy: ggen_core::ggen_core::ggen_core::a2a_generated::converged::RetentionPolicy::TimeBased,
                         metadata: None,
                     },
                     metadata: None,

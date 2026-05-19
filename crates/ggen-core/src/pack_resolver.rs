@@ -31,15 +31,15 @@
 
 use crate::graph::Graph;
 use crate::packs::lockfile::PackLockfile;
-use ggen_marketplace::atomic::{foundation_packs, AtomicPackId};
-use ggen_marketplace::bundle::Bundle;
-use ggen_marketplace::metadata::load_pack_metadata;
-use ggen_marketplace::ownership::{
+use crate::marketplace::atomic::{foundation_packs, AtomicPackId};
+use crate::marketplace::bundle::Bundle;
+use crate::marketplace::metadata::load_pack_metadata;
+use crate::marketplace::ownership::{
     MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget,
 };
-use ggen_marketplace::policy::{PackContext, PolicyEnforcer};
-use ggen_marketplace::profile::get_profile;
-use ggen_utils::{
+use crate::marketplace::policy::{PackContext, PolicyEnforcer};
+use crate::marketplace::profile::get_profile;
+use crate::utils::{
     bail,
     error::{Error, Result},
 };
@@ -317,7 +317,7 @@ impl PackResolver {
     ) -> Result<(Vec<AtomicPackId>, Vec<BundleExpansion>)> {
         let mut atomic_packs = Vec::new();
         let mut bundle_expansions = Vec::new();
-        let mut seen = HashSet::new();
+        let mut seen: HashSet<AtomicPackId> = HashSet::new();
 
         for pack_id in lockfile.packs.keys() {
             // Check if this is a bundle or atomic pack
@@ -355,7 +355,7 @@ impl PackResolver {
     /// Loads dependency metadata for each pack and recursively resolves
     /// all transitive dependencies. Returns the complete set of atomic packs.
     fn resolve_dependencies(&self, atomic_packs: &[AtomicPackId]) -> Result<Vec<AtomicPackId>> {
-        let mut resolved = HashSet::new();
+        let mut resolved: HashSet<AtomicPackId> = HashSet::new();
         let mut to_resolve = atomic_packs.to_vec();
 
         while let Some(pack) = to_resolve.pop() {
@@ -604,7 +604,7 @@ impl PackRegistry {
 
     /// Initialize common bundle definitions.
     fn initialize_bundles(&mut self) {
-        use ggen_marketplace::bundle::Bundles;
+        use crate::marketplace::bundle::Bundles;
 
         // Register common bundles
         self.bundles
@@ -908,7 +908,7 @@ impl PackRegistry {
         let mut queries = Vec::new();
 
         let entries = std::fs::read_dir(&queries_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            crate::utils::error::Error::new(&format!(
                 "Failed to read queries directory {}: {}",
                 queries_dir.display(),
                 e
@@ -917,7 +917,7 @@ impl PackRegistry {
 
         for entry in entries {
             let entry = entry.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
             })?;
             let path = entry.path();
 
@@ -927,7 +927,7 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to read query file {}: {}",
                     path.display(),
                     e
@@ -965,7 +965,7 @@ impl PackRegistry {
         let mut templates = Vec::new();
 
         let entries = std::fs::read_dir(&templates_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            crate::utils::error::Error::new(&format!(
                 "Failed to read templates directory {}: {}",
                 templates_dir.display(),
                 e
@@ -974,7 +974,7 @@ impl PackRegistry {
 
         for entry in entries {
             let entry = entry.map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to read directory entry: {}", e))
             })?;
             let path = entry.path();
 
@@ -984,7 +984,7 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                crate::utils::error::Error::new(&format!(
                     "Failed to read template file {}: {}",
                     path.display(),
                     e
@@ -993,7 +993,7 @@ impl PackRegistry {
 
             // Get relative path from templates_dir
             let relative_path = path.strip_prefix(&self.cache_dir).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to create relative path: {}", e))
+                crate::utils::error::Error::new(&format!("Failed to create relative path: {}", e))
             })?;
 
             templates.push(TemplateDef {

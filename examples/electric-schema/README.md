@@ -301,7 +301,7 @@ rustup default 1.91.1
 ### Build
 
 ```bash
-cd /Users/sac/ggen/examples/electric-schema
+cd ./examples/electric-schema
 
 # Check compilation
 cargo check

@@ -198,13 +198,13 @@ test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 ## 📝 Changes Made (Files Modified)
 
-### 1. `/Users/sac/ggen/examples/advanced-rust-api-8020/make.toml`
+### 1. `./examples/advanced-rust-api-8020/make.toml`
 **Line 18**: Added conditional cargo init
 ```bash
 "test -f Cargo.toml || cargo init --lib --name advanced_rust_api .",
 ```
 
-### 2. `/Users/sac/ggen/examples/advanced-rust-api-8020/Cargo.toml`
+### 2. `./examples/advanced-rust-api-8020/Cargo.toml`
 **Lines 53-57**: Commented out path dependencies
 ```toml
 # ggen-core = { path = "../../ggen-core", optional = true }
@@ -225,7 +225,7 @@ default = []
 # AI generation features disabled in standalone marketplace version
 ```
 
-### 3. `/Users/sac/ggen/examples/advanced-rust-api-8020/make.toml`
+### 3. `./examples/advanced-rust-api-8020/make.toml`
 **Lines 49-58**: Updated generate phase
 ```toml
 commands = [

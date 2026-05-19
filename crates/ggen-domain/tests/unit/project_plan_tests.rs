@@ -4,7 +4,7 @@
 
 use chicago_tdd_tools::prelude::*;
 use chicago_tdd_tools::test;
-use ggen_domain::project::plan::{create_plan, PlanInput};
+use ggen_core::domain::project::plan::{create_plan, PlanInput};
 use std::fs;
 use tempfile::tempdir;
 

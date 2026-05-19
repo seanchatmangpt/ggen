@@ -9,7 +9,7 @@
 //! - Progressive disclosure of complexity
 
 use crate::cli_generator::types::{Argument, CliProject, Noun, Verb};
-use ggen_utils::error::Error;
+use crate::utils::error::Error;
 
 /// Enhanced error messages with fix suggestions
 pub struct ErrorEnhancer;
@@ -178,7 +178,7 @@ impl TemplatePreview {
              // crates/{cli_crate}/src/cmds/{noun_name}/{verb_name}.rs\n\
              \n\
              use clap::Args;\n\
-             use ggen_utils::error::Result;\n\
+             use crate::utils::error::Result;\n\
              use crate::runtime::execute;\n\
              use {core_crate}::{noun_name}::{verb_name}::{{Input, execute as domain_{verb_name}}};\n\
              \n\

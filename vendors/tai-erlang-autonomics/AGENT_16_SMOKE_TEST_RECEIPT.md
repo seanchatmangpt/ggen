@@ -22,7 +22,7 @@ Both scripts are executable, well-documented, and ready for CCW (Continuous Comp
 
 ### 1. `tools/run_release.sh` - Release Execution Script
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/tools/run_release.sh`
+**Location**: `./tai-erlang-autonomics/tools/run_release.sh`
 
 **Purpose**: Extracts the compiled TAIEA release tarball and runs it in foreground mode for container execution.
 
@@ -76,7 +76,7 @@ docker run -p 8080:8080 taiea:latest ./tools/run_release.sh
 
 ### 2. `tools/smoke.sh` - Smoke Test Suite
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/tools/smoke.sh`
+**Location**: `./tai-erlang-autonomics/tools/smoke.sh`
 
 **Purpose**: Validates that the running TAIEA service responds correctly to core endpoints.
 
@@ -443,14 +443,14 @@ Verify deliverables are in place:
 
 ```bash
 # Check files exist and are executable
-ls -la /Users/sac/ggen/tai-erlang-autonomics/tools/
+ls -la ./tai-erlang-autonomics/tools/
 
 # Verify scripts are valid shell syntax
-bash -n /Users/sac/ggen/tai-erlang-autonomics/tools/run_release.sh
-bash -n /Users/sac/ggen/tai-erlang-autonomics/tools/smoke.sh
+bash -n ./tai-erlang-autonomics/tools/run_release.sh
+bash -n ./tai-erlang-autonomics/tools/smoke.sh
 
 # Check file sizes
-wc -l /Users/sac/ggen/tai-erlang-autonomics/tools/*.sh
+wc -l ./tai-erlang-autonomics/tools/*.sh
 ```
 
 ---

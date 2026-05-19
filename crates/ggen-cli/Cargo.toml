@@ -1,6 +1,6 @@
 [package]
-name = "ggen-cli-lib"
-version = "6.1.0"
+name = "mcpp-cli-lib"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for ggen"
 edition = "2021"
@@ -14,11 +14,11 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [[bin]]
-name = "ggen"
+name = "mcpp"
 path = "src/main.rs"
 
 [lib]
-name = "ggen_cli_lib"
+name = "mcpp_cli_lib"
 path = "src/lib.rs"
 
 [dependencies]
@@ -43,14 +43,14 @@ uuid.workspace = true
 futures.workspace = true
 
 # Local dependencies (use workspace = true pattern for consistency)
-ggen-utils.workspace = true
-ggen-core.workspace = true
-ggen-ai.workspace = true
-ggen-domain = { workspace = true, features = ["marketplace"] }
-ggen-marketplace.workspace = true
-ggen-a2a-mcp.workspace = true
-ggen-ontology-core.workspace = true
-ggen-receipt.workspace = true
+mcpp-utils.workspace = true
+mcpp-core.workspace = true
+mcpp-ai.workspace = true
+mcpp-domain = { workspace = true, features = ["marketplace"] }
+mcpp-marketplace.workspace = true
+mcpp-a2a-mcp.workspace = true
+mcpp-ontology-core.workspace = true
+mcpp-receipt.workspace = true
 
 # Crate-specific dependencies
 clap_complete = "4.5.58"
@@ -163,7 +163,7 @@ required-features = ["integration"]
 # name = "marketplace_install_e2e"
 # path = "tests/marketplace_install_e2e.rs"
 # required-features = ["integration"]
-# DISABLED: Tests internal types not exported from ggen-cli-lib
+# DISABLED: Tests internal types not exported from mcpp-cli-lib
 
 [[test]]
 name = "integration_cli_wrappers"
@@ -180,10 +180,3 @@ name = "sync_tests"
 path = "tests/sync_tests.rs"
 required-features = ["integration"]
 
-[[bench]]
-name = "marketplace_benchmark"
-harness = false
-
-[[bench]]
-name = "packs_phase2_3_benchmarks"
-harness = false

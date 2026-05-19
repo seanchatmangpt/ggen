@@ -15,7 +15,7 @@
 ## Directory Structure
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/execution/week-5-6/
+./tai-erlang-autonomics/execution/week-5-6/
 │
 ├── 📋 CORE EXECUTION PLANS (START HERE)
 │   ├── README.md (quick navigation guide)

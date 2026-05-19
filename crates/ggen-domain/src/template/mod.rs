@@ -10,7 +10,7 @@
 //! - Preprocessor integration for advanced template processing
 
 use ggen_core::{GenContext, Generator, Pipeline};
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -62,7 +62,7 @@ impl TemplateService {
     pub fn ensure_templates_dir(&self) -> Result<()> {
         if !self.templates_dir.exists() {
             fs::create_dir_all(&self.templates_dir).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to create templates directory: {}",
                     e
                 ))
@@ -85,7 +85,7 @@ impl TemplateService {
     pub fn read_template(&self, name: &str) -> Result<String> {
         let path = self.template_path(name);
         fs::read_to_string(&path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("Failed to read template: {}", e)))
     }
 
     /// Write template content
@@ -94,7 +94,7 @@ impl TemplateService {
         let path = self.template_path(name);
 
         if path.exists() {
-            return Err(ggen_utils::error::Error::new(&format!(
+            return Err(ggen_core::utils::error::Error::new(&format!(
                 "Template '{}' already exists at {}",
                 name,
                 path.display()
@@ -102,7 +102,7 @@ impl TemplateService {
         }
 
         fs::write(&path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to write template: {}", e))
         })?;
 
         Ok(path)
@@ -118,7 +118,7 @@ impl TemplateService {
 
         let mut generator = Generator::new(pipeline, ctx);
         generator.generate().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Template generation failed: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Template generation failed: {}", e))
         })
     }
 }

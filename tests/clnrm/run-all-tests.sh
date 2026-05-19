@@ -14,8 +14,8 @@ NC='\033[0m' # No Color
 # Configuration
 CLNRM_BIN="${HOME}/dev/clnrm/target/release/cleanroom"
 OTEL_ENDPOINT="http://localhost:4318"
-REPORT_DIR="/Users/sac/ggen/target/clnrm-reports"
-GGEN_ROOT="/Users/sac/ggen"
+REPORT_DIR="./target/clnrm-reports"
+GGEN_ROOT="."
 
 # Create report directory
 mkdir -p "${REPORT_DIR}"

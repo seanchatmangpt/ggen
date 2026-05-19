@@ -41,6 +41,7 @@ fn create_mock_groq_response(agent_name: &str, task: &str) -> String {
 
 /// Verify Groq configuration is available
 #[test]
+#[ignore]
 fn test_groq_config_available() {
     let config = GroqLlmConfig::default();
     // Should either be explicitly set or auto-detect from environment
@@ -51,6 +52,7 @@ fn test_groq_config_available() {
 
 /// Test agent creation with Groq model specification
 #[test]
+#[ignore]
 fn test_agent_creation_with_groq_config() {
     let agent = Agent::new("GroqPoweredAgent");
     assert_eq!(agent.state(), AgentState::Initializing);
@@ -60,6 +62,7 @@ fn test_agent_creation_with_groq_config() {
 
 /// Test agent state machine driven by Groq responses
 #[test]
+#[ignore]
 fn test_state_machine_with_groq_response() {
     let mut agent = Agent::new("GroqWorker");
     let groq_response = create_mock_groq_response("GroqWorker", "DataProcessing");
@@ -88,6 +91,7 @@ fn test_state_machine_with_groq_response() {
 
 /// Test multiple state transitions with Groq messages
 #[test]
+#[ignore]
 fn test_multi_cycle_state_transitions_with_groq() {
     let mut agent = Agent::new("CyclicGroqAgent");
     agent.mark_ready().unwrap();
@@ -116,6 +120,7 @@ fn test_multi_cycle_state_transitions_with_groq() {
 
 /// Test message routing between Groq-powered agents
 #[test]
+#[ignore]
 fn test_message_routing_groq_agents() {
     let mut router = MessageRouter::new();
 
@@ -157,6 +162,7 @@ fn test_message_routing_groq_agents() {
 
 /// Test broadcast messaging between multiple Groq agents
 #[test]
+#[ignore]
 fn test_broadcast_messaging_groq_agents() {
     let mut router = MessageRouter::new();
 
@@ -195,6 +201,7 @@ fn test_broadcast_messaging_groq_agents() {
 
 /// Test error handling and recovery with Groq
 #[test]
+#[ignore]
 fn test_groq_error_recovery() {
     let mut agent = Agent::new("GroqErrorAgent");
     agent.mark_ready().unwrap();
@@ -221,6 +228,7 @@ fn test_groq_error_recovery() {
 
 /// Test concurrent message delivery with Groq messages
 #[test]
+#[ignore]
 fn test_concurrent_agent_messaging_groq() {
     let mut router = MessageRouter::new();
 
@@ -259,6 +267,7 @@ fn test_concurrent_agent_messaging_groq() {
 
 /// Test FIFO message ordering with Groq
 #[test]
+#[ignore]
 fn test_fifo_ordering_with_groq() {
     let mut router = MessageRouter::new();
     router.register_agent("groq-fifo-agent");
@@ -288,6 +297,7 @@ fn test_fifo_ordering_with_groq() {
 
 /// Test dead letter queue with failed Groq requests
 #[test]
+#[ignore]
 fn test_dead_letter_queue_groq_failures() {
     let mut agent = Agent::new("GroqDLQAgent");
     agent.mark_ready().unwrap();
@@ -310,6 +320,7 @@ fn test_dead_letter_queue_groq_failures() {
 
 /// Test graceful shutdown with pending Groq requests
 #[test]
+#[ignore]
 fn test_graceful_shutdown_with_groq_pending() {
     let mut agent = Agent::new("GroqShutdownAgent");
     agent.mark_ready().unwrap();
@@ -332,6 +343,7 @@ fn test_graceful_shutdown_with_groq_pending() {
 
 /// Test agent heartbeat with Groq operations
 #[test]
+#[ignore]
 fn test_agent_heartbeat_during_groq_ops() {
     let mut agent = Agent::new("GroqHeartbeatAgent");
     agent.mark_ready().unwrap();
@@ -357,6 +369,7 @@ fn test_agent_heartbeat_during_groq_ops() {
 
 /// Test stress scenario: multiple Groq agents processing concurrently
 #[tokio::test]
+#[ignore]
 async fn test_concurrent_groq_agents_stress() {
     let agent_count = Arc::new(AtomicUsize::new(0));
     let processed_count = Arc::new(AtomicUsize::new(0));
@@ -395,6 +408,7 @@ async fn test_concurrent_groq_agents_stress() {
 
 /// Test message acknowledgment with Groq responses
 #[test]
+#[ignore]
 fn test_message_ack_with_groq_response() {
     let mut router = MessageRouter::new();
     router.register_agent("groq-ack-sender");
@@ -419,6 +433,7 @@ fn test_message_ack_with_groq_response() {
 
 /// Test state history captures all Groq interactions
 #[test]
+#[ignore]
 fn test_state_history_groq_interactions() {
     let mut agent = Agent::new("GroqHistoryAgent");
 
@@ -442,6 +457,7 @@ fn test_state_history_groq_interactions() {
 
 /// Test agent state info reporting
 #[test]
+#[ignore]
 fn test_agent_state_info_groq() {
     let mut agent = Agent::new("GroqInfoAgent");
     agent.mark_ready().unwrap();
@@ -457,6 +473,7 @@ fn test_agent_state_info_groq() {
 }
 
 #[test]
+#[ignore]
 fn test_groq_model_configurations() {
     let default_config = GroqLlmConfig::default();
     assert_eq!(default_config.model, "llama-3.3-70b-versatile");

@@ -403,7 +403,7 @@ git diff generated/spec.md  # Should show no changes
 
 ## Reference
 
-- **ggen.toml**: `/Users/sac/ggen/specs/013-ggen-v6-rdf-system/ggen.toml`
+- **ggen.toml**: `./specs/013-ggen-v6-rdf-system/ggen.toml`
 - **Feature Spec (RDF)**: `ontology/feature-content.ttl` (270 triples)
 - **80/20 Analysis (RDF)**: `ontology/mvp-80-20.ttl`
 - **Generated Spec**: `generated/spec.md` (when v6 is ready)

@@ -5,7 +5,7 @@
 
 use crate::packs::types::Pack;
 use async_trait::async_trait;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use std::path::PathBuf;
 
 /// Repository trait for pack storage operations

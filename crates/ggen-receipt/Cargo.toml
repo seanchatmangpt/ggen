@@ -1,6 +1,6 @@
 [package]
-name = "ggen-receipt"
-version = "6.1.0"
+name = "mcpp-receipt"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Cryptographic receipt system for ggen operations"
 edition = "2021"

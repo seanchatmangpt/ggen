@@ -226,7 +226,7 @@ SHACL validation, SPARQL validation rules, error handling, performance optimizat
   - ✅ Created RuleExecutor with fail-fast error severity behavior
   - ✅ Supports ASK and SELECT query validation
   - ✅ Severity levels: Error (blocks), Warning (continues), Info (log only)
-  - ✅ File: `/Users/sac/ggen/crates/ggen-core/src/validation/sparql_rules.rs` (198 lines)
+  - ✅ File: `./crates/ggen-core/src/validation/sparql_rules.rs` (198 lines)
 
 - [x] **T031** [P] Improve error messages with context and guidance in `crates/ggen-core/src/validation/error.rs`
   - ✅ Extended ValidationError with helper methods (timeout, invalid_query, query_execution)
@@ -240,7 +240,7 @@ SHACL validation, SPARQL validation rules, error handling, performance optimizat
   - ✅ bench_e2e_sync: End-to-end workflow performance (SLO target: < 15s)
   - ✅ bench_sparql_queries: Query performance at scale
   - ✅ bench_memory_operations: Graph creation and insertion benchmarks
-  - ✅ File: `/Users/sac/ggen/benches/ggen_benchmarks.rs` (417 lines)
+  - ✅ File: `./benches/ggen_benchmarks.rs` (417 lines)
   - ✅ Configured in Cargo.toml with criterion harness
 
 **Success Criteria**: ✅ **ALL MET**

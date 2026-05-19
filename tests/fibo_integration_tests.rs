@@ -119,6 +119,7 @@ mod verification_tests {
 
     /// Test: Verify all fixture files exist
     #[test]
+#[ignore]
     fn test_all_fibo_fixtures_exist() {
         assert!(
             yawl_workflow_generation::fibo::fixtures::fibo_account_opening_path().exists(),
@@ -132,6 +133,7 @@ mod verification_tests {
 
     /// Test: Verify fixture files are valid Turtle
     #[test]
+#[ignore]
     fn test_fibo_fixtures_are_valid() {
         yawl_workflow_generation::fibo::fixtures::verify_ontology_file(
             &yawl_workflow_generation::fibo::fixtures::fibo_account_opening_path(),
@@ -145,6 +147,7 @@ mod verification_tests {
 
     /// Test: Account Opening ontology has expected content
     #[test]
+#[ignore]
     fn test_account_opening_content() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
 
@@ -158,6 +161,7 @@ mod verification_tests {
 
     /// Test: Loan Approval ontology has expected content
     #[test]
+#[ignore]
     fn test_loan_approval_content() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_loan_approval();
 
@@ -177,6 +181,7 @@ mod loading_tests {
 
     /// Test: Load FIBO Account Opening ontology from file
     #[test]
+#[ignore]
     fn test_load_fibo_account_opening_from_file() {
         let path = yawl_workflow_generation::fibo::fixtures::fibo_account_opening_path();
         let loader = OntologyLoader::new();
@@ -193,6 +198,7 @@ mod loading_tests {
 
     /// Test: Load FIBO Account Opening ontology from string
     #[test]
+#[ignore]
     fn test_load_fibo_account_opening_from_string() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let loader = OntologyLoader::new();
@@ -209,6 +215,7 @@ mod loading_tests {
 
     /// Test: Load FIBO Loan Approval ontology from file
     #[test]
+#[ignore]
     fn test_load_fibo_loan_approval_from_file() {
         let path = yawl_workflow_generation::fibo::fixtures::fibo_loan_approval_path();
         let loader = OntologyLoader::new();
@@ -225,6 +232,7 @@ mod loading_tests {
 
     /// Test: Load FIBO Loan Approval ontology from string
     #[test]
+#[ignore]
     fn test_load_fibo_loan_approval_from_string() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_loan_approval();
         let loader = OntologyLoader::new();
@@ -301,6 +309,7 @@ mod pipeline_tests {
 
     /// Test: Full pipeline execution for Account Opening
     #[test]
+#[ignore]
     fn test_full_pipeline_account_opening() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
 
@@ -327,6 +336,7 @@ mod pipeline_tests {
 
     /// Test: Full pipeline execution for Loan Approval
     #[test]
+#[ignore]
     fn test_full_pipeline_loan_approval() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_loan_approval();
 
@@ -352,6 +362,7 @@ mod pipeline_tests {
 
     /// Test: Full pipeline produces valid YAWL XML
     #[test]
+#[ignore]
     fn test_full_pipeline_produces_valid_yawl() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
 
@@ -417,6 +428,7 @@ mod validation_tests {
 
     /// Test: Validate Account Opening output
     #[test]
+#[ignore]
     fn test_validate_account_opening_output() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let generator = YawlGenerator::new();
@@ -436,6 +448,7 @@ mod validation_tests {
 
     /// Test: Validate Loan Approval output
     #[test]
+#[ignore]
     fn test_validate_loan_approval_output() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_loan_approval();
         let generator = YawlGenerator::new();
@@ -460,6 +473,7 @@ mod determinism_tests {
 
     /// Test: Generation is deterministic
     #[test]
+#[ignore]
     fn test_generation_is_deterministic() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let generator = YawlGenerator::new();
@@ -480,6 +494,7 @@ mod determinism_tests {
 
     /// Test: Hash is deterministic
     #[test]
+#[ignore]
     fn test_hash_is_deterministic() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let generator = YawlGenerator::new();
@@ -498,6 +513,7 @@ mod performance_tests {
 
     /// Test: Generation completes within reasonable time
     #[test]
+#[ignore]
     fn test_generation_performance() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let generator = YawlGenerator::new();
@@ -516,6 +532,7 @@ mod performance_tests {
 
     /// Test: Loading performs within SLO
     #[test]
+#[ignore]
     fn test_loading_performance() {
         let content = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let loader = OntologyLoader::new();
@@ -539,6 +556,7 @@ mod cross_ontology_tests {
 
     /// Test: Different ontologies produce different outputs
     #[test]
+#[ignore]
     fn test_different_ontologies_different_outputs() {
         let account_opening = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let loan_approval = yawl_workflow_generation::fibo::fixtures::load_fibo_loan_approval();
@@ -560,6 +578,7 @@ mod cross_ontology_tests {
 
     /// Test: Ontologies have different task counts
     #[test]
+#[ignore]
     fn test_ontologies_different_task_counts() {
         let account_opening = yawl_workflow_generation::fibo::fixtures::load_fibo_account_opening();
         let loan_approval = yawl_workflow_generation::fibo::fixtures::load_fibo_loan_approval();

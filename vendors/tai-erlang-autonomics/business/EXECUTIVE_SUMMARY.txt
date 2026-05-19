@@ -324,6 +324,6 @@ the model. Execution risk is high but manageable with experienced team.
 
 ================================================================================
 Document: MARKET_VALIDATION_REPORT.md (7,040 words, 12+ pages, fully cited)
-Location: /Users/sac/ggen/tai-erlang-autonomics/business/
+Location: ./tai-erlang-autonomics/business/
 Status: READY FOR FAMILY REVIEW & INVESTOR PRESENTATION
 ================================================================================

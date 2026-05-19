@@ -539,7 +539,7 @@ ls -lh target/release/ggen
 
 ## Support
 
-- **Scripts location**: `/Users/sac/ggen/scripts/v2_migration/`
+- **Scripts location**: `./scripts/v2_migration/`
 - **Documentation**: `README.md`, `MIGRATION_PLAN.md`, `QUICK_REFERENCE.md`
 - **Issues**: Report in GitHub Issues
 - **Questions**: GitHub Discussions

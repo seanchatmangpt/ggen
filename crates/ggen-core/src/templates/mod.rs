@@ -31,7 +31,7 @@
 //! use ggen_core::templates::{generate_file_tree, TemplateContext};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let template_path = Path::new("project.tree.toml");
 //! let output_dir = Path::new("output");
 //! let mut ctx = TemplateContext::new();
@@ -49,7 +49,7 @@
 //! use ggen_core::templates::{TemplateParser, TemplateFormat};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let parser = TemplateParser::new();
 //! let template = parser.parse_file(Path::new("project.tree.toml"), TemplateFormat::Toml)?;
 //!

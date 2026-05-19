@@ -326,7 +326,7 @@ MONTH 6+:
 ## Files at a Glance
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/sales/
+./tai-erlang-autonomics/sales/
 
 ├── INDEX.md (this file)
 │   └─ Navigation + quick reference

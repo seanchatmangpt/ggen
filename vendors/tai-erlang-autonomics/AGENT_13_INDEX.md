@@ -11,7 +11,7 @@
 
 ### Run Tests Immediately
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 rebar3 ct --suite=taiea_http_governor_integration_SUITE
 ```
 
@@ -147,7 +147,7 @@ Ran 12 tests in approximately 15-25 seconds
 
 1. **Run Tests Now**:
    ```bash
-   cd /Users/sac/ggen/tai-erlang-autonomics
+   cd ./tai-erlang-autonomics
    rebar3 ct --suite=taiea_http_governor_integration_SUITE
    ```
 
@@ -159,7 +159,7 @@ Ran 12 tests in approximately 15-25 seconds
 
 ## Document Locations
 
-All files are in `/Users/sac/ggen/tai-erlang-autonomics/`:
+All files are in `./tai-erlang-autonomics/`:
 
 ```
 ├── apps/tai_autonomics/test/

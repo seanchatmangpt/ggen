@@ -14,7 +14,7 @@
 //!
 //! ```rust,no_run
 //! use ggen_dspy::predictors::{A2aPredictor, A2aPredictorConfig};
-//! use a2a_generated::converged::message::ConvergedMessage;
+//! use ggen_core::ggen_core::ggen_core::a2a_generated::converged::message::ConvergedMessage;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = A2aPredictorConfig::default();

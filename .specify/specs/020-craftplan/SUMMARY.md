@@ -262,7 +262,7 @@ end
 - **RDF/Turtle:** https://www.w3.org/TR/turtle/
 - **SHACL:** https://www.w3.org/TR/shacl/
 - **FIBO:** https://spec.edmcouncil.org/fibo/
-- **ggen Documentation:** `/Users/sac/ggen/CLAUDE.md`
+- **ggen Documentation:** `./CLAUDE.md`
 
 ## Files
 

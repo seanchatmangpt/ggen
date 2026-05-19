@@ -203,7 +203,7 @@ ggen packs install htf-thesis-framework --phase execute --dry-run
 ### 1. Build HTF Locally
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo build -p htf-cli
 ```
 

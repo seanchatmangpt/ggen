@@ -5,7 +5,7 @@
 
 use chrono::{DateTime, Utc};
 use ggen_core::graph::Graph;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};

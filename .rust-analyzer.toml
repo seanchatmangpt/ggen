@@ -1,4 +1,4 @@
-# rust-analyzer configuration for ggen v6.0.1
+# rust-analyzer configuration for ggen v26.5.4
 # 30-crate workspace with complex features (macros, generics, async/await)
 # Optimized for performance on large workspaces
 #

@@ -7,12 +7,12 @@
 #[cfg(all(feature = "marketplace-v1", feature = "marketplace-v2"))]
 mod cross_backend_tests {
     use chrono::Utc;
-    use ggen_marketplace::Package as V1Package;
+    use ggen_core::marketplace::Package as V1Package;
     use ggen_marketplace_v2::models::Package as V2Package;
 
     /// Helper: Create identical test packages for both backends
     fn create_test_packages(id: &str, name: &str, version: &str) -> (V1Package, V2Package) {
-        use ggen_marketplace::{MaturityLevel, PackageMetadata as V1Meta};
+        use ggen_core::marketplace::{MaturityLevel, PackageMetadata as V1Meta};
         use ggen_marketplace_v2::models::{PackageId, PackageMetadata as V2Meta, PackageVersion};
 
         let created_at = Utc::now();

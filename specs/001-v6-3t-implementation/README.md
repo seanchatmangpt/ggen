@@ -62,7 +62,7 @@ specs/001-v6-3t-implementation/
 ### Generation Workflow
 
 ```bash
-cd /Users/sac/ggen/specs/001-v6-3t-implementation
+cd ./specs/001-v6-3t-implementation
 
 # Generate specification from ontology
 ggen sync
@@ -256,8 +256,8 @@ generated/
 
 ## References
 
-- v6 Thesis Generation System: `/Users/sac/ggen/docs/ggen-v6-thesis/`
-- v6 Ontology Schema: `/Users/sac/ggen/v6/ontology/ggen-v6.ttl`
+- v6 Thesis Generation System: `./docs/ggen-v6-thesis/`
+- v6 Ontology Schema: `./v6/ontology/ggen-v6.ttl`
 - Original Specification: `spec.md` (deprecated, kept for reference)
 
 ---

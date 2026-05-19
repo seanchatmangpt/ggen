@@ -17,7 +17,7 @@
 //! use ggen_core::templates::format::{FileTreeNode, NodeType, TemplateFormat};
 //! use serde_json::json;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let template = TemplateFormat {
 //!     nodes: vec![
 //!         FileTreeNode {
@@ -44,7 +44,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::format::TemplateFormat;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let yaml = r#"
 //! nodes:
 //!   - name: src
@@ -60,7 +60,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -327,7 +327,7 @@ impl TemplateFormat {
     /// ```rust
     /// use ggen_core::templates::format::TemplateFormat;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// variables:
@@ -365,7 +365,7 @@ impl TemplateFormat {
     /// ```rust
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -405,7 +405,7 @@ impl TemplateFormat {
     /// ```rust
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -445,13 +445,13 @@ impl TemplateFormat {
     /// ```
     pub fn validate(&self) -> Result<()> {
         if self.name.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(crate::utils::error::Error::new(
                 "Template name cannot be empty",
             ));
         }
 
         if self.tree.is_empty() {
-            return Err(ggen_utils::error::Error::new(
+            return Err(crate::utils::error::Error::new(
                 "Template must contain at least one tree node",
             ));
         }
@@ -465,19 +465,19 @@ impl TemplateFormat {
         #![allow(clippy::only_used_in_recursion)]
         for node in nodes {
             if node.name.is_empty() {
-                return Err(ggen_utils::error::Error::new("Node name cannot be empty"));
+                return Err(crate::utils::error::Error::new("Node name cannot be empty"));
             }
 
             match node.node_type {
                 NodeType::File => {
                     if node.content.is_none() && node.template.is_none() {
-                        return Err(ggen_utils::error::Error::new(&format!(
+                        return Err(crate::utils::error::Error::new(&format!(
                             "File node '{}' must have either content or template",
                             node.name
                         )));
                     }
                     if !node.children.is_empty() {
-                        return Err(ggen_utils::error::Error::new(&format!(
+                        return Err(crate::utils::error::Error::new(&format!(
                             "File node '{}' cannot have children",
                             node.name
                         )));
@@ -485,7 +485,7 @@ impl TemplateFormat {
                 }
                 NodeType::Directory => {
                     if node.content.is_some() || node.template.is_some() {
-                        return Err(ggen_utils::error::Error::new(&format!(
+                        return Err(crate::utils::error::Error::new(&format!(
                             "Directory node '{}' cannot have content or template",
                             node.name
                         )));

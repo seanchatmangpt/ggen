@@ -437,7 +437,7 @@ A2A Agent Lifecycle:
 ### Source Files
 
 ```
-/Users/sac/ggen/examples/performance-benchmarks/
+./examples/performance-benchmarks/
 ├── src/lib.rs                         (Core SLO/data structures)
 ├── src/main.rs                        (CLI tool)
 ├── benches/
@@ -456,7 +456,7 @@ A2A Agent Lifecycle:
 ### Documentation Files
 
 ```
-/Users/sac/ggen/examples/
+./examples/
 ├── performance-benchmarks/
 │   ├── README.md                     (User guide)
 │   ├── BENCHMARK_SUMMARY.md         (Detailed technical report)

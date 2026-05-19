@@ -1,6 +1,6 @@
 [package]
-name = "ggen-e2e"
-version = "6.1.0"
+name = "mcpp-e2e"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "End-to-end testing framework for ggen with testcontainers and cross-platform validation"
 edition = "2021"

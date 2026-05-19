@@ -122,7 +122,7 @@ fn write_ontology_project(
 #[tokio::test]
 async fn test_meta_scaffold_mcp_example_has_valid_structure() -> anyhow::Result<()> {
     // Arrange — point server at real examples directory
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 
@@ -452,7 +452,7 @@ async fn test_meta_full_pipeline_validate_query_generate() -> anyhow::Result<()>
 #[tokio::test]
 async fn test_meta_scaffold_a2a_example_has_agent_definitions() -> anyhow::Result<()> {
     // Arrange
-    std::env::set_var("GGEN_EXAMPLES_DIR", "/Users/sac/ggen/examples");
+    std::env::set_var("GGEN_EXAMPLES_DIR", "./examples");
     let client = start_server().await?;
     let tempdir = tempfile::tempdir()?;
 

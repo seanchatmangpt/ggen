@@ -1,6 +1,6 @@
 [package]
-name = "ggen-node"
-version = "6.1.0"
+name = "mcpp-node"
+version = "26.5.4"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -8,7 +8,7 @@ description = "Node.js N-API bindings for ggen"
 
 [lib]
 crate-type = ["cdylib"]
-name = "ggen_node"
+name = "mcpp_node"
 
 [dependencies]
 # Using napi v3 for improved async support and better Node.js integration
@@ -16,7 +16,7 @@ napi = { version = "3.4", features = ["napi6", "tokio_rt", "async"] }
 napi-derive = "3.0"
 tokio = { version = "1.47", features = ["rt-multi-thread"] }
 # Use workspace = true pattern for workspace-local crates
-ggen-cli-lib.workspace = true
+mcpp-cli-lib.workspace = true
 serde_json = "1.0"
 
 [dev-dependencies]
@@ -28,4 +28,4 @@ chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 napi-build = "2"
 
 [package.metadata.napi]
-name = "ggen-node"
+name = "mcpp-node"

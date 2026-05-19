@@ -7,7 +7,7 @@
 //! - Ensuring template structure
 //! - Verifying generated code quality
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::path::PathBuf;
 
 /// Input for ontology validation
@@ -63,7 +63,7 @@ pub async fn execute_validate(input: &ValidateInput) -> Result<ValidateOutput> {
 
     // 1. Check pack directory exists
     if !input.pack_path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!(
+        return Err(ggen_core::utils::error::Error::new(&format!(
             "Pack directory not found: {}",
             input.pack_path.display()
         )));
@@ -72,7 +72,7 @@ pub async fn execute_validate(input: &ValidateInput) -> Result<ValidateOutput> {
     // 2. Check gpack.toml exists
     let gpack_path = input.pack_path.join("gpack.toml");
     if !gpack_path.exists() {
-        return Err(ggen_utils::error::Error::new(
+        return Err(ggen_core::utils::error::Error::new(
             "gpack.toml not found in pack",
         ));
     }

@@ -3,7 +3,7 @@
 //! Tests for SPARQL query generation with potentially malicious input
 //! to verify the escape_sparql_string function prevents injection attacks
 
-use ggen_ontology_core::sparql_generator::SparqlGenerator;
+use ggen_core::ontology_core::sparql_generator::SparqlGenerator;
 
 #[test]
 fn test_sparql_injection_quote_in_jurisdiction() {

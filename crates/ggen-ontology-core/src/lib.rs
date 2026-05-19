@@ -31,8 +31,8 @@
 //! ### Load and Query Ontology
 //!
 //! ```rust,no_run
-//! use ggen_ontology_core::triple_store::TripleStore;
-//! use ggen_ontology_core::sparql_generator::SparqlGenerator;
+//! use ggen_core::ontology_core::triple_store::TripleStore;
+//! use ggen_core::ontology_core::sparql_generator::SparqlGenerator;
 //!
 //! // Create a new triple store
 //! let store = TripleStore::new()?;
@@ -49,7 +49,7 @@
 //! ### Map Entities to Ontology
 //!
 //! ```rust,no_run
-//! use ggen_ontology_core::entity_mapper::EntityMapper;
+//! use ggen_core::ontology_core::entity_mapper::EntityMapper;
 //!
 //! // Map policy to ontology class with confidence score
 //! let matches = EntityMapper::match_policy("Privacy Policy")?;
@@ -62,7 +62,7 @@
 //! ### Validate Ontology Files
 //!
 //! ```rust,no_run
-//! use ggen_ontology_core::validators::validate_turtle;
+//! use ggen_core::ontology_core::validators::validate_turtle;
 //!
 //! let report = validate_turtle("ontology.ttl")?;
 //! if report.is_valid {

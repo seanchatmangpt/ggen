@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
-METRICS_DIR="/Users/sac/ggen/.metrics"
-OUTPUT_DIR="/Users/sac/ggen/docs/metrics"
+METRICS_DIR="./.metrics"
+OUTPUT_DIR="./docs/metrics"
 DATE=$(date +%Y-%m-%d)
 MONTH=$(date +%B)
 YEAR=$(date +%Y)

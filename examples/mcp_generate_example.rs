@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== MCP Client Example: generate Tool ===\n");
 
     // Path to test ontology (using a small test ontology)
-    let ontology_path = "/Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl";
+    let ontology_path = "./.specify/specs/016-self-play/ggen-meta.ttl";
     let output_dir = "/tmp/mcp_generate_test_output";
 
     // Verify ontology exists
@@ -76,7 +76,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n=== How to Use with Actual MCP Server ===");
     println!("1️⃣  Start ggen MCP server in one terminal:");
-    println!("   cd /Users/sac/ggen");
+    println!("   cd .");
     println!("   cargo run -p ggen-a2a-mcp -- mcp start-server --transport stdio");
 
     println!("\n2️⃣  Call the generate tool via MCP client:");
@@ -84,7 +84,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n=== Alternative: Direct ggen CLI ===");
     println!("You can also use the ggen CLI directly:");
-    println!("   cd /Users/sac/ggen");
+    println!("   cd .");
     println!(
         "   cargo run --bin ggen -- sync --ontology {} --output {}",
         ontology_path, output_dir

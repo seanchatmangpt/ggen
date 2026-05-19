@@ -18,7 +18,7 @@
 //! 4. **Escaping**: Context-aware output escaping (HTML, SQL, Shell)
 //! 5. **Path Security**: No path traversal in includes
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
 use tera::{Context, Tera, Value};
 

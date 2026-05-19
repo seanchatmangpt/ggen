@@ -5,7 +5,7 @@
 //! 2. Same input always produces same hash
 //! 3. Canonical forms are stable across runs
 
-use ggen_canonical::{hash, json, rust, ttl, Canonicalizer};
+use ggen_core::canonical::{hash, json, rust, ttl, Canonicalizer};
 use serde_json::json;
 
 #[test]

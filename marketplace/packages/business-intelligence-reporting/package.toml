@@ -20,7 +20,7 @@ connectors = ["Data source connectors"]
 
 [ontology]
 file = "ontology/bi_reporting.ttl"
-namespace = "https://ggen.ai/ontology/bi-reporting#"
+namespace = "https://mcpp.ai/ontology/bi-reporting#"
 
 [queries]
 directory = "queries/"

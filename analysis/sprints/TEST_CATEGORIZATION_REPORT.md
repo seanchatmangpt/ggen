@@ -245,5 +245,5 @@ This dual approach is **architecturally sound** - Chicago for integration confid
 ---
 
 **Documentation:**
-- Full implementation: `/Users/sac/ggen/REAL_GROQ_IMPLEMENTATION_SUMMARY.md`
-- Testing philosophy: `/Users/sac/.claude/projects/-Users-sac-ggen/memory/testing-is-empirical-science.md`
+- Full implementation: `./REAL_GROQ_IMPLEMENTATION_SUMMARY.md`
+- Testing philosophy: `~/.ggen/.claude/projects/-Users-sac-ggen/memory/testing-is-empirical-science.md`

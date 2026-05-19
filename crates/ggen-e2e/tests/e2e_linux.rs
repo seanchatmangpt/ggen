@@ -5,6 +5,7 @@
 
 #[ignore]
 #[tokio::test]
+#[ignore]
 async fn test_ggen_sync_in_linux_container() {
     // T023: Linux container execution test
     // This will be implemented in Phase 4 with full testcontainers integration
@@ -13,6 +14,7 @@ async fn test_ggen_sync_in_linux_container() {
 
 #[ignore]
 #[tokio::test]
+#[ignore]
 async fn test_minimal_fixture_linux() {
     // Test the minimal fixture in a Linux container
     println!("Minimal fixture Linux test - Phase 4");

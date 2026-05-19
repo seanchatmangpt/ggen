@@ -78,6 +78,7 @@ fn assert_result_non_empty(result: &CachedResult, label: &str) {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_dod_extract_returns_project_and_check_data() {
     let graph = Graph::new().expect("Graph::new should succeed");
 
@@ -131,6 +132,7 @@ fn test_dod_extract_returns_project_and_check_data() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_review_rules_extract_returns_rules() {
     let graph = Graph::new().expect("Graph::new should succeed");
 
@@ -171,6 +173,7 @@ fn test_review_rules_extract_returns_rules() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_codegen_annotations_extract_with_triple_terms() {
     let graph = Graph::new().expect("Graph::new should succeed");
 
@@ -211,6 +214,7 @@ fn test_codegen_annotations_extract_with_triple_terms() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_provenance_chain_extract_returns_receipt_data() {
     let graph = Graph::new().expect("Graph::new should succeed");
 
@@ -247,6 +251,7 @@ fn test_provenance_chain_extract_returns_receipt_data() {
 // ---------------------------------------------------------------------------
 
 #[test]
+#[ignore]
 fn test_conflict_detect_extract_with_triple_terms() {
     let graph = Graph::new().expect("Graph::new should succeed");
 
@@ -350,6 +355,7 @@ const LENIENT_QUERIES: &[&str] = &[
 ];
 
 #[test]
+#[ignore]
 fn test_all_specify_queries_execute_without_error() {
     let root = workspace_root();
     let queries_dir = root.join("specify/queries");

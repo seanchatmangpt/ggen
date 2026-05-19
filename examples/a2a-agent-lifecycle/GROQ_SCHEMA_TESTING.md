@@ -2,7 +2,7 @@
 
 **Created**: March 24, 2026
 **Status**: ✅ **COMPLETE - All 10 Tests Passing**
-**Location**: `/Users/sac/ggen/examples/a2a-agent-lifecycle/tests/groq_schema_agent_integration.rs`
+**Location**: `./examples/a2a-agent-lifecycle/tests/groq_schema_agent_integration.rs`
 
 ---
 
@@ -245,7 +245,7 @@ Try 1 (Groq)
 
 ### Run All Tests
 ```bash
-cd /Users/sac/ggen/examples/a2a-agent-lifecycle
+cd ./examples/a2a-agent-lifecycle
 cargo test --test groq_schema_agent_integration
 ```
 

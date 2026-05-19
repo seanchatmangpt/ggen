@@ -27,7 +27,7 @@ cargo run --example mcp_generate_example
   "params": {
     "name": "generate",
     "arguments": {
-      "ontology_path": "/Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl",
+      "ontology_path": "./.specify/specs/016-self-play/ggen-meta.ttl",
       "output_dir": "/tmp/mcp_generate_test_output",
       "language": "rust"
     }
@@ -75,7 +75,7 @@ cargo run --example mcp_sync_example
   "params": {
     "name": "sync",
     "arguments": {
-      "ontology_path": "/Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl",
+      "ontology_path": "./.specify/specs/016-self-play/ggen-meta.ttl",
       "output_dir": "/tmp/mcp_sync_test_output",
       "language": "rust",
       "dry_run": false
@@ -107,7 +107,7 @@ cargo run --example mcp_sync_example
 In one terminal, start the MCP server with stdio transport:
 
 ```bash
-cd /Users/sac/ggen
+cd .
 cargo run -p ggen-a2a-mcp -- mcp start-server --transport stdio
 ```
 
@@ -157,13 +157,13 @@ You can also call the tools directly via the ggen CLI:
 ```bash
 # Generate code from ontology
 cargo run --bin ggen -- sync \
-  --ontology /Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl \
+  --ontology ./.specify/specs/016-self-play/ggen-meta.ttl \
   --output /tmp/ggen_output \
   --language rust
 
 # Sync with dry-run (preview mode)
 cargo run --bin ggen -- sync \
-  --ontology /Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl \
+  --ontology ./.specify/specs/016-self-play/ggen-meta.ttl \
   --output /tmp/ggen_output \
   --dry-run
 ```
@@ -206,7 +206,7 @@ cargo run --bin ggen -- sync \
 
 The examples use a small test ontology located at:
 ```
-/Users/sac/ggen/.specify/specs/016-self-play/ggen-meta.ttl
+./.specify/specs/016-self-play/ggen-meta.ttl
 ```
 
 This ontology defines ggen as both an A2A Agent and MCP Server, including:
@@ -254,6 +254,6 @@ Common errors:
 
 ## Further Reading
 
-- [ggen MCP Server Documentation](/Users/sac/ggen/crates/ggen-a2a-mcp/README.md)
+- [ggen MCP Server Documentation](./crates/ggen-a2a-mcp/README.md)
 - [rmcp Protocol Documentation](https://docs.rs/rmcp/)
-- [A2A Protocol Specification](/Users/sac/ggen/crates/a2a-generated/README.md)
+- [A2A Protocol Specification](./crates/a2a-generated/README.md)

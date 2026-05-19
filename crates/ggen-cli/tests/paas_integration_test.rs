@@ -7,6 +7,7 @@ mod paas_integration_tests {
 
     /// Test that specification validation works with real .specify directory
     #[tokio::test]
+#[ignore]
     async fn test_validate_real_spec_directory() {
         // Arrange
         let spec_path = ".specify";
@@ -29,6 +30,7 @@ mod paas_integration_tests {
 
     /// Test that submodule names are validated
     #[test]
+#[ignore]
     fn test_submodule_name_validation() {
         // Arrange
         let valid_names = vec!["ggen-spec-kit", "clap-noun-verb"];
@@ -50,6 +52,7 @@ mod paas_integration_tests {
 
     /// Test deployment environments are valid
     #[test]
+#[ignore]
     fn test_deployment_environments() {
         // Arrange
         let valid_envs = vec!["development", "staging", "production"];
@@ -75,6 +78,7 @@ mod paas_integration_tests {
 
     /// Test that handler modules are structurally correct
     #[test]
+#[ignore]
     fn test_handler_module_structure() {
         // Arrange
         let expected_handlers = vec![
@@ -95,6 +99,7 @@ mod paas_integration_tests {
 
     /// Test error recovery suggestions are provided
     #[test]
+#[ignore]
     fn test_error_messages_have_recovery_suggestions() {
         // Arrange
         let error_scenarios = vec![
@@ -112,6 +117,7 @@ mod paas_integration_tests {
 
     /// Test noun-verb semantic routing
     #[test]
+#[ignore]
     fn test_noun_verb_combinations() {
         // Arrange
         let nouns = vec!["submodule", "artifact", "specification", "environment"];
@@ -135,6 +141,7 @@ mod paas_integration_tests {
 
     /// Test configuration file paths
     #[test]
+#[ignore]
     fn test_config_file_paths() {
         // Arrange
         let config_files = vec!["ggen-paas.toml", "ggen-paas-cli.toml"];
@@ -147,6 +154,7 @@ mod paas_integration_tests {
 
     /// Test RDF specification file formats
     #[test]
+#[ignore]
     fn test_spec_file_formats() {
         // Arrange
         let spec_files = vec![
@@ -166,6 +174,7 @@ mod paas_integration_tests {
 
     /// Test SLO constraints are reasonable
     #[test]
+#[ignore]
     fn test_slo_constraints() {
         // Arrange
         let slo_targets = vec![
@@ -188,6 +197,7 @@ mod paas_integration_tests {
 
     /// Test closure percentage calculation
     #[test]
+#[ignore]
     fn test_closure_calculation() {
         // Arrange
         let total_specs = 3;

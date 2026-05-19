@@ -22,8 +22,8 @@ use crate::v6::receipt::{
     BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies,
 };
 use crate::v6::vocabulary::VocabularyRegistry;
-use ggen_marketplace::trust::TrustTier;
-use ggen_utils::error::{Error, Result};
+use crate::marketplace::trust::TrustTier;
+use crate::utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -570,7 +570,7 @@ impl StagedPipeline {
 
             // Add pack provenance
             for pack_id in &resolved.atomic_packs {
-                let version = resolved
+                let version: String = resolved
                     .pack_versions
                     .get(&pack_id.to_string())
                     .cloned()

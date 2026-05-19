@@ -42,7 +42,7 @@ The 007-cli-jtbd-audit feature is at **8.9% completion** (10/112 tasks), with **
   - Utils: 1 command (T016 - partially done)
 
 **Evidence Location:**
-- `/Users/sac/ggen/specs/007-cli-jtbd-audit/evidence/` - 23 total YAML files
+- `./specs/007-cli-jtbd-audit/evidence/` - 23 total YAML files
 - Completed: 5 workflow audits
 - Pending: 42 command audits, 6 case studies
 
@@ -57,7 +57,7 @@ The 007-cli-jtbd-audit feature is at **8.9% completion** (10/112 tasks), with **
 
 **Status**: STALE / OUT-OF-SYNC
 **Impact**: Cannot validate feature completion against requirements
-**Evidence**: `/Users/sac/ggen/specs/007-cli-jtbd-audit/checklists/requirements.md`
+**Evidence**: `./specs/007-cli-jtbd-audit/checklists/requirements.md`
 
 **The Gap:**
 - Checklist shows **ALL requirements as pending** `[ ]` but actual status:
@@ -317,7 +317,7 @@ Before proceeding to Phase 4:
 ## JSON Structure Available
 
 For programmatic parsing, a detailed JSON structure is available at:
-- `/Users/sac/ggen/specs/007-cli-jtbd-audit/GAP-ANALYSIS-80-20.json`
+- `./specs/007-cli-jtbd-audit/GAP-ANALYSIS-80-20.json`
 
 Contains:
 - Structured gap inventory

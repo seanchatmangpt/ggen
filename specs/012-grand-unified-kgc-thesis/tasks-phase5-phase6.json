@@ -10,7 +10,7 @@
         "parallel": true,
         "title": "Define temporal event sourcing entities in RDF schema",
         "description": "Create temporal event types (CreateEvent, UpdateEvent, DeleteEvent) with nanosecond precision timestamp properties in thesis-schema.ttl",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/thesis-schema.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/thesis-schema.ttl",
         "acceptance_criteria": [
           "CreateEvent class with event:timestamp (xsd:long for nanoseconds)",
           "UpdateEvent class with event:oldValue, event:newValue properties",
@@ -27,7 +27,7 @@
         "parallel": true,
         "title": "Author Chapter 4 introduction and temporal model overview",
         "description": "Write Chapter 4 Section 1 'Temporal Semantics for Knowledge Graphs' introducing 4D spacetime coordinates and temporal RDF extensions",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Chapter 4 introduction establishes 4D coordinate system (x,y,z,t)",
           "Temporal RDF extension motivation (event sourcing, audit trails)",
@@ -44,7 +44,7 @@
         "parallel": false,
         "title": "Define Event Sourcing Calculus equations (6+ temporal theorems)",
         "description": "Create 6 equations defining temporal semantics: state transition, state reconstruction, causal ordering, snapshot creation, time-travel query, temporal consistency",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Equation: δ(G, CreateEvent(τ)) = G ∪ {τ} (state transition)",
           "Equation: ρ(t) = fold(δ, ∅, {e | e.t ≤ t}) (state reconstruction)",
@@ -64,7 +64,7 @@
         "parallel": false,
         "title": "Prove Deterministic Reconstruction Theorem",
         "description": "Write formal proof that state reconstruction from event log is deterministic and complete",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Theorem: 'For any timestamp t, ρ(t) is unique and deterministic'",
           "Proof uses fold left associativity and event ordering",
@@ -82,7 +82,7 @@
         "parallel": false,
         "title": "Prove Causal Consistency Theorem",
         "description": "Write formal proof that event ordering preserves causal relationships",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Theorem: 'If e₁ causes e₂, then e₁.t < e₂.t'",
           "Proof by contradiction using event:causalPredecessor",
@@ -100,7 +100,7 @@
         "parallel": false,
         "title": "Prove Event Immutability Theorem",
         "description": "Write formal proof that past events cannot be modified, only new compensating events added",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Theorem: 'For t₁ < t₂, events at t₁ are immutable in ρ(t₂)'",
           "Proof uses append-only event log property",
@@ -118,7 +118,7 @@
         "parallel": true,
         "title": "Document GitBackbone state reconstruction algorithm",
         "description": "Write Algorithm: reconstructState(t) with pseudocode matching @unrdf/kgc-4d implementation",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Algorithm titled 'State Reconstruction from Event Log'",
           "Input: timestamp t (nanoseconds), event log E",
@@ -137,7 +137,7 @@
         "parallel": true,
         "title": "Document freezeUniverse snapshot algorithm",
         "description": "Write Algorithm: freezeUniverse() for creating immutable snapshots at current timestamp",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Algorithm titled 'Snapshot Creation'",
           "Input: current event log E",
@@ -156,7 +156,7 @@
         "parallel": false,
         "title": "Create time-travel query example demonstrating state reconstruction",
         "description": "Write concrete example showing reconstruction of project state at three different timestamps",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Example: Project management application state at t₁, t₂, t₃",
           "Shows CreateEvent for task at t₁",
@@ -175,7 +175,7 @@
         "parallel": false,
         "title": "Add 3 temporal theorems proving completeness guarantees",
         "description": "Define theorems: Temporal Completeness, Audit Trail Integrity, Snapshot Consistency",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Theorem: Temporal Completeness (every past state reconstructible)",
           "Theorem: Audit Trail Integrity (event log preserves causality)",
@@ -199,7 +199,7 @@
         "parallel": true,
         "title": "Define hyperdimensional vector space entities in RDF schema",
         "description": "Create HD encoding classes: HypervectorSpace, TripleEncoding, SemanticProjection with dimension properties",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/thesis-schema.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/thesis-schema.ttl",
         "acceptance_criteria": [
           "HypervectorSpace class with hd:dimension property (typically 10000)",
           "TripleEncoding class with hd:subjectVector, hd:predicateVector, hd:objectVector",
@@ -216,7 +216,7 @@
         "parallel": true,
         "title": "Author Chapter 3 introduction to hyperdimensional information theory",
         "description": "Write Chapter 3 Section 1 introducing HD computing, vector symbolic architectures, and information-theoretic foundations",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Chapter 3 introduction establishes HD vector spaces (10000+ dimensions)",
           "Motivates HD encoding for semantic similarity preservation",
@@ -234,7 +234,7 @@
         "parallel": false,
         "title": "Define Shannon entropy equations for ontology distributions (5 equations)",
         "description": "Create equations: Shannon entropy H(O), conditional entropy H(O|C), joint entropy H(O,C), mutual information I(O;C), relative entropy D(O||C)",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Equation: H(O) = -Σ p(t) log₂ p(t) (Shannon entropy)",
           "Equation: H(O|C) = -Σ p(t,c) log₂ p(t|c) (conditional entropy)",
@@ -253,7 +253,7 @@
         "parallel": false,
         "title": "Define hyperdimensional encoding equations with dimensional analysis (5 equations)",
         "description": "Create equations: HD triple encoding, binding operation, bundling operation, similarity metric, projection operator",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Equation: encode(s,p,o) = S ⊗ P ⊗ O (triple encoding, dimension D)",
           "Equation: bind(A,B) = A ⊗ B (circular convolution, dimension D)",
@@ -272,7 +272,7 @@
         "parallel": false,
         "title": "Define semantic fidelity and rate-distortion equations (5 equations)",
         "description": "Create equations: semantic fidelity Φ, distortion metric D, rate-distortion bound R(D), capacity C, fidelity bounds",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Equation: Φ = I(O;C)/H(O) (semantic fidelity, range [0,1])",
           "Equation: D(o,c) = 1 - sim(encode(o), encode(c)) (distortion metric)",
@@ -291,7 +291,7 @@
         "parallel": false,
         "title": "Prove Semantic Fidelity Theorem with tight bounds",
         "description": "Write formal proof that semantic fidelity Φ is bounded by mutual information ratio with tight bounds achievable",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Theorem: 'Semantic fidelity Φ ∈ [0,1] with Φ=1 ⟺ I(O;C)=H(O)'",
           "Proof shows Φ=1 implies perfect preservation (no information loss)",
@@ -310,7 +310,7 @@
         "parallel": false,
         "title": "Prove Multi-Target Superadditivity Proposition",
         "description": "Write proof that generating N targets from single ontology has higher total fidelity than N independent specifications",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Proposition: 'Σᵢ Φ(O→Cᵢ) > Σᵢ Φ(Oᵢ→Cᵢ) for shared ontology O'",
           "Proof uses data processing inequality and mutual information",
@@ -328,7 +328,7 @@
         "parallel": true,
         "title": "Document HD encoding algorithm with dimensional analysis",
         "description": "Write Algorithm: encodeTriple(s,p,o) showing circular convolution implementation",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Algorithm titled 'Hyperdimensional Triple Encoding'",
           "Input: RDF triple (s,p,o), dimension D=10000",
@@ -347,7 +347,7 @@
         "parallel": true,
         "title": "Document semantic fidelity calculation algorithm",
         "description": "Write Algorithm: calculateFidelity(O,C) measuring information preservation in code generation",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Algorithm titled 'Semantic Fidelity Measurement'",
           "Input: ontology O (RDF graph), generated code C (AST)",
@@ -366,7 +366,7 @@
         "parallel": false,
         "title": "Create concrete HD encoding example for RDF triple",
         "description": "Work through complete example encoding triple (:Task1 rdf:type :ProjectTask) in 10000-dimensional space",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Example shows random vector generation for :Task1, rdf:type, :ProjectTask",
           "Shows circular convolution step-by-step (using FFT)",
@@ -385,7 +385,7 @@
         "parallel": false,
         "title": "Create table showing fidelity measurements across targets",
         "description": "Empirical table comparing semantic fidelity for Rust, TypeScript, Python code generation from same ontology",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Table with 3 rows (Rust, TypeScript, Python) × 4 columns (H(O), I(O;C), Φ, D)",
           "Rust shows highest fidelity (type system preserves more information)",
@@ -404,7 +404,7 @@
         "parallel": false,
         "title": "Prove HD Dimensionality Lemma (capacity vs. collision)",
         "description": "Write lemma proving that D=10000 dimensions provides sufficient capacity with negligible collision probability",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Lemma: 'For D≥10000, collision probability P(sim(A,B)>0.9) < 10⁻⁶ for random A,B'",
           "Proof uses birthday paradox and concentration inequalities",
@@ -422,7 +422,7 @@
         "parallel": false,
         "title": "Prove Projection Distortion Bound Theorem",
         "description": "Write theorem proving that distortion in projection from ontology to code is bounded by rate-distortion function",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Theorem: 'For any target language L, E[D(O,C)] ≥ R⁻¹(H(O))'",
           "Proof uses rate-distortion theory and data processing inequality",
@@ -440,7 +440,7 @@
         "parallel": true,
         "title": "Create figure showing HD embedding space visualization",
         "description": "Design 3D projection of 10000D space showing ontology concepts as clusters",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Figure shows t-SNE or PCA projection to 3D",
           "Clusters visible for related concepts (e.g., all :Task instances)",
@@ -459,7 +459,7 @@
         "parallel": false,
         "title": "Add appendix with extended information theory proofs",
         "description": "Create Appendix A with detailed proofs of information-theoretic lemmas referenced in Chapter 3",
-        "file_path": "/Users/sac/ggen/specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
+        "file_path": "./specs/012-grand-unified-kgc-thesis/ontology/kgc-unified-content.ttl",
         "acceptance_criteria": [
           "Appendix A titled 'Extended Mathematical Proofs'",
           "Contains proof of data processing inequality",

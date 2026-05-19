@@ -21,7 +21,7 @@ use ggen_cli_lib::cmds::market::{
     registry::Registry,
 };
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// Complete marketplace integration test
 #[tokio::test]
@@ -230,7 +230,7 @@ impl GpackInstaller for MockGpackInstaller {
                 already_installed: false,
             })
         } else {
-            Err(ggen_utils::error::Error::new("Mock installation failed"))
+            Err(ggen_core::utils::error::Error::new("Mock installation failed"))
         }
     }
 }

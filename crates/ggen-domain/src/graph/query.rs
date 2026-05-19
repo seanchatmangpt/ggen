@@ -3,7 +3,7 @@
 //! Chicago TDD: Uses REAL in-memory RDF stores and ACTUAL SPARQL queries
 
 use ggen_core::Graph;
-use ggen_utils::error::{Context, Result};
+use ggen_core::utils::error::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -104,7 +104,7 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
             for solution in solutions {
                 let solution = solution
                     .map_err(|e| {
-                        ggen_utils::error::Error::new(&format!(
+                        ggen_core::utils::error::Error::new(&format!(
                             "Failed to process SPARQL solution: {}",
                             e
                         ))
@@ -312,5 +312,5 @@ pub async fn execute_query(input: QueryInput) -> Result<QueryResult> {
     };
 
     execute_sparql(options)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))
+        .map_err(|e| ggen_core::utils::error::Error::new(&format!("SPARQL query failed: {}", e)))
 }

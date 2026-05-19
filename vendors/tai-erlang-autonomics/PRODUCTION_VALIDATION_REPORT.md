@@ -16,7 +16,7 @@ The TAI Erlang Autonomics project has successfully completed comprehensive produ
 **Status**: PASS
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics && rebar3 compile
+cd ./tai-erlang-autonomics && rebar3 compile
 [0;32m===> Verifying dependencies...
 [0;32m===> Analyzing applications...
 [0;32m===> Compiling tai_autonomics
@@ -68,7 +68,7 @@ cd /Users/sac/ggen/tai-erlang-autonomics && rebar3 compile
 **Status**: PASS
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics && rebar3 release
+cd ./tai-erlang-autonomics && rebar3 release
 [0;32m===> Assembling release tai_autonomics-1.0.0...
 [0;32m===> Release successfully assembled: _build/default/rel/tai_autonomics
 ```
@@ -357,7 +357,7 @@ Action → Execution → Receipt(attempt) → Receipt(result) → Response
 
 ```bash
 grep -r "mock\|fake\|stub\|TODO.*implement\|FIXME" \
-  /Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src --include="*.erl"
+  ./tai-erlang-autonomics/apps/tai_autonomics/src --include="*.erl"
 ```
 
 **Only non-blocking result**:
@@ -420,7 +420,7 @@ grep -r "mock\|fake\|stub\|TODO.*implement\|FIXME" \
 **Status**: PASS
 
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics && terraform validate
+cd ./tai-erlang-autonomics && terraform validate
 Success! The configuration is valid.
 ```
 

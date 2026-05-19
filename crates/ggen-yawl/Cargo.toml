@@ -1,15 +1,15 @@
 [package]
-name = "ggen-yawl"
-version = "6.1.0"
+name = "mcpp-yawl"
+version = "26.5.4"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
 description = "YAWL workflow generation from industry ontologies using SPARQL CONSTRUCT"
 
 [dependencies]
-ggen-codegen = { path = "../ggen-codegen" }
-ggen-core = { path = "../ggen-core" }
-ggen-utils = { path = "../ggen-utils" }
+mcpp-codegen = { path = "../mcpp-codegen" }
+mcpp-core = { path = "../mcpp-core" }
+mcpp-utils = { path = "../mcpp-utils" }
 a2a-generated = { path = "../a2a-generated" }
 serde = { workspace = true }
 serde_json = { workspace = true }

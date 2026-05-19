@@ -56,7 +56,7 @@ echo "✅ GCP Foundation ready"
 ### Phase 2: Docker & Artifact Registry (2 hours)
 ```bash
 # Build and push image
-cd /Users/sac/ggen/tai-erlang-autonomics
+cd ./tai-erlang-autonomics
 
 # Configure Docker auth
 gcloud auth configure-docker us-central1-docker.pkg.dev

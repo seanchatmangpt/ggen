@@ -148,11 +148,11 @@ ggen project init --preset clap-noun-verb
 
 ## Deliverables
 
-1. **Critical Fix**: `/Users/sac/ggen/cli/src/cmds/template.rs`
+1. **Critical Fix**: `./cli/src/cmds/template.rs`
    - Removed nested runtime creation
    - Unblocked RDF generation
 
-2. **Comprehensive Report**: `/Users/sac/ggen/tests/e2e/E2E_VALIDATION_REPORT.md`
+2. **Comprehensive Report**: `./tests/e2e/E2E_VALIDATION_REPORT.md`
    - 442 lines of detailed validation
    - Test procedures documented
    - Root cause analysis

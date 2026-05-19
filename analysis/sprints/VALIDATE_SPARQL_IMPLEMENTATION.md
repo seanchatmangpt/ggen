@@ -8,17 +8,17 @@ Successfully implemented the `validate_sparql` MCP tool (Gap #4, P1) for validat
 
 ### Files Modified
 
-1. **`/Users/sac/ggen/crates/ggen-a2a-mcp/Cargo.toml`**
+1. **`./crates/ggen-a2a-mcp/Cargo.toml`**
    - Added `regex = "1.10"` dependency for parsing oxigraph error messages
 
-2. **`/Users/sac/ggen/crates/ggen-a2a-mcp/src/ggen_server.rs`**
+2. **`./crates/ggen-a2a-mcp/src/ggen_server.rs`**
    - Updated module documentation to list `validate_sparql` tool (line 8)
    - Added `ValidateSparqlParams` struct (lines 152-159)
    - Added `validate_sparql` tool implementation (lines 867-942)
    - Added `extract_sparql_error_location` helper function (lines 950-966)
    - Added `generate_sparql_suggestions` helper function (lines 969-1026)
 
-3. **`/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validate_sparql_test.rs`**
+3. **`./crates/ggen-a2a-mcp/tests/validate_sparql_test.rs`**
    - Created comprehensive test suite with 5 test cases
 
 ### Tool API
@@ -177,9 +177,9 @@ To fully test and integrate:
 
 ## Files Created
 
-- `/Users/sac/ggen/validate_sparql_summary.md` — Implementation summary
-- `/Users/sac/ggen/VALIDATE_SPARQL_IMPLEMENTATION.md` — This document
-- `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/validate_sparql_test.rs` — Test suite
+- `./validate_sparql_summary.md` — Implementation summary
+- `./VALIDATE_SPARQL_IMPLEMENTATION.md` — This document
+- `./crates/ggen-a2a-mcp/tests/validate_sparql_test.rs` — Test suite
 
 ## Conclusion
 

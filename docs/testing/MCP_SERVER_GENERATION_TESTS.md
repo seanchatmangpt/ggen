@@ -15,7 +15,7 @@ Created two comprehensive test suites following Chicago TDD principles for MCP s
 
 ### 1. Core E2E Tests (`mcp_generation_e2e_test.rs`)
 
-**Location**: `/Users/sac/ggen/crates/ggen-core/tests/mcp_generation_e2e_test.rs`
+**Location**: `./crates/ggen-core/tests/mcp_generation_e2e_test.rs`
 
 **Test Count**: 10 comprehensive tests
 
@@ -50,7 +50,7 @@ Created two comprehensive test suites following Chicago TDD principles for MCP s
 
 ### 2. CLI Command Tests (`mcp_command_test.rs`)
 
-**Location**: `/Users/sac/ggen/crates/ggen-cli/tests/mcp_command_test.rs`
+**Location**: `./crates/ggen-cli/tests/mcp_command_test.rs`
 
 **Test Count**: 16 comprehensive tests
 
@@ -278,9 +278,9 @@ Currently **NOT tested** (could be added later):
 
 ## Files Created
 
-1. `/Users/sac/ggen/crates/ggen-core/tests/mcp_generation_e2e_test.rs` (527 lines)
-2. `/Users/sac/ggen/crates/ggen-cli/tests/mcp_command_test.rs` (620 lines)
-3. `/Users/sac/ggen/docs/testing/MCP_SERVER_GENERATION_TESTS.md` (this file)
+1. `./crates/ggen-core/tests/mcp_generation_e2e_test.rs` (527 lines)
+2. `./crates/ggen-cli/tests/mcp_command_test.rs` (620 lines)
+3. `./docs/testing/MCP_SERVER_GENERATION_TESTS.md` (this file)
 
 **Total**: 1,147 lines of test code + documentation
 

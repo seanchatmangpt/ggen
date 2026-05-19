@@ -13,7 +13,7 @@
 //! ### Using LogLevel
 //!
 //! ```rust
-//! use ggen_utils::types::LogLevel;
+//! use ggen_core::utils::types::LogLevel;
 //! use std::str::FromStr;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,23 +1,23 @@
-# ggen Marketplace Registry
+# mcpp Marketplace Registry
 # Production registry hosted on GitHub Pages
-# Registry URL: https://seanchatmangpt.github.io/ggen/marketplace/registry/packages.toml
+# Registry URL: https://seanchatmangpt.github.io/mcpp/marketplace/registry/packages.toml
 
 version = "1.0.0"
-registry_url = "https://github.com/seanchatmangpt/ggen"
-raw_base_url = "https://raw.githubusercontent.com/seanchatmangpt/ggen/master"
-pages_url = "https://seanchatmangpt.github.io/ggen"
+registry_url = "https://github.com/seanchatmangpt/mcpp"
+raw_base_url = "https://raw.githubusercontent.com/seanchatmangpt/mcpp/master"
+pages_url = "https://seanchatmangpt.github.io/mcpp"
 
 # Advanced Rust API Template (Production Example)
 [[package]]
 name = "advanced-rust-api-8020"
-full_name = "ggen/advanced-rust-api-8020"
+full_name = "mcpp/advanced-rust-api-8020"
 version = "0.1.0"
 description = "Production-ready REST API with complete lifecycle, AI generation, and 80/20 principles"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
 # GitHub raw URL for direct download
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "examples/advanced-rust-api-8020"
 license = "MIT"
 dependencies = []
@@ -41,13 +41,13 @@ keywords = ["rust", "axum", "rest-api", "production", "template", "ai", "sparql"
 # Rust CLI Template
 [[package]]
 name = "rust-cli-template"
-full_name = "ggen/rust-cli-template"
+full_name = "mcpp/rust-cli-template"
 version = "0.1.0"
 description = "Production-ready CLI application template with clap, error handling, and testing"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/rust-cli-template"
 license = "MIT"
 dependencies = []
@@ -58,13 +58,13 @@ keywords = ["rust", "cli", "template", "command-line"]
 # GraphQL API Template
 [[package]]
 name = "graphql-api-rust"
-full_name = "ggen/graphql-api-rust"
+full_name = "mcpp/graphql-api-rust"
 version = "0.1.0"
 description = "GraphQL API server with async-graphql, authentication, and subscriptions"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/graphql-api-rust"
 license = "MIT"
 dependencies = []
@@ -75,13 +75,13 @@ keywords = ["rust", "graphql", "api", "subscription"]
 # Advanced Rust Project
 [[package]]
 name = "advanced-rust-project"
-full_name = "ggen/advanced-rust-project"
+full_name = "mcpp/advanced-rust-project"
 version = "1.0.0"
-description = "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security"
+description = "Advanced Rust project demonstrating all mcpp features: lifecycle, AI, SPARQL, templates, and security"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/advanced-rust-project"
 license = "MIT"
 dependencies = []
@@ -98,18 +98,18 @@ features = [
     "Backup and recovery systems"
 ]
 tags = ["rust", "showcase", "lifecycle", "ai", "sparql", "templates", "security", "production"]
-keywords = ["ggen", "rust", "microservice", "ai-generation", "sparql", "lifecycle"]
+keywords = ["mcpp", "rust", "microservice", "ai-generation", "sparql", "lifecycle"]
 
 # AI Code Generation
 [[package]]
 name = "ai-code-generation"
-full_name = "ggen/ai-code-generation"
+full_name = "mcpp/ai-code-generation"
 version = "1.0.0"
 description = "AI-powered code generation with multi-provider support and comprehensive validation"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/ai-code-generation"
 license = "MIT"
 dependencies = []
@@ -131,13 +131,13 @@ keywords = ["ai", "code-generation", "llm", "ollama", "qwen"]
 # AI Microservice
 [[package]]
 name = "ai-microservice"
-full_name = "ggen/ai-microservice"
+full_name = "mcpp/ai-microservice"
 version = "0.1.0"
 description = "AI-powered microservice with template generation, refactoring, and ontology support"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/ai-microservice"
 license = "MIT"
 dependencies = []
@@ -157,13 +157,13 @@ keywords = ["ai", "microservice", "generation", "refactoring", "llm"]
 # API Endpoint Templates
 [[package]]
 name = "api-endpoint"
-full_name = "ggen/api-endpoint"
+full_name = "mcpp/api-endpoint"
 version = "1.0.0"
 description = "Complete REST API endpoint templates with OpenAPI documentation and production-ready patterns"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/api-endpoint"
 license = "MIT"
 dependencies = []
@@ -185,13 +185,13 @@ keywords = ["rust", "axum", "rest-api", "openapi", "template"]
 # Comprehensive Rust Showcase
 [[package]]
 name = "comprehensive-rust-showcase"
-full_name = "ggen/comprehensive-rust-showcase"
+full_name = "mcpp/comprehensive-rust-showcase"
 version = "1.0.0"
-description = "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring"
+description = "Comprehensive showcase of ALL mcpp features: lifecycle, AI, SPARQL, templates, security, performance, monitoring"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/comprehensive-rust-showcase"
 license = "MIT"
 dependencies = []
@@ -212,18 +212,18 @@ features = [
     "Multi-format RDF support"
 ]
 tags = ["rust", "showcase", "complete", "enterprise", "production", "ai", "sparql", "lifecycle", "monitoring"]
-keywords = ["ggen", "rust", "microservice", "enterprise", "production-ready", "comprehensive"]
+keywords = ["mcpp", "rust", "microservice", "enterprise", "production-ready", "comprehensive"]
 
 # Hello World
 [[package]]
 name = "hello-world"
-full_name = "ggen/hello-world"
+full_name = "mcpp/hello-world"
 version = "0.1.0"
-description = "Simple utility package demonstrating basic ggen marketplace functionality and async patterns"
+description = "Simple utility package demonstrating basic mcpp marketplace functionality and async patterns"
 category = "examples"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/hello-world"
 license = "MIT"
 dependencies = []
@@ -241,13 +241,13 @@ keywords = ["example", "tutorial", "hello-world", "rust"]
 # Microservices Architecture
 [[package]]
 name = "microservices-architecture"
-full_name = "ggen/microservices-architecture"
+full_name = "mcpp/microservices-architecture"
 version = "1.0.0"
 description = "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, Redis, and Kubernetes"
 category = "templates"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/microservices-architecture"
 license = "MIT"
 dependencies = []
@@ -271,13 +271,13 @@ keywords = ["microservices", "architecture", "e-commerce", "docker", "kubernetes
 # Rig MCP Integration
 [[package]]
 name = "rig-mcp"
-full_name = "ggen/rig-mcp"
+full_name = "mcpp/rig-mcp"
 version = "0.1.0"
 description = "Production-ready Rig LLM framework + MCP protocol integration with multi-provider support"
 category = "libraries"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/rig-mcp"
 license = "MIT"
 dependencies = []
@@ -300,13 +300,13 @@ keywords = ["llm", "mcp", "rig", "ai-framework", "multi-provider"]
 # REST API Template
 [[package]]
 name = "rest-api-template"
-full_name = "ggen/rest-api-template"
+full_name = "mcpp/rest-api-template"
 version = "1.0.0"
 description = "Production-ready REST API template with RDF ontology, multi-language support (Rust/TypeScript/Python), and Chicago TDD tests"
 category = "core-power-packages"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/rest-api-template"
 license = "MIT"
 dependencies = []
@@ -330,13 +330,13 @@ keywords = ["rest-api", "ontology-driven", "multi-language", "production-ready",
 # GraphQL API Template
 [[package]]
 name = "graphql-api-template"
-full_name = "ggen/graphql-api-template"
+full_name = "mcpp/graphql-api-template"
 version = "1.0.0"
 description = "Production-ready GraphQL API with RDF schema, DataLoaders, subscriptions, and multi-language support"
 category = "core-power-packages"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/graphql-api-template"
 license = "MIT"
 dependencies = []
@@ -360,13 +360,13 @@ keywords = ["graphql-api", "ontology-driven", "dataloaders", "real-time", "chica
 # CLI Application Template
 [[package]]
 name = "cli-application-template"
-full_name = "ggen/cli-application-template"
+full_name = "mcpp/cli-application-template"
 version = "1.0.0"
 description = "Generate production-ready CLIs from RDF ontology with commands, args, config, and shell completions"
 category = "core-power-packages"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/cli-application-template"
 license = "MIT"
 dependencies = []
@@ -390,13 +390,13 @@ keywords = ["cli-tool", "ontology-driven", "command-line", "shell-completion", "
 # Database Schema Generator
 [[package]]
 name = "database-schema-generator"
-full_name = "ggen/database-schema-generator"
+full_name = "mcpp/database-schema-generator"
 version = "1.0.0"
 description = "Multi-database schema generator from RDF ontology with migrations, indexes, and triggers"
 category = "core-power-packages"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/database-schema-generator"
 license = "MIT"
 dependencies = []
@@ -420,13 +420,13 @@ keywords = ["database-schema", "ontology-driven", "ddl", "migrations", "chicago-
 # Microservices Architecture Template
 [[package]]
 name = "microservices-architecture-template"
-full_name = "ggen/microservices-architecture-template"
+full_name = "mcpp/microservices-architecture-template"
 version = "1.0.0"
 description = "Production-grade microservices with RDF-driven architecture, distributed tracing, and resilience patterns"
 category = "core-power-packages"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/microservices-architecture-template"
 license = "MIT"
 dependencies = []
@@ -452,13 +452,13 @@ keywords = ["microservices-architecture", "ontology-driven", "distributed-system
 # Agent Editor
 [[package]]
 name = "agent-editor"
-full_name = "ggen/agent-editor"
+full_name = "mcpp/agent-editor"
 version = "1.0.0"
 description = "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-editor"
 license = "MIT"
 dependencies = []
@@ -485,13 +485,13 @@ keywords = ["ai-editor", "code-automation", "refactoring", "semantic-editing", "
 # Agent CLI Copilot
 [[package]]
 name = "agent-cli-copilot"
-full_name = "ggen/agent-cli-copilot"
+full_name = "mcpp/agent-cli-copilot"
 version = "1.0.0"
 description = "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-cli-copilot"
 license = "MIT"
 dependencies = []
@@ -518,13 +518,13 @@ keywords = ["cli-assistant", "command-copilot", "natural-language", "automation"
 # Agent Context Crafter
 [[package]]
 name = "agent-context-crafter"
-full_name = "ggen/agent-context-crafter"
+full_name = "mcpp/agent-context-crafter"
 version = "1.0.0"
 description = "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-context-crafter"
 license = "MIT"
 dependencies = ["agent-memory-forge"]
@@ -551,13 +551,13 @@ keywords = ["context-management", "state-persistence", "semantic-graph", "rdf-on
 # Agent Memory Forge
 [[package]]
 name = "agent-memory-forge"
-full_name = "ggen/agent-memory-forge"
+full_name = "mcpp/agent-memory-forge"
 version = "1.0.0"
 description = "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-memory-forge"
 license = "MIT"
 dependencies = []
@@ -584,13 +584,13 @@ keywords = ["ai-memory", "knowledge-graph", "episodic-memory", "semantic-memory"
 # Agent Reasoning MCP
 [[package]]
 name = "agent-reasoning-mcp"
-full_name = "ggen/agent-reasoning-mcp"
+full_name = "mcpp/agent-reasoning-mcp"
 version = "1.0.0"
 description = "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL"
 category = "ai-agents"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+author = "mcpp-team"
+repository = "https://github.com/seanchatmangpt/mcpp"
+download_url = "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip"
 path = "marketplace/packages/agent-reasoning-mcp"
 license = "MIT"
 dependencies = ["agent-memory-forge", "agent-context-crafter"]

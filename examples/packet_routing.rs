@@ -3,7 +3,7 @@
 //! Demonstrates work order routing between agents using the A2A transport.
 //! Tasks flow through multiple agents with message passing.
 
-use ggen_a2a::{
+use ggen_core::a2a::{
     transport::{Envelope, TaskMessage, Transport},
     Task, TaskState,
 };

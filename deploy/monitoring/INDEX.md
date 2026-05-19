@@ -228,8 +228,8 @@ curl -s 'http://localhost:9090/api/v1/query?query=histogram_quantile(0.99,event_
 
 1. **Copy files to production:**
    ```bash
-   cp /Users/sac/ggen/deploy/monitoring/*.yml /srv/ggen-monitoring/
-   cp /Users/sac/ggen/deploy/monitoring/grafana-dashboard.json /srv/ggen-monitoring/
+   cp ./deploy/monitoring/*.yml /srv/ggen-monitoring/
+   cp ./deploy/monitoring/grafana-dashboard.json /srv/ggen-monitoring/
    ```
 
 2. **Deploy stack:**

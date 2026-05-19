@@ -3,7 +3,7 @@
 //! Tests the `[generation].poka_yoke.warning_headers` configuration
 //! to inject "DO NOT EDIT" headers in generated files.
 
-use ggen_domain::generation::headers::{
+use ggen_core::domain::generation::headers::{
     format_header_for_extension, inject_warning_header, HeaderInjectionConfig,
 };
 use std::fs;

@@ -15,7 +15,7 @@ use tokio::sync::RwLock;
 
 use ggen_ai::constants::{env_vars, models};
 use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
-use ggen_domain::mcp_config::{
+use ggen_core::domain::mcp_config::{
     load_config, stop_server, A2aConfig, McpServerConfig, PROJECT_A2A_CONFIG, PROJECT_MCP_CONFIG,
 };
 use serde_json::Value as JsonValue;
@@ -627,7 +627,7 @@ fn init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput
 
 /// Helper function to perform config initialization (reduces complexity)
 fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput> {
-    use ggen_domain::mcp_config::{
+    use ggen_core::domain::mcp_config::{
         init_a2a_config as domain_init_a2a, init_mcp_config as domain_init_mcp,
     };
 
@@ -718,7 +718,7 @@ fn validate_config(
 fn perform_validate_config(
     mcp_file: Option<String>, a2a_file: Option<String>,
 ) -> VerbResult<ConfigValidateOutput> {
-    use ggen_domain::mcp_config::validate_mcp_config as domain_validate_mcp;
+    use ggen_core::domain::mcp_config::validate_mcp_config as domain_validate_mcp;
     use std::path::PathBuf;
 
     let project_dir = std::env::current_dir().map_err(|e| {
@@ -833,7 +833,7 @@ fn start_server(server_name: String, background: bool) -> VerbResult<ServerStart
     let serve_result = block_on(async {
         ggen_a2a_mcp::server::serve_stdio()
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("{}", e)))
+            .map_err(|e| ggen_core::utils::error::Error::new(&format!("{}", e)))
     });
     match serve_result {
         Ok(Ok(())) => {}

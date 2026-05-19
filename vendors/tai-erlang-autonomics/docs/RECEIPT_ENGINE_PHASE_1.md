@@ -362,7 +362,7 @@ ok
 
 ### Comprehensive Test Suite
 
-Located at: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl`
+Located at: `./tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl`
 
 Test coverage includes:
 
@@ -463,9 +463,9 @@ Test coverage includes:
 
 | File | Purpose |
 |------|---------|
-| `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl` | Main receipt module (169 lines) |
-| `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl` | Comprehensive test suite (450+ lines) |
-| `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/include/tai_autonomics.hrl` | Receipt type constants |
+| `./tai-erlang-autonomics/apps/tai_autonomics/src/tai_receipts.erl` | Main receipt module (169 lines) |
+| `./tai-erlang-autonomics/apps/tai_autonomics/test/tai_receipts_tests.erl` | Comprehensive test suite (450+ lines) |
+| `./tai-erlang-autonomics/apps/tai_autonomics/include/tai_autonomics.hrl` | Receipt type constants |
 
 ## Dependencies
 

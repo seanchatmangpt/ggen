@@ -18,7 +18,7 @@
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -40,7 +40,7 @@
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -52,7 +52,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

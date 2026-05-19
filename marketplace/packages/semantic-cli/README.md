@@ -2,9 +2,9 @@
 
 [![Crates.io](https://img.shields.io/crates/v/semantic-cli)](https://crates.io/crates/semantic-cli)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
-[![ggen Marketplace](https://img.shields.io/badge/ggen-marketplace-success)](https://github.com/seanchatmangpt/ggen)
+[![mcpp Marketplace](https://img.shields.io/badge/mcpp-marketplace-success)](https://github.com/seanchatmangpt/mcpp)
 
-RDF/OWL ontology management CLI built with `clap-noun-verb` pattern. Part of the ggen marketplace ecosystem.
+RDF/OWL ontology management CLI built with `clap-noun-verb` pattern. Part of the mcpp marketplace ecosystem.
 
 ## Features
 
@@ -17,10 +17,10 @@ RDF/OWL ontology management CLI built with `clap-noun-verb` pattern. Part of the
 
 ## Installation
 
-### From ggen Marketplace (Recommended)
+### From mcpp Marketplace (Recommended)
 ```bash
-ggen market install semantic-cli
-ggen template generate semantic-cli:cli.tmpl
+mcpp market install semantic-cli
+mcpp template generate semantic-cli:cli.tmpl
 cargo build --release
 ```
 
@@ -31,8 +31,8 @@ cargo install semantic-cli
 
 ### From Source
 ```bash
-git clone https://github.com/seanchatmangpt/ggen
-cd ggen/marketplace/packages/semantic-cli
+git clone https://github.com/seanchatmangpt/mcpp
+cd mcpp/marketplace/packages/semantic-cli
 cargo install --path .
 ```
 
@@ -144,23 +144,23 @@ $ semantic-cli query sparql examples/foaf.ttl \
 }
 ```
 
-## ggen Marketplace Integration
+## mcpp Marketplace Integration
 
 ### Generate from RDF Ontology
 ```bash
 # Load the semantic-cli ontology
-ggen graph load marketplace/packages/semantic-cli/rdf/ontology.ttl
+mcpp graph load marketplace/packages/semantic-cli/rdf/ontology.ttl
 
 # Query the structure
-ggen graph query --sparql "
+mcpp graph query --sparql "
   SELECT ?noun ?verb WHERE {
-    ?verb a <http://ggen.io/ontology/clap-noun-verb#Verb> ;
-          <http://ggen.io/ontology/clap-noun-verb#belongsToNoun> ?noun
+    ?verb a <http://mcpp.io/ontology/clap-noun-verb#Verb> ;
+          <http://mcpp.io/ontology/clap-noun-verb#belongsToNoun> ?noun
   }
 "
 
 # Generate CLI code
-ggen template generate semantic-cli:cli.tmpl
+mcpp template generate semantic-cli:cli.tmpl
 ```
 
 ### Customize & Regenerate
@@ -168,7 +168,7 @@ ggen template generate semantic-cli:cli.tmpl
 # Edit rdf/ontology.ttl to add new verbs
 # Example: Add ontology merge verb
 
-@prefix cli: <http://ggen.io/ontology/semantic-cli#> .
+@prefix cli: <http://mcpp.io/ontology/semantic-cli#> .
 
 cli:merge a clap:Verb ;
     rdfs:label "merge" ;
@@ -177,7 +177,7 @@ cli:merge a clap:Verb ;
     clap:returns cli:MergeResult .
 
 # Regenerate to add new command
-ggen template generate semantic-cli:cli.tmpl
+mcpp template generate semantic-cli:cli.tmpl
 
 # New command available:
 semantic-cli ontology merge file1.ttl file2.ttl --output merged.ttl
@@ -200,7 +200,7 @@ All commands:
 
 ```bash
 # Install from marketplace
-ggen market install semantic-cli
+mcpp market install semantic-cli
 
 # Build
 cargo build
@@ -231,11 +231,11 @@ See [rdf/ontology.ttl](rdf/ontology.ttl) for the complete semantic model.
 ## Contributing
 
 ```bash
-# Clone ggen
-git clone https://github.com/seanchatmangpt/ggen
+# Clone mcpp
+git clone https://github.com/seanchatmangpt/mcpp
 
 # Navigate to package
-cd ggen/marketplace/packages/semantic-cli
+cd mcpp/marketplace/packages/semantic-cli
 
 # Make changes
 
@@ -251,6 +251,6 @@ MIT OR Apache-2.0
 
 ## Links
 
-- **ggen**: https://github.com/seanchatmangpt/ggen
+- **mcpp**: https://github.com/seanchatmangpt/mcpp
 - **clap-noun-verb**: https://crates.io/crates/clap-noun-verb
-- **Marketplace**: `ggen market search semantic`
+- **Marketplace**: `mcpp market search semantic`

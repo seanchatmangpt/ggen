@@ -28,7 +28,7 @@
 //! All: {{ sparql_values(results=sparql_results.people, column="name") }}
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use gray_matter::{engine::YAML, Matter, ParsedEntity};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -547,7 +547,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_utils::error::Result;
+    use crate::utils::error::Result;
     use std::{io::Write, path::Path};
     use tempfile::NamedTempFile;
     use tera::Context;

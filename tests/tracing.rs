@@ -1,6 +1,6 @@
 use ggen_core::pipeline::PipelineBuilder;
 use ggen_core::simple_tracing::SimpleTracer;
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
@@ -189,7 +189,7 @@ fn test_tracing_levels() -> Result<()> {
         );
         SimpleTracer::skip_condition("skip_if", "pattern found");
 
-        let error = ggen_utils::error::Error::new("Test error");
+        let error = ggen_core::utils::error::Error::new("Test error");
         SimpleTracer::error(&error, "test context");
         SimpleTracer::warning("Test warning", Some("test context"));
     }
@@ -245,7 +245,7 @@ fn test_tracing_error_handling_detailed() -> Result<()> {
     std::env::set_var("GGEN_TRACE", "error");
 
     // Test error logging
-    let error = ggen_utils::error::Error::new("Test error message");
+    let error = ggen_core::utils::error::Error::new("Test error message");
     SimpleTracer::error(&error, "test operation");
 
     // Test warning logging

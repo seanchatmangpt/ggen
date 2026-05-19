@@ -5,7 +5,7 @@
 //! This module provides comprehensive validation for paths, environment variables,
 //! and user inputs to prevent exploitation via malformed or malicious data.
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 
 /// Error type for validation failures

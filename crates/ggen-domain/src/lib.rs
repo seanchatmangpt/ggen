@@ -37,6 +37,7 @@ pub mod marketplace;
 pub mod mcp_config;
 pub mod ontology;
 pub mod packs;
+pub mod receipts;
 pub mod project;
 pub mod rdf;
 pub mod shell;
@@ -71,4 +72,4 @@ pub use audit::security::{
 // pub mod temporal_fabric; // Phase 2: MAPE-K typestate + causality // Phase 5: Lock-free snapshots + conflict-free aggregation
 
 // Re-export commonly used types for convenience
-pub use ggen_utils::error::{Error, Result};
+pub use ggen_core::utils::error::{Error, Result};

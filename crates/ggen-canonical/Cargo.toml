@@ -1,6 +1,6 @@
 [package]
-name = "ggen-canonical"
-version = "6.1.0"
+name = "mcpp-canonical"
+version = "26.5.4"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"

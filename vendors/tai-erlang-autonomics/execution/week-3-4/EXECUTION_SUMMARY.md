@@ -290,7 +290,7 @@
 
 ## File Locations (Absolute Paths)
 
-All files located in: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-3-4/`
+All files located in: `./tai-erlang-autonomics/execution/week-3-4/`
 
 **Core Documents:**
 - WEEK_3_4_DEMO_AND_POC.md (main planning)

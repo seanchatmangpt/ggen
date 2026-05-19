@@ -1,12 +1,12 @@
 [workspace.package]
-version = "6.1.0"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
 license = "MIT"
 
 [package]
-name = "ggen"
+name = "mcpp"
 version.workspace = true
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
@@ -22,67 +22,32 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 
 [workspace]
 members = [
-  "crates/ggen-utils",
-  "crates/ggen-cli",
-  "crates/ggen-domain",
-  "crates/ggen-core",
-  "crates/ggen-ai",
-  "crates/ggen-dspy",
-  "crates/ggen-config",
-  "crates/ggen-cli-validation",
-  "crates/ggen-config-clap",
-  "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
-  "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
-  "crates/ggen-testing",       # Chicago TDD test infrastructure
-  "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
-  "crates/ggen-poka-yoke",     # Poka-yoke error proofing mechanisms
-  "crates/ggen-node", "crates/ggen-macros",
-  "crates/ggen-workflow-43",   # van der Aalst's 43 workflow patterns implementation
-  "crates/ggen-execution",      # Common execution framework for semantic convergence
-  "crates/ggen-marketplace",   # Feature 013: Marketplace and integrations
-  "crates/ggen-api",           # RevOps: REST API layer for monetization
-  "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
-  "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
-  "crates/ggen-saas",          # RevOps: SaaS tier management and quota enforcement
-  "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
-  "crates/ggen-folk-strategy", # Folk strategy quantification from opportunity field dynamics
-  "crates/ggen-dod",           # Domain-driven design patterns (from origin/main)
-  "crates/ggen-ontology-core", # Ontology handling layer: RDF/TTL, SPARQL, entity mapping
-  # KNHK Systems Integration: ETL + KGC-4D + Workflow Engine
-  "crates/knhk-etl",           # Extract-Transform-Load pipeline
-  "crates/knhk-hot",           # C FFI hot-path optimization
-  "crates/knhk-connectors",    # Connector registry (Kafka, HTTP, etc.)
-  "crates/knhk-lockchain",     # Merkle-linked receipt storage
-  "crates/knhk-otel",          # OpenTelemetry integration
-  "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
-  "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
-  "crates/tps-reference",      # Toyota Production System reference implementation
-  "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
-  "crates/ggen-codegen",       # Generic code generation framework (extracted from ggen-yawl)
-  "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
-  "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
-  "crates/a2a-generated",     # A2A-RS integration code generated from RDF ontology
-  "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
-  "crates/ggen-a2a-registry",  # Multi-agent A2A orchestration registry
-  "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
-  "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
-  "crates/ggen-canonical",   # Deterministic canonicalization (Rust/JSON/RDF) with hash verification
-  "crates/ggen-jidoka",        # Jidoka gates and andon signal system for quality control
-  "crates/ggen-kaizen",        # Kaizen continuous improvement tracking with PDCA cycles
-  "crates/ggen-prompt-mfg",    # Prompt manufacturing via CONSTRUCT - deterministic compilation from RDF
-  "crates/ggen-packet",        # Packet discipline and work order types
-  "crates/ggen-receipt",       # Cryptographic receipt system with Ed25519 signatures
-  "crates/ggen-consensus",     # Byzantine consensus for receipt verification
-  "crates/ggen-a2a",           # A2A task state machine protocol
-  "crates/ggen-cli-tps",       # CLI commands for A2A/TPS operations
-  "crates/ggen-metrics-tps",   # A2A/TPS metrics collection and telemetry
-  "crates/ggen-marketplace-tps", # TPS: Marketplace/workspace economy integration with GCP and CLM
-  "crates/ggen-integration",   # Integration layer connecting all A2A/TPS systems
-  "crates/ggen-transport",     # MCP/A2A transport layer with streaming support
-  "crates/ggen-e2e-tps",       # End-to-end integration tests for A2A/TPS pipeline
-  "crates/tai-testing",        # Production hardening & resilience testing framework
-  "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
-  "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
+  "crates/mcpp-utils",
+  "crates/mcpp-cli",
+  "crates/mcpp-domain",
+  "crates/mcpp-core",
+  "crates/mcpp-ai",
+  "crates/mcpp-dspy",
+  "crates/mcpp-config",
+  "crates/mcpp-cli-validation",
+  "crates/mcpp-config-clap",
+  "crates/mcpp-test-audit",
+  "crates/mcpp-test-opt",
+  "crates/mcpp-e2e",
+  "crates/mcpp-node",
+  "crates/mcpp-marketplace",
+  "crates/mcpp-ontology-core",
+  "crates/mcpp-codegen",
+  "crates/mcpp-yawl",
+  "crates/mcpp-process-mining",
+  "crates/a2a-generated",
+  "crates/mcpp-a2a-mcp",
+  "crates/mcpp-a2a-registry",
+  "crates/mcpp-canonical",
+  "crates/mcpp-prompt-mfg",
+  "crates/mcpp-receipt",
+  "crates/mcpp-a2a",
+  "crates/mcpp-transport",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
@@ -94,10 +59,10 @@ exclude = [
   "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
   "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
   "marketplace/packages/workflow-engine-cli",
-  "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
-  "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
+  "crates/mcpp-workflow",     # Requires Erlang NIF runtime - standalone build only
+  "crates/mcpp-workflow/native",  # Native NIF crate - standalone build only
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
-  "crates/ggen-process-mining", # Temporarily excluded - has missing benchmark files
+  "crates/mcpp-process-mining", # Temporarily excluded - has missing benchmark files
   "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
   "crates/tai-security",  # Temporarily excluded - has dependency issues
   "crates/tai-resilience",  # Temporarily excluded - has dependency issues
@@ -140,7 +105,6 @@ serde_yaml = "0.9"
 hex = "0.4"
 sha2 = "0.10"
 ed25519-dalek = "2.1"
-
 rayon = "1.11"
 regex = "1.12"
 log = "0.4"
@@ -151,131 +115,78 @@ notify-debouncer-full = "0.4"
 assert_cmd = "2.0"
 predicates = "3.1"
 rig-core = "0.15.1"
-
 # Workspace-local crates (use workspace = true pattern in workspace members)
-# NOTE: v6.1.0 unified release
-ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "6.1.0" }
-ggen-config = { path = "crates/ggen-config", version = "6.1.0" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "6.1.0" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "6.1.0" }
-ggen-domain = { path = "crates/ggen-domain", version = "6.1.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "6.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
-ggen-node = { path = "crates/ggen-node", version = "6.1.0" }
-ggen-macros = { path = "crates/ggen-macros", version = "6.1.0" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "6.1.0" }
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "6.1.0" }
-ggen-testing = { path = "crates/ggen-testing", version = "6.1.0" }
-ggen-e2e = { path = "crates/ggen-e2e", version = "6.1.0" }
-ggen-api = { path = "crates/ggen-api", version = "6.1.0" }
-ggen-auth = { path = "crates/ggen-auth", version = "6.1.0" }
-ggen-payments = { path = "crates/ggen-payments", version = "6.1.0" }
-ggen-saas = { path = "crates/ggen-saas", version = "6.1.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "6.1.0" }
-ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "6.1.0" }
-ggen-dod = { path = "crates/ggen-dod", version = "6.1.0" }
-ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "6.1.0" }
-ggen-canonical = { path = "crates/ggen-canonical", version = "6.1.0" }
-ggen-receipt = { path = "crates/ggen-receipt", version = "6.1.0" }
-ggen-jidoka = { path = "crates/ggen-jidoka", version = "6.1.0" }
-ggen-packet = { path = "crates/ggen-packet", version = "6.1.0" }
-ggen-backpressure = { path = "crates/ggen-backpressure", version = "6.1.0" }
-ggen-a2a = { path = "crates/ggen-a2a", version = "6.1.0" }
-ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "6.1.0" }
-
+# NOTE: v26.5.4 unified release
+mcpp-utils = { path = "crates/mcpp-utils", version = "26.5.4" }
+mcpp-core = { path = "crates/mcpp-core", version = "26.5.4" }
+mcpp-config = { path = "crates/mcpp-config", version = "26.5.4" }
+mcpp-cli-validation = { path = "crates/mcpp-cli-validation", version = "26.5.4" }
+mcpp-config-clap = { path = "crates/mcpp-config-clap", version = "26.5.4" }
+mcpp-domain = { path = "crates/mcpp-domain", version = "26.5.4" }
+mcpp-marketplace = { path = "crates/mcpp-marketplace", version = "26.5.4" }
+mcpp-cli-lib = { path = "crates/mcpp-cli", version = "26.5.4" }
+mcpp-node = { path = "crates/mcpp-node", version = "26.5.4" }
+mcpp-test-audit = { path = "crates/mcpp-test-audit", version = "26.5.4" }
+mcpp-test-opt = { path = "crates/mcpp-test-opt", version = "26.5.4" }
+mcpp-e2e = { path = "crates/mcpp-e2e", version = "26.5.4" }
+mcpp-ai = { path = "crates/mcpp-ai", version = "26.5.4" }
+mcpp-ontology-core = { path = "crates/mcpp-ontology-core", version = "26.5.4" }
+mcpp-canonical = { path = "crates/mcpp-canonical", version = "26.5.4" }
+mcpp-receipt = { path = "crates/mcpp-receipt", version = "26.5.4" }
+mcpp-a2a = { path = "crates/mcpp-a2a", version = "26.5.4" }
+mcpp-prompt-mfg = { path = "crates/mcpp-prompt-mfg", version = "26.5.4" }
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
-knhk-etl = { path = "crates/knhk-etl", version = "6.1.0" }
-knhk-hot = { path = "crates/knhk-hot", version = "6.1.0" }
-knhk-connectors = { path = "crates/knhk-connectors", version = "6.1.0" }
-knhk-lockchain = { path = "crates/knhk-lockchain", version = "6.1.0" }
-knhk-otel = { path = "crates/knhk-otel", version = "6.1.0" }
-knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "6.1.0" }
-
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
-a2a-generated = { path = "crates/a2a-generated", version = "6.1.0" }
-
+a2a-generated = { path = "crates/a2a-generated", version = "26.5.4" }
 # A2A-MCP Integration for ggen
-ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "6.1.0" }
-
+mcpp-a2a-mcp = { path = "crates/mcpp-a2a-mcp", version = "26.5.4" }
 # A2A Registry: Multi-agent orchestration registry
-ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "6.1.0" }
-
-ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "6.1.0" }
-ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.1.0" }
-ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.1.0" }
-ggen-transport = { path = "crates/ggen-transport", version = "6.1.0" }
-
+mcpp-a2a-registry = { path = "crates/mcpp-a2a-registry", version = "26.5.4" }
+mcpp-transport = { path = "crates/mcpp-transport", version = "26.5.4" }
 # TAI Testing: Production hardening & resilience testing framework
-tai-testing = { path = "crates/tai-testing", version = "6.1.0" }
-
 # TPS (Toyota Production System) Kaizen implementation (continuous improvement)
-tps-kaizen = { path = "crates/tps-kaizen", version = "6.1.0" }
-
-# ggen-craftplan: RDF-driven Elixir code generation
-ggen-craftplan = { path = "crates/ggen-craftplan", version = "6.1.0" }
-
-# ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
-ggen-codegen = { path = "crates/ggen-codegen", version = "6.1.0" }
-
-# ggen-yawl: YAWL workflow generation from industry ontologies
-ggen-yawl = { path = "crates/ggen-yawl", version = "6.1.0" }
-
-# ggen-process-mining: Process mining integration with rust4pm (Alpha++, XES/OCEL)
-ggen-process-mining = { path = "crates/ggen-process-mining", version = "6.1.0" }
-
+# mcpp-craftplan: RDF-driven Elixir code generation
+# mcpp-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
+mcpp-codegen = { path = "crates/mcpp-codegen", version = "26.5.4" }
+# mcpp-yawl: YAWL workflow generation from industry ontologies
+mcpp-yawl = { path = "crates/mcpp-yawl", version = "26.5.4" }
+# mcpp-process-mining: Process mining integration with rust4pm (Alpha++, XES/OCEL)
+mcpp-process-mining = { path = "crates/mcpp-process-mining", version = "26.5.4" }
 # TAI Cache: Advanced caching with multi-tier strategies
-tai-cache = { path = "crates/tai-cache", version = "6.1.0" }
-
 # TAI gRPC: Service-to-service communication with advanced resilience patterns
-tai-grpc = { path = "crates/tai-grpc", version = "6.1.0" }
-
 # TAI Security: Vault, KMS, mTLS, secret rotation, encryption
-tai-security = { path = "crates/tai-security", version = "6.1.0" }
-
 # TAI Observability: Cloud Profiler, Trace, Monitoring
-tai-observability = { path = "crates/tai-observability", version = "6.1.0" }
-
 # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
-tai-k8s = { path = "crates/tai-k8s", version = "6.1.0" }
-
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
 opentelemetry = { version = "0.31" }
 opentelemetry-otlp = { version = "0.31", features = ["grpc-tonic"] }
 opentelemetry_sdk = { version = "0.31", features = ["rt-tokio"] }
 tracing-opentelemetry = { version = "0.32" }
-
 # CLI Enhancement libraries
 indicatif = "0.18"
 console = "0.16"
-
 # Testing libraries
 proptest = "1.8"
 chicago-tdd-tools = "1.4.0"
 fake = "2.9"
-
 # AI integration
 genai = "0.5"
-
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
 base64 = "0.22"
-
 # ===================================================================
 # DEPENDENCY DEDUPLICATION (Phase 1 - Critical)
 # Added 2026-01-24 to fix 160 duplicate versions
 # Target: Reduce build time from >600s to <400s (33% improvement)
 # Reference: examples/factory-paas/DEPENDENCY_DEDUPLICATION_PLAN.md
 # ===================================================================
-
 # Web frameworks (Critical - highest transitive impact)
 # axum: 3 versions → 1 (reduces ~50-80 transitive dependencies)
 # tonic: 2 versions → 1 (reduces ~30-50 transitive dependencies)
 axum = "0.8"
 axum-core = "0.5"
 tonic = "0.14"
-
 # Proc-macros (High impact - compilation time reduction)
 # derive_more: 3 versions → 1 (v0.99, v1.0, v2.1 consolidated)
 # darling ecosystem: 2 versions → 1 (v0.20, v0.21 consolidated)
@@ -283,7 +194,6 @@ derive_more = "1.0"
 darling = "0.21"
 darling_core = "0.21"
 darling_macro = "0.21"
-
 # Utilities (Moderate impact - direct dependencies)
 # dashmap: 2 versions → 1 (v5.5, v6.1 consolidated)
 # bitflags: 3 versions → 1 (consolidated)
@@ -293,10 +203,8 @@ dashmap = "6.1"
 bitflags = "2.10"
 config = { version = "0.15", default-features = false }
 convert_case = "0.10"
-
-# SQLite version patch - resolve conflict between a2a-rs (0.8) and ggen-api (0.7)
+# SQLite version patch - resolve conflict between a2a-rs (0.8) and mcpp-api (0.7)
 sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls", "chrono", "uuid"] }
-
 # Maximized linting configuration (Rust 1.78+)
 # **Poka-Yoke Design**: Warnings are treated as errors to prevent defects at compile time.
 # Type-first thinking: Compiler enforces correctness. If it compiles, invariants are enforced.
@@ -595,24 +503,24 @@ explicit_iter_loop = "allow"
 # ===================================================================
 [features]
 default = []
-nightly = ["ggen-utils/nightly"]
-termlog = ["ggen-utils/termlog"]
-journald = ["ggen-utils/journald"]
-syslog = ["ggen-utils/syslog"]
+nightly = ["mcpp-utils/nightly"]
+termlog = ["mcpp-utils/termlog"]
+journald = ["mcpp-utils/journald"]
+syslog = ["mcpp-utils/syslog"]
 london_tdd = []
 integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
-# Only forward to ggen-core, which handles its own otel dependencies
+# Only forward to mcpp-core, which handles its own otel dependencies
 otel = [
-  "ggen-core/otel",
+  "mcpp-core/otel",
 ]
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "6.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "6.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "6.1.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "6.1.0" }
-ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "6.1.0", optional = true }
+mcpp-utils = { path = "crates/mcpp-utils", version = "26.5.4" }
+mcpp-cli-lib = { path = "crates/mcpp-cli", version = "26.5.4" }
+mcpp-core = { path = "crates/mcpp-core", version = "26.5.4" }
+mcpp-ai = { path = "crates/mcpp-ai", version = "26.5.4" }
+mcpp-a2a-mcp = { path = "crates/mcpp-a2a-mcp", version = "26.5.4", optional = true }
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
@@ -629,9 +537,9 @@ serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.18", features = ["v4"] }
 genai = { workspace = true }
 tracing-subscriber = "0.3"
-# Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
+# Note: OpenTelemetry dependencies are optional at the crate level (mcpp-core, etc.)
 # The root package doesn't directly use OTEL, so these are not included here.
-# Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
+# Enable OTEL via: cargo build --features otel (which forwards to mcpp-core/otel)
 # Example definitions removed - examples now discovered automatically by Cargo
 [dev-dependencies]
 assert_cmd = "2.0.17"
@@ -639,9 +547,8 @@ predicates = "3.1.3"
 serde_json = "1.0"
 tempfile = "3.23"
 anyhow = "1.0"
-ggen-domain = { path = "crates/ggen-domain", version = "6.1.0" }
-knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "6.1.0" }
-ggen-yawl = { path = "crates/ggen-yawl", version = "6.1.0" }
+mcpp-domain = { path = "crates/mcpp-domain", version = "26.5.4" }
+mcpp-yawl = { path = "crates/mcpp-yawl", version = "26.5.4" }
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.20"
@@ -676,16 +583,13 @@ lazy_static = "1.4"
 fastrand = "2.3"
 # Process Mining for workflow analytics
 process_mining = "0.2"
-ggen-process-mining = { path = "crates/ggen-process-mining", version = "6.1.0" }
+mcpp-process-mining = { path = "crates/mcpp-process-mining", version = "26.5.4" }
 # Cryptographic hashing for receipt tests
 sha2 = "0.10"
-# A2A/TPS System Benchmarks
-ggen-receipt.workspace = true
-ggen-jidoka.workspace = true
-ggen-packet.workspace = true
-ggen-backpressure.workspace = true
-ggen-a2a.workspace = true
-ggen-canonical.workspace = true
+# A2A System Benchmarks
+mcpp-receipt.workspace = true
+mcpp-a2a.workspace = true
+mcpp-canonical.workspace = true
 regex = "1.12"
 validator = "0.19"
 ed25519-dalek = "2.1"
@@ -964,6 +868,6 @@ changelog = "debian/changelog"
 systemd-units = []
 conffiles = []
 [package.metadata.deb.variants.amd64]
-package = "ggen-amd64"
+package = "mcpp-amd64"
 [package.metadata.deb.lintian-overrides]
 unused-shlibs = []

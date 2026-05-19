@@ -1,6 +1,6 @@
 [package]
-name = "ggen-a2a-registry"
-version = "6.1.0"
+name = "mcpp-a2a-registry"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 description = "Multi-agent A2A orchestration registry for agent discovery, health monitoring, and lifecycle management"
@@ -12,7 +12,7 @@ categories = ["development-tools", "network-programming"]
 readme = "README.md"
 
 [lib]
-name = "ggen_a2a_registry"
+name = "mcpp_a2a_registry"
 path = "src/lib.rs"
 
 [dependencies]

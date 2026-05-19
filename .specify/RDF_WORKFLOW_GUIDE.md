@@ -677,7 +677,7 @@ As a CI pipeline, I want to...
 **Symptom:**
 ```bash
 $ .specify/scripts/bash/check-prerequisites.sh --json
-ERROR: plan.ttl not found in /Users/sac/ggen/specs/005-ttl-shacl-validation/ontology
+ERROR: plan.ttl not found in ./specs/005-ttl-shacl-validation/ontology
 ```
 
 **Cause:** RDF-first feature detected (has `ontology/` and `ggen.toml`), but plan.ttl hasn't been created yet.

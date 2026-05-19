@@ -4,7 +4,7 @@
 //! Packs are converted to RDF graphs and can be queried using SPARQL.
 
 use crate::packs::types::Pack;
-use ggen_utils::error::{Error, Result};
+use ggen_core::utils::error::{Error, Result};
 use oxigraph::model::*;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;

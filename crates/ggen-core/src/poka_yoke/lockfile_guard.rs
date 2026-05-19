@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 
 use super::atomic_writer::AtomicFileWriter;
 use crate::packs::lockfile::PackLockfile;
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 
 /// Lockfile guard with exclusive file locking.
 ///

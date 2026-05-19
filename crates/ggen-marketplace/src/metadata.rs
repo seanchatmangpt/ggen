@@ -89,7 +89,7 @@ struct MetadataJson {
 /// # Examples
 ///
 /// ```ignore
-/// use ggen_marketplace::metadata::load_pack_metadata;
+/// use ggen_core::marketplace::metadata::load_pack_metadata;
 ///
 /// let metadata = load_pack_metadata("/home/user/.cache/ggen/packs/surface-mcp/1.0.0/")?;
 /// if let Some(signature) = metadata.signature {

@@ -2,7 +2,7 @@
 
 **Test Suite**: `taiea_http_governor_integration_SUITE` (Agent 13/20)
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
+**Location**: `./tai-erlang-autonomics/apps/tai_autonomics/test/taiea_http_governor_integration_SUITE.erl`
 
 **Run Command**: `rebar3 ct --suite=taiea_http_governor_integration_SUITE`
 

@@ -1,17 +1,17 @@
 [package]
-id = "io.ggen.nextjs.ontology-crud"
+id = "io.mcpp.nextjs.ontology-crud"
 name = "Next.js Ontology-Driven CRUD"
 version = "1.0.0"
 description = "Full-stack Next.js application with shadcn/ui where CRUD tables auto-sync with RDF ontology via git hooks"
-author = "ggen"
+author = "mcpp"
 license = "MIT"
 category = "web"
 tags = ["nextjs", "typescript", "shadcn", "ontology", "crud", "rdf", "fullstack"]
 
 [metadata]
-homepage = "https://github.com/seanchatmangpt/ggen"
-repository = "https://github.com/seanchatmangpt/ggen"
-documentation = "https://seanchatmangpt.github.io/ggen/"
+homepage = "https://github.com/seanchatmangpt/mcpp"
+repository = "https://github.com/seanchatmangpt/mcpp"
+documentation = "https://seanchatmangpt.github.io/mcpp/"
 
 [features]
 features = [
@@ -28,7 +28,7 @@ features = [
 ]
 
 [dependencies]
-ggen = ">=2.6.0"
+mcpp = ">=2.6.0"
 
 [structure]
 type = "nextjs-app"

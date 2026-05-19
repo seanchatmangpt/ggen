@@ -1,6 +1,6 @@
 [package]
-name = "ggen-codegen"
-version = "6.1.0"
+name = "mcpp-codegen"
+version = "26.5.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 description = "Generic code generation framework: trait-based, zero-cost abstractions"

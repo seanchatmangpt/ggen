@@ -6,7 +6,7 @@
 //! - Dimension scores (documentation, testing, security, etc.)
 //! - Use case matching
 
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::prelude::*;
 
 #[test]
 fn test_filter_by_maturity_level_production() {

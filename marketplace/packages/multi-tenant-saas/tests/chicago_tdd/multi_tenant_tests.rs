@@ -4,8 +4,8 @@
 //! following Chicago TDD principles (real RDF, real SPARQL, real execution)
 
 use anyhow::Result;
-use ggen_core::Graph;
-use ggen_domain::graph::{execute_query, QueryInput};
+use mcpp_core::Graph;
+use mcpp_domain::graph::{execute_query, QueryInput};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;

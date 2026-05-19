@@ -47,7 +47,7 @@ ac_eval_mode:end_session(SessionId).
 ## Files Created
 
 ### 1. Production Module
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/ac_eval_mode.erl`
+**File**: `./tai-erlang-autonomics/pricing-engine/src/ac_eval_mode.erl`
 
 The actual module code. Contains:
 - 16 public functions for eval-mode enforcement
@@ -61,7 +61,7 @@ The actual module code. Contains:
 **Status**: Compiles with zero warnings
 
 ### 2. Test Suite
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/ac_eval_mode_tests.erl`
+**File**: `./tai-erlang-autonomics/pricing-engine/test/ac_eval_mode_tests.erl`
 
 35+ comprehensive test cases covering:
 - Mode enforcement
@@ -75,7 +75,7 @@ The actual module code. Contains:
 **Status**: Ready to run with `rebar3 eunit --module=ac_eval_mode_tests`
 
 ### 3. Complete API Reference
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/docs/AC_EVAL_MODE.md`
+**File**: `./tai-erlang-autonomics/pricing-engine/docs/AC_EVAL_MODE.md`
 
 500+ line comprehensive guide covering:
 - Architecture and principles
@@ -89,7 +89,7 @@ The actual module code. Contains:
 **Use When**: You need complete reference documentation
 
 ### 4. Quick Reference
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/docs/EVAL_MODE_QUICK_REFERENCE.md`
+**File**: `./tai-erlang-autonomics/pricing-engine/docs/EVAL_MODE_QUICK_REFERENCE.md`
 
 300 line quick-start guide with:
 - One-minute overview
@@ -101,7 +101,7 @@ The actual module code. Contains:
 **Use When**: You need quick answers while coding
 
 ### 5. Integration Example
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/examples/eval_mode_integration_example.erl`
+**File**: `./tai-erlang-autonomics/pricing-engine/examples/eval_mode_integration_example.erl`
 
 Template showing:
 - Startup integration
@@ -113,7 +113,7 @@ Template showing:
 **Use When**: You're integrating into pricing_engine.erl
 
 ### 6. Implementation Summary
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/EVAL_MODE_IMPLEMENTATION.md`
+**File**: `./tai-erlang-autonomics/pricing-engine/EVAL_MODE_IMPLEMENTATION.md`
 
 400 line technical summary with:
 - Complete file overview
@@ -125,7 +125,7 @@ Template showing:
 **Use When**: You need to understand the full implementation
 
 ### 7. Executive Summary
-**File**: `/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/README_EVAL_MODE.md`
+**File**: `./tai-erlang-autonomics/pricing-engine/README_EVAL_MODE.md`
 
 500+ line overview with:
 - What and why
@@ -140,7 +140,7 @@ Template showing:
 
 ### 1. Verify It Compiles
 ```bash
-cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+cd ./tai-erlang-autonomics/pricing-engine
 erlc -o ebin src/ac_eval_mode.erl
 # Should output nothing (no warnings)
 ```

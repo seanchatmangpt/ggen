@@ -31,7 +31,10 @@
 //! - SPARQL-based queries
 //! - Version history as RDF facts
 
+pub mod atomic;
 pub mod builders;
+pub mod bundle;
+pub mod cache;
 pub mod error;
 pub mod install;
 pub mod metadata;
@@ -62,7 +65,7 @@ pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
 pub use search::SearchEngine;
 pub use search_sparql::SparqlSearchEngine;
-pub use security::SignatureVerifier;
+pub use security::MarketplaceVerifier;
 pub use traits::*;
 pub use v3::V3OptimizedRegistry;
 pub use validation::Validator;
@@ -78,7 +81,7 @@ pub mod prelude {
         registry_rdf::RdfRegistry,
         search::SearchEngine,
         search_sparql::SparqlSearchEngine,
-        security::SignatureVerifier,
+        security::MarketplaceVerifier,
         traits::{AsyncRepository, Installable, Observable, Queryable, Signable, Validatable},
         v3::V3OptimizedRegistry,
         validation::Validator,

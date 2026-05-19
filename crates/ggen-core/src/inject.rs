@@ -19,7 +19,7 @@
 //! use ggen_core::inject::EolNormalizer;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let eol = EolNormalizer::detect_eol(Path::new("file.txt"))?;
 //! println!("File uses EOL: {:?}", eol);
 //! # Ok(())
@@ -32,7 +32,7 @@
 //! use ggen_core::inject::EolNormalizer;
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let content = "line1\nline2\n";
 //! let normalized = EolNormalizer::normalize_to_match_file(
 //!     content,
@@ -55,7 +55,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -74,7 +74,7 @@ impl EolNormalizer {
     /// use ggen_core::inject::EolNormalizer;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let eol = EolNormalizer::detect_eol(Path::new("file.txt"))?;
     /// println!("File uses EOL: {:?}", eol);
     /// # Ok(())
@@ -187,7 +187,7 @@ impl EolNormalizer {
     /// use ggen_core::inject::EolNormalizer;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let content = "line1\nline2\n";
     /// let normalized = EolNormalizer::normalize_to_match_file(
     ///     content,
@@ -269,7 +269,7 @@ impl SkipIfGenerator {
     /// use ggen_core::inject::SkipIfGenerator;
     /// use std::path::Path;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let content = "// Generated code";
     /// let exists = SkipIfGenerator::content_exists_in_file(
     ///     content,

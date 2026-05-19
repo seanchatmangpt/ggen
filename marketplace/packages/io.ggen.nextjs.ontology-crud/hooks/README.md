@@ -88,8 +88,8 @@ Core script that handles the actual code generation.
 
 **What it does:**
 
-1. **Validates ontologies** with `ggen graph validate`
-2. **Loads into graph store** with `ggen graph load`
+1. **Validates ontologies** with `mcpp graph validate`
+2. **Loads into graph store** with `mcpp graph load`
 3. **Generates TypeScript types** from ontology
 4. **Generates API routes** for each entity
 5. **Generates CRUD components** for each entity
@@ -217,7 +217,7 @@ chmod +x docs/examples/scripts/regenerate-from-ontology.sh
 
 ```bash
 # Run validation manually
-ggen graph validate --file docs/examples/ontology/task-management.ttl
+mcpp graph validate --file docs/examples/ontology/task-management.ttl
 
 # Check ontology syntax
 rapper -i turtle docs/examples/ontology/task-management.ttl
@@ -317,7 +317,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install ggen
+      - name: Install mcpp
         run: cargo install --path .
       - name: Run regeneration
         run: ./docs/examples/scripts/regenerate-from-ontology.sh

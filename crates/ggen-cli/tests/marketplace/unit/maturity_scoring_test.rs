@@ -8,7 +8,7 @@
 //! - Adoption (max 15 points)
 //! - Maintenance (max 10 points)
 
-use ggen_marketplace::prelude::*;
+use ggen_core::marketplace::prelude::*;
 
 #[test]
 fn test_documentation_dimension_full_score() {

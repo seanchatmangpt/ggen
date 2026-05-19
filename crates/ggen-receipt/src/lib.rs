@@ -17,7 +17,7 @@
 //! ## Creating and signing a receipt
 //!
 //! ```
-//! use ggen_receipt::{Receipt, generate_keypair};
+//! use ggen_core::receipt::{Receipt, generate_keypair};
 //!
 //! let (signing_key, verifying_key) = generate_keypair();
 //!
@@ -37,7 +37,7 @@
 //! ## Building a receipt chain
 //!
 //! ```
-//! use ggen_receipt::{Receipt, ReceiptChain, generate_keypair};
+//! use ggen_core::receipt::{Receipt, ReceiptChain, generate_keypair};
 //!
 //! let (signing_key, verifying_key) = generate_keypair();
 //!
@@ -92,7 +92,7 @@ pub use receipt::{generate_keypair, hash_data, Receipt};
 /// # Example
 ///
 /// ```
-/// use ggen_receipt::{Receipt, create_chained_receipt, generate_keypair};
+/// use ggen_core::receipt::{Receipt, create_chained_receipt, generate_keypair};
 ///
 /// let (key, _vk) = generate_keypair();
 /// let parent = Receipt::new("parent-op".to_string(), vec![], vec![], None)

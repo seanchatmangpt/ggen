@@ -14,7 +14,7 @@
   "package_count": 66,
   "packages": [
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "academic",
@@ -22,7 +22,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "academic-bibliography-manager package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -40,7 +40,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "academic",
@@ -48,7 +48,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "academic-peer-review-workflow package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -66,7 +66,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "rust",
@@ -74,7 +74,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "advanced-rust-project package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "rust"
@@ -92,7 +92,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -100,7 +100,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "agent-cli-copilot package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -118,7 +118,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -126,7 +126,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "agent-context-crafter package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -144,7 +144,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -152,7 +152,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "agent-editor package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -170,7 +170,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -178,7 +178,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "agent-memory-forge package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -196,7 +196,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -204,7 +204,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "agent-reasoning-mcp package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -222,7 +222,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "ai",
@@ -230,7 +230,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "ai-code-generation package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "ai"
@@ -248,7 +248,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "architecture",
@@ -256,7 +256,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "ai-microservice package (v0.1.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "microservices",
@@ -276,7 +276,7 @@
       "version": "0.1.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -284,7 +284,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "api-endpoint package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -302,7 +302,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "academic",
@@ -310,7 +310,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "arxiv-paper-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -328,7 +328,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -336,7 +336,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "asset-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -354,7 +354,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "finance",
@@ -362,7 +362,7 @@
       "critical_guards_passed": 0,
       "critical_guards_total": 5,
       "description": "banking-core package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -380,7 +380,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -388,7 +388,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "business-intelligence-reporting package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -406,7 +406,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -414,7 +414,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "chatman-cli package (v0.1.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -432,7 +432,7 @@
       "version": "0.1.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -440,7 +440,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "clap-noun-verb package (v5.3.2)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -458,7 +458,7 @@
       "version": "5.3.2"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "templates",
@@ -466,7 +466,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "cli-application-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -484,7 +484,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -492,7 +492,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "clinical-trials-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -510,7 +510,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "rust",
@@ -518,7 +518,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "comprehensive-rust-showcase package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "rust"
@@ -536,7 +536,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "enterprise",
@@ -544,7 +544,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "crm-customer-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -562,7 +562,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -570,7 +570,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "cryptocurrency-exchange package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -588,7 +588,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -596,7 +596,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "customer-loyalty-rewards package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -614,7 +614,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "data",
@@ -622,7 +622,7 @@
       "critical_guards_passed": 5,
       "critical_guards_total": 5,
       "description": "data-pipeline-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -640,7 +640,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "data",
@@ -648,7 +648,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "database-schema-generator package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -666,7 +666,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -674,7 +674,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "document-management-system package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -692,7 +692,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "healthcare",
@@ -700,7 +700,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "ehr-integration package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -718,7 +718,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "enterprise",
@@ -726,7 +726,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "enterprise-erp-core package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -744,7 +744,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "templates",
@@ -752,7 +752,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "graphql-api-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -770,7 +770,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "healthcare",
@@ -778,7 +778,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "healthcare-analytics package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -796,7 +796,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -804,7 +804,7 @@
       "critical_guards_passed": 0,
       "critical_guards_total": 5,
       "description": "hello-world package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -822,7 +822,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -830,7 +830,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "human-resources-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -848,7 +848,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "academic",
@@ -856,7 +856,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "ieee-paper-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -874,7 +874,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -882,7 +882,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "inventory-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -900,23 +900,23 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
       "checksum": "42488565425ad95a60a9200dcf59b738210f62c701b68f6e70f73a34855182a4",
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
-      "description": "io.ggen.nextjs.ontology-crud package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "description": "io.mcpp.nextjs.ontology-crud package (v1.0.0)",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
       ],
       "last_validated": "2026-03-24T06:27:54.067593+00:00",
       "license": "MIT",
-      "name": "io.ggen.nextjs.ontology-crud",
-      "path": "marketplace/packages/io.ggen.nextjs.ontology-crud",
+      "name": "io.mcpp.nextjs.ontology-crud",
+      "path": "marketplace/packages/io.mcpp.nextjs.ontology-crud",
       "production_ready": false,
       "stars": 0,
       "tags": [
@@ -926,7 +926,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "finance",
@@ -934,7 +934,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "iso-20022-payments package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -952,7 +952,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -960,7 +960,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "knowledge-graph-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -978,7 +978,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -986,7 +986,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "kyc-aml-compliance package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1004,7 +1004,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1012,7 +1012,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "laboratory-information-system package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1030,7 +1030,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "healthcare",
@@ -1038,7 +1038,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "medical-billing package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1056,7 +1056,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "architecture",
@@ -1064,7 +1064,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "microservices-architecture package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "microservices"
@@ -1082,7 +1082,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "architecture",
@@ -1090,7 +1090,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "microservices-architecture-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template",
@@ -1110,7 +1110,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "enterprise",
@@ -1118,7 +1118,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "multi-tenant-saas package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1136,7 +1136,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "academic",
@@ -1144,7 +1144,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "neurips-paper-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -1162,7 +1162,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1170,7 +1170,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "order-management-system package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1188,7 +1188,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1196,7 +1196,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "pharmacy-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1214,7 +1214,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "templates",
@@ -1222,7 +1222,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "phd-thesis-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -1240,7 +1240,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1248,7 +1248,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "product-recommendations package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1266,7 +1266,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1274,7 +1274,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "project-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1292,7 +1292,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1300,7 +1300,7 @@
       "critical_guards_passed": 4,
       "critical_guards_total": 5,
       "description": "reasoner-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1318,7 +1318,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "templates",
@@ -1326,7 +1326,7 @@
       "critical_guards_passed": 3,
       "critical_guards_total": 5,
       "description": "rest-api-template package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "template"
@@ -1344,7 +1344,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1352,7 +1352,7 @@
       "critical_guards_passed": 0,
       "critical_guards_total": 5,
       "description": "risk-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1370,7 +1370,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1378,7 +1378,7 @@
       "critical_guards_passed": 0,
       "critical_guards_total": 5,
       "description": "robo-advisor package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1396,7 +1396,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1404,7 +1404,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "schema-forge-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1422,7 +1422,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1430,7 +1430,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "sector-api-gateway-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1448,7 +1448,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1456,7 +1456,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "sector-observability-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1474,7 +1474,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "academic",
@@ -1482,7 +1482,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "sector-paper-lifecycle-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1500,7 +1500,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "rust",
@@ -1508,7 +1508,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "sector-rust-microservice-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "rust",
@@ -1528,7 +1528,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1536,7 +1536,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "sector-support-hooks-8020 package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1554,7 +1554,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1562,7 +1562,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "semantic-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1580,7 +1580,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1588,7 +1588,7 @@
       "critical_guards_passed": 4,
       "critical_guards_total": 5,
       "description": "shacl-cli package (v0.1.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1606,7 +1606,7 @@
       "version": "0.1.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1614,7 +1614,7 @@
       "critical_guards_passed": 4,
       "critical_guards_total": 5,
       "description": "sparql-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1632,7 +1632,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "ai",
@@ -1640,7 +1640,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "supply-chain-management package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "ai"
@@ -1658,7 +1658,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1666,7 +1666,7 @@
       "critical_guards_passed": 2,
       "critical_guards_total": 5,
       "description": "telemedicine-platform package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1684,7 +1684,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1692,7 +1692,7 @@
       "critical_guards_passed": 1,
       "critical_guards_total": 5,
       "description": "trading-platform package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1710,7 +1710,7 @@
       "version": "1.0.0"
     },
     {
-      "author": "ggen-team",
+      "author": "mcpp-team",
       "bonus_guards_passed": 0,
       "bonus_guards_total": 0,
       "category": "uncategorized",
@@ -1718,7 +1718,7 @@
       "critical_guards_passed": 5,
       "critical_guards_total": 5,
       "description": "workflow-engine-cli package (v1.0.0)",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "download_url": "https://github.com/seanchatmangpt/mcpp/archive/refs/heads/master.zip",
       "downloads": 0,
       "keywords": [
         "package"
@@ -1736,7 +1736,7 @@
       "version": "1.0.0"
     }
   ],
-  "registry_url": "https://github.com/seanchatmangpt/ggen",
+  "registry_url": "https://github.com/seanchatmangpt/mcpp",
   "updated_at": "2026-03-24T06:27:57.241370+00:00",
   "version": "1.0.0"
 }

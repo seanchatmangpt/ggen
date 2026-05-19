@@ -19,7 +19,7 @@
 //! ```rust,no_run
 //! use ggen_core::cache::CacheManager;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! // Use default cache directory (~/.cache/ggen/gpacks)
 //! let cache = CacheManager::new()?;
 //!
@@ -36,7 +36,7 @@
 //! use ggen_core::cache::CacheManager;
 //! use ggen_core::registry::ResolvedPack;
 //!
-//! # async fn example() -> ggen_utils::error::Result<()> {
+//! # async fn example() -> crate::utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let resolved_pack = ResolvedPack {
 //!     id: "io.ggen.example".to_string(),
@@ -58,7 +58,7 @@
 //! ```rust,no_run
 //! use ggen_core::cache::CacheManager;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let cached_packs = cache.list_cached()?;
 //!
@@ -69,7 +69,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use git2::{FetchOptions, RemoteCallbacks, Repository};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -104,7 +104,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// println!("Cache directory: {:?}", cache.cache_dir());
     /// # Ok(())
@@ -130,7 +130,7 @@ impl CacheManager {
     /// use ggen_core::cache::CacheManager;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::with_dir(PathBuf::from("/tmp/ggen-cache"))?;
     /// println!("Cache directory: {:?}", cache.cache_dir());
     /// # Ok(())
@@ -150,7 +150,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let cache_path = cache.cache_dir();
     /// println!("Cache is at: {:?}", cache_path);
@@ -334,7 +334,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Assuming pack is already cached
     /// let cached = cache.load_cached("io.ggen.example", "1.0.0")?;
@@ -349,7 +349,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This will fail because the pack is not cached
     /// let result = cache.load_cached("nonexistent.pack", "1.0.0");
@@ -420,7 +420,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let cached_packs = cache.list_cached()?;
     ///
@@ -485,7 +485,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Remove a specific version of a pack
     /// cache.remove("io.ggen.example", "1.0.0")?;
@@ -498,7 +498,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
+    /// # fn main() -> crate::utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This may fail if we don't have permission to remove the pack
     /// let result = cache.remove("io.ggen.example", "1.0.0");

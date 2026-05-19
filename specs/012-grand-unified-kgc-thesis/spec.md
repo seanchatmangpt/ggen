@@ -81,7 +81,7 @@ A reader sees a complete case study showing ggen generating a full-stack applica
 
 **Acceptance Scenarios**:
 
-1. **Given** the project management ontology from /Users/sac/dis/astro/packages/tanstack-db, **When** referenced in the thesis, **Then** the generated artifacts (schemas, hooks, mutations) are documented with line counts
+1. **Given** the project management ontology from ~/.ggen/dis/astro/packages/tanstack-db, **When** referenced in the thesis, **Then** the generated artifacts (schemas, hooks, mutations) are documented with line counts
 2. **Given** the consistency metrics comparison, **When** presented in tables, **Then** the 73% reduction claim is supported by specific measurements
 3. **Given** the pnpm monorepo structure, **When** documented, **Then** the package organization follows the actual implementation
 
@@ -169,7 +169,7 @@ A reader understands how @unrdf/hooks enables declarative policy definition and 
 - The @unrdf/hooks and @unrdf/kgc-4d packages are stable at version 5.0.1
 - The existing thesis-gen templates from ggen examples can be extended for this thesis
 - Readers have graduate-level background in computer science and mathematics
-- The TanStack DB case study ontology at /Users/sac/dis/astro/packages/tanstack-db is complete and valid
+- The TanStack DB case study ontology at ~/.ggen/dis/astro/packages/tanstack-db is complete and valid
 
 ## Dependencies
 

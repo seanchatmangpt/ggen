@@ -19,7 +19,7 @@
 //!   SIGINT → Graceful Shutdown
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use notify::event::{ModifyKind, RenameMode};
 use notify::{Event, EventKind, RecursiveMode};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult};

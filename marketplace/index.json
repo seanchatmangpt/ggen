@@ -3,9 +3,9 @@
     "id": "Next.js Ontology-Driven CRUD",
     "name": "Next.js Ontology-Driven CRUD",
     "version": "1.0.0",
-    "path": "packages/io.ggen.nextjs.ontology-crud",
+    "path": "packages/io.mcpp.nextjs.ontology-crud",
     "description": "Full-stack Next.js application with shadcn/ui where CRUD tables auto-sync with RDF ontology via git hooks",
-    "author": "ggen",
+    "author": "mcpp",
     "license": "MIT",
     "category": "web"
   },
@@ -15,7 +15,7 @@
     "version": "1.0.0",
     "path": "packages/academic-bibliography-manager",
     "description": "Bibliography management system with BibTeX support, citation validation, duplicate detection, and multi-format export",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "academic-tools"
   },
@@ -25,7 +25,7 @@
     "version": "1.0.0",
     "path": "packages/academic-peer-review-workflow",
     "description": "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "academic-workflow"
   },
@@ -34,8 +34,8 @@
     "name": "advanced-rust-project",
     "version": "1.0.0",
     "path": "packages/advanced-rust-project",
-    "description": "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security",
-    "author": "ggen-team",
+    "description": "Advanced Rust project demonstrating all mcpp features: lifecycle, AI, SPARQL, templates, and security",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "showcase"
   },
@@ -45,7 +45,7 @@
     "version": "1.0.0",
     "path": "packages/agent-cli-copilot",
     "description": "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ai-agents"
   },
@@ -55,7 +55,7 @@
     "version": "1.0.0",
     "path": "packages/agent-context-crafter",
     "description": "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ai-agents"
   },
@@ -65,7 +65,7 @@
     "version": "1.0.0",
     "path": "packages/agent-editor",
     "description": "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ai-agents"
   },
@@ -75,7 +75,7 @@
     "version": "1.0.0",
     "path": "packages/agent-memory-forge",
     "description": "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ai-agents"
   },
@@ -85,7 +85,7 @@
     "version": "1.0.0",
     "path": "packages/agent-reasoning-mcp",
     "description": "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ai-agents"
   },
@@ -95,7 +95,7 @@
     "version": "1.0.0",
     "path": "packages/ai-code-generation",
     "description": "AI-powered code generation with multi-provider support and comprehensive validation",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ai"
   },
@@ -105,7 +105,7 @@
     "version": "0.1.0",
     "path": "packages/ai-microservice",
     "description": "AI-powered microservice with template generation, refactoring, and ontology support",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "microservices"
   },
@@ -115,7 +115,7 @@
     "version": "1.0.0",
     "path": "packages/api-endpoint",
     "description": "Complete REST API endpoint templates with OpenAPI documentation, validation, and security",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "templates"
   },
@@ -125,7 +125,7 @@
     "version": "1.0.0",
     "path": "packages/armstrong-compliance-dod",
     "description": "DoD focused on Armstrong fault tolerance: supervision trees, no shared state, let-it-crash, budget constraints. For Erlang/OTP, Elixir, and fault-tolerant systems.",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "quality-gate"
   },
@@ -135,7 +135,7 @@
     "version": "1.0.0",
     "path": "packages/arxiv-paper-template",
     "description": "arXiv-compatible preprint format with automatic metadata extraction and submission support",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "academic-paper"
   },
@@ -154,7 +154,7 @@
     "version": "1.0.0",
     "path": "packages/banking-core",
     "description": "Core banking system with account management, transactions, interest calculation, and regulatory reporting",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -203,7 +203,7 @@
     "version": "1.0.0",
     "path": "packages/cli-application-template",
     "description": "Generate production-ready CLI applications with commands, args, config, and help",
-    "author": "ggen-marketplace",
+    "author": "mcpp-marketplace",
     "license": "MIT",
     "category": "application"
   },
@@ -213,7 +213,7 @@
     "version": "1.0.0",
     "path": "packages/clinical-trials-management",
     "description": "Clinical trials management with protocol management, patient recruitment, and data collection",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -222,8 +222,8 @@
     "name": "comprehensive-rust-showcase",
     "version": "1.0.0",
     "path": "packages/comprehensive-rust-showcase",
-    "description": "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring",
-    "author": "ggen-team",
+    "description": "Comprehensive showcase of ALL mcpp features: lifecycle, AI, SPARQL, templates, security, performance, monitoring",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "showcase"
   },
@@ -243,7 +243,7 @@
     "version": "1.0.0",
     "path": "packages/cryptocurrency-exchange",
     "description": "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -269,7 +269,7 @@
     "version": "1.0.0",
     "path": "packages/database-schema-generator",
     "description": "Multi-database schema generator from RDF ontology using SPARQL",
-    "author": "ggen.io",
+    "author": "mcpp.io",
     "license": "MIT",
     "category": "database"
   },
@@ -288,7 +288,7 @@
     "version": "1.0.0",
     "path": "packages/dlss-curriculum",
     "description": "Design for Lean Six Sigma (DLSS) Black Belt certification curriculum following DMEDI methodology. 53 modules across 5 phases with real-world examples, statistical datasets, exercises, and capstone project.",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "education"
   },
@@ -307,7 +307,7 @@
     "version": "1.0.0",
     "path": "packages/ehr-integration",
     "description": "EHR integration with Epic/Cerner connectors and SMART on FHIR support",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -336,7 +336,7 @@
     "version": "1.0.0",
     "path": "packages/graphql-api-template",
     "description": "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support",
-    "author": "ggen-marketplace",
+    "author": "mcpp-marketplace",
     "license": "MIT",
     "category": "api"
   },
@@ -346,7 +346,7 @@
     "version": "1.0.0",
     "path": "packages/healthcare-analytics",
     "description": "Healthcare analytics with population health, quality measures, and predictive analytics",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -355,8 +355,8 @@
     "name": "hello-world",
     "version": "1.0.0",
     "path": "packages/hello-world",
-    "description": "Simple Hello World starter template for learning ggen basics",
-    "author": "ggen-team",
+    "description": "Simple Hello World starter template for learning mcpp basics",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "starter"
   },
@@ -384,7 +384,7 @@
     "version": "1.0.0",
     "path": "packages/ieee-paper-template",
     "description": "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "academic-paper"
   },
@@ -394,7 +394,7 @@
     "version": "1.0.0",
     "path": "packages/inventory-management",
     "description": "Comprehensive inventory and warehouse management with stock tracking, FIFO/LIFO valuation, lot tracing, reorder automation, and multi-channel allocation",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ecommerce"
   },
@@ -404,7 +404,7 @@
     "version": "1.0.0",
     "path": "packages/iso-20022-payments",
     "description": "ISO 20022 Payment Messages - RDF ontology, SPARQL templates, and multi-language implementation",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -413,7 +413,7 @@
     "name": "java26-core",
     "version": "1.0.0",
     "path": "packages/java26-core",
-    "description": "Core OWL vocabulary for Java 26 Pattern Language with ggen",
+    "description": "Core OWL vocabulary for Java 26 Pattern Language with mcpp",
     "license": "MIT"
   },
   {
@@ -471,7 +471,7 @@
     "version": "1.0.0",
     "path": "packages/kyc-aml-compliance",
     "description": "KYC/AML Compliance - Identity verification, risk scoring, sanctions screening, and transaction monitoring",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -481,7 +481,7 @@
     "version": "1.0.0",
     "path": "packages/laboratory-information-system",
     "description": "Laboratory information system with test ordering, specimen tracking, and results reporting",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -491,7 +491,7 @@
     "version": "1.0.0",
     "path": "packages/medical-billing",
     "description": "Medical billing with CPT/ICD-10 codes, insurance claims, and revenue cycle management",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -501,7 +501,7 @@
     "version": "1.0.0",
     "path": "packages/microservices-architecture",
     "description": "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, and Redis",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "architecture"
   },
@@ -519,7 +519,7 @@
     "version": "1.0.0",
     "path": "packages/multi-tenant-saas",
     "description": "Multi-tenant SaaS architecture with tenant isolation, provisioning, subscription tiers, usage metering, and billing engine",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ecommerce"
   },
@@ -529,7 +529,7 @@
     "version": "1.0.0",
     "path": "packages/neurips-paper-template",
     "description": "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "academic-paper"
   },
@@ -547,7 +547,7 @@
     "version": "1.0.0",
     "path": "packages/pharmacy-management",
     "description": "Pharmacy management with medication dispensing, drug interactions, and insurance claims",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -557,7 +557,7 @@
     "version": "1.0.0",
     "path": "packages/phd-thesis-template",
     "description": "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "academic-paper"
   },
@@ -567,7 +567,7 @@
     "version": "1.0.0",
     "path": "packages/product-recommendations",
     "description": "AI-powered product recommendation engine with collaborative filtering, content-based filtering, A/B testing, real-time personalization, and ML model training",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "ecommerce"
   },
@@ -604,7 +604,7 @@
     "version": "1.0.0",
     "path": "packages/risk-management",
     "description": "Comprehensive risk management system with VaR calculation, stress testing, credit risk, and market risk analysis",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -614,7 +614,7 @@
     "version": "1.0.0",
     "path": "packages/robo-advisor",
     "description": "Automated investment advisor with portfolio allocation, rebalancing, tax-loss harvesting, and risk tolerance assessment",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -708,7 +708,7 @@
     "version": "1.0.0",
     "path": "packages/telemedicine-platform",
     "description": "Comprehensive telemedicine platform with video conferencing, appointments, and prescriptions",
-    "author": "ggen Healthcare Team",
+    "author": "mcpp Healthcare Team",
     "license": "MIT",
     "category": "healthcare"
   },
@@ -718,7 +718,7 @@
     "version": "1.0.0",
     "path": "packages/three-layer-verification-dod",
     "description": "Full three-layer DoD: OTEL span proof + test assertion + weaver schema conformance. For production projects requiring complete evidence-based verification.",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "quality-gate"
   },
@@ -728,7 +728,7 @@
     "version": "1.0.0",
     "path": "packages/trading-platform",
     "description": "Trading Platform - RDF ontology for order books, matching engine, and market data",
-    "author": "ggen Marketplace",
+    "author": "mcpp Marketplace",
     "license": "MIT",
     "category": "finance"
   },
@@ -746,7 +746,7 @@
     "version": "1.0.0",
     "path": "packages/wvda-soundness-dod",
     "description": "DoD focused on van der Aalst soundness: deadlock freedom, liveness guarantee, boundedness. For workflow engines, process mining, and coordination systems.",
-    "author": "ggen-team",
+    "author": "mcpp-team",
     "license": "MIT",
     "category": "quality-gate"
   }

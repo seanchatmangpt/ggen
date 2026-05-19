@@ -296,7 +296,7 @@ If any of these happen, escalate to CEO + Board:
 
 ## DOCUMENT STORAGE & ACCESS
 
-**Location**: `/Users/sac/ggen/tai-erlang-autonomics/execution/week-10-13/`
+**Location**: `./tai-erlang-autonomics/execution/week-10-13/`
 
 **Files**:
 ```

@@ -197,7 +197,7 @@ mod tests {
     }
 
     fn make_trusted_entry(id: &str) -> (TrustedKeyEntry, VerifyingKey) {
-        let (_sk, vk) = ggen_receipt::generate_keypair();
+        let (_sk, vk) = ggen_core::receipt::generate_keypair();
         let entry = TrustedKeyEntry {
             key_id: id.to_string(),
             public_key_hex: hex::encode(vk.to_bytes()),
@@ -364,7 +364,7 @@ mod tests {
     #[test]
     fn test_verify_key_trusted_unknown_key() {
         let mgr = PkiManager::new();
-        let (_sk, vk) = ggen_receipt::generate_keypair();
+        let (_sk, vk) = ggen_core::receipt::generate_keypair();
         assert!(!mgr.verify_key_trusted(&vk));
     }
 

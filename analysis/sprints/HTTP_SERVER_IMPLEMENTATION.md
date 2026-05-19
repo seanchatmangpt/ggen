@@ -136,9 +136,9 @@ The current implementation returns a simple status response listing available to
 
 ## Files Modified
 
-1. `/Users/sac/ggen/crates/ggen-a2a-mcp/Cargo.toml` - Added axum, tower-http, rand, reqwest
-2. `/Users/sac/ggen/crates/ggen-a2a-mcp/src/server.rs` - Implemented real HTTP server
-3. `/Users/sac/ggen/crates/ggen-a2a-mcp/tests/http_server_test.rs` - Created comprehensive test suite
+1. `./crates/ggen-a2a-mcp/Cargo.toml` - Added axum, tower-http, rand, reqwest
+2. `./crates/ggen-a2a-mcp/src/server.rs` - Implemented real HTTP server
+3. `./crates/ggen-a2a-mcp/tests/http_server_test.rs` - Created comprehensive test suite
 
 ## Next Steps
 

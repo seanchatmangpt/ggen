@@ -17,7 +17,7 @@
 //! use ggen_core::drift::{DriftDetector, DriftStatus};
 //! use std::path::Path;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let detector = DriftDetector::new(Path::new(".ggen"))?;
 //! let status = detector.check_drift(
 //!     Path::new("ontology.ttl"),

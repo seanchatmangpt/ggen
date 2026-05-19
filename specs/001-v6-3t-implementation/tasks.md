@@ -16,7 +16,7 @@
 
 ## Path Conventions
 
-**Current Project**: Specification system at `/Users/sac/ggen/specs/001-v6-3t-implementation/`
+**Current Project**: Specification system at `./specs/001-v6-3t-implementation/`
 - Ontology files: `ontology/*.ttl`
 - Templates: `templates/*.tera`
 - Configuration: `ggen.toml`
@@ -166,7 +166,7 @@ Before starting this phase, verify:
   - Files: ontology/spec-schema.ttl, ontology/v6-spec-content.ttl
 
 - [ ] T022 Execute first ggen sync to generate specification
-  - Command: `cd /Users/sac/ggen/specs/001-v6-3t-implementation && ggen sync`
+  - Command: `cd ./specs/001-v6-3t-implementation && ggen sync`
   - Expected: 10 markdown files created in generated/
   - Expected: .receipt.json created with SHA-256 hashes
   - Expected: No errors during μ₁ (normalization), μ₂ (extraction), μ₃ (emission), μ₄ (canonicalization), μ₅ (receipt)
@@ -225,7 +225,7 @@ Before starting this phase, verify:
   - Output: ontology/*.ttl, templates/*.tera, ggen.toml
 
 - [ ] T029 Convert another specification to 3T format (proof of template reusability)
-  - Target: Select another feature spec from /Users/sac/ggen/specs/
+  - Target: Select another feature spec from ./specs/
   - Apply: Use this system as template
   - Validate: Successfully generates from ontology
 

@@ -44,7 +44,7 @@ use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
-use ggen_receipt::{generate_keypair, hash_data, Receipt};
+use ggen_core::receipt::{generate_keypair, hash_data, Receipt};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -354,7 +354,7 @@ fn check_profile_preconditions(
     if profile.is_some() || locked {
         let workspace =
             std::env::current_dir().map_err(|e| NounVerbError::execution_error(e.to_string()))?;
-        ggen_domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
+        ggen_core::domain::sync_profile::validate_sync_preconditions(profile, locked, &workspace)
             .map_err(NounVerbError::execution_error)?;
     }
     Ok(())
@@ -405,31 +405,19 @@ fn emit_sync_receipt_best_effort(result: &SyncResult, installed_packs: &[String]
 
 /// Read the installed packs from a packs.lock JSON file.
 ///
-/// Returns a list of `"<id>@<version>"` strings, one per installed pack.
-/// Returns an empty vec if the file is absent or cannot be parsed.
+/// Delegates to the domain lockfile module for single-schema reads.
 fn read_installed_packs(lock_path: &str) -> Vec<String> {
     let path = std::path::Path::new(lock_path);
     if !path.exists() {
         return vec![];
     }
-    let content = std::fs::read_to_string(path).unwrap_or_default();
-    let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) else {
-        return vec![];
-    };
-    val.get("packs")
-        .and_then(|p| p.as_object())
-        .map(|obj| {
-            obj.iter()
-                .map(|(id, entry)| {
-                    let version = entry
-                        .get("version")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("unknown");
-                    format!("{}@{}", id, version)
-                })
-                .collect()
-        })
-        .unwrap_or_default()
+    match ggen_core::domain::packs::lockfile::list_packs(path) {
+        Ok(packs) => packs
+            .iter()
+            .map(|p| format!("{}@{}", p.id, p.version))
+            .collect(),
+        Err(_) => vec![],
+    }
 }
 
 /// Emit a cryptographically signed sync receipt to `.ggen/receipts/`.
@@ -482,8 +470,18 @@ fn emit_sync_receipt(result: &SyncResult, installed_packs: &[String]) -> std::re
     if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
         input_hashes.push(format!("ggen.toml:{}", hash_data(manifest_content.as_bytes())));
     }
-    for pack in installed_packs {
-        input_hashes.push(format!("pack:{}", pack));
+    // Use real pack digests from lockfile instead of fake id@version strings.
+    let lockfile_path = std::path::Path::new(".ggen/packs.lock");
+    if lockfile_path.exists() {
+        if let Ok(locked_packs) = ggen_core::domain::packs::lockfile::list_packs(lockfile_path) {
+            for lp in &locked_packs {
+                if let Some(ref digest) = lp.digest {
+                    input_hashes.push(format!("pack:{}:{}", lp.id, digest.prefixed()));
+                } else {
+                    input_hashes.push(format!("pack:{}@{}", lp.id, lp.version));
+                }
+            }
+        }
     }
 
     // 4. Build output hashes from generated file paths stored in SyncResult.

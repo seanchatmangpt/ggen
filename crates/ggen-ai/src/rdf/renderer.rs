@@ -3,7 +3,7 @@
 //! Uses Tera templates to generate complete Rust CLI projects from
 //! structured data extracted from RDF graphs.
 
-use ggen_utils::error::{Context as ErrorContext, Result};
+use ggen_core::utils::error::{Context as ErrorContext, Result};
 use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
 
@@ -41,7 +41,7 @@ impl TemplateRenderer {
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
         let tera = Tera::new(&pattern).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            ggen_core::utils::error::Error::new(&format!(
                 "Failed to load templates from directory {}: {}",
                 template_dir.display(),
                 e
@@ -82,7 +82,7 @@ impl TemplateRenderer {
     /// * `Err` - Template not found or rendering failed
     pub fn render_file(&self, template: &str, context: &Context) -> Result<String> {
         self.tera.render(template, context).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to render template {}: {}", template, e))
+            ggen_core::utils::error::Error::new(&format!("Failed to render template {}: {}", template, e))
         })
     }
 
@@ -120,7 +120,7 @@ impl TemplateRenderer {
 
         // Create src directory
         std::fs::create_dir_all(output_dir.join("src")).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create src directory: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create src directory: {}", e))
         })?;
 
         // Render main.rs
@@ -147,7 +147,7 @@ impl TemplateRenderer {
 
         // Create cmds directory
         std::fs::create_dir_all(output_dir.join("src/cmds")).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create src/cmds directory: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create src/cmds directory: {}", e))
         })?;
 
         // Render cmds/mod.rs
@@ -164,7 +164,7 @@ impl TemplateRenderer {
         for noun in &project.nouns {
             let noun_dir = output_dir.join("src/cmds").join(&noun.name);
             std::fs::create_dir_all(&noun_dir).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
+                ggen_core::utils::error::Error::new(&format!(
                     "Failed to create noun directory {}: {}",
                     noun.name, e
                 ))
@@ -202,7 +202,7 @@ impl TemplateRenderer {
 
         // Create tests directory
         std::fs::create_dir_all(output_dir.join("tests")).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create tests directory: {}", e))
+            ggen_core::utils::error::Error::new(&format!("Failed to create tests directory: {}", e))
         })?;
 
         // Render tests/integration_test.rs
@@ -247,7 +247,7 @@ impl TemplateRenderer {
     ) -> Result<()> {
         let content = self.render_file(template, context)?;
         std::fs::write(&output_path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
+            ggen_core::utils::error::Error::new(&format!(
                 "Failed to write file {}: {}",
                 output_path.display(),
                 e

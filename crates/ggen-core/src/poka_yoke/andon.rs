@@ -26,7 +26,7 @@
 //! signal.enforce()?;  // Displays error and returns Err
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use std::fmt;
 
 /// Critical error information for RED signal

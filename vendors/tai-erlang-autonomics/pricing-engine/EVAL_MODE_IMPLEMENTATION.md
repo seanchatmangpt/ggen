@@ -401,7 +401,7 @@ ok
 ## File Locations
 
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/
+./tai-erlang-autonomics/pricing-engine/
 
 ├── src/
 │   └── ac_eval_mode.erl                          (380 LOC)
@@ -422,7 +422,7 @@ ok
 
 1. **Compile and Test**
    ```bash
-   cd /Users/sac/ggen/tai-erlang-autonomics/pricing-engine
+   cd ./tai-erlang-autonomics/pricing-engine
    rebar3 compile
    rebar3 eunit --module=ac_eval_mode_tests
    ```

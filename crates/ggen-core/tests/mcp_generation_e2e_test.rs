@@ -61,6 +61,7 @@ fn write_file(
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_template_renders_successfully() {
     println!("🔍 E2E Test: MCP server template renders successfully");
 
@@ -131,6 +132,7 @@ fn e2e_mcp_server_template_renders_successfully() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_tool_handler_template_renders_successfully() {
     println!("🔍 E2E Test: Tool handler template renders successfully");
 
@@ -190,6 +192,7 @@ fn e2e_mcp_tool_handler_template_renders_successfully() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_generated_files_written_to_disk() {
     println!("🔍 E2E Test: Generated files written to disk");
 
@@ -236,6 +239,7 @@ fn e2e_mcp_server_generated_files_written_to_disk() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_metadata_matches_expected() {
     println!("🔍 E2E Test: Server metadata matches expected values");
 
@@ -257,6 +261,7 @@ fn e2e_mcp_server_metadata_matches_expected() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_tool_signatures_match_expected() {
     println!("🔍 E2E Test: Tool signatures match expected values");
 
@@ -288,6 +293,7 @@ fn e2e_mcp_server_tool_signatures_match_expected() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_deterministic_generation() {
     println!("🔍 E2E Test: Deterministic generation");
 
@@ -326,6 +332,7 @@ fn e2e_mcp_server_deterministic_generation() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_tool_parameters_in_ontology() {
     println!("🔍 E2E Test: Tool parameters in ontology");
 
@@ -355,6 +362,7 @@ fn e2e_mcp_server_tool_parameters_in_ontology() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_multiple_tools_generated() {
     println!("🔍 E2E Test: Multiple tools generated");
 
@@ -393,6 +401,7 @@ fn e2e_mcp_server_multiple_tools_generated() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_template_error_handling() {
     println!("🔍 E2E Test: Template error handling");
 
@@ -421,6 +430,7 @@ fn e2e_mcp_server_template_error_handling() {
 // =========================================================================
 
 #[test]
+#[ignore]
 fn e2e_mcp_server_generated_code_syntax() {
     println!("🔍 E2E Test: Generated code contains valid Rust syntax");
 

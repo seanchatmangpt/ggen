@@ -5,7 +5,7 @@
 //! and provides SPARQL-based querying capabilities.
 
 use chrono::{DateTime, Utc};
-use ggen_utils::error::{Error, Result};
+use crate::utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};

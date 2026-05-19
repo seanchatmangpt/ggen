@@ -3,14 +3,14 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix cli: <http://ggen.io/ontology/semantic-cli#> .
-@prefix clap: <http://ggen.io/ontology/clap-noun-verb#> .
+@prefix cli: <http://mcpp.io/ontology/semantic-cli#> .
+@prefix clap: <http://mcpp.io/ontology/clap-noun-verb#> .
 
 # Ontology definition
 cli:SemanticCLIOntology a owl:Ontology ;
     rdfs:label "Semantic CLI Ontology" ;
     dc:description "RDF ontology for semantic-cli tool using clap-noun-verb pattern" ;
-    dc:creator "ggen-team" ;
+    dc:creator "mcpp-team" ;
     owl:versionInfo "1.0.0" .
 
 # ===== Noun Classes =====

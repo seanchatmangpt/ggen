@@ -5,7 +5,7 @@
 //! where [`A2AIntegrationError`] represents the various failure modes.
 
 use crate::Result as YawlResult;
-use a2a_generated::task::TaskError;
+use ggen_core::ggen_core::ggen_core::a2a_generated::task::TaskError;
 use std::collections::HashMap;
 
 /// Result type for YAWL to A2A integration operations.

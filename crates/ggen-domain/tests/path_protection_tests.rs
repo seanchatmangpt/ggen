@@ -3,7 +3,7 @@
 //! Tests the `[generation].protected_paths` and `[generation].regenerate_paths`
 //! configuration from ggen.toml to prevent accidental overwrites of domain logic.
 
-use ggen_domain::generation::protection::{GenerationWriteResult, PathProtectionValidator};
+use ggen_core::domain::generation::protection::{GenerationWriteResult, PathProtectionValidator};
 use std::fs;
 use tempfile::TempDir;
 

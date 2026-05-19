@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ggen-core = { path = "../../ggen-core" }
-ggen-ai = { path = "../../ggen-ai" }
+mcpp-core = { path = "../../mcpp-core" }
+mcpp-ai = { path = "../../mcpp-ai" }
 tokio = { version = "1.42", features = ["full"] }
 anyhow = "1.0"
 thiserror = "2.0"

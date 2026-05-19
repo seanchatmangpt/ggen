@@ -27,7 +27,7 @@
 //! ```rust,no_run
 //! use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> crate::utils::error::Result<()> {
 //! let config = TelemetryConfig {
 //!     endpoint: "http://localhost:4317".to_string(),
 //!     service_name: "ggen".to_string(),
@@ -40,11 +40,11 @@
 //! # }
 //! ```
 
-use ggen_utils::error::Result;
+use crate::utils::error::Result;
 
 // OpenTelemetry implementation (only when "otel" feature is enabled)
 #[cfg(feature = "otel")]
-use ggen_utils::error::Error;
+use crate::utils::error::Error;
 #[cfg(feature = "otel")]
 use opentelemetry::{global, KeyValue};
 #[cfg(feature = "otel")]
@@ -114,7 +114,7 @@ impl Drop for TelemetryGuard {
 /// use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
 ///
 /// #[tokio::main]
-/// async fn main() -> ggen_utils::error::Result<()> {
+/// async fn main() -> crate::utils::error::Result<()> {
 ///     let config = TelemetryConfig::default();
 ///     let _guard = init_telemetry(config)?;
 ///

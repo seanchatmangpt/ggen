@@ -3,7 +3,7 @@
 //! This module provides programmatic access to the Ggen ontology.
 //! Refactored from v1 to use v2 error handling patterns.
 
-use ggen_utils::error::Result;
+use ggen_core::utils::error::Result;
 
 /// Ggen ontology namespace
 pub const GGEN_NAMESPACE: &str = "http://ggen.dev/ontology#";

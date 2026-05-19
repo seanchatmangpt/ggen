@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-METRICS_DIR="/Users/sac/ggen/.metrics"
+METRICS_DIR="./.metrics"
 BASELINE_FILE="$METRICS_DIR/baseline-week-0.json"
 DATE=$(date +%Y-%m-%d)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")

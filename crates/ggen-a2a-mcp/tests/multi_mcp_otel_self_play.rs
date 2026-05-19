@@ -143,7 +143,7 @@ fn args(json: serde_json::Value) -> serde_json::Map<String, serde_json::Value> {
 
 #[tokio::test]
 async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -158,7 +158,7 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
         );
 
         // Step 2: validate_sparql -- emits ggen.mcp.tool_call with mcp.tool_name=validate_sparql
-        let sparql_path = "/Users/sac/ggen/crates/ggen-core/queries/a2a/extract-agents.rq";
+        let sparql_path = "./crates/ggen-core/queries/a2a/extract-agents.rq";
         let sparql_result = bridge
             .call_mcp_tool(
                 "validate_sparql",
@@ -172,7 +172,7 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
         );
 
         // Step 3: validate_templates -- emits ggen.mcp.tool_call with mcp.tool_name=validate_templates
-        let template_path = "/Users/sac/ggen/templates/hello.tmpl";
+        let template_path = "./templates/hello.tmpl";
         let tmpl_result = bridge
             .call_mcp_tool(
                 "validate_templates",
@@ -214,7 +214,7 @@ async fn test_multi_mcp_validation_chain() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -299,7 +299,7 @@ async fn test_multi_mcp_ontology_exploration() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_generator_discovery() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {
@@ -380,7 +380,7 @@ async fn test_multi_mcp_generator_discovery() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_concurrent_tools() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = Arc::new(SelfPlayBridge::new(examples_dir).await?);
 
     let result = (|| async {
@@ -475,7 +475,7 @@ async fn test_multi_mcp_concurrent_tools() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn test_multi_mcp_error_recovery_chain() -> anyhow::Result<()> {
-    let examples_dir = "/Users/sac/ggen/examples";
+    let examples_dir = "./examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
     let result = (|| async {

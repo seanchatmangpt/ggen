@@ -273,6 +273,6 @@ Total time: 1.17 seconds
 ```
 
 **Generated**: 2026-03-24
-**Test File**: `/Users/sac/ggen/tests/armstrong_integration.rs`
+**Test File**: `./tests/armstrong_integration.rs`
 **Lines of Test Code**: 725
 **Coverage**: 3 main scenarios + 3 supporting tests

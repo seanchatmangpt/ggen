@@ -5,23 +5,23 @@
 
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX ggen: <http://ggen.tech/ontology#>
-PREFIX ms: <http://ggen.tech/microservices#>
+PREFIX mcpp: <http://mcpp.tech/ontology#>
+PREFIX ms: <http://mcpp.tech/microservices#>
 
 # ----------------------------------------------------------------------------
 # Query 1: Generate API Gateway Service (Rust/Axum)
 # ----------------------------------------------------------------------------
 
 CONSTRUCT {
-    ?gateway ggen:generatesFile ?filename ;
-             ggen:fileContent ?content .
+    ?gateway mcpp:generatesFile ?filename ;
+             mcpp:fileContent ?content .
 }
 WHERE {
     ?gateway a ms:APIGateway ;
-             ggen:name ?name ;
-             ggen:language "Rust" ;
-             ggen:framework "Axum" ;
-             ggen:port ?port .
+             mcpp:name ?name ;
+             mcpp:language "Rust" ;
+             mcpp:framework "Axum" ;
+             mcpp:port ?port .
 
     BIND(CONCAT(?name, "/src/main.rs") AS ?filename)
     BIND(CONCAT(
@@ -172,14 +172,14 @@ WHERE {
 # ----------------------------------------------------------------------------
 
 CONSTRUCT {
-    ?service ggen:generatesFile ?filename ;
-             ggen:fileContent ?content .
+    ?service mcpp:generatesFile ?filename ;
+             mcpp:fileContent ?content .
 }
 WHERE {
     ?service a ms:BusinessService ;
-             ggen:name "user-service" ;
-             ggen:language "TypeScript" ;
-             ggen:port ?port .
+             mcpp:name "user-service" ;
+             mcpp:language "TypeScript" ;
+             mcpp:port ?port .
 
     BIND("user-service/src/index.ts" AS ?filename)
     BIND(CONCAT(
@@ -262,14 +262,14 @@ WHERE {
 # ----------------------------------------------------------------------------
 
 CONSTRUCT {
-    ?service ggen:generatesFile ?filename ;
-             ggen:fileContent ?content .
+    ?service mcpp:generatesFile ?filename ;
+             mcpp:fileContent ?content .
 }
 WHERE {
     ?service a ms:BusinessService ;
-             ggen:name "product-service" ;
-             ggen:language "Python" ;
-             ggen:port ?port .
+             mcpp:name "product-service" ;
+             mcpp:language "Python" ;
+             mcpp:port ?port .
 
     BIND("product-service/main.py" AS ?filename)
     BIND(CONCAT(
@@ -345,8 +345,8 @@ WHERE {
 # ----------------------------------------------------------------------------
 
 CONSTRUCT {
-    ?config ggen:generatesFile "docker-compose.yml" ;
-            ggen:fileContent ?content .
+    ?config mcpp:generatesFile "docker-compose.yml" ;
+            mcpp:fileContent ?content .
 }
 WHERE {
     BIND(ms:InfrastructureService AS ?config)
@@ -457,15 +457,15 @@ WHERE {
 # ----------------------------------------------------------------------------
 
 CONSTRUCT {
-    ?deployment ggen:generatesFile ?filename ;
-                ggen:fileContent ?content .
+    ?deployment mcpp:generatesFile ?filename ;
+                mcpp:fileContent ?content .
 }
 WHERE {
     ?deployment a ms:Deployment ;
-                ggen:name ?name ;
-                ggen:replicas ?replicas ;
-                ggen:resourceLimitCPU ?cpuLimit ;
-                ggen:resourceLimitMemory ?memLimit .
+                mcpp:name ?name ;
+                mcpp:replicas ?replicas ;
+                mcpp:resourceLimitCPU ?cpuLimit ;
+                mcpp:resourceLimitMemory ?memLimit .
 
     BIND(CONCAT("kubernetes/", ?name, "-deployment.yaml") AS ?filename)
     BIND(CONCAT(

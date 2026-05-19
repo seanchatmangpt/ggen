@@ -238,7 +238,7 @@ crypto:hash(sha256, Input) == ProvidedHash  % WRONG: timing leak
 
 ### Production Code
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/src/
+./tai-erlang-autonomics/pricing-engine/src/
 ├── ac_eval_mode.erl                    [503 LOC - PRODUCTION]
 ├── ac_receipt_ledger_mcp.erl           [661 LOC - PRODUCTION]
 └── pricing_engine.erl                  [UPDATED - PRODUCTION]
@@ -246,7 +246,7 @@ crypto:hash(sha256, Input) == ProvidedHash  % WRONG: timing leak
 
 ### Test Suite
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/test/
+./tai-erlang-autonomics/pricing-engine/test/
 ├── ac_eval_mode_tests.erl              [450+ LOC]
 ├── ac_receipt_ledger_mcp_tests.erl     [510 LOC]
 └── pricing_engine_eval_mode_integration_SUITE.erl [350+ LOC]
@@ -254,7 +254,7 @@ crypto:hash(sha256, Input) == ProvidedHash  % WRONG: timing leak
 
 ### Examples
 ```
-/Users/sac/ggen/tai-erlang-autonomics/pricing-engine/examples/
+./tai-erlang-autonomics/pricing-engine/examples/
 ├── eval_mode_integration_example.erl   [250 LOC]
 ├── receipt_ledger_example.erl          [540 LOC]
 └── detailed_epoch_rotation_example.erl [300+ LOC]
@@ -262,7 +262,7 @@ crypto:hash(sha256, Input) == ProvidedHash  % WRONG: timing leak
 
 ### Documentation
 ```
-/Users/sac/ggen/tai-erlang-autonomics/
+./tai-erlang-autonomics/
 ├── EVAL_MODE_PHASE_1_COMPLETION.md     [Comprehensive phase summary]
 ├── pricing-engine/docs/
 │   ├── AC_EVAL_MODE.md                 [API reference - 500+ lines]

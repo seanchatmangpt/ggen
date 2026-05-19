@@ -3,7 +3,7 @@
 //! Demonstrates task lifecycle through state machine with guards.
 //! Only valid transitions are allowed. Terminal states are final.
 
-use ggen_a2a::{
+use ggen_core::a2a::{
     state_machine::{StateTransition, TaskStateMachine},
     Artifact, ArtifactType, Task, TaskState,
 };
