@@ -563,7 +563,7 @@ impl<R: AsyncRepository> Installer<R> {
         let signature = MarketplaceSignature {
             signature: signature_hex.to_string(),
             public_key: public_key_hex,
-            checksum: crate::receipt::hash_data(data),
+            checksum: ggen_config::receipt::hash_data(data),
         };
 
         // Verify signature

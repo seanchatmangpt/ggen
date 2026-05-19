@@ -24,6 +24,7 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 members = [
   "crates/ggen-a2a-mcp",
   "crates/ggen-config",
+  "crates/ggen-marketplace",
   "crates/ggen-core",
   "crates/ggen-cli",
   "crates/prolog8",

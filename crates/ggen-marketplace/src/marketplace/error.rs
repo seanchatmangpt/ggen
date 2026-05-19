@@ -163,24 +163,28 @@ pub enum Error {
     Other(String),
 }
 
-// Implement From<crate::receipt::ReceiptError> for compatibility
-impl From<crate::receipt::ReceiptError> for Error {
-    fn from(err: crate::receipt::ReceiptError) -> Self {
+// Implement From<ggen_config::receipt::ReceiptError> for compatibility
+impl From<ggen_config::receipt::ReceiptError> for Error {
+    fn from(err: ggen_config::receipt::ReceiptError) -> Self {
         match err {
-            crate::receipt::ReceiptError::InvalidSignature => Error::SignatureVerificationFailed {
-                reason: "Invalid signature".to_string(),
-            },
-            crate::receipt::ReceiptError::InvalidChain(msg) => {
+            ggen_config::receipt::ReceiptError::InvalidSignature => {
+                Error::SignatureVerificationFailed {
+                    reason: "Invalid signature".to_string(),
+                }
+            }
+            ggen_config::receipt::ReceiptError::InvalidChain(msg) => {
                 Error::CryptoError(format!("Invalid receipt chain: {}", msg))
             }
-            crate::receipt::ReceiptError::Serialization(err) => Error::SerializationError(err),
-            crate::receipt::ReceiptError::InvalidReceipt(msg) => Error::ValidationFailed {
+            ggen_config::receipt::ReceiptError::Serialization(err) => {
+                Error::SerializationError(err)
+            }
+            ggen_config::receipt::ReceiptError::InvalidReceipt(msg) => Error::ValidationFailed {
                 reason: format!("Invalid receipt: {}", msg),
             },
-            crate::receipt::ReceiptError::Crypto(msg) => {
+            ggen_config::receipt::ReceiptError::Crypto(msg) => {
                 Error::CryptoError(format!("Receipt crypto error: {}", msg))
             }
-            crate::receipt::ReceiptError::HashMismatch { expected, actual } => {
+            ggen_config::receipt::ReceiptError::HashMismatch { expected, actual } => {
                 Error::CryptoError(format!(
                     "Receipt hash mismatch: expected {}, got {}",
                     expected, actual

@@ -1,0 +1,63 @@
+[package]
+name = "ggen-marketplace"
+description = "Marketplace plugin for ggen - package management system"
+readme = "README.md"
+keywords = ["marketplace", "package-management", "code-generation"]
+categories = ["development-tools"]
+
+[package.version]
+workspace = true
+
+[package.authors]
+workspace = true
+
+[package.edition]
+workspace = true
+
+[package.license]
+workspace = true
+
+[package.repository]
+workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+thiserror = "2.0"
+log = "0.4.28"
+regex = "1.12"
+chrono = { workspace = true }
+tokio = { workspace = true }
+rayon = "1.11"
+walkdir = "2.5"
+tempfile = "3.14"
+uuid = { version = "1.18", features = ["v4", "serde"] }
+anyhow = { workspace = true }
+futures = "0.3"
+reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
+url = "2.5"
+sha2 = "0.10"
+ed25519-dalek = { workspace = true }
+hex = "0.4"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
+indexmap = { version = "2.0", features = ["serde"] }
+tera = "1.20"
+tracing = "0.1"
+async-trait = "0.1"
+toml = "0.9"
+semver = "1.0"
+dirs = "6.0"
+parking_lot = "0.12"
+lru = "0.16"
+dashmap = { workspace = true }
+moka = { version = "0.12", features = ["future"] }
+tar = "0.4"
+zip = "2.0"
+flate2 = "1.1"
+
+[dependencies.ggen-config]
+path = "../ggen-config"
+
+[dev-dependencies]
+tempfile = "3"

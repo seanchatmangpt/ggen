@@ -73,8 +73,9 @@ instant = "0.1"
 zip = "2.0"
 
 [features]
-default = [ "dx",]
+default = [ "dx", "marketplace",]
 dx = []
+marketplace = ["ggen-marketplace"]
 live-llm-tests = []
 proptest = []
 docker = []
@@ -95,6 +96,10 @@ path = "../ggen-config"
 
 [dependencies.ggen-a2a-mcp]
 path = "../ggen-a2a-mcp"
+
+[dependencies.ggen-marketplace]
+path = "../ggen-marketplace"
+optional = true
 
 [package.version]
 workspace = true

@@ -146,7 +146,6 @@ pub mod lean_six_sigma;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
-pub mod marketplace;
 pub mod merge;
 pub mod ontology;
 pub mod ontology_core;
@@ -162,7 +161,6 @@ pub mod preprocessor;
 pub mod project_generator;
 pub mod prompt_mfg;
 pub mod rdf;
-pub mod receipt;
 pub mod register;
 pub mod registry;
 pub mod resolver;
@@ -219,12 +217,26 @@ pub use lifecycle::{
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
 // Re-export A2A types from ggen-a2a-mcp crate for backward compatibility
-pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
+pub use ggen_a2a_mcp::{a2a, a2a_generated, a2a_registry};
 pub use ggen_config::config::LockfileManager;
 pub use ggen_config::{config, config_lib, ConfigError, ConfigLoader, GgenConfig, Result};
+// Re-export marketplace types from ggen-marketplace crate for backward compatibility
+pub use ggen_marketplace::{
+    marketplace, Manifest, Package, PackageId, QualityScore, RdfRegistry, SparqlSearchEngine,
+};
+// Re-export receipt types from ggen-config crate for backward compatibility
+pub use ggen_config::{
+    chain, create_chained_receipt, envelope, error, generate_keypair, hash_data, payload_hash,
+    receipt_impl, EnvelopeChain, EnvelopeChainLink, EnvelopeSignature, PayloadRef, Producer,
+    Receipt, ReceiptChain, ReceiptEnvelope, ReceiptError, ENVELOPE_SCHEMA, HASH_PREFIX,
+    SIGNATURE_ALGORITHM,
+};
+pub mod receipt {
+    pub use ggen_config::*;
+}
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
 pub use graph::Graph;
@@ -233,6 +245,7 @@ pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
     ThreeWayMerger,
 };
+// Re-export commonly used types for convenience
 pub use packs::{LockedPack, PackLockfile, PackSource};
 pub use pipeline::{Pipeline, PipelineBuilder};
 pub use pki::{verify_ed25519, KeyPurpose, PkiManager, TrustedKeyEntry, TrustedKeysConfig};

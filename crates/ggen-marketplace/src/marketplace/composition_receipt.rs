@@ -11,7 +11,7 @@
 
 use crate::marketplace::error::Result;
 use crate::marketplace::trust::TrustTier;
-use crate::receipt::{Receipt, ReceiptChain};
+use ggen_config::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
