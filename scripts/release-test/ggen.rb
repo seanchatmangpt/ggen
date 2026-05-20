@@ -2,8 +2,8 @@ class Ggen < Formula
   desc "Language-agnostic, graph-aware generator for reproducible projections"
   homepage "https://github.com/seanchatmangpt/ggen"
   version "26.5.19"
-  url "file:///tmp/ggen-release-val-69000/ggen.tar.gz"
-  sha256 "61e68150cbf01bf28eca91f7c98d7eabb71b78edb1ee1f0f09b58f00ea356580"
+  url "file:///tmp/ggen-release-val-84583/ggen.tar.gz"
+  sha256 "0ac62a1e32038419a27e3d1b86dfe1126d84d6d618360b241fb9c408f4e89ec2"
   def install
     bin.install "ggen"
   end
