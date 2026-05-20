@@ -152,7 +152,7 @@ fi
 log_info "Sync verification passed."
 
 # 7. JTBD Smoke Tests
-log_step "Running complete JTBD suite using Brew binary"
+log_step "Running 80/20 JTBD suite using Brew binary"
 cd "$ROOT_DIR"
 export GGEN_BIN="$BREW_BIN"
 bash scripts/jtbd-all-verbs.sh

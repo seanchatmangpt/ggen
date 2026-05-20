@@ -84,12 +84,6 @@ fn show(template: String) -> NounVerbResult<ShowOutput> {
     })
 }
 
-/// Alias for show - common CLI pattern
-#[verb]
-fn get(template: String) -> NounVerbResult<ShowOutput> {
-    show(template)
-}
-
 /// Create new template
 #[verb]
 fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput> {

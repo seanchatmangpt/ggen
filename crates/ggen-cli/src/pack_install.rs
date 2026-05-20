@@ -591,10 +591,10 @@ pub struct InstallationResult {
     pub duration_ms: u64,
 }
 
-impl From<InstallResult> for crate::cmds::packs::InstallOutput {
+impl From<InstallResult> for crate::cmds::pack::InstallOutput {
     fn from(result: InstallResult) -> Self {
         match result {
-            InstallResult::Success(success) => crate::cmds::packs::InstallOutput {
+            InstallResult::Success(success) => crate::cmds::pack::InstallOutput {
                 pack_id: success.pack_id.clone(),
                 pack_name: success.pack_id.clone(),
                 status: "installed".to_string(),
@@ -603,7 +603,7 @@ impl From<InstallResult> for crate::cmds::packs::InstallOutput {
                     success.total_size_mb, success.duration_ms
                 ),
             },
-            InstallResult::DryRun(plan) => crate::cmds::packs::InstallOutput {
+            InstallResult::DryRun(plan) => crate::cmds::pack::InstallOutput {
                 pack_id: plan.pack_id.clone(),
                 pack_name: plan.pack_id.clone(),
                 status: "dry_run".to_string(),

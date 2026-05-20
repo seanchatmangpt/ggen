@@ -34,25 +34,13 @@ pub mod sync;
 pub mod wizard;
 
 // Command modules - clap-noun-verb auto-discovery
-pub mod capability;
-pub mod construct;
 pub mod doctor;
-pub mod envelope;
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
-pub mod marketplace;
-pub mod ontology;
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
-pub mod packs;
-pub mod paper;
 pub mod policy;
-pub mod registry;
-pub mod self_play;
-pub mod semantic_os;
-pub mod telco;
 pub mod template;
 pub mod utils;
-pub mod workflow;
 
 use crate::prelude::*;
 
