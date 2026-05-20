@@ -73,8 +73,8 @@ pub mod validation_lib;
 
 // Note: std::io::Write was used for output capture with gag crate (now disabled)
 
-// Command modules - clap-noun-verb v4.0.2 auto-discovery
-pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
+// Command modules - clap-noun-verb v26.5.19 auto-discovery
+pub mod cmds; // clap-noun-verb v26 entry points with #[verb] functions
 pub mod conventions; // File-based routing conventions
 pub mod receipt_manager; // Cryptographic receipt generation for CLI operations
 pub mod runtime; // Async/sync bridge utilities
@@ -86,7 +86,7 @@ pub use clap_noun_verb::{run, Result as ClapNounVerbResult};
 // Re-export Result type for use in cmds
 pub use ggen_core::utils::error::Result;
 
-/// Main entry point using clap-noun-verb v4.0.2 auto-discovery
+/// Main entry point using clap-noun-verb v26.5.19 auto-discovery
 ///
 /// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
