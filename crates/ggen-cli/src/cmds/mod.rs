@@ -1,4 +1,4 @@
-//! Command Router Module - clap-noun-verb v3.4.0 Auto-Discovery
+//! Command Router Module - clap-noun-verb v26.5.19 Auto-Discovery
 //!
 //! This module provides the entry point for clap-noun-verb auto-discovery.
 //! All noun modules with `\[verb\]` functions are automatically discovered and registered.
@@ -10,19 +10,19 @@
 //!
 //! ## Removed Commands
 //!
-//! The following commands were removed in v26_5_19:
+//! The following commands were removed in v26.5.19:
 //! - `ggen generate` → Use `ggen sync`
 //! - `ggen validate` → Use `ggen sync --validate-only`
 //! - `ggen template *` → Use `ggen sync`
-//! - `ggen project *` → Add back in v26_5_19+
-//! - `ggen graph *` → Add back in v26_5_19+
-//! - `ggen ontology *` → Add back in v26_5_19+
-//! - `ggen marketplace *` → Add back in v26_5_19+
-//! - `ggen ai *` → Add back in v26_5_19+
-//! - `ggen test *` → Add back in v26_5_19+
-//! - `ggen utils *` → Add back in v26_5_19+
-//! - `ggen ci *` → Add back in v26_5_19+
-//! - `ggen workflow *` → Add back in v26_5_19+
+//! - `ggen project *` → Add back in v26.5.19+
+//! - `ggen graph *` → Add back in v26.5.19+
+//! - `ggen ontology *` → Add back in v26.5.19+
+//! - `ggen marketplace *` → Add back in v26.5.19+
+//! - `ggen ai *` → Add back in v26.5.19+
+//! - `ggen test *` → Add back in v26.5.19+
+//! - `ggen utils *` → Add back in v26.5.19+
+//! - `ggen ci *` → Add back in v26.5.19+
+//! - `ggen workflow *` → Add back in v26.5.19+
 
 // Shared helpers for command modules
 pub mod helpers;
@@ -44,7 +44,7 @@ pub mod utils;
 
 use crate::prelude::*;
 
-/// Setup and run the command router using clap-noun-verb v3.4.0 auto-discovery
+/// Setup and run the command router using clap-noun-verb v26.5.19 auto-discovery
 pub fn run_cli() -> Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();
