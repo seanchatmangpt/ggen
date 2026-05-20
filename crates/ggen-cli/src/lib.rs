@@ -81,7 +81,7 @@ pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
 
 // Re-export clap-noun-verb for auto-discovery
-pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
+pub use clap_noun_verb::{run, Result as ClapNounVerbResult};
 
 // Re-export Result type for use in cmds
 pub use ggen_core::utils::error::Result;
