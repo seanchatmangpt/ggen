@@ -7,15 +7,15 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
 # ============================================================================
-# Feature: v5.1.0 GA Production Release
+# Feature: v26.5.19.0 GA Production Release
 # Branch: 013-ga-production-release
 # Status: Specification
 # Created: 2025-12-21
 # ============================================================================
 
-:v510-ga-production-release a spec:Feature ;
-  rdfs:label "v5.1.0 GA Production Release" ;
-  rdfs:comment "Stabilize and production-harden ggen v5.0.2 by fixing critical gaps, implementing missing features, and comprehensive testing to reach production-grade quality" ;
+:v26.5.1910-ga-production-release a spec:Feature ;
+  rdfs:label "v26.5.19.0 GA Production Release" ;
+  rdfs:comment "Stabilize and production-harden ggen v26.5.19.2 by fixing critical gaps, implementing missing features, and comprehensive testing to reach production-grade quality" ;
   spec:version "5.1.0" ;
   spec:branch "013-ga-production-release" ;
   spec:featureNumber 13 ;
@@ -171,7 +171,7 @@
 :sc-001-zero-critical-bugs a spec:SuccessCriterion ;
   rdfs:label "Zero Critical/High Severity Bugs" ;
   rdfs:comment "No P0 or P1 bugs remain in ggen sync implementation" ;
-  spec:metric "0 critical bugs reported or detected in v5.1.0 release" ;
+  spec:metric "0 critical bugs reported or detected in v26.5.19.0 release" ;
   spec:measurable true ;
   spec:verifiable true .
 

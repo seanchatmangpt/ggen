@@ -6,19 +6,19 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # ============================================================================
-# Implementation Plan: v5.1.0 GA Production Release
+# Implementation Plan: v26.5.19.0 GA Production Release
 # Branch: 013-ga-production-release
 # Status: Planning
 # Created: 2025-12-21
 # ============================================================================
 
-:v510-impl-plan a spec:ImplementationPlan ;
-  rdfs:label "v5.1.0 GA Production Release Implementation Plan" ;
-  rdfs:comment "Technical architecture, design patterns, and implementation strategy for production-hardening ggen v5.0.2" ;
+:v26.5.1910-impl-plan a spec:ImplementationPlan ;
+  rdfs:label "v26.5.19.0 GA Production Release Implementation Plan" ;
+  rdfs:comment "Technical architecture, design patterns, and implementation strategy for production-hardening ggen v26.5.19.2" ;
   spec:version "5.1.0" ;
   spec:branch "013-ga-production-release" ;
   spec:createdAt "2025-12-21T00:00:00Z"^^xsd:dateTime ;
-  spec:linksToFeature :v510-ga-production-release ;
+  spec:linksToFeature :v26.5.1910-ga-production-release ;
   spec:hasArchitectureDecision :arch-001-modular-audit ;
   spec:hasArchitectureDecision :arch-002-feature-flag-pattern ;
   spec:hasArchitectureDecision :arch-003-merge-algorithm ;
@@ -84,7 +84,7 @@
   spec:pattern "Pipeline with pluggable validators" ;
   spec:rationale "Enables: (1) Early schema validation, (2) Generated output validation, (3) Clear error reporting, (4) Composable validation rules" ;
   spec:affectedFiles "crates/ggen-core/src/validation/mod.rs, crates/ggen-core/src/codegen/pipeline.rs" ;
-  spec:tradeoffs "Two validation passes; performance overhead acceptable for v5.1.0" .
+  spec:tradeoffs "Two validation passes; performance overhead acceptable for v26.5.19.0" .
 
 :arch-007-test-organization a spec:ArchitectureDecision ;
   rdfs:label "Chicago School TDD with AAA Pattern" ;
@@ -161,7 +161,7 @@
   spec:priority "P3" ;
   spec:estimatedDuration "PT4H" ;
   spec:deliverables "User documentation, CLI help text, configuration examples, release notes" ;
-  spec:successCriteria "All CLI flags documented, example workflows provided, v5.1.0 releasable" ;
+  spec:successCriteria "All CLI flags documented, example workflows provided, v26.5.19.0 releasable" ;
   spec:tasks [
     :task-017-documentation ;
     :task-018-cli-help ;
@@ -493,7 +493,7 @@
     [ rdfs:label "Verify performance targets met" ]
     [ rdfs:label "Check documentation completeness" ]
   ) ;
-  spec:deliverables "RELEASE_NOTES.md, v5.1.0 tag, crates.io publication" .
+  spec:deliverables "RELEASE_NOTES.md, v26.5.19.0 tag, crates.io publication" .
 
 # ============================================================================
 # Data Model Entities
@@ -579,7 +579,7 @@
 
 :quality-gate-release a spec:QualityGate ;
   rdfs:label "Release Gate: Production Readiness" ;
-  rdfs:comment "Verify v5.1.0 meets all success criteria" ;
+  rdfs:comment "Verify v26.5.19.0 meets all success criteria" ;
   spec:checks (
     [ rdfs:label "Zero critical bugs (P0/P1)" ]
     [ rdfs:label "Performance targets met (90th <= 5s)" ]
@@ -593,7 +593,7 @@
 # ============================================================================
 
 :constitution-alignment a spec:ConstitutionComplianceCheck ;
-  rdfs:label "v5.1.0 Alignment with ggen Constitution" ;
+  rdfs:label "v26.5.19.0 Alignment with ggen Constitution" ;
   spec:principle "Deterministic Outputs" ;
   spec:assessment "Audit trail ensures deterministic execution is recorded and verifiable" ;
   spec:principle "Type Safety" ;

@@ -1,4 +1,4 @@
-//! Autonomic Capability Introspection - v5.3.0 Feature
+//! Autonomic Capability Introspection - v26_5_19 Feature
 //!
 //! Provides CLI introspection capabilities for AI agents to discover and understand
 //! available verbs, their signatures, and command graph structure.

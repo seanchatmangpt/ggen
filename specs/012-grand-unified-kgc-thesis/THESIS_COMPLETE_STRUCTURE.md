@@ -436,7 +436,7 @@ CONSTRUCT queries are **additive only** - they do not modify or delete existing 
 
 ### Prerequisites
 
-1. **ggen CLI v5.0.0+**
+1. **ggen CLI v26.5.19.0+**
    ```bash
    cd /home/user/ggen
    cargo build --release -p ggen-cli-lib

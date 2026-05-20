@@ -20,10 +20,10 @@
       - [☁️ ggen-paas (Infrastructure-as-Code)](#-ggen-paas-infrastructure-as-code)
       - [📅 Bree Scheduler (Job Orchestration)](#-bree-scheduler-job-orchestration)
     - [Philosophy & Principles](#philosophy--principles)
-      - [Constitutional Rules (v6)](#constitutional-rules-v6)
+      - [Constitutional Rules (v26.5.19)](#constitutional-rules-v26.5.19)
       - [Project Constitution](#project-constitution)
     - [Migration & Upgrade](#migration--upgrade)
-      - [v5.1.0 → v26.5.4 Migration](#v510-%E2%86%92-v600-migration)
+      - [v26.5.19.0 → v26.5.19 Migration](#v26.5.1910-%E2%86%92-v26.5.1900-migration)
     - [API & Reference](#api--reference)
       - [Core APIs](#core-apis)
       - [Tools & Utilities](#tools--utilities)
@@ -41,7 +41,7 @@
 
 # ggen Documentation Index
 
-Complete documentation for ggen v6 - specification-driven code generation with manufacturing-grade quality control.
+Complete documentation for ggen v26.5.19 - specification-driven code generation with manufacturing-grade quality control.
 
 ## 🚀 Getting Started
 
@@ -108,7 +108,7 @@ Complete documentation for ggen v6 - specification-driven code generation with m
 
 ### Philosophy & Principles
 
-#### Constitutional Rules (v6)
+#### Constitutional Rules (v26.5.19)
 - [Big Bang 80/20](../README.md#1-big-bang-8020-specification-closure-first) - Specification closure before generation
 - [EPIC 9](../README.md#2-epic-9-parallel-agent-convergence-advanced) - 10-agent parallel execution
 - [Deterministic Receipts](../README.md#3-deterministic-receipts-evidence-replaces-narrative) - Cryptographic proofs
@@ -119,7 +119,7 @@ Complete documentation for ggen v6 - specification-driven code generation with m
 
 ### Migration & Upgrade
 
-#### v5.1.0 → v26.5.4 Migration
+#### v26.5.19.0 → v26.5.19 Migration
 - [Upgrade Guide](migration/upgrade-guide.md) - Complete migration path
 - [Breaking Changes](migration/breaking-changes.md) - What changed and how to adapt
 - [Migration Deliverables](migration/deliverables.md) - Tools and scripts for migration
@@ -227,7 +227,7 @@ See [GENERATED_EXAMPLES.md](GENERATED_EXAMPLES.md) for 20+ working examples:
 ---
 
 **Last Updated**: 2026-01-09  
-**Version**: ggen v26.5.4  
+**Version**: ggen v26.5.19  
 **Status**: Production Ready
 
 > See something missing or outdated? [Open an issue](https://github.com/seanchatmangpt/ggen/issues) or [contribute](CONTRIBUTING.md)!

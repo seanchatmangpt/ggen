@@ -5,7 +5,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 # ============================================================================
-# ggen Code Ontology v5
+# ggen Code Ontology v26.5.19
 #
 # This ontology defines RDF vocabulary for representing code structures.
 # CONSTRUCT queries transform domain models into instances of these classes.

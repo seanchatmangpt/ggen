@@ -81,7 +81,7 @@ cd ./specs/012-grand-unified-kgc-thesis
 ggen sync --manifest ggen.toml
 ```
 
-Note: Current ggen.toml format needs adjustment for ggen v5 sync compatibility.
+Note: Current ggen.toml format needs adjustment for ggen v26.5.19 sync compatibility.
 Alternative: Manual template processing or use existing thesis-gen patterns.
 
 **Step 2: Compile PDF (3-pass for cross-refs)**
@@ -128,7 +128,7 @@ pdflatex thesis.tex          # Third pass (finalize cross-refs)
 - All source files committed to branch `012-grand-unified-kgc-thesis`
 
 ### Next Actions
-1. Fix ggen.toml format for ggen v5 compatibility
+1. Fix ggen.toml format for ggen v26.5.19 compatibility
 2. Run `ggen sync` to generate LaTeX
 3. Compile PDF with pdflatex + biber
 4. Verify 100+ pages, all cross-references resolved

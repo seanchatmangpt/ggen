@@ -392,7 +392,7 @@ sha256sum generated/c4-level1-context.mmd
 
 ### Generate All Diagrams
 ```bash
-# Using ggen CLI (once v26.5.4 is released)
+# Using ggen CLI (once v26.5.19 is released)
 ggen sync --audit true
 
 # Output files:

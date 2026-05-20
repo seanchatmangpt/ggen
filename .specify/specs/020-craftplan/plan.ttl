@@ -737,7 +737,7 @@ craftplan:SuccessCriterion-NoWarnings a craftplan:SuccessCriterion ;
 
 craftplan:Metadata a rdf:Statement ;
     rdfs:label "Generation Plan Metadata" ;
-    craftplan:planAuthor "ggen Specification System v6.0" ;
+    craftplan:planAuthor "ggen Specification System v26.5.19" ;
     craftplan:planDate "2026-02-04"^^xsd:date ;
     craftplan:planVersion "1.0.0" ;
     craftplan:ontologiesUsed "core.ttl, entities.ttl" ;

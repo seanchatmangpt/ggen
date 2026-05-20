@@ -1,4 +1,4 @@
-# Target State — Golden Path (v26.5.4)
+# Target State — Golden Path (v26.5.19)
 
 ## Flow Diagram
 

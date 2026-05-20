@@ -70,7 +70,7 @@ This document summarizes the complete Docker setup for the ggen agent execution 
 ./build-and-test-docker.sh                                    # Basic build
 ./build-and-test-docker.sh --no-cache                         # Rebuild without cache
 ./build-and-test-docker.sh --registry my-registry.com         # Specify registry
-./build-and-test-docker.sh --version v26.5.4                   # Set version tag
+./build-and-test-docker.sh --version v26.5.19                   # Set version tag
 ./build-and-test-docker.sh --registry my-registry.com --push  # Build and push
 ```
 
@@ -331,7 +331,7 @@ metadata:
 spec:
   containers:
   - name: ggen
-    image: ggen-agent:v26.5.4
+    image: ggen-agent:v26.5.19
     volumeMounts:
     - name: workspace
       mountPath: /workspace

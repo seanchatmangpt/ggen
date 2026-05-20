@@ -3,7 +3,7 @@
 **Feature Branch**: `012-grand-unified-kgc-thesis`
 **Created**: 2025-12-16
 **Status**: Draft
-**Input**: User description: "Grand Unified Theory of Full-Stack KGC - PhD thesis integrating ggen, @unrdf/hooks, @unrdf/kgc-4d, NextJS, TanStack, Electric SQL, pnpm monorepo architecture with hyperdimensional information theory calculus. Extends v5 thesis-gen ontology to prove: (1) Knowledge Graph Completeness guarantees full-stack consistency, (2) 4D temporal semantics enable event sourcing calculus, (3) Information-theoretic projection bounds for multi-target code generation, (4) Hyperdimensional vector spaces for ontology embeddings."
+**Input**: User description: "Grand Unified Theory of Full-Stack KGC - PhD thesis integrating ggen, @unrdf/hooks, @unrdf/kgc-4d, NextJS, TanStack, Electric SQL, pnpm monorepo architecture with hyperdimensional information theory calculus. Extends v26.5.19 thesis-gen ontology to prove: (1) Knowledge Graph Completeness guarantees full-stack consistency, (2) 4D temporal semantics enable event sourcing calculus, (3) Information-theoretic projection bounds for multi-target code generation, (4) Hyperdimensional vector spaces for ontology embeddings."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -173,9 +173,9 @@ A reader understands how @unrdf/hooks enables declarative policy definition and 
 
 ## Dependencies
 
-- ggen v5 thesis generation infrastructure (existing in examples/thesis-gen)
-- @unrdf/hooks v5.0.1 for Knowledge Hooks integration patterns
-- @unrdf/kgc-4d v5.0.1 for 4D temporal event sourcing patterns
+- ggen v26.5.19 thesis generation infrastructure (existing in examples/thesis-gen)
+- @unrdf/hooks v26.5.19.1 for Knowledge Hooks integration patterns
+- @unrdf/kgc-4d v26.5.19.1 for 4D temporal event sourcing patterns
 - Oxigraph RDF processing engine
 - Tera template engine
 - LaTeX distribution with amsmath, amsthm, algorithm2e packages

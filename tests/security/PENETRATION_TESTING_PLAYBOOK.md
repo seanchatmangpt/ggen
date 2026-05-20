@@ -2,9 +2,9 @@
 
 ## Overview
 
-Comprehensive penetration testing guide for ggen v6 security validation. This playbook covers automated and manual testing scenarios for identifying security vulnerabilities before production deployment.
+Comprehensive penetration testing guide for ggen v26.5.19 security validation. This playbook covers automated and manual testing scenarios for identifying security vulnerabilities before production deployment.
 
-**Target System**: ggen v6 API (ggen-api crate)
+**Target System**: ggen v26.5.19 API (ggen-api crate)
 **Framework**: OWASP Testing Guide v4.2
 **Scope**: Weeks 11-12 security roadmap deliverables
 **Date**: January 2026

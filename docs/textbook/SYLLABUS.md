@@ -5,7 +5,7 @@
 **Course Number:** CS/SE 6XX
 **Prerequisites:** Formal languages, databases, software engineering, enterprise architecture
 **Core Text:** *Ontology-Native Enterprise Construction* (14 Parts, 54 Chapters)
-**Lab Stack:** ggen v26.5.4 (Rust), Oxigraph, SPARQL, Tera templates
+**Lab Stack:** ggen v26.5.19 (Rust), Oxigraph, SPARQL, Tera templates
 **Philosophy:** A = μ(O) — every artifact is a deterministic projection of an ontology graph
 
 ---

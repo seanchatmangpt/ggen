@@ -1,8 +1,8 @@
-# ~/ggen Template Generation Pattern for YAWL v6
+# ~/ggen Template Generation Pattern for YAWL v26.5.19
 
 ## Overview
 
-Every runtime bug fix in YAWL v6 should generate a ~/ggen template documenting:
+Every runtime bug fix in YAWL v26.5.19 should generate a ~/ggen template documenting:
 1. **The Problem** (with runtime evidence)
 2. **The Fix** (with code snippets)
 3. **Validation** (with test commands)
@@ -17,7 +17,7 @@ This meta-pattern ensures that runtime fixes are:
 ## Template Structure
 
 ```
-~/ggen/templates/yawlv6/
+~/ggen/templates/yawlv26.5.19/
 ├── README.md                                    # This file (meta-pattern)
 ├── hibernate-marked-rollback.md                 # Hibernate 7 ROLLBACK_ONLY recovery
 ├── wcp-predicate-truthy.md                      # XOR split predicate truthiness
@@ -106,7 +106,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Validates <pattern description>.
  *
  * Runtime evidence: docs/validation/evidence/<bug-name>.log
- * Pattern doc: ~/ggen/templates/yawlv6/<pattern-name>.md
+ * Pattern doc: ~/ggen/templates/yawlv26.5.19/<pattern-name>.md
  */
 public class <BugName>Test {
 
@@ -163,7 +163,7 @@ vim src/org/yawlfoundation/yawl/engine/<ClassName>.java
 Create the pattern documentation:
 
 ```bash
-cat > ~/ggen/templates/yawlv6/<pattern-name>.md << 'EOF'
+cat > ~/ggen/templates/yawlv26.5.19/<pattern-name>.md << 'EOF'
 # <Pattern Name>
 
 ## Runtime Evidence
@@ -218,12 +218,12 @@ chmod +x scripts/runtime-validation/validate-<pattern>.sh
 echo "	@bash scripts/runtime-validation/validate-<pattern>.sh" >> Makefile
 
 # Commit all artifacts
-git add ~/ggen/templates/yawlv6/<pattern-name>.md
+git add ~/ggen/templates/yawlv26.5.19/<pattern-name>.md
 git add test/org/yawlfoundation/yawl/validation/<BugName>Test.java
 git add scripts/runtime-validation/validate-<pattern>.sh
 git commit -m "docs(runtime): add <pattern-name> pattern
 
-Pattern doc: ~/ggen/templates/yawlv6/<pattern-name>.md
+Pattern doc: ~/ggen/templates/yawlv26.5.19/<pattern-name>.md
 Test: test/org/yawlfoundation/yawl/validation/<BugName>Test.java
 Validation: scripts/runtime-validation/validate-<pattern>.sh
 "
@@ -323,4 +323,4 @@ Before committing a new template, verify:
 
 **Meta-Pattern Version:** 1.0.0
 **Last Updated:** 2026-03-29
-**Maintainer:** YAWL v6 Development Team
+**Maintainer:** YAWL v26.5.19 Development Team

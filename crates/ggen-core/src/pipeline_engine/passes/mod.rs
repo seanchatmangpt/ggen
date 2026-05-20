@@ -1,6 +1,6 @@
 //! Staged compilation pass implementations
 //!
-//! This module provides the standard v6 pass implementations:
+//! This module provides the standard v26_5_19 pass implementations:
 //!
 //! - **μ₁: Normalization** - CONSTRUCT-based ontology rewrites
 //! - **μ₂: Extraction** - CONSTRUCT queries to IR graph generation

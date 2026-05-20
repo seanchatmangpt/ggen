@@ -1,16 +1,16 @@
 # Vision 2030 Deployment Strategy
 
-**Target Release:** ggen v26.5.4  
+**Target Release:** ggen v26.5.19  
 **Release Date:** 2026-04-28  
 **Deployment Window:** 2026-04-29 → 2026-05-01
 
 ## Goals
 
-1. Deploy v26.5.4 with zero service disruption
+1. Deploy v26.5.19 with zero service disruption
 2. Validate all 10 pre-release gates before production
 3. Execute progressive rollout with automated rollback
 4. Achieve error_rate <0.1% and SLO compliance within 48 hours
-5. Maintain backward compatibility with v26.5.4 deployments
+5. Maintain backward compatibility with v26.5.19 deployments
 
 ## Pre-Deployment Checklist
 
@@ -38,16 +38,16 @@ echo "✓ All pre-release gates passed"
 
 ### Phase 1: Shadow Deployment (24 hours)
 
-**Goal:** Validate v26.5.4 in production-like environment without routing live traffic.
+**Goal:** Validate v26.5.19 in production-like environment without routing live traffic.
 
 **Actions:**
-1. Deploy v26.5.4 to shadow infrastructure (infrastructure identical to prod)
+1. Deploy v26.5.19 to shadow infrastructure (infrastructure identical to prod)
 2. Run synthetic tests against shadow environment
 3. Monitor all metrics for anomalies
 4. Verify receipt generation and signature verification
 5. Validate SPARQL query execution
 6. Test HTTP task state machine
-7. Confirm backward compatibility with v26.5.4 API calls
+7. Confirm backward compatibility with v26.5.19 API calls
 
 **Success Criteria:**
 - All synthetic tests pass
@@ -64,11 +64,11 @@ echo "✓ All pre-release gates passed"
 
 ### Phase 2: Canary Deployment (2 hours)
 
-**Goal:** Route small percentage of live traffic to v26.5.4 and validate behavior under real load.
+**Goal:** Route small percentage of live traffic to v26.5.19 and validate behavior under real load.
 
 **Actions:**
-1. Deploy v26.5.4 to 1 production pod
-2. Route 5% of traffic to v26.5.4 (95% to v26.5.4)
+1. Deploy v26.5.19 to 1 production pod
+2. Route 5% of traffic to v26.5.19 (95% to v26.5.19)
 3. Monitor error_rate, latency_p95, task_throughput
 4. Collect OTEL traces from production
 5. Verify receipt signatures are created correctly
@@ -77,8 +77,8 @@ echo "✓ All pre-release gates passed"
 **Traffic Distribution:**
 ```
 Client requests:
-  ├─ 5% → v26.5.4 (canary)
-  └─ 95% → v26.5.4 (stable)
+  ├─ 5% → v26.5.19 (canary)
+  └─ 95% → v26.5.19 (stable)
 ```
 
 **SLO Targets (Canary Phase):**
@@ -100,13 +100,13 @@ Client requests:
 **Rollback Triggers:**
 ```
 if error_rate > 0.1% for 5 minutes {
-  ggen release rollback --version v26.5.4
+  ggen release rollback --version v26.5.19
   alert("Canary rollback triggered")
   exit 1
 }
 
 if latency_p95 > 2 * baseline for 5 minutes {
-  ggen release rollback --version v26.5.4
+  ggen release rollback --version v26.5.19
   alert("Canary rollback: latency breach")
   exit 1
 }
@@ -116,32 +116,32 @@ if latency_p95 > 2 * baseline for 5 minutes {
 
 ### Phase 3: Staged Rollout (4 hours total)
 
-**Goal:** Gradually increase traffic to v26.5.4 while monitoring for errors.
+**Goal:** Gradually increase traffic to v26.5.19 while monitoring for errors.
 
 **Traffic Progression:**
 
 #### Stage 3a: 25% (30 minutes)
 - **Duration:** 2026-04-30 10:00 → 10:30
-- **Traffic:** 25% to v26.5.4, 75% to v26.5.4
-- **Action if failed:** Rollback to v26.5.4
+- **Traffic:** 25% to v26.5.19, 75% to v26.5.19
+- **Action if failed:** Rollback to v26.5.19
 - **SLO:** error_rate <0.1%, latency_p95 <2x baseline
 
 #### Stage 3b: 50% (30 minutes)
 - **Duration:** 2026-04-30 10:30 → 11:00
-- **Traffic:** 50% to v26.5.4, 50% to v26.5.4
-- **Action if failed:** Rollback to v26.5.4
+- **Traffic:** 50% to v26.5.19, 50% to v26.5.19
+- **Action if failed:** Rollback to v26.5.19
 - **SLO:** error_rate <0.1%, latency_p95 <2x baseline
 
 #### Stage 3c: 75% (30 minutes)
 - **Duration:** 2026-04-30 11:00 → 11:30
-- **Traffic:** 75% to v26.5.4, 25% to v26.5.4
-- **Action if failed:** Rollback to v26.5.4
+- **Traffic:** 75% to v26.5.19, 25% to v26.5.19
+- **Action if failed:** Rollback to v26.5.19
 - **SLO:** error_rate <0.1%, latency_p95 <2x baseline
 
 #### Stage 3d: 100% (automatic on success)
 - **Duration:** 2026-04-30 11:30 → ongoing
-- **Traffic:** 100% to v26.5.4
-- **Action if failed:** Rollback to v26.5.4
+- **Traffic:** 100% to v26.5.19
+- **Action if failed:** Rollback to v26.5.19
 
 **Health Checks Between Stages:**
 
@@ -150,14 +150,14 @@ if latency_p95 > 2 * baseline for 5 minutes {
 error_rate=$(prometheus_query "rate(errors_total[5m])")
 if [ "$error_rate" -gt 0.001 ]; then
   echo "Error rate exceeded: $error_rate"
-  ggen release rollback --version v26.5.4
+  ggen release rollback --version v26.5.19
   exit 1
 fi
 
 latency_p95=$(prometheus_query "histogram_quantile(0.95, latency_seconds)")
 if [ "$(bc <<< "$latency_p95 > $baseline * 2")" = "1" ]; then
   echo "Latency P95 exceeded: $latency_p95"
-  ggen release rollback --version v26.5.4
+  ggen release rollback --version v26.5.19
   exit 1
 fi
 
@@ -185,12 +185,12 @@ echo "Health checks passed, proceeding to next stage"
 
 ```bash
 # 1. Verify rollback target is available
-ggen release check-availability --version v26.5.4
+ggen release check-availability --version v26.5.19
 
 # 2. Initiate rollback
 ggen release rollback \
-  --from v26.5.4 \
-  --to v26.5.4 \
+  --from v26.5.19 \
+  --to v26.5.19 \
   --traffic-shift-duration 2m \
   --healthcheck-interval 30s
 
@@ -202,7 +202,7 @@ prometheus_query "rate(errors_total[1m])" < 0.001
 prometheus_query "histogram_quantile(0.95, latency_seconds)" < $baseline * 1.1
 
 # 5. Post-rollback analysis
-ggen release post-mortem --from v26.5.4 --save-report rollback-$(date +%s).md
+ggen release post-mortem --from v26.5.19 --save-report rollback-$(date +%s).md
 ```
 
 **Post-Rollback Actions:**
@@ -299,17 +299,17 @@ labels:
 **Send to:** ggen-users, ggen-partners, ggen-team
 
 ```
-Subject: ggen v26.5.4 Release Candidate Ready
+Subject: ggen v26.5.19 Release Candidate Ready
 
 Dear ggen community,
 
-Vision 2030 completes on 2026-04-28. v26.5.4 will deploy progressively:
+Vision 2030 completes on 2026-04-28. v26.5.19 will deploy progressively:
 
 • Shadow: 2026-04-29 (24h, no user impact)
 • Canary: 2026-04-30 (5% traffic, monitored)
 • Rollout: 2026-04-30 (25%/50%/75%/100%, staggered)
 
-All changes are backward compatible with v26.5.4.
+All changes are backward compatible with v26.5.19.
 
 Key improvements:
 - Receipted code generation (Ed25519 signatures)
@@ -318,7 +318,7 @@ Key improvements:
 - Improved SPARQL query execution
 
 Status: ✓ All pre-release gates passed
-Documentation: https://ggen.io/v26.5.4/vision-2030
+Documentation: https://ggen.io/v26.5.19/vision-2030
 
 Questions? Reply to this thread.
 
@@ -344,7 +344,7 @@ Questions? Reply to this thread.
 ✓ All SLOs met at each stage
 ✓ No issues detected
 
-🎉 v26.5.4 fully rolled out (2026-04-30 12:00 UTC)
+🎉 v26.5.19 fully rolled out (2026-04-30 12:00 UTC)
 ✓ Deployment complete
 ✓ Zero incidents
 ✓ All metrics nominal
@@ -355,9 +355,9 @@ Questions? Reply to this thread.
 **Send to:** ggen-users, stakeholders
 
 ```
-Subject: ggen v26.5.4 Successfully Released
+Subject: ggen v26.5.19 Successfully Released
 
-Vision 2030 is live. v26.5.4 is now running on 100% of production infrastructure.
+Vision 2030 is live. v26.5.19 is now running on 100% of production infrastructure.
 
 Metrics:
 • Deployment duration: 36 hours
@@ -367,8 +367,8 @@ Metrics:
 • Uptime: 99.99%
 
 Next steps:
-• Read the release notes: https://ggen.io/v26.5.4/release-notes
-• Migrate to v26.5.4 when ready (fully backward compatible)
+• Read the release notes: https://ggen.io/v26.5.19/release-notes
+• Migrate to v26.5.19 when ready (fully backward compatible)
 • Report bugs to: issues@ggen.io
 
 Thank you for using ggen!
@@ -384,54 +384,54 @@ Thank you for using ggen!
 
 ### Step 1: Stop the Bleeding
 ```bash
-# Immediately reduce v26.5.4 traffic to 0%
-kubectl patch service ggen-api -p '{"spec":{"selector":{"version":"v26.5.4"}}}'
+# Immediately reduce v26.5.19 traffic to 0%
+kubectl patch service ggen-api -p '{"spec":{"selector":{"version":"v26.5.19"}}}'
 
 # Confirm traffic is routed away
 curl https://api.ggen.io/health
-# Expected: "version": "v26.5.4"
+# Expected: "version": "v26.5.19"
 ```
 
 ### Step 2: Investigate
 ```bash
 # Collect logs
-kubectl logs -l version=v26.5.4 --tail=1000 > /tmp/v26.5.4.logs
+kubectl logs -l version=v26.5.19 --tail=1000 > /tmp/v26.5.19.logs
 
 # Check metrics
 prometheus_query "rate(errors_total[1m])" > /tmp/error_rate.txt
 prometheus_query "container_memory_usage_bytes{pod=~\"ggen.*\"}" > /tmp/memory.txt
 
 # Inspect recent changes
-git log v26.5.4..v26.5.4 --oneline > /tmp/changes.txt
+git log v26.5.19..v26.5.19 --oneline > /tmp/changes.txt
 ```
 
 ### Step 3: Notify
 ```bash
 # Slack
 curl -X POST https://hooks.slack.com/... \
-  -d '{"text":"🚨 EMERGENCY ROLLBACK: ggen v26.5.4 → v26.5.4\nReason: TBD\nEscalating to on-call"}'
+  -d '{"text":"🚨 EMERGENCY ROLLBACK: ggen v26.5.19 → v26.5.19\nReason: TBD\nEscalating to on-call"}'
 
 # PagerDuty
-pagerctl incident create --title "ggen v26.5.4 rollback" --severity critical
+pagerctl incident create --title "ggen v26.5.19 rollback" --severity critical
 
 # Email
 echo "Emergency rollback initiated. See #incidents Slack channel." \
-  | mail -s "ggen v26.5.4 rollback" ggen-oncall@example.com
+  | mail -s "ggen v26.5.19 rollback" ggen-oncall@example.com
 ```
 
 ### Step 4: Document
 ```bash
 # Create incident report
 cat > /tmp/incident-$(date +%s).md << 'EOF'
-# ggen v26.5.4 Emergency Rollback
+# ggen v26.5.19 Emergency Rollback
 
 **Time:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
 **Duration:** TBD
 **Impact:** User-facing API down for TBD minutes
 **Cause:** TBD (investigate)
-**Resolution:** Rolled back to v26.5.4
+**Resolution:** Rolled back to v26.5.19
 
-**Logs:** /tmp/v26.5.4.logs
+**Logs:** /tmp/v26.5.19.logs
 **Metrics:** /tmp/error_rate.txt, /tmp/memory.txt
 **Changes:** /tmp/changes.txt
 

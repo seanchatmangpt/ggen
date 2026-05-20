@@ -1,6 +1,6 @@
 //! Staged Pipeline Orchestrator
 //!
-//! Orchestrates the complete v6 projection pipeline: A = μ(O)
+//! Orchestrates the complete v26_5_19 projection pipeline: A = μ(O)
 //!
 //! The pipeline runs passes in order:
 //! 0. μ₀: Pack Resolution (bundle expansion, dependency resolution, ontology merge)
@@ -220,7 +220,7 @@ impl StagedPipeline {
             executed_passes: Vec::new(),
             generated_files: Vec::new(),
             vocabulary_registry: VocabularyRegistry::with_standard_vocabularies(),
-            guard_set: GuardSet::default_v6(),
+            guard_set: GuardSet::default_v26(),
             pack_resolver,
             resolved_packs: None,
             normalization: NormalizationPass::with_standard_rules(),

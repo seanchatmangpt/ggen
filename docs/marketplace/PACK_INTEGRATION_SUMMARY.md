@@ -16,7 +16,7 @@
 
 ### 2. Extraction Pass Integration (μ₂)
 
-**File**: `crates/ggen-core/src/v6/passes/extraction.rs`
+**File**: `crates/ggen-core/src/v26.5.19/passes/extraction.rs`
 
 - ✅ `ExtractionPass::extend_with_pack_construct_queries()` - Adds pack queries to extraction pass
 - ✅ **CONSTRUCT-only gate** - Rejects SELECT/ASK/DESCRIBE/UPDATE queries
@@ -26,7 +26,7 @@
 
 ### 3. Emission Pass Integration (μ₃)
 
-**File**: `crates/ggen-core/src/v6/passes/emission.rs`
+**File**: `crates/ggen-core/src/v26.5.19/passes/emission.rs`
 
 - ✅ `EmissionPass::extend_with_pack_templates()` - Adds pack templates to emission pass
 - ✅ Templates stored inline (no external file dependencies)
@@ -36,7 +36,7 @@
 
 ### 4. Pipeline Orchestration
 
-**File**: `crates/ggen-core/src/v6/pipeline.rs`
+**File**: `crates/ggen-core/src/v26.5.19/pipeline.rs`
 
 - ✅ μ₀: Load and resolve packs (queries + templates)
 - ✅ μ₁: Merge pack ontology with project ontology
@@ -247,7 +247,7 @@ impl User {
 - `docs/marketplace/PACK_QUERY_CONTRACT.md` - Pack contract specification
 - `docs/marketplace/PACK_QUERY_TEMPLATE_INTEGRATION.md` - Integration guide
 - `crates/ggen-core/src/pack_resolver.rs` - Pack resolution implementation
-- `crates/ggen-core/src/v6/passes/extraction.rs` - μ₂ extraction pass
-- `crates/ggen-core/src/v6/passes/emission.rs` - μ₃ emission pass
-- `crates/ggen-core/src/v6/pipeline.rs` - Pipeline orchestration
+- `crates/ggen-core/src/v26.5.19/passes/extraction.rs` - μ₂ extraction pass
+- `crates/ggen-core/src/v26.5.19/passes/emission.rs` - μ₃ emission pass
+- `crates/ggen-core/src/v26.5.19/pipeline.rs` - Pipeline orchestration
 - `crates/ggen-core/tests/pack_query_template_integration_test.rs` - Integration tests

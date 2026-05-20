@@ -1,4 +1,4 @@
-# ggen v26.5.18 - Rust Code Generation CLI
+# ggen v26.5.19 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
 Stack: Rust 1.95.0 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 5 crates | 98% test coverage

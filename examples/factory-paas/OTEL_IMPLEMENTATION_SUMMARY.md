@@ -472,4 +472,4 @@ The FactoryPaaS attribution tracking system now has comprehensive OpenTelemetry 
 **Author**: Rust Coder Agent
 **Date**: 2026-01-24
 **Version**: 1.0.0
-**Project**: ggen v0.2.0 (FactoryPaaS v26.5.4)
+**Project**: ggen v0.2.0 (FactoryPaaS v26.5.19)

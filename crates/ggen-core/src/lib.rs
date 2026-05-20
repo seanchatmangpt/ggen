@@ -191,7 +191,7 @@ pub mod pack_resolver; // μ₀: Pack resolution stage
 pub mod packs; // Pack installation system - Phase 1
 pub mod security; // Week 4 Security Hardening
 pub mod sync; // Sync orchestrator: load_ontology → run_sparql → generate_code → validate → write_files
-              // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
+              // v26_5_19: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 
 // Re-export template types
 pub use template_types::{Frontmatter, Template};

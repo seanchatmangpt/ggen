@@ -1,6 +1,6 @@
 # Security Integration Test Suite
 
-End-to-end security integration tests for ggen v26.5.4.
+End-to-end security integration tests for ggen v26.5.19.
 
 ## Overview
 

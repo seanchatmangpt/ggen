@@ -1,16 +1,16 @@
-# Marketplace Current State Report — ggen v26.5.4
+# Marketplace Current State Report — ggen v26.5.19
 
 *Generated: 2026-03-31*
 
-**Document status:** Strategic charter and WIP gates live in [FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md](FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md) and [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md). **v26.5.4 packs slice:** [V6_1_MARKETPLACE_SCOPE.md](V6_1_MARKETPLACE_SCOPE.md).
+**Document status:** Strategic charter and WIP gates live in [FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md](FORTUNE_5_LEAN_SIX_SIGMA_CHARTER.md) and [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md). **v26.5.19 packs slice:** [V6_1_MARKETPLACE_SCOPE.md](V6_1_MARKETPLACE_SCOPE.md).
 
 ---
 
 ## 1. Executive Summary
 
-The marketplace crate still has **rich infrastructure** (RDF registry, signing, policy, bundles). **Partial wiring (2026-04):** `ggen packs install` for curated atomic IDs materializes `~/.ggen/packs/<pack>/` (or `GGEN_PACK_CACHE_DIR`), updates `.ggen/packs.lock`, and the v6 pipeline runs μ₀ → merged ontology, **μ₂ pack CONSTRUCT** queries (see [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md)), stages pack templates under `.ggen/pack-stage/`, and records **non-placeholder** `PackProvenance` digests in receipts. `ggen marketplace *` remains removed; broader search/list/compose CLI verbs are still thin.
+The marketplace crate still has **rich infrastructure** (RDF registry, signing, policy, bundles). **Partial wiring (2026-04):** `ggen packs install` for curated atomic IDs materializes `~/.ggen/packs/<pack>/` (or `GGEN_PACK_CACHE_DIR`), updates `.ggen/packs.lock`, and the v26.5.19 pipeline runs μ₀ → merged ontology, **μ₂ pack CONSTRUCT** queries (see [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md)), stages pack templates under `.ggen/pack-stage/`, and records **non-placeholder** `PackProvenance` digests in receipts. `ggen marketplace *` remains removed; broader search/list/compose CLI verbs are still thin.
 
-**Bottom line:** Core “transmission” for governed packs + sync is **in progress**; see v26.5.4 scope doc for remaining gaps.
+**Bottom line:** Core “transmission” for governed packs + sync is **in progress**; see v26.5.19 scope doc for remaining gaps.
 
 ---
 
@@ -76,7 +76,7 @@ The marketplace crate still has **rich infrastructure** (RDF registry, signing, 
 
 | Command | Status | Notes |
 |---------|--------|-------|
-| `ggen marketplace search` | ❌ Removed | Comment says "Add back in v5.1+" |
+| `ggen marketplace search` | ❌ Removed | Comment says "Add back in v26.5.19+" |
 | `ggen marketplace install` | ❌ Removed | Same |
 | `ggen marketplace list` | ❌ Removed | Same |
 | `ggen marketplace publish` | ❌ Removed | Same |

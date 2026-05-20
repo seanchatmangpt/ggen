@@ -352,4 +352,4 @@ docker logs otel-collector
 ---
 
 **Last Updated**: 2026-01-24
-**Version**: 1.0.0 (FactoryPaaS v26.5.4)
+**Version**: 1.0.0 (FactoryPaaS v26.5.19)

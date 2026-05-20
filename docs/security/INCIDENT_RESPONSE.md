@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Incident Response Plan (v26.5.4)](#incident-response-plan-v600)
+- [Incident Response Plan (v26.5.19)](#incident-response-plan-v26.5.1900)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Incident Severity Levels](#incident-severity-levels)
@@ -39,11 +39,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Incident Response Plan (v26.5.4)
+# Incident Response Plan (v26.5.19)
 
 ## Overview
 
-This document defines the incident response procedures for ggen v26.5.4, covering detection, analysis, containment, eradication, recovery, and post-incident review.
+This document defines the incident response procedures for ggen v26.5.19, covering detection, analysis, containment, eradication, recovery, and post-incident review.
 
 **Last Updated**: 2026-01-24
 **Version**: 26.5.4
@@ -352,7 +352,7 @@ cargo make test
 cargo make release-validate
 
 # Tag release
-git tag -s v26.5.4 -m "Security patch for CVE-2026-XXXX"
+git tag -s v26.5.19 -m "Security patch for CVE-2026-XXXX"
 
 # Publish to crates.io
 cargo publish
@@ -362,7 +362,7 @@ cargo publish
 
 ```bash
 # Deploy patch
-./scripts/deploy.sh --version=v26.5.4 --emergency
+./scripts/deploy.sh --version=v26.5.19 --emergency
 
 # Verify deployment
 ./scripts/verify_deployment.sh --check=security
@@ -382,7 +382,7 @@ cargo publish
 
 ### Description
 
-A path traversal vulnerability was discovered in ggen v26.5.4 that allows
+A path traversal vulnerability was discovered in ggen v26.5.19 that allows
 arbitrary file read when processing templates.
 
 ### Impact
@@ -392,7 +392,7 @@ malicious template path.
 
 ### Remediation
 
-Update to ggen v26.5.4 immediately:
+Update to ggen v26.5.19 immediately:
 
     cargo update ggen
 
@@ -416,7 +416,7 @@ Discovered by: [Researcher Name] (with permission)
 - 2026-01-24: Vulnerability reported
 - 2026-01-24: Acknowledged and confirmed
 - 2026-01-25: Patch developed and tested
-- 2026-01-25: v26.5.4 released
+- 2026-01-25: v26.5.19 released
 - 2026-01-26: Public disclosure
 ```
 
@@ -484,7 +484,7 @@ Discovered by: [Researcher Name] (with permission)
 - 2026-01-24 11:00 UTC: Initial assessment complete
 - 2026-01-24 13:00 UTC: Containment measures deployed
 - 2026-01-25 09:00 UTC: Patch developed
-- 2026-01-25 15:00 UTC: Patch released (v26.5.4)
+- 2026-01-25 15:00 UTC: Patch released (v26.5.19)
 - 2026-01-26 09:00 UTC: Public disclosure
 
 ## Root Cause

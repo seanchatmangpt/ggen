@@ -16,7 +16,7 @@ Core Responsibilities:
 - Handle auto-resume functionality if the workflow is interrupted
 
 Operating Principles:
-1. Follow the ggen v26.5.4 project conventions strictly
+1. Follow the ggen v26.5.19 project conventions strictly
 2. Use the Claude Code Task tool for all agent spawning (not MCP)
 3. Batch all operations in a single message as required
 4. Implement Chicago TDD patterns for all phases

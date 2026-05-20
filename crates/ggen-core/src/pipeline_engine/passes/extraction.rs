@@ -213,7 +213,7 @@ impl ExtractionPass {
                 )));
             }
             let pred = format!(
-                "http://ggen.dev/v6/pack-query#{}",
+                "http://ggen.dev/v26_5_19/pack-query#{}",
                 sq.name.replace(['/', '\\', ' '], "_")
             );
             let order_offset = i32::try_from(i)
@@ -510,9 +510,9 @@ impl Pass for ExtractionPass {
     }
 }
 
-/// Standard extraction tensor queries for v6
+/// Standard extraction tensor queries for v26_5_19
 impl ExtractionPass {
-    /// Create a pass with standard v6 extraction rules
+    /// Create a pass with standard v26_5_19 extraction rules
     pub fn with_standard_rules() -> Self {
         let mut pass = Self::new();
 

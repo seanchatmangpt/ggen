@@ -144,14 +144,14 @@ All metrics collected via:
 
 ## Further Reading
 
-- [V6 Release Notes](../../V6_RELEASE_NOTES.md) - Complete v6 changelog
+- [V6 Release Notes](../../V6_RELEASE_NOTES.md) - Complete v26.5.19 changelog
 - [Big Bang 80/20 Master Plan](../../BIG_BANG_80_20_MASTER_PLAN.md) - EPIC 9 methodology
 - [CLAUDE.md](../../CLAUDE.md) - Full ggen development guide
 - [.specify/ README](../../.specify/README.md) - RDF-first specification system
 
 ---
 
-**Event Horizon Status**: Production-ready (v26.5.4, Jan 2026)
+**Event Horizon Status**: Production-ready (v26.5.19, Jan 2026)
 
 **License**: MIT
 

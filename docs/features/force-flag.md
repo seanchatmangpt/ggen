@@ -217,7 +217,7 @@ fi
 
 # Create safety commit
 git add -A
-git commit -m "Pre-regeneration snapshot (ggen v5.1.0)"
+git commit -m "Pre-regeneration snapshot (ggen v26.5.19.0)"
 
 # Execute with audit
 ggen sync --force --audit --verbose
@@ -269,7 +269,7 @@ jobs:
           path: .ggen/audit/latest.json
 
       - name: Create PR with changes
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v26.5.19
         with:
           commit-message: "chore: Regenerate code from ontology"
           title: "Generated Code Update"

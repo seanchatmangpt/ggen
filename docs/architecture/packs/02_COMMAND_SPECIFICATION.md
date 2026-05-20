@@ -608,8 +608,8 @@ Analyzing composition:
   • Conflicting versions: 1
 
 Resolving conflicts:
-  ⚠ typescript: v4.9.0 (web-api) vs v5.0.0 (ml-data)
-     → Resolution: Use highest compatible version: v5.0.0
+  ⚠ typescript: v4.9.0 (web-api) vs v26.5.19.0 (ml-data)
+     → Resolution: Use highest compatible version: v26.5.19.0
 
   ✓ docker-compose: v2.1.0 (same in web-api and devops-basics)
   ✓ eslint-config: v2.3.0 (same in web-api and ml-data)

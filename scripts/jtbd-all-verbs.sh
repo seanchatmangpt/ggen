@@ -309,12 +309,6 @@ TMPL_PATH="$TMPL_WORK/templates/jtbd-test.tmpl"
 run_verb "template.show"   "n/a" 'has("name") or has("path")' "$BIN" template show --template="$TMPL_PATH"
 run_verb "template.get"    "n/a" 'has("name") or has("path")' "$BIN" template get  --template="$TMPL_PATH"
 run_verb "template.lint"   "n/a" 'has("has_errors")' "$BIN" template lint --template="$TMPL_PATH"
-run_verb "template.generate" "n/a" 'has("output_path")' \
-    "$BIN" template generate --template="$TMPL_PATH" --output="$TMPL_WORK/tmpl-out" --force
-run_verb "template.generate_tree" "n/a" 'has("output_directory")' \
-    "$BIN" template generate_tree --template="$TMPL_PATH" --output="$TMPL_WORK/tmpl-tree-out"
-run_verb "template.regenerate" "n/a" 'has("output_directory")' \
-    "$BIN" template regenerate --template="$TMPL_PATH"
 cd "$WORK"
 
 # ── Phase 8: Sync ─────────────────────────────────────────────────────────

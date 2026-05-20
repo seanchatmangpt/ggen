@@ -16,7 +16,7 @@
 | `validation/validator.rs:113` | `SparqlValidator::validate()` | Empty violations `Vec` | Run SPARQL queries against graph, collect constraint violations. Variable declared but never populated. |
 | `validation/tests.rs:3` | 22 test functions | All commented out | Cardinality, enumeration, datatype, pattern, string length constraint tests. 715 lines in git history. |
 
-**Cascade:** `v6/passes/normalization.rs:227` calls `ShapeLoader::load()` then passes dummy empty graph to validator. All SHACL enforcement is a no-op.
+**Cascade:** `v26.5.19/passes/normalization.rs:227` calls `ShapeLoader::load()` then passes dummy empty graph to validator. All SHACL enforcement is a no-op.
 
 ### Schema Parsing
 
@@ -64,9 +64,9 @@
 |-----------|------|--------|
 | `config/hive_coordinator.rs` | `HiveCoordinator`, `HiveState`, `ConsensusTopic`, `PackageConflict`, `CompatibilityMatrix` | Entire module `#[allow(dead_code)]`. Planned distributed dep resolution, never wired. |
 | `ontology/sigma_runtime.rs:380` | `overlays: BTreeMap<String, SigmaOverlay>` | `#[allow(dead_code)]` — "Reserved for overlay functionality (not yet implemented)" |
-| `v6/pipeline.rs:34` | `V6Pipeline` struct | `#[allow(dead_code)]` — earlier iteration, separate from `StagedPipeline` |
-| `v6/pipeline.rs:204` | `PipelineStage` | `#[allow(dead_code)]` |
-| `v6/pipeline.rs:310` | `V6PipelineConfig` | `#[allow(dead_code)]` |
+| `v26.5.19/pipeline.rs:34` | `V6Pipeline` struct | `#[allow(dead_code)]` — earlier iteration, separate from `StagedPipeline` |
+| `v26.5.19/pipeline.rs:204` | `PipelineStage` | `#[allow(dead_code)]` |
+| `v26.5.19/pipeline.rs:310` | `V6PipelineConfig` | `#[allow(dead_code)]` |
 | `pipeline.rs:384` | `Plan` struct | Dead code, no consumers |
 | `pack_resolver.rs:170` | `stage_pack_templates()` | `#[allow(dead_code)]` — never called |
 | `prevention/state_machine.rs:289` | `validate_template()` | Only checks empty content, should validate Tera syntax |
@@ -79,13 +79,13 @@
 ### Two Parallel Pipelines
 
 `GenerationPipeline` (`codegen/pipeline.rs:811`) is the production pipeline used by `ggen sync`.
-`StagedPipeline` (`v6/pipeline.rs:329`) is the constitutional pipeline with receipt provenance — never called from CLI.
+`StagedPipeline` (`v26.5.19/pipeline.rs:329`) is the constitutional pipeline with receipt provenance — never called from CLI.
 
-**Decision needed:** Which is canonical? If v6, wire it into sync. If GenerationPipeline, document it as canonical and deprioritize v6.
+**Decision needed:** Which is canonical? If v26.5.19, wire it into sync. If GenerationPipeline, document it as canonical and deprioritize v26.5.19.
 
 ### PackResolver Location
 
-Documented as `v6/resolver.rs` but actually lives at `src/pack_resolver.rs` (top-level module, not inside v6/).
+Documented as `v26.5.19/resolver.rs` but actually lives at `src/pack_resolver.rs` (top-level module, not inside v26.5.19/).
 
 ### Build Warnings
 
@@ -103,8 +103,8 @@ Documented as `v6/resolver.rs` but actually lives at `src/pack_resolver.rs` (top
 | **FIX** | Schema parser: implement JSON Schema parsing | P1 |
 | **FIX** | Build warning: unused `SigningKey` import in ggen-receipt | P3 |
 | **DELETE** | `config/hive_coordinator.rs` — entire module dead | P3 |
-| **DELETE** | `v6/pipeline.rs` dead structs: `V6Pipeline`, `PipelineStage`, `V6PipelineConfig` | P3 |
+| **DELETE** | `v26.5.19/pipeline.rs` dead structs: `V6Pipeline`, `PipelineStage`, `V6PipelineConfig` | P3 |
 | **DELETE** | `pipeline.rs` dead `Plan` struct | P3 |
 | **DELETE** | `packs/install.rs` — redirect exists, remove stub | P3 |
 | **REFACTOR** | Decide canonical pipeline (Generation vs Staged) | P0 |
-| **REFACTOR** | Move PackResolver into v6/ or update all docs | P3 |
+| **REFACTOR** | Move PackResolver into v26.5.19/ or update all docs | P3 |

@@ -117,7 +117,7 @@ ggen wizard                  # Start interactive wizard
 
 **Example:**
 ```bash
-ggen construct run 'CONSTRUCT { ?s rdfs:label ?label } WHERE { ?s a gv6:Entity ; rdfs:label ?label }'
+ggen construct run 'CONSTRUCT { ?s rdfs:label ?label } WHERE { ?s a gv26:Entity ; rdfs:label ?label }'
 ```
 
 ---

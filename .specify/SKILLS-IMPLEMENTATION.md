@@ -1,4 +1,4 @@
-# ggen v5.1.0 - Skills Implementation Summary
+# ggen v26.5.19.0 - Skills Implementation Summary
 
 **Created**: 2025-12-21
 **Status**: Skills framework customized from ggen-spec-kit
@@ -6,7 +6,7 @@
 
 ## What Was Customized
 
-The 13 base skills from `~/ggen-spec-kit/CLAUDE.md` have been adapted for ggen v5.1.0 GA Production Release:
+The 13 base skills from `~/ggen-spec-kit/CLAUDE.md` have been adapted for ggen v26.5.19.0 GA Production Release:
 
 ### 7 Ggen-Specific Skills (New)
 1. **sync-executor** - Execute sync pipeline with all CLI features

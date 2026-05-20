@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [26.5.18] — Workspace consolidation & vendored-submodule removal (2026-05-18)
 
 Versions 26.5.6 through 26.5.17 were not released. This entry consolidates
-all work between v26.5.5 and v26.5.18.
+all work between v26.5.19 and v26.5.19.
 
 ### Added
 
@@ -72,7 +72,7 @@ all work between v26.5.5 and v26.5.18.
   submodules).
 - Empty placeholder directories `vendors/gvisor`, `vendors/rust4pm`.
 - `VERSION` file (root `Cargo.toml` is the single source of truth).
-- Hardcoded version literal `"v26.5.4"` from
+- Hardcoded version literal `"v26.5.19"` from
   `crates/ggen-cli/src/cmds/telco.rs` default test payload.
 - 51 stale branches and 14 worktrees scattered across `/private/tmp/`,
   `/Users/sac/.cursor/worktrees/`, `~/ggen-*/`, `.claude/worktrees/`, and
@@ -80,7 +80,7 @@ all work between v26.5.5 and v26.5.18.
 
 ### Fixed
 
-- `prolog8` no longer drifts from workspace version on release bumps (Removed in v26.5.18).
+- `prolog8` no longer drifts from workspace version on release bumps (Removed in v26.5.19).
 - `cargo clippy --workspace -- -D warnings` no longer fails on
   `unexpected_cfgs` in `crates/ggen-a2a-mcp/src/a2a_generated/mod.rs`
   lines 381, 479, 488 (pre-push hook gate 2 now passes).
@@ -138,7 +138,7 @@ all work between v26.5.5 and v26.5.18.
 
 ### Changed
 
-- Transitioned workspace to CalVer (v26.5.4)
+- Transitioned workspace to CalVer (v26.5.19)
 - Modernized `ggen-cli` workflow commands to use native process mining engine
 
 ### Fixed
@@ -214,8 +214,8 @@ all work between v26.5.5 and v26.5.18.
 
 ### Known Issues
 
-- 6 pre-existing unit test failures in ggen-marketplace (v26.5.4 API incompatibilities)
-  - These do not block v26.5.4 deployment and are addressed in v26.5.4
+- 6 pre-existing unit test failures in ggen-marketplace (v26.5.19 API incompatibilities)
+  - These do not block v26.5.19 deployment and are addressed in v26.5.19
   - Impact: None; unit tests only; no end-user functionality affected
 - Test suite categorization: 63% Chicago TDD, 37% London TDD (conversion in progress)
 
@@ -223,7 +223,7 @@ all work between v26.5.5 and v26.5.18.
 
 - Vision 2030 Complete: Full system description with metrics and architecture
 - Deployment Strategy: Progressive rollout with monitoring and rollback procedures
-- Release Notes: Feature highlights and migration guide for v26.5.4 users
+- Release Notes: Feature highlights and migration guide for v26.5.19 users
 
 ---
 
@@ -291,7 +291,7 @@ all work between v26.5.5 and v26.5.18.
 ### Technical Details
 
 - **Version**: 26.5.4 (patch release - focus on quality and completeness)
-- **Commits**: 34 commits since v5.1.0
+- **Commits**: 34 commits since v26.5.19.0
 - **Files Modified**: 142 files with version 26.5.4
 - **Test Status**: 66/66 tests passing (100% pass rate)
 - **Breaking Changes**: None

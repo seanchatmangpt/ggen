@@ -1,4 +1,4 @@
-# ggen v26.5.4 Staging Deployment
+# ggen v26.5.19 Staging Deployment
 
 Production-grade Docker Compose deployment for ggen clustering, event store management, and metrics collection.
 

@@ -1,6 +1,6 @@
 //! Security Integration Test Suite
 //!
-//! End-to-end security tests for ggen v6.0.0
+//! End-to-end security tests for ggen v26_5_19.0
 //!
 //! Test Categories:
 //! 1. Path Traversal Prevention - File system security

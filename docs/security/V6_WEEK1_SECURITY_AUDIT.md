@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [ggen v6 Week 1 Security Audit Report](#ggen-v6-week-1-security-audit-report)
+- [ggen v26.5.19 Week 1 Security Audit Report](#ggen-v26.5.19-week-1-security-audit-report)
   - [Executive Summary](#executive-summary)
   - [Vulnerability Summary](#vulnerability-summary)
   - [CRITICAL Vulnerabilities](#critical-vulnerabilities)
@@ -61,12 +61,12 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# ggen v6 Week 1 Security Audit Report
+# ggen v26.5.19 Week 1 Security Audit Report
 
 **Audit Date**: 2026-01-24
 **Auditor**: Security Analysis System
 **Scope**: Comprehensive security audit of all input validation and OWASP Top 10 vulnerabilities
-**Version**: ggen v26.5.4
+**Version**: ggen v26.5.19
 
 ## Executive Summary
 
@@ -1883,7 +1883,7 @@ async fn test_authentication_e2e() {
 
 ## Conclusion
 
-The ggen v6 codebase has **CRITICAL security vulnerabilities** that prevent production deployment. The primary issues are:
+The ggen v26.5.19 codebase has **CRITICAL security vulnerabilities** that prevent production deployment. The primary issues are:
 
 1. **Authentication system is completely unimplemented**
 2. **SPARQL injection vulnerabilities enable data exfiltration**

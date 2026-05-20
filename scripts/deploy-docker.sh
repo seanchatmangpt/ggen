@@ -1,5 +1,5 @@
 #!/bin/bash
-# Docker Hub Deployment Script for ggen v5.0.0
+# Docker Hub Deployment Script for ggen v26.5.19.0.0
 # This script builds and publishes ggen Docker images to Docker Hub
 #
 # Prerequisites:

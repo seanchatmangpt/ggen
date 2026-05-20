@@ -324,6 +324,6 @@ ggen ontology init --project_name test-project
 ---
 
 **Tested by:** Claude Code Agent
-**Test Environment:** . (ggen v5.5.0)
+**Test Environment:** . (ggen v26.5.19.5.0)
 **Test Method:** Runtime execution of all 19 commands
 **Evidence:** Actual command output captured and analyzed

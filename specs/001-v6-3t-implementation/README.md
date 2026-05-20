@@ -1,8 +1,8 @@
-# v6 Specification: Pure 3T Implementation
+# v26.5.19 Specification: Pure 3T Implementation
 
 ## Overview
 
-This specification demonstrates **purity of implementation** - the specification itself is written using the exact 3T (TOML, Tera, Turtle) methodology it describes. This creates a **meta-circular property**: the specification about v6's ontology-first approach is generated FROM ontology.
+This specification demonstrates **purity of implementation** - the specification itself is written using the exact 3T (TOML, Tera, Turtle) methodology it describes. This creates a **meta-circular property**: the specification about v26.5.19's ontology-first approach is generated FROM ontology.
 
 ## The Constitutional Equation
 
@@ -20,12 +20,12 @@ Where:
 ## Directory Structure
 
 ```
-specs/001-v6-3t-implementation/
+specs/001-v26.5.19-3t-implementation/
 ├── README.md                           # ← You are here
 ├── ggen.toml                           # Pipeline configuration
 ├── ontology/
 │   ├── spec-schema.ttl                 # Vocabulary definition (485 lines)
-│   └── v6-spec-content.ttl             # All content as RDF (887 lines)
+│   └── v26.5.19-spec-content.ttl             # All content as RDF (887 lines)
 ├── templates/
 │   ├── spec-main.tera                  # Document header
 │   ├── user-stories.tera               # User stories with nested scenarios
@@ -55,14 +55,14 @@ specs/001-v6-3t-implementation/
 
 ### Prerequisites
 
-- ggen v6 CLI (with v6 pipeline support)
+- ggen v26.5.19 CLI (with v26.5.19 pipeline support)
 - RDF/SPARQL support (Oxigraph)
 - Tera template engine
 
 ### Generation Workflow
 
 ```bash
-cd ./specs/001-v6-3t-implementation
+cd ./specs/001-v26.5.19-3t-implementation
 
 # Generate specification from ontology
 ggen sync
@@ -107,7 +107,7 @@ The five-stage pipeline (μ₁ through μ₅) executes:
 
 ## Constitutional Invariants
 
-This specification enforces v6's constitutional laws:
+This specification enforces v26.5.19's constitutional laws:
 
 1. **Idempotence** (μ∘μ = μ): Running `ggen sync` twice produces zero file changes
 2. **Determinism**: Same ontology generates bit-for-bit identical markdown across platforms
@@ -121,7 +121,7 @@ This specification enforces v6's constitutional laws:
 
 ### Example: Add a New Functional Requirement
 
-1. Edit `ontology/v6-spec-content.ttl`:
+1. Edit `ontology/v26.5.19-spec-content.ttl`:
    ```turtle
    :fr-021 a spec:FunctionalRequirement ;
        spec:requirementId "FR-021" ;
@@ -131,7 +131,7 @@ This specification enforces v6's constitutional laws:
 
 2. Link to specification:
    ```turtle
-   :v6-spec
+   :v26.5.19-spec
        spec:hasRequirement :fr-001, :fr-002, ..., :fr-021 .  # Add :fr-021
    ```
 
@@ -144,7 +144,7 @@ This specification enforces v6's constitutional laws:
 
 ### Example: Add a New User Story
 
-1. Add story and scenarios in `ontology/v6-spec-content.ttl`
+1. Add story and scenarios in `ontology/v26.5.19-spec-content.ttl`
 2. Update `spec:hasUserStory` relationship
 3. Run `ggen sync`
 4. New story appears in `generated/user-stories.md`
@@ -170,7 +170,7 @@ The specification uses SHACL shapes to enforce quality:
 Running `ggen sync` on invalid ontology produces:
 ```
 Error during μ₁ (Normalization):
-  File: ontology/v6-spec-content.ttl:450
+  File: ontology/v26.5.19-spec-content.ttl:450
   Violation: requirementId must match pattern ^FR-[0-9]{3}$
   Value: "REQ-1"
 ```
@@ -179,7 +179,7 @@ Error during μ₁ (Normalization):
 
 This specification is **self-demonstrating**:
 
-- **Describes**: v6's 3T methodology (TOML, Tera, Turtle)
+- **Describes**: v26.5.19's 3T methodology (TOML, Tera, Turtle)
 - **Uses**: The exact same 3T methodology it describes
 - **Proves**: Specifications can be ontology-driven, not just code
 
@@ -212,7 +212,7 @@ The specification becomes a **proof-of-concept** for the paradigm it proposes.
 **Version Control (3T Files Only)**:
 - ✅ `ggen.toml` - Pipeline configuration
 - ✅ `ontology/spec-schema.ttl` - Vocabulary definition
-- ✅ `ontology/v6-spec-content.ttl` - Content as RDF
+- ✅ `ontology/v26.5.19-spec-content.ttl` - Content as RDF
 - ✅ `templates/*.tera` - Rendering templates
 - ✅ `README.md` - Documentation (this file)
 - ✅ `.gitignore` - Ignore generated artifacts
@@ -241,7 +241,7 @@ generated/
 ### Problem: Want to add new section to specification
 **Solution**:
 1. Add new class to `spec-schema.ttl` (e.g., `spec:TestPlan`)
-2. Add instances to `v6-spec-content.ttl`
+2. Add instances to `v26.5.19-spec-content.ttl`
 3. Create new template `templates/test-plan.tera`
 4. Add new `[[generation]]` rule to `ggen.toml`
 5. Run `ggen sync`
@@ -256,8 +256,8 @@ generated/
 
 ## References
 
-- v6 Thesis Generation System: `./docs/ggen-v6-thesis/`
-- v6 Ontology Schema: `./v6/ontology/ggen-v6.ttl`
+- v26.5.19 Thesis Generation System: `./docs/ggen-v26.5.19-thesis/`
+- v26.5.19 Ontology Schema: `./v26.5.19/ontology/ggen-v26.5.19.ttl`
 - Original Specification: `spec.md` (deprecated, kept for reference)
 
 ---

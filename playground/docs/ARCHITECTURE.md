@@ -46,7 +46,7 @@ This document presents a comprehensive improved architecture for the clap-noun-v
 |  +---------------+    +----------------+    +----------------+    +-----------+   |
 |  | CLI Parser    |    | Output         |    | Interactive    |    | Progress  |   |
 |  | (clap-noun-   |--->| Formatter      |--->| Shell          |    | Reporter  |   |
-|  |  verb v5.1)   |    | (JSON/YAML/    |    | (REPL mode)    |    | (indicatif)|  |
+|  |  verb v26.5.19)   |    | (JSON/YAML/    |    | (REPL mode)    |    | (indicatif)|  |
 |  +---------------+    |  Table/Plain)  |    +----------------+    +-----------+   |
 |         |             +----------------+            |                   |         |
 |         |                    |                      |                   |         |

@@ -1,6 +1,6 @@
-# RDF-First Workflow Guide - ggen v6
+# RDF-First Workflow Guide - ggen v26.5.19
 
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-ggen-v26.5.19-rdf-system
 **Constitutional Equation**: `code = μ(spec.ttl)`
 
 ---
@@ -17,7 +17,7 @@ This project uses **RDF-first architecture** where:
 ## Directory Structure
 
 ```
-013-ggen-v6-rdf-system/
+013-ggen-v26.5.19-rdf-system/
 ├── ggen.toml                      # Configuration (SPARQL queries, templates)
 ├── ontology/                      # SOURCE OF TRUTH (edit these)
 │   ├── feature-content.ttl        # System-level specification
@@ -39,7 +39,7 @@ This project uses **RDF-first architecture** where:
 
 ## The Five-Stage Pipeline
 
-**ggen v6** implements a deterministic transformation pipeline:
+**ggen v26.5.19** implements a deterministic transformation pipeline:
 
 ```
 μ₁ → μ₂ → μ₃ → μ₄ → μ₅
@@ -48,7 +48,7 @@ This project uses **RDF-first architecture** where:
 ### Stage μ₁: Normalization (SHACL Validation)
 - Validates RDF against SHACL shapes
 - Ensures spec integrity before processing
-- **Config**: `[v6.validation]` in ggen.toml
+- **Config**: `[v26.5.19.validation]` in ggen.toml
 
 ### Stage μ₂: Extraction (SPARQL SELECT)
 - Executes SPARQL queries against RDF graph
@@ -62,12 +62,12 @@ This project uses **RDF-first architecture** where:
 
 ### Stage μ₄: Canonicalization (Format Normalization)
 - Ensures consistent formatting (line endings, whitespace)
-- **Config**: `[v6.canonicalization]` in ggen.toml
+- **Config**: `[v26.5.19.canonicalization]` in ggen.toml
 
 ### Stage μ₅: Receipt (Cryptographic Provenance)
 - Generates SHA-256 hashes of inputs and outputs
 - Proves `output = μ(input)`
-- **Config**: `[v6.receipt]` in ggen.toml
+- **Config**: `[v26.5.19.receipt]` in ggen.toml
 
 ---
 
@@ -91,11 +91,11 @@ vim ontology/feature-content.ttl
 # Option A: Use helper script (recommended)
 ./scripts/sync.sh
 
-# Option B: Direct ggen command (when v6 is available)
+# Option B: Direct ggen command (when v26.5.19 is available)
 ggen sync
 
-# Option C: Manual workflow (current ggen v5)
-# ggen v5 doesn't have sync yet - this project SPECIFIES ggen v6
+# Option C: Manual workflow (current ggen v26.5.19)
+# ggen v26.5.19 doesn't have sync yet - this project SPECIFIES ggen v26.5.19
 ```
 
 ### 3. Verify Output
@@ -132,7 +132,7 @@ diff /tmp/hash1.txt /tmp/hash2.txt
 ### Key Sections
 
 ```toml
-[v6]
+[v26.5.19]
 enabled = true
 ontology = "ontology/spec-kit-schema.ttl,ontology/feature-content.ttl"
 output_dir = "generated"
@@ -147,12 +147,12 @@ WHERE { ... }
 template = "templates/spec.tera"
 output = "generated/spec.md"
 
-[v6.validation]
+[v26.5.19.validation]
 enabled = true
 shapes_file = "ontology/spec-kit-schema.ttl"
 fail_on_violation = true
 
-[v6.receipt]
+[v26.5.19.receipt]
 enabled = true
 algorithm = "SHA-256"
 output_file = "generated/.receipt.json"
@@ -307,9 +307,9 @@ Priority: {{ item.priority }}
 ## Troubleshooting
 
 ### "ggen sync" not found
-- **Cause**: ggen v6 not yet implemented
-- **Solution**: This project SPECIFIES ggen v6. Once v6 is built, it will work.
-- **Current**: ggen v5 doesn't have `sync` command
+- **Cause**: ggen v26.5.19 not yet implemented
+- **Solution**: This project SPECIFIES ggen v26.5.19. Once v26.5.19 is built, it will work.
+- **Current**: ggen v26.5.19 doesn't have `sync` command
 
 ### TTL Parse Errors
 ```bash
@@ -377,7 +377,7 @@ git diff generated/  # Should show expected changes only
 
 ---
 
-## Testing the Workflow (When v6 is Ready)
+## Testing the Workflow (When v26.5.19 is Ready)
 
 ```bash
 # 1. Modify spec
@@ -403,10 +403,10 @@ git diff generated/spec.md  # Should show no changes
 
 ## Reference
 
-- **ggen.toml**: `./specs/013-ggen-v6-rdf-system/ggen.toml`
+- **ggen.toml**: `./specs/013-ggen-v26.5.19-rdf-system/ggen.toml`
 - **Feature Spec (RDF)**: `ontology/feature-content.ttl` (270 triples)
 - **80/20 Analysis (RDF)**: `ontology/mvp-80-20.ttl`
-- **Generated Spec**: `generated/spec.md` (when v6 is ready)
+- **Generated Spec**: `generated/spec.md` (when v26.5.19 is ready)
 - **Validation Script**: `scripts/validate-rdf-workflow.sh`
 - **Sync Helper**: `scripts/sync.sh`
 
@@ -414,11 +414,11 @@ git diff generated/spec.md  # Should show no changes
 
 ## Next Steps
 
-1. **Implement ggen v6 MVP** (8 days, 5 capabilities)
+1. **Implement ggen v26.5.19 MVP** (8 days, 5 capabilities)
 2. **Run** `ggen sync` **to test workflow**
-3. **Use ggen v6 to regenerate its own spec** (self-hosting)
+3. **Use ggen v26.5.19 to regenerate its own spec** (self-hosting)
 4. **Validate** constitutional equation: `spec.md = μ(feature.ttl)`
 
 ---
 
-**Remember**: This project uses RDF to SPECIFY ggen v6. Once v6 is implemented, you can use it to regenerate this very specification!
+**Remember**: This project uses RDF to SPECIFY ggen v26.5.19. Once v26.5.19 is implemented, you can use it to regenerate this very specification!

@@ -323,7 +323,7 @@ version = "1.0.0"
 source = "ontology/businessos.ttl"
 base_uri = "https://chatmangpt.com/businessos/"
 
-[v6.passes]
+[v26.5.19.passes]
 extraction = { order = 1, type = "sparql", source = "queries/extract-services.rq" }
 emission = { order = 2, type = "tera", source = "templates/" }
 

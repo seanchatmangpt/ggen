@@ -388,7 +388,7 @@ impl Clone for GuardSet {
     fn clone(&self) -> Self {
         // Since guards are stateless, we create a new default set
         // This preserves the configured guard behavior
-        Self::default_v6()
+        Self::default_v26()
     }
 }
 
@@ -426,8 +426,8 @@ impl GuardSet {
         violations
     }
 
-    /// Create a default guard set with standard v6 guards
-    pub fn default_v6() -> Self {
+    /// Create a default guard set with standard v26_5_19 guards
+    pub fn default_v26() -> Self {
         let mut set = Self::new();
         set.add_guard(PathGuard::new("path-guard", "ontology/**"));
         set.add_guard(SecretGuard::new("secret-guard"));

@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-28
 **Analyzer:** Claude Code (Ralph Loop + parallel agents)
-**Scope:** OSA, Canopy, BusinessOS, pm4py-rust, yawlv6, semconv
+**Scope:** OSA, Canopy, BusinessOS, pm4py-rust, yawlv26.5.19, semconv
 **Branch:** feat/weaver-automation (31 commits)
 
 ---

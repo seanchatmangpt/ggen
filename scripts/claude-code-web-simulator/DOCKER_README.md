@@ -80,7 +80,7 @@ docker build --no-cache -t ggen-agent:latest .
 
 ### Build with Custom Registry
 ```bash
-docker build -t my-registry.com/ggen-agent:v26.5.4 .
+docker build -t my-registry.com/ggen-agent:v26.5.19 .
 ```
 
 ### Using the Build Script
@@ -92,7 +92,7 @@ docker build -t my-registry.com/ggen-agent:v26.5.4 .
 ./build-and-test-docker.sh --no-cache
 
 # Build for specific registry
-./build-and-test-docker.sh --registry my-registry.com --version v26.5.4
+./build-and-test-docker.sh --registry my-registry.com --version v26.5.19
 
 # Build and push
 ./build-and-test-docker.sh --registry my-registry.com --push

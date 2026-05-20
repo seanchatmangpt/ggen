@@ -13,7 +13,7 @@
 |-------|--------|---------|
 | `cargo make check` | **PASS** | All 30 crates compile (7.84s) |
 | `cargo make test` | **FAIL** | 4 test targets fail to compile (pre-existing, not from this work) |
-| Compilation errors | 21 total | `ggen-ai` tests (14), `ggen-core` v6_pipeline_e2e_test (7) |
+| Compilation errors | 21 total | `ggen-ai` tests (14), `ggen-core` v26.5.19_pipeline_e2e_test (7) |
 
 ### Test Compilation Failures (Pre-Existing, Not from This Work)
 
@@ -22,7 +22,7 @@
 | `ggen-ai` | `swarm_sparql_validator_tests.rs` | E0433/E0432 | Missing `swarm` module (deleted/renamed) |
 | `ggen-ai` | `template_validator_agent_test.rs` | E0433/E0282 | Missing `swarm` + type inference |
 | `ggen-ai` | `template_validator_standalone.rs` | E0432 | Missing `swarm` module import |
-| `ggen-core` | `v6_pipeline_e2e_test.rs` | E0599/E0308 | `AtomicPackClass::Core` variant renamed |
+| `ggen-core` | `v26.5.19_pipeline_e2e_test.rs` | E0599/E0308 | `AtomicPackClass::Core` variant renamed |
 
 **Note:** These failures are in test files referencing modules that were restructured in prior commits. They are not caused by the Fortune 5 CISO changes.
 
@@ -94,8 +94,8 @@
 - `crates/ggen-core/src/lockfile.rs` - Added profile field to PackLockfile
 
 ### Pipeline Integration
-- `crates/ggen-core/src/v6/pipeline.rs` - μ₀ pack resolution integration
-- `crates/ggen-core/src/v6/receipt.rs` - Composition receipt integration
+- `crates/ggen-core/src/v26.5.19/pipeline.rs` - μ₀ pack resolution integration
+- `crates/ggen-core/src/v26.5.19/receipt.rs` - Composition receipt integration
 - `crates/ggen-core/src/resolver.rs` - Resolution updates
 
 ### Marketplace Core
@@ -110,7 +110,7 @@
 ### Blockers
 1. **4 test targets fail to compile** (pre-existing, not from this work):
    - `ggen-ai` tests reference deleted `swarm` module
-   - `ggen-core` v6_pipeline_e2e_test references renamed `AtomicPackClass::Core` variant
+   - `ggen-core` v26.5.19_pipeline_e2e_test references renamed `AtomicPackClass::Core` variant
 
 ### Before Commit
 - [ ] Fix 4 pre-existing test compilation failures

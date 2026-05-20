@@ -206,12 +206,12 @@ pub trait Pass: Send + Sync {
 
     /// Whether this pass is idempotent (μ∘μ = μ)
     fn is_idempotent(&self) -> bool {
-        true // All v6 passes must be idempotent
+        true // All v26_5_19 passes must be idempotent
     }
 
     /// Whether this pass is deterministic
     fn is_deterministic(&self) -> bool {
-        true // All v6 passes must be deterministic
+        true // All v26_5_19 passes must be deterministic
     }
 
     /// Execute the pass

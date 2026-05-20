@@ -1,8 +1,8 @@
-# Specification Quality Checklist: v5.1.0 GA Production Release
+# Specification Quality Checklist: v26.5.19.0 GA Production Release
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2025-12-21
-**Feature**: [v5.1.0 GA Production Release](../spec.md)
+**Feature**: [v26.5.19.0 GA Production Release](../spec.md)
 
 ## Content Quality
 

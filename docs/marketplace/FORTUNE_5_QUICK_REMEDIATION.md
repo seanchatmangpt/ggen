@@ -398,7 +398,7 @@ crates/ggen-marketplace/src/
 
 crates/ggen-core/src/
 ├── pack_resolver.rs        # Gate 2 fixes
-└── v6/pipeline.rs          # Gate 2, 6 fixes
+└── v26.5.19/pipeline.rs          # Gate 2, 6 fixes
 
 crates/ggen-cli/src/cmds/
 └── packs.rs                # Gate 5 fixes

@@ -142,12 +142,12 @@ fn perform_publish_checks() -> Vec<CheckItem> {
     let vocab_passed = vocab_path.exists()
         && std::fs::read_to_string(vocab_path)
             .unwrap_or_default()
-            .contains("gv6:StandardVocabulary");
+            .contains("gv26:StandardVocabulary");
     checks.push(CheckItem {
         name: "Governance Policy".to_string(),
         passed: vocab_passed,
         detail: if vocab_passed { "All namespaces adhere to ontology registry".to_string() } else { "Governance registry missing or invalid".to_string() },
-        recovery: if vocab_passed { None } else { Some("Ensure .specify/ontologies/standard-vocabularies.ttl exists and defines gv6:StandardVocabulary".to_string()) },
+        recovery: if vocab_passed { None } else { Some("Ensure .specify/ontologies/standard-vocabularies.ttl exists and defines gv26:StandardVocabulary".to_string()) },
     });
 
     let cargo_toml = std::fs::read_to_string("Cargo.toml").unwrap_or_default();

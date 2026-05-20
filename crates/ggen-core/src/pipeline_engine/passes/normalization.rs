@@ -393,9 +393,9 @@ impl Pass for NormalizationPass {
     }
 }
 
-/// Standard normalization rules for v6
+/// Standard normalization rules for v26_5_19
 impl NormalizationPass {
-    /// Create a pass with standard v6 normalization rules (OWL inference)
+    /// Create a pass with standard v26_5_19 normalization rules (OWL inference)
     pub fn with_standard_rules() -> Self {
         let mut pass = Self::new();
 

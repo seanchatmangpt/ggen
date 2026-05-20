@@ -395,7 +395,7 @@
     spec:probability "MEDIUM" ;
     spec:impact "MEDIUM" ;
     spec:mitigation "Phased approach, focus on core patterns first" ;
-    spec:contingency "Deliver essential patterns (TypeSafety, PathProtection) in v5.2" .
+    spec:contingency "Deliver essential patterns (TypeSafety, PathProtection) in v26.5.19.2" .
 
 :Risk_PerformanceImpact a spec:Risk ;
     rdfs:label "Quality Gate Performance Impact" ;

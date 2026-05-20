@@ -1,6 +1,6 @@
 # Wave 2 - Scaffold Examples Completion Report
 
-**Project**: ggen v26.5.4 - Specification-Driven Code Generation
+**Project**: ggen v26.5.19 - Specification-Driven Code Generation
 **Wave**: 2 (Scaffold Examples)
 **Status**: COMPLETED ✓
 **Date**: 2026-03-24
@@ -540,7 +540,7 @@ cargo test --example ai-templates --lib
 - [x] Ready for Wave 3 expansion
 
 **Key Achievements**:
-1. Demonstrated RDF-driven specification pattern (ggen v6)
+1. Demonstrated RDF-driven specification pattern (ggen v26.5.19)
 2. Implemented MCP server for tool discovery
 3. Created agent workflow examples
 4. 168 comprehensive tests (88 + 80)

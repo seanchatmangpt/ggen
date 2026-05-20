@@ -34,7 +34,7 @@ output = "stdout"
 validate_paths = true
 path_traversal_protection = true
 
-# NOTE: ggen v5 uses template-based generation with data passed from CLI or scripts.
+# NOTE: ggen v26.5.19 uses template-based generation with data passed from CLI or scripts.
 # The 15 generation rules are defined in the templates themselves.
 # To generate the thesis:
 # 1. Templates in templates/ directory process the ontology data

@@ -34,8 +34,8 @@ Users invoke these commands/features and get incorrect or silent results.
 
 | # | Stub | Location | Reachable From | Impact |
 |---|------|----------|---------------|--------|
-| 5 | `ShapeLoader::load()` | ggen-core/validation/shacl.rs:132 | v6/pipeline.rs:198 (NormalizationPass) | Returns empty ShaclShapeSet — SHACL validation is a complete no-op |
-| 6 | `SparqlValidator::validate()` | ggen-core/validation/validator.rs:113 | v6/pipeline.rs:225 (NormalizationPass) | Runs SPARQL query but discards all violations — always returns pass |
+| 5 | `ShapeLoader::load()` | ggen-core/validation/shacl.rs:132 | v26.5.19/pipeline.rs:198 (NormalizationPass) | Returns empty ShaclShapeSet — SHACL validation is a complete no-op |
+| 6 | `SparqlValidator::validate()` | ggen-core/validation/validator.rs:113 | v26.5.19/pipeline.rs:225 (NormalizationPass) | Runs SPARQL query but discards all violations — always returns pass |
 | 7 | `ThreeWayMerger` FailOnConflict | ggen-core/merge/mod.rs:398 | ggen-domain/template/regenerate.rs:32 | `has_conflicts()` always false — merge conflicts silently accepted |
 | 8 | `RegionAwareMerger::merge_with_regions` | ggen-core/merge/mod.rs:491 | ggen-domain/template/regenerate.rs:32 | Naive line-by-line comparison; no proper diff3 algorithm |
 | 9 | `Attestation::verify` | ggen-core/cleanroom/attestation.rs:302 | cleanroom attestation chain | Always returns Ok(true) — no actual crypto verification |
@@ -70,7 +70,7 @@ These stubs, modules, and dead code have zero production callers. Deleting them 
 
 | # | Item | Location | Est. Lines | Why Safe |
 |---|------|----------|:----------:|----------|
-| 10 | SHACL validation stubs | ggen-core/validation/shacl.rs, validator.rs | ~600 | NOT called from `ggen sync` (only from v6 pipeline, which is test-only) |
+| 10 | SHACL validation stubs | ggen-core/validation/shacl.rs, validator.rs | ~600 | NOT called from `ggen sync` (only from v26.5.19 pipeline, which is test-only) |
 | 11 | RdfControlPlane v2 stubs | ggen-marketplace/rdf/control.rs | ~800 | search/list/dependencies/dashboard NOT on install path |
 | 12 | V3OptimizedRegistry stubs | ggen-marketplace/v3.rs | ~400 | Never used by Installer |
 | 13 | DMAIC gates 7-11 | ggen-core/pipeline/ | ~300 | Re-check fields already validated by gates 1-6 |
@@ -80,7 +80,7 @@ These stubs, modules, and dead code have zero production callers. Deleting them 
 | 17 | `ToolRegistry` | ggen-ai/tool_registry.rs | ~200 | Complete implementation, zero production consumers |
 | 18 | `marketplace.rs` redirect errors | ggen-domain/marketplace.rs | ~130 | All functions return Err("moved to ggen-cli") |
 | 19 | graph/export.rs deprecated formats | ggen-domain/graph/export.rs | ~200 | Hardcoded data, superseded by Oxigraph serializer |
-| 20 | `DefaultLlmService` | ggen-core/codegen/pipeline.rs:130 | ~50 | Intentional fallback, emits TODO comments. Keep only if v6 pipeline is adopted |
+| 20 | `DefaultLlmService` | ggen-core/codegen/pipeline.rs:130 | ~50 | Intentional fallback, emits TODO comments. Keep only if v26.5.19 pipeline is adopted |
 | 21 | `ultrathink/core.rs` channels | ggen-ai/ultrathink/core.rs | ~50 | Dead fields, no callers |
 | 22 | `microframework/` dead fields | ggen-ai/microframework/ | ~50 | results/config stored, never used |
 | 23 | Commented-out modules (secrets, supply_chain) | ggen-utils/lib.rs:58-59 | 2 lines | Broken since Week 8/9 |
@@ -90,10 +90,10 @@ These stubs, modules, and dead code have zero production callers. Deleting them 
 | # | Item | Location | Why Safe |
 |---|------|----------|----------|
 | 24 | `CachedPackage` struct | ggen-marketplace/rdf/control.rs:62 | All fields dead_code |
-| 25 | `ReceiptBuilder` | ggen-core/v6/passes/receipt_gen.rs:138 | dead_code, no callers |
+| 25 | `ReceiptBuilder` | ggen-core/v26.5.19/passes/receipt_gen.rs:138 | dead_code, no callers |
 | 26 | `Plan` struct | ggen-core/pipeline.rs:384 | dead_code, no callers |
-| 27 | `stage_pack_templates` | ggen-core/v6/pipeline.rs:34 | dead_code, never called |
-| 28 | `V6Pipeline`, `PipelineStage`, `V6PipelineConfig` | ggen-core/v6/pipeline.rs:204,310 | dead_code, earlier iteration |
+| 27 | `stage_pack_templates` | ggen-core/v26.5.19/pipeline.rs:34 | dead_code, never called |
+| 28 | `V6Pipeline`, `PipelineStage`, `V6PipelineConfig` | ggen-core/v26.5.19/pipeline.rs:204,310 | dead_code, earlier iteration |
 | 29 | `FileProgressBar.enabled` | ggen-core/codegen/ux.rs:79 | dead field |
 | 30 | `ImpactAnalyzer.template_queries` | ggen-core/delta.rs:659 | Never populated or read |
 | 31 | `PackResolver.lockfile_path` | ggen-core/pack_resolver.rs:170 | dead field |
@@ -148,7 +148,7 @@ Execute in this order to minimize risk and maximize clarity:
 
 ### Phase 2: Dead stubs and dead code fields
 9. Delete ggen-core `config/hive_coordinator.rs` (~350 lines)
-10. Delete ggen-core v6 dead structs (~200 lines)
+10. Delete ggen-core v26.5.19 dead structs (~200 lines)
 11. Delete ggen-marketplace RdfControlPlane v2 stubs (~800 lines)
 12. Delete ggen-marketplace V3OptimizedRegistry stubs (~400 lines)
 13. Delete ggen-domain `marketplace.rs` (~130 lines)
@@ -177,8 +177,8 @@ These items need a core team decision before classifying:
 
 | Item | Question |
 |------|----------|
-| `StagedPipeline` (v6) | Wire into `ggen sync` as canonical, or keep as test-only? If test-only, many v6 stubs become CAN DELETE |
-| `DefaultLlmService` | Keep as intentional fallback, or delete if v6 pipeline is deprioritized? |
+| `StagedPipeline` (v26.5.19) | Wire into `ggen sync` as canonical, or keep as test-only? If test-only, many v26.5.19 stubs become CAN DELETE |
+| `DefaultLlmService` | Keep as intentional fallback, or delete if v26.5.19 pipeline is deprioritized? |
 | AHI subsystem | Archive to a branch for future reference, or delete permanently? |
 | JSON-LD/N3 export | Implement or remove the error-returning stubs? |
 | `ggen-macros` active macros (Guard, Bundle) | Only used in own tests. Keep for v4.0 or remove? |

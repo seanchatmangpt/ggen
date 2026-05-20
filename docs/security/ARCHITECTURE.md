@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Architecture (v26.5.4)](#security-architecture-v600)
+- [Security Architecture (v26.5.19)](#security-architecture-v26.5.1900)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Defense in Depth Layers](#defense-in-depth-layers)
@@ -37,18 +37,18 @@
     - [Detective Controls](#detective-controls)
     - [Corrective Controls](#corrective-controls)
   - [Security Roadmap](#security-roadmap)
-    - [v26.5.4 (Q1 2026)](#v610-q1-2026)
-    - [v6.2.0 (Q2 2026)](#v620-q2-2026)
+    - [v26.5.19 (Q1 2026)](#v26.5.1910-q1-2026)
+    - [v26.5.19.2.0 (Q2 2026)](#v26.5.1920-q2-2026)
     - [v7.0.0 (Q3 2026)](#v700-q3-2026)
   - [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Architecture (v26.5.4)
+# Security Architecture (v26.5.19)
 
 ## Overview
 
-ggen v26.5.4 implements defense-in-depth security through multiple layers of protection. This document describes the security architecture, trust boundaries, and protection mechanisms.
+ggen v26.5.19 implements defense-in-depth security through multiple layers of protection. This document describes the security architecture, trust boundaries, and protection mechanisms.
 
 **Last Updated**: 2026-01-24
 **Version**: 26.5.4
@@ -183,7 +183,7 @@ let limiter = RateLimiter::new()
 limiter.check_and_increment(client_id, endpoint)?;
 ```
 
-**Limits (v26.5.4)**:
+**Limits (v26.5.19)**:
 - Max requests per minute: 60
 - Max concurrent generations: 10
 - Max file size: 10MB
@@ -387,9 +387,9 @@ log::error!("{}", sanitized.internal_message());  // Full details for logs
 
 ## Authentication & Authorization
 
-**Current Status (v26.5.4)**: CLI-based, single-user model
+**Current Status (v26.5.19)**: CLI-based, single-user model
 
-**Future Enhancements (v26.5.4+)**:
+**Future Enhancements (v26.5.19+)**:
 - API key authentication
 - Role-based access control (RBAC)
 - OAuth2 integration
@@ -620,13 +620,13 @@ All logs include:
 
 ## Security Roadmap
 
-### v26.5.4 (Q1 2026)
+### v26.5.19 (Q1 2026)
 - [ ] API authentication (API keys)
 - [ ] Multi-tenant isolation
 - [ ] Enhanced audit logging
 - [ ] Security dashboard
 
-### v6.2.0 (Q2 2026)
+### v26.5.19.2.0 (Q2 2026)
 - [ ] OAuth2 integration
 - [ ] Role-based access control (RBAC)
 - [ ] Encrypted audit logs

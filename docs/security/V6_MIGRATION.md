@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Migration Guide: v5.x → v26.5.4](#security-migration-guide-v5x-%E2%86%92-v600)
+- [Security Migration Guide: v26.5.19.x → v26.5.19](#security-migration-guide-v26.5.19x-%E2%86%92-v26.5.1900)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Breaking Changes Summary](#breaking-changes-summary)
@@ -32,8 +32,8 @@
     - [Removed: `output_directory`](#removed-output_directory)
     - [New: Security Configuration](#new-security-configuration)
   - [Timeline and Deprecation Schedule](#timeline-and-deprecation-schedule)
-    - [v26.5.4 (January 2026) - Current](#v600-january-2026---current)
-    - [v26.5.4 (Q1 2026) - Planned](#v610-q1-2026---planned)
+    - [v26.5.19 (January 2026) - Current](#v26.5.1900-january-2026---current)
+    - [v26.5.19 (Q1 2026) - Planned](#v26.5.1910-q1-2026---planned)
     - [v7.0.0 (Q3 2026) - Future](#v700-q3-2026---future)
   - [Migration Checklist](#migration-checklist)
     - [Pre-Migration](#pre-migration)
@@ -47,15 +47,15 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Migration Guide: v5.x → v26.5.4
+# Security Migration Guide: v26.5.19.x → v26.5.19
 
 ## Overview
 
-This guide covers security-related breaking changes when migrating from ggen v5.x to v26.5.4, including SafePath adoption, SPARQL builder migration, rate limiting configuration, and timeline/deprecation schedule.
+This guide covers security-related breaking changes when migrating from ggen v26.5.19.x to v26.5.19, including SafePath adoption, SPARQL builder migration, rate limiting configuration, and timeline/deprecation schedule.
 
 **Last Updated**: 2026-01-24
-**Source Version**: v5.x
-**Target Version**: v26.5.4
+**Source Version**: v26.5.19.x
+**Target Version**: v26.5.19
 **Migration Time**: 1-4 hours (depending on codebase size)
 
 ---
@@ -76,7 +76,7 @@ This guide covers security-related breaking changes when migrating from ggen v5.
 
 ## Breaking Changes Summary
 
-| Area | v5.x Behavior | v26.5.4 Behavior | Impact |
+| Area | v26.5.19.x Behavior | v26.5.19 Behavior | Impact |
 |------|---------------|-----------------|--------|
 | **File Paths** | Direct `PathBuf` | `SafePath` required | 🔴 **HIGH** - All path operations |
 | **SPARQL Queries** | String concatenation | `QueryBuilder` required | 🔴 **HIGH** - All queries |
@@ -91,12 +91,12 @@ This guide covers security-related breaking changes when migrating from ggen v5.
 
 ### Overview
 
-**v26.5.4 requires SafePath for all file operations** to prevent path traversal attacks.
+**v26.5.19 requires SafePath for all file operations** to prevent path traversal attacks.
 
 ### Breaking Change
 
 ```rust
-// ❌ v5.x (DEPRECATED in v6)
+// ❌ v26.5.19.x (DEPRECATED in v26.5.19)
 use std::path::PathBuf;
 
 fn load_template(path: &str) -> Result<String, Error> {
@@ -104,7 +104,7 @@ fn load_template(path: &str) -> Result<String, Error> {
     fs::read_to_string(full_path)  // ⚠️ Path traversal risk!
 }
 
-// ✅ v26.5.4 (REQUIRED)
+// ✅ v26.5.19 (REQUIRED)
 use ggen_core::security::SafePath;
 
 fn load_template(path: &str) -> Result<String, Error> {
@@ -177,13 +177,13 @@ pub fn load_file(path: &str) -> Result<String, Error> {
 **Pattern 1: Template Loading**
 
 ```rust
-// ❌ v5.x
+// ❌ v26.5.19.x
 fn load_template(name: &str) -> Result<String, Error> {
     let path = PathBuf::from("templates").join(name);
     fs::read_to_string(path)
 }
 
-// ✅ v26.5.4
+// ✅ v26.5.19
 fn load_template(name: &str) -> Result<String, Error> {
     let path = SafePath::new(name)?
         .within_directory(Path::new("templates"))?;
@@ -194,14 +194,14 @@ fn load_template(name: &str) -> Result<String, Error> {
 **Pattern 2: Output File Writing**
 
 ```rust
-// ❌ v5.x
+// ❌ v26.5.19.x
 fn write_output(name: &str, content: &str) -> Result<(), Error> {
-    let output_dir = config.output_directory.clone();  // REMOVED in v6
+    let output_dir = config.output_directory.clone();  // REMOVED in v26.5.19
     let path = PathBuf::from(output_dir).join(name);
     fs::write(path, content)
 }
 
-// ✅ v26.5.4
+// ✅ v26.5.19
 fn write_output(name: &str, content: &str) -> Result<(), Error> {
     let path = SafePath::new(name)?
         .within_directory(Path::new("output"))?;
@@ -217,7 +217,7 @@ fn write_output(name: &str, content: &str) -> Result<(), Error> {
 **Pattern 3: Recursive Directory Traversal**
 
 ```rust
-// ❌ v5.x (vulnerable to symlink attacks)
+// ❌ v26.5.19.x (vulnerable to symlink attacks)
 fn find_templates(dir: &Path) -> Result<Vec<PathBuf>, Error> {
     let mut templates = Vec::new();
     for entry in fs::read_dir(dir)? {
@@ -230,7 +230,7 @@ fn find_templates(dir: &Path) -> Result<Vec<PathBuf>, Error> {
     Ok(templates)
 }
 
-// ✅ v26.5.4 (secure against symlinks)
+// ✅ v26.5.19 (secure against symlinks)
 use ggen_core::security::SafePath;
 
 fn find_templates(dir: &str) -> Result<Vec<SafePath>, Error> {
@@ -260,12 +260,12 @@ fn find_templates(dir: &str) -> Result<Vec<SafePath>, Error> {
 
 ### Overview
 
-**v26.5.4 requires QueryBuilder for all SPARQL queries** to prevent SPARQL injection.
+**v26.5.19 requires QueryBuilder for all SPARQL queries** to prevent SPARQL injection.
 
 ### Breaking Change
 
 ```rust
-// ❌ v5.x (DEPRECATED in v6)
+// ❌ v26.5.19.x (DEPRECATED in v26.5.19)
 fn find_users(name: &str) -> String {
     format!(
         "SELECT ?user WHERE {{ ?user foaf:name '{}' }}",
@@ -273,7 +273,7 @@ fn find_users(name: &str) -> String {
     )
 }
 
-// ✅ v26.5.4 (REQUIRED)
+// ✅ v26.5.19 (REQUIRED)
 use ggen_core::sparql::QueryBuilder;
 
 fn find_users(name: &str) -> Result<String, Error> {
@@ -384,12 +384,12 @@ let var = QueryBuilder::validate_variable("userName")?;
 
 ### Overview
 
-**v26.5.4 enforces rate limiting by default** to prevent DoS attacks.
+**v26.5.19 enforces rate limiting by default** to prevent DoS attacks.
 
 ### New Configuration
 
 ```toml
-# v26.5.4 ggen.toml
+# v26.5.19 ggen.toml
 [rate_limit]
 # Per-client limits
 max_requests_per_minute = 60
@@ -457,16 +457,16 @@ match ggen::sync(&config) {
 
 ### Overview
 
-**v26.5.4 sanitizes error messages** to prevent information disclosure.
+**v26.5.19 sanitizes error messages** to prevent information disclosure.
 
 ### Breaking Change
 
 ```rust
-// v5.x (leaked internal paths)
+// v26.5.19.x (leaked internal paths)
 Err(format!("Failed to read file: {}", path.display()))
 // Error: "Failed to read file: /home/user/.config/ggen/secret.key"
 
-// v26.5.4 (sanitized)
+// v26.5.19 (sanitized)
 use ggen_core::security::ErrorSanitizer;
 
 let sanitized = ErrorSanitizer::file_error("read", &path_str, &error_msg);
@@ -514,16 +514,16 @@ pub enum Error {
 
 ### Overview
 
-**v26.5.4 sandboxes template rendering** to prevent filesystem access.
+**v26.5.19 sandboxes template rendering** to prevent filesystem access.
 
 ### Breaking Change
 
 ```tera
-{# ❌ v5.x (allowed, dangerous) #}
+{# ❌ v26.5.19.x (allowed, dangerous) #}
 {% include "/etc/passwd" %}
 {{ system("rm -rf /") }}
 
-{# ✅ v26.5.4 (blocked) #}
+{# ✅ v26.5.19 (blocked) #}
 {# Templates cannot access filesystem or execute commands #}
 ```
 
@@ -545,11 +545,11 @@ pub enum Error {
 3. Use include only for templates in allowed directories
 
 ```tera
-{# ❌ Before (v5.x) #}
+{# ❌ Before (v26.5.19.x) #}
 {% include "/etc/passwd" %}
 {{ load_file("config.toml") }}
 
-{# ✅ After (v26.5.4) #}
+{# ✅ After (v26.5.19) #}
 {# Pass data via context instead #}
 {{ config_data }}
 {% include "partials/header.tera" %}  {# Only allowed directories #}
@@ -561,13 +561,13 @@ pub enum Error {
 
 ### Removed: `output_directory`
 
-**v5.x**:
+**v26.5.19.x**:
 ```toml
 [project]
-output_directory = "generated"  # ❌ Removed in v6
+output_directory = "generated"  # ❌ Removed in v26.5.19
 ```
 
-**v26.5.4**:
+**v26.5.19**:
 ```rust
 // Use SafePath for output instead
 let output_path = SafePath::new("output/generated.rs")?
@@ -578,7 +578,7 @@ fs::write(output_path.as_path(), content)?;
 
 ### New: Security Configuration
 
-**v26.5.4**:
+**v26.5.19**:
 ```toml
 [security]
 # Path validation
@@ -607,7 +607,7 @@ receipt_storage_path = ".ggen/receipts"
 
 ## Timeline and Deprecation Schedule
 
-### v26.5.4 (January 2026) - Current
+### v26.5.19 (January 2026) - Current
 
 **Breaking Changes (Immediate)**:
 - ✅ SafePath required for all file operations
@@ -619,7 +619,7 @@ receipt_storage_path = ".ggen/receipts"
 **Deprecation Warnings**:
 - None (breaking changes are immediate)
 
-### v26.5.4 (Q1 2026) - Planned
+### v26.5.19 (Q1 2026) - Planned
 
 **New Features**:
 - API authentication

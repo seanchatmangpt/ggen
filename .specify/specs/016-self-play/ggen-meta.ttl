@@ -62,7 +62,7 @@ If any quality gate fails, stop and report the specific issue. Do not emit parti
 """ ;
 
     a2a:hasImplementationHint """
-Use ggen_core::v6::pipeline::CodeGenerationPipeline for orchestration.
+Use ggen_core::v26.5.19::pipeline::CodeGenerationPipeline for orchestration.
 Implement skill handlers using the Skill trait from ggen_core::schema.
 Apply templates using Tera engine with ggen_core::templates::TemplateEngine.
 Run quality gates using ggen_core::poka_yoke::QualityGateRunner.
@@ -143,7 +143,7 @@ If any quality gate fails, stop and report specific issues.
 """ ;
 
     a2a:hasImplementationHint """
-Use ggen_core::v6::pipeline::CodeGenerationPipeline for orchestration.
+Use ggen_core::v26.5.19::pipeline::CodeGenerationPipeline for orchestration.
 Use ggen_core::schema::SchemaParser for PEST-based schema parsing.
 Use ggen_core::codegen::executor::CodeExecutor for template rendering.
 Use ggen_core::poka_yoke::quality_gates::QualityGateRunner for validation.

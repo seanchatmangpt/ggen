@@ -92,7 +92,7 @@ pub struct AtomicPackRef {
 
 ### ✅ 2. BuildReceipt Extended with Pack Provenance (PASS)
 
-**File:** `./crates/ggen-core/src/v6/receipt.rs`
+**File:** `./crates/ggen-core/src/v26.5.19/receipt.rs`
 
 **Extensions Added:**
 
@@ -402,7 +402,7 @@ chain.verify(&verifying_key)?;
 
 1. **Pipeline Integration TODOs:**
 
-   **File:** `./crates/ggen-core/src/v6/pipeline.rs:465-473`
+   **File:** `./crates/ggen-core/src/v26.5.19/pipeline.rs:465-473`
 
    ```rust
    receipt.add_pack(PackProvenance {
@@ -542,6 +542,6 @@ The ggen marketplace implementation satisfies Gate 6 requirements with:
 
 ---
 
-**Validator:** Claude Code (ggen v26.5.4)
+**Validator:** Claude Code (ggen v26.5.19)
 **Evidence Reviewed:** 3 receipt implementations, 2 test files, 1 pipeline integration
 **Code Coverage:** Receipt structures have comprehensive unit tests (90%+ coverage)

@@ -69,7 +69,7 @@
    - Merge ontologies
    - Build ownership map
 
-2. **Pipeline Integration** (`crates/ggen-core/src/v6/pipeline.rs`)
+2. **Pipeline Integration** (`crates/ggen-core/src/v26.5.19/pipeline.rs`)
    - `PackResolver` in `StagedPipeline`
    - μ₀ executes BEFORE μ₁
    - `ResolvedPacks` flows to μ₁→μ₅

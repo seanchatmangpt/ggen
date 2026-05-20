@@ -1,13 +1,13 @@
-# Tasks: v6 Specification - Pure 3T Transformation
+# Tasks: v26.5.19 Specification - Pure 3T Transformation
 
-**Input**: Design documents from `/specs/001-v6-3t-implementation/`
+**Input**: Design documents from `/specs/001-v26.5.19-3t-implementation/`
 **Prerequisites**: plan.md ✅, spec.md ✅, README.md ✅
 
-**Tests**: NOT REQUESTED - This is a specification transformation project, not runtime code. Validation is through `ggen sync` execution and idempotence testing (pending v6 CLI implementation).
+**Tests**: NOT REQUESTED - This is a specification transformation project, not runtime code. Validation is through `ggen sync` execution and idempotence testing (pending v26.5.19 CLI implementation).
 
-**Organization**: Tasks organized by implementation phase. All artifacts have been created; remaining work is validation and v6 CLI integration.
+**Organization**: Tasks organized by implementation phase. All artifacts have been created; remaining work is validation and v26.5.19 CLI integration.
 
-**Status**: ✅ **IMPLEMENTATION COMPLETE** - Tasks T001-T017 done. Tasks T018-T024 pending v6 CLI implementation.
+**Status**: ✅ **IMPLEMENTATION COMPLETE** - Tasks T001-T017 done. Tasks T018-T024 pending v26.5.19 CLI implementation.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -16,7 +16,7 @@
 
 ## Path Conventions
 
-**Current Project**: Specification system at `./specs/001-v6-3t-implementation/`
+**Current Project**: Specification system at `./specs/001-v26.5.19-3t-implementation/`
 - Ontology files: `ontology/*.ttl`
 - Templates: `templates/*.tera`
 - Configuration: `ggen.toml`
@@ -45,7 +45,7 @@
   - 40+ properties (datatype and object properties)
   - 10 SHACL shapes for validation
 
-- [x] T005 Convert all specification content to RDF triples in ontology/v6-spec-content.ttl (887 lines)
+- [x] T005 Convert all specification content to RDF triples in ontology/v26.5.19-spec-content.ttl (887 lines)
   - 1 Specification instance with metadata
   - 6 UserStory instances (P1, P2, P3 priorities)
   - 24 AcceptanceScenario instances (nested under user stories)
@@ -86,7 +86,7 @@
 **Purpose**: Configure μ₁-μ₅ pipeline with SPARQL queries and generation rules
 
 - [x] T016 Create pipeline configuration in ggen.toml (247 lines)
-  - Project metadata and v6 settings
+  - Project metadata and v26.5.19 settings
   - Five-pass pipeline configuration (μ₁ through μ₅)
   - Constitutional invariants (idempotence, determinism, provenance, no-edit, substrate-only)
   - Vocabulary governance (7 allowed RDF namespaces)
@@ -141,17 +141,17 @@
 
 ---
 
-## Phase 6: Validation & Testing ⏳ PENDING v6 CLI
+## Phase 6: Validation & Testing ⏳ PENDING v26.5.19 CLI
 
-**Purpose**: Validate 3T specification system through ggen v6 pipeline
+**Purpose**: Validate 3T specification system through ggen v26.5.19 pipeline
 
-**⚠️ BLOCKED**: Requires v6 CLI implementation with μ₁-μ₅ pipeline support
+**⚠️ BLOCKED**: Requires v26.5.19 CLI implementation with μ₁-μ₅ pipeline support
 
 ### Prerequisites for Validation
 
 Before starting this phase, verify:
-- [ ] ggen v6 CLI is installed with `ggen sync` command
-- [ ] ggen v6 supports μ₁-μ₅ pipeline execution
+- [ ] ggen v26.5.19 CLI is installed with `ggen sync` command
+- [ ] ggen v26.5.19 supports μ₁-μ₅ pipeline execution
 - [ ] Oxigraph RDF store is available
 - [ ] Tera template engine is integrated
 - [ ] SHACL validation is implemented
@@ -162,11 +162,11 @@ Before starting this phase, verify:
   - Command: `ggen sync --validate-only` (or equivalent)
   - Expected: All 10 SHACL shapes pass validation
   - Expected: Vocabulary governance passes (all namespaces in allowed list)
-  - Expected: No constraint violations in v6-spec-content.ttl
-  - Files: ontology/spec-schema.ttl, ontology/v6-spec-content.ttl
+  - Expected: No constraint violations in v26.5.19-spec-content.ttl
+  - Files: ontology/spec-schema.ttl, ontology/v26.5.19-spec-content.ttl
 
 - [ ] T022 Execute first ggen sync to generate specification
-  - Command: `cd ./specs/001-v6-3t-implementation && ggen sync`
+  - Command: `cd ./specs/001-v26.5.19-3t-implementation && ggen sync`
   - Expected: 10 markdown files created in generated/
   - Expected: .receipt.json created with SHA-256 hashes
   - Expected: No errors during μ₁ (normalization), μ₂ (extraction), μ₃ (emission), μ₄ (canonicalization), μ₅ (receipt)
@@ -205,7 +205,7 @@ Before starting this phase, verify:
   - Expected: Bit-for-bit identical output across all platforms
   - Evidence: Hash comparison showing 100% match
 
-**Estimated Effort**: 2-3 hours (assuming v6 CLI works correctly)
+**Estimated Effort**: 2-3 hours (assuming v26.5.19 CLI works correctly)
 
 ---
 
@@ -213,7 +213,7 @@ Before starting this phase, verify:
 
 **Purpose**: Use this 3T specification system as template for other specifications
 
-**Dependencies**: Phase 6 validation complete, v6 CLI stable
+**Dependencies**: Phase 6 validation complete, v26.5.19 CLI stable
 
 - [ ] T027 Document lessons learned from 3T transformation
   - File: docs/3t-transformation-guide.md
@@ -242,7 +242,7 @@ Before starting this phase, verify:
 - **Templates (Phase 3)**: ✅ COMPLETE - Can run in parallel with Phase 2
 - **Configuration (Phase 4)**: ✅ COMPLETE - Depends on Phases 2 & 3
 - **Documentation (Phase 5)**: ✅ COMPLETE - Can run in parallel with Phase 4
-- **Validation (Phase 6)**: ⏳ BLOCKED by v6 CLI implementation - Depends on Phases 1-5
+- **Validation (Phase 6)**: ⏳ BLOCKED by v26.5.19 CLI implementation - Depends on Phases 1-5
 - **Meta-Circular (Phase 7)**: ⏳ FUTURE - Depends on Phase 6
 
 ### Task Dependencies
@@ -256,7 +256,7 @@ Before starting this phase, verify:
 - T017-T020: Parallel execution (different documentation files)
 
 **Pending Tasks** (T021-T029):
-- T021: Can run after v6 CLI available
+- T021: Can run after v26.5.19 CLI available
 - T022: Depends on T021 passing (must validate before generating)
 - T023: Depends on T022 completing (must generate once before testing idempotence)
 - T024: Can run in parallel with T023 (independent verification)
@@ -311,9 +311,9 @@ The "MVP" for this project is the complete 3T specification system infrastructur
 
 **Total Delivered**: 2,724 lines of code across 17 files (16 new, 1 updated)
 
-**Validation Pending**: Phases 6-7 blocked by v6 CLI implementation
+**Validation Pending**: Phases 6-7 blocked by v26.5.19 CLI implementation
 
-### Incremental Validation Plan (When v6 CLI Available)
+### Incremental Validation Plan (When v26.5.19 CLI Available)
 
 1. **Validation Increment** (Phase 6):
    - T021: SHACL validation → Ensure ontology structure is valid
@@ -331,7 +331,7 @@ The "MVP" for this project is the complete 3T specification system infrastructur
 
 Not applicable - this is a specification transformation project, already complete.
 
-For Phase 6 validation (when v6 CLI available):
+For Phase 6 validation (when v26.5.19 CLI available):
 - Developer A: T021-T022 (validation + first generation)
 - Developer B: T023-T025 (idempotence + verification + content validation)
 - Can run T023, T024, T025 in parallel after T022 completes
@@ -348,7 +348,7 @@ For Phase 6 validation (when v6 CLI available):
 - ✅ Phase 5: Documentation (4 tasks)
 
 **Blocked**: 6 tasks (21% complete)
-- ⏳ Phase 6: Validation (6 tasks) - **BLOCKED by v6 CLI implementation**
+- ⏳ Phase 6: Validation (6 tasks) - **BLOCKED by v26.5.19 CLI implementation**
 
 **Future**: 3 tasks (10% complete)
 - ⏳ Phase 7: Meta-Circular (3 tasks) - Depends on Phase 6
@@ -367,9 +367,9 @@ For Phase 6 validation (when v6 CLI available):
 - ✅ Configuration complete
 - ✅ Documentation complete
 - ✅ Quality checklist updated
-- ⏳ Generation test (pending v6 CLI)
-- ⏳ Idempotence test (pending v6 CLI)
-- ⏳ Receipt verification (pending v6 CLI)
+- ⏳ Generation test (pending v26.5.19 CLI)
+- ⏳ Idempotence test (pending v26.5.19 CLI)
+- ⏳ Receipt verification (pending v26.5.19 CLI)
 
 ---
 
@@ -382,6 +382,6 @@ For Phase 6 validation (when v6 CLI available):
 - [P] tasks = different files, can run in parallel
 - ✅ = Completed tasks
 - ⏳ = Pending tasks (blocked or future work)
-- Commit message for completed work: "feat(spec): Implement pure 3T specification system for v6"
+- Commit message for completed work: "feat(spec): Implement pure 3T specification system for v26.5.19"
 
-**Ready for validation** once v6 CLI with `ggen sync` command is implemented.
+**Ready for validation** once v26.5.19 CLI with `ggen sync` command is implemented.

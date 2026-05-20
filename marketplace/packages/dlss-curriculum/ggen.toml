@@ -1,5 +1,5 @@
 # =============================================================================
-# ggen v6 DLSS Curriculum Generation Manifest
+# ggen v26.5.19 DLSS Curriculum Generation Manifest
 # Generates 9 document types from RDF ontology via ggen sync (mu1-mu5)
 # ZERO hardcoded strings - ALL content from SPARQL queries
 # =============================================================================

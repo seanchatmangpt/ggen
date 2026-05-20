@@ -344,7 +344,7 @@ Total: 2 tasks, 4.5 hours
 ## Dependencies
 
 ### External Dependencies
-- **@unrdf/kgc-4d v5.0.1**: Reference implementation for temporal algorithms (T057, T058)
+- **@unrdf/kgc-4d v26.5.19.1**: Reference implementation for temporal algorithms (T057, T058)
 - **ACM/IEEE Papers**: HD computing citations (T062)
 - **W3C RDF/SPARQL specs**: Temporal RDF extensions (T052)
 - **Cover & Thomas (2006)**: Information theory textbook (T063)

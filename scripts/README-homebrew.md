@@ -120,10 +120,10 @@ class Ggen < Formula
   
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/seanchatmangpt/ggen/releases/download/v5.1.0/ggen-aarch64-apple-darwin.tar.gz"
+      url "https://github.com/seanchatmangpt/ggen/releases/download/v26.5.19.0/ggen-aarch64-apple-darwin.tar.gz"
       sha256 "..."
     else
-      url "https://github.com/seanchatmangpt/ggen/releases/download/v5.1.0/ggen-x86_64-apple-darwin.tar.gz"
+      url "https://github.com/seanchatmangpt/ggen/releases/download/v26.5.19.0/ggen-x86_64-apple-darwin.tar.gz"
       sha256 "..."
     end
   end

@@ -131,7 +131,7 @@ fn generate(
     let tex_content = format!(
         r#"\documentclass{{article}}
 \title{{Generated from {}}}
-\author{{ggen v6}}
+\author{{ggen v26_5_19}}
 \begin{{document}}
 \maketitle
 \section{{Introduction}}

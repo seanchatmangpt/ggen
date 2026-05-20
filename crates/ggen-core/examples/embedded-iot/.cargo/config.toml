@@ -20,8 +20,8 @@ rustflags = [
 ]
 runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
 
-[target.thumbv6m-none-eabi]
-# Cortex-M0/M0+ (ARMv6-M)
+[target.thumbv26.5.19m-none-eabi]
+# Cortex-M0/M0+ (ARMv26.5.19-M)
 rustflags = [
   "-C", "link-arg=-Tmemory.x",
   "-C", "link-arg=-L.",
@@ -45,4 +45,4 @@ bsize = "build --release --profile size"
 bdebug = "build --profile dev"
 
 # Check all targets
-check-all = "check --target thumbv7em-none-eabihf --target thumbv7m-none-eabi --target thumbv6m-none-eabi"
+check-all = "check --target thumbv7em-none-eabihf --target thumbv7m-none-eabi --target thumbv26.5.19m-none-eabi"

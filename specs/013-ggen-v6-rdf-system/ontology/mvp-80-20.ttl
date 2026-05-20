@@ -2,17 +2,17 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sk: <http://github.com/github/spec-kit#> .
-@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v26.5.19-rdf-system#> .
 
 # ============================================================================
-# ggen v6 MVP - 80/20 Analysis
+# ggen v26.5.19 MVP - 80/20 Analysis
 # ============================================================================
 # Purpose: Define the 20% of features that deliver 80% of value
 # Focus: Prove RDF-first methodology works with minimal viable implementation
 # ============================================================================
 
 :mvp-80-20 a sk:ImplementationStrategy ;
-    sk:strategyName "ggen v6 MVP - 80/20 Principle" ;
+    sk:strategyName "ggen v26.5.19 MVP - 80/20 Principle" ;
     sk:goal "Prove constitutional equation code = μ(spec.ttl) with minimal implementation" ;
     sk:targetDeliveryTime "1 week for solo developer" ;
     sk:valueDelivered "80%" ;
@@ -236,7 +236,7 @@
 # ============================================================================
 
 :mvp-workflow a sk:Workflow ;
-    sk:workflowName "ggen v6 MVP End-to-End Workflow" ;
+    sk:workflowName "ggen v26.5.19 MVP End-to-End Workflow" ;
     sk:step1 "Developer writes feature-content.ttl (RDF specification)" ;
     sk:step2 "Developer creates spec.tera (Tera template)" ;
     sk:step3 "Developer writes SPARQL query in ggen.toml" ;

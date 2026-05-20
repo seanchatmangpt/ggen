@@ -56,7 +56,7 @@ Merge mode solves this by:
 ## Conflict Marker Syntax
 
 ```rust
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: uuid-1234)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: uuid-1234)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -104,7 +104,7 @@ Templates must include merge markers:
 
 ```rust
 {# templates/rust_struct.tera #}
-// <<<<<<< GENERATED (ggen-v5, rule: {{ rule_name }}, id: {{ generation_id }})
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: {{ rule_name }}, id: {{ generation_id }})
 pub struct {{ struct_name }} {
   {% for field in fields %}
     pub {{ field.name }}: {{ field.type }},
@@ -124,7 +124,7 @@ $ ggen sync --rule structs
 Created: src/models/user.rs
 
 $ cat src/models/user.rs
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -138,7 +138,7 @@ pub struct User {
 Developer edits MANUAL section:
 
 ```rust
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -164,7 +164,7 @@ $ ggen sync --rule structs
 Updated: src/models/user.rs
 
 $ cat src/models/user.rs
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -191,7 +191,7 @@ impl User {
 Developer accidentally edits generated section:
 
 ```rust
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -215,7 +215,7 @@ Choose action:
 > 3
 
 $ cat src/models/user.rs
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -400,7 +400,7 @@ end = "# >>>>>>> END"
 ### Multiple Manual Sections
 
 ```rust
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 pub struct User {
     pub id: Uuid,
     pub email: String,
@@ -409,7 +409,7 @@ pub struct User {
 impl User {
     pub fn new(email: String) -> Self { ... }
 }
-// <<<<<<< GENERATED (ggen-v5, rule: traits, id: def-456)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: traits, id: def-456)
 impl Serialize for User { ... }
 // ======= MANUAL (section: impl-advanced)
 impl User {
@@ -422,7 +422,7 @@ impl User {
 
 ```rust
 // <<<<<<< GENERATED (
-//   ggen-v5,
+//   ggen-v26.5.19,
 //   rule: structs,
 //   id: abc-123,
 //   generated_at: 2025-12-20T14:30:45Z,
@@ -453,10 +453,10 @@ WARNING: Checksum mismatch: src/models/user.rs
 **Fix**: Use exact marker format (no extra spaces):
 ```rust
 // Correct
-// <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+// <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 
 // Incorrect (extra space)
-//  <<<<<<< GENERATED (ggen-v5, rule: structs, id: abc-123)
+//  <<<<<<< GENERATED (ggen-v26.5.19, rule: structs, id: abc-123)
 ```
 
 ### Issue: Manual section deleted

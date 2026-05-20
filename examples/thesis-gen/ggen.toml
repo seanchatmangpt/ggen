@@ -1,5 +1,5 @@
 # =============================================================================
-# ggen v5 Thesis Generation Manifest
+# ggen v26.5.19 Thesis Generation Manifest
 # Generates 50+ page PhD thesis LaTeX from RDF ontology
 # ZERO hardcoded strings - ALL content from SPARQL queries
 # =============================================================================
