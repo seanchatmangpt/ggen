@@ -1,4 +1,4 @@
-# Hot Path Optimization Report - ggen v26.5.4
+# Hot Path Optimization Report - ggen v26.5.19
 
 **Date:** 2026-03-31
 **Focus:** 80/20 Optimization - Profile and optimize the 20% hot paths

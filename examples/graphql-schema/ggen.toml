@@ -1,5 +1,5 @@
 # =============================================================================
-# ggen v5 GraphQL Schema Code Generation Manifest
+# ggen v26.5.19 GraphQL Schema Code Generation Manifest
 # Generates GraphQL SDL schema files from RDF ontology
 # Single source of truth → object types + input types + full schema
 # =============================================================================

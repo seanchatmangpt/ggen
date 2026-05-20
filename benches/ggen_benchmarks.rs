@@ -1,4 +1,4 @@
-//! Performance benchmarks for ggen v5.1.0 GA Production Release
+//! Performance benchmarks for ggen v26_5_19.0 GA Production Release
 //!
 //! This benchmark suite validates SLO compliance for production workloads:
 //!

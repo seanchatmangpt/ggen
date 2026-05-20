@@ -11,7 +11,7 @@ is lost even if we decide not to use it.
 A git bundle containing the local-only commit `d2e4c18 "Update craftplan"`
 from the `vendors/craftplan` submodule. This commit existed only in the local
 submodule checkout (not pushed to `https://github.com/puemos/craftplan.git`)
-and was bundled before submodule removal for v26.5.18.
+and was bundled before submodule removal for v26.5.19.
 
 **Contents (commit `d2e4c1839934f8f650fb5e00291c2a4bb9d25ea2`, author Sean
 Chatman, 2026-02-08):** Docker setup, integration test infrastructure, agent
@@ -30,7 +30,7 @@ git fetch /path/to/ggen/docs/preserved/craftplan-local-d2e4c18.bundle
 git cherry-pick d2e4c18
 ```
 
-## Submodule pins (removed in v26.5.18)
+## Submodule pins (removed in v26.5.19)
 
 Five vendored git submodules were removed. All upstream provenance verified
 prior to removal:
@@ -53,7 +53,7 @@ git add <path>
 
 ## Archive tags
 
-Branches and worktrees removed for v26.5.18 are archived as annotated tags
+Branches and worktrees removed for v26.5.19 are archived as annotated tags
 under `archive/*`. List with:
 
 ```bash

@@ -346,7 +346,7 @@ grep "ggen-marketplace" crates/ggen-core/Cargo.toml
 
 ## Summary
 
-The μ₀ pack resolution stage is **implemented and compiling**. It provides the foundation for pack-based code generation in the ggen v6 pipeline. The implementation follows CISO requirements for atomic packs, foundation-first loading, and provenance tracking.
+The μ₀ pack resolution stage is **implemented and compiling**. It provides the foundation for pack-based code generation in the ggen v26.5.19 pipeline. The implementation follows CISO requirements for atomic packs, foundation-first loading, and provenance tracking.
 
 **Next Steps:**
 1. Integrate into `StagedPipeline::new()` (call `resolve()` before μ₁)

@@ -59,7 +59,7 @@ The Dockerfile uses a two-stage build pattern:
 docker build -t ggen-agent:latest scripts/claude-code-web-simulator/
 
 # Build with specific version tag
-docker build -t ggen-agent:v26.5.4 scripts/claude-code-web-simulator/
+docker build -t ggen-agent:v26.5.19 scripts/claude-code-web-simulator/
 
 # Build with no-cache (force rebuild)
 docker build --no-cache -t ggen-agent:latest scripts/claude-code-web-simulator/

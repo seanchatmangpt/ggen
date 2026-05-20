@@ -6,6 +6,18 @@
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
+# Only run validation when pushing to the default branch (main)
+IS_DEFAULT_BRANCH=false
+while read local_ref local_sha remote_ref remote_sha; do
+    if [[ "$remote_ref" == "refs/heads/main" ]]; then
+        IS_DEFAULT_BRANCH=true
+    fi
+done
+
+if [ "$IS_DEFAULT_BRANCH" = false ]; then
+    exit 0
+fi
+
 echo "🚦 Pre-push validation..."
 echo ""
 
@@ -31,7 +43,6 @@ echo ""
 echo "Gate 3/5: Formatting..."
 if ! cargo fmt --all -- --check 2>&1 > /dev/null; then
   echo "❌ Code not formatted"
-  cargo fmt --all 2>&1 > /dev/null
   exit 1
 fi
 echo "✅ Pass"

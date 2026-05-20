@@ -313,4 +313,4 @@ Across 5 real-world scenarios, RDF-first development delivers:
 - **Cost**: $100/hour developer rate, includes all phases
 - **Accuracy**: Manual comparison of docs vs actual code behavior
 
-**Last Updated**: 2026-01-24 (ggen v26.5.4)
+**Last Updated**: 2026-01-24 (ggen v26.5.19)

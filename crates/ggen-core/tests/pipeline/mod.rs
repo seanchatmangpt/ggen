@@ -1,4 +1,4 @@
-//! v6 Pipeline integration tests module
+//! v26_5_19 Pipeline integration tests module
 
 mod canonicalization_tests;
-mod v6_pipeline_guarantees_test;
+mod v26_5_19_pipeline_guarantees_test;

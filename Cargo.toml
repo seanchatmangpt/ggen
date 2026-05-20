@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.18"
+version = "26.5.19"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -27,8 +27,6 @@ members = [
   "crates/ggen-marketplace",
   "crates/ggen-core",
   "crates/ggen-cli",
-  "crates/ggen-prompt-mfg",
-  "crates/prolog8",
   ]
 exclude = []
 resolver = "2" # Use new resolver for better dependency resolution
@@ -84,9 +82,9 @@ predicates = "3.1"
 rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-# NOTE: v26.5.4 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.5.4" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.4" }
+# NOTE: v26.5.19 unified release
+ggen-core = { path = "crates/ggen-core", version = "26.5.18" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.18" }
 
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
@@ -145,7 +143,7 @@ darling_core = "0.21"
 darling_macro = "0.21"
 
 # Utilities (Moderate impact - direct dependencies)
-# dashmap: 2 versions → 1 (v5.5, v26.5.4 consolidated)
+# dashmap: 2 versions → 1 (v26.5.19.5, v26.5.19 consolidated)
 # bitflags: 3 versions → 1 (consolidated)
 # config: 2 versions → 1 (consolidated, default-features=false to allow customization)
 # convert_case: 2 versions → 1 (consolidated)
@@ -468,8 +466,8 @@ otel = [
   "ggen-core/otel",
 ]
 [dependencies]
-ggen-core = { path = "crates/ggen-core", version = "26.5.5" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.5" }
+ggen-core = { workspace = true }
+ggen-cli-lib = { workspace = true }
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"

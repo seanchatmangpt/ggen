@@ -488,7 +488,7 @@ description = "BusinessOS platform regeneration via ggen"
 source = "ontology/businessos.ttl"
 base_uri = "https://chatmangpt.com/businessos/"
 
-[v6.passes]
+[v26_5_19.passes]
 extraction = { order = 1, type = "sparql", source = "queries/extract-services.rq" }
 emission = { order = 2, type = "tera", source = "templates/" }
 
@@ -509,8 +509,8 @@ base_directory = "generated"
         "Should have ontology section"
     );
     assert!(
-        ggen_toml_content.contains("[v6.passes]"),
-        "Should have v6.passes section"
+        ggen_toml_content.contains("[v26_5_19.passes]"),
+        "Should have v26_5_19.passes section"
     );
     assert!(
         ggen_toml_content.contains("extraction"),

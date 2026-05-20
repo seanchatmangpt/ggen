@@ -19,7 +19,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="/home/user/ggen"
-RELEASE_DIR="${PROJECT_ROOT}/releases/v5.0.2"
+RELEASE_DIR="${PROJECT_ROOT}/releases/v26.5.19.0.2"
 DEB_BUILD_DIR="/tmp/ggen-deb-build"
 TEST_DIR="/tmp/gvisor-test-env"
 TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -65,7 +65,7 @@ echo "" >> "${LOG_FILE}"
 echo "================================================"
 echo "DEB + gViSOR END-TO-END PIPELINE"
 echo "================================================"
-echo "Project: ggen v5.0.2"
+echo "Project: ggen v26.5.19.0.2"
 echo "Timestamp: ${TIMESTAMP}"
 echo "Log file: ${LOG_FILE}"
 echo ""
@@ -148,7 +148,7 @@ case "$1" in
     configure)
         [[ ! -x /usr/bin/ggen ]] && chmod +x /usr/bin/ggen
         /usr/bin/ggen --help > /dev/null 2>&1 || { echo "ERROR: ggen verification failed"; exit 1; }
-        echo "ggen v5.0.2 installed successfully"
+        echo "ggen v26.5.19.0.2 installed successfully"
         ;;
     *) ;;
 esac
@@ -243,7 +243,7 @@ log_section "PHASE 8: Generate Final Report"
 
 REPORT="${PROJECT_ROOT}/DEB_GVISOR_REPORT.md"
 cat > "${REPORT}" << EOFREPORT
-# ggen v5.0.2 - DEB + gVisor Pipeline Report
+# ggen v26.5.19.0.2 - DEB + gVisor Pipeline Report
 
 **Generated**: ${TIMESTAMP}
 **Status**: ✅ COMPLETE - ALL PHASES PASSED

@@ -26,7 +26,7 @@
 //! 4. Input validation → Comprehensive validation functions
 //! 5. Error message leakage → Sanitized error messages
 //!
-//! ## Week 10 Security Logging & Intrusion Detection (v6.0.0)
+//! ## Week 10 Security Logging & Intrusion Detection (v26_5_19.0)
 //!
 //! New capabilities:
 //! 1. Comprehensive security event logging with structured data

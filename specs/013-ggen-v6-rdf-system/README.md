@@ -1,8 +1,8 @@
-# ggen v6 RDF-First Code Generation System (Pure 3T Specification)
+# ggen v26.5.19 RDF-First Code Generation System (Pure 3T Specification)
 
 ## Overview
 
-This specification demonstrates **purity of implementation** using the **3T methodology** (TOML, Tera, Turtle). The specification about ggen v6's RDF-first architecture is itself generated FROM RDF ontology.
+This specification demonstrates **purity of implementation** using the **3T methodology** (TOML, Tera, Turtle). The specification about ggen v26.5.19's RDF-first architecture is itself generated FROM RDF ontology.
 
 **Meta-Circular Property**: We use spec-kit to specify the tool that implements spec-kit.
 
@@ -23,7 +23,7 @@ Where:
 ## Directory Structure (3T Architecture)
 
 ```
-013-ggen-v6-rdf-system/
+013-ggen-v26.5.19-rdf-system/
 ├── README.md                           # ← You are here (3T documentation)
 ├── ggen.toml                           # TOML: Pipeline configuration
 ├── ontology/                           # TURTLE: Semantic substrate (source of truth)
@@ -69,21 +69,21 @@ Where:
 
 ### Prerequisites
 
-- ggen v6 CLI (with v6 pipeline support)
+- ggen v26.5.19 CLI (with v26.5.19 pipeline support)
 - RDF/SPARQL support (Oxigraph)
 - Tera template engine
 
-**Note**: ggen v6 is not yet implemented. This project SPECIFIES ggen v6.
+**Note**: ggen v26.5.19 is not yet implemented. This project SPECIFIES ggen v26.5.19.
 
 ### Generation Workflow
 
 ```bash
-cd ./specs/013-ggen-v6-rdf-system
+cd ./specs/013-ggen-v26.5.19-rdf-system
 
 # Option 1: Use helper script (recommended)
 ./scripts/sync.sh
 
-# Option 2: Direct command (when v6 is available)
+# Option 2: Direct command (when v26.5.19 is available)
 ggen sync
 
 # Verify idempotence (no file changes on second run)
@@ -101,7 +101,7 @@ The five-stage pipeline (μ₁ through μ₅) executes:
 #### 1. μ₁ - Normalization (SHACL Validation)
 - Validates RDF against `spec-kit-schema.ttl` SHACL shapes
 - Catches missing required fields, invalid priorities, wrong ID patterns
-- **Config**: `[v6.validation]` in ggen.toml
+- **Config**: `[v26.5.19.validation]` in ggen.toml
 - Fails fast with actionable error messages
 
 #### 2. μ₂ - Extraction (SPARQL SELECT)
@@ -120,19 +120,19 @@ The five-stage pipeline (μ₁ through μ₅) executes:
 - Normalize line endings (LF)
 - Trim trailing whitespace
 - Ensure final newline
-- **Config**: `[v6.canonicalization]` in ggen.toml
+- **Config**: `[v26.5.19.canonicalization]` in ggen.toml
 - Guarantees bit-for-bit reproducibility
 
 #### 5. μ₅ - Receipt Generation (Cryptographic Provenance)
 - SHA-256 hashes of input ontology files
 - SHA-256 hashes of output markdown files
 - Timestamp and pipeline configuration hash
-- **Config**: `[v6.receipt]` in ggen.toml
+- **Config**: `[v26.5.19.receipt]` in ggen.toml
 - Proves: `hash(spec.md) = hash(μ(ontology))`
 
 ## Constitutional Invariants
 
-This specification enforces ggen v6's constitutional laws:
+This specification enforces ggen v26.5.19's constitutional laws:
 
 1. **Idempotence** (μ∘μ = μ): Running `ggen sync` twice produces zero file changes
 2. **Determinism**: Same ontology generates bit-for-bit identical output across platforms
@@ -167,7 +167,7 @@ This specification enforces ggen v6's constitutional laws:
 
 2. Link to feature:
    ```turtle
-   :ggen-v6-system
+   :ggen-v26.5.19-system
        sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005, :us-006 .
    ```
 
@@ -334,15 +334,15 @@ generated/
 
 ## Project Status
 
-**Current**: ggen v5 (does not have `sync` command)
-**Specifying**: ggen v6 (RDF-first code generation with 3T methodology)
+**Current**: ggen v26.5.19 (does not have `sync` command)
+**Specifying**: ggen v26.5.19 (RDF-first code generation with 3T methodology)
 
-This project is **eating its own dog food** - using spec-kit to specify ggen v6, which will implement the very methodology used to specify it.
+This project is **eating its own dog food** - using spec-kit to specify ggen v26.5.19, which will implement the very methodology used to specify it.
 
 **Next Steps**:
-1. Implement ggen v6 MVP (8 days, 5 core capabilities)
+1. Implement ggen v26.5.19 MVP (8 days, 5 core capabilities)
 2. Run `ggen sync` to validate this specification
-3. Use ggen v6 to regenerate its own spec (self-hosting)
+3. Use ggen v26.5.19 to regenerate its own spec (self-hosting)
 4. Prove constitutional equation: code = μ(spec.ttl)
 
 ## Quick Reference
@@ -351,7 +351,7 @@ This project is **eating its own dog food** - using spec-kit to specify ggen v6,
 - **User Stories**: 5 (system-level)
 - **Core Capabilities**: 5 (20% effort, 80% value)
 - **Deferred Features**: 8 (80% effort, 20% value)
-- **Configuration**: `./specs/013-ggen-v6-rdf-system/ggen.toml`
+- **Configuration**: `./specs/013-ggen-v26.5.19-rdf-system/ggen.toml`
 - **Validation**: `./scripts/validate-rdf-workflow.sh`
 - **Sync**: `./scripts/sync.sh`
 
@@ -361,7 +361,7 @@ This project is **eating its own dog food** - using spec-kit to specify ggen v6,
 - `80-20-PLAN.md` - 8-day implementation roadmap
 - `80-20-PRIORITIZATION.md` - Detailed prioritization analysis
 - `RDF-COMPLIANCE-REPORT.md` - 3T compliance audit
-- `specs/001-v6-3t-implementation/README.md` - Original 3T specification
+- `specs/001-v26.5.19-3t-implementation/README.md` - Original 3T specification
 
 ---
 

@@ -206,5 +206,5 @@ Constitution compliance is reviewed:
 
 ---
 
-**Generated with**: [ggen v6](https://github.com/seanchatmangpt/ggen) ontology-driven constitution system
+**Generated with**: [ggen v26.5.19](https://github.com/seanchatmangpt/ggen) ontology-driven constitution system
 **Constitutional Equation**: `constitution.md = μ(constitution.ttl)`

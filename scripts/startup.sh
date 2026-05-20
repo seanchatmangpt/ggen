@@ -7,7 +7,7 @@
 
 set -e
 
-echo "🚀 ggen v6: BIG BANG 80/20 Screening Gate"
+echo "🚀 ggen v26_5_19: BIG BANG 80/20 Screening Gate"
 echo ""
 echo "Before initializing, you must answer 5 questions about execution readiness."
 echo "If you answer NO to any, stop and talk to Sean."

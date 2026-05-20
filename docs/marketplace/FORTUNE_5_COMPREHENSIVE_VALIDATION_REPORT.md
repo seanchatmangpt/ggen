@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-31
 **Standard:** Fortune 5 CISO Enterprise Safety Requirements
-**Scope:** Governed Capability Packs Platform (ggen v26.5.4)
+**Scope:** Governed Capability Packs Platform (ggen v26.5.19)
 **Method:** 8 parallel validation agents, source code analysis, PRD/ARD compliance
 
 ---

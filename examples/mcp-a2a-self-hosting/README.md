@@ -4,7 +4,7 @@
 
 ## What This Example Demonstrates
 
-This example showcases **5 key features** of ggen v6:
+This example showcases **5 key features** of ggen v26.5.19:
 
 1. **Behavior Predicates** - Use `a2a:hasSystemPrompt` and `a2a:hasImplementationHint` in ontologies
 2. **LLM Generation** - Auto-generate skill implementations via GPT-4/Claude

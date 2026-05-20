@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Developer Security Checklist (v26.5.4)](#developer-security-checklist-v600)
+- [Developer Security Checklist (v26.5.19)](#developer-security-checklist-v26.5.1900)
   - [Overview](#overview)
   - [Pre-Development Checklist](#pre-development-checklist)
   - [Code Development Checklist](#code-development-checklist)
@@ -41,11 +41,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Developer Security Checklist (v26.5.4)
+# Developer Security Checklist (v26.5.19)
 
 ## Overview
 
-This checklist ensures all security best practices are followed when developing for ggen v26.5.4. Use this before submitting pull requests or deploying code.
+This checklist ensures all security best practices are followed when developing for ggen v26.5.19. Use this before submitting pull requests or deploying code.
 
 **Last Updated**: 2026-01-24
 **Version**: 26.5.4
@@ -383,7 +383,7 @@ fn generate(input: &Input, limiter: &RateLimiter) -> Result<Output, Error> {
 - [Safe Coding Guidelines](SAFE_CODING.md)
 - [Security Architecture](ARCHITECTURE.md)
 - [Security Testing](TESTING.md)
-- [v6 Migration Guide](V6_MIGRATION.md)
+- [v26.5.19 Migration Guide](V6_MIGRATION.md)
 - [Incident Response Plan](INCIDENT_RESPONSE.md)
 
 ---

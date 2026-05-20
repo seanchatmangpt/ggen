@@ -14,7 +14,7 @@
 #
 # CONSTRAINTS:
 # - Must use CHECK_ONLY mode (never auto-commit)
-# - Must only trigger on pull requests, not pushes to master
+# - Must only trigger on pull requests, not pushes to main
 # - Must filter for markdown file changes only
 # - Must complete quickly (<5 minutes typical)
 # - Must provide actionable error messages when failing

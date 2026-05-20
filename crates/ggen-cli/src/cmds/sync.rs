@@ -1,4 +1,4 @@
-//! Sync Command - The ONLY command in ggen v5
+//! Sync Command - The ONLY command in ggen v26_5_19
 //!
 //! `ggen sync` is the unified code synchronization pipeline that replaces ALL
 //! previous ggen commands. It transforms domain ontologies through inference
@@ -145,7 +145,7 @@ impl From<SyncResult> for SyncOutput {
 
 /// Execute the complete code synchronization pipeline from a ggen.toml manifest.
 ///
-/// This is THE ONLY command in ggen v5. It replaces all previous commands
+/// This is THE ONLY command in ggen v26_5_19. It replaces all previous commands
 /// (`ggen generate`, `ggen validate`, `ggen template`, etc.) with a single
 /// unified pipeline.
 ///

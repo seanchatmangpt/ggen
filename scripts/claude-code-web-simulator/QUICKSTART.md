@@ -155,4 +155,4 @@ For detailed information:
 - ✅ Health monitoring
 - ✅ Production-ready code
 
-That's it! You're ready to use MCP client functionality in ggen v26.5.4.
+That's it! You're ready to use MCP client functionality in ggen v26.5.19.

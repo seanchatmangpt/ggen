@@ -1,4 +1,4 @@
-# ggen v26.5.4
+# ggen v26.5.19
 
 [![CI](https://github.com/seanchatmangpt/ggen/workflows/CI/badge.svg)](https://github.com/seanchatmangpt/ggen/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0%20OR%20MIT-blue.svg)](LICENSE-APACHE)
@@ -7,14 +7,14 @@
 
 **Deterministic, language-agnostic code generation from RDF ontologies with MCP integration and OpenTelemetry tracing.**
 
-ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v6 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
+ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v26.5.19 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
 
 ```
 ggen.toml  -->  RDF Ontology  -->  CONSTRUCT inference  -->  SELECT  -->  Tera Template  -->  Code
 ```
 
-**What's New in v26.5.4:**
-- ✅ **Native v6 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
+**What's New in v26.5.19:**
+- ✅ **Native v26.5.19 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
 - ✅ **8 Canonical Proof Gates** — Automated evidence validation (Schema, Ontology, Projection, Compilation, Receipt, Ethos, Observability, Causality)
 - ✅ **MCP Server Integration** — 14 tools exposed via stdio/HTTP for Claude Desktop and AI assistants
 - ✅ **A2A Protocol Support** — Multi-agent task coordination with Byzantine fault tolerance
@@ -367,9 +367,8 @@ ggen uses [clap-noun-verb](https://crates.io/crates/clap-noun-verb) for auto-dis
 | `ggen template new <name>` | Create a new template |
 | `ggen template list` | List all templates |
 | `ggen template lint <name>` | Lint a template for issues |
-| `ggen template generate <name>` | Generate output from a template |
-| `ggen template generate-tree` | Generate a file tree from a template directory |
-| `ggen template regenerate` | Regenerate from template with merge strategies |
+
+> **Note:** Use `ggen sync` for unified template generation driven by `ggen.toml`.
 
 ### Ontology Commands
 
@@ -865,9 +864,9 @@ ggen follows three paradigm shifts:
 
 ---
 
-## Constitutional Rules (v6)
+## Constitutional Rules (v26.5.19)
 
-ggen v6 introduces three **non-negotiable paradigms** that govern the entire development lifecycle.
+ggen v26.5.19 introduces three **non-negotiable paradigms** that govern the entire development lifecycle.
 
 ### 1. Big Bang 80/20: Specification Closure First
 

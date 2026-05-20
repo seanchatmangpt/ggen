@@ -4,7 +4,6 @@ path = "tests/template_comprehensive_test.rs"
 required-features = [ "integration",]
 
 [package]
-publish = false
 name = "ggen-core"
 description = "Core graph-aware code generation engine"
 readme = "README.md"

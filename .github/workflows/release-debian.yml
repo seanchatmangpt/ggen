@@ -3,7 +3,7 @@ name: Build and Release Debian Package
 on:
   push:
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v5.0.2, v5.0.3, etc.
+      - 'v*.*.*'  # Triggers on version tags like v26.5.19, etc.
 
 permissions:
   contents: write  # Required for creating releases

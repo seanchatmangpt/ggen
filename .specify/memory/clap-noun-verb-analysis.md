@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-`clap-noun-verb` is a production-ready CLI framework (v5.3.2) that aligns with ggen's architecture principles. Making it a fully supported marketplace project requires:
+`clap-noun-verb` is a production-ready CLI framework (v26.5.19.3.2) that aligns with ggen's architecture principles. Making it a fully supported marketplace project requires:
 
 1. **Package Structure** - Create `marketplace/packages/clap-noun-verb/`
 2. **Integration Points** - Expose via ggen CLI and templates
@@ -21,7 +21,7 @@
 ## Current State Assessment
 
 ### What We Have
-✅ Published crate (v5.3.2 on crates.io)
+✅ Published crate (v26.5.19.3.2 on crates.io)
 ✅ Comprehensive documentation (tutorial, reference, explanation)
 ✅ Phase 2 features (typer-like doc comment syntax)
 ✅ Type-safe macro system (#[noun], #[verb])
@@ -448,10 +448,10 @@ echo "✅ All validation passed"
 
 ```
 clap-noun-verb releases:
-  v5.3.2 (current stable)
-  v5.2.0 (Phase 2: typer-like syntax)
-  v5.1.0 (Phase 1: core macros)
-  v5.0.0 (major rewrite)
+  v26.5.19.3.2 (current stable)
+  v26.5.19.2.0 (Phase 2: typer-like syntax)
+  v26.5.19.0 (Phase 1: core macros)
+  v26.5.19.0 (major rewrite)
 ```
 
 ### Marketplace Pinning
@@ -464,8 +464,8 @@ max-version = "5.*"        # Allow 5.x.y
 latest-tested = "5.3.2"    # Last verified to work
 
 [breaking-changes]
-v5.0.0 = "Major rewrite: macro syntax changed"
-v6.0.0 = "TODO: Future breaking changes"
+v26.5.19.0 = "Major rewrite: macro syntax changed"
+v26.5.19.0 = "TODO: Future breaking changes"
 
 [migration-guides]
 "4.x -> 5.x" = "docs/migration/4-to-5.md"

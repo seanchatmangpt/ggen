@@ -11,7 +11,7 @@ Generate a complete PhD thesis document on "Grand Unified Theory of Full-Stack K
 
 ## Technical Context
 
-**Language/Version**: Rust 1.75+ (ggen v5), LaTeX (pdflatex + biber)
+**Language/Version**: Rust 1.75+ (ggen v26.5.19), LaTeX (pdflatex + biber)
 **Primary Dependencies**: ggen-core, Oxigraph (RDF), Tera (templates), memoir (LaTeX), amsthm, biblatex, algorithm2e
 **Storage**: File system (RDF ontology .ttl files, generated .tex files)
 **Testing**: `cargo make test` (ggen), `pdflatex` compilation verification
@@ -183,7 +183,7 @@ specs/012-grand-unified-kgc-thesis/
 
 | Dependency | Version | Purpose |
 |------------|---------|---------|
-| ggen | v5 | Code generation engine |
+| ggen | v26.5.19 | Code generation engine |
 | Oxigraph | latest | RDF processing |
 | Tera | latest | Template rendering |
 | pdflatex | TeX Live 2024 | LaTeX compilation |

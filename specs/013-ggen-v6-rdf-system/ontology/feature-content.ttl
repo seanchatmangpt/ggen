@@ -2,18 +2,18 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sk: <http://github.com/github/spec-kit#> .
-@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v26.5.19-rdf-system#> .
 
 # ============================================================================
-# Feature: ggen v6 - RDF-First Code Generation System
+# Feature: ggen v26.5.19 - RDF-First Code Generation System
 # ============================================================================
 
-:ggen-v6-system a sk:Feature ;
-    sk:featureBranch "013-ggen-v6-rdf-system" ;
-    sk:featureName "ggen v6: RDF-First Code Generation System" ;
+:ggen-v26.5.19-system a sk:Feature ;
+    sk:featureBranch "013-ggen-v26.5.19-rdf-system" ;
+    sk:featureName "ggen v26.5.19: RDF-First Code Generation System" ;
     sk:created "2025-12-20"^^xsd:date ;
     sk:status "Planning" ;
-    sk:userInput "ggen v6: RDF-First Code Generation System - Transforms Turtle specifications into code via deterministic transformation pipelines" ;
+    sk:userInput "ggen v26.5.19: RDF-First Code Generation System - Transforms Turtle specifications into code via deterministic transformation pipelines" ;
     sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005 ;
     sk:hasFunctionalRequirement :fr-001, :fr-002, :fr-003, :fr-004, :fr-005, :fr-006, :fr-007, :fr-008 ;
     sk:hasSuccessCriterion :sc-001, :sc-002, :sc-003, :sc-004, :sc-005 ;

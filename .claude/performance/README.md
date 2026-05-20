@@ -1,6 +1,6 @@
 # Performance Optimization Tools
 
-Performance monitoring, profiling, and optimization utilities for ggen v26.5.4.
+Performance monitoring, profiling, and optimization utilities for ggen v26.5.19.
 
 ## 📊 SLO Targets
 
@@ -251,4 +251,4 @@ store.bulk_insert(triples.iter())?;
 
 ---
 
-**Last Updated**: 2026-02-08 | v26.5.4
+**Last Updated**: 2026-02-08 | v26.5.19

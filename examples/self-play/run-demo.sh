@@ -245,12 +245,12 @@ This report demonstrates ggen's recursive self-generation capability: **ggen gen
 
 ```mermaid
 graph TD
-    A[ggen v6.0.0] -->|Reads Ontology| B[μ₁: Spec Extraction]
+    A[ggen v26.5.19.0.0] -->|Reads Ontology| B[μ₁: Spec Extraction]
     B --> C[μ₂: Code Generation]
     C --> D[μ₃: Merge]
     D --> E[μ₄: Validation]
     E --> F[μ₅: Emission]
-    F --> G[ggen v6.0.1]
+    F --> G[ggen v26.5.19.0.1]
     G -->|Next Iteration| B
 
     style A fill:#90EE90

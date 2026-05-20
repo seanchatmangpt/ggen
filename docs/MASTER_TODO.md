@@ -24,10 +24,10 @@
 | Detail | Value |
 |--------|-------|
 | **Current** | `ggen sync` → `GenerationPipeline::run()` at `codegen/pipeline.rs:811` |
-| **Expected** | Documentation and CLAUDE.md describe `StagedPipeline::run()` at `v6/pipeline.rs:329` |
-| **Impact** | Two parallel pipelines exist. v6 constitutional pipeline (μ₀-μ₅) has receipt provenance, epoch verification, and staged governance. Production pipeline has none of these. |
-| **Action** | Decide: either wire v6 pipeline into sync command, or update all documentation to reflect GenerationPipeline as canonical. |
-| **Files** | `ggen-cli/src/cmds/sync.rs`, `ggen-core/src/codegen/executor.rs:589`, `ggen-core/src/v6/pipeline.rs` |
+| **Expected** | Documentation and CLAUDE.md describe `StagedPipeline::run()` at `v26.5.19/pipeline.rs:329` |
+| **Impact** | Two parallel pipelines exist. v26.5.19 constitutional pipeline (μ₀-μ₅) has receipt provenance, epoch verification, and staged governance. Production pipeline has none of these. |
+| **Action** | Decide: either wire v26.5.19 pipeline into sync command, or update all documentation to reflect GenerationPipeline as canonical. |
+| **Files** | `ggen-cli/src/cmds/sync.rs`, `ggen-core/src/codegen/executor.rs:589`, `ggen-core/src/v26.5.19/pipeline.rs` |
 
 ### P0-03. Three competing ontology namespaces cause silent data loss
 
@@ -339,7 +339,7 @@ flowchart TD
 
 ### P3-05. V6 pipeline types dead-code gated
 
-| File | `ggen-core/src/v6/pipeline.rs:34,204,310` |
+| File | `ggen-core/src/v26.5.19/pipeline.rs:34,204,310` |
 |------|------|
 | **Dead** | `V6Pipeline`, `PipelineStage`, `V6PipelineConfig` — all `#[allow(dead_code)]` |
 | **Note** | `StagedPipeline` is the active type. These appear to be earlier iterations. |

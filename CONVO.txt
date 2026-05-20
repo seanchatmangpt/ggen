@@ -10321,7 +10321,7 @@ Explore outputs candidate deltas; selection/normalization maps to O*; Claude Cod
 
 Do not let explore pollute truth.
 
-ggen v6.0.1 is deterministic, language-agnostic code generation from RDF ontologies with MCP integration and OpenTelemetry tracing.
+ggen v26.5.19.0.1 is deterministic, language-agnostic code generation from RDF ontologies with MCP integration and OpenTelemetry tracing.
 
 ggen μ₁–μ₅ pipeline: ontology normalization/load → SPARQL extraction → Tera/template rendering → canonicalization/validation → cryptographic receipt emission.
 

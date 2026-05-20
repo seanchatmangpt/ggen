@@ -135,7 +135,7 @@ Always run `cargo clippy -- -D warnings` before committing. The `-D warnings` fl
 
 ---
 
-## 7. yawlv6 Hibernate Stale Session Pattern
+## 7. yawlv26.5.19 Hibernate Stale Session Pattern
 
 After any rollback, clear the ThreadLocal session so the next `beginTransaction()` gets a fresh one:
 

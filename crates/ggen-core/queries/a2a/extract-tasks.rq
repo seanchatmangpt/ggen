@@ -17,7 +17,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX a2a: <https://ggen.dev/ontology/a2a#>
-PREFIX gv6: <http://ggen.dev/v6#>
+PREFIX gv26: <http://ggen.dev/v26.5.19#>
 
 # Query extracts all task definitions with their executor agents
 SELECT DISTINCT

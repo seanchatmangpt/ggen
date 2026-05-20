@@ -1,6 +1,6 @@
 <!-- Generated from tasks.ttl - DO NOT EDIT MANUALLY -->
 
-# Task Breakdown: v5.1.0 GA Production Release
+# Task Breakdown: v26.5.19.0 GA Production Release
 
 **Source of Truth**: `tasks.ttl` (RDF ontology)
 **Branch**: `013-ga-production-release`
@@ -41,7 +41,7 @@
 Setup project structure, verify toolchain, create test infrastructure.
 
 - [ ] **T001** Create project structure per implementation plan
-- [ ] **T002** Verify ggen v5.0.2 workspace and Rust toolchain
+- [ ] **T002** Verify ggen v26.5.19.2 workspace and Rust toolchain
 - [ ] **T003** Create test infrastructure directories (tests/common/, fixtures/, evidence/)
 
 **Success Criteria**: `cargo make check` passes, test directories ready, toolchain verified
@@ -269,20 +269,20 @@ Documentation, CLI help text, release testing, publication.
   - Content: Flag description, usage examples, related flags, constraints
   - Test: `ggen sync --help` shows all flags with clear descriptions
 
-- [ ] **T035** [P] Final end-to-end testing and QA in `tests/integration/e2e_v510.rs`
+- [ ] **T035** [P] Final end-to-end testing and QA in `tests/integration/e2e_v26.5.1910.rs`
   - Create: e2e_audit_plus_merge, e2e_watch_with_conditional, e2e_all_flags_combined
   - Test: All workflows complete successfully, no regressions, error handling works
 
-- [ ] **T036** Prepare v5.1.0 release (bump version, tag, publish) in `Cargo.toml`, `CHANGELOG.md`
+- [ ] **T036** Prepare v26.5.19.0 release (bump version, tag, publish) in `Cargo.toml`, `CHANGELOG.md`
   - Update: Cargo.toml version to 5.1.0, create CHANGELOG.md
-  - Actions: git tag v5.1.0, cargo publish
-  - Test: v5.1.0 published to crates.io, git tag created
+  - Actions: git tag v26.5.19.0, cargo publish
+  - Test: v26.5.19.0 published to crates.io, git tag created
 
 **Success Criteria**:
 - User documentation complete and accurate
 - CLI help text comprehensive with examples
 - End-to-end workflows tested
-- v5.1.0 published to crates.io
+- v26.5.19.0 published to crates.io
 
 ---
 
@@ -409,7 +409,7 @@ T001 → T007 → T011 → T012 → T014 → T020 → T028 → T036
 - [ ] Documentation complete
 - [ ] CLI help text comprehensive
 - [ ] E2E workflows tested
-- [ ] v5.1.0 published
+- [ ] v26.5.19.0 published
 
 ---
 
@@ -476,6 +476,6 @@ fn test_audit_trail_created() {
 
 ---
 
-**Generated with**: ggen v6 ontology-driven task system
+**Generated with**: ggen v26.5.19 ontology-driven task system
 **Source**: `.specify/specs/013-ga-production-release/tasks.ttl`
 **Last Updated**: 2025-12-21

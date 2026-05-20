@@ -447,4 +447,4 @@ For issues or questions:
 
 ## License
 
-This integration is part of the ggen project (v26.5.4) and is licensed under the same terms as the main project.
+This integration is part of the ggen project (v26.5.19) and is licensed under the same terms as the main project.

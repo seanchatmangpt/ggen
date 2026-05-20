@@ -2,7 +2,7 @@ name: Erlang CI/CD
 
 on:
   push:
-    branches: [master, develop]
+    branches: [main, develop]
     paths:
       - 'crates/tps-jidoka/**'
       - 'crates/tai-erlang-autonomics/**'

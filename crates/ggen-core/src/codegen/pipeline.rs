@@ -649,6 +649,7 @@ impl GenerationPipeline {
 
                 // Also insert sparql_results and entities (full row list) for batch templates
                 let results_json = serde_json::json!(rows);
+                context.insert("results", &results_json);
                 context.insert("sparql_results", &results_json);
                 context.insert("entities", &results_json);
 

@@ -12,7 +12,7 @@
 **Diagram says:** `ggen sync → SyncExecutor → StagedPipeline::run()`
 **Reality:** `ggen sync → SyncExecutor → GenerationPipeline::run()`
 
-`StagedPipeline` exists in `crates/ggen-core/src/v6/pipeline.rs` but is **never called from any CLI command**. It is only used in its own test files (`tests/v6_pipeline_*_test.rs`). The production sync path uses `GenerationPipeline` from `crates/ggen-core/src/codegen/pipeline.rs`.
+`StagedPipeline` exists in `crates/ggen-core/src/v26.5.19/pipeline.rs` but is **never called from any CLI command**. It is only used in its own test files (`tests/v26.5.19_pipeline_*_test.rs`). The production sync path uses `GenerationPipeline` from `crates/ggen-core/src/codegen/pipeline.rs`.
 
 **Two actual sync paths:**
 
@@ -79,8 +79,8 @@ sequenceDiagram
 
 ### 2. PackResolver file path is WRONG
 
-**Diagram says:** `crates/ggen-core/src/v6/resolver.rs`
-**Reality:** `crates/ggen-core/src/pack_resolver.rs` (top-level module, not inside v6/)
+**Diagram says:** `crates/ggen-core/src/v26.5.19/resolver.rs`
+**Reality:** `crates/ggen-core/src/pack_resolver.rs` (top-level module, not inside v26.5.19/)
 
 ### 3. ggen-jidoka crate DOES NOT EXIST
 
@@ -116,7 +116,7 @@ sequenceDiagram
 
 `ShapeLoader::load()` returns an empty shape set. The original 628-line implementation exists only in git history. Comment says: "STUBBED pending investigation of Graph::query() wrapper API."
 
-**Cascade effect:** The v6 normalization pass (`v6/passes/normalization.rs:227`) calls this stub and passes a dummy empty graph, so its validation step is a no-op.
+**Cascade effect:** The v26.5.19 normalization pass (`v26.5.19/passes/normalization.rs:227`) calls this stub and passes a dummy empty graph, so its validation step is a no-op.
 
 `SparqlValidator::validate()` in `validator.rs:113` also has an empty violations Vec, so it always passes.
 
@@ -323,8 +323,8 @@ flowchart LR
     end
 
     subgraph TEST["Test-Only Pipeline"]
-        STAGED["StagedPipeline::run()<br/>[v6/pipeline.rs:329]"]
-        NOTE["(constitutional μ₀-μ₅ pipeline)<br/>EXISTS but NEVER CALLED from ggen sync<br/>Only used in tests:<br/>tests/v6_pipeline_*_test.rs"]
+        STAGED["StagedPipeline::run()<br/>[v26.5.19/pipeline.rs:329]"]
+        NOTE["(constitutional μ₀-μ₅ pipeline)<br/>EXISTS but NEVER CALLED from ggen sync<br/>Only used in tests:<br/>tests/v26.5.19_pipeline_*_test.rs"]
     end
 
     style GEN fill:#c8e6c9

@@ -13,10 +13,10 @@ The marketplace deploys **automatically** to GitHub Pages with **zero manual con
 - **Fully automatic** - No GitHub settings needed
 - Uses `peaceiris/actions-gh-pages@v3`
 - Creates and manages `gh-pages` branch automatically
-- Deploys on every push to `master`/`main`
+- Deploys on every push to `main`/`main`
 
 **What happens automatically:**
-1. Push to master/main → Workflow triggers
+1. Push to main/main → Workflow triggers
 2. Validates `marketplace/registry/packages.toml`
 3. Generates `marketplace/index.html`
 4. Deploys to `gh-pages` branch
@@ -88,7 +88,7 @@ gh-pages branch (auto-created):
 echo "# Test" >> marketplace/README.md
 git add marketplace/README.md
 git commit -m "Trigger deployment"
-git push origin master
+git push origin main
 ```
 
 ### Issue: 404 on marketplace URL
@@ -112,7 +112,7 @@ git push origin master
 # Verify registry file exists in gh-pages
 git checkout gh-pages
 ls -la registry/packages.toml
-git checkout master
+git checkout main
 ```
 
 ## ✅ Verification Commands
@@ -131,7 +131,7 @@ ggen market search "rust"
 
 ## 🎯 Expected Behavior
 
-### After First Push to Master:
+### After First Push to Main:
 
 1. **Immediate**: GitHub Actions workflow starts
 2. **1-2 minutes**: Workflow completes, creates `gh-pages` branch
@@ -172,4 +172,4 @@ cargo run --bin ggen -- market search "rust"
 
 ---
 
-**Summary**: Both workflows are configured for **automatic deployment**. The simple workflow (`pages-simple.yml`) requires **zero manual configuration** and will deploy automatically on the first push to master/main.
+**Summary**: Both workflows are configured for **automatic deployment**. The simple workflow (`pages-simple.yml`) requires **zero manual configuration** and will deploy automatically on the first push to main/main.

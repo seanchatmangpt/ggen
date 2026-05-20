@@ -58,10 +58,10 @@ crates/ggen-core/src/lockfile.rs
 crates/ggen-core/src/pack_resolver.rs
 crates/ggen-core/src/packs/install.rs
 crates/ggen-core/src/resolver.rs
-crates/ggen-core/src/v6/passes/emission.rs
-crates/ggen-core/src/v6/passes/extraction.rs
-crates/ggen-core/src/v6/pipeline.rs
-crates/ggen-core/src/v6/receipt.rs
+crates/ggen-core/src/v26.5.19/passes/emission.rs
+crates/ggen-core/src/v26.5.19/passes/extraction.rs
+crates/ggen-core/src/v26.5.19/pipeline.rs
+crates/ggen-core/src/v26.5.19/receipt.rs
 crates/ggen-core/tests/lockfile_persistence_test.rs
 crates/ggen-core/tests/mcp_generation_e2e_test.rs
 crates/ggen-core/tests/pack_integration_test.rs
@@ -105,7 +105,7 @@ git restore --source=master --staged --worktree -- \
   test_template_validator_simple.rs vendors/gvisor
 ```
 
-**Reason:** Master branch **added** these files (commit ea6b227c: "feat: marketplace v26.5.4 expansion"). Our prune attempted to delete them, causing merge conflict. We must keep master's version.
+**Reason:** Master branch **added** these files (commit ea6b227c: "feat: marketplace v26.5.19 expansion"). Our prune attempted to delete them, causing merge conflict. We must keep master's version.
 
 ---
 

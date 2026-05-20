@@ -1,4 +1,4 @@
-# ggen v26.5.4 - Quick Reference
+# ggen v26.5.19 - Quick Reference
 
 **Last Updated:** 2026-03-31
 
@@ -523,4 +523,4 @@ ggen sync --force --audit
 
 ---
 
-**Version:** v26.5.4 | **Stack:** Rust 1.91.1 | Tokio | Oxigraph | Tera | Clap
+**Version:** v26.5.19 | **Stack:** Rust 1.91.1 | Tokio | Oxigraph | Tera | Clap

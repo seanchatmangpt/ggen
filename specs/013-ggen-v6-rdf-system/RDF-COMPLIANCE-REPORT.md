@@ -1,14 +1,14 @@
-# RDF Compliance Report - ggen v6 (013-ggen-v6-rdf-system)
+# RDF Compliance Report - ggen v26.5.19 (013-ggen-v26.5.19-rdf-system)
 
 **Date**: 2025-12-20
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-ggen-v26.5.19-rdf-system
 **Status**: ✅ FULLY RDF-COMPLIANT
 
 ---
 
 ## Executive Summary
 
-All shell scripts, configuration files, and documentation have been audited and updated to use **RDF-first architecture** with `ggen sync` workflow. The project is now a complete, self-contained specification of ggen v6 using the very methodology it describes.
+All shell scripts, configuration files, and documentation have been audited and updated to use **RDF-first architecture** with `ggen sync` workflow. The project is now a complete, self-contained specification of ggen v26.5.19 using the very methodology it describes.
 
 **Constitutional Equation**: `code = μ(spec.ttl)`
 
@@ -17,10 +17,10 @@ All shell scripts, configuration files, and documentation have been audited and 
 ## 1. Project Configuration ✅
 
 ### ggen.toml
-**Location**: `./specs/013-ggen-v6-rdf-system/ggen.toml`
+**Location**: `./specs/013-ggen-v26.5.19-rdf-system/ggen.toml`
 
 **Configuration Status**:
-- ✅ `[v6]` section enabled
+- ✅ `[v26.5.19]` section enabled
 - ✅ Ontology sources: `feature-content.ttl`, `spec-kit-schema.ttl`
 - ✅ Five-stage pipeline configured (μ₁→μ₂→μ₃→μ₄→μ₅)
 - ✅ SPARQL SELECT query defined
@@ -32,11 +32,11 @@ All shell scripts, configuration files, and documentation have been audited and 
 
 **Key Settings**:
 ```toml
-[v6]
+[v26.5.19]
 enabled = true
 ontology = "ontology/spec-kit-schema.ttl,ontology/feature-content.ttl"
 
-[v6.invariants]
+[v26.5.19.invariants]
 idempotence = true
 determinism = true
 provenance = true
@@ -203,7 +203,7 @@ Uses Python rdflib to parse TTL and count triples.
 **Audit Results**:
 ```bash
 $ grep -r "ggen render" --include="*.sh" --include="*.md" --include="*.toml" \
-    ./specs/013-ggen-v6-rdf-system/ \
+    ./specs/013-ggen-v26.5.19-rdf-system/ \
     ./vendors/spec-kit/scripts/
 ```
 
@@ -273,19 +273,19 @@ code = μ(spec.ttl)
 
 ## 10. Outstanding Work (Expected) ✅
 
-### ggen v6 Not Yet Implemented
+### ggen v26.5.19 Not Yet Implemented
 **Status**: This is EXPECTED
 
-**Reason**: This project SPECIFIES ggen v6 using RDF. We're eating our own dog food - using spec-kit to specify the tool that implements spec-kit.
+**Reason**: This project SPECIFIES ggen v26.5.19 using RDF. We're eating our own dog food - using spec-kit to specify the tool that implements spec-kit.
 
 **Next Steps**:
-1. Implement ggen v6 MVP (8 days, 5 capabilities)
+1. Implement ggen v26.5.19 MVP (8 days, 5 capabilities)
 2. Test with: `ggen sync`
-3. Use ggen v6 to regenerate its own spec (self-hosting)
+3. Use ggen v26.5.19 to regenerate its own spec (self-hosting)
 
 **When Ready**:
 ```bash
-cd ./specs/013-ggen-v6-rdf-system
+cd ./specs/013-ggen-v26.5.19-rdf-system
 ggen sync
 # Generates: generated/spec.md from ontology/feature-content.ttl
 ```
@@ -296,7 +296,7 @@ ggen sync
 
 ✅ **All shell scripts** use `ggen sync` (no "ggen render" references)
 ✅ **All RDF files** parse correctly (430 triples)
-✅ **ggen.toml** fully configured for v6 pipeline
+✅ **ggen.toml** fully configured for v26.5.19 pipeline
 ✅ **80/20 markers** added to all user stories
 ✅ **Validation scripts** created and tested
 ✅ **Helper scripts** created (sync.sh, validate-rdf-workflow.sh)
@@ -338,11 +338,11 @@ ggen sync
 
 **Status**: ✅ PROJECT IS FULLY RDF-COMPLIANT
 
-**Ready For**: ggen v6 implementation and self-hosting validation
+**Ready For**: ggen v26.5.19 implementation and self-hosting validation
 
 ---
 
 **Generated**: 2025-12-20
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-ggen-v26.5.19-rdf-system
 **Total RDF Triples**: 430
 **Core Capabilities**: 5 (20% effort, 80% value)

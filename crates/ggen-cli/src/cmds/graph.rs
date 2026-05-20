@@ -42,9 +42,59 @@ struct VisualizeOutput {
     format: String,
 }
 
+#[derive(Serialize)]
+struct ValidateOutput {
+    is_valid: bool,
+    classes_count: usize,
+    properties_count: usize,
+    warnings: Vec<String>,
+    errors: Vec<String>,
+}
+
 // ============================================================================
 // Verb Functions (the actual CLI commands)
 // ============================================================================
+
+/// Validate ontology schema quality
+#[verb]
+fn validate(schema_file: String, strict: bool) -> Result<ValidateOutput> {
+    use ggen_core::domain::ontology;
+
+    let schema_path = PathBuf::from(&schema_file);
+
+    let (is_valid, warnings, errors, classes_count, properties_count) =
+        crate::runtime::block_on(async {
+            let schema = ontology::extract_ontology_schema(&schema_path, "http://example.org#")
+                .await
+                .map_err(|e| {
+                    ggen_core::utils::error::Error::new(&format!("Extraction failed: {}", e))
+                })?;
+
+            let (valid, warnings, errors) =
+                ontology::validate_ontology_schema(&schema, strict).await?;
+            Ok((
+                valid,
+                warnings,
+                errors,
+                schema.classes.len(),
+                schema.properties.len(),
+            ))
+        })
+        .map_err(|e: ggen_core::utils::Error| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+        })?
+        .map_err(|e: ggen_core::utils::Error| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Validation failed: {}", e))
+        })?;
+
+    Ok(ValidateOutput {
+        is_valid,
+        classes_count,
+        properties_count,
+        warnings,
+        errors,
+    })
+}
 
 /// Load RDF data into graph
 #[verb]

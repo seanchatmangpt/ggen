@@ -101,7 +101,14 @@ pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
     let span = tracing::info_span!("ggen.cli", command = %args.join(" "), version = env!("CARGO_PKG_VERSION"));
     let _enter = span.enter();
 
-    // Use clap-noun-verb auto-discovery (handles --version automatically)
+    // Handle --version flag before delegating to clap-noun-verb
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|arg| arg == "--version" || arg == "-V") {
+        println!("ggen {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
+    // Use clap-noun-verb auto-discovery (handles --version automatically, but we preempted it)
     clap_noun_verb::run().map_err(|e| {
         ggen_core::utils::error::Error::new(&format!("CLI execution failed: {}", e))
     })?;

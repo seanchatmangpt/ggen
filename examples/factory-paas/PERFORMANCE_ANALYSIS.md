@@ -55,7 +55,7 @@ cargo tree --duplicates | grep -E "^[a-z]" | wc -l
 #### Utilities
 - **base64**: 2 versions (v0.21.7, v0.22.1) - Already noted in Cargo.toml:L146
 - **bitflags**: 3 versions (v1.3.2, v2.10.0, v2.10.0)
-- **dashmap**: 2 versions (v5.5.3, v26.5.4)
+- **dashmap**: 2 versions (v26.5.19.5.3, v26.5.19)
 - **derive_more**: 3 versions (v0.99.20, v1.0.0, v2.1.1)
 
 #### Proc-Macro Heavy
@@ -175,7 +175,7 @@ axum = "0.8"               # Use latest, drop 0.6 and 0.7
 axum-core = "0.5"          # Match axum 0.8
 tonic = "0.14"             # Use latest, drop 0.9
 bitflags = "2.10"          # Drop v1
-dashmap = "6.1"            # Drop v5
+dashmap = "6.1"            # Drop v26.5.19
 derive_more = "1.0"        # Drop v0.99 and v2.1
 darling = "0.21"           # Drop v0.20
 config = "0.15"            # Drop v0.14

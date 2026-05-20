@@ -1,5 +1,5 @@
 # ============================================================================
-# ggen v6 - 3T Specification Generation Configuration
+# ggen v26.5.19 - 3T Specification Generation Configuration
 # ============================================================================
 # Purpose: Generate human-readable specification from RDF ontology
 # Constitutional Equation: spec.md = μ(ontology)
@@ -7,29 +7,29 @@
 # ============================================================================
 
 [project]
-name = "v6-3t-specification"
+name = "v26.5.19-3t-specification"
 version = "1.0.0"
-description = "Ontology-driven specification for ggen v6 3T implementation"
+description = "Ontology-driven specification for ggen v26.5.19 3T implementation"
 
 # ----------------------------------------------------------------------------
-# v6 Pipeline Configuration
+# v26.5.19 Pipeline Configuration
 # ----------------------------------------------------------------------------
 
-[v6]
+[v26.5.19]
 enabled = true
-ontology = "ontology/spec-schema.ttl,ontology/v6-spec-content.ttl"
+ontology = "ontology/spec-schema.ttl,ontology/v26.5.19-spec-content.ttl"
 output_dir = "generated"
 
 # Five-stage compilation pipeline (μ₁ through μ₅)
-[v6.passes]
+[v26.5.19.passes]
 normalization = { order = 1, type = "construct" }
 extraction = { order = 2, type = "select" }
 emission = { order = 3, type = "tera" }
 canonicalization = { order = 4, type = "format" }
 receipt = { order = 5, type = "hash" }
 
-# Constitutional invariants enforced by v6
-[v6.invariants]
+# Constitutional invariants enforced by v26.5.19
+[v26.5.19.invariants]
 idempotence = true         # μ∘μ = μ (regenerating produces identical output)
 determinism = true         # Same ontology → same markdown
 provenance = true          # Receipt proves: spec.md = μ(RDF)
@@ -37,7 +37,7 @@ no_edit = true             # Generated files never hand-edited
 substrate_only = true      # Only RDF is authored
 
 # Vocabulary governance (allowed RDF namespaces)
-[v6.vocabulary]
+[v26.5.19.vocabulary]
 allowed = [
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "http://www.w3.org/2000/01/rdf-schema#",
@@ -45,7 +45,7 @@ allowed = [
     "http://www.w3.org/2002/07/owl#",
     "http://www.w3.org/ns/shacl#",
     "http://ggen.dev/speckit#",
-    "http://ggen.dev/spec/v6/content#",
+    "http://ggen.dev/spec/v26.5.19/content#",
 ]
 
 # ============================================================================

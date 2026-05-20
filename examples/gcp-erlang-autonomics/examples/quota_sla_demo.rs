@@ -117,18 +117,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // === Scenario 8: Burst mode ===
     println!("--- Scenario 8: Burst Mode (2x rate, 1.5x cost) ---");
-    let mut gov5 = QuotaSlaGovernor::new("bursty-app".to_string(), CustomerTier::Professional);
-    gov5.register_metric("api_requests".to_string(), 100_000.0, QuotaType::Soft);
+    let mut gov26_5_19 = QuotaSlaGovernor::new("bursty-app".to_string(), CustomerTier::Professional);
+    gov26_5_19.register_metric("api_requests".to_string(), 100_000.0, QuotaType::Soft);
 
-    gov5.activate_burst(300); // 5 minutes
+    gov26_5_19.activate_burst(300); // 5 minutes
     println!("Burst activated for 300 seconds");
-    println!("Burst remaining: {} seconds", gov5.burst_remaining_secs);
-    assert!(gov5.metrics.get("api_requests").unwrap().burst_active);
+    println!("Burst remaining: {} seconds", gov26_5_19.burst_remaining_secs);
+    assert!(gov26_5_19.metrics.get("api_requests").unwrap().burst_active);
     println!("✓ Metrics marked as burst-active (2x rate)\n");
 
-    gov5.deactivate_burst();
+    gov26_5_19.deactivate_burst();
     println!("Burst deactivated");
-    assert!(!gov5.metrics.get("api_requests").unwrap().burst_active);
+    assert!(!gov26_5_19.metrics.get("api_requests").unwrap().burst_active);
     println!("✓ Burst mode disabled\n");
 
     // === Summary ===

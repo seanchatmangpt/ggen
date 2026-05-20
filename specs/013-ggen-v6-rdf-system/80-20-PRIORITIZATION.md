@@ -1,7 +1,7 @@
-# ggen v6 - 80/20 Prioritization Summary
+# ggen v26.5.19 - 80/20 Prioritization Summary
 
 **Date**: 2025-12-20
-**Feature**: 013-ggen-v6-rdf-system
+**Feature**: 013-ggen-v26.5.19-rdf-system
 **Goal**: Identify the 20% of features that deliver 80% of value
 
 ---
@@ -180,9 +180,9 @@ output = "generated/spec.md"
 
 ### Phase 2: MVP Implementation (Next)
 Once the 5 core capabilities are implemented:
-1. Replace fixtures with real ggen v6 execution
+1. Replace fixtures with real ggen v26.5.19 execution
 2. Validate all MVP success criteria pass
-3. Use ggen v6 to regenerate its own specification (self-hosting)
+3. Use ggen v26.5.19 to regenerate its own specification (self-hosting)
 
 ---
 
@@ -233,7 +233,7 @@ All user stories in `ontology/feature-content.ttl` are now marked with:
 
 ## Next Steps After MVP
 
-1. **Dogfood**: Use ggen v6 to regenerate its own specs
+1. **Dogfood**: Use ggen v26.5.19 to regenerate its own specs
 2. **Showcase**: Demo to 5 developers, get feedback
 3. **Iterate**: Add most-requested deferred feature
 4. **Scale**: Apply to larger project (ggen marketplace)

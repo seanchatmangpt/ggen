@@ -68,7 +68,7 @@ fn bench_output_parsing(c: &mut Criterion) {
     let compiler_outputs = vec![
         (
             "clean",
-            "   Compiling ggen v6.0.0\n    Finished dev [unoptimized + debuginfo]",
+            "   Compiling ggen v26_5_19.0\n    Finished dev [unoptimized + debuginfo]",
         ),
         (
             "warning",

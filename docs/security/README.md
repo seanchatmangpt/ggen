@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Documentation Index (v26.5.4)](#security-documentation-index-v600)
+- [Security Documentation Index (v26.5.19)](#security-documentation-index-v26.5.1900)
   - [Overview](#overview)
   - [Quick Links](#quick-links)
   - [Documentation Structure](#documentation-structure)
@@ -25,11 +25,11 @@
     - [Required Training](#required-training)
     - [Training Materials](#training-materials)
   - [Security Metrics](#security-metrics)
-    - [Current Status (v26.5.4)](#current-status-v600)
+    - [Current Status (v26.5.19)](#current-status-v26.5.1900)
     - [Historical Improvements](#historical-improvements)
   - [Roadmap](#roadmap)
-    - [v26.5.4 (Q1 2026)](#v610-q1-2026)
-    - [v6.2.0 (Q2 2026)](#v620-q2-2026)
+    - [v26.5.19 (Q1 2026)](#v26.5.1910-q1-2026)
+    - [v26.5.19.2.0 (Q2 2026)](#v26.5.1920-q2-2026)
     - [v7.0.0 (Q3 2026)](#v700-q3-2026)
   - [External Resources](#external-resources)
     - [Standards](#standards)
@@ -40,11 +40,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Security Documentation Index (v26.5.4)
+# Security Documentation Index (v26.5.19)
 
 ## Overview
 
-This directory contains comprehensive security documentation for ggen v26.5.4, including architecture, safe coding guidelines, testing procedures, incident response plans, and migration guides.
+This directory contains comprehensive security documentation for ggen v26.5.19, including architecture, safe coding guidelines, testing procedures, incident response plans, and migration guides.
 
 **Last Updated**: 2026-01-24
 **Version**: 26.5.4
@@ -59,7 +59,7 @@ This directory contains comprehensive security documentation for ggen v26.5.4, i
 - **🏗️ [Security Architecture](ARCHITECTURE.md)** - Defense-in-depth design
 - **🧪 [Security Testing](TESTING.md)** - Fuzzing, penetration testing, scanning
 - **🚨 [Incident Response Plan](INCIDENT_RESPONSE.md)** - What to do when incidents occur
-- **🔄 [v6 Migration Guide](V6_MIGRATION.md)** - Migrating from v5.x to v26.5.4
+- **🔄 [v26.5.19 Migration Guide](V6_MIGRATION.md)** - Migrating from v26.5.19.x to v26.5.19
 
 ---
 
@@ -73,9 +73,9 @@ docs/security/
 ├── ARCHITECTURE.md            # Security architecture (defense-in-depth)
 ├── TESTING.md                 # Security testing (fuzzing, pen testing, scanning)
 ├── INCIDENT_RESPONSE.md       # Incident response procedures
-├── V6_MIGRATION.md            # Migration guide from v5.x to v26.5.4
+├── V6_MIGRATION.md            # Migration guide from v26.5.19.x to v26.5.19
 ├── WEEK_4_SECURITY_HARDENING_REPORT.md  # Historical: Week 4 security improvements
-├── WEEK_4_QUICK_REFERENCE.md           # Historical: Quick reference for v5.x security
+├── WEEK_4_QUICK_REFERENCE.md           # Historical: Quick reference for v26.5.19.x security
 └── WEEK_4_IMPLEMENTATION_SUMMARY.md    # Historical: Implementation details
 ```
 
@@ -136,7 +136,7 @@ return Err(sanitized.user_message());
 
 **Reporting Vulnerabilities**:
 - Email: `sean@chatmangpt.com`
-- Subject: `[SECURITY] ggen v6 vulnerability - [brief description]`
+- Subject: `[SECURITY] ggen v26.5.19 vulnerability - [brief description]`
 - Include: Steps to reproduce, affected versions, impact assessment
 
 **Responsible Disclosure**:
@@ -292,7 +292,7 @@ return Err(sanitized.user_message());
 
 ## Security Metrics
 
-### Current Status (v26.5.4)
+### Current Status (v26.5.19)
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
@@ -306,7 +306,7 @@ return Err(sanitized.user_message());
 
 ### Historical Improvements
 
-**v5.1.0 → v26.5.4**:
+**v26.5.19.0 → v26.5.19**:
 - Path traversal vulnerabilities: 3 → 0 (100% reduction)
 - SPARQL injection risks: 5 → 0 (100% reduction)
 - Information disclosure: 7 → 0 (100% reduction)
@@ -317,13 +317,13 @@ return Err(sanitized.user_message());
 
 ## Roadmap
 
-### v26.5.4 (Q1 2026)
+### v26.5.19 (Q1 2026)
 - [ ] API authentication (API keys)
 - [ ] Multi-tenant isolation
 - [ ] Enhanced audit logging
 - [ ] Security dashboard
 
-### v6.2.0 (Q2 2026)
+### v26.5.19.2.0 (Q2 2026)
 - [ ] OAuth2 integration
 - [ ] Role-based access control (RBAC)
 - [ ] Encrypted audit logs

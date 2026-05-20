@@ -1,4 +1,4 @@
-# Security Policy for ggen (v26.5.4)
+# Security Policy for ggen (v26.5.19)
 
 ## Reporting Security Vulnerabilities
 
@@ -13,7 +13,7 @@ The ggen project takes security seriously. We appreciate your responsible disclo
 Please report security issues via email:
 
 **Email**: `sean@chatmangpt.com`
-**Subject**: `[SECURITY] ggen v6 vulnerability - [brief description]`
+**Subject**: `[SECURITY] ggen v26.5.19 vulnerability - [brief description]`
 
 ### Information to Include
 
@@ -24,7 +24,7 @@ Provide as much detail as possible:
 - Component affected (crate, module, function)
 - Description of the vulnerability
 - Steps to reproduce (if possible)
-- Affected versions (v26.5.4+)
+- Affected versions (v26.5.19+)
 - Suggested fix (if you have one)
 - Your name and contact (for acknowledgment)
 ```
@@ -40,7 +40,7 @@ Provide as much detail as possible:
   - Low (Minor Issues): Next release
 - **Public disclosure**: After patch release
 
-## Security Practices (v26.5.4)
+## Security Practices (v26.5.19)
 
 ### Code Review
 
@@ -79,9 +79,9 @@ Unsafe code is:
 - **Reviewed thoroughly** by 2+ maintainers
 - **Tested extensively** with property-based testing
 
-Current unsafe usage (v26.5.4):
-- **None in production code** - v6 eliminates all unsafe blocks
-- Historical unsafe code (v5.x) has been refactored to safe alternatives
+Current unsafe usage (v26.5.19):
+- **None in production code** - v26.5.19 eliminates all unsafe blocks
+- Historical unsafe code (v26.5.19.x) has been refactored to safe alternatives
 - If unsafe is required in future, it must be justified with FMEA analysis
 
 ### Timing Security
@@ -101,7 +101,7 @@ if user_password.ct_eq(&stored_password).into() {
 }
 ```
 
-### v26.5.4 Security Enhancements
+### v26.5.19 Security Enhancements
 
 **Major Security Improvements:**
 
@@ -146,26 +146,26 @@ if user_password.ct_eq(&stored_password).into() {
 - Edge cases with low impact
 - Documentation gaps
 
-## Security Architecture (v26.5.4)
+## Security Architecture (v26.5.19)
 
 ### Defense in Depth
 
 ```
 Untrusted Input
       ↓
-[SafePath Validation] ← v6 NEW
+[SafePath Validation] ← v26.5.19 NEW
       ↓
 [Input Validation Layer] (PathValidator, EnvVarValidator, InputValidator)
       ↓
-[SPARQL Query Builder] ← v6 NEW (prevents injection)
+[SPARQL Query Builder] ← v26.5.19 NEW (prevents injection)
       ↓
 [Schema Validation] (SHACL, RDF validation)
       ↓
-[Rate Limiting] ← v6 NEW
+[Rate Limiting] ← v26.5.19 NEW
       ↓
 [Business Logic Execution]
       ↓
-[Error Sanitization] ← v6 NEW (prevents info leakage)
+[Error Sanitization] ← v26.5.19 NEW (prevents info leakage)
       ↓
 [Deterministic Output] (cryptographic receipts)
       ↓
@@ -186,17 +186,17 @@ Trusted Output
 - Template engine ↔ Filesystem (SafePath prevents traversal)
 - Command execution (whitelist-based, no shell expansion)
 
-### Input Validation (v26.5.4)
+### Input Validation (v26.5.19)
 
 All external inputs are validated with strict limits:
 
 ```rust
-// Path validation (NEW in v6)
+// Path validation (NEW in v26.5.19)
 use ggen_core::security::SafePath;
 let safe_path = SafePath::new("templates/user.tmpl")?;
 let content = load_template(&safe_path)?;
 
-// SPARQL query validation (NEW in v6)
+// SPARQL query validation (NEW in v26.5.19)
 use ggen_core::sparql::QueryBuilder;
 let query = QueryBuilder::new()
     .select(&["subject", "?predicate", "?object"])
@@ -209,7 +209,7 @@ const MAX_FILE_SIZE: usize = 10 * 1024 * 1024; // 10MB
 const MAX_RDF_TRIPLES: usize = 1_000_000; // 1M triples
 const MAX_TEMPLATE_DEPTH: usize = 10; // Recursion limit
 
-// Rate limits (NEW in v6)
+// Rate limits (NEW in v26.5.19)
 const MAX_REQUESTS_PER_MINUTE: u32 = 60;
 const MAX_CONCURRENT_GENERATIONS: usize = 10;
 ```
@@ -221,18 +221,18 @@ const MAX_CONCURRENT_GENERATIONS: usize = 10;
 - **Secrets**: Never logged, never in error messages, never in receipts
 - **Receipts**: HMAC-SHA256 for integrity verification
 
-### Isolation (v26.5.4)
+### Isolation (v26.5.19)
 
 - **Filesystem isolation**: SafePath restricts all file operations to allowed directories
 - **Template sandboxing**: Tera templates cannot access filesystem directly
 - **SPARQL isolation**: Query builder prevents cross-ontology leakage
 - **Process isolation**: No shell execution, direct command invocation only
 
-## Known Security Considerations (v26.5.4)
+## Known Security Considerations (v26.5.19)
 
 ### Path Traversal Prevention
 
-**SafePath System (NEW in v6):**
+**SafePath System (NEW in v26.5.19):**
 
 ```rust
 // ✅ SAFE: Using SafePath
@@ -240,7 +240,7 @@ use ggen_core::security::SafePath;
 let template_path = SafePath::new("templates/user.tmpl")?;
 let content = load_template(&template_path)?;
 
-// ❌ UNSAFE: Direct PathBuf (deprecated in v6)
+// ❌ UNSAFE: Direct PathBuf (deprecated in v26.5.19)
 let path = PathBuf::from(user_input); // Path traversal risk!
 let content = fs::read_to_string(path)?;
 ```
@@ -253,7 +253,7 @@ let content = fs::read_to_string(path)?;
 
 ### SPARQL Injection Prevention
 
-**Query Builder (NEW in v6):**
+**Query Builder (NEW in v26.5.19):**
 
 ```rust
 // ✅ SAFE: Using QueryBuilder
@@ -264,7 +264,7 @@ let query = QueryBuilder::new()
     .filter(&format!("?name = {}", QueryBuilder::escape_literal(user_input)))
     .build()?;
 
-// ❌ UNSAFE: String concatenation (deprecated in v6)
+// ❌ UNSAFE: String concatenation (deprecated in v26.5.19)
 let query = format!("SELECT ?name WHERE {{ ?person foaf:name '{}' }}", user_input);
 ```
 
@@ -276,7 +276,7 @@ let query = format!("SELECT ?name WHERE {{ ?person foaf:name '{}' }}", user_inpu
 
 ### Resource Exhaustion Protection
 
-**Rate Limiting (NEW in v6):**
+**Rate Limiting (NEW in v26.5.19):**
 
 ```
 - Max file size: 10MB
@@ -303,7 +303,7 @@ cargo update
 cargo audit --fetch deny
 ```
 
-**v6 Dependency Security:**
+**v26.5.19 Dependency Security:**
 - **Vendored dependencies**: Reproducible builds, reduced supply chain risk
 - **Minimal dependencies**: Only essential crates (Tokio, Oxigraph, Tera, Clap, Serde)
 - **Version pinning**: Cargo.lock committed to repository
@@ -311,7 +311,7 @@ cargo audit --fetch deny
 
 ## Release Process Security
 
-### Pre-release Checklist (v26.5.4)
+### Pre-release Checklist (v26.5.19)
 
 - [ ] All tests passing (`cargo make test`)
 - [ ] No compiler warnings (`cargo make check` with `-D warnings`)
@@ -335,7 +335,7 @@ For critical vulnerabilities:
 5. **Full disclosure** in release notes and SECURITY.md
 6. **Credit researcher** (with permission) in acknowledgments
 
-## Security Updates (v26.5.4)
+## Security Updates (v26.5.19)
 
 ### Version Support
 
@@ -349,7 +349,7 @@ For critical vulnerabilities:
 ### Update Cadence
 
 - **Security patches**: Released within 72 hours (critical), 1 week (high), 2 weeks (medium)
-- **Minor updates**: Monthly (v26.5.4, v6.2.0, etc.)
+- **Minor updates**: Monthly (v26.5.19, v26.5.19.2.0, etc.)
 - **Major releases**: Quarterly (v7.0.0 planned Q2 2026)
 
 ## Compliance
@@ -362,7 +362,7 @@ For critical vulnerabilities:
 - **NIST Cybersecurity Framework**: Risk management guidance
 - **Rust Secure Code Guidelines**: Rust-specific best practices
 
-### Code Review Standards (v26.5.4)
+### Code Review Standards (v26.5.19)
 
 All code must pass:
 
@@ -383,7 +383,7 @@ cargo make pre-commit  # All quality gates
 - Direct PathBuf from user input (use SafePath)
 - Hardcoded secrets or credentials
 
-## Security Hardening (v26.5.4)
+## Security Hardening (v26.5.19)
 
 ### Enable Security Features
 
@@ -464,7 +464,7 @@ For security documentation:
 - [Security Architecture](docs/security/ARCHITECTURE.md)
 - [Safe Coding Guidelines](docs/security/SAFE_CODING.md)
 - [Security Testing](docs/security/TESTING.md)
-- [v6 Migration Guide](docs/security/V6_MIGRATION.md)
+- [v26.5.19 Migration Guide](docs/security/V6_MIGRATION.md)
 - [Security Checklist](docs/security/CHECKLIST.md)
 
 ## Acknowledgments
@@ -476,13 +476,13 @@ We acknowledge responsible security researchers who report vulnerabilities:
 - Recognized in security advisories
 - Credited in CHANGELOG.md
 
-**Hall of Fame (v26.5.4):**
+**Hall of Fame (v26.5.19):**
 - (No vulnerabilities reported yet - be the first!)
 
 Thank you for helping keep ggen secure!
 
 ---
 
-**Last Updated**: 2026-01-24 (v26.5.4)
+**Last Updated**: 2026-01-24 (v26.5.19)
 **Security Contact**: sean@chatmangpt.com
 **GPG Key**: (Available on request)

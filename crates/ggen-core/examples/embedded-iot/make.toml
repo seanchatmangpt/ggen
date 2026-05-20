@@ -6,7 +6,7 @@ PROJECT_NAME = "embedded-iot-sensor"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
 # ARM target configurations
-ARM_TARGETS = "thumbv7em-none-eabihf thumbv7m-none-eabi thumbv6m-none-eabi"
+ARM_TARGETS = "thumbv7em-none-eabihf thumbv7m-none-eabi thumbv26.5.19m-none-eabi"
 DEFAULT_TARGET = "thumbv7em-none-eabihf"
 
 # Binary paths
@@ -32,7 +32,7 @@ echo "📦 Installing ARM Cortex-M targets..."
 # Install ARM targets
 rustup target add thumbv7em-none-eabihf  # Cortex-M4F/M7F (with FPU)
 rustup target add thumbv7m-none-eabi     # Cortex-M3
-rustup target add thumbv6m-none-eabi     # Cortex-M0/M0+
+rustup target add thumbv26.5.19m-none-eabi     # Cortex-M0/M0+
 
 echo "🔧 Installing embedded development tools..."
 
@@ -280,7 +280,7 @@ args = ["build", "--release", "--target", "thumbv7m-none-eabi"]
 description = "Build for Cortex-M0/M0+"
 dependencies = ["setup-embedded"]
 command = "cargo"
-args = ["build", "--release", "--target", "thumbv6m-none-eabi"]
+args = ["build", "--release", "--target", "thumbv26.5.19m-none-eabi"]
 
 # ============================================
 # Phase 8: Continuous Integration

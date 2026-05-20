@@ -111,7 +111,7 @@ flowchart TD
     end
 
     subgraph STUB["NOT USED BY SYNC"]
-        S1["StagedPipeline::run()<br/>[v6/pipeline.rs:329]"]
+        S1["StagedPipeline::run()<br/>[v26.5.19/pipeline.rs:329]"]
         S2["Constitutional mu0-mu5<br/>Tests only"]
         S1 --> S2
     end
@@ -134,7 +134,7 @@ flowchart TD
 |-----------|----------|-----------|
 | `ggen sync` | `sync()` | `ggen-cli/src/cmds/sync.rs:305` |
 | Pipeline execution | `GenerationPipeline::run()` | `ggen-core/src/codegen/pipeline.rs:811` |
-| v6 pipeline (tests) | `StagedPipeline::run()` | `ggen-core/src/v6/pipeline.rs:329` |
+| v26.5.19 pipeline (tests) | `StagedPipeline::run()` | `ggen-core/src/v26.5.19/pipeline.rs:329` |
 | Quality gates | `QualityGateRunner::run_all()` | `ggen-core/src/poka_yoke/quality_gates.rs` |
 | LLM completion | `GenAiClient::complete()` | `ggen-ai/src/client.rs:203` |
 | Marketplace publish | `RdfControlPlane::publish_package()` | `ggen-marketplace/src/rdf/control.rs` |
@@ -253,7 +253,7 @@ flowchart LR
         TESTING["ggen-testing<br/>Complete TDD harness<br/>Zero consumers"]
         MACROS["ggen-macros<br/>5 proc macros<br/>3 dead_code, 2 self-test only"]
         DOMAIN_MK["ggen-domain::marketplace<br/>All functions return Err<br/>'Moved to ggen-cli'"]
-        V6["ggen-core::v6::V6Pipeline<br/>#[allow(dead_code)]"]
+        V6["ggen-core::v26.5.19::V6Pipeline<br/>#[allow(dead_code)]"]
         HIVE["ggen-core::config::hive_coordinator<br/>All dead_code"]
         AHI["~4,200 lines AHI types<br/>Zero external consumers<br/>ahi_contract, doctrine_engine<br/>proof_carrier, temporal_fabric"]
     end
@@ -268,7 +268,7 @@ flowchart LR
 | `ggen-testing` | Zero consumers | Complete TDD harness, nothing depends on it |
 | `ggen-macros` | Zero consumers | 3/5 macros dead_code, 2 only self-tested |
 | `ggen-domain::marketplace` | All functions return Err | "Moved to ggen-cli" |
-| `ggen-core::v6::V6Pipeline` struct | `#[allow(dead_code)]` | Separate from StagedPipeline |
+| `ggen-core::v26.5.19::V6Pipeline` struct | `#[allow(dead_code)]` | Separate from StagedPipeline |
 | `ggen-core::config::hive_coordinator` | All dead_code | Distributed dep resolution, never wired |
 | ~4,200 lines AHI types in ggen-domain | Zero external consumers | ahi_contract, doctrine_engine, proof_carrier, temporal_fabric, etc. |
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================================
-# RDF Workflow Validation for ggen v6 (013-ggen-v6-rdf-system)
+# RDF Workflow Validation for ggen v26.5.19 (013-ggen-v26.5.19-rdf-system)
 # ============================================================================
 # Purpose: Validate that all RDF-first architecture components are in place
-# and configured correctly for the ggen v6 specification project.
+# and configured correctly for the ggen v26.5.19 specification project.
 #
 # Constitutional Equation: spec.md = μ(feature.ttl)
 # ============================================================================
@@ -25,7 +25,7 @@ WARNINGS=0
 PASSED=0
 
 echo -e "${BLUE}============================================================================${NC}"
-echo -e "${BLUE}ggen v6 RDF Workflow Validation${NC}"
+echo -e "${BLUE}ggen v26.5.19 RDF Workflow Validation${NC}"
 echo -e "${BLUE}============================================================================${NC}"
 echo ""
 echo "Project: $(basename "$PROJECT_DIR")"
@@ -41,12 +41,12 @@ if [[ ! -f "$PROJECT_DIR/ggen.toml" ]]; then
     echo -e "${RED}❌ FAILED: ggen.toml not found${NC}"
     ((ERRORS++))
 else
-    # Check v6 section
-    if grep -q "^\[v6\]" "$PROJECT_DIR/ggen.toml"; then
-        echo -e "${GREEN}✓ PASSED: [v6] section exists${NC}"
+    # Check v26.5.19 section
+    if grep -q "^\[v26.5.19\]" "$PROJECT_DIR/ggen.toml"; then
+        echo -e "${GREEN}✓ PASSED: [v26.5.19] section exists${NC}"
         ((PASSED++))
     else
-        echo -e "${RED}❌ FAILED: [v6] section missing${NC}"
+        echo -e "${RED}❌ FAILED: [v26.5.19] section missing${NC}"
         ((ERRORS++))
     fi
 

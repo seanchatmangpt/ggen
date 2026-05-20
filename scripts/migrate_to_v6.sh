@@ -1,10 +1,10 @@
 #!/bin/bash
-# Migration script for ggen v5.1.0 → v6.0.0
+# Migration script for ggen v26.5.19.1.0 → v26.5.19.0.0
 # Automatically fixes import paths for library users
 
 set -e  # Exit on error
 
-echo "🔧 ggen v6.0.0 Migration Script"
+echo "🔧 ggen v26.5.19.0.0 Migration Script"
 echo "================================"
 echo ""
 
@@ -102,12 +102,12 @@ echo ""
 
 if cargo check 2>&1 | tee /tmp/cargo_check_output.txt; then
   echo ""
-  echo "✅ SUCCESS: Project compiles with v6.0.0 imports!"
+  echo "✅ SUCCESS: Project compiles with v26.5.19.0.0 imports!"
   echo ""
   echo "🎉 Migration complete! You can now:"
   echo "   1. Review changes: git diff"
   echo "   2. Run tests: cargo make test"
-  echo "   3. Commit: git commit -am 'chore: migrate to ggen v6.0.0'"
+  echo "   3. Commit: git commit -am 'chore: migrate to ggen v26.5.19.0.0'"
   echo ""
   echo "📁 Backup preserved at: $BACKUP_DIR"
   echo "   (You can delete it after verifying everything works)"

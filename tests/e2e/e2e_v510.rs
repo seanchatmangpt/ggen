@@ -1,6 +1,6 @@
-//! End-to-End Integration Tests for ggen v5.1.0
+//! End-to-End Integration Tests for ggen v26_5_19.0
 //!
-//! Tests all new features introduced in v5.1.0:
+//! Tests all new features introduced in v26_5_19.0:
 //! - Audit trail (--audit)
 //! - Force flag (--force)
 //! - Watch mode (--watch)

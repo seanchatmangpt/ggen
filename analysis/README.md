@@ -364,7 +364,7 @@ Visual PlantUML diagram showing:
 
 **OCPM "No AI Without PI":** All 5 van der Aalst paper connections wired in `ocpm/` module; 5 unit tests proving paper connections.
 
-**yawlv6 Hibernate 7 Hardening:** Stale session guard, fatal vs transient error distinction, operator recovery without restart, WCP-29 StructuredLoop XML fix, back-off sleep in `lib.sh`.
+**yawlv26.5.19 Hibernate 7 Hardening:** Stale session guard, fatal vs transient error distinction, operator recovery without restart, WCP-29 StructuredLoop XML fix, back-off sleep in `lib.sh`.
 
 **Remaining:** OTEL Jaeger proof → PR.
 

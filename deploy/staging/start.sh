@@ -1,7 +1,7 @@
 #!/bin/bash
 ##############################################################################
 # Production-Grade Staging Deployment Startup Script
-# ggen v6.0.0 - Distributed Cluster Launch
+# ggen v26.5.19.0.0 - Distributed Cluster Launch
 #
 # Features:
 #   - Health checks before marking ready

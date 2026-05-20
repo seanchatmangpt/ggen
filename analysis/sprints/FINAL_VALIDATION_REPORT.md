@@ -1,5 +1,5 @@
 # FINAL VALIDATION REPORT
-**ggen v26.5.4 - Full Workspace Test Suite**
+**ggen v26.5.19 - Full Workspace Test Suite**
 
 **Generated:** 2026-03-30
 **Test Command:** `cargo test --workspace --lib --bins`

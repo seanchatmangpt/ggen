@@ -22,7 +22,7 @@ error[E0433]: failed to resolve: could not find `autonomic` in `clap_noun_verb`
 
 ### Root Cause
 
-The `#[verb]` macro from `clap-noun-verb-macros` v5.0.0 requires **two arguments**:
+The `#[verb]` macro from `clap-noun-verb-macros` v26.5.19.0 requires **two arguments**:
 
 ```rust
 // ✅ CORRECT - Two arguments

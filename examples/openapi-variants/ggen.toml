@@ -1,5 +1,5 @@
 # =============================================================================
-# ggen v5 OpenAPI Variants Code Generation Manifest
+# ggen v26.5.19 OpenAPI Variants Code Generation Manifest
 # Demonstrates REST, webhook, and async event OpenAPI 3.1 patterns
 # Single source of truth → OpenAPI + TypeScript + Zod
 # =============================================================================

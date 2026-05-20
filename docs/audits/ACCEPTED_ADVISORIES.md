@@ -1,7 +1,7 @@
 # Accepted Security Advisories
 
 This file records security advisories that `cargo audit` flags but which
-have been accepted as known-and-mitigated for the v26.5.18 release. Each
+have been accepted as known-and-mitigated for the v26.5.19 release. Each
 acceptance includes the provenance chain showing the advisory's reach,
 the justification, and a planned-action-or-revisit-condition.
 
@@ -18,7 +18,7 @@ audit` fail loudly.
 - **Reach:** Test infrastructure only. Not in the released `ggen` binary.
 - **Justification:** `testcontainers` pins its `astral-tokio-tar`
   transitively; upstream upgrade to `>=0.6.1` requires a `testcontainers`
-  bump. Accepted for v26.5.18 since the affected code path is only
+  bump. Accepted for v26.5.19 since the affected code path is only
   reached during local integration tests.
 - **Revisit:** When `testcontainers` releases a version that uses
   `astral-tokio-tar >=0.6.1`.

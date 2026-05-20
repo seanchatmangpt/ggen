@@ -1,4 +1,4 @@
-# 3T End-to-End Test Report - ggen v6 (013-ggen-v6-rdf-system)
+# 3T End-to-End Test Report - ggen v26.5.19 (013-ggen-v26.5.19-rdf-system)
 
 **Date**: 2025-12-20
 **Test**: `test_3t_e2e.py::test_3t_workflow_complete`
@@ -9,14 +9,14 @@
 
 ## Executive Summary
 
-The testcontainers-based end-to-end test **validates the 3T methodology substrate** (TOML + Tera + Turtle) for the ggen v6 specification. All validations passed, confirming that the project structure is compliant with the RDF-first architecture and ready for ggen v6 implementation.
+The testcontainers-based end-to-end test **validates the 3T methodology substrate** (TOML + Tera + Turtle) for the ggen v26.5.19 specification. All validations passed, confirming that the project structure is compliant with the RDF-first architecture and ready for ggen v26.5.19 implementation.
 
 **3T Validation**: ✅ COMPLETE
 - TOML configuration: ggen.toml ✓
 - Tera templates: spec.tera ✓
 - Turtle ontology: 430 RDF triples ✓
 
-**ggen v6 Implementation**: ⏳ PENDING (this project SPECIFIES ggen v6)
+**ggen v26.5.19 Implementation**: ⏳ PENDING (this project SPECIFIES ggen v26.5.19)
 
 ---
 
@@ -35,7 +35,7 @@ python3 -m pytest tests/integration/test_3t_e2e.py::test_3t_workflow_complete -v
 
 ### Docker Environment
 - **Container Image**: rust:latest
-- **Volume Mounted**: `./specs/013-ggen-v6-rdf-system` → `/workspace`
+- **Volume Mounted**: `./specs/013-ggen-v26.5.19-rdf-system` → `/workspace`
 - **Dependencies Installed**:
   - git
   - python3 + pip
@@ -93,15 +93,15 @@ VALID
 
 ---
 
-### Step 3: ggen v6 Readiness Validation ✅
+### Step 3: ggen v26.5.19 Readiness Validation ✅
 
 **Current Status**:
 ✓ 3T substrate complete:
-  - TOML: ggen.toml with v6 configuration
+  - TOML: ggen.toml with v26.5.19 configuration
   - Tera: templates/spec.tera
   - Turtle: 430 valid RDF triples
 
-⚠ ggen v6 not yet implemented (THIS is what we're specifying)
+⚠ ggen v26.5.19 not yet implemented (THIS is what we're specifying)
 
 **Result**: ✅ Project structure validated and ready for implementation
 
@@ -113,7 +113,7 @@ VALID
 
 1. **TOML** (`ggen.toml`):
    - Configuration file present
-   - Defines v6 pipeline (5 passes: μ₁→μ₂→μ₃→μ₄→μ₅)
+   - Defines v26.5.19 pipeline (5 passes: μ₁→μ₂→μ₃→μ₄→μ₅)
    - SPARQL queries configured
    - Template mappings defined
    - Constitutional invariants specified
@@ -132,7 +132,7 @@ VALID
 ### ✅ Project Structure
 
 ```
-013-ggen-v6-rdf-system/
+013-ggen-v26.5.19-rdf-system/
 ├── README.md                    ✓ 3T documentation complete
 ├── ggen.toml                    ✓ TOML configuration
 ├── ontology/
@@ -156,18 +156,18 @@ code = μ(spec.ttl)
 
 **Validated**:
 - `spec.ttl` (ontology/*.ttl) ✓ 430 valid RDF triples
-- Configuration (ggen.toml) ✓ Pipeline defined (v6 with 5 passes)
+- Configuration (ggen.toml) ✓ Pipeline defined (v26.5.19 with 5 passes)
 - Templates (templates/*.tera) ✓ Ready for rendering
 
-**Pending** (once ggen v6 is implemented):
+**Pending** (once ggen v26.5.19 is implemented):
 - `μ` (transformation pipeline) - Not yet implemented
 - `code` (generated output) - Will be validated when μ is available
 
 ---
 
-## Future Test Coverage (When ggen v6 is Ready)
+## Future Test Coverage (When ggen v26.5.19 is Ready)
 
-Once ggen v6 is implemented (8-day MVP from 80-20-PLAN.md), this test will automatically expand to validate:
+Once ggen v26.5.19 is implemented (8-day MVP from 80-20-PLAN.md), this test will automatically expand to validate:
 
 ### Step 4: ggen sync Execution
 ```bash
@@ -239,11 +239,11 @@ The test validates **exactly what the README.md describes**:
 | 430 RDF triples | Counted with rdflib | ✅ |
 | TTL syntax valid | Parsed with rdflib Graph | ✅ |
 | Constitutional equation: code = μ(spec.ttl) | Substrate validated | ✅ |
-| ggen v6 configuration | ggen.toml with v6 pipeline | ✅ |
+| ggen v26.5.19 configuration | ggen.toml with v26.5.19 pipeline | ✅ |
 | ggen sync workflow | Structure ready (μ not implemented) | ⏳ |
-| Idempotence (μ∘μ = μ) | Will test when v6 ready | ⏳ |
-| Determinism | Will test when v6 ready | ⏳ |
-| Cryptographic provenance | Will test when v6 ready | ⏳ |
+| Idempotence (μ∘μ = μ) | Will test when v26.5.19 ready | ⏳ |
+| Determinism | Will test when v26.5.19 ready | ⏳ |
+| Cryptographic provenance | Will test when v26.5.19 ready | ⏳ |
 
 **Key**: ✅ Validated | ⏳ Future
 
@@ -256,13 +256,13 @@ The test validates **exactly what the README.md describes**:
 All current validations passed successfully:
 1. ✓ 3T files present and correctly structured
 2. ✓ TTL syntax valid (430 triples)
-3. ✓ ggen.toml configured for v6 pipeline
+3. ✓ ggen.toml configured for v26.5.19 pipeline
 4. ✓ Project structure compliant with README.md
-5. ✓ Ready for ggen v6 implementation
+5. ✓ Ready for ggen v26.5.19 implementation
 
 ### Current Scope
 
-The test currently validates the **substrate** (RDF files, configuration, templates) but cannot test the **transformation pipeline** (μ) because ggen v6 is not yet implemented.
+The test currently validates the **substrate** (RDF files, configuration, templates) but cannot test the **transformation pipeline** (μ) because ggen v26.5.19 is not yet implemented.
 
 **This is expected and correct**. The test:
 - ✅ Validates what CAN be tested now (3T structure)
@@ -271,21 +271,21 @@ The test currently validates the **substrate** (RDF files, configuration, templa
 
 ### What This Proves
 
-This project is **production-ready for ggen v6 implementation**:
+This project is **production-ready for ggen v26.5.19 implementation**:
 
 1. **Complete 3T substrate**: All required files present with valid syntax
-2. **Proper configuration**: ggen.toml defines complete v6 pipeline
+2. **Proper configuration**: ggen.toml defines complete v26.5.19 pipeline
 3. **Valid ontology**: 430 RDF triples parse correctly
 4. **Test infrastructure**: Automated validation via testcontainers
 5. **Documentation**: README explains 3T methodology and workflow
 
-**Meta-circular validation**: We're using spec-kit's testing infrastructure to validate the specification that DEFINES how ggen v6 should work.
+**Meta-circular validation**: We're using spec-kit's testing infrastructure to validate the specification that DEFINES how ggen v26.5.19 should work.
 
 ### Next Steps
 
-1. **Implement ggen v6 MVP** (8 days, 5 capabilities from 80-20-PLAN.md)
+1. **Implement ggen v26.5.19 MVP** (8 days, 5 capabilities from 80-20-PLAN.md)
 2. **Re-run this test** - It will automatically validate Steps 4-8
-3. **Achieve self-hosting** - Use ggen v6 to regenerate its own spec
+3. **Achieve self-hosting** - Use ggen v26.5.19 to regenerate its own spec
 4. **Prove constitutional equation**: code = μ(spec.ttl)
 
 ---
@@ -313,7 +313,7 @@ pytest tests/integration/test_3t_e2e.py --cov=. --cov-report=html
 ## References
 
 - **Test File**: `./vendors/spec-kit/tests/integration/test_3t_e2e.py`
-- **Spec Directory**: `./specs/013-ggen-v6-rdf-system/`
+- **Spec Directory**: `./specs/013-ggen-v26.5.19-rdf-system/`
 - **README**: `README.md` (3T documentation)
 - **80/20 Plan**: `80-20-PLAN.md` (8-day implementation roadmap)
 - **RDF Workflow**: `RDF-WORKFLOW.md` (complete workflow guide)
@@ -322,7 +322,7 @@ pytest tests/integration/test_3t_e2e.py --cov=. --cov-report=html
 ---
 
 **Generated**: 2025-12-20
-**Project**: 013-ggen-v6-rdf-system
+**Project**: 013-ggen-v26.5.19-rdf-system
 **Test Framework**: pytest + testcontainers
 **Validation**: 3T Methodology (TOML + Tera + Turtle)
 **Constitutional Equation**: code = μ(spec.ttl)

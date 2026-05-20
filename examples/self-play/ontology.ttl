@@ -37,7 +37,7 @@ ggen:BehaviorPredicate a owl:Class ;
     rdfs:comment "Predicates describing LLM behavior during generation" .
 
 # -----------------------------------------------------------------
-# ggen v6.0.0 Skills and Tools
+# ggen v26.5.19.0 Skills and Tools
 # -----------------------------------------------------------------
 
 selfplay:RustCodeGeneration a ggen:Skill ;
@@ -107,7 +107,7 @@ selfplay:ValidationEngine a ggen:Skill ;
 
 selfplay:GgenSelfGeneration a ggen:GenerationTarget ;
     rdfs:label "ggen Self-Generation" ;
-    ggen:targetSystem "ggen v6.x" ;
+    ggen:targetSystem "ggen v26.5.19.x" ;
     ggen:targetLanguage "Rust" ;
     ggen:targetArchitecture "30-crate workspace" ;
     ggen:description "Generate a new version of ggen from an ontology specification" ;
@@ -233,8 +233,8 @@ selfplay:iteration0 a selfplay:Iteration ;
     rdfs:label "Iteration 0" ;
     selfplay:version "6.0.0" ;
     selfplay:timestamp "2026-03-30T00:00:00Z"^^xsd:dateTime ;
-    selfplay:generator "ggen v6.0.0" ;
-    selfplay:target "ggen v6.0.1" ;
+    selfplay:generator "ggen v26.5.19.0" ;
+    selfplay:target "ggen v26.5.19.1" ;
     selfplay:status "pending" .
 
 # -----------------------------------------------------------------

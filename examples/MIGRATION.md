@@ -394,7 +394,7 @@ spec:
     spec:
       containers:
       - name: agent
-        image: ggen-agent:v26.5.4
+        image: ggen-agent:v26.5.19
         env:
         - name: AGENT_ROLE
           value: "executor"  # or "consensus"

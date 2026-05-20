@@ -6,15 +6,15 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # ============================================================================
-# Task Breakdown: v5.1.0 GA Production Release
+# Task Breakdown: v26.5.19.0 GA Production Release
 # Branch: 013-ga-production-release
 # Source: Derived from feature.ttl and plan.ttl
 # Status: Generated
 # Created: 2025-12-21
 # ============================================================================
 
-:tasks-v510-ga-production a spec:TaskBreakdown ;
-  rdfs:label "v5.1.0 GA Production Release - Task Breakdown" ;
+:tasks-v26.5.1910-ga-production a spec:TaskBreakdown ;
+  rdfs:label "v26.5.19.0 GA Production Release - Task Breakdown" ;
   rdfs:comment "Executable task list derived from implementation plan phases and architecture decisions" ;
   spec:featureBranch "013-ga-production-release" ;
   spec:totalTasks 19 ;
@@ -42,7 +42,7 @@
 :setup-001 a spec:ExecutableTask ;
   spec:taskId "T001" ;
   spec:taskOrder 1 ;
-  spec:title "Verify ggen v5.0.2 workspace and Rust toolchain" ;
+  spec:title "Verify ggen v26.5.19.2 workspace and Rust toolchain" ;
   spec:description "Check that ggen workspace compiles, all dependencies resolve, cargo make works" ;
   spec:filePath "crates/ggen-core/" ;
   spec:action "Run 'cargo make check' from workspace root to verify clean compilation state" ;
@@ -553,7 +553,7 @@
   spec:taskOrder 35 ;
   spec:title "Final end-to-end testing and QA" ;
   spec:description "Test complete workflows with combinations of all flags, real-world scenarios" ;
-  spec:filePath "tests/integration/e2e_v510.rs" ;
+  spec:filePath "tests/integration/e2e_v26.5.1910.rs" ;
   spec:action "Create: e2e_audit_plus_merge, e2e_watch_with_conditional, e2e_all_flags_combined" ;
   spec:acceptance "All workflows complete successfully, no regressions, handles error cases gracefully" ;
   spec:testId "e2e-001" ;
@@ -563,11 +563,11 @@
 :rel-004 a spec:ExecutableTask ;
   spec:taskId "T036" ;
   spec:taskOrder 36 ;
-  spec:title "Prepare v5.1.0 release: bump version, tag, publish to crates.io" ;
+  spec:title "Prepare v26.5.19.0 release: bump version, tag, publish to crates.io" ;
   spec:description "Update version numbers, create git tag, publish crate to crates.io" ;
   spec:filePath "Cargo.toml, CHANGELOG.md" ;
-  spec:action "Update: Cargo.toml version to 5.1.0, create CHANGELOG.md, git tag v5.1.0, cargo publish" ;
-  spec:acceptance "v5.1.0 published to crates.io, git tag created, CHANGELOG documents all changes" ;
+  spec:action "Update: Cargo.toml version to 5.1.0, create CHANGELOG.md, git tag v26.5.19.0, cargo publish" ;
+  spec:acceptance "v26.5.19.0 published to crates.io, git tag created, CHANGELOG documents all changes" ;
   spec:testId "release-001" ;
   spec:depends_on "T033, T034, T035" ;
   spec:parallelizable false .

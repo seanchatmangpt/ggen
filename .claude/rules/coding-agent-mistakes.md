@@ -138,7 +138,7 @@ ggen sync && diff /tmp/r1.json .ggen/receipts/latest.json  # must differ
 
 ---
 
-## 2. The Authoritative Path for ggen v26.5.4
+## 2. The Authoritative Path for ggen v26.5.19
 
 ```
 intent

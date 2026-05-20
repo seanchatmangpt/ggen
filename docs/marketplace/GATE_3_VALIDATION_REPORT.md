@@ -537,6 +537,6 @@ All code snippets in this report are from actual source files (not fabricated).
 
 ---
 
-**Validator:** Claude Code (ggen v26.5.4)
+**Validator:** Claude Code (ggen v26.5.19)
 **Validation Date:** 2026-03-31
 **Report Version:** 1.0

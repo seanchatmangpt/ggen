@@ -388,7 +388,7 @@ examples/gcp-erlang-autonomics/     # ⚠️ In examples/, not a workspace crate
 - ✅ Docs in `docs/` (matches CLAUDE.md standard)
 - ✅ Templates in `templates/` (matches CLAUDE.md standard)
 - ✅ Examples in `examples/` (matches CLAUDE.md standard)
-- ✅ Specifications in `.specify/specs/` (aligns with v6 RDF-first approach)
+- ✅ Specifications in `.specify/specs/` (aligns with v26.5.19 RDF-first approach)
 - ✅ No files in root except manifests (ggen.toml, Cargo.toml)
 - ✅ No work files saved to root (reports TBD)
 

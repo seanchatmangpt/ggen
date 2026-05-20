@@ -1,5 +1,4 @@
 [package]
-publish = false
 name = "ggen-marketplace"
 description = "Marketplace plugin for ggen - package management system"
 readme = "README.md"

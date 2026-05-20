@@ -1,6 +1,6 @@
 # Grand Unified KGC Thesis Generator
 
-**Ontology-driven academic thesis generation using ggen v5**
+**Ontology-driven academic thesis generation using ggen v26.5.19**
 
 This project demonstrates ggen's capability to generate complete LaTeX thesis documents from RDF ontologies, showcasing:
 - 15 coordinated generation rules
@@ -15,7 +15,7 @@ This project demonstrates ggen's capability to generate complete LaTeX thesis do
 ### Prerequisites
 
 - Rust 1.75+ (existing ggen toolchain)
-- ggen CLI v5.0.0+
+- ggen CLI v26.5.19.0+
 - LaTeX distribution (for compiling generated `.tex` files)
 
 ### Step 1: Populate Content Ontology

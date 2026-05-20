@@ -18,7 +18,7 @@ Successfully completed Phase 1 of dependency deduplication, eliminating all crit
 | **Critical duplicates** | 4 major | 0 | -100% ✅ |
 | **axum versions** | 3 (v0.6, v0.7, v0.8) | 1 (v0.8) | ✅ Consolidated |
 | **tonic versions** | 2 (v0.9, v0.14) | 1 (v0.14) | ✅ Consolidated |
-| **dashmap versions** | 2 (v5.5, v26.5.4) | 1 (v26.5.4) | ✅ Consolidated |
+| **dashmap versions** | 2 (v26.5.19.5, v26.5.19) | 1 (v26.5.19) | ✅ Consolidated |
 | **config versions** | 2 (v0.14, v0.15) | 1 (v0.15) | ✅ Consolidated |
 
 ---
@@ -100,13 +100,13 @@ Successfully completed Phase 1 of dependency deduplication, eliminating all crit
 - Consolidated through workspace version management
 
 #### 3. dashmap (Concurrent Hash Map) ✅
-**Before**: 2 versions (v5.5.3, v26.5.4)
-**After**: 1 version (v26.5.4)
+**Before**: 2 versions (v26.5.19.5.3, v26.5.19)
+**After**: 1 version (v26.5.19)
 **Impact**: Direct dependency, minimal transitive impact
 
 **Changes**:
 - Workspace dependency: `dashmap = "6.1"` (already present)
-- Updated 6 crates to use workspace version or v26.5.4 directly
+- Updated 6 crates to use workspace version or v26.5.19 directly
 
 #### 4. config (Configuration Library) ✅
 **Before**: 2 versions (v0.14.1, v0.15.19)
@@ -194,7 +194,7 @@ Based on deduplication of critical web frameworks:
 
 No breaking changes encountered in the codebase. All axum usage was compatible with v0.8.
 
-### dashmap v5.5 → v26.5.4
+### dashmap v26.5.19.5 → v26.5.19
 
 No breaking changes encountered. API is backward compatible.
 

@@ -131,8 +131,8 @@ Expected output:
 Initializing the backend...
 Successfully configured the backend "gcs"!
 Initializing provider plugins...
-- Installed hashicorp/google v5.x.x
-- Installed hashicorp/google-beta v5.x.x
+- Installed hashicorp/google v26.5.19.x.x
+- Installed hashicorp/google-beta v26.5.19.x.x
 - Installed hashicorp/random v3.x.x
 - Installed hashicorp/local v2.x.x
 

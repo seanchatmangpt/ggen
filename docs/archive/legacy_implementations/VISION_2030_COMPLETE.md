@@ -2,7 +2,7 @@
 
 **Status:** READY FOR DEPLOYMENT  
 **Date:** 2026-04-28  
-**Version:** v26.5.4
+**Version:** v26.5.19
 
 ## Executive Summary
 
@@ -12,7 +12,7 @@ Vision 2030 unifies the ggen ecosystem through three integrated systems:
 2. **MCP Server (13 tools)** — Model Context Protocol server exposing ggen capabilities
 3. **A2A Transport** — Agent-to-Agent task state machine for multi-agent coordination
 
-This release closes 5 critical gaps in the ggen v26.5.4 specification and enables receipted, verifiable code generation workflows.
+This release closes 5 critical gaps in the ggen v26.5.19 specification and enables receipted, verifiable code generation workflows.
 
 ### The Promise
 
@@ -162,12 +162,12 @@ pub static FOO_VERB: VerbHandler = VerbHandler { ... };
 ## Deployment Strategy
 
 ### Phase 1: Shadow (24 hours)
-- Deploy v26.5.4 to shadow infrastructure
+- Deploy v26.5.19 to shadow infrastructure
 - Monitor metrics: error_rate, latency_p95, task_throughput
 - Target: 100% operational health
 
 ### Phase 2: Canary (2 hours)
-- Route 5% of traffic to v26.5.4
+- Route 5% of traffic to v26.5.19
 - SLOs: error_rate <0.1%, latency <2x baseline
 - Automatic rollback if violated
 
@@ -202,9 +202,9 @@ The following 6 tests fail due to pre-Vision 2030 API incompatibilities. These a
 5. `install::tests::test_batch_resolve_dependencies_single_package`
 6. `registry_rdf::tests::test_search_packages`
 
-**Impact:** None. These are unit test stubs for v26.5.4 marketplace API; they do not block v26.5.4 deployment or affect end-user functionality.
+**Impact:** None. These are unit test stubs for v26.5.19 marketplace API; they do not block v26.5.19 deployment or affect end-user functionality.
 
-**Timeline:** Addressed in v26.5.4 (ETA: 2026-05-15)
+**Timeline:** Addressed in v26.5.19 (ETA: 2026-05-15)
 
 ## Monitoring & Alerting
 
@@ -239,8 +239,8 @@ The following 6 tests fail due to pre-Vision 2030 API incompatibilities. These a
 
 ## Success Criteria
 
-1. **Zero breaking changes** — v26.5.4 users can upgrade without code modification
-2. **100% backward compatibility** — All v26.5.4 CLI verbs work in v26.5.4
+1. **Zero breaking changes** — v26.5.19 users can upgrade without code modification
+2. **100% backward compatibility** — All v26.5.19 CLI verbs work in v26.5.19
 3. **Zero critical alerts** — No production incidents in first 7 days
 4. **Error rate <0.1%** — Sustained across all traffic phases
 5. **SLO compliance** — All metrics meet P95 targets

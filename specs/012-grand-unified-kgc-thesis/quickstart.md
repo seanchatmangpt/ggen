@@ -5,7 +5,7 @@
 
 ## Prerequisites
 
-- ggen v5 CLI installed (`cargo install ggen`)
+- ggen v26.5.19 CLI installed (`cargo install ggen`)
 - LaTeX distribution with pdflatex and biber
 - Required packages: memoir, amsmath, amsthm, biblatex, algorithm2e, hyperref, cleveref
 

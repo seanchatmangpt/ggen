@@ -10,19 +10,19 @@
 //!
 //! ## Removed Commands
 //!
-//! The following commands were removed in v5.0:
+//! The following commands were removed in v26_5_19:
 //! - `ggen generate` → Use `ggen sync`
 //! - `ggen validate` → Use `ggen sync --validate-only`
 //! - `ggen template *` → Use `ggen sync`
-//! - `ggen project *` → Add back in v5.1+
-//! - `ggen graph *` → Add back in v5.1+
-//! - `ggen ontology *` → Add back in v5.1+
-//! - `ggen marketplace *` → Add back in v5.1+
-//! - `ggen ai *` → Add back in v5.1+
-//! - `ggen test *` → Add back in v5.1+
-//! - `ggen utils *` → Add back in v5.1+
-//! - `ggen ci *` → Add back in v5.1+
-//! - `ggen workflow *` → Add back in v5.1+
+//! - `ggen project *` → Add back in v26_5_19+
+//! - `ggen graph *` → Add back in v26_5_19+
+//! - `ggen ontology *` → Add back in v26_5_19+
+//! - `ggen marketplace *` → Add back in v26_5_19+
+//! - `ggen ai *` → Add back in v26_5_19+
+//! - `ggen test *` → Add back in v26_5_19+
+//! - `ggen utils *` → Add back in v26_5_19+
+//! - `ggen ci *` → Add back in v26_5_19+
+//! - `ggen workflow *` → Add back in v26_5_19+
 
 // Shared helpers for command modules
 pub mod helpers;
@@ -34,25 +34,13 @@ pub mod sync;
 pub mod wizard;
 
 // Command modules - clap-noun-verb auto-discovery
-pub mod capability;
-pub mod construct;
 pub mod doctor;
-pub mod envelope;
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
-pub mod marketplace;
-pub mod ontology;
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
-pub mod packs;
-pub mod paper;
 pub mod policy;
-pub mod registry;
-pub mod self_play;
-pub mod semantic_os;
-pub mod telco;
 pub mod template;
 pub mod utils;
-pub mod workflow;
 
 use crate::prelude::*;
 

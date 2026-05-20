@@ -1,6 +1,6 @@
 # Wave 5 (Integration) Documentation
 
-**Complete reference library for ggen v26.5.4 architecture, patterns, troubleshooting, and adoption**
+**Complete reference library for ggen v26.5.19 architecture, patterns, troubleshooting, and adoption**
 
 ---
 

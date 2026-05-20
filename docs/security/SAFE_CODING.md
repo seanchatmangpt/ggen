@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Safe Coding Guidelines (v26.5.4)](#safe-coding-guidelines-v600)
+- [Safe Coding Guidelines (v26.5.19)](#safe-coding-guidelines-v26.5.1900)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [SafePath Usage Patterns](#safepath-usage-patterns)
@@ -45,11 +45,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Safe Coding Guidelines (v26.5.4)
+# Safe Coding Guidelines (v26.5.19)
 
 ## Overview
 
-This document provides safe coding guidelines for ggen v26.5.4, focusing on preventing common security vulnerabilities through proper use of SafePath, SPARQL query builders, template security, and secure error handling.
+This document provides safe coding guidelines for ggen v26.5.19, focusing on preventing common security vulnerabilities through proper use of SafePath, SPARQL query builders, template security, and secure error handling.
 
 **Last Updated**: 2026-01-24
 **Version**: 26.5.4

@@ -7,7 +7,7 @@ Complete guide to using the ggen templates for C4 diagrams and Kubernetes deploy
 ### 1. Prerequisites
 ```bash
 # Required tools
-- ggen v26.5.4+ (CLI)
+- ggen v26.5.19+ (CLI)
 - Tera template engine (included in ggen)
 - SPARQL processor (Oxigraph, included in ggen)
 - kubectl (for Kubernetes validation)

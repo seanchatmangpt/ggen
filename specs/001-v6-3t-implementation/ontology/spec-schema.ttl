@@ -95,7 +95,7 @@ spec:name
 spec:featureBranch
     a owl:DatatypeProperty ;
     rdfs:label "feature branch"@en ;
-    rdfs:comment "Git branch name for this feature (e.g., 001-v6-3t-implementation)"@en ;
+    rdfs:comment "Git branch name for this feature (e.g., 001-v26.5.19-3t-implementation)"@en ;
     rdfs:domain spec:Specification ;
     rdfs:range xsd:string .
 

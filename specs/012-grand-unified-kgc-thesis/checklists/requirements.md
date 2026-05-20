@@ -13,7 +13,7 @@
 - [x] **Edge cases are identified** - 6 edge cases documented (circular refs, incomplete specs, embedding limits, temporal resolution, empty SPARQL results, conflicting definitions)
 - [x] **Functional requirements are exhaustive** - 15 FRs covering LaTeX generation, math notation, cross-references, equations, theorems, bibliography, algorithms, figures, tables, incremental regen, ordering, escaping, appendices, chapters, preamble
 - [x] **Success criteria are measurable** - 10 SCs with specific metrics (100 pages, 20+ equations, 10+ theorems, 30+ references, <10s generation, byte-identical output)
-- [x] **Dependencies are documented** - 6 dependencies listed (ggen v5, @unrdf/hooks, @unrdf/kgc-4d, Oxigraph, Tera, LaTeX)
+- [x] **Dependencies are documented** - 6 dependencies listed (ggen v26.5.19, @unrdf/hooks, @unrdf/kgc-4d, Oxigraph, Tera, LaTeX)
 
 ### 2. Clarity Checks
 
@@ -31,7 +31,7 @@
 ### 4. Feasibility Checks
 
 - [x] **Technical requirements are achievable** - Builds on proven thesis-gen infrastructure with 1646-line ontology as template
-- [x] **Dependencies are available** - All packages at specified versions (ggen v5, @unrdf/* v5.0.1)
+- [x] **Dependencies are available** - All packages at specified versions (ggen v26.5.19, @unrdf/* v26.5.19.1)
 - [x] **Success criteria thresholds are realistic** - Metrics based on existing thesis-gen output (100+ pages achievable)
 
 ### 5. Traceability Checks

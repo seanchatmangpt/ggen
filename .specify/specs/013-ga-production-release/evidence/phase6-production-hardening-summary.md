@@ -9,7 +9,7 @@
 
 ## Overview
 
-Phase 6 implemented four critical production hardening features for ggen v5.1.0 GA release:
+Phase 6 implemented four critical production hardening features for ggen v26.5.19.0 GA release:
 1. SHACL validation infrastructure
 2. SPARQL validation rules execution  
 3. Enhanced error handling with context

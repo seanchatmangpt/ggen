@@ -4,14 +4,14 @@
 # Validates OTEL semantic conventions on every pull request.
 # Spans up the weaver stack, runs ggen AI commands, and checks for violations.
 #
-# Triggers: pull_request to master
+# Triggers: pull_request to main
 # =============================================================================
 
 name: Weaver Validation
 
 on:
   pull_request:
-    branches: [master, main]
+    branches: [main]
   workflow_dispatch:  # Allow manual trigger from Actions tab
 
 jobs:

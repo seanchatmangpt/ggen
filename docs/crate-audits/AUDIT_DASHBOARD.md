@@ -93,7 +93,7 @@ flowchart TD
 flowchart LR
     subgraph P0["P0 Blockers (4 items)"]
         P0_1["P0-01: SHACL validation<br/>ggen-core/validation/shacl.rs<br/>Blocks: quality gates, ontology validation, marketplace"]
-        P0_2["P0-02: Wrong pipeline<br/>ggen-cli/sync.rs<br/>Blocks: v6 constitutional features"]
+        P0_2["P0-02: Wrong pipeline<br/>ggen-cli/sync.rs<br/>Blocks: v26.5.19 constitutional features"]
         P0_3["P0-03: Namespace conflicts<br/>ggen-marketplace/ontology.rs<br/>Blocks: SPARQL queries (silent data loss)"]
         P0_4["P0-04: Error type chaos<br/>ggen-cli/prelude.rs<br/>Blocks: CLI error handling"]
     end

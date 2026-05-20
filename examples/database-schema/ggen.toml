@@ -1,5 +1,5 @@
 # =============================================================================
-# ggen v5 Database Schema Code Generation Manifest
+# ggen v26.5.19 Database Schema Code Generation Manifest
 # Generates SQL DDL, indexes, migrations, and schema docs from RDF ontology
 # Single source of truth → CREATE TABLE + CREATE INDEX + migration + docs
 # =============================================================================

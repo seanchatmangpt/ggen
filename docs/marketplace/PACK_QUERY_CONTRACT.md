@@ -1,9 +1,9 @@
-# Pack query contract (μ₂ / v6 extraction)
+# Pack query contract (μ₂ / v26.5.19 extraction)
 
 **Version:** 1.0  
 **Last updated:** 2026-04-01
 
-The v6 **μ₂ extraction** pass is **CONSTRUCT-only**: it materializes IR triples into the working graph. Pack-contributed queries loaded from `<pack_cache>/<atomic-pack-id>/queries/*.rq` MUST follow the same contract as project tensor queries.
+The v26.5.19 **μ₂ extraction** pass is **CONSTRUCT-only**: it materializes IR triples into the working graph. Pack-contributed queries loaded from `<pack_cache>/<atomic-pack-id>/queries/*.rq` MUST follow the same contract as project tensor queries.
 
 ## Rules
 
@@ -14,9 +14,9 @@ The v6 **μ₂ extraction** pass is **CONSTRUCT-only**: it materializes IR tripl
 
 ## Non-goals
 
-- Pack `SELECT` queries that only populate JSON bindings (legacy pattern) are **not** supported in v6 μ₂; rewrite as `CONSTRUCT` that shapes IR triples, or keep logic in the project ontology + standard extraction rules.
+- Pack `SELECT` queries that only populate JSON bindings (legacy pattern) are **not** supported in v26.5.19 μ₂; rewrite as `CONSTRUCT` that shapes IR triples, or keep logic in the project ontology + standard extraction rules.
 
 ## References
 
-- Implementation: [crates/ggen-core/src/v6/passes/extraction.rs](../../crates/ggen-core/src/v6/passes/extraction.rs) (`extend_with_pack_construct_queries`).
+- Implementation: [crates/ggen-core/src/v26.5.19/passes/extraction.rs](../../crates/ggen-core/src/v26.5.19/passes/extraction.rs) (`extend_with_pack_construct_queries`).
 - Loader: [crates/ggen-core/src/pack_resolver.rs](../../crates/ggen-core/src/pack_resolver.rs) (`get_pack_queries`).

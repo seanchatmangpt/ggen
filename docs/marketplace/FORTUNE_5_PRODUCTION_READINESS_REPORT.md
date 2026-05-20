@@ -1,7 +1,7 @@
 # Fortune 5 CISO Production Readiness Report
 
 **Generated:** 2026-03-31
-**Project:** ggen v26.5.4 - Governed Capability Packs Platform
+**Project:** ggen v26.5.19 - Governed Capability Packs Platform
 **Standard:** Fortune 5 CISO Enterprise Safety Requirements
 
 ---
@@ -94,7 +94,7 @@ The governed capability packs platform meets the majority of Fortune 5 CISO requ
    }
    ```
 
-2. **Pipeline Integration** (`crates/ggen-core/src/v6/pipeline.rs`)
+2. **Pipeline Integration** (`crates/ggen-core/src/v26.5.19/pipeline.rs`)
    - `PackResolver` integrated into `StagedPipeline`
    - μ₀ executes BEFORE μ₁ normalization
    - `ResolvedPacks` passed through μ₁→μ₅
@@ -311,7 +311,7 @@ The governed capability packs platform meets the majority of Fortune 5 CISO requ
 
 2. **BuildReceipt with Pack Provenance**
    ```rust
-   // From v6/receipt.rs
+   // From v26.5.19/receipt.rs
    pub struct BuildReceipt {
        pub epoch_id: String,
        pub toolchain_version: String,

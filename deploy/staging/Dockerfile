@@ -1,4 +1,4 @@
-# Multi-stage Docker build for ggen v6.0.0 (production-grade staging)
+# Multi-stage Docker build for ggen v26.5.19.0.0 (production-grade staging)
 # Builds Linux ARM64 binary inside Docker
 # Build context: project root (run from project root: docker build -f deploy/staging/Dockerfile .)
 

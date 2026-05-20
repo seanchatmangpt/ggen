@@ -20,7 +20,7 @@ Gate 2 validates that "packs participate in ggen sync, μ pipeline consumes pack
 
 **Evidence:**
 
-File: `./crates/ggen-core/src/v6/pipeline.rs` (Lines 308-314)
+File: `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 308-314)
 
 ```rust
 // μ₀: Pack Resolution (if lockfile exists)
@@ -140,7 +140,7 @@ fn merge_ontologies(&self, packs: &[AtomicPackId]) -> Result<Graph> {
 
 **Evidence:**
 
-File: `./crates/ggen-core/src/v6/pipeline.rs` (Lines 386-388)
+File: `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 386-388)
 
 ```rust
 // Load pack queries if available
@@ -181,7 +181,7 @@ for pack in &resolved_packs.atomic_packs {
 
 **Evidence:**
 
-File: `./crates/ggen-core/src/v6/pipeline.rs` (Lines 393-402)
+File: `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 393-402)
 
 ```rust
 // Register pack templates if available
@@ -231,7 +231,7 @@ ctx.tera = Some(Arc::new(tera));
 
 **Evidence:**
 
-File: `./crates/ggen-core/src/v6/receipt.rs` (Lines 69-110)
+File: `./crates/ggen-core/src/v26.5.19/receipt.rs` (Lines 69-110)
 
 ```rust
 /// Pack provenance tracking for a single atomic pack.
@@ -265,7 +265,7 @@ pub struct PackProvenance {
 
 **Receipt Population:**
 
-File: `./crates/ggen-core/src/v6/pipeline.rs` (Lines 449-482)
+File: `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 449-482)
 
 ```rust
 // Add pack provenance to receipt (if μ₀ resolved packs)
@@ -296,7 +296,7 @@ if let Some(ref resolved) = self.resolved_packs {
     }
 
     // Set profile reference (default to development if not specified)
-    receipt.set_profile(crate::v6::receipt::ProfileRef {
+    receipt.set_profile(crate::v26.5.19::receipt::ProfileRef {
         profile_id: "development".to_string(),
         runtime_constraints: vec![],
         trust_requirement: TrustTier::Experimental,
@@ -404,7 +404,7 @@ impl PackRegistry {
 
 ### 2. Implement μ₂ Pack Query Loading (Priority: HIGH)
 
-**File:** `./crates/ggen-core/src/v6/pipeline.rs` (Lines 386-388)
+**File:** `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 386-388)
 
 Replace TODO with:
 
@@ -423,7 +423,7 @@ if let Some(ref resolved) = self.resolved_packs {
 
 ### 3. Implement μ₃ Pack Template Registration (Priority: HIGH)
 
-**File:** `./crates/ggen-core/src/v6/pipeline.rs` (Lines 393-402)
+**File:** `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 393-402)
 
 Replace TODO with:
 
@@ -442,7 +442,7 @@ if let Some(ref resolved) = self.resolved_packs {
 
 ### 4. Complete Pack Provenance Loading (Priority: MEDIUM)
 
-**File:** `./crates/ggen-core/src/v6/pipeline.rs` (Lines 468-472)
+**File:** `./crates/ggen-core/src/v26.5.19/pipeline.rs` (Lines 468-472)
 
 Replace placeholder values with:
 
@@ -491,10 +491,10 @@ receipt.add_pack(PackProvenance {
 | File | Purpose | Key Sections |
 |------|---------|--------------|
 | `./crates/ggen-core/src/pack_resolver.rs` | μ₀ implementation | Lines 136-165 (resolve), 304-342 (merge_ontologies) |
-| `./crates/ggen-core/src/v6/pipeline.rs` | Pipeline orchestration | Lines 308-314 (μ₀ execution), 386-388 (μ₂ TODO), 393-402 (μ₃ TODO), 449-482 (μ₅ provenance) |
-| `./crates/ggen-core/src/v6/receipt.rs` | Receipt structure | Lines 69-110 (PackProvenance), 115-122 (BundleExpansionRef) |
-| `./crates/ggen-core/src/v6/passes/extraction.rs` | μ₂ extraction | Lines 1-900 (CONSTRUCT-based extraction) |
-| `./crates/ggen-core/src/v6/passes/emission.rs` | μ₃ emission | Lines 1-657 (Tera-based emission) |
+| `./crates/ggen-core/src/v26.5.19/pipeline.rs` | Pipeline orchestration | Lines 308-314 (μ₀ execution), 386-388 (μ₂ TODO), 393-402 (μ₃ TODO), 449-482 (μ₅ provenance) |
+| `./crates/ggen-core/src/v26.5.19/receipt.rs` | Receipt structure | Lines 69-110 (PackProvenance), 115-122 (BundleExpansionRef) |
+| `./crates/ggen-core/src/v26.5.19/passes/extraction.rs` | μ₂ extraction | Lines 1-900 (CONSTRUCT-based extraction) |
+| `./crates/ggen-core/src/v26.5.19/passes/emission.rs` | μ₃ emission | Lines 1-657 (Tera-based emission) |
 | `./crates/ggen-marketplace/src/atomic.rs` | Atomic pack taxonomy | Lines 1-100 (AtomicPackClass enum) |
 | `./crates/ggen-marketplace/src/bundle.rs` | Bundle types | Lines 1-100 (Bundle struct, expand method) |
 

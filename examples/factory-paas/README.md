@@ -24,7 +24,7 @@
 ## 🚀 Quick Start (5 Minutes)
 
 ### Prerequisites
-- **ggen v26.5.4+** installed ([installation guide](../../README.md#quick-start-5-minutes))
+- **ggen v26.5.19+** installed ([installation guide](../../README.md#quick-start-5-minutes))
 - **GCP account** with billing enabled
 - **Terraform v1.5+** for infrastructure provisioning
 
@@ -426,4 +426,4 @@ You've crossed the event horizon when:
 **Version**: 1.0.0
 **Last Updated**: 2026-01-24
 **Status**: Production-Ready
-**Powered by**: [ggen v26.5.4](../../README.md) + Google Cloud Platform
+**Powered by**: [ggen v26.5.19](../../README.md) + Google Cloud Platform

@@ -805,7 +805,7 @@ echo "NEW_BASE64_KUBECONFIG" | gh secret set KUBECONFIG_PROD
 
 The CI pipeline uses GitHub Actions caching for:
 - Rust build artifacts: `Swatinem/rust-cache@v2`
-- Docker layers: `docker/build-push-action@v5` with `cache-from: type=gha`
+- Docker layers: `docker/build-push-action@v26.5.19` with `cache-from: type=gha`
 
 To clear caches:
 

@@ -104,7 +104,7 @@ impl EmissionPass {
     pub fn new() -> Self {
         Self {
             rules: Vec::new(),
-            guards: GuardSet::default_v6(),
+            guards: GuardSet::default_v26(),
             enable_determinism_check: true,
             receipt: None,
             ownership_map: None,

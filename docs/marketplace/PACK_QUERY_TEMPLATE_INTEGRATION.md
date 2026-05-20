@@ -120,7 +120,7 @@ struct PackRegistry {
 ### 2. ExtractionPass (μ₂)
 
 ```rust
-// crates/ggen-core/src/v6/passes/extraction.rs
+// crates/ggen-core/src/v26.5.19/passes/extraction.rs
 
 impl ExtractionPass {
     pub fn extend_with_pack_construct_queries(
@@ -141,7 +141,7 @@ impl ExtractionPass {
                 name: format!("pack::{}", sq.name),
                 construct: sq.sparql.clone(),
                 target_predicates: vec![format!(
-                    "http://ggen.dev/v6/pack-query#{}",
+                    "http://ggen.dev/v26.5.19/pack-query#{}",
                     sq.name.replace(['/', '\\', ' '], "_")
                 )],
                 order: base_order + 1 + i,
@@ -156,7 +156,7 @@ impl ExtractionPass {
 ### 3. EmissionPass (μ₃)
 
 ```rust
-// crates/ggen-core/src/v6/passes/emission.rs
+// crates/ggen-core/src/v26.5.19/passes/emission.rs
 
 impl EmissionPass {
     pub fn extend_with_pack_templates(
@@ -190,7 +190,7 @@ impl EmissionPass {
 ### 4. Pipeline Orchestration
 
 ```rust
-// crates/ggen-core/src/v6/pipeline.rs
+// crates/ggen-core/src/v26.5.19/pipeline.rs
 
 impl StagedPipeline {
     pub fn run(&mut self) -> Result<BuildReceipt> {
@@ -402,7 +402,7 @@ Fix: Remove Utc::now() pattern or use deterministic alternative.
 
 - `docs/marketplace/PACK_QUERY_CONTRACT.md` - Full pack contract specification
 - `crates/ggen-core/src/pack_resolver.rs` - μ₀ pack resolution implementation
-- `crates/ggen-core/src/v6/passes/extraction.rs` - μ₂ extraction pass implementation
-- `crates/ggen-core/src/v6/passes/emission.rs` - μ₃ emission pass implementation
-- `crates/ggen-core/src/v6/pipeline.rs` - Pipeline orchestration
+- `crates/ggen-core/src/v26.5.19/passes/extraction.rs` - μ₂ extraction pass implementation
+- `crates/ggen-core/src/v26.5.19/passes/emission.rs` - μ₃ emission pass implementation
+- `crates/ggen-core/src/v26.5.19/pipeline.rs` - Pipeline orchestration
 - `crates/ggen-core/tests/pack_query_template_integration_test.rs` - Integration tests

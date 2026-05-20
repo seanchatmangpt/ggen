@@ -1,5 +1,5 @@
 # =============================================================================
-# ggen v5 Validation Schemas Code Generation Manifest
+# ggen v26.5.19 Validation Schemas Code Generation Manifest
 # Generates rich validation schemas from RDF ontology with constraints
 # Single source of truth → JSON Schema + Zod + TypeScript
 # =============================================================================

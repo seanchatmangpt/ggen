@@ -6,7 +6,7 @@
 
 **Related technical docs:** [PIPELINE_INTEGRATION.md](PIPELINE_INTEGRATION.md) (μ-stage model), [ATOMIC_PACKS.md](ATOMIC_PACKS.md), [BUNDLES_AND_PROFILES.md](BUNDLES_AND_PROFILES.md), [SECURITY_MODEL.md](SECURITY_MODEL.md). **Build/test gate truth:** [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md). **Inventory snapshot (may lag):** [DELTA.md](DELTA.md).
 
-**Pipeline nuance:** [PIPELINE_INTEGRATION.md](PIPELINE_INTEGRATION.md) describes μ₂/μ₃ consuming project *and* pack queries/templates. In code, μ₀ (`PackResolver`) resolves packs and loads contributed queries/templates into `ResolvedPacks`, but [crates/ggen-core/src/v6/pipeline.rs](../../crates/ggen-core/src/v6/pipeline.rs) still carries explicit TODOs to feed pack queries into μ₂ and register pack templates in μ₃—treat “full pack-aware extraction/emission” as **not complete** until those paths are implemented.
+**Pipeline nuance:** [PIPELINE_INTEGRATION.md](PIPELINE_INTEGRATION.md) describes μ₂/μ₃ consuming project *and* pack queries/templates. In code, μ₀ (`PackResolver`) resolves packs and loads contributed queries/templates into `ResolvedPacks`, but [crates/ggen-core/src/v26.5.19/pipeline.rs](../../crates/ggen-core/src/v26.5.19/pipeline.rs) still carries explicit TODOs to feed pack queries into μ₂ and register pack templates in μ₃—treat “full pack-aware extraction/emission” as **not complete** until those paths are implemented.
 
 **Organizational roles:** Titles below are canonical for the initiative narrative. **Named individuals and multi-title sponsor lines are illustrative** until recorded on the signoff grid with formal enterprise approval.
 
@@ -191,7 +191,7 @@ Create a production-ready design and reference implementation proving that ggen 
 **Implementation (this repository):**
 
 - **Library layer:** `ggen-marketplace` includes atomic taxonomy, bundles, profiles, ownership, multi-dimensional compatibility, policy enforcement, composition receipts, and a substantial `install.rs` (dependency resolution, cache, trust hooks). `ggen-core` implements μ₀ via `PackResolver` and merges pack ontologies into the pipeline graph when `.ggen/packs.lock` is present.  
-- **Gaps vs charter CTQs:** (1) `ggen packs` CLI verbs largely return mock or TODO wiring ([crates/ggen-cli/src/cmds/packs.rs](../../crates/ggen-cli/src/cmds/packs.rs)). (2) v6 pipeline still TODOs feeding pack SPARQL into μ₂ and registering pack Tera templates in μ₃ ([crates/ggen-core/src/v6/pipeline.rs](../../crates/ggen-core/src/v6/pipeline.rs)). (3) Receipt `PackProvenance` fields for signature, digest, and contributed templates/queries/files include placeholders until wired from pack metadata and execution.  
+- **Gaps vs charter CTQs:** (1) `ggen packs` CLI verbs largely return mock or TODO wiring ([crates/ggen-cli/src/cmds/packs.rs](../../crates/ggen-cli/src/cmds/packs.rs)). (2) v26.5.19 pipeline still TODOs feeding pack SPARQL into μ₂ and registering pack Tera templates in μ₃ ([crates/ggen-core/src/v26.5.19/pipeline.rs](../../crates/ggen-core/src/v26.5.19/pipeline.rs)). (3) Receipt `PackProvenance` fields for signature, digest, and contributed templates/queries/files include placeholders until wired from pack metadata and execution.  
 - **Documentation:** [DELTA.md](DELTA.md) describes a disconnected CLI/sync picture as of its snapshot date; [FORTUNE_5_WIP_STATUS.md](FORTUNE_5_WIP_STATUS.md) tracks compile/test gates and newer modules—**prefer WIP status + this charter appendix** when they disagree.
 
 **Bottom line:** Engine and governance modules exist; **operator-facing install/sync/receipt completeness** remains the main institutional risk.
@@ -486,7 +486,7 @@ Cross the event horizon from human-coordinated enterprise production to machine-
 | Phase | Intent | Code / doc anchors |
 |-------|--------|-------------------|
 | **1** | Taxonomy, policy, conflict, profiles | [crates/ggen-marketplace/src/atomic.rs](../../crates/ggen-marketplace/src/atomic.rs), [bundle.rs](../../crates/ggen-marketplace/src/bundle.rs), [profile.rs](../../crates/ggen-marketplace/src/profile.rs), [ownership.rs](../../crates/ggen-marketplace/src/ownership.rs), [compatibility.rs](../../crates/ggen-marketplace/src/compatibility.rs), [policy.rs](../../crates/ggen-marketplace/src/policy.rs); docs: [ATOMIC_PACKS.md](ATOMIC_PACKS.md), [BUNDLES_AND_PROFILES.md](BUNDLES_AND_PROFILES.md) |
-| **2** | Install, lockfile, pack-aware sync | [crates/ggen-marketplace/src/install.rs](../../crates/ggen-marketplace/src/install.rs), [crates/ggen-core/src/pack_resolver.rs](../../crates/ggen-core/src/pack_resolver.rs), [crates/ggen-core/src/v6/pipeline.rs](../../crates/ggen-core/src/v6/pipeline.rs); CLI: [crates/ggen-cli/src/cmds/packs.rs](../../crates/ggen-cli/src/cmds/packs.rs), [capability.rs](../../crates/ggen-cli/src/cmds/capability.rs) |
+| **2** | Install, lockfile, pack-aware sync | [crates/ggen-marketplace/src/install.rs](../../crates/ggen-marketplace/src/install.rs), [crates/ggen-core/src/pack_resolver.rs](../../crates/ggen-core/src/pack_resolver.rs), [crates/ggen-core/src/v26.5.19/pipeline.rs](../../crates/ggen-core/src/v26.5.19/pipeline.rs); CLI: [crates/ggen-cli/src/cmds/packs.rs](../../crates/ggen-cli/src/cmds/packs.rs), [capability.rs](../../crates/ggen-cli/src/cmds/capability.rs) |
 | **3+** | Reference packs, non-code surfaces | Proof hooks: e.g. [crates/ggen-core/tests/mcp_generation_e2e_test.rs](../../crates/ggen-core/tests/mcp_generation_e2e_test.rs). **Slidev / XLSX** are charter targets—not claimed proven in-tree unless covered by dedicated tests and docs. |
 
 ### B.2 Milestone tollgate vs current evidence (R/Y/G)
@@ -497,7 +497,7 @@ Cross the event horizon from human-coordinated enterprise production to machine-
 | **M2** Install + lockfile + trust | **Yellow** | Crate installer advanced; CLI install and E2E lockfile population still TODO/mocked in `ggen packs`. |
 | **M3** Pack-aware `ggen sync` | **Yellow** | μ₀ merges ontology; μ₂/μ₃ pack query/template wiring and full receipt fields incomplete (see §9). |
 | **M4** Reference `mcp-rust` | **Yellow** | Use E2E tests + pack assets as evidence; treat as green only when sponsor-defined acceptance criteria met. |
-| **M5** Multi-pack receipt proof | **Yellow** | Bundle expansion + pack list in receipt; real digests/signatures/template-query lists still placeholders in v6 pipeline. |
+| **M5** Multi-pack receipt proof | **Yellow** | Bundle expansion + pack list in receipt; real digests/signatures/template-query lists still placeholders in v26.5.19 pipeline. |
 | **M6** Non-code enterprise text | **Red** | Charter target; not baseline-proven without named tests/artifacts. |
 | **M7** Enterprise pilot | **Red** | Deployment posture outside this repo’s evidence. |
 

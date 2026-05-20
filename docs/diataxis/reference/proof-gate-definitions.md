@@ -1,6 +1,6 @@
 # Reference: Manufacturing Proof Gates
 
-Detailed specification of the validation criteria for each proof gate in the `ggen` v26.5.4 release.
+Detailed specification of the validation criteria for each proof gate in the `ggen` v26.5.19 release.
 
 ## O-01: Schema Valid
 - **Requirement**: `NormalizationPass` (μ₁) must have `success: true`.

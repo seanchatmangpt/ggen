@@ -373,8 +373,8 @@ Total:
 
 Detecting conflicts:
   ⚠ Version conflicts detected (2):
-    1. typescript: v4.9.0 (web-api) vs v5.0.0 (ml-data-science)
-       → Resolution: Use highest compatible: v5.0.0 ✓
+    1. typescript: v4.9.0 (web-api) vs v26.5.19.0 (ml-data-science)
+       → Resolution: Use highest compatible: v26.5.19.0 ✓
 
     2. docker-compose: v2.1.0 (web-api) vs v2.1.0 (devops)
        → Resolution: Same version, no conflict ✓

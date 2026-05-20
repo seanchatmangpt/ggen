@@ -3,7 +3,7 @@ version: 6.0.0
 last_updated: 2026-02-08
 ---
 
-# Claude Code Rules - ggen v26.5.4
+# Claude Code Rules - ggen v26.5.19
 
 Modular, auto-loading rules for specification-driven Rust code generation.
 
@@ -96,4 +96,4 @@ RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."
 
 ---
 
-**Version**: v26.5.4 | **Last Updated**: 2026-02-08
+**Version**: v26.5.19 | **Last Updated**: 2026-02-08

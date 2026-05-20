@@ -318,7 +318,7 @@ async fn check_slo() -> Result<CheckResult> {
     test_ns.insert("http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
     test_ns.insert("http://www.w3.org/2000/01/rdf-schema#".to_string());
     test_ns.insert("http://www.w3.org/2002/07/owl#".to_string());
-    test_ns.insert("http://ggen.dev/v6#".to_string());
+    test_ns.insert("http://ggen.dev/v26_5_19#".to_string());
 
     // Stress test: 1000 parallel lookups to measure lock contention
     (0..1000).into_par_iter().for_each(|_| {

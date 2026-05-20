@@ -59,20 +59,6 @@ struct LintMessage {
     message: String,
 }
 
-#[derive(Serialize)]
-struct GenerateOutput {
-    output_path: String,
-    files_created: usize,
-    bytes_written: usize,
-    rdf_files_loaded: usize,
-    sparql_queries_executed: usize,
-}
-
-#[derive(Serialize)]
-struct GenerateTreeOutput {
-    output_directory: String,
-}
-
 // ============================================================================
 // Verb Functions
 // ============================================================================
@@ -96,12 +82,6 @@ fn show(template: String) -> NounVerbResult<ShowOutput> {
         sparql_queries_count: metadata.sparql_queries.len(),
         determinism_seed: metadata.determinism_seed,
     })
-}
-
-/// Alias for show - common CLI pattern
-#[verb]
-fn get(template: String) -> NounVerbResult<ShowOutput> {
-    show(template)
 }
 
 /// Create new template
@@ -215,96 +195,6 @@ fn lint(template: String) -> NounVerbResult<LintOutput> {
     })
 }
 
-/// Generate from template (basic version without Vec support)
-#[verb]
-fn generate(
-    template: Option<String>, output: Option<String>, force: bool,
-) -> NounVerbResult<GenerateOutput> {
-    use ggen_core::domain::template;
-    use std::collections::BTreeMap;
-
-    let options = template::GenerateFileOptions {
-        template_path: template
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from("template.tmpl")),
-        output_path: output
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from("output")),
-        variables: BTreeMap::new(),
-        force_overwrite: force,
-    };
-
-    let result = template::generate_file(&options).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate: {}", e))
-    })?;
-
-    Ok(GenerateOutput {
-        output_path: result.output_path.display().to_string(),
-        files_created: 1,
-        bytes_written: result.bytes_written,
-        rdf_files_loaded: 0,
-        sparql_queries_executed: 0,
-    })
-}
-
-/// Generate file tree from template
-#[verb]
-fn generate_tree(
-    template: Option<String>, output: Option<String>,
-) -> NounVerbResult<GenerateTreeOutput> {
-    use ggen_core::domain::template::generate_tree;
-    use std::collections::HashMap;
-
-    let template_path = template.ok_or_else(|| {
-        clap_noun_verb::NounVerbError::argument_error("Template path required for generate-tree")
-    })?;
-
-    let output_path = output.ok_or_else(|| {
-        clap_noun_verb::NounVerbError::argument_error("Output path required for generate-tree")
-    })?;
-
-    let template_pb = PathBuf::from(&template_path);
-    let output_pb = PathBuf::from(&output_path);
-
-    // For now, use empty variables - full implementation needs var support
-    let variables: HashMap<String, String> = HashMap::new();
-
-    generate_tree::generate_file_tree(&template_pb, &output_pb, &variables, false).map_err(
-        |e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to generate file tree: {}",
-                e
-            ))
-        },
-    )?;
-
-    Ok(GenerateTreeOutput {
-        output_directory: output_path,
-    })
-}
-
-/// Regenerate from template
-#[verb]
-fn regenerate(template: Option<String>) -> NounVerbResult<GenerateTreeOutput> {
-    let template_path = template.unwrap_or_else(|| "template.tmpl".to_string());
-    let template_pb = PathBuf::from(&template_path);
-    let output_pb = PathBuf::from("output");
-
-    generate_tree(
-        Some(template_pb.to_string_lossy().to_string()),
-        Some(output_pb.to_string_lossy().to_string()),
-    )
-    .map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to regenerate from template: {}",
-            e
-        ))
-    })?;
-
-    Ok(GenerateTreeOutput {
-        output_directory: output_pb.display().to_string(),
-    })
-}
 // ============================================================================
 // Helper Functions
 // ============================================================================

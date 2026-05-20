@@ -12,7 +12,7 @@
 
 ---
 
-**SAN FRANCISCO, CA** — Today marks the official launch of **FactoryPaaS**, the world's first affiliate marketing platform built entirely from RDF ontologies using ontology-driven code generation. Powered by ggen v26.5.4 and deployed on Google Cloud Platform, FactoryPaaS eliminates manual code maintenance while providing cryptographic proof of every transaction through immutable receipt ledgers.
+**SAN FRANCISCO, CA** — Today marks the official launch of **FactoryPaaS**, the world's first affiliate marketing platform built entirely from RDF ontologies using ontology-driven code generation. Powered by ggen v26.5.19 and deployed on Google Cloud Platform, FactoryPaaS eliminates manual code maintenance while providing cryptographic proof of every transaction through immutable receipt ledgers.
 
 ### The Problem: Code Drift Costs Affiliates Billions
 
@@ -77,7 +77,7 @@ FactoryPaaS flips the paradigm. Instead of code being the source of truth (subje
 - **Language**: Rust 1.91.1+ (high-performance, memory-safe)
 - **Infrastructure**: GCP (Compute Engine, Cloud SQL PostgreSQL, Cloud Storage, Cloud Load Balancer)
 - **AI**: GPT-4 and Claude Opus 4.5 integration via ggen-ai
-- **Code Generation**: ggen v26.5.4 (ontology-driven code generator)
+- **Code Generation**: ggen v26.5.19 (ontology-driven code generator)
 - **Receipts**: Ed25519 cryptographic signatures, append-only Cloud Storage
 - **Architecture**: DDD + CQRS + Event Sourcing
 
@@ -91,11 +91,11 @@ FactoryPaaS is available immediately:
 
 ### About FactoryPaaS
 
-FactoryPaaS is the first affiliate marketing platform built entirely from RDF ontologies. By treating ontology as truth and code as a generated projection, FactoryPaaS eliminates code drift structurally (not just culturally) and provides cryptographic proof of every transaction. The platform is powered by ggen v26.5.4, an open-source ontology-driven code generator built in Rust.
+FactoryPaaS is the first affiliate marketing platform built entirely from RDF ontologies. By treating ontology as truth and code as a generated projection, FactoryPaaS eliminates code drift structurally (not just culturally) and provides cryptographic proof of every transaction. The platform is powered by ggen v26.5.19, an open-source ontology-driven code generator built in Rust.
 
 ### About ggen
 
-ggen is a deterministic code generator that transforms RDF ontologies into production-ready code across multiple languages. Version 26.5.4 introduces manufacturing-grade quality control (Poka-Yoke), AI-native workflows (ggen-ai), and complete infrastructure generation (ggen-paas). ggen is maintained by Sean Chatman and contributors, with over 92 commits and 56,766 net lines added in v6. Learn more at [github.com/seanchatmangpt/ggen](https://github.com/seanchatmangpt/ggen).
+ggen is a deterministic code generator that transforms RDF ontologies into production-ready code across multiple languages. Version 26.5.4 introduces manufacturing-grade quality control (Poka-Yoke), AI-native workflows (ggen-ai), and complete infrastructure generation (ggen-paas). ggen is maintained by Sean Chatman and contributors, with over 92 commits and 56,766 net lines added in v26.5.19. Learn more at [github.com/seanchatmangpt/ggen](https://github.com/seanchatmangpt/ggen).
 
 ---
 
@@ -166,7 +166,7 @@ A: Beta testing shows **<100ms p99 latency** for click tracking at **10,000 clic
 
 **Q: Is this production-ready?**
 
-A: Yes. FactoryPaaS is built on ggen v26.5.4, which includes Poka-Yoke quality gates, Andon signal enforcement, and Chicago TDD testing. The platform has been in beta with 15 publishers for 3 months with 99.97% uptime.
+A: Yes. FactoryPaaS is built on ggen v26.5.19, which includes Poka-Yoke quality gates, Andon signal enforcement, and Chicago TDD testing. The platform has been in beta with 15 publishers for 3 months with 99.97% uptime.
 
 ---
 
@@ -177,7 +177,7 @@ A: Yes. FactoryPaaS is built on ggen v26.5.4, which includes Poka-Yoke quality g
 - **Time**: 10:00 AM PT / 1:00 PM ET
 - **Register**: [factorypaas.example.com/webinar](https://factorypaas.example.com/webinar)
 
-**Conference Presentation**: "ggen v6: Manufacturing-Grade Code Generation"
+**Conference Presentation**: "ggen v26.5.19: Manufacturing-Grade Code Generation"
 - **Event**: RustConf 2026
 - **Date**: March 15-17, 2026
 - **Location**: Portland, OR

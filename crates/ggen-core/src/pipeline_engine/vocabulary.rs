@@ -103,14 +103,14 @@ impl VocabularyRegistry {
     pub fn with_standard_vocabularies() -> Self {
         let mut registry = Self::new();
 
-        // In v26.5.4, we bootstrap from the standard-vocabularies.ttl specification
+        // In v26_5_19, we bootstrap from the standard-vocabularies.ttl specification
         let path = std::path::Path::new(".specify/ontologies/standard-vocabularies.ttl");
         if path.exists() {
             if let Ok(content) = std::fs::read_to_string(path) {
                 // Use a basic regex/string parser for bootstrapping if full RDF engine isn't ready
                 // This ensures we satisfy the "RDF-first" principle even during early boot.
                 for line in content.lines() {
-                    if line.contains("gv6:StandardVocabulary") && line.contains("<") {
+                    if line.contains("gv26:StandardVocabulary") && line.contains("<") {
                         if let Some(start) = line.find('<') {
                             if let Some(end) = line.find('>') {
                                 let ns = &line[start + 1..end];
@@ -137,8 +137,8 @@ impl VocabularyRegistry {
                     .with_description("Web Ontology Language"),
             );
             registry.add_allowed(
-                AllowedVocabulary::new("http://ggen.dev/v6#", "gv6")
-                    .with_description("ggen v6 ontology"),
+                AllowedVocabulary::new("http://ggen.dev/v26_5_19#", "gv26")
+                    .with_description("ggen v26_5_19 ontology"),
             );
             registry.add_allowed(
                 AllowedVocabulary::new("http://ggen.ai/ontology/meta#", "meta")
@@ -309,7 +309,7 @@ mod tests {
         assert!(registry.is_allowed("http://www.w3.org/2000/01/rdf-schema#Class"));
         assert!(registry.is_allowed("http://www.w3.org/2002/07/owl#Thing"));
         assert!(registry.is_allowed("https://schema.org/Person"));
-        assert!(registry.is_allowed("http://ggen.dev/v6#Pass"));
+        assert!(registry.is_allowed("http://ggen.dev/v26_5_19#Pass"));
     }
 
     #[test]

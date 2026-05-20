@@ -1,6 +1,6 @@
-//! # ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
+//! # ggen v26_5_19: Fully-Rendered Libraries via Ontology-First Compilation
 //!
-//! This module implements the v6 constitutional law: **A = μ(O)**
+//! This module implements the v26_5_19 constitutional law: **A = μ(O)**
 //!
 //! ## Core Concepts
 //!

@@ -1,6 +1,6 @@
 # Final Test Suite Validation Report
 **Generated:** 2026-03-30
-**Workspace:** ggen v26.5.4
+**Workspace:** ggen v26.5.19
 **Platform:** macOS (Darwin 25.2.0)
 
 ## Executive Summary

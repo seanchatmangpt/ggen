@@ -27,9 +27,9 @@
     - [Limitation 2: Cost (API Calls)](#limitation-2-cost-api-calls)
     - [Limitation 3: Latency (2-5s per generation)](#limitation-3-latency-2-5s-per-generation)
   - [Future Directions](#future-directions)
-    - [1. Fine-Tuned Models (v5.0.0)](#1-fine-tuned-models-v500)
-    - [2. Agentic Generation (v5.1.0)](#2-agentic-generation-v510)
-    - [3. Continuous Learning (v5.2.0)](#3-continuous-learning-v520)
+    - [1. Fine-Tuned Models (v26.5.19.0)](#1-fine-tuned-models-v26.5.1900)
+    - [2. Agentic Generation (v26.5.19.0)](#2-agentic-generation-v26.5.1910)
+    - [3. Continuous Learning (v26.5.19.2.0)](#3-continuous-learning-v26.5.1920)
   - [Conclusion](#conclusion)
     - [Key Principles](#key-principles)
     - [Production Evidence](#production-evidence)
@@ -698,7 +698,7 @@ $ ggen ai generate --template class.rs.tera
 
 ## Future Directions
 
-### 1. Fine-Tuned Models (v5.0.0)
+### 1. Fine-Tuned Models (v26.5.19.0)
 
 **Goal**: Train custom models on project-specific patterns
 
@@ -711,7 +711,7 @@ $ ggen ai generate --template class.rs.tera
 
 ---
 
-### 2. Agentic Generation (v5.1.0)
+### 2. Agentic Generation (v26.5.19.0)
 
 **Goal**: AI agents collaborate on code generation
 
@@ -728,7 +728,7 @@ Schema → Architect Agent (design)
 
 ---
 
-### 3. Continuous Learning (v5.2.0)
+### 3. Continuous Learning (v26.5.19.2.0)
 
 **Goal**: Learn from user edits to generated code
 

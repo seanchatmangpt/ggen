@@ -1,4 +1,4 @@
-# Specification Quality Checklist: ggen v6 - 3T Implementation
+# Specification Quality Checklist: ggen v26.5.19 - 3T Implementation
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2025-12-19
@@ -41,14 +41,14 @@
 - All 20 functional requirements (FR-001 through FR-020) are testable: each specifies behavior that can be validated through automated tests or manual verification
 - Success criteria (SC-001 through SC-010) are measurable with specific metrics (time: <5s, accuracy: 100%, coverage: 95%+)
 - Success criteria are technology-agnostic: they describe outcomes ("developers can initialize a project in under 2 minutes") not implementation ("system uses Oxigraph RDF store")
-- 6 user stories with detailed acceptance scenarios covering all core v6 capabilities
+- 6 user stories with detailed acceptance scenarios covering all core v26.5.19 capabilities
 - 7 edge cases identified covering error handling, conflict resolution, and boundary conditions
 - Scope clearly bounded through Non-Goals section (NG-001 through NG-008)
 - Dependencies (D-001 through D-008) and Assumptions (A-001 through A-007) explicitly documented
 
 **Feature Readiness**: ✅ PASS
 - Each functional requirement maps to acceptance scenarios in user stories (e.g., FR-012 idempotence → User Story 3, Scenario 1)
-- User scenarios cover the complete v6 journey from initialization (Story 1) to meta-circular self-generation (Story 6)
+- User scenarios cover the complete v26.5.19 journey from initialization (Story 1) to meta-circular self-generation (Story 6)
 - Measurable outcomes align with user stories (SC-001 "initialize in <2 min" → Story 1 "Project Initialization")
 - No implementation leaks detected - specification avoids mentioning specific Rust modules, data structures, or internal algorithms
 
@@ -56,7 +56,7 @@
 
 **Status**: ✅ READY FOR NEXT PHASE
 
-The specification is complete, high-quality, and ready for `/speckit.clarify` or `/speckit.plan`. It successfully captures the v6 vision of ontology-first software construction through the 3T model while remaining implementation-agnostic.
+The specification is complete, high-quality, and ready for `/speckit.clarify` or `/speckit.plan`. It successfully captures the v26.5.19 vision of ontology-first software construction through the 3T model while remaining implementation-agnostic.
 
 **Strengths**:
 1. Comprehensive user story coverage with clear prioritization (P1/P2/P3)
@@ -102,7 +102,7 @@ The specification has been transformed from traditional markdown to an ontology-
   - 40+ properties: title, priority, requirementId, given/when/then, etc.
   - 10 SHACL shapes enforcing constraints (required fields, ID patterns, cardinality)
 
-- `ontology/v6-spec-content.ttl` (887 lines) - All specification content as RDF triples
+- `ontology/v26.5.19-spec-content.ttl` (887 lines) - All specification content as RDF triples
   - 1 Specification instance (metadata)
   - 6 UserStory instances with 24 nested AcceptanceScenario instances
   - 20 FunctionalRequirement instances (FR-001 to FR-020)
@@ -130,7 +130,7 @@ The specification has been transformed from traditional markdown to an ontology-
 **Configuration Layer (Orchestration)**:
 - `ggen.toml` (247 lines) - Pipeline configuration
   - Project metadata
-  - v6 pipeline passes configuration (μ₁ through μ₅)
+  - v26.5.19 pipeline passes configuration (μ₁ through μ₅)
   - Constitutional invariants enforcement (idempotence, determinism, provenance, no-edit, substrate-only)
   - Vocabulary governance (7 allowed RDF namespaces)
   - 10 generation rules mapping SPARQL queries → templates → outputs
@@ -185,7 +185,7 @@ shacl:property [
 ### Generation Workflow
 
 ```bash
-cd ./specs/001-v6-3t-implementation
+cd ./specs/001-v26.5.19-3t-implementation
 
 # Generate specification from ontology
 ggen sync
@@ -210,7 +210,7 @@ This specification demonstrates the ultimate validation of the 3T paradigm:
 
 **The specification ABOUT ontology-first software construction IS ITSELF constructed from ontology.**
 
-- **Describes**: v6's 3T methodology (TOML, Tera, Turtle)
+- **Describes**: v26.5.19's 3T methodology (TOML, Tera, Turtle)
 - **Uses**: The exact same 3T methodology it describes
 - **Proves**: Specifications can be ontology-driven, not just code
 
@@ -246,7 +246,7 @@ This creates a **proof-by-construction**: if the specification can be generated 
 ### Next Steps
 
 1. ✅ **COMPLETE**: Specification rewritten using pure 3T
-2. **PENDING**: Test generation with `ggen sync` (requires v6 CLI implementation)
+2. **PENDING**: Test generation with `ggen sync` (requires v26.5.19 CLI implementation)
 3. **PENDING**: Verify idempotence and determinism
 4. **PENDING**: Validate cryptographic receipts
 5. **PENDING**: Use as template for converting other specifications

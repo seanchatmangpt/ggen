@@ -2,11 +2,11 @@
 
 **Version:** 26.5.4
 **Last Updated:** 2026-04-01
-**Status:** Production (pack μ₂ wiring landed in v26.5.4 track)
+**Status:** Production (pack μ₂ wiring landed in v26.5.19 track)
 
 ## Overview
 
-The marketplace integrates with the ggen pipeline through a **μ₀ stage** that resolves packs before μ₁–μ₅. **Implementation** (not the illustrative snippets below): [crates/ggen-core/src/pack_resolver.rs](../../crates/ggen-core/src/pack_resolver.rs), [crates/ggen-core/src/v6/pipeline.rs](../../crates/ggen-core/src/v6/pipeline.rs). Pack cache: `~/.ggen/packs` or `GGEN_PACK_CACHE_DIR`. **Pack SPARQL:** CONSTRUCT-only — [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md).
+The marketplace integrates with the ggen pipeline through a **μ₀ stage** that resolves packs before μ₁–μ₅. **Implementation** (not the illustrative snippets below): [crates/ggen-core/src/pack_resolver.rs](../../crates/ggen-core/src/pack_resolver.rs), [crates/ggen-core/src/v26.5.19/pipeline.rs](../../crates/ggen-core/src/v26.5.19/pipeline.rs). Pack cache: `~/.ggen/packs` or `GGEN_PACK_CACHE_DIR`. **Pack SPARQL:** CONSTRUCT-only — [PACK_QUERY_CONTRACT.md](PACK_QUERY_CONTRACT.md).
 
 ### Pipeline Stages
 
@@ -590,8 +590,8 @@ $ ggen sync
 |-----------|------|---------|
 | **Pack resolver** | `crates/ggen-core/src/pack_resolver.rs` | μ₀ stage |
 | **Lockfile** | `crates/ggen-core/src/lockfile.rs` | Lockfile handling |
-| **Pipeline** | `crates/ggen-core/src/v6/pipeline.rs` | μ₁-μ₅ stages |
-| **Receipt** | `crates/ggen-core/src/v6/receipt.rs` | Build receipts |
+| **Pipeline** | `crates/ggen-core/src/v26.5.19/pipeline.rs` | μ₁-μ₅ stages |
+| **Receipt** | `crates/ggen-core/src/v26.5.19/receipt.rs` | Build receipts |
 | **Template resolver** | `crates/ggen-core/src/resolver.rs` | Template registration |
 
 ## Further Reading

@@ -1,13 +1,13 @@
-# ggen v5.1.0 - Customized Skills Framework
+# ggen v26.5.19.0 - Customized Skills Framework
 
 **Source**: Adapted from `~/ggen-spec-kit/CLAUDE.md` (13 base skills)
 **Project**: ggen - Language-agnostic deterministic code generation CLI
-**Status**: v5.1.0 GA Production Release (013-ga-production-release)
+**Status**: v26.5.19.0 GA Production Release (013-ga-production-release)
 **Date**: 2025-12-21
 
 ---
 
-## Skills Customized for ggen v5.1.0
+## Skills Customized for ggen v26.5.19.0
 
 ### Core ggen Skills (7 - Primary Focus)
 
@@ -134,7 +134,7 @@
 
 ---
 
-## Skill Activation Triggers for ggen v5.1.0
+## Skill Activation Triggers for ggen v26.5.19.0
 
 | Trigger Pattern | Activated Skills | Context |
 |-----------------|-----------------|---------|
@@ -153,7 +153,7 @@
 
 ## Constitutional Equation Support
 
-**Equation**: `spec.md = μ(feature.ttl)` for ggen v5.1.0
+**Equation**: `spec.md = μ(feature.ttl)` for ggen v26.5.19.0
 
 **Transformation Pipeline**:
 
@@ -291,7 +291,7 @@ Runtime Layer (Subprocess + I/O)
 
 ## Integration with Feature #013
 
-**Feature**: v5.1.0 GA Production Release
+**Feature**: v26.5.19.0 GA Production Release
 **Branch**: `013-ga-production-release`
 **RDF Source**: `.specify/specs/013-ga-production-release/feature.ttl` and `plan.ttl`
 

@@ -444,4 +444,4 @@ rate(affiliate_revenue_cents[1m])
 
 **Implementation Date**: 2026-01-24
 **Implementer**: Rust Coder Agent (ggen v0.2.0)
-**Project**: FactoryPaaS v26.5.4 - Attribution Context OpenTelemetry Integration
+**Project**: FactoryPaaS v26.5.19 - Attribution Context OpenTelemetry Integration

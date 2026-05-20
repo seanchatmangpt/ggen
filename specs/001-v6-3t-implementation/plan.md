@@ -1,22 +1,22 @@
-# Implementation Plan: v6 Specification - Pure 3T Transformation
+# Implementation Plan: v26.5.19 Specification - Pure 3T Transformation
 
-**Branch**: `001-v6-3t-implementation` | **Date**: 2025-12-19 | **Spec**: [spec.md](spec.md) (deprecated), [3T System](README.md)
+**Branch**: `001-v26.5.19-3t-implementation` | **Date**: 2025-12-19 | **Spec**: [spec.md](spec.md) (deprecated), [3T System](README.md)
 **Input**: "I want you to rewrite the spec to follow the 3T methodology. The point is purity of implementation."
 
 ## Summary
 
-Transform the v6 feature specification from traditional markdown to pure 3T (TOML, Tera, Turtle) methodology, creating a self-demonstrating ontology-driven specification system. The specification ABOUT ontology-first software construction IS ITSELF constructed from ontology, proving the paradigm through meta-circularity.
+Transform the v26.5.19 feature specification from traditional markdown to pure 3T (TOML, Tera, Turtle) methodology, creating a self-demonstrating ontology-driven specification system. The specification ABOUT ontology-first software construction IS ITSELF constructed from ontology, proving the paradigm through meta-circularity.
 
-**Technical Approach**: Create RDF vocabulary schema (spec-schema.ttl) defining specification structure with SHACL validation, represent all specification content as RDF triples (v6-spec-content.ttl), and use Tera templates to project markdown documentation from SPARQL query results via the μ₁-μ₅ pipeline.
+**Technical Approach**: Create RDF vocabulary schema (spec-schema.ttl) defining specification structure with SHACL validation, represent all specification content as RDF triples (v26.5.19-spec-content.ttl), and use Tera templates to project markdown documentation from SPARQL query results via the μ₁-μ₅ pipeline.
 
 **Status**: ✅ **COMPLETE** - Full 3T specification system implemented (1,986 lines of code)
 
 ## Technical Context
 
-**Language/Version**: Rust 1.75+ (existing ggen v6 implementation) + RDF/SPARQL (Oxigraph) + Tera templates
+**Language/Version**: Rust 1.75+ (existing ggen v26.5.19 implementation) + RDF/SPARQL (Oxigraph) + Tera templates
 **Primary Dependencies**: Oxigraph (RDF store), Tera (template engine), SHACL validation, SHA-256 (receipts)
 **Storage**: Turtle (.ttl) ontology files in filesystem, generated artifacts in `generated/` directory
-**Testing**: ggen v6 pipeline validation (μ₁-μ₅), SHACL shape validation, idempotence testing via `ggen sync`
+**Testing**: ggen v26.5.19 pipeline validation (μ₁-μ₅), SHACL shape validation, idempotence testing via `ggen sync`
 **Target Platform**: Cross-platform (Linux, macOS, Windows) with deterministic output
 **Project Type**: Ontology-driven specification system (meta-circular demonstration)
 **Performance Goals**: <5s compilation for 10K+ triples, <2s SHACL validation, bit-for-bit reproducibility
@@ -29,9 +29,9 @@ Transform the v6 feature specification from traditional markdown to pure 3T (TOM
 
 Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.md`):
 
-- [x] **I. Crate-First Architecture**: Feature uses existing `ggen-core` crate for v6 pipeline. Specification system is standalone and self-contained.
+- [x] **I. Crate-First Architecture**: Feature uses existing `ggen-core` crate for v26.5.19 pipeline. Specification system is standalone and self-contained.
 - [x] **II. Deterministic RDF Projections**: ✅ **CORE FEATURE** - Specification demonstrates determinism: `spec.md = μ(ontology)`. SHACL validation + ORDER BY queries + μ₄ canonicalization guarantee reproducibility.
-- [x] **III. Chicago TDD**: Specification content includes acceptance scenarios for state-based testing. v6 implementation has 42 passing tests for μ₁-μ₅ pipeline.
+- [x] **III. Chicago TDD**: Specification content includes acceptance scenarios for state-based testing. v26.5.19 implementation has 42 passing tests for μ₁-μ₅ pipeline.
 - [x] **IV. cargo make Protocol**: Specification references `cargo make` workflow. `ggen sync` command will integrate with cargo make targets.
 - [x] **V. Type-First Thinking**: RDF vocabulary uses SHACL shapes to express invariants at "compile-time" (μ₁ validation). Invalid specifications caught before generation.
 - [x] **VI. Andon Signal Protocol**: SHACL validation failures are RED signals (μ₁ fails fast). Template errors are YELLOW signals. Clean generation is GREEN.
@@ -48,7 +48,7 @@ Verify compliance with ggen Constitution v1.0.0 (`.specify/memory/constitution.m
 ### Documentation (this feature)
 
 ```text
-specs/001-v6-3t-implementation/
+specs/001-v26.5.19-3t-implementation/
 ├── spec.md                 # DEPRECATED (traditional markdown, kept for reference)
 ├── plan.md                 # This file (implementation plan)
 ├── research.md             # Phase 0 - Research completed (embedded in exploration)
@@ -58,7 +58,7 @@ specs/001-v6-3t-implementation/
 ├── ggen.toml               # Pipeline configuration (247 lines)
 ├── ontology/
 │   ├── spec-schema.ttl     # Vocabulary definition (485 lines)
-│   └── v6-spec-content.ttl # Content as RDF triples (887 lines)
+│   └── v26.5.19-spec-content.ttl # Content as RDF triples (887 lines)
 ├── templates/              # 10 Tera templates (185 lines total)
 │   ├── spec-main.tera
 │   ├── user-stories.tera
@@ -78,9 +78,9 @@ specs/001-v6-3t-implementation/
 
 ### Source Code (repository root)
 
-**Existing v6 Implementation** (used by this specification):
+**Existing v26.5.19 Implementation** (used by this specification):
 ```text
-crates/ggen-core/src/v6/
+crates/ggen-core/src/v26.5.19/
 ├── pipeline.rs             # Staged pipeline orchestrator (μ₁-μ₅)
 ├── passes/
 │   ├── normalization.rs    # μ₁: CONSTRUCT + SHACL validation
@@ -100,7 +100,7 @@ crates/ggen-cli/src/
 └── main.rs
 ```
 
-**Structure Decision**: This feature uses the existing v6 crate infrastructure (`ggen-core` v6 module, `ggen-cli` sync command). The specification is a *consumer* of the v6 pipeline, not a new crate. It demonstrates v6 capabilities through meta-circular generation.
+**Structure Decision**: This feature uses the existing v26.5.19 crate infrastructure (`ggen-core` v26.5.19 module, `ggen-cli` sync command). The specification is a *consumer* of the v26.5.19 pipeline, not a new crate. It demonstrates v26.5.19 capabilities through meta-circular generation.
 
 ## Complexity Tracking
 
@@ -108,12 +108,12 @@ crates/ggen-cli/src/
 
 | Aspect | Constitution Requirement | Implementation |
 |--------|-------------------------|----------------|
-| Crate-First | Feature as standalone crate | Uses existing `ggen-core/v6` crate (spec is consumer, not new feature code) |
+| Crate-First | Feature as standalone crate | Uses existing `ggen-core/v26.5.19` crate (spec is consumer, not new feature code) |
 | Determinism | Same input → same output | ✅ Enforced via μ₄ canonicalization + SPARQL ORDER BY + SHACL shapes |
-| TDD | Chicago School state-based | ✅ v6 pipeline has 42 passing tests; spec defines acceptance scenarios |
+| TDD | Chicago School state-based | ✅ v26.5.19 pipeline has 42 passing tests; spec defines acceptance scenarios |
 | cargo make | All commands via cargo make | ✅ `ggen sync` integrates with cargo make targets |
 | Type-First | Invariants in types | ✅ SHACL shapes = "type system" for RDF (compile-time validation) |
-| Error Handling | Result<T, E> in production | ✅ v6 implementation uses Result; spec defines error edge cases |
+| Error Handling | Result<T, E> in production | ✅ v26.5.19 implementation uses Result; spec defines error edge cases |
 
 **Conclusion**: This implementation demonstrates constitutional compliance at the highest level—the specification itself embodies the principles it documents.
 
@@ -126,12 +126,12 @@ crates/ggen-cli/src/
 **Research conducted through parallel exploration agents:**
 
 1. **Thesis 3T System Analysis** (Reference Pattern)
-   - Explored `./docs/ggen-v6-thesis/` thesis generation system
+   - Explored `./docs/ggen-v26.5.19-thesis/` thesis generation system
    - Key findings: 5-pass pipeline (μ₁-μ₅), SHACL validation, SPARQL ORDER BY for determinism
    - Pattern: Schema ontology + content ontology + templates + configuration = generated documentation
 
-2. **v6 Ontology Vocabulary Patterns** (RDF Best Practices)
-   - Explored `./v6/ontology/ggen-v6.ttl` and related schemas
+2. **v26.5.19 Ontology Vocabulary Patterns** (RDF Best Practices)
+   - Explored `./v26.5.19/ontology/ggen-v26.5.19.ttl` and related schemas
    - Key findings: Class hierarchies, datatype vs object properties, SHACL shape patterns
    - Pattern: Use `rdfs:domain`/`rdfs:range` for properties, SHACL shapes for validation
 
@@ -229,7 +229,7 @@ shacl:pattern "^(FR|NFR)-[0-9]{3}$"  # Enforces: FR-001, FR-002, etc.
 
 **Generation Workflow**:
 ```bash
-cd ./specs/001-v6-3t-implementation
+cd ./specs/001-v26.5.19-3t-implementation
 
 # Generate specification from ontology
 ggen sync
@@ -257,7 +257,7 @@ ggen verify
 **Formula**: `spec.md = μ(ontology)`
 
 Where:
-- **ontology** = `spec-schema.ttl` (vocabulary) + `v6-spec-content.ttl` (content)
+- **ontology** = `spec-schema.ttl` (vocabulary) + `v26.5.19-spec-content.ttl` (content)
 - **μ** = Five-stage pipeline (μ₁ normalization → μ₂ extraction → μ₃ emission → μ₄ canonicalization → μ₅ receipt)
 - **spec.md** = Generated specification documentation (deterministic, reproducible, provenance-tracked)
 
@@ -265,7 +265,7 @@ Where:
 
 **Ontology Layer** (1,372 lines):
 - `spec-schema.ttl` (485 lines) - Vocabulary with SHACL validation
-- `v6-spec-content.ttl` (887 lines) - All content as RDF triples
+- `v26.5.19-spec-content.ttl` (887 lines) - All content as RDF triples
   - 1 Specification instance
   - 6 UserStory instances → 24 AcceptanceScenario instances
   - 20 FunctionalRequirement instances (FR-001 to FR-020)
@@ -283,7 +283,7 @@ Where:
 - Conditional rendering for optional fields (e.g., `{% if row.venue %}`)
 
 **Configuration Layer** (247 lines):
-- `ggen.toml` with project metadata, v6 pipeline configuration, 10 generation rules
+- `ggen.toml` with project metadata, v26.5.19 pipeline configuration, 10 generation rules
 - Constitutional invariants enforcement (idempotence, determinism, provenance, no-edit, substrate-only)
 - Vocabulary governance (7 allowed RDF namespaces)
 
@@ -295,7 +295,7 @@ Where:
 ### Meta-Circular Property
 
 **Proof-by-Construction**:
-1. **Describes**: The specification documents v6's 3T methodology (TOML, Tera, Turtle)
+1. **Describes**: The specification documents v26.5.19's 3T methodology (TOML, Tera, Turtle)
 2. **Uses**: The specification IS generated using 3T methodology
 3. **Proves**: If specifications can be ontology-driven, so can any software system
 
@@ -331,7 +331,7 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 ### Validation Approach
 
-**Automated Validation** (when v6 CLI is implemented):
+**Automated Validation** (when v26.5.19 CLI is implemented):
 1. **SHACL Validation**: Run during μ₁ pass to catch schema violations before generation
 2. **Idempotence Test**: `ggen sync && ggen sync` produces no file changes (verify with `git diff`)
 3. **Determinism Test**: Run on different platforms (Linux, macOS, Windows), compare SHA-256 hashes
@@ -369,11 +369,11 @@ This creates the ultimate validation: the paradigm proves itself through its own
 ### Deployment Strategy
 
 **Phase 1: Reference Implementation** (✅ COMPLETE)
-- 3T specification system implemented in `specs/001-v6-3t-implementation/`
+- 3T specification system implemented in `specs/001-v26.5.19-3t-implementation/`
 - Serves as template for converting other specifications to ontology-driven format
 - Documentation guides future transformations
 
-**Phase 2: v6 CLI Implementation** (PENDING)
+**Phase 2: v26.5.19 CLI Implementation** (PENDING)
 - Implement `ggen sync` command with μ₁-μ₅ pipeline
 - Implement `ggen verify` command for receipt validation
 - Test against this specification system (first consumer)
@@ -421,11 +421,11 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| v6 CLI not yet implemented | HIGH | HIGH | ✅ COMPLETE: 3T specification system ready; waiting for v6 CLI implementation |
+| v26.5.19 CLI not yet implemented | HIGH | HIGH | ✅ COMPLETE: 3T specification system ready; waiting for v26.5.19 CLI implementation |
 | SHACL validation too strict | LOW | MEDIUM | ✅ Shapes designed with reasonable constraints (minLength 5, not 50) |
 | Templates become complex | LOW | MEDIUM | ✅ Modular design (10 templates, not 1 monolithic); grouping logic isolated to user-stories.tera |
 | Ontology authoring learning curve | MEDIUM | LOW | ✅ README.md provides clear examples; ontology follows consistent patterns |
-| Generated output differs from original | LOW | MEDIUM | Manual validation shows content preservation; automated testing pending v6 CLI |
+| Generated output differs from original | LOW | MEDIUM | Manual validation shows content preservation; automated testing pending v26.5.19 CLI |
 | Idempotence fails | LOW | HIGH | ✅ All SPARQL queries use ORDER BY; μ₄ canonicalization ensures determinism |
 
 ---
@@ -434,12 +434,12 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 **Definition of Done**:
 1. ✅ Ontology schema (`spec-schema.ttl`) defines complete vocabulary with SHACL validation
-2. ✅ Content ontology (`v6-spec-content.ttl`) represents all specification content as RDF triples
+2. ✅ Content ontology (`v26.5.19-spec-content.ttl`) represents all specification content as RDF triples
 3. ✅ Templates (`templates/*.tera`) transform SPARQL results into readable markdown
 4. ✅ Configuration (`ggen.toml`) orchestrates μ₁-μ₅ pipeline with 10 generation rules
 5. ✅ Documentation (`README.md`) explains 3T approach and generation workflow
 6. ✅ Quality checklist (`checklists/requirements.md`) updated with 3T validation notes
-7. PENDING: `ggen sync` generates specification from ontology (requires v6 CLI)
+7. PENDING: `ggen sync` generates specification from ontology (requires v26.5.19 CLI)
 8. PENDING: Idempotence verified (`ggen sync` twice produces no changes)
 9. PENDING: Cryptographic receipt proves `hash(spec.md) = hash(μ(ontology))`
 
@@ -448,11 +448,11 @@ This creates the ultimate validation: the paradigm proves itself through its own
 - [x] SHACL shapes validate ontology structure at compile-time (10 shapes covering all classes)
 - [x] Templates handle all content types (10 templates for 10 sections)
 - [x] Configuration maps all SPARQL queries to templates correctly (10 generation rules)
-- [ ] Generated spec.md is content-equivalent to original (pending v6 CLI implementation)
-- [ ] Idempotence test passes (pending v6 CLI implementation)
-- [ ] Determinism test passes across platforms (pending v6 CLI implementation)
+- [ ] Generated spec.md is content-equivalent to original (pending v26.5.19 CLI implementation)
+- [ ] Idempotence test passes (pending v26.5.19 CLI implementation)
+- [ ] Determinism test passes across platforms (pending v26.5.19 CLI implementation)
 
-**Current Status**: **7/9 criteria met (78% complete)** - Implementation complete, validation pending v6 CLI
+**Current Status**: **7/9 criteria met (78% complete)** - Implementation complete, validation pending v26.5.19 CLI
 
 ---
 
@@ -462,7 +462,7 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 **Ontology Layer**:
 - `ontology/spec-schema.ttl` (485 lines) - RDF vocabulary with SHACL shapes
-- `ontology/v6-spec-content.ttl` (887 lines) - All content as RDF triples
+- `ontology/v26.5.19-spec-content.ttl` (887 lines) - All content as RDF triples
 
 **Template Layer**:
 - `templates/spec-main.tera` (6 lines)
@@ -493,8 +493,8 @@ This creates the ultimate validation: the paradigm proves itself through its own
 
 ---
 
-**Implementation Complete**: Pure 3T specification system ready for validation once v6 CLI is available.
+**Implementation Complete**: Pure 3T specification system ready for validation once v26.5.19 CLI is available.
 
 **Meta-Circular Achievement**: The specification ABOUT ontology-first software construction IS ITSELF ontology-first.
 
-**Next Steps**: Implement v6 CLI (`ggen sync`, `ggen verify`), test against this specification system, validate idempotence and determinism, verify cryptographic provenance.
+**Next Steps**: Implement v26.5.19 CLI (`ggen sync`, `ggen verify`), test against this specification system, validate idempotence and determinism, verify cryptographic provenance.

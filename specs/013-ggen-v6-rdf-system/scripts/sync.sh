@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# ggen sync Helper Script for 013-ggen-v6-rdf-system
+# ggen sync Helper Script for 013-ggen-v26.5.19-rdf-system
 # ============================================================================
 # Purpose: Run ggen sync with proper configuration and validation
 # Constitutional Equation: spec.md = μ(feature.ttl)
@@ -19,7 +19,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}============================================================================${NC}"
-echo -e "${BLUE}ggen v6 Sync - RDF-First Code Generation${NC}"
+echo -e "${BLUE}ggen v26.5.19 Sync - RDF-First Code Generation${NC}"
 echo -e "${BLUE}============================================================================${NC}"
 echo ""
 
@@ -84,11 +84,11 @@ echo ""
 if ! command -v ggen &>/dev/null; then
     echo -e "${RED}❌ ERROR: ggen command not found${NC}"
     echo ""
-    echo "ggen v6 is not yet implemented. This project specifies ggen v6."
-    echo "Current ggen version is v5 (does not have 'sync' command yet)."
+    echo "ggen v26.5.19 is not yet implemented. This project specifies ggen v26.5.19."
+    echo "Current ggen version is v26.5.19 (does not have 'sync' command yet)."
     echo ""
-    echo "This is expected - we're using RDF to SPECIFY ggen v6."
-    echo "Once v6 is implemented, you'll be able to run 'ggen sync' here."
+    echo "This is expected - we're using RDF to SPECIFY ggen v26.5.19."
+    echo "Once v26.5.19 is implemented, you'll be able to run 'ggen sync' here."
     echo ""
     exit 1
 fi
@@ -100,10 +100,10 @@ echo -e "${BLUE}📦 Using: $GGEN_VERSION${NC}"
 # Check if ggen has sync command
 if ! ggen help 2>&1 | grep -q "sync"; then
     echo -e "${YELLOW}⚠ WARNING: ggen sync command not available in this version${NC}"
-    echo "This project requires ggen v6 with 'sync' command."
+    echo "This project requires ggen v26.5.19 with 'sync' command."
     echo "Current version: $GGEN_VERSION"
     echo ""
-    echo -e "${BLUE}Expected workflow (when v6 is ready):${NC}"
+    echo -e "${BLUE}Expected workflow (when v26.5.19 is ready):${NC}"
     echo "  1. Parse: ontology/feature-content.ttl + ontology/mvp-80-20.ttl"
     echo "  2. Query: Execute SPARQL from ggen.toml"
     echo "  3. Render: Apply templates/*.tera templates"
