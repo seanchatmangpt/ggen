@@ -8,17 +8,26 @@ license = "MIT"
 [package]
 name = "ggen"
 version.workspace = true
-authors = ["Sean Chatman <sean@chatmangpt.com>"]
-edition = "2021"
-repository = "https://github.com/seanchatmangpt/ggen"
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
 readme = "README.md"
-license = "MIT"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 homepage = "https://github.com/seanchatmangpt/ggen"
 categories = ["development-tools", "command-line-utilities"]
 description = """
 ggen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
 """
+include = [
+    "Cargo.toml",
+    "src/**/*",
+    "templates/**/*",
+    "build.rs",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+]
 
 [workspace]
 members = [
