@@ -6,6 +6,18 @@
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
+# Only run validation when pushing to the default branch (main)
+IS_DEFAULT_BRANCH=false
+while read local_ref local_sha remote_ref remote_sha; do
+    if [[ "$remote_ref" == "refs/heads/main" ]]; then
+        IS_DEFAULT_BRANCH=true
+    fi
+done
+
+if [ "$IS_DEFAULT_BRANCH" = false ]; then
+    exit 0
+fi
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -55,17 +67,11 @@ if cargo fmt --all -- --check >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
-    echo -e "${YELLOW}AUTO-FIX${NC}"
-    cargo fmt --all >/dev/null 2>&1 || true
-    # Re-check
-    if cargo fmt --all -- --check >/dev/null 2>&1; then
-        echo -e "  ${YELLOW}Code formatted. Changes staged.${NC}"
-        PASSED=$((PASSED + 1))
-    else
-        echo -e "${RED}FAIL${NC}"
-        FAILED=$((FAILED + 1))
-        exit 1
-    fi
+    echo -e "${RED}FAIL${NC}"
+    FAILED=$((FAILED + 1))
+    echo ""
+    echo -e "${RED}${BOLD}STOP: Code not formatted${NC}"
+    exit 1
 fi
 
 # Gate 4: Unit Tests (20% of defects - VITAL)

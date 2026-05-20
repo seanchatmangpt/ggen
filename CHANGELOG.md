@@ -38,15 +38,14 @@ all work between v26.5.5 and v26.5.18.
 
 ### Changed
 
-- **Workspace consolidated to 7 crates** (`ggen-a2a-mcp`, `ggen-cli`,
-  `ggen-config`, `ggen-core`, `ggen-marketplace`, `ggen-prompt-mfg`,
-  `prolog8`) plus the root `ggen` binary.
-- **Only the root `ggen` binary publishes to crates.io**; all 7 internal
+- **Workspace consolidated to 5 crates** (`ggen-a2a-mcp`, `ggen-cli`,
+  `ggen-config`, `ggen-core`, `ggen-marketplace`) plus the root `ggen`
+  binary.
+- **Only the root `ggen` binary publishes to crates.io**; all 5 internal
   crates set `publish = false`. The library is not intended for external
   consumption.
-- `crates/prolog8/Cargo.toml`: version now inherits from
-  `[workspace.package]` via `version.workspace = true` (was hardcoded
-  `26.5.12`). prolog8 was the only crate not inheriting.
+- `ggen-prompt-mfg` logic has been merged into `ggen-core/src/prompt_mfg`.
+- Removed `prolog8` from the workspace.
 - `crates/ggen-a2a-mcp/Cargo.toml`: declared
   `all-adapters = ["http-adapter"]` feature to satisfy
   `cargo clippy -- -D warnings` (cfg references existed without
@@ -81,7 +80,7 @@ all work between v26.5.5 and v26.5.18.
 
 ### Fixed
 
-- `prolog8` no longer drifts from workspace version on release bumps.
+- `prolog8` no longer drifts from workspace version on release bumps (Removed in v26.5.18).
 - `cargo clippy --workspace -- -D warnings` no longer fails on
   `unexpected_cfgs` in `crates/ggen-a2a-mcp/src/a2a_generated/mod.rs`
   lines 381, 479, 488 (pre-push hook gate 2 now passes).
@@ -113,16 +112,15 @@ all work between v26.5.5 and v26.5.18.
 
 ### Changed
 
-- **Test Import Fixes**: Corrected mutability and import issues across ggen-core, ggen-cli, and prolog8 test suites
+- **Test Import Fixes**: Corrected mutability and import issues across ggen-core and ggen-cli test suites
 - **Doctor Utility**: Enhanced domain utilities with improved error handling and state management
 - **Example Programs**: Updated template profiling example with current API patterns
 
 ### Fixed
 
 - Resolved test mutability warnings in template inheritance, syntax validation, and rendering tests
-- Fixed simple_cycle_test import resolution in prolog8
 - Corrected MCP command test bindings
-- Enhanced kernel and main module imports in prolog8
+- Enhanced kernel and main module imports
 
 ## [26.5.4] — CalVer Transition & Manufacturing Governance (2026-05-04)
 

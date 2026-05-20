@@ -125,7 +125,7 @@ jobs:
         run: |
           kubeval manifests.yaml \
             --kubernetes-version 1.28.0 \
-            --schema-location https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master \
+            --schema-location https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/main \
             --summary \
             --verbose || true
 

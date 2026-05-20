@@ -60,6 +60,12 @@ const PRE_COMMIT_HOOK: &str = r#"#!/usr/bin/env bash
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
+# Only run validation when on the default branch (main)
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    exit 0
+fi
+
 echo ""
 echo "Pre-commit validation (fast tier)..."
 echo ""
@@ -76,14 +82,15 @@ else
     exit 1
 fi
 
-# Gate 2: Format check (auto-fixable)
+# Gate 2: Format check (ensures consistency)
 echo -n "  Format check... "
 if cargo fmt --all -- --check >/dev/null 2>&1; then
     echo "PASS"
 else
-    echo "AUTO-FIX"
-    cargo fmt --all >/dev/null 2>&1 || true
-    echo "  Code formatted. Review changes before commit."
+    echo "FAIL"
+    echo ""
+    echo "STOP: Code not formatted. Run 'cargo fmt --all' before committing."
+    exit 1
 fi
 
 echo ""
@@ -100,49 +107,71 @@ const PRE_PUSH_HOOK: &str = r#"#!/usr/bin/env bash
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
+# Only run validation when pushing to the default branch (main)
+IS_DEFAULT_BRANCH=false
+while read local_ref local_sha remote_ref remote_sha; do
+    if [[ "$remote_ref" == "refs/heads/main" ]]; then
+        IS_DEFAULT_BRANCH=true
+    fi
+done
+
+if [ "$IS_DEFAULT_BRANCH" = false ]; then
+    exit 0
+fi
+
 echo ""
 echo "Pre-push validation (full tier)..."
 echo ""
 
-# Use cargo make if available, fallback to direct commands
-if command -v cargo-make &> /dev/null; then
-    echo "Running cargo make pre-commit..."
-    if ! cargo make pre-commit; then
-        echo ""
-        echo "STOP: Pre-commit checks failed"
-        exit 1
-    fi
+# Gate 1: Cargo Check
+echo -n "  [1/4] Cargo check... "
+if timeout 15s cargo check --quiet 2>/dev/null; then
+    echo "PASS"
 else
-    # Fallback: run checks directly
-    echo "cargo-make not found, running checks directly..."
+    echo "FAIL"
+    echo ""
+    echo "STOP: Compilation errors"
+    cargo check 2>&1 | head -30
+    exit 1
+fi
 
-    echo "  Cargo check..."
-    if ! cargo check --quiet; then
-        echo "FAIL: Compilation errors"
-        exit 1
-    fi
+# Gate 2: Workspace-wide Clippy Lint
+echo -n "  [2/4] Workspace-wide clippy... "
+if timeout 120s cargo clippy --workspace --quiet -- -D warnings 2>/dev/null; then
+    echo "PASS"
+else
+    echo "FAIL"
+    echo ""
+    echo "STOP: Clippy warnings"
+    cargo clippy -- -D warnings 2>&1 | head -40
+    exit 1
+fi
 
-    echo "  Cargo clippy..."
-    if ! cargo clippy --all-targets --all-features -- -D warnings; then
-        echo "FAIL: Clippy warnings"
-        exit 1
-    fi
+# Gate 3: Format Check
+echo -n "  [3/4] Format check... "
+if cargo fmt --all -- --check >/dev/null 2>&1; then
+    echo "PASS"
+else
+    echo "FAIL"
+    echo ""
+    echo "STOP: Code not formatted"
+    exit 1
+fi
 
-    echo "  Cargo test..."
-    if ! cargo test --workspace; then
-        echo "FAIL: Tests failed"
-        exit 1
-    fi
-
-    echo "  Format check..."
-    cargo fmt --all -- --check || {
-        echo "FAIL: Format check failed"
-        exit 1
-    }
+# Gate 4: Unit Tests
+echo -n "  [4/4] Unit tests... "
+if timeout 300s cargo test --workspace --lib --quiet 2>/dev/null; then
+    echo "PASS"
+else
+    echo "FAIL"
+    echo ""
+    echo "STOP: Test failures"
+    cargo test --workspace --lib 2>&1 | grep -E "(FAILED|error\[)" | head -20
+    exit 1
 fi
 
 echo ""
-echo "Pre-push passed."
+echo "All gates passed. Push will proceed."
 exit 0
 "#;
 

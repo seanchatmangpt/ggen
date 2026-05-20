@@ -2,7 +2,7 @@ name: Deploy Marketplace Documentation
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "ggen-marketplace/**"
       - ".github/workflows/marketplace-docs.yml"

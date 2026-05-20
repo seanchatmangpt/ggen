@@ -7,7 +7,7 @@ name: CI Quality Gates (cargo-make)
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 

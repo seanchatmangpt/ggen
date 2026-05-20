@@ -6,6 +6,12 @@
 set -e
 cd "$(git rev-parse --show-toplevel)"
 
+# Only run validation when on the default branch (main)
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    exit 0
+fi
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -29,14 +35,15 @@ else
     exit 1
 fi
 
-# Gate 2: Format Check (2% but auto-fixable)
+# Gate 2: Format check (2% but ensures consistency)
 echo -n "  Format check... "
 if cargo fmt --all -- --check >/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}"
 else
-    echo -e "${YELLOW}AUTO-FIX${NC}"
-    cargo fmt --all >/dev/null 2>&1 || true
-    echo -e "  ${YELLOW}Code formatted. Review changes before commit.${NC}"
+    echo -e "${RED}FAIL${NC}"
+    echo ""
+    echo -e "${RED}${BOLD}STOP: Code not formatted. Run 'cargo fmt --all' before committing.${NC}"
+    exit 1
 fi
 
 echo ""

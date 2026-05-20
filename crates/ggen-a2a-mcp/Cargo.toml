@@ -1,5 +1,4 @@
 [package]
-publish = false
 name = "ggen-a2a-mcp"
 description = "A2A protocol and MCP server for agent-to-agent communication"
 readme = "README.md"

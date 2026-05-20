@@ -163,14 +163,14 @@ jobs:
 
     steps:
       - name: Run Trivy vulnerability scanner (Controller)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@main
         with:
           image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}
           format: sarif
           output: trivy-controller.sarif
 
       - name: Run Trivy vulnerability scanner (CLI)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@main
         with:
           image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}
           format: sarif

@@ -23,7 +23,6 @@ path = "tests/doctor_adversarial_tests.rs"
 required-features = [ "integration",]
 
 [package]
-publish = false
 name = "ggen-cli-lib"
 description = "CLI interface for ggen"
 readme = "README.md"

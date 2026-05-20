@@ -1,6 +1,0 @@
-// GENERATED — DO NOT EDIT — source: schema/domain.ttl
-
-{% for entity in entities %}
-/// {{ entity.purpose | default(value="") }}
-pub type {{ entity.label }} = {{ entity.repr }};
-{% endfor %}

@@ -2,14 +2,14 @@ name: Pattern Performance Benchmarks
 
 on:
   push:
-    branches: [master, main, develop]
+    branches: [main, develop]
     paths:
       - 'crates/ggen-core/benches/**'
       - 'crates/ggen-core/src/**'
       - 'crates/ggen-core/tests/**'
       - '.github/workflows/pattern-benchmarks.yml'
   pull_request:
-    branches: [master, main, develop]
+    branches: [main, develop]
     paths:
       - 'crates/ggen-core/benches/**'
       - 'crates/ggen-core/src/**'
@@ -211,7 +211,7 @@ jobs:
     name: Generate Performance Report
     runs-on: ubuntu-latest
     needs: pattern-benchmarks
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/main')
 
     steps:
       - name: Checkout repository
