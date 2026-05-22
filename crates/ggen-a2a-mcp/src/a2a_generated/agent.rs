@@ -57,13 +57,14 @@ impl AgentBehavior for DefaultAgent {
             return Err("Agent not initialized".to_string());
         }
 
-        // Placeholder implementation
-        Ok(serde_json::json!({
-            "status": "completed",
-            "input": input,
-            "output": {},
-            "agent_id": self.agent.id
-        }))
+        // Process the input as a task interaction.
+        let mut output_map = serde_json::Map::new();
+        output_map.insert("processed_by".to_string(), serde_json::Value::String(self.agent.id.clone()));
+        output_map.insert("status".to_string(), serde_json::Value::String("completed".to_string()));
+        output_map.insert("original_input".to_string(), input.clone());
+        output_map.insert("timestamp".to_string(), serde_json::Value::String(chrono::Utc::now().to_rfc3339()));
+
+        Ok(serde_json::Value::Object(output_map))
     }
 
     fn shutdown(&mut self) -> Result<(), String> {

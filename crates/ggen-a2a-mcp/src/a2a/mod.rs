@@ -4,6 +4,7 @@
 //! Only terminal states (Completed/Failed) are allowed - no chat.
 
 pub mod artifact;
+pub mod receipt;
 pub mod state_machine;
 pub mod transport;
 
@@ -13,6 +14,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 pub use artifact::{Artifact, ArtifactCollection, ArtifactContent, ArtifactError, ArtifactType};
+pub use receipt::{A2AState, A2ATaskReceipt, Avatar8, Jtbd8, A2ARefusalState};
 pub use state_machine::{StateTransition, TaskStateMachine, TransitionError};
 pub use transport::{Envelope, TaskMessage, Transport, TransportError};
 

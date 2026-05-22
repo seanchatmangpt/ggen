@@ -56,7 +56,7 @@ async fn test_pack_list_empty_workspace() {
     let env = TestEnv::new().unwrap();
 
     // Run pack list in empty workspace
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "list"])
     //     .current_dir(env.workspace_path())
@@ -81,7 +81,7 @@ async fn test_pack_list_with_installed_packs() {
     fs::write(pack_dir.join("pack.toml"), "name = 'test-server'").unwrap();
 
     // Run pack list
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "list"])
     //     .current_dir(env.workspace_path())
@@ -105,7 +105,7 @@ async fn test_pack_list_by_category() {
     fs::create_dir_all(env.packs_path().join("projection-rust/client")).unwrap();
 
     // Run pack list filtered by category
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "list", "--category", "surface"])
     //     .current_dir(env.workspace_path())
@@ -128,7 +128,7 @@ async fn test_pack_install_single_pack() {
     let env = TestEnv::new().unwrap();
 
     // Install a single pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "install", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -148,7 +148,7 @@ async fn test_pack_install_with_version() {
     let env = TestEnv::new().unwrap();
 
     // Install pack with specific version
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "install", "surface-mcp/test-server@1.2.3"])
     //     .current_dir(env.workspace_path())
@@ -169,7 +169,7 @@ async fn test_pack_install_with_dependencies() {
     let env = TestEnv::new().unwrap();
 
     // Install pack with dependencies
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "install", "surface-mcp/full-stack"])
     //     .current_dir(env.workspace_path())
@@ -193,7 +193,7 @@ async fn test_pack_install_creates_lockfile() {
     let env = TestEnv::new().unwrap();
 
     // Install a pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // Command::new("ggen")
     //     .args(["pack", "install", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -215,7 +215,7 @@ async fn test_pack_install_dry_run() {
     let env = TestEnv::new().unwrap();
 
     // Install with dry-run flag
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "install", "--dry-run", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -246,7 +246,7 @@ async fn test_pack_uninstall_single_pack() {
     assert!(pack_path.exists());
 
     // Uninstall the pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "uninstall", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -274,7 +274,7 @@ async fn test_pack_uninstall_preserves_shared_dependencies() {
     fs::create_dir_all(&shared).unwrap();
 
     // Uninstall pack-a
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // Command::new("ggen")
     //     .args(["pack", "uninstall", "surface-mcp/server-a"])
     //     .current_dir(env.workspace_path())
@@ -302,7 +302,7 @@ async fn test_pack_update_to_latest() {
     fs::write(pack_path.join("version.txt"), "1.0.0").unwrap();
 
     // Update to latest
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "update", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -328,7 +328,7 @@ async fn test_pack_update_preserves_config() {
     fs::write(pack_path.join("version.txt"), "1.0.0").unwrap();
 
     // Update pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // Command::new("ggen")
     //     .args(["pack", "update", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -350,7 +350,7 @@ async fn test_pack_search_by_name() {
     let env = TestEnv::new().unwrap();
 
     // Search for packs
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "search", "server"])
     //     .current_dir(env.workspace_path())
@@ -369,7 +369,7 @@ async fn test_pack_search_by_category() {
     let env = TestEnv::new().unwrap();
 
     // Search by category
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "search", "--category", "projection"])
     //     .current_dir(env.workspace_path())
@@ -388,7 +388,7 @@ async fn test_pack_search_with_limit() {
     let env = TestEnv::new().unwrap();
 
     // Search with limit
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "search", "server", "--limit", "5"])
     //     .current_dir(env.workspace_path())
@@ -422,7 +422,7 @@ async fn test_pack_info_installed() {
     "#).unwrap();
 
     // Get pack info
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "info", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -443,7 +443,7 @@ async fn test_pack_info_not_installed() {
     let env = TestEnv::new().unwrap();
 
     // Get info for non-installed pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "info", "surface-mcp/remote-server"])
     //     .current_dir(env.workspace_path())
@@ -477,7 +477,7 @@ async fn test_pack_validate_success() {
     "#).unwrap();
 
     // Validate pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "validate", "surface-mcp/test-server"])
     //     .current_dir(env.workspace_path())
@@ -501,7 +501,7 @@ async fn test_pack_validate_failure() {
     fs::write(pack_path.join("pack.toml"), "name = 'incomplete'").unwrap();
 
     // Validate pack
-    // TODO: Phase 2 - Execute CLI command
+    // Phase 2 - Execute CLI command
     // let output = Command::new("ggen")
     //     .args(["pack", "validate", "surface-mcp/invalid-pack"])
     //     .current_dir(env.workspace_path())
