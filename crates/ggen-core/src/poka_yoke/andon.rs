@@ -27,10 +27,11 @@
 //! ```
 
 use crate::utils::error::{Error, Result};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Critical error information for RED signal
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CriticalError {
     /// Error code (e.g., "MANIFEST_INVALID", "CIRCULAR_DEPENDENCY")
     pub code: String,
@@ -45,7 +46,7 @@ pub struct CriticalError {
 }
 
 /// Warning information for YELLOW signal
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Warning {
     /// Warning code (e.g., "UNUSED_FILES", "PERFORMANCE")
     pub code: String,
@@ -56,7 +57,8 @@ pub struct Warning {
 }
 
 /// Andon Signal - Stop-the-Line Protocol
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "level", rename_all = "lowercase")]
 pub enum AndonSignal {
     /// 🔴 RED SIGNAL - STOP IMMEDIATELY
     /// Critical error, sync cannot proceed
@@ -111,15 +113,29 @@ impl AndonSignal {
                     .iter()
                     .enumerate()
                     .map(|(i, f)| format!("  {}. {}", i + 1, f))
-                    .collect::<Vec<_>>()
+                    .collect::<Vec<String>>()
                     .join("\n")
             ),
             recovery_steps: vec![
-                "Open ggen.toml in editor".to_string(),
-                "Add missing fields with values".to_string(),
-                format!("Or use `ggen init` to create valid template"),
+                "Open ggen.toml in your editor".to_string(),
+                "Add the missing required fields under appropriate sections".to_string(),
+                "Use 'ggen sync --validate-only' to check without generating".to_string(),
             ],
-            documentation_link: "https://ggen.dev/docs/manifest-format".to_string(),
+            documentation_link: "https://ggen.dev/docs/manifest".to_string(),
+        })
+    }
+
+    /// Create a RED signal for general manifest errors
+    pub fn manifest_error(path: &str, reason: &str) -> Self {
+        AndonSignal::Red(CriticalError {
+            code: "MANIFEST_ERROR".to_string(),
+            message: format!("Manifest error in {}", path),
+            context: reason.to_string(),
+            recovery_steps: vec![
+                format!("Check if {} exists and is readable", path),
+                "Run 'ggen init' if you need to create a new manifest".to_string(),
+            ],
+            documentation_link: "https://ggen.dev/docs/manifest".to_string(),
         })
     }
 

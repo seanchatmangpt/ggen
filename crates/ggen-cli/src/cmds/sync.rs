@@ -81,6 +81,14 @@ pub struct SyncOutput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 
+    /// Machine-parsable recovery steps for AGI remediation
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery: Option<String>,
+
+    /// JSON representation of the TPS Andon signal (if any)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub andon_signal: Option<serde_json::Value>,
+
     /// Path to the cryptographic receipt emitted after sync (if generated)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receipt_path: Option<String>,
@@ -137,6 +145,8 @@ impl From<SyncResult> for SyncOutput {
             generation_rules_executed: result.generation_rules_executed,
             audit_trail: result.audit_trail,
             error: result.error,
+            recovery: result.recovery,
+            andon_signal: result.andon_signal,
             receipt_path: None,
             gates: Vec::new(),
         }
@@ -452,6 +462,8 @@ fn run_manifest_pipeline(
         generation_rules_executed,
         audit_trail: sync_result.audit_trail,
         error: sync_result.error,
+        recovery: sync_result.recovery,
+        andon_signal: sync_result.andon_signal,
         receipt_path: Some(receipt_file_path),
         gates: Vec::new(),
     })
@@ -681,6 +693,8 @@ fn run_low_level_pipeline(
         generation_rules_executed: result.files_generated.len(),
         audit_trail: None,
         error: violation_msg,
+        recovery: None,
+        andon_signal: None,
         receipt_path: Some(receipt_file_path),
         gates: Vec::new(),
     })

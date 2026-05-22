@@ -97,7 +97,7 @@ fn status(id: String) -> Result<A2aTaskOutput> {
 
 /// Execute an A2A task (simulating real work to satisfy boundary constraints)
 #[verb]
-fn execute(id: String) -> Result<A2aTaskOutput> {
+fn execute(id: String, fail: Option<bool>) -> Result<A2aTaskOutput> {
     let task_path = get_task_dir()?.join(format!("{}.json", id));
 
     if !task_path.exists() {
@@ -115,48 +115,65 @@ fn execute(id: String) -> Result<A2aTaskOutput> {
         clap_noun_verb::NounVerbError::execution_error(format!("Invalid task JSON: {}", e))
     })?;
 
+    let should_fail = fail.unwrap_or(false);
+
     // Perform real boundary crossings
 
-    // 1. Tool Invoked
-    task = task.with_metadata("tool_invoked".to_string(), "ggen.construct".to_string());
-    log::info!(
-        "OCEL: {}",
-        serde_json::json!({
-            "event": "a2a.mcp.tool.invoked",
-            "objects": { "task": task.id.to_string(), "tool": "ggen.construct" }
-        })
-    );
+    if !should_fail {
+        // 1. Tool Invoked
+        task = task.with_metadata("tool_invoked".to_string(), "ggen.construct".to_string());
+        log::info!(
+            "OCEL: {}",
+            serde_json::json!({
+                "event": "a2a.mcp.tool.invoked",
+                "objects": { "task": task.id.to_string(), "tool": "ggen.construct" }
+            })
+        );
 
-    // 2. Artifact Emitted
-    let artifact_content = b"real_artifact_content_for_task";
-    let artifact_hash = blake3::hash(artifact_content).to_hex().to_string();
+        // 2. Artifact Emitted
+        let artifact_content = b"real_artifact_content_for_task";
+        let artifact_hash = blake3::hash(artifact_content).to_hex().to_string();
 
-    let artifact = ggen_a2a_mcp::a2a::Artifact::new(
-        "artifact_needed.md".to_string(),
-        ggen_a2a_mcp::a2a::ArtifactType::Output,
-        ggen_a2a_mcp::a2a::ArtifactContent::Text("real_artifact_content_for_task".to_string()),
-    );
-    task = task.with_artifact("artifact_needed.md".to_string(), artifact);
+        let artifact = ggen_a2a_mcp::a2a::Artifact::new(
+            "artifact_needed.md".to_string(),
+            ggen_a2a_mcp::a2a::ArtifactType::Output,
+            ggen_a2a_mcp::a2a::ArtifactContent::Text("real_artifact_content_for_task".to_string()),
+        );
+        task = task.with_artifact("artifact_needed.md".to_string(), artifact);
 
-    log::info!(
-        "OCEL: {}",
-        serde_json::json!({
-            "event": "a2a.artifact.emitted",
-            "objects": { "task": task.id.to_string(), "artifact": "artifact_needed.md", "hash": artifact_hash }
-        })
-    );
+        log::info!(
+            "OCEL: {}",
+            serde_json::json!({
+                "event": "a2a.artifact.emitted",
+                "objects": { "task": task.id.to_string(), "artifact": "artifact_needed.md", "hash": artifact_hash }
+            })
+        );
 
-    // 3. Task Closed
-    task.state = TaskState::Completed;
-    task.completed_at = Some(chrono::Utc::now());
+        // 3. Task Closed
+        task.state = TaskState::Completed;
+        task.completed_at = Some(chrono::Utc::now());
 
-    log::info!(
-        "OCEL: {}",
-        serde_json::json!({
-            "event": "a2a.task.closed",
-            "objects": { "task": task.id.to_string(), "state": "Completed" }
-        })
-    );
+        log::info!(
+            "OCEL: {}",
+            serde_json::json!({
+                "event": "a2a.task.closed",
+                "objects": { "task": task.id.to_string(), "state": "Completed" }
+            })
+        );
+    } else {
+        // Handle failure state
+        task.state = TaskState::Failed;
+        task.failure_reason = Some("Agent requested failure for simulation".to_string());
+        task.completed_at = Some(chrono::Utc::now());
+
+        log::info!(
+            "OCEL: {}",
+            serde_json::json!({
+                "event": "a2a.task.closed",
+                "objects": { "task": task.id.to_string(), "state": "Failed", "reason": "simulation" }
+            })
+        );
+    }
 
     // Save state
     let task_json = serde_json::to_string_pretty(&task).map_err(|e| {
@@ -295,7 +312,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                 ocel_events.push(OcelEvent {
                     id: format!("evt_task_created_{}", entry.task_id),
                     activity: "a2a.task.created".to_string(),
-                    timestamp: "2026-05-21T00:00:00.000Z".to_string(),
+                    timestamp: task.created_at.to_rfc3339(),
                     objects: vec![
                         OcelObjectRef {
                             id: entry.task_id.clone(),
@@ -334,7 +351,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                     ocel_events.push(OcelEvent {
                         id: format!("evt_tool_invoked_{}", entry.task_id),
                         activity: "a2a.mcp.tool.invoked".to_string(),
-                        timestamp: "2026-05-21T00:00:01.000Z".to_string(),
+                        timestamp: task.created_at.to_rfc3339(),
                         objects: vec![
                             OcelObjectRef {
                                 id: entry.task_id.clone(),
@@ -365,7 +382,7 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                     ocel_events.push(OcelEvent {
                         id: format!("evt_artifact_emitted_{}", entry.task_id),
                         activity: "a2a.artifact.emitted".to_string(),
-                        timestamp: "2026-05-21T00:00:02.000Z".to_string(),
+                        timestamp: task.updated_at.to_rfc3339(),
                         objects: vec![
                             OcelObjectRef {
                                 id: entry.task_id.clone(),
@@ -387,10 +404,11 @@ fn do_verify(run: Option<String>, out: Option<String>) -> Result<VerifyOutput> {
                 // 4. Task Closed
                 if task.state == TaskState::Completed {
                     task_state = A2AState::Closed;
+                    let closed_at = task.completed_at.unwrap_or(task.updated_at);
                     ocel_events.push(OcelEvent {
                         id: format!("evt_task_closed_{}", entry.task_id),
                         activity: "a2a.task.closed".to_string(),
-                        timestamp: "2026-05-21T00:00:03.000Z".to_string(),
+                        timestamp: closed_at.to_rfc3339(),
                         objects: vec![OcelObjectRef {
                             id: entry.task_id.clone(),
                             r#type: "A2ATask".to_string(),
@@ -538,4 +556,43 @@ fn verify(
     run: Option<String>, _expected: Option<String>, out: Option<String>,
 ) -> Result<VerifyOutput> {
     do_verify(run, out)
+}
+
+/// Prune all persisted A2A tasks (Eliminate Muda of Inventory)
+#[verb]
+fn prune() -> Result<serde_json::Value> {
+    let task_dir = get_task_dir()?;
+    let mut count = 0;
+
+    if task_dir.exists() {
+        for entry in fs::read_dir(&task_dir).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to read task directory: {}",
+                e
+            ))
+        })? {
+            let entry = entry.map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to read directory entry: {}",
+                    e
+                ))
+            })?;
+            let path = entry.path();
+            if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("json") {
+                fs::remove_file(path).map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to remove task file: {}",
+                        e
+                    ))
+                })?;
+                count += 1;
+            }
+        }
+    }
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "tasks_pruned": count,
+        "message": format!("Successfully pruned {} tasks", count)
+    }))
 }

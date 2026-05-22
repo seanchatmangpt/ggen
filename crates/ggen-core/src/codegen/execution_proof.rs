@@ -182,6 +182,8 @@ mod tests {
             generation_rules_executed: 1,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         };
 
         let proof = carrier.generate_proof(manifest, ontology, &result).unwrap();
@@ -206,6 +208,8 @@ mod tests {
             generation_rules_executed: 0,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         };
 
         let proof1 = carrier.generate_proof(manifest, ontology, &result).unwrap();
@@ -228,6 +232,8 @@ mod tests {
             generation_rules_executed: 0,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         };
 
         let proof = carrier.generate_proof(manifest, ontology, &result).unwrap();
@@ -249,6 +255,8 @@ mod tests {
             generation_rules_executed: 0,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         };
 
         carrier
