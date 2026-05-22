@@ -5,6 +5,17 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.5.21] — A2A & MCP Implementation & Docs Cleanup (2026-05-21)
+
+### Added
+- **MCP Server implementation** — Built a functional Model Context Protocol server (`ggen mcp server`) over standard I/O using the official `rmcp` SDK.
+- **A2A protocol implementation** — Built functional A2A task coordination commands (`ggen a2a create`, `ggen a2a status`) managing `Task` structures and `TaskState`.
+- **E2E Actuation script** — Tested headless invocation using `npx @google/gemini-cli` acting as autonomous user avatars.
+
+### Fixed
+- **Documentation fidelity** — Scrubbed `README.md` to remove references to hallucinated/non-existent features and accurately reflect the 5-crate architecture (Core, CLI, Config, Marketplace, A2A/MCP).
+- **Workspace Versions** — Bumped all workspace crates to `v26.5.21` and resolved version mismatches.
+
 ## [26.5.18] — Workspace consolidation & vendored-submodule removal (2026-05-18)
 
 Versions 26.5.6 through 26.5.17 were not released. This entry consolidates

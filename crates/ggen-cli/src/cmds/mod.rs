@@ -34,9 +34,11 @@ pub mod sync;
 pub mod wizard;
 
 // Command modules - clap-noun-verb auto-discovery
+pub mod a2a;
 pub mod doctor;
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
+pub mod mcp;
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
 pub mod policy;
 pub mod template;
