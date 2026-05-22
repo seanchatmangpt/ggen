@@ -146,8 +146,8 @@ See [.claude/rules/rust/testing.md](.claude/rules/rust/testing.md) for Chicago T
 `ggen init` creates a minimal, working project with atomic file operations (automatic rollback on failure). It preserves existing `.gitignore` and `README.md` files and installs git hooks for pre-commit and pre-push validation.
 
 ```bash
-# Initialize in current directory
-ggen init
+# Initialize with custom metadata
+ggen init --name "my-project" --version "1.0.0" --description "Domain-driven API"
 
 # Initialize in a specific directory
 ggen init --path my-project
@@ -169,11 +169,8 @@ Creates: `ggen.toml`, `schema/domain.ttl`, `Makefile`, `templates/example.txt.te
 # Interactive mode (prompts for profile and metadata)
 ggen wizard
 
-# Non-interactive with default profile
-ggen wizard --yes
-
-# Specific profile
-ggen wizard --profile ln-ctrl --yes
+# Non-interactive with metadata
+ggen wizard --profile mcp-a2a --name "agent-system" --yes
 
 # Custom output directory
 ggen wizard --output-dir ./my-project

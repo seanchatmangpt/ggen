@@ -243,6 +243,9 @@ pub struct SyncedFileInfo {
 
     /// Action taken: "created", "updated", "unchanged", "would create"
     pub action: String,
+
+    /// Rule that generated this file
+    pub produced_by: String,
 }
 
 /// Validation check result
@@ -582,6 +585,7 @@ impl SyncExecutor {
                 path: r.output_file.clone(),
                 size_bytes: 0,
                 action: "would create".to_string(),
+                produced_by: r.name.clone(),
             })
             .collect();
 
@@ -759,6 +763,7 @@ impl SyncExecutor {
                 path: f.path.display().to_string(),
                 size_bytes: f.size_bytes,
                 action: "created".to_string(),
+                produced_by: f.source_rule.clone(),
             })
             .collect();
 
