@@ -41,7 +41,7 @@ pub mod graph;
 pub mod mcp;
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
 pub mod policy;
-pub mod template;
+pub mod sigma;
 pub mod utils;
 
 use crate::prelude::*;

@@ -1,0 +1,38 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fmea: <http://purl.org/ggen/fmea#> .
+
+<http://ggen.dev/fmea/a2a-swarm>
+    a fmea:FmeaReport ;
+    rdfs:label "FMEA: A2A Swarm Scaling (1000x)" ;
+    fmea:failureMode [
+        fmea:id "FM-A2A-001" ;
+        fmea:description "I/O Thrashing during parallel task creation" ;
+        fmea:effect "Extreme latency, filesystem lock contention, potential data corruption" ;
+        fmea:severity 8 ;
+        fmea:occurrence 7 ;
+        fmea:detection 5 ;
+        fmea:rpn 280 ;
+        fmea:mitigation "Reduced parallel worker pool to 20 threads; implemented pre-run 'prune' to eliminate inventory Muda."
+    ] ;
+    fmea:failureMode [
+        fmea:id "FM-A2A-002" ;
+        fmea:description "Telemetry log pollution breaking JSON output" ;
+        fmea:effect "AGI agents fail to parse machine-readable status, breaking the automation chain" ;
+        fmea:severity 6 ;
+        fmea:occurrence 9 ;
+        fmea:detection 9 ;
+        fmea:rpn 486 ;
+        fmea:mitigation "Implemented regex-based JSON filter in orchestrator to skip non-JSON log lines."
+    ] ;
+    fmea:failureMode [
+        fmea:id "FM-A2A-003" ;
+        fmea:description "Task state drift between creation and execution" ;
+        fmea:effect "Non-deterministic output, failure of canonical proof gates" ;
+        fmea:severity 9 ;
+        fmea:occurrence 3 ;
+        fmea:detection 8 ;
+        fmea:rpn 216 ;
+        fmea:mitigation "Stateless execution commands; every 'execute' re-validates the persisted task state on disk."
+    ] .

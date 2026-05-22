@@ -135,6 +135,7 @@ pub mod cli_generator;
 pub mod codegen;
 pub mod codegen_lib;
 pub mod delta;
+pub mod dflss;
 pub mod domain;
 pub mod e2e_tests;
 pub mod generator;
