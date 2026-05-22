@@ -180,15 +180,13 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
     let profiles = predefined_profiles();
 
     if verbose {
-        println!("Available Policy Profiles:");
-        println!();
+        log::info!("Available Policy Profiles:");
         for profile in &profiles {
-            println!("  - {} ({})", profile.id.as_str(), profile.name);
-            println!("    Description: {}", profile.description);
-            println!("    Policies: {}", profile.policy_overlays.len());
-            println!("    Trust Tier: {:?}", profile.trust_requirements);
-            println!("    Receipt Spec: {:?}", profile.receipt_requirements);
-            println!();
+            log::info!("  - {} ({})", profile.id.as_str(), profile.name);
+            log::info!("    Description: {}", profile.description);
+            log::info!("    Policies: {}", profile.policy_overlays.len());
+            log::info!("    Trust Tier: {:?}", profile.trust_requirements);
+            log::info!("    Receipt Spec: {:?}", profile.receipt_requirements);
         }
     }
 
@@ -239,12 +237,12 @@ fn validate(profile: String) -> VerbResult<ValidateOutput> {
         .collect();
 
     if report.passed {
-        println!("✓ Profile '{}' validation passed", profile);
+        log::info!("✓ Profile '{}' validation passed", profile);
     } else {
-        println!("✗ Profile '{}' validation failed", profile);
-        println!("  Violations: {}", report.violation_count());
+        log::error!("✗ Profile '{}' validation failed", profile);
+        log::error!("  Violations: {}", report.violation_count());
         for violation in &violations {
-            println!("    - {}: {}", violation.pack_id, violation.description);
+            log::error!("    - {}: {}", violation.pack_id, violation.description);
         }
     }
 
@@ -264,28 +262,25 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
         clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
     })?;
 
-    println!("Profile: {} ({})", profile.id.as_str(), profile.name);
-    println!("Description: {}", profile.description);
-    println!();
-    println!("Policies ({}):", profile.policy_overlays.len());
+    log::info!("Profile: {} ({})", profile.id.as_str(), profile.name);
+    log::info!("Description: {}", profile.description);
+    log::info!("Policies ({}):", profile.policy_overlays.len());
     for policy in &profile.policy_overlays {
-        println!("  - {} ({})", policy.id.as_str(), policy.name);
-        println!("    {}", policy.description);
-        println!("    Rules: {}", policy.rules.len());
+        log::info!("  - {} ({})", policy.id.as_str(), policy.name);
+        log::info!("    {}", policy.description);
+        log::info!("    Rules: {}", policy.rules.len());
     }
-    println!();
-    println!("Trust Tier: {:?}", profile.trust_requirements);
-    println!("Receipt Spec: {:?}", profile.receipt_requirements);
-    println!();
-    println!(
+    log::info!("Trust Tier: {:?}", profile.trust_requirements);
+    log::info!("Receipt Spec: {:?}", profile.receipt_requirements);
+    log::info!(
         "Runtime Constraints ({}):",
         profile.runtime_constraints.len()
     );
     for (idx, constraint) in profile.runtime_constraints.iter().enumerate() {
-        println!("  Constraint {}:", idx + 1);
-        println!("    Allowed Runtimes: {:?}", constraint.allowed_runtimes);
-        println!("    Forbid Defaults: {}", constraint.forbid_defaults);
-        println!("    Require Explicit: {}", constraint.require_explicit);
+        log::info!("  Constraint {}:", idx + 1);
+        log::info!("    Allowed Runtimes: {:?}", constraint.allowed_runtimes);
+        log::info!("    Forbid Defaults: {}", constraint.forbid_defaults);
+        log::info!("    Require Explicit: {}", constraint.require_explicit);
     }
 
     let policies: Vec<PolicySummary> = profile
@@ -353,15 +348,15 @@ fn check() -> VerbResult<ValidateOutput> {
         .collect();
 
     if report.passed {
-        println!(
+        log::info!(
             "✓ Current environment passes '{}' profile",
             profile_obj.name
         );
     } else {
-        println!("✗ Current environment fails '{}' profile", profile_obj.name);
-        println!("  Violations: {}", report.violation_count());
+        log::error!("✗ Current environment fails '{}' profile", profile_obj.name);
+        log::error!("  Violations: {}", report.violation_count());
         for violation in &violations {
-            println!("    - {}: {}", violation.pack_id, violation.description);
+            log::error!("    - {}: {}", violation.pack_id, violation.description);
         }
     }
 
