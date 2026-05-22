@@ -540,9 +540,7 @@ This project follows strict operational principles. See [CLAUDE.md](CLAUDE.md) f
 
 ## License
 
-Licensed under either of:
-
-at your option.
+Licensed under the MIT License ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT).
 
 ---
 
