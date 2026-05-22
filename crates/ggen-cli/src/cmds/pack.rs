@@ -219,10 +219,7 @@ pub fn list(verbose: Option<bool>, category: Option<String>) -> Result<ListOutpu
         .into_iter()
         .map(|pkg| {
             if is_verbose {
-                println!("  - {} (v{})", pkg.id, pkg.version);
-                println!("    Name: {}", pkg.name);
-                println!("    Description: {}", pkg.description);
-                println!();
+                log::debug!("  - {} (v{})", pkg.id, pkg.version);
             }
 
             PackSummary {
@@ -276,7 +273,7 @@ pub fn show(pack_id: String) -> Result<ShowOutput> {
 pub fn search(query: String, limit: Option<usize>) -> Result<SearchOutput> {
     let results = perform_search(&query, limit)?;
     let total = results.len();
-    println!("Found {} result(s) for '{}'", total, query);
+    log::info!("Found {} result(s) for '{}'", total, query);
 
     Ok(SearchOutput {
         query,

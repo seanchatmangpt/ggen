@@ -128,9 +128,12 @@ impl Pass for ReceiptGenerationPass {
         }
 
         let duration = start.elapsed();
-        Ok(PassResult::success()
-            .with_files(vec![self.receipt_path.clone().unwrap_or_default()])
-            .with_duration(duration))
+        let mut pass_result = PassResult::success().with_duration(duration);
+        if let Some(ref rp) = self.receipt_path {
+            pass_result = pass_result.with_files(vec![rp.clone()]);
+        }
+
+        Ok(pass_result)
     }
 }
 

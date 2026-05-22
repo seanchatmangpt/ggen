@@ -241,17 +241,18 @@ fn verify_python_syntax(code: &str) -> Result<bool, String> {
     fs::write(&temp_file, code).map_err(|e| format!("Failed to write temp file: {}", e))?;
 
     // Use Python to verify syntax
+    let temp_path_str = temp_file.to_string_lossy().to_string();
     let output = Command::new("python3")
         .arg("-m")
         .arg("py_compile")
-        .arg(temp_file.to_str().unwrap())
+        .arg(&temp_path_str)
         .output()
         .or_else(|_| {
             // Fallback to python if python3 not found
             Command::new("python")
                 .arg("-m")
                 .arg("py_compile")
-                .arg(temp_file.to_str().unwrap())
+                .arg(&temp_path_str)
                 .output()
         })
         .map_err(|e| format!("Failed to run Python: {}", e))?;

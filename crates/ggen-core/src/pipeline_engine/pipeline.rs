@@ -213,6 +213,11 @@ impl StagedPipeline {
         // Initialize pack resolver if lockfile exists
         let pack_resolver = PackResolver::new(&config.base_path).ok();
 
+        let mut receipt_gen = ReceiptGenerationPass::new(&config.toolchain_version);
+        if let Some(path) = &config.receipt_path {
+            receipt_gen = receipt_gen.with_receipt_path(path.clone());
+        }
+
         Ok(Self {
             config: config.clone(),
             graph,
@@ -227,8 +232,7 @@ impl StagedPipeline {
             extraction: ExtractionPass::with_standard_rules(),
             emission: EmissionPass::new(),
             canonicalization: CanonicalizationPass::new(),
-            receipt_gen: ReceiptGenerationPass::new(&config.toolchain_version)
-                .with_receipt_path(config.receipt_path.clone().unwrap_or_default()),
+            receipt_gen,
         })
     }
 

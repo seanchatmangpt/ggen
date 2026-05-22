@@ -461,7 +461,13 @@ fn read_installed_packs(lock_path: &str) -> Vec<String> {
     if !path.exists() {
         return vec![];
     }
-    let content = std::fs::read_to_string(path).unwrap_or_default();
+    let content = match std::fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => {
+            log::warn!("Failed to read lock file {}: {}", lock_path, e);
+            return vec![];
+        }
+    };
     let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) else {
         return vec![];
     };
