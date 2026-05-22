@@ -59,10 +59,19 @@ impl AgentBehavior for DefaultAgent {
 
         // Process the input as a task interaction.
         let mut output_map = serde_json::Map::new();
-        output_map.insert("processed_by".to_string(), serde_json::Value::String(self.agent.id.clone()));
-        output_map.insert("status".to_string(), serde_json::Value::String("completed".to_string()));
+        output_map.insert(
+            "processed_by".to_string(),
+            serde_json::Value::String(self.agent.id.clone()),
+        );
+        output_map.insert(
+            "status".to_string(),
+            serde_json::Value::String("completed".to_string()),
+        );
         output_map.insert("original_input".to_string(), input.clone());
-        output_map.insert("timestamp".to_string(), serde_json::Value::String(chrono::Utc::now().to_rfc3339()));
+        output_map.insert(
+            "timestamp".to_string(),
+            serde_json::Value::String(chrono::Utc::now().to_rfc3339()),
+        );
 
         Ok(serde_json::Value::Object(output_map))
     }
@@ -111,6 +120,6 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(result["status"].as_str().unwrap(), "completed");
-        assert_eq!(result["agent_id"].as_str().unwrap(), "123");
+        assert_eq!(result["processed_by"].as_str().unwrap(), "123");
     }
 }
