@@ -270,7 +270,7 @@ impl EnhancedWatchMode {
         eprintln!("{}\n", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━".cyan());
 
         Ok(SyncResult {
-            status: "shutdown".to_string(),
+            status: "stopped".to_string(),
             files_synced: 0,
             duration_ms: self.start_time.elapsed().as_millis() as u64,
             files: vec![],
@@ -278,6 +278,8 @@ impl EnhancedWatchMode {
             generation_rules_executed: 0,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         })
     }
 }

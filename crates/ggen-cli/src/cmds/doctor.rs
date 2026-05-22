@@ -76,7 +76,18 @@ fn path_check(name: &str, path: &str, found_msg: &str, missing_msg: &str) -> Che
         } else {
             missing_msg.to_string()
         },
-        recovery: None,
+        recovery: if found {
+            None
+        } else {
+            match name {
+                "ggen.toml" => Some("Run 'ggen init' to create a manifest".to_string()),
+                "Cargo.toml" => Some("Check if you are in the correct project root".to_string()),
+                ".specify directory" => {
+                    Some("Ensure your RDF ontologies are in .specify/".to_string())
+                }
+                _ => None,
+            }
+        },
     }
 }
 

@@ -26,7 +26,7 @@ use crate::codegen::ux::{
 use crate::codegen::{DependencyValidator, IncrementalCache, MarketplaceValidator, ProofCarrier};
 use crate::drift::DriftDetector;
 use crate::manifest::{ManifestParser, ManifestValidator};
-use crate::poka_yoke::QualityGateRunner;
+use crate::poka_yoke::{AndonSignal, CriticalError, QualityGateRunner};
 use crate::utils::error::{Error, Result};
 use crate::validation::PreFlightValidator;
 use serde::Serialize;
@@ -230,6 +230,14 @@ pub struct SyncResult {
     /// Error message (if failed)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+
+    /// Machine-parsable recovery steps for AGI remediation
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery: Option<String>,
+
+    /// JSON representation of the TPS Andon signal (if any)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub andon_signal: Option<serde_json::Value>,
 }
 
 /// Individual file info in sync result
@@ -320,10 +328,12 @@ impl SyncExecutor {
 
         // Validate manifest exists
         if !self.options.manifest_path.exists() {
-            return Err(Error::new(&format!(
-                "error[E0001]: Manifest not found\n  --> {}\n  |\n  = help: Create a ggen.toml manifest file or specify path with --manifest",
+            let error_msg = format!(
+                "error[E0001]: Manifest not found\n  --> {}",
                 self.options.manifest_path.display()
-            )));
+            );
+            let andon = AndonSignal::manifest_error("ggen.toml", "File does not exist");
+            return Ok(self.create_error_result(&error_msg, Some(andon)));
         }
 
         // Check for drift (non-blocking warning)
@@ -369,17 +379,17 @@ impl SyncExecutor {
             })?;
 
         if dep_validator.has_cycles {
-            return Err(Error::new(&format!(
-                "error[E0002]: Circular dependency detected\n  |\n  = error: Inference rules have circular dependencies\n  = cycles: {:?}\n  = help: Review rule dependencies in manifest",
-                dep_validator.cycle_nodes
-            )));
+            let error_msg = format!("error[E0002]: Circular dependency detected\n  |\n  = error: Inference rules have circular dependencies\n  = cycles: {:?}", dep_validator.cycle_nodes);
+            let andon = AndonSignal::circular_dependency(vec![dep_validator.cycle_nodes.clone()]);
+            return Ok(self.create_error_result(&error_msg, Some(andon)));
         }
 
         if dep_validator.failed_checks > 0 {
-            return Err(Error::new(&format!(
+            let error_msg = format!(
                 "error[E0002]: {} dependency validation checks failed\n  |\n  = help: Common issues:\n  =   1. Query file not found: Check ontology.source and ontology.imports paths\n  =   2. Template file not found: Check generation.rules[].template paths\n  =   3. Import cycle: Check if imported files reference each other\n  = help: Run 'ggen validate' for detailed dependency analysis",
                 dep_validator.failed_checks
-            )));
+            );
+            return Ok(self.create_error_result(&error_msg, None));
         }
 
         // Run quality gates - mandatory checkpoints before generation
@@ -546,6 +556,12 @@ impl SyncExecutor {
             } else {
                 Some("Validation failed".to_string())
             },
+            recovery: if all_passed {
+                None
+            } else {
+                Some("Run 'ggen validate' for detailed fixes".to_string())
+            },
+            andon_signal: None,
         })
     }
 
@@ -607,6 +623,8 @@ impl SyncExecutor {
             generation_rules_executed: 0,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         })
     }
 
@@ -837,6 +855,8 @@ impl SyncExecutor {
                 generation_rules_executed: generation_count,
                 audit_trail: None,
                 error: None,
+                recovery: None,
+                andon_signal: None,
             },
         ) {
             if self.options.verbose {
@@ -905,6 +925,8 @@ impl SyncExecutor {
             generation_rules_executed: generation_count,
             audit_trail: audit_path,
             error: None,
+            recovery: None,
+            andon_signal: None,
         })
     }
 
@@ -1084,6 +1106,33 @@ impl SyncExecutor {
             if self.options.verbose {
                 eprintln!("Warning: Failed to save drift state: {}", e);
             }
+        }
+    }
+
+    /// Create a SyncResult for a failure state with machine-readable recovery info
+    fn create_error_result(&self, error_msg: &str, andon: Option<AndonSignal>) -> SyncResult {
+        let duration = self.start_time.elapsed().as_millis() as u64;
+        let mut recovery = None;
+        let mut andon_json = None;
+
+        if let Some(signal) = andon {
+            if let AndonSignal::Red(ref critical) = signal {
+                recovery = Some(critical.recovery_steps.join("\n"));
+            }
+            andon_json = serde_json::to_value(&signal).ok();
+        }
+
+        SyncResult {
+            status: "error".to_string(),
+            files_synced: 0,
+            duration_ms: duration,
+            files: Vec::new(),
+            inference_rules_executed: 0,
+            generation_rules_executed: 0,
+            audit_trail: None,
+            error: Some(error_msg.to_string()),
+            recovery,
+            andon_signal: andon_json,
         }
     }
 }

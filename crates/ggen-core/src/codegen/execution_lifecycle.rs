@@ -154,6 +154,8 @@ mod tests {
             generation_rules_executed: 3,
             audit_trail: None,
             error: None,
+            recovery: None,
+            andon_signal: None,
         };
         let options = SyncOptions::default();
 
