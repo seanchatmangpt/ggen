@@ -28,6 +28,10 @@ uuid = { version = "1.18", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 async-trait = "0.1"
 tracing = "0.1"
+rmcp = { version = "1.7.0", features = ["transport-io", "schemars"] }
+schemars = "1.2.1"
+anyhow.workspace = true
+blake3 = "1.5"
 
 [dependencies.tokio]
 workspace = true
