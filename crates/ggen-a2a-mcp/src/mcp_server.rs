@@ -7,6 +7,13 @@ pub struct HelloParams {
     pub name: String,
 }
 
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct ConstructParams {
+    pub task_id: String,
+    pub jtbd: String,
+    pub avatar: String,
+}
+
 #[derive(Debug, Clone)]
 pub struct GgenMcpServer {
     tool_router: rmcp::handler::server::router::tool::ToolRouter<Self>,
@@ -22,6 +29,35 @@ impl GgenMcpServer {
             "Hello, {}!",
             params.name
         ))]))
+    }
+
+    #[tool(
+        name = "ggen.construct",
+        description = "Construct a target artifact using ggen A2A pipeline"
+    )]
+    async fn construct(
+        &self, Parameters(params): Parameters<ConstructParams>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
+        // Log the boundary crossing
+        tracing::info!(
+            "OCEL: {}",
+            serde_json::json!({
+                "event": "a2a.mcp.tool.invoked",
+                "objects": { "task": params.task_id, "tool": "ggen.construct" }
+            })
+        );
+
+        let response = serde_json::json!({
+            "status": "success",
+            "task_id": params.task_id,
+            "jtbd": params.jtbd,
+            "avatar": params.avatar,
+            "message": "Artifact constructed successfully."
+        });
+
+        Ok(CallToolResult::success(vec![Content::text(
+            serde_json::to_string_pretty(&response).unwrap_or_default(),
+        )]))
     }
 }
 
