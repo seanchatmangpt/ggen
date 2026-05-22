@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [generate Tool](#generate-tool)
+  - [Parameters](#parameters)
+  - [Pipeline Stages](#pipeline-stages)
+    - [μ₁: Load](#%CE%BC%E2%82%81-load)
+    - [μ₂: Extract](#%CE%BC%E2%82%82-extract)
+    - [μ₃: Generate](#%CE%BC%E2%82%83-generate)
+    - [μ₄: Validate](#%CE%BC%E2%82%84-validate)
+    - [μ₅: Emit](#%CE%BC%E2%82%85-emit)
+  - [Example Usage](#example-usage)
+    - [Basic Generation](#basic-generation)
+    - [With SPARQL Queries](#with-sparql-queries)
+    - [Target Language](#target-language)
+  - [Supported Languages](#supported-languages)
+  - [Output](#output)
+    - [Success Response](#success-response)
+    - [Error Response](#error-response)
+  - [Common Errors](#common-errors)
+  - [Related Tools](#related-tools)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # generate Tool
 
 Generate code from an RDF ontology file via the μ₁-μ₅ pipeline.

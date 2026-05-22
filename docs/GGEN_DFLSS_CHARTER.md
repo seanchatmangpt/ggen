@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Lean Six Sigma Project Charter — ggen](#lean-six-sigma-project-charter--ggen)
+  - [Fortune 5 Enterprise Text Compiler Initiative](#fortune-5-enterprise-text-compiler-initiative)
+  - [1. Business Case](#1-business-case)
+  - [2. Problem Statement](#2-problem-statement)
+  - [3. Goal Statement](#3-goal-statement)
+  - [4. Scope](#4-scope)
+    - [In Scope](#in-scope)
+    - [Out of Scope](#out-of-scope)
+  - [5. CTQs (Critical to Quality)](#5-ctqs-critical-to-quality)
+  - [6. Target Outcomes](#6-target-outcomes)
+    - [Strategic](#strategic)
+    - [Operational](#operational)
+  - [7. Baseline vs. Future State](#7-baseline-vs-future-state)
+  - [8. Measures of Success](#8-measures-of-success)
+    - [Primary Metrics](#primary-metrics)
+    - [Secondary Metrics](#secondary-metrics)
+  - [9. Risks and Mitigations](#9-risks-and-mitigations)
+  - [10. Methodology: DfLSS / DMADV](#10-methodology-dflss--dmadv)
+  - [11. Milestones](#11-milestones)
+  - [12. Deliverables by Phase](#12-deliverables-by-phase)
+    - [Phase 1](#phase-1)
+    - [Phase 2](#phase-2)
+    - [Phase 3](#phase-3)
+    - [Phase 4](#phase-4)
+  - [13. Tollgate Questions](#13-tollgate-questions)
+  - [Charter Statement](#charter-statement)
+  - [One-Page Executive Version](#one-page-executive-version)
+  - [14. DfLSS Visual Artifacts](#14-dflss-visual-artifacts)
+    - [14.1 SIPOC Diagram (Suppliers-Inputs-Process-Outputs-Customers)](#141-sipoc-diagram-suppliers-inputs-process-outputs-customers)
+    - [14.2 CTQ Flowdown (Critical-to-Quality Tree)](#142-ctq-flowdown-critical-to-quality-tree)
+    - [14.3 DMADV Phase/Gate Flowchart](#143-dmadv-phasegate-flowchart)
+    - [14.4 RACI Matrix (Roles and Responsibilities)](#144-raci-matrix-roles-and-responsibilities)
+    - [14.5 Gantt Chart (7-Month Timeline)](#145-gantt-chart-7-month-timeline)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Lean Six Sigma Project Charter — ggen
 
 ## Fortune 5 Enterprise Text Compiler Initiative

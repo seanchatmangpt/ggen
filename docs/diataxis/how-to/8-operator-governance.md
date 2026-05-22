@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To Guide: Implementing 8-Operator Governance](#how-to-guide-implementing-8-operator-governance)
+  - [Problem](#problem)
+  - [Solution: The Operator Sequence](#solution-the-operator-sequence)
+    - [1. Admission (Admit)](#1-admission-admit)
+    - [2. Dependency Breeding (Breed)](#2-dependency-breeding-breed)
+    - [3. Quality Validation (Validate)](#3-quality-validation-validate)
+    - [4. Canonicalization (Canonicalize)](#4-canonicalization-canonicalize)
+    - [5. Provenance Receipt (Receipt)](#5-provenance-receipt-receipt)
+    - [6. Security Audit (Audit)](#6-security-audit-audit)
+    - [7. Public Release (Release)](#7-public-release-release)
+    - [8. Final Archival (Archive)](#8-final-archival-archive)
+  - [Best Practices](#best-practices)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To Guide: Implementing 8-Operator Governance
 
 This guide explains how to move a package through the mandatory 8-operator lifecycle enforced by the `RdfControlPlane`. Following this sequence is a core requirement of the **Vision 2030** security pillar.

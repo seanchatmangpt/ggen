@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Reference: ggen-transport](#api-reference-ggen-transport)
+  - [Structs](#structs)
+    - [A2aTransport](#a2atransport)
+    - [SessionManager](#sessionmanager)
+    - [StreamBuilder](#streambuilder)
+    - [StreamSender](#streamsender)
+    - [MessageStream](#messagestream)
+  - [Structs (Data Types)](#structs-data-types)
+    - [Session](#session)
+    - [ResumeCursor](#resumecursor)
+    - [A2aMessage](#a2amessage)
+    - [A2aStreamMessage](#a2astreammessage)
+  - [Enums](#enums)
+    - [A2aMessageType](#a2amessagetype)
+    - [A2aStreamType](#a2astreamtype)
+    - [TransportError](#transporterror)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Reference: ggen-transport
 
 Transport layer with session management and streaming support for A2A messaging.

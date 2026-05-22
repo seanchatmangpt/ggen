@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ontology-Native Enterprise Construction](#ontology-native-enterprise-construction)
+  - [A Graduate Syllabus — 14 Weeks](#a-graduate-syllabus--14-weeks)
+  - [Calendar Overview](#calendar-overview)
+  - [Week 1 — Foundations: Artifact, Ontology, and Transformation](#week-1--foundations-artifact-ontology-and-transformation)
+  - [Week 2 — Organizational Work as Formal Domain, Deployment, and Governance](#week-2--organizational-work-as-formal-domain-deployment-and-governance)
+  - [Week 3 — Generative Analysis and Knowledge Capture](#week-3--generative-analysis-and-knowledge-capture)
+  - [Week 4 — Process Mining Foundations](#week-4--process-mining-foundations)
+  - [Week 5 — Object-Centric Process Mining and Workflow Theory](#week-5--object-centric-process-mining-and-workflow-theory)
+  - [Week 6 — YAWL and the Workflow Pattern Canon](#week-6--yawl-and-the-workflow-pattern-canon)
+  - [Week 7 — RDF, SPARQL, CONSTRUCT as Business Logic](#week-7--rdf-sparql-construct-as-business-logic)
+  - [Week 8 — Full-Text Compilation and Template Systems](#week-8--full-text-compilation-and-template-systems)
+  - [Week 9 — Capability Surfaces and Interface Systems](#week-9--capability-surfaces-and-interface-systems)
+  - [Week 10 — Packs, Profiles, and Registries](#week-10--packs-profiles-and-registries)
+  - [Week 11 — Receipts, Quality, and Proof](#week-11--receipts-quality-and-proof)
+  - [Week 12 — Time, Versioning, and Temporal Navigation](#week-12--time-versioning-and-temporal-navigation)
+  - [Week 13 — Enterprise Text, Multi-Agent Systems](#week-13--enterprise-text-multi-agent-systems)
+  - [Week 14 — Practicum, Conclusion, Event Horizon](#week-14--practicum-conclusion-event-horizon)
+  - [Assessment](#assessment)
+  - [Grading Criteria](#grading-criteria)
+  - [Required Software](#required-software)
+  - [Supplementary Reading](#supplementary-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ontology-Native Enterprise Construction
 
 ## A Graduate Syllabus — 14 Weeks

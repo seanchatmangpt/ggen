@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen MCP v1 Server Generation Implementation Plan](#ggen-mcp-v1-server-generation-implementation-plan)
+  - [File Structure Map](#file-structure-map)
+  - [Task 1: Create Pure MCP Ontology (mcp.ttl)](#task-1-create-pure-mcp-ontology-mcpttl)
+  - [Task 2: Create Example Server Definition (mcp-server.ttl)](#task-2-create-example-server-definition-mcp-serverttl)
+  - [Task 3: Create SPARQL Context Extraction Query](#task-3-create-sparql-context-extraction-query)
+  - [Task 4: Create Server Template (server.rs.tera)](#task-4-create-server-template-serverrstera)
+  - [Task 5: Create Get Info Template (get_info.rs.tera)](#task-5-create-get-info-template-get_inforstera)
+  - [Task 6: Create Tools Template (tools.rs.tera)](#task-6-create-tools-template-toolsrstera)
+  - [Task 7: Create Resources Template (resources.rs.tera)](#task-7-create-resources-template-resourcesrstera)
+  - [Task 8: Create Resource Templates Template (resource_templates.rs.tera)](#task-8-create-resource-templates-template-resource_templatesrstera)
+  - [Task 9: Create Prompts Template (prompts.rs.tera)](#task-9-create-prompts-template-promptsrstera)
+  - [Task 10: Create Completions Template (completions.rs.tera)](#task-10-create-completions-template-completionsrstera)
+  - [Task 11: Create Logging Template (logging.rs.tera)](#task-11-create-logging-template-loggingrstera)
+  - [Task 12: Create Main Bootstrap Template (main.rs.tera)](#task-12-create-main-bootstrap-template-mainrstera)
+  - [Task 13: Integrate Compile Gate Validation](#task-13-integrate-compile-gate-validation)
+  - [Task 14: Add OTEL/Weaver Receipt Integration](#task-14-add-otelweaver-receipt-integration)
+  - [Task 15: End-to-End Generation Test](#task-15-end-to-end-generation-test)
+  - [Task 16: CLI Integration for MCP Generation](#task-16-cli-integration-for-mcp-generation)
+  - [Task 17: Documentation and Examples](#task-17-documentation-and-examples)
+  - [Architecture](#architecture)
+  - [Supported Features](#supported-features)
+  - [Validation](#validation)
+  - [Self-Review Checklist](#self-review-checklist)
+  - [Verification Steps](#verification-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen MCP v1 Server Generation Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

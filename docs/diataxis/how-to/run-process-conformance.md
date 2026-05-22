@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-to: Run Process Conformance Checking](#how-to-run-process-conformance-checking)
+  - [Scenario](#scenario)
+  - [1. Trace Your Execution](#1-trace-your-execution)
+  - [2. Discover the Process Model](#2-discover-the-process-model)
+  - [3. Synthesize a Semantic OS Law](#3-synthesize-a-semantic-os-law)
+  - [4. Run Conformance Audit](#4-run-conformance-audit)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-to: Run Process Conformance Checking
 
 This guide explains how to use the high-performance `pictl` engine to validate your execution logs against a discovered process model.

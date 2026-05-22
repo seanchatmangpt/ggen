@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Control Plane Security in the Marketplace](#explanation-control-plane-security-in-the-marketplace)
+  - [The Purpose of the Control Plane](#the-purpose-of-the-control-plane)
+  - [POKA YOKE: Compile-Time Type Safety](#poka-yoke-compile-time-type-safety)
+  - [FMEA Mitigations: Active Injection Defense](#fmea-mitigations-active-injection-defense)
+  - [State Machine Transitions](#state-machine-transitions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Control Plane Security in the Marketplace
 
 This document explains the security architecture of the `RdfControlPlane`, the centralized gateway for all semantic data operations within the `ggen-marketplace`. 

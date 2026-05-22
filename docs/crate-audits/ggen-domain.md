@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-domain — Crate Audit](#ggen-domain--crate-audit)
+  - [DEAD CODE: AHI Subsystem (~4,200 lines, zero external consumers)](#dead-code-ahi-subsystem-4200-lines-zero-external-consumers)
+  - [STUBS (functions returning errors or doing nothing)](#stubs-functions-returning-errors-or-doing-nothing)
+    - [Marketplace Module — all functions return errors](#marketplace-module--all-functions-return-errors)
+    - [Packs Subsystem](#packs-subsystem)
+    - [Mock Implementations](#mock-implementations)
+  - [DEAD CODE (additional)](#dead-code-additional)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-domain — Crate Audit
 
 **Path:** `crates/ggen-domain/`

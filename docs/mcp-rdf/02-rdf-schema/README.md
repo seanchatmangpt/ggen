@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF Schema Reference](#rdf-schema-reference)
+  - [Overview](#overview)
+  - [Core Classes](#core-classes)
+    - [McpServer](#mcpserver)
+    - [CapabilitySet](#capabilityset)
+    - [Tool](#tool)
+    - [ToolArgument](#toolargument)
+    - [Resource](#resource)
+    - [ResourceTemplate](#resourcetemplate)
+    - [Prompt](#prompt)
+    - [PromptArgument](#promptargument)
+    - [CompletionProvider](#completionprovider)
+    - [LoggingPolicy](#loggingpolicy)
+    - [Transport](#transport)
+  - [Property Reference](#property-reference)
+    - [Domain-Specific Properties](#domain-specific-properties)
+  - [Complete Example](#complete-example)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF Schema Reference
 
 Complete reference for the ggen MCP ontology (`http://ggen.dev/mcp#`).

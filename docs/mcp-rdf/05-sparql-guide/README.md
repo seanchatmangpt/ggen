@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SPARQL Query Guide](#sparql-query-guide)
+  - [Overview](#overview)
+  - [Why CONSTRUCT vs SELECT?](#why-construct-vs-select)
+  - [Query Structure](#query-structure)
+  - [Normalization Patterns](#normalization-patterns)
+    - [1. Flat URI Structure](#1-flat-uri-structure)
+    - [2. COALESCE for Defaults](#2-coalesce-for-defaults)
+    - [3. URI Encoding](#3-uri-encoding)
+    - [4. Deterministic Node IDs](#4-deterministic-node-ids)
+  - [Query Sections](#query-sections)
+    - [Server Metadata](#server-metadata)
+    - [Capabilities](#capabilities)
+    - [Tools](#tools)
+    - [Tool Arguments](#tool-arguments)
+    - [Resources](#resources)
+  - [Custom Queries](#custom-queries)
+    - [Adding Custom Properties](#adding-custom-properties)
+    - [Filtering Tools](#filtering-tools)
+    - [Aggregation](#aggregation)
+  - [Testing Queries](#testing-queries)
+    - [1. Test with Robin (SPARQL CLI)](#1-test-with-robin-sparql-cli)
+    - [2. Test with Oxigraph](#2-test-with-oxigraph)
+    - [3. Dry-Run Generation](#3-dry-run-generation)
+  - [Common Patterns](#common-patterns)
+    - [Handling Missing Data](#handling-missing-data)
+    - [URI Encoding](#uri-encoding)
+    - [Type Coercion](#type-coercion)
+    - [Conditional Logic](#conditional-logic)
+  - [Performance Tips](#performance-tips)
+    - [1. Use OPTIONAL for Optional Fields](#1-use-optional-for-optional-fields)
+    - [2. Use COALESCE for Defaults](#2-use-coalesce-for-defaults)
+    - [3. Avoid Nested Queries](#3-avoid-nested-queries)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SPARQL Query Guide
 
 How SPARQL CONSTRUCT queries extract normalized context from RDF ontologies.

@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Hot Path Optimization - Benchmark Results](#hot-path-optimization---benchmark-results)
+  - [Actual Benchmark Results](#actual-benchmark-results)
+    - [Test 1: String Allocation Strategies (10,000 iterations, 100 variables)](#test-1-string-allocation-strategies-10000-iterations-100-variables)
+    - [Test 2: Template Parsing Simulation (10,000 iterations, 50 variables)](#test-2-template-parsing-simulation-10000-iterations-50-variables)
+    - [Test 3: Context Insertion (10,000 iterations, 50 variables)](#test-3-context-insertion-10000-iterations-50-variables)
+  - [Summary of Optimizations](#summary-of-optimizations)
+    - [✅ **Effective Optimizations**](#-effective-optimizations)
+    - [⚠️ **Context-Dependent Optimizations**](#-context-dependent-optimizations)
+    - [📊 **Projected Overall Improvement**](#-projected-overall-improvement)
+  - [Implementation Recommendations](#implementation-recommendations)
+    - [Priority 1: Implement String Pre-allocation](#priority-1-implement-string-pre-allocation)
+    - [Priority 2: Add Template Caching](#priority-2-add-template-caching)
+    - [Priority 3: Optimize RDF Batch Insertion](#priority-3-optimize-rdf-batch-insertion)
+  - [Verification Commands](#verification-commands)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Hot Path Optimization - Benchmark Results
 
 **Date:** 2026-03-31

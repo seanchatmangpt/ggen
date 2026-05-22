@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Server Generation - Troubleshooting Guide](#mcp-server-generation---troubleshooting-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Diagnostics](#quick-diagnostics)
+    - [Health Check Command](#health-check-command)
+    - [Diagnostic Checklist](#diagnostic-checklist)
+  - [Ontology Issues](#ontology-issues)
+    - [Issue: "Ontology file not found"](#issue-ontology-file-not-found)
+    - [Issue: "Invalid Turtle syntax"](#issue-invalid-turtle-syntax)
+    - [Issue: "No tools found in ontology"](#issue-no-tools-found-in-ontology)
+    - [Issue: "Duplicate tool names"](#issue-duplicate-tool-names)
+  - [Generation Errors](#generation-errors)
+    - [Issue: "Template rendering failed"](#issue-template-rendering-failed)
+    - [Issue: "Output directory not writable"](#issue-output-directory-not-writable)
+    - [Issue: "Generation timeout"](#issue-generation-timeout)
+  - [Build/Compilation Errors](#buildcompilation-errors)
+    - [Issue: "Cargo check failed"](#issue-cargo-check-failed)
+    - [Issue: "Missing dependency"](#issue-missing-dependency)
+    - [Issue: "Type mismatch errors"](#issue-type-mismatch-errors)
+  - [Runtime Errors](#runtime-errors)
+    - [Issue: "Server starts but tools not accessible"](#issue-server-starts-but-tools-not-accessible)
+    - [Issue: "stdio transport not working"](#issue-stdio-transport-not-working)
+    - [Issue: "Tool execution fails"](#issue-tool-execution-fails)
+  - [LLM Integration Issues](#llm-integration-issues)
+    - [Issue: "Groq API key not found"](#issue-groq-api-key-not-found)
+    - [Issue: "LLM generation timeout"](#issue-llm-generation-timeout)
+    - [Issue: "Generated code doesn't compile"](#issue-generated-code-doesnt-compile)
+  - [Performance Issues](#performance-issues)
+    - [Issue: "Generation takes too long"](#issue-generation-takes-too-long)
+    - [Issue: "Generated server is slow"](#issue-generated-server-is-slow)
+  - [Getting Help](#getting-help)
+    - [Diagnostic Information Collection](#diagnostic-information-collection)
+    - [Useful Commands](#useful-commands)
+    - [Community Resources](#community-resources)
+    - [Common Workarounds](#common-workarounds)
+  - [Word Count](#word-count)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Server Generation - Troubleshooting Guide
 
 **Last Updated:** 2026-03-31

@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Future-State MCP Documentation Summary](#future-state-mcp-documentation-summary)
+  - [Overview](#overview)
+  - [Documentation Created](#documentation-created)
+    - [Directory Structure](#directory-structure)
+  - [What Each Document Covers](#what-each-document-covers)
+    - [README.md (Main Index)](#readmemd-main-index)
+    - [01-quick-start/README.md](#01-quick-startreadmemd)
+    - [02-rdf-schema/README.md](#02-rdf-schemareadmemd)
+    - [03-code-generation/README.md](#03-code-generationreadmemd)
+    - [04-template-customization/README.md](#04-template-customizationreadmemd)
+    - [05-sparql-guide/README.md](#05-sparql-guidereadmemd)
+    - [06-examples/README.md](#06-examplesreadmemd)
+  - [Example Servers](#example-servers)
+  - [Key Differences from Current Implementation](#key-differences-from-current-implementation)
+  - [Verification](#verification)
+  - [Migration Notes](#migration-notes)
+  - [Related Documentation](#related-documentation)
+  - [Contributors](#contributors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Future-State MCP Documentation Summary
 
 **Date:** 2026-03-31

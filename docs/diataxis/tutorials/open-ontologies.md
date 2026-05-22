@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Getting Started with Open Ontologies in ggen](#tutorial-getting-started-with-open-ontologies-in-ggen)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Initialize an Ontology Project](#step-1-initialize-an-ontology-project)
+  - [Step 2: Validate the Schema Quality](#step-2-validate-the-schema-quality)
+  - [Step 3: Generate Code from the Ontology](#step-3-generate-code-from-the-ontology)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Getting Started with Open Ontologies in ggen
 
 Welcome! In this tutorial, you will learn how to initialize, validate, and generate code from an open ontology using the `ggen` CLI.

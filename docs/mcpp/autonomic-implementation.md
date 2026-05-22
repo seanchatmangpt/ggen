@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomic Closure: Implementation of Second-Order Meta-Feedback](#autonomic-closure-implementation-of-second-order-meta-feedback)
+  - [Overview](#overview)
+  - [1. Meta-Control Logic (`crates/mcpp-core/src/autonomics.rs`)](#1-meta-control-logic-cratesmcpp-coresrcautonomicsrs)
+  - [2. Policy Reification (`crates/mcpp-domain/src/autonomics.ttl`)](#2-policy-reification-cratesmcpp-domainsrcautonomicsttl)
+  - [3. The Meta-Feedback CLI Command (`crates/mcpp-cli/src/cmds/autonomics.rs`)](#3-the-meta-feedback-cli-command-cratesmcpp-clisrccmdsautonomicsrs)
+  - [4. Integration Strategy](#4-integration-strategy)
+  - [5. Verification](#5-verification)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomic Closure: Implementation of Second-Order Meta-Feedback
 
 ## Overview

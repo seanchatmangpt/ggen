@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: 8-Operator Lifecycle States](#reference-8-operator-lifecycle-states)
+  - [Lifecycle Operators & State Map](#lifecycle-operators--state-map)
+  - [Property Mappings](#property-mappings)
+  - [Error Codes](#error-codes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: 8-Operator Lifecycle States
 
 This document provides a technical reference for the states and operators used in the `ggen` marketplace governance model.

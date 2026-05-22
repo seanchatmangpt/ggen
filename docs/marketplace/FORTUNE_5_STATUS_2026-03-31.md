@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Fortune 5 CISO Production Readiness - WIP Status](#fortune-5-ciso-production-readiness---wip-status)
+  - [Build Status](#build-status)
+    - [Test Compilation Failures (Pre-Existing, Not from This Work)](#test-compilation-failures-pre-existing-not-from-this-work)
+  - [Fortune 5 CISO Release Gates](#fortune-5-ciso-release-gates)
+  - [New Files (Uncommitted)](#new-files-uncommitted)
+    - [Marketplace Core (~5,783 lines)](#marketplace-core-5783-lines)
+    - [CLI](#cli)
+    - [Tests](#tests)
+    - [Documentation (13 files in `docs/marketplace/`)](#documentation-13-files-in-docsmarketplace)
+  - [Modified Files (Uncommitted)](#modified-files-uncommitted)
+    - [Signature & Security](#signature--security)
+    - [Lockfile & Profile](#lockfile--profile)
+    - [Pipeline Integration](#pipeline-integration)
+    - [Marketplace Core](#marketplace-core)
+  - [Outstanding Work](#outstanding-work)
+    - [Blockers](#blockers)
+    - [Before Commit](#before-commit)
+  - [Agent Work Completed (8/8)](#agent-work-completed-88)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Fortune 5 CISO Production Readiness - WIP Status
 
 **Updated:** 2026-03-31

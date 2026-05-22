@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Command Testing Results](#cli-command-testing-results)
+  - [Summary](#summary)
+  - [Receipt Commands (3/3 FAILED)](#receipt-commands-33-failed)
+    - [1. `ggen receipt verify`](#1-ggen-receipt-verify)
+    - [2. `ggen receipt info`](#2-ggen-receipt-info)
+    - [3. `ggen receipt chain-verify`](#3-ggen-receipt-chain-verify)
+  - [MCP Commands (5/13 WORK)](#mcp-commands-513-work)
+    - [4. `ggen mcp list`](#4-ggen-mcp-list)
+    - [5. `ggen mcp schemas`](#5-ggen-mcp-schemas)
+    - [6. `ggen mcp init-config --mcp --a2a --force`](#6-ggen-mcp-init-config---mcp---a2a---force)
+    - [7. `ggen mcp validate-config --mcp-file .ggen/mcp.toml`](#7-ggen-mcp-validate-config---mcp-file-ggenmcptoml)
+    - [8. `ggen mcp validate-config --a2a-file .ggen/a2a.toml`](#8-ggen-mcp-validate-config---a2a-file-ggena2atoml)
+    - [9. `ggen mcp bridge test-agent`](#9-ggen-mcp-bridge-test-agent)
+    - [10. `ggen mcp status validate_pipeline`](#10-ggen-mcp-status-validate_pipeline)
+    - [11. `ggen mcp test validate_pipeline`](#11-ggen-mcp-test-validate_pipeline)
+    - [12. `ggen mcp setup --force`](#12-ggen-mcp-setup---force)
+    - [13. `ggen mcp groq-generate "test"`](#13-ggen-mcp-groq-generate-test)
+    - [14. `ggen mcp groq-chat "hello"`](#14-ggen-mcp-groq-chat-hello)
+    - [15. `ggen mcp groq-stream "test"`](#15-ggen-mcp-groq-stream-test)
+    - [16. `ggen mcp start-server ggen-server`](#16-ggen-mcp-start-server-ggen-server)
+  - [Ontology Commands (3/3 WORK)](#ontology-commands-33-work)
+    - [17. `ggen ontology generate domain.ttl rust`](#17-ggen-ontology-generate-domainttl-rust)
+    - [18. `ggen ontology validate domain.ttl`](#18-ggen-ontology-validate-domainttl)
+    - [19. `ggen ontology init test-project`](#19-ggen-ontology-init-test-project)
+  - [Key Findings](#key-findings)
+    - [1. CLI Naming Convention Issue](#1-cli-naming-convention-issue)
+    - [2. Internal Flag Prefix](#2-internal-flag-prefix)
+    - [3. Missing Commands](#3-missing-commands)
+    - [4. Network Dependencies](#4-network-dependencies)
+    - [5. Missing Tool](#5-missing-tool)
+  - [Recommendations](#recommendations)
+    - [1. Fix CLI Naming Consistency](#1-fix-cli-naming-consistency)
+    - [2. Add Receipt Commands](#2-add-receipt-commands)
+    - [3. Remove Internal Flag Prefix](#3-remove-internal-flag-prefix)
+    - [4. Add validate_pipeline Tool](#4-add-validate_pipeline-tool)
+    - [5. Document CLI Syntax](#5-document-cli-syntax)
+  - [Test Commands Used](#test-commands-used)
+    - [Build](#build)
+    - [Test Batch 1 (Original Syntax)](#test-batch-1-original-syntax)
+    - [Test Batch 2 (Corrected Syntax)](#test-batch-2-corrected-syntax)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Command Testing Results
 
 **Test Date:** 2026-04-01

@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Developer Security Checklist (v26.5.19)](#developer-security-checklist-v26.5.1900)
+- [Developer Security Checklist (v26.5.19)](#developer-security-checklist-v26519)
   - [Overview](#overview)
   - [Pre-Development Checklist](#pre-development-checklist)
   - [Code Development Checklist](#code-development-checklist)

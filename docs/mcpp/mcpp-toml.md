@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [mcpp.toml Specification](#mcpptoml-specification)
+  - [Overview](#overview)
+  - [Configuration Schema](#configuration-schema)
+  - [Naming Conventions](#naming-conventions)
+  - [Role in the God Box](#role-in-the-god-box)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # mcpp.toml Specification
 
 ## Overview

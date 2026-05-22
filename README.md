@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v26.5.21](#ggen-v26521)
+  - [Quick Start](#quick-start)
+  - [Key Features](#key-features)
+    - [🔍 OpenTelemetry Tracing](#-opentelemetry-tracing)
+  - [📊 Workspace Audit Dashboard](#-workspace-audit-dashboard)
+  - [🏗️ Architecture](#-architecture)
+    - [Five-Stage Pipeline (μ₁-μ₅)](#five-stage-pipeline-%CE%BC%E2%82%81-%CE%BC%E2%82%85)
+    - [Workspace Organization](#workspace-organization)
+    - [🧪 Chicago TDD](#-chicago-tdd)
+  - [`ggen init` -- Project Scaffolding](#ggen-init----project-scaffolding)
+  - [`ggen wizard` -- Interactive Bootstrap](#ggen-wizard----interactive-bootstrap)
+  - [`ggen sync` -- The Code Generation Pipeline](#ggen-sync----the-code-generation-pipeline)
+    - [Manifest-Driven Pipeline](#manifest-driven-pipeline)
+    - [Ontology-First Pipeline (no ggen.toml required)](#ontology-first-pipeline-no-ggentoml-required)
+    - [Flags Reference](#flags-reference)
+    - [Pipeline Stages (A2A-RS)](#pipeline-stages-a2a-rs)
+    - [Exit Codes](#exit-codes)
+  - [Command Reference](#command-reference)
+    - [Core Commands](#core-commands)
+    - [Template Commands](#template-commands)
+    - [Graph Commands](#graph-commands)
+    - [Utility Commands](#utility-commands)
+  - [Configuration](#configuration)
+  - [Philosophy](#philosophy)
+    - [1. Specification-First (Big Bang 80/20)](#1-specification-first-big-bang-8020)
+    - [2. Deterministic Validation](#2-deterministic-validation)
+    - [3. RDF-First](#3-rdf-first)
+  - [Constitutional Rules (v26.5.21)](#constitutional-rules-v26521)
+    - [1. Big Bang 80/20: Specification Closure First](#1-big-bang-8020-specification-closure-first)
+    - [2. EPIC 9: Parallel Agent Convergence (Advanced)](#2-epic-9-parallel-agent-convergence-advanced)
+    - [3. Deterministic Receipts: Evidence Replaces Narrative](#3-deterministic-receipts-evidence-replaces-narrative)
+    - [Quality Gates (Pre-Commit)](#quality-gates-pre-commit)
+  - [Common Patterns](#common-patterns)
+    - [REST API Generation](#rest-api-generation)
+    - [Multi-Language Support](#multi-language-support)
+  - [Status & Performance](#status--performance)
+    - [Performance SLOs](#performance-slos)
+  - [Contributing](#contributing)
+  - [Resources](#resources)
+    - [Documentation](#documentation)
+    - [Community](#community)
+  - [Project Constitution](#project-constitution)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v26.5.21
 
 [![CI](https://github.com/seanchatmangpt/ggen/workflows/CI/badge.svg)](https://github.com/seanchatmangpt/ggen/actions)

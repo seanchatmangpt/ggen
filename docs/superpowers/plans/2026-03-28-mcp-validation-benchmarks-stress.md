@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Server Validation, Benchmarks, and Stress Tests](#mcp-server-validation-benchmarks-and-stress-tests)
+  - [Task 1: Add Criterion benchmark dependency](#task-1-add-criterion-benchmark-dependency)
+  - [Task 2: Create benchmark infrastructure helper](#task-2-create-benchmark-infrastructure-helper)
+  - [Task 3: Tool performance benchmarks](#task-3-tool-performance-benchmarks)
+  - [Task 4: Resource and Prompt benchmarks](#task-4-resource-and-prompt-benchmarks)
+  - [Task 5: Documentation validation test](#task-5-documentation-validation-test)
+  - [Task 6: Stress tests — concurrent requests](#task-6-stress-tests--concurrent-requests)
+  - [Task 7: Property-based tests with proptest](#task-7-property-based-tests-with-proptest)
+  - [Task 8: Update README with benchmark/stress test documentation](#task-8-update-readme-with-benchmarkstress-test-documentation)
+    - [Stress Tests](#stress-tests)
+    - [Property-Based Tests](#property-based-tests)
+    - [Documentation Validation](#documentation-validation)
+  - [Task 9: Update RMCP_NOTES with benchmark patterns](#task-9-update-rmcp_notes-with-benchmark-patterns)
+    - [Duplex transport benchmark pattern](#duplex-transport-benchmark-pattern)
+    - [Stress testing concurrent requests](#stress-testing-concurrent-requests)
+    - [Property-based testing with proptest](#property-based-testing-with-proptest)
+  - [Task 10: Run full validation suite](#task-10-run-full-validation-suite)
+  - [Task 11: Update CHANGELOG](#task-11-update-changelog)
+  - [Task 12: Final verification and documentation](#task-12-final-verification-and-documentation)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Server Validation, Benchmarks, and Stress Tests
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

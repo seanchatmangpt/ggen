@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Generating MCP Servers from RDF Ontologies](#generating-mcp-servers-from-rdf-ontologies)
+  - [Quick Start](#quick-start)
+  - [Command Reference](#command-reference)
+    - [`ggen mcp generate`](#ggen-mcp-generate)
+  - [Example Ontology Structure](#example-ontology-structure)
+    - [Minimal Server (3 Tools)](#minimal-server-3-tools)
+    - [Full-Featured Server (Resources, Prompts, Validation)](#full-featured-server-resources-prompts-validation)
+  - [Generated File Structure](#generated-file-structure)
+  - [Customization Options](#customization-options)
+    - [1. Language Selection](#1-language-selection)
+    - [2. LLM-Assisted Implementation](#2-llm-assisted-implementation)
+    - [3. Custom Templates](#3-custom-templates)
+    - [4. Transport Configuration](#4-transport-configuration)
+  - [Testing Your Generated Server](#testing-your-generated-server)
+    - [1. Start the Server](#1-start-the-server)
+    - [2. Test with Claude Desktop](#2-test-with-claude-desktop)
+    - [3. Test with MCP Inspector](#3-test-with-mcp-inspector)
+  - [Common Issues](#common-issues)
+    - [Issue: "Ontology file not found"](#issue-ontology-file-not-found)
+    - [Issue: "No tools generated"](#issue-no-tools-generated)
+    - [Issue: "Cargo build failed"](#issue-cargo-build-failed)
+    - [Issue: "LLM generation failed"](#issue-llm-generation-failed)
+  - [Advanced Topics](#advanced-topics)
+    - [Generating Multi-Server Systems](#generating-multi-server-systems)
+    - [Custom Tool Schemas](#custom-tool-schemas)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: File Server MCP](#example-1-file-server-mcp)
+    - [Example 2: Database MCP](#example-2-database-mcp)
+  - [Next Steps](#next-steps)
+  - [Word Count](#word-count)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Generating MCP Servers from RDF Ontologies
 
 **Last Updated:** 2026-03-31
