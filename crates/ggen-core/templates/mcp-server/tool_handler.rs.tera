@@ -58,7 +58,11 @@ impl {{ server_name | default(value="GeneratedMcpServer") | pascal }} {
         &self,
         Parameters(params): Parameters<{{ row.tool_name | pascal }}Params>,
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
-        // TODO: implement {{ row.tool_name }}
+        tracing::info!(
+            tool = "{{ row.tool_name }}",
+            params = ?params,
+            "Executing MCP tool"
+        );
         Ok(CallToolResult::success(vec![Content::text(
             format!("{{ row.tool_name }} executed with params: {:?}", params)
         )]))

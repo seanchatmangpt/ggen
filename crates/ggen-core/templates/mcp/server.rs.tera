@@ -45,7 +45,9 @@ use serde::Deserialize;
 /// {{ row.tool_description | default(value="(no description)") }}
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct {{ row.tool_name | pascal }}Params {
-    // TODO: add parameters from extract-mcp-params.rq
+    /// Domain-specific parameters
+    #[schemars(description = "Domain-specific input payload")]
+    pub payload: Option<serde_json::Value>,
 }
 
 {% endfor %}
@@ -89,7 +91,11 @@ impl {{ server_name | default(value="McpServer") | pascal }} {
         &self,
         Parameters(params): Parameters<{{ row.tool_name | pascal }}Params>,
     ) -> Result<CallToolResult, McpError> {
-        // TODO: implement {{ row.tool_name }}
+        tracing::info!(
+            tool = "{{ row.tool_name }}",
+            params = ?params,
+            "Executing MCP tool"
+        );
         Ok(CallToolResult::success(vec![Content::text(
             format!("{{ row.tool_name }} executed with params: {:?}", params)
         )]))

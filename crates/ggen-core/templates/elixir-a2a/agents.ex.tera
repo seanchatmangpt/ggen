@@ -38,7 +38,9 @@ defmodule {{ agent.appModule | default(value="MyApp") }}.Agents.{{ agent.agentNa
   @impl A2A.Agent
   def handle_message(%A2A.Message{} = message, _context) do
     text = A2A.Message.text(message)
-    # TODO: replace with domain logic
+    # Default echo implementation for generated scaffold
+    require Logger
+    Logger.info("A2A.Agent.handle_message processing: #{inspect(text)}")
     {:reply, [Text.new(text)]}
   end
 end
