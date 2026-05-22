@@ -206,6 +206,21 @@ pub struct WizardOutput {
 ///
 /// ```bash
 /// # Interactive mode
+fn apply_metadata_overrides(
+    config: &mut WizardConfig, name: Option<String>, version: Option<String>,
+    description: Option<String>,
+) {
+    if let Some(n) = name {
+        config.metadata.name = n;
+    }
+    if let Some(v) = version {
+        config.metadata.version = v;
+    }
+    if let Some(d) = description {
+        config.metadata.description = d;
+    }
+}
+
 /// ggen wizard
 ///
 /// # Non-interactive with defaults
@@ -223,6 +238,7 @@ pub struct WizardOutput {
 #[verb("wizard", "root")]
 pub fn wizard(
     profile: Option<String>, output_dir: Option<String>, yes: Option<bool>, no_sync: Option<bool>,
+    name: Option<String>, version: Option<String>, description: Option<String>,
 ) -> clap_noun_verb::Result<WizardOutput> {
     let output_path = output_dir.unwrap_or_else(|| ".".to_string());
     let accept_defaults = yes.unwrap_or(false);
@@ -241,7 +257,7 @@ pub fn wizard(
     };
 
     // Create wizard config
-    let config = if accept_defaults {
+    let mut config = if accept_defaults {
         WizardConfig {
             profile: selected_profile,
             ..Default::default()
@@ -250,6 +266,9 @@ pub fn wizard(
         // Interactive configuration
         configure_interactive(selected_profile)?
     };
+
+    // Override metadata if provided via CLI
+    apply_metadata_overrides(&mut config, name, version, description);
 
     // Perform scaffold generation
     perform_wizard(&output_path, config, skip_sync)

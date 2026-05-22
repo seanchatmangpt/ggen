@@ -112,6 +112,9 @@ pub struct SyncedFile {
 
     /// Action taken: "created", "updated", "unchanged"
     pub action: String,
+
+    /// Rule that generated this file
+    pub rule: String,
 }
 
 impl From<SyncResult> for SyncOutput {
@@ -127,6 +130,7 @@ impl From<SyncResult> for SyncOutput {
                     path: f.path,
                     size_bytes: f.size_bytes,
                     action: f.action,
+                    rule: f.produced_by,
                 })
                 .collect(),
             inference_rules_executed: result.inference_rules_executed,
@@ -424,6 +428,7 @@ fn run_manifest_pipeline(
             path: f.path.clone(),
             size_bytes: f.size_bytes,
             action: f.action.clone(),
+            rule: f.produced_by.clone(),
         })
         .collect();
 
@@ -638,11 +643,8 @@ fn run_low_level_pipeline(
             } else {
                 std::fs::metadata(p).map_or(0, |m| m.len() as usize)
             },
-            action: if dry_run {
-                "would create".to_string()
-            } else {
-                "created".to_string()
-            },
+            action: "created".to_string(),
+            rule: "low-level-generator".to_string(),
         })
         .collect();
 

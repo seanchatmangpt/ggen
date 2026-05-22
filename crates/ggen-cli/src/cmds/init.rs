@@ -437,15 +437,30 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 #[allow(clippy::unused_unit)]
 #[verb("init", "root")]
 pub fn init(
-    path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>,
+    path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>, name: Option<String>,
+    version: Option<String>, description: Option<String>,
 ) -> VerbResult<InitOutput> {
     // Thin CLI layer: parse arguments and delegate to helper
     let project_dir = path.unwrap_or_else(|| ".".to_string());
     let force = force.unwrap_or(false);
     let skip_hooks = skip_hooks.unwrap_or(false);
 
+    // Prepare template variables
+    let project_name = name.unwrap_or_else(|| "my-ggen-project".to_string());
+    let project_version = version.unwrap_or_else(|| "0.1.0".to_string());
+    let project_desc = description
+        .unwrap_or_else(|| "A ggen project initialized with default templates".to_string());
+
     // Delegate to initialization logic
-    perform_init(&project_dir, force, skip_hooks).map_err(|e| e.into())
+    perform_init(
+        &project_dir,
+        force,
+        skip_hooks,
+        &project_name,
+        &project_version,
+        &project_desc,
+    )
+    .map_err(|e| e.into())
 }
 
 /// Helper function that performs the actual initialization.
@@ -465,7 +480,7 @@ pub fn init(
 ///
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
-    project_dir: &str, force: bool, skip_hooks: bool,
+    project_dir: &str, force: bool, skip_hooks: bool, name: &str, version: &str, description: &str,
 ) -> std::result::Result<InitOutput, GgenError> {
     // Convert to Path for easier manipulation
     let base_path = Path::new(project_dir);
@@ -605,7 +620,18 @@ fn perform_init(
 
     // Create ggen.toml
     let toml_path = base_path.join("ggen.toml");
-    tx.write_file(&toml_path, GGEN_TOML)
+    let manifest_content = GGEN_TOML
+        .replace(
+            "name = \"my-ggen-project\"",
+            &format!("name = \"{}\"", name),
+        )
+        .replace("version = \"0.1.0\"", &format!("version = \"{}\"", version))
+        .replace(
+            "description = \"A ggen project initialized with default templates\"",
+            &format!("description = \"{}\"", description),
+        );
+
+    tx.write_file(&toml_path, &manifest_content)
         .map_err(|e| GgenError::CommandError(format!("Failed to write ggen.toml: {}", e)))?;
 
     // Create schema/domain.ttl
@@ -783,7 +809,15 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
-        let result = perform_init(project_path, false, true).expect("Init should succeed");
+        let result = perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Init should succeed");
 
         // Verify success status
         assert_eq!(result.status, "success");
@@ -836,7 +870,15 @@ mod tests {
         fs::write(base.join(".gitignore"), gitignore_content).expect("Failed to write .gitignore");
         fs::write(base.join("README.md"), readme_content).expect("Failed to write README.md");
 
-        let result = perform_init(project_path, false, true).expect("Init should succeed");
+        let result = perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Init should succeed");
 
         // Verify files were preserved
         assert!(
@@ -875,7 +917,15 @@ mod tests {
         let base = PathBuf::from(project_path);
 
         // First init
-        perform_init(project_path, false, true).expect("First init should succeed");
+        perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("First init should succeed");
 
         // Modify a file
         let toml_path = base.join("ggen.toml");
@@ -883,13 +933,29 @@ mod tests {
         fs::write(&toml_path, "# Modified\n").expect("Failed to modify ggen.toml");
 
         // Second init without force should fail
-        let result = perform_init(project_path, false, true).expect("Should return result");
+        let result = perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Should return result");
         assert_eq!(result.status, "error");
         assert!(result.error.is_some());
         assert!(result.error.unwrap().contains("already initialized"));
 
         // Second init with force should succeed
-        let result = perform_init(project_path, true, true).expect("Force init should succeed");
+        let result = perform_init(
+            project_path,
+            true,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Force init should succeed");
         assert_eq!(result.status, "success");
         assert!(
             result.files_overwritten.is_some(),
@@ -909,7 +975,15 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
-        let result = perform_init(project_path, false, true).expect("Init should succeed");
+        let result = perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Init should succeed");
 
         // Verify transaction info is present and accurate
         assert!(result.transaction.is_some());
@@ -935,10 +1009,26 @@ mod tests {
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
         // First init
-        perform_init(project_path, false, true).expect("First init should succeed");
+        perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("First init should succeed");
 
         // Force re-init
-        let result = perform_init(project_path, true, true).expect("Force init should succeed");
+        let result = perform_init(
+            project_path,
+            true,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Force init should succeed");
 
         // Verify backups were created
         assert!(result.transaction.is_some());
@@ -955,7 +1045,15 @@ mod tests {
         let project_path = temp_dir.path().to_str().expect("Invalid path");
         let base = PathBuf::from(project_path);
 
-        let result = perform_init(project_path, false, true).expect("Init should succeed");
+        let result = perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Init should succeed");
 
         // Verify all required directories exist
         assert!(base.join("schema").is_dir(), "schema/ should exist");
@@ -985,7 +1083,15 @@ mod tests {
         let project_path = temp_dir.path().to_str().expect("Invalid path");
         let base = PathBuf::from(project_path);
 
-        perform_init(project_path, false, true).expect("Init should succeed");
+        perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Init should succeed");
 
         // Verify startup.sh has executable permissions
         let startup_path = base.join("scripts/startup.sh");
@@ -1001,7 +1107,15 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
-        let result = perform_init(project_path, false, true).expect("Init should succeed");
+        let result = perform_init(
+            project_path,
+            false,
+            true,
+            "test-project",
+            "0.1.0",
+            "test desc",
+        )
+        .expect("Init should succeed");
 
         // Verify InitOutput structure
         assert_eq!(result.status, "success");
