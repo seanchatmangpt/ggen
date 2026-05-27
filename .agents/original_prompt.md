@@ -1713,3 +1713,35 @@ Please apply the following Rust Core Team Best Practices to the active implement
 4. **Performance & Heap-Free**: Maintain heap-free zero-overhead layout for the hot execution path in the Genesis core.
 
 Make sure the active workers align their current code fixes and test structures with these principles.
+
+
+## 2026-05-27T16:47:26Z
+
+Here is the Swarm Operating System Prompt Pack for documenting all interop contracts, specifications, and creating the finish plan. Please transition to this phase:
+
+# Swarm Operating System Prompt Pack
+
+## Mission
+Document the full Genesis-bearing interchangeable parts architecture for interop and finish.
+Create the directory `docs/interop/` and produce the following files:
+1. `00_INDEX.md` (Main index linking every report, executive summary, finish plan, top risks, final architecture status judgment)
+2. `01_PORTFOLIO_MAP.md` (Portfolio classification table)
+3. `02_BOUNDARY_DOCTRINE.md` (Expose boundaries between Core, Membrane, Body, and Projections)
+4. `03_INTEROP_CONTRACTS.md` (Boundary interfaces table mapping Inputs, Outputs, Proof, Replay, Refusal, and Validators)
+5. `04_GENESIS_CORE_SPEC.md` (Primitives, Page split laws, set/bag/stream multiplicity law, context authority)
+6. `05_GGEN_FOUNDRY_SPEC.md` (ggen foundry, membrane adapters, projection output formats)
+7. `06_PART_RUNTIME_SPEC.md` (AtomVM custody, WASM portability, Rust physical discipline, part lifecycle states)
+8. `07_PROOF_SURFACES_SPEC.md` (Receipt types, Replay log, Refusal cases: Need9/257, invalid context, sabotage gates)
+9. `09_DATA_ALGEBRA_GALL.md` (GALL data algebra checklist, relation page bounds, join correctness check)
+10. `09_EXTERNAL_VALIDATION_SPEC.md` (DuckDB, QLever, SHACL, OCEL validation bridge mapping)
+11. `10_PUBLIC_VOCABULARY_GALL.md` (Open Ontologies survivability checkpoint mapping)
+12. `13_DEFINITION_OF_DONE.md` (v0.1, v0.2, and Vision 2030 standards)
+13. `14_AGENT_WORK_QUEUE.md` (Work packets with owners, inputs, outputs, tests, and risks)
+14. `15_FINISH_PLAN.md` (Finish backlog, dependency graph, observed-vs-planned matrix)
+
+## Swarm Contract Constraints
+- Do not put outside-world dependencies inside Genesis.
+- Pair2 is left byte + right byte under a predicate-fixed RelationPage context (not compressed RDF).
+- Every claim must be tagged with status (IMPLEMENTED, PARTIAL, MISSING, etc.) and backed by file evidence in the repo.
+
+Align the Project Orchestrator and all subagent workers to execute this specification.

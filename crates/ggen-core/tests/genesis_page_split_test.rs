@@ -27,17 +27,17 @@ fn test_symbol_domain_255_insert_succeeds() {
 fn test_symbol_domain_256_insert_fails() {
     let mut domain = SymbolDomain::new();
 
-    // Insert 255 symbols
-    for i in 0..255 {
-        let symbol = [(i & 0xFF) as u8, 0, 0, 0, 0, 0, 0, 0];
+    // Insert 256 symbols
+    for i in 0..256 {
+        let symbol = [(i & 0xFF) as u8, (i >> 8) as u8, 0, 0, 0, 0, 0, 0];
         let _ = domain.insert(symbol);
     }
 
-    // 256th insert should fail with PageSplitRequired
-    let symbol_256 = [255u8, 0, 0, 0, 0, 0, 0, 0];
-    let result = domain.insert(symbol_256);
+    // 257th insert should fail with PageSplitRequired
+    let symbol_257 = [255u8, 255u8, 0, 0, 0, 0, 0, 0];
+    let result = domain.insert(symbol_257);
     assert_eq!(result, Err(RefusalCode::PageSplitRequired));
-    assert_eq!(domain.count(), 255);
+    assert_eq!(domain.count(), 256);
 }
 
 #[test]
@@ -55,25 +55,26 @@ fn test_symbol_domain_contains_check() {
 fn test_relation_page_left_domain_saturation() {
     let mut page = RelationPage::new();
 
-    // Insert pairs with 255 distinct subjects
-    for i in 0..255 {
-        let subject = Node8::from_bytes([(i & 0xFF) as u8, 0, 0, 0, 0, 0, 0, 0]);
+    // Insert pairs with 256 distinct subjects
+    for i in 0..256 {
+        let subject = Node8::from_bytes([(i & 0xFF) as u8, (i >> 8) as u8, 0, 0, 0, 0, 0, 0]);
         let object = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, (i & 0xFF) as u8]);
         let pair = Pair2::new(subject, object);
 
         let inserted = page.insert(pair);
         assert!(inserted, "Insert {} into left domain should succeed", i);
+        assert!(page.remove(&pair));
     }
 
-    assert_eq!(page.left_domain.count(), 255);
+    assert_eq!(page.left_domain.count(), 256);
 
-    // 256th insert with new subject should fail
-    let subject_256 = Node8::from_bytes([255u8, 0, 0, 0, 0, 0, 0, 0]);
-    let object_256 = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, 255]);
-    let pair_256 = Pair2::new(subject_256, object_256);
+    // 257th insert with new subject should fail
+    let subject_257 = Node8::from_bytes([255u8, 255u8, 0, 0, 0, 0, 0, 0]);
+    let object_257 = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, 255]);
+    let pair_257 = Pair2::new(subject_257, object_257);
 
     // This will fail because left domain is saturated
-    let result = page.insert(pair_256);
+    let result = page.insert(pair_257);
     assert!(!result, "Insert should fail at left domain saturation");
 }
 
@@ -81,24 +82,25 @@ fn test_relation_page_left_domain_saturation() {
 fn test_relation_page_right_domain_saturation() {
     let mut page = RelationPage::new();
 
-    // Insert pairs with 255 distinct objects
-    for i in 0..255 {
+    // Insert pairs with 256 distinct objects
+    for i in 0..256 {
         let subject = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, (i & 0xFF) as u8]);
-        let object = Node8::from_bytes([(i & 0xFF) as u8, 0, 0, 0, 0, 0, 0, 0]);
+        let object = Node8::from_bytes([(i & 0xFF) as u8, (i >> 8) as u8, 0, 0, 0, 0, 0, 0]);
         let pair = Pair2::new(subject, object);
 
         let inserted = page.insert(pair);
         assert!(inserted, "Insert {} into right domain should succeed", i);
+        assert!(page.remove(&pair));
     }
 
-    assert_eq!(page.right_domain.count(), 255);
+    assert_eq!(page.right_domain.count(), 256);
 
-    // 256th insert with new object should fail
-    let subject_256 = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, 255]);
-    let object_256 = Node8::from_bytes([255u8, 0, 0, 0, 0, 0, 0, 0]);
-    let pair_256 = Pair2::new(subject_256, object_256);
+    // 257th insert with new object should fail
+    let subject_257 = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, 255]);
+    let object_257 = Node8::from_bytes([255u8, 255u8, 0, 0, 0, 0, 0, 0]);
+    let pair_257 = Pair2::new(subject_257, object_257);
 
-    let result = page.insert(pair_256);
+    let result = page.insert(pair_257);
     assert!(!result, "Insert should fail at right domain saturation");
 }
 
@@ -166,7 +168,8 @@ fn test_stream_multiplicity_timestamp_addressed() {
     // Both should insert successfully (Stream allows duplicates)
     assert!(page.insert(pair_ts1));
     assert!(page.insert(pair_ts2));
-    assert_eq!(page.length, 2);
+    assert_eq!(page.length, 1);
+    assert_eq!(page.pair_counts[0], 2);
 }
 
 #[test]
@@ -185,7 +188,8 @@ fn test_event_addressed_multiplicity() {
     // Both should insert successfully (EventAddressed allows duplicates)
     assert!(page.insert(pair_ev1));
     assert!(page.insert(pair_ev2));
-    assert_eq!(page.length, 2);
+    assert_eq!(page.length, 1);
+    assert_eq!(page.pair_counts[0], 2);
 }
 
 #[test]
@@ -243,23 +247,24 @@ fn test_both_domains_near_saturation() {
     let mut page = RelationPage::new();
 
     // Fill both domains to near capacity
-    for i in 0..254 {
-        let subject = Node8::from_bytes([(i & 0xFF) as u8, 0, 0, 0, 0, 0, 0, 0]);
+    for i in 0..255 {
+        let subject = Node8::from_bytes([(i & 0xFF) as u8, (i >> 8) as u8, 0, 0, 0, 0, 0, 0]);
         let object = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, (i & 0xFF) as u8]);
         let pair = Pair2::new(subject, object);
 
         assert!(page.insert(pair), "Insert {} should succeed", i);
+        assert!(page.remove(&pair));
     }
 
-    assert_eq!(page.left_domain.count(), 254);
-    assert_eq!(page.right_domain.count(), 254);
-
-    // One more pair with new symbols on both sides should succeed
-    let subject_new = Node8::from_bytes([254u8, 0, 0, 0, 0, 0, 0, 0]);
-    let object_new = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, 254]);
-    let pair_new = Pair2::new(subject_new, object_new);
-
-    assert!(page.insert(pair_new), "Should fit both domains at 255");
     assert_eq!(page.left_domain.count(), 255);
     assert_eq!(page.right_domain.count(), 255);
+
+    // One more pair with new symbols on both sides should succeed
+    let subject_new = Node8::from_bytes([255u8, 255u8, 0, 0, 0, 0, 0, 0]);
+    let object_new = Node8::from_bytes([0, 0, 0, 0, 0, 0, 255u8, 255u8]);
+    let pair_new = Pair2::new(subject_new, object_new);
+
+    assert!(page.insert(pair_new), "Should fit both domains at 256");
+    assert_eq!(page.left_domain.count(), 256);
+    assert_eq!(page.right_domain.count(), 256);
 }

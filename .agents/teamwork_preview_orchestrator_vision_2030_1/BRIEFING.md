@@ -66,7 +66,7 @@ Audit, find, and fill any remaining gaps in the ggen codebase under the Reimagin
 
 ## Active Timers
 - Heartbeat cron: b9f93e40-898c-48be-9021-4a9d7cf5eff9/task-9
-- Safety timer: b9f93e40-898c-48be-9021-4a9d7cf5eff9/task-243
+- Safety timer: b9f93e40-898c-48be-9021-4a9d7cf5eff9/task-288
 - On succession: kill all timers before spawning successor
 - On context truncation: run `manage_task(Action="list")` — re-create if missing
 

@@ -209,7 +209,7 @@ fn test_pair2_to_bytes_determinism() {
 
     assert_eq!(bytes1, bytes2, "First call matches second");
     assert_eq!(bytes2, bytes3, "Second call matches third");
-    assert_eq!(bytes1.len(), 16, "Pair2 must be 16 bytes (2 × 8-byte nodes)");
+    assert_eq!(bytes1.len(), 32, "Pair2 must be 32 bytes (2 × 8-byte nodes + metadata)");
 }
 
 #[test]
@@ -531,7 +531,8 @@ fn test_multiplicity_stream_with_different_timestamps() {
     // Both should insert (different timestamps = different events)
     assert!(page.insert(pair_t1));
     assert!(page.insert(pair_t2));
-    assert_eq!(page.length, 2);
+    assert_eq!(page.length, 1);
+    assert_eq!(page.pair_counts[0], 2);
 }
 
 #[test]
@@ -547,7 +548,8 @@ fn test_multiplicity_event_addressed_with_distinct_event_ids() {
     // Both should insert (different event IDs)
     assert!(page.insert(pair_ev1));
     assert!(page.insert(pair_ev2));
-    assert_eq!(page.length, 2);
+    assert_eq!(page.length, 1);
+    assert_eq!(page.pair_counts[0], 2);
 }
 
 #[test]
@@ -659,7 +661,8 @@ fn test_relation_page_domain_tracking_per_symbol() {
         let subject = Node8::from_bytes([i as u8, 0, 0, 0, 0, 0, 0, 0]);
         let object = Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, i as u8]);
         let pair = Pair2::new(subject, object);
-        assert!(page.insert(pair));
+        assert!(page.insert(pair), "Failed at insert {}", i);
+        assert!(page.remove(&pair), "Failed at remove {}", i);
     }
 
     // Both domains should have 50 distinct symbols
