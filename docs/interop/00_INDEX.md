@@ -18,6 +18,7 @@ This directory contains the definitive swarm documentation for the **Genesis-bea
 - **[05. ggen Foundry & Membrane Spec](05_GGEN_FOUNDRY_SPEC.md)**: External IO, Adapters, and Projections.
 - **[06. Part Runtime Spec](06_PART_RUNTIME_SPEC.md)**: AtomVM custody, WASM portability, Rust discipline.
 - **[16. Code Catalog Architecture](16_CODE_CATALOG_ARCHITECTURE.md)**: Open-source tooling blueprint for AI agent code cataloging.
+- **[17. Capability Manufacturing Theory](17_CAPABILITY_MANUFACTURING_THEORY.md)**: The foundational shift from software engineering to manufacturing process-capability lattices.
 
 ## Lifecycle, Proof, and Intelligence
 - **[07. Truex Lifecycle Spec](07_TRUEX_LIFECYCLE_SPEC.md)**: Promotion, Accounting, and Enterprise Trust.
@@ -28,6 +29,7 @@ This directory contains the definitive swarm documentation for the **Genesis-bea
 - **[09. External Validation Spec](09_EXTERNAL_VALIDATION_SPEC.md)**: DuckDB, QLever, SHACL consumers.
 - **[09a. Data Algebra GALL](09a_DATA_ALGEBRA_GALL.md)**: Relational checks, split limits, and index laws.
 - **[10. Public Vocabulary GALL](10_PUBLIC_VOCABULARY_GALL.md)**: Open-ontologies survivability checkpoints.
+- **[18. GALL-CAP Spec](18_GALL_CAP_SPEC.md)**: Capability Admissibility & Process Interchangeability Layer.
 
 ## Finish Planning
 - **[10. DFLSS Finish Charter](10_DFLSS_FINISH_CHARTER.md)**: Pointer to the DMADV charter.
