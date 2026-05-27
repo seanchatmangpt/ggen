@@ -263,7 +263,7 @@ crate-type = ["cdylib"]
 
         // Invoke cargo build
         let output = Command::new("cargo")
-            .args(&["build", "--lib", "--release"])
+            .args(["build", "--lib", "--release"])
             .current_dir(work_dir)
             .output()
             .map_err(|e| {

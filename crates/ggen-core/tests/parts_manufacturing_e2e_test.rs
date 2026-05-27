@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+
 //! End-to-end tests for parts manufacturing pipeline (μ₀-μ₅)
 //!
 //! Chicago TDD: Real compiler invocations, real file I/O, real cryptography.

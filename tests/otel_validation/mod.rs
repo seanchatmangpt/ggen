@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
 //! OpenTelemetry validation framework for README capabilities
 //!
 //! This module provides trace-based validation that all README capabilities

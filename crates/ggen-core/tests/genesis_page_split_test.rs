@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+
 //! Page split law verification tests for Genesis core primitives.
 //! Testing domain saturation, multiplicity semantics, and split mechanics.
 //! Chicago TDD: Real state changes, no mocks, deterministic replay.

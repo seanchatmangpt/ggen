@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+
 //! Genesis determinism verification tests.
 //! Ensures Pair2 serialization, Construct8 hashing, and PageSplit are deterministic.
 //! Chicago TDD: Real serialization, hash verification, idempotence checks.

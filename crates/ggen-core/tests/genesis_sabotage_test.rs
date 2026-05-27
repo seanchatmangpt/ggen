@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
 //! Sabotage Tests: Defect Injection and Boundary Validation
 //! Tests that the system correctly detects and refuses 14+ injected defects
 

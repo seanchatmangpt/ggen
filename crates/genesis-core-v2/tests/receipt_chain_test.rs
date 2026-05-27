@@ -10,7 +10,7 @@
 //! 4. Out-of-order replay must emit `OutofOrderEpoch` refusal
 //! 5. A forged all-zero receipt must fail verification
 
-use genesis_core::primitives::{Construct8, Pair2, Receipt, Refusal, RefusalReason, ReplayCursor};
+use genesis_core_v2::primitives::{Construct8, Pair2, Receipt, Refusal, RefusalReason, ReplayCursor};
 
 /// Build a 3-act causal chain and return (act1, receipt1, act2, receipt2, act3, receipt3).
 fn build_chain() -> (

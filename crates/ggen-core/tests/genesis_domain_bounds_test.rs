@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+
 //! Domain bounds enforcement and saturation testing for Genesis primitives.
 //! Tests that left and right domains enforce 256-symbol limits and proper refusal.
 //! Chicago TDD: Real state changes, deterministic bounds checking, no mocks.

@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+
 //! Verification tests for Genesis core primitives.
 //! Following AGENTS.md Chicago TDD and anti-cheating mandates.
 

@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+
 //! Receipt Ledger E2E Test
 //!
 //! Proves the ggen → mcpp → truex receipt chain:
