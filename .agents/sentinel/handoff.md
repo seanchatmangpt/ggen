@@ -3,18 +3,18 @@
 ## Observation
 - Verbatim user request to build `capability-map` (`cpmp`) in `/Users/sac/capability-map` and the Enterprise Wrapper Architecture update were received.
 - The Sentinel recorded the requests in `/Users/sac/ggen/ORIGINAL_REQUEST.md` and `/Users/sac/ggen/.agents/original_prompt.md`.
-- The Sentinel spawned the Project Orchestrator subagent (`70792bd0-ab12-427f-90d5-5e928bdf78a6`) under `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp/`.
+- The initial orchestrator failed due to a `RESOURCE_EXHAUSTED` (429) rate limit error.
+- After the quota reset period elapsed, the Sentinel spawned the new Project Orchestrator subagent (`78b02281-57d0-46c0-97ce-0b633125fe52`) under `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp_gen2/`.
 - The Sentinel scheduled the Progress Reporting cron (Cron 1) and Liveness Check cron (Cron 2) to monitor implementation health.
-- The Enterprise Wrapper Architecture updates were forwarded to the orchestrator.
 
 ## Logic Chain
-- Initializing a fresh orchestrator for `/Users/sac/capability-map` enables clean isolation of tasks and specialists for this package without polluting the `ggen` root repository.
+- Spawning a successor orchestrator ensures execution resumes cleanly now that the API quota has reset.
 
 ## Caveats
-- The codebase relies on `open-ontologies` integration for Turtle validation and graph queries, which requires setup verification by the explorer subagent.
+- The new orchestrator inherits the full context of both original CPMP requirements and the Enterprise Wrapper Architecture requirements.
 
 ## Conclusion
-- Project Orchestrator has been spawned and briefed. The sentinel's crons are active.
+- Successor Project Orchestrator has been spawned and briefed. The sentinel's crons remain active and will monitor the new instance.
 
 ## Verification Method
-- Monitor `progress.md` at `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp/progress.md`.
+- Monitor `progress.md` at `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp_gen2/progress.md`.

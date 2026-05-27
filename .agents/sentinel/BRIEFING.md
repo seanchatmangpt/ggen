@@ -6,7 +6,7 @@ Build and finish `capability-map` (`cpmp`) in `/Users/sac/capability-map` levera
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/sac/ggen/.agents/sentinel/
-- Orchestrator: 70792bd0-ab12-427f-90d5-5e928bdf78a6
+- Orchestrator: 78b02281-57d0-46c0-97ce-0b633125fe52
 - Victory Auditor: TBD
 
 ## 🔒 Key Constraints

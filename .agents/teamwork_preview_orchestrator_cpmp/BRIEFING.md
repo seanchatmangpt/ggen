@@ -48,12 +48,13 @@ Build and finish capability-map (cpmp) in /Users/sac/capability-map leveraging o
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| Explorer (Assessment) | teamwork_preview_explorer | Investigate codebase | in-progress | 1ebd7863-7f6b-4fe6-9e44-379089ef4ea1 |
+| Explorer (Assessment) | teamwork_preview_explorer | Investigate codebase | failed | 1ebd7863-7f6b-4fe6-9e44-379089ef4ea1 |
+| Worker (Diagnostics) | teamwork_preview_worker | Run diagnostics | in-progress | eba08aff-d7e9-4edb-8569-1b30a7f7a3a5 |
 
 ## Succession Status
 - Succession required: no
-- Spawn count: 1 / 16
-- Pending subagents: [1ebd7863-7f6b-4fe6-9e44-379089ef4ea1]
+- Spawn count: 2 / 16
+- Pending subagents: [eba08aff-d7e9-4edb-8569-1b30a7f7a3a5]
 - Predecessor: none
 - Successor: not yet spawned
 
