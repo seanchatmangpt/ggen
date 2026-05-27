@@ -1,29 +1,41 @@
-# Definition of Done
+# 13 DEFINITION OF DONE
 
-## 1. Scope
-Defines the absolute criteria for completion across three distinct release tiers: v0.1, v0.2, and Vision 2030.
+This document formalizes the completion criteria for the Genesis-bearing interchangeable parts architecture across three horizons.
 
-## 2. v0.1 Definition of Done (Architecture & Algebra)
-**Goal: The math is safe and the rules are written.**
-- [x] Genesis Core Spec exists and explicitly isolates `genesis-core` from IO.
-- [x] ggen Foundry Spec exists and claims all membrane/adapter logic.
-- [x] Interchangeable Part Spec exists (AtomVM/WASM/Genesis bounds).
-- [x] Proof Surfaces documented (Packet, Segment, Shard).
-- [x] All docs in `docs/interop/` are complete and link to actual code/artifacts or denote missing status.
-- [x] No broad renames occurred without an explicit tracking plan.
+## 1. v0.1 Definition of Done
 
-## 3. v0.2 Definition of Done (Runtime & Validation)
-**Goal: The part runs and proves itself.**
-- [ ] `genesis-core` crate is physically separated and compiles to `wasm32-unknown-unknown` without OS dependencies.
-- [ ] `ggen-membrane` successfully maps a JSON fixture to a `RelationPage`.
-- [ ] Genesis successfully processes a `Construct8` packet and emits a BLAKE3 Packet Receipt.
-- [ ] The `Need257` and `Need9` sabotage tests correctly trigger Refusal artifacts.
-- [ ] `ggen-projection` outputs the result as valid OCEL 2.0 and N-Quads.
-- [ ] CI pipeline validates the N-Quads via QLever/DuckDB without errors.
+*   **Genesis Core Spec:** [IMPLEMENTED] `docs/interop/04_GENESIS_CORE_SPEC.md` exists and covers A=μ(O).
+*   **ggen Foundry Spec:** [IMPLEMENTED] `docs/interop/05_GGEN_FOUNDRY_SPEC.md` exists.
+*   **Interchangeable Part Spec:** [IMPLEMENTED] `docs/interop/06_PART_RUNTIME_SPEC.md` covers AtomVM/WASM boundaries.
+*   **Pair2/RelationPage/Construct8 Algebra:** [PARTIAL] Documented in `docs/interop/09a_DATA_ALGEBRA_GALL.md`, but requires Rust `genesis-core` implementation evidence.
+*   **Proof Surfaces:** [IMPLEMENTED] `docs/interop/07_PROOF_SURFACES_SPEC.md` covers receipts and refusal artifacts.
+*   **External Validation:** [IMPLEMENTED] `docs/interop/09_EXTERNAL_VALIDATION_SPEC.md` documents QLever/DuckDB bounds.
+*   **Process Interop:** [IMPLEMENTED] `docs/interop/08_PROCESS_INTELLIGENCE_SPEC.md` covers OCEL/wasm4pm.
+*   **Public Vocabulary GALL:** [IMPLEMENTED] `docs/interop/10_PUBLIC_VOCABULARY_GALL.md` specifies `open-ontologies` checkpoints.
+*   **Repo Claims Evidence-Backed:** [MISSING] Requires full source code scan (`src/**/*.rs`) matching architectural documents.
+*   **No Broad Rename Performed:** [IMPLEMENTED] Naming taxonomy stable without unplanned broad renames.
+*   **Final Doc Index:** [IMPLEMENTED] `docs/interop/00_INDEX.md` points to every artifact.
 
-## 4. Vision 2030 Definition of Done (Enterprise Scale)
-**Goal: The Blue River Dam is active.**
-- [ ] AtomVM parts are deployed at the edge (e.g., IoT gateways, local runners) capturing local source motion.
-- [ ] Truex lifecycle successfully promotes Segment receipts into an enterprise Shard.
-- [ ] `wasm4pm` continuously monitors OCEL streams projected by live ggen membranes.
-- [ ] Replay Cursors can successfully audit and reconstruct a 1,000,000-event history completely deterministically.
+## 2. v0.2 Definition of Done
+
+*   **Rust Validation:** [MISSING] `genesis-core` must compile and pass cargo tests for all Pair2 operations (`cargo test --package genesis-core`).
+*   **Integration Boundary:** [MISSING] `ggen` must physically produce an AtomVM binary via `cargo build --target wasm32-wasi` and log receipts.
+*   **Validation Path:** [MISSING] `pictl` or `wasm4pm` must parse a true runtime trace (OCEL 2.0) and assert Truex lifecycle promotion.
+*   **Proof Surfaces:** [TEST_ONLY] `tests/receipt_validation.rs` must reject tampered Pair2 payloads.
+*   **Finish Recommendation DoD:** All recommendations must have explicit measurable tests and CI gates assigned.
+
+## 3. Vision 2030 Definition of Done
+
+*   **Total Falsifiability:** [DOC_ONLY] All capabilities have strict Chicago TDD boundaries. No test doubles for boundary logic.
+*   **Real Collaborators Only:** [DOC_ONLY] `tests/` explicitly asserts on OCEL logs or database row mutations, not memory structures.
+*   **Strict Performance SLOs:** [DOC_ONLY] `cargo make slo-check` must execute and pass within predefined latency boundaries.
+*   **E2E Boundary Crossing:** [MISSING] Every layer (Genesis -> ggen -> AtomVM -> WASM -> Truex -> wasm4pm) covered by a unified E2E integration test suite (`tests/e2e/`).
+
+## Finish Recommendation: Complete the Core Extraction
+*   **Recommendation:** Isolate Genesis pure logic from `ggen`.
+*   **Definition of Done:** 
+    1. `genesis-core` crate is independent.
+    2. `cargo test --package genesis-core` passes.
+    3. `src/ostar/` imports `genesis-core` without cyclic dependencies.
+    4. Receipts are validated using `genesis-core`'s pure functions.
+    5. No JSON processing occurs within `genesis-core`.

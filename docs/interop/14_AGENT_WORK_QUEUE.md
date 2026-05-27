@@ -1,26 +1,25 @@
-# Agent Work Queue
+# 14 AGENT WORK QUEUE
 
-## 1. Scope
-Independent, executable work packages required to move from the v0.1 Documentation Phase to the v0.2 Implementation Phase.
+This queue enumerates the executable work packages required to bridge the Genesis-bearing interchangeable part architecture from its documented state to complete physical implementation.
 
-## 2. Work Packages
+## Work Packages
 
-| Work Package | Owner Agent | Files Touched | Inputs | Outputs | Tests | DoD | Risk |
+| Work package | Owner agent | Files touched | Inputs | Outputs | Tests | DoD | Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **WP-01: Isolate `genesis-core`** | Rust Architect | `crates/genesis-core/*` | KNHK `hot_kernels.rs` | Pure `#[no_std]` crate | Compilation | Compiles to WASM | Med |
-| **WP-02: Implement Need257 Split** | Data Algebra | `crates/genesis-core/src/page.rs`| `RelationPage` bounds | Split Page Logic | `test_need257` | Refusals fire | High |
-| **WP-03: Implement Need9 Split** | Data Algebra | `crates/genesis-core/src/packet.rs`| `Construct8` bounds | New Packet Trigger | `test_need9` | Refusals fire | High |
-| **WP-04: Membrane JSON Adapter**| Membrane Dev | `crates/ggen-membrane/src/json.rs`| JSON Log Fixture | `RelationPage` struct | `test_json_adapt` | Accurate map | Low |
-| **WP-05: Receipt Hash Chain** | Proof Dev | `crates/genesis-core/src/receipt.rs`| `Construct8` output | BLAKE3 Packet Hash| `test_hash_chain`| Matches spec | Med |
-| **WP-06: OCEL/wasm4pm Bridge** | Process Intel | `crates/ggen-projection/src/ocel.rs`| `Construct8` packets| OCEL 2.0 JSON | `test_wasm4pm` | Conforms | Med |
-| **WP-07: SHACL Validation Gate**| Public Vocab | `scripts/gall/shacl_gate.sh` | Projected Turtle | Pass/Fail Exit code| `test_shacl` | Catch bad URIs | Low |
-| **WP-08: Replay Cursor Logic** | Proof Dev | `crates/genesis-core/src/replay.rs`| Seed + Offset | Reconstructed act | `test_replay` | 100% match | High |
+| **WP1: Genesis Core Extraction** | `ostar-architect` | `src/genesis_core/`, `Cargo.toml` | `docs/interop/04_GENESIS_CORE_SPEC.md` | `genesis-core` crate (pure Rust A=μ(O)) | `tests/core_algebra.rs` [MISSING] | `cargo build -p genesis-core` passes with 0 warnings. | High - Core structural shift. |
+| **WP2: Pair2 / RelationPage Impl** | `ostar-operator` | `src/genesis_core/memory.rs` | WP1 Output | Pair2 tuple structs, `RelationPage` allocators | `tests/memory_layout.rs` [MISSING] | No heap allocations inside core Pair2 ops. | Medium - Memory unsafety risks. |
+| **WP3: ggen Membrane Adapters** | `ggen-sync` | `src/ggen/adapters/` | JSON/external APIs | `Construct8Packet` payloads | `tests/adapter_boundaries.rs` [MISSING] | Adapters successfully map external to Pair2 without internalizing dependencies. | Low - Well-defined boundary. |
+| **WP4: AtomVM Part Custody** | `ostar-operator` | `src/runtime/atomvm.rs` | `Construct8Packet` | WASM compliant payload | `tests/atomvm_custody.rs` [TEST_ONLY] | WASM binaries load and execute via `wasmtime` locally. | Medium - WASM/Rust interop edge cases. |
+| **WP5: Receipt Emitting & Truex** | `ostar-auditor` | `src/truex/receipts.rs` | AtomVM output | BLAKE3 verifiable receipts | `tests/receipt_chain.rs` [PARTIAL] | Receipts unforgeable; tampering test fails correctly. | High - Cryptographic trust layer. |
+| **WP6: wasm4pm OCEL Projection** | `ostar-doctor` | `src/wasm4pm/ocel.rs` | `src/truex/receipts.rs` | OCEL 2.0 JSON projection | `tests/ocel_projection.rs` [MISSING] | Validation passes via external pm4py tools. | Low - Purely a projection layer. |
+| **WP7: Public Vocabulary Interop** | `ostar-governor` | `src/validation/shacl.rs` | `open-ontologies` | SHACL validation results | `tests/shacl_compliance.rs` [MISSING] | Open ontology constraints enforced on RelationPages. | Medium - External vocab drift. |
+| **WP8: E2E Integration Suite** | `ostar-auditor` | `tests/e2e/manufacturing.rs` | All WP outputs | Test execution logs | `cargo test --test e2e` | All components interoperate from boundary to boundary. | High - Convergence of all systems. |
 
-## 3. Dependency Graph
-`WP-01` must precede all others.
-`WP-02`, `WP-03`, `WP-05`, `WP-08` depend on `WP-01`.
-`WP-04` and `WP-06` depend on `WP-01`.
-`WP-07` depends on `WP-06` (or N-Quads equivalent).
-
-## 4. Execution Rules
-Each agent taking a work package MUST read the Interop Contracts and the DFLSS Charter before modifying code.
+## Interop Boundary Summary (WP3 example)
+*   **Owner:** `ggen-sync`
+*   **Input:** External APIs, JSON
+*   **Output:** `Construct8Packet` payloads
+*   **Proof:** OTel trace logs / OCEL projection
+*   **Replay:** Payload replay cursor available in Truex
+*   **Refusal:** `BoundaryEvidenceMissing` error
+*   **Validation Path:** SHACL validation via `wasm4pm`
