@@ -332,9 +332,9 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
         "version": "1",
         "schema": "chatmangpt.receipt.envelope.v1",
         "producer": { "system": "ggen", "kind": "code-artifact" },
-        "payload": { "hash": "abc123", "path": "file.rs" },
+        "payload": { "schema": "ggen.code-artifact.v1", "hash": "blake3abc123", "path": "file.rs" },
         "previous": null,
-        "signature": { "algorithm": "Ed25519", "key_id": "test", "bytes": "" },
+        "signature": { "algorithm": "Ed25519", "key_id": "ggen.prod.20260527", "bytes": "" },
         "timestamp": "2026-05-27T00:00:00Z"
     }).to_string();
 
@@ -353,9 +353,9 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
         "version": "1",
         "schema": "chatmangpt.receipt.envelope.v1",
         "producer": { "system": "ggen", "kind": "code-artifact" },
-        "payload": { "hash": "xyz789", "path": "file.rs" },
+        "payload": { "schema": "ggen.code-artifact.v1", "hash": "blake3xyz789", "path": "file.rs" },
         "previous": null,
-        "signature": { "algorithm": "Ed25519", "key_id": "test", "bytes": "" },
+        "signature": { "algorithm": "Ed25519", "key_id": "ggen.prod.20260527", "bytes": "" },
         "timestamp": "2026-05-27T00:00:01Z"
     }).to_string();
     fs::write(dir2.join(receipt_file), &updated_content)?;
@@ -390,7 +390,7 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
     // Assert: Last receipt wins
     assert_eq!(receipts.len(), 1, "Should have 1 deduplicated receipt");
     assert_eq!(
-        receipts[0].1.payload.hash, "xyz789",
+        receipts[0].1.payload.hash, "blake3xyz789",
         "Should have latest receipt content (from dir2)"
     );
 

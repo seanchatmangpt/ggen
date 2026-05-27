@@ -2,11 +2,47 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
 
-use genesis_core::primitives::{Pair2, Refusal, RelationPage};
+use genesis_core::primitives::{Construct8, Pair2, Receipt, Refusal, RelationPage};
 use knhk_construct8::models::{Construct8Packet, SymbolTable};
 use rio_api::model::{NamedNode, Subject, Term};
 use rio_api::parser::TriplesParser;
 use rio_turtle::TurtleParser;
+
+// ─── WP4: GENESIS ADAPTER TRAIT ──────────────────────────────────────────────
+//
+// The membrane boundary law:
+//   - ggen owns contact with the external world (JSON, RDF, APIs)
+//   - Genesis owns consequence (pure A = μ(O))
+//   - The GenesisAdapter is the ONLY legal crossing point
+//   - No serde_json, no String, no external types cross into Genesis
+//   - Every crossing must produce a Construct8 act bound to a receipt
+
+/// The boundary trait enforcing the Genesis↔ggen interop contract.
+///
+/// Implementors translate external representations (RDF, JSON-LD, API payloads)
+/// into pure Genesis constructs: `Construct8` acts and `Receipt` evidence.
+///
+/// **Laws enforced by this trait:**
+/// 1. No `serde_json`, no `String`, no external format types in return values.
+/// 2. Every successful conversion produces a `Construct8` that can be receipted.
+/// 3. Every failed conversion produces a `Refusal`, not a panic or `None`.
+/// 4. `from_receipt()` reconstructs a membrane-side representation from a `Receipt`
+///    — the receipt is the canonical authority, not the source format.
+pub trait GenesisAdapter {
+    /// Convert this external representation into a Genesis `Construct8` act.
+    ///
+    /// The `epoch` monotonically identifies the construction event.
+    /// Returns `Err(Refusal)` if the representation violates Genesis laws
+    /// (e.g., too many pairs for a single act, illegal byte values).
+    fn to_construct8(&self, epoch: u64) -> Result<Construct8, Refusal>;
+
+    /// Reconstruct a membrane-side representation from a verified `Receipt`.
+    ///
+    /// The `Receipt` is the source of truth — not the original format.
+    /// This is the replay path: given a `Receipt`, the membrane can restore
+    /// the external representation that produced it.
+    fn from_receipt(receipt: &Receipt) -> Self;
+}
 
 #[derive(Debug, Error)]
 pub enum MembraneError {

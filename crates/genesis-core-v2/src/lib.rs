@@ -13,14 +13,27 @@ use genesis_types::{Error, ExecutionContext, PatternId, Result, WorkflowStep};
 use serde_json::json;
 use std::sync::Arc;
 
+pub mod inventory;
 pub mod patterns;
 pub mod primitives;
 pub mod registry;
+pub mod revelation;
+pub mod split_laws;
 
 pub use primitives::{
     Construct8, Pair2, Receipt, Refusal, RefusalReason, RelationPage, ReplayCursor,
 };
 pub use registry::PatternRegistry;
+pub use inventory::{
+    ArtifactStatus, ClassifiedArtifact, ConnectionMechanism, FinishStep,
+};
+pub use revelation::{
+    passes_all_gates, verify_lamb_authority, BabylonClaim, Church, ChurchJudgment,
+    ChurchVerdict, JerusalemGate, Plague, PlagueRecord, Seal, SealState,
+};
+pub use split_laws::{need257_split, need9_split, SplitResult};
+
+
 
 /// Core Pattern trait - all 43 YAWL patterns implement this
 ///

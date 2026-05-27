@@ -193,67 +193,44 @@ pub struct Receipt {
 }
 
 impl Receipt {
-    /// Generate a receipt deterministically for a Construct8 act and a previous receipt state.
+    /// Generate a BLAKE3 receipt deterministically for a Construct8 act and a previous receipt state.
+    ///
+    /// Binding inputs (in order):
+    /// 1. `previous_receipt` — 32-byte prior chain state
+    /// 2. `act.epoch` — u64 LE (causal ordering)
+    /// 3. `act.relation_id` — u32 LE (predicate identity)
+    /// 4. `act.valid_mask` — u8 (lane occupancy bitmap)
+    /// 5. 16 lane bytes — left|right for each of 8 lanes, zero-filled for invalid lanes
+    ///
+    /// This satisfies the Receipt Law: every lawful state transition emits a BLAKE3 receipt.
     pub fn generate(act: &Construct8, previous_receipt: &[u8; 32]) -> Self {
-        let mut signature = [0u8; 32];
-        let mut state = 0xabcdef1234567890u64;
+        let mut hasher = blake3::Hasher::new();
 
-        let mut mix = |val: u64| {
-            state = state.wrapping_add(val);
-            state ^= state >> 33;
-            state = state.wrapping_mul(0xff51afd7ed558ccd);
-            state ^= state >> 33;
-            state = state.wrapping_mul(0xc4ceb9fe1a85ec53);
-            state ^= state >> 33;
-            state
-        };
+        // 1. Chain to previous receipt (32 bytes)
+        hasher.update(previous_receipt);
 
-        // Mix previous receipt signature
-        let mut i = 0;
-        while i < 4 {
-            let chunk = u64::from_le_bytes(
-                previous_receipt[i * 8..i * 8 + 8]
-                    .try_into()
-                    .unwrap_or([0u8; 8]),
-            );
-            mix(chunk);
-            i += 1;
-        }
+        // 2. Epoch (8 bytes LE)
+        hasher.update(&act.epoch.to_le_bytes());
 
-        let s1 = mix(act.epoch);
-        let s2 = mix(act.relation_id as u64);
-        let s3 = mix(act.valid_mask as u64);
+        // 3. Relation ID (4 bytes LE)
+        hasher.update(&act.relation_id.to_le_bytes());
 
-        let mut lefts = 0u64;
-        let mut rights = 0u64;
-        let mut lane_idx = 0;
+        // 4. Valid mask (1 byte — lane occupancy bitmap)
+        hasher.update(&[act.valid_mask]);
+
+        // 5. All 8 lanes (2 bytes each = 16 bytes total), zero-filled for invalid lanes
+        let mut lane_idx = 0usize;
         while lane_idx < 8 {
             if (act.valid_mask & (1 << lane_idx)) != 0 {
-                lefts = (lefts << 8) | act.lanes[lane_idx].left as u64;
-                rights = (rights << 8) | act.lanes[lane_idx].right as u64;
+                hasher.update(&[act.lanes[lane_idx].left, act.lanes[lane_idx].right]);
             } else {
-                lefts = (lefts << 8) | 0u64;
-                rights = (rights << 8) | 0u64;
+                hasher.update(&[0u8, 0u8]);
             }
             lane_idx += 1;
         }
-        let s4 = mix(lefts);
-        let s5 = mix(rights);
 
-        let s1_bytes = s1.to_le_bytes();
-        let s2_bytes = s2.to_le_bytes();
-        let s3_bytes = s3.to_le_bytes();
-        let s4_5_bytes = (s4 ^ s5).to_le_bytes();
-
-        let mut b = 0;
-        while b < 8 {
-            signature[b] = s1_bytes[b];
-            signature[8 + b] = s2_bytes[b];
-            signature[16 + b] = s3_bytes[b];
-            signature[24 + b] = s4_5_bytes[b];
-            b += 1;
-        }
-
+        let hash = hasher.finalize();
+        let signature: [u8; 32] = *hash.as_bytes();
         Self { signature }
     }
 }

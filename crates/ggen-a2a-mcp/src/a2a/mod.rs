@@ -7,6 +7,7 @@ pub mod artifact;
 pub mod receipt;
 pub mod state_machine;
 pub mod transport;
+pub mod ggen_construct;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

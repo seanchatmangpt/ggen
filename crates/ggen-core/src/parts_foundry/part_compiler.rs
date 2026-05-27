@@ -80,7 +80,7 @@ crate-type = ["cdylib"]
 
         // Invoke wasm-pack
         let output = Command::new("wasm-pack")
-            .args(&["build", "--target", "web", "--opt-level", "z"])
+            .args(["build", "--target", "web", "--opt-level", "z"])
             .current_dir(work_dir)
             .output()
             .map_err(|e| {
@@ -126,7 +126,7 @@ crate-type = ["cdylib"]
 
         // Invoke erlc
         let output = Command::new("erlc")
-            .args(&[
+            .args([
                 "-o",
                 output_dir.to_string_lossy().as_ref(),
                 erl_path.to_string_lossy().as_ref(),
@@ -193,7 +193,7 @@ path = "src/main.rs"
 
         // Invoke cargo for ARM (assumes target installed)
         let output = Command::new("cargo")
-            .args(&[
+            .args([
                 "build",
                 "--release",
                 "--target",

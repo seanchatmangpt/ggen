@@ -1,5 +1,5 @@
 [package]
-name = "genesis-core"
+name = "genesis-core-v2"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -15,9 +15,12 @@ parking_lot.workspace = true
 dashmap.workspace = true
 genesis-types.workspace = true
 genesis-schema.workspace = true
+blake3.workspace = true
 
 [dev-dependencies]
 tokio.workspace = true
 proptest.workspace = true
 tokio-test.workspace = true
 criterion.workspace = true
+chrono.workspace = true
+tempfile.workspace = true

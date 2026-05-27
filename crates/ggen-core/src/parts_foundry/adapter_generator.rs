@@ -96,7 +96,7 @@ impl AdapterGenerator {
                 iface.name.to_lowercase()
             ));
         }
-        code.push_str("\n");
+        code.push('\n');
 
         code.push_str("init() ->\n");
         code.push_str("    ok.\n\n");

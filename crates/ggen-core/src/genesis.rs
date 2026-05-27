@@ -624,9 +624,9 @@ impl fmt::Debug for Receipt {
             .field("operation_id", &self.operation_id)
             .field("inputs_hash", &HexSlice(&self.inputs_hash))
             .field("outputs_hash", &HexSlice(&self.outputs_hash))
-            .field("previous_receipt_hash", &self.previous_receipt_hash.as_ref().map(|h| HexSlice(h)))
-            .field("signature", &self.signature.as_ref().map(|s| HexSlice64(s)))
-            .field("public_key", &self.public_key.as_ref().map(|pk| HexSlice(pk)))
+            .field("previous_receipt_hash", &self.previous_receipt_hash.as_ref().map(HexSlice))
+            .field("signature", &self.signature.as_ref().map(HexSlice64))
+            .field("public_key", &self.public_key.as_ref().map(HexSlice))
             .field("timestamp", &self.timestamp)
             .finish()
     }

@@ -37,6 +37,12 @@ members = [
   "crates/ggen-core",
   "crates/ggen-cli",
   "crates/ggen-graph",
+  # Genesis kernel crates (pure Rust, IO-free)
+  "crates/genesis-types-v2",
+  "crates/genesis-schema-v2",
+  "crates/genesis-core-v2",
+  # DORMANT: no_std variant for wasm32-unknown-unknown targets
+  "crates/genesis-core",
   ]
 exclude = []
 resolver = "2" # Use new resolver for better dependency resolution
@@ -97,6 +103,11 @@ rig-core = "0.15.1"
 ggen-core = { path = "crates/ggen-core", version = "26.5.21" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.21" }
 
+# Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
+genesis-types = { path = "crates/genesis-types-v2" }
+genesis-schema = { path = "crates/genesis-schema-v2" }
+genesis-core = { path = "crates/genesis-core" }
+
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
 
@@ -123,6 +134,13 @@ console = "0.16"
 proptest = "1.8"
 chicago-tdd-tools = "1.4.0"
 fake = "2.9"
+tokio-test = "0.4"
+
+# Concurrency primitives
+parking_lot = "0.12"
+
+# Benchmarking (used by genesis-core-v2)
+criterion = { version = "0.5", features = ["html_reports"] }
 
 # AI integration
 genai = "0.5"
