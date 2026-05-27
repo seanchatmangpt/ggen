@@ -12,7 +12,7 @@
 //! 9. Cargo.toml dependency line
 
 use ggen_core::register::register_all;
-use serde_json::json;
+
 use tera::Context;
 
 fn render_template(name: &str, ctx: &Context) -> String {

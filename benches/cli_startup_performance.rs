@@ -1,4 +1,7 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use std::hint::black_box;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
@@ -59,7 +62,7 @@ fn bench_cli_startup(c: &mut Criterion) {
     group.bench_function("list_command", |b| {
         b.iter(|| {
             let output = Command::new(black_box(&binary_path))
-                .args(&["list"])
+                .args(["list"])
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
                 .output();

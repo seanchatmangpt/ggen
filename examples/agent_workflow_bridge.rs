@@ -95,6 +95,12 @@ pub struct WorkflowResult {
     pub duration_ms: u64,
 }
 
+impl Default for AgentWorkflowBridge {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AgentWorkflowBridge {
     /// Create a new agent workflow bridge
     pub fn new() -> Self {

@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-05-27T15:07:43Z",
+  "adequate_scripts_count": 21,
+  "total_scripts_count": 21,
+  "scripts": [
+    {
+      "path": "scripts/gall/external/00_capture_baseline.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/01_extract_requirements.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/02_verify_package_constraints.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/03_check_feature_flags.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/04_run_unit_tests.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/05_run_integration_tests.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/06_scan_forbidden_surfaces.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/07_check_anti_fake.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/08_verify_replay_receipts.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/09_verify_ocel_self_audit.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/10_verify_coverage_matrix.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/11_verify_proof_report.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/12_detect_contradictions.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/13_adjudicate_gall_promotion.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/20_capture_full_worktree_inventory.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/21_verify_command_transcripts.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/24_run_clean_room_rebuild.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/25_verify_cross_artifact_consistency.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/26_verify_ocel_causal_sufficiency.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/27_verify_contradiction_supersession.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    },
+    {
+      "path": "scripts/gall/external/99_adjudicate_witnessed_truthfulness.sh",
+      "has_safety_flags": true,
+      "uses_wrapper": true,
+      "no_early_bypass": true,
+      "status": "PASS",
+      "reason": "structural constraints met"
+    }
+  ]
+}

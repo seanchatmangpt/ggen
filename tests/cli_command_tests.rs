@@ -9,6 +9,7 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
 
+#[allow(dead_code)]
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 // ==============================================================================
@@ -17,7 +18,7 @@ type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 #[test]
 fn test_help_command() -> TestResult {
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("--help")
         .assert()
         .success()
@@ -27,7 +28,7 @@ fn test_help_command() -> TestResult {
 
 #[test]
 fn test_version_command() -> TestResult {
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("--version")
         .assert()
         .success()
@@ -37,13 +38,13 @@ fn test_version_command() -> TestResult {
 
 #[test]
 fn test_help_short_flag() -> TestResult {
-    Command::cargo_bin("ggen")?.arg("-h").assert().success();
+    let _ = Command::cargo_bin("ggen")?.arg("-h").assert().success();
     Ok(())
 }
 
 #[test]
 fn test_version_short_flag() -> TestResult {
-    Command::cargo_bin("ggen")?.arg("-V").assert().success();
+    let _ = Command::cargo_bin("ggen")?.arg("-V").assert().success();
     Ok(())
 }
 
@@ -61,14 +62,14 @@ fn test_no_args_shows_help() -> TestResult {
 
 #[test]
 fn test_init_requires_name() -> TestResult {
-    Command::cargo_bin("ggen")?.arg("init").assert().failure();
+    let _ = Command::cargo_bin("ggen")?.arg("init").assert().failure();
     Ok(())
 }
 
 #[test]
 fn test_init_with_name() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("init")
         .arg("test-project")
         .current_dir(temp.path())
@@ -80,7 +81,7 @@ fn test_init_with_name() -> TestResult {
 #[test]
 fn test_init_creates_config_file() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("init")
         .arg("test-project")
         .current_dir(temp.path())
@@ -94,7 +95,7 @@ fn test_init_creates_config_file() -> TestResult {
 #[test]
 fn test_init_with_template_flag() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("init")
         .arg("test-project")
         .arg("--template")
@@ -110,7 +111,7 @@ fn test_init_duplicate_project_fails() -> TestResult {
     let project_dir = temp.path().join("test-project");
     std::fs::create_dir(&project_dir)?;
 
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("init")
         .arg("test-project")
         .current_dir(temp.path())
@@ -125,7 +126,7 @@ fn test_init_duplicate_project_fails() -> TestResult {
 
 #[test]
 fn test_generate_requires_template() -> TestResult {
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("generate")
         .assert()
         .failure();
@@ -135,7 +136,7 @@ fn test_generate_requires_template() -> TestResult {
 #[test]
 fn test_generate_with_template_name() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("generate")
         .arg("basic")
         .current_dir(temp.path())
@@ -146,7 +147,7 @@ fn test_generate_with_template_name() -> TestResult {
 #[test]
 fn test_generate_output_flag() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("generate")
         .arg("basic")
         .arg("--output")
@@ -158,7 +159,7 @@ fn test_generate_output_flag() -> TestResult {
 #[test]
 fn test_generate_vars_flag() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("generate")
         .arg("basic")
         .arg("--var")
@@ -171,7 +172,7 @@ fn test_generate_vars_flag() -> TestResult {
 #[test]
 fn test_generate_force_flag() -> TestResult {
     let temp = tempfile::tempdir()?;
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("generate")
         .arg("basic")
         .arg("--force")
@@ -189,7 +190,7 @@ fn test_invalid_config_format() -> TestResult {
     let temp = tempfile::tempdir()?;
     std::fs::write(temp.path().join("ggen.toml"), "invalid toml {")?;
 
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("validate")
         .current_dir(temp.path())
         .assert()
@@ -202,7 +203,7 @@ fn test_missing_required_field() -> TestResult {
     let temp = tempfile::tempdir()?;
     std::fs::write(temp.path().join("ggen.toml"), "[project]")?;
 
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("validate")
         .current_dir(temp.path())
         .assert()
@@ -220,7 +221,7 @@ version = "1.0.0"
 "#;
     std::fs::write(temp.path().join("ggen.toml"), config)?;
 
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("validate")
         .current_dir(temp.path())
         .assert()
@@ -242,7 +243,7 @@ version = "1.0"
 "#;
     std::fs::write(temp.path().join("ggen.toml"), config)?;
 
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("validate")
         .current_dir(temp.path())
         .assert()
@@ -259,7 +260,7 @@ members = ["proj1", "proj2"]
 "#;
     std::fs::write(temp.path().join("ggen.toml"), config)?;
 
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("validate")
         .current_dir(temp.path())
         .assert();
@@ -272,7 +273,7 @@ members = ["proj1", "proj2"]
 
 #[test]
 fn test_unknown_command_fails() -> TestResult {
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("nonexistent-command")
         .assert()
         .failure();
@@ -281,7 +282,7 @@ fn test_unknown_command_fails() -> TestResult {
 
 #[test]
 fn test_invalid_flag_fails() -> TestResult {
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("--invalid-flag")
         .assert()
         .failure();
@@ -290,7 +291,7 @@ fn test_invalid_flag_fails() -> TestResult {
 
 #[test]
 fn test_conflicting_flags_fails() -> TestResult {
-    Command::cargo_bin("ggen")?
+    let _ = Command::cargo_bin("ggen")?
         .arg("init")
         .arg("test")
         .arg("--force")
@@ -301,7 +302,7 @@ fn test_conflicting_flags_fails() -> TestResult {
 
 #[test]
 fn test_missing_required_arg() -> TestResult {
-    Command::cargo_bin("ggen")?.arg("pack").assert().failure();
+    let _ = Command::cargo_bin("ggen")?.arg("pack").assert().failure();
     Ok(())
 }
 

@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Integration tests for template security hardening
 //!
 //! These tests verify that the template security system prevents:

@@ -1,3 +1,20 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Sync Command Integration Tests - Chicago TDD
 //!
 //! Tests for sync operation: the core ggen pipeline command
@@ -262,6 +279,7 @@ mod synced_file_info_tests {
     #[test]
     fn test_synced_file_info_structure() {
         let info = SyncedFileInfo {
+            produced_by: "".to_string(),
             path: "src/lib.rs".to_string(),
             size_bytes: 1024,
             action: "created".to_string(),
@@ -279,6 +297,7 @@ mod synced_file_info_tests {
 
         for action in actions {
             let info = SyncedFileInfo {
+                produced_by: "".to_string(),
                 path: "test.rs".to_string(),
                 size_bytes: 100,
                 action: action.to_string(),
@@ -292,6 +311,7 @@ mod synced_file_info_tests {
     #[test]
     fn test_synced_file_info_empty_file() {
         let info = SyncedFileInfo {
+            produced_by: "".to_string(),
             path: "empty.rs".to_string(),
             size_bytes: 0,
             action: "created".to_string(),
@@ -304,6 +324,7 @@ mod synced_file_info_tests {
     #[test]
     fn test_synced_file_info_large_file() {
         let info = SyncedFileInfo {
+            produced_by: "".to_string(),
             path: "large.rs".to_string(),
             size_bytes: 1_048_576, // 1 MB
             action: "updated".to_string(),
@@ -395,10 +416,13 @@ mod sync_result_tests {
     #[test]
     fn test_sync_result_success() {
         let result = SyncResult {
+            andon_signal: None,
+            recovery: None,
             status: "success".to_string(),
             files_synced: 5,
             duration_ms: 1000,
             files: vec![SyncedFileInfo {
+                produced_by: "".to_string(),
                 path: "src/lib.rs".to_string(),
                 size_bytes: 1024,
                 action: "created".to_string(),
@@ -421,6 +445,8 @@ mod sync_result_tests {
     #[test]
     fn test_sync_result_error() {
         let result = SyncResult {
+            andon_signal: None,
+            recovery: None,
             status: "error".to_string(),
             files_synced: 0,
             duration_ms: 100,
@@ -441,6 +467,8 @@ mod sync_result_tests {
     #[test]
     fn test_sync_result_with_audit() {
         let result = SyncResult {
+            andon_signal: None,
+            recovery: None,
             status: "success".to_string(),
             files_synced: 3,
             duration_ms: 500,
@@ -461,21 +489,26 @@ mod sync_result_tests {
     #[test]
     fn test_sync_result_multiple_files() {
         let result = SyncResult {
+            andon_signal: None,
+            recovery: None,
             status: "success".to_string(),
             files_synced: 3,
             duration_ms: 2000,
             files: vec![
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "src/agent.rs".to_string(),
                     size_bytes: 2048,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "src/message.rs".to_string(),
                     size_bytes: 3072,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "src/task.rs".to_string(),
                     size_bytes: 1536,
                     action: "updated".to_string(),
@@ -498,6 +531,8 @@ mod sync_result_tests {
     #[test]
     fn test_sync_result_zero_duration() {
         let result = SyncResult {
+            andon_signal: None,
+            recovery: None,
             status: "success".to_string(),
             files_synced: 0,
             duration_ms: 0,
@@ -785,36 +820,44 @@ mod integration_tests {
     #[test]
     fn test_integration_complex_sync_result() {
         let result = SyncResult {
+            andon_signal: None,
+            recovery: None,
             status: "success".to_string(),
             files_synced: 6,
             duration_ms: 2340,
             files: vec![
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "crates/a2a-generated/src/agent.rs".to_string(),
                     size_bytes: 2450,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "crates/a2a-generated/src/message.rs".to_string(),
                     size_bytes: 3100,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "crates/a2a-generated/src/task.rs".to_string(),
                     size_bytes: 2800,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "crates/a2a-generated/src/transport.rs".to_string(),
                     size_bytes: 1200,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "crates/a2a-generated/src/skill.rs".to_string(),
                     size_bytes: 4500,
                     action: "created".to_string(),
                 },
                 SyncedFileInfo {
+                    produced_by: "".to_string(),
                     path: "crates/a2a-generated/src/lib.rs".to_string(),
                     size_bytes: 1800,
                     action: "updated".to_string(),

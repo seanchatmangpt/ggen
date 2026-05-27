@@ -1,0 +1,1421 @@
+{
+  "package": {
+    "name": "ggen",
+    "version": "26.5.19",
+    "binary": "target/release/ggen",
+    "git_commit": "587fd526481653a199cd0557f45e0a2998e90324",
+    "source_tree_clean": false
+  },
+  "cli": {
+    "top_level_commands": [
+      "wizard",
+      "sync",
+      "init",
+      "framework",
+      "graph",
+      "doctor",
+      "pack",
+      "utils",
+      "policy",
+      "template"
+    ],
+    "noun_verb_commands": [
+      "ggen.framework.bridge_langchain",
+      "ggen.graph.export",
+      "ggen.graph.visualize",
+      "ggen.graph.load",
+      "ggen.graph.validate",
+      "ggen.graph.query",
+      "ggen.doctor.run",
+      "ggen.doctor.check",
+      "ggen.pack.remove",
+      "ggen.pack.show",
+      "ggen.pack.doctor",
+      "ggen.pack.search",
+      "ggen.pack.list",
+      "ggen.pack.add",
+      "ggen.utils.env",
+      "ggen.utils.doctor",
+      "ggen.policy.show",
+      "ggen.policy.list",
+      "ggen.policy.validate",
+      "ggen.policy.check",
+      "ggen.template.show",
+      "ggen.template.list",
+      "ggen.template.new",
+      "ggen.template.lint"
+    ],
+    "aliases": [],
+    "hidden_commands": [],
+    "deprecated_commands": [],
+    "mcp_tools": [],
+    "resources": [],
+    "prompts": []
+  },
+  "commands": [
+    {
+      "command_id": "ggen.wizard",
+      "path": [
+        "wizard"
+      ],
+      "noun": null,
+      "verb": "wizard",
+      "help_text_hash": "a5833305e0fb2641109adc0874ee0aed067a6d2e7d2aec7f643771a0bedfc099",
+      "source_file": "crates/ggen-cli/src/cmds/wizard.rs",
+      "source_symbol": "line 224",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.wizard.pos",
+        "command": "ggen wizard --help",
+        "status": "passed",
+        "stdout_hash": "a5833305e0fb2641109adc0874ee0aed067a6d2e7d2aec7f643771a0bedfc099",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "8837c27dc893ad528edcd246894b1244fd120d8e363b3174a86c08275ac2f98b"
+      },
+      "negative_case": {
+        "case_id": "ggen.wizard.neg",
+        "command": "ggen wizard --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "b8ecf45797596a61314271a80690f812d2a4132e39821247fc1ab6856b024a20",
+        "receipt_hash": "8837c27dc893ad528edcd246894b1244fd120d8e363b3174a86c08275ac2f98b"
+      }
+    },
+    {
+      "command_id": "ggen.sync",
+      "path": [
+        "sync"
+      ],
+      "noun": null,
+      "verb": "sync",
+      "help_text_hash": "8ffc01f3ae85bfdb197513d4a2a8798bf0d01482feda1a133bcc7c7ad998549b",
+      "source_file": "crates/ggen-cli/src/cmds/sync.rs",
+      "source_symbol": "line 324",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.sync.pos",
+        "command": "ggen sync --help",
+        "status": "passed",
+        "stdout_hash": "8ffc01f3ae85bfdb197513d4a2a8798bf0d01482feda1a133bcc7c7ad998549b",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "72b249c2c7748b6875c5ff406d628674fd79c6b46f93d4a09c4b49a980095be2"
+      },
+      "negative_case": {
+        "case_id": "ggen.sync.neg",
+        "command": "ggen sync --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "11690158f0f25e8ae05439d0ace9d0427a1a2d7d9974750ed5748fed943e5cda",
+        "receipt_hash": "72b249c2c7748b6875c5ff406d628674fd79c6b46f93d4a09c4b49a980095be2"
+      }
+    },
+    {
+      "command_id": "ggen.init",
+      "path": [
+        "init"
+      ],
+      "noun": null,
+      "verb": "init",
+      "help_text_hash": "4b51267b203238c383f92500537f355f10b8fd61d8fe359760004554cb22d08b",
+      "source_file": "crates/ggen-cli/src/cmds/init.rs",
+      "source_symbol": "line 439",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.init.pos",
+        "command": "ggen init --help",
+        "status": "passed",
+        "stdout_hash": "4b51267b203238c383f92500537f355f10b8fd61d8fe359760004554cb22d08b",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "477a5f9f98e5813b5243009b52b01f6e874f73f0ca40cfd880b8477db2e095e4"
+      },
+      "negative_case": {
+        "case_id": "ggen.init.neg",
+        "command": "ggen init --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "d89f4f6c42c7fc2e66aaae7c64d95ccdbfcce1466405f4844921c07785e4eac1",
+        "receipt_hash": "477a5f9f98e5813b5243009b52b01f6e874f73f0ca40cfd880b8477db2e095e4"
+      }
+    },
+    {
+      "command_id": "ggen.framework.bridge_langchain",
+      "path": [
+        "framework",
+        "bridge_langchain"
+      ],
+      "noun": "framework",
+      "verb": "bridge_langchain",
+      "help_text_hash": "3cf4d8bb6fcc1d11112bd35a019b943e05d24b45b92f3346ceff90e5f7a3e22c",
+      "source_file": "crates/ggen-cli/src/cmds/framework.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.framework.bridge_langchain.pos",
+        "command": "ggen framework bridge_langchain --help",
+        "status": "passed",
+        "stdout_hash": "3cf4d8bb6fcc1d11112bd35a019b943e05d24b45b92f3346ceff90e5f7a3e22c",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "9dd8e9e85f289d6771d835c4202293e2e0250a78d3181ddec3c6183fb920452b"
+      },
+      "negative_case": {
+        "case_id": "ggen.framework.bridge_langchain.neg",
+        "command": "ggen framework bridge_langchain --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "4c638288b65a5b2f40bda7b96cb3d5cc4a8003bd994659a6d16ebc36629d6e08",
+        "receipt_hash": "9dd8e9e85f289d6771d835c4202293e2e0250a78d3181ddec3c6183fb920452b"
+      }
+    },
+    {
+      "command_id": "ggen.graph.export",
+      "path": [
+        "graph",
+        "export"
+      ],
+      "noun": "graph",
+      "verb": "export",
+      "help_text_hash": "a2c8d75890f9a713143822a1d2e1f327c28320831ae406e1978dda4103fc4129",
+      "source_file": "crates/ggen-cli/src/cmds/graph.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.graph.export.pos",
+        "command": "ggen graph export --help",
+        "status": "passed",
+        "stdout_hash": "a2c8d75890f9a713143822a1d2e1f327c28320831ae406e1978dda4103fc4129",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "f5fed3faf06119c9deb1859f92394d78c429ec49304c8c06fffb1f7ff7ad7655"
+      },
+      "negative_case": {
+        "case_id": "ggen.graph.export.neg",
+        "command": "ggen graph export --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "93df15b9ac48d366de9be7020289197261bcbfcd965715098da3ae37bab6d26a",
+        "receipt_hash": "f5fed3faf06119c9deb1859f92394d78c429ec49304c8c06fffb1f7ff7ad7655"
+      }
+    },
+    {
+      "command_id": "ggen.graph.visualize",
+      "path": [
+        "graph",
+        "visualize"
+      ],
+      "noun": "graph",
+      "verb": "visualize",
+      "help_text_hash": "d937eb2fa2dc3b77d5fd6d0d20913adda00f71f664ca5e8cb917c5b64967be78",
+      "source_file": "crates/ggen-cli/src/cmds/graph.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.graph.visualize.pos",
+        "command": "ggen graph visualize --help",
+        "status": "passed",
+        "stdout_hash": "d937eb2fa2dc3b77d5fd6d0d20913adda00f71f664ca5e8cb917c5b64967be78",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "37c86d47c76f50409d714fe9ad9cdfa82b229f55c069e6bca7620d025d7bf4d0"
+      },
+      "negative_case": {
+        "case_id": "ggen.graph.visualize.neg",
+        "command": "ggen graph visualize --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "c45703e26a029cda680102484780bd3560b87c78cc6579d6f5857707ee27bcfd",
+        "receipt_hash": "37c86d47c76f50409d714fe9ad9cdfa82b229f55c069e6bca7620d025d7bf4d0"
+      }
+    },
+    {
+      "command_id": "ggen.graph.load",
+      "path": [
+        "graph",
+        "load"
+      ],
+      "noun": "graph",
+      "verb": "load",
+      "help_text_hash": "090502a32c2f39bdfac4a7e86334d7020f1e5d50dfa1ea63b1d5931adc7e1f65",
+      "source_file": "crates/ggen-cli/src/cmds/graph.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.graph.load.pos",
+        "command": "ggen graph load --help",
+        "status": "passed",
+        "stdout_hash": "090502a32c2f39bdfac4a7e86334d7020f1e5d50dfa1ea63b1d5931adc7e1f65",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "33de9e2a8bfc3bf498b2cd87fd82c774d5f9124a16e79f51a832bc58d91e5823"
+      },
+      "negative_case": {
+        "case_id": "ggen.graph.load.neg",
+        "command": "ggen graph load --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "790aa138e0e88f34787b2334bb145c292982f27d69b3531428c3d9d98dedbb34",
+        "receipt_hash": "33de9e2a8bfc3bf498b2cd87fd82c774d5f9124a16e79f51a832bc58d91e5823"
+      }
+    },
+    {
+      "command_id": "ggen.graph.validate",
+      "path": [
+        "graph",
+        "validate"
+      ],
+      "noun": "graph",
+      "verb": "validate",
+      "help_text_hash": "d0a816e895214d77a06f336d9927fe7f575c86f67adf197d128525575ac32f75",
+      "source_file": "crates/ggen-cli/src/cmds/graph.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.graph.validate.pos",
+        "command": "ggen graph validate --help",
+        "status": "passed",
+        "stdout_hash": "d0a816e895214d77a06f336d9927fe7f575c86f67adf197d128525575ac32f75",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "52273c4007d40badeb1069ebef1289962894c117b4e0b19fad9a58e62339b0b4"
+      },
+      "negative_case": {
+        "case_id": "ggen.graph.validate.neg",
+        "command": "ggen graph validate --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "e244624422828a9d4b06a4c8aa38749291d0b287ca8feac64d08625e1aca50bc",
+        "receipt_hash": "52273c4007d40badeb1069ebef1289962894c117b4e0b19fad9a58e62339b0b4"
+      }
+    },
+    {
+      "command_id": "ggen.graph.query",
+      "path": [
+        "graph",
+        "query"
+      ],
+      "noun": "graph",
+      "verb": "query",
+      "help_text_hash": "9e64993b429980ed97839e8cc290d87354da9a0db0e127299510ca9dae724f02",
+      "source_file": "crates/ggen-cli/src/cmds/graph.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.graph.query.pos",
+        "command": "ggen graph query --help",
+        "status": "passed",
+        "stdout_hash": "9e64993b429980ed97839e8cc290d87354da9a0db0e127299510ca9dae724f02",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "fee046c47f50f97a890ccd31f9c0eeb986ddabfe8860da900ea954fc69838df2"
+      },
+      "negative_case": {
+        "case_id": "ggen.graph.query.neg",
+        "command": "ggen graph query --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "7e4974bdc152e093eeab27f27ef22a35d51dbdaf3070b2de3ea9e5f4dd482027",
+        "receipt_hash": "fee046c47f50f97a890ccd31f9c0eeb986ddabfe8860da900ea954fc69838df2"
+      }
+    },
+    {
+      "command_id": "ggen.doctor.run",
+      "path": [
+        "doctor",
+        "run"
+      ],
+      "noun": "doctor",
+      "verb": "run",
+      "help_text_hash": "c95fcd13049018354bcefa6a879382c62fe72842b6af6b405ab0d37c1c8c70c7",
+      "source_file": "crates/ggen-cli/src/cmds/doctor.rs",
+      "source_symbol": "line 121",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.doctor.run.pos",
+        "command": "ggen doctor run --help",
+        "status": "passed",
+        "stdout_hash": "c95fcd13049018354bcefa6a879382c62fe72842b6af6b405ab0d37c1c8c70c7",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "6505b0731882f416b9ba3a9589649dee483867649eee3792da2cbd4ae210dfb4"
+      },
+      "negative_case": {
+        "case_id": "ggen.doctor.run.neg",
+        "command": "ggen doctor run --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "c71bc667a25c7418fc7f312ab8be4581f5ee8b6db86d45fc622f24a517915b50",
+        "receipt_hash": "6505b0731882f416b9ba3a9589649dee483867649eee3792da2cbd4ae210dfb4"
+      }
+    },
+    {
+      "command_id": "ggen.doctor.check",
+      "path": [
+        "doctor",
+        "check"
+      ],
+      "noun": "doctor",
+      "verb": "check",
+      "help_text_hash": "7c3825c6810afa3204da287e962d0fda8da33066509ab1556d421040ea46a28c",
+      "source_file": "crates/ggen-cli/src/cmds/doctor.rs",
+      "source_symbol": "line 150",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.doctor.check.pos",
+        "command": "ggen doctor check --help",
+        "status": "passed",
+        "stdout_hash": "7c3825c6810afa3204da287e962d0fda8da33066509ab1556d421040ea46a28c",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "0b8ae2f97e3ee385ac581aa7ec5a885bcc804ef2c5ff6360e150e0aad15ef236"
+      },
+      "negative_case": {
+        "case_id": "ggen.doctor.check.neg",
+        "command": "ggen doctor check --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "05b99420d931f63be08ae8213e580d4d6c4818bf26bed12e3d6310ffce0c97b1",
+        "receipt_hash": "0b8ae2f97e3ee385ac581aa7ec5a885bcc804ef2c5ff6360e150e0aad15ef236"
+      }
+    },
+    {
+      "command_id": "ggen.pack.remove",
+      "path": [
+        "pack",
+        "remove"
+      ],
+      "noun": "pack",
+      "verb": "remove",
+      "help_text_hash": "7414323ebb067d6457856cbb40e16a5f9508d077cb1749ab5f2deac5a75e155b",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 138",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.pack.remove.pos",
+        "command": "ggen pack remove --help",
+        "status": "passed",
+        "stdout_hash": "7414323ebb067d6457856cbb40e16a5f9508d077cb1749ab5f2deac5a75e155b",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "4b093910c1d4d31a7c88833a23e86b38c35d26ce33816a40d2931a43626aa7fd"
+      },
+      "negative_case": {
+        "case_id": "ggen.pack.remove.neg",
+        "command": "ggen pack remove --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "f855d41817576999ebb4da9008df6689d28130d8168b080bfa4b2fbe52fe6233",
+        "receipt_hash": "4b093910c1d4d31a7c88833a23e86b38c35d26ce33816a40d2931a43626aa7fd"
+      }
+    },
+    {
+      "command_id": "ggen.pack.show",
+      "path": [
+        "pack",
+        "show"
+      ],
+      "noun": "pack",
+      "verb": "show",
+      "help_text_hash": "bae8a1ad9a2b85ecec58bc3ae49c65375a91db4a1a447c5df031f196e077b0df",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 247",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.pack.show.pos",
+        "command": "ggen pack show --help",
+        "status": "passed",
+        "stdout_hash": "bae8a1ad9a2b85ecec58bc3ae49c65375a91db4a1a447c5df031f196e077b0df",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "5daa2e68543e91e25e751997423676050fbb9f36b52546b330d4cfd4f7f2d605"
+      },
+      "negative_case": {
+        "case_id": "ggen.pack.show.neg",
+        "command": "ggen pack show --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "3c69190d4181535c0a806b45f4d447d384e7498e1a0867ee780dc3496b46265f",
+        "receipt_hash": "5daa2e68543e91e25e751997423676050fbb9f36b52546b330d4cfd4f7f2d605"
+      }
+    },
+    {
+      "command_id": "ggen.pack.doctor",
+      "path": [
+        "pack",
+        "doctor"
+      ],
+      "noun": "pack",
+      "verb": "doctor",
+      "help_text_hash": "8efba1d6017fb7d0341ff1993ab90701c348ed78206fd2cead6253dc400df0b5",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 290",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.pack.doctor.pos",
+        "command": "ggen pack doctor --help",
+        "status": "passed",
+        "stdout_hash": "8efba1d6017fb7d0341ff1993ab90701c348ed78206fd2cead6253dc400df0b5",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "c6ea1e17647f64e649b84b6594efa36a0676d305ca0c2a44cd867d8652f46338"
+      },
+      "negative_case": {
+        "case_id": "ggen.pack.doctor.neg",
+        "command": "ggen pack doctor --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "71dbdb9174b09c1893bf5da837cdee03d02183106bee5014f7a72d4f6bebf139",
+        "receipt_hash": "c6ea1e17647f64e649b84b6594efa36a0676d305ca0c2a44cd867d8652f46338"
+      }
+    },
+    {
+      "command_id": "ggen.pack.search",
+      "path": [
+        "pack",
+        "search"
+      ],
+      "noun": "pack",
+      "verb": "search",
+      "help_text_hash": "3081f4d236dd68f082db7521b22c396ca00763ed871d4e3afac890278453ba3a",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 276",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.pack.search.pos",
+        "command": "ggen pack search --help",
+        "status": "passed",
+        "stdout_hash": "3081f4d236dd68f082db7521b22c396ca00763ed871d4e3afac890278453ba3a",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "42a3f615c0798b4f53b76b039115c05b3a23c24f1540c6aa384835eb6e8f3168"
+      },
+      "negative_case": {
+        "case_id": "ggen.pack.search.neg",
+        "command": "ggen pack search --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "2a4dd0504095c12d6c0f2f8ba59cdfb199ca79286355700ea3d85ae799b78645",
+        "receipt_hash": "42a3f615c0798b4f53b76b039115c05b3a23c24f1540c6aa384835eb6e8f3168"
+      }
+    },
+    {
+      "command_id": "ggen.pack.list",
+      "path": [
+        "pack",
+        "list"
+      ],
+      "noun": "pack",
+      "verb": "list",
+      "help_text_hash": "518c0b9575701ff0e9f1e67220cc406f24a103482cd3ece889b1e2328d056314",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 201",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.pack.list.pos",
+        "command": "ggen pack list --help",
+        "status": "passed",
+        "stdout_hash": "518c0b9575701ff0e9f1e67220cc406f24a103482cd3ece889b1e2328d056314",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "78da90e5d9e4b98359b70ef5467126c3edef34b321659991ed73a084acfcfa4f"
+      },
+      "negative_case": {
+        "case_id": "ggen.pack.list.neg",
+        "command": "ggen pack list --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "e50dd1c5566e6156c606c098923a5e27ecda962cfcec2913faa94ffc824a04f2",
+        "receipt_hash": "78da90e5d9e4b98359b70ef5467126c3edef34b321659991ed73a084acfcfa4f"
+      }
+    },
+    {
+      "command_id": "ggen.pack.add",
+      "path": [
+        "pack",
+        "add"
+      ],
+      "noun": "pack",
+      "verb": "add",
+      "help_text_hash": "339f33bb36fa9cbe4b6c7bb27f116b46becd71b45524606764e8211e545c75ea",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 95",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.pack.add.pos",
+        "command": "ggen pack add --help",
+        "status": "passed",
+        "stdout_hash": "339f33bb36fa9cbe4b6c7bb27f116b46becd71b45524606764e8211e545c75ea",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "f1f398cae133853a77e8713352b73dd581a1c26be85da7482286c90a88afc5f4"
+      },
+      "negative_case": {
+        "case_id": "ggen.pack.add.neg",
+        "command": "ggen pack add --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "88e26eaa52945051a8c58960c6ec23e957117fa93847b3d5a61e475f0b94895f",
+        "receipt_hash": "f1f398cae133853a77e8713352b73dd581a1c26be85da7482286c90a88afc5f4"
+      }
+    },
+    {
+      "command_id": "ggen.utils.env",
+      "path": [
+        "utils",
+        "env"
+      ],
+      "noun": "utils",
+      "verb": "env",
+      "help_text_hash": "21f8df0613ff80f2ce144cd91afae78fa7b5da2411484a9c0c4ba3b4a00a6a38",
+      "source_file": "crates/ggen-cli/src/cmds/utils.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.utils.env.pos",
+        "command": "ggen utils env --help",
+        "status": "passed",
+        "stdout_hash": "21f8df0613ff80f2ce144cd91afae78fa7b5da2411484a9c0c4ba3b4a00a6a38",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "9b6c3689e54091cda80baf56fe0d3a09c353859a3654bc0038ec02578d63250f"
+      },
+      "negative_case": {
+        "case_id": "ggen.utils.env.neg",
+        "command": "ggen utils env --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "4f7481a728807b2d06c6931be16885474081dfb3ecc598d88a886e3a45a49ef2",
+        "receipt_hash": "9b6c3689e54091cda80baf56fe0d3a09c353859a3654bc0038ec02578d63250f"
+      }
+    },
+    {
+      "command_id": "ggen.utils.doctor",
+      "path": [
+        "utils",
+        "doctor"
+      ],
+      "noun": "utils",
+      "verb": "doctor",
+      "help_text_hash": "6da52fc31728e642121aecb854549d966caddb1b761d83ece3ffb0dfcf2e4ace",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 290",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.utils.doctor.pos",
+        "command": "ggen utils doctor --help",
+        "status": "passed",
+        "stdout_hash": "6da52fc31728e642121aecb854549d966caddb1b761d83ece3ffb0dfcf2e4ace",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "c148057c236b3bf5c624530a12e5d0622bec6479df5a935f1e2adc6d36813908"
+      },
+      "negative_case": {
+        "case_id": "ggen.utils.doctor.neg",
+        "command": "ggen utils doctor --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "873b2ee2dd86dbccde1741a0635e9d4016d71045544b9af320a4736def3d710b",
+        "receipt_hash": "c148057c236b3bf5c624530a12e5d0622bec6479df5a935f1e2adc6d36813908"
+      }
+    },
+    {
+      "command_id": "ggen.policy.show",
+      "path": [
+        "policy",
+        "show"
+      ],
+      "noun": "policy",
+      "verb": "show",
+      "help_text_hash": "cc415c8867ef53f7472385d046cf14088fec91f8e3cdb67795c8f8cd3a71842d",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 247",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.policy.show.pos",
+        "command": "ggen policy show --help",
+        "status": "passed",
+        "stdout_hash": "cc415c8867ef53f7472385d046cf14088fec91f8e3cdb67795c8f8cd3a71842d",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "02579ce4bf63fa97189e0f4325efe614c05950c119f56b16473c70dc42257cc4"
+      },
+      "negative_case": {
+        "case_id": "ggen.policy.show.neg",
+        "command": "ggen policy show --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "0f1e6a95ebc6448e1b17acfbe99ff705d24d81c90b0d7652ee40777206ad452b",
+        "receipt_hash": "02579ce4bf63fa97189e0f4325efe614c05950c119f56b16473c70dc42257cc4"
+      }
+    },
+    {
+      "command_id": "ggen.policy.list",
+      "path": [
+        "policy",
+        "list"
+      ],
+      "noun": "policy",
+      "verb": "list",
+      "help_text_hash": "053fdbf9d5fff3ddd9b4e59a5d4cbfbf764eabb4a26e9cbc5c23e034e3bf3d77",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 201",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.policy.list.pos",
+        "command": "ggen policy list --help",
+        "status": "passed",
+        "stdout_hash": "053fdbf9d5fff3ddd9b4e59a5d4cbfbf764eabb4a26e9cbc5c23e034e3bf3d77",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "7885ce119cd4b512c4ec28568a45757e9a9943872a6b842a8bfa5ed4b1a16b28"
+      },
+      "negative_case": {
+        "case_id": "ggen.policy.list.neg",
+        "command": "ggen policy list --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "5fc90ea1657e5ead3c3a22168db9f4115aaf4f3feade0b849c3df4313493f9c6",
+        "receipt_hash": "7885ce119cd4b512c4ec28568a45757e9a9943872a6b842a8bfa5ed4b1a16b28"
+      }
+    },
+    {
+      "command_id": "ggen.policy.validate",
+      "path": [
+        "policy",
+        "validate"
+      ],
+      "noun": "policy",
+      "verb": "validate",
+      "help_text_hash": "a194325e7ffd74037186e64af9404c4fc5065ac0645eeb3490105719b01f82d4",
+      "source_file": "crates/ggen-cli/src/cmds/policy.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.policy.validate.pos",
+        "command": "ggen policy validate --help",
+        "status": "passed",
+        "stdout_hash": "a194325e7ffd74037186e64af9404c4fc5065ac0645eeb3490105719b01f82d4",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "8402351e28efefdaa422a5647ed5c05e0918f02964586ef20d6ca693e25a787e"
+      },
+      "negative_case": {
+        "case_id": "ggen.policy.validate.neg",
+        "command": "ggen policy validate --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "dd1b20c76bdaec350087521fad20f71e6d1039a7fc303aecd1f0b2b6c55dc243",
+        "receipt_hash": "8402351e28efefdaa422a5647ed5c05e0918f02964586ef20d6ca693e25a787e"
+      }
+    },
+    {
+      "command_id": "ggen.policy.check",
+      "path": [
+        "policy",
+        "check"
+      ],
+      "noun": "policy",
+      "verb": "check",
+      "help_text_hash": "2c45adc7c6c58982c7c43914ba563653e680f35039fd55791098922448aad2f7",
+      "source_file": "crates/ggen-cli/src/cmds/doctor.rs",
+      "source_symbol": "line 150",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.policy.check.pos",
+        "command": "ggen policy check --help",
+        "status": "passed",
+        "stdout_hash": "2c45adc7c6c58982c7c43914ba563653e680f35039fd55791098922448aad2f7",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "2102c13e8c8b75dcfc86832f0b2da9596548fea10b2ee5b50906e23a7f20c5e9"
+      },
+      "negative_case": {
+        "case_id": "ggen.policy.check.neg",
+        "command": "ggen policy check --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "fc329cebefc59bf284f6c35d82d76a5fa385d41e3cc745d048210ddd61d512d3",
+        "receipt_hash": "2102c13e8c8b75dcfc86832f0b2da9596548fea10b2ee5b50906e23a7f20c5e9"
+      }
+    },
+    {
+      "command_id": "ggen.template.show",
+      "path": [
+        "template",
+        "show"
+      ],
+      "noun": "template",
+      "verb": "show",
+      "help_text_hash": "fba4078275410d587560b331b1687ee2cd0a532823ef432d84270585396c1cc9",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 247",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.template.show.pos",
+        "command": "ggen template show --help",
+        "status": "passed",
+        "stdout_hash": "fba4078275410d587560b331b1687ee2cd0a532823ef432d84270585396c1cc9",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "0f2b963bb2d712fa01ed2a8f9e40ccc0f659b8d213484455fe5186b0374bd940"
+      },
+      "negative_case": {
+        "case_id": "ggen.template.show.neg",
+        "command": "ggen template show --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "77df131721ef1b385044627960f80240891d6d05197db418b8dfc9a3fca79870",
+        "receipt_hash": "0f2b963bb2d712fa01ed2a8f9e40ccc0f659b8d213484455fe5186b0374bd940"
+      }
+    },
+    {
+      "command_id": "ggen.template.list",
+      "path": [
+        "template",
+        "list"
+      ],
+      "noun": "template",
+      "verb": "list",
+      "help_text_hash": "d716ae8ff40502a7af71e7c5aadf3194567e7cba5f5d22a7cc70de211c7e986f",
+      "source_file": "crates/ggen-cli/src/cmds/pack.rs",
+      "source_symbol": "line 201",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.template.list.pos",
+        "command": "ggen template list --help",
+        "status": "passed",
+        "stdout_hash": "d716ae8ff40502a7af71e7c5aadf3194567e7cba5f5d22a7cc70de211c7e986f",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "22236bf20cc97d95766de93ddafe76dd5d7aff8ee067d9037ad023fd23cf1a58"
+      },
+      "negative_case": {
+        "case_id": "ggen.template.list.neg",
+        "command": "ggen template list --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "77e46ebf470faaac3f0e737dd5cae95d2f8886a4622c9205ffa0f62799285609",
+        "receipt_hash": "22236bf20cc97d95766de93ddafe76dd5d7aff8ee067d9037ad023fd23cf1a58"
+      }
+    },
+    {
+      "command_id": "ggen.template.new",
+      "path": [
+        "template",
+        "new"
+      ],
+      "noun": "template",
+      "verb": "new",
+      "help_text_hash": "d900ce8b84f097b3f774d1dc94c0389856082e77b5881527a43236da07dc6f44",
+      "source_file": "crates/ggen-cli/src/cmds/template.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.template.new.pos",
+        "command": "ggen template new --help",
+        "status": "passed",
+        "stdout_hash": "d900ce8b84f097b3f774d1dc94c0389856082e77b5881527a43236da07dc6f44",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "29eb4aaa15e2e9b137ad3d8c04a87d944aa96b88895f66e7e6e78766ca9e28f4"
+      },
+      "negative_case": {
+        "case_id": "ggen.template.new.neg",
+        "command": "ggen template new --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "3b5f5d302a1c76e96c297c6a0eeffa505d5ecf917f558aafea3693d2e3cb009d",
+        "receipt_hash": "29eb4aaa15e2e9b137ad3d8c04a87d944aa96b88895f66e7e6e78766ca9e28f4"
+      }
+    },
+    {
+      "command_id": "ggen.template.lint",
+      "path": [
+        "template",
+        "lint"
+      ],
+      "noun": "template",
+      "verb": "lint",
+      "help_text_hash": "cd3a8eed38fe897fd95ce0be1dd051cb420a7837337c02a2ad30ce0a8b8adedd",
+      "source_file": "crates/ggen-cli/src/cmds/template.rs",
+      "source_symbol": "auto",
+      "arguments": [],
+      "flags": [],
+      "exit_codes": [
+        0,
+        1
+      ],
+      "requires_files": [],
+      "writes_files": [],
+      "emits_receipts": true,
+      "receipt_type": "prov:Entity",
+      "supports_dry_run": false,
+      "supports_audit": false,
+      "ontology_inputs": [],
+      "template_inputs": [],
+      "public_ontology_mapping": {
+        "command": "schema:Action",
+        "execution": "prov:Activity",
+        "receipt": "prov:Entity",
+        "inputs": "prov:used",
+        "outputs": "prov:generated"
+      },
+      "status": "present",
+      "positive_case": {
+        "case_id": "ggen.template.lint.pos",
+        "command": "ggen template lint --help",
+        "status": "passed",
+        "stdout_hash": "cd3a8eed38fe897fd95ce0be1dd051cb420a7837337c02a2ad30ce0a8b8adedd",
+        "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receipt_hash": "fb379a193e5308c2ed98f7e776b26227acafd6b1ec048cd97d53f424ea32817b"
+      },
+      "negative_case": {
+        "case_id": "ggen.template.lint.neg",
+        "command": "ggen template lint --nonexistent-flag-for-testing",
+        "expected_failure_code": "1",
+        "status": "failed_correctly",
+        "stderr_hash": "f5e3153d883eac2230496208373a292433e1e5dbb04bcb467f7cb53a0169b4d2",
+        "receipt_hash": "fb379a193e5308c2ed98f7e776b26227acafd6b1ec048cd97d53f424ea32817b"
+      }
+    }
+  ],
+  "summary": {
+    "command_count": 27,
+    "commands_with_source_binding": 27,
+    "commands_with_positive_case": 27,
+    "commands_with_negative_case": 27,
+    "commands_with_receipts": 27,
+    "commands_mapped_to_public_ontology": 27,
+    "all_help_extracted": true,
+    "all_receipts_verified": true,
+    "all_public_alignment_valid": true
+  },
+  "hashes": {
+    "cli_structure_hash": "8e1c982cce63fa59fa46ab798ce33a22f0e686db824a7e438bddd2a53d4e7291",
+    "matrix_hash": "a01f0e982e1189f45dc0021851a76de26274c906dfc194b02308b0f87869f2ba",
+    "public_alignment_hash": "a989bc167ab9a7d477ccb463fe3b1a60857cc399c13eb7cac9a85d9d72a274aa",
+    "shacl_report_hash": "048d0f2e617bb4191db18894d970795343bc6d26c95ef77ebdd68a796ca2bd78"
+  }
+}

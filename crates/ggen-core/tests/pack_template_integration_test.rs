@@ -245,7 +245,7 @@ fn test_template_resolver_search() {
 
     // Search with pack-specific query
     let rust_templates = resolver.search_templates(Some("rust")).unwrap();
-    assert!(rust_templates.len() >= 1);
+    assert!(!rust_templates.is_empty());
 
     println!("✓ Template resolver search test passed");
     println!("  Found {} total templates", all_templates.len());

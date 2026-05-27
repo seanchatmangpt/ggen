@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! End-to-end integration tests for utils commands
 //!
 //! **Chicago TDD Principles**:

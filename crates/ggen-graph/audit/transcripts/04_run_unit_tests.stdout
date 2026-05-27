@@ -1,0 +1,9 @@
+=== [04] Running Unit Tests ===
+
+running 2 tests
+test tests::test_graph_and_receipt_flow ... ok
+test ocel::self_audit::tests::test_self_audit_log_generation_and_projection ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+PASS: Unit tests passed successfully.

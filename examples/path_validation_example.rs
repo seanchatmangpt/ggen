@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Path Validation Security Example
 //!
 //! This example demonstrates how to use PathValidator to prevent

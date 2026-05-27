@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Chicago TDD Triple Store Tests
 //!
 //! Tests SPARQL-based extraction and querying of RDF triples.

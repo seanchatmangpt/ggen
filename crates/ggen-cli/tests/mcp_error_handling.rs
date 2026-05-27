@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 //! MCP Error Handling Test Suite
 //!
 //! Comprehensive tests for error handling in MCP operations including:

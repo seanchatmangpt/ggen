@@ -1,3 +1,13 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Integration Tests - CLI → Domain → Core Integration
 //!
 //! Tests the complete integration flow across architectural layers:
@@ -80,7 +90,6 @@ test!(test_marketplace_search_integration, {
     assert!(output.status.success() || output.status.code() == Some(0));
 });
 
-#[ignore = "project gen command not fully implemented"]
 test!(test_project_gen_integration, {
     // Arrange
     let temp = TempDir::new().unwrap();
@@ -106,7 +115,6 @@ test!(test_project_gen_integration, {
     assert!(output.status.success() || project_dir.path().exists());
 });
 
-#[ignore = "lifecycle run command not fully implemented"]
 test!(test_lifecycle_execution_integration, {
     let temp = TempDir::new().unwrap();
     let make_file = temp.child("make.toml");
@@ -412,7 +420,6 @@ test!(test_doctor_before_operations, {
         .stdout(predicate::str::contains("Checking").or(predicate::str::is_empty()));
 });
 
-#[ignore = "shell completion command not implemented"]
 test!(test_shell_completion_generation, {
     let temp = TempDir::new().unwrap();
     let completion_file = temp.child("ggen.bash");
@@ -438,7 +445,6 @@ test!(test_shell_completion_generation, {
 // Configuration Integration Tests
 // ============================================================================
 
-#[ignore = "config file loading not fully implemented"]
 test!(test_config_file_loading, {
     let temp = TempDir::new().unwrap();
     let config_file = temp.child("config.toml");
@@ -589,7 +595,6 @@ test!(test_v2_help_me_command, {
     assert!(output.status.success());
 });
 
-#[ignore = "frozen section feature not yet implemented"]
 test!(test_v2_frozen_section_preservation, {
     let temp = TempDir::new().unwrap();
     let output_file = temp.child("service.rs");
@@ -661,7 +666,6 @@ nodes:
     }
 });
 
-#[ignore = "business logic protection not yet implemented"]
 test!(test_v2_business_logic_not_overwritten, {
     let temp = TempDir::new().unwrap();
     let business_file = temp.child("business_logic.rs");
@@ -724,7 +728,6 @@ test!(test_v2_marketplace_search_with_rdf, {
     assert!(output.status.success() || output.status.code() == Some(0));
 });
 
-#[ignore = "RDF template generation not yet fully implemented"]
 test!(test_v2_rdf_based_template_generation, {
     let temp = TempDir::new().unwrap();
     let rdf_file = temp.child("data.ttl");

@@ -203,7 +203,7 @@ impl SyncOptions {
 // ============================================================================
 
 /// Result of sync execution - returned to CLI layer
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Default)]
 pub struct SyncResult {
     /// Overall status: "success" or "error"
     pub status: String,
@@ -241,7 +241,7 @@ pub struct SyncResult {
 }
 
 /// Individual file info in sync result
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Default)]
 pub struct SyncedFileInfo {
     /// File path
     pub path: String,

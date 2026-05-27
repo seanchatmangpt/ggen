@@ -33,7 +33,6 @@ mod prevention_tests {
         // registry.search("pattern").unwrap();  // ERROR: no method `search`
 
         // This test passes because it documents the guarantee
-        assert!(true, "Compile-time state machine enforcement verified");
     }
 
     /// Test 2: Trait contracts prevent integration failures
@@ -92,6 +91,7 @@ mod prevention_tests {
     fn test_fmea_identifies_failure_modes() {
         // This test documents FMEA process
 
+        #[allow(dead_code)]
         struct FailureMode {
             name: String,
             severity: u32,    // 1-10
@@ -294,6 +294,7 @@ mod prevention_tests {
     /// Test 8: 5 Whys root cause analysis
     #[test]
     fn test_5_whys_analysis() {
+        #[allow(dead_code)]
         struct RootCauseAnalysis {
             problem: String,
             whys: Vec<String>,

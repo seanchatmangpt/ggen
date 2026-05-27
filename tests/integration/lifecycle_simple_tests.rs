@@ -4,7 +4,6 @@
 //! Uses standard Rust testing with anyhow for error handling.
 
 use anyhow::Result;
-use tempfile::TempDir;
 
 // Import common test utilities
 #[path = "../common/mod.rs"]

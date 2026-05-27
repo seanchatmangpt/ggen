@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Comprehensive tests for schema parser and generators
 //!
 //! This test suite covers:

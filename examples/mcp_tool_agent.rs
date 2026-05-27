@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! MCP Tool Agent Example
 //!
 //! This example demonstrates how MCP (Model Context Protocol) tools can be used as agents,

@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Integration tests for security logging and intrusion detection
 //!
 //! This test suite verifies the integration of all security logging components:

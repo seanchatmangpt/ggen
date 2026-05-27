@@ -1,0 +1,4 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+<http://www.w3.org/ns/prov#TriggerShape> {
+    prov:wasAssociatedWith @<http://www.w3.org/ns/prov#AgentShape>
+}

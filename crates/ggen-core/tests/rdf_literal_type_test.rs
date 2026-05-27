@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Tests for RDF literal type handling across ggen's SPARQL pipeline.
 //!
 //! ggen's pipeline converts SPARQL results into Tera template variables via

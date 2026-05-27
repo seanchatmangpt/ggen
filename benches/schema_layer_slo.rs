@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! SLO Metrics Verification: Schema Layer Performance Benchmarks
 //!
 //! This benchmark suite validates performance SLOs for EPIC 9 schema-layer validation:

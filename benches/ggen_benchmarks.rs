@@ -21,11 +21,12 @@
 //! cargo make slo-check       # Verify SLO compliance
 //! ```
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::{
     graph::Graph,
     validation::{RuleExecutor, RuleSeverity, ValidationRule},
 };
+use std::hint::black_box;
 use std::time::Duration;
 
 /// Benchmark: 100-rule manifest processing

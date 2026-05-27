@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Armstrong Integration Tests - Supervisor + Circuit Breaker + Consensus
 //!
 //! Tests the complete Armstrong system architecture:

@@ -139,6 +139,7 @@ pub mod dflss;
 pub mod domain;
 pub mod e2e_tests;
 pub mod generator;
+pub mod genesis;
 pub mod github;
 pub mod gpack;
 pub mod graph;
@@ -181,6 +182,7 @@ pub mod transport;
 pub mod types;
 pub mod utils;
 pub mod validation;
+pub mod membrane;
 
 // Schema parser and code generators for A2A communication
 pub mod drift; // Drift detection for ontology changes

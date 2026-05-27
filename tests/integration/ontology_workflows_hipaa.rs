@@ -8,7 +8,6 @@
 
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 /// Healthcare provider domain ontology in Turtle format
@@ -189,76 +188,64 @@ SELECT ?policy ?control WHERE {
     let guard_results = evaluate_hipaa_guards(&ontology_content);
 
     // Critical guards (must all pass)
-    assert_eq!(
+    assert!(
         guard_results.get("encryption_required").unwrap().0,
-        true,
         "Encryption guard must pass for HIPAA compliance"
     );
-    assert_eq!(
+    assert!(
         guard_results.get("audit_trail_required").unwrap().0,
-        true,
         "Audit trail guard must pass for HIPAA compliance"
     );
-    assert_eq!(
+    assert!(
         guard_results.get("access_control_required").unwrap().0,
-        true,
         "Access control guard must pass for HIPAA compliance"
     );
-    assert_eq!(
+    assert!(
         guard_results.get("data_integrity_required").unwrap().0,
-        true,
         "Data integrity guard must pass for HIPAA compliance"
     );
-    assert_eq!(
+    assert!(
         guard_results.get("breach_notification_required").unwrap().0,
-        true,
         "Breach notification guard must pass for HIPAA compliance"
     );
-    assert_eq!(
+    assert!(
         guard_results.get("minimum_necessary_rule").unwrap().0,
-        true,
         "Minimum necessary rule guard must pass"
     );
 
     // Bonus guards (contribute to score)
-    assert_eq!(
+    assert!(
         guard_results.get("redundancy_recommended").unwrap().0,
-        true,
         "Redundancy is recommended for healthcare"
     );
-    assert_eq!(
+    assert!(
         guard_results
             .get("disaster_recovery_recommended")
             .unwrap()
             .0,
-        true,
         "Disaster recovery is recommended"
     );
 
     // Infrastructure guards
-    assert_eq!(
+    assert!(
         guard_results.get("compliant_provider_required").unwrap().0,
-        true,
         "Provider must be HIPAA-eligible"
     );
-    assert_eq!(
+    assert!(
         guard_results.get("data_residency_required").unwrap().0,
-        true,
         "Data must reside in compliant regions"
     );
 
     // Operational guards
-    assert_eq!(
+    assert!(
         guard_results.get("staff_training_required").unwrap().0,
-        true,
         "Staff HIPAA training required"
     );
-    assert_eq!(
+    assert!(
         guard_results
             .get("incident_response_plan_required")
             .unwrap()
             .0,
-        true,
         "Incident response plan required"
     );
 
@@ -270,8 +257,7 @@ SELECT ?policy ?control WHERE {
     );
 
     // Assert: Proposal generation (output should be HIPAA-compliant)
-    let proposal_content = format!(
-        r#"{{
+    let proposal_content = r#"{{
   "proposal": {{
     "organization": "MediCenter NYC",
     "compliance_status": "HIPAA-Compliant",
@@ -300,7 +286,7 @@ SELECT ?policy ?control WHERE {
     "estimated_cost_monthly": "$45000"
   }}
 }}"#
-    );
+    .to_string();
 
     // Assert: Receipt contains HIPAA-specific metadata
     assert!(
@@ -321,8 +307,7 @@ SELECT ?policy ?control WHERE {
     );
 
     // Assert: Determinism - same input produces same proposal
-    let proposal_content_2 = format!(
-        r#"{{
+    let proposal_content_2 = r#"{{
   "proposal": {{
     "organization": "MediCenter NYC",
     "compliance_status": "HIPAA-Compliant",
@@ -351,7 +336,7 @@ SELECT ?policy ?control WHERE {
     "estimated_cost_monthly": "$45000"
   }}
 }}"#
-    );
+    .to_string();
 
     assert_eq!(
         proposal_content, proposal_content_2,
@@ -480,9 +465,8 @@ ex:Service
     let guard_results = evaluate_hipaa_guards(bad_ontology);
 
     // Assert: Encryption guard fails
-    assert_eq!(
-        guard_results.get("encryption_required").unwrap().0,
-        false,
+    assert!(
+        !guard_results.get("encryption_required").unwrap().0,
         "Encryption guard must fail without AES-256"
     );
 }

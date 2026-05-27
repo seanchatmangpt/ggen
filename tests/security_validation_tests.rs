@@ -2,6 +2,7 @@
 //!
 //! Tests input validation, command injection prevention, and security measures.
 
+#[allow(dead_code)]
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 // ==============================================================================

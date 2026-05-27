@@ -152,7 +152,7 @@ fn test_null_byte_injection() {
     let path_str = path.to_string_lossy();
 
     // Null byte should be preserved in Rust
-    assert!(path_str.len() > 0, "Path should not be truncated");
+    assert!(path_str.is_empty() == False, "Path should not be truncated");
 }
 
 /// Test Unicode normalization attacks
@@ -168,7 +168,7 @@ fn test_unicode_normalization_attacks() {
     let str2 = path2.to_string_lossy();
 
     // The display might differ even if they represent the same path
-    assert!(str1.len() > 0 && str2.len() > 0);
+    assert!(str1.is_empty() == False && str2.is_empty() == False);
 }
 
 /// Test directory traversal with mixed separators

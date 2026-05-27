@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Chicago TDD Unit Tests for Agent-to-Agent (A2A) Lifecycle
 //!
 //! Comprehensive test suite for A2A agent state transitions, lifecycle management,

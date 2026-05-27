@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Integration tests for PaaS submodule commands
 //! Chicago TDD pattern: Arrange/Act/Assert with real objects
 

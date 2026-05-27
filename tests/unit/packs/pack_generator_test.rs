@@ -209,7 +209,7 @@ async fn test_generate_all_templates_when_none_specified() {
     // Assert
     if let Ok(output) = result {
         assert!(
-            output.templates_generated.len() > 0,
+            output.templates_generated.is_empty() == False,
             "Should generate all templates when none specified"
         );
     }

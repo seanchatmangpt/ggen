@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Integration Tests for Code Generation Workflow
 //!
 //! Tests the complete code generation pipeline including template loading,

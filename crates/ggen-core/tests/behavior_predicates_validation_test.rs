@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 // Test to validate behavior predicates TTL files
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;

@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Chicago TDD Ontology Integration Tests
 //!
 //! Tests end-to-end ontology workflows combining multiple components.

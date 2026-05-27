@@ -159,9 +159,9 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<TelemetryGuard> {
         let fmt_layer = tracing_subscriber::fmt::layer()
             .with_target(true)
             .with_level(true);
-        subscriber.with(fmt_layer).init();
+        let _ = subscriber.with(fmt_layer).try_init();
     } else {
-        subscriber.init();
+        let _ = subscriber.try_init();
     }
 
     tracing::info!(

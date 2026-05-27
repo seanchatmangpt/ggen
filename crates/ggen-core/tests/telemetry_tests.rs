@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Tests for OpenTelemetry instrumentation
 //!
 //! These tests verify that ggen operations generate correct spans

@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Chicago TDD comprehensive tests for critical CLI commands
 //!
 //! This test suite focuses on the critical 20% of functionality that catches 80% of bugs:

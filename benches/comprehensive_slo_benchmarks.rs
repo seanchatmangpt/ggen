@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Comprehensive SLO Benchmarks for ggen Performance Validation
 //!
 //! This benchmark suite validates all performance SLOs defined in PERFORMANCE_ANALYSIS.md

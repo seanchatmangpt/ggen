@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Validation tests (T026) - Chicago School TDD
 //!
 //! Tests the validation pipeline functionality that checks generated code

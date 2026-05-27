@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_08_verify_replay_receipts> a prov:Activity ;
+    dcterms:identifier "08_verify_replay_receipts" ;
+    prov:startedAtTime "2026-05-27T04:21:59.273Z" ; 
+    prov:endedAtTime "2026-05-27T04:21:59.464Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_08_verify_replay_receipts> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_08_verify_replay_receipts> ;
+    dcterms:title "08_verify_replay_receipts.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "28df12f51cf743bfc8cb65385e1881b766731d0452891ccbd4850fd14ad8a607"
+    ] .
+
+<#stderr_08_verify_replay_receipts> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_08_verify_replay_receipts> ;
+    dcterms:title "08_verify_replay_receipts.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e8c293bf62460c26d0628e4e7fc47d1f2bd62b09c86c318edf2fbc181b6fa773"
+    ] .

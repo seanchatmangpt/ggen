@@ -1,0 +1,324 @@
+{
+  "tasks": [
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "61dc9541-cbb1-4b8b-aae9-88ae60aba182"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Audit_Logs",
+      "task_id": "48be620d-d55a-4cae-a9d5-358f9eb1732b"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Design_Schema",
+      "task_id": "f25ff578-5af7-4140-87cd-8b21724612a7"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Implement_Cache",
+      "task_id": "44e3b39c-b06a-41bd-b6a4-eaf5f2ada418"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Verify_Compliance",
+      "task_id": "abfd8819-a939-493b-8159-d168583c5f1d"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "bcdba961-1d51-42f6-86c8-24784dab2d47"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Deploy_K8s",
+      "task_id": "f78a40f4-001e-4a88-85fe-85593ee210c1"
+    },
+    {
+      "avatar": "ProductManager",
+      "jtbd": "Setup_Alerts",
+      "task_id": "d0b0b545-2de4-40eb-8b66-1639ab751a38"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "2e663389-a446-48b4-a327-4dc27ee001a9"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Audit_Logs",
+      "task_id": "dc81d114-3180-4042-be42-1e170b623643"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Design_Schema",
+      "task_id": "a2e7302e-44ac-461b-8d51-67676f2eab97"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Implement_Cache",
+      "task_id": "008c0246-4bb1-4105-9d30-804ac65ad558"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Verify_Compliance",
+      "task_id": "60c1cc0d-a264-4bda-a5e8-9267a15bd384"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "6d90152b-f765-4b34-a9e9-58da017c9d8b"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Deploy_K8s",
+      "task_id": "aa27f101-f6f3-49d8-882c-aa80f945f78a"
+    },
+    {
+      "avatar": "DataScientist",
+      "jtbd": "Setup_Alerts",
+      "task_id": "4823bcc1-ba37-4b84-aa73-607689233949"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "02dcbc73-4cc1-45fd-a5bc-47937fad1650"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Audit_Logs",
+      "task_id": "dbc8e741-0996-45c1-b792-1907be182fb2"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Design_Schema",
+      "task_id": "6b38553f-ab8d-4d06-a224-2dfb3f773d54"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Implement_Cache",
+      "task_id": "e3077eee-d08c-49a0-b154-ae45c3a5a286"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Verify_Compliance",
+      "task_id": "2aa6efa7-31d1-4ac3-89a4-232b3b55daeb"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "395a078a-206b-4746-83a0-03d64fbd06fb"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Deploy_K8s",
+      "task_id": "a3eae375-5de3-49c9-846b-c9b547336316"
+    },
+    {
+      "avatar": "SecurityAuditor",
+      "jtbd": "Setup_Alerts",
+      "task_id": "4b39a5eb-8f11-490f-88cf-cfb321692638"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "c2a09ca8-fdd7-4293-a437-44c5f29e6665"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Audit_Logs",
+      "task_id": "8a0b849b-11dd-40f3-a115-84ef511c5bb2"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Design_Schema",
+      "task_id": "f94061c1-452e-488f-91f4-569792c062f5"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Implement_Cache",
+      "task_id": "7d4871d5-d712-4f5a-8467-2a4dadf66fd2"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Verify_Compliance",
+      "task_id": "517f4972-c841-435b-9852-f5d710b69c1d"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "0c612d0c-ae71-4880-8664-80d6c53133d5"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Deploy_K8s",
+      "task_id": "e03f4b5c-45de-4c99-b8b4-9c85f1deae07"
+    },
+    {
+      "avatar": "FrontendDev",
+      "jtbd": "Setup_Alerts",
+      "task_id": "5586a73c-588d-4271-9773-9964184d83be"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "b8dcc3ed-24cb-4291-865d-c05685701e38"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Audit_Logs",
+      "task_id": "4fd97b39-f58f-4e63-a8b4-2ebeb6a2b972"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Design_Schema",
+      "task_id": "beab59fd-6ee6-4541-9769-aa03dc789f6f"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Implement_Cache",
+      "task_id": "b9934e31-e024-40b7-bcca-f1dcf7a89542"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Verify_Compliance",
+      "task_id": "e6c48cdc-f477-4565-96e8-5f5669ec6082"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "e69737f1-0661-426d-9c66-bcd68396c96a"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Deploy_K8s",
+      "task_id": "df151ad9-c4d8-465c-995e-6e82733f44ca"
+    },
+    {
+      "avatar": "BackendDev",
+      "jtbd": "Setup_Alerts",
+      "task_id": "fc726705-dcf0-4d01-9b26-cdd07396eb6b"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "94e27ad4-d3e9-4ad9-a933-22dbc026fa42"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Audit_Logs",
+      "task_id": "b82ad39e-4cf1-41b9-9137-15430d2b2b79"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Design_Schema",
+      "task_id": "39111a2a-001c-448c-aaa1-0853c5c36464"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Implement_Cache",
+      "task_id": "2500f109-4f71-43fc-ba8f-9749bb6051f3"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Verify_Compliance",
+      "task_id": "2b332566-5fc7-44da-b0f6-a1457710f7e8"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "67d09977-555a-4023-8c73-fa47872a5c14"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Deploy_K8s",
+      "task_id": "2fbd7882-09d3-4815-b7c7-3a800b3886c8"
+    },
+    {
+      "avatar": "DevOpsEngineer",
+      "jtbd": "Setup_Alerts",
+      "task_id": "3171e750-4163-4afa-8f5e-51cb06bf97e9"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "f67f9fc4-6fc5-4dad-99e7-0d3b26aca34f"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Audit_Logs",
+      "task_id": "841cc101-cb73-4f90-9fca-37fa50e50ad8"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Design_Schema",
+      "task_id": "e4203880-565e-4420-ad40-230bbbf07e52"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Implement_Cache",
+      "task_id": "269f2b56-8056-4a37-a9f4-053297190d68"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Verify_Compliance",
+      "task_id": "3841a8f0-c357-495d-a56f-7d75aeb847ef"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "c6e41924-79bd-42e6-b563-423d482d07ed"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Deploy_K8s",
+      "task_id": "c53d7c57-182c-4fae-8207-47d7201f9587"
+    },
+    {
+      "avatar": "ComplianceOfficer",
+      "jtbd": "Setup_Alerts",
+      "task_id": "5bbf8249-bb84-4aec-8747-443aee10964f"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Analyze_Metrics",
+      "task_id": "3080a504-96b1-43a8-b23d-0a06022b44d4"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Audit_Logs",
+      "task_id": "9617f6e9-cec1-4e42-aa5f-e5804d09e2c1"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Design_Schema",
+      "task_id": "22cfca87-0ab4-4ecb-8f94-dd321555dafd"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Implement_Cache",
+      "task_id": "f72c2073-ea58-4e91-9998-c33d52a98c54"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Verify_Compliance",
+      "task_id": "af3b640e-922a-41c4-b056-82277a7ebed5"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Optimize_Frontend",
+      "task_id": "c69a8778-c715-40ce-bc5b-7d385e9848d7"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Deploy_K8s",
+      "task_id": "776ab1ae-fcac-4e6f-8306-8e5af99314d9"
+    },
+    {
+      "avatar": "SystemArchitect",
+      "jtbd": "Setup_Alerts",
+      "task_id": "e017ca90-e4d9-4051-a52b-e2ea785b2ea8"
+    }
+  ]
+}

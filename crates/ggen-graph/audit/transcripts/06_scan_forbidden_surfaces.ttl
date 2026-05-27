@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_06_scan_forbidden_surfaces> a prov:Activity ;
+    dcterms:identifier "06_scan_forbidden_surfaces" ;
+    prov:startedAtTime "2026-05-27T04:21:59.126Z" ; 
+    prov:endedAtTime "2026-05-27T04:21:59.164Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_06_scan_forbidden_surfaces> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_06_scan_forbidden_surfaces> ;
+    dcterms:title "06_scan_forbidden_surfaces.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "a3b570b6884bb8a71208374ab37c93812fec8e6ba65aad07753a1699cec0827f"
+    ] .
+
+<#stderr_06_scan_forbidden_surfaces> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_06_scan_forbidden_surfaces> ;
+    dcterms:title "06_scan_forbidden_surfaces.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ] .

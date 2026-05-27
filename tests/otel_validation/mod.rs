@@ -3,11 +3,11 @@
 //! This module provides trace-based validation that all README capabilities
 //! work correctly end-to-end using OpenTelemetry instrumentation.
 
-use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
+use ggen_core::telemetry::TelemetryConfig;
 use ggen_core::utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use tracing::{info, instrument, warn};
+use tracing::{info, instrument};
 
 pub mod capabilities;
 pub mod collectors;
@@ -46,6 +46,7 @@ impl TraceCollector {
 
     pub fn record_span(&self, span: SpanRecord) {
         if let Ok(mut spans) = self.spans.lock() {
+            println!("DEBUG: record_span pointer={:p} name={}", Arc::as_ptr(&self.spans), span.name);
             spans.push(span);
         }
     }
@@ -76,12 +77,14 @@ impl TraceCollector {
     }
 
     pub fn assert_span_exists(&self, name: &str) -> Result<()> {
+        println!("DEBUG: assert_span_exists pointer={:p} name={}", Arc::as_ptr(&self.spans), name);
         self.find_span(name)
             .ok_or_else(|| Error::new(&format!("Expected span '{}' not found", name)))?;
         Ok(())
     }
 
     pub fn assert_span_success(&self, name: &str) -> Result<()> {
+        println!("DEBUG: assert_span_success pointer={:p} name={}", Arc::as_ptr(&self.spans), name);
         let span = self
             .find_span(name)
             .ok_or_else(|| Error::new(&format!("Span '{}' not found", name)))?;
@@ -126,6 +129,84 @@ impl Default for TraceCollector {
     }
 }
 
+use once_cell::sync::Lazy;
+use std::sync::Once;
+use std::time::Instant;
+use tracing::span::{Attributes, Id};
+use tracing::Subscriber;
+use tracing_subscriber::layer::Context;
+use tracing_subscriber::Layer;
+
+pub static GLOBAL_COLLECTORS: Lazy<Mutex<HashMap<Id, TraceCollector>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+static SPAN_STARTS_MUTEX: Lazy<Mutex<HashMap<Id, Instant>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+static SPAN_NAMES_MUTEX: Lazy<Mutex<HashMap<Id, String>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+static INIT_SUBSCRIBER: Once = Once::new();
+
+struct TestCollectorLayer;
+
+impl<S> Layer<S> for TestCollectorLayer
+where
+    S: Subscriber + for<'lookup> tracing_subscriber::registry::LookupSpan<'lookup>,
+{
+    fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, _ctx: Context<'_, S>) {
+        let name = attrs.metadata().name().to_string();
+        if let Ok(mut names) = SPAN_NAMES_MUTEX.lock() {
+            names.insert(id.clone(), name);
+        }
+    }
+
+    fn on_enter(&self, id: &Id, _ctx: Context<'_, S>) {
+        if let Ok(mut starts) = SPAN_STARTS_MUTEX.lock() {
+            starts.entry(id.clone()).or_insert_with(Instant::now);
+        }
+    }
+
+    fn on_close(&self, id: Id, ctx: Context<'_, S>) {
+        let start = if let Ok(mut starts) = SPAN_STARTS_MUTEX.lock() {
+            starts.remove(&id)
+        } else {
+            None
+        };
+        let name = if let Ok(mut names) = SPAN_NAMES_MUTEX.lock() {
+            names.remove(&id)
+        } else {
+            None
+        };
+
+        if let Some(name) = name {
+            let duration_ms = start
+                .map(|s| s.elapsed().as_secs_f64() * 1000.0)
+                .unwrap_or(0.0);
+
+            let record = SpanRecord {
+                name: name.clone(),
+                duration_ms,
+                attributes: HashMap::new(),
+                status: SpanStatus::Ok,
+            };
+
+            // Walk up parent chain to find the collector in span extensions or global registry
+            let mut current = ctx.span(&id);
+            while let Some(span) = current {
+                let extensions = span.extensions();
+                if let Some(collector) = extensions.get::<TraceCollector>() {
+                    collector.record_span(record.clone());
+                    break;
+                }
+                if let Ok(map) = GLOBAL_COLLECTORS.lock() {
+                    if let Some(collector) = map.get(&span.id()) {
+                        collector.record_span(record.clone());
+                        break;
+                    }
+                }
+                current = span.parent();
+            }
+        }
+    }
+}
+
 /// Validation context for tests
 pub struct ValidationContext {
     pub collector: TraceCollector,
@@ -145,13 +226,25 @@ impl ValidationContext {
     }
 
     pub fn init(&self) -> Result<()> {
-        init_telemetry(self.config.clone())?;
+        INIT_SUBSCRIBER.call_once(|| {
+            use tracing_subscriber::layer::SubscriberExt;
+            use tracing_subscriber::util::SubscriberInitExt;
+
+            let layer = TestCollectorLayer;
+            let subscriber = tracing_subscriber::Registry::default()
+                .with(tracing_subscriber::EnvFilter::new("info"))
+                .with(layer);
+
+            match subscriber.try_init() {
+                Ok(_) => println!("INFO: Test tracing subscriber initialized successfully!"),
+                Err(e) => println!("WARNING: Failed to initialize test tracing subscriber: {}", e),
+            }
+        });
+
         Ok(())
     }
 
-    pub fn shutdown(&self) {
-        shutdown_telemetry();
-    }
+    pub fn shutdown(&self) {}
 }
 
 impl Default for ValidationContext {

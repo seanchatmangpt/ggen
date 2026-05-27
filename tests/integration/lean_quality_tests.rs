@@ -152,7 +152,7 @@ mod andon_system {
             FailureCategory::CompilationError,
         );
 
-        assert_eq!(alert.severity, Severity::Red);
+        assert!(alert.severity, Severity::Red);
         assert_eq!(alert.test_name, "test_compilation");
         assert_eq!(alert.error_message, "syntax error in main.rs");
         assert!(alert.remediation.contains("syntax"));
@@ -318,7 +318,7 @@ mod gemba_walk {
     fn test_gemba_add_checks() {
         let mut checklist = GembaWalkChecklist::new(PathBuf::from("test.rs"));
 
-        checklist.add_check("Mock usage", true, "Minimal mocking", 10.0);
+        checklist.add_check("Mock usage", "Minimal mocking", 10.0);
         checklist.add_check("Assertions", false, "Needs improvement", 10.0);
 
         assert_eq!(checklist.checks.len(), 2);

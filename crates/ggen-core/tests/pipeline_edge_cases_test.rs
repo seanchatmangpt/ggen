@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Edge case tests for GenerationPipeline
 //!
 //! Tests error paths, boundary conditions, and edge cases:

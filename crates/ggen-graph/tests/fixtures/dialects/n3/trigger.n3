@@ -1,0 +1,2 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+{ ?x a prov:Entity } => { ?x a prov:Item } .

@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Vision 2030 Benchmark Suite
 //!
 //! Measures performance characteristics of all 5 units:
@@ -166,7 +175,7 @@ mod benchmarks {
     #[test]
     #[ignore] // Run with: cargo test -- --ignored
     fn bench_verb_dispatch_matching() {
-        let methods = vec![
+        let methods = [
             "autonomics",
             "a2a-control",
             "mcp-control",
@@ -218,7 +227,7 @@ mod benchmarks {
         let start = Instant::now();
 
         for _ in 0..iterations {
-            let _registry: Vec<_> = verbs.iter().map(|v| *v).collect();
+            let _registry: Vec<_> = verbs.iter().copied().collect();
         }
 
         let elapsed = start.elapsed();

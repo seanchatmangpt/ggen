@@ -23,7 +23,6 @@
 //! - 4-6: Medium (standard testing finds it)
 //! - 1-3: High (obvious, caught immediately)
 
-use std::cmp::Ordering;
 use std::collections::HashMap;
 
 /// FMEA failure mode representation
@@ -92,7 +91,7 @@ impl FmeaAssessment {
     /// Get failures sorted by RPN (highest first)
     fn by_priority(&self) -> Vec<&FailureMode> {
         let mut sorted: Vec<_> = self.failure_modes.iter().collect();
-        sorted.sort_by(|a, b| b.rpn().cmp(&a.rpn()));
+        sorted.sort_by_key(|b| std::cmp::Reverse(b.rpn()));
         sorted
     }
 

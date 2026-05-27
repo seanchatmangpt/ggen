@@ -1,0 +1,52 @@
+@base <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<#dialect_completeness_report> a sh:ValidationReport ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:identifier "dialect_completeness.validation" ;
+    dcterms:description "Dialect Completeness Validation Report" ;
+    sh:result <#result_sparql_ask> , <#result_sparql_select> , <#result_sparql_construct> , <#result_shacl> , <#result_n3> , <#result_datalog> , <#result_shex> .
+
+<#result_sparql_ask> a sh:ValidationResult ;
+    sh:focusNode <#dialect_sparql_ask> ;
+    sh:resultSeverity sh:Info ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:description "SPARQL ASK dialect is fully supported and verified." .
+
+<#result_sparql_select> a sh:ValidationResult ;
+    sh:focusNode <#dialect_sparql_select> ;
+    sh:resultSeverity sh:Info ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:description "SPARQL SELECT dialect is fully supported and verified." .
+
+<#result_sparql_construct> a sh:ValidationResult ;
+    sh:focusNode <#dialect_sparql_construct> ;
+    sh:resultSeverity sh:Info ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:description "SPARQL CONSTRUCT dialect is fully supported and verified." .
+
+<#result_shacl> a sh:ValidationResult ;
+    sh:focusNode <#dialect_shacl> ;
+    sh:resultSeverity sh:Info ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:description "SHACL dialect is fully supported and verified." .
+
+<#result_n3> a sh:ValidationResult ;
+    sh:focusNode <#dialect_n3> ;
+    sh:resultSeverity sh:Warning ;
+    sh:conforms "false"^^xsd:boolean ;
+    dcterms:description "N3 dialect is a bounded unsupported capability." .
+
+<#result_datalog> a sh:ValidationResult ;
+    sh:focusNode <#dialect_datalog> ;
+    sh:resultSeverity sh:Warning ;
+    sh:conforms "false"^^xsd:boolean ;
+    dcterms:description "Datalog dialect is a bounded unsupported capability." .
+
+<#result_shex> a sh:ValidationResult ;
+    sh:focusNode <#dialect_shex> ;
+    sh:resultSeverity sh:Warning ;
+    sh:conforms "false"^^xsd:boolean ;
+    dcterms:description "ShEx dialect is a bounded unsupported capability." .

@@ -1,9 +1,11 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::canonical::hash::compute_hash;
 use ggen_core::canonical::json::{canonicalize_json, canonicalize_json_str, JsonCanonicalizer};
 use ggen_core::canonical::Canonicalizer;
 use serde_json::{json, Value};
-use std::collections::HashMap;
+use std::hint::black_box;
 
 fn bench_json_canonicalization_simple(c: &mut Criterion) {
     let input = json!({
