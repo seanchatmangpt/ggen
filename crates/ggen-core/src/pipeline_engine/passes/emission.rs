@@ -321,6 +321,8 @@ impl EmissionPass {
                     "std::process::id()",
                     "ThreadId::current()",
                     "current_thread_id()",
+                    "std::thread::current().id()",
+                    "thread::current().id()",
                 ],
             ),
             (

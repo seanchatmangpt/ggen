@@ -1612,3 +1612,104 @@ Each sabotage case must emit:
 - [ ] Contradiction Supersession: Promoted/Refused conflicts default to Refused unless superseded by a resolved event.
 
 
+## 2026-05-27T15:43:25Z
+
+# Teamwork Project Prompt
+
+Audit, find, and fill any remaining gaps in the `ggen` codebase under the Reimagined Vision 2030 interchangeable parts specification. 
+
+Working directory: /Users/sac/ggen
+Integrity mode: development
+
+## Requirements
+
+### R1. Reimagined Vision 2030 Architecture
+Ensure that the codebase adheres to the new model:
+- **ggen** manufactures Genesis-bearing interchangeable parts and provides the membrane, packaging, adapter surface, and projection layer.
+- **Genesis** acts as the lawful construction kernel embedded inside every interchangeable part (owning O*, μ, RelationPage, Pair2, Construct8, Receipt, Replay, and Refusal).
+- **Interchangeable parts** are runnable across AtomVM, WASM, Rust native, browsers, and edge environments.
+
+### R2. Complete Test Coverage & Execution
+Verify all in-process integration tests (`otel_validation_tests` and `ggen-graph` suite) execute successfully under strict rules, with zero stubs or placeholders.
+
+### R3. Adjudication & Integrity Validation
+Ensure that all verifier gates (W0-W9/T0-T10) pass and produce a verified, promoted `witnessed_truthfulness.external_adjudication.json` receipt via the external witness scripts.
+
+## Acceptance Criteria
+
+### Test Integrity
+- [ ] `cargo test --all` executes successfully.
+- [ ] No stubs or london TDD mocks exist in the codebase.
+
+### Adjudication Validation
+- [ ] The external witness adjudication script (`99_adjudicate_witnessed_truthfulness.sh`) executes and produces a promoted verdict.
+
+---
+## Vision 2030 Context Specification
+
+### The new doctrine
+- **Genesis is the lawful construction kernel inside every interchangeable part.**
+- **ggen is the foundry, membrane, packaging system, adapter surface, and projection layer that manufactures and surrounds those parts.**
+
+### Layer Mapping
+- **Outside world**: devices, actors, files, APIs, logs, tools, databases, humans, workflows
+- **ggen membrane**: adapts messy reality into bounded operating surfaces
+- **AtomVM / Erlang shell**: actor custody, mailbox discipline, supervision, edge event ownership
+- **WASM shell**: portable execution body for interchangeable parts
+- **Genesis core inside the part**: O*, μ, Pair2, RelationPage, Construct8, receipt, replay, refusal
+- **ggen projection membrane**: expands receipts and relation matter into OCEL, RDF, PROV, DCAT, SQL, reports
+- **Downstream systems**: QLever, DuckDB, lakehouse, audit systems, wasm4pm, dashboards, AI context
+
+## 2026-05-27T15:46:25Z
+
+Here is the approved DFLSS Project Charter for the Genesis-Bearing Interchangeable Parts, Vision 2030 project:
+
+# DFLSS Project Charter
+
+## Genesis-Bearing Interchangeable Parts, Vision 2030
+
+### 1. Project Name
+**Genesis-Bearing Interchangeable Parts**
+
+### 2. Charter Statement
+Design and validate a production-grade architecture where ggen manufactures interchangeable operating parts that carry Genesis inside them.
+Each part must be able to operate at the riverhead of enterprise motion: edge, IoT, CI runner, factory cell, clinic station, document processor, lakehouse listener, or browser/edge worker.
+Each part locally performs:
+- Runtime custody: AtomVM / Erlang shell
+- Portable execution: WASM / Rust body
+- External contact: ggen membrane
+- Lawful construction: Genesis core
+- Evidence rollup: receipts, replay, refusal
+- External projection: ggen projection layer
+
+The design objective is to manufacture replaceable operating parts that locally construct receipted relation matter before downstream systems consume it.
+
+### 3. Business Case (Blue River Dam)
+Value is captured at the first lawful construction of operational consequence (riverhead), preventing context decay before data reaches the lakehouse.
+
+### 4. Scope
+- **In Scope (Genesis Core)**: O*, μ, Pair2, RelationPage, Construct8, receipts, replay, refusal. Pure-core kernel with zero-overhead layout and no external dependency sprawl.
+- **In Scope (ggen)**: Membrane, adapters, symbol-page builders, context binders, projections (OCEL, RDF, PROV, DCAT, SQL, reports), validation (QLever, DuckDB, SHACL, OCEL).
+- **In Scope (AtomVM/WASM)**: Edge custody shell, actor identity, restart evidence, portable body.
+
+### 5. Primary CTQs & Metrics
+- Active Pair2 tuples per Construct8 packet: <= 8
+- Bytes per hot Pair2 tuple: 2
+- Local page domains: <= 256 left and <= 256 right active symbols.
+- No page/packet overflow accepted.
+- Refusal artifact coverage: 100% for invalid construction cases.
+- ggen/Genesis boundary violations: 0
+- Pure-core external dependency violations: 0
+
+Please incorporate this DFLSS charter into the current gap analysis and resolution phase.
+
+## 2026-05-27T16:33:53Z
+
+Please apply the following Rust Core Team Best Practices to the active implementation and verification of the Vision 2030 interchangeable parts modules:
+
+1. **Memory-Safety & Idiomatic Design**: Use pure safe Rust. Follow idiomatic design patterns (e.g., using TryFrom/From for node representations, clean module structure).
+2. **Robust Error Handling**: Avoid `unwrap()` or `panic!` inside library code (`crates/ggen-core/src/`). Propagate errors cleanly using the crate's custom Result/Error/bail/ensure patterns.
+3. **Clippy & Warn-Free Execution**: Ensure all codebase modifications pass `#![deny(warnings)]` and `cargo clippy` cleanly.
+4. **Performance & Heap-Free**: Maintain heap-free zero-overhead layout for the hot execution path in the Genesis core.
+
+Make sure the active workers align their current code fixes and test structures with these principles.

@@ -181,6 +181,7 @@ pub mod tracing;
 pub mod transport;
 pub mod types;
 pub mod utils;
+pub mod parts_foundry;
 pub mod validation;
 pub mod membrane;
 

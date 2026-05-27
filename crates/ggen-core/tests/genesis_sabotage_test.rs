@@ -1,6 +1,7 @@
 //! Sabotage Tests: Defect Injection and Boundary Validation
 //! Tests that the system correctly detects and refuses 14+ injected defects
 
+use rand_core::RngCore;
 use ggen_core::genesis::{
     Admission8, Construct8, Graph8, Mask8, Node8, Object8, Pair2, Predicate8, Receipt,
     ReceiptHint8, RelationPage, Replay, Provenance8, RefusalCode, HASH_SIZE,
@@ -100,9 +101,10 @@ fn test_sabotage_receipt_tamper_detection_outputs_hash() {
     let receipt = Receipt::new(op_id, inputs, outputs, None, 1000);
 
     // Sign receipt
-    let mut csprng = rand::rngs::OsRng;
+    use rand_core::RngCore;
+    let mut csprng = rand_core::OsRng;
     let mut key_bytes = [0u8; 32];
-    csprng.try_fill_bytes(&mut key_bytes).unwrap();
+    csprng.fill_bytes(&mut key_bytes);
     let signing_key = ed25519_dalek::SigningKey::from_bytes(&key_bytes);
     let mut signed = receipt.sign(&signing_key);
 
@@ -126,9 +128,10 @@ fn test_sabotage_receipt_tamper_detection_inputs_hash() {
 
     let receipt = Receipt::new(op_id, inputs, outputs, None, 1000);
 
-    let mut csprng = rand::rngs::OsRng;
+    use rand_core::RngCore;
+    let mut csprng = rand_core::OsRng;
     let mut key_bytes = [0u8; 32];
-    csprng.try_fill_bytes(&mut key_bytes).unwrap();
+    csprng.fill_bytes(&mut key_bytes);
     let signing_key = ed25519_dalek::SigningKey::from_bytes(&key_bytes);
     let mut signed = receipt.sign(&signing_key);
 
@@ -151,9 +154,10 @@ fn test_sabotage_receipt_tamper_detection_timestamp() {
 
     let receipt = Receipt::new(op_id, inputs, outputs, None, 1000);
 
-    let mut csprng = rand::rngs::OsRng;
+    use rand_core::RngCore;
+    let mut csprng = rand_core::OsRng;
     let mut key_bytes = [0u8; 32];
-    csprng.try_fill_bytes(&mut key_bytes).unwrap();
+    csprng.fill_bytes(&mut key_bytes);
     let signing_key = ed25519_dalek::SigningKey::from_bytes(&key_bytes);
     let mut signed = receipt.sign(&signing_key);
 

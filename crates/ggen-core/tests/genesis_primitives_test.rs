@@ -257,8 +257,8 @@ fn test_receipt_signature_non_empty() {
     let signed_receipt = receipt.sign(&signing_key);
 
     // Signature field must be non-empty
-    assert!(!signed_receipt.signature.is_empty(), "Signed receipt must have non-empty signature");
-    assert_eq!(signed_receipt.signature.len(), 64, "Ed25519 signature must be 64 bytes");
+    assert!(signed_receipt.signature.is_some(), "Signed receipt must have non-empty signature");
+    assert_eq!(signed_receipt.signature.unwrap().len(), 64, "Ed25519 signature must be 64 bytes");
 }
 
 #[test]
@@ -330,7 +330,7 @@ fn test_relation_page_remove_and_reinsertion() {
 }
 
 #[test]
-fn test_construct8_to_bytes_determinism() {
+fn test_construct8_to_bytes_layout() {
     // Test that Construct8::to_bytes() produces deterministic output
     let construct = Construct8::new(
         Node8::from_bytes([1, 2, 3, 4, 5, 6, 7, 8]),

@@ -41,6 +41,7 @@ impl GenesisCore {
 
 /// The Outer Membrane forms the boundary around the Genesis core, intercepting,
 /// validating, and sanitizing all inputs and operations.
+#[derive(Default)]
 pub struct OuterMembrane;
 
 impl OuterMembrane {

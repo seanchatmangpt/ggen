@@ -78,7 +78,11 @@ fn test_membrane_bindings_and_boundary_crossings() {
     let results = rdf_graph
         .query("SELECT ?part WHERE { ?part a <http://ggen.org/membrane#InterchangeablePart> }")
         .expect("RDF query failed");
-    assert!(!results.is_empty());
+    if let oxigraph::sparql::QueryResults::Solutions(mut solutions) = results {
+        assert!(solutions.next().is_some());
+    } else {
+        panic!("Expected QueryResults::Solutions");
+    }
     
     // 8. Validate projected RDF using SHACL shapes
     let shacl_report = MembraneShaclValidator::validate(&rdf_graph).expect("SHACL validation failed");

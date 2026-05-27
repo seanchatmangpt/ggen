@@ -1,0 +1,23 @@
+[package]
+name = "genesis-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+thiserror.workspace = true
+parking_lot.workspace = true
+dashmap.workspace = true
+genesis-types.workspace = true
+genesis-schema.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
+proptest.workspace = true
+tokio-test.workspace = true
+criterion.workspace = true

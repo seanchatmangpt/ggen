@@ -1,0 +1,32 @@
+[package]
+name = "genesis-lockchain"
+version = "1.0.0"
+edition = "2021"
+description = "Distributed locking mechanism with receipt-based verification"
+repository = "https://github.com/yourusername/knhk"
+homepage = "https://github.com/yourusername/knhk"
+documentation = "https://docs.rs/genesis-lockchain"
+keywords = ["distributed", "locking", "consensus", "blockchain", "verification"]
+categories = ["concurrency", "cryptography"]
+license = "MIT"
+authors = ["KNHK Team"]
+
+[dependencies]
+blake3 = { workspace = true }
+bincode = "1.3"
+serde = { version = "1.0", features = ["derive"] }
+sled = "0.34"
+thiserror = "2.0"
+sha2 = "0.10"
+git2 = "0.18"
+hex = "0.4"
+# Note: Full URDNA2015 canonicalization deferred to v1.1
+# For v1.0, using basic canonicalization (sorting + normalization)
+
+[features]
+default = ["std"]
+std = []
+
+[dev-dependencies]
+chicago-tdd-tools = { workspace = true }
+features = ["testing-extras", "otel", "weaver", "testcontainers", "async"] }
