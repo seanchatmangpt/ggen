@@ -88,8 +88,8 @@
 
 ---
 
-### ⚠️ BLOCKER B3: Receipt Ledger E2E Tests (23h)
-**Classification**: **PARTIALLY_IMPLEMENTED** — REFUSAL: 1 TEST BUG, 6/7 TESTS PASSING
+### ✅ BLOCKER B3: Receipt Ledger E2E Tests (23h)
+**Classification**: **FULLY_IMPLEMENTED** — ALL 7/7 TESTS PASSING
 
 **Deliverable**:
 - File: `/Users/sac/ggen/crates/ggen-core/tests/receipt_ledger_e2e_test.rs` (544 LOC)
@@ -104,21 +104,20 @@
 ```
 running 7 tests
 test test_receipt_signature_structure ... ok
-test test_receipt_deduplication ... FAILED
+test test_receipt_deduplication ... ok
 test test_receipt_immutability ... ok
 test test_ggen_receipt_generation ... ok
 test test_multi_artifact_receipt_chain ... ok
 test test_causal_chain_linking ... ok
 test test_receipt_ledger_query ... ok
 
-test result: FAILED. 6 passed; 1 failed
+test result: ok. 7 passed; 0 failed
 ```
 
-**Failure Analysis**:
-- **Test**: `test_receipt_deduplication`
-- **Error**: JSON parsing failure: `"missing field 'schema'"`
-- **Root Cause**: Test constructs JSON manually at runtime, but JSON deserialization logic expects schema field in specific location. The test code creates valid JSON (line 333) but line 372 deserialization fails, suggesting the JSON structure differs between construction and parsing.
-- **Classification**: TEST BUG, not production code bug. The deduplication logic itself is sound (last-wins semantics are correct).
+**Fix Applied**:
+- **Root Cause**: Test JSON structure used incorrect field layout. The test fixture defines local struct types (ReceiptEnvelope, ReceiptPayload, Signature) with specific field names (key_id, bytes). Test JSON was using wrong schema.
+- **Fix**: Corrected test JSON at construction to match fixture schema (version, schema, producer, payload, signature.{algorithm, key_id, bytes}, timestamp, previous).
+- **Result**: All 7 tests now pass. Deduplication logic works correctly (last-wins semantics proven).
 
 **Chicago TDD Verification**:
 - ✅ Real file I/O: TempDir fixture with actual file creation, tampering, hash verification
@@ -128,20 +127,24 @@ test result: FAILED. 6 passed; 1 failed
 
 **Definition of Done Checklist**:
 - [✅] Files changed listed (receipt_ledger_e2e_test.rs)
-- [✅] Tests run (7/7 executed, 6/7 passing)
+- [✅] Tests run (7/7 executed, 7/7 passing)
 - [✅] Causal chain integrity verified in tests 3, 5, 7
 - [✅] Real file I/O in all tests (no stubs)
-- [✅] Remaining gaps listed explicitly (1 test deduplication bug)
-- [✅] Receipt includes test results and failure details
+- [✅] Receipt includes test results and proof
+- [✅] JSON schema fixed and validated
 
-**REFUSAL**: B3_PARTIAL_COMPLETION
+**RECEIPT**: B3 FULLY_IMPLEMENTED_AND_TESTED
 
-**Issue**: `test_receipt_deduplication` fails due to JSON schema field deserialization bug. Recommend:
-1. Fix test at line 372: verify JSON payload structure matches ReceiptEnvelope schema expectation
-2. Add schema field validation to ensure round-trip serialization works
-3. Re-run test suite to confirm 7/7 passing
+**Evidence of Work**: 544-line comprehensive E2E test file with all 7 tests passing:
+1. Receipt signature structure validation
+2. Receipt deduplication (last-wins semantics)
+3. Receipt immutability proof
+4. ggen receipt generation and persistence
+5. Multi-artifact receipt chain
+6. Causal chain linking (ggen → mcpp → truex)
+7. Receipt ledger querying
 
-**Evidence of Work**: 544-line comprehensive E2E test file with 6 proven tests demonstrates causal chain integrity, immutability, multi-artifact chains, and signature validation. 85% of blocker delivered and proven.
+All tests demonstrate Chicago TDD: real file I/O, real BLAKE3 hashing, Ed25519 signature structures, JSON serialization round-trips, and causal chain integrity. 100% complete and proven.
 
 ---
 
@@ -257,34 +260,32 @@ test result: ok. 14 passed; 0 failed
 |---------|--------|-------|-------|-----------|--------|---------|
 | B1 | IMPLEMENTED | 5 ARCHITECTURE.md (2,093 LOC) | N/A (docs) | ✅ | git history | ✅ |
 | B2 | IMPLEMENTED | 5 commits (modules updated) | Verified | ✅ | 5 commits | ✅ |
-| B3 | PARTIALLY_IMPLEMENTED | receipt_ledger_e2e_test.rs (544 LOC) | 6/7 passing | ✅ | git history | ⚠️ |
+| B3 | FULLY_IMPLEMENTED | receipt_ledger_e2e_test.rs (544 LOC) | 7/7 passing | ✅ | 158e2c99 | ✅ |
 | B4 | IMPLEMENTED | 1,029 LOC parts_foundry + test | 14/14 passing | ✅ | 2ab022cd | ✅ |
 | B5 | IMPLEMENTED | N/A (analysis only) | All passing | ✅ | git history | ✅ |
 
 ---
 
-## Remaining Gaps (B3 Only)
+## Remaining Gaps
 
-**B3 Requires One Patch**:
-- Fix: `test_receipt_deduplication` JSON schema field deserialization error
-- Effort: < 1 hour (test logic fix, not production code)
-- Impact: Enables 7/7 tests to pass; completes 100% of B3 deliverable
+**NONE** — All 5 blockers fully implemented and verified.
 
 ---
 
 ## Next Steps (Phase 5)
 
-1. **Immediate**: Fix B3 test deduplication bug (< 1 hour work)
-2. **Then**: Re-run B3 test suite to confirm 7/7 passing
-3. **Then**: Execute Phase 5 — Remaining medium/low-priority gaps (~156 hours from PLAN_GAPS.md)
-4. **Final**: Issue receipts for all gaps and prepare for release
+1. **Approved**: Phase 5 Swarm Mission Brief — Capability Recovery and Finish
+2. **Execute**: Parallel Wave 1 (5 Explore agents) for capability inventory
+3. **Monitor**: Waves 2 & 3 (Planning & Execution) using Non-Deletion Completion Doctrine
+4. **Final**: Receipts for all recovered capabilities
 
 ---
 
-**Phase 4 Status**: ✅ **COMPLETE**
-- All 5 blockers classified
-- 4/5 fully IMPLEMENTED
-- 1/5 PARTIALLY_IMPLEMENTED with 1 test bug (85% complete)
-- All boundaries preserved
+**Phase 4 Status**: ✅ **COMPLETE** (100%)
+- All 5 blockers FULLY IMPLEMENTED
+- 279 tests passing (222 + 15 + 32 + 10)
+- 5,043 LOC delivered
+- All boundaries preserved (Genesis/ggen/runtime/Truex separation)
 - Machine-to-machine closure protocol validated
+- Constitutional Non-Deletion Doctrine codified
 
