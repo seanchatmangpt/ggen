@@ -10,6 +10,7 @@ This directory contains the definitive swarm documentation for the **Genesis-bea
 ## Master Map & Contracts
 - **[01. Portfolio Cartographer Map](01_PORTFOLIO_MAP.md)**: Exhaustive inventory of ~150 directories in `~/`.
 - **[02. Boundary Doctrine](02_BOUNDARY_DOCTRINE.md)**: The forbidden moves and architectural layers.
+- **[02a. M2M Closure Protocol](02_M2M_CLOSURE_PROTOCOL.md)**: The machine-to-machine finish law for agents.
 - **[03. Interop Contracts](03_INTEROP_CONTRACTS.md)**: The strict inputs/outputs between Genesis, ggen, Truex, and Validators.
 
 ## Core Architectural Specifications
