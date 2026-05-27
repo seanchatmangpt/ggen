@@ -369,6 +369,19 @@ macro_rules! ensure {
     };
 }
 
+/// Create a new Error from a format string or literal
+#[macro_export]
+macro_rules! ggen_error {
+    ($msg:literal $(,)?) => {
+        $crate::utils::error::Error::new($msg)
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        $crate::utils::error::Error::new(&format!($fmt, $($arg)*))
+    };
+}
+
+pub use crate::ggen_error;
+
 impl Error {
     /// Create an invalid input error
     #[must_use]
@@ -443,7 +456,7 @@ mod tests {
     }
 
     #[test]
-    fn test_error_from_io_error() {
+    fn test_error_from_io_error_old() {
         let io_error = std::io::Error::new(std::io::ErrorKind::NotFound, "File not found");
         let error: Error = io_error.into();
 

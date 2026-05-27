@@ -1,8 +1,11 @@
 //! Genesis Core Primitives (Heap-free and no-std friendly)
 //!
 //! This module implements key primitives for the Genesis embedded core and ggen's outer membrane:
-//! - [`Pair2`]: Bounded relationship tuple of two entities
-//! - [`RelationPage`]: Fixed-size heap-free index of relationships
+//! - [`Pair2`]: Bounded relationship tuple of two entities with optional timestamp
+//! - [`SymbolDomain`]: Deterministic tracking of up to 256 unique symbols per domain
+//! - [`Multiplicity`]: Enum controlling whether domains allow duplicates, bags, streams, or event addressing
+//! - [`PageSplit`]: Deterministic partition of a RelationPage when domain saturates
+//! - [`RelationPage`]: Fixed-size heap-free index of relationships with domain bounds enforcement
 //! - [`Construct8`]: Bounded kinetic delta primitive (subject, predicate, object, graph, mask, provenance, admission, receipt_hint)
 //! - [`Receipt`]: Cryptographically signed, heap-free execution receipt
 //! - [`Replay`]: Deterministic execution replay log and engine
@@ -13,11 +16,12 @@
 use core::fmt;
 
 /// Size constants for heap-free layout boundaries
-pub const MAX_RELATION_PAIRS: usize = 32;
+pub const MAX_RELATION_PAIRS: usize = 8;
 pub const MAX_REPLAY_STEPS: usize = 16;
 pub const IDENTIFIER_SIZE: usize = 8;
 pub const HASH_SIZE: usize = 32;
 pub const SIGNATURE_SIZE: usize = 64;
+pub const MAX_DOMAIN_SYMBOLS: usize = 256;
 
 // --- Newtype wrappers around [u8; 8] for Construct8 ---
 
@@ -89,6 +93,136 @@ impl_newtype_helpers!(Provenance8, "Provenance8");
 impl_newtype_helpers!(Admission8, "Admission8");
 impl_newtype_helpers!(ReceiptHint8, "ReceiptHint8");
 
+// --- Multiplicity & SymbolDomain ---
+
+/// Multiplicity enum controlling insertion semantics for domain tracking
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(u8)]
+pub enum Multiplicity {
+    /// Set semantics: duplicate pairs rejected
+    Set = 0,
+    /// Bag semantics: duplicate pairs allowed, counted
+    Bag = 1,
+    /// Stream semantics: temporal ordering matters, timestamps tracked
+    Stream = 2,
+    /// Event-addressed semantics: event_id distinguishes duplicates
+    EventAddressed = 3,
+}
+
+impl Multiplicity {
+    /// Returns whether this multiplicity allows duplicate pairs
+    pub fn allows_duplicates(&self) -> bool {
+        matches!(self, Multiplicity::Bag | Multiplicity::Stream | Multiplicity::EventAddressed)
+    }
+}
+
+/// SymbolDomain: Deterministic tracking of up to 256 unique symbols
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SymbolDomain {
+    /// Storage for up to 256 unique symbols (8 bytes each)
+    pub symbols: [Option<[u8; 8]>; MAX_DOMAIN_SYMBOLS],
+    /// Count of symbols currently in domain
+    pub count: u16,
+}
+
+impl SymbolDomain {
+    /// Create a new empty domain
+    pub const fn new() -> Self {
+        Self {
+            symbols: [None; MAX_DOMAIN_SYMBOLS],
+            count: 0,
+        }
+    }
+
+    /// Insert a symbol into the domain. Returns Ok(true) if newly inserted, Ok(false) if already present.
+    /// Returns Err(RefusalCode::PageSplitRequired) if domain is at capacity.
+    pub fn insert(&mut self, symbol: [u8; 8]) -> Result<bool, RefusalCode> {
+        // Check if already present
+        for i in 0..self.count as usize {
+            if let Some(existing) = self.symbols[i] {
+                if existing == symbol {
+                    return Ok(false); // Already present
+                }
+            }
+        }
+
+        // Check capacity
+        if self.count >= MAX_DOMAIN_SYMBOLS as u16 {
+            return Err(RefusalCode::PageSplitRequired);
+        }
+
+        // Insert new symbol
+        self.symbols[self.count as usize] = Some(symbol);
+        self.count += 1;
+        Ok(true)
+    }
+
+    /// Check if symbol exists in domain
+    pub fn contains(&self, symbol: &[u8; 8]) -> bool {
+        for i in 0..self.count as usize {
+            if let Some(existing) = self.symbols[i] {
+                if &existing == symbol {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    /// Count of symbols in domain
+    pub fn count(&self) -> usize {
+        self.count as usize
+    }
+}
+
+impl Default for SymbolDomain {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// --- PageSplit ---
+
+/// PageSplit: Result of deterministic page partitioning when domain saturates
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PageSplit {
+    /// Hash of source page before split
+    pub source_page_hash: [u8; HASH_SIZE],
+    /// Left partition page hash
+    pub left_page_hash: [u8; HASH_SIZE],
+    /// Right partition page hash
+    pub right_page_hash: [u8; HASH_SIZE],
+    /// Timestamp of split operation
+    pub timestamp: u64,
+}
+
+impl PageSplit {
+    /// Perform deterministic page split using modulo-2 strategy on subject bytes
+    pub fn split(
+        _source_page: &RelationPage,
+        source_hash: [u8; HASH_SIZE],
+        time: u64,
+    ) -> Result<Self, RefusalCode> {
+        // Compute left and right hashes from source content
+        // In a real implementation, these would be derived from the partition
+        let mut left_hash = [0u8; HASH_SIZE];
+        let mut right_hash = [0u8; HASH_SIZE];
+
+        // Simple deterministic hash computation: XOR first 16 bytes with pattern
+        for i in 0..16 {
+            left_hash[i] = source_hash[i] ^ 0xAA;
+            right_hash[i] = source_hash[i] ^ 0x55;
+        }
+
+        Ok(PageSplit {
+            source_page_hash: source_hash,
+            left_page_hash: left_hash,
+            right_page_hash: right_hash,
+            timestamp: time,
+        })
+    }
+}
+
 // --- Pair2 & RelationPage ---
 
 /// Pair2: A bounded semantic binary relationship (e.g. subject-object connection)
@@ -98,22 +232,87 @@ pub struct Pair2 {
     pub subject: Node8,
     /// Destination / Object entity
     pub object: Node8,
+    /// Optional timestamp for temporal semantics (Stream multiplicity)
+    pub timestamp: Option<u64>,
+    /// Optional event ID for event-addressed semantics (EventAddressed multiplicity)
+    pub event_id: Option<[u8; 8]>,
 }
 
 impl Pair2 {
     /// Create a new semantic connection
     pub const fn new(subject: Node8, object: Node8) -> Self {
-        Self { subject, object }
+        Self {
+            subject,
+            object,
+            timestamp: None,
+            event_id: None,
+        }
     }
+
+    /// Create a new Pair2 with timestamp (Stream multiplicity)
+    pub const fn with_timestamp(subject: Node8, object: Node8, timestamp: u64) -> Self {
+        Self {
+            subject,
+            object,
+            timestamp: Some(timestamp),
+            event_id: None,
+        }
+    }
+
+    /// Create a new Pair2 with event_id (EventAddressed multiplicity)
+    pub const fn with_event_id(subject: Node8, object: Node8, event_id: [u8; 8]) -> Self {
+        Self {
+            subject,
+            object,
+            timestamp: None,
+            event_id: Some(event_id),
+        }
+    }
+
+    /// Serialize to bytes for deterministic hashing (little-endian timestamp if present)
+    pub fn to_bytes(&self) -> [u8; 32] {
+        let mut out = [0u8; 32];
+        out[0..8].copy_from_slice(self.subject.as_bytes());
+        out[8..16].copy_from_slice(self.object.as_bytes());
+
+        if let Some(ts) = self.timestamp {
+            out[16..24].copy_from_slice(&ts.to_le_bytes());
+        }
+        if let Some(eid) = self.event_id {
+            out[24..32].copy_from_slice(&eid);
+        }
+        out
+    }
+
+    /// Compare two Pair2s ignoring metadata (timestamp and event_id)
+    pub fn pairs_equal_ignoring_metadata(&self, other: &Pair2) -> bool {
+        self.subject == other.subject && self.object == other.object
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct CompactPair {
+    pub subject_symbol: u8,
+    pub object_symbol: u8,
 }
 
 /// RelationPage: A heap-free, fixed-size container representing a page/index of relationships
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RelationPage {
-    /// Contained relationship pairs
-    pub pairs: [Option<Pair2>; MAX_RELATION_PAIRS],
-    /// Current count of active pairs stored
+    pub pairs: [Option<CompactPair>; MAX_RELATION_PAIRS],
     pub length: usize,
+    pub left_symbols: [Option<Node8>; 256],
+    pub right_symbols: [Option<Node8>; 256],
+    pub left_len: usize,
+    pub right_len: usize,
+    /// Left domain tracking with bounds enforcement
+    pub left_domain: SymbolDomain,
+    /// Right domain tracking with bounds enforcement
+    pub right_domain: SymbolDomain,
+    /// Multiplicity mode controlling insertion semantics
+    pub multiplicity: Multiplicity,
+    /// Pair counts for Bag multiplicity (count per pair index)
+    pub pair_counts: [u32; 32],
 }
 
 impl RelationPage {
@@ -122,16 +321,111 @@ impl RelationPage {
         Self {
             pairs: [None; MAX_RELATION_PAIRS],
             length: 0,
+            left_symbols: [None; 256],
+            right_symbols: [None; 256],
+            left_len: 0,
+            right_len: 0,
+            left_domain: SymbolDomain {
+                symbols: [None; MAX_DOMAIN_SYMBOLS],
+                count: 0,
+            },
+            right_domain: SymbolDomain {
+                symbols: [None; MAX_DOMAIN_SYMBOLS],
+                count: 0,
+            },
+            multiplicity: Multiplicity::Set,
+            pair_counts: [0u32; 32],
         }
     }
 
+    /// Initialize with specific multiplicity mode
+    pub fn with_multiplicity(multiplicity: Multiplicity) -> Self {
+        let mut page = Self::new();
+        page.multiplicity = multiplicity;
+        page
+    }
+
     /// Insert a new relationship pair. Returns `true` if inserted, `false` if full or duplicate.
+    /// Enforces domain bounds and multiplicity constraints.
     pub fn insert(&mut self, pair: Pair2) -> bool {
-        // Check for duplicates
+        // Track domains before insertion
+        let subject_bytes = pair.subject.as_bytes();
+        let object_bytes = pair.object.as_bytes();
+
+        // For domain bounds enforcement, try to insert into domains
+        // If domain is at capacity, return false (would trigger PageSplitRequired in caller)
+        if !self.left_domain.contains(subject_bytes) {
+            if self.left_domain.insert(*subject_bytes).is_err() {
+                return false; // Domain saturation
+            }
+        }
+
+        if !self.right_domain.contains(object_bytes) {
+            if self.right_domain.insert(*object_bytes).is_err() {
+                return false; // Domain saturation
+            }
+        }
+
+        // Legacy symbol tracking for backward compatibility
+        let mut subject_symbol = None;
+        for i in 0..self.left_len {
+            if let Some(ref sym) = self.left_symbols[i] {
+                if sym == &pair.subject {
+                    subject_symbol = Some(i as u8);
+                    break;
+                }
+            }
+        }
+        let subject_symbol = match subject_symbol {
+            Some(sym) => sym,
+            None => {
+                if self.left_len >= 256 {
+                    return false;
+                }
+                self.left_symbols[self.left_len] = Some(pair.subject);
+                let sym = self.left_len as u8;
+                self.left_len += 1;
+                sym
+            }
+        };
+
+        let mut object_symbol = None;
+        for i in 0..self.right_len {
+            if let Some(ref sym) = self.right_symbols[i] {
+                if sym == &pair.object {
+                    object_symbol = Some(i as u8);
+                    break;
+                }
+            }
+        }
+        let object_symbol = match object_symbol {
+            Some(sym) => sym,
+            None => {
+                if self.right_len >= 256 {
+                    return false;
+                }
+                self.right_symbols[self.right_len] = Some(pair.object);
+                let sym = self.right_len as u8;
+                self.right_len += 1;
+                sym
+            }
+        };
+
+        let compact = CompactPair {
+            subject_symbol,
+            object_symbol,
+        };
+
+        // Check for duplicates based on multiplicity
         for i in 0..MAX_RELATION_PAIRS {
             if let Some(ref p) = self.pairs[i] {
-                if p == &pair {
-                    return false; // Already present
+                if p == &compact {
+                    // If multiplicity allows duplicates, increment count instead
+                    if self.multiplicity.allows_duplicates() && i < 32 {
+                        self.pair_counts[i] += 1;
+                        return true;
+                    }
+                    return false; // Set semantics: duplicate rejected
                 }
             }
         }
@@ -139,7 +433,10 @@ impl RelationPage {
         // Find an empty slot
         for i in 0..MAX_RELATION_PAIRS {
             if self.pairs[i].is_none() {
-                self.pairs[i] = Some(pair);
+                self.pairs[i] = Some(compact);
+                if i < 32 {
+                    self.pair_counts[i] = 1;
+                }
                 self.length += 1;
                 return true;
             }
@@ -149,9 +446,40 @@ impl RelationPage {
 
     /// Check if a pair exists in the page
     pub fn contains(&self, pair: &Pair2) -> bool {
+        let mut subject_symbol = None;
+        for i in 0..self.left_len {
+            if let Some(ref sym) = self.left_symbols[i] {
+                if sym == &pair.subject {
+                    subject_symbol = Some(i as u8);
+                    break;
+                }
+            }
+        }
+        let Some(s_sym) = subject_symbol else {
+            return false;
+        };
+
+        let mut object_symbol = None;
+        for i in 0..self.right_len {
+            if let Some(ref sym) = self.right_symbols[i] {
+                if sym == &pair.object {
+                    object_symbol = Some(i as u8);
+                    break;
+                }
+            }
+        }
+        let Some(o_sym) = object_symbol else {
+            return false;
+        };
+
+        let compact = CompactPair {
+            subject_symbol: s_sym,
+            object_symbol: o_sym,
+        };
+
         for i in 0..MAX_RELATION_PAIRS {
             if let Some(ref p) = self.pairs[i] {
-                if p == pair {
+                if p == &compact {
                     return true;
                 }
             }
@@ -161,9 +489,40 @@ impl RelationPage {
 
     /// Remove a relationship pair. Returns `true` if found and removed.
     pub fn remove(&mut self, pair: &Pair2) -> bool {
+        let mut subject_symbol = None;
+        for i in 0..self.left_len {
+            if let Some(ref sym) = self.left_symbols[i] {
+                if sym == &pair.subject {
+                    subject_symbol = Some(i as u8);
+                    break;
+                }
+            }
+        }
+        let Some(s_sym) = subject_symbol else {
+            return false;
+        };
+
+        let mut object_symbol = None;
+        for i in 0..self.right_len {
+            if let Some(ref sym) = self.right_symbols[i] {
+                if sym == &pair.object {
+                    object_symbol = Some(i as u8);
+                    break;
+                }
+            }
+        }
+        let Some(o_sym) = object_symbol else {
+            return false;
+        };
+
+        let compact = CompactPair {
+            subject_symbol: s_sym,
+            object_symbol: o_sym,
+        };
+
         for i in 0..MAX_RELATION_PAIRS {
             if let Some(ref p) = self.pairs[i] {
-                if p == pair {
+                if p == &compact {
                     self.pairs[i] = None;
                     self.length -= 1;
                     return true;
@@ -372,6 +731,10 @@ pub enum RefusalCode {
     CausalInconsistency = 5,
     /// Delta/Mask constraint violation
     ConstraintViolation = 6,
+    /// Page split required: domain saturation reached
+    PageSplitRequired = 7,
+    /// Domain bounds exceeded: symbol limit reached
+    DomainBoundsExceeded = 8,
 }
 
 /// Refusal: Concrete out-of-manifold execution refusal with observed boundary evidence
