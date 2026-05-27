@@ -1,471 +1,477 @@
-# Lean Six Sigma Project Charter — ggen
+# DFLSS Project Charter
 
-## Fortune 5 Enterprise Text Compiler Initiative
+## Genesis-Bearing Interchangeable Parts, Vision 2030
 
-**Project Type:** Design for Lean Six Sigma (DfLSS) / Enterprise Transformation Initiative
-**Business Unit:** Enterprise Architecture / Platform Engineering / AI Transformation / Knowledge Systems
-**Sponsor:** CISO, CTO, Chief Enterprise Architect
-**Leader:** Sean Chatman
-**Black Belt / Lead Architect:** Sean Chatman
+## 1. Project Name
 
----
+**Genesis-Bearing Interchangeable Parts**
 
-## 1. Business Case
-
-Fortune 5 enterprises operate through fragmented text systems: code, APIs, workflows, spreadsheets, architecture documents, executive decks, policies, compliance artifacts, and agent capability declarations. These artifacts are currently produced and reconciled through human coordination, creating drift, delay, inconsistency, and hidden operational risk.
-
-ggen addresses this by serving as an **ontology-governed full-text compiler** that can generate and maintain the enterprise's operational text surfaces from authoritative truth. When integrated with YAWL, MCP, A2A, receipts, and governed pack composition, ggen enables a shift from **human-coordinated production** to **machine-governed construction**.
+DFLSS charter for designing the first lawful construction kernel embedded inside AtomVM/WASM/Rust operating parts, manufactured and surrounded by ggen.
 
 ---
 
-## 2. Problem Statement
+## 2. Charter Statement
 
-Current enterprise production systems rely on manual synchronization across multiple artifact classes and organizational boundaries. Architecture and implementation drift apart; protocol and capability surfaces are manually maintained; workflow, API, agent, and documentation systems are disconnected; upgrades require human choreography; validation and audit proof are reconstructed after the fact.
+Design and validate a production-grade architecture where **ggen manufactures interchangeable operating parts** that carry **Genesis inside them**.
 
-Within ggen itself, major enabling infrastructure exists, but critical integration and governance questions remain around pack algebra, capability composition, trust, ownership, runtime explicitness, and enterprise compiler authority.
+Each part must be able to operate at the riverhead of enterprise motion: edge, IoT, CI runner, factory cell, clinic station, document processor, lakehouse listener, or browser/edge worker.
 
----
+Each part locally performs:
 
-## 3. Goal Statement
+| Function            | Owner                     |
+| ------------------- | ------------------------- |
+| Runtime custody     | AtomVM / Erlang shell     |
+| Portable execution  | WASM / Rust body          |
+| External contact    | ggen membrane             |
+| Lawful construction | Genesis core              |
+| Evidence rollup     | receipts, replay, refusal |
+| External projection | ggen projection layer     |
 
-Design, validate, and operationalize ggen as a **governed enterprise text compiler** capable of generating coherent, deterministic, and auditable enterprise artifacts across technical, operational, architectural, and executive text surfaces.
+The design objective is not to build another database, event bus, serializer, graph engine, or adapter framework.
 
-Establish: canonical pack algebra, compiler-stage integration of packs into `ggen sync`, signed/locked/receipted pack composition, typed capability governance, deterministic generation across artifact families, enterprise policy controls suitable for Fortune 5 deployment.
-
----
-
-## 4. Scope
-
-### In Scope
-- Ontology-governed artifact generation
-- Pack taxonomy and composition model
-- Bundle/profile/foundation pack architecture
-- `ggen sync` integration for governed packs
-- MCP, A2A, OpenAPI, Rust generation surfaces
-- YAWL as coordination IR
-- Receipt generation and proof model
-- Cargo/private registry transport model
-- Enterprise governance model for trust, policy, conflict resolution
-- Extension to non-code artifact classes (Slidev, XLSX, architecture, quality artifacts)
-
-### Out of Scope
-- Generalized public community marketplace (phase 1)
-- Unconstrained plugin ecosystem
-- Manual/template-only codegen paths outside μ
-- Runtime autonomy without governed receipts and validation
-- Enterprise-wide rollout before reference pack proof
+The design objective is to manufacture **replaceable operating parts that locally construct receipted relation matter before downstream systems consume it**.
 
 ---
 
-## 5. CTQs (Critical to Quality)
+# 3. Business Case
 
-| # | CTQ | Definition |
-|---|-----|-----------|
-| 1 | **Determinism** | Same governed inputs produce same outputs |
-| 2 | **Traceability** | Every output traceable to ontology, queries, templates, validators, packs |
-| 3 | **Compiler Authority** | `ggen sync` is the authoritative path; no bypass generation |
-| 4 | **No Hidden Semantics** | Templates contain no business logic, defaults, or inferred capability |
-| 5 | **Signed Composition** | All packs versioned, trusted, policy-evaluated, lockfile-bound |
-| 6 | **Conflict Safety** | Overlap, ambiguity, contradiction fail closed |
-| 7 | **Runtime Explicitness** | No silent runtime selection for security-significant surfaces |
-| 8 | **Proofability** | Receipts replayable, auditable, composition-aware |
-| 9 | **Scalability** | Supports code, contracts, workflows, decks, spreadsheets, policy, architecture |
-| 10 | **Coordination Reduction** | Demonstrable shift from manual sync to machine-governed generation |
+Enterprises lose value because operational evidence is usually captured too late.
 
----
+The current pattern is:
 
-## 6. Target Outcomes
+source motion occurs
+logs are emitted
+events flatten
+data lands in warehouses
+dashboards interpret
+AI consumes fragments
+audit reconstructs proof later
 
-### Strategic
-- Establish category: **machine-governed enterprise text production**
-- Cross event horizon from human-coordinated to machine-governed construction
-- Reduce architecture/implementation drift
-- Reduce upgrade choreography labor
-- Enable enterprise capability composition at scale
+That creates evidence decay.
 
-### Operational
-- Installable governed packs
-- Pack-aware `ggen sync`
-- Reference `mcp-rust` pack
-- Typed atomic pack taxonomy
-- Bundle and profile model
-- Lockfile/provenance model
-- Multi-pack receipts
-- Policy-driven conflict engine
+Genesis-bearing interchangeable parts move proof to the operating boundary.
+
+The new pattern is:
+
+source motion occurs
+AtomVM/WASM part gives custody
+ggen maps the boundary
+Genesis constructs Pair2 relation matter
+Construct8 bounds the construction
+receipts prove it
+replay reproduces it
+refusal blocks invalid construction
+downstream systems consume lawful matter
+
+This creates the **Blue River Dam**:
+
+**value is captured at the first lawful construction of operational consequence, not later in the lakehouse.**
 
 ---
 
-## 7. Baseline vs. Future State
+# 4. Problem Statement
 
-**Baseline:** Rich but disconnected marketplace infrastructure; removed/stubbed CLI flows; no real install path; no pack-to-sync bridge; split template engines; competing architectures; strong conceptual model held by one architect; no enterprise-approved canonical pack algebra.
+Current enterprise systems treat data as something that already exists.
 
-**Future State:** Enterprise capabilities enabled through typed pack composition; `ggen sync` loads project + pack ontology into one authoritative pipeline; YAWL, MCP, A2A, OpenAPI, Rust, receipts, Slidev, XLSX generated from common truth; profiles enforce enterprise posture; receipts prove every emitted artifact; platform does not depend on one human expert to prevent drift.
+They then attempt to govern, clean, index, query, audit, and explain it downstream.
 
----
+This fails because:
 
-## 8. Measures of Success
+| Failure                                                  | Effect                                 |
+| -------------------------------------------------------- | -------------------------------------- |
+| evidence is captured after motion                        | source context decays                  |
+| logs are treated as truth                                | operational custody is lost            |
+| event streams move data but do not prove consequence     | downstream trust is reconstructed      |
+| databases query facts after birth                        | they do not prove why facts exist      |
+| adapters normalize formats but do not decide consequence | shape is mistaken for authority        |
+| audit evidence is assembled late                         | controls become screenshot archaeology |
+| AI consumes detached context                             | model inputs lack construction proof   |
+| edge systems emit raw events                             | local proof is missing                 |
 
-### Primary Metrics
-- % of artifacts produced through authoritative μ pipeline
-- % of outputs with complete composition receipts
-- % of pack installs with verified signature, provenance, lockfile entry
-- Number of artifact classes emitted from shared ontology
-- Reduction in manual reconciliation steps
-- Reduction in drift defects between architecture, interface, implementation
-- % of pack conflicts caught before generation
-- % of runtime decisions made explicitly
+The root defect is:
 
-### Secondary Metrics
-- Time to enable a new governed capability
-- Time to emit migration artifacts after ontology change
-- Number of reusable atomic packs certified for enterprise use
-- Number of business/technical text surfaces compiled from same truth source
+**enterprise data systems start after lawful construction should have already happened.**
 
 ---
 
-## 9. Risks and Mitigations
+# 5. Goal Statement
 
-| Risk | Mitigation |
-|------|-----------|
-| Concept collapse into "just a plugin marketplace" | Typed atomic pack model |
-| Template/business-logic leakage | Capability-first explicit UX |
-| Ambiguous ownership and overlap | Strict ownership classes |
-| Silent runtime or capability defaults | Trust tiers and enterprise profiles |
-| Public package trust contamination | Foundation packs for shared ontology |
-| Failure to unify competing architectures | Consequence packs for upgrade law |
-| Underinvestment in receipts and lockfile truth | CISO-driven policy gates |
-| Institutional resistance | MCP reference pack as first proof point |
+Design, implement, and validate a Genesis-bearing interchangeable part architecture by which source-adjacent operating cells can locally construct receipted relation matter.
 
----
+The system shall prove that:
 
-## 10. Methodology: DfLSS / DMADV
-
-| Phase | Activity |
-|-------|---------|
-| **Define** | Problem as enterprise text drift and coordination burden |
-| **Measure** | Current generation paths, manual handoffs, drift points, proof gaps |
-| **Analyze** | Pack algebra, ownership conflict, runtime ambiguity, trust, compiler authority |
-| **Design** | Atomic pack taxonomy, bundle/profile, sync integration, install/lockfile/provenance, receipts, CISO policy |
-| **Verify** | Reference implementations: `mcp-rust`, `a2a-rust`, `openapi-rust`, one non-code target |
+1. ggen can manufacture deployable parts with Genesis embedded.
+2. AtomVM/Erlang can provide local actor/event custody.
+3. WASM/Rust can provide portable bounded execution.
+4. Genesis can perform Pair2, RelationPage, Construct8, μ, receipt, replay, and refusal inside the part.
+5. ggen can project local receipts and relation matter into external systems.
+6. Multiple parts can roll up into segment, shard, and corpus evidence.
+7. The architecture can scale toward trillion-relation corpora without centralizing raw chaos first.
 
 ---
 
-## 11. Milestones
+# 6. Design Thesis
 
-| # | Milestone | Gate |
-|---|-----------|------|
-| 1 | Canonical architecture approved | Pack classes, bundle/profile distinction, CISO signoff |
-| 2 | Real install path + lockfile + trust record | Ed25519 verification, cache, provenance |
-| 3 | Pack-aware `ggen sync` | μ₀ integration, pack queries in pipeline |
-| 4 | Reference `mcp-rust` pack proves compiler-stage generation | End-to-end proof |
-| 5 | Multi-pack receipt proof | Composition receipts, provenance chain |
-| 6 | Non-code enterprise text output | Broader compiler target validated |
-| 7 | Enterprise pilot under controlled profile | ENTERPRISE_STRICT profile operational |
+## Core thesis
 
----
+**The interchangeable part is not merely executable. It is Genesis-bearing.**
 
-## 12. Deliverables by Phase
+## Operating formula
 
-### Phase 1
-- PRD/ARD for governed pack platform
-- Canonical pack taxonomy
-- `ggen-pack.toml` schema
-- Lockfile/provenance schema
-- Ownership/conflict model
-- Enterprise profile model
+ggen builds the part.
+AtomVM gives the part custody.
+WASM gives the part portability.
+Genesis gives the part consequence.
+Receipts let the enterprise compose the parts.
 
-### Phase 2
-- Functioning installer
-- Pack-aware `ggen sync`
-- Tera-only canonical rendering path
-- Reference `mcp-rust` pack
-- Composition receipts
+## Construction formula
 
-### Phase 3
-- `a2a-rust` pack
-- `openapi-rust` pack
-- Policy foundation packs
-- Runtime packs
-- One enterprise text projection beyond code
-
-### Phase 4
-- Private registry integration
-- Trust tiers / certification pipeline
-- Enterprise rollout model
-- Measurement dashboard
+source motion
+to actor custody
+to ggen membrane
+to RelationPage
+to Pair2
+to Construct8
+to μ
+to receipt
+to replay
+to refusal or consequence
+to shard rollup
+to external projection
 
 ---
 
-## 13. Tollgate Questions
+# 7. Scope
 
-1. Is the problem defined in measurable business terms?
-2. Is the compiler authority model unambiguous?
-3. Have all meaningful conflict dimensions been identified?
-4. Is trust separated from package transport?
-5. Are atomic packs clearly distinct from bundles and profiles?
-6. Can the system fail closed on ambiguity?
-7. Are receipts sufficient for audit and replay?
-8. Has at least one capability family been proven end-to-end?
-9. Can this reduce coordination labor at enterprise scale?
-10. Does this cross the event horizon from manual synchronization to machine-governed production?
+## In Scope
+
+| Area                | Included                                                          |
+| ------------------- | ----------------------------------------------------------------- |
+| Genesis core        | O*, μ, Pair2, RelationPage, Construct8, receipts, replay, refusal |
+| ggen foundry        | manufacture, package, wrap, and project Genesis-bearing parts     |
+| AtomVM shell        | actor custody, mailbox discipline, supervision, restart evidence  |
+| WASM shell          | portable deployable runtime body                                  |
+| Rust kernel         | zero-overhead hot construction layout                             |
+| Pair2 model         | left byte, assumed middle, right byte                             |
+| RelationPage model  | predicate-fixed binary relation context                           |
+| Construct8          | up to eight Pair2 tuples per construction act                     |
+| Receipt rollup      | packet, segment, shard, corpus                                    |
+| Replay              | same law and inputs reproduce same result                         |
+| Refusal             | invalid construction becomes first-class evidence                 |
+| External validation | QLever, DuckDB, OCEL, SHACL, PROV, DCAT surfaces through ggen     |
+
+## Out of Scope
+
+| Area                               | Excluded                                           |
+| ---------------------------------- | -------------------------------------------------- |
+| Building a graph database          | use QLever/Oxigraph/etc. externally                |
+| Building a SQL engine              | use DuckDB/SQLite externally                       |
+| Building a process-mining engine   | use wasm4pm / OCEL projections externally          |
+| Building an event bus              | integrate through ggen if needed                   |
+| Building a generic serializer      | ggen projects authorized boundary matter           |
+| Putting adapters inside Genesis    | adapters belong to ggen                            |
+| Treating indexes as authority      | indexes are receipted views/access paths           |
+| Counting mock triples              | only source-addressed relation matter counts       |
+| Centralizing all source data first | construction must happen at the operating boundary |
 
 ---
 
-## Charter Statement
+# 8. Customers / Avatars
 
-**This project exists to design and prove ggen as a governed enterprise text compiler that can replace human-maintained synchronization across architecture, interfaces, workflows, policies, and technical artifacts with machine-governed generation, validation, and proof.**
-
----
-
-## One-Page Executive Version
-
-| Field | Value |
-|-------|-------|
-| **Project** | ggen — Ontology-Governed Enterprise Text Compiler |
-| **Why Now** | Fortune 5 enterprises constrained less by coding speed than by text drift and coordination overhead |
-| **Goal** | Machine-governed system that compiles enterprise truth into coherent, deterministic, auditable artifact surfaces |
-| **Success** | Packs install and govern; `ggen sync` authoritative; MCP/A2A/OpenAPI/Rust/Slidev/XLSX from shared truth; receipts prove outputs; profiles enforce CISO policy; coordination bottleneck reduced |
-| **Critical Risks** | Hidden defaults, ambiguous overlap, public dependency trust, split architecture, false-green CLI behavior |
-| **Strategic Payoff** | Cross event horizon from human-coordinated production to machine-governed construction |
+| Avatar                                   | JTBD                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------ |
+| Enterprise Process Intelligence Owner    | reconstruct object-centric operational motion from source-adjacent proof |
+| Lakehouse Lineage Architect              | prove query, table, column, policy, and output construction              |
+| Manufacturing Traceability Director      | trace parts, batches, machines, inspections, defects, certificates       |
+| Audit / Controls Evidence Owner          | prove obligations, evidence, exceptions, reviews, remediation            |
+| Software Execution Trust Lead            | prove files, tests, builds, artifacts, releases, refusals                |
+| Healthcare / Intake Operations Commander | reconstruct no-private-content flow and bottlenecks                      |
+| Supply Chain Control Tower Owner         | prove custody, handoff, route, delay, risk, responsibility               |
+| Document / Knowledge Corpus Steward      | bind claims to source spans, citations, tables, and receipts             |
 
 ---
 
-## 14. DfLSS Visual Artifacts
+# 9. CTQs: Critical to Quality
 
-### 14.1 SIPOC Diagram (Suppliers-Inputs-Process-Outputs-Customers)
+| CTQ                 | Requirement                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Local custody       | every part has actor/event/source identity                                            |
+| Pure Genesis core   | no outside-world dependency sprawl inside Genesis                                     |
+| ggen membrane       | all external protocols, formats, files, APIs, and projections handled outside Genesis |
+| Pair2 correctness   | each hot tuple is left byte + right byte under relation context                       |
+| Context authority   | assumed middle is first-class, receipted, and bound to O*                             |
+| Construct8 bound    | no construction act has more than eight active Pair2 tuples                           |
+| Page bound          | left and right domains each remain ≤256 active local symbols                          |
+| Split law           | Need257 and Need9 produce lawful splits, not widened hot payloads                     |
+| Receipt coverage    | every accepted construction has packet/segment/shard receipt path                     |
+| Replay              | accepted results reproduce under same law and inputs                                  |
+| Refusal             | invalid construction emits durable refusal evidence                                   |
+| External validation | ggen projections survive QLever/DuckDB/SHACL/OCEL checks                              |
+| No mock counting    | synthetic/random matter cannot count toward real corpus claims                        |
+| Rollup              | local part receipts compose into enterprise shard/corpus evidence                     |
 
-```mermaid
-flowchart LR
-    subgraph Suppliers["Suppliers"]
-        ONTO["Ontology Engineers<br/>TTL schemas"]
-        TERA["Template Authors<br/>.tera templates"]
-        PACK["Pack Developers<br/>ggen-pack.toml"]
-        POLICY["CISO/Policy Team<br/>Enterprise rules"]
-    end
+---
 
-    subgraph Inputs["Inputs"]
-        I1["RDF Ontologies<br/>(.ttl files)"]
-        I2["Templates<br/>(.tera files)"]
-        I3["Pack Definitions<br/>(ggen-pack.toml)"]
-        I4["Policy Rules<br/>(.rego files)"]
-    end
+# 10. Primary Metrics
 
-    subgraph Process["Process: ggen sync"]
-        P1["Load Ontology<br/>(μ₁)"]
-        P2["Extract Queries<br/>(μ₂)"]
-        P3["Generate Code<br/>(μ₃)"]
-        P4["Merge & Validate<br/>(μ₄)"]
-        P5["Emit Artifacts<br/>(μ₅)"]
-    end
+| Metric                                    |                                                            Target |
+| ----------------------------------------- | ----------------------------------------------------------------: |
+| Active Pair2 tuples per Construct8 packet |                                                                ≤8 |
+| Bytes per hot Pair2 tuple                 |                                                                 2 |
+| Local page left-domain size               |                                                              ≤256 |
+| Local page right-domain size              |                                                              ≤256 |
+| Packet overfill accepted                  |                                                                 0 |
+| Page overflow accepted                    |                                                                 0 |
+| Unauthorized predicate context            |                                                                 0 |
+| Unreceipted accepted construction         |                                                                 0 |
+| Replay mismatch for accepted packets      |                                                                 0 |
+| Refusal artifact coverage                 |                               100% for invalid construction cases |
+| ggen/Genesis boundary violations          |                                                                 0 |
+| Pure-core external dependency violations  |                                                                 0 |
+| Mock/random relation matter counted       |                                                                 0 |
+| External projection validation pass rate  |                                        100% for accepted fixtures |
+| Trillion-scale architecture readiness     | demonstrated by shard math, streaming benchmarks, and replay plan |
 
-    subgraph Outputs["Outputs"]
-        O1["Rust Code<br/>(.rs files)"]
-        O2["OpenAPI Specs<br/>(.yaml files)"]
-        O3["MCP Schemas<br/>(.json files)"]
-        O4["YAWL Workflows<br/>(.xml files)"]
-        O5["Receipts<br/>(.json files)"]
-    end
+---
 
-    subgraph Customers["Customers"]
-        DEV["Developers<br/>Code consumers"]
-        OPS["Operations<br/>API consumers"]
-        AI["AI Agents<br/>MCP/A2A users"]
-        ARCH["Architects<br/>Workflow consumers"]
-        AUDIT["Auditors<br/>Receipt verifiers"]
-    end
+# 11. Baseline / Current State
 
-    Suppliers --> Inputs
-    Inputs --> Process
-    Process --> Outputs
-    Outputs --> Customers
+Current architecture understanding:
 
-    style Suppliers fill:#e1f5ff
-    style Inputs fill:#fff4e6
-    style Process fill:#ffcdd2
-    style Outputs fill:#c8e6c9
-    style Customers fill:#fce4ec
-```
+| Item                         | Status                                       |
+| ---------------------------- | -------------------------------------------- |
+| Genesis role                 | pure Chatman Equation foundation             |
+| ggen role                    | foundry, membrane, adapter/projection system |
+| AtomVM role                  | edge actor custody shell                     |
+| WASM role                    | portable interchangeable body                |
+| Rust role                    | physical implementation discipline           |
+| Pair2 model                  | accepted direction                           |
+| RelationPage model           | accepted direction                           |
+| Construct8 model             | accepted direction                           |
+| Trillion-triple table stakes | accepted as design posture                   |
+| Database algebra fence       | identified but not fully formalized          |
+| Index role                   | receipted relevance/access/view layer        |
+| External systems             | downstream consumers and validators          |
 
-### 14.2 CTQ Flowdown (Critical-to-Quality Tree)
+Known gap:
 
-```mermaid
-flowchart TD
-    CUSTOMER["Customer Need:<br/>Reduce enterprise text<br/>drift & coordination"]
+**Genesis must be specified as a database-algebra-safe construction foundation, not as a magical compressed triple system.**
 
-    CTQ1["CTQ 1: Determinism<br/>Same inputs = same outputs"]
-    CTQ2["CTQ 2: Traceability<br/>Every output traceable"]
-    CTQ3["CTQ 3: Compiler Authority<br/>ggen sync is authoritative"]
-    CTQ4["CTQ 4: No Hidden Semantics<br/>Templates have no logic"]
-    CTQ5["CTQ 5: Signed Composition<br/>Packs versioned & trusted"]
+---
 
-    M1["Metric: Reproducibility %<br/>100% for same inputs"]
-    M2["Metric: Trace coverage<br/>100% outputs traced"]
-    M3["Metric: Bypass rate<br/>0% manual generation"]
-    M4["Metric: Logic-in-template<br/>0 business logic in .tera"]
-    M5["Metric: Signature coverage<br/>100% packs signed"]
+# 12. Target State
 
-    CUSTOMER --> CTQ1
-    CUSTOMER --> CTQ2
-    CUSTOMER --> CTQ3
-    CUSTOMER --> CTQ4
-    CUSTOMER --> CTQ5
+By the end of this DFLSS project, the architecture shall have:
 
-    CTQ1 --> M1
-    CTQ2 --> M2
-    CTQ3 --> M3
-    CTQ4 --> M4
-    CTQ5 --> M5
+1. A formal Genesis core model.
+2. A ggen foundry model.
+3. A Genesis-bearing interchangeable part spec.
+4. A Pair2 / RelationPage / Construct8 packet spec.
+5. A page split law.
+6. A multiplicity law: set, bag, stream, event-addressed.
+7. A local identity and symbol-page law.
+8. A receipt and replay model.
+9. A refusal model.
+10. A receipted index/view model.
+11. A ggen projection model.
+12. A minimum implementation skeleton.
+13. A validation matrix against external engines.
+14. A trillion-scale readiness plan.
 
-    style CUSTOMER fill:#e1f5ff
-    style CTQ1 fill:#ffcdd2
-    style CTQ2 fill:#ffcdd2
-    style CTQ3 fill:#ffcdd2
-    style CTQ4 fill:#ffcdd2
-    style CTQ5 fill:#ffcdd2
-    style M1 fill:#c8e6c9
-    style M2 fill:#c8e6c9
-    style M3 fill:#c8e6c9
-    style M4 fill:#c8e6c9
-    style M5 fill:#c8e6c9
-```
+---
 
-### 14.3 DMADV Phase/Gate Flowchart
+# 13. DFLSS Method
 
-```mermaid
-flowchart TD
-    START["Project Start"] --> DEFINE["Define Phase<br/>Problem statement<br/>Goal statement<br/>Scope"]
+Use **DMADV** because this is a new system design, not merely a defect-reduction project.
 
-    DEFINE --> GATE1["Gate 1: Problem Defined?"]
-    GATE1 -->|No| DEFINE
-    GATE1 -->|Yes| MEASURE["Measure Phase<br/>Baseline metrics<br/>Current state<br/>Voice of customer"]
+| Phase   | Purpose                                                                    |
+| ------- | -------------------------------------------------------------------------- |
+| Define  | identify customer, JTBD, CTQs, scope, risks                                |
+| Measure | measure current repo, assumptions, data algebra gaps, performance envelope |
+| Analyze | analyze architecture alternatives and failure modes                        |
+| Design  | design Genesis core, ggen foundry, part packaging, receipts, projections   |
+| Verify  | verify using tests, external validators, replay, refusal, benchmarks       |
 
-    MEASURE --> GATE2["Gate 2: Measured?"]
-    GATE2 -->|No| MEASURE
-    GATE2 -->|Yes| ANALYZE["Analyze Phase<br/>Root cause analysis<br/>Gap analysis<br/>Failure modes"]
+---
 
-    ANALYZE --> GATE3["Gate 3: Root Causes Found?"]
-    GATE3 -->|No| ANALYZE
-    GATE3 -->|Yes| DESIGN["Design Phase<br/>Pack taxonomy<br/>Sync integration<br/>Receipt model<br/>Policy engine"]
+# 14. DMADV Tollgates
 
-    DESIGN --> GATE4["Gate 4: Design Complete?"]
-    GATE4 -->|No| DESIGN
-    GATE4 -->|Yes| VERIFY["Verify Phase<br/>Reference packs<br/>End-to-end tests<br/>Milestone proof"]
+## Define Tollgate
 
-    VERIFY --> GATE5["Gate 5: Validated?"]
-    GATE5 -->|No| VERIFY
-    GATE5 -->|Yes| COMPLETE["Project Complete<br/>Handoff to ops<br/>Sustainment plan"]
+Complete when:
 
-    style DEFINE fill:#e1f5ff
-    style MEASURE fill:#fff4e6
-    style ANALYZE fill:#ffcdd2
-    style DESIGN fill:#e1f5ff
-    style VERIFY fill:#c8e6c9
-    style COMPLETE fill:#fce4ec
-    style GATE1 fill:#ffd93d
-    style GATE2 fill:#ffd93d
-    style GATE3 fill:#ffd93d
-    style GATE4 fill:#ffd93d
-    style GATE5 fill:#ffd93d
-```
+| Deliverable         | Done Criteria                     |
+| ------------------- | --------------------------------- |
+| charter             | approved                          |
+| avatar JTBDs        | 8 defined                         |
+| scope               | ggen vs Genesis boundary explicit |
+| CTQs                | measurable                        |
+| risk register       | first version complete            |
+| architecture thesis | accepted                          |
 
-### 14.4 RACI Matrix (Roles and Responsibilities)
+## Measure Tollgate
 
-```mermaid
-flowchart TD
-    subgraph Tasks["Key Tasks"]
-        T1["Pack Taxonomy Design"]
-        T2["Sync Integration"]
-        T3["Receipt Model"]
-        T4["Policy Engine"]
-        T5["Reference Pack: mcp-rust"]
-        T6["Enterprise Pilot"]
-    end
+Complete when:
 
-    subgraph Roles["Roles"]
-        SPONSOR["Sponsor<br/>CISO/CTO"]
-        LEAD["Lead<br/>Sean Chatman"]
-        ARCH["Architects<br/>Enterprise Arch"]
-        DEV["Developers<br/>ggen Team"]
-        OPS["Operations<br/>Platform Team"]
-    end
+| Deliverable                | Done Criteria                                     |
+| -------------------------- | ------------------------------------------------- |
+| repo inventory             | all KNHK/ggen/Genesis occurrences classified      |
+| current implementation map | real vs doc-only vs missing                       |
+| data algebra inventory     | relation/page/index/join/multiplicity gaps listed |
+| performance baseline       | Pair2 stream math and storage estimates complete  |
+| external systems map       | QLever/DuckDB/OCEL/SHACL roles defined            |
 
-    T1 -->|R| LEAD
-    T1 -->|A| ARCH
-    T1 -->|C| DEV
-    T1 -->|I| SPONSOR
+## Analyze Tollgate
 
-    T2 -->|R| LEAD
-    T2 -->|A| DEV
-    T2 -->|C| ARCH
-    T2 -->|I| OPS
+Complete when:
 
-    T3 -->|R| LEAD
-    T3 -->|A| DEV
-    T3 -->|C| ARCH
-    T3 -->|I| SPONSOR
+| Deliverable               | Done Criteria                                                 |
+| ------------------------- | ------------------------------------------------------------- |
+| failure mode analysis     | Chesterton/GALL risks captured                                |
+| architecture alternatives | at least 3 compared                                           |
+| page split analysis       | Need257 law designed                                          |
+| Construct8 analysis       | Need9 law designed                                            |
+| receipt model analysis    | packet/segment/shard/corpus proof path selected               |
+| index analysis            | access path vs materialized view vs relevance model separated |
 
-    T4 -->|R| SPONSOR
-    T4 -->|A| LEAD
-    T4 -->|C| ARCH
+## Design Tollgate
 
-    T5 -->|R| LEAD
-    T5 -->|A| DEV
-    T5 -->|C| ARCH
+Complete when:
 
-    T6 -->|R| SPONSOR
-    T6 -->|A| LEAD
-    T6 -->|C| OPS
-    T6 -->|I| DEV
+| Deliverable                  | Done Criteria                                   |
+| ---------------------------- | ----------------------------------------------- |
+| Genesis core spec            | O*, μ, Pair2, RelationPage, Construct8 defined  |
+| ggen foundry spec            | adapter/projection/packaging boundaries defined |
+| interchangeable part spec    | AtomVM/WASM/Rust packaging shape defined        |
+| packet layout                | hot representation stable                       |
+| receipt layout               | packet/segment/shard/corpus chain stable        |
+| replay protocol              | deterministic reproduction defined              |
+| refusal protocol             | invalid construction materialized               |
+| external projection protocol | ggen-owned outputs defined                      |
 
-    style LEAD fill:#ffcdd2
-    style SPONSOR fill:#fff4e6
-    style ARCH fill:#e1f5ff
-    style DEV fill:#c8e6c9
-    style OPS fill:#fce4ec
-```
+## Verify Tollgate
 
-**Legend:** R = Responsible, A = Accountable, C = Consulted, I = Informed
+Complete when:
 
-### 14.5 Gantt Chart (7-Month Timeline)
+| Deliverable                | Done Criteria                                              |
+| -------------------------- | ---------------------------------------------------------- |
+| unit tests                 | Pair2, Construct8, masks, split law                        |
+| property tests             | page bounds, replay determinism, refusal correctness       |
+| integration tests          | ggen projection to at least N-Quads and OCEL-style surface |
+| external validation        | QLever/DuckDB/SHACL/OCEL checks pass on fixtures           |
+| replay test                | accepted corpus reproduces hash                            |
+| refusal test               | sabotage cases blocked                                     |
+| performance test           | streaming construction benchmark passes target             |
+| observed-vs-planned matrix | complete                                                   |
 
-```mermaid
-gantt
-    title ggen DfLSS Project Timeline
-    dateFormat YYYY-MM-DD
-    section Phase 1: Define
-    Problem definition           :done, p1a, 2026-04-01, 14d
-    Goal statement               :done, p1b, 2026-04-01, 14d
-    Scope definition             :active, p1c, 2026-04-15, 7d
+---
 
-    section Phase 2: Measure
-    Baseline metrics             :p2a, after p1c, 14d
-    Current state analysis       :p2b, after p1c, 14d
-    Voice of customer            :p2c, after p1c, 14d
+# 15. High-Level Requirements
 
-    section Phase 3: Analyze
-    Root cause analysis          :p3a, after p2a, 21d
-    Pack algebra design          :p3b, after p2a, 21d
-    Failure mode analysis        :p3c, after p2a, 21d
+## Genesis Core Requirements
 
-    section Phase 4: Design
-    Pack taxonomy                :p4a, after p3a, 28d
-    Sync integration             :p4b, after p3a, 28d
-    Receipt model                :p4c, after p3a, 28d
-    Policy engine                :p4d, after p3a, 28d
+| ID    | Requirement                                                                               |
+| ----- | ----------------------------------------------------------------------------------------- |
+| G-001 | Genesis shall model construction as A = μ(O).                                             |
+| G-002 | Genesis shall represent hot relation matter as Pair2 under RelationPage context.          |
+| G-003 | Genesis shall enforce no more than eight active Pair2 tuples per Construct8 packet.       |
+| G-004 | Genesis shall enforce page domains of no more than 256 left and 256 right active symbols. |
+| G-005 | Genesis shall refuse page overflow rather than widen hot tuple representation.            |
+| G-006 | Genesis shall refuse Construct8 overflow rather than create unbounded packets.            |
+| G-007 | Genesis shall distinguish absence, unknown, refused, retracted, pending, and accepted.    |
+| G-008 | Genesis shall produce receipt material for accepted construction.                         |
+| G-009 | Genesis shall produce refusal material for invalid construction.                          |
+| G-010 | Genesis shall support deterministic replay.                                               |
 
-    section Phase 5: Verify
-    Reference mcp-rust pack      :p5a, after p4a, 28d
-    End-to-end tests             :p5b, after p4a, 28d
-    Milestone proof              :p5c, after p4a, 28d
+## ggen Requirements
 
-    section Milestones
-    M1: Architecture approved    :milestone, m1, 2026-05-01, 0d
-    M2: Install path working     :milestone, m2, 2026-06-01, 0d
-    M3: Pack-aware sync          :milestone, m3, 2026-07-01, 0d
-    M4: Reference pack proof     :milestone, m4, 2026-08-01, 0d
-    M5: Multi-pack receipts      :milestone, m5, 2026-09-01, 0d
-    M6: Non-code output          :milestone, m6, 2026-10-01, 0d
-    M7: Enterprise pilot        :milestone, m7, 2026-11-01, 0d
-```
+| ID     | Requirement                                                            |
+| ------ | ---------------------------------------------------------------------- |
+| GG-001 | ggen shall own all external adapters and dependencies.                 |
+| GG-002 | ggen shall manufacture Genesis-bearing interchangeable parts.          |
+| GG-003 | ggen shall create RelationPage inputs from source systems.             |
+| GG-004 | ggen shall build symbol pages for local byte domains.                  |
+| GG-005 | ggen shall project authorized Genesis outputs into external artifacts. |
+| GG-006 | ggen shall validate projections with external engines.                 |
+| GG-007 | ggen shall not decide consequence.                                     |
+| GG-008 | ggen shall treat indexes as receipted derived views/access paths.      |
 
-**Note:** Timeline spans 7 months (April 2026 - November 2026) with overlapping phases for efficiency.
+## AtomVM/WASM Part Requirements
+
+| ID    | Requirement                                                      |
+| ----- | ---------------------------------------------------------------- |
+| P-001 | A part shall carry Genesis inside it.                            |
+| P-002 | A part shall expose a ggen membrane around Genesis.              |
+| P-003 | A part shall support local actor/event custody.                  |
+| P-004 | A part shall emit receipts and replay cursors.                   |
+| P-005 | A part shall emit refusal evidence.                              |
+| P-006 | A part shall roll up local receipts into segment/shard evidence. |
+
+---
+
+# 16. Risks and Countermeasures
+
+| Risk                                       | Severity | Countermeasure                                                 |
+| ------------------------------------------ | -------: | -------------------------------------------------------------- |
+| Two-byte model mistaken for compressed RDF |     High | define Pair2 as tuple in predicate-fixed relation page         |
+| Predicate authority hidden in code         |     High | require O* context binding and receipt                         |
+| Genesis becomes adapter framework          |     High | all adapters remain in ggen                                    |
+| Project becomes custom database            |     High | use QLever/DuckDB externally; Genesis stays construction layer |
+| Page splitting breaks joins                |     High | require symbol-page identity and join law                      |
+| Multiplicity ambiguity                     |     High | require set/bag/stream/event-addressed law                     |
+| Index becomes authority                    |     High | index must be receipted derived view/access path               |
+| Trillion claims become rhetoric            |     High | require source-addressing, stream math, shard benchmark        |
+| Replay too expensive                       |   Medium | packet/segment/shard replay tiers                              |
+| Receipt overhead too large                 |   Medium | rollup receipts, not per-triple heavyweight proof              |
+| AtomVM/WASM packaging too early            |   Medium | design native Rust kernel first, then wrap                     |
+| External validation fails                  |   Medium | make GALL validation part of Verify phase                      |
+
+---
+
+# 17. First 8 Implementation Milestones
+
+| Milestone | Deliverable                                                                        |
+| --------: | ---------------------------------------------------------------------------------- |
+|         1 | Genesis core crate with Pair2, RelationPage, Construct8, masks                     |
+|         2 | page context spec with relation identity, domains, multiplicity, split law         |
+|         3 | packet receipt and replay skeleton                                                 |
+|         4 | refusal model for Need9, Need257, missing source, invalid context                  |
+|         5 | ggen membrane fixture adapter producing RelationPages                              |
+|         6 | ggen projection to N-Quads-style and OCEL-style fixtures                           |
+|         7 | external validation harness using DuckDB/QLever/SHACL-style checks where available |
+|         8 | Genesis-bearing part skeleton for WASM first, AtomVM shell second                  |
+
+---
+
+# 18. Definition of Done
+
+The DFLSS project is done when:
+
+| Area               | Done Criteria                                                                     |
+| ------------------ | --------------------------------------------------------------------------------- |
+| Architecture       | ggen, Genesis, AtomVM, WASM roles are explicitly separated                        |
+| Core model         | Pair2, RelationPage, Construct8, Segment, Shard, Corpus defined                   |
+| Algebra            | relation, multiplicity, identity, split, join, index, refusal laws specified      |
+| Implementation     | minimal Genesis core exists with tests                                            |
+| ggen               | minimal membrane can create pages and project outputs                             |
+| Receipts           | accepted construction produces proof material                                     |
+| Replay             | accepted construction reproduces result                                           |
+| Refusal            | invalid construction produces refusal material                                    |
+| Validation         | external projections pass validation fixtures                                     |
+| Boundary           | Genesis contains no adapter/dependency membrane                                   |
+| Part model         | Genesis-bearing interchangeable part spec complete                                |
+| Trillion readiness | math, shard plan, stream benchmark plan, and source-address requirements complete |
+
+---
+
+# 19. Project Charter One-Liner
+
+**Design and verify a Genesis-bearing interchangeable part system where ggen manufactures the membrane and runtime body, AtomVM/WASM provide custody and portability, Genesis performs lawful Pair2/Construct8 construction inside the part, and receipts/replay/refusal allow local operational motion to roll up into enterprise-scale evidence corpora.**
+
+---
+
+# 20. Final Charter Thesis
+
+**The enterprise corpus is not born in the lakehouse. It is born inside Genesis-bearing interchangeable parts at the riverhead of operational motion.**
+
+**ggen is the foundry and membrane. Genesis is the consequence kernel. AtomVM gives custody. WASM gives portability. Receipts make the parts composable.**
