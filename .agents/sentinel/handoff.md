@@ -1,19 +1,20 @@
-# Handoff Report: Reimagined Vision 2030 Interchangeable Parts Implementation
+# Handoff Report: Capability-Map (cpmp) & Enterprise Wrapper Setup
 
 ## Observation
-- A follow-up request containing the Swarm Operating System Prompt Pack was received.
-- The Sentinel recorded the new request in `ORIGINAL_REQUEST.md` and `.agents/original_prompt.md`.
-- The Sentinel updated `BRIEFING.md` to reflect the transition.
-- The Swarm OS Prompt Pack has been relayed directly to the active Project Orchestrator (`b9f93e40-898c-48be-9021-4a9d7cf5eff9`).
+- Verbatim user request to build `capability-map` (`cpmp`) in `/Users/sac/capability-map` and the Enterprise Wrapper Architecture update were received.
+- The Sentinel recorded the requests in `/Users/sac/ggen/ORIGINAL_REQUEST.md` and `/Users/sac/ggen/.agents/original_prompt.md`.
+- The Sentinel spawned the Project Orchestrator subagent (`70792bd0-ab12-427f-90d5-5e928bdf78a6`) under `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp/`.
+- The Sentinel scheduled the Progress Reporting cron (Cron 1) and Liveness Check cron (Cron 2) to monitor implementation health.
+- The Enterprise Wrapper Architecture updates were forwarded to the orchestrator.
 
 ## Logic Chain
-- Forwarding the prompt pack transitions the swarm to creating detailed specifications and interop contracts under `docs/interop/` while maintaining constraints like heap-free bounds and status tags.
+- Initializing a fresh orchestrator for `/Users/sac/capability-map` enables clean isolation of tasks and specialists for this package without polluting the `ggen` root repository.
 
 ## Caveats
-- Gaps are being fixed actively. We wait for further compilation status updates.
+- The codebase relies on `open-ontologies` integration for Turtle validation and graph queries, which requires setup verification by the explorer subagent.
 
 ## Conclusion
-- Swarm OS Prompt Pack relayed. The Project Orchestrator is coordinating documentation and finishing.
+- Project Orchestrator has been spawned and briefed. The sentinel's crons are active.
 
 ## Verification Method
-- Monitor the orchestrator progress log at `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_vision_2030_1/progress.md`.
+- Monitor `progress.md` at `/Users/sac/ggen/.agents/teamwork_preview_orchestrator_cpmp/progress.md`.

@@ -1745,3 +1745,122 @@ Create the directory `docs/interop/` and produce the following files:
 - Every claim must be tagged with status (IMPLEMENTED, PARTIAL, MISSING, etc.) and backed by file evidence in the repo.
 
 Align the Project Orchestrator and all subagent workers to execute this specification.
+
+## 2026-05-27T19:32:55Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+
+Build and finish `capability-map` (`cpmp`) in `/Users/sac/capability-map` leveraging `open-ontologies` as the primary catalog store, ensuring all code, capabilities, patterns, tests, docs, and symbols are discoverable by LLM coding agents.
+
+Working directory: `/Users/sac/capability-map`
+Integrity mode: development
+
+## Requirements
+
+### R1. Non-Destructive Scanner & Receipt Generation
+Scan filesystem paths read-only, respect ignore files, guess languages, compute cryptographic file hashes (BLAKE3), and inventory codebases. Build scan receipts (`scan-<timestamp>.receipt.toml`) containing the file lists, hashes, and sizes. Implement `verify-no-deletion` to detect changes without modifying target repositories.
+
+### R2. RDF Graph Generation and Public Vocabulary
+Generate Turtle (`cpmp-catalog.ttl`) and N-Quads (`cpmp-catalog.nq`) project graphs under `~/.cpmp/catalog/` using public vocabulary terms:
+- `prov:Activity` for the scan runs and file generation lineage
+- `dcat:Catalog` and `dcat:Distribution` for the computer catalog and distribution formats
+- `doap:Project` and `doap:Repository` for project mappings
+- `spdx:File`, `spdx:Package` and SPDX checksums for file/checksum entities
+- `skos:Concept` for capabilities and taxonomy classifications
+- `sh:NodeShape` for SHACL shapes (`cpmp-shapes.ttl`)
+
+### R3. Open Ontologies Integration & Validation
+Leverage `open-ontologies` CLI or MCP tools (`onto_validate`, `onto_load`, `onto_shacl`, `onto_version`, etc.) to:
+1. Validate generated Turtle graphs
+2. Load graphs into Open Ontologies store
+3. Run SHACL verification
+4. Version the catalog state (`v-<receipt-id>`)
+SQLite is allowed ONLY as an implementation cache or report acceleration layer, not as the primary source store.
+
+### R4. SPARQL Reports
+Emit markdown reports (`CAPABILITY_INVENTORY.md`, `PROJECT_ATLAS.md`, `PATTERN_ATLAS.md`) generated from querying Open Ontologies using SPARQL or local memory graphs.
+
+## Acceptance Criteria
+
+### Execution & Verification
+- [ ] Programmatic scan compiles successfully and runs on a fixture repository.
+- [ ] Scanning generates the required RDF files in `~/.cpmp/catalog/` (or the custom output path).
+- [ ] `cpmp-catalog.ttl` is validated successfully using `open-ontologies validate` or equivalent local validation.
+- [ ] SHACL shapes are verified using `open-ontologies shacl` and pass successfully.
+- [ ] Scan receipts and reports are generated correctly under `receipts/` and `reports/` respectively.
+- [ ] `verify-no-deletion` subcommand correctly reports any deletion, modification, or additions between receipts.
+- [ ] The entire scan operation is completely read-only on the target repository directories.
+
+## 2026-05-27T19:33:40Z
+
+The user has supplied an update and correction to the architecture. We are extending CPMP and ggen to include the Enterprise Wrapper Architecture:
+
+# CPMP + ggen + Open Ontologies Enterprise Wrapper Architecture
+
+Please incorporate these requirements into your implementation and documentation goals:
+
+1. Architecture:
+   - cpmp: discovers projects, files, capabilities, tests, docs, runtimes.
+   - ggen enterprise membrane: normalizes, projects, validates, receipts, redacts, packages.
+   - Open Ontologies: RDF/OWL store, SPARQL, SHACL, lint, reason, diff, version, lineage.
+   - Enterprise Control Plane (Wrapper): auth, tenancy, policy, approvals, audit, retention, backups, exports.
+
+2. Create/Write the required enterprise documentation in `docs/enterprise/`:
+   - docs/enterprise/ARCHITECTURE.md
+   - docs/enterprise/CONTROL_PLANE.md
+   - docs/enterprise/TENANCY.md
+   - docs/enterprise/AUTHZ.md
+   - docs/enterprise/POLICY_PACKS.md
+   - docs/enterprise/AUDIT_AND_LINEAGE.md
+   - docs/enterprise/RETENTION_AND_BACKUP.md
+   - docs/enterprise/OPEN_ONTOLOGIES_ADAPTER.md
+   - docs/enterprise/GGEN_PROJECTION_MEMBRANE.md
+   - docs/enterprise/PUBLIC_VOCABULARY_FIREWALL.md
+   - docs/enterprise/GAP_CLOSURE_MATRIX.md (Be sure to include all specified gaps: invalid Turtle, illegal URI syntax, namespace laundering, private predicate authority, missing SHACL reports, missing PROV lineage, missing checksum evidence, missing canonical graph hash, JSON-only evidence, stale report emission, unversioned graph mutation, unscoped tenant access, missing no-deletion check, missing backup/export path, missing policy refusal artifact).
+   - docs/enterprise/ENTERPRISE_DEFINITION_OF_DONE.md
+
+3. Implement or stub the CLI nouns and commands:
+   - cpmp computer discover
+   - cpmp graph project
+   - cpmp graph validate
+   - cpmp graph load
+   - cpmp graph query
+   - cpmp graph version
+   - cpmp graph drift
+   - cpmp policy check
+   - cpmp policy enforce
+   - cpmp tenant create
+   - cpmp tenant list
+   - cpmp audit lineage
+   - cpmp receipt emit
+   - cpmp receipt verify-no-deletion
+   - cpmp enterprise doctor
+
+4. Create stubs for the enterprise modules:
+   - cpmp-enterprise-auth
+   - cpmp-enterprise-tenancy
+   - cpmp-enterprise-policy
+   - cpmp-enterprise-audit
+   - cpmp-enterprise-retention
+   - cpmp-enterprise-backup
+   - cpmp-enterprise-redaction
+   - cpmp-enterprise-approval
+   - cpmp-enterprise-observability
+   - cpmp-open-ontologies-adapter
+   - cpmp-ggen-projection
+   - cpmp-public-vocabulary-firewall
+
+5. Ensure all gates are enforced in the scanning pipeline. A scan must be refused if:
+   - RDF does not parse cleanly or contains illegal URI syntax.
+   - Private predicates carry public authority where standard predicates exist.
+   - Local IDs are laundered into prov:, sh:, dcat:, or other standard namespaces.
+   - Validation fails or missing sh:ValidationReport.
+   - Output does not link to the scan activity via prov:wasGeneratedBy.
+   - Files lack checksums.
+   - Reports lack source graph hashes.
+   - Open Ontologies load, validation, or versioning fails.
+
+Please update the project plan, build and implement these structures, verify the tests pass, and report back.

@@ -1,12 +1,12 @@
-# BRIEFING — 2026-05-27T16:47:26Z
+# BRIEFING — 2026-05-27T19:32:55Z
 
 ## Mission
-Audit, find, and fill any remaining gaps in the `ggen` codebase under the Reimagined Vision 2030 interchangeable parts specification.
+Build and finish `capability-map` (`cpmp`) in `/Users/sac/capability-map` leveraging `open-ontologies` as the primary catalog store.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: /Users/sac/ggen/.agents/sentinel/
-- Orchestrator: b9f93e40-898c-48be-9021-4a9d7cf5eff9
+- Orchestrator: 70792bd0-ab12-427f-90d5-5e928bdf78a6
 - Victory Auditor: TBD
 
 ## 🔒 Key Constraints
@@ -14,7 +14,7 @@ Audit, find, and fill any remaining gaps in the `ggen` codebase under the Reimag
 - Victory Audit is MANDATORY before reporting completion
 
 ## User Context
-- **Last user request**: Incorporate the Swarm Operating System Prompt Pack to document all interop contracts, specifications (under `docs/interop/`), and create the finish plan.
+- **Last user request**: Architecture update and extension of CPMP and ggen to include the Enterprise Wrapper Architecture.
 - **Pending clarifications**: none
 - **Delivered results**: none
 
