@@ -1,4 +1,4 @@
-# AGENTS.md: Verification Constitution
+# AGENTS.md: Verification Constitution (Antigravity CLI Edition)
 
 **Non-negotiable laws for agent-generated code in this repository.**
 
@@ -63,10 +63,10 @@ All code must satisfy:
 
 ## Enforcement
 
-These laws are enforced by **Claude Code hooks** backed by **Rust structural analysis**:
+These laws are enforced by **Antigravity CLI hooks** (configured in `.gemini/settings.json`) backed by the **`truth-gate` structural analysis** tool:
 
-- `PreToolUse` on `Edit|Write` — blocks introduction of forbidden constructs
-- `PostToolUse` on `Edit|Write` — re-scans written content for violations
+- `BeforeTool` (`PreToolUse`) on `replace_file_content | write_to_file | multi_replace_file_content` — blocks introduction of forbidden constructs
+- `AfterTool` (`PostToolUse`) on `replace_file_content | write_to_file | multi_replace_file_content` — re-scans written content for violations
 - `ConfigChange` — blocks weakening of hooks or policy settings
 - `FileChanged` on policy/test/config paths — audits and enforces consistency
 
@@ -148,7 +148,7 @@ This test requires real execution across 4 surfaces. Faking any one fails the en
 
 ## For AI Agents
 
-When you write code in this repository:
+When you write code in this repository using the Antigravity CLI:
 
 ### Do
 - Write code that works on the first try (no TODOs)
@@ -156,6 +156,7 @@ When you write code in this repository:
 - Produce externalizable evidence (OTel, files, receipts)
 - Test causality, not assertions
 - Make faking harder than real execution
+- Use the subagent framework (`invoke_subagent`, `define_subagent`) to parallelize or partition complex tasks
 
 ### Don't
 - Add mocks, stubs, monkeypatching
@@ -174,7 +175,7 @@ If a violation is introduced, the hook will block it. This is not a guideline. I
 This constitution is enforced by:
 
 1. **Rust policy checker** — inspects for forbidden constructs
-2. **Claude Code hooks** — blocks violations before they land
+2. **Antigravity CLI hooks** — blocks violations before they land
 3. **Structural analysis** — uses AST, symbols, and semantic rules, not regex
 
 Enforcement is **structural, not interpretive**. There are no gray areas.

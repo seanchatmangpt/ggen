@@ -1,6 +1,5 @@
-@prefix mp: <https://ggen.io/marketplace/> .
-@prefix ggen: <https://ggen.io/> .
-@prefix : <https://ggen.io/config/> .
+@prefix mp: <http://example.org/marketplace/> .
+@prefix : <http://example.org/config/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # ============================================================================

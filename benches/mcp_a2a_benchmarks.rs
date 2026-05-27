@@ -35,10 +35,9 @@
 //! - `concurrent_operations`: Parallel request handling
 //! - `memory_usage`: Memory footprint analysis
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 use std::collections::HashMap;
+use std::hint::black_box;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::RwLock;
@@ -206,7 +205,7 @@ fn bench_tool_discovery(c: &mut Criterion) {
     // Benchmark: Tool pattern matching
     group.bench_function("pattern_matching", |b| {
         let tools = generate_mock_tools(100);
-        let query = "tool_*";
+        let _query = "tool_*";
 
         b.iter(|| {
             let matches: Vec<_> = tools
@@ -418,7 +417,7 @@ fn parse_parameters(params: &serde_json::Value) -> HashMap<String, serde_json::V
 }
 
 /// Mock response generation function
-fn generate_response(id: &str, success: bool, result: Option<&serde_json::Value>) -> String {
+fn generate_response(id: &str, _success: bool, result: Option<&serde_json::Value>) -> String {
     format!(
         r#"{{"jsonrpc":"2.0","id":"{}","result":{}}}"#,
         id,
@@ -455,15 +454,13 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             BenchmarkId::new("concurrent_messages", concurrency),
             concurrency,
             |b, &concurrency| {
-                let messages: Vec<_> = (0..concurrency)
-                    .map(|i| generate_mock_a2a_message(i))
-                    .collect();
+                let messages: Vec<_> = (0..concurrency).map(generate_mock_a2a_message).collect();
 
                 b.iter(|| {
                     let results: Vec<_> = messages
                         .iter()
-                        .map(|msg| process_message_concurrently(msg))
-                        .collect();
+                        .map(process_message_concurrently)
+                        .collect::<Vec<_>>();
                     black_box(results)
                 });
             },
@@ -482,7 +479,7 @@ fn bench_concurrent_operations(c: &mut Criterion) {
                     let results: Vec<_> = tools
                         .iter()
                         .map(|tool| invoke_tool(tool, &small_payload()))
-                        .collect();
+                        .collect::<Vec<_>>();
                     black_box(results)
                 });
             },
@@ -495,15 +492,13 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             BenchmarkId::new("concurrent_translation", concurrency),
             concurrency,
             |b, &concurrency| {
-                let messages: Vec<_> = (0..concurrency)
-                    .map(|i| generate_mock_a2a_message(i))
-                    .collect();
+                let messages: Vec<_> = (0..concurrency).map(generate_mock_a2a_message).collect();
 
                 b.iter(|| {
                     let results: Vec<_> = messages
                         .iter()
                         .map(|msg| convert_a2a_to_mcp(msg, &small_payload()))
-                        .collect();
+                        .collect::<Vec<_>>();
                     black_box(results)
                 });
             },
@@ -550,7 +545,7 @@ fn bench_memory_usage(c: &mut Criterion) {
     // Benchmark: Per-connection memory
     group.bench_function("connection_state", |b| {
         b.iter_batched(
-            || MockConnectionState::new(),
+            MockConnectionState::new,
             |state| black_box(state.size_bytes()),
             BatchSize::SmallInput,
         );
@@ -600,6 +595,7 @@ fn bench_memory_usage(c: &mut Criterion) {
     group.finish();
 }
 
+#[allow(dead_code)]
 /// Mock connection state for memory measurement
 #[derive(Debug)]
 struct MockConnectionState {
@@ -648,6 +644,7 @@ fn estimate_tool_memory(tools: &[MockTool]) -> usize {
         .sum()
 }
 
+#[allow(dead_code)]
 /// Mock message buffer for memory measurement
 struct MockMessageBuffer {
     messages: Vec<MockA2AMessage>,
@@ -668,6 +665,7 @@ impl MockMessageBuffer {
     }
 }
 
+#[allow(dead_code)]
 /// Mock cache entry for memory measurement
 struct MockCacheEntry {
     key: String,
@@ -695,36 +693,42 @@ impl MockCacheEntry {
 // SLO Validation Helper Functions
 // =============================================================================
 
+#[allow(dead_code)]
 /// Validate that tool discovery meets SLO (<100ms for 100 tools)
 fn validate_tool_discovery_slo(measured_ns: u64) -> bool {
     const SLO_THRESHOLD_NS: u64 = 100_000_000; // 100ms
     measured_ns < SLO_THRESHOLD_NS
 }
 
+#[allow(dead_code)]
 /// Validate that message translation meets SLO (<1ms per message)
 fn validate_message_translation_slo(measured_ns: u64) -> bool {
     const SLO_THRESHOLD_NS: u64 = 1_000_000; // 1ms
     measured_ns < SLO_THRESHOLD_NS
 }
 
+#[allow(dead_code)]
 /// Validate that tool execution meets SLO (<50ms p95)
 fn validate_tool_execution_slo(measured_ns: u64) -> bool {
     const SLO_THRESHOLD_NS: u64 = 50_000_000; // 50ms
     measured_ns < SLO_THRESHOLD_NS
 }
 
+#[allow(dead_code)]
 /// Validate that concurrent operations meet SLO (>1000 req/sec)
 fn validate_concurrent_slo(req_per_sec: u64) -> bool {
     const SLO_MINIMUM: u64 = 1000;
     req_per_sec >= SLO_MINIMUM
 }
 
+#[allow(dead_code)]
 /// Validate that memory per connection meets SLO (<10KB)
 fn validate_connection_memory_slo(bytes: usize) -> bool {
     const SLO_THRESHOLD_BYTES: usize = 10_240; // 10KB
     bytes < SLO_THRESHOLD_BYTES
 }
 
+#[allow(dead_code)]
 /// Validate that memory per tool meets SLO (<1KB)
 fn validate_tool_memory_slo(bytes: usize) -> bool {
     const SLO_THRESHOLD_BYTES: usize = 1024; // 1KB

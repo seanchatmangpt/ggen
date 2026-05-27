@@ -254,6 +254,16 @@ else
 fi
 echo ""
 
+# 5. External Observer Promotion Adjudication
+echo "5️⃣ Running External Observer Promotion Adjudication..."
+if bash scripts/gall/external/13_adjudicate_gall_promotion.sh; then
+  echo "   ✅ External adjudication passed (GALL checkpoint promoted)"
+else
+  echo "   ❌ External adjudication failed (GALL checkpoint refused)"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
 # Summary
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if [ $FAILURES -eq 0 ]; then

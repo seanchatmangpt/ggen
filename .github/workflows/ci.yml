@@ -125,6 +125,9 @@ jobs:
       - name: "Run doctests (CRITICAL: Verify all doctests compile and run)"
         run: cargo test --doc --workspace
 
+      - name: Run External Observer Promotion Adjudication
+        run: bash scripts/gall/external/13_adjudicate_gall_promotion.sh
+
   build-matrix:
     name: Build (${{ matrix.os }}, ${{ matrix.rust }})
     runs-on: ${{ matrix.os }}

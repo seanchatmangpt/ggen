@@ -5,8 +5,8 @@
 # Generate with:
 #   ggen mcp generate --ontology full-server.ttl --output ./src
 
-@prefix mcp: <http://ggen.dev/mcp#> .
-@prefix ex:  <http://example.com/full#> .
+@prefix mcp: <http://example.org/mcp#> .
+@prefix ex:  <http://example.org/full#> .
 
 # Server definition
 ex:FullServer a mcp:McpServer ;

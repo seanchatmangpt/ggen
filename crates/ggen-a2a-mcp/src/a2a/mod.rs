@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 pub use artifact::{Artifact, ArtifactCollection, ArtifactContent, ArtifactError, ArtifactType};
-pub use receipt::{A2AState, A2ATaskReceipt, Avatar8, Jtbd8, A2ARefusalState};
+pub use receipt::{A2ARefusalState, A2AState, A2ATaskReceipt, Avatar8, Jtbd8};
 pub use state_machine::{StateTransition, TaskStateMachine, TransitionError};
 pub use transport::{Envelope, TaskMessage, Transport, TransportError};
 

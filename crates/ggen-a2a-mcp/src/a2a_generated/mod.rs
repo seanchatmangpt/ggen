@@ -377,6 +377,7 @@ mod tests {
     }
 }
 
+/*
 // Benchmark suite
 #[cfg(feature = "all-adapters")]
 pub mod benchmarks {
@@ -487,3 +488,4 @@ criterion_group!(
 );
 #[cfg(feature = "all-adapters")]
 criterion_main!(benches);
+*/

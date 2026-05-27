@@ -5,8 +5,8 @@
 # Generate with:
 #   ggen mcp generate --ontology minimal-server.ttl --output ./src
 
-@prefix mcp: <http://ggen.dev/mcp#> .
-@prefix ex:  <http://example.com/minimal#> .
+@prefix mcp: <http://example.org/mcp#> .
+@prefix ex:  <http://example.org/minimal#> .
 
 # Server definition
 ex:MinimalServer a mcp:McpServer ;

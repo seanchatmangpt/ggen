@@ -1,8 +1,7 @@
-@prefix mp: <https://ggen.io/marketplace/> .
-@prefix ggen: <https://ggen.io/> .
+@prefix mp: <http://example.org/marketplace/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <https://ggen.io/validation/> .
+@prefix : <http://example.org/validation/> .
 
 # ============================================================================
 # VALIDATION RULES - POKA YOKE Mistake-Proofing via SHACL
@@ -53,7 +52,7 @@
     # No path traversal in package ID
     sh:sparql [
         sh:message "Package ID cannot contain path traversal sequences (..)" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:packageId ?id .
@@ -134,7 +133,7 @@
     # Published packages must have signature
     sh:sparql [
         sh:message "Published packages must have a valid signature" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this a mp:Package ;
@@ -149,7 +148,7 @@
     # Active packages must have verified signature
     sh:sparql [
         sh:message "Active packages must have verified signature" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this a mp:Package ;
@@ -164,7 +163,7 @@
     # No duplicate package IDs
     sh:sparql [
         sh:message "Package ID must be unique" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:packageId ?id .
@@ -192,7 +191,7 @@
     # Validate individual components
     sh:sparql [
         sh:message "Major version must be non-negative integer" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:version ?v .
@@ -241,7 +240,7 @@
     # If SHA-256, must be 64 chars
     sh:sparql [
         sh:message "SHA-256 checksums must be 64 hex characters" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:algorithm "SHA-256" ;
@@ -255,7 +254,7 @@
     # If SHA-512, must be 128 chars
     sh:sparql [
         sh:message "SHA-512 checksums must be 128 hex characters" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:algorithm "SHA-512" ;
@@ -326,7 +325,7 @@
     # Signature cannot be from the future
     sh:sparql [
         sh:message "Signature timestamp cannot be in the future" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:signedAt ?timestamp .
@@ -493,7 +492,7 @@
     # No circular dependencies
     sh:sparql [
         sh:message "Circular dependencies are not allowed" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:dependsOnPackage ?pkg1 .
@@ -515,7 +514,7 @@
     # State transitions must be valid
     sh:sparql [
         sh:message "Invalid state transition attempted" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:state ?currentState ;
@@ -531,7 +530,7 @@
     # Published state requires verification
     sh:sparql [
         sh:message "Published packages must be verified before becoming Active" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:state mp:Published ;
@@ -548,7 +547,7 @@
     # Deprecated state requires replacement
     sh:sparql [
         sh:message "Deprecated packages must specify replacement" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:state mp:Deprecated .
@@ -561,7 +560,7 @@
     # Withdrawn state requires reason
     sh:sparql [
         sh:message "Withdrawn packages must document reason" ;
-        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "http://example.org/marketplace/" ] ] ;
         sh:select """
             SELECT $this WHERE {
                 $this mp:state mp:Withdrawn .
