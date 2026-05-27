@@ -17,6 +17,7 @@ This directory contains the definitive swarm documentation for the **Genesis-bea
 - **[04. Genesis Core Spec](04_GENESIS_CORE_SPEC.md)**: `A = μ(O)`, Pair2, RelationPage, Construct8 laws.
 - **[05. ggen Foundry & Membrane Spec](05_GGEN_FOUNDRY_SPEC.md)**: External IO, Adapters, and Projections.
 - **[06. Part Runtime Spec](06_PART_RUNTIME_SPEC.md)**: AtomVM custody, WASM portability, Rust discipline.
+- **[16. Code Catalog Architecture](16_CODE_CATALOG_ARCHITECTURE.md)**: Open-source tooling blueprint for AI agent code cataloging.
 
 ## Lifecycle, Proof, and Intelligence
 - **[07. Truex Lifecycle Spec](07_TRUEX_LIFECYCLE_SPEC.md)**: Promotion, Accounting, and Enterprise Trust.
