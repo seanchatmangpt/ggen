@@ -1,0 +1,62 @@
+[package]
+name = "ggen-lsp"
+version = "26.5.21"
+edition = "2021"
+
+[dependencies]
+tower-lsp = "0.20"
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Reuse from ggen workspace
+ggen-core = { path = "../ggen-core" }
+ggen-config = { path = "../ggen-config" }
+ggen-graph = { path = "../ggen-graph" }
+tera = "1"
+toml = "1.1.0"
+
+# Utilities
+url = "2"
+anyhow = "1"
+thiserror = "1"
+walkdir = "2"
+chrono = { version = "0.4", features = ["serde"] }
+blake3 = "1.5"
+
+[dev-dependencies]
+tempfile = "3"
+
+[package.metadata.claude-code]
+type = "language-server"
+marketplace_plugin_id = "ggen-lsp"
+marketplace_plugin_name = "ggen Language Server"
+marketplace_display_name = "ggen (RDF/Tera/TOML)"
+marketplace_description = "Syntax highlighting, completion, refactoring for ggen files"
+marketplace_categories = ["language-support", "linting", "formatting"]
+marketplace_minimum_claude_code_version = "0.9.0"
+marketplace_supported_languages = ["ttl", "tera", "toml"]
+marketplace_binary = "ggen"
+marketplace_binary_args = ["lsp", "start", "--transport", "stdio"]
+marketplace_capabilities = [
+  "completion",
+  "hover",
+  "definition",
+  "references",
+  "rename",
+  "document-symbol",
+  "workspace-symbol",
+  "code-lens",
+  "semantic-tokens",
+  "folding-range",
+  "formatting",
+  "inlay-hint",
+  "call-hierarchy",
+  "type-hierarchy"
+]
+
+[[bin]]
+name = "ggen-lsp"
+path = "src/main.rs"

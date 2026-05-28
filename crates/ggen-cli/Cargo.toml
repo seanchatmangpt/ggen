@@ -53,6 +53,7 @@ tar = "0.4"
 flate2 = "1.0"
 md5 = "0.8"
 ggen-a2a-mcp = { version = "26.5.21", path = "../ggen-a2a-mcp" }
+ggen-lsp = { version = "26.5.21", path = "../ggen-lsp" }
 blake3.workspace = true
 
 [features]

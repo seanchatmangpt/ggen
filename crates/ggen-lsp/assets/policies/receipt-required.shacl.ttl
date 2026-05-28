@@ -1,0 +1,19 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ggen: <https://ggen.dev/ns/admissibility#> .
+
+# Receipt-required policy.
+# Generated artifacts must carry provenance: a prov:wasGeneratedBy linking the
+# artifact to the activity (and, transitively, the BLAKE3 receipt) that produced
+# it. "No unreceipted generated artifact."
+ggen:ReceiptRequiredShape
+    a sh:NodeShape ;
+    rdfs:label "Receipt-required policy" ;
+    sh:targetClass ggen:GeneratedArtifact ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Generated artifact lacks a provenance receipt (prov:wasGeneratedBy)." ;
+    ] .

@@ -20,11 +20,20 @@ pub mod interchangeable;
 pub mod ocel;
 pub mod prelude;
 pub mod receipt;
+pub mod shacl;
+pub mod sparql;
 pub mod vocab;
 
 pub use graph::quad::parse_nquad;
-pub use graph::{DeterministicGraph, KnowledgeHook, RdfDelta, TransitionReceipt};
-pub use interchangeable::{GenesisCore, OuterMembrane, AdapterLayer, ProjectionLayer};
+pub use graph::{
+    extract_prefixes, iri_terms, parse_nquads_located, parse_ntriples_located,
+    parse_turtle_located, DeterministicGraph, IriTerms, KnowledgeHook, LocatedParse,
+    ParseDiagnostic, RdfDelta, TransitionReceipt,
+};
+pub use interchangeable::{AdapterLayer, GenesisCore, OuterMembrane, ProjectionLayer};
+pub use ocel::{check_guard, check_lifecycle_order, discover_dfg, DfgEdge};
+pub use shacl::{validate_shacl, ShaclSeverity, ShaclViolation};
+pub use sparql::{check_sparql_syntax, sparql_kind, SparqlKind};
 
 /// Error type for deterministic graph operations.
 #[derive(Debug, thiserror::Error)]

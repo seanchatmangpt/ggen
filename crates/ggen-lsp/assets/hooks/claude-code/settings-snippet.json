@@ -1,0 +1,27 @@
+{
+  "_comment": "Merge into .claude/settings.json to wire the Agent Admissibility Pack into Claude Code. PreToolUse refuses edits to law-surface files that violate canon; PostToolUse warns. Paths assume the pack lives at .agent-admissibility/.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".agent-admissibility/hooks/claude-code/pre-edit.sh \"$CLAUDE_TOOL_FILE_PATH\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".agent-admissibility/hooks/claude-code/post-edit.sh \"$CLAUDE_TOOL_FILE_PATH\""
+          }
+        ]
+      }
+    ]
+  }
+}

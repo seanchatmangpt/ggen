@@ -46,4 +46,4 @@ pub use types::{
     OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig, ValidationRule,
     ValidationSeverity,
 };
-pub use validation::ManifestValidator;
+pub use validation::{ManifestValidator, query_contains_values};

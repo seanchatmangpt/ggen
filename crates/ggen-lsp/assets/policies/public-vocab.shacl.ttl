@@ -1,0 +1,17 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ggen: <https://ggen.dev/ns/admissibility#> .
+
+# Public-vocabulary policy.
+# Declared terms SHOULD carry an rdfs:label so they are documented and reusable
+# across projects rather than opaque private identifiers.
+ggen:PublicVocabShape
+    a sh:NodeShape ;
+    rdfs:label "Public vocabulary policy" ;
+    sh:targetClass rdfs:Class ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Public classes should declare an rdfs:label for reuse." ;
+    ] .

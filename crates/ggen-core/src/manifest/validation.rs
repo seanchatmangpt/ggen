@@ -170,6 +170,19 @@ impl<'a> ManifestValidator<'a> {
     }
 }
 
+/// Returns true if the SPARQL query string contains a VALUES clause.
+/// Strips `#`-prefixed line comments before checking so commented-out
+/// VALUES blocks do not trigger the guard.
+pub fn query_contains_values(query: &str) -> bool {
+    query
+        .lines()
+        .filter(|line| !line.trim_start().starts_with('#'))
+        .any(|line| {
+            line.split_whitespace()
+                .any(|tok| tok.eq_ignore_ascii_case("VALUES"))
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

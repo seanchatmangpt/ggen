@@ -1,0 +1,400 @@
+//! Headless law-surface gate.
+//!
+//! The same analyzers that power the interactive server run here against files on
+//! disk, producing a serializable [`CheckReport`]. This is the bridge that lets
+//! generated hooks (pre-edit/pre-commit) enforce *exactly* the law the editor
+//! shows: a non-zero exit on any ERROR diagnostic refuses the motion before it
+//! reaches the graph.
+
+use std::path::{Path, PathBuf};
+
+use serde::Serialize;
+use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity};
+use walkdir::WalkDir;
+
+use crate::analyzers::build_analyzer;
+use crate::state::FileType;
+
+/// Directory names skipped when discovering law-surface files.
+const SKIP_DIRS: &[&str] = &[".git", "target", "node_modules", ".agent-admissibility", "dist"];
+
+/// Diagnostics for a single file.
+#[derive(Debug, Clone, Serialize)]
+pub struct FileReport {
+    /// Path as supplied to the checker.
+    pub path: String,
+    /// LSP diagnostics produced by the matching analyzer.
+    pub diagnostics: Vec<Diagnostic>,
+    /// Repair routes for this file's diagnostics. Empty unless `--with-routes`.
+    /// Each `RoutePlan` is byte-identical to the editor/MCP channels.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub routes: Vec<crate::route::RoutePlan>,
+}
+
+/// Count of diagnostics per failure family / route id (the 80/20 Pareto columns).
+#[derive(Debug, Clone, Serialize)]
+pub struct NamedCount {
+    /// Family or route id.
+    pub name: String,
+    /// Occurrence count.
+    pub count: usize,
+}
+
+/// 80/20 rollup of routes across a check run. Present only with `--with-routes`.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct RouteSummary {
+    /// Diagnostics that had at least one route.
+    pub routed: usize,
+    /// Diagnostics with no route (uncovered failures — the CI gap; anti-fail-open).
+    pub unrouted: usize,
+    /// Counts per route id, descending — the Pareto picture.
+    pub top_routes: Vec<NamedCount>,
+}
+
+/// Aggregate result of a headless check across one or more files.
+#[derive(Debug, Clone, Serialize)]
+pub struct CheckReport {
+    /// Per-file diagnostics (only files recognized as law surfaces appear).
+    pub files: Vec<FileReport>,
+    /// Total ERROR-severity diagnostics across all files.
+    pub error_count: usize,
+    /// Total WARNING-severity diagnostics across all files.
+    pub warning_count: usize,
+    /// 80/20 route rollup. Present only when routes were computed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub route_summary: Option<RouteSummary>,
+}
+
+impl CheckReport {
+    /// True if any file produced an ERROR diagnostic — the hook refusal signal.
+    #[must_use]
+    pub fn has_errors(&self) -> bool {
+        self.error_count > 0
+    }
+
+    /// Process exit code: 1 if any errors, else 0.
+    #[must_use]
+    pub fn exit_code(&self) -> i32 {
+        i32::from(self.has_errors())
+    }
+
+    /// Capture this gate run as agent-edit OCEL events under `root` (best-effort).
+    /// Emits a `DiagnosticRaised` per diagnostic and a per-file `GatePassed`/
+    /// `GateFailed`, feeding `ggen lsp mine`. Errors are swallowed — capture must
+    /// never break the gate.
+    pub fn capture(&self, root: &Path) {
+        use crate::intel::events::{
+            diagnostic_raised, gate_result, new_run_id, receipt_emitted, refusal_emitted,
+            repair_suggested, route_selected,
+        };
+        use crate::intel::IntelLog;
+
+        // One run id per check invocation → episodes don't collapse across runs.
+        let run_id = new_run_id();
+        let mut events = Vec::new();
+        let mut seq: u64 = 0;
+        for file in &self.files {
+            for d in &file.diagnostics {
+                let code = diag_code(d);
+                let is_error = d.severity == Some(DiagnosticSeverity::ERROR);
+                let sev = severity_str(d.severity);
+                let span = span_str(d.range);
+
+                seq += 1;
+                events.push(diagnostic_raised(&file.path, &code, sev, &span, &run_id, seq));
+
+                // RouteSelected/RepairSuggested ONLY when a route was actually
+                // selected for this diagnostic (with --with_routes). No event ⇒
+                // no route_hit_rate inflation.
+                if let Some(plan) = file
+                    .routes
+                    .iter()
+                    .find(|r| r.target.range == d.range && r.target.code == code)
+                {
+                    let source = route_source(&plan.provenance);
+                    seq += 1;
+                    events.push(route_selected(
+                        &file.path, &code, &plan.route_id.0, source, &run_id, seq,
+                    ));
+                    seq += 1;
+                    events.push(repair_suggested(
+                        &file.path, &code, &plan.route_id.0, &run_id, seq,
+                    ));
+                }
+
+                seq += 1;
+                events.push(gate_result(
+                    &file.path,
+                    &code,
+                    !is_error,
+                    file.diagnostics.len(),
+                    &run_id,
+                    seq,
+                ));
+
+                // Closed episode → receipt; refused episode → refusal.
+                seq += 1;
+                if is_error {
+                    events.push(refusal_emitted(
+                        &file.path, &code, file.diagnostics.len(), &run_id, seq,
+                    ));
+                } else {
+                    let receipt_id = receipt_id_for(&file.path, &code, &run_id);
+                    events.push(receipt_emitted(&file.path, &code, &receipt_id, &run_id, seq));
+                }
+            }
+            // Files with no diagnostics still record a clean gate pass.
+            if file.diagnostics.is_empty() {
+                seq += 1;
+                events.push(gate_result(&file.path, "clean", true, 0, &run_id, seq));
+            }
+        }
+        let _ = IntelLog::at_root(root).append(&events);
+    }
+}
+
+fn diag_code(d: &Diagnostic) -> String {
+    match &d.code {
+        Some(tower_lsp::lsp_types::NumberOrString::String(s)) => s.clone(),
+        Some(tower_lsp::lsp_types::NumberOrString::Number(n)) => n.to_string(),
+        None => "RDF".to_string(),
+    }
+}
+
+fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
+    match sev {
+        Some(DiagnosticSeverity::ERROR) => "error",
+        Some(DiagnosticSeverity::WARNING) => "warning",
+        _ => "info",
+    }
+}
+
+fn span_str(range: tower_lsp::lsp_types::Range) -> String {
+    format!(
+        "{}:{}-{}:{}",
+        range.start.line, range.start.character, range.end.line, range.end.character
+    )
+}
+
+fn route_source(p: &crate::route::Provenance) -> &'static str {
+    match p {
+        crate::route::Provenance::Seeded => "seed",
+        crate::route::Provenance::Mined { .. } => "mined",
+    }
+}
+
+fn receipt_id_for(file: &str, code: &str, run_id: &str) -> String {
+    blake3::hash(format!("{file}|{code}|{run_id}").as_bytes()).to_hex()[..16].to_string()
+}
+
+/// Check already-loaded content for a given path. Returns `None` if the path is
+/// not a recognized ggen law surface.
+#[must_use]
+pub fn check_content(path: &str, content: &str) -> Option<FileReport> {
+    let analyzer = build_analyzer(path, content)?;
+    Some(FileReport {
+        path: path.to_string(),
+        diagnostics: analyzer.diagnostics(),
+        routes: Vec::new(),
+    })
+}
+
+/// Check files on disk, aggregating diagnostics. Unreadable or non-law-surface
+/// files are skipped. Returns the aggregate report (no routes).
+#[must_use]
+pub fn check_files(paths: &[PathBuf]) -> CheckReport {
+    check_files_with_routes(paths, false)
+}
+
+/// Check files; when `with_routes`, attach a `RoutePlan` per diagnostic that has
+/// one and compute the 80/20 `route_summary`. Default mode is byte-identical to
+/// the historical `check_files` output (routes/summary omitted via serde).
+#[must_use]
+pub fn check_files_with_routes(paths: &[PathBuf], with_routes: bool) -> CheckReport {
+    // Seeds + promoted routes (relative to cwd = project root), so the headless
+    // gate sees the SAME routes as the editor and MCP channels.
+    let registry = with_routes.then(|| {
+        crate::route::RouteRegistry::seeded().with_pack_routes(
+            &crate::route::default_pack_routes_path(std::path::Path::new(".")),
+        )
+    });
+    let mut files = Vec::new();
+    let mut error_count = 0usize;
+    let mut warning_count = 0usize;
+
+    for path in paths {
+        let content = match std::fs::read_to_string(path) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        let path_str = path.to_string_lossy().to_string();
+        let Some(mut report) = check_content(&path_str, &content) else {
+            continue;
+        };
+        for d in &report.diagnostics {
+            match d.severity {
+                Some(DiagnosticSeverity::ERROR) => error_count += 1,
+                Some(DiagnosticSeverity::WARNING) => warning_count += 1,
+                _ => {}
+            }
+        }
+        if let Some(reg) = &registry {
+            report.routes = report
+                .diagnostics
+                .iter()
+                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &content))
+                .collect();
+        }
+        files.push(report);
+    }
+
+    let route_summary = with_routes.then(|| summarize_routes(&files));
+
+    CheckReport {
+        files,
+        error_count,
+        warning_count,
+        route_summary,
+    }
+}
+
+fn summarize_routes(files: &[FileReport]) -> RouteSummary {
+    use std::collections::BTreeMap;
+    let mut routed = 0usize;
+    let mut unrouted = 0usize;
+    let mut counts: BTreeMap<String, usize> = BTreeMap::new();
+    for f in files {
+        // A diagnostic is "routed" if a plan targets it (matched by code+range).
+        for d in &f.diagnostics {
+            let has = f.routes.iter().any(|r| {
+                r.target.range == d.range
+                    && d.code.as_ref().map_or(r.target.code.is_empty(), |c| match c {
+                        tower_lsp::lsp_types::NumberOrString::String(s) => s == &r.target.code,
+                        tower_lsp::lsp_types::NumberOrString::Number(n) => {
+                            n.to_string() == r.target.code
+                        }
+                    })
+            });
+            if has {
+                routed += 1;
+            } else {
+                unrouted += 1;
+            }
+        }
+        for r in &f.routes {
+            *counts.entry(r.route_id.0.clone()).or_insert(0) += 1;
+        }
+    }
+    let mut top_routes: Vec<NamedCount> = counts
+        .into_iter()
+        .map(|(name, count)| NamedCount { name, count })
+        .collect();
+    top_routes.sort_by(|a, b| b.count.cmp(&a.count));
+    RouteSummary {
+        routed,
+        unrouted,
+        top_routes,
+    }
+}
+
+
+/// Recursively discover every ggen law-surface file under `root`
+/// (`.ttl`, `.nt`, `.nq`, `.rq`, `.sparql`, `.tera`, `ggen.toml`), skipping
+/// build/VCS directories. Results are sorted for deterministic output.
+///
+/// Note: dotdirs are NOT skipped wholesale — ggen specs live under `.specify/`,
+/// which is the source-of-truth law surface; only [`SKIP_DIRS`] are pruned.
+#[must_use]
+pub fn discover_law_surfaces(root: &Path) -> Vec<PathBuf> {
+    let mut found: Vec<PathBuf> = WalkDir::new(root)
+        .into_iter()
+        .filter_entry(|entry| {
+            // Prune build/VCS directories (and their subtrees); keep everything else.
+            !(entry.file_type().is_dir()
+                && entry
+                    .file_name()
+                    .to_str()
+                    .is_some_and(|name| SKIP_DIRS.contains(&name)))
+        })
+        .filter_map(std::result::Result::ok)
+        .filter(|entry| entry.file_type().is_file())
+        .map(walkdir::DirEntry::into_path)
+        .filter(|path| FileType::from_path(&path.to_string_lossy()) != FileType::Unknown)
+        .collect();
+    found.sort();
+    found
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bad_sparql_content_reports_error() {
+        let report = check_content("query.rq", "SELECT ?s WHERE { VALUES ?s { <http://x> } }")
+            .expect("rq is a law surface");
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|d| d.severity == Some(DiagnosticSeverity::ERROR)));
+    }
+
+    #[test]
+    fn unknown_extension_is_not_a_law_surface() {
+        assert!(check_content("notes.md", "# hello").is_none());
+    }
+
+    #[test]
+    fn discover_finds_law_surfaces_recursively_and_skips_build_dirs() {
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+        fs::create_dir_all(root.join(".specify/specs")).expect("mkdir");
+        fs::create_dir_all(root.join("target/junk")).expect("mkdir");
+        fs::write(root.join(".specify/specs/feature.ttl"), "@prefix ex: <x> .").expect("w");
+        fs::write(root.join("ggen.toml"), "[project]\nname=\"x\"").expect("w");
+        fs::write(root.join("target/junk/ignored.ttl"), "@prefix ex: <x> .").expect("w");
+        fs::write(root.join("readme.md"), "# not a law surface").expect("w");
+
+        let found = discover_law_surfaces(root);
+        let names: Vec<String> = found
+            .iter()
+            .map(|p| p.to_string_lossy().to_string())
+            .collect();
+
+        assert!(names.iter().any(|n| n.ends_with("feature.ttl")), "must find specs under .specify");
+        assert!(names.iter().any(|n| n.ends_with("ggen.toml")));
+        assert!(!names.iter().any(|n| n.contains("target")), "must skip target/");
+        assert!(!names.iter().any(|n| n.ends_with("readme.md")));
+    }
+
+    #[test]
+    fn report_exit_code_reflects_errors() {
+        let clean = check_content("ok.toml", "[project]\nname = \"x\"\n").expect("toml");
+        let mut report = CheckReport {
+            files: vec![clean],
+            error_count: 0,
+            warning_count: 0,
+            route_summary: None,
+        };
+        assert_eq!(report.exit_code(), 0);
+        report.error_count = 2;
+        assert_eq!(report.exit_code(), 1);
+        assert!(report.has_errors());
+    }
+
+    #[test]
+    fn with_routes_attaches_plans_and_summary() {
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let cfg = dir.path().join("ggen.toml");
+        // A genuine ggen config violation (invalid enum), not an LLM section.
+        fs::write(&cfg, "[logging]\nlevel = \"verbose\"\n").expect("write");
+
+        let report = check_files_with_routes(&[cfg], true);
+        assert!(report.route_summary.is_some(), "summary present with routes");
+        let summary = report.route_summary.expect("summary");
+        assert!(summary.routed >= 1, "the invalid enum value is routed (advisory)");
+        assert!(report.files[0].routes.iter().any(|r| !r.ordered_steps.is_empty()));
+    }
+}

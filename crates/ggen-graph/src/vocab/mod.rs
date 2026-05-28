@@ -1,7 +1,9 @@
 //! Emitted public vocabularies.
 
+pub mod dfg;
 pub mod ocel;
 pub mod owl;
+pub mod powl;
 pub mod prov;
 pub mod rdf;
 pub mod rdfs;
@@ -64,3 +66,13 @@ pub const OCEL: &str = ocel::NAMESPACE;
 pub use ocel as Ocel;
 /// OCEL module alias (UPPERCASE)
 pub use ocel as OCEL;
+
+/// POWL Namespace Constant
+pub const POWL: &str = powl::NAMESPACE;
+/// POWL module alias (TitleCase)
+pub use powl as Powl;
+
+/// DFG Namespace Constant
+pub const DFG: &str = dfg::NAMESPACE;
+/// DFG module alias (TitleCase)
+pub use dfg as Dfg;

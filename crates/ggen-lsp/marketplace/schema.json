@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ggen-lsp Configuration",
+  "type": "object",
+  "properties": {
+    "ggen-lsp": {
+      "type": "object",
+      "description": "ggen Language Server Protocol configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable/disable ggen-lsp server",
+          "default": true
+        },
+        "transport": {
+          "type": "string",
+          "enum": ["stdio", "http"],
+          "description": "LSP transport: stdio (normal) or http (debugging)",
+          "default": "stdio"
+        },
+        "port": {
+          "type": "integer",
+          "description": "HTTP port (only if transport=http)",
+          "default": 9999,
+          "minimum": 1024,
+          "maximum": 65535
+        },
+        "auto_format_on_save": {
+          "type": "boolean",
+          "description": "Auto-format documents on save",
+          "default": true
+        },
+        "show_hints": {
+          "type": "boolean",
+          "description": "Show inline type hints and default values",
+          "default": true
+        },
+        "workspace_symbol_depth": {
+          "type": "integer",
+          "description": "Max depth for workspace symbol search",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 20
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
