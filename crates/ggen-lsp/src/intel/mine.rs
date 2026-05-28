@@ -223,7 +223,7 @@ pub fn mine(root: &Path) -> Result<MineReport, ggen_graph::GraphError> {
         .filter(|e| is_failure_target(&e.target))
         .cloned()
         .collect();
-    failure_edges.sort_by(|a, b| b.frequency.cmp(&a.frequency));
+    failure_edges.sort_by_key(|e| std::cmp::Reverse(e.frequency));
 
     // Discovery report (human).
     let report_path = root

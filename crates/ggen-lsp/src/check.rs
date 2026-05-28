@@ -209,14 +209,27 @@ pub fn check_files(paths: &[PathBuf]) -> CheckReport {
 /// Check files; when `with_routes`, attach a `RoutePlan` per diagnostic that has
 /// one and compute the 80/20 `route_summary`. Default mode is byte-identical to
 /// the historical `check_files` output (routes/summary omitted via serde).
+///
+/// Promoted routes are loaded relative to the current working directory. Use
+/// [`check_files_in_root`] to load them from an explicit project root (required
+/// for hermetic tests and for running the gate outside the project root).
 #[must_use]
 pub fn check_files_with_routes(paths: &[PathBuf], with_routes: bool) -> CheckReport {
-    // Seeds + promoted routes (relative to cwd = project root), so the headless
+    check_files_in_root(std::path::Path::new("."), paths, with_routes)
+}
+
+/// Like [`check_files_with_routes`], but loads the promoted-route pack from
+/// `root/.agent-admissibility/...` instead of the cwd. Making the root explicit
+/// keeps pack discovery from silently depending on the process working
+/// directory — the headless gate, the editor, and MCP all resolve the SAME
+/// routes for a given project root.
+#[must_use]
+pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) -> CheckReport {
+    // Seeds + promoted routes (relative to `root` = project root), so the headless
     // gate sees the SAME routes as the editor and MCP channels.
     let registry = with_routes.then(|| {
-        crate::route::RouteRegistry::seeded().with_pack_routes(
-            &crate::route::default_pack_routes_path(std::path::Path::new(".")),
-        )
+        crate::route::RouteRegistry::seeded()
+            .with_pack_routes(&crate::route::default_pack_routes_path(root))
     });
     let mut files = Vec::new();
     let mut error_count = 0usize;
@@ -289,7 +302,7 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
         .into_iter()
         .map(|(name, count)| NamedCount { name, count })
         .collect();
-    top_routes.sort_by(|a, b| b.count.cmp(&a.count));
+    top_routes.sort_by_key(|n| std::cmp::Reverse(n.count));
     RouteSummary {
         routed,
         unrouted,

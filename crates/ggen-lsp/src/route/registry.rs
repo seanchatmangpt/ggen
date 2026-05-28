@@ -51,7 +51,7 @@ impl RouteRegistry {
         let v = self.by_family.entry(route.family).or_default();
         v.push(route);
         // Highest priority first.
-        v.sort_by(|a, b| b.priority.cmp(&a.priority));
+        v.sort_by_key(|r| std::cmp::Reverse(r.priority));
     }
 
     /// Number of registered routes.
