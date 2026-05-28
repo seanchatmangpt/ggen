@@ -17,6 +17,9 @@ tokio = { version = "1", features = ["full"] }
 anyhow = "1"
 tracing = "0.1"
 
+[dev-dependencies]
+tempfile = "3.23"
+
 [[bin]]
 name = "ggen-lsp-mcp"
 path = "src/main.rs"

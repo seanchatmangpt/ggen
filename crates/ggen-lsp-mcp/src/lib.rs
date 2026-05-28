@@ -10,7 +10,7 @@
 //! tool to `ggen-a2a-mcp` directly. It can be bridged into A2A via
 //! `a2a-mcp::AgentToMcpBridge` if A2A exposure is wanted.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use rmcp::{
@@ -40,6 +40,26 @@ pub struct RepairRouteParams {
     pub root: Option<String>,
 }
 
+/// Parameters for `ggen.lsp.replay_case`.
+#[derive(Debug, Clone, Default, Deserialize, JsonSchema)]
+pub struct ReplayCaseParams {
+    /// Project root (default: cwd).
+    #[serde(default)]
+    pub root: Option<String>,
+    /// Episode/case id to reconstruct. When omitted, the promotion binding is
+    /// verified instead (tamper check).
+    #[serde(default)]
+    pub case_id: Option<String>,
+}
+
+/// Parameters for `ggen.lsp.metrics`.
+#[derive(Debug, Clone, Default, Deserialize, JsonSchema)]
+pub struct MetricsParams {
+    /// Project root (default: cwd).
+    #[serde(default)]
+    pub root: Option<String>,
+}
+
 /// MCP server with the `ggen.lsp.repair_route` tool (+ replay/metrics in MCP-REPLAY-1).
 #[derive(Clone)]
 pub struct RepairRouteServer {
@@ -53,23 +73,43 @@ impl Default for RepairRouteServer {
 }
 
 impl RepairRouteServer {
-    /// Construct the server with its (schemars-derived) tool schema.
+    /// Construct the server with its three (schemars-derived) tools: route +
+    /// replay + metrics — the full route+proof+replay surface, not route vending.
     #[must_use]
     pub fn new() -> Self {
-        let input_schema = serde_json::to_value(schemars::schema_for!(RepairRouteParams))
-            .ok()
-            .and_then(|v| v.as_object().cloned())
-            .unwrap_or_default();
-        let tool = Tool::new(
-            "ggen.lsp.repair_route",
-            "Analyze a ggen law-surface file and return the canonical RouteEnvelope \
-             for each diagnostic — the same routes editors and the headless gate use.",
-            Arc::new(input_schema),
-        );
+        let tools = vec![
+            make_tool(
+                "ggen.lsp.repair_route",
+                "Analyze a ggen law-surface file and return the canonical RouteEnvelope \
+                 for each diagnostic — the same routes editors and the headless gate use.",
+                serde_json::to_value(schemars::schema_for!(RepairRouteParams)).unwrap_or_default(),
+            ),
+            make_tool(
+                "ggen.lsp.replay_case",
+                "Reconstruct a recorded episode (case_id) from the project's OCEL log + \
+                 receipts — or verify the promotion binding (tamper check) when case_id is omitted.",
+                serde_json::to_value(schemars::schema_for!(ReplayCaseParams)).unwrap_or_default(),
+            ),
+            make_tool(
+                "ggen.lsp.metrics",
+                "Compute the IMPROVE-1 metrics + earned verdict for the project \
+                 (insufficient_evidence where the backing events are absent).",
+                serde_json::to_value(schemars::schema_for!(MetricsParams)).unwrap_or_default(),
+            ),
+        ];
         Self {
-            tools: Arc::new(vec![tool]),
+            tools: Arc::new(tools),
         }
     }
+}
+
+/// Build an rmcp `Tool` from a name, description, and a schemars-derived schema value.
+fn make_tool(name: &'static str, description: &'static str, schema: serde_json::Value) -> Tool {
+    Tool::new(
+        name,
+        description,
+        Arc::new(schema.as_object().cloned().unwrap_or_default()),
+    )
 }
 
 /// Validate arguments and produce the route result, or a structured refusal.
@@ -102,6 +142,47 @@ pub fn repair_route_result(
         &params.file_path,
         &params.file_content,
     ))
+}
+
+/// Replay a recorded episode (or verify the promotion binding when `case_id` is
+/// omitted). MCP agents can challenge the route/result after the fact, not just
+/// receive routes.
+///
+/// # Errors
+/// Returns `McpError::invalid_params` for garbled arguments.
+pub fn replay_case_result(
+    arguments: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Result<serde_json::Value, McpError> {
+    let params: ReplayCaseParams = match arguments {
+        Some(a) => serde_json::from_value(serde_json::Value::Object(a))
+            .map_err(|e| McpError::invalid_params(format!("invalid params: {e}"), None))?,
+        None => ReplayCaseParams::default(),
+    };
+    let root = params.root.unwrap_or_else(|| ".".to_string());
+    let value = match params.case_id {
+        Some(id) => serde_json::to_value(ggen_lsp::replay_case(Path::new(&root), &id)),
+        None => serde_json::to_value(ggen_lsp::verify_promotion(Path::new(&root))),
+    };
+    value.map_err(|e| McpError::internal_error(format!("serialization failed: {e}"), None))
+}
+
+/// Compute the IMPROVE-1 metrics + earned verdict for the project. Metrics lacking
+/// their backing events report `insufficient_evidence`; the verdict is `improving`
+/// only when the evidence earns it.
+///
+/// # Errors
+/// Returns `McpError::invalid_params` for garbled arguments.
+pub fn metrics_result(
+    arguments: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Result<serde_json::Value, McpError> {
+    let params: MetricsParams = match arguments {
+        Some(a) => serde_json::from_value(serde_json::Value::Object(a))
+            .map_err(|e| McpError::invalid_params(format!("invalid params: {e}"), None))?,
+        None => MetricsParams::default(),
+    };
+    let root = params.root.unwrap_or_else(|| ".".to_string());
+    serde_json::to_value(ggen_lsp::compute_metrics(Path::new(&root)))
+        .map_err(|e| McpError::internal_error(format!("serialization failed: {e}"), None))
 }
 
 /// Build the repair-route result for a file. Emits the canonical
@@ -185,17 +266,21 @@ impl ServerHandler for RepairRouteServer {
         _ctx: RequestContext<RoleServer>,
     ) -> impl std::future::Future<Output = Result<CallToolResult, McpError>> + Send + '_ {
         async move {
-            if name != "ggen.lsp.repair_route" {
-                return Err(McpError::invalid_params(format!("unknown tool: {name}"), None));
-            }
             tracing::info!(
                 "OCEL: {}",
                 serde_json::json!({
                     "event": "mcp.tool.invoked",
-                    "objects": { "tool": "ggen.lsp.repair_route" }
+                    "objects": { "tool": name }
                 })
             );
-            let result = repair_route_result(arguments)?;
+            let result = match name.as_ref() {
+                "ggen.lsp.repair_route" => repair_route_result(arguments)?,
+                "ggen.lsp.replay_case" => replay_case_result(arguments)?,
+                "ggen.lsp.metrics" => metrics_result(arguments)?,
+                other => {
+                    return Err(McpError::invalid_params(format!("unknown tool: {other}"), None))
+                }
+            };
             Ok(CallToolResult::success(vec![Content::text(
                 serde_json::to_string_pretty(&result).unwrap_or_default(),
             )]))
