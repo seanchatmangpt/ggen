@@ -84,8 +84,15 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
     let _ = Command::new("open-ontologies").arg("shacl").arg(&shapes_path).output();
     let _ = Command::new("open-ontologies").arg("reason").output();
 
-    // 5. Run SPARQL reports and TOML receipts generation
-    // projection::generate_reports_open_ontologies(out, &ttl_path)?;
+    // 5. Emit the scan receipt with a deterministic aggregate hash — the stable
+    //    scan identity a downstream ggen admissibility pack binds to.
+    let scan_roots: Vec<String> = paths.iter().map(|p| p.to_string_lossy().to_string()).collect();
+    let output_artifacts = vec![
+        ttl_path.to_string_lossy().to_string(),
+        shapes_path.to_string_lossy().to_string(),
+    ];
+    let receipt = crate::receipt::generate_receipt(&files, out, scan_roots, output_artifacts)?;
+    println!("Scan receipt: aggregate_hash={}", receipt.aggregate_hash);
 
     // 6. Sync RDF data back into SQLite cache database
     // db::init_db(out)?;

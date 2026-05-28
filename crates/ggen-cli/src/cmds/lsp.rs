@@ -29,6 +29,9 @@ pub struct EmitPackOutput {
     pub out_dir: String,
     pub agents: Vec<String>,
     pub files_written: usize,
+    pub pack_hash: String,
+    pub receipt_sig: Option<String>,
+    pub bound_to_scan: bool,
 }
 
 #[derive(Serialize)]
@@ -219,10 +222,17 @@ fn parse_paths(files: &str) -> Vec<PathBuf> {
 ///   ggen lsp emit_pack                              Emit for all agents into .agent-admissibility/.
 ///   ggen lsp emit_pack --agents "claude-code"       Only the claude-code hook set.
 ///   ggen lsp emit_pack --out .ci/admissibility      Choose the output directory.
+///   ggen lsp emit_pack --from_scan .cpmp/scan-receipt.json   Bind scan→pack with a receipt.
 ///
 /// Agents (comma/space separated): claude-code, cursor, codex, generic.
+/// With `--from_scan`, the capability scan's `aggregate_hash` is bound to the
+/// emitted pack's content hash in a replayable receipt (verify with `verify_pack`).
 #[verb]
-fn emit_pack(agents: Option<String>, out: Option<String>) -> Result<EmitPackOutput> {
+fn emit_pack(
+    agents: Option<String>,
+    out: Option<String>,
+    from_scan: Option<String>,
+) -> Result<EmitPackOutput> {
     let agent_list = agents
         .map(|a| {
             a.split(|c: char| c.is_whitespace() || c == ',')
@@ -238,9 +248,14 @@ fn emit_pack(agents: Option<String>, out: Option<String>) -> Result<EmitPackOutp
                 .collect()
         });
 
+    // Optionally read the cpmp scan receipt to bind scan→pack provenance.
+    let scan_hash = from_scan.as_deref().and_then(read_scan_aggregate_hash);
+    let bound_to_scan = scan_hash.is_some();
+
     let opts = ggen_lsp::PackOptions {
         agents: agent_list,
         out_dir: PathBuf::from(out.unwrap_or_else(|| ".agent-admissibility".to_string())),
+        scan_hash,
     };
 
     let report = ggen_lsp::emit_pack(&opts)
@@ -250,5 +265,33 @@ fn emit_pack(agents: Option<String>, out: Option<String>) -> Result<EmitPackOutp
         out_dir: report.out_dir,
         agents: report.agents,
         files_written: report.files_written.len(),
+        pack_hash: report.pack_hash,
+        receipt_sig: report.receipt_sig,
+        bound_to_scan,
     })
+}
+
+/// Read the `aggregate_hash` field from a cpmp `scan-receipt.json`.
+fn read_scan_aggregate_hash(path: &str) -> Option<String> {
+    let content = std::fs::read_to_string(path).ok()?;
+    let v: serde_json::Value = serde_json::from_str(&content).ok()?;
+    v.get("aggregate_hash")
+        .and_then(|h| h.as_str())
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+}
+
+/// Verify an emitted admissibility pack against its scan→pack receipt.
+///
+/// Recomputes the pack's content hash and checks it reconstructs the stored
+/// provenance and a matching receipt. Mutating any pack file ⇒ `matches: false`.
+///
+///   ggen lsp verify_pack                       Verify .agent-admissibility/.
+///   ggen lsp verify_pack --pack_dir .ci/adm    Verify a specific pack directory.
+#[verb]
+fn verify_pack(pack_dir: Option<String>) -> Result<serde_json::Value> {
+    let dir = pack_dir.unwrap_or_else(|| ".agent-admissibility".to_string());
+    let replay = ggen_lsp::verify_pack(Path::new(&dir));
+    serde_json::to_value(&replay)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }

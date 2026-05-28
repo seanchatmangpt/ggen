@@ -109,6 +109,7 @@ pub fn init(root: &Path, editors: &[String], agents: &[String]) -> io::Result<In
     let pack = emit(&PackOptions {
         agents: agent_list,
         out_dir: pack_out.clone(),
+        scan_hash: None,
     })?;
 
     Ok(InitReport {

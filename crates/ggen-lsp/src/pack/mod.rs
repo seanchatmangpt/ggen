@@ -48,6 +48,10 @@ pub struct PackOptions {
     pub agents: Vec<String>,
     /// Output directory (typically `.agent-admissibility`).
     pub out_dir: PathBuf,
+    /// Aggregate hash of the capability scan this pack is manufactured from
+    /// (e.g. cpmp's `aggregate_hash`). When present, the emitted pack receipt
+    /// binds `scan_hash → pack_hash`, making the pack's provenance replayable.
+    pub scan_hash: Option<String>,
 }
 
 impl Default for PackOptions {
@@ -55,8 +59,27 @@ impl Default for PackOptions {
         Self {
             agents: DEFAULT_AGENTS.iter().map(|s| (*s).to_string()).collect(),
             out_dir: PathBuf::from(".agent-admissibility"),
+            scan_hash: None,
         }
     }
+}
+
+/// Filename of the in-pack provenance record (excluded from the pack hash).
+const PROVENANCE_FILE: &str = "pack-provenance.json";
+
+/// Records what the pack was manufactured from and its content hash, so
+/// [`verify_pack`] can reconstruct the binding (mirrors `PromotedRoutes`).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PackProvenance {
+    pub version: u8,
+    /// Aggregate hash of the source capability scan (empty if none).
+    pub scan_hash: String,
+    /// Content hash of the emitted pack (all files except receipts/ + this file).
+    pub pack_hash: String,
+}
+
+impl PackProvenance {
+    pub const VERSION: u8 = 1;
 }
 
 /// Summary of an emit run (serializable for the CLI).
@@ -68,6 +91,10 @@ pub struct EmitReport {
     pub agents: Vec<String>,
     /// Relative paths written.
     pub files_written: Vec<String>,
+    /// Content hash of the emitted pack.
+    pub pack_hash: String,
+    /// Signature of the scan→pack receipt (None only on a write failure).
+    pub receipt_sig: Option<String>,
 }
 
 /// Emit the admissibility pack to disk.
@@ -168,11 +195,147 @@ pub fn emit(opts: &PackOptions) -> io::Result<EmitReport> {
     // README.
     write_file(&root.join("README.md"), README, false, &mut written, root)?;
 
+    // Provenance: content-hash the pack and bind it to the source scan with a
+    // receipt (scan_hash → pack_hash). This is the "capability map manufactures
+    // the pack" proof — replayable, tamper-evident (see `verify_pack`).
+    let pack_hash = compute_pack_hash(root);
+    let scan_hash = opts.scan_hash.clone().unwrap_or_default();
+    let provenance = PackProvenance {
+        version: PackProvenance::VERSION,
+        scan_hash: scan_hash.clone(),
+        pack_hash: pack_hash.clone(),
+    };
+    if let Ok(json) = serde_json::to_string_pretty(&provenance) {
+        let _ = std::fs::write(root.join(PROVENANCE_FILE), json);
+    }
+    let receipt_sig = emit_pack_receipt(root, &scan_hash, &pack_hash);
+
     Ok(EmitReport {
         out_dir: root.to_string_lossy().to_string(),
         agents: opts.agents.clone(),
         files_written: written,
+        pack_hash,
+        receipt_sig,
     })
+}
+
+/// Deterministic content hash of an emitted pack: BLAKE3 over each file's
+/// `(relative path, bytes)` in sorted order, EXCLUDING the `receipts/` subtree
+/// and the provenance file (so the hash is stable and recomputable). Same walk
+/// is used at emit and verify time.
+#[must_use]
+pub fn compute_pack_hash(pack_dir: &Path) -> String {
+    let mut entries: Vec<(String, PathBuf)> = walkdir::WalkDir::new(pack_dir)
+        .sort_by_file_name()
+        .into_iter()
+        .filter_map(std::result::Result::ok)
+        .filter(|e| e.file_type().is_file())
+        .filter_map(|e| {
+            let rel = e.path().strip_prefix(pack_dir).ok()?.to_path_buf();
+            // Exclude provenance + receipts (they are derived from the hash).
+            if rel.to_string_lossy() == PROVENANCE_FILE
+                || rel.components().any(|c| c.as_os_str() == "receipts")
+            {
+                return None;
+            }
+            Some((rel.to_string_lossy().replace('\\', "/"), e.path().to_path_buf()))
+        })
+        .collect();
+    entries.sort_by(|a, b| a.0.cmp(&b.0));
+    let mut hasher = blake3::Hasher::new();
+    for (rel, abs) in entries {
+        hasher.update(rel.as_bytes());
+        hasher.update(&[0]);
+        hasher.update(&std::fs::read(&abs).unwrap_or_default());
+        hasher.update(&[0]);
+    }
+    hasher.finalize().to_hex().to_string()
+}
+
+/// Write the scan→pack receipt under `pack_dir/receipts/pack-{sig}.json`,
+/// returning its signature hex. `pre = blake3(scan_hash)`, `post = blake3(pack_hash)`.
+fn emit_pack_receipt(pack_dir: &Path, scan_hash: &str, pack_hash: &str) -> Option<String> {
+    let pre: [u8; 32] = blake3::hash(scan_hash.as_bytes()).into();
+    let post: [u8; 32] = blake3::hash(pack_hash.as_bytes()).into();
+    let receipt = crate::intel::RepairReceipt::new(
+        "pack".to_string(),
+        "CPMP-PACK-1".to_string(),
+        pre,
+        post,
+        true,
+    );
+    let sig = receipt.signature_hex();
+    let dir = pack_dir.join("receipts");
+    if std::fs::create_dir_all(&dir).is_ok() {
+        if let Ok(json) = serde_json::to_string_pretty(&receipt) {
+            let _ = std::fs::write(dir.join(format!("pack-{}.json", &sig[..16])), json);
+        }
+    }
+    Some(sig)
+}
+
+/// Verification of an emitted pack against its scan→pack receipt.
+#[derive(Debug, Clone, Serialize)]
+pub struct PackReplay {
+    pub matches: bool,
+    pub reason: String,
+}
+
+/// Re-derive the pack content hash and check it against the stored provenance
+/// and a matching scan→pack receipt. Mutating any pack file changes the
+/// recomputed hash ⇒ mismatch. Mirrors `verify_promotion`.
+#[must_use]
+pub fn verify_pack(pack_dir: &Path) -> PackReplay {
+    let Some(provenance) = std::fs::read_to_string(pack_dir.join(PROVENANCE_FILE))
+        .ok()
+        .and_then(|s| serde_json::from_str::<PackProvenance>(&s).ok())
+    else {
+        return PackReplay {
+            matches: false,
+            reason: "no pack provenance record".to_string(),
+        };
+    };
+    let current = compute_pack_hash(pack_dir);
+    if current != provenance.pack_hash {
+        return PackReplay {
+            matches: false,
+            reason: format!(
+                "pack hash mismatch: provenance={} current={} (tampered)",
+                &provenance.pack_hash[..8.min(provenance.pack_hash.len())],
+                &current[..8.min(current.len())]
+            ),
+        };
+    }
+    let pre: [u8; 32] = blake3::hash(provenance.scan_hash.as_bytes()).into();
+    let post: [u8; 32] = blake3::hash(provenance.pack_hash.as_bytes()).into();
+    let matches = find_pack_receipt(pack_dir, pre, post);
+    PackReplay {
+        matches,
+        reason: if matches {
+            "pack receipt reconstructs from current pack + scan hash".to_string()
+        } else {
+            "no receipt binds the current pack to its scan (tampered or stale)".to_string()
+        },
+    }
+}
+
+fn find_pack_receipt(pack_dir: &Path, pre: [u8; 32], post: [u8; 32]) -> bool {
+    let Ok(entries) = std::fs::read_dir(pack_dir.join("receipts")) else {
+        return false;
+    };
+    for entry in entries.flatten() {
+        if !entry.file_name().to_string_lossy().starts_with("pack-") {
+            continue;
+        }
+        if let Ok(content) = std::fs::read_to_string(entry.path()) {
+            if let Ok(r) = serde_json::from_str::<crate::intel::RepairReceipt>(&content) {
+                if r.pre_state_hash == pre && r.post_state_hash == post && r.verify() {
+                    return true;
+                }
+            }
+        }
+    }
+    false
 }
 
 fn lsp_config_json() -> String {
@@ -237,6 +400,7 @@ mod tests {
         let report = emit(&PackOptions {
             agents: vec!["claude-code".to_string(), "generic".to_string()],
             out_dir: out.clone(),
+            scan_hash: None,
         })
         .expect("emit");
 
@@ -259,6 +423,7 @@ mod tests {
         emit(&PackOptions {
             agents: vec!["generic".to_string()],
             out_dir: out.clone(),
+            scan_hash: None,
         })
         .expect("emit");
         let mode = std::fs::metadata(out.join("hooks/generic/pre-commit.sh"))

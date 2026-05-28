@@ -20,7 +20,10 @@ pub use intel::{
     compute_metrics, mine, replay_case, verify_promotion, CaseReplay, ImproveMetrics, IntelLog,
     MineReport, PromotionReplay, RepairReceipt,
 };
-pub use pack::{emit as emit_pack, EmitReport, PackOptions, DEFAULT_AGENTS};
+pub use pack::{
+    emit as emit_pack, verify_pack, EmitReport, PackOptions, PackProvenance, PackReplay,
+    DEFAULT_AGENTS,
+};
 pub use route::{
     family_of_diagnostic, route_plan_for_diagnostic, RepairFamily, RepairRoute, RouteBindings,
     RoutePlan, RoutePlanRef, RouteRegistry,
