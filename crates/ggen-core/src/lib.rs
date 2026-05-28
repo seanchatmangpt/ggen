@@ -182,8 +182,11 @@ pub mod transport;
 pub mod types;
 pub mod utils;
 pub mod parts_foundry;
+pub mod parts_execution;
 pub mod validation;
 pub mod membrane;
+pub mod stewardship;
+pub mod stpnt;
 
 // Schema parser and code generators for A2A communication
 pub mod drift; // Drift detection for ontology changes

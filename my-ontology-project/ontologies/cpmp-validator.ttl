@@ -1,0 +1,25 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gall: <http://example.org/ns/gall#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+gall:CapabilityShape a sh:NodeShape ;
+    sh:targetClass gall:Capability ;
+    sh:property [
+        sh:path gall:hasInput ;
+        sh:minCount 1 ;
+        sh:description "Capability must have at least one explicit input" ;
+    ] ;
+    sh:property [
+        sh:path gall:hasOutput ;
+        sh:minCount 1 ;
+        sh:description "Capability must have at least one explicit output" ;
+    ] ;
+    sh:property [
+        sh:path gall:hasPrecondition ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path gall:hasConsequence ;
+        sh:minCount 1 ;
+    ] .

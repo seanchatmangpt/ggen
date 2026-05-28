@@ -1,0 +1,117 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix canon: <https://protocol.open-standards.org/canon#> .
+
+# Frozen Canon RDF Schema
+# Status: IMPLEMENTED
+
+canon:FrozenCanon a owl:Ontology, dcat:Dataset ;
+    dcterms:title "Frozen Canon RDF Schema" ;
+    dcterms:description "Machine-readable schema for the Frozen Canon stewardship framework, encoding Scripture Basis and Avatar Sets." ;
+    dcterms:status "IMPLEMENTED" ;
+    dcterms:publisher <https://protocol.open-standards.org/> ;
+    dcterms:created "2025-05-20"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    prov:wasGeneratedBy [
+        a prov:Activity ;
+        rdfs:label "Canon Architecture Implementation" ;
+        prov:endedAtTime "2025-05-20T12:00:00Z"^^xsd:dateTime
+    ] .
+
+# Core Stewardship Obligation Classes
+
+canon:StewardshipObligation a rdfs:Class, owl:Class ;
+    rdfs:label "Stewardship Obligation" ;
+    rdfs:comment "A core requirement for the maintenance and protection of the Frozen Canon." .
+
+canon:ImmutableCustody a rdfs:Class, owl:Class ;
+    rdfs:subClassOf canon:StewardshipObligation ;
+    rdfs:label "Immutable Custody" ;
+    rdfs:comment "The obligation to maintain records without unauthorized modification." .
+
+canon:ApostolicTransmission a rdfs:Class, owl:Class ;
+    rdfs:subClassOf canon:StewardshipObligation ;
+    rdfs:label "Apostolic Transmission" ;
+    rdfs:comment "The obligation to ensure the faithful transfer of the canon across generations." .
+
+canon:DecentOrder a rdfs:Class, owl:Class ;
+    rdfs:subClassOf canon:StewardshipObligation ;
+    rdfs:label "Decent Order" ;
+    rdfs:comment "The obligation to ensure all things are done decently and in order (1 Cor 14:40)." .
+
+# Scripture Basis Set
+
+canon:ScriptureBasisSet a skos:Collection ;
+    skos:prefLabel "Scripture Basis Set" ;
+    skos:member canon:Genesis1_1, canon:Romans15_7, canon:FirstCorinthians4_2, 
+                canon:FirstCorinthians12, canon:Galatians6_2, canon:Titus1_5, 
+                canon:FirstCorinthians14_40 .
+
+canon:Genesis1_1 a skos:Concept, prov:Entity ;
+    skos:prefLabel "Genesis 1:1" ;
+    skos:definition "In the beginning God created the heaven and the earth." ;
+    dcterms:source "Genesis 1:1" .
+
+canon:Romans15_7 a skos:Concept, prov:Entity ;
+    skos:prefLabel "Romans 15:7" ;
+    skos:definition "Wherefore receive ye one another, as Christ also received us to the glory of God." ;
+    dcterms:source "Romans 15:7" .
+
+canon:FirstCorinthians4_2 a skos:Concept, prov:Entity ;
+    skos:prefLabel "1 Corinthians 4:2" ;
+    skos:definition "Moreover it is required in stewards, that a man be found faithful." ;
+    dcterms:source "1 Corinthians 4:2" .
+
+canon:FirstCorinthians12 a skos:Concept, prov:Entity ;
+    skos:prefLabel "1 Corinthians 12" ;
+    skos:definition "Now concerning spiritual gifts, brethren, I would not have you ignorant." ;
+    dcterms:source "1 Corinthians 12" .
+
+canon:Galatians6_2 a skos:Concept, prov:Entity ;
+    skos:prefLabel "Galatians 6:2" ;
+    skos:definition "Bear ye one another's burdens, and so fulfil the law of Christ." ;
+    dcterms:source "Galatians 6:2" .
+
+canon:Titus1_5 a skos:Concept, prov:Entity ;
+    skos:prefLabel "Titus 1:5" ;
+    skos:definition "For this cause left I thee in Crete, that thou shouldest set in order the things that are wanting, and ordain elders in every city, as I had appointed thee." ;
+    dcterms:source "Titus 1:5" .
+
+canon:FirstCorinthians14_40 a skos:Concept, prov:Entity ;
+    skos:prefLabel "1 Corinthians 14:40" ;
+    skos:definition "Let all things be done decently and in order." ;
+    dcterms:source "1 Corinthians 14:40" .
+
+# Avatar Set
+
+canon:AvatarSet a skos:Collection ;
+    skos:prefLabel "Avatar Set" ;
+    skos:member canon:John, canon:Peter, canon:Paul, canon:Joseph, 
+                canon:DrSilkworth, canon:DrBob, canon:BillW .
+
+canon:John a skos:Concept, prov:Entity ;
+    skos:prefLabel "John" .
+
+canon:Peter a skos:Concept, prov:Entity ;
+    skos:prefLabel "Peter" .
+
+canon:Paul a skos:Concept, prov:Entity ;
+    skos:prefLabel "Paul" .
+
+canon:Joseph a skos:Concept, prov:Entity ;
+    skos:prefLabel "Joseph" .
+
+canon:DrSilkworth a skos:Concept, prov:Entity ;
+    skos:prefLabel "Dr. Silkworth" .
+
+canon:DrBob a skos:Concept, prov:Entity ;
+    skos:prefLabel "Dr. Bob" .
+
+canon:BillW a skos:Concept, prov:Entity ;
+    skos:prefLabel "Bill W." .

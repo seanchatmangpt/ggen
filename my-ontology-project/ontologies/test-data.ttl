@@ -1,0 +1,8 @@
+@prefix gall: <http://example.org/ns/gall#> .
+@prefix ex: <http://example.org/ns/data#> .
+
+ex:ValidCapability a gall:Capability ;
+    gall:hasInput "data" ;
+    gall:hasOutput "result" ;
+    gall:hasPrecondition "none" ;
+    gall:hasConsequence "success" .
