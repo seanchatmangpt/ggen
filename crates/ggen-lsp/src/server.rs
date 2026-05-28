@@ -314,6 +314,10 @@ impl LanguageServer for GgenLanguageServer {
                 .first()
                 .map(|s| format!("Apply transition: {}", s.title))
                 .unwrap_or_else(|| route.description.clone());
+            // Carry the canonical RouteEnvelope in `data` — the SAME shape the
+            // headless gate, MCP tool, and A2A bridge project for this diagnostic.
+            let data = crate::route::envelope_for_diagnostic(&registry, d, &doc, uri.path())
+                .and_then(|env| serde_json::to_value(env).ok());
             actions.push(CodeActionOrCommand::CodeAction(CodeAction {
                 title,
                 kind: Some(CodeActionKind::QUICKFIX),
@@ -322,7 +326,7 @@ impl LanguageServer for GgenLanguageServer {
                 command: None,
                 is_preferred: Some(true),
                 disabled: None,
-                data: None,
+                data,
             }));
         }
         Ok(if actions.is_empty() {

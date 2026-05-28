@@ -25,8 +25,9 @@ pub use pack::{
     DEFAULT_AGENTS,
 };
 pub use route::{
-    family_of_diagnostic, route_plan_for_diagnostic, RepairFamily, RepairRoute, RouteBindings,
-    RoutePlan, RoutePlanRef, RouteRegistry,
+    envelope_for_diagnostic, family_of_diagnostic, route_case_id, route_plan_for_diagnostic,
+    RepairFamily, RepairRoute, RouteBindings, RouteEnvelope, RoutePlan, RoutePlanRef, RouteRefusal,
+    RouteRegistry,
 };
 pub use server::GgenLanguageServer;
 pub use state::ServerState;

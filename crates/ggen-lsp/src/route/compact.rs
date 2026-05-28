@@ -57,8 +57,11 @@ impl CompactTraceView {
         let powl = Some(CompactPowlView {
             steps: plan.ordered_steps.iter().map(|s| s.title.clone()).collect(),
         });
+        // Canonical cross-channel site id (same helper the RouteEnvelope uses), so
+        // the hover card and the envelope agree on case_id by construction.
+        let span = crate::check::span_str(plan.target.range);
         Self {
-            case_id: short_case(&plan.target.code, file),
+            case_id: super::envelope::route_case_id(file, &plan.target.code, &span),
             family: format!("{:?}", plan.family),
             diagnostic_code: plan.target.code.clone(),
             file: file.to_string(),
@@ -126,12 +129,6 @@ impl CompactTraceView {
             self.family, self.diagnostic_code, self.to_toon()
         )
     }
-}
-
-/// A short, stable case label for display (not the full episode hash).
-fn short_case(code: &str, file: &str) -> String {
-    let h = blake3::hash(format!("{code}|{file}").as_bytes());
-    format!("c:{}", &h.to_hex()[..6])
 }
 
 #[cfg(test)]

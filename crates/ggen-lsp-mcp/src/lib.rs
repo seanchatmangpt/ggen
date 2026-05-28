@@ -53,41 +53,41 @@ impl RepairRouteServer {
     }
 }
 
-/// Build the repair-route result for a file. Returns routes + uncovered
-/// diagnostics so an agent never reads an empty list as "all clear".
+/// Build the repair-route result for a file. Emits the canonical
+/// [`ggen_lsp::RouteEnvelope`] per routed diagnostic (byte-equivalent to the LSP
+/// CodeAction `data`, the headless gate, and the A2A bridge) plus the shared
+/// [`ggen_lsp::RouteRefusal`] shape for uncovered diagnostics — so an agent never
+/// reads an empty list as "all clear", and the route object is identical across
+/// every channel.
 #[must_use]
 pub fn build_repair_routes(file_path: &str, file_content: &str) -> serde_json::Value {
     let Some(analyzer) = ggen_lsp::analyzers::build_analyzer(file_path, file_content) else {
         return serde_json::json!({
             "file_path": file_path,
             "is_law_surface": false,
-            "routes": [],
-            "unrouted": [],
+            "envelopes": [],
+            "refusals": [],
         });
     };
     // Seeds + promoted routes (cwd = project root) → same routes as editor/headless.
     let registry = ggen_lsp::RouteRegistry::seeded()
         .with_pack_routes(&ggen_lsp::route::default_pack_routes_path(std::path::Path::new(".")));
     let diagnostics = analyzer.diagnostics();
-    let mut routes = Vec::new();
-    let mut compact = Vec::new();
-    let mut unrouted = Vec::new();
+    let mut envelopes = Vec::new();
+    let mut refusals = Vec::new();
     for d in &diagnostics {
-        match ggen_lsp::route_plan_for_diagnostic(&registry, d, file_content) {
-            Some(plan) => {
-                // Same OCEL-TON CompactTraceView the editor hover renders.
-                compact.push(ggen_lsp::route::CompactTraceView::from_route_plan(&plan, file_path));
-                routes.push(plan);
-            }
-            None => unrouted.push(ggen_lsp::route::DiagnosticRef::from_diagnostic(d)),
+        match ggen_lsp::envelope_for_diagnostic(&registry, d, file_content, file_path) {
+            Some(env) => envelopes.push(env),
+            None => refusals.push(ggen_lsp::RouteRefusal::from_target(
+                &ggen_lsp::route::DiagnosticRef::from_diagnostic(d),
+            )),
         }
     }
     serde_json::json!({
         "file_path": file_path,
         "is_law_surface": true,
-        "routes": routes,
-        "compact": compact,
-        "unrouted": unrouted,
+        "envelopes": envelopes,
+        "refusals": refusals,
     })
 }
 
@@ -159,15 +159,21 @@ mod tests {
     fn repair_routes_for_invalid_enum() {
         let v = build_repair_routes("ggen.toml", "[logging]\nlevel = \"verbose\"\n");
         assert_eq!(v["is_law_surface"], serde_json::json!(true));
-        let routes = v["routes"].as_array().expect("routes array");
-        assert!(!routes.is_empty(), "the invalid enum value should be routed (advisory)");
+        let envelopes = v["envelopes"].as_array().expect("envelopes array");
+        assert!(!envelopes.is_empty(), "the invalid enum value should be routed (advisory)");
+        // The envelope carries the canonical contract fields.
+        let e = &envelopes[0];
+        assert_eq!(e["diagnostic_code"], serde_json::json!("E0023"));
+        assert!(e["case_id"].as_str().is_some_and(|s| s.starts_with("c:")));
+        assert!(e["route_id"].as_str().is_some());
+        assert!(e["compact_trace"].is_object());
     }
 
     #[test]
     fn ggen_does_not_route_llm_sections() {
-        // No diagnostics for an [ai] section → no routes; ggen isn't in LLM config.
+        // No diagnostics for an [ai] section → no envelopes; ggen isn't in LLM config.
         let v = build_repair_routes("ggen.toml", "[ai]\nprovider = \"openai\"\n");
-        assert_eq!(v["routes"].as_array().map(Vec::len), Some(0));
+        assert_eq!(v["envelopes"].as_array().map(Vec::len), Some(0));
     }
 
     #[test]

@@ -31,6 +31,18 @@ pub struct FileReport {
     pub routes: Vec<crate::route::RoutePlan>,
 }
 
+impl FileReport {
+    /// Project this file's routes into the canonical [`crate::route::RouteEnvelope`]s
+    /// — the same shape the LSP CodeAction `data`, MCP tool, and A2A bridge emit.
+    #[must_use]
+    pub fn envelopes(&self) -> Vec<crate::route::RouteEnvelope> {
+        self.routes
+            .iter()
+            .map(|p| crate::route::RouteEnvelope::from_plan(p, &self.path))
+            .collect()
+    }
+}
+
 /// Count of diagnostics per failure family / route id (the 80/20 Pareto columns).
 #[derive(Debug, Clone, Serialize)]
 pub struct NamedCount {

@@ -8,12 +8,14 @@
 
 pub mod compact;
 pub mod edit;
+pub mod envelope;
 pub mod model;
 pub mod plan;
 pub mod promoted;
 pub mod registry;
 
 pub use compact::{CompactEventRow, CompactPowlView, CompactTraceView};
+pub use envelope::{route_case_id, RouteEnvelope, RouteRefusal};
 pub use edit::{render_edit, route_plan, workspace_edit_from_route};
 pub use model::{
     Anchor, EditTemplate, PartialOrder, Provenance, RepairFamily, RepairRoute, RepairStep,
@@ -65,4 +67,18 @@ pub fn route_plan_for_diagnostic(
         content,
         DiagnosticRef::from_diagnostic(diag),
     ))
+}
+
+/// Project a diagnostic into the canonical [`RouteEnvelope`] — the single entry
+/// point every channel (LSP CodeAction `data`, headless, MCP, A2A) uses, so all
+/// emit a byte-equivalent envelope for the same diagnostic. `file` is the
+/// law-surface path (the envelope's stable site identity needs it).
+#[must_use]
+pub fn envelope_for_diagnostic(
+    registry: &RouteRegistry,
+    diag: &Diagnostic,
+    content: &str,
+    file: &str,
+) -> Option<RouteEnvelope> {
+    route_plan_for_diagnostic(registry, diag, content).map(|plan| RouteEnvelope::from_plan(&plan, file))
 }
