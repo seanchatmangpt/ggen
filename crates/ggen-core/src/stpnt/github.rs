@@ -14,8 +14,8 @@ impl GitHubStewardshipMembrane {
 
     /// Maps a stewardship obligation to a GitHub issue (Scroll of Witness).
     pub async fn provision_witness_issue(&self, obligation: &StewardshipObligation) -> Result<String> {
-        let title = format!("Stewardship Obligation: {} for {}", obligation.canon.scripture, obligation.person_id);
-        let body = format!(
+        let _title = format!("Stewardship Obligation: {} for {}", obligation.canon.scripture, obligation.person_id);
+        let _body = format!(
             "### Scroll of Witness\n\n- **Obligation ID:** {}\n- **Scripture:** {}\n- **AA Structure:** {}\n- **Created:** {}\n\nThis issue acts as a distributed stewardship membrane for the body.",
             obligation.id,
             obligation.canon.scripture,

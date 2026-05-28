@@ -58,7 +58,7 @@ pub struct ProvReceipt {
 impl PartExecutor for WelcomeOneAnotherPart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
         let input_json: WelcomeInput = serde_json::from_slice(&input)
-            .map_err(|e| crate::utils::error::GgenError::TemplateError(format!("Invalid input JSON: {}", e)))?;
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid input JSON: {}", e)))?;
         
         let now = Utc::now();
         let activity_id = format!("welcome-{}", Uuid::new_v4());
@@ -139,7 +139,7 @@ pub struct ConsentOutput {
 impl PartExecutor for ConsentGatePart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
         let input_json: ConsentInput = serde_json::from_slice(&input)
-            .map_err(|e| crate::utils::error::GgenError::TemplateError(format!("Invalid input: {}", e)))?;
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid input: {}", e)))?;
         
         let now = Utc::now();
         let activity_id = format!("consent-gate-{}", Uuid::new_v4());
@@ -217,7 +217,7 @@ pub struct AssignOutput {
 impl PartExecutor for AssignStewardPart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
         let input_json: AssignInput = serde_json::from_slice(&input)
-            .map_err(|e| crate::utils::error::GgenError::TemplateError(format!("Invalid input: {}", e)))?;
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid input: {}", e)))?;
         
         let now = Utc::now();
         let output = AssignOutput {

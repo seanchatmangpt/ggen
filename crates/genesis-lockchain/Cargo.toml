@@ -18,7 +18,7 @@ serde = { version = "1.0", features = ["derive"] }
 sled = "0.34"
 thiserror = "2.0"
 sha2 = "0.10"
-git2 = "0.18"
+git2 = "0.20"
 hex = "0.4"
 # Note: Full URDNA2015 canonicalization deferred to v1.1
 # For v1.0, using basic canonicalization (sorting + normalization)
@@ -29,4 +29,3 @@ std = []
 
 [dev-dependencies]
 chicago-tdd-tools = { workspace = true }
-features = ["testing-extras", "otel", "weaver", "testcontainers", "async"] }

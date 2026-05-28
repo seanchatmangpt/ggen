@@ -44,6 +44,7 @@ members = [
   # DORMANT: no_std variant for wasm32-unknown-unknown targets
   "crates/genesis-core",
   "crates/cpmp",
+  "crates/stpnt",
   ]
 exclude = []
 resolver = "2" # Use new resolver for better dependency resolution
