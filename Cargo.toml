@@ -39,6 +39,7 @@ members = [
   "crates/ggen-graph",
   "crates/ggen-lsp",
   "crates/ggen-lsp-mcp",
+  "crates/ggen-lsp-a2a",
   # Genesis kernel crates (pure Rust, IO-free)
   "crates/genesis-types-v2",
   "crates/genesis-schema-v2",
