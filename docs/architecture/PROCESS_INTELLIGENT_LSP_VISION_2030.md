@@ -198,4 +198,32 @@ The flywheel is closed (PROMOTE-1). IMPROVE-1 adds the **measurement** layer und
 
 ---
 
+## 9. The seven Gall checkpoints — operated, not just built (2026-05-28)
+
+The apparatus has now been **operated** on real cycles, each checkpoint a smaller
+receipted loop proven before the next (the Gall rule). All harnesses drive the real
+`check → capture → mine → metrics → replay` path over real files — no hand-written
+OCEL events. A key discovery reordered the work: `success_rate` is severity-pinned
+and the log append-only, so `improving`/demotion can only move via **rework-closure**
+(`DiagnosticRaised → fix applied → GatePassed` in one episode) — which is APPLY-1.
+APPLY-1 therefore precedes IMPROVE-RESULT-1 and DEMOTE-1.
+
+| Checkpoint | Earned claim |
+|---|---|
+| **OPERATE-1** | One real authoring cycle emits the full receipted chain; the verdict correctly refuses on a single cycle. |
+| **APPLY-1** | The editor flow observes *applied* repairs (`RepairApplied → GatePassed → ReceiptEmitted`), not only proposed routes — the rework-closure foundation. |
+| **IMPROVE-RESULT-1** | The verdict returns `improving` from real cycles when promoted routes raise closure — and is refused (with 2 cycles + a passing mined route) when closure does not rise. |
+| **DEMOTE-1** | A route that stops conforming is Demoted (churn>0, survival<1) and the registry resumes the seed — trust is withdrawn under evidence. |
+| **CPMP-PACK-1** | A capability scan manufactures the pack with a replayable, tamper-evident `scan_hash → pack_hash` receipt. |
+| **PORTABLE-PACK-1** | A route pack resolves the same family in a different repo, with independent receipts and no path coupling — interchangeable parts. |
+| **MULTI-AGENT-1** | Multiple agents share one route law without drift; each episode is separable, attributed, receipted, and independently replayable. |
+
+**Honest ceiling (unchanged):** the apparatus has *operated on real authoring cycles
+and returned earned/refused evidence verdicts*, with route lifecycle, portability, and
+multi-agent parity proven by real execution. Still **not** "it improves itself" — the
+`improving` verdict is earned from controlled real cycles (fixtures producing real
+analyzer diagnostics), not yet from accumulated real-world usage.
+
+---
+
 *Grounded in real code and execution; no fabricated traces. Papers fused: OCPQ (object-centric process querying & constraints), OCED+SPARQL (object-centric analysis of XES via SPARQL), Hierarchical Decomposition of Separable Workflow-Nets (POWL soundness + auto-concurrency).*
