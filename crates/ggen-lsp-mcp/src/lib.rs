@@ -10,13 +10,37 @@
 //! tool to `ggen-a2a-mcp` directly. It can be bridged into A2A via
 //! `a2a-mcp::AgentToMcpBridge` if A2A exposure is wanted.
 
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use rmcp::{
     model::*, service::RequestContext, ErrorData as McpError, RoleServer, ServerHandler,
 };
+use schemars::JsonSchema;
+use serde::Deserialize;
 
-/// MCP server with the single `ggen.lsp.repair_route` tool.
+/// Max `file_content` accepted by the route tool (1 MiB) — a non-editor agent
+/// must not be able to wedge the server with an unbounded payload.
+const MAX_CONTENT_BYTES: usize = 1 << 20;
+/// Max `file_path` length accepted.
+const MAX_PATH_BYTES: usize = 4096;
+
+/// Typed parameters for `ggen.lsp.repair_route`. The JSON schema advertised in
+/// `list_tools` is DERIVED from this struct (single source of truth).
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
+pub struct RepairRouteParams {
+    /// Law-surface path; extension selects the analyzer (.ttl/.rq/.tera/ggen.toml).
+    pub file_path: String,
+    /// Full file content; analyzed in-memory.
+    pub file_content: String,
+    /// Optional project root for promoted-route pack discovery. Defaults to the
+    /// current working directory — set this so route authority is explicit, not
+    /// dependent on where the server process happens to run.
+    #[serde(default)]
+    pub root: Option<String>,
+}
+
+/// MCP server with the `ggen.lsp.repair_route` tool (+ replay/metrics in MCP-REPLAY-1).
 #[derive(Clone)]
 pub struct RepairRouteServer {
     tools: Arc<Vec<Tool>>,
@@ -29,28 +53,55 @@ impl Default for RepairRouteServer {
 }
 
 impl RepairRouteServer {
-    /// Construct the server with its tool schema.
+    /// Construct the server with its (schemars-derived) tool schema.
     #[must_use]
     pub fn new() -> Self {
-        let input_schema = serde_json::from_value(serde_json::json!({
-            "type": "object",
-            "properties": {
-                "file_path": { "type": "string", "description": "Law-surface path; extension selects the analyzer (.ttl/.rq/.tera/ggen.toml)" },
-                "file_content": { "type": "string", "description": "Full file content; analyzed in-memory" }
-            },
-            "required": ["file_path", "file_content"]
-        }))
-        .unwrap_or_default();
+        let input_schema = serde_json::to_value(schemars::schema_for!(RepairRouteParams))
+            .ok()
+            .and_then(|v| v.as_object().cloned())
+            .unwrap_or_default();
         let tool = Tool::new(
             "ggen.lsp.repair_route",
-            "Analyze a ggen law-surface file and return POWL repair routes (RoutePlan) \
-             for its diagnostics — the same routes editors and the headless gate use.",
+            "Analyze a ggen law-surface file and return the canonical RouteEnvelope \
+             for each diagnostic — the same routes editors and the headless gate use.",
             Arc::new(input_schema),
         );
         Self {
             tools: Arc::new(vec![tool]),
         }
     }
+}
+
+/// Validate arguments and produce the route result, or a structured refusal.
+/// Extracted from `call_tool` so the validation is unit-testable without an rmcp
+/// `RequestContext`. Oversized/missing/garbled input → `McpError::invalid_params`
+/// (never a panic, never string soup).
+///
+/// # Errors
+/// Returns `McpError::invalid_params` for missing/oversized/garbled arguments.
+pub fn repair_route_result(
+    arguments: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Result<serde_json::Value, McpError> {
+    let args = arguments.ok_or_else(|| McpError::invalid_params("missing arguments", None))?;
+    let params: RepairRouteParams = serde_json::from_value(serde_json::Value::Object(args))
+        .map_err(|e| McpError::invalid_params(format!("invalid params: {e}"), None))?;
+    if params.file_path.is_empty() {
+        return Err(McpError::invalid_params("empty 'file_path'", None));
+    }
+    if params.file_path.len() > MAX_PATH_BYTES {
+        return Err(McpError::invalid_params("'file_path' too long", None));
+    }
+    if params.file_content.len() > MAX_CONTENT_BYTES {
+        return Err(McpError::invalid_params(
+            format!("'file_content' exceeds {MAX_CONTENT_BYTES} bytes"),
+            None,
+        ));
+    }
+    Ok(build_repair_routes_in(
+        params.root.as_deref(),
+        &params.file_path,
+        &params.file_content,
+    ))
 }
 
 /// Build the repair-route result for a file. Emits the canonical
@@ -61,6 +112,18 @@ impl RepairRouteServer {
 /// every channel.
 #[must_use]
 pub fn build_repair_routes(file_path: &str, file_content: &str) -> serde_json::Value {
+    build_repair_routes_in(None, file_path, file_content)
+}
+
+/// Like [`build_repair_routes`], but loads the promoted-route pack from an explicit
+/// project `root` (default: cwd). Root-aware discovery keeps route authority from
+/// silently depending on the server's working directory.
+#[must_use]
+pub fn build_repair_routes_in(
+    root: Option<&str>,
+    file_path: &str,
+    file_content: &str,
+) -> serde_json::Value {
     let Some(analyzer) = ggen_lsp::analyzers::build_analyzer(file_path, file_content) else {
         return serde_json::json!({
             "file_path": file_path,
@@ -69,9 +132,10 @@ pub fn build_repair_routes(file_path: &str, file_content: &str) -> serde_json::V
             "refusals": [],
         });
     };
-    // Seeds + promoted routes (cwd = project root) → same routes as editor/headless.
+    // Seeds + promoted routes (explicit root, default cwd) → same routes as editor/headless.
+    let pack_root = root.map_or_else(|| PathBuf::from("."), PathBuf::from);
     let registry = ggen_lsp::RouteRegistry::seeded()
-        .with_pack_routes(&ggen_lsp::route::default_pack_routes_path(std::path::Path::new(".")));
+        .with_pack_routes(&ggen_lsp::route::default_pack_routes_path(&pack_root));
     let diagnostics = analyzer.diagnostics();
     let mut envelopes = Vec::new();
     let mut refusals = Vec::new();
@@ -124,26 +188,14 @@ impl ServerHandler for RepairRouteServer {
             if name != "ggen.lsp.repair_route" {
                 return Err(McpError::invalid_params(format!("unknown tool: {name}"), None));
             }
-            let args =
-                arguments.ok_or_else(|| McpError::invalid_params("missing arguments", None))?;
-            let file_path = args
-                .get("file_path")
-                .and_then(|v| v.as_str())
-                .ok_or_else(|| McpError::invalid_params("missing 'file_path'", None))?;
-            let file_content = args
-                .get("file_content")
-                .and_then(|v| v.as_str())
-                .ok_or_else(|| McpError::invalid_params("missing 'file_content'", None))?;
-
             tracing::info!(
                 "OCEL: {}",
                 serde_json::json!({
                     "event": "mcp.tool.invoked",
-                    "objects": { "tool": "ggen.lsp.repair_route", "file": file_path }
+                    "objects": { "tool": "ggen.lsp.repair_route" }
                 })
             );
-
-            let result = build_repair_routes(file_path, file_content);
+            let result = repair_route_result(arguments)?;
             Ok(CallToolResult::success(vec![Content::text(
                 serde_json::to_string_pretty(&result).unwrap_or_default(),
             )]))
