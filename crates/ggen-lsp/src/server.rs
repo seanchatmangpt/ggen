@@ -23,6 +23,9 @@ impl GgenLanguageServer {
         if let Some(analyzer) = crate::analyzers::build_analyzer(uri.path(), content) {
             let diagnostics = analyzer.diagnostics();
             self.state.set_analyzer(uri.clone(), analyzer).await;
+            // Record the editor-flow OCEL chain (raise / route / rework-closure)
+            // before publishing — applied repairs become observable to mining.
+            self.state.observe_diagnostics(uri, &diagnostics).await;
             self.client
                 .publish_diagnostics(uri.clone(), diagnostics, None)
                 .await;

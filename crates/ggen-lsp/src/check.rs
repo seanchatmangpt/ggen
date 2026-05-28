@@ -153,7 +153,7 @@ impl CheckReport {
     }
 }
 
-fn diag_code(d: &Diagnostic) -> String {
+pub(crate) fn diag_code(d: &Diagnostic) -> String {
     match &d.code {
         Some(tower_lsp::lsp_types::NumberOrString::String(s)) => s.clone(),
         Some(tower_lsp::lsp_types::NumberOrString::Number(n)) => n.to_string(),
@@ -161,7 +161,7 @@ fn diag_code(d: &Diagnostic) -> String {
     }
 }
 
-fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
+pub(crate) fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
     match sev {
         Some(DiagnosticSeverity::ERROR) => "error",
         Some(DiagnosticSeverity::WARNING) => "warning",
@@ -169,14 +169,14 @@ fn severity_str(sev: Option<DiagnosticSeverity>) -> &'static str {
     }
 }
 
-fn span_str(range: tower_lsp::lsp_types::Range) -> String {
+pub(crate) fn span_str(range: tower_lsp::lsp_types::Range) -> String {
     format!(
         "{}:{}-{}:{}",
         range.start.line, range.start.character, range.end.line, range.end.character
     )
 }
 
-fn route_source(p: &crate::route::Provenance) -> &'static str {
+pub(crate) fn route_source(p: &crate::route::Provenance) -> &'static str {
     match p {
         crate::route::Provenance::Seeded => "seed",
         crate::route::Provenance::Mined { .. } => "mined",
