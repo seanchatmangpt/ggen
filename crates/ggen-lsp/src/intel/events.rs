@@ -132,6 +132,18 @@ fn route_ref(route_id: &str) -> OcelObjectRef {
     }
 }
 
+/// The acting agent/harness object. Attaching it to every event in a capture run
+/// makes episode attribution explicit (which agent authored which episode) while
+/// episode identity (file|code|run_id) keeps concurrent agents' traces separable.
+#[must_use]
+pub fn agent_ref(agent_id: &str) -> OcelObjectRef {
+    OcelObjectRef {
+        id: agent_id.to_string(),
+        r#type: obj_type::AGENT.to_string(),
+        qualifier: Some("agent".to_string()),
+    }
+}
+
 /// Build a `DiagnosticRaised` event. `span` is the diagnostic range as
 /// `"sl:sc-el:ec"` (a binding `repeat_failure_rate` keys on).
 #[must_use]

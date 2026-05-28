@@ -78,14 +78,24 @@ impl CheckReport {
         i32::from(self.has_errors())
     }
 
-    /// Capture this gate run as agent-edit OCEL events under `root` (best-effort).
-    /// Emits a `DiagnosticRaised` per diagnostic and a per-file `GatePassed`/
-    /// `GateFailed`, feeding `ggen lsp mine`. Errors are swallowed — capture must
-    /// never break the gate.
+    /// Capture this gate run as agent-edit OCEL events under `root` (best-effort),
+    /// attributed to agent `"local"`. See [`CheckReport::capture_as`].
     pub fn capture(&self, root: &Path) {
+        self.capture_as(root, "local");
+    }
+
+    /// Capture this gate run as agent-edit OCEL events under `root`, attributed to
+    /// `agent_id`. Emits the per-diagnostic chain (`DiagnosticRaised` → optional
+    /// `RouteSelected`/`RepairSuggested` → `GatePassed`/`GateFailed` →
+    /// `ReceiptEmitted`/`RefusalEmitted`), feeding `ggen lsp mine`. Each event is
+    /// tagged with the agent object + `agent_id` attribute, so multiple agents can
+    /// author against one shared route law without their traces colliding (episode
+    /// identity = file|code|run_id keeps them separable). Errors are swallowed —
+    /// capture must never break the gate.
+    pub fn capture_as(&self, root: &Path, agent_id: &str) {
         use crate::intel::events::{
-            diagnostic_raised, gate_result, new_run_id, receipt_emitted, refusal_emitted,
-            repair_suggested, route_selected,
+            agent_ref, diagnostic_raised, gate_result, new_run_id, receipt_emitted,
+            refusal_emitted, repair_suggested, route_selected,
         };
         use crate::intel::IntelLog;
 
@@ -148,6 +158,13 @@ impl CheckReport {
                 seq += 1;
                 events.push(gate_result(&file.path, "clean", true, 0, &run_id, seq));
             }
+        }
+        // Attribute every event to the acting agent (explicit attribution; episode
+        // identity already keeps concurrent agents separable).
+        let agent = agent_ref(agent_id);
+        for ev in &mut events {
+            ev.objects.push(agent.clone());
+            ev.attributes.insert("agent_id".to_string(), agent_id.to_string());
         }
         let _ = IntelLog::at_root(root).append(&events);
     }
