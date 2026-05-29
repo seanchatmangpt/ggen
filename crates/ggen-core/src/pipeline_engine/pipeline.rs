@@ -605,8 +605,34 @@ impl StagedPipeline {
                 runtime_constraints: vec![],
                 trust_requirement: TrustTier::Experimental,
             });
+
+            // Close O*: bind the CONTENT of every template (μ₃) and SPARQL
+            // query (μ₂) into the receipt. The epoch / `ontology_hash` covers
+            // only the ontology substrate; templates and queries equally
+            // determine the artifact, so a verifier must see them in the
+            // witnessed closure. Without this, editing a template would leave
+            // every receipt hash unchanged (contract drift).
+            for q in &resolved.queries {
+                receipt.add_closure_input(&format!("query:{}", q.name), q.sparql.as_bytes());
+            }
+            for t in &resolved.templates {
+                receipt.add_closure_input(
+                    &format!("template:{}", t.path.display()),
+                    t.content.as_bytes(),
+                );
+            }
         }
 
+        // Finalize the receipt id now that the full closure (ontology epoch +
+        // template/query content + actuator identity) is bound.
+        receipt.recompute_id();
+
+        // Dry-run gating note: this core layer has no `dry_run` concept. A
+        // receipt is emitted ONLY when `receipt_path` is `Some`; a preview run
+        // sets it to `None` (and writes no artifacts), so no receipt for a
+        // never-happened actuation can be produced here. The CLI dry-run gate
+        // lives at the only call site — `ggen-cli sync` skips receipt emission
+        // entirely on `--dry_run` (crates/ggen-cli/src/cmds/sync.rs).
         // Write receipt if path specified
         if let Some(ref receipt_path) = self.config.receipt_path {
             let full_receipt_path = self.config.base_path.join(receipt_path);

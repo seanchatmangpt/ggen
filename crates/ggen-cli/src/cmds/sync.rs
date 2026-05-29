@@ -448,10 +448,18 @@ fn run_manifest_pipeline(
     let generation_rules_executed = sync_result.generation_rules_executed;
     let inference_rules_executed = sync_result.inference_rules_executed;
 
-    let receipt_file_path =
-        emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
-        })?;
+    // A dry-run is a pure PREVIEW (sensing), not an actuation: it writes no
+    // artifacts, so it must write no receipt. Emitting a receipt for a preview
+    // would record a consequence that never happened (contract drift).
+    let receipt_file_path = if dry_run.unwrap_or(false) {
+        None
+    } else {
+        Some(
+            emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
+            })?,
+        )
+    };
 
     Ok(SyncOutput {
         status: sync_result.status,
@@ -464,7 +472,7 @@ fn run_manifest_pipeline(
         error: sync_result.error,
         recovery: sync_result.recovery,
         andon_signal: sync_result.andon_signal,
-        receipt_path: Some(receipt_file_path),
+        receipt_path: receipt_file_path,
         gates: Vec::new(),
     })
 }
@@ -560,13 +568,43 @@ fn emit_sync_receipt(
         None
     };
 
-    // 4. Build input hashes: ggen.toml + installed packs.
+    // 4. Build input hashes: the FULL O* closure — every input capable of changing
+    //    the artifact, plus the actuator identity. R ⊢ A = μ(O*) is false unless R
+    //    binds O*; hashing only the manifest would leave the ontology and templates
+    //    (which determine the output) outside the witnessed closure.
     let mut input_hashes: Vec<String> = Vec::new();
+    // Actuator identity: which μ (and version) produced this.
+    input_hashes.push(format!("actuator:ggen-sync@{}", env!("CARGO_PKG_VERSION")));
     if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
         input_hashes.push(format!(
             "ggen.toml:{}",
             hash_data(manifest_content.as_bytes())
         ));
+        // Bind the rest of the closure: ontology + imports + external query/template
+        // files. Inline inference rules, queries, and templates live inside ggen.toml
+        // and are therefore already bound by the manifest hash above.
+        if let Ok(manifest) = ggen_core::manifest::ManifestParser::parse_str(&manifest_content) {
+            let mut closure: Vec<PathBuf> = vec![manifest.ontology.source.clone()];
+            closure.extend(manifest.ontology.imports.iter().cloned());
+            for rule in &manifest.generation.rules {
+                if let ggen_core::manifest::QuerySource::File { file } = &rule.query {
+                    closure.push(file.clone());
+                }
+                if let ggen_core::manifest::TemplateSource::File { file } = &rule.template {
+                    closure.push(file.clone());
+                }
+            }
+            for p in closure {
+                match std::fs::read(&p) {
+                    // Honest: a closure input that cannot be read is recorded as MISSING,
+                    // never silently dropped — a verifier must see the gap.
+                    Ok(content) => {
+                        input_hashes.push(format!("{}:{}", p.display(), hash_data(&content)));
+                    }
+                    Err(_) => input_hashes.push(format!("{}:MISSING", p.display())),
+                }
+            }
+        }
     }
     for pack in installed_packs {
         input_hashes.push(format!("pack:{}", pack));
@@ -663,11 +701,17 @@ fn run_low_level_pipeline(
     let synced_file_paths: Vec<String> = files.iter().map(|f| f.path.clone()).collect();
     let installed_packs = read_installed_packs(".ggen/packs.lock");
 
-    log::info!("[μ₅/5] Receipt: Generating verification...");
-    let receipt_file_path =
-        emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
-        })?;
+    // A dry-run is a pure PREVIEW (sensing): no artifacts written ⇒ no receipt.
+    let receipt_file_path = if dry_run {
+        None
+    } else {
+        log::info!("[μ₅/5] Receipt: Generating verification...");
+        Some(
+            emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
+            })?,
+        )
+    };
 
     let violation_msg = if result.soundness_violations.is_empty() {
         None
@@ -695,7 +739,7 @@ fn run_low_level_pipeline(
         error: violation_msg,
         recovery: None,
         andon_signal: None,
-        receipt_path: Some(receipt_file_path),
+        receipt_path: receipt_file_path,
         gates: Vec::new(),
     })
 }

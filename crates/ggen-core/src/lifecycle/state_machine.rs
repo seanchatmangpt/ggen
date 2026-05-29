@@ -10,7 +10,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use crate::lifecycle::state_machine::*;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {

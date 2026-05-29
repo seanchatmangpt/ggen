@@ -192,8 +192,18 @@ impl SecureTeraEnvironment {
 
     /// Check for forbidden patterns in template
     fn check_forbidden_patterns(&self, source: &str) -> Result<()> {
+        // The escape filters provided by this sandbox (`escape_shell`, etc.) contain
+        // substrings that overlap with forbidden patterns (e.g. "shell"). Neutralize
+        // these legitimate, sandbox-provided filter names before substring-matching so
+        // they do not produce false positives, without weakening detection of genuine
+        // dangerous tokens like `exec`, `bash`, or `system`.
+        let mut scanned = source.to_string();
+        for safe in ["escape_shell", "escape_sql", "escape_html"] {
+            scanned = scanned.replace(safe, "");
+        }
+
         for pattern in &self.forbidden_patterns {
-            if source.contains(pattern) {
+            if scanned.contains(pattern) {
                 return Err(TemplateSecurityError::TemplateInjection(format!(
                     "Forbidden pattern detected: {}",
                     pattern
@@ -394,7 +404,7 @@ impl ContextEscaper {
     /// use crate::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_sql("'; DROP TABLE users; --");
-    /// assert_eq!(escaped, "'''; DROP TABLE users; --");
+    /// assert_eq!(escaped, "''; DROP TABLE users; --");
     /// ```
     pub fn escape_sql(input: &str) -> String {
         // Escape single quotes by doubling them
@@ -413,7 +423,7 @@ impl ContextEscaper {
     /// use crate::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_shell("file.txt; rm -rf /");
-    /// assert_eq!(escaped, "file.txt\\; rm -rf /");
+    /// assert_eq!(escaped, "file.txt\\;\\ rm\\ -rf\\ /");
     /// ```
     pub fn escape_shell(input: &str) -> String {
         let mut result = String::with_capacity(input.len() * 2);

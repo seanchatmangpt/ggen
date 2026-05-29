@@ -120,15 +120,42 @@ pub fn add(pack_name: String, force: Option<bool>) -> Result<AddOutput> {
     let output = install_result.map_err(|e| {
         NounVerbError::execution_error(format!("Failed to install pack '{}': {}", pack_name, e))
     })?;
+
+    // The install only reaches here on success. Emit a provenance receipt that
+    // binds the real pack closure (id+version+digest + packages) and the durable
+    // artifacts (install dir + lockfile). Emission is GATED on a non-empty
+    // digest — a failed install never reaches this point and never gets a
+    // receipt (no fail-open). A receipt failure is surfaced loudly, never
+    // swallowed.
+    let mut artifact_paths = vec![output.install_path.clone()];
+    if let Some(lock) = &output.lockfile_path {
+        artifact_paths.push(lock.clone());
+    }
+    let closure = crate::cmds::packs_receipt::PackInstallClosure {
+        pack_id: &output.pack_id,
+        pack_version: &output.pack_version,
+        pack_digest: &output.digest,
+        packages_installed: &output.packages_installed,
+        artifact_paths: &artifact_paths,
+    };
+    let receipt_path = crate::cmds::packs_receipt::generate_pack_install_receipt(&closure)
+        .map_err(|e| {
+            NounVerbError::execution_error(format!(
+                "Pack '{}' installed but receipt emission failed: {}",
+                pack_name, e
+            ))
+        })?;
+
     Ok(AddOutput {
         pack_name: output.pack_id.clone(),
         status: "installed".to_string(),
         message: format!(
-            "Pack '{}' ({}) installed successfully. {} package(s) recorded, {} template(s) available. Lockfile: .ggen/packs.lock",
+            "Pack '{}' ({}) installed successfully. {} package(s) recorded, {} template(s) available. Lockfile: .ggen/packs.lock. Receipt: {}",
             output.pack_name,
             output.pack_id,
             output.packages_installed.len(),
-            output.templates_available.len()
+            output.templates_available.len(),
+            receipt_path.display()
         ),
     })
 }

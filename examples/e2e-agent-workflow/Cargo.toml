@@ -33,6 +33,8 @@ dashmap = "5.5"
 # ggen integration crates
 a2a-generated = { path = "../../crates/a2a-generated" }
 ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [dev-dependencies]
 # Testing

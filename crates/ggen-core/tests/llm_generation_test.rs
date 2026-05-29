@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! LLM Generation Integration Tests
 //!
 //! Tests for auto-generating skill implementations using LLM during sync pipeline.

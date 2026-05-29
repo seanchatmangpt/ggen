@@ -17,7 +17,7 @@
 //! ## Creating and signing a receipt
 //!
 //! ```
-//! use crate::{Receipt, generate_keypair};
+//! use ggen_config::{Receipt, generate_keypair};
 //!
 //! let (signing_key, verifying_key) = generate_keypair();
 //!
@@ -37,7 +37,7 @@
 //! ## Building a receipt chain
 //!
 //! ```
-//! use crate::{Receipt, ReceiptChain, generate_keypair};
+//! use ggen_config::{Receipt, ReceiptChain, generate_keypair};
 //!
 //! let (signing_key, verifying_key) = generate_keypair();
 //!
@@ -96,7 +96,7 @@ pub use error::{ReceiptError, Result};
 /// # Example
 ///
 /// ```
-/// use crate::{Receipt, create_chained_receipt, generate_keypair};
+/// use ggen_config::{Receipt, create_chained_receipt, generate_keypair};
 ///
 /// let (key, _vk) = generate_keypair();
 /// let parent = Receipt::new("parent-op".to_string(), vec![], vec![], None)

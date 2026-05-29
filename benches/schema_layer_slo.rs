@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! SLO Metrics Verification: Schema Layer Performance Benchmarks
 //!
 //! This benchmark suite validates performance SLOs for EPIC 9 schema-layer validation:
@@ -32,25 +41,31 @@ mod slo_targets {
     /// Transpiler Performance: TTL → Signature conversion
     /// Target: <500ms per signature with realistic SHACL constraints
     pub const TRANSPILE_TARGET_MS: f64 = 500.0;
+    #[allow(dead_code)]
     pub const TRANSPILE_TARGET: Duration = Duration::from_millis(500);
 
     /// Schema Generation: Signature → JSON Schema
     /// Target: <50ms per schema with complex constraints
     pub const SCHEMA_GEN_TARGET_MS: f64 = 50.0;
+    #[allow(dead_code)]
     pub const SCHEMA_GEN_TARGET: Duration = Duration::from_millis(50);
 
     /// Validation Performance: JSON object validation
     /// Target: <10ms per validation with strict constraint checking
     pub const VALIDATE_TARGET_MS: f64 = 10.0;
+    #[allow(dead_code)]
     pub const VALIDATE_TARGET: Duration = Duration::from_millis(10);
 
     /// Full Pipeline: RDF load → Transpile → Schema gen → Validate
     /// Target: <1 second end-to-end per project
     pub const PIPELINE_TARGET_MS: f64 = 1000.0;
+    #[allow(dead_code)]
     pub const PIPELINE_TARGET: Duration = Duration::from_secs(1);
 
     /// Scaling limits for parallelization tests
+    #[allow(dead_code)]
     pub const MAX_PARALLEL_SIGNATURES: usize = 1000;
+    #[allow(dead_code)]
     pub const MAX_PARALLEL_VALIDATIONS: usize = 10_000;
 }
 
@@ -96,6 +111,7 @@ ex:Shape{} a sh:NodeShape ;
 
 /// Mock Signature type for benchmarking (simplified version)
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct BenchSignature {
     name: String,
     inputs: Vec<BenchField>,
@@ -103,6 +119,7 @@ struct BenchSignature {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct BenchField {
     name: String,
     description: String,
@@ -359,8 +376,7 @@ fn full_pipeline_performance(c: &mut Criterion) {
             // 4. Generate test data
             let test_data: Vec<_> = sigs
                 .iter()
-                .map(|sig| generate_test_json(sig, 10))
-                .flatten()
+                .flat_map(|sig| generate_test_json(sig, 10))
                 .collect();
 
             // 5. Validate all
@@ -391,14 +407,14 @@ fn full_pipeline_performance(c: &mut Criterion) {
                             let schemas: Vec<_> = sigs.iter().map(generate_json_schema).collect();
                             let test_data: Vec<_> = sigs
                                 .iter()
-                                .map(|sig| generate_test_json(sig, 5))
-                                .flatten()
+                                .flat_map(|sig| generate_test_json(sig, 5))
                                 .collect();
-                            test_data
-                                .iter()
-                                .zip(schemas.iter().cycle())
-                                .map(|(json, schema)| validate_json(json, schema))
-                                .count()
+                            test_data.iter().zip(schemas.iter().cycle()).for_each(
+                                |(json, schema)| {
+                                    let _ = validate_json(json, schema);
+                                },
+                            );
+                            test_data.len()
                         })
                         .sum::<usize>()
                 })
@@ -426,8 +442,7 @@ fn cache_effectiveness(c: &mut Criterion) {
     group.bench_function("repeated_schema_generation", |b| {
         b.iter(|| {
             (0..5)
-                .map(|_| sigs.iter().map(generate_json_schema).collect::<Vec<_>>())
-                .flatten()
+                .flat_map(|_| sigs.iter().map(generate_json_schema).collect::<Vec<_>>())
                 .count()
         })
     });
@@ -570,8 +585,7 @@ fn slo_compliance_check(_c: &mut Criterion) {
         let schemas: Vec<_> = sigs.iter().map(generate_json_schema).collect();
         let test_data: Vec<_> = sigs
             .iter()
-            .map(|sig| generate_test_json(sig, 5))
-            .flatten()
+            .flat_map(|sig| generate_test_json(sig, 5))
             .collect();
         let _ = test_data
             .iter()

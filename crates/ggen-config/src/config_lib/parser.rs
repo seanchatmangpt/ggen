@@ -43,7 +43,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```no_run
-    /// use crate::config_lib::ConfigLoader;
+    /// use ggen_config::config_lib::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let config = ConfigLoader::from_file("ggen.toml")?;
@@ -69,7 +69,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```
-    /// use crate::config_lib::ConfigLoader;
+    /// use ggen_config::config_lib::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let toml = r#"
@@ -110,7 +110,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```no_run
-    /// use crate::config_lib::ConfigLoader;
+    /// use ggen_config::config_lib::ConfigLoader;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// // Searches current directory and parents for ggen.toml
@@ -186,7 +186,7 @@ impl ConfigLoader {
     /// # Example
     ///
     /// ```no_run
-    /// use crate::config_lib::ConfigLoader;
+    /// use ggen_config::config_lib::ConfigLoader;
     /// use serde_json::json;
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -26,7 +26,7 @@
 //! ### Basic CLI Execution
 //!
 //! ```rust,no_run
-//! use ggen_cli::cli_match;
+//! use ggen_cli_lib::cli_match;
 //!
 //! # async fn example() -> ggen_core::utils::error::Result<()> {
 //! // Execute CLI with auto-discovered commands
@@ -38,7 +38,7 @@
 //! ### Programmatic Execution
 //!
 //! ```rust,ignore
-//! use ggen_cli::run_for_node;
+//! use ggen_cli_lib::run_for_node;
 //!
 //! # async fn example() -> ggen_core::utils::error::Result<()> {
 //! let args = vec!["template".to_string(), "generate".to_string()];
@@ -70,6 +70,7 @@ pub mod pack_install;
 pub mod prelude;
 pub mod progress;
 pub mod validation_lib;
+pub mod version_checker;
 
 // Note: std::io::Write was used for output capture with gag crate (now disabled)
 
@@ -92,9 +93,39 @@ pub use ggen_core::utils::error::Result;
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> ggen_core::utils::error::Result<()> {
-    // Initialize OTLP telemetry (non-fatal — CLI continues if collector is unreachable)
-    let _telemetry_guard =
-        ggen_core::telemetry::init_telemetry(ggen_core::telemetry::TelemetryConfig::default());
+    version_checker::check_outdated_binary();
+
+    // Find manifest path from CLI args to check if telemetry is configured in ggen.toml
+    let mut manifest_path = "ggen.toml".to_string();
+    let args: Vec<String> = std::env::args().collect();
+    for i in 0..args.len() {
+        if (args[i] == "--manifest" || args[i] == "-m") && i + 1 < args.len() {
+            manifest_path = args[i + 1].clone();
+            break;
+        }
+    }
+
+    let mut telemetry_config = None;
+    if std::path::Path::new(&manifest_path).exists() {
+        if let Ok(content) = std::fs::read_to_string(&manifest_path) {
+            if let Ok(config) = toml::from_str::<ggen_core::config_lib::GgenConfig>(&content) {
+                if let Some(ref tel) = config.telemetry {
+                    telemetry_config = Some(ggen_core::telemetry::TelemetryConfig {
+                        endpoint: tel.endpoint.clone(),
+                        service_name: tel.service_name.clone(),
+                        console_output: tel.console_output,
+                    });
+                }
+            }
+        }
+    }
+
+    // Initialize OTLP telemetry only if configured in ggen.toml
+    let _telemetry_guard = if let Some(cfg) = telemetry_config {
+        ggen_core::telemetry::init_telemetry(cfg).ok()
+    } else {
+        None
+    };
 
     // Root span so every CLI invocation produces at least one exportable trace
     let args: Vec<String> = std::env::args().skip(1).collect();

@@ -364,6 +364,120 @@ impl Schema {
     }
 }
 
+pub struct RustGenerator;
+
+impl RustGenerator {
+    /// Generate Rust struct from schema
+    pub fn generate(schema: &crate::schema::Schema) -> String {
+        let mut output = String::new();
+
+        if let Some(desc) = &schema.description {
+            writeln!(output, "/// {}", desc).unwrap();
+        }
+        writeln!(output, "#[derive(Debug, Clone, Serialize, Deserialize)]").unwrap();
+        writeln!(output, "pub struct {} {{", schema.name).unwrap();
+
+        for field in &schema.fields {
+            if let Some(desc) = &field.description {
+                writeln!(output, "    /// {}", desc).unwrap();
+            }
+            let rust_type = Self::field_type_to_rust(&field.field_type, field.optional);
+            writeln!(output, "    pub {}: {},", field.name, rust_type).unwrap();
+        }
+
+        writeln!(output, "}}").unwrap();
+        output
+    }
+
+    fn field_type_to_rust(field_type: &SchemaType, optional: bool) -> String {
+        let base = match field_type {
+            SchemaType::String => "String".to_string(),
+            SchemaType::Integer => "i64".to_string(),
+            SchemaType::Boolean => "bool".to_string(),
+            SchemaType::Float => "f64".to_string(),
+            SchemaType::Any => "serde_json::Value".to_string(),
+            SchemaType::Array(inner) => format!("Vec<{}>", Self::field_type_to_rust(inner, false)),
+            SchemaType::Object(_) => {
+                "std::collections::HashMap<String, serde_json::Value>".to_string()
+            }
+            SchemaType::Reference(name) => name.clone(),
+        };
+        if optional {
+            format!("Option<{}>", base)
+        } else {
+            base
+        }
+    }
+}
+
+/// Go code generator
+pub struct GoGenerator;
+
+impl GoGenerator {
+    /// Generate Go struct from schema
+    pub fn generate(schema: &crate::schema::Schema) -> String {
+        let mut output = String::new();
+
+        if let Some(desc) = &schema.description {
+            writeln!(output, "// {} describes the request.", desc).unwrap();
+        }
+        writeln!(output, "type {} struct {{", schema.name).unwrap();
+
+        for field in &schema.fields {
+            let go_type = Self::field_type_to_go(&field.field_type, field.optional);
+            let json_tag = if field.optional {
+                format!("{},omitempty", field.name)
+            } else {
+                field.name.clone()
+            };
+            writeln!(
+                output,
+                "    {} {} `json:\"{}\"`",
+                Self::capitalize(&field.name),
+                go_type,
+                json_tag
+            )
+            .unwrap();
+        }
+
+        writeln!(output, "}}").unwrap();
+        output
+    }
+
+    fn field_type_to_go(field_type: &SchemaType, _optional: bool) -> String {
+        // Go uses omitempty in JSON tags for optional fields, not pointer types
+        match field_type {
+            SchemaType::String => "string".to_string(),
+            SchemaType::Integer => "int64".to_string(),
+            SchemaType::Boolean => "bool".to_string(),
+            SchemaType::Float => "float64".to_string(),
+            SchemaType::Any => "interface{}".to_string(),
+            SchemaType::Array(inner) => format!("[]{}", Self::field_type_to_go(inner, false)),
+            SchemaType::Object(_) => "map[string]interface{}".to_string(),
+            SchemaType::Reference(name) => name.clone(),
+        }
+    }
+
+    fn capitalize(s: &str) -> String {
+        let mut chars = s.chars();
+        match chars.next() {
+            None => String::new(),
+            Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+        }
+    }
+}
+
+/// Python code generator (stub for compatibility)
+pub struct PythonGenerator;
+
+impl PythonGenerator {
+    /// Generate Python dataclass from schema (placeholder)
+    pub fn generate(_schema: &crate::schema::Schema) -> String {
+        "# Python code generation not yet implemented for A2A schemas\n# Use OntologySchema instead"
+            .to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -491,120 +605,5 @@ mod tests {
 
         let java = schema.to_java_class();
         assert!(java.contains("private List<String> items;"));
-    }
-}
-
-/// Rust code generator
-pub struct RustGenerator;
-
-impl RustGenerator {
-    /// Generate Rust struct from schema
-    pub fn generate(schema: &crate::schema::Schema) -> String {
-        let mut output = String::new();
-
-        if let Some(desc) = &schema.description {
-            writeln!(output, "/// {}", desc).unwrap();
-        }
-        writeln!(output, "#[derive(Debug, Clone, Serialize, Deserialize)]").unwrap();
-        writeln!(output, "pub struct {} {{", schema.name).unwrap();
-
-        for field in &schema.fields {
-            if let Some(desc) = &field.description {
-                writeln!(output, "    /// {}", desc).unwrap();
-            }
-            let rust_type = Self::field_type_to_rust(&field.field_type, field.optional);
-            writeln!(output, "    pub {}: {},", field.name, rust_type).unwrap();
-        }
-
-        writeln!(output, "}}").unwrap();
-        output
-    }
-
-    fn field_type_to_rust(field_type: &SchemaType, optional: bool) -> String {
-        let base = match field_type {
-            SchemaType::String => "String".to_string(),
-            SchemaType::Integer => "i64".to_string(),
-            SchemaType::Boolean => "bool".to_string(),
-            SchemaType::Float => "f64".to_string(),
-            SchemaType::Any => "serde_json::Value".to_string(),
-            SchemaType::Array(inner) => format!("Vec<{}>", Self::field_type_to_rust(inner, false)),
-            SchemaType::Object(_) => {
-                "std::collections::HashMap<String, serde_json::Value>".to_string()
-            }
-            SchemaType::Reference(name) => name.clone(),
-        };
-        if optional {
-            format!("Option<{}>", base)
-        } else {
-            base
-        }
-    }
-}
-
-/// Go code generator
-pub struct GoGenerator;
-
-impl GoGenerator {
-    /// Generate Go struct from schema
-    pub fn generate(schema: &crate::schema::Schema) -> String {
-        let mut output = String::new();
-
-        if let Some(desc) = &schema.description {
-            writeln!(output, "// {} describes the request.", desc).unwrap();
-        }
-        writeln!(output, "type {} struct {{", schema.name).unwrap();
-
-        for field in &schema.fields {
-            let go_type = Self::field_type_to_go(&field.field_type, field.optional);
-            let json_tag = if field.optional {
-                format!("{},omitempty", field.name)
-            } else {
-                field.name.clone()
-            };
-            writeln!(
-                output,
-                "    {} {} `json:\"{}\"`",
-                Self::capitalize(&field.name),
-                go_type,
-                json_tag
-            )
-            .unwrap();
-        }
-
-        writeln!(output, "}}").unwrap();
-        output
-    }
-
-    fn field_type_to_go(field_type: &SchemaType, _optional: bool) -> String {
-        // Go uses omitempty in JSON tags for optional fields, not pointer types
-        match field_type {
-            SchemaType::String => "string".to_string(),
-            SchemaType::Integer => "int64".to_string(),
-            SchemaType::Boolean => "bool".to_string(),
-            SchemaType::Float => "float64".to_string(),
-            SchemaType::Any => "interface{}".to_string(),
-            SchemaType::Array(inner) => format!("[]{}", Self::field_type_to_go(inner, false)),
-            SchemaType::Object(_) => "map[string]interface{}".to_string(),
-            SchemaType::Reference(name) => name.clone(),
-        }
-    }
-
-    fn capitalize(s: &str) -> String {
-        let mut chars = s.chars();
-        match chars.next() {
-            None => String::new(),
-            Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-        }
-    }
-}
-
-/// Python code generator (stub for compatibility)
-pub struct PythonGenerator;
-
-impl PythonGenerator {
-    /// Generate Python dataclass from schema (placeholder)
-    pub fn generate(_schema: &crate::schema::Schema) -> String {
-        "# Python code generation not yet implemented for A2A schemas\n# Use OntologySchema instead"
-            .to_string()
     }
 }

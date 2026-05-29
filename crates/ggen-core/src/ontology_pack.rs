@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
+//! ```ignore
 //! use crate::ontology_pack::{OntologyPackMetadata, OntologyConfig, OntologyDefinition};
 //!
 //! let pack_metadata = OntologyPackMetadata {

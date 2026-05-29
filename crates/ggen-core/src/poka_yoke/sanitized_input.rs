@@ -32,7 +32,7 @@ pub enum InputType {
 /// # Example
 ///
 /// ```no_run
-/// use crate::poka_yoke::{SanitizedInput, InputType};
+/// use ggen_core::poka_yoke::{SanitizedInput, InputType};
 ///
 /// // Valid input
 /// let var = SanitizedInput::new("user_name", InputType::TemplateVar)?;
@@ -40,7 +40,7 @@ pub enum InputType {
 /// // Invalid input (injection attempt)
 /// let bad = SanitizedInput::new("{{7*7}}", InputType::TemplateVar);
 /// assert!(bad.is_err());
-/// # Ok::<(), crate::error::Error>(())
+/// # Ok::<(), ggen_core::utils::error::Error>(())
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SanitizedInput {

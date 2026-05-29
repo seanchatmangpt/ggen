@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Sabotage Tests for Lockfile + Receipt Invariants
 //!
 //! These tests verify that the sync command correctly enforces invariants by

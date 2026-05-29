@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 //! Test fixtures for integration tests
 //!
 //! Provides standard test data, templates, and configurations used across the test suite.

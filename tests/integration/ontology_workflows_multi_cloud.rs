@@ -7,8 +7,6 @@
 //! **Verification**: All 3 proposals have identical content hashes (receipt signatures match)
 
 use sha2::{Digest, Sha256};
-use std::collections::BTreeMap;
-use std::fs;
 use tempfile::TempDir;
 
 /// Unified ontology that works across cloud providers
@@ -139,7 +137,7 @@ services:
 #[test]
 fn test_multi_cloud_determinism_aws_gcp_azure() {
     // Arrange: Create unified ontology and provider descriptors
-    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let _temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let unified_ontology = create_unified_cloud_ontology();
 
@@ -432,7 +430,7 @@ fn test_multi_cloud_determinism_repeated_runs() {
 // ============================================================================
 
 /// Generate a cloud provider proposal from unified ontology
-fn generate_cloud_proposal(ontology: &str, provider_descriptor: &str) -> String {
+fn generate_cloud_proposal(_ontology: &str, provider_descriptor: &str) -> String {
     // Parse provider descriptor to get provider name
     let provider = if provider_descriptor.contains("AWS") {
         "AWS"

@@ -40,6 +40,17 @@ pub struct BuildReceipt {
     /// SHA-256 hash of the ontology source files
     pub ontology_hash: String,
 
+    /// Closure inputs beyond the ontology that determine the artifact: the
+    /// content hashes of every template and SPARQL query consumed by μ₂/μ₃,
+    /// plus the actuator identity (`actuator:<μ>@<version>`).
+    ///
+    /// `ontology_hash` (the epoch) alone does NOT bind templates or queries —
+    /// changing a template would otherwise leave the receipt unchanged
+    /// (contract drift). These entries close O* so that `R ⊢ A = μ(O*)` holds:
+    /// each is `"<key>:<sha256-hex>"` and is folded into the receipt `id`.
+    #[serde(default)]
+    pub closure_hashes: Vec<String>,
+
     /// When the projection was performed (ISO 8601)
     pub timestamp: String,
 
@@ -208,6 +219,10 @@ impl BuildReceipt {
             id: String::new(), // Will be computed below
             epoch_id: epoch.id.clone(),
             ontology_hash,
+            // Always bind the actuator identity (which μ and version produced
+            // this). Template/query closure entries are appended later via
+            // `add_closure_input`, each followed by `recompute_id`.
+            closure_hashes: vec![format!("actuator:ggen-core@{}", toolchain_version)],
             timestamp,
             toolchain_version: toolchain_version.to_string(),
             passes,
@@ -223,6 +238,23 @@ impl BuildReceipt {
 
         receipt.id = receipt.compute_id();
         receipt
+    }
+
+    /// Bind a closure input (template or query content hash) into the receipt.
+    ///
+    /// `key` identifies the input (e.g. a template path or query name) and
+    /// `content` is its raw bytes; the SHA-256 of `content` is recorded as
+    /// `"<key>:<hash>"`. Call [`recompute_id`](Self::recompute_id) after adding
+    /// all closure inputs so the receipt `id` reflects the full O* closure.
+    pub fn add_closure_input(&mut self, key: &str, content: &[u8]) {
+        let hash = format!("{:x}", Sha256::digest(content));
+        self.closure_hashes.push(format!("{}:{}", key, hash));
+    }
+
+    /// Recompute the receipt `id` after closure inputs or other id-bearing
+    /// fields have been mutated. Must be called once the closure is complete.
+    pub fn recompute_id(&mut self) {
+        self.id = self.compute_id();
     }
 
     /// Add pack provenance to the receipt.
@@ -333,6 +365,13 @@ impl BuildReceipt {
         hasher.update(self.epoch_id.as_bytes());
         hasher.update(self.toolchain_version.as_bytes());
         hasher.update(self.outputs_hash.as_bytes());
+        // Fold the closure (templates + queries + actuator identity) into the
+        // id so a change to any template or query — invisible to `epoch_id` —
+        // changes the receipt id. Order is deterministic (insertion order).
+        for entry in &self.closure_hashes {
+            hasher.update(b"\n");
+            hasher.update(entry.as_bytes());
+        }
         format!("{:x}", hasher.finalize())
     }
 
@@ -660,6 +699,46 @@ mod tests {
         assert_eq!(receipt.toolchain_version, "6.0.0");
         assert_eq!(receipt.outputs.len(), 1);
         assert!(receipt.is_valid);
+    }
+
+    #[test]
+    fn test_closure_binding_changes_receipt_id() {
+        // The receipt must witness the FULL O* closure: changing a template or
+        // query — which the epoch/ontology_hash does NOT cover — must change the
+        // receipt id. Otherwise editing a template leaves the receipt identical
+        // (contract drift). This asserts on observable state (the id), not on
+        // any mock.
+        let epoch = create_test_epoch();
+
+        // Baseline receipt with only the actuator identity bound.
+        let baseline = BuildReceipt::new(&epoch, vec![], vec![], "6.0.0");
+        assert_eq!(
+            baseline.closure_hashes.len(),
+            1,
+            "actuator identity must always be bound"
+        );
+        assert!(baseline.closure_hashes[0].starts_with("actuator:ggen-core@6.0.0"));
+
+        // Bind a template into the closure.
+        let mut with_template = BuildReceipt::new(&epoch, vec![], vec![], "6.0.0");
+        with_template.add_closure_input("template:foo.tera", b"Hello {{ name }}");
+        with_template.recompute_id();
+        assert_ne!(
+            baseline.id, with_template.id,
+            "binding a template must change the receipt id"
+        );
+
+        // Changing the template CONTENT (same epoch) must change the id again.
+        let mut changed_template = BuildReceipt::new(&epoch, vec![], vec![], "6.0.0");
+        changed_template.add_closure_input("template:foo.tera", b"Goodbye {{ name }}");
+        changed_template.recompute_id();
+        assert_ne!(
+            with_template.id, changed_template.id,
+            "changing template content must change the receipt id even though epoch is identical"
+        );
+
+        // The id stays a valid 64-char SHA-256 hex after recompute.
+        assert_eq!(changed_template.id.len(), 64);
     }
 
     #[test]

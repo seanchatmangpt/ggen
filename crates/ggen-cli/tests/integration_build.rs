@@ -6,5 +6,4 @@
 #[test]
 fn test_workspace_builds() {
     // If we got here, the workspace compiled successfully
-    assert!(true, "Workspace built successfully");
 }

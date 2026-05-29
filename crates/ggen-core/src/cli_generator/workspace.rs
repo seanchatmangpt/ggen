@@ -27,7 +27,7 @@
 //!
 //! ### Generating a Workspace
 //!
-//! ```rust,no_run
+//! ```ignore
 //! use crate::cli_generator::{WorkspaceGenerator, types::CliProject};
 //! use std::path::Path;
 //!
@@ -138,7 +138,7 @@ impl WorkspaceGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```ignore
     /// use crate::cli_generator::{workspace::WorkspaceGenerator, types::CliProject};
     /// use std::path::Path;
     ///

@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "mcp_query_example"
 version = "0.1.0"
@@ -12,8 +14,9 @@ anyhow = "1.0"
 serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [[bin]]
 name = "mcp_query_example"
 path = "src/main.rs"
-src/main.rs"

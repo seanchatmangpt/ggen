@@ -16,6 +16,7 @@ use tempfile::TempDir;
 
 /// Helper struct for test project setup
 struct TestProject {
+    #[allow(dead_code)]
     temp_dir: TempDir,
     project_dir: PathBuf,
 }

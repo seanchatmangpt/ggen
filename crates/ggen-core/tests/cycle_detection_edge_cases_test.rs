@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Edge case tests for cycle detection in directed graphs
 //!
 //! Tests boundary conditions, malformed input, and edge cases:

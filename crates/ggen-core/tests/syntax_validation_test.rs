@@ -1,3 +1,11 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 /// Syntax validation tests for MCP/A2A .tera, .rq, and .ttl files.
 ///
 /// These tests ensure that:

@@ -12,7 +12,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    // Run CLI
     let runtime = tokio::runtime::Runtime::new()?;
-    runtime.block_on(validation_automation::cli::run())
+    runtime.block_on(validation_automation::cli::run()).map_err(|e| e.into())
 }

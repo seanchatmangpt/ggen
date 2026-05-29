@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 //! Gemba Walk Verification Tests
 //!
 //! These tests verify the achievability of Gemba Walk quality assessments
@@ -389,7 +391,7 @@ mod tests {
     fn test_coverage_calculation() {
         println!("\n=== Test 7: Coverage Calculation ===");
 
-        let critical_paths = vec![
+        let critical_paths = [
             "happy_path",
             "error_handling",
             "boundary_conditions",
@@ -397,7 +399,7 @@ mod tests {
             "resource_cleanup",
         ];
 
-        let tested_paths = vec![
+        let tested_paths = [
             "happy_path",
             "error_handling",
             "boundary_conditions",
@@ -438,7 +440,7 @@ mod tests {
         let has_helper_functions = true; // Reusable helpers present
         let follows_naming = true; // Consistent naming convention
 
-        let maintainability_checks = vec![
+        let maintainability_checks = [
             has_modules,
             has_doc_comments,
             has_helper_functions,

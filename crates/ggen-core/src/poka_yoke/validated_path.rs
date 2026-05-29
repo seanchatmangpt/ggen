@@ -22,7 +22,7 @@ use crate::utils::error::{Error, Result};
 /// # Example
 ///
 /// ```no_run
-/// use crate::poka_yoke::ValidatedPath;
+/// use ggen_core::poka_yoke::ValidatedPath;
 ///
 /// // Valid path
 /// let path = ValidatedPath::new("templates/hello.tmpl")?;
@@ -30,7 +30,7 @@ use crate::utils::error::{Error, Result};
 /// // Invalid path (contains ..)
 /// let bad = ValidatedPath::new("../etc/passwd");
 /// assert!(bad.is_err());
-/// # Ok::<(), crate::error::Error>(())
+/// # Ok::<(), ggen_core::utils::error::Error>(())
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ValidatedPath {

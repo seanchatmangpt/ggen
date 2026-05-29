@@ -15,6 +15,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
 async-trait = "0.1"
 chrono = "0.4"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [[bin]]
 name = "echo-agent"
@@ -23,3 +25,6 @@ path = "src/echo_agent.rs"
 [[bin]]
 name = "auto-storage-agent"
 path = "src/auto_storage_agent.rs"
+
+[workspace]
+

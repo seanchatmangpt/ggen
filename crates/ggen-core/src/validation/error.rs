@@ -143,6 +143,29 @@ pub enum ValidationError {
         limit_ms: u64,
     },
 
+    /// Syntax validation failed for generated file
+    ///
+    /// Occurs when a generated file contains syntax errors (e.g., invalid Rust code,
+    /// malformed TOML, invalid JSON). Includes location information for debugging.
+    ///
+    /// Example:
+    /// ```text
+    /// SyntaxValidationFailed in src/main.rs:42:10 [Rust]: expected `{` found `;`
+    /// ```
+    #[error("Syntax validation failed in {file}:{line}:{column} [{language}]: {error}")]
+    SyntaxValidationFailed {
+        /// Path to file with syntax error (relative or absolute)
+        file: String,
+        /// Line number (1-based, 0 if unknown)
+        line: usize,
+        /// Column number (1-based, 0 if unknown)
+        column: usize,
+        /// Language/file type (e.g., "Rust", "TOML", "JSON")
+        language: String,
+        /// Parser error message
+        error: String,
+    },
+
     /// General validation error (fallback)
     ///
     /// Occurs when validation fails but doesn't fit specific categories.
@@ -226,6 +249,20 @@ impl ValidationError {
         ValidationError::SparqlError {
             message: format!("Query execution failed for rule {}: {}", rule_id, error),
             query: String::new(),
+        }
+    }
+
+    /// Create a syntax validation error
+    pub fn syntax_validation_failed(
+        file: impl Into<String>, line: usize, column: usize, language: impl Into<String>,
+        error: impl Into<String>,
+    ) -> Self {
+        ValidationError::SyntaxValidationFailed {
+            file: file.into(),
+            line,
+            column,
+            language: language.into(),
+            error: error.into(),
         }
     }
 }

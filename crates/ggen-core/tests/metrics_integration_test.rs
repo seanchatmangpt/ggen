@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Integration tests for Quality Metrics System
 //!
 //! Tests the complete metrics collection and reporting system covering:

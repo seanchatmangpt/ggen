@@ -120,6 +120,13 @@ const SKIP_BROKEN_REFS: &[&str] = &[
     "clap-noun-verb",
     // Missing example directory
     "hello-world",
+    // Packages with missing README.md or examples/ source paths
+    "academic-peer-review-workflow",
+    "advanced-rust-project",
+    "ai-microservice",
+    "api-endpoint",
+    "comprehensive-rust-showcase",
+    "microservices-architecture",
 ];
 
 // ---------------------------------------------------------------------------

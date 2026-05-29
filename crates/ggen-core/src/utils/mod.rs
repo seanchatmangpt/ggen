@@ -34,7 +34,8 @@
 //! ```rust,no_run
 //! use crate::utils::app_config::AppConfig;
 //!
-//! let config = AppConfig::load()?;
+//! AppConfig::init(Some("debug = false\n"))?;
+//! let config = AppConfig::fetch()?;
 //! println!("Config loaded: {:?}", config);
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```

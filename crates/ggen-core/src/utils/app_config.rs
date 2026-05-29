@@ -33,7 +33,7 @@
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
 //! // Initialize with default config
-//! AppConfig::init(Some(include_str!("../resources/default_config.toml")))?;
+//! AppConfig::init(Some("debug = false\n"))?;
 //!
 //! // Load configuration
 //! let config = AppConfig::fetch()?;
@@ -46,16 +46,13 @@
 //!
 //! ```rust,no_run
 //! use crate::utils::app_config::AppConfig;
-//! use clap::Parser;
+//! use clap::{Arg, Command};
 //!
-//! # #[derive(Parser)]
-//! # struct Args {
-//! #     #[arg(long)]
-//! #     debug: bool,
-//! # }
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let args = Args::parse();
-//! AppConfig::merge_args(&args)?;
+//! let matches = Command::new("ggen")
+//!     .arg(Arg::new("debug").long("debug").action(clap::ArgAction::SetTrue))
+//!     .get_matches_from(["ggen", "--debug"]);
+//! AppConfig::merge_args(&matches)?;
 //! # Ok(())
 //! # }
 //! ```

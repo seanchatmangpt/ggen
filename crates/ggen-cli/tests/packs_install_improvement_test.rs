@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Chicago TDD tests for improved pack installation UX and performance
 //!
 //! Tests focus on real system behavior with actual collaborators, not mocked behavior.

@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Pack cache integration tests
 //!
 //! Chicago TDD: Real filesystem, real cache operations, no mocks.

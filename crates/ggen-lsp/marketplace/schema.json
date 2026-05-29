@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ggen-lsp Configuration",
+  "type": "object",
+  "properties": {
+    "ggen-lsp": {
+      "type": "object",
+      "description": "ggen Language Server Protocol configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable/disable ggen-lsp server",
+          "default": true
+        },
+        "transport": {
+          "type": "string",
+          "enum": ["stdio"],
+          "description": "LSP transport: stdio only",
+          "default": "stdio"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

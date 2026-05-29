@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Edge Case Tests for Lifecycle System
 //!
 //! These tests cover critical production scenarios that can cause data loss,

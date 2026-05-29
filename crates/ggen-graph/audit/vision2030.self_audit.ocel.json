@@ -1,0 +1,566 @@
+{
+  "objects": [
+    {
+      "id": "obj_crate_ggen",
+      "type": "RustCrate",
+      "attributes": {
+        "name": "ggen-graph",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "id": "obj_prd_compliance",
+      "type": "PRDRequirement",
+      "attributes": {
+        "description": "The system must generate a self-audit log containing all required activities and objects.",
+        "title": "Self-Audit Compliance Log"
+      }
+    },
+    {
+      "id": "obj_ard_mapping",
+      "type": "ARDRequirement",
+      "attributes": {
+        "title": "Deterministic Graph Mapping",
+        "description": "Self-audit logs must project deterministically to and from RDF triple graphs."
+      }
+    },
+    {
+      "id": "req_r1_one_crate",
+      "type": "PRDRequirement",
+      "attributes": {
+        "description": "The substrate must be implemented as a single standalone Rust package at crates/ggen-graph with no feature flags.",
+        "title": "One-Crate Package Boundary and No Feature Flags"
+      }
+    },
+    {
+      "id": "req_r2_ontology",
+      "type": "PRDRequirement",
+      "attributes": {
+        "description": "Vocabulary constants must be emitted directly from public ontology profiles.",
+        "title": "Public Ontology Governance and Vocabulary Emission"
+      }
+    },
+    {
+      "id": "req_r3_deterministic",
+      "type": "PRDRequirement",
+      "attributes": {
+        "title": "Deterministic Graph Substrate and Delta Conservation",
+        "description": "Graph parsing, serialization, canonical byte generation, hashing, and RdfDelta transitions must be deterministic."
+      }
+    },
+    {
+      "id": "req_r4_knowledge_hook",
+      "type": "PRDRequirement",
+      "attributes": {
+        "description": "Turtle-based hook packs must load dynamically as graph laws and schedule deterministically.",
+        "title": "Knowledge Hook Runtime & Deterministic Scheduling"
+      }
+    },
+    {
+      "id": "req_r5_ocel_prov",
+      "type": "PRDRequirement",
+      "attributes": {
+        "description": "Every graph transition must produce a replayable cryptographic receipt bundle and project PROV-O/OCEL.",
+        "title": "OCEL/PROV Evidence Projection & Replayable Receipts"
+      }
+    },
+    {
+      "id": "req_r6_compliance",
+      "type": "PRDRequirement",
+      "attributes": {
+        "description": "Must pass structural analyses checking for forbidden execution surfaces and zero placeholder/stub/mock/fake-success patterns.",
+        "title": "Compliance Checks & Anti-Fake Gates"
+      }
+    },
+    {
+      "id": "req_r7_ocel_self_audit",
+      "type": "PRDRequirement",
+      "attributes": {
+        "title": "OCEL v2 Self-Audit Log Emission",
+        "description": "Implement self-audit log generator emitting vision2030.self_audit.ocel.json."
+      }
+    },
+    {
+      "id": "req_r8_coverage_matrix",
+      "type": "PRDRequirement",
+      "attributes": {
+        "title": "Coverage Matrix & Verification Scripts",
+        "description": "Implement coverage mapping in coverage.rs and verify via scripts."
+      }
+    },
+    {
+      "id": "req_r9_proof_report",
+      "type": "PRDRequirement",
+      "attributes": {
+        "title": "Vision 2030 Durable Proof Report",
+        "description": "Establish Vision 2030 durable proof report."
+      }
+    },
+    {
+      "id": "req_r10_interchangeable",
+      "type": "PRDRequirement",
+      "attributes": {
+        "title": "Genesis-bearing Interchangeable Part Architecture",
+        "description": "Ensure interchangeable parts where Genesis is the embedded core and ggen forms the outer membrane, adapter layer, and projection layer."
+      }
+    },
+    {
+      "id": "obj_cp_verify",
+      "type": "GALLCheckpoint",
+      "attributes": {
+        "target_date": "2026-05-26Z",
+        "milestone": "self_audit_verification"
+      }
+    },
+    {
+      "id": "obj_public_ontology",
+      "type": "PublicOntology",
+      "attributes": {
+        "namespace": "http://www.ocel-standard.org/ns#",
+        "prefix": "ocel"
+      }
+    },
+    {
+      "id": "obj_ontology_term_event",
+      "type": "OntologyTerm",
+      "attributes": {
+        "uri": "http://www.ocel-standard.org/ns#Event",
+        "name": "Event"
+      }
+    },
+    {
+      "id": "obj_source_file_self_audit",
+      "type": "SourceFile",
+      "attributes": {
+        "language": "rust",
+        "path": "crates/ggen-graph/src/ocel/self_audit.rs"
+      }
+    },
+    {
+      "id": "obj_test_file_self_audit",
+      "type": "TestFile",
+      "attributes": {
+        "path": "crates/ggen-graph/tests/ocel_self_audit.rs",
+        "framework": "cargo test"
+      }
+    },
+    {
+      "id": "obj_example_file_self_audit",
+      "type": "ExampleFile",
+      "attributes": {
+        "path": "crates/ggen-graph/examples/self_audit_demo.rs",
+        "description": "Demonstrates generation and projection of self-audit log"
+      }
+    },
+    {
+      "id": "obj_fixture_file_self_audit",
+      "type": "FixtureFile",
+      "attributes": {
+        "path": "crates/ggen-graph/tests/fixtures/self_audit_log.json",
+        "format": "json"
+      }
+    },
+    {
+      "id": "obj_script_file_verify",
+      "type": "ScriptFile",
+      "attributes": {
+        "interpreter": "bash",
+        "path": "scripts/gall/external/09_verify_ocel_self_audit.sh"
+      }
+    },
+    {
+      "id": "obj_command_test",
+      "type": "Command",
+      "attributes": {
+        "args": "test --package ggen-graph",
+        "binary": "cargo"
+      }
+    },
+    {
+      "id": "obj_command_run_1",
+      "type": "CommandRun",
+      "attributes": {
+        "execution_host": "localhost",
+        "exit_code": "0"
+      }
+    },
+    {
+      "id": "obj_evidence_artifact_1",
+      "type": "EvidenceArtifact",
+      "attributes": {
+        "size_bytes": "1024",
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+      }
+    },
+    {
+      "id": "obj_graph_receipt_1",
+      "type": "GraphReceipt",
+      "attributes": {
+        "hash": "eb3a28b0f4e1f72da89f2cf0f95b9d3bb8cf03ffdcf82309e7116744f2ef08eb",
+        "block_index": "42"
+      }
+    },
+    {
+      "id": "obj_coverage_matrix_1",
+      "type": "CoverageMatrix",
+      "attributes": {
+        "line_coverage": "0.965",
+        "branch_coverage": "0.921"
+      }
+    },
+    {
+      "id": "obj_promotion_decision_1",
+      "type": "PromotionDecision",
+      "attributes": {
+        "status": "Promoted",
+        "approver": "OrchestratorAgent"
+      }
+    },
+    {
+      "id": "obj_unsupported_capability_1",
+      "type": "UnsupportedCapability",
+      "attributes": {
+        "name": "RealtimeMultiAgentConsensus",
+        "reason": "Out of scope for deterministic local execution model"
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_req_declared",
+      "activity": "RequirementDeclared",
+      "timestamp": "2026-05-26T09:00:00Z",
+      "objects": [
+        {
+          "id": "obj_prd_compliance",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "obj_crate_ggen",
+          "type": "RustCrate",
+          "qualifier": null
+        },
+        {
+          "id": "req_r1_one_crate",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r2_ontology",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r3_deterministic",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r4_knowledge_hook",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r5_ocel_prov",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r6_compliance",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r7_ocel_self_audit",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r8_coverage_matrix",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r9_proof_report",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "req_r10_interchangeable",
+          "type": "PRDRequirement",
+          "qualifier": "--satisfied_by-->"
+        }
+      ],
+      "attributes": {
+        "scope": "compliance"
+      }
+    },
+    {
+      "id": "ev_ont_mapped",
+      "activity": "OntologyMapped",
+      "timestamp": "2026-05-26T09:05:00Z",
+      "objects": [
+        {
+          "id": "obj_public_ontology",
+          "type": "PublicOntology",
+          "qualifier": "--checks-->"
+        },
+        {
+          "id": "obj_ontology_term_event",
+          "type": "OntologyTerm",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_file_emitted",
+      "activity": "FileEmitted",
+      "timestamp": "2026-05-26T09:10:00Z",
+      "objects": [
+        {
+          "id": "obj_source_file_self_audit",
+          "type": "SourceFile",
+          "qualifier": "--produces-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_impl_changed",
+      "activity": "ImplementationChanged",
+      "timestamp": "2026-05-26T09:15:00Z",
+      "objects": [
+        {
+          "id": "obj_source_file_self_audit",
+          "type": "SourceFile",
+          "qualifier": "--satisfied_by-->"
+        },
+        {
+          "id": "obj_ard_mapping",
+          "type": "ARDRequirement",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_fixture_created",
+      "activity": "FixtureCreated",
+      "timestamp": "2026-05-26T09:20:00Z",
+      "objects": [
+        {
+          "id": "obj_fixture_file_self_audit",
+          "type": "FixtureFile",
+          "qualifier": "--produces-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_command_executed",
+      "activity": "CommandExecuted",
+      "timestamp": "2026-05-26T09:25:00Z",
+      "objects": [
+        {
+          "id": "obj_command_test",
+          "type": "Command",
+          "qualifier": "--produces-->"
+        },
+        {
+          "id": "obj_command_run_1",
+          "type": "CommandRun",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_test_passed",
+      "activity": "TestPassed",
+      "timestamp": "2026-05-26T09:30:00Z",
+      "objects": [
+        {
+          "id": "obj_test_file_self_audit",
+          "type": "TestFile",
+          "qualifier": "--verifies-->"
+        },
+        {
+          "id": "obj_source_file_self_audit",
+          "type": "SourceFile",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_test_failed",
+      "activity": "TestFailed",
+      "timestamp": "2026-05-26T09:35:00Z",
+      "objects": [
+        {
+          "id": "obj_test_file_self_audit",
+          "type": "TestFile",
+          "qualifier": "--checks-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_test_remediated",
+      "activity": "TestPassed",
+      "timestamp": "2026-05-26T09:38:00Z",
+      "objects": [
+        {
+          "id": "obj_test_file_self_audit",
+          "type": "TestFile",
+          "qualifier": "--verifies-->"
+        },
+        {
+          "id": "obj_source_file_self_audit",
+          "type": "SourceFile",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_forbidden_scanned",
+      "activity": "ForbiddenSurfaceScanned",
+      "timestamp": "2026-05-26T09:40:00Z",
+      "objects": [
+        {
+          "id": "obj_script_file_verify",
+          "type": "ScriptFile",
+          "qualifier": "--checks-->"
+        },
+        {
+          "id": "obj_source_file_self_audit",
+          "type": "SourceFile",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_antifake_scanned",
+      "activity": "AntiFakeScanned",
+      "timestamp": "2026-05-26T09:45:00Z",
+      "objects": [
+        {
+          "id": "obj_script_file_verify",
+          "type": "ScriptFile",
+          "qualifier": "--checks-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_receipt_emitted",
+      "activity": "ReceiptEmitted",
+      "timestamp": "2026-05-26T09:50:00Z",
+      "objects": [
+        {
+          "id": "obj_graph_receipt_1",
+          "type": "GraphReceipt",
+          "qualifier": "--produces-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_replay_verified",
+      "activity": "ReplayVerified",
+      "timestamp": "2026-05-26T09:55:00Z",
+      "objects": [
+        {
+          "id": "obj_evidence_artifact_1",
+          "type": "EvidenceArtifact",
+          "qualifier": "--verifies-->"
+        },
+        {
+          "id": "obj_graph_receipt_1",
+          "type": "GraphReceipt",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_coverage_evaluated",
+      "activity": "CoverageEvaluated",
+      "timestamp": "2026-05-26T10:00:00Z",
+      "objects": [
+        {
+          "id": "obj_coverage_matrix_1",
+          "type": "CoverageMatrix",
+          "qualifier": "--checks-->"
+        },
+        {
+          "id": "obj_crate_ggen",
+          "type": "RustCrate",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_checkpoint_evaluated",
+      "activity": "CheckpointEvaluated",
+      "timestamp": "2026-05-26T10:05:00Z",
+      "objects": [
+        {
+          "id": "obj_cp_verify",
+          "type": "GALLCheckpoint",
+          "qualifier": "--checks-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_checkpoint_promoted",
+      "activity": "CheckpointPromoted",
+      "timestamp": "2026-05-26T10:10:00Z",
+      "objects": [
+        {
+          "id": "obj_promotion_decision_1",
+          "type": "PromotionDecision",
+          "qualifier": "--decides-->"
+        },
+        {
+          "id": "obj_cp_verify",
+          "type": "GALLCheckpoint",
+          "qualifier": null
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_checkpoint_refused",
+      "activity": "CheckpointRefused",
+      "timestamp": "2026-05-26T10:15:00Z",
+      "objects": [
+        {
+          "id": "obj_promotion_decision_1",
+          "type": "PromotionDecision",
+          "qualifier": "--decides-->"
+        }
+      ],
+      "attributes": {}
+    },
+    {
+      "id": "ev_unsupported_declared",
+      "activity": "UnsupportedCapabilityDeclared",
+      "timestamp": "2026-05-26T10:20:00Z",
+      "objects": [
+        {
+          "id": "obj_unsupported_capability_1",
+          "type": "UnsupportedCapability",
+          "qualifier": "--decides-->"
+        }
+      ],
+      "attributes": {}
+    }
+  ]
+}

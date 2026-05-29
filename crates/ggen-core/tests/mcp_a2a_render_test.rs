@@ -375,6 +375,7 @@ fn load_core_template(name: &str) -> String {
 // Render + assert helper
 // ---------------------------------------------------------------------------
 
+#[allow(dead_code)]
 struct RenderResult {
     template_name: &'static str,
     output_file: &'static str,

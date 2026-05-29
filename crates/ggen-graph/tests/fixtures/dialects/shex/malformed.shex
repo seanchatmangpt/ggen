@@ -1,0 +1,2 @@
+PREFIX prov: <http://www.w3.org/ns/prov#>
+<http://www.w3.org/ns/prov#EntityShape> {

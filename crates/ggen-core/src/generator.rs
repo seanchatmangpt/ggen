@@ -325,7 +325,7 @@ impl Generator {
                     .collect::<String>();
                 let sanitized_value = v
                     .chars()
-                    .filter(|c| !c.is_control())
+                    .filter(|c| *c == '\n' || *c == '\r' || !c.is_control())
                     .take(10000)
                     .collect::<String>();
                 (sanitized_key, sanitized_value)

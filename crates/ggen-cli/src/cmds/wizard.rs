@@ -32,6 +32,7 @@
 #![allow(clippy::unused_unit)]
 
 use clap_noun_verb_macros::verb;
+use ggen_core::codegen::executor::{SyncExecutor, SyncOptions};
 use ggen_core::codegen::FileTransaction;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -440,29 +441,86 @@ fn perform_wizard(
         ))
     })?;
 
-    // Run initial sync if not skipped
+    // Run initial sync if not skipped.
+    //
+    // This invokes the authoritative sync path — the SAME `SyncExecutor` the
+    // `ggen sync` command drives — against the `ggen.toml` the wizard just wrote.
+    // We only claim "Initial sync completed" when a real generation actually
+    // succeeded. On failure we surface the error and report status "error":
+    // never assert a state transition that did not happen.
     let mut next_steps = vec!["Run 'ggen sync' to generate initial outputs".to_string()];
+    let mut sync_error: Option<String> = None;
 
     if !skip_sync {
         println!("\n⚙️  Running initial sync...");
-        // In a real implementation, we would call ggen sync here
-        // For now, just add a next step
-        next_steps.insert(0, "Initial sync completed".to_string());
+        match run_initial_sync(base_path) {
+            Ok(()) => {
+                // A real sync emitted real artifacts — the claim is now TRUE.
+                next_steps.insert(0, "Initial sync completed".to_string());
+            }
+            Err(e) => {
+                // Do NOT claim "completed". Honestly report the failure and
+                // tell the user how to retry the real command.
+                next_steps.insert(
+                    0,
+                    "Initial sync did not run; run 'ggen sync' to generate outputs".to_string(),
+                );
+                sync_error = Some(e);
+            }
+        }
     }
 
     next_steps.push("Edit .specify/specs/project.ttl to customize your project".to_string());
     next_steps.push("Review world.manifest.json to see all outputs".to_string());
     next_steps.push("Run world.verify.mjs to validate outputs".to_string());
 
+    let status = if sync_error.is_some() {
+        "error".to_string()
+    } else {
+        "success".to_string()
+    };
+
     Ok(WizardOutput {
-        status: "success".to_string(),
+        status,
         project_dir: project_dir.to_string(),
         profile: config.profile.as_str().to_string(),
         files_created,
         directories_created,
-        error: None,
+        error: sync_error,
         next_steps,
     })
+}
+
+/// Run the real initial sync over the freshly scaffolded `ggen.toml`.
+///
+/// Drives the authoritative `SyncExecutor` (the same engine behind `ggen sync`)
+/// against `<base_path>/ggen.toml`. All paths inside the manifest are resolved
+/// relative to the manifest's parent directory by the executor, so no working
+/// directory change is required.
+///
+/// Returns `Ok(())` only when the executor reports `status == "success"`,
+/// guaranteeing that the "Initial sync completed" claim corresponds to a real
+/// state transition. Any executor error, or a non-success status, is surfaced
+/// as `Err(message)` so the caller can refuse to claim completion.
+fn run_initial_sync(base_path: &Path) -> std::result::Result<(), String> {
+    let manifest_path = base_path.join("ggen.toml");
+
+    let options = SyncOptions {
+        manifest_path,
+        ..SyncOptions::default()
+    };
+
+    let result = SyncExecutor::new(options)
+        .execute()
+        .map_err(|e| e.to_string())?;
+
+    if result.status == "success" {
+        Ok(())
+    } else {
+        Err(result
+            .error
+            .unwrap_or_else(|| format!("sync reported status '{}'", result.status)))
+    }
 }
 
 fn generate_scaffold(
@@ -1577,6 +1635,88 @@ mod tests {
         assert_eq!(WizardProfile::McpA2a.as_str(), "mcp-a2a");
         assert!(WizardProfile::McpA2a.description().contains("MCP"));
         assert!(WizardProfile::McpA2a.description().contains("A2A"));
+    }
+
+    /// Positive: with sync ENABLED (skip_sync = false), the wizard must run the
+    /// real `SyncExecutor` against the scaffolded `ggen.toml` and produce real
+    /// generated output. We assert the observable filesystem state (the world
+    /// manifest the manifest declares) actually exists — proving a real state
+    /// transition happened, not a printed claim.
+    #[test]
+    fn test_wizard_initial_sync_produces_real_output() {
+        let temp_dir = tempdir().expect("Failed to create temp dir");
+        let project_path = temp_dir.path().to_str().expect("Invalid path");
+
+        let config = WizardConfig::default();
+        // skip_sync = false → the real sync must run.
+        let result =
+            perform_wizard(project_path, config, false).expect("Wizard should not hard-error");
+
+        // The claim and the world must agree: either sync succeeded AND the
+        // declared output artifact exists, or sync failed AND we did NOT claim
+        // completion. There is no honest third state.
+        let base = temp_dir.path();
+        let claimed_completed = result
+            .next_steps
+            .iter()
+            .any(|s| s == "Initial sync completed");
+        let manifest_output_exists = base.join("world.manifest.json").exists();
+
+        if claimed_completed {
+            // INVARIANT: a "completed" claim REQUIRES a real generated artifact.
+            assert_eq!(
+                result.status, "success",
+                "claimed sync completion but status was not success"
+            );
+            assert!(
+                manifest_output_exists,
+                "claimed 'Initial sync completed' but world.manifest.json was never generated — \
+                 this is the decorative-completion lie"
+            );
+            assert!(result.error.is_none(), "success must carry no error");
+        } else {
+            // If sync did not complete, status must be error and an error must
+            // be surfaced — never a silent fake-success.
+            assert_eq!(
+                result.status, "error",
+                "sync did not complete yet status was not 'error'"
+            );
+            assert!(
+                result.error.is_some(),
+                "sync did not complete but no error was surfaced"
+            );
+        }
+    }
+
+    /// Negative / sabotage: this is the loud-fail guard. The output must NEVER
+    /// contain a "completed" sync claim unless a sync actually occurred.
+    ///
+    /// With skip_sync = true the wizard runs NO sync, so the phrase "Initial
+    /// sync completed" must be absent. If a future change re-introduces the
+    /// decorative-completion lie (pushing the claim without running sync), this
+    /// test fails loudly.
+    #[test]
+    fn test_wizard_skip_sync_never_claims_completion() {
+        let temp_dir = tempdir().expect("Failed to create temp dir");
+        let project_path = temp_dir.path().to_str().expect("Invalid path");
+
+        let config = WizardConfig::default();
+        // skip_sync = true → NO sync runs.
+        let result = perform_wizard(project_path, config, true).expect("Wizard should succeed");
+
+        // No sync ran, so no generated artifact may exist...
+        let base = temp_dir.path();
+        assert!(
+            !base.join("world.manifest.json").exists(),
+            "no sync was requested yet a sync artifact appeared"
+        );
+
+        // ...and the output must NOT claim a sync was completed.
+        assert!(
+            !result.next_steps.iter().any(|s| s.contains("completed")),
+            "skip_sync was set but output falsely claims a sync 'completed': {:?}",
+            result.next_steps
+        );
     }
 
     #[test]

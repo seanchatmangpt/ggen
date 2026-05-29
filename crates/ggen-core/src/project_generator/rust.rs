@@ -23,7 +23,7 @@
 //! ### Generating a Rust CLI Project
 //!
 //! ```rust,no_run
-//! use crate::project_generator::{ProjectConfig, ProjectType};
+//! use crate::project_generator::{ProjectConfig, ProjectType, ProjectGenerator};
 //! use crate::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
 //!
@@ -44,7 +44,7 @@
 //! ### Generating a Rust Web Project
 //!
 //! ```rust,no_run
-//! use crate::project_generator::{ProjectConfig, ProjectType};
+//! use crate::project_generator::{ProjectConfig, ProjectType, ProjectGenerator};
 //! use crate::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
 //!

@@ -125,6 +125,48 @@ jobs:
       - name: "Run doctests (CRITICAL: Verify all doctests compile and run)"
         run: cargo test --doc --workspace
 
+      - name: Run External Observer Promotion Adjudication
+        run: bash scripts/gall/external/13_adjudicate_gall_promotion.sh
+
+  plugin-harness:
+    name: Plugin Test Harness (LSP/MCP)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: stable
+          cache-key-suffix: plugin-harness-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo tools
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: make
+          cache-tools: 'true'
+
+      - name: Run ggen-lsp plugin harness tests
+        run: cargo test -p ggen-lsp --test manifest_contract_test --test lsp_protocol_test --test lsp_sabotage_test
+
+      - name: Run ggen-lsp-mcp plugin harness tests
+        run: cargo test -p ggen-lsp-mcp --test mcp_protocol_test
+
+      - name: Detect fake implementations (find-fakes)
+        run: bash scripts/find-fakes.sh
+
+      - name: Build plugin binaries for smoke canary
+        run: |
+          cargo build -p ggen-lsp --bin ggen-lsp
+          cargo build -p ggen-lsp-mcp
+
+      - name: LSP smoke canary (live E0011 route)
+        run: python3 scripts/lsp-smoke.py
+
+      - name: MCP smoke canary (live E0011 route)
+        run: python3 scripts/mcp-smoke.py
+
   build-matrix:
     name: Build (${{ matrix.os }}, ${{ matrix.rust }})
     runs-on: ${{ matrix.os }}
@@ -198,6 +240,7 @@ jobs:
     needs:
       - file-organization
       - comprehensive-test
+      - plugin-harness
       - build-matrix
       - fmt
       - clippy
@@ -208,6 +251,7 @@ jobs:
         run: |
           if [ "${{ needs.file-organization.result }}" != "success" ] || \
              [ "${{ needs.comprehensive-test.result }}" != "success" ] || \
+             [ "${{ needs.plugin-harness.result }}" != "success" ] || \
              [ "${{ needs.build-matrix.result }}" != "success" ] || \
              [ "${{ needs.fmt.result }}" != "success" ] || \
              [ "${{ needs.clippy.result }}" != "success" ] || \

@@ -6,8 +6,8 @@
 # Generate with:
 #   ggen mcp generate --ontology codegen-server.ttl --output ./src
 
-@prefix mcp: <http://ggen.dev/mcp#> .
-@prefix ex:  <http://ggen.dev/mcp/server/ggen#> .
+@prefix mcp: <http://example.org/mcp#> .
+@prefix ex:  <http://example.org/mcp/server/ext#> .
 
 # Server definition
 ex:GgenServer a mcp:McpServer ;

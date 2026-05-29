@@ -1,0 +1,18 @@
+[package]
+name = "ggen-projection"
+version = "1.0.0"
+edition = "2021"
+description = "ggen Projection Membrane - Expand relation page Pair2 streams and local receipts into external formats"
+authors = ["KNHK Team"]
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+blake3 = { workspace = true }
+knhk-construct8 = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

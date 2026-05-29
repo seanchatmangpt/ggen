@@ -44,7 +44,7 @@
 //! let receipt = pipeline.run()?;
 //!
 //! // Verify the projection
-//! assert!(receipt.is_valid());
+//! assert!(receipt.is_valid);
 //! # Ok(())
 //! # }
 //! ```

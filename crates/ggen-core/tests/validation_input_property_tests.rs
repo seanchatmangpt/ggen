@@ -65,9 +65,12 @@ proptest! {
         prop_assert!(result.is_ok());
     }
 
+    // `CharsetRule::alphanumeric()` uses Rust's Unicode-aware `char::is_alphanumeric`,
+    // so Unicode letters/digits (e.g. "¹") are accepted. Constrain the generator to
+    // ASCII punctuation/symbols, which are the "special characters" the rule rejects.
     #[test]
     fn test_charset_alphanumeric_rejects_special_chars(
-        s in "[a-zA-Z0-9]*[^a-zA-Z0-9]+[a-zA-Z0-9]*"
+        s in "[a-zA-Z0-9]*[ -/:-@\\[-`{-~]+[a-zA-Z0-9]*"
     ) {
         let rule = CharsetRule::alphanumeric();
         let result = rule.validate(&s, "test");

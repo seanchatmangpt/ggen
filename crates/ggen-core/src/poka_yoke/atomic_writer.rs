@@ -28,12 +28,12 @@ const MIN_FREE_SPACE: u64 = 10 * 1024 * 1024;
 /// # Example
 ///
 /// ```no_run
-/// use crate::poka_yoke::{AtomicFileWriter, Uncommitted};
+/// use ggen_core::poka_yoke::{AtomicFileWriter, Uncommitted};
 ///
 /// let mut writer = AtomicFileWriter::new("/path/to/file.txt")?;
 /// writer.write_all(b"Hello, world!")?;
 /// let _committed = writer.commit()?; // Atomic rename
-/// # Ok::<(), crate::error::Error>(())
+/// # Ok::<(), ggen_core::utils::error::Error>(())
 /// ```
 pub struct AtomicFileWriter<State = Uncommitted> {
     target_path: PathBuf,

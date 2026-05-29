@@ -32,6 +32,8 @@ rmcp = "1.3"
 ggen-core = { path = "../../crates/ggen-core" }
 
 async-trait = "0.1"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [workspace]
 

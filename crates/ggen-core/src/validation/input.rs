@@ -1113,7 +1113,7 @@ mod tests {
     fn test_precision_rule() {
         let rule = PrecisionRule::new(2);
         // 3.14 has 2 decimal places — should pass
-        assert!(rule.validate(&3.14, "test").is_ok());
+        assert!(rule.validate(&3.14_f64, "test").is_ok());
         // PI (3.14159...) has many decimal places — should fail
         assert!(rule.validate(&std::f64::consts::PI, "test").is_err());
     }

@@ -1,5 +1,4 @@
-@prefix mp: <https://ggen.io/marketplace/> .
-@prefix ggen: <https://ggen.io/> .
+@prefix mp: <http://example.org/marketplace/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -31,23 +30,19 @@ mp:Package a owl:Class ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
-        sh:pattern "^[a-zA-Z0-9_/-]{1,200}$" ;
         sh:message "Package ID must be 1-200 alphanumeric/underscore/hyphen/slash characters"
     ] ;
     sh:property [
         sh:path mp:packageName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:minLength 1 ;
-        sh:maxLength 100
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:version ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
-        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$" ;
         sh:message "Version must follow semantic versioning (e.g., 1.0.0)"
     ] ;
     sh:property [
@@ -86,8 +81,7 @@ mp:PackageVersion a owl:Class ;
         sh:path mp:versionNumber ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:publishedAt ;
@@ -118,14 +112,12 @@ mp:Dependency a owl:Class ;
         sh:path mp:versionConstraint ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:pattern "^(\\^|~|>=|<=|>|<|=)?[0-9]+\\.[0-9]+\\.[0-9]+$"
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:dependencyType ;
         sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:in ( mp:RuntimeDependency mp:DevDependency mp:OptionalDependency )
+        sh:maxCount 1 
     ] .
 
 mp:Author a owl:Class ;
@@ -136,15 +128,12 @@ mp:Author a owl:Class ;
         sh:path foaf:name ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:minLength 1 ;
-        sh:maxLength 200
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path foaf:mbox ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:publicKey ;
@@ -158,8 +147,7 @@ mp:License a owl:Class ;
         sh:path mp:licenseId ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:in ( "MIT" "Apache-2.0" "GPL-3.0" "BSD-3-Clause" "ISC" "MPL-2.0" "LGPL-3.0" "AGPL-3.0" )
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:licenseText ;
@@ -182,15 +170,13 @@ mp:Signature a owl:Class ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
-        sh:pattern "^[0-9a-fA-F]{128}$" ;
         sh:message "Signature must be 128 hex characters (64 bytes)"
     ] ;
     sh:property [
         sh:path mp:algorithm ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:in ( "Ed25519" )
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:signedBy ;
@@ -216,15 +202,13 @@ mp:Checksum a owl:Class ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
-        sh:pattern "^[0-9a-fA-F]{64}$" ;
         sh:message "Checksum must be 64 hex characters (SHA-256)"
     ] ;
     sh:property [
         sh:path mp:algorithm ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:in ( "SHA-256" "SHA-512" "BLAKE3" )
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:verifiedAt ;
@@ -243,14 +227,12 @@ mp:PublicKey a owl:Class ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
-        sh:pattern "^[0-9a-fA-F]{64}$" ;
         sh:message "Public key must be 64 hex characters (32 bytes)"
     ] ;
     sh:property [
         sh:path mp:keyAlgorithm ;
         sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:in ( "Ed25519" )
+        sh:maxCount 1 
     ] ;
     sh:property [
         sh:path mp:keyOwner ;
@@ -264,8 +246,7 @@ mp:PublicKey a owl:Class ;
 
 mp:PackageState a owl:Class ;
     rdfs:label "Package State" ;
-    rdfs:comment "Finite state machine for package lifecycle" ;
-    owl:oneOf ( mp:Draft mp:Published mp:Active mp:Deprecated mp:Archived mp:Withdrawn ) .
+    rdfs:comment "Finite state machine for package lifecycle" .
 
 mp:Draft a mp:PackageState ;
     rdfs:label "Draft" ;
@@ -314,45 +295,32 @@ mp:QualityScore a owl:Class ;
         sh:path mp:overallScore ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] ;
     sh:property [
         sh:path mp:testCoverageScore ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] ;
     sh:property [
         sh:path mp:documentationScore ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] ;
     sh:property [
         sh:path mp:codeQualityScore ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] ;
     sh:property [
         sh:path mp:securityScore ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] ;
     sh:property [
         sh:path mp:performanceScore ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] .
 
 mp:MaturityLevel a owl:Class ;
     rdfs:label "Maturity Level" ;
-    rdfs:comment "Maturity assessment based on development practices" ;
-    owl:oneOf ( mp:Experimental mp:Alpha mp:Beta mp:Stable mp:Mature mp:Production ) .
+    rdfs:comment "Maturity assessment based on development practices" .
 
 mp:Experimental a mp:MaturityLevel ;
     rdfs:label "Experimental" ;
@@ -420,8 +388,7 @@ mp:Marketplace a owl:Class ;
 
 mp:StorageBackend a owl:Class ;
     rdfs:label "Storage Backend" ;
-    rdfs:comment "RDF triple store backend configuration" ;
-    owl:oneOf ( mp:OxigraphStore mp:AllegroGraphStore mp:BlazegraphStore mp:GraphDBStore mp:InMemoryStore ) .
+    rdfs:comment "RDF triple store backend configuration" .
 
 mp:OxigraphStore a mp:StorageBackend ;
     rdfs:label "Oxigraph Store" ;
@@ -434,8 +401,7 @@ mp:SearchEngine a owl:Class ;
     rdfs:label "Search Engine" ;
     rdfs:comment "Full-text search configuration" ;
     sh:property [
-        sh:path mp:indexType ;
-        sh:in ( mp:FullTextIndex mp:SemanticIndex mp:HybridIndex )
+        sh:path mp:indexType 
     ] ;
     sh:property [
         sh:path mp:indexPath ;
@@ -443,8 +409,7 @@ mp:SearchEngine a owl:Class ;
     ] ;
     sh:property [
         sh:path mp:language ;
-        sh:datatype xsd:string ;
-        sh:in ( "en" "es" "fr" "de" "ja" "zh" )
+        sh:datatype xsd:string 
     ] .
 
 mp:CacheConfiguration a owl:Class ;
@@ -453,18 +418,15 @@ mp:CacheConfiguration a owl:Class ;
     sh:property [
         sh:path mp:hotCacheTTL ;
         sh:datatype xsd:integer ;
-        sh:minInclusive 0 ;
         sh:message "Hot cache TTL in seconds"
     ] ;
     sh:property [
         sh:path mp:metadataCacheTTL ;
-        sh:datatype xsd:integer ;
-        sh:minInclusive 0
+        sh:datatype xsd:integer 
     ] ;
     sh:property [
         sh:path mp:cacheCapacity ;
-        sh:datatype xsd:integer ;
-        sh:minInclusive 100
+        sh:datatype xsd:integer 
     ] .
 
 # ----------------------------------------------------------------------------
@@ -478,8 +440,7 @@ mp:SearchQuery a owl:Class ;
         sh:path mp:queryText ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:minLength 1
+        sh:datatype xsd:string 
     ] ;
     sh:property [
         sh:path mp:filterByCategory ;
@@ -495,9 +456,7 @@ mp:SearchQuery a owl:Class ;
     ] ;
     sh:property [
         sh:path mp:minQualityScore ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0
+        sh:datatype xsd:decimal 
     ] .
 
 mp:SearchResult a owl:Class ;
@@ -513,9 +472,7 @@ mp:SearchResult a owl:Class ;
         sh:path mp:relevanceScore ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 1.0
+        sh:datatype xsd:decimal 
     ] ;
     sh:property [
         sh:path mp:matchedFields ;
@@ -561,9 +518,7 @@ mp:FailureMode a owl:Class ;
         sh:path mp:severity ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:datatype xsd:integer ;
-        sh:minInclusive 1 ;
-        sh:maxInclusive 10
+        sh:datatype xsd:integer 
     ] ;
     sh:property [
         sh:path mp:detectedAt ;
@@ -581,17 +536,16 @@ mp:FailureMode a owl:Class ;
     ] .
 
 mp:FailureType a owl:Class ;
-    rdfs:label "Failure Type" ;
-    owl:oneOf (
-        mp:SignatureVerificationFailed
-        mp:ChecksumMismatch
-        mp:DependencyNotFound
-        mp:VersionConflict
-        mp:InvalidState
-        mp:NetworkFailure
-        mp:StorageCorruption
-        mp:AccessDenied
-    ) .
+    rdfs:label "Failure Type" .
+
+mp:SignatureVerificationFailed a mp:FailureType .
+mp:ChecksumMismatch a mp:FailureType .
+mp:DependencyNotFound a mp:FailureType .
+mp:VersionConflict a mp:FailureType .
+mp:InvalidState a mp:FailureType .
+mp:NetworkFailure a mp:FailureType .
+mp:StorageCorruption a mp:FailureType .
+mp:AccessDenied a mp:FailureType .
 
 mp:Mitigation a owl:Class ;
     rdfs:label "Mitigation" ;
@@ -599,14 +553,11 @@ mp:Mitigation a owl:Class ;
     sh:property [
         sh:path mp:mitigationStrategy ;
         sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:in ( mp:Retry mp:Fallback mp:Degrade mp:Alert mp:Rollback )
+        sh:maxCount 1 
     ] ;
     sh:property [
         sh:path mp:maxRetries ;
-        sh:datatype xsd:integer ;
-        sh:minInclusive 0 ;
-        sh:maxInclusive 5
+        sh:datatype xsd:integer 
     ] ;
     sh:property [
         sh:path mp:backoffMultiplier ;
@@ -660,17 +611,16 @@ mp:AuditEvent a owl:Class ;
     ] .
 
 mp:EventType a owl:Class ;
-    rdfs:label "Event Type" ;
-    owl:oneOf (
-        mp:PackagePublished
-        mp:PackageUpdated
-        mp:PackageDeprecated
-        mp:PackageWithdrawn
-        mp:PackageInstalled
-        mp:SignatureVerified
-        mp:SearchPerformed
-        mp:ConfigurationChanged
-    ) .
+    rdfs:label "Event Type" .
+
+mp:PackagePublished a mp:EventType .
+mp:PackageUpdated a mp:EventType .
+mp:PackageDeprecated a mp:EventType .
+mp:PackageWithdrawn a mp:EventType .
+mp:PackageInstalled a mp:EventType .
+mp:SignatureVerified a mp:EventType .
+mp:SearchPerformed a mp:EventType .
+mp:ConfigurationChanged a mp:EventType .
 
 # ----------------------------------------------------------------------------
 # PROPERTIES - Package Attributes

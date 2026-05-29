@@ -1,12 +1,16 @@
+[workspace]
+
 [package]
 name = "advanced-pipeline"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ggen-core = { path = "../../ggen-core" }
+ggen-core = { path = "../../crates/ggen-core" }
 anyhow = "1.0"
 tokio = { version = "1.40", features = ["full"] }
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [dev-dependencies]
 tempfile = "3.13"

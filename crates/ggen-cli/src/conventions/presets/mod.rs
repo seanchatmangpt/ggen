@@ -20,7 +20,7 @@
 //! ### Using a Preset
 //!
 //! ```rust,no_run
-//! use ggen_cli::conventions::presets::{get_preset, ConventionPreset};
+//! use ggen_cli_lib::conventions::presets::{get_preset, ConventionPreset};
 //! use std::path::Path;
 //!
 //! # fn main() -> anyhow::Result<()> {
@@ -42,7 +42,7 @@
 //! ### Listing Available Presets
 //!
 //! ```rust,no_run
-//! use ggen_cli::conventions::presets::list_presets;
+//! use ggen_cli_lib::conventions::presets::list_presets;
 //!
 //! let presets = list_presets();
 //! for preset_name in presets {

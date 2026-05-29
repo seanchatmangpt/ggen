@@ -1,0 +1,5570 @@
+[
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "61dc9541-cbb1-4b8b-aae9-88ae60aba182",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "77b6457bf4debfef3dc7fa230e667122b4aab7f3e69765df634bb986664d1db0",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_61dc9541-cbb1-4b8b-aae9-88ae60aba182",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "61dc9541-cbb1-4b8b-aae9-88ae60aba182",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "8c79cb29-d448-4027-ac01-bafe6947ebc6",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "61dc9541-cbb1-4b8b-aae9-88ae60aba182",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "8c79cb29-d448-4027-ac01-bafe6947ebc6",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "ff7e04d5da440f5556c0630e3bb31073ec69a467f1eb6af409d7448dee148cc8"
+      },
+      "observed_ocel_hash": "ff7e04d5da440f5556c0630e3bb31073ec69a467f1eb6af409d7448dee148cc8",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "bb80bddccb58ce5ab052a48466b11b0fcf42f8b44ec7970c2bd79cc821ad2983"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Audit_Logs",
+    "task_id": "48be620d-d55a-4cae-a9d5-358f9eb1732b",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "673e2e776b1c4e77a781130f57ddac6d6f18c6a6435953284454bbf7c79af028",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_48be620d-d55a-4cae-a9d5-358f9eb1732b",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "48be620d-d55a-4cae-a9d5-358f9eb1732b",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "4fb818e4-9c61-4bd3-9d09-d43493e20475",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "48be620d-d55a-4cae-a9d5-358f9eb1732b",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "4fb818e4-9c61-4bd3-9d09-d43493e20475",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "b0b2429fc81c5dc95d3008618328edf6d80e26373dd08f5876e591247360fe8b"
+      },
+      "observed_ocel_hash": "b0b2429fc81c5dc95d3008618328edf6d80e26373dd08f5876e591247360fe8b",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0d99695288c12411af6a37c3395550894fa3b6253061d361f0805a66ae494957"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Design_Schema",
+    "task_id": "f25ff578-5af7-4140-87cd-8b21724612a7",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "837c9f897edf16218afee599498dab94ad60c84729a15995904c7017bd446138",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_f25ff578-5af7-4140-87cd-8b21724612a7",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "f25ff578-5af7-4140-87cd-8b21724612a7",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "a94ebc81-720e-4e73-954a-001408f0851c",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "f25ff578-5af7-4140-87cd-8b21724612a7",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "a94ebc81-720e-4e73-954a-001408f0851c",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "694d885437bee2380e51b3637490ab59416ebc77af94ff6ef2b644a06b8d71f4"
+      },
+      "observed_ocel_hash": "694d885437bee2380e51b3637490ab59416ebc77af94ff6ef2b644a06b8d71f4",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "3fb3defb620248f5121347b18ec28f626c7666e3c462f59f4fdafd4128b1690b"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Implement_Cache",
+    "task_id": "44e3b39c-b06a-41bd-b6a4-eaf5f2ada418",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "b740ceac23595bc555985f89bfe836f1bfc0b0ea04be3f60f80e3c65b5cca14a",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_44e3b39c-b06a-41bd-b6a4-eaf5f2ada418",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "44e3b39c-b06a-41bd-b6a4-eaf5f2ada418",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "4ca1ef61-9ff8-4a17-bd13-7a645744a15a",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "44e3b39c-b06a-41bd-b6a4-eaf5f2ada418",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "4ca1ef61-9ff8-4a17-bd13-7a645744a15a",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "b881b3b0f72824dbe65230086a1948a61872a81c9a4e052e32e1821d9e80ebb3"
+      },
+      "observed_ocel_hash": "b881b3b0f72824dbe65230086a1948a61872a81c9a4e052e32e1821d9e80ebb3",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "8040961f630fc47aaedc1e7c6abf3d8f4bddc5a93a8035cdbecf82b072d7eac3"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Verify_Compliance",
+    "task_id": "abfd8819-a939-493b-8159-d168583c5f1d",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "e4e32b3b2982e750dc21d46a6185cefccbbbb77b96535277cf6fb90ac5ca70dc",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_abfd8819-a939-493b-8159-d168583c5f1d",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "abfd8819-a939-493b-8159-d168583c5f1d",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "58b79fa3-d3ea-49e7-8a8a-571d0ecec3aa",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "abfd8819-a939-493b-8159-d168583c5f1d",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "58b79fa3-d3ea-49e7-8a8a-571d0ecec3aa",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "298468e2ec183336b94580d1171639d6af62f8ed4158f470c491bd35b93c6573"
+      },
+      "observed_ocel_hash": "298468e2ec183336b94580d1171639d6af62f8ed4158f470c491bd35b93c6573",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "9e93b6cd0988139ff450ac1f6fa17a2aa300b9160d8435a3b05c67083e3d9bc0"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "bcdba961-1d51-42f6-86c8-24784dab2d47",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "0023048f92f17c18b7da93283f9d9b02ededd2d71d52a9be4ccf6192941733fc",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_bcdba961-1d51-42f6-86c8-24784dab2d47",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "bcdba961-1d51-42f6-86c8-24784dab2d47",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "4ae91206-799d-4f9c-b4a9-a0ea2395340d",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "bcdba961-1d51-42f6-86c8-24784dab2d47",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "4ae91206-799d-4f9c-b4a9-a0ea2395340d",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "c1381c6f50a486010c7289e67b9988d928771ff3548bad1027c3423918d8d169"
+      },
+      "observed_ocel_hash": "c1381c6f50a486010c7289e67b9988d928771ff3548bad1027c3423918d8d169",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "7d6eff64b95dfb562379452104707c0c07fd4b4639bcd243ee98e003f4389829"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Deploy_K8s",
+    "task_id": "f78a40f4-001e-4a88-85fe-85593ee210c1",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "0cd7afa43916202effc2e85facfa2e3ab61d0ae3f9d2185076e024ef68be88f9",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_f78a40f4-001e-4a88-85fe-85593ee210c1",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "f78a40f4-001e-4a88-85fe-85593ee210c1",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "82baaace-a3c6-445c-87b8-cf4b58244d37",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "f78a40f4-001e-4a88-85fe-85593ee210c1",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "82baaace-a3c6-445c-87b8-cf4b58244d37",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "46beef27f78e153268acf27e3261ce42d7176ec841afe9958841482adf69e335"
+      },
+      "observed_ocel_hash": "46beef27f78e153268acf27e3261ce42d7176ec841afe9958841482adf69e335",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "a6aec86af98a56b4e7bbc72b8c6fb23d15c8f82fb8bb0476ff927c1d0f14a53c"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ProductManager",
+    "jtbd": "Setup_Alerts",
+    "task_id": "d0b0b545-2de4-40eb-8b66-1639ab751a38",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "59ae50daa388dbe35036201f0c35e801ffcc7528bcd9a94d085d5be8d9e86b67",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_d0b0b545-2de4-40eb-8b66-1639ab751a38",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "d0b0b545-2de4-40eb-8b66-1639ab751a38",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "f8383ee5-4559-4497-99e3-325cd5d90772",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "d0b0b545-2de4-40eb-8b66-1639ab751a38",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ProductManager",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "f8383ee5-4559-4497-99e3-325cd5d90772",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "05a08b77f28014bfcc1e7827f42b50b620b5b0995ec626a6f240d9f781612105"
+      },
+      "observed_ocel_hash": "05a08b77f28014bfcc1e7827f42b50b620b5b0995ec626a6f240d9f781612105",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "bc02eb05813bf48fad1b4f6212ad5df5562858cc3d7c5412496f7d55e4ba5d04"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "2e663389-a446-48b4-a327-4dc27ee001a9",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "b2c690bb10356133d85759f872255b5d13065ac817d31901e055b8c636a60b6b",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_2e663389-a446-48b4-a327-4dc27ee001a9",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "2e663389-a446-48b4-a327-4dc27ee001a9",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "9adda0e9-cdb5-445e-bf55-d2001767bab3",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "2e663389-a446-48b4-a327-4dc27ee001a9",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "9adda0e9-cdb5-445e-bf55-d2001767bab3",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "6e022cf04865f36bf506db8f2fa8a582c43b9ec0ce2e0d49c8c2b75243cd50f0"
+      },
+      "observed_ocel_hash": "6e022cf04865f36bf506db8f2fa8a582c43b9ec0ce2e0d49c8c2b75243cd50f0",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "6b23e01f8cbbcb29f22f9ae4d0ab91e0e811ed01cfe78e21ec85d4a1be8aee9d"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Audit_Logs",
+    "task_id": "dc81d114-3180-4042-be42-1e170b623643",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "b1a98a2c65e6c37c46f1283c45a2bd20274c952ddfe65fb9b011c63b9d839ac4",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_dc81d114-3180-4042-be42-1e170b623643",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "dc81d114-3180-4042-be42-1e170b623643",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "f67874e7-94d4-4704-8170-db600d510539",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "dc81d114-3180-4042-be42-1e170b623643",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "f67874e7-94d4-4704-8170-db600d510539",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "713f2ac3cc91467861fcf3f61b8a3b726aafc53d488a122af31da1102929904c"
+      },
+      "observed_ocel_hash": "713f2ac3cc91467861fcf3f61b8a3b726aafc53d488a122af31da1102929904c",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "da5f55361127e078ad65111bc556e478043745a4a366118d69550253656158c2"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Design_Schema",
+    "task_id": "a2e7302e-44ac-461b-8d51-67676f2eab97",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "f4abefd49eced9732104cbf9b9a4b4a3e78e7e5afdd6637b7e1483dc1d693a9c",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_a2e7302e-44ac-461b-8d51-67676f2eab97",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "a2e7302e-44ac-461b-8d51-67676f2eab97",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "6826e09d-d450-4d04-931b-01586ea3154d",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "a2e7302e-44ac-461b-8d51-67676f2eab97",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "6826e09d-d450-4d04-931b-01586ea3154d",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "fbf934c8cc967cd0d25ec6f504b5f21994a971db8b4f1225cd3c15e9302223ee"
+      },
+      "observed_ocel_hash": "fbf934c8cc967cd0d25ec6f504b5f21994a971db8b4f1225cd3c15e9302223ee",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "e9cd8e9a774609221222449677f299af65a62fe0025bec35117fdfc4f802e3b4"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Implement_Cache",
+    "task_id": "008c0246-4bb1-4105-9d30-804ac65ad558",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "4e6b86c0b4b8d3e928a5ba3e1a21b3fdb8c932a6804c7e86e5cc2e35e857c48c",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_008c0246-4bb1-4105-9d30-804ac65ad558",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "008c0246-4bb1-4105-9d30-804ac65ad558",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "87077737-66f5-4fdd-ae06-0b7afa028984",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "008c0246-4bb1-4105-9d30-804ac65ad558",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "87077737-66f5-4fdd-ae06-0b7afa028984",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "8414f0543b6a11faa795d666bd53144a357b317f2fa52680a85576ee09fc9bed"
+      },
+      "observed_ocel_hash": "8414f0543b6a11faa795d666bd53144a357b317f2fa52680a85576ee09fc9bed",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "692758988574253c58b4af93bbec4ba2775299f9ae81e056b41a04f105a026ea"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Verify_Compliance",
+    "task_id": "60c1cc0d-a264-4bda-a5e8-9267a15bd384",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "00f2be6a72c2307e58e004693a5bd62bb64d194099bfd3655e34a9aab96cad30",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_60c1cc0d-a264-4bda-a5e8-9267a15bd384",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "60c1cc0d-a264-4bda-a5e8-9267a15bd384",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "9c2b2757-3990-4c2d-8210-c892cc38540b",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "60c1cc0d-a264-4bda-a5e8-9267a15bd384",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "9c2b2757-3990-4c2d-8210-c892cc38540b",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "6d539293da64b31607c4375b09825aec76bfa3d490279c2c301bdaf843181644"
+      },
+      "observed_ocel_hash": "6d539293da64b31607c4375b09825aec76bfa3d490279c2c301bdaf843181644",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "3cc27f19a3ae9eeb9a6cc92996363e094a2925e5dd0f17363a70f39199c6a68e"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "6d90152b-f765-4b34-a9e9-58da017c9d8b",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "da43ec70f5f85cefaf3484dc5d6488e3b32d4a7803df003648940f4b06a80a2c",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_6d90152b-f765-4b34-a9e9-58da017c9d8b",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "6d90152b-f765-4b34-a9e9-58da017c9d8b",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "eebaece3-ffe3-4281-836f-f10fa1946650",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "6d90152b-f765-4b34-a9e9-58da017c9d8b",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "eebaece3-ffe3-4281-836f-f10fa1946650",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "fcacb7fff5007243ea2d4c60e07d34c079be3b89099da1a0dcc0c2a0f27cf87b"
+      },
+      "observed_ocel_hash": "fcacb7fff5007243ea2d4c60e07d34c079be3b89099da1a0dcc0c2a0f27cf87b",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "512d7c40d15bb150dca96bd8c2e7b3f578fb67fd767ebc4204a031ba9d5a9601"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Deploy_K8s",
+    "task_id": "aa27f101-f6f3-49d8-882c-aa80f945f78a",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "e1036b0e07bbf889ca865176bf558ebbb25082e09a3f1d4505db49c21335b31a",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_aa27f101-f6f3-49d8-882c-aa80f945f78a",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "aa27f101-f6f3-49d8-882c-aa80f945f78a",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "ff31f664-d8fb-4213-bde9-8ce820ded0f9",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "aa27f101-f6f3-49d8-882c-aa80f945f78a",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "ff31f664-d8fb-4213-bde9-8ce820ded0f9",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "037c94fa56d8d0cf7c50d4ddf249ba23dd524eacf7d4bf44625d199b54eb05f2"
+      },
+      "observed_ocel_hash": "037c94fa56d8d0cf7c50d4ddf249ba23dd524eacf7d4bf44625d199b54eb05f2",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "df40ff9ea2e6ce20ea97f35dd027057f4dd4ccdc0c740a106dd45320851304a1"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DataScientist",
+    "jtbd": "Setup_Alerts",
+    "task_id": "4823bcc1-ba37-4b84-aa73-607689233949",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "f283b1ec5d88f8931a2ffe4d4093621806afea65ff6cfbeff94aa6196b8d1d15",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_4823bcc1-ba37-4b84-aa73-607689233949",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "4823bcc1-ba37-4b84-aa73-607689233949",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7ad5fae7-7adc-494c-a975-e9a4877e58de",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "4823bcc1-ba37-4b84-aa73-607689233949",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DataScientist",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7ad5fae7-7adc-494c-a975-e9a4877e58de",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "9e40ff8e74a8d04303f17d6ac9304c5e8a8e6afa727a88f21942236cc3cf667a"
+      },
+      "observed_ocel_hash": "9e40ff8e74a8d04303f17d6ac9304c5e8a8e6afa727a88f21942236cc3cf667a",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "2b506bde44b9dbc849e8172ba77f387603208983bf8c76c12301dd7032c4710d"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "02dcbc73-4cc1-45fd-a5bc-47937fad1650",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "915c5be46c23174a227a1394af6c0f6e2a7ff85ef35d9c42ade310b2992c15d5",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_02dcbc73-4cc1-45fd-a5bc-47937fad1650",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "02dcbc73-4cc1-45fd-a5bc-47937fad1650",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "d8c9aa7b-3edb-4517-9530-27786886c9d9",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "02dcbc73-4cc1-45fd-a5bc-47937fad1650",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "d8c9aa7b-3edb-4517-9530-27786886c9d9",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "3475fac40372a4a24071baade932fcd75e4efa551fd34daf1c23d6fe35871fa4"
+      },
+      "observed_ocel_hash": "3475fac40372a4a24071baade932fcd75e4efa551fd34daf1c23d6fe35871fa4",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "45a712ce7b40ee7620db4183063b951d4bd33b63e0539a3adf06f6fca157eb56"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Audit_Logs",
+    "task_id": "dbc8e741-0996-45c1-b792-1907be182fb2",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "801eee092a84caf58796028a85ae64ddd272db9cf8ea15992a69f03695f2e874",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_dbc8e741-0996-45c1-b792-1907be182fb2",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "dbc8e741-0996-45c1-b792-1907be182fb2",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "d985836b-77ac-40eb-8a03-08d87a9922d7",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "dbc8e741-0996-45c1-b792-1907be182fb2",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "d985836b-77ac-40eb-8a03-08d87a9922d7",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "2da6a300b6b1e264ce1b31f8f40ecb594e2aad5dc797d68afd2af0072b97dab2"
+      },
+      "observed_ocel_hash": "2da6a300b6b1e264ce1b31f8f40ecb594e2aad5dc797d68afd2af0072b97dab2",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "487976795178493589dcab179aae1e3bac28bb5a9c8880c6857ef0007182939d"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Design_Schema",
+    "task_id": "6b38553f-ab8d-4d06-a224-2dfb3f773d54",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "b67c0c63b9d3a2fcd511bf094db3c47e005e765b159db4cd63893167a378bfa0",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_6b38553f-ab8d-4d06-a224-2dfb3f773d54",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "6b38553f-ab8d-4d06-a224-2dfb3f773d54",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "2a810704-5d20-4dbe-9477-a4d73b52d048",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "6b38553f-ab8d-4d06-a224-2dfb3f773d54",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "2a810704-5d20-4dbe-9477-a4d73b52d048",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "66967e9e4761476b3a2683136bdd016b1854321efc7e5f278351f4cfc69b56f0"
+      },
+      "observed_ocel_hash": "66967e9e4761476b3a2683136bdd016b1854321efc7e5f278351f4cfc69b56f0",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "3e76c3d5713ed3073dc923c89419f15e31464e7974f8a27e769c2d0a432ce3cc"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Implement_Cache",
+    "task_id": "e3077eee-d08c-49a0-b154-ae45c3a5a286",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "520d5375485bf773c2795a2e4b5c6aca7c8e988f07c109314a8a435c6afa788c",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_e3077eee-d08c-49a0-b154-ae45c3a5a286",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "e3077eee-d08c-49a0-b154-ae45c3a5a286",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "6fe13200-730b-4408-85a0-59fe8288575e",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "e3077eee-d08c-49a0-b154-ae45c3a5a286",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "6fe13200-730b-4408-85a0-59fe8288575e",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "984488fac46da4cfc7245cf571f35d047a750de845fb8db52f88c5ed34e7c3b5"
+      },
+      "observed_ocel_hash": "984488fac46da4cfc7245cf571f35d047a750de845fb8db52f88c5ed34e7c3b5",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "da4856fb2b361531807d17a14cb79c6d2a78d6351ca4059bdebfedf3cedd612d"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Verify_Compliance",
+    "task_id": "2aa6efa7-31d1-4ac3-89a4-232b3b55daeb",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "2259352d05fa2e9fc5062cbf0de927440b894c9907021f6878486d7892cfe146",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_2aa6efa7-31d1-4ac3-89a4-232b3b55daeb",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "2aa6efa7-31d1-4ac3-89a4-232b3b55daeb",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7ce1ea94-ad1f-4741-8cc4-7da1d16658e9",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "2aa6efa7-31d1-4ac3-89a4-232b3b55daeb",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7ce1ea94-ad1f-4741-8cc4-7da1d16658e9",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "6fed0cd99c271065cbb45d9920e9310ce09a3a0ac0a874e3c20f6f75fa63fd34"
+      },
+      "observed_ocel_hash": "6fed0cd99c271065cbb45d9920e9310ce09a3a0ac0a874e3c20f6f75fa63fd34",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "51b271b94562b3b1e4cbf0226885634de5f877440d490c8aca818de7f2670b02"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "395a078a-206b-4746-83a0-03d64fbd06fb",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "256319b3965b98de674c6211a7dac8a37d91117b941dd2a509104bc83be35776",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_395a078a-206b-4746-83a0-03d64fbd06fb",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "395a078a-206b-4746-83a0-03d64fbd06fb",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "a912d281-0a03-4682-9c63-5ead99d27316",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "395a078a-206b-4746-83a0-03d64fbd06fb",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "a912d281-0a03-4682-9c63-5ead99d27316",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "438f41f51ae970f9d7163d5493b6e44511d932e177e38667f16e6c531726fb96"
+      },
+      "observed_ocel_hash": "438f41f51ae970f9d7163d5493b6e44511d932e177e38667f16e6c531726fb96",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "480eca8576dd1261d286cc70ddc3bfe698f2df903619cab47dd96be845b850a8"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Deploy_K8s",
+    "task_id": "a3eae375-5de3-49c9-846b-c9b547336316",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "90dbefb2611c6f0f5f8fe84330aa754a7062bcb09b094f1c74e3d11843e46e44",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_a3eae375-5de3-49c9-846b-c9b547336316",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "a3eae375-5de3-49c9-846b-c9b547336316",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "2187fcf2-62d0-4b42-bd63-09137304cb0e",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "a3eae375-5de3-49c9-846b-c9b547336316",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "2187fcf2-62d0-4b42-bd63-09137304cb0e",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "64a17b22836f02d2e5f3111a958f9e53e460868c2677e8d65da301b6d36244fc"
+      },
+      "observed_ocel_hash": "64a17b22836f02d2e5f3111a958f9e53e460868c2677e8d65da301b6d36244fc",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "c7d3f4aaff1b00867e39c2f52c2abfed677205b80ace59b9838de6103a74bc34"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SecurityAuditor",
+    "jtbd": "Setup_Alerts",
+    "task_id": "4b39a5eb-8f11-490f-88cf-cfb321692638",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "2f8962d76c51944a1f5f467cb8157fa9eeab4868437be3885a8f8f221c4a4c62",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_4b39a5eb-8f11-490f-88cf-cfb321692638",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "4b39a5eb-8f11-490f-88cf-cfb321692638",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "ba790197-7cc9-4d20-9914-a32b0e2eb227",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "4b39a5eb-8f11-490f-88cf-cfb321692638",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SecurityAuditor",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "ba790197-7cc9-4d20-9914-a32b0e2eb227",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "e64580535628bbad005184db0892d9b7ecbfdd33d8781a11b58a07c118d4d196"
+      },
+      "observed_ocel_hash": "e64580535628bbad005184db0892d9b7ecbfdd33d8781a11b58a07c118d4d196",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "86f65a842010cd61e6bcb4fdafe3de88ba2931efa75de433c2cfca07e958e64a"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "c2a09ca8-fdd7-4293-a437-44c5f29e6665",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "be47769834295692500616d0769df2442d73b9f60ceb7826a7d712e234cd4eae",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_c2a09ca8-fdd7-4293-a437-44c5f29e6665",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "c2a09ca8-fdd7-4293-a437-44c5f29e6665",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "eacf175f-2c15-41e5-8b4e-095306c354d7",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "c2a09ca8-fdd7-4293-a437-44c5f29e6665",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "eacf175f-2c15-41e5-8b4e-095306c354d7",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "46fcd8cff65463ef91eae76cdf755654546b7179996afbfd17d9484ec6f04dc6"
+      },
+      "observed_ocel_hash": "46fcd8cff65463ef91eae76cdf755654546b7179996afbfd17d9484ec6f04dc6",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "07983bdb16009103b0da9366b85699db59276deeb05e1409d4ab9eb09c70280d"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Audit_Logs",
+    "task_id": "8a0b849b-11dd-40f3-a115-84ef511c5bb2",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "56de71661697dd7b1516a2be9461508ab8cf8b784d940509ee60631f55ac5f85",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_8a0b849b-11dd-40f3-a115-84ef511c5bb2",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "8a0b849b-11dd-40f3-a115-84ef511c5bb2",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "4bcfeafa-5462-4163-821c-c120810ce734",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "8a0b849b-11dd-40f3-a115-84ef511c5bb2",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "4bcfeafa-5462-4163-821c-c120810ce734",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "891adab490d203d7c215e2db6c69ba5e085549e316239174b66ce1ba7e9a86e5"
+      },
+      "observed_ocel_hash": "891adab490d203d7c215e2db6c69ba5e085549e316239174b66ce1ba7e9a86e5",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0f56ee8e34d248286a5b0119cf7985c37409b46b5d66330a1152e17a2a091660"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Design_Schema",
+    "task_id": "f94061c1-452e-488f-91f4-569792c062f5",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "ee73f57c715446851d63224c2b90f4f9984df17687f93a16bfbab700325c5361",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_f94061c1-452e-488f-91f4-569792c062f5",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "f94061c1-452e-488f-91f4-569792c062f5",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "5427e328-5f1a-4c6f-b54f-a0268ba2eff7",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "f94061c1-452e-488f-91f4-569792c062f5",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "5427e328-5f1a-4c6f-b54f-a0268ba2eff7",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "1697c0ecefe22a6f3906f69a4f4952a894d8350675ede11b2a7a321ce6f3fa63"
+      },
+      "observed_ocel_hash": "1697c0ecefe22a6f3906f69a4f4952a894d8350675ede11b2a7a321ce6f3fa63",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "32c49008673727f1b5f4fde7f7aadd666a1af7849bce7cb3b9666a66a903cb1b"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Implement_Cache",
+    "task_id": "7d4871d5-d712-4f5a-8467-2a4dadf66fd2",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "96478a4f876991451c46bcc3b2739bd8a6e917a9e3fcff8bff323da11dacec88",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_7d4871d5-d712-4f5a-8467-2a4dadf66fd2",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "7d4871d5-d712-4f5a-8467-2a4dadf66fd2",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "4b853e21-9e9a-46b9-b6dc-fd2a9dd9ae0d",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "7d4871d5-d712-4f5a-8467-2a4dadf66fd2",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "4b853e21-9e9a-46b9-b6dc-fd2a9dd9ae0d",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "e54e5f5fd2fa75771fdd232ed9a017627e71720b66de9f91e087dfd93f35cc7b"
+      },
+      "observed_ocel_hash": "e54e5f5fd2fa75771fdd232ed9a017627e71720b66de9f91e087dfd93f35cc7b",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "8b195c3969eda02f7a5d9ca9e26cc9731b549b5bddc629bb5e989b756c227118"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Verify_Compliance",
+    "task_id": "517f4972-c841-435b-9852-f5d710b69c1d",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "a7b72b552b783592c6ca9901f339ab4c152d6899bd9cde3d3a0d8468db325fb5",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_517f4972-c841-435b-9852-f5d710b69c1d",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "517f4972-c841-435b-9852-f5d710b69c1d",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "51d76c5b-4d25-4a07-b35e-57b249177926",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "517f4972-c841-435b-9852-f5d710b69c1d",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "51d76c5b-4d25-4a07-b35e-57b249177926",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "b5b1896b1358cec9683c6176d594ee35db54f9d2b2d49d50f53cedcfadefe8e9"
+      },
+      "observed_ocel_hash": "b5b1896b1358cec9683c6176d594ee35db54f9d2b2d49d50f53cedcfadefe8e9",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "5c4b8a54fa4bef84e376c0e2376c2b0cbe4a53c7220318bd053559e6a69ad9f2"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "0c612d0c-ae71-4880-8664-80d6c53133d5",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "908aef109baaa2d7b1828f0dfc547373665bdb1bdacce2cbf6485d20e47063e0",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_0c612d0c-ae71-4880-8664-80d6c53133d5",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "0c612d0c-ae71-4880-8664-80d6c53133d5",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "b8af3bde-3258-4cd4-a51e-4bd7e1546d3f",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "0c612d0c-ae71-4880-8664-80d6c53133d5",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "b8af3bde-3258-4cd4-a51e-4bd7e1546d3f",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "6d8c0a2bcdd6e9c0c7657366422784010826f81a7a64e8959bf109ab9b07913a"
+      },
+      "observed_ocel_hash": "6d8c0a2bcdd6e9c0c7657366422784010826f81a7a64e8959bf109ab9b07913a",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "c35259622e87320e86f03a478c5baec9a677fd99f7650652ce5944d39f0e5291"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Deploy_K8s",
+    "task_id": "e03f4b5c-45de-4c99-b8b4-9c85f1deae07",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "3d775e4cc717dced3dd108c75fcf3f4752005c63601c51c708fd395835894070",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_e03f4b5c-45de-4c99-b8b4-9c85f1deae07",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "e03f4b5c-45de-4c99-b8b4-9c85f1deae07",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "c3dde866-d7f6-427f-af6a-69b7b6e13a26",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "e03f4b5c-45de-4c99-b8b4-9c85f1deae07",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "c3dde866-d7f6-427f-af6a-69b7b6e13a26",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "518eb77558128e5a4a8774c738f50e4389a5593b22a432f49741094fb735ef7c"
+      },
+      "observed_ocel_hash": "518eb77558128e5a4a8774c738f50e4389a5593b22a432f49741094fb735ef7c",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "16d4ce6bfb637fe513d56fca5b221ee8509512c53a06c637110c98d4f24dd9fc"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "FrontendDev",
+    "jtbd": "Setup_Alerts",
+    "task_id": "5586a73c-588d-4271-9773-9964184d83be",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "0866f03d3f1e4f029dcae58fe8104d8645d1117de9e9e08ddc07ad7169571afe",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_5586a73c-588d-4271-9773-9964184d83be",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "5586a73c-588d-4271-9773-9964184d83be",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "767557e9-8731-4962-831e-ba2c4a5efa7c",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "5586a73c-588d-4271-9773-9964184d83be",
+            "type": "A2ATask"
+          },
+          {
+            "id": "FrontendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "767557e9-8731-4962-831e-ba2c4a5efa7c",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "9fba6982671fbf0211eee7d238e67eee70062b355e8f13c3d509bd9019bd5129"
+      },
+      "observed_ocel_hash": "9fba6982671fbf0211eee7d238e67eee70062b355e8f13c3d509bd9019bd5129",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "76d2267234e249246f6505e7cf58492e740e30269d8c6c7513a65b6336594b89"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "b8dcc3ed-24cb-4291-865d-c05685701e38",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "528b2e2abd96bbaa43635a05dea9dc34f29a84e1e3da2aa48aae1993a1786bce",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_b8dcc3ed-24cb-4291-865d-c05685701e38",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "b8dcc3ed-24cb-4291-865d-c05685701e38",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "28797860-1d29-41b1-99c2-827ea70d0cd3",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "b8dcc3ed-24cb-4291-865d-c05685701e38",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "28797860-1d29-41b1-99c2-827ea70d0cd3",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "4a51ff082d8b8df515378d62cb190e9a3b6afb63e710a35b1e90074407c89b14"
+      },
+      "observed_ocel_hash": "4a51ff082d8b8df515378d62cb190e9a3b6afb63e710a35b1e90074407c89b14",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "d6933c4f3900317b78acff40ff309b1c111673aad73682831b69d48657b3f484"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Audit_Logs",
+    "task_id": "4fd97b39-f58f-4e63-a8b4-2ebeb6a2b972",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "e874e5e029760a23a9162b7e2f0c1fd3795cfc2ec349c50abc6032a7e1b50993",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_4fd97b39-f58f-4e63-a8b4-2ebeb6a2b972",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "4fd97b39-f58f-4e63-a8b4-2ebeb6a2b972",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7f61495c-d06d-4cc6-99c4-8cca18f2a60a",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "4fd97b39-f58f-4e63-a8b4-2ebeb6a2b972",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7f61495c-d06d-4cc6-99c4-8cca18f2a60a",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "9c8a77dda3ec97de6ee18b774e13524c3dcee8c4634bdc0026d769c0235ae7e6"
+      },
+      "observed_ocel_hash": "9c8a77dda3ec97de6ee18b774e13524c3dcee8c4634bdc0026d769c0235ae7e6",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0e407af0f0872fba01ce9608142e3776b78b855e3205b26ebac9bac965212cae"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Design_Schema",
+    "task_id": "beab59fd-6ee6-4541-9769-aa03dc789f6f",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "dafd9238dc0c832f902dfa32a2b347440c3e3c932595429ef593a3ef53d05808",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_beab59fd-6ee6-4541-9769-aa03dc789f6f",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "beab59fd-6ee6-4541-9769-aa03dc789f6f",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "9d3b0e97-1854-4b03-b9c6-983f84dc94f7",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "beab59fd-6ee6-4541-9769-aa03dc789f6f",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "9d3b0e97-1854-4b03-b9c6-983f84dc94f7",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "aaa4979bc1443a0f8d672cbf770ed579095ee7c920bb48ebdd2e1c778d080449"
+      },
+      "observed_ocel_hash": "aaa4979bc1443a0f8d672cbf770ed579095ee7c920bb48ebdd2e1c778d080449",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "73fd3957985c86846c7c94879379b2a425d14a7c8a1d41870102f7dbb435ab38"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Implement_Cache",
+    "task_id": "b9934e31-e024-40b7-bcca-f1dcf7a89542",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "0a095a36da2840e6432c808065914dcf51711a46fcbe2f5ffce02d463492196e",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_b9934e31-e024-40b7-bcca-f1dcf7a89542",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "b9934e31-e024-40b7-bcca-f1dcf7a89542",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "b5ca1f9a-aeaf-488c-bd16-bf8f6e089837",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "b9934e31-e024-40b7-bcca-f1dcf7a89542",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "b5ca1f9a-aeaf-488c-bd16-bf8f6e089837",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "08261fbc93880be1a024fef69521455e899afa9f41c89246e890d91b238baa7e"
+      },
+      "observed_ocel_hash": "08261fbc93880be1a024fef69521455e899afa9f41c89246e890d91b238baa7e",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "5e731753a835e94233d764d4c79a145a7ef86448d35fda24427716f0749c0b98"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Verify_Compliance",
+    "task_id": "e6c48cdc-f477-4565-96e8-5f5669ec6082",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "03c953aa0f5d88614f2d8afb0047250c28ee36209ada8828aa774464f2ed1999",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_e6c48cdc-f477-4565-96e8-5f5669ec6082",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "e6c48cdc-f477-4565-96e8-5f5669ec6082",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7ab974cc-1320-4a63-8323-0466e6d29009",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "e6c48cdc-f477-4565-96e8-5f5669ec6082",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7ab974cc-1320-4a63-8323-0466e6d29009",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "d845fa0ef4655efd3e7a7ddc0464fff7d181de9ff1eb519717ec1ccec487ae9d"
+      },
+      "observed_ocel_hash": "d845fa0ef4655efd3e7a7ddc0464fff7d181de9ff1eb519717ec1ccec487ae9d",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "f480b20a5a1ee32d05d4be6c0459cb5805bdf9311654544615f604b1052b1be0"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "e69737f1-0661-426d-9c66-bcd68396c96a",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "cfcbdd362459977eba121d831e12d9cabe9964b7cd28bfe7d44116f775df7001",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_e69737f1-0661-426d-9c66-bcd68396c96a",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "e69737f1-0661-426d-9c66-bcd68396c96a",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "1e86f424-57fe-4968-974c-8a1e7cb74477",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "e69737f1-0661-426d-9c66-bcd68396c96a",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "1e86f424-57fe-4968-974c-8a1e7cb74477",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "3165bfa5795b6f65e7a06b8f4ec29ce7b3219ae255ed50ce8ce517a72f28e8ab"
+      },
+      "observed_ocel_hash": "3165bfa5795b6f65e7a06b8f4ec29ce7b3219ae255ed50ce8ce517a72f28e8ab",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "8039371adc46d64a7aa7f4b6b9eda8280815ecefd7e64162800736d317d937e6"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Deploy_K8s",
+    "task_id": "df151ad9-c4d8-465c-995e-6e82733f44ca",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "444531b0432d54683979476b5703e9666520a40090c48128033af98d95996f25",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_df151ad9-c4d8-465c-995e-6e82733f44ca",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "df151ad9-c4d8-465c-995e-6e82733f44ca",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "fc49ffb2-a090-4093-bd8f-a34fc81bcd4f",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "df151ad9-c4d8-465c-995e-6e82733f44ca",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "fc49ffb2-a090-4093-bd8f-a34fc81bcd4f",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "5cf80023167d128688bfd676d91909e214ccc143240aca1e6d765175a98bf0a0"
+      },
+      "observed_ocel_hash": "5cf80023167d128688bfd676d91909e214ccc143240aca1e6d765175a98bf0a0",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "b987dbb7590d7e2a35d5b7c905156a3ca25792a4ddd73b288d64c36e096c9aa0"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "BackendDev",
+    "jtbd": "Setup_Alerts",
+    "task_id": "fc726705-dcf0-4d01-9b26-cdd07396eb6b",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "4f84c506a4fd0c03875c7567b38513b6ec95e19100a17dee1492352b5916574e",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_fc726705-dcf0-4d01-9b26-cdd07396eb6b",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "fc726705-dcf0-4d01-9b26-cdd07396eb6b",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "6909fd06-7fd4-4171-8992-8f555aa4d72c",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "fc726705-dcf0-4d01-9b26-cdd07396eb6b",
+            "type": "A2ATask"
+          },
+          {
+            "id": "BackendDev",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "6909fd06-7fd4-4171-8992-8f555aa4d72c",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "79a603089c424610f3b5cb56402a22658224629255a3476b6d75552be2d5816a"
+      },
+      "observed_ocel_hash": "79a603089c424610f3b5cb56402a22658224629255a3476b6d75552be2d5816a",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "880d3926bd95283bd5ff5f66f8c7c9468938bfe96bd499239c3e985357e120c2"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "94e27ad4-d3e9-4ad9-a933-22dbc026fa42",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "45821d257253986d8a0fbed87e05f5c14f68c8b7612c959da2fa07ae474753b6",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_94e27ad4-d3e9-4ad9-a933-22dbc026fa42",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "94e27ad4-d3e9-4ad9-a933-22dbc026fa42",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "a7954e0b-f280-4781-b26d-4713cb0bda5e",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "94e27ad4-d3e9-4ad9-a933-22dbc026fa42",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "a7954e0b-f280-4781-b26d-4713cb0bda5e",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "1c7e20043df0c26ef37b2e70d67885e4beeceb33e42fb741802c487070cdd6b2"
+      },
+      "observed_ocel_hash": "1c7e20043df0c26ef37b2e70d67885e4beeceb33e42fb741802c487070cdd6b2",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0bbef7d1014044e16847177b320f29efd38eae58b7b992a21be0268d6f1da029"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Audit_Logs",
+    "task_id": "b82ad39e-4cf1-41b9-9137-15430d2b2b79",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "3520eeeb456cbb433b35e695ae8af869dcbb02dfca0dd08f4ee98da6c12e3cc2",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_b82ad39e-4cf1-41b9-9137-15430d2b2b79",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "b82ad39e-4cf1-41b9-9137-15430d2b2b79",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "ec0043a1-11ec-4761-83d3-a53ef23a4710",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "b82ad39e-4cf1-41b9-9137-15430d2b2b79",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "ec0043a1-11ec-4761-83d3-a53ef23a4710",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "388105b71974489536e6efbc2dc98229ee907120d0dc3609fc26648fc1f8b67a"
+      },
+      "observed_ocel_hash": "388105b71974489536e6efbc2dc98229ee907120d0dc3609fc26648fc1f8b67a",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "66a7267a94278ba5609de7615d98be801c980614080f9ed27cdf05cc23e414f8"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Design_Schema",
+    "task_id": "39111a2a-001c-448c-aaa1-0853c5c36464",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "6a72ea3f680239d0ef07628e4ffa08bd5868782e5ad71bb04db02cc92b9f84ff",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_39111a2a-001c-448c-aaa1-0853c5c36464",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "39111a2a-001c-448c-aaa1-0853c5c36464",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "6248bb43-dfeb-4bee-a921-d20abc70b8a1",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "39111a2a-001c-448c-aaa1-0853c5c36464",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "6248bb43-dfeb-4bee-a921-d20abc70b8a1",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "07a1751f9c35b87d29b02d0a70b0ab64d2f48476709623178a0fa14486b022e3"
+      },
+      "observed_ocel_hash": "07a1751f9c35b87d29b02d0a70b0ab64d2f48476709623178a0fa14486b022e3",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "2ed4321cb31ebc9ee6799ef74de9748d907ce66da4a14a01d3c833757f058552"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Implement_Cache",
+    "task_id": "2500f109-4f71-43fc-ba8f-9749bb6051f3",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "5b546e7fdadb018da93983bc917d020a73906c05e8c3c96c7ad9b448166a2f37",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_2500f109-4f71-43fc-ba8f-9749bb6051f3",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "2500f109-4f71-43fc-ba8f-9749bb6051f3",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7ccf60ac-81c4-48b7-a15b-8ed4934128c8",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "2500f109-4f71-43fc-ba8f-9749bb6051f3",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7ccf60ac-81c4-48b7-a15b-8ed4934128c8",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "61814b2a76f535dd1d6fb59cfb13df4dc80cc703a23f64f1725fa6fa86205a31"
+      },
+      "observed_ocel_hash": "61814b2a76f535dd1d6fb59cfb13df4dc80cc703a23f64f1725fa6fa86205a31",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "364d75481bfd2f4bfaa6e975fad1857f6e63aea38468d0b5028aa0c2a1a45787"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Verify_Compliance",
+    "task_id": "2b332566-5fc7-44da-b0f6-a1457710f7e8",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "3a3f8d6578bae8c52918ba9a923ff474693c050cc14bd6f418d143202f5175fb",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_2b332566-5fc7-44da-b0f6-a1457710f7e8",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "2b332566-5fc7-44da-b0f6-a1457710f7e8",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "2ea5b395-4078-402c-94c6-1d74b18b6bed",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "2b332566-5fc7-44da-b0f6-a1457710f7e8",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "2ea5b395-4078-402c-94c6-1d74b18b6bed",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "a418bbe1f76c67822145fe5249c4cb09b23867d456dc0a99a6311d8550302f6a"
+      },
+      "observed_ocel_hash": "a418bbe1f76c67822145fe5249c4cb09b23867d456dc0a99a6311d8550302f6a",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "abc85a77f6a52ef8e0720d9967c90cf783b883cafd3ec432666fb87849c15c25"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "67d09977-555a-4023-8c73-fa47872a5c14",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "3ccf2e6f01ef877ac74d94c40710bc4a603eaef59ed637d270145649cc375006",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_67d09977-555a-4023-8c73-fa47872a5c14",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "67d09977-555a-4023-8c73-fa47872a5c14",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7c2c8f8b-625a-4312-b93c-ac94ab8eea37",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "67d09977-555a-4023-8c73-fa47872a5c14",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7c2c8f8b-625a-4312-b93c-ac94ab8eea37",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "9a89822bfe446cc7e63e28e21a527ebd17d69f0627c01f44816ad12ed7531229"
+      },
+      "observed_ocel_hash": "9a89822bfe446cc7e63e28e21a527ebd17d69f0627c01f44816ad12ed7531229",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0065bcc622cf274686b2fe7d346d3b611d0161f12e89c4b686bac859697a0520"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Deploy_K8s",
+    "task_id": "2fbd7882-09d3-4815-b7c7-3a800b3886c8",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "714d7ae5f9867f97dcc1b8d656d16e31edc586b5a04c3d378be5d1d8c57d6b06",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_2fbd7882-09d3-4815-b7c7-3a800b3886c8",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "2fbd7882-09d3-4815-b7c7-3a800b3886c8",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "2b9d64c0-a824-48a2-8f8f-fbb3acfc2e4b",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "2fbd7882-09d3-4815-b7c7-3a800b3886c8",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "2b9d64c0-a824-48a2-8f8f-fbb3acfc2e4b",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "82d5e42534f45af746f3714ce792e6c83d03e37d0c296ed3048a6dfdd0ed0524"
+      },
+      "observed_ocel_hash": "82d5e42534f45af746f3714ce792e6c83d03e37d0c296ed3048a6dfdd0ed0524",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "dc2cd5c0c59d78515c153ef99c9bbbbbb30f781883891511146d5122460eb192"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "DevOpsEngineer",
+    "jtbd": "Setup_Alerts",
+    "task_id": "3171e750-4163-4afa-8f5e-51cb06bf97e9",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "1185751e5bef6919476952132fa03e93313b5a86d94a951042181eefad8bb090",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_3171e750-4163-4afa-8f5e-51cb06bf97e9",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "3171e750-4163-4afa-8f5e-51cb06bf97e9",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "5ff1186c-52f9-4f5d-a4b6-47dcdfae3b0b",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "3171e750-4163-4afa-8f5e-51cb06bf97e9",
+            "type": "A2ATask"
+          },
+          {
+            "id": "DevOpsEngineer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "5ff1186c-52f9-4f5d-a4b6-47dcdfae3b0b",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "6f6f561a7fc75f2afe99733b26c68f11c53d7a217fb760493fe6462d24356f89"
+      },
+      "observed_ocel_hash": "6f6f561a7fc75f2afe99733b26c68f11c53d7a217fb760493fe6462d24356f89",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "11290fdc04af7d9fb7fe0c3d05e7de288fac12a90dead694a5a2e1ca6413c927"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "f67f9fc4-6fc5-4dad-99e7-0d3b26aca34f",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "2a0fde443a296e3109cd4769b88e5f8b25848023a52bfce5393ed22ac41e0027",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_f67f9fc4-6fc5-4dad-99e7-0d3b26aca34f",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "f67f9fc4-6fc5-4dad-99e7-0d3b26aca34f",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7215e477-789c-4ad3-8004-ca62a7edea29",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "f67f9fc4-6fc5-4dad-99e7-0d3b26aca34f",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7215e477-789c-4ad3-8004-ca62a7edea29",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "afe7097232cc7115a0847b006c0fefe5c65fc6e1e9871c33e24cd9d867b3315d"
+      },
+      "observed_ocel_hash": "afe7097232cc7115a0847b006c0fefe5c65fc6e1e9871c33e24cd9d867b3315d",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "7ea6329700dec3d80e0b68a1479b356f0d8e032bd17c07d9b21564eebf168f72"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Audit_Logs",
+    "task_id": "841cc101-cb73-4f90-9fca-37fa50e50ad8",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "3221c8e5d65dc37ced5002c8a537b77659773e944e41876619cda060f2030410",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_841cc101-cb73-4f90-9fca-37fa50e50ad8",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "841cc101-cb73-4f90-9fca-37fa50e50ad8",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "bc21278f-3de4-42cc-8f86-2ca87ed72aa1",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "841cc101-cb73-4f90-9fca-37fa50e50ad8",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "bc21278f-3de4-42cc-8f86-2ca87ed72aa1",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "e9182a2b1ec8c008c274cad97bc8b213cd985438aa84e316470cff75dbe899ae"
+      },
+      "observed_ocel_hash": "e9182a2b1ec8c008c274cad97bc8b213cd985438aa84e316470cff75dbe899ae",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "309903fa915038dc51b42a760099c4998c900b8619b7bd7bb88f30a3504b4873"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Design_Schema",
+    "task_id": "e4203880-565e-4420-ad40-230bbbf07e52",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "4acdb4d6c480fd8e86cdd16e83df79241398d1e2bc8cc4213857b31971d7101b",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_e4203880-565e-4420-ad40-230bbbf07e52",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "e4203880-565e-4420-ad40-230bbbf07e52",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "fa2dd566-538a-41df-ab94-aad5df411d02",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "e4203880-565e-4420-ad40-230bbbf07e52",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "fa2dd566-538a-41df-ab94-aad5df411d02",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "438e73576f8fe61ebe84aa093e698ce236ffacc4c5d21f4383f43b91598c1910"
+      },
+      "observed_ocel_hash": "438e73576f8fe61ebe84aa093e698ce236ffacc4c5d21f4383f43b91598c1910",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "bf7f15b5e7b9eeb806617150cbf924a439978a4930de8462e548b85da9f2662a"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Implement_Cache",
+    "task_id": "269f2b56-8056-4a37-a9f4-053297190d68",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "a7d68af7bf79f0294c535ff32b5a3c3ef687c5bd10a59e82ea33ec64def4ff8e",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_269f2b56-8056-4a37-a9f4-053297190d68",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "269f2b56-8056-4a37-a9f4-053297190d68",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "e2555fb7-8104-47f2-9116-614db801709c",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "269f2b56-8056-4a37-a9f4-053297190d68",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "e2555fb7-8104-47f2-9116-614db801709c",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "8a6b57677262289f48087a323c7495be2c4a7a50f9e542c085d69aa40033b288"
+      },
+      "observed_ocel_hash": "8a6b57677262289f48087a323c7495be2c4a7a50f9e542c085d69aa40033b288",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "957194b57496eedaf801f24391fd1f49318bcaa9060b24278941cf7b9c1b92a2"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Verify_Compliance",
+    "task_id": "3841a8f0-c357-495d-a56f-7d75aeb847ef",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "6ba70bdd3bcf2528863de1937495f4082df0f8bfd2db32f3aff1367caed8aff6",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_3841a8f0-c357-495d-a56f-7d75aeb847ef",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "3841a8f0-c357-495d-a56f-7d75aeb847ef",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "8f8d441e-eaaf-4710-bffb-fbc7c761832d",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "3841a8f0-c357-495d-a56f-7d75aeb847ef",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "8f8d441e-eaaf-4710-bffb-fbc7c761832d",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "cc2dd5d76baad44b2dde66611e9758ffacbd6a9e63ded9f27013453aaeaa1a6d"
+      },
+      "observed_ocel_hash": "cc2dd5d76baad44b2dde66611e9758ffacbd6a9e63ded9f27013453aaeaa1a6d",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "7ae9b19f6561b2fbe4356d73cedc48dde514b58254217abf95471ef41e79005f"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "c6e41924-79bd-42e6-b563-423d482d07ed",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "254400fc73484a9aca112fcd93c946fc0ddace9a6d68c9bc235445ad1e8c3009",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_c6e41924-79bd-42e6-b563-423d482d07ed",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "c6e41924-79bd-42e6-b563-423d482d07ed",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "e77d1ad0-82e8-467b-a3ec-0f1ff9289d8d",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "c6e41924-79bd-42e6-b563-423d482d07ed",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "e77d1ad0-82e8-467b-a3ec-0f1ff9289d8d",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "41336ec44cf648bec7fffc64f27f59c196b4fbadc1c1323f7486b66eca14b559"
+      },
+      "observed_ocel_hash": "41336ec44cf648bec7fffc64f27f59c196b4fbadc1c1323f7486b66eca14b559",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "2bbd4f854800d900363cbaeb1f15f8d8b26834cc6ed91919cb57c38bcc82ae4f"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Deploy_K8s",
+    "task_id": "c53d7c57-182c-4fae-8207-47d7201f9587",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "2d2660f23f632ce03ec3ef1629e66d2230743426bdc83777cc3ee5c5dd03089d",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_c53d7c57-182c-4fae-8207-47d7201f9587",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "c53d7c57-182c-4fae-8207-47d7201f9587",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "d7dc4d12-c503-4c17-aa84-0f2b61115c84",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "c53d7c57-182c-4fae-8207-47d7201f9587",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "d7dc4d12-c503-4c17-aa84-0f2b61115c84",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "19667a5ce897533ab7bcad54a9df0e0147406c7b27e6708d8878de6b063a858a"
+      },
+      "observed_ocel_hash": "19667a5ce897533ab7bcad54a9df0e0147406c7b27e6708d8878de6b063a858a",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "885869786815d839a6687f04c92ed14bbc3022719115f1267e3fadd51aaa55f5"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "ComplianceOfficer",
+    "jtbd": "Setup_Alerts",
+    "task_id": "5bbf8249-bb84-4aec-8747-443aee10964f",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "748dad5d4180769f7d82ee87615acf344d5554a2b3fe260de9441a8d72633c2b",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_5bbf8249-bb84-4aec-8747-443aee10964f",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "5bbf8249-bb84-4aec-8747-443aee10964f",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "29ec93a2-202d-499c-ac31-70af2b13cd55",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "5bbf8249-bb84-4aec-8747-443aee10964f",
+            "type": "A2ATask"
+          },
+          {
+            "id": "ComplianceOfficer",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "29ec93a2-202d-499c-ac31-70af2b13cd55",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "73a1ea67e8becc0c302b25e87ba11c1b369b30ea68bf9f7a95946cfb779bbed5"
+      },
+      "observed_ocel_hash": "73a1ea67e8becc0c302b25e87ba11c1b369b30ea68bf9f7a95946cfb779bbed5",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "782864e8188f361ba5d0ab62d7497129735a1a872a7d2043b94bc407d4f5eb09"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Analyze_Metrics",
+    "task_id": "3080a504-96b1-43a8-b23d-0a06022b44d4",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "53f2ddbda6f6c1c588b88350d39a8a3bc31da70a255a259789e67cbd209f5ca6",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_3080a504-96b1-43a8-b23d-0a06022b44d4",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "3080a504-96b1-43a8-b23d-0a06022b44d4",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "7e552365-0872-482c-bb3e-ae04e1511e5d",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "3080a504-96b1-43a8-b23d-0a06022b44d4",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Analyze_Metrics",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "7e552365-0872-482c-bb3e-ae04e1511e5d",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "0dc2fffa95acdfd943b7e83d5978537b6dd81d40b5b31f7ba95576883cb4c2c4"
+      },
+      "observed_ocel_hash": "0dc2fffa95acdfd943b7e83d5978537b6dd81d40b5b31f7ba95576883cb4c2c4",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0b47527e40c45a5ceedc1bd1ab65cbd01ef469bfe1d52bd1a2e133aec4ecaa28"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Audit_Logs",
+    "task_id": "9617f6e9-cec1-4e42-aa5f-e5804d09e2c1",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "57b93d801d5e237d60181ecddc3d189e88f6f767f49767b65bf6b99c4625ea2b",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_9617f6e9-cec1-4e42-aa5f-e5804d09e2c1",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "9617f6e9-cec1-4e42-aa5f-e5804d09e2c1",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "83802ea3-4ef6-4a96-b0f8-4840572c3dfd",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "9617f6e9-cec1-4e42-aa5f-e5804d09e2c1",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Audit_Logs",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "83802ea3-4ef6-4a96-b0f8-4840572c3dfd",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "11ca8193791539f65981be200c7f02cfc7a535e84aba745fb912291b27288fa9"
+      },
+      "observed_ocel_hash": "11ca8193791539f65981be200c7f02cfc7a535e84aba745fb912291b27288fa9",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "4be70ea7d2b72ec2fd3e933bae2e7a7386bba37714c601ea78dff943b6d44dde"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Design_Schema",
+    "task_id": "22cfca87-0ab4-4ecb-8f94-dd321555dafd",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "85df2d91fe0ef406ec3239d794c6d31990d2a05be6a7be8b40509e9812a3346e",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_22cfca87-0ab4-4ecb-8f94-dd321555dafd",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "22cfca87-0ab4-4ecb-8f94-dd321555dafd",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "3d37a369-7a5b-4d87-a2a6-6f7c5b13c4a5",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "22cfca87-0ab4-4ecb-8f94-dd321555dafd",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Design_Schema",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "3d37a369-7a5b-4d87-a2a6-6f7c5b13c4a5",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "de0c1a6c4bb8f33c0020894a806e2258d184849334dd2eda6d18d9f2dc45c0bb"
+      },
+      "observed_ocel_hash": "de0c1a6c4bb8f33c0020894a806e2258d184849334dd2eda6d18d9f2dc45c0bb",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "a9f556e711f274e3a4b0e4759abbefac62f5170aad76b16ead9ebe8d6ffd20c0"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Implement_Cache",
+    "task_id": "f72c2073-ea58-4e91-9998-c33d52a98c54",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "b9dc7e68cccd33a4a20debea04b06742be1067a3cb5452c2aa5c25f85549fadd",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_f72c2073-ea58-4e91-9998-c33d52a98c54",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "f72c2073-ea58-4e91-9998-c33d52a98c54",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "007c0918-e8ce-4c85-9551-e1fcf08055e4",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "f72c2073-ea58-4e91-9998-c33d52a98c54",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Implement_Cache",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "007c0918-e8ce-4c85-9551-e1fcf08055e4",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "8341b8a5a7ed426ff9a3520bb0d39f791ec86145f0f826a2716e240e4f19b5f5"
+      },
+      "observed_ocel_hash": "8341b8a5a7ed426ff9a3520bb0d39f791ec86145f0f826a2716e240e4f19b5f5",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "f5705e98650a8ef2ad9259e9dbc4ec3ecc35c1d5b9d28922403803c37e9dd000"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Verify_Compliance",
+    "task_id": "af3b640e-922a-41c4-b056-82277a7ebed5",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "c8683bd39525a98f65e3e44c90234a3c0c1118e2b683c1ed95fa3149f26a927c",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_af3b640e-922a-41c4-b056-82277a7ebed5",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "af3b640e-922a-41c4-b056-82277a7ebed5",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "e7c81749-2b00-4215-adfc-3d0e78244825",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "af3b640e-922a-41c4-b056-82277a7ebed5",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Verify_Compliance",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "e7c81749-2b00-4215-adfc-3d0e78244825",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "58cda262a0affe0ef57cc289b55a05659522fb1acedd00ed6e12e2181b6010fc"
+      },
+      "observed_ocel_hash": "58cda262a0affe0ef57cc289b55a05659522fb1acedd00ed6e12e2181b6010fc",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "0069dc84b387f7a2fe5358ed5572b806a885f2bc51a72b714403e0c984254fe9"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Optimize_Frontend",
+    "task_id": "c69a8778-c715-40ce-bc5b-7d385e9848d7",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "3fbcd3a9b18c88cd4274f8d9d0f7780285a5229385ddae0aacdc73c644c567de",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_c69a8778-c715-40ce-bc5b-7d385e9848d7",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "c69a8778-c715-40ce-bc5b-7d385e9848d7",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "1e64f971-9753-4ef1-950a-d46cab62389c",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "state": "CreatedOnly",
+              "refusal_state": "Some(TaskMissing)"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "c69a8778-c715-40ce-bc5b-7d385e9848d7",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Optimize_Frontend",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "1e64f971-9753-4ef1-950a-d46cab62389c",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "3f741306af620b097e990cdcaa5ebb7cfe79fa8d3d3b5f5c5ce3516303401c64"
+      },
+      "observed_ocel_hash": "3f741306af620b097e990cdcaa5ebb7cfe79fa8d3d3b5f5c5ce3516303401c64",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "77e500594dff60cc1b2a90204bdcab6094c106412be5ffe759d65163d719d93c"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Deploy_K8s",
+    "task_id": "776ab1ae-fcac-4e6f-8306-8e5af99314d9",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "7c839bfb0db43fcbb95adad0723e041c9dca8dc02bae3ea0f6e9ea80a138a893",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_776ab1ae-fcac-4e6f-8306-8e5af99314d9",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "776ab1ae-fcac-4e6f-8306-8e5af99314d9",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "1cc58cb7-3330-4b25-83e1-6e1a6a8b36a3",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "776ab1ae-fcac-4e6f-8306-8e5af99314d9",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Deploy_K8s",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "1cc58cb7-3330-4b25-83e1-6e1a6a8b36a3",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "2ae7ffbcefc3ff825bbd2c3ff89b5f6a332df1ff1c40ae7b33069f8710716588"
+      },
+      "observed_ocel_hash": "2ae7ffbcefc3ff825bbd2c3ff89b5f6a332df1ff1c40ae7b33069f8710716588",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "3e5aa6f5c319c955e0ece575e54e6752f9c327396d5fc62ea3f779ff196c86d4"
+  },
+  {
+    "receipt_type": "A2ATaskReceipt",
+    "receipt_schema": "A2ATaskReceipt.v1",
+    "hash_algorithm": "BLAKE3",
+    "avatar": "SystemArchitect",
+    "jtbd": "Setup_Alerts",
+    "task_id": "e017ca90-e4d9-4051-a52b-e2ea785b2ea8",
+    "status": "CreatedOnly",
+    "mcp": {
+      "server": "ggen",
+      "transport": "stdio",
+      "tool_name": "ggen.construct",
+      "tool_call_hash": null
+    },
+    "expected_path": {
+      "route_id": "a2a.v1",
+      "expected_ocel_hash": "b439ba329d04cf535c0b77c4e8e8e3e9208c49f12bbc69e3ed3e960bce926b33",
+      "expected_artifact": "artifact_needed.md"
+    },
+    "observed_path": {
+      "ocel": {
+        "schema": "CanonicalOCEL.v1",
+        "events": [
+          {
+            "id": "evt_task_validated_e017ca90-e4d9-4051-a52b-e2ea785b2ea8",
+            "activity": "a2a.task.validated",
+            "timestamp": "2026-05-21T00:00:04.000Z",
+            "objects": [
+              {
+                "id": "e017ca90-e4d9-4051-a52b-e2ea785b2ea8",
+                "type": "A2ATask",
+                "qualifier": "task"
+              },
+              {
+                "id": "5fb10f09-2340-4504-b1e9-631e3ce07768",
+                "type": "Receipt",
+                "qualifier": "validation"
+              }
+            ],
+            "attributes": {
+              "refusal_state": "Some(TaskMissing)",
+              "state": "CreatedOnly"
+            }
+          }
+        ],
+        "objects": [
+          {
+            "id": "e017ca90-e4d9-4051-a52b-e2ea785b2ea8",
+            "type": "A2ATask"
+          },
+          {
+            "id": "SystemArchitect",
+            "type": "Avatar8"
+          },
+          {
+            "id": "Setup_Alerts",
+            "type": "Jtbd8"
+          },
+          {
+            "id": "ggen",
+            "type": "MCPServer"
+          },
+          {
+            "id": "5fb10f09-2340-4504-b1e9-631e3ce07768",
+            "type": "Receipt"
+          }
+        ],
+        "canonical_hash": "36398ff598f374218db46d4952a0b1677a4fb2c91838e1ed805a221c41a2a0bc"
+      },
+      "observed_ocel_hash": "36398ff598f374218db46d4952a0b1677a4fb2c91838e1ed805a221c41a2a0bc",
+      "observed_artifact_hash": null
+    },
+    "alignment": {
+      "expected_vs_observed": "Refused",
+      "missing_events": [
+        "a2a.task.created",
+        "a2a.mcp.tool.invoked",
+        "a2a.artifact.emitted",
+        "a2a.task.closed"
+      ],
+      "unexpected_events": [],
+      "refusal_state": "TaskMissing"
+    },
+    "refusal_state": "TaskMissing",
+    "previous_receipt_hash": null,
+    "receipt_hash": "3ba4a1c5eb2c5135d7cb74df89cf9b69a5d6e93831c5dc8a5afca1731e9a29a1"
+  }
+]

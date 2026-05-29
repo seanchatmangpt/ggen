@@ -1,0 +1,30 @@
+@base <http://example.org/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#activity_09_verify_ocel_self_audit> a prov:Activity ;
+    dcterms:identifier "09_verify_ocel_self_audit" ;
+    prov:startedAtTime "2026-05-27T04:21:59.465Z" ; 
+    prov:endedAtTime "2026-05-27T04:22:01.804Z" ;
+    prov:value 0 
+    ; prov:wasInformedBy _:aa6e93bf1365351a116e481f3a48e260 .
+
+<#stdout_09_verify_ocel_self_audit> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_09_verify_ocel_self_audit> ;
+    dcterms:title "09_verify_ocel_self_audit.stdout" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "0195fae48642a6af4faecefb4ceb4bb62d6ce2b527fb7f20ce649d4e18ff33e8"
+    ] .
+
+<#stderr_09_verify_ocel_self_audit> a prov:Entity ;
+    prov:wasGeneratedBy <#activity_09_verify_ocel_self_audit> ;
+    dcterms:title "09_verify_ocel_self_audit.stderr" ;
+    spdx:checksum [
+        a spdx:Checksum ;
+        spdx:algorithm <http://spdx.org/rdf/terms#checksumAlgorithm_sha256> ;
+        spdx:checksumValue "224618dfb486f7deb93d56b1e1bf6d735582fb28c2b090a78cf8ac8f29b58a31"
+    ] .

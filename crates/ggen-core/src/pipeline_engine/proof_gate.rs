@@ -313,6 +313,7 @@ mod tests {
             id: "test-receipt-id".to_string(),
             epoch_id: "test-epoch-id".to_string(),
             ontology_hash: "test-ontology-hash".to_string(),
+            closure_hashes: Vec::new(),
             timestamp: "2023-01-01T00:00:00Z".to_string(),
             toolchain_version: "6.0.0".to_string(),
             passes: Vec::new(),
@@ -345,7 +346,7 @@ mod tests {
         }
     }
 
-    #[ignore]
+    #[ignore = "proof gate validator depends on create_mock_receipt helper that needs real ManufacturingReceipt integration"]
     #[test]
     fn test_gate_o01_schema_valid() {
         let intent = ManufacturingIntent::new("Test objective");
@@ -467,7 +468,7 @@ mod tests {
         assert!(!report.passed);
     }
 
-    #[ignore]
+    #[ignore = "ethos conformance check requires ETHOS ontology loaded from disk; not available in unit test context"]
     #[test]
     fn test_gate_o03_ethos_conformant() {
         // Case 1: Objective empty (Fail)

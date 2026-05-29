@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "groq-coder"
 version = "1.0.0"
@@ -17,3 +19,5 @@ uuid = { version = "1", features = ["v4"] }
 futures = "0.3"
 async-trait = "0.1"
 chrono = "0.4"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }

@@ -1,0 +1,4 @@
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+{ ?x a prov:SoftwareAgent } => { ?x dcterms:description "Banned" } .

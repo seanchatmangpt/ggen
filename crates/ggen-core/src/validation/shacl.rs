@@ -152,13 +152,20 @@ impl ShapeLoader {
 
             let mut shape = ShaclShape::new(&shape_iri, &target_class);
 
-            // Step 2: Find all property constraints for this shape
+            // Step 2: Find all property constraints for this shape and their fields in a
+            // SINGLE query. The `sh:property` objects are blank nodes; a blank-node label
+            // from one query result is NOT a stable reference usable as a subject in a
+            // later query (it becomes a fresh existential variable, matching ANY node).
+            // Keeping `?property` as a join variable here binds each property's path to
+            // its own fields, avoiding cross-contamination between property shapes.
             let find_properties_query = format!(
                 r#"
                     PREFIX sh: <http://www.w3.org/ns/shacl#>
-                    SELECT ?property ?path WHERE {{
+                    SELECT ?path ?field ?value WHERE {{
                         {} sh:property ?property .
                         ?property sh:path ?path .
+                        ?property ?field ?value .
+                        FILTER (?field IN (sh:minCount, sh:maxCount, sh:datatype, sh:pattern, sh:minLength, sh:maxLength, sh:message, sh:severity))
                     }}
                 "#,
                 format_term_for_sparql(&shape_iri)
@@ -170,9 +177,6 @@ impl ShapeLoader {
             };
 
             for prop_row in &prop_rows {
-                let property_iri =
-                    strip_iri_brackets(prop_row.get("property").map(|s| s.as_str()).unwrap_or(""))
-                        .to_string();
                 let path =
                     strip_iri_brackets(prop_row.get("path").map(|s| s.as_str()).unwrap_or(""))
                         .to_string();
@@ -181,15 +185,53 @@ impl ShapeLoader {
                     continue;
                 }
 
-                let mut constraint = PropertyConstraint::new(&path);
+                let field =
+                    strip_iri_brackets(prop_row.get("field").map(|s| s.as_str()).unwrap_or(""))
+                        .to_string();
+                let value = prop_row.get("value").cloned().unwrap_or_default();
 
-                // Step 3: Load constraint fields for this property
-                self.load_constraint_fields(graph, &property_iri, &mut constraint);
+                let constraint = shape
+                    .properties
+                    .entry(path.clone())
+                    .or_insert_with(|| PropertyConstraint::new(&path));
+                apply_constraint_field(constraint, &field, &value);
+            }
 
-                // Step 4: Load allowed values for sh:in
-                self.load_allowed_values(graph, &property_iri, &mut constraint);
-
-                shape.properties.insert(path.clone(), constraint);
+            // Step 3: Load sh:in allowed values per property (path → values), keeping
+            // `?property` as a join variable so blank-node property shapes resolve.
+            let in_query = format!(
+                r#"
+                    PREFIX sh: <http://www.w3.org/ns/shacl#>
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    SELECT ?path ?value WHERE {{
+                        {} sh:property ?property .
+                        ?property sh:path ?path .
+                        ?property sh:in/rdf:rest*/rdf:first ?value .
+                    }}
+                "#,
+                format_term_for_sparql(&shape_iri)
+            );
+            if let Ok(crate::graph::CachedResult::Solutions(in_rows)) =
+                graph.query_cached(&in_query)
+            {
+                for in_row in &in_rows {
+                    let path =
+                        strip_iri_brackets(in_row.get("path").map(|s| s.as_str()).unwrap_or(""))
+                            .to_string();
+                    if path.is_empty() {
+                        continue;
+                    }
+                    if let Some(value) = in_row.get("value") {
+                        let constraint = shape
+                            .properties
+                            .entry(path.clone())
+                            .or_insert_with(|| PropertyConstraint::new(&path));
+                        constraint
+                            .allowed_values
+                            .get_or_insert_with(Vec::new)
+                            .push(strip_literal_quotes(value).to_string());
+                    }
+                }
             }
 
             // Step 5: Parse shape-level severity
@@ -199,100 +241,6 @@ impl ShapeLoader {
         }
 
         Ok(shape_set)
-    }
-
-    /// Load individual constraint fields (minCount, maxCount, datatype, pattern, etc.)
-    fn load_constraint_fields(
-        &self, graph: &Graph, property_iri: &str, constraint: &mut PropertyConstraint,
-    ) {
-        let fields_query = format!(
-            r#"
-                PREFIX sh: <http://www.w3.org/ns/shacl#>
-                SELECT ?field ?value WHERE {{
-                    {} ?field ?value .
-                    FILTER (?field IN (sh:minCount, sh:maxCount, sh:datatype, sh:pattern, sh:minLength, sh:maxLength, sh:message, sh:severity))
-                }}
-            "#,
-            format_term_for_sparql(property_iri)
-        );
-
-        let rows = match graph.query_cached(&fields_query) {
-            Ok(crate::graph::CachedResult::Solutions(rows)) => rows,
-            _ => return,
-        };
-
-        for row in &rows {
-            let field = strip_iri_brackets(row.get("field").map(|s| s.as_str()).unwrap_or(""));
-            let value = row.get("value").cloned().unwrap_or_default();
-
-            match field {
-                "http://www.w3.org/ns/shacl#minCount" => {
-                    if let Ok(n) = strip_literal_quotes(&value).parse::<u32>() {
-                        constraint.min_count = Some(n);
-                    }
-                }
-                "http://www.w3.org/ns/shacl#maxCount" => {
-                    if let Ok(n) = strip_literal_quotes(&value).parse::<u32>() {
-                        constraint.max_count = Some(n);
-                    }
-                }
-                "http://www.w3.org/ns/shacl#datatype" => {
-                    constraint.datatype = Some(strip_iri_brackets(&value).to_string());
-                }
-                "http://www.w3.org/ns/shacl#pattern" => {
-                    constraint.pattern = Some(strip_literal_quotes(&value).to_string());
-                }
-                "http://www.w3.org/ns/shacl#minLength" => {
-                    if let Ok(n) = strip_literal_quotes(&value).parse::<u32>() {
-                        constraint.min_length = Some(n);
-                    }
-                }
-                "http://www.w3.org/ns/shacl#maxLength" => {
-                    if let Ok(n) = strip_literal_quotes(&value).parse::<u32>() {
-                        constraint.max_length = Some(n);
-                    }
-                }
-                "http://www.w3.org/ns/shacl#message" => {
-                    constraint.message = Some(strip_literal_quotes(&value).to_string());
-                }
-                "http://www.w3.org/ns/shacl#severity" => {
-                    constraint.severity = parse_severity(strip_iri_brackets(&value));
-                }
-                _ => {}
-            }
-        }
-    }
-
-    /// Load allowed values for sh:in
-    fn load_allowed_values(
-        &self, graph: &Graph, property_iri: &str, constraint: &mut PropertyConstraint,
-    ) {
-        let in_query = format!(
-            r#"
-                PREFIX sh: <http://www.w3.org/ns/shacl#>
-                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                SELECT ?value WHERE {{
-                    {} sh:in/rdf:rest*/rdf:first ?value .
-                }}
-            "#,
-            format_term_for_sparql(property_iri)
-        );
-
-        let rows = match graph.query_cached(&in_query) {
-            Ok(crate::graph::CachedResult::Solutions(rows)) => rows,
-            _ => return,
-        };
-
-        if !rows.is_empty() {
-            let values: Vec<String> = rows
-                .iter()
-                .filter_map(|row| {
-                    row.get("value")
-                        .map(|v| strip_literal_quotes(v).to_string())
-                })
-                .collect();
-            constraint.allowed_values = Some(values);
-        }
     }
 
     /// Load shape-level severity
@@ -314,6 +262,45 @@ impl ShapeLoader {
                 .map(|v| parse_severity(strip_iri_brackets(v))),
             _ => None,
         }
+    }
+}
+
+/// Apply a single `sh:*` constraint field/value pair to a `PropertyConstraint`.
+fn apply_constraint_field(constraint: &mut PropertyConstraint, field: &str, value: &str) {
+    match field {
+        "http://www.w3.org/ns/shacl#minCount" => {
+            if let Ok(n) = strip_literal_quotes(value).parse::<u32>() {
+                constraint.min_count = Some(n);
+            }
+        }
+        "http://www.w3.org/ns/shacl#maxCount" => {
+            if let Ok(n) = strip_literal_quotes(value).parse::<u32>() {
+                constraint.max_count = Some(n);
+            }
+        }
+        "http://www.w3.org/ns/shacl#datatype" => {
+            constraint.datatype = Some(strip_iri_brackets(value).to_string());
+        }
+        "http://www.w3.org/ns/shacl#pattern" => {
+            constraint.pattern = Some(strip_literal_quotes(value).to_string());
+        }
+        "http://www.w3.org/ns/shacl#minLength" => {
+            if let Ok(n) = strip_literal_quotes(value).parse::<u32>() {
+                constraint.min_length = Some(n);
+            }
+        }
+        "http://www.w3.org/ns/shacl#maxLength" => {
+            if let Ok(n) = strip_literal_quotes(value).parse::<u32>() {
+                constraint.max_length = Some(n);
+            }
+        }
+        "http://www.w3.org/ns/shacl#message" => {
+            constraint.message = Some(strip_literal_quotes(value).to_string());
+        }
+        "http://www.w3.org/ns/shacl#severity" => {
+            constraint.severity = parse_severity(strip_iri_brackets(value));
+        }
+        _ => {}
     }
 }
 

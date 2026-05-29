@@ -1,3 +1,11 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 //! Integration Tests: Full ggen Sync Pipeline
 //!
 //! Tests the complete pipeline:

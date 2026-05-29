@@ -7,7 +7,6 @@
 /// 4. Atomic snapshot promotion
 /// 5. Receipt signing with ML-DSA
 /// 6. Closed-loop autonomous evolution
-
 #[cfg(test)]
 mod e2e_tests {
     use crate::ontology::sigma_runtime::{Statement, ValidationResult};

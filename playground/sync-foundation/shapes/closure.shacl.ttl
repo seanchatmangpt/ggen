@@ -1,0 +1,108 @@
+# PUBLIC-ONTOLOGY-FOUNDATION-1 — SHACL closure shapes (public vocabulary only).
+#
+# These NodeShapes enforce the provenance closure of the actuation in public
+# terms. There is no private `gall:` namespace: every targeted class and every
+# constrained property is drawn from PROV-O, DCTERMS, or SKOS.
+#
+# The closure being enforced:
+#   1. The actuation run (prov:Activity) MUST prov:used the fixture entity AND
+#      MUST be prov:wasAssociatedWith the actuator agent (prov:SoftwareAgent).
+#   2. The emitted artifact (prov:Entity that wasGeneratedBy an Activity) MUST
+#      be prov:wasGeneratedBy the run and prov:wasDerivedFrom the fixture, and
+#      MUST carry a dcterms:title, dcterms:coverage, and the route/diagnostic
+#      concept references that the SELECT query precipitates into the artifact.
+#
+# Validate (for reference; the live actuation runs through `ggen sync`):
+#   ggen validate shapes/closure.shacl.ttl
+#   (or any SHACL engine over ontology/command-foundation.ttl)
+
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+@base <https://ggen.io/playground/sync-foundation/shapes/closure> .
+
+# ── The actuation run must close over its agent + fixture ────────────────────
+<#ActivityClosureShape> a sh:NodeShape ;
+    sh:targetClass prov:Activity ;
+    sh:property [
+        sh:path prov:used ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A prov:Activity (the actuation run) must prov:used at least one input entity (the fixture)." ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:minCount 1 ;
+        sh:class prov:SoftwareAgent ;
+        sh:message "A prov:Activity must prov:wasAssociatedWith a prov:SoftwareAgent (the ggen-sync actuator)." ;
+    ] .
+
+# ── The actuator agent must declare its version ──────────────────────────────
+<#AgentClosureShape> a sh:NodeShape ;
+    sh:targetClass prov:SoftwareAgent ;
+    sh:property [
+        sh:path dcterms:hasVersion ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A prov:SoftwareAgent (the actuator) must declare a dcterms:hasVersion." ;
+    ] .
+
+# ── The emitted artifact must close over its generation + derivation ─────────
+# Targets only the generated entity (the one with a prov:wasGeneratedBy edge),
+# so plain input entities like the fixture are not over-constrained.
+<#GeneratedArtifactClosureShape> a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            SELECT ?this WHERE { ?this prov:wasGeneratedBy ?run . }
+        """ ;
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:minCount 1 ;
+        sh:class prov:Activity ;
+        sh:message "The emitted artifact must be prov:wasGeneratedBy a prov:Activity (the actuation run)." ;
+    ] ;
+    sh:property [
+        sh:path prov:wasDerivedFrom ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "The emitted artifact must be prov:wasDerivedFrom the fixture entity." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "The emitted artifact must carry a dcterms:title (the test name)." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:coverage ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "The emitted artifact must declare dcterms:coverage (the delivery transports)." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:conformsTo ;
+        sh:minCount 1 ;
+        sh:class skos:Concept ;
+        sh:message "The emitted artifact must dcterms:conformsTo a skos:Concept (the route identity)." ;
+    ] ;
+    sh:property [
+        sh:path dcterms:references ;
+        sh:minCount 1 ;
+        sh:class skos:Concept ;
+        sh:message "The emitted artifact must dcterms:references a skos:Concept (the diagnostic identity)." ;
+    ] .
+
+# ── Controlled-vocabulary concepts must be identifiable ──────────────────────
+<#ConceptNotationShape> a sh:NodeShape ;
+    sh:targetClass skos:Concept ;
+    sh:property [
+        sh:path skos:notation ;
+        sh:minCount 1 ;
+        sh:message "A skos:Concept (diagnostic or route) must carry a skos:notation identity (e.g. E0011, template.values-inline)." ;
+    ] .

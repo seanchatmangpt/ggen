@@ -12,7 +12,12 @@ tokio = { version = "1.42", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 anyhow = "1.0"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [[bin]]
 name = "mcp_sync_example"
 path = "src/main.rs"
+
+[workspace]
+

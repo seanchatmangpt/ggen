@@ -429,7 +429,7 @@ impl NormalizationPass {
                 }
                 WHERE {
                     ?instance rdf:type ?class .
-                    ?class rdfs:subClassOf ?superClass .
+                    ?class rdfs:subClassOf+ ?superClass .
                     FILTER (?class != ?superClass)
                 }
             "#

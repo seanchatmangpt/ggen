@@ -18,12 +18,12 @@
 //! use crate::graph::Graph;
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let mut cache = QueryCache::new(1000);
+//! let cache = QueryCache::new(1000);
 //! let graph = Graph::new()?;
 //!
 //! // Execute query with caching
 //! let query = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
-//! let results = cache.execute_cached(&graph, query)?;
+//! let results = cache.execute_cached(graph.inner(), query)?;
 //! # Ok(())
 //! # }
 //! ```

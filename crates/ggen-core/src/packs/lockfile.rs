@@ -47,6 +47,7 @@
 //!     packs: BTreeMap::new(),
 //!     updated_at: Utc::now(),
 //!     ggen_version: "4.0.0".to_string(),
+//!     profile: None,
 //! };
 //!
 //! let pack = LockedPack {

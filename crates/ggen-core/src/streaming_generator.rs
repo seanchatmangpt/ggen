@@ -32,7 +32,7 @@ use crate::template_cache::TemplateCache;
 /// use std::path::PathBuf;
 ///
 /// # fn main() -> crate::utils::error::Result<()> {
-/// let generator = StreamingGenerator::new(
+/// let mut generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
 /// )?;

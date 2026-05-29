@@ -35,6 +35,43 @@
 
 Welcome to the ggen documentation! This documentation follows the [Diataxis framework](https://diataxis.fr/), organized into four categories: **Tutorials**, **How-to Guides**, **Reference**, and **Explanations**.
 
+---
+
+## 📐 Canonical documentation map — ggen v26.5.28
+
+> This is the authoritative entry point for the **v26.5.28** Genesis Run. Where any other
+> page disagrees with what builds, this map and the reference layer are correct.
+> (Release facts elsewhere in this file referencing "v0.2.0" are stale and pending
+> reconciliation under DOCS-REST-1.)
+
+The documentation is *part of the release boundary* — a working surface that must describe
+the machine that actually builds. See
+[Why docs must match the build](explanation/why-docs-must-match-the-build.md).
+
+| Mode | Reader need | Canonical location |
+|------|-------------|--------------------|
+| **Tutorials** | learning, guaranteed-success paths | `docs/tutorials/` |
+| **How-to guides** | getting real work done | `docs/how-to/` |
+| **Reference** | exact, checked facts | `docs/reference/` |
+| **Explanation** | understanding / the *why* | `docs/explanation/` |
+
+**Start at the spine:**
+
+- [The Genesis Run](explanation/genesis-run.md) — why ggen is built and released this way
+- [v26.5.28 release boundary](reference/release/v26-5-28-boundary.md) — what is inside, gated, archived
+- [Command-proof matrix](reference/cli/command-proof-matrix.md) — every CLI noun's proof status
+- [Workspace crates](reference/workspace/crates.md) · [Feature flags](reference/workspace/feature-flags.md) — the real 15-crate machine
+
+**Reconciliation notice (DOCS-REST-1, in progress):** two earlier Diátaxis trees still
+exist and are being collapsed into the canonical locations above —
+`docs/diataxis/{tutorials,how-to,reference,explanation}` (older "8-operator/manufacturing"
+framing) and stale leaves under the top-level trees (e.g. `reference/template-directives.md`
+for removed `template` commands; `how-to/{a2a,mcp}/` for archived nouns). Until collapse
+completes, prefer the spine documents linked above. Nothing in the docs estate is deleted
+(non-deletion doctrine) — stale pages are reconciled or archived, not destroyed.
+
+---
+
 ## Quick Start
 
 **New to ggen?** Start here:

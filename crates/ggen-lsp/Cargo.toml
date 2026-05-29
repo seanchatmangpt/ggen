@@ -1,0 +1,75 @@
+[package]
+name = "ggen-lsp"
+version = "26.5.28"
+edition = "2021"
+
+[dependencies]
+tower-lsp = "0.20"
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Reuse from ggen workspace
+ggen-core = { path = "../ggen-core" }
+ggen-config = { path = "../ggen-config" }
+ggen-graph = { path = "../ggen-graph" }
+tera = "1"
+toml = "1.1.0"
+# Canonical RDF/SPARQL formatting (parse + reserialize). Matches the
+# workspace oxigraph version and rdf-12 feature used by ggen-core.
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
+# Real opinionated SPARQL formatter (Qlue-ls, MIT) — a published crate, so the
+# build is fresh-clone-safe. Vendored at vendors/qlue-ls for reference only; the
+# build uses the crates.io release. default-features off to skip the wasm panic hook.
+qlue-ls = { version = "2.7.1", default-features = false }
+# Qlue-ls's own SPARQL parser (same version it depends on), used as a syntax
+# GATE: format_raw is error-tolerant and will reformat a broken tree, so we parse
+# first and refuse to rewrite anything with parse errors.
+ll-sparql-parser = "3.1.0"
+
+# Utilities
+url = "2"
+anyhow = "1"
+thiserror = "1"
+walkdir = "2"
+chrono = { version = "0.4", features = ["serde"] }
+blake3 = "1.5"
+
+[dev-dependencies]
+tempfile = "3"
+# Spawn the real `ggen-lsp` binary for protocol-level tests (resolve via cargo_bin).
+assert_cmd = "2"
+# serde_json is a normal dep (above) and thus available to integration tests for
+# building/parsing framed LSP JSON-RPC messages.
+
+[package.metadata.claude-code]
+type = "language-server"
+marketplace_plugin_id = "ggen-lsp"
+marketplace_plugin_name = "ggen Language Server"
+marketplace_display_name = "ggen (RDF/Tera/TOML)"
+marketplace_description = "Syntax highlighting, completion, refactoring for ggen files"
+marketplace_categories = ["language-support", "linting", "formatting"]
+marketplace_minimum_claude_code_version = "0.9.0"
+marketplace_supported_languages = ["ttl", "tera", "toml"]
+marketplace_binary = "ggen"
+marketplace_binary_args = ["lsp", "start", "--transport", "stdio"]
+marketplace_capabilities = [
+  "completion",
+  "hover",
+  "definition",
+  "references",
+  "rename",
+  "document-symbol",
+  "workspace-symbol",
+  "code-lens",
+  "semantic-tokens",
+  "folding-range",
+  "formatting",
+  "inlay-hint"
+]
+
+[[bin]]
+name = "ggen-lsp"
+path = "src/main.rs"

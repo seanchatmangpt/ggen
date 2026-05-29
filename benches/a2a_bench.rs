@@ -1,7 +1,10 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::a2a::{
     Artifact, ArtifactContent, ArtifactType, StateTransition, Task, TaskState, TaskStateMachine,
 };
+use std::hint::black_box;
 
 fn bench_task_creation(c: &mut Criterion) {
     c.bench_function("task_creation", |b| {
@@ -28,7 +31,7 @@ fn bench_task_builder(c: &mut Criterion) {
 fn bench_state_transition_validation(c: &mut Criterion) {
     let mut group = c.benchmark_group("state_transition_validation");
 
-    let transitions = vec![
+    let transitions = [
         (TaskState::Created, TaskState::Running, true),
         (TaskState::Created, TaskState::Failed, true),
         (TaskState::Running, TaskState::Blocked, true),

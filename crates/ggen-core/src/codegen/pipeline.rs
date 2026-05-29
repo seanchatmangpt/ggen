@@ -65,14 +65,14 @@ type GlobalLlmService = Arc<Mutex<Option<Box<dyn LlmService>>>>;
 /// Uses Arc<Mutex<>> for safe concurrent access from multiple threads.
 ///
 /// # Example
-/// ```rust
+/// ```ignore
 /// // In CLI layer (ggen-cli):
 /// let service = Box::new(GroqLlmService::new(api_key));
 /// set_llm_service(service);
 ///
 /// // In codegen pipeline:
 /// if let Some(service) = get_llm_service() {
-///     let code = service.generate_skill_impl(...)?;
+///     let code = service.generate_skill_impl(/* ... */)?;
 /// }
 /// ```
 static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
@@ -87,7 +87,8 @@ static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
 /// * `service` - Boxed LLM service implementation
 ///
 /// # Example
-/// ```rust
+/// ```ignore
+/// // Called from the CLI layer (ggen-ai cannot be a dependency of ggen-core).
 /// use crate::codegen::pipeline::set_llm_service;
 /// use ggen_ai::GroqLlmService;
 ///
@@ -108,7 +109,7 @@ pub fn set_llm_service(service: Box<dyn LlmService>) {
 /// * `None` - No LLM service configured
 ///
 /// # Example
-/// ```rust
+/// ```ignore
 /// use crate::codegen::pipeline::get_llm_service;
 ///
 /// if let Some(service) = get_llm_service() {
@@ -380,6 +381,14 @@ impl GenerationPipeline {
 
     /// Execute all inference rules in order
     pub fn execute_inference_rules(&mut self) -> Result<Vec<ExecutedRule>> {
+        // The ontology graph must be loaded before any inference can run, even when
+        // the manifest declares no inference rules (mirrors execute_generation_rules).
+        if self.ontology_graph.is_none() {
+            return Err(Error::new(
+                "Ontology graph not loaded. Call load_ontology() first.",
+            ));
+        }
+
         let mut executed = Vec::new();
 
         // Sort rules by order
@@ -437,6 +446,40 @@ impl GenerationPipeline {
         })
     }
 
+    /// Prepend declarations for well-known RDF vocabulary prefixes (`rdf`, `rdfs`,
+    /// `owl`, `xsd`) to a SPARQL query, but only for prefixes the query does not
+    /// already declare. This lets generation and condition queries use standard
+    /// vocabulary prefixes without redeclaring them, without risking a duplicate-
+    /// prefix parse error when the author already declared one.
+    fn with_well_known_prefixes(query: &str) -> String {
+        const WELL_KNOWN: &[(&str, &str)] = &[
+            ("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+            ("rdfs", "http://www.w3.org/2000/01/rdf-schema#"),
+            ("owl", "http://www.w3.org/2002/07/owl#"),
+            ("xsd", "http://www.w3.org/2001/XMLSchema#"),
+        ];
+
+        let mut prolog = String::new();
+        for (pfx, iri) in WELL_KNOWN {
+            // Skip if the query already declares this prefix (case-insensitive PREFIX keyword).
+            let declares = query.lines().any(|l| {
+                let lt = l.trim_start();
+                lt.len() >= 6
+                    && lt[..6].eq_ignore_ascii_case("prefix")
+                    && lt[6..].trim_start().starts_with(&format!("{pfx}:"))
+            });
+            if !declares {
+                prolog.push_str(&format!("PREFIX {pfx}: <{iri}>\n"));
+            }
+        }
+
+        if prolog.is_empty() {
+            query.to_string()
+        } else {
+            format!("{prolog}{query}")
+        }
+    }
+
     /// Evaluate a SPARQL ASK condition query
     ///
     /// Returns `true` if condition passes (ASK returns true), `false` otherwise.
@@ -448,8 +491,9 @@ impl GenerationPipeline {
             .as_ref()
             .ok_or_else(|| Error::new("Ontology graph not loaded"))?;
 
+        let ask_query = Self::with_well_known_prefixes(ask_query);
         let results = graph
-            .query(ask_query)
+            .query(&ask_query)
             .map_err(|e| Error::new(&format!("Condition query failed: {}", e)))?;
 
         match results {
@@ -457,6 +501,80 @@ impl GenerationPipeline {
             _ => Err(Error::new(
                 "error[E0002]: Condition query must return boolean (ASK), not results\n  --> query used in WHEN condition\n  |\n  = help: Change SPARQL query from SELECT/CONSTRUCT to ASK:\n  =   ASK { ... }\n  = help: Conditions must return true/false, not result rows\n  = help: Example: ASK { ?x a :Type }",
             )),
+        }
+    }
+
+    /// Inject the `generated_impl` template variable for LLM-backed skill generation.
+    ///
+    /// Reads skill metadata from a SPARQL result `row`, invokes the (possibly
+    /// fallback) LLM service, and inserts the resulting code into `context`. On
+    /// failure it inserts a deterministic stub instead of propagating the error,
+    /// so code generation is never blocked by LLM unavailability. Used by both the
+    /// static- and dynamic-output paths of `execute_generation_rules`.
+    fn inject_generated_impl(
+        &self, row: &BTreeMap<String, String>, rule: &crate::manifest::GenerationRule,
+        context: &mut tera::Context,
+    ) {
+        // Look for skill-specific fields in SPARQL results
+        let skill_name = row
+            .get("?skill_name")
+            .or_else(|| row.get("skill_name"))
+            .map(|s| s.as_str())
+            .unwrap_or("");
+
+        let system_prompt = row
+            .get("?system_prompt")
+            .or_else(|| row.get("system_prompt"))
+            .or_else(|| row.get("?skill_description"))
+            .map(|s| s.as_str())
+            .unwrap_or("");
+
+        let implementation_hint = row
+            .get("?implementation_hint")
+            .or_else(|| row.get("implementation_hint"))
+            .map(|s| s.as_str())
+            .unwrap_or("Implement this skill");
+
+        // Detect language from output file extension or SPARQL results
+        let language = row
+            .get("?language")
+            .or_else(|| row.get("language"))
+            .or_else(|| row.get("?target_language"))
+            .map(|s| s.as_str())
+            .unwrap_or_else(|| {
+                let output_ext = rule.output_file.rsplit('.').next().unwrap_or("");
+                match output_ext {
+                    "rs" => "rust",
+                    "ex" | "exs" => "elixir",
+                    "ts" => "typescript",
+                    "js" => "javascript",
+                    "go" => "go",
+                    "java" => "java",
+                    _ => "rust", // Default to Rust
+                }
+            });
+
+        // Generate skill implementation using injected LLM service (or fallback stub)
+        if !skill_name.is_empty() && !system_prompt.is_empty() {
+            match self.generate_skill_impl(skill_name, system_prompt, implementation_hint, language)
+            {
+                Ok(generated_code) => {
+                    context.insert("generated_impl", &generated_code);
+                }
+                Err(e) => {
+                    eprintln!(
+                        "Warning: LLM generation failed for skill '{}': {}. Using TemplateFallback stub.",
+                        skill_name, e
+                    );
+                    context.insert(
+                        "generated_impl",
+                        &format!(
+                            "// [ManualImplementation] Implement {} skill: {}\n// Hint: {}\n// Note: LLM generation failed (TemplateFallback used)",
+                            skill_name, system_prompt, implementation_hint
+                        ),
+                    );
+                }
+            }
         }
     }
 
@@ -500,18 +618,28 @@ impl GenerationPipeline {
             let query = match &rule.query {
                 QuerySource::File { file } => {
                     let query_path = self.base_path.join(file);
-                    std::fs::read_to_string(&query_path).map_err(|e| {
+                    let content = std::fs::read_to_string(&query_path).map_err(|e| {
                         Error::new(&format!(
                             "Failed to read query file '{}': {}",
                             query_path.display(),
                             e
                         ))
-                    })?
+                    })?;
+                    // VALUES data must be inline in ggen.toml, never in .rq files
+                    if crate::manifest::validation::query_contains_values(&content) {
+                        return Err(Error::new(&format!(
+                            "error[E0010]: VALUES data must be inline in ggen.toml\n  --> rule: '{}'\n  --> file: {}\n  |\n  = Move VALUES blocks into ggen.toml: `query = {{ inline = \"SELECT ... WHERE {{ VALUES ... }}\" }}`",
+                            rule.name,
+                            query_path.display()
+                        )));
+                    }
+                    content
                 }
                 QuerySource::Inline { inline } => inline.clone(),
             };
 
-            // 2. Execute SELECT query
+            // 2. Execute SELECT query (with well-known vocabulary prefixes available)
+            let query = Self::with_well_known_prefixes(&query);
             let results = graph.query(&query).map_err(|e| {
                 Error::new(&format!(
                     "Generation rule '{}' query failed: {}",
@@ -624,7 +752,12 @@ impl GenerationPipeline {
                 }
             };
 
-            // 5. For each row, render template and generate file
+            // 5. Render template and generate file(s)
+            //
+            // Render mode is chosen automatically:
+            //   - Static output_file (no {{ }}) → render ONCE with all rows in `results`
+            //   - Dynamic output_file (contains {{ }}) → render once PER ROW so each row
+            //     can expand to a differently-named file
             let mut tera = tera::Tera::default();
             crate::register::register_all(&mut tera);
             tera.add_raw_template("generation_rule", &template_content)
@@ -635,6 +768,104 @@ impl GenerationPipeline {
                     ))
                 })?;
 
+            let is_static_output = !rule.output_file.contains("{{");
+
+            // For static output paths with data, build one aggregate context and render once.
+            // This avoids redundant writes (e.g. 12 labels writing the same file 12 times).
+            if is_static_output && !rows.is_empty() {
+                let results_json = serde_json::json!(rows);
+                let mut context = tera::Context::new();
+                context.insert("results", &results_json);
+                context.insert("sparql_results", &results_json);
+                context.insert("entities", &results_json);
+                // Expose first-row scalars so single-row specs can use {{ name }} directly
+                for (key, value) in &rows[0] {
+                    let clean_key = key.strip_prefix('?').unwrap_or(key);
+                    context.insert(clean_key, value.as_str());
+                }
+
+                // Inject `generated_impl` for static outputs too (mirrors the per-row
+                // dynamic-output branch below), using the first row. Always populated
+                // when skill fields are present so templates referencing it render even
+                // when LLM is disabled (generate_skill_impl returns a stub in that case).
+                self.inject_generated_impl(&rows[0], rule, &mut context);
+
+                let rendered = tera.render("generation_rule", &context).map_err(|e| {
+                    Error::new(&format!(
+                        "Failed to render template for rule '{}': {}",
+                        rule.name, e
+                    ))
+                })?;
+
+                let full_output_path = output_dir.join(&rule.output_file);
+
+                let final_content = match rule.mode {
+                    GenerationMode::Create => {
+                        if full_output_path.exists() {
+                            // Skip — do not advance to the per-row loop
+                            let duration = start.elapsed();
+                            let query_hash =
+                                format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
+                            self.executed_rules.push(ExecutedRule {
+                                name: rule.name.clone(),
+                                rule_type: RuleType::Generation,
+                                triples_added: 0,
+                                duration_ms: duration.as_millis() as u64,
+                                query_hash,
+                            });
+                            continue;
+                        }
+                        rendered
+                    }
+                    GenerationMode::Overwrite => rendered,
+                    GenerationMode::Merge => {
+                        if full_output_path.exists() {
+                            let existing =
+                                std::fs::read_to_string(&full_output_path).map_err(|e| {
+                                    Error::new(&format!(
+                                        "Failed to read existing file for merge '{}': {}",
+                                        full_output_path.display(),
+                                        e
+                                    ))
+                                })?;
+                            crate::codegen::merge::merge_sections(&rendered, &existing)?
+                        } else {
+                            crate::codegen::merge::merge_sections(&rendered, "")?
+                        }
+                    }
+                };
+
+                Self::validate_generated_output(
+                    &final_content,
+                    full_output_path.as_path(),
+                    &rule.name,
+                )?;
+                if self.manifest.validation.no_unsafe {
+                    Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
+                }
+                transaction.write_file(&full_output_path, &final_content)?;
+
+                let content_hash = format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
+                generated.push(GeneratedFile {
+                    path: full_output_path,
+                    content_hash,
+                    size_bytes: final_content.len(),
+                    source_rule: rule.name.clone(),
+                });
+
+                let duration = start.elapsed();
+                let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
+                self.executed_rules.push(ExecutedRule {
+                    name: rule.name.clone(),
+                    rule_type: RuleType::Generation,
+                    triples_added: 0,
+                    duration_ms: duration.as_millis() as u64,
+                    query_hash,
+                });
+                continue; // skip the per-row loop below
+            }
+
+            // Dynamic output paths: render once per row so each row can produce a distinct file
             for row in &rows {
                 // Build context from row
                 let mut context = tera::Context::new();
@@ -653,76 +884,8 @@ impl GenerationPipeline {
                 context.insert("sparql_results", &results_json);
                 context.insert("entities", &results_json);
 
-                // LLM Generation: Auto-generate skill implementations if enabled
-                if self.manifest.generation.enable_llm {
-                    // Look for skill-specific fields in SPARQL results
-                    let skill_name = row
-                        .get("?skill_name")
-                        .or_else(|| row.get("skill_name"))
-                        .map(|s| s.as_str())
-                        .unwrap_or("");
-
-                    let system_prompt = row
-                        .get("?system_prompt")
-                        .or_else(|| row.get("system_prompt"))
-                        .or_else(|| row.get("?skill_description"))
-                        .map(|s| s.as_str())
-                        .unwrap_or("");
-
-                    let implementation_hint = row
-                        .get("?implementation_hint")
-                        .or_else(|| row.get("implementation_hint"))
-                        .map(|s| s.as_str())
-                        .unwrap_or("Implement this skill");
-
-                    // Detect language from output file extension or SPARQL results
-                    let language = row
-                        .get("?language")
-                        .or_else(|| row.get("language"))
-                        .or_else(|| row.get("?target_language"))
-                        .map(|s| s.as_str())
-                        .unwrap_or_else(|| {
-                            // Fallback: detect from output file extension
-                            let output_ext = rule.output_file.rsplit('.').next().unwrap_or("");
-                            match output_ext {
-                                "rs" => "rust",
-                                "ex" | "exs" => "elixir",
-                                "ts" => "typescript",
-                                "js" => "javascript",
-                                "go" => "go",
-                                "java" => "java",
-                                _ => "rust", // Default to Rust
-                            }
-                        });
-
-                    // Generate skill implementation using injected LLM service
-                    if !skill_name.is_empty() && !system_prompt.is_empty() {
-                        match self.generate_skill_impl(
-                            skill_name,
-                            system_prompt,
-                            implementation_hint,
-                            language,
-                        ) {
-                            Ok(generated_code) => {
-                                context.insert("generated_impl", &generated_code);
-                            }
-                            Err(e) => {
-                                // LLM generation failed - log warning but don't block generation
-                                eprintln!(
-                                    "Warning: LLM generation failed for skill '{}': {}. Using TemplateFallback stub.",
-                                    skill_name, e
-                                );
-                                context.insert(
-                                    "generated_impl",
-                                    &format!(
-                                        "// [ManualImplementation] Implement {} skill: {}\n// Hint: {}\n// Note: LLM generation failed (TemplateFallback used)",
-                                        skill_name, system_prompt, implementation_hint
-                                    ),
-                                );
-                            }
-                        }
-                    }
-                }
+                // Inject `generated_impl` (LLM result or stub) when skill fields exist.
+                self.inject_generated_impl(row, rule, &mut context);
 
                 // Render template
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
@@ -812,6 +975,9 @@ impl GenerationPipeline {
                     full_output_path.as_path(),
                     &rule.name,
                 )?;
+                if self.manifest.validation.no_unsafe {
+                    Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
+                }
 
                 // Write file atomically with automatic rollback on failure
                 // FileTransaction handles parent directory creation internally
@@ -967,6 +1133,47 @@ impl GenerationPipeline {
             )));
         }
 
+        Ok(())
+    }
+
+    /// Check generated content for unsafe blocks (enforces `no_unsafe = true` in [validation])
+    fn check_no_unsafe(content: &str, path: &Path, rule_id: &str) -> Result<()> {
+        // Detect `unsafe` keyword used as a block or impl qualifier.
+        // Matches: `unsafe {`, `unsafe fn`, `unsafe impl`, `unsafe trait`
+        // Does not fire on comments or string literals containing the word.
+        let has_unsafe = content.lines().any(|line| {
+            let trimmed = line.trim();
+            if trimmed.starts_with("//") || trimmed.starts_with("*") {
+                return false;
+            }
+            let mut chars = trimmed.char_indices().peekable();
+            while let Some((i, c)) = chars.next() {
+                if c == '"' || c == '\'' {
+                    // skip string/char literal content
+                    for (_, ch) in chars.by_ref() {
+                        if ch == c {
+                            break;
+                        }
+                    }
+                    continue;
+                }
+                let rest = &trimmed[i..];
+                if let Some(after) = rest.strip_prefix("unsafe") {
+                    if after.starts_with([' ', '\t', '{', '\n']) || after.is_empty() {
+                        return true;
+                    }
+                }
+            }
+            false
+        });
+
+        if has_unsafe {
+            return Err(Error::new(&format!(
+                "error[E0012]: Generated code contains `unsafe` block\n  --> rule: '{}', output: '{}'\n  |\n  = `no_unsafe = true` is set in [validation]\n  = help: Remove unsafe code from the template or ontology data\n  = help: Or set `no_unsafe = false` in [validation] if unsafe is intentional",
+                rule_id,
+                path.display()
+            )));
+        }
         Ok(())
     }
 

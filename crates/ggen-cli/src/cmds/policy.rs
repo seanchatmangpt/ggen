@@ -15,61 +15,61 @@ pub use ggen_core::marketplace::profile::{predefined_profiles, Profile, ProfileI
 // ============================================================================
 
 #[derive(Serialize)]
-struct ListOutput {
-    profiles: Vec<ProfileSummary>,
-    total: usize,
+pub struct ListOutput {
+    pub profiles: Vec<ProfileSummary>,
+    pub total: usize,
 }
 
 #[derive(Serialize)]
-struct ProfileSummary {
-    id: String,
-    name: String,
-    description: String,
-    policy_count: usize,
-    trust_requirement: String,
-    receipt_requirement: String,
+pub struct ProfileSummary {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub policy_count: usize,
+    pub trust_requirement: String,
+    pub receipt_requirement: String,
 }
 
 #[derive(Serialize)]
-struct ValidateOutput {
-    profile_id: String,
-    passed: bool,
-    violation_count: usize,
-    policies_checked: usize,
-    violations: Vec<ViolationSummary>,
+pub struct ValidateOutput {
+    pub profile_id: String,
+    pub passed: bool,
+    pub violation_count: usize,
+    pub policies_checked: usize,
+    pub violations: Vec<ViolationSummary>,
 }
 
 #[derive(Serialize)]
-struct ViolationSummary {
-    policy_id: String,
-    pack_id: String,
-    description: String,
+pub struct ViolationSummary {
+    pub policy_id: String,
+    pub pack_id: String,
+    pub description: String,
 }
 
 #[derive(Serialize)]
-struct ShowOutput {
-    profile_id: String,
-    name: String,
-    description: String,
-    policies: Vec<PolicySummary>,
-    trust_requirement: String,
-    receipt_requirement: String,
-    runtime_constraints: Vec<RuntimeConstraintSummary>,
+pub struct ShowOutput {
+    pub profile_id: String,
+    pub name: String,
+    pub description: String,
+    pub policies: Vec<PolicySummary>,
+    pub trust_requirement: String,
+    pub receipt_requirement: String,
+    pub runtime_constraints: Vec<RuntimeConstraintSummary>,
 }
 
 #[derive(Serialize)]
-struct PolicySummary {
-    id: String,
-    name: String,
-    description: String,
-    rule_count: usize,
+pub struct PolicySummary {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub rule_count: usize,
 }
 
 #[derive(Serialize)]
-struct RuntimeConstraintSummary {
-    allowed_runtimes: Vec<String>,
-    forbid_defaults: bool,
-    require_explicit: bool,
+pub struct RuntimeConstraintSummary {
+    pub allowed_runtimes: Vec<String>,
+    pub forbid_defaults: bool,
+    pub require_explicit: bool,
 }
 
 // ============================================================================
@@ -176,7 +176,7 @@ fn load_pack_config_from_cache(cache_dir: &std::path::Path) -> (bool, Option<Str
 
 /// List all available policy profiles
 #[verb]
-fn list(verbose: bool) -> VerbResult<ListOutput> {
+pub fn list(verbose: bool) -> VerbResult<ListOutput> {
     let profiles = predefined_profiles();
 
     if verbose {
@@ -210,7 +210,7 @@ fn list(verbose: bool) -> VerbResult<ListOutput> {
 
 /// Validate current project against a policy profile
 #[verb]
-fn validate(profile: String) -> VerbResult<ValidateOutput> {
+pub fn validate(profile: String) -> VerbResult<ValidateOutput> {
     // Get the profile
     let profile_obj = ggen_core::marketplace::profile::get_profile(&profile).map_err(|e| {
         clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
@@ -257,7 +257,7 @@ fn validate(profile: String) -> VerbResult<ValidateOutput> {
 
 /// Show detailed profile information
 #[verb]
-fn show(profile_id: String) -> VerbResult<ShowOutput> {
+pub fn show(profile_id: String) -> VerbResult<ShowOutput> {
     let profile = ggen_core::marketplace::profile::get_profile(&profile_id).map_err(|e| {
         clap_noun_verb::NounVerbError::argument_error(format!("Profile not found: {}", e))
     })?;
@@ -317,7 +317,7 @@ fn show(profile_id: String) -> VerbResult<ShowOutput> {
 
 /// Check current environment against default profile
 #[verb]
-fn check() -> VerbResult<ValidateOutput> {
+pub fn check() -> VerbResult<ValidateOutput> {
     // Use Production as the default profile
     let profile_obj =
         ggen_core::marketplace::profile::get_profile("enterprise-strict").map_err(|e| {

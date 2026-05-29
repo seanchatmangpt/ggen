@@ -15,17 +15,17 @@
 //! ### Loading Template Configuration
 //!
 //! ```rust,no_run
-//! use crate::config::TemplateConfig;
+//! use ggen_config::config::TemplateConfig;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> crate::config_lib::Result<()> {
+//! # fn main() -> ggen_config::config_lib::Result<()> {
 //! let config = TemplateConfig {
 //!     search_paths: vec![PathBuf::from("templates")],
 //!     default_variables: std::collections::HashMap::new(),
 //!     metadata_store: PathBuf::from(".ggen/metadata"),
 //!     cache_dir: Some(PathBuf::from(".ggen/cache")),
-//!     generation: crate::config::GenerationOptions::default(),
-//!     marketplace: crate::config::MarketplaceSettings::default(),
+//!     generation: ggen_config::config::GenerationOptions::default(),
+//!     marketplace: ggen_config::config::MarketplaceSettings::default(),
 //! };
 //! # Ok(())
 //! # }

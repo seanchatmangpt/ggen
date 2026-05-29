@@ -39,17 +39,14 @@
 //!
 //! ```rust,no_run
 //! use crate::lifecycle::state::{LifecycleState, RunRecord};
-//! use crate::lifecycle::Result;
-//! use chrono::Utc;
 //!
-//! # fn main() -> Result<()> {
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let mut state = LifecycleState::default();
 //!
 //! // Record phase execution
 //! use std::time::{SystemTime, UNIX_EPOCH};
 //! let started_ms = SystemTime::now()
-//!     .duration_since(UNIX_EPOCH)
-//!     .map_err(|_| crate::utils::error::Error::new("Time went backwards"))?
+//!     .duration_since(UNIX_EPOCH)?
 //!     .as_millis();
 //! state.phase_history.push(RunRecord {
 //!     phase: "test".to_string(),

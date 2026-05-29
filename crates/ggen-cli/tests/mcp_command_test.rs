@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! MCP Command Integration Tests
 //!
 //! **Chicago TDD Principles**:

@@ -15,7 +15,8 @@
 //!
 //! ### Querying Full Metadata
 //!
-//! ```rust,no_run
+//! ```ignore
+//! // `query_full_metadata` is a crate-internal (`pub(super)`) helper; shown for documentation only.
 //! use crate::rdf::TemplateMetadataStore;
 //!
 //! # fn main() -> crate::utils::error::Result<()> {

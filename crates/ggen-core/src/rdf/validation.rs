@@ -20,7 +20,10 @@
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
-//! let metadata = TemplateMetadata::default();
+//! let metadata = TemplateMetadata::new(
+//!     "template://example/rust-cli".to_string(),
+//!     "Rust CLI Template".to_string(),
+//! );
 //!
 //! let report = validator.validate(&metadata)?;
 //! if report.is_valid() {
@@ -42,7 +45,10 @@
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
-//! let metadata = TemplateMetadata::default();
+//! let metadata = TemplateMetadata::new(
+//!     "template://example/rust-cli".to_string(),
+//!     "Rust CLI Template".to_string(),
+//! );
 //!
 //! let report = validator.validate(&metadata)?;
 //! println!("Validation report: {} errors, {} warnings",

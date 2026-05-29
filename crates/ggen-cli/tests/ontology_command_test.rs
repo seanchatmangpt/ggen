@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Ontology Commands Integration Tests - Chicago TDD
 //!
 //! Tests for ontology operations: generate, validate, init

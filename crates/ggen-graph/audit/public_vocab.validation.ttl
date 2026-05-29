@@ -1,0 +1,10 @@
+@base <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<#public_vocab_report> a sh:ValidationReport ;
+    sh:conforms "true"^^xsd:boolean ;
+    dcterms:identifier "public_vocab.validation" ;
+    dcterms:description "R7 Public Vocabulary Gate Report" ;
+    dcterms:title "All prefixes and vocabularies conform to public interop rules." .

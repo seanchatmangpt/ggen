@@ -1,0 +1,13 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://www.w3.org/ns/prov#EntityShape> a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:minCount 1 ;
+    ] .
+
+<http://www.w3.org/ns/prov#John> a prov:Entity .

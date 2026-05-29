@@ -165,7 +165,7 @@ async fn test_install_pack_with_packages() {
             "Data science toolkit should have packages"
         );
         assert!(
-            output.templates_available.len() > 0,
+            output.templates_available.is_empty() == False,
             "Data science toolkit should have templates"
         );
     }

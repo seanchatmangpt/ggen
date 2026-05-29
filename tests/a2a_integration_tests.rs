@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! A2A-RS Integration Tests
 //!
 //! This module contains comprehensive integration tests for the A2A-RS MCP integration,

@@ -43,11 +43,15 @@
 //! ### Managing Snapshots
 //!
 //! ```rust,no_run
-//! use crate::snapshot::SnapshotManager;
-//! use std::path::Path;
+//! use crate::snapshot::{Snapshot, SnapshotManager};
+//! use crate::graph::Graph;
+//! use std::path::PathBuf;
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let manager = SnapshotManager::new(Path::new(".ggen/snapshots"));
+//! let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+//!
+//! let graph = Graph::new()?;
+//! let snapshot = Snapshot::new("baseline".to_string(), &graph, vec![], vec![])?;
 //! manager.save(&snapshot)?;
 //!
 //! let loaded = manager.load("baseline")?;
@@ -132,7 +136,7 @@ impl Snapshot {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// use crate::snapshot::Snapshot;
     /// use crate::graph::Graph;
     /// use std::path::PathBuf;

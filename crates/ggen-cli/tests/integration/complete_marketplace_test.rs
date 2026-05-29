@@ -1,3 +1,9 @@
+// DEAD: cmds::market removed; quarantined. References `ggen_cli_lib::cmds::market::*`,
+// a module that no longer exists in crates/ggen-cli/src/cmds/mod.rs. This file is NOT
+// included by any `mod` declaration and NOT registered as a [[test]] target, so it is
+// not compiled. The `cfg(any())` guard below keeps it inert even if accidentally included.
+#![cfg(any())]
+
 //! Complete integration test for marketplace functionality using testcontainers
 //!
 //! This test demonstrates the full marketplace workflow:

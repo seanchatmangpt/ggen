@@ -1,0 +1,2 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+<Shape> a sh:NodeShape

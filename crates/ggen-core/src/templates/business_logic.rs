@@ -57,8 +57,8 @@
 //!
 //! The CLI wrapper will look like:
 //!
-//! ```rust,no_run
-//! //! CLI wrapper for create project
+//! ```ignore
+//! //! CLI wrapper for create project (illustrative generated output)
 //! use crate::utils::error::Result;
 //! use clap::Args;
 //! use crate::domain::create_project;
@@ -80,8 +80,8 @@
 //!
 //! The domain logic will look like:
 //!
-//! ```rust,no_run
-//! //! Business logic for create project
+//! ```ignore
+//! //! Business logic for create project (illustrative generated output)
 //! use crate::utils::error::Result;
 //!
 //! #[derive(Debug)]

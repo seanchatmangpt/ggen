@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! YAWL Watch Mode Integration Tests - Chicago TDD
 //!
 //! Tests for YAWL workflow watch mode: file watching, auto-regeneration, graceful shutdown

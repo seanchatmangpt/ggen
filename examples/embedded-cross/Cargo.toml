@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "embedded-app"
 version = "0.1.0"
@@ -7,6 +9,8 @@ edition = "2021"
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
 panic-halt = "0.2"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 [profile.release]
 opt-level = "z"

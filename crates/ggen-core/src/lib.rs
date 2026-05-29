@@ -79,9 +79,10 @@
 //! ### Using RDF Graph
 //!
 //! ```rust
-//! use crate::Graph;
+//! use ggen_core::Graph;
+//! use oxigraph::sparql::QueryResults;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix ex: <http://example.org/> .
@@ -90,7 +91,9 @@
 //! "#)?;
 //!
 //! let results = graph.query("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
-//! assert!(!results.is_empty());
+//! if let QueryResults::Solutions(solutions) = results {
+//!     assert!(solutions.count() > 0);
+//! }
 //! # Ok(())
 //! # }
 //! ```
@@ -139,6 +142,7 @@ pub mod dflss;
 pub mod domain;
 pub mod e2e_tests;
 pub mod generator;
+pub mod genesis;
 pub mod github;
 pub mod gpack;
 pub mod graph;
@@ -147,11 +151,14 @@ pub mod lean_six_sigma;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
+pub mod membrane;
 pub mod merge;
 pub mod ontology;
 pub mod ontology_core;
 pub mod ontology_pack;
 pub mod parallel_generator;
+pub mod parts_execution;
+pub mod parts_foundry;
 pub mod pipeline;
 pub mod pipeline_engine;
 pub mod pki;
@@ -169,6 +176,8 @@ pub mod schema;
 pub mod semantic_bit;
 pub mod simple_tracing;
 pub mod snapshot;
+pub mod stewardship;
+pub mod stpnt;
 pub mod streaming_generator;
 pub mod telemetry;
 pub mod template;

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 //! Helper functions for integration tests
 //!
 //! Provides utility functions for test setup, assertions, and common operations.

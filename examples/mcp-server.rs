@@ -22,6 +22,7 @@ use std::io::{self, BufRead, Write};
 
 /// JSON-RPC 2.0 request
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct JsonRpcRequest {
     jsonrpc: String,
     #[serde(default)]

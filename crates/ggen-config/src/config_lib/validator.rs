@@ -30,7 +30,7 @@ impl<'a> ConfigValidator<'a> {
     /// # Example
     ///
     /// ```
-    /// use crate::config_lib::{ConfigLoader, ConfigValidator};
+    /// use ggen_config::config_lib::{ConfigLoader, ConfigValidator};
     ///
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let toml = r#"

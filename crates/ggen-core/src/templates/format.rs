@@ -14,27 +14,19 @@
 //! ### Creating a File Tree Template
 //!
 //! ```rust,no_run
-//! use crate::templates::format::{FileTreeNode, NodeType, TemplateFormat};
-//! use serde_json::json;
+//! use crate::templates::format::{FileTreeNode, TemplateFormat};
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let template = TemplateFormat {
-//!     nodes: vec![
-//!         FileTreeNode {
-//!             name: "src".to_string(),
-//!             node_type: NodeType::Directory,
-//!             content: None,
-//!             children: vec![
-//!                 FileTreeNode {
-//!                     name: "main.rs".to_string(),
-//!                     node_type: NodeType::File,
-//!                     content: Some("fn main() {{ println!(\"Hello\"); }}".to_string()),
-//!                     children: vec![],
-//!                 }
-//!             ],
-//!         }
-//!     ],
-//! };
+//! let mut template = TemplateFormat::new("my-template");
+//!
+//! let mut src = FileTreeNode::directory("src");
+//! src.children.push(FileTreeNode::file_with_content(
+//!     "main.rs",
+//!     "fn main() { println!(\"Hello\"); }",
+//! ));
+//! template.add_node(src);
+//!
+//! assert_eq!(template.name, "my-template");
 //! # Ok(())
 //! # }
 //! ```

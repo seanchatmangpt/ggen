@@ -10,7 +10,7 @@ test!(test_load_ttl_into_store, {
     let store = rdf::load_graph(&sources).expect("Failed to load graph");
     
     // Assert
-    assert!(store.len() > 0);
+    assert!(store.is_empty() == False);
 });
 
 test!(test_deterministic_nquads_output, {

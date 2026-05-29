@@ -250,6 +250,10 @@ pub struct ValidationConfig {
     #[serde(default)]
     pub no_unsafe: bool,
 
+    /// Elevate determinism warnings (e.g. missing ORDER BY) to hard errors
+    #[serde(default)]
+    pub strict_mode: bool,
+
     /// Custom validation rules (SPARQL ASK)
     #[serde(default)]
     pub rules: Vec<ValidationRule>,

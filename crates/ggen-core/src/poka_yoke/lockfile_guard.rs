@@ -25,14 +25,14 @@ use crate::utils::error::{Error, Result};
 /// # Example
 ///
 /// ```no_run
-/// use crate::poka_yoke::LockfileGuard;
+/// use ggen_core::poka_yoke::LockfileGuard;
 ///
 /// {
 ///     let guard = LockfileGuard::acquire("ggen.lock")?;
 ///     // Modify lockfile
 ///     guard.save()?;
 /// } // Lock automatically released here
-/// # Ok::<(), crate::error::Error>(())
+/// # Ok::<(), ggen_core::utils::error::Error>(())
 /// ```
 pub struct LockfileGuard {
     lockfile: PackLockfile,

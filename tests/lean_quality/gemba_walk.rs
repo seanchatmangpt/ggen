@@ -292,9 +292,9 @@ impl GembaWalkInspector {
         println!("═══════════════════════════════════════\n");
 
         let output = Command::new("cargo")
-            .args(&["test", "--test"])
+            .args(["test", "--test"])
             .arg(test_file.file_stem().unwrap())
-            .args(&["--", "--nocapture", "--test-threads=1"])
+            .args(["--", "--nocapture", "--test-threads=1"])
             .output();
 
         match output {
@@ -321,9 +321,9 @@ impl GembaWalkInspector {
         let start = Instant::now();
 
         let _ = Command::new("cargo")
-            .args(&["test", "--test"])
+            .args(["test", "--test"])
             .arg(test_file.file_stem().unwrap())
-            .args(&["--", "--test-threads=1"])
+            .args(["--", "--test-threads=1"])
             .output();
 
         let duration = start.elapsed();

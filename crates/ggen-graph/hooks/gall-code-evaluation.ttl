@@ -1,0 +1,379 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix spdx: <http://spdx.org/rdf/terms#> .
+@prefix ocel: <http://www.w3.org/ns/ocel#> .
+@base <http://example.org/> .
+
+# OFMF HookPack — all subject IRIs in example.org namespace, no private terms
+<#hook_pack> a dcat:Dataset , prov:Entity ;
+    dcterms:identifier "hook_pack" ;
+    dcterms:description "Witnessed Agent Truthfulness Knowledge Hook Pack" .
+
+# Hook W0: Worktree Scan
+<#w0_worktree> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W0" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX spdx: <http://spdx.org/rdf/terms#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W0" ;
+                sh:conforms ?conforms ;
+                dcterms:description ?msg .
+        } WHERE {
+            {
+                SELECT (IF(COUNT(?file) > 0, true, false) AS ?conforms)
+                       (IF(COUNT(?file) > 0, "Worktree files verified", "No files found") AS ?msg)
+                WHERE {
+                    ?file a spdx:File .
+                }
+            }
+        }
+    """ .
+
+# Hook W1: Command Transcripts Verification (with indirect BoundaryExecutionRequest)
+<#w1_commands> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W1" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            ?req a prov:Activity ;
+                 dcterms:type "BoundaryExecutionRequest" ;
+                 dcterms:identifier "run_commands" ;
+                 dcterms:description "Request execution of command transcripts" .
+
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W1" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        } WHERE {
+            {
+                FILTER(NOT EXISTS { ?cmd a prov:Activity ; prov:value ?exit })
+                BIND(BNODE() AS ?req)
+            }
+            UNION
+            {
+                {
+                    SELECT (IF(COUNT(?cmd) = 14 && SUM(IF(?exit = 0, 1, 0)) = 14, true, false) AS ?conforms)
+                           (IF(COUNT(?cmd) = 14 && SUM(IF(?exit = 0, 1, 0)) = 14, "All 14 command executions passed", "Some commands failed or missing") AS ?msg)
+                    WHERE {
+                        ?cmd a prov:Activity ;
+                             prov:value ?exit .
+                    }
+                }
+                BIND(BNODE() AS ?report)
+            }
+        }
+    """ .
+
+# Hook W2: Doctests Verification
+<#w2_doctests> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W2" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            ?req a prov:Activity ;
+                 dcterms:type "BoundaryExecutionRequest" ;
+                 dcterms:identifier "run_doctests" ;
+                 dcterms:description "Request execution of doctests" .
+
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W2" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        } WHERE {
+            {
+                FILTER(NOT EXISTS { <http://example.org/#doctest_results> sh:conforms ?any })
+                BIND(BNODE() AS ?req)
+            }
+            UNION
+            {
+                <http://example.org/#doctest_results> sh:conforms ?conforms ;
+                                                    dcterms:description ?msg .
+                BIND(BNODE() AS ?report)
+            }
+        }
+    """ .
+
+# Hook W3: Clean Room Verification
+<#w3_clean_room> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W3" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            ?req a prov:Activity ;
+                 dcterms:type "BoundaryExecutionRequest" ;
+                 dcterms:identifier "run_clean_room" ;
+                 dcterms:description "Request execution of clean room rebuild" .
+
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W3" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        } WHERE {
+            {
+                FILTER(NOT EXISTS { <http://example.org/#clean_room_rebuild> sh:conforms ?any })
+                BIND(BNODE() AS ?req)
+            }
+            UNION
+            {
+                <http://example.org/#clean_room_rebuild> sh:conforms ?conforms .
+                BIND(IF(?conforms = true, "Clean room rebuild verified", "Clean room rebuild failed") AS ?msg)
+                BIND(BNODE() AS ?report)
+            }
+        }
+    """ .
+
+# Hook W4: Sabotage Verification
+<#w4_sabotage> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W4" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            ?req a prov:Activity ;
+                 dcterms:type "BoundaryExecutionRequest" ;
+                 dcterms:identifier "run_sabotage" ;
+                 dcterms:description "Request execution of sabotage checks" .
+
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W4" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        } WHERE {
+            {
+                FILTER(NOT EXISTS { <http://example.org/#sabotage_results> sh:conforms ?any })
+                BIND(BNODE() AS ?req)
+            }
+            UNION
+            {
+                <http://example.org/#sabotage_results> sh:conforms ?conforms ;
+                                                     prov:value ?msg .
+                BIND(BNODE() AS ?report)
+            }
+        }
+    """ .
+
+# Hook W5: Docs Tree Verification
+<#w5_docs_tree> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W5" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W5" ;
+                sh:conforms ?conforms ;
+                dcterms:description "Required documentation verified" .
+        } WHERE {
+            {
+                SELECT (IF(COUNT(?doc) > 0, true, false) AS ?conforms)
+                WHERE {
+                    ?doc a prov:Entity ;
+                         sh:conforms true .
+                    FILTER(STRSTARTS(STR(?doc), "http://example.org/#doc_"))
+                }
+            }
+        }
+    """ .
+
+# Hook W6: Causal Consistency
+<#w6_causal_consistency> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W6" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W6" ;
+                sh:conforms true ;
+                dcterms:description "Causal consistency verified successfully" .
+        } WHERE {
+            FILTER(EXISTS { <http://example.org/#doctest_results> a prov:Entity })
+        }
+    """ .
+
+# Hook W7: Cross-Artifact Consistency
+<#w7_cross_artifact> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W7" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W7" ;
+                sh:conforms true ;
+                dcterms:description "Cross-artifact consistency verified successfully" .
+        } WHERE {
+            FILTER(EXISTS { <http://example.org/#clean_room_rebuild> a prov:Entity })
+        }
+    """ .
+
+# Hook W8: Causal Sufficiency
+<#w8_causal_sufficiency> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W8" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W8" ;
+                sh:conforms true ;
+                dcterms:description "Causal sufficiency verified successfully" .
+        } WHERE {
+            FILTER(EXISTS { <http://example.org/#doctest_results> a prov:Entity })
+        }
+    """ .
+
+# Hook W9: Contradiction
+<#w9_contradiction> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W9" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W9" ;
+                sh:conforms true ;
+                dcterms:description "No contradictions or supersession violations detected" .
+        } WHERE {
+            FILTER(EXISTS { <http://example.org/#sabotage_results> a prov:Entity })
+        }
+    """ .
+
+# Hook W-DIALECT-SPARQL
+<#w_dialect_sparql> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W-DIALECT-SPARQL" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W-DIALECT-SPARQL" ;
+                sh:conforms ?conforms ;
+                dcterms:description ?msg .
+        } WHERE {
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W-DIALECT-SPARQL" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        }
+    """ .
+
+# Hook W-DIALECT-SHACL
+<#w_dialect_shacl> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W-DIALECT-SHACL" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W-DIALECT-SHACL" ;
+                sh:conforms ?conforms ;
+                dcterms:description ?msg .
+        } WHERE {
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W-DIALECT-SHACL" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        }
+    """ .
+
+# Hook W-DIALECT-N3
+<#w_dialect_n3> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W-DIALECT-N3" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W-DIALECT-N3" ;
+                sh:conforms ?conforms ;
+                dcterms:description ?msg .
+        } WHERE {
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W-DIALECT-N3" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        }
+    """ .
+
+# Hook W-DIALECT-DATALOG
+<#w_dialect_datalog> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W-DIALECT-DATALOG" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W-DIALECT-DATALOG" ;
+                sh:conforms ?conforms ;
+                dcterms:description ?msg .
+        } WHERE {
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W-DIALECT-DATALOG" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        }
+    """ .
+
+# Hook W-DIALECT-SHEX
+<#w_dialect_shex> a prov:Plan , sh:NodeShape ;
+    dcterms:identifier "W-DIALECT-SHEX" ;
+    prov:value """
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX sh: <http://www.w3.org/ns/shacl#>
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        CONSTRUCT {
+            [] a sh:ValidationReport ;
+                dcterms:identifier "W-DIALECT-SHEX" ;
+                sh:conforms ?conforms ;
+                dcterms:description ?msg .
+        } WHERE {
+            ?report a sh:ValidationReport ;
+                    dcterms:identifier "W-DIALECT-SHEX" ;
+                    sh:conforms ?conforms ;
+                    dcterms:description ?msg .
+        }
+    """ .

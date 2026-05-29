@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! SHACL shape file loading and structure validation tests.
 //!
 //! These tests verify that ggen's \`.shacl.ttl\` files are valid Turtle, contain

@@ -102,13 +102,27 @@ struct MetadataJson {
 ///
 /// # Examples
 ///
-/// ```ignore
-/// use crate::marketplace::metadata::load_pack_metadata;
+/// ```
+/// use ggen_marketplace::marketplace::metadata::load_pack_metadata;
 ///
-/// let metadata = load_pack_metadata("/home/user/.cache/ggen/packs/surface-mcp/1.0.0/")?;
-/// if let Some(signature) = metadata.signature {
-///     println!("Pack signature: {}", signature);
-/// }
+/// // Real pack cache directory containing a package.toml with a signature.
+/// let cache_dir = tempfile::tempdir().unwrap();
+/// std::fs::write(
+///     cache_dir.path().join("package.toml"),
+///     r#"
+/// [package]
+/// name = "surface-mcp"
+/// version = "1.0.0"
+///
+/// [security]
+/// signature = "deadbeef"
+/// trust_tier = "productionready"
+/// "#,
+/// )
+/// .unwrap();
+///
+/// let metadata = load_pack_metadata(cache_dir.path()).unwrap();
+/// assert_eq!(metadata.signature.as_deref(), Some("deadbeef"));
 /// ```
 pub fn load_pack_metadata(cache_dir: &Path) -> Result<PackMetadata> {
     debug!("Loading pack metadata from: {:?}", cache_dir);

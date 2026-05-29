@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Comprehensive transport layer tests for RegistryClient
 //!
 //! Chicago TDD style: state-based assertions on real objects, no hand-rolled mocks

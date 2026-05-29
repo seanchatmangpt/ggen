@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 //! End-to-End CLI Workflow Tests for Pack Management
 //!
 //! **Chicago TDD Principles**:

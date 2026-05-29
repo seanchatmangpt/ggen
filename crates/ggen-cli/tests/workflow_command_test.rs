@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Workflow Commands Integration Tests - Chicago TDD
 //!
 //! Tests for workflow operations: init, analyze, discover, event, report

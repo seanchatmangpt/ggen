@@ -1,5 +1,8 @@
+[workspace]
+
 [package]
 name = "property-based-validation"
+
 version = "0.1.0"
 edition = "2021"
 description = "7-agent property-based validation for ggen (complementary invariants, not consensus voting)"
@@ -17,6 +20,9 @@ sha3 = "0.10"
 blake3 = "1.5"
 uuid = { version = "1.11", features = ["v4"] }
 anyhow = "1.0"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
+
 
 [dev-dependencies]
 tokio-test = "0.4"

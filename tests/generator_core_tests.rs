@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! Comprehensive tests for Generator Core systems (80 tests)
 //!
 //! Tests cover:
@@ -784,9 +793,11 @@ fn test_streaming_generator_empty_directory() -> Result<()> {
 
 #[test]
 fn test_generation_result_success_rate() {
-    let mut result = GenerationResult::default();
-    result.success_count = 9;
-    result.error_count = 1;
+    let mut result = GenerationResult {
+        success_count: 9,
+        error_count: 1,
+        ..Default::default()
+    };
 
     assert_eq!(result.success_rate(), 90.0);
 }
@@ -802,9 +813,11 @@ fn test_generation_result_throughput() {
 
 #[test]
 fn test_generation_result_total_count() {
-    let mut result = GenerationResult::default();
-    result.success_count = 7;
-    result.error_count = 3;
+    let mut result = GenerationResult {
+        success_count: 7,
+        error_count: 3,
+        ..Default::default()
+    };
 
     assert_eq!(result.total_count(), 10);
 }
@@ -1219,7 +1232,7 @@ to: "output.rs"
     let mut vars = BTreeMap::new();
     for i in 0..100 {
         vars.insert(format!("var{}", i), format!("value{}", i));
-        template_body.push_str(&format!("// {{ var{} }}\n", i));
+        template_body.push_str(&format!("// {{{{ var{} }}}}\n", i));
     }
 
     let template_path = create_test_template(temp_dir.path(), "manyvars", &template_body);

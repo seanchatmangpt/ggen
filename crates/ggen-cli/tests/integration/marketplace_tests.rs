@@ -1,3 +1,11 @@
+// DEAD: cmds::market removed; quarantined. References `ggen_cli_lib::cmds::market::*`,
+// a module that no longer exists in crates/ggen-cli/src/cmds/mod.rs. Although this file
+// is named in integration/mod.rs, that mod.rs is itself never compiled (no top-level
+// tests/integration.rs does `mod integration;` and it is not a [[test]] target; it even
+// references a non-existent `testcontainers_cleanroom` module). The `cfg(any())` guard
+// below keeps this file inert even if accidentally included.
+#![cfg(any())]
+
 //! Marketplace Integration Tests with Testcontainers
 //!
 //! These tests validate production readiness of the marketplace using testcontainers

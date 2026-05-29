@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Comprehensive marketplace test suite entry point
 //!
 //! This file serves as the test harness for all marketplace tests,

@@ -73,10 +73,15 @@ impl TemplateResolver {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    ///
+    /// # fn main() -> ggen_core::utils::error::Result<()> {
     /// let resolver = TemplateResolver::new()?;
     /// let template = resolver.resolve("surface-mcp:handlers.rs.tera")?;
     /// assert_eq!(template.pack_id, "surface-mcp");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn resolve(&self, reference: &str) -> Result<TemplateSource> {
         // Parse pack_id:template_path syntax
@@ -263,8 +268,10 @@ impl TemplateResolver {
 
 impl Default for TemplateResolver {
     fn default() -> Self {
-        Self::new().unwrap_or_else(|e| {
-            panic!("Failed to create default TemplateResolver: {}", e);
+        // Fallback to /tmp when neither HOME nor GGEN_PACK_CACHE_DIR is set.
+        // Use TemplateResolver::new() for production code to get the real error.
+        Self::new().unwrap_or_else(|_| Self {
+            cache_dir: std::path::PathBuf::from("/tmp/ggen/packs"),
         })
     }
 }

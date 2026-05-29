@@ -179,8 +179,9 @@ macro_rules! alert_success {
 /// # Example
 ///
 /// ```rust
-/// use crate::alert_debug;
+/// use ggen_core::alert_debug;
 ///
+/// let container_state = "running";
 /// alert_debug!("Container state: {:?}", container_state);
 /// ```
 #[macro_export]
@@ -210,7 +211,7 @@ macro_rules! alert_debug {
 /// # Example
 ///
 /// ```rust
-/// use crate::utils::alert;
+/// use ggen_core::alert;
 ///
 /// alert!("🚨", "Custom critical error", "STOP: Cannot proceed", "FIX: Resolve issue");
 /// ```
@@ -369,14 +370,20 @@ fn _try_slog_debug(msg: &str) {
 ///
 /// # Example
 ///
-/// ```rust
-/// use crate::utils::alert::write_alert;
+/// ```rust,no_run
+/// use ggen_core::utils::alert::write_alert;
 /// use std::io::BufWriter;
 /// use std::fs::File;
 ///
 /// let file = File::create("alert.log").unwrap();
 /// let mut writer = BufWriter::new(file);
-/// write_alert(&mut writer, "🚨", "Critical error", "STOP: Cannot proceed", "FIX: Resolve issue").unwrap();
+/// write_alert(
+///     &mut writer,
+///     "🚨",
+///     "Critical error",
+///     Some("STOP: Cannot proceed"),
+///     Some("FIX: Resolve issue"),
+/// ).unwrap();
 /// ```
 ///
 /// # Errors

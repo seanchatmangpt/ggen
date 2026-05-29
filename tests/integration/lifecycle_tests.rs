@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all)]
+
 //! Integration Tests for Lifecycle Phase Execution
 //!
 //! Tests the complete lifecycle management system including phase execution,

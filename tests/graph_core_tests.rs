@@ -13,7 +13,6 @@
 //! - Persistent storage operations
 
 use ggen_core::graph::{build_prolog, Graph, GraphStore};
-use ggen_core::utils::error::Result;
 use oxigraph::model::{GraphName, NamedNode, Quad};
 use std::collections::BTreeMap;
 use tempfile::TempDir;
@@ -925,7 +924,7 @@ fn test_batch_operations() {
     let graph = Graph::new().unwrap();
     let quads: Vec<_> = (0..100)
         .map(|i| {
-            let s = NamedNode::new(&format!("http://example.org/person{}", i)).unwrap();
+            let s = NamedNode::new(format!("http://example.org/person{}", i)).unwrap();
             let p = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").unwrap();
             let o = NamedNode::new("http://example.org/Person").unwrap();
             Quad::new(s, p, o, GraphName::DefaultGraph)

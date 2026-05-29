@@ -449,17 +449,15 @@ impl Template {
         // Create a new context with SPARQL results
         let mut final_vars = vars.clone();
 
-        // Add SPARQL results to context as sparql_results.<name>
-        if !self.front.sparql_results.is_empty() {
-            let mut sparql_results_obj = serde_json::Map::new();
-            for (name, result) in &self.front.sparql_results {
-                sparql_results_obj.insert(name.clone(), result.clone());
-            }
-            final_vars.insert(
-                "sparql_results",
-                &serde_json::Value::Object(sparql_results_obj),
-            );
+        // Add SPARQL results to context as sparql_results.<name> (always insert, empty if none)
+        let mut sparql_results_obj = serde_json::Map::new();
+        for (name, result) in &self.front.sparql_results {
+            sparql_results_obj.insert(name.clone(), result.clone());
         }
+        final_vars.insert(
+            "sparql_results",
+            &serde_json::Value::Object(sparql_results_obj),
+        );
 
         Ok(tera.render_str(&body_source, &final_vars)?)
     }

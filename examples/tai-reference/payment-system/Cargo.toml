@@ -40,6 +40,8 @@ tracing-opentelemetry = "0.22"
 
 # Configuration
 dotenv = "0.15"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 # Utilities
 parking_lot = "0.12"

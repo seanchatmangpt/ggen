@@ -2,8 +2,10 @@
 
 use crate::domain::packs::external_fetcher::ExternalFetcherFactory;
 use crate::domain::packs::types::Pack;
+use crate::packs::lockfile::{LockedPack, PackLockfile, PackSource};
 use crate::utils::error::Result;
 use flate2::read::GzDecoder;
+use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tar::Archive;
@@ -21,11 +23,84 @@ pub struct InstallInput {
 pub struct InstallOutput {
     pub pack_id: String,
     pub pack_name: String,
+    /// Resolved pack version recorded in the lockfile.
+    pub pack_version: String,
     pub packages_installed: Vec<String>,
     pub templates_available: Vec<String>,
     pub sparql_queries: usize,
     pub total_packages: usize,
     pub install_path: PathBuf,
+    /// SHA-256 hex digest (64 chars) of the pack identity bound into the
+    /// lockfile `integrity` field as `sha256-<digest>`. Empty only for
+    /// `dry_run`, where no durable state is written (lockfile invariant 4.1).
+    pub digest: String,
+    /// Absolute path of the `.ggen/packs.lock` file written by this install,
+    /// or `None` for a dry-run. Bound here so the caller can prove the durable
+    /// state transition occurred (no decorative completion).
+    pub lockfile_path: Option<PathBuf>,
+}
+
+/// Compute the SHA-256 digest that pins this pack in the lockfile.
+///
+/// The digest binds the pack's identity-defining fields (id, version, the
+/// declared package set, and declared dependencies). It is deterministic for a
+/// given pack definition and never empty for a real (non-dry-run) install,
+/// satisfying lockfile invariant 4.1 (`digest` must be a non-empty SHA-256).
+fn compute_pack_digest(pack: &Pack) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(pack.id.as_bytes());
+    hasher.update([0u8]);
+    hasher.update(pack.version.as_bytes());
+    hasher.update([0u8]);
+    for package in &pack.packages {
+        hasher.update(package.as_bytes());
+        hasher.update([0u8]);
+    }
+    hasher.update([0xffu8]);
+    for dep in &pack.dependencies {
+        hasher.update(dep.pack_id.as_bytes());
+        hasher.update([0u8]);
+    }
+    hex::encode(hasher.finalize())
+}
+
+/// Write (or update) the project lockfile entry for a successfully installed
+/// pack.
+///
+/// Authoritative path: this is the pack-resolution durable-state writer. It
+/// targets `<cwd>/.ggen/packs.lock` — the exact path read by `pack remove`
+/// (`crates/ggen-cli/src/cmds/pack.rs`) and `policy validate`
+/// (`crates/ggen-cli/src/cmds/policy.rs`) — so the format is compatible by
+/// construction. The entry carries a NON-EMPTY `integrity` digest, the resolved
+/// `version`, and a real `installed_at` timestamp (lockfile invariant 4.1).
+fn write_lockfile_entry(pack: &Pack, install_path: &Path, digest: &str) -> Result<PathBuf> {
+    let lockfile_path = std::env::current_dir()
+        .map(|cwd| cwd.join(".ggen").join("packs.lock"))
+        .unwrap_or_else(|_| PathBuf::from(".ggen").join("packs.lock"));
+
+    let mut lockfile = if lockfile_path.exists() {
+        PackLockfile::from_file(&lockfile_path)?
+    } else {
+        PackLockfile::new(env!("CARGO_PKG_VERSION"))
+    };
+
+    let entry = LockedPack {
+        version: pack.version.clone(),
+        source: PackSource::Local {
+            path: install_path.to_path_buf(),
+        },
+        integrity: Some(format!("sha256-{}", digest)),
+        installed_at: chrono::Utc::now(),
+        // Dependencies are recorded only when they are also present in the
+        // lockfile; an install of a single pack records no dep edges to avoid
+        // tripping the lockfile's referential-integrity validation.
+        dependencies: Vec::new(),
+    };
+
+    lockfile.add_pack(&pack.id, entry);
+    lockfile.save(&lockfile_path)?;
+
+    Ok(lockfile_path)
 }
 
 /// Install a pack by ID
@@ -68,15 +143,34 @@ pub async fn install_pack(input: &InstallInput) -> Result<InstallOutput> {
     }
 
     let packages_installed = pack.packages.clone();
+    let templates_available: Vec<String> = pack.templates.iter().map(|t| t.name.clone()).collect();
+    let sparql_queries = pack.sparql_queries.len();
+    let total_packages = pack.packages.len();
+    let pack_version = pack.version.clone();
+    let pack_name = pack.name.clone();
+
+    // Bind the pack closure with a non-empty digest and record it durably in the
+    // lockfile. For a dry-run we do NOT touch the lockfile (no durable state),
+    // and we leave the digest empty to signal "nothing was pinned".
+    let (digest, lockfile_path) = if input.dry_run {
+        (String::new(), None)
+    } else {
+        let digest = compute_pack_digest(&pack);
+        let lockfile_path = write_lockfile_entry(&pack, &install_path, &digest)?;
+        (digest, Some(lockfile_path))
+    };
 
     Ok(InstallOutput {
         pack_id: input.pack_id.clone(),
-        pack_name: pack.name,
+        pack_name,
+        pack_version,
         packages_installed,
-        templates_available: pack.templates.iter().map(|t| t.name.clone()).collect(),
-        sparql_queries: pack.sparql_queries.len(),
-        total_packages: pack.packages.len(),
+        templates_available,
+        sparql_queries,
+        total_packages,
         install_path,
+        digest,
+        lockfile_path,
     })
 }
 

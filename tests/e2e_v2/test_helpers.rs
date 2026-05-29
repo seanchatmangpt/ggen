@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 // Shared test utilities for E2E validation
 
 use ggen_core::utils::error::{Error, Result};

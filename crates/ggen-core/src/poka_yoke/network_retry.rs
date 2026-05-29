@@ -79,15 +79,15 @@ impl CircuitBreaker {
 /// # Example
 ///
 /// ```no_run
-/// use crate::poka_yoke::NetworkRetry;
+/// use ggen_core::poka_yoke::NetworkRetry;
 /// use std::time::Duration;
 ///
-/// async fn fetch_data() -> Result<String, crate::error::Error> {
+/// async fn fetch_data() -> Result<String, ggen_core::utils::error::Error> {
 ///     // Simulate network call
 ///     Ok("data".to_string())
 /// }
 ///
-/// async fn example() -> Result<(), crate::error::Error> {
+/// async fn example() -> Result<(), ggen_core::utils::error::Error> {
 ///     let retry = NetworkRetry::new(3, Duration::from_secs(1));
 ///     let result = retry.execute(|| fetch_data()).await?;
 ///     Ok(())

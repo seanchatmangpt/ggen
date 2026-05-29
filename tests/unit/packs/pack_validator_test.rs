@@ -17,7 +17,7 @@ fn test_validate_pack_structure() {
         Ok(validation) => {
             assert_eq!(validation.pack_id, "startup-essentials");
             assert!(validation.score >= 0.0 && validation.score <= 100.0);
-            assert!(validation.checks.len() > 0, "Should have validation checks");
+            assert!(validation.checks.is_empty() == False, "Should have validation checks");
         }
         Err(e) => {
             // Expected if pack doesn't exist
@@ -50,7 +50,7 @@ fn test_validate_pack_has_checks() {
     // Assert
     if let Ok(validation) = result {
         // Should have various checks
-        assert!(validation.checks.len() > 0);
+        assert!(validation.checks.is_empty() == False);
 
         // Each check should have a name and message
         for check in &validation.checks {
@@ -182,7 +182,7 @@ fn test_validate_pack_with_dependencies() {
 
         // If pack has dependencies, should validate them
         // This is a weak assertion since not all packs have dependencies
-        assert!(validation.checks.len() > 0);
+        assert!(validation.checks.is_empty() == False);
     }
 }
 

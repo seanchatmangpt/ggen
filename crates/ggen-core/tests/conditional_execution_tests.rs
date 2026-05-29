@@ -462,12 +462,15 @@ fn test_integration_rule_executed_when_ask_true() {
     assert!(result.is_ok(), "Pipeline should succeed");
     let state = result.expect("Pipeline state");
 
-    // Assert: Files were generated (condition was true, query returns 2 rows)
-    // Note: The query returns 2 entities, so 2 files are generated
+    // Assert: A file was generated because the WHEN condition was true.
+    // The output_file ("output.txt") is STATIC (no `{{ }}` placeholder), so the
+    // pipeline renders ONCE with all SPARQL rows in context (see the static-vs-dynamic
+    // output handling in codegen/pipeline.rs). The two entity rows therefore produce a
+    // single combined file, not one file per row.
     assert_eq!(
         state.generated_files.len(),
-        2,
-        "Should generate 2 files when condition is true (one per entity)"
+        1,
+        "Static output_file renders once with all rows -> exactly 1 file when condition is true"
     );
 
     let output_path = temp_dir.path().join("output.txt");
@@ -718,12 +721,13 @@ fn test_integration_multiple_conditions() {
     assert!(result.is_ok(), "Pipeline should succeed");
     let state = result.expect("Pipeline state");
 
-    // Assert: Only 4 files generated (rule1: 2 files, rule3: 2 files, rule2 was skipped)
-    // Note: Each query returns 2 entities, so 2 files per rule
+    // Assert: 2 files generated. Each rule's output_file is STATIC (rule1.txt /
+    // rule3.txt), so each renders ONCE with all rows -> one file per executed rule
+    // (rule1: 1, rule3: 1, rule2 skipped). See static-output handling in pipeline.rs.
     assert_eq!(
         state.generated_files.len(),
-        4,
-        "Should generate 4 files (rule1: 2, rule3: 2, rule2 skipped)"
+        2,
+        "Static outputs render once per rule -> rule1: 1, rule3: 1, rule2 skipped = 2 files"
     );
 
     // Assert: Rule 1 file exists (condition was true)

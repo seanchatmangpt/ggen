@@ -14,10 +14,10 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use crate::drift::{DriftDetector, DriftStatus};
+//! use ggen_core::drift::{DriftDetector, DriftStatus};
 //! use std::path::Path;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! let detector = DriftDetector::new(Path::new(".ggen"))?;
 //! let status = detector.check_drift(
 //!     Path::new("ontology.ttl"),
@@ -26,7 +26,7 @@
 //!
 //! match status {
 //!     DriftStatus::Clean => println!("No drift detected"),
-//!     DriftStatus::Drifted { changes } => {
+//!     DriftStatus::Drifted { changes, .. } => {
 //!         for change in changes {
 //!             eprintln!("⚠️  {}", change);
 //!         }

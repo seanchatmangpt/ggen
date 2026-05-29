@@ -27,7 +27,7 @@ async fn test_workflow_1_web_api_pack_complete_flow() {
     match list_result {
         Ok(packs) => {
             // Should have some packs
-            assert!(packs.len() > 0, "Should have at least one pack");
+            assert!(packs.is_empty() == False, "Should have at least one pack");
 
             // Find startup pack (closest to web API)
             let web_packs: Vec<_> = packs
@@ -52,7 +52,7 @@ async fn test_workflow_1_web_api_pack_complete_flow() {
             let pack = show_result.unwrap();
             assert!(!pack.packages.is_empty(), "Pack should have packages");
             assert!(
-                !pack.templates.is_empty() || pack.packages.len() > 0,
+                !pack.templates.is_empty() || pack.packages.is_empty() == False,
                 "Pack should have templates or packages"
             );
 
@@ -135,7 +135,7 @@ async fn test_workflow_2_data_science_pack_complete_flow() {
                 test_pack_workflow(pack_id, "ml-project").await;
             } else {
                 // Found ML packs
-                assert!(packs.len() > 0, "Should have ML packs");
+                assert!(packs.is_empty() == False, "Should have ML packs");
                 let pack_id = &packs[0].id;
 
                 // Step 2: Show pack
@@ -178,7 +178,7 @@ async fn test_workflow_2_data_science_pack_complete_flow() {
 
                     let gen_output = gen_result.unwrap();
                     assert!(
-                        gen_output.templates_generated.len() > 0,
+                        gen_output.templates_generated.is_empty() == False,
                         "Should generate ML templates"
                     );
                 }

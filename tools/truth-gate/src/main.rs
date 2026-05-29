@@ -161,13 +161,19 @@ fn main() {
     let tool = hook.tool_name.as_deref().unwrap_or("");
 
     let violations: Vec<Violation> = match event {
-        "PreToolUse" => check_pre_tool_use(tool, &hook.tool_input, &hook.file_path),
-        "PostToolUse" => check_post_tool_use(tool, &hook.tool_input, &hook.file_path),
-        "ConfigChange" => config_policy::check(&hook.tool_input),
+        "PreToolUse" | "BeforeTool" => check_pre_tool_use(tool, &hook.tool_input, &hook.file_path),
+        "PostToolUse" | "AfterTool" => check_post_tool_use(tool, &hook.tool_input, &hook.file_path),
+        "ConfigChange" => config_policy::check(&hook.tool_input, hook.file_path.as_deref().unwrap_or("")),
         "FileChanged" => {
-            // Check Python files for policy violations (same as PreToolUse/PostToolUse)
             let file_path = hook.file_path.as_deref().unwrap_or("");
-            if !is_python_source(file_path) {
+            if file_path.ends_with("settings.json") && (file_path.contains(".claude") || file_path.contains(".gemini")) {
+                if let Ok(content) = std::fs::read_to_string(file_path) {
+                    let wrapped = serde_json::json!({ "content": content });
+                    config_policy::check(&Some(wrapped), file_path)
+                } else {
+                    vec![]
+                }
+            } else if !is_python_source(file_path) {
                 vec![]
             } else if let Ok(content) = std::fs::read_to_string(file_path) {
                 let mut violations = vec![];
@@ -218,7 +224,16 @@ fn check_pre_tool_use(
     input: &Option<Value>,
     _file_path: &Option<String>,
 ) -> Vec<Violation> {
-    if !matches!(tool, "Edit" | "Write") {
+    if !matches!(
+        tool,
+        "Edit"
+            | "Write"
+            | "replace_file_content"
+            | "write_to_file"
+            | "multi_replace_file_content"
+            | "replace"
+            | "write_file"
+    ) {
         return vec![];
     }
 
@@ -229,12 +244,15 @@ fn check_pre_tool_use(
 
     let file_path = input
         .get("file_path")
+        .or_else(|| input.get("TargetFile"))
+        .or_else(|| input.get("targetFile"))
+        .or_else(|| input.get("path"))
         .and_then(|v| v.as_str())
-        .unwrap_or("");
+        .unwrap_or_else(|| _file_path.as_deref().unwrap_or(""));
 
     // Settings file — run config policy
-    if file_path.ends_with("settings.json") && file_path.contains(".claude") {
-        return config_policy::check(&Some(input.clone()));
+    if file_path.ends_with("settings.json") && (file_path.contains(".claude") || file_path.contains(".gemini")) {
+        return config_policy::check(&Some(input.clone()), file_path);
     }
 
     // Only check Python source files
@@ -242,23 +260,41 @@ fn check_pre_tool_use(
         return vec![];
     }
 
-    // Get only the content being written (not existing file content)
-    let content = if tool == "Edit" {
-        input
-            .get("new_string")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-    } else {
-        // Write — full file content
-        input
-            .get("content")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-    };
+    // Extract all content pieces being written or replaced
+    let mut contents = vec![];
+    if let Some(c) = input
+        .get("new_string")
+        .or_else(|| input.get("content"))
+        .or_else(|| input.get("CodeContent"))
+        .or_else(|| input.get("codeContent"))
+        .or_else(|| input.get("ReplacementContent"))
+        .or_else(|| input.get("replacementContent"))
+        .and_then(|v| v.as_str())
+    {
+        contents.push(c);
+    }
+
+    if let Some(chunks) = input
+        .get("ReplacementChunks")
+        .or_else(|| input.get("replacementChunks"))
+        .and_then(|c| c.as_array())
+    {
+        for chunk in chunks {
+            if let Some(chunk_content) = chunk
+                .get("ReplacementContent")
+                .or_else(|| chunk.get("replacementContent"))
+                .and_then(|v| v.as_str())
+            {
+                contents.push(chunk_content);
+            }
+        }
+    }
 
     let mut violations = vec![];
-    violations.extend(test_policy::check(content, file_path));
-    violations.extend(evidence_policy::check(content, file_path));
+    for content in contents {
+        violations.extend(test_policy::check(content, file_path));
+        violations.extend(evidence_policy::check(content, file_path));
+    }
     violations
 }
 
@@ -269,7 +305,16 @@ fn check_post_tool_use(
     input: &Option<Value>,
     _file_path: &Option<String>,
 ) -> Vec<Violation> {
-    if !matches!(tool, "Edit" | "Write") {
+    if !matches!(
+        tool,
+        "Edit"
+            | "Write"
+            | "replace_file_content"
+            | "write_to_file"
+            | "multi_replace_file_content"
+            | "replace"
+            | "write_file"
+    ) {
         return vec![];
     }
 
@@ -280,8 +325,11 @@ fn check_post_tool_use(
 
     let file_path = input
         .get("file_path")
+        .or_else(|| input.get("TargetFile"))
+        .or_else(|| input.get("targetFile"))
+        .or_else(|| input.get("path"))
         .and_then(|v| v.as_str())
-        .unwrap_or("");
+        .unwrap_or_else(|| _file_path.as_deref().unwrap_or(""));
 
     if !is_python_source(file_path) {
         return vec![];
@@ -377,3 +425,67 @@ fn should_scan_non_python(path: &str) -> bool {
 
     false
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use std::fs;
+
+    #[test]
+    fn test_check_pre_tool_use_replace_file_content() {
+        let input = json!({
+            "TargetFile": "tests/chicago_tdd/test_something.py",
+            "ReplacementContent": "from unittest.mock import patch\n"
+        });
+        let violations = check_pre_tool_use("replace_file_content", &Some(input), &None);
+        assert!(!violations.is_empty(), "Should have caught unittest.mock import violation");
+        assert_eq!(violations[0].pattern, "from unittest.mock import");
+    }
+
+    #[test]
+    fn test_check_pre_tool_use_multi_replace_file_content() {
+        let input = json!({
+            "TargetFile": "tests/chicago_tdd/test_something.py",
+            "ReplacementChunks": [
+                {
+                    "ReplacementContent": "class MockThing:\n    pass\n"
+                }
+            ]
+        });
+        let violations = check_pre_tool_use("multi_replace_file_content", &Some(input), &None);
+        assert!(!violations.is_empty(), "Should have caught class Mock violation");
+        assert_eq!(violations[0].pattern, "class Mock");
+    }
+
+    #[test]
+    fn test_check_pre_tool_use_write_to_file() {
+        let input = json!({
+            "TargetFile": "tests/chicago_tdd/test_something.py",
+            "CodeContent": "def test_foo():\n    # TODO: write test\n"
+        });
+        let violations = check_pre_tool_use("write_to_file", &Some(input), &None);
+        assert!(!violations.is_empty(), "Should have caught TODO violation");
+        assert_eq!(violations[0].pattern, "# TODO");
+    }
+
+    #[test]
+    fn test_check_post_tool_use_after_tool() {
+        let temp_dir = std::env::temp_dir();
+        let test_subdir = temp_dir.join("tests");
+        fs::create_dir_all(&test_subdir).ok();
+        let file_path = test_subdir.join("test_temp_post_use.py");
+        fs::write(&file_path, "fake_span = True\n").unwrap();
+
+        let input = json!({
+            "TargetFile": file_path.to_str().unwrap()
+        });
+
+        let violations = check_post_tool_use("replace_file_content", &Some(input), &None);
+        fs::remove_file(file_path).ok();
+
+        assert!(!violations.is_empty(), "Should have caught fake_span violation in PostToolUse");
+        assert_eq!(violations[0].pattern, "fake_span");
+    }
+}
+

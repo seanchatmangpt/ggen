@@ -2,6 +2,7 @@
 //!
 //! Tests marketplace package discovery, installation, and dependency resolution.
 
+#[allow(dead_code)]
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 // ==============================================================================

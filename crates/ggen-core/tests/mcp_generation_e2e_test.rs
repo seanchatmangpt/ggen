@@ -1,3 +1,12 @@
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
+
 //! End-to-End MCP Server Generation Tests
 //!
 //! **Chicago TDD Principles**:
