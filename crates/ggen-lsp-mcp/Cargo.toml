@@ -19,6 +19,8 @@ tracing = "0.1"
 
 [dev-dependencies]
 tempfile = "3.23"
+# Spawn the real `ggen-lsp-mcp` binary to drive the MCP stdio protocol in tests.
+assert_cmd = "2"
 
 [[bin]]
 name = "ggen-lsp-mcp"

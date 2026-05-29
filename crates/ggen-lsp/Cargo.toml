@@ -39,6 +39,10 @@ blake3 = "1.5"
 
 [dev-dependencies]
 tempfile = "3"
+# Spawn the real `ggen-lsp` binary for protocol-level tests (resolve via cargo_bin).
+assert_cmd = "2"
+# serde_json is a normal dep (above) and thus available to integration tests for
+# building/parsing framed LSP JSON-RPC messages.
 
 [package.metadata.claude-code]
 type = "language-server"

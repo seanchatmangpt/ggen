@@ -1316,6 +1316,9 @@ dependencies = [
   "check-all-crates",
   "detect-gaps",
   "test",
+  "lsp-test",
+  "mcp-test",
+  "find-fakes",
   "test-doc",
   "audit-all",
   "docs-test",
@@ -1817,3 +1820,97 @@ description = "Run stress tests"
 workspace = false
 command = "bash"
 args = ["scripts/stress-test.sh"]
+
+# ============================================================================
+# Plugin Test Harness — ggen-lsp / ggen-lsp-mcp (LSP + MCP delivery planes)
+# ============================================================================
+
+[tasks.build-lsp-bins]
+description = "Build the LSP and MCP server binaries (ggen-lsp, ggen-lsp-mcp)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+echo "🔨 Building ggen-lsp (--bin ggen-lsp)..."
+timeout 120s cargo build -p ggen-lsp --bin ggen-lsp
+echo "🔨 Building ggen-lsp-mcp..."
+timeout 120s cargo build -p ggen-lsp-mcp
+echo "✅ LSP/MCP binaries built"
+'''
+
+[tasks.lsp-test]
+description = "Run ggen-lsp manifest contract, protocol, and sabotage integration tests"
+workspace = false
+dependencies = ["build-lsp-bins"]
+command = "timeout"
+args = [
+  "120s",
+  "cargo",
+  "test",
+  "-p",
+  "ggen-lsp",
+  "--test",
+  "manifest_contract_test",
+  "--test",
+  "lsp_protocol_test",
+  "--test",
+  "lsp_sabotage_test",
+]
+
+[tasks.mcp-test]
+description = "Run ggen-lsp-mcp protocol integration test"
+workspace = false
+command = "timeout"
+args = [
+  "120s",
+  "cargo",
+  "test",
+  "-p",
+  "ggen-lsp-mcp",
+  "--test",
+  "mcp_protocol_test",
+]
+
+[tasks.lsp-smoke]
+description = "Live smoke test: spawn ggen-lsp, observe E0011 route over Content-Length framed LSP"
+workspace = false
+dependencies = ["build-lsp-bins"]
+command = "python3"
+args = ["scripts/lsp-smoke.py"]
+
+[tasks.mcp-smoke]
+description = "Live smoke test: spawn ggen-lsp-mcp, observe E0011 route over newline-framed JSON-RPC"
+workspace = false
+dependencies = ["build-lsp-bins"]
+command = "python3"
+args = ["scripts/mcp-smoke.py"]
+
+[tasks.find-fakes]
+description = "Detect Oracle Gaps in production code (fake-success macros/simulated work); fails on HIGH"
+workspace = false
+command = "bash"
+args = ["scripts/find-fakes.sh"]
+
+[tasks.find-fakes-clippy]
+description = "Non-breaking WARN inventory of the fake-set lints. NOTE: [workspace.lints.clippy] in Cargo.toml already DENIES this set but is INERT (no member opts in via [lints] workspace = true), so this runs them as -W warnings, not -D."
+workspace = false
+command = "cargo"
+args = [
+  "clippy",
+  "--workspace",
+  "--all-targets",
+  "--",
+  "-W",
+  "clippy::unwrap_used",
+  "-W",
+  "clippy::expect_used",
+  "-W",
+  "clippy::panic",
+  "-W",
+  "clippy::todo",
+  "-W",
+  "clippy::unimplemented",
+  "-W",
+  "clippy::dbg_macro",
+]
