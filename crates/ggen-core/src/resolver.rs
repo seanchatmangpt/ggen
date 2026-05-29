@@ -263,8 +263,10 @@ impl TemplateResolver {
 
 impl Default for TemplateResolver {
     fn default() -> Self {
-        Self::new().unwrap_or_else(|e| {
-            panic!("Failed to create default TemplateResolver: {}", e);
+        // Fallback to /tmp when neither HOME nor GGEN_PACK_CACHE_DIR is set.
+        // Use TemplateResolver::new() for production code to get the real error.
+        Self::new().unwrap_or_else(|_| Self {
+            cache_dir: std::path::PathBuf::from("/tmp/ggen/packs"),
         })
     }
 }

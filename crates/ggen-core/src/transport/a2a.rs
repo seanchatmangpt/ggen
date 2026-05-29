@@ -378,7 +378,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
+    #[ignore = "requires a live agent2 HTTP endpoint at http://agent2:8080"]
     async fn test_a2a_agent_routing() {
         let session_manager = SessionManager::new(3600);
         let origin_validator = OriginValidator::allow_all();

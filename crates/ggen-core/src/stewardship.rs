@@ -80,14 +80,15 @@ impl PartExecutor for WelcomeOneAnotherPart {
             prov_receipt,
         };
         
-        let output_bytes = serde_json::to_vec(&output).unwrap();
-        
+        let output_bytes = serde_json::to_vec(&output)
+            .map_err(|e| crate::utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
+
         let input_hash = blake3::hash(&input).into();
         let output_hash = blake3::hash(&output_bytes).into();
-        
+
         let mut clock = VectorClock::new(self.part_id.clone());
         clock.tick(&self.part_id);
-        
+
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
             self.part_id.clone(),
@@ -95,9 +96,9 @@ impl PartExecutor for WelcomeOneAnotherPart {
             output_hash,
             clock,
             ExecutionStatus::Success,
-            1, // duration placeholder
+            1,
         );
-        
+
         Ok((output_bytes, packet))
     }
 }
@@ -165,13 +166,14 @@ impl PartExecutor for ConsentGatePart {
             },
         };
 
-        let output_bytes = serde_json::to_vec(&output).unwrap();
+        let output_bytes = serde_json::to_vec(&output)
+            .map_err(|e| crate::utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
         let input_hash = blake3::hash(&input).into();
         let output_hash = blake3::hash(&output_bytes).into();
-        
+
         let mut clock = VectorClock::new(self.part_id.clone());
         clock.tick(&self.part_id);
-        
+
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
             self.part_id.clone(),
@@ -181,7 +183,7 @@ impl PartExecutor for ConsentGatePart {
             execution_status,
             1,
         );
-        
+
         Ok((output_bytes, packet))
     }
 }
@@ -232,7 +234,8 @@ impl PartExecutor for AssignStewardPart {
             },
         };
 
-        let output_bytes = serde_json::to_vec(&output).unwrap();
+        let output_bytes = serde_json::to_vec(&output)
+            .map_err(|e| crate::utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
             self.part_id.clone(),
@@ -275,8 +278,10 @@ pub struct FollowUpOutput {
 #[async_trait]
 impl PartExecutor for FollowUpObligationPart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
-        let input_json: FollowUpInput = serde_json::from_slice(&input).unwrap();
-        let deadline = chrono::DateTime::parse_from_rfc3339(&input_json.deadline).unwrap();
+        let input_json: FollowUpInput = serde_json::from_slice(&input)
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid input JSON: {}", e)))?;
+        let deadline = chrono::DateTime::parse_from_rfc3339(&input_json.deadline)
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid deadline timestamp: {}", e)))?;
         
         let (status, terminal_state, execution_status) = if Utc::now() > deadline {
             ("Escalated".to_string(), "Overdue".to_string(), ExecutionStatus::Refused)
@@ -285,7 +290,8 @@ impl PartExecutor for FollowUpObligationPart {
         };
 
         let output = FollowUpOutput { status: status.to_string(), terminal_state: terminal_state.to_string() };
-        let output_bytes = serde_json::to_vec(&output).unwrap();
+        let output_bytes = serde_json::to_vec(&output)
+            .map_err(|e| crate::utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
             self.part_id.clone(),
@@ -328,7 +334,8 @@ pub struct InvitationOutput {
 #[async_trait]
 impl PartExecutor for PentecostInvitationPart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
-        let input_json: InvitationInput = serde_json::from_slice(&input).unwrap();
+        let input_json: InvitationInput = serde_json::from_slice(&input)
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid input JSON: {}", e)))?;
         
         let (status, terminal_state) = if input_json.is_capable_of_receiving_another {
             ("Incorporated".to_string(), "IncorporatedAndServing".to_string())
@@ -337,7 +344,8 @@ impl PartExecutor for PentecostInvitationPart {
         };
 
         let output = InvitationOutput { status: status.to_string(), terminal_state: terminal_state.to_string() };
-        let output_bytes = serde_json::to_vec(&output).unwrap();
+        let output_bytes = serde_json::to_vec(&output)
+            .map_err(|e| crate::utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
             self.part_id.clone(),
@@ -379,8 +387,10 @@ pub struct ContinuityOutput {
 #[async_trait]
 impl PartExecutor for ContinuityWatchPart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
-        let input_json: ContinuityInput = serde_json::from_slice(&input).unwrap();
-        let last_act = chrono::DateTime::parse_from_rfc3339(&input_json.last_activity).unwrap();
+        let input_json: ContinuityInput = serde_json::from_slice(&input)
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid input JSON: {}", e)))?;
+        let last_act = chrono::DateTime::parse_from_rfc3339(&input_json.last_activity)
+            .map_err(|e| crate::utils::error::Error::new(&format!("Invalid last_activity timestamp: {}", e)))?;
         
         let alert = Utc::now() - last_act.with_timezone(&Utc) > chrono::Duration::days(7);
         let output = ContinuityOutput {
@@ -388,7 +398,8 @@ impl PartExecutor for ContinuityWatchPart {
             message: if alert { "Alert: Silent disappearance detected." } else { "Continuity verified." }.to_string(),
         };
 
-        let output_bytes = serde_json::to_vec(&output).unwrap();
+        let output_bytes = serde_json::to_vec(&output)
+            .map_err(|e| crate::utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
             self.part_id.clone(),

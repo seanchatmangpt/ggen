@@ -301,7 +301,7 @@ impl VocabularyRegistry {
 mod tests {
     use super::*;
 
-    #[ignore]
+    #[ignore = "vocabulary registry standard namespace list is still being finalized; ggen.dev URI may change"]
     #[test]
     fn test_registry_standard_vocabularies() {
         let registry = VocabularyRegistry::with_standard_vocabularies();
@@ -359,7 +359,7 @@ mod tests {
         assert!(namespaces.contains("http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
     }
 
-    #[ignore]
+    #[ignore = "namespace validation requires full registry initialization with real RDF store"]
     #[test]
     fn test_validate_namespaces() {
         let registry = VocabularyRegistry::with_standard_vocabularies();

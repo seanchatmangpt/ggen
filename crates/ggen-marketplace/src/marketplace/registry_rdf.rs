@@ -277,11 +277,12 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r#"
             SELECT ?version WHERE {{
-                ?package <{}hasVersion> ?version .
+                ?package <{}> ?version .
                 FILTER(CONTAINS(str(?package), "{}"))
             }}
             "#,
-            GGEN_NS, id
+            crate::marketplace::ontology::Properties::has_version(),
+            id
         );
 
         let results = self.query_sparql(&query)?;
