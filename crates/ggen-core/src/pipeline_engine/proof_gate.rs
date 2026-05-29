@@ -313,6 +313,7 @@ mod tests {
             id: "test-receipt-id".to_string(),
             epoch_id: "test-epoch-id".to_string(),
             ontology_hash: "test-ontology-hash".to_string(),
+            closure_hashes: Vec::new(),
             timestamp: "2023-01-01T00:00:00Z".to_string(),
             toolchain_version: "6.0.0".to_string(),
             passes: Vec::new(),
