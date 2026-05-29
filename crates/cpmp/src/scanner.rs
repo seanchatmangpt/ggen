@@ -4,7 +4,6 @@ use walkdir::WalkDir;
 use crate::models::{FileEntry, Symbol};
 use crate::symbol;
 use crate::capability;
-use std::process::Command;
 
 pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
     std::fs::create_dir_all(out)?;
@@ -69,37 +68,15 @@ pub fn scan(paths: &[PathBuf], out: &PathBuf) -> Result<()> {
         }
     }
 
-    // 3. Generate Turtle catalog and SHACL shape files via Open Ontologies CLI mockup
-    let catalog_dir = out.join("catalog");
-    std::fs::create_dir_all(&catalog_dir)?;
-    let ttl_path = catalog_dir.join("cpmp-catalog.ttl");
-    let shapes_path = catalog_dir.join("cpmp-shapes.ttl");
-
-    std::fs::write(&ttl_path, "# CPMP Catalog TTL\n")?;
-    std::fs::write(&shapes_path, "# CPMP Shapes TTL\n")?;
-
-    // 4. Subprocess pipeline: clear -> load -> shacl -> reason
-    let _ = Command::new("open-ontologies").arg("validate").arg(&ttl_path).output();
-    let _ = Command::new("open-ontologies").arg("load").arg(&ttl_path).output();
-    let _ = Command::new("open-ontologies").arg("shacl").arg(&shapes_path).output();
-    let _ = Command::new("open-ontologies").arg("reason").output();
-
-    // 5. Emit the scan receipt with a deterministic aggregate hash — the stable
-    //    scan identity a downstream ggen admissibility pack binds to.
+    // 3. Emit the scan receipt with a deterministic aggregate hash — the stable
+    //    scan identity a downstream ggen admissibility pack binds to. The only
+    //    real output artifact is the JSON scan receipt; nothing downstream reads
+    //    anything else, so nothing else is claimed.
     let scan_roots: Vec<String> = paths.iter().map(|p| p.to_string_lossy().to_string()).collect();
-    let output_artifacts = vec![
-        ttl_path.to_string_lossy().to_string(),
-        shapes_path.to_string_lossy().to_string(),
-    ];
+    let output_artifacts = vec![out.join("scan-receipt.json").to_string_lossy().to_string()];
     let receipt = crate::receipt::generate_receipt(&files, out, scan_roots, output_artifacts)?;
     println!("Scan receipt: aggregate_hash={}", receipt.aggregate_hash);
 
-    // 6. Sync RDF data back into SQLite cache database
-    // db::init_db(out)?;
-    // let db_path = out.join("workspace.sqlite");
-    // let mut conn = rusqlite::Connection::open(&db_path)?;
-    // db::sync_cache_from_graph(&mut conn)?;
-
-    println!("Scan complete. {} files, {} symbols, {} capabilities inventoried into RDF graph store and SQLite cache synced.", files.len(), all_symbols.len(), all_capabilities.len());
+    println!("Scan complete. {} files, {} symbols, {} capabilities inventoried.", files.len(), all_symbols.len(), all_capabilities.len());
     Ok(())
 }

@@ -58,6 +58,32 @@ pub fn generate_receipt(
     Ok(receipt)
 }
 
+pub fn verify_no_deletion(before_path: &PathBuf, after_path: &PathBuf) -> Result<()> {
+    let before_content = std::fs::read_to_string(before_path)?;
+    let after_content = std::fs::read_to_string(after_path)?;
+    
+    let before: Receipt = toml::from_str(&before_content)?;
+    let after: Receipt = toml::from_str(&after_content)?;
+    
+    let mut missing = Vec::new();
+    for bf in before.files {
+        if !after.files.iter().any(|af| af.path == bf.path) {
+            missing.push(bf.path);
+        }
+    }
+    
+    if missing.is_empty() {
+        println!("Verification passed. No files deleted.");
+    } else {
+        println!("REFUSAL: Files missing in after receipt:");
+        for p in missing {
+            println!("- {}", p);
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -87,30 +113,4 @@ mod tests {
         let c = vec![fe("a.rs", "CHANGED"), fe("b.rs", "h2")];
         assert_ne!(aggregate_hash(&a), aggregate_hash(&c), "sensitive to content changes");
     }
-}
-
-pub fn verify_no_deletion(before_path: &PathBuf, after_path: &PathBuf) -> Result<()> {
-    let before_content = std::fs::read_to_string(before_path)?;
-    let after_content = std::fs::read_to_string(after_path)?;
-    
-    let before: Receipt = toml::from_str(&before_content)?;
-    let after: Receipt = toml::from_str(&after_content)?;
-    
-    let mut missing = Vec::new();
-    for bf in before.files {
-        if !after.files.iter().any(|af| af.path == bf.path) {
-            missing.push(bf.path);
-        }
-    }
-    
-    if missing.is_empty() {
-        println!("Verification passed. No files deleted.");
-    } else {
-        println!("REFUSAL: Files missing in after receipt:");
-        for p in missing {
-            println!("- {}", p);
-        }
-    }
-    
-    Ok(())
 }
