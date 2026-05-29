@@ -58,6 +58,7 @@ pub mod shacl;
 pub mod soundness_gates; // WvdA + Armstrong soundness verification gates
 pub mod sparql_rules;
 pub mod standard_ontologies;
+pub mod syntax_validator; // Multi-language syntax validation (Rust, TOML, YAML, JSON)
 pub mod validator;
 pub mod violation;
 
@@ -75,6 +76,7 @@ pub use sparql_rules::{RuleExecutor, RuleSeverity, ValidationRule};
 pub use standard_ontologies::{
     OntologyScreeningConfig, StandardOntology, StandardOntologyValidator,
 };
+pub use syntax_validator::{detect_language, validate_syntax, LanguageType};
 pub use validator::SparqlValidator;
 pub use violation::{ConstraintType, Severity, ValidationResult, Violation};
 

@@ -152,7 +152,7 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<TelemetryGuard> {
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
     let subscriber = Registry::default()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,opentelemetry=off,opentelemetry_sdk=off,opentelemetry_otlp=off")))
         .with(telemetry_layer);
 
     if config.console_output {

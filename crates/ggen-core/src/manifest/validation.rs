@@ -89,9 +89,15 @@ impl<'a> ManifestValidator<'a> {
                 )));
             }
 
-            // Check for ORDER BY in CONSTRUCT (determinism warning)
+            // Check for ORDER BY in CONSTRUCT (determinism guard)
             let construct_upper = rule.construct.to_uppercase();
             if !construct_upper.contains("ORDER BY") {
+                if self.manifest.validation.strict_mode {
+                    return Err(Error::new(&format!(
+                        "error[E0011]: Inference rule '{}' CONSTRUCT query lacks ORDER BY\n  |\n  = strict_mode is enabled: non-deterministic triple ordering is rejected\n  = help: Add ORDER BY to your CONSTRUCT query to guarantee deterministic output\n  = help: Or set `strict_mode = false` in [validation] to downgrade to a warning",
+                        rule.name
+                    )));
+                }
                 log::warn!(
                     "Inference rule '{}' CONSTRUCT query lacks ORDER BY - may produce non-deterministic results",
                     rule.name
@@ -119,12 +125,26 @@ impl<'a> ManifestValidator<'a> {
                 return Err(Error::new("generation.rules[].name cannot be empty"));
             }
 
-            // Validate query source exists
+            // Validate query source exists and does not contain VALUES clauses
+            // VALUES data must live inline in ggen.toml — never in external .rq files
             if let QuerySource::File { file } = &rule.query {
                 let query_path = self.base_path.join(file);
                 if !query_path.exists() {
                     return Err(Error::new(&format!(
                         "Query file not found for rule '{}': {}",
+                        rule.name,
+                        query_path.display()
+                    )));
+                }
+                let content = std::fs::read_to_string(&query_path).map_err(|e| {
+                    Error::new(&format!(
+                        "Failed to read query file for rule '{}': {}",
+                        rule.name, e
+                    ))
+                })?;
+                if query_contains_values(&content) {
+                    return Err(Error::new(&format!(
+                        "error[E0010]: VALUES data must be inline in ggen.toml\n  --> rule: '{}'\n  --> file: {}\n  |\n  = VALUES clauses belong in ggen.toml as `query = {{ inline = \"SELECT ... WHERE {{ VALUES ... }}\" }}`\n  = External .rq files are for queries against real RDF triples only\n  = help: Move the VALUES block into ggen.toml and delete the .rq file",
                         rule.name,
                         query_path.display()
                     )));

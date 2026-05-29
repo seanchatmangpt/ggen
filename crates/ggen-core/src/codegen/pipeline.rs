@@ -500,13 +500,22 @@ impl GenerationPipeline {
             let query = match &rule.query {
                 QuerySource::File { file } => {
                     let query_path = self.base_path.join(file);
-                    std::fs::read_to_string(&query_path).map_err(|e| {
+                    let content = std::fs::read_to_string(&query_path).map_err(|e| {
                         Error::new(&format!(
                             "Failed to read query file '{}': {}",
                             query_path.display(),
                             e
                         ))
-                    })?
+                    })?;
+                    // VALUES data must be inline in ggen.toml, never in .rq files
+                    if crate::manifest::validation::query_contains_values(&content) {
+                        return Err(Error::new(&format!(
+                            "error[E0010]: VALUES data must be inline in ggen.toml\n  --> rule: '{}'\n  --> file: {}\n  |\n  = Move VALUES blocks into ggen.toml: `query = {{ inline = \"SELECT ... WHERE {{ VALUES ... }}\" }}`",
+                            rule.name,
+                            query_path.display()
+                        )));
+                    }
+                    content
                 }
                 QuerySource::Inline { inline } => inline.clone(),
             };
@@ -624,7 +633,12 @@ impl GenerationPipeline {
                 }
             };
 
-            // 5. For each row, render template and generate file
+            // 5. Render template and generate file(s)
+            //
+            // Render mode is chosen automatically:
+            //   - Static output_file (no {{ }}) → render ONCE with all rows in `results`
+            //   - Dynamic output_file (contains {{ }}) → render once PER ROW so each row
+            //     can expand to a differently-named file
             let mut tera = tera::Tera::default();
             crate::register::register_all(&mut tera);
             tera.add_raw_template("generation_rule", &template_content)
@@ -635,6 +649,99 @@ impl GenerationPipeline {
                     ))
                 })?;
 
+            let is_static_output = !rule.output_file.contains("{{");
+
+            // For static output paths with data, build one aggregate context and render once.
+            // This avoids redundant writes (e.g. 12 labels writing the same file 12 times).
+            if is_static_output && !rows.is_empty() {
+                let results_json = serde_json::json!(rows);
+                let mut context = tera::Context::new();
+                context.insert("results", &results_json);
+                context.insert("sparql_results", &results_json);
+                context.insert("entities", &results_json);
+                // Expose first-row scalars so single-row specs can use {{ name }} directly
+                for (key, value) in &rows[0] {
+                    let clean_key = key.strip_prefix('?').unwrap_or(key);
+                    context.insert(clean_key, value.as_str());
+                }
+
+                let rendered = tera.render("generation_rule", &context).map_err(|e| {
+                    Error::new(&format!(
+                        "Failed to render template for rule '{}': {}",
+                        rule.name, e
+                    ))
+                })?;
+
+                let full_output_path = output_dir.join(&rule.output_file);
+
+                let final_content = match rule.mode {
+                    GenerationMode::Create => {
+                        if full_output_path.exists() {
+                            // Skip — do not advance to the per-row loop
+                            let duration = start.elapsed();
+                            let query_hash =
+                                format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
+                            self.executed_rules.push(ExecutedRule {
+                                name: rule.name.clone(),
+                                rule_type: RuleType::Generation,
+                                triples_added: 0,
+                                duration_ms: duration.as_millis() as u64,
+                                query_hash,
+                            });
+                            continue;
+                        }
+                        rendered
+                    }
+                    GenerationMode::Overwrite => rendered,
+                    GenerationMode::Merge => {
+                        if full_output_path.exists() {
+                            let existing =
+                                std::fs::read_to_string(&full_output_path).map_err(|e| {
+                                    Error::new(&format!(
+                                        "Failed to read existing file for merge '{}': {}",
+                                        full_output_path.display(),
+                                        e
+                                    ))
+                                })?;
+                            crate::codegen::merge::merge_sections(&rendered, &existing)?
+                        } else {
+                            crate::codegen::merge::merge_sections(&rendered, "")?
+                        }
+                    }
+                };
+
+                Self::validate_generated_output(
+                    &final_content,
+                    full_output_path.as_path(),
+                    &rule.name,
+                )?;
+                if self.manifest.validation.no_unsafe {
+                    Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
+                }
+                transaction.write_file(&full_output_path, &final_content)?;
+
+                let content_hash =
+                    format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
+                generated.push(GeneratedFile {
+                    path: full_output_path,
+                    content_hash,
+                    size_bytes: final_content.len(),
+                    source_rule: rule.name.clone(),
+                });
+
+                let duration = start.elapsed();
+                let query_hash = format!("{:x}", sha2::Sha256::digest(query.as_bytes()));
+                self.executed_rules.push(ExecutedRule {
+                    name: rule.name.clone(),
+                    rule_type: RuleType::Generation,
+                    triples_added: 0,
+                    duration_ms: duration.as_millis() as u64,
+                    query_hash,
+                });
+                continue; // skip the per-row loop below
+            }
+
+            // Dynamic output paths: render once per row so each row can produce a distinct file
             for row in &rows {
                 // Build context from row
                 let mut context = tera::Context::new();
@@ -812,6 +919,9 @@ impl GenerationPipeline {
                     full_output_path.as_path(),
                     &rule.name,
                 )?;
+                if self.manifest.validation.no_unsafe {
+                    Self::check_no_unsafe(&final_content, full_output_path.as_path(), &rule.name)?;
+                }
 
                 // Write file atomically with automatic rollback on failure
                 // FileTransaction handles parent directory creation internally
@@ -967,6 +1077,45 @@ impl GenerationPipeline {
             )));
         }
 
+        Ok(())
+    }
+
+    /// Check generated content for unsafe blocks (enforces `no_unsafe = true` in [validation])
+    fn check_no_unsafe(content: &str, path: &Path, rule_id: &str) -> Result<()> {
+        // Detect `unsafe` keyword used as a block or impl qualifier.
+        // Matches: `unsafe {`, `unsafe fn`, `unsafe impl`, `unsafe trait`
+        // Does not fire on comments or string literals containing the word.
+        let has_unsafe = content.lines().any(|line| {
+            let trimmed = line.trim();
+            if trimmed.starts_with("//") || trimmed.starts_with("*") {
+                return false;
+            }
+            let mut chars = trimmed.char_indices().peekable();
+            while let Some((i, c)) = chars.next() {
+                if c == '"' || c == '\'' {
+                    // skip string/char literal content
+                    for (_, ch) in chars.by_ref() {
+                        if ch == c { break; }
+                    }
+                    continue;
+                }
+                let rest = &trimmed[i..];
+                if let Some(after) = rest.strip_prefix("unsafe") {
+                    if after.starts_with([' ', '\t', '{', '\n']) || after.is_empty() {
+                        return true;
+                    }
+                }
+            }
+            false
+        });
+
+        if has_unsafe {
+            return Err(Error::new(&format!(
+                "error[E0012]: Generated code contains `unsafe` block\n  --> rule: '{}', output: '{}'\n  |\n  = `no_unsafe = true` is set in [validation]\n  = help: Remove unsafe code from the template or ontology data\n  = help: Or set `no_unsafe = false` in [validation] if unsafe is intentional",
+                rule_id,
+                path.display()
+            )));
+        }
         Ok(())
     }
 
