@@ -9,8 +9,8 @@
 
 use std::collections::BTreeSet;
 use tower_lsp::lsp_types::{
-    CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic, DiagnosticSeverity,
-    Hover, Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
+    CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic, DiagnosticSeverity, Hover,
+    Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
 
 use ggen_core::manifest::validation::query_contains_values;
@@ -19,9 +19,26 @@ use ggen_graph::{check_sparql_syntax, sparql_kind, SparqlKind};
 use crate::analyzers::diag;
 
 const KEYWORDS: &[&str] = &[
-    "SELECT", "CONSTRUCT", "ASK", "DESCRIBE", "WHERE", "PREFIX", "BASE", "ORDER BY", "GROUP BY",
-    "LIMIT", "OFFSET", "FILTER", "OPTIONAL", "UNION", "DISTINCT", "BIND", "VALUES", "MINUS",
-    "HAVING", "SERVICE",
+    "SELECT",
+    "CONSTRUCT",
+    "ASK",
+    "DESCRIBE",
+    "WHERE",
+    "PREFIX",
+    "BASE",
+    "ORDER BY",
+    "GROUP BY",
+    "LIMIT",
+    "OFFSET",
+    "FILTER",
+    "OPTIONAL",
+    "UNION",
+    "DISTINCT",
+    "BIND",
+    "VALUES",
+    "MINUS",
+    "HAVING",
+    "SERVICE",
 ];
 
 #[derive(Clone)]
@@ -149,8 +166,7 @@ impl SparqlAnalyzer {
     }
 
     pub fn call_hierarchy_items(
-        &self,
-        _position: Position,
+        &self, _position: Position,
     ) -> Option<Vec<tower_lsp::lsp_types::CallHierarchyItem>> {
         None
     }
@@ -158,7 +174,10 @@ impl SparqlAnalyzer {
     /// Collect `?var` / `$var` names used in the query (sorted, unique).
     fn variables(&self) -> Vec<String> {
         let mut set = BTreeSet::new();
-        for token in self.source.split(|c: char| !(c.is_alphanumeric() || c == '_' || c == '?' || c == '$')) {
+        for token in self
+            .source
+            .split(|c: char| !(c.is_alphanumeric() || c == '_' || c == '?' || c == '$'))
+        {
             if (token.starts_with('?') || token.starts_with('$')) && token.len() > 1 {
                 set.insert(token.to_string());
             }
@@ -169,7 +188,10 @@ impl SparqlAnalyzer {
 
 fn find_line(source: &str, needle: &str) -> Option<u32> {
     source.lines().enumerate().find_map(|(idx, text)| {
-        if text.split_whitespace().any(|t| t.eq_ignore_ascii_case(needle)) {
+        if text
+            .split_whitespace()
+            .any(|t| t.eq_ignore_ascii_case(needle))
+        {
             u32::try_from(idx).ok()
         } else {
             None

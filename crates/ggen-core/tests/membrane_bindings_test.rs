@@ -2,8 +2,8 @@
 //! Following AGENTS.md Chicago TDD and anti-cheating mandates.
 
 use ggen_core::membrane::{
-    GenesisCore, GgenMembrane, InterchangeablePart, MembraneShaclValidator,
-    OcelLog, ProvDocument, RdfMembraneProjector,
+    GenesisCore, GgenMembrane, InterchangeablePart, MembraneShaclValidator, OcelLog, ProvDocument,
+    RdfMembraneProjector,
 };
 
 #[test]
@@ -17,20 +17,24 @@ fn test_membrane_bindings_and_boundary_crossings() {
         part_type: "wasm32".to_string(),
         version: "1.0.0".to_string(),
         interfaces: vec!["hash_sha256".to_string(), "sign_ed25519".to_string()],
-        payload_hash: "2e7d2c03a9507ae2ecf403cf6fd0062f627d2c03a9507ae2ecf403cf6fd0062f".to_string(),
+        payload_hash: "2e7d2c03a9507ae2ecf403cf6fd0062f627d2c03a9507ae2ecf403cf6fd0062f"
+            .to_string(),
         payload_size: 4096,
     };
-    core.register_part(part1).expect("Failed to register part 1");
+    core.register_part(part1)
+        .expect("Failed to register part 1");
 
     let part2 = InterchangeablePart {
         id: "atomvm-sensor-module".to_string(),
         part_type: "atomvm_beam".to_string(),
         version: "0.9.0".to_string(),
         interfaces: vec!["read_temperature".to_string()],
-        payload_hash: "4a8c9b3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b".to_string(),
+        payload_hash: "4a8c9b3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b"
+            .to_string(),
         payload_size: 2048,
     };
-    core.register_part(part2).expect("Failed to register part 2");
+    core.register_part(part2)
+        .expect("Failed to register part 2");
 
     // 3. Initialize ggen membrane and bindings
     let mut membrane = GgenMembrane::new(core);
@@ -38,11 +42,19 @@ fn test_membrane_bindings_and_boundary_crossings() {
     membrane.bind_adapter("crypto-port", "hash_sha256");
 
     // Verify adapter bindings
-    assert_eq!(membrane.adapters.get("temp-sensor-port").unwrap(), "read_temperature");
+    assert_eq!(
+        membrane.adapters.get("temp-sensor-port").unwrap(),
+        "read_temperature"
+    );
 
     // 4. Trigger boundary crossings (invoking Genesis interchangeable parts)
     let (out1, event1) = membrane
-        .invoke("external-caller-1", "wasm-crypto-module", "hash_sha256", b"hello-world")
+        .invoke(
+            "external-caller-1",
+            "wasm-crypto-module",
+            "hash_sha256",
+            b"hello-world",
+        )
         .expect("Invoke failed");
 
     assert_eq!(event1.caller_id, "external-caller-1");
@@ -51,7 +63,12 @@ fn test_membrane_bindings_and_boundary_crossings() {
     assert!(!out1.is_empty());
 
     let (out2, event2) = membrane
-        .invoke("external-caller-2", "atomvm-sensor-module", "read_temperature", b"sensor-id-42")
+        .invoke(
+            "external-caller-2",
+            "atomvm-sensor-module",
+            "read_temperature",
+            b"sensor-id-42",
+        )
         .expect("Invoke failed");
 
     assert_eq!(event2.caller_id, "external-caller-2");
@@ -76,7 +93,7 @@ fn test_membrane_bindings_and_boundary_crossings() {
 
     // 7. Project to RDF Turtle graph
     let rdf_graph = RdfMembraneProjector::project(&membrane).expect("RDF projection failed");
-    
+
     // Query check to ensure RDF projection works and contains correct values
     let results = rdf_graph
         .query("SELECT ?part WHERE { ?part a <http://ggen.org/membrane#InterchangeablePart> }")
@@ -86,10 +103,11 @@ fn test_membrane_bindings_and_boundary_crossings() {
     } else {
         panic!("Expected QueryResults::Solutions");
     }
-    
+
     // 8. Validate projected RDF using SHACL shapes
-    let shacl_report = MembraneShaclValidator::validate(&rdf_graph).expect("SHACL validation failed");
-    
+    let shacl_report =
+        MembraneShaclValidator::validate(&rdf_graph).expect("SHACL validation failed");
+
     // Report must pass
     assert!(
         shacl_report.passed,

@@ -1,12 +1,19 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! Page split law verification tests for Genesis core primitives.
 //! Testing domain saturation, multiplicity semantics, and split mechanics.
 //! Chicago TDD: Real state changes, no mocks, deterministic replay.
 
 use ggen_core::genesis::{
-    Admission8, Construct8, Graph8, Mask8, Multiplicity, Node8, Object8, Pair2, PageSplit,
-    Predicate8, Receipt, ReceiptHint8, RefusalCode, RelationPage, SymbolDomain, Provenance8,
+    Admission8, Construct8, Graph8, Mask8, Multiplicity, Node8, Object8, PageSplit, Pair2,
+    Predicate8, Provenance8, Receipt, ReceiptHint8, RefusalCode, RelationPage, SymbolDomain,
     HASH_SIZE,
 };
 

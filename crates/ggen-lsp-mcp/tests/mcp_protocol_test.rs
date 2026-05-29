@@ -58,7 +58,13 @@ impl McpClient {
                 // non-JSON lines (shouldn't occur — NoSubscriber tracing) are ignored
             }
         });
-        McpClient { stdin, rx, child, next_id: 1, _tmp: tmp }
+        McpClient {
+            stdin,
+            rx,
+            child,
+            next_id: 1,
+            _tmp: tmp,
+        }
     }
 
     fn send(&mut self, msg: &Value) {
@@ -132,8 +138,15 @@ fn mcp_handshake_lists_three_tools_with_v26_5_28_identity() {
         .iter()
         .filter_map(|t| t["name"].as_str().map(str::to_string))
         .collect();
-    for expected in ["ggen.lsp.repair_route", "ggen.lsp.replay_case", "ggen.lsp.metrics"] {
-        assert!(names.contains(&expected.to_string()), "tools/list must include {expected}; got {names:?}");
+    for expected in [
+        "ggen.lsp.repair_route",
+        "ggen.lsp.replay_case",
+        "ggen.lsp.metrics",
+    ] {
+        assert!(
+            names.contains(&expected.to_string()),
+            "tools/list must include {expected}; got {names:?}"
+        );
     }
     assert_eq!(names.len(), 3, "exactly three delivery tools");
 }
@@ -150,17 +163,29 @@ fn mcp_repair_route_returns_e0011_envelope() {
             "arguments":{"file_path":"q.rq","file_content":BROKEN_CONSTRUCT}
         }),
     );
-    assert!(resp.get("error").is_none(), "repair_route must not error: {resp}");
+    assert!(
+        resp.get("error").is_none(),
+        "repair_route must not error: {resp}"
+    );
     // The tool result content[0].text is the RouteEnvelope-bearing JSON document.
     let text = resp["result"]["content"][0]["text"]
         .as_str()
         .expect("tool result carries text content");
     let doc: Value = serde_json::from_str(text).expect("tool text is JSON");
-    assert_eq!(doc["is_law_surface"], json!(true), "the .rq is a law surface");
-    let env = &doc["envelopes"][0];
-    assert_eq!(env["diagnostic_code"], json!("E0011"), "MCP route carries E0011");
     assert_eq!(
-        env["route_id"], json!("template.values-inline"),
+        doc["is_law_surface"],
+        json!(true),
+        "the .rq is a law surface"
+    );
+    let env = &doc["envelopes"][0];
+    assert_eq!(
+        env["diagnostic_code"],
+        json!("E0011"),
+        "MCP route carries E0011"
+    );
+    assert_eq!(
+        env["route_id"],
+        json!("template.values-inline"),
         "MCP route_id matches the LSP/A2A engine"
     );
 }
@@ -180,17 +205,26 @@ fn mcp_repair_route_refuses_empty_path_without_panicking() {
             .as_str()
             .map(|t| t.to_lowercase().contains("empty") || t.to_lowercase().contains("invalid"))
             .unwrap_or(false);
-    assert!(refused, "empty file_path must be a structured refusal, got: {resp}");
+    assert!(
+        refused,
+        "empty file_path must be a structured refusal, got: {resp}"
+    );
     // Server still alive: a follow-up request still works.
     let tools = c.request("tools/list", Value::Null);
-    assert!(tools["result"]["tools"].is_array(), "server survives a refusal");
+    assert!(
+        tools["result"]["tools"].is_array(),
+        "server survives a refusal"
+    );
 }
 
 /// Parse the structured JSON document carried in a tool result's `content[0].text`.
 /// `call_tool` serializes each tool's result via `to_string_pretty`, so every
 /// success result is a single text Content whose body is the real result JSON.
 fn tool_doc(resp: &Value) -> Value {
-    assert!(resp.get("error").is_none(), "tool call must not JSON-RPC error: {resp}");
+    assert!(
+        resp.get("error").is_none(),
+        "tool call must not JSON-RPC error: {resp}"
+    );
     let text = resp["result"]["content"][0]["text"]
         .as_str()
         .unwrap_or_else(|| panic!("tool result carries text content: {resp}"));
@@ -215,13 +249,34 @@ fn mcp_replay_case_returns_structured_case_replay() {
     );
     let doc = tool_doc(&resp);
     // Real CaseReplay fields (crates/ggen-lsp/src/intel/replay.rs).
-    assert_eq!(doc["case_id"], json!("c:does-not-exist"), "echoes the requested case_id");
-    assert_eq!(doc["found"], json!(false), "no OCEL log in a fresh project => not found");
+    assert_eq!(
+        doc["case_id"],
+        json!("c:does-not-exist"),
+        "echoes the requested case_id"
+    );
+    assert_eq!(
+        doc["found"],
+        json!(false),
+        "no OCEL log in a fresh project => not found"
+    );
     assert_eq!(doc["event_count"], json!(0), "zero events reconstructed");
-    assert_eq!(doc["conformant"], json!(false), "no closure can be proven from no events");
-    assert!(doc.get("diagnostic_code").is_some(), "CaseReplay carries diagnostic_code (null here)");
-    assert!(doc.get("route_id").is_some(), "CaseReplay carries route_id (null here)");
-    assert!(doc.get("receipt_id").is_some(), "CaseReplay carries receipt_id (null here)");
+    assert_eq!(
+        doc["conformant"],
+        json!(false),
+        "no closure can be proven from no events"
+    );
+    assert!(
+        doc.get("diagnostic_code").is_some(),
+        "CaseReplay carries diagnostic_code (null here)"
+    );
+    assert!(
+        doc.get("route_id").is_some(),
+        "CaseReplay carries route_id (null here)"
+    );
+    assert!(
+        doc.get("receipt_id").is_some(),
+        "CaseReplay carries receipt_id (null here)"
+    );
 }
 
 #[test]
@@ -238,8 +293,14 @@ fn mcp_replay_case_without_case_id_verifies_promotion_binding() {
     );
     let doc = tool_doc(&resp);
     // Real PromotionReplay fields (crates/ggen-lsp/src/intel/replay.rs).
-    assert_eq!(doc["matches"], json!(false), "no promoted-route artifact => no match");
-    let reason = doc["reason"].as_str().expect("PromotionReplay carries a reason string");
+    assert_eq!(
+        doc["matches"],
+        json!(false),
+        "no promoted-route artifact => no match"
+    );
+    let reason = doc["reason"]
+        .as_str()
+        .expect("PromotionReplay carries a reason string");
     assert!(
         reason.contains("no promoted-route artifact"),
         "reason names the missing artifact honestly, got: {reason}"
@@ -260,8 +321,16 @@ fn mcp_metrics_returns_improve_metrics_refusing_absent_evidence() {
     );
     let doc = tool_doc(&resp);
     // Real ImproveMetrics fields (crates/ggen-lsp/src/intel/metrics.rs).
-    assert_eq!(doc["verdict"], json!("insufficient_evidence"), "verdict is refused by default");
-    assert_eq!(doc["cycles"], json!(0), "no promotion history => zero cycles");
+    assert_eq!(
+        doc["verdict"],
+        json!("insufficient_evidence"),
+        "verdict is refused by default"
+    );
+    assert_eq!(
+        doc["cycles"],
+        json!(0),
+        "no promotion history => zero cycles"
+    );
     // MetricValue::InsufficientEvidence serializes to the string "insufficient_evidence".
     for metric in [
         "route_hit_rate",
@@ -276,8 +345,10 @@ fn mcp_metrics_returns_improve_metrics_refusing_absent_evidence() {
         "receipt_density",
     ] {
         assert_eq!(
-            doc[metric], json!("insufficient_evidence"),
-            "metric {metric} must refuse (no backing events), got: {}", doc[metric]
+            doc[metric],
+            json!("insufficient_evidence"),
+            "metric {metric} must refuse (no backing events), got: {}",
+            doc[metric]
         );
     }
 }
@@ -296,15 +367,22 @@ fn mcp_every_tool_advertises_a_non_empty_typed_input_schema() {
     for t in arr {
         let name = t["name"].as_str().expect("tool name");
         let schema = &t["inputSchema"];
-        assert!(schema.is_object(), "{name} inputSchema must be a JSON object, got: {schema}");
+        assert!(
+            schema.is_object(),
+            "{name} inputSchema must be a JSON object, got: {schema}"
+        );
         assert_eq!(
-            schema["type"], json!("object"),
+            schema["type"],
+            json!("object"),
             "{name} inputSchema describes an object"
         );
         let props = schema["properties"]
             .as_object()
             .unwrap_or_else(|| panic!("{name} inputSchema must carry a properties map: {schema}"));
-        assert!(!props.is_empty(), "{name} inputSchema.properties must be non-empty");
+        assert!(
+            !props.is_empty(),
+            "{name} inputSchema.properties must be non-empty"
+        );
     }
 }
 
@@ -316,7 +394,10 @@ fn mcp_initialize_echoes_a_protocol_version_string() {
     let pv = init["result"]["protocolVersion"]
         .as_str()
         .unwrap_or_else(|| panic!("initialize result must echo a protocolVersion string: {init}"));
-    assert!(!pv.is_empty(), "protocolVersion is a non-empty string, got: {pv:?}");
+    assert!(
+        !pv.is_empty(),
+        "protocolVersion is a non-empty string, got: {pv:?}"
+    );
 }
 
 #[test]
@@ -345,19 +426,31 @@ fn mcp_malformed_args_are_refused_and_the_server_survives() {
         "tools/call",
         json!({"name":"ggen.lsp.replay_case","arguments":{"root":12345}}),
     );
-    assert!(is_refusal(&bad_replay), "malformed replay_case args must be refused, got: {bad_replay}");
+    assert!(
+        is_refusal(&bad_replay),
+        "malformed replay_case args must be refused, got: {bad_replay}"
+    );
     // Server survives.
     let after_replay = c.request("tools/list", Value::Null);
-    assert!(after_replay["result"]["tools"].is_array(), "server survives bad replay_case args");
+    assert!(
+        after_replay["result"]["tools"].is_array(),
+        "server survives bad replay_case args"
+    );
 
     let bad_metrics = c.request(
         "tools/call",
         json!({"name":"ggen.lsp.metrics","arguments":{"root":["not","a","string"]}}),
     );
-    assert!(is_refusal(&bad_metrics), "malformed metrics args must be refused, got: {bad_metrics}");
+    assert!(
+        is_refusal(&bad_metrics),
+        "malformed metrics args must be refused, got: {bad_metrics}"
+    );
     // Server survives a second time.
     let after_metrics = c.request("tools/list", Value::Null);
-    assert!(after_metrics["result"]["tools"].is_array(), "server survives bad metrics args");
+    assert!(
+        after_metrics["result"]["tools"].is_array(),
+        "server survives bad metrics args"
+    );
 
     // SEMANTIC refusal (not just type-level): a well-TYPED but empty `root` string
     // parses fine yet is now refused by the same path-bound discipline repair_route
@@ -380,7 +473,10 @@ fn mcp_malformed_args_are_refused_and_the_server_survives() {
         "an empty (but well-typed) metrics root must be SEMANTICALLY refused, got: {semantic_metrics}"
     );
     let after_semantic = c.request("tools/list", Value::Null);
-    assert!(after_semantic["result"]["tools"].is_array(), "server survives semantic refusals");
+    assert!(
+        after_semantic["result"]["tools"].is_array(),
+        "server survives semantic refusals"
+    );
 }
 
 #[test]
@@ -415,33 +511,48 @@ fn mcp_replay_case_and_metrics_refuse_empty_and_oversized_root() {
         "tools/call",
         json!({"name":"ggen.lsp.replay_case","arguments":{"root":""}}),
     );
-    assert!(is_refusal(&r), "replay_case must SEMANTICALLY refuse an empty root, got: {r}");
+    assert!(
+        is_refusal(&r),
+        "replay_case must SEMANTICALLY refuse an empty root, got: {r}"
+    );
     // --- replay_case: oversized root ---
     let r = c.request(
         "tools/call",
         json!({"name":"ggen.lsp.replay_case","arguments":{"root":oversized_root}}),
     );
-    assert!(is_refusal(&r), "replay_case must refuse an oversized root, got: {r}");
+    assert!(
+        is_refusal(&r),
+        "replay_case must refuse an oversized root, got: {r}"
+    );
     // --- replay_case: empty case_id (present-but-empty) ---
     let r = c.request(
         "tools/call",
         json!({"name":"ggen.lsp.replay_case","arguments":{"root":".","case_id":""}}),
     );
-    assert!(is_refusal(&r), "replay_case must refuse an empty case_id, got: {r}");
+    assert!(
+        is_refusal(&r),
+        "replay_case must refuse an empty case_id, got: {r}"
+    );
 
     // --- metrics: empty root ---
     let m = c.request(
         "tools/call",
         json!({"name":"ggen.lsp.metrics","arguments":{"root":""}}),
     );
-    assert!(is_refusal(&m), "metrics must SEMANTICALLY refuse an empty root, got: {m}");
+    assert!(
+        is_refusal(&m),
+        "metrics must SEMANTICALLY refuse an empty root, got: {m}"
+    );
     // --- metrics: oversized root ---
     let oversized_root2 = "b".repeat(4097);
     let m = c.request(
         "tools/call",
         json!({"name":"ggen.lsp.metrics","arguments":{"root":oversized_root2}}),
     );
-    assert!(is_refusal(&m), "metrics must refuse an oversized root, got: {m}");
+    assert!(
+        is_refusal(&m),
+        "metrics must refuse an oversized root, got: {m}"
+    );
 
     // Server survived every semantic refusal: tools/list still answers.
     let after = c.request("tools/list", Value::Null);
@@ -466,8 +577,16 @@ fn mcp_replay_case_and_metrics_accept_valid_root_after_hardening() {
         json!({"name":"ggen.lsp.replay_case","arguments":{"root":".","case_id":"c:valid-shape"}}),
     );
     let doc = tool_doc(&replay);
-    assert_eq!(doc["case_id"], json!("c:valid-shape"), "valid call echoes the case_id");
-    assert_eq!(doc["found"], json!(false), "fresh project => not found, but a real CaseReplay");
+    assert_eq!(
+        doc["case_id"],
+        json!("c:valid-shape"),
+        "valid call echoes the case_id"
+    );
+    assert_eq!(
+        doc["found"],
+        json!(false),
+        "fresh project => not found, but a real CaseReplay"
+    );
 
     // Valid metrics: real ImproveMetrics document, not a refusal.
     let metrics = c.request(
@@ -476,7 +595,8 @@ fn mcp_replay_case_and_metrics_accept_valid_root_after_hardening() {
     );
     let mdoc = tool_doc(&metrics);
     assert_eq!(
-        mdoc["verdict"], json!("insufficient_evidence"),
+        mdoc["verdict"],
+        json!("insufficient_evidence"),
         "valid metrics call returns the real refused-by-default verdict, not an arg error"
     );
 }
@@ -500,11 +620,15 @@ fn mcp_repair_route_on_clean_law_surface_reports_no_diagnostics() {
     let doc = tool_doc(&resp);
     assert_eq!(doc["is_law_surface"], json!(true), "a .rq is a law surface");
     assert_eq!(
-        doc["envelopes"].as_array().map(Vec::len), Some(0),
-        "a clean SELECT raises no routed diagnostics, got: {}", doc["envelopes"]
+        doc["envelopes"].as_array().map(Vec::len),
+        Some(0),
+        "a clean SELECT raises no routed diagnostics, got: {}",
+        doc["envelopes"]
     );
     assert_eq!(
-        doc["refusals"].as_array().map(Vec::len), Some(0),
-        "no diagnostics => no refusals either, got: {}", doc["refusals"]
+        doc["refusals"].as_array().map(Vec::len),
+        Some(0),
+        "no diagnostics => no refusals either, got: {}",
+        doc["refusals"]
     );
 }

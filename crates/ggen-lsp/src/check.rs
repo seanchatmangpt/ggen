@@ -16,7 +16,13 @@ use crate::analyzers::build_analyzer;
 use crate::state::FileType;
 
 /// Directory names skipped when discovering law-surface files.
-const SKIP_DIRS: &[&str] = &[".git", "target", "node_modules", ".agent-admissibility", "dist"];
+const SKIP_DIRS: &[&str] = &[
+    ".git",
+    "target",
+    "node_modules",
+    ".agent-admissibility",
+    "dist",
+];
 
 /// Diagnostics for a single file.
 #[derive(Debug, Clone, Serialize)]
@@ -98,7 +104,10 @@ impl CheckReport {
 
     /// Capture attributed to a named `agent_id` over the headless transport.
     pub fn capture_as(&self, root: &Path, agent_id: &str) {
-        self.capture_attributed(root, &crate::intel::events::Attribution::for_agent(agent_id));
+        self.capture_attributed(
+            root,
+            &crate::intel::events::Attribution::for_agent(agent_id),
+        );
     }
 
     /// Capture this gate run as agent-edit OCEL events under `root` with full
@@ -129,7 +138,9 @@ impl CheckReport {
                 let span = span_str(d.range);
 
                 seq += 1;
-                events.push(diagnostic_raised(&file.path, &code, sev, &span, &run_id, seq));
+                events.push(diagnostic_raised(
+                    &file.path, &code, sev, &span, &run_id, seq,
+                ));
 
                 // RouteSelected/RepairSuggested ONLY when a route was actually
                 // selected for this diagnostic (with --with_routes). No event ⇒
@@ -142,11 +153,20 @@ impl CheckReport {
                     let source = route_source(&plan.provenance);
                     seq += 1;
                     events.push(route_selected(
-                        &file.path, &code, &plan.route_id.0, source, &run_id, seq,
+                        &file.path,
+                        &code,
+                        &plan.route_id.0,
+                        source,
+                        &run_id,
+                        seq,
                     ));
                     seq += 1;
                     events.push(repair_suggested(
-                        &file.path, &code, &plan.route_id.0, &run_id, seq,
+                        &file.path,
+                        &code,
+                        &plan.route_id.0,
+                        &run_id,
+                        seq,
                     ));
                 }
 
@@ -164,11 +184,21 @@ impl CheckReport {
                 seq += 1;
                 if is_error {
                     events.push(refusal_emitted(
-                        &file.path, &code, file.diagnostics.len(), &run_id, seq,
+                        &file.path,
+                        &code,
+                        file.diagnostics.len(),
+                        &run_id,
+                        seq,
                     ));
                 } else {
                     let receipt_id = receipt_id_for(&file.path, &code, &run_id);
-                    events.push(receipt_emitted(&file.path, &code, &receipt_id, &run_id, seq));
+                    events.push(receipt_emitted(
+                        &file.path,
+                        &code,
+                        &receipt_id,
+                        &run_id,
+                        seq,
+                    ));
                 }
             }
             // Files with no diagnostics still record a clean gate pass.
@@ -224,10 +254,7 @@ fn receipt_id_for(file: &str, code: &str, run_id: &str) -> String {
 /// same capture machinery as the headless gate (full chain, attributed). No-op for
 /// a non-law-surface file. Best-effort: never fails the request.
 pub fn capture_request(
-    root: &Path,
-    file_path: &str,
-    content: &str,
-    attribution: &crate::intel::events::Attribution,
+    root: &Path, file_path: &str, content: &str, attribution: &crate::intel::events::Attribution,
 ) {
     let Some(mut report) = check_content(file_path, content) else {
         return;
@@ -342,12 +369,14 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
         for d in &f.diagnostics {
             let has = f.routes.iter().any(|r| {
                 r.target.range == d.range
-                    && d.code.as_ref().map_or(r.target.code.is_empty(), |c| match c {
-                        tower_lsp::lsp_types::NumberOrString::String(s) => s == &r.target.code,
-                        tower_lsp::lsp_types::NumberOrString::Number(n) => {
-                            n.to_string() == r.target.code
-                        }
-                    })
+                    && d.code
+                        .as_ref()
+                        .map_or(r.target.code.is_empty(), |c| match c {
+                            tower_lsp::lsp_types::NumberOrString::String(s) => s == &r.target.code,
+                            tower_lsp::lsp_types::NumberOrString::Number(n) => {
+                                n.to_string() == r.target.code
+                            }
+                        })
             });
             if has {
                 routed += 1;
@@ -370,7 +399,6 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
         top_routes,
     }
 }
-
 
 /// Recursively discover every ggen law-surface file under `root`
 /// (`.ttl`, `.nt`, `.nq`, `.rq`, `.sparql`, `.tera`, `ggen.toml`), skipping
@@ -436,9 +464,15 @@ mod tests {
             .map(|p| p.to_string_lossy().to_string())
             .collect();
 
-        assert!(names.iter().any(|n| n.ends_with("feature.ttl")), "must find specs under .specify");
+        assert!(
+            names.iter().any(|n| n.ends_with("feature.ttl")),
+            "must find specs under .specify"
+        );
         assert!(names.iter().any(|n| n.ends_with("ggen.toml")));
-        assert!(!names.iter().any(|n| n.contains("target")), "must skip target/");
+        assert!(
+            !names.iter().any(|n| n.contains("target")),
+            "must skip target/"
+        );
         assert!(!names.iter().any(|n| n.ends_with("readme.md")));
     }
 
@@ -466,9 +500,18 @@ mod tests {
         fs::write(&cfg, "[logging]\nlevel = \"verbose\"\n").expect("write");
 
         let report = check_files_with_routes(&[cfg], true);
-        assert!(report.route_summary.is_some(), "summary present with routes");
+        assert!(
+            report.route_summary.is_some(),
+            "summary present with routes"
+        );
         let summary = report.route_summary.expect("summary");
-        assert!(summary.routed >= 1, "the invalid enum value is routed (advisory)");
-        assert!(report.files[0].routes.iter().any(|r| !r.ordered_steps.is_empty()));
+        assert!(
+            summary.routed >= 1,
+            "the invalid enum value is routed (advisory)"
+        );
+        assert!(report.files[0]
+            .routes
+            .iter()
+            .any(|r| !r.ordered_steps.is_empty()));
     }
 }

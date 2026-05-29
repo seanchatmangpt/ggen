@@ -240,7 +240,15 @@ fn init_force_rescaffolds_but_preserves_user_files() {
 
     let assert = ggen()
         .current_dir(root)
-        .args(["init", "--path", ".", "--skip_hooks", "true", "--force", "true"])
+        .args([
+            "init",
+            "--path",
+            ".",
+            "--skip_hooks",
+            "true",
+            "--force",
+            "true",
+        ])
         .assert()
         .success()
         .stdout(predicate::str::contains("\"status\":\"success\""));

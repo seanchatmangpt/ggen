@@ -30,9 +30,8 @@ fn headless_and_canonical_projection_are_byte_equivalent() {
     // The canonical projection that code_action's `data` and the MCP tool both
     // call (same registry the headless gate built: seeded + root pack).
     let registry = RouteRegistry::seeded().with_pack_routes(&default_pack_routes_path(root));
-    let canonical =
-        envelope_for_diagnostic(&registry, &file.diagnostics[0], E0011_SRC, &file.path)
-            .expect("canonical envelope");
+    let canonical = envelope_for_diagnostic(&registry, &file.diagnostics[0], E0011_SRC, &file.path)
+        .expect("canonical envelope");
 
     // Byte-equivalent across channels — transport differs, the route object does not.
     assert_eq!(
@@ -47,7 +46,10 @@ fn headless_and_canonical_projection_are_byte_equivalent() {
     assert_eq!(env.diagnostic_code, "E0011");
     assert_eq!(env.route_source, "seed"); // no pack promoted in this dir
     assert!(!env.span.is_empty());
-    assert_eq!(env.case_id, env.compact_trace.case_id, "envelope and compact agree on case_id");
+    assert_eq!(
+        env.case_id, env.compact_trace.case_id,
+        "envelope and compact agree on case_id"
+    );
 }
 
 #[test]

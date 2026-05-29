@@ -333,5 +333,8 @@ fn proof_utils_env_set_parses_key_value() {
         .arg("GGEN_PROOF_SET=setvalue-c4d8")
         .assert()
         .success()
-        .stdout(predicate::str::contains("GGEN_PROOF_SET").and(predicate::str::contains("setvalue-c4d8")));
+        .stdout(
+            predicate::str::contains("GGEN_PROOF_SET")
+                .and(predicate::str::contains("setvalue-c4d8")),
+        );
 }

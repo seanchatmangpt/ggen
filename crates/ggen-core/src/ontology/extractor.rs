@@ -62,9 +62,7 @@ impl OntologyExtractor {
         let mut by_uri: std::collections::BTreeMap<String, Cardinality> =
             std::collections::BTreeMap::new();
 
-        if let QueryResults::Solutions(solutions) =
-            graph.query(query).map_err(|e| e.to_string())?
-        {
+        if let QueryResults::Solutions(solutions) = graph.query(query).map_err(|e| e.to_string())? {
             for solution in solutions {
                 let bindings = solution.map_err(|e| format!("SPARQL solution error: {}", e))?;
                 let Some(prop_term) = bindings.get("property") else {

@@ -1,5 +1,3 @@
-
-
 /// The Frozen Canon Registry for Stewards of the Pentecost.
 /// Every part must declare its canon basis.
 pub trait CanonBasis {

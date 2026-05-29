@@ -77,25 +77,27 @@ impl LanguageServer for GgenLanguageServer {
                 // these (advertised == delivered). semantic_tokens advertises only
                 // `full` (no `range`) since only full tokenization is implemented.
                 semantic_tokens_provider: Some(
-                    SemanticTokensServerCapabilities::SemanticTokensOptions(SemanticTokensOptions {
-                        legend: SemanticTokensLegend {
-                            token_types: vec![
-                                SemanticTokenType::NAMESPACE,
-                                SemanticTokenType::CLASS,
-                                SemanticTokenType::PROPERTY,
-                                SemanticTokenType::VARIABLE,
-                                SemanticTokenType::KEYWORD,
-                                SemanticTokenType::STRING,
-                                SemanticTokenType::NUMBER,
-                                SemanticTokenType::COMMENT,
-                                SemanticTokenType::FUNCTION,
-                            ],
-                            token_modifiers: vec![],
+                    SemanticTokensServerCapabilities::SemanticTokensOptions(
+                        SemanticTokensOptions {
+                            legend: SemanticTokensLegend {
+                                token_types: vec![
+                                    SemanticTokenType::NAMESPACE,
+                                    SemanticTokenType::CLASS,
+                                    SemanticTokenType::PROPERTY,
+                                    SemanticTokenType::VARIABLE,
+                                    SemanticTokenType::KEYWORD,
+                                    SemanticTokenType::STRING,
+                                    SemanticTokenType::NUMBER,
+                                    SemanticTokenType::COMMENT,
+                                    SemanticTokenType::FUNCTION,
+                                ],
+                                token_modifiers: vec![],
+                            },
+                            range: None,
+                            full: Some(SemanticTokensFullOptions::Bool(true)),
+                            ..Default::default()
                         },
-                        range: None,
-                        full: Some(SemanticTokensFullOptions::Bool(true)),
-                        ..Default::default()
-                    }),
+                    ),
                 ),
                 document_formatting_provider: Some(OneOf::Left(true)),
                 document_range_formatting_provider: Some(OneOf::Left(true)),
@@ -128,7 +130,9 @@ impl LanguageServer for GgenLanguageServer {
         let uri = params.text_document.uri;
         // FULL sync: the last change carries the entire document text.
         if let Some(change) = params.content_changes.into_iter().last() {
-            self.state.set_document(uri.clone(), change.text.clone()).await;
+            self.state
+                .set_document(uri.clone(), change.text.clone())
+                .await;
             self.refresh_analyzer(&uri, &change.text).await;
         }
     }
@@ -169,16 +173,13 @@ impl LanguageServer for GgenLanguageServer {
         // Otherwise, if a diagnostic covers the cursor, show its OCEL-TON card:
         // the active episode + route + next transition — the author-time receipt
         // preview. Diagnostics are recomputed here (cheap, off the publish path).
-        let (Some(analyzer), Some(content)) =
-            (analyzer, self.state.get_document(uri).await)
-        else {
+        let (Some(analyzer), Some(content)) = (analyzer, self.state.get_document(uri).await) else {
             return Ok(None);
         };
         let registry = self.state.routes.clone();
         for d in analyzer.diagnostics() {
             if range_contains(&d.range, position) {
-                if let Some(plan) =
-                    crate::route::route_plan_for_diagnostic(&registry, &d, &content)
+                if let Some(plan) = crate::route::route_plan_for_diagnostic(&registry, &d, &content)
                 {
                     let view = crate::route::CompactTraceView::from_route_plan(&plan, uri.path());
                     return Ok(Some(Hover {
@@ -195,8 +196,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn goto_definition(
-        &self,
-        params: GotoDefinitionParams,
+        &self, params: GotoDefinitionParams,
     ) -> Result<Option<GotoDefinitionResponse>> {
         let uri = &params.text_document_position_params.text_document.uri;
         let position = params.text_document_position_params.position;
@@ -219,8 +219,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn document_symbol(
-        &self,
-        params: DocumentSymbolParams,
+        &self, params: DocumentSymbolParams,
     ) -> Result<Option<DocumentSymbolResponse>> {
         let uri = &params.text_document.uri;
         Ok(self
@@ -232,8 +231,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn semantic_tokens_full(
-        &self,
-        params: SemanticTokensParams,
+        &self, params: SemanticTokensParams,
     ) -> Result<Option<SemanticTokensResult>> {
         let uri = &params.text_document.uri;
         let file_type = crate::state::FileType::from_uri(uri);
@@ -262,12 +260,13 @@ impl LanguageServer for GgenLanguageServer {
             return Ok(None);
         };
         let file_type = crate::state::FileType::from_uri(uri);
-        Ok(crate::features::formatting::format_document(file_type, &content))
+        Ok(crate::features::formatting::format_document(
+            file_type, &content,
+        ))
     }
 
     async fn range_formatting(
-        &self,
-        params: DocumentRangeFormattingParams,
+        &self, params: DocumentRangeFormattingParams,
     ) -> Result<Option<Vec<TextEdit>>> {
         let uri = &params.text_document.uri;
         let Some(content) = self.state.get_document(uri).await else {
@@ -308,10 +307,7 @@ impl LanguageServer for GgenLanguageServer {
     /// for each in-context diagnostic, select its precomputed route and offer the
     /// concrete `WorkspaceEdit`. Only routes with a computable edit (no unfilled
     /// `{placeholder}`) are offered; advisory/NoOp routes are silent.
-    async fn code_action(
-        &self,
-        params: CodeActionParams,
-    ) -> Result<Option<CodeActionResponse>> {
+    async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = &params.text_document.uri;
         let doc = self.state.get_document(uri).await.unwrap_or_default();
         let registry = self.state.routes.clone();
@@ -365,8 +361,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn prepare_rename(
-        &self,
-        params: TextDocumentPositionParams,
+        &self, params: TextDocumentPositionParams,
     ) -> Result<Option<PrepareRenameResponse>> {
         let uri = &params.text_document.uri;
         let position = params.position;
@@ -392,8 +387,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn prepare_call_hierarchy(
-        &self,
-        params: CallHierarchyPrepareParams,
+        &self, params: CallHierarchyPrepareParams,
     ) -> Result<Option<Vec<CallHierarchyItem>>> {
         let uri = &params.text_document_position_params.text_document.uri;
         let position = params.text_document_position_params.position;
@@ -405,8 +399,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn prepare_type_hierarchy(
-        &self,
-        params: TypeHierarchyPrepareParams,
+        &self, params: TypeHierarchyPrepareParams,
     ) -> Result<Option<Vec<TypeHierarchyItem>>> {
         let uri = &params.text_document_position_params.text_document.uri;
         let position = params.text_document_position_params.position;
@@ -418,8 +411,7 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn symbol(
-        &self,
-        params: WorkspaceSymbolParams,
+        &self, params: WorkspaceSymbolParams,
     ) -> Result<Option<Vec<SymbolInformation>>> {
         let root = self.state.root.clone();
         Ok(Some(crate::features::workspace_symbol::workspace_symbols(

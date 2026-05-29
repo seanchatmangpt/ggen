@@ -44,7 +44,11 @@ fn mcp_replay_verifies_promotion_binding() {
         .expect("replay result");
     let direct = serde_json::to_value(verify_promotion(root)).expect("ser replay");
     assert_eq!(via_mcp, direct, "MCP replay == direct verify_promotion");
-    assert_eq!(via_mcp["matches"], serde_json::json!(true), "fresh promotion replays");
+    assert_eq!(
+        via_mcp["matches"],
+        serde_json::json!(true),
+        "fresh promotion replays"
+    );
 }
 
 #[test]

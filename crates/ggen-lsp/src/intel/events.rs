@@ -121,7 +121,11 @@ fn file_ref(file: &str) -> OcelObjectRef {
 
 /// The standard object set for an episode event: file + diagnostic_code + episode.
 fn episode_objects(file: &str, code: &str, run_id: &str) -> Vec<OcelObjectRef> {
-    vec![file_ref(file), diag_ref(code), episode_ref(file, code, run_id)]
+    vec![
+        file_ref(file),
+        diag_ref(code),
+        episode_ref(file, code, run_id),
+    ]
 }
 
 fn route_ref(route_id: &str) -> OcelObjectRef {
@@ -162,9 +166,7 @@ impl Attribution {
     /// New attribution from explicit parts.
     #[must_use]
     pub fn new(
-        agent_id: impl Into<String>,
-        transport: impl Into<String>,
-        session_id: impl Into<String>,
+        agent_id: impl Into<String>, transport: impl Into<String>, session_id: impl Into<String>,
     ) -> Self {
         Self {
             agent_id: agent_id.into(),
@@ -206,9 +208,12 @@ pub fn attach_attribution(events: &mut [OcelEvent], attribution: &Attribution) {
     let agent = agent_ref(&attribution.agent_id);
     for ev in events.iter_mut() {
         ev.objects.push(agent.clone());
-        ev.attributes.insert("agent_id".to_string(), attribution.agent_id.clone());
-        ev.attributes.insert("transport".to_string(), attribution.transport.clone());
-        ev.attributes.insert("session_id".to_string(), attribution.session_id.clone());
+        ev.attributes
+            .insert("agent_id".to_string(), attribution.agent_id.clone());
+        ev.attributes
+            .insert("transport".to_string(), attribution.transport.clone());
+        ev.attributes
+            .insert("session_id".to_string(), attribution.session_id.clone());
     }
 }
 
@@ -216,12 +221,7 @@ pub fn attach_attribution(events: &mut [OcelEvent], attribution: &Attribution) {
 /// `"sl:sc-el:ec"` (a binding `repeat_failure_rate` keys on).
 #[must_use]
 pub fn diagnostic_raised(
-    file: &str,
-    code: &str,
-    severity: &str,
-    span: &str,
-    run_id: &str,
-    seq: u64,
+    file: &str, code: &str, severity: &str, span: &str, run_id: &str, seq: u64,
 ) -> OcelEvent {
     let mut attributes = HashMap::new();
     attributes.insert("severity".to_string(), severity.to_string());
@@ -239,12 +239,7 @@ pub fn diagnostic_raised(
 /// this diagnostic. Backing event for `route_hit_rate` / `seed_displacement_rate`.
 #[must_use]
 pub fn route_selected(
-    file: &str,
-    code: &str,
-    route_id: &str,
-    route_source: &str,
-    run_id: &str,
-    seq: u64,
+    file: &str, code: &str, route_id: &str, route_source: &str, run_id: &str, seq: u64,
 ) -> OcelEvent {
     let mut attributes = HashMap::new();
     attributes.insert("route".to_string(), route_id.to_string());
@@ -262,7 +257,9 @@ pub fn route_selected(
 
 /// Build a `RepairSuggested` event linking a diagnostic to a route.
 #[must_use]
-pub fn repair_suggested(file: &str, code: &str, route_id: &str, run_id: &str, seq: u64) -> OcelEvent {
+pub fn repair_suggested(
+    file: &str, code: &str, route_id: &str, run_id: &str, seq: u64,
+) -> OcelEvent {
     let mut attributes = HashMap::new();
     attributes.insert("route".to_string(), route_id.to_string());
     let mut objects = episode_objects(file, code, run_id);
@@ -294,7 +291,9 @@ pub fn repair_applied(file: &str, code: &str, route_id: &str, run_id: &str, seq:
 
 /// Build a `ReceiptEmitted` event binding a closed episode to its receipt id.
 #[must_use]
-pub fn receipt_emitted(file: &str, code: &str, receipt_id: &str, run_id: &str, seq: u64) -> OcelEvent {
+pub fn receipt_emitted(
+    file: &str, code: &str, receipt_id: &str, run_id: &str, seq: u64,
+) -> OcelEvent {
     let mut attributes = HashMap::new();
     attributes.insert("receipt_id".to_string(), receipt_id.to_string());
     let mut objects = episode_objects(file, code, run_id);
@@ -315,12 +314,7 @@ pub fn receipt_emitted(file: &str, code: &str, receipt_id: &str, run_id: &str, s
 /// Build a `GatePassed` or `GateFailed` event for one (file, code) within `run_id`.
 #[must_use]
 pub fn gate_result(
-    file: &str,
-    code: &str,
-    passed: bool,
-    error_count: usize,
-    run_id: &str,
-    seq: u64,
+    file: &str, code: &str, passed: bool, error_count: usize, run_id: &str, seq: u64,
 ) -> OcelEvent {
     let act = if passed {
         activity::GATE_PASSED
@@ -340,7 +334,9 @@ pub fn gate_result(
 
 /// Build a `RefusalEmitted` event for one (file, code) within `run_id`.
 #[must_use]
-pub fn refusal_emitted(file: &str, code: &str, error_count: usize, run_id: &str, seq: u64) -> OcelEvent {
+pub fn refusal_emitted(
+    file: &str, code: &str, error_count: usize, run_id: &str, seq: u64,
+) -> OcelEvent {
     let mut attributes = HashMap::new();
     attributes.insert("error_count".to_string(), error_count.to_string());
     OcelEvent {
@@ -366,7 +362,10 @@ mod tests {
             .iter()
             .any(|o| o.r#type == obj_type::DIAGNOSTIC_CODE && o.id == "E0010"));
         assert!(e.objects.iter().any(|o| o.r#type == obj_type::EPISODE));
-        assert_eq!(e.attributes.get("severity").map(String::as_str), Some("error"));
+        assert_eq!(
+            e.attributes.get("severity").map(String::as_str),
+            Some("error")
+        );
     }
 
     #[test]
@@ -396,7 +395,11 @@ mod tests {
                 .map(|o| o.id.clone())
                 .unwrap_or_default()
         };
-        assert_eq!(ep(&raised), ep(&gate), "one diagnostic's lifecycle in a run is one episode");
+        assert_eq!(
+            ep(&raised),
+            ep(&gate),
+            "one diagnostic's lifecycle in a run is one episode"
+        );
     }
 
     #[test]
@@ -406,6 +409,9 @@ mod tests {
             event_id("A", "f.ttl", "r", 3),
             "same inputs → same id"
         );
-        assert_ne!(event_id("A", "f.ttl", "r", 3), event_id("A", "f.ttl", "r", 4));
+        assert_ne!(
+            event_id("A", "f.ttl", "r", 3),
+            event_id("A", "f.ttl", "r", 4)
+        );
     }
 }

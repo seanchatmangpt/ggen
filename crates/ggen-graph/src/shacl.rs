@@ -45,7 +45,9 @@ fn load(store: &Store, turtle: &str) -> Result<(), GraphError> {
         .map_err(|e| GraphError::Serialization(e.to_string()))
 }
 
-fn solutions(store: &Store, query: &str) -> Result<Vec<oxigraph::sparql::QuerySolution>, GraphError> {
+fn solutions(
+    store: &Store, query: &str,
+) -> Result<Vec<oxigraph::sparql::QuerySolution>, GraphError> {
     let results = SparqlEvaluator::new()
         .parse_query(query)
         .map_err(|e| GraphError::Serialization(e.to_string()))?
@@ -69,7 +71,9 @@ fn solutions(store: &Store, query: &str) -> Result<Vec<oxigraph::sparql::QuerySo
 /// Returns the list of violations; an empty vec means the data conforms. Parse
 /// failures in the data or shapes surface as [`GraphError`] (those are reported
 /// separately by the located parsers).
-pub fn validate_shacl(data: &str, shape_graphs: &[&str]) -> Result<Vec<ShaclViolation>, GraphError> {
+pub fn validate_shacl(
+    data: &str, shape_graphs: &[&str],
+) -> Result<Vec<ShaclViolation>, GraphError> {
     let store = Store::new().map_err(GraphError::Oxigraph)?;
     load(&store, data)?;
     for shapes in shape_graphs {
@@ -197,7 +201,10 @@ mod tests {
             ex:alice a ex:Person ; ex:name "Alice" .
         "#;
         let violations = validate_shacl(data, &[SHAPES])?;
-        assert!(violations.is_empty(), "expected conformance, got {violations:?}");
+        assert!(
+            violations.is_empty(),
+            "expected conformance, got {violations:?}"
+        );
         Ok(())
     }
 

@@ -1,12 +1,19 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 //! Sabotage Tests: Defect Injection and Boundary Validation
 //! Tests that the system correctly detects and refuses 14+ injected defects
 
-use rand_core::RngCore;
 use ggen_core::genesis::{
-    Admission8, Construct8, Graph8, Mask8, Node8, Object8, Pair2, Predicate8, Receipt,
-    ReceiptHint8, RelationPage, Replay, Provenance8, RefusalCode, HASH_SIZE,
+    Admission8, Construct8, Graph8, Mask8, Node8, Object8, Pair2, Predicate8, Provenance8, Receipt,
+    ReceiptHint8, RefusalCode, RelationPage, Replay, HASH_SIZE,
 };
+use rand_core::RngCore;
 
 #[test]
 fn test_sabotage_zero_mask_refuses_execution() {
@@ -217,8 +224,7 @@ fn test_sabotage_symbol_bound_left_domain_256() {
     }
 
     assert_eq!(
-        page.left_len,
-        256,
+        page.left_len, 256,
         "Left symbols must not exceed 256 (or be <= 256 if page full)"
     );
 
@@ -232,8 +238,7 @@ fn test_sabotage_symbol_bound_left_domain_256() {
     if !inserted {
         // Expected when left domain is saturated
         assert_eq!(
-            page.left_len,
-            256,
+            page.left_len, 256,
             "Left domain bound must be enforced at 256"
         );
     }
@@ -252,11 +257,7 @@ fn test_sabotage_symbol_bound_right_domain_256() {
         let _ = page.insert(pair);
     }
 
-    assert_eq!(
-        page.right_len,
-        256,
-        "Right symbols must not exceed 256"
-    );
+    assert_eq!(page.right_len, 256, "Right symbols must not exceed 256");
 
     let overflow = Pair2::new(
         Node8::from_bytes([0, 0, 0, 0, 0, 0, 0, 1]),
@@ -266,8 +267,7 @@ fn test_sabotage_symbol_bound_right_domain_256() {
     let inserted = page.insert(overflow);
     if !inserted {
         assert_eq!(
-            page.right_len,
-            256,
+            page.right_len, 256,
             "Right domain bound must be enforced at 256"
         );
     }
@@ -337,7 +337,10 @@ fn test_sabotage_refusal_evidence_captures_bytes() {
 
     assert!(result.is_err());
     let refusal = result.unwrap_err();
-    assert_eq!(refusal.evidence, expected_bytes, "Refusal evidence must capture full 64 bytes");
+    assert_eq!(
+        refusal.evidence, expected_bytes,
+        "Refusal evidence must capture full 64 bytes"
+    );
     assert_eq!(refusal.evidence.len(), 64);
 }
 

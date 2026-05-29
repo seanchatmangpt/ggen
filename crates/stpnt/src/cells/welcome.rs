@@ -1,10 +1,10 @@
+use crate::canon::{CanonBasis, SCRIPTURE_ROMANS_15_7};
+use async_trait::async_trait;
+use blake3;
 use ggen_core::parts_execution::{ExecutionPacket, ExecutionStatus, PartExecutor, VectorClock};
 use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
-use async_trait::async_trait;
-use blake3;
 use uuid::Uuid;
-use crate::canon::{CanonBasis, SCRIPTURE_ROMANS_15_7};
 
 /// WelcomeOneAnotherPart - Implementation of CSC-1 Welcome Trigger.
 pub struct WelcomeOneAnotherPart {
@@ -65,7 +65,10 @@ mod tests {
     #[tokio::test]
     async fn test_welcome_execution() {
         let part = WelcomeOneAnotherPart::new("W-001".to_string(), "Cell-Alpha".to_string());
-        let input = WelcomeInput { person_id: "p1".to_string(), arrival_timestamp: "2025-05-20".to_string() };
+        let input = WelcomeInput {
+            person_id: "p1".to_string(),
+            arrival_timestamp: "2025-05-20".to_string(),
+        };
         let input_bytes = serde_json::to_vec(&input).unwrap();
         let (output_bytes, packet) = part.execute(input_bytes).await.unwrap();
         let output: WelcomeOutput = serde_json::from_slice(&output_bytes).unwrap();

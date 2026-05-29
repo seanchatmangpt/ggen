@@ -3,10 +3,10 @@
 //! Implements local execution of Genesis-bearing parts with evidence emission (OCEL/OTEL).
 //! Each part executes with its own Genesis core, maintaining a vector clock for causality tracking.
 
+use crate::utils::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::utils::error::Result;
 
 /// Vector clock for distributed causality tracking
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -93,13 +93,8 @@ pub struct ExecutionPacket {
 impl ExecutionPacket {
     /// Create a new execution packet
     pub fn new(
-        operation_id: String,
-        part_id: String,
-        input_hash: [u8; 32],
-        output_hash: [u8; 32],
-        vector_clock: VectorClock,
-        status: ExecutionStatus,
-        duration_ms: u64,
+        operation_id: String, part_id: String, input_hash: [u8; 32], output_hash: [u8; 32],
+        vector_clock: VectorClock, status: ExecutionStatus, duration_ms: u64,
     ) -> Self {
         ExecutionPacket {
             operation_id,
@@ -188,10 +183,7 @@ pub struct RefusalEvidence {
 
 impl RefusalEvidence {
     pub fn new(
-        operation_id: String,
-        part_id: String,
-        refusal_code: String,
-        reason: String,
+        operation_id: String, part_id: String, refusal_code: String, reason: String,
         vector_clock: VectorClock,
     ) -> Self {
         RefusalEvidence {

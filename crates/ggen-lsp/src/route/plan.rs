@@ -9,7 +9,7 @@
 use serde::{Deserialize, Serialize};
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Range, TextEdit};
 
-use super::model::{RepairFamily, Provenance, RouteBindings, RouteId};
+use super::model::{Provenance, RepairFamily, RouteBindings, RouteId};
 
 /// Serialized into `Diagnostic.data`. The handle from a failed transition back
 /// into the process model (a specific route) plus the bindings to instantiate it.

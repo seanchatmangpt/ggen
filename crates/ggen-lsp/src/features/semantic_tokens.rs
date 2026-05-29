@@ -46,15 +46,55 @@ pub const TT_FUNCTION: u32 = 8;
 /// SPARQL keywords highlighted as KEYWORD (mirrors `sparql_analyzer::KEYWORDS`,
 /// expanded to the single-token aggregate keywords actually scanned per word).
 const SPARQL_KEYWORDS: &[&str] = &[
-    "SELECT", "CONSTRUCT", "ASK", "DESCRIBE", "WHERE", "PREFIX", "BASE", "ORDER", "BY", "GROUP",
-    "LIMIT", "OFFSET", "FILTER", "OPTIONAL", "UNION", "DISTINCT", "BIND", "VALUES", "MINUS",
-    "HAVING", "SERVICE", "FROM", "AS", "REDUCED", "GRAPH",
+    "SELECT",
+    "CONSTRUCT",
+    "ASK",
+    "DESCRIBE",
+    "WHERE",
+    "PREFIX",
+    "BASE",
+    "ORDER",
+    "BY",
+    "GROUP",
+    "LIMIT",
+    "OFFSET",
+    "FILTER",
+    "OPTIONAL",
+    "UNION",
+    "DISTINCT",
+    "BIND",
+    "VALUES",
+    "MINUS",
+    "HAVING",
+    "SERVICE",
+    "FROM",
+    "AS",
+    "REDUCED",
+    "GRAPH",
 ];
 
 /// Tera control keywords (mirrors `tera_analyzer::KEYWORDS`).
 const TERA_KEYWORDS: &[&str] = &[
-    "if", "elif", "else", "endif", "for", "endfor", "block", "endblock", "set", "include",
-    "extends", "macro", "endmacro", "filter", "endfilter", "raw", "endraw", "in", "and", "or",
+    "if",
+    "elif",
+    "else",
+    "endif",
+    "for",
+    "endfor",
+    "block",
+    "endblock",
+    "set",
+    "include",
+    "extends",
+    "macro",
+    "endmacro",
+    "filter",
+    "endfilter",
+    "raw",
+    "endraw",
+    "in",
+    "and",
+    "or",
     "not",
 ];
 
@@ -209,7 +249,9 @@ fn tokenize_sparql(content: &str) -> Vec<AbsToken> {
             push(&mut out, line_idx, *s, e - s, TT_STRING);
         }
 
-        for (start, word) in words_with(code, |c| c.is_alphanumeric() || c == '_' || c == '?' || c == '$') {
+        for (start, word) in words_with(code, |c| {
+            c.is_alphanumeric() || c == '_' || c == '?' || c == '$'
+        }) {
             if in_any_span(start, &string_spans) {
                 continue;
             }
@@ -430,7 +472,9 @@ fn in_any_span(pos: usize, spans: &[(usize, usize)]) -> bool {
 /// Iterate (byte_start, word) over whitespace/punctuation-delimited words, where
 /// a word char is alphanumeric, `_`, `@`, or `:` (covers `@prefix`, `ex:Thing`).
 fn words(s: &str) -> Vec<(usize, &str)> {
-    words_with(s, |c| c.is_alphanumeric() || c == '_' || c == '@' || c == ':' || c == '-' || c == '.')
+    words_with(s, |c| {
+        c.is_alphanumeric() || c == '_' || c == '@' || c == ':' || c == '-' || c == '.'
+    })
 }
 
 /// Generic word splitter with a custom "is word char" predicate.
@@ -501,7 +545,10 @@ mod tests {
         assert!(!tokens.data.is_empty(), "expected non-empty RDF tokens");
         let ty = types(&tokens);
         assert!(ty.contains(&TT_NAMESPACE), "expected @prefix → NAMESPACE");
-        assert!(ty.contains(&TT_CLASS), "expected ex:Widget/ex:Thing → CLASS");
+        assert!(
+            ty.contains(&TT_CLASS),
+            "expected ex:Widget/ex:Thing → CLASS"
+        );
         assert!(ty.contains(&TT_PROPERTY), "expected ex:label → PROPERTY");
         assert!(ty.contains(&TT_KEYWORD), "expected `a` → KEYWORD");
         assert!(ty.contains(&TT_STRING), "expected \"hello world\" → STRING");
@@ -510,7 +557,9 @@ mod tests {
         // The comment on line 1 starts at column 0 and spans the whole line.
         let decoded = decode(&tokens);
         assert!(
-            decoded.iter().any(|(l, c, _, t)| *l == 1 && *c == 0 && *t == TT_COMMENT),
+            decoded
+                .iter()
+                .any(|(l, c, _, t)| *l == 1 && *c == 0 && *t == TT_COMMENT),
             "comment token should anchor line 1 col 0: {decoded:?}"
         );
     }
@@ -535,7 +584,10 @@ mod tests {
 
         // Count the variable occurrences (?s twice, ?label three times).
         let var_count = ty.iter().filter(|&&t| t == TT_VARIABLE).count();
-        assert!(var_count >= 4, "expected several variable tokens, got {var_count}");
+        assert!(
+            var_count >= 4,
+            "expected several variable tokens, got {var_count}"
+        );
     }
 
     #[test]
@@ -559,7 +611,9 @@ mod tests {
         // The section header token must be on line 1 at column 0.
         let decoded = decode(&tokens);
         assert!(
-            decoded.iter().any(|(l, c, len, t)| *l == 1 && *c == 0 && *len == 9 && *t == TT_NAMESPACE),
+            decoded
+                .iter()
+                .any(|(l, c, len, t)| *l == 1 && *c == 0 && *len == 9 && *t == TT_NAMESPACE),
             "[project] should be a 9-char NAMESPACE token at 1:0: {decoded:?}"
         );
     }

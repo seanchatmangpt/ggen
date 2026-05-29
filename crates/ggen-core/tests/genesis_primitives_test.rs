@@ -1,12 +1,18 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! Verification tests for Genesis core primitives.
 //! Following AGENTS.md Chicago TDD and anti-cheating mandates.
 
 use ggen_core::genesis::{
     Admission8, Construct8, Graph8, Mask8, Multiplicity, Node8, Object8, Pair2, Predicate8,
-    Receipt, ReceiptHint8, RefusalCode, RelationPage, Replay, Provenance8, SymbolDomain,
-    HASH_SIZE,
+    Provenance8, Receipt, ReceiptHint8, RefusalCode, RelationPage, Replay, SymbolDomain, HASH_SIZE,
 };
 
 #[test]
@@ -88,13 +94,7 @@ fn test_construct8_and_receipt_cryptography() {
 
     // Create a chained receipt
     let parent_hash = [1u8; HASH_SIZE];
-    let receipt = Receipt::new(
-        operation_id,
-        inputs,
-        outputs,
-        Some(parent_hash),
-        1716912345,
-    );
+    let receipt = Receipt::new(operation_id, inputs, outputs, Some(parent_hash), 1716912345);
 
     // Verify unsigned fails
     assert_eq!(receipt.verify(), Err(RefusalCode::BoundaryEvidenceMissing));
@@ -108,7 +108,10 @@ fn test_construct8_and_receipt_cryptography() {
     // Modify a field to ensure validation fails (integrity/tamper check)
     let mut tampered_receipt = signed_receipt;
     tampered_receipt.outputs_hash[0] ^= 1; // Flip a single bit
-    assert_eq!(tampered_receipt.verify(), Err(RefusalCode::InvalidSignature));
+    assert_eq!(
+        tampered_receipt.verify(),
+        Err(RefusalCode::InvalidSignature)
+    );
 }
 
 #[test]
@@ -211,7 +214,11 @@ fn test_pair2_to_bytes_determinism() {
 
     assert_eq!(bytes1, bytes2, "First call matches second");
     assert_eq!(bytes2, bytes3, "Second call matches third");
-    assert_eq!(bytes1.len(), 32, "Pair2 must be 32 bytes (2 × 8-byte nodes + metadata)");
+    assert_eq!(
+        bytes1.len(),
+        32,
+        "Pair2 must be 32 bytes (2 × 8-byte nodes + metadata)"
+    );
 }
 
 #[test]
@@ -236,7 +243,11 @@ fn test_construct8_to_bytes_determinism() {
             "Construct8::to_bytes() must be deterministic"
         );
     }
-    assert_eq!(first_bytes.len(), 64, "Construct8 must serialize to 64 bytes");
+    assert_eq!(
+        first_bytes.len(),
+        64,
+        "Construct8 must serialize to 64 bytes"
+    );
 }
 
 #[test]
@@ -259,8 +270,15 @@ fn test_receipt_signature_non_empty() {
     let signed_receipt = receipt.sign(&signing_key);
 
     // Signature field must be non-empty
-    assert!(signed_receipt.signature.is_some(), "Signed receipt must have non-empty signature");
-    assert_eq!(signed_receipt.signature.unwrap().len(), 64, "Ed25519 signature must be 64 bytes");
+    assert!(
+        signed_receipt.signature.is_some(),
+        "Signed receipt must have non-empty signature"
+    );
+    assert_eq!(
+        signed_receipt.signature.unwrap().len(),
+        64,
+        "Ed25519 signature must be 64 bytes"
+    );
 }
 
 #[test]
@@ -305,7 +323,10 @@ fn test_replay_idempotence() {
     let state2 = replay2.run(RelationPage::new(), 1000).unwrap();
 
     // Both replays should produce identical states
-    assert_eq!(state1.length, state2.length, "Replays must produce same state length");
+    assert_eq!(
+        state1.length, state2.length,
+        "Replays must produce same state length"
+    );
 }
 
 #[test]
@@ -684,7 +705,7 @@ fn test_construct8_with_pair2_metadata_fields() {
     let hint = ReceiptHint8::from_bytes([49, 50, 51, 52, 53, 54, 55, 56]);
 
     let construct = Construct8::new(
-        subject, predicate, object, graph, mask, provenance, admission, hint
+        subject, predicate, object, graph, mask, provenance, admission, hint,
     );
 
     assert_eq!(construct.subject, subject);

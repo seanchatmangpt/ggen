@@ -194,8 +194,14 @@ mod tests {
     fn diag(code: &str, msg: &str) -> Diagnostic {
         Diagnostic {
             range: Range {
-                start: Position { line: 0, character: 0 },
-                end: Position { line: 0, character: 1 },
+                start: Position {
+                    line: 0,
+                    character: 0,
+                },
+                end: Position {
+                    line: 0,
+                    character: 1,
+                },
             },
             severity: Some(DiagnosticSeverity::ERROR),
             code: if code.is_empty() {
@@ -217,7 +223,11 @@ mod tests {
         let reg = RouteRegistry::seeded();
         assert!(!reg.is_empty());
         for route in seed_routes() {
-            assert!(route.steps.is_sound(), "seed route {:?} must be sound", route.id);
+            assert!(
+                route.steps.is_sound(),
+                "seed route {:?} must be sound",
+                route.id
+            );
         }
     }
 
@@ -226,7 +236,10 @@ mod tests {
         // The critical regression guard: an invalid enum value must NOT get a
         // delete/replace edit — only advisory guidance.
         let reg = RouteRegistry::seeded();
-        let d = diag("E0023", "invalid value \"verbose\" for `level` — expected one of: ...");
+        let d = diag(
+            "E0023",
+            "invalid value \"verbose\" for `level` — expected one of: ...",
+        );
         let route = reg.select_for_diagnostic(&d).expect("advisory route");
         assert_eq!(route.family, RepairFamily::ConfigValue);
         assert!(

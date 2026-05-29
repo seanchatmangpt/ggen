@@ -1713,10 +1713,7 @@ mod tests {
 
         // ...and the output must NOT claim a sync was completed.
         assert!(
-            !result
-                .next_steps
-                .iter()
-                .any(|s| s.contains("completed")),
+            !result.next_steps.iter().any(|s| s.contains("completed")),
             "skip_sync was set but output falsely claims a sync 'completed': {:?}",
             result.next_steps
         );

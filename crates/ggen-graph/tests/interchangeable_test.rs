@@ -1,8 +1,8 @@
 //! Tests for the Genesis-bearing interchangeable part architecture in ggen-graph.
 
-use ggen_graph::{GenesisCore, OuterMembrane, AdapterLayer, ProjectionLayer};
 use ggen_graph::graph::quad::parse_nquad;
-use ggen_graph::ocel::{OcelLog, OcelObject, OcelEvent};
+use ggen_graph::ocel::{OcelEvent, OcelLog, OcelObject};
+use ggen_graph::{AdapterLayer, GenesisCore, OuterMembrane, ProjectionLayer};
 use serde_json::json;
 
 #[test]
@@ -10,7 +10,9 @@ fn test_genesis_core_and_transaction() -> Result<(), Box<dyn std::error::Error>>
     // Arrange: Create Genesis Core and sample quads
     let core = GenesisCore::new()?;
     let q1 = parse_nquad("<http://example.org/alice> <http://example.org/name> \"Alice\" <http://example.org/graph> .")?;
-    let q2 = parse_nquad("<http://example.org/bob> <http://example.org/name> \"Bob\" <http://example.org/graph> .")?;
+    let q2 = parse_nquad(
+        "<http://example.org/bob> <http://example.org/name> \"Bob\" <http://example.org/graph> .",
+    )?;
 
     let hash_init = core.graph().state_hash()?;
 
@@ -29,7 +31,8 @@ fn test_genesis_core_and_transaction() -> Result<(), Box<dyn std::error::Error>>
 }
 
 #[test]
-fn test_outer_membrane_sanitization_and_injection_blocks() -> Result<(), Box<dyn std::error::Error>> {
+fn test_outer_membrane_sanitization_and_injection_blocks() -> Result<(), Box<dyn std::error::Error>>
+{
     // Arrange
     let membrane = OuterMembrane::new();
 
@@ -44,19 +47,27 @@ fn test_outer_membrane_sanitization_and_injection_blocks() -> Result<(), Box<dyn
     // Act & Assert: Injection attacks (DROP GRAPH)
     let res_drop = membrane.admit_input("DROP GRAPH <http://example.org/g>");
     assert!(res_drop.is_err());
-    assert!(res_drop.unwrap_err().to_string().contains("Security violation"));
+    assert!(res_drop
+        .unwrap_err()
+        .to_string()
+        .contains("Security violation"));
 
     // Act & Assert: Injection attacks (DELETE WHERE)
     let res_delete = membrane.admit_input("DELETE WHERE { ?s ?p ?o }");
     assert!(res_delete.is_err());
-    assert!(res_delete.unwrap_err().to_string().contains("Security violation"));
+    assert!(res_delete
+        .unwrap_err()
+        .to_string()
+        .contains("Security violation"));
 
     // Act & Assert: Valid query is admitted
     let res_valid = membrane.admit_input("SELECT ?s ?p ?o WHERE { ?s ?p ?o }");
     assert!(res_valid.is_ok());
 
     // Act & Assert: Quad validation
-    let valid_quad = parse_nquad("<http://example.org/s> <http://example.org/p> \"o\" <http://example.org/g> .")?;
+    let valid_quad = parse_nquad(
+        "<http://example.org/s> <http://example.org/p> \"o\" <http://example.org/g> .",
+    )?;
     assert!(membrane.validate_quads(&[valid_quad]).is_ok());
 
     Ok(())
@@ -116,22 +127,20 @@ fn test_projection_layer_ocel() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange: Setup a Genesis core and target logs
     let core = GenesisCore::new()?;
     let log = OcelLog {
-        objects: vec![
-            OcelObject {
-                id: "obj-1".to_string(),
-                r#type: "CustomType".to_string(),
-                attributes: std::collections::HashMap::new(),
-            }
-        ],
-        events: vec![
-            OcelEvent {
-                id: "ev-1".to_string(),
-                activity: "PerformAction".to_string(),
-                timestamp: chrono::DateTime::parse_from_rfc3339("2026-05-27T06:00:00Z").unwrap().into(),
-                objects: vec![],
-                attributes: std::collections::HashMap::new(),
-            }
-        ],
+        objects: vec![OcelObject {
+            id: "obj-1".to_string(),
+            r#type: "CustomType".to_string(),
+            attributes: std::collections::HashMap::new(),
+        }],
+        events: vec![OcelEvent {
+            id: "ev-1".to_string(),
+            activity: "PerformAction".to_string(),
+            timestamp: chrono::DateTime::parse_from_rfc3339("2026-05-27T06:00:00Z")
+                .unwrap()
+                .into(),
+            objects: vec![],
+            attributes: std::collections::HashMap::new(),
+        }],
     };
 
     // Act: Project log into state

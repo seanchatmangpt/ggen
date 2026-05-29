@@ -47,9 +47,16 @@ async fn editor_applied_repair_emits_repair_applied_and_closes_episode() {
     let count = |a: &str| log.events.iter().filter(|e| e.activity == a).count();
     assert!(count(activity::DIAGNOSTIC_RAISED) >= 1, "diagnostic raised");
     assert!(count(activity::ROUTE_SELECTED) >= 1, "route offered");
-    assert_eq!(count(activity::REPAIR_APPLIED), 1, "applied repair observed once");
+    assert_eq!(
+        count(activity::REPAIR_APPLIED),
+        1,
+        "applied repair observed once"
+    );
     assert!(count(activity::GATE_PASSED) >= 1, "rework closed the gate");
-    assert!(count(activity::RECEIPT_EMITTED) >= 1, "closed episode receipted");
+    assert!(
+        count(activity::RECEIPT_EMITTED) >= 1,
+        "closed episode receipted"
+    );
 
     // RepairApplied is bound to the right diagnostic code + route id.
     let applied = log
@@ -93,13 +100,19 @@ async fn unrepaired_diagnostic_emits_no_repair_applied() {
 
     let log = IntelLog::at_root(root).read();
     assert_eq!(
-        log.events.iter().filter(|e| e.activity == activity::REPAIR_APPLIED).count(),
+        log.events
+            .iter()
+            .filter(|e| e.activity == activity::REPAIR_APPLIED)
+            .count(),
         0,
         "no fix applied ⇒ no RepairApplied (no fabricated closure)"
     );
     // And it must not double-raise the persistent diagnostic.
     assert_eq!(
-        log.events.iter().filter(|e| e.activity == activity::DIAGNOSTIC_RAISED).count(),
+        log.events
+            .iter()
+            .filter(|e| e.activity == activity::DIAGNOSTIC_RAISED)
+            .count(),
         1,
         "a persistent diagnostic is raised once, not on every publish"
     );

@@ -199,8 +199,8 @@ mod tests {
     #[test]
     fn test_all_checks_pass() {
         // Chicago TDD: Create real files and verify gates work with real checks
-        use tempfile::TempDir;
         use std::fs;
+        use tempfile::TempDir;
 
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let test_file = temp_dir.path().join("test.txt");
@@ -247,14 +247,17 @@ mod tests {
         assert!(!result.all_passed, "Should fail when a check fails");
         assert_eq!(result.signal, AndonSignal::Red);
         assert_eq!(result.failed_count(), 1);
-        assert!(result.first_failure().is_some(), "Should report first failure");
+        assert!(
+            result.first_failure().is_some(),
+            "Should report first failure"
+        );
     }
 
     #[test]
     fn test_gate_with_content_validation() {
         // Chicago TDD: Verify file content checks work correctly
-        use tempfile::TempDir;
         use std::fs;
+        use tempfile::TempDir;
 
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let target_file = temp_dir.path().join("output.txt");

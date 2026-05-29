@@ -1,10 +1,10 @@
+use crate::canon::{CanonBasis, SCRIPTURE_1_COR_4_2};
+use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use ggen_core::parts_execution::{ExecutionPacket, ExecutionStatus, PartExecutor, VectorClock};
 use ggen_core::utils::error::Result;
-use chrono::{Utc, DateTime};
 use serde::{Deserialize, Serialize};
-use async_trait::async_trait;
 use uuid::Uuid;
-use crate::canon::{CanonBasis, SCRIPTURE_1_COR_4_2};
 
 /// FollowUpObligationPart - Implementation of CSC-1 Follow-Up.
 pub struct FollowUpObligationPart {
@@ -40,14 +40,25 @@ pub struct FollowUpOutput {
 impl PartExecutor for FollowUpObligationPart {
     async fn execute(&self, input: Vec<u8>) -> Result<(Vec<u8>, ExecutionPacket)> {
         let input_json: FollowUpInput = serde_json::from_slice(&input)?;
-        
+
         let (status, terminal_state, execution_status) = if Utc::now() > input_json.deadline {
-            ("Escalated".to_string(), "Overdue".to_string(), ExecutionStatus::Refused)
+            (
+                "Escalated".to_string(),
+                "Overdue".to_string(),
+                ExecutionStatus::Refused,
+            )
         } else {
-            ("Completed".to_string(), "SuccessfulIncorporate".to_string(), ExecutionStatus::Success)
+            (
+                "Completed".to_string(),
+                "SuccessfulIncorporate".to_string(),
+                ExecutionStatus::Success,
+            )
         };
 
-        let output = FollowUpOutput { status, terminal_state };
+        let output = FollowUpOutput {
+            status,
+            terminal_state,
+        };
         let output_bytes = serde_json::to_vec(&output)?;
         let packet = ExecutionPacket::new(
             Uuid::new_v4().to_string(),
@@ -70,7 +81,10 @@ mod tests {
     async fn test_followup_overdue() {
         let part = FollowUpObligationPart::new("F-001".to_string(), "Cell-Alpha".to_string());
         // Deadline in the past
-        let input = FollowUpInput { obligation_id: "o1".to_string(), deadline: Utc::now() - chrono::Duration::days(1) };
+        let input = FollowUpInput {
+            obligation_id: "o1".to_string(),
+            deadline: Utc::now() - chrono::Duration::days(1),
+        };
         let input_bytes = serde_json::to_vec(&input).unwrap();
         let (output_bytes, packet) = part.execute(input_bytes).await.unwrap();
         let output: FollowUpOutput = serde_json::from_slice(&output_bytes).unwrap();

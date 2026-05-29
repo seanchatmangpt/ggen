@@ -69,13 +69,24 @@ fn triad_holds_under_concurrent_pressure() {
 
     // 2) No events lost or merged: read() recovers exactly what was written.
     let log = IntelLog::at_root(root).read();
-    assert_eq!(log.events.len(), lines.len(), "no events lost/merged under contention");
+    assert_eq!(
+        log.events.len(),
+        lines.len(),
+        "no events lost/merged under contention"
+    );
     // Each capture writes the full E0011 chain (5 events).
-    assert_eq!(log.events.len(), CAPTURES * 5, "every capture's chain landed intact");
+    assert_eq!(
+        log.events.len(),
+        CAPTURES * 5,
+        "every capture's chain landed intact"
+    );
 
     // 3) No route drift: MCP and A2A resolve the same route id.
     let mcp = build_repair_routes_in(Some(root_str), "q.rq", E0011);
-    let route_id = mcp["envelopes"][0]["route_id"].as_str().expect("route id").to_string();
+    let route_id = mcp["envelopes"][0]["route_id"]
+        .as_str()
+        .expect("route id")
+        .to_string();
     let a2a = dispatch_tool(
         "ggen.lsp.repair_route",
         &json!({ "file_path": "q.rq", "file_content": E0011 }),

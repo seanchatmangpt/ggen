@@ -1,4 +1,11 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! End-to-end tests for parts manufacturing pipeline (μ₀-μ₅)
 //!
@@ -125,9 +132,7 @@ fn test_signature_verification() {
         adapter_source: String::new(),
     };
 
-    let signed = signer
-        .sign_part(manufactured)
-        .expect("Signing failed");
+    let signed = signer.sign_part(manufactured).expect("Signing failed");
 
     let is_valid = signer
         .verify_signature(&signed)
@@ -155,8 +160,8 @@ fn test_manufactured_part_to_file() {
     };
 
     let manifest_path = part_dir.join("part.json");
-    let manifest_json = serde_json::to_string_pretty(&manufactured)
-        .expect("Failed to serialize manifest");
+    let manifest_json =
+        serde_json::to_string_pretty(&manufactured).expect("Failed to serialize manifest");
     fs::write(&manifest_path, &manifest_json).expect("Failed to write manifest");
 
     let binary_path = part_dir.join("test-part.bin");
@@ -182,8 +187,7 @@ async fn test_part_manifest_serialization() {
     assert!(json.contains("params"));
     assert!(json.contains("returns"));
 
-    let deserialized: PartManifest =
-        serde_json::from_str(&json).expect("Deserialization failed");
+    let deserialized: PartManifest = serde_json::from_str(&json).expect("Deserialization failed");
     assert_eq!(deserialized.interfaces.len(), 1);
     assert_eq!(deserialized.interfaces[0].name, "Process");
 }

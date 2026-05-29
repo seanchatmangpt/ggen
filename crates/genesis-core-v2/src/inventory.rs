@@ -200,10 +200,26 @@ mod tests {
         for status in &all_statuses {
             let action = status.allowed_action();
             // Allowed actions must not contain destructive verbs
-            assert!(!action.contains("delete"), "{:?}: action contains 'delete'", status);
-            assert!(!action.contains("remove"), "{:?}: action contains 'remove'", status);
-            assert!(!action.contains("rewrite"), "{:?}: action contains 'rewrite'", status);
-            assert!(!action.contains("discard"), "{:?}: action contains 'discard'", status);
+            assert!(
+                !action.contains("delete"),
+                "{:?}: action contains 'delete'",
+                status
+            );
+            assert!(
+                !action.contains("remove"),
+                "{:?}: action contains 'remove'",
+                status
+            );
+            assert!(
+                !action.contains("rewrite"),
+                "{:?}: action contains 'rewrite'",
+                status
+            );
+            assert!(
+                !action.contains("discard"),
+                "{:?}: action contains 'discard'",
+                status
+            );
         }
     }
 
@@ -220,6 +236,8 @@ mod tests {
     fn test_connection_mechanisms_are_ordered_least_invasive_first() {
         // ModuleExport is always preferred over deletion
         assert!((ConnectionMechanism::ModuleExport as u8) < (ConnectionMechanism::Adapter as u8));
-        assert!((ConnectionMechanism::CompatibilityAlias as u8) < (ConnectionMechanism::Facade as u8));
+        assert!(
+            (ConnectionMechanism::CompatibilityAlias as u8) < (ConnectionMechanism::Facade as u8)
+        );
     }
 }

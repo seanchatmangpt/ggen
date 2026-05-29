@@ -321,7 +321,10 @@ impl PerformanceValidator for RealPerformanceValidator {
             duration_ms: start.elapsed().as_millis() as u64,
             details: format!(
                 "Performance: Latency {:.0}μs (SLO: {:.0}μs), Memory {:.0}B (SLO: {:.0}B)",
-                measured_latency_us, self.slo_latency_us, measured_memory_bytes, self.slo_memory_bytes
+                measured_latency_us,
+                self.slo_latency_us,
+                measured_memory_bytes,
+                self.slo_memory_bytes
             ),
         })
     }

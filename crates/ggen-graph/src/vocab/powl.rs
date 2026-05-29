@@ -15,24 +15,20 @@ pub const NAMESPACE: &str = "http://ggen.dev/powl#";
 // ---- Classes ---------------------------------------------------------------
 
 /// `powl:Route` — a complete repair route (partial order of steps).
-pub const ROUTE: NamedNodeRef<'static> =
-    NamedNodeRef::new_unchecked("http://ggen.dev/powl#Route");
+pub const ROUTE: NamedNodeRef<'static> = NamedNodeRef::new_unchecked("http://ggen.dev/powl#Route");
 
 /// `powl:Step` — an atomic repair action (maps to an OCEL activity).
-pub const STEP: NamedNodeRef<'static> =
-    NamedNodeRef::new_unchecked("http://ggen.dev/powl#Step");
+pub const STEP: NamedNodeRef<'static> = NamedNodeRef::new_unchecked("http://ggen.dev/powl#Step");
 
 /// `powl:Edge` — a partial-order / control-flow edge between steps.
-pub const EDGE: NamedNodeRef<'static> =
-    NamedNodeRef::new_unchecked("http://ggen.dev/powl#Edge");
+pub const EDGE: NamedNodeRef<'static> = NamedNodeRef::new_unchecked("http://ggen.dev/powl#Edge");
 
 /// `powl:XorChoice` — exclusive choice operator.
 pub const XOR_CHOICE: NamedNodeRef<'static> =
     NamedNodeRef::new_unchecked("http://ggen.dev/powl#XorChoice");
 
 /// `powl:Loop` — do/redo loop operator.
-pub const LOOP: NamedNodeRef<'static> =
-    NamedNodeRef::new_unchecked("http://ggen.dev/powl#Loop");
+pub const LOOP: NamedNodeRef<'static> = NamedNodeRef::new_unchecked("http://ggen.dev/powl#Loop");
 
 /// `powl:SilentStep` — invisible (tau) transition.
 pub const SILENT_STEP: NamedNodeRef<'static> =
@@ -69,8 +65,7 @@ pub const FAMILY: NamedNodeRef<'static> =
     NamedNodeRef::new_unchecked("http://ggen.dev/powl#family");
 
 /// `powl:guard` — step/edge → SPARQL ASK precondition (OCPQ constraint).
-pub const GUARD: NamedNodeRef<'static> =
-    NamedNodeRef::new_unchecked("http://ggen.dev/powl#guard");
+pub const GUARD: NamedNodeRef<'static> = NamedNodeRef::new_unchecked("http://ggen.dev/powl#guard");
 
 /// `powl:loopCondition` — loop → SPARQL ASK continuation condition.
 pub const LOOP_CONDITION: NamedNodeRef<'static> =

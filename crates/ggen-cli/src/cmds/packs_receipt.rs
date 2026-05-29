@@ -84,8 +84,9 @@ pub fn generate_pack_install_receipt(closure: &PackInstallClosure<'_>) -> Result
         PackReceiptError::Runtime(format!("Failed to create receipts directory: {}", e))
     })?;
 
-    fs::create_dir_all(&keys_dir)
-        .map_err(|e| PackReceiptError::Runtime(format!("Failed to create keys directory: {}", e)))?;
+    fs::create_dir_all(&keys_dir).map_err(|e| {
+        PackReceiptError::Runtime(format!("Failed to create keys directory: {}", e))
+    })?;
 
     // Load or generate Ed25519 keypair
     let private_key_path = keys_dir.join("private.pem");
@@ -99,7 +100,12 @@ pub fn generate_pack_install_receipt(closure: &PackInstallClosure<'_>) -> Result
         let (signing_key, verifying_key) = ggen_core::receipt::generate_keypair();
 
         // Save keys
-        save_keypair(&signing_key, &verifying_key, &private_key_path, &public_key_path)?;
+        save_keypair(
+            &signing_key,
+            &verifying_key,
+            &private_key_path,
+            &public_key_path,
+        )?;
 
         (signing_key, verifying_key)
     };
@@ -192,18 +198,18 @@ fn read_artifact_bytes(path: &std::path::Path) -> Option<Vec<u8>> {
 
 /// Loads existing keypair or generates a new one
 fn load_or_generate_keypair(
-    private_key_path: &PathBuf,
-    _public_key_path: &PathBuf,
+    private_key_path: &PathBuf, _public_key_path: &PathBuf,
 ) -> Result<(SigningKey, VerifyingKey)> {
     use ed25519_dalek::SECRET_KEY_LENGTH;
 
     // Read private key
-    let private_key_bytes = fs::read(private_key_path).map_err(|e| {
-        PackReceiptError::Runtime(format!("Failed to read private key: {}", e))
-    })?;
+    let private_key_bytes = fs::read(private_key_path)
+        .map_err(|e| PackReceiptError::Runtime(format!("Failed to read private key: {}", e)))?;
 
     if private_key_bytes.len() != SECRET_KEY_LENGTH {
-        return Err(PackReceiptError::Runtime("Invalid private key length".to_string()));
+        return Err(PackReceiptError::Runtime(
+            "Invalid private key length".to_string(),
+        ));
     }
 
     let secret_key = SecretKey::try_from(private_key_bytes.as_slice())
@@ -217,9 +223,7 @@ fn load_or_generate_keypair(
 
 /// Saves Ed25519 keypair to PEM files
 fn save_keypair(
-    signing_key: &SigningKey,
-    verifying_key: &VerifyingKey,
-    private_key_path: &PathBuf,
+    signing_key: &SigningKey, verifying_key: &VerifyingKey, private_key_path: &PathBuf,
     public_key_path: &PathBuf,
 ) -> Result<()> {
     // Save private key (hex-encoded for simplicity)

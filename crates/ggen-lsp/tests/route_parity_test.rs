@@ -5,7 +5,7 @@
 
 use ggen_lsp::route::{
     action_route_for, default_pack_routes_path, route_plan_for_diagnostic, write_promoted,
-    EditTemplate, PartialOrder, Provenance, PromotedRoutes, RepairFamily, RepairRoute, RepairStep,
+    EditTemplate, PartialOrder, PromotedRoutes, Provenance, RepairFamily, RepairRoute, RepairStep,
     RouteId, RouteRegistry, StepId,
 };
 use tempfile::TempDir;
@@ -14,8 +14,14 @@ use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Posit
 fn diag(code: &str) -> Diagnostic {
     Diagnostic {
         range: Range {
-            start: Position { line: 0, character: 0 },
-            end: Position { line: 0, character: 1 },
+            start: Position {
+                line: 0,
+                character: 0,
+            },
+            end: Position {
+                line: 0,
+                character: 1,
+            },
         },
         severity: Some(DiagnosticSeverity::WARNING),
         code: Some(NumberOrString::String(code.to_string())),
@@ -79,7 +85,10 @@ fn promotable_mined_route_wins_in_all_channels() {
     let headless = route_plan_for_diagnostic(&reg, &d, "").map(|p| p.route_id.0.clone());
 
     assert_eq!(editor.as_deref(), Some("mined.template-failure"));
-    assert_eq!(editor, headless, "editor and headless/MCP must agree on route id");
+    assert_eq!(
+        editor, headless,
+        "editor and headless/MCP must agree on route id"
+    );
 }
 
 #[test]
@@ -90,6 +99,10 @@ fn subthreshold_mined_route_loses_to_seed_in_all_channels() {
     let editor = action_route_for(&reg, &d).map(|r| r.id.0.clone());
     let headless = route_plan_for_diagnostic(&reg, &d, "").map(|p| p.route_id.0.clone());
 
-    assert_eq!(editor.as_deref(), Some("template.values-inline"), "seed holds");
+    assert_eq!(
+        editor.as_deref(),
+        Some("template.values-inline"),
+        "seed holds"
+    );
     assert_eq!(editor, headless, "channels agree the seed holds");
 }

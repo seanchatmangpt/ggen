@@ -36,9 +36,7 @@ pub struct SplitResult<const HALF: usize> {
 /// # Returns
 /// `Ok(SplitResult<5>)` with two half-pages and their BLAKE3 receipts.
 pub fn need9_split(
-    page: RelationPage<9>,
-    epoch: u64,
-    previous_receipt: &[u8; 32],
+    page: RelationPage<9>, epoch: u64, previous_receipt: &[u8; 32],
 ) -> Result<SplitResult<5>, Refusal> {
     if page.len != 9 {
         return Err(Refusal::new(
@@ -96,9 +94,7 @@ pub fn need9_split(
 /// # Returns
 /// `Ok(SplitResult<129>)` with two half-pages and their BLAKE3 receipts.
 pub fn need257_split(
-    page: RelationPage<257>,
-    epoch: u64,
-    previous_receipt: &[u8; 32],
+    page: RelationPage<257>, epoch: u64, previous_receipt: &[u8; 32],
 ) -> Result<SplitResult<129>, Refusal> {
     if page.len != 257 {
         return Err(Refusal::new(
@@ -146,9 +142,7 @@ pub fn need257_split(
 /// This allows pages larger than 8 pairs to produce a single, unforgeable receipt
 /// that commits to every pair in the page without truncation.
 fn receipt_over_page<const CAP: usize>(
-    page: &RelationPage<CAP>,
-    epoch: u64,
-    initial_previous: &[u8; 32],
+    page: &RelationPage<CAP>, epoch: u64, initial_previous: &[u8; 32],
 ) -> Receipt {
     let pairs = page.as_slice();
     let mut previous: [u8; 32] = *initial_previous;
@@ -168,7 +162,9 @@ fn receipt_over_page<const CAP: usize>(
         chunk_start = chunk_end;
     }
 
-    Receipt { signature: previous }
+    Receipt {
+        signature: previous,
+    }
 }
 
 #[cfg(test)]
@@ -210,7 +206,10 @@ mod tests {
         // Receipts are real BLAKE3 — non-zero, non-equal, and input-sensitive
         assert_ne!(result.left_receipt.signature, [0u8; 32]);
         assert_ne!(result.right_receipt.signature, [0u8; 32]);
-        assert_ne!(result.left_receipt.signature, result.right_receipt.signature);
+        assert_ne!(
+            result.left_receipt.signature,
+            result.right_receipt.signature
+        );
 
         // Anti-cheating: verify receipt changes when a pair changes.
         // Build page2 with a different FIRST pair so the left-half receipt differs.
@@ -222,8 +221,7 @@ mod tests {
         }
         let result2 = need9_split(page2, 2, &prev).unwrap();
         assert_ne!(
-            result.left_receipt.signature,
-            result2.left_receipt.signature,
+            result.left_receipt.signature, result2.left_receipt.signature,
             "Different first-half content must produce different left receipts"
         );
         // Also verify right halves differ when the right-half pair differs

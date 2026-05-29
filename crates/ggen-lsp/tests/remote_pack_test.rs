@@ -40,20 +40,35 @@ fn manifest_advertises_routes_policies_and_binds_pack_hash() {
 
     // The advertised manifest exists and binds the pack hash.
     let manifest = load_manifest(&out).expect("manifest present");
-    assert_eq!(manifest.pack_hash, report.pack_hash, "manifest binds the pack hash");
-    assert!(manifest_is_current(&manifest), "freshly emitted pack is current");
+    assert_eq!(
+        manifest.pack_hash, report.pack_hash,
+        "manifest binds the pack hash"
+    );
+    assert!(
+        manifest_is_current(&manifest),
+        "freshly emitted pack is current"
+    );
 
     // It advertises the promoted route + the SHACL policies + law surfaces.
     assert!(
-        manifest.routes.iter().any(|r| r.route_id == "mined.template-failure"),
+        manifest
+            .routes
+            .iter()
+            .any(|r| r.route_id == "mined.template-failure"),
         "manifest advertises the promoted route"
     );
-    assert!(!manifest.policies.is_empty(), "manifest advertises policies (hashed)");
+    assert!(
+        !manifest.policies.is_empty(),
+        "manifest advertises policies (hashed)"
+    );
     assert!(manifest.policies.iter().all(|p| !p.hash.is_empty()));
     assert!(!manifest.law_surfaces.is_empty());
 
     // pack_hash_at(project_root) resolves the installed pack's hash (route binding).
-    assert_eq!(pack_hash_at(root).as_deref(), Some(manifest.pack_hash.as_str()));
+    assert_eq!(
+        pack_hash_at(root).as_deref(),
+        Some(manifest.pack_hash.as_str())
+    );
 
     // No absolute-path coupling — the manifest is remote-safe.
     let raw = fs::read_to_string(out.join("pack-manifest.json")).expect("read manifest");
@@ -80,7 +95,10 @@ fn stale_or_future_manifest_is_rejected() {
 
     // A version bump (future pack) or canon drift fails the staleness guard.
     manifest.version = manifest.version.wrapping_add(1);
-    assert!(!manifest_is_current(&manifest), "future schema version rejected");
+    assert!(
+        !manifest_is_current(&manifest),
+        "future schema version rejected"
+    );
 
     let mut drifted = load_manifest(&out).expect("manifest");
     drifted.canon = "v0.0.0".to_string();

@@ -32,7 +32,9 @@ fn bad_args_preserve_the_mcp_refusal_shape() {
 #[test]
 fn agent_card_advertises_all_three_capabilities() {
     let card = agent_card();
-    let caps = card["capabilities"].as_object().expect("capabilities object");
+    let caps = card["capabilities"]
+        .as_object()
+        .expect("capabilities object");
     assert!(caps.contains_key("ggen.lsp.repair_route"));
     assert!(caps.contains_key("ggen.lsp.replay_case"));
     assert!(caps.contains_key("ggen.lsp.metrics"));
@@ -52,7 +54,10 @@ async fn from_a2a_actuates_a_task_against_the_route_engine() {
         .await
         .expect("from_a2a actuates");
     assert_eq!(result["is_law_surface"], json!(true));
-    assert!(!result["envelopes"].as_array().expect("envelopes").is_empty());
+    assert!(!result["envelopes"]
+        .as_array()
+        .expect("envelopes")
+        .is_empty());
 }
 
 #[tokio::test]

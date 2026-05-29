@@ -138,8 +138,8 @@ pub fn add(pack_name: String, force: Option<bool>) -> Result<AddOutput> {
         packages_installed: &output.packages_installed,
         artifact_paths: &artifact_paths,
     };
-    let receipt_path =
-        crate::cmds::packs_receipt::generate_pack_install_receipt(&closure).map_err(|e| {
+    let receipt_path = crate::cmds::packs_receipt::generate_pack_install_receipt(&closure)
+        .map_err(|e| {
             NounVerbError::execution_error(format!(
                 "Pack '{}' installed but receipt emission failed: {}",
                 pack_name, e

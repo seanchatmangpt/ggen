@@ -112,7 +112,10 @@ pub enum Multiplicity {
 impl Multiplicity {
     /// Returns whether this multiplicity allows duplicate pairs
     pub fn allows_duplicates(&self) -> bool {
-        matches!(self, Multiplicity::Bag | Multiplicity::Stream | Multiplicity::EventAddressed)
+        matches!(
+            self,
+            Multiplicity::Bag | Multiplicity::Stream | Multiplicity::EventAddressed
+        )
     }
 }
 
@@ -199,9 +202,7 @@ pub struct PageSplit {
 impl PageSplit {
     /// Perform deterministic page split using modulo-2 strategy on subject bytes
     pub fn split(
-        _source_page: &RelationPage,
-        source_hash: [u8; HASH_SIZE],
-        time: u64,
+        _source_page: &RelationPage, source_hash: [u8; HASH_SIZE], time: u64,
     ) -> Result<Self, RefusalCode> {
         // Compute left and right hashes from source content
         // In a real implementation, these would be derived from the partition
@@ -561,14 +562,8 @@ impl Construct8 {
     /// Create a new Construct8 delta primitive
     #[allow(clippy::too_many_arguments)]
     pub const fn new(
-        subject: Node8,
-        predicate: Predicate8,
-        object: Object8,
-        graph: Graph8,
-        mask: Mask8,
-        provenance: Provenance8,
-        admission: Admission8,
-        receipt_hint: ReceiptHint8,
+        subject: Node8, predicate: Predicate8, object: Object8, graph: Graph8, mask: Mask8,
+        provenance: Provenance8, admission: Admission8, receipt_hint: ReceiptHint8,
     ) -> Self {
         Self {
             subject,
@@ -624,7 +619,10 @@ impl fmt::Debug for Receipt {
             .field("operation_id", &self.operation_id)
             .field("inputs_hash", &HexSlice(&self.inputs_hash))
             .field("outputs_hash", &HexSlice(&self.outputs_hash))
-            .field("previous_receipt_hash", &self.previous_receipt_hash.as_ref().map(HexSlice))
+            .field(
+                "previous_receipt_hash",
+                &self.previous_receipt_hash.as_ref().map(HexSlice),
+            )
             .field("signature", &self.signature.as_ref().map(HexSlice64))
             .field("public_key", &self.public_key.as_ref().map(HexSlice))
             .field("timestamp", &self.timestamp)
@@ -655,11 +653,8 @@ impl<'a> fmt::Debug for HexSlice64<'a> {
 impl Receipt {
     /// Create a new, unsigned Receipt with actual observed hashes
     pub const fn new(
-        operation_id: [u8; 16],
-        inputs_hash: [u8; HASH_SIZE],
-        outputs_hash: [u8; HASH_SIZE],
-        previous_receipt_hash: Option<[u8; HASH_SIZE]>,
-        timestamp: u64,
+        operation_id: [u8; 16], inputs_hash: [u8; HASH_SIZE], outputs_hash: [u8; HASH_SIZE],
+        previous_receipt_hash: Option<[u8; HASH_SIZE]>, timestamp: u64,
     ) -> Self {
         Self {
             operation_id,
@@ -700,15 +695,18 @@ impl Receipt {
     /// Verify signature and structure authenticity
     pub fn verify(&self) -> Result<(), RefusalCode> {
         use ed25519_dalek::Verifier;
-        let pk_bytes = self.public_key.ok_or(RefusalCode::BoundaryEvidenceMissing)?;
+        let pk_bytes = self
+            .public_key
+            .ok_or(RefusalCode::BoundaryEvidenceMissing)?;
         let sig_bytes = self.signature.ok_or(RefusalCode::BoundaryEvidenceMissing)?;
-        
+
         let verifying_key = ed25519_dalek::VerifyingKey::from_bytes(&pk_bytes)
             .map_err(|_| RefusalCode::InvalidSignature)?;
         let signature = ed25519_dalek::Signature::from_bytes(&sig_bytes);
-        
+
         let hash = self.calculate_hash();
-        verifying_key.verify(&hash, &signature)
+        verifying_key
+            .verify(&hash, &signature)
             .map_err(|_| RefusalCode::InvalidSignature)
     }
 }
@@ -753,10 +751,7 @@ pub struct Refusal {
 impl Refusal {
     /// Create a new refusal binding concrete evidence
     pub const fn new(
-        code: RefusalCode,
-        op_hash: [u8; HASH_SIZE],
-        evidence: [u8; 64],
-        timestamp: u64,
+        code: RefusalCode, op_hash: [u8; HASH_SIZE], evidence: [u8; 64], timestamp: u64,
     ) -> Self {
         Self {
             code,
@@ -799,11 +794,7 @@ impl Replay {
 
     /// Replay the step sequence deterministically onto a target RelationPage state.
     /// Returns the updated state on success, or a concrete `Refusal` on failure.
-    pub fn run(
-        &self,
-        mut state: RelationPage,
-        current_time: u64,
-    ) -> Result<RelationPage, Refusal> {
+    pub fn run(&self, mut state: RelationPage, current_time: u64) -> Result<RelationPage, Refusal> {
         for i in 0..self.length {
             if let Some(ref step) = self.steps[i] {
                 // Check capability mask: validation constraint

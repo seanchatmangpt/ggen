@@ -209,7 +209,10 @@ impl PartialOrder {
                             // insert preserving declaration order
                             ready.push(t);
                             ready.sort_by_key(|x| {
-                                self.nodes.iter().position(|n| &n.id == *x).unwrap_or(usize::MAX)
+                                self.nodes
+                                    .iter()
+                                    .position(|n| &n.id == *x)
+                                    .unwrap_or(usize::MAX)
                             });
                         }
                     }

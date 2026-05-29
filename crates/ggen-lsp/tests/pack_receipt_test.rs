@@ -18,7 +18,10 @@ fn pack_binds_scan_to_pack_then_tamper_breaks_verification() {
 
     assert!(!report.pack_hash.is_empty(), "pack content hash computed");
     assert!(report.receipt_sig.is_some(), "scan→pack receipt emitted");
-    assert!(out.join("pack-provenance.json").is_file(), "provenance written");
+    assert!(
+        out.join("pack-provenance.json").is_file(),
+        "provenance written"
+    );
 
     // A freshly emitted pack reconstructs its scan→pack binding.
     let v = verify_pack(&out);
@@ -27,7 +30,11 @@ fn pack_binds_scan_to_pack_then_tamper_breaks_verification() {
     // Tampering any pack file changes the recomputed content hash → no match.
     std::fs::write(out.join("README.md"), "tampered content").expect("tamper");
     let v2 = verify_pack(&out);
-    assert!(!v2.matches, "tampered pack must not verify (reason: {})", v2.reason);
+    assert!(
+        !v2.matches,
+        "tampered pack must not verify (reason: {})",
+        v2.reason
+    );
 }
 
 #[test]

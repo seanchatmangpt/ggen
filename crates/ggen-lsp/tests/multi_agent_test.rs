@@ -75,13 +75,18 @@ fn two_agents_share_one_route_law_without_drift() {
     };
     let alpha_ep = episode_for("alpha").expect("alpha episode");
     let beta_ep = episode_for("beta").expect("beta episode");
-    assert_ne!(alpha_ep, beta_ep, "concurrent agents must not share an episode");
+    assert_ne!(
+        alpha_ep, beta_ep,
+        "concurrent agents must not share an episode"
+    );
 
     // Each agent's closed episode is receipted (independent proof per agent).
     for agent in ["alpha", "beta"] {
         assert!(
-            log.events.iter().any(|e| e.activity == activity::RECEIPT_EMITTED
-                && e.attributes.get("agent_id").map(String::as_str) == Some(agent)),
+            log.events
+                .iter()
+                .any(|e| e.activity == activity::RECEIPT_EMITTED
+                    && e.attributes.get("agent_id").map(String::as_str) == Some(agent)),
             "agent {agent} produced its own receipt"
         );
     }
@@ -90,5 +95,8 @@ fn two_agents_share_one_route_law_without_drift() {
     let rep = replay_case(root, &alpha_ep);
     assert!(rep.found, "alpha episode replays");
     assert_eq!(rep.route_id.as_deref(), Some("mined.template-failure"));
-    assert!(rep.receipt_id.is_some(), "alpha episode has a receipt on replay");
+    assert!(
+        rep.receipt_id.is_some(),
+        "alpha episode has a receipt on replay"
+    );
 }

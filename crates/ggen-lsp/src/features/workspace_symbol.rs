@@ -114,8 +114,7 @@ fn flatten<'a>(
 /// Convert a [`DocumentSymbol`] + the owning file URL into a
 /// [`SymbolInformation`] addressed at the symbol's own range.
 fn to_symbol_information(
-    sym: &tower_lsp::lsp_types::DocumentSymbol,
-    url: Url,
+    sym: &tower_lsp::lsp_types::DocumentSymbol, url: Url,
 ) -> SymbolInformation {
     #[allow(deprecated)] // `deprecated` field is required by the struct; superseded by `tags`.
     SymbolInformation {
@@ -250,7 +249,9 @@ ex:name a owl:DatatypeProperty ;
             "case-insensitive query 'person' must match ex:Person"
         );
         assert!(
-            filtered.iter().all(|s| s.name.to_lowercase().contains("person")),
+            filtered
+                .iter()
+                .all(|s| s.name.to_lowercase().contains("person")),
             "every filtered symbol must contain the query substring"
         );
         assert!(

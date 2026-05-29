@@ -20,20 +20,16 @@ pub mod registry;
 pub mod revelation;
 pub mod split_laws;
 
+pub use inventory::{ArtifactStatus, ClassifiedArtifact, ConnectionMechanism, FinishStep};
 pub use primitives::{
     Construct8, Pair2, Receipt, Refusal, RefusalReason, RelationPage, ReplayCursor,
 };
 pub use registry::PatternRegistry;
-pub use inventory::{
-    ArtifactStatus, ClassifiedArtifact, ConnectionMechanism, FinishStep,
-};
 pub use revelation::{
-    passes_all_gates, verify_lamb_authority, BabylonClaim, Church, ChurchJudgment,
-    ChurchVerdict, JerusalemGate, Plague, PlagueRecord, Seal, SealState,
+    passes_all_gates, verify_lamb_authority, BabylonClaim, Church, ChurchJudgment, ChurchVerdict,
+    JerusalemGate, Plague, PlagueRecord, Seal, SealState,
 };
 pub use split_laws::{need257_split, need9_split, SplitResult};
-
-
 
 /// Core Pattern trait - all 43 YAWL patterns implement this
 ///
@@ -246,9 +242,7 @@ impl CorePatternRegistry {
 
     /// Execute a step using a registered pattern
     pub async fn execute_step(
-        &self,
-        step: &WorkflowStep,
-        context: &mut ExecutionContext,
+        &self, step: &WorkflowStep, context: &mut ExecutionContext,
     ) -> Result<()> {
         let pattern = self.get(step.pattern_id.0).ok_or_else(|| {
             Error::PatternNotFound(format!("Pattern {} not found", step.pattern_id.0))

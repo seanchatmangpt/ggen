@@ -13,9 +13,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use rmcp::{
-    model::*, service::RequestContext, ErrorData as McpError, RoleServer, ServerHandler,
-};
+use rmcp::{model::*, service::RequestContext, ErrorData as McpError, RoleServer, ServerHandler};
 use schemars::JsonSchema;
 use serde::Deserialize;
 
@@ -181,8 +179,11 @@ pub fn repair_route_captured(
     arguments: Option<serde_json::Map<String, serde_json::Value>>,
 ) -> Result<serde_json::Value, McpError> {
     let params = parse_repair_params(arguments)?;
-    let result =
-        build_repair_routes_in(params.root.as_deref(), &params.file_path, &params.file_content);
+    let result = build_repair_routes_in(
+        params.root.as_deref(),
+        &params.file_path,
+        &params.file_content,
+    );
     if let Some(root) = params.root.as_deref() {
         let agent = params.agent_id.as_deref().unwrap_or("mcp");
         ggen_lsp::capture_request(
@@ -292,9 +293,7 @@ pub fn build_repair_routes(file_path: &str, file_content: &str) -> serde_json::V
 /// silently depending on the server's working directory.
 #[must_use]
 pub fn build_repair_routes_in(
-    root: Option<&str>,
-    file_path: &str,
-    file_content: &str,
+    root: Option<&str>, file_path: &str, file_content: &str,
 ) -> serde_json::Value {
     let Some(analyzer) = ggen_lsp::analyzers::build_analyzer(file_path, file_content) else {
         return serde_json::json!({
@@ -340,9 +339,7 @@ impl ServerHandler for RepairRouteServer {
     }
 
     async fn list_tools(
-        &self,
-        _request: Option<PaginatedRequestParams>,
-        _ctx: RequestContext<RoleServer>,
+        &self, _request: Option<PaginatedRequestParams>, _ctx: RequestContext<RoleServer>,
     ) -> Result<ListToolsResult, McpError> {
         Ok(ListToolsResult {
             tools: (*self.tools).clone(),
@@ -372,7 +369,10 @@ impl ServerHandler for RepairRouteServer {
             "ggen.lsp.replay_case" => replay_case_result(arguments)?,
             "ggen.lsp.metrics" => metrics_result(arguments)?,
             other => {
-                return Err(McpError::invalid_params(format!("unknown tool: {other}"), None))
+                return Err(McpError::invalid_params(
+                    format!("unknown tool: {other}"),
+                    None,
+                ))
             }
         };
         Ok(CallToolResult::success(vec![Content::text(
@@ -390,7 +390,10 @@ mod tests {
         let v = build_repair_routes("ggen.toml", "[logging]\nlevel = \"verbose\"\n");
         assert_eq!(v["is_law_surface"], serde_json::json!(true));
         let envelopes = v["envelopes"].as_array().expect("envelopes array");
-        assert!(!envelopes.is_empty(), "the invalid enum value should be routed (advisory)");
+        assert!(
+            !envelopes.is_empty(),
+            "the invalid enum value should be routed (advisory)"
+        );
         // The envelope carries the canonical contract fields.
         let e = &envelopes[0];
         assert_eq!(e["diagnostic_code"], serde_json::json!("E0023"));

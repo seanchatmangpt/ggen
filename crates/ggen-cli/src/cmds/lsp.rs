@@ -129,8 +129,14 @@ fn serve(protocol: Option<String>) -> Result<StartOutput> {
 /// Exit code: 0 = clean, 1 = at least one ERROR diagnostic. Build/VCS dirs
 /// (target, .git, node_modules, .agent-admissibility, dist) are skipped during scans.
 #[verb]
-fn check(files: Option<String>, root: Option<String>, with_routes: Option<bool>) -> Result<CheckSummary> {
-    let code = run_check(files.as_deref(), root.as_deref(), with_routes.unwrap_or(false))?;
+fn check(
+    files: Option<String>, root: Option<String>, with_routes: Option<bool>,
+) -> Result<CheckSummary> {
+    let code = run_check(
+        files.as_deref(),
+        root.as_deref(),
+        with_routes.unwrap_or(false),
+    )?;
     std::process::exit(code);
 }
 
@@ -166,7 +172,9 @@ fn run_check(files: Option<&str>, root: Option<&str>, with_routes: bool) -> Resu
 ///   ggen lsp init --editors "helix neovim" Only the named editors.
 ///   ggen lsp init --root path              Initialize a specific project root.
 #[verb]
-fn init(root: Option<String>, editors: Option<String>, agents: Option<String>) -> Result<InitOutput> {
+fn init(
+    root: Option<String>, editors: Option<String>, agents: Option<String>,
+) -> Result<InitOutput> {
     let root = root.unwrap_or_else(|| ".".to_string());
     let editors = split_list(editors.as_deref());
     let agents = split_list(agents.as_deref());
@@ -283,9 +291,7 @@ fn parse_paths(files: &str) -> Vec<PathBuf> {
 /// emitted pack's content hash in a replayable receipt (verify with `verify_pack`).
 #[verb]
 fn emit_pack(
-    agents: Option<String>,
-    out: Option<String>,
-    from_scan: Option<String>,
+    agents: Option<String>, out: Option<String>, from_scan: Option<String>,
 ) -> Result<EmitPackOutput> {
     let agent_list = agents
         .map(|a| {

@@ -115,11 +115,7 @@ pub struct PartFoundry {
 
 impl PartFoundry {
     /// Create a new parts foundry
-    pub fn new(
-        compiler: PartCompiler,
-        signer: PartSigner,
-        generator: AdapterGenerator,
-    ) -> Self {
+    pub fn new(compiler: PartCompiler, signer: PartSigner, generator: AdapterGenerator) -> Self {
         Self {
             compiler,
             signer,
@@ -133,10 +129,7 @@ impl PartFoundry {
     ///
     /// Returns error if any pipeline stage fails (compilation, signing, etc.)
     pub async fn manufacture(
-        &self,
-        spec: PartSpec,
-        manifest: PartManifest,
-        output_dir: &Path,
+        &self, spec: PartSpec, manifest: PartManifest, output_dir: &Path,
     ) -> Result<SignedPart> {
         // μ₀: Load specification (implicit - spec already loaded)
         if spec.id.is_empty() {
@@ -204,18 +197,15 @@ impl PartFoundry {
 
         // Write manifest
         let manifest_path = part_dir.join("part.json");
-        let manifest_json = serde_json::to_string_pretty(&signed).map_err(|e| {
-            Error::new(&format!("Failed to serialize manifest: {}", e))
-        })?;
-        std::fs::write(&manifest_path, manifest_json).map_err(|e| {
-            Error::new(&format!("Failed to write manifest: {}", e))
-        })?;
+        let manifest_json = serde_json::to_string_pretty(&signed)
+            .map_err(|e| Error::new(&format!("Failed to serialize manifest: {}", e)))?;
+        std::fs::write(&manifest_path, manifest_json)
+            .map_err(|e| Error::new(&format!("Failed to write manifest: {}", e)))?;
 
         // Write binary
         let binary_path = part_dir.join(format!("{}.bin", spec.id));
-        std::fs::write(&binary_path, &signed.manufactured.payload).map_err(|e| {
-            Error::new(&format!("Failed to write binary: {}", e))
-        })?;
+        std::fs::write(&binary_path, &signed.manufactured.payload)
+            .map_err(|e| Error::new(&format!("Failed to write binary: {}", e)))?;
 
         Ok(signed)
     }

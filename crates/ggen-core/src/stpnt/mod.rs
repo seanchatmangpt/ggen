@@ -1,10 +1,12 @@
 //! Stewards of the Pentecost (stpnt) module
-//! 
+//!
 //! This module implements the stewardship obligations and their integration
 //! with external surfaces like GitHub.
 
-pub mod obligation;
 pub mod github;
+pub mod obligation;
 
-pub use obligation::{StewardshipObligation, StewardshipEvent, CanonSet, TerminalState, ObligationStatus};
 pub use github::GitHubStewardshipMembrane;
+pub use obligation::{
+    CanonSet, ObligationStatus, StewardshipEvent, StewardshipObligation, TerminalState,
+};

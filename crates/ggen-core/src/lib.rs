@@ -151,11 +151,14 @@ pub mod lean_six_sigma;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
+pub mod membrane;
 pub mod merge;
 pub mod ontology;
 pub mod ontology_core;
 pub mod ontology_pack;
 pub mod parallel_generator;
+pub mod parts_execution;
+pub mod parts_foundry;
 pub mod pipeline;
 pub mod pipeline_engine;
 pub mod pki;
@@ -173,6 +176,8 @@ pub mod schema;
 pub mod semantic_bit;
 pub mod simple_tracing;
 pub mod snapshot;
+pub mod stewardship;
+pub mod stpnt;
 pub mod streaming_generator;
 pub mod telemetry;
 pub mod template;
@@ -184,12 +189,7 @@ pub mod tracing;
 pub mod transport;
 pub mod types;
 pub mod utils;
-pub mod parts_foundry;
-pub mod parts_execution;
 pub mod validation;
-pub mod membrane;
-pub mod stewardship;
-pub mod stpnt;
 
 // Schema parser and code generators for A2A communication
 pub mod drift; // Drift detection for ontology changes

@@ -126,7 +126,9 @@ impl CompactTraceView {
     pub fn to_hover_markdown(&self) -> String {
         format!(
             "**{}** — `{}`\n\n```ocel-ton\n{}```",
-            self.family, self.diagnostic_code, self.to_toon()
+            self.family,
+            self.diagnostic_code,
+            self.to_toon()
         )
     }
 }
@@ -134,8 +136,11 @@ impl CompactTraceView {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::route::model::{PartialOrder, Provenance, RepairFamily, RepairRoute, RouteId, StepId, RepairStep, EditTemplate, RouteBindings};
-    use crate::route::{plan::DiagnosticRef, edit::route_plan};
+    use crate::route::model::{
+        EditTemplate, PartialOrder, Provenance, RepairFamily, RepairRoute, RepairStep,
+        RouteBindings, RouteId, StepId,
+    };
+    use crate::route::{edit::route_plan, plan::DiagnosticRef};
     use tower_lsp::lsp_types::{Position, Range};
 
     fn sample_plan() -> RoutePlan {
@@ -152,14 +157,28 @@ mod tests {
             },
             description: "mined".into(),
             provenance: Provenance::Mined {
-                confidence: 1.0, support: 5, success_rate: 1.0,
-                first_seen: "t0".into(), last_seen: "t1".into(), source_report_hash: "h".into(),
+                confidence: 1.0,
+                support: 5,
+                success_rate: 1.0,
+                first_seen: "t0".into(),
+                last_seen: "t1".into(),
+                source_report_hash: "h".into(),
             },
             priority: 1,
         };
         let target = DiagnosticRef {
-            code: "E0011".into(), message: "CONSTRUCT lacks ORDER BY".into(),
-            range: Range { start: Position{line:0,character:0}, end: Position{line:0,character:1} },
+            code: "E0011".into(),
+            message: "CONSTRUCT lacks ORDER BY".into(),
+            range: Range {
+                start: Position {
+                    line: 0,
+                    character: 0,
+                },
+                end: Position {
+                    line: 0,
+                    character: 1,
+                },
+            },
             severity: "warning".into(),
         };
         route_plan(&route, &RouteBindings::default(), "rule.rq", target)
@@ -169,7 +188,10 @@ mod tests {
     fn toon_card_carries_route_and_powl() {
         let view = CompactTraceView::from_route_plan(&sample_plan(), "rule.rq");
         let toon = view.to_toon();
-        assert!(toon.contains("route: mined.template-failure (mined)"), "{toon}");
+        assert!(
+            toon.contains("route: mined.template-failure (mined)"),
+            "{toon}"
+        );
         assert!(toon.contains("POWL"));
         assert!(toon.contains("Add ORDER BY"));
         assert!(toon.contains("diag: E0011"));

@@ -311,7 +311,10 @@ fn graph_visualize_writes_dot_artifact_with_real_nodes() {
 
     // Durable state: DOT artifact written next to input (extension swapped).
     let dot = dir.path().join("data.dot");
-    assert!(dot.exists(), "visualize must write a real .dot artifact at {dot:?}");
+    assert!(
+        dot.exists(),
+        "visualize must write a real .dot artifact at {dot:?}"
+    );
     let content = fs::read_to_string(&dot).expect("read dot file");
     assert!(
         content.contains("digraph RDF"),
@@ -343,7 +346,10 @@ fn graph_visualize_json_writes_node_edge_json() {
         .success();
 
     let json = dir.path().join("data.json");
-    assert!(json.exists(), "visualize json must write a real artifact at {json:?}");
+    assert!(
+        json.exists(),
+        "visualize json must write a real artifact at {json:?}"
+    );
     let content = fs::read_to_string(&json).expect("read json artifact");
     assert!(content.contains("\"nodes\""), "json must have nodes array");
     assert!(content.contains("\"edges\""), "json must have edges array");

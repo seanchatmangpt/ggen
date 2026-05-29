@@ -124,7 +124,9 @@ fn declares_class(rest: &str) -> bool {
     let obj = obj.trim_end_matches([';', ',', '.']);
     matches!(
         obj,
-        "owl:Class" | "rdfs:Class" | "<http://www.w3.org/2002/07/owl#Class>"
+        "owl:Class"
+            | "rdfs:Class"
+            | "<http://www.w3.org/2002/07/owl#Class>"
             | "<http://www.w3.org/2000/01/rdf-schema#Class>"
     )
 }
@@ -192,7 +194,11 @@ fn sparql_lenses(content: &str) -> Vec<CodeLens> {
             data: None,
         });
         // Count-only: distinct variables in the query.
-        let noun = if var_count == 1 { "variable" } else { "variables" };
+        let noun = if var_count == 1 {
+            "variable"
+        } else {
+            "variables"
+        };
         out.push(CodeLens {
             range: whole_line(line),
             command: Some(Command {
@@ -293,10 +299,7 @@ fn strip_comment(line: &str) -> &str {
 fn whole_line(line: u32) -> Range {
     Range {
         start: Position { line, character: 0 },
-        end: Position {
-            line,
-            character: 0,
-        },
+        end: Position { line, character: 0 },
     }
 }
 
@@ -404,12 +407,23 @@ level = \"info\"
         let q = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
         let lenses = code_lenses(FileType::Sparql, q).expect("sparql lenses");
         let ts = titles(&lenses);
-        assert!(ts.iter().any(|t| t == "ggen lsp check"), "actionable check lens");
-        assert!(ts.iter().any(|t| t == "3 variables"), "real variable count: {ts:?}");
+        assert!(
+            ts.iter().any(|t| t == "ggen lsp check"),
+            "actionable check lens"
+        );
+        assert!(
+            ts.iter().any(|t| t == "3 variables"),
+            "real variable count: {ts:?}"
+        );
         // The check lens carries the ggen.lsp.check command.
         let check = lenses
             .iter()
-            .find(|l| l.command.as_ref().map(|c| c.title == "ggen lsp check").unwrap_or(false))
+            .find(|l| {
+                l.command
+                    .as_ref()
+                    .map(|c| c.title == "ggen lsp check")
+                    .unwrap_or(false)
+            })
             .expect("check lens present");
         assert_eq!(check.command.as_ref().unwrap().command, CHECK_COMMAND);
     }

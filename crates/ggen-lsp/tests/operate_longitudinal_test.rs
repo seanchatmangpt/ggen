@@ -43,8 +43,14 @@ fn operate_one_real_cycle_emits_full_chain_and_refuses_verdict() {
     assert!(has(activity::DIAGNOSTIC_RAISED), "DiagnosticRaised emitted");
     assert!(has(activity::ROUTE_SELECTED), "RouteSelected emitted");
     assert!(has(activity::REPAIR_SUGGESTED), "RepairSuggested emitted");
-    assert!(has(activity::GATE_PASSED), "GatePassed emitted (warning closes)");
-    assert!(has(activity::RECEIPT_EMITTED), "ReceiptEmitted (closed episode)");
+    assert!(
+        has(activity::GATE_PASSED),
+        "GatePassed emitted (warning closes)"
+    );
+    assert!(
+        has(activity::RECEIPT_EMITTED),
+        "ReceiptEmitted (closed episode)"
+    );
 
     // First cycle uses the seed route (no pack promoted yet).
     let src = log
@@ -52,7 +58,11 @@ fn operate_one_real_cycle_emits_full_chain_and_refuses_verdict() {
         .iter()
         .find(|e| e.activity == activity::ROUTE_SELECTED)
         .and_then(|e| e.attributes.get("route_source").cloned());
-    assert_eq!(src.as_deref(), Some("seed"), "first cycle uses the seed route");
+    assert_eq!(
+        src.as_deref(),
+        Some("seed"),
+        "first cycle uses the seed route"
+    );
 
     // Mine writes the promoted artifact + a promotion receipt.
     let m = mine(root).expect("mine");

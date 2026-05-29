@@ -1,11 +1,18 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! Genesis determinism verification tests.
 //! Ensures Pair2 serialization, Construct8 hashing, and PageSplit are deterministic.
 //! Chicago TDD: Real serialization, hash verification, idempotence checks.
 
 use ggen_core::genesis::{
-    Admission8, Construct8, Graph8, Mask8, Multiplicity, Node8, Object8, Pair2, PageSplit,
+    Admission8, Construct8, Graph8, Mask8, Multiplicity, Node8, Object8, PageSplit, Pair2,
     Predicate8, Provenance8, Receipt, ReceiptHint8, RefusalCode, RelationPage, SymbolDomain,
     HASH_SIZE,
 };
@@ -24,7 +31,11 @@ fn test_pair2_to_bytes_deterministic_basic() {
 
     assert_eq!(bytes1, bytes2, "First and second serialization must match");
     assert_eq!(bytes2, bytes3, "Second and third serialization must match");
-    assert_eq!(bytes1.len(), 32, "Serialized Pair2 must be exactly 32 bytes");
+    assert_eq!(
+        bytes1.len(),
+        32,
+        "Serialized Pair2 must be exactly 32 bytes"
+    );
 }
 
 #[test]
@@ -40,8 +51,14 @@ fn test_pair2_to_bytes_with_timestamp_deterministic() {
     // Verify timestamp is encoded in bytes 16-24 as little-endian
     let ts_bytes = &bytes1[16..24];
     let ts_from_bytes = u64::from_le_bytes([
-        ts_bytes[0], ts_bytes[1], ts_bytes[2], ts_bytes[3],
-        ts_bytes[4], ts_bytes[5], ts_bytes[6], ts_bytes[7],
+        ts_bytes[0],
+        ts_bytes[1],
+        ts_bytes[2],
+        ts_bytes[3],
+        ts_bytes[4],
+        ts_bytes[5],
+        ts_bytes[6],
+        ts_bytes[7],
     ]);
     assert_eq!(
         ts_from_bytes, timestamp,
@@ -62,7 +79,11 @@ fn test_pair2_to_bytes_with_event_id_deterministic() {
     let bytes2 = pair.to_bytes();
 
     // Verify event_id is encoded in bytes 24-32
-    assert_eq!(&bytes1[24..32], &event_id, "Event ID should be at bytes 24-32");
+    assert_eq!(
+        &bytes1[24..32],
+        &event_id,
+        "Event ID should be at bytes 24-32"
+    );
     assert_eq!(bytes1, bytes2, "Multiple serializations must be identical");
 }
 
@@ -113,7 +134,9 @@ fn test_construct8_serialization_deterministic() {
     let admission = Admission8::from_bytes([6, 6, 6, 6, 6, 6, 6, 6]);
     let hint = ReceiptHint8::from_bytes([7, 7, 7, 7, 7, 7, 7, 7]);
 
-    let construct = Construct8::new(subject, predicate, object, graph, mask, provenance, admission, hint);
+    let construct = Construct8::new(
+        subject, predicate, object, graph, mask, provenance, admission, hint,
+    );
 
     let bytes1 = construct.to_bytes();
     let bytes2 = construct.to_bytes();
@@ -121,7 +144,11 @@ fn test_construct8_serialization_deterministic() {
 
     assert_eq!(bytes1, bytes2, "First and second serialization must match");
     assert_eq!(bytes2, bytes3, "Second and third serialization must match");
-    assert_eq!(bytes1.len(), 64, "Construct8 serialization must be 64 bytes");
+    assert_eq!(
+        bytes1.len(),
+        64,
+        "Construct8 serialization must be 64 bytes"
+    );
 }
 
 #[test]
@@ -253,13 +280,7 @@ fn test_pair2_metadata_variations_deterministic() {
 fn test_symbol_domain_iteration_deterministic() {
     let mut domain = SymbolDomain::new();
 
-    let symbols = vec![
-        [10u8; 8],
-        [20u8; 8],
-        [30u8; 8],
-        [40u8; 8],
-        [50u8; 8],
-    ];
+    let symbols = vec![[10u8; 8], [20u8; 8], [30u8; 8], [40u8; 8], [50u8; 8]];
 
     for sym in &symbols {
         let _ = domain.insert(*sym);
@@ -272,8 +293,14 @@ fn test_symbol_domain_iteration_deterministic() {
     }
 
     let not_inserted = [99u8; 8];
-    assert!(!domain.contains(&not_inserted), "Non-inserted symbol should not be found");
-    assert!(!domain.contains(&not_inserted), "Non-inserted symbol should still not be found");
+    assert!(
+        !domain.contains(&not_inserted),
+        "Non-inserted symbol should not be found"
+    );
+    assert!(
+        !domain.contains(&not_inserted),
+        "Non-inserted symbol should still not be found"
+    );
 }
 
 #[test]

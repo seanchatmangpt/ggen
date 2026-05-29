@@ -65,7 +65,11 @@ pub fn replay_case(root: &Path, case_id: &str) -> CaseReplay {
     };
     let diagnostic_code = events
         .iter()
-        .find_map(|e| e.objects.iter().find(|o| o.r#type == obj_type::DIAGNOSTIC_CODE))
+        .find_map(|e| {
+            e.objects
+                .iter()
+                .find(|o| o.r#type == obj_type::DIAGNOSTIC_CODE)
+        })
         .map(|o| o.id.clone());
     let gate_outcome = if events.iter().any(|e| e.activity == activity::GATE_PASSED) {
         Some("GatePassed".to_string())
@@ -162,7 +166,11 @@ fn find_promotion_receipt(root: &Path, pre: [u8; 32], post: [u8; 32]) -> bool {
         return false;
     };
     for entry in entries.flatten() {
-        if !entry.file_name().to_string_lossy().starts_with("promotion-") {
+        if !entry
+            .file_name()
+            .to_string_lossy()
+            .starts_with("promotion-")
+        {
             continue;
         }
         let Ok(content) = std::fs::read_to_string(entry.path()) else {
@@ -180,7 +188,9 @@ fn find_promotion_receipt(root: &Path, pre: [u8; 32], post: [u8; 32]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::intel::events::{diagnostic_raised, gate_result, new_run_id, receipt_emitted, route_selected};
+    use crate::intel::events::{
+        diagnostic_raised, gate_result, new_run_id, receipt_emitted, route_selected,
+    };
     use crate::intel::IntelLog;
     use tempfile::TempDir;
 
@@ -225,7 +235,10 @@ mod tests {
         .expect("append");
         crate::intel::mine(dir.path()).expect("mine");
 
-        assert!(verify_promotion(dir.path()).matches, "fresh promotion replays");
+        assert!(
+            verify_promotion(dir.path()).matches,
+            "fresh promotion replays"
+        );
 
         // Tamper the OCEL log → source hash changes → binding no longer matches.
         use std::io::Write;
@@ -234,6 +247,9 @@ mod tests {
             .open(IntelLog::at_root(dir.path()).path())
             .expect("open");
         writeln!(f, "{{\"id\":\"x\",\"activity\":\"Tampered\",\"timestamp\":\"2026-05-28T00:00:00+00:00\",\"objects\":[],\"attributes\":{{}}}}").expect("tamper");
-        assert!(!verify_promotion(dir.path()).matches, "tampered log breaks the replay");
+        assert!(
+            !verify_promotion(dir.path()).matches,
+            "tampered log breaks the replay"
+        );
     }
 }

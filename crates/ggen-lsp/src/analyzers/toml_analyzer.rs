@@ -7,8 +7,8 @@
 
 use tower_lsp::lsp_types::{
     CodeLens, CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic,
-    DiagnosticSeverity, DocumentSymbol, FoldingRange, Hover, HoverContents, InlayHint, MarkupContent,
-    MarkupKind, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
+    DiagnosticSeverity, DocumentSymbol, FoldingRange, Hover, HoverContents, InlayHint,
+    MarkupContent, MarkupKind, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
 
 use crate::analyzers::diag;
@@ -17,10 +17,20 @@ use crate::analyzers::diag;
 const ENUMS: &[(&str, &[&str])] = &[
     ("level", &["debug", "info", "warn", "error"]),
     ("format", &["json", "text"]),
-    ("default_format", &["turtle", "rdfxml", "ntriples", "nquads", "trig"]),
+    (
+        "default_format",
+        &["turtle", "rdfxml", "ntriples", "nquads", "trig"],
+    ),
 ];
 
-const SECTIONS: &[&str] = &["project", "ontology", "validation", "logging", "rdf", "generation"];
+const SECTIONS: &[&str] = &[
+    "project",
+    "ontology",
+    "validation",
+    "logging",
+    "rdf",
+    "generation",
+];
 
 #[derive(Clone)]
 pub struct TomlAnalyzer {

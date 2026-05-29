@@ -607,5 +607,3 @@ mod tests {
         assert!(java.contains("private List<String> items;"));
     }
 }
-
-

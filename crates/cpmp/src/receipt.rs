@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use anyhow::Result;
 use crate::models::{FileEntry, Receipt};
+use anyhow::Result;
+use std::path::PathBuf;
 use uuid::Uuid;
 
 /// Deterministic aggregate hash over the scanned file set: BLAKE3 of each
@@ -9,8 +9,10 @@ use uuid::Uuid;
 /// identity a downstream pack receipt binds to.
 #[must_use]
 pub fn aggregate_hash(files: &[FileEntry]) -> String {
-    let mut pairs: Vec<(&str, &str)> =
-        files.iter().map(|f| (f.path.as_str(), f.hash.as_str())).collect();
+    let mut pairs: Vec<(&str, &str)> = files
+        .iter()
+        .map(|f| (f.path.as_str(), f.hash.as_str()))
+        .collect();
     pairs.sort_unstable();
     let mut hasher = blake3::Hasher::new();
     for (path, hash) in pairs {
@@ -26,9 +28,7 @@ pub fn aggregate_hash(files: &[FileEntry]) -> String {
 /// `ggen lsp emit_pack --from_scan`) carrying the deterministic `aggregate_hash`,
 /// plus a TOML copy under `receipts/` for `verify-no-deletion` compatibility.
 pub fn generate_receipt(
-    files: &[FileEntry],
-    out: &std::path::Path,
-    scan_roots: Vec<String>,
+    files: &[FileEntry], out: &std::path::Path, scan_roots: Vec<String>,
     output_artifacts: Vec<String>,
 ) -> Result<Receipt> {
     let id = Uuid::new_v4().to_string();
@@ -61,17 +61,17 @@ pub fn generate_receipt(
 pub fn verify_no_deletion(before_path: &PathBuf, after_path: &PathBuf) -> Result<()> {
     let before_content = std::fs::read_to_string(before_path)?;
     let after_content = std::fs::read_to_string(after_path)?;
-    
+
     let before: Receipt = toml::from_str(&before_content)?;
     let after: Receipt = toml::from_str(&after_content)?;
-    
+
     let mut missing = Vec::new();
     for bf in before.files {
         if !after.files.iter().any(|af| af.path == bf.path) {
             missing.push(bf.path);
         }
     }
-    
+
     if missing.is_empty() {
         println!("Verification passed. No files deleted.");
     } else {
@@ -107,10 +107,21 @@ mod tests {
     fn aggregate_hash_is_order_independent_and_content_sensitive() {
         let a = vec![fe("a.rs", "h1"), fe("b.rs", "h2")];
         let b = vec![fe("b.rs", "h2"), fe("a.rs", "h1")];
-        assert_eq!(aggregate_hash(&a), aggregate_hash(&b), "independent of scan order");
-        assert!(!aggregate_hash(&a).is_empty(), "non-empty for a non-empty scan");
+        assert_eq!(
+            aggregate_hash(&a),
+            aggregate_hash(&b),
+            "independent of scan order"
+        );
+        assert!(
+            !aggregate_hash(&a).is_empty(),
+            "non-empty for a non-empty scan"
+        );
 
         let c = vec![fe("a.rs", "CHANGED"), fe("b.rs", "h2")];
-        assert_ne!(aggregate_hash(&a), aggregate_hash(&c), "sensitive to content changes");
+        assert_ne!(
+            aggregate_hash(&a),
+            aggregate_hash(&c),
+            "sensitive to content changes"
+        );
     }
 }

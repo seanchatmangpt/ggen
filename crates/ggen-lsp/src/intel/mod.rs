@@ -15,9 +15,7 @@ pub mod replay;
 
 pub use events::Attribution;
 pub use field::{field_status, FieldReadiness, FieldStatus};
-pub use history::{
-    default_history_path, PromotionHistory, RoutePromotionRecord, RouteStatus,
-};
+pub use history::{default_history_path, PromotionHistory, RoutePromotionRecord, RouteStatus};
 pub use log::{default_path, IntelLog};
 pub use metrics::{compute_metrics, ImproveMetrics, MetricValue};
 pub use mine::{mine, MineReport};

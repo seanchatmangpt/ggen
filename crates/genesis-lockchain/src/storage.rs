@@ -85,9 +85,7 @@ impl LockchainStorage {
     /// Append receipt to Git repository (80/20 implementation)
     /// Creates a commit with receipt data as file content
     pub fn append_to_git(
-        &mut self,
-        receipt_hash: &[u8; 32],
-        cycle: u64,
+        &mut self, receipt_hash: &[u8; 32], cycle: u64,
     ) -> Result<Oid, StorageError> {
         if let Some(ref repo_mutex) = self.git_repo {
             let repo = repo_mutex.lock().map_err(|e| {
@@ -167,10 +165,7 @@ impl LockchainStorage {
     /// * `root` - Merkle root hash
     /// * `proof` - Quorum consensus proof
     pub fn persist_root(
-        &self,
-        cycle: u64,
-        root: [u8; 32],
-        proof: QuorumProof,
+        &self, cycle: u64, root: [u8; 32], proof: QuorumProof,
     ) -> Result<(), StorageError> {
         let entry = LockchainEntry { cycle, root, proof };
         let key = format!("root:{:020}", cycle);
@@ -207,9 +202,7 @@ impl LockchainStorage {
     /// * `start_cycle` - Start of range (inclusive)
     /// * `end_cycle` - End of range (inclusive)
     pub fn get_roots_range(
-        &self,
-        start_cycle: u64,
-        end_cycle: u64,
+        &self, start_cycle: u64, end_cycle: u64,
     ) -> Result<Vec<LockchainEntry>, StorageError> {
         let start_key = format!("root:{:020}", start_cycle);
         let end_key = format!("root:{:020}", end_cycle);
@@ -245,9 +238,7 @@ impl LockchainStorage {
     /// Verify audit trail continuity
     /// Checks that all cycles from start to end are present
     pub fn verify_continuity(
-        &self,
-        start_cycle: u64,
-        end_cycle: u64,
+        &self, start_cycle: u64, end_cycle: u64,
     ) -> Result<bool, StorageError> {
         for cycle in start_cycle..=end_cycle {
             if self.get_root(cycle)?.is_none() {

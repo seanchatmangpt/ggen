@@ -15,8 +15,7 @@ const PRE_EDIT: &str = include_str!("../../assets/hooks/pre-edit.sh");
 const POST_EDIT: &str = include_str!("../../assets/hooks/post-edit.sh");
 const PRE_COMMIT: &str = include_str!("../../assets/hooks/pre-commit.sh");
 const REFUSAL: &str = include_str!("../../assets/hooks/refusal.sh");
-const CLAUDE_SETTINGS: &str =
-    include_str!("../../assets/hooks/claude-code/settings-snippet.json");
+const CLAUDE_SETTINGS: &str = include_str!("../../assets/hooks/claude-code/settings-snippet.json");
 
 const POLICY_PUBLIC_VOCAB: &str = include_str!("../../assets/policies/public-vocab.shacl.ttl");
 const POLICY_NO_PRIVATE_NS: &str =
@@ -231,13 +230,7 @@ pub fn emit(opts: &PackOptions) -> io::Result<EmitReport> {
         &mut written,
         root,
     )?;
-    write_file(
-        &root.join("replay/.gitkeep"),
-        "",
-        false,
-        &mut written,
-        root,
-    )?;
+    write_file(&root.join("replay/.gitkeep"), "", false, &mut written, root)?;
 
     // README.
     write_file(&root.join("README.md"), README, false, &mut written, root)?;
@@ -293,7 +286,10 @@ pub fn compute_pack_hash(pack_dir: &Path) -> String {
             {
                 return None;
             }
-            Some((rel.to_string_lossy().replace('\\', "/"), e.path().to_path_buf()))
+            Some((
+                rel.to_string_lossy().replace('\\', "/"),
+                e.path().to_path_buf(),
+            ))
         })
         .collect();
     entries.sort_by(|a, b| a.0.cmp(&b.0));
@@ -482,11 +478,7 @@ pub fn pack_hash_at(project_root: &Path) -> Option<String> {
 }
 
 fn write_file(
-    path: &Path,
-    contents: &str,
-    executable: bool,
-    written: &mut Vec<String>,
-    root: &Path,
+    path: &Path, contents: &str, executable: bool, written: &mut Vec<String>, root: &Path,
 ) -> io::Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -531,9 +523,13 @@ mod tests {
 
         assert!(out.join("lsp/lsp-config.json").is_file());
         assert!(out.join("hooks/claude-code/pre-edit.sh").is_file());
-        assert!(out.join("hooks/claude-code/settings-snippet.json").is_file());
+        assert!(out
+            .join("hooks/claude-code/settings-snippet.json")
+            .is_file());
         assert!(out.join("hooks/generic/pre-commit.sh").is_file());
-        assert!(out.join("policies/no-private-namespace.shacl.ttl").is_file());
+        assert!(out
+            .join("policies/no-private-namespace.shacl.ttl")
+            .is_file());
         assert!(out.join("receipts/.gitkeep").is_file());
         assert!(out.join("README.md").is_file());
         assert!(!report.files_written.is_empty());

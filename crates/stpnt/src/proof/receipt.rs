@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use chrono::{Utc, DateTime};
 use blake3;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 /// Errors that can occur while constructing or verifying a stewardship receipt.
 ///
@@ -59,13 +59,8 @@ impl StewardshipReceipt {
     /// Call [`StewardshipReceipt::sign`] with a non-empty key to make it verifiable.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        input: &[u8],
-        canon: &[&str],
-        route: &[u8],
-        obligation: &[u8],
-        prior_hash: Option<[u8; 32]>,
-        actor: &str,
-        output: &[u8],
+        input: &[u8], canon: &[&str], route: &[u8], obligation: &[u8],
+        prior_hash: Option<[u8; 32]>, actor: &str, output: &[u8],
     ) -> Self {
         let mut canon_hasher = blake3::Hasher::new();
         for c in canon {
@@ -181,11 +176,23 @@ mod tests {
     #[test]
     fn route_and_obligation_hashes_are_real_not_zero() {
         let r = fixture();
-        assert_ne!(r.route_hash, ZERO, "route_hash must be a real BLAKE3 hash, not the [0u8;32] placeholder");
-        assert_ne!(r.obligation_hash, ZERO, "obligation_hash must be a real BLAKE3 hash, not the [0u8;32] placeholder");
+        assert_ne!(
+            r.route_hash, ZERO,
+            "route_hash must be a real BLAKE3 hash, not the [0u8;32] placeholder"
+        );
+        assert_ne!(
+            r.obligation_hash, ZERO,
+            "obligation_hash must be a real BLAKE3 hash, not the [0u8;32] placeholder"
+        );
         // And they must equal the independently-computed BLAKE3 of the same bytes.
-        assert_eq!(r.route_hash, <[u8; 32]>::from(blake3::hash(b"route:assign-steward")));
-        assert_eq!(r.obligation_hash, <[u8; 32]>::from(blake3::hash(b"obligation:welcome-followup")));
+        assert_eq!(
+            r.route_hash,
+            <[u8; 32]>::from(blake3::hash(b"route:assign-steward"))
+        );
+        assert_eq!(
+            r.obligation_hash,
+            <[u8; 32]>::from(blake3::hash(b"obligation:welcome-followup"))
+        );
     }
 
     #[test]
@@ -211,7 +218,10 @@ mod tests {
             "actor:steward-001",
             b"output-state",
         );
-        assert_ne!(base.route_hash, other.route_hash, "different route bytes must produce different route_hash");
+        assert_ne!(
+            base.route_hash, other.route_hash,
+            "different route bytes must produce different route_hash"
+        );
         // obligation unchanged, so it stays equal — proving the hash binds the right field.
         assert_eq!(base.obligation_hash, other.obligation_hash);
     }
@@ -237,21 +247,34 @@ mod tests {
     #[test]
     fn freshly_constructed_receipt_is_unsigned_and_does_not_verify() {
         let r = fixture();
-        assert!(r.signature.is_empty(), "new() must produce an explicitly unsigned receipt");
+        assert!(
+            r.signature.is_empty(),
+            "new() must produce an explicitly unsigned receipt"
+        );
         // The core invariant: an unsigned (empty-signature) receipt is NOT valid
         // under ANY key.
-        assert!(!r.verify(b"any-key"), "an empty-signature receipt must never verify as valid");
-        assert!(!r.verify(b""), "empty key + empty signature must not verify");
+        assert!(
+            !r.verify(b"any-key"),
+            "an empty-signature receipt must never verify as valid"
+        );
+        assert!(
+            !r.verify(b""),
+            "empty key + empty signature must not verify"
+        );
     }
 
     #[test]
     fn manually_emptied_signature_does_not_verify() {
         let mut r = fixture();
-        r.sign(b"steward-signing-key").expect("signing with a real key succeeds");
+        r.sign(b"steward-signing-key")
+            .expect("signing with a real key succeeds");
         assert!(r.verify(b"steward-signing-key"));
         // Sabotage: blank the signature back to the placeholder state.
         r.signature = Vec::new();
-        assert!(!r.verify(b"steward-signing-key"), "blanking the signature must invalidate the receipt");
+        assert!(
+            !r.verify(b"steward-signing-key"),
+            "blanking the signature must invalidate the receipt"
+        );
     }
 
     // --- Honest signing path works and is tamper-evident ---
@@ -260,16 +283,28 @@ mod tests {
     fn signed_receipt_verifies_with_correct_key_only() {
         let mut r = fixture();
         r.sign(b"correct-key").expect("signing succeeds");
-        assert!(!r.signature.is_empty(), "signing must populate a real signature");
-        assert!(r.verify(b"correct-key"), "receipt must verify under the signing key");
-        assert!(!r.verify(b"wrong-key"), "receipt must NOT verify under a different key");
+        assert!(
+            !r.signature.is_empty(),
+            "signing must populate a real signature"
+        );
+        assert!(
+            r.verify(b"correct-key"),
+            "receipt must verify under the signing key"
+        );
+        assert!(
+            !r.verify(b"wrong-key"),
+            "receipt must NOT verify under a different key"
+        );
     }
 
     #[test]
     fn signing_with_empty_key_is_rejected() {
         let mut r = fixture();
         let err = r.sign(b"");
-        assert!(matches!(err, Err(ReceiptError::EmptyKey)), "empty key must be refused, not silently signed");
+        assert!(
+            matches!(err, Err(ReceiptError::EmptyKey)),
+            "empty key must be refused, not silently signed"
+        );
         // Receipt remains unsigned and therefore invalid.
         assert!(r.signature.is_empty());
         assert!(!r.verify(b"anything"));
@@ -282,6 +317,9 @@ mod tests {
         assert!(r.verify(b"k"));
         // Tamper with a provenance field after signing.
         r.output_state_hash = [9u8; 32];
-        assert!(!r.verify(b"k"), "mutating a signed field must break verification");
+        assert!(
+            !r.verify(b"k"),
+            "mutating a signed field must break verification"
+        );
     }
 }

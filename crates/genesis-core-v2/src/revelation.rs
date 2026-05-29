@@ -75,10 +75,7 @@ pub struct ChurchJudgment {
 
 impl ChurchJudgment {
     pub const fn new(
-        church: Church,
-        verdict: ChurchVerdict,
-        epoch: u64,
-        evidence_receipt: [u8; 32],
+        church: Church, verdict: ChurchVerdict, epoch: u64, evidence_receipt: [u8; 32],
     ) -> Self {
         Self {
             church,
@@ -299,9 +296,7 @@ pub enum BabylonClaim {
 /// Returns `Ok(())` if the receipt chain is non-zero and causally valid.
 /// Returns `Err(PlagueRecord)` exposing the specific defect.
 pub fn verify_lamb_authority(
-    evidence_receipt: &[u8; 32],
-    previous_receipt: &[u8; 32],
-    epoch: u64,
+    evidence_receipt: &[u8; 32], previous_receipt: &[u8; 32], epoch: u64,
 ) -> Result<(), PlagueRecord> {
     if evidence_receipt == &[0u8; 32] {
         // Zero receipt = no evidence was examined = FalseProphet plague
@@ -389,7 +384,10 @@ mod tests {
         assert_eq!(record.epoch, 1);
         assert_eq!(record.trigger, Pair2::new(10, 20));
         // The plague record itself must be receipted (genuine)
-        assert!(record.is_genuine(), "PlagueRecord must carry a real BLAKE3 receipt");
+        assert!(
+            record.is_genuine(),
+            "PlagueRecord must carry a real BLAKE3 receipt"
+        );
     }
 
     #[test]
@@ -430,7 +428,10 @@ mod tests {
         let receipt = Receipt::generate(&act, &prev);
 
         let result = verify_lamb_authority(&receipt.signature, &prev, 1);
-        assert!(result.is_ok(), "Real BLAKE3 receipt must pass lamb authority");
+        assert!(
+            result.is_ok(),
+            "Real BLAKE3 receipt must pass lamb authority"
+        );
     }
 
     #[test]
@@ -465,13 +466,11 @@ mod tests {
 
     #[test]
     fn test_church_judgment_with_zero_receipt_is_not_evidenced() {
-        let judgment = ChurchJudgment::new(
-            Church::Genesis,
-            ChurchVerdict::Overcomes,
-            1,
-            [0u8; 32],
+        let judgment = ChurchJudgment::new(Church::Genesis, ChurchVerdict::Overcomes, 1, [0u8; 32]);
+        assert!(
+            !judgment.is_evidenced(),
+            "Zero-receipt judgment is itself a plague"
         );
-        assert!(!judgment.is_evidenced(), "Zero-receipt judgment is itself a plague");
     }
 
     #[test]
@@ -489,6 +488,10 @@ mod tests {
         let mut sorted: Vec<u8> = churches.to_vec();
         sorted.sort();
         sorted.dedup();
-        assert_eq!(sorted.len(), 7, "All seven churches must have distinct byte values");
+        assert_eq!(
+            sorted.len(),
+            7,
+            "All seven churches must have distinct byte values"
+        );
     }
 }

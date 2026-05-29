@@ -44,9 +44,8 @@ impl PartCompiler {
 
     async fn compile_wasm(&self, source: &str) -> Result<Vec<u8>> {
         // Create temporary workspace
-        let temp = TempDir::new().map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create temp dir: {}", e)
-        })?;
+        let temp = TempDir::new()
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create temp dir: {}", e))?;
 
         let work_dir = temp.path();
 
@@ -63,29 +62,24 @@ crate-type = ["cdylib"]
 "#;
 
         let cargo_path = work_dir.join("Cargo.toml");
-        std::fs::write(&cargo_path, cargo_toml).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write Cargo.toml: {}", e)
-        })?;
+        std::fs::write(&cargo_path, cargo_toml)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write Cargo.toml: {}", e))?;
 
         // Write source to lib.rs
         let src_dir = work_dir.join("src");
-        std::fs::create_dir(&src_dir).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create src dir: {}", e)
-        })?;
+        std::fs::create_dir(&src_dir)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create src dir: {}", e))?;
 
         let lib_rs = src_dir.join("lib.rs");
-        std::fs::write(&lib_rs, source).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write lib.rs: {}", e)
-        })?;
+        std::fs::write(&lib_rs, source)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write lib.rs: {}", e))?;
 
         // Invoke wasm-pack
         let output = Command::new("wasm-pack")
             .args(["build", "--target", "web", "--opt-level", "z"])
             .current_dir(work_dir)
             .output()
-            .map_err(|e| {
-                crate::utils::error::ggen_error!("Failed to invoke wasm-pack: {}", e)
-            })?;
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to invoke wasm-pack: {}", e))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -96,33 +90,27 @@ crate-type = ["cdylib"]
         }
 
         // Read compiled .wasm file
-        let wasm_path = work_dir
-            .join("pkg")
-            .join("genesis_part_bg.wasm");
-        std::fs::read(&wasm_path).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to read compiled WASM: {}", e)
-        })
+        let wasm_path = work_dir.join("pkg").join("genesis_part_bg.wasm");
+        std::fs::read(&wasm_path)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to read compiled WASM: {}", e))
     }
 
     async fn compile_erlang(&self, source: &str) -> Result<Vec<u8>> {
         // Create temporary directory
-        let temp = TempDir::new().map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create temp dir: {}", e)
-        })?;
+        let temp = TempDir::new()
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create temp dir: {}", e))?;
 
         let work_dir = temp.path();
 
         // Write source to .erl file
         let erl_path = work_dir.join("genesis_part.erl");
-        std::fs::write(&erl_path, source).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write .erl file: {}", e)
-        })?;
+        std::fs::write(&erl_path, source)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write .erl file: {}", e))?;
 
         // Create output directory
         let output_dir = work_dir.join("beam");
-        std::fs::create_dir(&output_dir).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create output dir: {}", e)
-        })?;
+        std::fs::create_dir(&output_dir)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create output dir: {}", e))?;
 
         // Invoke erlc
         let output = Command::new("erlc")
@@ -132,9 +120,7 @@ crate-type = ["cdylib"]
                 erl_path.to_string_lossy().as_ref(),
             ])
             .output()
-            .map_err(|e| {
-                crate::utils::error::ggen_error!("Failed to invoke erlc: {}", e)
-            })?;
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to invoke erlc: {}", e))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -146,16 +132,14 @@ crate-type = ["cdylib"]
 
         // Read compiled .beam file
         let beam_path = output_dir.join("genesis_part.beam");
-        std::fs::read(&beam_path).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to read compiled BEAM: {}", e)
-        })
+        std::fs::read(&beam_path)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to read compiled BEAM: {}", e))
     }
 
     async fn compile_arm(&self, source: &str) -> Result<Vec<u8>> {
         // Create temporary workspace
-        let temp = TempDir::new().map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create temp dir: {}", e)
-        })?;
+        let temp = TempDir::new()
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create temp dir: {}", e))?;
 
         let work_dir = temp.path();
 
@@ -176,34 +160,24 @@ path = "src/main.rs"
 "#;
 
         let cargo_path = work_dir.join("Cargo.toml");
-        std::fs::write(&cargo_path, cargo_toml).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write Cargo.toml: {}", e)
-        })?;
+        std::fs::write(&cargo_path, cargo_toml)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write Cargo.toml: {}", e))?;
 
         // Write source
         let src_dir = work_dir.join("src");
-        std::fs::create_dir(&src_dir).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create src dir: {}", e)
-        })?;
+        std::fs::create_dir(&src_dir)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create src dir: {}", e))?;
 
         let main_rs = src_dir.join("main.rs");
-        std::fs::write(&main_rs, source).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write main.rs: {}", e)
-        })?;
+        std::fs::write(&main_rs, source)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write main.rs: {}", e))?;
 
         // Invoke cargo for ARM (assumes target installed)
         let output = Command::new("cargo")
-            .args([
-                "build",
-                "--release",
-                "--target",
-                "thumbv7em-none-eabihf",
-            ])
+            .args(["build", "--release", "--target", "thumbv7em-none-eabihf"])
             .current_dir(work_dir)
             .output()
-            .map_err(|e| {
-                crate::utils::error::ggen_error!("Failed to invoke cargo: {}", e)
-            })?;
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to invoke cargo: {}", e))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -227,9 +201,8 @@ path = "src/main.rs"
 
     async fn compile_native(&self, source: &str) -> Result<Vec<u8>> {
         // Create temporary workspace
-        let temp = TempDir::new().map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create temp dir: {}", e)
-        })?;
+        let temp = TempDir::new()
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create temp dir: {}", e))?;
 
         let work_dir = temp.path();
 
@@ -246,29 +219,24 @@ crate-type = ["cdylib"]
 "#;
 
         let cargo_path = work_dir.join("Cargo.toml");
-        std::fs::write(&cargo_path, cargo_toml).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write Cargo.toml: {}", e)
-        })?;
+        std::fs::write(&cargo_path, cargo_toml)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write Cargo.toml: {}", e))?;
 
         // Write source
         let src_dir = work_dir.join("src");
-        std::fs::create_dir(&src_dir).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to create src dir: {}", e)
-        })?;
+        std::fs::create_dir(&src_dir)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to create src dir: {}", e))?;
 
         let lib_rs = src_dir.join("lib.rs");
-        std::fs::write(&lib_rs, source).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to write lib.rs: {}", e)
-        })?;
+        std::fs::write(&lib_rs, source)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to write lib.rs: {}", e))?;
 
         // Invoke cargo build
         let output = Command::new("cargo")
             .args(["build", "--lib", "--release"])
             .current_dir(work_dir)
             .output()
-            .map_err(|e| {
-                crate::utils::error::ggen_error!("Failed to invoke cargo: {}", e)
-            })?;
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to invoke cargo: {}", e))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -286,14 +254,10 @@ crate-type = ["cdylib"]
         #[cfg(target_os = "windows")]
         let lib_name = "genesis_part_native.dll";
 
-        let lib_path = work_dir
-            .join("target")
-            .join("release")
-            .join(lib_name);
+        let lib_path = work_dir.join("target").join("release").join(lib_name);
 
-        std::fs::read(&lib_path).map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to read compiled library: {}", e)
-        })
+        std::fs::read(&lib_path)
+            .map_err(|e| crate::utils::error::ggen_error!("Failed to read compiled library: {}", e))
     }
 }
 

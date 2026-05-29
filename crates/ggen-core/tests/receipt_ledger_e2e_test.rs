@@ -1,4 +1,11 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! Receipt Ledger E2E Test
 //!
@@ -75,15 +82,15 @@ struct ReceiptEnvelope {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 struct Producer {
-    system: String,   // "ggen" | "mcpp" | "truex"
-    kind: String,     // "code-artifact" | "routing-verdict" | "proof-gate-result"
+    system: String, // "ggen" | "mcpp" | "truex"
+    kind: String,   // "code-artifact" | "routing-verdict" | "proof-gate-result"
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 struct ReceiptPayload {
     schema: String,
-    hash: String,     // BLAKE3 hash of artifact
-    path: String,     // Relative path to artifact
+    hash: String, // BLAKE3 hash of artifact
+    path: String, // Relative path to artifact
     #[serde(default)]
     input_hashes: std::collections::HashMap<String, String>, // Map of input names → hashes
     #[serde(default)]
@@ -99,10 +106,7 @@ struct Signature {
 
 impl ReceiptEnvelope {
     fn new(
-        system: &str,
-        kind: &str,
-        artifact_path: &Path,
-        artifact_hash: String,
+        system: &str, kind: &str, artifact_path: &Path, artifact_hash: String,
         previous_hash: Option<String>,
     ) -> std::io::Result<Self> {
         let now = chrono::Utc::now().to_rfc3339();
@@ -166,14 +170,14 @@ fn test_ggen_receipt_generation() -> std::io::Result<()> {
     )?;
 
     // Add input/output hashes to payload
-    receipt.payload.input_hashes.insert(
-        "ontology".to_string(),
-        "blake3:abc123def456".to_string(),
-    );
-    receipt.payload.output_hashes.insert(
-        "main.rs".to_string(),
-        artifact_hash.clone(),
-    );
+    receipt
+        .payload
+        .input_hashes
+        .insert("ontology".to_string(), "blake3:abc123def456".to_string());
+    receipt
+        .payload
+        .output_hashes
+        .insert("main.rs".to_string(), artifact_hash.clone());
 
     // Serialize and persist
     let receipt_json = receipt.to_json().expect("Failed to serialize receipt");
@@ -260,10 +264,10 @@ fn test_causal_chain_linking() -> std::io::Result<()> {
         ggen_hash.clone(),
         None,
     )?;
-    ggen_receipt.payload.output_hashes.insert(
-        "generated.rs".to_string(),
-        ggen_hash.clone(),
-    );
+    ggen_receipt
+        .payload
+        .output_hashes
+        .insert("generated.rs".to_string(), ggen_hash.clone());
 
     let ggen_json = ggen_receipt.to_json().unwrap();
     let ggen_receipt_file = fixture.receipts_path().join("rcpt-ggen-001.json");
@@ -312,7 +316,10 @@ fn test_causal_chain_linking() -> std::io::Result<()> {
     );
 
     // ggen has no previous (origin)
-    assert_eq!(ggen_persisted.previous, None, "ggen receipt should be origin");
+    assert_eq!(
+        ggen_persisted.previous, None,
+        "ggen receipt should be origin"
+    );
 
     // Both should have valid timestamps
     assert!(!ggen_persisted.timestamp.is_empty());
@@ -338,7 +345,8 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
         "previous": null,
         "signature": { "algorithm": "Ed25519", "key_id": "ggen.prod.20260527", "bytes": "" },
         "timestamp": "2026-05-27T00:00:00Z"
-    }).to_string();
+    })
+    .to_string();
 
     // Create two receipt directories (simulating mcpp and ggen)
     let dir1 = fixture.temp_dir.path().join("receipts_dir1");
@@ -359,7 +367,8 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
         "previous": null,
         "signature": { "algorithm": "Ed25519", "key_id": "ggen.prod.20260527", "bytes": "" },
         "timestamp": "2026-05-27T00:00:01Z"
-    }).to_string();
+    })
+    .to_string();
     fs::write(dir2.join(receipt_file), &updated_content)?;
 
     // Act: Simulate ledger query with deduplication (last wins)
@@ -372,7 +381,10 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
         if path.extension().map_or(false, |ext| ext == "json") {
             let content = fs::read_to_string(&path)?;
             let receipt: ReceiptEnvelope = serde_json::from_str(&content)?;
-            receipts.push((path.file_name().unwrap().to_string_lossy().to_string(), receipt));
+            receipts.push((
+                path.file_name().unwrap().to_string_lossy().to_string(),
+                receipt,
+            ));
         }
     }
 
@@ -385,7 +397,10 @@ fn test_receipt_deduplication() -> std::io::Result<()> {
             let receipt: ReceiptEnvelope = serde_json::from_str(&content)?;
             // Last wins: remove previous entry with same ID if exists
             receipts.retain(|(id, _)| id != path.file_name().unwrap().to_string_lossy().as_ref());
-            receipts.push((path.file_name().unwrap().to_string_lossy().to_string(), receipt));
+            receipts.push((
+                path.file_name().unwrap().to_string_lossy().to_string(),
+                receipt,
+            ));
         }
     }
 
@@ -412,12 +427,19 @@ fn test_multi_artifact_receipt_chain() -> std::io::Result<()> {
 
     for stage in 0..3 {
         let artifact_name = format!("stage_{}_output.rs", stage);
-        let artifact_path = fixture.create_test_artifact(&artifact_name, &format!("// Stage {}", stage))?;
+        let artifact_path =
+            fixture.create_test_artifact(&artifact_name, &format!("// Stage {}", stage))?;
         let artifact_hash = blake3_hash_file(&artifact_path)?;
 
         // Create receipt with previous hash
         let mut receipt = ReceiptEnvelope::new(
-            if stage == 0 { "ggen" } else if stage == 1 { "mcpp" } else { "truex" },
+            if stage == 0 {
+                "ggen"
+            } else if stage == 1 {
+                "mcpp"
+            } else {
+                "truex"
+            },
             "code-artifact",
             &artifact_path,
             artifact_hash.clone(),
@@ -430,7 +452,9 @@ fn test_multi_artifact_receipt_chain() -> std::io::Result<()> {
             .insert(artifact_name, artifact_hash.clone());
 
         let receipt_json = receipt.to_json().unwrap();
-        let receipt_file = fixture.receipts_path().join(format!("rcpt-stage-{:03}.json", stage));
+        let receipt_file = fixture
+            .receipts_path()
+            .join(format!("rcpt-stage-{:03}.json", stage));
         fs::write(&receipt_file, &receipt_json)?;
 
         // Compute receipt hash for next stage's previous link
@@ -440,7 +464,9 @@ fn test_multi_artifact_receipt_chain() -> std::io::Result<()> {
     // Act: Load all receipts and verify chain
     let mut receipts = Vec::new();
     for i in 0..3 {
-        let receipt_file = fixture.receipts_path().join(format!("rcpt-stage-{:03}.json", i));
+        let receipt_file = fixture
+            .receipts_path()
+            .join(format!("rcpt-stage-{:03}.json", i));
         let json = fs::read_to_string(&receipt_file)?;
         let receipt: ReceiptEnvelope = serde_json::from_str(&json)?;
         receipts.push(receipt);
@@ -448,8 +474,14 @@ fn test_multi_artifact_receipt_chain() -> std::io::Result<()> {
 
     // Assert: Chain integrity
     assert_eq!(receipts[0].previous, None, "First receipt has no previous");
-    assert!(receipts[1].previous.is_some(), "Second receipt should have previous");
-    assert!(receipts[2].previous.is_some(), "Third receipt should have previous");
+    assert!(
+        receipts[1].previous.is_some(),
+        "Second receipt should have previous"
+    );
+    assert!(
+        receipts[2].previous.is_some(),
+        "Third receipt should have previous"
+    );
 
     // Each stage producer is different
     assert_eq!(receipts[0].producer.system, "ggen");
@@ -471,13 +503,8 @@ fn test_receipt_signature_structure() -> std::io::Result<()> {
     let artifact_path = fixture.create_test_artifact("signed.rs", "// Signed artifact")?;
     let artifact_hash = blake3_hash_file(&artifact_path)?;
 
-    let receipt = ReceiptEnvelope::new(
-        "ggen",
-        "code-artifact",
-        &artifact_path,
-        artifact_hash,
-        None,
-    )?;
+    let receipt =
+        ReceiptEnvelope::new("ggen", "code-artifact", &artifact_path, artifact_hash, None)?;
 
     // Assert: Verify signature structure (algorithm, key_id, bytes)
     assert_eq!(receipt.signature.algorithm, "Ed25519");
@@ -487,7 +514,10 @@ fn test_receipt_signature_structure() -> std::io::Result<()> {
     // Verify JSON serialization preserves signature
     let json = receipt.to_json().unwrap();
     let deserialized: ReceiptEnvelope = serde_json::from_str(&json).unwrap();
-    assert_eq!(deserialized.signature.algorithm, receipt.signature.algorithm);
+    assert_eq!(
+        deserialized.signature.algorithm,
+        receipt.signature.algorithm
+    );
     assert_eq!(deserialized.signature.key_id, receipt.signature.key_id);
 
     Ok(())
@@ -507,15 +537,11 @@ fn test_receipt_ledger_query() -> std::io::Result<()> {
         let artifact = fixture.create_test_artifact(&format!("{}.rs", id), "")?;
         let hash = blake3_hash_file(&artifact)?;
 
-        let receipt = ReceiptEnvelope::new(
-            "ggen",
-            "code-artifact",
-            &artifact,
-            hash,
-            None,
-        )?;
+        let receipt = ReceiptEnvelope::new("ggen", "code-artifact", &artifact, hash, None)?;
 
-        let receipt_file = fixture.receipts_path().join(format!("rcpt-{:03}-{}.json", idx, id));
+        let receipt_file = fixture
+            .receipts_path()
+            .join(format!("rcpt-{:03}-{}.json", idx, id));
         fs::write(&receipt_file, receipt.to_json().unwrap())?;
     }
 

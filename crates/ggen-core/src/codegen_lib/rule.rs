@@ -200,9 +200,7 @@ mod tests {
             template_str: "public class {{className}} {\n}\n".to_string(),
         };
 
-        let rendered = template
-            .render(&bindings)
-            .expect("Template should render");
+        let rendered = template.render(&bindings).expect("Template should render");
         assert!(
             rendered.contains("TestClass"),
             "Rendered output should contain className"
@@ -229,6 +227,9 @@ mod tests {
         );
 
         // Chicago TDD: Verify observable property - same content produces same hash
-        assert_eq!(file1.content_hash, file2.content_hash, "Same content must produce identical hash");
+        assert_eq!(
+            file1.content_hash, file2.content_hash,
+            "Same content must produce identical hash"
+        );
     }
 }

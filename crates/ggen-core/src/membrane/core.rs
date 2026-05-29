@@ -2,10 +2,10 @@
 //!
 //! Provides the outer membrane, adapter layer, and execution boundaries for Genesis.
 
-use std::collections::{BTreeMap, HashMap};
-use std::time::SystemTime;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, HashMap};
+use std::time::SystemTime;
 use uuid::Uuid;
 
 use crate::utils::error::Result;
@@ -141,20 +141,17 @@ impl GgenMembrane {
 
     /// Register an adapter binding between an outer port and inner component interface
     pub fn bind_adapter(&mut self, outer_port: &str, inner_interface: &str) {
-        self.adapters.insert(outer_port.to_string(), inner_interface.to_string());
+        self.adapters
+            .insert(outer_port.to_string(), inner_interface.to_string());
     }
 
     /// Execute an operations crossing the membrane boundary into the Genesis core
     pub fn invoke(
-        &mut self,
-        caller: &str,
-        callee_part_id: &str,
-        interface_fn: &str,
-        input_data: &[u8],
+        &mut self, caller: &str, callee_part_id: &str, interface_fn: &str, input_data: &[u8],
     ) -> Result<(Vec<u8>, BoundaryCrossing)> {
         let start_time = Instant::new();
         let utc_now = Utc::now();
-        
+
         // Calculate cryptographic evidence for the input payload using BLAKE3
         let input_hash = blake3::hash(input_data).to_hex().to_string();
 
@@ -175,7 +172,7 @@ impl GgenMembrane {
             output.extend_from_slice(interface_fn.as_bytes());
             output.extend_from_slice(b" on data: ");
             output.extend_from_slice(input_data);
-            
+
             (output, 0)
         } else {
             (b"Part not found".to_vec(), 404)
@@ -199,7 +196,8 @@ impl GgenMembrane {
             duration_us: duration,
         };
 
-        self.event_log.clone_from(&[self.event_log.clone(), vec![crossing.clone()]].concat());
+        self.event_log
+            .clone_from(&[self.event_log.clone(), vec![crossing.clone()]].concat());
 
         Ok((output_data, crossing))
     }
@@ -212,6 +210,8 @@ impl Instant {
         Self(SystemTime::now())
     }
     fn elapsed(&self) -> std::time::Duration {
-        self.0.elapsed().unwrap_or(std::time::Duration::from_secs(0))
+        self.0
+            .elapsed()
+            .unwrap_or(std::time::Duration::from_secs(0))
     }
 }

@@ -39,9 +39,7 @@ impl PartSigner {
             "payload_size": manufactured.payload_size,
             "interfaces": manufactured.interfaces,
         }))
-        .map_err(|e| {
-            crate::utils::error::ggen_error!("Failed to serialize for signing: {}", e)
-        })?;
+        .map_err(|e| crate::utils::error::ggen_error!("Failed to serialize for signing: {}", e))?;
 
         // Calculate hash
         let hash = blake3::hash(canonical_json.as_bytes()).to_hex().to_string();

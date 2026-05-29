@@ -3,10 +3,10 @@
 //! Conforming to the OCEL standard JSON format, providing event maps, object maps,
 //! and attribute mappings.
 
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
+use super::core::{BoundaryCrossing, GgenMembrane, InterchangeablePart};
 use crate::utils::error::Result;
-use super::core::{GgenMembrane, BoundaryCrossing, InterchangeablePart};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Value representation in OCEL logs
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -70,11 +70,26 @@ impl OcelLog {
         // 1. Map interchangeable parts as OCEL objects
         for (part_id, part) in &membrane.core.parts {
             let mut attrs = HashMap::new();
-            attrs.insert("version".to_string(), OcelValue::String(part.version.clone()));
-            attrs.insert("part_type".to_string(), OcelValue::String(part.part_type.clone()));
-            attrs.insert("payload_hash".to_string(), OcelValue::String(part.payload_hash.clone()));
-            attrs.insert("payload_size".to_string(), OcelValue::Number(part.payload_size as f64));
-            attrs.insert("interfaces".to_string(), OcelValue::StringArray(part.interfaces.clone()));
+            attrs.insert(
+                "version".to_string(),
+                OcelValue::String(part.version.clone()),
+            );
+            attrs.insert(
+                "part_type".to_string(),
+                OcelValue::String(part.part_type.clone()),
+            );
+            attrs.insert(
+                "payload_hash".to_string(),
+                OcelValue::String(part.payload_hash.clone()),
+            );
+            attrs.insert(
+                "payload_size".to_string(),
+                OcelValue::Number(part.payload_size as f64),
+            );
+            attrs.insert(
+                "interfaces".to_string(),
+                OcelValue::StringArray(part.interfaces.clone()),
+            );
 
             objects.insert(
                 part_id.clone(),
@@ -88,7 +103,10 @@ impl OcelLog {
         // 2. Map adapters as OCEL objects
         for (outer_port, inner_interface) in &membrane.adapters {
             let mut attrs = HashMap::new();
-            attrs.insert("inner_interface".to_string(), OcelValue::String(inner_interface.clone()));
+            attrs.insert(
+                "inner_interface".to_string(),
+                OcelValue::String(inner_interface.clone()),
+            );
 
             objects.insert(
                 format!("adapter:{}", outer_port),
@@ -102,14 +120,29 @@ impl OcelLog {
         // 3. Map boundary events as OCEL events
         for crossing in &membrane.event_log {
             let mut attrs = HashMap::new();
-            attrs.insert("crossing_type".to_string(), OcelValue::String(crossing.crossing_type.clone()));
-            attrs.insert("interface_fn".to_string(), OcelValue::String(crossing.interface_fn.clone()));
-            attrs.insert("input_hash".to_string(), OcelValue::String(crossing.input_hash.clone()));
+            attrs.insert(
+                "crossing_type".to_string(),
+                OcelValue::String(crossing.crossing_type.clone()),
+            );
+            attrs.insert(
+                "interface_fn".to_string(),
+                OcelValue::String(crossing.interface_fn.clone()),
+            );
+            attrs.insert(
+                "input_hash".to_string(),
+                OcelValue::String(crossing.input_hash.clone()),
+            );
             if let Some(ref oh) = crossing.output_hash {
                 attrs.insert("output_hash".to_string(), OcelValue::String(oh.clone()));
             }
-            attrs.insert("status_code".to_string(), OcelValue::Number(crossing.status_code as f64));
-            attrs.insert("duration_us".to_string(), OcelValue::Number(crossing.duration_us as f64));
+            attrs.insert(
+                "status_code".to_string(),
+                OcelValue::Number(crossing.status_code as f64),
+            );
+            attrs.insert(
+                "duration_us".to_string(),
+                OcelValue::Number(crossing.duration_us as f64),
+            );
 
             // Relate event to the caller and callee objects
             let mut related_objects = vec![crossing.callee_id.clone()];

@@ -156,9 +156,7 @@ impl RdfAnalyzer {
         // Jump to the first line that declares the token as a subject (`token a ...`).
         for (idx, text) in self.source.lines().enumerate() {
             let trimmed = text.trim_start();
-            if trimmed.starts_with(&token)
-                && trimmed[token.len()..].trim_start().starts_with('a')
-            {
+            if trimmed.starts_with(&token) && trimmed[token.len()..].trim_start().starts_with('a') {
                 let pos = Position {
                     line: u32::try_from(idx).unwrap_or(0),
                     character: 0,
@@ -309,15 +307,13 @@ impl RdfAnalyzer {
     }
 
     pub fn call_hierarchy_items(
-        &self,
-        _position: Position,
+        &self, _position: Position,
     ) -> Option<Vec<tower_lsp::lsp_types::CallHierarchyItem>> {
         None
     }
 
     pub fn type_hierarchy_items(
-        &self,
-        _position: Position,
+        &self, _position: Position,
     ) -> Option<Vec<tower_lsp::lsp_types::TypeHierarchyItem>> {
         None
     }

@@ -1,5 +1,3 @@
-
-
 pub struct GitHubStewardshipMembrane;
 
 impl GitHubStewardshipMembrane {

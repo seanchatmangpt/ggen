@@ -40,11 +40,7 @@ const TOML_ENUMS: &[(&str, &[&str])] = &[
 /// LSP layer can treat "no hints" uniformly. Hints whose anchor position is
 /// outside `range` are filtered out.
 #[must_use]
-pub fn inlay_hints(
-    file_type: FileType,
-    content: &str,
-    range: Range,
-) -> Option<Vec<InlayHint>> {
+pub fn inlay_hints(file_type: FileType, content: &str, range: Range) -> Option<Vec<InlayHint>> {
     let hints = match file_type {
         FileType::Rdf => rdf_hints(content),
         FileType::Toml => toml_hints(content),
@@ -170,8 +166,7 @@ struct PrefixedToken {
 /// ASCII identifiers used here.
 fn prefixed_names(line: &str) -> Vec<PrefixedToken> {
     let chars: Vec<char> = line.chars().collect();
-    let is_pname_char =
-        |c: char| c.is_alphanumeric() || matches!(c, '_' | '-' | '.' | ':' | '#');
+    let is_pname_char = |c: char| c.is_alphanumeric() || matches!(c, '_' | '-' | '.' | ':' | '#');
     let mut out = Vec::new();
     let mut i = 0usize;
     let mut in_iri = false; // inside <...>

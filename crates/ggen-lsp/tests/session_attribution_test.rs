@@ -20,7 +20,11 @@ fn three_transports_are_attributed_and_separable() {
     fs::write(&rq, E0011_SRC).expect("write");
 
     // Same family, three transports — distinct agents + sessions.
-    let cases = [("alpha", "lsp", "s1"), ("beta", "mcp", "s2"), ("gamma", "a2a", "s3")];
+    let cases = [
+        ("alpha", "lsp", "s1"),
+        ("beta", "mcp", "s2"),
+        ("gamma", "a2a", "s3"),
+    ];
     for (agent, transport, session) in cases {
         check_files_in_root(root, &[rq.clone()], true)
             .capture_attributed(root, &Attribution::new(agent, transport, session));
@@ -35,8 +39,14 @@ fn three_transports_are_attributed_and_separable() {
             .iter()
             .find(|e| e.attributes.get("agent_id").map(String::as_str) == Some(agent))
             .unwrap_or_else(|| panic!("events for agent {agent}"));
-        assert_eq!(ev.attributes.get("transport").map(String::as_str), Some(transport));
-        assert_eq!(ev.attributes.get("session_id").map(String::as_str), Some(session));
+        assert_eq!(
+            ev.attributes.get("transport").map(String::as_str),
+            Some(transport)
+        );
+        assert_eq!(
+            ev.attributes.get("session_id").map(String::as_str),
+            Some(session)
+        );
     }
 
     // Separable: each transport's episode is a distinct case (no collision).

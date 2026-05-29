@@ -82,10 +82,7 @@ mod tests {
             sparql_kind("PREFIX ex: <http://e/>\nSELECT ?s WHERE { ?s ?p ?o }"),
             SparqlKind::Select
         );
-        assert_eq!(
-            sparql_kind("ASK { ?s ?p ?o }"),
-            SparqlKind::Ask
-        );
+        assert_eq!(sparql_kind("ASK { ?s ?p ?o }"), SparqlKind::Ask);
         assert_eq!(
             sparql_kind("CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"),
             SparqlKind::Construct

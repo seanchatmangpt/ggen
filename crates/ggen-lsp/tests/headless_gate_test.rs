@@ -22,8 +22,7 @@ fn values_in_external_rq_is_refused() {
     assert!(report.files[0]
         .diagnostics
         .iter()
-        .any(|d| d.code
-            == Some(tower_lsp::lsp_types::NumberOrString::String("E0010".into()))));
+        .any(|d| d.code == Some(tower_lsp::lsp_types::NumberOrString::String("E0010".into()))));
 }
 
 #[test]
@@ -46,13 +45,20 @@ fn clean_turtle_passes_the_gate() {
 fn malformed_turtle_is_refused_with_location() {
     let dir = TempDir::new().expect("tempdir");
     let ttl = dir.path().join("broken.ttl");
-    fs::write(&ttl, "@prefix ex: <http://example.org/> .\nex:a ex:b \"oops\n").expect("write");
+    fs::write(
+        &ttl,
+        "@prefix ex: <http://example.org/> .\nex:a ex:b \"oops\n",
+    )
+    .expect("write");
 
     let report = check_files(&[ttl]);
 
     assert!(report.has_errors());
     let diag = &report.files[0].diagnostics[0];
-    assert_eq!(diag.severity, Some(tower_lsp::lsp_types::DiagnosticSeverity::ERROR));
+    assert_eq!(
+        diag.severity,
+        Some(tower_lsp::lsp_types::DiagnosticSeverity::ERROR)
+    );
 }
 
 #[test]
@@ -79,7 +85,10 @@ fn ggen_does_not_flag_llm_sections() {
 
     let report = check_files(&[cfg]);
 
-    assert!(!report.has_errors(), "an [ai] section is not a ggen concern");
+    assert!(
+        !report.has_errors(),
+        "an [ai] section is not a ggen concern"
+    );
 }
 
 #[test]
@@ -87,7 +96,11 @@ fn multiple_files_aggregate_and_one_bad_fails_the_batch() {
     let dir = TempDir::new().expect("tempdir");
     let good = dir.path().join("good.ttl");
     let bad = dir.path().join("bad.rq");
-    fs::write(&good, "@prefix ex: <http://example.org/> .\nex:A a ex:B .\n").expect("write");
+    fs::write(
+        &good,
+        "@prefix ex: <http://example.org/> .\nex:A a ex:B .\n",
+    )
+    .expect("write");
     fs::write(&bad, "SELECT ?s WHERE { VALUES ?s { <http://x> } }").expect("write");
 
     let report = check_files(&[good, bad]);

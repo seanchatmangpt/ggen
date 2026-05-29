@@ -940,12 +940,17 @@ struct InMemoryLlmService {
 
 impl LlmService for InMemoryLlmService {
     fn generate_skill_impl(
-        &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str,
-        _language: &str,
+        &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str, _language: &str,
     ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
         // Real implementation: generate deterministic skill code
-        let implementation = format!("// Generated impl for {}\nfn {}() {{}}", skill_name, skill_name);
-        self.generated_impls.lock().unwrap().push(implementation.clone());
+        let implementation = format!(
+            "// Generated impl for {}\nfn {}() {{}}",
+            skill_name, skill_name
+        );
+        self.generated_impls
+            .lock()
+            .unwrap()
+            .push(implementation.clone());
         Ok(implementation)
     }
 
@@ -1020,14 +1025,23 @@ fn test_llm_service_injection() {
     let output_path = temp_dir.path().join("output/skill.rs");
     assert!(output_path.exists(), "Output file should exist");
     let content = fs::read_to_string(&output_path).expect("Should read file");
-    assert!(content.contains("Generated impl for test_skill"), "Generated content should contain skill name");
+    assert!(
+        content.contains("Generated impl for test_skill"),
+        "Generated content should contain skill name"
+    );
 
     // Verify the implementation was actually generated (not just template substitution)
-    assert!(content.contains("fn test_skill()"), "Generated code should contain function definition");
+    assert!(
+        content.contains("fn test_skill()"),
+        "Generated code should contain function definition"
+    );
 
     // Verify the service was actually called by checking the generated_impls list
     let generated_count = impls_ref.lock().unwrap().len();
-    assert_eq!(generated_count, 1, "LLM service should have generated exactly one implementation");
+    assert_eq!(
+        generated_count, 1,
+        "LLM service should have generated exactly one implementation"
+    );
 }
 
 // ---------------------------------------------------------------------------

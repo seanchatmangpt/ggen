@@ -67,8 +67,6 @@ invalid: [yaml
     assert!(result.is_err());
 }
 
-
-
 #[test]
 fn test_template_parse_multiline_frontmatter() {
     let template_str = r#"---
@@ -487,8 +485,6 @@ to: "output.rs"
 
     Ok(())
 }
-
-
 
 #[test]
 fn test_template_render_inheritance() -> Result<()> {

@@ -49,13 +49,21 @@ async fn promoted_route_demotes_when_it_stops_conforming() {
     let rec1 = after1
         .get("mined.config-value")
         .expect("config route promoted in cycle 1");
-    assert_eq!(rec1.status, RouteStatus::Active, "a conformant route is Active");
+    assert_eq!(
+        rec1.status,
+        RouteStatus::Active,
+        "a conformant route is Active"
+    );
     let support1 = rec1.support;
 
     // --- Cycle 2: the route STOPS working — four real failures accumulate. ---
     let mut bad = Vec::new();
     for i in 0..4 {
-        bad.push(write(root, &format!("bad{i}.toml"), "[logging]\nlevel = \"verbose\"\n"));
+        bad.push(write(
+            root,
+            &format!("bad{i}.toml"),
+            "[logging]\nlevel = \"verbose\"\n",
+        ));
     }
     check_files_in_root(root, &bad, true).capture(root);
     mine(root).expect("cycle 2 mine");
@@ -70,7 +78,10 @@ async fn promoted_route_demotes_when_it_stops_conforming() {
         RouteStatus::Demoted,
         "route is Demoted once cumulative success falls below threshold"
     );
-    assert!(rec2.support > support1, "more episodes accumulated (support rose)");
+    assert!(
+        rec2.support > support1,
+        "more episodes accumulated (support rose)"
+    );
 
     let m = compute_metrics(root);
     assert!(

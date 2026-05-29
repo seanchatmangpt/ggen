@@ -6,20 +6,54 @@
 
 use std::collections::HashSet;
 use tower_lsp::lsp_types::{
-    CallHierarchyItem, CodeLens, CompletionItem, CompletionItemKind, CompletionResponse, Diagnostic,
-    DiagnosticSeverity, DocumentSymbol, FoldingRange, FoldingRangeKind, Hover, InlayHint, Location,
-    Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
+    CallHierarchyItem, CodeLens, CompletionItem, CompletionItemKind, CompletionResponse,
+    Diagnostic, DiagnosticSeverity, DocumentSymbol, FoldingRange, FoldingRangeKind, Hover,
+    InlayHint, Location, Position, Range, SymbolKind, TextEdit, WorkspaceEdit,
 };
 
 use crate::analyzers::diag;
 
 const FILTERS: &[&str] = &[
-    "upper", "lower", "capitalize", "trim", "truncate", "length", "reverse", "first", "last",
-    "join", "default", "replace", "title", "wordcount", "slugify", "json_encode", "abs", "round",
+    "upper",
+    "lower",
+    "capitalize",
+    "trim",
+    "truncate",
+    "length",
+    "reverse",
+    "first",
+    "last",
+    "join",
+    "default",
+    "replace",
+    "title",
+    "wordcount",
+    "slugify",
+    "json_encode",
+    "abs",
+    "round",
 ];
 const KEYWORDS: &[&str] = &[
-    "if", "elif", "else", "endif", "for", "endfor", "block", "endblock", "set", "include",
-    "extends", "macro", "endmacro", "filter", "endfilter", "raw", "endraw", "in", "and", "or",
+    "if",
+    "elif",
+    "else",
+    "endif",
+    "for",
+    "endfor",
+    "block",
+    "endblock",
+    "set",
+    "include",
+    "extends",
+    "macro",
+    "endmacro",
+    "filter",
+    "endfilter",
+    "raw",
+    "endraw",
+    "in",
+    "and",
+    "or",
     "not",
 ];
 
@@ -32,8 +66,7 @@ pub struct TeraAnalyzer {
 
 impl TeraAnalyzer {
     pub fn new_from_content(
-        content: &str,
-        sparql_bindings: &str,
+        content: &str, sparql_bindings: &str,
     ) -> Result<Self, crate::error::LspError> {
         Ok(Self {
             source: content.to_string(),

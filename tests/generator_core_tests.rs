@@ -1,4 +1,11 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! Comprehensive tests for Generator Core systems (80 tests)
 //!
@@ -786,7 +793,11 @@ fn test_streaming_generator_empty_directory() -> Result<()> {
 
 #[test]
 fn test_generation_result_success_rate() {
-    let mut result = GenerationResult { success_count: 9, error_count: 1, ..Default::default() };
+    let mut result = GenerationResult {
+        success_count: 9,
+        error_count: 1,
+        ..Default::default()
+    };
 
     assert_eq!(result.success_rate(), 90.0);
 }
@@ -802,7 +813,11 @@ fn test_generation_result_throughput() {
 
 #[test]
 fn test_generation_result_total_count() {
-    let mut result = GenerationResult { success_count: 7, error_count: 3, ..Default::default() };
+    let mut result = GenerationResult {
+        success_count: 7,
+        error_count: 3,
+        ..Default::default()
+    };
 
     assert_eq!(result.total_count(), 10);
 }

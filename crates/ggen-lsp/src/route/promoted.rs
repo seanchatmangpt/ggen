@@ -102,10 +102,22 @@ mod tests {
 
     #[test]
     fn promotable_only_above_both_thresholds() {
-        assert!(is_promotable(&mined(5, 0.8)), "high support + success → promotable");
-        assert!(!is_promotable(&mined(1, 0.9)), "low support → not promotable");
-        assert!(!is_promotable(&mined(10, 0.2)), "low success → not promotable");
-        assert!(!is_promotable(&Provenance::Seeded), "seed is never 'promotable over'");
+        assert!(
+            is_promotable(&mined(5, 0.8)),
+            "high support + success → promotable"
+        );
+        assert!(
+            !is_promotable(&mined(1, 0.9)),
+            "low support → not promotable"
+        );
+        assert!(
+            !is_promotable(&mined(10, 0.2)),
+            "low success → not promotable"
+        );
+        assert!(
+            !is_promotable(&Provenance::Seeded),
+            "seed is never 'promotable over'"
+        );
     }
 
     #[test]
@@ -118,7 +130,10 @@ mod tests {
             routes: vec![RepairRoute {
                 id: RouteId("mined.x".into()),
                 family: RepairFamily::TemplateFailure,
-                steps: PartialOrder { nodes: vec![], edges: vec![] },
+                steps: PartialOrder {
+                    nodes: vec![],
+                    edges: vec![],
+                },
                 description: "mined".into(),
                 provenance: mined(4, 0.7),
                 priority: 0,
@@ -138,6 +153,9 @@ mod tests {
             std::fs::create_dir_all(parent).expect("mkdir");
         }
         std::fs::write(&path, r#"{"version":99,"source_log_hash":"x","routes":[]}"#).expect("w");
-        assert!(load_promoted(&path).is_none(), "unknown major → fail-closed");
+        assert!(
+            load_promoted(&path).is_none(),
+            "unknown major → fail-closed"
+        );
     }
 }

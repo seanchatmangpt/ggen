@@ -17,7 +17,7 @@ use super::log::IntelLog;
 use super::receipt::RepairReceipt;
 use crate::route::{
     default_pack_routes_path, family_of_code, write_promoted, EditTemplate, PartialOrder,
-    Provenance, PromotedRoutes, RepairFamily, RepairRoute, RepairStep, RouteId, StepId,
+    PromotedRoutes, Provenance, RepairFamily, RepairRoute, RepairStep, RouteId, StepId,
 };
 
 /// SPARQL predicate the episode case object is reached through.
@@ -163,8 +163,7 @@ fn family_slug(family: RepairFamily) -> &'static str {
 
 /// Synthesize one **advisory** mined route per family that has evidence.
 fn synthesize_routes(
-    evidence: &BTreeMap<String, FamilyEvidence>,
-    source_report_hash: &str,
+    evidence: &BTreeMap<String, FamilyEvidence>, source_report_hash: &str,
 ) -> Vec<RepairRoute> {
     let mut routes = Vec::new();
     for (code, ev) in evidence {
@@ -265,10 +264,7 @@ pub fn mine(root: &Path) -> Result<MineReport, ggen_graph::GraphError> {
 }
 
 fn append_history(
-    root: &Path,
-    promoted: &PromotedRoutes,
-    source_log_hash: &str,
-    receipt_hex: Option<&str>,
+    root: &Path, promoted: &PromotedRoutes, source_log_hash: &str, receipt_hex: Option<&str>,
 ) {
     use crate::intel::history::{PromotionHistory, RoutePromotionRecord, RouteStatus};
     use crate::route::is_promotable;
@@ -329,9 +325,7 @@ fn hash_file(path: &Path) -> String {
 
 /// Write the promotion receipt; return its signature hex (for the history ledger).
 fn emit_promotion_receipt(
-    root: &Path,
-    source_log_hash: &str,
-    promoted: &PromotedRoutes,
+    root: &Path, source_log_hash: &str, promoted: &PromotedRoutes,
 ) -> Option<String> {
     let routes_json = serde_json::to_string(promoted).unwrap_or_default();
     let pre: [u8; 32] = blake3::hash(source_log_hash.as_bytes()).into();
@@ -355,10 +349,7 @@ fn emit_promotion_receipt(
 }
 
 fn write_report(
-    path: &Path,
-    event_count: usize,
-    failure_edges: &[DfgEdge],
-    all_edges: &[DfgEdge],
+    path: &Path, event_count: usize, failure_edges: &[DfgEdge], all_edges: &[DfgEdge],
 ) -> Result<(), ggen_graph::GraphError> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)
@@ -373,7 +364,10 @@ fn write_report(
         md.push_str("| _(none yet — insufficient evidence)_ | | | |\n");
     } else {
         for e in failure_edges {
-            md.push_str(&format!("| {} | → | {} | {} |\n", e.source, e.target, e.frequency));
+            md.push_str(&format!(
+                "| {} | → | {} | {} |\n",
+                e.source, e.target, e.frequency
+            ));
         }
     }
     md.push_str(&format!(
@@ -416,7 +410,10 @@ mod tests {
             .find(|r| r.family == RepairFamily::TemplateFailure)
             .expect("template-failure route");
         // Measured success_rate should be high (all 3 episodes closed) → promotable.
-        assert!(is_promotable(&route.provenance), "conformant route is promotable");
+        assert!(
+            is_promotable(&route.provenance),
+            "conformant route is promotable"
+        );
     }
 
     #[test]
@@ -450,15 +447,16 @@ mod tests {
         let dir = TempDir::new().expect("tempdir");
         let log = IntelLog::at_root(dir.path());
         let run = new_run_id();
-        log.append(&[diagnostic_raised("t.tera", "E0024", "error", "0:0-0:1", &run, 1)])
-            .expect("append");
+        log.append(&[diagnostic_raised(
+            "t.tera", "E0024", "error", "0:0-0:1", &run, 1,
+        )])
+        .expect("append");
         mine(dir.path()).expect("mine");
         let receipts = std::fs::read_dir(dir.path().join(".ggen/receipts")).expect("dir");
         assert!(
-            receipts.filter_map(Result::ok).any(|e| e
-                .file_name()
-                .to_string_lossy()
-                .starts_with("promotion-")),
+            receipts
+                .filter_map(Result::ok)
+                .any(|e| e.file_name().to_string_lossy().starts_with("promotion-")),
             "a promotion receipt was written"
         );
     }

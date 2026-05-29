@@ -131,7 +131,11 @@ impl ServerState {
         };
         let file = uri.path().to_string();
         let key = |d: &Diagnostic| {
-            format!("{}|{}", crate::check::diag_code(d), crate::check::span_str(d.range))
+            format!(
+                "{}|{}",
+                crate::check::diag_code(d),
+                crate::check::span_str(d.range)
+            )
         };
 
         let mut published = self.published_diags.lock().await;
@@ -150,12 +154,32 @@ impl ServerState {
             let code = crate::check::diag_code(d);
             let span = crate::check::span_str(d.range);
             let sev = crate::check::severity_str(d.severity);
-            events.push(diagnostic_raised(&file, &code, sev, &span, &self.run_id, self.next_seq()));
+            events.push(diagnostic_raised(
+                &file,
+                &code,
+                sev,
+                &span,
+                &self.run_id,
+                self.next_seq(),
+            ));
             if let Some(route) = self.routes.select_for_diagnostic(d) {
                 let source = crate::check::route_source(&route.provenance);
                 let route_id = route.id.0.clone();
-                events.push(route_selected(&file, &code, &route_id, source, &self.run_id, self.next_seq()));
-                events.push(repair_suggested(&file, &code, &route_id, &self.run_id, self.next_seq()));
+                events.push(route_selected(
+                    &file,
+                    &code,
+                    &route_id,
+                    source,
+                    &self.run_id,
+                    self.next_seq(),
+                ));
+                events.push(repair_suggested(
+                    &file,
+                    &code,
+                    &route_id,
+                    &self.run_id,
+                    self.next_seq(),
+                ));
                 pending.insert((uri.clone(), code.clone()), route_id);
             }
         }
@@ -167,14 +191,31 @@ impl ServerState {
             }
             let code = crate::check::diag_code(d);
             if let Some(route_id) = pending.remove(&(uri.clone(), code.clone())) {
-                events.push(repair_applied(&file, &code, &route_id, &self.run_id, self.next_seq()));
-                events.push(gate_result(&file, &code, true, 0, &self.run_id, self.next_seq()));
-                let receipt_id = blake3::hash(
-                    format!("{file}|{code}|{}", self.run_id).as_bytes(),
-                )
-                .to_hex()[..16]
+                events.push(repair_applied(
+                    &file,
+                    &code,
+                    &route_id,
+                    &self.run_id,
+                    self.next_seq(),
+                ));
+                events.push(gate_result(
+                    &file,
+                    &code,
+                    true,
+                    0,
+                    &self.run_id,
+                    self.next_seq(),
+                ));
+                let receipt_id = blake3::hash(format!("{file}|{code}|{}", self.run_id).as_bytes())
+                    .to_hex()[..16]
                     .to_string();
-                events.push(receipt_emitted(&file, &code, &receipt_id, &self.run_id, self.next_seq()));
+                events.push(receipt_emitted(
+                    &file,
+                    &code,
+                    &receipt_id,
+                    &self.run_id,
+                    self.next_seq(),
+                ));
             }
         }
 
@@ -206,7 +247,10 @@ impl ServerState {
         analyzers.remove(uri);
 
         self.published_diags.lock().await.remove(uri);
-        self.pending_repairs.lock().await.retain(|(u, _), _| u != uri);
+        self.pending_repairs
+            .lock()
+            .await
+            .retain(|(u, _), _| u != uri);
     }
 
     pub async fn set_analyzer(&self, uri: Url, analyzer: DocumentAnalyzer) {

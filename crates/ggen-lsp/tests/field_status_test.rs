@@ -35,8 +35,18 @@ fn field_status_breaks_down_by_transport_from_real_evidence() {
     // Real evidence across three transports (no fabrication).
     check_files_in_root(root, std::slice::from_ref(&rq), true)
         .capture_attributed(root, &Attribution::new("alpha", "lsp", "s-lsp"));
-    capture_request(root, "q.rq", E0011_SRC, &Attribution::new("beta", "mcp", "s-mcp"));
-    capture_request(root, "q.rq", E0011_SRC, &Attribution::new("gamma", "a2a", "s-a2a"));
+    capture_request(
+        root,
+        "q.rq",
+        E0011_SRC,
+        &Attribution::new("beta", "mcp", "s-mcp"),
+    );
+    capture_request(
+        root,
+        "q.rq",
+        E0011_SRC,
+        &Attribution::new("gamma", "a2a", "s-a2a"),
+    );
 
     let s = field_status(root);
     assert_eq!(s.episode_count, 3, "one E0011 episode per transport");
@@ -63,7 +73,10 @@ fn verdict_matches_compute_metrics_one_source_of_truth() {
 
     let s = field_status(root);
     let m = compute_metrics(root);
-    assert_eq!(s.verdict, m.verdict, "cockpit reuses the compute_metrics verdict verbatim");
+    assert_eq!(
+        s.verdict, m.verdict,
+        "cockpit reuses the compute_metrics verdict verbatim"
+    );
     assert_eq!(s.cycles, m.cycles, "cycles agree — never a divergent count");
 }
 
@@ -82,5 +95,8 @@ fn distinct_variants_reflect_distinct_chains() {
 
     let s = field_status(Path::new(root));
     assert_eq!(s.episode_count, 2);
-    assert_eq!(s.distinct_variants, 2, "warning-close vs error-refusal are distinct variants");
+    assert_eq!(
+        s.distinct_variants, 2,
+        "warning-close vs error-refusal are distinct variants"
+    );
 }

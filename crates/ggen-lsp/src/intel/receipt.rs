@@ -33,11 +33,8 @@ impl RepairReceipt {
     /// Mint a receipt, computing the binding hash over all fields.
     #[must_use]
     pub fn new(
-        diagnostic_event_id: String,
-        diagnostic_code: String,
-        pre_state_hash: [u8; 32],
-        post_state_hash: [u8; 32],
-        gate_pass: bool,
+        diagnostic_event_id: String, diagnostic_code: String, pre_state_hash: [u8; 32],
+        post_state_hash: [u8; 32], gate_pass: bool,
     ) -> Self {
         let timestamp = Utc::now();
         let version = 1u8;
@@ -88,13 +85,8 @@ impl RepairReceipt {
 
     #[allow(clippy::too_many_arguments)]
     fn compute_hash(
-        version: u8,
-        timestamp: &DateTime<Utc>,
-        diagnostic_event_id: &str,
-        diagnostic_code: &str,
-        pre: &[u8; 32],
-        post: &[u8; 32],
-        gate_pass: bool,
+        version: u8, timestamp: &DateTime<Utc>, diagnostic_event_id: &str, diagnostic_code: &str,
+        pre: &[u8; 32], post: &[u8; 32], gate_pass: bool,
     ) -> [u8; 32] {
         let mut h = blake3::Hasher::new();
         h.update(&[version]);

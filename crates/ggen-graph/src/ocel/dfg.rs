@@ -36,8 +36,7 @@ pub struct DfgEdge {
 /// # Errors
 /// Returns a [`GraphError`] if the SPARQL query fails to parse or evaluate.
 pub fn discover_dfg(
-    graph: &DeterministicGraph,
-    case_qualifier_iri: &str,
+    graph: &DeterministicGraph, case_qualifier_iri: &str,
 ) -> Result<Vec<DfgEdge>, GraphError> {
     let q = format!(
         r#"
@@ -69,10 +68,7 @@ pub fn discover_dfg(
             let sol = sol.map_err(|e| GraphError::Serialization(e.to_string()))?;
             let source = literal_value(sol.get("a1"));
             let target = literal_value(sol.get("a2"));
-            let frequency = sol
-                .get("freq")
-                .and_then(term_to_u64)
-                .unwrap_or(0);
+            let frequency = sol.get("freq").and_then(term_to_u64).unwrap_or(0);
             if let (Some(source), Some(target)) = (source, target) {
                 edges.push(DfgEdge {
                     source,

@@ -5,7 +5,7 @@
 //!
 //! Chicago TDD: Real generated files, real validators, no mocks.
 
-use ggen_core::validation::{validate_syntax, detect_language, LanguageType};
+use ggen_core::validation::{detect_language, validate_syntax, LanguageType};
 use std::path::Path;
 use tempfile::TempDir;
 
@@ -25,23 +25,35 @@ fn test_detect_language_toml() {
 
 #[test]
 fn test_detect_language_json() {
-    assert_eq!(detect_language(Path::new("config.json")), LanguageType::Json);
+    assert_eq!(
+        detect_language(Path::new("config.json")),
+        LanguageType::Json
+    );
 }
 
 #[test]
 fn test_detect_language_yaml() {
-    assert_eq!(detect_language(Path::new("config.yaml")), LanguageType::Yaml);
+    assert_eq!(
+        detect_language(Path::new("config.yaml")),
+        LanguageType::Yaml
+    );
     assert_eq!(detect_language(Path::new("config.yml")), LanguageType::Yaml);
 }
 
 #[test]
 fn test_detect_language_markdown() {
-    assert_eq!(detect_language(Path::new("README.md")), LanguageType::Markdown);
+    assert_eq!(
+        detect_language(Path::new("README.md")),
+        LanguageType::Markdown
+    );
 }
 
 #[test]
 fn test_detect_language_tera() {
-    assert_eq!(detect_language(Path::new("template.tera")), LanguageType::Tera);
+    assert_eq!(
+        detect_language(Path::new("template.tera")),
+        LanguageType::Tera
+    );
 }
 
 // ── Valid Syntax Tests ─────────────────────────────────────────────────────────
@@ -136,7 +148,10 @@ fn test_validate_syntax_markdown_passthrough() {
 fn test_validate_syntax_rust_invalid_missing_semicolon() {
     let code = "fn main() { let x = 1 }";
     let result = validate_syntax(Path::new("main.rs"), code);
-    assert!(result.is_err(), "Rust code with missing semicolon must fail");
+    assert!(
+        result.is_err(),
+        "Rust code with missing semicolon must fail"
+    );
     let err = result.unwrap_err().to_string();
     assert!(err.contains("Rust"), "Error must mention Rust language");
 }

@@ -310,9 +310,7 @@ fn test_add_nonexistent_pack_does_not_fake_success_or_emit_receipt() {
     let stderr = String::from_utf8_lossy(&output.stderr);
     let combined = format!("{stdout}{stderr}");
 
-    let loud = code != Some(0)
-        || combined.contains("not_found")
-        || combined.contains("not found");
+    let loud = code != Some(0) || combined.contains("not_found") || combined.contains("not found");
     assert!(
         loud,
         "FAIL-OPEN DEFECT: adding a nonexistent pack must fail loudly. Got exit {:?}, output: {}",
@@ -483,8 +481,7 @@ fn test_remove_absent_pack_exits_nonzero_and_preserves_lockfile() {
         .assert()
         .failure()
         .stderr(
-            predicate::str::contains("not installed")
-                .or(predicate::str::contains("not-installed")),
+            predicate::str::contains("not installed").or(predicate::str::contains("not-installed")),
         );
 
     assert!(

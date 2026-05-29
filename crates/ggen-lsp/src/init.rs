@@ -103,7 +103,10 @@ pub fn init(root: &Path, editors: &[String], agents: &[String]) -> io::Result<In
     }
     if want("vscode") {
         write_if_absent(
-            &root.join(".ggen").join("editor").join("vscode-lsp-note.json"),
+            &root
+                .join(".ggen")
+                .join("editor")
+                .join("vscode-lsp-note.json"),
             VSCODE_NOTE,
             &mut written,
             root,
@@ -137,10 +140,7 @@ pub fn init(root: &Path, editors: &[String], agents: &[String]) -> io::Result<In
 }
 
 fn write_if_absent(
-    path: &Path,
-    contents: &str,
-    written: &mut Vec<String>,
-    root: &Path,
+    path: &Path, contents: &str, written: &mut Vec<String>, root: &Path,
 ) -> io::Result<()> {
     if path.exists() {
         return Ok(()); // idempotent: never clobber existing editor config
@@ -166,7 +166,10 @@ mod tests {
 
         assert!(dir.path().join(".helix/languages.toml").is_file());
         assert!(dir.path().join(".ggen/editor/ggen-lsp.lua").is_file());
-        assert!(dir.path().join(".mcp.json").is_file(), "MCP server registration emitted");
+        assert!(
+            dir.path().join(".mcp.json").is_file(),
+            "MCP server registration emitted"
+        );
         assert!(dir
             .path()
             .join(".agent-admissibility/hooks/generic/pre-commit.sh")

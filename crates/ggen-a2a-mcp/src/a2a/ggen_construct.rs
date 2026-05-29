@@ -286,7 +286,10 @@ mod tests {
 
         let required = &schema["required"];
         assert!(required.as_array().unwrap().contains(&"task_id".into()));
-        assert!(required.as_array().unwrap().contains(&"ontology_uri".into()));
+        assert!(required
+            .as_array()
+            .unwrap()
+            .contains(&"ontology_uri".into()));
     }
 
     /// Oracle Gap closure: with valid input, the adapter must FAIL LOUD rather

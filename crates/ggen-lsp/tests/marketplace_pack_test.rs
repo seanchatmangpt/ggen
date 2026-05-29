@@ -15,14 +15,22 @@ async fn install_then_route_apply_receipt_end_to_end() {
 
     // --- Install: one command writes MCP + editor LSP + hooks + advertised pack. ---
     let report = init_project(root, &[], &["generic".to_string()]).expect("init");
-    assert!(root.join(".mcp.json").is_file(), "MCP server registration emitted");
-    assert!(root.join(".helix/languages.toml").is_file(), "editor LSP config emitted");
     assert!(
-        root.join(".agent-admissibility/hooks/generic/pre-edit.sh").is_file(),
+        root.join(".mcp.json").is_file(),
+        "MCP server registration emitted"
+    );
+    assert!(
+        root.join(".helix/languages.toml").is_file(),
+        "editor LSP config emitted"
+    );
+    assert!(
+        root.join(".agent-admissibility/hooks/generic/pre-edit.sh")
+            .is_file(),
         "agent hooks emitted"
     );
     assert!(
-        root.join(".agent-admissibility/pack-manifest.json").is_file(),
+        root.join(".agent-admissibility/pack-manifest.json")
+            .is_file(),
         "advertised pack manifest emitted"
     );
     assert!(!report.files_written.is_empty());
@@ -45,11 +53,15 @@ async fn install_then_route_apply_receipt_end_to_end() {
     // --- Receipt: the OCEL log under the installed root records the closed episode. ---
     let log = IntelLog::at_root(root).read();
     assert!(
-        log.events.iter().any(|e| e.activity == activity::REPAIR_APPLIED),
+        log.events
+            .iter()
+            .any(|e| e.activity == activity::REPAIR_APPLIED),
         "applied repair observed end-to-end"
     );
     assert!(
-        log.events.iter().any(|e| e.activity == activity::RECEIPT_EMITTED),
+        log.events
+            .iter()
+            .any(|e| e.activity == activity::RECEIPT_EMITTED),
         "receipt emitted end-to-end"
     );
 }

@@ -84,7 +84,9 @@ mod tests {
             graph.insert_quad(&quad)?;
         }
         let terms = iri_terms(&graph)?;
-        assert!(terms.classes.contains(&"http://example.org/Person".to_string()));
+        assert!(terms
+            .classes
+            .contains(&"http://example.org/Person".to_string()));
         assert!(terms
             .properties
             .contains(&"http://example.org/name".to_string()));

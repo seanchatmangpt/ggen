@@ -1,4 +1,11 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 //! OpenTelemetry validation framework for README capabilities
 //!
 //! This module provides trace-based validation that all README capabilities
@@ -47,7 +54,11 @@ impl TraceCollector {
 
     pub fn record_span(&self, span: SpanRecord) {
         if let Ok(mut spans) = self.spans.lock() {
-            println!("DEBUG: record_span pointer={:p} name={}", Arc::as_ptr(&self.spans), span.name);
+            println!(
+                "DEBUG: record_span pointer={:p} name={}",
+                Arc::as_ptr(&self.spans),
+                span.name
+            );
             spans.push(span);
         }
     }
@@ -78,14 +89,22 @@ impl TraceCollector {
     }
 
     pub fn assert_span_exists(&self, name: &str) -> Result<()> {
-        println!("DEBUG: assert_span_exists pointer={:p} name={}", Arc::as_ptr(&self.spans), name);
+        println!(
+            "DEBUG: assert_span_exists pointer={:p} name={}",
+            Arc::as_ptr(&self.spans),
+            name
+        );
         self.find_span(name)
             .ok_or_else(|| Error::new(&format!("Expected span '{}' not found", name)))?;
         Ok(())
     }
 
     pub fn assert_span_success(&self, name: &str) -> Result<()> {
-        println!("DEBUG: assert_span_success pointer={:p} name={}", Arc::as_ptr(&self.spans), name);
+        println!(
+            "DEBUG: assert_span_success pointer={:p} name={}",
+            Arc::as_ptr(&self.spans),
+            name
+        );
         let span = self
             .find_span(name)
             .ok_or_else(|| Error::new(&format!("Span '{}' not found", name)))?;
@@ -138,10 +157,13 @@ use tracing::Subscriber;
 use tracing_subscriber::layer::Context;
 use tracing_subscriber::Layer;
 
-pub static GLOBAL_COLLECTORS: Lazy<Mutex<HashMap<Id, TraceCollector>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+pub static GLOBAL_COLLECTORS: Lazy<Mutex<HashMap<Id, TraceCollector>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
-static SPAN_STARTS_MUTEX: Lazy<Mutex<HashMap<Id, Instant>>> = Lazy::new(|| Mutex::new(HashMap::new()));
-static SPAN_NAMES_MUTEX: Lazy<Mutex<HashMap<Id, String>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+static SPAN_STARTS_MUTEX: Lazy<Mutex<HashMap<Id, Instant>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
+static SPAN_NAMES_MUTEX: Lazy<Mutex<HashMap<Id, String>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 static INIT_SUBSCRIBER: Once = Once::new();
 
@@ -238,7 +260,10 @@ impl ValidationContext {
 
             match subscriber.try_init() {
                 Ok(_) => println!("INFO: Test tracing subscriber initialized successfully!"),
-                Err(e) => println!("WARNING: Failed to initialize test tracing subscriber: {}", e),
+                Err(e) => println!(
+                    "WARNING: Failed to initialize test tracing subscriber: {}",
+                    e
+                ),
             }
         });
 

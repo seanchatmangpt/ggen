@@ -12,7 +12,9 @@ pub mod prov;
 pub mod rdf;
 pub mod shacl;
 
-pub use self::core::{BoundaryCrossing, GenesisCore, GgenMembrane, InterchangeablePart, VectorClock};
+pub use self::core::{
+    BoundaryCrossing, GenesisCore, GgenMembrane, InterchangeablePart, VectorClock,
+};
 pub use self::ocel::{OcelEvent, OcelLog, OcelObject, OcelValue};
 pub use self::prov::{ProvDocument, ProvRelation};
 pub use self::rdf::RdfMembraneProjector;

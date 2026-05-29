@@ -133,10 +133,14 @@ mod tests {
     fn append_is_additive_across_calls() {
         let dir = TempDir::new().expect("tempdir");
         let log = IntelLog::at_root(dir.path());
-        log.append(&[diagnostic_raised("a.ttl", "E0010", "error", "0:0-0:1", "r", 1)])
-            .expect("append1");
-        log.append(&[diagnostic_raised("b.ttl", "E0024", "error", "0:0-0:1", "r", 2)])
-            .expect("append2");
+        log.append(&[diagnostic_raised(
+            "a.ttl", "E0010", "error", "0:0-0:1", "r", 1,
+        )])
+        .expect("append1");
+        log.append(&[diagnostic_raised(
+            "b.ttl", "E0024", "error", "0:0-0:1", "r", 2,
+        )])
+        .expect("append2");
         assert_eq!(log.read().events.len(), 2);
     }
 
@@ -144,8 +148,10 @@ mod tests {
     fn truncated_trailing_line_is_skipped() {
         let dir = TempDir::new().expect("tempdir");
         let log = IntelLog::at_root(dir.path());
-        log.append(&[diagnostic_raised("a.ttl", "E0010", "error", "0:0-0:1", "r", 1)])
-            .expect("append");
+        log.append(&[diagnostic_raised(
+            "a.ttl", "E0010", "error", "0:0-0:1", "r", 1,
+        )])
+        .expect("append");
         // Simulate a crash mid-write by appending a partial line.
         let mut f = OpenOptions::new()
             .append(true)

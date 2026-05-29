@@ -2,8 +2,8 @@
 //!
 //! Enforces structural, cryptographic, and pedigree constraints on membrane projections.
 
-use crate::utils::error::{Error, Result};
 use crate::graph::Graph;
+use crate::utils::error::{Error, Result};
 use crate::validation::{SparqlValidator, ValidationResult};
 
 /// Shapes Graph definition in Turtle for membrane components, events, and provenance.

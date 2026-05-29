@@ -1,4 +1,11 @@
-#![allow(dead_code, unused_imports, unused_variables, deprecated, clippy::all, unused_mut)]
+#![allow(
+    dead_code,
+    unused_imports,
+    unused_variables,
+    deprecated,
+    clippy::all,
+    unused_mut
+)]
 
 //! Domain bounds enforcement and saturation testing for Genesis primitives.
 //! Tests that left and right domains enforce 256-symbol limits and proper refusal.
@@ -50,16 +57,8 @@ fn test_symbol_domain_255_distinct_symbols() {
     for i in 0..255 {
         let symbol = [(i & 0xFF) as u8, 0, 0, 0, 0, 0, 0, 0];
         let result = domain.insert(symbol);
-        assert!(
-            result.is_ok(),
-            "Insert {} should succeed",
-            i
-        );
-        assert!(
-            result.unwrap(),
-            "Insert {} should be new",
-            i
-        );
+        assert!(result.is_ok(), "Insert {} should succeed", i);
+        assert!(result.unwrap(), "Insert {} should be new", i);
         assert_eq!(
             domain.count(),
             i + 1,
@@ -112,7 +111,11 @@ fn test_relation_page_left_domain_saturation_blocks_insertion() {
     }
 
     // Verify left domain is at capacity
-    assert_eq!(page.left_domain.count(), 256, "Left domain should have 256 symbols");
+    assert_eq!(
+        page.left_domain.count(),
+        256,
+        "Left domain should have 256 symbols"
+    );
 
     // 257th insert with new subject should fail
     let subject_257 = Node8::from_bytes([255u8, 255u8, 0, 0, 0, 0, 0, 0]);
@@ -123,7 +126,11 @@ fn test_relation_page_left_domain_saturation_blocks_insertion() {
         !page.insert(pair_257),
         "Insert at left domain saturation must return false"
     );
-    assert_eq!(page.left_domain.count(), 256, "Left domain count must remain 256");
+    assert_eq!(
+        page.left_domain.count(),
+        256,
+        "Left domain count must remain 256"
+    );
 }
 
 #[test]

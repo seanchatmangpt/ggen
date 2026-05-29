@@ -59,7 +59,10 @@ fn capable_boundary() -> TempDir {
 
 fn copy_dir(src: &Path, dst: &Path) {
     std::fs::create_dir_all(dst).expect("mkdir");
-    for entry in std::fs::read_dir(src).expect("read_dir").filter_map(Result::ok) {
+    for entry in std::fs::read_dir(src)
+        .expect("read_dir")
+        .filter_map(Result::ok)
+    {
         let p = entry.path();
         let target = dst.join(entry.file_name());
         if p.is_dir() {
@@ -114,7 +117,11 @@ fn gall_refused_sync_emits_no_phantom_receipt_or_artifact() {
         .assert()
         .failure();
 
-    assert_eq!(receipt_count(dir.path()), 0, "a refused sync emits no phantom receipt");
+    assert_eq!(
+        receipt_count(dir.path()),
+        0,
+        "a refused sync emits no phantom receipt"
+    );
     assert_eq!(
         non_ggen_files(dir.path()),
         before,
@@ -173,14 +180,23 @@ fn gall_capable_sync_actuates_and_emits_receipt_when_not_dry_run() {
     );
 
     // Exactly one actuation left a receipt, and it is genuinely signed.
-    assert!(receipt_count(dir.path()) >= 1, "capable sync emits a receipt");
+    assert!(
+        receipt_count(dir.path()) >= 1,
+        "capable sync emits a receipt"
+    );
     let latest =
         std::fs::read_to_string(dir.path().join(".ggen/receipts/latest.json")).expect("receipt");
     let receipt: serde_json::Value = serde_json::from_str(&latest).expect("receipt is JSON");
     let sig = receipt["signature"].as_str().unwrap_or("");
-    assert!(!sig.is_empty(), "the actuation receipt carries a non-empty signature");
     assert!(
-        !receipt["output_hashes"].as_array().map(Vec::is_empty).unwrap_or(true),
+        !sig.is_empty(),
+        "the actuation receipt carries a non-empty signature"
+    );
+    assert!(
+        !receipt["output_hashes"]
+            .as_array()
+            .map(Vec::is_empty)
+            .unwrap_or(true),
         "the receipt records the output it produced"
     );
 }

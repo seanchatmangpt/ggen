@@ -74,10 +74,7 @@ fn anchor_line(anchor: Anchor, doc: &str) -> u32 {
 /// Build a `WorkspaceEdit` applying all of a route's steps to `uri`/`doc`.
 #[must_use]
 pub fn workspace_edit_from_route(
-    route: &RepairRoute,
-    bindings: &RouteBindings,
-    uri: &Url,
-    doc: &str,
+    route: &RepairRoute, bindings: &RouteBindings, uri: &Url, doc: &str,
 ) -> WorkspaceEdit {
     let edits: Vec<TextEdit> = ordered_steps(&route.steps)
         .iter()
@@ -95,10 +92,7 @@ pub fn workspace_edit_from_route(
 /// Build the editor-agnostic `RoutePlan` projection for non-editor agents.
 #[must_use]
 pub fn route_plan(
-    route: &RepairRoute,
-    bindings: &RouteBindings,
-    doc: &str,
-    target: DiagnosticRef,
+    route: &RepairRoute, bindings: &RouteBindings, doc: &str, target: DiagnosticRef,
 ) -> RoutePlan {
     let ordered_steps = ordered_steps(&route.steps)
         .iter()
@@ -131,11 +125,11 @@ fn ordered_steps(po: &PartialOrder) -> Vec<super::model::RepairStep> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::model::{
         EditTemplate, PartialOrder, Provenance, RepairFamily, RepairRoute, RepairStep, RouteId,
         StepId,
     };
+    use super::*;
 
     fn uri() -> Url {
         Url::parse("file:///spec.ttl").expect("valid uri")
@@ -155,7 +149,10 @@ mod tests {
         };
         let edit = render_edit(&tmpl, &b, doc).expect("edit");
         assert_eq!(edit.range.start.line, 1);
-        assert_eq!(edit.new_text, "@prefix sh: <http://www.w3.org/ns/shacl#> .\n");
+        assert_eq!(
+            edit.new_text,
+            "@prefix sh: <http://www.w3.org/ns/shacl#> .\n"
+        );
     }
 
     #[test]
@@ -166,8 +163,14 @@ mod tests {
         };
         let b = RouteBindings {
             site: Some(Range {
-                start: Position { line: 0, character: 5 },
-                end: Position { line: 0, character: 16 },
+                start: Position {
+                    line: 0,
+                    character: 5,
+                },
+                end: Position {
+                    line: 0,
+                    character: 16,
+                },
             }),
             iri: Some("dcterms:creator".into()),
             ..Default::default()

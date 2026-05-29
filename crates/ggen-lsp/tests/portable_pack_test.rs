@@ -78,7 +78,10 @@ fn pack_resolves_same_family_in_a_different_repo_with_independent_proof() {
     });
     assert!(used_mined, "repo B used the installed mined route");
     assert!(
-        log_b.events.iter().any(|e| e.activity == activity::RECEIPT_EMITTED),
+        log_b
+            .events
+            .iter()
+            .any(|e| e.activity == activity::RECEIPT_EMITTED),
         "repo B emitted its own independent receipt"
     );
     // B's proof lives under B's own root, distinct from A's pack.

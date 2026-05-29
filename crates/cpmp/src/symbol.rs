@@ -1,10 +1,11 @@
+use crate::models::Symbol;
 use regex::Regex;
 use std::path::Path;
-use crate::models::Symbol;
 
 pub fn extract_symbols(path: &Path, content: &str) -> Vec<Symbol> {
     let mut symbols = Vec::new();
-    let extension = path.extension()
+    let extension = path
+        .extension()
         .and_then(|ext| ext.to_str())
         .unwrap_or("")
         .to_lowercase();

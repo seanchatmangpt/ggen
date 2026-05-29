@@ -1,10 +1,13 @@
-use clap::{Parser, Subcommand};
-use std::path::PathBuf;
 use anyhow::Result;
-use cpmp::{scanner, receipt};
+use clap::{Parser, Subcommand};
+use cpmp::{receipt, scanner};
+use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "cpmp", about = "Computer Project Mapping Protocol (Open Ontologies Catalog)")]
+#[command(
+    name = "cpmp",
+    about = "Computer Project Mapping Protocol (Open Ontologies Catalog)"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

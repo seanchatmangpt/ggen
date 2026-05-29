@@ -4,10 +4,10 @@
 //! Only terminal states (Completed/Failed) are allowed - no chat.
 
 pub mod artifact;
+pub mod ggen_construct;
 pub mod receipt;
 pub mod state_machine;
 pub mod transport;
-pub mod ggen_construct;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

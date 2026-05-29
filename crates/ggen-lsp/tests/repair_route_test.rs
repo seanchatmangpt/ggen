@@ -21,14 +21,20 @@ fn invalid_enum_value_yields_an_advisory_route_not_a_destructive_edit() {
         .expect("invalid-enum diagnostic present");
 
     // Family mapping (E0023 → ConfigValue).
-    assert_eq!(family_of_diagnostic(enum_diag), Some(RepairFamily::ConfigValue));
+    assert_eq!(
+        family_of_diagnostic(enum_diag),
+        Some(RepairFamily::ConfigValue)
+    );
 
     // Registry selects an advisory route; its steps carry NO concrete edit
     // (we must never guess/delete the value).
     let registry = RouteRegistry::seeded();
     let plan = route_plan_for_diagnostic(&registry, enum_diag, "[logging]\nlevel = \"verbose\"\n")
         .expect("an advisory route exists");
-    assert!(!plan.ordered_steps.is_empty(), "advisory guidance is present");
+    assert!(
+        !plan.ordered_steps.is_empty(),
+        "advisory guidance is present"
+    );
     assert!(
         plan.ordered_steps.iter().all(|s| s.edit.is_none()),
         "advisory route must offer NO destructive edit, got {:?}",
@@ -39,7 +45,8 @@ fn invalid_enum_value_yields_an_advisory_route_not_a_destructive_edit() {
 #[test]
 fn ggen_does_not_flag_llm_or_unknown_sections() {
     // ggen is not in the LLM business: an [ai] section is unknown, not flagged.
-    let analyzer = build_analyzer("ggen.toml", "[ai]\nprovider = \"openai\"\n").expect("law surface");
+    let analyzer =
+        build_analyzer("ggen.toml", "[ai]\nprovider = \"openai\"\n").expect("law surface");
     assert!(
         analyzer.diagnostics().is_empty(),
         "ggen must not emit diagnostics about LLM/unknown sections"

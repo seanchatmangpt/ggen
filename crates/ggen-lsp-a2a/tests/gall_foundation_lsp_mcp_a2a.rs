@@ -128,7 +128,10 @@ fn gall_clean_playground_surface_has_no_blocking_route() {
         .find(|f| f.path.ends_with("thesis-ontology.ttl"))
         .expect("the .ttl is recognized as a law surface (appears in the report)");
 
-    assert_eq!(report.error_count, 0, "clean ontology has no ERROR diagnostics");
+    assert_eq!(
+        report.error_count, 0,
+        "clean ontology has no ERROR diagnostics"
+    );
     assert!(
         file.envelopes().is_empty(),
         "a clean law surface produces no repair route"
@@ -152,10 +155,15 @@ fn gall_mcp_tool_list_contains_repair_replay_metrics() {
     let args = json!({ "file_path": path, "file_content": content })
         .as_object()
         .cloned();
-    assert!(ggen_lsp_mcp::repair_route_result(args).is_ok(), "repair_route callable");
     assert!(
-        ggen_lsp_mcp::metrics_result(Some(json!({ "root": root_str() }).as_object().unwrap().clone()))
-            .is_ok(),
+        ggen_lsp_mcp::repair_route_result(args).is_ok(),
+        "repair_route callable"
+    );
+    assert!(
+        ggen_lsp_mcp::metrics_result(Some(
+            json!({ "root": root_str() }).as_object().unwrap().clone()
+        ))
+        .is_ok(),
         "metrics callable"
     );
     assert!(
@@ -180,7 +188,10 @@ fn gall_a2a_bridge_matches_mcp_for_repair_route() {
     )
     .expect("a2a dispatch");
     let mcp = ggen_lsp_mcp::build_repair_routes(&path, &content);
-    assert_eq!(a2a, mcp, "A2A bridge must equal the MCP result byte-for-byte");
+    assert_eq!(
+        a2a, mcp,
+        "A2A bridge must equal the MCP result byte-for-byte"
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -237,11 +248,13 @@ async fn gall_replay_metrics_surface_is_reachable_for_captured_case() {
         .expect("from_a2a captures a case");
 
     // Metrics surface reachable over the captured root.
-    let metrics = ggen_lsp_mcp::metrics_result(Some(
-        json!({ "root": root }).as_object().unwrap().clone(),
-    ))
-    .expect("metrics surface reachable");
-    assert!(metrics.is_object(), "metrics returns a structured verdict object");
+    let metrics =
+        ggen_lsp_mcp::metrics_result(Some(json!({ "root": root }).as_object().unwrap().clone()))
+            .expect("metrics surface reachable");
+    assert!(
+        metrics.is_object(),
+        "metrics returns a structured verdict object"
+    );
 
     // Replay surface reachable (verify_promotion path when no case_id is given).
     let replay = ggen_lsp_mcp::replay_case_result(Some(

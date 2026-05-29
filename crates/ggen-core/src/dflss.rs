@@ -349,7 +349,10 @@ output_dir = "."
         // No declared failure modes -> nothing can exceed RPN 200 (vacuously true).
         let temp = TempDir::new().expect("tempdir");
         let result = analyze_fmea_risk_threshold(temp.path());
-        assert!(result.is_ok(), "absent FMEA report must not fabricate failure");
+        assert!(
+            result.is_ok(),
+            "absent FMEA report must not fabricate failure"
+        );
     }
 
     #[test]
@@ -414,7 +417,10 @@ output_dir = "."
         fs::write(ggen_dir.join("fmea.json"), "{ not valid json").expect("write");
 
         let result = analyze_fmea_risk_threshold(temp.path());
-        assert!(result.is_err(), "malformed FMEA report must block, not pass");
+        assert!(
+            result.is_err(),
+            "malformed FMEA report must block, not pass"
+        );
     }
 
     /// End-to-end through the public Analyze gate, proving the wiring is live.

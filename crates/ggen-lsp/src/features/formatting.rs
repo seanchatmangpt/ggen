@@ -150,8 +150,14 @@ fn whole_document_range(content: &str) -> Range {
         }
     }
     Range {
-        start: Position { line: 0, character: 0 },
-        end: Position { line: last_line, character: last_col },
+        start: Position {
+            line: 0,
+            character: 0,
+        },
+        end: Position {
+            line: last_line,
+            character: last_col,
+        },
     }
 }
 
@@ -162,7 +168,11 @@ mod tests {
     /// Pull the single full-document replacement text out of a format result.
     fn formatted_text(edits: Option<Vec<TextEdit>>) -> Option<String> {
         let mut edits = edits?;
-        assert_eq!(edits.len(), 1, "formatters emit exactly one full-document edit");
+        assert_eq!(
+            edits.len(),
+            1,
+            "formatters emit exactly one full-document edit"
+        );
         Some(edits.remove(0).new_text)
     }
 
@@ -172,8 +182,8 @@ mod tests {
     fn toml_messy_but_valid_is_reformatted_and_still_parses() {
         // Misaligned spacing, blank lines, out-of-order keys — all valid TOML.
         let messy = "  [logging]\n\n\nlevel    =    \"info\"\nformat=\"json\"\n";
-        let out = formatted_text(format_document(FileType::Toml, messy))
-            .expect("valid TOML formats");
+        let out =
+            formatted_text(format_document(FileType::Toml, messy)).expect("valid TOML formats");
         assert_ne!(out, messy, "messy input must actually change");
         // Output is still valid TOML carrying the same data.
         let reparsed: toml::Table = toml::from_str(&out).expect("formatted TOML re-parses");
@@ -200,14 +210,17 @@ mod tests {
     #[test]
     fn turtle_messy_but_valid_is_reformatted_and_still_parses() {
         let messy = "@prefix ex:   <http://example.org/> .\n\n\n   ex:Thing    a    ex:Class    ;   ex:p   ex:o   .\n";
-        let out = formatted_text(format_document(FileType::Rdf, messy))
-            .expect("valid Turtle formats");
+        let out =
+            formatted_text(format_document(FileType::Rdf, messy)).expect("valid Turtle formats");
         assert_ne!(out, messy, "messy Turtle must change");
         // Output is still valid Turtle with the same triples.
         let reparsed = parse_turtle_quads(&out).expect("formatted Turtle re-parses");
         let original = parse_turtle_quads(messy).expect("original parses");
         assert_eq!(reparsed.len(), original.len(), "triple count preserved");
-        assert!(out.contains("ex:"), "prefixed names are preserved, not expanded");
+        assert!(
+            out.contains("ex:"),
+            "prefixed names are preserved, not expanded"
+        );
     }
 
     #[test]
@@ -221,7 +234,11 @@ mod tests {
     #[test]
     fn turtle_invalid_returns_none_no_corruption() {
         // Unterminated literal — must not rewrite.
-        assert!(format_document(FileType::Rdf, "@prefix ex: <http://example.org/> .\nex:a ex:b \"oops\n").is_none());
+        assert!(format_document(
+            FileType::Rdf,
+            "@prefix ex: <http://example.org/> .\nex:a ex:b \"oops\n"
+        )
+        .is_none());
     }
 
     // ---- SPARQL ------------------------------------------------------------
@@ -229,8 +246,8 @@ mod tests {
     #[test]
     fn sparql_messy_but_valid_is_reformatted_and_still_parses() {
         let messy = "select   ?s ?o where{?s   <http://example.org/p>   ?o.}";
-        let out = formatted_text(format_document(FileType::Sparql, messy))
-            .expect("valid SPARQL formats");
+        let out =
+            formatted_text(format_document(FileType::Sparql, messy)).expect("valid SPARQL formats");
         assert_ne!(out, messy, "messy SPARQL must change");
         // Output is still a valid SPARQL query: feeding it back through the same
         // Qlue-ls parser must succeed (a real re-parse, no deprecated oxigraph API).
@@ -238,7 +255,10 @@ mod tests {
             qlue_ls::format_raw(out.clone()).is_ok(),
             "formatted SPARQL re-parses"
         );
-        assert!(out.contains("SELECT"), "keywords normalized to canonical form");
+        assert!(
+            out.contains("SELECT"),
+            "keywords normalized to canonical form"
+        );
     }
 
     #[test]
@@ -268,21 +288,35 @@ mod tests {
     fn range_format_delegates_to_document_for_supported_grammars() {
         let messy = "[a]\nx=1\n";
         let range = Range {
-            start: Position { line: 0, character: 0 },
-            end: Position { line: 1, character: 3 },
+            start: Position {
+                line: 0,
+                character: 0,
+            },
+            end: Position {
+                line: 1,
+                character: 3,
+            },
         };
         let via_range = formatted_text(format_range(FileType::Toml, messy, range))
             .expect("range format delegates");
-        let via_doc =
-            formatted_text(format_document(FileType::Toml, messy)).expect("doc format");
-        assert_eq!(via_range, via_doc, "range format == document format for TOML");
+        let via_doc = formatted_text(format_document(FileType::Toml, messy)).expect("doc format");
+        assert_eq!(
+            via_range, via_doc,
+            "range format == document format for TOML"
+        );
     }
 
     #[test]
     fn range_format_none_for_tera() {
         let range = Range {
-            start: Position { line: 0, character: 0 },
-            end: Position { line: 0, character: 1 },
+            start: Position {
+                line: 0,
+                character: 0,
+            },
+            end: Position {
+                line: 0,
+                character: 1,
+            },
         };
         assert!(format_range(FileType::Tera, "{{ x }}", range).is_none());
     }
@@ -292,19 +326,43 @@ mod tests {
     #[test]
     fn whole_document_range_covers_to_last_column() {
         let r = whole_document_range("ab\ncde");
-        assert_eq!(r.start, Position { line: 0, character: 0 });
-        assert_eq!(r.end, Position { line: 1, character: 3 });
+        assert_eq!(
+            r.start,
+            Position {
+                line: 0,
+                character: 0
+            }
+        );
+        assert_eq!(
+            r.end,
+            Position {
+                line: 1,
+                character: 3
+            }
+        );
     }
 
     #[test]
     fn whole_document_range_trailing_newline() {
         let r = whole_document_range("ab\n");
-        assert_eq!(r.end, Position { line: 1, character: 0 });
+        assert_eq!(
+            r.end,
+            Position {
+                line: 1,
+                character: 0
+            }
+        );
     }
 
     #[test]
     fn whole_document_range_empty_document() {
         let r = whole_document_range("");
-        assert_eq!(r.end, Position { line: 0, character: 0 });
+        assert_eq!(
+            r.end,
+            Position {
+                line: 0,
+                character: 0
+            }
+        );
     }
 }

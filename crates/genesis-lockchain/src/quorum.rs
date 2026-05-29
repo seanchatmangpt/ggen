@@ -106,9 +106,7 @@ impl QuorumManager {
     /// Note: This is a synchronous mock implementation
     /// Production version would use async networking
     pub fn achieve_consensus(
-        &self,
-        root: [u8; 32],
-        cycle: u64,
+        &self, root: [u8; 32], cycle: u64,
     ) -> Result<QuorumProof, QuorumError> {
         let mut votes = Vec::new();
 

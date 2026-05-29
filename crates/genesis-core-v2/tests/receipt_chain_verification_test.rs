@@ -10,9 +10,9 @@
 //! This is Chicago TDD: real file I/O, real crypto verification,
 //! real hash computation. The receipt chain is immutable truth.
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::collections::HashMap;
 use tempfile::TempDir;
 
 #[derive(Debug)]
@@ -94,10 +94,7 @@ struct Signature {
 
 impl ReceiptEnvelope {
     fn new(
-        system: &str,
-        kind: &str,
-        artifact_path: &str,
-        artifact_hash: String,
+        system: &str, kind: &str, artifact_path: &str, artifact_hash: String,
         previous_hash: Option<String>,
     ) -> Self {
         let now = chrono::Utc::now().to_rfc3339();
@@ -144,7 +141,8 @@ fn test_truex_load_receipt_chain() -> std::io::Result<()> {
     let fixture = TruexReceiptFixture::new()?;
 
     // Arrange: Create ggen receipt
-    let ggen_artifact_hash = "blake3:abc123def456abc123def456abc123def456abc123def456abc123def456ab";
+    let ggen_artifact_hash =
+        "blake3:abc123def456abc123def456abc123def456abc123def456abc123def456ab";
     let mut ggen_receipt = ReceiptEnvelope::new(
         "ggen",
         "code-artifact",
@@ -152,10 +150,10 @@ fn test_truex_load_receipt_chain() -> std::io::Result<()> {
         ggen_artifact_hash.to_string(),
         None,
     );
-    ggen_receipt.payload.output_hashes.insert(
-        "main.rs".to_string(),
-        ggen_artifact_hash.to_string(),
-    );
+    ggen_receipt
+        .payload
+        .output_hashes
+        .insert("main.rs".to_string(), ggen_artifact_hash.to_string());
 
     let ggen_json = ggen_receipt.to_json().unwrap();
     fs::write(
@@ -166,7 +164,8 @@ fn test_truex_load_receipt_chain() -> std::io::Result<()> {
     let ggen_receipt_hash = blake3::hash(ggen_json.as_bytes()).to_hex().to_string();
 
     // Arrange: Create mcpp receipt (links to ggen)
-    let mcpp_verdict_hash = "blake3:xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz78";
+    let mcpp_verdict_hash =
+        "blake3:xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz78";
     let mut mcpp_receipt = ReceiptEnvelope::new(
         "mcpp",
         "routing-verdict",
@@ -174,10 +173,10 @@ fn test_truex_load_receipt_chain() -> std::io::Result<()> {
         mcpp_verdict_hash.to_string(),
         Some(ggen_receipt_hash.clone()),
     );
-    mcpp_receipt.payload.input_hashes.insert(
-        "ggen_artifact".to_string(),
-        ggen_artifact_hash.to_string(),
-    );
+    mcpp_receipt
+        .payload
+        .input_hashes
+        .insert("ggen_artifact".to_string(), ggen_artifact_hash.to_string());
     mcpp_receipt.payload.output_hashes.insert(
         "routing_verdict.json".to_string(),
         mcpp_verdict_hash.to_string(),
@@ -252,10 +251,10 @@ fn test_causal_chain_ggen_to_mcpp() -> std::io::Result<()> {
         ggen_output_hash.to_string(),
         None,
     );
-    ggen_receipt.payload.output_hashes.insert(
-        "main.rs".to_string(),
-        ggen_output_hash.to_string(),
-    );
+    ggen_receipt
+        .payload
+        .output_hashes
+        .insert("main.rs".to_string(), ggen_output_hash.to_string());
 
     let ggen_json = ggen_receipt.to_json().unwrap();
     fs::write(
@@ -273,10 +272,10 @@ fn test_causal_chain_ggen_to_mcpp() -> std::io::Result<()> {
         "blake3:xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz789xyz78".to_string(),
         Some(ggen_receipt_hash.clone()),
     );
-    mcpp_receipt.payload.input_hashes.insert(
-        "ggen_artifact".to_string(),
-        ggen_output_hash.to_string(),
-    );
+    mcpp_receipt
+        .payload
+        .input_hashes
+        .insert("ggen_artifact".to_string(), ggen_output_hash.to_string());
 
     let mcpp_json = mcpp_receipt.to_json().unwrap();
     fs::write(
@@ -285,13 +284,15 @@ fn test_causal_chain_ggen_to_mcpp() -> std::io::Result<()> {
     )?;
 
     // Act: truex validates causal chain
-    let ggen_receipt_loaded: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.ggen_receipts_path().join("rcpt-ggen-001.json"))?)
-            .expect("Failed to load ggen receipt");
+    let ggen_receipt_loaded: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.ggen_receipts_path().join("rcpt-ggen-001.json"),
+    )?)
+    .expect("Failed to load ggen receipt");
 
-    let mcpp_receipt_loaded: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.mcpp_receipts_path().join("rcpt-mcpp-001.json"))?)
-            .expect("Failed to load mcpp receipt");
+    let mcpp_receipt_loaded: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.mcpp_receipts_path().join("rcpt-mcpp-001.json"),
+    )?)
+    .expect("Failed to load mcpp receipt");
 
     // Extract hashes
     let ggen_output = ggen_receipt_loaded
@@ -343,9 +344,10 @@ fn test_receipt_signature_verification() -> std::io::Result<()> {
     )?;
 
     // Act: Load receipt and verify signature structure
-    let loaded_receipt: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.ggen_receipts_path().join("rcpt-ggen-001.json"))?)
-            .expect("Failed to load receipt");
+    let loaded_receipt: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.ggen_receipts_path().join("rcpt-ggen-001.json"),
+    )?)
+    .expect("Failed to load receipt");
 
     // Assert: Signature fields are present and non-empty
     assert_eq!(loaded_receipt.signature.algorithm, "Ed25519");
@@ -375,7 +377,9 @@ fn test_blake3_determinism_validation() -> std::io::Result<()> {
 
     // Arrange: Create an artifact and compute its hash
     let artifact_content = "fn main() { println!(\"Hello\"); }";
-    let artifact_hash_1 = blake3::hash(artifact_content.as_bytes()).to_hex().to_string();
+    let artifact_hash_1 = blake3::hash(artifact_content.as_bytes())
+        .to_hex()
+        .to_string();
 
     // Create receipt with this hash
     let ggen_receipt = ReceiptEnvelope::new(
@@ -393,7 +397,9 @@ fn test_blake3_determinism_validation() -> std::io::Result<()> {
     )?;
 
     // Act: Recompute the artifact hash (simulating truex re-execution)
-    let artifact_hash_2 = blake3::hash(artifact_content.as_bytes()).to_hex().to_string();
+    let artifact_hash_2 = blake3::hash(artifact_content.as_bytes())
+        .to_hex()
+        .to_string();
 
     // Assert: Hashes are identical (deterministic)
     assert_eq!(
@@ -402,9 +408,10 @@ fn test_blake3_determinism_validation() -> std::io::Result<()> {
     );
 
     // Verify receipt hash matches recomputed hash
-    let loaded_receipt: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.ggen_receipts_path().join("rcpt-ggen-001.json"))?)
-            .expect("Failed to load receipt");
+    let loaded_receipt: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.ggen_receipts_path().join("rcpt-ggen-001.json"),
+    )?)
+    .expect("Failed to load receipt");
 
     assert_eq!(
         loaded_receipt.payload.hash, artifact_hash_2,
@@ -453,14 +460,14 @@ fn test_full_receipt_chain_validation() -> std::io::Result<()> {
         mcpp_verdict_hash.to_string(),
         Some(ggen_receipt_hash.clone()),
     );
-    mcpp_receipt.payload.input_hashes.insert(
-        "ggen_artifact".to_string(),
-        ggen_artifact_hash.to_string(),
-    );
-    mcpp_receipt.payload.output_hashes.insert(
-        "verdict.json".to_string(),
-        mcpp_verdict_hash.to_string(),
-    );
+    mcpp_receipt
+        .payload
+        .input_hashes
+        .insert("ggen_artifact".to_string(), ggen_artifact_hash.to_string());
+    mcpp_receipt
+        .payload
+        .output_hashes
+        .insert("verdict.json".to_string(), mcpp_verdict_hash.to_string());
 
     let mcpp_json = mcpp_receipt.to_json().unwrap();
     fs::write(
@@ -500,10 +507,10 @@ fn test_full_receipt_chain_validation() -> std::io::Result<()> {
         blake3::hash("proof".as_bytes()).to_hex().to_string(),
         Some(mcpp_receipt_hash.clone()),
     );
-    truex_proof.payload.input_hashes.insert(
-        "mcpp_verdict".to_string(),
-        mcpp_verdict_hash.to_string(),
-    );
+    truex_proof
+        .payload
+        .input_hashes
+        .insert("mcpp_verdict".to_string(), mcpp_verdict_hash.to_string());
 
     let truex_json = truex_proof.to_json().unwrap();
     fs::write(
@@ -527,9 +534,10 @@ fn test_full_receipt_chain_validation() -> std::io::Result<()> {
     assert_eq!(mcpp.previous, Some(ggen_receipt_hash.clone()));
 
     // Verify truex records the full chain
-    let truex_loaded: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.truex_receipts_path().join("rcpt-truex-001.json"))?)
-            .expect("Failed to load truex proof");
+    let truex_loaded: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.truex_receipts_path().join("rcpt-truex-001.json"),
+    )?)
+    .expect("Failed to load truex proof");
 
     assert_eq!(truex_loaded.producer.system, "truex");
     assert_eq!(truex_loaded.producer.kind, "proof-gate-result");
@@ -578,17 +586,25 @@ fn test_powl_conformance_via_receipt_replay() -> std::io::Result<()> {
 
     // Act: truex replays POWL conformance
     // In real system: Load POWL routes, verify stages executed in order
-    let ggen_loaded: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.ggen_receipts_path().join("rcpt-ggen-001.json"))?)
-            .expect("Failed to load ggen");
+    let ggen_loaded: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.ggen_receipts_path().join("rcpt-ggen-001.json"),
+    )?)
+    .expect("Failed to load ggen");
 
-    let mcpp_loaded: ReceiptEnvelope =
-        serde_json::from_str(&fs::read_to_string(fixture.mcpp_receipts_path().join("rcpt-mcpp-001.json"))?)
-            .expect("Failed to load mcpp");
+    let mcpp_loaded: ReceiptEnvelope = serde_json::from_str(&fs::read_to_string(
+        fixture.mcpp_receipts_path().join("rcpt-mcpp-001.json"),
+    )?)
+    .expect("Failed to load mcpp");
 
     // Verify stage ordering (ggen before mcpp)
-    assert_eq!(ggen_loaded.producer.system, "ggen", "Stage 1 should be ggen");
-    assert_eq!(mcpp_loaded.producer.system, "mcpp", "Stage 2 should be mcpp");
+    assert_eq!(
+        ggen_loaded.producer.system, "ggen",
+        "Stage 1 should be ggen"
+    );
+    assert_eq!(
+        mcpp_loaded.producer.system, "mcpp",
+        "Stage 2 should be mcpp"
+    );
 
     // Verify prerequisite satisfied (mcpp.previous links to ggen)
     assert_eq!(

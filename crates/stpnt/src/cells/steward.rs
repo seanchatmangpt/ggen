@@ -1,9 +1,9 @@
+use crate::canon::{CanonBasis, SCRIPTURE_1_COR_4_2};
+use async_trait::async_trait;
 use ggen_core::parts_execution::{ExecutionPacket, ExecutionStatus, PartExecutor, VectorClock};
 use ggen_core::utils::error::Result;
 use serde::{Deserialize, Serialize};
-use async_trait::async_trait;
 use uuid::Uuid;
-use crate::canon::{CanonBasis, SCRIPTURE_1_COR_4_2};
 
 /// AssignStewardPart - Implementation of CSC-1 Steward Assignment.
 pub struct AssignStewardPart {
@@ -63,7 +63,10 @@ mod tests {
     #[tokio::test]
     async fn test_steward_assignment() {
         let part = AssignStewardPart::new("S-001".to_string(), "Cell-Alpha".to_string());
-        let input = AssignInput { person_id: "p1".to_string(), steward_id: "s1".to_string() };
+        let input = AssignInput {
+            person_id: "p1".to_string(),
+            steward_id: "s1".to_string(),
+        };
         let input_bytes = serde_json::to_vec(&input).unwrap();
         let (output_bytes, packet) = part.execute(input_bytes).await.unwrap();
         let output: AssignOutput = serde_json::from_slice(&output_bytes).unwrap();

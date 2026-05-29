@@ -9,11 +9,11 @@
 
 use ggen_core::codegen::pipeline::GenerationPipeline;
 use ggen_core::manifest::{
-    GenerationConfig, GenerationMode, GenerationRule, GgenManifest, InferenceConfig,
-    OntologyConfig, ProjectConfig, QuerySource, TemplateSource, ValidationConfig,
-    ManifestValidator, query_contains_values,
+    query_contains_values, GenerationConfig, GenerationMode, GenerationRule, GgenManifest,
+    InferenceConfig, ManifestValidator, OntologyConfig, ProjectConfig, QuerySource, TemplateSource,
+    ValidationConfig,
 };
-use ggen_core::validation::{validate_syntax, detect_language, LanguageType};
+use ggen_core::validation::{detect_language, validate_syntax, LanguageType};
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
@@ -21,15 +21,15 @@ use tempfile::TempDir;
 
 fn stub_ontology(dir: &TempDir) -> PathBuf {
     let ttl = dir.path().join("stub.ttl");
-    std::fs::write(&ttl, "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n")
-        .unwrap();
+    std::fs::write(
+        &ttl,
+        "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n",
+    )
+    .unwrap();
     ttl
 }
 
-fn minimal_manifest(
-    ontology_path: PathBuf,
-    rules: Vec<GenerationRule>,
-) -> GgenManifest {
+fn minimal_manifest(ontology_path: PathBuf, rules: Vec<GenerationRule>) -> GgenManifest {
     GgenManifest {
         project: ProjectConfig {
             name: "test".to_string(),
@@ -91,17 +91,21 @@ fn rule_with_inline_query(inline: &str) -> GenerationRule {
 
 #[test]
 fn helper_detects_values_keyword_uppercase() {
-        assert!(query_contains_values("SELECT ?x WHERE { VALUES (?x) { (\"a\") } }"));
+    assert!(query_contains_values(
+        "SELECT ?x WHERE { VALUES (?x) { (\"a\") } }"
+    ));
 }
 
 #[test]
 fn helper_detects_values_keyword_lowercase() {
-        assert!(query_contains_values("select ?x where { values (?x) { (\"a\") } }"));
+    assert!(query_contains_values(
+        "select ?x where { values (?x) { (\"a\") } }"
+    ));
 }
 
 #[test]
 fn helper_ignores_commented_values_line() {
-        // A # comment containing VALUES should not trigger the guard
+    // A # comment containing VALUES should not trigger the guard
     assert!(!query_contains_values(
         "# VALUES block used to be here\nSELECT ?x WHERE { ?x a <http://example.org/T> }"
     ));
@@ -109,9 +113,7 @@ fn helper_ignores_commented_values_line() {
 
 #[test]
 fn helper_returns_false_for_plain_select() {
-        assert!(!query_contains_values(
-        "SELECT ?s ?p ?o WHERE { ?s ?p ?o }"
-    ));
+    assert!(!query_contains_values("SELECT ?s ?p ?o WHERE { ?s ?p ?o }"));
 }
 
 // ── ManifestValidator rejects file-based VALUES queries ───────────────────────
@@ -131,7 +133,10 @@ fn validator_rejects_rq_file_with_values_clause() {
     let validator = ManifestValidator::new(&manifest, dir.path());
 
     let result = validator.validate();
-    assert!(result.is_err(), "Validator must reject .rq file with VALUES clause");
+    assert!(
+        result.is_err(),
+        "Validator must reject .rq file with VALUES clause"
+    );
     let msg = result.unwrap_err().to_string();
     assert!(
         msg.contains("E0010"),
@@ -206,24 +211,27 @@ fn validator_accepts_inline_values_query() {
 fn pipeline_rejects_rq_file_with_values_at_execution() {
     let dir = TempDir::new().unwrap();
     let rq = dir.path().join("data.rq");
-    std::fs::write(
-        &rq,
-        "SELECT ?name WHERE { VALUES (?name) { (\"x\") } }",
-    )
-    .unwrap();
+    std::fs::write(&rq, "SELECT ?name WHERE { VALUES (?name) { (\"x\") } }").unwrap();
 
     let ontology = stub_ontology(&dir);
-    let manifest = minimal_manifest(ontology, vec![rule_with_file_query(
-        PathBuf::from("data.rq"),
-    )]);
+    let manifest = minimal_manifest(
+        ontology,
+        vec![rule_with_file_query(PathBuf::from("data.rq"))],
+    );
 
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.load_ontology().unwrap();
     let result = pipeline.execute_generation_rules();
 
-    assert!(result.is_err(), "Pipeline must reject file-based VALUES at runtime");
+    assert!(
+        result.is_err(),
+        "Pipeline must reject file-based VALUES at runtime"
+    );
     let msg = result.unwrap_err().to_string();
-    assert!(msg.contains("E0010"), "Runtime error must carry code E0010, got: {msg}");
+    assert!(
+        msg.contains("E0010"),
+        "Runtime error must carry code E0010, got: {msg}"
+    );
 }
 
 // ── Batch rendering: static output_file writes file once for all rows ────────
@@ -246,10 +254,12 @@ fn batch_rendering_writes_file_once_for_static_output_path() {
     ("e" "5") ("f" "6") ("g" "7") ("h" "8")
     ("i" "9") ("j" "10") ("k" "11") ("l" "12")
   }
-}"#.to_string(),
+}"#
+            .to_string(),
         },
         template: TemplateSource::Inline {
-            inline: "{% for row in results %}{{ row.id }}={{ row.color }}\n{% endfor %}".to_string(),
+            inline: "{% for row in results %}{{ row.id }}={{ row.color }}\n{% endfor %}"
+                .to_string(),
         },
         output_file: "labels.txt".to_string(), // static — no {{ }}
         mode: GenerationMode::Overwrite,
@@ -263,17 +273,31 @@ fn batch_rendering_writes_file_once_for_static_output_path() {
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.set_output_dir(out_dir.clone());
     pipeline.load_ontology().unwrap();
-    let result = pipeline.execute_generation_rules().expect("Batch render must succeed");
+    let result = pipeline
+        .execute_generation_rules()
+        .expect("Batch render must succeed");
 
     // Exactly 1 file generated, not 12
-    assert_eq!(result.len(), 1, "Static output must produce 1 file, not 1-per-row: got {}", result.len());
+    assert_eq!(
+        result.len(),
+        1,
+        "Static output must produce 1 file, not 1-per-row: got {}",
+        result.len()
+    );
 
     let content = std::fs::read_to_string(out_dir.join("labels.txt")).unwrap();
     // All 12 rows must appear in the single file
-    for i in ['a','b','c','d','e','f','g','h','i','j','k','l'] {
-        assert!(content.contains(&format!("{i}=")), "Missing row '{i}' in batch output");
+    for i in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'] {
+        assert!(
+            content.contains(&format!("{i}=")),
+            "Missing row '{i}' in batch output"
+        );
     }
-    assert_eq!(content.matches('\n').count(), 12, "Expected 12 newlines for 12 rows");
+    assert_eq!(
+        content.matches('\n').count(),
+        12,
+        "Expected 12 newlines for 12 rows"
+    );
 }
 
 // ── Inline VALUES produce correct output ─────────────────────────────────────
@@ -294,10 +318,12 @@ fn inline_values_query_generates_correct_output() {
     ("kind-bug" "Kind:Bug" "B60205")
     ("kind-feature" "Kind:Feature" "0E8A16")
   }
-}"#.to_string(),
+}"#
+            .to_string(),
         },
         template: TemplateSource::Inline {
-            inline: "{% for row in results %}{{ row.id }}={{ row.color }}\n{% endfor %}".to_string(),
+            inline: "{% for row in results %}{{ row.id }}={{ row.color }}\n{% endfor %}"
+                .to_string(),
         },
         output_file: "labels.txt".to_string(),
         mode: GenerationMode::Overwrite,
@@ -311,11 +337,19 @@ fn inline_values_query_generates_correct_output() {
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.set_output_dir(out_dir.clone());
     pipeline.load_ontology().unwrap();
-    pipeline.execute_generation_rules().expect("Inline VALUES pipeline must succeed");
+    pipeline
+        .execute_generation_rules()
+        .expect("Inline VALUES pipeline must succeed");
 
     let content = std::fs::read_to_string(out_dir.join("labels.txt")).unwrap();
-    assert!(content.contains("kind-bug=B60205"), "Output must contain first label");
-    assert!(content.contains("kind-feature=0E8A16"), "Output must contain second label");
+    assert!(
+        content.contains("kind-bug=B60205"),
+        "Output must contain first label"
+    );
+    assert!(
+        content.contains("kind-feature=0E8A16"),
+        "Output must contain second label"
+    );
 }
 
 // ── no_unsafe enforcement ─────────────────────────────────────────────────────
@@ -350,9 +384,15 @@ fn pipeline_rejects_unsafe_code_when_no_unsafe_is_true() {
     pipeline.load_ontology().unwrap();
     let result = pipeline.execute_generation_rules();
 
-    assert!(result.is_err(), "Pipeline must reject unsafe code when no_unsafe = true");
+    assert!(
+        result.is_err(),
+        "Pipeline must reject unsafe code when no_unsafe = true"
+    );
     let msg = result.unwrap_err().to_string();
-    assert!(msg.contains("E0012"), "Error must carry code E0012, got: {msg}");
+    assert!(
+        msg.contains("E0012"),
+        "Error must carry code E0012, got: {msg}"
+    );
 }
 
 #[test]
@@ -383,8 +423,13 @@ fn pipeline_allows_safe_code_when_no_unsafe_is_true() {
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.set_output_dir(out_dir.clone());
     pipeline.load_ontology().unwrap();
-    pipeline.execute_generation_rules().expect("Safe code must pass no_unsafe gate");
-    assert!(out_dir.join("out.rs").exists(), "Output file must be written");
+    pipeline
+        .execute_generation_rules()
+        .expect("Safe code must pass no_unsafe gate");
+    assert!(
+        out_dir.join("out.rs").exists(),
+        "Output file must be written"
+    );
 }
 
 // ── strict_mode ORDER BY enforcement ─────────────────────────────────────────
@@ -409,9 +454,15 @@ fn validator_rejects_construct_without_order_by_when_strict_mode_is_true() {
     let validator = ManifestValidator::new(&manifest, dir.path());
     let result = validator.validate();
 
-    assert!(result.is_err(), "strict_mode must reject CONSTRUCT without ORDER BY");
+    assert!(
+        result.is_err(),
+        "strict_mode must reject CONSTRUCT without ORDER BY"
+    );
     let msg = result.unwrap_err().to_string();
-    assert!(msg.contains("E0011"), "Error must carry code E0011, got: {msg}");
+    assert!(
+        msg.contains("E0011"),
+        "Error must carry code E0011, got: {msg}"
+    );
 }
 
 #[test]
@@ -427,12 +478,15 @@ fn validator_accepts_construct_with_order_by_in_strict_mode() {
         name: "ordered".to_string(),
         description: None,
         order: 1,
-        construct: "CONSTRUCT { ?s ?p ?o } WHERE { OPTIONAL { ?s ?p ?o } } ORDER BY ?s ?p ?o".to_string(),
+        construct: "CONSTRUCT { ?s ?p ?o } WHERE { OPTIONAL { ?s ?p ?o } } ORDER BY ?s ?p ?o"
+            .to_string(),
         when: None,
     });
 
     let validator = ManifestValidator::new(&manifest, dir.path());
-    validator.validate().expect("CONSTRUCT with ORDER BY must pass strict_mode");
+    validator
+        .validate()
+        .expect("CONSTRUCT with ORDER BY must pass strict_mode");
 }
 
 // ── spec 141: Diátaxis Decision Trees ──────────────────────────────────────
@@ -487,8 +541,7 @@ ORDER BY ?tree_id
         output_file
     );
 
-    let content = std::fs::read_to_string(&output_file)
-        .expect("Generated file must be readable");
+    let content = std::fs::read_to_string(&output_file).expect("Generated file must be readable");
 
     // Verify decision tree data is present in output
     assert!(
@@ -546,12 +599,12 @@ ORDER BY ?tree_id ?node_id
     let manifest = minimal_manifest(ontology.clone(), vec![rule]);
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.load_ontology().unwrap();
-    let _result = pipeline.execute_generation_rules()
+    let _result = pipeline
+        .execute_generation_rules()
         .expect("Pipeline must execute successfully");
 
     let output_file = dir.path().join("tree-nodes.txt");
-    let content = std::fs::read_to_string(&output_file)
-        .expect("Generated file must be readable");
+    let content = std::fs::read_to_string(&output_file).expect("Generated file must be readable");
 
     // Verify branch node structure (q1 -> q2 or fail)
     assert!(
@@ -623,12 +676,12 @@ ORDER BY ?tree_id
     let manifest = minimal_manifest(ontology.clone(), vec![rule]);
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.load_ontology().unwrap();
-    let _result = pipeline.execute_generation_rules()
+    let _result = pipeline
+        .execute_generation_rules()
         .expect("Pipeline must execute successfully");
 
     let output_file = dir.path().join("trees.json");
-    let content = std::fs::read_to_string(&output_file)
-        .expect("Generated file must be readable");
+    let content = std::fs::read_to_string(&output_file).expect("Generated file must be readable");
 
     // Verify expected trees are present in CSV format
     assert!(
@@ -692,7 +745,8 @@ ORDER BY ?node_id
         },
         template: TemplateSource::Inline {
             inline: r#"{% for row in results %}{{ row.node_id }}:{{ row.node_type }}
-{% endfor %}"#.to_string(),
+{% endfor %}"#
+                .to_string(),
         },
         output_file: "coverage.txt".to_string(),
         mode: GenerationMode::Overwrite,
@@ -703,12 +757,12 @@ ORDER BY ?node_id
     let manifest = minimal_manifest(ontology.clone(), vec![rule]);
     let mut pipeline = GenerationPipeline::new(manifest, dir.path().to_path_buf());
     pipeline.load_ontology().unwrap();
-    let _result = pipeline.execute_generation_rules()
+    let _result = pipeline
+        .execute_generation_rules()
         .expect("Pipeline must execute successfully");
 
     let output_file = dir.path().join("coverage.txt");
-    let content = std::fs::read_to_string(&output_file)
-        .expect("Generated file must be readable");
+    let content = std::fs::read_to_string(&output_file).expect("Generated file must be readable");
 
     let lines: Vec<&str> = content.lines().filter(|l| !l.is_empty()).collect();
 
@@ -753,7 +807,10 @@ ORDER BY ?node_id
 fn test_validate_syntax_detect_language_rust() {
     assert_eq!(detect_language(Path::new("main.rs")), LanguageType::Rust);
     assert_eq!(detect_language(Path::new("lib.rs")), LanguageType::Rust);
-    assert_eq!(detect_language(Path::new("src/main.rs")), LanguageType::Rust);
+    assert_eq!(
+        detect_language(Path::new("src/main.rs")),
+        LanguageType::Rust
+    );
 }
 
 #[test]
@@ -764,13 +821,19 @@ fn test_validate_syntax_detect_language_toml() {
 
 #[test]
 fn test_validate_syntax_detect_language_json() {
-    assert_eq!(detect_language(Path::new("config.json")), LanguageType::Json);
+    assert_eq!(
+        detect_language(Path::new("config.json")),
+        LanguageType::Json
+    );
     assert_eq!(detect_language(Path::new("data.json")), LanguageType::Json);
 }
 
 #[test]
 fn test_validate_syntax_detect_language_yaml() {
-    assert_eq!(detect_language(Path::new("config.yaml")), LanguageType::Yaml);
+    assert_eq!(
+        detect_language(Path::new("config.yaml")),
+        LanguageType::Yaml
+    );
     assert_eq!(detect_language(Path::new("config.yml")), LanguageType::Yaml);
 }
 
@@ -958,30 +1021,21 @@ fn test_validate_syntax_yaml_invalid_bad_indentation() {
 fn test_validate_syntax_toml_invalid_bad_key() {
     let toml = "[section invalid key =]\n";
     let result = validate_syntax(Path::new("test.toml"), toml);
-    assert!(
-        result.is_err(),
-        "Invalid TOML syntax must fail validation"
-    );
+    assert!(result.is_err(), "Invalid TOML syntax must fail validation");
 }
 
 #[test]
 fn test_validate_syntax_rust_empty_file() {
     let code = "";
     let result = validate_syntax(Path::new("main.rs"), code);
-    assert!(
-        result.is_err(),
-        "Empty Rust file must fail validation"
-    );
+    assert!(result.is_err(), "Empty Rust file must fail validation");
 }
 
 #[test]
 fn test_validate_syntax_json_empty_file() {
     let json = "";
     let result = validate_syntax(Path::new("config.json"), json);
-    assert!(
-        result.is_err(),
-        "Empty JSON file must fail validation"
-    );
+    assert!(result.is_err(), "Empty JSON file must fail validation");
 }
 
 #[test]

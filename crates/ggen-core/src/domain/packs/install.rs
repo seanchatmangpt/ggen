@@ -143,8 +143,7 @@ pub async fn install_pack(input: &InstallInput) -> Result<InstallOutput> {
     }
 
     let packages_installed = pack.packages.clone();
-    let templates_available: Vec<String> =
-        pack.templates.iter().map(|t| t.name.clone()).collect();
+    let templates_available: Vec<String> = pack.templates.iter().map(|t| t.name.clone()).collect();
     let sparql_queries = pack.sparql_queries.len();
     let total_packages = pack.packages.len();
     let pack_version = pack.version.clone();

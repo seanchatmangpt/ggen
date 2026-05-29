@@ -77,11 +77,9 @@ fn validate_rust_syntax(content: &str) -> Result<()> {
             // For now, use 0 as placeholder since the error message contains useful info
             let error_msg = e.to_string();
             Err(ValidationError::syntax_validation_failed(
-                "<rust>",
-                0, // line info not directly available from syn::Error
+                "<rust>", 0, // line info not directly available from syn::Error
                 0, // column info not directly available
-                "Rust",
-                error_msg,
+                "Rust", error_msg,
             ))
         }
     }
@@ -220,10 +218,7 @@ mod tests {
             detect_language(Path::new("config.yaml")),
             LanguageType::Yaml
         );
-        assert_eq!(
-            detect_language(Path::new("config.yml")),
-            LanguageType::Yaml
-        );
+        assert_eq!(detect_language(Path::new("config.yml")), LanguageType::Yaml);
     }
 
     #[test]

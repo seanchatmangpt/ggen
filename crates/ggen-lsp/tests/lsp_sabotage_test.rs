@@ -56,7 +56,7 @@ struct LspClient {
     next_id: i64,
     stashed_notifications: Vec<Value>,
     stashed_responses: Vec<Value>, // responses received out-of-id-order, kept for later
-    _tmp: TempDir, // keep the hermetic cwd alive for the child's lifetime
+    _tmp: TempDir,                 // keep the hermetic cwd alive for the child's lifetime
 }
 
 impl LspClient {
@@ -95,7 +95,9 @@ impl LspClient {
     fn send(&mut self, msg: &Value) {
         let body = serde_json::to_vec(msg).expect("serialize");
         let header = format!("Content-Length: {}\r\n\r\n", body.len());
-        self.stdin.write_all(header.as_bytes()).expect("write header");
+        self.stdin
+            .write_all(header.as_bytes())
+            .expect("write header");
         self.stdin.write_all(&body).expect("write body");
         self.stdin.flush().expect("flush");
     }
@@ -284,12 +286,21 @@ fn unknown_method_returns_method_not_found_and_server_stays_alive() {
         "unknown method must be MethodNotFound (-32601), got: {err}"
     );
     // The error response must still correlate to the request id (not be dropped).
-    assert!(resp.get("id").is_some(), "error response must carry the request id: {resp}");
+    assert!(
+        resp.get("id").is_some(),
+        "error response must carry the request id: {resp}"
+    );
 
     // Liveness: a normal request after the error still works (server not poisoned).
     let sym = c.request("workspace/symbol", json!({"query": ""}));
-    assert!(sym.get("error").is_none(), "follow-up request must not error: {sym}");
-    assert!(sym.get("result").is_some(), "follow-up request must return a result: {sym}");
+    assert!(
+        sym.get("error").is_none(),
+        "follow-up request must not error: {sym}"
+    );
+    assert!(
+        sym.get("result").is_some(),
+        "follow-up request must return a result: {sym}"
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -339,7 +350,10 @@ fn did_close_clears_diagnostics_and_server_stays_alive() {
     let uri = "file:///x/closing.rq";
     c.did_open(uri, "sparql", BROKEN_CONSTRUCT);
     let opened = c.wait_for_diagnostics(uri);
-    assert!(has_e0011(&opened), "broken .rq must carry E0011 on open: {opened}");
+    assert!(
+        has_e0011(&opened),
+        "broken .rq must carry E0011 on open: {opened}"
+    );
 
     // Close the document. The hardened server removes state AND publishes a
     // cleared diagnostics set for this URI.
@@ -364,8 +378,14 @@ fn did_close_clears_diagnostics_and_server_stays_alive() {
 
     // Liveness: server still serves requests after a close.
     let sym = c.request("workspace/symbol", json!({"query": ""}));
-    assert!(sym.get("error").is_none(), "request after did_close must not error: {sym}");
-    assert!(sym.get("result").is_some(), "request after did_close must return a result: {sym}");
+    assert!(
+        sym.get("error").is_none(),
+        "request after did_close must not error: {sym}"
+    );
+    assert!(
+        sym.get("result").is_some(),
+        "request after did_close must return a result: {sym}"
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -385,7 +405,10 @@ fn request_after_shutdown_is_rejected_invalid_request() {
 
     let sd = c.request_no_params("shutdown");
     assert!(sd.get("error").is_none(), "shutdown must succeed: {sd}");
-    assert!(sd.get("result").is_some(), "shutdown must return a result: {sd}");
+    assert!(
+        sd.get("result").is_some(),
+        "shutdown must return a result: {sd}"
+    );
 
     // A request after shutdown (but before exit) → spec error InvalidRequest.
     let resp = c.request("workspace/symbol", json!({"query": ""}));
@@ -398,7 +421,10 @@ fn request_after_shutdown_is_rejected_invalid_request() {
         "post-shutdown request must be InvalidRequest (-32600), got: {err}"
     );
     // The rejection must still correlate to the request id.
-    assert!(resp.get("id").is_some(), "rejection must carry the request id: {resp}");
+    assert!(
+        resp.get("id").is_some(),
+        "rejection must carry the request id: {resp}"
+    );
     // Drop sends `exit` and reaps the child — no leaked process.
 }
 
@@ -425,15 +451,24 @@ fn empty_completion_and_offsite_hover_return_null_without_error() {
         "textDocument/completion",
         json!({"textDocument":{"uri":uri},"position":{"line":0,"character":0}}),
     );
-    assert!(comp.get("error").is_none(), "completion must not error: {comp}");
-    assert!(comp.get("result").is_some(), "completion must return a (possibly null) result: {comp}");
+    assert!(
+        comp.get("error").is_none(),
+        "completion must not error: {comp}"
+    );
+    assert!(
+        comp.get("result").is_some(),
+        "completion must return a (possibly null) result: {comp}"
+    );
 
     // hover at a position with NO diagnostic and NO semantic hover → result: null.
     let hover = c.request(
         "textDocument/hover",
         json!({"textDocument":{"uri":uri},"position":{"line":0,"character":0}}),
     );
-    assert!(hover.get("error").is_none(), "hover must not error: {hover}");
+    assert!(
+        hover.get("error").is_none(),
+        "hover must not error: {hover}"
+    );
     assert_eq!(
         hover["result"],
         Value::Null,
@@ -461,11 +496,28 @@ fn interleaved_requests_correlate_by_id() {
 
     // Read replies in REVERSE order to prove id-based (not order-based) matching.
     let resp_b = c.await_response(id_b);
-    assert_eq!(resp_b["id"], json!(id_b), "shutdown reply must carry id_b: {resp_b}");
-    assert!(resp_b.get("error").is_none(), "shutdown must succeed: {resp_b}");
+    assert_eq!(
+        resp_b["id"],
+        json!(id_b),
+        "shutdown reply must carry id_b: {resp_b}"
+    );
+    assert!(
+        resp_b.get("error").is_none(),
+        "shutdown must succeed: {resp_b}"
+    );
 
     let resp_a = c.await_response(id_a);
-    assert_eq!(resp_a["id"], json!(id_a), "workspace/symbol reply must carry id_a: {resp_a}");
-    assert!(resp_a.get("error").is_none(), "workspace/symbol must not error: {resp_a}");
-    assert!(resp_a.get("result").is_some(), "workspace/symbol must return a result: {resp_a}");
+    assert_eq!(
+        resp_a["id"],
+        json!(id_a),
+        "workspace/symbol reply must carry id_a: {resp_a}"
+    );
+    assert!(
+        resp_a.get("error").is_none(),
+        "workspace/symbol must not error: {resp_a}"
+    );
+    assert!(
+        resp_a.get("result").is_some(),
+        "workspace/symbol must return a result: {resp_a}"
+    );
 }

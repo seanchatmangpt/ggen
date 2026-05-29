@@ -56,14 +56,19 @@ pub struct FieldStatus {
 /// First non-empty value of attribute `key` across an episode's events (all events
 /// in a capture batch carry the same attribution).
 fn episode_attr(ep: &Episode, key: &str) -> Option<String> {
-    ep.events.iter().find_map(|e| e.attributes.get(key).cloned())
+    ep.events
+        .iter()
+        .find_map(|e| e.attributes.get(key).cloned())
 }
 
 /// The timestamp-ordered activity sequence of an episode — its process variant.
 fn episode_variant(ep: &Episode) -> String {
     let mut evs: Vec<_> = ep.events.iter().collect();
     evs.sort_by_key(|e| e.timestamp);
-    evs.iter().map(|e| e.activity.as_str()).collect::<Vec<_>>().join(">")
+    evs.iter()
+        .map(|e| e.activity.as_str())
+        .collect::<Vec<_>>()
+        .join(">")
 }
 
 /// Compute the read-only field-status cockpit for the project at `root`.
@@ -121,7 +126,9 @@ pub fn field_status(root: &std::path::Path) -> FieldStatus {
         FieldReadiness::VerdictEarned
     } else {
         if cycles < 2 {
-            reasons.push(format!("only {cycles} mining cycle(s); the verdict needs ≥2"));
+            reasons.push(format!(
+                "only {cycles} mining cycle(s); the verdict needs ≥2"
+            ));
         }
         reasons.push("verdict not yet earned — accumulating field evidence".to_string());
         FieldReadiness::Accumulating

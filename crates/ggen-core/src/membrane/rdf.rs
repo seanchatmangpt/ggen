@@ -3,9 +3,9 @@
 //! Projects membrane bindings, adapter layers, and boundary events into RDF Turtle representation,
 //! integrated with W3C PROV-O ontology.
 
+use super::core::{BoundaryCrossing, GgenMembrane, InterchangeablePart};
 use crate::graph::Graph;
 use crate::utils::error::Result;
-use super::core::{GgenMembrane, BoundaryCrossing, InterchangeablePart};
 
 /// RDF Projector for projecting membrane state into an RDF Graph
 pub struct RdfMembraneProjector;

@@ -1,8 +1,25 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Language { Rust, Go, Python, JavaScript, TypeScript, Java, C, Cpp, Erlang, Wasm, Json, Yaml, Toml, Markdown, Shell, Unknown }
+pub enum Language {
+    Rust,
+    Go,
+    Python,
+    JavaScript,
+    TypeScript,
+    Java,
+    C,
+    Cpp,
+    Erlang,
+    Wasm,
+    Json,
+    Yaml,
+    Toml,
+    Markdown,
+    Shell,
+    Unknown,
+}
 
 impl Language {
     pub fn from_extension(ext: &str) -> Self {

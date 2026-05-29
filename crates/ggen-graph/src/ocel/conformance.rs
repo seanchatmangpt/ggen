@@ -21,9 +21,7 @@ use crate::GraphError;
 /// # Errors
 /// Returns a [`GraphError`] if the SPARQL query fails to parse or evaluate.
 pub fn check_lifecycle_order(
-    graph: &DeterministicGraph,
-    case_qualifier_iri: &str,
-    activities: &[&str],
+    graph: &DeterministicGraph, case_qualifier_iri: &str, activities: &[&str],
 ) -> Result<bool, GraphError> {
     if activities.len() < 2 {
         return Ok(true);

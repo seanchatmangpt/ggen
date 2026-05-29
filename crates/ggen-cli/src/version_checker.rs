@@ -1,8 +1,8 @@
+use colored::Colorize;
 use std::fs;
 use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
-use colored::Colorize;
 
 /// Checks if there is a newer compiled ggen binary in the target directory compared to the running one,
 /// and prints a warning if so.
@@ -11,7 +11,14 @@ pub fn check_outdated_binary() {
     if std::env::var_os("GGEN_SKIP_OUTDATED_WARNING").is_some() {
         return;
     }
-    for var in &["CI", "GITHUB_ACTIONS", "TRAVIS", "CIRCLECI", "GITLAB_CI", "JENKINS_URL"] {
+    for var in &[
+        "CI",
+        "GITHUB_ACTIONS",
+        "TRAVIS",
+        "CIRCLECI",
+        "GITLAB_CI",
+        "JENKINS_URL",
+    ] {
         if std::env::var_os(var).is_some() {
             return;
         }
@@ -19,7 +26,9 @@ pub fn check_outdated_binary() {
 
     // Check if !std::io::stderr().is_terminal(). If so, return early.
     // (Bypassed if GGEN_TEST_FORCE_TERMINAL is set to "1" for integration tests)
-    if !std::io::stderr().is_terminal() && std::env::var("GGEN_TEST_FORCE_TERMINAL").as_deref() != Ok("1") {
+    if !std::io::stderr().is_terminal()
+        && std::env::var("GGEN_TEST_FORCE_TERMINAL").as_deref() != Ok("1")
+    {
         return;
     }
 
@@ -29,7 +38,9 @@ pub fn check_outdated_binary() {
         Err(_) => return,
     };
 
-    let current_exe_canonical = current_exe.canonicalize().unwrap_or_else(|_| current_exe.clone());
+    let current_exe_canonical = current_exe
+        .canonicalize()
+        .unwrap_or_else(|_| current_exe.clone());
 
     let running_metadata = match fs::metadata(&current_exe_canonical) {
         Ok(meta) => meta,
@@ -42,10 +53,11 @@ pub fn check_outdated_binary() {
     };
 
     // Find the cargo target folder and workspace root. Walk up parent directories of current directory or the current executable looking for Cargo.toml and a target/ directory.
-    let (workspace_root, target_dir) = match find_workspace_root_and_target_dir(&current_exe_canonical) {
-        Some(paths) => paths,
-        None => return,
-    };
+    let (workspace_root, target_dir) =
+        match find_workspace_root_and_target_dir(&current_exe_canonical) {
+            Some(paths) => paths,
+            None => return,
+        };
 
     // Check <workspace_root>/target/debug/ggen and <workspace_root>/target/release/ggen (or ggen.exe on Windows).
     let bin_name = if cfg!(windows) { "ggen.exe" } else { "ggen" };
@@ -87,8 +99,15 @@ pub fn check_outdated_binary() {
     if let Some(latest_path) = newest_path {
         if let Ok(diff) = newest_mtime.duration_since(running_mtime) {
             let duration_str = format_duration(diff);
-            eprintln!("{}: running an outdated 'ggen' binary", "warning".yellow().bold());
-            eprintln!("   --> current: {} (compiled {} older)", current_exe_canonical.display(), duration_str);
+            eprintln!(
+                "{}: running an outdated 'ggen' binary",
+                "warning".yellow().bold()
+            );
+            eprintln!(
+                "   --> current: {} (compiled {} older)",
+                current_exe_canonical.display(),
+                duration_str
+            );
             eprintln!("   --> latest:  {}", latest_path.display());
             eprintln!("{}: compile the latest changes or update your installation with 'cargo install --path {}'", "info".green().bold(), workspace_root.display());
         }

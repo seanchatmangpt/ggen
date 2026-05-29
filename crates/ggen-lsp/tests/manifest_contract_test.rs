@@ -14,8 +14,8 @@ use std::path::Path;
 /// test passes regardless of the cwd `cargo test` is invoked from).
 fn manifest() -> Value {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.claude-plugin/marketplace.json");
-    let text = std::fs::read_to_string(&path)
-        .unwrap_or_else(|e| panic!("read {}: {e}", path.display()));
+    let text =
+        std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {e}", path.display()));
     serde_json::from_str(&text).expect("marketplace.json must be valid JSON")
 }
 

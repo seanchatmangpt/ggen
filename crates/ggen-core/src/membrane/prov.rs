@@ -3,10 +3,10 @@
 //! Captures the execution lineage and dependencies between entities, activities,
 //! and agents within the Genesis core and ggen outer membrane.
 
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
+use super::core::{BoundaryCrossing, GgenMembrane};
 use crate::utils::error::Result;
-use super::core::{GgenMembrane, BoundaryCrossing};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// W3C PROV-JSON top-level structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,19 +21,35 @@ pub struct ProvDocument {
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub agent: HashMap<String, HashMap<String, String>>,
     /// Generations: link entity to generating activity
-    #[serde(default, rename = "wasGeneratedBy", skip_serializing_if = "HashMap::is_empty")]
+    #[serde(
+        default,
+        rename = "wasGeneratedBy",
+        skip_serializing_if = "HashMap::is_empty"
+    )]
     pub was_generated_by: HashMap<String, ProvRelation>,
     /// Usages: link activity to used entity
     #[serde(default, rename = "used", skip_serializing_if = "HashMap::is_empty")]
     pub used: HashMap<String, ProvRelation>,
     /// Associations: link activity to agent
-    #[serde(default, rename = "wasAssociatedWith", skip_serializing_if = "HashMap::is_empty")]
+    #[serde(
+        default,
+        rename = "wasAssociatedWith",
+        skip_serializing_if = "HashMap::is_empty"
+    )]
     pub was_associated_with: HashMap<String, ProvRelation>,
     /// Attributions: link entity to agent
-    #[serde(default, rename = "wasAttributedTo", skip_serializing_if = "HashMap::is_empty")]
+    #[serde(
+        default,
+        rename = "wasAttributedTo",
+        skip_serializing_if = "HashMap::is_empty"
+    )]
     pub was_attributed_to: HashMap<String, ProvRelation>,
     /// Derivations: link entity to entity
-    #[serde(default, rename = "wasDerivedFrom", skip_serializing_if = "HashMap::is_empty")]
+    #[serde(
+        default,
+        rename = "wasDerivedFrom",
+        skip_serializing_if = "HashMap::is_empty"
+    )]
     pub was_derived_from: HashMap<String, ProvRelation>,
 }
 
@@ -50,7 +66,10 @@ pub struct ProvRelation {
     #[serde(rename = "prov:agent", skip_serializing_if = "Option::is_none")]
     pub agent: Option<String>,
     /// Generated entity in derivation
-    #[serde(rename = "prov:generatedEntity", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "prov:generatedEntity",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub generated_entity: Option<String>,
     /// Used entity in derivation
     #[serde(rename = "prov:usedEntity", skip_serializing_if = "Option::is_none")]
@@ -63,7 +82,7 @@ impl ProvDocument {
         let mut entity = HashMap::new();
         let mut activity = HashMap::new();
         let mut agent = HashMap::new();
-        
+
         let mut was_generated_by = HashMap::new();
         let mut used = HashMap::new();
         let mut was_associated_with = HashMap::new();
@@ -74,13 +93,19 @@ impl ProvDocument {
         // Outer membrane agent
         let mut ggen_attrs = HashMap::new();
         ggen_attrs.insert("prov:type".to_string(), "SoftwareAgent".to_string());
-        ggen_attrs.insert("prov:label".to_string(), "ggen Membrane Adapter Layer".to_string());
+        ggen_attrs.insert(
+            "prov:label".to_string(),
+            "ggen Membrane Adapter Layer".to_string(),
+        );
         agent.insert("agent:ggen".to_string(), ggen_attrs);
 
         // Genesis core agent
         let mut genesis_attrs = HashMap::new();
         genesis_attrs.insert("prov:type".to_string(), "SoftwareAgent".to_string());
-        genesis_attrs.insert("prov:label".to_string(), "Genesis Embedded Core".to_string());
+        genesis_attrs.insert(
+            "prov:label".to_string(),
+            "Genesis Embedded Core".to_string(),
+        );
         agent.insert("agent:genesis-core".to_string(), genesis_attrs);
 
         // 2. Declare Entities for parts
@@ -115,9 +140,18 @@ impl ProvDocument {
             // Add Activity
             let mut act_attrs = HashMap::new();
             act_attrs.insert("prov:type".to_string(), "boundary-crossing".to_string());
-            act_attrs.insert("ggen:interface_fn".to_string(), crossing.interface_fn.clone());
-            act_attrs.insert("ggen:timestamp".to_string(), crossing.timestamp.to_rfc3339());
-            act_attrs.insert("ggen:duration_us".to_string(), crossing.duration_us.to_string());
+            act_attrs.insert(
+                "ggen:interface_fn".to_string(),
+                crossing.interface_fn.clone(),
+            );
+            act_attrs.insert(
+                "ggen:timestamp".to_string(),
+                crossing.timestamp.to_rfc3339(),
+            );
+            act_attrs.insert(
+                "ggen:duration_us".to_string(),
+                crossing.duration_us.to_string(),
+            );
             activity.insert(act_id.clone(), act_attrs);
 
             // Add Input Entity
@@ -131,7 +165,10 @@ impl ProvDocument {
                 let mut out_attrs = HashMap::new();
                 out_attrs.insert("prov:type".to_string(), "output-payload".to_string());
                 out_attrs.insert("ggen:hash".to_string(), oh.clone());
-                out_attrs.insert("ggen:status_code".to_string(), crossing.status_code.to_string());
+                out_attrs.insert(
+                    "ggen:status_code".to_string(),
+                    crossing.status_code.to_string(),
+                );
                 entity.insert(output_ent_id.clone(), out_attrs);
 
                 // Output was generated by the activity

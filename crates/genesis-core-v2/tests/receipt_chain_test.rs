@@ -10,7 +10,9 @@
 //! 4. Out-of-order replay must emit `OutofOrderEpoch` refusal
 //! 5. A forged all-zero receipt must fail verification
 
-use genesis_core_v2::primitives::{Construct8, Pair2, Receipt, Refusal, RefusalReason, ReplayCursor};
+use genesis_core_v2::primitives::{
+    Construct8, Pair2, Receipt, Refusal, RefusalReason, ReplayCursor,
+};
 
 /// Build a 3-act causal chain and return (act1, receipt1, act2, receipt2, act3, receipt3).
 fn build_chain() -> (
@@ -175,8 +177,7 @@ fn test_receipt_input_sensitivity() {
     let receipt_b = Receipt::generate(&act_b, &prev);
 
     assert_ne!(
-        receipt_a.signature,
-        receipt_b.signature,
+        receipt_a.signature, receipt_b.signature,
         "One-bit change in pair must produce a different BLAKE3 receipt"
     );
 }
@@ -194,8 +195,7 @@ fn test_previous_receipt_sensitivity() {
     let receipt_one = Receipt::generate(&act, &prev_one);
 
     assert_ne!(
-        receipt_zero.signature,
-        receipt_one.signature,
+        receipt_zero.signature, receipt_one.signature,
         "Different previous receipts must produce different child receipts"
     );
 }

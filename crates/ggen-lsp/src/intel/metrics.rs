@@ -71,7 +71,10 @@ pub(crate) fn group_episodes(log: &OcelLog) -> Vec<Episode> {
             .find(|o| o.r#type == obj_type::DIAGNOSTIC_CODE)
             .map(|o| o.id.clone());
         if let (Some(epid), Some(code)) = (epid, code) {
-            map.entry(epid).or_insert_with(|| (code, Vec::new())).1.push(ev.clone());
+            map.entry(epid)
+                .or_insert_with(|| (code, Vec::new()))
+                .1
+                .push(ev.clone());
         }
     }
     map.into_values()
@@ -126,7 +129,10 @@ pub fn compute_metrics(root: &std::path::Path) -> ImproveMetrics {
 
     // --- episode-derived metrics ---
     let total = episodes.len();
-    let with_route = episodes.iter().filter(|e| has_activity(e, activity::ROUTE_SELECTED)).count();
+    let with_route = episodes
+        .iter()
+        .filter(|e| has_activity(e, activity::ROUTE_SELECTED))
+        .count();
     let mined_selected = episodes
         .iter()
         .filter(|e| route_source(e).as_deref() == Some("mined"))
@@ -158,8 +164,18 @@ pub fn compute_metrics(root: &std::path::Path) -> ImproveMetrics {
     } else {
         let mut secs = Vec::new();
         for e in &closed_eps {
-            let r = e.events.iter().filter(|x| x.activity == activity::DIAGNOSTIC_RAISED).map(|x| x.timestamp).min();
-            let p = e.events.iter().filter(|x| x.activity == activity::GATE_PASSED).map(|x| x.timestamp).max();
+            let r = e
+                .events
+                .iter()
+                .filter(|x| x.activity == activity::DIAGNOSTIC_RAISED)
+                .map(|x| x.timestamp)
+                .min();
+            let p = e
+                .events
+                .iter()
+                .filter(|x| x.activity == activity::GATE_PASSED)
+                .map(|x| x.timestamp)
+                .max();
             if let (Some(r), Some(p)) = (r, p) {
                 secs.push((p - r).num_seconds() as f64);
             }
@@ -178,7 +194,11 @@ pub fn compute_metrics(root: &std::path::Path) -> ImproveMetrics {
         let mut seen: BTreeMap<String, usize> = BTreeMap::new();
         for e in &episodes {
             // key by code+span of the DiagnosticRaised event
-            if let Some(d) = e.events.iter().find(|x| x.activity == activity::DIAGNOSTIC_RAISED) {
+            if let Some(d) = e
+                .events
+                .iter()
+                .find(|x| x.activity == activity::DIAGNOSTIC_RAISED)
+            {
                 let span = d.attributes.get("span").cloned().unwrap_or_default();
                 *seen.entry(format!("{}|{}", e.code, span)).or_insert(0) += 1;
             }
@@ -210,15 +230,23 @@ pub fn compute_metrics(root: &std::path::Path) -> ImproveMetrics {
         MetricValue::InsufficientEvidence
     } else {
         let latest_by = PromotionHistory::at_root(root).latest_by_route();
-        let ever_active = history.iter().filter(|r| r.status == RouteStatus::Active).map(|r| r.route_id.clone()).collect::<std::collections::BTreeSet<_>>();
-        let still_active = latest_by.values().filter(|r| r.status == RouteStatus::Active).count();
+        let ever_active = history
+            .iter()
+            .filter(|r| r.status == RouteStatus::Active)
+            .map(|r| r.route_id.clone())
+            .collect::<std::collections::BTreeSet<_>>();
+        let still_active = latest_by
+            .values()
+            .filter(|r| r.status == RouteStatus::Active)
+            .count();
         rate(still_active, ever_active.len())
     };
 
     let seed_displacement_rate = if history.is_empty() {
         MetricValue::InsufficientEvidence
     } else {
-        let families: std::collections::BTreeSet<&str> = history.iter().map(|r| r.family.as_str()).collect();
+        let families: std::collections::BTreeSet<&str> =
+            history.iter().map(|r| r.family.as_str()).collect();
         let displaced: std::collections::BTreeSet<&str> = history
             .iter()
             .filter(|r| r.status == RouteStatus::Active)
@@ -250,8 +278,7 @@ pub fn compute_metrics(root: &std::path::Path) -> ImproveMetrics {
 /// from the first to the latest cycle (and mined routes are actually passing).
 /// Otherwise `insufficient_evidence` — the claim is refused by default.
 fn verdict(
-    cycles: usize,
-    history: &[super::history::RoutePromotionRecord],
+    cycles: usize, history: &[super::history::RoutePromotionRecord],
     gate_pass_rate_mined: MetricValue,
 ) -> String {
     if cycles < 2 {
@@ -280,7 +307,9 @@ fn verdict(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::intel::events::{diagnostic_raised, gate_result, new_run_id, receipt_emitted, route_selected};
+    use crate::intel::events::{
+        diagnostic_raised, gate_result, new_run_id, receipt_emitted, route_selected,
+    };
     use crate::intel::IntelLog;
     use tempfile::TempDir;
 
@@ -290,7 +319,10 @@ mod tests {
         let m = compute_metrics(dir.path());
         assert_eq!(m.route_hit_rate, MetricValue::InsufficientEvidence);
         assert_eq!(m.repair_cycle_time_secs, MetricValue::InsufficientEvidence);
-        assert_eq!(m.verdict, "insufficient_evidence", "no events ⇒ claim refused");
+        assert_eq!(
+            m.verdict, "insufficient_evidence",
+            "no events ⇒ claim refused"
+        );
     }
 
     #[test]
@@ -311,15 +343,30 @@ mod tests {
             status: RouteStatus::Active,
         };
         // Rising success across 2 cycles + mined routes passing → improving.
-        let rising = vec![rec("2026-05-28T00:00:00+00:00", 0.5), rec("2026-05-28T01:00:00+00:00", 0.9)];
+        let rising = vec![
+            rec("2026-05-28T00:00:00+00:00", 0.5),
+            rec("2026-05-28T01:00:00+00:00", 0.9),
+        ];
         assert_eq!(verdict(2, &rising, MetricValue::Value(0.9)), "improving");
         // Flat success → refused.
-        let flat = vec![rec("2026-05-28T00:00:00+00:00", 0.9), rec("2026-05-28T01:00:00+00:00", 0.9)];
-        assert_eq!(verdict(2, &flat, MetricValue::Value(0.9)), "insufficient_evidence");
+        let flat = vec![
+            rec("2026-05-28T00:00:00+00:00", 0.9),
+            rec("2026-05-28T01:00:00+00:00", 0.9),
+        ];
+        assert_eq!(
+            verdict(2, &flat, MetricValue::Value(0.9)),
+            "insufficient_evidence"
+        );
         // One cycle → refused regardless.
-        assert_eq!(verdict(1, &rising, MetricValue::Value(0.9)), "insufficient_evidence");
+        assert_eq!(
+            verdict(1, &rising, MetricValue::Value(0.9)),
+            "insufficient_evidence"
+        );
         // Rising but mined not passing → refused.
-        assert_eq!(verdict(2, &rising, MetricValue::Value(0.0)), "insufficient_evidence");
+        assert_eq!(
+            verdict(2, &rising, MetricValue::Value(0.0)),
+            "insufficient_evidence"
+        );
     }
 
     #[test]
@@ -336,8 +383,20 @@ mod tests {
         ])
         .expect("append");
         let m = compute_metrics(dir.path());
-        assert_eq!(m.route_hit_rate, MetricValue::Value(1.0), "1/1 episodes routed");
-        assert_eq!(m.promoted_route_hit_rate, MetricValue::Value(1.0), "route was mined");
-        assert_eq!(m.receipt_density, MetricValue::Value(1.0), "closed episode has a receipt");
+        assert_eq!(
+            m.route_hit_rate,
+            MetricValue::Value(1.0),
+            "1/1 episodes routed"
+        );
+        assert_eq!(
+            m.promoted_route_hit_rate,
+            MetricValue::Value(1.0),
+            "route was mined"
+        );
+        assert_eq!(
+            m.receipt_density,
+            MetricValue::Value(1.0),
+            "closed episode has a receipt"
+        );
     }
 }

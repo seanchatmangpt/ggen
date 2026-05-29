@@ -23,7 +23,10 @@ fn request_with_root_leaves_mcp_evidence() {
     .expect("captured route");
 
     let log = IntelLog::at_root(root).read();
-    assert!(!log.events.is_empty(), "field evidence captured under the given root");
+    assert!(
+        !log.events.is_empty(),
+        "field evidence captured under the given root"
+    );
     assert!(
         log.events
             .iter()

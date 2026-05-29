@@ -103,12 +103,12 @@ impl Adapter for RepairRouteAdapter {
 
     async fn from_a2a(&self, message: &Value) -> Result<Value, AdapterError> {
         // An A2A task `{ tool, arguments }` → execute against the route engine.
-        let tool = message
-            .get("tool")
-            .and_then(Value::as_str)
-            .ok_or_else(|| {
-                AdapterError::new("missing 'tool'".to_string(), AdapterErrorType::ConversionFailed)
-            })?;
+        let tool = message.get("tool").and_then(Value::as_str).ok_or_else(|| {
+            AdapterError::new(
+                "missing 'tool'".to_string(),
+                AdapterErrorType::ConversionFailed,
+            )
+        })?;
         let arguments = message
             .get("arguments")
             .cloned()
@@ -123,7 +123,10 @@ impl Adapter for RepairRouteAdapter {
                 arguments.get("file_path").and_then(Value::as_str),
                 arguments.get("file_content").and_then(Value::as_str),
             ) {
-                let agent = arguments.get("agent_id").and_then(Value::as_str).unwrap_or("a2a");
+                let agent = arguments
+                    .get("agent_id")
+                    .and_then(Value::as_str)
+                    .unwrap_or("a2a");
                 ggen_lsp::capture_request(
                     std::path::Path::new(root),
                     file,

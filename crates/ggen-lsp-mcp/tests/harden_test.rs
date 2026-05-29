@@ -9,7 +9,10 @@ fn args(json: serde_json::Value) -> Option<serde_json::Map<String, serde_json::V
 
 #[test]
 fn missing_arguments_is_a_structured_refusal() {
-    assert!(repair_route_result(None).is_err(), "no args → invalid_params, not panic");
+    assert!(
+        repair_route_result(None).is_err(),
+        "no args → invalid_params, not panic"
+    );
 }
 
 #[test]
@@ -34,7 +37,10 @@ fn oversized_content_is_refused() {
         "file_path": "q.rq",
         "file_content": big
     })));
-    assert!(r.is_err(), "oversized content → invalid_params, not OOM/panic");
+    assert!(
+        r.is_err(),
+        "oversized content → invalid_params, not OOM/panic"
+    );
 }
 
 #[test]

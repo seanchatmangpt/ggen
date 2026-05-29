@@ -57,13 +57,22 @@ impl LspClient {
                 }
             }
         });
-        LspClient { stdin, rx, child, next_id: 1, stashed_notifications: Vec::new(), _tmp: tmp }
+        LspClient {
+            stdin,
+            rx,
+            child,
+            next_id: 1,
+            stashed_notifications: Vec::new(),
+            _tmp: tmp,
+        }
     }
 
     fn send(&mut self, msg: &Value) {
         let body = serde_json::to_vec(msg).expect("serialize");
         let header = format!("Content-Length: {}\r\n\r\n", body.len());
-        self.stdin.write_all(header.as_bytes()).expect("write header");
+        self.stdin
+            .write_all(header.as_bytes())
+            .expect("write header");
         self.stdin.write_all(&body).expect("write body");
         self.stdin.flush().expect("flush");
     }
@@ -139,7 +148,9 @@ impl LspClient {
 impl Drop for LspClient {
     fn drop(&mut self) {
         // Best-effort graceful exit, then hard kill — never leak a server process.
-        let _ = self.stdin.write_all(b"Content-Length: 33\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"exit\"}");
+        let _ = self
+            .stdin
+            .write_all(b"Content-Length: 33\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"exit\"}");
         let _ = self.stdin.flush();
         let _ = self.child.kill();
         let _ = self.child.wait();
@@ -209,14 +220,22 @@ fn lsp_full_lifecycle_over_stdio() {
     }
     // Codified advertise-vs-deliver gap: call/type hierarchy are IMPLEMENTED in
     // server.rs but NOT advertised. If they are ever advertised, flip these asserts.
-    assert!(caps["callHierarchyProvider"].is_null(), "call hierarchy is implemented but not advertised");
-    assert!(caps["typeHierarchyProvider"].is_null(), "type hierarchy is implemented but not advertised");
+    assert!(
+        caps["callHierarchyProvider"].is_null(),
+        "call hierarchy is implemented but not advertised"
+    );
+    assert!(
+        caps["typeHierarchyProvider"].is_null(),
+        "type hierarchy is implemented but not advertised"
+    );
 
     // didOpen a broken SPARQL surface → diagnostics carry E0011.
     let uri = "file:///x/q.rq";
     c.did_open(uri, "sparql", BROKEN_CONSTRUCT);
     let diags = c.wait_for_diagnostics(uri);
-    let arr = diags["params"]["diagnostics"].as_array().expect("diagnostics array");
+    let arr = diags["params"]["diagnostics"]
+        .as_array()
+        .expect("diagnostics array");
     let e0011 = arr
         .iter()
         .find(|d| d["code"] == json!("E0011"))
@@ -231,11 +250,17 @@ fn lsp_full_lifecycle_over_stdio() {
         "textDocument/hover",
         json!({"textDocument":{"uri":uri},"position":range["start"]}),
     );
-    assert!(hover.get("error").is_none(), "hover must not error: {hover}");
+    assert!(
+        hover.get("error").is_none(),
+        "hover must not error: {hover}"
+    );
     let md = hover["result"]["contents"]["value"]
         .as_str()
         .expect("hover returns markdown contents over the E0011 diagnostic");
-    assert!(md.contains("E0011"), "hover card names the E0011 diagnostic: {md}");
+    assert!(
+        md.contains("E0011"),
+        "hover card names the E0011 diagnostic: {md}"
+    );
     assert!(
         md.contains("template.values-inline"),
         "hover card projects the canonical route for E0011: {md}"
@@ -255,22 +280,43 @@ fn lsp_full_lifecycle_over_stdio() {
             "context":{"diagnostics":[e0011]}
         }),
     );
-    assert!(actions.get("error").is_none(), "codeAction must not error: {actions}");
+    assert!(
+        actions.get("error").is_none(),
+        "codeAction must not error: {actions}"
+    );
     for a in actions["result"].as_array().into_iter().flatten() {
         if let Some(data) = a.get("data") {
             let env: ggen_lsp::RouteEnvelope = serde_json::from_value(data.clone())
                 .expect("code action data deserializes to RouteEnvelope");
-            assert_eq!(env.diagnostic_code, "E0011", "offered route targets the E0011 diagnostic");
+            assert_eq!(
+                env.diagnostic_code, "E0011",
+                "offered route targets the E0011 diagnostic"
+            );
         }
     }
 
     // The remaining feature requests must return well-formed results (not JSON-RPC errors).
     for (method, params) in [
-        ("textDocument/definition", json!({"textDocument":{"uri":uri},"position":range["start"]})),
-        ("textDocument/references", json!({"textDocument":{"uri":uri},"position":range["start"],"context":{"includeDeclaration":true}})),
-        ("textDocument/documentSymbol", json!({"textDocument":{"uri":uri}})),
-        ("textDocument/completion", json!({"textDocument":{"uri":uri},"position":{"line":0,"character":0}})),
-        ("textDocument/formatting", json!({"textDocument":{"uri":uri},"options":{"tabSize":2,"insertSpaces":true}})),
+        (
+            "textDocument/definition",
+            json!({"textDocument":{"uri":uri},"position":range["start"]}),
+        ),
+        (
+            "textDocument/references",
+            json!({"textDocument":{"uri":uri},"position":range["start"],"context":{"includeDeclaration":true}}),
+        ),
+        (
+            "textDocument/documentSymbol",
+            json!({"textDocument":{"uri":uri}}),
+        ),
+        (
+            "textDocument/completion",
+            json!({"textDocument":{"uri":uri},"position":{"line":0,"character":0}}),
+        ),
+        (
+            "textDocument/formatting",
+            json!({"textDocument":{"uri":uri},"options":{"tabSize":2,"insertSpaces":true}}),
+        ),
     ] {
         let r = c.request(method, params);
         assert!(r.get("error").is_none(), "{method} must not error: {r}");

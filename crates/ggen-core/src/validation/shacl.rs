@@ -185,10 +185,9 @@ impl ShapeLoader {
                     continue;
                 }
 
-                let field = strip_iri_brackets(
-                    prop_row.get("field").map(|s| s.as_str()).unwrap_or(""),
-                )
-                .to_string();
+                let field =
+                    strip_iri_brackets(prop_row.get("field").map(|s| s.as_str()).unwrap_or(""))
+                        .to_string();
                 let value = prop_row.get("value").cloned().unwrap_or_default();
 
                 let constraint = shape
@@ -216,10 +215,9 @@ impl ShapeLoader {
                 graph.query_cached(&in_query)
             {
                 for in_row in &in_rows {
-                    let path = strip_iri_brackets(
-                        in_row.get("path").map(|s| s.as_str()).unwrap_or(""),
-                    )
-                    .to_string();
+                    let path =
+                        strip_iri_brackets(in_row.get("path").map(|s| s.as_str()).unwrap_or(""))
+                            .to_string();
                     if path.is_empty() {
                         continue;
                     }

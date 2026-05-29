@@ -6,10 +6,10 @@
 //! 3. `AdapterLayer`: Protocol translation layer (e.g. JSON-RPC to internal deltas).
 //! 4. `ProjectionLayer`: Outward-facing state projectors (OCEL, PROV, receipts).
 
-use crate::graph::dataset::DeterministicGraph;
 use crate::delta::RdfDelta;
+use crate::graph::dataset::DeterministicGraph;
+use crate::ocel::{EvidenceProjector, OcelLog};
 use crate::receipt::GraphReceipt;
-use crate::ocel::{OcelLog, EvidenceProjector};
 use crate::GraphError;
 use oxigraph::model::Quad;
 use serde_json::Value;
@@ -58,7 +58,9 @@ impl OuterMembrane {
     pub fn admit_input(&self, query: &str) -> Result<(), GraphError> {
         let trimmed = query.trim();
         if trimmed.is_empty() {
-            return Err(GraphError::Other("Empty input rejected by outer membrane".to_string()));
+            return Err(GraphError::Other(
+                "Empty input rejected by outer membrane".to_string(),
+            ));
         }
 
         // Active injection/sabotage scanner
@@ -81,10 +83,14 @@ impl OuterMembrane {
         for q in quads {
             let predicate_uri = q.predicate.as_str();
             if predicate_uri.is_empty() {
-                return Err(GraphError::Other("Invalid predicate rejected by outer membrane".to_string()));
+                return Err(GraphError::Other(
+                    "Invalid predicate rejected by outer membrane".to_string(),
+                ));
             }
             if q.subject.to_string().is_empty() {
-                return Err(GraphError::Other("Invalid subject rejected by outer membrane".to_string()));
+                return Err(GraphError::Other(
+                    "Invalid subject rejected by outer membrane".to_string(),
+                ));
             }
         }
         Ok(())
@@ -117,12 +123,16 @@ impl AdapterLayer {
         let additions_arr = params
             .get("additions")
             .and_then(|a| a.as_array())
-            .ok_or_else(|| GraphError::Other("Missing or invalid additions in params".to_string()))?;
+            .ok_or_else(|| {
+                GraphError::Other("Missing or invalid additions in params".to_string())
+            })?;
 
         let deletions_arr = params
             .get("deletions")
             .and_then(|d| d.as_array())
-            .ok_or_else(|| GraphError::Other("Missing or invalid deletions in params".to_string()))?;
+            .ok_or_else(|| {
+                GraphError::Other("Missing or invalid deletions in params".to_string())
+            })?;
 
         let mut additions = Vec::new();
         for val in additions_arr {

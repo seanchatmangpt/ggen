@@ -462,14 +462,12 @@ impl GenerationPipeline {
         let mut prolog = String::new();
         for (pfx, iri) in WELL_KNOWN {
             // Skip if the query already declares this prefix (case-insensitive PREFIX keyword).
-            let declares = query
-                .lines()
-                .any(|l| {
-                    let lt = l.trim_start();
-                    lt.len() >= 6
-                        && lt[..6].eq_ignore_ascii_case("prefix")
-                        && lt[6..].trim_start().starts_with(&format!("{pfx}:"))
-                });
+            let declares = query.lines().any(|l| {
+                let lt = l.trim_start();
+                lt.len() >= 6
+                    && lt[..6].eq_ignore_ascii_case("prefix")
+                    && lt[6..].trim_start().starts_with(&format!("{pfx}:"))
+            });
             if !declares {
                 prolog.push_str(&format!("PREFIX {pfx}: <{iri}>\n"));
             }
@@ -514,9 +512,7 @@ impl GenerationPipeline {
     /// so code generation is never blocked by LLM unavailability. Used by both the
     /// static- and dynamic-output paths of `execute_generation_rules`.
     fn inject_generated_impl(
-        &self,
-        row: &BTreeMap<String, String>,
-        rule: &crate::manifest::GenerationRule,
+        &self, row: &BTreeMap<String, String>, rule: &crate::manifest::GenerationRule,
         context: &mut tera::Context,
     ) {
         // Look for skill-specific fields in SPARQL results
@@ -849,8 +845,7 @@ impl GenerationPipeline {
                 }
                 transaction.write_file(&full_output_path, &final_content)?;
 
-                let content_hash =
-                    format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
+                let content_hash = format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
                 generated.push(GeneratedFile {
                     path: full_output_path,
                     content_hash,
@@ -1156,7 +1151,9 @@ impl GenerationPipeline {
                 if c == '"' || c == '\'' {
                     // skip string/char literal content
                     for (_, ch) in chars.by_ref() {
-                        if ch == c { break; }
+                        if ch == c {
+                            break;
+                        }
                     }
                     continue;
                 }

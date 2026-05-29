@@ -12,17 +12,15 @@ use std::path::Path;
 /// All error codes that are actively emitted from ggen-core
 /// Discovered by: grep -rn "error\[E00" crates/ggen-core/src/ --include='*.rs'
 const ACTIVE_ERROR_CODES: &[&str] = &[
-    "E0001", "E0002", "E0003", "E0004", "E0005", "E0006", "E0007", "E0008", "E0009",
-    "E0010", "E0011", "E0012",
-    "E0020", "E0021", "E0022", "E0023", "E0024", "E0025",
-    "E0027", "E0028", "E0029",
+    "E0001", "E0002", "E0003", "E0004", "E0005", "E0006", "E0007", "E0008", "E0009", "E0010",
+    "E0011", "E0012", "E0020", "E0021", "E0022", "E0023", "E0024", "E0025", "E0027", "E0028",
+    "E0029",
 ];
 
 /// Reserved codes (gaps in the E00XX sequence)
 /// These should not appear in error messages, only in documentation
 const RESERVED_ERROR_CODES: &[&str] = &[
-    "E0013", "E0014", "E0015", "E0016", "E0017", "E0018", "E0019",
-    "E0026",
+    "E0013", "E0014", "E0015", "E0016", "E0017", "E0018", "E0019", "E0026",
 ];
 
 #[test]
@@ -30,12 +28,11 @@ fn test_all_active_error_codes_documented() {
     // Read the documentation file
     // When running from cargo test, we're in the workspace root
     let doc_path = Path::new(".specify/specs/140-agent-diataxis/AGENT_CONSTRAINTS.md");
-    let doc_content = fs::read_to_string(doc_path)
-        .unwrap_or_else(|_| {
-            // Fallback: try relative to this test file
-            fs::read_to_string("../../.specify/specs/140-agent-diataxis/AGENT_CONSTRAINTS.md")
-                .expect("AGENT_CONSTRAINTS.md not found in expected paths")
-        });
+    let doc_content = fs::read_to_string(doc_path).unwrap_or_else(|_| {
+        // Fallback: try relative to this test file
+        fs::read_to_string("../../.specify/specs/140-agent-diataxis/AGENT_CONSTRAINTS.md")
+            .expect("AGENT_CONSTRAINTS.md not found in expected paths")
+    });
 
     // Extract documented codes from the file (format: ### `E0001`)
     let documented_codes: HashSet<String> = doc_content
@@ -73,11 +70,10 @@ fn test_all_active_error_codes_documented() {
 fn test_documented_codes_have_required_sections() {
     // Read the documentation file
     let doc_path = Path::new(".specify/specs/140-agent-diataxis/AGENT_CONSTRAINTS.md");
-    let doc_content = fs::read_to_string(doc_path)
-        .unwrap_or_else(|_| {
-            fs::read_to_string("../../.specify/specs/140-agent-diataxis/AGENT_CONSTRAINTS.md")
-                .expect("AGENT_CONSTRAINTS.md not found")
-        });
+    let doc_content = fs::read_to_string(doc_path).unwrap_or_else(|_| {
+        fs::read_to_string("../../.specify/specs/140-agent-diataxis/AGENT_CONSTRAINTS.md")
+            .expect("AGENT_CONSTRAINTS.md not found")
+    });
 
     // For each documented code, verify it has RULE, REASON, FIX sections
     // Look for both "## `E" and "### `E" patterns
@@ -89,10 +85,7 @@ fn test_documented_codes_have_required_sections() {
             let mut section = String::from(line);
             i += 1;
             // Collect until next heading
-            while i < lines.len()
-                && !lines[i].starts_with("## ")
-                && !lines[i].starts_with("### ")
-            {
+            while i < lines.len() && !lines[i].starts_with("## ") && !lines[i].starts_with("### ") {
                 section.push('\n');
                 section.push_str(lines[i]);
                 i += 1;
@@ -126,7 +119,10 @@ fn test_documented_codes_have_required_sections() {
                 "Error code {} is missing required sections.\n\
                  Required: **RULE:**, **REASON:**, **FIX:**\n\
                  Found: rule={}, reason={}, fix={}",
-                code, has_rule, has_reason, has_fix
+                code,
+                has_rule,
+                has_reason,
+                has_fix
             );
         } else {
             i += 1;
@@ -262,8 +258,7 @@ fn test_error_code_sequence_consistency() {
     expected_reserved.insert("E0026".to_string());
 
     // Verify active codes match expected
-    let actual_active: HashSet<String> =
-        ACTIVE_ERROR_CODES.iter().map(|s| s.to_string()).collect();
+    let actual_active: HashSet<String> = ACTIVE_ERROR_CODES.iter().map(|s| s.to_string()).collect();
     assert_eq!(
         actual_active, expected_active,
         "Active error codes don't match expected sequence"
