@@ -21,6 +21,9 @@ pub struct GgenMcpServer {
 
 #[tool_router]
 impl GgenMcpServer {
+    /// Demo tool: returns a greeting. This is an honest demo — a greeting tool
+    /// that returns a greeting performs exactly the work it advertises, so it is
+    /// NOT an Oracle Gap. It exists to exercise the tool-router wiring.
     #[tool(description = "Say hello")]
     async fn hello(
         &self, Parameters(params): Parameters<HelloParams>,
@@ -38,7 +41,9 @@ impl GgenMcpServer {
     async fn construct(
         &self, Parameters(params): Parameters<ConstructParams>,
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
-        // Log the boundary crossing
+        // Log the boundary crossing. This OCEL event is real evidence that the
+        // tool was invoked, so it must be preserved even though construction is
+        // not yet implemented.
         tracing::info!(
             "OCEL: {}",
             serde_json::json!({
@@ -47,17 +52,36 @@ impl GgenMcpServer {
             })
         );
 
-        let response = serde_json::json!({
-            "status": "success",
+        // WHY FAIL LOUD: This handler does NOT yet invoke the real μ₁–μ₅
+        // pipeline. Previously it returned a hardcoded {"status":"success",
+        // "message":"Artifact constructed successfully."} without constructing
+        // anything — an Oracle Gap where advertised != delivered. Reporting
+        // success for work that did not happen is worse than failing, because
+        // callers (and provenance/receipts) would record a fabricated outcome.
+        //
+        // Until the pipeline is wired, the only honest response is an explicit
+        // failure that directs the caller to the real construction path.
+        //
+        // TODO(pipeline): Wire this to `ggen_core::Pipeline` (the μ₁–μ₅ stages
+        // exposed via `ggen sync`) so that construction actually loads the
+        // ontology, generates, validates, and emits artifacts — then return
+        // success only after artifacts are emitted and a receipt is produced.
+        let diagnostic = serde_json::json!({
+            "status": "unimplemented",
             "task_id": params.task_id,
             "jtbd": params.jtbd,
             "avatar": params.avatar,
-            "message": "Artifact constructed successfully."
+            "tool": "ggen.construct",
+            "hint": "Run `ggen sync` for the real μ₁–μ₅ construction pipeline."
         });
 
-        Ok(CallToolResult::success(vec![Content::text(
-            serde_json::to_string_pretty(&response).unwrap_or_default(),
-        )]))
+        Err(rmcp::model::ErrorData::internal_error(
+            "ggen.construct is not implemented: this tool does not run the \
+             μ₁–μ₅ pipeline and therefore cannot construct an artifact. Use \
+             `ggen sync` for the real construction path. No artifact was \
+             produced.",
+            Some(diagnostic),
+        ))
     }
 }
 
