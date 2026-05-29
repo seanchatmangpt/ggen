@@ -195,12 +195,50 @@ pub fn repair_route_captured(
     Ok(result)
 }
 
+/// Validate a `root` path input the same way [`parse_repair_params`] validates
+/// `file_path`: an empty value (including the empty-string default once the caller
+/// has applied defaulting) is refused, and an over-length value is refused with the
+/// same [`MAX_PATH_BYTES`] bound. Closes the asymmetric fail-open where
+/// `replay_case`/`metrics` accepted any `root` while `repair_route` bounded its
+/// path. Returns the validated `root` so the happy path is unchanged.
+///
+/// # Errors
+/// Returns `McpError::invalid_params` for an empty or oversized `root`.
+fn validate_root(root: String) -> Result<String, McpError> {
+    if root.is_empty() {
+        return Err(McpError::invalid_params("empty 'root'", None));
+    }
+    if root.len() > MAX_PATH_BYTES {
+        return Err(McpError::invalid_params("'root' too long", None));
+    }
+    Ok(root)
+}
+
+/// Validate an optional `case_id` the same way `repair_route` bounds its path
+/// inputs: when present it must be non-empty and within [`MAX_PATH_BYTES`].
+/// Absent stays absent (verify-promotion path).
+///
+/// # Errors
+/// Returns `McpError::invalid_params` for an empty or oversized `case_id`.
+fn validate_case_id(case_id: Option<String>) -> Result<Option<String>, McpError> {
+    if let Some(id) = case_id.as_deref() {
+        if id.is_empty() {
+            return Err(McpError::invalid_params("empty 'case_id'", None));
+        }
+        if id.len() > MAX_PATH_BYTES {
+            return Err(McpError::invalid_params("'case_id' too long", None));
+        }
+    }
+    Ok(case_id)
+}
+
 /// Replay a recorded episode (or verify the promotion binding when `case_id` is
 /// omitted). MCP agents can challenge the route/result after the fact, not just
 /// receive routes.
 ///
 /// # Errors
-/// Returns `McpError::invalid_params` for garbled arguments.
+/// Returns `McpError::invalid_params` for garbled, empty, or oversized arguments
+/// (`root`/`case_id`) — symmetric with `repair_route`'s path-input discipline.
 pub fn replay_case_result(
     arguments: Option<serde_json::Map<String, serde_json::Value>>,
 ) -> Result<serde_json::Value, McpError> {
@@ -209,8 +247,9 @@ pub fn replay_case_result(
             .map_err(|e| McpError::invalid_params(format!("invalid params: {e}"), None))?,
         None => ReplayCaseParams::default(),
     };
-    let root = params.root.unwrap_or_else(|| ".".to_string());
-    let value = match params.case_id {
+    let root = validate_root(params.root.unwrap_or_else(|| ".".to_string()))?;
+    let case_id = validate_case_id(params.case_id)?;
+    let value = match case_id {
         Some(id) => serde_json::to_value(ggen_lsp::replay_case(Path::new(&root), &id)),
         None => serde_json::to_value(ggen_lsp::verify_promotion(Path::new(&root))),
     };
@@ -222,7 +261,8 @@ pub fn replay_case_result(
 /// only when the evidence earns it.
 ///
 /// # Errors
-/// Returns `McpError::invalid_params` for garbled arguments.
+/// Returns `McpError::invalid_params` for garbled, empty, or oversized `root`
+/// arguments — symmetric with `repair_route`'s path-input discipline.
 pub fn metrics_result(
     arguments: Option<serde_json::Map<String, serde_json::Value>>,
 ) -> Result<serde_json::Value, McpError> {
@@ -231,7 +271,7 @@ pub fn metrics_result(
             .map_err(|e| McpError::invalid_params(format!("invalid params: {e}"), None))?,
         None => MetricsParams::default(),
     };
-    let root = params.root.unwrap_or_else(|| ".".to_string());
+    let root = validate_root(params.root.unwrap_or_else(|| ".".to_string()))?;
     serde_json::to_value(ggen_lsp::compute_metrics(Path::new(&root)))
         .map_err(|e| McpError::internal_error(format!("serialization failed: {e}"), None))
 }

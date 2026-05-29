@@ -134,7 +134,15 @@ impl LanguageServer for GgenLanguageServer {
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
-        self.state.remove_document(&params.text_document.uri).await;
+        let uri = params.text_document.uri;
+        self.state.remove_document(&uri).await;
+        // LSP-conformant clear: publish an EMPTY diagnostics list for this URI so
+        // stale squiggles do not linger in the client after the document closes.
+        // Reuse the SAME publish path `did_open`/`did_change` use (the `Client`
+        // handle), so server state and editor diagnostics agree after close. Safe
+        // even if the doc was never opened — publishing an empty set is idempotent
+        // and never panics.
+        self.client.publish_diagnostics(uri, Vec::new(), None).await;
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {

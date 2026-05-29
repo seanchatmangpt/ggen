@@ -23,11 +23,12 @@
 //!  * `$/`-prefixed unknown methods are SWALLOWED by tower-lsp (returns no
 //!    response frame) per the LSP spec for optional `$/` messages — we do NOT
 //!    test those as "errors"; that would be inventing strictness.
-//!  * `did_close` (server.rs `did_close`) ONLY calls `state.remove_document` — it
-//!    does NOT publish cleared diagnostics. So we assert the HONEST behavior:
-//!    closing does not error, does not emit a diagnostics-clear frame, and the
-//!    server stays alive. (If the server is ever hardened to publish an empty
-//!    diagnostics set on close, flip that assertion.)
+//!  * `did_close` (server.rs `did_close`) removes the document AND publishes a
+//!    cleared (empty) diagnostics set for the URI — the LSP-conformant clear so
+//!    stale squiggles do not linger in the client. We assert the HARDENED
+//!    behavior: closing publishes a `publishDiagnostics` for the URI with an EMPTY
+//!    diagnostics array, does not error, and the server stays alive. This is both
+//!    the positive test and the sabotage test: it fails loud if the clear regresses.
 //!  * `shutdown` returns Ok(()); tower-lsp only marks the service `Exited` on the
 //!    `exit` NOTIFICATION, not on `shutdown`. So a request sent AFTER `shutdown`
 //!    but BEFORE `exit` is still served normally by this server (no -32600). We
@@ -36,7 +37,7 @@
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Child, ChildStdin, Command, Stdio};
-use std::sync::mpsc::{self, Receiver, RecvTimeoutError};
+use std::sync::mpsc::{self, Receiver};
 use std::thread;
 use std::time::Duration;
 use tempfile::TempDir;
@@ -109,12 +110,6 @@ impl LspClient {
         self.rx
             .recv_timeout(READ_TIMEOUT)
             .expect("LSP read timed out — server never sent the awaited frame")
-    }
-
-    /// Like `recv`, but returns Err on timeout instead of panicking — used to
-    /// PROVE the absence of a frame (e.g. no diagnostics-clear on did_close).
-    fn try_recv_within(&self, dur: Duration) -> Result<Value, RecvTimeoutError> {
-        self.rx.recv_timeout(dur)
     }
 
     /// Send a request and return its correlated response, stashing notifications and
@@ -327,14 +322,17 @@ fn did_change_rediagnoses_clean_to_broken() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Test 3: didClose after opening a broken .rq. HONEST FINDING: server.rs
-// `did_close` only removes the document — it does NOT publish a cleared
-// diagnostics set. We assert the REAL behavior: no diagnostics-clear frame is
-// emitted, did_close does not error, and the server stays alive.
+// Test 3: didClose after opening a broken .rq. CONTRACT (LSP-conformant clear):
+// server.rs `did_close` removes the document AND publishes an EMPTY diagnostics
+// set for the URI, so stale squiggles do not linger in the client. We assert the
+// HARDENED behavior over the wire: a `publishDiagnostics` for this URI arrives
+// with an empty diagnostics array, did_close does not error, and the server stays
+// alive. This is both the positive and the sabotage test — it fails LOUD (read
+// timeout / non-empty array) if the clear ever regresses.
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
-fn did_close_does_not_clear_diagnostics_but_server_stays_alive() {
+fn did_close_clears_diagnostics_and_server_stays_alive() {
     let mut c = LspClient::spawn();
     initialize(&mut c);
 
@@ -343,31 +341,25 @@ fn did_close_does_not_clear_diagnostics_but_server_stays_alive() {
     let opened = c.wait_for_diagnostics(uri);
     assert!(has_e0011(&opened), "broken .rq must carry E0011 on open: {opened}");
 
-    // Close the document. Per the real server this only removes state.
+    // Close the document. The hardened server removes state AND publishes a
+    // cleared diagnostics set for this URI.
     c.did_close(uri);
 
-    // HONEST behavior check: the server does NOT publish a diagnostics-clear frame
-    // for this uri. Prove the ABSENCE of such a frame within a bounded window.
-    let mut saw_clear = false;
-    let deadline = std::time::Instant::now() + Duration::from_millis(600);
-    while std::time::Instant::now() < deadline {
-        match c.try_recv_within(Duration::from_millis(150)) {
-            Ok(f) => {
-                if f.get("method").and_then(Value::as_str)
-                    == Some("textDocument/publishDiagnostics")
-                    && f["params"]["uri"] == json!(uri)
-                {
-                    saw_clear = true;
-                    break;
-                }
-            }
-            Err(_) => break, // no more frames — expected
-        }
-    }
+    // CONTRACT check: the server MUST publish a diagnostics-clear frame for this
+    // uri (an EMPTY diagnostics array). Wait for it on the wire — a regression
+    // (no clear) fails loud here via the bounded read timeout.
+    let cleared = c.wait_for_diagnostics(uri);
+    let diags = cleared["params"]["diagnostics"]
+        .as_array()
+        .unwrap_or_else(|| panic!("did_close clear must carry a diagnostics array: {cleared}"));
     assert!(
-        !saw_clear,
-        "honest finding: did_close does NOT publish a cleared-diagnostics frame; \
-         if the server is hardened to clear on close, update this assertion"
+        diags.is_empty(),
+        "did_close must publish an EMPTY diagnostics array (LSP-conformant clear), got: {cleared}"
+    );
+    // And the cleared frame must NOT carry the stale E0011 the open published.
+    assert!(
+        !has_e0011(&cleared),
+        "did_close clear must not carry the stale E0011: {cleared}"
     );
 
     // Liveness: server still serves requests after a close.

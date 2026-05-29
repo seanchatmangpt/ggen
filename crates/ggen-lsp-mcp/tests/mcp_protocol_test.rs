@@ -358,6 +358,127 @@ fn mcp_malformed_args_are_refused_and_the_server_survives() {
     // Server survives a second time.
     let after_metrics = c.request("tools/list", Value::Null);
     assert!(after_metrics["result"]["tools"].is_array(), "server survives bad metrics args");
+
+    // SEMANTIC refusal (not just type-level): a well-TYPED but empty `root` string
+    // parses fine yet is now refused by the same path-bound discipline repair_route
+    // applies — closing the fail-open this test previously could not reach. The
+    // server must survive these too.
+    let semantic_replay = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.replay_case","arguments":{"root":""}}),
+    );
+    assert!(
+        is_refusal(&semantic_replay),
+        "an empty (but well-typed) replay_case root must be SEMANTICALLY refused, got: {semantic_replay}"
+    );
+    let semantic_metrics = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.metrics","arguments":{"root":""}}),
+    );
+    assert!(
+        is_refusal(&semantic_metrics),
+        "an empty (but well-typed) metrics root must be SEMANTICALLY refused, got: {semantic_metrics}"
+    );
+    let after_semantic = c.request("tools/list", Value::Null);
+    assert!(after_semantic["result"]["tools"].is_array(), "server survives semantic refusals");
+}
+
+#[test]
+fn mcp_replay_case_and_metrics_refuse_empty_and_oversized_root() {
+    // SABOTAGE: an UNTRUSTED MCP client probes the read-path surface by passing an
+    // empty or oversized `root` to replay_case/metrics. Before MCP-REPLAY hardening
+    // these tools performed NO semantic validation of `root` (any string accepted,
+    // defaulting to ".") — an asymmetric fail-open vs. repair_route, which bounds
+    // its path inputs. The fix mirrors repair_route's discipline (empty / >4096
+    // bytes => McpError::invalid_params), so each refusal below must be STRUCTURED
+    // (JSON-RPC error or isError), never silent acceptance, and the server survives.
+    let mut c = McpClient::spawn();
+    c.initialize();
+
+    let is_refusal = |resp: &Value| -> bool {
+        resp.get("error").is_some()
+            || resp["result"]["isError"] == json!(true)
+            || resp["result"]["content"][0]["text"]
+                .as_str()
+                .map(|t| {
+                    let t = t.to_lowercase();
+                    t.contains("invalid") || t.contains("empty") || t.contains("too long")
+                })
+                .unwrap_or(false)
+    };
+    // 4097 bytes — one over MAX_PATH_BYTES (the same bound repair_route applies to
+    // file_path). repair_route refuses an over-length path; replay_case/metrics must too.
+    let oversized_root = "a".repeat(4097);
+
+    // --- replay_case: empty root ---
+    let r = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.replay_case","arguments":{"root":""}}),
+    );
+    assert!(is_refusal(&r), "replay_case must SEMANTICALLY refuse an empty root, got: {r}");
+    // --- replay_case: oversized root ---
+    let r = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.replay_case","arguments":{"root":oversized_root}}),
+    );
+    assert!(is_refusal(&r), "replay_case must refuse an oversized root, got: {r}");
+    // --- replay_case: empty case_id (present-but-empty) ---
+    let r = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.replay_case","arguments":{"root":".","case_id":""}}),
+    );
+    assert!(is_refusal(&r), "replay_case must refuse an empty case_id, got: {r}");
+
+    // --- metrics: empty root ---
+    let m = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.metrics","arguments":{"root":""}}),
+    );
+    assert!(is_refusal(&m), "metrics must SEMANTICALLY refuse an empty root, got: {m}");
+    // --- metrics: oversized root ---
+    let oversized_root2 = "b".repeat(4097);
+    let m = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.metrics","arguments":{"root":oversized_root2}}),
+    );
+    assert!(is_refusal(&m), "metrics must refuse an oversized root, got: {m}");
+
+    // Server survived every semantic refusal: tools/list still answers.
+    let after = c.request("tools/list", Value::Null);
+    assert!(
+        after["result"]["tools"].is_array(),
+        "server survives semantic refusals on replay_case/metrics"
+    );
+}
+
+#[test]
+fn mcp_replay_case_and_metrics_accept_valid_root_after_hardening() {
+    // REGRESSION GUARD: the semantic-validation hardening must NOT break the happy
+    // path. A valid root (".") and a valid case_id still produce the real structured
+    // result documents (not a refusal) — proving validation only rejects bad input.
+    let mut c = McpClient::spawn();
+    c.initialize();
+
+    // Valid replay_case: real CaseReplay (found=false in a fresh project, but a
+    // genuine result document — NOT an error).
+    let replay = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.replay_case","arguments":{"root":".","case_id":"c:valid-shape"}}),
+    );
+    let doc = tool_doc(&replay);
+    assert_eq!(doc["case_id"], json!("c:valid-shape"), "valid call echoes the case_id");
+    assert_eq!(doc["found"], json!(false), "fresh project => not found, but a real CaseReplay");
+
+    // Valid metrics: real ImproveMetrics document, not a refusal.
+    let metrics = c.request(
+        "tools/call",
+        json!({"name":"ggen.lsp.metrics","arguments":{"root":"."}}),
+    );
+    let mdoc = tool_doc(&metrics);
+    assert_eq!(
+        mdoc["verdict"], json!("insufficient_evidence"),
+        "valid metrics call returns the real refused-by-default verdict, not an arg error"
+    );
 }
 
 #[test]
