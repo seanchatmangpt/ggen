@@ -101,6 +101,19 @@ impl RepairRouteServer {
             tools: Arc::new(tools),
         }
     }
+
+    /// Serve the route tools over stdio (the transport editors and non-editor
+    /// agents use). This is what `ggen lsp serve --protocol mcp` launches.
+    ///
+    /// # Errors
+    /// Returns an error if the stdio transport fails to initialize or serve.
+    pub async fn start_stdio() -> anyhow::Result<()> {
+        use rmcp::ServiceExt;
+        let (stdin, stdout) = (tokio::io::stdin(), tokio::io::stdout());
+        let running = Self::new().serve((stdin, stdout)).await?;
+        running.waiting().await?;
+        Ok(())
+    }
 }
 
 /// Build an rmcp `Tool` from a name, description, and a schemars-derived schema value.

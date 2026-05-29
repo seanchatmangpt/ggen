@@ -78,6 +78,50 @@ fn start(transport: Option<String>) -> Result<StartOutput> {
     })
 }
 
+/// Serve the ggen route engine over a chosen transport — one binary, one route law.
+///
+///   ggen lsp serve                     Language Server over stdio (editors). [default]
+///   ggen lsp serve --protocol mcp      MCP route server (repair_route/replay_case/metrics).
+///
+/// A2A is consumed via the `ggen-lsp-a2a` bridge adapter, not a standalone server.
+#[verb]
+fn serve(protocol: Option<String>) -> Result<StartOutput> {
+    let proto = protocol.unwrap_or_else(|| "lsp".to_string());
+    match proto.as_str() {
+        "lsp" => {
+            crate::runtime::block_on(async move { ggen_lsp::run_stdio().await })
+                .map_err(|e: ggen_core::utils::Error| {
+                    clap_noun_verb::NounVerbError::execution_error(e.to_string())
+                })?
+                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+        }
+        "mcp" => {
+            crate::runtime::block_on(async move {
+                ggen_lsp_mcp::RepairRouteServer::start_stdio().await
+            })
+            .map_err(|e: ggen_core::utils::Error| {
+                clap_noun_verb::NounVerbError::execution_error(e.to_string())
+            })?
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+        }
+        "a2a" => {
+            return Err(clap_noun_verb::NounVerbError::execution_error(
+                "A2A is consumed via the ggen-lsp-a2a bridge adapter, not a standalone server"
+                    .to_string(),
+            ));
+        }
+        other => {
+            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                "unknown protocol: {other} (use lsp|mcp)"
+            )));
+        }
+    }
+    Ok(StartOutput {
+        status: "stopped".to_string(),
+        transport: proto,
+    })
+}
+
 /// Validate ggen law-surface files and print JSON diagnostics; exit non-zero on any ERROR.
 ///
 /// Law surfaces: .ttl .nt .nq (RDF), .rq .sparql (SPARQL), .tera (templates), ggen.toml (config).

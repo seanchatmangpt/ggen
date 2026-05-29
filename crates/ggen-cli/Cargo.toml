@@ -54,6 +54,7 @@ flate2 = "1.0"
 md5 = "0.8"
 ggen-a2a-mcp = { version = "26.5.21", path = "../ggen-a2a-mcp" }
 ggen-lsp = { version = "26.5.21", path = "../ggen-lsp" }
+ggen-lsp-mcp = { version = "26.5.21", path = "../ggen-lsp-mcp" }
 blake3.workspace = true
 
 [features]

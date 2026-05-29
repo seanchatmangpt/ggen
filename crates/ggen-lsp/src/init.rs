@@ -59,6 +59,20 @@ const VSCODE_NOTE: &str = r#"{
 }
 "#;
 
+/// MCP server registration (the conventional `.mcp.json` agents read). Registers
+/// the non-editor route surface (repair_route / replay_case / metrics) so MCP
+/// agents reach the SAME route engine as the editor.
+const MCP_CONFIG: &str = r#"{
+  "mcpServers": {
+    "ggen-lsp": {
+      "command": "ggen-lsp-mcp",
+      "args": [],
+      "_comment": "ggen route engine over MCP: ggen.lsp.repair_route / replay_case / metrics. Equivalent to `ggen lsp serve --protocol mcp`."
+    }
+  }
+}
+"#;
+
 /// Initialize a project for the ggen LSP: write editor configs + emit the pack.
 ///
 /// `editors` selects which configs to write (`helix`, `neovim`, `vscode`); empty
@@ -95,6 +109,10 @@ pub fn init(root: &Path, editors: &[String], agents: &[String]) -> io::Result<In
             root,
         )?;
     }
+
+    // MCP server registration — the non-editor route surface, wired in one place
+    // alongside the editor LSP config and the hooks (all pointing at one gate).
+    write_if_absent(&root.join(".mcp.json"), MCP_CONFIG, &mut written, root)?;
 
     // Emit the Agent Admissibility Pack alongside editor configs.
     let pack_out = root.join(".agent-admissibility");
@@ -148,6 +166,7 @@ mod tests {
 
         assert!(dir.path().join(".helix/languages.toml").is_file());
         assert!(dir.path().join(".ggen/editor/ggen-lsp.lua").is_file());
+        assert!(dir.path().join(".mcp.json").is_file(), "MCP server registration emitted");
         assert!(dir
             .path()
             .join(".agent-admissibility/hooks/generic/pre-commit.sh")
