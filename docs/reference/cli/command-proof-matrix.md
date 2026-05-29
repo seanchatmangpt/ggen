@@ -29,7 +29,7 @@
 | `policy` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_policy_doctor_utils_test.rs` |
 | `doctor` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_policy_doctor_utils_test.rs` |
 | `utils` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_policy_doctor_utils_test.rs` |
-| `lsp` | KEEP (feature-gated) | GATED | `#[cfg(feature = "lsp")]`; proven by the `ggen-lsp` crate suite (103 tests) when enabled |
+| `lsp` | KEEP (feature-gated) | **PROVEN** (GATED) | `#[cfg(feature = "lsp")]`; binary built `--features lsp`; the noun + its MCP/A2A planes proven on the playground project — same E0011 + route across all three transports. See [delivery-plane-proof.md](delivery-plane-proof.md). Plus the `ggen-lsp` crate suite. |
 | `a2a` | **ARCHIVE** | ARCHIVED | ambiguous capability; gated behind `experimental` (default-off). A2A delivered as the `ggen-lsp-a2a` bridge library, not a CLI noun |
 | `framework` | **ARCHIVE** | ARCHIVED | framework-bridge (LangChain etc.) not provable as finished in v26.5.28 |
 | `mcp` | **ARCHIVE** | ARCHIVED | MCP delivered via `ggen lsp serve --protocol mcp` (under `lsp` feature) and the `ggen-lsp-mcp` binary, not this noun |
