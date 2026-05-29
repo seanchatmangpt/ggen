@@ -1,3 +1,10 @@
+// DEAD: cmds::project removed; quarantined. References `ggen_cli_lib::cmds::project::gen::*`,
+// a module that no longer exists in crates/ggen-cli/src/cmds/mod.rs. This file lives under
+// tests/cli/project/ but tests/cli is NOT registered as a [[test]] target in the root
+// Cargo.toml and no top-level tests/*.rs does `mod cli;`, so it is not compiled. The
+// `cfg(any())` guard below keeps it inert even if accidentally included.
+#![cfg(any())]
+
 //! Lean test suite for `ggen project gen` command (80/20 critical path)
 //!
 //! Note: gen.rs already has comprehensive London TDD tests in the source file.
