@@ -390,8 +390,15 @@ impl PathValidator {
                 ))
             })
         } else {
-            // For non-existent paths, manually construct absolute path
-            let mut absolute = self.workspace_root.clone();
+            // For non-existent paths, manually construct absolute path against the
+            // CANONICAL workspace root. `check_workspace_bounds` canonicalizes the
+            // workspace before the containment check, so building on a non-canonical
+            // root (e.g. macOS `/tmp`, a symlink to `/private/tmp`) would make a
+            // perfectly valid path spuriously report a workspace escape.
+            let mut absolute = self
+                .workspace_root
+                .canonicalize()
+                .unwrap_or_else(|_| self.workspace_root.clone());
             for component in path.components() {
                 match component {
                     std::path::Component::Normal(c) => {
