@@ -7,16 +7,20 @@ async fn main() -> anyhow::Result<()> {
 
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 2 {
-        eprintln!("Usage: ggen-lsp [stdio]");
-        return Ok(());
-    }
-
-    match args[1].as_str() {
-        "stdio" => {
+    // stdio is the only transport editors and Claude Code use, so it is the
+    // DEFAULT: a bare `ggen-lsp` invocation runs the language server over stdio,
+    // matching the rust-analyzer convention (a dedicated LSP binary launched by
+    // the editor/agent with no arguments). `ggen-lsp stdio` is also accepted.
+    match args.get(1).map(String::as_str) {
+        None | Some("stdio") => {
             run_stdio().await?;
         }
-        _ => eprintln!("Unknown transport: {}", args[1]),
+        Some(other) => {
+            eprintln!(
+                "ggen-lsp: unknown transport {other:?}. Usage: ggen-lsp [stdio]  (stdio is the default)"
+            );
+            std::process::exit(2);
+        }
     }
 
     Ok(())
