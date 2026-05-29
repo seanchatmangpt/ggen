@@ -45,10 +45,3 @@ pub async fn run_stdio() -> anyhow::Result<()> {
     Server::new(stdin, stdout, socket).serve(service).await;
     Ok(())
 }
-
-/// HTTP transport is not implemented; stdio is the supported transport.
-pub async fn run_http(_port: u16) -> anyhow::Result<()> {
-    Err(anyhow::anyhow!(
-        "HTTP transport not implemented; use --transport stdio"
-    ))
-}

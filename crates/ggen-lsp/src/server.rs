@@ -63,10 +63,6 @@ impl LanguageServer for GgenLanguageServer {
                     },
                 })),
                 document_symbol_provider: Some(OneOf::Left(true)),
-                workspace_symbol_provider: Some(OneOf::Left(true)),
-                code_lens_provider: Some(CodeLensOptions {
-                    resolve_provider: Some(false),
-                }),
                 code_action_provider: Some(CodeActionProviderCapability::Options(
                     CodeActionOptions {
                         code_action_kinds: Some(vec![CodeActionKind::QUICKFIX]),
@@ -76,37 +72,7 @@ impl LanguageServer for GgenLanguageServer {
                         },
                     },
                 )),
-                semantic_tokens_provider: Some(
-                    SemanticTokensServerCapabilities::SemanticTokensOptions(SemanticTokensOptions {
-                        legend: SemanticTokensLegend {
-                            token_types: vec![
-                                SemanticTokenType::NAMESPACE,
-                                SemanticTokenType::CLASS,
-                                SemanticTokenType::PROPERTY,
-                                SemanticTokenType::VARIABLE,
-                                SemanticTokenType::KEYWORD,
-                                SemanticTokenType::STRING,
-                                SemanticTokenType::NUMBER,
-                                SemanticTokenType::COMMENT,
-                                SemanticTokenType::FUNCTION,
-                            ],
-                            token_modifiers: vec![
-                                SemanticTokenModifier::DECLARATION,
-                                SemanticTokenModifier::DEFINITION,
-                                SemanticTokenModifier::READONLY,
-                                SemanticTokenModifier::DEPRECATED,
-                            ],
-                        },
-                        range: Some(true),
-                        full: Some(SemanticTokensFullOptions::Bool(true)),
-                        ..Default::default()
-                    }),
-                ),
                 folding_range_provider: Some(FoldingRangeProviderCapability::Simple(true)),
-                document_formatting_provider: Some(OneOf::Left(true)),
-                document_range_formatting_provider: Some(OneOf::Left(true)),
-                inlay_hint_provider: Some(OneOf::Left(true)),
-                call_hierarchy_provider: Some(CallHierarchyServerCapability::Simple(true)),
                 ..Default::default()
             },
             server_info: Some(ServerInfo {

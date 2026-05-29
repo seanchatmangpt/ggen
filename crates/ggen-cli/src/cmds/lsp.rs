@@ -104,15 +104,9 @@ fn serve(protocol: Option<String>) -> Result<StartOutput> {
             })?
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
         }
-        "a2a" => {
-            return Err(clap_noun_verb::NounVerbError::execution_error(
-                "A2A is consumed via the ggen-lsp-a2a bridge adapter, not a standalone server"
-                    .to_string(),
-            ));
-        }
         other => {
             return Err(clap_noun_verb::NounVerbError::execution_error(format!(
-                "unknown protocol: {other} (use lsp|mcp)"
+                "unknown protocol: {other} (use lsp|mcp; A2A is consumed via the ggen-lsp-a2a bridge adapter, not a standalone server)"
             )));
         }
     }
