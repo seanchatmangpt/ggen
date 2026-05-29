@@ -284,7 +284,7 @@ fn strip_comment(line: &str) -> &str {
     match line.find('#') {
         // Keep `#`-bearing IRIs (e.g. `rdf:type` expands fine; full IRIs use `<>`).
         // A comment `#` is one preceded by whitespace or at line start.
-        Some(pos) if pos == 0 => "",
+        Some(0) => "",
         Some(pos) if line.as_bytes()[pos - 1].is_ascii_whitespace() => &line[..pos],
         _ => line,
     }

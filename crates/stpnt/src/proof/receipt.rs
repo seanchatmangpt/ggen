@@ -122,7 +122,7 @@ impl StewardshipReceipt {
         // then MAC the content hash. blake3::keyed_hash requires a 32-byte key.
         let derived = blake3::hash(key);
         let mac = blake3::keyed_hash(derived.as_bytes(), &self.content_hash());
-        Ok((*mac.as_bytes()).into())
+        Ok(*mac.as_bytes())
     }
 
     /// Sign this receipt in place with `key`, replacing any empty placeholder

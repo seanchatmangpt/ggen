@@ -324,7 +324,7 @@ pub struct LoggingConfig {
 /// Telemetry configuration
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TelemetryConfig {
-    /// OTLP endpoint (default: http://localhost:4317)
+    /// OTLP endpoint (default: <http://localhost:4317>)
     #[serde(default = "default_telemetry_endpoint")]
     pub endpoint: String,
 
