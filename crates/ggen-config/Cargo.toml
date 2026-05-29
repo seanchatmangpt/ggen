@@ -23,7 +23,7 @@ workspace = true
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-toml = "0.9"
+toml = "1.1.0"
 thiserror = "2.0"
 tokio = { version = "1.47", features = ["sync"] }
 chrono = { version = "0.4", features = ["serde"] }
@@ -36,3 +36,7 @@ blake3 = "1.5"
 
 [dev-dependencies]
 tempfile = "3"
+# `#[tokio::test]` (used in hive_coordinator + ontology_integration tests) needs
+# the macros + runtime features; the production `tokio` dep above intentionally
+# keeps only `sync` to stay lean. Cargo unifies these for the test build.
+tokio = { version = "1.47", features = ["macros", "rt", "rt-multi-thread"] }

@@ -17,7 +17,7 @@
 //! ## Example
 //!
 //! ```no_run
-//! use crate::config_lib::{GgenConfig, ConfigLoader};
+//! use ggen_config::config_lib::{GgenConfig, ConfigLoader};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load configuration from file

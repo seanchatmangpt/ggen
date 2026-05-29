@@ -44,6 +44,10 @@ pub struct GgenConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logging: Option<LoggingConfig>,
 
+    /// Telemetry configuration (optional)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub telemetry: Option<TelemetryConfig>,
+
     /// Feature flags (optional)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<HashMap<String, bool>>,
@@ -315,6 +319,22 @@ pub struct LoggingConfig {
     /// Log rotation (daily, size-based, etc.)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rotation: Option<String>,
+}
+
+/// Telemetry configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct TelemetryConfig {
+    /// OTLP endpoint (default: http://localhost:4317)
+    #[serde(default = "default_telemetry_endpoint")]
+    pub endpoint: String,
+
+    /// Service name for traces (default: "ggen")
+    #[serde(default = "default_telemetry_service_name")]
+    pub service_name: String,
+
+    /// Whether to enable console output
+    #[serde(default = "default_telemetry_console_output")]
+    pub console_output: bool,
 }
 
 /// Build configuration
@@ -762,6 +782,7 @@ impl Default for GgenConfig {
             security: None,
             performance: None,
             logging: None,
+            telemetry: None,
             features: None,
             env: None,
             build: None,
@@ -856,4 +877,16 @@ const fn default_a2a_heartbeat_interval() -> u64 {
 
 const fn default_a2a_agent_timeout() -> u64 {
     300
+}
+
+fn default_telemetry_endpoint() -> String {
+    "http://localhost:4317".to_string()
+}
+
+fn default_telemetry_service_name() -> String {
+    "ggen".to_string()
+}
+
+fn default_telemetry_console_output() -> bool {
+    false
 }
