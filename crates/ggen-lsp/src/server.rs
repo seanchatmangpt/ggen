@@ -73,6 +73,37 @@ impl LanguageServer for GgenLanguageServer {
                     },
                 )),
                 folding_range_provider: Some(FoldingRangeProviderCapability::Simple(true)),
+                // Re-declared because the features/ modules now genuinely deliver
+                // these (advertised == delivered). semantic_tokens advertises only
+                // `full` (no `range`) since only full tokenization is implemented.
+                semantic_tokens_provider: Some(
+                    SemanticTokensServerCapabilities::SemanticTokensOptions(SemanticTokensOptions {
+                        legend: SemanticTokensLegend {
+                            token_types: vec![
+                                SemanticTokenType::NAMESPACE,
+                                SemanticTokenType::CLASS,
+                                SemanticTokenType::PROPERTY,
+                                SemanticTokenType::VARIABLE,
+                                SemanticTokenType::KEYWORD,
+                                SemanticTokenType::STRING,
+                                SemanticTokenType::NUMBER,
+                                SemanticTokenType::COMMENT,
+                                SemanticTokenType::FUNCTION,
+                            ],
+                            token_modifiers: vec![],
+                        },
+                        range: None,
+                        full: Some(SemanticTokensFullOptions::Bool(true)),
+                        ..Default::default()
+                    }),
+                ),
+                document_formatting_provider: Some(OneOf::Left(true)),
+                document_range_formatting_provider: Some(OneOf::Left(true)),
+                inlay_hint_provider: Some(OneOf::Left(true)),
+                code_lens_provider: Some(CodeLensOptions {
+                    resolve_provider: Some(false),
+                }),
+                workspace_symbol_provider: Some(OneOf::Left(true)),
                 ..Default::default()
             },
             server_info: Some(ServerInfo {
@@ -197,11 +228,14 @@ impl LanguageServer for GgenLanguageServer {
         params: SemanticTokensParams,
     ) -> Result<Option<SemanticTokensResult>> {
         let uri = &params.text_document.uri;
+        let file_type = crate::state::FileType::from_uri(uri);
         Ok(self
             .state
-            .get_analyzer(uri)
+            .get_document(uri)
             .await
-            .and_then(|a| a.semantic_tokens())
+            .and_then(|content| {
+                crate::features::semantic_tokens::semantic_tokens(file_type, &content)
+            })
             .map(SemanticTokensResult::Tokens))
     }
 
@@ -216,29 +250,49 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
         let uri = &params.text_document.uri;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.format_document()))
+        let Some(content) = self.state.get_document(uri).await else {
+            return Ok(None);
+        };
+        let file_type = crate::state::FileType::from_uri(uri);
+        Ok(crate::features::formatting::format_document(file_type, &content))
+    }
+
+    async fn range_formatting(
+        &self,
+        params: DocumentRangeFormattingParams,
+    ) -> Result<Option<Vec<TextEdit>>> {
+        let uri = &params.text_document.uri;
+        let Some(content) = self.state.get_document(uri).await else {
+            return Ok(None);
+        };
+        let file_type = crate::state::FileType::from_uri(uri);
+        Ok(crate::features::formatting::format_range(
+            file_type,
+            &content,
+            params.range,
+        ))
     }
 
     async fn inlay_hint(&self, params: InlayHintParams) -> Result<Option<Vec<InlayHint>>> {
         let uri = &params.text_document.uri;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.inlay_hints()))
+        let Some(content) = self.state.get_document(uri).await else {
+            return Ok(None);
+        };
+        let file_type = crate::state::FileType::from_uri(uri);
+        Ok(crate::features::inlay_hint::inlay_hints(
+            file_type,
+            &content,
+            params.range,
+        ))
     }
 
     async fn code_lens(&self, params: CodeLensParams) -> Result<Option<Vec<CodeLens>>> {
         let uri = &params.text_document.uri;
-        Ok(self
-            .state
-            .get_analyzer(uri)
-            .await
-            .and_then(|a| a.code_lenses()))
+        let file_type = crate::state::FileType::from_uri(uri);
+        let Some(content) = self.state.get_document(uri).await else {
+            return Ok(None);
+        };
+        Ok(crate::features::code_lens::code_lenses(file_type, &content))
     }
 
     /// Project repair routes as QUICKFIX code actions. A CodeAction here IS the
@@ -353,6 +407,17 @@ impl LanguageServer for GgenLanguageServer {
             .get_analyzer(uri)
             .await
             .and_then(|a| a.type_hierarchy_items(position)))
+    }
+
+    async fn symbol(
+        &self,
+        params: WorkspaceSymbolParams,
+    ) -> Result<Option<Vec<SymbolInformation>>> {
+        let root = self.state.root.clone();
+        Ok(Some(crate::features::workspace_symbol::workspace_symbols(
+            &root,
+            &params.query,
+        )))
     }
 }
 

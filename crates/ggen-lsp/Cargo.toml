@@ -17,6 +17,17 @@ ggen-config = { path = "../ggen-config" }
 ggen-graph = { path = "../ggen-graph" }
 tera = "1"
 toml = "1.1.0"
+# Canonical RDF/SPARQL formatting (parse + reserialize). Matches the
+# workspace oxigraph version and rdf-12 feature used by ggen-core.
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
+# Real opinionated SPARQL formatter (Qlue-ls, MIT) — a published crate, so the
+# build is fresh-clone-safe. Vendored at vendors/qlue-ls for reference only; the
+# build uses the crates.io release. default-features off to skip the wasm panic hook.
+qlue-ls = { version = "2.7.1", default-features = false }
+# Qlue-ls's own SPARQL parser (same version it depends on), used as a syntax
+# GATE: format_raw is error-tolerant and will reformat a broken tree, so we parse
+# first and refuse to rewrite anything with parse errors.
+ll-sparql-parser = "3.1.0"
 
 # Utilities
 url = "2"
@@ -52,9 +63,7 @@ marketplace_capabilities = [
   "semantic-tokens",
   "folding-range",
   "formatting",
-  "inlay-hint",
-  "call-hierarchy",
-  "type-hierarchy"
+  "inlay-hint"
 ]
 
 [[bin]]

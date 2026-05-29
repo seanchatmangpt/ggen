@@ -299,49 +299,45 @@ impl ServerHandler for RepairRouteServer {
             .with_instructions("ggen-lsp repair-route MCP server")
     }
 
-    fn list_tools(
+    async fn list_tools(
         &self,
         _request: Option<PaginatedRequestParams>,
         _ctx: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<ListToolsResult, McpError>> + Send + '_ {
-        async move {
-            Ok(ListToolsResult {
-                tools: (*self.tools).clone(),
-                next_cursor: None,
-                meta: None,
-            })
-        }
+    ) -> Result<ListToolsResult, McpError> {
+        Ok(ListToolsResult {
+            tools: (*self.tools).clone(),
+            next_cursor: None,
+            meta: None,
+        })
     }
 
-    fn call_tool(
+    async fn call_tool(
         &self,
         CallToolRequestParams {
             name, arguments, ..
         }: CallToolRequestParams,
         _ctx: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<CallToolResult, McpError>> + Send + '_ {
-        async move {
-            tracing::info!(
-                "OCEL: {}",
-                serde_json::json!({
-                    "event": "mcp.tool.invoked",
-                    "objects": { "tool": name }
-                })
-            );
-            let result = match name.as_ref() {
-                // The live server captures field evidence (transport=mcp) when a
-                // root is given; the pure repair_route_result stays for parity tests.
-                "ggen.lsp.repair_route" => repair_route_captured(arguments)?,
-                "ggen.lsp.replay_case" => replay_case_result(arguments)?,
-                "ggen.lsp.metrics" => metrics_result(arguments)?,
-                other => {
-                    return Err(McpError::invalid_params(format!("unknown tool: {other}"), None))
-                }
-            };
-            Ok(CallToolResult::success(vec![Content::text(
-                serde_json::to_string_pretty(&result).unwrap_or_default(),
-            )]))
-        }
+    ) -> Result<CallToolResult, McpError> {
+        tracing::info!(
+            "OCEL: {}",
+            serde_json::json!({
+                "event": "mcp.tool.invoked",
+                "objects": { "tool": name }
+            })
+        );
+        let result = match name.as_ref() {
+            // The live server captures field evidence (transport=mcp) when a
+            // root is given; the pure repair_route_result stays for parity tests.
+            "ggen.lsp.repair_route" => repair_route_captured(arguments)?,
+            "ggen.lsp.replay_case" => replay_case_result(arguments)?,
+            "ggen.lsp.metrics" => metrics_result(arguments)?,
+            other => {
+                return Err(McpError::invalid_params(format!("unknown tool: {other}"), None))
+            }
+        };
+        Ok(CallToolResult::success(vec![Content::text(
+            serde_json::to_string_pretty(&result).unwrap_or_default(),
+        )]))
     }
 }
 

@@ -1,6 +1,7 @@
 pub mod analyzers;
 pub mod check;
 pub mod error;
+pub mod features;
 pub mod handlers;
 pub mod init;
 pub mod intel;
