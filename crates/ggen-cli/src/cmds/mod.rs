@@ -50,6 +50,7 @@ pub mod mcp; // MCP delivered via `ggen lsp serve --protocol mcp` (lsp feature) 
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
+pub mod packs_receipt; // pack-install receipt emitter (full-closure, fail-closed) — invoked by `pack add`
 pub mod policy;
 #[cfg(feature = "experimental")]
 pub mod sigma;
