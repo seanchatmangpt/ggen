@@ -144,6 +144,66 @@ pub fn agent_ref(agent_id: &str) -> OcelObjectRef {
     }
 }
 
+/// Who authored a capture run, over which transport, in which session. Attached to
+/// every event so route success can be sliced by transport/agent and replayed with
+/// its provenance intact — the same route law, attribution-safe across LSP, MCP,
+/// and A2A.
+#[derive(Debug, Clone)]
+pub struct Attribution {
+    /// Acting agent identity.
+    pub agent_id: String,
+    /// Transport the events arrived over: `lsp` | `mcp` | `a2a` | `headless`.
+    pub transport: String,
+    /// Session grouping for multi-step interactions.
+    pub session_id: String,
+}
+
+impl Attribution {
+    /// New attribution from explicit parts.
+    #[must_use]
+    pub fn new(
+        agent_id: impl Into<String>,
+        transport: impl Into<String>,
+        session_id: impl Into<String>,
+    ) -> Self {
+        Self {
+            agent_id: agent_id.into(),
+            transport: transport.into(),
+            session_id: session_id.into(),
+        }
+    }
+
+    /// The default headless-gate attribution (`local` agent, fresh session).
+    #[must_use]
+    pub fn headless() -> Self {
+        Self::new("local", "headless", new_run_id())
+    }
+
+    /// A named agent over the headless gate (a fresh session per capture).
+    #[must_use]
+    pub fn for_agent(agent_id: &str) -> Self {
+        Self::new(agent_id, "headless", new_run_id())
+    }
+
+    /// The editor (LSP) transport, grouped under an explicit session.
+    #[must_use]
+    pub fn lsp(session_id: &str) -> Self {
+        Self::new("editor", "lsp", session_id)
+    }
+}
+
+/// Attach `attribution` (agent object + `agent_id`/`transport`/`session_id`
+/// attributes) to every event in a capture batch.
+pub fn attach_attribution(events: &mut [OcelEvent], attribution: &Attribution) {
+    let agent = agent_ref(&attribution.agent_id);
+    for ev in events.iter_mut() {
+        ev.objects.push(agent.clone());
+        ev.attributes.insert("agent_id".to_string(), attribution.agent_id.clone());
+        ev.attributes.insert("transport".to_string(), attribution.transport.clone());
+        ev.attributes.insert("session_id".to_string(), attribution.session_id.clone());
+    }
+}
+
 /// Build a `DiagnosticRaised` event. `span` is the diagnostic range as
 /// `"sl:sc-el:ec"` (a binding `repeat_failure_rate` keys on).
 #[must_use]

@@ -17,8 +17,8 @@ pub use check::{
 };
 pub use init::{init as init_project, InitReport};
 pub use intel::{
-    compute_metrics, mine, replay_case, verify_promotion, CaseReplay, ImproveMetrics, IntelLog,
-    MineReport, PromotionReplay, RepairReceipt,
+    compute_metrics, mine, replay_case, verify_promotion, Attribution, CaseReplay, ImproveMetrics,
+    IntelLog, MineReport, PromotionReplay, RepairReceipt,
 };
 pub use pack::{
     emit as emit_pack, verify_pack, EmitReport, PackOptions, PackProvenance, PackReplay,

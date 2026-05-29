@@ -91,22 +91,28 @@ impl CheckReport {
     }
 
     /// Capture this gate run as agent-edit OCEL events under `root` (best-effort),
-    /// attributed to agent `"local"`. See [`CheckReport::capture_as`].
+    /// attributed to the headless gate. See [`CheckReport::capture_attributed`].
     pub fn capture(&self, root: &Path) {
-        self.capture_as(root, "local");
+        self.capture_attributed(root, &crate::intel::events::Attribution::headless());
     }
 
-    /// Capture this gate run as agent-edit OCEL events under `root`, attributed to
-    /// `agent_id`. Emits the per-diagnostic chain (`DiagnosticRaised` → optional
-    /// `RouteSelected`/`RepairSuggested` → `GatePassed`/`GateFailed` →
-    /// `ReceiptEmitted`/`RefusalEmitted`), feeding `ggen lsp mine`. Each event is
-    /// tagged with the agent object + `agent_id` attribute, so multiple agents can
-    /// author against one shared route law without their traces colliding (episode
-    /// identity = file|code|run_id keeps them separable). Errors are swallowed —
-    /// capture must never break the gate.
+    /// Capture attributed to a named `agent_id` over the headless transport.
     pub fn capture_as(&self, root: &Path, agent_id: &str) {
+        self.capture_attributed(root, &crate::intel::events::Attribution::for_agent(agent_id));
+    }
+
+    /// Capture this gate run as agent-edit OCEL events under `root` with full
+    /// [`Attribution`](crate::intel::events::Attribution) (agent + transport +
+    /// session). Emits the per-diagnostic chain (`DiagnosticRaised` → optional
+    /// `RouteSelected`/`RepairSuggested` → `GatePassed`/`GateFailed` →
+    /// `ReceiptEmitted`/`RefusalEmitted`), feeding `ggen lsp mine`. Episode
+    /// identity (file|code|run_id) keeps concurrent agents/transports separable;
+    /// the attribution tags make "which agent, over which transport, in which
+    /// session" explicit (and route success sliceable by transport). Errors are
+    /// swallowed — capture must never break the gate.
+    pub fn capture_attributed(&self, root: &Path, attribution: &crate::intel::events::Attribution) {
         use crate::intel::events::{
-            agent_ref, diagnostic_raised, gate_result, new_run_id, receipt_emitted,
+            attach_attribution, diagnostic_raised, gate_result, new_run_id, receipt_emitted,
             refusal_emitted, repair_suggested, route_selected,
         };
         use crate::intel::IntelLog;
@@ -171,13 +177,9 @@ impl CheckReport {
                 events.push(gate_result(&file.path, "clean", true, 0, &run_id, seq));
             }
         }
-        // Attribute every event to the acting agent (explicit attribution; episode
-        // identity already keeps concurrent agents separable).
-        let agent = agent_ref(agent_id);
-        for ev in &mut events {
-            ev.objects.push(agent.clone());
-            ev.attributes.insert("agent_id".to_string(), agent_id.to_string());
-        }
+        // Attribute every event (agent + transport + session). Episode identity
+        // already keeps concurrent agents/transports separable.
+        attach_attribution(&mut events, attribution);
         let _ = IntelLog::at_root(root).append(&events);
     }
 }

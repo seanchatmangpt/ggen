@@ -181,6 +181,11 @@ impl ServerState {
         published.insert(uri.clone(), new.to_vec());
         drop(pending);
         drop(published);
+        // Attribute editor events to the LSP transport, grouped under this session.
+        crate::intel::events::attach_attribution(
+            &mut events,
+            &crate::intel::events::Attribution::lsp(&self.run_id),
+        );
         let _ = crate::intel::IntelLog::at_root(&self.root).append(&events);
     }
     pub async fn set_document(&self, uri: Url, content: String) {

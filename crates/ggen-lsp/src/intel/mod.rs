@@ -12,6 +12,7 @@ pub mod mine;
 pub mod receipt;
 pub mod replay;
 
+pub use events::Attribution;
 pub use history::{
     default_history_path, PromotionHistory, RoutePromotionRecord, RouteStatus,
 };
