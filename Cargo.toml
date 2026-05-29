@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.21"
+version = "26.5.28"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -48,8 +48,15 @@ members = [
   "crates/genesis-core",
   "crates/cpmp",
   "crates/stpnt",
+  # ARCHIVED out of the v26.5.28 build boundary (SETTLEMENT-CHECK-1): this example
+  # drifted from its own types in a prior release (ValidationAgent missing the
+  # `agent_type` field; async fns misusing `?`) and does not compile under
+  # --all-targets. Nothing depends on it. A broken member is a small Oracle Gap
+  # ("in the build" but not buildable), so it leaves the boundary. Code preserved
+  # on disk (non-deletion doctrine); re-add after repair.
+  # "examples/7-agent-validation",
   ]
-exclude = []
+exclude = ["examples/7-agent-validation"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -104,9 +111,9 @@ predicates = "3.1"
 rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-# NOTE: v26.5.21 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.5.21" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.21" }
+# NOTE: v26.5.28 unified release
+ggen-core = { path = "crates/ggen-core", version = "26.5.28" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.28" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2" }
@@ -493,6 +500,10 @@ journald = []
 syslog = []
 london_tdd = []
 integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
+# Forwards the ggen-cli archive gate: compiles the archived nouns (a2a/framework/
+# mcp/sigma/wizard) so experimental-only tests (e.g. the wizard quickstart OTEL
+# validation) can reference them. Off by default — they are out of the v26.5.28 boundary.
+experimental = ["ggen-cli-lib/experimental"]
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
 # Only forward to ggen-core, which handles its own otel dependencies

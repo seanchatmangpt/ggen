@@ -23,6 +23,10 @@ pub async fn validate_quickstart(ctx: &ValidationContext) -> Result<ValidationRe
             map.insert(id, ctx.collector.clone());
         }
     }
+    // `wizard` is archived out of the default v26.5.28 boundary (behind the
+    // `experimental` feature). Validate the quickstart span via wizard only when
+    // that surface is compiled; the default build skips the archived command.
+    #[cfg(feature = "experimental")]
     {
         let _enter = span.enter();
         let res = ggen_cli_lib::cmds::wizard::wizard(
@@ -37,6 +41,11 @@ pub async fn validate_quickstart(ctx: &ValidationContext) -> Result<ValidationRe
         if let Err(e) = res {
             errors.push(format!("Wizard command failed: {}", e));
         }
+    }
+    #[cfg(not(feature = "experimental"))]
+    {
+        // Archived surface — nothing to actuate in the default boundary.
+        let _ = (&span, &output_path);
     }
     std::mem::drop(span);
 
