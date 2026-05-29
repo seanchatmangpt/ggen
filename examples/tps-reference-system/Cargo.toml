@@ -17,6 +17,8 @@ chrono = { workspace = true }
 uuid = { workspace = true }
 async-trait = { workspace = true }
 log = { workspace = true }
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 # TPS reference crate
 tps-reference = { path = "../../crates/tps-reference" }

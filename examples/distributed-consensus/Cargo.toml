@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "distributed-consensus"
 version = "0.1.0"
@@ -23,6 +25,9 @@ sha2 = "0.10"
 ed25519-dalek = "2.1"
 hex = "0.4"
 rand = "0.8"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
+
 
 # A2A dependencies
 a2a-generated = { path = "../../crates/a2a-generated" }

@@ -17,6 +17,7 @@ ggen-ai = { path = "../../ggen-ai" }
 
 # RDF/SPARQL
 oxigraph = { version = "0.5.8", features = ["rdf-12"] }
+toml = "1.1.0"
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }
@@ -50,3 +51,6 @@ indicatif = "0.17"
 
 [dev-dependencies]
 tempfile = "3.0"
+
+[workspace]
+

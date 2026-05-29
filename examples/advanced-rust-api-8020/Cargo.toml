@@ -51,6 +51,8 @@ bcrypt = "0.15"
 uuid = { version = "1.0", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 dotenvy = "0.15"
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 
 # ggen integration (optional - for AI-powered generation)
 # NOTE: These are only available when building from the ggen monorepo

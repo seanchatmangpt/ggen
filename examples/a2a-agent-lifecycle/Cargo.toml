@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "a2a-agent-lifecycle"
 version = "0.1.0"
@@ -7,6 +9,8 @@ license = "MIT"
 description = "Wave 4 example: Agent lifecycle state machine with task management, message routing, and MCP bridging"
 
 [dependencies]
+toml = "1.1.0"
+oxigraph = { version = "0.5.8", features = ["rdf-12"] }
 tokio = { version = "1.35", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
