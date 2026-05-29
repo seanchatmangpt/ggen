@@ -14,13 +14,21 @@ Read-only audit, 5 parallel auditors, no fabrication (every finding cites file:l
 
 The machine that BUILDS is in good shape. The machine the DOCS describe is not.
 
-## 1. Rest-gate test state (per the ggen-core agent's quantification)
+## 1. Rest-gate test state — PRECISE (dedicated auditor, isolated target, every number from a real run)
 
-- ggen-core **lib: 1491 pass / 0 fail**. Whole-workspace `cargo check --all-targets`: green.
-- Other crate lib/doctests: cli-lib (90 lib, 4 doc), config (71 lib, 10 doc), graph (14 lib + integration), marketplace (223 lib, 1 doc), genesis/cpmp/stpnt (all green, no doc fences) — **all green**.
-- **ggen-core doctests: ~437 FAILING** — systemic: edition-2021 doctests use `crate::` paths, which don't resolve in rustdoc (need `ggen_core::`). This is THE biggest gap to a green `cargo make test`.
-- **~24 mcp-template-render integration tests** diverged from the μ₅ template refactor (templates gutted to iterate `sparql_results`; tests still assert rich param output).
-- **~7 tests** need a missing workspace-root `specify/` data dir (only `.specify/` exists).
+**All 15 lib targets GREEN. All test binaries (lib + integration) COMPILE. 13 of 15 crates fully green.** The entire gap to a green `cargo make test` is **exactly 45 failures, in 2 crates**, across 5 mechanical root-cause classes:
+
+| Class | Count | Crate | Root cause | Smallest fix |
+|-------|-------|-------|-----------|--------------|
+| 1 | **401** doctests | ggen-core | doctests use `crate::` (resolve against the empty doctest crate, not `ggen_core`); errors: `cannot find utils/templates/rdf in crate` (223/89/64 + ~20 more modules) | sed `crate::`→`ggen_core::` in ggen-core `///` doc blocks (~302 fences) |
+| 2 | **21** integration | ggen-core | mcp/a2a template-contract drift: `mcp_a2a_render_test` (12) — test context missing `sparql_results` var the template now needs; `mcp_generation_e2e`+`mcp_rmcp_e2e` (9) — `_head.tera` partial not registered in the Tera instance | update 3 test harnesses: register `mcp-server/` partials + supply `sparql_results` |
+| 3 | **7** integration | ggen-core | `specify_queries_e2e` + `syntax_validation` read a workspace-root `specify/` dir that doesn't exist (repo has `.specify/`); referenced `.ttl`/`.rq` files exist nowhere | author/source the `specify/` fixtures OR repoint tests at `.specify/` |
+| 4 | **3** integration | ggen-core | `mcp_generation_e2e` `load_example_ontology()` reads CWD-relative `examples/mcp-server-definition/ontology/mcp-server.ttl` (exists at repo root, not at crate CWD) | one-line path fix → resolve from `CARGO_MANIFEST_DIR`/workspace-root |
+| 5 | **14** integration | ggen-cli-lib | **(undocumented before this audit)** `clap_noun_verb_integration.rs` invokes the removed `ggen template <list/generate/lint>` subcommand (collapsed to `sync` in v26.5.19) → `unrecognized subcommand 'template'` | rewrite/retire the legacy pre-collapse test (drive `ggen sync`) |
+
+Per-crate lib (all pass/0): ggen-core 1491, cli-lib 90, config 71, graph 14, marketplace 223, a2a-mcp 102, lsp 103, lsp-mcp 3, genesis-core-v2 28, genesis-types/schema/core 3/3/1, cpmp 1, stpnt 4. Doctests green elsewhere: config 10, marketplace 1, a2a-mcp 18.
+
+(Corrections to earlier estimates: doctests = **401** not ~437; the "~24 mcp" splits into 21 template-contract + 3 CWD-path; and Class 5 — 14 ggen-cli `template` failures — was previously undocumented.)
 
 ## 2. Oracle Gaps — 5 session fixes CONFIRMED CLOSED; remaining:
 
