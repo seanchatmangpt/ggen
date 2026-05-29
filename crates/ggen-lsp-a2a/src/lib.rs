@@ -53,7 +53,7 @@ pub fn dispatch_tool(tool: &str, arguments: &Value) -> Result<Value, AdapterErro
 pub fn agent_card() -> Value {
     json!({
         "name": "ggen-lsp-route",
-        "version": "26.5.21",
+        "version": "26.5.28",
         "description": "ggen route engine over A2A: repair routes, replay, and improvement metrics.",
         "capabilities": {
             "ggen.lsp.repair_route": "Return the canonical RouteEnvelope for a law-surface file's diagnostics.",
@@ -84,7 +84,7 @@ impl Adapter for RepairRouteAdapter {
     }
 
     fn version(&self) -> &str {
-        "26.5.21"
+        "26.5.28"
     }
 
     async fn initialize(&mut self, _config: Value) -> Result<(), AdapterError> {

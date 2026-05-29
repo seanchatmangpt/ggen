@@ -108,7 +108,7 @@ impl LanguageServer for GgenLanguageServer {
             },
             server_info: Some(ServerInfo {
                 name: "ggen-lsp".to_string(),
-                version: Some("26.5.21".to_string()),
+                version: Some("26.5.28".to_string()),
             }),
         })
     }

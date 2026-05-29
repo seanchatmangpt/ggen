@@ -295,7 +295,7 @@ impl ServerHandler for RepairRouteServer {
     fn get_info(&self) -> ServerInfo {
         ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
             .with_protocol_version(ProtocolVersion::V_2024_11_05)
-            .with_server_info(Implementation::new("ggen-lsp-mcp", "26.5.21"))
+            .with_server_info(Implementation::new("ggen-lsp-mcp", "26.5.28"))
             .with_instructions("ggen-lsp repair-route MCP server")
     }
 

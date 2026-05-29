@@ -92,15 +92,15 @@ anyhow = "1.0"
 
 [dependencies.ggen-config]
 path = "../ggen-config"
-version = "26.5.21"
+version = "26.5.28"
 
 [dependencies.ggen-a2a-mcp]
 path = "../ggen-a2a-mcp"
-version = "26.5.21"
+version = "26.5.28"
 
 [dependencies.ggen-marketplace]
 path = "../ggen-marketplace"
-version = "26.5.21"
+version = "26.5.28"
 optional = true
 
 [package.version]
