@@ -54,3 +54,47 @@ async fn from_a2a_actuates_a_task_against_the_route_engine() {
     assert_eq!(result["is_law_surface"], json!(true));
     assert!(!result["envelopes"].as_array().expect("envelopes").is_empty());
 }
+
+#[tokio::test]
+async fn from_a2a_with_root_leaves_a2a_field_evidence() {
+    let dir = tempfile::TempDir::new().expect("tempdir");
+    let root = dir.path();
+    let mut adapter = RepairRouteAdapter::new();
+    adapter.initialize(json!({})).await.expect("init");
+
+    adapter
+        .from_a2a(&json!({
+            "tool": "ggen.lsp.repair_route",
+            "arguments": { "file_path": "q.rq", "file_content": E0011, "root": root.to_str().unwrap() }
+        }))
+        .await
+        .expect("from_a2a");
+
+    let log = ggen_lsp::IntelLog::at_root(root).read();
+    assert!(!log.events.is_empty(), "a2a request left field evidence");
+    assert!(
+        log.events
+            .iter()
+            .all(|e| e.attributes.get("transport").map(String::as_str) == Some("a2a")),
+        "every captured event is tagged transport=a2a"
+    );
+}
+
+#[tokio::test]
+async fn from_a2a_without_root_stays_pure() {
+    let dir = tempfile::TempDir::new().expect("tempdir");
+    let root = dir.path();
+    let mut adapter = RepairRouteAdapter::new();
+    adapter.initialize(json!({})).await.expect("init");
+    adapter
+        .from_a2a(&json!({
+            "tool": "ggen.lsp.repair_route",
+            "arguments": { "file_path": "q.rq", "file_content": E0011 }
+        }))
+        .await
+        .expect("from_a2a");
+    assert!(
+        ggen_lsp::IntelLog::at_root(root).read().events.is_empty(),
+        "no root ⇒ no a2a field evidence"
+    );
+}

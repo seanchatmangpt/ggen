@@ -218,6 +218,36 @@ fn receipt_id_for(file: &str, code: &str, run_id: &str) -> String {
     blake3::hash(format!("{file}|{code}|{run_id}").as_bytes()).to_hex()[..16].to_string()
 }
 
+/// Capture a single in-memory file's diagnostics + route selections under `root`
+/// with `attribution` — the field-evidence gauge for non-editor (MCP/A2A) route
+/// requests, which are otherwise pure projection and leave no trace. Reuses the
+/// same capture machinery as the headless gate (full chain, attributed). No-op for
+/// a non-law-surface file. Best-effort: never fails the request.
+pub fn capture_request(
+    root: &Path,
+    file_path: &str,
+    content: &str,
+    attribution: &crate::intel::events::Attribution,
+) {
+    let Some(mut report) = check_content(file_path, content) else {
+        return;
+    };
+    let registry = crate::route::RouteRegistry::seeded()
+        .with_pack_routes(&crate::route::default_pack_routes_path(root));
+    report.routes = report
+        .diagnostics
+        .iter()
+        .filter_map(|d| crate::route::route_plan_for_diagnostic(&registry, d, content))
+        .collect();
+    let check = CheckReport {
+        files: vec![report],
+        error_count: 0,
+        warning_count: 0,
+        route_summary: None,
+    };
+    check.capture_attributed(root, attribution);
+}
+
 /// Check already-loaded content for a given path. Returns `None` if the path is
 /// not a recognized ggen law surface.
 #[must_use]

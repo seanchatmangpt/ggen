@@ -190,6 +190,14 @@ impl Attribution {
     pub fn lsp(session_id: &str) -> Self {
         Self::new("editor", "lsp", session_id)
     }
+
+    /// A non-editor request (MCP/A2A) by `agent_id` over `transport`, with a fresh
+    /// session id. Used by the field-evidence gauge so MCP/A2A route requests leave
+    /// attributed traces.
+    #[must_use]
+    pub fn request(agent_id: &str, transport: &str) -> Self {
+        Self::new(agent_id, transport, new_run_id())
+    }
 }
 
 /// Attach `attribution` (agent object + `agent_id`/`transport`/`session_id`

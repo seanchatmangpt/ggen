@@ -12,7 +12,7 @@ pub mod state;
 pub mod utils;
 
 pub use check::{
-    check_content, check_files, check_files_in_root, check_files_with_routes,
+    capture_request, check_content, check_files, check_files_in_root, check_files_with_routes,
     discover_law_surfaces, CheckReport, FileReport, RouteSummary,
 };
 pub use init::{init as init_project, InitReport};

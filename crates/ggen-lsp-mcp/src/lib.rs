@@ -35,9 +35,13 @@ pub struct RepairRouteParams {
     pub file_content: String,
     /// Optional project root for promoted-route pack discovery. Defaults to the
     /// current working directory — set this so route authority is explicit, not
-    /// dependent on where the server process happens to run.
+    /// dependent on where the server process happens to run. When set, the request
+    /// also leaves attributed field evidence (transport=mcp).
     #[serde(default)]
     pub root: Option<String>,
+    /// Optional agent identity for field-evidence attribution (default "mcp").
+    #[serde(default)]
+    pub agent_id: Option<String>,
 }
 
 /// Parameters for `ggen.lsp.replay_case`.
@@ -135,6 +139,18 @@ fn make_tool(name: &'static str, description: &'static str, schema: serde_json::
 pub fn repair_route_result(
     arguments: Option<serde_json::Map<String, serde_json::Value>>,
 ) -> Result<serde_json::Value, McpError> {
+    let params = parse_repair_params(arguments)?;
+    Ok(build_repair_routes_in(
+        params.root.as_deref(),
+        &params.file_path,
+        &params.file_content,
+    ))
+}
+
+/// Parse + validate the repair-route arguments into typed params.
+fn parse_repair_params(
+    arguments: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Result<RepairRouteParams, McpError> {
     let args = arguments.ok_or_else(|| McpError::invalid_params("missing arguments", None))?;
     let params: RepairRouteParams = serde_json::from_value(serde_json::Value::Object(args))
         .map_err(|e| McpError::invalid_params(format!("invalid params: {e}"), None))?;
@@ -150,11 +166,33 @@ pub fn repair_route_result(
             None,
         ));
     }
-    Ok(build_repair_routes_in(
-        params.root.as_deref(),
-        &params.file_path,
-        &params.file_content,
-    ))
+    Ok(params)
+}
+
+/// Like [`repair_route_result`], but ALSO leaves attributed field evidence
+/// (transport=mcp) when a real `root` is supplied — the field-evidence gauge so
+/// MCP route requests during daily work accumulate into the OCEL log. Pure
+/// projection (no `root`) stays side-effect-free. This is what the live server's
+/// `call_tool` invokes.
+///
+/// # Errors
+/// Returns `McpError::invalid_params` for missing/oversized/garbled arguments.
+pub fn repair_route_captured(
+    arguments: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Result<serde_json::Value, McpError> {
+    let params = parse_repair_params(arguments)?;
+    let result =
+        build_repair_routes_in(params.root.as_deref(), &params.file_path, &params.file_content);
+    if let Some(root) = params.root.as_deref() {
+        let agent = params.agent_id.as_deref().unwrap_or("mcp");
+        ggen_lsp::capture_request(
+            Path::new(root),
+            &params.file_path,
+            &params.file_content,
+            &ggen_lsp::Attribution::request(agent, "mcp"),
+        );
+    }
+    Ok(result)
 }
 
 /// Replay a recorded episode (or verify the promotion binding when `case_id` is
@@ -291,7 +329,9 @@ impl ServerHandler for RepairRouteServer {
                 })
             );
             let result = match name.as_ref() {
-                "ggen.lsp.repair_route" => repair_route_result(arguments)?,
+                // The live server captures field evidence (transport=mcp) when a
+                // root is given; the pure repair_route_result stays for parity tests.
+                "ggen.lsp.repair_route" => repair_route_captured(arguments)?,
                 "ggen.lsp.replay_case" => replay_case_result(arguments)?,
                 "ggen.lsp.metrics" => metrics_result(arguments)?,
                 other => {

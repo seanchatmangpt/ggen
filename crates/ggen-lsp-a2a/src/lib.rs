@@ -113,7 +113,26 @@ impl Adapter for RepairRouteAdapter {
             .get("arguments")
             .cloned()
             .unwrap_or_else(|| json!({}));
-        dispatch_tool(tool, &arguments)
+        let result = dispatch_tool(tool, &arguments)?;
+        // Field-evidence gauge: a route request with a real root leaves attributed
+        // a2a evidence so remote-agent field hours accumulate. dispatch_tool stays
+        // pure (no capture); the side effect lives at this actuation boundary.
+        if tool == "ggen.lsp.repair_route" {
+            if let (Some(root), Some(file), Some(content)) = (
+                arguments.get("root").and_then(Value::as_str),
+                arguments.get("file_path").and_then(Value::as_str),
+                arguments.get("file_content").and_then(Value::as_str),
+            ) {
+                let agent = arguments.get("agent_id").and_then(Value::as_str).unwrap_or("a2a");
+                ggen_lsp::capture_request(
+                    std::path::Path::new(root),
+                    file,
+                    content,
+                    &ggen_lsp::Attribution::request(agent, "a2a"),
+                );
+            }
+        }
+        Ok(result)
     }
 
     fn capabilities(&self) -> AdapterCapabilities {
