@@ -26,7 +26,7 @@
 //! ### Basic CLI Execution
 //!
 //! ```rust,no_run
-//! use ggen_cli::cli_match;
+//! use ggen_cli_lib::cli_match;
 //!
 //! # async fn example() -> ggen_core::utils::error::Result<()> {
 //! // Execute CLI with auto-discovered commands
@@ -38,7 +38,7 @@
 //! ### Programmatic Execution
 //!
 //! ```rust,ignore
-//! use ggen_cli::run_for_node;
+//! use ggen_cli_lib::run_for_node;
 //!
 //! # async fn example() -> ggen_core::utils::error::Result<()> {
 //! let args = vec!["template".to_string(), "generate".to_string()];

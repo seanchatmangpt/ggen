@@ -25,11 +25,10 @@
 //! ### Resolving Conventions
 //!
 //! ```rust,no_run
-//! use ggen_cli::conventions::resolver::resolve_conventions;
-//! use std::path::Path;
+//! use ggen_cli_lib::conventions::resolver::ConventionResolver;
 //!
-//! # fn main() -> anyhow::Result<()> {
-//! let conventions = resolve_conventions(Path::new("."), "clap-noun-verb")?;
+//! # fn main() -> ggen_core::utils::error::Result<()> {
+//! let conventions = ConventionResolver::new(".").discover()?;
 //! println!("Found {} RDF files", conventions.rdf_files.len());
 //! println!("Found {} templates", conventions.templates.len());
 //! # Ok(())
