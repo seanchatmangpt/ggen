@@ -2,19 +2,21 @@
 
 A **pure code intelligence** language server for ggen RDF, Tera, and TOML files. No LLM integration — static analysis only.
 
-## Features
+> **Core value:** the process-intelligence route/OCEL engine — diagnostics become OCEL events, mined into ranked failure edges and POWL repair routes delivered as CodeActions, headless JSON, or MCP tools. The editor features below are the surface; the engine is the point.
 
-✨ **Syntax Highlighting** — Color-code RDF namespaces, Tera keywords, TOML keys  
+## Features (delivered)
+
 ✨ **Completion** — Context-aware suggestions for RDF predicates, Tera filters, config keys  
 ✨ **Hover Documentation** — Show SHACL shapes, type info, config descriptions  
 ✨ **Definition Jumping** — Navigate to class definitions, template includes  
-✨ **Refactoring** — Rename symbols with cross-file validation  
+✨ **References** — Find all usages across files  
+✨ **Rename** — Rename symbols with cross-file validation  
+✨ **Document Symbol** — List all definitions in current file  
 ✨ **Code Folding** — Collapse RDF shapes, Tera blocks, TOML sections  
-✨ **Document Outline** — List all definitions in current file  
-✨ **Code Lenses** — Inline commands ("Show SHACL shape", etc.)  
-✨ **Auto-formatting** — Format RDF, Tera, TOML with consistent style  
-✨ **Class Hierarchy** — Show SHACL parent/child classes  
-✨ **Template Includes** — Trace template composition  
+✨ **Code Actions** — Apply repair routes as `WorkspaceEdit` quickfixes  
+✨ **Diagnostics** — Surface E00XX law violations live as you type  
+
+> Not delivered (do not assume): auto-formatting, semantic tokens, code lenses, workspace symbol, inlay hints, call/type hierarchy.
 
 ## Installation
 
@@ -27,31 +29,47 @@ cargo install --path crates/ggen-cli
 
 ## Configuration
 
-Edit `~/.claude/settings.json`:
+The LSP server is stdio-only. Editor-side settings live in `~/.claude/settings.json`:
 
 ```json
 {
   "ggen-lsp": {
-    "enabled": true,
-    "transport": "stdio",
-    "auto_format_on_save": true,
-    "show_hints": true
+    "enabled": true
   }
 }
 ```
 
+> Note: `transport`, `auto_format_on_save`, and `show_hints` are editor-side hints only — they are NOT read or enforced by ggen.
+
+## CLI Verbs
+
+`ggen lsp` exposes 10 verbs:
+
+| Verb | Purpose |
+|------|---------|
+| `start` | Run the language server (stdio only; editors launch this) |
+| `serve` | Run a protocol server — `--protocol lsp` or `--protocol mcp` |
+| `check` | Headless gate: scan all law surfaces, exit non-zero on ERROR |
+| `init` | One-command setup: write editor configs + Agent Admissibility Pack |
+| `replay` | Replay a recorded OCEL case |
+| `metrics` | Report process-intelligence metrics |
+| `field-status` | Show field/surface status |
+| `mine` | Discover the project's 80/20 failure edges (OCEL → SPARQL DFG) |
+| `emit_pack` | Regenerate the movable stewardship pack |
+| `verify_pack` | Verify a stewardship pack |
+
 ## Usage
 
-| Action | Keys | Result |
-|--------|------|--------|
-| Open `.ttl` file | — | LSP auto-starts, syntax highlighting enabled |
-| Completion | Type `sh:` | Suggests `sh:property`, `sh:path`, etc. |
-| Hover | Hover over class | Shows SHACL shape, documentation |
-| Jump to definition | Cmd+Click on symbol | Opens definition |
-| Find references | Cmd+Shift+F | Lists all usages |
-| Rename | Cmd+K Cmd+R | Rename across all files |
-| Format document | Cmd+Shift+P → Format | Auto-format file |
-| Show outline | Cmd+O | List all definitions |
+| Action | Result |
+|--------|--------|
+| Open `.ttl` file | LSP auto-starts, diagnostics enabled |
+| Completion | Suggests `sh:property`, `sh:path`, etc. |
+| Hover | Shows SHACL shape, documentation |
+| Go to definition | Opens definition |
+| Find references | Lists all usages |
+| Rename | Rename across all files |
+| Document symbol | List all definitions |
+| Code action | Apply a repair-route quickfix |
 
 ## Architecture
 
@@ -75,22 +93,21 @@ ggen-lsp/
 └── Cargo.toml              # Package metadata + marketplace registration
 ```
 
-## Advanced Features (tower-lsp 0.20)
+## LSP Capabilities (tower-lsp 0.20)
 
 | Feature | Status | Use Case |
 |---------|--------|----------|
-| Semantic Tokens | 🟢 Core | Syntax highlighting (namespace, class, property colors) |
-| Completion | 🟢 Core | RDF predicates, Tera filters, config keys |
-| Hover | 🟢 Core | SHACL shapes, documentation, type info |
-| Document Symbols | 🟢 Core | Outline: list all definitions |
-| Workspace Symbols | 🟢 Core | Project-wide search |
-| Code Lenses | 🟢 Core | Inline "Show shape", "Show bindings" |
-| Folding Range | 🟢 Core | Collapse RDF/Tera/TOML blocks |
-| Formatting | 🟢 Core | Auto-format with consistent style |
-| Rename | 🟡 Extended | Refactor symbol names across files |
-| Inlay Hints | 🟡 Extended | Show type hints, defaults inline |
-| Call Hierarchy | 🟡 Extended | Template include graph |
-| Type Hierarchy | 🟡 Extended | SHACL class hierarchy |
+| Completion | 🟢 Delivered | RDF predicates, Tera filters, config keys |
+| Hover | 🟢 Delivered | SHACL shapes, documentation, type info |
+| Definition | 🟢 Delivered | Jump to class/template definition |
+| References | 🟢 Delivered | Find all usages across files |
+| Rename | 🟢 Delivered | Refactor symbol names across files |
+| Document Symbol | 🟢 Delivered | Outline: list all definitions |
+| Folding Range | 🟢 Delivered | Collapse RDF/Tera/TOML blocks |
+| Code Action | 🟢 Delivered | Repair-route quickfixes (`WorkspaceEdit`) |
+| Diagnostics | 🟢 Delivered | Surface E00XX law violations live |
+
+> Not delivered: semantic tokens, code lenses, workspace symbol, formatting, inlay hints, call hierarchy, type hierarchy.
 
 ## Performance
 
@@ -121,11 +138,11 @@ cargo build -p ggen-lsp
 # Test (implemented by other agent)
 cargo test -p ggen-lsp
 
-# Run LSP server
-ggen lsp start --transport stdio
+# Run LSP server (stdio only — editors launch this)
+ggen lsp start
 
-# Debug HTTP transport
-ggen lsp start --transport http --port 9999
+# Run a protocol server (lsp or mcp)
+ggen lsp serve --protocol mcp
 ```
 
 ## Testing

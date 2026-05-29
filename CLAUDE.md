@@ -1,7 +1,7 @@
-# ggen v26.5.19 - Rust Code Generation CLI
+# ggen v26.5.28 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
-Stack: Rust 1.95.0 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 5 crates | 98% test coverage
+Stack: Rust 1.95.0 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 21-crate workspace | 98% test coverage
 **Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — verified C4, real sync flow, stub registry, error map. Load this before modifying any code.
 
 **Recent Audit (2026-04-01):** `docs/crate-audits/AUDIT_DASHBOARD.md` — workspace health assessment with 54 stubs classified, 8,900 lines dead code identified, 4 P0 blockers prioritized.

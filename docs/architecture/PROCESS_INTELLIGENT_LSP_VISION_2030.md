@@ -91,7 +91,7 @@ agent edit
  → RepairReceipt (BLAKE3) | RefusalEmitted               [intel/receipt.rs]
 ```
 
-**Proven:** `ggen lsp check` captured 10 events → `ggen lsp mine` discovered `DiagnosticRaised → GateFailed` (freq 2) via SPARQL and wrote `error-edge-mining.md`. A real `[ai]` diagnostic → seeded route → `WorkspaceEdit` that deletes the offending span. `ggen lsp check --with_routes` returns the route + an 80/20 Pareto `route_summary`.
+**Observed (this run):** `ggen lsp check` captured 10 events → `ggen lsp mine` discovered `DiagnosticRaised → GateFailed` (freq 2) via SPARQL and wrote `.ggen/ocel/discovery/error-edge-mining.md`. A real `[ai]` diagnostic → seeded route → `WorkspaceEdit` that deletes the offending span. `ggen lsp check --with_routes` returns the route + an 80/20 Pareto `route_summary`.
 
 ---
 
@@ -133,7 +133,7 @@ ggen lsp start           # the language server (editors launch this)
 ggen lsp check           # headless gate (hooks/CI) — scans ALL law surfaces, exits non-zero on ERROR
 ggen lsp mine            # offline: discover the project's 80/20 failure edges
 ggen lsp emit_pack       # regenerate the movable stewardship pack
-ggen lsp-mcp             # MCP server exposing repair routes to non-LSP agents
+ggen lsp serve --protocol mcp   # MCP server exposing repair routes to non-LSP agents
 ```
 
 ### 6.2 The pack is the movable part

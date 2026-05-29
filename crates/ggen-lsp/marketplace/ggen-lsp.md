@@ -15,11 +15,13 @@ Syntax highlighting, completion, diagnostics, and refactoring for ggen RDF/Tera/
 - **Hover** — Show documentation, SHACL shapes, type information
 - **Definition jumping** — Navigate class definitions, template includes
 - **Refactoring** — Rename symbols across files with validation
-- **Semantic highlighting** — Color-code classes, properties, variables, literals
 - **Document symbols** — Outline view for all definitions
-- **Code lenses** — Inline commands ("Show SHACL shape", "Go to include")
+- **Code actions** — Apply repair-route quickfixes (`WorkspaceEdit`)
 - **Code folding** — Collapse RDF shapes, Tera blocks, TOML sections
-- **Code formatting** — Auto-format with consistent indentation
+- **Diagnostics** — Surface E00XX law violations live as you type
+
+> Not delivered (do not assume): auto-formatting, semantic tokens/highlighting,
+> code lenses, workspace symbol, inlay hints, call/type hierarchy.
 
 ## Installation
 
@@ -32,14 +34,13 @@ Syntax highlighting, completion, diagnostics, and refactoring for ggen RDF/Tera/
 ```json
 {
   "ggen-lsp": {
-    "enabled": true,
-    "transport": "stdio",
-    "auto_format_on_save": true,
-    "show_hints": true,
-    "workspace_symbol_depth": 5
+    "enabled": true
   }
 }
 ```
+
+> The LSP server is stdio only. `auto_format_on_save`, `show_hints`, and
+> `workspace_symbol_depth` are not enforced by ggen.
 
 ## Usage
 
@@ -52,13 +53,11 @@ Syntax highlighting, completion, diagnostics, and refactoring for ggen RDF/Tera/
 - **Cmd+K Cmd+R** → Rename class across all files
 - **Cmd+I** → Show document outline (symbols)
 
-### Command Palette
+### CLI
 
-- `ggen-lsp: Start Server` — Manually start LSP
-- `ggen-lsp: Stop Server` — Manually stop LSP
-- `ggen-lsp: Restart Server` — Restart if hung
-- `ggen-lsp: Show Diagnostics` — View all validation errors
-- `ggen-lsp: Format Document` — Auto-format current file
+- `ggen lsp init` — One-command setup: write editor configs + Agent Admissibility Pack
+- `ggen lsp start` — Run the language server (stdio only; editors launch this)
+- `ggen lsp check` — Headless gate: scan all law surfaces, exit non-zero on ERROR
 
 ## Performance
 
@@ -69,7 +68,7 @@ Syntax highlighting, completion, diagnostics, and refactoring for ggen RDF/Tera/
 
 ## Requirements
 
-- ggen v26.5.21 or later
+- ggen v26.5.28 or later
 - Claude Code (any version with Marketplace support)
 - 200MB free disk space
 
