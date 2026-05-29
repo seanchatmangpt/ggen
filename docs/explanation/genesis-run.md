@@ -53,3 +53,4 @@ that work only in theory — get shipped.
 - [Sabbath-grade done](sabbath-grade-done.md) — what `rest` requires
 - [Oracle Gaps](oracle-gaps.md) — what happens when you rest at `fill`
 - [Why docs must match the build](why-docs-must-match-the-build.md) — the documentation corollary
+- [Gall Foundation Retrofit](gall-foundation-retrofit.md) — the bridge to a rest-capable project, with `ggen sync` as the only actuation
