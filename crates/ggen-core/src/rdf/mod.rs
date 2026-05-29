@@ -24,28 +24,25 @@
 //! ### Using the Ggen Ontology
 //!
 //! ```rust
-//! use crate::rdf::schema::{GgenOntology, GGEN_NAMESPACE};
+//! use crate::rdf::schema::GgenOntology;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
-//! let ontology = GgenOntology::new();
-//! let template_uri = ontology.template("my-template");
-//! assert!(template_uri.contains("my-template"));
-//! # Ok(())
-//! # }
+//! let template_uri = GgenOntology::template();
+//! assert!(template_uri.contains("Template"));
 //! ```
 //!
 //! ### Storing Template Metadata
 //!
 //! ```rust,no_run
-//! use crate::rdf::template_metadata::TemplateMetadataStore;
-//! use crate::graph::Graph;
+//! use crate::rdf::template_metadata::{TemplateMetadataStore, TemplateMetadata};
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let graph = Graph::new()?;
-//! let store = TemplateMetadataStore::new(graph);
+//! let store = TemplateMetadataStore::new()?;
 //!
-//! let metadata = crate::rdf::template_metadata::TemplateMetadata::default();
-//! store.store("template.tmpl", &metadata)?;
+//! let metadata = TemplateMetadata::new(
+//!     "template://example/rust-cli".to_string(),
+//!     "Rust CLI Template".to_string(),
+//! );
+//! store.store_metadata(&metadata)?;
 //! # Ok(())
 //! # }
 //! ```
@@ -58,7 +55,10 @@
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
 //! let validator = Validator::new();
-//! let metadata = TemplateMetadata::default();
+//! let metadata = TemplateMetadata::new(
+//!     "template://example/rust-cli".to_string(),
+//!     "Rust CLI Template".to_string(),
+//! );
 //!
 //! let result = validator.validate(&metadata)?;
 //! if result.is_valid() {

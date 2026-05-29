@@ -32,10 +32,88 @@ impl OntologyExtractor {
         // Extract properties
         schema.properties = Self::extract_properties(graph, namespace, &schema.classes)?;
 
+        // Refine cardinalities from OWL restrictions (both `rdfs:subClassOf [..]` and
+        // standalone `owl:Restriction ; owl:onClass ..` styles) and FunctionalProperty.
+        Self::refine_cardinalities(graph, &mut schema)?;
+
         // Build relationships from properties
         schema.relationships = Self::build_relationships(&schema);
 
         Ok(schema)
+    }
+
+    /// Refine property cardinalities using OWL restrictions and FunctionalProperty
+    /// declarations. Restrictions may be attached via `rdfs:subClassOf` (blank-node
+    /// style) or as standalone `owl:Restriction` nodes using `owl:onClass`.
+    fn refine_cardinalities(graph: &Graph, schema: &mut OntologySchema) -> Result<(), String> {
+        let query = r#"
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT ?property ?minCard ?maxCard ?exactCard WHERE {
+                ?restriction a owl:Restriction ;
+                             owl:onProperty ?property .
+                OPTIONAL { ?restriction owl:minCardinality ?minCard }
+                OPTIONAL { ?restriction owl:maxCardinality ?maxCard }
+                OPTIONAL { ?restriction owl:cardinality ?exactCard }
+            }
+        "#;
+
+        let mut by_uri: std::collections::BTreeMap<String, Cardinality> =
+            std::collections::BTreeMap::new();
+
+        if let QueryResults::Solutions(solutions) =
+            graph.query(query).map_err(|e| e.to_string())?
+        {
+            for solution in solutions {
+                let bindings = solution.map_err(|e| format!("SPARQL solution error: {}", e))?;
+                let Some(prop_term) = bindings.get("property") else {
+                    continue;
+                };
+                let prop_uri = Self::term_to_string(prop_term);
+
+                let cardinality = if let Some(exact) = bindings
+                    .get("exactCard")
+                    .and_then(|t| Self::term_to_string(t).parse::<u32>().ok())
+                {
+                    match exact {
+                        0 => Cardinality::ZeroOrOne,
+                        1 => Cardinality::One,
+                        n => Cardinality::Range {
+                            min: n,
+                            max: Some(n),
+                        },
+                    }
+                } else {
+                    let min = bindings
+                        .get("minCard")
+                        .and_then(|t| Self::term_to_string(t).parse::<u32>().ok())
+                        .unwrap_or(0);
+                    let max = bindings
+                        .get("maxCard")
+                        .and_then(|t| Self::term_to_string(t).parse::<u32>().ok());
+                    match (min, max) {
+                        (0, Some(1)) => Cardinality::ZeroOrOne,
+                        (1, Some(1)) => Cardinality::One,
+                        (1, None) => Cardinality::OneOrMore,
+                        _ => Cardinality::Range { min, max },
+                    }
+                };
+                by_uri.insert(prop_uri, cardinality);
+            }
+        }
+
+        for prop in &mut schema.properties {
+            if let Some(card) = by_uri.get(&prop.uri) {
+                prop.cardinality = card.clone();
+                prop.required = matches!(card, Cardinality::One | Cardinality::OneOrMore);
+            } else if prop.is_functional {
+                // A functional property has at most one value.
+                prop.cardinality = Cardinality::ZeroOrOne;
+            }
+        }
+
+        Ok(())
     }
 
     /// Extract all classes from the RDF graph

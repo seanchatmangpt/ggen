@@ -15,7 +15,8 @@
 //!
 //! ### Topological Sorting
 //!
-//! ```rust,no_run
+//! ```ignore
+//! // `dag` is an internal (crate-private) module; shown for documentation only.
 //! use crate::lifecycle::dag::topo;
 //! use crate::lifecycle::Result;
 //!
@@ -35,7 +36,8 @@
 //!
 //! ### Extracting Dependencies from Hooks
 //!
-//! ```rust,no_run
+//! ```ignore
+//! // `dag` is an internal (crate-private) module; shown for documentation only.
 //! use crate::lifecycle::dag::deps_from_hooks;
 //!
 //! // If build phase has before=["test", "lint"] and after=["deploy"]

@@ -295,7 +295,9 @@ impl PropertyRange {
                 .unwrap_or("Unknown")
                 .to_string(),
             Self::Literal(type_name) => type_name.clone(),
-            Self::Enum(values) => values[0].clone(),
+            // Represent the full set of enum values (joined as a union), mirroring
+            // the TypeScript codegen which emits every value (see codegen/typescript.rs).
+            Self::Enum(values) => values.join(" | "),
         };
 
         match cardinality {

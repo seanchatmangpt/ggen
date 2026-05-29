@@ -21,7 +21,7 @@
 //! ### Generating a Next.js Project
 //!
 //! ```rust,no_run
-//! use crate::project_generator::{ProjectConfig, ProjectType};
+//! use crate::project_generator::{ProjectConfig, ProjectType, ProjectGenerator};
 //! use crate::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
@@ -42,7 +42,7 @@
 //! ### Generating a Nuxt Project
 //!
 //! ```rust,no_run
-//! use crate::project_generator::{ProjectConfig, ProjectType};
+//! use crate::project_generator::{ProjectConfig, ProjectType, ProjectGenerator};
 //! use crate::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!

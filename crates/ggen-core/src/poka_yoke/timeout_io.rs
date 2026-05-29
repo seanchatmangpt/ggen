@@ -37,10 +37,10 @@ impl TimeoutIO {
     /// # Example
     ///
     /// ```no_run
-    /// use crate::poka_yoke::{TimeoutIO, timeouts};
+    /// use ggen_core::poka_yoke::timeout_io::{TimeoutIO, timeouts};
     ///
     /// let client = TimeoutIO::http_client(timeouts::NETWORK)?;
-    /// # Ok::<(), crate::error::Error>(())
+    /// # Ok::<(), ggen_core::utils::error::Error>(())
     /// ```
     pub fn http_client(timeout: Duration) -> Result<reqwest::Client> {
         reqwest::Client::builder()

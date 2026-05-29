@@ -34,7 +34,7 @@ pub enum Operation {
 /// # Example
 ///
 /// ```no_run
-/// use crate::poka_yoke::{DryRunMode, Operation, ValidatedPath};
+/// use ggen_core::poka_yoke::{DryRunMode, Operation, ValidatedPath};
 ///
 /// let mut dry_run = DryRunMode::new();
 /// dry_run.add_operation(Operation::FileCreate {
@@ -46,7 +46,7 @@ pub enum Operation {
 /// if dry_run.confirm()? {
 ///     dry_run.execute()?;
 /// }
-/// # Ok::<(), crate::error::Error>(())
+/// # Ok::<(), ggen_core::utils::error::Error>(())
 /// ```
 pub struct DryRunMode {
     operations: Vec<Operation>,

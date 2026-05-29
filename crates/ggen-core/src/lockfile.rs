@@ -50,52 +50,45 @@
 //!
 //! ## Examples
 //!
-//! ### Creating a Lockfile Manager
+//! ### Creating a Lockfile
 //!
 //! ```rust,no_run
-//! use crate::lockfile::LockfileManager;
-//! use std::path::Path;
+//! use ggen_core::lockfile::{Lockfile, ProfileRef};
+//! use ggen_core::marketplace::trust::TrustTier;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
-//! let manager = LockfileManager::new(Path::new("."));
-//! # Ok(())
-//! # }
+//! let profile = ProfileRef {
+//!     profile_id: "default".to_string(),
+//!     runtime_constraints: vec![],
+//!     trust_requirement: TrustTier::CommunityReviewed,
+//! };
+//! let lockfile = Lockfile::new(profile);
+//! assert!(lockfile.packs.is_empty());
 //! ```
 //!
 //! ### Adding a Pack to the Lockfile
 //!
 //! ```rust,no_run
-//! use crate::lockfile::LockfileManager;
-//! use std::path::Path;
+//! use ggen_core::lockfile::{Lockfile, LockfileEntry, ProfileRef, RegistrySource};
+//! use ggen_core::marketplace::trust::TrustTier;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
-//! let manager = LockfileManager::new(Path::new("."));
-//! manager.upsert(
-//!     "io.ggen.rust.cli",
-//!     "1.0.0",
-//!     "abc123...",
-//!     "https://github.com/example/pack.git"
-//! )?;
-//! # Ok(())
-//! # }
-//! ```
+//! # fn main() -> ggen_core::utils::error::Result<()> {
+//! let profile = ProfileRef {
+//!     profile_id: "default".to_string(),
+//!     runtime_constraints: vec![],
+//!     trust_requirement: TrustTier::CommunityReviewed,
+//! };
+//! let mut lockfile = Lockfile::new(profile);
 //!
-//! ### Adding a Pack with PQC Signature
-//!
-//! ```rust,no_run
-//! use crate::lockfile::LockfileManager;
-//! use std::path::Path;
-//!
-//! # fn main() -> crate::utils::error::Result<()> {
-//! let manager = LockfileManager::new(Path::new("."));
-//! manager.upsert_with_pqc(
-//!     "io.ggen.rust.cli",
-//!     "1.0.0",
-//!     "abc123...",
-//!     "https://github.com/example/pack.git",
-//!     Some("pqc_signature_base64".to_string()),
-//!     Some("pqc_pubkey_base64".to_string()),
-//! )?;
+//! let entry = LockfileEntry::new(
+//!     "io.ggen.rust.cli".to_string(),
+//!     "1.0.0".to_string(),
+//!     RegistrySource::Registry { url: "https://github.com/example/pack.git".to_string() },
+//!     "abc123...".to_string(),
+//!     String::new(),
+//!     TrustTier::CommunityReviewed,
+//!     vec![],
+//! );
+//! lockfile.add_pack(entry);
 //! # Ok(())
 //! # }
 //! ```

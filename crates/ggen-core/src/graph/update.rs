@@ -45,18 +45,18 @@ use oxigraph::sparql::SparqlEvaluator;
 /// ## Update with WHERE clause
 ///
 /// ```rust,no_run
-/// use crate::graph::{Graph, GraphUpdate};
+/// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> crate::utils::error::Result<()> {
+/// # fn main() -> ggen_core::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
-/// // Delete and insert in one operation
-/// update.update(r#"
-///     DELETE { ?s <http://example.org/old> ?o }
-///     INSERT { ?s <http://example.org/new> ?o }
-///     WHERE { ?s <http://example.org/old> ?o }
-/// "#)?;
+/// // Delete and insert in one operation (DELETE / INSERT / WHERE patterns)
+/// update.update(
+///     "?s <http://example.org/old> ?o",
+///     "?s <http://example.org/new> ?o",
+///     "?s <http://example.org/old> ?o",
+/// )?;
 /// # Ok(())
 /// # }
 /// ```

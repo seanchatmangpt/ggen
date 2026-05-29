@@ -472,7 +472,8 @@ fn test_generation_mode_create_file_exists() {
         template: TemplateSource::Inline {
             inline: "New content: {{ class }}\n".to_string(),
         },
-        output_file: "output/existing.txt".to_string(),
+        // `output_file` is resolved relative to generation.output_dir ("output").
+        output_file: "existing.txt".to_string(),
         mode: GenerationMode::Create,
         when: None,
         skip_empty: false,
@@ -651,7 +652,7 @@ fn test_generation_rule_when_condition_invalid_ask() {
     assert!(result.is_err(), "Should fail with non-ASK WHEN query");
     let error_msg = result.unwrap_err().to_string();
     assert!(
-        error_msg.contains("ASK query") || error_msg.contains("must be ASK"),
+        error_msg.contains("ASK"),
         "Error should mention ASK requirement: {}",
         error_msg
     );
@@ -717,8 +718,10 @@ fn test_output_directory_created_automatically() {
     )
     .expect("Should write file");
 
-    // Use nested output directory that doesn't exist
-    let nested_path = "output/nested/deep/output.txt";
+    // Use a nested output path that doesn't exist. The rule's `output_file` is
+    // resolved relative to the manifest's `generation.output_dir` ("output"), so
+    // the file lands at <temp>/output/nested/deep/output.txt.
+    let nested_path = "nested/deep/output.txt";
     let rule = create_test_rule("nested_output", nested_path);
     manifest.generation.rules = vec![rule];
 
@@ -732,8 +735,8 @@ fn test_output_directory_created_automatically() {
     let generated = result.unwrap();
     assert_eq!(generated.len(), 1, "Should generate one file");
 
-    // Verify nested directory was created
-    let nested_file = temp_dir.path().join(nested_path);
+    // Verify nested directory was created under the configured output_dir
+    let nested_file = temp_dir.path().join("output").join(nested_path);
     assert!(nested_file.exists(), "Nested directory should be created");
     assert!(nested_file.is_file(), "Output should be a file");
 }
@@ -985,7 +988,7 @@ fn test_llm_service_injection() {
         template: TemplateSource::Inline {
             inline: "{{generated_impl}}\n".to_string(),
         },
-        output_file: "output/skill.rs".to_string(),
+        output_file: "skill.rs".to_string(),
         mode: GenerationMode::Overwrite,
         when: None,
         skip_empty: false,
@@ -1061,7 +1064,7 @@ fn test_llm_service_disabled_in_manifest() {
         template: TemplateSource::Inline {
             inline: "{{generated_impl}}\n".to_string(),
         },
-        output_file: "output/skill.rs".to_string(),
+        output_file: "skill.rs".to_string(),
         mode: GenerationMode::Overwrite,
         when: None,
         skip_empty: false,
@@ -1199,7 +1202,7 @@ fn test_generate_skill_impl_without_llm_service() {
         template: TemplateSource::Inline {
             inline: "{{generated_impl}}\n".to_string(),
         },
-        output_file: "output/skill.rs".to_string(),
+        output_file: "skill.rs".to_string(),
         mode: GenerationMode::Overwrite,
         when: None,
         skip_empty: false,

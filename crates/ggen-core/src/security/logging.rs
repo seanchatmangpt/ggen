@@ -27,8 +27,9 @@
 //! logger.log(event)?;
 //!
 //! // Get security metrics
-//! let metrics = logger.get_metrics_for_last_hour();
-//! println!("Failed logins in last hour: {}", metrics.failed_auth_count);
+//! if let Some(metrics) = logger.get_metrics_for_last_hour() {
+//!     println!("Failed logins in last hour: {}", metrics.failed_auth_count);
+//! }
 //! # Ok(())
 //! # }
 //! ```

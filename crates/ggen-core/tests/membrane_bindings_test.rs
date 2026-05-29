@@ -68,7 +68,10 @@ fn test_membrane_bindings_and_boundary_crossings() {
     // 6. Serialize and project to W3C PROV-JSON
     let prov_doc = ProvDocument::from_membrane(&membrane);
     let prov_json = prov_doc.to_json().expect("Failed to serialize PROV-JSON");
-    assert!(prov_json.contains("prov:wasAssociatedWith"));
+    // W3C PROV-JSON uses bare relation keys (e.g. "wasAssociatedWith") at the top
+    // level; the `prov:` prefix applies to inner properties (prov:activity/prov:agent).
+    assert!(prov_json.contains("wasAssociatedWith"));
+    assert!(prov_json.contains("prov:agent"));
     assert!(prov_json.contains("agent:ggen"));
 
     // 7. Project to RDF Turtle graph

@@ -321,7 +321,8 @@ impl<T> Context<T> for Result<T> {
 /// # Examples
 ///
 /// ```rust
-/// use crate::utils::error::{Result, bail};
+/// use ggen_core::utils::error::Result;
+/// use ggen_core::bail;
 ///
 /// fn validate_positive(n: i32) -> Result<()> {
 ///     if n < 0 {
@@ -348,7 +349,8 @@ macro_rules! bail {
 /// # Examples
 ///
 /// ```rust
-/// use crate::utils::error::{Result, ensure};
+/// use ggen_core::utils::error::Result;
+/// use ggen_core::ensure;
 ///
 /// fn divide(a: i32, b: i32) -> Result<i32> {
 ///     ensure!(b != 0, "Division by zero");

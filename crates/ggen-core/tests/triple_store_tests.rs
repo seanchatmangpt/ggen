@@ -21,7 +21,11 @@ use std::path::Path;
 
 /// Load RDF/Turtle fixture file from disk
 fn load_fixture(filename: &str) -> String {
-    let fixture_path = Path::new("crates/ggen-core/tests/fixtures").join(filename);
+    // Resolve relative to this crate's manifest dir so the path is correct regardless
+    // of the test process working directory (cargo sets CWD to the package root).
+    let fixture_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures")
+        .join(filename);
     fs::read_to_string(fixture_path)
         .unwrap_or_else(|e| panic!("Failed to load fixture {}: {}", filename, e))
 }
@@ -305,19 +309,21 @@ fn property_ranges_correctly_mapped_from_xsd_types() {
     let target_value_prop = schema
         .find_property("targetValue")
         .expect("Should find targetValue property");
+    // targetValue has rdfs:range xsd:decimal, which the extractor maps to Float.
     assert_eq!(
         target_value_prop.range,
-        PropertyRange::String,
-        "targetValue range should be mapped correctly"
+        PropertyRange::Float,
+        "targetValue (xsd:decimal) range should map to Float"
     );
 
     let response_time_prop = schema
         .find_property("responseTimeMs")
         .expect("Should find responseTimeMs property");
+    // responseTimeMs has rdfs:range xsd:integer, which the extractor maps to Integer.
     assert_eq!(
         response_time_prop.range,
-        PropertyRange::String,
-        "responseTimeMs range should be mapped correctly"
+        PropertyRange::Integer,
+        "responseTimeMs (xsd:integer) range should map to Integer"
     );
 }
 

@@ -37,11 +37,11 @@
 //! ### Using the Preprocessor
 //!
 //! ```rust,no_run
-//! use crate::preprocessor::{Preprocessor, FreezePolicy, PrepCtx};
+//! use crate::preprocessor::{Preprocessor, PrepCtx};
 //! use std::path::Path;
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let preprocessor = Preprocessor::new(FreezePolicy::Checksum);
+//! let preprocessor = Preprocessor::with_default_stages();
 //! let ctx = PrepCtx {
 //!     template_path: Path::new("template.tmpl"),
 //!     out_dir: Path::new("output"),
@@ -52,9 +52,9 @@
 //! {% freeze slot="header" %}
 //! // Generated header
 //! {% endfreeze %}
-//! "#;
+//! "#.to_string();
 //!
-//! let output = preprocessor.process(input, &ctx)?;
+//! let output = preprocessor.run(input, &ctx)?;
 //! # Ok(())
 //! # }
 //! ```

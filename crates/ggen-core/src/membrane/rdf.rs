@@ -15,16 +15,19 @@ impl RdfMembraneProjector {
     pub fn project(membrane: &GgenMembrane) -> Result<Graph> {
         let graph = Graph::new()?;
 
-        // Prefix statements
-        let base_ttl = r#"
+        // Accumulate all triples into a single Turtle document. Each `insert_turtle`
+        // call parses an independent document, so prefix declarations do not persist
+        // across calls — the prefixes and all triples must be in one document.
+        let mut ttl = String::from(
+            r#"
             @prefix mem: <http://ggen.org/membrane#> .
             @prefix prov: <http://www.w3.org/ns/prov#> .
             @prefix ocel: <http://www.ocel-standard.org/ns#> .
             @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
             @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-        "#;
-        graph.insert_turtle(base_ttl)?;
+        "#,
+        );
 
         // 1. Project interchangeable parts as entities
         for (part_id, part) in &membrane.core.parts {
@@ -44,7 +47,7 @@ impl RdfMembraneProjector {
                 hash = part.payload_hash,
                 size = part.payload_size
             );
-            graph.insert_turtle(&part_ttl)?;
+            ttl.push_str(&part_ttl);
 
             // Add interfaces
             for interface in &part.interfaces {
@@ -55,7 +58,7 @@ impl RdfMembraneProjector {
                     part_id = part_id,
                     interface = interface
                 );
-                graph.insert_turtle(&interface_ttl)?;
+                ttl.push_str(&interface_ttl);
             }
         }
 
@@ -67,7 +70,7 @@ impl RdfMembraneProjector {
             mem:ggen_membrane a prov:Agent , mem:GgenMembrane ;
                 rdfs:label "ggen Membrane Adapter Layer" .
         "#;
-        graph.insert_turtle(agents_ttl)?;
+        ttl.push_str(agents_ttl);
 
         // 3. Project adapter bindings
         for (outer_port, inner_interface) in &membrane.adapters {
@@ -82,7 +85,7 @@ impl RdfMembraneProjector {
                 outer_port = outer_port,
                 inner_interface = inner_interface
             );
-            graph.insert_turtle(&adapter_ttl)?;
+            ttl.push_str(&adapter_ttl);
         }
 
         // 4. Project boundary crossing events
@@ -132,7 +135,7 @@ impl RdfMembraneProjector {
                 input_hash = crossing.input_hash,
                 output_clause = output_clause
             );
-            graph.insert_turtle(&crossing_ttl)?;
+            ttl.push_str(&crossing_ttl);
 
             // Vector clocks projection
             for (node, clock_val) in &crossing.vector_clock.clocks {
@@ -147,9 +150,12 @@ impl RdfMembraneProjector {
                     node = node,
                     val = clock_val
                 );
-                graph.insert_turtle(&clock_ttl)?;
+                ttl.push_str(&clock_ttl);
             }
         }
+
+        // Single parse of the complete document so prefix declarations apply to all triples.
+        graph.insert_turtle(&ttl)?;
 
         Ok(graph)
     }

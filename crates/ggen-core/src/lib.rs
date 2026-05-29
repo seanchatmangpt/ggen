@@ -79,9 +79,10 @@
 //! ### Using RDF Graph
 //!
 //! ```rust
-//! use crate::Graph;
+//! use ggen_core::Graph;
+//! use oxigraph::sparql::QueryResults;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix ex: <http://example.org/> .
@@ -90,7 +91,9 @@
 //! "#)?;
 //!
 //! let results = graph.query("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
-//! assert!(!results.is_empty());
+//! if let QueryResults::Solutions(solutions) = results {
+//!     assert!(solutions.count() > 0);
+//! }
 //! # Ok(())
 //! # }
 //! ```

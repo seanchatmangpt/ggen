@@ -26,7 +26,7 @@
 //! use crate::utils::user_level::{UserActivity, UserLevel};
 //!
 //! # fn main() -> anyhow::Result<()> {
-//! let mut activity = UserActivity::load_or_create()?;
+//! let mut activity = UserActivity::load()?;
 //! activity.record_command("template generate");
 //!
 //! let level = UserLevel::from_usage_count(activity.total_commands);

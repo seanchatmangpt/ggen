@@ -176,8 +176,8 @@ fn code() { }
     );
     let err_msg = result1.unwrap_err().to_string();
     assert!(
-        err_msg.contains("must come after"),
-        "Error should indicate marker ordering issue"
+        err_msg.to_lowercase().contains("must come after"),
+        "Error should indicate marker ordering issue, got: {err_msg}"
     );
 
     // Arrange: Missing manual end marker

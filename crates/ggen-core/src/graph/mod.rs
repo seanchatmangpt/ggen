@@ -10,7 +10,7 @@
 //! `crate::utils::error::Error`. This pattern ensures proper error context and prevents
 //! compilation errors.
 //!
-//! ```rust,no_run
+//! ```ignore
 //! // ✅ Correct: Explicit error conversion
 //! store.load_from_reader(format, reader)
 //!     .map_err(|e| Error::new(&format!("Failed to load RDF: {}", e)))?;

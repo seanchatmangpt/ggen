@@ -73,10 +73,15 @@ impl TemplateResolver {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    ///
+    /// # fn main() -> ggen_core::utils::error::Result<()> {
     /// let resolver = TemplateResolver::new()?;
     /// let template = resolver.resolve("surface-mcp:handlers.rs.tera")?;
     /// assert_eq!(template.pack_id, "surface-mcp");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn resolve(&self, reference: &str) -> Result<TemplateSource> {
         // Parse pack_id:template_path syntax

@@ -28,17 +28,15 @@
 //! ### Generating a File Tree
 //!
 //! ```rust,no_run
-//! use crate::templates::{generate_file_tree, TemplateContext};
-//! use std::path::Path;
+//! use crate::templates::{generate_file_tree, TemplateContext, TemplateParser};
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let template_path = Path::new("project.tree.toml");
-//! let output_dir = Path::new("output");
+//! let template = TemplateParser::parse_file("project.tree.yaml")?;
 //! let mut ctx = TemplateContext::new();
-//! ctx.insert("project_name", "my-app");
+//! ctx.set("project_name", "my-app")?;
 //!
-//! let result = generate_file_tree(template_path, output_dir, &ctx)?;
-//! println!("Generated {} files", result.files_created);
+//! let result = generate_file_tree(template, ctx, "output")?;
+//! println!("Generated {} files", result.files().len());
 //! # Ok(())
 //! # }
 //! ```
@@ -46,14 +44,11 @@
 //! ### Using Template Parser
 //!
 //! ```rust,no_run
-//! use crate::templates::{TemplateParser, TemplateFormat};
-//! use std::path::Path;
+//! use crate::templates::TemplateParser;
 //!
 //! # fn main() -> crate::utils::error::Result<()> {
-//! let parser = TemplateParser::new();
-//! let template = parser.parse_file(Path::new("project.tree.toml"), TemplateFormat::Toml)?;
-//!
-//! println!("Template has {} nodes", template.nodes.len());
+//! let template = TemplateParser::parse_file("project.tree.yaml")?;
+//! println!("Parsed template: {}", template.format.name);
 //! # Ok(())
 //! # }
 //! ```

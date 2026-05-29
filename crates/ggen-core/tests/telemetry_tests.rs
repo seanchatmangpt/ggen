@@ -98,6 +98,10 @@ async fn test_advanced_search_generates_spans() {
     shutdown_telemetry();
 }
 
+// Endpoint is read from `OTEL_EXPORTER_OTLP_ENDPOINT` only when the `otel`
+// feature is enabled; without it `TelemetryConfig::default()` yields an empty
+// endpoint (see `impl Default for TelemetryConfig` in src/telemetry.rs).
+#[cfg(feature = "otel")]
 #[test]
 fn test_telemetry_config_from_env() {
     // Test that endpoint can be read from environment

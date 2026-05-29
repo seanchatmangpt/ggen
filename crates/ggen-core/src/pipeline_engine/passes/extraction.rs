@@ -28,7 +28,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use crate::pipeline_engine::passes::ExtractionPass;
+//! use crate::pipeline_engine::passes::{ExtractionPass, TensorQuery};
 //! use crate::pipeline_engine::pass::{Pass, PassContext};
 //! use crate::Graph;
 //! use std::path::PathBuf;

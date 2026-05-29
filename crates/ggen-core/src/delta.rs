@@ -23,15 +23,15 @@
 //! ### Detecting Graph Changes
 //!
 //! ```rust,no_run
-//! use crate::delta::{GraphDelta, ImpactAnalyzer};
-//! use crate::graph::Graph;
+//! use ggen_core::delta::GraphDelta;
+//! use ggen_core::graph::Graph;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! let old_graph = Graph::new()?;
 //! let new_graph = Graph::new()?;
 //!
-//! let delta = GraphDelta::compute(&old_graph, &new_graph)?;
-//! println!("Detected {} changes", delta.changes.len());
+//! let delta = GraphDelta::new(&old_graph, &new_graph)?;
+//! println!("Detected {} changes", delta.deltas.len());
 //! # Ok(())
 //! # }
 //! ```
@@ -39,17 +39,18 @@
 //! ### Analyzing Template Impact
 //!
 //! ```rust,no_run
-//! use crate::delta::ImpactAnalyzer;
-//! use crate::graph::Graph;
+//! use ggen_core::delta::{GraphDelta, ImpactAnalyzer};
+//! use ggen_core::graph::Graph;
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
-//! let analyzer = ImpactAnalyzer::new();
+//! # fn main() -> ggen_core::utils::error::Result<()> {
+//! let mut analyzer = ImpactAnalyzer::new();
 //! let old_graph = Graph::new()?;
 //! let new_graph = Graph::new()?;
+//! let delta = GraphDelta::new(&old_graph, &new_graph)?;
 //!
-//! let impacts = analyzer.analyze(&old_graph, &new_graph, &["template1.tmpl".into()])?;
+//! let impacts = analyzer.analyze_impacts(&delta, &["template1.tmpl".to_string()], &new_graph)?;
 //! for impact in impacts {
-//!     println!("Template {}: impact score {}", impact.template_path.display(), impact.score);
+//!     println!("Template {}: confidence {}", impact.template_path, impact.confidence);
 //! }
 //! # Ok(())
 //! # }
@@ -182,10 +183,10 @@ impl DeltaType {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use crate::delta::DeltaType;
+    /// use ggen_core::delta::DeltaType;
     /// use oxigraph::model::{NamedNode, Literal, Quad, Subject, Term};
     ///
-    /// # fn main() -> crate::utils::error::Result<()> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let old_quad = Quad::new(
     ///     Subject::NamedNode(NamedNode::new("http://example.org/alice")?),
     ///     NamedNode::new("http://example.org/name")?,

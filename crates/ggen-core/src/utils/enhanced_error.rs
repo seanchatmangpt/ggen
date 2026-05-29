@@ -38,8 +38,7 @@
 //! let error = EnhancedError::new(
 //!     ErrorCategory::PermissionDenied,
 //!     "Cannot execute script",
-//!     Some(fix)
-//! );
+//! ).with_platform_fix(fix);
 //! # Ok(())
 //! # }
 //! ```

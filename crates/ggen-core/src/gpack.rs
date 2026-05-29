@@ -50,10 +50,10 @@
 //! ### Discovering Templates
 //!
 //! ```rust,no_run
-//! use crate::gpack::GpackManifest;
-//! use std::path::Path;
+//! use ggen_core::gpack::GpackManifest;
+//! use std::path::{Path, PathBuf};
 //!
-//! # fn main() -> crate::utils::error::Result<()> {
+//! # fn main() -> ggen_core::utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! let templates = manifest.discover_templates(Path::new("."))?;
 //!

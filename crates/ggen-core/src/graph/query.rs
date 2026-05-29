@@ -17,9 +17,10 @@ use std::collections::BTreeMap;
 /// ## Query with prefixes
 ///
 /// ```rust,no_run
-/// use crate::graph::{Graph, GraphQuery};
+/// use ggen_core::graph::{Graph, GraphQuery};
+/// use std::collections::BTreeMap;
 ///
-/// # fn main() -> crate::utils::error::Result<()> {
+/// # fn main() -> ggen_core::utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let query = GraphQuery::new(&graph);
 ///
@@ -86,9 +87,9 @@ impl<'a> GraphQuery<'a> {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use crate::graph::{Graph, GraphQuery};
+    /// use ggen_core::graph::{Graph, GraphQuery};
     ///
-    /// # fn main() -> crate::utils::error::Result<()> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let graph = Graph::new()?;
     /// let query = GraphQuery::new(&graph);
     ///

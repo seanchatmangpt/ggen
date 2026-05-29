@@ -4,8 +4,8 @@
 /// Deprecation macro with version tracking and migration notes
 ///
 /// # Example
-/// ```
-/// use crate::utils::deprecated_since;
+/// ```ignore
+/// use ggen_core::deprecated_since;
 ///
 /// #[deprecated_since!("1.0.0", "Use new_api() instead. See migration guide at docs/MIGRATION.md")]
 /// pub fn old_api() -> Result<String, Error> {
@@ -23,8 +23,8 @@ macro_rules! deprecated_since {
 /// Marks a feature as experimental with version tracking
 ///
 /// # Example
-/// ```
-/// use crate::utils::experimental;
+/// ```ignore
+/// use ggen_core::experimental;
 ///
 /// #[experimental!("1.0.0", "This API may change in future versions")]
 /// pub fn experimental_feature() -> Result<(), Error> {
@@ -42,8 +42,8 @@ macro_rules! experimental {
 /// Marks a breaking change with migration path
 ///
 /// # Example
-/// ```
-/// use crate::utils::breaking_change;
+/// ```ignore
+/// use ggen_core::breaking_change;
 ///
 /// #[breaking_change!("2.0.0", "Signature changed. Old: fn(i32) -> i32, New: fn(i64) -> Result<i64, Error>")]
 /// pub fn updated_api(value: i64) -> Result<i64, Error> {

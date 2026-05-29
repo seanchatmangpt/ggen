@@ -11,7 +11,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust
+//! ```rust,no_run
 //! use crate::utils::path_validator::{PathValidator, SafePath};
 //! use std::path::Path;
 //!

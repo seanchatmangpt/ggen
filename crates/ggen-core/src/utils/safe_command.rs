@@ -37,11 +37,11 @@
 //! // Invalid command (not in whitelist)
 //! assert!(SafeCommand::new("rm").is_err());
 //!
-//! // Invalid argument (shell metacharacter)
+//! // Invalid argument (shell metacharacter) is rejected
 //! let result = SafeCommand::new("cargo")
 //!     .unwrap()
-//!     .arg("build; rm -rf /")
-//!     .unwrap_or_else(|e| panic!("Should fail: {}", e));
+//!     .arg("build; rm -rf /");
+//! assert!(result.is_err());
 //! ```
 
 use crate::utils::error::{Error, Result};
