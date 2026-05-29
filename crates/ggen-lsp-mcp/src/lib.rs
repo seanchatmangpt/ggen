@@ -228,9 +228,13 @@ pub fn build_repair_routes_in(
             )),
         }
     }
+    // Bind the route response to the specific pack it was served from (if any),
+    // so a remote agent's result is provenance-anchored.
+    let pack_hash = ggen_lsp::pack_hash_at(&pack_root);
     serde_json::json!({
         "file_path": file_path,
         "is_law_surface": true,
+        "pack_hash": pack_hash,
         "envelopes": envelopes,
         "refusals": refusals,
     })

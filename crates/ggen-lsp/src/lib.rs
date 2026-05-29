@@ -21,8 +21,9 @@ pub use intel::{
     IntelLog, MineReport, PromotionReplay, RepairReceipt,
 };
 pub use pack::{
-    emit as emit_pack, verify_pack, EmitReport, PackOptions, PackProvenance, PackReplay,
-    DEFAULT_AGENTS,
+    default_pack_dir, emit as emit_pack, load_manifest, manifest_is_current, pack_hash_at,
+    verify_pack, EmitReport, PackManifest, PackOptions, PackProvenance, PackReplay, PolicyEntry,
+    RouteEntry, DEFAULT_AGENTS,
 };
 pub use route::{
     envelope_for_diagnostic, family_of_diagnostic, route_case_id, route_plan_for_diagnostic,

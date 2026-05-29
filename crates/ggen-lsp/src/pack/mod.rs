@@ -66,6 +66,53 @@ impl Default for PackOptions {
 
 /// Filename of the in-pack provenance record (excluded from the pack hash).
 const PROVENANCE_FILE: &str = "pack-provenance.json";
+/// Filename of the advertised pack manifest (excluded from the pack hash).
+const MANIFEST_FILE: &str = "pack-manifest.json";
+
+/// Law-surface globs advertised by the pack (shared by the LSP config + manifest).
+const LAW_SURFACES: &[&str] = &[
+    "**/*.ttl",
+    "**/*.nt",
+    "**/*.nq",
+    "**/*.rq",
+    "**/*.sparql",
+    "**/*.tera",
+    "**/ggen.toml",
+];
+
+/// One advertised SHACL policy (path + content hash).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PolicyEntry {
+    pub path: String,
+    pub hash: String,
+}
+
+/// One advertised repair route (the movable route-law parts a remote agent gets).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct RouteEntry {
+    pub route_id: String,
+    pub family: String,
+    pub source: String,
+}
+
+/// The advertised, hash-bound surface of a pack: what routes/policies/law-surfaces
+/// it carries, under which canon/version, bound to its content hash. A remote
+/// (MCP/A2A) agent reads this to consume the pack as a movable route-law part and
+/// to bind a route response to a specific pack.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PackManifest {
+    pub version: u8,
+    pub canon: String,
+    pub pack_hash: String,
+    pub law_surfaces: Vec<String>,
+    pub policies: Vec<PolicyEntry>,
+    pub routes: Vec<RouteEntry>,
+}
+
+impl PackManifest {
+    pub const VERSION: u8 = 1;
+    pub const CANON: &'static str = "v30.1.1";
+}
 
 /// Records what the pack was manufactured from and its content hash, so
 /// [`verify_pack`] can reconstruct the binding (mirrors `PromotedRoutes`).
@@ -210,6 +257,12 @@ pub fn emit(opts: &PackOptions) -> io::Result<EmitReport> {
     }
     let receipt_sig = emit_pack_receipt(root, &scan_hash, &pack_hash);
 
+    // Advertised manifest: the movable route-law surface, bound to the pack hash.
+    let manifest = build_manifest(root, &pack_hash);
+    if let Ok(json) = serde_json::to_string_pretty(&manifest) {
+        let _ = std::fs::write(root.join(MANIFEST_FILE), json);
+    }
+
     Ok(EmitReport {
         out_dir: root.to_string_lossy().to_string(),
         agents: opts.agents.clone(),
@@ -232,8 +285,10 @@ pub fn compute_pack_hash(pack_dir: &Path) -> String {
         .filter(|e| e.file_type().is_file())
         .filter_map(|e| {
             let rel = e.path().strip_prefix(pack_dir).ok()?.to_path_buf();
-            // Exclude provenance + receipts (they are derived from the hash).
-            if rel.to_string_lossy() == PROVENANCE_FILE
+            // Exclude provenance + manifest + receipts (derived from the hash).
+            let rel_str = rel.to_string_lossy();
+            if rel_str == PROVENANCE_FILE
+                || rel_str == MANIFEST_FILE
                 || rel.components().any(|c| c.as_os_str() == "receipts")
             {
                 return None;
@@ -340,11 +395,7 @@ fn find_pack_receipt(pack_dir: &Path, pre: [u8; 32], post: [u8; 32]) -> bool {
 
 fn lsp_config_json() -> String {
     let config = serde_json::json!({
-        "law_surfaces": [
-            "**/*.ttl", "**/*.nt", "**/*.nq",
-            "**/*.rq", "**/*.sparql",
-            "**/*.tera", "**/ggen.toml"
-        ],
+        "law_surfaces": LAW_SURFACES,
         "policies": [
             "policies/public-vocab.shacl.ttl",
             "policies/no-private-namespace.shacl.ttl",
@@ -354,6 +405,80 @@ fn lsp_config_json() -> String {
         "canon": "v30.1.1"
     });
     serde_json::to_string_pretty(&config).unwrap_or_else(|_| "{}".to_string())
+}
+
+/// The default pack directory under a project root.
+#[must_use]
+pub fn default_pack_dir(project_root: &Path) -> PathBuf {
+    project_root.join(".agent-admissibility")
+}
+
+/// Build the advertised manifest for an emitted pack: law surfaces, hashed
+/// policies, and the promoted routes the pack carries — bound to `pack_hash`.
+fn build_manifest(pack_dir: &Path, pack_hash: &str) -> PackManifest {
+    let policies = [
+        "public-vocab.shacl.ttl",
+        "no-private-namespace.shacl.ttl",
+        "receipt-required.shacl.ttl",
+    ]
+    .iter()
+    .filter_map(|name| {
+        let path = pack_dir.join("policies").join(name);
+        let bytes = std::fs::read(&path).ok()?;
+        Some(PolicyEntry {
+            path: format!("policies/{name}"),
+            hash: blake3::hash(&bytes).to_hex().to_string(),
+        })
+    })
+    .collect();
+
+    // Routes the pack carries (from its promoted-route artifact, if mined).
+    let routes = crate::route::load_promoted(&pack_dir.join("powl").join("repair-routes.json"))
+        .map(|promoted| {
+            promoted
+                .routes
+                .iter()
+                .map(|r| RouteEntry {
+                    route_id: r.id.0.clone(),
+                    family: format!("{:?}", r.family),
+                    source: match r.provenance {
+                        crate::route::Provenance::Seeded => "seed".to_string(),
+                        crate::route::Provenance::Mined { .. } => "mined".to_string(),
+                    },
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
+    PackManifest {
+        version: PackManifest::VERSION,
+        canon: PackManifest::CANON.to_string(),
+        pack_hash: pack_hash.to_string(),
+        law_surfaces: LAW_SURFACES.iter().map(|s| (*s).to_string()).collect(),
+        policies,
+        routes,
+    }
+}
+
+/// Load a pack's advertised manifest, if present.
+#[must_use]
+pub fn load_manifest(pack_dir: &Path) -> Option<PackManifest> {
+    let content = std::fs::read_to_string(pack_dir.join(MANIFEST_FILE)).ok()?;
+    serde_json::from_str(&content).ok()
+}
+
+/// Whether a manifest is compatible with the current canon + schema version. A
+/// stale or future pack fails this check (the remote-pack staleness guard).
+#[must_use]
+pub fn manifest_is_current(manifest: &PackManifest) -> bool {
+    manifest.version == PackManifest::VERSION && manifest.canon == PackManifest::CANON
+}
+
+/// The content hash of the pack installed under `project_root` (from its
+/// manifest), so a route response can bind to a specific pack. None if no pack.
+#[must_use]
+pub fn pack_hash_at(project_root: &Path) -> Option<String> {
+    load_manifest(&default_pack_dir(project_root)).map(|m| m.pack_hash)
 }
 
 fn write_file(
