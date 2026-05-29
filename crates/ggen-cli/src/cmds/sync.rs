@@ -568,13 +568,43 @@ fn emit_sync_receipt(
         None
     };
 
-    // 4. Build input hashes: ggen.toml + installed packs.
+    // 4. Build input hashes: the FULL O* closure — every input capable of changing
+    //    the artifact, plus the actuator identity. R ⊢ A = μ(O*) is false unless R
+    //    binds O*; hashing only the manifest would leave the ontology and templates
+    //    (which determine the output) outside the witnessed closure.
     let mut input_hashes: Vec<String> = Vec::new();
+    // Actuator identity: which μ (and version) produced this.
+    input_hashes.push(format!("actuator:ggen-sync@{}", env!("CARGO_PKG_VERSION")));
     if let Ok(manifest_content) = std::fs::read_to_string("ggen.toml") {
         input_hashes.push(format!(
             "ggen.toml:{}",
             hash_data(manifest_content.as_bytes())
         ));
+        // Bind the rest of the closure: ontology + imports + external query/template
+        // files. Inline inference rules, queries, and templates live inside ggen.toml
+        // and are therefore already bound by the manifest hash above.
+        if let Ok(manifest) = ggen_core::manifest::ManifestParser::parse_str(&manifest_content) {
+            let mut closure: Vec<PathBuf> = vec![manifest.ontology.source.clone()];
+            closure.extend(manifest.ontology.imports.iter().cloned());
+            for rule in &manifest.generation.rules {
+                if let ggen_core::manifest::QuerySource::File { file } = &rule.query {
+                    closure.push(file.clone());
+                }
+                if let ggen_core::manifest::TemplateSource::File { file } = &rule.template {
+                    closure.push(file.clone());
+                }
+            }
+            for p in closure {
+                match std::fs::read(&p) {
+                    // Honest: a closure input that cannot be read is recorded as MISSING,
+                    // never silently dropped — a verifier must see the gap.
+                    Ok(content) => {
+                        input_hashes.push(format!("{}:{}", p.display(), hash_data(&content)));
+                    }
+                    Err(_) => input_hashes.push(format!("{}:MISSING", p.display())),
+                }
+            }
+        }
     }
     for pack in installed_packs {
         input_hashes.push(format!("pack:{}", pack));

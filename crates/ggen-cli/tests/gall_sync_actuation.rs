@@ -185,6 +185,54 @@ fn gall_capable_sync_actuates_and_emits_receipt_when_not_dry_run() {
     );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// O-STAR-RECEIPT-CLOSURE-1: the receipt binds the FULL O*, not just the manifest.
+// R ⊢ A = μ(O*) is a lie if the receipt omits the ontology/template that determine
+// the artifact. The receipt must witness the whole closure + the actuator identity.
+// ─────────────────────────────────────────────────────────────────────────────
+
+#[test]
+fn gall_receipt_binds_full_o_star_closure() {
+    let dir = capable_boundary();
+    Command::cargo_bin("ggen")
+        .expect("ggen binary")
+        .current_dir(dir.path())
+        .args(["sync", "--manifest", "ggen.toml"])
+        .assert()
+        .success();
+
+    let latest =
+        std::fs::read_to_string(dir.path().join(".ggen/receipts/latest.json")).expect("receipt");
+    let receipt: serde_json::Value = serde_json::from_str(&latest).expect("receipt is JSON");
+    let inputs: Vec<String> = receipt["input_hashes"]
+        .as_array()
+        .expect("input_hashes array")
+        .iter()
+        .filter_map(|v| v.as_str().map(str::to_string))
+        .collect();
+    let joined = inputs.join("\n");
+
+    // The closure must bind: the manifest, the ontology, the template, and the actuator.
+    assert!(joined.contains("ggen.toml:"), "binds the manifest");
+    assert!(
+        inputs.iter().any(|h| h.contains(".ttl:")),
+        "binds the ontology source (was previously omitted): {joined}"
+    );
+    assert!(
+        inputs.iter().any(|h| h.contains(".tera:")),
+        "binds the Tera template (was previously omitted): {joined}"
+    );
+    assert!(
+        inputs.iter().any(|h| h.starts_with("actuator:ggen-sync@")),
+        "binds the actuator identity: {joined}"
+    );
+    // No MISSING closure inputs in a successful actuation.
+    assert!(
+        !joined.contains(":MISSING"),
+        "every closure input was bound (no MISSING): {joined}"
+    );
+}
+
 /// Relative file paths under `root`, EXCLUDING anything inside a `.ggen` directory
 /// (sensing/evidence + actuation bookkeeping). Component-based for portability.
 fn non_ggen_files(root: &Path) -> Vec<PathBuf> {

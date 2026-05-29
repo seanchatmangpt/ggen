@@ -31,7 +31,7 @@ the smallest public-ontology-aligned `O*`, and the run is replayable/inspectable
 | emits one receipt | ✓ `.ggen/receipts/<ts>.json` — UUID v4, RFC-3339, **non-empty Ed25519 signature**, input + output hashes |
 | replay can inspect | ✓ `ggen lsp replay --root` reachable, honest (`no promoted-route artifact`) |
 | metrics can inspect | ✓ `ggen lsp metrics --root` → `route_hit_rate=1.0`, `receipt_density=1.0`, `verdict=insufficient_evidence` (honest) |
-| **receipt references ontology/template** | **PARTIAL** — `input_hashes` covers `ggen.toml` only, not the `.ttl`/template (contract-drift fix tracked in ggen-core) |
+| **receipt references ontology/template** | ✓ **RESOLVED** by O-STAR-RECEIPT-CLOSURE-1 — `input_hashes` now binds the manifest + ontology + external query/template files + actuator identity. See [O_STAR_RECEIPT_CLOSURE_1_RECEIPT.md](O_STAR_RECEIPT_CLOSURE_1_RECEIPT.md). |
 
 ## The actuation command
 
