@@ -1,4 +1,4 @@
-# Security Policy for ggen (v26.5.19)
+# Security Policy for ggen (v26.5.28)
 
 ## Reporting Security Vulnerabilities
 

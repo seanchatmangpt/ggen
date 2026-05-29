@@ -5,6 +5,25 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.5.28] — LSP Delivery Plane, E0010 Enforcement & Docs Reconciliation (2026-05-28)
+
+### Added
+- **LSP delivery plane** — Delivered 5 LSP features plus qlue-ls SPARQL formatting, with the delivery plane feature-gated behind `--features lsp`; advertised capabilities now match delivered ones. (commits `e2e3d422`, `f2b7d436`, `d12f55cc`)
+- **FIELD-STATUS-1** — Read-only process-mining cockpit (`ggen lsp field-status`) for inspecting field evidence. (commit `a913322c`)
+- **FIELD-GAUGE-1** — MCP/A2A route requests now leave field evidence; one route contract recorded across LSP/MCP/A2A. (commits `e44d019a`, `8ef924aa`)
+- **E0010 values-inline enforcement** — Added inline `VALUES` enforcement plus a syntax-validation gate in `ggen-core`. (commit `921306a6`)
+- **TelemetryConfig** — New telemetry configuration schema in `ggen-config`, with telemetry initialized from config at CLI startup. (commits `29634e87`, `d04533f4`)
+- **Outdated-binary warning** — CLI warns at startup when the running binary is outdated. (commit `d04533f4`)
+
+### Fixed
+- **P0 gap fixes** — Eliminated production panics and SPARQL drift in `ggen-core` and `ggen-marketplace`; corrected `list_packages` predicate that caused silent data loss (P0-03). (commits `1e9b2976`, `a461a2ab`)
+- **Workspace-containment check** — Built path containment check on the canonical root for portability. (commit `4d49950e`)
+- **Honest scanning (cpmp)** — Removed fake-fixture stub catalog and no-op subprocess; scan path is now honest-only. (commit `5d44bb2d`)
+- **Documentation reconciliation** — Reconciled docs to reality: the workspace is **15 crates** (not 5), version target bumped to `v26.5.28`, and removed documentation for the non-existent `ggen template *` commands (those were removed; `ggen sync` is the unified path).
+
+### Changed
+- **Dependency alignment** — Aligned `oxigraph` 0.5.8 and `toml` 1.1.0 across all workspace members and examples. (commit `30947026`)
+
 ## [26.5.21] — A2A & MCP Implementation & Docs Cleanup (2026-05-21)
 
 ### Added

@@ -1,23 +1,23 @@
-# ggen v26.5.21
+# ggen v26.5.28
 
 [![CI](https://github.com/seanchatmangpt/ggen/workflows/CI/badge.svg)](https://github.com/seanchatmangpt/ggen/actions)
-[![Rust](https://img.shields.io/badge/Rust-1.94.0-orange.svg)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/Rust-stable-orange.svg)](https://www.rust-lang.org)
 [![Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)](https://github.com/seanchatmangpt/ggen)
 
 **Deterministic, language-agnostic code generation from RDF ontologies with OpenTelemetry tracing.**
 
-ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v26.5.21 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
+ggen transforms domain ontologies (RDF/Turtle) into typed source code through a native v26.5.28 μ-pipeline (μ₁-μ₅): ontology normalization, SPARQL extraction, template rendering, canonicalization, and cryptographic receipt generation. Every generation is validated by **8 Canonical Proof Gates** to ensure the artifact `A` is a perfect projection of the ontology `O`.
 
 ```
 ggen.toml  -->  RDF Ontology  -->  CONSTRUCT inference  -->  SELECT  -->  Tera Template  -->  Code
 ```
 
-**What's New in v26.5.21:**
-- ✅ **Native v26.5.21 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
+**What's New in v26.5.28:**
+- ✅ **Native v26.5.28 μ-Pipeline** — Pure Rust implementation of the 5-stage transformation engine
 - ✅ **8 Canonical Proof Gates** — Automated evidence validation (Schema, Ontology, Projection, Compilation, Receipt, Ethos, Observability, Causality)
 - ✅ **OpenTelemetry Tracing** — Full observability for pipeline stages
 - ✅ **Chicago TDD Enforcement** — 87% test coverage with real collaborators (no mocks)
-- ✅ **5-Crate Workspace** — Modular architecture with Rust 1.94.0, Tokio, Oxigraph
+- ✅ **15-Crate Workspace** — Modular architecture with Rust (stable), Tokio, Oxigraph
 
 ## Quick Start
 
@@ -298,17 +298,6 @@ ggen uses [clap-noun-verb](https://crates.io/crates/clap-noun-verb) for auto-dis
 | `ggen sync` | Run the code generation pipeline |
 | `ggen wizard` | Interactive project bootstrap with profile selection |
 
-### Template Commands
-
-| Command | Description |
-|---------|-------------|
-| `ggen template show <name>` | Show template metadata (variables, RDF sources, SPARQL queries) |
-| `ggen template new <name>` | Create a new template |
-| `ggen template list` | List all templates |
-| `ggen template lint <name>` | Lint a template for issues |
-
-> **Note:** Use `ggen sync` for unified template generation driven by `ggen.toml`.
-
 ### Graph Commands
 
 | Command | Description |
@@ -386,9 +375,9 @@ ggen follows three paradigm shifts:
 
 ---
 
-## Constitutional Rules (v26.5.21)
+## Constitutional Rules (v26.5.28)
 
-ggen v26.5.21 introduces three **non-negotiable paradigms** that govern the entire development lifecycle.
+ggen v26.5.28 introduces three **non-negotiable paradigms** that govern the entire development lifecycle.
 
 ### 1. Big Bang 80/20: Specification Closure First
 
@@ -478,8 +467,8 @@ ggen sync
 
 ## Status & Performance
 
-**Version**: 26.5.21
-**Stack**: Rust 1.94.0 | Tokio | Oxigraph | Tera | Clap | 5 crates
+**Version**: 26.5.28
+**Stack**: Rust 1.94.0 | Tokio | Oxigraph | Tera | Clap | 15 crates
 **Testing**: Chicago TDD | 87% coverage | 347+ tests passing
 **Stability**: Production-ready
 **License**: Apache 2.0 OR MIT

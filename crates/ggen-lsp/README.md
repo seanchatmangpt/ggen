@@ -15,8 +15,13 @@ A **pure code intelligence** language server for ggen RDF, Tera, and TOML files.
 ✨ **Code Folding** — Collapse RDF shapes, Tera blocks, TOML sections  
 ✨ **Code Actions** — Apply repair routes as `WorkspaceEdit` quickfixes  
 ✨ **Diagnostics** — Surface E00XX law violations live as you type  
+✨ **Semantic Tokens** — Full-document tokenization (namespace/class/property/variable/…)  
+✨ **Formatting** — Document and range formatting for TOML/Turtle/SPARQL  
+✨ **Code Lenses** — Inline actionable annotations  
+✨ **Workspace Symbol** — Search definitions across the workspace root  
+✨ **Inlay Hints** — Inline type/value hints  
 
-> Not delivered (do not assume): auto-formatting, semantic tokens, code lenses, workspace symbol, inlay hints, call/type hierarchy.
+> Available via handler but NOT advertised in server capabilities: call hierarchy, type hierarchy — `prepare_call_hierarchy`/`prepare_type_hierarchy` are implemented in `server.rs` (and backed by the analyzers) but `initialize()` declares no `call_hierarchy_provider`/`type_hierarchy_provider`, so editors will not request them.
 
 ## Installation
 
@@ -106,8 +111,16 @@ ggen-lsp/
 | Folding Range | 🟢 Delivered | Collapse RDF/Tera/TOML blocks |
 | Code Action | 🟢 Delivered | Repair-route quickfixes (`WorkspaceEdit`) |
 | Diagnostics | 🟢 Delivered | Surface E00XX law violations live |
+| Semantic Tokens (full) | 🟢 Delivered | Full-document tokenization (no `range`) |
+| Formatting (document) | 🟢 Delivered | Format whole TOML/Turtle/SPARQL document |
+| Formatting (range) | 🟢 Delivered | Format a selection |
+| Inlay Hint | 🟢 Delivered | Inline type/value hints |
+| Code Lens | 🟢 Delivered | Inline actionable annotations |
+| Workspace Symbol | 🟢 Delivered | Search definitions across workspace root |
+| Call Hierarchy | 🟡 Handler only | `prepare_call_hierarchy` implemented; not advertised in `initialize()` |
+| Type Hierarchy | 🟡 Handler only | `prepare_type_hierarchy` implemented; not advertised in `initialize()` |
 
-> Not delivered: semantic tokens, code lenses, workspace symbol, formatting, inlay hints, call hierarchy, type hierarchy.
+> The 🟢 rows above are exactly the capabilities advertised in `server.rs` `initialize()` (`semantic_tokens_provider` advertises `full` only — no `range`). The 🟡 rows have working handlers in `server.rs` but no matching provider in `initialize()`, so they are reachable only if a client requests them directly. Nothing is now wholly absent.
 
 ## Performance
 

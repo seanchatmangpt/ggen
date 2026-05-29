@@ -1,7 +1,7 @@
 # ggen v26.5.28 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
-Stack: Rust 1.95.0 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 21-crate workspace | 98% test coverage
+Stack: Rust (stable) | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 15-crate workspace
 **Compressed Architecture:** `docs/architecture/COMPRESSED_REFERENCE.md` — verified C4, real sync flow, stub registry, error map. Load this before modifying any code.
 
 **Recent Audit (2026-04-01):** `docs/crate-audits/AUDIT_DASHBOARD.md` — workspace health assessment with 54 stubs classified, 8,900 lines dead code identified, 4 P0 blockers prioritized.
@@ -10,45 +10,48 @@ Stack: Rust 1.95.0 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY |
 
 ---
 
-## Architecture Reference (LSP-Surveyed)
+## Architecture Reference
 
-### Crate Map by Domain
+### Crate Map (15 workspace members)
 
-#### Core Workspace (5 Crates)
+Verified against `Cargo.toml` `members = [...]`. These are the only crates that compile in the workspace.
 
-| Crate | Purpose | Key Types |
-|-------|---------|-----------|
-| `ggen-core` | Graph-aware code generation engine | `Graph`, `GgenOntology`, `Pipeline`, `PipelineBuilder`, `GenContext`, `Generator`, `DeltaType`, `GraphDelta`, `DriftDetector`, `ThreeWayMerger`, `RegionAwareMerger`, `SnapshotManager`, `TemplateResolver`, `RegistryClient`, `PqcSigner` |
-| `ggen-cli` | CLI interface (as `ggen-cli-lib`) | `RunResult`, `cli_match()`, `run_for_node()` |
-| `ggen-config` | ggen.toml parsing and validation | `GgenConfig`, `AiConfig`, `McpConfig`, `A2AConfig`, `ProjectConfig`, `TemplatesConfig`, `ConfigLoader`, `ConfigValidator` |
-| `ggen-a2a-mcp` | Agent-to-Agent protocol & MCP bridge | `McpServer`, `A2aHandler`, `Capability` |
-| `ggen-marketplace` | Registry for ontology packs & templates | `MarketplaceClient`, `PackMetadata`, `RegistryIndex` |
+| Crate | Purpose (from Cargo.toml / lib.rs) |
+|-------|-------------------------------------|
+| `ggen-core` | Core graph-aware code generation engine (μ₁–μ₅ pipeline) |
+| `ggen-cli` | CLI interface for ggen (binary + `ggen-cli-lib`) |
+| `ggen-config` | Configuration parser and validator for `ggen.toml` files |
+| `ggen-marketplace` | Marketplace / package management system for ggen |
+| `ggen-a2a-mcp` | A2A protocol and MCP server for agent-to-agent communication |
+| `ggen-graph` | Deterministic RDF graph module — Oxigraph wrapper with deterministic hashing, deltas, validation hooks, transition receipts |
+| `ggen-lsp` | Language server for ggen surfaces (analyzers, check, intel, pack, route, repair); also exposes `check`/`init`/`mine` library APIs |
+| `ggen-lsp-mcp` | MCP server exposing `ggen-lsp` repair routes as a tool (leaf crate — avoids the `ggen-core`↔`ggen-a2a-mcp` cycle) |
+| `ggen-lsp-a2a` | A2A bridge exposing the `ggen-lsp-mcp` route engine as an A2A agent (leaf crate, cycle-free) |
+| `genesis-core` | Pure mathematical foundation for the Genesis interchangeable-parts architecture (A = μ(O)); no_std variant for wasm32 targets |
+| `genesis-types-v2` | KNHK V2 type system — foundational data structures for the workflow engine (workflow/pattern defs, execution state, errors, config) |
+| `genesis-schema-v2` | KNHK V2 schema system — OpenAPI specs, RDF ontology, 43 YAWL pattern definitions, workflow schema validation |
+| `genesis-core-v2` | KNHK V2 core — `Pattern` trait system, pattern registry, composition, zero-copy/zero-alloc execution paths |
+| `cpmp` | Computer Project Mapping Protocol (Open Ontologies Catalog) — scanner, capability classification, projection, receipts |
+| `stpnt` | Stewards of the Pentecost — Canonical Stewardship Cell implementation (canon, cells, governance, membrane, projections, proof) |
 
-#### Removed/Merged Components
+#### Dormant (on-disk under `crates/`, NOT workspace members — do not compile)
 
-- `ggen-prompt-mfg`: Merged into `ggen-core/src/prompt_mfg`
-- `prolog8`: Removed from the workspace
-- `ggen-domain`, `ggen-utils`, `ggen-ontology-core`, `ggen-codegen`, etc.: Consolidated into `ggen-core`
+`genesis-construct8`, `genesis-lockchain`, `genesis-wasm-shell`, `ggen-membrane`, `ggen-projection`. These directories exist but are excluded from `Cargo.toml` `members`; treat as non-compiled reference material until activated.
 
 ### Cross-Cutting Patterns
 
 | Pattern | Where Used | Details |
 |---------|-----------|---------|
-| **`pub type Result<T> = std::result::Result<T, CrateError>`** | Every crate | Each crate has its own error enum via `thiserror` |
+| **`pub type Result<T> = std::result::Result<T, CrateError>`** | Most crates | Each crate has its own error enum via `thiserror` |
 | **Builder pattern** | `ggen-core` | `with_*()` chain methods for optional config |
 | **Typestate** | `ggen-marketplace` | Compile-time state transitions (`Draft`/`Published`) |
-| **Newtype wrappers** | All crates | Invariant encoding in types (e.g., `PackageId`, `WorkOrderId`) |
+| **Newtype wrappers** | `ggen-core`, `ggen-marketplace` | Invariant encoding in types (e.g., `PackageId`) |
 | **Async traits** | `ggen-a2a-mcp` | `#[async_trait]` with `Result` returns |
-| **RDF/SPARQL foundation** | `ggen-core` | All built on `oxigraph` triplestores |
+| **RDF/SPARQL foundation** | `ggen-core`, `ggen-graph`, `ggen-marketplace` | Built on `oxigraph` triplestores |
 | **Pipeline architecture** | `ggen-core` (μ₁–μ₅) | Multi-stage deterministic transformation |
-| **Prometheus metrics** | `ggen-core` | Counters, gauges, histograms for performance tracking |
-| `Transport` | `ggen-a2a-mcp` | Message passing with session + streaming |
-| `A2aMessageHandler` | `ggen-a2a-mcp` | Handle A2A messages and streams |
-| `Activity` / `WorkflowPattern` | ggen-workflow-43 | Workflow execution with cancellation |
-| `ErrorProofing` / `ValidByConstruction` | ggen-poka-yoke | Compile-time error prevention |
-| `AsyncRepository` | ggen-marketplace | Package CRUD operations |
-| `LoadConfigFromGgenToml` | ggen-config-clap | Config loading bridge |
-| `SessionManager` / `RateLimiter` / `LockoutManager` | ggen-auth | Redis-backed auth infrastructure |
+| **Deterministic hashing + transition receipts** | `ggen-graph` | State-change detection (deltas) and cryptographic receipts |
+| **Leaf-crate cycle avoidance** | `ggen-lsp-mcp`, `ggen-lsp-a2a` | Bridge crates kept dependency-cycle-free |
+| **Pattern trait / registry** | `genesis-core-v2`, `genesis-schema-v2` | 43 YAWL workflow patterns, zero-copy execution |
 
 ---
 
