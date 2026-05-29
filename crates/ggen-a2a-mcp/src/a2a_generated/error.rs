@@ -123,7 +123,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::transport("Connection refused");
     /// ```
@@ -135,7 +135,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::serialization("Failed to encode message");
     /// ```
@@ -147,7 +147,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::task("Task execution failed");
     /// ```
@@ -159,7 +159,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::invalid_message("Missing required field");
     /// ```
@@ -171,7 +171,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::network("Host unreachable");
     /// ```
@@ -183,7 +183,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::port("Port not connected");
     /// ```
@@ -195,7 +195,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::adapter("Unsupported format");
     /// ```
@@ -207,7 +207,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::agent_lifecycle("Agent not initialized");
     /// ```
@@ -219,7 +219,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::timeout("Operation exceeded deadline");
     /// ```
@@ -231,7 +231,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::validation("Invalid agent ID format");
     /// ```
@@ -243,7 +243,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::configuration("Missing required config field");
     /// ```
@@ -255,7 +255,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::unknown("Unexpected error occurred");
     /// ```
@@ -267,7 +267,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::transport("Connection refused");
     /// assert_eq!(error.category(), "transport");
@@ -300,7 +300,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::timeout("Request timed out");
     /// assert!(error.is_retryable());
@@ -339,7 +339,7 @@ impl AgentError {
     ///
     /// # Example
     /// ```
-    /// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::AgentError;
+    /// use ggen_a2a_mcp::a2a_generated::error::AgentError;
     ///
     /// let error = AgentError::validation("Invalid input");
     /// assert!(error.is_permanent());
@@ -356,7 +356,7 @@ impl AgentError {
 ///
 /// # Example
 /// ```
-/// use crate::a2a_generated::crate::a2a_generated::crate::crate::a2a_generated::error::{AgentError, A2AResult};
+/// use ggen_a2a_mcp::a2a_generated::error::{AgentError, A2AResult};
 ///
 /// fn send_message() -> A2AResult<()> {
 ///     Ok(())

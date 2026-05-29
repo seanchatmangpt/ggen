@@ -224,68 +224,47 @@ pub fn execute(input: GgenConstructInput) -> GgenConstructOutput {
         };
     }
 
-    // Normalize defaults
-    let target_lang = if input.target_language.is_empty() {
-        "rust"
-    } else {
-        &input.target_language
-    };
-    let output_fmt = if input.output_format.is_empty() {
-        "source"
-    } else {
-        &input.output_format
-    };
-
-    // Placeholder: invoke ggen pipeline
-    // In production, this would:
-    // 1. Call ggen μ₁–μ₅ pipeline (via subprocess or FFI)
-    // 2. Wait for artifact generation
-    // 3. Read receipt from .ggen/receipts/
-    // 4. Compute BLAKE3 hash
-    // 5. Collect proof gate results
-    //
-    // For now, simulate success with deterministic output.
-    let artifact_path = format!("target/{}/artifact.rs", target_lang);
-    let artifact_hash = format!("blake3:{:064x}", blake3::hash(b"simulated artifact").as_bytes()[..32].iter().fold(0u64, |a, &b| (a << 8) | b as u64));
-    let receipt_path = ".ggen/receipts/rcpt-simulated-1234567890.json".to_string();
-
     let duration_ms = start.elapsed().as_millis() as u64;
 
-    // Emit OCEL event (would be emitted to tracing infrastructure in production)
-    // For now, we just log it.
-    tracing::info!(
+    // OCEL boundary-crossing evidence: the tool WAS invoked. We preserve this
+    // log even though we refuse to fake a result — the invocation is real
+    // (genuine boundary crossing), only the construction is not yet wired.
+    tracing::warn!(
         event = "a2a.mcp.tool.invoked",
         task_id = %input.task_id,
         tool = "ggen.construct",
         invoker = %input.avatar,
         duration_ms = duration_ms,
-        artifact_hash = %artifact_hash,
-        receipt_path = %receipt_path,
-        "ggen.construct tool invoked"
+        status = "unimplemented",
+        "ggen.construct invoked but the μ₁–μ₅ pipeline is not wired through this A2A adapter"
     );
 
+    // Oracle Gap closure: this adapter does NOT run the real μ₁–μ₅ pipeline.
+    // Reporting "success" for work that never happened is contract drift — any
+    // caller, receipt, or provenance record would capture a fabricated outcome
+    // (a synthetic artifact hash, a dummy receipt path, all-pass proof gates).
+    // The only honest response is an explicit failure that:
+    //   - does NOT claim status "success",
+    //   - does NOT emit or reference a fabricated receipt path,
+    //   - does NOT report synthetic artifact hashes or all-pass proof gates,
+    //   - directs the caller to the real construction path.
+    //
+    // This mirrors the MCP-side closure in `mcp_server.rs` (commit 3a7f1f7e),
+    // which returns an explicit error rather than a hardcoded success.
+    //
+    // TODO(μ₁–μ₅): wire this adapter to the real ggen pipeline (subprocess to
+    // `ggen sync` or FFI into ggen-core), then return a real receipt + hashes.
     GgenConstructOutput {
-        status: "success".to_string(),
+        status: "unimplemented".to_string(),
         task_id: input.task_id,
         jtbd: input.jtbd,
         avatar: input.avatar,
-        message: format!(
-            "Generated {} artifact from {} ontology targeting {}",
-            output_fmt, input.ontology_uri, target_lang
-        ),
-        result: Some(GgenConstructResult {
-            artifact_path,
-            artifact_hash,
-            receipt_path,
-            proof_gates: ProofGateResult {
-                compiler: "pass".to_string(),
-                lint: "pass".to_string(),
-                tests: "pass".to_string(),
-                slo: "pass".to_string(),
-            },
-            generation_time_ms: duration_ms,
-            error_details: None,
-        }),
+        message: "ggen.construct is not yet wired to the μ₁–μ₅ pipeline through \
+                  this A2A adapter. No artifact was generated and no receipt was \
+                  emitted. Use the real construction path: run `ggen sync` (the \
+                  μ₁–μ₅ actuator) to construct artifacts from your ontology."
+            .to_string(),
+        result: None,
     }
 }
 
@@ -310,8 +289,13 @@ mod tests {
         assert!(required.as_array().unwrap().contains(&"ontology_uri".into()));
     }
 
+    /// Oracle Gap closure: with valid input, the adapter must FAIL LOUD rather
+    /// than fake success. The μ₁–μ₅ pipeline is not wired through this adapter,
+    /// so it must not claim "success", must not emit a result payload (no
+    /// fabricated receipt path, no synthetic artifact hash, no all-pass proof
+    /// gates), and must direct the caller to the real construction path.
     #[test]
-    fn test_execute_valid_input() {
+    fn test_execute_valid_input_fails_loud_not_fake_success() {
         let input = GgenConstructInput {
             task_id: "123e4567-e89b-12d3-a456-426614174000".to_string(),
             jtbd: "Generate Rust service".to_string(),
@@ -323,14 +307,34 @@ mod tests {
 
         let output = execute(input);
 
-        assert_eq!(output.status, "success");
-        assert!(output.result.is_some());
+        // Must NOT claim success.
+        assert_ne!(output.status, "success");
+        assert_eq!(output.status, "unimplemented");
 
-        let result = output.result.unwrap();
-        assert!(!result.artifact_path.is_empty());
-        assert!(result.artifact_hash.starts_with("blake3:"));
-        assert!(!result.receipt_path.is_empty());
-        assert_eq!(result.proof_gates.compiler, "pass");
+        // Must NOT emit a result payload (no fabricated receipt/hash/gates).
+        assert!(
+            output.result.is_none(),
+            "honest refusal must not carry a result payload"
+        );
+
+        // Must direct the caller to the real construction path.
+        assert!(
+            output.message.contains("ggen sync"),
+            "message must point to the real μ₁–μ₅ actuator: {}",
+            output.message
+        );
+
+        // The serialized output must not contain any fabricated receipt path
+        // or synthetic artifact hash.
+        let json = serde_json::to_string(&output).expect("serialization should succeed");
+        assert!(
+            !json.contains("rcpt-simulated"),
+            "must not reference a fabricated receipt path"
+        );
+        assert!(
+            !json.contains("blake3:"),
+            "must not report a synthetic artifact hash"
+        );
     }
 
     #[test]
@@ -369,8 +373,10 @@ mod tests {
         assert!(output.message.contains("ontology_uri"));
     }
 
+    /// Even with empty (defaultable) language/format, the adapter must still
+    /// refuse honestly — defaults do not unlock a fake-success path.
     #[test]
-    fn test_execute_defaults_language_and_format() {
+    fn test_execute_defaults_still_fails_loud() {
         let input = GgenConstructInput {
             task_id: "123e4567-e89b-12d3-a456-426614174000".to_string(),
             jtbd: "Generate artifact".to_string(),
@@ -382,10 +388,10 @@ mod tests {
 
         let output = execute(input);
 
-        assert_eq!(output.status, "success");
-        let result = output.result.unwrap();
-        // Should default to rust and source
-        assert!(result.artifact_path.contains("rust"));
+        assert_ne!(output.status, "success");
+        assert_eq!(output.status, "unimplemented");
+        assert!(output.result.is_none());
+        assert!(output.message.contains("ggen sync"));
     }
 
     #[test]

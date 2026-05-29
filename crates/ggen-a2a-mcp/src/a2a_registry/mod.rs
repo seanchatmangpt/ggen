@@ -7,7 +7,7 @@
 //! # Quick start
 //!
 //! ```no_run
-//! use crate::a2a_registry::{AgentRegistry, MemoryStore, AgentEntry, HealthStatus};
+//! use ggen_a2a_mcp::a2a_registry::{AgentRegistry, MemoryStore, AgentEntry, HealthStatus};
 //! use std::sync::Arc;
 //!
 //! #[tokio::main]
