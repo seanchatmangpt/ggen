@@ -1,0 +1,34 @@
+# SYNC-ACTUATOR-1 seed facts — the public-ontology-aligned O*.
+#
+# Footing: RDF/RDFS (graph facts) + PROV-O (activity/entity/generation) +
+# DCTERMS (description). The actuation axiom is modelled directly:
+#   ggen sync = prov:Activity with role "actuator"
+#   ggen lsp  = prov:Entity   with role "sensing"
+#   the emitted Gall test = prov:Entity prov:wasGeneratedBy ggen sync.
+
+@prefix gall: <https://ggen.io/gall/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ── Roles (the actuation axiom) ─────────────────────────────────────────────
+gall:ggenSync a prov:Activity ;
+    rdfs:label "ggen sync" ;
+    gall:role "actuator" ;
+    dcterms:description "The only actuation: runs μ₁–μ₅, gates, emits artifacts + receipt." .
+
+gall:ggenLsp a prov:Entity ;
+    rdfs:label "ggen lsp" ;
+    gall:role "sensing" ;
+    dcterms:description "Author-time route surface; senses + routes, never actuates." .
+
+# ── The Gall foundation test record (one pier) ──────────────────────────────
+gall:lspMcpA2aPier a gall:GallFoundationTest ;
+    rdfs:label "lsp_mcp_a2a_foundation_uses_one_route_engine" ;
+    gall:fixture "playground/proof/broken-construct.rq" ;
+    gall:diagnostic "E0011" ;
+    gall:routeId "template.values-inline" ;
+    gall:surfaces "LSP, MCP, A2A" ;
+    dcterms:description "One route engine across three transports; ggen sync is the only actuation." ;
+    prov:wasGeneratedBy gall:ggenSync .

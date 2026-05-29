@@ -1,0 +1,46 @@
+# SYNC-ACTUATOR-1 — the smallest capable O* that lets `ggen sync` actuate once.
+#
+# Proves A = μ(O*) with μ ≜ ggen sync: a public-ontology-aligned boundary
+# (ontology + CONSTRUCT inference + SELECT query + Tera template) from which
+# ggen sync manufactures ONE Gall foundation test artifact and ONE receipt.
+#
+# Run from this directory:  ggen sync --manifest ggen.toml
+
+[project]
+name = "gall-sync-foundation"
+version = "0.1.0"
+description = "SYNC-ACTUATOR-1: smallest capable O* for ggen sync to actuate one Gall test + receipt"
+
+[ontology]
+# Public-ontology footing: RDF/RDFS + PROV-O + DCTERMS (no private meaning).
+source = "ontology/command-foundation.ttl"
+
+[generation]
+output_dir = "."
+
+# Inference rules are required for the DMAIC Measure quality gate (the actuator
+# refuses to manufacture without a capable measurement system). Standard
+# normalization keeps every triple, so the SELECT below sees the seed facts.
+[inference]
+rules = [
+    { name = "normalize", construct = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }" }
+]
+
+# One generation rule → one emitted artifact (SYNC-ACTUATOR-1 manufactures exactly one).
+[[generation.rules]]
+name = "gall-command-foundation"
+query = { inline = """
+PREFIX gall: <https://ggen.io/gall/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?test_name ?fixture ?diagnostic ?route_id ?surfaces WHERE {
+  ?pier a gall:GallFoundationTest ;
+        rdfs:label ?test_name ;
+        gall:fixture ?fixture ;
+        gall:diagnostic ?diagnostic ;
+        gall:routeId ?route_id ;
+        gall:surfaces ?surfaces .
+}
+""" }
+template = { file = "templates/gall_command_foundation.rs.tera" }
+output_file = "generated/gall_command_foundation.rs"
+mode = "Overwrite"
