@@ -507,15 +507,17 @@ impl RdfRegistry {
     pub async fn list_packages(&self, offset: usize, limit: usize) -> Result<Vec<Package>> {
         let query = format!(
             r"
-            PREFIX mp: <https://ggen.io/marketplace/>
             SELECT ?packageId WHERE {{
-                ?package a mp:Package .
-                ?package mp:id ?packageId .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
+                ?package <{}> ?packageId .
             }}
             OFFSET {}
             LIMIT {}
             ",
-            offset, limit
+            GGEN_NS,
+            crate::marketplace::ontology::Properties::package_id(),
+            offset,
+            limit
         );
 
         let results = self.query_sparql(&query)?;
@@ -859,7 +861,7 @@ mod tests {
 
         // List packages with pagination
         let packages = registry.list_packages(0, 3).await.unwrap();
-        assert!(packages.len() <= 3);
+        assert_eq!(packages.len(), 3);
     }
 
     #[tokio::test]
@@ -899,5 +901,57 @@ mod tests {
         // Count packages
         let count = registry.count_packages().await.unwrap();
         assert_eq!(count, 3);
+    }
+
+    #[tokio::test]
+    async fn test_list_packages_returns_inserted_packages() {
+        // Real RdfRegistry over a real oxigraph store, no mocks.
+        let registry = RdfRegistry::new();
+
+        // Arrange: insert 5 real packages via the real create_package path.
+        for i in 1..=5 {
+            let package_id = PackageId::new(format!("inserted-pkg-{}", i)).unwrap();
+            let metadata = PackageMetadata {
+                id: package_id,
+                name: format!("Inserted Package {}", i),
+                description: "A package that must be listable after insertion".to_string(),
+                authors: vec!["Test Author".to_string()],
+                license: "MIT".to_string(),
+                repository: None,
+                homepage: None,
+                keywords: vec![],
+                categories: vec![],
+                downloads: 0,
+                quality_score: None,
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                registry_type: crate::marketplace::trust::RegistryType::default(),
+            };
+
+            let package = Package {
+                metadata,
+                latest_version: PackageVersion::new("1.0.0").unwrap(),
+                versions: vec![PackageVersion::new("1.0.0").unwrap()],
+                releases: IndexMap::new(),
+            };
+
+            registry
+                .create_package(package)
+                .await
+                .expect("create_package should persist the package");
+        }
+
+        // Act + Assert: pagination must return the bounded page (regression
+        // guard: the buggy query used mp:id and silently returned 0).
+        let page = registry.list_packages(0, 3).await.unwrap();
+        assert_eq!(page.len(), 3);
+
+        // A wide limit must return every inserted package.
+        let all = registry.list_packages(0, 100).await.unwrap();
+        assert_eq!(all.len(), 5);
+
+        // Corroborate via an independent query surface (count_packages).
+        let count = registry.count_packages().await.unwrap();
+        assert_eq!(count, 5);
     }
 }
