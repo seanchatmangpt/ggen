@@ -760,3 +760,12 @@ conffiles = []
 package = "ggen-amd64"
 [package.metadata.deb.lintian-overrides]
 unused-shlibs = []
+
+# NOTE on the clap-noun-verb kebab-case fix (--profile-id with --profile_id alias):
+# the fix is committed in ~/clap-noun-verb (313ba73). It was NOT integrated here via
+# a local [patch.crates-io] because the local checkout (26.5.28, branch
+# minimalist-refactor-final) is a divergent WIP that also changed output to
+# pretty-printed JSON, breaking 6 graph + 1 init test (compact-JSON assertions) —
+# a wide blast radius unsuitable for the release foundation. Land kebab via a
+# MINIMAL published clap-noun-verb release on top of the stable 26.5.x line, then
+# bump the dep. ggen works today on published 26.5.19 (snake flags).

@@ -69,24 +69,40 @@ const SCAFFOLD_DIRS: &[&str] = &["schema", "templates", "scripts"];
 /// init emits one JSON object on stdout, but the process may also print
 /// telemetry/log lines around it (e.g. "OpenTelemetry initialized ..." before,
 /// and a span-export ERROR line — which itself contains `{ ... }` — after). So we
-/// cannot naively slice first-`{` .. last-`}`. Instead we scan each line and
-/// return the single line that parses as the InitOutput JSON object (it is emitted
-/// as one line by `serde_json::to_string`).
+/// cannot naively slice first-`{` .. last-`}`. We also must tolerate the JSON being
+/// either compact (one line, `serde_json::to_string`) OR pretty-printed across
+/// several lines (`to_string_pretty`) depending on the clap-noun-verb version.
+///
+/// Strategy: for each line that opens an object (`{`), accumulate following lines
+/// until the brace depth returns to zero (a complete object — compact or pretty),
+/// parse it, and return the first such object carrying a top-level `status` field.
 fn stdout_json(bytes: &[u8]) -> Value {
     let s = String::from_utf8_lossy(bytes);
-    for line in s.lines() {
-        let trimmed = line.trim();
-        if !trimmed.starts_with('{') {
+    let lines: Vec<&str> = s.lines().collect();
+    for start in 0..lines.len() {
+        if !lines[start].trim_start().starts_with('{') {
             continue;
         }
-        if let Ok(v) = serde_json::from_str::<Value>(trimmed) {
+        let mut depth: i32 = 0;
+        let mut buf = String::new();
+        for line in &lines[start..] {
+            buf.push_str(line);
+            buf.push('\n');
+            // init's JSON values contain no braces, so a plain count is sound here.
+            depth += line.matches('{').count() as i32;
+            depth -= line.matches('}').count() as i32;
+            if depth <= 0 {
+                break;
+            }
+        }
+        if let Ok(v) = serde_json::from_str::<Value>(buf.trim()) {
             // The InitOutput object always carries a "status" field.
             if v.get("status").is_some() {
                 return v;
             }
         }
     }
-    panic!("init stdout had no JSON object line carrying a \"status\" field; got: {s}")
+    panic!("init stdout had no JSON object carrying a \"status\" field; got: {s}")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
