@@ -48,13 +48,22 @@ The v26.5.28 release receipt (`.ggen/receipts/<ts>.json`, Ed25519-signed) is wri
 
 These are tracked, not hidden — the boundary cannot rest until each is closed:
 
-1. **Archive-gate the 5 nouns** — add `experimental` feature + cfg the `pub mod` lines.
-2. **`pack add` lockfile fix** — wire `install_pack` to `PackInstaller::update_lockfile`
-   so `.ggen/packs.lock` is actually written (PROOF-PENDING → PROVEN).
-3. **Verifying build** — run the closure-lane edits (ggen.construct fail-loud; version
-   strings 26.5.21→26.5.28 in `ggen-lsp-a2a`/`ggen-lsp-mcp`) through one green build.
+1. ~~**Archive-gate the 5 nouns**~~ — **DONE.** `experimental = []` added to
+   `crates/ggen-cli/Cargo.toml` and `#[cfg(feature = "experimental")]` gates the
+   `a2a`/`framework`/`mcp`/`sigma`/`wizard` `pub mod` lines; the 5 nouns are off the
+   default surface, code preserved (non-deletion doctrine).
+2. ~~**`pack add` lockfile fix**~~ — **DONE.** `pack add` now writes a non-empty
+   `.ggen/packs.lock` entry with a `sha256-…` `integrity` digest (CRACK #57). Proven by
+   `tests/proof_pack_test.rs` (10/10, `EXPECT_LOCKFILE = true`): PROOF-PENDING → PROVEN.
+3. ~~**Verifying build**~~ — **DONE.** The closure-lane edits (ggen.construct fail-loud;
+   version strings 26.5.21→26.5.28 in `ggen-lsp-a2a`/`ggen-lsp-mcp`) landed through a
+   green build.
 4. **DOCS-REST-1** — collapse the two legacy Diátaxis trees into this one canonical
    surface; runnable examples + playground (gated on proven commands).
+
+With #1–#3 closed, the v26.5.28 release receipt now binds the **full O\* closure**
+(`O-STAR-RECEIPT-CLOSURE-1`): the archive gate, the pack-add lockfile contract, and the
+verifying build are all inside the signed receipt rather than tracked as open drift.
 
 ## See also
 

@@ -22,13 +22,13 @@
 
 | Noun | Boundary decision | Proof status | Backing evidence |
 |------|-------------------|--------------|------------------|
-| `init` | KEEP / PROVE | TEST-AUTHORED | core scaffolding; e2e coverage in `crates/ggen-cli/tests/` |
-| `sync` | KEEP / PROVE | TEST-AUTHORED | the μ₁–μ₅ value path; sync sabotage tests (lockfile/receipt invariants) |
-| `graph` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_graph_test.rs` — 11 tests over real Oxigraph: `load`/`query`/`export`/`visualize`/`validate`, each asserting observable state (triple counts, written artifacts, real IRIs) |
-| `pack` | KEEP / PROVE | **PROOF-PENDING** | `tests/proof_pack_test.rs` exists; `pack add` has a lockfile contract-drift gap (`install_pack` does not write `.ggen/packs.lock`) — must wire to `PackInstaller::update_lockfile` before promotion |
-| `policy` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_policy_doctor_utils_test.rs` |
-| `doctor` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_policy_doctor_utils_test.rs` |
-| `utils` | KEEP / PROVE | TEST-AUTHORED | `tests/proof_policy_doctor_utils_test.rs` |
+| `init` | KEEP / PROVE | **PROVEN** | `tests/proof_init_test.rs` — 4 tests; a behavioral GALL boundary-preparation pier: `init` scaffolds a real durable O* on disk, refuses to clobber an existing boundary without `--force`, `--force` re-scaffolds but preserves user files, and into-nonexistent-subdir creates the boundary there |
+| `sync` | KEEP / PROVE | **PROVEN** | `tests/gall_sync_actuation.rs` — 5 tests; the GALL actuation triad (μ₁–μ₅ value path): refuses an incapable boundary (no phantom receipt/artifact), dry-run on a capable boundary previews without actuating, and a real sync on a capable boundary writes artifact + signed receipt |
+| `graph` | KEEP / PROVE | **PROVEN** | `tests/proof_graph_test.rs` — 10 tests over real Oxigraph: `load`/`query`/`export`/`visualize`/`validate`, each asserting observable state (triple counts, written artifacts, real IRIs) |
+| `pack` | KEEP / PROVE | **PROVEN** | `tests/proof_pack_test.rs` — 10 tests; `pack add` now writes a non-empty `.ggen/packs.lock` entry (lockfile invariant 4.1) with a `sha256-…` `integrity` digest (CRACK #57 fixed; `EXPECT_LOCKFILE = true`) and emits a signed receipt binding `pack:<id>@<version>:<digest>` in `input_hashes` |
+| `policy` | KEEP / PROVE | **PROVEN** | `tests/proof_policy_doctor_utils_test.rs` — 7 policy tests: `policy list`/`show` resolve real profiles (unknown fails closed), `policy validate`/`check` run real enforcement against a real lockfile and fail-closed without one |
+| `doctor` | KEEP / PROVE | **PROVEN** | `tests/proof_policy_doctor_utils_test.rs` — 2 doctor tests: `doctor check` passes with `ggen.toml` present, reports it missing otherwise |
+| `utils` | KEEP / PROVE | **PROVEN** | `tests/proof_policy_doctor_utils_test.rs` — 3 utils tests: `utils env get`/`list`/`set` read/collect/parse the real environment |
 | `lsp` | KEEP (feature-gated) | **PROVEN** (GATED) | `#[cfg(feature = "lsp")]`; binary built `--features lsp`; the noun + its MCP/A2A planes proven on the playground project — same E0011 + route across all three transports. See [delivery-plane-proof.md](delivery-plane-proof.md). Plus the `ggen-lsp` crate suite. |
 | `a2a` | **ARCHIVE** | ARCHIVED | ambiguous capability; gated behind `experimental` (default-off). A2A delivered as the `ggen-lsp-a2a` bridge library, not a CLI noun |
 | `framework` | **ARCHIVE** | ARCHIVED | framework-bridge (LangChain etc.) not provable as finished in v26.5.28 |
