@@ -448,10 +448,18 @@ fn run_manifest_pipeline(
     let generation_rules_executed = sync_result.generation_rules_executed;
     let inference_rules_executed = sync_result.inference_rules_executed;
 
-    let receipt_file_path =
-        emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
-        })?;
+    // A dry-run is a pure PREVIEW (sensing), not an actuation: it writes no
+    // artifacts, so it must write no receipt. Emitting a receipt for a preview
+    // would record a consequence that never happened (contract drift).
+    let receipt_file_path = if dry_run.unwrap_or(false) {
+        None
+    } else {
+        Some(
+            emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
+            })?,
+        )
+    };
 
     Ok(SyncOutput {
         status: sync_result.status,
@@ -464,7 +472,7 @@ fn run_manifest_pipeline(
         error: sync_result.error,
         recovery: sync_result.recovery,
         andon_signal: sync_result.andon_signal,
-        receipt_path: Some(receipt_file_path),
+        receipt_path: receipt_file_path,
         gates: Vec::new(),
     })
 }
@@ -663,11 +671,17 @@ fn run_low_level_pipeline(
     let synced_file_paths: Vec<String> = files.iter().map(|f| f.path.clone()).collect();
     let installed_packs = read_installed_packs(".ggen/packs.lock");
 
-    log::info!("[μ₅/5] Receipt: Generating verification...");
-    let receipt_file_path =
-        emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
-        })?;
+    // A dry-run is a pure PREVIEW (sensing): no artifacts written ⇒ no receipt.
+    let receipt_file_path = if dry_run {
+        None
+    } else {
+        log::info!("[μ₅/5] Receipt: Generating verification...");
+        Some(
+            emit_sync_receipt(&synced_file_paths, &installed_packs).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Audit failure: {}", e))
+            })?,
+        )
+    };
 
     let violation_msg = if result.soundness_violations.is_empty() {
         None
@@ -695,7 +709,7 @@ fn run_low_level_pipeline(
         error: violation_msg,
         recovery: None,
         andon_signal: None,
-        receipt_path: Some(receipt_file_path),
+        receipt_path: receipt_file_path,
         gates: Vec::new(),
     })
 }

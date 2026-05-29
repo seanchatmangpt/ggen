@@ -4,21 +4,21 @@
 //! diagnostic + route_id and (at most) leave OCEL *evidence* — never artifacts,
 //! never an actuation receipt (see crates/ggen-lsp-a2a/tests, `from_a2a_*_pure`).
 //!
-//! This file proves the ACTUATOR side of the same axiom:
+//! This file proves the ACTUATOR side via the complete actuation triad:
 //!
-//!   Sense  (lsp/mcp/a2a) → route + OCEL evidence    — no artifact, no receipt
-//!   Actuate (ggen sync)  → gate → artifact-or-honest-refusal → receipt
+//!   incapable sync       → refused; no artifact, no receipt
+//!   capable dry-run sync → preview only; no artifact, no receipt
+//!   capable real sync    → artifact + receipt
 //!
-//! Specifically: `ggen sync` gates BEFORE actuating, and a refused sync produces
-//! NO phantom receipt and NO phantom artifact. A command that reported success
-//! (or emitted a receipt) for work that did not happen would be the pre-Chatman
-//! failure mode — motion counted as consequence. These tests fail loudly if the
-//! actuator ever fakes success.
+//! Sense (lsp/mcp/a2a) → route + OCEL evidence, no artifact, no receipt.
+//! Actuate (ggen sync) → gate → artifact-or-honest-refusal → receipt.
 //!
 //! `sync` is a KEPT noun present in the default binary, so the real `ggen` binary
-//! is exercised here via assert_cmd (no feature gate needed).
+//! is exercised here via assert_cmd. The capable boundary is the SYNC-ACTUATOR-1
+//! project (playground/sync-foundation), copied hermetically into a TempDir.
 
 use assert_cmd::Command;
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 /// A schema-shaped but INCAPABLE boundary: parseable manifest whose measurement
@@ -38,7 +38,7 @@ rules = []
 
 const MINIMAL_ONTOLOGY: &str = "@prefix : <https://ex.org/> .\n:A a :Thing .\n";
 
-/// Stage an incapable sync boundary in a fresh TempDir and return it.
+/// Stage an incapable sync boundary in a fresh TempDir.
 fn incapable_boundary() -> TempDir {
     let dir = TempDir::new().expect("tempdir");
     std::fs::write(dir.path().join("ggen.toml"), INCAPABLE_MANIFEST).expect("write manifest");
@@ -46,10 +46,33 @@ fn incapable_boundary() -> TempDir {
     dir
 }
 
+/// Stage the CAPABLE SYNC-ACTUATOR-1 boundary (playground/sync-foundation) in a
+/// fresh TempDir — a real public-ontology-aligned O* from which sync can actuate.
+fn capable_boundary() -> TempDir {
+    let src = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../playground/sync-foundation");
+    let dir = TempDir::new().expect("tempdir");
+    std::fs::copy(src.join("ggen.toml"), dir.path().join("ggen.toml")).expect("copy manifest");
+    copy_dir(&src.join("ontology"), &dir.path().join("ontology"));
+    copy_dir(&src.join("templates"), &dir.path().join("templates"));
+    dir
+}
+
+fn copy_dir(src: &Path, dst: &Path) {
+    std::fs::create_dir_all(dst).expect("mkdir");
+    for entry in std::fs::read_dir(src).expect("read_dir").filter_map(Result::ok) {
+        let p = entry.path();
+        let target = dst.join(entry.file_name());
+        if p.is_dir() {
+            copy_dir(&p, &target);
+        } else {
+            std::fs::copy(&p, &target).expect("copy file");
+        }
+    }
+}
+
 /// Count actuation receipts under a project root (the only counted-consequence record).
-fn receipt_count(root: &std::path::Path) -> usize {
-    let receipts = root.join(".ggen").join("receipts");
-    std::fs::read_dir(&receipts)
+fn receipt_count(root: &Path) -> usize {
+    std::fs::read_dir(root.join(".ggen").join("receipts"))
         .map(|rd| {
             rd.filter_map(Result::ok)
                 .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("json"))
@@ -58,8 +81,13 @@ fn receipt_count(root: &std::path::Path) -> usize {
         .unwrap_or(0)
 }
 
+/// The single generated artifact the SYNC-ACTUATOR-1 boundary produces.
+fn artifact_path(root: &Path) -> PathBuf {
+    root.join("generated").join("gall_command_foundation.rs")
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Pier: ggen sync gates BEFORE actuating, and refuses an incapable boundary.
+// Triad 1: incapable sync → refused; no artifact, no receipt.
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
@@ -70,22 +98,14 @@ fn gall_sync_gates_before_actuating_and_refuses_incapable_boundary() {
         .current_dir(dir.path())
         .args(["sync", "--manifest", "ggen.toml", "--dry_run", "true"])
         .assert()
-        .failure(); // non-zero exit — the actuator refuses; it does not fake success.
+        .failure(); // the actuator refuses; it does not fake success.
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Pier: a refused actuation leaves NO phantom receipt and NO phantom artifact.
-// (Contract-drift guard — the actuator never records consequence that did not happen.)
-// ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
 fn gall_refused_sync_emits_no_phantom_receipt_or_artifact() {
     let dir = incapable_boundary();
-
-    // Snapshot the boundary BEFORE actuation: only the two input files.
-    let before: Vec<_> = walk(dir.path());
+    let before = non_ggen_files(dir.path());
     assert_eq!(before.len(), 2, "boundary starts as {{ggen.toml, o.ttl}}");
-    assert_eq!(receipt_count(dir.path()), 0, "no receipt before sync");
 
     let _ = Command::cargo_bin("ggen")
         .expect("ggen binary")
@@ -94,55 +114,91 @@ fn gall_refused_sync_emits_no_phantom_receipt_or_artifact() {
         .assert()
         .failure();
 
-    // After a REFUSED actuation: no actuation receipt was written.
+    assert_eq!(receipt_count(dir.path()), 0, "a refused sync emits no phantom receipt");
     assert_eq!(
-        receipt_count(dir.path()),
-        0,
-        "a refused sync must not emit a phantom actuation receipt"
-    );
-    // And no generated artifact appeared beyond the inputs (OCEL evidence under
-    // .ggen/ is permitted — that is sensing's trace, not an actuation artifact).
-    let after: Vec<_> = walk(dir.path())
-        .into_iter()
-        .filter(|p| !p.contains("/.ggen/"))
-        .collect();
-    assert_eq!(
-        after, before,
-        "a refused sync must not write artifacts outside .ggen evidence"
+        non_ggen_files(dir.path()),
+        before,
+        "a refused sync writes no artifacts (OCEL evidence under .ggen is permitted)"
     );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pier: dry-run is non-actuating — even a (would-be) capable run writes nothing
-// in preview mode, so previewing is sensing, not actuation.
+// Triad 2: capable dry-run → preview only; no artifact, no receipt.
+// (Uses a CAPABLE boundary that would actuate if dry-run were false — so this
+// genuinely proves preview-without-actuation, not just refusal.)
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
-fn gall_sync_dry_run_writes_no_receipt() {
-    let dir = incapable_boundary();
-    let _ = Command::cargo_bin("ggen")
+fn gall_capable_sync_dry_run_previews_without_receipt_or_artifact() {
+    let dir = capable_boundary();
+    Command::cargo_bin("ggen")
         .expect("ggen binary")
         .current_dir(dir.path())
         .args(["sync", "--manifest", "ggen.toml", "--dry_run", "true"])
-        .assert();
+        .assert()
+        .success(); // a capable boundary previews cleanly.
+
+    assert!(
+        !artifact_path(dir.path()).exists(),
+        "dry-run is a pure preview — it writes no artifact"
+    );
     assert_eq!(
         receipt_count(dir.path()),
         0,
-        "dry-run preview is non-actuating — no receipt"
+        "dry-run is non-actuating — it emits no receipt"
     );
 }
 
-/// Recursively list relative file paths under `root` (sorted, stable).
-fn walk(root: &std::path::Path) -> Vec<String> {
+// ─────────────────────────────────────────────────────────────────────────────
+// Triad 3: capable real sync → artifact + receipt (the actuator moves load).
+// ─────────────────────────────────────────────────────────────────────────────
+
+#[test]
+fn gall_capable_sync_actuates_and_emits_receipt_when_not_dry_run() {
+    let dir = capable_boundary();
+    Command::cargo_bin("ggen")
+        .expect("ggen binary")
+        .current_dir(dir.path())
+        .args(["sync", "--manifest", "ggen.toml"])
+        .assert()
+        .success();
+
+    // The artifact was materialized.
+    let artifact = artifact_path(dir.path());
+    assert!(artifact.exists(), "capable sync materializes the artifact");
+    let body = std::fs::read_to_string(&artifact).expect("read artifact");
+    assert!(
+        body.contains("template.values-inline") && body.contains("E0011"),
+        "the artifact carries the facts manufactured from the ontology"
+    );
+
+    // Exactly one actuation left a receipt, and it is genuinely signed.
+    assert!(receipt_count(dir.path()) >= 1, "capable sync emits a receipt");
+    let latest =
+        std::fs::read_to_string(dir.path().join(".ggen/receipts/latest.json")).expect("receipt");
+    let receipt: serde_json::Value = serde_json::from_str(&latest).expect("receipt is JSON");
+    let sig = receipt["signature"].as_str().unwrap_or("");
+    assert!(!sig.is_empty(), "the actuation receipt carries a non-empty signature");
+    assert!(
+        !receipt["output_hashes"].as_array().map(Vec::is_empty).unwrap_or(true),
+        "the receipt records the output it produced"
+    );
+}
+
+/// Relative file paths under `root`, EXCLUDING anything inside a `.ggen` directory
+/// (sensing/evidence + actuation bookkeeping). Component-based for portability.
+fn non_ggen_files(root: &Path) -> Vec<PathBuf> {
     let mut out = Vec::new();
-    fn rec(dir: &std::path::Path, base: &std::path::Path, out: &mut Vec<String>) {
+    fn rec(dir: &Path, base: &Path, out: &mut Vec<PathBuf>) {
         if let Ok(rd) = std::fs::read_dir(dir) {
             for e in rd.filter_map(Result::ok) {
                 let p = e.path();
                 if p.is_dir() {
                     rec(&p, base, out);
                 } else if let Ok(rel) = p.strip_prefix(base) {
-                    out.push(format!("/{}", rel.display()));
+                    if !rel.components().any(|c| c.as_os_str() == ".ggen") {
+                        out.push(rel.to_path_buf());
+                    }
                 }
             }
         }
