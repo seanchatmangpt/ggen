@@ -226,4 +226,29 @@ analyzer diagnostics), not yet from accumulated real-world usage.
 
 ---
 
+## 10. The delivery plane — one route contract across LSP / MCP / A2A (2026-05-28)
+
+Eight checkpoints proved that *every agent, regardless of transport, receives the same
+admissible route, proves the same episode, and replays the same consequence* — channel
+differences are transport only, never logic. All proven by real execution.
+
+| Checkpoint | Earned claim |
+|---|---|
+| **TRIAD-CONTRACT-1** | One `RouteEnvelope` (composing `RoutePlan` + `CompactTraceView`, one canonical `case_id`) is byte-equivalent across headless, LSP `code_action` `data`, and the MCP tool; one shared `RouteRefusal`. |
+| **MCP-HARDEN-1** | `ggen-lsp-mcp` is root-aware, schemars-typed, input-bounded (1 MiB), and refuses structurally — never panics. |
+| **MCP-REPLAY-1** | MCP exposes `replay_case` + `metrics` (byte-equal to the direct `ggen-lsp` calls) — route + proof + replay, not vending. |
+| **A2A-BRIDGE-1** | New leaf crate `ggen-lsp-a2a` exposes the tools as an A2A `Adapter`; A2A result == MCP result; `cargo tree` confirms `ggen-a2a-mcp ↛ ggen-lsp` (cycle-free). |
+| **SESSION-ATTRIBUTION-1** | Every capture carries `agent_id` + `transport` (`lsp\|mcp\|a2a\|headless`) + `session_id`; episodes stay separable and replay with provenance. |
+| **REMOTE-PACK-1** | An advertised `PackManifest` (routes + hashed policies + law surfaces, bound to `pack_hash`, version/canon staleness-guarded, no path coupling) makes the pack a movable route-law part; route responses bind the served `pack_hash`. |
+| **TRIAD-STRESS-1** | Under concurrent LSP+MCP+A2A load the OCEL log stays uncorrupted (every line parses, no events lost), routes do not drift, and cases replay. |
+| **MARKETPLACE-PACK-1** | `ggen lsp init` installs MCP + editor LSP + hooks in one command; `ggen lsp serve --protocol lsp\|mcp`; install → route → apply → receipt works end-to-end. |
+
+**Earned:** *every agent — editor (LSP), non-editor (MCP), or remote (A2A) — receives the
+same admissible route, proves the same episode, and replays the same consequence, under
+concurrent pressure, installed as a movable pack.* The honest ceiling is unchanged: the
+apparatus operates on real cycles and returns earned/refused verdicts; it is **not**
+"self-improving" (the `improving` verdict still awaits accumulated real-world usage).
+
+---
+
 *Grounded in real code and execution; no fabricated traces. Papers fused: OCPQ (object-centric process querying & constraints), OCED+SPARQL (object-centric analysis of XES via SPARQL), Hierarchical Decomposition of Separable Workflow-Nets (POWL soundness + auto-concurrency).*
