@@ -27,22 +27,31 @@
 // Shared helpers for command modules
 pub mod helpers;
 
-// Core commands: ggen sync & ggen init & ggen wizard
+// Core commands: ggen sync & ggen init
 pub mod git_hooks;
 pub mod init;
 pub mod sync;
+// ARCHIVED (v26.5.28): ambiguous noun, gated behind default-off `experimental`.
+#[cfg(feature = "experimental")]
 pub mod wizard;
 
 // Command modules - clap-noun-verb auto-discovery
+// ARCHIVED (v26.5.28): a2a/framework/mcp/sigma not provable as finished; gated
+// behind default-off `experimental` so they leave the default CLI surface while
+// the code is preserved (non-deletion doctrine). See cmds/mod.rs feature note.
+#[cfg(feature = "experimental")]
 pub mod a2a;
 pub mod doctor;
+#[cfg(feature = "experimental")]
 pub mod framework; // Framework bridge commands (LangChain, etc.)
 pub mod graph;
-pub mod mcp;
+#[cfg(feature = "experimental")]
+pub mod mcp; // MCP delivered via `ggen lsp serve --protocol mcp` (lsp feature) + ggen-lsp-mcp binary
 #[cfg(feature = "lsp")]
 pub mod lsp; // ggen lsp noun (start/check/init/serve/mine/metrics/replay/field-status/emit_pack/verify_pack) — opt-in: --features lsp
 pub mod pack; // Singular alias for `packs` noun (golden-path: ggen pack add <name>)
 pub mod policy;
+#[cfg(feature = "experimental")]
 pub mod sigma;
 pub mod utils;
 

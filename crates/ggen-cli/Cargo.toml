@@ -52,11 +52,11 @@ notify-debouncer-full = "0.3"
 tar = "0.4"
 flate2 = "1.0"
 md5 = "0.8"
-ggen-a2a-mcp = { version = "26.5.21", path = "../ggen-a2a-mcp" }
+ggen-a2a-mcp = { version = "26.5.28", path = "../ggen-a2a-mcp" }
 # Delivery plane (LSP verbs + MCP route server) — opt-in via the `lsp` feature so
 # the core `ggen` binary stays lean (no qlue-ls / rmcp / oxigraph-via-lsp by default).
-ggen-lsp = { version = "26.5.21", path = "../ggen-lsp", optional = true }
-ggen-lsp-mcp = { version = "26.5.21", path = "../ggen-lsp-mcp", optional = true }
+ggen-lsp = { version = "26.5.28", path = "../ggen-lsp", optional = true }
+ggen-lsp-mcp = { version = "26.5.28", path = "../ggen-lsp-mcp", optional = true }
 blake3.workspace = true
 
 [features]
@@ -67,6 +67,12 @@ integration = []
 # Umbrella feature for the LSP/MCP delivery plane (the `ggen lsp` noun + all its
 # verbs, incl. `serve --protocol mcp`). Off by default; enable with --features lsp.
 lsp = ["dep:ggen-lsp", "dep:ggen-lsp-mcp"]
+# Archive gate for ambiguous nouns not provable as finished in v26.5.28:
+# a2a, framework, mcp, sigma, wizard. Off by default — these nouns leave the
+# default CLI surface (clap-noun-verb discovers nouns from compiled `pub mod`s,
+# so a cfg-gated module is genuinely absent), while the code is preserved as
+# fossil evidence (non-deletion doctrine). See docs/reference/release/v26-5-28-boundary.md.
+experimental = []
 default = []
 
 [dev-dependencies]
