@@ -5,6 +5,7 @@
 //! SPARQL discovery. Event types reuse ggen-graph's OCEL model — no new log.
 
 pub mod events;
+pub mod field;
 pub mod history;
 pub mod log;
 pub mod metrics;
@@ -13,6 +14,7 @@ pub mod receipt;
 pub mod replay;
 
 pub use events::Attribution;
+pub use field::{field_status, FieldReadiness, FieldStatus};
 pub use history::{
     default_history_path, PromotionHistory, RoutePromotionRecord, RouteStatus,
 };

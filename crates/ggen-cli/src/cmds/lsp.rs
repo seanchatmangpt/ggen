@@ -226,6 +226,22 @@ fn metrics(root: Option<String>) -> Result<serde_json::Value> {
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
+/// Read-only field cockpit: what the accumulated event log proves (and what it does not).
+///
+/// Folds the OCEL log + promotion history + the IMPROVE-1 verdict into one legible
+/// view — episode counts, per-transport/agent/session breakdown, distinct variants,
+/// conformance rate, mining cycles, and the EARNED-or-REFUSED verdict. Insufficient
+/// evidence shows as `readiness: no_evidence | accumulating`; never fabricates.
+///
+///   ggen lsp field-status            Cockpit for the current project (.).
+///   ggen lsp field-status --root p   Cockpit for a specific project root.
+#[verb]
+fn field_status(root: Option<String>) -> Result<serde_json::Value> {
+    let root = root.unwrap_or_else(|| ".".to_string());
+    serde_json::to_value(ggen_lsp::field_status(Path::new(&root)))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+}
+
 /// Mine captured agent-edit events for the dominant failure edges (offline).
 ///
 /// Reads `.ggen/ocel/agent-edit-events.ocel.jsonl`, projects it to RDF, discovers

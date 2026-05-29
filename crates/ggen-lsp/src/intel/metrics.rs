@@ -52,12 +52,12 @@ pub struct ImproveMetrics {
 }
 
 /// One reconstructed episode (events sharing an episode object), with its code.
-struct Episode {
-    code: String,
-    events: Vec<OcelEvent>,
+pub(crate) struct Episode {
+    pub(crate) code: String,
+    pub(crate) events: Vec<OcelEvent>,
 }
 
-fn group_episodes(log: &OcelLog) -> Vec<Episode> {
+pub(crate) fn group_episodes(log: &OcelLog) -> Vec<Episode> {
     let mut map: BTreeMap<String, (String, Vec<OcelEvent>)> = BTreeMap::new();
     for ev in &log.events {
         let epid = ev
@@ -101,7 +101,7 @@ fn rate(num: usize, den: usize) -> MetricValue {
 /// Episode lawful closure observed directly from its events (DiagnosticRaised
 /// before GatePassed). Cheap structural check (the SPARQL ASK is used in mining;
 /// here we read the already-captured events).
-fn closed(ep: &Episode) -> bool {
+pub(crate) fn closed(ep: &Episode) -> bool {
     let raised = ep
         .events
         .iter()
