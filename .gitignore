@@ -503,6 +503,10 @@ debug_config.toml
 # Development artifacts
 debug/
 release/
+# ...but documentation lives under docs/ and is part of the release boundary,
+# not a build artifact. Keep the docs reference/release subtree tracked.
+!docs/reference/release/
+!docs/reference/release/**
 
 # Profiling data
 *.profraw
