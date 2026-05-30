@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Path A Feature Gate Enablement Summary](#path-a-feature-gate-enablement-summary)
+  - [Feature Gate Mapping Table](#feature-gate-mapping-table)
+  - [Files with Feature Gates](#files-with-feature-gates)
+    - [ggen-core/src (7 files)](#ggen-coresrc-7-files)
+    - [ggen-core/tests (4 files)](#ggen-coretests-4-files)
+  - [Test Compilation States](#test-compilation-states)
+    - [Without Features (default)](#without-features-default)
+    - [With `--features otel`](#with---features-otel)
+    - [With `--features integration`](#with---features-integration)
+    - [With `--all-features`](#with---all-features)
+  - [Individual Feature Test Commands](#individual-feature-test-commands)
+    - [1. Enable OTEL Feature (Telemetry Tests)](#1-enable-otel-feature-telemetry-tests)
+    - [2. Enable PROPTEST Feature (Property-Based Testing)](#2-enable-proptest-feature-property-based-testing)
+    - [3. Enable INTEGRATION Feature (E2E Pipeline Tests)](#3-enable-integration-feature-e2e-pipeline-tests)
+    - [4. Enable DOCKER Feature (Container Tests)](#4-enable-docker-feature-container-tests)
+  - [Combined Feature Testing (Path A)](#combined-feature-testing-path-a)
+    - [Run All Features Together](#run-all-features-together)
+    - [Make Target for Path A](#make-target-for-path-a)
+  - [Feature Gate Locations Reference](#feature-gate-locations-reference)
+    - [OTEL Gates (13 locations)](#otel-gates-13-locations)
+    - [PROPTEST Gates (3 locations)](#proptest-gates-3-locations)
+    - [INTEGRATION Gates (3 modules)](#integration-gates-3-modules)
+    - [DOCKER Gates (3 locations)](#docker-gates-3-locations)
+  - [CI Configuration](#ci-configuration)
+    - [Makefile.toml Tasks Added](#makefiletoml-tasks-added)
+    - [GitHub Actions Workflow Updates](#github-actions-workflow-updates)
+  - [Expected Test Results](#expected-test-results)
+    - [All Tests Passing (With Path A)](#all-tests-passing-with-path-a)
+    - [Test Execution Time](#test-execution-time)
+  - [Troubleshooting](#troubleshooting)
+    - [Feature not compiling?](#feature-not-compiling)
+    - [Tests still ignored?](#tests-still-ignored)
+    - [Docker tests failing?](#docker-tests-failing)
+  - [Summary: What Path A Unblocks](#summary-what-path-a-unblocks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Path A Feature Gate Enablement Summary
 
 **Quick Reference**: Which features unblock which tests in ggen-core

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Next Session Handoff](#next-session-handoff)
+  - [Immediate State](#immediate-state)
+    - [Branch Status](#branch-status)
+    - [What's Committed](#whats-committed)
+    - [What's Not Committed](#whats-not-committed)
+  - [Work Queue Priority Order](#work-queue-priority-order)
+    - [Tier 1: Immediate Unblocking (Choose One Path)](#tier-1-immediate-unblocking-choose-one-path)
+      - [Path A: Rest-Gate Cleanup (Recommended First)](#path-a-rest-gate-cleanup-recommended-first)
+      - [Path B: Wave 2 Phase 1 P0 Blockers (Parallel)](#path-b-wave-2-phase-1-p0-blockers-parallel)
+      - [Path C: Foundation Factory Design (Strategic)](#path-c-foundation-factory-design-strategic)
+  - [Lint Enforcement Roadmap](#lint-enforcement-roadmap)
+    - [Phase B.1 Status: COMPLETE ✅](#phase-b1-status-complete-)
+    - [Phase B.2: Deny-Enforcement (v26.5.30)](#phase-b2-deny-enforcement-v26530)
+    - [Phase B.3: TRUTH-LSP-1 (v26.5.31+)](#phase-b3-truth-lsp-1-v26531)
+  - [Git Cleanup](#git-cleanup)
+  - [Documentation Anchors](#documentation-anchors)
+  - [TRUTH-LSP-1 Deferral Note](#truth-lsp-1-deferral-note)
+  - [Recommended Session Structure](#recommended-session-structure)
+  - [One Last Check](#one-last-check)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Next Session Handoff
 
 **From:** v26.5.29 closeout  
