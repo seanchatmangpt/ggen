@@ -4,12 +4,10 @@
 // - Invariants (manifest rules, audit trails, determinism)
 // - Refusal states (negative paths, expected errors)
 // - Receipts (cryptographic proof of execution)
+//
+// These run by default (no --features integration required).
 
-#[cfg(test)]
 mod smoke;
-#[cfg(test)]
 mod invariants;
-#[cfg(test)]
 mod refusal;
-#[cfg(test)]
 mod receipts;

@@ -31,7 +31,7 @@ pub struct AuthorizationRequirements {
 /// This interface consolidates basic and rich agent patterns into a single,
 /// extensible format that maintains backward compatibility while dramatically
 /// reducing interface duplication and semantic overlap.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UnifiedAgent {
     /// Core agent identity (immutable)
     pub identity: AgentIdentity,
@@ -81,7 +81,7 @@ pub struct AgentIdentity {
 }
 
 /// Unified agent capabilities eliminating redundancy
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AgentCapabilities {
     /// Primary agent capabilities
     pub primary: Vec<Capability>,
@@ -237,7 +237,7 @@ pub enum ResourceUnit {
 }
 
 /// Agent lifecycle state
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AgentLifecycle {
     /// Current lifecycle state
     pub state: AgentState,
@@ -290,7 +290,7 @@ pub enum AgentState {
 }
 
 /// Agent health status
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AgentHealth {
     /// Overall health status
     pub status: HealthStatus,
@@ -333,7 +333,7 @@ pub enum HealthStatus {
 }
 
 /// Health metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HealthMetrics {
     /// Response time metrics
     #[serde(rename = "responseTime")]
@@ -540,7 +540,7 @@ pub struct AgentStateTransition {
 }
 
 /// Agent metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AgentMetrics {
     /// Performance metrics
     pub performance: PerformanceMetrics,
@@ -562,7 +562,7 @@ pub struct AgentMetrics {
 }
 
 /// Performance metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PerformanceMetrics {
     /// Processing time
     #[serde(rename = "processingTime")]
@@ -889,7 +889,7 @@ pub struct AgentTimeouts {
 }
 
 /// Agent communication interface
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AgentCommunication {
     /// Communication endpoints
     pub endpoints: Vec<CommunicationEndpoint>,
@@ -1063,7 +1063,7 @@ pub enum SecurityProtocol {
 }
 
 /// Communication quality of service
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CommunicationQoS {
     /// Reliability level
     pub reliability: ReliabilityLevel,
@@ -1165,7 +1165,7 @@ pub enum BackpressureHandling {
 }
 
 /// Agent execution interface
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AgentExecution {
     /// Execution mode
     pub mode: ExecutionMode,
@@ -1404,7 +1404,7 @@ pub enum StrategyType {
 }
 
 /// Execution monitoring
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionMonitoring {
     /// Monitoring metrics
     pub metrics: MonitoringMetrics,
@@ -1422,7 +1422,7 @@ pub struct ExecutionMonitoring {
 }
 
 /// Monitoring metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MonitoringMetrics {
     /// Performance metrics
     pub performance: PerformanceMetrics,
@@ -1440,7 +1440,7 @@ pub struct MonitoringMetrics {
 }
 
 /// Monitoring thresholds
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MonitoringThresholds {
     /// Performance thresholds
     pub performance: Thresholds,
@@ -1603,7 +1603,7 @@ pub struct WidgetSize {
 }
 
 /// Execution policies
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionPolicies {
     /// Retry policy
     pub retry: RetryPolicy,

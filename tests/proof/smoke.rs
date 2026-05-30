@@ -4,7 +4,6 @@
 //! boots and core commands respond. No real synthesis, no artifacts, no receipts.
 //! Just: command exists, exits with expected status, responds to --help.
 
-#[cfg(test)]
 mod tests {
     #[test]
     fn smoke_placeholder() {

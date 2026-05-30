@@ -4,7 +4,6 @@
 //! - Receipt chains maintain cryptographic integrity
 //! - Execution is deterministic (identical inputs → identical outputs)
 
-#[cfg(test)]
 mod tests {
     #[test]
     fn receipt_placeholder() {

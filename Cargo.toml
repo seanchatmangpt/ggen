@@ -128,8 +128,8 @@ genesis-core = { path = "crates/genesis-core" }
 
 # ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
 
-# ggen-yawl: YAWL workflow generation from industry ontologies
-ggen-yawl = { path = "crates/ggen-yawl", version = "26.5.4" }
+# DORMANT: ggen-yawl: YAWL workflow generation from industry ontologies
+# ggen-yawl = { path = "crates/ggen-yawl", version = "26.5.4" }  # crate not yet activated
 
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
@@ -731,6 +731,14 @@ required-features = ["integration"]
 name = "test_telco_routing"
 path = "tests/integration/test_telco_routing.rs"
 required-features = ["integration"]
+
+# ProofPack release-gate tests — run by default, no feature flag required.
+# Covers: smoke (CLI boot), invariants (manifest rules), refusal (negative
+# paths), and receipts (cryptographic proof). Add tests here as the ProofPack
+# matures; these intentionally run without --features integration.
+[[test]]
+name = "proof"
+path = "tests/proof/mod.rs"
 
 # ============================================================================
 # DEBIAN PACKAGING (cargo-deb)

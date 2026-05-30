@@ -1,7 +1,6 @@
 //! T1 Layer: Invariant Tests
 //! Validates manifest rules, audit trails, and deterministic execution
 
-#[cfg(test)]
 mod tests {
     #[test]
     fn invariant_placeholder() {

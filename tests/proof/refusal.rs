@@ -5,7 +5,6 @@
 //! - SAB-02: Empty receipt signature → receipt verify fails
 //! - SAB-03: Missing pack directory → pack add fails
 
-#[cfg(test)]
 mod tests {
     #[test]
     fn refusal_placeholder() {
