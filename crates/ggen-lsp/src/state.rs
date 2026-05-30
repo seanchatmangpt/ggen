@@ -6,6 +6,7 @@ use tokio::sync::Mutex;
 use tower_lsp::lsp_types::{Diagnostic, Url};
 
 use crate::analyzers::DocumentAnalyzer;
+use crate::project_index::BufferOverlay;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FileType {
@@ -294,6 +295,22 @@ impl ServerState {
         docs.get(uri).cloned()
     }
 
+    /// Snapshot every open buffer as a disk-path → content overlay for the
+    /// cross-surface index (LIVE-BUFFER-001).
+    ///
+    /// Keys are `Url::to_file_path()` (non-canonicalized, matching the index's
+    /// `manifest_dir.join` / `root.join` resolution); non-`file://` URLs are
+    /// skipped. When nothing is open the overlay is empty and every index read
+    /// falls back to disk — byte-identical to the pre-overlay path. The lock is
+    /// released as the snapshot returns, so no documents lock is held across the
+    /// (synchronous) index build.
+    async fn buffer_overlay(&self) -> BufferOverlay {
+        let docs = self.documents.lock().await;
+        docs.iter()
+            .filter_map(|(u, c)| u.to_file_path().ok().map(|p| (p, c.clone())))
+            .collect()
+    }
+
     pub async fn remove_document(&self, uri: &Url) {
         let mut docs = self.documents.lock().await;
         docs.remove(uri);
@@ -337,6 +354,12 @@ impl ServerState {
         // no longer see its in-memory copy.
         self.remove_document(uri).await;
 
+        // LIVE-BUFFER-001: snapshot the overlay AFTER removal — the closed surface
+        // contributes no buffer, so the index falls back to its on-disk content
+        // (the correct fallback for a now-closed file). No edited-pair insertion
+        // (unlike `analyze_and_observe`): there is no edit, the doc is gone.
+        let overlay = self.buffer_overlay().await;
+
         let mut published: Vec<(Url, Vec<Diagnostic>)> = Vec::new();
 
         // TPL reconcile: only if the closed surface is a TPL trigger
@@ -350,7 +373,7 @@ impl ServerState {
             // Re-detect AFTER removal: `current` = templates STILL flagged by the
             // surviving surfaces. A flag only the closed surface sustained is gone.
             let mut current: HashSet<Url> = HashSet::new();
-            for (template_path, _) in self.detect_tpl_001_for(uri) {
+            for (template_path, _) in self.detect_tpl_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&template_path) {
                     current.insert(u);
                 }
@@ -366,7 +389,7 @@ impl ServerState {
             // sustained falls out of the freshly re-detected `current` set and is
             // cleared with residual preservation (mirrors TPL).
             let mut out_current: HashSet<Url> = HashSet::new();
-            for (manifest_path, _) in self.detect_out_001_for(uri) {
+            for (manifest_path, _) in self.detect_out_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&manifest_path) {
                     out_current.insert(u);
                 }
@@ -385,7 +408,7 @@ impl ServerState {
         // (`Cargo.toml`/`Makefile.toml`). Disjoint from the TPL trigger by basename.
         if is_harness_surface(uri.path()) {
             let mut current: HashSet<Url> = HashSet::new();
-            for (manifest_path, _) in self.detect_harness_001_for(uri) {
+            for (manifest_path, _) in self.detect_harness_001_for(uri, &overlay) {
                 if let Some(u) = url_from_path(&manifest_path) {
                     current.insert(u);
                 }
@@ -445,6 +468,19 @@ impl ServerState {
         let mut published: Vec<(Url, Vec<Diagnostic>)> = Vec::new();
         let file_type = FileType::from_path(uri.path());
 
+        // LIVE-BUFFER-001: snapshot the open buffers as a disk-path→content overlay
+        // for the cross-surface index, AND splice in the edited `(uri, content)`
+        // pair. The edited buffer's NEW content may not yet be in `self.documents`
+        // (the server's `did_change` insert vs. this call's ordering is not
+        // guaranteed), so inserting it here makes a producer edit (e.g. the `.rq`)
+        // visible to its consumer (the `.tera`) WITHIN this same call — the exact
+        // buffer-liveness the living loop requires. With no buffers open this is just
+        // the edited pair (or empty), so the disk path stays the fallback.
+        let mut overlay = self.buffer_overlay().await;
+        if let Ok(p) = uri.to_file_path() {
+            overlay.insert(p, content.to_string());
+        }
+
         // Single-file diagnostics for the edited document (E0024 etc.).
         let mut own_diags: Vec<Diagnostic> = Vec::new();
         if let Some(analyzer) = crate::analyzers::build_analyzer(uri.path(), content) {
@@ -462,7 +498,7 @@ impl ServerState {
         let tpl_is_trigger =
             matches!(file_type, FileType::Tera | FileType::Sparql) || is_ggen_manifest(uri.path());
         let tpl_groups = if tpl_is_trigger {
-            self.detect_tpl_001_for(uri)
+            self.detect_tpl_001_for(uri, &overlay)
         } else {
             Vec::new()
         };
@@ -472,7 +508,7 @@ impl ServerState {
         // so a TPL fixture raises zero HARNESS and a HARNESS fixture raises zero TPL.
         let harness_is_trigger = is_harness_surface(uri.path());
         let harness_groups = if harness_is_trigger {
-            self.detect_harness_001_for(uri)
+            self.detect_harness_001_for(uri, &overlay)
         } else {
             Vec::new()
         };
@@ -483,7 +519,7 @@ impl ServerState {
         // edit to any source-law surface re-evaluates OUT-001 too. Groups anchor on
         // `ggen.toml` (disjoint from TPL's `.tera` anchor).
         let out_groups = if tpl_is_trigger {
-            self.detect_out_001_for(uri)
+            self.detect_out_001_for(uri, &overlay)
         } else {
             Vec::new()
         };
@@ -641,11 +677,13 @@ impl ServerState {
     /// cross-surface GGEN-TPL-001 detector. Returns the per-template diagnostic
     /// groups (empty on any resolution/build failure — best-effort, never panics,
     /// never writes files).
-    fn detect_tpl_001_for(&self, uri: &Url) -> Vec<(PathBuf, Vec<Diagnostic>)> {
+    fn detect_tpl_001_for(
+        &self, uri: &Url, overlay: &BufferOverlay,
+    ) -> Vec<(PathBuf, Vec<Diagnostic>)> {
         let Some(root) = self.project_root_for(uri) else {
             return Vec::new();
         };
-        match crate::project_index::ProjectIndex::from_root(&root) {
+        match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
             Ok(project) => crate::analyzers::detect_tpl_001(&project),
             Err(_) => Vec::new(),
         }
@@ -657,11 +695,13 @@ impl ServerState {
     /// groups (empty on any resolution/build failure — best-effort, never panics,
     /// never writes files). Reuses the SAME `project_root_for` + `ProjectIndex` as
     /// TPL-001.
-    fn detect_out_001_for(&self, uri: &Url) -> Vec<(PathBuf, Vec<Diagnostic>)> {
+    fn detect_out_001_for(
+        &self, uri: &Url, overlay: &BufferOverlay,
+    ) -> Vec<(PathBuf, Vec<Diagnostic>)> {
         let Some(root) = self.project_root_for(uri) else {
             return Vec::new();
         };
-        match crate::project_index::ProjectIndex::from_root(&root) {
+        match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
             Ok(project) => crate::analyzers::detect_out_001(&project),
             Err(_) => Vec::new(),
         }
@@ -694,11 +734,13 @@ impl ServerState {
     /// and run the cross-surface GGEN-HARNESS-001 detector. Returns the per-manifest
     /// diagnostic groups (empty on any resolution/build failure — best-effort, never
     /// panics, never writes files).
-    fn detect_harness_001_for(&self, uri: &Url) -> Vec<(PathBuf, Vec<Diagnostic>)> {
+    fn detect_harness_001_for(
+        &self, uri: &Url, overlay: &BufferOverlay,
+    ) -> Vec<(PathBuf, Vec<Diagnostic>)> {
         let Some(root) = self.harness_root_for(uri) else {
             return Vec::new();
         };
-        match crate::harness_index::HarnessIndex::from_root(&root) {
+        match crate::harness_index::HarnessIndex::from_root_with_overlay(&root, overlay) {
             Ok(index) => crate::analyzers::detect_harness_001(&index),
             Err(_) => Vec::new(),
         }
