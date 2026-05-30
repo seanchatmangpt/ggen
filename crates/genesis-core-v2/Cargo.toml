@@ -24,3 +24,6 @@ tokio-test.workspace = true
 criterion.workspace = true
 chrono.workspace = true
 tempfile.workspace = true
+
+[lints]
+workspace = true

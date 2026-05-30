@@ -19,3 +19,6 @@ sha2 = { workspace = true }
 hex = { workspace = true }
 uuid = { workspace = true }
 urlencoding = { workspace = true }
+
+[lints]
+workspace = true
