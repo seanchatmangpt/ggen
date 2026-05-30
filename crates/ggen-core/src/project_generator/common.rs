@@ -82,7 +82,7 @@ pub fn is_directory_empty(path: &Path) -> Result<bool> {
 
 /// Creates a basic .editorconfig file
 pub fn generate_editorconfig() -> String {
-    r#"root = true
+    r"root = true
 
 [*]
 charset = utf-8
@@ -100,7 +100,7 @@ indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
-"#
+"
     .to_string()
 }
 

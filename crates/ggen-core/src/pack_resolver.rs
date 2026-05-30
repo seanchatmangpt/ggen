@@ -45,7 +45,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use tracing;
 
 /// SPARQL query contributed by a pack.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -455,7 +454,7 @@ impl PackResolver {
     /// Returns error if profile not found or policy enforcement fails.
     fn enforce_policies(&self, packs: &[AtomicPackId], lockfile: &PackLockfile) -> Result<String> {
         // Determine profile from lockfile or use default
-        let profile_id = lockfile.profile.as_ref().cloned().unwrap_or_else(|| {
+        let profile_id = lockfile.profile.clone().unwrap_or_else(|| {
             // Default to "development" profile if not specified
             "development".to_string()
         });
@@ -807,8 +806,9 @@ impl PackRegistry {
             for (idx, decl_value) in array.iter().enumerate() {
                 let table = decl_value.as_table().ok_or_else(|| {
                     Error::new(&format!(
-                        "ownership.declarations[{}] is not a table in {:?}",
-                        idx, path
+                        "ownership.declarations[{}] is not a table in {}",
+                        idx,
+                        path.display()
                     ))
                 })?;
 
@@ -835,15 +835,17 @@ impl PackRegistry {
     ) -> Result<OwnershipTarget> {
         let kind = table.get("kind").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
-                "ownership.declarations[{}].kind is missing in {:?}",
-                idx, path
+                "ownership.declarations[{}].kind is missing in {}",
+                idx,
+                path.display()
             ))
         })?;
 
         let value = table.get("value").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
-                "ownership.declarations[{}].value is missing in {:?}",
-                idx, path
+                "ownership.declarations[{}].value is missing in {}",
+                idx,
+                path.display()
             ))
         })?;
 
@@ -856,10 +858,10 @@ impl PackRegistry {
             "feature_flag" => OwnershipTarget::FeatureFlag(value.to_string()),
             other => {
                 bail!(
-                    "Unknown ownership target kind '{}' at index {} in {:?}",
+                    "Unknown ownership target kind '{}' at index {} in {}",
                     other,
                     idx,
-                    path
+                    path.display()
                 );
             }
         };
@@ -873,8 +875,9 @@ impl PackRegistry {
     ) -> Result<OwnershipClass> {
         let class_str = table.get("class").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
-                "ownership.declarations[{}].class is missing in {:?}",
-                idx, path
+                "ownership.declarations[{}].class is missing in {}",
+                idx,
+                path.display()
             ))
         })?;
 
@@ -885,10 +888,10 @@ impl PackRegistry {
             "forbidden_overlap" => Ok(OwnershipClass::ForbiddenOverlap),
             other => {
                 bail!(
-                    "Unknown ownership class '{}' at index {} in {:?}",
+                    "Unknown ownership class '{}' at index {} in {}",
                     other,
                     idx,
-                    path
+                    path.display()
                 );
             }
         }

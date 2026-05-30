@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Cleanroom Templates - Usage Examples](#cleanroom-templates---usage-examples)
+  - [📦 Quick Start](#-quick-start)
+    - [Example 1: Minimal Test Setup](#example-1-minimal-test-setup)
+  - [🗄️ Database Testing Examples](#-database-testing-examples)
+    - [Example 2: PostgreSQL Integration](#example-2-postgresql-integration)
+    - [Example 3: Redis Cache Testing](#example-3-redis-cache-testing)
+  - [🤖 Swarm Coordination Examples](#-swarm-coordination-examples)
+    - [Example 4: Multi-Agent Testing](#example-4-multi-agent-testing)
+  - [🚀 CI/CD Pipeline Examples](#-cicd-pipeline-examples)
+    - [Example 5: GitHub Actions Setup](#example-5-github-actions-setup)
+  - [📊 Performance Testing Examples](#-performance-testing-examples)
+    - [Example 6: Benchmark Suite](#example-6-benchmark-suite)
+  - [🔧 Complete Project Examples](#-complete-project-examples)
+    - [Example 7: Full-Stack Application](#example-7-full-stack-application)
+  - [🎯 Real-World Use Cases](#-real-world-use-cases)
+    - [Example 8: Microservices Testing](#example-8-microservices-testing)
+    - [Example 9: E2E Testing with Swarm](#example-9-e2e-testing-with-swarm)
+  - [🔍 Debugging Examples](#-debugging-examples)
+    - [Example 10: Verbose Testing](#example-10-verbose-testing)
+  - [📈 Performance Optimization](#-performance-optimization)
+    - [Example 11: Optimized Benchmarks](#example-11-optimized-benchmarks)
+  - [🛡️ Security Testing](#-security-testing)
+    - [Example 12: Security Policy Testing](#example-12-security-policy-testing)
+  - [🎓 Best Practices](#-best-practices)
+    - [Example 13: Deterministic Testing](#example-13-deterministic-testing)
+    - [Example 14: Resource Limits](#example-14-resource-limits)
+  - [🔧 Troubleshooting](#-troubleshooting)
+    - [Common Issues](#common-issues)
+  - [📚 Additional Resources](#-additional-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Cleanroom Templates - Usage Examples
 
 This document provides comprehensive examples for using the cleanroom gpack templates.

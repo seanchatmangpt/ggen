@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-dspy — Crate Audit](#ggen-dspy--crate-audit)
+  - [STUBS](#stubs)
+  - [DEAD CODE](#dead-code)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-dspy — Crate Audit
 
 **Path:** `crates/ggen-dspy/`

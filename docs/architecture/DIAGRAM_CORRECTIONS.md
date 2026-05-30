@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Architecture Diagram Corrections & Hidden Insights](#architecture-diagram-corrections--hidden-insights)
+  - [CRITICAL CORRECTIONS (Things the diagrams get wrong)](#critical-corrections-things-the-diagrams-get-wrong)
+    - [1. The sync flow is WRONG — StagedPipeline is never called](#1-the-sync-flow-is-wrong--stagedpipeline-is-never-called)
+    - [2. PackResolver file path is WRONG](#2-packresolver-file-path-is-wrong)
+    - [3. ggen-jidoka crate DOES NOT EXIST](#3-ggen-jidoka-crate-does-not-exist)
+    - [4. C4 container diagram is incomplete](#4-c4-container-diagram-is-incomplete)
+    - [5. ggen-core ↔ ggen-ai cycle was deliberately broken](#5-ggen-core--ggen-ai-cycle-was-deliberately-broken)
+  - [HIDDEN STUBS (Presented as real but non-functional)](#hidden-stubs-presented-as-real-but-non-functional)
+    - [1. SHACL Validation — entirely stubbed, always passes](#1-shacl-validation--entirely-stubbed-always-passes)
+    - [2. Code generation without LLM produces TODO comments](#2-code-generation-without-llm-produces-todo-comments)
+    - [3. Marketplace module in ggen-domain — all functions return errors](#3-marketplace-module-in-ggen-domain--all-functions-return-errors)
+    - [4. Pack installation in ggen-core — redirects to ggen-marketplace](#4-pack-installation-in-ggen-core--redirects-to-ggen-marketplace)
+    - [5. RdfControlPlane v2 — half the methods are stubs](#5-rdfcontrolplane-v2--half-the-methods-are-stubs)
+    - [6. Sigma Runtime Invariants — 4 of 7 are mock implementations](#6-sigma-runtime-invariants--4-of-7-are-mock-implementations)
+    - [7. JSON Schema parsing — not implemented](#7-json-schema-parsing--not-implemented)
+    - [8. Rust code generation — not implemented](#8-rust-code-generation--not-implemented)
+  - [HIDDEN ARCHITECTURE (Things the diagrams don't show at all)](#hidden-architecture-things-the-diagrams-dont-show-at-all)
+    - [1. ggen-utils is the real foundation, not a utility crate](#1-ggen-utils-is-the-real-foundation-not-a-utility-crate)
+    - [2. Error type fragmentation — 23 crates, 23 error modules](#2-error-type-fragmentation--23-crates-23-error-modules)
+    - [3. ggen-testing — built but never used](#3-ggen-testing--built-but-never-used)
+    - [4. ggen-macros — mostly dead code](#4-ggen-macros--mostly-dead-code)
+    - [5. vendors/ — the pre-Rust parallel universe](#5-vendors--the-pre-rust-parallel-universe)
+    - [6. Ontology namespace split — three competing URIs](#6-ontology-namespace-split--three-competing-uris)
+    - [7. Workspace-level Poka-Yoke enforcement](#7-workspace-level-poka-yoke-enforcement)
+  - [THE CORRECTED DEPENDENCY GRAPH](#the-corrected-dependency-graph)
+  - [THE REAL SYNC PIPELINE (corrected)](#the-real-sync-pipeline-corrected)
+  - [IMPLICATION FOR AI AGENT COORDINATION](#implication-for-ai-agent-coordination)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Architecture Diagram Corrections & Hidden Insights
 
 **Date:** 2026-04-01

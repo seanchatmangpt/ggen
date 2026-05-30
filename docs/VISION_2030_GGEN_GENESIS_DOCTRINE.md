@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reimagined Vision 2030: ggen and Genesis](#reimagined-vision-2030-ggen-and-genesis)
+  - [The New Doctrine](#the-new-doctrine)
+  - [The Corrected 2030 Architecture](#the-corrected-2030-architecture)
+  - [Genesis in Vision 2030](#genesis-in-vision-2030)
+  - [ggen in Vision 2030](#ggen-in-vision-2030)
+  - [The New Unit of Architecture](#the-new-unit-of-architecture)
+    - [**Genesis-bearing interchangeable part**](#genesis-bearing-interchangeable-part)
+  - [Vision 2030 Operating Model](#vision-2030-operating-model)
+  - [The New Blue River Dam](#the-new-blue-river-dam)
+  - [ggen vs Genesis, Sharply](#ggen-vs-genesis-sharply)
+  - [2030 Role of AtomVM](#2030-role-of-atomvm)
+  - [2030 Role of WASM](#2030-role-of-wasm)
+  - [2030 Role of Rust](#2030-role-of-rust)
+  - [The New Genesis/ggen Relationship](#the-new-genesisggen-relationship)
+  - [Vision 2030 Product Architecture](#vision-2030-product-architecture)
+  - [The 2030 Promise](#the-2030-promise)
+  - [New Vision 2030 Thesis](#new-vision-2030-thesis)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reimagined Vision 2030: ggen and Genesis
 
 **The corrected 2030 picture is not:**

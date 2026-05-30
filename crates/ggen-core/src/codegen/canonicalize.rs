@@ -21,23 +21,34 @@ use regex::Regex;
 use std::collections::BTreeSet;
 use std::path::Path;
 
+/// Text-formatting steps for canonicalization (≤3 bools)
+#[derive(Debug, Clone, Default)]
+pub struct FormattingFlags {
+    /// Whether to sort imports
+    pub sort_imports: bool,
+    /// Whether to normalize line endings
+    pub normalize_line_endings: bool,
+    /// Whether to remove trailing whitespace
+    pub trim_trailing_whitespace: bool,
+}
+
+/// Boolean feature-flags for canonicalization steps
+#[derive(Debug, Clone, Default)]
+pub struct CanonicalizeFlags {
+    /// Text formatting options
+    pub formatting: FormattingFlags,
+    /// Whether to inject generated header
+    pub inject_header: bool,
+}
+
 /// Canonicalization options for generated code
 #[derive(Debug, Clone, Default)]
 pub struct CanonicalizeOptions {
-    /// Whether to sort imports
-    pub sort_imports: bool,
-
-    /// Whether to normalize line endings
-    pub normalize_line_endings: bool,
-
-    /// Whether to inject generated header
-    pub inject_header: bool,
+    /// Feature flags controlling which canonicalization steps run
+    pub flags: CanonicalizeFlags,
 
     /// Custom header content (if None, uses default)
     pub custom_header: Option<String>,
-
-    /// Whether to remove trailing whitespace
-    pub trim_trailing_whitespace: bool,
 }
 
 impl CanonicalizeOptions {
@@ -48,19 +59,19 @@ impl CanonicalizeOptions {
 
     /// Enable import sorting
     pub fn with_sort_imports(mut self, enabled: bool) -> Self {
-        self.sort_imports = enabled;
+        self.flags.formatting.sort_imports = enabled;
         self
     }
 
     /// Enable line ending normalization
     pub fn with_normalize_line_endings(mut self, enabled: bool) -> Self {
-        self.normalize_line_endings = enabled;
+        self.flags.formatting.normalize_line_endings = enabled;
         self
     }
 
     /// Enable header injection
     pub fn with_inject_header(mut self, enabled: bool) -> Self {
-        self.inject_header = enabled;
+        self.flags.inject_header = enabled;
         self
     }
 
@@ -72,7 +83,7 @@ impl CanonicalizeOptions {
 
     /// Enable trailing whitespace removal
     pub fn with_trim_trailing_whitespace(mut self, enabled: bool) -> Self {
-        self.trim_trailing_whitespace = enabled;
+        self.flags.formatting.trim_trailing_whitespace = enabled;
         self
     }
 }
@@ -161,26 +172,25 @@ pub fn canonicalize(content: &str, options: &CanonicalizeOptions) -> Result<Stri
     let mut result = content.to_string();
 
     // Step 1: Normalize line endings
-    if options.normalize_line_endings {
+    if options.flags.formatting.normalize_line_endings {
         result = normalize_line_endings(&result);
     }
 
     // Step 2: Trim trailing whitespace
-    if options.trim_trailing_whitespace {
+    if options.flags.formatting.trim_trailing_whitespace {
         result = trim_trailing_whitespace(&result);
     }
 
     // Step 3: Sort imports (before header injection)
-    if options.sort_imports {
+    if options.flags.formatting.sort_imports {
         result = sort_rust_imports(&result)?;
     }
 
     // Step 4: Inject header (last, so it's at the very top)
-    if options.inject_header {
+    if options.flags.inject_header {
         let header = options
             .custom_header
-            .as_ref()
-            .cloned()
+            .clone()
             .unwrap_or_else(default_generated_header);
         result = inject_header(&result, &header);
     }
@@ -395,11 +405,11 @@ fn canonicalize_rust(content: &str, options: &CanonicalizeOptions) -> Result<Str
 fn canonicalize_toml(content: &str, options: &CanonicalizeOptions) -> Result<String> {
     let mut result = content.to_string();
 
-    if options.normalize_line_endings {
+    if options.flags.formatting.normalize_line_endings {
         result = normalize_line_endings(&result);
     }
 
-    if options.trim_trailing_whitespace {
+    if options.flags.formatting.trim_trailing_whitespace {
         result = trim_trailing_whitespace(&result);
     }
 
@@ -430,11 +440,11 @@ fn canonicalize_json(content: &str, _options: &CanonicalizeOptions) -> Result<St
 fn canonicalize_ttl(content: &str, options: &CanonicalizeOptions) -> Result<String> {
     let mut result = content.to_string();
 
-    if options.normalize_line_endings {
+    if options.flags.formatting.normalize_line_endings {
         result = normalize_line_endings(&result);
     }
 
-    if options.trim_trailing_whitespace {
+    if options.flags.formatting.trim_trailing_whitespace {
         result = trim_trailing_whitespace(&result);
     }
 
@@ -453,11 +463,11 @@ fn canonicalize_ttl(content: &str, options: &CanonicalizeOptions) -> Result<Stri
 fn canonicalize_generic(content: &str, options: &CanonicalizeOptions) -> Result<String> {
     let mut result = content.to_string();
 
-    if options.normalize_line_endings {
+    if options.flags.formatting.normalize_line_endings {
         result = normalize_line_endings(&result);
     }
 
-    if options.trim_trailing_whitespace {
+    if options.flags.formatting.trim_trailing_whitespace {
         result = trim_trailing_whitespace(&result);
     }
 

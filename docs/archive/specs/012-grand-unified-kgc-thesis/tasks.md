@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tasks: Grand Unified KGC Thesis](#tasks-grand-unified-kgc-thesis)
+  - [Format: `[ID] [P?] [Story] Description`](#format-id-p-story-description)
+  - [Path Conventions](#path-conventions)
+  - [Phase 1: Setup (Shared Infrastructure)](#phase-1-setup-shared-infrastructure)
+  - [Phase 2: Foundational (Blocking Prerequisites)](#phase-2-foundational-blocking-prerequisites)
+    - [Core Templates (Parallelizable)](#core-templates-parallelizable)
+    - [Base Ontology](#base-ontology)
+  - [Phase 3: User Story 1 - Generate Complete PhD Thesis Document (Priority: P1)](#phase-3-user-story-1---generate-complete-phd-thesis-document-priority-p1)
+    - [Implementation for User Story 1](#implementation-for-user-story-1)
+  - [Phase 4: User Story 2 - Prove Knowledge Graph Completeness Theorem (Priority: P1)](#phase-4-user-story-2---prove-knowledge-graph-completeness-theorem-priority-p1)
+    - [Implementation for User Story 2](#implementation-for-user-story-2)
+  - [Phase 5: User Story 3 - Demonstrate 4D Temporal Event Sourcing (Priority: P2)](#phase-5-user-story-3---demonstrate-4d-temporal-event-sourcing-priority-p2)
+    - [Implementation for User Story 3](#implementation-for-user-story-3)
+  - [Phase 6: User Story 4 - Explain Hyperdimensional Information Theory (Priority: P2)](#phase-6-user-story-4---explain-hyperdimensional-information-theory-priority-p2)
+    - [Implementation for User Story 4](#implementation-for-user-story-4)
+  - [Phase 7: User Story 5 - Validate Full-Stack Integration Case Study (Priority: P3)](#phase-7-user-story-5---validate-full-stack-integration-case-study-priority-p3)
+    - [Implementation for User Story 5](#implementation-for-user-story-5)
+  - [Phase 8: User Story 6 - Document @unrdf/hooks Policy Framework (Priority: P3)](#phase-8-user-story-6---document-unrdfhooks-policy-framework-priority-p3)
+    - [Implementation for User Story 6](#implementation-for-user-story-6)
+  - [Phase 9: Polish & Cross-Cutting Concerns](#phase-9-polish--cross-cutting-concerns)
+    - [Bibliography (30+ References)](#bibliography-30-references)
+    - [Appendices](#appendices)
+    - [Final Validation](#final-validation)
+  - [Dependencies & Execution Order](#dependencies--execution-order)
+    - [Phase Dependencies](#phase-dependencies)
+    - [User Story Dependencies](#user-story-dependencies)
+    - [Within Each User Story](#within-each-user-story)
+    - [Parallel Opportunities](#parallel-opportunities)
+  - [Parallel Example: Maximum Concurrency](#parallel-example-maximum-concurrency)
+  - [Implementation Strategy](#implementation-strategy)
+    - [MVP First (User Story 1 Only)](#mvp-first-user-story-1-only)
+    - [Incremental Delivery](#incremental-delivery)
+    - [Parallel Team Strategy](#parallel-team-strategy)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tasks: Grand Unified KGC Thesis
 
 **Input**: Design documents from `/specs/012-grand-unified-kgc-thesis/`

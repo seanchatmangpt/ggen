@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GENESIS MACHINE-TO-MACHINE CLOSURE PROTOCOL](#genesis-machine-to-machine-closure-protocol)
+  - [Core Doctrine](#core-doctrine)
+  - [Non-negotiable Boundaries](#non-negotiable-boundaries)
+  - [Required Agent Loop](#required-agent-loop)
+  - [Completion Standard](#completion-standard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GENESIS MACHINE-TO-MACHINE CLOSURE PROTOCOL
 
 The human has completed the architectural thinking.

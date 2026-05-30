@@ -19,7 +19,7 @@
   - [Getting Help](#getting-help)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Troubleshoot Connection Issues
 

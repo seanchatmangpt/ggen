@@ -7,6 +7,7 @@
 //! so hot-path selection is two hashmap probes — never mining at edit time.
 
 pub mod compact;
+pub mod diagnostic_species;
 pub mod edit;
 pub mod envelope;
 pub mod model;
@@ -15,6 +16,7 @@ pub mod promoted;
 pub mod registry;
 
 pub use compact::{CompactEventRow, CompactPowlView, CompactTraceView};
+pub use diagnostic_species::{species_for, species_registry, DiagnosticSpecies};
 pub use edit::{render_edit, route_plan, workspace_edit_from_route};
 pub use envelope::{route_case_id, RouteEnvelope, RouteRefusal};
 pub use model::{

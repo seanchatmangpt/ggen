@@ -99,6 +99,8 @@ pub enum MergeError {
     ConflictUnresolvable(Vec<MergeConflict>),
     /// An I/O error occurred (e.g. reading from disk).
     IoError(std::io::Error),
+    /// An invariant was violated during merging (e.g. data loss protection).
+    InvariantViolated(String),
 }
 
 impl std::fmt::Display for MergeError {
@@ -109,6 +111,7 @@ impl std::fmt::Display for MergeError {
                 write!(f, "{} unresolvable conflict(s)", conflicts.len())
             }
             MergeError::IoError(e) => write!(f, "I/O error: {}", e),
+            MergeError::InvariantViolated(msg) => write!(f, "invariant violated: {}", msg),
         }
     }
 }
@@ -623,14 +626,14 @@ pub fn apply_generated(
     let input_preserve_count = ours_preserve.len();
 
     if output_preserve_count < input_preserve_count && conflicts.is_empty() {
-        // This branch should be unreachable given the logic above, but we panic
+        // This branch should be unreachable given the logic above, but we return an error
         // rather than silently accept data loss.
-        panic!(
+        return Err(MergeError::InvariantViolated(format!(
             "apply_generated: INVARIANT VIOLATED — {} preserve region(s) in input but only {} \
-             in output, and no conflict markers were emitted.  Crashing to prevent silent data \
+             in output, and no conflict markers were emitted.  Failing to prevent silent data \
              loss.  Check for bugs in the merge logic.",
             input_preserve_count, output_preserve_count
-        );
+        )));
     }
 
     Ok(MergeResult {

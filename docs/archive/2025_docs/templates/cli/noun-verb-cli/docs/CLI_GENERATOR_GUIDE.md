@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Noun-Verb CLI Generator Guide](#noun-verb-cli-generator-guide)
+  - [Overview](#overview)
+  - [Pattern: Noun-Verb Architecture](#pattern-noun-verb-architecture)
+    - [Key Benefits](#key-benefits)
+  - [Quick Start](#quick-start)
+    - [Generate a CLI](#generate-a-cli)
+    - [Test the Generated CLI](#test-the-generated-cli)
+  - [Real-World Example](#real-world-example)
+    - [Generated Commands](#generated-commands)
+  - [Generated Project Structure](#generated-project-structure)
+  - [Command Implementation Details](#command-implementation-details)
+    - [Create Command](#create-command)
+    - [List Command](#list-command)
+    - [Get Command](#get-command)
+    - [Update Command](#update-command)
+    - [Delete Command](#delete-command)
+  - [Standard Features](#standard-features)
+    - [✅ Unit Tests](#-unit-tests)
+    - [✅ Integration Tests](#-integration-tests)
+    - [✅ Help Documentation](#-help-documentation)
+    - [✅ Version Information](#-version-information)
+  - [Customization Guide](#customization-guide)
+    - [Adding Custom Verbs](#adding-custom-verbs)
+    - [Adding Custom Fields](#adding-custom-fields)
+    - [Implementing Real Logic](#implementing-real-logic)
+  - [Best Practices](#best-practices)
+    - [1. Consistent Output Formats](#1-consistent-output-formats)
+    - [2. Dry-Run Mode](#2-dry-run-mode)
+    - [3. Verbose Logging](#3-verbose-logging)
+    - [4. Error Handling](#4-error-handling)
+    - [5. Progress Indicators](#5-progress-indicators)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests (Fast)](#unit-tests-fast)
+    - [Integration Tests (Realistic)](#integration-tests-realistic)
+    - [Manual Testing](#manual-testing)
+  - [Production Deployment](#production-deployment)
+    - [1. Build Release Binary](#1-build-release-binary)
+    - [2. Strip Debug Symbols](#2-strip-debug-symbols)
+    - [3. Package](#3-package)
+    - [4. Distribution Options](#4-distribution-options)
+  - [Advanced Features](#advanced-features)
+    - [Configuration Files](#configuration-files)
+    - [Shell Completion](#shell-completion)
+    - [Progress Bars](#progress-bars)
+  - [Summary](#summary)
+  - [Next Steps](#next-steps)
+  - [Examples in the Wild](#examples-in-the-wild)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Noun-Verb CLI Generator Guide
 
 ## Overview

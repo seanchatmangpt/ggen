@@ -127,7 +127,6 @@ impl AutonomousControlLoop {
     }
 
     /// Run one iteration of the control loop
-    #[allow(clippy::expect_used)]
     async fn iterate(&self) -> Result<IterationTelemetry, String> {
         let start_ms = get_time_ms();
         let mut telemetry = IterationTelemetry {

@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Poka-Yoke Design for Marketplace Package Lifecycle](#poka-yoke-design-for-marketplace-package-lifecycle)
+  - [Overview](#overview)
+  - [What is Poka-Yoke?](#what-is-poka-yoke)
+  - [Error Prevention Mechanisms](#error-prevention-mechanisms)
+    - [1. Type-Level Lifecycle State Machine](#1-type-level-lifecycle-state-machine)
+    - [2. Validated Package Types](#2-validated-package-types)
+    - [3. Phase Builder Pattern](#3-phase-builder-pattern)
+    - [4. State Validation](#4-state-validation)
+    - [5. Hook Validation](#5-hook-validation)
+  - [Why Types Prevent Errors](#why-types-prevent-errors)
+    - [Compile-Time Safety](#compile-time-safety)
+    - [Zero Runtime Cost](#zero-runtime-cost)
+    - [Impossible States](#impossible-states)
+  - [Usage Examples](#usage-examples)
+    - [Example 1: Complete Lifecycle Flow](#example-1-complete-lifecycle-flow)
+    - [Example 2: Validated Package Installation](#example-2-validated-package-installation)
+    - [Example 3: Phase Construction](#example-3-phase-construction)
+  - [Migration Guide](#migration-guide)
+    - [From Unvalidated to Validated Types](#from-unvalidated-to-validated-types)
+    - [From Direct State to Validated State](#from-direct-state-to-validated-state)
+  - [Benefits Summary](#benefits-summary)
+  - [Further Reading](#further-reading)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Poka-Yoke Design for Marketplace Package Lifecycle
 
 ## Overview

@@ -75,8 +75,8 @@ type GlobalLlmService = Arc<Mutex<Option<Box<dyn LlmService>>>>;
 ///     let code = service.generate_skill_impl(/* ... */)?;
 /// }
 /// ```
-static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
-    once_cell::sync::Lazy::new(|| Arc::new(Mutex::new(None)));
+static GLOBAL_LLM_SERVICE: std::sync::LazyLock<GlobalLlmService> =
+    std::sync::LazyLock::new(|| Arc::new(Mutex::new(None)));
 
 /// Set the global LLM service for code generation.
 ///
@@ -96,8 +96,9 @@ static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
 /// set_llm_service(service);
 /// ```
 pub fn set_llm_service(service: Box<dyn LlmService>) {
-    let mut svc = GLOBAL_LLM_SERVICE.lock().unwrap();
-    *svc = Some(service);
+    if let Ok(mut svc) = GLOBAL_LLM_SERVICE.lock() {
+        *svc = Some(service);
+    }
 }
 
 /// Get the global LLM service for code generation.
@@ -119,7 +120,7 @@ pub fn set_llm_service(service: Box<dyn LlmService>) {
 /// }
 /// ```
 pub fn get_llm_service() -> Option<Box<dyn LlmService>> {
-    let svc = GLOBAL_LLM_SERVICE.lock().unwrap();
+    let svc = GLOBAL_LLM_SERVICE.lock().ok()?;
     svc.as_ref().map(|s| s.clone_box())
 }
 
@@ -405,7 +406,7 @@ impl GenerationPipeline {
     }
 
     /// Execute a single inference rule (CONSTRUCT query with materialization)
-    fn execute_inference_rule(&mut self, rule: &InferenceRule) -> Result<ExecutedRule> {
+    fn execute_inference_rule(&self, rule: &InferenceRule) -> Result<ExecutedRule> {
         let start = Instant::now();
 
         // Get the ontology graph (must be loaded)
@@ -680,7 +681,7 @@ impl GenerationPipeline {
             }
 
             // 4. Load template from TemplateSource
-            let (template_content, _template_source_info) = match &rule.template {
+            let (template_content, template_source_info) = match &rule.template {
                 TemplateSource::File { file } => {
                     let template_path = self.base_path.join(file);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
@@ -924,7 +925,7 @@ impl GenerationPipeline {
                          Row values:\n  {}",
                         rule.name,
                         error_chain,
-                        _template_source_info,
+                        template_source_info,
                         var_names.join(", "),
                         row_values.join("\n  ")
                     ))
@@ -1143,7 +1144,7 @@ impl GenerationPipeline {
         // Does not fire on comments or string literals containing the word.
         let has_unsafe = content.lines().any(|line| {
             let trimmed = line.trim();
-            if trimmed.starts_with("//") || trimmed.starts_with("*") {
+            if trimmed.starts_with("//") || trimmed.starts_with('*') {
                 return false;
             }
             let mut chars = trimmed.char_indices().peekable();

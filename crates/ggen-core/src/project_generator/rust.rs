@@ -216,7 +216,7 @@ async fn main() -> Result<()> {{
 
     fn generate_lib_rs(&self, config: &ProjectConfig) -> String {
         format!(
-            r#"//! {} - A Rust library
+            r"//! {} - A Rust library
 //!
 //! This library provides...
 
@@ -235,23 +235,23 @@ mod tests {{
         assert!(run().is_ok());
     }});
 }}
-"#,
+",
             config.name
         )
     }
 
     fn generate_gitignore(&self) -> String {
-        r#"/target
+        r"/target
 /Cargo.lock
 .env
 .DS_Store
-"#
+"
         .to_string()
     }
 
     fn generate_readme(&self, config: &ProjectConfig) -> String {
         format!(
-            r#"# {}
+            r"# {}
 
 ## Description
 
@@ -278,7 +278,7 @@ cargo test
 ## License
 
 MIT
-"#,
+",
             config.name, config.project_type
         )
     }

@@ -293,7 +293,9 @@ impl StagedPipeline {
             self.graph.insert_turtle(&content)?;
         }
 
-        Ok(self.epoch.as_ref().unwrap())
+        self.epoch
+            .as_ref()
+            .ok_or_else(|| Error::new("Pipeline epoch is not initialized"))
     }
 
     /// Get resolved packs from μ₀ stage
@@ -422,7 +424,7 @@ impl StagedPipeline {
             "operation.type" = "pipeline",
             "pipeline.stage" = "mu1",
         );
-        let _guard = span.enter();
+        let guard = span.enter();
         let norm_result = normalization.execute(&mut ctx)?;
         let mut execution = normalization.create_execution_record(&norm_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -440,7 +442,7 @@ impl StagedPipeline {
             elapsed_ms = elapsed.as_millis() as u64,
             "Pipeline stage completed"
         );
-        drop(_guard);
+        drop(guard);
 
         // μ₂: Extraction (pipeline.extract — extract skill definitions via SELECT)
         let start = Instant::now();
@@ -450,7 +452,7 @@ impl StagedPipeline {
             "operation.type" = "pipeline",
             "pipeline.stage" = "mu2",
         );
-        let _guard = span.enter();
+        let guard = span.enter();
         let extract_result = extraction.execute(&mut ctx)?;
         let mut execution = extraction.create_execution_record(&extract_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -468,7 +470,7 @@ impl StagedPipeline {
             elapsed_ms = elapsed.as_millis() as u64,
             "Pipeline stage completed"
         );
-        drop(_guard);
+        drop(guard);
 
         // Stage pack templates under .ggen/pack-stage/ (μ₃ rules may reference these paths)
         if let Some(ref rp) = self.resolved_packs {
@@ -483,7 +485,7 @@ impl StagedPipeline {
             "operation.type" = "pipeline",
             "pipeline.stage" = "mu3",
         );
-        let _guard = span.enter();
+        let guard = span.enter();
 
         let emission_result = emission.execute(&mut ctx)?;
         let mut execution = emission.create_execution_record(&emission_result);
@@ -502,7 +504,7 @@ impl StagedPipeline {
             elapsed_ms = elapsed.as_millis() as u64,
             "Pipeline stage completed"
         );
-        drop(_guard);
+        drop(guard);
 
         // μ₄: Canonicalization (pipeline.validate — quality gate validation)
         let start = Instant::now();
@@ -512,7 +514,7 @@ impl StagedPipeline {
             "operation.type" = "pipeline",
             "pipeline.stage" = "mu4",
         );
-        let _guard = span.enter();
+        let guard = span.enter();
         let canon_result = canonicalization.execute(&mut ctx)?;
         let mut execution = canonicalization.create_execution_record(&canon_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -530,7 +532,7 @@ impl StagedPipeline {
             elapsed_ms = elapsed.as_millis() as u64,
             "Pipeline stage completed"
         );
-        drop(_guard);
+        drop(guard);
 
         // Collect generated files
         self.generated_files = ctx.generated_files.clone();
@@ -546,9 +548,12 @@ impl StagedPipeline {
             "operation.type" = "pipeline",
             "pipeline.stage" = "mu5",
         );
-        let _guard = span.enter();
+        let guard = span.enter();
 
-        let epoch = self.epoch.as_ref().unwrap();
+        let epoch = self
+            .epoch
+            .as_ref()
+            .ok_or_else(|| Error::new("Pipeline epoch is not initialized"))?;
         let mut receipt = BuildReceipt::new(
             epoch,
             self.executed_passes.clone(),
@@ -662,7 +667,7 @@ impl StagedPipeline {
             elapsed_ms = elapsed.as_millis() as u64,
             "Pipeline stage completed"
         );
-        drop(_guard);
+        drop(guard);
 
         Ok(receipt)
     }

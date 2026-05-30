@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Delivery-Plane Proof: LSP / MCP / A2A on the Playground (Reference)](#delivery-plane-proof-lsp--mcp--a2a-on-the-playground-reference)
+  - [Fixture](#fixture)
+  - [Proof 1 — LSP (headless admission gate)](#proof-1--lsp-headless-admission-gate)
+  - [Proof 2 — MCP (`ggen-lsp-mcp` stdio server)](#proof-2--mcp-ggen-lsp-mcp-stdio-server)
+  - [Proof 3 — A2A (`ggen-lsp-a2a` bridge)](#proof-3--a2a-ggen-lsp-a2a-bridge)
+  - [Conclusion](#conclusion)
+  - [Reproduce](#reproduce)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Delivery-Plane Proof: LSP / MCP / A2A on the Playground (Reference)
 
 > Reference + command-proof artifact. Captured transcripts proving the three delivery

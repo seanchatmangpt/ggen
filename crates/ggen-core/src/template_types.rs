@@ -37,11 +37,10 @@ use tera::{Context, Tera};
 use crate::graph::Graph;
 use crate::preprocessor::{FreezePolicy, FreezeStage, PrepCtx, Preprocessor};
 
+/// Boolean control flags for frontmatter template directives
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Frontmatter {
+pub struct FrontmatterFlags {
     // Hygen core
-    pub to: Option<String>,
-    pub from: Option<String>,
     #[serde(default)]
     pub force: bool,
     #[serde(default)]
@@ -50,15 +49,32 @@ pub struct Frontmatter {
     // Injection
     #[serde(default)]
     pub inject: bool,
-    pub before: Option<String>,
-    pub after: Option<String>,
     #[serde(default)]
     pub prepend: bool,
     #[serde(default)]
     pub append: bool,
-    pub at_line: Option<u32>,
     #[serde(default)]
     pub eof_last: bool,
+
+    // Safety and idempotency
+    #[serde(default)]
+    pub idempotent: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Frontmatter {
+    // Hygen core
+    pub to: Option<String>,
+    pub from: Option<String>,
+
+    /// Boolean control flags (force, unless_exists, inject, prepend, append, eof_last, idempotent)
+    #[serde(flatten)]
+    pub flags: FrontmatterFlags,
+
+    // Injection
+    pub before: Option<String>,
+    pub after: Option<String>,
+    pub at_line: Option<u32>,
     pub skip_if: Option<String>,
 
     // Shell hooks
@@ -84,8 +100,6 @@ pub struct Frontmatter {
     // Safety and idempotency
     #[serde(default)]
     pub backup: Option<bool>,
-    #[serde(default)]
-    pub idempotent: bool,
 
     // Additional fields for compatibility
     #[serde(default, deserialize_with = "string_or_seq")]
@@ -115,7 +129,7 @@ impl Template {
     /// Parse template from a string (frontmatter + body). Does NOT render yet.
     ///
     /// This is the core parsing method. For convenience, see also:
-    /// - [`from_str`](Self::from_str) - Alias for `parse`
+    /// - [`std::str::FromStr`] — implemented for `Template`, enables `.parse::<Template>()`
     /// - [`from_file`](Self::from_file) - Load from file and parse
     ///
     /// # Examples
@@ -146,30 +160,6 @@ impl Template {
             front: Frontmatter::default(),
             body: content,
         })
-    }
-
-    /// Parse template from a string. Convenience alias for [`parse`](Self::parse).
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use crate::Template;
-    ///
-    /// # fn main() -> anyhow::Result<()> {
-    /// let template = Template::from_str(r#"
-    /// ---
-    /// to: "output.rs"
-    /// ---
-    /// fn main() {
-    ///     println!("Hello, {{ name }}!");
-    /// }
-    /// "#)?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    #[allow(clippy::should_implement_trait)] // Method name matches FromStr but we use parse() internally
-    pub fn from_str(content: &str) -> Result<Self> {
-        Self::parse(content)
     }
 
     /// Load template from a file and parse it.
@@ -463,6 +453,16 @@ impl Template {
     }
 }
 
+/// Implement [`std::str::FromStr`] for [`Template`] so callers can use
+/// `content.parse::<Template>()`. Delegates to [`Template::parse`].
+impl std::str::FromStr for Template {
+    type Err = crate::utils::error::Error;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        Self::parse(s)
+    }
+}
+
 /* ---------------- helpers ---------------- */
 
 // Accept either "rdf: <string>" or "rdf: [<string>, ...]"
@@ -689,8 +689,14 @@ sh_after: "echo post"
 "#,
         )
         .unwrap();
-        assert!(fm.force && fm.unless_exists && fm.inject && fm.prepend && fm.append);
-        assert!(fm.eof_last && fm.idempotent);
+        assert!(
+            fm.flags.force
+                && fm.flags.unless_exists
+                && fm.flags.inject
+                && fm.flags.prepend
+                && fm.flags.append
+        );
+        assert!(fm.flags.eof_last && fm.flags.idempotent);
         assert_eq!(fm.before.as_deref(), Some("// before"));
         assert_eq!(fm.after.as_deref(), Some("// after"));
         assert_eq!(fm.at_line, Some(7));

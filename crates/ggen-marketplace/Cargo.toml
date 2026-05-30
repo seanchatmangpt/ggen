@@ -58,7 +58,7 @@ flate2 = "1.1"
 
 [dependencies.ggen-config]
 path = "../ggen-config"
-version = "26.5.28"
+version = "26.5.29"
 
 [dev-dependencies]
 tempfile = "3"

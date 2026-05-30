@@ -147,7 +147,14 @@ impl PromptCompiler {
 
 impl Default for PromptCompiler {
     fn default() -> Self {
-        Self::new().expect("Failed to initialize PromptCompiler")
+        // SAFETY: PromptCompiler::new() only fails if the embedded Tera templates
+        // (compiled into the binary via include_str!) are syntactically invalid.
+        // This is a programmer error detectable at development time, not a runtime
+        // condition. Panicking here is the correct behavior — a broken binary
+        // should not silently produce a degraded compiler.
+        Self::new().unwrap_or_else(|e| {
+            panic!("invariant violated: embedded Tera templates are malformed: {e}")
+        })
     }
 }
 

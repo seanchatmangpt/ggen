@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ultra-Fast Template Examples](#ultra-fast-template-examples)
+  - [Quick Start Examples](#quick-start-examples)
+    - [Example 1: CLI Tool in 15 Seconds](#example-1-cli-tool-in-15-seconds)
+    - [Example 2: Library in 12 Seconds](#example-2-library-in-12-seconds)
+    - [Example 3: Web Service in 20 Seconds](#example-3-web-service-in-20-seconds)
+  - [Workflow Examples](#workflow-examples)
+    - [Workflow 1: Microservice Development](#workflow-1-microservice-development)
+    - [Workflow 2: Library + CLI Application](#workflow-2-library--cli-application)
+    - [Workflow 3: Rapid Prototyping](#workflow-3-rapid-prototyping)
+  - [Cleanroom Integration Examples](#cleanroom-integration-examples)
+    - [Example 4: Validated Deployment](#example-4-validated-deployment)
+    - [Example 5: Continuous Integration](#example-5-continuous-integration)
+  - [Performance Benchmarks](#performance-benchmarks)
+    - [Benchmark 1: Generation Speed](#benchmark-1-generation-speed)
+    - [Benchmark 2: Binary Size Optimization](#benchmark-2-binary-size-optimization)
+  - [Advanced Examples](#advanced-examples)
+    - [Example 6: Custom Template Variables](#example-6-custom-template-variables)
+    - [Example 7: Batch Generation](#example-7-batch-generation)
+    - [Example 8: Template Testing Suite](#example-8-template-testing-suite)
+  - [Troubleshooting Examples](#troubleshooting-examples)
+    - [Issue 1: Template Generation Fails](#issue-1-template-generation-fails)
+    - [Issue 2: Tests Fail After Generation](#issue-2-tests-fail-after-generation)
+    - [Issue 3: Slow Performance](#issue-3-slow-performance)
+  - [Integration Examples](#integration-examples)
+    - [Integration 1: With Docker](#integration-1-with-docker)
+    - [Integration 2: With GitHub Actions](#integration-2-with-github-actions)
+    - [Integration 3: With Kubernetes](#integration-3-with-kubernetes)
+  - [Best Practices from Real Usage](#best-practices-from-real-usage)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ultra-Fast Template Examples
 
 Real-world usage examples for the ultra-fast code generation templates.

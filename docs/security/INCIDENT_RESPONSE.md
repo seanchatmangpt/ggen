@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Incident Response Plan (v26.5.19)](#incident-response-plan-v26.5.1900)
+- [Incident Response Plan (v26.5.19)](#incident-response-plan-v26519)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Incident Severity Levels](#incident-severity-levels)

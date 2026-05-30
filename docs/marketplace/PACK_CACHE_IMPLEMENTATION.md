@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack Cache Implementation Summary](#pack-cache-implementation-summary)
+  - [Overview](#overview)
+  - [Implementation Details](#implementation-details)
+    - [1. Cache Module (`crates/ggen-marketplace/src/cache.rs`)](#1-cache-module-cratesggen-marketplacesrccachers)
+    - [2. CLI Integration (`crates/ggen-cli/src/cmds/packs.rs`)](#2-cli-integration-cratesggen-clisrccmdspacksrs)
+    - [3. Test Suite (`crates/ggen-cli/tests/pack_cache_test.rs`)](#3-test-suite-cratesggen-clitestspack_cache_testrs)
+  - [Cache Directory Structure](#cache-directory-structure)
+  - [Usage Examples](#usage-examples)
+    - [First Install (Cache Miss)](#first-install-cache-miss)
+    - [Reinstall (Cache Hit)](#reinstall-cache-hit)
+    - [Force Reinstall](#force-reinstall)
+  - [Verification Checklist](#verification-checklist)
+  - [Next Steps](#next-steps)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Security Considerations](#security-considerations)
+  - [Error Handling](#error-handling)
+  - [Dependencies](#dependencies)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack Cache Implementation Summary
 
 ## Overview

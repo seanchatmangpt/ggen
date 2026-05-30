@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Foundation Audit — Master Synthesis (ggen v26.5.28 @ cf7a6004)](#foundation-audit--master-synthesis-ggen-v26528--cf7a6004)
+  - [Verdict](#verdict)
+  - [1. Rest-gate test state — PRECISE (dedicated auditor, isolated target, every number from a real run)](#1-rest-gate-test-state--precise-dedicated-auditor-isolated-target-every-number-from-a-real-run)
+  - [2. Oracle Gaps — 5 session fixes CONFIRMED CLOSED; remaining:](#2-oracle-gaps--5-session-fixes-confirmed-closed-remaining)
+  - [3. Receipts / contract drift — 20 paths audited; 7 session fixes hold. Remaining:](#3-receipts--contract-drift--20-paths-audited-7-session-fixes-hold-remaining)
+  - [4. Docs-vs-reality — the heaviest backlog](#4-docs-vs-reality--the-heaviest-backlog)
+  - [5. Boundary / dead-code](#5-boundary--dead-code)
+  - [Prioritized fix backlog (each a BOUNDED task — not an unbounded agent)](#prioritized-fix-backlog-each-a-bounded-task--not-an-unbounded-agent)
+  - [Bottom line](#bottom-line)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Foundation Audit — Master Synthesis (ggen v26.5.28 @ cf7a6004)
 
 Read-only audit, 5 parallel auditors, no fabrication (every finding cites file:line or a real test/build run). Dimensions: rest-gate test state, Oracle Gaps, receipts/contract-drift, docs-vs-reality, boundary/dead-code.

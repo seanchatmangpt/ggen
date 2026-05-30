@@ -162,11 +162,17 @@ impl PathProtectionConfig {
 
 impl Default for PathProtectionConfig {
     fn default() -> Self {
+        // SAFETY: The hardcoded glob patterns below are compile-time constants
+        // that are syntactically valid globs. Failure here is a programmer error
+        // (e.g., typo in the pattern literal) that must be caught during
+        // development, not silently swallowed at runtime.
         Self::new(
             &["src/domain/**", "src/main.rs", "Cargo.toml"],
             &["output/**"],
         )
-        .expect("Default patterns should be valid")
+        .unwrap_or_else(|e| {
+            panic!("invariant violated: default path protection patterns are invalid: {e}")
+        })
     }
 }
 

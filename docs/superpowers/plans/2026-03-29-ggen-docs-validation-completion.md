@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation Validation Plan - Completion Status](#ggen-documentation-validation-plan---completion-status)
+  - [Completed Tasks](#completed-tasks)
+    - [✅ Task 1: Create Elixir A2A End-to-End Validation](#-task-1-create-elixir-a2a-end-to-end-validation)
+    - [✅ Task 2: Create rmcp Documentation Validation](#-task-2-create-rmcp-documentation-validation)
+    - [✅ Task 3: Add Elixir A2A Benchmarks](#-task-3-add-elixir-a2a-benchmarks)
+    - [✅ Task 4: Add MCP Template Benchmarks](#-task-4-add-mcp-template-benchmarks)
+    - [✅ Task 5: Add Stress Tests](#-task-5-add-stress-tests)
+    - [✅ Task 6: Create Master Validation Script](#-task-6-create-master-validation-script)
+    - [✅ Task 7: Add CI Integration](#-task-7-add-ci-integration)
+  - [Summary Statistics](#summary-statistics)
+  - [Verification Status](#verification-status)
+  - [Next Steps](#next-steps)
+  - [Documentation Quality Gate](#documentation-quality-gate)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation Validation Plan - Completion Status
 
 **Date:** 2026-03-29

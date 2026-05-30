@@ -38,9 +38,9 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-bench-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Run Quick Wins Benchmarks
+      - name: Run Performance Benchmarks (Integration Test)
         run: |
-          cargo bench -p ggen-core --bench quick_wins_benchmark -- --noplot --save-baseline quick-wins-${{ github.sha }}
+          cargo test -p ggen-core --test performance_benchmarks -- --nocapture
 
       - name: Upload Quick Wins Results
         uses: actions/upload-artifact@v3
@@ -72,9 +72,9 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-bench-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Run Medium Optimizations Benchmarks
+      - name: Run Performance Benchmarks (Integration Test)
         run: |
-          cargo bench -p ggen-core --bench medium_optimizations_benchmark -- --noplot --save-baseline medium-opts-${{ github.sha }}
+          cargo test -p ggen-core --test performance_benchmarks -- --nocapture
 
       - name: Upload Medium Optimization Results
         uses: actions/upload-artifact@v3
@@ -106,9 +106,9 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-bench-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Run Core Performance Benchmarks
+      - name: Run Core Performance Benchmarks (Integration Test)
         run: |
-          cargo bench -p ggen-core --bench performance_benchmark -- --noplot --save-baseline core-perf-${{ github.sha }}
+          cargo test -p ggen-core --test performance_benchmarks -- --nocapture
 
       - name: Upload Core Performance Results
         uses: actions/upload-artifact@v3

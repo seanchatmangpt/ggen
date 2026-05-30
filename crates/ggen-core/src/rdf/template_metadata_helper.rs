@@ -37,7 +37,7 @@ impl TemplateMetadataStore {
     pub(super) fn query_full_metadata(&self, template_id: &str) -> Result<TemplateMetadata> {
         // Query basic fields
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name ?version ?description ?author ?category ?stability ?coverage ?usage
             WHERE {{
@@ -51,7 +51,7 @@ impl TemplateMetadataStore {
                 OPTIONAL {{ <{template_id}> ggen:testCoverage ?coverage }}
                 OPTIONAL {{ <{template_id}> ggen:usageCount ?usage }}
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -83,13 +83,13 @@ impl TemplateMetadataStore {
 
         // Query tags
         let tags_query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?tag
             WHERE {{
                 <{template_id}> ggen:tag ?tag .
             }}
-            "#,
+            ",
             template_id = template_id
         );
 

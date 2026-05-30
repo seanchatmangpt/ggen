@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Validation Scripts](#documentation-validation-scripts)
+  - [Why This Matters](#why-this-matters)
+  - [Quick Start](#quick-start)
+    - [Run All Validation Tests](#run-all-validation-tests)
+    - [Run Individual Tests](#run-individual-tests)
+    - [👀 Live Documentation Validation (Watch Mode)](#-live-documentation-validation-watch-mode)
+  - [What Gets Tested](#what-gets-tested)
+    - [1. Quick Start Tutorial (`validate-quick-start.sh`)](#1-quick-start-tutorial-validate-quick-startsh)
+    - [2. SPARQL Query Guide (`validate-sparql-guide.sh`)](#2-sparql-query-guide-validate-sparql-guidesh)
+    - [3. CLI Command Reference (`validate-cli-reference.sh`)](#3-cli-command-reference-validate-cli-referencesh)
+  - [Test Output](#test-output)
+    - [Success Output](#success-output)
+    - [Failure Output](#failure-output)
+  - [Generated Report](#generated-report)
+  - [Environment Variables](#environment-variables)
+    - [`GGEN_BIN`](#ggen_bin)
+    - [`REPORT_FILE`](#report_file)
+  - [CI/CD Integration](#cicd-integration)
+    - [GitHub Actions](#github-actions)
+    - [Pre-Release Checklist](#pre-release-checklist)
+  - [Adding New Validation Tests](#adding-new-validation-tests)
+    - [1. Create New Script](#1-create-new-script)
+    - [2. Add to Master Script](#2-add-to-master-script)
+    - [3. Test](#3-test)
+  - [Troubleshooting](#troubleshooting)
+    - [Script Permission Denied](#script-permission-denied)
+    - [ggen Not Found](#ggen-not-found)
+    - [Timeout Issues](#timeout-issues)
+    - [Test Failures](#test-failures)
+  - [Best Practices](#best-practices)
+    - [When Writing Documentation](#when-writing-documentation)
+    - [When Updating ggen](#when-updating-ggen)
+  - [Performance](#performance)
+  - [Exit Codes](#exit-codes)
+  - [License](#license)
+  - [Contributing](#contributing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Validation Scripts
 
 Automated validation scripts that ensure all documentation examples, tutorials, and guides actually work with the current version of ggen.

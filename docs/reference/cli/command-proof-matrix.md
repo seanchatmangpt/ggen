@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Command-Proof Matrix (Reference)](#command-proof-matrix-reference)
+  - [Proof status legend](#proof-status-legend)
+  - [The matrix](#the-matrix)
+  - [Promotion rule](#promotion-rule)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Command-Proof Matrix (Reference)
 
 > Reference + release artifact. This is the single table that answers, for every CLI

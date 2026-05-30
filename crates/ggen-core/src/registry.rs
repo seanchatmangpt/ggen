@@ -238,7 +238,7 @@ impl RegistryClient {
         if url.scheme() == "file" {
             let path = url
                 .to_file_path()
-                .map_err(|_| Error::new(&format!("Invalid file URL: {}", url)))?;
+                .map_err(|()| Error::new(&format!("Invalid file URL: {}", url)))?;
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
                 Error::with_context(

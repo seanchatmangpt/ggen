@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [/speckit.finish Execution Summary](#speckitfinish-execution-summary)
+  - [Execution Report](#execution-report)
+    - [80/20 Gap Analysis](#8020-gap-analysis)
+  - [Definition of Done Validation](#definition-of-done-validation)
+    - [Checklist Status ✅](#checklist-status-)
+    - [Task Completion ✅](#task-completion-)
+    - [Quality Validation ✅](#quality-validation-)
+  - [Files & Artifacts Created](#files--artifacts-created)
+    - [Infrastructure (Complete)](#infrastructure-complete)
+    - [Documentation (Complete)](#documentation-complete)
+    - [Sample Audits (Complete)](#sample-audits-complete)
+    - [Templates & Schemas (Complete)](#templates--schemas-complete)
+  - [Quality Metrics](#quality-metrics)
+    - [Code Quality ✅](#code-quality-)
+    - [Artifact Count](#artifact-count)
+    - [Coverage](#coverage)
+  - [Constitutional Alignment Verification](#constitutional-alignment-verification)
+  - [Andon Signal Status](#andon-signal-status)
+  - [Next Phase: Phase 3 Preparation](#next-phase-phase-3-preparation)
+    - [Ready to Begin](#ready-to-begin)
+    - [Phase 3: US1 Functional Audit](#phase-3-us1-functional-audit)
+    - [Success Criteria for Phase 3](#success-criteria-for-phase-3)
+  - [Implementation Summary](#implementation-summary)
+  - [Sign-Off](#sign-off)
+  - [Recommendations](#recommendations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # /speckit.finish Execution Summary
 
 **Date**: 2024-12-14

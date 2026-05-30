@@ -96,8 +96,7 @@ use super::template_metadata::TemplateMetadata;
 /// # }
 /// ```
 /// PartialEq without Eq: Invalid variant contains Vec<ValidationError>
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ValidationResult {
     /// Validation passed - no errors found
     Valid,
@@ -106,9 +105,7 @@ pub enum ValidationResult {
 }
 
 /// Validation error with details
-/// PartialEq without Eq: All fields (Severity, String, Option) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ValidationError {
     pub severity: Severity,
     pub path: String,
@@ -132,7 +129,7 @@ pub struct ValidationError {
 /// assert_ne!(warning, info);
 /// # }
 /// ```
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Severity {
     Error,
     Warning,

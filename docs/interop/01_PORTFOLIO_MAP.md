@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Portfolio Cartographer Map](#portfolio-cartographer-map)
+  - [1. Scope](#1-scope)
+  - [2. Universal Layer Definitions](#2-universal-layer-definitions)
+  - [3. Project Classification Matrix](#3-project-classification-matrix)
+  - [4. Key Architectural Insights](#4-key-architectural-insights)
+  - [5. Required Action: Consolidation](#5-required-action-consolidation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Portfolio Cartographer Map
 
 ## 1. Scope

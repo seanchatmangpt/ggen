@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Testing Guide (v26.5.19)](#security-testing-guide-v26.5.1900)
+- [Security Testing Guide (v26.5.19)](#security-testing-guide-v26519)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Security Test Categories](#security-test-categories)

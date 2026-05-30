@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Implementation Delta: Plan vs Reality](#mcp-implementation-delta-plan-vs-reality)
+  - [Overview](#overview)
+  - [Planned vs Actual](#planned-vs-actual)
+    - [Planned Architecture (from plan)](#planned-architecture-from-plan)
+    - [Actual Architecture (current implementation)](#actual-architecture-current-implementation)
+  - [Critical Differences](#critical-differences)
+  - [Files That Exist](#files-that-exist)
+    - [✅ Exists (Actual Implementation)](#-exists-actual-implementation)
+    - [❌ Does Not Exist (Planned but Not Implemented)](#-does-not-exist-planned-but-not-implemented)
+  - [Why the Difference?](#why-the-difference)
+    - [Technical Reasons](#technical-reasons)
+    - [Architectural Reasons](#architectural-reasons)
+  - [Updated Documentation Strategy](#updated-documentation-strategy)
+  - [Migration Path (If Implementing Full Plan)](#migration-path-if-implementing-full-plan)
+  - [Current Architecture Summary](#current-architecture-summary)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Implementation Delta: Plan vs Reality
 
 **Date**: 2026-03-31

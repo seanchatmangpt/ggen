@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-core Examples - Production-Ready Rust Lifecycle Management](#ggen-core-examples---production-ready-rust-lifecycle-management)
+  - [🎯 Quick Start](#-quick-start)
+  - [📦 Workspace Members](#-workspace-members)
+    - [1. **Advanced CLI Tool** (`advanced-cli-tool/`)](#1-advanced-cli-tool-advanced-cli-tool)
+    - [2. **Performance Library** (`perf-library/`)](#2-performance-library-perf-library)
+    - [3. **Async Web Service** (`async-web-service/`)](#3-async-web-service-async-web-service)
+    - [4. **WASM Crypto Module** (`wasm-crypto/`)](#4-wasm-crypto-module-wasm-crypto)
+    - [5. **Embedded IoT Firmware** (`embedded-iot/`)](#5-embedded-iot-firmware-embedded-iot)
+  - [🚀 Lifecycle Phases](#-lifecycle-phases)
+    - [1. **VALIDATE** - Pre-flight Checks](#1-validate---pre-flight-checks)
+    - [2. **BUILD** - Compilation](#2-build---compilation)
+    - [3. **TEST** - Quality Assurance](#3-test---quality-assurance)
+    - [4. **BENCHMARK** - Performance Validation](#4-benchmark---performance-validation)
+    - [5. **PACKAGE** - Distribution Preparation](#5-package---distribution-preparation)
+    - [6. **DEPLOY** - Production Release](#6-deploy---production-release)
+  - [🔧 Development Workflows](#-development-workflows)
+    - [Quick Iteration (Dev Mode)](#quick-iteration-dev-mode)
+    - [Pre-Commit Hook](#pre-commit-hook)
+    - [Full CI Pipeline](#full-ci-pipeline)
+  - [🎨 AI Integration Examples](#-ai-integration-examples)
+    - [CLI Tool](#cli-tool)
+    - [Performance Library](#performance-library)
+    - [Web Service](#web-service)
+    - [WASM Module](#wasm-module)
+    - [Embedded Firmware](#embedded-firmware)
+  - [📊 Performance Benchmarks](#-performance-benchmarks)
+  - [🛡️ Security Best Practices](#-security-best-practices)
+  - [📖 Documentation](#-documentation)
+  - [🔍 Troubleshooting](#-troubleshooting)
+    - [Build Failures](#build-failures)
+    - [Test Failures](#test-failures)
+    - [Deployment Issues](#deployment-issues)
+  - [🎓 Learning Path](#-learning-path)
+  - [🚦 CI/CD Integration](#-cicd-integration)
+    - [GitHub Actions](#github-actions)
+    - [GitLab CI](#gitlab-ci)
+  - [📈 Metrics and Monitoring](#-metrics-and-monitoring)
+  - [🤝 Contributing](#-contributing)
+  - [📚 Additional Resources](#-additional-resources)
+  - [📝 License](#-license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-core Examples - Production-Ready Rust Lifecycle Management
 
 This workspace demonstrates **ggen-core's** lifecycle orchestration capabilities through five production-quality examples, each showcasing the **80/20 principle** applied to different Rust project types.

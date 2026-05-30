@@ -46,7 +46,7 @@ impl OntologyExtractor {
     /// declarations. Restrictions may be attached via `rdfs:subClassOf` (blank-node
     /// style) or as standalone `owl:Restriction` nodes using `owl:onClass`.
     fn refine_cardinalities(graph: &Graph, schema: &mut OntologySchema) -> Result<(), String> {
-        let query = r#"
+        let query = r"
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -57,7 +57,7 @@ impl OntologyExtractor {
                 OPTIONAL { ?restriction owl:maxCardinality ?maxCard }
                 OPTIONAL { ?restriction owl:cardinality ?exactCard }
             }
-        "#;
+        ";
 
         let mut by_uri: std::collections::BTreeMap<String, Cardinality> =
             std::collections::BTreeMap::new();
@@ -117,7 +117,7 @@ impl OntologyExtractor {
     /// Extract all classes from the RDF graph
     fn extract_classes(graph: &Graph, namespace: &str) -> Result<Vec<OntClass>, String> {
         // SPARQL query to extract all classes with their metadata
-        let query = r#"
+        let query = r"
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -129,7 +129,7 @@ impl OntologyExtractor {
               OPTIONAL { ?class rdfs:comment ?comment }
               OPTIONAL { ?class rdfs:subClassOf ?parent }
             }
-        "#;
+        ";
 
         let mut classes = Vec::new();
         let mut class_map: HashMap<String, OntClass> = HashMap::new();
@@ -310,7 +310,7 @@ impl OntologyExtractor {
     ) -> Result<BTreeMap<String, Cardinality>, String> {
         let escaped_class = class_uri.replace(['<', '>'], "");
         let query = format!(
-            r#"
+            r"
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -323,7 +323,7 @@ impl OntologyExtractor {
               OPTIONAL {{ ?restriction owl:maxCardinality ?maxCard }}
               OPTIONAL {{ ?restriction owl:cardinality ?exactCard }}
             }}
-            "#,
+            ",
             escaped_class
         );
 
@@ -472,12 +472,12 @@ impl OntologyExtractor {
     fn check_functional(graph: &Graph, prop_uri: &str) -> Result<bool, String> {
         let escaped_uri = prop_uri.replace(['<', '>'], "");
         let query = format!(
-            r#"
+            r"
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             ASK {{
               <{}> a owl:FunctionalProperty .
             }}
-            "#,
+            ",
             escaped_uri
         );
 

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 3: US1 Functional Audit - Progress Report](#phase-3-us1-functional-audit---progress-report)
+  - [Day 1 Audit Findings (Workflow + Utils)](#day-1-audit-findings-workflow--utils)
+    - [Key Discovery: File Dependency Pattern](#key-discovery-file-dependency-pattern)
+    - [Workflow Command Audit Results](#workflow-command-audit-results)
+    - [Critical Issues Identified (P1 Priority)](#critical-issues-identified-p1-priority)
+    - [Pattern Recognition: Agent Accessibility Gaps](#pattern-recognition-agent-accessibility-gaps)
+  - [Next Steps: Days 2-5 Phase 3 Strategy](#next-steps-days-2-5-phase-3-strategy)
+    - [Estimated Effort Allocation](#estimated-effort-allocation)
+    - [Parallel Execution Opportunity](#parallel-execution-opportunity)
+  - [Phase 3 Completion Criteria](#phase-3-completion-criteria)
+  - [Files Updated This Session](#files-updated-this-session)
+    - [Audits Updated](#audits-updated)
+    - [New Files](#new-files)
+  - [Constitutional Alignment Check](#constitutional-alignment-check)
+  - [Recommendations for Phase 3 Completion](#recommendations-for-phase-3-completion)
+    - [High-Priority Fixes (Before Phase 4)](#high-priority-fixes-before-phase-4)
+    - [Phase 3 Execution Plan](#phase-3-execution-plan)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 3: US1 Functional Audit - Progress Report
 
 **Date**: 2024-12-14

@@ -1,0 +1,17 @@
+[project]
+name = "tpl001-output-unbound"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+# `slug` is NOT bound by the query — this is a GGEN-OUT-001 candidate
+# (templated output path with an unbound projection variable).
+# GGEN-OUT-001 is NOT active yet; the matching test is #[ignore].
+output_file = "out/{{ slug }}.txt"

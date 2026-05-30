@@ -85,7 +85,7 @@ impl EnvironmentConfig {
         // Create directories if they don't exist
         for dir in [&data_dir, &config_dir, &cache_dir, &log_dir] {
             std::fs::create_dir_all(dir)
-                .map_err(|e| format!("Failed to create directory {:?}: {}", dir, e))?;
+                .map_err(|e| format!("Failed to create directory {}: {}", dir.display(), e))?;
         }
 
         // Load secrets from environment variables

@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Research: FMEA & Poka-Yoke Marketplace Framework](#research-fmea--poka-yoke-marketplace-framework)
+  - [1. TOML Schema for &#91;fmea&#93; Section](#1-toml-schema-for-fmea-section)
+    - [Decision](#decision)
+    - [Rationale](#rationale)
+    - [Schema Design](#schema-design)
+    - [Alternatives Considered](#alternatives-considered)
+  - [2. Path Pattern Matching](#2-path-pattern-matching)
+    - [Decision](#decision-1)
+    - [Rationale](#rationale-1)
+    - [Implementation](#implementation)
+    - [Alternatives Considered](#alternatives-considered-1)
+  - [3. Warning Header Format](#3-warning-header-format)
+    - [Decision](#decision-2)
+    - [Rationale](#rationale-2)
+    - [Format (Rust)](#format-rust)
+    - [Format (TypeScript/JavaScript)](#format-typescriptjavascript)
+    - [Format (Python)](#format-python)
+    - [Template Configuration](#template-configuration)
+    - [Alternatives Considered](#alternatives-considered-2)
+  - [4. CODEOWNERS Aggregation](#4-codeowners-aggregation)
+    - [Decision](#decision-3)
+    - [Rationale](#rationale-3)
+    - [Format (noun OWNERS file)](#format-noun-owners-file)
+    - [Generated CODEOWNERS](#generated-codeowners)
+    - [Aggregation Algorithm](#aggregation-algorithm)
+    - [Alternatives Considered](#alternatives-considered-3)
+  - [Summary of Decisions](#summary-of-decisions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Research: FMEA & Poka-Yoke Marketplace Framework
 
 **Branch**: `006-marketplace-fmea-poka-yoke`

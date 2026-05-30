@@ -178,7 +178,7 @@ pub fn run_phase(ctx: &Context, phase_name: &str) -> Result<()> {
 
     // Record status in span
     match &result {
-        Ok(_) => {
+        Ok(()) => {
             tracing::Span::current().record("status", "success");
             tracing::info!(phase = phase_name, "lifecycle phase completed");
         }

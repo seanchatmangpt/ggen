@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Gall Foundation Retrofit — with `ggen sync` as the Only Actuation](#gall-foundation-retrofit--with-ggen-sync-as-the-only-actuation)
+  - [The one-sentence thesis](#the-one-sentence-thesis)
+  - [Sensing is not actuation](#sensing-is-not-actuation)
+  - [The Chatman Equation, with μ pinned to sync](#the-chatman-equation-with-%CE%BC-pinned-to-sync)
+  - [The house-repair calculus](#the-house-repair-calculus)
+  - [What a Gall pier is (actuation-centric)](#what-a-gall-pier-is-actuation-centric)
+  - [Rest condition](#rest-condition)
+  - [Why "only actuation" is the bridge](#why-only-actuation-is-the-bridge)
+  - [Product-category statement](#product-category-statement)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Gall Foundation Retrofit — with `ggen sync` as the Only Actuation
 
 > Explanation. The bridge from a pre-Chatman project (value trapped in private

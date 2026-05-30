@@ -345,7 +345,7 @@ pub enum SecurityClassification {
 }
 
 /// Encryption requirements
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct EncryptionRequirements {
     /// Algorithm requirement
     pub algorithm: String,
@@ -417,7 +417,7 @@ pub enum ReliabilityLevel {
 }
 
 /// Latency requirements
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct LatencyRequirements {
     /// Maximum latency in milliseconds
     #[serde(rename = "maxLatencyMs")]
@@ -538,7 +538,7 @@ pub enum TimeoutType {
 }
 
 /// Converged message types
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ConvergedMessageType {
     /// Task request/response
@@ -564,7 +564,7 @@ pub enum ConvergedMessageType {
 }
 
 /// Message priority levels
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum MessagePriority {
     Lowest,
     Low,

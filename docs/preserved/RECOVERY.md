@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Preserved Artifacts — Recovery Guide](#preserved-artifacts--recovery-guide)
+  - [Files](#files)
+    - [`craftplan-local-d2e4c18.bundle`](#craftplan-local-d2e4c18bundle)
+  - [Submodule pins (removed in v26.5.19)](#submodule-pins-removed-in-v26519)
+  - [Archive tags](#archive-tags)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Preserved Artifacts — Recovery Guide
 
 This directory holds artifacts preserved before being removed from the live

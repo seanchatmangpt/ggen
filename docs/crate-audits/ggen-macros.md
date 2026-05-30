@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-macros — Crate Audit](#ggen-macros--crate-audit)
+  - [STATUS: MOSTLY DEAD](#status-mostly-dead)
+    - [Macro Inventory](#macro-inventory)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-macros — Crate Audit
 
 **Path:** `crates/ggen-macros/`

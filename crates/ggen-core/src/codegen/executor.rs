@@ -68,6 +68,37 @@ impl std::fmt::Display for OutputFormat {
     }
 }
 
+/// Execution mode flags — mutually exclusive sync behaviors (≤3 bools)
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ModeFlags {
+    /// Only validate, don't generate
+    pub validate_only: bool,
+    /// Dry run mode - preview changes without writing
+    pub dry_run: bool,
+    /// Enable file watching and auto-regeneration
+    pub watch: bool,
+}
+
+/// Behavioral modifier flags (≤3 bools)
+#[derive(Debug, Clone, Copy, Default)]
+pub struct BehaviorFlags {
+    /// Enable verbose output
+    pub verbose: bool,
+    /// Force overwrite even if files are newer
+    pub force: bool,
+    /// Generate audit trail
+    pub audit: bool,
+}
+
+/// Combined sync flags (groups mode and behavior sub-structs)
+#[derive(Debug, Clone, Copy, Default)]
+pub struct SyncFlags {
+    /// Execution mode (validate_only, dry_run, watch)
+    pub mode: ModeFlags,
+    /// Behavioral modifiers (verbose, force, audit)
+    pub behavior: BehaviorFlags,
+}
+
 /// Options for sync execution
 pub struct SyncOptions {
     /// Path to manifest file
@@ -79,32 +110,17 @@ pub struct SyncOptions {
     /// Cache directory for incremental builds
     pub cache_dir: Option<PathBuf>,
 
-    /// Enable verbose output
-    pub verbose: bool,
+    /// Use incremental cache
+    pub use_cache: bool,
+
+    /// Boolean execution flags
+    pub flags: SyncFlags,
 
     /// Output format
     pub output_format: OutputFormat,
 
-    /// Only validate, don't generate
-    pub validate_only: bool,
-
-    /// Dry run mode - preview changes without writing
-    pub dry_run: bool,
-
-    /// Enable file watching and auto-regeneration
-    pub watch: bool,
-
     /// Selected rules to execute (None = all)
     pub selected_rules: Option<Vec<String>>,
-
-    /// Use incremental cache
-    pub use_cache: bool,
-
-    /// Force overwrite even if files are newer
-    pub force: bool,
-
-    /// Generate audit trail
-    pub audit: bool,
 
     // A2A-specific options
     /// Run specific μ stage only (μ₁, μ₂, μ₃, μ₄, μ₅)
@@ -128,15 +144,10 @@ impl Default for SyncOptions {
             manifest_path: PathBuf::from("ggen.toml"),
             output_dir: None,
             cache_dir: None,
-            verbose: false,
-            output_format: OutputFormat::default(),
-            validate_only: false,
-            dry_run: false,
-            watch: false,
-            selected_rules: None,
             use_cache: true,
-            force: false,
-            audit: false,
+            flags: SyncFlags::default(),
+            output_format: OutputFormat::default(),
+            selected_rules: None,
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
@@ -151,15 +162,9 @@ impl std::fmt::Debug for SyncOptions {
             .field("manifest_path", &self.manifest_path)
             .field("output_dir", &self.output_dir)
             .field("cache_dir", &self.cache_dir)
-            .field("verbose", &self.verbose)
+            .field("flags", &self.flags)
             .field("output_format", &self.output_format)
-            .field("validate_only", &self.validate_only)
-            .field("dry_run", &self.dry_run)
-            .field("watch", &self.watch)
             .field("selected_rules", &self.selected_rules)
-            .field("use_cache", &self.use_cache)
-            .field("force", &self.force)
-            .field("audit", &self.audit)
             .field("a2a_stage", &self.a2a_stage)
             .field("ontology_path", &self.ontology_path)
             .field("llm_service", &"<dyn LlmService>")
@@ -174,15 +179,10 @@ impl Clone for SyncOptions {
             manifest_path: self.manifest_path.clone(),
             output_dir: self.output_dir.clone(),
             cache_dir: self.cache_dir.clone(),
-            verbose: self.verbose,
-            output_format: self.output_format,
-            validate_only: self.validate_only,
-            dry_run: self.dry_run,
-            watch: self.watch,
-            selected_rules: self.selected_rules.clone(),
             use_cache: self.use_cache,
-            force: self.force,
-            audit: self.audit,
+            flags: self.flags,
+            output_format: self.output_format,
+            selected_rules: self.selected_rules.clone(),
             a2a_stage: self.a2a_stage.clone(),
             ontology_path: self.ontology_path.clone(),
             timeout_ms: self.timeout_ms,
@@ -319,10 +319,10 @@ impl SyncExecutor {
 
         // Run basic pre-flight checks (without manifest, as we haven't parsed it yet)
         if let Err(e) = preflight.validate(None) {
-            if self.options.verbose {
+            if self.options.flags.behavior.verbose {
                 eprintln!("{}", warning_message(&format!("Pre-flight warning: {}", e)));
             }
-        } else if self.options.verbose {
+        } else if self.options.flags.behavior.verbose {
             eprintln!("{}", success_message("Pre-flight checks passed"));
         }
 
@@ -340,7 +340,7 @@ impl SyncExecutor {
         self.check_and_warn_drift(base_path);
 
         // T017-T018: Watch mode implementation
-        if self.options.watch {
+        if self.options.flags.mode.watch {
             return self.execute_watch_mode(&self.options.manifest_path);
         }
 
@@ -410,7 +410,7 @@ impl SyncExecutor {
             ))
         })?;
 
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             eprintln!(
                 "Pre-flight checks: {} validations, {} high-risk items detected",
                 pre_flight.validations.len(),
@@ -448,9 +448,9 @@ impl SyncExecutor {
         }
 
         // Dispatch to appropriate mode
-        if self.options.validate_only {
+        if self.options.flags.mode.validate_only {
             self.execute_validate_only(&manifest_data, &base_path)
-        } else if self.options.dry_run {
+        } else if self.options.flags.mode.dry_run {
             self.execute_dry_run(&manifest_data)
         } else {
             self.execute_full_sync(&manifest_data, &base_path)
@@ -461,7 +461,7 @@ impl SyncExecutor {
     fn execute_validate_only(
         &self, manifest_data: &crate::manifest::GgenManifest, base_path: &Path,
     ) -> Result<SyncResult> {
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             eprintln!("Validating ggen.toml...\n");
         }
 
@@ -523,7 +523,7 @@ impl SyncExecutor {
         let all_passed = validations.iter().all(|v| v.passed);
 
         // Output validation results
-        if self.options.verbose || self.options.output_format == OutputFormat::Text {
+        if self.options.flags.behavior.verbose || self.options.output_format == OutputFormat::Text {
             for v in &validations {
                 let status = if v.passed { "PASS" } else { "FAIL" };
                 let details = v.details.as_deref().unwrap_or("");
@@ -605,7 +605,7 @@ impl SyncExecutor {
             })
             .collect();
 
-        if self.options.verbose || self.options.output_format == OutputFormat::Text {
+        if self.options.flags.behavior.verbose || self.options.output_format == OutputFormat::Text {
             eprintln!("[DRY RUN] Would sync {} files:", would_sync.len());
             for f in &would_sync {
                 eprintln!("  {} ({})", f.path, f.action);
@@ -660,7 +660,7 @@ impl SyncExecutor {
             None
         };
 
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             progress.clear();
             eprintln!(
                 "{}",
@@ -681,7 +681,7 @@ impl SyncExecutor {
         let mut pipeline = GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
 
         // Apply force flag to pipeline if set
-        if self.options.force {
+        if self.options.flags.behavior.force {
             pipeline.set_force_overwrite(true);
         }
 
@@ -701,7 +701,7 @@ impl SyncExecutor {
         })?;
 
         // Show ontology loaded
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             progress.clear();
             print_section("Ontology Loaded");
             eprintln!(
@@ -746,12 +746,12 @@ impl SyncExecutor {
             .filter(|r| r.rule_type == RuleType::Generation)
             .count();
 
-        if show_progress && !self.options.verbose {
+        if show_progress && !self.options.flags.behavior.verbose {
             eprintln!(
                 "{}",
                 info_message(&format!("Generating {} files...", generation_count))
             );
-        } else if self.options.verbose {
+        } else if self.options.flags.behavior.verbose {
             print_section("Code Generation");
             for rule in &state.executed_rules {
                 if rule.rule_type == RuleType::Generation {
@@ -788,36 +788,37 @@ impl SyncExecutor {
         let files_synced = synced_files.len();
 
         // Determine audit trail path and write if enabled
-        let audit_path = if self.options.audit || manifest_data.generation.require_audit_trail {
-            let audit_file_path = base_path.join(&output_directory).join("audit.json");
+        let audit_path =
+            if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
+                let audit_file_path = base_path.join(&output_directory).join("audit.json");
 
-            // Create audit trail from pipeline state using AuditTrailBuilder
-            let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
+                // Create audit trail from pipeline state using AuditTrailBuilder
+                let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
 
-            // Record inputs (simplified - would need actual file paths in production)
-            // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
+                // Record inputs (simplified - would need actual file paths in production)
+                // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
 
-            // Record outputs
-            for file in &state.generated_files {
-                builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
-            }
+                // Record outputs
+                for file in &state.generated_files {
+                    builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
+                }
 
-            // Build the final audit trail
-            let audit_trail = builder.build(true); // validation_passed = true for now
+                // Build the final audit trail
+                let audit_trail = builder.build(true); // validation_passed = true for now
 
-            // Write audit trail to disk using AuditTrailBuilder::write_to
-            crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
-                .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+                // Write audit trail to disk using AuditTrailBuilder::write_to
+                crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
+                    .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
 
-            Some(audit_file_path.display().to_string())
-        } else {
-            None
-        };
+                Some(audit_file_path.display().to_string())
+            } else {
+                None
+            };
 
         // Save cache if enabled
         if let Some(cache) = cache {
             if let Err(e) = cache.save_cache_state(manifest_data, "", &state.ontology_graph) {
-                if self.options.verbose {
+                if self.options.flags.behavior.verbose {
                     eprintln!("Warning: Failed to save cache: {}", e);
                 }
             }
@@ -859,7 +860,7 @@ impl SyncExecutor {
                 andon_signal: None,
             },
         ) {
-            if self.options.verbose {
+            if self.options.flags.behavior.verbose {
                 eprintln!("Execution proof: {}", proof.execution_id);
             }
         }
@@ -868,7 +869,7 @@ impl SyncExecutor {
 
         // Print summary
         if self.options.output_format == OutputFormat::Text {
-            if self.options.verbose {
+            if self.options.flags.behavior.verbose {
                 // Verbose mode: detailed file listing
                 print_section("Summary");
                 eprintln!(
@@ -947,7 +948,7 @@ impl SyncExecutor {
         let base_path = manifest_path.parent().unwrap_or(Path::new("."));
         let watch_paths = collect_watch_paths(manifest_path, &manifest_data, base_path);
 
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             eprintln!("Starting watch mode...");
             eprintln!("Monitoring {} paths for changes:", watch_paths.len());
             for path in &watch_paths {
@@ -957,16 +958,15 @@ impl SyncExecutor {
         }
 
         // Initial sync
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             eprintln!("[Initial] Running sync...");
         }
-        let executor = SyncExecutor::new(SyncOptions {
-            watch: false, // Disable watch for recursive call
-            ..self.options.clone()
-        });
+        let mut inner_opts = self.options.clone();
+        inner_opts.flags.mode.watch = false; // Disable watch for recursive call
+        let executor = SyncExecutor::new(inner_opts);
         let initial_result = executor.execute()?;
 
-        if self.options.verbose {
+        if self.options.flags.behavior.verbose {
             eprintln!(
                 "[Initial] Synced {} files in {:.3}s\n",
                 initial_result.files_synced,
@@ -982,20 +982,19 @@ impl SyncExecutor {
         loop {
             match FileWatcher::wait_for_change(&rx, Duration::from_secs(1)) {
                 Ok(Some(event)) => {
-                    if self.options.verbose {
+                    if self.options.flags.behavior.verbose {
                         eprintln!("[Change detected] {}", event.path.display());
                         eprintln!("[Regenerating] Running sync...");
                     }
 
                     // Re-run sync
-                    let executor = SyncExecutor::new(SyncOptions {
-                        watch: false,
-                        ..self.options.clone()
-                    });
+                    let mut inner_opts = self.options.clone();
+                    inner_opts.flags.mode.watch = false;
+                    let executor = SyncExecutor::new(inner_opts);
 
                     match executor.execute() {
                         Ok(result) => {
-                            if self.options.verbose {
+                            if self.options.flags.behavior.verbose {
                                 eprintln!(
                                     "[Regenerating] Synced {} files in {:.3}s\n",
                                     result.files_synced,
@@ -1021,7 +1020,7 @@ impl SyncExecutor {
     /// Check for drift and warn user (non-blocking)
     fn check_and_warn_drift(&self, base_path: &Path) {
         // Don't check drift in validate-only or watch mode
-        if self.options.validate_only || self.options.watch {
+        if self.options.flags.mode.validate_only || self.options.flags.mode.watch {
             return;
         }
 
@@ -1066,7 +1065,7 @@ impl SyncExecutor {
         let detector = match DriftDetector::new(&state_dir) {
             Ok(d) => d,
             Err(e) => {
-                if self.options.verbose {
+                if self.options.flags.behavior.verbose {
                     eprintln!("Warning: Failed to create drift detector: {}", e);
                 }
                 return;
@@ -1103,7 +1102,7 @@ impl SyncExecutor {
             files_synced,
             duration_ms,
         ) {
-            if self.options.verbose {
+            if self.options.flags.behavior.verbose {
                 eprintln!("Warning: Failed to save drift state: {}", e);
             }
         }
@@ -1112,15 +1111,16 @@ impl SyncExecutor {
     /// Create a SyncResult for a failure state with machine-readable recovery info
     fn create_error_result(&self, error_msg: &str, andon: Option<AndonSignal>) -> SyncResult {
         let duration = self.start_time.elapsed().as_millis() as u64;
-        let mut recovery = None;
-        let mut andon_json = None;
-
-        if let Some(signal) = andon {
-            if let AndonSignal::Red(ref critical) = signal {
-                recovery = Some(critical.recovery_steps.join("\n"));
-            }
-            andon_json = serde_json::to_value(&signal).ok();
-        }
+        let (recovery, andon_json) = if let Some(signal) = andon {
+            let rec = if let AndonSignal::Red(ref critical) = signal {
+                Some(critical.recovery_steps.join("\n"))
+            } else {
+                None
+            };
+            (rec, serde_json::to_value(&signal).ok())
+        } else {
+            (None, None)
+        };
 
         SyncResult {
             status: "error".to_string(),

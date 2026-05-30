@@ -119,8 +119,7 @@ use regex::Regex;
 /// # }
 /// ```
 /// PartialEq without Eq: All fields (usize, String, Option) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FrozenSection {
     /// Start position in the content
     pub start: usize,
@@ -217,7 +216,10 @@ impl FrozenParser {
 
         // Find all start tags
         for start_match in start_regex.captures_iter(template_content) {
-            let start_pos = start_match.get(0).unwrap().end();
+            let full_match = start_match
+                .get(0)
+                .ok_or_else(|| Error::new("Regex matched but group 0 is missing"))?;
+            let start_pos = full_match.end();
             let id = start_match.get(1).map(|m| m.as_str().to_string());
 
             // Find corresponding end tag
@@ -226,7 +228,7 @@ impl FrozenParser {
                 let content = template_content[start_pos..end_pos].to_string();
 
                 sections.push(FrozenSection {
-                    start: start_match.get(0).unwrap().start(),
+                    start: full_match.start(),
                     end: end_match.end(),
                     content,
                     id,
@@ -234,7 +236,7 @@ impl FrozenParser {
             } else {
                 return Err(Error::new(&format!(
                     "Unclosed frozen tag at position {}",
-                    start_match.get(0).unwrap().start()
+                    full_match.start()
                 )));
             }
         }
@@ -391,33 +393,27 @@ impl FrozenMerger {
 
                 // Get preserved content or keep new content
                 if let Some(preserved_content) = old_sections.get(&id) {
-                    // Reconstruct frozen section with preserved content
+                    let mut result = String::from("{%");
                     if let Some(id_match) = caps.get(1) {
                         // With ID
-                        let mut result = String::from("{%");
                         result.push_str(" frozen id=\"");
                         result.push_str(id_match.as_str());
                         result.push_str("\" %");
-                        result.push('}');
-                        result.push_str(preserved_content);
-                        result.push_str("{%");
-                        result.push_str(" endfrozen %");
-                        result.push('}');
-                        result
                     } else {
                         // Without ID
-                        let mut result = String::from("{%");
                         result.push_str(" frozen %");
-                        result.push('}');
-                        result.push_str(preserved_content);
-                        result.push_str("{%");
-                        result.push_str(" endfrozen %");
-                        result.push('}');
-                        result
                     }
+                    result.push('}');
+                    result.push_str(preserved_content);
+                    result.push_str("{%");
+                    result.push_str(" endfrozen %");
+                    result.push('}');
+                    result
                 } else {
                     // Keep new content if no preserved version exists
-                    caps.get(0).unwrap().as_str().to_string()
+                    caps.get(0)
+                        .map(|m| m.as_str().to_string())
+                        .unwrap_or_default()
                 }
             })
             .to_string();
@@ -480,8 +476,13 @@ impl FrozenMerger {
     /// assert!(stripped.contains("preserved code"));
     /// ```
     pub fn strip_frozen_tags(content: &str) -> String {
-        let start_regex = Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"[^"]+")?\s*%\}"#).unwrap();
-        let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}").unwrap();
+        // SAFETY: These regex literals are compile-time constants with valid syntax.
+        // Failure here means the literal was edited incorrectly — a programmer
+        // error that must surface immediately, not be swallowed.
+        let start_regex = Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"[^"]+")?\s*%\}"#)
+            .unwrap_or_else(|e| panic!("invariant violated: frozen start regex is invalid: {e}"));
+        let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}")
+            .unwrap_or_else(|e| panic!("invariant violated: frozen end regex is invalid: {e}"));
 
         let content = start_regex.replace_all(content, "");
         end_regex.replace_all(&content, "").to_string()

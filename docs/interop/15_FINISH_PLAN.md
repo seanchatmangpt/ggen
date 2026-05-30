@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [15 FINISH PLAN](#15-finish-plan)
+  - [4. Work Packages](#4-work-packages)
+  - [5. Dependency Graph](#5-dependency-graph)
+  - [6. Risk Register](#6-risk-register)
+  - [7. Observed-vs-Planned Matrix](#7-observed-vs-planned-matrix)
+  - [8. Top 8 Missing Docs](#8-top-8-missing-docs)
+  - [9. Top 8 Missing Tests](#9-top-8-missing-tests)
+  - [10. Top 8 Implementation Gaps](#10-top-8-implementation-gaps)
+  - [11. Top 8 Interop Gaps](#11-top-8-interop-gaps)
+  - [12. Top 8 Naming/Rename Risks](#12-top-8-namingrename-risks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 15 FINISH PLAN
 
 The strategic finish plan to achieve Vision 2030 compliance for the Genesis-bearing interchangeable parts architecture.

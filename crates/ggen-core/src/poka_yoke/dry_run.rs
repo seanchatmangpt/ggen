@@ -140,7 +140,7 @@ impl DryRunMode {
         let mut completed = Vec::new();
         for op in &self.operations {
             match self.execute_operation(op) {
-                Ok(_) => completed.push(op.clone()),
+                Ok(()) => completed.push(op.clone()),
                 Err(e) => {
                     log::error!("Operation failed: {}", e);
                     self.rollback(&completed)?;
@@ -240,7 +240,7 @@ impl DryRunMode {
 
         for op in completed.iter().rev() {
             match self.rollback_operation(op) {
-                Ok(_) => log::info!("Rolled back: {:?}", op),
+                Ok(()) => log::info!("Rolled back: {:?}", op),
                 Err(e) => log::error!("Rollback failed: {}", e),
             }
         }

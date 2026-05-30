@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Algebra GALL (Gate for Algebraic Logic Limits)](#data-algebra-gall-gate-for-algebraic-logic-limits)
+  - [1. Purpose](#1-purpose)
+  - [2. Relational and Binary Relation Theory](#2-relational-and-binary-relation-theory)
+  - [3. Set vs Bag vs Stream](#3-set-vs-bag-vs-stream)
+  - [4. Local vs Global Identity](#4-local-vs-global-identity)
+  - [5. Indexes Are Not Authority](#5-indexes-are-not-authority)
+  - [6. Algebra Safety Checklist](#6-algebra-safety-checklist)
+  - [7. Final Judgment](#7-final-judgment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Algebra GALL (Gate for Algebraic Logic Limits)
 
 ## 1. Purpose

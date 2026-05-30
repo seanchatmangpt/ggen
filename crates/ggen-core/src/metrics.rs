@@ -68,17 +68,17 @@ impl CodeMetrics {
         let complexity_score = if self.avg_complexity <= 5.0 {
             100.0
         } else if self.avg_complexity <= 10.0 {
-            100.0 - (self.avg_complexity - 5.0) * 10.0
+            (self.avg_complexity - 5.0).mul_add(-10.0, 100.0)
         } else {
             50.0
         };
         let safety_score = if self.unwrap_calls == 0 {
             100.0
         } else {
-            (100.0 - (self.unwrap_calls as f64 * 10.0)).max(0.0)
+            ((self.unwrap_calls as f64).mul_add(-10.0, 100.0)).max(0.0)
         };
 
-        coverage_score * 0.5 + complexity_score * 0.3 + safety_score * 0.2
+        coverage_score.mul_add(0.5, complexity_score.mul_add(0.3, safety_score * 0.2))
     }
 }
 
@@ -537,14 +537,19 @@ impl MetricsReport {
         let oee_score = self.oee.oee;
         let kaizen_score = self.kaizen.improvement_rate;
 
-        // Weighted average
-        code_score * 0.25
-            + process_score * 0.15
-            + sigma_score * 0.20
-            + waste_score * 0.15
-            + flow_score * 0.10
-            + oee_score * 0.10
-            + kaizen_score * 0.05
+        code_score.mul_add(
+            0.25,
+            process_score.mul_add(
+                0.15,
+                sigma_score.mul_add(
+                    0.20,
+                    waste_score.mul_add(
+                        0.15,
+                        flow_score.mul_add(0.10, oee_score.mul_add(0.10, kaizen_score * 0.05)),
+                    ),
+                ),
+            ),
+        )
     }
 
     /// Generate markdown report

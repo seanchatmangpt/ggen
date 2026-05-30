@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Gap Register](#gap-register)
+  - [1. Scope](#1-scope)
+  - [2. Top Implementation Gaps](#2-top-implementation-gaps)
+  - [3. Top Documentation Gaps](#3-top-documentation-gaps)
+  - [4. Top Test Gaps](#4-top-test-gaps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Gap Register
 
 ## 1. Scope

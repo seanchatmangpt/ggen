@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Dogfood Foundation Audit &#035;1](#dogfood-foundation-audit-1)
+  - [SETTLEMENT-CHECK-1: HOLDS](#settlement-check-1-holds)
+  - [Verified cracks (recorded as backlog &#035;55–#58)](#verified-cracks-recorded-as-backlog-5558)
+  - [Command-foundation coverage (Agent 3)](#command-foundation-coverage-agent-3)
+  - [Agent over-flag (corrected)](#agent-over-flag-corrected)
+  - [Receipt-closure honesty (Agent 2)](#receipt-closure-honesty-agent-2)
+  - [Next loop iterations](#next-loop-iterations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Dogfood Foundation Audit #1
 
 > "Eating our own dog" — turning ggen's own inspection discipline on ggen itself.

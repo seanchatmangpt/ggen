@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [External Projection and Validation Specification](#external-projection-and-validation-specification)
+  - [Core Rule](#core-rule)
+  - [Interop Boundaries](#interop-boundaries)
+  - [Required Projection Table](#required-projection-table)
+  - [Validation Classes](#validation-classes)
+    - [1. RDF/N-Quads Expansion Validation](#1-rdfn-quads-expansion-validation)
+    - [2. Public Vocabulary Survivability](#2-public-vocabulary-survivability)
+    - [3. SHACL Validation](#3-shacl-validation)
+    - [4. Relational Equivalence Validation](#4-relational-equivalence-validation)
+    - [5. Graph Query Validation](#5-graph-query-validation)
+    - [6. OCEL/Process Validation](#6-ocelprocess-validation)
+    - [7. Audit/Provenance Validation](#7-auditprovenance-validation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # External Projection and Validation Specification
 
 ## Core Rule

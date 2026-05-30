@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-INTEGRATION-1 Receipt](#gall-integration-1-receipt)
+  - [Final State](#final-state)
+  - [The house-repair doctrine](#the-house-repair-doctrine)
+  - [Foundation under test](#foundation-under-test)
+  - [Location](#location)
+  - [Fixtures](#fixtures)
+  - [Tests proven (7/7 pass)](#tests-proven-77-pass)
+  - [Commands run](#commands-run)
+  - [Matrix updated](#matrix-updated)
+  - [Remaining work](#remaining-work)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-INTEGRATION-1 Receipt
 
 ## Final State

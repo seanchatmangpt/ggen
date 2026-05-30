@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [09_DATA_ALGEBRA_GALL.md](#09_data_algebra_gallmd)
+  - [Doctrine](#doctrine)
+  - [Forbidden Moves](#forbidden-moves)
+  - [Required Conclusion](#required-conclusion)
+  - [1. Algebra Validation & Analysis](#1-algebra-validation--analysis)
+    - [Relational Algebra & Binary Relation Theory](#relational-algebra--binary-relation-theory)
+    - [Set vs. Bag vs. Stream Behavior](#set-vs-bag-vs-stream-behavior)
+    - [Local vs. Global Identity](#local-vs-global-identity)
+    - [Keys, Inclusion Constraints, Joins, Projections, Selections](#keys-inclusion-constraints-joins-projections-selections)
+    - [Provenance, Updates, Retractions, Refusals](#provenance-updates-retractions-refusals)
+    - [RDF/SPARQL & OCEL Projections](#rdfsparql--ocel-projections)
+  - [2. GALL Checklist](#2-gall-checklist)
+  - [3. Finish Recommendations & Definition of Done](#3-finish-recommendations--definition-of-done)
+  - [4. Interop Boundaries](#4-interop-boundaries)
+  - [5. Final Judgment](#5-final-judgment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 09_DATA_ALGEBRA_GALL.md
 **Agent:** Data Algebra GALL
 **Purpose:** Protect the project from violating known data/database algebra. Validate Genesis core against relational algebra, binary relation theory, set vs. bag vs. stream behavior, global vs. local identity, and process/RDF projections.

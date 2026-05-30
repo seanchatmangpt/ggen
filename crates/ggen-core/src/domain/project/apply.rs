@@ -60,7 +60,7 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
 
     let plan: GenerationPlan = match plan_path.extension().and_then(|ext| ext.to_str()) {
         Some("json") => serde_json::from_str(&content).map_err(crate::utils::error::Error::from)?,
-        Some("yaml") | Some("yml") => {
+        Some("yaml" | "yml") => {
             serde_yaml::from_str(&content).map_err(crate::utils::error::Error::from)?
         }
         Some("toml") => toml::from_str(&content).map_err(crate::utils::error::Error::from)?,

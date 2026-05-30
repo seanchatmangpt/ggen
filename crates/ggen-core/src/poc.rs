@@ -287,7 +287,7 @@ fn build_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) -> Stri
 }
 
 fn load_rdf(rdf_paths: &[String], rdf_inline: &[String], base: &Path) -> Result<Store> {
-    let store = Store::new().expect("oxigraph store");
+    let store = Store::new().map_err(|e| anyhow::anyhow!("oxigraph store: {}", e))?;
 
     // Files
     if !rdf_paths.is_empty() {
@@ -340,7 +340,10 @@ fn tera_context(vars: &BTreeMap<String, String>) -> TeraContext {
     );
     ctx.insert(
         "cwd",
-        &std::env::current_dir().unwrap().display().to_string(),
+        &std::env::current_dir()
+            .unwrap_or_default()
+            .display()
+            .to_string(),
     );
     ctx
 }

@@ -1,5 +1,5 @@
 [workspace.package]
-version = "26.5.28"
+version = "26.5.29"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -48,7 +48,7 @@ members = [
   "crates/genesis-core",
   "crates/cpmp",
   "crates/stpnt",
-  # ARCHIVED out of the v26.5.28 build boundary (SETTLEMENT-CHECK-1): this example
+  # ARCHIVED out of the v26.5.29 build boundary (SETTLEMENT-CHECK-1): this example
   # drifted from its own types in a prior release (ValidationAgent missing the
   # `agent_type` field; async fns misusing `?`) and does not compile under
   # --all-targets. Nothing depends on it. A broken member is a small Oracle Gap
@@ -111,9 +111,9 @@ predicates = "3.1"
 rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-# NOTE: v26.5.28 unified release
-ggen-core = { path = "crates/ggen-core", version = "26.5.28" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.28" }
+# NOTE: v26.5.29 unified release
+ggen-core = { path = "crates/ggen-core", version = "26.5.29" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "26.5.29" }
 
 # Genesis kernel crates (pure Rust, IO-free — A = μ(O) foundation)
 genesis-types = { path = "crates/genesis-types-v2" }
@@ -128,8 +128,8 @@ genesis-core = { path = "crates/genesis-core" }
 
 # ggen-codegen: Generic code generation framework (trait-based, zero-cost abstractions)
 
-# ggen-yawl: YAWL workflow generation from industry ontologies
-ggen-yawl = { path = "crates/ggen-yawl", version = "26.5.4" }
+# DORMANT: ggen-yawl: YAWL workflow generation from industry ontologies
+# ggen-yawl = { path = "crates/ggen-yawl", version = "26.5.4" }  # crate not yet activated
 
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
@@ -732,6 +732,14 @@ name = "test_telco_routing"
 path = "tests/integration/test_telco_routing.rs"
 required-features = ["integration"]
 
+# ProofPack release-gate tests — run by default, no feature flag required.
+# Covers: smoke (CLI boot), invariants (manifest rules), refusal (negative
+# paths), and receipts (cryptographic proof). Add tests here as the ProofPack
+# matures; these intentionally run without --features integration.
+[[test]]
+name = "proof"
+path = "tests/proof/mod.rs"
+
 # ============================================================================
 # DEBIAN PACKAGING (cargo-deb)
 # ============================================================================
@@ -763,7 +771,7 @@ unused-shlibs = []
 
 # NOTE on the clap-noun-verb kebab-case fix (--profile-id with --profile_id alias):
 # the fix is committed in ~/clap-noun-verb (313ba73). It was NOT integrated here via
-# a local [patch.crates-io] because the local checkout (26.5.28, branch
+# a local [patch.crates-io] because the local checkout (26.5.29, branch
 # minimalist-refactor-final) is a divergent WIP that also changed output to
 # pretty-printed JSON, breaking 6 graph + 1 init test (compact-JSON assertions) —
 # a wide blast radius unsuitable for the release foundation. Land kebab via a

@@ -118,6 +118,16 @@ pub fn family_of_diagnostic(diag: &Diagnostic) -> Option<RepairFamily> {
 pub fn family_of_code(code: &str) -> Option<RepairFamily> {
     match code {
         "E0010" | "E0011" | "E0024" => Some(RepairFamily::TemplateFailure),
+        // GGEN-TPL-001 (unbound projection): a template references a variable the
+        // SPARQL SELECT never binds — i.e. a dangling reference across source-law
+        // surfaces. Mapped to DanglingReference (an otherwise unseeded family) so
+        // its dedicated source-law route is selected WITHOUT colliding with the
+        // TemplateFailure seeds. (`select_for_diagnostic` keys only on family, so
+        // GGEN-TPL-001 must own its family to avoid cross-code contamination.)
+        // The model has no dedicated `SourceLaw` family — see the Agent 3 handoff
+        // for that orchestrator request. The species-level route slug is
+        // "source_law_repair" (route::diagnostic_species).
+        "GGEN-TPL-001" => Some(RepairFamily::DanglingReference),
         "E0023" => Some(RepairFamily::ConfigValue),
         "E0001" => Some(RepairFamily::ParseFailure),
         "RDF" => Some(RepairFamily::ParseFailure),
@@ -182,6 +192,47 @@ fn seed_routes() -> Vec<RepairRoute> {
             description: "Move VALUES out of the external .rq into ggen.toml".into(),
             provenance: Provenance::Seeded,
             priority: 5,
+        },
+        // GGEN-TPL-001 (unbound projection): a template consumes a variable the
+        // SPARQL SELECT does not project. The fix lives ONLY in source law —
+        // never in emitted output. This route is purely ADVISORY (all NoOp
+        // edits): three concurrent source-law surfaces — (a) the SPARQL SELECT
+        // vars, (b) the Tera template variable reference, (c) the ggen.toml rule
+        // binding. No step targets, references, or edits an emitted output file.
+        //
+        // Owns the DanglingReference family exclusively, so a GGEN-TPL-001
+        // diagnostic selects THIS route and nothing else (no contamination of
+        // the TemplateFailure seeds).
+        RepairRoute {
+            id: RouteId("source-law.bind-projection".into()),
+            family: RepairFamily::DanglingReference,
+            steps: PartialOrder {
+                nodes: vec![
+                    RepairStep {
+                        id: StepId("edit-sparql-select".into()),
+                        title: "Project the variable in the SPARQL SELECT (source law)".into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                    RepairStep {
+                        id: StepId("edit-template-ref".into()),
+                        title: "Fix the Tera template variable reference (source law)".into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                    RepairStep {
+                        id: StepId("inspect-ggen-toml-rule".into()),
+                        title: "Inspect/edit the ggen.toml rule binding (source law)".into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                ],
+                // Independent source-law surfaces — no ordering edge (concurrent).
+                edges: vec![],
+            },
+            description: "Unbound projection — bind the variable at its source law \
+                          (SPARQL SELECT, Tera template, or ggen.toml rule). Advisory \
+                          only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
         },
     ]
 }
@@ -329,5 +380,105 @@ mod tests {
             route.id.0, "template.values-inline",
             "sub-threshold mined route must NOT override the seed"
         );
+    }
+
+    // ---- GGEN-TPL-001: source-law repair route ----
+
+    #[test]
+    fn ggen_tpl_001_maps_to_its_own_family() {
+        // `family_of_code` must resolve GGEN-TPL-001 to a concrete (non-None)
+        // family that it owns exclusively (so it never contaminates other codes).
+        assert_eq!(
+            family_of_code("GGEN-TPL-001"),
+            Some(RepairFamily::DanglingReference)
+        );
+    }
+
+    #[test]
+    fn ggen_tpl_001_does_not_contaminate_template_failure_codes() {
+        // Regression guard: introducing the GGEN-TPL-001 route must NOT change the
+        // route selected for the other TemplateFailure codes (E0010/E0011/E0024).
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("E0010", "VALUES…"))
+            .expect("route");
+        assert_eq!(route.id.0, "template.values-inline");
+    }
+
+    #[test]
+    fn ggen_tpl_001_selects_the_source_law_route() {
+        // A GGEN-TPL-001 diagnostic must resolve to the seeded source-law route,
+        // not the other TemplateFailure seed (priority 20 > 5).
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection: `name`"))
+            .expect("GGEN-TPL-001 must resolve to a seeded route");
+        assert_eq!(route.id.0, "source-law.bind-projection");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_tpl_001_route_is_source_law_only() {
+        // The load-bearing invariant: the route must NEVER target emitted output.
+        // Every step is advisory (NoOp — no output-mutating edit), and every step
+        // title references only a source-law surface (SPARQL / Tera template /
+        // ggen.toml rule), never an emitted-output path.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection"))
+            .expect("route");
+
+        assert!(
+            !route.steps.nodes.is_empty(),
+            "route must have at least one step"
+        );
+
+        const FORBIDDEN_OUTPUT: &[&str] = &["out/", "output/", "dist/", "gen/", "emitted"];
+        for step in &route.steps.nodes {
+            // No step may produce a textual edit — repairing source law is
+            // advisory in the MVP (inspect_only actuation boundary).
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-TPL-001 step {:?} must be advisory (NoOp), never an output edit",
+                step.id
+            );
+            // No step title may reference an emitted-output path.
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN_OUTPUT {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-TPL-001 step title {:?} references forbidden emitted-output marker {:?}",
+                    step.title,
+                    forbidden
+                );
+            }
+            // Each step must reference a source-law surface.
+            assert!(
+                title.contains("sparql")
+                    || title.contains("template")
+                    || title.contains("ggen.toml"),
+                "GGEN-TPL-001 step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_tpl_001_route_covers_three_source_law_surfaces() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection"))
+            .expect("route");
+        let titles: String = route
+            .steps
+            .nodes
+            .iter()
+            .map(|s| s.title.to_lowercase())
+            .collect::<Vec<_>>()
+            .join(" | ");
+        assert!(titles.contains("sparql"), "must cover SPARQL SELECT");
+        assert!(titles.contains("template"), "must cover Tera template");
+        assert!(titles.contains("ggen.toml"), "must cover ggen.toml rule");
     }
 }

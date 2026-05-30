@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [query_ontology Tool](#query_ontology-tool)
+  - [Parameters](#parameters)
+  - [Supported Queries](#supported-queries)
+    - [SELECT Queries](#select-queries)
+    - [FILTER Clauses](#filter-clauses)
+    - [OPTIONAL Patterns](#optional-patterns)
+  - [Example Usage](#example-usage)
+    - [Count All Triples](#count-all-triples)
+    - [Find All Classes](#find-all-classes)
+    - [Get Instances by Type](#get-instances-by-type)
+  - [Output](#output)
+    - [Success Response](#success-response)
+    - [Error Response](#error-response)
+  - [Error Codes](#error-codes)
+  - [Limits](#limits)
+  - [Tips](#tips)
+  - [Related Tools](#related-tools)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # query_ontology Tool
 
 Execute a SPARQL SELECT query against a Turtle ontology string.

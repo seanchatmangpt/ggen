@@ -164,13 +164,7 @@ impl EmissionPass {
             );
 
             // Create output pattern from template name (e.g., "test_entity.rs.tera" -> "{{ name | lower }}.rs")
-            let output_pattern = if template_name.contains('.') {
-                // Already has extension in name
-                "{% if name %}{{ name | lower }}{% endif %}".to_string()
-            } else {
-                // Use template stem
-                "{% if name %}{{ name | lower }}{% endif %}".to_string()
-            };
+            let output_pattern = "{% if name %}{{ name | lower }}{% endif %}".to_string();
 
             self.rules.push(EmissionRule {
                 name: rule_name,
@@ -505,7 +499,7 @@ impl EmissionPass {
 
     /// Execute a single emission rule
     fn execute_rule(
-        &self, ctx: &mut PassContext<'_>, rule: &EmissionRule, emitted_files: &mut Vec<EmittedFile>,
+        &self, ctx: &PassContext<'_>, rule: &EmissionRule, emitted_files: &mut Vec<EmittedFile>,
     ) -> Result<Vec<PathBuf>> {
         let mut generated_files = Vec::new();
 

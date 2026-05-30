@@ -346,12 +346,7 @@ impl CanonicalizationPass {
             }
             Err(_) => {
                 // Prettier not installed - fall back to normalization
-                if self.debug_mode {
-                    Ok(self.normalize_generic(content)?)
-                } else {
-                    // In strict mode, missing formatter is acceptable
-                    Ok(self.normalize_generic(content)?)
-                }
+                Ok(self.normalize_generic(content)?)
             }
         }
     }

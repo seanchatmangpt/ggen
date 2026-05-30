@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Node.js Bindings: Data-Driven Generation Flow](#nodejs-bindings-data-driven-generation-flow)
+  - [The Backward-Thinking Process](#the-backward-thinking-process)
+  - [Step-by-Step Example](#step-by-step-example)
+    - [1. Start with Desired Output](#1-start-with-desired-output)
+    - [2. Identify Required Data](#2-identify-required-data)
+    - [3. Model Data in RDF Ontology](#3-model-data-in-rdf-ontology)
+    - [4. Extract Data with SPARQL](#4-extract-data-with-sparql)
+    - [5. Transform Data with Tera Template](#5-transform-data-with-tera-template)
+    - [6. Get Generated Output](#6-get-generated-output)
+  - [The Complete Pipeline](#the-complete-pipeline)
+  - [Directory Structure](#directory-structure)
+  - [Key Principles](#key-principles)
+    - [1. Ontology = Schema, Instance = Data](#1-ontology--schema-instance--data)
+    - [2. SPARQL = Data Extraction](#2-sparql--data-extraction)
+    - [3. Tera = Presentation Layer](#3-tera--presentation-layer)
+    - [4. No Hardcoding in Templates](#4-no-hardcoding-in-templates)
+  - [Testing the Flow](#testing-the-flow)
+  - [Benefits](#benefits)
+  - [Example: Adding a New Function](#example-adding-a-new-function)
+    - [Hardcoded Approach ❌](#hardcoded-approach-)
+    - [Data-Driven Approach ✅](#data-driven-approach-)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Node.js Bindings: Data-Driven Generation Flow
 
 ## The Backward-Thinking Process

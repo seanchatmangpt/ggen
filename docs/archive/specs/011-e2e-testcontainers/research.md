@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Research: End-to-End Testing with Testcontainers](#research-end-to-end-testing-with-testcontainers)
+  - [Executive Summary](#executive-summary)
+  - [1. Testcontainers-rs Patterns](#1-testcontainers-rs-patterns)
+    - [1.1 Core Architecture](#11-core-architecture)
+    - [1.2 Container Lifecycle](#12-container-lifecycle)
+    - [1.3 Custom Images for CLI Testing](#13-custom-images-for-cli-testing)
+    - [1.4 Cleanup Strategies](#14-cleanup-strategies)
+    - [1.5 Key Dependencies](#15-key-dependencies)
+  - [2. GitHub Actions Cross-Platform Matrix](#2-github-actions-cross-platform-matrix)
+    - [2.1 Current ggen CI Structure](#21-current-ggen-ci-structure)
+    - [2.2 E2E Matrix Strategy](#22-e2e-matrix-strategy)
+    - [2.3 Docker Availability](#23-docker-availability)
+    - [2.4 Caching Strategy](#24-caching-strategy)
+  - [3. Golden File Testing](#3-golden-file-testing)
+    - [3.1 Pattern Overview](#31-pattern-overview)
+    - [3.2 Implementation Patterns](#32-implementation-patterns)
+    - [3.3 Directory Structure](#33-directory-structure)
+    - [3.4 Cross-Platform Considerations](#34-cross-platform-considerations)
+  - [4. Homebrew Installation Testing](#4-homebrew-installation-testing)
+    - [4.1 Current Homebrew Setup](#41-current-homebrew-setup)
+    - [4.2 Testing Approaches](#42-testing-approaches)
+    - [4.3 Verification Script](#43-verification-script)
+  - [5. Container Image Selection](#5-container-image-selection)
+    - [5.1 Options Analysis](#51-options-analysis)
+    - [5.2 Decision](#52-decision)
+    - [5.3 Custom Dockerfile (Optional)](#53-custom-dockerfile-optional)
+  - [6. Test Scenarios](#6-test-scenarios)
+  - [7. Risk Analysis](#7-risk-analysis)
+  - [8. Recommendations](#8-recommendations)
+  - [Sources](#sources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Research: End-to-End Testing with Testcontainers
 
 **Feature**: 011-e2e-testcontainers | **Date**: 2025-12-16

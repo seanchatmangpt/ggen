@@ -70,9 +70,7 @@ use std::fmt;
 /// }
 /// # }
 /// ```
-#[allow(clippy::derive_partial_eq_without_eq)]
-/// PartialEq without Eq: all variants are unit-like, can derive Eq but allowing flexibility.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ErrorCategory {
     /// File not found error
     FileNotFound,
@@ -417,11 +415,9 @@ pub mod common_errors {
         let len2 = s2.len();
         let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
-        #[allow(clippy::needless_range_loop)]
-        for i in 0..=len1 {
-            matrix[i][0] = i;
+        for (i, row) in matrix.iter_mut().enumerate() {
+            row[0] = i;
         }
-        #[allow(clippy::needless_range_loop)]
         for j in 0..=len2 {
             matrix[0][j] = j;
         }

@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack Metadata Loading Implementation](#pack-metadata-loading-implementation)
+  - [Summary](#summary)
+  - [Overview](#overview)
+  - [Implementation Details](#implementation-details)
+    - [Files Modified](#files-modified)
+    - [Metadata Formats](#metadata-formats)
+      - [Option 1: package.toml (Preferred)](#option-1-packagetoml-preferred)
+      - [Option 2: metadata.json (Fallback)](#option-2-metadatajson-fallback)
+    - [Cache Directory Structure](#cache-directory-structure)
+  - [TODO Resolution](#todo-resolution)
+    - [Previously Open TODOs](#previously-open-todos)
+    - [No Remaining Signature/Trust Tier TODOs](#no-remaining-signaturetrust-tier-todos)
+  - [API Usage](#api-usage)
+    - [Loading Metadata](#loading-metadata)
+    - [Integration with RDF Mapper](#integration-with-rdf-mapper)
+  - [Trust Tier Values](#trust-tier-values)
+  - [Test Coverage](#test-coverage)
+    - [Unit Tests (metadata.rs)](#unit-tests-metadatars)
+    - [E2E Integration Tests](#e2e-integration-tests)
+    - [Compilation Verification](#compilation-verification)
+  - [Example: Creating Pack Metadata](#example-creating-pack-metadata)
+    - [For Pack Authors](#for-pack-authors)
+    - [For Pack Consumers](#for-pack-consumers)
+  - [Error Handling](#error-handling)
+    - [Missing Metadata Files](#missing-metadata-files)
+    - [Invalid Metadata Format](#invalid-metadata-format)
+  - [Security Implications](#security-implications)
+    - [Signature Verification](#signature-verification)
+    - [Trust Tier Enforcement](#trust-tier-enforcement)
+    - [Fortune 5 CISO Requirements](#fortune-5-ciso-requirements)
+  - [Future Enhancements](#future-enhancements)
+    - [Potential Improvements](#potential-improvements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack Metadata Loading Implementation
 
 ## Summary

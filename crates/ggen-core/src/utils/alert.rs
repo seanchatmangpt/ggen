@@ -59,20 +59,20 @@ macro_rules! alert_critical {
         {
             let actions: Vec<String> = vec![$($action.to_string()),+];
             let action_str = actions.join("\n   📋 ");
-            $crate::utils::alert::_alert_critical_impl($message, Some(&format!("{}\n   📋 {}", $fix, action_str)));
+            $crate::utils::alert::critical_impl($message, Some(&format!("{}\n   📋 {}", $fix, action_str)));
         }
     };
     ($message:expr, $fix:expr) => {
-        $crate::utils::alert::_alert_critical_impl($message, Some($fix));
+        $crate::utils::alert::critical_impl($message, Some($fix));
     };
     ($format_str:expr, $($arg:expr),+ $(,)?) => {
         {
             let msg = format!($format_str, $($arg),+);
-            $crate::utils::alert::_alert_critical_impl(&msg, None::<&str>);
+            $crate::utils::alert::critical_impl(&msg, None::<&str>);
         }
     };
     ($message:expr) => {
-        $crate::utils::alert::_alert_critical_impl($message, None::<&str>);
+        $crate::utils::alert::critical_impl($message, None::<&str>);
     };
 }
 
@@ -96,16 +96,16 @@ macro_rules! alert_critical {
 #[macro_export]
 macro_rules! alert_warning {
     ($message:expr, $fix:expr) => {
-        $crate::utils::alert::_alert_warning_impl($message, Some($fix));
+        $crate::utils::alert::warning_impl($message, Some($fix));
     };
     ($format_str:expr, $($arg:expr),+ $(,)?) => {
         {
             let msg = format!($format_str, $($arg),+);
-            $crate::utils::alert::_alert_warning_impl(&msg, None::<&str>);
+            $crate::utils::alert::warning_impl(&msg, None::<&str>);
         }
     };
     ($message:expr) => {
-        $crate::utils::alert::_alert_warning_impl($message, None::<&str>);
+        $crate::utils::alert::warning_impl($message, None::<&str>);
     };
 }
 
@@ -128,12 +128,12 @@ macro_rules! alert_warning {
 #[macro_export]
 macro_rules! alert_info {
     ($message:expr) => {
-        $crate::utils::alert::_alert_info_impl($message);
+        $crate::utils::alert::info_impl($message);
     };
     ($($arg:tt)*) => {
         {
             let msg = format!($($arg)*);
-            $crate::utils::alert::_alert_info_impl(&msg);
+            $crate::utils::alert::info_impl(&msg);
         }
     };
 }
@@ -157,12 +157,12 @@ macro_rules! alert_info {
 #[macro_export]
 macro_rules! alert_success {
     ($message:expr) => {
-        $crate::utils::alert::_alert_success_impl($message);
+        $crate::utils::alert::success_impl($message);
     };
     ($($arg:tt)*) => {
         {
             let msg = format!($($arg)*);
-            $crate::utils::alert::_alert_success_impl(&msg);
+            $crate::utils::alert::success_impl(&msg);
         }
     };
 }
@@ -187,12 +187,12 @@ macro_rules! alert_success {
 #[macro_export]
 macro_rules! alert_debug {
     ($message:expr) => {
-        $crate::utils::alert::_alert_debug_impl($message);
+        $crate::utils::alert::debug_impl($message);
     };
     ($($arg:tt)*) => {
         {
             let msg = format!($($arg)*);
-            $crate::utils::alert::_alert_debug_impl(&msg);
+            $crate::utils::alert::debug_impl(&msg);
         }
     };
 }
@@ -218,16 +218,16 @@ macro_rules! alert_debug {
 #[macro_export]
 macro_rules! alert {
     ($severity:expr, $message:expr) => {
-        $crate::utils::alert::_alert_custom_impl($severity, $message, None::<&str>, None::<&str>);
+        $crate::utils::alert::custom_impl($severity, $message, None::<&str>, None::<&str>);
     };
     ($severity:expr, $message:expr, $stop:expr, $fix:expr) => {
-        $crate::utils::alert::_alert_custom_impl($severity, $message, Some($stop), Some($fix));
+        $crate::utils::alert::custom_impl($severity, $message, Some($stop), Some($fix));
     };
     ($severity:expr, $message:expr, $stop:expr, $fix:expr, $($action:expr),+) => {
         {
             let actions: Vec<String> = vec![$($action.to_string()),+];
             let action_str = actions.join("\n   📋 ");
-            $crate::utils::alert::_alert_custom_impl($severity, $message, Some($stop), Some(&format!("{}\n   📋 {}", $fix, action_str)));
+            $crate::utils::alert::custom_impl($severity, $message, Some($stop), Some(&format!("{}\n   📋 {}", $fix, action_str)));
         }
     };
 }
@@ -235,10 +235,9 @@ macro_rules! alert {
 // Implementation functions that check for slog availability
 
 /// Internal implementation for critical alerts
-#[allow(clippy::module_name_repetitions)]
-pub fn _alert_critical_impl(message: &str, fix: Option<&str>) {
+pub fn critical_impl(message: &str, fix: Option<&str>) {
     if let Some(fix_msg) = fix {
-        _try_slog_error(&format!(
+        try_slog_error(&format!(
             "{}\n   ⚠️  STOP: Cannot proceed\n   💡 FIX: {}",
             message, fix_msg
         ));
@@ -247,7 +246,7 @@ pub fn _alert_critical_impl(message: &str, fix: Option<&str>) {
             message, fix_msg
         );
     } else {
-        _try_slog_error(&format!(
+        try_slog_error(&format!(
             "{}\n   ⚠️  STOP: Cannot proceed\n   💡 FIX: Investigate and resolve",
             message
         ));
@@ -259,10 +258,9 @@ pub fn _alert_critical_impl(message: &str, fix: Option<&str>) {
 }
 
 /// Internal implementation for warning alerts
-#[allow(clippy::module_name_repetitions)]
-pub fn _alert_warning_impl(message: &str, fix: Option<&str>) {
+pub fn warning_impl(message: &str, fix: Option<&str>) {
     if let Some(fix_msg) = fix {
-        _try_slog_warn(&format!(
+        try_slog_warn(&format!(
             "{}\n   ⚠️  WARNING: Investigate before proceeding\n   💡 FIX: {}",
             message, fix_msg
         ));
@@ -271,7 +269,7 @@ pub fn _alert_warning_impl(message: &str, fix: Option<&str>) {
             message, fix_msg
         );
     } else {
-        _try_slog_warn(&format!(
+        try_slog_warn(&format!(
             "{}\n   ⚠️  WARNING: Investigate before proceeding\n   💡 FIX: Check and resolve",
             message
         ));
@@ -283,31 +281,27 @@ pub fn _alert_warning_impl(message: &str, fix: Option<&str>) {
 }
 
 /// Internal implementation for info alerts
-#[allow(clippy::module_name_repetitions)]
-pub fn _alert_info_impl(message: &str) {
-    _try_slog_info(message);
+pub fn info_impl(message: &str) {
+    try_slog_info(message);
     eprintln!("ℹ️  {}", message);
 }
 
 /// Internal implementation for success alerts
-#[allow(clippy::module_name_repetitions)]
-pub fn _alert_success_impl(message: &str) {
-    _try_slog_info(&format!("✅ {}", message));
+pub fn success_impl(message: &str) {
+    try_slog_info(&format!("✅ {}", message));
     eprintln!("✅ {}", message);
 }
 
 /// Internal implementation for debug alerts
-#[allow(clippy::module_name_repetitions)]
-pub fn _alert_debug_impl(message: &str) {
-    _try_slog_debug(message);
+pub fn debug_impl(message: &str) {
+    try_slog_debug(message);
     eprintln!("🔍 {}", message);
 }
 
 /// Internal implementation for custom alerts
-#[allow(clippy::module_name_repetitions)]
-pub fn _alert_custom_impl(severity: &str, message: &str, stop: Option<&str>, fix: Option<&str>) {
+pub fn custom_impl(severity: &str, message: &str, stop: Option<&str>, fix: Option<&str>) {
     if let (Some(stop_msg), Some(fix_msg)) = (stop, fix) {
-        _try_slog_warn(&format!(
+        try_slog_warn(&format!(
             "{} {}\n   {} {}\n   💡 FIX: {}",
             severity, message, severity, stop_msg, fix_msg
         ));
@@ -316,7 +310,7 @@ pub fn _alert_custom_impl(severity: &str, message: &str, stop: Option<&str>, fix
             severity, message, severity, stop_msg, fix_msg
         );
     } else {
-        _try_slog_info(&format!("{} {}", severity, message));
+        try_slog_info(&format!("{} {}", severity, message));
         eprintln!("{} {}", severity, message);
     }
 }
@@ -326,33 +320,29 @@ pub fn _alert_custom_impl(severity: &str, message: &str, stop: Option<&str>, fix
 // Try to use slog if available via slog_scope
 // Note: slog_scope may not be initialized, so we always fall back to eprintln!
 // This ensures alerts are always visible even if slog isn't initialized
-fn _try_slog_error(msg: &str) {
+fn try_slog_error(msg: &str) {
     // Try to use slog if available, but always output to stderr as well
     // slog_scope::logger() may panic if not initialized, so we catch that
     let _ = std::panic::catch_unwind(|| {
-        let logger = slog_scope::logger();
-        slog::error!(logger, "{}", msg);
+        slog_scope::error!("{}", msg);
     });
 }
 
-fn _try_slog_warn(msg: &str) {
+fn try_slog_warn(msg: &str) {
     let _ = std::panic::catch_unwind(|| {
-        let logger = slog_scope::logger();
-        slog::warn!(logger, "{}", msg);
+        slog_scope::warn!("{}", msg);
     });
 }
 
-fn _try_slog_info(msg: &str) {
+fn try_slog_info(msg: &str) {
     let _ = std::panic::catch_unwind(|| {
-        let logger = slog_scope::logger();
-        slog::info!(logger, "{}", msg);
+        slog_scope::info!("{}", msg);
     });
 }
 
-fn _try_slog_debug(msg: &str) {
+fn try_slog_debug(msg: &str) {
     let _ = std::panic::catch_unwind(|| {
-        let logger = slog_scope::logger();
-        slog::debug!(logger, "{}", msg);
+        slog_scope::debug!("{}", msg);
     });
 }
 

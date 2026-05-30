@@ -1,6 +1,6 @@
 [package]
 name = "ggen-lsp"
-version = "26.5.28"
+version = "26.5.29"
 edition = "2021"
 
 [dependencies]

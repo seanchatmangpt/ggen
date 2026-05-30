@@ -15,7 +15,7 @@ use std::sync::Arc;
 use tracing::{error, warn, info};
 
 /// FMEA failure mode identifier
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub enum FailureMode {
     /// Signature verification failed
     SignatureVerificationFailed,

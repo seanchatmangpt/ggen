@@ -338,7 +338,15 @@ impl RelationPage {
             pair_counts: [0u32; 32],
         }
     }
+}
 
+impl Default for RelationPage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl RelationPage {
     /// Initialize with specific multiplicity mode
     pub fn with_multiplicity(multiplicity: Multiplicity) -> Self {
         let mut page = Self::new();
@@ -559,24 +567,6 @@ pub struct Construct8 {
 }
 
 impl Construct8 {
-    /// Create a new Construct8 delta primitive
-    #[allow(clippy::too_many_arguments)]
-    pub const fn new(
-        subject: Node8, predicate: Predicate8, object: Object8, graph: Graph8, mask: Mask8,
-        provenance: Provenance8, admission: Admission8, receipt_hint: ReceiptHint8,
-    ) -> Self {
-        Self {
-            subject,
-            predicate,
-            object,
-            graph,
-            mask,
-            provenance,
-            admission,
-            receipt_hint,
-        }
-    }
-
     /// Serialize structural representation to bytes for hashing
     pub fn to_bytes(&self) -> [u8; 64] {
         let mut out = [0u8; 64];
@@ -781,7 +771,15 @@ impl Replay {
             length: 0,
         }
     }
+}
 
+impl Default for Replay {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Replay {
     /// Add a Construct8 delta step
     pub fn push(&mut self, step: Construct8) -> bool {
         if self.length >= MAX_REPLAY_STEPS {

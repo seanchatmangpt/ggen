@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack query contract (μ₂ / v26.5.19 extraction)](#pack-query-contract-%CE%BC%E2%82%82--v26519-extraction)
+  - [Rules](#rules)
+  - [Non-goals](#non-goals)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack query contract (μ₂ / v26.5.19 extraction)
 
 **Version:** 1.0  

@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Safe Coding Guidelines (v26.5.19)](#safe-coding-guidelines-v26.5.1900)
+- [Safe Coding Guidelines (v26.5.19)](#safe-coding-guidelines-v26519)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [SafePath Usage Patterns](#safepath-usage-patterns)

@@ -1,0 +1,14 @@
+[project]
+name = "tpl001-invalid-unbound"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+output_file = "out.txt"

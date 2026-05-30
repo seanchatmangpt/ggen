@@ -17,7 +17,7 @@ pub type Score = f32;
 pub struct EntityMapper;
 
 /// Represents an ontology class with matching metadata
-/// PartialEq without Eq: score (f32) field does not implement Eq
+// f64 fields are not Eq (Score = f32, which does not implement Eq)
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OntologyMatch {

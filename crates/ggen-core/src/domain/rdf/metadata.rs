@@ -14,9 +14,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 /// Template variable metadata
-/// PartialEq without Eq: All fields (String, Option, bool) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TemplateVariable {
     pub name: String,
     pub var_type: String,
@@ -211,7 +209,7 @@ impl TemplateMetadata {
 
         // Query for template metadata
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name ?version ?description ?author ?created ?updated ?category ?stability ?coverage ?usage
             WHERE {{
@@ -227,7 +225,7 @@ impl TemplateMetadata {
                 OPTIONAL {{ <{template_id}> ggen:testCoverage ?coverage }}
                 OPTIONAL {{ <{template_id}> ggen:usageCount ?usage }}
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -266,7 +264,7 @@ impl TemplateMetadata {
 }
 
 /// Relationship between templates
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum TemplateRelationship {
     DependsOn,
     Extends,
@@ -350,14 +348,14 @@ impl TemplateMetadataStore {
 
         // Query from store
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name
             WHERE {{
                 <{template_id}> a ggen:Template ;
                     ggen:templateName ?name .
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -470,13 +468,13 @@ impl TemplateMetadataStore {
     /// Get all dependencies for a template
     pub fn get_dependencies(&self, template_id: &str) -> Result<Vec<String>> {
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?dependency
             WHERE {{
                 <{template_id}> ggen:dependsOn ?dependency .
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -493,13 +491,13 @@ impl TemplateMetadataStore {
     /// Export all metadata as Turtle
     pub fn export_turtle(&self) -> Result<String> {
         // Query all templates and reconstruct Turtle
-        let query = r#"
+        let query = r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT DISTINCT ?template
             WHERE {
                 ?template a ggen:Template .
             }
-        "#;
+        ";
 
         let templates = self.query(query)?;
         let mut turtle = String::new();
@@ -546,7 +544,7 @@ impl TemplateMetadataStore {
     pub(crate) fn query_full_metadata(&self, template_id: &str) -> Result<TemplateMetadata> {
         // Query basic fields
         let query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?name ?version ?description ?author ?category ?stability ?coverage ?usage
             WHERE {{
@@ -560,7 +558,7 @@ impl TemplateMetadataStore {
                 OPTIONAL {{ <{template_id}> ggen:testCoverage ?coverage }}
                 OPTIONAL {{ <{template_id}> ggen:usageCount ?usage }}
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -592,13 +590,13 @@ impl TemplateMetadataStore {
 
         // Query tags
         let tags_query = format!(
-            r#"
+            r"
             PREFIX ggen: <https://ggen.io/marketplace/>
             SELECT ?tag
             WHERE {{
                 <{template_id}> ggen:tag ?tag .
             }}
-            "#,
+            ",
             template_id = template_id
         );
 
@@ -609,12 +607,6 @@ impl TemplateMetadataStore {
             .collect();
 
         Ok(metadata)
-    }
-}
-
-impl Default for TemplateMetadataStore {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default metadata store")
     }
 }
 

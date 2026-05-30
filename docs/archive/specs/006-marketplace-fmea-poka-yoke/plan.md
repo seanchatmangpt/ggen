@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Implementation Plan: FMEA & Poka-Yoke for ggen](#implementation-plan-fmea--poka-yoke-for-ggen)
+  - [Summary](#summary)
+  - [What Already Exists](#what-already-exists)
+    - [Config Schema (ggen-config/src/schema.rs)](#config-schema-ggen-configsrcschemars)
+    - [CODEOWNERS Generator (ggen-core/src/types/codeowners.rs)](#codeowners-generator-ggen-coresrctypescodeownersrs)
+  - [Implementation Tasks](#implementation-tasks)
+    - [Phase 1: Path Protection in Generation](#phase-1-path-protection-in-generation)
+    - [Phase 2: Warning Header Injection](#phase-2-warning-header-injection)
+    - [Phase 3: FMEA Validation on Marketplace Install](#phase-3-fmea-validation-on-marketplace-install)
+    - [Phase 4: Wire CODEOWNERS into Generate Flow](#phase-4-wire-codeowners-into-generate-flow)
+  - [File Changes Summary](#file-changes-summary)
+  - [Dependencies](#dependencies)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Implementation Plan: FMEA & Poka-Yoke for ggen
 
 **Branch**: `006-marketplace-fmea-poka-yoke`
