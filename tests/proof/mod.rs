@@ -7,7 +7,7 @@
 //
 // These run by default (no --features integration required).
 
-mod smoke;
 mod invariants;
-mod refusal;
 mod receipts;
+mod refusal;
+mod smoke;

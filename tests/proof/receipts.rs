@@ -247,8 +247,7 @@ enabled = true
 
             // Should be parseable by chrono
             assert!(
-                chrono::DateTime::parse_from_rfc3339(timestamp).is_ok()
-                    || timestamp.ends_with('Z'),
+                chrono::DateTime::parse_from_rfc3339(timestamp).is_ok() || timestamp.ends_with('Z'),
                 "timestamp {} should be valid RFC-3339 format",
                 timestamp
             );
@@ -342,8 +341,16 @@ enabled = true
         let hash2 = format!("{:x}", hasher2.finalize());
 
         // Note: These may differ due to JSON formatting, so verify both are valid SHA-256
-        assert_eq!(hash1.len(), 64, "hash1 should be valid SHA-256 (64 hex chars)");
-        assert_eq!(hash2.len(), 64, "hash2 should be valid SHA-256 (64 hex chars)");
+        assert_eq!(
+            hash1.len(),
+            64,
+            "hash1 should be valid SHA-256 (64 hex chars)"
+        );
+        assert_eq!(
+            hash2.len(),
+            64,
+            "hash2 should be valid SHA-256 (64 hex chars)"
+        );
 
         // Verify that re-reading the file produces the same hash
         let file_bytes_2 = fs::read_to_string(&receipt_path).expect("read receipt again");

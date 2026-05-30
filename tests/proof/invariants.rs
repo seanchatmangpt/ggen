@@ -57,7 +57,11 @@ ex:Thing a rdfs:Class .
 
         // Act: run sync and check for receipt
         // Assert: .ggen/receipts/latest.json exists
-        let receipt_path = temp.path().join(".ggen").join("receipts").join("latest.json");
+        let receipt_path = temp
+            .path()
+            .join(".ggen")
+            .join("receipts")
+            .join("latest.json");
         assert!(
             receipt_path.exists(),
             "Receipt must be written at {} when sync succeeds",
@@ -252,10 +256,7 @@ ex:Thing broken syntax here
         );
 
         let content = fs::read_to_string(&latest_path)?;
-        assert!(
-            !content.trim().is_empty(),
-            "latest.json must not be empty"
-        );
+        assert!(!content.trim().is_empty(), "latest.json must not be empty");
         Ok(())
     }
 
@@ -277,7 +278,11 @@ ex:Thing broken syntax here
             .success();
 
         // Assert: latest.json contains valid JSON with non-empty signature
-        let receipt_path = temp.path().join(".ggen").join("receipts").join("latest.json");
+        let receipt_path = temp
+            .path()
+            .join(".ggen")
+            .join("receipts")
+            .join("latest.json");
         let receipt_json = fs::read_to_string(&receipt_path)?;
         let receipt: serde_json::Value = serde_json::from_str(&receipt_json)?;
 
