@@ -105,7 +105,7 @@ pub trait MessageHandler: Send + Sync {
 }
 
 /// Response to a message
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct MessageResponse {
     /// Response status
     pub status: ResponseStatus,

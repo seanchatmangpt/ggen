@@ -486,14 +486,12 @@ impl HealthMonitor {
         let recent = &self.recent_results[self.recent_results.len() - 1];
         let previous = &self.recent_results[self.recent_results.len() - 2];
 
-        match recent
-            .metrics
-            .health_score
-            .cmp(&previous.metrics.health_score)
-        {
-            std::cmp::Ordering::Greater => HealthTrend::Improving,
-            std::cmp::Ordering::Less => HealthTrend::Declining,
-            std::cmp::Ordering::Equal => HealthTrend::Stable,
+        if recent.metrics.health_score > previous.metrics.health_score {
+            HealthTrend::Improving
+        } else if recent.metrics.health_score < previous.metrics.health_score {
+            HealthTrend::Declining
+        } else {
+            HealthTrend::Stable
         }
     }
 
