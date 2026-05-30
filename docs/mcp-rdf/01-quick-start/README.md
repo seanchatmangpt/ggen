@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quick Start: Generate Your First MCP Server](#quick-start-generate-your-first-mcp-server)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Define Your Server](#step-1-define-your-server)
+  - [Step 2: Generate the Server](#step-2-generate-the-server)
+  - [Step 3: Create Cargo.toml](#step-3-create-cargotoml)
+  - [Step 4: Run Your Server](#step-4-run-your-server)
+  - [Step 5: Test with Claude Desktop](#step-5-test-with-claude-desktop)
+  - [What Happened?](#what-happened)
+  - [Next Steps](#next-steps)
+  - [Common Issues](#common-issues)
+    - ["cargo check failed"](#cargo-check-failed)
+    - ["No tools found"](#no-tools-found)
+    - ["Template not found"](#template-not-found)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quick Start: Generate Your First MCP Server
 
 Get started with ggen's RDF-driven MCP server generation in 5 minutes.

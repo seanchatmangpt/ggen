@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DFLSS Project Charter](#dflss-project-charter)
+  - [Genesis-Bearing Interchangeable Parts, Vision 2030](#genesis-bearing-interchangeable-parts-vision-2030)
+  - [1. Project Name](#1-project-name)
+  - [2. Charter Statement](#2-charter-statement)
+- [3. Business Case](#3-business-case)
+- [4. Problem Statement](#4-problem-statement)
+- [5. Goal Statement](#5-goal-statement)
+- [6. Design Thesis](#6-design-thesis)
+  - [Core thesis](#core-thesis)
+  - [Operating formula](#operating-formula)
+  - [Construction formula](#construction-formula)
+- [7. Scope](#7-scope)
+  - [In Scope](#in-scope)
+  - [Out of Scope](#out-of-scope)
+- [8. Customers / Avatars](#8-customers--avatars)
+- [9. CTQs: Critical to Quality](#9-ctqs-critical-to-quality)
+- [10. Primary Metrics](#10-primary-metrics)
+- [11. Baseline / Current State](#11-baseline--current-state)
+- [12. Target State](#12-target-state)
+- [13. DFLSS Method](#13-dflss-method)
+- [14. DMADV Tollgates](#14-dmadv-tollgates)
+  - [Define Tollgate](#define-tollgate)
+  - [Measure Tollgate](#measure-tollgate)
+  - [Analyze Tollgate](#analyze-tollgate)
+  - [Design Tollgate](#design-tollgate)
+  - [Verify Tollgate](#verify-tollgate)
+- [15. High-Level Requirements](#15-high-level-requirements)
+  - [Genesis Core Requirements](#genesis-core-requirements)
+  - [ggen Requirements](#ggen-requirements)
+  - [AtomVM/WASM Part Requirements](#atomvmwasm-part-requirements)
+- [16. Risks and Countermeasures](#16-risks-and-countermeasures)
+- [17. First 8 Implementation Milestones](#17-first-8-implementation-milestones)
+- [18. Definition of Done](#18-definition-of-done)
+- [19. Project Charter One-Liner](#19-project-charter-one-liner)
+- [20. Final Charter Thesis](#20-final-charter-thesis)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DFLSS Project Charter
 
 ## Genesis-Bearing Interchangeable Parts, Vision 2030

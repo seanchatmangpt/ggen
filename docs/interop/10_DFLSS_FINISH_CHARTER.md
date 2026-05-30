@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DFLSS Finish Charter (Reference)](#dflss-finish-charter-reference)
+  - [1. Context](#1-context)
+  - [2. Location](#2-location)
+  - [3. Core Mandate](#3-core-mandate)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DFLSS Finish Charter (Reference)
 
 ## 1. Context

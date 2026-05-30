@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Vision 2030 Deployment Strategy](#vision-2030-deployment-strategy)
+  - [Goals](#goals)
+  - [Pre-Deployment Checklist](#pre-deployment-checklist)
+  - [Deployment Phases](#deployment-phases)
+    - [Phase 1: Shadow Deployment (24 hours)](#phase-1-shadow-deployment-24-hours)
+    - [Phase 2: Canary Deployment (2 hours)](#phase-2-canary-deployment-2-hours)
+    - [Phase 3: Staged Rollout (4 hours total)](#phase-3-staged-rollout-4-hours-total)
+      - [Stage 3a: 25% (30 minutes)](#stage-3a-25-30-minutes)
+      - [Stage 3b: 50% (30 minutes)](#stage-3b-50-30-minutes)
+      - [Stage 3c: 75% (30 minutes)](#stage-3c-75-30-minutes)
+      - [Stage 3d: 100% (automatic on success)](#stage-3d-100-automatic-on-success)
+  - [Rollback Procedure](#rollback-procedure)
+  - [Monitoring Dashboard](#monitoring-dashboard)
+    - [Key Metrics](#key-metrics)
+    - [Alerting Rules](#alerting-rules)
+  - [Communication Plan](#communication-plan)
+    - [Pre-Deployment (2026-04-28)](#pre-deployment-2026-04-28)
+    - [During Deployment](#during-deployment)
+    - [Post-Deployment (2026-05-01)](#post-deployment-2026-05-01)
+  - [Runbook: Emergency Rollback](#runbook-emergency-rollback)
+    - [Step 1: Stop the Bleeding](#step-1-stop-the-bleeding)
+    - [Step 2: Investigate](#step-2-investigate)
+    - [Step 3: Notify](#step-3-notify)
+    - [Step 4: Document](#step-4-document)
+  - [Deployment Sign-Off](#deployment-sign-off)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Vision 2030 Deployment Strategy
 
 **Target Release:** ggen v26.5.19  

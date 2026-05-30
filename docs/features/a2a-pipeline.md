@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [A2A-RS μ Pipeline Documentation](#a2a-rs-%CE%BC-pipeline-documentation)
+  - [Overview](#overview)
+  - [Pipeline Stages](#pipeline-stages)
+    - [μ₁: CONSTRUCT (Normalization)](#%CE%BC%E2%82%81-construct-normalization)
+    - [μ₂: SELECT (Extraction)](#%CE%BC%E2%82%82-select-extraction)
+    - [μ₃: Tera (Code Generation)](#%CE%BC%E2%82%83-tera-code-generation)
+    - [μ₄: Canonicalize (Formatting)](#%CE%BC%E2%82%84-canonicalize-formatting)
+    - [μ₅: Receipt (Verification)](#%CE%BC%E2%82%85-receipt-verification)
+  - [CLI Usage](#cli-usage)
+    - [Basic A2A Sync](#basic-a2a-sync)
+    - [Stage-Specific Execution](#stage-specific-execution)
+    - [Custom Ontology](#custom-ontology)
+  - [Progress Reporting](#progress-reporting)
+  - [Error Handling](#error-handling)
+  - [Configuration](#configuration)
+  - [Integration Points](#integration-points)
+    - [SyncOptions (ggen-core/src/codegen/executor.rs)](#syncoptions-ggen-coresrccodegenexecutorrs)
+    - [Sync Command (ggen-cli/src/cmds/sync.rs)](#sync-command-ggen-clisrccmdssyncrs)
+  - [Testing](#testing)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # A2A-RS μ Pipeline Documentation
 
 ## Overview

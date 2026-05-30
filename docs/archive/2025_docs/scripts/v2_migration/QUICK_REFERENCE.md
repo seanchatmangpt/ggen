@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Migration Automation - Quick Reference](#migration-automation---quick-reference)
+  - [TL;DR](#tldr)
+  - [Commands](#commands)
+    - [Generate Single Wrapper](#generate-single-wrapper)
+    - [Batch Migration (67 commands)](#batch-migration-67-commands)
+    - [Validation](#validation)
+  - [What Gets Generated](#what-gets-generated)
+  - [File Structure](#file-structure)
+  - [Priority Order](#priority-order)
+  - [Success Criteria](#success-criteria)
+  - [Common Issues](#common-issues)
+    - ["Domain logic not found"](#domain-logic-not-found)
+    - [Compilation errors](#compilation-errors)
+    - [Test failures](#test-failures)
+  - [Timeline](#timeline)
+  - [Validation Checklist](#validation-checklist)
+  - [Next Steps After Automation](#next-steps-after-automation)
+  - [Documentation](#documentation)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Migration Automation - Quick Reference
 
 ## TL;DR

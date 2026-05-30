@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Chatman Equation and MCPP: A Formal Semantic Closure of the Execution Manifold](#the-chatman-equation-and-mcpp-a-formal-semantic-closure-of-the-execution-manifold)
+  - [Abstract](#abstract)
+  - [1. Introduction: The Failure of Unbounded Expressivity](#1-introduction-the-failure-of-unbounded-expressivity)
+  - [2. The Mathematical Foundation: The Chatman Equation](#2-the-mathematical-foundation-the-chatman-equation)
+  - [3. POWL8: The Executable Process ISA](#3-powl8-the-executable-process-isa)
+  - [4. MCPP: The Archetypal Boundary Layer](#4-mcpp-the-archetypal-boundary-layer)
+  - [5. DfLSS and the Cryptographic Receipt Chain](#5-dflss-and-the-cryptographic-receipt-chain)
+  - [6. Conclusion: From Exploration to Exploitation](#6-conclusion-from-exploration-to-exploitation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Chatman Equation and MCPP: A Formal Semantic Closure of the Execution Manifold
 
 ## Abstract

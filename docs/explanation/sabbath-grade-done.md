@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Sabbath-Grade Done](#sabbath-grade-done)
+  - [The rest gate](#the-rest-gate)
+  - [The receipt is the Sabbath signature](#the-receipt-is-the-sabbath-signature)
+  - [The corollary for agents](#the-corollary-for-agents)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Sabbath-Grade Done
 
 > Explanation. What "done" means for a ggen release, and why rest is a *consequence*,

@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-a2a-mcp — Crate Audit](#ggen-a2a-mcp--crate-audit)
+  - [STUBS](#stubs)
+  - [DEAD CODE](#dead-code)
+  - [ARCHITECTURE NOTES](#architecture-notes)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-a2a-mcp — Crate Audit
 
 **Path:** `crates/ggen-a2a-mcp/`

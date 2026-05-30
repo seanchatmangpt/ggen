@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Vision 2030 GALL requirements (PRD / ARD)](#vision-2030-gall-requirements-prd--ard)
+  - [Requirement Mapping](#requirement-mapping)
+    - [PRDRequirements](#prdrequirements)
+    - [ARDRequirements](#ardrequirements)
+  - [Verification Checkpoints](#verification-checkpoints)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Vision 2030 GALL requirements (PRD / ARD)
 
 This document formalizes the PRD and ARD requirements for the `ggen-graph` substrate.

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Node.js Bindings Generator (3T Approach)](#nodejs-bindings-generator-3t-approach)
+  - [Overview](#overview)
+    - [The 3T Stack](#the-3t-stack)
+  - [Directory Structure](#directory-structure)
+  - [Usage](#usage)
+    - [1. Define Your API in RDF](#1-define-your-api-in-rdf)
+    - [2. Generate Bindings](#2-generate-bindings)
+    - [3. Build the Native Module](#3-build-the-native-module)
+    - [4. Use in Node.js](#4-use-in-nodejs)
+  - [Features](#features)
+    - [Type Safety](#type-safety)
+    - [Error Handling](#error-handling)
+    - [Modern JavaScript](#modern-javascript)
+    - [Deterministic Output](#deterministic-output)
+  - [Ontology Schema](#ontology-schema)
+  - [SPARQL Queries](#sparql-queries)
+  - [Template Variables](#template-variables)
+  - [Customization](#customization)
+    - [Add Custom Templates](#add-custom-templates)
+    - [Modify SPARQL Queries](#modify-sparql-queries)
+    - [Extend the Ontology](#extend-the-ontology)
+  - [Integration with ggen](#integration-with-ggen)
+  - [Examples](#examples)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Native module not found](#native-module-not-found)
+    - [TypeScript errors](#typescript-errors)
+    - [Outdated bindings](#outdated-bindings)
+  - [License](#license)
+  - [Contributing](#contributing)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Node.js Bindings Generator (3T Approach)
 
 This directory contains the **3T** (TOML, Tera, Turtle) template system for generating Node.js bindings from Rust code using RDF ontologies.

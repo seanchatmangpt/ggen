@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GALL-CAP: Capability Admissibility & Process Interchangeability Layer](#gall-cap-capability-admissibility--process-interchangeability-layer)
+  - [1. Mission](#1-mission)
+  - [2. Core Question](#2-core-question)
+  - [3. Capability Process Analysis (CPA)](#3-capability-process-analysis-cpa)
+  - [4. Capability Geometry](#4-capability-geometry)
+  - [5. Capability Cell Structure](#5-capability-cell-structure)
+  - [6. Execution Enforcement](#6-execution-enforcement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GALL-CAP: Capability Admissibility & Process Interchangeability Layer
 
 ## 1. Mission

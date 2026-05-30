@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [What is MCP?](#what-is-mcp)
+  - [Overview](#overview)
+  - [How MCP Works in ggen](#how-mcp-works-in-ggen)
+    - [Key Components](#key-components)
+  - [Benefits](#benefits)
+  - [Available Tools](#available-tools)
+    - [Pipeline Tools](#pipeline-tools)
+    - [Query Tools](#query-tools)
+    - [Example Tools](#example-tools)
+    - [Validation Tools](#validation-tools)
+    - [Orchestration Tools](#orchestration-tools)
+  - [Transport Options](#transport-options)
+    - [Stdio (Default)](#stdio-default)
+    - [HTTP](#http)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # What is MCP?
 
 ## Overview

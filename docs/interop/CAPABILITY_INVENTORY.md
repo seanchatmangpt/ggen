@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Capability Inventory](#capability-inventory)
+  - ["What can this code already do?" — Non-Deletion Completion Protocol](#what-can-this-code-already-do--non-deletion-completion-protocol)
+  - [LIVE Capabilities (working, tested, receipted)](#live-capabilities-working-tested-receipted)
+  - [PARTIAL Capabilities (real but unfinished)](#partial-capabilities-real-but-unfinished)
+  - [CAPABILITY_SEED (pattern present, not wired)](#capability_seed-pattern-present-not-wired)
+  - [BROKEN_BUT_REAL (isolated for repair)](#broken_but_real-isolated-for-repair)
+  - [DOC_ONLY (described, not implemented)](#doc_only-described-not-implemented)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Capability Inventory
 ## "What can this code already do?" — Non-Deletion Completion Protocol
 

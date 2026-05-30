@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: The Ontology Architecture in ggen](#explanation-the-ontology-architecture-in-ggen)
+  - [Why Open Ontologies?](#why-open-ontologies)
+  - [The Generation Pipeline (`ggen ontology generate`)](#the-generation-pipeline-ggen-ontology-generate)
+  - [Template Engine v2 (RDF / SPARQL Integration)](#template-engine-v2-rdf--sparql-integration)
+  - [Semantic Persistence (`RdfMapper`)](#semantic-persistence-rdfmapper)
+  - [Strict Governance via the Control Plane](#strict-governance-via-the-control-plane)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: The Ontology Architecture in ggen
 
 This document explains the architectural decisions behind using Open Ontologies within the `ggen` ecosystem, specifically focusing on how semantic technologies power the CLI, code generation, and the internal marketplace registry.

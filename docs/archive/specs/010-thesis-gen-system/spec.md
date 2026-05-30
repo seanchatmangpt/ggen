@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature Specification: Reusable Ontology-Driven PhD Thesis Generation System](#feature-specification-reusable-ontology-driven-phd-thesis-generation-system)
+  - [User Scenarios & Testing *(mandatory)*](#user-scenarios--testing-mandatory)
+    - [User Story 1 - Generate Complete Thesis from Ontology (Priority: P1)](#user-story-1---generate-complete-thesis-from-ontology-priority-p1)
+    - [User Story 2 - Reuse Templates Across Different Theses (Priority: P1)](#user-story-2---reuse-templates-across-different-theses-priority-p1)
+    - [User Story 3 - Generate Academic Document Elements (Priority: P2)](#user-story-3---generate-academic-document-elements-priority-p2)
+    - [User Story 4 - Manage Bibliography from Ontology (Priority: P2)](#user-story-4---manage-bibliography-from-ontology-priority-p2)
+    - [User Story 5 - Generate Appendices and Supplementary Materials (Priority: P3)](#user-story-5---generate-appendices-and-supplementary-materials-priority-p3)
+    - [Edge Cases](#edge-cases)
+  - [Requirements *(mandatory)*](#requirements-mandatory)
+    - [Functional Requirements](#functional-requirements)
+    - [Key Entities](#key-entities)
+  - [Success Criteria *(mandatory)*](#success-criteria-mandatory)
+    - [Measurable Outcomes](#measurable-outcomes)
+  - [Assumptions](#assumptions)
+  - [Out of Scope](#out-of-scope)
+  - [Clarifications](#clarifications)
+    - [Session 2025-12-16](#session-2025-12-16)
+  - [Validation Mechanism (Zero-Hardcoding Compliance)](#validation-mechanism-zero-hardcoding-compliance)
+    - [Phase 1: Manual Review (Immediate)](#phase-1-manual-review-immediate)
+    - [Phase 2: LLM Scanner (Planned)](#phase-2-llm-scanner-planned)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature Specification: Reusable Ontology-Driven PhD Thesis Generation System
 
 **Feature Branch**: `010-thesis-gen-system`

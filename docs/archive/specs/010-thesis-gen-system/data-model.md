@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Model: Thesis Generation Ontology Schema](#data-model-thesis-generation-ontology-schema)
+  - [Entity Relationship Diagram](#entity-relationship-diagram)
+  - [Entity Definitions](#entity-definitions)
+    - [Thesis (Root Entity)](#thesis-root-entity)
+    - [Chapter](#chapter)
+    - [Section](#section)
+    - [Subsection](#subsection)
+    - [Theorem](#theorem)
+    - [Equation](#equation)
+    - [Algorithm](#algorithm)
+    - [Figure](#figure)
+    - [Table](#table)
+    - [TableRow](#tablerow)
+    - [Reference (BibTeX Entry)](#reference-bibtex-entry)
+    - [Appendix](#appendix)
+    - [CodeListing](#codelisting)
+    - [LatexEnvironment (Meta-entity)](#latexenvironment-meta-entity)
+  - [Validation Rules](#validation-rules)
+    - [Cardinality Constraints](#cardinality-constraints)
+    - [Referential Integrity](#referential-integrity)
+    - [Content Constraints](#content-constraints)
+    - [State Transitions](#state-transitions)
+  - [Ontology Prefix Definitions](#ontology-prefix-definitions)
+  - [Sample Instance Data](#sample-instance-data)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Model: Thesis Generation Ontology Schema
 
 **Feature**: 010-thesis-gen-system

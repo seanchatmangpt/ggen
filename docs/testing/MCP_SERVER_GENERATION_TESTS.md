@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Server Generation Tests - Implementation Report](#mcp-server-generation-tests---implementation-report)
+  - [Summary](#summary)
+  - [Test Files Created](#test-files-created)
+    - [1. Core E2E Tests (`mcp_generation_e2e_test.rs`)](#1-core-e2e-tests-mcp_generation_e2e_testrs)
+    - [2. CLI Command Tests (`mcp_command_test.rs`)](#2-cli-command-tests-mcp_command_testrs)
+  - [Chicago TDD Compliance](#chicago-tdd-compliance)
+    - [✅ Real Collaborators](#-real-collaborators)
+    - [❌ No Mocks](#-no-mocks)
+    - [✅ State-Based Verification](#-state-based-verification)
+  - [Test Infrastructure](#test-infrastructure)
+    - [Dependencies](#dependencies)
+    - [Test Utilities](#test-utilities)
+  - [Running the Tests](#running-the-tests)
+    - [Run All Core E2E Tests](#run-all-core-e2e-tests)
+    - [Run All CLI Tests](#run-all-cli-tests)
+    - [Run Specific Test](#run-specific-test)
+    - [Run with Output](#run-with-output)
+  - [Test Timeouts](#test-timeouts)
+  - [Coverage Metrics](#coverage-metrics)
+    - [Core E2E Tests](#core-e2e-tests)
+    - [CLI Tests](#cli-tests)
+  - [Test Execution Flow](#test-execution-flow)
+    - [Example: Full Pipeline Test](#example-full-pipeline-test)
+    - [Example: CLI Test](#example-cli-test)
+  - [Integration with Existing Tests](#integration-with-existing-tests)
+  - [Future Enhancements](#future-enhancements)
+    - [Potential Additions](#potential-additions)
+    - [Test Coverage Gaps](#test-coverage-gaps)
+  - [Compliance Checklist](#compliance-checklist)
+  - [Files Created](#files-created)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Server Generation Tests - Implementation Report
 
 **Date**: 2026-03-31

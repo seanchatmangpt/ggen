@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [validate Tool](#validate-tool)
+  - [Parameters](#parameters)
+  - [Validation Checks](#validation-checks)
+    - [Syntax Validation](#syntax-validation)
+    - [Schema Validation](#schema-validation)
+    - [Statistics](#statistics)
+  - [Example Usage](#example-usage)
+    - [Validate File Content](#validate-file-content)
+    - [Reading from File](#reading-from-file)
+  - [Output](#output)
+    - [Success Response](#success-response)
+    - [Error Response](#error-response)
+  - [Error Codes](#error-codes)
+  - [Best Practices](#best-practices)
+  - [Related Tools](#related-tools)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # validate Tool
 
 Validate a Turtle (.ttl) ontology file for syntax correctness.

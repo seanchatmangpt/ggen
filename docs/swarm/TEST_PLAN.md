@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Capability Map Test Plan](#capability-map-test-plan)
+  - [Target Architecture](#target-architecture)
+  - [Required Tests](#required-tests)
+    - [1. Fixture Scanning & Hashing](#1-fixture-scanning--hashing)
+    - [2. SQLite Catalog Insertion](#2-sqlite-catalog-insertion)
+    - [3. Capability Detection](#3-capability-detection)
+    - [4. Test Detection](#4-test-detection)
+    - [5. Markdown Report Emission](#5-markdown-report-emission)
+    - [6. Receipt Emission](#6-receipt-emission)
+    - [7. Non-Deletion Invariant](#7-non-deletion-invariant)
+    - [8. Added File Verification](#8-added-file-verification)
+    - [9. Missing File Refusal](#9-missing-file-refusal)
+    - [10. Code Preservation During Scan](#10-code-preservation-during-scan)
+  - [Definition of Done (DoD)](#definition-of-done-dod)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Capability Map Test Plan
 
 This document describes the test plan for verifying the Genesis-bearing parts in the `capability-map` project. 

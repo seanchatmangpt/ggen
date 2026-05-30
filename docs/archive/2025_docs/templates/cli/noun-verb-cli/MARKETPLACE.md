@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Noun-Verb CLI Generator - Marketplace Package](#noun-verb-cli-generator---marketplace-package)
+  - [Package Information](#package-information)
+  - [What's Included](#whats-included)
+    - [Directory Structure](#directory-structure)
+  - [Installation](#installation)
+    - [From Marketplace](#from-marketplace)
+    - [Verify Installation](#verify-installation)
+  - [Usage](#usage)
+    - [Quick Start](#quick-start)
+    - [Required Variables](#required-variables)
+    - [Optional Variables](#optional-variables)
+  - [What Gets Generated](#what-gets-generated)
+    - [Example Output](#example-output)
+  - [Features](#features)
+    - [Generated CLIs Include](#generated-clis-include)
+    - [Command Features](#command-features)
+  - [Validation](#validation)
+  - [Use Cases](#use-cases)
+    - [Infrastructure Management](#infrastructure-management)
+    - [Application Management](#application-management)
+    - [Development Tools](#development-tools)
+    - [Data Operations](#data-operations)
+  - [Dependencies](#dependencies)
+  - [Performance](#performance)
+  - [Examples](#examples)
+    - [Cloud Manager CLI](#cloud-manager-cli)
+    - [User Admin CLI](#user-admin-cli)
+    - [Project Manager CLI](#project-manager-cli)
+  - [Testing](#testing)
+    - [Unit Tests (15 per 3-noun CLI)](#unit-tests-15-per-3-noun-cli)
+    - [Integration Tests (17 per 3-noun CLI)](#integration-tests-17-per-3-noun-cli)
+  - [Customization](#customization)
+  - [Documentation](#documentation)
+  - [Support](#support)
+  - [License](#license)
+  - [Changelog](#changelog)
+    - [1.0.0 (2025-10-10)](#100-2025-10-10)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Noun-Verb CLI Generator - Marketplace Package
 
 ## Package Information

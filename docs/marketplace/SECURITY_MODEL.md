@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Model](#security-model)
+  - [Overview](#overview)
+    - [Core Security Principles](#core-security-principles)
+  - [Ed25519 Signing](#ed25519-signing)
+    - [Key Generation Flow](#key-generation-flow)
+    - [Pack Signature Format](#pack-signature-format)
+    - [Signature Verification](#signature-verification)
+    - [Key Rotation](#key-rotation)
+  - [Trust Tiers](#trust-tiers)
+    - [Five-Tier Model](#five-tier-model)
+    - [Tier Assignment](#tier-assignment)
+    - [Tier Enforcement](#tier-enforcement)
+    - [Tier Promotion](#tier-promotion)
+  - [Registry Classes](#registry-classes)
+    - [Three Registry Types](#three-registry-types)
+    - [Public Registries (Transport Only)](#public-registries-transport-only)
+    - [Private Enterprise Registry](#private-enterprise-registry)
+    - [Mirrored Air-Gapped Registry](#mirrored-air-gapped-registry)
+  - [Ownership Maps](#ownership-maps)
+    - [Ownership Declaration](#ownership-declaration)
+    - [Ownership Classes](#ownership-classes)
+    - [Conflict Detection](#conflict-detection)
+    - [Merge Strategies](#merge-strategies)
+  - [Policy Enforcement](#policy-enforcement)
+    - [Policy Packs](#policy-packs)
+    - [Policy Rules](#policy-rules)
+    - [Policy Enforcement](#policy-enforcement-1)
+  - [Receipt Chains](#receipt-chains)
+    - [Hash-Linked Receipts](#hash-linked-receipts)
+    - [Chain Verification](#chain-verification)
+  - [Security Best Practices](#security-best-practices)
+    - [For Users](#for-users)
+    - [For Pack Authors](#for-pack-authors)
+    - [For Administrators](#for-administrators)
+  - [Threat Model](#threat-model)
+    - [Threats Mitigated](#threats-mitigated)
+    - [Assumptions](#assumptions)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Model
 
 **Version:** 26.5.4

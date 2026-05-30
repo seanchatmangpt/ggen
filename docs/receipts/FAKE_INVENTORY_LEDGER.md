@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FAKE / STUB / PLACEHOLDER INVENTORY LEDGER](#fake--stub--placeholder-inventory-ledger)
+  - [Method & caveats](#method--caveats)
+  - [Triage table](#triage-table)
+    - [MED — fabricated success / simulated work / fake receipts](#med--fabricated-success--simulated-work--fake-receipts)
+    - [MED — deceptive 'Real'-named types](#med--deceptive-real-named-types)
+    - [LOW — stub/placeholder/not-yet markers (representative; full list in detector output)](#low--stubplaceholdernot-yet-markers-representative-full-list-in-detector-output)
+  - [Summary](#summary)
+    - [Counts by classification](#counts-by-classification)
+    - [LIVE-PATH-MUST-FIX — obligations](#live-path-must-fix--obligations)
+    - [Notable non-blocking flags (TEST-OR-BENIGN but worth tracking)](#notable-non-blocking-flags-test-or-benign-but-worth-tracking)
+    - [If zero live-path must-fix?](#if-zero-live-path-must-fix)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FAKE / STUB / PLACEHOLDER INVENTORY LEDGER
 
 **Artifact type:** Receipt (triage ledger)

@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🏗️ Marketplace-V2 Integration Planning Suite](#-marketplace-v2-integration-planning-suite)
+  - [📑 Quick Navigation](#-quick-navigation)
+    - [For Project Managers / Stakeholders](#for-project-managers--stakeholders)
+    - [For Architects / Technical Leads](#for-architects--technical-leads)
+    - [For Developers / Implementation](#for-developers--implementation)
+    - [For QA / Testers](#for-qa--testers)
+    - [For DevOps / Release](#for-devops--release)
+  - [📊 All Diagrams](#-all-diagrams)
+    - [Architecture & Design (C4)](#architecture--design-c4)
+    - [Migration & Implementation](#migration--implementation)
+    - [Testing & Validation](#testing--validation)
+    - [Deployment & Release](#deployment--release)
+  - [📋 Documentation](#-documentation)
+  - [🎯 Key Facts](#-key-facts)
+  - [⚡ Quick Start](#-quick-start)
+    - [1. Understand (30 min)](#1-understand-30-min)
+    - [2. Plan (1 hour)](#2-plan-1-hour)
+    - [3. Implement (11-12 days)](#3-implement-11-12-days)
+  - [🔗 Diagram Relationships](#-diagram-relationships)
+  - [📈 Success Metrics](#-success-metrics)
+  - [📞 Support Resources](#-support-resources)
+  - [🎓 How to Use Each Diagram Type](#-how-to-use-each-diagram-type)
+    - [C4 Architecture Diagrams](#c4-architecture-diagrams)
+    - [Activity/Workflow Diagrams](#activityworkflow-diagrams)
+    - [Sequence Diagrams](#sequence-diagrams)
+    - [Gantt Charts](#gantt-charts)
+    - [Dependency Graphs](#dependency-graphs)
+  - [🚀 Next Steps](#-next-steps)
+  - [📊 File Statistics](#-file-statistics)
+  - [✨ Highlights](#-highlights)
+    - [What Makes This Plan Special](#what-makes-this-plan-special)
+    - [Key Innovations](#key-innovations)
+  - [📌 Remember](#-remember)
+  - [Quick Links](#quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🏗️ Marketplace-V2 Integration Planning Suite
 
 **Complete C4 Architecture & Implementation Diagrams**

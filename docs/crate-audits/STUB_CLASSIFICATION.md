@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Stub Classification — Execution-Trace Verified](#stub-classification--execution-trace-verified)
+  - [Summary](#summary)
+  - [MUST IMPLEMENT — On Real Execution Paths](#must-implement--on-real-execution-paths)
+    - [P0 — Blocks or silently corrupts](#p0--blocks-or-silently-corrupts)
+    - [P1 — Feature doesn't work when invoked](#p1--feature-doesnt-work-when-invoked)
+  - [CAN DELETE — Not On Any Execution Path](#can-delete--not-on-any-execution-path)
+    - [Lowest Risk — Dead modules with zero consumers](#lowest-risk--dead-modules-with-zero-consumers)
+    - [Medium Risk — Stubs on dead code paths only](#medium-risk--stubs-on-dead-code-paths-only)
+    - [Dead code fields (within otherwise-live structs)](#dead-code-fields-within-otherwise-live-structs)
+    - [Ignored tests (permanently dead)](#ignored-tests-permanently-dead)
+  - [PARTIALLY IMPLEMENTED](#partially-implemented)
+  - [BY DESIGN](#by-design)
+  - [Recommended Deletion Order](#recommended-deletion-order)
+    - [Phase 1: Dead crates and modules (lowest risk, highest signal)](#phase-1-dead-crates-and-modules-lowest-risk-highest-signal)
+    - [Phase 2: Dead stubs and dead code fields](#phase-2-dead-stubs-and-dead-code-fields)
+    - [Phase 3: Dead code fields within live structs (requires careful editing)](#phase-3-dead-code-fields-within-live-structs-requires-careful-editing)
+    - [Grand total estimated deletion: ~8,900 lines](#grand-total-estimated-deletion-8900-lines)
+  - [Open Decisions](#open-decisions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Stub Classification — Execution-Trace Verified
 
 **Date:** 2026-04-01

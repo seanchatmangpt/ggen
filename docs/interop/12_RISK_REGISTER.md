@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Risk Register](#risk-register)
+  - [1. Scope](#1-scope)
+  - [2. Top Architectural Risks](#2-top-architectural-risks)
+  - [3. Review Process](#3-review-process)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Risk Register
 
 ## 1. Scope

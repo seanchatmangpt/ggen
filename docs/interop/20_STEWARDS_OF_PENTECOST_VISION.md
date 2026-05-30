@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Stewards of the Pentecost (`stpnt`)](#stewards-of-the-pentecost-stpnt)
+- [Vision 2035](#vision-2035)
+  - [Genesis 1:1](#genesis-11)
+- [1. The Problem of 2026](#1-the-problem-of-2026)
+- [faithful incorporation.](#faithful-incorporation)
+- [2. The Core Thesis](#2-the-core-thesis)
+- [3. Why Pentecost](#3-why-pentecost)
+- [4. The Hidden Crisis of the Church Software Industry](#4-the-hidden-crisis-of-the-church-software-industry)
+- [5. The Canon Set](#5-the-canon-set)
+  - [Scripture Basis Set](#scripture-basis-set)
+  - [AA Structural Set](#aa-structural-set)
+  - [Avatar Set](#avatar-set)
+  - [Gall Checkpoint Set](#gall-checkpoint-set)
+- [6. Mechanical Intelligence](#6-mechanical-intelligence)
+- [mechanical intelligence.](#mechanical-intelligence)
+- [7. The New Primitive: Movable Stewardship Parts](#7-the-new-primitive-movable-stewardship-parts)
+- [8. GitHub as Public Stewardship Surface](#8-github-as-public-stewardship-surface)
+- [a distributed stewardship membrane.](#a-distributed-stewardship-membrane)
+- [9. Frozen Canon, Living Events](#9-frozen-canon-living-events)
+- [10. The Pentecost Path](#10-the-pentecost-path)
+- [the received person becomes capable of receiving another.](#the-received-person-becomes-capable-of-receiving-another)
+- [11. Why This Survives](#11-why-this-survives)
+- [faithful continuity across generations.](#faithful-continuity-across-generations)
+- [12. The 2035 Outcome](#12-the-2035-outcome)
+- [faithful continuity of the body through lawful stewardship systems.](#faithful-continuity-of-the-body-through-lawful-stewardship-systems)
+- [13. Final Statement](#13-final-statement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Stewards of the Pentecost (`stpnt`)
 
 # Vision 2035

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Model: CLI Jobs-to-be-Done Audit](#data-model-cli-jobs-to-be-done-audit)
+  - [Entity Relationship Overview](#entity-relationship-overview)
+  - [Core Entities](#core-entities)
+    - [Command](#command)
+    - [Argument](#argument)
+    - [Option](#option)
+    - [AuditResult](#auditresult)
+    - [Recommendation](#recommendation)
+    - [AvatarPersona](#avatarpersona)
+    - [MaturityLevel](#maturitylevel)
+    - [CaseStudy](#casestudy)
+  - [State Transitions](#state-transitions)
+    - [AuditResult Lifecycle](#auditresult-lifecycle)
+    - [CaseStudy Validation Lifecycle](#casestudy-validation-lifecycle)
+  - [Aggregation Views](#aggregation-views)
+    - [Maturity Matrix View](#maturity-matrix-view)
+    - [Avatar Compatibility Matrix View](#avatar-compatibility-matrix-view)
+    - [Fortune 500 Gap Analysis View](#fortune-500-gap-analysis-view)
+  - [File Format Standards](#file-format-standards)
+    - [Evidence Files](#evidence-files)
+    - [Report Files](#report-files)
+  - [Validation Rules Summary](#validation-rules-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Model: CLI Jobs-to-be-Done Audit
 
 **Feature Branch**: `007-cli-jtbd-audit`

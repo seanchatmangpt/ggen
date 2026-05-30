@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [ggen v26.5.19 Week 1 Security Audit Report](#ggen-v26.5.19-week-1-security-audit-report)
+- [ggen v26.5.19 Week 1 Security Audit Report](#ggen-v26519-week-1-security-audit-report)
   - [Executive Summary](#executive-summary)
   - [Vulnerability Summary](#vulnerability-summary)
   - [CRITICAL Vulnerabilities](#critical-vulnerabilities)

@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Diátaxis Best Practices in ggen](#di%C3%A1taxis-best-practices-in-ggen)
+  - [The Four Quadrants in ggen](#the-four-quadrants-in-ggen)
+    - [1. Tutorials (Learning-Oriented)](#1-tutorials-learning-oriented)
+    - [2. How-To Guides (Problem-Oriented)](#2-how-to-guides-problem-oriented)
+    - [3. Reference (Information-Oriented)](#3-reference-information-oriented)
+    - [4. Explanations (Understanding-Oriented)](#4-explanations-understanding-oriented)
+  - [Best Practices for Authoring ggen Docs](#best-practices-for-authoring-ggen-docs)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Diátaxis Best Practices in ggen
 
 [Diátaxis](https://diataxis.fr/) is a systemic framework for technical documentation authoring. It categorizes documentation into four distinct quadrants based on the user's immediate needs: **Tutorials**, **How-To Guides**, **Reference**, and **Explanations**.

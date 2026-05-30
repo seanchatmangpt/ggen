@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v26.5.30 Path A Closeout Receipt](#v26530-path-a-closeout-receipt)
+  - [Executive Summary](#executive-summary)
+  - [What Landed](#what-landed)
+    - [1. Scout Phase (Discovery)](#1-scout-phase-discovery)
+    - [2. Fixer Phase (Remediation)](#2-fixer-phase-remediation)
+    - [3. Validator Phase (Partial Validation)](#3-validator-phase-partial-validation)
+    - [4. Merge to Main](#4-merge-to-main)
+  - [Metrics and Evidence](#metrics-and-evidence)
+    - [Feature Gates Inventory](#feature-gates-inventory)
+    - [Fixture Paths (6 directories)](#fixture-paths-6-directories)
+    - [Lint Warnings Inventory](#lint-warnings-inventory)
+    - [Doctest Analysis](#doctest-analysis)
+  - [Definition of Done Gates](#definition-of-done-gates)
+    - [Gate 1: Feature Gate Inventory Complete](#gate-1-feature-gate-inventory-complete)
+    - [Gate 2: Fixture Paths Mapped and Present](#gate-2-fixture-paths-mapped-and-present)
+    - [Gate 3: Lint Warnings Catalogued](#gate-3-lint-warnings-catalogued)
+    - [Gate 4: Full cargo test --workspace Passing](#gate-4-full-cargo-test---workspace-passing)
+    - [Gate 5: OTEL Spans Verified for Feature-Gated Tests](#gate-5-otel-spans-verified-for-feature-gated-tests)
+  - [Known Blockers & Mechanical Failures](#known-blockers--mechanical-failures)
+    - [Andon Signals (Stop-the-Line)](#andon-signals-stop-the-line)
+    - [Rest-Gate Inventory (45 Known Failures)](#rest-gate-inventory-45-known-failures)
+  - [Proof of Boundary](#proof-of-boundary)
+    - [Path A Establishes](#path-a-establishes)
+    - [Next Boundary (Path B / v26.5.31)](#next-boundary-path-b--v26531)
+  - [Artifacts & Ledger](#artifacts--ledger)
+    - [Scout Phase Outputs](#scout-phase-outputs)
+    - [Fixer Phase Outputs](#fixer-phase-outputs)
+    - [Validator Phase Outputs](#validator-phase-outputs)
+    - [Lint & Doctest Analysis](#lint--doctest-analysis)
+  - [Recommendation: MERGE COMPLETE](#recommendation-merge-complete)
+    - [Rationale](#rationale)
+    - [Next Steps (Choose One)](#next-steps-choose-one)
+  - [What Path A Is NOT](#what-path-a-is-not)
+  - [Checklist: Definition of Done](#checklist-definition-of-done)
+  - [Supporting Evidence](#supporting-evidence)
+    - [Path A Agent Reports](#path-a-agent-reports)
+    - [Audit Artifacts](#audit-artifacts)
+    - [Quality Gates](#quality-gates)
+  - [Session Timeline](#session-timeline)
+  - [Closing Statement](#closing-statement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v26.5.30 Path A Closeout Receipt
 
 **Date:** 2026-05-29  

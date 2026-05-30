@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature Gates — Detailed Reference by File](#feature-gates--detailed-reference-by-file)
+  - [OTEL Feature Gates (13 locations)](#otel-feature-gates-13-locations)
+    - [File: `crates/ggen-core/src/telemetry.rs`](#file-cratesggen-coresrctelemetryrs)
+    - [File: `crates/ggen-core/src/tracing.rs`](#file-cratesggen-coresrctracingrs)
+    - [File: `crates/ggen-core/tests/telemetry_tests.rs`](#file-cratesggen-coreteststelemetry_testsrs)
+  - [PROPTEST Feature Gates (3 locations)](#proptest-feature-gates-3-locations)
+    - [File: `crates/ggen-core/src/registry.rs`](#file-cratesggen-coresrcregistryrs)
+    - [File: `crates/ggen-core/src/template_types.rs`](#file-cratesggen-coresrctemplate_typesrs)
+    - [File: `crates/ggen-core/src/gpack.rs`](#file-cratesggen-coresrcgpackrs)
+  - [INTEGRATION Feature Gates (Module-Level, 3 modules)](#integration-feature-gates-module-level-3-modules)
+    - [Module 1: `crates/ggen-core/tests/pack_sync_pipeline_e2e_test.rs`](#module-1-cratesggen-coretestspack_sync_pipeline_e2e_testrs)
+    - [Module 2: `crates/ggen-core/tests/pack_template_integration_test.rs`](#module-2-cratesggen-coretestspack_template_integration_testrs)
+    - [Module 3: `crates/ggen-core/tests/governance_e2e_test.rs`](#module-3-cratesggen-coretestsgovernance_e2e_testrs)
+  - [DOCKER Feature Gates (3 locations)](#docker-feature-gates-3-locations)
+    - [File: `crates/ggen-core/src/graph/store_tests.rs`](#file-cratesggen-coresrcgraphstore_testsrs)
+    - [File: `crates/ggen-core/src/graph/export_tests.rs`](#file-cratesggen-coresrcgraphexport_testsrs)
+    - [File: `crates/ggen-core/src/graph/core_fs_tests.rs`](#file-cratesggen-coresrcgraphcore_fs_testsrs)
+  - [Summary of Feature Gate Locations](#summary-of-feature-gate-locations)
+    - [By Feature](#by-feature)
+    - [By File](#by-file)
+  - [Gate Syntax Reference](#gate-syntax-reference)
+    - [Module-Level Gate (blocks entire file)](#module-level-gate-blocks-entire-file)
+    - [Item-Level Gate (blocks specific function/struct)](#item-level-gate-blocks-specific-functionstruct)
+    - [Conditional Compilation Inside Function](#conditional-compilation-inside-function)
+  - [Verification Commands](#verification-commands)
+    - [Find all gates in a file](#find-all-gates-in-a-file)
+    - [Count gates by feature](#count-gates-by-feature)
+  - [Running Tests by Gate](#running-tests-by-gate)
+    - [All features](#all-features)
+    - [Specific feature](#specific-feature)
+    - [Multiple features](#multiple-features)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature Gates — Detailed Reference by File
 
 **Last Updated**: 2026-05-29

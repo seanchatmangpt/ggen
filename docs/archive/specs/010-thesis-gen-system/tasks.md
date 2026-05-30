@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tasks: Reusable Ontology-Driven PhD Thesis Generation System](#tasks-reusable-ontology-driven-phd-thesis-generation-system)
+  - [Format: `[ID] [P?] [Story] Description`](#format-id-p-story-description)
+  - [Phase 1: Setup (Project Initialization)](#phase-1-setup-project-initialization)
+  - [Phase 2: Foundational (Blocking Prerequisites)](#phase-2-foundational-blocking-prerequisites)
+    - [Core Manifest (ggen.toml)](#core-manifest-ggentoml)
+    - [LaTeX Package Configuration (ontology-driven)](#latex-package-configuration-ontology-driven)
+    - [Core Ontology Content Structure](#core-ontology-content-structure)
+  - [Phase 3: User Story 1 - Generate Complete Thesis (Priority: P1) 🎯 MVP](#phase-3-user-story-1---generate-complete-thesis-priority-p1--mvp)
+    - [Templates for Basic Document Structure](#templates-for-basic-document-structure)
+    - [Chapter and Section Templates](#chapter-and-section-templates)
+    - [Thesis Content (7 Chapters, 30+ Sections)](#thesis-content-7-chapters-30-sections)
+    - [Generation Rules](#generation-rules)
+    - [Validation](#validation)
+  - [Phase 4: User Story 2 - Template Reusability (Priority: P1)](#phase-4-user-story-2---template-reusability-priority-p1)
+    - [Reusability Verification](#reusability-verification)
+    - [Zero Hardcoding Verification](#zero-hardcoding-verification)
+  - [Phase 5: User Story 3 - Academic Document Elements (Priority: P2)](#phase-5-user-story-3---academic-document-elements-priority-p2)
+    - [Theorem/Lemma/Proof Templates](#theoremlemmaproof-templates)
+    - [Equation Templates](#equation-templates)
+    - [Algorithm Templates](#algorithm-templates)
+    - [Figure Templates](#figure-templates)
+    - [Table Templates](#table-templates)
+    - [Validation](#validation-1)
+  - [Phase 6: User Story 4 - Bibliography from Ontology (Priority: P2)](#phase-6-user-story-4---bibliography-from-ontology-priority-p2)
+    - [Bibliography Template](#bibliography-template)
+    - [Reference Content](#reference-content)
+    - [Generation Rules](#generation-rules-1)
+    - [Validation](#validation-2)
+  - [Phase 7: User Story 5 - Appendices and Code Listings (Priority: P3)](#phase-7-user-story-5---appendices-and-code-listings-priority-p3)
+    - [Appendix Templates](#appendix-templates)
+    - [Appendix Content](#appendix-content)
+    - [Generation Rules](#generation-rules-2)
+    - [Validation](#validation-3)
+  - [Phase 8: Polish & Cross-Cutting Concerns](#phase-8-polish--cross-cutting-concerns)
+    - [Cross-Reference Verification](#cross-reference-verification)
+    - [Documentation](#documentation)
+    - [Quality Assurance](#quality-assurance)
+    - [Cleanup](#cleanup)
+  - [Dependencies & Execution Order](#dependencies--execution-order)
+    - [Phase Dependencies](#phase-dependencies)
+    - [User Story Dependencies](#user-story-dependencies)
+    - [Parallel Opportunities](#parallel-opportunities)
+  - [Parallel Example: User Story 1 Templates](#parallel-example-user-story-1-templates)
+  - [Implementation Strategy](#implementation-strategy)
+    - [MVP First (User Stories 1 + 2 Only)](#mvp-first-user-stories-1--2-only)
+    - [Full Implementation](#full-implementation)
+    - [Task Summary](#task-summary)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tasks: Reusable Ontology-Driven PhD Thesis Generation System
 
 **Input**: Design documents from `/specs/010-thesis-gen-system/`

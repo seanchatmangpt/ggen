@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Fortune 5 CISO - Quick Remediation Guide](#fortune-5-ciso---quick-remediation-guide)
+  - [One-Page Summary](#one-page-summary)
+    - [Release Gates](#release-gates)
+    - [Critical Path to Production](#critical-path-to-production)
+  - [The 80/20 Remediation Plan](#the-8020-remediation-plan)
+    - [🔴 BLOCKING (Must Fix) - 7h 50m](#-blocking-must-fix---7h-50m)
+    - [🟡 HIGH PRIORITY (Should Fix) - 8h](#-high-priority-should-fix---8h)
+    - [🟢 NICE TO HAVE (Can Defer) - 6-12h](#-nice-to-have-can-defer---6-12h)
+  - [File Reference Guide](#file-reference-guide)
+    - [Files to Modify](#files-to-modify)
+  - [Validation Commands](#validation-commands)
+    - [After Each Fix](#after-each-fix)
+    - [Final Validation](#final-validation)
+  - [Progress Tracking](#progress-tracking)
+    - [Phase 1: Blocking Fixes (7h 50m) - PRODUCTION UNBLOCKED](#phase-1-blocking-fixes-7h-50m---production-unblocked)
+    - [Phase 2: High Priority (8h) - FULL FUNCTIONALITY](#phase-2-high-priority-8h---full-functionality)
+    - [Phase 3: Nice to Have (6-12h) - COMPLETE PLATFORM](#phase-3-nice-to-have-6-12h---complete-platform)
+  - [Decision Matrix](#decision-matrix)
+  - [Quick Reference](#quick-reference)
+    - [Critical Files](#critical-files)
+    - [Dependencies to Add](#dependencies-to-add)
+  - [End State Goal](#end-state-goal)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Fortune 5 CISO - Quick Remediation Guide
 
 **Status:** 🟡 CONDITIONAL GO (76% Production Ready)

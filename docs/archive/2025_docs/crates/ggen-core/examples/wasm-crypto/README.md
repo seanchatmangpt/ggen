@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [WASM Crypto Module](#wasm-crypto-module)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+  - [Build Lifecycle](#build-lifecycle)
+  - [Size Optimization](#size-optimization)
+  - [API Usage](#api-usage)
+  - [Browser Compatibility](#browser-compatibility)
+  - [Security Considerations](#security-considerations)
+  - [Performance](#performance)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # WASM Crypto Module
 
 High-performance cryptographic operations compiled to WebAssembly for web environments.

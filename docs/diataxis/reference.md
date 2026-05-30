@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: ggen-graph API & Vocabulary Specifications](#reference-ggen-graph-api--vocabulary-specifications)
+  - [Technical Architecture & Mapping Abstractions](#technical-architecture--mapping-abstractions)
+  - [Core Structs & API Specifications](#core-structs--api-specifications)
+    - [`DeterministicGraph`](#deterministicgraph)
+    - [`RdfDelta`](#rdfdelta)
+    - [`KnowledgeHook`](#knowledgehook)
+    - [`TransitionReceipt`](#transitionreceipt)
+  - [Error Variants](#error-variants)
+  - [Vocabulary Mappings](#vocabulary-mappings)
+    - [Prolog8 Vocabularies](#prolog8-vocabularies)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: ggen-graph API & Vocabulary Specifications
 
 This reference document provides a detailed specification of the `ggen-graph` crate, including its API interfaces, core data structures, error types, and the complete set of supported RDF vocabulary mappings.

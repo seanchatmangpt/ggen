@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Fortune 5 CISO Production Readiness - Quick Reference](#fortune-5-ciso-production-readiness---quick-reference)
+  - [One-Page Summary](#one-page-summary)
+    - [Release Gates](#release-gates)
+    - [Supporting Systems](#supporting-systems)
+  - [Critical Action Items](#critical-action-items)
+    - [🔴 BLOCKING (Must Fix)](#-blocking-must-fix)
+    - [🟡 HIGH PRIORITY (Should Fix)](#-high-priority-should-fix)
+  - [What's Working ✅](#whats-working-)
+    - [Install Truth (75%)](#install-truth-75)
+    - [Compiler Truth (90%)](#compiler-truth-90)
+    - [Conflict Truth (85%)](#conflict-truth-85)
+    - [Rendering Truth (100%)](#rendering-truth-100)
+    - [Trust Truth (100%)](#trust-truth-100)
+    - [Proof Truth (85%)](#proof-truth-85)
+    - [Atomic Pack Taxonomy (100%)](#atomic-pack-taxonomy-100)
+    - [Bundle/Profile System (85%)](#bundleprofile-system-85)
+  - [Architecture Verification](#architecture-verification)
+    - [μ₀-μ₅ Pipeline ✅](#%CE%BC%E2%82%80-%CE%BC%E2%82%85-pipeline-)
+    - [Trust Enforcement Flow ✅](#trust-enforcement-flow-)
+    - [Conflict Detection Flow ✅](#conflict-detection-flow-)
+  - [Files to Modify](#files-to-modify)
+    - [Critical Fixes](#critical-fixes)
+  - [Testing Verification](#testing-verification)
+    - [Build Status](#build-status)
+    - [Test Status](#test-status)
+    - [Lint Status](#lint-status)
+  - [Go/No-Go Decision](#gono-go-decision)
+    - [Recommendation: 🟡 **GO WITH CONDITIONS**](#recommendation--go-with-conditions)
+  - [Quick Command Reference](#quick-command-reference)
+    - [Validate Build](#validate-build)
+    - [Install Pack (after signature fix)](#install-pack-after-signature-fix)
+    - [Enable Capability](#enable-capability)
+    - [Check Conflicts](#check-conflicts)
+    - [View Trust Status](#view-trust-status)
+    - [Sync with Packs](#sync-with-packs)
+  - [Documentation](#documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Fortune 5 CISO Production Readiness - Quick Reference
 
 **Status:** 🟡 **GO WITH CONDITIONS** (85% Production Ready)

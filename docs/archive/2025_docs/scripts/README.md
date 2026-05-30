@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ggen Scripts - Dogfooding Tools](#ggen-scripts---dogfooding-tools)
+  - [Quick Start](#quick-start)
+  - [Scripts](#scripts)
+    - [validate-marketplace-package.sh](#validate-marketplace-packagesh)
+    - [check-no-panic-points.sh](#check-no-panic-pointssh)
+    - [fix-panic-points.rs](#fix-panic-pointsrs)
+  - [Documentation](#documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ggen Scripts - Dogfooding Tools
 
 This directory contains scripts for using ggen to improve ggen itself.

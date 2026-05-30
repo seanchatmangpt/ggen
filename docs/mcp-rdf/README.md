@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen RDF-Driven MCP Server Generation](#ggen-rdf-driven-mcp-server-generation)
+  - [Overview](#overview)
+  - [Quick Start](#quick-start)
+  - [Architecture](#architecture)
+  - [Supported MCP Capabilities](#supported-mcp-capabilities)
+  - [Documentation](#documentation)
+    - [Feature Status](#feature-status)
+  - [RDF Schema Overview](#rdf-schema-overview)
+  - [Generated Code Structure](#generated-code-structure)
+  - [CLI Reference](#cli-reference)
+  - [Validation](#validation)
+  - [Receipts and Provenance](#receipts-and-provenance)
+  - [Examples](#examples)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen RDF-Driven MCP Server Generation
 
 **Generate spec-pinned MCP 2025-11-25 servers from RDF ontologies.**

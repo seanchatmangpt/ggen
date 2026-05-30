@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v26.5.29 Closeout Receipt](#v26529-closeout-receipt)
+  - [What Landed](#what-landed)
+    - [Phase 5 Wave 2 Planning Completion](#phase-5-wave-2-planning-completion)
+    - [Part B: Workspace-Level Fake-Detection Lints](#part-b-workspace-level-fake-detection-lints)
+    - [Command-Proof Matrix State](#command-proof-matrix-state)
+    - [Full O* Receipt Closure](#full-o-receipt-closure)
+  - [What Is Explicitly NOT Done](#what-is-explicitly-not-done)
+    - [Deferred to v26.5.30 or Wave 2](#deferred-to-v26530-or-wave-2)
+    - [New Feature Surfaces](#new-feature-surfaces)
+  - [Known Blockers & Mechanical Failures](#known-blockers--mechanical-failures)
+    - [Rest-Gate Inventory (45 Known Failures)](#rest-gate-inventory-45-known-failures)
+    - [Lint Violations (Warn-Mode, Catalogued)](#lint-violations-warn-mode-catalogued)
+  - [Proof of Boundary](#proof-of-boundary)
+  - [Next Session Handoff](#next-session-handoff)
+    - [Option 1: Rest-Gate Cleanup (Lowest Risk)](#option-1-rest-gate-cleanup-lowest-risk)
+    - [Option 2: Foundation Factory Design (Highest Growth)](#option-2-foundation-factory-design-highest-growth)
+    - [Option 3: Wave 2 Phase 1 (Parallel Path)](#option-3-wave-2-phase-1-parallel-path)
+  - [This Release Is NOT](#this-release-is-not)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v26.5.29 Closeout Receipt
 
 **Date:** 2026-05-29  

@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Process Intelligence Interop Specification](#process-intelligence-interop-specification)
+  - [1. Process Evidence Thesis](#1-process-evidence-thesis)
+  - [2. Source-Adjacent Construction Cells](#2-source-adjacent-construction-cells)
+  - [3. ggen Projection Role](#3-ggen-projection-role)
+  - [4. wasm4pm Consumption Role](#4-wasm4pm-consumption-role)
+  - [5. pictl Control-Plane Role](#5-pictl-control-plane-role)
+  - [6. OCEL 2.0 Projection Requirements](#6-ocel-20-projection-requirements)
+  - [7. POWL Route Proof Requirements](#7-powl-route-proof-requirements)
+  - [8. Conformance and Replay Relationship](#8-conformance-and-replay-relationship)
+  - [9. Process Receipt & Refusal Surfaces](#9-process-receipt--refusal-surfaces)
+  - [10. Avatar JTBD Mapping](#10-avatar-jtbd-mapping)
+  - [11. Artifact Interop Table](#11-artifact-interop-table)
+  - [12. Definition of Done](#12-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Process Intelligence Interop Specification
 
 ## 1. Process Evidence Thesis
