@@ -131,7 +131,8 @@ impl Literal {
 /// Type-safe RDF Triple
 ///
 /// Guaranteed to have valid subject, predicate, and object
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub struct Triple {
     subject: ResourceId,
     predicate: ResourceId,
@@ -148,7 +149,8 @@ pub struct Kgc4dMetadata {
     pub commit_hash: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub enum TripleObject {
     Resource(ResourceId),
     Literal(Literal),
