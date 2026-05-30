@@ -11,6 +11,17 @@ use ggen_core::manifest::ManifestParser;
 
 use crate::rule_index::RuleIndexEntry;
 
+/// Open-buffer overlay: disk path → in-buffer (possibly unsaved) content.
+///
+/// LIVE-BUFFER-001. The cross-surface index reads a rule's query/template either
+/// from this overlay (when the file is open in the editor) or, on a miss, from
+/// disk. An **empty** overlay makes every read fall back to `std::fs::read_to_string`
+/// — byte-identical to the disk-only path, so existing disk-fixture tests are
+/// unaffected. Keys are the same `manifest_dir.join(file)` / `root.join(...)` paths
+/// the index already computes (no canonicalization), so a buffer keyed by
+/// `Url::to_file_path()` matches the index's resolved read path on the same OS.
+pub type BufferOverlay = std::collections::HashMap<PathBuf, String>;
+
 /// Structured errors for project-index construction.
 ///
 /// Index-level *rule* problems (missing query/template files, unsupported
@@ -68,6 +79,29 @@ impl ProjectIndex {
     /// - [`IndexError::ManifestNotFound`] if `<root>/ggen.toml` does not exist.
     /// - [`IndexError::ManifestParse`] if the manifest cannot be parsed.
     pub fn from_root(root: &Path) -> Result<ProjectIndex, IndexError> {
+        Self::from_root_with_overlay(root, &BufferOverlay::new())
+    }
+
+    /// Build a [`ProjectIndex`] from a project root, consulting an open-buffer
+    /// overlay before disk for each rule's query/template file (LIVE-BUFFER-001).
+    ///
+    /// A file present in `overlay` (keyed by its resolved on-disk path) is read
+    /// from the buffer; any file absent from the overlay falls back to disk. With
+    /// an **empty** overlay this is byte-identical to [`Self::from_root`] — the
+    /// disk path is preserved exactly (`from_root` is now a thin empty-overlay
+    /// delegate).
+    ///
+    /// The `ggen.toml` manifest itself is still read from disk (its existence and
+    /// rule-file resolution anchor on the on-disk manifest directory); only the
+    /// rule **query/template** reads are overlay-aware, which is exactly the
+    /// producer-surface gap the living loop closes.
+    ///
+    /// # Errors
+    /// - [`IndexError::ManifestNotFound`] if `<root>/ggen.toml` does not exist.
+    /// - [`IndexError::ManifestParse`] if the manifest cannot be parsed.
+    pub fn from_root_with_overlay(
+        root: &Path, overlay: &BufferOverlay,
+    ) -> Result<ProjectIndex, IndexError> {
         let manifest_path = root.join("ggen.toml");
         if !manifest_path.is_file() {
             return Err(IndexError::ManifestNotFound {
@@ -86,7 +120,7 @@ impl ProjectIndex {
             .generation
             .rules
             .iter()
-            .map(|rule| RuleIndexEntry::from_rule(rule, &manifest_path))
+            .map(|rule| RuleIndexEntry::from_rule_with_overlay(rule, &manifest_path, overlay))
             .collect();
 
         Ok(ProjectIndex {

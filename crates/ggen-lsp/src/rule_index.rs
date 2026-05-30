@@ -16,6 +16,8 @@ use std::path::{Path, PathBuf};
 
 use ggen_core::manifest::{GenerationRule, QuerySource, TemplateSource};
 
+use crate::project_index::BufferOverlay;
+
 /// A fully-resolved view of one generation rule.
 ///
 /// Built by [`RuleIndexEntry::from_rule`]. All file references are resolved
@@ -54,6 +56,21 @@ impl RuleIndexEntry {
     /// references. This never fails: filesystem and parsing problems are
     /// collected into [`RuleIndexEntry::issues`].
     pub fn from_rule(rule: &GenerationRule, manifest_path: &Path) -> RuleIndexEntry {
+        Self::from_rule_with_overlay(rule, manifest_path, &BufferOverlay::new())
+    }
+
+    /// Build a [`RuleIndexEntry`], consulting an open-buffer `overlay` before disk
+    /// for the query/template file reads (LIVE-BUFFER-001).
+    ///
+    /// Identical to [`Self::from_rule`] except the two file reads go through
+    /// [`read_overlay_or_disk`]: a file present in `overlay` (keyed by its resolved
+    /// on-disk path) is read from the buffer; a miss falls back to
+    /// `std::fs::read_to_string` with the SAME `io::Error` semantics — so an empty
+    /// overlay yields byte-identical behavior (and the same `issues` strings) as the
+    /// disk-only path. `from_rule` is now a thin empty-overlay delegate.
+    pub fn from_rule_with_overlay(
+        rule: &GenerationRule, manifest_path: &Path, overlay: &BufferOverlay,
+    ) -> RuleIndexEntry {
         let manifest_dir: PathBuf = manifest_path
             .parent()
             .map(Path::to_path_buf)
@@ -66,7 +83,7 @@ impl RuleIndexEntry {
             QuerySource::Inline { inline } => (true, inline.clone()),
             QuerySource::File { file } => {
                 let resolved = manifest_dir.join(file);
-                match std::fs::read_to_string(&resolved) {
+                match read_overlay_or_disk(overlay, &resolved) {
                     Ok(text) => (false, text),
                     Err(err) => {
                         issues.push(format!(
@@ -85,7 +102,7 @@ impl RuleIndexEntry {
             TemplateSource::Inline { inline } => (None, Some(inline.clone())),
             TemplateSource::File { file } => {
                 let resolved = manifest_dir.join(file);
-                match std::fs::read_to_string(&resolved) {
+                match read_overlay_or_disk(overlay, &resolved) {
                     Ok(text) => (Some(resolved), Some(text)),
                     Err(_) => {
                         issues.push(format!("template file missing: {}", resolved.display()));
@@ -127,6 +144,20 @@ impl RuleIndexEntry {
             issues,
         }
     }
+}
+
+/// Read `path` from the open-buffer `overlay` if present, else from disk.
+///
+/// LIVE-BUFFER-001. On an overlay hit, returns the buffer content (the editor's
+/// current, possibly-unsaved, state). On a miss, delegates to
+/// `std::fs::read_to_string(path)` — so the error path is the EXACT same
+/// `io::Error` the disk-only code produced. An empty overlay therefore makes this
+/// indistinguishable from a bare `read_to_string`.
+fn read_overlay_or_disk(overlay: &BufferOverlay, path: &Path) -> std::io::Result<String> {
+    if let Some(buf) = overlay.get(path) {
+        return Ok(buf.clone());
+    }
+    std::fs::read_to_string(path)
 }
 
 #[cfg(test)]

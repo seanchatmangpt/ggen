@@ -24,6 +24,7 @@ use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 use crate::analyzers::DeclaredTarget;
+use crate::project_index::BufferOverlay;
 
 /// Structured errors for harness-index construction.
 ///
@@ -95,10 +96,32 @@ impl HarnessIndex {
     ///   cannot be read.
     /// - [`HarnessIndexError::ManifestParse`] if it exists but is not valid TOML.
     pub fn from_root(root: &Path) -> Result<HarnessIndex, HarnessIndexError> {
+        Self::from_root_with_overlay(root, &BufferOverlay::new())
+    }
+
+    /// Build a [`HarnessIndex`], consulting an open-buffer `overlay` before disk
+    /// for the `Cargo.toml` text (LIVE-BUFFER-001).
+    ///
+    /// A `Cargo.toml` present in `overlay` (keyed by its resolved on-disk path) is
+    /// read from the buffer; otherwise it is read from disk. The proof-file
+    /// enumeration (`tests/**`, `benches/**`) stays a disk fact — a file's
+    /// *existence* is not changed by an unsaved buffer. With an **empty** overlay
+    /// this is byte-identical to [`Self::from_root`] (now a thin delegate): an
+    /// absent-on-disk manifest with no overlay entry yields the same empty index,
+    /// and the disk-read error path is preserved exactly.
+    ///
+    /// # Errors
+    /// - [`HarnessIndexError::ManifestRead`] if `<root>/Cargo.toml` exists but
+    ///   cannot be read (only reachable on the disk-fallback path).
+    /// - [`HarnessIndexError::ManifestParse`] if it exists but is not valid TOML.
+    pub fn from_root_with_overlay(
+        root: &Path, overlay: &BufferOverlay,
+    ) -> Result<HarnessIndex, HarnessIndexError> {
         let manifest_path = root.join("Cargo.toml");
         let existing_files = enumerate_proof_files(root);
 
-        if !manifest_path.is_file() {
+        // No manifest on disk AND none open in the editor → empty index.
+        if !manifest_path.is_file() && !overlay.contains_key(&manifest_path) {
             return Ok(HarnessIndex {
                 root: root.to_path_buf(),
                 targets: Vec::new(),
@@ -106,12 +129,15 @@ impl HarnessIndex {
             });
         }
 
-        let raw = std::fs::read_to_string(&manifest_path).map_err(|e| {
-            HarnessIndexError::ManifestRead {
-                path: manifest_path.clone(),
-                message: e.to_string(),
-            }
-        })?;
+        let raw = match overlay.get(&manifest_path) {
+            Some(buf) => buf.clone(),
+            None => std::fs::read_to_string(&manifest_path).map_err(|e| {
+                HarnessIndexError::ManifestRead {
+                    path: manifest_path.clone(),
+                    message: e.to_string(),
+                }
+            })?,
+        };
 
         let doc: toml::Value =
             toml::from_str(&raw).map_err(|e| HarnessIndexError::ManifestParse {
