@@ -65,15 +65,25 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 /// Preprocessor context for stage execution
+///
+/// Provides template path, output directory, and optional JSON variables
+/// to preprocessing stages during pipeline execution.
 pub struct PrepCtx<'a> {
+    /// Path to the template file being processed.
     pub template_path: &'a Path,
+    /// Output directory for generated files.
     pub out_dir: &'a Path,
+    /// Optional JSON variables for template rendering.
     pub vars_json: &'a serde_json::Value, // optional, read-only
 }
 
 /// Trait for preprocessing stages
+///
+/// Defines the interface for pipeline stages that transform template content.
 pub trait Stage: Send + Sync {
+    /// Returns the name of this preprocessing stage.
     fn name(&self) -> &'static str;
+    /// Runs the stage on the input string with the given context.
     fn run(&self, input: &str, ctx: &PrepCtx) -> Result<String>;
 }
 
@@ -106,8 +116,13 @@ pub enum FreezePolicy {
 }
 
 /// Freeze stage for processing {% freeze %} blocks
+///
+/// Processes `{% freeze %}` blocks in templates, managing cached content
+/// according to the specified freeze policy.
 pub struct FreezeStage {
+    /// Directory where cached slot content is stored.
     pub slots_dir: PathBuf,
+    /// Policy determining when to use cached content.
     pub policy: FreezePolicy,
 }
 
@@ -122,7 +137,11 @@ impl Stage for FreezeStage {
 }
 
 /// Include stage for processing {% include %} directives
+///
+/// Processes `{% include %}` directives in templates, resolving and inserting
+/// external template content.
 pub struct IncludeStage {
+    /// Directories to search for included template files.
     pub template_dirs: Vec<PathBuf>,
 }
 
@@ -137,7 +156,11 @@ impl Stage for IncludeStage {
 }
 
 /// Main preprocessor orchestrating multiple stages
+///
+/// Coordinates a pipeline of preprocessing stages that transform template
+/// content deterministically before rendering.
 pub struct Preprocessor {
+    /// Ordered list of preprocessing stages.
     stages: Vec<Box<dyn Stage>>,
 }
 

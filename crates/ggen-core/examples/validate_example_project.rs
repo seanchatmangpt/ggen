@@ -8,8 +8,8 @@ fn main() {
     println!("=== Running validate_pipeline on example project ===\n");
 
     // Load an example project's manifest
-    let manifest_path = PathBuf::from("examples/basic-template-generation/ggen.toml");
-    let base_path = PathBuf::from("examples/basic-template-generation");
+    let manifest_path = PathBuf::from("examples/simple-project/ggen.toml");
+    let base_path = PathBuf::from("examples/simple-project");
 
     println!("Loading manifest from: {:?}", manifest_path);
     let manifest_content =
