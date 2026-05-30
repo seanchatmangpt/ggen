@@ -38,6 +38,9 @@ pub enum RepairFamily {
     /// the correct value is not knowable from the diagnostic alone, so we never
     /// offer a destructive auto-edit.
     ConfigValue,
+    /// Unbound rule file — a ggen.toml [[generation.rules]] query/template
+    /// `{file=...}` points at a file that does not exist on disk. GGEN-RULE-001.
+    RuleFileMissing,
 }
 
 /// Where a route came from. Seeded routes are always available (cold start);

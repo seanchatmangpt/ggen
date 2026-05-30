@@ -24,6 +24,15 @@ pub const GGEN_TPL_001: &str = "GGEN-TPL-001";
 /// produce. The dual of [`GGEN_TPL_001`] on the `ggen.toml`/SPARQL surfaces.
 pub const GGEN_OUT_001: &str = "GGEN-OUT-001";
 
+/// Canonical diagnostic code for the unbound-rule-file law: a ggen.toml
+/// [[generation.rules]] query/template `{file=...}` points at a missing file.
+///
+/// This is the FOUNDATIONAL binding-integrity check the GGEN-TPL-001 /
+/// GGEN-OUT-001 detectors presuppose (they skip a rule whose bound file could
+/// not be read). It surfaces a previously-silent `RuleIndexEntry::issues` item
+/// as a live diagnostic on the `ggen.toml` declaration surface.
+pub const GGEN_RULE_001: &str = "GGEN-RULE-001";
+
 const FILTERS: &[&str] = &[
     "upper",
     "lower",
@@ -477,6 +486,38 @@ pub fn unbound_output_path_diagnostics(
         .collect()
 }
 
+/// Pure detector for unbound RULE FILES (GGEN-RULE-001).
+///
+/// Given a rule's `issues` strings (from [`crate::rule_index::RuleIndexEntry`]),
+/// emit a GGEN-RULE-001 ERROR for each MISSING-FILE issue — identified by the
+/// stable prefixes `"query file missing:"` / `"template file missing:"` that the
+/// index produces when a rule's `{file=...}` cannot be read (overlay-aware: an
+/// open buffer for the path counts as present, so it is not flagged). Ignores
+/// `"unsupported template source"` (Git/Package — a separate concern) and the
+/// `"SELECT *"` info issue: neither is a missing-file defect.
+///
+/// Diagnostics anchor on the whole first line (line 0) of the rule's `ggen.toml`
+/// declaration surface — NEVER an emitted output. Reads/writes no files: this is
+/// a pure function over its inputs (the index already did the overlay-aware I/O).
+#[must_use]
+pub fn unbound_rule_file_diagnostics(issues: &[String]) -> Vec<Diagnostic> {
+    issues
+        .iter()
+        .filter(|i| i.starts_with("query file missing:") || i.starts_with("template file missing:"))
+        .map(|i| {
+            let mut d = diag::whole_line(
+                0,
+                DiagnosticSeverity::ERROR,
+                Some(GGEN_RULE_001),
+                format!("{GGEN_RULE_001} unbound_rule_file: {i}"),
+            );
+            // Be explicit about the code type for downstream route matching.
+            d.code = Some(NumberOrString::String(GGEN_RULE_001.to_string()));
+            d
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -633,5 +674,67 @@ mod tests {
         let tpl = unbound_projection_diagnostics("{{x}}", &BTreeSet::new());
         assert!(has_out_001(&out) && !has_tpl_001(&out));
         assert!(has_tpl_001(&tpl) && !has_out_001(&tpl));
+    }
+
+    // ---- GGEN-RULE-001: unbound rule file ----
+
+    fn has_rule_001(diags: &[Diagnostic]) -> bool {
+        diags
+            .iter()
+            .any(|d| d.code == Some(NumberOrString::String(GGEN_RULE_001.to_string())))
+    }
+
+    #[test]
+    fn missing_query_issue_raises_one_rule_001() {
+        let issues = vec!["query file missing: /p/queries/items.rq (No such file)".to_string()];
+        let diags = unbound_rule_file_diagnostics(&issues);
+        assert_eq!(diags.len(), 1, "expected one RULE-001: {diags:?}");
+        assert!(has_rule_001(&diags));
+        assert_eq!(diags[0].severity, Some(DiagnosticSeverity::ERROR));
+        assert!(diags[0].message.contains("query file missing"));
+    }
+
+    #[test]
+    fn missing_template_issue_raises_one_rule_001() {
+        let issues = vec!["template file missing: /p/templates/missing.tera".to_string()];
+        let diags = unbound_rule_file_diagnostics(&issues);
+        assert_eq!(diags.len(), 1, "expected one RULE-001: {diags:?}");
+        assert!(has_rule_001(&diags));
+        assert!(diags[0].message.contains("template file missing"));
+    }
+
+    #[test]
+    fn unsupported_git_source_issue_raises_zero_rule_001() {
+        // Git/Package sources are a separate "unsupported MVP" concern, NOT a
+        // missing-file defect — RULE-001 must NOT fire on them.
+        let issues =
+            vec!["unsupported template source for MVP: git (https://x#a.tera)".to_string()];
+        let diags = unbound_rule_file_diagnostics(&issues);
+        assert!(diags.is_empty(), "git source is not RULE-001: {diags:?}");
+    }
+
+    #[test]
+    fn select_star_issue_raises_zero_rule_001() {
+        // The `SELECT *` info issue is not a missing-file defect.
+        let issues =
+            vec!["SELECT * is not introspectable: no explicit projection variables".to_string()];
+        let diags = unbound_rule_file_diagnostics(&issues);
+        assert!(diags.is_empty(), "SELECT * is not RULE-001: {diags:?}");
+    }
+
+    #[test]
+    fn empty_issues_raise_zero_rule_001() {
+        assert!(unbound_rule_file_diagnostics(&[]).is_empty());
+    }
+
+    #[test]
+    fn both_missing_files_raise_two_rule_001() {
+        let issues = vec![
+            "query file missing: /p/q.rq (nope)".to_string(),
+            "template file missing: /p/t.tera".to_string(),
+        ];
+        let diags = unbound_rule_file_diagnostics(&issues);
+        assert_eq!(diags.len(), 2, "both bindings dangling: {diags:?}");
+        assert!(diags.iter().all(|d| has_rule_001(std::slice::from_ref(d))));
     }
 }

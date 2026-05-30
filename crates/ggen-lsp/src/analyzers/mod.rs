@@ -17,8 +17,8 @@ pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HA
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{
-    unbound_output_path_diagnostics, unbound_projection_diagnostics, TeraAnalyzer, GGEN_OUT_001,
-    GGEN_TPL_001,
+    unbound_output_path_diagnostics, unbound_projection_diagnostics, unbound_rule_file_diagnostics,
+    TeraAnalyzer, GGEN_OUT_001, GGEN_RULE_001, GGEN_TPL_001,
 };
 pub use toml_analyzer::TomlAnalyzer;
 
@@ -97,6 +97,34 @@ pub fn detect_out_001(
             continue; // SELECT * / missing query → no lawful comparison
         }
         let diags = unbound_output_path_diagnostics(&entry.output_file, &entry.selected_vars);
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Cross-surface GGEN-RULE-001 detection over a whole project index.
+///
+/// For each rule, run the pure [`unbound_rule_file_diagnostics`] detector against
+/// the rule's index-level `issues`, surfacing any MISSING query/template
+/// `{file=...}` as a live GGEN-RULE-001 error. This is the FOUNDATIONAL
+/// binding-integrity check the GGEN-TPL-001 / GGEN-OUT-001 detectors PRESUPPOSE:
+/// they skip a rule whose bound file is missing (`template_content` `None` /
+/// empty `selected_vars`), so the previously-silent
+/// [`crate::rule_index::RuleIndexEntry::issues`] channel gains exactly one lawful
+/// publishing consumer.
+///
+/// Diagnostics anchor on the rule's `ggen.toml` manifest (the declaration surface
+/// where the dangling `{file=...}` is written), NEVER an emitted output. Reads /
+/// writes no files: the index already did its overlay-aware I/O.
+#[must_use]
+pub fn detect_rule_001(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        let diags = unbound_rule_file_diagnostics(&entry.issues);
         if !diags.is_empty() {
             out.push((entry.manifest_path.clone(), diags));
         }

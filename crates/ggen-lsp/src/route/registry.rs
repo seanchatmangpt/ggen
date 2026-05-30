@@ -152,6 +152,12 @@ pub fn family_of_code(code: &str) -> Option<RepairFamily> {
         // would steal the TPL-001 route). The species-level route slug is
         // "source_law_repair" (route::diagnostic_species).
         "GGEN-OUT-001" => Some(RepairFamily::LoadFailure),
+        // GGEN-RULE-001 (unbound rule file): a rule's query/template {file=...}
+        // points at a missing file. Mapped to RuleFileMissing (a NEW family it
+        // owns EXCLUSIVELY) so its source-law route is selected without colliding
+        // with TPL (DanglingReference), OUT (LoadFailure), or HARNESS
+        // (AdmissionFailure). Species slug "source_law_repair".
+        "GGEN-RULE-001" => Some(RepairFamily::RuleFileMissing),
         "E0023" => Some(RepairFamily::ConfigValue),
         "E0001" => Some(RepairFamily::ParseFailure),
         "RDF" => Some(RepairFamily::ParseFailure),
@@ -348,6 +354,41 @@ fn seed_routes() -> Vec<RepairRoute> {
             description: "Unbound output path — bind the variable at its source law \
                           (the SPARQL SELECT or the ggen.toml rule output_file pattern). \
                           Advisory only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
+        },
+        // GGEN-RULE-001 (unbound rule file): a ggen.toml rule binds a query or
+        // template {file=...} that does not exist. The fix lives ONLY in source
+        // law — create the missing source file, or correct the rule's path.
+        // Purely ADVISORY (NoOp). NO step fabricates emitted/generated output.
+        // Owns the RuleFileMissing family exclusively.
+        RepairRoute {
+            id: RouteId("source-law.bind-rule-file".into()),
+            family: RepairFamily::RuleFileMissing,
+            steps: PartialOrder {
+                nodes: vec![
+                    RepairStep {
+                        id: StepId("create-missing-rule-file".into()),
+                        title: "Create the missing query/template file at the path the \
+                                ggen.toml rule binds (source law); never fabricate \
+                                generated output"
+                            .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                    RepairStep {
+                        id: StepId("fix-rule-file-path".into()),
+                        title: "Or correct the ggen.toml rule query/template `file` path \
+                                to point at an existing source-law file (source law)"
+                            .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                ],
+                edges: vec![],
+            },
+            description: "Unbound rule file — the ggen.toml rule binds a query/template \
+                          file that does not exist. Create the source file or fix the \
+                          rule path. Advisory only; never edits emitted output."
                 .into(),
             provenance: Provenance::Seeded,
             priority: 10,
@@ -758,5 +799,99 @@ mod tests {
             .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection"))
             .expect("route");
         assert_eq!(route.id.0, "source-law.bind-projection");
+    }
+
+    // ---- GGEN-RULE-001: unbound-rule-file source-law repair route ----
+
+    #[test]
+    fn ggen_rule_001_maps_to_its_own_family() {
+        // GGEN-RULE-001 must resolve to the RuleFileMissing family, which it owns
+        // exclusively (no other code maps there) — zero cross-contamination.
+        assert_eq!(
+            family_of_code("GGEN-RULE-001"),
+            Some(RepairFamily::RuleFileMissing)
+        );
+    }
+
+    #[test]
+    fn ggen_rule_001_selects_the_source_law_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-RULE-001", "unbound rule file"))
+            .expect("GGEN-RULE-001 must resolve to a seeded route");
+        assert_eq!(route.id.0, "source-law.bind-rule-file");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_rule_001_route_is_source_law_only() {
+        // Load-bearing invariant: the route must NEVER fabricate generated output.
+        // Every step is advisory (NoOp), references a source-law surface, and
+        // contains no emitted-output / fabrication marker.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-RULE-001", "unbound rule file"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        // Emitted-output path markers only. ("fabricate" is NOT forbidden here —
+        // the route's own text legitimately says "never fabricate generated
+        // output", an anti-fabrication instruction, not a fabrication step.)
+        const FORBIDDEN: &[&str] = &["out/", "output/", "dist/", "emitted"];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-RULE-001 step {:?} must be advisory (NoOp)",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-RULE-001 step title {:?} contains forbidden marker {forbidden:?}",
+                    step.title
+                );
+            }
+            // Each step must reference a source-law surface (the rule's
+            // ggen.toml binding, its query/template file, or the file path).
+            assert!(
+                title.contains("ggen.toml")
+                    || title.contains("query")
+                    || title.contains("template")
+                    || title.contains("file"),
+                "GGEN-RULE-001 step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_rule_001_does_not_contaminate_other_species() {
+        // Introducing the RULE-001 route must NOT change the route selected for
+        // TPL-001 / OUT-001 / HARNESS-001 (each owns its own family).
+        let reg = RouteRegistry::seeded();
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-TPL-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-projection"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-OUT-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "source-law.bind-output-path"
+        );
+        assert_eq!(
+            reg.select_for_diagnostic(&diag("GGEN-HARNESS-001", "x"))
+                .expect("route")
+                .id
+                .0,
+            "proof-topology.repair"
+        );
     }
 }

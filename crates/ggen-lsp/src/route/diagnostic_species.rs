@@ -91,6 +91,22 @@ static SPECIES: &[DiagnosticSpecies] = &[
         // The dual of GGEN-TPL-001 on the ggen.toml/SPARQL surfaces.
         detector_active: true,
     },
+    // ── GGEN-RULE-001: unbound rule file (ACTIVE — GGEN-RULE-001) ────────────
+    DiagnosticSpecies {
+        code: "GGEN-RULE-001",
+        failure_class: "unbound_rule_file",
+        surfaces: &["ggen.toml"],
+        severity_policy: "error",
+        route: "source_law_repair",
+        origin: "ark-covenant / living-lsp RULE-001",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        // Activated: a live detector now flags rules whose query/template
+        // {file=...} is missing on disk (analyzers::detect_rule_001 over the
+        // RuleIndexEntry::issues channel of a project_index::ProjectIndex). This
+        // is the FOUNDATIONAL binding-integrity check TPL-001/OUT-001 presuppose.
+        detector_active: true,
+    },
 ];
 
 /// Borrow the full species registry.
@@ -159,14 +175,30 @@ mod tests {
     }
 
     #[test]
+    fn ggen_rule_001_is_active_with_canonical_values() {
+        let species = species_for("GGEN-RULE-001").expect("GGEN-RULE-001 must be registered");
+        assert!(
+            species.detector_active,
+            "GGEN-RULE-001 detector must be active"
+        );
+        assert_eq!(species.failure_class, "unbound_rule_file");
+        assert_eq!(species.severity_policy, "error");
+        assert_eq!(species.route, "source_law_repair");
+        assert_eq!(species.origin, "ark-covenant / living-lsp RULE-001");
+        assert_eq!(species.actuation_boundary, "inspect_only");
+        assert_eq!(species.receipt_requirement, "diagnostic_receipt");
+        assert_eq!(species.surfaces, &["ggen.toml"]);
+    }
+
+    #[test]
     fn unknown_code_has_no_species() {
         assert!(species_for("E0011").is_none());
         assert!(species_for("does-not-exist").is_none());
     }
 
     #[test]
-    fn registry_contains_exactly_three_species() {
-        assert_eq!(species_registry().len(), 3);
+    fn registry_contains_exactly_four_species() {
+        assert_eq!(species_registry().len(), 4);
     }
 
     #[test]

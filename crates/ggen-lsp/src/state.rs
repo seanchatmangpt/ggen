@@ -402,6 +402,25 @@ impl ServerState {
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
             }
+
+            // RULE reconcile rides the SAME trigger as TPL/OUT (ProjectIndex-derived).
+            // A manifest whose dangling rule binding was repaired (the file now
+            // exists) drops out of the freshly re-detected `current` set and is
+            // cleared with residual preservation (mirrors TPL/OUT).
+            let mut rule_current: HashSet<Url> = HashSet::new();
+            for (manifest_path, _) in self.detect_rule_001_for(uri, &overlay) {
+                if let Some(u) = url_from_path(&manifest_path) {
+                    rule_current.insert(u);
+                }
+            }
+            for cleared in self
+                .clears_for(crate::analyzers::GGEN_RULE_001, uri, &rule_current)
+                .await
+            {
+                let residual = self.residual_single_file_diags(&cleared).await;
+                self.observe_diagnostics(&cleared, &residual).await;
+                published.push((cleared, residual));
+            }
         }
 
         // HARNESS reconcile: only if the closed surface is a harness trigger
@@ -524,6 +543,17 @@ impl ServerState {
             Vec::new()
         };
 
+        // Cross-file GGEN-RULE-001: the FOUNDATIONAL binding-integrity check
+        // TPL/OUT presuppose — a rule whose query/template {file=...} is missing.
+        // Shares the SAME trigger gate as TPL/OUT (`tpl_is_trigger` covers
+        // `.tera`/`.rq`/`ggen.toml`): all read the SAME `ProjectIndex`. Groups
+        // anchor on `ggen.toml` (disjoint from TPL's `.tera` anchor).
+        let rule_groups = if tpl_is_trigger {
+            self.detect_rule_001_for(uri, &overlay)
+        } else {
+            Vec::new()
+        };
+
         let edited_self_url = url_from_path_str(uri.path());
         let mut published_self = false;
 
@@ -574,6 +604,16 @@ impl ServerState {
                 code: crate::analyzers::GGEN_OUT_001,
                 is_trigger: tpl_is_trigger,
                 groups: out_groups,
+                flagged: HashSet::new(),
+            },
+            // GGEN-RULE-001 appended LAST: with no missing files (the common case,
+            // e.g. the CONSOLIDATE-002 golden) it emits zero groups, so the
+            // TPL→HARNESS→OUT emit sequence stays byte-identical and the
+            // sequence-equivalence golden holds without editing it.
+            Species {
+                code: crate::analyzers::GGEN_RULE_001,
+                is_trigger: tpl_is_trigger,
+                groups: rule_groups,
                 flagged: HashSet::new(),
             },
         ];
@@ -679,6 +719,24 @@ impl ServerState {
         };
         match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
             Ok(project) => crate::analyzers::detect_out_001(&project),
+            Err(_) => Vec::new(),
+        }
+    }
+
+    /// Resolve the project root for `uri`, build a `ProjectIndex`, and run the
+    /// cross-surface GGEN-RULE-001 detector (the foundational binding-integrity
+    /// check TPL/OUT presuppose — a rule whose query/template `{file=...}` is
+    /// missing). Returns the per-manifest diagnostic groups (empty on any
+    /// resolution/build failure — best-effort, never panics, never writes files).
+    /// Reuses the SAME `project_root_for` + `ProjectIndex` as TPL/OUT-001.
+    fn detect_rule_001_for(
+        &self, uri: &Url, overlay: &BufferOverlay,
+    ) -> Vec<(PathBuf, Vec<Diagnostic>)> {
+        let Some(root) = self.project_root_for(uri) else {
+            return Vec::new();
+        };
+        match crate::project_index::ProjectIndex::from_root_with_overlay(&root, overlay) {
+            Ok(project) => crate::analyzers::detect_rule_001(&project),
             Err(_) => Vec::new(),
         }
     }
