@@ -16,6 +16,8 @@ use std::fmt;
 struct SchemaParserInternal;
 
 /// Schema definition for an A2A skill input/output type
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: contains String and Vec which implement Eq.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Schema {
     pub name: String,
