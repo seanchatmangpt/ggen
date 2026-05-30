@@ -39,6 +39,7 @@ pub struct Producer {
 }
 
 /// Reference to the producer-native payload that this envelope commits to.
+///
 /// `hash` is BLAKE3 over the canonical payload bytes (typically the on-disk
 /// JSON file's contents) and is prefixed `blake3:` for forward-compat.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -233,8 +234,7 @@ impl EnvelopeChain {
                     "first envelope must be genesis (no previous hash)".into(),
                 ));
             }
-        } else {
-            let last = self.envelopes.last().unwrap();
+        } else if let Some(last) = self.envelopes.last() {
             let last_hash = &last.chain.own_hash;
             match &envelope.chain.previous_envelope_hash {
                 Some(prev) if prev == last_hash => {}
@@ -250,6 +250,9 @@ impl EnvelopeChain {
                     ));
                 }
             }
+        } else {
+            // Empty chain but we already checked is_empty above, so this shouldn't happen
+            // but keep it for completeness
         }
         self.envelopes.push(envelope);
         Ok(())

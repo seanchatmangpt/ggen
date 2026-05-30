@@ -245,7 +245,7 @@ impl HiveQueen {
     }
 
     /// Run intelligent configuration orchestration
-    pub async fn orchestrate(&mut self) -> Result<ResolvedConfiguration> {
+    pub async fn orchestrate(&self) -> Result<ResolvedConfiguration> {
         // Phase 1: Analyze current configuration
         self.analyze_phase().await?;
 
@@ -263,11 +263,11 @@ impl HiveQueen {
     }
 
     /// Phase 1: Analyze configuration
-    async fn analyze_phase(&mut self) -> Result<()> {
+    async fn analyze_phase(&self) -> Result<()> {
         let state = self.state.write().await;
 
         // Each agent analyzes the configuration
-        for agent in &mut self.agents {
+        for agent in &self.agents {
             if agent.role == AgentRole::Analyzer {
                 let analysis = agent.analyze_config(&self.config).await?;
 
@@ -277,8 +277,9 @@ impl HiveQueen {
                     }
 
                     // Store insights for later use
-                    if let Some(agent_state) = Arc::get_mut(&mut agent.state) {
-                        agent_state.write().await.insights.push(insight);
+                    // Agent state is Arc<RwLock>, mutations go through the lock, not Arc::get_mut
+                    if let Ok(mut agent_state) = agent.state.try_write() {
+                        agent_state.insights.push(insight);
                     }
                 }
             }
@@ -512,7 +513,7 @@ mod tests {
             source: None,
         });
 
-        let mut hive = HiveQueen::new(config).await.unwrap();
+        let hive = HiveQueen::new(config).await.unwrap();
         let resolved = hive.orchestrate().await;
 
         assert!(resolved.is_ok());

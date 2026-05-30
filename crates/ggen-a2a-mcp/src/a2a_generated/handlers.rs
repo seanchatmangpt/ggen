@@ -193,7 +193,7 @@ pub mod message_handler {
     }
 
     /// Unified handler error
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub enum UnifiedHandlerError {
         ValidationError(String),
         ProcessingError(String),
@@ -592,7 +592,8 @@ pub mod message_handler {
                     let response = Some(ConvergedMessage::text(
                         format!("{}-processed", message.message_id),
                         message.source.clone(),
-                        serde_json::to_string(&processed_data).unwrap(),
+                        serde_json::to_string(&processed_data)
+                            .map_err(|e| UnifiedHandlerError::ProcessingError(e.to_string()))?,
                     ));
 
                     Ok(UnifiedHandlerResult {
@@ -600,7 +601,9 @@ pub mod message_handler {
                         status: HandlerStatus::Success,
                         metrics: ProcessingMetrics {
                             duration: Utc::now() - message.envelope.timestamp,
-                            message_size: serde_json::to_string(data).unwrap().len(),
+                            message_size: serde_json::to_string(data)
+                                .map_err(|e| UnifiedHandlerError::ProcessingError(e.to_string()))?
+                                .len(),
                             cpu_usage: 0.2,
                             memory_usage: 2.0,
                             operations: data.len(),

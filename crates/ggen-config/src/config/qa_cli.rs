@@ -335,11 +335,15 @@ impl QaCliManager {
 
         for failure in &self.monitor.registry.fmea.failure_modes {
             if failure.rpn < 100 {
-                *distribution.get_mut("Low (0-99)").unwrap() += 1;
+                if let Some(entry) = distribution.get_mut("Low (0-99)") {
+                    *entry += 1;
+                }
             } else if failure.rpn < 300 {
-                *distribution.get_mut("Medium (100-299)").unwrap() += 1;
-            } else {
-                *distribution.get_mut("High (300+)").unwrap() += 1;
+                if let Some(entry) = distribution.get_mut("Medium (100-299)") {
+                    *entry += 1;
+                }
+            } else if let Some(entry) = distribution.get_mut("High (300+)") {
+                *entry += 1;
             }
         }
 

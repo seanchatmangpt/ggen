@@ -125,6 +125,8 @@ impl V3OptimizedRegistry {
             .build();
 
         // Query plan cache: 256 most-recent plans
+        // Safe: 256 is definitely non-zero
+        #[allow(clippy::unwrap_used)]
         let query_plan_cache = LruCache::new(NonZeroUsize::new(256).unwrap());
 
         let metrics = V3Metrics {

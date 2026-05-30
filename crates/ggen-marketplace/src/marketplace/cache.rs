@@ -155,7 +155,7 @@ impl PackCache {
     pub fn get(&self, package_id: &PackageId, version: &PackageVersion) -> Option<CachedPack> {
         let cache_key = format!("{}@{}", package_id, version);
 
-        let mut packs = self.packs.write().unwrap();
+        let mut packs = self.packs.write().expect("pack cache lock poisoned");
         if let Some(mut pack) = packs.remove(&cache_key) {
             // Update access statistics
             pack.record_access();
@@ -181,7 +181,7 @@ impl PackCache {
 
         // Check if pack already exists
         let existing_size = {
-            let packs = self.packs.read().unwrap();
+            let packs = self.packs.read().expect("pack cache lock poisoned");
             if let Some(existing) = packs.get(&cache_key) {
                 existing.size_bytes
             } else {
@@ -190,9 +190,10 @@ impl PackCache {
         };
 
         // Evict packs if necessary to make room
-        let new_size = *self.current_size.read().unwrap() - existing_size + pack.size_bytes;
+        let new_size = *self.current_size.read().expect("size lock poisoned") - existing_size
+            + pack.size_bytes;
         {
-            let packs = self.packs.read().unwrap();
+            let packs = self.packs.read().expect("pack cache lock poisoned");
             if new_size > self.config.max_size_bytes || packs.len() >= self.config.max_packs {
                 drop(packs);
                 self.evict_if_needed(pack.size_bytes)?;
@@ -203,8 +204,8 @@ impl PackCache {
         let size_bytes = pack.size_bytes;
         let cache_key_clone = cache_key.clone();
 
-        let mut packs = self.packs.write().unwrap();
-        let mut current_size = self.current_size.write().unwrap();
+        let mut packs = self.packs.write().expect("pack cache lock poisoned");
+        let mut current_size = self.current_size.write().expect("size lock poisoned");
         *current_size = *current_size - existing_size + pack.size_bytes;
 
         packs.insert(cache_key, pack);
@@ -230,8 +231,8 @@ impl PackCache {
     ///
     /// Returns error if cache lock is poisoned or file deletion fails.
     fn evict_if_needed(&self, required_size: u64) -> Result<()> {
-        let mut packs = self.packs.write().unwrap();
-        let mut current_size = self.current_size.write().unwrap();
+        let mut packs = self.packs.write().expect("pack cache lock poisoned");
+        let mut current_size = self.current_size.write().expect("size lock poisoned");
 
         // Check if eviction is needed
         let size_pressure = *current_size + required_size > self.config.max_size_bytes;
@@ -290,8 +291,8 @@ impl PackCache {
     pub fn remove(&self, package_id: &PackageId, version: &PackageVersion) -> Result<bool> {
         let cache_key = format!("{}@{}", package_id, version);
 
-        let mut packs = self.packs.write().unwrap();
-        let mut current_size = self.current_size.write().unwrap();
+        let mut packs = self.packs.write().expect("pack cache lock poisoned");
+        let mut current_size = self.current_size.write().expect("size lock poisoned");
 
         if let Some(pack) = packs.remove(&cache_key) {
             *current_size -= pack.size_bytes;
@@ -324,8 +325,8 @@ impl PackCache {
     ///
     /// Returns error if file operations fail.
     pub fn clear(&self) -> Result<()> {
-        let mut packs = self.packs.write().unwrap();
-        let mut current_size = self.current_size.write().unwrap();
+        let mut packs = self.packs.write().expect("pack cache lock poisoned");
+        let mut current_size = self.current_size.write().expect("size lock poisoned");
 
         // Delete all cached pack directories
         for pack in packs.values() {
@@ -357,8 +358,8 @@ impl PackCache {
     ///
     /// Returns error if cache lock is poisoned.
     pub fn stats(&self) -> CacheStats {
-        let packs = self.packs.read().unwrap();
-        let current_size = *self.current_size.read().unwrap();
+        let packs = self.packs.read().expect("pack cache lock poisoned");
+        let current_size = *self.current_size.read().expect("size lock poisoned");
 
         CacheStats {
             total_packs: packs.len(),
@@ -380,7 +381,7 @@ impl PackCache {
     /// Returns error if serialization or file I/O fails.
     fn save_metadata(&self) -> Result<()> {
         let metadata_path = self.config.cache_dir.join("cache_metadata.json");
-        let packs = self.packs.read().unwrap();
+        let packs = self.packs.read().expect("pack cache lock poisoned");
 
         let file = fs::File::create(&metadata_path).map_err(Error::IoError)?;
         let writer = BufWriter::new(file);
@@ -408,8 +409,8 @@ impl PackCache {
         let loaded_packs: HashMap<String, CachedPack> =
             serde_json::from_reader(reader).map_err(|e| Error::SerializationError(e))?;
 
-        let mut packs = self.packs.write().unwrap();
-        let mut current_size = self.current_size.write().unwrap();
+        let mut packs = self.packs.write().expect("pack cache lock poisoned");
+        let mut current_size = self.current_size.write().expect("size lock poisoned");
 
         *current_size = 0;
         for (key, pack) in loaded_packs {
@@ -434,7 +435,7 @@ impl PackCache {
     #[must_use]
     pub fn is_cached(&self, package_id: &PackageId, version: &PackageVersion) -> bool {
         let cache_key = format!("{}@{}", package_id, version);
-        let packs = self.packs.read().unwrap();
+        let packs = self.packs.read().expect("pack cache lock poisoned");
         packs.contains_key(&cache_key)
     }
 
@@ -445,7 +446,7 @@ impl PackCache {
     /// Vector of cache keys for all cached packs
     #[must_use]
     pub fn cached_packs(&self) -> Vec<String> {
-        let packs = self.packs.read().unwrap();
+        let packs = self.packs.read().expect("pack cache lock poisoned");
         packs.keys().cloned().collect()
     }
 

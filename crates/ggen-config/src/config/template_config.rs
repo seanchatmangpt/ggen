@@ -29,6 +29,12 @@ pub struct TemplateConfig {
 }
 
 /// Template generation options
+///
+/// Controls behavior of template code generation including formatting, hooks,
+/// interactivity, overwrite handling, and validation. These boolean flags
+/// collectively define the generation strategy and are intentionally grouped
+/// together to manage all generation-time options in one configuration struct.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GenerationOptions {
     /// Default output directory

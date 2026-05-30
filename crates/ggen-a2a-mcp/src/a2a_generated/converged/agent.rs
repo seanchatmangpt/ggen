@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Authentication requirements
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthenticationRequirements {
     /// Required authentication methods
     pub methods: Vec<String>,
@@ -18,7 +18,7 @@ pub struct AuthenticationRequirements {
 }
 
 /// Authorization requirements
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthorizationRequirements {
     /// Required roles
     pub roles: Vec<String>,

@@ -485,7 +485,11 @@ pub enum MessageState {
 }
 
 /// Message state transition
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// Note: Eq cannot be implemented because `serde_json::Value` and `HashMap` do not implement Eq,
+/// but PartialEq is needed for state transition comparison and testing semantics.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub struct MessageStateTransition {
     /// Previous state
     pub from: MessageState,

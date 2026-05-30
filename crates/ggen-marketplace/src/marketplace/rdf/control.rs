@@ -150,7 +150,7 @@ impl QueryBatch {
         self.queries.push(query);
     }
 
-    fn execute(&mut self, executor: &Arc<SparqlExecutor>) -> Result<()> {
+    fn execute(&self, executor: &Arc<SparqlExecutor>) -> Result<()> {
         if self.queries.is_empty() {
             return Ok(());
         }
