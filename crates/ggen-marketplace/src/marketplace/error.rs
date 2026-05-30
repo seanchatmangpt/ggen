@@ -194,6 +194,16 @@ impl From<ggen_config::receipt::ReceiptError> for Error {
     }
 }
 
+// Implement From<oxigraph::sparql::SparqlSyntaxError> for compatibility
+impl From<oxigraph::sparql::SparqlSyntaxError> for Error {
+    fn from(err: oxigraph::sparql::SparqlSyntaxError) -> Self {
+        Error::SparqlError {
+            query: String::new(),
+            reason: err.to_string(),
+        }
+    }
+}
+
 impl Error {
     /// Create a new "Package not found" error
     #[must_use]
