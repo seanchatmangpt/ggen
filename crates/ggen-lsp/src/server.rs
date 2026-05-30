@@ -1,10 +1,8 @@
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{jsonrpc::Result, Client, LanguageServer};
 
-use crate::state::{FileType, ServerState};
+use crate::state::ServerState;
 
 pub struct GgenLanguageServer {
     state: Arc<ServerState>,
@@ -22,210 +20,24 @@ impl GgenLanguageServer {
     /// Build (or rebuild) the analyzer for a document, store it, and publish its
     /// diagnostics — the live "refusal before execution" signal.
     ///
-    /// For rule-referenced surfaces (`.tera`, `.rq`/`.sparql`, `ggen.toml`) the
-    /// single-file diagnostics are augmented with the CROSS-FILE GGEN-TPL-001
-    /// analysis: a [`ProjectIndex`](crate::project_index::ProjectIndex) is built
-    /// from the nearest `ggen.toml` and run through
-    /// [`detect_tpl_001`](crate::analyzers::detect_tpl_001). The edited template's
-    /// own single-file diagnostics are MERGED with its GGEN-TPL-001 diagnostics
-    /// and published ONCE for that URI (LSP diagnostics are replace-semantics per
-    /// URI). Every publish — including the cross-file ones — flows through
-    /// `observe_diagnostics` so the living OCEL loop records them.
+    /// The Client-free orchestration (single-file analysis + cross-surface
+    /// GGEN-TPL-001 detection + merge-once + stale-clear reconciliation, all flowing
+    /// through `observe_diagnostics` so the living OCEL loop records them) lives in
+    /// [`ServerState::analyze_and_observe`](crate::state::ServerState::analyze_and_observe).
+    /// This wrapper adds only the editor transport: it pushes each returned
+    /// `(uri, diagnostics)` pair to the client, in order. Keeping the orchestration
+    /// in `ServerState` is what lets a hermetic test drive the SAME path (and assert
+    /// the full receipt chain from the on-disk OCEL log) without a `tower_lsp::Client`.
     ///
     /// Strictly read-only: builds an index (which only reads files) and never
     /// writes any artifact.
     async fn refresh_analyzer(&self, uri: &Url, content: &str) {
-        let file_type = FileType::from_path(uri.path());
-
-        // Single-file diagnostics for the edited document (E0024 etc.).
-        let mut own_diags: Vec<Diagnostic> = Vec::new();
-        if let Some(analyzer) = crate::analyzers::build_analyzer(uri.path(), content) {
-            own_diags = analyzer.diagnostics();
-            self.state.set_analyzer(uri.clone(), analyzer).await;
-        }
-
-        // Cross-file GGEN-TPL-001: only for rule-referenced surfaces, and only
-        // when we can resolve a project root with a real `ggen.toml`.
-        let tpl_groups = if matches!(
-            file_type,
-            FileType::Tera | FileType::Sparql | FileType::Toml
-        ) {
-            self.detect_tpl_001_for(uri)
-        } else {
-            Vec::new()
-        };
-
-        // Convert the edited document's path to a Url so we can recognize when one
-        // of the cross-file groups targets the very file being edited (and must be
-        // merged into a single publish rather than clobbering it).
-        let edited_template_url = url_from_path_str(uri.path());
-
-        // Publish GGEN-TPL-001 for every AFFECTED template, merging the edited
-        // file's own diagnostics into the same publish when it is itself the
-        // template. All publishes pass through `observe_diagnostics`.
-        let mut published_self = false;
-        // Template URIs flagged THIS pass — used to reconcile against the previous
-        // pass so cross-surface repairs clear stale diagnostics (see below).
-        let mut current_flagged: HashSet<Url> = HashSet::new();
-        for (template_path, tpl_diags) in tpl_groups {
-            let Some(template_url) = url_from_path(&template_path) else {
-                continue;
-            };
-            current_flagged.insert(template_url.clone());
-            if edited_template_url.as_ref() == Some(&template_url) {
-                // The edited file IS this template: merge once, publish once.
-                let mut merged = std::mem::take(&mut own_diags);
-                merged.extend(tpl_diags);
-                self.publish_observed(&template_url, merged).await;
-                published_self = true;
-            } else {
-                // A different (cross-file) template URI. Route through
-                // `observe_diagnostics` (it is `pub` and takes `&uri`).
-                self.publish_observed(&template_url, tpl_diags).await;
-            }
-        }
-
-        // If the edited file was not itself a TPL-001-affected template, publish
-        // its own single-file diagnostics (preserving the original single-file
-        // flow). `.rq`/`ggen.toml` always land here for their own URI.
-        if !published_self {
-            self.publish_observed(uri, own_diags).await;
-        }
-
-        // STALE-CLEAR reconciliation. A cross-surface repair (e.g. adding the
-        // missing variable to the SPARQL `SELECT`) makes a *different* template
-        // lawful, so that template drops out of `tpl_groups` entirely and the
-        // loop above never touches its URI. Without this, its squiggle would
-        // linger forever and the repair would never be observed. Only runs when
-        // the edited file is itself a rule surface (so we actually recomputed the
-        // project graph this pass); editing an unrelated file must NOT clear
-        // standing diagnostics.
-        //
-        // Each clear republishes the cleared template's RESIDUAL single-file
-        // diagnostics (its own E0024 etc.), NOT an empty set — a template may
-        // carry independent diagnostics alongside the now-repaired GGEN-TPL-001,
-        // and a clear must not erase unrelated law. The single-file analyzer runs
-        // with empty bindings, so the residual never contains GGEN-TPL-001. The
-        // publish flows through `observe_diagnostics`, whose per-key (code|span)
-        // diff drops exactly the disappeared GGEN-TPL-001 key — closing the
-        // living loop (RepairApplied → GatePassed → ReceiptEmitted) — while
-        // preserving every still-present key. A clear is an event, not an absence.
-        if matches!(
-            file_type,
-            FileType::Tera | FileType::Sparql | FileType::Toml
-        ) {
-            for cleared in self.state.tpl_clears_for(uri, &current_flagged).await {
-                let residual = self.residual_single_file_diags(&cleared).await;
-                self.publish_observed(&cleared, residual).await;
-            }
+        for (target_uri, diagnostics) in self.state.analyze_and_observe(uri, content).await {
+            self.client
+                .publish_diagnostics(target_uri, diagnostics, None)
+                .await;
         }
     }
-
-    /// Recompute a template's OWN single-file diagnostics (E0024 etc.) for use
-    /// when clearing a disappeared cross-surface GGEN-TPL-001. The single-file
-    /// Tera analyzer runs with empty SPARQL bindings, so the result NEVER
-    /// contains GGEN-TPL-001 — publishing it through `observe_diagnostics`
-    /// therefore drops only the disappeared GGEN-TPL-001 key while preserving any
-    /// independent diagnostics on the same template. Content comes from the open
-    /// document if available, else the file on disk. Read-only; never writes.
-    async fn residual_single_file_diags(&self, uri: &Url) -> Vec<Diagnostic> {
-        let content = match self.state.get_document(uri).await {
-            Some(c) => c,
-            None => match uri.to_file_path() {
-                Ok(path) => std::fs::read_to_string(&path).unwrap_or_default(),
-                Err(()) => String::new(),
-            },
-        };
-        crate::analyzers::build_analyzer(uri.path(), &content)
-            .map(|a| a.diagnostics())
-            .unwrap_or_default()
-    }
-
-    /// Publish `diagnostics` for `uri` through the observed path: record the
-    /// editor-flow OCEL chain via `observe_diagnostics`, then publish to the
-    /// client. Centralizes the "never bypass observe_diagnostics" invariant.
-    async fn publish_observed(&self, uri: &Url, diagnostics: Vec<Diagnostic>) {
-        self.state.observe_diagnostics(uri, &diagnostics).await;
-        self.client
-            .publish_diagnostics(uri.clone(), diagnostics, None)
-            .await;
-    }
-
-    /// Resolve the project root for `uri`, build a `ProjectIndex`, and run the
-    /// cross-surface GGEN-TPL-001 detector. Returns the per-template diagnostic
-    /// groups (empty on any resolution/build failure — best-effort, never panics,
-    /// never writes files).
-    ///
-    /// Bounded but uncached: an index is built on every change. Acceptable for the
-    /// MVP; see handoff for the caching note.
-    fn detect_tpl_001_for(&self, uri: &Url) -> Vec<(PathBuf, Vec<Diagnostic>)> {
-        let Some(root) = self.project_root_for(uri) else {
-            return Vec::new();
-        };
-        match crate::project_index::ProjectIndex::from_root(&root) {
-            Ok(project) => crate::analyzers::detect_tpl_001(&project),
-            Err(_) => Vec::new(),
-        }
-    }
-
-    /// Find the project root for a document: walk up parent directories from the
-    /// file path to the nearest directory containing a `ggen.toml`. Falls back to
-    /// `self.state.root` when the URI is not a local file path or no manifest is
-    /// found above it.
-    fn project_root_for(&self, uri: &Url) -> Option<PathBuf> {
-        if let Ok(file_path) = uri.to_file_path() {
-            let mut dir: Option<&Path> = file_path.parent();
-            while let Some(d) = dir {
-                if d.join("ggen.toml").is_file() {
-                    return Some(d.to_path_buf());
-                }
-                dir = d.parent();
-            }
-        }
-        // Fallback: the server's configured root, if it holds a manifest.
-        let fallback = self.state.root.clone();
-        if fallback.join("ggen.toml").is_file() {
-            Some(fallback)
-        } else {
-            None
-        }
-    }
-}
-
-/// Convert a filesystem path to a `file://` `Url`, or `None` if it is not an
-/// absolute path `Url::from_file_path` accepts.
-fn url_from_path(path: &Path) -> Option<Url> {
-    Url::from_file_path(path).ok()
-}
-
-/// Convert a `Url::path()` string back to a `file://` `Url`. `Url::path()` yields
-/// an absolute, percent-encoded path; round-tripping it lets us compare a document
-/// URI against the `template_path` reported by the detector.
-fn url_from_path_str(path: &str) -> Option<Url> {
-    let decoded = percent_decode_path(path);
-    Url::from_file_path(&decoded).ok()
-}
-
-/// Minimal percent-decoding for the `%XX` sequences `Url::path()` may contain
-/// (e.g. spaces). Avoids pulling in an extra dependency for the common cases.
-fn percent_decode_path(path: &str) -> String {
-    let bytes = path.as_bytes();
-    let mut out: Vec<u8> = Vec::with_capacity(bytes.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            let hi = (bytes[i + 1] as char).to_digit(16);
-            let lo = (bytes[i + 2] as char).to_digit(16);
-            if let (Some(hi), Some(lo)) = (hi, lo) {
-                out.push((hi * 16 + lo) as u8);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&out).into_owned()
 }
 
 #[tower_lsp::async_trait]
