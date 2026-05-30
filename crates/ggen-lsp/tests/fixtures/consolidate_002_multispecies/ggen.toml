@@ -1,0 +1,22 @@
+[project]
+name = "consolidate-002-multispecies"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+# `slug` is NOT projected by the SELECT (which binds only `?name`), so the
+# dynamic output_file Tera pattern is an unbound projection in the OUTPUT-PATH
+# surface → GGEN-OUT-001 anchored on THIS `ggen.toml` manifest.
+#
+# Editing this `ggen.toml` is a `tpl_is_trigger` surface, so a single
+# `analyze_and_observe` pass fires BOTH detectors: TPL-001 (on the `.tera`) and
+# OUT-001 (on this manifest). This is the canonical multi-species single-pass
+# scenario the CONSOLIDATE-002 sequence-equivalence proof drives.
+output_file = "out/{{ slug }}.txt"

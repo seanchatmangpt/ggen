@@ -526,125 +526,101 @@ impl ServerState {
 
         let edited_self_url = url_from_path_str(uri.path());
         let mut published_self = false;
-        let mut current_flagged: HashSet<Url> = HashSet::new();
-        for (template_path, tpl_diags) in tpl_groups {
-            let Some(template_url) = url_from_path(&template_path) else {
-                continue;
-            };
-            current_flagged.insert(template_url.clone());
-            if edited_self_url.as_ref() == Some(&template_url) {
-                // The edited file IS this template: merge once, publish once.
-                let mut merged = std::mem::take(&mut own_diags);
-                merged.extend(tpl_diags);
-                self.observe_diagnostics(&template_url, &merged).await;
-                published.push((template_url, merged));
-                published_self = true;
-            } else {
-                self.observe_diagnostics(&template_url, &tpl_diags).await;
-                published.push((template_url, tpl_diags));
+
+        // CONSOLIDATE-002: the three former order-sensitive publish branches (TPL /
+        // HARNESS / OUT) are now ONE species-driven loop over a function-local,
+        // ORDER-FIXED `[TPL, HARNESS, OUT]` descriptor array. A 4th species becomes a
+        // registry entry + detector, NOT another publish branch.
+        //
+        // The loop replicates the exact pre-merge emit order (verified by the
+        // CONSOLIDATE-002 sequence-equivalence golden):
+        //   * species iterate in the FIXED order TPL → HARNESS → OUT (Section I1);
+        //   * within a species, groups iterate in detector-returned order (I6);
+        //   * `own_diags` + `published_self` are SHARED across species, so the edited
+        //     file's single-file diagnostics merge into AT MOST ONE species' self
+        //     publish (I3 merge-once); the self-merge guard `edited == anchor &&
+        //     !published_self` is now UNIFORM across all three species. This is
+        //     behavior-preserving: the former TPL/HARNESS branches lacked the
+        //     `!published_self` clause only because their anchors are structurally
+        //     disjoint from any co-firing species' self-edit (HARNESS basenames are
+        //     disjoint from TPL/OUT; TPL anchors on `.tera`, never the edited
+        //     `ggen.toml`), so the extra guard can never fire spuriously here — yet it
+        //     makes first-species-wins merge-once the explicit, asserted rule.
+        //   * all group publishes (Phase A) precede the `!published_self` own-diags
+        //     fallback (Phase B) which precedes every stale-clear (Phase C) (I2).
+        //
+        // Each species carries its clear `code`, its `is_trigger` gate, its detector
+        // `groups`, and an accumulating `flagged` set fed to `clears_for` in Phase C.
+        struct Species {
+            code: &'static str,
+            is_trigger: bool,
+            groups: Vec<(PathBuf, Vec<Diagnostic>)>,
+            flagged: HashSet<Url>,
+        }
+        let mut species = [
+            Species {
+                code: crate::analyzers::GGEN_TPL_001,
+                is_trigger: tpl_is_trigger,
+                groups: tpl_groups,
+                flagged: HashSet::new(),
+            },
+            Species {
+                code: crate::analyzers::GGEN_HARNESS_001,
+                is_trigger: harness_is_trigger,
+                groups: harness_groups,
+                flagged: HashSet::new(),
+            },
+            Species {
+                code: crate::analyzers::GGEN_OUT_001,
+                is_trigger: tpl_is_trigger,
+                groups: out_groups,
+                flagged: HashSet::new(),
+            },
+        ];
+
+        // PHASE A — group publishes, species in fixed order, groups in native order.
+        for sp in &mut species {
+            for (anchor_path, diags) in std::mem::take(&mut sp.groups) {
+                let Some(anchor_url) = url_from_path(&anchor_path) else {
+                    continue;
+                };
+                sp.flagged.insert(anchor_url.clone());
+                if edited_self_url.as_ref() == Some(&anchor_url) && !published_self {
+                    // The edited file IS this species' anchor: merge `own_diags` in
+                    // once, publish once, mark self-published (merge-once, I3).
+                    let mut merged = std::mem::take(&mut own_diags);
+                    merged.extend(diags);
+                    self.observe_diagnostics(&anchor_url, &merged).await;
+                    published.push((anchor_url, merged));
+                    published_self = true;
+                } else {
+                    self.observe_diagnostics(&anchor_url, &diags).await;
+                    published.push((anchor_url, diags));
+                }
             }
         }
 
-        // HARNESS-001 groups anchor on the crate `Cargo.toml`. When the edited file
-        // IS that manifest, merge its single-file diagnostics in once and publish
-        // once (mirrors the TPL self-merge); otherwise publish the group on its own.
-        let mut current_harness_flagged: HashSet<Url> = HashSet::new();
-        for (manifest_path, harness_diags) in harness_groups {
-            let Some(manifest_url) = url_from_path(&manifest_path) else {
-                continue;
-            };
-            current_harness_flagged.insert(manifest_url.clone());
-            if edited_self_url.as_ref() == Some(&manifest_url) {
-                let mut merged = std::mem::take(&mut own_diags);
-                merged.extend(harness_diags);
-                self.observe_diagnostics(&manifest_url, &merged).await;
-                published.push((manifest_url, merged));
-                published_self = true;
-            } else {
-                self.observe_diagnostics(&manifest_url, &harness_diags)
-                    .await;
-                published.push((manifest_url, harness_diags));
-            }
-        }
-
-        // OUT-001 groups anchor on the `ggen.toml` manifest (the declaration
-        // surface where `output_file` lives — NOT the .tera body, which is TPL's
-        // anchor). When the edited file IS that manifest, merge its single-file
-        // (TomlAnalyzer) diagnostics in once and publish the `ggen.toml` URI ONCE
-        // — mirrors the TPL/HARNESS self-merge. The TPL self-merge above never
-        // consumed `own_diags` for a `ggen.toml` edit (TPL groups anchor on `.tera`
-        // URIs, disjoint from `edited_self_url`), so `own_diags` is still available
-        // here; a single merged publish per URI keeps the OCEL chain clean.
-        let mut current_out_flagged: HashSet<Url> = HashSet::new();
-        for (manifest_path, out_diags) in out_groups {
-            let Some(manifest_url) = url_from_path(&manifest_path) else {
-                continue;
-            };
-            current_out_flagged.insert(manifest_url.clone());
-            if edited_self_url.as_ref() == Some(&manifest_url) && !published_self {
-                let mut merged = std::mem::take(&mut own_diags);
-                merged.extend(out_diags);
-                self.observe_diagnostics(&manifest_url, &merged).await;
-                published.push((manifest_url, merged));
-                published_self = true;
-            } else {
-                self.observe_diagnostics(&manifest_url, &out_diags).await;
-                published.push((manifest_url, out_diags));
-            }
-        }
-
-        // If the edited file was not itself a cross-surface-affected file, observe
-        // its own single-file diagnostics (preserving the original single-file flow).
+        // PHASE B — if the edited file was not itself a cross-surface-affected file,
+        // observe its own single-file diagnostics (preserving the original
+        // single-file flow). Strictly between Phase A and Phase C (I2).
         if !published_self {
             self.observe_diagnostics(uri, &own_diags).await;
             published.push((uri.clone(), own_diags));
         }
 
-        // STALE-CLEAR reconciliation (TPL): a cross-surface repair makes a
-        // *different* template lawful, dropping it from `tpl_groups`. Its URI is
-        // re-published with its RESIDUAL single-file diagnostics (NOT empty) so the
-        // per-key diff in `observe_diagnostics` drops only the disappeared
-        // GGEN-TPL-001 key while preserving unrelated law.
-        if tpl_is_trigger {
-            for cleared in self.tpl_clears_for(uri, &current_flagged).await {
-                let residual = self.residual_single_file_diags(&cleared).await;
-                self.observe_diagnostics(&cleared, &residual).await;
-                published.push((cleared, residual));
+        // PHASE C — STALE-CLEAR reconciliation, species in the SAME fixed order
+        // (TPL → HARNESS → OUT). A cross-surface repair makes a previously-flagged
+        // anchor lawful, dropping it from this pass's groups; its URI is re-published
+        // with its RESIDUAL single-file diagnostics (NOT empty) so the per-key diff
+        // in `observe_diagnostics` drops only the disappeared species key while
+        // preserving unrelated law. Each species is gated by its own `is_trigger` and
+        // keyed by its own `code` (so TPL clears, then HARNESS clears, then OUT clears
+        // — the clear-phase order is NOT collapsed across species).
+        for sp in &species {
+            if !sp.is_trigger {
+                continue;
             }
-        }
-
-        // STALE-CLEAR reconciliation (HARNESS): repairing the declaration (fixing
-        // the Cargo.toml `path` or creating the proof file) makes the manifest
-        // lawful, dropping it from `harness_groups`. Re-publish its RESIDUAL
-        // single-file diagnostics so the disappeared GGEN-HARNESS-001 key is
-        // observed as a lawful clear (NOT a blunt empty publish — residual
-        // preservation).
-        if harness_is_trigger {
-            for cleared in self
-                .clears_for(
-                    crate::analyzers::GGEN_HARNESS_001,
-                    uri,
-                    &current_harness_flagged,
-                )
-                .await
-            {
-                let residual = self.residual_single_file_diags(&cleared).await;
-                self.observe_diagnostics(&cleared, &residual).await;
-                published.push((cleared, residual));
-            }
-        }
-
-        // STALE-CLEAR reconciliation (OUT): repairing the source law (projecting
-        // the variable in the SPARQL SELECT, or fixing the ggen.toml `output_file`
-        // pattern) makes the manifest lawful, dropping it from `out_groups`.
-        // Re-publish its RESIDUAL single-file diagnostics so the disappeared
-        // GGEN-OUT-001 key is observed as a lawful clear (NOT a blunt empty
-        // publish — residual preservation). Shares the TPL trigger gate.
-        if tpl_is_trigger {
-            for cleared in self
-                .clears_for(crate::analyzers::GGEN_OUT_001, uri, &current_out_flagged)
-                .await
-            {
+            for cleared in self.clears_for(sp.code, uri, &sp.flagged).await {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
