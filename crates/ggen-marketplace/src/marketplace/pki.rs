@@ -443,7 +443,8 @@ mod tests {
         mgr.load_trusted_keys(f.path()).expect("load");
         let found = mgr.get_key("lookup-test");
         assert!(found.is_some());
-        assert_eq!(found.unwrap().to_bytes(), vk.to_bytes());
+        let found_key = found.expect("key should exist");
+        assert_eq!(found_key.to_bytes(), vk.to_bytes());
     }
 
     #[test]

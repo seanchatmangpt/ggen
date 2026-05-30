@@ -16,13 +16,13 @@ use tracing::{info, warn};
 
 use super::fmea_mitigations::FmeaMitigationManager;
 use super::ontology::{Class, Property};
-use crate::marketplace::ontology::MARKETPLACE_NS;
 use super::poka_yoke::{
     typestate, Literal, PokaYokeError, RdfGraph, ResourceId, SparqlQuery, Triple,
     ValidationConstraint,
 };
 use super::sparql_queries::{MarketplaceQueries, PackageSearchResult, SearchParams};
 use super::turtle_config::{ConfigError, MarketplaceConfig, TurtleConfigLoader};
+use crate::marketplace::ontology::MARKETPLACE_NS;
 
 /// Main RDF control plane
 pub struct RdfControlPlane {

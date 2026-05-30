@@ -334,8 +334,10 @@ mod tests {
             "Test".to_string(),
         );
 
-        assert!(bundle.validate().is_some());
-        assert!(bundle.validate().unwrap().contains("duplicate"));
+        let validation_result = bundle.validate();
+        assert!(validation_result.is_some());
+        let validation_msg = validation_result.expect("validation message should exist");
+        assert!(validation_msg.contains("duplicate"));
     }
 
     #[test]
@@ -347,8 +349,10 @@ mod tests {
             "Test".to_string(),
         );
 
-        assert!(bundle.validate().is_some());
-        assert!(bundle.validate().unwrap().contains("no atomic packs"));
+        let validation_result = bundle.validate();
+        assert!(validation_result.is_some());
+        let validation_msg = validation_result.expect("validation message should exist");
+        assert!(validation_msg.contains("no atomic packs"));
     }
 
     #[test]

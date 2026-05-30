@@ -111,7 +111,7 @@ impl Task {
             dependencies: Vec::new(),
             priority: TaskPriority::Normal,
             status: TaskStatus::Pending,
-            timeout: Duration::from_secs(300), // 5 minutes default
+            timeout: Duration::from_secs(5 * 60), // 5 minutes default
             metadata: HashMap::new(),
         }
     }
@@ -156,7 +156,7 @@ impl TaskResult {
             task_id,
             output,
             metadata: HashMap::new(),
-            execution_time: Duration::from_secs(0),
+            execution_time: Duration::ZERO,
         }
     }
 

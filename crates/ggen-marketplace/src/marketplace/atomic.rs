@@ -366,18 +366,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_atomic_pack_id_from_string() {
-        let mcp_surface = AtomicPackId::from_string("surface-mcp").unwrap();
+    fn test_atomic_pack_id_from_string() -> Result<(), Box<dyn std::error::Error>> {
+        let mcp_surface =
+            AtomicPackId::from_string("surface-mcp").ok_or("Failed to parse surface-mcp")?;
         assert_eq!(mcp_surface.class, AtomicPackClass::SurfaceMcp);
         assert_eq!(mcp_surface.name, "mcp");
 
-        let rust_projection = AtomicPackId::from_string("projection-rust").unwrap();
+        let rust_projection = AtomicPackId::from_string("projection-rust")
+            .ok_or("Failed to parse projection-rust")?;
         assert_eq!(rust_projection.class, AtomicPackClass::ProjectionRust);
         assert_eq!(rust_projection.name, "rust");
 
-        let axum_runtime = AtomicPackId::from_string("runtime-axum").unwrap();
+        let axum_runtime =
+            AtomicPackId::from_string("runtime-axum").ok_or("Failed to parse runtime-axum")?;
         assert_eq!(axum_runtime.class, AtomicPackClass::RuntimeAxum);
         assert_eq!(axum_runtime.name, "axum");
+        Ok(())
     }
 
     #[test]

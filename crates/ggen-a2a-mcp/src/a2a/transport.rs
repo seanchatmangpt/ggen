@@ -234,8 +234,11 @@ mod tests {
         transport
             .register_agent("agent-1".to_string())
             .await
-            .unwrap();
-        transport.unregister_agent("agent-1").await.unwrap();
+            .expect("test: register agent must succeed");
+        transport
+            .unregister_agent("agent-1")
+            .await
+            .expect("test: unregister agent must succeed");
         assert_eq!(transport.agent_count().await, 0);
     }
 
@@ -245,7 +248,7 @@ mod tests {
         let mut rx = transport
             .register_agent("agent-1".to_string())
             .await
-            .unwrap();
+            .expect("test: register agent must succeed");
 
         let task = Task::new("Test".to_string(), "agent-0".to_string());
         let message = TaskMessage::Create(task);
@@ -253,9 +256,9 @@ mod tests {
         transport
             .send("agent-0".to_string(), "agent-1".to_string(), message)
             .await
-            .unwrap();
+            .expect("test: send message must succeed");
 
-        let envelope = rx.recv().await.unwrap();
+        let envelope = rx.recv().await.expect("test: receive message must succeed");
         assert_eq!(envelope.from, "agent-0");
         assert_eq!(envelope.to, "agent-1");
         assert!(matches!(envelope.message, TaskMessage::Create(_)));
@@ -280,11 +283,11 @@ mod tests {
         let mut rx1 = transport
             .register_agent("agent-1".to_string())
             .await
-            .unwrap();
+            .expect("test: register agent-1 must succeed");
         let mut rx2 = transport
             .register_agent("agent-2".to_string())
             .await
-            .unwrap();
+            .expect("test: register agent-2 must succeed");
 
         let task = Task::new("Test".to_string(), "agent-0".to_string());
         let message = TaskMessage::Create(task);
@@ -292,10 +295,16 @@ mod tests {
         transport
             .broadcast("agent-0".to_string(), message)
             .await
-            .unwrap();
+            .expect("test: broadcast must succeed");
 
-        let envelope1 = rx1.recv().await.unwrap();
-        let envelope2 = rx2.recv().await.unwrap();
+        let envelope1 = rx1
+            .recv()
+            .await
+            .expect("test: receive envelope1 must succeed");
+        let envelope2 = rx2
+            .recv()
+            .await
+            .expect("test: receive envelope2 must succeed");
 
         assert_eq!(envelope1.from, "agent-0");
         assert_eq!(envelope2.from, "agent-0");
@@ -307,8 +316,14 @@ mod tests {
         let task = Task::new("Test".to_string(), "agent-1".to_string());
         let task_id = task.id;
 
-        transport.store_task(task).await.unwrap();
-        let retrieved = transport.get_task(task_id).await.unwrap();
+        transport
+            .store_task(task)
+            .await
+            .expect("test: store task must succeed");
+        let retrieved = transport
+            .get_task(task_id)
+            .await
+            .expect("test: get task must succeed");
 
         assert_eq!(retrieved.id, task_id);
         assert_eq!(retrieved.title, "Test");
@@ -320,12 +335,21 @@ mod tests {
         let mut task = Task::new("Test".to_string(), "agent-1".to_string());
         let task_id = task.id;
 
-        transport.store_task(task.clone()).await.unwrap();
+        transport
+            .store_task(task.clone())
+            .await
+            .expect("test: store task must succeed");
 
         task.state = TaskState::Running;
-        transport.update_task(task).await.unwrap();
+        transport
+            .update_task(task)
+            .await
+            .expect("test: update task must succeed");
 
-        let retrieved = transport.get_task(task_id).await.unwrap();
+        let retrieved = transport
+            .get_task(task_id)
+            .await
+            .expect("test: get task must succeed");
         assert_eq!(retrieved.state, TaskState::Running);
     }
 
@@ -335,10 +359,19 @@ mod tests {
         let task1 = Task::new("Test 1".to_string(), "agent-1".to_string());
         let task2 = Task::new("Test 2".to_string(), "agent-1".to_string());
 
-        transport.store_task(task1).await.unwrap();
-        transport.store_task(task2).await.unwrap();
+        transport
+            .store_task(task1)
+            .await
+            .expect("test: store task1 must succeed");
+        transport
+            .store_task(task2)
+            .await
+            .expect("test: store task2 must succeed");
 
-        let tasks = transport.list_tasks().await.unwrap();
+        let tasks = transport
+            .list_tasks()
+            .await
+            .expect("test: list tasks must succeed");
         assert_eq!(tasks.len(), 2);
     }
 
@@ -349,17 +382,23 @@ mod tests {
         task1.state = TaskState::Running;
         let task2 = Task::new("Test 2".to_string(), "agent-1".to_string());
 
-        transport.store_task(task1).await.unwrap();
-        transport.store_task(task2).await.unwrap();
+        transport
+            .store_task(task1)
+            .await
+            .expect("test: store task1 must succeed");
+        transport
+            .store_task(task2)
+            .await
+            .expect("test: store task2 must succeed");
 
         let running = transport
             .list_tasks_by_state(TaskState::Running)
             .await
-            .unwrap();
+            .expect("test: list running tasks must succeed");
         let created = transport
             .list_tasks_by_state(TaskState::Created)
             .await
-            .unwrap();
+            .expect("test: list created tasks must succeed");
 
         assert_eq!(running.len(), 1);
         assert_eq!(created.len(), 1);

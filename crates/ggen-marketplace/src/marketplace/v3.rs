@@ -798,10 +798,10 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_v3_registry_creation() {
-        let store = Arc::new(Store::new().unwrap());
-        let _registry =
-            V3OptimizedRegistry::new(store).expect("registry initialization should succeed");
+    async fn test_v3_registry_creation() -> Result<(), Box<dyn std::error::Error>> {
+        let store = Arc::new(Store::new()?);
+        let _registry = V3OptimizedRegistry::new(store)?;
         // Verify creation succeeds
+        Ok(())
     }
 }

@@ -638,17 +638,17 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let insert_query = format!(
             r#"
-            PREFIX mp: <{}>
+            PREFIX mp: <{0}>
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             INSERT DATA {{
-                <{}{}> a mp:Package ;
-                    mp:id "{}" ;
-                    mp:name "{}" ;
-                    mp:description "{}" ;
-                    mp:latestVersion "{}" ;
-                    mp:license "{}" ;
+                <{1}{2}> a mp:Package ;
+                    mp:id "{3}" ;
+                    mp:name "{4}" ;
+                    mp:description "{5}" ;
+                    mp:latestVersion "{6}" ;
+                    mp:license "{7}" ;
                     mp:state "Draft" ;
-                    mp:hasCreatedTime "{}"^^xsd:dateTime .
+                    mp:hasCreatedTime "{8}"^^xsd:dateTime .
             }}
             "#,
             MARKETPLACE_NS,
@@ -755,17 +755,16 @@ impl RdfControlPlane {
             .validate_transition(Some("Draft"), "Published")?;
 
         // Update state via SPARQL UPDATE
-        #[allow(clippy::uninlined_format_args)]
         let update_query = format!(
             r#"
-            PREFIX mp: <{}>
-            DELETE {{ <{}{{}}> mp:state "Draft" . }}
-            INSERT {{ <{}{{}}> mp:state "Published" . }}
-            WHERE {{ <{}{{}}> a mp:Package . }}
+            PREFIX mp: <{0}>
+            DELETE {{ <{0}{1}> mp:state "Draft" . }}
+            INSERT {{ <{0}{1}> mp:state "Published" . }}
+            WHERE {{ <{0}{1}> a mp:Package . }}
             "#,
-            MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS
-        )
-        .replace("{}", &package_id.to_string());
+            MARKETPLACE_NS,
+            package_id.to_string()
+        );
         self.executor.update(&update_query)?;
 
         // Invalidate all caches via epoch bump

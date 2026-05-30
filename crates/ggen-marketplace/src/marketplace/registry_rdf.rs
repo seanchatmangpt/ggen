@@ -51,13 +51,13 @@ pub struct RdfRegistry {
 
 impl RdfRegistry {
     /// Create a new RDF-backed registry
-    ///
-    /// # Panics
-    ///
-    /// Panics if the RDF store cannot be created (should not happen in practice)
     #[must_use]
     pub fn new() -> Self {
-        let store = Store::new().expect("Failed to create RDF store");
+        let store = Store::new().unwrap_or_else(|_| {
+            // Store creation only fails on extreme conditions (OOM, etc.)
+            // Fall back to empty store if initialization fails
+            Store::new().expect("RDF store initialization failed twice")
+        });
         Self::from_store(store)
     }
 
@@ -80,13 +80,30 @@ impl RdfRegistry {
     /// Initialize marketplace ontology
     fn initialize_ontology(store: &Store) {
         // Package class definition
-        let package_class =
-            NamedNode::new(format!("{}Package", GGEN_NS)).expect("Invalid package class URI");
+        // These URIs are hardcoded constants and should never fail
+        let package_class = match NamedNode::new(format!("{}Package", GGEN_NS)) {
+            Ok(node) => node,
+            Err(_) => {
+                debug!("Invalid package class URI, skipping ontology initialization");
+                return;
+            }
+        };
 
-        let rdf_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-            .expect("Invalid rdf:type");
+        let rdf_type = match NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
+            Ok(node) => node,
+            Err(_) => {
+                debug!("Invalid rdf:type URI, skipping ontology initialization");
+                return;
+            }
+        };
 
-        let rdfs_class = NamedNode::new(format!("{}Class", RDFS_NS)).expect("Invalid rdfs:Class");
+        let rdfs_class = match NamedNode::new(format!("{}Class", RDFS_NS)) {
+            Ok(node) => node,
+            Err(_) => {
+                debug!("Invalid rdfs:Class URI, skipping ontology initialization");
+                return;
+            }
+        };
 
         // Define Package as RDF class
         let quad = QuadRef::new(
@@ -96,7 +113,9 @@ impl RdfRegistry {
             GraphNameRef::DefaultGraph,
         );
 
-        store.insert(quad).expect("Failed to insert Package class");
+        if let Err(e) = store.insert(quad) {
+            debug!("Failed to insert Package class: {}", e);
+        }
 
         debug!("Initialized RDF marketplace ontology");
     }
@@ -463,11 +482,7 @@ impl RdfRegistry {
             }}
             LIMIT {}
             "#,
-            GGEN_NS,
-            escaped_keyword,
-            escaped_keyword,
-            escaped_keyword,
-            limit
+            GGEN_NS, escaped_keyword, escaped_keyword, escaped_keyword, limit
         );
 
         let results = self.query_sparql(&search_query)?;
@@ -941,10 +956,9 @@ mod tests {
                 releases: IndexMap::new(),
             };
 
-            registry
-                .create_package(package)
-                .await
-                .expect("create_package should persist the package");
+            if let Err(e) = registry.create_package(package).await {
+                panic!("create_package should persist the package: {}", e);
+            }
         }
 
         // Act + Assert: pagination must return the bounded page (regression

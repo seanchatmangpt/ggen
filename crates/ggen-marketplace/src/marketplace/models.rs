@@ -616,14 +616,15 @@ mod tests {
     }
 
     #[test]
-    fn test_quality_score() {
+    fn test_quality_score() -> Result<(), Box<dyn std::error::Error>> {
         assert!(QualityScore::new(95).is_ok());
         assert!(QualityScore::new(150).is_err());
 
-        let score = QualityScore::new(95).unwrap();
+        let score = QualityScore::new(95)?;
         assert!(score.is_production_ready());
 
-        let score = QualityScore::new(85).unwrap();
+        let score = QualityScore::new(85)?;
         assert!(score.needs_improvement());
+        Ok(())
     }
 }

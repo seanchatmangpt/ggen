@@ -142,9 +142,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_package_builder() {
+    fn test_package_builder() -> Result<(), Box<dyn std::error::Error>> {
         let result = PackageBuilder::new()
-            .id(PackageId::new("test-pkg").unwrap())
+            .id(PackageId::new("test-pkg")?)
             .name("Test Package")
             .description("A test package")
             .license("MIT")
@@ -154,9 +154,10 @@ mod tests {
             .build();
 
         assert!(result.is_ok());
-        let metadata = result.unwrap();
+        let metadata = result?;
         assert_eq!(metadata.id.as_str(), "test-pkg");
         assert_eq!(metadata.name, "Test Package");
+        Ok(())
     }
 
     #[test]
