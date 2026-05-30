@@ -81,10 +81,18 @@ impl StageMetrics {
 
     pub fn improvement_percent(&self) -> f64 {
         if self.duration <= self.target {
-            let saved = self.target.checked_sub(self.duration).unwrap_or_default().as_secs_f64();
+            let saved = self
+                .target
+                .checked_sub(self.duration)
+                .unwrap_or_default()
+                .as_secs_f64();
             (saved / self.target.as_secs_f64()) * 100.0
         } else {
-            let exceeded = self.duration.checked_sub(self.target).unwrap_or_default().as_secs_f64();
+            let exceeded = self
+                .duration
+                .checked_sub(self.target)
+                .unwrap_or_default()
+                .as_secs_f64();
             -((exceeded / self.target.as_secs_f64()) * 100.0)
         }
     }
@@ -212,7 +220,10 @@ impl PipelineProfiler {
             if total_met {
                 log::info!("\n🎉 Performance target achieved!");
             } else {
-                let exceeded = total.checked_sub(self.targets.total).unwrap_or_default().as_secs_f64();
+                let exceeded = total
+                    .checked_sub(self.targets.total)
+                    .unwrap_or_default()
+                    .as_secs_f64();
                 log::warn!("\n⚠️  Performance target missed by {:.2}s", exceeded);
             }
         }
@@ -228,20 +239,18 @@ pub struct ParallelOrchestrator {
 }
 
 /// A named stage for parallel execution: (name, future producing a `Result<R>`)
-pub type ParallelStage<'a, R> =
-    (&'a str, Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>);
+pub type ParallelStage<'a, R> = (
+    &'a str,
+    Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>,
+);
 
 impl ParallelOrchestrator {
     pub fn new(max_parallelism: usize) -> Self {
         Self { max_parallelism }
     }
 
-
     /// Run multiple independent stages in parallel
-    pub async fn run_parallel<R>(
-        &self,
-        stages: Vec<ParallelStage<'_, R>>,
-    ) -> Result<Vec<R>>
+    pub async fn run_parallel<R>(&self, stages: Vec<ParallelStage<'_, R>>) -> Result<Vec<R>>
     where
         R: Send + 'static,
     {

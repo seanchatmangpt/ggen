@@ -26,8 +26,7 @@ fn sab_01_corrupt_packs_lock_garbage_json() {
 
     // Write garbage JSON to packs.lock
     let packs_lock = ggen_dir.join("packs.lock");
-    fs::write(&packs_lock, "{this is not valid json at all}")
-        .expect("write corrupt packs.lock");
+    fs::write(&packs_lock, "{this is not valid json at all}").expect("write corrupt packs.lock");
 
     // Act: Run sync --locked (should fail because lockfile is corrupted)
     let mut cmd = ggen();

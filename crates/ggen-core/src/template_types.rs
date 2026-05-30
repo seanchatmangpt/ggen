@@ -689,7 +689,13 @@ sh_after: "echo post"
 "#,
         )
         .unwrap();
-        assert!(fm.flags.force && fm.flags.unless_exists && fm.flags.inject && fm.flags.prepend && fm.flags.append);
+        assert!(
+            fm.flags.force
+                && fm.flags.unless_exists
+                && fm.flags.inject
+                && fm.flags.prepend
+                && fm.flags.append
+        );
         assert!(fm.flags.eof_last && fm.flags.idempotent);
         assert_eq!(fm.before.as_deref(), Some("// before"));
         assert_eq!(fm.after.as_deref(), Some("// after"));

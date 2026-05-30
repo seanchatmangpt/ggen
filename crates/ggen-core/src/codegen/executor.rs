@@ -99,7 +99,6 @@ pub struct SyncFlags {
     pub behavior: BehaviorFlags,
 }
 
-
 /// Options for sync execution
 pub struct SyncOptions {
     /// Path to manifest file
@@ -789,31 +788,32 @@ impl SyncExecutor {
         let files_synced = synced_files.len();
 
         // Determine audit trail path and write if enabled
-        let audit_path = if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
-            let audit_file_path = base_path.join(&output_directory).join("audit.json");
+        let audit_path =
+            if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
+                let audit_file_path = base_path.join(&output_directory).join("audit.json");
 
-            // Create audit trail from pipeline state using AuditTrailBuilder
-            let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
+                // Create audit trail from pipeline state using AuditTrailBuilder
+                let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
 
-            // Record inputs (simplified - would need actual file paths in production)
-            // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
+                // Record inputs (simplified - would need actual file paths in production)
+                // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
 
-            // Record outputs
-            for file in &state.generated_files {
-                builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
-            }
+                // Record outputs
+                for file in &state.generated_files {
+                    builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
+                }
 
-            // Build the final audit trail
-            let audit_trail = builder.build(true); // validation_passed = true for now
+                // Build the final audit trail
+                let audit_trail = builder.build(true); // validation_passed = true for now
 
-            // Write audit trail to disk using AuditTrailBuilder::write_to
-            crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
-                .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+                // Write audit trail to disk using AuditTrailBuilder::write_to
+                crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
+                    .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
 
-            Some(audit_file_path.display().to_string())
-        } else {
-            None
-        };
+                Some(audit_file_path.display().to_string())
+            } else {
+                None
+            };
 
         // Save cache if enabled
         if let Some(cache) = cache {

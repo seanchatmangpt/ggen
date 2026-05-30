@@ -293,9 +293,9 @@ impl StagedPipeline {
             self.graph.insert_turtle(&content)?;
         }
 
-        self.epoch.as_ref().ok_or_else(|| {
-            Error::new("Pipeline epoch is not initialized")
-        })
+        self.epoch
+            .as_ref()
+            .ok_or_else(|| Error::new("Pipeline epoch is not initialized"))
     }
 
     /// Get resolved packs from μ₀ stage
@@ -550,9 +550,10 @@ impl StagedPipeline {
         );
         let guard = span.enter();
 
-        let epoch = self.epoch.as_ref().ok_or_else(|| {
-            Error::new("Pipeline epoch is not initialized")
-        })?;
+        let epoch = self
+            .epoch
+            .as_ref()
+            .ok_or_else(|| Error::new("Pipeline epoch is not initialized"))?;
         let mut receipt = BuildReceipt::new(
             epoch,
             self.executed_passes.clone(),

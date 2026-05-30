@@ -610,7 +610,6 @@ impl TemplateMetadataStore {
     }
 }
 
-
 /// Escape special characters in RDF literals
 fn escape_literal(s: &str) -> String {
     s.replace('\\', "\\\\")

@@ -290,7 +290,9 @@ mod tests {
 
         // All threads should succeed
         for handle in handles {
-            handle.join().map_err(|e| format!("Thread panicked: {:?}", e))?;
+            handle
+                .join()
+                .map_err(|e| format!("Thread panicked: {:?}", e))?;
         }
         Ok(())
     }
@@ -358,7 +360,9 @@ mod tests {
 
         // All threads should succeed without panics
         for handle in handles {
-            handle.join().map_err(|e| format!("Thread panicked: {:?}", e))?;
+            handle
+                .join()
+                .map_err(|e| format!("Thread panicked: {:?}", e))?;
         }
 
         let metrics = promoter.metrics();

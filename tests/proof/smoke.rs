@@ -5,8 +5,8 @@
 //! Just: command exists, exits with expected status, responds to --help.
 
 use assert_cmd::Command;
-use tempfile::TempDir;
 use std::fs;
+use tempfile::TempDir;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
@@ -35,10 +35,7 @@ ex:Thing a rdfs:Class .
 /// T0-SMOKE-01: ggen --help exits 0
 #[test]
 fn smoke_01_help_command_exits_zero() -> TestResult {
-    let _ = Command::cargo_bin("ggen")?
-        .arg("--help")
-        .assert()
-        .success();
+    let _ = Command::cargo_bin("ggen")?.arg("--help").assert().success();
     Ok(())
 }
 

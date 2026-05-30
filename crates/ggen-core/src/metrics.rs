@@ -545,10 +545,7 @@ impl MetricsReport {
                     0.20,
                     waste_score.mul_add(
                         0.15,
-                        flow_score.mul_add(
-                            0.10,
-                            oee_score.mul_add(0.10, kaizen_score * 0.05),
-                        ),
+                        flow_score.mul_add(0.10, oee_score.mul_add(0.10, kaizen_score * 0.05)),
                     ),
                 ),
             ),

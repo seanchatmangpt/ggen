@@ -298,7 +298,9 @@ mod tests {
         let options = SyncOptions {
             flags: crate::codegen::executor::SyncFlags {
                 mode: crate::codegen::executor::ModeFlags::default(),
-                behavior: crate::codegen::executor::BehaviorFlags { ..Default::default() },
+                behavior: crate::codegen::executor::BehaviorFlags {
+                    ..Default::default()
+                },
             },
             use_cache: true,
             ..Default::default()

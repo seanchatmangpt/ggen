@@ -772,13 +772,13 @@ fn build_sync_options(
         options.output_dir = Some(PathBuf::from(dir));
     }
 
-    // Set boolean flags
-    options.dry_run = dry_run.unwrap_or(false);
-    options.force = force.unwrap_or(false);
-    options.audit = audit.unwrap_or(false);
-    options.verbose = verbose.unwrap_or(false);
-    options.watch = watch.unwrap_or(false);
-    options.validate_only = validate_only.unwrap_or(false);
+    // Set boolean flags (SyncOptions.flags was refactored into mode/behavior sub-structs)
+    options.flags.mode.dry_run = dry_run.unwrap_or(false);
+    options.flags.behavior.force = force.unwrap_or(false);
+    options.flags.behavior.audit = audit.unwrap_or(false);
+    options.flags.behavior.verbose = verbose.unwrap_or(false);
+    options.flags.mode.watch = watch.unwrap_or(false);
+    options.flags.mode.validate_only = validate_only.unwrap_or(false);
 
     // Set selected rules
     if let Some(r) = rule {

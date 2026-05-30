@@ -340,7 +340,10 @@ fn tera_context(vars: &BTreeMap<String, String>) -> TeraContext {
     );
     ctx.insert(
         "cwd",
-        &std::env::current_dir().unwrap_or_default().display().to_string(),
+        &std::env::current_dir()
+            .unwrap_or_default()
+            .display()
+            .to_string(),
     );
     ctx
 }
