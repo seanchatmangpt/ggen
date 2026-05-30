@@ -40,3 +40,6 @@ tempfile = "3"
 # the macros + runtime features; the production `tokio` dep above intentionally
 # keeps only `sync` to stay lean. Cargo unifies these for the test build.
 tokio = { version = "1.47", features = ["macros", "rt", "rt-multi-thread"] }
+
+[lints]
+workspace = true

@@ -13,3 +13,6 @@ blake3 = { version = "1.5", default-features = false, features = ["pure"] }
 [features]
 default = []
 std = ["blake3/std"]
+
+[lints]
+workspace = true

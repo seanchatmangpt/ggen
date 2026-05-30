@@ -25,3 +25,6 @@ assert_cmd = "2"
 [[bin]]
 name = "ggen-lsp-mcp"
 path = "src/main.rs"
+
+[lints]
+workspace = true

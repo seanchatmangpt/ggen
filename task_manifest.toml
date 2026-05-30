@@ -1,0 +1,53 @@
+[project]
+name = "KnowledgeWorkFactory"
+ontology = "schema/domain.ttl"
+
+[[generation.rules]]
+name = "software"
+template = { file = "templates/rust-struct-from-ontology.tera" }
+output_file = "output/software/environment.rs"
+
+[[generation.rules]]
+name = "text"
+template = { file = "templates/runbook-template.tera" }
+output_file = "output/text/RUNBOOK.md"
+
+[[generation.rules]]
+name = "agents"
+template = { file = "templates/a2a-rust.tera" }
+output_file = "output/agents/reviewer_route_card.rs"
+
+[[generation.rules]]
+name = "process"
+template = { file = "templates/deployment-checklist.tera" }
+output_file = "output/process/DEPLOYMENT_CHECKLIST.md"
+
+[[generation.rules]]
+name = "governance"
+template = { file = "templates/onboarding-guide.tera" }
+output_file = "output/governance/BUDGET_CONTROLLER_GUIDE.md"
+
+[[generation.rules]]
+name = "crypto"
+template = { file = "templates/receipt-report.tera" }
+output_file = "output/crypto/RECEIPT_REPORT.md"
+
+[[generation.rules]]
+name = "compliance"
+template = { file = "templates/dod-compliance-report.tera" }
+output_file = "output/compliance/DOD_REPORT.md"
+
+[[generation.rules]]
+name = "marketplace"
+template = { file = "templates/container-spec.tera" }
+output_file = "output/marketplace/service_spec.yaml"
+
+[[generation.rules]]
+name = "reproducibility"
+template = { file = "templates/production-readiness-demo.tmpl" }
+output_file = "output/reproducibility/readiness_demo.sh"
+
+[[generation.rules]]
+name = "tooling"
+template = { file = "templates/mcp-rust.tera" }
+output_file = "output/tooling/mcp_server.rs"

@@ -73,3 +73,6 @@ marketplace_capabilities = [
 [[bin]]
 name = "ggen-lsp"
 path = "src/main.rs"
+
+[lints]
+workspace = true

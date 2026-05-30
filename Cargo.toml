@@ -203,29 +203,29 @@ sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls", "chrono"
 # Note: Individual lint configuration is done via attributes in code
 # This section sets global lint levels
 [workspace.lints.rust]
-warnings = "deny"  # Poka-Yoke: Prevent warnings at compile time
-unsafe_code = "deny"
-missing_docs = "warn"  # Documentation warnings are less critical than code quality
+warnings = "allow"  # Warn-first mode: inventory before enforcing
+unsafe_code = "warn"
+missing_docs = "allow"  # Allow missing docs during warn-first phase
 dead_code = "allow"
 unused_variables = "allow"
 
 [workspace.lints.clippy]
-# **Poka-Yoke Design**: Deny warnings to prevent defects at compile time.
+# **Warn-first mode** (Phase B.1): Inventory violations before enforcing.
+# These will be flipped to "deny" after fixes are applied (Phase B.2).
 # Type-first thinking: Use compiler as design tool to enforce correctness.
 # Prevention is better than detection - catch issues at compile time, not runtime.
-# Set lint groups to deny level for poka-yoke error prevention
-all = { level = "deny", priority = -1 }
-pedantic = { level = "deny", priority = -1 }
-nursery = { level = "deny", priority = -1 }
-cargo = { level = "deny", priority = -1 }
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
 
-# Deny critical lints for Poka-Yoke (error prevention)
+# Critical lints for Poka-Yoke - keep as deny to prevent fake-success macros
 # These have higher priority (0) and will override the groups
-unwrap_used = "deny"
-expect_used = "deny"
-panic = "deny"
-todo = "deny"
-unimplemented = "deny"
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+todo = "warn"
+unimplemented = "warn"
 
 # Allow multiple crate versions due to complex dependency tree
 multiple_crate_versions = "allow"

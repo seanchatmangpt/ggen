@@ -200,5 +200,5 @@ features = [ "rdf-12",]
 [dev-dependencies.tracing-subscriber]
 workspace = true
 
-[lints.clippy]
-multiple_crate_versions = "allow"
+[lints]
+workspace = true
