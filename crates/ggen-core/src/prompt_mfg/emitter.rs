@@ -132,13 +132,9 @@ impl Default for PromptEmitter {
         // This is a programmer error detectable at development time, not a runtime
         // condition. Panicking here is the correct behavior — a broken binary
         // should not silently produce a degraded emitter.
-<<<<<<< HEAD
-        Self::new().unwrap_or_else(|e| panic!("invariant violated: embedded Tera templates are malformed: {e}"))
-=======
         Self::new().unwrap_or_else(|e| {
             panic!("invariant violated: embedded Tera templates are malformed: {e}")
         })
->>>>>>> origin/main
     }
 }
 

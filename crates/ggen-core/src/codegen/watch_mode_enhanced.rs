@@ -298,13 +298,9 @@ mod tests {
         let options = SyncOptions {
             flags: crate::codegen::executor::SyncFlags {
                 mode: crate::codegen::executor::ModeFlags::default(),
-<<<<<<< HEAD
-                behavior: crate::codegen::executor::BehaviorFlags { ..Default::default() },
-=======
                 behavior: crate::codegen::executor::BehaviorFlags {
                     ..Default::default()
                 },
->>>>>>> origin/main
             },
             use_cache: true,
             ..Default::default()

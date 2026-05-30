@@ -99,10 +99,6 @@ pub struct SyncFlags {
     pub behavior: BehaviorFlags,
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 /// Options for sync execution
 pub struct SyncOptions {
     /// Path to manifest file
@@ -792,14 +788,9 @@ impl SyncExecutor {
         let files_synced = synced_files.len();
 
         // Determine audit trail path and write if enabled
-<<<<<<< HEAD
-        let audit_path = if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
-            let audit_file_path = base_path.join(&output_directory).join("audit.json");
-=======
         let audit_path =
             if self.options.flags.behavior.audit || manifest_data.generation.require_audit_trail {
                 let audit_file_path = base_path.join(&output_directory).join("audit.json");
->>>>>>> origin/main
 
                 // Create audit trail from pipeline state using AuditTrailBuilder
                 let mut builder = crate::codegen::audit::AuditTrailBuilder::new();

@@ -350,12 +350,8 @@ async fn check_slo() -> Result<CheckResult> {
     context.insert("items", &(0..100).collect::<Vec<i32>>());
     let template = "Hello {{ name }}! Count: {% for i in items %}{{ i }}{% if not loop.last %}, {% endif %}{% endfor %}";
     for _ in 0..500 {
-<<<<<<< HEAD
-        let _ = tera.render_str(template, &context)
-=======
         let _ = tera
             .render_str(template, &context)
->>>>>>> origin/main
             .map_err(|e| crate::utils::error::Error::new(&format!("Tera error: {}", e)))?;
     }
     let template_duration = template_start.elapsed();
