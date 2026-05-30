@@ -9,9 +9,7 @@ pub struct CanonSet {
     pub avatar: String,
 }
 
-#[allow(clippy::derive_partial_eq_without_eq)]
-/// PartialEq without Eq: enums with only unit variants can impl Eq, but allowing for future extensibility.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum TerminalState {
     ReceivedAndRemembered,
     ConsentAdmitted,
@@ -24,9 +22,7 @@ pub enum TerminalState {
     Overdue,
 }
 
-#[allow(clippy::derive_partial_eq_without_eq)]
-/// PartialEq without Eq: enums with only unit variants can impl Eq, but allowing for future extensibility.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum ObligationStatus {
     Pending,
     InProgress,

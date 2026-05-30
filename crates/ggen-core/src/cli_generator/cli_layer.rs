@@ -148,9 +148,9 @@ impl CliLayerGenerator {
             .domain_crate
             .as_ref()
             .ok_or_else(|| Error::new("Domain crate name is required but was not provided"))?;
-        let domain_function = verb.domain_function.as_ref().cloned().unwrap_or_else(|| {
+        let domain_function = verb.domain_function.clone().unwrap_or_else(|| {
             // Default: core_crate::noun::verb
-            let core_crate = core_crate_name.replace("-", "_");
+            let core_crate = core_crate_name.replace('-', "_");
             format!("{}::{}::{}", core_crate, noun.name, verb.name)
         });
         context.insert("domain_function", &domain_function);

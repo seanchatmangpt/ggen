@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// A success criterion for a manufacturing run.
-/// PartialEq without Eq: threshold (Option<f64>) field does not implement Eq
+// f64 fields are not Eq (threshold: Option<f64> does not implement Eq)
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct SuccessCriterion {
@@ -20,9 +20,7 @@ pub struct SuccessCriterion {
 }
 
 /// A constraint on the manufacturing process.
-/// PartialEq without Eq: All fields (String) implement Eq
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Constraint {
     /// Constraint name
     pub name: String,
@@ -33,7 +31,7 @@ pub struct Constraint {
 }
 
 /// Semantic intent for a manufacturing run.
-/// PartialEq without Eq: metadata HashMap does not implement Eq
+// f64 fields are not Eq (Vec<SuccessCriterion> contains f64 which does not implement Eq)
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct ManufacturingIntent {

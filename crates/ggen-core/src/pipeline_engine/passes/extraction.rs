@@ -549,7 +549,7 @@ impl ExtractionPass {
         // Tensor 2: Extract field definitions
         pass.add_tensor_query(TensorQuery {
             name: "extract-fields".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX code: <http://ggen.dev/code#>
                 PREFIX gen: <http://ggen.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -567,7 +567,7 @@ impl ExtractionPass {
                            code:hasType ?type .
                     OPTIONAL { ?field code:visibility ?visibility . }
                 }
-            "#
+            "
             .to_string(),
             target_predicates: vec!["http://ggen.dev/gen#fieldOf".to_string()],
             order: 1,
@@ -577,7 +577,7 @@ impl ExtractionPass {
         // Tensor 3: Extract method definitions
         pass.add_tensor_query(TensorQuery {
             name: "extract-methods".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX code: <http://ggen.dev/code#>
                 PREFIX gen: <http://ggen.dev/gen#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -595,7 +595,7 @@ impl ExtractionPass {
                     OPTIONAL { ?method code:returnType ?returnType . }
                     OPTIONAL { ?method code:visibility ?visibility . }
                 }
-            "#
+            "
             .to_string(),
             target_predicates: vec!["http://ggen.dev/gen#methodOf".to_string()],
             order: 1,

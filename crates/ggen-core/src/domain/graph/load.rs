@@ -22,10 +22,10 @@ impl RdfFormat {
     pub fn from_extension(filename: &str) -> Self {
         let path = Path::new(filename);
         match path.extension().and_then(|ext| ext.to_str()) {
-            Some("ttl") | Some("turtle") => RdfFormat::Turtle,
-            Some("nt") | Some("ntriples") => RdfFormat::NTriples,
-            Some("rdf") | Some("xml") => RdfFormat::RdfXml,
-            Some("jsonld") | Some("json") => RdfFormat::JsonLd,
+            Some("ttl" | "turtle") => RdfFormat::Turtle,
+            Some("nt" | "ntriples") => RdfFormat::NTriples,
+            Some("rdf" | "xml") => RdfFormat::RdfXml,
+            Some("jsonld" | "json") => RdfFormat::JsonLd,
             Some("n3") => RdfFormat::N3,
             _ => RdfFormat::Turtle, // Default
         }

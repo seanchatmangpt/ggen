@@ -215,13 +215,13 @@ impl CycleFixer {
             return Ok(ttl_files);
         }
 
-        self.visit_dir(&self.base_dir, &mut ttl_files)?;
+        Self::visit_dir(&self.base_dir, &mut ttl_files)?;
 
         Ok(ttl_files)
     }
 
     /// Recursively visit directory to find .ttl files
-    fn visit_dir(&self, dir: &Path, ttl_files: &mut Vec<PathBuf>) -> Result<()> {
+    fn visit_dir(dir: &Path, ttl_files: &mut Vec<PathBuf>) -> Result<()> {
         let entries = fs::read_dir(dir).map_err(|e| {
             Error::new(&format!(
                 "Failed to read directory {}: {}",
@@ -233,7 +233,7 @@ impl CycleFixer {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
-                self.visit_dir(&path, ttl_files)?;
+                Self::visit_dir(&path, ttl_files)?;
             } else if path.extension().and_then(|e| e.to_str()) == Some("ttl") {
                 ttl_files.push(path);
             }
@@ -372,8 +372,8 @@ impl CycleFixer {
                 Error::new(&format!("Failed to read {}: {}", file_path.display(), e))
             })?;
 
-            // Parse content into sections - collect owned strings
-            for line in content.lines().map(|l| l.to_string()).collect::<Vec<_>>() {
+            // Parse content into sections
+            for line in content.lines() {
                 let trimmed = line.trim();
 
                 if trimmed.starts_with("@prefix") {

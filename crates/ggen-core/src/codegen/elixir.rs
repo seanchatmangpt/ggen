@@ -158,7 +158,7 @@ impl ElixirGenerator {
     pub fn generate_tests(module_name: &str) -> Result<String, String> {
         let mut output = String::new();
 
-        let test_module = format!("{}Test", module_name.replace(".", ""));
+        let test_module = format!("{}Test", module_name.replace('.', ""));
 
         writeln!(
             output,

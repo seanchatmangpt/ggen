@@ -20,6 +20,5 @@ pub trait Law {
 pub trait TableLaw: Law<Field = u8> {
     const VALID: [bool; 256];
     const SELECT: [Self::Condition; 256];
-    #[allow(clippy::type_complexity)]
     const ADMIT: [fn(u8, Self::Condition) -> Self::Admitted; 256];
 }

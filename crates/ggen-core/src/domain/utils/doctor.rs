@@ -331,12 +331,14 @@ async fn check_slo() -> Result<CheckResult> {
     let store = Store::new()
         .map_err(|e| crate::utils::error::Error::new(&format!("Graph error: {}", e)))?;
     for i in 0..2000 {
-        let s = NamedNode::new(format!("http://ggen.io/s{}", i)).unwrap();
-        let p = NamedNode::new("http://ggen.io/p").unwrap();
+        let s = NamedNode::new(format!("http://ggen.io/s{}", i))
+            .map_err(|e| crate::utils::error::Error::new(&format!("NamedNode error: {}", e)))?;
+        let p = NamedNode::new("http://ggen.io/p")
+            .map_err(|e| crate::utils::error::Error::new(&format!("NamedNode error: {}", e)))?;
         let o = Literal::from(i);
         store
             .insert(&Quad::new(s, p, o, GraphName::DefaultGraph))
-            .unwrap();
+            .map_err(|e| crate::utils::error::Error::new(&format!("Insert error: {}", e)))?;
     }
     let graph_duration = graph_start.elapsed();
 
@@ -348,7 +350,8 @@ async fn check_slo() -> Result<CheckResult> {
     context.insert("items", &(0..100).collect::<Vec<i32>>());
     let template = "Hello {{ name }}! Count: {% for i in items %}{{ i }}{% if not loop.last %}, {% endif %}{% endfor %}";
     for _ in 0..500 {
-        let _ = tera.render_str(template, &context).unwrap();
+        let _ = tera.render_str(template, &context)
+            .map_err(|e| crate::utils::error::Error::new(&format!("Tera error: {}", e)))?;
     }
     let template_duration = template_start.elapsed();
 

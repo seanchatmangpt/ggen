@@ -10,9 +10,9 @@ use super::state::LifecycleState;
 use colored::*;
 use std::time::{Duration, Instant};
 
-/// Execution mode configuration
-#[derive(Debug, Clone)]
-pub struct ExecutionMode {
+/// Boolean display flags for execution mode
+#[derive(Debug, Clone, Copy)]
+pub struct DisplayFlags {
     /// Enable verbose output (shows all commands before execution)
     pub verbose: bool,
     /// Dry run mode (show what would be done without executing)
@@ -23,7 +23,7 @@ pub struct ExecutionMode {
     pub use_colors: bool,
 }
 
-impl Default for ExecutionMode {
+impl Default for DisplayFlags {
     fn default() -> Self {
         Self {
             verbose: false,
@@ -34,31 +34,52 @@ impl Default for ExecutionMode {
     }
 }
 
+/// Execution mode configuration
+#[derive(Debug, Clone)]
+pub struct ExecutionMode {
+    /// Display and behavior flags
+    pub flags: DisplayFlags,
+}
+
+impl Default for ExecutionMode {
+    fn default() -> Self {
+        Self {
+            flags: DisplayFlags::default(),
+        }
+    }
+}
+
 impl ExecutionMode {
     /// Create execution mode for CI/CD (no colors, no progress)
     pub fn ci() -> Self {
         Self {
-            verbose: false,
-            dry_run: false,
-            show_progress: false,
-            use_colors: false,
+            flags: DisplayFlags {
+                verbose: false,
+                dry_run: false,
+                show_progress: false,
+                use_colors: false,
+            },
         }
     }
 
     /// Create verbose mode
     pub fn verbose() -> Self {
         Self {
-            verbose: true,
-            ..Default::default()
+            flags: DisplayFlags {
+                verbose: true,
+                ..Default::default()
+            },
         }
     }
 
     /// Create dry-run mode
     pub fn dry_run() -> Self {
         Self {
-            dry_run: true,
-            verbose: true, // Always verbose in dry-run
-            ..Default::default()
+            flags: DisplayFlags {
+                dry_run: true,
+                verbose: true, // Always verbose in dry-run
+                ..Default::default()
+            },
         }
     }
 }
@@ -120,7 +141,7 @@ impl ExecutionMetrics {
         let mut report = String::new();
         let total = self.total_elapsed();
 
-        if mode.use_colors {
+        if mode.flags.use_colors {
             report.push_str(&format!(
                 "\n{}\n",
                 "═══ Execution Summary ═══".bright_cyan().bold()
@@ -218,7 +239,7 @@ impl Output {
 
     /// Print info message
     pub fn info(&self, msg: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::info!("{} {}", "ℹ".bright_blue(), msg);
         } else {
             log::info!("[INFO] {}", msg);
@@ -227,7 +248,7 @@ impl Output {
 
     /// Print success message
     pub fn success(&self, msg: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::info!("{} {}", "✓".bright_green(), msg.bright_green());
         } else {
             log::info!("[SUCCESS] {}", msg);
@@ -236,7 +257,7 @@ impl Output {
 
     /// Print warning message
     pub fn warning(&self, msg: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::warn!("{} {}", "⚠".bright_yellow(), msg.yellow());
         } else {
             log::warn!("[WARNING] {}", msg);
@@ -245,7 +266,7 @@ impl Output {
 
     /// Print error message
     pub fn error(&self, msg: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::error!("{} {}", "✗".bright_red(), msg.red());
         } else {
             log::error!("[ERROR] {}", msg);
@@ -254,7 +275,7 @@ impl Output {
 
     /// Print phase start
     pub fn phase_start(&self, phase: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::info!(
                 "\n{} {}",
                 "▶".bright_cyan().bold(),
@@ -267,7 +288,7 @@ impl Output {
 
     /// Print phase complete
     pub fn phase_complete(&self, phase: &str, duration_ms: u128) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::info!(
                 "{} {} {} {}",
                 "✓".bright_green(),
@@ -282,8 +303,8 @@ impl Output {
 
     /// Print command execution (verbose only)
     pub fn command(&self, cmd: &str) {
-        if self.mode.verbose {
-            if self.mode.use_colors {
+        if self.mode.flags.verbose {
+            if self.mode.flags.use_colors {
                 log::debug!("  {} {}", "$".bright_blue(), cmd.dimmed());
             } else {
                 log::debug!("  $ {}", cmd);
@@ -293,7 +314,7 @@ impl Output {
 
     /// Print dry-run command
     pub fn dry_run(&self, cmd: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::info!("  {} {}", "[DRY-RUN]".bright_magenta().bold(), cmd.dimmed());
         } else {
             log::info!("  [DRY-RUN] {}", cmd);
@@ -302,8 +323,8 @@ impl Output {
 
     /// Print hook execution
     pub fn hook(&self, hook_type: &str, phase: &str) {
-        if self.mode.verbose {
-            if self.mode.use_colors {
+        if self.mode.flags.verbose {
+            if self.mode.flags.use_colors {
                 log::debug!(
                     "  {} {} {}",
                     "↪".bright_yellow(),
@@ -318,8 +339,8 @@ impl Output {
 
     /// Print cache hit
     pub fn cache_hit(&self, phase: &str) {
-        if self.mode.verbose {
-            if self.mode.use_colors {
+        if self.mode.flags.verbose {
+            if self.mode.flags.use_colors {
                 log::debug!(
                     "  {} {} {}",
                     "⚡".bright_yellow(),
@@ -334,7 +355,7 @@ impl Output {
 
     /// Print workspace
     pub fn workspace(&self, name: &str) {
-        if self.mode.use_colors {
+        if self.mode.flags.use_colors {
             log::info!(
                 "\n{} {}",
                 "📦".bright_magenta(),
@@ -490,17 +511,17 @@ mod tests {
     #[test]
     fn test_execution_mode_defaults() {
         let mode = ExecutionMode::default();
-        assert!(!mode.verbose);
-        assert!(!mode.dry_run);
-        assert!(mode.show_progress);
-        assert!(mode.use_colors);
+        assert!(!mode.flags.verbose);
+        assert!(!mode.flags.dry_run);
+        assert!(mode.flags.show_progress);
+        assert!(mode.flags.use_colors);
     }
 
     #[test]
     fn test_ci_mode() {
         let mode = ExecutionMode::ci();
-        assert!(!mode.show_progress);
-        assert!(!mode.use_colors);
+        assert!(!mode.flags.show_progress);
+        assert!(!mode.flags.use_colors);
     }
 
     #[test]

@@ -5,11 +5,11 @@
 
 use crate::ontology::OntologySchema;
 use crate::utils::error::Error;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Extract schema from ontology file
 pub async fn extract_ontology_schema(
-    ontology_file: &PathBuf, namespace: &str,
+    ontology_file: &Path, namespace: &str,
 ) -> Result<OntologySchema, Error> {
     use crate::Graph;
 
@@ -30,7 +30,7 @@ pub async fn extract_ontology_schema(
 
 /// Generate code from ontology schema
 pub async fn generate_code_from_ontology(
-    schema: &OntologySchema, language: &str, output_dir: &PathBuf, zod: bool, utilities: bool,
+    schema: &OntologySchema, language: &str, output_dir: &Path, zod: bool, utilities: bool,
 ) -> Result<(usize, String), Error> {
     use crate::codegen::TypeScriptGenerator;
 
@@ -199,7 +199,7 @@ pub async fn initialize_ontology_project(
 
     // Create README
     let readme = format!(
-        r#"# {} - Ontology Project
+        r"# {} - Ontology Project
 
 Auto-generated ontology project using ggen.
 
@@ -263,7 +263,7 @@ This project includes example ontologies:
 - [RDF Concepts](https://www.w3.org/TR/rdf-concepts/)
 - [SPARQL Query Language](https://www.w3.org/TR/sparql11-query/)
 - [OWL 2 Web Ontology Language](https://www.w3.org/TR/owl2-overview/)
-"#,
+",
         project_name
     );
     let readme_path = proj_dir.join("README.md");

@@ -402,7 +402,7 @@ impl NormalizationPass {
         // Rule 1: Infer inverse properties
         pass.add_rule(NormalizationRule {
             name: "owl-inverse-properties".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 CONSTRUCT {
                     ?y ?invProp ?x .
@@ -411,7 +411,7 @@ impl NormalizationPass {
                     ?prop owl:inverseOf ?invProp .
                     ?x ?prop ?y .
                 }
-            "#
+            "
             .to_string(),
             order: 1,
             description: Some("OWL: Materialize inverse property relationships".to_string()),
@@ -421,7 +421,7 @@ impl NormalizationPass {
         // Rule 2: Infer subclass relationships (transitivity)
         pass.add_rule(NormalizationRule {
             name: "rdfs-subclass-inference".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 CONSTRUCT {
@@ -432,7 +432,7 @@ impl NormalizationPass {
                     ?class rdfs:subClassOf+ ?superClass .
                     FILTER (?class != ?superClass)
                 }
-            "#
+            "
             .to_string(),
             order: 2,
             description: Some("RDFS: Materialize subclass type relationships".to_string()),
@@ -442,7 +442,7 @@ impl NormalizationPass {
         // Rule 3: Infer domain/range types
         pass.add_rule(NormalizationRule {
             name: "rdfs-domain-range-inference".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 CONSTRUCT {
@@ -455,7 +455,7 @@ impl NormalizationPass {
                     OPTIONAL { ?prop rdfs:range ?rangeClass . }
                     FILTER (isIRI(?object))
                 }
-            "#
+            "
             .to_string(),
             order: 3,
             description: Some("RDFS: Infer types from domain and range declarations".to_string()),
@@ -465,7 +465,7 @@ impl NormalizationPass {
         // Rule 4: OWL symmetric properties
         pass.add_rule(NormalizationRule {
             name: "owl-symmetric-properties".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 CONSTRUCT {
                     ?y ?prop ?x .
@@ -474,7 +474,7 @@ impl NormalizationPass {
                     ?prop a owl:SymmetricProperty .
                     ?x ?prop ?y .
                 }
-            "#
+            "
             .to_string(),
             order: 4,
             description: Some("OWL: Materialize symmetric property relationships".to_string()),
@@ -484,7 +484,7 @@ impl NormalizationPass {
         // Rule 5: OWL transitive properties
         pass.add_rule(NormalizationRule {
             name: "owl-transitive-properties".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 CONSTRUCT {
                     ?x ?prop ?z .
@@ -494,7 +494,7 @@ impl NormalizationPass {
                     ?x ?prop ?y .
                     ?y ?prop ?z .
                 }
-            "#
+            "
             .to_string(),
             order: 5,
             description: Some("OWL: Materialize transitive property relationships".to_string()),
@@ -504,7 +504,7 @@ impl NormalizationPass {
         // Rule 6: OWL equivalent classes
         pass.add_rule(NormalizationRule {
             name: "owl-equivalent-classes".to_string(),
-            construct: r#"
+            construct: r"
                 PREFIX owl: <http://www.w3.org/2002/07/owl#>
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 CONSTRUCT {
@@ -515,7 +515,7 @@ impl NormalizationPass {
                     ?class owl:equivalentClass ?equivClass .
                     FILTER (?class != ?equivClass)
                 }
-            "#
+            "
             .to_string(),
             order: 6,
             description: Some("OWL: Materialize equivalent class memberships".to_string()),

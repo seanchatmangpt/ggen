@@ -102,7 +102,7 @@ ORDER BY ?level"#,
     pub fn find_services_by_sla(min_availability: f32) -> String {
         let availability = (min_availability * 100.0) as u32;
         format!(
-            r#"@prefix cloud: <http://example.org/cloud/> .
+            r"@prefix cloud: <http://example.org/cloud/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
@@ -113,7 +113,7 @@ WHERE {{
   FILTER (?availability >= {})
   OPTIONAL {{ ?service rdfs:label ?label . }}
 }}
-ORDER BY DESC(?availability)"#,
+ORDER BY DESC(?availability)",
             availability
         )
     }
@@ -202,14 +202,14 @@ ORDER BY ?provider ?compute"#,
         }
 
         format!(
-            r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+            r"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 SELECT ?instance ?{}
 WHERE {{
 {}
 }}
-ORDER BY ?instance"#,
+ORDER BY ?instance",
             var_list, where_clause
         )
     }

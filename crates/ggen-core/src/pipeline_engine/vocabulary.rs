@@ -110,7 +110,7 @@ impl VocabularyRegistry {
                 // Use a basic regex/string parser for bootstrapping if full RDF engine isn't ready
                 // This ensures we satisfy the "RDF-first" principle even during early boot.
                 for line in content.lines() {
-                    if line.contains("gv26:StandardVocabulary") && line.contains("<") {
+                    if line.contains("gv26:StandardVocabulary") && line.contains('<') {
                         if let Some(start) = line.find('<') {
                             if let Some(end) = line.find('>') {
                                 let ns = &line[start + 1..end];
@@ -271,7 +271,10 @@ impl VocabularyRegistry {
         }
 
         // Extract from IRI references (simple heuristic)
-        let iri_pattern = regex::Regex::new(r"<([^>]+)>").unwrap();
+        let iri_pattern = match regex::Regex::new(r"<([^>]+)>") {
+            Ok(r) => r,
+            Err(_) => return namespaces,
+        };
         for cap in iri_pattern.captures_iter(content) {
             if let Some(iri) = cap.get(1) {
                 let iri_str = iri.as_str();

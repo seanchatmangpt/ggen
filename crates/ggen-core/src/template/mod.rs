@@ -69,7 +69,7 @@ pub mod template_validation {
         let mut tera = Tera::default();
 
         match tera.add_raw_template("test_template", template_content) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => {
                 issues.push(TemplateIssue::SyntaxError(format!("{}", e)));
                 return Ok(TemplateValidationResult {
@@ -108,7 +108,9 @@ pub mod template_validation {
                             var_name.push('}');
                             continue;
                         }
-                        var_name.push(chars.next().unwrap());
+                        if let Some(ch) = chars.next() {
+                            var_name.push(ch);
+                        }
                     }
                     if !var_name.is_empty() {
                         // Trim whitespace and split by filter pipe

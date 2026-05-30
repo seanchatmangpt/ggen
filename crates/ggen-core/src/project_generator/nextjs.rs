@@ -138,7 +138,7 @@ impl NextJsGenerator {
         match config.project_type {
             ProjectType::NextJs => {
                 format!(
-                    r#"export default function Home() {{
+                    r"export default function Home() {{
   return (
     <div style={{{{ padding: '2rem' }}}}>
       <h1>Welcome to {}</h1>
@@ -146,7 +146,7 @@ impl NextJsGenerator {
     </div>
   );
 }}
-"#,
+",
                     config.name
                 )
             }
@@ -204,27 +204,27 @@ div {{
     }
 
     fn generate_next_config(&self) -> String {
-        r#"/** @type {import('next').NextConfig} */
+        r"/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 }
 
 module.exports = nextConfig
-"#
+"
         .to_string()
     }
 
     fn generate_nuxt_config(&self) -> String {
-        r#"// https://nuxt.com/docs/api/configuration/nuxt-config
+        r"// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true }
 })
-"#
+"
         .to_string()
     }
 
     fn generate_gitignore(&self) -> String {
-        r#"# Dependencies
+        r"# Dependencies
 node_modules/
 /.pnp
 .pnp.js
@@ -263,7 +263,7 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
-"#
+"
         .to_string()
     }
 
@@ -275,7 +275,7 @@ next-env.d.ts
         };
 
         format!(
-            r#"# {}
+            r"# {}
 
 A {} project created with ggen.
 
@@ -299,7 +299,7 @@ To learn more about {}, take a look at the following resources:
 ## Deploy
 
 The easiest way to deploy your app is to use the Vercel Platform.
-"#,
+",
             config.name, framework, framework
         )
     }
@@ -329,12 +329,12 @@ impl ProjectGenerator for NextJsGenerator {
                 files.push(("next.config.js".to_string(), self.generate_next_config()));
                 files.push((
                     "pages/_app.tsx".to_string(),
-                    r#"import type { AppProps } from 'next/app'
+                    r"import type { AppProps } from 'next/app'
 
 export default function App({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />
 }
-"#
+"
                     .to_string(),
                 ));
                 directories.push("styles".to_string());

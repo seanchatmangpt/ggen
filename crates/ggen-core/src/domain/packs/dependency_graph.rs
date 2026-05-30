@@ -94,7 +94,7 @@ impl DependencyGraph {
                     self.dfs_cycle_check(neighbor, visited, rec_stack, path)?;
                 } else if rec_stack.contains(neighbor) {
                     // Found cycle - construct cycle path
-                    let cycle_start = path.iter().position(|n| n == neighbor).unwrap();
+                    let cycle_start = path.iter().position(|n| n == neighbor).unwrap_or(0);
                     let cycle_path: Vec<_> = path[cycle_start..]
                         .iter()
                         .chain(std::iter::once(neighbor))
@@ -129,7 +129,7 @@ impl DependencyGraph {
         // Calculate in-degrees
         for neighbors in self.edges.values() {
             for neighbor in neighbors {
-                *in_degree.get_mut(neighbor).unwrap() += 1;
+                *in_degree.entry(neighbor.clone()).or_insert(0) += 1;
             }
         }
 
@@ -147,11 +147,11 @@ impl DependencyGraph {
 
             if let Some(neighbors) = self.edges.get(&node) {
                 for neighbor in neighbors {
-                    let deg = in_degree.get_mut(neighbor).unwrap();
-                    *deg -= 1;
-
-                    if *deg == 0 {
-                        queue.push_back(neighbor.clone());
+                    if let Some(deg) = in_degree.get_mut(neighbor) {
+                        *deg -= 1;
+                        if *deg == 0 {
+                            queue.push_back(neighbor.clone());
+                        }
                     }
                 }
             }

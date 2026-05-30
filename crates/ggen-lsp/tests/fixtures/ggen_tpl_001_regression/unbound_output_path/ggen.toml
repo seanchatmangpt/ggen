@@ -1,0 +1,18 @@
+[project]
+name = "tpl001-regression-unbound-output"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+# `slug` is NOT bound by the query — this is a GGEN-OUT-001 candidate
+# (templated OUTPUT PATH with an unbound projection variable). The template
+# BODY is clean (consumes only the bound `name`), so detect_tpl_001 must stay
+# silent: GGEN-OUT-001 is NOT active and must NOT be emitted.
+output_file = "out/{{ slug }}.txt"

@@ -16,9 +16,7 @@ use std::fmt;
 struct SchemaParserInternal;
 
 /// Schema definition for an A2A skill input/output type
-#[allow(clippy::derive_partial_eq_without_eq)]
-/// PartialEq without Eq: contains String and Vec which implement Eq.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Schema {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -42,7 +40,7 @@ impl fmt::Display for Schema {
 }
 
 /// Field definition within a schema
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Field {
     pub name: String,
     pub field_type: SchemaType,
@@ -62,7 +60,7 @@ impl fmt::Display for Field {
 }
 
 /// Schema type definitions
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum SchemaType {
     String,

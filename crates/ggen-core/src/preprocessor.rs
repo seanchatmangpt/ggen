@@ -335,14 +335,14 @@ fn parse_freeze_attributes(tag: &str) -> Result<(Option<String>, Option<String>)
     // Simple attribute parsing - look for id="..." and checksum="..."
     if let Some(id_start) = tag.find("id=\"") {
         let id_start = id_start + 4;
-        if let Some(id_end) = tag[id_start..].find("\"") {
+        if let Some(id_end) = tag[id_start..].find('"') {
             id = Some(tag[id_start..id_start + id_end].to_string());
         }
     }
 
     if let Some(cs_start) = tag.find("checksum=\"") {
         let cs_start = cs_start + 10;
-        if let Some(cs_end) = tag[cs_start..].find("\"") {
+        if let Some(cs_end) = tag[cs_start..].find('"') {
             checksum = Some(tag[cs_start..cs_start + cs_end].to_string());
         }
     }
@@ -353,17 +353,17 @@ fn parse_freeze_attributes(tag: &str) -> Result<(Option<String>, Option<String>)
 /// Parse include path from {% include %} tag
 fn parse_include_path(tag: &str) -> Result<String> {
     // Extract path from {% include "path" %} or {% include 'path' %}
-    let path_start = if let Some(start) = tag.find("\"") {
+    let path_start = if let Some(start) = tag.find('"') {
         start + 1
-    } else if let Some(start) = tag.find("'") {
+    } else if let Some(start) = tag.find('\'') {
         start + 1
     } else {
         return Err(Error::new(&format!("Invalid include tag format: {}", tag)));
     };
 
-    let path_end = if let Some(end) = tag[path_start..].find("\"") {
+    let path_end = if let Some(end) = tag[path_start..].find('"') {
         path_start + end
-    } else if let Some(end) = tag[path_start..].find("'") {
+    } else if let Some(end) = tag[path_start..].find('\'') {
         path_start + end
     } else {
         return Err(Error::new(&format!(

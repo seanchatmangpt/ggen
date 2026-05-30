@@ -33,7 +33,7 @@ pub fn resolve_capability_to_packs(
 
         // Web surface
         "web" => match projection {
-            Some("fullstack") | Some("full-stack") => vec!["web-fullstack"],
+            Some("fullstack" | "full-stack") => vec!["web-fullstack"],
             _ => vec!["web-fullstack"],
         },
 

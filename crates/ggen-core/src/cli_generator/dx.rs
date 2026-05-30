@@ -58,7 +58,7 @@ impl ErrorEnhancer {
                 "See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md#domain-function-references"
                     .to_string(),
             ),
-            _ => None,
+            ErrorContext::Unknown => None,
         }
     }
 }
@@ -79,8 +79,8 @@ impl CodeHints {
         let core_crate = project
             .domain_crate
             .as_ref()
-            .map(|c| c.replace("-", "_"))
-            .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
+            .map(|c| c.replace('-', "_"))
+            .unwrap_or_else(|| format!("{}_core", project.name.replace('-', "_")));
 
         let default_path = format!("{}::{}::{}", core_crate, noun.name, verb.name);
         let function_path = verb.domain_function.as_deref().unwrap_or(&default_path);
@@ -100,8 +100,8 @@ impl CodeHints {
         let core_crate = project
             .domain_crate
             .as_ref()
-            .map(|c| c.replace("-", "_"))
-            .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
+            .map(|c| c.replace('-', "_"))
+            .unwrap_or_else(|| format!("{}_core", project.name.replace('-', "_")));
 
         format!(
             "use {}::{}::{}::{{Input, Output, execute as domain_{}}};\n\
@@ -137,7 +137,7 @@ impl TemplatePreview {
 
         format!(
             "📁 Workspace Structure Preview:\n\n\
-             {project_name}/\n\
+             {project_name}/{nouns}\n\
              ├── Cargo.toml              # Workspace manifest\n\
              └── crates/\n\
                  ├── {cli_crate}/        # CLI presentation layer\n\
@@ -152,13 +152,14 @@ impl TemplatePreview {
                      ├── Cargo.toml\n\
                      └── src/\n\
                          └── {{noun}}/   # Domain modules\n\n\
-             🎯 Nouns: {nouns}\n\
+             🎯 Nouns: {nouns_count}\n\
              🔧 Verbs per noun: {verbs}\n\
              📦 Dependencies: {deps}",
             project_name = project.name,
             cli_crate = cli_crate,
             domain_crate = domain_crate,
-            nouns = project.nouns.len(),
+            nouns = "",
+            nouns_count = project.nouns.len(),
             verbs = project.nouns.iter().map(|n| n.verbs.len()).sum::<usize>(),
             deps = project.dependencies.len(),
         )
@@ -169,8 +170,30 @@ impl TemplatePreview {
         let core_crate = project
             .domain_crate
             .as_ref()
-            .map(|c| c.replace("-", "_"))
-            .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
+            .map(|c| c.replace('-', "_"))
+            .unwrap_or_else(|| format!("{}_core", project.name.replace('-', "_")));
+
+        let args_str = {
+            use std::fmt::Write;
+            let mut s = String::new();
+            for a in &verb.arguments {
+                let _ = write!(
+                    s,
+                    "    /// {}\n    #[arg(long)]\n    pub {}: {},\n\n",
+                    a.help, a.name, Self::rust_type_for_arg(a)
+                );
+            }
+            s
+        };
+
+        let input_mapping_str = {
+            use std::fmt::Write;
+            let mut s = String::new();
+            for a in &verb.arguments {
+                let _ = writeln!(s, "        {}: args.{}.clone(),", a.name, a.name);
+            }
+            s
+        };
 
         format!(
             "📝 Verb Implementation Preview:\n\n\
@@ -212,13 +235,8 @@ impl TemplatePreview {
                     "VerbArgs".to_string() // Fallback for empty verb name
                 }
             }),
-            args = verb.arguments.iter().map(|a| {
-                format!("    /// {}\n    #[arg(long)]\n    pub {}: {},\n\n",
-                        a.help, a.name, Self::rust_type_for_arg(a))
-            }).collect::<String>(),
-            input_mapping = verb.arguments.iter().map(|a| {
-                format!("        {}: args.{}.clone(),\n", a.name, a.name)
-            }).collect::<String>(),
+            args = args_str,
+            input_mapping = input_mapping_str,
         )
     }
 
@@ -247,8 +265,8 @@ impl AutoFix {
         let core_crate = project
             .domain_crate
             .as_ref()
-            .map(|c| c.replace("-", "_"))
-            .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
+            .map(|c| c.replace('-', "_"))
+            .unwrap_or_else(|| format!("{}_core", project.name.replace('-', "_")));
 
         let suggested_path = format!("{}::{}::{}", core_crate, noun.name, verb.name);
 

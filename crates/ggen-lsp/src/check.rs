@@ -349,6 +349,18 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
         files.push(report);
     }
 
+    // Cross-surface law: GGEN-TPL-001 (unbound projection). The single-file
+    // analyzers above run each law surface in isolation; the headless Tera
+    // analyzer is built with empty bindings and therefore emits E0024 (syntax)
+    // ONLY — never GGEN-TPL-001, which needs the rule's SPARQL SELECT vars it
+    // does not have. We supply that cross-surface context here by building the
+    // project index from `root` and running the same pure detector the
+    // interactive server uses. Read-only: the index already did its I/O and we
+    // materialize nothing. Best-effort: a missing/unparseable `ggen.toml` (or a
+    // `root` with no manifest, e.g. the cwd default) simply yields no extra
+    // diagnostics and never disturbs the single-file reports above.
+    error_count += fold_tpl_001(root, &mut files, registry.as_ref());
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -356,6 +368,87 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
         error_count,
         warning_count,
         route_summary,
+    }
+}
+
+/// Fold GGEN-TPL-001 (unbound-projection) diagnostics from the project index at
+/// `root` into `files`, returning the number of newly added ERROR diagnostics
+/// (so the caller can keep `error_count` exact).
+///
+/// For each `(template_path, diags)` the detector returns, the diagnostics are
+/// appended to the [`FileReport`] whose path matches that template (added as a
+/// new report if the template is not already among `files`). When `registry` is
+/// `Some` (i.e. `--with-routes`), each appended diagnostic also gets its
+/// `RoutePlan` resolved through the SAME route engine as every other channel,
+/// using the template's own content as the route's edit-site context.
+///
+/// A missing template (`template_content: None`) is skipped by `detect_tpl_001`
+/// itself — it stays a [`RuleIndexEntry::issues`] index problem, never
+/// GGEN-TPL-001. This function therefore never reclassifies a missing source.
+fn fold_tpl_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+
+    // Cache resolved template contents by path so route plans (which need the
+    // template text, not the manifest) use the correct edit-site context.
+    let mut added_errors = 0usize;
+    for (template_path, diags) in crate::analyzers::detect_tpl_001(&project) {
+        if diags.is_empty() {
+            continue;
+        }
+        let template_str = template_path.to_string_lossy().to_string();
+        // The route edit site lives in the TEMPLATE, so route plans must be
+        // built against the template content (read best-effort from disk; the
+        // index already proved it resolvable, so this normally succeeds).
+        let template_content = std::fs::read_to_string(&template_path).unwrap_or_default();
+
+        added_errors += diags
+            .iter()
+            .filter(|d| d.severity == Some(DiagnosticSeverity::ERROR))
+            .count();
+
+        let routes: Vec<crate::route::RoutePlan> = match registry {
+            Some(reg) => diags
+                .iter()
+                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &template_content))
+                .collect(),
+            None => Vec::new(),
+        };
+
+        // Append to the matching report, or create a new one for the template.
+        if let Some(existing) = files
+            .iter_mut()
+            .find(|f| paths_match(&f.path, &template_str))
+        {
+            existing.diagnostics.extend(diags);
+            existing.routes.extend(routes);
+        } else {
+            files.push(FileReport {
+                path: template_str,
+                diagnostics: diags,
+                routes,
+            });
+        }
+    }
+    added_errors
+}
+
+/// Compare two filesystem path strings for "same file" identity. Tries exact
+/// string equality first (the common case), then falls back to canonicalized
+/// comparison so a relative path supplied to the gate matches the absolute
+/// `template_path` the index resolved (e.g. `templates/row.tera` vs
+/// `/abs/proj/templates/row.tera`). Canonicalization is best-effort: if either
+/// path cannot be canonicalized, only the exact-string result stands.
+fn paths_match(a: &str, b: &str) -> bool {
+    if a == b {
+        return true;
+    }
+    match (std::fs::canonicalize(a), std::fs::canonicalize(b)) {
+        (Ok(ca), Ok(cb)) => ca == cb,
+        _ => false,
     }
 }
 
@@ -489,6 +582,174 @@ mod tests {
         report.error_count = 2;
         assert_eq!(report.exit_code(), 1);
         assert!(report.has_errors());
+    }
+
+    #[test]
+    fn root_aware_gate_folds_tpl_001_and_fails() {
+        // Arrange — a project whose rule SELECTs `?name` but whose template
+        // consumes `title`: a genuine GGEN-TPL-001 unbound projection.
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+        fs::write(root.join("row.tera"), r#"{{ row["title"] }}"#).expect("write template");
+        let manifest = r#"
+[project]
+name = "demo"
+version = "0.1.0"
+
+[ontology]
+source = "model.ttl"
+
+[[generation.rules]]
+name = "people"
+output_file = "people.rs"
+query = { inline = "SELECT ?name WHERE { ?p :name ?name }" }
+template = { file = "row.tera" }
+"#;
+        fs::write(root.join("ggen.toml"), manifest).expect("write manifest");
+
+        // Act — run the headless gate over the template path under `root`.
+        let report = check_files_in_root(root, &[root.join("row.tera")], false);
+
+        // Assert — GGEN-TPL-001 ERROR present, counted, and gate fails.
+        assert!(report.has_errors(), "GGEN-TPL-001 must make the gate fail");
+        assert!(
+            report.error_count >= 1,
+            "error_count must include the TPL-001 error"
+        );
+        let tera_report = report
+            .files
+            .iter()
+            .find(|f| f.path.ends_with("row.tera"))
+            .expect("template report present");
+        assert!(
+            tera_report.diagnostics.iter().any(|d| matches!(
+                &d.code,
+                Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+            )),
+            "the template report must carry a GGEN-TPL-001 diagnostic"
+        );
+    }
+
+    #[test]
+    fn repaired_template_has_no_tpl_001() {
+        // Arrange — same project, but the template now consumes `name`, which
+        // the SELECT produces: the unbound projection is repaired.
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+        fs::write(root.join("row.tera"), r#"{{ row["name"] }}"#).expect("write template");
+        let manifest = r#"
+[project]
+name = "demo"
+version = "0.1.0"
+
+[ontology]
+source = "model.ttl"
+
+[[generation.rules]]
+name = "people"
+output_file = "people.rs"
+query = { inline = "SELECT ?name WHERE { ?p :name ?name }" }
+template = { file = "row.tera" }
+"#;
+        fs::write(root.join("ggen.toml"), manifest).expect("write manifest");
+
+        // Act
+        let report = check_files_in_root(root, &[root.join("row.tera")], false);
+
+        // Assert — no GGEN-TPL-001 anywhere, gate passes.
+        assert!(!report.has_errors(), "repaired template must pass the gate");
+        assert!(
+            !report
+                .files
+                .iter()
+                .any(|f| f.diagnostics.iter().any(|d| matches!(
+                    &d.code,
+                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                ))),
+            "no GGEN-TPL-001 diagnostic must remain after repair"
+        );
+    }
+
+    #[test]
+    fn missing_template_is_not_reclassified_as_tpl_001() {
+        // Arrange — rule references a template file that does not exist. This is
+        // an index-level missing-source issue, NOT GGEN-TPL-001.
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+        let manifest = r#"
+[project]
+name = "demo"
+version = "0.1.0"
+
+[ontology]
+source = "model.ttl"
+
+[[generation.rules]]
+name = "broken"
+output_file = "broken.rs"
+query = { inline = "SELECT ?name WHERE { ?p :name ?name }" }
+template = { file = "nope.tera" }
+"#;
+        fs::write(root.join("ggen.toml"), manifest).expect("write manifest");
+
+        // Act — gate over the (nonexistent) template path; nothing readable, so
+        // the single-file pass produces no report, and detect_tpl_001 skips the
+        // missing template.
+        let report = check_files_in_root(root, &[root.join("nope.tera")], false);
+
+        // Assert — no GGEN-TPL-001 was synthesized for the missing template.
+        assert!(
+            !report
+                .files
+                .iter()
+                .any(|f| f.diagnostics.iter().any(|d| matches!(
+                    &d.code,
+                    Some(tower_lsp::lsp_types::NumberOrString::String(s)) if s == "GGEN-TPL-001"
+                ))),
+            "a missing template must stay an index issue, not GGEN-TPL-001"
+        );
+    }
+
+    #[test]
+    fn tpl_001_resolves_a_route_with_routes() {
+        // Arrange — unbound projection, routes requested.
+        use std::fs;
+        let dir = tempfile::TempDir::new().expect("tempdir");
+        let root = dir.path();
+        fs::write(root.join("row.tera"), r#"{{ row["title"] }}"#).expect("write template");
+        let manifest = r#"
+[project]
+name = "demo"
+version = "0.1.0"
+
+[ontology]
+source = "model.ttl"
+
+[[generation.rules]]
+name = "people"
+output_file = "people.rs"
+query = { inline = "SELECT ?name WHERE { ?p :name ?name }" }
+template = { file = "row.tera" }
+"#;
+        fs::write(root.join("ggen.toml"), manifest).expect("write manifest");
+
+        // Act — with routes on.
+        let report = check_files_in_root(root, &[root.join("row.tera")], true);
+
+        // Assert — the GGEN-TPL-001 diagnostic resolved a route through the same
+        // seeded route engine the other channels use.
+        let tera_report = report
+            .files
+            .iter()
+            .find(|f| f.path.ends_with("row.tera"))
+            .expect("template report present");
+        assert!(
+            !tera_report.routes.is_empty(),
+            "GGEN-TPL-001 must resolve a route with --with-routes"
+        );
     }
 
     #[test]

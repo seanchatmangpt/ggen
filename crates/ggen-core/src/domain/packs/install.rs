@@ -243,7 +243,7 @@ async fn unpack_external_pack(_pack_id: &str, pack: &Pack, install_path: &Path) 
     // Generate package.toml for compatibility
     let package_toml_path = install_path.join("package.toml");
     let registry_type = match pack.registry_type.as_deref() {
-        Some("cratesio") | Some("crates.io") => "crates.io",
+        Some("cratesio" | "crates.io") => "crates.io",
         Some(other) => other,
         None => "ggen",
     };

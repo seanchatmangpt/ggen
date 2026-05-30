@@ -34,15 +34,15 @@ impl ExecutionLifecycle {
         let mut context = PreSyncContext {
             manifest_path: options.manifest_path.clone(),
             output_dir: options.output_dir.clone(),
-            dry_run: options.dry_run,
-            verbose: options.verbose,
+            dry_run: options.flags.mode.dry_run,
+            verbose: options.flags.behavior.verbose,
             hooks_executed: 0,
             duration_ms: 0,
             checks_passed: true,
         };
 
         for hook in &self.pre_sync_hooks {
-            if options.verbose {
+            if options.flags.behavior.verbose {
                 eprintln!("Executing pre-sync hook: {}", hook);
             }
             context.hooks_executed += 1;
@@ -65,7 +65,7 @@ impl ExecutionLifecycle {
         };
 
         for hook in &self.post_sync_hooks {
-            if options.verbose {
+            if options.flags.behavior.verbose {
                 eprintln!("Executing post-sync hook: {}", hook);
             }
             context.hooks_executed += 1;
@@ -79,7 +79,7 @@ impl ExecutionLifecycle {
         &self, _error: &crate::utils::error::Error, options: &SyncOptions,
     ) -> Result<()> {
         for handler in &self.error_handlers {
-            if options.verbose {
+            if options.flags.behavior.verbose {
                 eprintln!("Executing error handler: {}", handler);
             }
         }

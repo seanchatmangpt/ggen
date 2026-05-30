@@ -169,7 +169,7 @@ impl FileTransaction {
                 .iter()
                 .filter_map(|op| match op {
                     FileOperation::Created { path } => Some(path.clone()),
-                    _ => None,
+                    FileOperation::Modified { .. } => None,
                 })
                 .collect(),
             files_modified: self
@@ -177,7 +177,7 @@ impl FileTransaction {
                 .iter()
                 .filter_map(|op| match op {
                     FileOperation::Modified { path, .. } => Some(path.clone()),
-                    _ => None,
+                    FileOperation::Created { .. } => None,
                 })
                 .collect(),
             backups: self
@@ -187,7 +187,7 @@ impl FileTransaction {
                     FileOperation::Modified { path, backup } => {
                         Some((path.clone(), backup.clone()))
                     }
-                    _ => None,
+                    FileOperation::Created { .. } => None,
                 })
                 .collect(),
         };
@@ -196,7 +196,7 @@ impl FileTransaction {
     }
 
     /// Rollback all operations on drop (if not committed)
-    fn rollback(&mut self) {
+    fn rollback(&self) {
         if self.committed {
             return;
         }

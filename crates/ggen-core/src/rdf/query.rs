@@ -77,7 +77,7 @@ impl QueryCache {
     pub fn new(capacity: usize) -> Self {
         Self {
             cache: Arc::new(Mutex::new(LruCache::new(
-                NonZeroUsize::new(capacity).unwrap(),
+                NonZeroUsize::new(capacity).unwrap_or(std::num::NonZeroUsize::MIN),
             ))),
             predicate_index: Arc::new(Mutex::new(HashMap::new())),
             version: Arc::new(Mutex::new(0)),
@@ -98,11 +98,11 @@ impl QueryCache {
     /// Cached or fresh query results
     pub fn execute_cached(&self, store: &Store, query_str: &str) -> Result<String> {
         // Get current cache version
-        let current_version = *self.version.lock().unwrap();
+        let current_version = *self.version.lock().unwrap_or_else(|e| e.into_inner());
 
         // Check cache first
         {
-            let mut cache = self.cache.lock().unwrap();
+            let mut cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
             if let Some(cached) = cache.get(query_str) {
                 // Validate cache entry is still valid
                 if cached.version == current_version {
@@ -116,7 +116,7 @@ impl QueryCache {
 
         // Store in cache
         {
-            let mut cache = self.cache.lock().unwrap();
+            let mut cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
             cache.put(
                 query_str.to_string(),
                 CachedResult {
@@ -165,15 +165,15 @@ impl QueryCache {
     ///
     /// OPTIMIZATION 2.1: Increment version to invalidate all cached results
     pub fn invalidate(&self) {
-        let mut version = self.version.lock().unwrap();
+        let mut version = self.version.lock().unwrap_or_else(|e| e.into_inner());
         *version += 1;
     }
 
     /// Clear all caches
     pub fn clear(&self) {
-        let mut cache = self.cache.lock().unwrap();
+        let mut cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
         cache.clear();
-        let mut index = self.predicate_index.lock().unwrap();
+        let mut index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
         index.clear();
     }
 
@@ -188,7 +188,7 @@ impl QueryCache {
     pub fn build_predicate_index(&self, store: &Store, predicates: &[&str]) -> Result<()> {
         use crate::rdf::query_builder::{Iri, SparqlQueryBuilder, Variable};
 
-        let mut index = self.predicate_index.lock().unwrap();
+        let mut index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
 
         for predicate in predicates {
             // Build type-safe query using query builder
@@ -233,19 +233,19 @@ impl QueryCache {
     ///
     /// OPTIMIZATION 2.2: Use index for faster lookups (20-30% speedup)
     pub fn query_indexed(&self, predicate: &str) -> Option<Vec<(String, String)>> {
-        let index = self.predicate_index.lock().unwrap();
+        let index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
         index.get(predicate).cloned()
     }
 
     /// Get cache statistics
     pub fn stats(&self) -> CacheStats {
-        let cache = self.cache.lock().unwrap();
-        let index = self.predicate_index.lock().unwrap();
+        let cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
+        let index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
         CacheStats {
             cache_size: cache.len(),
             cache_capacity: cache.cap().get(),
             indexed_predicates: index.len(),
-            cache_version: *self.version.lock().unwrap(),
+            cache_version: *self.version.lock().unwrap_or_else(|e| e.into_inner()),
         }
     }
 }

@@ -156,7 +156,7 @@ impl ConcurrentRuleExecutor {
         // Simple heuristic: rule produces variables if its query selects them
         // In a full implementation, would parse the SPARQL query
         rule.name.contains(&var.to_lowercase())
-            || rule.name.replace("-", "_").contains(&var.to_lowercase())
+            || rule.name.replace('-', "_").contains(&var.to_lowercase())
     }
 }
 

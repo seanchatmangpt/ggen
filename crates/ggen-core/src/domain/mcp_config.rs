@@ -611,13 +611,13 @@ pub fn load_config(
 /// Load MCP configuration from a file
 pub fn load_mcp_from_file(path: &Path) -> Result<McpConfigFile, GgenError> {
     let content = fs::read_to_string(path).map_err(|e| {
-        GgenError::invalid_input(format!("Failed to read MCP config from {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to read MCP config from {}: {}", path.display(), e))
     })?;
 
     serde_json::from_str(&content).map_err(|e| {
         GgenError::invalid_input(format!(
-            "Failed to parse MCP config from {:?}: {}\nSuggestion: Check JSON syntax and structure",
-            path, e
+            "Failed to parse MCP config from {}: {}\nSuggestion: Check JSON syntax and structure",
+            path.display(), e
         ))
     })
 }
@@ -625,13 +625,13 @@ pub fn load_mcp_from_file(path: &Path) -> Result<McpConfigFile, GgenError> {
 /// Load A2A configuration from a file
 pub fn load_a2a_from_file(path: &Path) -> Result<A2aConfig, GgenError> {
     let content = fs::read_to_string(path).map_err(|e| {
-        GgenError::invalid_input(format!("Failed to read A2A config from {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to read A2A config from {}: {}", path.display(), e))
     })?;
 
     toml::from_str(&content).map_err(|e| {
         GgenError::invalid_input(format!(
-            "Failed to parse A2A config from {:?}: {}\nSuggestion: Check TOML syntax",
-            path, e
+            "Failed to parse A2A config from {}: {}\nSuggestion: Check TOML syntax",
+            path.display(), e
         ))
     })
 }
@@ -806,7 +806,7 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<(), GgenE
     // Create parent directory if needed
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            GgenError::invalid_input(format!("Failed to create directory {:?}: {}", parent, e))
+            GgenError::invalid_input(format!("Failed to create directory {}: {}", parent.display(), e))
         })?;
     }
 
@@ -814,7 +814,7 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<(), GgenE
         .map_err(|e| GgenError::invalid_input(format!("Failed to serialize MCP config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
-        GgenError::invalid_input(format!("Failed to write MCP config to {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to write MCP config to {}: {}", path.display(), e))
     })?;
 
     Ok(())
@@ -825,7 +825,7 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<(), GgenError
     // Create parent directory if needed
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            GgenError::invalid_input(format!("Failed to create directory {:?}: {}", parent, e))
+            GgenError::invalid_input(format!("Failed to create directory {}: {}", parent.display(), e))
         })?;
     }
 
@@ -833,7 +833,7 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<(), GgenError
         .map_err(|e| GgenError::invalid_input(format!("Failed to serialize A2A config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
-        GgenError::invalid_input(format!("Failed to write A2A config to {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to write A2A config to {}: {}", path.display(), e))
     })?;
 
     Ok(())
@@ -930,7 +930,7 @@ pub fn get_server_status(project_dir: Option<&Path>) -> Result<ServerStatus, Gge
     }
 
     let pid_str = fs::read_to_string(&pid_file).map_err(|e| {
-        GgenError::invalid_input(format!("Failed to read PID file {:?}: {}", pid_file, e))
+        GgenError::invalid_input(format!("Failed to read PID file {}: {}", pid_file.display(), e))
     })?;
 
     let pid: u32 = pid_str
@@ -959,7 +959,7 @@ pub fn get_server_status(project_dir: Option<&Path>) -> Result<ServerStatus, Gge
     let last_start = uptime_secs.map(|u| {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .unwrap_or_default()
             .as_secs();
         format_timestamp(now - u)
     });
@@ -1116,12 +1116,12 @@ pub fn write_pid_file(project_dir: Option<&Path>, pid: u32) -> Result<(), GgenEr
 
     if let Some(parent) = pid_file.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            GgenError::invalid_input(format!("Failed to create directory {:?}: {}", parent, e))
+            GgenError::invalid_input(format!("Failed to create directory {}: {}", parent.display(), e))
         })?;
     }
 
     fs::write(&pid_file, pid.to_string()).map_err(|e| {
-        GgenError::invalid_input(format!("Failed to write PID file {:?}: {}", pid_file, e))
+        GgenError::invalid_input(format!("Failed to write PID file {}: {}", pid_file.display(), e))
     })?;
 
     Ok(())
@@ -1136,7 +1136,7 @@ fn timestamp_now() -> String {
     format_timestamp(
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .unwrap_or_default()
             .as_secs(),
     )
 }
@@ -1144,7 +1144,7 @@ fn timestamp_now() -> String {
 /// Format a Unix timestamp as ISO 8601 string
 fn format_timestamp(secs: u64) -> String {
     use chrono::{DateTime, Utc};
-    let dt = DateTime::<Utc>::from_timestamp(secs as i64, 0).unwrap();
+    let dt = DateTime::<Utc>::from_timestamp(secs as i64, 0).unwrap_or_default();
     dt.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
 }
 

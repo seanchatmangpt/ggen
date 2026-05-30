@@ -419,8 +419,7 @@ impl Plan {
         }
 
         // Handle injection templates
-        if self.frontmatter.inject {
-            let _mode = "injection"; // Simplified for now
+        if self.frontmatter.flags.inject {
             return self.apply_injection();
         }
 
@@ -458,7 +457,7 @@ impl Plan {
         }
 
         // Check if content already exists (idempotent mode)
-        if self.frontmatter.idempotent
+        if self.frontmatter.flags.idempotent
             && SkipIfGenerator::content_exists_in_file(&self.content, &self.output_path)?
         {
             // PipelineTracer::skip_condition("idempotent", "content already exists"); // Temporarily disabled
@@ -499,13 +498,13 @@ impl Plan {
     /// Apply regular file generation (non-injection)
     fn apply_regular(&self) -> Result<()> {
         // Check unless_exists guard
-        if self.frontmatter.unless_exists && self.output_path.exists() {
+        if self.frontmatter.flags.unless_exists && self.output_path.exists() {
             log::info!("Skipped: file already exists and unless_exists=true");
             return Ok(());
         }
 
         // Check force flag
-        if !self.frontmatter.force && self.output_path.exists() {
+        if !self.frontmatter.flags.force && self.output_path.exists() {
             return Err(Error::new(&format!(
                 "File already exists: {}. Use --force to overwrite.",
                 self.output_path.display()
@@ -541,8 +540,8 @@ impl Plan {
         let new_lines: Vec<&str> = new_content.lines().collect();
 
         match (
-            self.frontmatter.prepend,
-            self.frontmatter.append,
+            self.frontmatter.flags.prepend,
+            self.frontmatter.flags.append,
             &self.frontmatter.before,
             &self.frontmatter.after,
             self.frontmatter.at_line,

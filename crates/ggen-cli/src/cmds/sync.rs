@@ -410,17 +410,24 @@ fn run_manifest_pipeline(
     let options = SyncOptions {
         manifest_path: manifest_path.clone(),
         output_dir: output_dir.map(PathBuf::from),
-        verbose: verbose.unwrap_or(false),
+        use_cache: true,
+        flags: ggen_core::codegen::executor::SyncFlags {
+            mode: ggen_core::codegen::executor::ModeFlags {
+                validate_only: validate_only.unwrap_or(false),
+                dry_run: dry_run.unwrap_or(false),
+                watch: watch.unwrap_or(false),
+            },
+            behavior: ggen_core::codegen::executor::BehaviorFlags {
+                verbose: verbose.unwrap_or(false),
+                force: force.unwrap_or(false),
+                audit: audit.unwrap_or(false),
+            },
+        },
         output_format: match format.as_deref() {
             Some("json") => OutputFormat::Json,
             _ => OutputFormat::default(),
         },
-        validate_only: validate_only.unwrap_or(false),
-        dry_run: dry_run.unwrap_or(false),
-        watch: watch.unwrap_or(false),
         selected_rules: rule.map(|r| vec![r]),
-        force: force.unwrap_or(false),
-        audit: audit.unwrap_or(false),
         a2a_stage: stage,
         ontology_path: ontology.map(PathBuf::from),
         timeout_ms: timeout,

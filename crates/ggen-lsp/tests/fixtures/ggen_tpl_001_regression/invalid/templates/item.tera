@@ -1,0 +1,3 @@
+{# `title` is NOT bound by the query (which only binds `name`). #}
+{# This unbound projection access must raise GGEN-TPL-001. #}
+Item title: {{ row["title"] }}

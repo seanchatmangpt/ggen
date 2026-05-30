@@ -348,9 +348,6 @@ impl CharsetRule {
 
 impl ValidationRule<String> for CharsetRule {
     fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
-        // Suppress warning about unused description field
-        let _description = &self.description;
-
         if !input.chars().all(self.allowed_chars) {
             return Err(InputValidationError::CharsetViolation {
                 field: field_name.to_string(),

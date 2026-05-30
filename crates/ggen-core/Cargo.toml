@@ -1,107 +1,9 @@
-[[test]]
-name = "template_comprehensive_test"
-path = "tests/template_comprehensive_test.rs"
-required-features = [ "integration",]
-
 [package]
 name = "ggen-core"
 description = "Core graph-aware code generation engine"
 readme = "README.md"
-keywords = [ "cli", "code-generation", "rdf", "templates",]
-categories = [ "development-tools", "command-line-utilities",]
-
-[dependencies]
-rand_core = "0.6"
-
-blake3 = "1.5"
-
-slog = "2.7"
-slog-scope = "4.4"
-slog-stdlog = "4.1"
-slog-async = "2.8"
-clap = { version = "4.5", features = ["derive"] }
-
-tera = "1.20"
-serde_yaml = "0.9"
-serde_json = "1.0"
-syn = { version = "2.0", features = ["full", "parsing"] }
-sha2 = "0.10"
-rayon = "1.11"
-thiserror = "2.0"
-log = "0.4.28"
-rand = "0.9"
-tempfile = "3.14"
-Inflector = "0.11"
-heck = "0.5"
-regex = "1.12"
-pest = "2.7"
-pest_derive = "2.7"
-colored = "3.0"
-indicatif = "0.17"
-toml = "1.1.0"
-lru = "0.16"
-ahash = "0.8"
-glob = "0.3"
-once_cell = "1.20"
-url = "2.5"
-tar = "0.4"
-flate2 = "1.1"
-dirs = "6.0"
-semver = "1.0"
-num_cpus = "1.16"
-walkdir = "2.5"
-tracing = "0.1"
-pqcrypto-mldsa = "0.1"
-pqcrypto-traits = "0.3"
-base64 = "0.22"
-hex = "0.4"
-async-trait = "0.1"
-futures = "0.3"
-bytes = "1.10"
-petgraph = "0.8.3"
-signal-hook = "0.3"
-parking_lot = "0.12"
-smallvec = "1.11"
-tinyvec = "1.6"
-fst = "0.4"
-typed-builder = "0.18"
-serde_derive = "1.0"
-http = "1.0"
-tower = "0.4"
-itertools = "0.12"
-compact_str = "0.7"
-instant = "0.1"
-zip = "2.0"
-
-[features]
-default = [ "dx", "marketplace",]
-dx = []
-marketplace = ["ggen-marketplace"]
-live-llm-tests = []
-proptest = []
-docker = []
-testcontainers = []
-integration = []
-otel = [ "opentelemetry", "opentelemetry-otlp", "opentelemetry_sdk", "tracing-opentelemetry",]
-
-[dev-dependencies]
-tempfile = "3"
-serde_json = "1"
-testcontainers = "0.25"
-anyhow = "1.0"
-
-[dependencies.ggen-config]
-path = "../ggen-config"
-version = "26.5.28"
-
-[dependencies.ggen-a2a-mcp]
-path = "../ggen-a2a-mcp"
-version = "26.5.28"
-
-[dependencies.ggen-marketplace]
-path = "../ggen-marketplace"
-version = "26.5.28"
-optional = true
+keywords = [ "cli", "code-generation", "rdf", "templates"]
+categories = [ "development-tools", "command-line-utilities"]
 
 [package.version]
 workspace = true
@@ -118,13 +20,122 @@ workspace = true
 [package.repository]
 workspace = true
 
+[[test]]
+name = "template_comprehensive_test"
+path = "tests/template_comprehensive_test.rs"
+required-features = [ "integration"]
+
+[features]
+default = [ "dx", "marketplace"]
+dx = []
+marketplace = ["ggen-marketplace"]
+live-llm-tests = []
+proptest = []
+docker = []
+testcontainers = []
+integration = []
+otel = [ "opentelemetry", "opentelemetry-otlp", "opentelemetry_sdk", "tracing-opentelemetry"]
+
+[dependencies]
+# Crypto / hashing
+rand_core = "0.6"   # used directly: rand_core::OsRng in receipt/receipt_impl.rs
+rand = "0.9"
+blake3 = "1.5"
+sha2 = "0.10"
+pqcrypto-mldsa = "0.1"
+pqcrypto-traits = "0.3"
+base64 = "0.22"
+hex = "0.4"
+
+# Logging / tracing
+slog = "2.7"
+slog-scope = "4.4"
+slog-stdlog = "4.1"
+slog-async = "2.8"
+log = "0.4.28"
+tracing = "0.1"
+
+# Async / concurrency
+rayon = "1.11"
+async-trait = "0.1"
+futures = "0.3"
+bytes = "1.10"
+parking_lot = "0.12"
+
+# Error handling
+thiserror = "2.0"
+
+# Serialization
+serde_yaml = "0.9"
+serde_json = "1.0"
+toml = "1.1.0"
+tempfile = "3.14"   # used in production: cache.rs, codegen/transaction.rs, parts_foundry
+
+# Templating / codegen
+tera = "1.20"
+syn = { version = "2.0", features = ["full", "parsing"] }
+pest = "2.7"
+pest_derive = "2.7"
+Inflector = "0.11"
+heck = "0.5"
+regex = "1.12"
+
+# CLI / UX
+clap = { version = "4.5", features = ["derive"] }
+colored = "3.0"
+indicatif = "0.17"
+
+# Data structures / caching
+lru = "0.16"
+ahash = "0.8"
+once_cell = "1.20"
+petgraph = "0.8.3"
+smallvec = "1.11"
+tinyvec = "1.6"
+fst = "0.4"
+compact_str = "0.7"
+
+# Filesystem / paths
+glob = "0.3"
+walkdir = "2.5"
+tar = "0.4"
+flate2 = "1.1"
+zip = "2.0"
+dirs = "6.0"
+signal-hook = "0.3"
+
+# Networking / HTTP
+url = "2.5"
+http = "1.0"
+tower = "0.4"
+
+# Misc
+semver = "1.0"
+num_cpus = "1.16"
+typed-builder = "0.18"
+serde_derive = "1.0"
+itertools = "0.12"
+
+[dependencies.ggen-config]
+path = "../ggen-config"
+version = "26.5.29"
+
+[dependencies.ggen-a2a-mcp]
+path = "../ggen-a2a-mcp"
+version = "26.5.29"
+
+[dependencies.ggen-marketplace]
+path = "../ggen-marketplace"
+version = "26.5.29"
+optional = true
+
 [dependencies.oxigraph]
 version = "0.5.8"
-features = [ "rdf-12",]
+features = [ "rdf-12"]
 
 [dependencies.serde]
 version = "1.0"
-features = [ "derive",]
+features = [ "derive"]
 
 [dependencies.chrono]
 workspace = true
@@ -134,19 +145,19 @@ workspace = true
 
 [dependencies.gray_matter]
 version = "0.3.2"
-features = [ "yaml",]
+features = [ "yaml"]
 
 [dependencies.tokio]
 version = "1.47"
-features = [ "full",]
+features = [ "full"]
 
 [dependencies.reqwest]
 workspace = true
-features = [ "rustls-tls", "stream",]
+features = [ "rustls-tls", "stream"]
 
 [dependencies.git2]
 version = "0.20"
-features = [ "vendored-openssl",]
+features = [ "vendored-openssl"]
 
 [dependencies.tracing-subscriber]
 workspace = true
@@ -169,7 +180,7 @@ optional = true
 
 [dependencies.uuid]
 version = "1.18"
-features = [ "v4", "serde",]
+features = [ "v4", "serde"]
 
 [dependencies.notify]
 workspace = true
@@ -179,7 +190,7 @@ workspace = true
 
 [dependencies.signal-hook-tokio]
 version = "0.3"
-features = [ "futures-v0_3",]
+features = [ "futures-v0_3"]
 
 [dependencies.anyhow]
 workspace = true
@@ -189,21 +200,21 @@ workspace = true
 
 [dependencies.indexmap]
 version = "2.0"
-features = [ "serde",]
+features = [ "serde"]
 
 [dependencies.dashmap]
 workspace = true
 
 [dependencies.hyper]
 version = "1.0"
-features = [ "full",]
+features = [ "full"]
 
 [dependencies.axum]
 workspace = true
 
 [dependencies.tower-http]
 version = "0.5"
-features = [ "cors", "trace",]
+features = [ "cors", "trace"]
 
 [dependencies.config]
 workspace = true
@@ -213,38 +224,41 @@ workspace = true
 
 [dependencies.arbitrary]
 version = "1.3"
-features = [ "derive",]
+features = [ "derive"]
 
 [dependencies.moka]
 version = "0.12"
-features = [ "future",]
+features = [ "future"]
 
 [dev-dependencies.criterion]
 version = "0.7"
-features = [ "html_reports",]
+features = [ "html_reports"]
 
 [dev-dependencies.proptest]
 workspace = true
 
 [dev-dependencies.tracing-subscriber]
 version = "0.3"
-features = [ "json", "env-filter",]
+features = [ "json", "env-filter"]
 
 [dev-dependencies.uuid]
 version = "1.18"
-features = [ "v4",]
+features = [ "v4"]
 
 [dev-dependencies.chicago-tdd-tools]
 version = "1.4.0"
-features = [ "testing-extras", "testcontainers",]
+features = [ "testing-extras", "testcontainers"]
+
+[dev-dependencies.testcontainers]
+version = "0.25"
 
 [target."cfg(unix)".dependencies.nix]
 version = "0.29"
-features = [ "fs",]
+features = [ "fs"]
 
 [target."cfg(windows)".dependencies.windows]
 version = "0.58"
-features = [ "Win32_Storage_FileSystem",]
+features = [ "Win32_Storage_FileSystem"]
 
 [lints]
 workspace = true

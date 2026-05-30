@@ -273,7 +273,7 @@ impl ReadinessTracker {
                 let placeholder_ratio = report.placeholders as f64 / total;
 
                 // Weight: Complete = 1.0, Placeholder = 0.5, Missing/Review = 0.0
-                report.score = (completed_ratio * 1.0 + placeholder_ratio * 0.5) * 100.0;
+                report.score = placeholder_ratio.mul_add(0.5, completed_ratio) * 100.0;
             }
         }
 
@@ -722,11 +722,11 @@ impl Placeholder {
     /// Generate a placeholder comment for code
     pub fn to_comment(&self) -> String {
         format!(
-            r#"// 🚧 PLACEHOLDER: {description}
+            r"// 🚧 PLACEHOLDER: {description}
 // Category: {category:?}
 // Priority: {priority}
 // Guidance: {guidance}
-// FUTURE: Implement this placeholder for production readiness"#,
+// FUTURE: Implement this placeholder for production readiness",
             description = self.description,
             category = self.category,
             priority = self.priority,
@@ -737,11 +737,11 @@ impl Placeholder {
     /// Generate a placeholder template section
     pub fn to_template_section(&self) -> String {
         format!(
-            r#"{{{{!-- 🚧 PLACEHOLDER: {description} --}}
+            r"{{{{!-- 🚧 PLACEHOLDER: {description} --}}
 {{{{!-- Category: {category:?} --}}
 {{{{!-- Priority: {priority} --}}
 {{{{!-- Guidance: {guidance} --}}
-{{{{!-- FUTURE: Implement this placeholder for production readiness --}}}}"#,
+{{{{!-- FUTURE: Implement this placeholder for production readiness --}}}}",
             description = self.description,
             category = self.category,
             priority = self.priority,
@@ -893,7 +893,7 @@ impl ReadinessTracker {
             }
 
             for pattern in patterns {
-                if self.directory_contains_pattern(dir, pattern) {
+                if Self::directory_contains_pattern(dir, pattern) {
                     return true;
                 }
             }
@@ -903,8 +903,7 @@ impl ReadinessTracker {
     }
 
     /// Check if directory contains files matching pattern
-    #[allow(clippy::only_used_in_recursion)]
-    fn directory_contains_pattern(&self, dir: &std::path::Path, pattern: &str) -> bool {
+    fn directory_contains_pattern(dir: &std::path::Path, pattern: &str) -> bool {
         if let Ok(entries) = std::fs::read_dir(dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
@@ -916,7 +915,7 @@ impl ReadinessTracker {
                     }
                 } else if path.is_dir() {
                     // Recursively check subdirectories
-                    if self.directory_contains_pattern(&path, pattern) {
+                    if Self::directory_contains_pattern(&path, pattern) {
                         return true;
                     }
                 }

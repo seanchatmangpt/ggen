@@ -48,7 +48,7 @@ impl PerformanceTargets {
     /// Create targets for required <60s goal
     pub fn required() -> Self {
         Self {
-            total: Duration::from_secs(60),
+            total: Duration::from_mins(1),
             ..Default::default()
         }
     }
@@ -81,10 +81,10 @@ impl StageMetrics {
 
     pub fn improvement_percent(&self) -> f64 {
         if self.duration <= self.target {
-            let saved = (self.target - self.duration).as_secs_f64();
+            let saved = self.target.checked_sub(self.duration).unwrap_or_default().as_secs_f64();
             (saved / self.target.as_secs_f64()) * 100.0
         } else {
-            let exceeded = (self.duration - self.target).as_secs_f64();
+            let exceeded = self.duration.checked_sub(self.target).unwrap_or_default().as_secs_f64();
             -((exceeded / self.target.as_secs_f64()) * 100.0)
         }
     }
@@ -212,7 +212,7 @@ impl PipelineProfiler {
             if total_met {
                 log::info!("\n🎉 Performance target achieved!");
             } else {
-                let exceeded = (total - self.targets.total).as_secs_f64();
+                let exceeded = total.checked_sub(self.targets.total).unwrap_or_default().as_secs_f64();
                 log::warn!("\n⚠️  Performance target missed by {:.2}s", exceeded);
             }
         }
@@ -227,19 +227,20 @@ pub struct ParallelOrchestrator {
     max_parallelism: usize,
 }
 
+/// A named stage for parallel execution: (name, future producing a `Result<R>`)
+pub type ParallelStage<'a, R> =
+    (&'a str, Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>);
+
 impl ParallelOrchestrator {
     pub fn new(max_parallelism: usize) -> Self {
         Self { max_parallelism }
     }
 
+
     /// Run multiple independent stages in parallel
-    #[allow(clippy::type_complexity)]
     pub async fn run_parallel<R>(
         &self,
-        stages: Vec<(
-            &str,
-            Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>,
-        )>,
+        stages: Vec<ParallelStage<'_, R>>,
     ) -> Result<Vec<R>>
     where
         R: Send + 'static,

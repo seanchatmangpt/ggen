@@ -14,11 +14,19 @@ pub struct IncrementalCache {
     inference_state_hash: String,
 }
 
-pub struct CacheInvalidation {
+/// Which artifacts changed (≤3 bools)
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ArtifactChanges {
     pub manifest_changed: bool,
     pub ontology_changed: bool,
-    pub changed_rules: Vec<String>,
     pub inference_state_changed: bool,
+}
+
+pub struct CacheInvalidation {
+    /// Which top-level artifacts changed
+    pub artifact: ArtifactChanges,
+    pub changed_rules: Vec<String>,
+    /// If true, all rules must re-run regardless of individual changes
     pub should_rerun_all: bool,
 }
 
@@ -105,10 +113,7 @@ impl IncrementalCache {
         let mut changed_rules = vec![];
         for rule in &manifest.generation.rules {
             let current_hash = Self::hash_generation_rule(rule);
-            let empty_hash = String::new();
-            let cached_hash = self.rule_hashes.get(&rule.name).unwrap_or(&empty_hash);
-
-            if current_hash != *cached_hash {
+            if self.rule_hashes.get(&rule.name) != Some(&current_hash) {
                 changed_rules.push(rule.name.clone());
             }
         }
@@ -116,10 +121,12 @@ impl IncrementalCache {
         let should_rerun_all = manifest_changed || ontology_changed || inference_state_changed;
 
         CacheInvalidation {
-            manifest_changed,
-            ontology_changed,
+            artifact: ArtifactChanges {
+                manifest_changed,
+                ontology_changed,
+                inference_state_changed,
+            },
             changed_rules,
-            inference_state_changed,
             should_rerun_all,
         }
     }

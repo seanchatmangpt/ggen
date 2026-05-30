@@ -245,7 +245,7 @@ impl PatternMiner {
                 let confidence = (entities.len() as f64) / (self.observations.len() as f64);
 
                 let pattern = Pattern {
-                    name: format!("Repeated_{}", signature.replace("|", "_")),
+                    name: format!("Repeated_{}", signature.replace('|', "_")),
                     pattern_type: PatternType::RepeatedStructure,
                     description: format!(
                         "Found {} instances with properties: {}",
@@ -256,7 +256,7 @@ impl PatternMiner {
                     occurrences: entities.len(),
                     proposed_changes: vec![ProposedChange {
                         change_type: "AddClass".to_string(),
-                        target: format!("Class_{}", signature.replace("|", "_")),
+                        target: format!("Class_{}", signature.replace('|', "_")),
                         rationale: "Consolidate repeated structure into a new class".to_string(),
                     }],
                     affected_entities: entities,

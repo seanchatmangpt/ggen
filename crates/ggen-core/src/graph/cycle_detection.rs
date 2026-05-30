@@ -45,7 +45,7 @@ use std::collections::{HashMap, HashSet};
 /// assert_eq!(cycles.len(), 1);
 /// assert!(cycles[0].contains(&"A".to_string()));
 /// ```
-pub fn detect_cycles(graph: &HashMap<String, Vec<String>>) -> Vec<Vec<String>> {
+pub fn detect_cycles<S: std::hash::BuildHasher>(graph: &HashMap<String, Vec<String>, S>) -> Vec<Vec<String>> {
     let mut cycles = Vec::new();
     let mut visited = HashSet::new();
     let mut recursion_stack = HashSet::new();
@@ -77,8 +77,8 @@ pub fn detect_cycles(graph: &HashMap<String, Vec<String>>) -> Vec<Vec<String>> {
 /// * `recursion_stack` - Set of nodes in current DFS path (gray nodes)
 /// * `path` - Current path from root to current node
 /// * `cycles` - Accumulator for detected cycles (output parameter)
-fn dfs(
-    node: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
+fn dfs<S: std::hash::BuildHasher>(
+    node: &str, graph: &HashMap<String, Vec<String>, S>, visited: &mut HashSet<String>,
     recursion_stack: &mut HashSet<String>, path: &mut Vec<String>, cycles: &mut Vec<Vec<String>>,
 ) {
     visited.insert(node.to_string());
@@ -131,7 +131,7 @@ fn dfs(
 ///
 /// assert!(validate_acyclic(&imports).is_ok());
 /// ```
-pub fn validate_acyclic(imports: &HashMap<String, Vec<String>>) -> Result<()> {
+pub fn validate_acyclic<S: std::hash::BuildHasher>(imports: &HashMap<String, Vec<String>, S>) -> Result<()> {
     let cycles = detect_cycles(imports);
 
     if cycles.is_empty() {

@@ -105,9 +105,9 @@ impl PathGuard {
     fn glob_to_regex(pattern: &str) -> Option<Regex> {
         let regex_str = pattern
             .replace("**", "DOUBLESTAR")
-            .replace("*", "[^/]*")
+            .replace('*', "[^/]*")
             .replace("DOUBLESTAR", ".*")
-            .replace("?", "[^/]");
+            .replace('?', "[^/]");
         Regex::new(&format!("^{}$", regex_str)).ok()
     }
 
@@ -312,7 +312,7 @@ impl ModelDependencyGuard {
     /// Create a new model dependency guard
     pub fn new(name: impl Into<String>) -> Self {
         // Pattern to detect AI/ML serving frameworks
-        let pattern = r#"(?i)(tensorflow|onnxruntime|candle-core|tch-rs|pytorch|transformers|huggingface|llm-chain|burn|ort)"#;
+        let pattern = r"(?i)(tensorflow|onnxruntime|candle-core|tch-rs|pytorch|transformers|huggingface|llm-chain|burn|ort)";
         Self {
             name: name.into(),
             pattern: pattern.to_string(),

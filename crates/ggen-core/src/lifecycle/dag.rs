@@ -100,26 +100,26 @@ mod tests {
     use super::*;
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_topo_simple() {
+    fn test_topo_simple() -> Result<(), Box<dyn std::error::Error>> {
         let phases = &["init", "setup", "build"];
         let deps = &[("init", "setup"), ("setup", "build")];
 
-        let order = topo(phases, deps).expect("topo should succeed");
+        let order = topo(phases, deps)?;
 
         assert_eq!(order, vec!["init", "setup", "build"]);
+        Ok(())
     }
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_topo_parallel() {
+    fn test_topo_parallel() -> Result<(), Box<dyn std::error::Error>> {
         let phases = &["test", "lint", "build"];
         let deps = &[("test", "build"), ("lint", "build")];
 
-        let order = topo(phases, deps).expect("topo should succeed");
+        let order = topo(phases, deps)?;
 
         // test and lint can be in any order, but both before build
         assert_eq!(order.last(), Some(&"build".to_string()));
+        Ok(())
     }
 
     #[test]

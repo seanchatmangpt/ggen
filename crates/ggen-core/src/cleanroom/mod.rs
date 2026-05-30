@@ -223,43 +223,40 @@ mod tests {
     use crate::cleanroom::policy::{Locked, Permissive};
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_cleanroom_core_builder() {
+    fn test_cleanroom_core_builder() -> Result<(), Box<dyn std::error::Error>> {
         let env = CleanroomCore::<Locked>::builder()
             .time_frozen(42)
             .rng_seeded(42)
             .fs_ephemeral()
             .net_offline()
-            .build()
-            .expect("Failed to build cleanroom");
+            .build()?;
 
         assert!(env.root().exists());
+        Ok(())
     }
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_cleanroom_deterministic_surfaces() {
+    fn test_cleanroom_deterministic_surfaces() -> Result<(), Box<dyn std::error::Error>> {
         let env = CleanroomCore::<Locked>::builder()
             .time_frozen(42)
             .rng_seeded(42)
-            .build()
-            .expect("Failed to build cleanroom");
+            .build()?;
 
         // Time should be frozen
         assert!(matches!(env.surfaces.time_mode(), TimeMode::Frozen(42)));
 
         // RNG should be seeded
         assert!(matches!(env.surfaces.rng_mode(), RngMode::Seeded(42)));
+        Ok(())
     }
 
     #[test]
-    #[allow(clippy::expect_used)]
-    fn test_cleanroom_attestation() {
+    fn test_cleanroom_attestation() -> Result<(), Box<dyn std::error::Error>> {
         let env = CleanroomCore::<Locked>::builder()
-            .build()
-            .expect("Failed to build cleanroom");
+            .build()?;
 
         let attestation = env.attestation();
         assert_eq!(attestation.policy(), "Locked");
+        Ok(())
     }
 }
