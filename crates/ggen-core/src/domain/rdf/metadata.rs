@@ -14,6 +14,8 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 /// Template variable metadata
+/// PartialEq without Eq: All fields (String, Option, bool) implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TemplateVariable {
     pub name: String,

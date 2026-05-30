@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Value representation in OCEL logs
+/// PartialEq without Eq: Number(f64) field does not implement Eq
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum OcelValue {
