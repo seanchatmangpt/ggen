@@ -124,6 +124,21 @@ Verified against `Cargo.toml` `members = [...]`. These are the only crates that 
 | `ggen sync` | Full μ₁-μ₅ pipeline | - |
 | `ggen validate <ttl>` | SHACL validation | - |
 
+## Git Hooks & Build Gotchas
+
+- `.git/hooks/pre-commit` → `scripts/hooks/pre-commit.sh` builds the **entire workspace**; a doc-only commit still fails if ANY crate (e.g. ggen-cli) doesn't compile. Never `--no-verify` on main; wait for a stable tree.
+- `.git/hooks/pre-push` → `scripts/hooks/pre-push.sh` runs `cargo test` (~300s gate).
+- `cargo build -p <crate>` is NOT a workspace-health signal: ggen-core can be 0 errors while ggen-cli has 6. Use `cargo build --workspace` to see what the hooks gate.
+- Builds can flap nondeterministically when a concurrent session edits shared crates (e.g. a `SyncOptions` field refactor propagating ggen-core→ggen-cli). Re-sample before concluding; never patch another session's in-flight crate to unblock yourself.
+
+## ggen-lsp Intel Log
+
+- The OCEL agent-edit event log lives at `.ggen/ocel/agent-edit-events.ocel.jsonl` (see `intel::log::default_path`); read it via `IntelLog::at_root(root).read()`. Living-loop proofs assert on this external log, not in-process state.
+
+## Remotes
+
+- Canonical remote is `origin` (seanchatmangpt/ggen). `jmanhype` and `upstream` (rust-starter) also exist — push only to `origin`. Verify `git merge-base --is-ancestor` before assuming local main is behind/ahead of origin/main.
+
 ## 🔍 OpenTelemetry (OTEL) Validation
 
 **CRITICAL:** For any feature involving LLM calls or external services, you MUST verify OTEL spans/traces exist. Tests passing is NOT sufficient.

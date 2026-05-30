@@ -114,9 +114,13 @@ pub fn export_graph(options: ExportOptions) -> Result<String> {
     // Use provided graph or create empty one
     let graph = match options.graph {
         Some(g) => g,
+<<<<<<< HEAD
+        None => Graph::new().map_err(|e| crate::utils::error::Error::new(&format!("Failed to create empty graph: {}", e)))?,
+=======
         None => Graph::new().map_err(|e| {
             crate::utils::error::Error::new(&format!("Failed to create empty graph: {}", e))
         })?,
+>>>>>>> origin/main
     };
 
     // Convert domain ExportFormat to Oxigraph RdfFormat

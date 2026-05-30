@@ -180,9 +180,13 @@ impl TemplatePreview {
                 let _ = write!(
                     s,
                     "    /// {}\n    #[arg(long)]\n    pub {}: {},\n\n",
+<<<<<<< HEAD
+                    a.help, a.name, Self::rust_type_for_arg(a)
+=======
                     a.help,
                     a.name,
                     Self::rust_type_for_arg(a)
+>>>>>>> origin/main
                 );
             }
             s
