@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [On Provable Completion: An Epistemology of "Done" in Autonomic Code-Generation Systems](#on-provable-completion-an-epistemology-of-done-in-autonomic-code-generation-systems)
+  - [Abstract](#abstract)
+  - [Chapter 1 — The Problem: Narration Is Not Evidence](#chapter-1--the-problem-narration-is-not-evidence)
+  - [Chapter 2 — The Constitutional Substrate](#chapter-2--the-constitutional-substrate)
+    - [2.1 The generative equation](#21-the-generative-equation)
+    - [2.2 Why this matters for completion](#22-why-this-matters-for-completion)
+    - [2.3 The terminology discipline](#23-the-terminology-discipline)
+  - [Chapter 3 — An Epistemology of "Done"](#chapter-3--an-epistemology-of-done)
+    - [3.1 Sabbath-grade completion](#31-sabbath-grade-completion)
+    - [3.2 The Oracle Gap](#32-the-oracle-gap)
+    - [3.3 Receipts as the unit of proof](#33-receipts-as-the-unit-of-proof)
+  - [Chapter 4 — Empirical Case Study: One Session as Microcosm](#chapter-4--empirical-case-study-one-session-as-microcosm)
+    - [4.1 The multi-agent survey and the unreliability of self-report](#41-the-multi-agent-survey-and-the-unreliability-of-self-report)
+    - [4.2 The fail-open formatter: a defect that passed compilation and lint](#42-the-fail-open-formatter-a-defect-that-passed-compilation-and-lint)
+    - [4.3 The feature flag: why one build cannot prove a partition](#43-the-feature-flag-why-one-build-cannot-prove-a-partition)
+    - [4.4 The closure that resulted](#44-the-closure-that-resulted)
+  - [Chapter 5 — Methodology](#chapter-5--methodology)
+    - [5.1 Chicago TDD as anti-mock realism](#51-chicago-tdd-as-anti-mock-realism)
+    - [5.2 Process mining as conformance truth (van der Aalst)](#52-process-mining-as-conformance-truth-van-der-aalst)
+    - [5.3 Multi-agent ground-truthing](#53-multi-agent-ground-truthing)
+  - [Chapter 6 — Discussion: The Gap Is the Object of Study](#chapter-6--discussion-the-gap-is-the-object-of-study)
+  - [Chapter 7 — Threats to Validity](#chapter-7--threats-to-validity)
+  - [Chapter 8 — Conclusion and Future Work](#chapter-8--conclusion-and-future-work)
+  - [References (primary sources, in-repo)](#references-primary-sources-in-repo)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # On Provable Completion: An Epistemology of "Done" in Autonomic Code-Generation Systems
 
 **A Doctoral Thesis (compressed)**

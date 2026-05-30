@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Public Ontology Governance Specification](#public-ontology-governance-specification)
+  - [1. Canonical Ontology Registry & URIs](#1-canonical-ontology-registry--uris)
+  - [2. Rust Vocabulary Constants Generation](#2-rust-vocabulary-constants-generation)
+    - [Rust Vocabulary Mapping Strategy](#rust-vocabulary-mapping-strategy)
+  - [3. Knowledge Hook Runtime Execution Model](#3-knowledge-hook-runtime-execution-model)
+    - [Knowledge Hook Execution Contract](#knowledge-hook-execution-contract)
+  - [4. Governance Verification Gates](#4-governance-verification-gates)
+    - [Gate 1: Cryptographic Integrity](#gate-1-cryptographic-integrity)
+    - [Gate 2: Deterministic Ordering](#gate-2-deterministic-ordering)
+    - [Gate 3: Structural Anti-Cheating](#gate-3-structural-anti-cheating)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Public Ontology Governance Specification
 
 This document details the public ontology mapping, vocabulary emission, and knowledge hook governance system implemented in the `ggen-graph` substrate. It defines the formal semantic boundaries and validation gates ensuring absolute adherence to international ontology standards (W3C RDF, RDFS, OWL, XSD, PROV-O, SKOS, SHACL, and OCEL 2.0).

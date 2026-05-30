@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Validation Against Runtime Results, Benchmarks, and Stress Tests](#documentation-validation-against-runtime-results-benchmarks-and-stress-tests)
+  - [Task 1: Create Validation Infrastructure](#task-1-create-validation-infrastructure)
+  - [Task 2: Validate Example Claims](#task-2-validate-example-claims)
+  - [Task 3: Validate SLO Compliance](#task-3-validate-slo-compliance)
+  - [Task 4: Validate Benchmark Infrastructure](#task-4-validate-benchmark-infrastructure)
+  - [Task 5: Create Stress Test Harness](#task-5-create-stress-test-harness)
+  - [Task 6: Verify README Claims](#task-6-verify-readme-claims)
+  - [Task 7: Create Validation Report Template](#task-7-create-validation-report-template)
+  - [Task 8: Add to Makefile.toml](#task-8-add-to-makefiletoml)
+  - [Task 9: Run Full Validation and Generate Report](#task-9-run-full-validation-and-generate-report)
+  - [Task 10: Add Pre-commit Validation (Optional)](#task-10-add-pre-commit-validation-optional)
+  - [Success Criteria](#success-criteria)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Validation Against Runtime Results, Benchmarks, and Stress Tests
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-step. Steps use checkbox (`- [ ]`) syntax for tracking.

@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Benchmarks](#performance-benchmarks)
+  - [Benchmark Suites](#benchmark-suites)
+    - [Core Benchmarks](#core-benchmarks)
+    - [Legacy Benchmarks](#legacy-benchmarks)
+  - [Test Fixtures](#test-fixtures)
+    - [Ontologies (`fixtures/ontologies/`)](#ontologies-fixturesontologies)
+  - [Running Benchmarks](#running-benchmarks)
+    - [All Benchmarks](#all-benchmarks)
+    - [Specific Suite](#specific-suite)
+    - [Specific Test](#specific-test)
+    - [With Baseline Comparison](#with-baseline-comparison)
+  - [Viewing Results](#viewing-results)
+    - [HTML Reports](#html-reports)
+    - [Terminal Output](#terminal-output)
+  - [CI Integration](#ci-integration)
+  - [Performance Targets](#performance-targets)
+    - [Ontology Parsing](#ontology-parsing)
+    - [SPARQL Queries](#sparql-queries)
+    - [Template Rendering](#template-rendering)
+    - [CLI Startup](#cli-startup)
+  - [Adding New Benchmarks](#adding-new-benchmarks)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Issues](#build-issues)
+    - [High Variability](#high-variability)
+    - [Missing Fixtures](#missing-fixtures)
+  - [Further Reading](#further-reading)
+  - [Contributing](#contributing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Benchmarks
 
 This directory contains comprehensive performance benchmarks for the ggen code generation framework.

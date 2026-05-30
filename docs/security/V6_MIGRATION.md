@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Security Migration Guide: v26.5.19.x → v26.5.19](#security-migration-guide-v26.5.19x-%E2%86%92-v26.5.1900)
+- [Security Migration Guide: v26.5.19.x → v26.5.19](#security-migration-guide-v26519x-%E2%86%92-v26519)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Breaking Changes Summary](#breaking-changes-summary)
@@ -32,8 +32,8 @@
     - [Removed: `output_directory`](#removed-output_directory)
     - [New: Security Configuration](#new-security-configuration)
   - [Timeline and Deprecation Schedule](#timeline-and-deprecation-schedule)
-    - [v26.5.19 (January 2026) - Current](#v26.5.1900-january-2026---current)
-    - [v26.5.19 (Q1 2026) - Planned](#v26.5.1910-q1-2026---planned)
+    - [v26.5.19 (January 2026) - Current](#v26519-january-2026---current)
+    - [v26.5.19 (Q1 2026) - Planned](#v26519-q1-2026---planned)
     - [v7.0.0 (Q3 2026) - Future](#v700-q3-2026---future)
   - [Migration Checklist](#migration-checklist)
     - [Pre-Migration](#pre-migration)

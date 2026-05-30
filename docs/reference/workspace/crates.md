@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Workspace Crates (Reference)](#workspace-crates-reference)
+  - [Code-generation core](#code-generation-core)
+  - [Agent & LSP surface](#agent--lsp-surface)
+  - [Genesis / KNHK V2 kernel](#genesis--knhk-v2-kernel)
+  - [Mapping & stewardship](#mapping--stewardship)
+  - [Example member](#example-member)
+  - [Dormant (on disk, NOT workspace members — do not compile)](#dormant-on-disk-not-workspace-members--do-not-compile)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Workspace Crates (Reference)
 
 > Reference. Factual lookup. This table is the **real** workspace, derived from

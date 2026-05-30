@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Reference: ggen-a2a-mcp](#api-reference-ggen-a2a-mcp)
+  - [Structs](#structs)
+    - [GgenMcpServer](#ggenmcpserver)
+    - [AgentToToolAdapter](#agenttotooladapter)
+    - [ToolToAgentAdapter](#tooltoagentadapter)
+    - [MessageRouter](#messagerouter)
+    - [A2aLlmClient](#a2allmclient)
+  - [Traits](#traits)
+    - [MessageHandler](#messagehandler)
+  - [Enums](#enums)
+    - [UnifiedContent](#unifiedcontent)
+  - [Constants](#constants)
+    - [OTEL Attributes](#otel-attributes)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Reference: ggen-a2a-mcp
 
 Primary MCP server implementation with 16 tools, adapters, and message routing.

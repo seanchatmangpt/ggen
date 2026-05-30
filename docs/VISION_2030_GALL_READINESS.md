@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Vision 2030 GALL Readiness Report](#vision-2030-gall-readiness-report)
+  - [1. Compliance Matrix](#1-compliance-matrix)
+  - [2. Core Architectural Compliance Highlights](#2-core-architectural-compliance-highlights)
+    - [1. Absolute Chicago TDD (Zero Mocks)](#1-absolute-chicago-tdd-zero-mocks)
+    - [2. Forbidden Surface Analysis](#2-forbidden-surface-analysis)
+    - [3. Replay and Re-evaluation Verification](#3-replay-and-re-evaluation-verification)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Vision 2030 GALL Readiness Report
 
 This document assesses the alignment of `ggen-graph` with the Vision 2030 GALL Checkpoint Product Requirements Document (PRD) and Architecture Requirements Document (ARD).

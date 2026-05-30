@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Requirements Checklist: CLI Jobs-to-be-Done Audit](#requirements-checklist-cli-jobs-to-be-done-audit)
+  - [Functional Requirements Status](#functional-requirements-status)
+    - [Audit Framework (FR-001 to FR-004)](#audit-framework-fr-001-to-fr-004)
+    - [Agent Evaluation (FR-005 to FR-007)](#agent-evaluation-fr-005-to-fr-007)
+    - [Reporting (FR-008 to FR-010)](#reporting-fr-008-to-fr-010)
+    - [Evidence Collection (FR-011 to FR-013)](#evidence-collection-fr-011-to-fr-013)
+  - [Success Criteria Status](#success-criteria-status)
+  - [User Story Acceptance Status](#user-story-acceptance-status)
+    - [US-1: Command Functionality Audit (P1)](#us-1-command-functionality-audit-p1)
+    - [US-2: Agent Accessibility Evaluation (P1)](#us-2-agent-accessibility-evaluation-p1)
+    - [US-3: Maturity Classification (P2)](#us-3-maturity-classification-p2)
+    - [US-4: Fortune 500 Scenario Validation (P2)](#us-4-fortune-500-scenario-validation-p2)
+    - [US-5: JTBD Documentation (P3)](#us-5-jtbd-documentation-p3)
+  - [Deliverables Checklist](#deliverables-checklist)
+    - [Specification Artifacts](#specification-artifacts)
+    - [Audit Evidence](#audit-evidence)
+    - [Reports](#reports)
+  - [Quality Gates](#quality-gates)
+    - [Before Plan Phase](#before-plan-phase)
+    - [Before Implementation Phase](#before-implementation-phase)
+    - [Before Completion Phase](#before-completion-phase)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Requirements Checklist: CLI Jobs-to-be-Done Audit
 
 **Feature Branch**: `007-cli-jtbd-audit`

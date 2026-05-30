@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CPMP Integration Plan: OpenOntologies Governance Mesh](#cpmp-integration-plan-openontologies-governance-mesh)
+  - [1. Overview](#1-overview)
+  - [2. Automated Validation Hook (`onto_validate`)](#2-automated-validation-hook-onto_validate)
+  - [3. N-Quads Emission Specification](#3-n-quads-emission-specification)
+  - [4. Implementation Roadmap](#4-implementation-roadmap)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CPMP Integration Plan: OpenOntologies Governance Mesh
 
 This plan outlines the integration of `open-ontologies` as the authoritative governance layer for `cpmp` (Code Manufacturing Pipeline) catalog projections.

@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Installation](#mcp-installation)
+  - [Installation Methods](#installation-methods)
+    - [Method 1: Build from Source (Recommended)](#method-1-build-from-source-recommended)
+    - [Method 2: Install via Cargo](#method-2-install-via-cargo)
+    - [Method 3: Download Pre-built Binary](#method-3-download-pre-built-binary)
+  - [Configuration](#configuration)
+    - [Claude Desktop (macOS)](#claude-desktop-macos)
+    - [Cursor IDE](#cursor-ide)
+    - [HTTP Server (Remote Access)](#http-server-remote-access)
+  - [Environment Variables](#environment-variables)
+  - [Verification](#verification)
+    - [Check Server Start](#check-server-start)
+    - [Test with MCP Inspector](#test-with-mcp-inspector)
+    - [Verify Tools](#verify-tools)
+  - [Dependencies](#dependencies)
+    - [Required](#required)
+    - [Optional](#optional)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Errors](#build-errors)
+    - [Runtime Errors](#runtime-errors)
+    - [Connection Refused](#connection-refused)
+  - [Uninstall](#uninstall)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Installation
 
 Detailed installation instructions for ggen MCP server.

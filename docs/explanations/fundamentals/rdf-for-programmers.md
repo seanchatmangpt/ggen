@@ -31,7 +31,7 @@
     - [Standard Prefixes](#standard-prefixes)
   - [Complete Example: E-commerce Product](#complete-example-e-commerce-product)
   - [RDF vs. Programming Constructs](#rdf-vs-programming-constructs)
-    - [RDF Class ≈ JavaScript Class / Rust Class / Rust Struct](#rdf-class-%E2%89%88-javascript-class--python-class--rust-struct)
+    - [RDF Class ≈ JavaScript Class / Rust Class / Rust Struct](#rdf-class-%E2%89%88-javascript-class--rust-class--rust-struct)
     - [RDF Property ≈ Class Field / Attribute](#rdf-property-%E2%89%88-class-field--attribute)
     - [RDF Instance ≈ Object Instance](#rdf-instance-%E2%89%88-object-instance)
   - [Common Patterns](#common-patterns)

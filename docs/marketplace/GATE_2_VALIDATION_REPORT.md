@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Gate 2 Validation Report: Compiler Truth](#gate-2-validation-report-compiler-truth)
+  - [Executive Summary](#executive-summary)
+  - [Validation Checklist](#validation-checklist)
+    - [✅ 1. μ₀ Stage Integrated Before μ₁ Normalization](#-1-%CE%BC%E2%82%80-stage-integrated-before-%CE%BC%E2%82%81-normalization)
+    - [✅ 2. Packs Resolved from Lockfile Before Sync](#-2-packs-resolved-from-lockfile-before-sync)
+    - [✅ 3. Pack Ontologies Merged into Project Graph](#-3-pack-ontologies-merged-into-project-graph)
+    - [⚠️ 4. Pack Queries Available in μ₂ Extraction](#-4-pack-queries-available-in-%CE%BC%E2%82%82-extraction)
+    - [⚠️ 5. Pack Templates Registered in μ₃ Emission](#-5-pack-templates-registered-in-%CE%BC%E2%82%83-emission)
+    - [✅ 6. Pack Provenance in μ₅ Receipt](#-6-pack-provenance-in-%CE%BC%E2%82%85-receipt)
+  - [Findings Summary](#findings-summary)
+    - [✅ What Works (Production Ready)](#-what-works-production-ready)
+    - [⚠️ What Needs Production Hardening (TODOs)](#-what-needs-production-hardening-todos)
+  - [Recommendations](#recommendations)
+    - [1. Complete Pack Registry Implementation (Priority: HIGH)](#1-complete-pack-registry-implementation-priority-high)
+    - [2. Implement μ₂ Pack Query Loading (Priority: HIGH)](#2-implement-%CE%BC%E2%82%82-pack-query-loading-priority-high)
+    - [3. Implement μ₃ Pack Template Registration (Priority: HIGH)](#3-implement-%CE%BC%E2%82%83-pack-template-registration-priority-high)
+    - [4. Complete Pack Provenance Loading (Priority: MEDIUM)](#4-complete-pack-provenance-loading-priority-medium)
+  - [Production Readiness Assessment](#production-readiness-assessment)
+    - [Gate 2 Status: ✅ PASS (PARTIAL)](#gate-2-status--pass-partial)
+  - [Evidence Files](#evidence-files)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Gate 2 Validation Report: Compiler Truth
 
 **Validation Date:** 2026-03-31

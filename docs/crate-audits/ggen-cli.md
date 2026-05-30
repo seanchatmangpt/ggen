@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-cli — Crate Audit](#ggen-cli--crate-audit)
+  - [STUBS (commands returning "not implemented")](#stubs-commands-returning-not-implemented)
+  - [ERROR TYPE CHAOS](#error-type-chaos)
+  - [IGNORED TESTS](#ignored-tests)
+  - [DEAD CODE](#dead-code)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-cli — Crate Audit
 
 **Path:** `crates/ggen-cli/`

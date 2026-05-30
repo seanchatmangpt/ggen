@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Feature Completeness Matrix - ggen v26.5.19.2.0 Phase 3 MEDIUM](#feature-completeness-matrix---ggen-v26.5.1920-phase-3-medium)
+- [Feature Completeness Matrix - ggen v26.5.19.2.0 Phase 3 MEDIUM](#feature-completeness-matrix---ggen-v2651920-phase-3-medium)
   - [Executive Summary](#executive-summary)
   - [Core Features Matrix](#core-features-matrix)
   - [Advanced Features Matrix](#advanced-features-matrix)
@@ -19,7 +19,7 @@
   - [Timeline Evolution](#timeline-evolution)
     - [Feature Introduction by Version](#feature-introduction-by-version)
   - [Release Readiness Assessment](#release-readiness-assessment)
-    - [v26.5.19.2.0 Phase 3 MEDIUM - Gate Criteria](#v26.5.1920-phase-3-medium---gate-criteria)
+    - [v26.5.19.2.0 Phase 3 MEDIUM - Gate Criteria](#v2651920-phase-3-medium---gate-criteria)
     - [Blocking Issues](#blocking-issues)
     - [Recommended Actions](#recommended-actions)
   - [Feature Dependencies](#feature-dependencies)

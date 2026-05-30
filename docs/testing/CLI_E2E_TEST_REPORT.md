@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI End-to-End Test Report](#cli-end-to-end-test-report)
+  - [Executive Summary](#executive-summary)
+  - [Pre-Test Environment Check](#pre-test-environment-check)
+    - [Build Status](#build-status)
+  - [Workflow 1: Initialize Project](#workflow-1-initialize-project)
+  - [Workflow 2: Install and Use Pack](#workflow-2-install-and-use-pack)
+  - [Workflow 3: Enable Capability](#workflow-3-enable-capability)
+  - [Workflow 4: Validate with Policy](#workflow-4-validate-with-policy)
+  - [Workflow 5: Generate Code](#workflow-5-generate-code)
+  - [Critical Gaps Found](#critical-gaps-found)
+    - [Gap 1: Missing Module Exports (CRITICAL)](#gap-1-missing-module-exports-critical)
+    - [Gap 2: Trait Bound Error (CRITICAL)](#gap-2-trait-bound-error-critical)
+    - [Gap 3: Type Mismatch Error (HIGH)](#gap-3-type-mismatch-error-high)
+    - [Gap 4: Fake Success in Capability Enable (HIGH)](#gap-4-fake-success-in-capability-enable-high)
+    - [Gap 5: Fake Success in Packs Install (HIGH)](#gap-5-fake-success-in-packs-install-high)
+    - [Gap 6: Missing Integration Tests (CRITICAL)](#gap-6-missing-integration-tests-critical)
+  - [Recommendations (Priority Order)](#recommendations-priority-order)
+    - [1. Fix Domain Layer Compilation (BLOCKS EVERYTHING)](#1-fix-domain-layer-compilation-blocks-everything)
+    - [2. Implement Real Pack Installation (HIGH VALUE)](#2-implement-real-pack-installation-high-value)
+    - [3. Implement Real Capability Enable (HIGH VALUE)](#3-implement-real-capability-enable-high-value)
+    - [4. Test Policy Validation (MEDIUM VALUE)](#4-test-policy-validation-medium-value)
+    - [5. Test Init Workflow (LOW VALUE - SIMPLE)](#5-test-init-workflow-low-value---simple)
+    - [6. Test Sync Pipeline (HIGH COMPLEXITY)](#6-test-sync-pipeline-high-complexity)
+  - [5 Whys Summary: Why Can't We Test Anything?](#5-whys-summary-why-cant-we-test-anything)
+  - [Test Methodology Notes](#test-methodology-notes)
+  - [Next Steps](#next-steps)
+  - [Appendix: Compilation Error Log](#appendix-compilation-error-log)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI End-to-End Test Report
 
 **Date:** 2026-03-31

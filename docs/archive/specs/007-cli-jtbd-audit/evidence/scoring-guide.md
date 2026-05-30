@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent Accessibility Scoring Reference Card](#agent-accessibility-scoring-reference-card)
+  - [Scoring Rubric (100 points total)](#scoring-rubric-100-points-total)
+    - [1. Parseable Output (25 points)](#1-parseable-output-25-points)
+    - [2. Error Messages (20 points)](#2-error-messages-20-points)
+    - [3. Idempotency (15 points)](#3-idempotency-15-points)
+    - [4. Progress Feedback (10 points)](#4-progress-feedback-10-points)
+    - [5. Dry-Run Support (10 points)](#5-dry-run-support-10-points)
+    - [6. Documentation (10 points)](#6-documentation-10-points)
+    - [7. Exit Codes (10 points)](#7-exit-codes-10-points)
+  - [Maturity Level Mapping](#maturity-level-mapping)
+    - [Special Classifications](#special-classifications)
+    - [Blocker Caps](#blocker-caps)
+  - [Quick Reference: Avatar Priorities](#quick-reference-avatar-priorities)
+  - [Validation Checksum](#validation-checksum)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent Accessibility Scoring Reference Card
 
 ## Scoring Rubric (100 points total)

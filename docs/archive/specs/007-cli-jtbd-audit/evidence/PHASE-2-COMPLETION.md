@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 2: Foundational Audit Infrastructure - COMPLETED](#phase-2-foundational-audit-infrastructure---completed)
+  - [Tasks Completed](#tasks-completed)
+    - [T006: Validate Audit Result Schema ✅](#t006-validate-audit-result-schema-)
+    - [T007: Validate Case Study Schema ✅](#t007-validate-case-study-schema-)
+    - [T008: Blank Audit Template ✅](#t008-blank-audit-template-)
+    - [T010: Scoring Guide Documentation ✅](#t010-scoring-guide-documentation-)
+    - [T009: Audit Workflow Test (Dry Run) ⚠️](#t009-audit-workflow-test-dry-run-)
+  - [Directory Structure Created](#directory-structure-created)
+  - [Foundation Ready for Phase 3](#foundation-ready-for-phase-3)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 2: Foundational Audit Infrastructure - COMPLETED
 
 **Date**: 2024-12-14

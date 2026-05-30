@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-testing — Crate Audit](#ggen-testing--crate-audit)
+  - [STATUS: DEAD INFRASTRUCTURE](#status-dead-infrastructure)
+    - [What it provides:](#what-it-provides)
+    - [Why it exists:](#why-it-exists)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-testing — Crate Audit
 
 **Path:** `crates/ggen-testing/`

@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature Specification: End-to-End Testing with Testcontainers](#feature-specification-end-to-end-testing-with-testcontainers)
+  - [User Scenarios & Testing *(mandatory)*](#user-scenarios--testing-mandatory)
+    - [User Story 1 - Cross-Platform ggen sync Validation (Priority: P1)](#user-story-1---cross-platform-ggen-sync-validation-priority-p1)
+    - [User Story 2 - Dependency Isolation via Testcontainers (Priority: P1)](#user-story-2---dependency-isolation-via-testcontainers-priority-p1)
+    - [User Story 3 - Homebrew Installation Verification (Priority: P2)](#user-story-3---homebrew-installation-verification-priority-p2)
+    - [User Story 4 - Sample Project Validation Suite (Priority: P2)](#user-story-4---sample-project-validation-suite-priority-p2)
+    - [User Story 5 - CI Pipeline Integration (Priority: P3)](#user-story-5---ci-pipeline-integration-priority-p3)
+    - [Edge Cases](#edge-cases)
+  - [Requirements *(mandatory)*](#requirements-mandatory)
+    - [Functional Requirements](#functional-requirements)
+    - [Key Entities](#key-entities)
+  - [Success Criteria *(mandatory)*](#success-criteria-mandatory)
+    - [Measurable Outcomes](#measurable-outcomes)
+  - [Assumptions](#assumptions)
+  - [Out of Scope](#out-of-scope)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature Specification: End-to-End Testing with Testcontainers
 
 **Feature Branch**: `011-e2e-testcontainers`

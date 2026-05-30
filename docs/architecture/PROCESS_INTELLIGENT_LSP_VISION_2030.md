@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Process-Intelligent Authoring Infrastructure — POWL · OCEL · SPARQL, and the LSP/MCP/A2A Pattern](#process-intelligent-authoring-infrastructure--powl-%C2%B7-ocel-%C2%B7-sparql-and-the-lspmcpa2a-pattern)
+  - [1. Executive summary](#1-executive-summary)
+  - [2. The fusion, concretely](#2-the-fusion-concretely)
+    - [2.1 OCEL — observed behavior as RDF](#21-ocel--observed-behavior-as-rdf)
+    - [2.2 SPARQL — the mining + conformance engine](#22-sparql--the-mining--conformance-engine)
+    - [2.3 POWL — admissible repair routes](#23-powl--admissible-repair-routes)
+    - [2.4 The performance split (why it's usable, not academic)](#24-the-performance-split-why-its-usable-not-academic)
+  - [3. The locked loop (what runs end-to-end)](#3-the-locked-loop-what-runs-end-to-end)
+  - [4. Three delivery channels — one engine](#4-three-delivery-channels--one-engine)
+  - [5. Vision 2030](#5-vision-2030)
+  - [6. The reusable pattern for any project](#6-the-reusable-pattern-for-any-project)
+    - [6.1 One command](#61-one-command)
+    - [6.2 The pack is the movable part](#62-the-pack-is-the-movable-part)
+    - [6.3 The LSP / MCP / A2A triad](#63-the-lsp--mcp--a2a-triad)
+  - [7. Map (where everything lives)](#7-map-where-everything-lives)
+  - [8. IMPROVE-1 — measuring improvement (status: observation layer complete, claim refused by default)](#8-improve-1--measuring-improvement-status-observation-layer-complete-claim-refused-by-default)
+  - [9. The seven Gall checkpoints — operated, not just built (2026-05-28)](#9-the-seven-gall-checkpoints--operated-not-just-built-2026-05-28)
+  - [10. The delivery plane — one route contract across LSP / MCP / A2A (2026-05-28)](#10-the-delivery-plane--one-route-contract-across-lsp--mcp--a2a-2026-05-28)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Process-Intelligent Authoring Infrastructure — POWL · OCEL · SPARQL, and the LSP/MCP/A2A Pattern
 
 **Status:** implemented (ggen v26.5.21) · **Date:** 2026-05-28

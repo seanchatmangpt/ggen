@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CAPABILITY MANUFACTURING THEORY: The Operational Capability Foundry](#capability-manufacturing-theory-the-operational-capability-foundry)
+  - [1. The Core Paradigm Shift](#1-the-core-paradigm-shift)
+  - [2. Capability Admissibility & Process Interchangeability Layer (GALL-CAP)](#2-capability-admissibility--process-interchangeability-layer-gall-cap)
+    - [Mission](#mission)
+    - [The Core Question](#the-core-question)
+  - [3. Capability Geometry](#3-capability-geometry)
+  - [4. Capability Cell Structure](#4-capability-cell-structure)
+  - [5. The Future Product Shape](#5-the-future-product-shape)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CAPABILITY MANUFACTURING THEORY: The Operational Capability Foundry
 
 **The massive realization:** We are no longer doing software engineering. We are building Capability Manufacturing Theory. 

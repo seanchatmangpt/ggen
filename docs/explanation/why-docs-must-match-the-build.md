@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Why Docs Must Match the Build](#why-docs-must-match-the-build)
+  - [Docs fiction is legacy-path contamination](#docs-fiction-is-legacy-path-contamination)
+  - [The standard: Diátaxis × combinatorial maximalism](#the-standard-di%C3%A1taxis-%C3%97-combinatorial-maximalism)
+  - [What "matches the build" means operationally](#what-matches-the-build-means-operationally)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Why Docs Must Match the Build
 
 > Explanation. The documentation corollary of the Genesis Run, and the rule governing

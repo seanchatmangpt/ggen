@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Cleanroom Testing Framework - Gpack Templates](#cleanroom-testing-framework---gpack-templates)
+  - [🚀 Overview](#-overview)
+  - [📦 Installation](#-installation)
+    - [Install Ggen CLI](#install-ggen-cli)
+    - [Install Cleanroom](#install-cleanroom)
+  - [📋 Available Templates](#-available-templates)
+    - [1. Test Environment (`test-environment.tmpl`)](#1-test-environment-test-environmenttmpl)
+    - [2. PostgreSQL Container (`postgres-container.tmpl`)](#2-postgresql-container-postgres-containertmpl)
+    - [3. Redis Container (`redis-container.tmpl`)](#3-redis-container-redis-containertmpl)
+    - [4. Swarm Coordinator (`swarm-coordinator.tmpl`)](#4-swarm-coordinator-swarm-coordinatortmpl)
+    - [5. CI/CD Pipeline (`ci-pipeline.tmpl`)](#5-cicd-pipeline-ci-pipelinetmpl)
+    - [6. Benchmark Suite (`benchmark-suite.tmpl`)](#6-benchmark-suite-benchmark-suitetmpl)
+  - [🎯 Quick Start](#-quick-start)
+    - [Complete Project Setup](#complete-project-setup)
+  - [📚 Examples](#-examples)
+    - [Example 1: Basic Hermetic Testing](#example-1-basic-hermetic-testing)
+    - [Example 2: Database Integration Testing](#example-2-database-integration-testing)
+    - [Example 3: Swarm Coordination Testing](#example-3-swarm-coordination-testing)
+    - [Example 4: Complete CI/CD Setup](#example-4-complete-cicd-setup)
+  - [🔧 Configuration](#-configuration)
+    - [Custom Determinism Seeds](#custom-determinism-seeds)
+    - [Security Policies](#security-policies)
+  - [📊 Testing Workflow](#-testing-workflow)
+    - [1. Development Testing](#1-development-testing)
+    - [2. Performance Testing](#2-performance-testing)
+    - [3. CI/CD Pipeline](#3-cicd-pipeline)
+  - [🛠️ Best Practices](#-best-practices)
+    - [1. Use Deterministic Seeds](#1-use-deterministic-seeds)
+    - [2. Clean Up Containers](#2-clean-up-containers)
+    - [3. Parallel Test Execution](#3-parallel-test-execution)
+  - [📖 Documentation](#-documentation)
+    - [Cleanroom Framework](#cleanroom-framework)
+    - [Container Testing](#container-testing)
+    - [Swarm Coordination](#swarm-coordination)
+  - [🤝 Contributing](#-contributing)
+  - [📝 License](#-license)
+  - [🔗 Links](#-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Cleanroom Testing Framework - Gpack Templates
 
 Production-ready templates for building hermetic, deterministic test environments using the Cleanroom Testing Framework.

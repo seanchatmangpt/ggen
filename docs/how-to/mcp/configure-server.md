@@ -7,6 +7,9 @@
   - [Configuration File Structure](#configuration-file-structure)
   - [Server Settings](#server-settings)
   - [Transport Configuration](#transport-configuration)
+    - [HTTP Transport](#http-transport)
+    - [WebSocket Transport](#websocket-transport)
+    - [QUIC Transport](#quic-transport)
   - [Tool Settings](#tool-settings)
   - [Logging Configuration](#logging-configuration)
   - [Environment Variables](#environment-variables)
@@ -18,7 +21,7 @@
     - [Changes Not Taking Effect](#changes-not-taking-effect)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Configure MCP Server Settings
 

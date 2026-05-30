@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI JTBD Audit - Implementation Guide](#cli-jtbd-audit---implementation-guide)
+  - [Executive Summary](#executive-summary)
+    - [What's Ready](#whats-ready)
+    - [Next Steps: Phase 3 (US1 - Command Functionality)](#next-steps-phase-3-us1---command-functionality)
+  - [How to Audit a Command](#how-to-audit-a-command)
+    - [Quick Reference](#quick-reference)
+    - [Detailed Steps](#detailed-steps)
+      - [Step 1: Functional Correctness Testing](#step-1-functional-correctness-testing)
+      - [Step 2: Agent Accessibility Scoring](#step-2-agent-accessibility-scoring)
+      - [Step 3: Avatar Evaluation Notes](#step-3-avatar-evaluation-notes)
+      - [Step 4: Assign Maturity Level](#step-4-assign-maturity-level)
+      - [Step 5: Recommendations](#step-5-recommendations)
+  - [File Template](#file-template)
+  - [Phase 3 Checklist: Day 1 (Workflow + Utils)](#phase-3-checklist-day-1-workflow--utils)
+  - [Parallel Execution Opportunities](#parallel-execution-opportunities)
+  - [Sample Audits](#sample-audits)
+  - [Validation Rules](#validation-rules)
+  - [Constitutional Alignment](#constitutional-alignment)
+  - [Next Phases After Phase 3](#next-phases-after-phase-3)
+  - [Contact & Escalation](#contact--escalation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI JTBD Audit - Implementation Guide
 
 **Status**: ✅ Phase 1-2 Complete | Phase 3 Ready to Begin

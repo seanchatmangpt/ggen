@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GENESIS-SCALE COMBINATORIAL MAXIMALISM: Vision 2035](#genesis-scale-combinatorial-maximalism-vision-2035)
+  - [The Thesis: Software as Interchangeable Operational Capability](#the-thesis-software-as-interchangeable-operational-capability)
+  - [1. The Core Paradigm Shift](#1-the-core-paradigm-shift)
+    - [The Shift](#the-shift)
+  - [2. Mechanical Intelligence](#2-mechanical-intelligence)
+  - [3. The New Unit: Genesis-Bearing Interchangeable Parts](#3-the-new-unit-genesis-bearing-interchangeable-parts)
+  - [4. The Church as a Distributed Stewardship Membrane](#4-the-church-as-a-distributed-stewardship-membrane)
+  - [5. The Formula for 2035](#5-the-formula-for-2035)
+  - [6. Definition of Done](#6-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GENESIS-SCALE COMBINATORIAL MAXIMALISM: Vision 2035
 
 ## The Thesis: Software as Interchangeable Operational Capability

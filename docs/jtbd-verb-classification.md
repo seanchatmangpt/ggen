@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [JTBD Verb Classification Report](#jtbd-verb-classification-report)
+  - [Summary](#summary)
+  - [Per-Verb Classification](#per-verb-classification)
+  - [Classification Definitions](#classification-definitions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # JTBD Verb Classification Report
 
 Generated: 2026-05-10T05:22:34Z

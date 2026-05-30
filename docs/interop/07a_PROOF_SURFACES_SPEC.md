@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Proof Surfaces Specification (Receipt, Replay, Refusal)](#proof-surfaces-specification-receipt-replay-refusal)
+  - [1. Scope](#1-scope)
+  - [2. Receipt Hierarchy](#2-receipt-hierarchy)
+  - [3. Replay Machinery](#3-replay-machinery)
+  - [4. Refusal Artifacts](#4-refusal-artifacts)
+  - [5. Refusal Cases](#5-refusal-cases)
+  - [6. Proof Boundaries Table](#6-proof-boundaries-table)
+  - [7. Definition of Done](#7-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Proof Surfaces Specification (Receipt, Replay, Refusal)
 
 ## 1. Scope

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Governed Marketplace Architecture](#governed-marketplace-architecture)
+  - [Overview](#overview)
+    - [Core Principles](#core-principles)
+  - [Architecture Diagram](#architecture-diagram)
+  - [Atomic Pack Taxonomy](#atomic-pack-taxonomy)
+    - [Pack Categories](#pack-categories)
+    - [Atomic Pack ID Format](#atomic-pack-id-format)
+    - [Foundation Packs](#foundation-packs)
+  - [Bundle Expansion System](#bundle-expansion-system)
+    - [Bundles as Ergonomic Aliases](#bundles-as-ergonomic-aliases)
+    - [Deterministic Expansion](#deterministic-expansion)
+    - [Predefined Bundles](#predefined-bundles)
+  - [Ownership Classes](#ownership-classes)
+    - [Ownership Declaration](#ownership-declaration)
+    - [Ownership Classes](#ownership-classes-1)
+    - [Conflict Detection](#conflict-detection)
+  - [Trust Tiers and Registry Classes](#trust-tiers-and-registry-classes)
+    - [Trust Tiers](#trust-tiers)
+    - [Registry Classes](#registry-classes)
+    - [Trust Verification](#trust-verification)
+  - [Composition Receipts](#composition-receipts)
+    - [Receipt Structure](#receipt-structure)
+    - [Receipt Verification](#receipt-verification)
+  - [Pipeline Integration](#pipeline-integration)
+    - [μ₀ Stage: Pack Resolution](#%CE%BC%E2%82%80-stage-pack-resolution)
+    - [Pack Templates in μ₂/μ₃](#pack-templates-in-%CE%BC%E2%82%82%CE%BC%E2%82%83)
+    - [Pack Provenance in μ₅](#pack-provenance-in-%CE%BC%E2%82%85)
+  - [Security Model](#security-model)
+  - [Data Flow](#data-flow)
+  - [Key Files](#key-files)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Governed Marketplace Architecture
 
 **Version:** 26.5.4

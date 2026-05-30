@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern Atlas](#pattern-atlas)
+  - ["Find every repeated structure. Map where it appears. Classify it. Connect it."](#find-every-repeated-structure-map-where-it-appears-classify-it-connect-it)
+  - [Pattern: Receipt](#pattern-receipt)
+  - [Pattern: Construct8](#pattern-construct8)
+  - [Pattern: RelationPage](#pattern-relationpage)
+  - [Pattern: Replay](#pattern-replay)
+  - [Pattern: OCEL / Process Evidence](#pattern-ocel--process-evidence)
+  - [Pattern: SHACL / Vocabulary Validation](#pattern-shacl--vocabulary-validation)
+  - [Pattern: Shard / Corpus / Segment](#pattern-shard--corpus--segment)
+  - [Pattern: Doctor / Wizard / Telco](#pattern-doctor--wizard--telco)
+  - [Pattern: PROV](#pattern-prov)
+  - [Summary: Pattern Coverage](#summary-pattern-coverage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern Atlas
 ## "Find every repeated structure. Map where it appears. Classify it. Connect it."
 

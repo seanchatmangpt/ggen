@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ultra-Fast Code Generation Templates](#ultra-fast-code-generation-templates)
+  - [Templates](#templates)
+    - [1. rust-cli-minimal.tmpl (Target: <5s)](#1-rust-cli-minimaltmpl-target-5s)
+    - [2. rust-lib-minimal.tmpl (Target: <5s)](#2-rust-lib-minimaltmpl-target-5s)
+    - [3. rust-web-minimal.tmpl (Target: <10s)](#3-rust-web-minimaltmpl-target-10s)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Template Variables](#template-variables)
+    - [Common Variables](#common-variables)
+    - [Web-Specific Variables](#web-specific-variables)
+  - [Cleanroom Validation](#cleanroom-validation)
+  - [Speed Optimizations](#speed-optimizations)
+  - [Workflow Integration](#workflow-integration)
+    - [60-Second Deployment](#60-second-deployment)
+    - [With Cleanroom](#with-cleanroom)
+  - [Template Structure](#template-structure)
+  - [Best Practices](#best-practices)
+  - [Advanced Usage](#advanced-usage)
+    - [Custom Variables](#custom-variables)
+    - [Batch Generation](#batch-generation)
+    - [Template Chaining](#template-chaining)
+  - [Troubleshooting](#troubleshooting)
+    - [Generation Fails](#generation-fails)
+    - [Tests Fail](#tests-fail)
+    - [Slow Build Times](#slow-build-times)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ultra-Fast Code Generation Templates
 
 Speed-optimized templates for the <60s deployment workflow. These templates generate valid, testable Rust code in under 10 seconds.

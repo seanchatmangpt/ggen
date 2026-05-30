@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace CLI Reference](#marketplace-cli-reference)
+  - [Overview](#overview)
+  - [Capability Commands](#capability-commands)
+    - [`capability enable`](#capability-enable)
+    - [`capability disable`](#capability-disable)
+    - [`capability inspect`](#capability-inspect)
+    - [`capability list`](#capability-list)
+    - [`capability graph`](#capability-graph)
+    - [`capability trust`](#capability-trust)
+    - [`capability conflicts`](#capability-conflicts)
+  - [Packs Commands](#packs-commands)
+    - [`packs list`](#packs-list)
+    - [`packs install`](#packs-install)
+    - [`packs show`](#packs-show)
+    - [`packs compose`](#packs-compose)
+    - [`packs dependencies`](#packs-dependencies)
+    - [`packs validate`](#packs-validate)
+    - [`packs search`](#packs-search)
+  - [Global Options](#global-options)
+  - [Exit Codes](#exit-codes)
+  - [Configuration File](#configuration-file)
+  - [Lockfile](#lockfile)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace CLI Reference
 
 **Version:** 26.5.4

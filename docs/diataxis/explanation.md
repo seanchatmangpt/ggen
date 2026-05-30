@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: The `ggen-graph` Substrate and Semantic Verification](#explanation-the-ggen-graph-substrate-and-semantic-verification)
+  - [1. Architectural Blueprint](#1-architectural-blueprint)
+  - [2. Autonomic Knowledge Actuation](#2-autonomic-knowledge-actuation)
+  - [3. Deterministic Deltas & State Conservation](#3-deterministic-deltas--state-conservation)
+  - [4. Receipt-Bound Execution](#4-receipt-bound-execution)
+  - [5. The GALL Promotion Engine and Checks](#5-the-gall-promotion-engine-and-checks)
+    - [Forbidden Surface Checks](#forbidden-surface-checks)
+    - [Anti-Fake Gates](#anti-fake-gates)
+  - [6. Rejecting London TDD: Why We Avoid Mocks](#6-rejecting-london-tdd-why-we-avoid-mocks)
+    - [Why Mocks Break Evidence](#why-mocks-break-evidence)
+    - [The Chicago TDD Doctrine in `ggen-graph`](#the-chicago-tdd-doctrine-in-ggen-graph)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: The `ggen-graph` Substrate and Semantic Verification
 
 This document provides a conceptual explanation of the design philosophy, architectural components, and verification mechanics of `ggen-graph`, a Rust substrate for public-ontology-governed RDF graphs.

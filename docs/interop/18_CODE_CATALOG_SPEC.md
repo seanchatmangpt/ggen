@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Executive Summary: Code Catalogor Architecture](#executive-summary-code-catalogor-architecture)
+  - [1. Required Inputs & Initial Scan](#1-required-inputs--initial-scan)
+  - [2. Symbol & API Extraction](#2-symbol--api-extraction)
+  - [3. Dependency & Call Graph Extraction](#3-dependency--call-graph-extraction)
+  - [4. Test and Example Discovery](#4-test-and-example-discovery)
+  - [5. License & Provenance Scanning](#5-license--provenance-scanning)
+  - [6. Binary and WASM Inspection](#6-binary-and-wasm-inspection)
+  - [7. Agent-Friendly Outputs](#7-agent-friendly-outputs)
+  - [8. Tool Comparison](#8-tool-comparison)
+  - [9. JSON Schema (Manifest and File Record)](#9-json-schema-manifest-and-file-record)
+  - [10. Implementation Plan (v0.1)](#10-implementation-plan-v01)
+  - [11. Agent Prompts & Templates](#11-agent-prompts--templates)
+  - [12. Validation & Metrics](#12-validation--metrics)
+  - [13. Security & Privacy](#13-security--privacy)
+  - [14. ggen/Genesis/AtomVM/WASM Integration](#14-ggengenesisatomvmwasm-integration)
+  - [15. Mermaid Diagrams](#15-mermaid-diagrams)
+    - [Architecture Flow](#architecture-flow)
+    - [Data Model (ER Diagram)](#data-model-er-diagram)
+    - [Agent Workflow](#agent-workflow)
+    - [Timeline (Milestones)](#timeline-milestones)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Executive Summary: Code Catalogor Architecture
 
 We review open-source tools and workflows for building a **code catalog** that lets AI agents fully inspect and reason about a codebase. Modern code search and analysis systems (e.g. Sourcegraph, GitHub Code Search) combine full-text indexing (often via **inverted indexes**), syntactic analysis (ctags or parsers), and semantic embeddings. A practical catalogor would ingest repository roots, language mix, build outputs, and package files; extract symbols/exports via ctags/LSP/tree-sitter; build dependency and (approximate) call graphs; discover tests and examples; scan for licenses and secrets; inspect binaries/WASM (via WABT, radare2, etc.); and emit **receipt logs** to prove what was analyzed. All results (file lists, symbol tables, dependencies, test mappings, build commands, etc.) would be exposed in agent-friendly formats (JSON/NDJSON, SQLite or DuckDB tables, Parquet columns, vector DB for embeddings, RDF/SPARQL, etc.) accessible via REST/gRPC, FUSE, or language-server–style APIs. This report (1) compares key tools (language coverage, symbol extraction, license, runtime, index type, output) in a summary table; (2) proposes a JSON schema for a repo manifest and file records with capabilities; (3) sketches a step-by-step implementation plan for a minimal v0.1 catalogor (with commands, outputs, verification); (4) provides example LLM agent prompts/templates for searching, extracting, classifying, patching, and verifying code via the catalog (including evidence rules and the Non-Deletion taxonomy); (5) lists validation tests/metrics (symbol recall, false-positive rates, test coverage, build reproducibility, receipt completeness); (6) addresses security/privacy (secret scanning, access controls, sandboxing, tamper-evident provenance); (7) notes integration with **ggen/Genesis/AtomVM/WASM** parts (detecting patterns like *RelationPage*, *Pair2*, *Construct8* in code); (8) proposes mermaid diagrams for architecture flow, ER model, agent workflow, and timeline; (9) outlines prioritized milestones for v0.1, v0.2, and Vision 2030 (with rough person-day estimates); and (10) cites key sources (primary tool docs, academic papers, blog posts). Unspecified details (OS, repo size, languages) are treated as variables in our plan. 

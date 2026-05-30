@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [007-CLI-JTBD-Audit: Gap Analysis Complete](#007-cli-jtbd-audit-gap-analysis-complete)
+  - [Quick Summary](#quick-summary)
+  - [Report Files](#report-files)
+    - [For Analysis/Parsing:](#for-analysisparsing)
+    - [For Human Review:](#for-human-review)
+    - [Executive Summary (This File):](#executive-summary-this-file)
+  - [Key Findings at a Glance](#key-findings-at-a-glance)
+    - [Completion Status](#completion-status)
+    - [Evidence Collected](#evidence-collected)
+    - [Critical Blockers](#critical-blockers)
+  - [What This Means](#what-this-means)
+    - [Phase 1-2: Foundation Ready ✅](#phase-1-2-foundation-ready-)
+    - [Phase 3: Partially Started 🔴](#phase-3-partially-started-)
+    - [Phases 4-8: Blocked Until Phase 3 ⏳](#phases-4-8-blocked-until-phase-3-)
+  - [Automated Validations Executed](#automated-validations-executed)
+  - [Vital Few: 80/20 Opportunities](#vital-few-8020-opportunities)
+    - [Top 2 Actions (20% effort = 90% impact)](#top-2-actions-20-effort--90-impact)
+  - [Phase-by-Phase Status](#phase-by-phase-status)
+    - [Phase 1: Setup](#phase-1-setup)
+    - [Phase 2: Foundational](#phase-2-foundational)
+    - [Phase 3: US1 Functional Audit](#phase-3-us1-functional-audit)
+    - [Phase 4: US2 Agent Eval](#phase-4-us2-agent-eval)
+    - [Phase 5: US3 Maturity](#phase-5-us3-maturity)
+    - [Phase 6: US4 Case Studies](#phase-6-us4-case-studies)
+    - [Phase 7: US5 JTBD Docs](#phase-7-us5-jtbd-docs)
+    - [Phase 8: Reports](#phase-8-reports)
+  - [Success Criteria Tracking](#success-criteria-tracking)
+  - [Evidence Completeness by Category](#evidence-completeness-by-category)
+  - [Critical Path Dependencies](#critical-path-dependencies)
+  - [Timeline & Effort Estimates](#timeline--effort-estimates)
+    - [Original Plan](#original-plan)
+    - [Current Status](#current-status)
+    - [Revised Estimate](#revised-estimate)
+    - [Day-by-Day Breakdown](#day-by-day-breakdown)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (Next 24 Hours)](#immediate-actions-next-24-hours)
+    - [Known Issues to Resolve](#known-issues-to-resolve)
+  - [Build & Environment Status](#build--environment-status)
+  - [How to Use These Reports](#how-to-use-these-reports)
+    - [For Quick Understanding:](#for-quick-understanding)
+    - [For Detailed Analysis:](#for-detailed-analysis)
+    - [For Programmatic Parsing:](#for-programmatic-parsing)
+  - [Files Created by This Analysis](#files-created-by-this-analysis)
+  - [Next Review](#next-review)
+  - [Contact & Support](#contact--support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 007-CLI-JTBD-Audit: Gap Analysis Complete
 
 **Analysis Date**: 2024-12-14

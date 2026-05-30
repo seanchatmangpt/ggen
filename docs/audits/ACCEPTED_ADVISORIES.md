@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Accepted Security Advisories](#accepted-security-advisories)
+  - [Vulnerabilities (transitive, test-only via `testcontainers`)](#vulnerabilities-transitive-test-only-via-testcontainers)
+    - [RUSTSEC-2026-0113 — astral-tokio-tar `unpack_in` symlink chmod](#rustsec-2026-0113--astral-tokio-tar-unpack_in-symlink-chmod)
+    - [RUSTSEC-2026-0066 — astral-tokio-tar PAX extensions validation](#rustsec-2026-0066--astral-tokio-tar-pax-extensions-validation)
+    - [RUSTSEC-2026-0112 — astral-tokio-tar PAX Header Desynchronization](#rustsec-2026-0112--astral-tokio-tar-pax-header-desynchronization)
+  - [Warnings (unmaintained transitive deps)](#warnings-unmaintained-transitive-deps)
+    - [RUSTSEC-2025-0052 — async-std discontinued](#rustsec-2025-0052--async-std-discontinued)
+    - [RUSTSEC-2024-0375 — atty unmaintained](#rustsec-2024-0375--atty-unmaintained)
+    - [RUSTSEC-2021-0145 — atty unsound (potential unaligned read on Windows)](#rustsec-2021-0145--atty-unsound-potential-unaligned-read-on-windows)
+    - [RUSTSEC-2024-0384 — instant unmaintained](#rustsec-2024-0384--instant-unmaintained)
+    - [RUSTSEC-2025-0119 — number_prefix unmaintained](#rustsec-2025-0119--number_prefix-unmaintained)
+    - [RUSTSEC-2024-0436 — paste unmaintained](#rustsec-2024-0436--paste-unmaintained)
+    - [RUSTSEC-2024-0370 — proc-macro-error unmaintained](#rustsec-2024-0370--proc-macro-error-unmaintained)
+    - [RUSTSEC-2025-0134 — rustls-pemfile unmaintained](#rustsec-2025-0134--rustls-pemfile-unmaintained)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Accepted Security Advisories
 
 This file records security advisories that `cargo audit` flags but which

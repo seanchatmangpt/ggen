@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Dogfood Foundation Audit &#035;2](#dogfood-foundation-audit-2)
+  - [SETTLEMENT-CHECK-2: HOLDS](#settlement-check-2-holds)
+  - [Cracks &#035;55–#58: CLOSED + verified](#cracks-5558-closed--verified)
+  - [Command-proof matrix reconciled to PROVEN](#command-proof-matrix-reconciled-to-proven)
+  - [clap-noun-verb kebab decision](#clap-noun-verb-kebab-decision)
+  - [Quarantined dead refs](#quarantined-dead-refs)
+  - [PUBLIC-ONTOLOGY-FOUNDATION-1: DONE](#public-ontology-foundation-1-done)
+  - [Receipt closure](#receipt-closure)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Dogfood Foundation Audit #2
 
 > Follow-on to [Audit #1](DOGFOOD_FOUNDATION_AUDIT_1.md). Where #1 *found* the cracks

@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature Flags (Reference)](#feature-flags-reference)
+  - [`ggen-cli` features](#ggen-cli-features)
+  - [How feature flags enforce the boundary](#how-feature-flags-enforce-the-boundary)
+  - [Build commands](#build-commands)
+  - [See also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature Flags (Reference)
 
 > Reference. Factual lookup, derived from `crates/ggen-cli/Cargo.toml` `[features]`.

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-ai — Crate Audit](#ggen-ai--crate-audit)
+  - [STUBS](#stubs)
+  - [DEAD CODE](#dead-code)
+  - [ARCHITECTURE ISSUES](#architecture-issues)
+    - [OTEL Spans — No SDK Dependency](#otel-spans--no-sdk-dependency)
+    - [Tool Calling — Not Wired to GenAiClient](#tool-calling--not-wired-to-genaiclient)
+    - [Cycle Break with ggen-core](#cycle-break-with-ggen-core)
+  - [FIX / DELETE / REFACTOR](#fix--delete--refactor)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-ai — Crate Audit
 
 **Path:** `crates/ggen-ai/`

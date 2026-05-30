@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tasks: CLI Jobs-to-be-Done Audit](#tasks-cli-jobs-to-be-done-audit)
+  - [Format: `[ID] [P?] [Story] Description`](#format-id-p-story-description)
+  - [Phase 1: Setup](#phase-1-setup)
+  - [Phase 2: Foundational (Blocking Prerequisites)](#phase-2-foundational-blocking-prerequisites)
+  - [Phase 3: User Story 1 - Command Functionality Audit (Priority: P1) 🎯 MVP](#phase-3-user-story-1---command-functionality-audit-priority-p1--mvp)
+    - [Day 1: Workflow + Utils Commands (5-6 commands)](#day-1-workflow--utils-commands-5-6-commands)
+    - [Day 2: Template Commands (8 commands)](#day-2-template-commands-8-commands)
+    - [Day 3: Project + Graph Commands (11 commands)](#day-3-project--graph-commands-11-commands)
+    - [Day 4: Ontology + AI Commands (7 commands)](#day-4-ontology--ai-commands-7-commands)
+    - [Day 5: Marketplace + FMEA Commands (16 commands)](#day-5-marketplace--fmea-commands-16-commands)
+  - [Phase 4: User Story 2 - Agent Accessibility Evaluation (Priority: P1)](#phase-4-user-story-2---agent-accessibility-evaluation-priority-p1)
+    - [Avatar Evaluation Pass (All Commands)](#avatar-evaluation-pass-all-commands)
+    - [Avatar-Specific Notes Pass](#avatar-specific-notes-pass)
+  - [Phase 5: User Story 3 - Maturity Classification (Priority: P2)](#phase-5-user-story-3---maturity-classification-priority-p2)
+    - [Maturity Level Assignment](#maturity-level-assignment)
+    - [Blocker Documentation](#blocker-documentation)
+  - [Phase 6: User Story 4 - Fortune 500 Scenario Validation (Priority: P2)](#phase-6-user-story-4---fortune-500-scenario-validation-priority-p2)
+    - [Case Study Validation](#case-study-validation)
+    - [Gap Analysis](#gap-analysis)
+  - [Phase 7: User Story 5 - JTBD Documentation (Priority: P3)](#phase-7-user-story-5---jtbd-documentation-priority-p3)
+    - [JTBD Documentation](#jtbd-documentation)
+  - [Phase 8: Polish & Reports](#phase-8-polish--reports)
+    - [Report Generation](#report-generation)
+    - [Final Validation](#final-validation)
+  - [Dependencies & Execution Order](#dependencies--execution-order)
+    - [Phase Dependencies](#phase-dependencies)
+    - [User Story Dependencies](#user-story-dependencies)
+    - [Parallel Opportunities](#parallel-opportunities)
+  - [Parallel Example: Day 2 Template Audit](#parallel-example-day-2-template-audit)
+  - [Implementation Strategy](#implementation-strategy)
+    - [MVP First (US1 Only)](#mvp-first-us1-only)
+    - [Incremental Delivery](#incremental-delivery)
+    - [Daily Targets](#daily-targets)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tasks: CLI Jobs-to-be-Done Audit
 
 **Input**: Design documents from `/specs/007-cli-jtbd-audit/`

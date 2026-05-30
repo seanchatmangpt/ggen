@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Legacy Name Map](#legacy-name-map)
+  - [Old names for current concepts — keep the alias, document the migration.](#old-names-for-current-concepts--keep-the-alias-document-the-migration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Legacy Name Map
 ## Old names for current concepts — keep the alias, document the migration.
 

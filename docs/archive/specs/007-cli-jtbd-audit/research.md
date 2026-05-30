@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Research: CLI Jobs-to-be-Done Audit](#research-cli-jobs-to-be-done-audit)
+  - [Executive Summary](#executive-summary)
+  - [Research Areas](#research-areas)
+    - [1. CLI Audit Methodology](#1-cli-audit-methodology)
+    - [2. Agent Accessibility Scoring](#2-agent-accessibility-scoring)
+    - [3. Maturity Level Assessment](#3-maturity-level-assessment)
+    - [4. Evidence Collection Strategy](#4-evidence-collection-strategy)
+    - [5. Fortune 500 Case Study Validation](#5-fortune-500-case-study-validation)
+    - [6. Rapid Audit Execution (1 Week Target)](#6-rapid-audit-execution-1-week-target)
+    - [7. Reporting Strategy](#7-reporting-strategy)
+  - [Resolved Clarifications (from /speckit.clarify)](#resolved-clarifications-from-speckitclarify)
+  - [Dependencies & Prerequisites](#dependencies--prerequisites)
+    - [Required Tools](#required-tools)
+    - [Existing Assets (from spec phase)](#existing-assets-from-spec-phase)
+    - [Evidence Directory Structure](#evidence-directory-structure)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Research: CLI Jobs-to-be-Done Audit
 
 **Feature Branch**: `007-cli-jtbd-audit`

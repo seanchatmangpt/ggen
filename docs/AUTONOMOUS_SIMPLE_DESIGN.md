@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous System - Simple Design](#autonomous-system---simple-design)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Core Components](#core-components)
+    - [1. Main Supervisor (`main.rs`)](#1-main-supervisor-mainrs)
+    - [2. Supervisor Loop (`supervisor.rs`)](#2-supervisor-loop-supervisorrs)
+    - [3. Task Agent (`agent.rs`)](#3-task-agent-agentrs)
+    - [4. Task Execution (`executor.rs`)](#4-task-execution-executorrs)
+    - [5. State Management (`state.rs`)](#5-state-management-staters)
+  - [State Persistence](#state-persistence)
+    - [File Location](#file-location)
+    - [Persistence Strategy](#persistence-strategy)
+    - [State Recovery](#state-recovery)
+  - [Error Handling & Recovery](#error-handling--recovery)
+    - [Crash Recovery](#crash-recovery)
+    - [Task Failures](#task-failures)
+    - [Agent Failures](#agent-failures)
+  - [Deployment](#deployment)
+    - [Systemd (Linux)](#systemd-linux)
+    - [Launchd (macOS)](#launchd-macos)
+  - [Implementation Considerations](#implementation-considerations)
+    - [1. Concurrency](#1-concurrency)
+    - [2. Task Distribution](#2-task-distribution)
+    - [3. Logging](#3-logging)
+    - [4. Monitoring](#4-monitoring)
+    - [5. Configuration](#5-configuration)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Security Considerations](#security-considerations)
+  - [Future Enhancements](#future-enhancements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous System - Simple Design
 
 **Version**: 1.0.0

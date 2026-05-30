@@ -15,7 +15,7 @@
     - [Outdated Tool List](#outdated-tool-list)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to List and Filter MCP Tools
 

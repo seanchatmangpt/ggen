@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Developer Experience & Quality of Life (DX/QOL)](#developer-experience--quality-of-life-dxqol)
+  - [1. Principles of ggen-graph DX](#1-principles-of-ggen-graph-dx)
+  - [2. API Design & Common Patterns](#2-api-design--common-patterns)
+    - [Computing and Applying Graph Deltas](#computing-and-applying-graph-deltas)
+    - [Writing Effective SPARQL Validation Hooks](#writing-effective-sparql-validation-hooks)
+      - [Example 1: Schema Constraint (ASK Query)](#example-1-schema-constraint-ask-query)
+      - [Example 2: Negative Constraint (SELECT Query)](#example-2-negative-constraint-select-query)
+  - [3. Diagnostics and Troubleshooting](#3-diagnostics-and-troubleshooting)
+    - [1. `GraphError::HookFailed`](#1-grapherrorhookfailed)
+    - [2. `GraphError::VerificationFailed`](#2-grapherrorverificationfailed)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Developer Experience & Quality of Life (DX/QOL)
 
 This guide documents the design choices, utility interfaces, and developer workflows in the `ggen-graph` crate that enhance developer efficiency, enforce safety invariants, and streamline debugging.

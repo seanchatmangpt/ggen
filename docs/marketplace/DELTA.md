@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Current State Report — ggen v26.5.19](#marketplace-current-state-report--ggen-v26519)
+  - [1. Executive Summary](#1-executive-summary)
+  - [2. Inventory](#2-inventory)
+    - [Packages: 88](#packages-88)
+    - [Packs: 5 (curated bundles)](#packs-5-curated-bundles)
+    - [Receipts: 66 packages have validation receipts (quality guard scores)](#receipts-66-packages-have-validation-receipts-quality-guard-scores)
+    - [Registry: `marketplace/registry/index.json` — only 6 packages indexed (stale)](#registry-marketplaceregistryindexjson--only-6-packages-indexed-stale)
+  - [3. Crate Architecture (`ggen-marketplace` v3.0.0)](#3-crate-architecture-ggen-marketplace-v300)
+  - [4. CLI Status](#4-cli-status)
+  - [5. Template Engine Disconnect](#5-template-engine-disconnect)
+  - [6. What's Missing (The Wiring)](#6-whats-missing-the-wiring)
+  - [7. What EXISTS and Is Reusable](#7-what-exists-and-is-reusable)
+  - [8. The Core Question](#8-the-core-question)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Current State Report — ggen v26.5.19
 
 *Generated: 2026-03-31*

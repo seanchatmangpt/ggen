@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Current State — Golden Path Trace](#current-state--golden-path-trace)
+  - [Flow Diagram](#flow-diagram)
+  - [Step-by-Step Evidence](#step-by-step-evidence)
+    - [Step 1: `ggen registry search mcp` — REAL](#step-1-ggen-registry-search-mcp--real)
+    - [Step 2: `ggen doctor` — REAL](#step-2-ggen-doctor--real)
+    - [Step 3: `ggen pack add mcp-rust` — REAL BUT SHALLOW](#step-3-ggen-pack-add-mcp-rust--real-but-shallow)
+    - [Step 4: `ggen capability enable --surface mcp` — PARTIAL](#step-4-ggen-capability-enable---surface-mcp--partial)
+    - [Step 5: `ggen sync --profile enterprise-strict --locked` — PARTIAL](#step-5-ggen-sync---profile-enterprise-strict---locked--partial)
+    - [Step 6: `ggen receipt verify` — REAL](#step-6-ggen-receipt-verify--real)
+  - [Summary: Current State](#summary-current-state)
+  - [Two Lockfile Schemas (BROKEN)](#two-lockfile-schemas-broken)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Current State — Golden Path Trace
 
 ## Flow Diagram

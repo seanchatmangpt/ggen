@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to integrate ggen-lsp with the Claude Code lifecycle](#how-to-integrate-ggen-lsp-with-the-claude-code-lifecycle)
+  - [What am I trying to accomplish?](#what-am-i-trying-to-accomplish)
+  - [How Claude Code's LSP plugins work (the contract we emulate)](#how-claude-codes-lsp-plugins-work-the-contract-we-emulate)
+  - [What command do I run?](#what-command-do-i-run)
+  - [What file changes?](#what-file-changes)
+  - [What result proves it worked?](#what-result-proves-it-worked)
+  - [What do I do next?](#what-do-i-do-next)
+  - [The three-plane hosting model](#the-three-plane-hosting-model)
+  - [Testing & smoke](#testing--smoke)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to integrate ggen-lsp with the Claude Code lifecycle
 
 > How-to. Goal: get Claude Code to launch ggen's language server over its normal
