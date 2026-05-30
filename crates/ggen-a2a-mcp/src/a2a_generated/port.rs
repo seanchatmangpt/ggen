@@ -33,7 +33,7 @@ pub struct PortData {
 }
 
 /// Port types supported by the A2A system
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PortType {
     /// Input port for receiving messages
     Input,
@@ -175,7 +175,7 @@ pub struct PortStats {
 }
 
 /// Port error types
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PortError {
     /// Error message
     pub message: String,

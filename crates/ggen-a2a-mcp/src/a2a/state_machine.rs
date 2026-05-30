@@ -102,7 +102,6 @@ impl TaskStateMachine {
         }
 
         // Perform transition
-        let _old_state = task.state;
         task.state = transition.to_state;
         task.updated_at = Utc::now();
 

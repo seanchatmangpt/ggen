@@ -131,7 +131,7 @@ pub enum ResponseStatus {
 }
 
 /// Message handling error
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageError {
     /// Error message
     pub message: String,

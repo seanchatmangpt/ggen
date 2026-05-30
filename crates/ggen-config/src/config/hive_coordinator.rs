@@ -288,7 +288,7 @@ impl HiveQueen {
     }
 
     /// Phase 2: Detect conflicts
-    async fn conflict_detection_phase(&mut self) -> Result<()> {
+    async fn conflict_detection_phase(&self) -> Result<()> {
         let config = &self.config;
         let mut state = self.state.write().await;
 
@@ -326,7 +326,7 @@ impl HiveQueen {
     }
 
     /// Phase 3: Resolve conflicts
-    async fn conflict_resolution_phase(&mut self) -> Result<()> {
+    async fn conflict_resolution_phase(&self) -> Result<()> {
         let mut state = self.state.write().await;
         let composition_strategy = &self.config.composition;
 
@@ -342,7 +342,7 @@ impl HiveQueen {
     }
 
     /// Phase 4: Validate composition
-    async fn validation_phase(&mut self) -> Result<()> {
+    async fn validation_phase(&self) -> Result<()> {
         let state = self.state.read().await;
 
         // Check if all conflicts are resolved
@@ -397,7 +397,7 @@ impl HiveQueen {
     fn versions_conflict(version_a: &str, version_b: &str) -> bool {
         // Simplified version conflict detection
         // In production, use proper semantic versioning library
-        version_a.contains("^") && version_b.contains("~")
+        version_a.contains('^') && version_b.contains('~')
     }
 }
 

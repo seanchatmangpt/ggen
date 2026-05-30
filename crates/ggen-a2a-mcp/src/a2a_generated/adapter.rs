@@ -54,7 +54,7 @@ pub struct AdapterCapabilities {
 }
 
 /// Adapter error types
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AdapterError {
     /// Error message
     pub message: String,

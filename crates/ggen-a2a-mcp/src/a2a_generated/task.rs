@@ -8,6 +8,7 @@ use std::time::Duration;
 
 /// Task represents a unit of work to be executed by agents
 #[derive(Debug, Clone, PartialEq)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub struct Task {
     /// Unique identifier for the task
     pub id: String,
@@ -67,6 +68,7 @@ pub trait TaskExecutor: Send + Sync {
 
 /// Result of task execution
 #[derive(Debug, Clone, PartialEq)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub struct TaskResult {
     /// The original task ID
     pub task_id: String,
@@ -80,6 +82,7 @@ pub struct TaskResult {
 
 /// Task execution error
 #[derive(Debug, Clone, PartialEq)]
+#[allow(clippy::derive_partial_eq_without_eq)]
 pub struct TaskError {
     /// Error message
     pub message: String,
@@ -111,7 +114,7 @@ impl Task {
             dependencies: Vec::new(),
             priority: TaskPriority::Normal,
             status: TaskStatus::Pending,
-            timeout: Duration::from_secs(5 * 60), // 5 minutes default
+            timeout: Duration::from_mins(5), // 5 minutes default
             metadata: HashMap::new(),
         }
     }

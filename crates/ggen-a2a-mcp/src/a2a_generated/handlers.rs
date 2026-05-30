@@ -81,7 +81,7 @@ pub mod message_handler {
     }
 
     /// Error severity levels
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub enum ErrorSeverity {
         Info,
         Warning,
@@ -101,7 +101,7 @@ pub mod message_handler {
     }
 
     /// Handler status
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub enum HandlerStatus {
         Success,
         PartialSuccess,
@@ -136,7 +136,7 @@ pub mod message_handler {
     }
 
     /// Log levels
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub enum LogLevel {
         Debug,
         Info,
