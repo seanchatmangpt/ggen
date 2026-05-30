@@ -170,7 +170,9 @@ impl Default for PathProtectionConfig {
             &["src/domain/**", "src/main.rs", "Cargo.toml"],
             &["output/**"],
         )
-        .unwrap_or_else(|e| panic!("invariant violated: default path protection patterns are invalid: {e}"))
+        .unwrap_or_else(|e| {
+            panic!("invariant violated: default path protection patterns are invalid: {e}")
+        })
     }
 }
 

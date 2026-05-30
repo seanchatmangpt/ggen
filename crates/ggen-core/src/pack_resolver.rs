@@ -44,8 +44,11 @@ use crate::utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+<<<<<<< HEAD
 use std::path::{Path, PathBuf};
 
+=======
+>>>>>>> origin/main
 
 /// SPARQL query contributed by a pack.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -808,7 +811,12 @@ impl PackRegistry {
                 let table = decl_value.as_table().ok_or_else(|| {
                     Error::new(&format!(
                         "ownership.declarations[{}] is not a table in {}",
+<<<<<<< HEAD
                         idx, path.display()
+=======
+                        idx,
+                        path.display()
+>>>>>>> origin/main
                     ))
                 })?;
 
@@ -836,14 +844,24 @@ impl PackRegistry {
         let kind = table.get("kind").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
                 "ownership.declarations[{}].kind is missing in {}",
+<<<<<<< HEAD
                 idx, path.display()
+=======
+                idx,
+                path.display()
+>>>>>>> origin/main
             ))
         })?;
 
         let value = table.get("value").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
                 "ownership.declarations[{}].value is missing in {}",
+<<<<<<< HEAD
                 idx, path.display()
+=======
+                idx,
+                path.display()
+>>>>>>> origin/main
             ))
         })?;
 
@@ -874,7 +892,12 @@ impl PackRegistry {
         let class_str = table.get("class").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
                 "ownership.declarations[{}].class is missing in {}",
+<<<<<<< HEAD
                 idx, path.display()
+=======
+                idx,
+                path.display()
+>>>>>>> origin/main
             ))
         })?;
 

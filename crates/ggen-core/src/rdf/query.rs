@@ -173,7 +173,14 @@ impl QueryCache {
     pub fn clear(&self) {
         let mut cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
         cache.clear();
+<<<<<<< HEAD
         let mut index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
+=======
+        let mut index = self
+            .predicate_index
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+>>>>>>> origin/main
         index.clear();
     }
 
@@ -188,7 +195,14 @@ impl QueryCache {
     pub fn build_predicate_index(&self, store: &Store, predicates: &[&str]) -> Result<()> {
         use crate::rdf::query_builder::{Iri, SparqlQueryBuilder, Variable};
 
+<<<<<<< HEAD
         let mut index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
+=======
+        let mut index = self
+            .predicate_index
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+>>>>>>> origin/main
 
         for predicate in predicates {
             // Build type-safe query using query builder
@@ -233,14 +247,28 @@ impl QueryCache {
     ///
     /// OPTIMIZATION 2.2: Use index for faster lookups (20-30% speedup)
     pub fn query_indexed(&self, predicate: &str) -> Option<Vec<(String, String)>> {
+<<<<<<< HEAD
         let index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
+=======
+        let index = self
+            .predicate_index
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+>>>>>>> origin/main
         index.get(predicate).cloned()
     }
 
     /// Get cache statistics
     pub fn stats(&self) -> CacheStats {
         let cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
+<<<<<<< HEAD
         let index = self.predicate_index.lock().unwrap_or_else(|e| e.into_inner());
+=======
+        let index = self
+            .predicate_index
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+>>>>>>> origin/main
         CacheStats {
             cache_size: cache.len(),
             cache_capacity: cache.cap().get(),

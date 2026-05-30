@@ -219,7 +219,14 @@ impl MemoryAlertHandler {
 
     /// Get all stored alerts
     pub fn get_alerts(&self) -> Vec<Alert> {
+<<<<<<< HEAD
         self.alerts.lock().map(|guard| guard.iter().cloned().collect()).unwrap_or_default()
+=======
+        self.alerts
+            .lock()
+            .map(|guard| guard.iter().cloned().collect())
+            .unwrap_or_default()
+>>>>>>> origin/main
     }
 
     /// Clear all alerts
@@ -237,7 +244,14 @@ impl MemoryAlertHandler {
 
 impl AlertHandler for MemoryAlertHandler {
     fn handle(&self, alert: &Alert) -> Result<(), AlertError> {
+<<<<<<< HEAD
         let mut alerts = self.alerts.lock().map_err(|_| AlertError::DeliveryFailed("Mutex poisoned".to_string()))?;
+=======
+        let mut alerts = self
+            .alerts
+            .lock()
+            .map_err(|_| AlertError::DeliveryFailed("Mutex poisoned".to_string()))?;
+>>>>>>> origin/main
         alerts.push_back(alert.clone());
 
         // Trim to max size

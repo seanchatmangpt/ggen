@@ -216,9 +216,9 @@ impl FrozenParser {
 
         // Find all start tags
         for start_match in start_regex.captures_iter(template_content) {
-            let full_match = start_match.get(0).ok_or_else(|| {
-                Error::new("Regex matched but group 0 is missing")
-            })?;
+            let full_match = start_match
+                .get(0)
+                .ok_or_else(|| Error::new("Regex matched but group 0 is missing"))?;
             let start_pos = full_match.end();
             let id = start_match.get(1).map(|m| m.as_str().to_string());
 
@@ -411,7 +411,9 @@ impl FrozenMerger {
                     result
                 } else {
                     // Keep new content if no preserved version exists
-                    caps.get(0).map(|m| m.as_str().to_string()).unwrap_or_default()
+                    caps.get(0)
+                        .map(|m| m.as_str().to_string())
+                        .unwrap_or_default()
                 }
             })
             .to_string();
@@ -481,7 +483,7 @@ impl FrozenMerger {
             .unwrap_or_else(|e| panic!("invariant violated: frozen start regex is invalid: {e}"));
         let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}")
             .unwrap_or_else(|e| panic!("invariant violated: frozen end regex is invalid: {e}"));
- 
+
         let content = start_regex.replace_all(content, "");
         end_regex.replace_all(&content, "").to_string()
     }

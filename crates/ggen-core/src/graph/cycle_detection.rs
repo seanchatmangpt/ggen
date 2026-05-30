@@ -45,7 +45,13 @@ use std::collections::{HashMap, HashSet};
 /// assert_eq!(cycles.len(), 1);
 /// assert!(cycles[0].contains(&"A".to_string()));
 /// ```
+<<<<<<< HEAD
 pub fn detect_cycles<S: std::hash::BuildHasher>(graph: &HashMap<String, Vec<String>, S>) -> Vec<Vec<String>> {
+=======
+pub fn detect_cycles<S: std::hash::BuildHasher>(
+    graph: &HashMap<String, Vec<String>, S>,
+) -> Vec<Vec<String>> {
+>>>>>>> origin/main
     let mut cycles = Vec::new();
     let mut visited = HashSet::new();
     let mut recursion_stack = HashSet::new();
@@ -131,7 +137,13 @@ fn dfs<S: std::hash::BuildHasher>(
 ///
 /// assert!(validate_acyclic(&imports).is_ok());
 /// ```
+<<<<<<< HEAD
 pub fn validate_acyclic<S: std::hash::BuildHasher>(imports: &HashMap<String, Vec<String>, S>) -> Result<()> {
+=======
+pub fn validate_acyclic<S: std::hash::BuildHasher>(
+    imports: &HashMap<String, Vec<String>, S>,
+) -> Result<()> {
+>>>>>>> origin/main
     let cycles = detect_cycles(imports);
 
     if cycles.is_empty() {

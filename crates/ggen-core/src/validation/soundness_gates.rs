@@ -63,10 +63,11 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
 
     // Pattern 1: GenServer.call without timeout (Elixir/OTP)
     // Catches: GenServer.call(pid, msg) but NOT GenServer.call(pid, msg, 5000)
-    let genserver_no_timeout = match Regex::new(r"GenServer\.call\s*\(\s*(\w+)\s*,\s*[^,)]+\s*\)\s*(?:$|[\s;,\)])") {
-        Ok(re) => re,
-        Err(_) => return violations,
-    };
+    let genserver_no_timeout =
+        match Regex::new(r"GenServer\.call\s*\(\s*(\w+)\s*,\s*[^,)]+\s*\)\s*(?:$|[\s;,\)])") {
+            Ok(re) => re,
+            Err(_) => return violations,
+        };
 
     for (line_num, line) in code.lines().enumerate() {
         if let Some(m) = genserver_no_timeout.find(line) {
@@ -85,7 +86,8 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: task.await without timeout (Rust async)
-    let task_await_no_timeout = match Regex::new(r"(?:task|handle)\s*\.\s*await\s*(?:\?|\s|;|,|$)") {
+    let task_await_no_timeout = match Regex::new(r"(?:task|handle)\s*\.\s*await\s*(?:\?|\s|;|,|$)")
+    {
         Ok(re) => re,
         Err(_) => return violations,
     };

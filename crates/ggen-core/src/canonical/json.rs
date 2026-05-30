@@ -44,10 +44,15 @@ impl JsonCanonicalizer {
                 Ok(Value::Object(sorted.into_iter().collect()))
             }
             Value::Array(arr) => {
+<<<<<<< HEAD
                 let canonical: std::result::Result<Vec<_>, _> = arr
                     .into_iter()
                     .map(Self::canonicalize_value)
                     .collect();
+=======
+                let canonical: std::result::Result<Vec<_>, _> =
+                    arr.into_iter().map(Self::canonicalize_value).collect();
+>>>>>>> origin/main
                 Ok(Value::Array(canonical?))
             }
             // Primitives are already canonical

@@ -611,13 +611,26 @@ pub fn load_config(
 /// Load MCP configuration from a file
 pub fn load_mcp_from_file(path: &Path) -> Result<McpConfigFile, GgenError> {
     let content = fs::read_to_string(path).map_err(|e| {
+<<<<<<< HEAD
         GgenError::invalid_input(format!("Failed to read MCP config from {}: {}", path.display(), e))
+=======
+        GgenError::invalid_input(format!(
+            "Failed to read MCP config from {}: {}",
+            path.display(),
+            e
+        ))
+>>>>>>> origin/main
     })?;
 
     serde_json::from_str(&content).map_err(|e| {
         GgenError::invalid_input(format!(
             "Failed to parse MCP config from {}: {}\nSuggestion: Check JSON syntax and structure",
+<<<<<<< HEAD
             path.display(), e
+=======
+            path.display(),
+            e
+>>>>>>> origin/main
         ))
     })
 }
@@ -625,13 +638,26 @@ pub fn load_mcp_from_file(path: &Path) -> Result<McpConfigFile, GgenError> {
 /// Load A2A configuration from a file
 pub fn load_a2a_from_file(path: &Path) -> Result<A2aConfig, GgenError> {
     let content = fs::read_to_string(path).map_err(|e| {
+<<<<<<< HEAD
         GgenError::invalid_input(format!("Failed to read A2A config from {}: {}", path.display(), e))
+=======
+        GgenError::invalid_input(format!(
+            "Failed to read A2A config from {}: {}",
+            path.display(),
+            e
+        ))
+>>>>>>> origin/main
     })?;
 
     toml::from_str(&content).map_err(|e| {
         GgenError::invalid_input(format!(
             "Failed to parse A2A config from {}: {}\nSuggestion: Check TOML syntax",
+<<<<<<< HEAD
             path.display(), e
+=======
+            path.display(),
+            e
+>>>>>>> origin/main
         ))
     })
 }
@@ -806,7 +832,15 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<(), GgenE
     // Create parent directory if needed
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
+<<<<<<< HEAD
             GgenError::invalid_input(format!("Failed to create directory {}: {}", parent.display(), e))
+=======
+            GgenError::invalid_input(format!(
+                "Failed to create directory {}: {}",
+                parent.display(),
+                e
+            ))
+>>>>>>> origin/main
         })?;
     }
 
@@ -814,7 +848,15 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<(), GgenE
         .map_err(|e| GgenError::invalid_input(format!("Failed to serialize MCP config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
+<<<<<<< HEAD
         GgenError::invalid_input(format!("Failed to write MCP config to {}: {}", path.display(), e))
+=======
+        GgenError::invalid_input(format!(
+            "Failed to write MCP config to {}: {}",
+            path.display(),
+            e
+        ))
+>>>>>>> origin/main
     })?;
 
     Ok(())
@@ -825,7 +867,15 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<(), GgenError
     // Create parent directory if needed
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
+<<<<<<< HEAD
             GgenError::invalid_input(format!("Failed to create directory {}: {}", parent.display(), e))
+=======
+            GgenError::invalid_input(format!(
+                "Failed to create directory {}: {}",
+                parent.display(),
+                e
+            ))
+>>>>>>> origin/main
         })?;
     }
 
@@ -833,7 +883,15 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<(), GgenError
         .map_err(|e| GgenError::invalid_input(format!("Failed to serialize A2A config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
+<<<<<<< HEAD
         GgenError::invalid_input(format!("Failed to write A2A config to {}: {}", path.display(), e))
+=======
+        GgenError::invalid_input(format!(
+            "Failed to write A2A config to {}: {}",
+            path.display(),
+            e
+        ))
+>>>>>>> origin/main
     })?;
 
     Ok(())
@@ -930,7 +988,15 @@ pub fn get_server_status(project_dir: Option<&Path>) -> Result<ServerStatus, Gge
     }
 
     let pid_str = fs::read_to_string(&pid_file).map_err(|e| {
+<<<<<<< HEAD
         GgenError::invalid_input(format!("Failed to read PID file {}: {}", pid_file.display(), e))
+=======
+        GgenError::invalid_input(format!(
+            "Failed to read PID file {}: {}",
+            pid_file.display(),
+            e
+        ))
+>>>>>>> origin/main
     })?;
 
     let pid: u32 = pid_str
@@ -1116,12 +1182,28 @@ pub fn write_pid_file(project_dir: Option<&Path>, pid: u32) -> Result<(), GgenEr
 
     if let Some(parent) = pid_file.parent() {
         fs::create_dir_all(parent).map_err(|e| {
+<<<<<<< HEAD
             GgenError::invalid_input(format!("Failed to create directory {}: {}", parent.display(), e))
+=======
+            GgenError::invalid_input(format!(
+                "Failed to create directory {}: {}",
+                parent.display(),
+                e
+            ))
+>>>>>>> origin/main
         })?;
     }
 
     fs::write(&pid_file, pid.to_string()).map_err(|e| {
+<<<<<<< HEAD
         GgenError::invalid_input(format!("Failed to write PID file {}: {}", pid_file.display(), e))
+=======
+        GgenError::invalid_input(format!(
+            "Failed to write PID file {}: {}",
+            pid_file.display(),
+            e
+        ))
+>>>>>>> origin/main
     })?;
 
     Ok(())
