@@ -313,10 +313,11 @@ pub enum RenderError {
 pub fn verify_template_provider_contract<P: TemplateProvider>(
     provider: P,
 ) -> Result<(), String> {
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
     // Contract requirement: discover must return valid templates
-    let test_path = PathBuf::from("tests/fixtures/templates");
+    let test_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/templates");
     let templates = provider
         .discover(&test_path)
         .map_err(|e| format!("discover failed: {}", e))?;

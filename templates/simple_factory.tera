@@ -1,0 +1,4 @@
+### Entity: {{ label | default(value="Unknown") }}
+**Description**: {{ comment | default(value="Hermetic knowledge unit.") }}
+**ID**: `{{ class | default(value="urn:unknown") }}`
+**Status**: ✅ ADMITTED

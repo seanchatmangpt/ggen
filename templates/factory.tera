@@ -1,0 +1,12 @@
+# Knowledge Work Surface: {{ rule_name | default(value="Anonymous") }}
+# Unit of Production: Verified Decision
+
+{% for row in sparql_results %}
+### {{ row.label | default(value="Entity") }}
+*   **Description**: {{ row.comment | default(value="Hermetic knowledge unit.") }}
+*   **ID**: `{{ row.class | default(value="urn:unknown") }}`
+*   **Status**: ✅ ADMITTED
+{% endfor %}
+
+---
+*Materialized by ggen factory (Industrial Revolution of Knowledge 2030)*

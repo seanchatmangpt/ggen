@@ -6,8 +6,14 @@
 
 use std::fmt;
 
+/// Canonical marketplace namespace (v1) — single source of truth
+pub const MARKETPLACE_NS: &str = "https://ggen.io/marketplace/";
+
 /// Namespace prefix definitions
 pub mod namespaces {
+    // Import canonical marketplace namespace
+    use super::MARKETPLACE_NS;
+
     pub const RDF: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     pub const RDFS: &str = "http://www.w3.org/2000/01/rdf-schema#";
     pub const XSD: &str = "http://www.w3.org/2001/XMLSchema#";
@@ -19,8 +25,8 @@ pub mod namespaces {
     pub const DOAP: &str = "http://usefulinc.com/ns/doap#";
     pub const SPDX: &str = "http://spdx.org/rdf/terms#";
 
-    // Custom ggen namespace
-    pub const GGEN: &str = "https://ggen.io/marketplace/";
+    // Custom ggen namespace (links to canonical MARKETPLACE_NS)
+    pub const GGEN: &str = MARKETPLACE_NS;
 }
 
 // Re-export commonly used namespaces

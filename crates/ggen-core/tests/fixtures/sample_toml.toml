@@ -1,0 +1,18 @@
+# Sample TOML file for metrics testing
+[project]
+name = "sample-project"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = "1.0"
+tokio = "1"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3

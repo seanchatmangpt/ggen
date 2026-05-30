@@ -6,12 +6,18 @@
 #![allow(clippy::doc_markdown)]
 #![allow(clippy::must_use_candidate)]
 
+/// Canonical marketplace namespace (v1)
+///
+/// This is the single source of truth for the ggen marketplace RDF namespace.
+/// All code should reference this constant rather than hardcoding the URI.
+pub const MARKETPLACE_NS: &str = "https://ggen.io/marketplace/";
+
 /// Core namespaces for marketplace RDF
 pub struct Namespaces;
 
 impl Namespaces {
-    /// ggen marketplace namespace
-    pub const GGEN: &'static str = "https://ggen.io/marketplace/";
+    /// ggen marketplace namespace (use MARKETPLACE_NS constant instead)
+    pub const GGEN: &'static str = MARKETPLACE_NS;
 
     /// RDF namespace
     pub const RDF: &'static str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";

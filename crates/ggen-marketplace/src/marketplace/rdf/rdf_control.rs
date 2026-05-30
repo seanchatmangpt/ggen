@@ -16,6 +16,7 @@ use tracing::{info, warn};
 
 use super::fmea_mitigations::FmeaMitigationManager;
 use super::ontology::{Class, Property};
+use crate::marketplace::ontology::MARKETPLACE_NS;
 use super::poka_yoke::{
     typestate, Literal, PokaYokeError, RdfGraph, ResourceId, SparqlQuery, Triple,
     ValidationConstraint,
@@ -124,14 +125,15 @@ impl RdfControlPlane {
 
         let query = format!(
             r#"
-            PREFIX ggen: <https://ggen.io/marketplace/>
+            PREFIX ggen: <{}>
             CONSTRUCT {{ ?s ?p ?o }}
             WHERE {{
                 ?s ?p ?o .
                 ?s ggen:atTime ?t .
                 FILTER (?t <= "{timestamp}"^^xsd:dateTime)
             }}
-            "#
+            "#,
+            MARKETPLACE_NS
         );
 
         let graph = self.graph.read().unwrap();
@@ -465,8 +467,8 @@ mod tests {
         let test_dir = env::temp_dir().join("ggen-test-config");
         fs::create_dir_all(&test_dir).unwrap();
 
-        let config_content = r#"
-@prefix ggen: <https://ggen.io/marketplace/> .
+        let config_content = format!(
+            r#"@prefix ggen: <{}> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 :marketplace a ggen:MarketplaceConfig ;
@@ -474,13 +476,15 @@ mod tests {
     ggen:cacheDir "/tmp/test-cache" ;
     ggen:maxDownloadSize "1000000"^^xsd:integer ;
     ggen:validationEnabled "true"^^xsd:boolean ;
-    ggen:autoUpdateEnabled "false"^^xsd:boolean .
+    ggen:autoUpdateEnabled "false"^^xsd:boolean ."#,
+            MARKETPLACE_NS
+        );
 "#;
 
-        let config_path = test_dir.join("marketplace.ttl");
+        let config_path = test_dir.join("marketplace" .to_string() + ".ttl");
         fs::write(&config_path, config_content).unwrap();
 
-        let validation_path = test_dir.join("validation-rules.ttl");
+        let validation_path = test_dir.join("validation-rules" .to_string() + ".ttl");
         fs::write(&validation_path, "# validation rules").unwrap();
 
         test_dir.to_str().unwrap().to_string()

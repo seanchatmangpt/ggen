@@ -59,3 +59,26 @@ jobs:
 
       - name: "Run doctests (CRITICAL: Verify all doctests compile and run)"
         run: cargo test --doc --workspace
+
+  test-all-features:
+    name: Test with all features (Path A)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: stable
+          cache-key-suffix: all-features
+
+      - name: Install cargo-make
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: make
+          cache-tools: 'true'
+
+      - name: Run all-features test suite (Path A)
+        run: cargo make test-all-features

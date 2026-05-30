@@ -19,11 +19,12 @@ use tracing::{debug, info};
 
 use crate::marketplace::error::Result;
 use crate::marketplace::models::{Package, PackageId, PackageVersion, SearchResult};
+use crate::marketplace::ontology::MARKETPLACE_NS;
 use crate::marketplace::rdf_mapper::RdfMapper;
 use crate::marketplace::traits::AsyncRepository;
 
-/// RDF namespace for ggen marketplace
-const GGEN_NS: &str = "https://ggen.io/marketplace/";
+/// RDF namespace for ggen marketplace (imported from ontology)
+const GGEN_NS: &str = MARKETPLACE_NS;
 const RDFS_NS: &str = "http://www.w3.org/2000/01/rdf-schema#";
 
 /// High-performance RDF-backed registry
@@ -336,16 +337,17 @@ impl RdfRegistry {
     fn delete_package_triples(&self, id: &PackageId) -> Result<()> {
         let delete_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             DELETE {{
-                <https://ggen.io/marketplace/packages/{0}> ?p ?o .
+                <{}packages/{{}}> ?p ?o .
             }}
             WHERE {{
-                <https://ggen.io/marketplace/packages/{0}> ?p ?o .
+                <{}packages/{{}}> ?p ?o .
             }}
             "#,
-            id
-        );
+            GGEN_NS, GGEN_NS, GGEN_NS
+        )
+        .replace("{}", &id.to_string());
 
         self.store.update(&delete_query).map_err(|e| {
             crate::marketplace::error::Error::RdfStoreError {
@@ -440,9 +442,10 @@ impl RdfRegistry {
     /// * [`Error::SearchError`] - When the search query fails
     pub async fn search_packages(&self, keyword: &str, limit: usize) -> Result<Vec<SearchResult>> {
         // Build SPARQL FILTER for case-insensitive substring matching
+        let escaped_keyword = keyword.replace('\"', "\\\"");
         let search_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
             SELECT ?packageId ?name ?description ?downloads WHERE {{
@@ -460,9 +463,10 @@ impl RdfRegistry {
             }}
             LIMIT {}
             "#,
-            keyword.replace('\"', "\\\""),
-            keyword.replace('\"', "\\\""),
-            keyword.replace('\"', "\\\""),
+            GGEN_NS,
+            escaped_keyword,
+            escaped_keyword,
+            escaped_keyword,
             limit
         );
 
@@ -550,11 +554,12 @@ impl RdfRegistry {
     pub async fn count_packages(&self) -> Result<u64> {
         let query = format!(
             r"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             SELECT (COUNT(?package) as ?count) WHERE {{
                 ?package a mp:Package .
             }}
-            "
+            ",
+            GGEN_NS
         );
 
         let results = self.store.query(&query).map_err(|e| {

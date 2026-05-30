@@ -22,6 +22,7 @@
 use crate::marketplace::builders::PackageBuilder;
 use crate::marketplace::error::{Error, Result};
 use crate::marketplace::models::{Package, PackageId, PackageVersion, QualityScore};
+use crate::marketplace::ontology::MARKETPLACE_NS;
 use dashmap::DashMap;
 use lru::LruCache;
 use oxigraph::model::Term;
@@ -637,10 +638,10 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let insert_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             INSERT DATA {{
-                <https://ggen.io/marketplace/{0}> a mp:Package ;
+                <{}{0}> a mp:Package ;
                     mp:id "{1}" ;
                     mp:name "{2}" ;
                     mp:description "{3}" ;
@@ -650,6 +651,8 @@ impl RdfControlPlane {
                     mp:hasCreatedTime "{6}"^^xsd:dateTime .
             }}
             "#,
+            MARKETPLACE_NS,
+            MARKETPLACE_NS,
             id,
             id,
             name.escape_default().to_string(),
@@ -694,12 +697,13 @@ impl RdfControlPlane {
         categories: &[String],
     ) -> Result<()> {
         // Build SPARQL INSERT for metadata via direct RDF operations
-        let mut metadata_query = String::from(
-            r"PREFIX mp: <https://ggen.io/marketplace/>
-            INSERT DATA {",
+        let mut metadata_query = format!(
+            r"PREFIX mp: <{}>
+            INSERT DATA {{",
+            MARKETPLACE_NS
         );
 
-        let pkg_uri = format!("<https://ggen.io/marketplace/{package_id}>");
+        let pkg_uri = format!("<{}{package_id}>", MARKETPLACE_NS);
 
         // Add authors
         #[allow(clippy::format_push_string)]
@@ -754,13 +758,14 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let update_query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
-            DELETE {{ <https://ggen.io/marketplace/{}> mp:state "Draft" . }}
-            INSERT {{ <https://ggen.io/marketplace/{}> mp:state "Published" . }}
-            WHERE {{ <https://ggen.io/marketplace/{}> a mp:Package . }}
+            PREFIX mp: <{}>
+            DELETE {{ <{}{{}}> mp:state "Draft" . }}
+            INSERT {{ <{}{{}}> mp:state "Published" . }}
+            WHERE {{ <{}{{}}> a mp:Package . }}
             "#,
-            package_id, package_id, package_id
-        );
+            MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS
+        )
+        .replace("{}", package_id);
         self.executor.update(&update_query)?;
 
         // Invalidate all caches via epoch bump
@@ -783,10 +788,10 @@ impl RdfControlPlane {
         // Direct SPARQL query
         #[allow(clippy::uninlined_format_args)]
         let query = format!(
-            r"PREFIX mp: <https://ggen.io/marketplace/>
+            r"PREFIX mp: <{}>
             SELECT ?state
-            WHERE {{ <https://ggen.io/marketplace/{}> mp:state ?state . }}",
-            package_id
+            WHERE {{ <{}{package_id}> mp:state ?state . }}",
+            MARKETPLACE_NS, MARKETPLACE_NS
         );
 
         let results = self.executor.query(&query)?;
@@ -818,20 +823,20 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             SELECT ?name ?description ?version ?license ?state ?quality
             WHERE {{
-                <https://ggen.io/marketplace/{}> a mp:Package ;
+                <{}{package_id}> a mp:Package ;
                     mp:name ?name ;
                     mp:description ?description ;
                     mp:latestVersion ?version ;
                     mp:license ?license ;
                     mp:state ?state .
-                OPTIONAL {{ <https://ggen.io/marketplace/{}> mp:qualityScore ?quality . }}
+                OPTIONAL {{ <{}{package_id}> mp:qualityScore ?quality . }}
                 FILTER(?state = "Published")
             }}
             "#,
-            package_id, package_id
+            MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS
         );
 
         let solutions = execute_sparql_solutions(&self.executor, &query)?;
@@ -884,7 +889,7 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             SELECT ?package ?name ?description ?version ?quality WHERE {{
                 ?package a mp:Package ;
                     mp:name ?name ;
@@ -892,14 +897,17 @@ impl RdfControlPlane {
                     mp:latestVersion ?version .
                 OPTIONAL {{ ?package mp:qualityScore ?quality . }}
                 FILTER(
-                    CONTAINS(LCASE(str(?name)), LCASE("{}")) ||
-                    CONTAINS(LCASE(str(?description)), LCASE("{}"))
+                    CONTAINS(LCASE(str(?name)), LCASE("{{}}")) ||
+                    CONTAINS(LCASE(str(?description)), LCASE("{{}}"))
                 )
             }}
-            LIMIT {}
+            LIMIT {{}}
             "#,
-            escaped_keyword, escaped_keyword, limit
-        );
+            MARKETPLACE_NS
+        )
+        .replace("{}", &escaped_keyword)
+        .replacen("{}", &escaped_keyword, 1)
+        .replacen("{}", &limit.to_string(), 1);
 
         let solutions = execute_sparql_solutions(&self.executor, &query)?;
         let mut results = Vec::new();
@@ -911,7 +919,7 @@ impl RdfControlPlane {
                 // Strip angle brackets if present
                 let pkg_str = pkg_str.trim_start_matches('<').trim_end_matches('>');
 
-                if let Some(id_str) = pkg_str.strip_prefix("https://ggen.io/marketplace/") {
+                if let Some(id_str) = pkg_str.strip_prefix(MARKETPLACE_NS) {
                     if let Ok(package_id) = PackageId::new(id_str) {
                         let name = extract_literal_from_solution(&solution, "name");
                         let description = extract_literal_from_solution(&solution, "description");
@@ -959,16 +967,17 @@ impl RdfControlPlane {
         let _epoch = self.current_epoch();
 
         // Build SPARQL query with optional filters
-        let mut query = String::from(
+        let mut query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             SELECT ?package ?name ?version ?quality
-            WHERE {
+            WHERE {{
                 ?package a mp:Package ;
                     mp:name ?name ;
                     mp:latestVersion ?version .
-                OPTIONAL { ?package mp:qualityScore ?quality . }
+                OPTIONAL {{ ?package mp:qualityScore ?quality . }}
         "#,
+            MARKETPLACE_NS
         );
 
         // Add category filter if provided
@@ -997,7 +1006,7 @@ impl RdfControlPlane {
                 let pkg_str = pkg_uri.to_string();
                 let pkg_str = pkg_str.trim_start_matches('<').trim_end_matches('>');
 
-                if let Some(id_str) = pkg_str.strip_prefix("https://ggen.io/marketplace/") {
+                if let Some(id_str) = pkg_str.strip_prefix(MARKETPLACE_NS) {
                     if let Ok(package_id) = PackageId::new(id_str) {
                         let name = extract_literal_from_solution(&solution, "name");
                         let version_str = extract_literal_from_solution(&solution, "version");
@@ -1037,16 +1046,16 @@ impl RdfControlPlane {
         #[allow(clippy::uninlined_format_args)]
         let query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
+            PREFIX mp: <{}>
             SELECT ?dep_id ?dep_version ?is_optional
             WHERE {{
-                <https://ggen.io/marketplace/{}/versions/{}> mp:hasDependency ?dep .
+                <{}{}/versions/{}> mp:hasDependency ?dep .
                 ?dep mp:packageId ?dep_id ;
                      mp:versionRequirement ?dep_version .
                 OPTIONAL {{ ?dep mp:isOptional ?is_optional . }}
             }}
             "#,
-            package_id, version
+            MARKETPLACE_NS, MARKETPLACE_NS, package_id, version
         );
 
         let solutions = execute_sparql_solutions(&self.executor, &query)?;
@@ -1083,10 +1092,10 @@ impl RdfControlPlane {
         // Build SPARQL ASK query to check if package exists
         let query = format!(
             r#"
-            PREFIX mp: <https://ggen.io/marketplace/>
-            ASK {{ <https://ggen.io/marketplace/{}> a mp:Package . }}
+            PREFIX mp: <{}>
+            ASK {{ <{}{package_id}> a mp:Package . }}
             "#,
-            package_id.as_str()
+            MARKETPLACE_NS, MARKETPLACE_NS
         );
 
         // Execute query and match on result

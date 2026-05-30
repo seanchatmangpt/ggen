@@ -137,7 +137,9 @@ impl AtomicSnapshotPromoter {
 
 // Safety: AtomicSnapshotPromoter can be shared across threads
 // RwLock and Arc are Send + Sync
+#[allow(unsafe_code)]
 unsafe impl Send for AtomicSnapshotPromoter {}
+#[allow(unsafe_code)]
 unsafe impl Sync for AtomicSnapshotPromoter {}
 
 /// RAII guard for snapshot access
@@ -165,7 +167,9 @@ impl Drop for SnapshotGuard {
 
 // Safety: SnapshotGuard can be sent across thread boundaries
 // Arc<SnapshotHandle> is Send + Sync
+#[allow(unsafe_code)]
 unsafe impl Send for SnapshotGuard {}
+#[allow(unsafe_code)]
 unsafe impl Sync for SnapshotGuard {}
 
 /// Result of a promotion operation

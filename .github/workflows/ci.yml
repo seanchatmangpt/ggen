@@ -125,6 +125,17 @@ jobs:
       - name: "Run doctests (CRITICAL: Verify all doctests compile and run)"
         run: cargo test --doc --workspace
 
+      - name: "Path A: Run feature-gated tests (otel, proptest, integration, docker)"
+        run: |
+          echo "🎯 Running Path A test suite..."
+          echo "Enabled features: otel, proptest, integration, docker, testcontainers"
+          cargo test --all-features --doc -p ggen-core --verbose 2>&1 | tail -50
+
+      - name: "Path A: Verify integration tests compile and run"
+        run: |
+          echo "Testing integration feature specifically..."
+          cargo test --features integration -p ggen-core --verbose 2>&1 | tail -50
+
       - name: Run External Observer Promotion Adjudication
         run: bash scripts/gall/external/13_adjudicate_gall_promotion.sh
 

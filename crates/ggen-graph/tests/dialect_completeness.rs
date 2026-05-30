@@ -2,14 +2,10 @@ use ggen_graph::dialect::{check_datalog, check_n3, check_shacl, check_shex, chec
 use oxigraph::io::{RdfFormat, RdfParser};
 use oxigraph::store::Store;
 use std::fs;
+use std::path::Path;
 
 fn get_fixture_path(subpath: &str) -> String {
-    let current_dir = std::env::current_dir().expect("Failed to get current dir");
-    let base_path = if current_dir.ends_with("crates/ggen-graph") {
-        current_dir.join("tests/fixtures/dialects")
-    } else {
-        current_dir.join("crates/ggen-graph/tests/fixtures/dialects")
-    };
+    let base_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/dialects");
     base_path.join(subpath).to_string_lossy().to_string()
 }
 

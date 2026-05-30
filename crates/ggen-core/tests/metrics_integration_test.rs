@@ -20,7 +20,7 @@
 
 use ggen_core::metrics::*;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
 #[test]
@@ -28,9 +28,16 @@ fn test_code_metrics_from_real_files() {
     let mut collector = MetricsCollector::new();
 
     // Collect metrics from test files
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     let test_files = vec![
-        "tests/fixtures/sample_rust_code.rs".to_string(),
-        "tests/fixtures/sample_toml.toml".to_string(),
+        manifest_dir
+            .join("tests/fixtures/sample_rust_code.rs")
+            .to_string_lossy()
+            .to_string(),
+        manifest_dir
+            .join("tests/fixtures/sample_toml.toml")
+            .to_string_lossy()
+            .to_string(),
     ];
 
     // Only process files that exist

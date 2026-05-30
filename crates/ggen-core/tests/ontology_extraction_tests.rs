@@ -9,7 +9,9 @@ use std::path::Path;
 
 /// Load RDF/Turtle fixture file
 fn load_fixture(filename: &str) -> String {
-    let fixture_path = Path::new("tests/fixtures").join(filename);
+    let fixture_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures")
+        .join(filename);
     fs::read_to_string(fixture_path)
         .unwrap_or_else(|e| panic!("Failed to load fixture {}: {}", filename, e))
 }

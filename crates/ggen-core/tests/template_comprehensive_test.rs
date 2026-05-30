@@ -37,7 +37,9 @@ fn ctx_from_pairs(pairs: &[(&str, &str)]) -> Context {
 }
 
 fn load_template_fixture(name: &str) -> Result<String> {
-    let fixture_path = Path::new("tests/fixtures/templates").join(name);
+    let fixture_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/templates")
+        .join(name);
     fs::read_to_string(&fixture_path)
         .map_err(|e| anyhow::anyhow!("Failed to load fixture '{}': {}", fixture_path.display(), e))
 }

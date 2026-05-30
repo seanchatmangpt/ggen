@@ -28,6 +28,7 @@ use tracing::{debug, info, warn};
 
 use crate::marketplace::error::{Error, Result};
 use crate::marketplace::models::{Manifest, Package, PackageId, PackageVersion};
+use crate::marketplace::ontology::MARKETPLACE_NS;
 use crate::marketplace::traits::AsyncRepository;
 
 /// v3 optimized registry with distributed caching and indexing
@@ -157,12 +158,15 @@ impl V3OptimizedRegistry {
         self.search_index.write().clear();
 
         // Query all packages from RDF store
-        let query = r"
-            SELECT ?name ?package WHERE {
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://ggen.io/marketplace/Package> .
-                ?package <https://ggen.io/marketplace/name> ?name .
-            }
-        ";
+        let query = format!(
+            r"
+            SELECT ?name ?package WHERE {{
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
+                ?package <{}name> ?name .
+            }}
+        ",
+            MARKETPLACE_NS, MARKETPLACE_NS
+        );
 
         #[allow(deprecated)]
         match self.primary_store.query(query) {
@@ -213,7 +217,7 @@ impl V3OptimizedRegistry {
     /// * [`Error::RegistryError`] - When the search index lock fails
     #[must_use]
     pub fn update_search_index(&self, package_id: &str, package_name: &str) -> Result<()> {
-        let package_uri = format!("https://ggen.io/marketplace/packages/{package_id}");
+        let package_uri = format!("{}packages/{package_id}", MARKETPLACE_NS);
         let mut index = self.search_index.write();
 
         // Index by name terms
@@ -515,12 +519,13 @@ impl AsyncRepository for V3OptimizedRegistry {
         let _query = format!(
             r"
             SELECT ?name ?version ?description WHERE {{
-                <https://ggen.io/marketplace/packages/{id}>
-                    <https://ggen.io/marketplace/name> ?name ;
-                    <https://ggen.io/marketplace/version> ?version ;
-                    <https://ggen.io/marketplace/description> ?description .
+                <{}packages/{id}>
+                    <{}name> ?name ;
+                    <{}version> ?version ;
+                    <{}description> ?description .
             }}
-            "
+            ",
+            MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS
         );
 
         self.query_stats
@@ -602,12 +607,15 @@ impl AsyncRepository for V3OptimizedRegistry {
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         // Query all packages from RDF store
-        let _query = r"
-            SELECT ?name ?package WHERE {
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://ggen.io/marketplace/Package> .
-                ?package <https://ggen.io/marketplace/name> ?name .
-            }
-        ";
+        let _query = format!(
+            r"
+            SELECT ?name ?package WHERE {{
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
+                ?package <{}name> ?name .
+            }}
+        ",
+            MARKETPLACE_NS, MARKETPLACE_NS
+        );
 
         self.query_stats
             .store_queries
