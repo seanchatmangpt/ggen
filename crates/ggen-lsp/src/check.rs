@@ -367,6 +367,14 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     // diagnostics and never disturbs the single-file reports above.
     error_count += fold_tpl_001(root, &mut files, registry.as_ref());
 
+    // Cross-surface law: GGEN-HARNESS-001 (harness mismatch). The single-file
+    // analyzers cannot see whether a declared Cargo.toml [[test]]/[[bench]] `path`
+    // resolves to a real proof file on disk. We supply that cross-surface context
+    // here by building the harness index from `root` and running the same pure
+    // detector the interactive server uses. Read-only; best-effort (a missing
+    // Cargo.toml yields no extra diagnostics).
+    error_count += fold_harness_001(root, &mut files, registry.as_ref());
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -434,6 +442,65 @@ fn fold_tpl_001(
         } else {
             files.push(FileReport {
                 path: template_str,
+                diagnostics: diags,
+                routes,
+            });
+        }
+    }
+    added_errors
+}
+
+/// Fold GGEN-HARNESS-001 (harness-mismatch) diagnostics from the harness index at
+/// `root` into `files`, returning the number of newly added ERROR diagnostics (so
+/// the caller can keep `error_count` exact).
+///
+/// For each `(manifest_path, diags)` the detector returns, the diagnostics are
+/// appended to the [`FileReport`] whose path matches that manifest (`Cargo.toml`),
+/// added as a new report if the manifest is not already among `files`. When
+/// `registry` is `Some` (i.e. `--with-routes`), each appended diagnostic also gets
+/// its `RoutePlan` resolved through the SAME route engine as every other channel,
+/// using the manifest's own content as the route's edit-site context.
+///
+/// Mirrors [`fold_tpl_001`]. Best-effort: a missing/unparseable `Cargo.toml` (or a
+/// `root` with no manifest) yields no extra diagnostics and never disturbs the
+/// single-file reports.
+fn fold_harness_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(index) = crate::harness_index::HarnessIndex::from_root(root) else {
+        return 0;
+    };
+
+    let mut added_errors = 0usize;
+    for (manifest_path, diags) in crate::analyzers::detect_harness_001(&index) {
+        if diags.is_empty() {
+            continue;
+        }
+        let manifest_str = manifest_path.to_string_lossy().to_string();
+        let manifest_content = std::fs::read_to_string(&manifest_path).unwrap_or_default();
+
+        added_errors += diags
+            .iter()
+            .filter(|d| d.severity == Some(DiagnosticSeverity::ERROR))
+            .count();
+
+        let routes: Vec<crate::route::RoutePlan> = match registry {
+            Some(reg) => diags
+                .iter()
+                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &manifest_content))
+                .collect(),
+            None => Vec::new(),
+        };
+
+        if let Some(existing) = files
+            .iter_mut()
+            .find(|f| paths_match(&f.path, &manifest_str))
+        {
+            existing.diagnostics.extend(diags);
+            existing.routes.extend(routes);
+        } else {
+            files.push(FileReport {
+                path: manifest_str,
                 diagnostics: diags,
                 routes,
             });

@@ -2,10 +2,15 @@
 //! GGEN-TPL-001 (Agent 4 of 001B).
 //!
 //! These tests add **NO behavior**. They lock the checkpoint boundaries so a
-//! later patch cannot silently expand scope (start GGEN-OUT-001, activate the
-//! GGEN-HARNESS-001 detector, introduce a child-LSP dependency, write emitted
-//! output during analysis, or route a GGEN-TPL-001 repair at an emitted-output
-//! path).
+//! later patch cannot silently expand scope (start GGEN-OUT-001, introduce a
+//! child-LSP dependency, write emitted output during analysis, or route a
+//! GGEN-TPL-001 repair at an emitted-output path).
+//!
+//! GALL-CHECKPOINT-002 update: GGEN-HARNESS-001 is now ACTIVE (its detector
+//! flipped on). The barrier below asserts the activation AND that a TPL fixture
+//! still raises ZERO GGEN-HARNESS-001 (no cross-species leak in either
+//! direction — the symmetric HARNESS→TPL barrier lives in
+//! `ggen_harness_001_living_loop.rs`).
 //!
 //! Chicago TDD: every test that exercises detection loads a *real* `ggen.toml`
 //! project tree from disk via [`ProjectIndex::from_root`] and runs the *real*
@@ -19,7 +24,7 @@
 //! |------|-----------------|
 //! | `out_001_remains_inactive_in_species_registry` | GGEN-OUT-001 not registered, or registered with `detector_active == false` |
 //! | `out_001_not_emitted_for_unbound_output_path` | `detect_tpl_001` over an unbound OUTPUT-PATH var emits no GGEN-OUT-001 |
-//! | `harness_001_remains_metadata_only` | GGEN-HARNESS-001 present with `detector_active == false` |
+//! | `harness_001_is_active` | GGEN-HARNESS-001 present with `detector_active == true` (CHECKPOINT-002) |
 //! | `detect_tpl_001_runs_without_any_child_lsp` | detection is pure Rust — no external binary / child LSP crept in |
 //! | `valid_fixture_stays_clean` | valid fixture → no GGEN-TPL-001 |
 //! | `invalid_fixture_emits_only_tpl_001` | invalid fixture → only GGEN-TPL-001, no other GGEN species code |
@@ -155,15 +160,16 @@ fn out_001_not_emitted_for_unbound_output_path() {
 
 // ─────────────────────── 2. GGEN-HARNESS-001 metadata only ──────────────────
 
-/// 2. GGEN-HARNESS-001 must exist in the species registry as metadata only:
-/// `detector_active == false`. Proves no harness-mismatch detector was wired.
+/// 2. GGEN-HARNESS-001 is now ACTIVE (GALL-CHECKPOINT-002): its detector compares
+/// Cargo.toml [[test]]/[[bench]] explicit-`path` declarations against the proof
+/// files on disk. This barrier locks the activation so a later patch cannot
+/// silently regress it back to metadata-only.
 #[test]
-fn harness_001_remains_metadata_only() {
-    let species =
-        species_for("GGEN-HARNESS-001").expect("GGEN-HARNESS-001 must be registered as metadata");
+fn harness_001_is_active() {
+    let species = species_for("GGEN-HARNESS-001").expect("GGEN-HARNESS-001 must be registered");
     assert!(
-        !species.detector_active,
-        "GGEN-HARNESS-001 must remain Phase-2 metadata only — detector_active must be false"
+        species.detector_active,
+        "GGEN-HARNESS-001 detector must be active (GALL-CHECKPOINT-002)"
     );
 }
 
