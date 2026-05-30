@@ -374,7 +374,7 @@ pub struct ResponseTimeMetrics {
 }
 
 /// Error rate metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ErrorRateMetrics {
     /// Error rate percentage
     pub rate: f64,
@@ -424,7 +424,7 @@ pub struct ResourceUsageMetrics {
 }
 
 /// Throughput metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ThroughputMetrics {
     /// Requests per second
     #[serde(rename = "requestsPerSecond")]
@@ -581,7 +581,7 @@ pub struct PerformanceMetrics {
 }
 
 /// Processing metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ProcessingMetrics {
     /// Average processing time
     pub average: std::time::Duration,
@@ -619,7 +619,7 @@ pub struct ResponseMetrics {
 }
 
 /// Resource utilization metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResourceUtilizationMetrics {
     /// CPU utilization
     pub cpu: f64,
@@ -635,7 +635,7 @@ pub struct ResourceUtilizationMetrics {
 }
 
 /// Reliability metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ReliabilityMetrics {
     /// Uptime percentage
     pub uptime: f64,
@@ -656,7 +656,7 @@ pub struct ReliabilityMetrics {
 }
 
 /// Efficiency metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EfficiencyMetrics {
     /// Cost efficiency
     #[serde(rename = "costEfficiency")]
@@ -676,7 +676,7 @@ pub struct EfficiencyMetrics {
 }
 
 /// Scalability metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScalabilityMetrics {
     /// Horizontal scalability
     #[serde(rename = "horizontal")]
@@ -695,7 +695,7 @@ pub struct ScalabilityMetrics {
 }
 
 /// Business metrics
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BusinessMetrics {
     /// User satisfaction
     #[serde(rename = "userSatisfaction")]
@@ -1458,7 +1458,7 @@ pub struct MonitoringThresholds {
 }
 
 /// Thresholds
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Thresholds {
     /// Warning threshold
     pub warning: f64,
@@ -1747,7 +1747,7 @@ pub enum TimeoutBehavior {
 }
 
 /// Circuit breaker policy
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CircuitBreakerPolicy {
     /// Failure threshold
     pub failure_threshold: f64,
