@@ -641,14 +641,14 @@ impl RdfControlPlane {
             PREFIX mp: <{}>
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
             INSERT DATA {{
-                <{}{0}> a mp:Package ;
-                    mp:id "{1}" ;
-                    mp:name "{2}" ;
-                    mp:description "{3}" ;
-                    mp:latestVersion "{4}" ;
-                    mp:license "{5}" ;
+                <{}{}> a mp:Package ;
+                    mp:id "{}" ;
+                    mp:name "{}" ;
+                    mp:description "{}" ;
+                    mp:latestVersion "{}" ;
+                    mp:license "{}" ;
                     mp:state "Draft" ;
-                    mp:hasCreatedTime "{6}"^^xsd:dateTime .
+                    mp:hasCreatedTime "{}"^^xsd:dateTime .
             }}
             "#,
             MARKETPLACE_NS,
@@ -765,7 +765,7 @@ impl RdfControlPlane {
             "#,
             MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS, MARKETPLACE_NS
         )
-        .replace("{}", package_id);
+        .replace("{}", &package_id.to_string());
         self.executor.update(&update_query)?;
 
         // Invalidate all caches via epoch bump

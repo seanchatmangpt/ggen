@@ -479,12 +479,11 @@ mod tests {
     ggen:autoUpdateEnabled "false"^^xsd:boolean ."#,
             MARKETPLACE_NS
         );
-"#;
 
-        let config_path = test_dir.join("marketplace" .to_string() + ".ttl");
+        let config_path = test_dir.join("marketplace.ttl");
         fs::write(&config_path, config_content).unwrap();
 
-        let validation_path = test_dir.join("validation-rules" .to_string() + ".ttl");
+        let validation_path = test_dir.join("validation-rules.ttl");
         fs::write(&validation_path, "# validation rules").unwrap();
 
         test_dir.to_str().unwrap().to_string()

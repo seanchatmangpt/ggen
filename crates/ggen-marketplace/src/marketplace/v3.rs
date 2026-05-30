@@ -168,6 +168,8 @@ impl V3OptimizedRegistry {
             MARKETPLACE_NS, MARKETPLACE_NS
         );
 
+        let query = oxigraph::sparql::Query::parse(&query, None)?;
+
         #[allow(deprecated)]
         match self.primary_store.query(query) {
             Ok(oxigraph::sparql::QueryResults::Solutions(solutions)) => {
