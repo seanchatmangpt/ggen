@@ -146,14 +146,21 @@ impl LanguageServer for GgenLanguageServer {
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         let uri = params.text_document.uri;
-        self.state.remove_document(&uri).await;
-        // LSP-conformant clear: publish an EMPTY diagnostics list for this URI so
-        // stale squiggles do not linger in the client after the document closes.
-        // Reuse the SAME publish path `did_open`/`did_change` use (the `Client`
-        // handle), so server state and editor diagnostics agree after close. Safe
-        // even if the doc was never opened — publishing an empty set is idempotent
-        // and never panics.
-        self.client.publish_diagnostics(uri, Vec::new(), None).await;
+        // Proactive living-clear. Closing a rule surface produces no flags, so the
+        // Client-free core ([`ServerState::close_document`]) drops the closed doc's
+        // state and re-runs cross-surface reconciliation: any peer it sustained
+        // (GGEN-TPL-001 / GGEN-HARNESS-001) is cleared THROUGH `observe_diagnostics`
+        // (a clear is an OCEL event, not an absence), with residual preservation; a
+        // peer still flagged by a surviving surface is left untouched. The closed
+        // URI's own empty clear is the last pair returned. This wrapper adds only
+        // the editor transport — pushing each `(uri, diagnostics)` pair in order —
+        // exactly like `refresh_analyzer`, keeping the receipt chain testable
+        // without a `tower_lsp::Client`.
+        for (target_uri, diagnostics) in self.state.close_document(&uri).await {
+            self.client
+                .publish_diagnostics(target_uri, diagnostics, None)
+                .await;
+        }
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {

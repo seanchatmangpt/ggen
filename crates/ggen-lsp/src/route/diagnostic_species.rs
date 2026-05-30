@@ -75,6 +75,22 @@ static SPECIES: &[DiagnosticSpecies] = &[
         // on disk (analyzers::detect_harness_001 over a harness_index::HarnessIndex).
         detector_active: true,
     },
+    // ── GGEN-OUT-001: unbound output path (ACTIVE — GALL-OUT-001) ────────────
+    DiagnosticSpecies {
+        code: "GGEN-OUT-001",
+        failure_class: "unbound_output_path",
+        surfaces: &["ggen.toml", "SPARQL"],
+        severity_policy: "error",
+        route: "source_law_repair",
+        origin: "ark-covenant / living-lsp OUT-001",
+        actuation_boundary: "inspect_only",
+        receipt_requirement: "diagnostic_receipt",
+        // Activated (GALL-OUT-001): a live detector now compares each rule's
+        // dynamic `output_file` Tera pattern against the rule's SPARQL SELECT
+        // variables (analyzers::detect_out_001 over a project_index::ProjectIndex).
+        // The dual of GGEN-TPL-001 on the ggen.toml/SPARQL surfaces.
+        detector_active: true,
+    },
 ];
 
 /// Borrow the full species registry.
@@ -127,14 +143,30 @@ mod tests {
     }
 
     #[test]
+    fn ggen_out_001_is_active_with_canonical_values() {
+        let species = species_for("GGEN-OUT-001").expect("GGEN-OUT-001 must be registered");
+        assert!(
+            species.detector_active,
+            "GGEN-OUT-001 detector must be active (GALL-OUT-001)"
+        );
+        assert_eq!(species.failure_class, "unbound_output_path");
+        assert_eq!(species.severity_policy, "error");
+        assert_eq!(species.route, "source_law_repair");
+        assert_eq!(species.origin, "ark-covenant / living-lsp OUT-001");
+        assert_eq!(species.actuation_boundary, "inspect_only");
+        assert_eq!(species.receipt_requirement, "diagnostic_receipt");
+        assert_eq!(species.surfaces, &["ggen.toml", "SPARQL"]);
+    }
+
+    #[test]
     fn unknown_code_has_no_species() {
         assert!(species_for("E0011").is_none());
         assert!(species_for("does-not-exist").is_none());
     }
 
     #[test]
-    fn registry_contains_exactly_two_species() {
-        assert_eq!(species_registry().len(), 2);
+    fn registry_contains_exactly_three_species() {
+        assert_eq!(species_registry().len(), 3);
     }
 
     #[test]

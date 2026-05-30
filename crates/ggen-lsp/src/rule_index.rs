@@ -112,7 +112,8 @@ impl RuleIndexEntry {
         };
 
         // --- Extract SELECT variables ------------------------------------
-        let selected_vars = extract_select_vars(&query_content, &mut issues);
+        let selected_vars =
+            crate::analyzers::select_projection_vars(&query_content, Some(&mut issues));
 
         RuleIndexEntry {
             rule_id: rule.name.clone(),
@@ -126,70 +127,6 @@ impl RuleIndexEntry {
             issues,
         }
     }
-}
-
-/// Minimal SPARQL `SELECT` variable extractor.
-///
-/// NOTE (Phase-1.5 consolidation): this intentionally duplicates the private
-/// `extract_sparql_vars` logic in `crate::analyzers`. The analyzer version is
-/// not `pub`, so we keep a small local copy here. When the analyzer surface is
-/// stabilized this should be unified into a single shared helper.
-///
-/// Algorithm:
-/// 1. Find `SELECT` (case-insensitive).
-/// 2. Take the text from after `SELECT` up to the next `WHERE` (case-insensitive);
-///    if no `WHERE`, use the rest of the string.
-/// 3. Collect whitespace/paren-delimited tokens starting with `?`, strip the `?`,
-///    and insert into a [`BTreeSet`].
-/// 4. `SELECT DISTINCT` is handled naturally (`DISTINCT` is not a `?`-token).
-/// 5. `SELECT *` yields an empty set and pushes an info issue.
-fn extract_select_vars(query: &str, issues: &mut Vec<String>) -> BTreeSet<String> {
-    let mut vars = BTreeSet::new();
-
-    let lower = query.to_ascii_lowercase();
-    let select_pos = match lower.find("select") {
-        Some(pos) => pos,
-        None => return vars,
-    };
-
-    // Slice starting right after the literal "select".
-    let after_select = &query[select_pos + "select".len()..];
-    let after_select_lower = &lower[select_pos + "select".len()..];
-
-    // Bound the projection by the first WHERE (if present).
-    let projection = match after_select_lower.find("where") {
-        Some(where_pos) => &after_select[..where_pos],
-        None => after_select,
-    };
-
-    let mut saw_star = false;
-    for raw in projection.split(|c: char| c.is_whitespace() || c == '(' || c == ')') {
-        let token = raw.trim();
-        if token.is_empty() {
-            continue;
-        }
-        if token == "*" {
-            saw_star = true;
-            continue;
-        }
-        if let Some(name) = token.strip_prefix('?') {
-            // Guard against bindings like `?x` followed by punctuation; keep the
-            // leading identifier-ish run only (SPARQL var chars).
-            let cleaned: String = name
-                .chars()
-                .take_while(|c| c.is_alphanumeric() || *c == '_')
-                .collect();
-            if !cleaned.is_empty() {
-                vars.insert(cleaned);
-            }
-        }
-    }
-
-    if vars.is_empty() && saw_star {
-        issues.push("SELECT * is not introspectable: no explicit projection variables".to_string());
-    }
-
-    vars
 }
 
 #[cfg(test)]
@@ -352,7 +289,10 @@ mod tests {
         let mut issues = Vec::new();
 
         // Act
-        let result = extract_select_vars("SELECT * WHERE { ?s ?p ?o }", &mut issues);
+        let result = crate::analyzers::select_projection_vars(
+            "SELECT * WHERE { ?s ?p ?o }",
+            Some(&mut issues),
+        );
 
         // Assert
         assert!(result.is_empty());
@@ -367,7 +307,10 @@ mod tests {
     fn lowercase_select_is_handled() {
         // Arrange + Act
         let mut issues = Vec::new();
-        let result = extract_select_vars("select ?a ?b where { ?a ?p ?b }", &mut issues);
+        let result = crate::analyzers::select_projection_vars(
+            "select ?a ?b where { ?a ?p ?b }",
+            Some(&mut issues),
+        );
 
         // Assert — case-insensitive SELECT/WHERE.
         assert_eq!(result, vars(&["a", "b"]));

@@ -1,0 +1,16 @@
+[project]
+name = "out001-living-loop-valid"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+# `name` IS projected by the SELECT, so the dynamic output_file pattern binds
+# cleanly → no GGEN-OUT-001.
+output_file = "out/{{ name }}.txt"

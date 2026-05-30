@@ -22,7 +22,7 @@ use std::path::{Path, PathBuf};
 
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString};
 
-use ggen_lsp::analyzers::detect_tpl_001;
+use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;
 
 /// Absolute path to a fixture project root under this crate's `tests/fixtures`.
@@ -178,20 +178,43 @@ fn analysis_never_materializes_output_file() {
     );
 }
 
-/// OPTIONAL / NEXT PHASE: GGEN-OUT-001 (unbound projection variable in a
-/// templated OUTPUT PATH). The rule is NOT active yet, so this test is ignored.
-/// The fixture (`output_path_unbound_next_phase`) declares
-/// `output_file = "out/{{ slug }}.txt"` where `slug` is unbound by the query.
+/// GGEN-OUT-001 (unbound projection variable in a templated OUTPUT PATH) is now
+/// ACTIVE (GALL-OUT-001). The fixture (`output_path_unbound_next_phase`) declares
+/// `output_file = "out/{{ slug }}.txt"` where `slug` is unbound by the query, with
+/// a clean template body — so `detect_out_001` raises exactly one GGEN-OUT-001
+/// anchored on the `ggen.toml`, and `detect_tpl_001` stays silent.
 #[test]
-#[ignore = "GGEN-OUT-001 not active yet (next phase)"]
-fn output_path_unbound_emits_out_001_next_phase() {
+fn output_path_unbound_emits_out_001() {
     let project = load(&fixture_root("output_path_unbound_next_phase"));
 
-    // When GGEN-OUT-001 lands, the matching analyzer should fire here.
-    // Today the fixture exists only to lock the shape; we assert the project
-    // loads so the fixture stays valid for the future analyzer.
-    let _ = detect_tpl_001(&project);
-    // Intentionally no GGEN-OUT-001 assertion until the analyzer exists.
+    // The OUT detector fires on the unbound output-path variable, anchored on
+    // ggen.toml.
+    let out = detect_out_001(&project);
+    let out_codes: Vec<String> = out
+        .iter()
+        .flat_map(|(_, diags)| diags.iter())
+        .filter_map(|d| match &d.code {
+            Some(NumberOrString::String(s)) => Some(s.clone()),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        out_codes.iter().any(|c| c == "GGEN-OUT-001"),
+        "an unbound OUTPUT-PATH variable must raise GGEN-OUT-001. Got: {out_codes:?}"
+    );
+    // The OUT diagnostic anchors on the ggen.toml manifest, not the template.
+    assert!(
+        out.iter().all(|(p, _)| p.ends_with("ggen.toml")),
+        "GGEN-OUT-001 must anchor on ggen.toml. Got anchors: {:?}",
+        out.iter().map(|(p, _)| p.clone()).collect::<Vec<_>>()
+    );
+    // The template BODY is clean (consumes only the bound `name`), so the TPL
+    // detector stays silent — proving OUT-001 is independent of TPL-001.
+    let tpl = detect_tpl_001(&project);
+    assert!(
+        tpl.is_empty(),
+        "the template body is clean; GGEN-TPL-001 must NOT fire. Got: {tpl:?}"
+    );
 }
 
 /// Recursively copy a directory tree using only std (no external deps beyond

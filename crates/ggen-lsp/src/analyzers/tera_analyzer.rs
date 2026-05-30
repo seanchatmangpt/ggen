@@ -17,6 +17,13 @@ use crate::analyzers::diag;
 /// a template consumes a variable that the rule's SPARQL `SELECT` does not produce.
 pub const GGEN_TPL_001: &str = "GGEN-TPL-001";
 
+/// Canonical diagnostic code for the cross-surface unbound-OUTPUT-PATH law.
+///
+/// A rule's `output_file` pattern (a tiny Tera template, rendered per SPARQL
+/// result row) consumes a variable that the rule's SPARQL `SELECT` does not
+/// produce. The dual of [`GGEN_TPL_001`] on the `ggen.toml`/SPARQL surfaces.
+pub const GGEN_OUT_001: &str = "GGEN-OUT-001";
+
 const FILTERS: &[&str] = &[
     "upper",
     "lower",
@@ -75,23 +82,8 @@ impl TeraAnalyzer {
     ) -> Result<Self, crate::error::LspError> {
         Ok(Self {
             source: content.to_string(),
-            available_vars: Self::extract_sparql_vars(sparql_bindings),
+            available_vars: super::select_projection_vars(sparql_bindings, None),
         })
-    }
-
-    fn extract_sparql_vars(sparql: &str) -> BTreeSet<String> {
-        let mut vars = BTreeSet::new();
-        if let Some(select_idx) = sparql.find("SELECT") {
-            let after = &sparql[select_idx + 6..];
-            if let Some(where_idx) = after.find("WHERE") {
-                for word in after[..where_idx].split_whitespace() {
-                    if let Some(name) = word.strip_prefix('?') {
-                        vars.insert(name.to_string());
-                    }
-                }
-            }
-        }
-        vars
     }
 
     /// The variables this rule's SPARQL `SELECT` produces (no `?`).
@@ -441,6 +433,50 @@ pub fn unbound_projection_diagnostics(
         .collect()
 }
 
+/// Pure cross-surface detector for unbound OUTPUT-PATH projections.
+///
+/// For each variable the rule's `output_file` pattern consumes that the rule's
+/// SPARQL `SELECT` does **not** produce (`available_vars`), emit a GGEN-OUT-001
+/// (`unbound_output_path`) error diagnostic. `output_file` is a tiny Tera
+/// template rendered once per SPARQL result row against the row's bindings
+/// (`ggen_core::codegen::pipeline` renders it via `tera.render_str`), so the
+/// SAME [`consumed_vars`] extractor that powers GGEN-TPL-001 applies verbatim.
+///
+/// Returns empty when `output_file` is a STATIC path (no `{{`) — `consumed_vars`
+/// finds no references, so the static-path case is silent by construction (the
+/// `pipeline` engine itself treats `!output_file.contains("{{")` as a no-op
+/// single render). The caller ([`crate::analyzers::detect_out_001`]) additionally
+/// skips rules whose `available_vars` is empty (`SELECT *` / missing query) to
+/// avoid false positives where there is no introspectable producer to compare.
+///
+/// Reads no files and writes no files — a pure function over its inputs.
+/// Anchored at the whole first line (line 0) for the MVP, on the `ggen.toml`
+/// declaration surface where `output_file` lives (NOT the template, NEVER an
+/// emitted output file).
+#[must_use]
+pub fn unbound_output_path_diagnostics(
+    output_file: &str, available_vars: &BTreeSet<String>,
+) -> Vec<Diagnostic> {
+    consumed_vars(output_file)
+        .into_iter()
+        .filter(|var| !available_vars.contains(var))
+        .map(|var| {
+            let mut d = diag::whole_line(
+                0,
+                DiagnosticSeverity::ERROR,
+                Some(GGEN_OUT_001),
+                format!(
+                    "{GGEN_OUT_001} unbound_output_path: output_file consumes `{var}` which the \
+                     rule's SPARQL SELECT does not produce"
+                ),
+            );
+            // Be explicit about the code type for downstream route matching.
+            d.code = Some(NumberOrString::String(GGEN_OUT_001.to_string()));
+            d
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -453,6 +489,12 @@ mod tests {
         diags
             .iter()
             .any(|d| d.code == Some(NumberOrString::String(GGEN_TPL_001.to_string())))
+    }
+
+    fn has_out_001(diags: &[Diagnostic]) -> bool {
+        diags
+            .iter()
+            .any(|d| d.code == Some(NumberOrString::String(GGEN_OUT_001.to_string())))
     }
 
     #[test]
@@ -531,5 +573,65 @@ mod tests {
             diags[0].code,
             Some(tower_lsp::lsp_types::NumberOrString::String("E0024".into()))
         );
+    }
+
+    // ───────────── GGEN-OUT-001: unbound output-path projection ──────────────
+
+    #[test]
+    fn output_path_bound_var_no_diagnostic() {
+        // The canonical fixture pattern: `output_file = "src/{{name}}.rs"` where
+        // `name` IS projected by the SELECT → no OUT-001.
+        let diags = unbound_output_path_diagnostics("src/models/{{name}}.rs", &vars(&["name"]));
+        assert!(diags.is_empty(), "expected no diagnostic, got {diags:?}");
+    }
+
+    #[test]
+    fn output_path_unbound_var_one_out_001() {
+        // `missing` is consumed by the output path but not projected → 1 OUT-001.
+        let diags = unbound_output_path_diagnostics("src/{{missing}}.rs", &vars(&["name"]));
+        assert_eq!(diags.len(), 1, "expected exactly one diagnostic: {diags:?}");
+        assert!(has_out_001(&diags));
+        assert!(diags[0].message.contains("missing"));
+        assert_eq!(diags[0].severity, Some(DiagnosticSeverity::ERROR));
+    }
+
+    #[test]
+    fn static_output_path_is_silent_by_construction() {
+        // No `{{ }}` → `consumed_vars` finds nothing → zero diagnostics, even
+        // when `available_vars` is non-empty.
+        let diags = unbound_output_path_diagnostics("src/lib.rs", &vars(&["name"]));
+        assert!(
+            diags.is_empty(),
+            "a static output_file must never raise OUT-001: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn output_path_partial_binding_reports_only_unbound() {
+        // `{{a}}` is bound, `{{b}}` is not → exactly one OUT-001 (for `b`).
+        let diags = unbound_output_path_diagnostics("{{a}}/{{b}}.rs", &vars(&["a"]));
+        assert_eq!(diags.len(), 1, "only the unbound `b`: {diags:?}");
+        assert!(diags[0].message.contains('b'));
+        assert!(!diags[0].message.contains("`a`"));
+    }
+
+    #[test]
+    fn output_path_empty_vars_dynamic_reports_per_consumed_var() {
+        // A direct call with empty vars + a dynamic output path reports each
+        // consumed var. (The index-level detector skips empty-vars rules; this
+        // documents the pure function's own contract.)
+        let diags = unbound_output_path_diagnostics("out/{{slug}}.txt", &BTreeSet::new());
+        assert_eq!(diags.len(), 1, "expected one diagnostic: {diags:?}");
+        assert!(has_out_001(&diags));
+        assert!(diags[0].message.contains("slug"));
+    }
+
+    #[test]
+    fn out_001_and_tpl_001_codes_are_distinct() {
+        // The two detectors emit DISTINCT codes — no cross-surface confusion.
+        let out = unbound_output_path_diagnostics("{{x}}.rs", &BTreeSet::new());
+        let tpl = unbound_projection_diagnostics("{{x}}", &BTreeSet::new());
+        assert!(has_out_001(&out) && !has_tpl_001(&out));
+        assert!(has_tpl_001(&tpl) && !has_out_001(&tpl));
     }
 }

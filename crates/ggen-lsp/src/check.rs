@@ -375,6 +375,15 @@ pub fn check_files_in_root(root: &Path, paths: &[PathBuf], with_routes: bool) ->
     // Cargo.toml yields no extra diagnostics).
     error_count += fold_harness_001(root, &mut files, registry.as_ref());
 
+    // Cross-surface law: GGEN-OUT-001 (unbound output path). The dual of
+    // GGEN-TPL-001 on the ggen.toml/SPARQL surfaces: the single-file analyzers
+    // cannot see whether a rule's dynamic `output_file` Tera pattern references a
+    // variable the SPARQL SELECT never binds. We supply that cross-surface context
+    // here by building the project index from `root` and running the same pure
+    // detector the interactive server uses. Read-only; best-effort (a missing
+    // `ggen.toml` yields no extra diagnostics).
+    error_count += fold_out_001(root, &mut files, registry.as_ref());
+
     let route_summary = with_routes.then(|| summarize_routes(&files));
 
     CheckReport {
@@ -473,6 +482,67 @@ fn fold_harness_001(
 
     let mut added_errors = 0usize;
     for (manifest_path, diags) in crate::analyzers::detect_harness_001(&index) {
+        if diags.is_empty() {
+            continue;
+        }
+        let manifest_str = manifest_path.to_string_lossy().to_string();
+        let manifest_content = std::fs::read_to_string(&manifest_path).unwrap_or_default();
+
+        added_errors += diags
+            .iter()
+            .filter(|d| d.severity == Some(DiagnosticSeverity::ERROR))
+            .count();
+
+        let routes: Vec<crate::route::RoutePlan> = match registry {
+            Some(reg) => diags
+                .iter()
+                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &manifest_content))
+                .collect(),
+            None => Vec::new(),
+        };
+
+        if let Some(existing) = files
+            .iter_mut()
+            .find(|f| paths_match(&f.path, &manifest_str))
+        {
+            existing.diagnostics.extend(diags);
+            existing.routes.extend(routes);
+        } else {
+            files.push(FileReport {
+                path: manifest_str,
+                diagnostics: diags,
+                routes,
+            });
+        }
+    }
+    added_errors
+}
+
+/// Fold GGEN-OUT-001 (unbound-output-path) diagnostics from the project index at
+/// `root` into `files`, returning the number of newly added ERROR diagnostics (so
+/// the caller can keep `error_count` exact).
+///
+/// The dual of [`fold_tpl_001`]: for each `(manifest_path, diags)` the detector
+/// returns, the diagnostics are appended to the [`FileReport`] whose path matches
+/// that `ggen.toml` (added as a new report if the manifest is not already among
+/// `files`). When `registry` is `Some` (i.e. `--with-routes`), each appended
+/// diagnostic also gets its `RoutePlan` resolved through the SAME route engine as
+/// every other channel, using the manifest's own content as the route's edit-site
+/// context.
+///
+/// `detect_out_001` itself skips rules with empty `selected_vars` (`SELECT *` /
+/// missing query) and static `output_file` paths, so this function never
+/// synthesizes a false positive. Best-effort: a missing/unparseable `ggen.toml`
+/// (or a `root` with no manifest) yields no extra diagnostics.
+fn fold_out_001(
+    root: &Path, files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+) -> usize {
+    let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
+        return 0;
+    };
+
+    let mut added_errors = 0usize;
+    for (manifest_path, diags) in crate::analyzers::detect_out_001(&project) {
         if diags.is_empty() {
             continue;
         }
