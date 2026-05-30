@@ -1,0 +1,1 @@
+# keeps tests/proof/ in git; the declared `nonexistent.rs` is intentionally absent.

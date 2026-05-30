@@ -1,0 +1,15 @@
+# Fixture crate for GGEN-HARNESS-001 — the LAWFUL counterpart.
+#
+# The [[test]] declares `path = tests/proof/run.rs`, which DOES exist on disk, so
+# no harness mismatch is raised. `[workspace]` excludes it from the parent
+# workspace (fixture data, never compiled). No ggen.toml: zero GGEN-TPL-001.
+[workspace]
+
+[package]
+name = "harness-lawful-fixture"
+version = "0.1.0"
+edition = "2021"
+
+[[test]]
+name = "proof"
+path = "tests/proof/run.rs"

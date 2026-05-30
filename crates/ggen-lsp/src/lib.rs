@@ -3,6 +3,7 @@ pub mod check;
 pub mod error;
 pub mod features;
 pub mod handlers;
+pub mod harness_index;
 pub mod init;
 pub mod intel;
 pub mod pack;

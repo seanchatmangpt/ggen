@@ -130,6 +130,16 @@ pub fn family_of_code(code: &str) -> Option<RepairFamily> {
         // for that orchestrator request. The species-level route slug is
         // "source_law_repair" (route::diagnostic_species).
         "GGEN-TPL-001" => Some(RepairFamily::DanglingReference),
+        // GGEN-HARNESS-001 (harness mismatch): a declared proof/test/bench target
+        // (Cargo.toml [[test]]/[[bench]] explicit `path`) points at a file that
+        // does not exist on disk. Mapped to AdmissionFailure (an otherwise
+        // UNSEEDED family) so its dedicated proof-topology source-law route is
+        // selected WITHOUT colliding with any other code's seeds. As with
+        // GGEN-TPL-001, HARNESS owns its family exclusively, so
+        // `select_for_diagnostic` (which keys only on family) never contaminates
+        // another code. The species-level route slug is "proof_topology_repair"
+        // (route::diagnostic_species).
+        "GGEN-HARNESS-001" => Some(RepairFamily::AdmissionFailure),
         "E0023" => Some(RepairFamily::ConfigValue),
         "E0001" => Some(RepairFamily::ParseFailure),
         "RDF" => Some(RepairFamily::ParseFailure),
@@ -232,6 +242,60 @@ fn seed_routes() -> Vec<RepairRoute> {
             description: "Unbound projection — bind the variable at its source law \
                           (SPARQL SELECT, Tera template, or ggen.toml rule). Advisory \
                           only; never edits emitted output."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
+        },
+        // GGEN-HARNESS-001 (harness mismatch): a declared proof/test/bench target
+        // points at a file that does not exist on disk. The fix lives ONLY in
+        // source law — reconcile the DECLARATION (Cargo.toml [[test]]/[[bench]]
+        // path, Makefile.toml task target reference) with the proof file on disk.
+        // Purely ADVISORY (all NoOp edits): three concurrent source-law surfaces.
+        // NO step fabricates a passing proof, forces a test to pass, or targets an
+        // emitted/generated output (cf. real commit 47656dbf "replace non-existent
+        // benchmark targets" — the lawful repair removed dead declarations).
+        //
+        // Owns the AdmissionFailure family exclusively, so a GGEN-HARNESS-001
+        // diagnostic selects THIS route and nothing else (no contamination of the
+        // TPL-001 DanglingReference route or the TemplateFailure seeds).
+        RepairRoute {
+            id: RouteId("proof-topology.repair".into()),
+            family: RepairFamily::AdmissionFailure,
+            steps: PartialOrder {
+                nodes: vec![
+                    RepairStep {
+                        id: StepId("fix-cargo-toml-declaration".into()),
+                        title: "Correct the Cargo.toml [[test]]/[[bench]] declaration: align the \
+                                `path` to the real proof file, or remove the non-existent target \
+                                (source law)"
+                            .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                    RepairStep {
+                        id: StepId("fix-makefile-toml-reference".into()),
+                        title:
+                            "Correct the Makefile.toml proof/test task target reference to name \
+                                only existing targets (source law)"
+                                .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                    RepairStep {
+                        id: StepId("inspect-proof-file-path".into()),
+                        title:
+                            "Inspect/create the missing proof file under tests or tests/proof so \
+                                the declared path resolves (source law)"
+                                .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                ],
+                // Three independent source-law surfaces — no ordering edge (concurrent).
+                edges: vec![],
+            },
+            description: "Harness mismatch — reconcile the declared proof/test topology \
+                          (Cargo.toml [[test]]/[[bench]], Makefile.toml task targets) with the \
+                          proof files on disk. Repair the declaration or the file path; NEVER \
+                          fabricate or force a passing proof, NEVER target a generated artifact. \
+                          Advisory only (inspect_only)."
                 .into(),
             provenance: Provenance::Seeded,
             priority: 10,
@@ -482,5 +546,89 @@ mod tests {
         assert!(titles.contains("sparql"), "must cover SPARQL SELECT");
         assert!(titles.contains("template"), "must cover Tera template");
         assert!(titles.contains("ggen.toml"), "must cover ggen.toml rule");
+    }
+
+    // ---- GGEN-HARNESS-001: proof-topology source-law repair route ----
+
+    #[test]
+    fn ggen_harness_001_maps_to_its_own_family() {
+        // GGEN-HARNESS-001 must resolve to the AdmissionFailure family, which it
+        // owns exclusively (no other code maps there) — zero cross-contamination.
+        assert_eq!(
+            family_of_code("GGEN-HARNESS-001"),
+            Some(RepairFamily::AdmissionFailure)
+        );
+    }
+
+    #[test]
+    fn ggen_harness_001_selects_the_proof_topology_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-HARNESS-001", "harness mismatch"))
+            .expect("GGEN-HARNESS-001 must resolve to a seeded route");
+        assert_eq!(route.id.0, "proof-topology.repair");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_harness_001_route_is_source_law_only() {
+        // Load-bearing invariant: the route must NEVER fabricate a proof or target
+        // an emitted/generated artifact. Every step is advisory (NoOp), references
+        // a harness source-law surface, and contains no emitted-output / fabrication
+        // marker.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-HARNESS-001", "harness mismatch"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        const FORBIDDEN: &[&str] = &[
+            "out/",
+            "output/",
+            "dist/",
+            "gen/",
+            "emitted",
+            "fabricate",
+            "force the",
+            "make the proof pass",
+            "pass the test",
+            "stub",
+        ];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "HARNESS step {:?} must be advisory (NoOp)",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN {
+                assert!(
+                    !title.contains(forbidden),
+                    "HARNESS step title {:?} contains forbidden marker {forbidden:?}",
+                    step.title
+                );
+            }
+            // Each step must reference a source-law surface.
+            assert!(
+                title.contains("cargo.toml")
+                    || title.contains("makefile.toml")
+                    || title.contains("tests"),
+                "HARNESS step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_harness_001_does_not_contaminate_tpl_001() {
+        // A TPL-001 diagnostic must still resolve to its own source-law route,
+        // proving HARNESS did not steal the DanglingReference family.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection"))
+            .expect("route");
+        assert_eq!(route.id.0, "source-law.bind-projection");
     }
 }

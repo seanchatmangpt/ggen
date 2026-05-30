@@ -86,6 +86,23 @@ pub struct ServerState {
     /// stale squiggle AND lets `observe_diagnostics` record the disappearance as
     /// a lawful transition (a clear is an event, not an absence).
     tpl_flagged: Arc<Mutex<HashSet<Url>>>,
+    /// Manifest URIs (`Cargo.toml`) that received a GGEN-HARNESS-001 publish on
+    /// the previous pass. The HARNESS analogue of `tpl_flagged`: a later pass that
+    /// no longer flags a manifest re-publishes its RESIDUAL single-file diagnostics
+    /// so the disappeared harness-mismatch key is observed as a lawful clear
+    /// (RepairApplied → GatePassed → ReceiptEmitted), not a silent absence.
+    harness_flagged: Arc<Mutex<HashSet<Url>>>,
+}
+
+/// True if `path` is a ggen project manifest (`ggen.toml`) — the TPL-001 trigger.
+fn is_ggen_manifest(path: &str) -> bool {
+    path.ends_with("ggen.toml")
+}
+
+/// True if `path` is a harness declaration surface (`Cargo.toml`/`Makefile.toml`)
+/// — the GGEN-HARNESS-001 trigger. Disjoint from [`is_ggen_manifest`] by basename.
+fn is_harness_surface(path: &str) -> bool {
+    path.ends_with("Cargo.toml") || path.ends_with("Makefile.toml")
 }
 
 impl Default for ServerState {
@@ -115,6 +132,7 @@ impl ServerState {
             pending_repairs: Arc::new(Mutex::new(HashMap::new())),
             published_diags: Arc::new(Mutex::new(HashMap::new())),
             tpl_flagged: Arc::new(Mutex::new(HashSet::new())),
+            harness_flagged: Arc::new(Mutex::new(HashSet::new())),
         }
     }
 
@@ -131,6 +149,26 @@ impl ServerState {
     /// Stores `current` as the flagged set for the next pass.
     pub async fn tpl_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
         let mut flagged = self.tpl_flagged.lock().await;
+        let cleared: Vec<Url> = flagged
+            .iter()
+            .filter(|&u| !current.contains(u) && *u != *edited)
+            .cloned()
+            .collect();
+        *flagged = current.clone();
+        cleared
+    }
+
+    /// Reconcile cross-surface GGEN-HARNESS-001 flagged manifests for one edit.
+    ///
+    /// The HARNESS analogue of [`Self::tpl_clears_for`]: `current` is the set of
+    /// manifest URIs that GGEN-HARNESS-001 fires for *now*; `edited` (already
+    /// published on its own path) is excluded to avoid a double publish. Returns
+    /// the manifest URIs flagged on the PREVIOUS pass but no longer flagged — the
+    /// caller publishes their RESIDUAL single-file diagnostics (NOT empty) so the
+    /// disappeared harness-mismatch key becomes an observed lifecycle transition.
+    /// Stores `current` as the flagged set for the next pass.
+    pub async fn harness_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
+        let mut flagged = self.harness_flagged.lock().await;
         let cleared: Vec<Url> = flagged
             .iter()
             .filter(|&u| !current.contains(u) && *u != *edited)
@@ -324,18 +362,32 @@ impl ServerState {
             self.set_analyzer(uri.clone(), analyzer).await;
         }
 
-        // Cross-file GGEN-TPL-001: only for rule-referenced surfaces, and only when
-        // we can resolve a project root with a real `ggen.toml`.
-        let tpl_groups = if matches!(
-            file_type,
-            FileType::Tera | FileType::Sparql | FileType::Toml
-        ) {
+        // Cross-file GGEN-TPL-001: for rule-referenced surfaces (`.tera`/`.rq`) or
+        // the ggen project manifest specifically. Both `ggen.toml` and `Cargo.toml`
+        // classify as `FileType::Toml`, so we route by BASENAME: only `ggen.toml`
+        // triggers the TPL path. (`detect_tpl_001_for` itself requires a real
+        // `ggen.toml` via `ProjectIndex::from_root`, so a `Cargo.toml`-only dir was
+        // already silent — this tightening just makes the intent explicit and keeps
+        // HARNESS edits from spuriously recomputing the TPL graph.)
+        let tpl_is_trigger =
+            matches!(file_type, FileType::Tera | FileType::Sparql) || is_ggen_manifest(uri.path());
+        let tpl_groups = if tpl_is_trigger {
             self.detect_tpl_001_for(uri)
         } else {
             Vec::new()
         };
 
-        let edited_template_url = url_from_path_str(uri.path());
+        // Cross-file GGEN-HARNESS-001: only for harness declaration surfaces
+        // (`Cargo.toml`/`Makefile.toml`). Disjoint from the TPL trigger by basename,
+        // so a TPL fixture raises zero HARNESS and a HARNESS fixture raises zero TPL.
+        let harness_is_trigger = is_harness_surface(uri.path());
+        let harness_groups = if harness_is_trigger {
+            self.detect_harness_001_for(uri)
+        } else {
+            Vec::new()
+        };
+
+        let edited_self_url = url_from_path_str(uri.path());
         let mut published_self = false;
         let mut current_flagged: HashSet<Url> = HashSet::new();
         for (template_path, tpl_diags) in tpl_groups {
@@ -343,7 +395,7 @@ impl ServerState {
                 continue;
             };
             current_flagged.insert(template_url.clone());
-            if edited_template_url.as_ref() == Some(&template_url) {
+            if edited_self_url.as_ref() == Some(&template_url) {
                 // The edited file IS this template: merge once, publish once.
                 let mut merged = std::mem::take(&mut own_diags);
                 merged.extend(tpl_diags);
@@ -356,24 +408,56 @@ impl ServerState {
             }
         }
 
-        // If the edited file was not itself a TPL-001-affected template, observe its
-        // own single-file diagnostics (preserving the original single-file flow).
+        // HARNESS-001 groups anchor on the crate `Cargo.toml`. When the edited file
+        // IS that manifest, merge its single-file diagnostics in once and publish
+        // once (mirrors the TPL self-merge); otherwise publish the group on its own.
+        let mut current_harness_flagged: HashSet<Url> = HashSet::new();
+        for (manifest_path, harness_diags) in harness_groups {
+            let Some(manifest_url) = url_from_path(&manifest_path) else {
+                continue;
+            };
+            current_harness_flagged.insert(manifest_url.clone());
+            if edited_self_url.as_ref() == Some(&manifest_url) {
+                let mut merged = std::mem::take(&mut own_diags);
+                merged.extend(harness_diags);
+                self.observe_diagnostics(&manifest_url, &merged).await;
+                published.push((manifest_url, merged));
+                published_self = true;
+            } else {
+                self.observe_diagnostics(&manifest_url, &harness_diags)
+                    .await;
+                published.push((manifest_url, harness_diags));
+            }
+        }
+
+        // If the edited file was not itself a cross-surface-affected file, observe
+        // its own single-file diagnostics (preserving the original single-file flow).
         if !published_self {
             self.observe_diagnostics(uri, &own_diags).await;
             published.push((uri.clone(), own_diags));
         }
 
-        // STALE-CLEAR reconciliation: a cross-surface repair makes a *different*
-        // template lawful, dropping it from `tpl_groups`. Its URI is re-published
-        // with its RESIDUAL single-file diagnostics (NOT empty) so the per-key diff
-        // in `observe_diagnostics` drops only the disappeared GGEN-TPL-001 key while
-        // preserving unrelated law. Only runs when the edited file is itself a rule
-        // surface (so the project graph was actually recomputed this pass).
-        if matches!(
-            file_type,
-            FileType::Tera | FileType::Sparql | FileType::Toml
-        ) {
+        // STALE-CLEAR reconciliation (TPL): a cross-surface repair makes a
+        // *different* template lawful, dropping it from `tpl_groups`. Its URI is
+        // re-published with its RESIDUAL single-file diagnostics (NOT empty) so the
+        // per-key diff in `observe_diagnostics` drops only the disappeared
+        // GGEN-TPL-001 key while preserving unrelated law.
+        if tpl_is_trigger {
             for cleared in self.tpl_clears_for(uri, &current_flagged).await {
+                let residual = self.residual_single_file_diags(&cleared).await;
+                self.observe_diagnostics(&cleared, &residual).await;
+                published.push((cleared, residual));
+            }
+        }
+
+        // STALE-CLEAR reconciliation (HARNESS): repairing the declaration (fixing
+        // the Cargo.toml `path` or creating the proof file) makes the manifest
+        // lawful, dropping it from `harness_groups`. Re-publish its RESIDUAL
+        // single-file diagnostics so the disappeared GGEN-HARNESS-001 key is
+        // observed as a lawful clear (NOT a blunt empty publish — residual
+        // preservation).
+        if harness_is_trigger {
+            for cleared in self.harness_clears_for(uri, &current_harness_flagged).await {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
@@ -433,6 +517,42 @@ impl ServerState {
         // Fallback: the server's configured root, if it holds a manifest.
         let fallback = self.root.clone();
         if fallback.join("ggen.toml").is_file() {
+            Some(fallback)
+        } else {
+            None
+        }
+    }
+
+    /// Resolve the crate root for `uri`, build a [`crate::harness_index::HarnessIndex`],
+    /// and run the cross-surface GGEN-HARNESS-001 detector. Returns the per-manifest
+    /// diagnostic groups (empty on any resolution/build failure — best-effort, never
+    /// panics, never writes files).
+    fn detect_harness_001_for(&self, uri: &Url) -> Vec<(PathBuf, Vec<Diagnostic>)> {
+        let Some(root) = self.harness_root_for(uri) else {
+            return Vec::new();
+        };
+        match crate::harness_index::HarnessIndex::from_root(&root) {
+            Ok(index) => crate::analyzers::detect_harness_001(&index),
+            Err(_) => Vec::new(),
+        }
+    }
+
+    /// Find the crate root for a harness surface: walk up parent directories from
+    /// the file path to the nearest directory containing a `Cargo.toml`. Falls back
+    /// to `self.root` when the URI is not a local file path or no manifest is found
+    /// above it (only if that root itself holds a `Cargo.toml`).
+    fn harness_root_for(&self, uri: &Url) -> Option<PathBuf> {
+        if let Ok(file_path) = uri.to_file_path() {
+            let mut dir: Option<&Path> = file_path.parent();
+            while let Some(d) = dir {
+                if d.join("Cargo.toml").is_file() {
+                    return Some(d.to_path_buf());
+                }
+                dir = d.parent();
+            }
+        }
+        let fallback = self.root.clone();
+        if fallback.join("Cargo.toml").is_file() {
             Some(fallback)
         } else {
             None

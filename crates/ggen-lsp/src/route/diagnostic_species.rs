@@ -60,7 +60,7 @@ static SPECIES: &[DiagnosticSpecies] = &[
         receipt_requirement: "diagnostic_receipt",
         detector_active: true,
     },
-    // ── GGEN-HARNESS-001: harness mismatch (Phase 2 — metadata only) ──────
+    // ── GGEN-HARNESS-001: harness mismatch (ACTIVE — GALL-CHECKPOINT-002) ─
     DiagnosticSpecies {
         code: "GGEN-HARNESS-001",
         failure_class: "harness_mismatch",
@@ -70,8 +70,10 @@ static SPECIES: &[DiagnosticSpecies] = &[
         origin: "ark-covenant ProofPack runner failure",
         actuation_boundary: "inspect_only",
         receipt_requirement: "boundary_receipt",
-        // Phase 2 — metadata only, NO detector.
-        detector_active: false,
+        // Activated (GALL-CHECKPOINT-002): a live detector now compares Cargo.toml
+        // [[test]]/[[bench]] explicit-`path` declarations against the proof files
+        // on disk (analyzers::detect_harness_001 over a harness_index::HarnessIndex).
+        detector_active: true,
     },
 ];
 
@@ -108,11 +110,11 @@ mod tests {
     }
 
     #[test]
-    fn ggen_harness_001_is_metadata_only() {
+    fn ggen_harness_001_is_active() {
         let species = species_for("GGEN-HARNESS-001").expect("GGEN-HARNESS-001 must be registered");
         assert!(
-            !species.detector_active,
-            "GGEN-HARNESS-001 is Phase 2 metadata only — detector must NOT be active"
+            species.detector_active,
+            "GGEN-HARNESS-001 detector must be active (GALL-CHECKPOINT-002)"
         );
         assert_eq!(species.failure_class, "harness_mismatch");
         assert_eq!(species.severity_policy, "release_blocking");

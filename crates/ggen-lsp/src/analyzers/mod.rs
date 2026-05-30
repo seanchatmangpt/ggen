@@ -1,4 +1,5 @@
 pub mod diag;
+pub mod harness_analyzer;
 pub mod rdf_analyzer;
 pub mod sparql_analyzer;
 pub mod tera_analyzer;
@@ -11,12 +12,32 @@ use tower_lsp::lsp_types::{
     WorkspaceEdit,
 };
 
+pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use sparql_analyzer::SparqlAnalyzer;
 pub use tera_analyzer::{unbound_projection_diagnostics, TeraAnalyzer, GGEN_TPL_001};
 pub use toml_analyzer::TomlAnalyzer;
 
 use crate::state::FileType;
+
+/// Cross-surface GGEN-HARNESS-001 detection over a harness index.
+///
+/// Runs the pure [`harness_mismatch_diagnostics`] detector against the index's
+/// declared targets and on-disk proof files. Groups every resulting diagnostic
+/// onto the crate's `Cargo.toml` — the declaration/squiggle surface. Mirror of
+/// [`detect_tpl_001`]'s `Vec<(PathBuf, Vec<Diagnostic>)>` shape. Reads no files
+/// (the [`crate::harness_index::HarnessIndex`] already did the I/O).
+#[must_use]
+pub fn detect_harness_001(
+    index: &crate::harness_index::HarnessIndex,
+) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+    let diags = harness_mismatch_diagnostics(&index.targets, &index.existing_files);
+    if diags.is_empty() {
+        return Vec::new();
+    }
+    // Every mismatch in this index anchors on the same crate Cargo.toml.
+    vec![(index.root.join("Cargo.toml"), diags)]
+}
 
 /// Cross-surface GGEN-TPL-001 detection over a whole project index.
 ///

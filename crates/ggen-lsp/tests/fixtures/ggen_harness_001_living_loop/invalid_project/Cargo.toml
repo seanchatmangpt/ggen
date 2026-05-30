@@ -1,0 +1,19 @@
+# Fixture crate for GGEN-HARNESS-001 (harness mismatch).
+#
+# `[workspace]` makes this its own workspace root so the parent ggen workspace
+# does NOT auto-discover it as a member (it is fixture data, never compiled).
+#
+# The harness mismatch: the [[test]] table declares `path = tests/proof/nonexistent.rs`
+# but no such file exists on disk (only tests/proof/.keep). The declared bench is
+# also missing. There is intentionally NO ggen.toml in this fixture, so it raises
+# ZERO GGEN-TPL-001 (the no-leak barrier).
+[workspace]
+
+[package]
+name = "harness-mismatch-fixture"
+version = "0.1.0"
+edition = "2021"
+
+[[test]]
+name = "proof"
+path = "tests/proof/nonexistent.rs"
