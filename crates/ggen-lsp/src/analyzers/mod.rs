@@ -5,6 +5,7 @@ pub mod sparql_analyzer;
 pub mod tera_analyzer;
 pub mod toml_analyzer;
 
+use std::collections::BTreeSet;
 use std::fmt;
 use tower_lsp::lsp_types::{
     CallHierarchyItem, CodeLens, CompletionResponse, Diagnostic, DocumentSymbol, FoldingRange,
@@ -15,7 +16,10 @@ use tower_lsp::lsp_types::{
 pub use harness_analyzer::{harness_mismatch_diagnostics, DeclaredTarget, GGEN_HARNESS_001};
 pub use rdf_analyzer::{RdfAnalyzer, RdfFlavor};
 pub use sparql_analyzer::SparqlAnalyzer;
-pub use tera_analyzer::{unbound_projection_diagnostics, TeraAnalyzer, GGEN_TPL_001};
+pub use tera_analyzer::{
+    unbound_output_path_diagnostics, unbound_projection_diagnostics, TeraAnalyzer, GGEN_OUT_001,
+    GGEN_TPL_001,
+};
 pub use toml_analyzer::TomlAnalyzer;
 
 use crate::state::FileType;
@@ -64,6 +68,116 @@ pub fn detect_tpl_001(
         }
     }
     out
+}
+
+/// Cross-surface GGEN-OUT-001 detection over a whole project index.
+///
+/// The dual of [`detect_tpl_001`]: for each rule, run the pure
+/// [`unbound_output_path_diagnostics`] detector against the rule's `output_file`
+/// pattern and its SPARQL `SELECT` variables. Diagnostics anchor on the rule's
+/// `ggen.toml` manifest (the declaration surface where `output_file` is written),
+/// NOT on the template file (that is GGEN-TPL-001's anchor) and NEVER on an
+/// emitted output file.
+///
+/// Rules whose `selected_vars` is empty (`SELECT *` / a missing query file) are
+/// SKIPPED: there is no introspectable producer to compare the output-path
+/// references against, so firing would be noise rather than law. Static
+/// `output_file` paths (no `{{`) are silent by construction inside the pure
+/// detector. Reads/writes no files: the index already did the I/O.
+///
+/// The returned route is always source-law repair (handled by the route engine);
+/// diagnostics never target emitted output.
+#[must_use]
+pub fn detect_out_001(
+    project: &crate::project_index::ProjectIndex,
+) -> Vec<(std::path::PathBuf, Vec<Diagnostic>)> {
+    let mut out = Vec::new();
+    for entry in &project.rule_entries {
+        if entry.selected_vars.is_empty() {
+            continue; // SELECT * / missing query → no lawful comparison
+        }
+        let diags = unbound_output_path_diagnostics(&entry.output_file, &entry.selected_vars);
+        if !diags.is_empty() {
+            out.push((entry.manifest_path.clone(), diags));
+        }
+    }
+    out
+}
+
+/// Canonical SPARQL `SELECT`-projection variable extractor (no leading `?`).
+///
+/// Single source of truth shared by [`crate::rule_index`] (`selected_vars`,
+/// the law-of-record) and [`tera_analyzer`] (`available_vars`, single-file
+/// isolation). Both call sites previously carried divergent copies — a
+/// case-sensitive, paren-blind one in the analyzer and the robust one here —
+/// which could disagree on the same query. Unifying removes that drift.
+///
+/// `issues` (when `Some`) receives a non-fatal note for `SELECT *`.
+///
+/// Algorithm:
+/// 1. Find `SELECT` (case-insensitive).
+/// 2. Take the text after `SELECT` up to the next `WHERE` (case-insensitive);
+///    if no `WHERE`, use the rest of the string.
+/// 3. Collect whitespace/paren-delimited tokens starting with `?`, strip the
+///    `?`, keep only the leading SPARQL-var-char run, and insert into a
+///    [`BTreeSet`].
+/// 4. `SELECT DISTINCT` is handled naturally (`DISTINCT` is not a `?`-token).
+/// 5. `SELECT *` yields an empty set and (if a sink is provided) pushes an info
+///    issue.
+#[must_use]
+pub(crate) fn select_projection_vars(
+    query: &str, issues: Option<&mut Vec<String>>,
+) -> BTreeSet<String> {
+    let mut vars = BTreeSet::new();
+
+    let lower = query.to_ascii_lowercase();
+    let select_pos = match lower.find("select") {
+        Some(pos) => pos,
+        None => return vars,
+    };
+
+    // Slice starting right after the literal "select".
+    let after_select = &query[select_pos + "select".len()..];
+    let after_select_lower = &lower[select_pos + "select".len()..];
+
+    // Bound the projection by the first WHERE (if present).
+    let projection = match after_select_lower.find("where") {
+        Some(where_pos) => &after_select[..where_pos],
+        None => after_select,
+    };
+
+    let mut saw_star = false;
+    for raw in projection.split(|c: char| c.is_whitespace() || c == '(' || c == ')') {
+        let token = raw.trim();
+        if token.is_empty() {
+            continue;
+        }
+        if token == "*" {
+            saw_star = true;
+            continue;
+        }
+        if let Some(name) = token.strip_prefix('?') {
+            // Guard against bindings like `?x` followed by punctuation; keep the
+            // leading identifier-ish run only (SPARQL var chars).
+            let cleaned: String = name
+                .chars()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect();
+            if !cleaned.is_empty() {
+                vars.insert(cleaned);
+            }
+        }
+    }
+
+    if vars.is_empty() && saw_star {
+        if let Some(issues) = issues {
+            issues.push(
+                "SELECT * is not introspectable: no explicit projection variables".to_string(),
+            );
+        }
+    }
+
+    vars
 }
 
 /// Build the appropriate analyzer for a document path + content, or `None` if the

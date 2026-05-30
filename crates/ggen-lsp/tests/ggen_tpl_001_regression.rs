@@ -1,16 +1,24 @@
 //! GALL-CHECKPOINT-001B — regression / no-scope-creep boundary tests for
 //! GGEN-TPL-001 (Agent 4 of 001B).
 //!
-//! These tests add **NO behavior**. They lock the checkpoint boundaries so a
-//! later patch cannot silently expand scope (start GGEN-OUT-001, introduce a
-//! child-LSP dependency, write emitted output during analysis, or route a
-//! GGEN-TPL-001 repair at an emitted-output path).
+//! These tests lock the checkpoint boundaries so a later patch cannot silently
+//! expand scope (introduce a child-LSP dependency, write emitted output during
+//! analysis, or route a GGEN-TPL-001 repair at an emitted-output path), and so the
+//! ACTIVE peer species (HARNESS-001, OUT-001) never leak into the TPL surface.
 //!
 //! GALL-CHECKPOINT-002 update: GGEN-HARNESS-001 is now ACTIVE (its detector
 //! flipped on). The barrier below asserts the activation AND that a TPL fixture
 //! still raises ZERO GGEN-HARNESS-001 (no cross-species leak in either
 //! direction — the symmetric HARNESS→TPL barrier lives in
 //! `ggen_harness_001_living_loop.rs`).
+//!
+//! GALL-OUT-001 update: GGEN-OUT-001 (`unbound_output_path`) is now ACTIVE — the
+//! dual of TPL-001 on the `ggen.toml`/SPARQL surfaces. The barriers below assert
+//! the activation AND that (a) the TPL `detect_tpl_001` detector NEVER emits
+//! GGEN-OUT-001 (different consumer surface), and (b) running `detect_out_001`
+//! over the TPL invalid fixture (whose `output_file` is the static `out.txt`)
+//! raises ZERO GGEN-OUT-001 (no cross-species leak in either direction — the
+//! symmetric OUT→TPL barrier lives in `ggen_out_001_living_loop.rs`).
 //!
 //! Chicago TDD: every test that exercises detection loads a *real* `ggen.toml`
 //! project tree from disk via [`ProjectIndex::from_root`] and runs the *real*
@@ -22,8 +30,9 @@
 //!
 //! | Test | Boundary locked |
 //! |------|-----------------|
-//! | `out_001_remains_inactive_in_species_registry` | GGEN-OUT-001 not registered, or registered with `detector_active == false` |
-//! | `out_001_not_emitted_for_unbound_output_path` | `detect_tpl_001` over an unbound OUTPUT-PATH var emits no GGEN-OUT-001 |
+//! | `out_001_is_active_in_species_registry` | GGEN-OUT-001 present with `detector_active == true` (GALL-OUT-001) |
+//! | `tpl_detector_never_emits_out_001` | `detect_tpl_001` over an unbound OUTPUT-PATH var emits no GGEN-OUT-001 (consumer-surface separation) |
+//! | `out_detector_silent_on_static_output_path_of_tpl_fixture` | `detect_out_001` over the TPL invalid fixture (static `out.txt`) emits no GGEN-OUT-001 |
 //! | `harness_001_is_active` | GGEN-HARNESS-001 present with `detector_active == true` (CHECKPOINT-002) |
 //! | `detect_tpl_001_runs_without_any_child_lsp` | detection is pure Rust — no external binary / child LSP crept in |
 //! | `valid_fixture_stays_clean` | valid fixture → no GGEN-TPL-001 |
@@ -35,7 +44,7 @@ use std::path::{Path, PathBuf};
 
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, NumberOrString, Position, Range};
 
-use ggen_lsp::analyzers::detect_tpl_001;
+use ggen_lsp::analyzers::{detect_out_001, detect_tpl_001};
 use ggen_lsp::project_index::ProjectIndex;
 use ggen_lsp::route::{species_for, EditTemplate, RouteRegistry};
 
@@ -115,30 +124,29 @@ fn tpl_001_diag() -> Diagnostic {
     }
 }
 
-// ─────────────────────────── 1. GGEN-OUT-001 inactive ───────────────────────
+// ─────────────────── 1. GGEN-OUT-001 active + no TPL leak ────────────────────
 
-/// 1a. GGEN-OUT-001 must NOT have an active detector: it is either absent from
-/// the species registry, or present with `detector_active == false`. Proves the
-/// checkpoint did not accidentally activate the next-phase OUT-001 species.
+/// 1a. GGEN-OUT-001 is now ACTIVE (GALL-OUT-001): its detector compares each
+/// rule's dynamic `output_file` Tera pattern against the rule's SPARQL SELECT
+/// vars. This barrier locks the activation so a later patch cannot silently
+/// regress it back to metadata-only.
 #[test]
-fn out_001_remains_inactive_in_species_registry() {
-    match species_for("GGEN-OUT-001") {
-        None => { /* not registered yet — inactive by absence. OK. */ }
-        Some(species) => assert!(
-            !species.detector_active,
-            "GGEN-OUT-001 is registered but its detector is ACTIVE — scope creep. \
-             It must remain metadata-only (detector_active == false) this checkpoint."
-        ),
-    }
+fn out_001_is_active_in_species_registry() {
+    let species = species_for("GGEN-OUT-001").expect("GGEN-OUT-001 must be registered");
+    assert!(
+        species.detector_active,
+        "GGEN-OUT-001 detector must be active (GALL-OUT-001)"
+    );
 }
 
-/// 1b. Running `detect_tpl_001` over a fixture whose OUTPUT PATH carries an
-/// unbound var (`output_file = "out/{{ slug }}.txt"`, `slug` not in the SELECT,
-/// template BODY clean) must emit NO GGEN-OUT-001 diagnostic. (And, since the
-/// body is clean, no GGEN-TPL-001 either.) Proves OUT-001 detection did not
-/// secretly start.
+/// 1b. The TPL detector (`detect_tpl_001`) must NEVER emit GGEN-OUT-001 — even
+/// over a fixture whose OUTPUT PATH carries an unbound var
+/// (`output_file = "out/{{ slug }}.txt"`, `slug` not in the SELECT, template BODY
+/// clean). OUT-001 lives in `detect_out_001`, anchored on `ggen.toml`, not in the
+/// TPL detector anchored on the `.tera` body. (And, since the body is clean, no
+/// GGEN-TPL-001 either.) Locks the consumer-surface separation.
 #[test]
-fn out_001_not_emitted_for_unbound_output_path() {
+fn tpl_detector_never_emits_out_001() {
     let project = load(&fixture_root("unbound_output_path"));
 
     let diags = detect_tpl_001(&project);
@@ -146,15 +154,34 @@ fn out_001_not_emitted_for_unbound_output_path() {
 
     assert!(
         !codes.iter().any(|c| c == "GGEN-OUT-001"),
-        "an unbound OUTPUT-PATH variable must NOT raise GGEN-OUT-001 (not active). \
-         Got codes: {codes:?}"
+        "the TPL detector must NEVER emit GGEN-OUT-001 (that is detect_out_001's job, \
+         anchored on ggen.toml). Got codes: {codes:?}"
     );
-    // The template body binds only `name`, so the active TPL-001 detector is
-    // also silent — the unbound `slug` lives only in the output path.
+    // The template body binds only `name`, so the TPL-001 detector is also silent
+    // — the unbound `slug` lives only in the output path.
     assert!(
         !codes.iter().any(|c| c == "GGEN-TPL-001"),
         "the template body is clean (`name` only); GGEN-TPL-001 must not fire on \
          an output-path-only unbound var. Got codes: {codes:?}"
+    );
+}
+
+/// 1c. OUT→TPL no-leak barrier: running `detect_out_001` over the TPL `invalid`
+/// fixture (template body consumes unbound `title`, but `output_file` is the
+/// STATIC `out.txt`) must raise ZERO GGEN-OUT-001 — a static output path is silent
+/// by construction. Proves the active OUT-001 detector does not contaminate a
+/// TPL-only defect.
+#[test]
+fn out_detector_silent_on_static_output_path_of_tpl_fixture() {
+    let project = load(&fixture_root("invalid"));
+
+    let diags = detect_out_001(&project);
+    let codes = all_codes(&diags);
+
+    assert!(
+        codes.is_empty(),
+        "the TPL invalid fixture has a STATIC output_file (out.txt); detect_out_001 \
+         must stay silent. Got codes: {codes:?}"
     );
 }
 

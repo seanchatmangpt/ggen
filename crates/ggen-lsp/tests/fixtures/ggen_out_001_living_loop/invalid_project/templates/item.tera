@@ -1,0 +1,4 @@
+{# Template BODY is LAWFUL: consumes only the bound `name`. The unbound
+   variable lives ONLY in the output_file pattern, proving GGEN-OUT-001 fires
+   INDEPENDENTLY of GGEN-TPL-001. #}
+Item: {{ name }}

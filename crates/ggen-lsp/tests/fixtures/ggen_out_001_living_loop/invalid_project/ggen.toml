@@ -1,0 +1,19 @@
+[project]
+name = "out001-living-loop-invalid"
+version = "0.1.0"
+
+[ontology]
+source = "schema/domain.ttl"
+
+[generation]
+
+[[generation.rules]]
+name = "items"
+query = { file = "queries/items.rq" }
+template = { file = "templates/item.tera" }
+# `slug` is NOT projected by the SELECT (which binds only `?name`). The
+# output_file is a dynamic Tera pattern rendered per-row against the SPARQL
+# bindings, so `{{ slug }}` is an unbound projection in the OUTPUT-PATH surface
+# → GGEN-OUT-001. The template BODY is clean (binds `name`), so this is OUT-001
+# and NOT GGEN-TPL-001.
+output_file = "out/{{ slug }}.txt"

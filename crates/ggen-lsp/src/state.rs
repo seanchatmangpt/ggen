@@ -92,6 +92,14 @@ pub struct ServerState {
     /// so the disappeared harness-mismatch key is observed as a lawful clear
     /// (RepairApplied → GatePassed → ReceiptEmitted), not a silent absence.
     harness_flagged: Arc<Mutex<HashSet<Url>>>,
+    /// Manifest URIs (`ggen.toml`) that received a GGEN-OUT-001 publish on the
+    /// previous pass. The OUT analogue of `tpl_flagged`: a later pass that no
+    /// longer flags a manifest (e.g. the rule's SPARQL SELECT was repaired to
+    /// project the output-path variable) re-publishes its RESIDUAL single-file
+    /// diagnostics so the disappeared unbound-output-path key is observed as a
+    /// lawful clear, not a silent absence. OUT and TPL anchor on different
+    /// surfaces (ggen.toml vs the .tera body), so their flagged sets are disjoint.
+    out_flagged: Arc<Mutex<HashSet<Url>>>,
 }
 
 /// True if `path` is a ggen project manifest (`ggen.toml`) — the TPL-001 trigger.
@@ -133,6 +141,7 @@ impl ServerState {
             published_diags: Arc::new(Mutex::new(HashMap::new())),
             tpl_flagged: Arc::new(Mutex::new(HashSet::new())),
             harness_flagged: Arc::new(Mutex::new(HashSet::new())),
+            out_flagged: Arc::new(Mutex::new(HashSet::new())),
         }
     }
 
@@ -169,6 +178,26 @@ impl ServerState {
     /// Stores `current` as the flagged set for the next pass.
     pub async fn harness_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
         let mut flagged = self.harness_flagged.lock().await;
+        let cleared: Vec<Url> = flagged
+            .iter()
+            .filter(|&u| !current.contains(u) && *u != *edited)
+            .cloned()
+            .collect();
+        *flagged = current.clone();
+        cleared
+    }
+
+    /// Reconcile cross-surface GGEN-OUT-001 flagged manifests for one edit.
+    ///
+    /// The OUT analogue of [`Self::tpl_clears_for`]: `current` is the set of
+    /// `ggen.toml` manifest URIs that GGEN-OUT-001 fires for *now*; `edited`
+    /// (already published on its own path) is excluded to avoid a double publish.
+    /// Returns the manifest URIs flagged on the PREVIOUS pass but no longer
+    /// flagged — the caller publishes their RESIDUAL single-file diagnostics (NOT
+    /// empty) so the disappeared unbound-output-path key becomes an observed
+    /// lifecycle transition. Stores `current` as the flagged set for the next pass.
+    pub async fn out_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
+        let mut flagged = self.out_flagged.lock().await;
         let cleared: Vec<Url> = flagged
             .iter()
             .filter(|&u| !current.contains(u) && *u != *edited)
@@ -320,6 +349,102 @@ impl ServerState {
             .retain(|(u, _), _| u != uri);
     }
 
+    /// Close `uri`: drop its own state (delegating to [`Self::remove_document`]),
+    /// then PROACTIVELY clear any cross-surface GGEN-TPL-001 / GGEN-HARNESS-001
+    /// flag the closed surface contributed.
+    ///
+    /// A closed rule surface produces no flags, so the reconcilers run with the
+    /// FRESHLY RE-DETECTED current set (the closed doc is gone from the in-memory
+    /// store, and the detector re-walks the project from disk). A flag that only
+    /// the closed surface sustained therefore disappears from `current` and falls
+    /// out through the SAME keyed-subtraction + residual-preservation path the
+    /// edit flow uses ([`Self::tpl_clears_for`] / [`Self::harness_clears_for`] +
+    /// [`Self::residual_single_file_diags`] + [`Self::observe_diagnostics`]). A
+    /// flag still sustained by a SURVIVING peer surface stays in `current` and is
+    /// NOT cleared — so closing one of several open rule surfaces never regresses
+    /// a still-lawfully-flagged peer.
+    ///
+    /// Each cleared peer is republished through `observe_diagnostics`, so the
+    /// disappeared cross-surface key is observed as a lawful clear (RepairApplied
+    /// → GatePassed → ReceiptEmitted), NOT a blunt empty publish — and unrelated
+    /// single-file diagnostics on the peer survive (residual preservation).
+    ///
+    /// Returns the `(uri, diagnostics)` pairs the caller must publish to the
+    /// editor, in order: first each cleared peer's residual set, then an explicit
+    /// empty-publish pair for the closed URI itself (LSP conformance — clear the
+    /// closed document's own squiggles). Strictly read-only w.r.t. the project.
+    pub async fn close_document(&self, uri: &Url) -> Vec<(Url, Vec<Diagnostic>)> {
+        // Drop the closed doc's own state FIRST so re-detection / residual reads
+        // no longer see its in-memory copy.
+        self.remove_document(uri).await;
+
+        let mut published: Vec<(Url, Vec<Diagnostic>)> = Vec::new();
+
+        // TPL reconcile: only if the closed surface is a TPL trigger
+        // (`.tera`/`.rq`/`.sparql` or the `ggen.toml` manifest). Mirrors the
+        // trigger gate in `analyze_and_observe`.
+        let tpl_is_trigger = matches!(
+            FileType::from_path(uri.path()),
+            FileType::Tera | FileType::Sparql
+        ) || is_ggen_manifest(uri.path());
+        if tpl_is_trigger {
+            // Re-detect AFTER removal: `current` = templates STILL flagged by the
+            // surviving surfaces. A flag only the closed surface sustained is gone.
+            let mut current: HashSet<Url> = HashSet::new();
+            for (template_path, _) in self.detect_tpl_001_for(uri) {
+                if let Some(u) = url_from_path(&template_path) {
+                    current.insert(u);
+                }
+            }
+            for cleared in self.tpl_clears_for(uri, &current).await {
+                let residual = self.residual_single_file_diags(&cleared).await;
+                self.observe_diagnostics(&cleared, &residual).await;
+                published.push((cleared, residual));
+            }
+
+            // OUT reconcile rides the SAME trigger as TPL (both ProjectIndex-derived
+            // over `.tera`/`.rq`/`ggen.toml`). A flag only the closed surface
+            // sustained falls out of the freshly re-detected `current` set and is
+            // cleared with residual preservation (mirrors TPL).
+            let mut out_current: HashSet<Url> = HashSet::new();
+            for (manifest_path, _) in self.detect_out_001_for(uri) {
+                if let Some(u) = url_from_path(&manifest_path) {
+                    out_current.insert(u);
+                }
+            }
+            for cleared in self.out_clears_for(uri, &out_current).await {
+                let residual = self.residual_single_file_diags(&cleared).await;
+                self.observe_diagnostics(&cleared, &residual).await;
+                published.push((cleared, residual));
+            }
+        }
+
+        // HARNESS reconcile: only if the closed surface is a harness trigger
+        // (`Cargo.toml`/`Makefile.toml`). Disjoint from the TPL trigger by basename.
+        if is_harness_surface(uri.path()) {
+            let mut current: HashSet<Url> = HashSet::new();
+            for (manifest_path, _) in self.detect_harness_001_for(uri) {
+                if let Some(u) = url_from_path(&manifest_path) {
+                    current.insert(u);
+                }
+            }
+            for cleared in self.harness_clears_for(uri, &current).await {
+                let residual = self.residual_single_file_diags(&cleared).await;
+                self.observe_diagnostics(&cleared, &residual).await;
+                published.push((cleared, residual));
+            }
+        }
+
+        // LSP conformance: clear the closed URI's own squiggles. Pushed LAST.
+        // Not routed through `observe_diagnostics`: its `published_diags` entry was
+        // already removed above, so observing an empty set here would re-treat the
+        // prior set as "disappeared" and double-emit. A direct empty publish is the
+        // correct editor-only clear for the surface that is gone.
+        published.push((uri.clone(), Vec::new()));
+
+        published
+    }
+
     pub async fn set_analyzer(&self, uri: Url, analyzer: DocumentAnalyzer) {
         let mut analyzers = self.analyzers.lock().await;
         analyzers.insert(uri, analyzer);
@@ -387,6 +512,17 @@ impl ServerState {
             Vec::new()
         };
 
+        // Cross-file GGEN-OUT-001: the dual of TPL-001 on the ggen.toml/SPARQL
+        // surfaces. Shares the SAME trigger gate as TPL (`tpl_is_trigger` covers
+        // `.tera`/`.rq`/`ggen.toml`), since both read the SAME `ProjectIndex`: an
+        // edit to any source-law surface re-evaluates OUT-001 too. Groups anchor on
+        // `ggen.toml` (disjoint from TPL's `.tera` anchor).
+        let out_groups = if tpl_is_trigger {
+            self.detect_out_001_for(uri)
+        } else {
+            Vec::new()
+        };
+
         let edited_self_url = url_from_path_str(uri.path());
         let mut published_self = false;
         let mut current_flagged: HashSet<Url> = HashSet::new();
@@ -430,6 +566,32 @@ impl ServerState {
             }
         }
 
+        // OUT-001 groups anchor on the `ggen.toml` manifest (the declaration
+        // surface where `output_file` lives — NOT the .tera body, which is TPL's
+        // anchor). When the edited file IS that manifest, merge its single-file
+        // (TomlAnalyzer) diagnostics in once and publish the `ggen.toml` URI ONCE
+        // — mirrors the TPL/HARNESS self-merge. The TPL self-merge above never
+        // consumed `own_diags` for a `ggen.toml` edit (TPL groups anchor on `.tera`
+        // URIs, disjoint from `edited_self_url`), so `own_diags` is still available
+        // here; a single merged publish per URI keeps the OCEL chain clean.
+        let mut current_out_flagged: HashSet<Url> = HashSet::new();
+        for (manifest_path, out_diags) in out_groups {
+            let Some(manifest_url) = url_from_path(&manifest_path) else {
+                continue;
+            };
+            current_out_flagged.insert(manifest_url.clone());
+            if edited_self_url.as_ref() == Some(&manifest_url) && !published_self {
+                let mut merged = std::mem::take(&mut own_diags);
+                merged.extend(out_diags);
+                self.observe_diagnostics(&manifest_url, &merged).await;
+                published.push((manifest_url, merged));
+                published_self = true;
+            } else {
+                self.observe_diagnostics(&manifest_url, &out_diags).await;
+                published.push((manifest_url, out_diags));
+            }
+        }
+
         // If the edited file was not itself a cross-surface-affected file, observe
         // its own single-file diagnostics (preserving the original single-file flow).
         if !published_self {
@@ -458,6 +620,20 @@ impl ServerState {
         // preservation).
         if harness_is_trigger {
             for cleared in self.harness_clears_for(uri, &current_harness_flagged).await {
+                let residual = self.residual_single_file_diags(&cleared).await;
+                self.observe_diagnostics(&cleared, &residual).await;
+                published.push((cleared, residual));
+            }
+        }
+
+        // STALE-CLEAR reconciliation (OUT): repairing the source law (projecting
+        // the variable in the SPARQL SELECT, or fixing the ggen.toml `output_file`
+        // pattern) makes the manifest lawful, dropping it from `out_groups`.
+        // Re-publish its RESIDUAL single-file diagnostics so the disappeared
+        // GGEN-OUT-001 key is observed as a lawful clear (NOT a blunt empty
+        // publish — residual preservation). Shares the TPL trigger gate.
+        if tpl_is_trigger {
+            for cleared in self.out_clears_for(uri, &current_out_flagged).await {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
@@ -496,6 +672,22 @@ impl ServerState {
         };
         match crate::project_index::ProjectIndex::from_root(&root) {
             Ok(project) => crate::analyzers::detect_tpl_001(&project),
+            Err(_) => Vec::new(),
+        }
+    }
+
+    /// Resolve the project root for `uri`, build a `ProjectIndex`, and run the
+    /// cross-surface GGEN-OUT-001 detector (the dual of [`Self::detect_tpl_001_for`]
+    /// on the `ggen.toml`/SPARQL surfaces). Returns the per-manifest diagnostic
+    /// groups (empty on any resolution/build failure — best-effort, never panics,
+    /// never writes files). Reuses the SAME `project_root_for` + `ProjectIndex` as
+    /// TPL-001.
+    fn detect_out_001_for(&self, uri: &Url) -> Vec<(PathBuf, Vec<Diagnostic>)> {
+        let Some(root) = self.project_root_for(uri) else {
+            return Vec::new();
+        };
+        match crate::project_index::ProjectIndex::from_root(&root) {
+            Ok(project) => crate::analyzers::detect_out_001(&project),
             Err(_) => Vec::new(),
         }
     }

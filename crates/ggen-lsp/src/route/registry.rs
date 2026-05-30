@@ -140,6 +140,18 @@ pub fn family_of_code(code: &str) -> Option<RepairFamily> {
         // another code. The species-level route slug is "proof_topology_repair"
         // (route::diagnostic_species).
         "GGEN-HARNESS-001" => Some(RepairFamily::AdmissionFailure),
+        // GGEN-OUT-001 (unbound output path): a rule's dynamic `output_file` Tera
+        // pattern references a variable the SPARQL SELECT never binds — a dangling
+        // reference across source-law surfaces, the dual of GGEN-TPL-001 but on the
+        // ggen.toml/SPARQL surfaces (anchor: ggen.toml, not the .tera body). Mapped
+        // to LoadFailure (an otherwise UNSEEDED family) so its dedicated source-law
+        // route is selected WITHOUT colliding with any other code's seeds. As with
+        // TPL-001/HARNESS-001, OUT owns its family exclusively, so
+        // `select_for_diagnostic` (which keys only on family) never contaminates
+        // another code (in particular it must NOT reuse DanglingReference, which
+        // would steal the TPL-001 route). The species-level route slug is
+        // "source_law_repair" (route::diagnostic_species).
+        "GGEN-OUT-001" => Some(RepairFamily::LoadFailure),
         "E0023" => Some(RepairFamily::ConfigValue),
         "E0001" => Some(RepairFamily::ParseFailure),
         "RDF" => Some(RepairFamily::ParseFailure),
@@ -296,6 +308,46 @@ fn seed_routes() -> Vec<RepairRoute> {
                           proof files on disk. Repair the declaration or the file path; NEVER \
                           fabricate or force a passing proof, NEVER target a generated artifact. \
                           Advisory only (inspect_only)."
+                .into(),
+            provenance: Provenance::Seeded,
+            priority: 10,
+        },
+        // GGEN-OUT-001 (unbound output path): a rule's dynamic `output_file` Tera
+        // pattern consumes a variable the SPARQL SELECT does not project. The fix
+        // lives ONLY in source law — never in emitted output. This route is purely
+        // ADVISORY (all NoOp edits): two concurrent source-law surfaces — (a) the
+        // SPARQL SELECT vars, (b) the ggen.toml rule `output_file` pattern. No step
+        // targets, references, or edits an emitted output file.
+        //
+        // Owns the LoadFailure family exclusively, so a GGEN-OUT-001 diagnostic
+        // selects THIS route and nothing else (no contamination of the TPL-001
+        // DanglingReference route or the HARNESS AdmissionFailure route).
+        RepairRoute {
+            id: RouteId("source-law.bind-output-path".into()),
+            family: RepairFamily::LoadFailure,
+            steps: PartialOrder {
+                nodes: vec![
+                    RepairStep {
+                        id: StepId("edit-sparql-select".into()),
+                        title: "Project the variable in the SPARQL SELECT so the output_file \
+                                pattern can bind it (source law)"
+                            .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                    RepairStep {
+                        id: StepId("edit-output-file-pattern".into()),
+                        title: "Fix the ggen.toml rule output_file pattern variable reference \
+                                (source law)"
+                            .into(),
+                        edit: EditTemplate::NoOp,
+                    },
+                ],
+                // Two independent source-law surfaces — no ordering edge (concurrent).
+                edges: vec![],
+            },
+            description: "Unbound output path — bind the variable at its source law \
+                          (the SPARQL SELECT or the ggen.toml rule output_file pattern). \
+                          Advisory only; never edits emitted output."
                 .into(),
             provenance: Provenance::Seeded,
             priority: 10,
@@ -625,6 +677,82 @@ mod tests {
     fn ggen_harness_001_does_not_contaminate_tpl_001() {
         // A TPL-001 diagnostic must still resolve to its own source-law route,
         // proving HARNESS did not steal the DanglingReference family.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection"))
+            .expect("route");
+        assert_eq!(route.id.0, "source-law.bind-projection");
+    }
+
+    // ---- GGEN-OUT-001: output-path source-law repair route ----
+
+    #[test]
+    fn ggen_out_001_maps_to_its_own_family() {
+        // GGEN-OUT-001 must resolve to the LoadFailure family, which it owns
+        // exclusively (no other code maps there) — zero cross-contamination.
+        assert_eq!(
+            family_of_code("GGEN-OUT-001"),
+            Some(RepairFamily::LoadFailure)
+        );
+    }
+
+    #[test]
+    fn ggen_out_001_selects_the_source_law_route() {
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-OUT-001", "unbound output path: `slug`"))
+            .expect("GGEN-OUT-001 must resolve to a seeded route");
+        assert_eq!(route.id.0, "source-law.bind-output-path");
+        assert_eq!(route.provenance, Provenance::Seeded);
+        assert!(route.steps.is_sound(), "route must be structurally sound");
+    }
+
+    #[test]
+    fn ggen_out_001_route_is_source_law_only() {
+        // Load-bearing invariant: the route must NEVER target emitted output.
+        // Every step is advisory (NoOp), references only a source-law surface
+        // (SPARQL SELECT / ggen.toml output_file), and contains no emitted-output
+        // marker.
+        let reg = RouteRegistry::seeded();
+        let route = reg
+            .select_for_diagnostic(&diag("GGEN-OUT-001", "unbound output path"))
+            .expect("route");
+
+        assert!(!route.steps.nodes.is_empty(), "route must have steps");
+
+        const FORBIDDEN_OUTPUT: &[&str] = &["out/", "output/", "dist/", "gen/", "emitted"];
+        for step in &route.steps.nodes {
+            assert!(
+                matches!(step.edit, EditTemplate::NoOp),
+                "GGEN-OUT-001 step {:?} must be advisory (NoOp), never an output edit",
+                step.id
+            );
+            let title = step.title.to_lowercase();
+            for forbidden in FORBIDDEN_OUTPUT {
+                assert!(
+                    !title.contains(forbidden),
+                    "GGEN-OUT-001 step title {:?} references forbidden emitted-output marker \
+                     {forbidden:?}",
+                    step.title
+                );
+            }
+            // Each step must reference a source-law surface (SPARQL or the
+            // ggen.toml `output_file` pattern). "output_file" is the literal
+            // ggen.toml field name (source law), NOT an emitted-output path.
+            assert!(
+                title.contains("sparql")
+                    || title.contains("ggen.toml")
+                    || title.contains("output_file"),
+                "GGEN-OUT-001 step title {:?} must reference a source-law surface",
+                step.title
+            );
+        }
+    }
+
+    #[test]
+    fn ggen_out_001_does_not_contaminate_tpl_001() {
+        // A TPL-001 diagnostic must still resolve to its own source-law route,
+        // proving OUT did not steal the DanglingReference family.
         let reg = RouteRegistry::seeded();
         let route = reg
             .select_for_diagnostic(&diag("GGEN-TPL-001", "unbound projection"))
