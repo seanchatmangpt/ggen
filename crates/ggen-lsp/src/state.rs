@@ -80,26 +80,14 @@ pub struct ServerState {
     pending_repairs: Arc<Mutex<HashMap<(Url, String), String>>>,
     /// Last-published diagnostics per document, for new/disappeared diffing.
     published_diags: Arc<Mutex<HashMap<Url, Vec<Diagnostic>>>>,
-    /// Template URIs that received a GGEN-TPL-001 publish on the previous pass.
-    /// A later pass publishes an EMPTY set for those no longer flagged, so a
-    /// cross-surface repair (e.g. fixing the SPARQL query) clears the template's
-    /// stale squiggle AND lets `observe_diagnostics` record the disappearance as
-    /// a lawful transition (a clear is an event, not an absence).
-    tpl_flagged: Arc<Mutex<HashSet<Url>>>,
-    /// Manifest URIs (`Cargo.toml`) that received a GGEN-HARNESS-001 publish on
-    /// the previous pass. The HARNESS analogue of `tpl_flagged`: a later pass that
-    /// no longer flags a manifest re-publishes its RESIDUAL single-file diagnostics
-    /// so the disappeared harness-mismatch key is observed as a lawful clear
-    /// (RepairApplied → GatePassed → ReceiptEmitted), not a silent absence.
-    harness_flagged: Arc<Mutex<HashSet<Url>>>,
-    /// Manifest URIs (`ggen.toml`) that received a GGEN-OUT-001 publish on the
-    /// previous pass. The OUT analogue of `tpl_flagged`: a later pass that no
-    /// longer flags a manifest (e.g. the rule's SPARQL SELECT was repaired to
-    /// project the output-path variable) re-publishes its RESIDUAL single-file
-    /// diagnostics so the disappeared unbound-output-path key is observed as a
-    /// lawful clear, not a silent absence. OUT and TPL anchor on different
-    /// surfaces (ggen.toml vs the .tera body), so their flagged sets are disjoint.
-    out_flagged: Arc<Mutex<HashSet<Url>>>,
+    /// Per-species flagged-surface sets, keyed by diagnostic code. Each entry is
+    /// the set of anchor URIs that received that species' publish on the PREVIOUS
+    /// pass; a later pass that no longer flags a URI re-publishes its residual so
+    /// the disappeared key is observed as a lawful clear (not a silent absence).
+    /// One map replaces the former parallel tpl_flagged/harness_flagged/out_flagged
+    /// fields — a new ProjectIndex/HarnessIndex species is now one more key, not a
+    /// fourth field + a fourth clears_for.
+    flagged: Arc<Mutex<HashMap<&'static str, HashSet<Url>>>>,
 }
 
 /// True if `path` is a ggen project manifest (`ggen.toml`) — the TPL-001 trigger.
@@ -139,72 +127,43 @@ impl ServerState {
             seq: Arc::new(AtomicU64::new(0)),
             pending_repairs: Arc::new(Mutex::new(HashMap::new())),
             published_diags: Arc::new(Mutex::new(HashMap::new())),
-            tpl_flagged: Arc::new(Mutex::new(HashSet::new())),
-            harness_flagged: Arc::new(Mutex::new(HashSet::new())),
-            out_flagged: Arc::new(Mutex::new(HashSet::new())),
+            flagged: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
-    /// Reconcile cross-surface GGEN-TPL-001 flagged templates for one edit.
-    ///
-    /// `current` is the set of template URIs that GGEN-TPL-001 fires for *now*
-    /// (all non-empty, from `detect_tpl_001`). `edited` is the document the user
-    /// just changed; it is already published on its own path, so it is excluded
-    /// here to avoid a double publish. Returns the template URIs that were flagged
-    /// on the PREVIOUS pass but are no longer flagged — the caller must publish an
-    /// EMPTY diagnostic set for each (through `observe_diagnostics`) so the
-    /// squiggle clears AND the repair becomes an observed lifecycle transition
-    /// (`RepairApplied → GatePassed → ReceiptEmitted`), not a silent absence.
-    /// Stores `current` as the flagged set for the next pass.
-    pub async fn tpl_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
-        let mut flagged = self.tpl_flagged.lock().await;
-        let cleared: Vec<Url> = flagged
-            .iter()
-            .filter(|&u| !current.contains(u) && *u != *edited)
-            .cloned()
-            .collect();
-        *flagged = current.clone();
-        cleared
-    }
-
-    /// Reconcile cross-surface GGEN-HARNESS-001 flagged manifests for one edit.
-    ///
-    /// The HARNESS analogue of [`Self::tpl_clears_for`]: `current` is the set of
-    /// manifest URIs that GGEN-HARNESS-001 fires for *now*; `edited` (already
-    /// published on its own path) is excluded to avoid a double publish. Returns
-    /// the manifest URIs flagged on the PREVIOUS pass but no longer flagged — the
-    /// caller publishes their RESIDUAL single-file diagnostics (NOT empty) so the
-    /// disappeared harness-mismatch key becomes an observed lifecycle transition.
-    /// Stores `current` as the flagged set for the next pass.
-    pub async fn harness_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
-        let mut flagged = self.harness_flagged.lock().await;
-        let cleared: Vec<Url> = flagged
-            .iter()
-            .filter(|&u| !current.contains(u) && *u != *edited)
-            .cloned()
-            .collect();
-        *flagged = current.clone();
-        cleared
-    }
-
-    /// Reconcile cross-surface GGEN-OUT-001 flagged manifests for one edit.
-    ///
-    /// The OUT analogue of [`Self::tpl_clears_for`]: `current` is the set of
-    /// `ggen.toml` manifest URIs that GGEN-OUT-001 fires for *now*; `edited`
-    /// (already published on its own path) is excluded to avoid a double publish.
-    /// Returns the manifest URIs flagged on the PREVIOUS pass but no longer
-    /// flagged — the caller publishes their RESIDUAL single-file diagnostics (NOT
-    /// empty) so the disappeared unbound-output-path key becomes an observed
+    /// Reconcile a species' flagged-surface set for one edit. Generic over the
+    /// species `code` (the map key). `current` is the set of anchor URIs the
+    /// species fires for *now*; `edited` (already published on its own path) is
+    /// excluded to avoid a double publish. Returns the URIs flagged on the PREVIOUS
+    /// pass but no longer flagged — the caller publishes each one's residual (TPL:
+    /// empty single-file set; HARNESS/OUT: residual single-file diagnostics)
+    /// through `observe_diagnostics` so the disappeared key becomes an observed
     /// lifecycle transition. Stores `current` as the flagged set for the next pass.
-    pub async fn out_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
-        let mut flagged = self.out_flagged.lock().await;
-        let cleared: Vec<Url> = flagged
+    ///
+    /// One generic primitive replaces the former parallel
+    /// tpl_clears_for/harness_clears_for/out_clears_for methods (their bodies were
+    /// byte-identical modulo the locked field). A new species reconciles by passing
+    /// its code as the map key — no fourth copy.
+    pub async fn clears_for(
+        &self, code: &'static str, edited: &Url, current: &HashSet<Url>,
+    ) -> Vec<Url> {
+        let mut flagged = self.flagged.lock().await;
+        let prev = flagged.entry(code).or_default();
+        let cleared: Vec<Url> = prev
             .iter()
             .filter(|&u| !current.contains(u) && *u != *edited)
             .cloned()
             .collect();
-        *flagged = current.clone();
+        *prev = current.clone();
         cleared
+    }
+
+    /// GGEN-TPL-001 stale-clear reconciler — preserved public entry (the hermetic
+    /// stale-clear test drives it directly). Thin shim over the generic
+    /// [`Self::clears_for`] keyed on the TPL species code; behavior is identical.
+    pub async fn tpl_clears_for(&self, edited: &Url, current: &HashSet<Url>) -> Vec<Url> {
+        self.clears_for(crate::analyzers::GGEN_TPL_001, edited, current)
+            .await
     }
 
     fn next_seq(&self) -> u64 {
@@ -358,7 +317,7 @@ impl ServerState {
     /// store, and the detector re-walks the project from disk). A flag that only
     /// the closed surface sustained therefore disappears from `current` and falls
     /// out through the SAME keyed-subtraction + residual-preservation path the
-    /// edit flow uses ([`Self::tpl_clears_for`] / [`Self::harness_clears_for`] +
+    /// edit flow uses (the generic [`Self::clears_for`] +
     /// [`Self::residual_single_file_diags`] + [`Self::observe_diagnostics`]). A
     /// flag still sustained by a SURVIVING peer surface stays in `current` and is
     /// NOT cleared — so closing one of several open rule surfaces never regresses
@@ -412,7 +371,10 @@ impl ServerState {
                     out_current.insert(u);
                 }
             }
-            for cleared in self.out_clears_for(uri, &out_current).await {
+            for cleared in self
+                .clears_for(crate::analyzers::GGEN_OUT_001, uri, &out_current)
+                .await
+            {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
@@ -428,7 +390,10 @@ impl ServerState {
                     current.insert(u);
                 }
             }
-            for cleared in self.harness_clears_for(uri, &current).await {
+            for cleared in self
+                .clears_for(crate::analyzers::GGEN_HARNESS_001, uri, &current)
+                .await
+            {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
@@ -619,7 +584,14 @@ impl ServerState {
         // observed as a lawful clear (NOT a blunt empty publish — residual
         // preservation).
         if harness_is_trigger {
-            for cleared in self.harness_clears_for(uri, &current_harness_flagged).await {
+            for cleared in self
+                .clears_for(
+                    crate::analyzers::GGEN_HARNESS_001,
+                    uri,
+                    &current_harness_flagged,
+                )
+                .await
+            {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));
@@ -633,7 +605,10 @@ impl ServerState {
         // GGEN-OUT-001 key is observed as a lawful clear (NOT a blunt empty
         // publish — residual preservation). Shares the TPL trigger gate.
         if tpl_is_trigger {
-            for cleared in self.out_clears_for(uri, &current_out_flagged).await {
+            for cleared in self
+                .clears_for(crate::analyzers::GGEN_OUT_001, uri, &current_out_flagged)
+                .await
+            {
                 let residual = self.residual_single_file_diags(&cleared).await;
                 self.observe_diagnostics(&cleared, &residual).await;
                 published.push((cleared, residual));

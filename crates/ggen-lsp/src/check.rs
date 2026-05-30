@@ -414,19 +414,32 @@ fn fold_tpl_001(
     let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
         return 0;
     };
+    fold_species(files, registry, crate::analyzers::detect_tpl_001(&project))
+}
 
-    // Cache resolved template contents by path so route plans (which need the
-    // template text, not the manifest) use the correct edit-site context.
+/// Fold one cross-surface law's `(anchor_path, diags)` groups into `files`,
+/// returning the number of newly added ERROR diagnostics. The single shared body
+/// behind [`fold_tpl_001`]/[`fold_harness_001`]/[`fold_out_001`]: skip empty
+/// groups, count errors, resolve routes (when `registry` is `Some`) against the
+/// ANCHOR's own content read from disk, and append-or-create the matching
+/// [`FileReport`]. Index heterogeneity (ProjectIndex vs HarnessIndex) is resolved
+/// by the caller, which passes the detector output here.
+///
+/// The route edit site lives in whichever file the detector named as the anchor
+/// (for TPL that is the template path; for HARNESS/OUT the manifest), so route
+/// plans are built against that anchor's content — byte-identical to the former
+/// per-species folds, which each read their own anchor before this consolidation.
+fn fold_species(
+    files: &mut Vec<FileReport>, registry: Option<&crate::route::RouteRegistry>,
+    groups: Vec<(PathBuf, Vec<Diagnostic>)>,
+) -> usize {
     let mut added_errors = 0usize;
-    for (template_path, diags) in crate::analyzers::detect_tpl_001(&project) {
+    for (anchor_path, diags) in groups {
         if diags.is_empty() {
             continue;
         }
-        let template_str = template_path.to_string_lossy().to_string();
-        // The route edit site lives in the TEMPLATE, so route plans must be
-        // built against the template content (read best-effort from disk; the
-        // index already proved it resolvable, so this normally succeeds).
-        let template_content = std::fs::read_to_string(&template_path).unwrap_or_default();
+        let anchor_str = anchor_path.to_string_lossy().to_string();
+        let anchor_content = std::fs::read_to_string(&anchor_path).unwrap_or_default();
 
         added_errors += diags
             .iter()
@@ -436,21 +449,17 @@ fn fold_tpl_001(
         let routes: Vec<crate::route::RoutePlan> = match registry {
             Some(reg) => diags
                 .iter()
-                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &template_content))
+                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &anchor_content))
                 .collect(),
             None => Vec::new(),
         };
 
-        // Append to the matching report, or create a new one for the template.
-        if let Some(existing) = files
-            .iter_mut()
-            .find(|f| paths_match(&f.path, &template_str))
-        {
+        if let Some(existing) = files.iter_mut().find(|f| paths_match(&f.path, &anchor_str)) {
             existing.diagnostics.extend(diags);
             existing.routes.extend(routes);
         } else {
             files.push(FileReport {
-                path: template_str,
+                path: anchor_str,
                 diagnostics: diags,
                 routes,
             });
@@ -479,43 +488,11 @@ fn fold_harness_001(
     let Ok(index) = crate::harness_index::HarnessIndex::from_root(root) else {
         return 0;
     };
-
-    let mut added_errors = 0usize;
-    for (manifest_path, diags) in crate::analyzers::detect_harness_001(&index) {
-        if diags.is_empty() {
-            continue;
-        }
-        let manifest_str = manifest_path.to_string_lossy().to_string();
-        let manifest_content = std::fs::read_to_string(&manifest_path).unwrap_or_default();
-
-        added_errors += diags
-            .iter()
-            .filter(|d| d.severity == Some(DiagnosticSeverity::ERROR))
-            .count();
-
-        let routes: Vec<crate::route::RoutePlan> = match registry {
-            Some(reg) => diags
-                .iter()
-                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &manifest_content))
-                .collect(),
-            None => Vec::new(),
-        };
-
-        if let Some(existing) = files
-            .iter_mut()
-            .find(|f| paths_match(&f.path, &manifest_str))
-        {
-            existing.diagnostics.extend(diags);
-            existing.routes.extend(routes);
-        } else {
-            files.push(FileReport {
-                path: manifest_str,
-                diagnostics: diags,
-                routes,
-            });
-        }
-    }
-    added_errors
+    fold_species(
+        files,
+        registry,
+        crate::analyzers::detect_harness_001(&index),
+    )
 }
 
 /// Fold GGEN-OUT-001 (unbound-output-path) diagnostics from the project index at
@@ -540,43 +517,7 @@ fn fold_out_001(
     let Ok(project) = crate::project_index::ProjectIndex::from_root(root) else {
         return 0;
     };
-
-    let mut added_errors = 0usize;
-    for (manifest_path, diags) in crate::analyzers::detect_out_001(&project) {
-        if diags.is_empty() {
-            continue;
-        }
-        let manifest_str = manifest_path.to_string_lossy().to_string();
-        let manifest_content = std::fs::read_to_string(&manifest_path).unwrap_or_default();
-
-        added_errors += diags
-            .iter()
-            .filter(|d| d.severity == Some(DiagnosticSeverity::ERROR))
-            .count();
-
-        let routes: Vec<crate::route::RoutePlan> = match registry {
-            Some(reg) => diags
-                .iter()
-                .filter_map(|d| crate::route::route_plan_for_diagnostic(reg, d, &manifest_content))
-                .collect(),
-            None => Vec::new(),
-        };
-
-        if let Some(existing) = files
-            .iter_mut()
-            .find(|f| paths_match(&f.path, &manifest_str))
-        {
-            existing.diagnostics.extend(diags);
-            existing.routes.extend(routes);
-        } else {
-            files.push(FileReport {
-                path: manifest_str,
-                diagnostics: diags,
-                routes,
-            });
-        }
-    }
-    added_errors
+    fold_species(files, registry, crate::analyzers::detect_out_001(&project))
 }
 
 /// Compare two filesystem path strings for "same file" identity. Tries exact
