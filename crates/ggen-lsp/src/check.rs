@@ -249,7 +249,9 @@ fn receipt_id_for(file: &str, code: &str, run_id: &str) -> String {
 }
 
 /// Capture a single in-memory file's diagnostics + route selections under `root`
-/// with `attribution` — the field-evidence gauge for non-editor (MCP/A2A) route
+/// with `attribution`.
+///
+/// This is the field-evidence gauge for non-editor (MCP/A2A) route
 /// requests, which are otherwise pure projection and leave no trace. Reuses the
 /// same capture machinery as the headless gate (full chain, attributed). No-op for
 /// a non-law-surface file. Best-effort: never fails the request.
@@ -295,7 +297,9 @@ pub fn check_files(paths: &[PathBuf]) -> CheckReport {
 }
 
 /// Check files; when `with_routes`, attach a `RoutePlan` per diagnostic that has
-/// one and compute the 80/20 `route_summary`. Default mode is byte-identical to
+/// one and compute the 80/20 `route_summary`.
+///
+/// Default mode is byte-identical to
 /// the historical `check_files` output (routes/summary omitted via serde).
 ///
 /// Promoted routes are loaded relative to the current working directory. Use
@@ -307,7 +311,9 @@ pub fn check_files_with_routes(paths: &[PathBuf], with_routes: bool) -> CheckRep
 }
 
 /// Like [`check_files_with_routes`], but loads the promoted-route pack from
-/// `root/.agent-admissibility/...` instead of the cwd. Making the root explicit
+/// `root/.agent-admissibility/...` instead of the cwd.
+///
+/// Making the root explicit
 /// keeps pack discovery from silently depending on the process working
 /// directory — the headless gate, the editor, and MCP all resolve the SAME
 /// routes for a given project root.
@@ -495,7 +501,9 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
 
 /// Recursively discover every ggen law-surface file under `root`
 /// (`.ttl`, `.nt`, `.nq`, `.rq`, `.sparql`, `.tera`, `ggen.toml`), skipping
-/// build/VCS directories. Results are sorted for deterministic output.
+/// build/VCS directories.
+///
+/// Results are sorted for deterministic output.
 ///
 /// Note: dotdirs are NOT skipped wholesale — ggen specs live under `.specify/`,
 /// which is the source-of-truth law surface; only [`SKIP_DIRS`] are pruned.

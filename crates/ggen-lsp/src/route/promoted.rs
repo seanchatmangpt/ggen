@@ -44,7 +44,9 @@ pub fn default_pack_routes_path(root: &Path) -> PathBuf {
         .join("repair-routes.json")
 }
 
-/// The conformance-gated precedence decision. A mined route may supersede the
+/// The conformance-gated precedence decision.
+///
+/// A mined route may supersede the
 /// family's seed **iff** it has enough support AND its measured success_rate
 /// (lawful-closure fraction) clears the threshold. Seeds (and unknown provenance)
 /// are never "promotable over" anything — they are the safe default.

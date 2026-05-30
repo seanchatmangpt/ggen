@@ -24,6 +24,7 @@ use std::path::Path;
 use tower_lsp::lsp_types::{Location, SymbolInformation, SymbolKind, Url};
 
 /// Maximum number of symbols returned for a single `workspace/symbol` request.
+///
 /// A large monorepo can hold thousands of law-surface symbols; an editor picker
 /// neither wants nor can usefully render all of them. We cap and *log* when the
 /// cap fires rather than truncating silently (anti-fail-open: a silent cut would

@@ -409,7 +409,9 @@ fn is_identifier(s: &str) -> bool {
     chars.all(|c| c.is_alphanumeric() || c == '_')
 }
 
-/// Pure cross-surface detector: for each variable the `template` consumes that
+/// Pure cross-surface detector.
+///
+/// For each variable the `template` consumes that
 /// the rule's SPARQL `SELECT` does **not** produce (`available_vars`), emit a
 /// GGEN-TPL-001 (`unbound_projection`) error diagnostic.
 ///

@@ -62,10 +62,13 @@ impl RepairReceipt {
     /// Hex of the binding hash (for receipt filenames / display).
     #[must_use]
     pub fn signature_hex(&self) -> String {
+        use std::fmt::Write as _;
         self.signature_or_hash
             .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect()
+            .fold(String::new(), |mut acc, b| {
+                let _ = write!(acc, "{b:02x}");
+                acc
+            })
     }
 
     /// Verify the binding hash matches the fields (tamper detection).

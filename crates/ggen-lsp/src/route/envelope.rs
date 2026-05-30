@@ -65,7 +65,9 @@ impl RouteEnvelope {
     }
 }
 
-/// The cross-channel diagnostic-site identity: `blake3(file|code|span)`. Distinct
+/// The cross-channel diagnostic-site identity: `blake3(file|code|span)`.
+///
+/// Distinct
 /// from the per-run OCEL episode id (`blake3(file|code|run_id)`) — the episode id
 /// is the replay key; this is the projection-time route identity all channels share.
 #[must_use]

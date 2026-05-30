@@ -113,7 +113,9 @@ pub struct PromotionReplay {
 }
 
 /// Re-derive `(source_log_hash → routes_hash)` from the current log + artifact
-/// and check it against the latest promotion receipt. A mutated log or artifact
+/// and check it against the latest promotion receipt.
+///
+/// A mutated log or artifact
 /// breaks the match — the replay/tamper proof for the `R → O* → μ` step.
 #[must_use]
 pub fn verify_promotion(root: &Path) -> PromotionReplay {

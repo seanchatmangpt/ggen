@@ -56,7 +56,9 @@ pub const DIAG_QUALIFIER: &str = "diag";
 /// Qualifier correlating events to their episode (the DFG/conformance case).
 pub const EPISODE_QUALIFIER: &str = "episode";
 
-/// Generate a unique check-run id. Combines a process-global monotonic counter
+/// Generate a unique check-run id.
+///
+/// Combines a process-global monotonic counter
 /// with the wall clock so distinct `ggen lsp check` invocations (and distinct
 /// in-process capture calls) never share an episode case. Not a workflow script,
 /// so `SystemTime` is acceptable here.
@@ -136,7 +138,9 @@ fn route_ref(route_id: &str) -> OcelObjectRef {
     }
 }
 
-/// The acting agent/harness object. Attaching it to every event in a capture run
+/// The acting agent/harness object.
+///
+/// Attaching it to every event in a capture run
 /// makes episode attribution explicit (which agent authored which episode) while
 /// episode identity (file|code|run_id) keeps concurrent agents' traces separable.
 #[must_use]
@@ -148,7 +152,9 @@ pub fn agent_ref(agent_id: &str) -> OcelObjectRef {
     }
 }
 
-/// Who authored a capture run, over which transport, in which session. Attached to
+/// Who authored a capture run, over which transport, in which session.
+///
+/// Attached to
 /// every event so route success can be sliced by transport/agent and replayed with
 /// its provenance intact — the same route law, attribution-safe across LSP, MCP,
 /// and A2A.

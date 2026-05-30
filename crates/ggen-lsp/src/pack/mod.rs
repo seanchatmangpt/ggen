@@ -95,7 +95,9 @@ pub struct RouteEntry {
 }
 
 /// The advertised, hash-bound surface of a pack: what routes/policies/law-surfaces
-/// it carries, under which canon/version, bound to its content hash. A remote
+/// it carries, under which canon/version, bound to its content hash.
+///
+/// A remote
 /// (MCP/A2A) agent reads this to consume the pack as a movable route-law part and
 /// to bind a route response to a specific pack.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -265,9 +267,13 @@ pub fn emit(opts: &PackOptions) -> io::Result<EmitReport> {
     })
 }
 
-/// Deterministic content hash of an emitted pack: BLAKE3 over each file's
+/// Deterministic content hash of an emitted pack.
+///
+/// BLAKE3 over each file's
 /// `(relative path, bytes)` in sorted order, EXCLUDING the `receipts/` subtree
-/// and the provenance file (so the hash is stable and recomputable). Same walk
+/// and the provenance file (so the hash is stable and recomputable).
+///
+/// Same walk
 /// is used at emit and verify time.
 #[must_use]
 pub fn compute_pack_hash(pack_dir: &Path) -> String {
