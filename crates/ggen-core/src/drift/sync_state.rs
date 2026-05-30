@@ -11,6 +11,8 @@ use std::fs;
 use std::path::Path;
 
 /// State of a single file tracked for drift detection
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: contains String which implements Eq.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct FileHashState {
     /// SHA256 hash of file content

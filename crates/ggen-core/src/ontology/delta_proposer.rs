@@ -17,6 +17,8 @@ use crate::ontology::pattern_miner::{Pattern, PatternType};
 use crate::ontology::SigmaSnapshot;
 
 /// A change proposal (ΔΣ² object)
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: contains String which implements Eq.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DeltaSigmaProposal {
     /// Unique proposal ID

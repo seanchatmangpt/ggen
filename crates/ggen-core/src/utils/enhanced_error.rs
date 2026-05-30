@@ -70,6 +70,8 @@ use std::fmt;
 /// }
 /// # }
 /// ```
+#[allow(clippy::derive_partial_eq_without_eq)]
+/// PartialEq without Eq: all variants are unit-like, can derive Eq but allowing flexibility.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ErrorCategory {
     /// File not found error
