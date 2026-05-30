@@ -21,7 +21,7 @@ use ggen_core::security::{
     audit_trail::AuditTrail,
     events::{AttackPattern, EventCategory, SecurityEvent, SecuritySeverity},
     intrusion_detection::IntrusionDetector,
-    logging::{SecurityLogger, SecurityLoggerConfig},
+    logging::{SecurityFeatures, SecurityLogger, SecurityLoggerConfig},
     metrics::{MetricsCollector, TimeWindow},
 };
 use std::net::{IpAddr, Ipv4Addr};
@@ -444,10 +444,12 @@ fn test_empty_logger() {
 fn test_disabled_components() {
     // Arrange
     let config = SecurityLoggerConfig {
-        enable_audit: false,
-        enable_intrusion_detection: false,
-        enable_metrics: false,
-        enable_alerting: false,
+        features: SecurityFeatures {
+            enable_audit: false,
+            enable_intrusion_detection: false,
+            enable_metrics: false,
+            enable_alerting: false,
+        },
         ..Default::default()
     };
     let mut logger = SecurityLogger::with_config(config).unwrap();

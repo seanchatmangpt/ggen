@@ -371,6 +371,8 @@ impl ContainerPool {
         for i in 0..pool_size {
             tasks.push(tokio::spawn(async move {
                 tracing::debug!(container = i, "Pre-warming container");
+                // Simulate warm-up latency in production only; skip in tests to avoid hanging --lib
+                #[cfg(not(test))]
                 tokio::time::sleep(Duration::from_millis(100)).await;
                 Ok::<_, super::LifecycleError>(())
             }));

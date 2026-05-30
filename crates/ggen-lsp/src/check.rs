@@ -617,7 +617,7 @@ fn summarize_routes(files: &[FileReport]) -> RouteSummary {
 /// Results are sorted for deterministic output.
 ///
 /// Note: dotdirs are NOT skipped wholesale — ggen specs live under `.specify/`,
-/// which is the source-of-truth law surface; only [`SKIP_DIRS`] are pruned.
+/// which is the source-of-truth law surface; only `SKIP_DIRS` are pruned.
 #[must_use]
 pub fn discover_law_surfaces(root: &Path) -> Vec<PathBuf> {
     let mut found: Vec<PathBuf> = WalkDir::new(root)

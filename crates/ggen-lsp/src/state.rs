@@ -335,7 +335,7 @@ impl ServerState {
     /// the closed surface sustained therefore disappears from `current` and falls
     /// out through the SAME keyed-subtraction + residual-preservation path the
     /// edit flow uses (the generic [`Self::clears_for`] +
-    /// [`Self::residual_single_file_diags`] + [`Self::observe_diagnostics`]). A
+    /// `residual_single_file_diags` + [`Self::observe_diagnostics`]). A
     /// flag still sustained by a SURVIVING peer surface stays in `current` and is
     /// NOT cleared — so closing one of several open rule surfaces never regresses
     /// a still-lawfully-flagged peer.

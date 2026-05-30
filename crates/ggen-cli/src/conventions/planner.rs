@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use super::ProjectConventions;
 
 /// Metadata extracted from template comments
-/// PartialEq without Eq: All fields (String, Vec<String>) implement Eq
+/// PartialEq without Eq: All fields (`String`, `Vec<String>`) implement Eq
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct TemplateMetadata {

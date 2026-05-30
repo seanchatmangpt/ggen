@@ -1,6 +1,6 @@
 //! SPARQL syntax checking and query-form detection for LSP use.
 //!
-//! Wraps the oxigraph [`SparqlEvaluator`](oxigraph::sparql::SparqlEvaluator)
+//! Wraps the oxigraph [`SparqlEvaluator`]
 //! parser so a language server can validate `.rq`/`.sparql` documents and learn
 //! the query form (which ggen's law constrains per rule role).
 

@@ -88,7 +88,7 @@ use std::path::{Path, PathBuf};
 ///
 /// This structure represents the `.ggen/packs.lock` file, which tracks
 /// all installed packs, their versions, sources, and dependencies.
-/// PartialEq without Eq: updated_at (DateTime<Utc>) field does not implement Eq
+/// PartialEq without Eq: updated_at (`DateTime<Utc>`) field does not implement Eq
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PackLockfile {
     /// Map of pack IDs to their locked versions
@@ -111,7 +111,7 @@ pub struct PackLockfile {
 ///
 /// Contains all information needed to reproduce a pack installation,
 /// including source, version, integrity checksum, and dependencies.
-/// PartialEq without Eq: installed_at (DateTime<Utc>) field does not implement Eq
+/// PartialEq without Eq: installed_at (`DateTime<Utc>`) field does not implement Eq
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LockedPack {
     /// Semantic version of the pack (e.g., "1.0.0")
@@ -146,7 +146,7 @@ pub struct LockedPack {
 pub enum PackSource {
     /// Pack installed from a registry
     Registry {
-        /// Registry URL (e.g., "https://registry.ggen.io")
+        /// Registry URL (e.g., `"https://registry.ggen.io"`)
         url: String,
     },
 

@@ -26,8 +26,8 @@ pub trait AsyncRepository: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist
-    /// * [`Error::RegistryError`] - When the registry is unavailable
+    /// * `Error::PackageNotFound` - When the package ID does not exist
+    /// * `Error::RegistryError` - When the registry is unavailable
     #[must_use]
     async fn get_package(&self, id: &PackageId) -> Result<Package>;
 
@@ -36,8 +36,8 @@ pub trait AsyncRepository: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist
-    /// * [`Error::InvalidVersion`] - When the version does not exist for the package
+    /// * `Error::PackageNotFound` - When the package ID does not exist
+    /// * `Error::InvalidVersion` - When the version does not exist for the package
     #[must_use]
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
@@ -48,7 +48,7 @@ pub trait AsyncRepository: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::RegistryError`] - When the registry is unavailable
+    /// * `Error::RegistryError` - When the registry is unavailable
     #[must_use]
     async fn all_packages(&self) -> Result<Vec<Package>>;
 
@@ -57,7 +57,7 @@ pub trait AsyncRepository: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::PackageNotFound`] - When the package ID does not exist
+    /// * `Error::PackageNotFound` - When the package ID does not exist
     #[must_use]
     async fn list_versions(&self, id: &PackageId) -> Result<Vec<PackageVersion>>;
 
@@ -66,7 +66,7 @@ pub trait AsyncRepository: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::RegistryError`] - When the registry is unavailable
+    /// * `Error::RegistryError` - When the registry is unavailable
     #[must_use]
     async fn package_exists(&self, id: &PackageId) -> Result<bool>;
 }
@@ -85,7 +85,7 @@ pub trait Queryable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::QueryError`] - When the query is invalid or execution fails
+    /// * `Error::QueryError` - When the query is invalid or execution fails
     #[must_use]
     async fn query(&self, query: Self::Query) -> Result<Self::QueryResult>;
 
@@ -102,8 +102,8 @@ pub trait Installable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::PackageNotFound`] - When a dependency is not found
-    /// * [`Error::InstallationError`] - When installation fails
+    /// * `Error::PackageNotFound` - When a dependency is not found
+    /// * `Error::InstallationError` - When installation fails
     #[must_use]
     async fn install(&self, manifest: InstallationManifest) -> Result<InstallationManifest>;
 
@@ -112,8 +112,8 @@ pub trait Installable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::PackageNotFound`] - When a dependency is not found
-    /// * [`Error::DependencyResolutionError`] - When dependencies cannot be resolved
+    /// * `Error::PackageNotFound` - When a dependency is not found
+    /// * `Error::DependencyResolutionError` - When dependencies cannot be resolved
     #[must_use]
     async fn resolve_dependencies(
         &self, id: &PackageId, version: &PackageVersion,
@@ -124,7 +124,7 @@ pub trait Installable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::PackageNotFound`] - When a dependency is not found
+    /// * `Error::PackageNotFound` - When a dependency is not found
     #[must_use]
     async fn dry_run_install(&self, manifest: &InstallationManifest) -> Result<String>;
 }
@@ -140,7 +140,7 @@ pub trait Validatable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::ValidationFailed`] - When validation fails
+    /// * `Error::ValidationFailed` - When validation fails
     #[must_use]
     async fn validate(&self, package: &Package) -> Result<Self::ValidationResult>;
 
@@ -149,7 +149,7 @@ pub trait Validatable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::ValidationFailed`] - When validation fails
+    /// * `Error::ValidationFailed` - When validation fails
     #[must_use]
     async fn validate_manifest(&self, manifest: &Manifest) -> Result<Self::ValidationResult>;
 
@@ -165,7 +165,7 @@ pub trait Signable {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::CryptoError`] - When signing fails
+    /// * `Error::CryptoError` - When signing fails
     #[must_use]
     fn sign(&self, data: &[u8]) -> Result<String>;
 
@@ -174,7 +174,7 @@ pub trait Signable {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::SignatureVerificationFailed`] - When verification fails
+    /// * `Error::SignatureVerificationFailed` - When verification fails
     #[must_use]
     fn verify(&self, data: &[u8], signature: &str) -> Result<bool>;
 
@@ -191,7 +191,7 @@ pub trait Observable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::MetricsError`] - When recording fails
+    /// * `Error::MetricsError` - When recording fails
     async fn record_metric(&self, name: &str, value: f64) -> Result<()>;
 
     /// Record an event
@@ -199,7 +199,7 @@ pub trait Observable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::MetricsError`] - When recording fails
+    /// * `Error::MetricsError` - When recording fails
     async fn record_event(&self, name: &str, data: &str) -> Result<()>;
 
     /// Get metrics summary
@@ -207,7 +207,7 @@ pub trait Observable: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::MetricsError`] - When retrieval fails
+    /// * `Error::MetricsError` - When retrieval fails
     #[must_use]
     async fn get_metrics(&self) -> Result<String>;
 }
@@ -242,8 +242,8 @@ pub trait Builder<T>: Sized {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::ValidationError`] - When validation fails
-    /// * [`Error::BuildError`] - When building fails
+    /// * `Error::ValidationError` - When validation fails
+    /// * `Error::BuildError` - When building fails
     fn build(self) -> Result<T>;
 
     /// Validate intermediate state
@@ -251,7 +251,7 @@ pub trait Builder<T>: Sized {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::ValidationError`] - When validation fails
+    /// * `Error::ValidationError` - When validation fails
     fn validate(&self) -> Result<()>;
 }
 
@@ -276,7 +276,7 @@ pub trait Transformer<T, U>: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::TransformError`] - When transformation fails
+    /// * `Error::TransformError` - When transformation fails
     fn transform(&self, item: T) -> Result<U>;
 
     /// Transform multiple items
@@ -284,7 +284,7 @@ pub trait Transformer<T, U>: Send + Sync {
     /// # Errors
     ///
     /// Implementations may return:
-    /// * [`Error::TransformError`] - When any transformation fails
+    /// * `Error::TransformError` - When any transformation fails
     #[allow(async_fn_in_trait)]
     async fn transform_batch(&self, items: Vec<T>) -> Result<Vec<U>> {
         let mut results = Vec::with_capacity(items.len());

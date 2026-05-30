@@ -17,7 +17,7 @@ impl OntologyExtractor {
     ///
     /// # Arguments
     /// - `graph`: RDF graph containing OWL/RDFS definitions
-    /// - `namespace`: Ontology namespace filter (e.g., "http://example.org/")
+    /// - `namespace`: Ontology namespace filter (e.g., `"http://example.org/"`)
     ///
     /// # Returns
     /// Complete OntologySchema with all classes, properties, and relationships

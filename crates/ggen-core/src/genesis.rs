@@ -567,6 +567,19 @@ pub struct Construct8 {
 }
 
 impl Construct8 {
+    pub fn new(
+        subject: Node8,
+        predicate: Predicate8,
+        object: Object8,
+        graph: Graph8,
+        mask: Mask8,
+        provenance: Provenance8,
+        admission: Admission8,
+        receipt_hint: ReceiptHint8,
+    ) -> Self {
+        Self { subject, predicate, object, graph, mask, provenance, admission, receipt_hint }
+    }
+
     /// Serialize structural representation to bytes for hashing
     pub fn to_bytes(&self) -> [u8; 64] {
         let mut out = [0u8; 64];

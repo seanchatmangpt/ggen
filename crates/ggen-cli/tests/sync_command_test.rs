@@ -33,7 +33,8 @@ use std::path::PathBuf;
 // ============================================================================
 
 use ggen_core::codegen::{
-    OutputFormat, SyncExecutor, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck,
+    BehaviorFlags, ModeFlags, OutputFormat, SyncExecutor, SyncFlags, SyncOptions, SyncResult,
+    SyncedFileInfo, ValidationCheck,
 };
 
 // ============================================================================
@@ -52,15 +53,15 @@ mod sync_options_tests {
         assert_eq!(options.manifest_path, PathBuf::from("ggen.toml"));
         assert!(options.output_dir.is_none());
         assert!(options.cache_dir.is_none());
-        assert!(!options.verbose);
+        assert!(!options.flags.behavior.verbose);
         assert!(matches!(options.output_format, OutputFormat::Text));
-        assert!(!options.validate_only);
-        assert!(!options.dry_run);
-        assert!(!options.watch);
+        assert!(!options.flags.mode.validate_only);
+        assert!(!options.flags.mode.dry_run);
+        assert!(!options.flags.mode.watch);
         assert!(options.selected_rules.is_none());
         assert!(options.use_cache); // default is true
-        assert!(!options.force);
-        assert!(!options.audit);
+        assert!(!options.flags.behavior.force);
+        assert!(!options.flags.behavior.audit);
         assert!(options.a2a_stage.is_none());
         assert!(options.ontology_path.is_none());
     }
@@ -108,36 +109,36 @@ mod sync_options_tests {
     #[test]
     fn test_sync_options_verbose() {
         let mut options = SyncOptions::new();
-        options.verbose = true;
+        options.flags.behavior.verbose = true;
 
-        assert!(options.verbose);
+        assert!(options.flags.behavior.verbose);
     }
 
     /// Test: SyncOptions with validate_only mode
     #[test]
     fn test_sync_options_validate_only() {
         let mut options = SyncOptions::new();
-        options.validate_only = true;
+        options.flags.mode.validate_only = true;
 
-        assert!(options.validate_only);
+        assert!(options.flags.mode.validate_only);
     }
 
     /// Test: SyncOptions with dry_run mode
     #[test]
     fn test_sync_options_dry_run() {
         let mut options = SyncOptions::new();
-        options.dry_run = true;
+        options.flags.mode.dry_run = true;
 
-        assert!(options.dry_run);
+        assert!(options.flags.mode.dry_run);
     }
 
     /// Test: SyncOptions with watch mode
     #[test]
     fn test_sync_options_watch() {
         let mut options = SyncOptions::new();
-        options.watch = true;
+        options.flags.mode.watch = true;
 
-        assert!(options.watch);
+        assert!(options.flags.mode.watch);
     }
 
     /// Test: SyncOptions with selected rules
@@ -173,18 +174,18 @@ mod sync_options_tests {
     #[test]
     fn test_sync_options_force() {
         let mut options = SyncOptions::new();
-        options.force = true;
+        options.flags.behavior.force = true;
 
-        assert!(options.force);
+        assert!(options.flags.behavior.force);
     }
 
     /// Test: SyncOptions with audit enabled
     #[test]
     fn test_sync_options_audit() {
         let mut options = SyncOptions::new();
-        options.audit = true;
+        options.flags.behavior.audit = true;
 
-        assert!(options.audit);
+        assert!(options.flags.behavior.audit);
     }
 
     /// Test: SyncOptions with A2A stage
@@ -571,8 +572,8 @@ mod sync_executor_tests {
     fn test_sync_executor_custom_options() {
         let mut options = SyncOptions::new();
         options.manifest_path = PathBuf::from("test/ggen.toml");
-        options.verbose = true;
-        options.audit = true;
+        options.flags.behavior.verbose = true;
+        options.flags.behavior.audit = true;
 
         let executor = SyncExecutor::new(options);
         let _ = executor;
@@ -582,7 +583,7 @@ mod sync_executor_tests {
     #[test]
     fn test_sync_executor_dry_run() {
         let mut options = SyncOptions::new();
-        options.dry_run = true;
+        options.flags.mode.dry_run = true;
 
         let executor = SyncExecutor::new(options);
         let _ = executor;
@@ -592,8 +593,8 @@ mod sync_executor_tests {
     #[test]
     fn test_sync_executor_force_audit() {
         let mut options = SyncOptions::new();
-        options.force = true;
-        options.audit = true;
+        options.flags.behavior.force = true;
+        options.flags.behavior.audit = true;
 
         let executor = SyncExecutor::new(options);
         let _ = executor;
@@ -628,15 +629,13 @@ mod integration_tests {
             manifest_path: PathBuf::from("project/ggen.toml"),
             output_dir: Some(PathBuf::from(".")),
             cache_dir: Some(PathBuf::from(".ggen/cache")),
-            verbose: true,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
+                behavior: BehaviorFlags { verbose: true, force: false, audit: true },
+            },
             output_format: OutputFormat::Json,
-            validate_only: false,
-            dry_run: false,
-            watch: false,
             selected_rules: Some(vec!["structs".to_string(), "traits".to_string()]),
             use_cache: true,
-            force: false,
-            audit: true,
             timeout_ms: Some(30000),
             a2a_stage: Some("μ₅".to_string()),
             ontology_path: Some(PathBuf::from(
@@ -646,8 +645,8 @@ mod integration_tests {
         };
 
         assert_eq!(options.manifest_path, PathBuf::from("project/ggen.toml"));
-        assert!(options.verbose);
-        assert!(options.audit);
+        assert!(options.flags.behavior.verbose);
+        assert!(options.flags.behavior.audit);
         assert_eq!(options.a2a_stage, Some("μ₅".to_string()));
     }
 
@@ -658,15 +657,13 @@ mod integration_tests {
             manifest_path: PathBuf::from("ggen.toml"),
             output_dir: Some(PathBuf::from("crates/a2a-generated/src")),
             cache_dir: None,
-            verbose: true,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
+                behavior: BehaviorFlags { verbose: true, force: false, audit: true },
+            },
             output_format: OutputFormat::Text,
-            validate_only: false,
-            dry_run: false,
-            watch: false,
             selected_rules: None,
             use_cache: true,
-            force: false,
-            audit: true,
             timeout_ms: Some(30000),
             a2a_stage: None, // Run all stages
             ontology_path: Some(PathBuf::from(
@@ -675,7 +672,7 @@ mod integration_tests {
             llm_service: None,
         };
 
-        assert!(options.audit);
+        assert!(options.flags.behavior.audit);
         assert_eq!(
             options.ontology_path,
             Some(PathBuf::from(
@@ -691,22 +688,20 @@ mod integration_tests {
             manifest_path: PathBuf::from("ggen.toml"),
             output_dir: None,
             cache_dir: None,
-            verbose: false,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: true, dry_run: false, watch: false },
+                behavior: BehaviorFlags { verbose: false, force: false, audit: false },
+            },
             output_format: OutputFormat::Text,
-            validate_only: true, // Only validate, don't generate
-            dry_run: false,
-            watch: false,
             selected_rules: None,
             use_cache: false,
-            force: false,
-            audit: false,
             timeout_ms: Some(30000),
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
         };
 
-        assert!(options.validate_only);
+        assert!(options.flags.mode.validate_only);
     }
 
     /// Test: Dry-run workflow
@@ -716,23 +711,21 @@ mod integration_tests {
             manifest_path: PathBuf::from("ggen.toml"),
             output_dir: Some(PathBuf::from("output")),
             cache_dir: None,
-            verbose: true,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: false, dry_run: true, watch: false },
+                behavior: BehaviorFlags { verbose: true, force: false, audit: true },
+            },
             output_format: OutputFormat::Text,
-            validate_only: false,
-            dry_run: true, // Preview changes
-            watch: false,
             selected_rules: None,
             use_cache: false,
-            force: false,
-            audit: true,
             timeout_ms: Some(30000),
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
         };
 
-        assert!(options.dry_run);
-        assert!(options.audit);
+        assert!(options.flags.mode.dry_run);
+        assert!(options.flags.behavior.audit);
     }
 
     /// Test: Watch mode configuration
@@ -742,22 +735,20 @@ mod integration_tests {
             manifest_path: PathBuf::from("ggen.toml"),
             output_dir: None,
             cache_dir: None,
-            verbose: true,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: false, dry_run: false, watch: true },
+                behavior: BehaviorFlags { verbose: true, force: false, audit: false },
+            },
             output_format: OutputFormat::Text,
-            validate_only: false,
-            dry_run: false,
-            watch: true, // Continuous regeneration
             selected_rules: None,
             use_cache: true,
-            force: false,
-            audit: false,
             timeout_ms: Some(30000),
             a2a_stage: None,
             ontology_path: None,
             llm_service: None,
         };
 
-        assert!(options.watch);
+        assert!(options.flags.mode.watch);
         assert!(options.use_cache);
     }
 
@@ -768,15 +759,13 @@ mod integration_tests {
             manifest_path: PathBuf::from("ggen.toml"),
             output_dir: None,
             cache_dir: None,
-            verbose: false,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: true, dry_run: false, watch: false },
+                behavior: BehaviorFlags { verbose: false, force: false, audit: false },
+            },
             output_format: OutputFormat::Json, // Machine-readable
-            validate_only: true,               // Pre-flight checks
-            dry_run: false,
-            watch: false,
             selected_rules: None,
             use_cache: true,
-            force: false,
-            audit: false,
             timeout_ms: Some(30000),
             a2a_stage: None,
             ontology_path: None,
@@ -784,7 +773,7 @@ mod integration_tests {
         };
 
         assert!(matches!(options.output_format, OutputFormat::Json));
-        assert!(options.validate_only);
+        assert!(options.flags.mode.validate_only);
     }
 
     /// Test: Single μ stage execution
@@ -795,15 +784,13 @@ mod integration_tests {
                 manifest_path: PathBuf::from("ggen.toml"),
                 output_dir: None,
                 cache_dir: None,
-                verbose: true,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
+                behavior: BehaviorFlags { verbose: true, force: false, audit: false },
+            },
                 output_format: OutputFormat::Text,
-                validate_only: false,
-                dry_run: false,
-                watch: false,
                 selected_rules: None,
                 use_cache: false,
-                force: false,
-                audit: false,
                 timeout_ms: Some(30000),
                 a2a_stage: Some(stage.to_string()),
                 ontology_path: Some(PathBuf::from(
@@ -897,15 +884,13 @@ mod integration_tests {
                 manifest_path: PathBuf::from("ggen.toml"),
                 output_dir: None,
                 cache_dir: None,
-                verbose: false,
+            flags: SyncFlags {
+                mode: ModeFlags { validate_only: false, dry_run: false, watch: false },
+                behavior: BehaviorFlags { verbose: false, force: false, audit: false },
+            },
                 output_format: OutputFormat::Text,
-                validate_only: false,
-                dry_run: false,
-                watch: false,
                 selected_rules: Some(rules.clone()),
                 use_cache: false,
-                force: false,
-                audit: false,
                 timeout_ms: Some(30000),
                 a2a_stage: None,
                 ontology_path: None,

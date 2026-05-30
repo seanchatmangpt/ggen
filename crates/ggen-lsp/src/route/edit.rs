@@ -1,7 +1,7 @@
 //! Render repair-step edit templates into concrete LSP edits.
 //!
-//! A step's [`EditTemplate`](super::model::EditTemplate) is instantiated against
-//! the diagnostic's [`RouteBindings`](super::model::RouteBindings) and the
+//! A step's [`EditTemplate`] is instantiated against
+//! the diagnostic's [`RouteBindings`] and the
 //! document text to yield a `TextEdit`. The same renderer feeds both the editor
 //! `WorkspaceEdit` and the agent `RoutePlan`, so both apply identical repairs.
 

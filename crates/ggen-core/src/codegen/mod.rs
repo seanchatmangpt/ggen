@@ -60,7 +60,8 @@ pub use elixir::ElixirGenerator;
 pub use execution_lifecycle::{ExecutionLifecycle, PostSyncContext, PreSyncContext};
 pub use execution_proof::{ExecutionProof, ProofCarrier, RuleExecution};
 pub use executor::{
-    OutputFormat, SyncExecutor, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck,
+    BehaviorFlags, ModeFlags, OutputFormat, SyncExecutor, SyncFlags, SyncOptions, SyncResult,
+    SyncedFileInfo, ValidationCheck,
 };
 pub use go::GoCodeGenerator;
 pub use incremental_cache::{CacheInvalidation, IncrementalCache};

@@ -5,7 +5,7 @@
 //! - Severity, Occurrence, Detection ratings (1-10 scale)
 //! - RPN (Risk Priority Number) calculation and classification
 //! - FailureMode entries with controls
-//! - FmeaConfig for package.toml [fmea] section
+//! - FmeaConfig for package.toml \[fmea\] section
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;

@@ -146,7 +146,7 @@ impl SearchEngine {
     /// # Errors
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
-    /// * [`Error::SearchError`] - When search query parsing fails
+    /// * `Error::SearchError` - When search query parsing fails
     pub fn search(&self, packages: Vec<Package>, query: &SearchQuery) -> Result<Vec<SearchResult>> {
         let text_lower = query.text.to_lowercase();
 

@@ -10,7 +10,7 @@
 //!    the headless gate, so the symbol picker and the gate agree on what counts
 //!    as a ggen surface.
 //! 2. [`crate::analyzers::build_analyzer`] + `document_symbols()` produce the
-//!    per-file [`DocumentSymbol`] tree (RDF classes/properties, SPARQL vars,
+//!    per-file `DocumentSymbol` tree (RDF classes/properties, SPARQL vars,
 //!    Tera blocks/macros, TOML sections).
 //! 3. Each (possibly nested) `DocumentSymbol` is flattened and converted to a
 //!    [`SymbolInformation`] whose `location` points at the real file + the

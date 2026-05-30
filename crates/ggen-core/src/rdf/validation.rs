@@ -95,7 +95,7 @@ use super::template_metadata::TemplateMetadata;
 /// }
 /// # }
 /// ```
-/// PartialEq without Eq: Invalid variant contains Vec<ValidationError>
+/// PartialEq without Eq: Invalid variant contains `Vec<ValidationError>`
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ValidationResult {
     /// Validation passed - no errors found

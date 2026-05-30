@@ -309,8 +309,8 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When opening the RDF store fails
-    /// * [`Error::ConfigurationError`] - When cache size configuration is invalid
+    /// * `Error::RdfStoreError` - When opening the RDF store fails
+    /// * `Error::ConfigurationError` - When cache size configuration is invalid
     pub fn new(store_path: impl AsRef<Path>) -> Result<Self> {
         let store = Store::open(store_path.as_ref()).map_err(|e| Error::RdfStoreError {
             operation: "open".to_string(),
@@ -399,8 +399,8 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When creating the in-memory RDF store fails
-    /// * [`Error::ConfigurationError`] - When cache size configuration is invalid
+    /// * `Error::RdfStoreError` - When creating the in-memory RDF store fails
+    /// * `Error::ConfigurationError` - When cache size configuration is invalid
     pub fn in_memory() -> Result<Self> {
         let store = Store::new().map_err(|e| Error::RdfStoreError {
             operation: "new".to_string(),
@@ -451,7 +451,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    /// * `Error::SparqlError` - When SPARQL query execution fails
     pub fn execute_cached_query(&self, query: &str) -> Result<Vec<String>> {
         // Update query statistics
         {
@@ -518,7 +518,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When any SPARQL query execution fails
+    /// * `Error::SparqlError` - When any SPARQL query execution fails
     pub fn execute_batch_queries(&self, queries: Vec<String>) -> Result<Vec<Vec<String>>> {
         let results: Result<Vec<Vec<String>>> = queries
             .par_iter()
@@ -590,7 +590,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::ConfigurationError`] - When loading marketplace config fails
+    /// * `Error::ConfigurationError` - When loading marketplace config fails
     pub fn load_config(&self, _config_dir: impl AsRef<Path>) -> Result<()> {
         // Load marketplace config (this will read from the config_dir set in TurtleConfigLoader)
         let _config = self.config_loader.load_marketplace_config().map_err(|e| {
@@ -616,9 +616,9 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::InvalidStateTransition`] - When state transition is invalid
-    /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
-    /// * [`Error::ValidationError`] - When package metadata validation fails
+    /// * `Error::InvalidStateTransition` - When state transition is invalid
+    /// * `Error::RdfStoreError` - When SPARQL UPDATE operation fails
+    /// * `Error::ValidationError` - When package metadata validation fails
     pub fn create_package(
         &self, id: &PackageId, name: impl Into<String>, description: impl Into<String>,
         version: PackageVersion, license: String,
@@ -691,7 +691,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
+    /// * `Error::RdfStoreError` - When SPARQL UPDATE operation fails
     pub fn add_package_metadata(
         &self, package_id: &PackageId, authors: &[String], keywords: &[String],
         categories: &[String],
@@ -737,9 +737,9 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::InvalidStateTransition`] - When package is not in Draft state
-    /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
-    /// * [`Error::NotImplemented`] - When getting published package is not implemented
+    /// * `Error::InvalidStateTransition` - When package is not in Draft state
+    /// * `Error::RdfStoreError` - When SPARQL UPDATE operation fails
+    /// * `Error::NotImplemented` - When getting published package is not implemented
     pub fn publish_package(&self, package_id: &PackageId, _checksum: String) -> Result<Package> {
         // Check current state
         let current_state = self.get_package_state(package_id)?;
@@ -778,8 +778,8 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When package does not exist
-    /// * [`Error::RdfStoreError`] - When SPARQL query fails
+    /// * `Error::PackageNotFound` - When package does not exist
+    /// * `Error::RdfStoreError` - When SPARQL query fails
     pub fn get_package_state(&self, package_id: &PackageId) -> Result<String> {
         // Epoch-based cache lookup would go here
         let _epoch = self.current_epoch();
@@ -812,8 +812,8 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::PackageNotFound`] - When the package does not exist or is not published
-    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    /// * `Error::PackageNotFound` - When the package does not exist or is not published
+    /// * `Error::SparqlError` - When SPARQL query execution fails
     fn get_published_package(&self, package_id: &PackageId) -> Result<Package> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
@@ -876,7 +876,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    /// * `Error::SparqlError` - When SPARQL query execution fails
     pub fn search_packages(&self, keyword: &str, limit: usize) -> Result<Vec<SearchResult>> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
@@ -958,7 +958,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    /// * `Error::SparqlError` - When SPARQL query execution fails
     pub fn list_packages(
         &self, category: Option<&str>, min_quality: Option<u32>, limit: usize, offset: usize,
     ) -> Result<Vec<PackageListEntry>> {
@@ -1034,7 +1034,7 @@ impl RdfControlPlane {
     ///
     /// # Errors
     ///
-    /// * [`Error::SparqlError`] - When SPARQL query execution fails
+    /// * `Error::SparqlError` - When SPARQL query execution fails
     pub fn get_dependencies(
         &self, package_id: &PackageId, version: &PackageVersion,
     ) -> Result<Vec<DependencyInfo>> {

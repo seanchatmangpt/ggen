@@ -2,7 +2,7 @@
 //!
 //! This module provides functionality to load pack metadata (signatures, trust tiers, checksums)
 //! from cached pack directories. Packs can store metadata in either:
-//! - `package.toml` - TOML format with [package] and [security] sections
+//! - `package.toml` - TOML format with \[package\] and \[security\] sections
 //! - `metadata.json` - JSON format with signature, `trust_tier`, checksum fields
 //!
 //! Both formats are supported with fallback logic for backwards compatibility.

@@ -886,7 +886,10 @@ Hello {{ name }}"#;
         std::fs::write(&output_path, "Original content")?;
 
         let frontmatter = crate::template_types::Frontmatter {
-            unless_exists: true,
+            flags: crate::template_types::FrontmatterFlags {
+                unless_exists: true,
+                ..Default::default()
+            },
             ..Default::default()
         };
 
